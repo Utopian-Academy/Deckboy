@@ -2104,7 +2104,20 @@
     }
     if (command == "TRANSITIONSTYLE") {
       if (parts.size() > 1) {
-        setTransitionStyle(parseTransitionStyleToken(parts[1]));
+        // SAY SO WHEN IT IS NOT A STYLE. An unknown token reads as a
+        // crossfade, which is the right default for an old show file and a
+        // silent wrong answer on the wire -- the operator asks for a push,
+        // gets a dissolve, and nothing anywhere says why.
+        bool recognised = false;
+        const TransitionStyle style =
+          parseTransitionStyleToken(parts[1], &recognised);
+        if (!recognised) {
+          failRemoteCommand("transitionstyle: unknown style \"" + parts[1] +
+                            "\" -- try cut, crossfade, dip, dipwhite, "
+                            "push-left/right/up/down, wipe-left/right/up/down, iris");
+          return;
+        }
+        setTransitionStyle(style);
       }
       return;
     }

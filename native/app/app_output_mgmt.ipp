@@ -4211,6 +4211,7 @@
     runtime.overlayBridgeTextureFormats.clear();
     runtime.overlayBridgeFrameIndices.clear();
     runtime.overlayBridgeCueKeys.clear();
+    runtime.transitionUploadStamps.clear();
     runtime.layerBridgeScratchPixels.clear();
 #if DECKBOY_INPROC_DECODE
     for (auto& [gpuDeckIndex, texture] : runtime.layerGpuTextures) {

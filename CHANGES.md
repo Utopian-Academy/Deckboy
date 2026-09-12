@@ -1,5 +1,29 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.338 (held cues come up, and the transitions are the ones you asked for)
+
+**A cue set to HOLD now appears.** Every pattern cue is a hold by default, and a
+hold has no timeline — it sits at position zero for as long as it is up. The
+fade-in was read against that position, so it evaluated to zero for the whole
+time the cue was on, and the cue was composited at nothing: a test pattern taken
+to a live output showed black, with the frame present and correct behind it and
+nothing anywhere to say why. A held cue's fade now runs on the clock from the
+moment it was taken — it fades in once, over the length asked for, and stays.
+The same was true of a held cue's audio fade, and is fixed with it.
+
+**A transition reaches every armed output, not just the first.** Each output
+keeps its own copy of the outgoing picture, but they shared one note of which
+picture had been uploaded — so the second output skipped the upload into its own
+texture and drew one that had never been filled. A recording made while a window
+output was live was black for the whole transition.
+
+**"push-left" is a push.** Transition names were matched without separators, so
+the hyphen anyone would actually type — and that the interface's own labels
+suggest — matched nothing and fell through to a dissolve. Separators are now
+ignored, so `push-left`, `push_left`, `pushleft` and `Push Left` are one style,
+`dissolve` works as well as `crossfade`, and a name that really is not a style is
+reported over the wire instead of quietly becoming one.
+
 ## 2026-09-12 - v0.99.337 (a long playlist runs at full rate again)
 
 **The frame rate no longer falls away as cues are added.** A show with sixteen

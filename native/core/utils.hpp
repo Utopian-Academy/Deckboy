@@ -75,7 +75,17 @@ std::string cueEndActionLabel(::CueEndAction action);    // e.g. "Stop", "Loop",
 std::string transportLabel(::TransportState state);      // "Stopped", "Paused", "Playing"
 
 std::string transitionStyleToken(::TransitionStyle style);   // "cut", "crossfade", "dipblack"
-::TransitionStyle parseTransitionStyleToken(std::string token);
+// The style a token names. Separators are ignored, so "push-left",
+// "push_left", "pushleft" and "Push Left" are all the same style -- the hyphen
+// is what an operator types and what the interface's own labels suggest, and
+// it used to fall through to a crossfade with nothing said.
+//
+// `recognised`, when given, reports whether the token was actually understood.
+// The return value alone cannot say: an unknown token reads as a crossfade,
+// which is a reasonable default for a show file and a silent wrong answer on
+// the wire.
+::TransitionStyle parseTransitionStyleToken(std::string token,
+                                            bool* recognised = nullptr);
 // Operator-facing name: "Push left", not "pushleft".
 std::string transitionStyleLabel(::TransitionStyle style);
 

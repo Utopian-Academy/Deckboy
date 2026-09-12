@@ -1014,7 +1014,7 @@
     if (!tex) return;
     // Keyed on the frame's own address and index: a held frame does not move
     // while it is being drawn, and the index changes when it is replaced.
-    auto& stamp = transitionUploadStamp_[bridgeKey];
+    auto& stamp = outputRuntime.transitionUploadStamps[bridgeKey];
     const std::uintptr_t nowStamp =
       reinterpret_cast<std::uintptr_t>(frame.pixels.data()) ^
       (static_cast<std::uintptr_t>(frame.index) << 1);

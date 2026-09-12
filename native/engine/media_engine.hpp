@@ -499,7 +499,25 @@ class MediaEngine {
                                     int fallbackWidth, int fallbackHeight);
 
   // Current visual fade gain (0–1) factoring in fade-in and fade-out curves.
-  double currentVisualFadeGain() const { return visualFadeGainAt(position()); }
+  double currentVisualFadeGain() const {
+    return visualFadeGainAt(fadeRidePositionSeconds());
+  }
+
+  // ── WHAT A FADE-IN RIDES ───────────────────────────────────────────────
+  //
+  // Normally the cue's own position, which is what a fade belongs to.
+  //
+  // But a HELD still -- any still-type cue whose duration is 0, which is what
+  // "hold" means and what every pattern cue is by default -- has no timeline
+  // at all. It sits at position 0 for as long as it is up. So a fade-in
+  // evaluated against position was pinned at gain 0 and the cue was drawn at
+  // alpha 0 FOREVER: a test pattern taken to a live output showed nothing,
+  // and nothing in the app said why, because the frame was present and
+  // correct and simply invisible.
+  //
+  // A held still therefore rides the wall clock from the moment it was taken:
+  // the fade-in plays once, at the length asked for, and then sits at 1.
+  double fadeRidePositionSeconds() const;
 
   // ── Font-drawn glyphs ──────────────────────────────────────────────────────
   //
@@ -732,6 +750,9 @@ class MediaEngine {
   // frame must not leave the previous slide up for the rest of the show.
   std::optional<DecodedFrame> heldFrame_;
   std::chrono::steady_clock::time_point heldFrameSince_;
+  // When the current cue was taken. A held still has no position to read, so
+  // this is the only clock its fade-in can ride -- see fadeRidePositionSeconds.
+  std::chrono::steady_clock::time_point cueTakenAt_{};
   // What the operator asked for when this cue was taken, kept alongside the
   // held frame so the compositor can honour it.
   double outgoingSeconds_ = 0.0;

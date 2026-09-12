@@ -420,31 +420,44 @@ std::string transitionStyleLabel(TransitionStyle style) {
 
 // Parse a transition style token (case-insensitive) back to enum.
 // Accepts multiple aliases: "dip", "dipblack", "dip_black" all map to DipBlack.
-TransitionStyle parseTransitionStyleToken(std::string token) {
-  token = trim(token);
-  std::transform(token.begin(), token.end(), token.begin(), [](unsigned char ch) {
-    return static_cast<char>(std::toupper(ch));
-  });
-  if (token == "CUT") {
-    return TransitionStyle::Cut;
+TransitionStyle parseTransitionStyleToken(std::string token, bool* recognised) {
+  if (recognised) {
+    *recognised = true;
   }
-  if (token == "DIP" || token == "DIPBLACK" || token == "DIP_BLACK") {
-    return TransitionStyle::DipBlack;
+  // SEPARATORS DO NOT CARRY MEANING HERE. "push-left" is what an operator
+  // types, what the interface's own label ("Push left") suggests, and what a
+  // Companion button or an OSC sender is most likely to send -- and it used to
+  // match nothing and fall through to a crossfade without a word. Strip every
+  // separator and compare what is left.
+  std::string key;
+  key.reserve(token.size());
+  for (unsigned char ch : token) {
+    if (ch == '-' || ch == '_' || ch == ' ' || ch == '	') {
+      continue;
+    }
+    key.push_back(static_cast<char>(std::toupper(ch)));
   }
-  if (token == "DIPWHITE" || token == "DIP_WHITE" || token == "FLASH") {
-    return TransitionStyle::DipWhite;
+  if (key == "CUT")                              return TransitionStyle::Cut;
+  if (key == "DIP" || key == "DIPBLACK" ||
+      key == "DIPTOBLACK")                       return TransitionStyle::DipBlack;
+  if (key == "DIPWHITE" || key == "DIPTOWHITE" ||
+      key == "FLASH")                            return TransitionStyle::DipWhite;
+  if (key == "PUSHLEFT")                         return TransitionStyle::PushLeft;
+  if (key == "PUSHRIGHT")                        return TransitionStyle::PushRight;
+  if (key == "PUSHUP")                           return TransitionStyle::PushUp;
+  if (key == "PUSHDOWN")                         return TransitionStyle::PushDown;
+  if (key == "WIPELEFT")                         return TransitionStyle::WipeLeft;
+  if (key == "WIPERIGHT")                        return TransitionStyle::WipeRight;
+  if (key == "WIPEUP")                           return TransitionStyle::WipeUp;
+  if (key == "WIPEDOWN")                         return TransitionStyle::WipeDown;
+  if (key == "IRIS" || key == "CIRCLE")          return TransitionStyle::Iris;
+  // The label the interface shows for a crossfade, so the word on the button
+  // works on the wire as well.
+  if (key == "CROSSFADE" || key == "DISSOLVE" ||
+      key == "XFADE" || key == "FADE")           return TransitionStyle::Crossfade;
+  if (recognised) {
+    *recognised = false;
   }
-  // Matched by token so a show file and the wire agree, with the separator
-  // characters people actually type accepted either way.
-  if (token == "PUSHLEFT" || token == "PUSH_LEFT")   return TransitionStyle::PushLeft;
-  if (token == "PUSHRIGHT" || token == "PUSH_RIGHT") return TransitionStyle::PushRight;
-  if (token == "PUSHUP" || token == "PUSH_UP")       return TransitionStyle::PushUp;
-  if (token == "PUSHDOWN" || token == "PUSH_DOWN")   return TransitionStyle::PushDown;
-  if (token == "WIPELEFT" || token == "WIPE_LEFT")   return TransitionStyle::WipeLeft;
-  if (token == "WIPERIGHT" || token == "WIPE_RIGHT") return TransitionStyle::WipeRight;
-  if (token == "WIPEUP" || token == "WIPE_UP")       return TransitionStyle::WipeUp;
-  if (token == "WIPEDOWN" || token == "WIPE_DOWN")   return TransitionStyle::WipeDown;
-  if (token == "IRIS" || token == "CIRCLE")          return TransitionStyle::Iris;
   return TransitionStyle::Crossfade;
 }
 

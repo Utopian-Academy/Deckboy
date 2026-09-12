@@ -1894,6 +1894,16 @@ struct OutputRuntime {
   std::map<std::string, Uint32> overlayBridgeTextureFormats;
   std::map<std::string, std::uint64_t> overlayBridgeFrameIndices;
   std::map<std::string, std::string> overlayBridgeCueKeys;
+  // WHICH PICTURE IS ALREADY IN EACH TRANSITION BRIDGE TEXTURE, so a style
+  // that draws the same frame several times in one pass uploads it once.
+  //
+  // PER OUTPUT, because the texture it describes is per output. It began as a
+  // single app-wide map, and with two outputs armed the first one to render
+  // uploaded and claimed the stamp, and the second then skipped the upload
+  // into its OWN texture and drew one that had never been filled -- so a
+  // recording taken while a window output was live showed black for the whole
+  // transition.
+  std::map<std::string, std::uintptr_t> transitionUploadStamps;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
 #if DECKBOY_INPROC_DECODE
   // Zero-copy compositing (in-process d3d11va decode): per-deck persistent
@@ -8259,9 +8269,6 @@ class App {
   SDL_Rect cueSettingsScrollRailRect_ {0, 0, 0, 0};
   int cueSettingsScrollThumbH_ = 0;
   bool cueSettingsScrollDragActive_ = false;
-  // Which frame is already sitting in each transition bridge texture, so a
-  // style that draws the same picture many times a frame uploads it once.
-  std::map<std::string, std::uintptr_t> transitionUploadStamp_;
   int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
   std::string uiDumpPath_;            // --ui-dump <file>, written once then quit
   int uiDumpFramesLeft_ = 0;

@@ -306,6 +306,7 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   currentPosition_ = 0.0;
   pausedPosition_ = 0.0;
   playbackStartPosition_ = 0.0;
+  cueTakenAt_ = std::chrono::steady_clock::now();
   duration_ = cue ? cue->duration : 0.0;
   cueInPointSeconds_ = 0.0;
   cueOutPointSeconds_ = cue ? cue->duration : 0.0;
@@ -4166,6 +4167,22 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
 // NOTE: visualFadeGainAt and fadeGainAt currently have identical logic.
 // They were historically separate (visual vs audio fade paths) but converged.
 // Kept as two entry points for API clarity — callers read differently.
+// The clock a fade-in should be read against. See the header for why a held
+// still cannot use its own position.
+double MediaEngine::fadeRidePositionSeconds() const {
+  if (!activeCue_ || duration_ > 0.0) {
+    return position();
+  }
+  // A held still: no timeline, so the fade rides the time it has been up.
+  // Zero-initialised until the first cue is loaded, which reads as "just
+  // taken" and is the right answer for a cue that is not up yet.
+  if (cueTakenAt_.time_since_epoch().count() == 0) {
+    return position();
+  }
+  return std::chrono::duration<double>(
+    std::chrono::steady_clock::now() - cueTakenAt_).count();
+}
+
 double MediaEngine::visualFadeGainAt(double positionSeconds) const {
   if (!activeCue_) {
     return 1.0;  // no cue → fully visible (no fade)
@@ -5030,7 +5047,11 @@ void MediaEngine::queuePocketSyncAudio() {
   const double gain = static_cast<double>(volume_.load())
                     * static_cast<double>(masterGain_.load())
                     * audioCueGain_.load(std::memory_order_relaxed)
-                    * audioFadeGainAt(position()) * 0.5;
+                    // The same clock the picture rides: a HELD still sits at
+                    // position 0 forever, so a fade-in read there is pinned at
+                    // silence for as long as the cue is up. Main thread only,
+                    // which is where this generator runs.
+                    * audioFadeGainAt(fadeRidePositionSeconds()) * 0.5;
   const double pan = static_cast<double>(audioCuePan_.load(std::memory_order_relaxed));
   const double panL = pan > 0.0 ? 1.0 - pan : 1.0;
   const double panR = pan < 0.0 ? 1.0 + pan : 1.0;
