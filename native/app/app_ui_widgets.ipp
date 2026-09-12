@@ -169,6 +169,44 @@
     Deck& deck = project_.decks[deckIdx];
     Cue& cue = deck.cues[cueIdx];
 
+    // ── RENAME ──────────────────────────────────────────────────────────────
+    //
+    // First, because it is the thing you most often want from a cue and the
+    // one that was missing. A cue has carried a `name` since the beginning --
+    // it is what the playlist row draws -- and nothing in the program could
+    // change it. The file header of app_cue_mgmt.ipp has listed renameCue()
+    // among its contents the whole time; there was no such function.
+    //
+    // Blank means "go back to the filename", which is where an imported cue's
+    // name came from, so there is a way back from a rename you regret.
+    contextItems_.push_back({
+      "  rename...",
+      {0, 0, 0, 0},
+      [this, deckIdx, cueIdx]() {
+        if (deckIdx < 0 || deckIdx >= static_cast<int>(project_.decks.size())) return;
+        Deck& d = project_.decks[deckIdx];
+        if (cueIdx < 0 || cueIdx >= static_cast<int>(d.cues.size())) return;
+        const std::string current = d.cues[cueIdx].name;
+        openInlineTextEditor("cue_rename", "Rename cue",
+                             "Cue name (blank restores the file name)", current,
+          [this, deckIdx, cueIdx](const std::string& value) {
+            if (deckIdx >= static_cast<int>(project_.decks.size())) return;
+            Deck& dd = project_.decks[deckIdx];
+            if (cueIdx >= static_cast<int>(dd.cues.size())) return;
+            Cue& c = dd.cues[cueIdx];
+            const std::string trimmed = trim(value);
+            if (trimmed.empty()) {
+              const fs::path p = fs::path(c.path);
+              c.name = p.has_stem() ? p.stem().string() : c.path;
+            } else {
+              c.name = trimmed;
+            }
+            markProjectDirty();
+            triggerToast("renamed: " + c.name);
+          });
+      }
+    });
+
     // Color tag items
     static const std::vector<std::pair<std::string, SDL_Color>> kTagOpts = {
       {"no color",  {48,  98,  48,  255}},

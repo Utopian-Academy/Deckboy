@@ -88,11 +88,6 @@ that screen. UI scale now follows the desktop unless you tell it otherwise, and
 the setting says what it is actually doing rather than what is stored. A show
 saved before this carries its own scale and is unchanged.
 
-**The mascot notices you.** Poke the face that waits in an empty program
-monitor and it stops being a face. It looks back, it has opinions about being
-poked, and whichever part you actually hit answers for itself. Push your luck
-far enough and it leaves.
-
 **Crash reports say where.** When something does go wrong, the report Deckboy
 leaves behind now names the module and offset for every frame on the stack, and
 writes the essentials first — so the file is readable on its own, on any
@@ -3062,9 +3057,8 @@ a repeated keypress is natural.
   SMPTE bars get a 12 s diagonal sweep line instead of scan lines.
 - **Solid colour patterns are static** — a pulsing reference level is a
   contradiction; legacy saves degrade to the static colour.
-- **Terrarium is a secret again:** hidden from pattern pickers unless the Konami
-  code has unlocked it in the current save (`terrarium_unlocked` persists with
-  the show). Saved terrarium cues load regardless.
+- **Terrarium is a secret again:** hidden from the pattern pickers until it is
+  found. Saved terrarium cues load regardless.
 
 ## 2026-07-09 — v0.78.6 (Pocket Test: audible for real, strobe defused)
 
@@ -3115,8 +3109,7 @@ Four things from the owner's first hands-on with the test card:
   keeps living across cue reloads. New shows start with a warmed-up ecosystem,
   not bare dirt.
 - "Terrarium (living ecosystem)" appears openly in the pattern picker; the
-  Konami code (↑↑↓↓←→←→BA Enter) still adds the secret purple cue, now backed by
-  the native pattern.
+  secret purple cue is now backed by the native pattern.
 - The standalone `terrarium.exe` still builds and ships, sharing the same
   simulation core.
 - `--smoke` verifies the native terrarium renders a living world.

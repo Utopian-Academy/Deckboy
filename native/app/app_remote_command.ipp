@@ -2146,6 +2146,18 @@
           triggerToast("patterns: " + std::to_string(patternTypes().size()) + " types");
           return;
         }
+        // ADD a pattern cue to the focused deck. PATTERN SET changes the cue
+        // that is already there; there was no way to make one, which meant a
+        // controller could reach every generator in the program except by
+        // asking somebody to click first.
+        if (sub == "ADD") {
+          if (parts.size() < 3) {
+            failRemoteCommand("PATTERN ADD needs a pattern id");
+            return;
+          }
+          addPatternCue(joinParts(parts, 2));
+          return;
+        }
         if (sub == "SET") {
           std::string typeId = parts.size() > 2 ? normalizePatternTypeId(joinParts(parts, 2)) : "";
           if (typeId == "checker") {
