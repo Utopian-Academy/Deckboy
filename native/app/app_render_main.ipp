@@ -654,6 +654,35 @@
                  title, pal.light);
   }
 
+  // ── THE PER-CUE TRANSITION STYLE, AS A ROW ──────────────────────────────
+  //
+  // Label on the left, the chosen style on the right with a chevron, like
+  // every other picker in the inspector and in settings. It was written out
+  // four times (once per cue-kind branch) as a full-width pill reading
+  // "style: Dissolve" -- the last control in the inspector to keep its
+  // question inside itself, and four places to forget when the shape changed.
+  //
+  // A LIT row means this cue overrides the deck's default; a flat one means it
+  // is following the deck.
+  void inspDrawTransitionStyleRow(int x, int w, int y, int rowH,
+                                  const std::string& curStyle, bool overridden) {
+    const int gap = 6;
+    const int labelW = std::max(uiScaled(56), w * 2 / 5);
+    SDL_Rect labelRect {x, y, labelW, rowH};
+    SDL_Rect styleBtn {x + labelW + gap, y, std::max(uiScaled(60), w - labelW - gap), rowH};
+    drawTextSafe(controlRenderer_, fontSmall_, labelRect, "style", pal.fg);
+    const SDL_Color fill = overridden ? pal.light : pal.tile;
+    const SDL_Color ink  = overridden ? pal.deep : pal.fg;
+    drawUIPanel(styleBtn, fill, pal.deep, pal.mid);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 20, styleBtn.h},
+                 transitionStyleLabel(curStyle), ink);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
+                         "â¼", ink);
+    cueTransitionStyleDropdownRect_ = styleBtn;
+  }
+
   void renderMainPanel(const SDL_Rect& panel) {
     const Deck& deck = focusedDeck();
     const MediaEngine* engine = focusedMediaEngine();
@@ -1940,8 +1969,8 @@
       bool warpActive = warpEditMode_ && warpDeck.warpEnabled;
       warpEditBtnRect_ = {programMonitorRect.x + programMonitorRect.w - warpBtnW - 8,
                            programMonitorRect.y + 3, warpBtnW, 26};
-      SDL_Color warpFill = warpActive ? pal.dark : pal.mid;
-      SDL_Color warpInk2 = warpActive ? pal.light : pal.deep;
+      SDL_Color warpFill = warpActive ? pal.light : pal.tile;
+      SDL_Color warpInk2 = warpActive ? pal.deep : pal.fg;
       drawUIPanel(warpEditBtnRect_, warpFill, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, warpEditBtnRect_,
                            "WARP", warpInk2);
@@ -2832,12 +2861,30 @@
     };
 
     auto drawCueTagRow = [&](int rowY, const Cue& cue, const std::string& tip) {
-      SDL_Rect tagBtn {ix.ctrl.x + ix.inset, rowY, ix.ctrlW - ix.inset * 2, ix.rowH};
-      std::string tagStr = cue.colorTag.empty() ? "none" : cue.colorTag;
-      SDL_Color tagFill = colorTagToSdl(cue.colorTag, 200);
+      // The house row shape, and the swatch IS the control: the right-hand
+      // cell is filled with the tag's own colour. It used to be a full-width
+      // pill reading "tag: none  [K cycle]" -- the question inside the control
+      // again, with the keyboard shortcut spliced into the value.
+      const int gap = 6;
+      const int contentW = ix.ctrlW - ix.inset * 2;
+      const int labelW = std::max(uiScaled(56), contentW * 2 / 5);
+      SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
+      SDL_Rect tagBtn {labelRect.x + labelW + gap, rowY,
+                       std::max(uiScaled(60), contentW - labelW - gap), ix.rowH};
+      const std::string tagStr = cue.colorTag.empty() ? "none" : cue.colorTag;
+      const SDL_Color tagFill = colorTagToSdl(cue.colorTag, 200);
+      drawTextSafe(controlRenderer_, ix.labelFont, labelRect, "colour tag", pal.fg);
       drawUIPanel(tagBtn, tagFill, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, ix.valueFont, tagBtn, "tag: " + tagStr + "  [K cycle]", pal.light);
+      // INK CHOSEN AGAINST THE SWATCH, not against the theme. A tag can be any
+      // colour in the palette, so a fixed light ink was unreadable on the pale
+      // ones -- and this is the one control in the inspector whose fill is not
+      // a theme role at all.
+      const double tagLum = (0.2126 * tagFill.r + 0.7152 * tagFill.g +
+                             0.0722 * tagFill.b) / 255.0;
+      const SDL_Color tagInk = tagLum > 0.55 ? pal.deep : pal.light;
+      drawCenteredTextSafe(controlRenderer_, ix.valueFont, tagBtn, tagStr, tagInk);
       quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, tip});
+      quickButtons_.push_back({labelRect, QuickAction::CycleColorTag, tip});
       return rowY + ix.rowStep;
     };
 
@@ -3276,26 +3323,15 @@
                      QuickAction::TransInc, QuickAction::ToggleLoop, false, false,
                      "Set per-cue transition duration");
         ry += kRowStep;
-        // Transition style (own row)
+        // Transition style (own row). The MULTI-SELECT branch, so the value
+        // may be "deck" for a mixed selection -- the row reads as lit, because
+        // in a multi-select there is no single cue to be following.
         {
-          int rx = ctrl.x + 10;
-          int styleW = kCtrlW - 20;
-          SDL_Rect styleBtn {rx, ry, styleW, kInspectorRowH};
-          std::string styleLabel = stringMixedLabel([&](const Cue& cue) {
+          const std::string styleLabel = stringMixedLabel([&](const Cue& cue) {
             return cue.cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue.cueTransitionStyle;
           }, "deck");
-          styleLabel = "style: " + transitionStyleLabel(styleLabel);
-          SDL_Color styleFill = pal.light;
-          SDL_Color styleInk = pal.deep;
-          Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 18, styleBtn.h},
-                       fitInspectorText(fontSmall_, styleLabel, styleBtn.w - 22),
-                       styleInk);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
-                       "\xe2\x96\xbc", styleInk);
-          cueTransitionStyleDropdownRect_ = styleBtn;
+          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, ry,
+                                     kInspectorRowH, styleLabel, true);
         }
         ry += kRowStep;
 
@@ -3455,25 +3491,10 @@
                      QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
         // Transition style (own row)
         {
-          int rx = ctrl.x + 10;
-          int styleW = kCtrlW - 20;
-          SDL_Rect styleBtn {rx, ry + kRowStep * 6, styleW, kInspectorRowH};
-          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+          const std::string curStyle = selectedCue->cueTransitionStyle.empty()
             ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-          std::string styleLabel = "style: " + transitionStyleLabel(curStyle);
-          SDL_Color styleFill = hasCueTrans
-            ? pal.dark : pal.light;
-          SDL_Color styleInk = hasCueTrans
-            ? pal.light : pal.deep;
-          Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 18, styleBtn.h},
-                       fitInspectorText(fontSmall_, styleLabel, styleBtn.w - 22),
-                       styleInk);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                               SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
-                               "\xe2\x96\xbc", styleInk);
-          cueTransitionStyleDropdownRect_ = styleBtn;
+          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, ry + kRowStep * 6,
+                                     kInspectorRowH, curStyle, hasCueTrans);
         }
       }
       // loop / hold toggles side by side
@@ -3483,10 +3504,10 @@
         int halfW = (kCtrlW - 24) / 2;
         SDL_Rect loopBtn {rx, ty, halfW, 30};
         SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
-        SDL_Color loopFill = selectedCue->loop ? pal.dark : pal.light;
-        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.dark : pal.light;
-        SDL_Color loopInk  = selectedCue->loop ? pal.light : pal.deep;
-        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? pal.light : pal.deep;
+        SDL_Color loopFill = selectedCue->loop ? pal.light : pal.tile;
+        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.light : pal.tile;
+        SDL_Color loopInk  = selectedCue->loop ? pal.deep : pal.fg;
+        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? pal.deep : pal.fg;
         Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, pal.deep, pal.mid);
         drawTextSafe(controlRenderer_, fontSmall_,
                      SDL_Rect {loopBtn.x + 6, loopBtn.y, loopBtn.w - 12, loopBtn.h},
@@ -3997,24 +4018,10 @@
         playbackY += kRowStep;
         // Transition style (own row)
         {
-          int rx = ctrl.x + 10;
-          int styleW = kCtrlW - 20;
-          SDL_Rect styleBtn {rx, playbackY, styleW, kInspectorRowH};
-          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+          const std::string curStyle = selectedCue->cueTransitionStyle.empty()
             ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-          SDL_Color styleFill = hasCueTrans ? pal.dark : pal.light;
-          SDL_Color styleInk = hasCueTrans ? pal.light : pal.deep;
-          drawUIPanel(styleBtn, styleFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 18, styleBtn.h},
-                       fitInspectorText(fontSmall_,
-                                        "style: " + transitionStyleLabel(curStyle),
-                                        styleBtn.w - 22),
-                       styleInk);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                               SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
-                               "\xe2\x96\xbc", styleInk);
-          cueTransitionStyleDropdownRect_ = styleBtn;
+          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, playbackY,
+                                     kInspectorRowH, curStyle, hasCueTrans);
         }
         playbackY += kRowStep;
 
@@ -4030,10 +4037,10 @@
           int halfW = (kCtrlW - 24) / 2;
           SDL_Rect loopBtn {rx, playbackY, halfW, 30};
           SDL_Rect holdBtn {rx + halfW + 4, playbackY, halfW, 30};
-          SDL_Color loopFill = selectedCue->loop ? pal.dark : pal.light;
-          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.dark : pal.light;
-          SDL_Color loopInk = selectedCue->loop ? pal.light : pal.deep;
-          SDL_Color holdInk = selectedCue->pauseOnLastFrame ? pal.light : pal.deep;
+          SDL_Color loopFill = selectedCue->loop ? pal.light : pal.tile;
+          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.light : pal.tile;
+          SDL_Color loopInk = selectedCue->loop ? pal.deep : pal.fg;
+          SDL_Color holdInk = selectedCue->pauseOnLastFrame ? pal.deep : pal.fg;
           drawUIPanel(loopBtn, loopFill, pal.deep, pal.mid);
           drawTextSafe(controlRenderer_, fontSmall_,
                        SDL_Rect {loopBtn.x + 6, loopBtn.y, loopBtn.w - 12, loopBtn.h},
@@ -4121,8 +4128,8 @@
                                                "Set browser URL/path");
           {
             SDL_Rect rfBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
-            SDL_Color rfFill = selectedCue->refreshOnTake ? pal.dark : pal.light;
-            SDL_Color rfInk  = selectedCue->refreshOnTake ? pal.light : pal.deep;
+            SDL_Color rfFill = selectedCue->refreshOnTake ? pal.light : pal.tile;
+            SDL_Color rfInk  = selectedCue->refreshOnTake ? pal.deep : pal.fg;
             drawUIPanel(rfBtn, rfFill, pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, rfBtn,
                                  std::string("refresh on take: ") + (selectedCue->refreshOnTake ? "on" : "off"),
@@ -4163,10 +4170,10 @@
                                    "banner, or sign in. The cue stays on air";
 #endif
             SDL_Rect handBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
-            drawUIPanel(handBtn, showing ? pal.dark : pal.light, pal.deep, pal.mid);
+            drawUIPanel(handBtn, showing ? pal.light : pal.tile, pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, handBtn,
                                  showing ? onLabel : offLabel,
-                                 showing ? pal.light : pal.deep);
+                                 showing ? pal.deep : pal.fg);
             quickButtons_.push_back({handBtn, QuickAction::ToggleBrowserInteract,
                                      showing ? onTip : offTip});
             metadataY += kInspectorRowStep;
@@ -4261,10 +4268,10 @@
           int halfW = (kCtrlW - 24) / 2;
           SDL_Rect loopBtn {rx, ty, halfW, 30};
           SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
-          SDL_Color loopFill = selectedCue->loop ? pal.dark : pal.light;
-          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.dark : pal.light;
-          SDL_Color loopInk  = selectedCue->loop ? pal.light : pal.deep;
-          SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? pal.light : pal.deep;
+          SDL_Color loopFill = selectedCue->loop ? pal.light : pal.tile;
+          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.light : pal.tile;
+          SDL_Color loopInk  = selectedCue->loop ? pal.deep : pal.fg;
+          SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? pal.deep : pal.fg;
           drawUIPanel(loopBtn, loopFill, pal.deep, pal.mid);
           drawTextSafe(controlRenderer_, fontSmall_,
                        SDL_Rect {loopBtn.x + 6, loopBtn.y, loopBtn.w - 12, loopBtn.h},
@@ -4494,22 +4501,10 @@
         playbackY += kRowStep;
         // Transition style (own row)
         {
-          SDL_Rect styleBtn {ctrl.x + 10, playbackY, kCtrlW - 20, kInspectorRowH};
-          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+          const std::string curStyle = selectedCue->cueTransitionStyle.empty()
             ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-          SDL_Color styleFill = hasCueTrans ? pal.dark : pal.light;
-          SDL_Color styleInk = hasCueTrans ? pal.light : pal.deep;
-          drawUIPanel(styleBtn, styleFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 18, styleBtn.h},
-                       fitInspectorText(fontSmall_,
-                                        "style: " + transitionStyleLabel(curStyle),
-                                        styleBtn.w - 22),
-                       styleInk);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                               SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
-                               "\xe2\x96\xbc", styleInk);
-          cueTransitionStyleDropdownRect_ = styleBtn;
+          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, playbackY,
+                                     kInspectorRowH, curStyle, hasCueTrans);
         }
         playbackY += kRowStep;
         drawQuickRow(playbackY, "audio", QuickAction::ToggleCueAudio,

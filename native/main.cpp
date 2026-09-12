@@ -4659,6 +4659,105 @@ class App {
                       std::max(fontFloor, contentW - reservedW - minValueW));
   }
 
+  // ── A ROW OF ACTIONS, NOT A VALUE WITH ARROWS AROUND IT ─────────────────
+  //
+  // inspDrawQuickRow draws every control as "- value +", which is right for a
+  // number and wrong for everything else. RESET came out as "- back to start +"
+  // -- two buttons that both reset, framing a phrase that is not a value --
+  // and the nudges came out as "- +/- 1 min +", where the middle cell showed
+  // the button's own description instead of anything about the cue.
+  //
+  // A control that DOES something is a button. This draws one to four of them
+  // across a row, all the same width, and registers each.
+  struct InspAction {
+    const char* label;
+    QuickAction action;
+    const char* tip;
+    bool lit = false;
+  };
+  void inspDrawActionRow(const InspectorCtx& ix, int rowY,
+                         std::initializer_list<InspAction> actions) {
+    const int count = static_cast<int>(actions.size());
+    if (count <= 0) return;
+    const int gap = 6;
+    const int rx = ix.ctrl.x + ix.inset;
+    const int contentW = ix.ctrlW - ix.inset * 2;
+    const int btnW = (contentW - gap * (count - 1)) / count;
+    int bx = rx;
+    for (const InspAction& a : actions) {
+      SDL_Rect btn {bx, rowY, btnW, ix.rowH};
+      drawUIPanel(btn, a.lit ? pal.light : pal.tile, pal.deep,
+                  a.lit ? pal.mid : pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, a.label,
+                           a.lit ? pal.deep : pal.fg);
+      quickButtons_.push_back({btn, a.action, a.tip});
+      bx += btnW + gap;
+    }
+  }
+
+  // ── A CHOICE, NOT A NUMBER ──────────────────────────────────────────────
+  //
+  // One label, one value, and clicking the value moves to the next option.
+  // "mode" and "face" are lists of three and two things; drawn through the
+  // numeric row they came out as "- countdown +", which invites an operator to
+  // read them as a quantity and to expect the arrows to mean less and more.
+  //
+  // Same geometry as inspDrawQuickRow's row so a choice and a number sitting
+  // next to each other still line up.
+  void inspDrawValueRow(const InspectorCtx& ix, int rowY, const std::string& label,
+                        const std::string& value, QuickAction action,
+                        std::string tip = "") {
+    const int gap = ix.ellipsize ? 8 : 6;
+    const int rx = ix.ctrl.x + ix.inset;
+    const int contentW = ix.ctrlW - ix.inset * 2;
+    const int labelW = inspLabelColumnWidth(ix, contentW, gap);
+    SDL_Rect labelRect {rx, rowY, labelW, ix.rowH};
+    SDL_Rect valRect {rx + labelW + gap, rowY,
+                      std::max(uiScaled(60), contentW - labelW - gap), ix.rowH};
+    drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
+    drawUIPanel(valRect, pal.light, pal.deep, pal.mid);
+    std::string shown = ix.ellipsize
+      ? ellipsizeToPixelWidth(ix.valueFont, value, valRect.w - 12) : value;
+    drawCenteredTextSafe(controlRenderer_, ix.valueFont, valRect, shown, pal.deep);
+    quickButtons_.push_back({valRect, action,
+                             tip.empty() ? std::string("Click to change") : tip});
+  }
+
+  // ── THE CLOCK ITSELF, BIG ───────────────────────────────────────────────
+  //
+  // A stage timer is an instrument an operator drives while looking at a
+  // stage, not a setting they configure once. The number is the whole control
+  // surface, so it is drawn at the size you can read from a metre away and in
+  // the colour the stage screen is showing -- green, amber or red at the
+  // thresholds this cue was given, so the operator's copy and the speaker's
+  // copy cannot disagree about how much trouble they are in.
+  int inspDrawTimerClock(const InspectorCtx& ix, int rowY, const Cue& cue,
+                         const std::string& text, double remaining, bool running) {
+    const int rx = ix.ctrl.x + ix.inset;
+    const int w = ix.ctrlW - ix.inset * 2;
+    const int h = std::max(ix.rowH * 2, uiScaled(46));
+    SDL_Rect face {rx, rowY, w, h};
+    drawUIPanel(face, pal.deep, pal.deep, pal.mid);
+    SDL_Color ink = pal.light;
+    if (remaining <= static_cast<double>(cue.timer.redSeconds)) {
+      ink = SDL_Color{255, 110, 110, 255};
+    } else if (remaining <= static_cast<double>(cue.timer.amberSeconds)) {
+      ink = SDL_Color{255, 200, 110, 255};
+    }
+    drawCenteredTextSafe(controlRenderer_, fontLarge_ ? fontLarge_ : ix.valueFont,
+                         face, text, ink);
+    // A held clock says so, quietly, rather than looking identical to a
+    // running one that happens not to have ticked yet.
+    if (!running) {
+      SDL_Rect tag {face.x + face.w - uiScaled(46), face.y + uiScaled(3),
+                    uiScaled(42), std::max(uiScaled(12), ix.rowH / 2)};
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, tag, "HELD", pal.inkSoft);
+    }
+    quickButtons_.push_back({face, QuickAction::TimerRunToggle,
+                             running ? "Hold the clock" : "Run the clock"});
+    return rowY + h + 4;
+  }
+
   void inspDrawQuickRow(const InspectorCtx& ix, int rowY, const std::string& label,
                         QuickAction decAction, const std::string& value,
                         QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
@@ -4687,15 +4786,36 @@ class App {
     int contentW = ix.ctrlW - ix.inset * 2;
 
     if (isToggle) {
-      SDL_Rect btn {rx, rowY, contentW, ix.rowH};
-      SDL_Color fill = toggleOn ? pal.dark : pal.tile;
-      SDL_Color ink  = toggleOn ? pal.light : pal.fg;
+      // ONE QUESTION PER ROW, the same shape as every settings card and as the
+      // numeric rows directly above and below this one.
+      //
+      // A toggle used to be a full-width pill reading "label: value" -- so in
+      // a column of rows whose question sits on the left and whose answer sits
+      // on the right, the toggles alone put both in the middle, and the eye
+      // had to find the colon to work out which half was which.
+      //
+      // ON IS BRIGHTER, NOT INVERTED. A dark fill with light ink for the lit
+      // state made the switched-ON rows the hardest to read in the inspector,
+      // which is backwards: the row that is doing something is the row you
+      // most need to be able to read.
+      const int toggleGap = ix.ellipsize ? 8 : 6;
+      const int toggleLabelW = inspLabelColumnWidth(ix, contentW, toggleGap);
+      SDL_Rect labelRect {rx, rowY, toggleLabelW, ix.rowH};
+      SDL_Rect btn {rx + toggleLabelW + toggleGap, rowY,
+                    std::max(uiScaled(60), contentW - toggleLabelW - toggleGap),
+                    ix.rowH};
+      SDL_Color fill = toggleOn ? pal.light : pal.tile;
+      SDL_Color ink  = toggleOn ? pal.deep : pal.fg;
+      drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
       drawUIPanel(btn, fill, pal.deep, pal.mid);
-      SDL_Rect labelRect {btn.x + 8, btn.y, btn.w - 16, btn.h};
-      std::string text = label + ": " + value;
-      if (ix.ellipsize) text = ellipsizeToPixelWidth(ix.valueFont, text, labelRect.w);
-      drawTextSafe(controlRenderer_, ix.valueFont, labelRect, text, ink);
+      std::string text = ix.ellipsize
+        ? ellipsizeToPixelWidth(ix.valueFont, value, btn.w - 12) : value;
+      drawCenteredTextSafe(controlRenderer_, ix.valueFont, btn, text, ink);
       quickButtons_.push_back({btn, toggleAction, tip});
+      // The label is part of the control: clicking anywhere on the row toggles
+      // it, which is what a row-shaped control implies and what the full-width
+      // pill used to give for free.
+      quickButtons_.push_back({labelRect, toggleAction, tip});
     } else {
       const bool hasTrail = trailAction != QuickAction::ToggleLoop;
       const int trailW = hasTrail ? 24 : 0;
@@ -4709,10 +4829,10 @@ class App {
       SDL_Rect incBtn {valRect.x + valRect.w + gap, rowY, kBtnW, ix.rowH};
       if (hasTrail) {
         SDL_Rect trailBtn {incBtn.x + incBtn.w + gap, rowY, trailW, ix.rowH};
-        drawUIPanel(trailBtn, trailOn ? pal.dark : pal.tile, pal.deep,
-                    trailOn ? pal.light : pal.mid);
+        drawUIPanel(trailBtn, trailOn ? pal.light : pal.tile, pal.deep,
+                    trailOn ? pal.mid : pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, trailBtn, trailLabel,
-                             trailOn ? pal.light : pal.inkSoft);
+                             trailOn ? pal.deep : pal.inkSoft);
         quickButtons_.push_back({trailBtn, trailAction, trailTip, trailParam});
       }
 
@@ -5118,57 +5238,53 @@ class App {
       return std::string(buf);
     };
 
-    // Live readout first: what the stage screen is showing right now.
+    // ── THE INSTRUMENT, THEN THE SETTINGS ───────────────────────────────
+    //
+    // The clock, the transport and the nudges are what an operator touches
+    // DURING a talk, with their eyes mostly on the stage. They are drawn as
+    // what they are -- a readout and a row of buttons -- rather than pushed
+    // through the generic "- value +" row, which turned RESET into two buttons
+    // that both reset, framing the phrase "back to start", and turned the
+    // nudges into cells displaying their own description instead of a value.
+    //
+    // The settings below the divider are genuine numbers and stay as rows.
     const double remaining = static_cast<double>(cue.timer.durationSeconds) - elapsed;
-    // An explicit transport row. The clock row below TOGGLES on click, but it
-    // reads as a time display rather than a button, so an operator looking for
-    // start/stop did not find one -- which is what happened.
-    inspDrawQuickRow(ix, rowY, running ? "STOP" : "START",
-                     QuickAction::TimerRunToggle,
-                     running ? "running" : "held",
-                     QuickAction::TimerRunToggle, QuickAction::TimerRunToggle,
-                     true, running,
-                     "Start or stop the clock. The timer runs its own clock, "
-                     "so this does not touch playback.");
+    rowY = inspDrawTimerClock(ix, rowY, cue, mmss(remaining), remaining, running);
+
+    inspDrawActionRow(ix, rowY, {
+      {running ? "STOP" : "START", QuickAction::TimerRunToggle,
+       "Start or stop the clock. The timer runs its own clock, so this does "
+       "not touch playback.", running},
+      {"RESET", QuickAction::TimerResetAction,
+       "Reset the clock to its full duration"},
+    });
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "clock", QuickAction::TimerRunToggle,
-                     mmss(remaining), QuickAction::TimerRunToggle,
-                     QuickAction::TimerRunToggle, true, running,
-                     running ? "Hold the clock" : "Run the clock");
-    rowY += ix.rowStep;
-
-    inspDrawQuickRow(ix, rowY, "nudge min", QuickAction::TimerNudgeDown,
-                     "+/- 1 min", QuickAction::TimerNudgeUp,
-                     QuickAction::ToggleLoop, false, false,
-                     "Give or take a minute without stopping the clock");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "nudge sec", QuickAction::TimerNudgeSecDown,
-                     "+/- 10 sec", QuickAction::TimerNudgeSecUp,
-                     QuickAction::ToggleLoop, false, false,
-                     "Finer adjustment, for trimming a countdown mid-talk "
-                     "rather than reshaping it.");
-    rowY += ix.rowStep;
-
-    inspDrawQuickRow(ix, rowY, "reset", QuickAction::TimerResetAction,
-                     "back to start", QuickAction::TimerResetAction,
-                     QuickAction::TimerResetAction, false, false,
-                     "Reset the clock to its full duration");
+    // Four direct nudges. Press one and it happens -- no stepper to interpret
+    // at the moment somebody on stage is running over.
+    inspDrawActionRow(ix, rowY, {
+      {"-1 min", QuickAction::TimerNudgeDown,
+       "Take a minute off without stopping the clock"},
+      {"-10 s",  QuickAction::TimerNudgeSecDown,
+       "Trim ten seconds off"},
+      {"+10 s",  QuickAction::TimerNudgeSecUp,
+       "Give ten seconds back"},
+      {"+1 min", QuickAction::TimerNudgeUp,
+       "Give a minute back without stopping the clock"},
+    });
     rowY += ix.rowStep;
 
     const char* modeLabel =
       cue.timer.mode == TimerMode::CountUp   ? "count up"
       : cue.timer.mode == TimerMode::TimeOfDay ? "time of day"
                                                : "countdown";
-    inspDrawQuickRow(ix, rowY, "mode", QuickAction::TimerCycleMode, modeLabel,
-                     QuickAction::TimerCycleMode, QuickAction::ToggleLoop, false,
-                     false, "Countdown, count up, or wall clock");
+    inspDrawValueRow(ix, rowY, "mode", modeLabel, QuickAction::TimerCycleMode,
+                     "Countdown, count up, or wall clock");
     rowY += ix.rowStep;
 
     const char* faceLabel = cue.timer.face == TimerFace::Blocky ? "blocky" : "7-segment";
-    inspDrawQuickRow(ix, rowY, "face", QuickAction::TimerCycleFace, faceLabel,
-                     QuickAction::TimerCycleFace, QuickAction::ToggleLoop, false,
-                     false, "Clock typeface");
+    inspDrawValueRow(ix, rowY, "face", faceLabel, QuickAction::TimerCycleFace,
+                     "Clock typeface");
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "duration", QuickAction::TimerDurDec,
@@ -6606,16 +6722,34 @@ class App {
     drawCenteredTextSafe(controlRenderer_, fontSmall_, hintRect, sublabel, ink);
   }
 
+  // OPEN IS BRIGHTER, NOT INVERTED.
+  //
+  // An open dropdown used to fill with pal.dark and ink in pal.light, which is
+  // the same reversal that made the switched-ON controls the hardest to read on
+  // the settings pages. The house rule everywhere else is that state shows as
+  // the brightness of the fill and the ink stays dark on light; this now
+  // follows it, so the control an operator is actively using is not the one
+  // they can least read.
   void drawUIDropdown(const SDL_Rect& rect, const std::string& label, const std::string& value,
                       const std::string& owner) {
-    bool active = dropdown_.open && dropdown_.owner == owner;
-    SDL_Color fill = active ? pal.dark : pal.light;
-    SDL_Color ink = active ? pal.light : pal.deep;
-    drawUIPanel(rect, fill, pal.deep, pal.mid);
-    SDL_Rect labelRect {rect.x + 4, rect.y, rect.w - 20, rect.h};
-    SDL_Rect chevronRect {rect.x + rect.w - 20, rect.y, 16, rect.h};
-    drawUILabel(labelRect, label + ": " + value, ink, fontSmall_);
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, chevronRect, "\xe2\x96\xbc", ink);
+    drawUIDropdownValue(rect, label.empty() ? value : (label + ": " + value), owner);
+  }
+
+  // The same control with NO label inside it, for a row that already carries
+  // the question on its left. Drawing "Device: (default system device)" inside
+  // the control puts the question in a different place from every labelled row
+  // on the same page.
+  void drawUIDropdownValue(const SDL_Rect& rect, const std::string& value,
+                           const std::string& owner) {
+    const bool active = dropdown_.open && dropdown_.owner == owner;
+    const SDL_Color fill = active ? pal.light : pal.tile;
+    const SDL_Color dropInk = active ? pal.deep : pal.fg;
+    drawUIPanel(rect, fill, pal.deep, active ? pal.mid : pal.light);
+    const int chevW = std::min(uiScaled(18), std::max(8, rect.w / 6));
+    SDL_Rect labelRect {rect.x + 4, rect.y, std::max(4, rect.w - chevW - 6), rect.h};
+    SDL_Rect chevronRect {rect.x + rect.w - chevW - 2, rect.y, chevW, rect.h};
+    drawUILabel(labelRect, value, dropInk, fontSmall_);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, chevronRect, "\xe2\x96\xbc", dropInk);
   }
 
   struct UiImageAsset {

@@ -1,5 +1,33 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.339 (one question per row, everywhere)
+
+**Every settings card and every inspector row now has the same shape**: the
+question on the left, the control that answers it on the right, one per row. It
+reads as a sentence, and it puts every control on a page at the same place, which
+is most of what "consistent" means when you open a panel you have not looked at
+in a month.
+
+Before this the same page mixed four shapes — full-width pills whose own label
+carried the question ("PAUSE BEGIN OFF", "HYPERDECK ON", "tag: none [K cycle]"),
+bare buttons whose meaning came from position, controls on the *left* with a
+sentence of explanation to their right, and grids of chips that wrapped
+differently depending on the platform and the window width.
+
+**Switched-on controls are no longer the hardest to read.** A lit control used to
+invert — a dark fill with light ink — which measured worst on the page precisely
+where it mattered most. State now shows as the brightness of the fill, and the
+ink stays dark on light in both states. That rule now holds for the settings
+toggles, the inspector rows, the dropdowns and the cue's colour-tag swatch, whose
+ink is picked against the swatch rather than against the theme.
+
+**The stage timer has its own controls.** It was being drawn through the generic
+numeric row, so RESET appeared as two buttons that both reset, framing the phrase
+"back to start", and the nudges showed their own description where a value goes.
+A timer is an instrument you drive while looking at the stage, so it now has a
+large clock readout that turns amber and red at this cue's own thresholds, START
+and RESET as real buttons, and four direct nudges (−1 min, −10 s, +10 s, +1 min).
+
 ## 2026-09-12 - v0.99.338 (held cues come up, and the transitions are the ones you asked for)
 
 **A cue set to HOLD now appears.** Every pattern cue is a hold by default, and a
