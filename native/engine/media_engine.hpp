@@ -410,6 +410,58 @@ class MediaEngine {
   // filming the screen: a cut used to drop the outgoing frame and then wait for
   // the incoming still to decode, and this is the predicate that was false in
   // between.
+  // IS A TRANSITION RUNNING, and how far through is it?
+  //
+  // Exposed so "does a crossfade actually happen" is answerable over the wire
+  // rather than by photographing a screen. The engine's own transition state
+  // lives on the texture path, which the output does not use -- so a caller
+  // needs to be able to see this to know whether the two agree.
+  bool transitionRunning() const { return transitionActive_; }
+
+  // ── THE TRANSITION THE OUTPUT CAN ACTUALLY USE ──────────────────────────
+  //
+  // The state above belongs to render(), which nothing calls: the output
+  // composites from currentFrame(). So a crossfade was tracked by the engine
+  // and never appeared on screen -- every transition in the program was a cut.
+  //
+  // These three give the compositor what it needs to do the blend itself: the
+  // outgoing picture, how far through we are, and which style was asked for.
+  // The outgoing frame is the one heldFrame_ already keeps to stop the black
+  // flash between cues; a transition is that same hold, drawn on top.
+  const DecodedFrame* outgoingFrame() const {
+    return heldFrame_.has_value() ? &(*heldFrame_) : nullptr;
+  }
+
+  // 0 at the take, 1 when the transition is over. Returns 1 when nothing is
+  // running, so a caller can treat "finished" and "never started" alike.
+  double outgoingProgress01() const {
+    if (!heldFrame_.has_value() || outgoingSeconds_ <= 0.0001) {
+      return 1.0;
+    }
+    const double elapsed = std::chrono::duration<double>(
+      std::chrono::steady_clock::now() - heldFrameSince_).count();
+    return std::clamp(elapsed / outgoingSeconds_, 0.0, 1.0);
+  }
+
+  // Let the outgoing frame go once it has nothing left to contribute. For a
+  // cut that is the moment the new picture arrives; for a crossfade it is when
+  // the blend reaches the end, because until then it IS the transition.
+  void releaseHeldFrameIfTransitionDone() {
+    if (!heldFrame_.has_value()) return;
+    if (outgoingSeconds_ <= 0.0001) {
+      heldFrame_.reset();
+      return;
+    }
+    const double elapsed = std::chrono::duration<double>(
+      std::chrono::steady_clock::now() - heldFrameSince_).count();
+    if (elapsed >= outgoingSeconds_) {
+      heldFrame_.reset();
+    }
+  }
+
+  TransitionStyle outgoingStyle() const { return outgoingStyle_; }
+  double outgoingSeconds() const { return outgoingSeconds_; }
+
   bool hasPictureToShow() const {
     return texture_ != nullptr || (transitionActive_ && transitionTexture_ != nullptr);
   }
@@ -680,6 +732,10 @@ class MediaEngine {
   // frame must not leave the previous slide up for the rest of the show.
   std::optional<DecodedFrame> heldFrame_;
   std::chrono::steady_clock::time_point heldFrameSince_;
+  // What the operator asked for when this cue was taken, kept alongside the
+  // held frame so the compositor can honour it.
+  double outgoingSeconds_ = 0.0;
+  TransitionStyle outgoingStyle_ = TransitionStyle::Cut;
   int textureWidth_ = 0;                     // texture dimensions (match decoded frame)
   int textureHeight_ = 0;
   Uint32 textureFormat_ = 0;                 // SDL pixel format of the live texture (0 if none)

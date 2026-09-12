@@ -786,6 +786,84 @@
     SDL_SetTextureAlphaMod(bridgeTexture, 255);
   }
 
+  // Draw the OUTGOING picture over the incoming one, at whatever the chosen
+  // transition says this instant should look like.
+  //
+  // Kind-agnostic on purpose: it takes the frame the engine held when the cue
+  // changed and blends it, so a pattern crossfades into a camera into a slide
+  // without any of them being special-cased.
+  void renderDeckTransitionIntoOutput(int outputIndex, int sourceDeckIndex,
+                                      const SDL_Rect& target) {
+    OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
+    if (!outputRuntime || !outputRuntime->outputRenderer) return;
+    if (sourceDeckIndex < 0 ||
+        sourceDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    DeckRuntime* deckRuntime = runtimeForDeck(sourceDeckIndex);
+    if (!deckRuntime || !deckRuntime->mediaEngine) return;
+    MediaEngine& engine = *deckRuntime->mediaEngine;
+
+    const double seconds = engine.outgoingSeconds();
+    if (seconds <= 0.0001) return;                  // a cut has nothing to draw
+    const DecodedFrame* out = engine.outgoingFrame();
+    if (!out || out->width <= 0 || out->height <= 0 || out->pixels.empty()) return;
+
+    const double progress = engine.outgoingProgress01();
+    if (progress >= 1.0) {
+      engine.releaseHeldFrameIfTransitionDone();
+      return;
+    }
+
+    const TransitionStyle style = engine.outgoingStyle();
+    if (style == TransitionStyle::DipBlack) {
+      // Two halves: the outgoing picture falls into black, then black lifts off
+      // the incoming one. Nothing of the outgoing frame is drawn in the second
+      // half -- it has already gone.
+      SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
+      if (progress < 0.5) {
+        renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, 255);
+        const Uint8 black = static_cast<Uint8>(
+          std::clamp(progress * 2.0, 0.0, 1.0) * 255.0);
+        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0, black);
+      } else {
+        const Uint8 black = static_cast<Uint8>(
+          std::clamp(1.0 - (progress - 0.5) * 2.0, 0.0, 1.0) * 255.0);
+        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0, black);
+      }
+      SDL_RenderFillRect(outputRuntime->outputRenderer, nullptr);
+      SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_NONE);
+      return;
+    }
+
+    // Crossfade: the outgoing picture thins out over the incoming one.
+    const Uint8 alpha = static_cast<Uint8>(
+      std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
+    if (alpha == 0) return;
+    renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, alpha);
+  }
+
+  // Blit one held frame at a given alpha, through its own bridge texture so it
+  // cannot disturb the live layer's.
+  void renderTransitionFrame(OutputRuntime& outputRuntime, const DecodedFrame& frame,
+                             int deckIndex, const SDL_Rect& target, Uint8 alpha) {
+    const Uint32 format = sdlPixelFormat(frame.format);
+    SDL_Texture* tex = ensureOverlayBridgeTexture(
+      outputRuntime, "transition:" + std::to_string(deckIndex),
+      frame.width, frame.height, format);
+    if (!tex) return;
+    // RGBA32 four bytes a pixel, like every other CPU blit on this path. An
+    // NV12 held frame would need the two-plane update; the held frame always
+    // comes from displayFrame_, which the compositor has already proven it can
+    // draw, so this matches what the layer above it just did.
+    SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(tex, alpha);
+    const SDL_Rect dst = target;
+    SDL_RenderTexture(outputRuntime.outputRenderer, tex, nullptr, &dst);
+    SDL_SetTextureAlphaMod(tex, 255);
+  }
+
   void renderOverlayFrameIntoOutput(OutputRuntime& outputRuntime,
                                     const std::string& overlayKey,
                                     const DecodedFrame& sourceFrame,
@@ -994,6 +1072,17 @@
     } else {
       for (const auto& entry : outputLayers) {
         renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);
+        // ── THE TRANSITION, ON TOP OF THE INCOMING PICTURE ────────────────
+        //
+        // Here, in the compositor, because this is where every cue kind meets:
+        // video, stills, patterns, browser, camera, NDI, capture -- they all
+        // arrive as a frame. A transition written here works for all of them
+        // without knowing what any of them are.
+        //
+        // It used to live in MediaEngine::render(), which nothing calls, so
+        // every transition in the program was silently a cut no matter what
+        // the operator chose.
+        renderDeckTransitionIntoOutput(outputIndex, entry.second, bounds);
       }
 
       // Output window is always clean black — no status overlays or decorations.

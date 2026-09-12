@@ -406,7 +406,11 @@
                // Frames this deck put NOTHING on the output -- see the note on
                // the other status builder. A run of these between two cues is
                // the black flash, measured rather than filmed.
-               << " blank_frames=" << engine->blankFrameCount();
+               << " blank_frames=" << engine->blankFrameCount()
+               // Whether the engine thinks a transition is running. The output
+               // composites from currentFrame() and does its own thing, so this
+               // is the only way to see whether the two agree.
+               << " transition_running=" << (engine->transitionRunning() ? 1 : 0);
       }
       output << '\n';
     }

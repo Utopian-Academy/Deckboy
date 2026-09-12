@@ -296,6 +296,11 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   if (displayFrame_.has_value()) {
     heldFrame_ = std::move(displayFrame_);
     heldFrameSince_ = std::chrono::steady_clock::now();
+    // What the operator asked for, so the compositor can honour it. Kept here
+    // rather than read from the cue later: by the time the blend runs, the cue
+    // being replaced is gone.
+    outgoingSeconds_ = std::clamp(transitionSeconds, 0.0, 10.0);
+    outgoingStyle_ = transitionStyle;
   }
   displayFrame_.reset();
   currentPosition_ = 0.0;
@@ -904,7 +909,7 @@ void MediaEngine::update() {
     if (pendingImageFrame_) {
       pendingImageFrame_->index = ++displayFrameSerial_;
       displayFrame_ = std::move(pendingImageFrame_);
-      heldFrame_.reset();   // the new picture is up; let the old one go
+      releaseHeldFrameIfTransitionDone();
       uploadFrame(*displayFrame_);
     }
   }
@@ -1017,7 +1022,7 @@ void MediaEngine::update() {
     std::lock_guard<std::mutex> lock(frameMutex_);
     while (!frameQueue_.empty() && frameQueue_.front().index <= targetFrame) {
       displayFrame_ = std::move(frameQueue_.front());
-      heldFrame_.reset();   // the new picture is up; let the old one go
+      releaseHeldFrameIfTransitionDone();
       frameQueue_.pop_front();
       lastRenderedFrameIndex_ = displayFrame_->index;
       advancedDisplayFrame = true;
@@ -1157,10 +1162,13 @@ const DecodedFrame* MediaEngine::currentFrame() const {
   // never decodes at all -- a missing file, a browser that fails to start --
   // must not leave the previous picture up looking like it worked.
   if (heldFrame_.has_value()) {
-    constexpr double kHoldLimitSeconds = 1.0;
+    // Long enough for the transition that was asked for, and a second on top
+    // for the incoming cue to decode. A cue that never decodes at all must not
+    // leave the previous picture up looking like it worked.
+    const double limit = 1.0 + outgoingSeconds_;
     const double held = std::chrono::duration<double>(
       std::chrono::steady_clock::now() - heldFrameSince_).count();
-    if (held <= kHoldLimitSeconds) {
+    if (held <= limit) {
       return &(*heldFrame_);
     }
   }
