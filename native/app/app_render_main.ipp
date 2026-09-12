@@ -1838,7 +1838,9 @@
     drawUIPanel(programMonitorRect, programBg, pal.deep, programBorder);
     
     // Dominant LIVE badge
-    SDL_Rect liveBadge {programMonitorRect.x + 4, programMonitorRect.y + 3, 54, 26};
+    SDL_Rect liveBadge {programMonitorRect.x + uiScaled(4), programMonitorRect.y + uiScaled(3),
+                        std::max(uiScaled(54), measuredTextWidth(fontSmall_, "LIVE") + uiScaled(16)),
+                        std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(6))};
     drawUIPanel(liveBadge, pal.dark, pal.deep, pal.mid);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, liveBadge, "LIVE", pal.light);
     // Live sparkle — gentle pulsing star when output is active
@@ -2518,6 +2520,10 @@
     // Thumbnail of selected cue (top portion)
     constexpr int kThumbAreaH = 110;
     SDL_Rect thumbArea {ctrl.x + kInspectorInset, ctrl.y + 4, kCtrlW - kInspectorInset * 2, kThumbAreaH};
+    // One line height for everything drawn in the thumb area, from the face
+    // that draws it. The three empty-state lines were spaced 20px apart and
+    // overlapped each other at 1.5x.
+    const int thumbLineH = std::max(uiScaled(20), textLineHeight(fontSmall_));
     Primitives::drawFramedPanel(controlRenderer_, thumbArea, pal.deep, pal.deep, pal.dark);
     if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio cue: fill entire thumb area with waveform
@@ -2534,7 +2540,8 @@
                    selectedCue->pausePoints, dur, waveformGainScale(*selectedCue));
       drawAudioFadeEnvelope(thumbArea, *selectedCue);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 4, thumbArea.w - 12, 20},
+                   SDL_Rect {thumbArea.x + uiScaled(6), thumbArea.y + uiScaled(4),
+                             thumbArea.w - uiScaled(12), thumbLineH},
                    selectedCue->name, pal.mid);
     } else if (selectedThumbnailTex_) {
       float aspect = static_cast<float>(selectedThumbnailTexW_) / static_cast<float>(selectedThumbnailTexH_);
@@ -2549,23 +2556,30 @@
       SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
     } else if (selectedCue) {
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 8, thumbArea.w - 12, 20},
+                   SDL_Rect {thumbArea.x + uiScaled(6), thumbArea.y + uiScaled(8),
+                             thumbArea.w - uiScaled(12), thumbLineH},
                    selectedCue->name, pal.mid);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 30, thumbArea.w - 12, 20},
+                   SDL_Rect {thumbArea.x + uiScaled(6),
+                             thumbArea.y + uiScaled(8) + thumbLineH + uiScaled(2),
+                             thumbArea.w - uiScaled(12), thumbLineH},
                    "loading preview...", pal.mid);
     } else {
+      // Three lines centred on the middle one, spaced by the line height
+      // rather than a fixed 20px -- at 1.5x they overlapped each other.
+      // drawCenteredTextSafe ellipsizes into the rect, so the explicit
+      // ellipsize calls were doing the work twice.
       SDL_SetRenderClipRect(controlRenderer_, &thumbArea);
-      int tw = thumbArea.w - 16;
-      drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 - 20, tw, 20},
-                   ellipsizeToPixelWidth(fontSmall_, "No cue selected", tw), pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2, tw, 20},
-                   ellipsizeToPixelWidth(fontSmall_, "Drop media here", tw), pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 + 20, tw, 20},
-                   ellipsizeToPixelWidth(fontSmall_, "Press A to take cue", tw), pal.mid);
+      const int tw = thumbArea.w - uiScaled(16);
+      const int midY = thumbArea.y + thumbArea.h / 2 - thumbLineH / 2;
+      const char* emptyLines[3] = {"No cue selected", "Drop media here",
+                                   "Press A to take cue"};
+      for (int n = 0; n < 3; ++n) {
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect {thumbArea.x + uiScaled(8),
+                                       midY + (n - 1) * thumbLineH, tw, thumbLineH},
+                             emptyLines[n], pal.mid);
+      }
       SDL_SetRenderClipRect(controlRenderer_, nullptr);
     }
 
@@ -2573,7 +2587,10 @@
     if (selectedCue && selectedCue->hasAudio && selectedCue->kind != CueKind::Audio) {
       bool pending = false;
       WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*selectedCue, currentProjectFile_), pending);
-      SDL_Rect waveRect {thumbArea.x + 2, thumbArea.y + thumbArea.h - 34, thumbArea.w - 4, 32};
+      const int waveH = std::max(uiScaled(32), thumbLineH + uiScaled(8));
+      SDL_Rect waveRect {thumbArea.x + uiScaled(2),
+                         thumbArea.y + thumbArea.h - waveH - uiScaled(2),
+                         thumbArea.w - uiScaled(4), waveH};
       double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
       float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
       float outFrac = selectedCue->outPointSeconds > 0.0
@@ -3427,13 +3444,25 @@
         }
 
         std::string tagStr = stringMixedLabel([&](const Cue& cue) { return cue.colorTag; }, "none");
-        SDL_Rect tagBtn {ctrl.x + 10, ry, kCtrlW - 20, 28};
-        SDL_Color tagFill = colorTagToSdl(tagStr == "mixed" ? std::string() : tagStr, 200);
-        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, tagBtn,
-                             fitInspectorText(fontSmall_, "tag: " + tagStr + "  [K cycle]", tagBtn.w - 12),
-                             pal.light);
-        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "Cycle color tag for selected cues"});
+        // The swatch IS the control, in the house row shape; the ink is picked
+        // against the swatch because a tag can be any colour in the palette.
+        {
+          const int gap = 6;
+          const int contentW = ix.ctrlW - ix.inset * 2;
+          const int labelW = std::max(uiScaled(56), contentW * 2 / 5);
+          SDL_Rect tagLabelRect {ix.ctrl.x + ix.inset, ry, labelW, ix.rowH};
+          SDL_Rect tagBtn {tagLabelRect.x + labelW + gap, ry,
+                           std::max(uiScaled(60), contentW - labelW - gap), ix.rowH};
+          const SDL_Color tagFill = colorTagToSdl(tagStr == "mixed" ? std::string() : tagStr, 200);
+          drawTextSafe(controlRenderer_, ix.labelFont, tagLabelRect, "colour tag", pal.fg);
+          drawUIPanel(tagBtn, tagFill, pal.deep, pal.mid);
+          const double tagLum = (0.2126 * tagFill.r + 0.7152 * tagFill.g +
+                                 0.0722 * tagFill.b) / 255.0;
+          drawCenteredTextSafe(controlRenderer_, ix.valueFont, tagBtn, tagStr,
+                               tagLum > 0.55 ? pal.deep : pal.light);
+          quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "Cycle color tag for selected cues"});
+          quickButtons_.push_back({tagLabelRect, QuickAction::CycleColorTag, "Cycle color tag for selected cues"});
+        }
         ry += kRowStep;
 
         std::string notesDisplay = stringMixedLabel([&](const Cue& cue) { return cue.notes; }, "(no notes)");
@@ -3583,14 +3612,25 @@
         rowCursor += 1;
 
         std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
-        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * rowCursor, kCtrlW - 20, 28};
-        SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
-        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {tagBtn.x + 6, tagBtn.y, tagBtn.w - 12, tagBtn.h},
-                     fitInspectorText(fontSmall_, "tag: " + tagStr + "  [K cycle]", tagBtn.w - 16),
-                     pal.light);
-        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "C — cycle cue color tag"});
+        // The swatch IS the control, in the house row shape; the ink is picked
+        // against the swatch because a tag can be any colour in the palette.
+        {
+          const int gap = 6;
+          const int contentW = ix.ctrlW - ix.inset * 2;
+          const int labelW = std::max(uiScaled(56), contentW * 2 / 5);
+          SDL_Rect tagLabelRect {ix.ctrl.x + ix.inset, ry + kRowStep * rowCursor, labelW, ix.rowH};
+          SDL_Rect tagBtn {tagLabelRect.x + labelW + gap, ry + kRowStep * rowCursor,
+                           std::max(uiScaled(60), contentW - labelW - gap), ix.rowH};
+          const SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
+          drawTextSafe(controlRenderer_, ix.labelFont, tagLabelRect, "colour tag", pal.fg);
+          drawUIPanel(tagBtn, tagFill, pal.deep, pal.mid);
+          const double tagLum = (0.2126 * tagFill.r + 0.7152 * tagFill.g +
+                                 0.0722 * tagFill.b) / 255.0;
+          drawCenteredTextSafe(controlRenderer_, ix.valueFont, tagBtn, tagStr,
+                               tagLum > 0.55 ? pal.deep : pal.light);
+          quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "C - cycle cue color tag"});
+          quickButtons_.push_back({tagLabelRect, QuickAction::CycleColorTag, "C - cycle cue color tag"});
+        }
         rowCursor += 1;
 
         int notesY = ry + kRowStep * rowCursor;
@@ -3602,19 +3642,14 @@
         rowCursor += 1;
 
         int cnY = ry + kRowStep * rowCursor;
-        SDL_Rect idLabel {ctrl.x + 10, cnY, 36, 26};
-        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
-        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
-        drawTextSafe(controlRenderer_, fontSmall_, idLabel, "id", pal.inkSoft);
+        // The last hand-written copy of the editable row -- and the worst of
+        // them: a 36px label column, which is narrower than the word "id" is
+        // at any scale above 1.0.
         std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
-        Primitives::drawFramedPanel(controlRenderer_, val, pal.light, pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {val.x + 6, val.y, val.w - 12, val.h},
-                     fitInspectorText(fontSmall_, cnDisplay, val.w - 16),
-                     pal.deep);
-        Primitives::drawFramedPanel(controlRenderer_, editBtn, pal.dark, pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, editBtn, "edit", pal.light);
-        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue id for search/goto"});
+        (void)inspDrawEditableRow(ix, cnY, "id", cnDisplay,
+                                 QuickAction::EditCueNumber,
+                                 "Set short cue id for search/goto",
+                                 pal.deep);
         rowCursor += 1;
 
         int ppY = ry + kRowStep * rowCursor;

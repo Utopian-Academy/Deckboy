@@ -1,5 +1,15 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.345 (the monitor and the preview follow the scale)
+
+The program monitor's labels — PROGRAM, the LIVE badge, the output resolution
+line and the two VJ deck captions — were fixed pixel boxes under type that
+scales, and so were the preview thumbnail's captions. At 150% the empty
+inspector's three lines ("No cue selected" / "Drop media here" / "Press A to
+take cue") were spaced 20 pixels apart while each was taller than that, so they
+overlapped. The colour-tag row and the cue id row keep the labels they were
+missing.
+
 ## 2026-09-12 - v0.99.344 (rows that know what they are)
 
 **The inspector's last unlabelled controls have labels.** Notes, cue id and goto
