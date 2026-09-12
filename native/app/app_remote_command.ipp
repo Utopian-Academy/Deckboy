@@ -1129,6 +1129,62 @@
         remoteCommandDetail_ = reply.empty() ? "no effects" : reply;
         return;
       }
+      // FX LFO <index> <slot> <on|off|shape> [value]
+      //
+      // The oscillators were reachable from the inspector and nowhere else, so
+      // a controller could set a parameter but not hand it to an LFO. Slots are
+      // 0-3 for the named parameters and 4 for the amount, matching the
+      // inspector's own numbering.
+      if (sub == "LFO") {
+        if (parts.size() < 5) {
+          failRemoteCommand("FX LFO wants <index> <slot> <on|off|shape> [value]");
+          return;
+        }
+        const int index = std::atoi(parts[2].c_str()) - 1;
+        const int slot = std::atoi(parts[3].c_str());
+        if (index < 0 || index >= static_cast<int>(cue->effects.size())) {
+          failRemoteCommand("FX LFO: no effect " + parts[2]);
+          return;
+        }
+        if (slot < 0 || slot > 4) {
+          failRemoteCommand("FX LFO: slot is 0-4");
+          return;
+        }
+        auto& lfo = cue->effects[static_cast<std::size_t>(index)].lfo[slot];
+        const std::string what = toLower(parts[4]);
+        if (what == "on" || what == "off") {
+          lfo.on = (what == "on");
+        } else if (what == "shape" && parts.size() >= 6) {
+          const std::string want = toLower(parts[5]);
+          bool found = false;
+          for (int sh = 0; sh < static_cast<int>(deckboy::effects::LfoShape::Count); ++sh) {
+            const auto candidate = static_cast<deckboy::effects::LfoShape>(sh);
+            if (want == deckboy::effects::lfoShapeToken(candidate)) {
+              lfo.shape = candidate;
+              lfo.on = true;   // asking for a shape means wanting it to run
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            failRemoteCommand("FX LFO: unknown shape \"" + parts[5] + "\"");
+            return;
+          }
+        } else if (what == "rate" && parts.size() >= 6) {
+          lfo.rateHz = std::clamp(static_cast<float>(std::atof(parts[5].c_str())),
+                                  0.001f, 20.0f);
+        } else if (what == "depth" && parts.size() >= 6) {
+          lfo.depth = std::clamp(static_cast<float>(std::atof(parts[5].c_str())),
+                                 0.0f, 1.0f);
+        } else {
+          failRemoteCommand("FX LFO: on, off, shape, rate or depth");
+          return;
+        }
+        markProjectDirty();
+        triggerToast("lfo: " + std::string(deckboy::effects::lfoShapeToken(lfo.shape))
+                     + (lfo.on ? " on" : " off"));
+        return;
+      }
       if (sub == "ADD" && parts.size() >= 3) {
         const auto kind = deckboy::effects::cueEffectFromToken(toLower(parts[2]));
         if (kind == deckboy::effects::CueEffectKind::None) {

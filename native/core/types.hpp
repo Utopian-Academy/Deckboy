@@ -1583,6 +1583,9 @@ enum class QuickAction {
   EffectLfoDepthDec,
   EffectLfoDepthInc,
   EffectLfoSync,
+  // Drag inside the scribble pad to draw the wave. A scrub rather than a
+  // click: the value follows the pointer for as long as the button is down.
+  EffectLfoDraw,
   // CodeEditExpression and CodeCycleExample removed 2026-08-29: the one-line
   // value field and the cycle button were both replaced by the code editor,
   // which does what each of them did and can be seen while doing it.

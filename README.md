@@ -234,24 +234,16 @@ those goes to your own LAN or to a destination you configured.
 
 ---
 
-## Not everything is on every platform
+## One thing that is not finished
 
-Rather than hide it:
+**App texture sharing** — Spout on Windows, Syphon on macOS — is a scaffold on
+both. Deckboy reports it as unavailable rather than accepting frames and
+quietly discarding them.
 
-| | Windows | macOS | Linux |
-|---|---|---|---|
-| Browser cues | ✅ WebView2 | ✅ WKWebView helper | ✅ headless Chromium |
-| Camera capture | ✅ DirectShow | ✅ AVFoundation | ✅ V4L2 |
-| Screen / window capture | ✅ GDI grab | ✅ ScreenCaptureKit helper | ✅ x11grab |
-| App texture sharing | ⚠️ Spout scaffold | ⚠️ Syphon scaffold | — |
-| GPU zero-copy decode | ✅ D3D11VA | CPU decode | CPU decode |
-
-App texture sharing is the one genuinely unfinished backend on both platforms.
-Where a backend is a scaffold, Deckboy reports it as unavailable rather than
-accepting frames and quietly discarding them.
-
-CPU decode is not a limitation in practice — it is comfortable on modern
-hardware; the zero-copy path exists to spare a 4K60 clip the round trip.
+Everything else in the list above runs on all three platforms. GPU zero-copy
+decode is Windows-only (D3D11VA); the other two decode on the CPU, which is
+comfortable on modern hardware — the zero-copy path exists to spare a 4K60 clip
+the round trip, not to make playback possible.
 
 ---
 

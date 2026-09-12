@@ -26,6 +26,7 @@
 #ifndef DECKBOY_CORE_CUE_EFFECTS_HPP
 #define DECKBOY_CORE_CUE_EFFECTS_HPP
 
+#include <array>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -606,6 +607,7 @@ enum class LfoShape : std::uint8_t {
   Ramp,      // ramp down, snap up
   Square,    // two values, nothing between
   Sample,    // a new random value each cycle, HELD -- steps, not noise
+  Drawn,     // whatever the operator sketched; see ParamLfo::curve
   Count
 };
 
@@ -617,6 +619,7 @@ inline const char* lfoShapeToken(LfoShape shape) {
     case LfoShape::Ramp:     return "ramp";
     case LfoShape::Square:   return "square";
     case LfoShape::Sample:   return "sample";
+    case LfoShape::Drawn:    return "drawn";
     default:                 return "sine";
   }
 }
@@ -637,6 +640,29 @@ struct ParamLfo {
   // machine that already knows what the music is doing.
   bool beatSync = false;
   float beats = 4.0f;      // cycle length in beats when synced
+
+  // ── THE SHAPE YOU DREW ──────────────────────────────────────────────────
+  //
+  // A cycle sampled at kLfoCurvePoints evenly spaced positions, each 0-1, read
+  // back with linear interpolation. Used only when shape == Drawn.
+  //
+  // A FIXED-SIZE TABLE, not a list of control points, because this is read per
+  // parameter per frame on the render path: a table is a lookup and two
+  // multiplies, where a spline would be a search. The operator is drawing a
+  // curve, not authoring one -- they can see exactly what they get.
+  //
+  // Thirty-two is enough to draw a recognisable swell, a double bounce or a
+  // sharp attack with a long tail, and few enough that the whole thing fits in
+  // a show file line without being a blob. It defaults to a ramp so a curve
+  // that has never been drawn still oscillates rather than sitting flat.
+  static constexpr int kLfoCurvePoints = 32;
+  std::array<float, kLfoCurvePoints> curve = [] {
+    std::array<float, kLfoCurvePoints> c {};
+    for (int i = 0; i < kLfoCurvePoints; ++i) {
+      c[i] = static_cast<float>(i) / static_cast<float>(kLfoCurvePoints - 1);
+    }
+    return c;
+  }();
 };
 
 // The oscillator itself, 0-1 out.
@@ -645,6 +671,23 @@ struct ParamLfo {
 // current beat (0-1). Both come from the caller so that the preview and the
 // output evaluate the SAME oscillator at the same moment -- two clocks would
 // mean the operator's monitor and the audience's screen disagreed.
+// WHERE IN ITS CYCLE this oscillator currently is, 0-1.
+//
+// Split out of lfoUnitValue so a UI can draw a playhead at the same position
+// the value is being read from. Two separate phase calculations would drift
+// apart, and a playhead that disagrees with the picture is worse than none.
+inline double lfoPhase01(const ParamLfo& lfo, double seconds, double beats01) {
+  double phase = 0.0;
+  if (lfo.beatSync) {
+    const double cycle = std::max(0.25, static_cast<double>(lfo.beats));
+    phase = beats01 / cycle;
+  } else {
+    phase = seconds * std::max(0.001, static_cast<double>(lfo.rateHz));
+  }
+  phase += lfo.phase;
+  return phase - std::floor(phase);
+}
+
 inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01) {
   double phase = 0.0;
   if (lfo.beatSync) {
@@ -675,6 +718,17 @@ inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01) 
       std::uint64_t h = cycle * 6364136223846793005ull + 1442695040888963407ull;
       h ^= h >> 33; h *= 0xff51afd7ed558ccdull; h ^= h >> 33;
       return static_cast<double>(h >> 11) / static_cast<double>(1ull << 53);
+    }
+    case LfoShape::Drawn: {
+      // Linear between the two nearest samples, and the last point wraps to
+      // the first -- a drawn cycle has to JOIN, or every repeat is a step.
+      const double pos = phase * ParamLfo::kLfoCurvePoints;
+      const int i0 = static_cast<int>(pos) % ParamLfo::kLfoCurvePoints;
+      const int i1 = (i0 + 1) % ParamLfo::kLfoCurvePoints;
+      const double frac = pos - std::floor(pos);
+      const double a = static_cast<double>(lfo.curve[static_cast<std::size_t>(i0)]);
+      const double b = static_cast<double>(lfo.curve[static_cast<std::size_t>(i1)]);
+      return std::clamp(a + (b - a) * frac, 0.0, 1.0);
     }
     case LfoShape::Sine:
     default:

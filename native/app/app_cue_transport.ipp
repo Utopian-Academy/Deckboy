@@ -44,7 +44,7 @@
       stopTransport();
     } else if (label == "CLEAR") {
       clearOutput();
-    } else if (label == "BLACKOUT") {
+    } else if (label == "BLACK" || label == "BLACKOUT") {   // old label still accepted
       // Instant and reversible: kills the picture without touching playback,
       // so the show keeps running underneath and one press brings it back.
       const bool dark = masterDimmerTarget_ < 0.5;
@@ -53,7 +53,7 @@
       playUiSound(dark ? UiSoundEffect::Toggle : UiSoundEffect::Clear);
     } else if (label == "RECORD") {
       toggleRecording();
-    } else if (label == "SETTINGS") {
+    } else if (label == "SETUP" || label == "SETTINGS") {   // old label still accepted
       settingsOpen_ = true;
       // SYSTEM, which is what the tab strip starts on and what the field
       // defaults to. This forced tab 3 (Video Outputs), so the button always

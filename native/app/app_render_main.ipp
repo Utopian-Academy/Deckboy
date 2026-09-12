@@ -2439,12 +2439,18 @@
     // fill the audit already verifies dark/deep/ink_soft against.
     Primitives::fillRect(controlRenderer_, inspectorBody, pal.shellInner);
     int kCtrlW = ctrl.w;
-    constexpr int kInspectorInset = 14;
-    constexpr int kInspectorHeaderGap = 18;
-    constexpr int kInspectorSectionGap = 12;
-    constexpr int kInspectorRowH = 36;
-    constexpr int kInspectorRowStep = 48;
-    constexpr int kInspectorSectionHeaderH = 32;
+    // SCALED, like every other metric in the app. These were constexpr
+    // literals, so at a 1.5x desktop the FONTS grew and the rows holding them
+    // did not: labels clipped inside their own controls and a two-line row
+    // overlapped the one below it. A metric that does not scale is a metric
+    // that is only right at 100%.
+    const int kInspectorInset = uiScaled(14);
+    const int kInspectorHeaderGap = uiScaled(18);
+    const int kInspectorSectionGap = uiScaled(12);
+    const int kInspectorRowH = std::max(uiScaled(36), textLineHeight(fontSmall_) + uiScaled(10));
+    const int kInspectorRowStep = kInspectorRowH + uiScaled(12);
+    const int kInspectorSectionHeaderH = std::max(uiScaled(32),
+                                                  textLineHeight(fontBase_) + uiScaled(8));
 
     // Thumbnail of selected cue (top portion)
     constexpr int kThumbAreaH = 110;
@@ -3115,7 +3121,7 @@
 
     if (panelMultiSelection) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
-      constexpr int kRowStep = kInspectorRowStep;
+      const int kRowStep = kInspectorRowStep;   // scaled now, so not constexpr
 
       std::vector<std::string> kindLabels;
       for (const Cue* cue : panelSelectedCues) {
@@ -3393,7 +3399,7 @@
     } else if (selectedCue && selectedCue->kind == CueKind::Video) {
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
-      constexpr int kRowStep = kInspectorRowStep;
+      const int kRowStep = kInspectorRowStep;   // scaled now, so not constexpr
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,
                                                    "Collapse/expand playback settings");
@@ -3673,7 +3679,7 @@
 
     } else if (selectedCue && selectedCue->kind == CueKind::Composite) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
-      constexpr int kRowStep = kInspectorRowStep;
+      const int kRowStep = kInspectorRowStep;   // scaled now, so not constexpr
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,
                                                    "Composite scene playback settings");
@@ -3807,7 +3813,7 @@
       finishInspectorSection(overlaySection, overlayY);
     } else if (selectedCue && selectedCue->kind == CueKind::LowerThird) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
-      constexpr int kRowStep = kInspectorRowStep;
+      const int kRowStep = kInspectorRowStep;   // scaled now, so not constexpr
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,
                                                    "Lower Third playback and overlay controls");
@@ -3884,7 +3890,7 @@
                                || selectedCue->kind == CueKind::Browser
                                || cueUsesLivePictureInspector(selectedCue->kind))) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
-      constexpr int kRowStep = kInspectorRowStep;
+      const int kRowStep = kInspectorRowStep;   // scaled now, so not constexpr
       // CODE, and FIRST when there is one.
       //
       // In THIS branch because it is the one that handles Image, Pattern,
@@ -4171,7 +4177,7 @@
     } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio-only cue settings
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
-      constexpr int kRowStep = kInspectorRowStep;
+      const int kRowStep = kInspectorRowStep;   // scaled now, so not constexpr
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,
                                                    "Audio cue playback settings");
@@ -4423,7 +4429,7 @@
       // Live input cues (SRT/RTMP/RTSP/UDP streams and NDI receive) previously
       // fell through to "no per-cue settings for this type".
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
-      constexpr int kRowStep = kInspectorRowStep;
+      const int kRowStep = kInspectorRowStep;   // scaled now, so not constexpr
       bool isNdi = selectedCue->kind == CueKind::NdiSource;
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,

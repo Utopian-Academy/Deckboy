@@ -745,6 +745,24 @@
       return;
     }
 
+    // The LFO scribble pad, for the same reason as the driver bar above: WHERE
+    // you pressed is the value, and a quick button only knows that it was hit.
+    // Claimed before the button list so the first touch already draws.
+    for (size_t i = 0; i < quickButtons_.size(); ++i) {
+      const auto& qb = quickButtons_[i];
+      if (qb.action != QuickAction::EffectLfoDraw) continue;
+      if (!pointInRect(x, y, qb.rect)) continue;
+      if (i >= cueSettingsQuickButtonStartIndex_ &&
+          !pointInRect(x, y, cueSettingsViewportRect_)) {
+        continue;
+      }
+      lfoDrawRect_ = qb.rect;
+      lfoDrawPacked_ = qb.param;
+      lfoDrawActive_ = true;
+      lfoDrawInto(x, y);
+      return;
+    }
+
     for (size_t i = 0; i < quickButtons_.size(); ++i) {
       const auto& qb = quickButtons_[i];
       bool isCueSettingsButton = i >= cueSettingsQuickButtonStartIndex_;
@@ -804,6 +822,10 @@
   }
 
   void handleMouseMotion(int x, int y) {
+    if (lfoDrawActive_) {
+      lfoDrawInto(x, y);
+      return;
+    }
     // Where the cursor is, for the mascot to look at. Recorded before every
     // early return below, because the face has to keep tracking while the
     // operator is doing something else entirely -- that is the whole charm of

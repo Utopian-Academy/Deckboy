@@ -2199,7 +2199,7 @@
       if (label == "STOP")     return &uiBtnStop_;
       if (label == "RERACK")   return &uiBtnRerack_;
       if (label == "CLEAR")    return &uiBtnClear_;
-      if (label == "SETTINGS") return &uiBtnSettings_;
+      if (label == "SETUP" || label == "SETTINGS") return &uiBtnSettings_;
       return nullptr;
     };
 

@@ -4961,7 +4961,12 @@
     //
     // The tips spell out what each one leaves behind, because that is the
     // whole decision and the labels hide it.
-    push("BLACKOUT",   pal.mid, "B — picture off instantly, playback keeps running (reversible)");
+    // "BLACK", not "BLACKOUT". Four buttons share this strip and at any UI
+    // scale above 1.0 the longest label wins the wrap test for all of them --
+    // so BLACKOUT ellipsized to "BLAC..." and SETTINGS to "SETT...", which
+    // tells an operator nothing at the moment they most need to read it.
+    // Every desk in the trade says BLACK on that button anyway.
+    push("BLACK",      pal.mid, "B — picture off instantly, playback keeps running (reversible)");
     push("CLEAR",      pal.mid, "C — fade out, drop overlays, stop playback");
     // RECORD belongs on the bar, not buried in Settings → Streaming. Arming a
     // capture is a SHOW action taken at the top of a take: an operator should
@@ -4978,7 +4983,7 @@
         buttons_.back().text = SDL_Color{255, 210, 210, 255};
       }
     }
-    push("SETTINGS",   pal.mid, "Open settings");
+    push("SETUP",      pal.mid, "Open settings");   // short enough not to ellipsize
 
     // WRAP RATHER THAN SHRINK THE WORDS.
     //

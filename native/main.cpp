@@ -2279,6 +2279,19 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
         one << (lfo.on ? 1 : 0) << ',' << static_cast<int>(lfo.shape) << ','
             << lfo.rateHz << ',' << lfo.depth << ',' << lfo.phase << ','
             << (lfo.beatSync ? 1 : 0) << ',' << lfo.beats;
+        // The drawn curve rides along ONLY when it is the shape in use, and
+        // only when it is not still the default ramp. Thirty-two numbers on
+        // every LFO of every effect of every cue would be most of a show file
+        // spent on curves nobody drew.
+        //
+        // Appended after `beats`, so a build that predates it reads the seven
+        // fields it knows and stops -- and a curve written by a newer build
+        // degrades to the shape token, which is the honest fallback.
+        if (lfo.shape == deckboy::effects::LfoShape::Drawn) {
+          for (int c = 0; c < deckboy::effects::ParamLfo::kLfoCurvePoints; ++c) {
+            one << ',' << lfo.curve[static_cast<std::size_t>(c)];
+          }
+        }
       }
     }
     out += one.str();
@@ -2346,6 +2359,15 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
             if (f.size() > 4) lfo.phase = static_cast<float>(std::atof(f[4].c_str()));
             if (f.size() > 5) lfo.beatSync = std::atoi(f[5].c_str()) != 0;
             if (f.size() > 6) lfo.beats = static_cast<float>(std::atof(f[6].c_str()));
+            // The drawn curve, if this show carries one. A partial curve is
+            // read as far as it goes and the rest keeps the default ramp,
+            // rather than being rejected: half a curve still oscillates.
+            for (int c = 0; c < deckboy::effects::ParamLfo::kLfoCurvePoints; ++c) {
+              const std::size_t at = static_cast<std::size_t>(7 + c);
+              if (f.size() <= at) break;
+              lfo.curve[static_cast<std::size_t>(c)] =
+                std::clamp(static_cast<float>(std::atof(f[at].c_str())), 0.0f, 1.0f);
+            }
             at = semi == std::string::npos ? std::string::npos : semi + 1;
           }
         }
@@ -4080,6 +4102,40 @@ class App {
     }
   }
 
+  // WRITE THE POINTER INTO THE CURVE.
+  //
+  // Where you are across the pad is which sample, how high you are is its
+  // value. The neighbouring samples are dragged part of the way with it so a
+  // fast sweep leaves a continuous line rather than a comb of spikes -- you
+  // are drawing with a soft pencil, not setting individual numbers.
+  void lfoDrawInto(int x, int y) {
+    if (lfoDrawRect_.w <= 0 || lfoDrawRect_.h <= 0) return;
+    auto* lfo = effectLfoAt(lfoDrawPacked_);
+    if (!lfo) return;
+    constexpr int kPts = deckboy::effects::ParamLfo::kLfoCurvePoints;
+    const double u = std::clamp(
+      static_cast<double>(x - lfoDrawRect_.x) / static_cast<double>(lfoDrawRect_.w),
+      0.0, 1.0);
+    const double v = std::clamp(
+      1.0 - static_cast<double>(y - lfoDrawRect_.y) / static_cast<double>(lfoDrawRect_.h),
+      0.0, 1.0);
+    const int idx = std::clamp(static_cast<int>(u * kPts), 0, kPts - 1);
+    lfo->curve[static_cast<std::size_t>(idx)] = static_cast<float>(v);
+    // The soft edge: half to each immediate neighbour, a quarter beyond. Wraps,
+    // because the cycle joins end to end.
+    const double falloff[2] = {0.5, 0.25};
+    for (int d = 1; d <= 2; ++d) {
+      const double w = falloff[d - 1];
+      for (int side = -1; side <= 1; side += 2) {
+        const int n = ((idx + side * d) % kPts + kPts) % kPts;
+        const double was = lfo->curve[static_cast<std::size_t>(n)];
+        lfo->curve[static_cast<std::size_t>(n)] =
+          static_cast<float>(was + (v - was) * w);
+      }
+    }
+    markProjectDirty();
+  }
+
   void debugAuditSettingsLayout() { auditSettingsLayout_ = true; }
 
   void debugPokeMascot(int pokes) {
@@ -4713,7 +4769,87 @@ class App {
     quickButtons_.push_back({syncBtn, QuickAction::EffectLfoSync,
                              "Follow the tapped tempo instead of a fixed rate",
                              packed});
-    return rowY + ix.rowStep - 4;
+    rowY += ix.rowStep;
+
+    // ── THE SCRIBBLE PAD ────────────────────────────────────────────────
+    //
+    // Only for the Drawn shape, and it is the whole point of that shape: a
+    // little scope you draw the wave into with the mouse. Drag across it and
+    // the curve follows your hand; the playhead rides the line you drew so you
+    // can see the parameter moving through your own shape.
+    //
+    // Deliberately small and deliberately charming. This is the one control in
+    // Deckboy you PLAY with rather than set, and a plain numeric table for a
+    // curve would be both harder to use and no fun at all.
+    if (lfo.shape == deckboy::effects::LfoShape::Drawn) {
+      const int padH = std::max(44, ix.rowH * 2);
+      SDL_Rect pad {x0, rowY, w, padH};
+      drawUIPanel(pad, pal.tile, pal.deep, pal.mid);
+
+      // Inner drawing area, inset so the curve never touches the frame.
+      SDL_Rect ink {pad.x + 4, pad.y + 4, pad.w - 8, pad.h - 8};
+
+      // A centre line to draw against, dotted so it reads as a guide rather
+      // than as part of the wave.
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(controlRenderer_, pal.fgSoft.r, pal.fgSoft.g,
+                             pal.fgSoft.b, 70);
+      for (int gx = ink.x; gx < ink.x + ink.w; gx += 6) {
+        const SDL_Rect dot {gx, ink.y + ink.h / 2, 2, 1};
+        SDL_RenderFillRect(controlRenderer_, &dot);
+      }
+
+      // The curve itself, as a filled area under the line: a stroke alone is
+      // thin and hard to read at this size, and the fill makes the shape
+      // legible at a glance.
+      const int pts = deckboy::effects::ParamLfo::kLfoCurvePoints;
+      for (int px = 0; px < ink.w; ++px) {
+        const double u = static_cast<double>(px) / std::max(1, ink.w - 1);
+        const double pos = u * pts;
+        const int i0 = static_cast<int>(pos) % pts;
+        const int i1 = (i0 + 1) % pts;
+        const double frac = pos - std::floor(pos);
+        const double a = lfo.curve[static_cast<std::size_t>(i0)];
+        const double b = lfo.curve[static_cast<std::size_t>(i1)];
+        const double v = a + (b - a) * frac;
+        const int topY = ink.y + static_cast<int>(std::lround((1.0 - v) * (ink.h - 2)));
+        SDL_SetRenderDrawColor(controlRenderer_, pal.mid.r, pal.mid.g, pal.mid.b, 110);
+        const SDL_Rect col {ink.x + px, topY, 1, ink.y + ink.h - topY};
+        SDL_RenderFillRect(controlRenderer_, &col);
+        SDL_SetRenderDrawColor(controlRenderer_, pal.fg.r, pal.fg.g, pal.fg.b, 230);
+        const SDL_Rect line {ink.x + px, topY, 1, 2};
+        SDL_RenderFillRect(controlRenderer_, &line);
+      }
+
+      // THE PLAYHEAD, riding the operator's own curve. Reads the same clock
+      // the effects read, so the dot is exactly where the parameter is -- not
+      // an animation of roughly the right speed.
+      {
+        // The SAME clock the effects read -- sampled once a frame into
+        // lfoSeconds_/lfoBeats_ -- so the dot is where the parameter actually
+        // is, not an animation of roughly the right speed.
+        const double phase = deckboy::effects::lfoPhase01(lfo, lfoSeconds_, lfoBeats_);
+        const double v = deckboy::effects::lfoUnitValue(lfo, lfoSeconds_, lfoBeats_);
+        const int hx = ink.x + static_cast<int>(std::lround(phase * (ink.w - 1)));
+        const int hy = ink.y + static_cast<int>(std::lround((1.0 - v) * (ink.h - 2)));
+        SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b, 255);
+        const SDL_Rect head {hx - 2, hy - 2, 5, 5};
+        SDL_RenderFillRect(controlRenderer_, &head);
+        // A little tail so it reads as travelling rather than blinking.
+        SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b, 90);
+        const SDL_Rect tail {hx - 6, hy - 1, 4, 3};
+        SDL_RenderFillRect(controlRenderer_, &tail);
+      }
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+      // Draggable: the drag handler writes into the curve. Registered as a
+      // scrub so a press-and-move reaches it, the same way the faders work.
+      quickButtons_.push_back({pad, QuickAction::EffectLfoDraw,
+                               "Draw the shape -- drag across to scribble a wave",
+                               packed});
+      rowY += padH + 4;
+    }
+    return rowY - 4;
   }
 
   int inspDrawMessageRow(const InspectorCtx& ix, int rowY, const std::string& text,
@@ -6837,7 +6973,11 @@ class App {
   // uiScale 1.0 this is the identity, so the 1x layout is bit-identical — that
   // property is what makes the sweep safe to apply widely.
   int uiScaled(int base) const {
-    double scale = project_.uiScale;
+    // effectiveUiScale, not the raw setting. uiScale <= 0 is the "follow the
+    // desktop" sentinel, and reading it raw made every uiScaled() call fall
+    // back to 1.0 -- so on a 150% desktop the fonts grew and the metrics that
+    // hold them did not, which is why rows clipped their own labels.
+    double scale = effectiveUiScale();
     if (!std::isfinite(scale) || scale <= 0.0) {
       scale = 1.0;
     }
@@ -8195,6 +8335,11 @@ class App {
   double motionDriverScrubDuration_ = 0.0;
   int motionDriverScrubDeck_ = -1;
   bool motionDriverScrubActive_ = false;
+
+  // The LFO scribble pad, while the pointer is down inside it.
+  bool lfoDrawActive_ = false;
+  SDL_Rect lfoDrawRect_ {0, 0, 0, 0};
+  int lfoDrawPacked_ = -1;
 
   // Opens or re-points the deck's driver, advances it one frame, and returns
   // the field to displace by -- or null when nothing is armed. Loops, because

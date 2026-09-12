@@ -122,6 +122,11 @@
       case QuickAction::EffectLfoDepthDec:  effectLfoNudgeDepth(param, -0.05f); return;
       case QuickAction::EffectLfoDepthInc:  effectLfoNudgeDepth(param, +0.05f); return;
       case QuickAction::EffectLfoSync:      effectLfoToggleSync(param); return;
+      // The pad draws on press and on drag, both handled in the input layer
+      // where the pointer position is known. A plain click on it has already
+      // written a point by the time this is reached, so there is nothing left
+      // to do -- but the case must exist or the action audit calls it dead.
+      case QuickAction::EffectLfoDraw:      return;
       case QuickAction::VjCycleBlend:
         // ONE ORDER, shared with the remote verb and the label, so the cycle
         // cannot offer a mode the renderer does not know or skip one it does.
