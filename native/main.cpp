@@ -4586,9 +4586,20 @@ class App {
   // 108/98/98 (docked) and 88/70/70 (floating) independently, so the value
   // column zig-zagged down the panel.
   int inspLabelColumnWidth(const InspectorCtx& ix, int contentW, int reservedW) const {
-    int minValueW = ix.ellipsize ? 76 : 68;
-    int preferred = ix.ellipsize ? 104 : 84;
-    return std::clamp(preferred, 64, std::max(64, contentW - reservedW - minValueW));
+    // SCALED, and wide enough for the font actually in use. These were raw
+    // pixel literals, so at a 1.5x desktop the label column stayed the width
+    // it needed at 100% while the text in it grew by half -- which is why
+    // "pattern" and "SELECTED CUE" started spilling out of their own rows.
+    //
+    // The floor is the width of a representative label rather than a number:
+    // whatever the font is, the column is at least big enough to hold one.
+    const int fontFloor = ix.labelFont
+      ? (measuredTextWidth(ix.labelFont, "transition") + uiScaled(10))
+      : uiScaled(64);
+    const int minValueW = uiScaled(ix.ellipsize ? 76 : 68);
+    const int preferred = std::max(uiScaled(ix.ellipsize ? 104 : 84), fontFloor);
+    return std::clamp(preferred, fontFloor,
+                      std::max(fontFloor, contentW - reservedW - minValueW));
   }
 
   void inspDrawQuickRow(const InspectorCtx& ix, int rowY, const std::string& label,

@@ -2683,12 +2683,42 @@
       int summaryBtnCount = 3 + (showConvert ? 1 : 0);
       int summaryBtnX = summaryRect.x + summaryRect.w - kSummaryPad
                         - (kSummaryBtnW * summaryBtnCount + kSummaryBtnGap * (summaryBtnCount - 1));
-      SDL_Rect copyRect {summaryBtnX, summaryRect.y + 4, kSummaryBtnW, 26};
-      SDL_Rect pasteRect {copyRect.x + copyRect.w + kSummaryBtnGap, summaryRect.y + 4, kSummaryBtnW, 26};
-      SDL_Rect resetRect {pasteRect.x + pasteRect.w + kSummaryBtnGap, summaryRect.y + 4, kSummaryBtnW, 26};
-      SDL_Rect convertRect {resetRect.x + resetRect.w + kSummaryBtnGap, summaryRect.y + 4, kSummaryBtnW, 26};
-      int labelAvailW = std::max(0, copyRect.x - summaryRect.x - kSummaryPad - 8);
-      SDL_Rect labelRect {summaryRect.x + kSummaryPad, summaryRect.y + 6, labelAvailW, 22};
+      SDL_Rect copyRect {summaryBtnX, summaryRect.y + uiScaled(4), kSummaryBtnW, std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(6))};
+      SDL_Rect pasteRect {copyRect.x + copyRect.w + kSummaryBtnGap, summaryRect.y + uiScaled(4), kSummaryBtnW, std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(6))};
+      SDL_Rect resetRect {pasteRect.x + pasteRect.w + kSummaryBtnGap, summaryRect.y + uiScaled(4), kSummaryBtnW, std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(6))};
+      SDL_Rect convertRect {resetRect.x + resetRect.w + kSummaryBtnGap, summaryRect.y + uiScaled(4), kSummaryBtnW, std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(6))};
+      // THE LABEL KEEPS WHAT IT NEEDS. The buttons measure their own font and
+      // grow with it, which is right -- but they were taking that width out of
+      // the label's share, so at a 1.5x scale "SELECTED CUE" became "SELE...".
+      // A heading that cannot say its own name is worth more than a button
+      // being four pixels wider than its text.
+      const int labelNeedW = measuredTextWidth(fontSmall_, "SELECTED CUE") + uiScaled(16);
+      int labelAvailW = std::max(0, copyRect.x - summaryRect.x - kSummaryPad - uiScaled(8));
+      if (labelAvailW < labelNeedW) {
+        // NARROW THE BUTTONS, do not move them. Shifting them right pushed the
+        // last one off the panel entirely -- the block is already right-aligned
+        // to the panel edge, so the only spare width is inside the buttons
+        // themselves. They ellipsize far more gracefully than a heading does.
+        const int shortfall = labelNeedW - labelAvailW;
+        const int perButton = shortfall / std::max(1, summaryBtnCount);
+        const int narrowed = std::max(uiScaled(34), kSummaryBtnW - perButton);
+        const int reclaimed = (kSummaryBtnW - narrowed) * summaryBtnCount;
+        kSummaryBtnW = narrowed;
+        // Re-lay the block against the same right edge with the new width.
+        summaryBtnX = summaryRect.x + summaryRect.w - kSummaryPad
+                      - (kSummaryBtnW * summaryBtnCount
+                         + kSummaryBtnGap * (summaryBtnCount - 1));
+        copyRect = {summaryBtnX, copyRect.y, kSummaryBtnW, copyRect.h};
+        pasteRect = {copyRect.x + copyRect.w + kSummaryBtnGap, copyRect.y,
+                     kSummaryBtnW, copyRect.h};
+        resetRect = {pasteRect.x + pasteRect.w + kSummaryBtnGap, copyRect.y,
+                     kSummaryBtnW, copyRect.h};
+        convertRect = {resetRect.x + resetRect.w + kSummaryBtnGap, copyRect.y,
+                       kSummaryBtnW, copyRect.h};
+        labelAvailW += reclaimed;
+      }
+      SDL_Rect labelRect {summaryRect.x + kSummaryPad, summaryRect.y + uiScaled(6),
+                          labelAvailW, std::max(uiScaled(22), textLineHeight(fontSmall_) + 2)};
       drawTextSafe(controlRenderer_, fontSmall_, labelRect, "SELECTED CUE", pal.inkSoft);
       drawUIPanel(copyRect, pal.mid, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, copyRect, "COPY", pal.deep);
@@ -3921,15 +3951,28 @@
           std::string typeId = normalizePatternTypeId(selectedCue->path);
           bool motionEnabled = endsWith(typeId, "-motion");
           std::string label = patternLabelForType(typeId);
-          SDL_Rect patternTypeLabel {ctrl.x + 10, playbackY, 92, 30};
-          SDL_Rect patternTypeBtn {ctrl.x + 104, playbackY, kCtrlW - 114, 30};
+          // SCALED, and laid out like every other row in this panel. These
+          // were raw pixels -- a 92px label column and a 104px offset tuned at
+          // 100% -- so at a 1.5x desktop the word "pattern" was wider than the
+          // column holding it and spilled out to the left of the panel.
+          const int patRowH = std::max(uiScaled(30),
+                                       textLineHeight(fontSmall_) + uiScaled(8));
+          const int patLabelW = measuredTextWidth(fontSmall_, "transition") + uiScaled(10);
+          SDL_Rect patternTypeLabel {ctrl.x + kInspectorInset, playbackY,
+                                     patLabelW, patRowH};
+          SDL_Rect patternTypeBtn {patternTypeLabel.x + patLabelW + uiScaled(8), playbackY,
+                                   std::max(uiScaled(60),
+                                            kCtrlW - kInspectorInset * 2 - patLabelW - uiScaled(8)),
+                                   patRowH};
           drawTextSafe(controlRenderer_, fontSmall_, patternTypeLabel, "pattern", pal.deep);
           drawUIPanel(patternTypeBtn, pal.light, pal.deep, pal.mid);
           drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {patternTypeBtn.x + 6, patternTypeBtn.y, patternTypeBtn.w - 18, patternTypeBtn.h},
+                       SDL_Rect {patternTypeBtn.x + uiScaled(6), patternTypeBtn.y,
+                                 patternTypeBtn.w - uiScaled(18), patternTypeBtn.h},
                        label, pal.deep);
           drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                               SDL_Rect {patternTypeBtn.x + patternTypeBtn.w - 14, patternTypeBtn.y, 14, patternTypeBtn.h},
+                               SDL_Rect {patternTypeBtn.x + patternTypeBtn.w - uiScaled(14),
+                                         patternTypeBtn.y, uiScaled(14), patternTypeBtn.h},
                                "v", pal.deep);
           cuePatternTypeDropdownRect_ = patternTypeBtn;
           playbackY += kRowStep;
