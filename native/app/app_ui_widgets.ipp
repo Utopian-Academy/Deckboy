@@ -316,29 +316,41 @@
     contextMenuOpen_ = false;
     uiWatchdogPopupEvent("context_menu", false);
   }
-
+  // ── A MENU IS OPAQUE, AND IT BELONGS TO THE THEME ───────────────────────
+  //
+  // This filled with a hardcoded dark green at alpha 245 -- so it ignored the
+  // theme entirely (a dark green box on a light colourway), and at 96% opacity
+  // whatever was behind it read straight through: with the menu open over the
+  // timeline you could read "The timeline can be scrubbed" through the list of
+  // source types.
+  //
+  // It now uses the chrome roles CLAUDE.md names for a structural panel --
+  // pal.tile filled, pal.fg inked -- at full opacity, and the hovered row goes
+  // BRIGHTER with dark ink like every other lit control in the program.
   void renderContextMenu() {
     if (!contextMenuOpen_) return;
-    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-    SDL_Color bg {20, 50, 20, 245};
-    Primitives::fillRect(controlRenderer_, contextMenuRect_, bg);
-    Primitives::strokeRect(controlRenderer_, contextMenuRect_, pal.dark);
+    drawUIPanel(contextMenuRect_, pal.tile, pal.deep, pal.mid);
+    const int swatchW = uiScaled(12);
+    const int textX = uiScaled(18);
     for (const auto& item : contextItems_) {
-      bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, item.rect);
+      const bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, item.rect);
       if (hover) {
-        SDL_Color hov {48, 90, 48, 200};
-        Primitives::fillRect(controlRenderer_, item.rect, hov);
+        Primitives::fillRect(controlRenderer_, item.rect, pal.light);
       }
-      // Color swatch (small square on left)
+      // Colour swatch (small square on the left).
       if (item.swatch.a > 0) {
-        SDL_Rect sw {item.rect.x, item.rect.y + 5, 12, item.rect.h - 10};
+        SDL_Rect sw {item.rect.x, item.rect.y + uiScaled(5),
+                     swatchW, item.rect.h - uiScaled(10)};
         Primitives::fillRect(controlRenderer_, sw, item.swatch);
       }
-      drawText(controlRenderer_, fontSmall_, item.label,
-               hover ? pal.light : pal.mid,
-               item.rect.x + 18, item.rect.y + 7);
+      // Into a rect, so a long source name ellipsizes inside the menu instead
+      // of running out of its right edge.
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {item.rect.x + textX, item.rect.y,
+                             std::max(uiScaled(40), item.rect.w - textX - uiScaled(6)),
+                             item.rect.h},
+                   item.label, hover ? pal.deep : pal.fg);
     }
-    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
   }
 
   void uiProfileLog(const std::string& message) const {

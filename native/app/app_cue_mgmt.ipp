@@ -2250,18 +2250,22 @@
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
     SDL_GetWindowSize(controlWindow_, &winW, &winH);
-    constexpr int kItemH = 32;
-    // Size menu to fit the widest label
-    int kMenuW = 212;
+    // SCALED, and tall enough for the font actually in use. The width was
+    // already measured from the labels; the row height was a raw 32, so at a
+    // 1.5x desktop the items were a menu's worth of larger text in a menu
+    // sized for smaller text.
+    const int kItemH = std::max(uiScaled(32), textLineHeight(fontSmall_) + uiScaled(10));
+    const int kMenuPad = uiScaled(18);
+    int kMenuW = uiScaled(212);
     if (fontSmall_) {
       for (const auto& item : contextItems_) {
         const int tw = measuredTextWidth(fontSmall_, item.label);
         if (tw > 0) {
-          kMenuW = std::max(kMenuW, tw + 36); // 18px left pad + 18px right pad
+          kMenuW = std::max(kMenuW, tw + kMenuPad * 2);
         }
       }
     }
-    int menuH = static_cast<int>(contextItems_.size()) * kItemH + 8;
+    int menuH = static_cast<int>(contextItems_.size()) * kItemH + uiScaled(8);
     int mx = 0, my = 0;
     if (buttons_.size() > 1 && buttons_[1].label == "SOURCE") {
       mx = buttons_[1].rect.x;
@@ -2273,9 +2277,9 @@
     mx = std::clamp(mx, 4, std::max(4, winW - kMenuW - 4));
     my = std::clamp(my, 4, std::max(4, winH - menuH - 4));
     contextMenuRect_ = {mx, my, kMenuW, menuH};
-    int iy = my + 4;
+    int iy = my + uiScaled(4);
     for (auto& item : contextItems_) {
-      item.rect = {mx + 4, iy, kMenuW - 8, kItemH - 2};
+      item.rect = {mx + uiScaled(4), iy, kMenuW - uiScaled(8), kItemH - uiScaled(2)};
       iy += kItemH;
     }
     uiWatchdogPopupEvent("context_menu", true, static_cast<int>(contextItems_.size()));

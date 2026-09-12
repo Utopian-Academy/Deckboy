@@ -1,5 +1,14 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.341 (a menu you cannot see through)
+
+**The SOURCE menu is opaque and follows the theme.** It filled with a hardcoded
+dark green at 96% opacity, so it ignored the colourway entirely — a dark green
+box on a light theme — and whatever sat behind it read straight through: with the
+menu open over the timeline you could read "The timeline can be scrubbed" through
+the list of source types. It now uses the same chrome roles as every other panel,
+at full opacity, and its rows and padding scale with the interface.
+
 ## 2026-09-12 - v0.99.340 (the cue list scales with the desktop)
 
 **Cue rows follow the UI scale.** The row was a fixed 80 pixels tall while the
