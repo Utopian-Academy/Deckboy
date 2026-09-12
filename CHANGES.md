@@ -1,5 +1,27 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.337 (a long playlist runs at full rate again)
+
+**The frame rate no longer falls away as cues are added.** A show with sixteen
+cues had dropped to 23fps, and a real slide deck is sixty-two. The cause was in
+how a label that does not fit its box is drawn a little smaller: it resized the
+shared font and put it back afterwards, and each of those calls throws away
+every glyph that face had already rasterised -- so one label that overflowed
+made every other label in the frame render again from its outlines. The cost
+grew with the number of cues because the cue list is where the labels are.
+
+A shrunken label now picks a smaller copy of the same face, kept alongside the
+original, and nothing anybody else is drawing with is touched. Measurements are
+asked once and remembered, and a label that already fits no longer goes to the
+ellipsizer to be told so. Sixty-four cues at a 1.5x desktop now hold 60fps,
+where sixteen could not.
+
+Two things were fixed along the way. Truncating a label cut it one **byte** at
+a time, which could land in the middle of a character in any language that
+needs more than one of them -- it now cuts on character boundaries. And it
+measured after every cut, thirty times for a long name; it finds the cut by
+halving instead, in about six.
+
 ## 2026-09-11 - v0.99.336 (the cyphers say what they mean)
 
 **ROT13, Atbash and Morse now read the way they should.** The four cyphers

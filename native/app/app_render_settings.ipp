@@ -3355,12 +3355,12 @@
       const auto area = [](const SDL_Rect& r) { return r.w * r.h; };
       // A control that leaves its own card is drawn over whatever is below it.
       for (const auto& btn : settingsBtns_) {
-        const int cx = btn.rect.x + btn.rect.w / 2;
-        const int cy = btn.rect.y + btn.rect.h / 2;
+        const int btnCx = btn.rect.x + btn.rect.w / 2;
+        const int btnCy = btn.rect.y + btn.rect.h / 2;
         for (const auto& card : settingsCards_) {
           const SDL_Rect& c = card.rect;
           const bool centreInside =
-            cx >= c.x && cx < c.x + c.w && cy >= c.y && cy < c.y + c.h;
+            btnCx >= c.x && btnCx < c.x + c.w && btnCy >= c.y && btnCy < c.y + c.h;
           if (!centreInside) continue;
           const bool fullyInside =
             btn.rect.x >= c.x && btn.rect.y >= c.y &&

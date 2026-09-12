@@ -313,16 +313,46 @@ std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int m
     return "";
   }
 
-  std::string clipped = text;
-  while (!clipped.empty()) {
-    clipped.pop_back();
-    std::string candidate = clipped + kEllipsis;
+  // ── CUT ON A CHARACTER, AND FIND THE CUT BY HALVING ─────────────────────
+  //
+  // This dropped one BYTE at a time and measured after each. Two things wrong
+  // with that. A byte is not a character: the moment the interface learned a
+  // language that needs more than one of them, a cut could land inside a
+  // character and leave invalid UTF-8 behind. And measuring is a full shape
+  // of the string, so a long name in a narrow column cost thirty of them --
+  // per label, per frame.
+  //
+  // Width only grows as the string does, so the cut can be found by halving:
+  // about six measurements instead of thirty, and never inside a character.
+  std::vector<std::size_t> stops;   // byte offset where each character starts
+  stops.reserve(text.size());
+  for (std::size_t i = 0; i < text.size();) {
+    stops.push_back(i);
+    const unsigned char c = static_cast<unsigned char>(text[i]);
+    const std::size_t step = (c < 0xC0) ? 1 : (c < 0xE0) ? 2 : (c < 0xF0) ? 3 : 4;
+    i += step;
+  }
+  stops.push_back(text.size());   // sentinel: "keep everything"
+
+  // Largest number of characters that still fits once the ellipsis is added.
+  // The whole string is already known not to fit, so the search stops one
+  // character short of it.
+  const int maxKeep = static_cast<int>(stops.size()) - 2;
+  int lo = 0;
+  int hi = std::max(0, maxKeep);
+  while (lo < hi) {
+    const int mid = (lo + hi + 1) / 2;
+    const std::string candidate = text.substr(0, stops[static_cast<std::size_t>(mid)]) + kEllipsis;
     if (TTF_GetStringSize(font, candidate.c_str(), 0, &textW, &textH) && textW <= maxWidth) {
-      return candidate;
+      lo = mid;
+    } else {
+      hi = mid - 1;
     }
   }
-
-  return kEllipsis;
+  if (lo <= 0) {
+    return kEllipsis;
+  }
+  return text.substr(0, stops[static_cast<std::size_t>(lo)]) + kEllipsis;
 }
 
 // Returns the human-readable display label for a CueKind (shown in UI).
@@ -2363,10 +2393,10 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
             // read as far as it goes and the rest keeps the default ramp,
             // rather than being rejected: half a curve still oscillates.
             for (int c = 0; c < deckboy::effects::ParamLfo::kLfoCurvePoints; ++c) {
-              const std::size_t at = static_cast<std::size_t>(7 + c);
-              if (f.size() <= at) break;
+              const std::size_t curveAt = static_cast<std::size_t>(7 + c);
+              if (f.size() <= curveAt) break;
               lfo.curve[static_cast<std::size_t>(c)] =
-                std::clamp(static_cast<float>(std::atof(f[at].c_str())), 0.0f, 1.0f);
+                std::clamp(static_cast<float>(std::atof(f[curveAt].c_str())), 0.0f, 1.0f);
             }
             at = semi == std::string::npos ? std::string::npos : semi + 1;
           }
@@ -6853,6 +6883,16 @@ class App {
   // Free every TTF_Font we hold. Used during shutdown and any time we need
   // to reload fonts at a different point size (UI scale change).
   void releaseFonts() {
+    // The ladders and the measurement cache are keyed by font POINTER, and the
+    // allocator will hand these same addresses back for the next set of fonts.
+    // Both have to go before the faces they describe do.
+    for (auto& entry : fontLadders_) {
+      for (auto& sized : entry.second.bySize) {
+        if (sized.second) TTF_CloseFont(sized.second);
+      }
+    }
+    fontLadders_.clear();
+    textMeasureCache_.clear();
     auto close = [](TTF_Font*& f) { if (f) { TTF_CloseFont(f); f = nullptr; } };
     close(fontLarge_);
     close(fontBase_);
@@ -6931,6 +6971,18 @@ class App {
     fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
     fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
     fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
+
+    // What each face is and how big, so a label that overflows can be given a
+    // smaller sibling instead of resizing the one everything else is using.
+    auto ladder = [&](TTF_Font* f, const std::string& path, int size) {
+      if (f) fontLadders_[f] = FontLadder{path, size, {}};
+    };
+    ladder(fontLarge_,      sans,  pt(32));
+    ladder(fontBase_,       sans,  pt(21));
+    ladder(fontSmall_,      sans,  pt(17));
+    ladder(fontMono_,       mono,  pt(18));
+    ladder(fontPixel_,      pixel, pt(24));
+    ladder(fontPixelSmall_, pixel, pt(12));
 
     // ── WHICH WAY THE LANGUAGE RUNS ─────────────────────────────────────────
     //
@@ -8985,6 +9037,43 @@ class App {
     std::string meta;
   };
   std::unordered_map<std::string, CueRowDisplayCache> cueRowDisplayCache_;
+
+  // ── THE SHRUNKEN SIBLINGS, AND WHAT A LABEL COSTS TO MEASURE ────────────
+  //
+  // A label that does not fit its box is drawn a little smaller (see
+  // fontThatFits). That used to be done by resizing the SHARED font and
+  // putting it back afterwards -- and TTF_SetFontSize flushes that face's
+  // glyph cache, so one overflowing label forced every other label in the
+  // frame to be rasterised again from its outlines. On a 16-cue show at a
+  // 1.5x desktop that was 225 resizes a frame and 24fps.
+  //
+  // So each font keeps a ladder of smaller siblings, opened once and reused,
+  // and shrinking a label means picking a different font object rather than
+  // altering one that everything else is drawing with.
+  struct FontLadder {
+    std::string path;
+    int baseSize = 0;
+    std::unordered_map<int, TTF_Font*> bySize;   // nullptr caches a failed open
+  };
+  mutable std::unordered_map<TTF_Font*, FontLadder> fontLadders_;
+
+  // Every fit decision is a text measurement, and a measurement is a full
+  // shape of the string -- the expensive half of drawing it. The width of a
+  // given string in a given font does not change, so it is asked once.
+  struct TextMeasureKey {
+    TTF_Font* font = nullptr;
+    std::string text;
+    bool operator==(const TextMeasureKey& o) const {
+      return font == o.font && text == o.text;
+    }
+  };
+  struct TextMeasureKeyHash {
+    std::size_t operator()(const TextMeasureKey& k) const {
+      return std::hash<const void*>{}(static_cast<const void*>(k.font)) * 1000003u
+           ^ std::hash<std::string>{}(k.text);
+    }
+  };
+  mutable std::unordered_map<TextMeasureKey, int, TextMeasureKeyHash> textMeasureCache_;
   // Async cue probe futures (path → probed Cue)
   struct PendingProbe {
     int deckIndex;

@@ -5321,17 +5321,6 @@
     drawTextRaw(renderer, font, deckboy::core::i18n::translate(textIn), color, x, y);
   }
 
-  // Restores a font size on the way out, so the early returns in the text
-  // funnels cannot leak a shrunken font to the next caller that shares it.
-  struct FontSizeRestore {
-    TTF_Font* font;
-    int size;
-    ~FontSizeRestore() {
-      if (font && size > 0) {
-        TTF_SetFontSize(font, static_cast<float>(size));
-      }
-    }
-  };
 
   // A SMALLER WORD BEATS HALF A WORD.
   //
@@ -5350,33 +5339,87 @@
   //
   // Sizing is restored before returning, because these fonts are shared by
   // every other caller.
-  TTF_Font* fontThatFits(TTF_Font* font, const std::string& text, int maxWidth,
-                         int& outRestoreSize) const {
-    outRestoreSize = 0;
+  // How wide this string is in this font -- asked once, then remembered.
+  //
+  // A measurement is a full shape of the string, which is the expensive half
+  // of drawing it, and the layout asks for the same widths every frame.
+  int measuredWidthIn(TTF_Font* font, const std::string& text) const {
+    if (!font || text.empty()) {
+      return 0;
+    }
+    TextMeasureKey key{font, text};
+    const auto at = textMeasureCache_.find(key);
+    if (at != textMeasureCache_.end()) {
+      return at->second;
+    }
+    int w = 0;
+    if (!TTF_GetStringSize(font, text.c_str(), 0, &w, nullptr)) {
+      w = 0;
+    }
+    // Bounded. Timecodes and counters mint a new string every frame, so an
+    // unbounded cache here is a leak with extra steps.
+    if (textMeasureCache_.size() > 8192) {
+      textMeasureCache_.clear();
+    }
+    textMeasureCache_.emplace(std::move(key), w);
+    return w;
+  }
+
+  // The same face, smaller. Opened once and kept; a failed open is cached as
+  // null so it is not retried every frame.
+  TTF_Font* fontAtSize(TTF_Font* base, int size) const {
+    const auto at = fontLadders_.find(base);
+    if (at == fontLadders_.end()) {
+      return nullptr;
+    }
+    FontLadder& ladder = at->second;
+    const auto have = ladder.bySize.find(size);
+    if (have != ladder.bySize.end()) {
+      return have->second;
+    }
+    TTF_Font* alt = TTF_OpenFont(ladder.path.c_str(), static_cast<float>(size));
+    ladder.bySize.emplace(size, alt);
+    return alt;
+  }
+
+  // ── A LABEL THAT WILL NOT FIT MUST NOT COST THE WHOLE FRAME ─────────────
+  //
+  // This shrank the SHARED font with TTF_SetFontSize and put it back
+  // afterwards. Both calls flush that face's glyph cache, so a single
+  // overflowing label made every other label in the frame rasterise again
+  // from its outlines -- and the labels are mostly in the playlist, so the
+  // cost grew with the number of cues. Measured on a 16-cue show at a 1.5x
+  // desktop: 225 resizes a frame, 24fps against 60 with one cue.
+  //
+  // A shrunken label now picks a DIFFERENT font object at that size. Same
+  // pixels on screen; nothing anybody else is drawing with is touched.
+  TTF_Font* fontThatFits(TTF_Font* font, const std::string& text, int maxWidth) const {
     if (!font || text.empty() || maxWidth <= 0) {
       return font;
     }
-    int wide = 0;
-    if (!TTF_GetStringSize(font, text.c_str(), 0, &wide, nullptr) || wide <= maxWidth) {
-      return font;   // already fits: the common case, and it costs one measure
+    if (measuredWidthIn(font, text) <= maxWidth) {
+      return font;   // already fits: the common case, and it costs one lookup
     }
-    const int original = TTF_GetFontSize(font);
-    if (original <= 0) {
+    const auto at = fontLadders_.find(font);
+    if (at == fontLadders_.end()) {
       return font;
     }
     // Not below 78% of the intended size, and never below 9px: a label nobody
     // can read is not a label that fits.
+    const int original = at->second.baseSize;
+    if (original <= 0) {
+      return font;
+    }
     const int floorSize = std::max(9, (original * 78) / 100);
     for (int size = original - 1; size >= floorSize; --size) {
-      if (!TTF_SetFontSize(font, static_cast<float>(size))) {
+      TTF_Font* alt = fontAtSize(font, size);
+      if (!alt) {
         break;
       }
-      if (TTF_GetStringSize(font, text.c_str(), 0, &wide, nullptr) && wide <= maxWidth) {
-        outRestoreSize = original;
-        return font;
+      if (measuredWidthIn(alt, text) <= maxWidth) {
+        return alt;
       }
     }
-    TTF_SetFontSize(font, static_cast<float>(original));
     return font;
   }
 
@@ -5509,9 +5552,7 @@
     const std::string shown = deckboy::core::i18n::passthrough()
                                 ? text
                                 : deckboy::core::i18n::translate(text);
-    int w = 0;
-    TTF_GetStringSize(font, shown.c_str(), 0, &w, nullptr);
-    return w;
+    return measuredWidthIn(font, shown);
   }
 
   void drawTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
@@ -5532,16 +5573,20 @@
     }
     // Panels now paint the caller's rect verbatim, so the label's usable width
     // is simply the inset rect — no grid-snapped right edge to compensate for.
-    int restoreSize = 0;
-    font = fontThatFits(font, text, safe.w, restoreSize);
-    const FontSizeRestore restore{font, restoreSize};
-    std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
+    font = fontThatFits(font, text, safe.w);
+    // fontThatFits has just measured this string in this font, so asking again
+    // is a cache hit -- and when it fits there is nothing for the ellipsizer to
+    // do. That was a full shape of every label in the interface, every frame,
+    // to be told each time that it was already short enough.
+    std::string clipped = (measuredWidthIn(font, text) <= safe.w)
+                            ? text
+                            : ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;
     }
-    int textW = 0;
-    int textH = 0;
-    if (!TTF_GetStringSize(font, clipped.c_str(), 0, &textW, &textH)) {
+    const int textW = measuredWidthIn(font, clipped);
+    int textH = TTF_GetFontHeight(font);
+    if (textH <= 0) {
       return;
     }
     // Always vertically center on the rect's midline. When the text is
@@ -5597,15 +5642,20 @@
     if (safe.w <= 0 || safe.h <= 0) {
       return;
     }
-    int restoreSize = 0;
-    font = fontThatFits(font, text, safe.w, restoreSize);
-    const FontSizeRestore restore{font, restoreSize};
-    std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
+    font = fontThatFits(font, text, safe.w);
+    // fontThatFits has just measured this string in this font, so asking again
+    // is a cache hit -- and when it fits there is nothing for the ellipsizer to
+    // do. That was a full shape of every label in the interface, every frame,
+    // to be told each time that it was already short enough.
+    std::string clipped = (measuredWidthIn(font, text) <= safe.w)
+                            ? text
+                            : ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;
     }
-    int textW = 0, textH = 0;
-    if (!TTF_GetStringSize(font, clipped.c_str(), 0, &textW, &textH)) {
+    const int textW = measuredWidthIn(font, clipped);
+    const int textH = TTF_GetFontHeight(font);
+    if (textH <= 0) {
       return;
     }
     // Center X within the safe (inset) width; center Y on the original
