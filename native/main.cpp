@@ -8558,6 +8558,10 @@ class App {
   struct SettingsCardRect { SDL_Rect rect; std::string title; };
   std::vector<SettingsCardRect> settingsCards_;
 
+  // When each flying cue left its perch, keyed by cue id. Runtime only: the
+  // name is the state, so nothing here is saved and nothing needs cleaning up.
+  std::map<std::string, Uint64> flightTakeoffMs_;
+
   bool firstClipLoadedThisSession_ = false;
 
   // ── The mascot notices you ──────────────────────────────────────────────

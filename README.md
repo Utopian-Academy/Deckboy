@@ -118,8 +118,7 @@ playable on site, minutes before doors.
 - Area of interest, edge feathering, warp / keystone correction
 - Per-output matte and still overlay, composited into the output's own picture
 - NDI output
-- DeckLink (SDI) output — Windows builds
-- Spout texture sharing — Windows
+- DeckLink (SDI) output, wherever the Blackmagic SDK is present
 - SRT and RTMP streaming, configurable independently and live at once
 
 </details>
@@ -172,8 +171,8 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - **Slide decks** — a PDF imports as one image cue per page, rendered at import
   by the platform's own engine, so nothing during a show depends on a document
   renderer
-- Browser sources (Windows and Linux)
-- Camera, window and screen capture
+- Browser sources, on all three platforms
+- Camera, window and screen capture, on all three platforms
 - SRT, RTMP, RTSP and UDP stream input; NDI source input
 - Test patterns and a built-in test card
 - A **code source** — a live-coded expression evaluated per pixel, edited while
@@ -230,13 +229,18 @@ Rather than hide it:
 
 | | Windows | macOS | Linux |
 |---|---|---|---|
-| Browser cues | ✅ WebView2 | ❌ scaffold only | ✅ headless Chromium |
-| Camera / window capture | ✅ | ❌ scaffold only | ✅ |
-| Spout / Syphon | ✅ Spout | ❌ not implemented | — |
+| Browser cues | ✅ WebView2 | ✅ WKWebView helper | ✅ headless Chromium |
+| Camera capture | ✅ DirectShow | ✅ AVFoundation | ✅ V4L2 |
+| Screen / window capture | ✅ GDI grab | ✅ ScreenCaptureKit helper | ✅ x11grab |
+| App texture sharing | ⚠️ Spout scaffold | ⚠️ Syphon scaffold | — |
 | GPU zero-copy decode | ✅ D3D11VA | CPU decode | CPU decode |
 
+App texture sharing is the one genuinely unfinished backend on both platforms.
 Where a backend is a scaffold, Deckboy reports it as unavailable rather than
 accepting frames and quietly discarding them.
+
+CPU decode is not a limitation in practice — it is comfortable on modern
+hardware; the zero-copy path exists to spare a 4K60 clip the round trip.
 
 ---
 

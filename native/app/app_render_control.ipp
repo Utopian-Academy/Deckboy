@@ -1379,13 +1379,94 @@
     }
   }
 
-  void renderCueRow(const SDL_Rect& row, int deckIndex, int index) {
-    if (row.y + row.h < 0 || row.y > 2000) {
+  // The empty place in the list where a cue used to sit. Three faint marks,
+  // which is all a perch needs to be.
+  void drawEmptyPerch(const SDL_Rect& row) {
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, pal.fgSoft.r, pal.fgSoft.g, pal.fgSoft.b, 70);
+    for (int d = 0; d < 3; ++d) {
+      const SDL_Rect mark {row.x + 16 + d * 6, row.y + row.h / 2, 3, 2};
+      SDL_RenderFillRect(controlRenderer_, &mark);
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }
+
+  // A pair of wings, beating, either side of the row it is carrying.
+  //
+  // Drawn as filled quills rather than single points: at a playlist row's
+  // scale a one-pixel line reads as a scratch on the screen, and the whole
+  // point is that you can see it flapping.
+  void drawFlightWings(const SDL_Rect& row, double flap, double alpha) {
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    const Uint8 a = static_cast<Uint8>(std::clamp(alpha, 0.0, 1.0) * 210.0);
+    SDL_SetRenderDrawColor(controlRenderer_, pal.fg.r, pal.fg.g, pal.fg.b, a);
+    const int midY = row.y + row.h / 2;
+    const int span = 10 + static_cast<int>(std::abs(flap) * 16.0);
+    for (int w = 1; w <= span; ++w) {
+      // The further out along the wing, the more it lifts -- which is what
+      // makes it beat rather than merely extend.
+      const int lift = static_cast<int>(std::lround(flap * w * 0.75));
+      const int thick = (w < span / 2) ? 3 : 2;
+      const SDL_Rect left {row.x - 6 - w, midY - lift, thick, thick};
+      const SDL_Rect right {row.x + row.w + 4 + w, midY - lift, thick, thick};
+      SDL_RenderFillRect(controlRenderer_, &left);
+      SDL_RenderFillRect(controlRenderer_, &right);
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }
+
+  void renderCueRow(const SDL_Rect& rowIn, int deckIndex, int index) {
+    if (rowIn.y + rowIn.h < 0 || rowIn.y > 2000) {
       return;
     }
 
     const Deck& deck = project_.decks[deckIndex];
     const auto& cue = deck.cues[index];
+
+    // ── IT SAID IT COULD, AND IT DOES ───────────────────────────────────
+    //
+    // The WHOLE CUE leaves -- thumbnail, name, buttons, the panel itself --
+    // beating its wings, rising off the list and away. Not the name alone,
+    // which is what this used to do and which reads as a text effect rather
+    // than as a bird.
+    //
+    // Entirely in the operator's chrome. Deckboy is used in front of
+    // audiences, so an easter egg that could reach the programme output is not
+    // an easter egg, it is a fault somebody discovers mid-keynote. Nothing
+    // here touches the output, the engine or the show file.
+    //
+    // THE NAME IS THE STATE. There is nothing to persist and nothing to clean
+    // up: rename the cue and it settles back onto the perch, delete it and it
+    // is gone. And it does not come back -- a cue that circles is a cue you
+    // are still looking at, and this one has left.
+    SDL_Rect row = rowIn;
+    double flightAlpha = 1.0;
+    double flap = 0.0;
+    bool flying = false;
+    if (cueBelievesItCanFly(cue)) {
+      flying = true;
+      auto& takeoff = flightTakeoffMs_[cue.id];
+      if (takeoff == 0) {
+        takeoff = animationNow_;
+      }
+      const double t = static_cast<double>(animationNow_ - takeoff) / 1000.0;
+      flap = std::sin(t * 9.0);
+      // Eased so it gathers itself, then goes. Linear from a standing start
+      // looks like a slide; this looks like something deciding to leave.
+      constexpr double kFlightSeconds = 3.2;
+      const double u = std::clamp(t / kFlightSeconds, 0.0, 1.0);
+      const double eased = u * u;
+      // Up and to the right, with the wingbeat rocking it as it climbs.
+      row.x = rowIn.x + static_cast<int>(std::lround(eased * (rowIn.w + 240.0)));
+      row.y = rowIn.y - static_cast<int>(std::lround(eased * 420.0 - flap * 6.0));
+      flightAlpha = std::clamp(1.0 - eased * 1.15, 0.0, 1.0);
+      if (flightAlpha <= 0.01) {
+        // Gone. The row keeps its place in the list, empty, so the playlist
+        // does not reshuffle itself around a joke.
+        drawEmptyPerch(rowIn);
+        return;
+      }
+    }
     bool isOverlay = std::any_of(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(),
                                   [&](int i) { return i == index; });
     bool isSelected = cueIndexSelected(deck, index);
@@ -1413,6 +1494,14 @@
       fill = {48, 80, 48, 255};
     }
 
+    if (flying) {
+      // Behind the row, so the panel rides between them.
+      drawFlightWings(row, flap, flightAlpha);
+      const Uint8 fa = static_cast<Uint8>(flightAlpha * 255.0);
+      fill.a = fa;
+      border.a = fa;
+      accent.a = fa;
+    }
     drawUIPanel(row, fill, border, accent);
 
     // Color tag chip
@@ -1683,51 +1772,8 @@
     // Name — line 2 (middle of row, prominent)
     int nameY = row.y + 26;
     SDL_Rect nameRect {nameX, nameY, nameW, 24};
-    if (cueBelievesItCanFly(cue)) {
-      // IT SAID IT COULD, AND IT CAN.
-      //
-      // Entirely in the operator's chrome. Deckboy is used in front of
-      // audiences, so an easter egg that could reach the programme output is
-      // not an easter egg, it is a fault someone finds out about mid-keynote.
-      // Nothing here touches the output, the engine or the show file.
-      //
-      // The NAME is the state, so there is nothing to persist and nothing to
-      // clean up: rename the cue and it lands, delete it and it is gone.
-      const double t = static_cast<double>(animationNow_) / 1000.0
-                     + static_cast<double>(index) * 0.7;
-      const double flap = std::sin(t * 7.0);
-      // Rises and drifts right, then wraps back to the perch and climbs again
-      // -- it has not escaped the window, it is circling.
-      const double journey = std::fmod(t * 0.22, 1.0);
-      const int driftX = static_cast<int>(journey * (nameW + 40.0));
-      const int riseY  = static_cast<int>(-journey * 22.0 + flap * 1.5);
+    {
 
-      SDL_Rect flyRect {nameRect.x + driftX, nameRect.y + riseY, nameRect.w, nameRect.h};
-      const std::string shortName = ellipsizeToPixelWidth(fontSmall_, cue.name,
-                                                          std::max(24, nameW - driftX));
-      // Wings: two strokes either side of the name, opening and closing.
-      const int wingSpan = 7 + static_cast<int>(std::abs(flap) * 5.0);
-      const int wingY = flyRect.y + 12;
-      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(controlRenderer_, ink.r, ink.g, ink.b, 200);
-      for (int w = 1; w <= wingSpan; ++w) {
-        const int lift = static_cast<int>(flap * (w * 0.55));
-        SDL_RenderPoint(controlRenderer_,
-                        static_cast<float>(flyRect.x - 4 - w),
-                        static_cast<float>(wingY - lift));
-        SDL_RenderPoint(controlRenderer_,
-                        static_cast<float>(flyRect.x - 4 - w),
-                        static_cast<float>(wingY - lift + 1));
-      }
-      drawTextSafe(controlRenderer_, fontSmall_, flyRect, shortName, ink);
-      // The perch it left: the row keeps its place in the playlist, empty.
-      SDL_SetRenderDrawColor(controlRenderer_, subInk.r, subInk.g, subInk.b, 90);
-      for (int d = 0; d < 3; ++d) {
-        SDL_RenderPoint(controlRenderer_,
-                        static_cast<float>(nameRect.x + d * 4),
-                        static_cast<float>(nameRect.y + 18));
-      }
-    } else {
       drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink);
     }
 

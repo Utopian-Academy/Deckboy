@@ -2139,6 +2139,31 @@
       }
       return;
     }
+    // RENAME <text> -- rename the selected cue on the focused deck. Blank
+    // restores the file name, matching the menu entry.
+    //
+    // Worth having over the wire and not only in the menu: a show that builds
+    // its playlist from a controller wants to label what it just made, and
+    // until now nothing outside the app could name anything.
+    if (command == "RENAME") {
+      Deck& deck = focusedDeckMutable();
+      const int idx = deck.selectedIndex;
+      if (idx < 0 || idx >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("RENAME: no cue selected");
+        return;
+      }
+      Cue& target = deck.cues[idx];
+      const std::string wanted = parts.size() > 1 ? trim(joinParts(parts, 1)) : std::string();
+      if (wanted.empty()) {
+        const fs::path p = fs::path(target.path);
+        target.name = p.has_stem() ? p.stem().string() : target.path;
+      } else {
+        target.name = wanted;
+      }
+      markProjectDirty();
+      triggerToast("renamed: " + target.name);
+      return;
+    }
     if (command == "PATTERN") {
       if (parts.size() > 1) {
         std::string sub = toUpper(parts[1]);
