@@ -1533,21 +1533,24 @@
     // toggles are what the row is FOR; the picture is what makes it pleasant to
     // read. So the picture yields first, then the name, and only then do the
     // buttons narrow. They do not disappear.
-    constexpr int kCueActionBtnW = 24;   // multiple of 8 — matches drawUIPanel's grid snap
-    constexpr int kCueActionBtnH = 16;   // multiple of 8
-    constexpr int kCueActionBtnGap = 4;
+    // Scaled, like everything else in the row. At 1.5x these stayed 1x-sized
+    // beside 1.5x text, so the icons crowded the name they were meant to sit
+    // clear of.
+    const int kCueActionBtnW = uiScaled(24);
+    const int kCueActionBtnH = uiScaled(16);
+    const int kCueActionBtnGap = uiScaled(4);
     constexpr int kCueActionCount = 5;
-    constexpr int kCueActionBtnMinW = 18;  // below this the icons stop being icons
-    constexpr int kCueStripMargin = 6;
+    const int kCueActionBtnMinW = uiScaled(18);  // below this icons stop being icons
+    const int kCueStripMargin = uiScaled(6);
     // Wide enough for the NAME on line two and the DURATION on line three --
     // "00:08.0" came out "00:0..." when this only budgeted for the name, and a
     // cue list that will not tell you how long a cue is has lost the argument.
-    constexpr int kCueMinNameW = 56;
-    auto cueStripWidthFor = [](int bw) {
+    const int kCueMinNameW = uiScaled(56);
+    auto cueStripWidthFor = [&](int bw) {
       return kCueActionCount * bw + (kCueActionCount - 1) * kCueActionBtnGap;
     };
-    constexpr int kNameXWithThumb = 124;   // clear of the still (x+50 .. x+118)
-    constexpr int kNameXNoThumb = 56;      // clear of the state indicator only
+    const int kNameXWithThumb = uiScaled(124);   // clear of the still
+    const int kNameXNoThumb = uiScaled(56);      // clear of the state indicator
 
     // Try to keep BOTH first, letting the buttons come down a few pixels, and
     // only give the picture up when even the smallest usable strip will not fit
@@ -1753,25 +1756,30 @@
     }
 
     // Cue ID and Type — line 1 (top of row)
-    SDL_Rect tokenRect {nameX, row.y + 4, 50, 18};
+    // EVERY OFFSET IN THIS ROW SCALES. They were raw pixels while the fonts
+    // grew with the UI scale, so at 1.5x "Pattern" was ellipsized to "PA..."
+    // inside a box still sized for 1x text, and the three lines ran together.
+    const int lineH = std::max(uiScaled(18), textLineHeight(fontSmall_));
+    SDL_Rect tokenRect {nameX, row.y + uiScaled(4), uiScaled(50), lineH};
     drawTextSafe(controlRenderer_, fontMono_, tokenRect, dc.token, subInk);
 
     {
       UiImageAsset* cueIcon = cueIconAssetForKind(cue.kind);
-      SDL_Rect iconRect {nameX + 54, row.y + 3, 22, 22};
-      if (cueIcon && drawUiImageContainTinted(*cueIcon, iconRect)) {
-        // Icon drawn — show kind label shifted right
-        SDL_Rect typeRect {nameX + 78, row.y + 5, 72, 18};
-        drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
-      } else {
-        SDL_Rect typeRect {nameX + 54, row.y + 5, 96, 18};
-        drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
-      }
+      const int iconSide = uiScaled(22);
+      SDL_Rect iconRect {nameX + uiScaled(54), row.y + uiScaled(3), iconSide, iconSide};
+      // The kind label runs to the right edge of the name column rather than a
+      // fixed width: "Window Source" and "Lower Third" are longer than the 72px
+      // this used to budget, and what it does with the overflow is ellipsize.
+      const int typeX = (cueIcon && drawUiImageContainTinted(*cueIcon, iconRect))
+                          ? nameX + uiScaled(78) : nameX + uiScaled(54);
+      SDL_Rect typeRect {typeX, row.y + uiScaled(5),
+                         std::max(uiScaled(40), nameX + nameW - typeX), lineH};
+      drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
     }
 
     // Name — line 2 (middle of row, prominent)
-    int nameY = row.y + 26;
-    SDL_Rect nameRect {nameX, nameY, nameW, 24};
+    int nameY = row.y + uiScaled(26);
+    SDL_Rect nameRect {nameX, nameY, nameW, std::max(uiScaled(24), lineH)};
     {
 
       drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink);
@@ -1781,13 +1789,14 @@
     // Metadata shares the bottom line with the action strip, so it stops short
     // of it instead of running underneath.
     const int metaW = showActionStrip ? std::max(40, actionStripX - nameX - 8) : nameW;
-    SDL_Rect metaRect {nameX, row.y + 50, metaW, 18};
+    SDL_Rect metaRect {nameX, row.y + uiScaled(50), metaW, lineH};
     drawTextSafe(controlRenderer_, fontSmall_, metaRect, dc.meta, isProbing ? pal.inkSoft : subInk);
 
     // Missing-media badge — right end of the name column, drawn live (not
     // via the display cache) so a relink clears it the same frame.
     if (cue.mediaMissing && nameW > 120) {
-      SDL_Rect missRect {nameX + nameW - 66, row.y + 4, 62, 18};
+      SDL_Rect missRect {nameX + nameW - uiScaled(66), row.y + uiScaled(4),
+                         uiScaled(62), lineH};
       Primitives::fillRect(controlRenderer_, missRect, SDL_Color {160, 18, 18, 255});
       drawCenteredTextSafe(controlRenderer_, fontSmall_, missRect, "MISSING",
                            SDL_Color {255, 210, 210, 255});
@@ -1888,14 +1897,17 @@
 
     bool toggleHover = false;
     auto drawCueActionButton = [&](int buttonX, QuickAction action, bool on, bool enabled, const std::string& tip) {
-      SDL_Rect btn {buttonX, row.y + 48, cueActionBtnW, kCueActionBtnH};
+      // ON THE METADATA LINE, which moves with the scale like everything
+      // else in the row. A raw 48 put the strip on the NAME line the moment
+      // the row grew, so the icons sat on top of the cue's own name.
+      SDL_Rect btn {buttonX, row.y + uiScaled(48), cueActionBtnW, kCueActionBtnH};
       SDL_Color btnFill = !enabled
         ? pal.mid
-        : (on ? pal.dark : pal.light);
-      SDL_Color btnAccent = enabled && on ? pal.light : pal.mid;
+        : (on ? pal.light : pal.tile);
+      SDL_Color btnAccent = enabled && on ? pal.mid : pal.mid;
       SDL_Color iconInk = !enabled
         ? pal.inkSoft
-        : (on ? pal.light : pal.deep);
+        : (on ? pal.deep : pal.fg);
       drawUIPanel(btn, btnFill, pal.deep, btnAccent);
       // The icon must use the SAME rect the button was painted with. This used
       // to pass snapRectToGrid(btn) while drawUIPanel painted btn unsnapped, so

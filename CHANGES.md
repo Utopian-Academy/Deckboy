@@ -1,5 +1,24 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.340 (the cue list scales with the desktop)
+
+**Cue rows follow the UI scale.** The row was a fixed 80 pixels tall while the
+fonts grew with the desktop, so at 150% three lines of larger text were being
+asked to fit in a row sized for smaller ones: the kind label came out as "PA..."
+for Pattern, the name and the metadata ran together, and the per-cue action icons
+sat on top of the cue's own name. Every offset in the row now scales, and the
+kind label runs to the edge of its column instead of a fixed width — "Window
+Source" and "Lower Third" were always longer than the space budgeted for them.
+
+**Nothing behind a modal talks over it.** Hover tips were suppressed for the
+modals that existed when that check was written, so the dashboard and the
+shortcuts page — both added later — had the timeline underneath them still
+offering "Click to seek", painted over the top by the tip layer.
+
+**The dashboard's own hint fits.** "Ctrl+D or Esc to close" was in a fixed-width
+box and came out as "Ctrl+D or Esc..." — an instruction ellipsized into one you
+cannot follow.
+
 ## 2026-09-12 - v0.99.339 (one question per row, everywhere)
 
 **Every settings card and every inspector row now has the same shape**: the

@@ -697,11 +697,17 @@
     SDL_Rect modal {(ww - mw) / 2, (wh - mh) / 2, mw, mh};
     dashModalRect_ = modal;
     Primitives::drawFramedPanel(controlRenderer_, modal, pal.shellInner, pal.deep, pal.shellOuter);
+    // Scaled. The hint was a raw 180px box, so at a 1.5x desktop it read
+    // "Ctrl+D or Esc..." -- an instruction ellipsized into an instruction you
+    // cannot follow.
+    const int hintW = uiScaled(190);
     drawTextSafe(controlRenderer_, fontBase_,
-                 SDL_Rect {modal.x + 16, modal.y + 10, mw - 200, 24},
+                 SDL_Rect {modal.x + uiScaled(16), modal.y + uiScaled(10),
+                           mw - hintW - uiScaled(28), uiScaled(24)},
                  "DASHBOARD", pal.fg);
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {modal.x + mw - 190, modal.y + 14, 180, 16},
+                 SDL_Rect {modal.x + mw - hintW - uiScaled(8), modal.y + uiScaled(14),
+                           hintW, uiScaled(18)},
                  "Ctrl+D or Esc to close", pal.fgSoft);
 
     // ── The grid ────────────────────────────────────────────────────────────

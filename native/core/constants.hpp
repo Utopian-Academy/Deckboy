@@ -45,7 +45,17 @@ constexpr int kColWidth = 270;         // cue list column width (pixels)
 constexpr int kColHeaderH = 66;        // cue list column header height
 constexpr int kColFooterH = 50;        // cue list column footer height
 constexpr int kGlobalHeaderH = 64;     // top toolbar / global header height
-constexpr int kRowHeight = 80;         // cue list row height (pixels)
+// THE CUE ROW HEIGHT, AND IT SCALES.
+//
+// This was a constexpr 80 while the fonts grew with the UI scale, so at a 1.5x
+// desktop three lines of 1.5x text were being asked to fit in a 1x row: the
+// kind label came out as "PA..." for Pattern, the name and the metadata line
+// touched, and the action icons sat on top of both.
+//
+// Base and live value, like the kLayout* metrics below -- every existing call
+// site reads `kRowHeight` unchanged and now gets the scaled one.
+constexpr int kRowHeightBase = 80;     // cue list row height at 1x
+inline int kRowHeight = kRowHeightBase;
 constexpr int kPadding = 24;           // general inner padding (pixels)
 
 // ---------------------------------------------------------------------------

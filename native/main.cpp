@@ -7231,6 +7231,7 @@ class App {
     kLayoutButtonHeight    = sc(kLayoutButtonHeightBase);
     kLayoutButtonPadding   = sc(kLayoutButtonPaddingBase);
     kLayoutButtonGap       = sc(kLayoutButtonGapBase);
+    kRowHeight             = sc(kRowHeightBase);
   }
 
   // Re-open every font AND rebuild every layout metric at the project's
