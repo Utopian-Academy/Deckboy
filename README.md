@@ -1,103 +1,66 @@
-Deckboy
+# Deckboy 🎬
 
-Open-source media playback and show control for live video workflows.
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Utopian-Academy/Deckboy)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![License](https://img.shields.io/github/license/Utopian-Academy/Deckboy)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#)
+[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](#)
 
-Deckboy is a native desktop application built for video engineers, AV
-technicians, and live operators who need a reliable way to organize media,
-trigger cues, loop content, and send video to production displays. That is the
-job it is built around and the job the interface is optimised for: when the
-lights go down, playback has to be right.
+> **Open-source media playback and show control for live video workflows.**
 
-It also happens to be a very good video Swiss army knife. The same box speaks
-NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode, OSC, Art-Net and NMOS,
-converts awkward media in place, captures cameras and screens, and generates
-test patterns — so the machine you brought for playback usually solves the other
-five problems on the day as well.
+Deckboy is a native desktop application built for video engineers, AV technicians, and live operators who need a reliable way to organize media, trigger cues, loop content, and send video to production displays. That is the job it is built around and the job the interface is optimised for: **when the lights go down, playback has to be right.**
 
-Load your media. Build your playlist. Take it live.
+It also happens to be a very good video **Swiss army knife**. The same box speaks NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode, OSC, Art-Net and NMOS. It converts awkward media in place, captures cameras and screens, and generates test patterns — so the machine you brought for playback usually solves the other five problems on the day as well.
 
-+--------------------------+
-| DECKBOY                  |
-|--------------------------|
-| 01  opener.mp4           |
-| 02  background_loop.mov  |
-| 03  stinger.mp4          |
-|                          |
-|             >> TAKE      |
-+--------------------------+
+**Load your media. Build your playlist. Take it live.**
 
-Why Deckboy?
+---
 
-Many video workflows need something between a basic media player and a full
-production suite. Deckboy is built for that gap, and playback is the point of
-it. The everyday playback workflow is the core of the app:
+## ⚡ Why Deckboy?
 
-- Prepare media cues ahead of time
-- Trigger clips instantly during a show
-- Keep loops running reliably
-- Send video to dedicated fullscreen outputs
-- Control playback remotely from production tools
+Many video workflows need something between a basic media player and a full production suite. Deckboy is built for that gap, and playback is the point of it. The everyday playback workflow is the core of the app:
 
-Around that core sits a toolkit that means one laptop usually covers the rest of
-the day as well:
+- 🎯 **Prepare** media cues ahead of time
+- 🚀 **Trigger** clips instantly during a show
+- 🔁 **Keep loops running** reliably
+- 📺 **Send video** to dedicated fullscreen outputs
+- 🎛️ **Control playback** remotely from production tools
 
-- Convert media that will not play well, in place, without leaving the app
-  (NVENC where available, libx264 otherwise)
-- Inspect any file — codec, raster, frame rate, channels, duration — by
-  importing it
-- Generate test patterns and a test card to prove a chain end to end
-- Capture a camera, a window or a screen and treat it as a cue
-- Bridge formats: take NDI in and send SDI, ST 2110, SRT or RTMP out, in any
-  combination, simultaneously
-- Normalize loudness to EBU R128 when a client sends a clip mastered too quiet
-- Read the audio honestly with a content-authoritative stereo waveform
-- Generate LTC timecode on its own routable output
+### The Swiss Army Knife Toolkit
+Around that core sits a toolkit that means one laptop usually covers the rest of the day as well:
 
-Built as a native SDL3 application, Deckboy prioritizes predictable performance,
-simple deployment, and operator-focused controls. No installer and no account.
+- **Convert media** that will not play well, in place, without leaving the app (NVENC where available, libx264 otherwise)
+- **Inspect any file** — codec, raster, frame rate, channels, duration — by importing it
+- **Generate test patterns** and a test card to prove a chain end to end
+- **Capture a camera**, a window or a screen and treat it as a cue
+- **Bridge formats:** take NDI in and send SDI, ST 2110, SRT or RTMP out, in any combination, simultaneously
+- **Normalize loudness** to EBU R128 when a client sends a clip mastered too quiet
+- **Read the audio** honestly with a content-authoritative stereo waveform
+- **Generate LTC timecode** on its own routable output
 
-Deckboy collects nothing and sends nothing to its developers: there is no
-analytics, no usage reporting, no crash upload and no update check. Crash logs
-are written to a file next to the app for you to read or forward, and stay
-there.
+### Built for Operators, Not Data Harvesters
+Built as a native SDL3 application, Deckboy prioritizes predictable performance, simple deployment, and operator-focused controls. **No installer and no account.**
 
-It is, however, deliberately network-active — NDI discovery, PTP, NMOS
-registration, OSC, Companion control and streaming all talk to the network by
-design. Every one of those goes to your own LAN or to a destination you
-configured. The only outbound links in the app are vendor download pages
-(NDI, Blackmagic, WebView2), opened in your browser when you click the button
-in a missing-dependency prompt.
+Deckboy collects nothing and sends nothing to its developers: there is **no telemetry**, no usage reporting, no crash upload and no update check. Crash logs are written to a file next to the app for you to read or forward, and stay there.
 
-Deckboy is fully open source. Windows is the primary development and release
-platform. macOS and Linux build from the same codebase and are verified on every
-commit by CI; macOS additionally has a portable, self-contained app bundle.
+It is deliberately network-active — NDI discovery, PTP, NMOS registration, OSC, Companion control and streaming all talk to the network by design. Every one of those goes to your own LAN or to a destination you configured.
 
-Built For
+---
 
-Environments where reliable media playback matters:
+## 🏗️ Built For
 
-- Live events
-- Corporate presentations
-- Churches
-- Schools and universities
-- Museums and installations
-- Digital signage
-- Projection systems
-- LED walls
-- Streaming productions
+**Environments where reliable media playback matters:**
+Live events • Corporate presentations • Churches • Schools & universities • Museums & installations • Digital signage • Projection systems • LED walls • Streaming productions
 
-And the jobs in between, which is where a Swiss army knife earns its keep:
-
+**And the jobs in between:**
 - Bench-testing a screen, projector or LED wall before anyone arrives
 - Proving a cable, converter or switcher input with a real test card
 - Getting an NDI source onto SDI, or an SDI-shaped workflow onto the network
 - Restreaming a local source to SRT and RTMP at the same time
 - Making a client's unplayable file playable, on site, minutes before doors
-- Checking what a file actually is before trusting it in a show
-- Putting timecode on a spare pair without disturbing the programme mix
-- Standing in as a playout source while the real system is being built
 
-Current Features
+---
+
+## ✨ Current Features
 
 Playback
 
