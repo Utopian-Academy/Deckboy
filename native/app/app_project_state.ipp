@@ -402,7 +402,11 @@
         output << " pos=" << formatSeconds(engine->position())
                << " dur=" << formatSeconds(engine->duration())
                << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f))
-               << " decode_fps=" << decodeFps;
+               << " decode_fps=" << decodeFps
+               // Frames this deck put NOTHING on the output -- see the note on
+               // the other status builder. A run of these between two cues is
+               // the black flash, measured rather than filmed.
+               << " blank_frames=" << engine->blankFrameCount();
       }
       output << '\n';
     }
@@ -567,7 +571,11 @@
       output << " pos=" << formatSeconds(engine->position())
              << " dur=" << formatSeconds(engine->duration())
              << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f))
-             << " decode_fps=" << decodeFps;
+             << " decode_fps=" << decodeFps
+             // Frames this deck put NOTHING on the output. A cut that drops the
+             // outgoing picture before the incoming one decodes shows up here as
+             // a run, which on a slide deck is the black flash between pages.
+             << " blank_frames=" << engine->blankFrameCount();
     }
     output << '\n';
     return output.str();

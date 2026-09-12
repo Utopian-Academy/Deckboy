@@ -401,6 +401,28 @@ class MediaEngine {
   static void setSdlTornDown(bool tornDown);
   static bool sdlTornDown();
 
+  // IS THERE ANYTHING TO PUT ON SCREEN RIGHT NOW?
+  //
+  // True while the engine holds either the current frame or the outgoing one it
+  // is still showing during a transition. False means the output draws black.
+  //
+  // Exposed because "does a cut flash black" is otherwise only answerable by
+  // filming the screen: a cut used to drop the outgoing frame and then wait for
+  // the incoming still to decode, and this is the predicate that was false in
+  // between.
+  bool hasPictureToShow() const {
+    return texture_ != nullptr || (transitionActive_ && transitionTexture_ != nullptr);
+  }
+
+  // HOW MANY TIMES THIS DECK HAD NOTHING TO SHOW.
+  //
+  // Counted per rendered frame while a cue is racked. A cut that drops the
+  // outgoing picture before the incoming one has decoded shows as a run of
+  // these, and on a slide deck that run is the black flash between pages.
+  // Reported by STATUS so it can be measured over the wire instead of filmed.
+  std::uint64_t blankFrameCount() const { return blankFrames_; }
+  void resetBlankFrameCount() { blankFrames_ = 0; }
+
   // -- Single-frame decode (for thumbnail generation) --------------------------
   std::optional<DecodedFrame> decodeSingleFrame(ChildProcess& process, const std::string& path,
                                                  int width, int height, double seconds);
@@ -644,6 +666,20 @@ class MediaEngine {
 
   // -- State: video frame texture ----------------------------------------------
   SDL_Texture* texture_ = nullptr;           // GPU texture for the current frame
+  mutable std::uint64_t blankFrames_ = 0;    // asks answered with no picture at all
+  // THE OUTGOING PICTURE, HELD.
+  //
+  // loadCue drops displayFrame_ the moment a new cue is racked, and the
+  // compositor reads exactly that -- so between the drop and the incoming
+  // cue's first decoded frame there is nothing to draw. On video you rarely
+  // catch it; on a slide deck, where every page is decoded fresh, it is a
+  // black frame between every slide.
+  //
+  // The old frame moves here instead and currentFrame() keeps handing it out
+  // until the new one lands. Bounded, because a cue that never produces a
+  // frame must not leave the previous slide up for the rest of the show.
+  std::optional<DecodedFrame> heldFrame_;
+  std::chrono::steady_clock::time_point heldFrameSince_;
   int textureWidth_ = 0;                     // texture dimensions (match decoded frame)
   int textureHeight_ = 0;
   Uint32 textureFormat_ = 0;                 // SDL pixel format of the live texture (0 if none)

@@ -400,8 +400,11 @@
     const int labelW = std::max(uiScaled(92), bodyW * 2 / 5);
     const int ctlX = bodyX + labelW + uiScaled(8);
     const int ctlW = std::max(uiScaled(72), bodyX + bodyW - ctlX);
+    // pal.fg, not pal.fgSoft. "Secondary ink" is for text that supports
+    // something else; the label IS the question, and at 2.44:1 the soft role
+    // was the least readable thing on the card.
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect{bodyX, y, labelW, rowH}, label, pal.fgSoft);
+                 SDL_Rect{bodyX, y, labelW, rowH}, label, pal.fg);
     SDL_Rect control {ctlX, y, ctlW, rowH};
     y += rowH + gap;
     return control;
@@ -416,7 +419,11 @@
   // a value that opens a prompt, an operator has to learn which controls are
   // which instead of learning what they do.
   void drawUIValueControl(const SDL_Rect& rect, const std::string& value) {
-    Primitives::drawFramedPanel(controlRenderer_, rect, pal.mid, pal.deep, pal.light);
+    // pal.light + pal.deep, which CLAUDE.md names as the pairing for a SMALL
+    // RAISED CONTROL and which is the only one here that measures. Filled with
+    // pal.mid it read 2.07:1 against its own ink -- below every readability
+    // floor there is, and the reason the values on this page were hard work.
+    Primitives::drawFramedPanel(controlRenderer_, rect, pal.light, pal.deep, pal.mid);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, rect,
                          value.empty() ? std::string("--") : value, pal.deep);
   }
@@ -571,11 +578,17 @@
     if (settingsTab_ == 0) {
       const Deck& tcDeck = focusedDeck();
       auto drawPillToggle = [&](const SDL_Rect& rect, bool on, const std::string& onLabel, const std::string& offLabel) {
+        // ON IS BRIGHT, OFF IS FLAT, and both are dark ink on a light fill.
+        //
+        // It used to invert -- a dark fill with light ink for the lit state --
+        // which measured 2.21:1 and made the switched-ON controls the hardest
+        // to read on the page, which is exactly backwards. The state now shows
+        // as brightness of the fill rather than as a reversal of the ink.
         Primitives::drawFramedPanel(controlRenderer_, rect,
-                        on ? pal.dark : pal.mid,
-                        pal.deep, pal.light);
+                        on ? pal.light : pal.tile,
+                        pal.deep, on ? pal.mid : pal.light);
         drawCenteredText(controlRenderer_, fontSmall_, on ? onLabel : offLabel,
-                         on ? pal.light : pal.deep, rect);
+                         on ? pal.deep : pal.fg, rect);
       };
 
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {

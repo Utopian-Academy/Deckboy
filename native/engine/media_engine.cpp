@@ -291,6 +291,12 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   pausePoints_   = cue ? cue->pausePoints   : std::vector<double>{};
   nextPausePointIdx_ = 0;
   playbackSpeed_ = cue ? std::clamp(cue->playbackSpeed, 0.25, 4.0) : 1.0;
+  // Hand the outgoing picture to the holder rather than dropping it; see
+  // heldFrame_. This is what stops the black frame between two cues.
+  if (displayFrame_.has_value()) {
+    heldFrame_ = std::move(displayFrame_);
+    heldFrameSince_ = std::chrono::steady_clock::now();
+  }
   displayFrame_.reset();
   currentPosition_ = 0.0;
   pausedPosition_ = 0.0;
@@ -898,6 +904,7 @@ void MediaEngine::update() {
     if (pendingImageFrame_) {
       pendingImageFrame_->index = ++displayFrameSerial_;
       displayFrame_ = std::move(pendingImageFrame_);
+      heldFrame_.reset();   // the new picture is up; let the old one go
       uploadFrame(*displayFrame_);
     }
   }
@@ -1010,6 +1017,7 @@ void MediaEngine::update() {
     std::lock_guard<std::mutex> lock(frameMutex_);
     while (!frameQueue_.empty() && frameQueue_.front().index <= targetFrame) {
       displayFrame_ = std::move(frameQueue_.front());
+      heldFrame_.reset();   // the new picture is up; let the old one go
       frameQueue_.pop_front();
       lastRenderedFrameIndex_ = displayFrame_->index;
       advancedDisplayFrame = true;
@@ -1133,7 +1141,30 @@ void MediaEngine::recordMediaFrameAdvance(std::uint64_t frameIndex) {
 // is loaded. Used by the output renderer (app_render_output.ipp) to read
 // pixel data directly for compositing onto the output window/NDI/DeckLink.
 const DecodedFrame* MediaEngine::currentFrame() const {
-  return displayFrame_.has_value() ? &(*displayFrame_) : nullptr;
+  // NOTHING TO HAND THE COMPOSITOR. Counted here rather than in render(),
+  // which the output never calls -- a counter in a path nothing runs reads
+  // zero whether or not the bug is there, which is how the first attempt at
+  // measuring this proved nothing at all.
+  if (!displayFrame_.has_value() && !heldFrame_.has_value() && activeCue_) {
+    ++blankFrames_;
+  }
+  if (displayFrame_.has_value()) {
+    return &(*displayFrame_);
+  }
+  // Still waiting on the incoming cue: keep showing the one it is replacing.
+  //
+  // A SECOND, no more. A still decodes in a fraction of that, and a cue that
+  // never decodes at all -- a missing file, a browser that fails to start --
+  // must not leave the previous picture up looking like it worked.
+  if (heldFrame_.has_value()) {
+    constexpr double kHoldLimitSeconds = 1.0;
+    const double held = std::chrono::duration<double>(
+      std::chrono::steady_clock::now() - heldFrameSince_).count();
+    if (held <= kHoldLimitSeconds) {
+      return &(*heldFrame_);
+    }
+  }
+  return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -1222,6 +1253,8 @@ void MediaEngine::render(SDL_Rect target) {
 
   bool drewCurrent = drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
   drawTransitionOverlay(target, drewCurrent);
+
+
 
   double gain = visualFadeGainAt(position());
   if (drewCurrent && gain < 0.999) {
@@ -4262,9 +4295,14 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
     // "waiting for first frame" state would hold it on screen until
     // the next cue renders something — which never happens for cues
     // that don't produce frames (e.g. browser on Windows).
+    //
+    // NOTE: this is the texture path used by render(), which nothing currently
+    // calls. What the OUTPUT reads is currentFrame(); the black frame between
+    // two cues lived there and is fixed there, by heldFrame_.
     clearTexture();
     return;
   }
+
   // Move the current frame texture to the transition snapshot
   transitionTexture_ = texture_;
   transitionTextureWidth_ = textureWidth_;
