@@ -509,10 +509,30 @@ enum class TransportState {
 // How one cue transitions into the next. Applied at the deck level
 // (Deck::transitionStyle) or overridden per-cue (Cue::cueTransitionStyle).
 // The output compositor in app_render_output.ipp blends layers accordingly.
+// HOW ONE CUE BECOMES THE NEXT.
+//
+// Appended to, never reordered: the value is serialised as a token, but the
+// inspector's cycle and every saved show still expect the first three to mean
+// what they always meant.
+//
+// All of them are composited in app_render_output.ipp, which is where every
+// cue kind meets as a frame -- so a transition works the same on a video, a
+// slide, a pattern, a camera or an NDI source without knowing which it is.
 enum class TransitionStyle {
-  Cut,        // instant switch — no blending
-  Crossfade,  // gradual alpha blend between outgoing and incoming
-  DipBlack    // fade out to black, then fade in the new cue
+  Cut,         // instant switch — no blending
+  Crossfade,   // gradual alpha blend between outgoing and incoming
+  DipBlack,    // fade out to black, then fade in the new cue
+  DipWhite,    // the same through white: a flash rather than a blink
+  PushLeft,    // the outgoing picture slides off left, the new one follows it in
+  PushRight,
+  PushUp,
+  PushDown,
+  WipeLeft,    // a hard edge travels across; neither picture moves
+  WipeRight,
+  WipeUp,
+  WipeDown,
+  Iris,        // a circle opens from the centre of the frame
+  Count
 };
 
 // How a cue's source frame maps to the output resolution.

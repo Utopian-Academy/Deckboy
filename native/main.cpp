@@ -8207,6 +8207,9 @@ class App {
   SDL_Rect cueSettingsScrollRailRect_ {0, 0, 0, 0};
   int cueSettingsScrollThumbH_ = 0;
   bool cueSettingsScrollDragActive_ = false;
+  // Which frame is already sitting in each transition bridge texture, so a
+  // style that draws the same picture many times a frame uploads it once.
+  std::map<std::string, std::uintptr_t> transitionUploadStamp_;
   int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
   std::string uiDumpPath_;            // --ui-dump <file>, written once then quit
   int uiDumpFramesLeft_ = 0;

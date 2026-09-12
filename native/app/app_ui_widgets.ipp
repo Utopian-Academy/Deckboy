@@ -496,12 +496,22 @@
     return "Media File / Still";
   }
 
+  // EVERY STYLE, FROM THE ENUM, in the order it is declared.
+  //
+  // This was a hand-written list of three, so the nine added after it would
+  // have been reachable over the wire and invisible in the interface -- the
+  // same way the LFO oscillators were. A list built from the enum cannot drift
+  // from what the program can actually do.
+  //
+  // Pick from a list, set a length: that is the whole interaction, and it is
+  // the one every presentation tool has settled on.
   std::vector<std::pair<std::string, std::string>> transitionStyleChoices() const {
-    return {
-      {"cut", "cut"},
-      {"crossfade", "crossfade"},
-      {"dip", "dip black"},
-    };
+    std::vector<std::pair<std::string, std::string>> out;
+    for (int i = 0; i < static_cast<int>(TransitionStyle::Count); ++i) {
+      const auto style = static_cast<TransitionStyle>(i);
+      out.push_back({transitionStyleToken(style), ::transitionStyleLabel(style)});
+    }
+    return out;
   }
 
   std::vector<std::pair<std::string, std::string>> audioOutputDeviceDropdownChoices() const {
@@ -601,18 +611,28 @@
     };
   }
 
+  // The inspector's label for a cue's transition, including the two words that
+  // are not styles at all: "deck" (inherit) and "mixed" (a multi-selection that
+  // does not agree).
+  //
+  // Everything else defers to the one in core, so a style added to the enum is
+  // named correctly here without this being touched. It used to answer
+  // "crossfade" for anything it did not recognise, which would have quietly
+  // mislabelled all nine of the new ones.
   std::string transitionStyleLabel(std::string token) const {
     token = toLower(trim(token));
     if (token == "mixed") return "mixed";
     if (token == "deck") return "deck";
-    if (token == "cut") return "cut";
-    if (token == "dip" || token == "dipblack" || token == "dip_black") return "dip black";
-    return "crossfade";
+    return ::transitionStyleLabel(parseTransitionStyleToken(token));
   }
 
   void setSelectedCueTransitionStyle(const std::string& rawStyle) {
     std::string style = toLower(trim(rawStyle));
-    if (style != "cut" && style != "crossfade" && style != "dip") {
+    // ANY STYLE THE PARSER KNOWS. This accepted exactly three and silently
+    // returned for anything else, so every style added after it would have
+    // been offered in the menu and refused on the way in.
+    if (style != "deck" &&
+        transitionStyleToken(parseTransitionStyleToken(style)) != style) {
       return;
     }
     bool changed = false;

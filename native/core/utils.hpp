@@ -76,6 +76,8 @@ std::string transportLabel(::TransportState state);      // "Stopped", "Paused",
 
 std::string transitionStyleToken(::TransitionStyle style);   // "cut", "crossfade", "dipblack"
 ::TransitionStyle parseTransitionStyleToken(std::string token);
+// Operator-facing name: "Push left", not "pushleft".
+std::string transitionStyleLabel(::TransitionStyle style);
 
 // -- Easing functions ---------------------------------------------------------
 // Used by UI animation system (panel slides, opacity fades, toast popups).

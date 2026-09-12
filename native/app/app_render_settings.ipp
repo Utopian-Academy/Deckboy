@@ -4229,12 +4229,18 @@
       } else if (sb.action == kSettingsActionTransitionSecondsInc) {
         setTransitionSeconds(focusedDeck().transitionSeconds + 0.1);
       } else if (sb.action == kSettingsActionTransitionStyleCycle) {
+        // A LIST, not a cycle. Three styles could be cycled through; thirteen
+        // cannot -- an operator looking for "wipe left" would be pressing a
+        // button ten times and watching the output change under them. Same
+        // dropdown the cue inspector uses, so both places behave alike.
         const Deck& td = focusedDeck();
-        TransitionStyle current = parseTransitionStyleToken(td.transitionStyle);
-        TransitionStyle next = current == TransitionStyle::Cut ? TransitionStyle::Crossfade
-                             : current == TransitionStyle::Crossfade ? TransitionStyle::DipBlack
-                             : TransitionStyle::Cut;
-        setTransitionStyle(next);
+        openDropdown("settings.transition_style", sb.rect,
+                     transitionStyleChoices(),
+                     transitionStyleToken(parseTransitionStyleToken(td.transitionStyle)),
+          [this](const std::string& token) {
+            setTransitionStyle(parseTransitionStyleToken(token));
+          });
+        return;
       } else if (sb.action == 260) {
         openDropdown(
           "settings.output_mirror",

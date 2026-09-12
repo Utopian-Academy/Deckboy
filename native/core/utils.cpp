@@ -378,13 +378,43 @@ std::string transportLabel(TransportState state) {
 // Machine-readable token for transition style (serialization/OSC).
 std::string transitionStyleToken(TransitionStyle style) {
   switch (style) {
-    case TransitionStyle::DipBlack:
-      return "dip";
-    case TransitionStyle::Cut:
-      return "cut";
+    case TransitionStyle::DipBlack:  return "dip";
+    case TransitionStyle::DipWhite:  return "dipwhite";
+    case TransitionStyle::Cut:       return "cut";
+    case TransitionStyle::PushLeft:  return "pushleft";
+    case TransitionStyle::PushRight: return "pushright";
+    case TransitionStyle::PushUp:    return "pushup";
+    case TransitionStyle::PushDown:  return "pushdown";
+    case TransitionStyle::WipeLeft:  return "wipeleft";
+    case TransitionStyle::WipeRight: return "wiperight";
+    case TransitionStyle::WipeUp:    return "wipeup";
+    case TransitionStyle::WipeDown:  return "wipedown";
+    case TransitionStyle::Iris:      return "iris";
     case TransitionStyle::Crossfade:
     default:
       return "crossfade";
+  }
+}
+
+// What to call it in front of an operator. The token is for show files and the
+// wire; this is for buttons, and "Push left" reads better on one than
+// "pushleft" does.
+std::string transitionStyleLabel(TransitionStyle style) {
+  switch (style) {
+    case TransitionStyle::Cut:       return "Cut";
+    case TransitionStyle::Crossfade: return "Dissolve";
+    case TransitionStyle::DipBlack:  return "Dip to black";
+    case TransitionStyle::DipWhite:  return "Dip to white";
+    case TransitionStyle::PushLeft:  return "Push left";
+    case TransitionStyle::PushRight: return "Push right";
+    case TransitionStyle::PushUp:    return "Push up";
+    case TransitionStyle::PushDown:  return "Push down";
+    case TransitionStyle::WipeLeft:  return "Wipe left";
+    case TransitionStyle::WipeRight: return "Wipe right";
+    case TransitionStyle::WipeUp:    return "Wipe up";
+    case TransitionStyle::WipeDown:  return "Wipe down";
+    case TransitionStyle::Iris:      return "Iris";
+    default:                         return "Dissolve";
   }
 }
 
@@ -401,6 +431,20 @@ TransitionStyle parseTransitionStyleToken(std::string token) {
   if (token == "DIP" || token == "DIPBLACK" || token == "DIP_BLACK") {
     return TransitionStyle::DipBlack;
   }
+  if (token == "DIPWHITE" || token == "DIP_WHITE" || token == "FLASH") {
+    return TransitionStyle::DipWhite;
+  }
+  // Matched by token so a show file and the wire agree, with the separator
+  // characters people actually type accepted either way.
+  if (token == "PUSHLEFT" || token == "PUSH_LEFT")   return TransitionStyle::PushLeft;
+  if (token == "PUSHRIGHT" || token == "PUSH_RIGHT") return TransitionStyle::PushRight;
+  if (token == "PUSHUP" || token == "PUSH_UP")       return TransitionStyle::PushUp;
+  if (token == "PUSHDOWN" || token == "PUSH_DOWN")   return TransitionStyle::PushDown;
+  if (token == "WIPELEFT" || token == "WIPE_LEFT")   return TransitionStyle::WipeLeft;
+  if (token == "WIPERIGHT" || token == "WIPE_RIGHT") return TransitionStyle::WipeRight;
+  if (token == "WIPEUP" || token == "WIPE_UP")       return TransitionStyle::WipeUp;
+  if (token == "WIPEDOWN" || token == "WIPE_DOWN")   return TransitionStyle::WipeDown;
+  if (token == "IRIS" || token == "CIRCLE")          return TransitionStyle::Iris;
   return TransitionStyle::Crossfade;
 }
 
