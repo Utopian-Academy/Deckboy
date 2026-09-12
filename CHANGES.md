@@ -1,5 +1,18 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.352 (IPTV channel lists)
+
+**Import an `.m3u` and get the channels.** An IPTV provider's playlist becomes
+one stream cue per channel, named from the entry and with its group title in the
+cue's notes where it is searchable. HLS URLs already played; what was missing
+was the list.
+
+**`.m3u8` means two different things and they are told apart.** An HLS *media*
+playlist has the same extension and is one stream's segment list -- importing
+that as a hundred cues, one per segment, would be nonsense. Anything carrying an
+`#EXT-X-` tag is handed to a single stream cue and played, which is what it is
+for; everything else is read as a channel list.
+
 ## 2026-09-12 - v0.99.351 (a teleprompter)
 
 **A prompter output, for the person in front of the camera.** The script, very

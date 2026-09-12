@@ -129,6 +129,19 @@ playable on site, minutes before doors.
 </details>
 
 <details>
+<summary><b>Live sources</b></summary>
+
+- Stream cues take `srt://`, `rtmp://`, `rtsp://`, `udp://` and http HLS
+- NDI receive, and Blackmagic DeckLink capture through the SDK rather than a pipe
+- Camera, desktop window and screen capture
+- **IPTV channel lists**: import an `.m3u` and every channel becomes a cue, named
+  from the entry with its group in the notes. An HLS media playlist that happens
+  to share the extension is spotted by its `#EXT-X-` tags and played as one
+  stream instead of imported as one cue per segment
+
+</details>
+
+<details>
 <summary><b>Presenting from slides</b></summary>
 
 - Import a PDF, PowerPoint or Keynote deck as one cue per slide, rendered once

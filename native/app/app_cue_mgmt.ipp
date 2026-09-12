@@ -1684,7 +1684,8 @@
   void addSrtStreamCueFromPrompt() {
     openInlineTextEditor("tool.add_stream",
                          "Add Stream Cue",
-                         "Stream URL (srt://, rtmp://, rtsp://...)",
+                         "Stream URL (srt://, rtmp://, rtsp://, udp://, "
+                         "or an http HLS .m3u8)",
                          "srt://127.0.0.1:9000?mode=listener",
                          [this](const std::string& value) {
                            std::string url = trim(value);
@@ -3452,6 +3453,124 @@
   std::atomic<int> slideRenderPage_{0};
   std::atomic<int> slideRenderTotal_{0};
 
+  // ── AN M3U CHANNEL LIST IS A PLAYLIST, NOT A CLIP ────────────────────────
+  //
+  // IPTV providers hand out a .m3u (or .m3u8) listing hundreds of channels:
+  //
+  //     #EXTM3U
+  //     #EXTINF:-1 tvg-id="bbc1" group-title="UK",BBC One HD
+  //     http://example.net/live/bbc1.m3u8
+  //
+  // Each entry becomes a stream cue, named from the text after the comma and
+  // colour-tagged nothing -- the group goes in the cue's notes, where it is
+  // searchable, rather than inventing a taxonomy the rest of the app does not
+  // have.
+  //
+  // THE HARD PART IS THAT .m3u8 MEANS TWO THINGS. An HLS MEDIA playlist has
+  // the same extension and is a single stream's segment list -- importing that
+  // as a hundred cues, one per segment, would be nonsense. They are told apart
+  // by the `#EXT-X-` tags HLS requires and a channel list never has; anything
+  // carrying one is handed to a single stream cue and played, which is what it
+  // is for.
+  bool importM3uPlaylist(const fs::path& path) {
+    std::ifstream in(path);
+    if (!in) {
+      triggerToast(path.filename().string() + ": could not be read",
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      return true;   // handled: it WAS a playlist, it just could not be opened
+    }
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(in, line)) {
+      lines.push_back(trim(line));
+    }
+
+    for (const std::string& raw : lines) {
+      if (raw.rfind("#EXT-X-", 0) == 0) {
+        // An HLS media or master playlist: one stream, not a list of them.
+        addSrtStreamCue(path.string());
+        triggerToast("HLS playlist: added as one stream cue");
+        return true;
+      }
+    }
+
+    struct Channel {
+      std::string name;
+      std::string group;
+      std::string url;
+    };
+    std::vector<Channel> channels;
+    Channel pending;
+    bool havePending = false;
+    for (const std::string& entry : lines) {
+      if (entry.empty()) {
+        continue;
+      }
+      if (entry.rfind("#EXTINF", 0) == 0) {
+        pending = Channel{};
+        havePending = true;
+        // The channel's NAME is everything after the last comma; the
+        // attributes before it are key="value" pairs in no fixed order.
+        const std::size_t comma = entry.rfind(',');
+        if (comma != std::string::npos) {
+          pending.name = trim(entry.substr(comma + 1));
+        }
+        const std::size_t group = entry.find("group-title=\"");
+        if (group != std::string::npos) {
+          const std::size_t from = group + 13;
+          const std::size_t close = entry.find('"', from);
+          if (close != std::string::npos) {
+            pending.group = entry.substr(from, close - from);
+          }
+        }
+        continue;
+      }
+      if (entry[0] == '#') {
+        continue;                       // a comment or a tag we do not use
+      }
+      if (!havePending) {
+        // A bare URL with no #EXTINF above it is still a channel; it just has
+        // no name yet, and the URL is a better name than nothing.
+        pending = Channel{};
+      }
+      pending.url = entry;
+      if (pending.name.empty()) {
+        pending.name = entry;
+      }
+      channels.push_back(pending);
+      havePending = false;
+    }
+
+    if (channels.empty()) {
+      return false;    // not a channel list after all -- let the caller try it as media
+    }
+
+    pushUndoSnapshot();
+    Deck& deck = focusedDeckMutable();
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    for (const Channel& channel : channels) {
+      Cue cue;
+      cue.kind = CueKind::SrtStream;
+      cue.path = channel.url;
+      cue.name = channel.name;
+      // The group is where the operator will look for "which package is this
+      // from", and notes are searchable. A new taxonomy would not be.
+      if (!channel.group.empty()) {
+        cue.notes = channel.group;
+      }
+      cue.width = rasterW;
+      cue.height = rasterH;
+      applyDeckDefaultsToCue(cue, deck);
+      deck.cues.push_back(std::move(cue));
+    }
+    normalizeProject(project_);
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Import);
+    triggerToast(std::to_string(channels.size()) + " channels from " +
+                   path.filename().string());
+    return true;
+  }
+
   void importSlideDeck(const fs::path& document) {
     std::string whyNot;
     if (!deckboy::platform::pdfRasterAvailable(whyNot)) {
@@ -3903,6 +4022,17 @@
       if (deckboy::platform::isPdfDocumentPath(path)) {
         importSlideDeck(path);
         continue;
+      }
+      // A CHANNEL LIST IS NOT A CLIP either, and ffmpeg would happily open one
+      // and play whatever the first entry happened to be.
+      {
+        std::string ext = path.extension().string();
+        std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) {
+          return static_cast<char>(std::tolower(c));
+        });
+        if ((ext == ".m3u" || ext == ".m3u8") && importM3uPlaylist(path)) {
+          continue;
+        }
       }
       if (deckboy::platform::isPresentationDocumentPath(path)) {
         // Converted to PDF by whatever owns the format, then rasterised like
