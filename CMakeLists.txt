@@ -200,6 +200,25 @@ option(ENABLE_SIPHON "Build with macOS Siphon interprocess texture sharing" OFF)
 option(ENABLE_SPOUT "Build with Windows Spout interprocess texture sharing" OFF)
 option(ENABLE_ASIO "Build with Steinberg ASIO low-latency audio (Windows)" ON)
 option(ENABLE_CEF "Build with Chromium Embedded Framework browser cues" OFF)
+
+# ── zlib, for reading the notes out of a .pptx ──────────────────────────────
+#
+# A PowerPoint file is a ZIP, and the speaker notes are XML inside it -- which
+# makes them the only per-slide notes that are properly machine-readable
+# without a PDF parser. Google Slides exports .pptx too, so a team that works
+# in Slides and exports a PDF for the fonts can drop the .pptx beside it and
+# keep their notes.
+#
+# OPTIONAL, and quietly so: zlib is present on macOS and Linux as a matter of
+# course and comes from vcpkg on Windows, but a build without it simply loses
+# .pptx notes. The sidecar route keeps working either way, so nothing an
+# operator relies on disappears.
+find_package(ZLIB QUIET)
+if(ZLIB_FOUND)
+  message(STATUS "zlib found: .pptx speaker notes will be read")
+else()
+  message(STATUS "zlib not found: .pptx notes disabled (sidecar notes still work)")
+endif()
 option(ENABLE_WEBVIEW "Build with native WebView APIs (macOS WKWebView, Windows WebView2)" OFF)
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
@@ -773,6 +792,11 @@ if(ENABLE_SPOUT AND WIN32)
     target_include_directories(deckboy-native PRIVATE ${SPOUT_INCLUDE_DIR})
   endif()
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_SPOUT=1)
+endif()
+
+if(ZLIB_FOUND)
+  target_link_libraries(deckboy-native PRIVATE ZLIB::ZLIB)
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_ZLIB=1)
 endif()
 
 if(ENABLE_CEF)

@@ -3550,8 +3550,13 @@
       auto result = deckboy::platform::rasterisePdf(source, pagesDir, 3840, onProgress);
       // Read on this thread, beside the render, so the main thread never
       // touches the disk for it.
+      // Against the DOCUMENT THE OPERATOR CHOSE, not against `source` -- which
+      // by now may be a PDF LibreOffice wrote into the state dir, where no
+      // sidecar and no PowerPoint was ever going to be sitting. Importing a
+      // .pptx directly then found nothing, and the notes it carries in its own
+      // ZIP are the one case where they are certain to be there.
       const std::vector<std::string> slideNotes =
-        loadSidecarSlideNotes(fs::path(source), result.pagePaths.size());
+        loadSidecarSlideNotes(document, result.pagePaths.size());
       std::lock_guard<std::mutex> lock(sdlDialogMutex_);
       sdlDialogActions_.emplace_back([this, result, title, converter, slideNotes]() {
         slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
@@ -3595,6 +3600,92 @@
         });
       }
     }).detach();
+  }
+
+  // ── SPLIT A CUE'S NOTES INTO CUES ────────────────────────────────────────
+  //
+  // The other way to read a long note at your own pace. The presenter view's
+  // note builds scroll WITHIN one cue; this turns one cue into several, each
+  // carrying one part of the notes, so the ordinary NEXT walks them.
+  //
+  // Both are worth having and they are not the same tool. The scroll keeps the
+  // playlist honest -- one slide is one cue -- and works with nothing but the
+  // presenter screen switched on. The split puts the parts where everything
+  // else in the show can see them: they take a cue number, they appear in the
+  // playlist, they can be jumped to, timecoded, triggered from Companion, and
+  // read by an operator who is not looking at a presenter screen at all.
+  //
+  // Nothing about the picture changes. The copies are the same media with the
+  // same geometry, grade, effects and audio; only the notes differ, and the
+  // fades between them are zeroed so the slide does not blink as the words
+  // advance.
+  bool splitCueNotesIntoCues(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return false;
+    }
+    const std::vector<std::string> parts =
+      noteBuildParts(deck.cues[static_cast<std::size_t>(cueIndex)].notes);
+    if (parts.size() < 2) {
+      triggerToast("split: this cue's notes have no parts -- separate them "
+                   "with a line of ---",
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      return false;
+    }
+    pushUndoSnapshot();
+
+    const Cue original = deck.cues[static_cast<std::size_t>(cueIndex)];
+    const int count = static_cast<int>(parts.size());
+    std::vector<Cue> copies;
+    copies.reserve(parts.size());
+    for (int part = 0; part < count; ++part) {
+      Cue copy = original;
+      copy.notes = parts[static_cast<std::size_t>(part)];
+      // Cleared, so normalizeProject gives each one its own. Keeping the
+      // original's id on every copy would leave the show with N cues that
+      // every id-addressed command -- GOTO, TAKEID, a Companion button --
+      // resolves to whichever it found first.
+      copy.id.clear();
+      copy.name = original.name + "  [" + std::to_string(part + 1) + "/" +
+                  std::to_string(count) + "]";
+      // The picture must not blink between the parts: it is the same slide.
+      // Only the first fades in and only the last fades out.
+      if (part > 0) {
+        copy.fadeInSeconds = 0.0;
+      }
+      if (part < count - 1) {
+        copy.fadeOutSeconds = 0.0;
+      }
+      copies.push_back(std::move(copy));
+    }
+
+    deck.cues.erase(deck.cues.begin() + cueIndex);
+    deck.cues.insert(deck.cues.begin() + cueIndex, copies.begin(), copies.end());
+
+    // Anything pointing PAST the cue we replaced has to move with it, or the
+    // live cue silently becomes a different slide. The split cue itself keeps
+    // its index, which is the first part -- where the speaker was.
+    const int added = count - 1;
+    auto shift = [&](int& index) {
+      if (index > cueIndex) index += added;
+    };
+    shift(deck.activeIndex);
+    shift(deck.selectedIndex);
+    for (int& selected : deck.selectedIndices) {
+      shift(selected);
+    }
+    for (int& overlay : deck.overlayActiveIndices) {
+      shift(overlay);
+    }
+
+    normalizeProject(project_);
+    markProjectDirty();
+    triggerToast("split into " + std::to_string(count) + " cues");
+    playUiSound(UiSoundEffect::Toggle);
+    return true;
   }
 
   // ── PER-SLIDE NOTES THAT CAME WITH THE DECK ─────────────────────────────
@@ -3648,6 +3739,24 @@
       fs::path(stem.string() + ".notes.md"),
       fs::path(stem.string() + ".notes"),
     };
+    // THE DECK'S OWN POWERPOINT, FIRST. A .pptx is a ZIP with the notes as
+    // XML inside, so if the team exported a PDF to keep their fonts and left
+    // the PowerPoint beside it -- which is what a Google Slides workflow
+    // produces, since Slides exports both -- the notes come across with no
+    // sidecar to write and nothing for anybody to remember.
+    for (const char* ext : {".pptx", ".PPTX"}) {
+      const fs::path office(stem.string() + ext);
+      std::error_code ec;
+      if (!fs::exists(office, ec) || !fs::is_regular_file(office, ec)) continue;
+      std::vector<std::string> fromOffice =
+        deckboy::platform::slideNotesFromPptx(office, pageCount);
+      bool any = false;
+      for (const std::string& note : fromOffice) {
+        if (!note.empty()) { any = true; break; }
+      }
+      if (any) return fromOffice;
+    }
+
     fs::path found;
     for (const fs::path& candidate : candidates) {
       std::error_code ec;

@@ -238,6 +238,7 @@
               timelineScrubActive_ = false;
               warpDragCorner_ = -1;
               layoutDragMode_ = LayoutDragMode::None;
+              endPresenterLayoutDrag();
             }
           break;
         case SDL_EVENT_MOUSE_MOTION:

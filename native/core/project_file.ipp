@@ -254,7 +254,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.overlayImagePath)
       << '\t' << outputTarget.overlayOpacity
       << '\t' << (outputTarget.overlayEnabled ? 1 : 0)
-      // Presenter view (fields 52-62) -- appended, guarded on load as always.
+      // Presenter view (fields 52-65) -- appended, guarded on load as always.
       << '\t' << escapeField(outputTarget.presenter.layout)
       << '\t' << (outputTarget.presenter.showPrevious ? 1 : 0)
       << '\t' << (outputTarget.presenter.showNext ? 1 : 0)
@@ -266,6 +266,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.presenter.accent)
       << '\t' << outputTarget.presenter.notesScale
       << '\t' << (outputTarget.presenter.buildsConsumeAdvance ? 1 : 0)
+      << '\t' << (outputTarget.presenter.showLive ? 1 : 0)
+      << '\t' << outputTarget.presenter.notesShare
+      << '\t' << escapeField(outputTarget.presenter.customLayout)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1002,6 +1005,17 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                             outputTarget.presenter.notesScale =
                               std::clamp(safeDouble(fields, 61, 1.4), 0.5, 4.0);
                             outputTarget.presenter.buildsConsumeAdvance = safeBool(fields, 62, false);
+                          }
+                          // The live-picture switch and the notes share arrived
+                          // later; an older presenter output keeps both panels
+                          // and its layout's own share, which is how it looked.
+                          if (fields.size() >= 65) {
+                            outputTarget.presenter.showLive = safeBool(fields, 63, true);
+                            outputTarget.presenter.notesShare =
+                              std::clamp(safeDouble(fields, 64, 1.0), 0.15, 1.0);
+                          }
+                          if (fields.size() >= 66) {
+                            outputTarget.presenter.customLayout = safeString(fields, 65);
                           }
                         }
                       }

@@ -125,6 +125,15 @@
       triggerToast("skip: playlist is empty");
       return;
     }
+    // THE CLICKER SPENDS THE BUILDS FIRST. A presenter set up this way expects
+    // the same thing every other deck gives them: one press reveals the next
+    // part of what they are saying, and only the press after the last part
+    // changes the slide. Off unless a presenter view asked for it, so a show
+    // that does not use notes sees no change at all.
+    if (presenterAdvanceSpendsBuild(deckIndex)) {
+      presenterNoteStepAdvance(deckIndex, 1);
+      return;
+    }
     int nextIndex = -1;
     bool useTransition = false;
     if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
@@ -160,6 +169,15 @@
     Deck& deck = project_.decks[deckIndex];
     if (deck.cues.empty()) {
       triggerToast("skip back: playlist is empty");
+      return;
+    }
+    // Back through the builds before going back a slide, so the two directions
+    // are each other's opposite. Tested on the step rather than on
+    // presenterAdvanceSpendsBuild, which asks whether there is anything left
+    // to REVEAL -- here the question is whether there is anything to take back.
+    if (presenterNoteStepFor(deckIndex) > 0 &&
+        presenterAdvanceSpendsBuildBackwards(deckIndex)) {
+      presenterNoteStepAdvance(deckIndex, -1);
       return;
     }
     int fromIndex = deck.activeIndex >= 0 ? deck.activeIndex : deck.selectedIndex;
@@ -534,6 +552,9 @@
     }
 
     showLog("TAKE", showLogCueRef(deckIndex, deck.selectedIndex));
+    // Before it moves: the cue leaving the screen is what the presenter view
+    // shows as PREVIOUS, and the incoming one starts at the top of its notes.
+    presenterOnCueTaken(deckIndex, deck.activeIndex);
     deck.activeIndex = deck.selectedIndex;
     // If refreshOnTake is set and a browser renderer is already running for this
     // cue, reload the page instead of tearing down and restarting.

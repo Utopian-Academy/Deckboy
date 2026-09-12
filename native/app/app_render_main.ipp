@@ -683,6 +683,292 @@
     cueTransitionStyleDropdownRect_ = styleBtn;
   }
 
+  // ── ARRANGING THE PRESENTER SCREEN ───────────────────────────────────────
+  //
+  // Typed percentages are exact and nobody wants to use them. The panels are
+  // dragged and resized on a miniature of the screen, drawn in the program
+  // monitor -- the same place the warp editor lives, for the same reason: it
+  // is the biggest rectangle in the interface and it is already where you look
+  // to find out what an output is doing.
+
+  // The four panel boxes on the editor stage, in the order live, previous,
+  // next, notes. ONE definition, used by the drawing and by the hit test: two
+  // would drift and the symptom would be handles that are not where they look.
+  std::array<SDL_Rect, 4> presenterEditorBoxes(const SDL_Rect& stage) const {
+    std::array<SDL_Rect, 4> out {};
+    const OutputTarget& output = focusedOutput();
+    const OutputTarget::PresenterOptions& opt = output.presenter;
+    const PresenterFracs f = (opt.layout == "custom" && !opt.customLayout.empty())
+      ? parsePresenterLayout(opt.customLayout)
+      : presenterPresetFracs(opt.layout);
+    const PresenterFrac all[4] = {f.live, f.previous, f.next, f.notes};
+    for (int i = 0; i < 4; ++i) {
+      if (!all[i].valid()) {
+        continue;
+      }
+      out[static_cast<std::size_t>(i)] = SDL_Rect {
+        stage.x + static_cast<int>(std::lround(all[i].x * stage.w)),
+        stage.y + static_cast<int>(std::lround(all[i].y * stage.h)),
+        std::max(8, static_cast<int>(std::lround(all[i].w * stage.w))),
+        std::max(8, static_cast<int>(std::lround(all[i].h * stage.h)))};
+    }
+    return out;
+  }
+
+  // Is this panel switched on? Index order matches presenterEditorBoxes.
+  bool presenterEditorPanelShown(int index) const {
+    const OutputTarget::PresenterOptions& opt = focusedOutput().presenter;
+    switch (index) {
+      case 0: return opt.showLive;
+      case 1: return opt.showPrevious;
+      case 2: return opt.showNext;
+      case 3: return opt.showNotes;
+      default: return false;
+    }
+  }
+
+  static const char* presenterEditorPanelName(int index) {
+    switch (index) {
+      case 0: return "LIVE";
+      case 1: return "PREVIOUS";
+      case 2: return "NEXT";
+      case 3: return "NOTES";
+      default: return "";
+    }
+  }
+
+  // ── DRAGGING A PRESENTER PANEL ───────────────────────────────────────────
+  //
+  // Press inside a box to move it, within a handle's width of an edge or
+  // corner to size it from there. Everything is worked out in FRACTIONS of the
+  // stage so the result is the same whatever size the monitor happens to be.
+  bool beginPresenterLayoutDrag(int x, int y) {
+    presenterDragPanel_ = 0;
+    const SDL_Rect stage = presenterLayoutStageRect_;
+    if (!presenterLayoutEditMode_ || stage.w <= 0 || stage.h <= 0) {
+      return false;
+    }
+    if (presenterLayoutDoneRect_.w > 0 && pointInRect(x, y, presenterLayoutDoneRect_)) {
+      presenterLayoutEditMode_ = false;
+      playUiSound(UiSoundEffect::Toggle);
+      return true;
+    }
+    if (presenterLayoutResetRect_.w > 0 && pointInRect(x, y, presenterLayoutResetRect_)) {
+      // Back to the named layouts, and the arrangement is dropped -- it is the
+      // only thing "presets" could honestly mean here.
+      OutputTarget::PresenterOptions& opt = focusedOutputMutable().presenter;
+      opt.layout = "wide";
+      opt.customLayout.clear();
+      markProjectDirty();
+      triggerToast("presenter layout: wide");
+      playUiSound(UiSoundEffect::Toggle);
+      return true;
+    }
+    // ANY press inside the monitor belongs to the arranger while it is up.
+    // The stage is letterboxed inside the monitor, and without this a click in
+    // the margin reached the seek bar and the warp handles underneath -- which
+    // are invisible, so it would have looked like the click did nothing while
+    // something moved.
+    const bool insideMonitor = presenterLayoutMonitorRect_.w > 0 &&
+                               pointInRect(x, y, presenterLayoutMonitorRect_);
+    if (!pointInRect(x, y, stage)) {
+      return insideMonitor;
+    }
+    const std::array<SDL_Rect, 4> boxes = presenterEditorBoxes(stage);
+    const int handle = std::max(6, uiScaled(9));
+    // BACK TO FRONT, so the panel drawn last is the one grabbed when two
+    // overlap -- which is what "on top" has to mean for a pointer.
+    for (int i = 3; i >= 0; --i) {
+      const SDL_Rect& box = boxes[static_cast<std::size_t>(i)];
+      if (box.w <= 0 || box.h <= 0 || !presenterEditorPanelShown(i)) {
+        continue;
+      }
+      const SDL_Rect grabbable {box.x - handle, box.y - handle,
+                                box.w + handle * 2, box.h + handle * 2};
+      if (!pointInRect(x, y, grabbable)) {
+        continue;
+      }
+      presenterDragPanel_ = i + 1;
+      presenterDragL_ = std::abs(x - box.x) <= handle;
+      presenterDragR_ = std::abs(x - (box.x + box.w)) <= handle;
+      presenterDragT_ = std::abs(y - box.y) <= handle;
+      presenterDragB_ = std::abs(y - (box.y + box.h)) <= handle;
+      presenterDragGrabX_ = static_cast<double>(x - box.x) / stage.w;
+      presenterDragGrabY_ = static_cast<double>(y - box.y) / stage.h;
+      // Arranging is what makes a layout custom. Starting from whatever preset
+      // is on screen means the first drag adjusts something that already
+      // works, instead of leaving three panels at nothing.
+      OutputTarget::PresenterOptions& opt = focusedOutputMutable().presenter;
+      if (opt.layout != "custom" || opt.customLayout.empty()) {
+        opt.customLayout = formatPresenterLayout(presenterPresetFracs(opt.layout));
+        opt.layout = "custom";
+      }
+      return true;
+    }
+    return insideMonitor;
+  }
+
+  void updatePresenterLayoutDrag(int x, int y) {
+    const SDL_Rect stage = presenterLayoutStageRect_;
+    if (presenterDragPanel_ <= 0 || stage.w <= 0 || stage.h <= 0) {
+      return;
+    }
+    OutputTarget::PresenterOptions& opt = focusedOutputMutable().presenter;
+    PresenterFracs f = parsePresenterLayout(opt.customLayout);
+    PresenterFrac* panel = nullptr;
+    switch (presenterDragPanel_) {
+      case 1: panel = &f.live; break;
+      case 2: panel = &f.previous; break;
+      case 3: panel = &f.next; break;
+      case 4: panel = &f.notes; break;
+      default: return;
+    }
+    // Twentieths. Fine enough to place a panel where you meant it, coarse
+    // enough that two edges asked to line up actually do -- the grid drawn on
+    // the stage is the same 5%, so what looks aligned is aligned.
+    auto snap = [](double v) { return std::round(v * 20.0) / 20.0; };
+    const double fx = static_cast<double>(x - stage.x) / stage.w;
+    const double fy = static_cast<double>(y - stage.y) / stage.h;
+    const bool resizing = presenterDragL_ || presenterDragR_ ||
+                          presenterDragT_ || presenterDragB_;
+    if (!resizing) {
+      panel->x = snap(std::clamp(fx - presenterDragGrabX_, 0.0, 1.0 - panel->w));
+      panel->y = snap(std::clamp(fy - presenterDragGrabY_, 0.0, 1.0 - panel->h));
+    } else {
+      const double minSide = 0.05;
+      if (presenterDragL_) {
+        const double right = panel->x + panel->w;
+        panel->x = snap(std::clamp(fx, 0.0, right - minSide));
+        panel->w = right - panel->x;
+      }
+      if (presenterDragR_) {
+        panel->w = snap(std::clamp(fx - panel->x, minSide, 1.0 - panel->x));
+      }
+      if (presenterDragT_) {
+        const double bottom = panel->y + panel->h;
+        panel->y = snap(std::clamp(fy, 0.0, bottom - minSide));
+        panel->h = bottom - panel->y;
+      }
+      if (presenterDragB_) {
+        panel->h = snap(std::clamp(fy - panel->y, minSide, 1.0 - panel->y));
+      }
+    }
+    opt.customLayout = formatPresenterLayout(f);
+    markProjectDirty();
+  }
+
+  void endPresenterLayoutDrag() {
+    presenterDragPanel_ = 0;
+    presenterDragL_ = presenterDragT_ = presenterDragR_ = presenterDragB_ = false;
+  }
+
+  void drawPresenterLayoutEditor(const SDL_Rect& monitorRect) {
+    if (!presenterLayoutEditMode_) {
+      presenterLayoutMonitorRect_ = SDL_Rect {0, 0, 0, 0};
+      presenterLayoutStageRect_ = SDL_Rect {0, 0, 0, 0};
+      presenterLayoutDoneRect_ = SDL_Rect {0, 0, 0, 0};
+      presenterLayoutResetRect_ = SDL_Rect {0, 0, 0, 0};
+      return;
+    }
+    presenterLayoutMonitorRect_ = monitorRect;
+    const int barH = uiScaled(26);
+    // The stage keeps the OUTPUT's aspect, not the monitor's: a panel placed
+    // on a squashed miniature would land somewhere else on the real screen,
+    // which makes the editor a liar.
+    const auto [rasterW, rasterH] =
+      outputRenderSizeForOutput(project_.focusedOutputIndex);
+    const int outW = std::max(1, rasterW);
+    const int outH = std::max(1, rasterH);
+    SDL_Rect area {monitorRect.x + uiScaled(6), monitorRect.y + barH + uiScaled(4),
+                   monitorRect.w - uiScaled(12),
+                   monitorRect.h - barH - uiScaled(10)};
+    const double k = std::min(static_cast<double>(area.w) / outW,
+                              static_cast<double>(area.h) / outH);
+    SDL_Rect stage {area.x + static_cast<int>((area.w - outW * k) / 2),
+                    area.y + static_cast<int>((area.h - outH * k) / 2),
+                    std::max(32, static_cast<int>(outW * k)),
+                    std::max(24, static_cast<int>(outH * k))};
+    presenterLayoutStageRect_ = stage;
+
+    const PresenterInk screen = presenterInkFor(focusedOutput().presenter);
+    Primitives::fillRect(controlRenderer_, monitorRect, pal.deep);
+    Primitives::fillRect(controlRenderer_, stage, screen.background);
+    Primitives::strokeRect(controlRenderer_, stage, screen.rule);
+
+    // A light grid at the same 5% the drag snaps to, so an edge that looks
+    // aligned is aligned.
+    for (int i = 1; i < 20; ++i) {
+      const int gx = stage.x + (stage.w * i) / 20;
+      const int gy = stage.y + (stage.h * i) / 20;
+      Primitives::fillRect(controlRenderer_, SDL_Rect {gx, stage.y, 1, stage.h},
+                           presenterMix(screen.rule, screen.background, 0.6));
+      Primitives::fillRect(controlRenderer_, SDL_Rect {stage.x, gy, stage.w, 1},
+                           presenterMix(screen.rule, screen.background, 0.6));
+    }
+
+    const std::array<SDL_Rect, 4> boxes = presenterEditorBoxes(stage);
+    const int handle = std::max(5, uiScaled(7));
+    for (int i = 0; i < 4; ++i) {
+      const SDL_Rect& box = boxes[static_cast<std::size_t>(i)];
+      if (box.w <= 0 || box.h <= 0) {
+        continue;
+      }
+      const bool on = presenterEditorPanelShown(i);
+      const bool dragging = presenterDragPanel_ == i + 1;
+      // A panel that is switched OFF is still drawn, hollow: it still has a
+      // place, and arranging a screen with one temporarily hidden is normal.
+      const SDL_Color fill = on ? presenterMix(screen.rule, screen.background,
+                                               dragging ? 0.05 : 0.35)
+                                : screen.background;
+      Primitives::fillRect(controlRenderer_, box, fill);
+      Primitives::strokeRect(controlRenderer_, box,
+                             dragging ? screen.accent
+                                      : (on ? screen.soft : screen.rule));
+      std::string label = presenterEditorPanelName(i);
+      if (!on) {
+        label += "  (off)";
+      }
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, box, label,
+                           on ? screen.ink : screen.soft);
+      // Corner grips, so it is obvious the box resizes and not only moves.
+      if (on) {
+        const SDL_Color grip = dragging ? screen.accent : screen.soft;
+        const int c[4][2] = {{box.x, box.y},
+                             {box.x + box.w - handle, box.y},
+                             {box.x + box.w - handle, box.y + box.h - handle},
+                             {box.x, box.y + box.h - handle}};
+        for (const auto& corner : c) {
+          Primitives::fillRect(controlRenderer_,
+                               SDL_Rect {corner[0], corner[1], handle, handle},
+                               grip);
+        }
+      }
+    }
+
+    // Toolbar: what this is, and the way out of it.
+    SDL_Rect bar {monitorRect.x, monitorRect.y, monitorRect.w, barH};
+    Primitives::fillRect(controlRenderer_, bar, pal.tile);
+    const int btnW = uiScaled(72);
+    presenterLayoutDoneRect_ = SDL_Rect {bar.x + bar.w - btnW - uiScaled(4),
+                                         bar.y + uiScaled(3), btnW,
+                                         barH - uiScaled(6)};
+    presenterLayoutResetRect_ = SDL_Rect {presenterLayoutDoneRect_.x - btnW - uiScaled(4),
+                                          bar.y + uiScaled(3), btnW,
+                                          barH - uiScaled(6)};
+    drawUIPanel(presenterLayoutResetRect_, pal.tile, pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, presenterLayoutResetRect_,
+                         "PRESETS", pal.fg);
+    drawUIPanel(presenterLayoutDoneRect_, pal.light, pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, presenterLayoutDoneRect_,
+                         "DONE", pal.deep);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {bar.x + uiScaled(8), bar.y,
+                           std::max(1, presenterLayoutResetRect_.x - bar.x - uiScaled(12)),
+                           bar.h},
+                 "ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it",
+                 pal.fgSoft);
+  }
+
   void renderMainPanel(const SDL_Rect& panel) {
     const Deck& deck = focusedDeck();
     const MediaEngine* engine = focusedMediaEngine();
@@ -1978,6 +2264,31 @@
       }
     }
 
+    // ARRANGE toggle, shown only when the focused output IS a presenter view.
+    // A control that would do nothing is worse than no control: it invites
+    // somebody to press it and then work out why the projector did not move.
+    {
+      const bool isPresenter =
+        normalizeOutputType(focusedOutput().outputType) == "presenter";
+      if (isPresenter) {
+        // Flush against WARP, from WARP's own constants. Mixing uiScaled()
+        // with its unscaled 76/8 left a widening gap between the two buttons
+        // as the interface scaled up.
+        const int btnW = 84;
+        presenterLayoutBtnRect_ = {
+          programMonitorRect.x + programMonitorRect.w - 76 - 8 - btnW - 6,
+          programMonitorRect.y + 3, btnW, 26};
+        const bool on = presenterLayoutEditMode_;
+        drawUIPanel(presenterLayoutBtnRect_, on ? pal.light : pal.tile, pal.deep,
+                    pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, presenterLayoutBtnRect_,
+                             "ARRANGE", on ? pal.deep : pal.fg);
+      } else {
+        presenterLayoutBtnRect_ = {};
+        presenterLayoutEditMode_ = false;
+      }
+    }
+
     // WARP edit toggle button in program monitor header
     {
       const Deck& warpDeck = focusedDeck();
@@ -2301,8 +2612,13 @@
     warpRecallBtnRect_ = {};
     warpCopyBtnRect_ = {};
     warpPasteBtnRect_ = {};
+    // The presenter arranger covers the monitor entirely, so it goes on last
+    // and the warp overlay under it never both draws.
+    drawPresenterLayoutEditor(programMonitorRect);
+
     // Warp editor overlay on program monitor
-    if (warpEditMode_ && focusedDeck().warpEnabled && warpMonitorInner_.w > 0 && warpMonitorInner_.h > 0) {
+    if (!presenterLayoutEditMode_ && warpEditMode_ && focusedDeck().warpEnabled &&
+        warpMonitorInner_.w > 0 && warpMonitorInner_.h > 0) {
       const Deck& wd = focusedDeck();
       SDL_Rect mi = warpMonitorInner_;
       float fw = static_cast<float>(mi.w);

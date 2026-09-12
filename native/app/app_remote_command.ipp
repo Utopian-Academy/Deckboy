@@ -612,6 +612,350 @@
       skipToPrevCue();
       return;
     }
+    // ── SPLITNOTES [<cue>] ────────────────────────────────────────────────
+    //
+    // Turn one cue into one cue per part of its notes. The other way to pace a
+    // long note: the presenter view scrolls WITHIN a cue, this puts the parts
+    // in the playlist where the rest of the show can address them.
+    if (command == "SPLITNOTES") {
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("splitnotes: no deck");
+        return;
+      }
+      const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+      // 1-based over the wire, like every other cue index; no argument means
+      // the selected cue.
+      int cueIndex = deck.selectedIndex;
+      if (parts.size() > 1) {
+        const int asked = std::atoi(parts[1].c_str());
+        if (asked < 1 || asked > static_cast<int>(deck.cues.size())) {
+          failRemoteCommand("splitnotes: cue out of range 1-" +
+                            std::to_string(deck.cues.size()) + ", got " + parts[1]);
+          return;
+        }
+        cueIndex = asked - 1;
+      }
+      if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("splitnotes: no cue selected");
+        return;
+      }
+      const std::size_t count = noteBuildParts(deck.cues[
+        static_cast<std::size_t>(cueIndex)].notes).size();
+      if (count < 2) {
+        failRemoteCommand("splitnotes: that cue's notes have no parts "
+                          "(separate them with a line of ---)");
+        return;
+      }
+      if (!splitCueNotesIntoCues(deckIndex, cueIndex)) {
+        failRemoteCommand("splitnotes: could not split that cue");
+        return;
+      }
+      remoteCommandDetail_ = "split into " + std::to_string(count) + " cues";
+      return;
+    }
+    // ── PRESENTER <setting> [value] ───────────────────────────────────────
+    //
+    // Everything on the presenter screen, over the wire. It exists for the
+    // same reason the settings page does -- the screen belongs to whoever is
+    // reading it, and what they want changed they want changed NOW -- and it
+    // exists as a command as well as a page because the person who needs it
+    // adjusted is usually standing at the lectern rather than at the rack.
+    //
+    // Acts on the FOCUSED output, like every other output setting.
+    if (command == "PRESENTER") {
+      if (project_.outputs.empty()) {
+        failRemoteCommand("presenter: no outputs");
+        return;
+      }
+      OutputTarget& output = focusedOutputMutable();
+      OutputTarget::PresenterOptions& opt = output.presenter;
+      const std::string sub = parts.size() < 2 ? std::string("STATUS")
+                                               : toUpper(parts[1]);
+      auto scaleText = [&]() {
+        char buf[16];
+        std::snprintf(buf, sizeof(buf), "%.2f", opt.notesScale);
+        return std::string(buf);
+      };
+      auto shareText = [&]() {
+        char buf[16];
+        std::snprintf(buf, sizeof(buf), "%.2f", opt.notesShare);
+        return std::string(buf);
+      };
+      auto report = [&]() {
+        remoteCommandDetail_ =
+          opt.layout + "  prev=" + (opt.showPrevious ? "on" : "off") +
+          " next=" + (opt.showNext ? "on" : "off") +
+          " notes=" + (opt.showNotes ? "on" : "off") +
+          " clock=" + (opt.showClock ? "on" : "off") +
+          " timers=" + (opt.showTimers ? "on" : "off") +
+          " live=" + (opt.showLive ? "on" : "off") +
+          " share=" + shareText() +
+          " builds=" + (opt.buildsConsumeAdvance ? "on" : "off") +
+          " scale=" + scaleText() +
+          " bg=" + opt.background + " ink=" + opt.ink + " accent=" + opt.accent +
+          (opt.customLayout.empty() ? std::string()
+                                    : ("  panels " + opt.customLayout));
+      };
+      if (sub == "STATUS") {
+        report();
+        return;
+      }
+      // A switch takes on|off|toggle, and no argument toggles -- the same
+      // shape every other boolean in this protocol has.
+      auto flag = [&](bool& value) {
+        const std::string arg = parts.size() < 3 ? std::string("TOGGLE")
+                                                 : toUpper(parts[2]);
+        if (arg == "ON" || arg == "1" || arg == "YES") value = true;
+        else if (arg == "OFF" || arg == "0" || arg == "NO") value = false;
+        else value = !value;
+        markProjectDirty();
+        report();
+      };
+      if (sub == "LAYOUT") {
+        if (parts.size() < 3) {
+          remoteCommandDetail_ = opt.layout;
+          return;
+        }
+        const std::string want = toLower(parts[2]);
+        if (want != "wide" && want != "filmstrip" && want != "notes" &&
+            want != "custom") {
+          failRemoteCommand("presenter layout: expected "
+                            "wide|filmstrip|notes|custom, got " + parts[2]);
+          return;
+        }
+        // Switching TO custom with nothing arranged yet would give a blank
+        // screen, so it starts from whatever preset was up -- which is also
+        // how anybody sane would begin arranging one.
+        if (want == "custom" && opt.customLayout.empty()) {
+          opt.customLayout = formatPresenterLayout(presenterPresetFracs(opt.layout));
+        }
+        opt.layout = want;
+        markProjectDirty();
+        report();
+        return;
+      }
+      // ── PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h> ─────────
+      //
+      // Percentages of the area below the header and above the footer, which
+      // is the same space the drag editor works in. Setting one switches the
+      // layout to custom: you cannot half-arrange a preset, and silently
+      // storing an arrangement nothing displays would be worse than saying so.
+      if (sub == "PANEL") {
+        if (parts.size() < 7) {
+          failRemoteCommand("presenter panel: expected "
+                            "<live|prev|next|notes> <x> <y> <w> <h> in percent");
+          return;
+        }
+        const std::string which = toLower(parts[2]);
+        if (which != "live" && which != "prev" && which != "previous" &&
+            which != "next" && which != "notes") {
+          failRemoteCommand("presenter panel: expected live|prev|next|notes, "
+                            "got " + parts[2]);
+          return;
+        }
+        double v[4] = {0, 0, 0, 0};
+        for (int i = 0; i < 4; ++i) {
+          try {
+            v[i] = std::stod(parts[static_cast<std::size_t>(3 + i)]);
+          } catch (...) {
+            failRemoteCommand("presenter panel: expected a number, got " +
+                              parts[static_cast<std::size_t>(3 + i)]);
+            return;
+          }
+        }
+        if (v[0] < 0.0 || v[1] < 0.0 || v[2] <= 0.0 || v[3] <= 0.0 ||
+            v[0] + v[2] > 100.5 || v[1] + v[3] > 100.5) {
+          failRemoteCommand("presenter panel: the panel must fit on the screen "
+                            "(x+w and y+h no more than 100)");
+          return;
+        }
+        if (opt.customLayout.empty()) {
+          opt.customLayout = formatPresenterLayout(presenterPresetFracs(opt.layout));
+        }
+        PresenterFracs f = parsePresenterLayout(opt.customLayout);
+        const PresenterFrac placed {v[0] / 100.0, v[1] / 100.0, v[2] / 100.0,
+                                    v[3] / 100.0};
+        if (which == "live") f.live = placed;
+        else if (which == "next") f.next = placed;
+        else if (which == "notes") f.notes = placed;
+        else f.previous = placed;
+        opt.customLayout = formatPresenterLayout(f);
+        opt.layout = "custom";
+        markProjectDirty();
+        remoteCommandDetail_ = "custom  " + opt.customLayout;
+        return;
+      }
+      // Take the layout that is on screen now and make it editable, so
+      // arranging one starts from something that already works.
+      if (sub == "CAPTURE" || sub == "COPY") {
+        opt.customLayout = formatPresenterLayout(presenterPresetFracs(opt.layout));
+        opt.layout = "custom";
+        markProjectDirty();
+        remoteCommandDetail_ = "custom  " + opt.customLayout;
+        return;
+      }
+      // Open the arranger on the control window. Here as well as on the
+      // monitor button because an operator with a controller in their hands
+      // should not have to find a button with a mouse.
+      if (sub == "ARRANGE" || sub == "EDIT") {
+        const std::string arg = parts.size() < 3 ? std::string("TOGGLE")
+                                                 : toUpper(parts[2]);
+        if (arg == "ON") presenterLayoutEditMode_ = true;
+        else if (arg == "OFF") presenterLayoutEditMode_ = false;
+        else presenterLayoutEditMode_ = !presenterLayoutEditMode_;
+        if (presenterLayoutEditMode_) warpEditMode_ = false;
+        remoteCommandDetail_ = presenterLayoutEditMode_ ? "arranging" : "closed";
+        return;
+      }
+      if (sub == "LIVE" || sub == "PICTURE")   { flag(opt.showLive); return; }
+      if (sub == "PREV" || sub == "PREVIOUS") { flag(opt.showPrevious); return; }
+      if (sub == "NEXT")                      { flag(opt.showNext); return; }
+      if (sub == "NOTES")                     { flag(opt.showNotes); return; }
+      if (sub == "CLOCK")                     { flag(opt.showClock); return; }
+      if (sub == "TIMERS")                    { flag(opt.showTimers); return; }
+      if (sub == "BUILDS")  { flag(opt.buildsConsumeAdvance); return; }
+      // How much of the screen the words get, as a scale on each layout's own
+      // proportion. With every picture switched off they get all of it.
+      if (sub == "SHARE" || sub == "NOTESHARE") {
+        if (parts.size() < 3) {
+          remoteCommandDetail_ = shareText();
+          return;
+        }
+        double want = 0.0;
+        try {
+          want = std::stod(parts[2]);
+        } catch (...) {
+          failRemoteCommand("presenter share: expected a number, got " + parts[2]);
+          return;
+        }
+        if (want < 0.15 || want > 1.0) {
+          failRemoteCommand("presenter share: expected 0.15-1.0, got " + parts[2]);
+          return;
+        }
+        opt.notesShare = want;
+        markProjectDirty();
+        report();
+        return;
+      }
+      if (sub == "SCALE" || sub == "NOTESCALE") {
+        if (parts.size() < 3) {
+          remoteCommandDetail_ = scaleText();
+          return;
+        }
+        double want = 0.0;
+        try {
+          want = std::stod(parts[2]);
+        } catch (...) {
+          failRemoteCommand("presenter scale: expected a number, got " + parts[2]);
+          return;
+        }
+        // Not clamped silently: a scale outside this is either a typo or a
+        // misunderstanding of the units, and both deserve an answer.
+        if (want < 0.5 || want > 4.0) {
+          failRemoteCommand("presenter scale: expected 0.5-4.0, got " + parts[2]);
+          return;
+        }
+        opt.notesScale = want;
+        markProjectDirty();
+        report();
+        return;
+      }
+      if (sub == "COLOUR" || sub == "COLOR") {
+        if (parts.size() < 4) {
+          failRemoteCommand("presenter colour: expected "
+                            "BG|INK|ACCENT #rrggbb");
+          return;
+        }
+        const std::string which = toUpper(parts[2]);
+        if (!tryParseColor(parts[3])) {
+          failRemoteCommand("presenter colour: expected #rrggbb, got " + parts[3]);
+          return;
+        }
+        if (which == "BG" || which == "BACKGROUND") opt.background = parts[3];
+        else if (which == "INK" || which == "TEXT") opt.ink = parts[3];
+        else if (which == "ACCENT") opt.accent = parts[3];
+        else {
+          failRemoteCommand("presenter colour: expected BG|INK|ACCENT, got " +
+                            parts[2]);
+          return;
+        }
+        markProjectDirty();
+        report();
+        return;
+      }
+      if (sub == "RESET" || sub == "DEFAULTS") {
+        opt = OutputTarget::PresenterOptions {};
+        markProjectDirty();
+        report();
+        return;
+      }
+      failRemoteCommand("presenter: expected LAYOUT|PANEL|CAPTURE|ARRANGE|LIVE|PREV|"
+                        "NEXT|NOTES|CLOCK|TIMERS|BUILDS|SHARE|SCALE|COLOUR|"
+                        "RESET|STATUS, got " + parts[1]);
+      return;
+    }
+    // ── NOTESTEP [NEXT|PREV|FIRST|<n>] ────────────────────────────────────
+    //
+    // Move through the live cue's note BUILDS without changing the cue, so a
+    // show-control system can reveal a speaker's notes on the same cue it uses
+    // for everything else. The clicker does this on its own when a presenter
+    // view asks for it; this is the same step for anybody driving from outside.
+    if (command == "NOTESTEP") {
+      const int deckIndex = project_.focusedDeckIndex;
+      const Cue* live = activeCuePtr(deckIndex);
+      if (!live) {
+        failRemoteCommand("notestep: nothing live on this deck");
+        return;
+      }
+      const int total = static_cast<int>(noteBuildParts(live->notes).size());
+      if (total <= 1) {
+        failRemoteCommand("notestep: this cue's notes have no builds "
+                          "(separate them with a line of ---)");
+        return;
+      }
+      const std::string sub = parts.size() < 2 ? std::string("NEXT")
+                                               : toUpper(parts[1]);
+      // Read-only, so a caller can ask where the speaker is without moving
+      // them. Every other verb here has a STATUS form and this one did not,
+      // which made the state unobservable except by changing it.
+      if (sub == "STATUS") {
+        remoteCommandDetail_ =
+          "build " + std::to_string(presenterNoteStepFor(deckIndex) + 1) +
+          " of " + std::to_string(total) +
+          (presenterNoteMoreBelow(deckIndex) ? ", more below" : ", fully shown");
+        return;
+      }
+      if (sub == "NEXT") {
+        presenterNoteStepAdvance(deckIndex, 1);
+      } else if (sub == "PREV" || sub == "PREVIOUS" || sub == "BACK") {
+        presenterNoteStepAdvance(deckIndex, -1);
+      } else if (sub == "FIRST" || sub == "RESET" || sub == "TOP") {
+        presenterNoteStepSet(deckIndex, 0);
+      } else if (sub == "LAST" || sub == "END") {
+        presenterNoteStepSet(deckIndex, total - 1);
+      } else if (sub == "SCROLL") {
+        // Rows, signed. For anybody who wants the notes to creep rather than
+        // to step -- a foot pedal, a fader, a cue stack of its own.
+        const int rows = (parts.size() < 3) ? 1 : std::atoi(parts[2].c_str());
+        presenterNoteScrollBy(deckIndex, rows);
+        remoteCommandDetail_ = "scrolled " + std::to_string(rows) + " rows";
+        return;
+      } else {
+        // 1-based over the wire, like the cue indices.
+        const int asked = std::atoi(sub.c_str());
+        if (asked < 1 || asked > total) {
+          failRemoteCommand("notestep: build out of range 1-" +
+                            std::to_string(total) + ", got " + sub);
+          return;
+        }
+        presenterNoteStepSet(deckIndex, asked - 1);
+      }
+      remoteCommandDetail_ = "build " +
+        std::to_string(presenterNoteStepFor(deckIndex) + 1) + " of " +
+        std::to_string(total);
+      return;
+    }
     // ── VJ <sub> ──────────────────────────────────────────────────────────
     // The mixer over the wire, so it can be driven from a controller and
     // tested from a script. A crossfader is a fader, and a fader is the one

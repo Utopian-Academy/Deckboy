@@ -2421,25 +2421,49 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
   return stack;
 }
 
+// A TAB IS THE SEPARATOR AND A NEWLINE IS THE RECORD, so a field containing
+// either has to say so without using one.
+//
+// This used to write a backslash and then the character ITSELF -- so a field
+// with a newline in it emitted a real newline, the record ran onto a second
+// physical line, and the loader (which reads a line at a time) dropped
+// everything after the break. Nothing hit it while every field was a single
+// line of text; per-slide speaker notes are the first thing that is not, and
+// they arrived with every paragraph after the first missing.
+//
+// Now the escape NAMES the character -- backslash-n, backslash-t -- and the
+// file stays one record per line whatever is in it.
 std::string escapeField(const std::string& value) {
   std::string out;
   out.reserve(value.size());
   for (char ch : value) {
-    if (ch == '\\' || ch == '\t' || ch == '\n') {
-      out.push_back('\\');
+    switch (ch) {
+      case '\\': out += "\\\\"; break;
+      case '\t': out += "\\t"; break;
+      case '\n': out += "\\n"; break;
+      case '\r': break;   // a CR belongs to the line ending, never to the value
+      default: out.push_back(ch); break;
     }
-    out.push_back(ch);
   }
   return out;
 }
 
+// Reads BOTH forms: the named escapes the writer now emits, and the older
+// "backslash then the character itself", so every show file already on disk
+// still loads. The two cannot be confused -- the old writer only ever put a
+// backslash before a backslash, a tab or a newline, so a backslash-n never
+// occurred in a file it wrote.
 std::string unescapeField(const std::string& value) {
   std::string out;
   out.reserve(value.size());
   bool escaping = false;
   for (char ch : value) {
     if (escaping) {
-      out.push_back(ch);
+      switch (ch) {
+        case 'n': out.push_back('\n'); break;
+        case 't': out.push_back('\t'); break;
+        default:  out.push_back(ch); break;   // backslash, or the old form
+      }
       escaping = false;
       continue;
     }
@@ -2456,9 +2480,16 @@ std::vector<std::string> splitEscapedTabs(const std::string& line) {
   std::vector<std::string> fields;
   std::string current;
   bool escaping = false;
+  // Splits on UNESCAPED tabs and decodes the escapes as it goes, so a field
+  // carrying a tab or a newline in its text does not split the record. Accepts
+  // the older "backslash then the character" form too -- see unescapeField.
   for (char ch : line) {
     if (escaping) {
-      current.push_back(ch);
+      switch (ch) {
+        case 'n': current.push_back('\n'); break;
+        case 't': current.push_back('\t'); break;
+        default:  current.push_back(ch); break;
+      }
       escaping = false;
       continue;
     }
@@ -7872,6 +7903,27 @@ class App {
   static constexpr int kSettingsActionCreaturesToggle = 784;
   // Off -> 24-hour -> 12-hour -> analogue -> off. Four states, one control:
   // offering only "on" would make somebody's clock convention the default.
+  // ── PRESENTER VIEW ──────────────────────────────────────────────────────
+  // Contiguous in the 663-701 gap, except 670 which was already taken. The
+  // presenter view had eleven settings and no control for any of them: it was
+  // reachable only over the network protocol.
+  static constexpr int kSettingsActionPresenterLayout = 663;
+  static constexpr int kSettingsActionPresenterShowPrevious = 664;
+  static constexpr int kSettingsActionPresenterShowNext = 665;
+  static constexpr int kSettingsActionPresenterShowNotes = 666;
+  static constexpr int kSettingsActionPresenterShowClock = 667;
+  static constexpr int kSettingsActionPresenterShowTimers = 668;
+  static constexpr int kSettingsActionPresenterBuilds = 669;
+  static constexpr int kSettingsActionPresenterScaleDec = 671;
+  static constexpr int kSettingsActionPresenterScaleInc = 672;
+  static constexpr int kSettingsActionPresenterColourBg = 673;
+  static constexpr int kSettingsActionPresenterColourInk = 674;
+  static constexpr int kSettingsActionPresenterColourAccent = 675;
+  static constexpr int kSettingsActionPresenterReset = 676;
+  static constexpr int kSettingsActionPresenterShowLive = 677;
+  static constexpr int kSettingsActionPresenterShareDec = 678;
+  static constexpr int kSettingsActionPresenterShareInc = 679;
+  static constexpr int kSettingsActionPresenterArrange = 680;
   static constexpr int kSettingsActionClockCycle = 790;
   // Programme -> presenter -> stream. The output type had no control anywhere
   // in the interface: it was reachable only from the network protocol, so the
@@ -9013,6 +9065,31 @@ class App {
   // decay, so --mascot-pokes can actually be screenshotted. A half-second
   // flinch is the part worth looking at and the part a capture always misses.
   bool mascotHoldReaction_ = false;
+  // ── ARRANGING THE PRESENTER SCREEN ──────────────────────────────────────
+  //
+  // The panels are dragged on a miniature drawn in the program monitor, which
+  // is where the warp editor already lives: the biggest rectangle in the
+  // interface, and the one you are already looking at to see what an output is
+  // doing.
+  bool presenterLayoutEditMode_ = false;
+  SDL_Rect presenterLayoutBtnRect_ {};
+  SDL_Rect presenterLayoutMonitorRect_ {};
+  SDL_Rect presenterLayoutStageRect_ {};
+  SDL_Rect presenterLayoutDoneRect_ {};
+  SDL_Rect presenterLayoutResetRect_ {};
+  // 0 = nothing, otherwise 1 + the panel index (live, previous, next, notes).
+  int presenterDragPanel_ = 0;
+  // Which edges the drag is moving. All four false is a move of the whole
+  // panel; any of them true is a resize from that edge or corner.
+  bool presenterDragL_ = false;
+  bool presenterDragT_ = false;
+  bool presenterDragR_ = false;
+  bool presenterDragB_ = false;
+  // Where in the panel it was grabbed, as fractions of the stage, so a move
+  // does not jump the panel's corner to the pointer.
+  double presenterDragGrabX_ = 0.0;
+  double presenterDragGrabY_ = 0.0;
+
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
@@ -9244,9 +9321,105 @@ class App {
     return parts;
   }
 
+  // ── WHAT WAS UP BEFORE THIS ─────────────────────────────────────────────
+  //
+  // The cue that was live on this deck before the current one, recorded when a
+  // take changes it. Not "the cue above it in the list": the two agree for a
+  // talk read top to bottom, and for a show where the operator jumps about it
+  // is the one the presenter actually just had on screen that they want to see.
+  //
+  // Before anything has been taken this session there is no such cue, and the
+  // list neighbour is the honest guess -- a deck opened at slide 20 shows 19
+  // as the previous one, which is what it is.
+  std::map<int, int> presenterPreviousCue_;
+
+  int presenterPreviousCueIndex(int deckIndex) const {
+    const auto at = presenterPreviousCue_.find(deckIndex);
+    if (at != presenterPreviousCue_.end()) {
+      return at->second;
+    }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return -1;
+    }
+    return project_.decks[static_cast<std::size_t>(deckIndex)].activeIndex - 1;
+  }
+
+  // Called from the take: the cue leaving the screen becomes the previous one,
+  // and the incoming cue starts at the top of its own notes.
+  void presenterOnCueTaken(int deckIndex, int leavingIndex) {
+    if (leavingIndex >= 0) {
+      presenterPreviousCue_[deckIndex] = leavingIndex;
+    }
+    presenterNoteStep_[deckIndex] = 0;
+  }
+
   int presenterNoteStepFor(int deckIndex) const {
     const auto at = presenterNoteStep_.find(deckIndex);
     return at == presenterNoteStep_.end() ? 0 : at->second;
+  }
+
+  // ── THE NOTES PANE SCROLLS, RATHER THAN ENDING ──────────────────────────
+  //
+  // A build longer than the pane used to stop at a "... more below" marker
+  // that nothing could act on: the words the speaker still had to say were
+  // three lines under the bottom of the panel and there was no way to reach
+  // them. The pane is now a scrolling document.
+  //
+  // Where it is scrolled to is kept in PIXELS and eased toward its target, so
+  // the text moves under the reader's eye instead of being replaced by
+  // different text. That is the difference between a presenter screen you can
+  // read from and one you have to re-find your place in.
+  std::map<int, double> presenterNoteScroll_;
+  std::map<int, Uint64> presenterNoteScrollClock_;
+
+  // Rows the clicker has pushed WITHIN the current build. Reset whenever the
+  // build changes, so every build starts at its own first line.
+  std::map<int, int> presenterNoteExtraRows_;
+
+  int presenterNoteExtraRowsFor(int deckIndex) const {
+    const auto at = presenterNoteExtraRows_.find(deckIndex);
+    return at == presenterNoteExtraRows_.end() ? 0 : at->second;
+  }
+
+  // What the last render measured. The wrap depends on the font and the box,
+  // which only the renderer knows -- so it publishes, and the transport asks.
+  // One frame stale, which at 60fps nobody can see.
+  struct PresenterNoteMetrics {
+    int totalLines = 0;
+    int rows = 1;
+    int currentFirst = 0;   // first line of the build being spoken
+  };
+  std::map<int, PresenterNoteMetrics> presenterNoteMetrics_;
+
+  // The first visible row: the current build's start with a line of lead-in,
+  // plus whatever the clicker has pushed, never past the end. ONE definition,
+  // used by the renderer to place the text and by the transport to decide
+  // whether there is anything left to scroll to.
+  int presenterNoteTopRow(int deckIndex) const {
+    const auto at = presenterNoteMetrics_.find(deckIndex);
+    if (at == presenterNoteMetrics_.end()) {
+      return 0;
+    }
+    const PresenterNoteMetrics& m = at->second;
+    const int wanted =
+      std::max(0, m.currentFirst - 1) + presenterNoteExtraRowsFor(deckIndex);
+    return std::clamp(wanted, 0, std::max(0, m.totalLines - m.rows));
+  }
+
+  bool presenterNoteMoreBelow(int deckIndex) const {
+    const auto at = presenterNoteMetrics_.find(deckIndex);
+    if (at == presenterNoteMetrics_.end()) {
+      return false;
+    }
+    return presenterNoteTopRow(deckIndex) + at->second.rows < at->second.totalLines;
+  }
+
+  // A screenful less one line, so the line the speaker was reading stays on
+  // screen as the anchor for the next one.
+  int presenterNoteScrollPage(int deckIndex) const {
+    const auto at = presenterNoteMetrics_.find(deckIndex);
+    const int rows = (at == presenterNoteMetrics_.end()) ? 1 : at->second.rows;
+    return std::max(1, rows - 1);
   }
 
   // How many builds the live cue has left to spend. Used by the transport when
@@ -9255,17 +9428,43 @@ class App {
     const Cue* cue = activeCuePtr(deckIndex);
     if (!cue || cue->notes.empty()) return 0;
     const int total = static_cast<int>(noteBuildParts(cue->notes).size());
-    return std::max(0, total - 1 - presenterNoteStepFor(deckIndex));
+    const int builds = std::max(0, total - 1 - presenterNoteStepFor(deckIndex));
+    // A build with more of itself below the fold is not finished with, so the
+    // clicker must not leave the cue while any of it is still unread.
+    return builds + (presenterNoteMoreBelow(deckIndex) ? 1 : 0);
   }
 
   void presenterNoteStepSet(int deckIndex, int step) {
     const Cue* cue = activeCuePtr(deckIndex);
     const int total = cue ? static_cast<int>(noteBuildParts(cue->notes).size()) : 1;
     presenterNoteStep_[deckIndex] = std::clamp(step, 0, std::max(0, total - 1));
+    // A new build starts at its own first line.
+    presenterNoteExtraRows_[deckIndex] = 0;
   }
 
+  // FORWARD MEANS "SHOW ME MORE", whatever more happens to be: the rest of
+  // this build if any of it is below the fold, and only then the next build.
+  // Backward is its exact opposite. That makes one clicker button walk a long
+  // note from top to bottom without the speaker having to know whether they
+  // are inside a build or at the end of one.
   void presenterNoteStepAdvance(int deckIndex, int delta) {
+    if (delta > 0 && presenterNoteMoreBelow(deckIndex)) {
+      presenterNoteExtraRows_[deckIndex] =
+        presenterNoteExtraRowsFor(deckIndex) + presenterNoteScrollPage(deckIndex);
+      return;
+    }
+    if (delta < 0 && presenterNoteExtraRowsFor(deckIndex) > 0) {
+      presenterNoteExtraRows_[deckIndex] = std::max(
+        0, presenterNoteExtraRowsFor(deckIndex) - presenterNoteScrollPage(deckIndex));
+      return;
+    }
     presenterNoteStepSet(deckIndex, presenterNoteStepFor(deckIndex) + delta);
+  }
+
+  // Fine scrolling, a row at a time, for anybody driving from outside.
+  void presenterNoteScrollBy(int deckIndex, int rows) {
+    presenterNoteExtraRows_[deckIndex] =
+      std::max(0, presenterNoteExtraRowsFor(deckIndex) + rows);
   }
 
   // True when at least one armed output is showing a presenter view, so the
@@ -9273,6 +9472,40 @@ class App {
   bool presenterViewLive() const {
     for (const OutputTarget& out : project_.outputs) {
       if (out.enabled && normalizeOutputType(out.outputType) == "presenter") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ── SHOULD THE CLICKER SPEND A BUILD INSTEAD OF CHANGING THE SLIDE? ──────
+  //
+  // Only when all three are true: an armed presenter view is showing THIS
+  // deck, its operator asked for builds to take the advance, and the live cue
+  // still has parts left to reveal. Any one of them missing and Page Down goes
+  // straight back to being "take the next cue", which is what it is for every
+  // show that does not use notes at all.
+  bool presenterAdvanceSpendsBuild(int deckIndex) const {
+    return presenterBuildsRemaining(deckIndex) > 0 &&
+           presenterAdvanceSpendsBuildBackwards(deckIndex);
+  }
+
+  // The same three conditions without "is there a build left", which is the
+  // half that going BACKWARDS asks differently.
+  bool presenterAdvanceSpendsBuildBackwards(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    for (const OutputTarget& out : project_.outputs) {
+      if (!out.enabled || normalizeOutputType(out.outputType) != "presenter") {
+        continue;
+      }
+      if (!out.presenter.buildsConsumeAdvance || !out.presenter.showNotes) {
+        continue;
+      }
+      const int host = std::clamp(out.hostDeckIndex, 0,
+                                  static_cast<int>(project_.decks.size()) - 1);
+      if (host == deckIndex) {
         return true;
       }
     }
@@ -9999,7 +10232,7 @@ constexpr const char* kCliModeFlags[] = {
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
   "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
-  "--motion-probe", "--pdf-probe", "--pdf-render", "--atem-probe",
+  "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
   "--devices", "--check-update",
 };
 
@@ -10314,6 +10547,30 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     const int dumpFrame = ops.size() > 3 ? std::atoi(ops[3].c_str()) : 0;
     const int dumpPasses = ops.size() > 4 ? std::atoi(ops[4].c_str()) : 1;
     return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame, dumpPasses);
+  }
+  // What notes Deckboy would take out of a slide deck, and which slide each
+  // lands on. The mapping is the part worth checking: notesSlide7 is usually
+  // slide 7's, but only because most decks have notes on every slide, and a
+  // deck with gaps puts them somewhere else entirely.
+  if (mode == "--pptx-notes") {
+    if (ops.empty()) return missing("<file.pptx> [slide count]");
+    const int count = ops.size() > 1 ? std::atoi(ops[1].c_str()) : 0;
+    const auto notes = deckboy::platform::slideNotesFromPptx(
+      std::filesystem::path(ops[0]),
+      static_cast<std::size_t>(count > 0 ? count : 200));
+    int withNotes = 0;
+    for (std::size_t i = 0; i < notes.size(); ++i) {
+      if (notes[i].empty()) continue;
+      ++withNotes;
+      std::string oneLine = notes[i];
+      for (char& ch : oneLine) {
+        if (ch == '\n') ch = '|';
+      }
+      if (oneLine.size() > 100) oneLine = oneLine.substr(0, 100) + "...";
+      std::printf("slide %zu: %s\n", i + 1, oneLine.c_str());
+    }
+    std::printf("slides with notes: %d\n", withNotes);
+    return withNotes > 0 ? 0 : 1;
   }
   if (mode == "--pdf-probe") {
     if (ops.empty()) return missing("<file.pdf> [outdir] [width]");

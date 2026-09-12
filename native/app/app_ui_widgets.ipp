@@ -231,6 +231,17 @@
         }
       });
     }
+    // A cue whose notes are in parts can become one cue per part. Offered only
+    // when there ARE parts, so the menu never carries an entry that would
+    // answer "nothing to split".
+    if (noteBuildParts(cue.notes).size() > 1) {
+      const std::size_t parts = noteBuildParts(cue.notes).size();
+      contextItems_.push_back({
+        "  split notes into " + std::to_string(parts) + " cues",
+        {0, 0, 0, 0},
+        [this, deckIdx, cueIdx]() { splitCueNotesIntoCues(deckIdx, cueIdx); }
+      });
+    }
     // File-backed cues get a "reveal in the OS file manager" entry — the
     // fastest answer to "which file is this cue actually playing?"
     {

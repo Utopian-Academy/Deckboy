@@ -4,7 +4,16 @@
 #include <cctype>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <iterator>
+#include <map>
 #include <system_error>
+#include <utility>
+#if defined(DECKBOY_HAS_ZLIB)
+#include <zlib.h>
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -24,9 +33,6 @@
 #include "core/io_utils.hpp"
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
 
 namespace fs = std::filesystem;
 
@@ -571,8 +577,16 @@ PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& o
         1.0, static_cast<double>(std::lround(targetWidthPixels * widthCorrection)));
       const double pageScale = size.Width > 0.0f ? askWidth / size.Width : 1.0;
       options.DestinationWidth(static_cast<uint32_t>(askWidth));
-      options.DestinationHeight(
-        static_cast<uint32_t>(std::max(1.0, size.Height * pageScale)));
+      // ROUNDED, like the width above it, and for the same reason.
+      //
+      // A page's Size comes back as FLOATS, so 960x540 asked for at 3840 wide
+      // computes a scale a hair under 4 and a height of 2159.9998 -- which a
+      // cast truncates to 2159. One pixel short of 2160 is not cosmetic on a
+      // slide deck: the output then rescales every page to fill the raster,
+      // and rescaling by a 2159/2160 ratio softens every glyph on it. The
+      // width was fixed for this once; the height was missed.
+      options.DestinationHeight(static_cast<uint32_t>(
+        std::max(1.0, static_cast<double>(std::llround(size.Height * pageScale)))));
 
       const std::string name = pageFileName(static_cast<int>(i));
       auto target = folder.CreateFileAsync(
@@ -780,7 +794,11 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     const double scale = pageWidth > 0.0
       ? static_cast<double>(targetWidthPixels) / pageWidth : 1.0;
     const size_t w = static_cast<size_t>(std::max(1, targetWidthPixels));
-    const size_t h = static_cast<size_t>(std::max(1.0, pageHeight * scale));
+    // Rounded, not truncated -- see the note on the Windows path. A page whose
+    // height lands a fraction under an integer would otherwise come out a
+    // pixel short and be rescaled to fill the output, softening the text.
+    const size_t h = static_cast<size_t>(
+      std::max(1LL, std::llround(pageHeight * scale)));
     CGContextRef context = CGBitmapContextCreate(
       nullptr, w, h, 8, 0, space,
       kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
@@ -901,6 +919,306 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     result.error = "pdftoppm produced no pages";
   }
   return result;
+}
+
+#endif
+
+// ── SPEAKER NOTES OUT OF A .pptx ───────────────────────────────────────────
+//
+// A PowerPoint file is a ZIP, and each slide's notes are a small XML part
+// inside it. That makes them the only per-slide notes that are properly
+// machine-readable without a PDF parser -- and Google Slides exports .pptx as
+// well as PDF, so a team that works in Slides and exports a PDF to keep its
+// fonts can drop the .pptx beside it and keep its notes too.
+//
+// Implemented against the archive directly rather than through a library: the
+// whole job is "find four kinds of entry by name, inflate them, pull the text
+// out", and a ZIP central directory is a well-documented forty-six byte record.
+// zlib does the one part worth not writing.
+//
+// Compiled out entirely without zlib. The sidecar route still works, so a
+// build missing it loses a convenience rather than a capability.
+#if defined(DECKBOY_HAS_ZLIB)
+
+namespace {
+
+// One entry of the archive's central directory: where its data is, how big it
+// is, and whether it is deflated or stored.
+struct ZipEntry {
+  std::uint32_t localHeaderOffset = 0;
+  std::uint32_t compressedSize = 0;
+  std::uint32_t uncompressedSize = 0;
+  std::uint16_t method = 0;
+};
+
+std::uint16_t readU16(const std::vector<unsigned char>& b, std::size_t at) {
+  return static_cast<std::uint16_t>(b[at] | (b[at + 1] << 8));
+}
+std::uint32_t readU32(const std::vector<unsigned char>& b, std::size_t at) {
+  return static_cast<std::uint32_t>(b[at]) |
+         (static_cast<std::uint32_t>(b[at + 1]) << 8) |
+         (static_cast<std::uint32_t>(b[at + 2]) << 16) |
+         (static_cast<std::uint32_t>(b[at + 3]) << 24);
+}
+
+// The archive's index, by entry name. Read once; the callers below want half a
+// dozen entries out of a file with hundreds.
+std::map<std::string, ZipEntry> zipIndex(const std::vector<unsigned char>& buf) {
+  std::map<std::string, ZipEntry> entries;
+  if (buf.size() < 22) return entries;
+  // End of central directory: scan back for its signature. The comment field
+  // is at most 64k, so that is as far back as it can be.
+  const std::size_t limit = std::min<std::size_t>(buf.size(), 66000);
+  std::size_t eocd = 0;
+  bool found = false;
+  for (std::size_t back = 22; back <= limit; ++back) {
+    const std::size_t at = buf.size() - back;
+    if (readU32(buf, at) == 0x06054b50) { eocd = at; found = true; break; }
+  }
+  if (!found) return entries;
+
+  const std::uint16_t count = readU16(buf, eocd + 10);
+  std::size_t at = readU32(buf, eocd + 16);
+  for (std::uint16_t i = 0; i < count; ++i) {
+    if (at + 46 > buf.size() || readU32(buf, at) != 0x02014b50) break;
+    ZipEntry entry;
+    entry.method = readU16(buf, at + 10);
+    entry.compressedSize = readU32(buf, at + 20);
+    entry.uncompressedSize = readU32(buf, at + 24);
+    const std::uint16_t nameLen = readU16(buf, at + 28);
+    const std::uint16_t extraLen = readU16(buf, at + 30);
+    const std::uint16_t commentLen = readU16(buf, at + 32);
+    entry.localHeaderOffset = readU32(buf, at + 42);
+    if (at + 46 + nameLen > buf.size()) break;
+    entries.emplace(std::string(reinterpret_cast<const char*>(buf.data() + at + 46), nameLen),
+                    entry);
+    at += 46u + nameLen + extraLen + commentLen;
+  }
+  return entries;
+}
+
+// One entry's bytes. Returns empty on anything unexpected rather than throwing:
+// a malformed deck should cost its notes, not the import.
+std::string zipRead(const std::vector<unsigned char>& buf, const ZipEntry& entry) {
+  const std::size_t at = entry.localHeaderOffset;
+  if (at + 30 > buf.size() || readU32(buf, at) != 0x04034b50) return {};
+  // The local header repeats the name and extra lengths, and they can DIFFER
+  // from the central directory's, so the data offset must be computed here.
+  const std::uint16_t nameLen = readU16(buf, at + 26);
+  const std::uint16_t extraLen = readU16(buf, at + 28);
+  const std::size_t data = at + 30u + nameLen + extraLen;
+  if (data + entry.compressedSize > buf.size()) return {};
+
+  if (entry.method == 0) {                       // stored
+    return std::string(reinterpret_cast<const char*>(buf.data() + data),
+                       entry.compressedSize);
+  }
+  if (entry.method != 8) return {};              // only deflate, which is what Office writes
+
+  std::string out;
+  out.resize(entry.uncompressedSize);
+  z_stream zs {};
+  // -MAX_WBITS: raw deflate, no zlib wrapper. A ZIP entry has none.
+  if (inflateInit2(&zs, -MAX_WBITS) != Z_OK) return {};
+  zs.next_in = const_cast<Bytef*>(buf.data() + data);
+  zs.avail_in = entry.compressedSize;
+  zs.next_out = reinterpret_cast<Bytef*>(out.data());
+  zs.avail_out = static_cast<uInt>(out.size());
+  const int rc = inflate(&zs, Z_FINISH);
+  inflateEnd(&zs);
+  if (rc != Z_STREAM_END) return {};
+  return out;
+}
+
+// The text of an OOXML part, taken from its <a:t> runs.
+//
+// Paragraphs matter: <a:p> is a line in the notes pane, and a speaker's notes
+// are usually a list. So each paragraph becomes a line, and the runs inside it
+// are joined without a separator because Word splits a sentence into runs
+// wherever the formatting changes.
+//
+// Elements are matched by their WHOLE NAME. Searching for the string "<a:t"
+// instead also matches <a:tileRect>, <a:tblPr> and <a:tabLst>, and because the
+// text was then read up to the next "</a:t>", one tile fill swallowed several
+// hundred bytes of markup and handed it back as the speaker's notes.
+std::string ooxmlText(const std::string& xml) {
+  std::vector<std::string> paragraphs;
+  std::string current;
+  std::size_t at = 0;
+  while (at < xml.size()) {
+    const std::size_t open = xml.find('<', at);
+    if (open == std::string::npos) break;
+    const std::size_t close = xml.find('>', open + 1);
+    if (close == std::string::npos) break;
+    std::size_t nameEnd = open + 1;
+    while (nameEnd < close && xml[nameEnd] != ' ' && xml[nameEnd] != '/' &&
+           xml[nameEnd] != '\t' && xml[nameEnd] != '\n' && xml[nameEnd] != '\r') {
+      ++nameEnd;
+    }
+    const std::string name = xml.substr(open + 1, nameEnd - open - 1);
+    const bool selfClosing = xml[close - 1] == '/';
+    at = close + 1;
+    // <a:br/> is a soft line break, which reads as a new line too.
+    if (name == "a:p" || name == "a:br") {
+      paragraphs.push_back(current);
+      current.clear();
+      continue;
+    }
+    if (name == "a:t" && !selfClosing) {
+      const std::size_t end = xml.find("</a:t>", at);
+      if (end == std::string::npos) break;
+      current += xml.substr(at, end - at);
+      at = end + 6;
+    }
+  }
+  paragraphs.push_back(current);
+
+  std::string text;
+  for (const std::string& line : paragraphs) {
+    if (line.empty()) continue;
+    if (!text.empty()) text += "\n";
+    text += line;
+  }
+  // The five XML entities, which is all OOXML text can contain.
+  const std::pair<const char*, const char*> entities[] = {
+    {"&amp;", "&"}, {"&lt;", "<"}, {"&gt;", ">"},
+    {"&quot;", "\""}, {"&apos;", "'"},
+  };
+  for (const auto& [from, to] : entities) {
+    std::size_t found = 0;
+    while ((found = text.find(from, found)) != std::string::npos) {
+      text.replace(found, std::strlen(from), to);
+      found += std::strlen(to);
+    }
+  }
+  return text;
+}
+
+// Which notesSlide belongs to slide N.
+//
+// Taken from the slide's own relationships rather than assumed: notesSlide7 is
+// USUALLY slide 7's, but only because most decks have notes on every slide.
+// Add notes to slides 2 and 5 of a ten-slide deck and you get notesSlide1 and
+// notesSlide2, and guessing by number puts both on the wrong slides.
+std::string notesPartForSlide(const std::vector<unsigned char>& zip,
+                              const std::map<std::string, ZipEntry>& index,
+                              int slideNumber) {
+  const std::string rels = "ppt/slides/_rels/slide" + std::to_string(slideNumber) + ".xml.rels";
+  const auto at = index.find(rels);
+  if (at == index.end()) return {};
+  const std::string xml = zipRead(zip, at->second);
+
+  // ONE RELATIONSHIP AT A TIME, matching on its Type and then reading its own
+  // Target. Searching the whole file for "notesSlide" and then looking BACK
+  // for a Target does not work: the word appears in the Type URL first
+  // (".../relationships/notesSlide"), and every real PowerPoint writes Type
+  // before Target, so the backward search lands on the PREVIOUS relationship's
+  // target -- the slide layout. A hand-written test file with the attributes
+  // the other way round passed happily; a real deck found none at all.
+  auto attribute = [](const std::string& element, const char* name) -> std::string {
+    const std::string key = std::string(name) + "=\"";
+    const std::size_t found = element.find(key);
+    if (found == std::string::npos) return {};
+    const std::size_t start = found + key.size();
+    const std::size_t close = element.find('"', start);
+    if (close == std::string::npos) return {};
+    return element.substr(start, close - start);
+  };
+
+  std::size_t scan = 0;
+  while ((scan = xml.find("<Relationship", scan)) != std::string::npos) {
+    const std::size_t end = xml.find('>', scan);
+    if (end == std::string::npos) break;
+    const std::string element = xml.substr(scan, end - scan);
+    scan = end + 1;
+    const std::string type = attribute(element, "Type");
+    // The type is a URL whose last segment names the relationship.
+    const std::size_t seg = type.rfind('/');
+    if (seg == std::string::npos || type.substr(seg + 1) != "notesSlide") {
+      continue;
+    }
+    std::string target = attribute(element, "Target");
+    if (target.empty()) continue;
+    const std::size_t slash = target.rfind('/');
+    if (slash != std::string::npos) target = target.substr(slash + 1);
+    return "ppt/notesSlides/" + target;
+  }
+  return {};
+}
+
+// The NOTES out of a notes part.
+//
+// A notes slide is three shapes: a picture of the slide, the notes themselves,
+// and the slide number. Only the middle one is the speaker's, so the text is
+// taken from the shape carrying the BODY placeholder and the other two are
+// never read.
+//
+// The alternative -- read the whole part and drop a leading line that looks
+// like a number -- works only while PowerPoint keeps writing the number first,
+// and silently eats a note that genuinely begins with one. A test deck here
+// has a note reading "Test notes 12", which is exactly the shape that
+// heuristic cannot tell from a page number.
+std::string notesBodyText(const std::string& xml) {
+  std::string fallback;
+  std::size_t at = 0;
+  while ((at = xml.find("<p:sp>", at)) != std::string::npos) {
+    const std::size_t end = xml.find("</p:sp>", at);
+    if (end == std::string::npos) break;
+    const std::string shape = xml.substr(at, end - at);
+    at = end + 7;
+
+    std::string type;
+    const std::size_t ph = shape.find("<p:ph");
+    if (ph != std::string::npos) {
+      const std::size_t key = shape.find("type=\"", ph);
+      const std::size_t close = shape.find('>', ph);
+      if (key != std::string::npos && close != std::string::npos && key < close) {
+        const std::size_t from = key + 6;
+        const std::size_t to = shape.find('"', from);
+        if (to != std::string::npos) type = shape.substr(from, to - from);
+      }
+    }
+    if (type == "sldNum" || type == "sldImg" || type == "dt" || type == "ftr") {
+      continue;
+    }
+    const std::string text = ooxmlText(shape);
+    if (type == "body") return text;
+    // A deck whose notes live in a plain text box rather than in the
+    // placeholder still has notes; they are just not labelled as such.
+    if (fallback.empty()) fallback = text;
+  }
+  return fallback;
+}
+
+}  // namespace
+
+std::vector<std::string> slideNotesFromPptx(const fs::path& pptxPath,
+                                            std::size_t slideCount) {
+  std::vector<std::string> notes(slideCount);
+  if (slideCount == 0) return notes;
+  std::ifstream in(pptxPath, std::ios::binary);
+  if (!in) return notes;
+  std::vector<unsigned char> buf((std::istreambuf_iterator<char>(in)),
+                                 std::istreambuf_iterator<char>());
+  if (buf.empty()) return notes;
+
+  const auto index = zipIndex(buf);
+  if (index.empty()) return notes;
+
+  for (std::size_t i = 0; i < slideCount; ++i) {
+    const std::string part = notesPartForSlide(buf, index, static_cast<int>(i) + 1);
+    if (part.empty()) continue;
+    const auto entry = index.find(part);
+    if (entry == index.end()) continue;
+    notes[i] = notesBodyText(zipRead(buf, entry->second));
+  }
+  return notes;
+}
+
+#else   // no zlib
+
+std::vector<std::string> slideNotesFromPptx(const fs::path&, std::size_t slideCount) {
+  return std::vector<std::string>(slideCount);
 }
 
 #endif

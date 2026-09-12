@@ -976,12 +976,36 @@ struct OutputTarget {
     // wide      current large, previous and next stacked beside it, notes below
     // filmstrip previous / current / next across the top, notes large below
     // notes     notes dominate; the three pictures ride a thin strip on top
+    // custom    wherever the operator put them -- see customLayout below
+    //
+    // The three named ones REFLOW: switch a panel off and the others take its
+    // room. A custom layout does not, because it is the arrangement somebody
+    // chose and moving it under them would be a bug, not a courtesy.
     std::string layout = "wide";
+    // Each panel's place, as FRACTIONS of the area below the header and above
+    // the footer -- so a layout laid out on a 1080 laptop is the same shape on
+    // the 4K screen it ends up on.
+    //
+    // One field rather than sixteen: "live:x,y,w,h|prev:...|next:...|notes:..."
+    // is readable in the show file, survives a panel being added later, and
+    // does not put four more columns on the output record for every output
+    // that will never be a presenter view.
+    std::string customLayout;
     bool showPrevious = true;
     bool showNext = true;
     bool showNotes = true;
     bool showClock = true;
     bool showTimers = true;
+    // The live picture is a panel like the others. Off, with the other two
+    // off as well, the notes get the whole screen -- which is what somebody
+    // reading a long script from a lectern actually wants, and there was no
+    // way to ask for it while one panel was compulsory.
+    bool showLive = true;
+    // How much of the screen below the header the notes take. The rest goes to
+    // the pictures. Each layout has its own sensible default share and this
+    // scales it, so "give the notes more room" is one control rather than a
+    // choice between three fixed arrangements.
+    double notesShare = 1.0;
     // Hex, because a presenter screen is often somebody else's laptop in
     // somebody else's room and "make it readable in here" is a real request.
     std::string background = "#0c0e0c";

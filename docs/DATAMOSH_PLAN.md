@@ -11,8 +11,6 @@ MPEG-4 Part 2 has no such refresh and produces the full effect. The flavours are
 therefore CLASSIC (MPEG-4, the real thing) and SUBTLE (H.264, a gentle wobble) —
 not the "chunky vs smooth" split originally assumed.
 
-Design decisions and who made them are in `DECISIONS.md` (D3–D9, D24–D28).
-
 ## What it is
 
 Drop I-frames from the compressed stream so P-frames apply their motion vectors

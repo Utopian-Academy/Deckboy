@@ -1,5 +1,105 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.349 (arrange the presenter screen yourself)
+
+The panels were toggleable and the notes resizable, but the arrangement came
+from three fixed layouts. Now every panel can go anywhere.
+
+**Drag them.** ARRANGE, in the program monitor header when the focused output is
+a presenter view (or from Settings, or `PRESENTER ARRANGE`), draws a miniature
+of the screen with the four panels on it. Drag one to move it, a corner to size
+it. It snaps to the grid it draws, so two edges that look aligned are aligned,
+and the miniature keeps the output's shape so a panel lands where you put it.
+
+Arranging starts from whichever named layout was up, so the first drag adjusts
+something that already works rather than leaving you with four boxes at nothing.
+PRESETS puts it back.
+
+The three named layouts still **reflow** — switch a panel off and the others
+take its room. A custom layout does not, because it is the arrangement you
+chose and moving it under you would be a bug rather than a courtesy.
+
+`PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h>` places one by numbers,
+in percent, for anybody building a screen from a script.
+
+## 2026-09-12 - v0.99.348 (notes that scroll, and a screen that is yours)
+
+**The notes pane scrolls.** It used to stop at a line boundary with a
+"... more below" marker, which named the problem rather than solving it: the
+words the speaker still had to say were three lines under the bottom of the
+panel and nothing could reach them. Forward on the clicker now means "show me
+more", whatever more happens to be -- the rest of this build if any of it is
+below the fold, and only then the next build -- so one button walks a long note
+from top to bottom. The movement is eased, so the text glides under your eye
+instead of being replaced by different text, and the edge fades softly wherever
+there is more beyond it. `NOTESTEP SCROLL <rows>` drives it by hand.
+
+**The notes can have the whole screen.** A new "Notes take" control scales how
+much of the screen the words get in every layout, and the live picture is now a
+panel that switches off like the other two -- so previous, next and live off
+gives you a full-screen script at whatever size you set.
+
+**Split a cue's notes into cues.** The other way to pace a long note: one cue
+becomes one cue per part, each carrying its own chunk, so the ordinary NEXT
+walks them. The picture does not blink -- it is the same slide, and only the
+first fades in. Right-click a cue whose notes are in parts, or `SPLITNOTES`.
+Both approaches are worth having: the scroll keeps one slide as one cue, the
+split puts the parts where cue numbers, timecode, Companion and an operator not
+looking at a presenter screen can all see them.
+
+**A presenter screen that looks like one.** Rounded cards instead of hard
+rectangles, the captions in soft pills, the builds as dots rather than
+"build 3 of 4", and along the bottom a row of little slides with the live one
+lit -- because "42 of 109" is a fact you have to do arithmetic on and a lit card
+two-thirds along the row is one you read at a glance from a lectern.
+
+## 2026-09-12 - v0.99.347 (the presenter view, finished; and notes out of a PowerPoint)
+
+**The presenter view draws all three of its layouts, in your colours.** WIDE
+puts the live picture large with the previous and next slides beside it and the
+notes across the bottom; FILMSTRIP runs the three pictures across the top with
+the notes large below; NOTES gives the words the screen and keeps the pictures
+on a thin strip. Every panel switches off on its own, the notes have their own
+size, and the background, ink and accent are yours -- the two shades in between
+are mixed from them, so a white presenter screen gets a darker second ink rather
+than a paler one that disappears.
+
+All of it has a page in **Settings -> Video Outputs -> Screen**, which appears
+only when that output is a presenter view, and all of it answers to
+`PRESENTER ...` over the network protocol -- because the person who wants the
+notes bigger is usually standing at the lectern rather than sitting at the rack.
+
+**Note builds run from the clicker.** A cue's notes split on a line of `---`.
+The presenter view shows every part up to the one you are on, the current one in
+full ink and the ones already spoken dimmed, and scrolls to keep your place --
+so it reads as a note SCROLL rather than a note switch, and you keep what you
+have already said in front of you. Page Down spends the remaining builds before
+it changes the slide when you ask it to, Page Up walks back through them, and
+`NOTESTEP` drives the same step from a show-control system.
+
+**PREVIOUS is the slide you actually just had up**, not the one above it in the
+list -- the two agree for a talk read top to bottom, and differ exactly when you
+have jumped about, which is when you want to know.
+
+**Speaker notes come out of a .pptx.** A PowerPoint is a ZIP with its notes as
+XML inside, so a deck imported as a `.pptx` carries its speaker notes straight
+into the cues, and a PDF with the PowerPoint sitting beside it picks them up
+too. That is the shape a Google Slides workflow already produces -- Slides
+exports both, and a team that exports a PDF to keep its fonts can drop the
+.pptx next to it and keep its notes as well, with no sidecar to write and
+nothing for anybody to remember. Notes on 80 slides of a 109-slide deck, read in
+a fraction of a second, with nothing added to the build that a show depends on.
+
+**The slide-import progress is the deck being built.** The bar under the
+converting animation is now a row of little slides that fill in as the pages
+render, with the newest one hopping as it lands.
+
+**Fixes.** A multi-line note survives a save and reload. The presenter's notes
+wrap to the width they are actually drawn at, so a long line no longer loses its
+last word to an ellipsis. The Orientation button says `0 deg (Normal)` instead
+of a mangled degree sign, and `tools/audit_encoding.py` now fails the build on
+that class of mistake rather than waiting for somebody to notice it on screen.
+
 ## 2026-09-12 - v0.99.346 (a presenter view, and notes that come with the deck)
 
 **Presenter view.** A second screen showing the operator what the audience
@@ -2345,8 +2445,8 @@ decode path it decompresses DXT to RGB on the CPU, which is slower than H.264
 for much larger files. See `docs/HAP_PLAYBACK_PLAN.md`.
 
 ### Also
-`DECISIONS.md` records who decided what. `docs/DATAMOSH_PLAN.md` and
-`docs/HAP_PLAYBACK_PLAN.md` specify the two features still to be built.
+`docs/DATAMOSH_PLAN.md` and `docs/HAP_PLAYBACK_PLAN.md` specify the two
+features still to be built.
 
 ## 2026-08-16 — v0.83.2 (macOS: portable state, a real CLI, a protocol that answers)
 

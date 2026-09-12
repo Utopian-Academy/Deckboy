@@ -1981,10 +1981,156 @@
         drawActionBtn(fsBtn, "TOGGLE", 236);
 
         SDL_Rect orientBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Orientation");
-        std::string orientLabel = outputOrientation == 0 ? "0Â° (Normal)"
-                                : std::to_string(outputOrientation) + "Â°";
+        std::string orientLabel = outputOrientation == 0 ? "0 deg (Normal)"
+                                : std::to_string(outputOrientation) + " deg";
         drawActionBtn(orientBtn, orientLabel, kSettingsActionOutputOrientationCycle);
         sy += dispSectionH + kSectionGap;
+
+        // ─── PRESENTER VIEW ──────────────────────────────────────────
+        //
+        // Only when this output IS one. Every row here is meaningless on a
+        // programme output, and a card full of controls that do nothing is
+        // worse than no card: it invites somebody to change them and then
+        // wonder why the projector did not move.
+        if (outputTypeLabel == "presenter") {
+          const OutputTarget::PresenterOptions& pv = outputTarget.presenter;
+          int pvSectionH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH, kRowH,
+                                     kRowH, kRowH, kRowH, kRowH, kRowH});
+          SDL_Rect pvSection {cx, sy, subContentW, pvSectionH};
+          SDL_Rect pvBody = drawSectionFrame(pvSection, "PRESENTER VIEW");
+          VerticalLayout pvLayout(pvBody, kRowGap);
+
+          {
+            SDL_Rect row = settingsRowIn(pvLayout.takeFixed(kRowH), "Layout");
+            const std::string layoutLabel =
+              pv.layout == "filmstrip" ? "FILMSTRIP  (three across)"
+              : pv.layout == "notes"   ? "NOTES  (notes dominate)"
+              : pv.layout == "custom"  ? "CUSTOM  (arranged)"
+                                       : "WIDE  (live large)";
+            // ARRANGE closes the modal, because the arranger it opens is drawn
+            // in the program monitor -- which this modal is sitting on top of.
+            const int arrangeW = std::max(uiScaled(76), row.w / 4);
+            drawActionBtn(SDL_Rect {row.x, row.y,
+                                    std::max(1, row.w - arrangeW - kRowGap), row.h},
+                          layoutLabel, kSettingsActionPresenterLayout);
+            drawActionBtn(SDL_Rect {row.x + row.w - arrangeW, row.y, arrangeW, row.h},
+                          "ARRANGE...", kSettingsActionPresenterArrange,
+                          presenterLayoutEditMode_);
+          }
+
+          // The four panels, as four switches rather than one combined
+          // "what to show": an operator turning the clock off should not have
+          // to work out which of six presets happens to have the clock off.
+          SDL_Rect liveBtn = settingsRowIn(pvLayout.takeFixed(kRowH),
+                                           "Show live picture");
+          drawActionBtn(liveBtn, pv.showLive ? "ON" : "OFF",
+                        kSettingsActionPresenterShowLive, pv.showLive);
+
+          SDL_Rect prevBtn = settingsRowIn(pvLayout.takeFixed(kRowH),
+                                           "Show previous cue");
+          drawActionBtn(prevBtn, pv.showPrevious ? "ON" : "OFF",
+                        kSettingsActionPresenterShowPrevious, pv.showPrevious);
+
+          SDL_Rect nextBtn = settingsRowIn(pvLayout.takeFixed(kRowH),
+                                           "Show next cue");
+          drawActionBtn(nextBtn, pv.showNext ? "ON" : "OFF",
+                        kSettingsActionPresenterShowNext, pv.showNext);
+
+          SDL_Rect notesBtn = settingsRowIn(pvLayout.takeFixed(kRowH),
+                                            "Show notes");
+          drawActionBtn(notesBtn, pv.showNotes ? "ON" : "OFF",
+                        kSettingsActionPresenterShowNotes, pv.showNotes);
+
+          {
+            SDL_Rect row = pvLayout.takeFixed(kRowH);
+            SDL_Rect labelled = settingsRowIn(row, "Clock and timers");
+            const int half = std::max(uiScaled(40), (labelled.w - kRowGap) / 2);
+            drawActionBtn(SDL_Rect {labelled.x, labelled.y, half, labelled.h},
+                          pv.showClock ? "CLOCK ON" : "CLOCK OFF",
+                          kSettingsActionPresenterShowClock, pv.showClock);
+            drawActionBtn(SDL_Rect {labelled.x + labelled.w - half, labelled.y,
+                                    half, labelled.h},
+                          pv.showTimers ? "TIMERS ON" : "TIMERS OFF",
+                          kSettingsActionPresenterShowTimers, pv.showTimers);
+          }
+
+          {
+            SDL_Rect row = settingsRowIn(pvLayout.takeFixed(kRowH), "Notes take");
+            char pct[24];
+            std::snprintf(pct, sizeof(pct), "%d%% of the screen",
+                          static_cast<int>(std::lround(pv.notesShare * 100.0)));
+            const int step = std::max(uiScaled(34), row.h);
+            drawActionBtn(SDL_Rect {row.x, row.y, step, row.h}, "-",
+                          kSettingsActionPresenterShareDec);
+            drawUIValueControl(SDL_Rect {row.x + step + kRowGap, row.y,
+                                         std::max(1, row.w - (step + kRowGap) * 2),
+                                         row.h},
+                               (pv.showLive || pv.showPrevious || pv.showNext)
+                                 ? pct : "the whole screen");
+            drawActionBtn(SDL_Rect {row.x + row.w - step, row.y, step, row.h}, "+",
+                          kSettingsActionPresenterShareInc);
+          }
+
+          {
+            SDL_Rect row = settingsRowIn(pvLayout.takeFixed(kRowH), "Note size");
+            char pct[24];
+            std::snprintf(pct, sizeof(pct), "%d%%",
+                          static_cast<int>(std::lround(pv.notesScale * 100.0)));
+            const int step = std::max(uiScaled(34), row.h);
+            drawActionBtn(SDL_Rect {row.x, row.y, step, row.h}, "-",
+                          kSettingsActionPresenterScaleDec);
+            drawUIValueControl(SDL_Rect {row.x + step + kRowGap, row.y,
+                                         std::max(1, row.w - (step + kRowGap) * 2),
+                                         row.h},
+                               pct);
+            drawActionBtn(SDL_Rect {row.x + row.w - step, row.y, step, row.h}, "+",
+                          kSettingsActionPresenterScaleInc);
+          }
+
+          // THE THREE COLOURS, side by side and each showing its own value --
+          // a colour control that does not show the colour is a riddle.
+          {
+            SDL_Rect row = settingsRowIn(pvLayout.takeFixed(kRowH), "Colours");
+            const int third = std::max(uiScaled(40), (row.w - kRowGap * 2) / 3);
+            const struct { const char* label; const std::string* value; int action; }
+              swatches[] = {
+                {"PAPER", &pv.background, kSettingsActionPresenterColourBg},
+                {"INK", &pv.ink, kSettingsActionPresenterColourInk},
+                {"ACCENT", &pv.accent, kSettingsActionPresenterColourAccent},
+              };
+            for (int i = 0; i < 3; ++i) {
+              SDL_Rect cell {row.x + i * (third + kRowGap), row.y, third, row.h};
+              // The swatch IS the button: filled with the colour it sets, with
+              // the name written in a readable contrast against it so a dark
+              // paper and a light one both stay legible.
+              const SDL_Color fill = parseColor(*swatches[i].value);
+              Primitives::fillRect(controlRenderer_, cell, fill);
+              Primitives::strokeRect(controlRenderer_, cell, pal.deep);
+              const int luma = (fill.r * 299 + fill.g * 587 + fill.b * 114) / 1000;
+              drawCenteredTextSafe(controlRenderer_, fontSmall_, cell,
+                                   swatches[i].label,
+                                   luma > 140 ? SDL_Color {16, 16, 20, 255}
+                                              : SDL_Color {240, 240, 236, 255});
+              settingsBtns_.push_back({cell, swatches[i].action,
+                                       *swatches[i].value});
+            }
+          }
+
+          {
+            SDL_Rect row = pvLayout.takeFixed(kRowH);
+            SDL_Rect labelled = settingsRowIn(row, "Clicker spends builds");
+            const int half = std::max(uiScaled(40), (labelled.w - kRowGap) / 2);
+            drawActionBtn(SDL_Rect {labelled.x, labelled.y, half, labelled.h},
+                          pv.buildsConsumeAdvance ? "ON" : "OFF",
+                          kSettingsActionPresenterBuilds,
+                          pv.buildsConsumeAdvance);
+            drawActionBtn(SDL_Rect {labelled.x + labelled.w - half, labelled.y,
+                                    half, labelled.h},
+                          "RESET ALL", kSettingsActionPresenterReset);
+          }
+
+          sy += pvSectionH + kSectionGap;
+        }
 
         // Connected Displays — sized for EVERY display so the operator can
         // see and click all of them at once (this list used to collapse to a
@@ -4158,6 +4304,120 @@
   // Third part of the settings-click handler, split off to keep the
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart3(const SettingsButton& sb) {
+    // ── PRESENTER VIEW ────────────────────────────────────────────────────
+    //
+    // All of these act on the FOCUSED output, which is the one the card above
+    // them is showing. They mark the project dirty and nothing else: the
+    // presenter view is drawn from these fields every frame, so there is no
+    // runtime to rebuild and no window to reopen.
+    if (sb.action == kSettingsActionPresenterLayout ||
+        (sb.action >= kSettingsActionPresenterShowPrevious &&
+         sb.action <= kSettingsActionPresenterArrange)) {
+      if (project_.outputs.empty()) {
+        return;
+      }
+      OutputTarget::PresenterOptions& pv = focusedOutputMutable().presenter;
+      switch (sb.action) {
+        case kSettingsActionPresenterLayout:
+          // CUSTOM is in the cycle only once one exists -- cycling into an
+          // empty custom layout would hand the operator a blank screen -- and
+          // once it does exist, cycling must be able to come back to it or a
+          // stray click throws the arrangement away.
+          if (pv.layout == "wide") pv.layout = "filmstrip";
+          else if (pv.layout == "filmstrip") pv.layout = "notes";
+          else if (pv.layout == "notes")
+            pv.layout = pv.customLayout.empty() ? "wide" : "custom";
+          else pv.layout = "wide";
+          triggerToast("presenter layout: " + pv.layout);
+          break;
+        case kSettingsActionPresenterArrange:
+          // Out of the modal and into the monitor, where the arranger lives.
+          presenterLayoutEditMode_ = true;
+          warpEditMode_ = false;
+          settingsOpen_ = false;
+          // The same notice the close button gives, or the stuck-popup
+          // watchdog goes on believing the modal is up.
+          uiWatchdogPopupEvent("settings_modal", false);
+          triggerToast("drag the panels to arrange the presenter screen");
+          break;
+        case kSettingsActionPresenterShowLive:
+          pv.showLive = !pv.showLive;
+          break;
+        case kSettingsActionPresenterShowPrevious:
+          pv.showPrevious = !pv.showPrevious;
+          break;
+        // In twentieths. The clamp stops at 1.0 because the share is a SCALE
+        // on each layout's own proportion, not the proportion itself -- past
+        // that the pictures would be squeezed to nothing by a control that
+        // reads as "more", which is what the picture switches are for.
+        case kSettingsActionPresenterShareDec:
+          pv.notesShare = std::max(0.15, pv.notesShare - 0.05);
+          break;
+        case kSettingsActionPresenterShareInc:
+          pv.notesShare = std::min(1.0, pv.notesShare + 0.05);
+          break;
+        case kSettingsActionPresenterShowNext:
+          pv.showNext = !pv.showNext;
+          break;
+        case kSettingsActionPresenterShowNotes:
+          pv.showNotes = !pv.showNotes;
+          break;
+        case kSettingsActionPresenterShowClock:
+          pv.showClock = !pv.showClock;
+          break;
+        case kSettingsActionPresenterShowTimers:
+          pv.showTimers = !pv.showTimers;
+          break;
+        case kSettingsActionPresenterBuilds:
+          pv.buildsConsumeAdvance = !pv.buildsConsumeAdvance;
+          triggerToast(pv.buildsConsumeAdvance
+                         ? "the clicker now spends note builds before advancing"
+                         : "the clicker advances the cue");
+          break;
+        // In tenths, which is fine enough to tune by eye from across a room
+        // and coarse enough that holding the button gets somewhere.
+        case kSettingsActionPresenterScaleDec:
+          pv.notesScale = std::max(0.5, pv.notesScale - 0.1);
+          break;
+        case kSettingsActionPresenterScaleInc:
+          pv.notesScale = std::min(4.0, pv.notesScale + 0.1);
+          break;
+        case kSettingsActionPresenterColourBg:
+        case kSettingsActionPresenterColourInk:
+        case kSettingsActionPresenterColourAccent: {
+          const bool bg = sb.action == kSettingsActionPresenterColourBg;
+          const bool ink = sb.action == kSettingsActionPresenterColourInk;
+          std::string* field = bg ? &pv.background : (ink ? &pv.ink : &pv.accent);
+          const char* title = bg ? "Presenter paper colour"
+                                 : (ink ? "Presenter ink colour"
+                                        : "Presenter accent colour");
+          openInlineTextEditor("settings.presenter_colour", title,
+                               "#rrggbb -- the colour of the presenter screen",
+                               *field, [this, field](const std::string& v) {
+            const std::string want = trim(v);
+            if (!tryParseColor(want)) {
+              // Refused rather than clamped: a presenter screen painted a
+              // colour nobody asked for, four minutes before doors, is worse
+              // than being told the value was not understood.
+              triggerToast("colour: expected #rrggbb, got " + want);
+              return;
+            }
+            *field = want;
+            markProjectDirty();
+          });
+          return;   // the editor marks dirty when it commits
+        }
+        case kSettingsActionPresenterReset:
+          focusedOutputMutable().presenter = OutputTarget::PresenterOptions {};
+          triggerToast("presenter view reset");
+          break;
+        default:
+          break;
+      }
+      markProjectDirty();
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
     if (sb.action == kSettingsActionDisplayIdentify) {
         showDisplayIdentify();
         triggerToast("identifying displays");

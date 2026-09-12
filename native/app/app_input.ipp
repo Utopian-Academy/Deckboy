@@ -222,6 +222,20 @@
       }
     }
 
+    // The presenter arranger covers the whole program monitor while it is up,
+    // so it is asked first -- otherwise a drag inside it would reach whatever
+    // the monitor normally does with a click.
+    if (presenterLayoutBtnRect_.w > 0 && pointInRect(x, y, presenterLayoutBtnRect_)) {
+      presenterLayoutEditMode_ = !presenterLayoutEditMode_;
+      if (presenterLayoutEditMode_) {
+        warpEditMode_ = false;      // they share the monitor; only one at a time
+      }
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
+    if (presenterLayoutEditMode_ && beginPresenterLayoutDrag(x, y)) {
+      return;
+    }
     if (playlistSplitterRect_.w > 0 && pointInRect(x, y, playlistSplitterRect_)) {
       layoutDragMode_ = LayoutDragMode::Playlist;
       return;
@@ -906,6 +920,10 @@
         }
       }
       return;  // the scrub owns the pointer until release
+    }
+    if (presenterDragPanel_ > 0) {
+      updatePresenterLayoutDrag(x, y);
+      return;   // the arranger owns the pointer until release
     }
     if (layoutDragMode_ == LayoutDragMode::Playlist && contentAreaRect_.w > 0) {
       constexpr int kPlaylistMinW = 236;

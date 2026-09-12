@@ -132,6 +132,22 @@ PdfRasterResult rasterisePdfInProcess(const std::filesystem::path& pdfPath,
 // available because the engine ships with the OS.
 bool pdfRasterAvailable(std::string& whyNot);
 
+
+// The speaker notes inside a .pptx, one entry per slide, empty where a slide
+// has none. Returns a vector of exactly `slideCount` entries so the caller can
+// index it by page without checking.
+//
+// A PowerPoint file is a ZIP with the notes as XML inside, which makes them the
+// only per-slide notes that are machine-readable without a PDF parser. Google
+// Slides exports .pptx too, so a deck exported to PDF for its fonts can keep
+// its notes by sitting beside the .pptx it came from.
+//
+// Returns all-empty on a build without zlib, on a file that is not a ZIP, and
+// on anything malformed: a deck that will not parse should cost its notes, not
+// the import.
+std::vector<std::string> slideNotesFromPptx(const std::filesystem::path& pptxPath,
+                                            std::size_t slideCount);
+
 }  // namespace deckboy::platform
 
 #endif  // DECKBOY_PLATFORM_PDF_IMPORT_HPP

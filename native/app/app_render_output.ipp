@@ -588,8 +588,8 @@
   // ══ PRESENTER VIEW ═══════════════════════════════════════════════════════
   //
   // What the person running the show needs, on a screen the audience cannot
-  // see: the slide that is up, the slide that is next, the notes for the one
-  // that is up, and the time.
+  // see: the slide that is up, the one before it, the one after it, the notes
+  // for the one that is up, and the time.
   //
   // It is an OUTPUT rather than a second control window, which means it
   // inherits the display picker, fullscreen, arming and disarming, and the
@@ -597,165 +597,750 @@
   // which had to be written again. Put programme on the projector and the
   // presenter view on the laptop, exactly as a slide deck does it.
   //
+  // EVERY PART OF IT IS THE OPERATOR'S TO SET: three layouts, each panel
+  // switchable on its own, the three colours, and the size of the notes. A
+  // presenter screen is usually somebody else's laptop in somebody else's
+  // room, and "can you make the notes bigger" is a request that arrives four
+  // minutes before doors.
+  //
   // The CURRENT picture is drawn by the ordinary layer path into a smaller
   // rect, so it is the real live frame with the cue's own geometry and
-  // effects -- not an approximation of it. The NEXT picture comes from the
-  // same thumbnail cache the playlist rows use, so it costs nothing extra.
-  void renderPresenterView(int outputIndex, int deckIndex, const SDL_Rect& bounds) {
-    OutputRuntime* runtime = runtimeForOutput(outputIndex);
-    if (!runtime || !runtime->outputRenderer) return;
-    SDL_Renderer* ren = runtime->outputRenderer;
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
-    const Deck& deck = project_.decks[deckIndex];
+  // effects -- not an approximation of it. PREVIOUS and NEXT come from the
+  // same thumbnail cache the playlist rows use, so they cost nothing extra.
 
-    // Sized from the WINDOW, not from the operator's UI scale: this screen is
-    // usually a different size from theirs and is read from further away.
-    const int pad = std::max(8, bounds.w / 80);
-    const int headerH = std::max(28, bounds.h / 14);
-    const int footerH = std::max(24, bounds.h / 18);
+  // The five colours a presenter screen draws with, from the three the
+  // operator chose. The two derived ones are MIXES TOWARDS THE BACKGROUND
+  // rather than fixed greys: on a white presenter screen the soft ink has to
+  // get darker and on a black one lighter, and one fixed grey disappears on
+  // whichever of the two it was not chosen for.
+  struct PresenterInk {
+    SDL_Color background {12, 14, 12, 255};
+    SDL_Color ink {232, 240, 228, 255};
+    SDL_Color soft {150, 168, 148, 255};
+    SDL_Color accent {143, 191, 96, 255};
+    SDL_Color rule {52, 62, 52, 255};
+  };
 
-    SDL_SetRenderDrawColor(ren, 12, 14, 12, 255);
-    SDL_RenderClear(ren);
+  static SDL_Color presenterMix(SDL_Color a, SDL_Color b, double t) {
+    const auto channel = [t](std::uint8_t from, std::uint8_t to) {
+      return static_cast<std::uint8_t>(
+        std::clamp<long>(std::lround(from + (to - from) * t), 0, 255));
+    };
+    return SDL_Color {channel(a.r, b.r), channel(a.g, b.g), channel(a.b, b.b), 255};
+  }
 
-    const Cue* liveCue = activeCuePtr(deckIndex);
-    const int nextIndex = nextCueIndexForDeck(deckIndex);
-    const Cue* nextCue = (nextIndex >= 0 && nextIndex < static_cast<int>(deck.cues.size()))
-                           ? &deck.cues[nextIndex] : nullptr;
+  static PresenterInk presenterInkFor(const OutputTarget::PresenterOptions& opt) {
+    PresenterInk screen;
+    // An unreadable presenter screen is worse than a plain one, so a colour
+    // that does not parse keeps the default rather than becoming black.
+    if (const auto c = tryParseColor(opt.background)) screen.background = *c;
+    if (const auto c = tryParseColor(opt.ink)) screen.ink = *c;
+    if (const auto c = tryParseColor(opt.accent)) screen.accent = *c;
+    screen.soft = presenterMix(screen.ink, screen.background, 0.42);
+    screen.rule = presenterMix(screen.ink, screen.background, 0.80);
+    return screen;
+  }
 
-    const SDL_Color ink {232, 240, 228, 255};
-    const SDL_Color inkSoft {150, 168, 148, 255};
-    const SDL_Color rule {52, 62, 52, 255};
+  // ── WHERE THE FOUR PANELS GO ─────────────────────────────────────────────
+  //
+  // Everything below produces the same thing -- four rectangles -- and the
+  // drawing code takes them without caring which route they came by. The three
+  // named layouts REFLOW: switch a panel off and the others take its room,
+  // which is what you want from a preset. A custom layout does not reflow,
+  // because it is the arrangement somebody chose and rearranging it under them
+  // would be a bug rather than a courtesy.
+  struct PresenterPlacement {
+    SDL_Rect live {0, 0, 0, 0};
+    SDL_Rect previous {0, 0, 0, 0};
+    SDL_Rect next {0, 0, 0, 0};
+    SDL_Rect notes {0, 0, 0, 0};
+  };
 
-    // Header: which cue is live, and the time of day.
-    {
-      SDL_Rect header {bounds.x + pad, bounds.y + pad, bounds.w - pad * 2, headerH};
-      std::string title = liveCue
-        ? (cueDisplayToken(*liveCue, deck.activeIndex) + "   " + liveCue->name)
-        : std::string("- nothing live -");
-      const std::time_t now = std::time(nullptr);
-      std::tm local {};
-#ifdef _WIN32
-      localtime_s(&local, &now);
-#else
-      localtime_r(&now, &local);
-#endif
-      char clock[16];
-      std::snprintf(clock, sizeof(clock), "%02d:%02d:%02d",
-                    local.tm_hour, local.tm_min, local.tm_sec);
-      const int clockW = std::max(headerH * 3, bounds.w / 6);
-      drawTextSafe(ren, fontBase_,
-                   SDL_Rect {header.x, header.y, header.w - clockW - pad, header.h},
-                   title, ink);
-      drawTextSafe(ren, fontBase_,
-                   SDL_Rect {header.x + header.w - clockW, header.y, clockW, header.h},
-                   clock, inkSoft);
+  // One panel's place as fractions of the body, which is how a custom layout is
+  // stored: a layout laid out on a 1080 laptop is then the same shape on the 4K
+  // screen it ends up on.
+  struct PresenterFrac {
+    double x = 0.0, y = 0.0, w = 0.0, h = 0.0;
+    bool valid() const { return w > 0.001 && h > 0.001; }
+  };
+
+  struct PresenterFracs {
+    PresenterFrac live, previous, next, notes;
+  };
+
+  // "live:0,0,0.72,0.68|prev:0.74,0,0.26,0.33|next:...|notes:..."
+  static PresenterFracs parsePresenterLayout(const std::string& text) {
+    PresenterFracs out;
+    std::size_t at = 0;
+    while (at < text.size()) {
+      const std::size_t bar = text.find('|', at);
+      const std::string chunk =
+        text.substr(at, bar == std::string::npos ? std::string::npos : bar - at);
+      at = (bar == std::string::npos) ? text.size() : bar + 1;
+      const std::size_t colon = chunk.find(':');
+      if (colon == std::string::npos) continue;
+      const std::string name = trim(chunk.substr(0, colon));
+      double v[4] = {0, 0, 0, 0};
+      int count = 0;
+      std::size_t from = colon + 1;
+      while (count < 4 && from <= chunk.size()) {
+        const std::size_t comma = chunk.find(',', from);
+        const std::string field = chunk.substr(
+          from, comma == std::string::npos ? std::string::npos : comma - from);
+        try {
+          v[count++] = std::stod(trim(field));
+        } catch (...) {
+          break;
+        }
+        if (comma == std::string::npos) break;
+        from = comma + 1;
+      }
+      if (count < 4) continue;
+      // Clamped on the way in, not on the way out: a layout that puts a panel
+      // off the screen is unrecoverable from the presenter screen itself,
+      // which is often the only one anybody is looking at.
+      PresenterFrac frac {std::clamp(v[0], 0.0, 0.98), std::clamp(v[1], 0.0, 0.98),
+                          std::clamp(v[2], 0.02, 1.0), std::clamp(v[3], 0.02, 1.0)};
+      frac.w = std::min(frac.w, 1.0 - frac.x);
+      frac.h = std::min(frac.h, 1.0 - frac.y);
+      if (name == "live") out.live = frac;
+      else if (name == "prev" || name == "previous") out.previous = frac;
+      else if (name == "next") out.next = frac;
+      else if (name == "notes") out.notes = frac;
     }
+    return out;
+  }
 
-    const int bodyY = bounds.y + pad + headerH + pad;
-    const int notesH = std::max(60, bounds.h / 4);
-    const int bodyH = std::max(60, bounds.h - (bodyY - bounds.y) - notesH - footerH - pad * 3);
-    const int nextW = std::max(120, bounds.w / 4);
-    const int curW = bounds.w - pad * 2 - nextW - pad;
+  static std::string formatPresenterLayout(const PresenterFracs& f) {
+    auto one = [](const char* name, const PresenterFrac& r) {
+      char buf[96];
+      std::snprintf(buf, sizeof(buf), "%s:%.4g,%.4g,%.4g,%.4g", name, r.x, r.y,
+                    r.w, r.h);
+      return std::string(buf);
+    };
+    std::string out;
+    if (f.live.valid()) out += one("live", f.live);
+    if (f.previous.valid()) out += (out.empty() ? "" : "|") + one("prev", f.previous);
+    if (f.next.valid()) out += (out.empty() ? "" : "|") + one("next", f.next);
+    if (f.notes.valid()) out += (out.empty() ? "" : "|") + one("notes", f.notes);
+    return out;
+  }
 
-    SDL_Rect curBox {bounds.x + pad, bodyY, curW, bodyH};
-    SDL_Rect nextBox {curBox.x + curBox.w + pad, bodyY, nextW,
-                      std::max(40, (nextW * 9) / 16)};
+  // Fractions back to pixels, inset by the padding so neighbouring panels do
+  // not touch. A fraction that rounds to nothing comes back empty rather than
+  // one pixel wide, so the drawing code's "is this panel here?" test is the
+  // same for hidden and for vanishingly small.
+  static SDL_Rect presenterFracToRect(const PresenterFrac& f, const SDL_Rect& body,
+                                      int pad) {
+    if (!f.valid()) return SDL_Rect {0, 0, 0, 0};
+    const int x = body.x + static_cast<int>(std::lround(f.x * body.w));
+    const int y = body.y + static_cast<int>(std::lround(f.y * body.h));
+    const int w = static_cast<int>(std::lround(f.w * body.w)) - pad;
+    const int h = static_cast<int>(std::lround(f.h * body.h)) - pad;
+    if (w < 16 || h < 16) return SDL_Rect {0, 0, 0, 0};
+    return SDL_Rect {x, y, w, h};
+  }
 
-    // CURRENT -- the real live frame, through the ordinary layer path.
-    Primitives::fillRect(ren, curBox, SDL_Color {0, 0, 0, 255});
-    renderDeckLayerIntoOutput(outputIndex, deckIndex, curBox);
-    renderDeckTransitionIntoOutput(outputIndex, deckIndex, curBox);
-    Primitives::strokeRect(ren, curBox, rule);
+  // What a named layout looks like, BEFORE anything is switched off. These are
+  // also what "copy the current layout" hands the operator to start editing
+  // from, which is why they live here as data rather than as arithmetic
+  // scattered through the drawing code.
+  static PresenterFracs presenterPresetFracs(const std::string& layout) {
+    PresenterFracs f;
+    if (layout == "filmstrip") {
+      f.previous = {0.00, 0.00, 0.26, 0.44};
+      f.live     = {0.27, 0.00, 0.46, 0.44};
+      f.next     = {0.74, 0.00, 0.26, 0.44};
+      f.notes    = {0.00, 0.45, 1.00, 0.55};
+    } else if (layout == "notes") {
+      f.previous = {0.00, 0.00, 0.26, 0.23};
+      f.live     = {0.27, 0.00, 0.46, 0.23};
+      f.next     = {0.74, 0.00, 0.26, 0.23};
+      f.notes    = {0.00, 0.24, 1.00, 0.76};
+    } else {                                   // wide, and anything unknown
+      f.live     = {0.00, 0.00, 0.72, 0.68};
+      f.previous = {0.73, 0.00, 0.27, 0.33};
+      f.next     = {0.73, 0.34, 0.27, 0.34};
+      f.notes    = {0.00, 0.70, 1.00, 0.30};
+    }
+    return f;
+  }
 
-    // NEXT -- from the playlist's own thumbnail cache.
-    drawTextSafe(ren, fontSmall_,
-                 SDL_Rect {nextBox.x, bodyY - headerH / 2 - pad / 2, nextBox.w, headerH / 2},
-                 "NEXT", inkSoft);
-    Primitives::fillRect(ren, nextBox, SDL_Color {0, 0, 0, 255});
-    if (nextCue) {
-      const std::string key = cueVisualCacheKey(*nextCue);
-      auto found = selectedThumbnailCache_.find(key);
+  // A rounded card. There is no rounded-rect primitive in the renderer and one
+  // is not worth adding for this: a radius's worth of one-pixel bands, each
+  // inset by the corner circle's own width at that row, draws it exactly.
+  static void presenterRounded(SDL_Renderer* ren, const SDL_Rect& box, int radius,
+                               SDL_Color color) {
+    const int r = std::clamp(radius, 0, std::min(box.w, box.h) / 2);
+    if (r <= 0) {
+      Primitives::fillRect(ren, box, color);
+      return;
+    }
+    Primitives::fillRect(ren, SDL_Rect {box.x, box.y + r, box.w, box.h - r * 2},
+                         color);
+    for (int i = 0; i < r; ++i) {
+      const double dy = r - i - 0.5;
+      const int inset = r - static_cast<int>(std::lround(
+        std::sqrt(std::max(0.0, static_cast<double>(r) * r - dy * dy))));
+      Primitives::fillRect(ren, SDL_Rect {box.x + inset, box.y + i,
+                                          box.w - inset * 2, 1}, color);
+      Primitives::fillRect(ren, SDL_Rect {box.x + inset, box.y + box.h - 1 - i,
+                                          box.w - inset * 2, 1}, color);
+    }
+  }
+
+  // A caption in a soft pill rather than bare text on the background. It costs
+  // nothing, it groups the label with the thing it names, and it is the one
+  // place on this screen where the accent colour earns its keep.
+  SDL_Rect presenterPill(SDL_Renderer* ren, const SDL_Rect& at,
+                         const std::string& text, TTF_Font* font,
+                         SDL_Color fill, SDL_Color ink) {
+    const int padX = std::max(4, at.h / 3);
+    const int width = std::min(at.w,
+                               measuredTextWidth(font, text) + padX * 2);
+    const SDL_Rect pill {at.x, at.y, std::max(8, width), at.h};
+    presenterRounded(ren, pill, at.h / 2, fill);
+    drawCenteredTextSafe(ren, font, pill, text, ink);
+    return pill;
+  }
+
+  // Where the speaker is in the deck, as the slides themselves.
+  //
+  // The same little cards the slide importer fills in, for the same reason:
+  // "42 of 109" is a fact you have to do arithmetic on, and a row with a lit
+  // card two-thirds along is one you read at a glance from a lectern. Sampled
+  // to whatever fits, so a hundred-slide deck does not become a row of
+  // one-pixel slivers.
+  void presenterDeckStrip(SDL_Renderer* ren, const SDL_Rect& bar, int liveIndex,
+                          int total, const PresenterInk& screen) {
+    if (bar.w <= 0 || bar.h <= 0 || total <= 0) {
+      return;
+    }
+    const int gap = std::max(2, bar.h / 5);
+    const int cardH = std::max(4, bar.h);
+    const int cardW = std::max(6, (cardH * 4) / 3);
+    const int cards = std::clamp((bar.w + gap) / (cardW + gap), 1, total);
+    const int rowW = cards * cardW + (cards - 1) * gap;
+    const int x0 = bar.x + (bar.w - rowW) / 2;
+    // Which card stands for the live cue: its position in the deck, scaled
+    // into the row. With one card per cue this is the identity.
+    const int lit = (total <= 1) ? 0
+      : std::clamp((liveIndex * (cards - 1)) / std::max(1, total - 1), 0, cards - 1);
+    for (int i = 0; i < cards; ++i) {
+      const SDL_Rect card {x0 + i * (cardW + gap), bar.y, cardW, cardH};
+      if (i == lit) {
+        presenterRounded(ren, card, std::max(1, cardH / 4), screen.accent);
+      } else if (i < lit) {
+        presenterRounded(ren, card, std::max(1, cardH / 4), screen.rule);
+      } else {
+        presenterRounded(ren, card, std::max(1, cardH / 4),
+                         presenterMix(screen.rule, screen.background, 0.55));
+      }
+    }
+  }
+
+  // Split a row between the pictures that are switched on, giving the live one
+  // the larger share. A slot that is off comes back zero-width, and the last
+  // slot on the row absorbs the rounding so the right edge always lands on the
+  // right edge.
+  static void presenterSplitRow(const SDL_Rect& strip, int gap, bool wantPrev,
+                                bool wantNext, double liveWeight, SDL_Rect& prev,
+                                SDL_Rect& live, SDL_Rect& next) {
+    prev = live = next = SDL_Rect {0, 0, 0, 0};
+    const double weight =
+      (wantPrev ? 1.0 : 0.0) + liveWeight + (wantNext ? 1.0 : 0.0);
+    const int gaps = (wantPrev ? 1 : 0) + (wantNext ? 1 : 0);
+    const int usable = std::max(1, strip.w - gap * gaps);
+    int x = strip.x;
+    if (wantPrev) {
+      prev = SDL_Rect {x, strip.y, static_cast<int>(std::lround(usable / weight)),
+                       strip.h};
+      x += prev.w + gap;
+    }
+    live = SDL_Rect {x, strip.y,
+                     static_cast<int>(std::lround(usable * liveWeight / weight)),
+                     strip.h};
+    if (wantNext) {
+      x += live.w + gap;
+      next = SDL_Rect {x, strip.y, std::max(1, strip.x + strip.w - x), strip.h};
+    } else {
+      live.w = std::max(1, strip.x + strip.w - live.x);
+    }
+  }
+
+  // One still on the presenter screen: a caption, the picture letterboxed so
+  // the slide keeps its own shape, and the cue's number and name under it.
+  void presenterSlot(OutputRuntime& runtime, const SDL_Rect& box,
+                     const std::string& caption, const Cue* cue, int deckIndex,
+                     int cueIndex, const PresenterInk& screen, TTF_Font* font,
+                     const char* bridgeName, const char* emptyText) {
+    if (box.w <= 0 || box.h <= 0) {
+      return;
+    }
+    SDL_Renderer* ren = runtime.outputRenderer;
+    const int labelH = std::max(12, textLineHeight(font));
+    const SDL_Rect picture {box.x, box.y + labelH, box.w,
+                            std::max(16, box.h - labelH * 2)};
+    const int radius = std::max(2, labelH / 2);
+    presenterPill(ren, SDL_Rect {box.x, box.y, box.w, labelH}, caption, font,
+                  presenterMix(screen.rule, screen.background, 0.35), screen.soft);
+    // A card, not a hole: the mount is rounded and the picture sits on it, so
+    // an empty slot still reads as somewhere a slide goes.
+    presenterRounded(ren, picture, radius,
+                     presenterMix(screen.rule, screen.background, 0.25));
+    const SDL_Rect inner {picture.x + 2, picture.y + 2, std::max(1, picture.w - 4),
+                          std::max(1, picture.h - 4)};
+    presenterRounded(ren, inner, std::max(1, radius - 1), SDL_Color {0, 0, 0, 255});
+    if (!cue) {
+      drawCenteredTextSafe(ren, font, picture, emptyText, screen.soft);
+      return;
+    }
+    // THE SAME CACHE THE PLAYLIST ROWS USE, and under the same lock -- it is
+    // filled by a decode running on another thread. Reading it unlocked was a
+    // race that happened to be quiet because the map is usually warm.
+    const std::string key = cueVisualCacheKey(*cue);
+    bool drawn = false;
+    {
+      std::lock_guard<std::mutex> lk(thumbnailMutex_);
+      const auto found = selectedThumbnailCache_.find(key);
       if (found != selectedThumbnailCache_.end() && !found->second.pixels.empty()) {
         const DecodedFrame& thumb = found->second;
-        SDL_Texture* tex = ensureOverlayBridgeTexture(
-          *runtime, "presenter_next", thumb.width, thumb.height,
-          sdlPixelFormat(thumb.format));
+        SDL_Texture* tex = ensureOverlayBridgeTexture(runtime, bridgeName,
+                                                      thumb.width, thumb.height,
+                                                      sdlPixelFormat(thumb.format));
         if (tex) {
           SDL_UpdateTexture(tex, nullptr, thumb.pixels.data(), thumb.width * 4);
-          // Letterboxed, so the slide keeps its own shape.
-          const double sx = static_cast<double>(nextBox.w) / thumb.width;
-          const double sy = static_cast<double>(nextBox.h) / thumb.height;
-          const double k = std::min(sx, sy);
-          SDL_Rect dst {nextBox.x + static_cast<int>((nextBox.w - thumb.width * k) / 2),
-                        nextBox.y + static_cast<int>((nextBox.h - thumb.height * k) / 2),
-                        std::max(1, static_cast<int>(thumb.width * k)),
-                        std::max(1, static_cast<int>(thumb.height * k))};
+          const double k = std::min(static_cast<double>(picture.w) / thumb.width,
+                                    static_cast<double>(picture.h) / thumb.height);
+          const SDL_Rect dst {
+            picture.x + static_cast<int>((picture.w - thumb.width * k) / 2),
+            picture.y + static_cast<int>((picture.h - thumb.height * k) / 2),
+            std::max(1, static_cast<int>(thumb.width * k)),
+            std::max(1, static_cast<int>(thumb.height * k))};
           SDL_RenderTexture(ren, tex, nullptr, &dst);
+          drawn = true;
         }
-      } else {
-        // Said out loud, because "the next slide has no preview yet" and
-        // "there is no next slide" are different facts and an empty black box
-        // would report them identically.
-        drawCenteredTextSafe(ren, fontSmall_, nextBox, "preview pending", inkSoft);
       }
-      drawTextSafe(ren, fontSmall_,
-                   SDL_Rect {nextBox.x, nextBox.y + nextBox.h + pad / 2,
-                             nextBox.w, headerH / 2},
-                   cueDisplayToken(*nextCue, nextIndex) + "  " + nextCue->name, ink);
-    } else {
-      drawCenteredTextSafe(ren, fontSmall_, nextBox, "end of list", inkSoft);
     }
-    Primitives::strokeRect(ren, nextBox, rule);
+    if (!drawn) {
+      // ASK FOR IT, rather than waiting for the playlist to happen to draw
+      // that row. A presenter screen is very often the only thing anybody is
+      // looking at, and the cue it wants a picture of may be nowhere near the
+      // visible part of a hundred-slide list. One request per frame, through
+      // the queue the rows already use, so this cannot start a stampede.
+      if (rowThumbWantedKey_.empty()) {
+        rowThumbWantedKey_ = key;
+        rowThumbWantedDeck_ = deckIndex;
+        rowThumbWantedCue_ = cueIndex;
+      }
+      // Said out loud, because "no preview yet" and "no such slide" are
+      // different facts and an empty black box reports them identically.
+      drawCenteredTextSafe(ren, font, picture, "preview pending", screen.soft);
+    }
+    drawTextSafe(ren, font,
+                 SDL_Rect {box.x + labelH / 2, picture.y + picture.h, box.w, labelH},
+                 cueDisplayToken(*cue, cueIndex) + "  " + cue->name, screen.ink);
+  }
 
-    // Notes, wrapped, as large as they will go.
-    {
-      SDL_Rect notesBox {bounds.x + pad, curBox.y + curBox.h + pad,
-                         bounds.w - pad * 2, notesH};
-      drawTextSafe(ren, fontSmall_,
-                   SDL_Rect {notesBox.x, notesBox.y, notesBox.w, headerH / 2},
-                   "NOTES", inkSoft);
-      const int lineY = notesBox.y + headerH / 2 + pad / 2;
-      const std::string notes = liveCue ? liveCue->notes : std::string();
-      if (notes.empty()) {
-        drawTextSafe(ren, fontBase_,
-                     SDL_Rect {notesBox.x, lineY, notesBox.w,
-                               notesBox.h - (lineY - notesBox.y)},
-                     liveCue ? "(no notes for this cue)" : "", inkSoft);
-      } else {
-        // Wrapped on spaces here, because the shared text helpers draw exactly
-        // one line and a presenter's notes are the one thing on this screen
-        // that is prose rather than a label.
-        const int lineH = std::max(16, textLineHeight(fontBase_));
-        int y = lineY;
-        std::string line;
-        auto flushLine = [&]() {
-          if (line.empty()) return;
-          if (y + lineH <= notesBox.y + notesBox.h) {
-            drawTextSafe(ren, fontBase_,
-                         SDL_Rect {notesBox.x, y, notesBox.w, lineH}, line, ink);
-          }
-          y += lineH;
-          line.clear();
-        };
-        std::istringstream words(notes);
+  // The notes panel: a SCROLLING DOCUMENT, including builds.
+  //
+  // A cue's notes split on a line of exactly "---". The pane shows every part
+  // up to the one being spoken, the current one in full ink and the parts
+  // already said dimmed, and scrolls to keep the speaker's place. That makes
+  // it a note SCROLL rather than a note switch: what has already been said
+  // stays in front of them, which is how a lectern works.
+  //
+  // The scroll is in PIXELS and EASED. It used to stop at a line boundary with
+  // a "... more below" marker, which named the problem instead of solving it --
+  // the words the speaker still had to say were three lines under the bottom of
+  // the panel and nothing could reach them. Now the clicker scrolls, and the
+  // text glides under the eye rather than being replaced by different text.
+  void presenterNotes(SDL_Renderer* ren, const SDL_Rect& box, const Cue* cue,
+                      int deckIndex, const PresenterInk& screen,
+                      TTF_Font* headFont, TTF_Font* bodyFont) {
+    if (box.w <= 0 || box.h <= 0) {
+      return;
+    }
+    const int headH = std::max(12, textLineHeight(headFont));
+    const std::vector<std::string> parts =
+      noteBuildParts(cue ? cue->notes : std::string());
+    const int step = std::clamp(presenterNoteStepFor(deckIndex), 0,
+                                std::max(0, static_cast<int>(parts.size()) - 1));
+
+    // The heading, and the builds as DOTS -- filled for said, ringed for the
+    // one being said, hollow for still to come. "build 3 of 4" is a fact to do
+    // arithmetic on; four dots is one you read.
+    const SDL_Rect headRect {box.x, box.y, box.w, headH};
+    const SDL_Rect pill = presenterPill(
+      ren, headRect, "NOTES", headFont,
+      presenterMix(screen.rule, screen.background, 0.35), screen.soft);
+    if (parts.size() > 1) {
+      const int dot = std::max(4, headH / 3);
+      const int gap = std::max(2, dot / 2);
+      int dx = pill.x + pill.w + dot;
+      for (std::size_t i = 0; i < parts.size() && dx + dot < box.x + box.w; ++i) {
+        const SDL_Rect at {dx, box.y + (headH - dot) / 2, dot, dot};
+        const int part = static_cast<int>(i);
+        if (part == step) {
+          presenterRounded(ren,
+                           SDL_Rect {at.x - gap / 2, at.y - gap / 2,
+                                     dot + gap, dot + gap},
+                           (dot + gap) / 2, screen.accent);
+        } else {
+          presenterRounded(ren, at, dot / 2,
+                           part < step
+                             ? screen.soft
+                             : presenterMix(screen.rule, screen.background, 0.4));
+        }
+        dx += dot + gap * 2;
+      }
+    }
+
+    const int textY = box.y + headH + headH / 3;
+    const SDL_Rect text {box.x, textY, box.w,
+                         std::max(16, box.y + box.h - textY)};
+    const int lineH = std::max(14, textLineHeight(bodyFont));
+    if (!cue || cue->notes.empty()) {
+      presenterNoteMetrics_[deckIndex] = PresenterNoteMetrics {};
+      drawTextSafe(ren, bodyFont, SDL_Rect {text.x, text.y, text.w, lineH},
+                   cue ? "(no notes for this cue)" : "", screen.soft);
+      return;
+    }
+
+    // Wrapped on spaces here: the shared text helpers draw exactly one line,
+    // and a presenter's notes are the one thing on this screen that is prose
+    // rather than a label.
+    //
+    // MEASURED AGAINST THE RECT THE TEXT ACTUALLY GETS. drawTextSafe insets
+    // through safeTextRect before drawing, so a line wrapped to the full box
+    // width is a few pixels too long and comes back ellipsized -- the wrap and
+    // the draw have to agree about what "fits" or every long line loses its
+    // last word to an ellipsis.
+    const int wrapW = std::max(
+      16, safeTextRect(SDL_Rect {text.x, text.y, text.w, lineH}).w);
+    struct NoteLine {
+      std::string text;
+      bool current = false;
+    };
+    std::vector<NoteLine> lines;
+    int currentFirst = 0;
+    for (int part = 0; part <= step; ++part) {
+      const bool isCurrent = (part == step);
+      if (isCurrent) {
+        currentFirst = static_cast<int>(lines.size());
+      }
+      if (part > 0) {
+        lines.push_back(NoteLine {std::string(), isCurrent});
+      }
+      std::istringstream paragraphs(parts[static_cast<std::size_t>(part)]);
+      std::string paragraph;
+      while (std::getline(paragraphs, paragraph)) {
+        std::istringstream words(paragraph);
         std::string word;
+        std::string line;
         while (words >> word) {
           const std::string attempt = line.empty() ? word : (line + " " + word);
-          if (measuredTextWidth(fontBase_, attempt) > notesBox.w && !line.empty()) {
-            flushLine();
+          if (measuredTextWidth(bodyFont, attempt) > wrapW && !line.empty()) {
+            lines.push_back(NoteLine {line, isCurrent});
             line = word;
           } else {
             line = attempt;
           }
         }
-        flushLine();
+        lines.push_back(NoteLine {line, isCurrent});
       }
     }
 
-    // Footer: how long this cue has been up, and how much of it is left.
+    // PUBLISHED FOR THE TRANSPORT. The wrap depends on the font and the box,
+    // so only the renderer can say how many lines there are or how many fit,
+    // and the clicker needs both to know whether "forward" means scroll this
+    // build or move to the next one.
+    const int rows = std::max(1, text.h / lineH);
+    presenterNoteMetrics_[deckIndex] =
+      PresenterNoteMetrics {static_cast<int>(lines.size()), rows, currentFirst};
+
+    // Eased in real time, so the speed is the same whatever the frame rate.
+    const double target =
+      static_cast<double>(presenterNoteTopRow(deckIndex)) * lineH;
+    double& scroll = presenterNoteScroll_[deckIndex];
+    Uint64& clock = presenterNoteScrollClock_[deckIndex];
+    if (clock == 0) {
+      scroll = target;                     // first frame: start where we are
+    } else if (animationNow_ > clock) {
+      const double dt = static_cast<double>(animationNow_ - clock) / 1000.0;
+      // A ten-per-second exponential: about a fifth of a second to cross most
+      // of the gap, which reads as "it moved" rather than as an animation to
+      // sit through. Snapped at the end so it does not creep for ever.
+      scroll += (target - scroll) * (1.0 - std::exp(-10.0 * std::min(dt, 0.25)));
+      if (std::fabs(target - scroll) < 0.5) {
+        scroll = target;
+      }
+    }
+    clock = animationNow_;
+
+    // Clipped, because a scrolling document has rows half in and half out.
+    SDL_Rect previousClip {};
+    const bool hadClip = SDL_RenderClipEnabled(ren) == true;
+    if (hadClip) {
+      SDL_GetRenderClipRect(ren, &previousClip);
+    }
+    SDL_SetRenderClipRect(ren, &text);
+    const int firstRow = std::max(0, static_cast<int>(scroll / lineH) - 1);
+    const int lastRow = std::min(static_cast<int>(lines.size()),
+                                 firstRow + rows + 3);
+    for (int row = firstRow; row < lastRow; ++row) {
+      const NoteLine& line = lines[static_cast<std::size_t>(row)];
+      if (line.text.empty()) {
+        continue;
+      }
+      const int y = text.y + static_cast<int>(std::lround(row * lineH - scroll));
+      drawTextSafe(ren, bodyFont, SDL_Rect {text.x, y, text.w, lineH}, line.text,
+                   line.current ? screen.ink : screen.soft);
+    }
+    if (hadClip) {
+      SDL_SetRenderClipRect(ren, &previousClip);
+    } else {
+      SDL_SetRenderClipRect(ren, nullptr);
+    }
+
+    // A soft fade at whichever edge still has text beyond it, instead of a line
+    // of words saying so. It costs no row, it cannot be mistaken for part of
+    // the note, and it goes on meaning the same thing while the text is moving.
+    SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
+    const int fadeH = std::max(6, lineH);
+    const int bands = 10;
+    const int bandH = std::max(1, fadeH / bands);
+    const bool fadeTop = scroll > 0.5;
+    const bool fadeBottom = presenterNoteMoreBelow(deckIndex);
+    for (int i = 0; i < bands; ++i) {
+      if (fadeTop) {
+        SDL_SetRenderDrawColor(
+          ren, screen.background.r, screen.background.g, screen.background.b,
+          static_cast<std::uint8_t>(std::lround(
+            (1.0 - static_cast<double>(i) / bands) * 235.0)));
+        const SDL_FRect top {static_cast<float>(text.x),
+                             static_cast<float>(text.y + i * bandH),
+                             static_cast<float>(text.w),
+                             static_cast<float>(bandH)};
+        SDL_RenderFillRect(ren, &top);
+      }
+      if (fadeBottom) {
+        SDL_SetRenderDrawColor(
+          ren, screen.background.r, screen.background.g, screen.background.b,
+          static_cast<std::uint8_t>(std::lround(
+            (static_cast<double>(i + 1) / bands) * 235.0)));
+        const SDL_FRect bottom {
+          static_cast<float>(text.x),
+          static_cast<float>(text.y + text.h - fadeH + i * bandH),
+          static_cast<float>(text.w), static_cast<float>(bandH)};
+        SDL_RenderFillRect(ren, &bottom);
+      }
+    }
+    SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
+  }
+
+  void renderPresenterView(int outputIndex, int deckIndex, const SDL_Rect& bounds) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer) return;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    SDL_Renderer* ren = runtime->outputRenderer;
+    const Deck& deck = project_.decks[deckIndex];
+    const OutputTarget::PresenterOptions& opt =
+      project_.outputs[static_cast<std::size_t>(outputIndex)].presenter;
+    const PresenterInk screen = presenterInkFor(opt);
+
+    SDL_SetRenderDrawColor(ren, screen.background.r, screen.background.g,
+                           screen.background.b, 255);
+    SDL_RenderClear(ren);
+
+    // Sized from the WINDOW, not from the operator's UI scale: this screen is
+    // usually a different size from theirs and is read from further away.
+    const int pad = std::max(8, bounds.w / 80);
+    const int headerH = std::max(28, bounds.h / 14);
+    const int footerH = opt.showTimers ? std::max(24, bounds.h / 18) : 0;
+    auto pick = [this](TTF_Font* base, int size) {
+      TTF_Font* sized = fontAtSize(base, size);
+      return sized ? sized : base;
+    };
+    TTF_Font* titleFont = pick(fontBase_, std::clamp(bounds.h / 26, 12, 72));
+    TTF_Font* labelFont = pick(fontSmall_, std::clamp(bounds.h / 46, 10, 36));
+    // The notes size is the operator's, against the screen rather than against
+    // the interface -- 1.0 is already comfortable from a lectern and most
+    // people want more.
+    TTF_Font* notesFont = pick(
+      fontBase_, std::clamp(static_cast<int>(std::lround(bounds.h / 38.0 *
+                                                         opt.notesScale)),
+                            11, 96));
+
+    const Cue* liveCue = activeCuePtr(deckIndex);
+    const int nextIndex = nextCueIndexForDeck(deckIndex);
+    const Cue* nextCue = (nextIndex >= 0 && nextIndex < static_cast<int>(deck.cues.size()))
+                           ? &deck.cues[static_cast<std::size_t>(nextIndex)] : nullptr;
+    const int prevIndex = presenterPreviousCueIndex(deckIndex);
+    const Cue* prevCue = (prevIndex >= 0 && prevIndex < static_cast<int>(deck.cues.size()))
+                           ? &deck.cues[static_cast<std::size_t>(prevIndex)] : nullptr;
+
+    // ── header: what is live, and the time of day ────────────────────────
     {
-      SDL_Rect footer {bounds.x + pad, bounds.y + bounds.h - footerH - pad,
-                       bounds.w - pad * 2, footerH};
+      const SDL_Rect header {bounds.x + pad, bounds.y + pad, bounds.w - pad * 2,
+                             headerH};
+      int titleW = header.w;
+      if (opt.showClock) {
+        const std::time_t now = std::time(nullptr);
+        std::tm local {};
+#ifdef _WIN32
+        localtime_s(&local, &now);
+#else
+        localtime_r(&now, &local);
+#endif
+        char clock[16];
+        std::snprintf(clock, sizeof(clock), "%02d:%02d:%02d", local.tm_hour,
+                      local.tm_min, local.tm_sec);
+        const int clockW = std::max(headerH * 3, bounds.w / 6);
+        drawTextSafe(ren, titleFont,
+                     SDL_Rect {header.x + header.w - clockW, header.y, clockW,
+                               header.h},
+                     clock, screen.soft);
+        titleW = header.w - clockW - pad;
+      }
+      const std::string title =
+        liveCue ? (cueDisplayToken(*liveCue, deck.activeIndex) + "   " + liveCue->name)
+                : std::string("- nothing live -");
+      drawTextSafe(ren, titleFont,
+                   SDL_Rect {header.x, header.y, std::max(1, titleW), header.h},
+                   title, screen.ink);
+    }
+
+    // ── body: where each panel goes, per layout ──────────────────────────
+    const int bodyLeft = bounds.x + pad;
+    const int bodyW = bounds.w - pad * 2;
+    const int bodyTop = bounds.y + pad + headerH + pad;
+    const int bodyBottom =
+      bounds.y + bounds.h - pad - (footerH > 0 ? footerH + pad : 0);
+    const int bodyH = std::max(80, bodyBottom - bodyTop);
+
+    SDL_Rect liveBox {}, prevBox {}, nextBox {}, notesBox {};
+    // HOW MUCH OF THE SCREEN THE WORDS GET. Each layout has its own sensible
+    // share and this scales it, so "give the notes more room" is one control
+    // rather than a choice between three fixed arrangements. Past 1.0 -- and
+    // with the pictures switched off -- the notes take the lot, which is what
+    // somebody reading a long script from a lectern actually wants.
+    const bool anyPicture = opt.showLive || opt.showPrevious || opt.showNext;
+    auto notesHeightFrom = [&](double baseShare) {
+      if (!opt.showNotes) return 0;
+      if (!anyPicture) return bodyH;
+      const double share = std::clamp(baseShare * opt.notesShare, 0.05, 0.92);
+      return std::clamp(static_cast<int>(std::lround(bodyH * share)),
+                        std::max(32, bodyH / 12), bodyH - std::max(48, bodyH / 8));
+    };
+
+    if (opt.layout == "custom" && !opt.customLayout.empty()) {
+      // EXACTLY WHERE THEY WERE PUT. No reflow, no share: those are what the
+      // presets do for somebody who has not arranged the screen themselves,
+      // and applying them here would move panels the operator had placed.
+      // Switching a panel off leaves its space empty, which is the honest
+      // result of switching a panel off in a layout you laid out.
+      const SDL_Rect body {bodyLeft, bodyTop, bodyW, bodyH};
+      const PresenterFracs f = parsePresenterLayout(opt.customLayout);
+      if (opt.showLive) liveBox = presenterFracToRect(f.live, body, pad);
+      if (opt.showPrevious) prevBox = presenterFracToRect(f.previous, body, pad);
+      if (opt.showNext) nextBox = presenterFracToRect(f.next, body, pad);
+      if (opt.showNotes) notesBox = presenterFracToRect(f.notes, body, pad);
+    } else if (opt.layout == "filmstrip") {
+      // Previous / current / next across the top, notes large below.
+      const int notesH = notesHeightFrom(0.55);
+      const int stripH = std::max(0, bodyH - notesH - (notesH > 0 ? pad : 0));
+      if (stripH > 0 && anyPicture) {
+        presenterSplitRow(SDL_Rect {bodyLeft, bodyTop, bodyW, stripH}, pad,
+                          opt.showPrevious, opt.showNext, opt.showLive ? 1.8 : 0.0,
+                          prevBox, liveBox, nextBox);
+      }
+      if (notesH > 0) {
+        notesBox = SDL_Rect {bodyLeft, bodyTop + stripH + (stripH > 0 ? pad : 0),
+                             bodyW, notesH};
+      }
+    } else if (opt.layout == "notes") {
+      // Notes dominate; the pictures ride a thin strip on top.
+      const int notesH = notesHeightFrom(0.76);
+      const int stripH = std::max(0, bodyH - notesH - (notesH > 0 ? pad : 0));
+      if (stripH > 0 && anyPicture) {
+        presenterSplitRow(SDL_Rect {bodyLeft, bodyTop, bodyW, stripH}, pad,
+                          opt.showPrevious, opt.showNext, opt.showLive ? 1.35 : 0.0,
+                          prevBox, liveBox, nextBox);
+      }
+      if (notesH > 0) {
+        notesBox = SDL_Rect {bodyLeft, bodyTop + stripH + (stripH > 0 ? pad : 0),
+                             bodyW, notesH};
+      }
+    } else {
+      // "wide", and anything unrecognised: current large on the left, the
+      // other two stacked beside it, notes across the bottom.
+      const int notesH = notesHeightFrom(0.30);
+      const int picsH = std::max(0, bodyH - notesH - (notesH > 0 ? pad : 0));
+      if (picsH > 0 && anyPicture) {
+        const bool side = opt.showPrevious || opt.showNext;
+        // With the live picture off there is no "large one", so the two
+        // remaining slides share the row instead of hugging one edge.
+        if (!opt.showLive) {
+          presenterSplitRow(SDL_Rect {bodyLeft, bodyTop, bodyW, picsH}, pad,
+                            opt.showPrevious, opt.showNext, 0.0, prevBox, liveBox,
+                            nextBox);
+          liveBox = SDL_Rect {0, 0, 0, 0};
+        } else {
+          const int sideW = side ? std::max(120, (bodyW * 26) / 100) : 0;
+          liveBox = SDL_Rect {bodyLeft, bodyTop,
+                              std::max(80, bodyW - sideW - (side ? pad : 0)), picsH};
+          if (side) {
+            const int sideX = bodyLeft + bodyW - sideW;
+            if (opt.showPrevious && opt.showNext) {
+              const int half = std::max(40, (picsH - pad) / 2);
+              prevBox = SDL_Rect {sideX, bodyTop, sideW, half};
+              nextBox = SDL_Rect {sideX, bodyTop + half + pad, sideW,
+                                  std::max(40, picsH - half - pad)};
+            } else if (opt.showPrevious) {
+              prevBox = SDL_Rect {sideX, bodyTop, sideW, picsH};
+            } else {
+              nextBox = SDL_Rect {sideX, bodyTop, sideW, picsH};
+            }
+          }
+        }
+      }
+      if (notesH > 0) {
+        notesBox = SDL_Rect {bodyLeft, bodyTop + picsH + (picsH > 0 ? pad : 0),
+                             bodyW, notesH};
+      }
+    }
+
+    // ── the live picture, through the ordinary layer path ────────────────
+    if (opt.showLive && liveBox.w > 0 && liveBox.h > 0) {
+      const int labelH = std::max(12, textLineHeight(labelFont));
+      const SDL_Rect picture {liveBox.x, liveBox.y + labelH, liveBox.w,
+                              std::max(16, liveBox.h - labelH)};
+      presenterPill(ren, SDL_Rect {liveBox.x, liveBox.y, liveBox.w, labelH},
+                    "LIVE", labelFont, screen.accent,
+                    presenterMix(screen.accent, screen.background, 0.86));
+      const int radius = std::max(2, labelH / 2);
+      presenterRounded(ren, picture, radius, screen.accent);
+      const SDL_Rect inner {picture.x + 2, picture.y + 2,
+                            std::max(1, picture.w - 4), std::max(1, picture.h - 4)};
+      presenterRounded(ren, inner, std::max(1, radius - 1),
+                       SDL_Color {0, 0, 0, 255});
+      renderDeckLayerIntoOutput(outputIndex, deckIndex, inner);
+      renderDeckTransitionIntoOutput(outputIndex, deckIndex, inner);
+    }
+    presenterSlot(*runtime, prevBox, "PREVIOUS", prevCue, deckIndex, prevIndex,
+                  screen, labelFont, "presenter_prev", "nothing before this");
+    presenterSlot(*runtime, nextBox, "NEXT", nextCue, deckIndex, nextIndex,
+                  screen, labelFont, "presenter_next", "end of list");
+    if (opt.showNotes) {
+      presenterNotes(ren, notesBox, liveCue, deckIndex, screen, labelFont, notesFont);
+    }
+
+    // ── footer: where you are in the deck, how long this has been up ─────
+    if (footerH > 0) {
+      const SDL_Rect footer {bodyLeft, bounds.y + bounds.h - footerH - pad, bodyW,
+                             footerH};
       std::string left = "--:--";
       std::string right;
       if (const DeckRuntime* rt = runtimeForDeck(deckIndex)) {
@@ -768,12 +1353,32 @@
           }
         }
       }
-      drawTextSafe(ren, fontSmall_, footer, left, inkSoft);
-      if (!right.empty()) {
-        drawTextSafe(ren, fontSmall_,
-                     SDL_Rect {footer.x + footer.w / 2, footer.y, footer.w / 2, footer.h},
-                     right, inkSoft);
+      // What the clicker will do next, when it is going to scroll or reveal
+      // rather than change the slide. Nobody should have to find that out by
+      // pressing it in front of a room.
+      const int builds = presenterBuildsRemaining(deckIndex);
+      if (opt.buildsConsumeAdvance && builds > 0) {
+        right = std::to_string(builds) + " more before the next cue";
       }
+      const int sideW = std::max(uiScaled(90), bodyW / 5);
+      drawTextSafe(ren, labelFont,
+                   SDL_Rect {footer.x, footer.y, sideW, footer.h}, left,
+                   screen.soft);
+      if (!right.empty()) {
+        drawTextSafe(ren, labelFont,
+                     SDL_Rect {footer.x + footer.w - sideW, footer.y, sideW,
+                               footer.h},
+                     right, screen.soft);
+      }
+      // The deck itself, between the two readouts: a row of little slides with
+      // the live one lit. "42 of 109" is a fact to do arithmetic on; a lit card
+      // two-thirds along the row is one you read at a glance from a lectern.
+      const int stripH = std::max(4, footer.h / 3);
+      presenterDeckStrip(
+        ren,
+        SDL_Rect {footer.x + sideW + pad, footer.y + (footer.h - stripH) / 2,
+                  std::max(1, footer.w - (sideW + pad) * 2), stripH},
+        deck.activeIndex, static_cast<int>(deck.cues.size()), screen);
     }
   }
 

@@ -2589,6 +2589,82 @@
     }
   }
 
+  // ── THE PROGRESS ROW ───────────────────────────────────────
+  //
+  // The deck being built, a card at a time, rather than a bar filling up. The
+  // sheets in the animation above fly from the hopper to the tray; this is
+  // that tray seen from the front, so the thing being counted and the thing
+  // doing the counting are the same object.
+  //
+  // It replaced a dark track with a bright fill, which on a light theme was a
+  // black slab bolted under the artwork. There is no dark fill here at all:
+  // the card underneath is already the panel, a landed slide is paper on it,
+  // and one still to come is an empty outline.
+  //
+  // A FIXED NUMBER OF CARDS, not one per slide -- a hundred-page deck would
+  // give a row of one-pixel slivers. Each card is a SHARE of the deck and the
+  // one currently filling is drawn part-full, so the motion stays smooth on a
+  // long deck and stays exact on a short one.
+  void drawSlideProgressRow(const SDL_Rect& bar, Uint64 nowMs, int done, int total) {
+    const SDL_Color paper = pal.light;
+    const SDL_Color edge = pal.deep;
+    const SDL_Color soft = pal.fgSoft;
+
+    const int gap = std::max(1, uiScaled(2));
+    // Room above each card for the landing one to hop into, and LANDSCAPE:
+    // sized off the height at 4:3, because a card the shape of a slide reads
+    // as one and the portrait version read as a row of dominoes.
+    const int hopRoom = uiScaled(3);
+    const int cardH = std::max(uiScaled(6), bar.h - hopRoom);
+    const int cardW = std::max(uiScaled(8), (cardH * 4) / 3);
+    const int cards = std::max(1, (bar.w + gap) / (cardW + gap));
+    // Centred, so a row that does not divide the bar exactly does not sit off
+    // to one side.
+    const int rowW = cards * cardW + (cards - 1) * gap;
+    const int x0 = bar.x + (bar.w - rowW) / 2;
+    const double t = static_cast<double>(nowMs) * 0.001;
+
+    const double progress =
+      (total > 0) ? std::clamp(static_cast<double>(done) /
+                                 static_cast<double>(total), 0.0, 1.0)
+                  : 0.0;
+    const double filled = progress * cards;
+    // Which card is being worked on. A job with nothing to measure yet has no
+    // such card, so one hops ALONG the row instead of the row filling up --
+    // the same distinction the bar used to make between a percentage and a
+    // pacing lozenge, kept because inventing a number would still be a lie.
+    const int landing =
+      (total > 0)
+        ? std::min(cards - 1, static_cast<int>(filled))
+        : static_cast<int>(std::fmod(t * 5.0, static_cast<double>(cards)));
+
+    for (int i = 0; i < cards; ++i) {
+      const bool isLanding = (i == landing);
+      const double share = (total > 0) ? std::clamp(filled - i, 0.0, 1.0)
+                                       : (isLanding ? 1.0 : 0.0);
+      // The newest card BOUNCES as it arrives, which is the whole reason to
+      // draw cards rather than a bar: you can see one land.
+      const int hop = isLanding
+        ? static_cast<int>(std::fabs(std::sin(t * 6.0)) * hopRoom)
+        : 0;
+      const SDL_Rect card {x0 + i * (cardW + gap),
+                           bar.y + (bar.h - cardH) - hop, cardW, cardH};
+      if (share > 0.0) {
+        SDL_Rect fill = card;
+        fill.w = std::max(1, static_cast<int>(std::lround(cardW * share)));
+        Primitives::fillRect(controlRenderer_, fill, paper);
+      }
+      Primitives::strokeRect(controlRenderer_, card, share >= 1.0 ? edge : soft);
+      // One ruled line, so a landed card reads as a slide and not a block --
+      // the same two-lines trick the sheets in flight use, at half the size.
+      if (share >= 1.0 && cardW >= uiScaled(6) && cardH >= uiScaled(6)) {
+        Primitives::fillRect(
+          controlRenderer_,
+          SDL_Rect {card.x + 1, card.y + cardH / 2, cardW - 2, 1}, soft);
+      }
+    }
+  }
+
   // ── "IT IS DOING SOMETHING" ──────────────────────────────────────────────
   //
   // Two long jobs that used to happen in silence: walking a dropped folder, and
@@ -2681,37 +2757,10 @@
     }
     drawSlideRenderAnimation(face, animationNow_, tip.c_str(), done, total);
 
-    SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(46),
-                  card.w - uiScaled(40), uiScaled(14)};
-    Primitives::drawFramedPanel(controlRenderer_, bar, pal.deep, pal.deep, pal.mid);
-    if (total > 0) {
-      SDL_Rect fill = bar;
-      fill.w = static_cast<int>(bar.w * std::clamp(
-        static_cast<double>(done) / static_cast<double>(total), 0.0, 1.0));
-      if (fill.w > 0) {
-        SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g,
-                               pal.light.b, 255);
-        SDL_FRect f {static_cast<float>(fill.x), static_cast<float>(fill.y),
-                     static_cast<float>(fill.w), static_cast<float>(fill.h)};
-        SDL_RenderFillRect(controlRenderer_, &f);
-      }
-    } else {
-      // NOTHING TO MEASURE YET, so the bar paces rather than pretending to a
-      // percentage. The converter is another application and reports nothing
-      // on its way through; inventing a number for it would be a lie that
-      // stalls at 40%.
-      const double t = static_cast<double>(animationNow_ % 1400) / 1400.0;
-      const int runW = std::max(uiScaled(24), bar.w / 5);
-      SDL_Rect fill = bar;
-      fill.w = runW;
-      fill.x = bar.x + static_cast<int>((bar.w - runW) *
-                                        (0.5 - 0.5 * std::cos(t * 6.2831853)));
-      SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g,
-                             pal.light.b, 255);
-      SDL_FRect f {static_cast<float>(fill.x), static_cast<float>(fill.y),
-                   static_cast<float>(fill.w), static_cast<float>(fill.h)};
-      SDL_RenderFillRect(controlRenderer_, &f);
-    }
+    // Taller than the old bar by the hop room the landing card needs.
+    const SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(50),
+                        card.w - uiScaled(40), uiScaled(18)};
+    drawSlideProgressRow(bar, animationNow_, done, total);
   }
 
   void renderToast(int windowWidth) {
