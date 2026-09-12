@@ -25,8 +25,12 @@ else to install.
 | Platform | Installer | Portable |
 |---|---|---|
 | **Windows** | `…-windows-x64-setup.exe` — Start Menu, uninstaller, `.deckboy` file association | `…-windows-x64.zip` |
-| **macOS** | `…-macos-arm64.dmg` — drag to Applications | `…-macos-arm64.zip` |
+| **macOS** (Apple Silicon) | `…-macos-arm64.dmg` — drag to Applications | `…-macos-arm64.zip` |
+| **macOS** (Intel) | `…-macos-x86_64.dmg` | `…-macos-x86_64.zip` |
 | **Linux** | `…-x86_64.AppImage` — one file, `chmod +x` and run | `…-linux-x86_64.tar.gz` |
+
+A **Stream Deck plugin** (`…streamDeckPlugin`) ships alongside them, and the
+Bitfocus Companion module is in the repository.
 
 → **[Latest release](https://github.com/Utopian-Academy/Deckboy/releases/latest)**
 
@@ -185,14 +189,15 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 
 - A per-cue effect stack on every kind of cue, ordered, with copy/paste of a
   whole chain between cues
-- Twenty-six effects, each with named parameters, all measured to fit inside a
-  60fps frame at 1080p
+- Thirty-six effects, each with named parameters, all measured to fit inside a
+  60fps frame at 1080p — `--effect-bench` prints what each one costs
 - Six that exist nowhere else: schlieren gradient imaging, Chladni nodal
   figures, a true wave equation with inertia, crystal grain growth, retinal
   rod/cone persistence, and structure tensor grain flow
 - An LFO on any parameter — six shapes, free running or locked to a tap tempo
-- VJ mode: a second deck live, a crossfader with dissolve/add/multiply, tap
-  tempo, and takes quantised to the beat
+- VJ mode: a second deck live, a crossfader with ten blend modes — dissolve,
+  add, screen, multiply, lighten, darken, subtract, undercut, infiltrate and
+  ember — tap tempo, and takes quantised to the beat
 
 </details>
 
@@ -202,7 +207,8 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - Themeable, including high-contrast terminal themes suited to OLED panels
 - Timeline with filmstrip thumbnails; resizable program monitor and timeline
 - UI scale that follows the desktop's own scaling
-- The interface reads in 38 languages
+- The interface reads in 38 languages, including Cubano, Klingon and a few
+  written in cypher
 - Missing-media detection with folder relink, so a moved drive does not cost you
   a rebuild
 
@@ -213,9 +219,14 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 ## Built for operators, not data harvesters
 
 Deckboy collects nothing and sends nothing to its developers. **No telemetry,
-no usage reporting, no crash upload, no account, no update check.** Crash logs
-are written to a file next to the app for you to read or forward, and they stay
-there.
+no usage reporting, no crash upload, no account.** Crash logs are written to a
+file next to the app for you to read or forward, and they stay there.
+
+There is an update check, and it is **off by default**. Switched on, it asks
+GitHub's releases API whether a newer version exists — nothing about you goes
+with the question, and finding one never installs anything without you saying
+so. A machine sitting on a venue's network should do nothing nobody asked it
+to.
 
 It is deliberately network-active — NDI discovery, PTP, NMOS registration, OSC,
 Companion control and streaming all talk to the network by design. Every one of
