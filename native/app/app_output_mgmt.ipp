@@ -4211,6 +4211,16 @@
     runtime.overlayBridgeTextureFormats.clear();
     runtime.overlayBridgeFrameIndices.clear();
     runtime.overlayBridgeCueKeys.clear();
+    // The render targets go the same way. A texture left behind when a runtime
+    // is torn down outlives its renderer, and destroying it afterwards is a
+    // use-after-free rather than a leak.
+    for (auto& [targetKey, slot] : runtime.overlayBridgeTargets) {
+      (void) targetKey;
+      if (slot.texture) {
+        SDL_DestroyTexture(slot.texture);
+      }
+    }
+    runtime.overlayBridgeTargets.clear();
     runtime.transitionUploadStamps.clear();
     runtime.layerBridgeScratchPixels.clear();
 #if DECKBOY_INPROC_DECODE

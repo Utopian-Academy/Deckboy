@@ -1025,6 +1025,38 @@ struct OutputTarget {
     bool buildsConsumeAdvance = false;
   };
   PresenterOptions presenter;
+  // ── PROMPTER ────────────────────────────────────────────────────────────
+  //
+  // The talent's screen. Everything here is about one person reading out loud
+  // under a piece of glass, which is a different job from the operator's
+  // presenter view even though both are words on a second display.
+  struct PrompterOptions {
+    // The script. Empty means "follow the live cue's notes", which is what a
+    // deck-driven show wants; a filled-in script is for a talk that has no
+    // slides, or one whose slides are somebody else's problem.
+    std::string script;
+    // MIRRORED, because a teleprompter's glass reverses the picture on its way
+    // to the reader. Both axes exist because rigs differ: the beamsplitter can
+    // be above or below the lens.
+    bool mirrorHorizontal = true;
+    bool mirrorVertical = false;
+    // Reading pace. Lines per minute rather than pixels per second: a pace is
+    // a property of the READER, and it has to mean the same thing when the
+    // type size or the screen changes.
+    double linesPerMinute = 140.0;
+    bool running = false;              // runtime, but saved so a show reopens armed the same way
+    double fontScale = 2.6;            // prompter type is much bigger than a presenter's
+    // The line the reader's eye sits on, as a fraction down the screen. Text
+    // scrolls up THROUGH it, so what they are saying is always in the same
+    // place -- which is the entire ergonomic point of a prompter.
+    double readingLineFraction = 0.42;
+    bool showReadingLine = true;
+    std::string background = "#000000";
+    std::string ink = "#ffffff";
+    std::string accent = "#ffd24a";
+  };
+  PrompterOptions prompter;
+
   std::string outputColorSpace = "auto";   // "auto" | "bt709" | "srgb"
   std::string outputLayoutMode = "span";   // "span" (portion of canvas) | "duplicate" (full copy)
   int outputOrientationDegrees = 0;        // rotation: 0 | 90 | 180 | 270 degrees

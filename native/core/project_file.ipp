@@ -269,6 +269,18 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << (outputTarget.presenter.showLive ? 1 : 0)
       << '\t' << outputTarget.presenter.notesShare
       << '\t' << escapeField(outputTarget.presenter.customLayout)
+      // Prompter (fields 66-75).
+      << '\t' << escapeField(outputTarget.prompter.script)
+      << '\t' << (outputTarget.prompter.mirrorHorizontal ? 1 : 0)
+      << '\t' << (outputTarget.prompter.mirrorVertical ? 1 : 0)
+      << '\t' << outputTarget.prompter.linesPerMinute
+      << '\t' << (outputTarget.prompter.running ? 1 : 0)
+      << '\t' << outputTarget.prompter.fontScale
+      << '\t' << outputTarget.prompter.readingLineFraction
+      << '\t' << (outputTarget.prompter.showReadingLine ? 1 : 0)
+      << '\t' << escapeField(outputTarget.prompter.background)
+      << '\t' << escapeField(outputTarget.prompter.ink)
+      << '\t' << escapeField(outputTarget.prompter.accent)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1016,6 +1028,28 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                           }
                           if (fields.size() >= 66) {
                             outputTarget.presenter.customLayout = safeString(fields, 65);
+                          }
+                          // The prompter. An output saved before it keeps the
+                          // struct's defaults, which are a readable black-on-
+                          // white-text screen mirrored for the glass.
+                          if (fields.size() >= 77) {
+                            outputTarget.prompter.script = safeString(fields, 66);
+                            outputTarget.prompter.mirrorHorizontal = safeBool(fields, 67, true);
+                            outputTarget.prompter.mirrorVertical = safeBool(fields, 68, false);
+                            outputTarget.prompter.linesPerMinute =
+                              std::clamp(safeDouble(fields, 69, 140.0), 10.0, 600.0);
+                            outputTarget.prompter.running = safeBool(fields, 70, false);
+                            outputTarget.prompter.fontScale =
+                              std::clamp(safeDouble(fields, 71, 2.6), 0.5, 8.0);
+                            outputTarget.prompter.readingLineFraction =
+                              std::clamp(safeDouble(fields, 72, 0.42), 0.05, 0.95);
+                            outputTarget.prompter.showReadingLine = safeBool(fields, 73, true);
+                            const std::string pbg = safeString(fields, 74);
+                            const std::string pink = safeString(fields, 75);
+                            const std::string pacc = safeString(fields, 76);
+                            if (!pbg.empty()) outputTarget.prompter.background = pbg;
+                            if (!pink.empty()) outputTarget.prompter.ink = pink;
+                            if (!pacc.empty()) outputTarget.prompter.accent = pacc;
                           }
                         }
                       }

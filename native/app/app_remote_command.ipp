@@ -654,6 +654,119 @@
       remoteCommandDetail_ = "split into " + std::to_string(count) + " cues";
       return;
     }
+    // ── PROMPTER <setting> [value] ────────────────────────────────────────
+    //
+    // A prompter is DRIVEN, not configured and left: the operator rides the
+    // pace against the reader all the way through a take. So every control a
+    // hand controller would have is here, on the focused output.
+    if (command == "PROMPTER") {
+      if (project_.outputs.empty()) {
+        failRemoteCommand("prompter: no outputs");
+        return;
+      }
+      OutputTarget::PrompterOptions& opt = focusedOutputMutable().prompter;
+      const int outputIndex = std::clamp(project_.focusedOutputIndex, 0,
+                                         static_cast<int>(project_.outputs.size()) - 1);
+      const std::string sub = parts.size() < 2 ? std::string("STATUS")
+                                               : toUpper(parts[1]);
+      auto report = [&]() {
+        char buf[192];
+        std::snprintf(buf, sizeof(buf),
+                      "%s  %.0f lpm  size=%.2f  line=%.2f  mirror=%s%s  %s",
+                      opt.running ? "RUNNING" : "paused", opt.linesPerMinute,
+                      opt.fontScale, opt.readingLineFraction,
+                      opt.mirrorHorizontal ? "h" : "-",
+                      opt.mirrorVertical ? "v" : "-",
+                      opt.script.empty() ? "following the live cue's notes"
+                                         : "own script");
+        remoteCommandDetail_ = buf;
+      };
+      if (sub == "STATUS") { report(); return; }
+      if (sub == "RUN" || sub == "START" || sub == "GO") {
+        opt.running = true; markProjectDirty(); report(); return;
+      }
+      if (sub == "STOP" || sub == "PAUSE" || sub == "HOLD") {
+        opt.running = false; markProjectDirty(); report(); return;
+      }
+      if (sub == "TOGGLE") {
+        opt.running = !opt.running; markProjectDirty(); report(); return;
+      }
+      if (sub == "TOP" || sub == "RESET" || sub == "REWIND") {
+        prompterScroll_[outputIndex] = 0.0;
+        remoteCommandDetail_ = "back to the top";
+        return;
+      }
+      // SCROLL nudges by whole lines, which is what a jog wheel sends. The
+      // sign is the direction, and going back is as important as going on:
+      // readers lose their place.
+      if (sub == "SCROLL" || sub == "JOG") {
+        const double lines = parts.size() < 3 ? 1.0 : std::atof(parts[2].c_str());
+        // In LINES, spent by the next frame. A line's height depends on the
+        // font and the screen, which only the renderer knows -- storing a
+        // guess in pixels here would make a jog mean different distances on
+        // different outputs.
+        prompterJog_[outputIndex] += lines;
+        remoteCommandDetail_ = "jogged " + std::to_string(lines) + " lines";
+        return;
+      }
+      if (sub == "SPEED" || sub == "PACE" || sub == "LPM") {
+        if (parts.size() < 3) { report(); return; }
+        const double want = std::atof(parts[2].c_str());
+        if (want < 10.0 || want > 600.0) {
+          failRemoteCommand("prompter speed: expected 10-600 lines per minute, got " +
+                            parts[2]);
+          return;
+        }
+        opt.linesPerMinute = want; markProjectDirty(); report(); return;
+      }
+      if (sub == "SIZE" || sub == "SCALE") {
+        if (parts.size() < 3) { report(); return; }
+        const double want = std::atof(parts[2].c_str());
+        if (want < 0.5 || want > 8.0) {
+          failRemoteCommand("prompter size: expected 0.5-8.0, got " + parts[2]);
+          return;
+        }
+        opt.fontScale = want; markProjectDirty(); report(); return;
+      }
+      if (sub == "LINE" || sub == "READLINE") {
+        if (parts.size() < 3) { report(); return; }
+        const double want = std::atof(parts[2].c_str());
+        if (want < 0.05 || want > 0.95) {
+          failRemoteCommand("prompter line: expected 0.05-0.95 down the screen, got " +
+                            parts[2]);
+          return;
+        }
+        opt.readingLineFraction = want; markProjectDirty(); report(); return;
+      }
+      if (sub == "MIRROR") {
+        const std::string arg = parts.size() < 3 ? std::string("TOGGLE")
+                                                 : toUpper(parts[2]);
+        if (arg == "OFF" || arg == "NONE") {
+          opt.mirrorHorizontal = opt.mirrorVertical = false;
+        } else if (arg == "H" || arg == "HORIZONTAL" || arg == "ON") {
+          opt.mirrorHorizontal = true; opt.mirrorVertical = false;
+        } else if (arg == "V" || arg == "VERTICAL") {
+          opt.mirrorHorizontal = false; opt.mirrorVertical = true;
+        } else if (arg == "BOTH" || arg == "HV") {
+          opt.mirrorHorizontal = opt.mirrorVertical = true;
+        } else {
+          opt.mirrorHorizontal = !opt.mirrorHorizontal;
+        }
+        markProjectDirty(); report(); return;
+      }
+      // SCRIPT with no argument clears it, which is how an output goes back to
+      // following the live cue's notes.
+      if (sub == "SCRIPT") {
+        opt.script = parts.size() < 3 ? std::string() : joinParts(parts, 2);
+        prompterScroll_[outputIndex] = 0.0;
+        markProjectDirty();
+        report();
+        return;
+      }
+      failRemoteCommand("prompter: expected RUN|STOP|TOGGLE|TOP|SCROLL|SPEED|"
+                        "SIZE|LINE|MIRROR|SCRIPT|STATUS, got " + parts[1]);
+      return;
+    }
     // ── PRESENTER <setting> [value] ───────────────────────────────────────
     //
     // Everything on the presenter screen, over the wire. It exists for the
@@ -3143,6 +3256,10 @@
           }
           if (typeArg == "STREAM") {
             setFocusedOutputType("stream");
+            return;
+          }
+          if (typeArg == "PROMPTER" || typeArg == "TELEPROMPTER") {
+            setFocusedOutputType("prompter");
             return;
           }
           if (typeArg == "PRESENTER" || typeArg == "NOTES") {

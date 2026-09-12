@@ -262,6 +262,30 @@
   // Get-or-create the per-overlay bridge texture. Same format-aware rebuild
   // rule as ensureLayerBridgeTexture, keyed by overlay identity instead of
   // deck index.
+  // A RENDER TARGET of the given size, cached per key on the runtime. The
+  // bridge texture beside this is STATIC-access and is uploaded into; this one
+  // is drawn into, which needs TARGET access and so cannot share it.
+  SDL_Texture* ensureOverlayBridgeTargetTexture(OutputRuntime& outputRuntime,
+                                                const std::string& key,
+                                                int width, int height) {
+    if (!outputRuntime.outputRenderer || width <= 0 || height <= 0) {
+      return nullptr;
+    }
+    auto& slot = outputRuntime.overlayBridgeTargets[key];
+    if (slot.texture && (slot.width != width || slot.height != height)) {
+      SDL_DestroyTexture(slot.texture);
+      slot.texture = nullptr;
+    }
+    if (!slot.texture) {
+      slot.texture = deckboyCreateTexture(outputRuntime.outputRenderer,
+                                          SDL_PIXELFORMAT_RGBA32,
+                                          SDL_TEXTUREACCESS_TARGET, width, height);
+      slot.width = width;
+      slot.height = height;
+    }
+    return slot.texture;
+  }
+
   SDL_Texture* ensureOverlayBridgeTexture(OutputRuntime& outputRuntime,
                                           const std::string& overlayKey,
                                           int width,
@@ -1382,6 +1406,242 @@
     }
   }
 
+  // ══ PROMPTER ═════════════════════════════════════════════════════════════
+  //
+  // The talent's screen: the script, very large, scrolling up through a fixed
+  // reading line at a pace measured in lines per minute -- and MIRRORED,
+  // because a teleprompter's beamsplitter reverses the picture on its way to
+  // the reader's eye.
+  //
+  // An output rather than a cue kind, like the presenter view, and for one
+  // reason beyond convenience: prompter text is real typography at whatever
+  // size the reader needs, and the engine's frame generators have a three-by-
+  // five digit table. A script belongs where the text renderer lives.
+  //
+  // The script comes from the output's own `script` when it has one, and from
+  // the LIVE CUE'S NOTES when it does not -- so a deck-driven show prompts
+  // from the same words the presenter view is showing the operator, and a talk
+  // with no slides can carry its own.
+
+  // Where the script is scrolled to, per output, in pixels, and when it was
+  // last advanced. Per OUTPUT rather than per deck: two prompters on one deck
+  // are two readers, and they do not have to be in the same place.
+  std::map<int, double> prompterScroll_;
+  std::map<int, Uint64> prompterClock_;
+  // Jog requests in LINES, waiting for a frame that knows how tall a line is.
+  std::map<int, double> prompterJog_;
+
+  double prompterScrollFor(int outputIndex) const {
+    const auto at = prompterScroll_.find(outputIndex);
+    return at == prompterScroll_.end() ? 0.0 : at->second;
+  }
+
+  // The words this output is prompting: its own script, or the live cue's
+  // notes when it has none.
+  std::string prompterScriptFor(const OutputTarget& output, int deckIndex) const {
+    if (!output.prompter.script.empty()) {
+      return output.prompter.script;
+    }
+    const Cue* live = activeCuePtr(deckIndex);
+    return live ? live->notes : std::string();
+  }
+
+  void renderPrompterView(int outputIndex, int deckIndex, const SDL_Rect& bounds) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer) return;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return;
+    SDL_Renderer* ren = runtime->outputRenderer;
+    const OutputTarget& output = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    const OutputTarget::PrompterOptions& opt = output.prompter;
+
+    PresenterInk screen;
+    if (const auto c = tryParseColor(opt.background)) screen.background = *c;
+    if (const auto c = tryParseColor(opt.ink)) screen.ink = *c;
+    if (const auto c = tryParseColor(opt.accent)) screen.accent = *c;
+    screen.soft = presenterMix(screen.ink, screen.background, 0.45);
+    screen.rule = presenterMix(screen.ink, screen.background, 0.78);
+
+    // MIRRORED OUTPUT IS A FLIP OF THE WHOLE PICTURE, so it is drawn once into
+    // a target texture and blitted back reversed. Mirroring each string as it
+    // is drawn would reverse the glyphs but not their order, which is not the
+    // same thing and is unreadable in the glass.
+    const bool mirror = opt.mirrorHorizontal || opt.mirrorVertical;
+    SDL_Texture* target = nullptr;
+    SDL_Texture* savedTarget = nullptr;
+    if (mirror) {
+      target = ensureOverlayBridgeTargetTexture(*runtime, "prompter", bounds.w,
+                                                bounds.h);
+      if (target) {
+        savedTarget = SDL_GetRenderTarget(ren);
+        SDL_SetRenderTarget(ren, target);
+      }
+    }
+    const SDL_Rect frame = mirror && target
+                             ? SDL_Rect {0, 0, bounds.w, bounds.h}
+                             : bounds;
+
+    SDL_SetRenderDrawColor(ren, screen.background.r, screen.background.g,
+                           screen.background.b, 255);
+    SDL_RenderClear(ren);
+
+    // Type sized from the SCREEN, scaled by the reader's own setting. A
+    // prompter is read from two or three metres away by somebody who must not
+    // look like they are reading, so the default is much larger than anything
+    // else in this application.
+    auto pick = [this](TTF_Font* base, int size) {
+      TTF_Font* sized = fontAtSize(base, size);
+      return sized ? sized : base;
+    };
+    const int pt = std::clamp(
+      static_cast<int>(std::lround(frame.h / 18.0 * opt.fontScale)), 12, 200);
+    TTF_Font* font = pick(fontBase_, pt);
+    const int lineH = std::max(16, textLineHeight(font));
+    const int pad = std::max(16, frame.w / 20);
+    const SDL_Rect column {frame.x + pad, frame.y, std::max(32, frame.w - pad * 2),
+                           frame.h};
+
+    // Wrapped to the column, measured against the rect the text is actually
+    // drawn into -- the same inset trap the presenter's notes fell into.
+    const int wrapW = std::max(
+      16, safeTextRect(SDL_Rect {column.x, column.y, column.w, lineH}).w);
+    std::vector<std::string> lines;
+    {
+      std::istringstream paragraphs(prompterScriptFor(output, deckIndex));
+      std::string paragraph;
+      while (std::getline(paragraphs, paragraph)) {
+        // A line of "---" is a note BUILD separator everywhere else in this
+        // application; on a prompter it is simply a break in the script, and
+        // showing the dashes would have the reader say them.
+        if (trim(paragraph) == "---") {
+          lines.push_back(std::string());
+          continue;
+        }
+        std::istringstream words(paragraph);
+        std::string word;
+        std::string line;
+        while (words >> word) {
+          const std::string attempt = line.empty() ? word : (line + " " + word);
+          if (measuredTextWidth(font, attempt) > wrapW && !line.empty()) {
+            lines.push_back(line);
+            line = word;
+          } else {
+            line = attempt;
+          }
+        }
+        lines.push_back(line);
+      }
+    }
+
+    // ── the pace ────────────────────────────────────────────────────────
+    //
+    // Lines per minute, not pixels per second: a reading pace belongs to the
+    // READER and has to mean the same thing when the type size or the screen
+    // changes. Advanced from the wall clock so it is honest at any frame rate.
+    const int readingY = frame.y + static_cast<int>(
+      std::lround(std::clamp(opt.readingLineFraction, 0.05, 0.95) * frame.h));
+    double& scroll = prompterScroll_[outputIndex];
+    Uint64& clock = prompterClock_[outputIndex];
+    if (clock != 0 && opt.running && animationNow_ > clock) {
+      const double dt = static_cast<double>(animationNow_ - clock) / 1000.0;
+      scroll += (opt.linesPerMinute / 60.0) * lineH * std::min(dt, 0.5);
+    }
+    clock = animationNow_;
+    // Spend any jog the operator asked for, now that a line has a height.
+    if (auto jog = prompterJog_.find(outputIndex); jog != prompterJog_.end()) {
+      scroll += jog->second * lineH;
+      prompterJog_.erase(jog);
+    }
+    // Never past the end: the last line comes to REST ON the reading line
+    // rather than sailing off above it and leaving the reader looking at an
+    // empty screen with no way to tell whether the script had finished or the
+    // prompter had broken. One line short of the full height is what parks it
+    // there -- the full height scrolls it away.
+    const double maxScroll =
+      std::max(0.0, (static_cast<double>(lines.size()) - 1.0) * lineH);
+    scroll = std::clamp(scroll, 0.0, maxScroll);
+
+    // ── the script ──────────────────────────────────────────────────────
+    SDL_Rect previousClip {};
+    const bool hadClip = SDL_RenderClipEnabled(ren) == true;
+    if (hadClip) SDL_GetRenderClipRect(ren, &previousClip);
+    SDL_SetRenderClipRect(ren, &frame);
+    const int firstRow = std::max(
+      0, static_cast<int>((scroll - (readingY - frame.y)) / lineH) - 1);
+    const int rows = frame.h / lineH + 3;
+    for (int row = firstRow; row < firstRow + rows &&
+                             row < static_cast<int>(lines.size()); ++row) {
+      const std::string& line = lines[static_cast<std::size_t>(row)];
+      if (line.empty()) continue;
+      const int y = readingY + static_cast<int>(std::lround(row * lineH - scroll));
+      if (y + lineH < frame.y || y > frame.y + frame.h) continue;
+      // The line being read is in full ink; what is coming is dimmer. A
+      // reader's eye finds the bright line without hunting for it.
+      const bool onTheLine = y <= readingY && y + lineH > readingY;
+      drawTextSafe(ren, font, SDL_Rect {column.x, y, column.w, lineH}, line,
+                   onTheLine ? screen.ink : screen.soft);
+    }
+    if (hadClip) SDL_SetRenderClipRect(ren, &previousClip);
+    else SDL_SetRenderClipRect(ren, nullptr);
+
+    // ── the reading line ────────────────────────────────────────────────
+    if (opt.showReadingLine) {
+      // WEDGES AT THE EDGES, NOT A RULE THROUGH THE WORDS. A full-width line
+      // struck straight through the sentence the reader is saying, which is
+      // the one line on the screen that has to be easy to read. The marker is
+      // in the margins, where every real prompter puts it, with a short stub
+      // reaching in from each side so the eye still lands on the right row.
+      const int thick = std::max(2, lineH / 14);
+      const int wedge = std::max(8, lineH / 2);
+      const int stub = std::max(wedge, pad - wedge / 2);
+      Primitives::fillRect(ren, SDL_Rect {frame.x, readingY - thick / 2, stub,
+                                          thick}, screen.accent);
+      Primitives::fillRect(ren, SDL_Rect {frame.x + frame.w - stub,
+                                          readingY - thick / 2, stub, thick},
+                           screen.accent);
+      for (int i = 0; i < wedge; ++i) {
+        // Half a wedge tall at the edge, tapering to nothing. Scaling this by
+        // the rule's THICKNESS as well made each marker a triangle a hundred
+        // pixels high filling the margin.
+        const int h = std::max(1, (wedge - i) / 2);
+        Primitives::fillRect(ren, SDL_Rect {frame.x + i, readingY - h, 1, h * 2},
+                             screen.accent);
+        Primitives::fillRect(ren,
+                             SDL_Rect {frame.x + frame.w - 1 - i, readingY - h, 1,
+                                       h * 2},
+                             screen.accent);
+      }
+    }
+
+    // Paused is worth saying: a stopped prompter and a prompter that has run
+    // out of script look identical to the person reading it.
+    if (!opt.running) {
+      // NOT `small`: it is a macro in the Windows headers, along with near,
+      // far, min and max, and a local with that name silently stops being C++.
+      TTF_Font* status = pick(fontSmall_, std::clamp(frame.h / 40, 10, 40));
+      const int h = std::max(14, textLineHeight(status));
+      drawTextSafe(ren, status,
+                   SDL_Rect {frame.x + pad / 2, frame.y + frame.h - h * 2,
+                             frame.w - pad, h},
+                   lines.empty() ? "no script" : "paused", screen.accent);
+    }
+
+    // ── into the glass ──────────────────────────────────────────────────
+    if (mirror && target) {
+      SDL_SetRenderTarget(ren, savedTarget);
+      const SDL_FRect dst {static_cast<float>(bounds.x), static_cast<float>(bounds.y),
+                           static_cast<float>(bounds.w), static_cast<float>(bounds.h)};
+      SDL_FlipMode flip = SDL_FLIP_NONE;
+      if (opt.mirrorHorizontal && opt.mirrorVertical) {
+        flip = static_cast<SDL_FlipMode>(SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL);
+      } else if (opt.mirrorHorizontal) {
+        flip = SDL_FLIP_HORIZONTAL;
+      } else if (opt.mirrorVertical) {
+        flip = SDL_FLIP_VERTICAL;
+      }
+      SDL_RenderTextureRotated(ren, target, nullptr, &dst, 0.0, nullptr, flip);
+    }
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
@@ -2042,6 +2302,9 @@
     }
     if (output.outputTestCardEnabled) {
       renderOutputTestCard(outputIndex, runtime->outputRenderer, renderW, renderH);
+    } else if (outputType == "prompter") {
+      // The talent's screen, not the programme.
+      renderPrompterView(outputIndex, hostDeckIndex, bounds);
     } else if (outputType == "presenter") {
       // Not the programme: what the OPERATOR needs to see. Same window, same
       // display picker, same arming -- a different picture.

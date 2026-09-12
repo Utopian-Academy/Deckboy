@@ -371,6 +371,10 @@ class MediaEngine {
   // the transport handler should rerack the deck and toast the operator.
   bool inprocDecodeActive() const { return inprocDecodeActive_; }
   void* activeDecodeDevice() const { return activeDecodeDevice_; }
+  // Which decoder actually ran. "cpu" answers a different question from
+  // "software": on macOS and Linux the decode is on hardware and only the
+  // frames come down, so reporting the copy alone hid the whole thing.
+  const char* activeDecodeName() const { return activeDecodeName_; }
   bool consumeDecodeStall();
 
   // A cue that should have had sound and got none. Returns the reason ONCE,
@@ -907,6 +911,7 @@ class MediaEngine {
   DecodeDeviceProvider decodeDeviceProvider_;
   OutputSizeProvider outputSizeProvider_;
   bool inprocDecodeActive_ = false;          // active cue decodes in-process
+  const char* activeDecodeName_ = "software";  // d3d11va / videotoolbox / vaapi
   void* activeDecodeDevice_ = nullptr;       // device zero-copy frames live on (null = CPU)
   std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)

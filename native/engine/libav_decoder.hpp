@@ -12,14 +12,28 @@
 // ffmpeg CLI — decode was only half its jobs.
 //
 //   VideoPipeline — demux + decode one video stream.
-//     * Windows + D3D11 device supplied: d3d11va hardware decode on THAT
-//       device (the program output renderer's), frames stay GPU-resident as
-//       NV12 texture-array slices carried in DecodedFrame's gpu fields.
-//       The output compositor GPU-copies the slice into an SDL_Texture
-//       wrapped once via SDL_CreateTextureWithProperties — zero CPU touch.
-//     * No device (preview/PiP engines, non-Windows) or RGBA wanted (CPU
-//       effects path): hardware decode + av_hwframe_transfer_data to CPU,
-//       or software decode, then swscale into the classic `pixels` layout.
+//
+//     HARDWARE DECODE ON ALL THREE PLATFORMS: d3d11va on Windows,
+//     VideoToolbox on macOS, VAAPI on Linux. The device type is chosen by
+//     preferredHwDeviceType() and CREATING it is what asks the machine — a
+//     failure there is a fall back to software, not a broken cue.
+//
+//     Two separate questions, and they have different answers per platform:
+//
+//     * Did the DECODE run on hardware? Yes wherever the platform has a
+//       decoder and the codec is one it knows.
+//     * Did the FRAME avoid a copy? Only on Windows, where the decoder can be
+//       put on the renderer's own D3D11 device, so frames stay GPU-resident as
+//       NV12/P010 texture-array slices in DecodedFrame's gpu fields and the
+//       compositor GPU-copies the slice into an SDL_Texture wrapped once via
+//       SDL_CreateTextureWithProperties — zero CPU touch.
+//
+//     Everywhere else — and on Windows with no device supplied (preview/PiP
+//     engines) or RGBA wanted (CPU effects path) — the frame comes down via
+//     av_hwframe_transfer_data and goes through swscale into the classic
+//     `pixels` layout. That still moves the expensive half off the CPU.
+//     hardwareDecodeName() reports which decoder ran, because "cpu path" and
+//     "software decode" are different facts.
 //     * open() primes the first frame; if hardware decode fails it retries
 //       in software internally, and if the file can't produce one good frame
 //       open() fails — the caller falls back to the CLI pipe path (also the
@@ -93,6 +107,13 @@ class VideoPipeline {
 
   bool zeroCopyActive() const;         // frames carry GPU payloads
   void* device() const;                // ID3D11Device* in use (null in CPU/sw mode)
+  // Whether the DECODE ran on hardware, which is a different question from
+  // whether the frames avoided a copy. Everywhere but Windows the answer is
+  // "hardware decode, then a download" -- the expensive half is still off the
+  // CPU, and a report that only said "cpu" could not tell that from software
+  // decode, which is the whole thing this distinguishes.
+  bool hardwareDecodeActive() const;
+  const char* hardwareDecodeName() const;   // "d3d11va" / "videotoolbox" / "vaapi" / "software"
 
   // Unblock any av_read_frame stuck in I/O; nextFrame() then returns false.
   // Callable from another thread, as is setDatamosh below; everything else on

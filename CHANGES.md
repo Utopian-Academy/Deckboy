@@ -1,5 +1,58 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.351 (a teleprompter)
+
+**A prompter output, for the person in front of the camera.** The script, very
+large, scrolling up through a fixed reading line at a pace set in lines per
+minute -- and mirrored, because a teleprompter's glass reverses the picture on
+its way to the reader's eye. Like the presenter view it is an output type, so it
+takes its own display and is armed and disarmed with the show.
+
+It prompts from the **live cue's notes** when it has no script of its own, so a
+deck-driven show reads from the same words the presenter view is showing the
+operator; give it a script and it reads that instead, for a talk with no slides.
+
+The line being read is in full ink and everything else is dimmed, so the
+reader's eye finds its place without hunting. The reading marker sits in the
+margins as wedges rather than a rule through the words. The last line comes to
+rest **on** the marker rather than sailing off the top, because an empty screen
+cannot tell a reader whether the script finished or the prompter broke.
+
+Everything a hand controller would reach is on the wire -- `PROMPTER RUN`,
+`STOP`, `TOP`, `SPEED`, `SCROLL` to jog by whole lines, `SIZE`, `LINE`,
+`MIRROR`, `SCRIPT` -- and all of it has a page in Settings, under the output
+that is one.
+
+## 2026-09-12 - v0.99.350 (hardware decode on Linux, and a README with a picture in it)
+
+**Hardware decode is no longer Windows-only.** The in-process decoder now asks
+each platform for its own decoder -- D3D11VA on Windows, VAAPI on Linux,
+VideoToolbox on macOS -- instead of hard-coding D3D11VA and giving everybody
+else software. Creating the device is what asks the machine, so a box without
+the hardware falls back to software rather than failing a cue.
+
+Two separate things, and they still differ: the DECODE runs on hardware
+wherever there is a decoder, but the FRAME only avoids a copy on Windows, where
+the decoder can be put on the output renderer's own device.
+
+**Measure it yourself, because the answer depends on your machine.**
+`--decode-bench` now reports which decoder actually ran, and `--no-hw-decode`
+(or `DECKBOY_NO_HW_DECODE=1`) forces software so the two can be compared with
+the same binary on the same footage. On a 2015 Intel iGPU, 1080p h264 costs
+about a tenth less CPU on VAAPI; the same chip asked for 4K is *slower* on
+hardware than in software. That is why the switch exists and why the numbers
+are worth taking yourself rather than taking on trust.
+
+**The README has a picture in it**, shot with the built-in pattern generators,
+and a second one of the presenter view. The presenter view is described in the
+features rather than sitting on the roadmap, where it no longer belongs.
+
+**Fixes.** The cue inspector said "loading preview..." for ever on any cue with
+no still to fetch -- a pattern, a timer, a tone -- which read as a hang. It now
+only says that while something is actually loading. The README claimed signing
+"rather defeats the point" three hundred lines above a roadmap item promising
+to do it; the stance is now one stance.
+
 ## 2026-09-12 - v0.99.349 (arrange the presenter screen yourself)
 
 The panels were toggleable and the notes resizable, but the arrangement came

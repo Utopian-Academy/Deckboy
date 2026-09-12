@@ -8,11 +8,11 @@
 **Open-source media playback and show control for live video.**
 Load your media. Build your playlist. Take it live.
 
-<!-- SCREENSHOT SLOT
-     A hero image goes here. It must be shot with GENERATED content only --
-     test patterns, the test card, the built-in generators -- never a real
-     show file. A client's deck in a public README is a client's deck on the
-     internet. -->
+<!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
+     never a real show file. A client's deck in a public README is a client's
+     deck on the internet. -->
+
+![Deckboy running a playlist of built-in test patterns, SMPTE colour bars live on the programme output](art/readme/hero.png)
 
 ---
 
@@ -37,9 +37,10 @@ Bitfocus Companion module is in the repository.
 <details>
 <summary><b>"Unknown developer" warnings — what to do</b></summary>
 
-Deckboy is free software and is not code-signed, because signing means paying
-Apple and Microsoft, which rather defeats the point. The builds are safe; the
-OS simply does not recognise an unpaid publisher.
+Deckboy is not code-signed. Signing is a paid developer account with Apple and
+with Microsoft, and the project has not bought one -- so the builds are fine and
+the OS simply does not recognise the publisher. It is on the roadmap below for
+the macOS releases, where the warning is most in the way.
 
 - **macOS** — if it says the app is damaged, clear the quarantine flag once:
 
@@ -124,6 +125,35 @@ playable on site, minutes before doors.
 - NDI output
 - DeckLink (SDI) output, wherever the Blackmagic SDK is present
 - SRT and RTMP streaming, configurable independently and live at once
+
+</details>
+
+<details>
+<summary><b>Presenting from slides</b></summary>
+
+- Import a PDF, PowerPoint or Keynote deck as one cue per slide, rendered once
+  at import by the platform's own engine -- nothing during the show depends on
+  a document renderer
+- Speaker notes come with the deck: read out of a `.pptx` directly, or from a
+  `.pdfpc` / `.notes.txt` sidecar beside a PDF. A team working a master deck in
+  Google Slides can export both and keep its fonts *and* its notes
+- **Presenter view** as an output type, so it takes its own display: the live
+  slide, the one before it, the one after it, the notes and the clock. Every
+  panel switches off on its own, the colours are yours, and the panels are
+  dragged into place rather than chosen from a list of layouts
+- Notes split into parts on a line of `---` and the clicker walks them, scrolling
+  a long note at the speaker's pace instead of showing it all at once. Or split
+  one cue into one cue per part, if you would rather they were in the playlist
+- Page Down and Page Up are a presenter remote, because that is what every
+  clicker sends
+
+![The presenter view: previous, live and next slides across the top, the speaker's notes below](art/readme/presenter.png)
+
+- **Prompter view**, also an output type, for the person in front of the camera:
+  the script very large, scrolling up through a fixed reading line at a pace set
+  in lines per minute, and mirrored for a beamsplitter. It prompts from the live
+  cue's notes, or from a script of its own. Run, stop, jog, pace, size and
+  mirror are all on the control protocol, which is what a hand controller drives
 
 </details>
 
@@ -242,12 +272,19 @@ Spout *input* (treating another app's texture as a cue) is not built yet, and
 **Syphon on macOS is not built at all**. Deckboy reports the missing halves as
 unavailable rather than accepting frames and quietly discarding them.
 
-**Hardware decode.** The in-process decoder's hardware path is D3D11VA, so
-Windows gets zero-copy decode straight onto the output's device. On macOS and
-Linux the same decoder runs on the CPU — VideoToolbox and VAAPI paths have not
-been written yet. That is comfortable on modern hardware for ordinary material;
-the zero-copy path exists to spare a 4K60 clip a round trip through system
-memory, not to make playback possible.
+**Hardware decode.** Two separate things, and they differ by platform. The
+*decode* runs on hardware where the platform has a decoder: D3D11VA on Windows,
+VAAPI on Linux. The *frame* additionally avoids a copy only on Windows, where
+the decoder can be put on the output renderer's own device and the picture never
+touches system memory.
+
+Neither is about making playback possible — software decode is comfortable on
+modern hardware for ordinary material — they are about what else the machine can
+do at the same time. `--decode-bench` reports which decoder ran, and
+`DECKBOY_NO_HW_DECODE=1` forces software so the two can be compared on your own
+machine with your own footage, which is the only comparison worth anything: the
+saving depends on the codec and on how old the GPU is, and on a sufficiently old
+one the hardware decoder can be the slower of the two.
 
 Everything else in the list above runs on all three platforms.
 
@@ -268,11 +305,9 @@ importantly, what each feature deliberately does not do.
 ## Roadmap
 
 - Layer-based compositing and picture-in-picture layouts
-- Presenter view — notes, current and next slide, autoscroll
-- A teleprompter source that works with professional prompter controllers
 - NMOS discovery over mDNS, so a registry no longer has to be configured by URL
 - Hardware-paced ST 2110 output for narrow-model compliance
-- VideoToolbox and VAAPI decode, so macOS and Linux get the hardware path too
+- VideoToolbox decode on macOS, so it gets the hardware path Windows and Linux have
 - Syphon output on macOS, and Spout/Syphon *input* as a cue source
 - Developer ID signing and notarization for macOS releases
 

@@ -19,6 +19,7 @@
 #include <atomic>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <vector>
 
@@ -154,14 +155,81 @@ bool streamHasRotation(const AVStream* stream) {
   return std::isfinite(rotation) && std::abs(rotation) > 1.0;
 }
 
-bool codecSupportsD3D11(const AVCodec* codec) {
+// ── WHICH HARDWARE DECODER THIS PLATFORM HAS ─────────────────────────────────
+//
+// One per platform, because that is how it is: D3D11VA on Windows,
+// VideoToolbox on macOS, VAAPI on Linux. NONE means "decode in software",
+// which is what an unknown platform gets -- and what any of the three gets
+// when the machine turns out not to have the thing after all, since creating
+// the device is what asks.
+//
+// This used to be Windows-only, with a bare `useHw = false` for everybody
+// else, and the effect was that a Mac or a Linux box decoded 4K on the CPU
+// while a perfectly good decoder sat next to it doing nothing.
+//
+// DECKBOY_NO_HW_DECODE=1 forces software, which is how the hardware path gets
+// MEASURED: the same code, the same download, the same swscale, with only the
+// decoder swapped. Comparing against the ffmpeg subprocess instead compares
+// two different programs and answers a different question.
+AVHWDeviceType preferredHwDeviceType() {
+  static const bool disabled = [] {
+    const char* env = std::getenv("DECKBOY_NO_HW_DECODE");
+    return env && env[0] && env[0] != '0';
+  }();
+  if (disabled) {
+    return AV_HWDEVICE_TYPE_NONE;
+  }
+#if defined(_WIN32)
+  return AV_HWDEVICE_TYPE_D3D11VA;
+#elif defined(__APPLE__)
+  return AV_HWDEVICE_TYPE_VIDEOTOOLBOX;
+#elif defined(__linux__)
+  return AV_HWDEVICE_TYPE_VAAPI;
+#else
+  return AV_HWDEVICE_TYPE_NONE;
+#endif
+}
+
+// The format a frame arrives in from that decoder: an opaque handle to a
+// surface the GPU owns, not pixels anybody can read without asking for them.
+AVPixelFormat hwPixelFormat() {
+  if (preferredHwDeviceType() == AV_HWDEVICE_TYPE_NONE) {
+    return AV_PIX_FMT_NONE;
+  }
+#if defined(_WIN32)
+  return AV_PIX_FMT_D3D11;
+#elif defined(__APPLE__)
+  return AV_PIX_FMT_VIDEOTOOLBOX;
+#elif defined(__linux__)
+  return AV_PIX_FMT_VAAPI;
+#else
+  return AV_PIX_FMT_NONE;
+#endif
+}
+
+// The name to say out loud, for --decode-bench and the logs. "hardware" on its
+// own is not a useful answer when the question is why a machine is slow.
+const char* hwDeviceName() {
+  const AVHWDeviceType type = preferredHwDeviceType();
+  if (type == AV_HWDEVICE_TYPE_NONE) {
+    return "software";
+  }
+  const char* name = av_hwdevice_get_type_name(type);
+  return name ? name : "hardware";
+}
+
+bool codecSupportsHw(const AVCodec* codec) {
+  const AVHWDeviceType want = preferredHwDeviceType();
+  if (want == AV_HWDEVICE_TYPE_NONE) {
+    return false;
+  }
   for (int i = 0;; ++i) {
     const AVCodecHWConfig* config = avcodec_get_hw_config(codec, i);
     if (!config) {
       return false;
     }
     if ((config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX) &&
-        config->device_type == AV_HWDEVICE_TYPE_D3D11VA) {
+        config->device_type == want) {
       return true;
     }
   }
@@ -170,8 +238,9 @@ bool codecSupportsD3D11(const AVCodec* codec) {
 AVPixelFormat pickDecodeFormat(AVCodecContext* ctx, const AVPixelFormat* formats) {
   bool wantHw = ctx->opaque != nullptr;  // opaque flags "hw requested" (see below)
   if (wantHw) {
+    const AVPixelFormat want = hwPixelFormat();
     for (const AVPixelFormat* p = formats; *p != AV_PIX_FMT_NONE; ++p) {
-      if (*p == AV_PIX_FMT_D3D11) {
+      if (*p == want) {
         return *p;
       }
     }
@@ -218,6 +287,11 @@ struct VideoPipeline::Impl {
   int streamIndex = -1;
   AVRational timeBase {1, 1};
   bool zeroCopy = false;      // hw decode on the caller-supplied device
+  // Hardware decode happened, whether or not the frames avoided a copy. Kept
+  // separately from zeroCopy because on two of the three platforms the answer
+  // is yes to one and no to the other, and reporting only zeroCopy made a
+  // VideoToolbox or VAAPI decode indistinguishable from software.
+  bool hwDecode = false;
   bool drainSent = false;
   bool finished = false;
   bool havePending = false;
@@ -239,6 +313,7 @@ struct VideoPipeline::Impl {
     if (hwDevice) { av_buffer_unref(&hwDevice); }
     streamIndex = -1;
     zeroCopy = false;
+    hwDecode = false;
     drainSent = false;
     finished = false;
     havePending = false;
@@ -361,22 +436,32 @@ struct VideoPipeline::Impl {
     // may error, it may reset - and an error run trips kMaxConsecutiveErrors
     // and kills the decode outright. libavcodec conceals predictably and
     // identically on every machine, which is what an effect needs.
-    bool useHw = tryHw && codecSupportsD3D11(codec) && !datamosh.load();
-#ifdef _WIN32
+    bool useHw = tryHw && codecSupportsHw(codec) && !datamosh.load();
     if (useHw) {
+#ifdef _WIN32
+      // ZERO-COPY needs the decoder and the renderer on ONE device, which only
+      // Windows can arrange today: the frame stays a D3D11 surface and the
+      // compositor wraps it as a texture. Elsewhere the frame is downloaded --
+      // which still moves the expensive half, the decode itself, off the CPU.
       if (params.d3dDevice && params.format == FramePixelFormat::NV12) {
         hwDevice = adoptD3D11Device(params.d3dDevice);
         zeroCopy = hwDevice != nullptr;
       }
+#endif
       if (!hwDevice) {
-        av_hwdevice_ctx_create(&hwDevice, AV_HWDEVICE_TYPE_D3D11VA, nullptr, nullptr, 0);
+        // This call is what ASKS the machine. VAAPI wants a DRM render node
+        // and fails without one; VideoToolbox wants nothing and fails only on
+        // a Mac that cannot; a failure here is a fallback to software, not a
+        // broken cue.
+        if (av_hwdevice_ctx_create(&hwDevice, preferredHwDeviceType(), nullptr,
+                                   nullptr, 0) < 0) {
+          hwDevice = nullptr;
+        }
         zeroCopy = false;
       }
       useHw = hwDevice != nullptr;
     }
-#else
-    useHw = false;
-#endif
+    hwDecode = useHw;
     if (useHw) {
       codecCtx->hw_device_ctx = av_buffer_ref(hwDevice);
       // Surfaces the decoder pool must cover beyond its own reorder needs:
@@ -671,6 +756,12 @@ bool VideoPipeline::nextFrame(DecodedFrame& out) {
 }
 
 bool VideoPipeline::zeroCopyActive() const { return impl_->zeroCopy; }
+
+bool VideoPipeline::hardwareDecodeActive() const { return impl_->hwDecode; }
+
+const char* VideoPipeline::hardwareDecodeName() const {
+  return impl_->hwDecode ? hwDeviceName() : "software";
+}
 
 void* VideoPipeline::device() const {
   return impl_->zeroCopy ? impl_->params.d3dDevice : nullptr;

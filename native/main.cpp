@@ -1895,6 +1895,15 @@ struct OutputRuntime {
   std::map<std::string, Uint32> overlayBridgeTextureFormats;
   std::map<std::string, std::uint64_t> overlayBridgeFrameIndices;
   std::map<std::string, std::string> overlayBridgeCueKeys;
+  // RENDER TARGETS, which the bridge textures above cannot be: those are
+  // STATIC-access and uploaded into, these are drawn into. The prompter needs
+  // one to mirror the whole picture in one blit.
+  struct BridgeTarget {
+    SDL_Texture* texture = nullptr;
+    int width = 0;
+    int height = 0;
+  };
+  std::map<std::string, BridgeTarget> overlayBridgeTargets;
   // WHICH PICTURE IS ALREADY IN EACH TRANSITION BRIDGE TEXTURE, so a style
   // that draws the same frame several times in one pass uploads it once.
   //
@@ -2819,12 +2828,25 @@ std::string normalizeOutputType(std::string outputType) {
   if (outputType == "presenter") {
     return "presenter";
   }
+  // PROMPTER is the same trick again, for the person in front of the camera
+  // rather than the one behind it: a screen under a beamsplitter showing the
+  // script scrolling at a set pace, MIRRORED, because the glass reverses it
+  // on the way to their eye.
+  //
+  // Also an output rather than a cue kind, and for a reason beyond convenience:
+  // prompter text is drawn with real fonts at whatever size the talent needs,
+  // and the engine's frame generators only have a three-by-five digit table.
+  // A script belongs where the text renderer is.
+  if (outputType == "prompter" || outputType == "teleprompter") {
+    return "prompter";
+  }
   return "window";
 }
 
 // True for anything that lives in a window on a display, whatever it draws.
 bool outputTypeIsWindowed(const std::string& outputType) {
-  return outputType == "window" || outputType == "presenter";
+  return outputType == "window" || outputType == "presenter" ||
+         outputType == "prompter";
 }
 
 std::string normalizeOutputColorSpace(std::string colorSpace) {
@@ -7924,6 +7946,17 @@ class App {
   static constexpr int kSettingsActionPresenterShareDec = 678;
   static constexpr int kSettingsActionPresenterShareInc = 679;
   static constexpr int kSettingsActionPresenterArrange = 680;
+  // ── PROMPTER ────────────────────────────────────────────────────────────
+  // The talent's screen. Ordered so the handler can test one range.
+  static constexpr int kSettingsActionPrompterRun = 681;
+  static constexpr int kSettingsActionPrompterTop = 682;
+  static constexpr int kSettingsActionPrompterSpeedDec = 683;
+  static constexpr int kSettingsActionPrompterSpeedInc = 684;
+  static constexpr int kSettingsActionPrompterSizeDec = 685;
+  static constexpr int kSettingsActionPrompterSizeInc = 686;
+  static constexpr int kSettingsActionPrompterMirror = 687;
+  static constexpr int kSettingsActionPrompterScript = 688;
+  static constexpr int kSettingsActionPrompterReadingLine = 689;
   static constexpr int kSettingsActionClockCycle = 790;
   // Programme -> presenter -> stream. The output type had no control anywhere
   // in the interface: it was reachable only from the network protocol, so the
@@ -10172,7 +10205,7 @@ static void prependExecutableDirToPath() {
 //   MODE flags take the process over: they run headless and exit (--smoke,
 //     --pattern-dump, --decode-bench, …). At most one may appear.
 //   OPTION flags modify a run (--import, --settings, --soak) or apply to any
-//     run at all (--no-inproc-decode, --allow-multi-instance).
+//     run at all (--no-inproc-decode, --no-hw-decode, --allow-multi-instance).
 //
 // Three rules this parser enforces, each of which used to fail SILENTLY:
 //   * option flags are read wherever they sit on the line, not only in argv[1]
@@ -10224,6 +10257,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
   {"--devices", "list the audio, display and capture hardware this machine offers"},
   {"--check-update", "ask GitHub whether there is a newer release, print it, and exit"},
   {"--no-inproc-decode", "keep every decode on the ffmpeg CLI pipe path"},
+  {"--no-hw-decode", "decode in software (the A/B for the hardware path)"},
   {"--allow-multi-instance", "bypass the single-instance lock"},
 };
 
@@ -10238,6 +10272,7 @@ constexpr const char* kCliModeFlags[] = {
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
   {"DECKBOY_ROOT", "project root holding data/ (also makes that dir the writable one)"},
+  {"DECKBOY_NO_HW_DECODE", "force software decode -- the A/B for the hardware path"},
   {"DECKBOY_STATE_DIR", "where shows/state/crash logs are written"},
   {"DECKBOY_PROJECT", "show file to open instead of the remembered one"},
   {"DECKBOY_COMPANION_PORT", "Companion control port (default 5510)"},
@@ -10750,6 +10785,22 @@ int runDeckboyMain(int argc, char** argv) {
       // Operator break-glass: keep every decode on the ffmpeg CLI pipe path
       // for this run (robustness over Pocket performance).
       MediaEngine::setInprocDecodeDisabled(true);
+      continue;
+    }
+    if (arg == "--no-hw-decode") {
+      // The OTHER break-glass, and a different one: keep the in-process
+      // decoder but make it decode in software. A hardware decoder is not
+      // always the faster of the two -- an old iGPU asked for 4K can be slower
+      // than the CPU beside it -- and an operator who finds that out needs a
+      // switch they can reach, not an environment variable.
+      //
+      // Sets the same variable DECKBOY_NO_HW_DECODE does, because the decoder
+      // reads that once and there is no reason to have two answers.
+#ifdef _WIN32
+      _putenv_s("DECKBOY_NO_HW_DECODE", "1");
+#else
+      setenv("DECKBOY_NO_HW_DECODE", "1", 1);
+#endif
       continue;
     }
     if (arg == "--allow-multi-instance") {

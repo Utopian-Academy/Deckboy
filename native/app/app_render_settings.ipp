@@ -1934,10 +1934,11 @@
         SDL_Rect typeBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Shows");
         drawUIValueControl(typeBtn,
           outputTypeLabel == "presenter" ? "PRESENTER VIEW"
+            : outputTypeLabel == "prompter" ? "PROMPTER"
             : (outputTypeLabel == "stream" ? "STREAM" : "PROGRAMME"));
         settingsBtns_.push_back({typeBtn, kSettingsActionOutputTypeCycle,
                                  "Programme picture, a presenter view for the "
-                                 "operator, or a stream"});
+                                 "operator, a prompter for the talent, or a stream"});
 
         SDL_Rect dBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Hardware display");
         drawUIDropdownValue(dBtn, displayLabel, "settings.output_display");
@@ -1985,6 +1986,87 @@
                                 : std::to_string(outputOrientation) + " deg";
         drawActionBtn(orientBtn, orientLabel, kSettingsActionOutputOrientationCycle);
         sy += dispSectionH + kSectionGap;
+
+        // ─── PROMPTER ────────────────────────────────────────────────
+        //
+        // Only when this output IS one, for the same reason the presenter card
+        // is conditional: controls that cannot do anything invite somebody to
+        // change them and then wonder why nothing moved.
+        if (outputTypeLabel == "prompter") {
+          const OutputTarget::PrompterOptions& pr = outputTarget.prompter;
+          int prSectionH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH, kRowH});
+          SDL_Rect prSection {cx, sy, subContentW, prSectionH};
+          SDL_Rect prBody = drawSectionFrame(prSection, "PROMPTER");
+          VerticalLayout prLayout(prBody, kRowGap);
+
+          {
+            SDL_Rect row = prLayout.takeFixed(kRowH);
+            SDL_Rect labelled = settingsRowIn(row, "Transport");
+            const int half = std::max(uiScaled(40), (labelled.w - kRowGap) / 2);
+            drawActionBtn(SDL_Rect {labelled.x, labelled.y, half, labelled.h},
+                          pr.running ? "RUNNING" : "PAUSED",
+                          kSettingsActionPrompterRun, pr.running);
+            drawActionBtn(SDL_Rect {labelled.x + labelled.w - half, labelled.y,
+                                    half, labelled.h},
+                          "BACK TO TOP", kSettingsActionPrompterTop);
+          }
+
+          {
+            SDL_Rect row = settingsRowIn(prLayout.takeFixed(kRowH), "Reading pace");
+            char lab[40];
+            std::snprintf(lab, sizeof(lab), "%.0f lines / minute", pr.linesPerMinute);
+            const int step = std::max(uiScaled(34), row.h);
+            drawActionBtn(SDL_Rect {row.x, row.y, step, row.h}, "-",
+                          kSettingsActionPrompterSpeedDec);
+            drawUIValueControl(SDL_Rect {row.x + step + kRowGap, row.y,
+                                         std::max(1, row.w - (step + kRowGap) * 2),
+                                         row.h}, lab);
+            drawActionBtn(SDL_Rect {row.x + row.w - step, row.y, step, row.h}, "+",
+                          kSettingsActionPrompterSpeedInc);
+          }
+
+          {
+            SDL_Rect row = settingsRowIn(prLayout.takeFixed(kRowH), "Type size");
+            char lab[24];
+            std::snprintf(lab, sizeof(lab), "%d%%",
+                          static_cast<int>(std::lround(pr.fontScale * 100.0)));
+            const int step = std::max(uiScaled(34), row.h);
+            drawActionBtn(SDL_Rect {row.x, row.y, step, row.h}, "-",
+                          kSettingsActionPrompterSizeDec);
+            drawUIValueControl(SDL_Rect {row.x + step + kRowGap, row.y,
+                                         std::max(1, row.w - (step + kRowGap) * 2),
+                                         row.h}, lab);
+            drawActionBtn(SDL_Rect {row.x + row.w - step, row.y, step, row.h}, "+",
+                          kSettingsActionPrompterSizeInc);
+          }
+
+          SDL_Rect mirrorBtn = settingsRowIn(prLayout.takeFixed(kRowH),
+                                             "Mirror for the glass");
+          drawActionBtn(mirrorBtn,
+                        (pr.mirrorHorizontal && pr.mirrorVertical) ? "BOTH AXES"
+                        : pr.mirrorHorizontal ? "LEFT TO RIGHT"
+                        : pr.mirrorVertical ? "TOP TO BOTTOM" : "OFF",
+                        kSettingsActionPrompterMirror,
+                        pr.mirrorHorizontal || pr.mirrorVertical);
+
+          {
+            SDL_Rect lineBtn = settingsRowIn(prLayout.takeFixed(kRowH),
+                                             "Reading line");
+            char lab[40];
+            std::snprintf(lab, sizeof(lab), "%d%% down the screen",
+                          static_cast<int>(std::lround(pr.readingLineFraction * 100.0)));
+            drawActionBtn(lineBtn, pr.showReadingLine ? lab : "HIDDEN",
+                          kSettingsActionPrompterReadingLine, pr.showReadingLine);
+          }
+
+          SDL_Rect scriptBtn = settingsRowIn(prLayout.takeFixed(kRowH), "Script");
+          drawActionBtn(scriptBtn,
+                        pr.script.empty() ? "FOLLOWING THE LIVE CUE NOTES"
+                                          : "OWN SCRIPT  (click to edit)",
+                        kSettingsActionPrompterScript);
+
+          sy += prSectionH + kSectionGap;
+        }
 
         // ─── PRESENTER VIEW ──────────────────────────────────────────
         //
@@ -4418,6 +4500,83 @@
       playUiSound(UiSoundEffect::Toggle);
       return;
     }
+    if (sb.action >= kSettingsActionPrompterRun &&
+        sb.action <= kSettingsActionPrompterReadingLine) {
+      if (project_.outputs.empty()) {
+        return;
+      }
+      const int outIdx = std::clamp(project_.focusedOutputIndex, 0,
+                                    static_cast<int>(project_.outputs.size()) - 1);
+      OutputTarget::PrompterOptions& pr = focusedOutputMutable().prompter;
+      switch (sb.action) {
+        case kSettingsActionPrompterRun:
+          pr.running = !pr.running;
+          break;
+        case kSettingsActionPrompterTop:
+          prompterScroll_[outIdx] = 0.0;
+          triggerToast("prompter: back to the top");
+          break;
+        // Ten lines a minute. A reader's pace gets adjusted in conversation
+        // with them -- "a bit slower" -- not dialled to a number, so the step
+        // is one noticeable nudge rather than a fine control.
+        case kSettingsActionPrompterSpeedDec:
+          pr.linesPerMinute = std::max(10.0, pr.linesPerMinute - 10.0);
+          break;
+        case kSettingsActionPrompterSpeedInc:
+          pr.linesPerMinute = std::min(600.0, pr.linesPerMinute + 10.0);
+          break;
+        case kSettingsActionPrompterSizeDec:
+          pr.fontScale = std::max(0.5, pr.fontScale - 0.1);
+          break;
+        case kSettingsActionPrompterSizeInc:
+          pr.fontScale = std::min(8.0, pr.fontScale + 0.1);
+          break;
+        case kSettingsActionPrompterMirror:
+          // off -> left to right -> top to bottom -> both -> off. The first
+          // step is what almost every rig wants, so it is one click away.
+          if (!pr.mirrorHorizontal && !pr.mirrorVertical) {
+            pr.mirrorHorizontal = true;
+          } else if (pr.mirrorHorizontal && !pr.mirrorVertical) {
+            pr.mirrorHorizontal = false;
+            pr.mirrorVertical = true;
+          } else if (!pr.mirrorHorizontal && pr.mirrorVertical) {
+            pr.mirrorHorizontal = true;
+          } else {
+            pr.mirrorHorizontal = false;
+            pr.mirrorVertical = false;
+          }
+          break;
+        case kSettingsActionPrompterReadingLine:
+          // One button shows it and places it: off, a quarter down, a little
+          // above the middle, below the middle, off again. Where a reader
+          // wants it depends on the rig and on them, and four places covers it
+          // without a slider nobody can hit from across a room.
+          if (!pr.showReadingLine) {
+            pr.showReadingLine = true;
+            pr.readingLineFraction = 0.25;
+          } else if (pr.readingLineFraction < 0.3) {
+            pr.readingLineFraction = 0.42;
+          } else if (pr.readingLineFraction < 0.5) {
+            pr.readingLineFraction = 0.6;
+          } else {
+            pr.showReadingLine = false;
+          }
+          break;
+        case kSettingsActionPrompterScript:
+          openInlineTextEditor("settings.prompter_script", "Prompter script",
+                               "Leave empty to follow the live cue notes",
+                               pr.script, [this](const std::string& v) {
+            focusedOutputMutable().prompter.script = v;
+            markProjectDirty();
+          });
+          return;   // the editor marks dirty when it commits
+        default:
+          break;
+      }
+      markProjectDirty();
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
     if (sb.action == kSettingsActionDisplayIdentify) {
         showDisplayIdentify();
         triggerToast("identifying displays");
@@ -4916,14 +5075,19 @@
         setVjMode(!project_.vjModeEnabled);
         triggerToast(project_.vjModeEnabled ? "vj mode on" : "vj mode off");
       } else if (sb.action == kSettingsActionOutputTypeCycle) {
-        // programme -> presenter -> stream -> programme
+        // programme -> presenter -> prompter -> stream -> programme
         const std::string was = normalizeOutputType(focusedOutput().outputType);
-        const char* next = (was == "window") ? "presenter"
-                         : (was == "presenter") ? "stream" : "window";
+        const char* next = (was == "window")    ? "presenter"
+                         : (was == "presenter") ? "prompter"
+                         : (was == "prompter")  ? "stream"
+                                                : "window";
         if (setFocusedOutputType(next)) {
-          triggerToast(std::string("output shows: ")
-                       + (std::string(next) == "presenter" ? "presenter view"
-                          : (std::string(next) == "stream" ? "stream" : "programme")));
+          const std::string chosen = next;
+          triggerToast("output shows: " +
+                       (chosen == "presenter" ? std::string("presenter view")
+                        : chosen == "prompter" ? std::string("prompter (the talent's screen)")
+                        : chosen == "stream"   ? std::string("stream")
+                                               : std::string("programme")));
         }
       } else if (sb.action == kSettingsActionClockCycle) {
         // off -> 24h -> 12h -> analog -> off

@@ -2875,11 +2875,18 @@
                    SDL_Rect {thumbArea.x + uiScaled(6), thumbArea.y + uiScaled(8),
                              thumbArea.w - uiScaled(12), thumbLineH},
                    selectedCue->name, pal.mid);
+      // ONLY SAY "LOADING" WHEN SOMETHING IS LOADING. A pattern, a timer, a
+      // tone -- anything generated rather than decoded from a file -- has no
+      // still to fetch, so this sat at "loading preview..." for ever and read
+      // as a hang. It is the first thing anybody sees in a screenshot of the
+      // inspector, which is how it was finally noticed.
+      const bool loading = thumbnailLoading_.load(std::memory_order_relaxed);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + uiScaled(6),
                              thumbArea.y + uiScaled(8) + thumbLineH + uiScaled(2),
                              thumbArea.w - uiScaled(12), thumbLineH},
-                   "loading preview...", pal.mid);
+                   loading ? "loading preview..." : "no still preview",
+                   pal.mid);
     } else {
       // Three lines centred on the middle one, spaced by the line height
       // rather than a fixed 20px -- at 1.5x they overlapped each other.

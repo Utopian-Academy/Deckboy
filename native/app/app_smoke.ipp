@@ -2813,6 +2813,11 @@
     }
     std::cout << "decode-bench: file=" << mediaPath
               << " mode=" << mode
+              // Which decoder, not just whether a copy happened. On macOS and
+              // Linux "inproc-cpu" now covers both hardware decode with a
+              // download AND genuine software decode, and the difference is
+              // the entire point of running this.
+              << " decoder=" << engine.activeDecodeName()
               << " frames=" << framesSeen
               << " gpu-frames=" << gpuFrames
               << " cpu-frames=" << cpuFrames
