@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deckboy | Open-Source Live Video Playback</title>
+    <meta name="description" content="Deckboy is a native desktop application for video engineers, AV technicians, and live operators for reliable media playback and show control.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-glow"></div>
+    <div class="background-glow secondary"></div>
+
+    <nav class="navbar">
+        <div class="logo">Deckboy</div>
+        <div class="nav-links">
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="animate-up">When the lights go down,<br><span class="gradient-text">playback has to be right.</span></h1>
+            <p class="hero-subtitle animate-up delay-1">Open-source media playback and show control for live video workflows. Built for operators, not data harvesters.</p>
+            
+            <div class="cta-group animate-up delay-2">
+                <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy" class="btn-large btn-outline">View on GitHub</a>
+            </div>
+            
+            <div class="badges animate-up delay-3">
+                <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey" alt="Platforms">
+                <img src="https://img.shields.io/badge/built%20with-SDL3-blue" alt="SDL3">
+            </div>
+        </div>
+    </header>
+
+    <section class="features">
+        <div class="feature-card glass">
+            <div class="icon">🎬</div>
+            <h3>Cue-Based Playback</h3>
+            <p>Drag and drop media, trim cues, and hold last frames reliably. Perfect for live events.</p>
+        </div>
+        <div class="feature-card glass">
+            <div class="icon">📡</div>
+            <h3>IP Video Output</h3>
+            <p>Outputs NDI, SRT, RTMP, and experimental SMPTE ST 2110-20 uncompressed video simultaneously.</p>
+        </div>
+        <div class="feature-card glass">
+            <div class="icon">🎛️</div>
+            <h3>Total Control</h3>
+            <p>Integrates natively with Bitfocus Companion, OSC, MIDI, Art-Net, and LTC timecode.</p>
+        </div>
+        <div class="feature-card glass">
+            <div class="icon">🛠️</div>
+            <h3>The Swiss Army Knife</h3>
+            <p>Convert unplayable media in place using NVENC, normalize audio to EBU R128, and generate test patterns.</p>
+        </div>
+    </section>
+
+    <section class="code-preview glass">
+        <div class="window-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+        </div>
+        <div class="terminal">
+            <p><span class="prompt">></span> No installer.</p>
+            <p><span class="prompt">></span> No account required.</p>
+            <p><span class="prompt">></span> No telemetry.</p>
+            <p><span class="prompt">></span> Pure native performance.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy. <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+
+    <script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+        });
+    </script>
+</body>
+</html>
