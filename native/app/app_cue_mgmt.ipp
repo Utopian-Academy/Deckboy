@@ -3548,8 +3548,12 @@
         slideRenderPage_.store(page, std::memory_order_relaxed);
       };
       auto result = deckboy::platform::rasterisePdf(source, pagesDir, 3840, onProgress);
+      // Read on this thread, beside the render, so the main thread never
+      // touches the disk for it.
+      const std::vector<std::string> slideNotes =
+        loadSidecarSlideNotes(fs::path(source), result.pagePaths.size());
       std::lock_guard<std::mutex> lock(sdlDialogMutex_);
-      sdlDialogActions_.emplace_back([this, result, title, converter]() {
+      sdlDialogActions_.emplace_back([this, result, title, converter, slideNotes]() {
         slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
         if (!result.ok()) {
           triggerToast("slides: " + (result.error.empty() ? std::string("no pages")
@@ -3559,7 +3563,8 @@
         }
         // Straight back through the ordinary import, so the pages get deck
         // defaults, probing, thumbnails and undo exactly like any other still.
-        importPaths(result.pagePaths, title);
+        // Notes that came with the deck ride along -- see loadSidecarSlideNotes.
+        importPaths(result.pagePaths, title, slideNotes);
         // Naming the converter is not trivia: LibreOffice substitutes fonts it
         // has not got, so an operator who sees it named knows to check the
         // slides rather than discover a reflowed heading in front of a room.
@@ -3592,6 +3597,112 @@
     }).detach();
   }
 
+  // ── PER-SLIDE NOTES THAT CAME WITH THE DECK ─────────────────────────────
+  //
+  // A PDF can carry speaker notes three ways, and only one of them is worth
+  // reading without a PDF parser:
+  //
+  //   1. TEXT ANNOTATIONS (/Annots with /Subtype /Text). Real metadata, but
+  //      modern PDFs keep their object table in compressed object streams, so
+  //      reading them needs inflate and a cross-reference parser. Of the three
+  //      renderers Deckboy uses, only CoreGraphics exposes annotations at all,
+  //      so this would be a macOS-only feature pretending to be a general one.
+  //   2. A SIDECAR FILE. pdfpc -- the presenter tool the LaTeX and Beamer
+  //      world uses -- keeps notes in a plain text file beside the PDF, keyed
+  //      by slide number. It is an open convention, it is trivially readable,
+  //      and it works identically on all three platforms.
+  //   3. NOTES RENDERED ONTO THE PAGE (PowerPoint and Keynote's "export with
+  //      notes"). That is a picture of the notes, not the notes, and telling
+  //      them apart from the slide's own text is guesswork.
+  //
+  // So this reads (2), and accepts the same shape from a plainly-named text
+  // file so somebody who has never heard of pdfpc can still write notes for a
+  // deck in Notepad.
+  //
+  // FORMAT, in any of `<deck>.pdfpc`, `<deck>.notes.txt`, `<deck>.notes.md`:
+  //
+  //     ### 1
+  //     Welcome. Fire exits are behind you.
+  //     ---
+  //     The bar opens at six.
+  //     ### 2
+  //     Hand over to Dr Ellis here.
+  //
+  // `### <n>` starts the notes for slide n. Inside one slide's notes, a line
+  // of `---` splits them into BUILDS, which the presenter advances through
+  // without changing the slide -- the same separator the notes field uses
+  // everywhere else, so one convention covers both.
+  //
+  // A `[file]` or `[notes]` section header (pdfpc writes them) is skipped, so
+  // a real pdfpc file works unedited.
+  std::vector<std::string> loadSidecarSlideNotes(const fs::path& deckPath,
+                                                 std::size_t pageCount) const {
+    std::vector<std::string> notes(pageCount);
+    if (pageCount == 0) {
+      return notes;
+    }
+    const fs::path stem = deckPath.parent_path() / deckPath.stem();
+    const std::vector<fs::path> candidates {
+      fs::path(stem.string() + ".pdfpc"),
+      fs::path(stem.string() + ".notes.txt"),
+      fs::path(stem.string() + ".notes.md"),
+      fs::path(stem.string() + ".notes"),
+    };
+    fs::path found;
+    for (const fs::path& candidate : candidates) {
+      std::error_code ec;
+      if (fs::exists(candidate, ec) && fs::is_regular_file(candidate, ec)) {
+        found = candidate;
+        break;
+      }
+    }
+    if (found.empty()) {
+      return notes;
+    }
+    std::ifstream in(found);
+    if (!in) {
+      return notes;
+    }
+
+    int page = -1;                       // -1 until a "### n" has been seen
+    std::vector<std::string> current;
+    auto commit = [&]() {
+      if (page >= 1 && static_cast<std::size_t>(page) <= pageCount) {
+        std::string joined;
+        for (std::size_t i = 0; i < current.size(); ++i) {
+          if (i) joined += "\n";
+          joined += current[i];
+        }
+        // Trailing blank lines are an artefact of the file, not the note.
+        while (!joined.empty() && (joined.back() == '\n' || joined.back() == ' ')) {
+          joined.pop_back();
+        }
+        notes[static_cast<std::size_t>(page) - 1] = joined;
+      }
+      current.clear();
+    };
+
+    std::string line;
+    while (std::getline(in, line)) {
+      const std::string trimmed = trim(line);
+      // pdfpc's own section headers carry no notes.
+      if (trimmed == "[file]" || trimmed == "[notes]" || trimmed == "[font_size]") {
+        continue;
+      }
+      if (trimmed.rfind("###", 0) == 0) {
+        commit();
+        const std::string number = trim(trimmed.substr(3));
+        page = number.empty() ? -1 : std::atoi(number.c_str());
+        continue;
+      }
+      if (page >= 1) {
+        current.push_back(line);
+      }
+    }
+    commit();
+    return notes;
+  }
+
   // `slideDeckName`, when set, says these files are the PAGES OF ONE DOCUMENT
   // and changes two things that matter on a show day: the cues are named after
   // the deck rather than after the render's filenames, and each one HOLDS
@@ -3599,7 +3710,8 @@
   // while the presenter is still talking is the single worst thing this could
   // do, and it is what the deck defaults would have done.
   void importPaths(const std::vector<std::string>& rawPaths,
-                   const std::string& slideDeckName = std::string()) {
+                   const std::string& slideDeckName = std::string(),
+                   const std::vector<std::string>& slideNotes = {}) {
     int deckIndex = project_.focusedDeckIndex;
     Deck& deck = focusedDeckMutable();
 
@@ -3712,6 +3824,12 @@
         placeholder.name = slideDeckName + " " + std::to_string(addedCount + 1);
         placeholder.transitionToNext = false;   // wait for the click
         placeholder.pauseOnLastFrame = true;
+        // Notes that shipped with the deck, if any -- straight into the cue,
+        // where the presenter view reads them.
+        if (static_cast<std::size_t>(addedCount) < slideNotes.size() &&
+            !slideNotes[static_cast<std::size_t>(addedCount)].empty()) {
+          placeholder.notes = slideNotes[static_cast<std::size_t>(addedCount)];
+        }
       }
       deck.cues.push_back(std::move(placeholder));
       changed = true;

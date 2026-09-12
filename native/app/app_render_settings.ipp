@@ -1917,7 +1917,7 @@
 
         // Display & Raster — 3 rows (display, resolution, fullscreen+orientation)
         // 4 rows now (display, resolution, raster/refresh/depth, fullscreen+orientation).
-        int dispSectionH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH, kRowH, kRowH});
+        int dispSectionH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH, kRowH, kRowH, kRowH});
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
         VerticalLayout dLayout(dBody, kRowGap);
@@ -1927,6 +1927,18 @@
           const char* dName = deckboyGetDisplayName(outputDisplayIndex(focusedOutputIndex));
           if (dName && *dName) displayLabel += ": " + std::string(dName);
         }
+        // WHAT THIS OUTPUT SHOWS, first, because it changes what the rest of
+        // the card means. It had no control anywhere in the interface -- only
+        // a line in the network protocol -- so an operator could not reach the
+        // presenter view at all.
+        SDL_Rect typeBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Shows");
+        drawUIValueControl(typeBtn,
+          outputTypeLabel == "presenter" ? "PRESENTER VIEW"
+            : (outputTypeLabel == "stream" ? "STREAM" : "PROGRAMME"));
+        settingsBtns_.push_back({typeBtn, kSettingsActionOutputTypeCycle,
+                                 "Programme picture, a presenter view for the "
+                                 "operator, or a stream"});
+
         SDL_Rect dBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Hardware display");
         drawUIDropdownValue(dBtn, displayLabel, "settings.output_display");
         settingsBtns_.push_back({dBtn, kSettingsActionOutputDisplayDropdown, "output_display"});
@@ -4643,6 +4655,16 @@
         // this only flips the intent and lets that decide what has to happen.
         setVjMode(!project_.vjModeEnabled);
         triggerToast(project_.vjModeEnabled ? "vj mode on" : "vj mode off");
+      } else if (sb.action == kSettingsActionOutputTypeCycle) {
+        // programme -> presenter -> stream -> programme
+        const std::string was = normalizeOutputType(focusedOutput().outputType);
+        const char* next = (was == "window") ? "presenter"
+                         : (was == "presenter") ? "stream" : "window";
+        if (setFocusedOutputType(next)) {
+          triggerToast(std::string("output shows: ")
+                       + (std::string(next) == "presenter" ? "presenter view"
+                          : (std::string(next) == "stream" ? "stream" : "programme")));
+        }
       } else if (sb.action == kSettingsActionClockCycle) {
         // off -> 24h -> 12h -> analog -> off
         const std::string was =

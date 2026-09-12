@@ -962,6 +962,45 @@ struct OutputTarget {
   std::string overlayImagePath;            // still image laid over the output
   double overlayOpacity = 1.0;             // 0-1
   bool overlayEnabled = false;
+
+  // ── PRESENTER VIEW ──────────────────────────────────────────────────────
+  //
+  // Only read when outputType is "presenter". Kept in one struct so adding a
+  // presenter option is one field in one place rather than four edits spread
+  // across the type, the writer, the reader and the defaults.
+  //
+  // Defaults are what a presenter screen should look like with nobody having
+  // configured anything: everything shown, dark ground, and notes at the size
+  // the rest of the interface uses.
+  struct PresenterOptions {
+    // wide      current large, previous and next stacked beside it, notes below
+    // filmstrip previous / current / next across the top, notes large below
+    // notes     notes dominate; the three pictures ride a thin strip on top
+    std::string layout = "wide";
+    bool showPrevious = true;
+    bool showNext = true;
+    bool showNotes = true;
+    bool showClock = true;
+    bool showTimers = true;
+    // Hex, because a presenter screen is often somebody else's laptop in
+    // somebody else's room and "make it readable in here" is a real request.
+    std::string background = "#0c0e0c";
+    std::string ink = "#e8f0e4";
+    std::string accent = "#8fbf60";
+    // Notes are read from a lectern, not from a desk. 1.0 is the interface's
+    // own size; most people want more.
+    double notesScale = 1.4;
+    // NOTE BUILDS. A cue's notes split on a line that is exactly "---", and
+    // the presenter advances through them without changing the slide -- so a
+    // long note is read at the speaker's pace instead of all at once.
+    //
+    // When this is on, the ordinary NEXT action spends the remaining builds
+    // BEFORE it advances the cue, which is how a slide clicker behaves in
+    // every other deck the presenter has used. Off by default, because it
+    // changes what the transport does.
+    bool buildsConsumeAdvance = false;
+  };
+  PresenterOptions presenter;
   std::string outputColorSpace = "auto";   // "auto" | "bt709" | "srgb"
   std::string outputLayoutMode = "span";   // "span" (portion of canvas) | "duplicate" (full copy)
   int outputOrientationDegrees = 0;        // rotation: 0 | 90 | 180 | 270 degrees

@@ -2801,6 +2801,14 @@
             setFocusedOutputType("stream");
             return;
           }
+          if (typeArg == "PRESENTER" || typeArg == "NOTES") {
+            setFocusedOutputType("presenter");
+            return;
+          }
+          // Said, not swallowed: an unrecognised type used to return quietly
+          // and leave the output exactly as it was.
+          failRemoteCommand("output type: expected window|stream|presenter, got "
+                            + parts[3]);
           return;
         }
         if (outputArg == "MIRROR") {

@@ -234,16 +234,22 @@ those goes to your own LAN or to a destination you configured.
 
 ---
 
-## One thing that is not finished
+## Where the platforms differ
 
-**App texture sharing** — Spout on Windows, Syphon on macOS — is a scaffold on
-both. Deckboy reports it as unavailable rather than accepting frames and
-quietly discarding them.
+**App texture sharing.** Spout **output** works on Windows — Deckboy's picture
+appears as a Spout sender that Resolume, TouchDesigner or OBS can pick up.
+Spout *input* (treating another app's texture as a cue) is not built yet, and
+**Syphon on macOS is not built at all**. Deckboy reports the missing halves as
+unavailable rather than accepting frames and quietly discarding them.
 
-Everything else in the list above runs on all three platforms. GPU zero-copy
-decode is Windows-only (D3D11VA); the other two decode on the CPU, which is
-comfortable on modern hardware — the zero-copy path exists to spare a 4K60 clip
-the round trip, not to make playback possible.
+**Hardware decode.** The in-process decoder's hardware path is D3D11VA, so
+Windows gets zero-copy decode straight onto the output's device. On macOS and
+Linux the same decoder runs on the CPU — VideoToolbox and VAAPI paths have not
+been written yet. That is comfortable on modern hardware for ordinary material;
+the zero-copy path exists to spare a 4K60 clip a round trip through system
+memory, not to make playback possible.
+
+Everything else in the list above runs on all three platforms.
 
 ---
 
@@ -266,6 +272,8 @@ importantly, what each feature deliberately does not do.
 - A teleprompter source that works with professional prompter controllers
 - NMOS discovery over mDNS, so a registry no longer has to be configured by URL
 - Hardware-paced ST 2110 output for narrow-model compliance
+- VideoToolbox and VAAPI decode, so macOS and Linux get the hardware path too
+- Syphon output on macOS, and Spout/Syphon *input* as a cue source
 - Developer ID signing and notarization for macOS releases
 
 ---

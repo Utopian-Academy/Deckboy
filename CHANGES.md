@@ -1,5 +1,37 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.346 (a presenter view, and notes that come with the deck)
+
+**Presenter view.** A second screen showing the operator what the audience
+cannot see: the slide that is up, the one that is next, the notes for the one
+that is up, and the time. It is an **output type**, so it goes on its own output
+with its own display — programme to the projector, presenter to the laptop —
+and it inherits the display picker, fullscreen, arming and health reporting that
+every output already has.
+
+It is meant to be more use than the one in a slide deck: show or hide the
+previous slide, the next slide, the notes, the clock and the timers
+independently; three layouts; and your own background, ink and accent colours,
+because a presenter screen is often somebody else's laptop in somebody else's
+room.
+
+**Note builds.** A cue's notes split on a line of `---`, and the presenter
+advances through the parts *without changing the slide* — so a long note is read
+at the speaker's pace instead of arriving all at once. Optionally the ordinary
+NEXT action spends the remaining builds before it advances the cue, which is how
+a slide clicker behaves in every other deck a presenter has used.
+
+**Notes that came with the deck.** A PDF imported beside a `.pdfpc` file — the
+open convention the LaTeX and Beamer world already uses — picks up its per-slide
+notes automatically, and `.notes.txt` / `.notes.md` work the same way. `### 1`
+starts slide one's notes; `---` inside them splits the builds.
+
+**Corrections to the platform notes.** Spout *output* works on Windows and was
+being described as a scaffold; Spout *input* and Syphon genuinely are not built.
+And macOS and Linux decode on the CPU because the in-process decoder's hardware
+path is D3D11VA, not because those platforms cannot — VideoToolbox and VAAPI are
+now on the roadmap where they belong.
+
 ## 2026-09-12 - v0.99.345 (the monitor and the preview follow the scale)
 
 The program monitor's labels — PROGRAM, the LIVE badge, the output resolution

@@ -585,6 +585,198 @@
     return SDL_BLENDMODE_BLEND;   // dissolve
   }
 
+  // ══ PRESENTER VIEW ═══════════════════════════════════════════════════════
+  //
+  // What the person running the show needs, on a screen the audience cannot
+  // see: the slide that is up, the slide that is next, the notes for the one
+  // that is up, and the time.
+  //
+  // It is an OUTPUT rather than a second control window, which means it
+  // inherits the display picker, fullscreen, arming and disarming, and the
+  // health reporting -- all of which a presenter screen needs and none of
+  // which had to be written again. Put programme on the projector and the
+  // presenter view on the laptop, exactly as a slide deck does it.
+  //
+  // The CURRENT picture is drawn by the ordinary layer path into a smaller
+  // rect, so it is the real live frame with the cue's own geometry and
+  // effects -- not an approximation of it. The NEXT picture comes from the
+  // same thumbnail cache the playlist rows use, so it costs nothing extra.
+  void renderPresenterView(int outputIndex, int deckIndex, const SDL_Rect& bounds) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer) return;
+    SDL_Renderer* ren = runtime->outputRenderer;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    const Deck& deck = project_.decks[deckIndex];
+
+    // Sized from the WINDOW, not from the operator's UI scale: this screen is
+    // usually a different size from theirs and is read from further away.
+    const int pad = std::max(8, bounds.w / 80);
+    const int headerH = std::max(28, bounds.h / 14);
+    const int footerH = std::max(24, bounds.h / 18);
+
+    SDL_SetRenderDrawColor(ren, 12, 14, 12, 255);
+    SDL_RenderClear(ren);
+
+    const Cue* liveCue = activeCuePtr(deckIndex);
+    const int nextIndex = nextCueIndexForDeck(deckIndex);
+    const Cue* nextCue = (nextIndex >= 0 && nextIndex < static_cast<int>(deck.cues.size()))
+                           ? &deck.cues[nextIndex] : nullptr;
+
+    const SDL_Color ink {232, 240, 228, 255};
+    const SDL_Color inkSoft {150, 168, 148, 255};
+    const SDL_Color rule {52, 62, 52, 255};
+
+    // Header: which cue is live, and the time of day.
+    {
+      SDL_Rect header {bounds.x + pad, bounds.y + pad, bounds.w - pad * 2, headerH};
+      std::string title = liveCue
+        ? (cueDisplayToken(*liveCue, deck.activeIndex) + "   " + liveCue->name)
+        : std::string("- nothing live -");
+      const std::time_t now = std::time(nullptr);
+      std::tm local {};
+#ifdef _WIN32
+      localtime_s(&local, &now);
+#else
+      localtime_r(&now, &local);
+#endif
+      char clock[16];
+      std::snprintf(clock, sizeof(clock), "%02d:%02d:%02d",
+                    local.tm_hour, local.tm_min, local.tm_sec);
+      const int clockW = std::max(headerH * 3, bounds.w / 6);
+      drawTextSafe(ren, fontBase_,
+                   SDL_Rect {header.x, header.y, header.w - clockW - pad, header.h},
+                   title, ink);
+      drawTextSafe(ren, fontBase_,
+                   SDL_Rect {header.x + header.w - clockW, header.y, clockW, header.h},
+                   clock, inkSoft);
+    }
+
+    const int bodyY = bounds.y + pad + headerH + pad;
+    const int notesH = std::max(60, bounds.h / 4);
+    const int bodyH = std::max(60, bounds.h - (bodyY - bounds.y) - notesH - footerH - pad * 3);
+    const int nextW = std::max(120, bounds.w / 4);
+    const int curW = bounds.w - pad * 2 - nextW - pad;
+
+    SDL_Rect curBox {bounds.x + pad, bodyY, curW, bodyH};
+    SDL_Rect nextBox {curBox.x + curBox.w + pad, bodyY, nextW,
+                      std::max(40, (nextW * 9) / 16)};
+
+    // CURRENT -- the real live frame, through the ordinary layer path.
+    Primitives::fillRect(ren, curBox, SDL_Color {0, 0, 0, 255});
+    renderDeckLayerIntoOutput(outputIndex, deckIndex, curBox);
+    renderDeckTransitionIntoOutput(outputIndex, deckIndex, curBox);
+    Primitives::strokeRect(ren, curBox, rule);
+
+    // NEXT -- from the playlist's own thumbnail cache.
+    drawTextSafe(ren, fontSmall_,
+                 SDL_Rect {nextBox.x, bodyY - headerH / 2 - pad / 2, nextBox.w, headerH / 2},
+                 "NEXT", inkSoft);
+    Primitives::fillRect(ren, nextBox, SDL_Color {0, 0, 0, 255});
+    if (nextCue) {
+      const std::string key = cueVisualCacheKey(*nextCue);
+      auto found = selectedThumbnailCache_.find(key);
+      if (found != selectedThumbnailCache_.end() && !found->second.pixels.empty()) {
+        const DecodedFrame& thumb = found->second;
+        SDL_Texture* tex = ensureOverlayBridgeTexture(
+          *runtime, "presenter_next", thumb.width, thumb.height,
+          sdlPixelFormat(thumb.format));
+        if (tex) {
+          SDL_UpdateTexture(tex, nullptr, thumb.pixels.data(), thumb.width * 4);
+          // Letterboxed, so the slide keeps its own shape.
+          const double sx = static_cast<double>(nextBox.w) / thumb.width;
+          const double sy = static_cast<double>(nextBox.h) / thumb.height;
+          const double k = std::min(sx, sy);
+          SDL_Rect dst {nextBox.x + static_cast<int>((nextBox.w - thumb.width * k) / 2),
+                        nextBox.y + static_cast<int>((nextBox.h - thumb.height * k) / 2),
+                        std::max(1, static_cast<int>(thumb.width * k)),
+                        std::max(1, static_cast<int>(thumb.height * k))};
+          SDL_RenderTexture(ren, tex, nullptr, &dst);
+        }
+      } else {
+        // Said out loud, because "the next slide has no preview yet" and
+        // "there is no next slide" are different facts and an empty black box
+        // would report them identically.
+        drawCenteredTextSafe(ren, fontSmall_, nextBox, "preview pending", inkSoft);
+      }
+      drawTextSafe(ren, fontSmall_,
+                   SDL_Rect {nextBox.x, nextBox.y + nextBox.h + pad / 2,
+                             nextBox.w, headerH / 2},
+                   cueDisplayToken(*nextCue, nextIndex) + "  " + nextCue->name, ink);
+    } else {
+      drawCenteredTextSafe(ren, fontSmall_, nextBox, "end of list", inkSoft);
+    }
+    Primitives::strokeRect(ren, nextBox, rule);
+
+    // Notes, wrapped, as large as they will go.
+    {
+      SDL_Rect notesBox {bounds.x + pad, curBox.y + curBox.h + pad,
+                         bounds.w - pad * 2, notesH};
+      drawTextSafe(ren, fontSmall_,
+                   SDL_Rect {notesBox.x, notesBox.y, notesBox.w, headerH / 2},
+                   "NOTES", inkSoft);
+      const int lineY = notesBox.y + headerH / 2 + pad / 2;
+      const std::string notes = liveCue ? liveCue->notes : std::string();
+      if (notes.empty()) {
+        drawTextSafe(ren, fontBase_,
+                     SDL_Rect {notesBox.x, lineY, notesBox.w,
+                               notesBox.h - (lineY - notesBox.y)},
+                     liveCue ? "(no notes for this cue)" : "", inkSoft);
+      } else {
+        // Wrapped on spaces here, because the shared text helpers draw exactly
+        // one line and a presenter's notes are the one thing on this screen
+        // that is prose rather than a label.
+        const int lineH = std::max(16, textLineHeight(fontBase_));
+        int y = lineY;
+        std::string line;
+        auto flushLine = [&]() {
+          if (line.empty()) return;
+          if (y + lineH <= notesBox.y + notesBox.h) {
+            drawTextSafe(ren, fontBase_,
+                         SDL_Rect {notesBox.x, y, notesBox.w, lineH}, line, ink);
+          }
+          y += lineH;
+          line.clear();
+        };
+        std::istringstream words(notes);
+        std::string word;
+        while (words >> word) {
+          const std::string attempt = line.empty() ? word : (line + " " + word);
+          if (measuredTextWidth(fontBase_, attempt) > notesBox.w && !line.empty()) {
+            flushLine();
+            line = word;
+          } else {
+            line = attempt;
+          }
+        }
+        flushLine();
+      }
+    }
+
+    // Footer: how long this cue has been up, and how much of it is left.
+    {
+      SDL_Rect footer {bounds.x + pad, bounds.y + bounds.h - footerH - pad,
+                       bounds.w - pad * 2, footerH};
+      std::string left = "--:--";
+      std::string right;
+      if (const DeckRuntime* rt = runtimeForDeck(deckIndex)) {
+        if (rt->mediaEngine) {
+          const double pos = rt->mediaEngine->position();
+          const double dur = rt->mediaEngine->duration();
+          left = "elapsed  " + formatSeconds(pos);
+          if (dur > 0.0) {
+            right = "remaining  " + formatSeconds(std::max(0.0, dur - pos));
+          }
+        }
+      }
+      drawTextSafe(ren, fontSmall_, footer, left, inkSoft);
+      if (!right.empty()) {
+        drawTextSafe(ren, fontSmall_,
+                     SDL_Rect {footer.x + footer.w / 2, footer.y, footer.w / 2, footer.h},
+                     right, inkSoft);
+      }
+    }
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
@@ -1245,6 +1437,10 @@
     }
     if (output.outputTestCardEnabled) {
       renderOutputTestCard(outputIndex, runtime->outputRenderer, renderW, renderH);
+    } else if (outputType == "presenter") {
+      // Not the programme: what the OPERATOR needs to see. Same window, same
+      // display picker, same arming -- a different picture.
+      renderPresenterView(outputIndex, hostDeckIndex, bounds);
     } else {
       for (const auto& entry : outputLayers) {
         renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);

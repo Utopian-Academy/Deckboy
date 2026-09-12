@@ -2779,7 +2779,21 @@ std::string normalizeOutputType(std::string outputType) {
   if (outputType == "stream") {
     return "stream";
   }
+  // PRESENTER is a WINDOW that shows the operator something else.
+  //
+  // It is an output type rather than a separate kind of window because
+  // everything an output already knows how to do is what a presenter view
+  // needs: pick a display, go fullscreen on it, be armed and disarmed with the
+  // rest of the show. The only thing that differs is what gets drawn in it.
+  if (outputType == "presenter") {
+    return "presenter";
+  }
   return "window";
+}
+
+// True for anything that lives in a window on a display, whatever it draws.
+bool outputTypeIsWindowed(const std::string& outputType) {
+  return outputType == "window" || outputType == "presenter";
 }
 
 std::string normalizeOutputColorSpace(std::string colorSpace) {
@@ -7859,6 +7873,10 @@ class App {
   // Off -> 24-hour -> 12-hour -> analogue -> off. Four states, one control:
   // offering only "on" would make somebody's clock convention the default.
   static constexpr int kSettingsActionClockCycle = 790;
+  // Programme -> presenter -> stream. The output type had no control anywhere
+  // in the interface: it was reachable only from the network protocol, so the
+  // presenter view would have been a feature you could not switch on.
+  static constexpr int kSettingsActionOutputTypeCycle = 791;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;
@@ -9189,6 +9207,77 @@ class App {
     std::string meta;
   };
   std::unordered_map<std::string, CueRowDisplayCache> cueRowDisplayCache_;
+
+  // ── NOTE BUILDS ─────────────────────────────────────────────────────────
+  //
+  // A cue's notes split on a line that is exactly "---", and the presenter
+  // advances through the parts without changing the slide. A long note is then
+  // read at the speaker's pace rather than arriving all at once, which is what
+  // a "build" does for a slide and had no equivalent for what you say over it.
+  //
+  // The step is per DECK and lives only as long as the session: it is where
+  // the speaker is, not something about the show, and it resets when a cue is
+  // taken so the next slide always starts at the top of its own notes.
+  std::map<int, int> presenterNoteStep_;
+
+  // The parts of a cue's notes. Always at least one element, so callers never
+  // have to special-case a cue with no notes at all.
+  static std::vector<std::string> noteBuildParts(const std::string& notes) {
+    std::vector<std::string> parts;
+    std::string current;
+    std::istringstream lines(notes);
+    std::string line;
+    while (std::getline(lines, line)) {
+      // trim() also strips the carriage return a CRLF file leaves on the
+      // end of every line, which is what makes this work on a show file
+      // written on Windows and opened on a Mac.
+      const std::string trimmed = trim(line);
+      if (trimmed == "---") {
+        parts.push_back(current);
+        current.clear();
+        continue;
+      }
+      if (!current.empty()) current += "\n";
+      current += line;
+    }
+    parts.push_back(current);
+    return parts;
+  }
+
+  int presenterNoteStepFor(int deckIndex) const {
+    const auto at = presenterNoteStep_.find(deckIndex);
+    return at == presenterNoteStep_.end() ? 0 : at->second;
+  }
+
+  // How many builds the live cue has left to spend. Used by the transport when
+  // buildsConsumeAdvance is on, and by the presenter view to say so.
+  int presenterBuildsRemaining(int deckIndex) const {
+    const Cue* cue = activeCuePtr(deckIndex);
+    if (!cue || cue->notes.empty()) return 0;
+    const int total = static_cast<int>(noteBuildParts(cue->notes).size());
+    return std::max(0, total - 1 - presenterNoteStepFor(deckIndex));
+  }
+
+  void presenterNoteStepSet(int deckIndex, int step) {
+    const Cue* cue = activeCuePtr(deckIndex);
+    const int total = cue ? static_cast<int>(noteBuildParts(cue->notes).size()) : 1;
+    presenterNoteStep_[deckIndex] = std::clamp(step, 0, std::max(0, total - 1));
+  }
+
+  void presenterNoteStepAdvance(int deckIndex, int delta) {
+    presenterNoteStepSet(deckIndex, presenterNoteStepFor(deckIndex) + delta);
+  }
+
+  // True when at least one armed output is showing a presenter view, so the
+  // transport can tell whether note builds are visible to anybody at all.
+  bool presenterViewLive() const {
+    for (const OutputTarget& out : project_.outputs) {
+      if (out.enabled && normalizeOutputType(out.outputType) == "presenter") {
+        return true;
+      }
+    }
+    return false;
+  }
 
   // ── THE SHRUNKEN SIBLINGS, AND WHAT A LABEL COSTS TO MEASURE ────────────
   //

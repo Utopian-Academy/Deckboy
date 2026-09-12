@@ -254,6 +254,18 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.overlayImagePath)
       << '\t' << outputTarget.overlayOpacity
       << '\t' << (outputTarget.overlayEnabled ? 1 : 0)
+      // Presenter view (fields 52-62) -- appended, guarded on load as always.
+      << '\t' << escapeField(outputTarget.presenter.layout)
+      << '\t' << (outputTarget.presenter.showPrevious ? 1 : 0)
+      << '\t' << (outputTarget.presenter.showNext ? 1 : 0)
+      << '\t' << (outputTarget.presenter.showNotes ? 1 : 0)
+      << '\t' << (outputTarget.presenter.showClock ? 1 : 0)
+      << '\t' << (outputTarget.presenter.showTimers ? 1 : 0)
+      << '\t' << escapeField(outputTarget.presenter.background)
+      << '\t' << escapeField(outputTarget.presenter.ink)
+      << '\t' << escapeField(outputTarget.presenter.accent)
+      << '\t' << outputTarget.presenter.notesScale
+      << '\t' << (outputTarget.presenter.buildsConsumeAdvance ? 1 : 0)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -969,6 +981,28 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                           outputTarget.overlayOpacity =
                             std::clamp(safeDouble(fields, 50, 1.0), 0.0, 1.0);
                           outputTarget.overlayEnabled = safeBool(fields, 51, false);
+                          // Presenter view. A show saved before these gets the struct's own
+                          // defaults, which are what an unconfigured presenter screen should
+                          // look like -- so an old show opened on a presenter output is
+                          // readable rather than blank.
+                          if (fields.size() >= 63) {
+                            const std::string presLayout = safeString(fields, 52);
+                            if (!presLayout.empty()) outputTarget.presenter.layout = presLayout;
+                            outputTarget.presenter.showPrevious = safeBool(fields, 53, true);
+                            outputTarget.presenter.showNext = safeBool(fields, 54, true);
+                            outputTarget.presenter.showNotes = safeBool(fields, 55, true);
+                            outputTarget.presenter.showClock = safeBool(fields, 56, true);
+                            outputTarget.presenter.showTimers = safeBool(fields, 57, true);
+                            const std::string presBg = safeString(fields, 58);
+                            const std::string presInk = safeString(fields, 59);
+                            const std::string presAccent = safeString(fields, 60);
+                            if (!presBg.empty()) outputTarget.presenter.background = presBg;
+                            if (!presInk.empty()) outputTarget.presenter.ink = presInk;
+                            if (!presAccent.empty()) outputTarget.presenter.accent = presAccent;
+                            outputTarget.presenter.notesScale =
+                              std::clamp(safeDouble(fields, 61, 1.4), 0.5, 4.0);
+                            outputTarget.presenter.buildsConsumeAdvance = safeBool(fields, 62, false);
+                          }
                         }
                       }
                     }

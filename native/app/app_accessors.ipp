@@ -279,7 +279,8 @@
 #endif
 
     std::string outputType = normalizeOutputType(output.outputType);
-    if (outputType == "window") {
+    // A presenter view is a window and is healthy on the same terms as one.
+    if (outputTypeIsWindowed(outputType)) {
       if (!runtime->outputWindow) {
         return OutputHealthState::Error;
       }
