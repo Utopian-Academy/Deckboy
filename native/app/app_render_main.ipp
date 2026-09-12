@@ -1237,19 +1237,28 @@
       }
     }
 
-    int countdownPanelW = std::clamp(innerW / 4, 220, 280);
-    if (countdownPanelW > innerW - 160) {
-      countdownPanelW = std::max(180, innerW / 3);
+    // Scaled, and the two text rows sized from their own faces. The header
+    // grew with the UI scale while the rows inside it stayed 22 and 24 pixels,
+    // so at 150% the cue name and the clock under it ran together.
+    const int tlLineH = std::max(uiScaled(22), textLineHeight(fontSmall_) + uiScaled(2));
+    const int tlClockH = std::max(uiScaled(24), textLineHeight(fontMono_) + uiScaled(2));
+    int countdownPanelW = std::clamp(innerW / 4, uiScaled(220), uiScaled(280));
+    if (countdownPanelW > innerW - uiScaled(160)) {
+      countdownPanelW = std::max(uiScaled(180), innerW / 3);
     }
-    SDL_Rect timelineInfoRect {x, timelineTopY, std::max(0, innerW - countdownPanelW - 10), kTimelineHeaderH};
-    SDL_Rect countdownRect {timelineInfoRect.x + timelineInfoRect.w + 10, timelineTopY,
-                            std::max(0, innerW - timelineInfoRect.w - 10), kTimelineHeaderH};
+    SDL_Rect timelineInfoRect {x, timelineTopY,
+                               std::max(0, innerW - countdownPanelW - uiScaled(10)), kTimelineHeaderH};
+    SDL_Rect countdownRect {timelineInfoRect.x + timelineInfoRect.w + uiScaled(10), timelineTopY,
+                            std::max(0, innerW - timelineInfoRect.w - uiScaled(10)), kTimelineHeaderH};
 
-    SDL_Rect timelineCueRect {timelineInfoRect.x, timelineInfoRect.y + 1, timelineInfoRect.w, 22};
+    SDL_Rect timelineCueRect {timelineInfoRect.x, timelineInfoRect.y + uiScaled(1),
+                              timelineInfoRect.w, tlLineH};
     drawTextSafe(controlRenderer_, fontSmall_, timelineCueRect,
                  timelineCue ? cueSummaryLabel(timelineCue, timelineCueIndex, "No cue loaded") : "No cue loaded",
                  pal.fg);
-    SDL_Rect timelineClockRect {timelineInfoRect.x, timelineInfoRect.y + 24, timelineInfoRect.w, 24};
+    // Directly under the cue name, whatever height that row turned out to be.
+    SDL_Rect timelineClockRect {timelineInfoRect.x, timelineCueRect.y + timelineCueRect.h,
+                                timelineInfoRect.w, tlClockH};
     std::string timelineClock = timelineCue == activeCue && timelineDuration > 0.0
       ? (formatSeconds(timelinePlaySeconds) + " / " + formatSeconds(timelineDuration))
       : (timelineDuration > 0.0 ? formatSeconds(timelineDuration) : "--:--");
@@ -1284,7 +1293,8 @@
       countdownInk = countdownCritical ? SDL_Color {255, 252, 244, 255} : SDL_Color {28, 16, 6, 255};
     }
     drawUIPanel(countdownRect, countdownFill, countdownDeep, countdownEdge);
-    SDL_Rect countdownLabelRect {countdownRect.x + 10, countdownRect.y + 4, countdownRect.w - 20, 22};
+    SDL_Rect countdownLabelRect {countdownRect.x + uiScaled(10), countdownRect.y + uiScaled(4),
+                                 countdownRect.w - uiScaled(20), tlLineH};
     drawTextSafe(controlRenderer_, fontSmall_, countdownLabelRect,
                  countdownActive ? "REMAINING" : "READY", countdownLabelInk);
     std::string countdownText = countdownActive ? ("-" + formatSeconds(remaining)) : "--:--";
@@ -1302,7 +1312,11 @@
         countdownFont = fontSmall_;
       }
     }
-    SDL_Rect countdownValueRect {countdownRect.x + 8, countdownRect.y + 18, countdownRect.w - 16, countdownRect.h - 22};
+    SDL_Rect countdownValueRect {countdownRect.x + uiScaled(8),
+                                 countdownLabelRect.y + countdownLabelRect.h,
+                                 countdownRect.w - uiScaled(16),
+                                 std::max(uiScaled(18),
+                                          countdownRect.h - uiScaled(4) - tlLineH)};
     drawCenteredTextSafe(controlRenderer_, countdownFont, countdownValueRect, countdownText, countdownInk);
 
     SDL_Rect videoLaneOuter {x, timelineTopY + kTimelineHeaderH + 2, innerW, videoLaneH};
@@ -3325,15 +3339,9 @@
               break;
             }
           }
-          SDL_Rect endBtn {ctrl.x + 10, ry, kCtrlW - 20, 30};
-          Primitives::drawFramedPanel(controlRenderer_, endBtn, pal.light,
-                                      pal.deep, pal.mid);
-          std::string endLabel = "end: " + std::string(mixedEnd ? "mixed" : cueEndActionLabel(endAction)) + "  [X cycle]";
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
-                       fitInspectorText(fontSmall_, endLabel, endBtn.w - 24),
-                       pal.deep);
-          quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "Cycle end action for selected cues"});
+          inspDrawValueRow(ix, ry, "end action", std::string(mixedEnd ? "mixed" : cueEndActionLabel(endAction)),
+                           QuickAction::CycleEndAction,
+                           "Cycle end action for selected cues");
           ry += kRowStep;
 
           drawQuickRow(ry, "repeats", QuickAction::LoopCountDec,
@@ -3404,20 +3412,11 @@
                      "Toggle transition-to-next for selected cues");
         ry += kRowStep;
 
-        SDL_Rect gotoBox {ctrl.x + 10, ry, kCtrlW - 80, 26};
-        SDL_Rect gotoEdit {ctrl.x + kCtrlW - 64, ry, 54, 26};
         std::string gotoDisplay = stringMixedLabel([&](const Cue& cue) { return cue.gotoTarget; }, "(next cue)");
-        Primitives::drawFramedPanel(controlRenderer_, gotoBox, pal.light,
-                                    pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {gotoBox.x + 6, gotoBox.y, gotoBox.w - 12, gotoBox.h},
-                     fitInspectorText(fontSmall_, gotoDisplay, gotoBox.w - 16),
-                     pal.deep);
-        Primitives::drawFramedPanel(controlRenderer_, gotoEdit, pal.dark,
-                                    pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, gotoEdit, "goto", pal.light);
-        quickButtons_.push_back({gotoEdit, QuickAction::EditGotoTarget, "Set goto target for selected cues"});
-        ry += kRowStep;
+        ry = inspDrawEditableRow(ix, ry, "goto target", gotoDisplay,
+                                 QuickAction::EditGotoTarget,
+                                 "Set goto target for selected cues",
+                                 pal.deep);
 
         if (allLowerThird) {
           drawQuickRow(ry, "bg alpha", QuickAction::LowerBgDec,
@@ -3437,35 +3436,17 @@
         quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "Cycle color tag for selected cues"});
         ry += kRowStep;
 
-        SDL_Rect notesBox {ctrl.x + 10, ry, kCtrlW - 80, 26};
-        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, ry, 54, 26};
         std::string notesDisplay = stringMixedLabel([&](const Cue& cue) { return cue.notes; }, "(no notes)");
-        Primitives::drawFramedPanel(controlRenderer_, notesBox, pal.light,
-                                    pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {notesBox.x + 6, notesBox.y, notesBox.w - 12, notesBox.h},
-                     fitInspectorText(fontSmall_, notesDisplay, notesBox.w - 16),
-                     colorFromRgba(notesDisplay == "(no notes)" ? kScreenInkSoftColor : kScreenDeepColor));
-        Primitives::drawFramedPanel(controlRenderer_, notesEdit, pal.dark,
-                                    pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, notesEdit, "edit", pal.light);
-        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Edit notes for selected cues"});
-        ry += kRowStep;
+        ry = inspDrawEditableRow(ix, ry, "notes", notesDisplay,
+                                 QuickAction::EditNotes,
+                                 "Edit notes for selected cues",
+                                 colorFromRgba(notesDisplay == "(no notes)" ? kScreenInkSoftColor : kScreenDeepColor));
 
-        SDL_Rect cueIdBox {ctrl.x + 10, ry, kCtrlW - 80, 26};
-        SDL_Rect cueIdEdit {ctrl.x + kCtrlW - 64, ry, 54, 26};
         std::string cueIdDisplay = stringMixedLabel([&](const Cue& cue) { return cue.cueId; }, "(none)");
-        Primitives::drawFramedPanel(controlRenderer_, cueIdBox, pal.light,
-                                    pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {cueIdBox.x + 6, cueIdBox.y, cueIdBox.w - 12, cueIdBox.h},
-                     fitInspectorText(fontSmall_, cueIdDisplay, cueIdBox.w - 16),
-                     pal.deep);
-        Primitives::drawFramedPanel(controlRenderer_, cueIdEdit, pal.dark,
-                                    pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, cueIdEdit, "edit", pal.light);
-        quickButtons_.push_back({cueIdEdit, QuickAction::EditCueNumber, "Set cue ID for selected cues"});
-        ry += kRowStep;
+        ry = inspDrawEditableRow(ix, ry, "cue id", cueIdDisplay,
+                                 QuickAction::EditCueNumber,
+                                 "Set cue ID for selected cues",
+                                 pal.deep);
       }
       finishInspectorSection(playbackSection, ry);
 
@@ -3541,44 +3522,29 @@
         }
       }
       // loop / hold toggles side by side
+      // Two questions, two rows -- they were half-width pills each carrying
+      // its own question ("loop: off"), so the eye had to read the whole
+      // pill to learn what it was about and read it again for the answer.
       {
-        int rx = ctrl.x + 10;
-        int ty = ry + kRowStep * 7;
-        int halfW = (kCtrlW - 24) / 2;
-        SDL_Rect loopBtn {rx, ty, halfW, 30};
-        SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
-        SDL_Color loopFill = selectedCue->loop ? pal.light : pal.tile;
-        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.light : pal.tile;
-        SDL_Color loopInk  = selectedCue->loop ? pal.deep : pal.fg;
-        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? pal.deep : pal.fg;
-        Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {loopBtn.x + 6, loopBtn.y, loopBtn.w - 12, loopBtn.h},
-                     fitInspectorText(fontSmall_,
-                                      std::string("loop: ") + (selectedCue->loop ? "on" : "off"),
-                                      loopBtn.w - 16),
-                     loopInk);
-        quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this cue continuously"});
-        Primitives::drawFramedPanel(controlRenderer_, holdBtn, holdFill, pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {holdBtn.x + 6, holdBtn.y, holdBtn.w - 12, holdBtn.h},
-                     fitInspectorText(fontSmall_,
-                                      std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"),
-                                      holdBtn.w - 16),
-                     holdInk);
-        quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — freeze on last frame instead of stopping"});
+        int togY = ry + kRowStep * 7;
+        inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
+                         selectedCue->loop ? "on" : "off", QuickAction::ToggleLoop,
+                         QuickAction::ToggleLoop, true, selectedCue->loop,
+                         "L - loop this cue continuously");
+        togY += ix.rowStep;
+        inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
+                         selectedCue->pauseOnLastFrame ? "on" : "off",
+                         QuickAction::ToggleHold, QuickAction::ToggleHold, true,
+                         selectedCue->pauseOnLastFrame,
+                         "E - freeze on last frame instead of stopping");
       }
-      SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 8, kCtrlW - 20, 30};
-      Primitives::drawFramedPanel(controlRenderer_, endBtn, pal.light, pal.deep, pal.mid);
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
-                   fitInspectorText(fontSmall_,
-                                    "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
-                                    endBtn.w - 24),
-                   pal.deep);
-      quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action: stop / next / loop"});
+      // Slot 9: loop and hold now take a row each (7 and 8) instead of sharing
+      // one, so everything below them moved down by one.
+      inspDrawValueRow(ix, ry + kRowStep * 9, "end action", cueEndActionLabel(selectedCue->endAction),
+                       QuickAction::CycleEndAction,
+                       "X — cycle end action: stop / next / loop");
       {
-        int rowCursor = 9;
+        int rowCursor = 10;
         std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
         drawQuickRow(ry + kRowStep * rowCursor, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
                      QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
@@ -3609,19 +3575,11 @@
         rowCursor += 1;
 
         int gotoY = ry + kRowStep * rowCursor;
-        SDL_Rect gotoBox {ctrl.x + 10, gotoY, kCtrlW - 80, 26};
-        SDL_Rect gotoEdit {ctrl.x + kCtrlW - 64, gotoY, 54, 26};
         std::string gotoDisplay = selectedCue->gotoTarget.empty() ? "(next cue)" : selectedCue->gotoTarget;
-        Primitives::drawFramedPanel(controlRenderer_, gotoBox, pal.light,
-                                    pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {gotoBox.x + 6, gotoBox.y, gotoBox.w - 12, gotoBox.h},
-                     fitInspectorText(fontSmall_, gotoDisplay, gotoBox.w - 16),
-                     pal.deep);
-        Primitives::drawFramedPanel(controlRenderer_, gotoEdit, pal.dark,
-                                    pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, gotoEdit, "goto", pal.light);
-        quickButtons_.push_back({gotoEdit, QuickAction::EditGotoTarget, "Set cue token to jump to when cue ends"});
+        (void)inspDrawEditableRow(ix, gotoY, "goto target", gotoDisplay,
+         QuickAction::EditGotoTarget,
+         "Set cue token to jump to when cue ends",
+         pal.deep);
         rowCursor += 1;
 
         std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
@@ -3636,17 +3594,11 @@
         rowCursor += 1;
 
         int notesY = ry + kRowStep * rowCursor;
-        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
-        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
-        Primitives::drawFramedPanel(controlRenderer_, notesBox, pal.light, pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {notesBox.x + 6, notesBox.y, notesBox.w - 12, notesBox.h},
-                     fitInspectorText(fontSmall_, notesDisplay, notesBox.w - 16),
-                     colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
-        Primitives::drawFramedPanel(controlRenderer_, notesEdit, pal.dark, pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, notesEdit, "edit", pal.light);
-        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+        (void)inspDrawEditableRow(ix, notesY, "notes", notesDisplay,
+         QuickAction::EditNotes,
+         "Click to edit cue notes",
+         colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
         rowCursor += 1;
 
         int cnY = ry + kRowStep * rowCursor;
@@ -3800,13 +3752,9 @@
                      selectedCue->pauseOnLastFrame,
                      "Hold on the last composite frame when the scene ends");
         playbackY += kRowStep;
-        SDL_Rect endBtn {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
-        drawUIPanel(endBtn, pal.light, pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
-                     "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
-                     pal.deep);
-        quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+        inspDrawValueRow(ix, playbackY, "end action", cueEndActionLabel(selectedCue->endAction),
+                         QuickAction::CycleEndAction,
+                         "X — cycle end action");
         playbackY += kRowStep;
       }
       finishInspectorSection(playbackSection, playbackY);
@@ -4075,43 +4023,28 @@
                      QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration before next cue");
         playbackY += kRowStep;
 
+        // Two questions, two rows -- they were half-width pills each carrying
+        // its own question ("loop: off"), so the eye had to read the whole
+        // pill to learn what it was about and read it again for the answer.
         {
-          int rx = ctrl.x + 10;
-          int halfW = (kCtrlW - 24) / 2;
-          SDL_Rect loopBtn {rx, playbackY, halfW, 30};
-          SDL_Rect holdBtn {rx + halfW + 4, playbackY, halfW, 30};
-          SDL_Color loopFill = selectedCue->loop ? pal.light : pal.tile;
-          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.light : pal.tile;
-          SDL_Color loopInk = selectedCue->loop ? pal.deep : pal.fg;
-          SDL_Color holdInk = selectedCue->pauseOnLastFrame ? pal.deep : pal.fg;
-          drawUIPanel(loopBtn, loopFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {loopBtn.x + 6, loopBtn.y, loopBtn.w - 12, loopBtn.h},
-                       fitInspectorText(fontSmall_,
-                                        std::string("loop: ") + (selectedCue->loop ? "on" : "off"),
-                                        loopBtn.w - 16),
-                       loopInk);
-          quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this cue"});
-          drawUIPanel(holdBtn, holdFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {holdBtn.x + 6, holdBtn.y, holdBtn.w - 12, holdBtn.h},
-                       fitInspectorText(fontSmall_,
-                                        std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"),
-                                        holdBtn.w - 16),
-                       holdInk);
-          quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold on this cue indefinitely"});
+          int togY = playbackY;
+          inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
+                           selectedCue->loop ? "on" : "off", QuickAction::ToggleLoop,
+                           QuickAction::ToggleLoop, true, selectedCue->loop,
+                           "L - loop this cue continuously");
+          togY += ix.rowStep;
+          inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
+                           selectedCue->pauseOnLastFrame ? "on" : "off",
+                           QuickAction::ToggleHold, QuickAction::ToggleHold, true,
+                           selectedCue->pauseOnLastFrame,
+                           "E - freeze on last frame instead of stopping");
         }
-        playbackY += kRowStep;
+        // Two rows now, not one: loop and hold each take their own.
+        playbackY += kRowStep * 2;
 
-        SDL_Rect endBtn {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
-        drawUIPanel(endBtn, pal.light, pal.deep, pal.mid);
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
-                     fitInspectorText(fontSmall_,
-                                      "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
-                                      endBtn.w - 24),
-                     pal.deep);
-        quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+        inspDrawValueRow(ix, playbackY, "end action", cueEndActionLabel(selectedCue->endAction),
+                         QuickAction::CycleEndAction,
+                         "X — cycle end action");
         playbackY += kRowStep;
 
         std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
@@ -4305,44 +4238,28 @@
                        "Out-point: cue stops playback here");
         }
         playbackY += kRowStep;
+        // Two questions, two rows -- they were half-width pills each carrying
+        // its own question ("loop: off"), so the eye had to read the whole
+        // pill to learn what it was about and read it again for the answer.
         {
-          int rx = ctrl.x + 10;
-          int ty = playbackY;
-          int halfW = (kCtrlW - 24) / 2;
-          SDL_Rect loopBtn {rx, ty, halfW, 30};
-          SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
-          SDL_Color loopFill = selectedCue->loop ? pal.light : pal.tile;
-          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? pal.light : pal.tile;
-          SDL_Color loopInk  = selectedCue->loop ? pal.deep : pal.fg;
-          SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? pal.deep : pal.fg;
-          drawUIPanel(loopBtn, loopFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {loopBtn.x + 6, loopBtn.y, loopBtn.w - 12, loopBtn.h},
-                       fitInspectorText(fontSmall_,
-                                        std::string("loop: ") + (selectedCue->loop ? "on" : "off"),
-                                        loopBtn.w - 16),
-                       loopInk);
-          quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this audio"});
-          drawUIPanel(holdBtn, holdFill, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {holdBtn.x + 6, holdBtn.y, holdBtn.w - 12, holdBtn.h},
-                       fitInspectorText(fontSmall_,
-                                        std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"),
-                                        holdBtn.w - 16),
-                       holdInk);
-          quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold at end"});
+          int togY = playbackY;
+          inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
+                           selectedCue->loop ? "on" : "off", QuickAction::ToggleLoop,
+                           QuickAction::ToggleLoop, true, selectedCue->loop,
+                           "L - loop this cue continuously");
+          togY += ix.rowStep;
+          inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
+                           selectedCue->pauseOnLastFrame ? "on" : "off",
+                           QuickAction::ToggleHold, QuickAction::ToggleHold, true,
+                           selectedCue->pauseOnLastFrame,
+                           "E - freeze on last frame instead of stopping");
         }
-        playbackY += kRowStep;
+        // Two rows now, not one: loop and hold each take their own.
+        playbackY += kRowStep * 2;
         {
-          SDL_Rect endBtn {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
-          drawUIPanel(endBtn, pal.light, pal.deep, pal.mid);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
-                       fitInspectorText(fontSmall_,
-                                        "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
-                                        endBtn.w - 24),
-                       pal.deep);
-          quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+          inspDrawValueRow(ix, playbackY, "end action", cueEndActionLabel(selectedCue->endAction),
+                           QuickAction::CycleEndAction,
+                           "X — cycle end action");
         }
         playbackY += kRowStep;
         {

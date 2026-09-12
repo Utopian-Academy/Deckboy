@@ -5079,14 +5079,17 @@ class App {
     SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
     SDL_Rect valueRect {labelRect.x + labelRect.w + kGap, rowY, valueW, ix.rowH};
     SDL_Rect editRect {valueRect.x + valueRect.w + kGap, rowY, kEditW, ix.rowH};
-    drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.inkSoft);
+    drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
     drawUIPanel(valueRect, pal.light, pal.deep, pal.mid);
-    SDL_Rect valueTextRect {valueRect.x + 6, valueRect.y, valueRect.w - 12, valueRect.h};
+    SDL_Rect valueTextRect {valueRect.x + uiScaled(6), valueRect.y,
+                            valueRect.w - uiScaled(12), valueRect.h};
     std::string displayValue = ix.ellipsize
       ? ellipsizeToPixelWidth(ix.valueFont, value, valueTextRect.w) : value;
     drawTextSafe(controlRenderer_, ix.valueFont, valueTextRect, displayValue, valueColor);
-    drawUIPanel(editRect, pal.dark, pal.deep, pal.mid);
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, editRect, "edit", pal.light);
+    // A flat action button, like every other one now: pal.dark filled with
+    // pal.light ink was the inverted pairing that measured worst on the page.
+    drawUIPanel(editRect, pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, editRect, "edit", pal.fg);
     quickButtons_.push_back({editRect, action, tip});
     return rowY + ix.rowStep;
   }
@@ -5099,9 +5102,10 @@ class App {
     int valueW = std::max(ix.ellipsize ? 84 : 72, contentW - labelW - gap);
     SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
     SDL_Rect valueRect {labelRect.x + labelRect.w + gap, rowY, valueW, ix.rowH};
-    drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.inkSoft);
+    drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
     drawUIPanel(valueRect, pal.light, pal.deep, pal.mid);
-    SDL_Rect valueTextRect {valueRect.x + 6, valueRect.y, valueRect.w - 12, valueRect.h};
+    SDL_Rect valueTextRect {valueRect.x + uiScaled(6), valueRect.y,
+                            valueRect.w - uiScaled(12), valueRect.h};
     SDL_Color valueColor = warning ? SDL_Color {140, 40, 20, 255} : pal.deep;
     std::string displayValue = ix.ellipsize
       ? ellipsizeToPixelWidth(ix.valueFont, value, valueTextRect.w) : value;
@@ -5126,7 +5130,9 @@ class App {
     drawTextSafe(controlRenderer_, ix.valueFont,
                  SDL_Rect {hexRect.x + 6, hexRect.y, hexRect.w - 12, hexRect.h},
                  colorToHex(cue.chromaKeyColor), pal.deep);
-    drawUIPanel(editRect, pal.dark, pal.deep, pal.mid);
+    // A flat action button, like every other one now: pal.dark filled with
+    // pal.light ink was the inverted pairing that measured worst on the page.
+    drawUIPanel(editRect, pal.tile, pal.deep, pal.mid);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, editRect, "HEX", pal.light);
     SDL_Color pickFill = keyColorPickerArmed_ ? pal.dark : pal.mid;
     SDL_Color pickInk = keyColorPickerArmed_ ? pal.light : pal.deep;

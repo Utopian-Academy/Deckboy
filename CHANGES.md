@@ -1,5 +1,20 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.344 (rows that know what they are)
+
+**The inspector's last unlabelled controls have labels.** Notes, cue id and goto
+target were a value box and a button with no question anywhere — you had to know
+what they were. Loop and hold were half-width pills each carrying their own
+question ("loop: off"), so the eye read the whole pill to learn the subject and
+read it again for the answer. End action was a full-width pill reading
+"end: inherit  [X cycle]", with the keyboard hint spliced into the value. All of
+them are now the same label-left, control-right row as everything else, and the
+five hand-written copies of the editable-row shape go through the one helper.
+
+**The timeline header fits its own text.** The header grew with the UI scale while
+the cue name and the clock under it stayed at fixed offsets, so at 150% they ran
+together. Both rows are now sized from the faces that draw them.
+
 ## 2026-09-12 - v0.99.343 (a clock, a readable meter, and a licence GitHub can read)
 
 **An optional wall clock.** Off by default — the toolbar belongs to the show —
