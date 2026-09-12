@@ -225,6 +225,7 @@
               masterFaderDragActive_ = false;
               motionDriverScrubActive_ = false;
               lfoDrawActive_ = false;
+              cueSettingsScrollDragActive_ = false;
               vjCrossfaderDragActive_ = false;
               deckOpacityDragIndex_ = -1;
               trimDragMode_ = TrimDragMode::None;

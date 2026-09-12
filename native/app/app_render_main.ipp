@@ -4667,6 +4667,9 @@
       // EFFECTS' header met with nothing between them, which is exactly the
       // state an operator collapses their way into to get down here.
       int fxY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      // Recorded in CONTENT space (scroll added back), so it means the same
+      // thing whatever the panel is currently scrolled to.
+      inspectorEffectsSectionY_ = fxY + cueSettingsScroll_;
       auto fxSection = beginInspectorSection(fxY, "EFFECTS", cueSectionEffectsOpen_,
                                              QuickAction::CueSectionEffectsToggle,
                                              "Collapse/expand per-cue effects");
@@ -4716,6 +4719,15 @@
       settingsContentLogicalBottom, inspectorSectionBottomMax_ + cueSettingsScroll_);
     int viewportBottom = cueSettingsViewportRect_.y + cueSettingsViewportRect_.h;
     cueSettingsScrollMax_ = std::max(0, settingsContentLogicalBottom - viewportBottom + 6);
+    // WHERE THE EFFECTS SECTION ENDED UP, so a scripted capture can scroll to
+    // it instead of guessing a pixel offset. Scripted input does not reach
+    // SDL3, and a screenshot of the wrong part of a scrolling panel is how a
+    // control ships unlooked-at.
+    if (auditSettingsLayout_) {
+      std::cerr << "inspector scroll_max=" << cueSettingsScrollMax_
+                << " effects_at=" << inspectorEffectsSectionY_
+                << " scroll_now=" << cueSettingsScroll_ << std::endl;
+    }
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
     if (cueSettingsScrollMax_ > 0 && cueSettingsViewportRect_.h > 10) {
       SDL_Rect rail {
@@ -4734,6 +4746,18 @@
       SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
       Primitives::drawFramedPanel(controlRenderer_, thumb, pal.dark,
                       pal.deep, pal.light);
+      // GRABBABLE. This was a picture of a scrollbar: it sized itself
+      // correctly and moved with the wheel, and nothing in the program
+      // handled a press on it -- so the one thing an operator instinctively
+      // reaches for on a panel this long did nothing at all.
+      //
+      // Published for the input layer, widened to something a mouse can
+      // actually hit: four pixels is a drawing, not a target.
+      cueSettingsScrollRailRect_ = SDL_Rect {rail.x - 6, rail.y,
+                                             rail.w + 12, rail.h};
+      cueSettingsScrollThumbH_ = thumbH;
+    } else {
+      cueSettingsScrollRailRect_ = SDL_Rect {0, 0, 0, 0};
     }
 
     // Progress bar tip

@@ -745,6 +745,20 @@
       return;
     }
 
+    // THE INSPECTOR'S SCROLLBAR. Before the quick buttons, because it overlaps
+    // the panel's right edge and a control underneath it would otherwise steal
+    // the press.
+    //
+    // Clicking anywhere on the rail jumps there and starts a drag, which is
+    // what every scrollbar does and what an operator will try first on a panel
+    // this long.
+    if (cueSettingsScrollRailRect_.w > 0 && cueSettingsScrollMax_ > 0 &&
+        pointInRect(x, y, cueSettingsScrollRailRect_)) {
+      cueSettingsScrollDragActive_ = true;
+      scrollInspectorToPointer(y);
+      return;
+    }
+
     // The LFO scribble pad, for the same reason as the driver bar above: WHERE
     // you pressed is the value, and a quick button only knows that it was hit.
     // Claimed before the button list so the first touch already draws.
@@ -822,6 +836,10 @@
   }
 
   void handleMouseMotion(int x, int y) {
+    if (cueSettingsScrollDragActive_) {
+      scrollInspectorToPointer(y);
+      return;
+    }
     if (lfoDrawActive_) {
       lfoDrawInto(x, y);
       return;

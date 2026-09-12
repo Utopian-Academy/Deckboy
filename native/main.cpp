@@ -4136,6 +4136,23 @@ class App {
     markProjectDirty();
   }
 
+  // Put the inspector where the pointer is on the rail.
+  //
+  // Centres the thumb on the cursor rather than treating the press as a grab
+  // offset: on a rail this short the thumb is most of it, and "jump to where I
+  // clicked" is both what people expect and the only behaviour that can reach
+  // the ends.
+  void scrollInspectorToPointer(int y) {
+    if (cueSettingsScrollRailRect_.h <= 0 || cueSettingsScrollMax_ <= 0) {
+      return;
+    }
+    const int travel = std::max(1, cueSettingsScrollRailRect_.h - cueSettingsScrollThumbH_);
+    const int from = cueSettingsScrollRailRect_.y + cueSettingsScrollThumbH_ / 2;
+    const double frac = std::clamp(
+      static_cast<double>(y - from) / static_cast<double>(travel), 0.0, 1.0);
+    cueSettingsScroll_ = static_cast<int>(std::lround(frac * cueSettingsScrollMax_));
+  }
+
   void debugAuditSettingsLayout() { auditSettingsLayout_ = true; }
 
   void debugPokeMascot(int pokes) {
@@ -4859,6 +4876,10 @@ class App {
                                "Draw the shape -- drag across to scribble a wave",
                                packed});
       rowY += padH + 4;
+      // NOT the -4 below. That tightening exists because the sync row is
+      // shorter than a full row; after the pad it pulls the next section up
+      // over the curve, which is what clipped the top of it.
+      return rowY;
     }
     return rowY - 4;
   }
@@ -8181,6 +8202,11 @@ class App {
   size_t cueSettingsQuickButtonStartIndex_ = 0;
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
+  // The inspector's scrollbar, published by the renderer so the input layer can
+  // let an operator drag it. Empty when there is nothing to scroll.
+  SDL_Rect cueSettingsScrollRailRect_ {0, 0, 0, 0};
+  int cueSettingsScrollThumbH_ = 0;
+  bool cueSettingsScrollDragActive_ = false;
   int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
   std::string uiDumpPath_;            // --ui-dump <file>, written once then quit
   int uiDumpFramesLeft_ = 0;
@@ -8711,6 +8737,9 @@ class App {
   // One-shot request to report overlapping settings controls; see the audit at
   // the end of renderSettingsModal.
   bool auditSettingsLayout_ = false;
+  // Where the EFFECTS section sits in the inspector's content, so a scripted
+  // capture can scroll straight to it. Runtime only.
+  int inspectorEffectsSectionY_ = 0;
   struct SettingsCardRect { SDL_Rect rect; std::string title; };
   std::vector<SettingsCardRect> settingsCards_;
 
