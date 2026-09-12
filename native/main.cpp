@@ -117,6 +117,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <deque>
 #include <filesystem>
 #include <fstream>
@@ -7849,6 +7850,9 @@ class App {
   // appears, so this is for an operator who wants a themed machine without the
   // company -- not a guard against surprise.
   static constexpr int kSettingsActionCreaturesToggle = 784;
+  // Off -> 24-hour -> 12-hour -> analogue -> off. Four states, one control:
+  // offering only "on" would make somebody's clock convention the default.
+  static constexpr int kSettingsActionClockCycle = 790;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;

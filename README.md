@@ -270,6 +270,17 @@ importantly, what each feature deliberately does not do.
 
 ---
 
+## License
+
+Deckboy is free software under the **GNU General Public License v3.0 or later**.
+Copyright © 2026 Deckboy Contributors. The full text is in [LICENSE](LICENSE).
+
+Bundled components keep their own licences — ffmpeg ships with its LGPL/GPL
+notice beside the binary, and the NDI and DeckLink SDKs are loaded at runtime
+rather than distributed.
+
+---
+
 ## Contributing
 
 Deckboy is built in the open and contributions are welcome — code, bug reports,

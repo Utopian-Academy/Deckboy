@@ -648,6 +648,116 @@
       bool isFullscreen = isAnyOutputFullscreen();
       constexpr int kIconBtnW = 44;
 
+      // ─── The wall clock ────────────────────────────────────────────────
+      //
+      // OFF BY DEFAULT. The toolbar belongs to the show, and most operators
+      // have a clock on the wall behind them; this is for the ones who do not.
+      //
+      // Rightmost, so it never moves. Everything else on this end of the bar
+      // comes and goes with the state of the show -- the record badge, the
+      // input meter -- and a clock that shuffles sideways when a recording
+      // starts is a clock you have to find again.
+      //
+      // Four states from one control: off, 24-hour, 12-hour, and a round face.
+      // Offering only "on" would make somebody's convention the default, and a
+      // lot of desks genuinely do have an analogue clock on them.
+      {
+        const std::string clockMode =
+          project_.clockMode.empty() ? std::string("off") : project_.clockMode;
+        if (clockMode != "off") {
+          const std::time_t now = std::time(nullptr);
+          std::tm local {};
+#ifdef _WIN32
+          localtime_s(&local, &now);
+#else
+          localtime_r(&now, &local);
+#endif
+          if (clockMode == "analog") {
+            // A round face the height of the toolbar row. Small, but the
+            // question it answers -- roughly what time is it -- does not need
+            // precision, and the second hand is what tells you it is live.
+            const int dia = kTBtnH;
+            SDL_Rect face {rx - dia, ty, dia, dia};
+            rx -= dia + kTBtnGap;
+            drawUIPanel(face, pal.light, pal.deep, pal.mid);
+            const int cxp = face.x + face.w / 2;
+            const int cyp = face.y + face.h / 2;
+            const double r = dia / 2.0 - uiScaled(3);
+            // A BEZEL, so it reads as a clock and not as three lines in a box.
+            // Drawn as a ring of short chords: SDL has no circle, and at this
+            // size 48 segments is already smoother than the pixels can show.
+            SDL_SetRenderDrawColor(controlRenderer_, pal.deep.r, pal.deep.g, pal.deep.b, 255);
+            {
+              constexpr int kSeg = 48;
+              float px = 0.0f, py = 0.0f;
+              for (int i = 0; i <= kSeg; ++i) {
+                const double a = i * 2.0 * 3.14159265358979 / kSeg;
+                const float nx = static_cast<float>(cxp + std::sin(a) * r);
+                const float ny = static_cast<float>(cyp - std::cos(a) * r);
+                if (i > 0) SDL_RenderLine(controlRenderer_, px, py, nx, ny);
+                px = nx; py = ny;
+              }
+            }
+            // Quarter ticks only. At this size twelve of them is a smudge.
+            for (int t = 0; t < 4; ++t) {
+              const double a = t * 3.14159265358979 / 2.0;
+              const double sx = std::sin(a) * r, sy = -std::cos(a) * r;
+              SDL_RenderLine(controlRenderer_,
+                             static_cast<float>(cxp + sx * 0.72), static_cast<float>(cyp + sy * 0.72),
+                             static_cast<float>(cxp + sx * 0.92), static_cast<float>(cyp + sy * 0.92));
+            }
+            auto hand = [&](double turns, double len, SDL_Color col, int thick) {
+              const double a = turns * 2.0 * 3.14159265358979;
+              const double hx = std::sin(a) * r * len;
+              const double hy = -std::cos(a) * r * len;
+              SDL_SetRenderDrawColor(controlRenderer_, col.r, col.g, col.b, 255);
+              for (int o = 0; o < thick; ++o) {
+                // Thickness by drawing neighbouring lines: SDL has no width.
+                const int off = o - thick / 2;
+                SDL_RenderLine(controlRenderer_,
+                               static_cast<float>(cxp + off), static_cast<float>(cyp),
+                               static_cast<float>(cxp + hx + off), static_cast<float>(cyp + hy));
+              }
+            };
+            const double secs = local.tm_sec;
+            const double mins = local.tm_min + secs / 60.0;
+            const double hours = (local.tm_hour % 12) + mins / 60.0;
+            hand(hours / 12.0, 0.48, pal.deep, std::max(2, uiScaled(2)));
+            hand(mins / 60.0,  0.68, pal.deep, std::max(1, uiScaled(2) - 1));
+            hand(secs / 60.0,  0.76, SDL_Color{200, 60, 60, 255}, 1);
+            if (pointInRect(mouseX_, mouseY_, face)) {
+              toolbarHoverTip_ = "Wall clock - change or hide it in Settings > System > Appearance";
+              toolbarHoverAt_ = face;
+            }
+          } else {
+            char stamp[32];
+            if (clockMode == "12h") {
+              const int h12 = (local.tm_hour % 12) == 0 ? 12 : (local.tm_hour % 12);
+              std::snprintf(stamp, sizeof(stamp), "%d:%02d:%02d %s", h12,
+                            local.tm_min, local.tm_sec,
+                            local.tm_hour < 12 ? "AM" : "PM");
+            } else {
+              std::snprintf(stamp, sizeof(stamp), "%02d:%02d:%02d",
+                            local.tm_hour, local.tm_min, local.tm_sec);
+            }
+            // Sized to the widest reading it can ever show, not to the current
+            // one -- a clock whose box changes width as the digits change is a
+            // clock that twitches once a second.
+            const char* widest = (clockMode == "12h") ? "12:00:00 PM" : "00:00:00";
+            const int clockW = measuredTextWidth(fontMono_, widest) + uiScaled(16);
+            SDL_Rect clockRect {rx - clockW, ty, clockW, kTBtnH};
+            rx -= clockW + kTBtnGap;
+            drawUIPanel(clockRect, pal.light, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontMono_, clockRect, stamp, pal.deep);
+            if (pointInRect(mouseX_, mouseY_, clockRect)) {
+              toolbarHoverTip_ = "Wall clock - change or hide it in Settings > System > Appearance";
+              toolbarHoverAt_ = clockRect;
+            }
+          }
+        }
+      }
+
+
       // ─── Recording indicator ───────────────────────────────────────────
       // On the TOOLBAR, not in the settings modal. An operator running a show
       // is on the deck firing cues -- nobody sits in a settings page during a
@@ -1577,7 +1687,12 @@
     const bool showActionStrip = row.w >= actionStripW + kCueStripMargin + 24;
     const int actionStripX = row.x + row.w - actionStripW - kCueStripMargin;
 
-    SDL_Rect thumbBox {row.x + 50, row.y + (row.h - 38) / 2, 68, 38};
+    // The still keeps its 16:9 shape and grows with the row. It was a fixed
+    // 68x38 in a row that now scales, so at a 1.5x desktop it was a postage
+    // stamp beside text half again as large.
+    const int thumbH = uiScaled(38);
+    SDL_Rect thumbBox {row.x + uiScaled(50), row.y + (row.h - thumbH) / 2,
+                       thumbH * 16 / 9, thumbH};
     if (showRowThumb && cueUsesFilesystemMedia(cue) &&
         (cue.kind == CueKind::Video || cue.kind == CueKind::Image) &&
         thumbBox.w > 8 && thumbBox.h > 6) {
@@ -1682,8 +1797,9 @@
     SDL_Color subInk = isLive ? pal.mid : (isSelected ? pal.dark : pal.fgSoft);
 
     // Indicator area (vertically centered in row)
-    int indSize = 36;
-    SDL_Rect indicatorRect {row.x + 10, row.y + (row.h - indSize) / 2, indSize, indSize};
+    int indSize = uiScaled(36);
+    SDL_Rect indicatorRect {row.x + uiScaled(10), row.y + (row.h - indSize) / 2,
+                            indSize, indSize};
     if (isLive) {
       drawUIPanel(indicatorRect, pal.dark, pal.light, pal.mid);
       if (uiBtnPlay_.texture) {
@@ -1958,9 +2074,11 @@
         std::string remStr = "-" + formatSeconds(remaining);
         int remTextW = 0, remTextH = 0;
         TTF_GetStringSize(fontMono_, remStr.c_str(), remStr.size(), &remTextW, &remTextH);
-        int badgeW = std::max(80, remTextW + 16);
-        badgeW = std::min(badgeW, std::max(80, row.w - 24));  // never overrun the row
-        SDL_Rect badge {row.x + row.w - (badgeW + 4), row.y + 4, badgeW, 24};
+        int badgeW = std::max(uiScaled(80), remTextW + uiScaled(16));
+        badgeW = std::min(badgeW, std::max(uiScaled(80), row.w - uiScaled(24)));
+        SDL_Rect badge {row.x + row.w - (badgeW + uiScaled(4)), row.y + uiScaled(4),
+                        badgeW,
+                        std::max(uiScaled(24), textLineHeight(fontMono_) + uiScaled(4))};
         drawUIPanel(badge, pal.dark, pal.light, pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontMono_, badge, remStr, pal.light);
       }
@@ -2272,13 +2390,16 @@
         // Also scaled: a 24px icon in a doubled button looked like a speck,
         // and the fixed 8px inset left the label starting in the wrong place.
         int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
-        int iconX = button.rect.x + 8;
+        int iconX = button.rect.x + uiScaled(8);
         int iconY = button.rect.y + (button.rect.h - iconSize) / 2;
         SDL_Rect iconRect {iconX, iconY, iconSize, iconSize};
         drawUiImageContainTinted(*icon, iconRect);
-        int textX = iconX + iconSize + 4;
-        int textW = button.rect.x + button.rect.w - textX - 6;
-        SDL_Rect labelRect {textX, button.rect.y + 8, textW, button.rect.h - 14};
+        int textX = iconX + iconSize + uiScaled(4);
+        int textW = button.rect.x + button.rect.w - textX - uiScaled(6);
+        // Centred on the button's full height, like the text-only branch:
+        // the 8-above/14-total inset was a 1x offset and rode the label
+        // high once the font grew.
+        SDL_Rect labelRect {textX, button.rect.y, textW, button.rect.h};
         // Icon+text buttons take the pixel face too, matching the text-only
         // branch below: these are short fixed labels (TAKE, STOP, IMPORT), the
         // half of the UI the pixel font is actually good at.
@@ -2295,7 +2416,10 @@
                                 || button.label.size() > 7)
                               ? fontSmall_ : fontBase_);
         std::string clipped = ellipsizeToPixelWidth(titleFont, button.label, std::max(0, button.rect.w - 10));
-        SDL_Rect titleRect {button.rect.x + 4, button.rect.y + 8, button.rect.w - 8, button.rect.h - 14};
+        // Centred on the button, so the label does not ride high in it when
+        // the font grows: the 8-above/14-total inset was a 1x offset.
+        SDL_Rect titleRect {button.rect.x + uiScaled(4), button.rect.y,
+                            button.rect.w - uiScaled(8), button.rect.h};
         drawCenteredTextSafe(controlRenderer_, titleFont, titleRect, clipped, button.text);
       }
     }

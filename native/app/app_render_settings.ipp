@@ -672,10 +672,11 @@
       // without being added here, so the card kept its old height and the last
       // control drifted across the edge into SAFETY / TIMECODE below -- which
       // is the same way this card ended up a row short once before.
-      // Nine rows, every one the same height now that they all follow the
-      // label-and-control shape.
+      // Ten rows, every one the same height now that they all follow the
+      // label-and-control shape: theme, language, sound effects, hover tips,
+      // Miami cursor, mascot, creatures, clock, UI scale, Pocket 3.
       int appearanceH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH,
-                                sRowH, sRowH, sRowH, sRowH});
+                                sRowH, sRowH, sRowH, sRowH, sRowH});
       int safetyH = stackH({sRowH, sRowH, sRowH, sRowH});
       // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
       // and its row. Grew by a row when VJ mode got a switch.
@@ -822,6 +823,20 @@
                      "OFF");
       settingsBtns_.push_back({critterBtn, kSettingsActionCreaturesToggle,
                                "creatures_toggle"});
+
+      // ── THE WALL CLOCK ────────────────────────────────────────────────
+      //
+      // Off by default. It sits beside the other operator-feedback switches
+      // because that is what it is: nothing about the show changes, the
+      // operator just gets told the time.
+      SDL_Rect clockBtn = settingsRow(appX, appW, appY, sRowH, "Clock", sGap);
+      const std::string clockMode =
+        project_.clockMode.empty() ? std::string("off") : project_.clockMode;
+      drawPillToggle(clockBtn, clockMode != "off",
+                     clockMode == "analog" ? "ANALOG"
+                       : (clockMode == "12h" ? "12 HOUR" : "24 HOUR"),
+                     "OFF");
+      settingsBtns_.push_back({clockBtn, kSettingsActionClockCycle, "clock_cycle"});
       // UI scale dropdown — multiplies every font point size at load, and (as
       // of v0.81.0) the settings chrome scales with it too.
       SDL_Rect scaleBtn = settingsRow(appX, appW, appY, sRowH, "UI scale", sGap);
@@ -4628,6 +4643,24 @@
         // this only flips the intent and lets that decide what has to happen.
         setVjMode(!project_.vjModeEnabled);
         triggerToast(project_.vjModeEnabled ? "vj mode on" : "vj mode off");
+      } else if (sb.action == kSettingsActionClockCycle) {
+        // off -> 24h -> 12h -> analog -> off
+        const std::string was =
+          project_.clockMode.empty() ? std::string("off") : project_.clockMode;
+        if (was == "off") {
+          project_.clockMode = "24h";
+          triggerToast("clock: 24 hour");
+        } else if (was == "24h") {
+          project_.clockMode = "12h";
+          triggerToast("clock: 12 hour");
+        } else if (was == "12h") {
+          project_.clockMode = "analog";
+          triggerToast("clock: analog");
+        } else {
+          project_.clockMode = "off";
+          triggerToast("clock off");
+        }
+        markProjectDirty();
       } else if (sb.action == kSettingsActionCreaturesToggle) {
         // off -> when idle -> always -> off
         if (!project_.creaturesEnabled) {

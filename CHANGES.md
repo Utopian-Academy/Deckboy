@@ -1,5 +1,35 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.343 (a clock, a readable meter, and a licence GitHub can read)
+
+**An optional wall clock.** Off by default — the toolbar belongs to the show —
+and cycled from one control in Settings → System → Appearance: off, 24-hour,
+12-hour, or a round analogue face with a second hand. It sits at the right-hand
+end of the toolbar and stays put, because everything else on that end comes and
+goes with the state of the show and a clock you have to find again is not doing
+its job.
+
+**The VU meter reads.** Every measurement in it was a fixed pixel while the
+numbers in it scaled, so at 150% "-12" and "-48" ran out of their column and were
+cut off rather than fitted. And the L and R sat at a fixed inset instead of being
+centred on the bars they name. The column is now as wide as the widest reading it
+can show, and each channel letter is centred on its own bar.
+
+**GitHub can read the licence.** The LICENSE file held the nineteen-line *notice*
+you put at the top of a source file, not the licence itself — so GitHub's
+detector matched nothing and the project showed no licence at all. It is now the
+full GPL-3.0 text, with a licence section in the README naming the copyright.
+
+**Housekeeping on the public repository.** Six unreferenced splash images (about
+15 MB, including one still carrying the filename its generator gave it) are gone,
+and a Reddit keyword-scanning script that was never part of the product has moved
+out of the public tree.
+
+**The landing page said two things that were not so.** It advertised conversion
+"using NVENC" — one of three GPU encoders Deckboy tries, and absent on every AMD,
+Intel and Apple machine — and claimed "No installer", while the README offers a
+Windows installer with a Start Menu entry and an uninstaller.
+
 ## 2026-09-12 - v0.99.342 (pages that finish their own sentences)
 
 **The keyboard shortcuts page reads.** Its modal, its rows and its key column

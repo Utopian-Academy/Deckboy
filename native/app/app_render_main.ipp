@@ -2169,31 +2169,42 @@
       VuReading vu = computeVuReading();
       drawUIPanel(vuMeterRect, pal.light, pal.deep, pal.mid);
 
-      // VU meter layout zones (top to bottom):
-      //   "VU" header:   22px
-      //   bars + dB:     flexible
-      //   "L" / "R":     18px
-      //   "dB" footer:   18px
-      constexpr int kVuHeaderH = 22;
-      constexpr int kVuFooterLabelH = 18;
-      constexpr int kVuFooterUnitH = 18;
-      constexpr int kVuBottomPad = 4;
-      constexpr int kVuFooterTotal = kVuFooterLabelH + kVuFooterUnitH + 2 + kVuBottomPad;
+      // ── THE METER, SIZED BY ITS OWN TYPE ────────────────────────────────
+      //
+      // Every measurement here was a 1x pixel -- a 22px header, 18px label
+      // rows, a 28px minimum for the dB scale -- while the numbers in them
+      // scaled with the desktop. At 150% "-12" and "-48" ran out of the column
+      // and were CLIPPED rather than fitted, because they were drawn at a
+      // point with a clip rect around them instead of into a rect that knows
+      // how to fit. And the L and R sat at a fixed inset rather than centred
+      // on the bars they name, so they read as belonging to neither.
+      const int vuLineH = std::max(uiScaled(14), textLineHeight(fontSmall_));
+      const int kVuHeaderH = vuLineH + uiScaled(4);
+      const int kVuFooterLabelH = vuLineH;
+      const int kVuFooterUnitH = vuLineH;
+      const int kVuBottomPad = uiScaled(4);
+      const int kVuFooterTotal = kVuFooterLabelH + kVuFooterUnitH + uiScaled(2) + kVuBottomPad;
 
-      // "VU" header
-      drawCenteredText(controlRenderer_, fontSmall_, "VU", pal.deep,
-                       SDL_Rect {vuMeterRect.x, vuMeterRect.y + 2, vuMeterRect.w, kVuHeaderH});
+      drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect {vuMeterRect.x, vuMeterRect.y + uiScaled(2),
+                                     vuMeterRect.w, kVuHeaderH},
+                           "VU", pal.deep);
 
-      // Bars area — give dB scale labels ~40% of width (min 28px) so numbers aren't crushed
-      int barsTop = vuMeterRect.y + kVuHeaderH + 2;
-      int barsH = std::max(40, vuMeterRect.h - kVuHeaderH - 2 - kVuFooterTotal - 2);
-      SDL_Rect meterInner {vuMeterRect.x + 4, barsTop, vuMeterRect.w - 8, barsH};
-      int labelsW = std::max(28, meterInner.w * 2 / 5);
-      int barsW = std::max(18, meterInner.w - labelsW - 4);
+      // The dB column is as wide as the widest reading it will ever show,
+      // measured in the font in use -- not two fifths of whatever is there.
+      int barsTop = vuMeterRect.y + kVuHeaderH + uiScaled(2);
+      int barsH = std::max(uiScaled(40),
+                           vuMeterRect.h - kVuHeaderH - uiScaled(4) - kVuFooterTotal);
+      SDL_Rect meterInner {vuMeterRect.x + uiScaled(4), barsTop,
+                           vuMeterRect.w - uiScaled(8), barsH};
+      const int labelsNeed = measuredTextWidth(fontSmall_, "-48") + uiScaled(4);
+      int labelsW = std::clamp(labelsNeed, uiScaled(20), meterInner.w / 2);
+      int barsW = std::max(uiScaled(18), meterInner.w - labelsW - uiScaled(4));
       SDL_Rect barsRect {meterInner.x, meterInner.y, barsW, meterInner.h};
-      SDL_Rect labelsRect {barsRect.x + barsRect.w + 4, meterInner.y, labelsW, meterInner.h};
-      int channelGap = 4;
-      int barW = std::max(6, (barsRect.w - channelGap) / 2);
+      SDL_Rect labelsRect {barsRect.x + barsRect.w + uiScaled(4), meterInner.y,
+                           labelsW, meterInner.h};
+      int channelGap = uiScaled(4);
+      int barW = std::max(uiScaled(6), (barsRect.w - channelGap) / 2);
       SDL_Rect leftBar {barsRect.x, barsRect.y, barW, barsRect.h};
       SDL_Rect rightBar {barsRect.x + barsRect.w - barW, barsRect.y, barW, barsRect.h};
       Primitives::drawFramedPanel(controlRenderer_, leftBar, pal.deep, pal.deep, pal.mid);
@@ -2202,7 +2213,7 @@
       auto dbToFillFrac = [](float db) {
         return std::clamp((db + 60.0f) / 60.0f, 0.0f, 1.0f);
       };
-      auto drawMeterBar = [&](const SDL_Rect& rect, float rmsLevel, float peakLevel, const char* label) {
+      auto drawMeterBar = [&](const SDL_Rect& rect, float rmsLevel, float peakLevel) {
         float rmsDb = linearLevelToDb(rmsLevel);
         float peakDb = linearLevelToDb(peakLevel);
         float fillFrac = dbToFillFrac(rmsDb);
@@ -2228,37 +2239,46 @@
         SDL_RenderLine(controlRenderer_, rect.x + 1, peakY, rect.x + rect.w - 2, peakY);
       };
 
-      // dB scale tick marks (across full bar width) then labels clipped to labelsRect
-      // Skip 0dB label — it overlaps the "VU" header; the 0dB tick line is still drawn.
+      // Scale ticks across the bars, then the reading beside them. 0 dB has no
+      // label -- the "VU" header sits exactly where it would go -- but it keeps
+      // its tick.
       for (float markDb : {0.0f, -6.0f, -12.0f, -24.0f, -36.0f, -48.0f}) {
         float frac = dbToFillFrac(markDb);
         int y = barsRect.y + barsRect.h - 1 - static_cast<int>(std::round(frac * std::max(1, barsRect.h - 1)));
         SDL_SetRenderDrawColor(controlRenderer_, 34, 52, 34, 255);
         SDL_RenderLine(controlRenderer_, barsRect.x, y, barsRect.x + barsRect.w, y);
-        if (markDb > -0.1f) continue; // skip "0" label — "VU" header is right above
-        std::string dbStr = std::to_string(static_cast<int>(markDb));
-        int tw = 0, th = 0;
-        if (fontSmall_ && TTF_GetStringSize(fontSmall_, dbStr.c_str(), 0, &tw, &th)) {
-          SDL_SetRenderClipRect(controlRenderer_, &labelsRect);
-          drawText(controlRenderer_, fontSmall_, dbStr, pal.dark, labelsRect.x, y - th / 2);
-          SDL_SetRenderClipRect(controlRenderer_, nullptr);
-        }
+        if (markDb > -0.1f) continue;
+        // INTO A RECT, so a reading too wide for the column is fitted rather
+        // than sliced in half by a clip.
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {labelsRect.x, y - vuLineH / 2, labelsRect.w, vuLineH},
+                     std::to_string(static_cast<int>(markDb)), pal.dark);
       }
 
-      drawMeterBar(leftBar, vu.rmsLeft, vu.peakLeft, "L");
-      drawMeterBar(rightBar, vu.rmsRight, vu.peakRight, "R");
+      drawMeterBar(leftBar, vu.rmsLeft, vu.peakLeft);
+      drawMeterBar(rightBar, vu.rmsRight, vu.peakRight);
 
-      // L/R labels — below bars, above "dB"
-      int lrY = barsRect.y + barsRect.h + 2;
-      drawCenteredText(controlRenderer_, fontSmall_, "L", pal.deep,
-                       SDL_Rect {leftBar.x - 2, lrY, leftBar.w + 4, kVuFooterLabelH});
-      drawCenteredText(controlRenderer_, fontSmall_, "R", pal.deep,
-                       SDL_Rect {rightBar.x - 2, lrY, rightBar.w + 4, kVuFooterLabelH});
+      // L and R, each centred on the BAR IT NAMES.
+      //
+      // The rect is centred on the bar but sized to the GLYPH, not to the bar:
+      // a meter bar is about twelve pixels wide, and a rect that narrow is
+      // narrower than the letter once drawCenteredTextSafe has taken its inset
+      // -- so the label fitted nothing and was dropped entirely. The bars stay
+      // where they are; only the label's box is allowed to be wider than them.
+      int lrY = barsRect.y + barsRect.h + uiScaled(2);
+      auto channelLabel = [&](const SDL_Rect& bar, const char* text) {
+        const int w = std::max(bar.w, measuredTextWidth(fontSmall_, text) + uiScaled(8));
+        SDL_Rect at {bar.x + bar.w / 2 - w / 2, lrY, w, kVuFooterLabelH};
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, at, text, pal.deep);
+      };
+      channelLabel(leftBar, "L");
+      channelLabel(rightBar, "R");
 
-      // "dB" footer — below L/R labels
-      int dbY = lrY + kVuFooterLabelH + 2;
-      drawCenteredText(controlRenderer_, fontSmall_, "dB", pal.deep,
-                       SDL_Rect {vuMeterRect.x, dbY, vuMeterRect.w, kVuFooterUnitH});
+      // The unit, under the column it belongs to rather than under the bars.
+      int dbY = lrY + kVuFooterLabelH + uiScaled(2);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect {labelsRect.x, dbY, labelsRect.w, kVuFooterUnitH},
+                           "dB", pal.deep);
     }
 
     warpSaveBtnRect_ = {};

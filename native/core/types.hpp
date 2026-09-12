@@ -1207,6 +1207,15 @@ struct Project {
   // checkForUpdateAsync.
   bool updateCheckEnabled = false;
 
+  // ── THE WALL CLOCK ──────────────────────────────────────────────────────
+  //
+  // Off by default: the toolbar belongs to the show, and an operator who wants
+  // the time usually has a clock on the wall behind them. Off / digital 24h /
+  // digital 12h / analogue, cycled from one control -- offering only "on"
+  // would make somebody's convention the default, and a round face is what a
+  // lot of desks actually have.
+  std::string clockMode = "off";   // off | 24h | 12h | analog
+
   // NOT SERIALISED -- true for this run only. False when the loader met a line
   // it did not understand, which is what a truncated or damaged show looks
   // like. The unattended auto-save refuses to write over a file in that state;
