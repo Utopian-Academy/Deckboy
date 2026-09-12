@@ -3356,6 +3356,26 @@
     //
     // Guarded against a slot that fires DASH, which would otherwise be a way
     // to build a loop that takes the show down with it.
+    // SHOW THE SHORTCUTS PAGE. The same reasoning as DASH SHOW below: a
+    // surface that can fire an action should be able to put the page of
+    // actions on screen. It was reachable only from the keyboard, which is the
+    // one input an operator driving Deckboy from a Stream Deck does not have
+    // their hands on.
+    if (command == "SHORTCUTS" || command == "KEYS") {
+      const std::string sub = parts.size() < 2 ? std::string("TOGGLE") : toUpper(parts[1]);
+      if (sub != "SHOW" && sub != "HIDE" && sub != "TOGGLE") {
+        failRemoteCommand("SHORTCUTS: expected show|hide|toggle, got " + parts[1]);
+        return;
+      }
+      if (showStartupDialog_ || showSplashOverlay_) {
+        failRemoteCommand("SHORTCUTS: the startup dialog is up");
+        return;
+      }
+      shortcutsOverlayOpen_ = (sub == "TOGGLE") ? !shortcutsOverlayOpen_
+                                                : (sub == "SHOW");
+      remoteCommandDetail_ = shortcutsOverlayOpen_ ? "shortcuts shown" : "shortcuts hidden";
+      return;
+    }
     if (command == "DASH" || command == "DASHBOARD") {
       const std::string sub = parts.size() < 2 ? std::string("LIST") : toUpper(parts[1]);
 

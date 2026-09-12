@@ -2682,9 +2682,22 @@
 
     int ctrlSettingsY = ctrl.y + kThumbAreaH + kInspectorHeaderGap;
     if (selectedCue) {
-      // kCueSummaryH sized to hold up to 5 text rows (name + meta + source + tech + detail)
-      // with heights large enough to contain fontBase_/fontSmall_ without bottom-clipping.
-      constexpr int kCueSummaryH = 180;
+      // THE PANEL'S HEIGHT, FROM THE ROWS IT IS ABOUT TO DRAW: a heading, the
+      // name in the larger face, and up to four detail lines. A constant 180
+      // was right for one font at one scale and cropped the last two lines at
+      // any other -- at a 1.5x desktop the tech line was cut in half by the
+      // panel's own bottom edge and the trim line fell outside it entirely.
+      // Same fault as every hardcoded card height this pass has taken out.
+      const int kCueSummaryHeadingH = std::max(uiScaled(22), textLineHeight(fontSmall_) + 2);
+      const int kCueSummaryNameH    = std::max(uiScaled(28), textLineHeight(fontBase_) + uiScaled(4));
+      const int kCueSummaryDetailH  = std::max(uiScaled(22), textLineHeight(fontSmall_) + uiScaled(4));
+      const int kCueSummaryH = uiScaled(6)          // top inset
+                             + kCueSummaryHeadingH
+                             + uiScaled(4)          // gap under the heading
+                             + kCueSummaryNameH
+                             + uiScaled(2)          // gap under the name
+                             + kCueSummaryDetailH * 4
+                             + uiScaled(6);         // bottom inset
       // Width comes from the widest label MEASURED in the current font, not a
       // constant. 60px was tuned to Segoe UI; under Liberation/DejaVu on Linux
       // "PASTE" and "RESET" rendered as "PAS..." and "RES...". Measuring keeps
@@ -2747,7 +2760,7 @@
         labelAvailW += reclaimed;
       }
       SDL_Rect labelRect {summaryRect.x + kSummaryPad, summaryRect.y + uiScaled(6),
-                          labelAvailW, std::max(uiScaled(22), textLineHeight(fontSmall_) + 2)};
+                          labelAvailW, kCueSummaryHeadingH};
       drawTextSafe(controlRenderer_, fontSmall_, labelRect, "SELECTED CUE", pal.inkSoft);
       drawUIPanel(copyRect, pal.mid, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, copyRect, "COPY", pal.deep);
@@ -2773,60 +2786,70 @@
         }
       }
 
-      // Name row — h=28 to contain fontBase_ without bottom clip; width stops before copy button
-      SDL_Rect nameRect {summaryRect.x + kSummaryPad, summaryRect.y + 34, labelAvailW, 28};
-      drawTextSafe(controlRenderer_, fontBase_, nameRect,
-                   ellipsizeToPixelWidth(fontBase_, selectedCue->name, nameRect.w),
-                   pal.deep);
+      // ── THE SUMMARY LAYS ITSELF OUT ─────────────────────────────────────
+      //
+      // Every row below the heading used to be at a raw offset from the top of
+      // the panel -- +34, +66, +94, +122, +150 -- with raw heights of 28 and
+      // 24. The heading row above them already scaled, so at a 1.5x desktop the
+      // name was drawn at +34 while the heading it sits under had grown past
+      // there, and the two collided.
+      //
+      // A y that advances by the height of the line just drawn cannot do that,
+      // whatever the font is doing.
+      // The same three heights the panel was sized from, so the size and the
+      // layout are one statement rather than two guesses about each other.
+      const int summaryLineH = kCueSummaryDetailH;
+      const int summaryNameH = kCueSummaryNameH;
+      int summaryY = labelRect.y + labelRect.h + uiScaled(4);
+      const int contentW = summaryRect.w - kSummaryPad * 2;
 
-      int contentW = summaryRect.w - kSummaryPad * 2;
+      SDL_Rect nameRect {summaryRect.x + kSummaryPad, summaryY, labelAvailW, summaryNameH};
+      drawTextSafe(controlRenderer_, fontBase_, nameRect, selectedCue->name, pal.deep);
+      summaryY += summaryNameH + uiScaled(2);
+
+      // Each line is drawn only if it has something to say, and each one that
+      // does pushes the next one down -- so an absent tech line closes up
+      // instead of leaving a gap where it would have been.
+      auto summaryLine = [&](const std::string& text, SDL_Color ink) {
+        if (text.empty()) return;
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {summaryRect.x + kSummaryPad, summaryY, contentW, summaryLineH},
+                     text, ink);
+        summaryY += summaryLineH;
+      };
+
       std::string metaLine = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex) + "  " +
                              cueKindLabel(selectedCue->kind);
       if (selectedCue->width > 0 && selectedCue->height > 0) {
         metaLine += "  " + std::to_string(selectedCue->width) + "x" + std::to_string(selectedCue->height);
       }
       metaLine += "  " + cueSummaryDurationLabel(*selectedCue);
-      SDL_Rect metaRect {summaryRect.x + kSummaryPad, summaryRect.y + 66, contentW, 24};
-      drawTextSafe(controlRenderer_, fontSmall_, metaRect,
-                   ellipsizeToPixelWidth(fontSmall_, metaLine, contentW),
-                   pal.dark);
+      summaryLine(metaLine, pal.dark);
+      summaryLine(cueSummarySourceLine(*selectedCue), pal.dark);
+      summaryLine(cueSummaryTechLine(*selectedCue), pal.dark);
+      summaryLine(cueSummaryDetailLine(*selectedCue), pal.inkSoft);
 
-      SDL_Rect sourceRect {summaryRect.x + kSummaryPad, summaryRect.y + 94, contentW, 24};
-      drawTextSafe(controlRenderer_, fontSmall_, sourceRect,
-                   ellipsizeToPixelWidth(fontSmall_, cueSummarySourceLine(*selectedCue), contentW),
-                   pal.dark);
-
-      std::string techLine = cueSummaryTechLine(*selectedCue);
-      if (!techLine.empty()) {
-        SDL_Rect techRect {summaryRect.x + kSummaryPad, summaryRect.y + 122, contentW, 24};
-        drawTextSafe(controlRenderer_, fontSmall_, techRect,
-                     ellipsizeToPixelWidth(fontSmall_, techLine, contentW),
-                     pal.dark);
-      }
-
-      std::string detailLine = cueSummaryDetailLine(*selectedCue);
-      if (!detailLine.empty()) {
-        SDL_Rect detailRect {summaryRect.x + kSummaryPad, summaryRect.y + 150, contentW, 24};
-        drawTextSafe(controlRenderer_, fontSmall_, detailRect,
-                     ellipsizeToPixelWidth(fontSmall_, detailLine, contentW),
-                     pal.inkSoft);
-      }
-      ctrlSettingsY = summaryRect.y + summaryRect.h + 10;
+      ctrlSettingsY = summaryRect.y + summaryRect.h + uiScaled(10);
     } else {
-      SDL_Rect summaryRect {ctrl.x + kInspectorInset, ctrlSettingsY, kCtrlW - kInspectorInset * 2, 120};
+      // Same shape as the populated panel above: measured rows, advancing y.
+      const int emptyRowH = std::max(uiScaled(22), textLineHeight(fontSmall_) + uiScaled(4));
+      SDL_Rect summaryRect {ctrl.x + kInspectorInset, ctrlSettingsY,
+                            kCtrlW - kInspectorInset * 2, emptyRowH * 4 + uiScaled(20)};
       drawUIPanel(summaryRect, pal.light, pal.deep, pal.mid);
-      int sw = summaryRect.w - 12;
-      SDL_Rect labelRect {summaryRect.x + 6, summaryRect.y + 6,  sw, 22};
-      SDL_Rect titleRect {summaryRect.x + 6, summaryRect.y + 32, sw, 24};
-      SDL_Rect bodyRectA {summaryRect.x + 6, summaryRect.y + 60, sw, 22};
-      SDL_Rect bodyRectB {summaryRect.x + 6, summaryRect.y + 86, sw, 22};
+      const int sw = summaryRect.w - uiScaled(12);
+      const int ex = summaryRect.x + uiScaled(6);
+      int ey = summaryRect.y + uiScaled(6);
+      SDL_Rect labelRect {ex, ey, sw, emptyRowH};   ey += emptyRowH;
+      SDL_Rect titleRect {ex, ey, sw, emptyRowH};   ey += emptyRowH;
+      SDL_Rect bodyRectA {ex, ey, sw, emptyRowH};   ey += emptyRowH;
+      SDL_Rect bodyRectB {ex, ey, sw, emptyRowH};
       drawTextSafe(controlRenderer_, fontSmall_, labelRect, "SELECTED CUE", pal.inkSoft);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, titleRect, "NO CUE SELECTED", pal.deep);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, bodyRectA,
                            "Choose a cue to inspect it here", pal.dark);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, bodyRectB,
                            "Import or click a cue in the playlist", pal.inkSoft);
-      ctrlSettingsY = summaryRect.y + summaryRect.h + 10;
+      ctrlSettingsY = summaryRect.y + summaryRect.h + uiScaled(10);
     }
 
     // -- Shared inspector context for floating panel --

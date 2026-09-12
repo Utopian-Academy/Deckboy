@@ -1,5 +1,27 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.342 (pages that finish their own sentences)
+
+**The keyboard shortcuts page reads.** Its modal, its rows and its key column
+were all fixed pixel sizes while the type scaled with the desktop, so at 150% the
+rows nearly touched and half the descriptions were cut off — "Skip to next /
+pr...", "Blackout - insta...", "Desk, then clea...". A page of instructions that
+cannot finish its own sentences is worse than no page. It is now sized from the
+font, and the key column is as wide as the widest key measured in the face
+actually in use.
+
+**The cue summary panel fits its own contents.** The block under SELECTED CUE was
+laid out at fixed offsets from the top of the panel while the heading above it
+scaled, so at 150% the cue's name was drawn where the heading had grown to and
+the two collided — and the panel's own height was a constant, so the last two
+lines fell outside it. Both the size and the layout now come from the same three
+measured row heights.
+
+**A Stream Deck can put the shortcuts page on screen.** `SHORTCUTS SHOW|HIDE|
+TOGGLE`, alongside the dashboard's. It was reachable only from the keyboard,
+which is the one input an operator driving Deckboy from a control surface does
+not have their hands on.
+
 ## 2026-09-12 - v0.99.341 (a menu you cannot see through)
 
 **The SOURCE menu is opaque and follows the theme.** It filled with a hardcoded

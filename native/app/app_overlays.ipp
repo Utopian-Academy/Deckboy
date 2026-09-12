@@ -830,16 +830,23 @@
     SDL_RenderFillRect(controlRenderer_, &full);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    int mw = std::min(720, ww - 40);
-    int mh = std::min(600, wh - 40);
+    // SIZED FROM THE FONT, not from 720x600. Every measurement on this page
+    // was a 1x pixel while the type scaled with the desktop, so at 150% the
+    // rows nearly touched and half the descriptions were ellipsized into
+    // uselessness -- "Skip to next / pr...", "Blackout - insta...". A page of
+    // instructions that cannot finish its own sentences is worse than no page.
+    const int keysHintW = uiScaled(180);
+    int mw = std::min(uiScaled(720), ww - uiScaled(40));
+    int mh = std::min(uiScaled(620), wh - uiScaled(40));
     SDL_Rect modal {(ww - mw) / 2, (wh - mh) / 2, mw, mh};
     Primitives::drawFramedPanel(controlRenderer_, modal, pal.shellInner, pal.deep, pal.shellOuter);
     drawTextSafe(controlRenderer_, fontBase_,
-                 SDL_Rect {modal.x + 16, modal.y + 10, mw - 64, 24},
+                 SDL_Rect {modal.x + uiScaled(16), modal.y + uiScaled(10),
+                           mw - keysHintW - uiScaled(28), uiScaled(24)},
                  "KEYBOARD SHORTCUTS", pal.fg);
-    // Close hint
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {modal.x + mw - 180, modal.y + 14, 170, 16},
+                 SDL_Rect {modal.x + mw - keysHintW - uiScaled(8), modal.y + uiScaled(14),
+                           keysHintW, uiScaled(18)},
                  "Ctrl+/ to close", pal.inkSoft);
 
     // These MUST match handleKeyDown in app_input.ipp. Audited v0.81.5, where
@@ -901,19 +908,34 @@
       {"+/-",             "Volume up/down"},
       {"Shift+drag",      "Snap warp corners to grid"},
     };
-    int rowY = modal.y + 40;
-    int colW = (mw - 32) / 2;
+    // THE KEY COLUMN IS AS WIDE AS THE WIDEST KEY, measured in the font
+    // actually in use -- "Ctrl+Shift+Z" is the long one, and a fixed 130px was
+    // tuned to a font nobody is necessarily running.
+    int keyColW = uiScaled(80);
+    for (const auto& e : shortcuts) {
+      keyColW = std::max(keyColW, measuredTextWidth(fontSmall_, e.key));
+    }
+    keyColW += uiScaled(10);
+
+    const int keysRowH = std::max(uiScaled(18), textLineHeight(fontSmall_) + uiScaled(3));
+    const int keysTop = modal.y + uiScaled(44);
+    const int keysBottom = modal.y + mh - uiScaled(10);
+    const int colGap = uiScaled(16);
+    const int colW = (mw - uiScaled(32) - colGap) / 2;
+    int rowY = keysTop;
     int col = 0;
-    for (const auto& s : shortcuts) {
-      if (rowY + 18 > modal.y + mh - 8) {
-        if (col == 0) { col = 1; rowY = modal.y + 40; } else break;
+    for (const auto& e : shortcuts) {
+      if (rowY + keysRowH > keysBottom) {
+        if (col == 0) { col = 1; rowY = keysTop; } else break;
       }
-      int cx = modal.x + 16 + col * colW;
+      const int cx = modal.x + uiScaled(16) + col * (colW + colGap);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {cx, rowY, 130, 16}, s.key, pal.fgSoft);
+                   SDL_Rect {cx, rowY, keyColW, keysRowH}, e.key, pal.fgSoft);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {cx + 134, rowY, colW - 140, 16}, s.desc, pal.fg);
-      rowY += 18;
+                   SDL_Rect {cx + keyColW, rowY,
+                             std::max(uiScaled(60), colW - keyColW), keysRowH},
+                   e.desc, pal.fg);
+      rowY += keysRowH;
     }
   }
 

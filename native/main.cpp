@@ -4675,8 +4675,8 @@ class App {
     const char* tip;
     bool lit = false;
   };
-  void inspDrawActionRow(const InspectorCtx& ix, int rowY,
-                         std::initializer_list<InspAction> actions) {
+  void inspDrawActionButtons(const InspectorCtx& ix, int rowY,
+                             std::initializer_list<InspAction> actions) {
     const int count = static_cast<int>(actions.size());
     if (count <= 0) return;
     const int gap = 6;
@@ -5251,7 +5251,7 @@ class App {
     const double remaining = static_cast<double>(cue.timer.durationSeconds) - elapsed;
     rowY = inspDrawTimerClock(ix, rowY, cue, mmss(remaining), remaining, running);
 
-    inspDrawActionRow(ix, rowY, {
+    inspDrawActionButtons(ix, rowY, {
       {running ? "STOP" : "START", QuickAction::TimerRunToggle,
        "Start or stop the clock. The timer runs its own clock, so this does "
        "not touch playback.", running},
@@ -5262,7 +5262,7 @@ class App {
 
     // Four direct nudges. Press one and it happens -- no stepper to interpret
     // at the moment somebody on stage is running over.
-    inspDrawActionRow(ix, rowY, {
+    inspDrawActionButtons(ix, rowY, {
       {"-1 min", QuickAction::TimerNudgeDown,
        "Take a minute off without stopping the clock"},
       {"-10 s",  QuickAction::TimerNudgeSecDown,
