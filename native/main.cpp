@@ -7671,10 +7671,22 @@ class App {
     //   splash/cycle/       grayscale masters  -> full accent tint
     //   splash/cycle_color/ finished colour art -> light tint only
     std::vector<fs::path> gray, colour;
+    // JPEG AS WELL AS PNG, because these are PHOTOGRAPHS as far as a codec is
+    // concerned. A dense painted scene re-encoded as PNG at the pool's own
+    // size came out LARGER than the source and about three times the size of
+    // the same picture as a high-quality JPEG -- for art that is drawn
+    // full-bleed behind a translucent card with a colour tint over it, where
+    // the difference is not visible at 1:1. The decoder is ffmpeg and never
+    // cared; only this filter did.
+    //
+    // Alpha is not lost by the change: the splash is drawn as a full-bleed
+    // cover with one alpha applied to the whole texture, never per-pixel.
     auto gather = [&](const fs::path& dir, std::vector<fs::path>& into) {
       if (!fs::is_directory(dir, ec)) return;
       for (const auto& e : fs::directory_iterator(dir, ec)) {
-        if (e.is_regular_file() && e.path().extension() == ".png") {
+        if (!e.is_regular_file()) continue;
+        const std::string ext = toLower(e.path().extension().string());
+        if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") {
           into.push_back(e.path());
         }
       }

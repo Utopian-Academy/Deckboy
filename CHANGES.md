@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-12 - v0.101.0 (a cue has a sound as well as a look)
+## 2026-09-12 - v0.99.355 (a cue has a sound as well as a look)
 
 **Every cue now carries an audio chain, the way it already carried a picture
 chain.** It sits directly under EFFECTS in the inspector and works the same way:
@@ -97,6 +97,15 @@ analysis keeps an RMS per bucket now and the lane is drawn twice: the peak as
 the outline, the RMS as the bright body. The RMS is the part that moves, which
 is the shape you are reading when you look for a line of dialogue.
 
+### Thirteen new boot screens
+
+The splash rotation gains thirteen scenes. The pool now takes **JPEG as well as
+PNG**, because these are photographs as far as a codec is concerned: the same
+picture re-encoded as PNG at the pool's own size came out *larger* than the
+source and about three times a high-quality JPEG, for art that is drawn
+full-bleed behind a translucent card with a colour tint over it. Fifteen
+megabytes instead of forty-four, and no visible difference at 1:1.
+
 ### Also
 
 - `--audio-fx-check` puts a speech-shaped signal through every effect and
@@ -109,166 +118,6 @@ is the shape you are reading when you look for a line of dialogue.
 - The step buttons on every effect amount and parameter row now carry their
   payload, so `-` and `+` work as well as scrubbing the value did.
 - `HELP ALL` lists `RENAME`, and counts itself correctly.
-
-## 2026-09-12 - v0.100.1 (the inspector's waveform)
-
-**It was drawn on top of the picture.** The strip was laid out at the bottom of
-the thumbnail box AFTER the still had already been fitted to the whole of it,
-so a video cue showed its preview with a waveform painted across the lower
-third. They are neighbours, not layers: the box is split first and each side is
-laid out against its own rect.
-
-**And the box never scaled.** It was a hardcoded 110 pixels while everything
-drawn inside it -- the line height, the strip -- came from `uiScaled()`, so at
-1.5x the waveform took over half the box and at 2x there was barely a picture
-left.
-
-**The waveform itself was a brick.** There are 512 buckets whatever the file
-and each holds the LOUDEST sample in its span, so an eleven-minute cue puts 1.3
-seconds in each one -- and the loudest sample in 1.3 seconds of any programme
-material is within a couple of dB of the loudest sample in the whole file. Every
-bucket landed in the same place and the lane filled solid. That is not a
-waveform, it is a level meter drawn 512 times.
-
-The analysis keeps an RMS per bucket now, and the lane is drawn twice: the peak
-as the outline and the RMS as the bright body. The RMS is the part that moves --
-it drops between words and in the gaps -- which is the shape somebody is
-actually reading when they look for a line of dialogue or the top of a music
-bed. Both use the same dB mapping, so the body and the outline agree about
-where a level sits.
-
-Also: the pixel-to-bucket span took its start from one channel's bucket count
-and its end from the larger of the two, which is the same number for every file
-whose channels agree and two different rates for one where they do not.
-
-## 2026-09-12 - v0.100.0 (five audio effects that could not exist anywhere else)
-
-Every audio effect ever written receives a buffer of samples and nothing else.
-That is not a limitation somebody chose; it is what a plugin *is*. A compressor
-inside a mixing desk cannot know that the thing it is compressing is a drone
-shot, that the shot is three-quarters of the way across the screen, that it has
-four seconds left, or that the operator has just held it.
-
-Deckboy holds the picture and the sound in the same object. So these five exist
-here and nowhere else.
-
-**Picture** — the cue's own video plays the filter. Brightness opens it and
-darkness closes it, so a cut to black takes the top off the sound and a bright
-frame gives it back; movement pushes it further open, so a still shot sits back
-and a fast one comes forward. The sound of a shot following the shot.
-
-**Placement** — the sound is where the picture is. A PIP three-quarters of the
-way across the output sounds three-quarters of the way across the room, and
-shrinking it moves it away from you: the top comes off, the image narrows, the
-level drops the way distance actually does. Deliberately not a pan — a pan puts
-a sound between two speakers, this puts it in a position, which is why the far
-ear gets the delay and the head shadow as well as less level.
-
-**Seam** — the cue resolves instead of being severed. A fade is a volume ramp:
-it makes the last seconds quieter, which is not the same as making them sound
-finished, and on speech it sounds exactly like somebody turning a knob. Over
-the last few seconds this brings the top down and a short room up, so the sound
-settles into the cut. The level is left alone; the fade still does that job if
-you want it.
-
-**Frame lock** — stutter on the frame, not on the beat. Every stutter effect
-there has ever been is quantised to a tempo, because a tempo is the only clock
-a plugin has. This one is quantised to the video frame period, so a grain is
-exactly one, two or four frames long and the chop lands on a frame boundary. On
-a 23.976 clip that is 41.708ms, which is not a musical value and is precisely
-the point.
-
-**Suspend** — a held cue keeps its room. Holding a cue holds the picture — that
-is what hold is — and the sound stops dead, which on anything with room tone,
-an audience, rain or a hum is an obvious hole. This keeps the last moment of it
-going, crossfaded into itself so there is no seam, for as long as the hold
-lasts. No plugin can do this because no plugin is told a hold has happened; all
-it sees is samples stopping, which is indistinguishable from silence in the
-material.
-
-**Each one says when it has nothing to follow.** Frame lock on an audio cue,
-Seam on an open-ended one, Picture on a cue with no picture: the effect passes
-the signal through untouched, which is right, and the inspector row says why,
-which is the part that was missing. A control that quietly does nothing is the
-failure this app keeps having.
-
-**Picture asks for CPU frames**, the way a colour grade does. On the zero-copy
-path the picture never comes down to system memory — that is what makes it fast
-— so there is nothing to measure the brightness of. Arming it re-opens the
-decoder in a format it can read, and the row says so. Frame brightness is
-sampled on a 32x18 grid once per decoded frame: 576 samples out of eight
-million, for a mean and a difference of means, neither of which gets more
-truthful from reading every pixel.
-
-`--audio-fx-check` covers all fourteen now, and it had to learn two things to
-do it. The five deck-aware effects need a cue, so the check invents one — a
-picture that changes, a PIP crossing the output and shrinking, a known length,
-a real frame rate — and drives them through it in 512-sample chunks the way the
-engine does, because a single call with one frozen context hides every fault
-that only appears when the context moves. And the verdict has to look at the
-tail: Suspend is inaudible by design while the cue is running, so every inline
-measurement is correctly zero, and the first version of the check called the
-feature dead on exactly that evidence.
-
-## 2026-09-12 - v0.99.354 (a cue has a sound as well as a look)
-
-**Every cue gets an audio chain, the way it already had a picture chain.** Nine
-effects -- high pass, low pass, tilt EQ, compressor, gate, delay, reverb, width
-and binaural -- run in the order you put them in, between the cue's own gain
-and the output limiter. Same shape as the EFFECTS section directly above it:
-the name is the picker, amount is always "how much of this", B bypasses without
-losing what you set, and the arrows move an effect through the chain. Order is
-the sound: a gate before a compressor is a different result from a compressor
-before a gate, and both are things people want.
-
-It is a deliberately short list and deliberately the useful end of one. A live
-events deck needs to fix a room and shape a voice; it does not need eleven
-flavours of chorus.
-
-**Edits reach every selected cue**, the way gain, pan and mono already do --
-levels and a room want to agree across a set of cues, and setting them one at a
-time is how they end up not agreeing.
-
-**An effect arrives set to something worth hearing.** A compressor's
-backward-compatible defaults are a 1:1 ratio, which is a compressor that does
-not compress; a tilt's are flat. Those values still load old shows exactly as
-they were saved, but a NEW effect starts on a setting somebody would choose --
-a vocal compressor, an 80Hz high pass, a 250ms delay.
-
-**The delay and the reverb are sends, not mixes.** Turning one up adds it on
-top of a source that stays where it is, the way it works on every console.
-Treated as a dry/wet, amount 100% removed the speaker entirely and left only
-the echo.
-
-Over the wire: `AUDIOFX` reads the chain back, `AUDIOFX ADD <effect> [amount%]`
-appends one, `AUDIOFX <slot> <amount%> [a% b% c% d%]` sets it, plus `BYPASS`,
-`OFF` and `CLEAR`. Every number is a percentage, the same units the inspector
-shows. Saved as one field at the end of the cue record, so a show written
-before this loads unchanged and simply has no chain.
-
-**`--audio-fx-check` measures them.** An effect that renders is not an effect
-that works, and on a picture you can tell the difference by looking. You cannot
-look at audio, so this puts a speech-shaped signal through every effect and
-reports what came out: level, peak, what it did to each end of the spectrum,
-what it did to the noise floor between words, and whether anything was still
-sounding half a second after the input stopped. It found four real faults on
-its first run, including a delay whose output was silence.
-
-### Hardware decode on a Mac, measured
-
-**On an M4, 4K30 costs 0.46 seconds of CPU for ten seconds of video.** The same
-clip decoded in software costs 5.48 -- about twelve times as much -- and the
-old ffmpeg subprocess path cannot hold 30fps at that raster at all, managing
-20. The zero-copy path reports `decoder=videotoolbox gpu-frames=300
-cpu-frames=0`: not one frame came down to the CPU.
-
-`--decode-bench <file> [seconds] download` is new and is the measurement that
-separates the two halves of that. `cli` and `DECKBOY_NO_HW_DECODE` both change
-the DECODER as well, so neither can tell you whether hardware decode is the
-cheap part or not downloading the frame is. `download` keeps the hardware
-decoder and asks for a packed CPU format, which is what a cue with a chroma key
-does. On the same 4K clip on Windows that is 30fps against 15.55: the download
-and the scale alone are half the budget.
 
 ## 2026-09-12 - v0.99.353 (zero-copy decode on macOS -- written, not yet measured)
 
