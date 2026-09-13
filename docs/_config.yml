@@ -1,0 +1,24 @@
+# The Pages site is the three pages in this folder and their images.
+#
+# Everything else in docs/ is internal engineering material -- plans,
+# feasibility notes, the code map, packaging detail. It was already in the
+# public repository, but enabling Pages turned it into a set of web pages a
+# search engine would index, which was never the intention. Excluding it here
+# keeps the SITE to what was meant to be published without changing what the
+# repository contains.
+exclude:
+  - ARTIST_PROMPT.md
+  - BROWSER_CEF_PLAN.md
+  - CODEMAP.md
+  - COMPOSITE_CUE_SPEC.md
+  - DATAMOSH_PLAN.md
+  - EFFECTS_PLAN.md
+  - GPU_DECODE_PLAN.md
+  - HAP_PLAYBACK_PLAN.md
+  - ICON_DESIGN_BRIEF.md
+  - PACKAGING.md
+  - SDL3_MIGRATION_PLAN.md
+  - ST2110_FEASIBILITY.md
+  - SYPHON_PLAN.md
+  - VERSION_FLOW.md
+  - streamdeck

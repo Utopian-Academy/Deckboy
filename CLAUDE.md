@@ -9,7 +9,7 @@ This file gives Claude Code the architectural context it needs to work on Deckbo
 **Windows (primary dev platform)**
 ```
 cmake -B build/windows -G "Visual Studio 17 2022" -A x64 \
-  -DCMAKE_TOOLCHAIN_FILE=C:/Users/james/vcpkg/scripts/buildsystems/vcpkg.cmake
+  -DCMAKE_TOOLCHAIN_FILE=<path-to-vcpkg>/scripts/buildsystems/vcpkg.cmake
 cmake --build build/windows --config Release
 ```
 Binary lands at `build/windows/Release/Deckboy.exe`; run from there (needs
