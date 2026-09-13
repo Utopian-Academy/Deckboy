@@ -604,8 +604,13 @@ add_dependencies(deckboy-native deckboy_generate_version)
 # with ImageIO. Not behind a feature flag, because importing a deck is not
 # optional -- and CI caught this the hard way: the code compiled and only the
 # LINK failed, on the one platform that could not be built locally.
+# CoreVideo is here for the VideoToolbox zero-copy path: the decoder asks a
+# frame's CVPixelBuffer what format it is before wrapping it as a texture. Same
+# shape of mistake as the line above, caught the same way -- the header is
+# included, every translation unit compiles, and only the link fails.
 if(APPLE)
-  deckboy_target_link_frameworks(deckboy-native CoreGraphics ImageIO CoreFoundation)
+  deckboy_target_link_frameworks(deckboy-native
+    CoreGraphics ImageIO CoreFoundation CoreVideo)
 endif()
 
 if(WIN32)
