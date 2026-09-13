@@ -1735,11 +1735,11 @@
         std::string inputLabel = "choose...";
         if (project_.atemTallyInput > 0) {
           inputLabel = std::to_string(project_.atemTallyInput);
-          for (const auto& [id, name] : atemInputListSnapshot()) {
+          for (const auto& [id, name] : atemSwitcher_.inputList()) {
             if (id == project_.atemTallyInput) { inputLabel += "  " + name; break; }
           }
         }
-        if (atemSwitcherConnected_.load()) inputLabel += "   LINKED";
+        if (atemSwitcher_.connected()) inputLabel += "   LINKED";
         drawCenteredText(controlRenderer_, fontSmall_, inputLabel, ink, inputRow);
         settingsBtns_.push_back({inputRow, kSettingsActionAtemTallyInputPrompt,
                                  "atem_tally_input"});
@@ -3968,7 +3968,7 @@
         // number means knowing that Deckboy is "3", which is the sort of thing
         // that is true right up until somebody repatches. A connected switcher
         // names its sources, so the picker can say what its panel says.
-        const auto inputs = atemInputListSnapshot();
+        const auto inputs = atemSwitcher_.inputList();
         if (inputs.empty()) {
           settingsOpen_ = false;
           openInlineTextEditor("atem_tally_input", "ATEM Input",
@@ -3977,7 +3977,7 @@
             [this](const std::string& val) {
               project_.atemTallyInput = std::max(0, std::atoi(val.c_str()));
               // The client thread reads the mirror, never project_.
-              atemTallyInputLive_.store(project_.atemTallyInput);
+              atemSwitcher_.setOurInput(project_.atemTallyInput);
               markProjectDirty();
             });
         } else {
@@ -3992,7 +3992,7 @@
                        [this](const std::string& picked) {
                          project_.atemTallyInput = std::max(0, std::atoi(picked.c_str()));
                          // The client thread reads the mirror, never project_.
-                         atemTallyInputLive_.store(project_.atemTallyInput);
+                         atemSwitcher_.setOurInput(project_.atemTallyInput);
                          markProjectDirty();
                        });
         }

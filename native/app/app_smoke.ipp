@@ -438,13 +438,18 @@
     // against a real ATEM to fire nothing; these cover the branches a bench
     // test cannot reach without an operator standing at the panel.
     {
+      // The rule moved to platform/atem.hpp with the client, and it is still
+      // testable here because it is a PURE function of three ints -- which is
+      // exactly why it was kept separate from the socket in the first place.
+      using Atem = deckboy::platform::AtemSwitcherClient;
+      using TallyEdge = Atem::TallyEdge;
       const int us = 3;
-      expect(atemTallyEdge(1, 3, us) == TallyEdge::OnAir, "tally: cut to us is ON AIR");
-      expect(atemTallyEdge(3, 1, us) == TallyEdge::OffAir, "tally: cut away is OFF AIR");
-      expect(atemTallyEdge(3, 3, us) == TallyEdge::None, "tally: held on air is not an event");
-      expect(atemTallyEdge(1, 2, us) == TallyEdge::None, "tally: a cut between others is not ours");
-      expect(atemTallyEdge(-1, 3, us) == TallyEdge::None, "tally: first reading is state, not a cut");
-      expect(atemTallyEdge(1, 3, 0) == TallyEdge::None, "tally: no input chosen fires nothing");
+      expect(Atem::tallyEdge(1, 3, us) == TallyEdge::OnAir, "tally: cut to us is ON AIR");
+      expect(Atem::tallyEdge(3, 1, us) == TallyEdge::OffAir, "tally: cut away is OFF AIR");
+      expect(Atem::tallyEdge(3, 3, us) == TallyEdge::None, "tally: held on air is not an event");
+      expect(Atem::tallyEdge(1, 2, us) == TallyEdge::None, "tally: a cut between others is not ours");
+      expect(Atem::tallyEdge(-1, 3, us) == TallyEdge::None, "tally: first reading is state, not a cut");
+      expect(Atem::tallyEdge(1, 3, 0) == TallyEdge::None, "tally: no input chosen fires nothing");
     }
 
     // The ATEM packet parsers, against a packet built to the documented shape.
@@ -471,17 +476,17 @@
       block(packet, "InPr", inpr);
 
       const auto program =
-        atemProgramInputFromPacket(packet.data(), static_cast<unsigned>(packet.size()));
+        deckboy::platform::AtemSwitcherClient::atemProgramInputFromPacket(packet.data(), static_cast<unsigned>(packet.size()));
       expect(program && *program == 4, "atem parse: program input");
 
       std::map<int, std::string> names;
-      atemInputNamesFromPacket(packet.data(), static_cast<unsigned>(packet.size()), names);
+      deckboy::platform::AtemSwitcherClient::atemInputNamesFromPacket(packet.data(), static_cast<unsigned>(packet.size()), names);
       expect(names.size() == 1 && names[4] == "Camera 4", "atem parse: input name");
 
       // A truncated datagram must stop, not read past the end.
       std::map<int, std::string> shortNames;
       const unsigned half = static_cast<unsigned>(packet.size()) / 2;
-      atemInputNamesFromPacket(packet.data(), half, shortNames);
+      deckboy::platform::AtemSwitcherClient::atemInputNamesFromPacket(packet.data(), half, shortNames);
       expect(shortNames.empty() || shortNames.count(4) == 0,
              "atem parse: truncated packet reads nothing past the end");
 
@@ -489,7 +494,7 @@
       std::vector<unsigned char> evil(12, 0);
       evil.insert(evil.end(), {0, 0, 0, 0, 'P', 'r', 'g', 'I'});
       const auto none =
-        atemProgramInputFromPacket(evil.data(), static_cast<unsigned>(evil.size()));
+        deckboy::platform::AtemSwitcherClient::atemProgramInputFromPacket(evil.data(), static_cast<unsigned>(evil.size()));
       expect(!none, "atem parse: zero-length block terminates");
     }
 
@@ -2725,9 +2730,9 @@
       return 2;
     }
 
-    unsigned session = atemFreshSessionId();
+    unsigned session = deckboy::platform::AtemSwitcherClient::atemFreshSessionId();
     unsigned char hello[20] {};
-    atemWriteHeader(hello, 0x02, 20, session, 0, 0);
+    deckboy::platform::AtemSwitcherClient::atemWriteHeader(hello, 0x02, 20, session, 0, 0);
     hello[12] = 0x01;
     sendto(sock, reinterpret_cast<const char*>(hello), 20, 0,
            reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
@@ -2771,7 +2776,7 @@
         greeted = true;
         std::cout << "  connected -- session 0x" << std::hex << session << std::dec << "\n";
         unsigned char ack[12] {};
-        atemWriteHeader(ack, 0x10, 12, session, 0, 0);
+        deckboy::platform::AtemSwitcherClient::atemWriteHeader(ack, 0x10, 12, session, 0, 0);
         sendto(sock, reinterpret_cast<const char*>(ack), 12, 0,
                reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
         ++acked;
@@ -2784,15 +2789,15 @@
       }
       if ((flags & 0x01) != 0) {
         unsigned char ack[12] {};
-        atemWriteHeader(ack, 0x10, 12, session, pktId, 0);
+        deckboy::platform::AtemSwitcherClient::atemWriteHeader(ack, 0x10, 12, session, pktId, 0);
         sendto(sock, reinterpret_cast<const char*>(ack), 12, 0,
                reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
         ++acked;
       }
 
       const unsigned usable = std::min<unsigned>(length, static_cast<unsigned>(bytes));
-      atemInputNamesFromPacket(buffer.data(), usable, names);
-      if (const auto source = atemProgramInputFromPacket(buffer.data(), usable)) {
+      deckboy::platform::AtemSwitcherClient::atemInputNamesFromPacket(buffer.data(), usable, names);
+      if (const auto source = deckboy::platform::AtemSwitcherClient::atemProgramInputFromPacket(buffer.data(), usable)) {
         ++programReports;
         if (*source != lastProgram) {
           std::cout << "  program input -> " << *source

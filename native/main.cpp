@@ -8319,12 +8319,8 @@ class App {
   bool vjTakeFiring_ = false;  // guards the deferred take against re-queueing
 
   // ATEM switcher client (read-only program-bus watcher)
-  std::thread atemSwitcherThread_;
-  std::atomic<bool> atemSwitcherStop_ {true};
-  std::atomic<bool> atemSwitcherConnected_ {false};
   // -1 means "has not been told yet", which is deliberately distinct from any
   // real input number: the first reading is state, not a transition.
-  std::atomic<int> atemProgramInput_ {-1};
   // WHAT THE THREAD IS ALLOWED TO READ.
   //
   // The switcher client runs on its own thread and must not reach into
@@ -8337,11 +8333,7 @@ class App {
   // startNmcSyncBridge uses for its own config), and the input number is an
   // atomic mirror, which also means changing which input Deckboy is does not
   // need a reconnect.
-  std::string atemActiveHost_;
-  std::atomic<int> atemTallyInputLive_ {0};
   // What the switcher calls each of its inputs, as it told us on connect.
-  std::map<int, std::string> atemInputNames_;
-  std::mutex atemInputNamesMutex_;
 
   // HyperDeck server
   //
@@ -9741,6 +9733,8 @@ class App {
   deckboy::platform::NmcSync nmcSync_;
   deckboy::platform::ArtNetBridge artNetBridge_;
   deckboy::platform::AtemTallyBridge atemTallyBridge_;
+  deckboy::platform::AtemSwitcherClient atemSwitcher_;
+  bool atemSwitcherHooked_ = false;
   bool atemBridgeHooked_ = false;
   bool artNetHooked_ = false;
   bool nmcSyncHooked_ = false;
