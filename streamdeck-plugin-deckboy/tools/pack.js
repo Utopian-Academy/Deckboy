@@ -16,7 +16,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
-const folder = 'com.deckboy.streamdeck.sdPlugin'
+const folder = 'com.utopian-academy.deckboy.sdPlugin'
 const source = path.join(root, folder)
 if (!fs.existsSync(path.join(source, 'manifest.json'))) {
   console.error('run `node tools/build.js` first: there is no assembled plugin')

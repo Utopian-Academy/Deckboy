@@ -12,7 +12,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
-const plugin = path.join(root, 'com.deckboy.streamdeck.sdPlugin')
+const plugin = path.join(root, 'com.utopian-academy.deckboy.sdPlugin')
 const bin = path.join(plugin, 'bin')
 
 fs.mkdirSync(bin, { recursive: true })

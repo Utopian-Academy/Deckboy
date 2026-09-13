@@ -52,19 +52,19 @@ function showOk(context) {
 // protocol, so a key does exactly what the same command does anywhere else.
 function commandFor(action, settings) {
 	switch (action) {
-		case 'com.deckboy.streamdeck.take': {
+		case 'com.utopian-academy.deckboy.take': {
 			const cue = (settings.cue || '').trim()
 			return cue ? `TAKE ${cue}` : 'TAKE'
 		}
-		case 'com.deckboy.streamdeck.stop':
+		case 'com.utopian-academy.deckboy.stop':
 			return 'STOP'
-		case 'com.deckboy.streamdeck.pause':
+		case 'com.utopian-academy.deckboy.pause':
 			return 'PAUSE'
-		case 'com.deckboy.streamdeck.panic':
+		case 'com.utopian-academy.deckboy.panic':
 			return 'PANIC'
-		case 'com.deckboy.streamdeck.blackout':
+		case 'com.utopian-academy.deckboy.blackout':
 			return 'BLACKOUT TOGGLE'
-		case 'com.deckboy.streamdeck.command':
+		case 'com.utopian-academy.deckboy.command':
 			return (settings.command || '').trim()
 		default:
 			return ''
@@ -77,9 +77,9 @@ function refreshTitles() {
 		// A key with its own words keeps them: someone who labelled a key
 		// "HOUSE LIGHTS" did not ask for a transport readout on it.
 		if (entry.settings && entry.settings.keepTitle) continue
-		if (entry.action === 'com.deckboy.streamdeck.take' ||
-			entry.action === 'com.deckboy.streamdeck.stop' ||
-			entry.action === 'com.deckboy.streamdeck.pause') {
+		if (entry.action === 'com.utopian-academy.deckboy.take' ||
+			entry.action === 'com.utopian-academy.deckboy.stop' ||
+			entry.action === 'com.utopian-academy.deckboy.pause') {
 			setTitle(context, title)
 		} else if (!link.connected) {
 			setTitle(context, 'offline')

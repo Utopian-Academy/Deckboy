@@ -22,7 +22,7 @@
 	"Actions": [
 		{
 			"Name": "Take",
-			"UUID": "com.deckboy.streamdeck.take",
+			"UUID": "com.utopian-academy.deckboy.take",
 			"Icon": "imgs/actions/take-list",
 			"Tooltip": "Take the selected cue, or a cue by number.",
 			"PropertyInspectorPath": "ui/take.html",
@@ -33,7 +33,7 @@
 		},
 		{
 			"Name": "Stop",
-			"UUID": "com.deckboy.streamdeck.stop",
+			"UUID": "com.utopian-academy.deckboy.stop",
 			"Icon": "imgs/actions/stop-list",
 			"Tooltip": "Stop the focused deck.",
 			"Controllers": ["Keypad"],
@@ -41,7 +41,7 @@
 		},
 		{
 			"Name": "Pause",
-			"UUID": "com.deckboy.streamdeck.pause",
+			"UUID": "com.utopian-academy.deckboy.pause",
 			"Icon": "imgs/actions/pause-list",
 			"Tooltip": "Pause or resume the focused deck.",
 			"Controllers": ["Keypad"],
@@ -49,7 +49,7 @@
 		},
 		{
 			"Name": "Panic",
-			"UUID": "com.deckboy.streamdeck.panic",
+			"UUID": "com.utopian-academy.deckboy.panic",
 			"Icon": "imgs/actions/panic-list",
 			"Tooltip": "Outputs off and engines stopped. Held for a moment so it cannot be hit by accident.",
 			"Controllers": ["Keypad"],
@@ -57,7 +57,7 @@
 		},
 		{
 			"Name": "Blackout",
-			"UUID": "com.deckboy.streamdeck.blackout",
+			"UUID": "com.utopian-academy.deckboy.blackout",
 			"Icon": "imgs/actions/blackout-list",
 			"Tooltip": "Toggle blackout on the outputs.",
 			"Controllers": ["Keypad"],
@@ -65,7 +65,7 @@
 		},
 		{
 			"Name": "Command",
-			"UUID": "com.deckboy.streamdeck.command",
+			"UUID": "com.utopian-academy.deckboy.command",
 			"Icon": "imgs/actions/command-list",
 			"Tooltip": "Any Deckboy command, sent verbatim. The whole vocabulary is in MANUAL.md.",
 			"PropertyInspectorPath": "ui/command.html",

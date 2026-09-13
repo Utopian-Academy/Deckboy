@@ -35,7 +35,7 @@ To build one instead:
 npm run build && node tools/pack.js
 ```
 
-Or copy `com.deckboy.streamdeck.sdPlugin` into the plugins folder by hand and
+Or copy `com.utopian-academy.deckboy.sdPlugin` into the plugins folder by hand and
 restart Stream Deck:
 
 - **Windows** `%APPDATA%\Elgato\StreamDeck\Plugins\`

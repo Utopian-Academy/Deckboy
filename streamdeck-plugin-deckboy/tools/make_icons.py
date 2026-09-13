@@ -17,7 +17,7 @@ import os
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PLUGIN = os.path.join(HERE, "..", "com.deckboy.streamdeck.sdPlugin")
+PLUGIN = os.path.join(HERE, "..", "com.utopian-academy.deckboy.sdPlugin")
 IMGS = os.path.join(PLUGIN, "imgs")
 APP_ICON = os.path.join(HERE, "..", "..", "art", "windows", "icons", "deckboy_app_master.png")
 
