@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-13 - v0.99.359 (the rings come back)
+
+**The Rings shape stopped being rings a few seconds after it went up.** The
+whole frame settled to one flat colour -- pure white on Vapor, flat pastel on
+NES, flat orange on Fire -- which looks like the synth breaking rather than
+like a shape losing its shape. It was time-dependent, so it was right for the
+first few seconds after the take and then went, and no combination of palette
+or mirror made any difference to it. Rings hold their bands indefinitely now,
+at every palette, mirror and speed.
+
+**The brightest step of every palette is the palette's own top colour again.**
+The posteriser's top level landed fractionally out of range, so the brightest
+band clipped towards white instead of showing the colour chosen for it. Most
+visible on the hard-edged shapes -- Rings, Diamond and Grid -- where every
+pixel is at one end of the ramp or the other.
+
 ## 2026-09-13 - v0.99.358 (a synth stays a synth)
 
 **A chip synth cue now comes back as a chip synth.** Reopening a show turned

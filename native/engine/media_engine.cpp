@@ -3582,8 +3582,23 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
           break;
         }
         case VideoSynthShape::Rings: {
+          // WRAP THE NEGATIVE. std::fmod keeps the sign of its dividend, so
+          // once the time term overtakes the radius term -- about seven
+          // seconds in at speed 1 -- every pixel returned a value in (-2, 0],
+          // `band < 1.0` was true everywhere, and the rings became one flat
+          // field of the palette's top colour. On Vapor, whose top entry is
+          // pure white, that is a white rectangle on the output; on NES it is
+          // a flat pastel; on Fire it is a flat orange. It reads as "the synth
+          // broke" rather than as a shape that stopped being a shape, and it
+          // is time-dependent, so it looks right for the first few seconds
+          // after the take and then goes.
+          //
+          // Diamond and Grid do not have it: they add the time term inside the
+          // fmod, or take abs() before it. This is the only shape that
+          // subtracts, which is what makes the bands travel INWARD.
           const double r = std::sqrt(sx * sx + sy * sy);
-          const double band = std::fmod(r * 1.5 - t * 2.0, 2.0);
+          double band = std::fmod(r * 1.5 - t * 2.0, 2.0);
+          if (band < 0.0) band += 2.0;
           v = band < 1.0 ? 1.0 : -1.0;   // concentric BANDS, not a ripple
           break;
         }
@@ -3612,7 +3627,14 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
       // not a smooth ramp, and quantising is most of why they look designed
       // rather than computed.
       const int steps = 6;
-      const double q = std::floor(u * steps) / (steps - 1);
+      // The top step used to land ABOVE 1. floor(u * 6) reaches 6 when u is
+      // exactly 1, and dividing by 5 gives 1.2 -- so the brightest level was
+      // out of range: the analytic palettes multiplied it up and clipped to
+      // white instead of their own top colour, and the table palettes only
+      // escaped because samplePalette clamps. u is exactly 1 for every pixel
+      // of the hard-edged shapes, which is precisely where it showed.
+      const double q = std::min(std::floor(u * steps),
+                                static_cast<double>(steps - 1)) / (steps - 1);
       double r8 = 0.0, g8 = 0.0, b8 = 0.0;
       switch (vs.palette) {
         case VideoSynthPalette::Amber: r8 = q; g8 = q * 0.55; b8 = q * 0.05; break;
