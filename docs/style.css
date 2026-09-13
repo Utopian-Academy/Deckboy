@@ -251,3 +251,25 @@ footer a { color: var(--text-main); }
         transform: translateY(0);
     }
 }
+
+/* Product screenshot */
+.shot {
+    max-width: 1100px;
+    margin: 0 auto 5rem;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+.shot img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.shot-caption {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
