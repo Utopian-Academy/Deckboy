@@ -877,8 +877,22 @@ jobs:
           page.append("")
           page.append("---")
           page.append("")
-          page.append("Full history: [CHANGES.md](https://github.com/%s/blob/main/CHANGES.md)"
-                      % os.environ.get("GITHUB_REPOSITORY", "Utopian-Academy/Deckboy"))
+          # A release page is where most strangers arrive: a search lands on
+          # a version tag, not on the front page, and until now the only way
+          # out of one was the changelog. Somebody who has never heard of
+          # Deckboy should be able to tell what it is and where to read more
+          # without leaving GitHub first.
+          site = "https://utopian-academy.github.io/Deckboy/"
+          repo = os.environ.get("GITHUB_REPOSITORY", "Utopian-Academy/Deckboy")
+          page.append("**Deckboy** is free, open-source cue-based media playback "
+                      "and show control for live video — NDI, SRT, SDI and SMPTE "
+                      "ST 2110 out at once, driven from a Stream Deck, Bitfocus "
+                      "Companion, OSC, MIDI or LTC timecode.")
+          page.append("")
+          page.append("[What it does](%s) · [Manual](%smanual.html) · "
+                      "[How it compares](%scompare.html) · [FAQ](%sfaq.html) · "
+                      "[Full history](https://github.com/%s/blob/main/CHANGES.md)"
+                      % (site, site, site, site, repo))
 
           out = "\n".join(page).rstrip() + "\n"
           io.open("release-notes.md", "w", encoding="utf-8").write(out)
