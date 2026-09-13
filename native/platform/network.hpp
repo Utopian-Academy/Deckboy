@@ -32,6 +32,10 @@
 #ifndef _WIN32
 #include <arpa/inet.h>
 #include <fcntl.h>
+// netdb.h is getaddrinfo/addrinfo. Windows gets both from ws2tcpip.h below,
+// so a caller that resolves a host compiles there and fails to on POSIX --
+// which is how the NMC bridge broke Linux and nothing else.
+#include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
