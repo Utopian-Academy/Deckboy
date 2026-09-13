@@ -2148,12 +2148,31 @@
         return;
       }
       try {
-        handleMouseDown(std::stoi(parts[1]), std::stoi(parts[2]), SDL_BUTTON_LEFT);
+        // A CONTEXT MENU IS A SEPARATE DISPATCH, and entering at
+        // handleMouseDown skipped it entirely.
+        //
+        // The real event path (app_update.ipp) branches on contextMenuOpen_
+        // BEFORE handleMouseDown, so a click while a menu is up goes to
+        // handleContextMenuClick and never reaches the hit-testing below.
+        // CLICK called handleMouseDown directly, which meant it could OPEN a
+        // menu -- that button lives in handleMouseDown -- and could never
+        // choose anything from one. Everything reachable only through a menu
+        // was therefore unreachable over the wire: eleven cue types behind
+        // SOURCE alone, none of which could be created in a scripted test.
+        //
+        // Mirroring the branch makes CLICK more faithful to the real path,
+        // not less, which is the whole reason it enters at the event layer.
+        if (contextMenuOpen_) {
+          handleContextMenuClick(std::stoi(parts[1]), std::stoi(parts[2]));
+        } else {
+          handleMouseDown(std::stoi(parts[1]), std::stoi(parts[2]), SDL_BUTTON_LEFT);
+        }
         // Reports WHICH modal was up afterwards. A click that lands on a
         // covered control is silently swallowed by whatever claimed it first,
         // and without this the only symptom is "the button does nothing".
         remoteCommandDetail_ = "clicked " + parts[1] + "," + parts[2]
-          + " [splash=" + std::to_string(showSplashOverlay_ ? 1 : 0)
+          + " [menu=" + std::to_string(contextMenuOpen_ ? 1 : 0)
+          + " splash=" + std::to_string(showSplashOverlay_ ? 1 : 0)
           + " startup=" + std::to_string(showStartupDialog_ ? 1 : 0)
           + " dash=" + std::to_string(dashboardOverlayOpen_ ? 1 : 0)
           + " dashbtns=" + std::to_string(dashButtons_.size())
