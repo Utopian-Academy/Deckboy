@@ -188,7 +188,12 @@
       return;
     }
     if (command == "DECKADD" || command == "NEWDECK") {
-      triggerToast("single deck only");
+      // UNDERSTOOD BUT CANNOT ACT, which is failRemoteCommand's whole purpose:
+      // the operator still gets the toast and the caller gets the reason. This
+      // answered a plain OK, so over the socket a refusal was indistinguishable
+      // from success -- somebody drove it, believed decks were being created,
+      // and concluded STATUS was lying about decks=1.
+      failRemoteCommand("single deck only");
       return;
     }
     if (command == "GO" || command == "TOGGLE") {
