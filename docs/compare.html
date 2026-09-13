@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deckboy vs QLab, CasparCG, Watchout and Millumin | Honest Comparison</title>
+    <meta name="description" content="How Deckboy compares to QLab, CasparCG, Watchout, Millumin, ProPresenter and OBS for live video playback — including the jobs each one does better.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/compare.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Deckboy vs QLab, CasparCG, Watchout and Millumin">
+    <meta property="og:description" content="An honest comparison for live video playback — including where the other tools are the better answer.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/compare.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Deckboy vs QLab, CasparCG, Watchout and Millumin">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .prose { max-width: 860px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 3rem 0 1rem; font-size: 1.6rem; }
+        .prose h3 { margin: 2rem 0 .5rem; font-size: 1.15rem; color: #fff; }
+        .prose p { margin-bottom: 1rem; color: var(--text-muted); }
+        .prose ul { margin: 0 0 1rem 1.25rem; color: var(--text-muted); }
+        .prose li { margin-bottom: .4rem; }
+        .table-wrap { overflow-x: auto; margin: 2rem 0; }
+        table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: .92rem; }
+        th, td { text-align: left; padding: .7rem .8rem; border-bottom: 1px solid var(--glass-border); vertical-align: top; }
+        th { color: #fff; font-weight: 600; }
+        td { color: var(--text-muted); }
+        .yes { color: #3fb950; }
+        .no  { color: #8b949e; }
+        .callout { border-left: 3px solid var(--accent); padding: 1rem 1.2rem; background: var(--glass-bg);
+                   border-radius: 0 8px 8px 0; margin: 2rem 0; }
+        .callout p:last-child { margin-bottom: 0; }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="min-height:auto;padding-top:4rem;padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>How Deckboy compares</h1>
+            <p class="hero-subtitle">Including the jobs where something else is the better answer.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <p>Deckboy is an open-source, cue-based media playback and show-control application for
+        live video. It is not trying to be all of the tools below, and for several jobs one of
+        them is plainly the right call. This page tries to say which is which.</p>
+
+        <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Tool</th><th>Platforms</th><th>Cost</th><th>Shaped for</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><b>Deckboy</b></td><td>Windows, macOS, Linux</td><td>Free, GPL-3.0</td>
+                    <td>Cue-based video playback with broad IP output</td></tr>
+                <tr><td>QLab</td><td>macOS only</td><td>Free tier, paid licences</td>
+                    <td>Theatre show control: audio, video and lighting cues together</td></tr>
+                <tr><td>CasparCG</td><td>Windows, Linux</td><td>Free, open source</td>
+                    <td>Broadcast graphics and playout, driven by a client over a network</td></tr>
+                <tr><td>Watchout</td><td>Windows</td><td>Paid</td>
+                    <td>Large multi-display and projection-mapped installations</td></tr>
+                <tr><td>Millumin</td><td>macOS</td><td>Paid</td>
+                    <td>Live visuals and projection for performance</td></tr>
+                <tr><td>ProPresenter</td><td>Windows, macOS</td><td>Paid</td>
+                    <td>Worship and conference presentation with lyrics and slides</td></tr>
+                <tr><td>OBS Studio</td><td>Windows, macOS, Linux</td><td>Free, open source</td>
+                    <td>Streaming and recording a composed programme</td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <h2>Where Deckboy tends to fit</h2>
+        <ul>
+            <li><b>You are not on macOS.</b> QLab is macOS-only, and it is the reason
+                "QLab for Windows" is such a common search. Deckboy runs natively on Windows,
+                macOS and Linux from the same show file.</li>
+            <li><b>You want the cue list and the outputs in one window.</b> CasparCG is a server
+                that expects a separate client to drive it. Deckboy is a single application an
+                operator sits in front of.</li>
+            <li><b>The signal has to leave the machine in more than one shape.</b> NDI, SRT, RTMP,
+                Blackmagic SDI and SMPTE ST 2110 can run at the same time, so a playback machine
+                often solves the conversion problem on the day as well.</li>
+            <li><b>It has to be driven from a surface.</b> There is a Stream Deck plugin and a
+                Bitfocus Companion module, plus OSC, MIDI, Art-Net and LTC timecode.</li>
+            <li><b>Budget is zero.</b> It is GPL-3.0 with no account, no licence server and no
+                telemetry.</li>
+        </ul>
+
+        <h2>Where something else is the better answer</h2>
+        <div class="callout">
+            <p>This section is here on purpose. Recommending the wrong tool wastes a show day.</p>
+        </div>
+        <ul>
+            <li><b>Audio-led theatre cueing on a Mac — use QLab.</b> It has years of refinement,
+                a deep audio cue model and lighting cues in the same stack. Deckboy is
+                video-first and does not do lighting cues.</li>
+            <li><b>24/7 broadcast playout with a rundown — use CasparCG or ffplayout.</b> They are
+                built for unattended channel operation and automation systems talk to them
+                already.</li>
+            <li><b>Large projection-mapped installations — use Watchout, Millumin or Resolume.</b>
+                Deckboy has warp, keystone and edge blend per output, which covers ordinary
+                multi-projector work, but it is not a mapping suite.</li>
+            <li><b>Lyrics, scripture and worship flows — use ProPresenter.</b> Deckboy imports
+                PDF, PowerPoint and Keynote decks and has presenter and prompter views, but it
+                has no song or scripture library.</li>
+            <li><b>Compositing and streaming a live programme — use OBS or vMix.</b> Deckboy is a
+                source and a player, not a switcher. The two pair well: Deckboy out over NDI,
+                OBS ingesting it.</li>
+        </ul>
+
+        <h2>Honest caveats</h2>
+        <ul>
+            <li><b>The builds are not code-signed.</b> Signing needs paid Apple and Microsoft
+                developer accounts that the project has not bought, so macOS and Windows will
+                warn about an unknown developer. The README explains the one-time steps.</li>
+            <li><b>It is a young project</b> compared with anything else on this page, and it has
+                not been through the number of show days those tools have.</li>
+        </ul>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2.5rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>
+            <a href="./" class="btn-large btn-outline">Back to Deckboy</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+</body>
+</html>
