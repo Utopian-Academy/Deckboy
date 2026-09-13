@@ -559,6 +559,7 @@ class MediaEngine {
   double audioFadeGainAt(double positionSeconds) const;    // fade gain from atomic mirrors — the ONLY variant safe on the audio thread
   void syncAudioFadeParams();                              // publish fade params to the atomic mirrors (main thread)
   void refreshAudioEffectStack();                          // pull a changed effect stack across (audio thread)
+  void publishPictureStats(const DecodedFrame& frame);      // frame brightness/motion for the audio effects (main thread)
   void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
   void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
@@ -917,6 +918,24 @@ class MediaEngine {
   std::vector<deckboy::audiofx::AudioEffect> audioEffectsActive_;   // audio thread only
   std::uint32_t audioEffectsSeen_ = 0;                              // audio thread only
   deckboy::audiofx::AudioEffectState audioEffectState_;             // audio thread only
+
+  // -- State: what the deck-aware audio effects read ----------------------------
+  // Picture, Placement, Seam, Frame lock and Suspend are the five effects that
+  // use something only a cue deck knows. Same contract as the fade mirrors
+  // directly above: the audio thread must never touch activeCue_, state_ or a
+  // DecodedFrame, so the answers come across as atomics and are assembled into
+  // an AudioEffectContext once per chunk.
+  std::atomic<float> audioCtxLuma_ {0.5f};        // frame brightness, 0-1
+  std::atomic<float> audioCtxMotion_ {0.0f};      // change since the last frame
+  std::atomic<bool> audioCtxHasPicture_ {false};  // false = the two above are
+                                                  // defaults, do not follow them
+  std::atomic<float> audioCtxCenterX_ {0.5f};     // where the picture sits, 0-1
+  std::atomic<float> audioCtxCenterY_ {0.5f};
+  std::atomic<float> audioCtxCoverage_ {1.0f};    // fraction of the output filled
+  std::atomic<double> audioCtxFramePeriod_ {0.0}; // seconds per video frame
+  std::atomic<bool> audioCtxHeld_ {false};        // the cue is held
+  // The previous frame's luma, so motion is a difference. Main thread only.
+  double pictureStatsPrevLuma_ = -1.0;
 
   // -- State: decoder lifecycle flags ------------------------------------------
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit

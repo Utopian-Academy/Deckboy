@@ -41,6 +41,41 @@ namespace deckboy::audiofx {
 
 constexpr double kSampleRate = 48000.0;
 
+// ── WHAT THE DECK KNOWS THAT A PLUGIN CANNOT ────────────────────────────────
+//
+// Every audio effect ever written receives a buffer of samples and nothing
+// else. That is not a limitation anybody chose; it is what a plugin IS. A
+// compressor inside a mixing desk cannot know that the thing it is compressing
+// is a drone shot, that the shot is a quarter of the way across the screen,
+// that it has four seconds left, or that the operator has just held it.
+//
+// Deckboy holds the picture and the sound in the same object. So this is the
+// context the engine publishes alongside the samples, and the five effects
+// below it are the ones that could not be written anywhere else.
+//
+// Every field has a neutral value that makes the effect behave as though the
+// information were absent -- a cue with no video, no geometry and no known
+// duration still passes through all five without a fault, it simply has
+// nothing for them to follow.
+struct AudioEffectContext {
+  // ── The picture, as the frame the audio is playing under ──
+  float luma = 0.5f;          // 0-1, the frame's average brightness
+  float motion = 0.0f;        // 0-1, how much of it changed since the last one
+  bool hasPicture = false;    // false for an audio-only cue: luma/motion are
+                              // then defaults and must not be followed
+
+  // ── Where the picture IS, in the output raster ──
+  float centerX = 0.5f;       // 0 = left edge of the output, 1 = right edge
+  float centerY = 0.5f;       // 0 = top, 1 = bottom
+  float coverage = 1.0f;      // fraction of the output's area it fills
+
+  // ── When we are ──
+  double position = 0.0;      // seconds into the cue
+  double duration = 0.0;      // its length; 0 = open-ended or unknown
+  double framePeriod = 0.0;   // seconds per video frame; 0 = no video clock
+  bool held = false;          // the operator is holding this cue
+};
+
 // ── WHAT THERE IS ───────────────────────────────────────────────────────────
 //
 // Deliberately a short list, and deliberately the useful end of one. A live
@@ -58,6 +93,15 @@ enum class AudioEffectKind : int {
   Reverb,       // put a dry source in the room
   Width,        // narrow to mono, or widen
   Binaural,     // place the source around the listener's head
+  // ── THE ONES THAT NEED THE DECK ──
+  // Appended, never inserted: the token is what goes in the show file, but the
+  // ENUM VALUE is what a switch falls through, and reordering this list would
+  // silently turn one effect into another in code that indexes it.
+  Picture,      // the cue's own video drives a filter
+  Placement,    // where the picture sits on screen is where the sound is
+  Seam,         // the approaching end of the cue resolves the tail
+  FrameLock,    // granular stutter quantised to the VIDEO frame period
+  Suspend,      // a held cue keeps its room tone instead of stopping dead
   // The end marker, so the inspector's picker is built FROM this list rather
   // than from a second copy of it that can fall behind -- which is exactly how
   // four cue kinds ended up missing from cueKindToken.
@@ -75,6 +119,11 @@ inline const char* audioEffectLabel(AudioEffectKind kind) {
     case AudioEffectKind::Reverb:     return "Reverb";
     case AudioEffectKind::Width:      return "Width";
     case AudioEffectKind::Binaural:   return "Binaural";
+    case AudioEffectKind::Picture:    return "Picture";
+    case AudioEffectKind::Placement:  return "Placement";
+    case AudioEffectKind::Seam:       return "Seam";
+    case AudioEffectKind::FrameLock:  return "Frame lock";
+    case AudioEffectKind::Suspend:    return "Suspend";
     case AudioEffectKind::None:
     case AudioEffectKind::Count:      break;
   }
@@ -94,6 +143,11 @@ inline const char* audioEffectToken(AudioEffectKind kind) {
     case AudioEffectKind::Reverb:     return "reverb";
     case AudioEffectKind::Width:      return "width";
     case AudioEffectKind::Binaural:   return "binaural";
+    case AudioEffectKind::Picture:    return "picture";
+    case AudioEffectKind::Placement:  return "placement";
+    case AudioEffectKind::Seam:       return "seam";
+    case AudioEffectKind::FrameLock:  return "framelock";
+    case AudioEffectKind::Suspend:    return "suspend";
     case AudioEffectKind::None:
     case AudioEffectKind::Count:      break;
   }
@@ -110,6 +164,11 @@ inline AudioEffectKind audioEffectKindFromToken(const std::string& token) {
   if (token == "reverb")   return AudioEffectKind::Reverb;
   if (token == "width")    return AudioEffectKind::Width;
   if (token == "binaural") return AudioEffectKind::Binaural;
+  if (token == "picture")   return AudioEffectKind::Picture;
+  if (token == "placement") return AudioEffectKind::Placement;
+  if (token == "seam")      return AudioEffectKind::Seam;
+  if (token == "framelock") return AudioEffectKind::FrameLock;
+  if (token == "suspend")   return AudioEffectKind::Suspend;
   return AudioEffectKind::None;
 }
 
@@ -140,6 +199,23 @@ inline const char* audioEffectParamLabel(AudioEffectKind kind, int slot) {
       return slot == 0 ? "width" : nullptr;
     case AudioEffectKind::Binaural:
       return slot == 0 ? "azimuth" : (slot == 1 ? "distance" : nullptr);
+    case AudioEffectKind::Picture:
+      return slot == 0 ? "depth"
+           : slot == 1 ? "motion"
+           : slot == 2 ? "follow"
+           : slot == 3 ? "invert" : nullptr;
+    case AudioEffectKind::Placement:
+      return slot == 0 ? "position" : (slot == 1 ? "size" : nullptr);
+    case AudioEffectKind::Seam:
+      return slot == 0 ? "length"
+           : slot == 1 ? "darken"
+           : slot == 2 ? "room" : nullptr;
+    case AudioEffectKind::FrameLock:
+      return slot == 0 ? "frames"
+           : slot == 1 ? "repeats"
+           : slot == 2 ? "reverse" : nullptr;
+    case AudioEffectKind::Suspend:
+      return slot == 0 ? "loop" : (slot == 1 ? "settle" : nullptr);
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
       break;
@@ -211,6 +287,50 @@ inline const char* audioEffectParamTip(AudioEffectKind kind, int slot) {
                          "shading trick, not a pan."
            : slot == 1 ? "How far away. Distance dulls the top and softens "
                          "the difference between the ears."
+                       : nullptr;
+    case AudioEffectKind::Picture:
+      return slot == 0 ? "How far the picture swings the filter. The cue's own "
+                         "brightness opens and closes it, so a cut to black "
+                         "takes the top off the sound."
+           : slot == 1 ? "How much MOVEMENT opens it further. A still shot "
+                         "sits back; a fast one comes forward."
+           : slot == 2 ? "How quickly it follows. Fast tracks the grain and "
+                         "flickers; slow breathes with the edit."
+           : slot == 3 ? "Above halfway, dark opens it instead of closing it."
+                       : nullptr;
+    case AudioEffectKind::Placement:
+      return slot == 0 ? "How much of the picture's position on the output is "
+                         "used. A PIP on the left sounds on the left -- and it "
+                         "is a placement, not a pan: the far ear gets the "
+                         "delay and the head shadow too."
+           : slot == 1 ? "How much its SIZE becomes distance. Shrink the "
+                         "picture and the sound goes away from you: the top "
+                         "comes off, the image narrows, the level drops."
+                       : nullptr;
+    case AudioEffectKind::Seam:
+      return slot == 0 ? "How long before the end it starts. The cue has to "
+                         "have a known length -- an open-ended one has no end "
+                         "to resolve into."
+           : slot == 1 ? "How far the top comes down as the end approaches. "
+                         "This is not a fade: the level is left alone."
+           : slot == 2 ? "How much room comes up under it, so the sound "
+                         "settles into the cut instead of being severed."
+                       : nullptr;
+    case AudioEffectKind::FrameLock:
+      return slot == 0 ? "How long a grain is, in VIDEO FRAMES. On a 23.976 "
+                         "clip one frame is 41.7ms, which is not a musical "
+                         "value and is exactly the point."
+           : slot == 1 ? "How many times a grain repeats before the next is "
+                         "captured. One is a hiccup; eight is a lock-up."
+           : slot == 2 ? "Above halfway, each grain plays backwards."
+                       : nullptr;
+    case AudioEffectKind::Suspend:
+      return slot == 0 ? "How much of the tail is kept going while the cue is "
+                         "held. Long enough to hide the splice in room tone, "
+                         "short enough not to smear a rhythm in it."
+           : slot == 1 ? "How fast it settles away while held. At zero it "
+                         "holds indefinitely, which is what room tone under a "
+                         "held title wants."
                        : nullptr;
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
@@ -305,6 +425,32 @@ inline AudioEffect audioEffectDefaults(AudioEffectKind kind) {
       // announces itself, and not hard over, which sounds like a fault.
       fx.paramA = 0.30f; fx.paramB = 0.5f;
       break;
+    case AudioEffectKind::Picture:
+      // Following firmly and smoothly, with movement contributing. Instant
+      // following is a zipper and following nothing is the effect switched off.
+      fx.paramA = 0.70f; fx.paramB = 0.40f; fx.paramC = 0.45f; fx.paramD = 0.0f;
+      break;
+    case AudioEffectKind::Placement:
+      // Full position, moderate distance. A full-frame cue is centred and
+      // full-size, so this is inaudible until the geometry moves -- which is
+      // the correct behaviour, not a broken one.
+      fx.paramA = 1.0f; fx.paramB = 0.6f;
+      break;
+    case AudioEffectKind::Seam:
+      // Three seconds, a firm darkening and a real room.
+      fx.paramA = 0.33f; fx.paramB = 0.7f; fx.paramC = 0.5f;
+      break;
+    case AudioEffectKind::FrameLock:
+      // Two-frame grains repeating three times, forwards. Audible as a lock
+      // rather than as a fault, and it is a send-ish amount because a full-wet
+      // frame lock is a very strong effect.
+      fx.amount = 0.8f; fx.paramA = 0.14f; fx.paramB = 0.29f; fx.paramC = 0.0f;
+      break;
+    case AudioEffectKind::Suspend:
+      // A half-second loop that holds indefinitely. Settling away is the thing
+      // you ask for; not stopping dead is the thing you wanted.
+      fx.paramA = 0.23f; fx.paramB = 0.0f;
+      break;
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
       break;
@@ -330,6 +476,18 @@ struct AudioEffectSlotState {
   std::size_t writeAt = 0;
   // Reverb needs several taps at different lengths out of the one line.
   double combY[2][4] {{0, 0, 0, 0}, {0, 0, 0, 0}};
+  // Picture's smoothed follow value and the filter it last built from it --
+  // recomputing a biquad per sample would be honest and slow, and the cutoff
+  // cannot move fast enough for once every 64 samples to be audible.
+  double followed = 0.5;
+  // The filter it last built from that value, as plain coefficients -- the
+  // Biquad type is declared below this struct (it takes a reference to one),
+  // so the state cannot hold one without an ordering knot that buys nothing.
+  double cached[5] {1, 0, 0, 0, 0};
+  // Frame lock and suspend read out of the line at their own pace, which is
+  // not the write pace -- that is the whole point of both of them.
+  std::size_t readAt = 0;
+  int grainPass = 0;
 
   void reset() {
     for (int c = 0; c < 2; ++c) {
@@ -339,6 +497,9 @@ struct AudioEffectSlotState {
     }
     std::fill(line.begin(), line.end(), 0.0);
     writeAt = 0;
+    readAt = 0;
+    grainPass = 0;
+    followed = 0.5;
   }
 };
 
@@ -444,7 +605,8 @@ inline double timeCoefficient(double ms) {
 // compressor before a gate, and both are things people want.
 inline void applyAudioEffectStack(std::vector<double>& samples,
                                   const std::vector<AudioEffect>& stack,
-                                  AudioEffectState& state) {
+                                  AudioEffectState& state,
+                                  const AudioEffectContext& ctx = {}) {
   if (samples.empty() || stack.empty()) {
     return;
   }
@@ -673,6 +835,304 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         }
         break;
       }
+      // ── THE FIVE THAT NEED THE DECK ─────────────────────────────────────
+      //
+      // Each of these reads `ctx`. On a cue that cannot supply what it wants --
+      // an audio-only cue for Picture, a cue of unknown length for Seam -- the
+      // effect passes the signal through rather than inventing the information,
+      // and the inspector says so on the row. A control that quietly does
+      // something arbitrary when its input is missing is worse than one that
+      // does nothing.
+
+      case AudioEffectKind::Picture: {
+        // THE PICTURE PLAYS THE FILTER.
+        //
+        // Brightness opens it and darkness closes it, so a cut to black takes
+        // the top off the sound and a bright frame gives it back. Movement
+        // pushes it further open, so a still shot sits back and a fast one
+        // comes forward. This is the thing a plugin cannot do at all: the
+        // sound of a shot following the shot.
+        if (!ctx.hasPicture) {
+          break;
+        }
+        const double depth = detail::clamp01(fx.paramA);
+        const double motionAmount = detail::clamp01(fx.paramB);
+        // HOW FAST IT FOLLOWS, and why it is not instant. Video arrives 24 to
+        // 60 times a second; a filter cutoff that jumped to a new value on
+        // each frame would be a zipper. This smooths over 10ms to 2s, and the
+        // slow end is the musical one -- a filter that breathes with the edit
+        // rather than flickering with the grain.
+        const double followMs = 10.0 + std::pow(detail::clamp01(fx.paramC), 2.0) * 1990.0;
+        const double follow = detail::timeCoefficient(followMs);
+        const bool invert = fx.paramD >= 0.5;
+
+        double drive = detail::clamp01(static_cast<double>(ctx.luma));
+        if (invert) {
+          drive = 1.0 - drive;
+        }
+        drive = detail::clamp01(drive + motionAmount * detail::clamp01(
+                                  static_cast<double>(ctx.motion)));
+        // The target cutoff, and the smoothing that gets us there. `followed`
+        // persists across chunks, so the ramp is continuous across the buffer
+        // boundary rather than restarting at every callback.
+        const double target = 0.5 + (drive - 0.5) * depth;
+        for (std::size_t i = 0; i < frames; ++i) {
+          slot.followed = target + (slot.followed - target) * follow;
+          // Recomputing the biquad per sample would be honest and slow. The
+          // cutoff moves at most a few hundred Hz per millisecond at the fast
+          // end, so once every 64 samples (1.3ms) is inaudible and a
+          // twentieth of the cost.
+          if ((i & 63u) == 0u || i == 0) {
+            const detail::Biquad built = detail::makeLowPass(
+              detail::logFrequency(slot.followed, 300.0, 18000.0), 0.707);
+            slot.cached[0] = built.b0; slot.cached[1] = built.b1;
+            slot.cached[2] = built.b2; slot.cached[3] = built.a1;
+            slot.cached[4] = built.a2;
+          }
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            detail::Biquad f;
+            f.b0 = slot.cached[0]; f.b1 = slot.cached[1]; f.b2 = slot.cached[2];
+            f.a1 = slot.cached[3]; f.a2 = slot.cached[4];
+            s = dry * s + wet * f.run(slot, c, s);
+          }
+        }
+        break;
+      }
+
+      case AudioEffectKind::Placement: {
+        // THE SOUND IS WHERE THE PICTURE IS.
+        //
+        // A PIP three-quarters of the way across the output sounds three
+        // quarters of the way across the room. Shrink it and it goes away from
+        // you: the top comes off, the image narrows, the level drops the way
+        // distance actually does. Nothing about this is available to a plugin,
+        // because the geometry lives in the cue and the cue is not something a
+        // plugin can see.
+        //
+        // Deliberately NOT a pan. A pan puts a sound between two speakers; this
+        // puts it in a position, which is why the far ear gets the delay and
+        // the shadow rather than just less level.
+        const double follow = detail::clamp01(fx.paramA);
+        const double depthAmount = detail::clamp01(fx.paramB);
+        const std::size_t maxDelay = 128;
+        if (slot.line.size() < maxDelay * 2) {
+          slot.line.assign(maxDelay * 2, 0.0);
+          slot.writeAt = 0;
+        }
+        // Centre is centre: an offset of 0.5 means no placement at all, so a
+        // full-frame cue with this armed sounds exactly as it did.
+        const double azimuth = (detail::clamp01(static_cast<double>(ctx.centerX))
+                                - 0.5) * 2.0 * follow;
+        // Coverage is an AREA, so its square root is the linear size -- which
+        // is what the eye reads as "how far away". A quarter-area PIP is half
+        // the size, not a quarter of it.
+        const double size = std::sqrt(detail::clamp01(
+          static_cast<double>(ctx.coverage)));
+        const double distance = (1.0 - size) * depthAmount;
+        const std::size_t itd = static_cast<std::size_t>(
+          std::fabs(azimuth) * 0.0007 * kSampleRate);
+        const detail::Biquad air = detail::makeLowPass(
+          detail::logFrequency(1.0 - distance * 0.75, 1500.0, 20000.0), 0.707);
+        // Distance also narrows: two ears stop being able to tell much apart
+        // about something far away, which is why a distant source collapses
+        // toward the middle.
+        const double width = 1.0 - distance * 0.8;
+        const double level = 1.0 - distance * 0.5;
+        const double farGain = 1.0 - std::fabs(azimuth) * 0.3;
+        for (std::size_t i = 0; i < frames; ++i) {
+          const double l = samples[i * 2], r = samples[i * 2 + 1];
+          const double mid = (l + r) * 0.5;
+          const double side = (l - r) * 0.5 * width;
+          double outL = mid + side;
+          double outR = mid - side;
+          if (itd > 0) {
+            const double mono = mid;
+            slot.line[slot.writeAt * 2] = mono;
+            const std::size_t readAt =
+              (slot.writeAt + maxDelay - std::max<std::size_t>(itd, 1)) % maxDelay;
+            const double late = slot.line[readAt * 2];
+            slot.writeAt = (slot.writeAt + 1) % maxDelay;
+            if (azimuth > 0.0) {
+              outR = mid + side;
+              outL = air.run(slot, 0, late) * farGain + side * 0.2;
+            } else {
+              outL = mid - side;
+              outR = air.run(slot, 1, late) * farGain - side * 0.2;
+            }
+          }
+          outL = air.run(slot, 0, outL) * level;
+          outR = air.run(slot, 1, outR) * level;
+          samples[i * 2] = dry * l + wet * outL;
+          samples[i * 2 + 1] = dry * r + wet * outR;
+        }
+        break;
+      }
+
+      case AudioEffectKind::Seam: {
+        // THE CUE RESOLVES INSTEAD OF BEING SEVERED.
+        //
+        // A fade is a volume ramp: it makes the last seconds QUIETER, which is
+        // not the same as making them sound finished, and on speech it sounds
+        // exactly like somebody turning a knob. This is what happens instead --
+        // over the last few seconds the top comes down and a short room comes
+        // up, so the sound settles into the cut the way a sound settles into a
+        // room. The level is left alone; the fade still does that job if you
+        // want it.
+        //
+        // It needs to know how long the cue is and where in it we are, which
+        // no plugin is ever told.
+        if (ctx.duration <= 0.0) {
+          break;   // open-ended: there is no end to resolve into
+        }
+        const double window = 0.5 + detail::clamp01(fx.paramA) * 7.5;
+        const double remaining = ctx.duration - ctx.position;
+        if (remaining > window) {
+          // Not yet in the seam. The room is still fed, so it is already
+          // ringing when the seam opens rather than arriving from nothing.
+          break;
+        }
+        const double into = detail::clamp01(1.0 - remaining / window);
+        const double darken = detail::clamp01(fx.paramB) * into;
+        const double roomAmount = detail::clamp01(fx.paramC) * into;
+        const std::size_t maxDelay = static_cast<std::size_t>(kSampleRate * 0.08);
+        if (slot.line.size() < maxDelay * 2) {
+          slot.line.assign(maxDelay * 2, 0.0);
+          slot.writeAt = 0;
+        }
+        const detail::Biquad top = detail::makeLowPass(
+          detail::logFrequency(1.0 - darken * 0.85, 400.0, 20000.0), 0.707);
+        for (std::size_t i = 0; i < frames; ++i) {
+          for (int c = 0; c < 2; ++c) {
+            const std::size_t readAt =
+              (slot.writeAt + maxDelay - (maxDelay * 3 / 4)) % maxDelay;
+            const double room = slot.line[readAt * 2 + c];
+            double s = top.run(slot, c, samples[i * 2 + c]);
+            slot.line[slot.writeAt * 2 + c] = s + room * 0.45;
+            s += room * roomAmount;
+            samples[i * 2 + c] = dry * samples[i * 2 + c] + wet * s;
+          }
+          slot.writeAt = (slot.writeAt + 1) % maxDelay;
+        }
+        break;
+      }
+
+      case AudioEffectKind::FrameLock: {
+        // STUTTER ON THE FRAME, NOT ON THE BEAT.
+        //
+        // Every stutter effect there has ever been is quantised to a tempo,
+        // because a tempo is the only clock a plugin has. This one is
+        // quantised to the VIDEO FRAME PERIOD, so a repeat is exactly one, two
+        // or four frames long and the chop lands on a frame boundary. Against
+        // a picture that is a different thing entirely: the sound and the image
+        // step together instead of merely being near each other.
+        //
+        // On a 23.976 clip the grain is 41.708ms, which is not a musical value
+        // and is precisely the point.
+        if (ctx.framePeriod <= 0.0) {
+          break;   // no video clock: nothing to lock to
+        }
+        const int grainFrames = 1 + static_cast<int>(
+          detail::clamp01(fx.paramA) * 7.0 + 0.5);
+        const std::size_t grain = std::max<std::size_t>(
+          static_cast<std::size_t>(ctx.framePeriod * grainFrames * kSampleRate), 16);
+        const std::size_t maxDelay = static_cast<std::size_t>(kSampleRate * 0.5);
+        if (slot.line.size() < maxDelay * 2) {
+          slot.line.assign(maxDelay * 2, 0.0);
+          slot.writeAt = 0;
+          slot.readAt = 0;
+        }
+        const std::size_t hold = std::min(grain, maxDelay - 1);
+        // How many times a grain repeats before the next one is captured. One
+        // is a one-frame hiccup; eight is a full lock-up.
+        const int repeats = 1 + static_cast<int>(
+          detail::clamp01(fx.paramB) * 7.0 + 0.5);
+        const bool reverse = fx.paramC >= 0.5;
+        for (std::size_t i = 0; i < frames; ++i) {
+          // Capture on the first pass through a grain, replay on the rest.
+          const bool capturing = (slot.grainPass == 0);
+          const std::size_t at = slot.readAt % hold;
+          for (int c = 0; c < 2; ++c) {
+            if (capturing) {
+              slot.line[at * 2 + c] = samples[i * 2 + c];
+            }
+            const std::size_t from = reverse ? (hold - 1 - at) : at;
+            const double held = slot.line[from * 2 + c];
+            samples[i * 2 + c] = dry * samples[i * 2 + c] + wet * held;
+          }
+          if (++slot.readAt >= hold) {
+            slot.readAt = 0;
+            slot.grainPass = (slot.grainPass + 1) % repeats;
+          }
+        }
+        break;
+      }
+
+      case AudioEffectKind::Suspend: {
+        // A HELD CUE KEEPS ITS ROOM.
+        //
+        // Holding a cue holds the picture -- that is what hold IS -- and the
+        // sound stops dead, which on any cue with room tone, an audience, rain
+        // or a hum is an obvious hole. This keeps the last moment of it going:
+        // a loop of the tail, crossfaded into itself so there is no seam, for
+        // as long as the hold lasts.
+        //
+        // No plugin can do this because no plugin is told that a hold has
+        // happened; all it sees is the samples stopping, which is
+        // indistinguishable from silence in the material.
+        const double loopSeconds = 0.05 + detail::clamp01(fx.paramA) * 1.95;
+        const std::size_t loop = std::max<std::size_t>(
+          static_cast<std::size_t>(loopSeconds * kSampleRate), 64);
+        if (slot.line.size() < loop * 2) {
+          slot.line.assign(loop * 2, 0.0);
+          slot.writeAt = 0;
+          slot.readAt = 0;
+        }
+        // How fast it lets go while held. 0 holds it indefinitely, which is
+        // what a room tone under a held title wants; further up it settles away
+        // over a few seconds.
+        const double decayPerLoop = 1.0 - detail::clamp01(fx.paramB) * 0.5;
+        if (!ctx.held) {
+          // RUNNING: just keep the tail fresh. The effect is inaudible here,
+          // which is correct -- it is a thing that happens at the hold, not a
+          // thing you hear during the cue.
+          for (std::size_t i = 0; i < frames; ++i) {
+            for (int c = 0; c < 2; ++c) {
+              slot.line[slot.writeAt * 2 + c] = samples[i * 2 + c];
+            }
+            slot.writeAt = (slot.writeAt + 1) % loop;
+          }
+          slot.readAt = slot.writeAt;
+          slot.followed = 1.0;
+          break;
+        }
+        // HELD: play the ring back, crossfaded across the splice so the loop
+        // point is not a click. The fade is a quarter of the loop at each end,
+        // which is long enough to hide a splice in room tone and short enough
+        // not to smear a rhythm in it.
+        const std::size_t fade = std::max<std::size_t>(loop / 4, 8);
+        for (std::size_t i = 0; i < frames; ++i) {
+          const std::size_t at = slot.readAt % loop;
+          double gain = 1.0;
+          if (at < fade) {
+            gain = static_cast<double>(at) / static_cast<double>(fade);
+          }
+          const std::size_t mirror = (at + loop - fade) % loop;
+          const double mirrorGain = 1.0 - gain;
+          for (int c = 0; c < 2; ++c) {
+            const double v = slot.line[at * 2 + c] * gain +
+                             slot.line[mirror * 2 + c] * mirrorGain;
+            samples[i * 2 + c] = dry * samples[i * 2 + c] +
+                                 wet * v * slot.followed;
+          }
+          if (++slot.readAt >= loop) {
+            slot.readAt = 0;
+            slot.followed *= decayPerLoop;
+          }
+        }
+        break;
+      }
+
       case AudioEffectKind::None:
       case AudioEffectKind::Count:
         break;

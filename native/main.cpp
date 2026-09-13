@@ -6717,6 +6717,51 @@ class App {
   // that breathes is a look; an audio parameter that breathes on its own
   // during a show is a fault the operator cannot see coming. If that is ever
   // wanted it should be asked for, not inherited by symmetry.
+  // WHY THIS EFFECT CANNOT DO ITS JOB ON THIS CUE, or empty if it can.
+  //
+  // Five of the fourteen read something the deck supplies -- the picture, the
+  // geometry, the length, the video clock -- and on a cue that has none of it
+  // they pass the signal through untouched. That is the right behaviour and
+  // the wrong silence: an operator who arms Frame lock on an audio cue and
+  // hears nothing has been given a control that does nothing, which is this
+  // codebase's signature bug. So the row says why.
+  static std::string audioEffectUnavailableReason(
+      deckboy::audiofx::AudioEffectKind kind, const Cue& cue) {
+    using K = deckboy::audiofx::AudioEffectKind;
+    switch (kind) {
+      case K::Picture:
+        // The same question cueSupportsEffectStack already answers: does this
+        // cue have pixels at all. One definition, not a second one beside it
+        // that can fall behind -- see the note on cueKindToken.
+        if (!cueSupportsEffectStack(cue)) {
+          return "no picture on this cue - nothing to follow";
+        }
+        return "follows this cue's own brightness (needs CPU frames)";
+      case K::FrameLock:
+        if (cue.kind != CueKind::Video || cue.fps <= 1.0) {
+          return "no video clock on this cue - nothing to lock to";
+        }
+        return std::string();
+      case K::Seam:
+        if (cue.duration <= 0.0) {
+          return "this cue has no known end to resolve into";
+        }
+        return std::string();
+      case K::Placement:
+        // Not an error, a fact: a full-frame centred cue IS in the middle at
+        // full size, so the effect is correctly inaudible until the geometry
+        // moves. Somebody who armed it on a full-frame cue and heard nothing
+        // would otherwise conclude it was broken.
+        if (std::fabs(cue.outputOffsetX) < 0.001f &&
+            cue.outputScaleX * cue.outputScaleY > 0.99f) {
+          return "centred and full-frame - moves when the picture does";
+        }
+        return std::string();
+      default:
+        return std::string();
+    }
+  }
+
   int inspDrawAudioEffectRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     const auto& stack = cue.audioEffects;
@@ -6741,6 +6786,12 @@ class App {
         quickButtons_.push_back({nameRect, QuickAction::AudioEffectCycleKind,
                                  "Choose which effect this is", i});
         rowY += ix.rowStep;
+      }
+      {
+        const std::string why = audioEffectUnavailableReason(fx.kind, cue);
+        if (!why.empty()) {
+          rowY = inspDrawMessageRow(ix, rowY, why, pal.tile, pal.inkSoft);
+        }
       }
       // AMOUNT MEANS THE SAME THING EVERY TIME. For the shaping effects it is
       // a dry/wet mix; for the dynamics it scales the gain reduction. Either

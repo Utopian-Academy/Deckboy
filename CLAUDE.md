@@ -49,6 +49,7 @@ cmake --build build/windows --config Release
 | `native/core/project_file.ipp` | saveProject / loadProject — the whole `.deckboy` format. Included into main.cpp's anonymous namespace at the point the functions used to sit, so every helper they rely on is still in scope |
 | `native/engine/media_engine.cpp/hpp` | Core playback: decode, transport, fade, transition |
 | `native/core/types.hpp` | All domain types: `Cue`, `Deck`, `OutputTarget`, `Project` |
+| `native/core/audio_effects.hpp` | The per-cue AUDIO chain: nine ordinary effects plus the five that read `AudioEffectContext` -- the picture, the geometry, the length, the video clock, the hold. Runs on the audio thread between the cue's gain and the peak limiter. Verify with `--audio-fx-check` |
 | `native/core/constants.hpp` | `kOutputWidth/Height`, `kMaxVideoFrames`, `kAppTitle`, etc. |
 | `native/platform/ndi_api.hpp` | NDI send runtime (dynamic load) |
 | `native/platform/ndi_trigger_api.hpp` | NDI recv + find runtime (dynamic load) |
@@ -139,6 +140,44 @@ Three rules, all of them learned by measuring:
   `ctx.stateHold` — true for every consumer after the first in a frame, so two
   outputs showing one deck do not each advance the state and drift apart. It
   must also be listed in `cueEffectKindAnimates`, or it freezes on a still cue.
+
+## Writing an AUDIO effect (`native/core/audio_effects.hpp`)
+
+The same contract as the picture effects, with three differences that come from
+what audio is.
+
+- **Amount always means "less of this".** Dry/wet for the shaping effects, gain
+  reduction for the dynamics, a SEND for the delay and the reverb. A delay
+  treated as a dry/wet means amount 100% removes the source and leaves only the
+  echo -- and on a cue shorter than the delay time, that is a cue which plays
+  silence. That shipped for about an hour.
+- **The struct defaults and the ARRIVAL defaults are different things, and
+  both are load-bearing.** `AudioEffect`'s 0.5/0/0/0 exist so a show saved
+  before a parameter reproduces what the effect did without it; that rule is
+  about old shows. `audioEffectDefaults(kind)` is what a NEW effect arrives
+  set to. For half of these they are opposites: the backward-compatible
+  compressor ratio is 1:1, which is a compressor that does not compress.
+- **A cap of eight.** The chain runs per sample on the audio thread, where
+  overrunning does not drop a frame -- it clicks.
+
+The five deck-aware effects read `AudioEffectContext`, published by the engine
+into atomics (`audioCtx*_` in media_engine.hpp) because the audio thread must
+never touch `activeCue_`, `state_` or a `DecodedFrame`. Every field has a
+neutral value that makes the effect pass through, and
+`audioEffectUnavailableReason()` puts the reason on the inspector row --
+passing through silently is the "control that does nothing" bug.
+
+`Picture` needs CPU pixels, so `cueNeedsCpuPixelPath` returns true for a cue
+whose chain contains one, and every edit that can change that answer calls
+`refreshLiveCueIfPixelPathChanged` -- the decode format is frozen at TAKE, so
+without it the effect does nothing until the next one.
+
+**Checklist for a new audio effect**: kind + label + token + `fromToken`,
+`audioEffectParamLabel` and `audioEffectParamTip` for every slot it uses,
+`audioEffectDefaults`, a `case` in `applyAudioEffectStack`, and the `rings`
+list in `runAudioFxCheck` if it is supposed to keep sounding after the input
+stops. Then run `--audio-fx-check` and READ IT: its first run found four real
+faults, including a delay whose output was silence.
 
 ## Theme creatures (`native/core/creatures.hpp`, `app_creatures.ipp`)
 

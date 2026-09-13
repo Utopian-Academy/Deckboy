@@ -1036,6 +1036,12 @@ void MediaEngine::update() {
   if (advancedDisplayFrame && shouldMeasureMediaFps()) {
     recordMediaFrameAdvance(advancedFrameIndex);
   }
+  // On the frame advance, not on the render tick: the picture only changes
+  // when the picture changes, and measuring it 240 times a second would be
+  // 240 identical answers.
+  if (advancedDisplayFrame && displayFrame_) {
+    publishPictureStats(*displayFrame_);
+  }
 
   // Upload only when the display frame actually changed (or the texture was
   // torn down). The old unconditional call re-uploaded the same pixels every
@@ -4599,6 +4605,32 @@ void MediaEngine::syncAudioFadeParams() {
   audioCueMono_.store(cue != nullptr && cue->audioMono, std::memory_order_relaxed);
   audioCuePairOffset_.store(cue ? std::clamp(cue->audioOutputPair, 0, 7) : 0,
                             std::memory_order_relaxed);
+  // WHERE THE PICTURE IS AND HOW LONG IS LEFT, for the deck-aware effects.
+  // Geometry is the cue's own output scale and offset, which is what the
+  // compositor uses -- so "where it sounds" and "where it is" cannot drift
+  // apart, because they are the same two numbers.
+  if (cue) {
+    audioCtxCenterX_.store(
+      std::clamp(0.5f + cue->outputOffsetX, 0.0f, 1.0f), std::memory_order_relaxed);
+    audioCtxCenterY_.store(
+      std::clamp(0.5f + cue->outputOffsetY, 0.0f, 1.0f), std::memory_order_relaxed);
+    audioCtxCoverage_.store(
+      std::clamp(cue->outputScaleX * cue->outputScaleY, 0.0f, 1.0f),
+      std::memory_order_relaxed);
+    // The VIDEO frame period, which is what Frame lock quantises to. A cue
+    // with no video reports zero and the effect passes through.
+    const double fps = cue->fps > 0.0 ? cue->fps : frameRate_;
+    audioCtxFramePeriod_.store(
+      (fps > 1.0 && cue->kind == CueKind::Video) ? 1.0 / fps : 0.0,
+      std::memory_order_relaxed);
+  } else {
+    audioCtxCenterX_.store(0.5f, std::memory_order_relaxed);
+    audioCtxCenterY_.store(0.5f, std::memory_order_relaxed);
+    audioCtxCoverage_.store(1.0f, std::memory_order_relaxed);
+    audioCtxFramePeriod_.store(0.0, std::memory_order_relaxed);
+  }
+  audioCtxHeld_.store(state_ == TransportState::Paused, std::memory_order_relaxed);
+
   // The effect stack is a vector, so it goes across under the lock rather than
   // through an atomic. Only bump the generation when it actually differs --
   // this runs every tick, and a needless bump would make the audio thread take
@@ -4630,6 +4662,81 @@ void MediaEngine::syncAudioFadeParams() {
 // indexed by position, so inserting an effect at the top would otherwise hand a
 // delay's line to a compressor and a compressor's envelope to a gate. Turning a
 // knob keeps the memory, which is what lets somebody ride a filter live.
+// ── WHAT THE PICTURE IS DOING, FOR THE AUDIO TO FOLLOW ──────────────────────
+//
+// The Picture effect turns the cue's own brightness and movement into a filter
+// (see audio_effects.hpp). This is where those two numbers come from.
+//
+// SUBSAMPLED HARD, on purpose. A 32x18 grid is 576 samples out of eight
+// million, it is computed once per decoded frame rather than once per audio
+// callback, and the two things it produces are a mean and a difference of
+// means -- neither of which gets more truthful from reading every pixel. The
+// budget for this is "free or it does not go in the frame path".
+//
+// A GPU FRAME HAS NO PIXELS TO READ. That is the whole point of the zero-copy
+// path: the picture never comes down to the CPU. So hasPicture goes false and
+// the effect passes the signal through untouched rather than following a
+// number invented from nothing -- and cueNeedsCpuPixelPath asks for CPU frames
+// when a Picture effect is actually in the chain, which is the same mechanism
+// the picture effects already use to get pixels they can act on.
+void MediaEngine::publishPictureStats(const DecodedFrame& frame) {
+  if (frame.pixels.empty() || frame.width <= 0 || frame.height <= 0) {
+    audioCtxHasPicture_.store(false, std::memory_order_relaxed);
+    pictureStatsPrevLuma_ = -1.0;
+    return;
+  }
+  // RGBA and NV12 are the two layouts that reach here, and the luma of an NV12
+  // frame is its first plane -- already the number wanted, with no arithmetic
+  // at all.
+  const bool nv12 = frame.format == FramePixelFormat::NV12;
+  const std::size_t stride = nv12
+    ? static_cast<std::size_t>(frame.width)
+    : static_cast<std::size_t>(frame.width) * 4;
+  if (frame.pixels.size() < stride * static_cast<std::size_t>(frame.height)) {
+    audioCtxHasPicture_.store(false, std::memory_order_relaxed);
+    return;
+  }
+  constexpr int kCols = 32;
+  constexpr int kRows = 18;
+  double sum = 0.0;
+  int taken = 0;
+  for (int ry = 0; ry < kRows; ++ry) {
+    const int y = frame.height * (ry * 2 + 1) / (kRows * 2);
+    const std::uint8_t* row = frame.pixels.data() + static_cast<std::size_t>(y) * stride;
+    for (int rx = 0; rx < kCols; ++rx) {
+      const int x = frame.width * (rx * 2 + 1) / (kCols * 2);
+      if (nv12) {
+        sum += row[x];
+      } else {
+        const std::uint8_t* px = row + static_cast<std::size_t>(x) * 4;
+        // Rec.709 luma. The cheap (r+g+b)/3 makes a saturated blue as bright
+        // as a mid grey, and a cut to a deep blue would then not close the
+        // filter -- which is exactly the move somebody would arm this for.
+        sum += 0.2126 * px[0] + 0.7152 * px[1] + 0.0722 * px[2];
+      }
+      ++taken;
+    }
+  }
+  if (taken == 0) {
+    audioCtxHasPicture_.store(false, std::memory_order_relaxed);
+    return;
+  }
+  const double luma = std::clamp(sum / (taken * 255.0), 0.0, 1.0);
+  // Motion as the frame-to-frame change in mean brightness, scaled so an
+  // ordinary cut reads as 1. It is a crude measure and an honest one: it
+  // cannot tell a pan from a cut, and it does not claim to. The alternative
+  // was the decoder's motion vectors, which the hardware path does not expose
+  // and which would tie this to one decoder.
+  double motion = 0.0;
+  if (pictureStatsPrevLuma_ >= 0.0) {
+    motion = std::clamp(std::fabs(luma - pictureStatsPrevLuma_) * 8.0, 0.0, 1.0);
+  }
+  pictureStatsPrevLuma_ = luma;
+  audioCtxLuma_.store(static_cast<float>(luma), std::memory_order_relaxed);
+  audioCtxMotion_.store(static_cast<float>(motion), std::memory_order_relaxed);
+  audioCtxHasPicture_.store(true, std::memory_order_relaxed);
+}
+
 void MediaEngine::refreshAudioEffectStack() {
   const std::uint32_t generation =
     audioEffectsGeneration_.load(std::memory_order_acquire);
@@ -5948,6 +6055,7 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
       static_cast<int>(std::lround(v)), -32768, 32767));
   };
   const std::size_t frames = scaled.size() / 2;
+  const double chunkStartTime = audioTime;   // the gain loop advances audioTime
   limiterScratch_.resize(frames * 2);
   limiterFramePeak_.resize(frames);
   // Stage 1: gain / mono / pan into a float scratch, recording the per-frame
@@ -5978,8 +6086,26 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
   // add several dB, and an effect must not be able to put a show into clipping.
   refreshAudioEffectStack();
   if (!audioEffectsActive_.empty()) {
+    // The context, read once per chunk rather than per sample: none of it can
+    // change faster than a video frame, and a filter cutoff that moved
+    // mid-buffer would be a discontinuity for no gain.
+    deckboy::audiofx::AudioEffectContext ctx;
+    ctx.luma = audioCtxLuma_.load(std::memory_order_relaxed);
+    ctx.motion = audioCtxMotion_.load(std::memory_order_relaxed);
+    ctx.hasPicture = audioCtxHasPicture_.load(std::memory_order_relaxed);
+    ctx.centerX = audioCtxCenterX_.load(std::memory_order_relaxed);
+    ctx.centerY = audioCtxCenterY_.load(std::memory_order_relaxed);
+    ctx.coverage = audioCtxCoverage_.load(std::memory_order_relaxed);
+    ctx.framePeriod = audioCtxFramePeriod_.load(std::memory_order_relaxed);
+    ctx.held = audioCtxHeld_.load(std::memory_order_relaxed);
+    // WHERE THESE SAMPLES ARE, not where the transport is. audioTime is the
+    // position of the chunk being processed; position() is where playback has
+    // reached, which is up to a buffer ahead of it. Seam has to resolve into
+    // the end of the SOUND, so it wants the former.
+    ctx.position = chunkStartTime;
+    ctx.duration = audioFadeDuration_.load(std::memory_order_relaxed);
     deckboy::audiofx::applyAudioEffectStack(limiterScratch_, audioEffectsActive_,
-                                            audioEffectState_);
+                                            audioEffectState_, ctx);
     // The peaks the gain stage measured describe the samples BEFORE the chain.
     // Feeding those to the limiter would leave it guarding a waveform that no
     // longer exists.

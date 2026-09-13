@@ -2430,13 +2430,71 @@
       const afx::AudioEffect fx = afx::audioEffectDefaults(kind);
       afx::AudioEffectState state;
 
+      // A CUE FOR THE FIVE THAT NEED ONE.
+      //
+      // Picture, Placement, Seam, Frame lock and Suspend read a context the
+      // deck supplies, and with a default one they correctly do nothing: no
+      // picture to follow, centred and full-size geometry, no known duration,
+      // no video clock, not held. Measuring them against that would report
+      // five working effects as dead. So the check invents a cue -- a picture
+      // that changes, a PIP moving across the output, a known length, a real
+      // frame rate -- and drives them through it.
+      auto contextAt = [&](double t, double total) {
+        afx::AudioEffectContext c;
+        c.hasPicture = true;
+        // A picture that goes dark and comes back, with a cut in the middle of
+        // it so there is something for `motion` to be.
+        c.luma = static_cast<float>(0.5 + 0.45 * std::sin(2.0 * kPi * 0.7 * t));
+        c.motion = static_cast<float>(std::fabs(std::sin(2.0 * kPi * 0.7 * t)) > 0.98
+                                        ? 1.0 : 0.05);
+        // A PIP crossing the output left to right and shrinking as it goes.
+        c.centerX = static_cast<float>(std::clamp(t / std::max(total, 1e-6), 0.0, 1.0));
+        c.centerY = 0.5f;
+        c.coverage = static_cast<float>(std::clamp(
+          1.0 - 0.75 * (t / std::max(total, 1e-6)), 0.05, 1.0));
+        c.position = t;
+        c.duration = total;
+        c.framePeriod = 1.0 / 23.976;   // deliberately not a musical value
+        c.held = false;
+        return c;
+      };
+
+      // IN CHUNKS, the way the engine calls it. A single call with one context
+      // would hold the picture still for the whole second and hide every bug
+      // that only appears when the context MOVES -- which for four of these
+      // five is the entire point of them.
       std::vector<double> wet = dry;
-      afx::applyAudioEffectStack(wet, {fx}, state);
+      const std::size_t chunk = 512;
+      const double totalSeconds =
+        static_cast<double>(kFrames + kTailFrames) / kRate;
+      for (std::size_t at = 0; at < wet.size() / 2; at += chunk) {
+        const std::size_t take = std::min(chunk, wet.size() / 2 - at);
+        std::vector<double> slice(wet.begin() + static_cast<std::ptrdiff_t>(at * 2),
+                                  wet.begin() + static_cast<std::ptrdiff_t>((at + take) * 2));
+        afx::applyAudioEffectStack(
+          slice, {fx}, state,
+          contextAt(static_cast<double>(at) / kRate, totalSeconds));
+        std::copy(slice.begin(), slice.end(),
+                  wet.begin() + static_cast<std::ptrdiff_t>(at * 2));
+      }
 
       // The tail: silence through the SAME state, so a delay line that is
-      // still holding something has somewhere to put it.
+      // still holding something has somewhere to put it. Suspend is HELD here,
+      // because a tail is exactly the moment it exists for -- and it is the
+      // one effect for which "still sounding after the input stopped" is the
+      // feature rather than the fault.
       std::vector<double> tail(static_cast<std::size_t>(kTailFrames) * 2, 0.0);
-      afx::applyAudioEffectStack(tail, {fx}, state);
+      for (std::size_t at = 0; at < tail.size() / 2; at += chunk) {
+        const std::size_t take = std::min(chunk, tail.size() / 2 - at);
+        std::vector<double> slice(tail.begin() + static_cast<std::ptrdiff_t>(at * 2),
+                                  tail.begin() + static_cast<std::ptrdiff_t>((at + take) * 2));
+        afx::AudioEffectContext c =
+          contextAt(static_cast<double>(kFrames + at) / kRate, totalSeconds);
+        c.held = (kind == afx::AudioEffectKind::Suspend);
+        afx::applyAudioEffectStack(slice, {fx}, state, c);
+        std::copy(slice.begin(), slice.end(),
+                  tail.begin() + static_cast<std::ptrdiff_t>(at * 2));
+      }
 
       bool finite = true;
       for (double v : wet) if (!std::isfinite(v)) { finite = false; break; }
@@ -2468,22 +2526,45 @@
       } else if (wetPeak > 32767.0 * 4.0) {
         verdict = "FAIL runaway (>12dB over full scale)";
         ++failures;
-      } else if (std::fabs(dbOf(wetRms, dryRms)) < 0.05 &&
-                 std::fabs(lowDb) < 0.05 && std::fabs(highDb) < 0.05 &&
-                 std::fabs(floorDb) < 0.05) {
-        // Nothing moved anywhere. On a default amount of 1.0 that is an
-        // effect which is not connected to its own parameters.
-        verdict = "FAIL no audible change at amount 1.0";
-        ++failures;
       } else {
+        // Which effects are SUPPOSED to still be making sound after the input
+        // stops. For the first three it is a stored signal coming back; for
+        // Suspend it is the entire feature, which is why the order of these
+        // tests matters -- see below.
+        //
+        // Frame lock is deliberately NOT here. It holds a grain and replays
+        // it, so once the input goes quiet it is replaying silence: no tail is
+        // the correct answer, and listing it as a ringing effect made the
+        // check demand a fault.
         const bool rings = kind == afx::AudioEffectKind::Delay ||
-                           kind == afx::AudioEffectKind::Reverb;
-        if (rings && tailPeak < 1.0) {
+                           kind == afx::AudioEffectKind::Reverb ||
+                           kind == afx::AudioEffectKind::Seam ||
+                           kind == afx::AudioEffectKind::Suspend;
+        const bool tailed = tailPeak >= 1.0;
+        const bool movedInline = std::fabs(dbOf(wetRms, dryRms)) >= 0.05 ||
+                                 std::fabs(lowDb) >= 0.05 ||
+                                 std::fabs(highDb) >= 0.05 ||
+                                 std::fabs(floorDb) >= 0.05;
+        if (rings && !tailed) {
           verdict = "FAIL no tail -- nothing was stored";
           ++failures;
         } else if (!rings && tailPeak > 32767.0 * 0.02) {
           verdict = "FAIL still sounding after the input stopped";
           ++failures;
+        } else if (!movedInline && !tailed) {
+          // NOTHING MOVED ANYWHERE, tail included. On an effect at the setting
+          // it arrives at, that is one which is not connected to its own
+          // parameters.
+          //
+          // The tail has to count, and Suspend is why. While the cue is
+          // RUNNING it is inaudible by design -- it is only filling its ring
+          // buffer -- so every inline measurement is correctly zero and the
+          // first version of this check called the feature dead. What it does
+          // is in the tail, which is the one place the old test never looked.
+          verdict = "FAIL no audible change at the setting it arrives at";
+          ++failures;
+        } else if (kind == afx::AudioEffectKind::Suspend) {
+          verdict = "ok (holds through the hold)";
         } else {
           verdict = rings ? "ok (rings)" : "ok";
         }

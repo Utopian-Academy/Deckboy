@@ -1,5 +1,74 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.100.0 (five audio effects that could not exist anywhere else)
+
+Every audio effect ever written receives a buffer of samples and nothing else.
+That is not a limitation somebody chose; it is what a plugin *is*. A compressor
+inside a mixing desk cannot know that the thing it is compressing is a drone
+shot, that the shot is three-quarters of the way across the screen, that it has
+four seconds left, or that the operator has just held it.
+
+Deckboy holds the picture and the sound in the same object. So these five exist
+here and nowhere else.
+
+**Picture** — the cue's own video plays the filter. Brightness opens it and
+darkness closes it, so a cut to black takes the top off the sound and a bright
+frame gives it back; movement pushes it further open, so a still shot sits back
+and a fast one comes forward. The sound of a shot following the shot.
+
+**Placement** — the sound is where the picture is. A PIP three-quarters of the
+way across the output sounds three-quarters of the way across the room, and
+shrinking it moves it away from you: the top comes off, the image narrows, the
+level drops the way distance actually does. Deliberately not a pan — a pan puts
+a sound between two speakers, this puts it in a position, which is why the far
+ear gets the delay and the head shadow as well as less level.
+
+**Seam** — the cue resolves instead of being severed. A fade is a volume ramp:
+it makes the last seconds quieter, which is not the same as making them sound
+finished, and on speech it sounds exactly like somebody turning a knob. Over
+the last few seconds this brings the top down and a short room up, so the sound
+settles into the cut. The level is left alone; the fade still does that job if
+you want it.
+
+**Frame lock** — stutter on the frame, not on the beat. Every stutter effect
+there has ever been is quantised to a tempo, because a tempo is the only clock
+a plugin has. This one is quantised to the video frame period, so a grain is
+exactly one, two or four frames long and the chop lands on a frame boundary. On
+a 23.976 clip that is 41.708ms, which is not a musical value and is precisely
+the point.
+
+**Suspend** — a held cue keeps its room. Holding a cue holds the picture — that
+is what hold is — and the sound stops dead, which on anything with room tone,
+an audience, rain or a hum is an obvious hole. This keeps the last moment of it
+going, crossfaded into itself so there is no seam, for as long as the hold
+lasts. No plugin can do this because no plugin is told a hold has happened; all
+it sees is samples stopping, which is indistinguishable from silence in the
+material.
+
+**Each one says when it has nothing to follow.** Frame lock on an audio cue,
+Seam on an open-ended one, Picture on a cue with no picture: the effect passes
+the signal through untouched, which is right, and the inspector row says why,
+which is the part that was missing. A control that quietly does nothing is the
+failure this app keeps having.
+
+**Picture asks for CPU frames**, the way a colour grade does. On the zero-copy
+path the picture never comes down to system memory — that is what makes it fast
+— so there is nothing to measure the brightness of. Arming it re-opens the
+decoder in a format it can read, and the row says so. Frame brightness is
+sampled on a 32x18 grid once per decoded frame: 576 samples out of eight
+million, for a mean and a difference of means, neither of which gets more
+truthful from reading every pixel.
+
+`--audio-fx-check` covers all fourteen now, and it had to learn two things to
+do it. The five deck-aware effects need a cue, so the check invents one — a
+picture that changes, a PIP crossing the output and shrinking, a known length,
+a real frame rate — and drives them through it in 512-sample chunks the way the
+engine does, because a single call with one frozen context hides every fault
+that only appears when the context moves. And the verdict has to look at the
+tail: Suspend is inaudible by design while the cue is running, so every inline
+measurement is correctly zero, and the first version of the check called the
+feature dead on exactly that evidence.
+
 ## 2026-09-12 - v0.99.354 (a cue has a sound as well as a look)
 
 **Every cue gets an audio chain, the way it already had a picture chain.** Nine

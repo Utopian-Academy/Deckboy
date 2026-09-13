@@ -276,7 +276,27 @@ void editNumericParam(int rawId) {
 bool cueNeedsCpuPixelPath(const Cue& cue) {
   return cue.chromaKeyEnabled ||
          cueHasColorControls(cue) ||
-         deckboy::effects::cueEffectStackActive(cue.effects);
+         deckboy::effects::cueEffectStackActive(cue.effects) ||
+         // AN AUDIO EFFECT CAN NEED THE PICTURE TOO. The Picture effect reads
+         // the frame's brightness, and on the zero-copy path there is no frame
+         // in system memory to read -- that is what makes it fast. So a cue
+         // whose audio chain follows the picture asks for CPU frames, the same
+         // way one with a colour grade does. It is the operator's trade and
+         // the inspector says so; the alternative was an effect that silently
+         // did nothing on the fast path, which is the failure this codebase
+         // keeps having.
+         cueAudioChainNeedsPicture(cue);
+}
+
+// Whether anything in the cue's audio chain follows the picture.
+bool cueAudioChainNeedsPicture(const Cue& cue) {
+  for (const deckboy::audiofx::AudioEffect& fx : cue.audioEffects) {
+    if (fx.kind == deckboy::audiofx::AudioEffectKind::Picture &&
+        !fx.bypassed && fx.amount > 0.0f) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // Re-take the live cue when that answer CHANGES, so the decoder is reopened in
@@ -703,12 +723,20 @@ void audioEffectStackAdd() {
     // looks exactly like an effect that is broken.
     const deckboy::audiofx::AudioEffect fx =
       deckboy::audiofx::audioEffectDefaults(kind);
+    const Cue* before = selectedCueMutable();
+    const bool wasNeeded = before ? cueNeedsCpuPixelPath(*before) : false;
     const bool any = forEachSelectedAudioStack(
       [&fx](std::vector<deckboy::audiofx::AudioEffect>& s) {
         if (s.size() < 8) {
           s.push_back(fx);
         }
       });
+    // Adding a Picture effect to a LIVE cue changes which format the decoder
+    // has to be open in, and the decode format is chosen at TAKE. Without this
+    // the effect would do nothing at all until the next one -- which looks
+    // exactly like a broken effect and is how the picture stack's version of
+    // this was reported.
+    refreshLiveCueIfPixelPathChanged(wasNeeded);
     if (any) {
       triggerToast(std::string("added ") +
                    deckboy::audiofx::audioEffectLabel(kind) +
@@ -724,6 +752,8 @@ void audioEffectStackRemove(int index) {
   if (!audioEffectIndexValid(stack, index)) {
     return;
   }
+  const Cue* beforeCue = selectedCueMutable();
+  const bool wasNeeded = beforeCue ? cueNeedsCpuPixelPath(*beforeCue) : false;
   const std::string gone =
     deckboy::audiofx::audioEffectLabel((*stack)[index].kind);
   forEachSelectedAudioStack([index](std::vector<deckboy::audiofx::AudioEffect>& s) {
@@ -732,6 +762,7 @@ void audioEffectStackRemove(int index) {
     }
   });
   triggerToast("audio effect removed: " + gone);
+  refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
 void audioEffectStackCycleKind(int index) {
@@ -752,6 +783,10 @@ void audioEffectStackCycleKind(int index) {
     // into a compressor at -42 dBFS, which is not what anyone asked for.
     // Bypass and position are kept -- those are about the CHAIN, not the
     // effect.
+    // INSIDE the callback, because that is where the edit happens -- the call
+    // that opens the dropdown returns long before the operator has chosen.
+    const Cue* beforeCue = selectedCueMutable();
+    const bool wasNeeded = beforeCue ? cueNeedsCpuPixelPath(*beforeCue) : false;
     forEachSelectedAudioStack(
       [index, kind](std::vector<deckboy::audiofx::AudioEffect>& s) {
         if (index < static_cast<int>(s.size())) {
@@ -760,6 +795,7 @@ void audioEffectStackCycleKind(int index) {
           s[index].bypassed = wasBypassed;
         }
       });
+    refreshLiveCueIfPixelPathChanged(wasNeeded);
   });
 }
 
@@ -768,6 +804,8 @@ void audioEffectStackToggleBypass(int index) {
   if (!audioEffectIndexValid(stack, index)) {
     return;
   }
+  const Cue* beforeCue = selectedCueMutable();
+  const bool wasNeeded = beforeCue ? cueNeedsCpuPixelPath(*beforeCue) : false;
   // Read the NEW state off the selected cue and write that same state
   // everywhere, rather than flipping each in turn: a mixed selection would
   // otherwise get further apart with every click instead of converging.
@@ -782,6 +820,7 @@ void audioEffectStackToggleBypass(int index) {
     });
   // Bypass RETURNS the setting; turning the amount to zero throws it away.
   triggerToast(name + (next ? " bypassed" : " active"));
+  refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
 void audioEffectStackNudge(int index, float delta) {
@@ -789,6 +828,8 @@ void audioEffectStackNudge(int index, float delta) {
   if (!audioEffectIndexValid(stack, index)) {
     return;
   }
+  const Cue* beforeCue = selectedCueMutable();
+  const bool wasNeeded = beforeCue ? cueNeedsCpuPixelPath(*beforeCue) : false;
   const float next = std::clamp((*stack)[index].amount + delta, 0.0f, 1.0f);
   forEachSelectedAudioStack(
     [index, next](std::vector<deckboy::audiofx::AudioEffect>& s) {
@@ -796,6 +837,7 @@ void audioEffectStackNudge(int index, float delta) {
         s[index].amount = next;
       }
     });
+  refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
 // The value is computed once from the selected cue and written to all of them,
