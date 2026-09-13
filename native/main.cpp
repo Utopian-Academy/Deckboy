@@ -3545,6 +3545,23 @@ std::string sanitizeBundleFilenameStem(std::string value) {
 struct WaveformPeaks {
   std::vector<float> left;       // Left channel peak amplitudes (0.0–1.0)
   std::vector<float> right;      // Right channel peak amplitudes (0.0–1.0)
+  // AND THE RMS, which is what makes a waveform look like a waveform.
+  //
+  // A peak envelope alone is a brick. There are 512 buckets whatever the file,
+  // so an eleven-minute cue puts 1.3 SECONDS in each one, and the loudest
+  // sample in 1.3 seconds of any programme material is within a couple of dB
+  // of the loudest sample in the file -- every bucket lands in the same place
+  // and the lane fills solid with a slightly jagged top. That is not a
+  // waveform, it is a level meter drawn 512 times, and it is exactly as
+  // useless for finding a line of dialogue as it sounds.
+  //
+  // The RMS of the same bucket is the part that MOVES: it drops between words
+  // and in the gaps, which is the shape an operator is actually reading. So
+  // the body of the lane is drawn from the RMS and the peak becomes the
+  // outline around it -- the way every editor has drawn audio for thirty
+  // years, and for this reason.
+  std::vector<float> leftRms;
+  std::vector<float> rightRms;
   // True when the two channels are measurably different — i.e. the source is
   // really stereo, not mono upmixed by the "-ac 2" analysis decode. Drives
   // the split L/R waveform view even when cue metadata (audioChannels) is
@@ -3648,6 +3665,8 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
   WaveformPeaks peaks;
   peaks.left.assign(numBuckets, 0.0f);
   peaks.right.assign(numBuckets, 0.0f);
+  peaks.leftRms.assign(numBuckets, 0.0f);
+  peaks.rightRms.assign(numBuckets, 0.0f);
   size_t frameCount = samples.size() / 2u;
   size_t perBucket = std::max<size_t>(1, frameCount / numBuckets);
   // Stereo-ness is judged on the raw samples, not the bucket peaks: a
@@ -3660,17 +3679,26 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
     size_t endFrame = std::min(startFrame + perBucket, frameCount);
     float mxL = 0.0f;
     float mxR = 0.0f;
+    double sqL = 0.0;
+    double sqR = 0.0;
     for (size_t frame = startFrame; frame < endFrame; ++frame) {
       size_t sampleIndex = frame * 2u;
       float l = samples[sampleIndex + 0] / 32768.0f;
       float r = samples[sampleIndex + 1] / 32768.0f;
       mxL = std::max(mxL, std::abs(l));
       mxR = std::max(mxR, std::abs(r));
+      sqL += static_cast<double>(l) * l;
+      sqR += static_cast<double>(r) * r;
       sumAbsDiff += std::abs(l - r);
       sumAbs += std::abs(l) + std::abs(r);
     }
+    const size_t taken = endFrame > startFrame ? endFrame - startFrame : 0;
     peaks.left[static_cast<size_t>(b)] = mxL;
     peaks.right[static_cast<size_t>(b)] = mxR;
+    peaks.leftRms[static_cast<size_t>(b)] =
+      taken ? static_cast<float>(std::sqrt(sqL / static_cast<double>(taken))) : 0.0f;
+    peaks.rightRms[static_cast<size_t>(b)] =
+      taken ? static_cast<float>(std::sqrt(sqR / static_cast<double>(taken))) : 0.0f;
   }
   // Side-signal energy above 1% of total = real stereo content. Mono
   // upmixes measure exactly 0; even subtle stereo reverb tails clear 1%.

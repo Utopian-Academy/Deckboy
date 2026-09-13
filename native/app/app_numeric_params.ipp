@@ -673,16 +673,25 @@ bool audioEffectIndexValid(const std::vector<deckboy::audiofx::AudioEffect>* sta
 // somewhere to receive an edit is not what "apply to the selection" means.
 bool forEachSelectedAudioStack(
     const std::function<void(std::vector<deckboy::audiofx::AudioEffect>&)>& edit) {
+  // COUNT THE CUES EDITED, not the decks visited.
+  //
+  // forEachSelectedCueEverywhere returns how many DECKS it reached a selected
+  // cue in, which is the right number for the "(2 decks)" toast suffix and the
+  // wrong one for "did this do anything". Every cue in the selection can be
+  // skipped for having no audio and the deck count is still 1 -- so the
+  // "no cue with audio selected" message below could never appear, and adding
+  // an effect to a silent cue would have reported success.
+  int edited = 0;
   lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& each, int) {
     if (each.hasAudio) {
       edit(each.audioEffects);
+      ++edited;
     }
   });
-  const bool any = lastAudioEditDeckCount_ > 0;
-  if (any) {
+  if (edited > 0) {
     markProjectDirty();
   }
-  return any;
+  return edited > 0;
 }
 
 // Every audio effect, as dropdown choices, built FROM the enum rather than

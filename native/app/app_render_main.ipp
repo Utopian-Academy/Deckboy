@@ -2991,13 +2991,38 @@
                                                   textLineHeight(fontBase_) + uiScaled(8));
 
     // Thumbnail of selected cue (top portion)
-    constexpr int kThumbAreaH = 110;
+    //
+    // SCALED. This was a hardcoded 110 while everything drawn inside it --
+    // the line height, the waveform strip -- came from uiScaled(), so at 1.5x
+    // the strip took over half the box and at 2x there was barely a picture
+    // left. The other kLayout metrics scale; this one was simply missed.
+    const int kThumbAreaH = uiScaled(110);
     SDL_Rect thumbArea {ctrl.x + kInspectorInset, ctrl.y + 4, kCtrlW - kInspectorInset * 2, kThumbAreaH};
     // One line height for everything drawn in the thumb area, from the face
     // that draws it. The three empty-state lines were spaced 20px apart and
     // overlapped each other at 1.5x.
     const int thumbLineH = std::max(uiScaled(20), textLineHeight(fontSmall_));
     Primitives::drawFramedPanel(controlRenderer_, thumbArea, pal.deep, pal.deep, pal.dark);
+
+    // RESERVE THE WAVEFORM STRIP BEFORE ANYTHING IS DRAWN INTO THE BOX.
+    //
+    // The strip used to be drawn at the bottom of thumbArea AFTER the
+    // thumbnail had already been fitted to the whole of it, so it sat on top
+    // of the picture -- a still with a waveform painted across its bottom
+    // third, which is what it looked like. The picture and the strip are
+    // neighbours, not layers, so the split happens here and both sides are
+    // laid out against their own rect.
+    //
+    // An Audio cue has no picture and correctly gets the whole box.
+    const bool hasWaveStrip = selectedCue && selectedCue->hasAudio &&
+                              selectedCue->kind != CueKind::Audio;
+    const int waveH = hasWaveStrip
+      ? std::min(kThumbAreaH / 3, std::max(uiScaled(26), thumbLineH + uiScaled(6)))
+      : 0;
+    const int waveGap = hasWaveStrip ? uiScaled(3) : 0;
+    SDL_Rect pictureArea {thumbArea.x, thumbArea.y, thumbArea.w,
+                          thumbArea.h - waveH - waveGap};
+
     if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio cue: fill entire thumb area with waveform
       bool pending = false;
@@ -3018,13 +3043,14 @@
                    selectedCue->name, pal.mid);
     } else if (selectedThumbnailTex_) {
       float aspect = static_cast<float>(selectedThumbnailTexW_) / static_cast<float>(selectedThumbnailTexH_);
-      int drawW = thumbArea.w - 4;
+      int drawW = pictureArea.w - 4;
       int drawH = static_cast<int>(drawW / aspect);
-      if (drawH > thumbArea.h - 4) {
-        drawH = thumbArea.h - 4;
+      if (drawH > pictureArea.h - 4) {
+        drawH = pictureArea.h - 4;
         drawW = static_cast<int>(drawH * aspect);
       }
-      SDL_Rect dst {thumbArea.x + (thumbArea.w - drawW) / 2, thumbArea.y + (thumbArea.h - drawH) / 2, drawW, drawH};
+      SDL_Rect dst {pictureArea.x + (pictureArea.w - drawW) / 2,
+                    pictureArea.y + (pictureArea.h - drawH) / 2, drawW, drawH};
       SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
       SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
     } else if (selectedCue) {
@@ -3049,14 +3075,14 @@
       // rather than a fixed 20px -- at 1.5x they overlapped each other.
       // drawCenteredTextSafe ellipsizes into the rect, so the explicit
       // ellipsize calls were doing the work twice.
-      SDL_SetRenderClipRect(controlRenderer_, &thumbArea);
-      const int tw = thumbArea.w - uiScaled(16);
-      const int midY = thumbArea.y + thumbArea.h / 2 - thumbLineH / 2;
+      SDL_SetRenderClipRect(controlRenderer_, &pictureArea);
+      const int tw = pictureArea.w - uiScaled(16);
+      const int midY = pictureArea.y + pictureArea.h / 2 - thumbLineH / 2;
       const char* emptyLines[3] = {"No cue selected", "Drop media here",
                                    "Press A to take cue"};
       for (int n = 0; n < 3; ++n) {
         drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                             SDL_Rect {thumbArea.x + uiScaled(8),
+                             SDL_Rect {pictureArea.x + uiScaled(8),
                                        midY + (n - 1) * thumbLineH, tw, thumbLineH},
                              emptyLines[n], pal.mid);
       }
@@ -3064,10 +3090,9 @@
     }
 
     // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
-    if (selectedCue && selectedCue->hasAudio && selectedCue->kind != CueKind::Audio) {
+    if (hasWaveStrip) {
       bool pending = false;
       WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*selectedCue, currentProjectFile_), pending);
-      const int waveH = std::max(uiScaled(32), thumbLineH + uiScaled(8));
       SDL_Rect waveRect {thumbArea.x + uiScaled(2),
                          thumbArea.y + thumbArea.h - waveH - uiScaled(2),
                          thumbArea.w - uiScaled(4), waveH};

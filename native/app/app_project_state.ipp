@@ -2009,26 +2009,59 @@
     SDL_Color dimOuter = pal.dark;
     SDL_Color dimInner = pal.mid;
 
+    // BOTH ENDS OF THE SPAN ON THE SAME SCALE. i0 used to be computed from
+    // THIS channel's bucket count and i1 from the maximum of both channels'
+    // -- which are the same number for every file where they agree, and two
+    // different rates for one where they do not.
+    auto spanAt = [&](const std::vector<float>& channel, int pixelIndex,
+                      int& i0, int& i1) {
+      const int bucketCount = static_cast<int>(channel.size());
+      i0 = pixelIndex * bucketCount / std::max(1, w);
+      i1 = (pixelIndex + 1) * bucketCount / std::max(1, w);
+      i0 = std::clamp(i0, 0, bucketCount - 1);
+      i1 = std::clamp(i1, i0, bucketCount - 1);
+    };
     auto sampleAt = [&](const std::vector<float>& channel, int pixelIndex) {
       if (channel.empty()) {
         return 0.0f;
       }
-      int bucketCount = static_cast<int>(channel.size());
-      // Map pixel to a range of buckets and take the max to preserve transients
-      int i0 = pixelIndex * bucketCount / std::max(1, w);
-      int i1 = (pixelIndex + 1) * n / std::max(1, w);
-      i0 = std::clamp(i0, 0, n - 1);
-      i1 = std::clamp(i1, i0, n - 1);
+      int i0 = 0, i1 = 0;
+      spanAt(channel, pixelIndex, i0, i1);
+      // The MAX across the span, to preserve transients.
       float maxVal = 0.0f;
       for (int k = i0; k <= i1; ++k) maxVal = std::max(maxVal, channel[k]);
-      // Deliberately NOT clamped here — drawColumn needs to know when the
+      // Deliberately NOT clamped here -- drawColumn needs to know when the
       // trimmed level exceeds full scale so it can flag it. Clamping at this
       // point is what made gain edits invisible on already-loud material:
       // peaks were pinned at 1.0 before and after, so nothing moved on screen.
       return maxVal * gainScale;
     };
+    // The RMS across the span, which is a MEAN of squares and not a maximum:
+    // taking the loudest bucket's RMS would reintroduce the very flattening
+    // the RMS lane exists to undo.
+    auto rmsAt = [&](const std::vector<float>& channel, int pixelIndex) {
+      if (channel.empty()) {
+        return 0.0f;
+      }
+      int i0 = 0, i1 = 0;
+      spanAt(channel, pixelIndex, i0, i1);
+      double sum = 0.0;
+      for (int k = i0; k <= i1; ++k) {
+        sum += static_cast<double>(channel[k]) * channel[k];
+      }
+      const int count = i1 - i0 + 1;
+      return static_cast<float>(std::sqrt(sum / std::max(1, count))) * gainScale;
+    };
 
-    auto drawColumn = [&](int px, int topY, int baseY, float peak, bool upward, bool inRange) {
+    constexpr float kWaveformFloorDb = -48.0f;
+    constexpr float kWaveformCeilingDb = 12.0f;
+    // THE LANE IS DRAWN TWICE: the peak as an outline and the RMS as the body.
+    //
+    // `rms` of 0 means an older analysis with no RMS data, and the column then
+    // draws exactly as it always did -- a peak-only brick, which is wrong but
+    // is not a crash, and the next analysis fills it in.
+    auto drawColumn = [&](int px, int topY, int baseY, float peak, float rms,
+                          bool upward, bool inRange) {
       // The lane is a dB scale, not linear amplitude, and it keeps headroom
       // ABOVE 0 dBFS.
       //
@@ -2043,8 +2076,6 @@
       // ends: quiet material stops being a flat 1px line, and loud material has
       // somewhere left to go, so a boost visibly climbs INTO the region above
       // 0 dBFS — which is drawn hot, because that is a clip warning.
-      constexpr float kWaveformFloorDb = -48.0f;
-      constexpr float kWaveformCeilingDb = 12.0f;
       bool over = peak > 1.0f;  // above 0 dBFS
       float frac = 0.0f;
       if (peak > 0.0f) {
@@ -2052,7 +2083,18 @@
         frac = (db - kWaveformFloorDb) / (kWaveformCeilingDb - kWaveformFloorDb);
         frac = std::clamp(frac, 0.0f, 1.0f);
       }
-      int amp = std::max(1, static_cast<int>(std::round(frac * std::max(2, std::abs(baseY - topY)))));
+      const int lane = std::max(2, std::abs(baseY - topY));
+      int amp = std::max(1, static_cast<int>(std::round(frac * lane)));
+      // The same dB mapping for the body, so the two agree about where a
+      // level sits in the lane -- a linear body inside a dB outline would
+      // read as an effect rather than as a measurement.
+      int bodyAmp = 0;
+      if (rms > 0.0f) {
+        const float bodyDb = 20.0f * std::log10(rms);
+        float bodyFrac = (bodyDb - kWaveformFloorDb) / (kWaveformCeilingDb - kWaveformFloorDb);
+        bodyFrac = std::clamp(bodyFrac, 0.0f, 1.0f);
+        bodyAmp = std::min(amp, std::max(1, static_cast<int>(std::round(bodyFrac * lane))));
+      }
       SDL_Color outer = inRange ? activeOuter : dimOuter;
       SDL_Color inner = inRange ? activeInner : dimInner;
       if (over && inRange) {
@@ -2065,13 +2107,20 @@
                           static_cast<Uint8>(std::min(255, pal.deleteBezel.b + 40)),
                           pal.deleteBezel.a};
       }
+      // The peak reach, dim: this is the outline, and on long material it is
+      // nearly flat by nature -- the loudest sample in a second and a half of
+      // anything is the loudest sample in the file.
       SDL_SetRenderDrawColor(ren, outer.r, outer.g, outer.b, outer.a);
       if (upward) {
         SDL_RenderLine(ren, px, baseY, px, std::max(topY, baseY - amp));
       } else {
         SDL_RenderLine(ren, px, baseY, px, std::min(topY, baseY + amp));
       }
-      int innerAmp = std::max(1, amp - 2);
+      // The RMS body, bright. THIS is the part that moves, and the part an
+      // operator is reading when they look for a line of dialogue or the top
+      // of a music bed. Without RMS data fall back to the old inset so the
+      // column still has a bright core rather than going flat.
+      const int innerAmp = bodyAmp > 0 ? bodyAmp : std::max(1, amp - 2);
       SDL_SetRenderDrawColor(ren, inner.r, inner.g, inner.b, inner.a);
       if (upward) {
         SDL_RenderLine(ren, px, baseY, px, std::max(topY, baseY - innerAmp));
@@ -2093,8 +2142,10 @@
         bool inRange = (frac >= inFrac && frac <= outFrac);
         float leftPeak = sampleAt(peaks.left, i);
         float rightPeak = sampleAt(peaks.right.empty() ? peaks.left : peaks.right, i);
-        drawColumn(x0 + i, topLimit, topBase, leftPeak, true, inRange);
-        drawColumn(x0 + i, bottomLimit, bottomBase, rightPeak, false, inRange);
+        float leftRms = rmsAt(peaks.leftRms, i);
+        float rightRms = rmsAt(peaks.rightRms.empty() ? peaks.leftRms : peaks.rightRms, i);
+        drawColumn(x0 + i, topLimit, topBase, leftPeak, leftRms, true, inRange);
+        drawColumn(x0 + i, bottomLimit, bottomBase, rightPeak, rightRms, false, inRange);
       }
       drawTextSafe(ren, fontSmall_, SDL_Rect {dest.x + 6, dest.y + 2, 16, 12}, "L", pal.light);
       drawTextSafe(ren, fontSmall_, SDL_Rect {dest.x + 6, dest.y + dest.h - 14, 16, 12}, "R", pal.light);
@@ -2113,8 +2164,9 @@
         float frac = static_cast<float>(i) / std::max(1, w);
         bool inRange = (frac >= inFrac && frac <= outFrac);
         float peak = std::max(sampleAt(peaks.left, i), sampleAt(peaks.right, i));
-        drawColumn(x0 + i, topLimit, cy, peak, true, inRange);
-        drawColumn(x0 + i, bottomLimit, cy, peak, false, inRange);
+        float rms = std::max(rmsAt(peaks.leftRms, i), rmsAt(peaks.rightRms, i));
+        drawColumn(x0 + i, topLimit, cy, peak, rms, true, inRange);
+        drawColumn(x0 + i, bottomLimit, cy, peak, rms, false, inRange);
       }
     }
 

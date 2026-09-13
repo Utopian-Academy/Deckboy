@@ -1,5 +1,36 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.100.1 (the inspector's waveform)
+
+**It was drawn on top of the picture.** The strip was laid out at the bottom of
+the thumbnail box AFTER the still had already been fitted to the whole of it,
+so a video cue showed its preview with a waveform painted across the lower
+third. They are neighbours, not layers: the box is split first and each side is
+laid out against its own rect.
+
+**And the box never scaled.** It was a hardcoded 110 pixels while everything
+drawn inside it -- the line height, the strip -- came from `uiScaled()`, so at
+1.5x the waveform took over half the box and at 2x there was barely a picture
+left.
+
+**The waveform itself was a brick.** There are 512 buckets whatever the file
+and each holds the LOUDEST sample in its span, so an eleven-minute cue puts 1.3
+seconds in each one -- and the loudest sample in 1.3 seconds of any programme
+material is within a couple of dB of the loudest sample in the whole file. Every
+bucket landed in the same place and the lane filled solid. That is not a
+waveform, it is a level meter drawn 512 times.
+
+The analysis keeps an RMS per bucket now, and the lane is drawn twice: the peak
+as the outline and the RMS as the bright body. The RMS is the part that moves --
+it drops between words and in the gaps -- which is the shape somebody is
+actually reading when they look for a line of dialogue or the top of a music
+bed. Both use the same dB mapping, so the body and the outline agree about
+where a level sits.
+
+Also: the pixel-to-bucket span took its start from one channel's bucket count
+and its end from the larger of the two, which is the same number for every file
+whose channels agree and two different rates for one where they do not.
+
 ## 2026-09-12 - v0.100.0 (five audio effects that could not exist anywhere else)
 
 Every audio effect ever written receives a buffer of samples and nothing else.
