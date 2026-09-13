@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where latency hides in a live video chain</title>
+    <meta name="description" content="Latency in a live video chain is four numbers, not one: capture, encode, transport and display. What each one actually costs in frames and milliseconds, why the projector is usually the worst of them, and how to measure the whole chain with a camera and a stopwatch.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/latency.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Where latency hides in a live video chain">
+    <meta property="og:description" content="Capture, encode, transport, display — what each one costs in frames and milliseconds, and how to measure the whole chain yourself.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/latency.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Where latency hides in a live video chain">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 820px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 3rem 0 .8rem; font-size: 1.3rem; }
+        .prose h3 { margin: 2rem 0 .5rem; font-size: 1rem; }
+        .prose p, .prose li { color: var(--ink-body); }
+        .prose ul, .prose ol { margin: 0 0 1rem 1.3rem; }
+        .prose li { margin-bottom: .45rem; }
+        .prose code { background: var(--db-green-deep); padding: .12em .4em; font-size: .9em; }
+        .table-wrap { overflow-x: auto; margin: 2rem 0; }
+        table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: .9rem; }
+        th, td { text-align: left; padding: .65rem .8rem; vertical-align: top; }
+        .lede { font-size: 1.02rem; }
+        .callout { padding: 1rem 1.2rem; margin: 2rem 0; }
+        .callout p:last-child { margin-bottom: 0; }
+        .figure { color: var(--ink); font-family: var(--mono); white-space: nowrap; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Where latency hides in a live video chain",
+      "description": "Latency in a live video chain is four numbers, not one: capture, encode, transport and display. What each costs in frames and milliseconds, and how to measure the whole chain.",
+      "url": "https://utopian-academy.github.io/Deckboy/latency.html",
+      "image": "https://utopian-academy.github.io/Deckboy/images/social-card.png",
+      "author": {"@type": "Organization", "name": "Utopian Academy"},
+      "publisher": {"@type": "Organization", "name": "Utopian Academy"},
+      "datePublished": "2026-09-13",
+      "dateModified": "2026-09-13",
+      "proficiencyLevel": "Expert",
+      "about": ["live video", "latency", "NDI", "SRT", "SMPTE ST 2110", "SDI"]
+    }
+    </script>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="min-height:auto;padding-top:4rem;padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>Where latency<br><span class="gradient-text">hides</span></h1>
+            <p class="hero-subtitle">Four numbers, not one. And only one of them is yours to spend.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <p class="lede">Somebody asks how much delay there is between the camera and the screen, and
+        the honest answer is a question: delay through <em>what</em>? A live chain has at least four
+        places that cost time, they are measured in different units by different vendors, and the
+        largest of them is usually the one nobody owns.</p>
+
+        <p>At 59.94 fields a second, one frame is <span class="figure">16.683&nbsp;ms</span>. At 50,
+        it is <span class="figure">20&nbsp;ms</span>. Every number below is quoted in frames where
+        the cause is structural and in milliseconds where it is not, because a chain quoted entirely
+        in milliseconds hides which parts scale with frame rate and which do not.</p>
+
+        <h2>1. Capture: one frame, and no argument</h2>
+        <p>A sensor has to finish reading out before there is a frame to hand anybody. That is one
+        frame, it is not a software problem, and no product can sell you out of it. Rolling-shutter
+        sensors deliver the top of the image earlier than the bottom, which helps the top line and
+        nothing else.</p>
+        <p>What varies is what happens immediately after: a camera doing noise reduction or
+        stabilisation in-body may hold another frame or two to do it. If a camera has a
+        &ldquo;low latency&rdquo; or &ldquo;direct&rdquo; mode, that is usually what it is turning
+        off.</p>
+        <p><b>Budget: 1 frame, plus whatever the camera's processing is set to.</b></p>
+
+        <h2>2. Encode: the one you actually choose</h2>
+        <p>This is the only stage where the decision is yours, and it is where the range is widest.</p>
+        <ul>
+            <li><b>Intra-only codecs</b> (uncompressed, JPEG&nbsp;XS, ProRes, the full NDI codec)
+                encode each frame without reference to any other, so the encoder can emit a frame as
+                soon as it has one. <b>About 1 frame.</b></li>
+            <li><b>Long-GOP codecs</b> (H.264, HEVC — so NDI&nbsp;HX, SRT and RTMP in normal use)
+                buffer to build a group of pictures. How long depends on the GOP length and whether
+                B-frames are on. <b>Typically 2 to 8 frames</b>, or roughly
+                <span class="figure">33&ndash;133&nbsp;ms</span> at 59.94.</li>
+        </ul>
+        <p>The trap is that nothing on the front panel tells you which one a box has chosen. Two
+        encoders both advertised as &ldquo;low latency H.264&rdquo; can differ by five frames
+        because one has B-frames enabled and the other does not. If the specification sheet does
+        not say <em>intra-only</em> or give a GOP length, assume long-GOP and measure it.</p>
+        <p><b>Budget: 1 frame if intra-only, 2&ndash;8 if not.</b></p>
+
+        <h2>3. Transport: smaller than you think, unless it is Wi-Fi</h2>
+        <p>Moving bits across a switch is the cheapest part of the chain, and it is routinely blamed
+        for the other three.</p>
+        <ul>
+            <li><b>SDI</b> is a continuous serial stream. Effectively zero — measured in lines, not
+                frames.</li>
+            <li><b>SMPTE ST&nbsp;2110</b> on a properly provisioned network, with senders locked to
+                a PTP grandmaster (SMPTE&nbsp;2059-2, sub-microsecond), is <b>under a millisecond</b>.
+                It is not compressed, which is the entire point of it — and the reason the
+                conversation about 2110 is always about the switch. One 1080p59.94 10-bit 4:2:2 flow
+                is <span class="figure">2.49&nbsp;Gb/s</span>
+                (1920&nbsp;&times;&nbsp;1080&nbsp;&times;&nbsp;20&nbsp;bits&nbsp;&times;&nbsp;59.94).
+                The same raster at UHD is <span class="figure">9.95&nbsp;Gb/s</span>. Two of those do
+                not fit in a 10-gig port.</li>
+            <li><b>SRT</b> deliberately adds a buffer so it can retransmit lost packets. The usual
+                guidance is a latency setting of <b>2 to 4&times; the round-trip time</b>, and it is
+                honest about it — the number is in the configuration, where you can read it.</li>
+            <li><b>Wi-Fi</b> is not a transport for live video. Its latency is not a number, it is a
+                distribution, and the tail is where your show lives.</li>
+        </ul>
+        <p><b>Budget: under 1&nbsp;ms wired. For SRT, whatever you set, because you set it.</b></p>
+
+        <h2>4. Display: the one that actually hurts</h2>
+        <p>A projector or a large-format display is a computer. It deinterlaces, scales, applies
+        keystone correction, does frame-rate conversion and runs whatever picture processing the
+        factory left on. Each of those can cost a frame.</p>
+        <p>Three things make this the worst stage:</p>
+        <ul>
+            <li>It is <b>rarely in the specification sheet</b>. Consumer displays publish input lag
+                because gamers demand it; projectors sold into events often do not.</li>
+            <li>It <b>changes when somebody touches the picture menu</b>. Switching from a
+                &ldquo;cinema&rdquo; preset to a &ldquo;bright&rdquo; one can change the processing
+                path and therefore the delay.</li>
+            <li>It is <b>not your equipment</b>. It belongs to the venue, and it was configured by
+                somebody who has left.</li>
+        </ul>
+        <p>Where a display exposes a game, PC or low-latency mode, that mode is the processing being
+        switched off, and it is usually worth more than any other single change in the chain.</p>
+        <p><b>Budget: 1 to 3 frames, up to about <span class="figure">50&nbsp;ms</span>, unmeasured
+        until you measure it.</b></p>
+
+        <h2>The budget, added up</h2>
+        <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Stage</th><th>Best case</th><th>Ordinary case</th><th>Whose problem</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Capture</td><td>1 frame</td><td>1&ndash;3 frames</td><td>physics, then the camera</td></tr>
+                <tr><td>Encode</td><td>1 frame</td><td>2&ndash;8 frames</td><td><b>yours</b></td></tr>
+                <tr><td>Transport</td><td>&lt; 1 ms</td><td>&lt; 1 ms wired</td><td>the network</td></tr>
+                <tr><td>Display</td><td>1 frame</td><td>1&ndash;3 frames</td><td>the venue's</td></tr>
+                <tr><td><b>Total</b></td><td><b>~3 frames (50 ms)</b></td><td><b>5&ndash;14 frames (85&ndash;235 ms)</b></td><td></td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>For reference: lip-sync error becomes noticeable to most viewers at around
+        <span class="figure">45&nbsp;ms</span> of audio lead and roughly
+        <span class="figure">125&nbsp;ms</span> of audio lag (ITU-R BT.1359). A presenter watching
+        themselves on a delayed relay screen notices far sooner than that, which is why IMAG delay
+        is the complaint that reaches you first.</p>
+
+        <h2>How to measure it, with things you already have</h2>
+        <p>All of this is guesswork until you measure the chain you actually have. The method needs
+        no test equipment:</p>
+        <ol>
+            <li>Put a <b>running millisecond timer</b> on a screen at the start of the chain — a
+                phone stopwatch is fine, so is a timecode window burn.</li>
+            <li>Point the camera at it, and put the <b>output display beside it</b>, in the same
+                shot.</li>
+            <li>Photograph both with a <b>second camera</b>, at a fast shutter. A phone at
+                1/1000&nbsp;s will do.</li>
+            <li>The difference between the two readings <b>is your end-to-end latency.</b></li>
+        </ol>
+        <p>Do this once per stage as well as end to end — camera to monitor, then add the encoder,
+        then add the display — and you will find the frame nobody knew about. It is almost never
+        where the argument said it was.</p>
+        <p>For audio against video specifically, a <b>flash-and-click beacon</b> (a white frame with
+        a single click on the same frame) recorded off the end of the chain and examined in any
+        audio editor gives you the A/V offset directly, in samples.</p>
+
+        <div class="callout glass">
+            <p><b>The one-line version:</b> capture costs a frame and you cannot argue with it,
+            encoding is the only choice you actually make, transport is innocent until it is
+            wireless, and the projector is lying to you.</p>
+        </div>
+
+        <h2>Where this came from</h2>
+        <p>These are the numbers behind
+        <a href="https://github.com/Utopian-Academy/Deckboy">Deckboy</a>, a free, open-source
+        cue-based video playback deck for Windows, macOS and Linux. It sits at the encode stage of
+        the chain above: NDI, SRT, RTMP, Blackmagic SDI and SMPTE&nbsp;ST&nbsp;2110 out of one
+        machine, several at once, with a built-in A/V delay beacon for exactly the measurement
+        described here.</p>
+        <p>There is <a href="compare.html">an honest comparison</a> with Mitti, PlaybackPro, QLab,
+        Millumin and vMix, including the jobs where one of those is the better answer.</p>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2.5rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Deckboy</a>
+            <a href="./" class="btn-large btn-outline">What it does</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+</body>
+</html>
