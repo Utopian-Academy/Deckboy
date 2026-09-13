@@ -8,6 +8,8 @@
 **Open-source media playback and show control for live video.**
 Load your media. Build your playlist. Take it live.
 
+**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it.
+
 <!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
      never a real show file. A client's deck in a public README is a client's
      deck on the internet. -->
