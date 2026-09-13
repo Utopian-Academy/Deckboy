@@ -715,6 +715,30 @@
     return std::clamp(port, 1, 65535);
   }
 
+  // ── The Art-Net bridge ────────────────────────────────────────────────────
+  //
+  // The socket, the thread and the edge detection live in
+  // platform/artnet_bridge.hpp. What stays is resolving the port from the
+  // project and the environment, and the names the settings screens call.
+
+  void ensureArtNetHooked() {
+    if (artNetHooked_) {
+      return;
+    }
+    artNetHooked_ = true;
+    artNetBridge_.setEventSink(
+      [this](const std::string& line) { enqueueRemoteCommand(line); });
+  }
+
+  void startArtNetBridgeListener() {
+    ensureArtNetHooked();
+    artNetBridge_.start(resolvedArtNetBridgePort(), !project_.allowRemoteNetwork);
+  }
+
+  void stopArtNetBridgeListener() { artNetBridge_.stop(); }
+
+  void restartArtNetBridgeListener() { startArtNetBridgeListener(); }
+
   int resolvedArtNetBridgePort() const {
     return normalizeArtNetPort(project_.artNetPort);
   }
@@ -1221,96 +1245,9 @@
     }
   }
 
-  void startArtNetBridgeListener() {
-    stopArtNetBridgeListener();
-    artNetListenPort_ = resolvedArtNetBridgePort();
-    artNetSocket_ = createBoundSocket(SOCK_DGRAM, artNetListenPort_, false, !project_.allowRemoteNetwork);
-    if (artNetSocket_ == kInvalidSocket) {
-      return;
-    }
-    std::fill(artNetLastDmx_.begin(), artNetLastDmx_.end(), 0);
-    artNetBridgeStop_.store(false);
-    artNetBridgeThread_ = std::thread([this]() { artNetBridgeLoop(); });
-  }
 
-  void stopArtNetBridgeListener() {
-    artNetBridgeStop_.store(true);
-    if (artNetSocket_ != kInvalidSocket) {
-      closeSocket(artNetSocket_);
-      artNetSocket_ = kInvalidSocket;
-    }
-    if (artNetBridgeThread_.joinable()) {
-      artNetBridgeThread_.join();
-    }
-  }
 
-  void restartArtNetBridgeListener() {
-    if (artNetSocket_ == kInvalidSocket && !artNetBridgeThread_.joinable()) {
-      startArtNetBridgeListener();
-      return;
-    }
-    stopArtNetBridgeListener();
-    startArtNetBridgeListener();
-  }
 
-  void artNetBridgeLoop() {
-    while (!artNetBridgeStop_.load()) {
-      fd_set readFds;
-      FD_ZERO(&readFds);
-      watchFd(artNetSocket_, &readFds);
-      timeval timeout {};
-      timeout.tv_sec = 0;
-      timeout.tv_usec = 200000;
-      int ready = select(selectNfds(artNetSocket_), &readFds, nullptr, nullptr, &timeout);
-      if (ready <= 0) {
-        continue;
-      }
-      if (!readyFd(artNetSocket_, &readFds)) {
-        continue;
-      }
-      std::array<std::uint8_t, 1024> packet {};
-      sockaddr_in sourceAddr {};
-      socklen_t sourceLen = sizeof(sourceAddr);
-      int bytes = recvfrom(
-        artNetSocket_,
-        reinterpret_cast<char*>(packet.data()),
-        static_cast<int>(packet.size()),
-        0,
-        reinterpret_cast<sockaddr*>(&sourceAddr),
-        &sourceLen);
-      if (bytes < 18) {
-        continue;
-      }
-      if (std::memcmp(packet.data(), "Art-Net\0", 8) != 0) {
-        continue;
-      }
-      std::uint16_t opCode = static_cast<std::uint16_t>(packet[8]) |
-                             (static_cast<std::uint16_t>(packet[9]) << 8);
-      if (opCode != 0x5000) {  // ArtDMX
-        continue;
-      }
-      int length = (static_cast<int>(packet[16]) << 8) | static_cast<int>(packet[17]);
-      length = std::clamp(length, 0, std::min(512, bytes - 18));
-      const std::uint8_t* data = packet.data() + 18;
-
-      for (int ch = 0; ch < 8; ++ch) {
-        std::uint8_t previous = artNetLastDmx_[ch];
-        std::uint8_t current = ch < length ? data[ch] : 0;
-        if (previous < kDmxTriggerThreshold && current >= kDmxTriggerThreshold) {
-          enqueueRemoteCommand("ARTNETEVENT " + std::to_string(ch + 1) + " " + std::to_string(current));
-        }
-        artNetLastDmx_[ch] = current;
-      }
-      for (int ch = 8; ch < 10; ++ch) {
-        std::uint8_t previous = artNetLastDmx_[ch];
-        std::uint8_t current = ch < length ? data[ch] : 0;
-        if (current > 0 && current != previous) {
-          enqueueRemoteCommand("ARTNETEVENT " + std::to_string(ch + 1) + " " + std::to_string(current));
-        }
-        artNetLastDmx_[ch] = current;
-      }
-    }
-  }
 
 
 

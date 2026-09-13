@@ -93,6 +93,7 @@
 #include "platform/ndi_trigger_api.hpp"
 #include "platform/network.hpp"
 #include "platform/nmc_sync.hpp"
+#include "platform/artnet_bridge.hpp"
 #include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
 #include "platform/browser.hpp"
@@ -199,7 +200,6 @@ constexpr int kDefaultAtemBridgePort = 9910;             // ATEM switcher defaul
 constexpr int kDefaultArtNetPort = 6454;                 // Art-Net default UDP port (IANA registered)
 constexpr int kDefaultNmcSyncPort = 51010;               // Network master clock sync port
 constexpr int kDefaultNmcLocateIntervalMs = 250;         // NMC peer discovery interval
-constexpr int kDmxTriggerThreshold = 127;                // DMX value threshold for trigger activation
 const fs::path kUiPackRelativePathV3 = fs::path("ui") / "deckboy_ui_pack_v3";  // UI font/asset pack path
 const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";  // Legacy UI pack path
 
@@ -9738,19 +9738,16 @@ class App {
   // The NMC bridge owns its socket, its thread and its change detection --
   // see platform/nmc_sync.hpp for why that is not sixteen members here.
   deckboy::platform::NmcSync nmcSync_;
+  deckboy::platform::ArtNetBridge artNetBridge_;
+  bool artNetHooked_ = false;
   bool nmcSyncHooked_ = false;
   SocketHandle atemBridgeSocket_ = kInvalidSocket;
-  SocketHandle artNetSocket_ = kInvalidSocket;
   std::thread atemBridgeThread_;
-  std::thread artNetBridgeThread_;
   std::thread ndiTriggerThread_;
   std::atomic<bool> atemBridgeStop_ {false};
-  std::atomic<bool> artNetBridgeStop_ {false};
   std::atomic<bool> ndiTriggerStop_ {false};
   std::atomic<bool> ndiTriggerRunning_ {false};
   int atemBridgeListenPort_ = kDefaultAtemBridgePort;
-  int artNetListenPort_ = kDefaultArtNetPort;
-  std::array<std::uint8_t, 512> artNetLastDmx_ {};
   NdiTriggerApi ndiTriggerApi_;
   std::string ndiTriggerConnectedSource_;
   std::string ndiTriggerLastError_;
