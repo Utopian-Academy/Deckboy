@@ -1693,6 +1693,21 @@
           failRemoteCommand("FX ADD: unknown effect \"" + parts[2] + "\"");
           return;
         }
+        // REFUSE BEFORE ADDING, over the wire.
+        //
+        // Datamosh is a decode behaviour, not a per-pixel effect, so it only
+        // works on file-backed video. The inspector handles a refusal by
+        // adding the entry and bypassing it -- deliberately, so the operator
+        // can SEE what was refused instead of watching their click vanish.
+        // That reasoning needs a visible row, and a socket reply has none: a
+        // caller got "ERR datamosh: file-backed video cues only" and a stack
+        // that had silently grown an entry anyway. A command that reports
+        // failure must not have changed anything.
+        if (kind == deckboy::effects::CueEffectKind::Datamosh &&
+            (cue->kind != CueKind::Video || cue->path.empty())) {
+          failRemoteCommand("FX ADD: datamosh needs a file-backed video cue");
+          return;
+        }
         const bool wasNeeded = cueNeedsCpuPixelPath(*cue);
         deckboy::effects::CueEffect fx;
         fx.kind = kind;
