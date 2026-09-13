@@ -106,7 +106,6 @@ body {
     color: var(--ink-soft);
     text-decoration: none;
     font-size: 0.85rem;
-    text-transform: lowercase;
 }
 
 .nav-links a:hover { color: var(--ink); }

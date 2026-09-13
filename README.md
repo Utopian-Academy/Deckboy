@@ -8,7 +8,7 @@
 **Open-source media playback and show control for live video.**
 Load your media. Build your playlist. Take it live.
 
-**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to QLab, CasparCG and Watchout — including where they win. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)**
+**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin and vMix — including where they win. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)**
 
 <!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
      never a real show file. A client's deck in a public README is a client's
@@ -16,7 +16,7 @@ Load your media. Build your playlist. Take it live.
 
 ![Deckboy taking generated cues to air, then stacking scanlines, ripple and a kaleidoscope onto the live picture, then the built-in video synth in Game Boy green](art/readme/demo.gif)
 
-<sub>Every cue is a built-in generator. No show file, no client media.</sub>
+<sub>Shown with the test patterns Deckboy generates itself, so nothing here is anyone’s show file.</sub>
 
 ---
 
@@ -71,9 +71,9 @@ live operators who need a reliable way to organise media, trigger cues, loop
 content and send video to production displays.
 
 That is the job it is built around, and it is built on a stubborn principle:
-**seize the means of playback ♡**
+**Seize the means of playback ♡**
 
-No subscription ♡ no account ♡ no telemetry ♡ nothing phoning home, and no licence
+No subscription ♡ No account ♡ No telemetry ♡ Nothing phones home. And no licence
 server that can refuse to start the show at 19:55 because it could not reach the
 internet. The machine you carried into the venue is the machine that plays the
 show.
