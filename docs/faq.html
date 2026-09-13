@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deckboy FAQ | Play PDF and PowerPoint slides from a cue list</title>
+    <title>Deckboy FAQ | Free video playback and show control</title>
     <meta name="description" content="Common questions about Deckboy: playing PDF and PowerPoint slides as cues with presenter view, triggering playback from a Stream Deck, looping a clip on a projector all day, NDI and SRT output, and making an unplayable file play.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/faq.html">
 
@@ -35,20 +35,62 @@
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
-        {"@type":"Question","name":"Can I play PDF or PowerPoint slides from a cue list?",
-         "acceptedAnswer":{"@type":"Answer","text":"Yes. A PDF, PowerPoint or Keynote deck imports as one cue per slide, sitting in the playlist alongside the video and audio cues. Each page is rendered once at import by the platform's own engine, so nothing during the show depends on a document program being open. Speaker notes import with the deck, and presenter view and a mirrored prompter are output types of their own, each able to take its own display."}},
-        {"@type":"Question","name":"Is there a free NDI player for Windows?",
-         "acceptedAnswer":{"@type":"Answer","text":"Deckboy sends and receives NDI on Windows, macOS and Linux at no cost under the GPL. An NDI source can be added as a cue, and any output can send NDI, alongside SRT, RTMP, Blackmagic SDI and SMPTE ST 2110."}},
-        {"@type":"Question","name":"How do I loop a video on a screen all day?",
-         "acceptedAnswer":{"@type":"Answer","text":"Import the clip, set the cue to loop, and send the deck to a fullscreen output on the display you want. Deckboy holds the last frame rather than dropping to a desktop when a cue ends, and a soak-test mode exists to prove a machine will run unattended."}},
-        {"@type":"Question","name":"Can I trigger video playback from a Stream Deck?",
-         "acceptedAnswer":{"@type":"Answer","text":"Yes. Deckboy ships a Stream Deck plugin and a Bitfocus Companion module. Both read Deckboy's status back, so a key knows whether the cue it fired actually went live. OSC, MIDI, Art-Net and LTC timecode also drive it."}},
-        {"@type":"Question","name":"A client sent a file that will not play. What now?",
-         "acceptedAnswer":{"@type":"Answer","text":"Deckboy converts media in place without leaving the application, using GPU encoding where the machine has it, and can normalise loudness to EBU R128 for a clip mastered too quietly. Importing any file also reports its codec, raster, frame rate, channel count and duration."}},
-        {"@type":"Question","name":"Is there a Mitti, PlaybackPro or QLab alternative for Windows?",
-         "acceptedAnswer":{"@type":"Answer","text":"Mitti, PlaybackPro Plus, QLab and Millumin are all macOS only, and vMix is Windows only. Deckboy runs natively on Windows, macOS and Linux from the same show file. Mitti remains the most refined cue player on a Mac, QLab owns audio-led theatre cueing, Millumin is a projection-mapping suite, and vMix is a switcher, which Deckboy is not."}},
-        {"@type":"Question","name":"Is Deckboy really free, or is there a paid tier later?",
-         "acceptedAnswer":{"@type":"Answer","text":"Free under GPL-3.0, with no paid tier and no plan for one. No account, no licence server and no telemetry, which is a reliability argument as well as a principle: a licence check is one more thing that can refuse to start a show."}}
+        {
+          "@type": "Question",
+          "name": "Is there a free NDI player for Windows?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Deckboy sends and receives NDI on Windows, macOS and Linux at no cost under the GPL. An NDI source can be added as a cue, and any output can send NDI, alongside SRT, RTMP, Blackmagic SDI and SMPTE ST 2110."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I loop a video on a screen all day?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Import the clip, set the cue to loop, and send the deck to a fullscreen output on the display you want. Deckboy holds the last frame rather than dropping to a desktop when a cue ends, and a soak-test mode exists to prove a machine will run unattended."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I trigger video playback from a Stream Deck?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Deckboy ships a Stream Deck plugin and a Bitfocus Companion module. Both read Deckboy's status back, so a key knows whether the cue it fired actually went live. OSC, MIDI, Art-Net and LTC timecode also drive it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I play PDF or PowerPoint slides from a cue list?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. A PDF, PowerPoint or Keynote deck imports as one cue per slide, sitting in the playlist alongside the video and audio cues. Each page is rendered once at import by the platform's own engine, so nothing during the show depends on a document program being open. Speaker notes import with the deck, and presenter view and a mirrored prompter are output types of their own, each able to take its own display."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "A client sent a file that will not play. What now?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Deckboy converts media in place without leaving the application, using GPU encoding where the machine has it, and can normalise loudness to EBU R128 for a clip mastered too quietly. Importing any file also reports its codec, raster, frame rate, channel count and duration."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a Mitti, PlaybackPro or QLab alternative for Windows?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Mitti, PlaybackPro Plus, QLab and Millumin are all macOS only, and vMix is Windows only. Deckboy runs natively on Windows, macOS and Linux from the same show file. Mitti remains the most refined cue player on a Mac, QLab owns audio-led theatre cueing, Millumin is a projection-mapping suite, and vMix is a switcher, which Deckboy is not."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Deckboy really free, or is there a paid tier later?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Free under GPL-3.0, with no paid tier and no plan for one. No account, no licence server and no telemetry, which is a reliability argument as well as a principle: a licence check is one more thing that can refuse to start a show."
+          }
+        }
       ]
     }
     </script>
@@ -73,22 +115,6 @@
     </header>
 
     <div class="prose">
-        <h2>Can I play PDF or PowerPoint slides from a cue list?</h2>
-        <p>Yes, and this is the thing Deckboy does that the other cue players do not do at all. A
-        PDF, PowerPoint or Keynote deck imports as <b>one cue per slide</b>, sitting in the playlist
-        next to the video and the audio, fired by the same keys, the same Stream Deck, the same
-        timecode.</p>
-        <p>Every page is rendered once on the way in, by the platform&rsquo;s own engine &mdash;
-        Edge&rsquo;s on Windows, Preview&rsquo;s on macOS, <code>pdftoppm</code> on Linux &mdash; so
-        during the show a slide is just a picture. Nothing depends on a document program still being
-        open, still being on the right slide, or still being in the foreground.</p>
-        <p>Speaker notes come in with the deck. <b>Presenter view is an output type of its own</b>,
-        so it takes its own display: live slide, the one before, the one after, the notes and a
-        clock. So is a mirrored prompter that scrolls at a pace you set. The alternative most rooms
-        are still using is a second laptop and a long cable.</p>
-        <p>One honest limit: PowerPoint flattens its builds and drops its transitions on export, so
-        a deck that depends on animation is better captured live with a window-source cue.</p>
-
         <h2>Is there a free NDI player for Windows?</h2>
         <p>Deckboy sends <em>and</em> receives NDI on Windows, macOS and Linux, at no cost. An NDI
         source can be added as a cue and played like any other clip, and any output can send NDI
@@ -107,6 +133,22 @@
         status, so a key carries tally, transport state, output health and a countdown: the button
         knows whether the cue it fired actually went live, rather than just hoping. OSC, MIDI,
         Art-Net and LTC timecode work too.</p>
+
+        <h2>Can I play PDF or PowerPoint slides from a cue list?</h2>
+        <p>Yes, and this is the thing Deckboy does that the other cue players do not do at all. A
+        PDF, PowerPoint or Keynote deck imports as <b>one cue per slide</b>, sitting in the playlist
+        next to the video and the audio, fired by the same keys, the same Stream Deck, the same
+        timecode.</p>
+        <p>Every page is rendered once on the way in, by the platform&rsquo;s own engine &mdash;
+        Edge&rsquo;s on Windows, Preview&rsquo;s on macOS, <code>pdftoppm</code> on Linux &mdash; so
+        during the show a slide is just a picture. Nothing depends on a document program still being
+        open, still being on the right slide, or still being in the foreground.</p>
+        <p>Speaker notes come in with the deck. <b>Presenter view is an output type of its own</b>,
+        so it takes its own display: live slide, the one before, the one after, the notes and a
+        clock. So is a mirrored prompter that scrolls at a pace you set. The alternative most rooms
+        are still using is a second laptop and a long cable.</p>
+        <p>One honest limit: PowerPoint flattens its builds and drops its transitions on export, so
+        a deck that depends on animation is better captured live with a window-source cue.</p>
 
         <h2>A client sent a file that will not play. What now?</h2>
         <p>Convert it in place, without leaving the application, with GPU encoding where the machine

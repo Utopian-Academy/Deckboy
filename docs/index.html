@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deckboy | Free Cue Playback for Video and Slides</title>
-    <meta name="description" content="Free, open-source cue playback for live video and slides. PDF, PowerPoint and Keynote import as cues with speaker notes and a real presenter view. NDI, SRT, SDI and ST 2110 out. No account, no licence server, no telemetry. Windows, macOS and Linux.">
+    <title>Deckboy | Free Video Playback and Show Control</title>
+    <meta name="description" content="Free, open-source cue-based video playback and show control. Trim, fade, loop and hold the last frame; NDI, SRT, RTMP, SDI and ST 2110 out at once; and slide decks import as cues with presenter view. No account, no licence server, no telemetry. Windows, macOS and Linux.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Deckboy">
     <meta property="og:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta property="og:description" content="A proper playback deck for slides as well as video. PDF, PowerPoint and Keynote as cues, presenter view on its own display. NDI, SRT, SDI and ST 2110 out. Free, and nothing phones home.">
+    <meta property="og:description" content="Cue-based video playback and show control for live events. NDI, SRT, SDI and ST 2110 out at once. Slide decks import as cues, with presenter view on its own display. Free, and nothing phones home.">
     <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/">
     <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
     <meta property="og:image:width" content="1280">
@@ -19,7 +19,7 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta name="twitter:description" content="A proper playback deck for slides as well as video. Presenter view on its own display. NDI, SRT, SDI and ST 2110 out. Free, and nothing phones home.">
+    <meta name="twitter:description" content="Cue-based video playback and show control. NDI, SRT, SDI and ST 2110 out at once. Slide decks too, with presenter view. Free, and nothing phones home.">
     <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
 
     <script type="application/ld+json">
@@ -39,11 +39,12 @@
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "screenshot": "https://utopian-academy.github.io/Deckboy/images/hero.png",
       "featureList": [
+        "Cue-based video playlist playback with trim, fades, loops and hold-last-frame",
+        "NDI, SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output, simultaneously",
+        "Per-cue pixel effect rack with oscillator-driven parameters",
+        "Warp, keystone, edge blend and area-of-interest per output",
         "PDF, PowerPoint and Keynote slide decks imported as one cue per slide, with speaker notes",
         "Presenter view and mirrored prompter as output types of their own",
-        "Cue-based playlist playback with fades, loops and hold-last-frame",
-        "NDI, SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output, simultaneously",
-        "Warp, keystone, edge blend and area-of-interest per output",
         "Stream Deck plugin and Bitfocus Companion module",
         "OSC, MIDI, Art-Net and LTC timecode control",
         "No account, no licence server and no telemetry"
@@ -71,8 +72,9 @@
     <header class="hero">
         <div class="hero-content">
             <h1 class="animate-up">Seize the means of<br><span class="gradient-text">playback ♡</span></h1>
-            <p class="hero-subtitle animate-up delay-1">A proper playback deck for slides, as well as for video ♡ PDF, PowerPoint
-            and Keynote as cues, presenter view on its own display ♡ NDI, SRT, SDI and ST&nbsp;2110 out at once<br>
+            <p class="hero-subtitle animate-up delay-1">A cue deck for live video ♡ Drag the clip in, trim it, fade it, loop it,
+            hold the last frame ♡ NDI, SRT, SDI and ST&nbsp;2110 out at once ♡ And it plays your slide decks too,
+            presenter view and all<br>
             Windows, macOS and Linux, one show file. Free under the GPL: no account, no licence
             server, nothing that phones home.</p>
             
@@ -95,14 +97,13 @@
 
     <section class="features">
         <div class="feature-card glass">
-            <div class="icon">📽️</div>
-            <h3>Slides, as cues</h3>
-            <p>A PDF, PowerPoint or Keynote deck imports as one cue per slide, speaker notes and
-            all, rendered once on the way in so nothing during the show depends on a document
-            program. Presenter view is an output type in its own right &mdash; live slide, the one
-            before, the one after, the notes, the clock &mdash; and so is a mirrored prompter that
-            scrolls at a pace you set. Most cue players do not do slides. At all. The usual
-            alternative is somebody&rsquo;s laptop, a long cable and a prayer.</p>
+            <div class="icon">🎬</div>
+            <h3>Video, cued</h3>
+            <p>A playlist of clips that go to air when you say so. Drag media in, trim it, fade it,
+            loop it, hold the last frame rather than reveal a desktop. Hardware decoding, frame-accurate
+            transport, and a cue that knows how long it has left. Then a rack of pixel effects on the
+            live picture, every parameter drivable from an oscillator, because sometimes the brief is
+            &ldquo;can it look a bit broken, but on purpose&rdquo;.</p>
         </div>
         <div class="feature-card glass">
             <div class="icon">📡</div>
@@ -112,12 +113,14 @@
             preserve of equipment that arrives with a quotation attached.</p>
         </div>
         <div class="feature-card glass">
-            <div class="icon">🎬</div>
-            <h3>Cues, in order</h3>
-            <p>Drag media in, trim it, fade it, loop it, hold the last frame rather than reveal a
-            desktop. Then a rack of pixel effects on the live cue, every parameter drivable from an
-            oscillator, because sometimes the brief is &ldquo;can it look a bit broken, but on
-            purpose&rdquo;.</p>
+            <div class="icon">📽️</div>
+            <h3>Slides, as cues</h3>
+            <p>A PDF, PowerPoint or Keynote deck imports as one cue per slide, speaker notes and
+            all, rendered once on the way in so nothing during the show depends on a document
+            program. Presenter view is an output type in its own right &mdash; live slide, the one
+            before, the one after, the notes, the clock &mdash; and so is a mirrored prompter that
+            scrolls at a pace you set. Most cue players do not do slides. At all. The usual
+            alternative is somebody&rsquo;s laptop, a long cable and a prayer.</p>
         </div>
         <div class="feature-card glass">
             <div class="icon">🏴</div>
@@ -153,8 +156,9 @@
             <div class="dot green"></div>
         </div>
         <div class="terminal">
-            <p><span class="prompt">></span> PowerPoint in. Presenter view on its own display, notes and all.</p>
+            <p><span class="prompt">></span> Clip in. Trimmed, faded, looped, holding the last frame.</p>
             <p><span class="prompt">></span> NDI in. SDI, SRT and ST 2110 out. At the same time.</p>
+            <p><span class="prompt">></span> PowerPoint in. Presenter view on its own display, notes and all.</p>
             <p><span class="prompt">></span> A compressor that can see the shot it is compressing.</p>
             <p><span class="prompt">></span> No account. No licence server. No telemetry. No catch.</p>
             <p><span class="prompt">></span> Windows, macOS and Linux. One show file.</p>
