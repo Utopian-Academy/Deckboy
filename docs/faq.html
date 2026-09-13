@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deckboy FAQ | A Mitti, PlaybackPro and QLab alternative for Windows</title>
-    <meta name="description" content="Common questions about Deckboy: playing video from a Stream Deck, looping a clip on a projector all day, sending video over NDI or SRT, and making an unplayable file play.">
+    <title>Deckboy FAQ | Play PDF and PowerPoint slides from a cue list</title>
+    <meta name="description" content="Common questions about Deckboy: playing PDF and PowerPoint slides as cues with presenter view, triggering playback from a Stream Deck, looping a clip on a projector all day, NDI and SRT output, and making an unplayable file play.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/faq.html">
 
     <meta property="og:type" content="article">
@@ -35,6 +35,8 @@
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
+        {"@type":"Question","name":"Can I play PDF or PowerPoint slides from a cue list?",
+         "acceptedAnswer":{"@type":"Answer","text":"Yes. A PDF, PowerPoint or Keynote deck imports as one cue per slide, sitting in the playlist alongside the video and audio cues. Each page is rendered once at import by the platform's own engine, so nothing during the show depends on a document program being open. Speaker notes import with the deck, and presenter view and a mirrored prompter are output types of their own, each able to take its own display."}},
         {"@type":"Question","name":"Is there a free NDI player for Windows?",
          "acceptedAnswer":{"@type":"Answer","text":"Deckboy sends and receives NDI on Windows, macOS and Linux at no cost under the GPL. An NDI source can be added as a cue, and any output can send NDI, alongside SRT, RTMP, Blackmagic SDI and SMPTE ST 2110."}},
         {"@type":"Question","name":"How do I loop a video on a screen all day?",
@@ -71,6 +73,22 @@
     </header>
 
     <div class="prose">
+        <h2>Can I play PDF or PowerPoint slides from a cue list?</h2>
+        <p>Yes, and this is the thing Deckboy does that the other cue players do not do at all. A
+        PDF, PowerPoint or Keynote deck imports as <b>one cue per slide</b>, sitting in the playlist
+        next to the video and the audio, fired by the same keys, the same Stream Deck, the same
+        timecode.</p>
+        <p>Every page is rendered once on the way in, by the platform&rsquo;s own engine &mdash;
+        Edge&rsquo;s on Windows, Preview&rsquo;s on macOS, <code>pdftoppm</code> on Linux &mdash; so
+        during the show a slide is just a picture. Nothing depends on a document program still being
+        open, still being on the right slide, or still being in the foreground.</p>
+        <p>Speaker notes come in with the deck. <b>Presenter view is an output type of its own</b>,
+        so it takes its own display: live slide, the one before, the one after, the notes and a
+        clock. So is a mirrored prompter that scrolls at a pace you set. The alternative most rooms
+        are still using is a second laptop and a long cable.</p>
+        <p>One honest limit: PowerPoint flattens its builds and drops its transitions on export, so
+        a deck that depends on animation is better captured live with a window-source cue.</p>
+
         <h2>Is there a free NDI player for Windows?</h2>
         <p>Deckboy sends <em>and</em> receives NDI on Windows, macOS and Linux, at no cost. An NDI
         source can be added as a cue and played like any other clip, and any output can send NDI
@@ -121,11 +139,6 @@
         <p>Yes. Outputs are per-display, with display-native or fixed raster modes, and each output
         has its own area of interest, edge feathering and warp / keystone correction — enough for
         ordinary multi-projector work, though it is not a projection-mapping suite.</p>
-
-        <h2>Can I present slides from it?</h2>
-        <p>A PDF, PowerPoint or Keynote deck imports as one cue per slide, rendered once at import
-        by the platform's own engine, so nothing during the show depends on a document renderer.
-        Speaker notes come with it, and presenter and prompter views are output types of their own.</p>
 
         <div class="cta-group" style="justify-content:flex-start;margin-top:2.5rem">
             <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>

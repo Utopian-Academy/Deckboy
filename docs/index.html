@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deckboy | Open-Source Live Video Playback</title>
-    <meta name="description" content="Deckboy is a native desktop application for video engineers, AV technicians, and live operators for reliable media playback and show control.">
+    <title>Deckboy | Free Cue Playback for Video and Slides</title>
+    <meta name="description" content="Free, open-source cue playback for live video and slides. PDF, PowerPoint and Keynote import as cues with speaker notes and a real presenter view. NDI, SRT, SDI and ST 2110 out. No account, no licence server, no telemetry. Windows, macOS and Linux.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Deckboy">
     <meta property="og:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta property="og:description" content="Cue-based media playback and show control for live video. NDI, SRT, DeckLink and ST 2110 output, driven from Stream Deck, Companion, OSC, MIDI or timecode. Windows, macOS and Linux.">
+    <meta property="og:description" content="A proper playback deck for slides as well as video. PDF, PowerPoint and Keynote as cues, presenter view on its own display. NDI, SRT, SDI and ST 2110 out. Free, and nothing phones home.">
     <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/">
     <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
     <meta property="og:image:width" content="1280">
@@ -19,7 +19,7 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta name="twitter:description" content="Cue-based media playback and show control for live video. NDI, SRT, DeckLink and ST 2110 output. Windows, macOS and Linux.">
+    <meta name="twitter:description" content="A proper playback deck for slides as well as video. Presenter view on its own display. NDI, SRT, SDI and ST 2110 out. Free, and nothing phones home.">
     <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
 
     <script type="application/ld+json">
@@ -39,12 +39,14 @@
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "screenshot": "https://utopian-academy.github.io/Deckboy/images/hero.png",
       "featureList": [
+        "PDF, PowerPoint and Keynote slide decks imported as one cue per slide, with speaker notes",
+        "Presenter view and mirrored prompter as output types of their own",
         "Cue-based playlist playback with fades, loops and hold-last-frame",
-        "NDI, SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output",
+        "NDI, SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output, simultaneously",
         "Warp, keystone, edge blend and area-of-interest per output",
         "Stream Deck plugin and Bitfocus Companion module",
         "OSC, MIDI, Art-Net and LTC timecode control",
-        "PDF, PowerPoint and Keynote slide decks with presenter and prompter views"
+        "No account, no licence server and no telemetry"
       ]
     }
     </script>
@@ -69,9 +71,10 @@
     <header class="hero">
         <div class="hero-content">
             <h1 class="animate-up">Seize the means of<br><span class="gradient-text">playback ♡</span></h1>
-            <p class="hero-subtitle animate-up delay-1">Cue-based playback and show control for live video ♡ NDI, SRT, SDI and
-            ST&nbsp;2110 out at once ♡ Slides with speaker notes ♡ Effects on the live picture<br>
-            Windows, macOS and Linux, from one show file. Free, and nothing phones home.</p>
+            <p class="hero-subtitle animate-up delay-1">A proper playback deck for slides, as well as for video ♡ PDF, PowerPoint
+            and Keynote as cues, presenter view on its own display ♡ NDI, SRT, SDI and ST&nbsp;2110 out at once<br>
+            Windows, macOS and Linux, one show file. Free under the GPL: no account, no licence
+            server, nothing that phones home.</p>
             
             <div class="cta-group animate-up delay-2">
                 <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>
@@ -92,36 +95,49 @@
 
     <section class="features">
         <div class="feature-card glass">
-            <div class="icon">🎬</div>
-            <h3>Cues, in order</h3>
-            <p>Drag media in, trim it, fade it, loop it, hold the last frame. Then a rack of
-            pixel effects on the live cue, each parameter drivable from an oscillator, because
-            sometimes the brief is &ldquo;can it look a bit broken, but on purpose&rdquo;.</p>
+            <div class="icon">📽️</div>
+            <h3>Slides, as cues</h3>
+            <p>A PDF, PowerPoint or Keynote deck imports as one cue per slide, speaker notes and
+            all, rendered once on the way in so nothing during the show depends on a document
+            program. Presenter view is an output type in its own right &mdash; live slide, the one
+            before, the one after, the notes, the clock &mdash; and so is a mirrored prompter that
+            scrolls at a pace you set. Most cue players do not do slides. At all. The usual
+            alternative is somebody&rsquo;s laptop, a long cable and a prayer.</p>
         </div>
         <div class="feature-card glass">
             <div class="icon">📡</div>
             <h3>Five outputs, at once</h3>
-            <p>NDI, SRT, RTMP, Blackmagic SDI and SMPTE ST&nbsp;2110, several at once, plus warp
-            and edge blend per output. An unreasonable quantity of protocol for what is, at
-            heart, a box that plays telly.</p>
+            <p>NDI, SRT, RTMP, Blackmagic SDI and SMPTE ST&nbsp;2110, several at once, each with its
+            own area of interest, edge feather and warp. Uncompressed IP video is normally the
+            preserve of equipment that arrives with a quotation attached.</p>
         </div>
         <div class="feature-card glass">
-            <div class="icon">🎛️</div>
-            <h3>Slides, with the notes</h3>
-            <p>A PDF, PowerPoint or Keynote deck imports as one cue per slide, speaker notes
-            and all. Presenter view is an output type in its own right &mdash; live slide,
-            previous, next, notes, clock &mdash; and so is a mirrored prompter that scrolls at a
-            pace you set. Most cue players do not do slides. At all.</p>
+            <div class="icon">🎬</div>
+            <h3>Cues, in order</h3>
+            <p>Drag media in, trim it, fade it, loop it, hold the last frame rather than reveal a
+            desktop. Then a rack of pixel effects on the live cue, every parameter drivable from an
+            oscillator, because sometimes the brief is &ldquo;can it look a bit broken, but on
+            purpose&rdquo;.</p>
+        </div>
+        <div class="feature-card glass">
+            <div class="icon">🏴</div>
+            <h3>Free, and nothing phones home</h3>
+            <p>No account. No dongle. No licence server, no seat count, no trial that expires on the
+            morning of the gig. GPL-3.0, free for good &mdash; which is a reliability argument as
+            much as a principle, because a licence check is one more thing that can refuse to start
+            a show at 19:55, in a venue whose wi-fi would first like you to accept its terms and
+            conditions. No telemetry either. Deckboy has never needed the network to play a file,
+            and the only thing it sends anywhere is your video.</p>
         </div>
         <div class="feature-card glass">
             <div class="icon">🛠️</div>
             <h3>Audio that can see</h3>
-            <p>Every audio plug-in ever written receives a buffer of samples and nothing else.
-            A compressor in a desk cannot know that the thing it is compressing is a drone shot,
-            that the shot sits a quarter of the way across the screen, or that it has four
-            seconds left. Deckboy keeps the picture and the sound in one object, so five of its
-            fourteen audio effects read the frame they are playing under. Plus EBU&nbsp;R128
-            normalise, in-app transcoding, and test cards for proving a chain.</p>
+            <p>Every audio plug-in ever written receives a buffer of samples and nothing else. A
+            compressor in a desk cannot know that the thing it is compressing is a drone shot, that
+            the shot sits a quarter of the way across the screen, or that it has four seconds left.
+            Deckboy keeps the picture and the sound in one object, so five of its fourteen audio
+            effects read the frame they are playing under. Plus EBU&nbsp;R128 normalise, in-app
+            transcoding, and test cards for proving a chain.</p>
         </div>
     </section>
 
@@ -137,9 +153,10 @@
             <div class="dot green"></div>
         </div>
         <div class="terminal">
-            <p><span class="prompt">></span> NDI in. SDI, SRT and ST 2110 out. At the same time.</p>
             <p><span class="prompt">></span> PowerPoint in. Presenter view on its own display, notes and all.</p>
+            <p><span class="prompt">></span> NDI in. SDI, SRT and ST 2110 out. At the same time.</p>
             <p><span class="prompt">></span> A compressor that can see the shot it is compressing.</p>
+            <p><span class="prompt">></span> No account. No licence server. No telemetry. No catch.</p>
             <p><span class="prompt">></span> Windows, macOS and Linux. One show file.</p>
             <p><span class="prompt">></span> Go on then. &#9825;</p>
         </div>
