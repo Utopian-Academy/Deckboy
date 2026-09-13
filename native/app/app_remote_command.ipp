@@ -261,6 +261,51 @@
         timerToggleRun();
       } else if (sub == "RESET") {
         timerReset();
+      } else if (sub == "FACE") {
+        // 7seg / blocky / typeface. The geometric two never depend on what is
+        // installed, which is why they stay the default for a stage screen;
+        // typeface is for an event that has a font and expects to see it.
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->kind != CueKind::Timer) {
+          failRemoteCommand("timer face: select a timer cue first");
+          return;
+        }
+        if (parts.size() < 3) {
+          remoteCommandDetail_ =
+            cue->timer.face == TimerFace::Blocky ? "blocky"
+            : cue->timer.face == TimerFace::Typeface ? "typeface" : "7seg";
+          return;
+        }
+        const std::string want = toLower(parts[2]);
+        if (want == "7seg" || want == "sevenseg" || want == "seven") {
+          cue->timer.face = TimerFace::SevenSegment;
+        } else if (want == "blocky" || want == "dot" || want == "matrix") {
+          cue->timer.face = TimerFace::Blocky;
+        } else if (want == "typeface" || want == "font" || want == "ttf") {
+          cue->timer.face = TimerFace::Typeface;
+        } else {
+          failRemoteCommand("timer face: expected 7seg|blocky|typeface, got " +
+                            parts[2]);
+          return;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = want;
+      } else if (sub == "FONT") {
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->kind != CueKind::Timer) {
+          failRemoteCommand("timer font: select a timer cue first");
+          return;
+        }
+        // No argument clears it, which is how a clock goes back to the app's
+        // own bundled face.
+        cue->timer.fontPath = parts.size() < 3 ? std::string() : joinParts(parts, 2);
+        if (!cue->timer.fontPath.empty()) {
+          cue->timer.face = TimerFace::Typeface;   // picking one means using it
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = cue->timer.fontPath.empty()
+                                 ? "the app's own face"
+                                 : cue->timer.fontPath;
       } else if (sub == "ADD" || sub == "PLUS") {
         timerNudge(parts.size() > 2 ? std::atof(parts[2].c_str()) : 60.0);
       } else if (sub == "SUB" || sub == "MINUS") {

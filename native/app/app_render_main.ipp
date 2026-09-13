@@ -295,6 +295,135 @@
     return nullptr;
   }
 
+  // ── THE MONITOR IS A MONITOR, NOT A RECTANGLE ────────────────────────────
+  //
+  // The biggest element in the interface was the plainest: a flat fill with a
+  // picture pasted on it and no suggestion that the picture sits INSIDE
+  // anything. Everything else in this app has depth -- the panels are framed,
+  // the buttons are raised -- so the monitor read as the one unfinished
+  // surface.
+  //
+  // Three things, in the order the eye notices them:
+  //
+  //   1. A RECESSED BEZEL. Dark along the top and left, light along the bottom
+  //      and right: the oldest trick there is for "this is set into the
+  //      surface", and the same lighting the raised controls use, inverted.
+  //   2. CORNER TICKS at the picture's own corners, which is what a broadcast
+  //      monitor draws and what makes a letterboxed picture read as framed
+  //      rather than as floating in a void.
+  //
+  //   3. A FINE DOT FIELD in the surround. The first attempt was a lattice of
+  //      lines on an 18-pixel pitch and it looked like graph paper -- James's
+  //      verdict was "ug as fug" and he was right. The pitch is the whole
+  //      thing: at four pixels it stops reading as LINES and starts reading as
+  //      a surface, which is the difference between texture and pattern.
+  //
+  //      Dots rather than lines, because this application calls itself a
+  //      dot-matrix cue deck and the one texture it should own is that one.
+  //      Drawn BEFORE the picture, so it only ever shows in the letterbox
+  //      surround -- never over somebody's content, which would be competing
+  //      with the thing you are actually looking at.
+  //
+  //      One SDL_RenderPoints call, off a point list rebuilt only when the
+  //      rect changes. A fillRect per dot would be seventeen thousand draw
+  //      calls a frame.
+  //
+  // All of it is drawn from the theme's own roles, so a terminal theme stays a
+  // terminal theme and nothing here has an opinion the colourway did not.
+  void drawMonitorBezel(const SDL_Rect& inner, bool lit) {
+    if (inner.w < 8 || inner.h < 8) {
+      return;
+    }
+    const int depth = std::max(2, uiScaled(3));
+
+    // 3. The dot field first, so the recess and the picture sit on top of it.
+    {
+      const int pitch = std::max(3, uiScaled(4));
+      if (monitorDotsRect_.x != inner.x || monitorDotsRect_.y != inner.y ||
+          monitorDotsRect_.w != inner.w || monitorDotsRect_.h != inner.h ||
+          monitorDotsPitch_ != pitch) {
+        monitorDotsRect_ = inner;
+        monitorDotsPitch_ = pitch;
+        monitorDots_.clear();
+        monitorDots_.reserve(static_cast<std::size_t>((inner.w / pitch + 1)) *
+                             static_cast<std::size_t>((inner.h / pitch + 1)));
+        // Offset every other row by half a pitch: a square lattice still reads
+        // as rows and columns, and the whole point is that it should not read
+        // as anything but a surface.
+        int row = 0;
+        for (int y = inner.y; y < inner.y + inner.h; y += pitch, ++row) {
+          const int shift = (row % 2) ? pitch / 2 : 0;
+          for (int x = inner.x + shift; x < inner.x + inner.w; x += pitch) {
+            monitorDots_.push_back(SDL_FPoint {static_cast<float>(x),
+                                               static_cast<float>(y)});
+          }
+        }
+      }
+      if (!monitorDots_.empty()) {
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        // A four-pixel pitch can carry far more alpha than an eighteen-pixel
+        // one before it reads as pattern: at 14 it was invisible at 1:1, which
+        // is not restraint, it is nothing. These read as a surface.
+        SDL_SetRenderDrawColor(controlRenderer_, pal.mid.r, pal.mid.g, pal.mid.b,
+                               lit ? 34 : 46);
+        SDL_RenderPoints(controlRenderer_, monitorDots_.data(),
+                         static_cast<int>(monitorDots_.size()));
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      }
+    }
+
+    // 1. The recess. Drawn OUTSIDE the picture area so it never eats a pixel
+    //    of the preview -- the whole point is that the picture is untouched.
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    for (int i = 1; i <= depth; ++i) {
+      const std::uint8_t fade =
+        static_cast<std::uint8_t>(std::max(0, 150 - (i - 1) * (150 / depth)));
+      const SDL_Color shade {pal.deep.r, pal.deep.g, pal.deep.b, fade};
+      const SDL_Color light {pal.light.r, pal.light.g, pal.light.b,
+                             static_cast<std::uint8_t>(fade / 3)};
+      // Top and left in shadow; bottom and right catching the light.
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect {inner.x - i, inner.y - i, inner.w + i * 2, 1}, shade);
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect {inner.x - i, inner.y - i, 1, inner.h + i * 2}, shade);
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect {inner.x - i, inner.y + inner.h + i - 1,
+                                     inner.w + i * 2, 1}, light);
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect {inner.x + inner.w + i - 1, inner.y - i, 1,
+                                     inner.h + i * 2}, light);
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }
+
+  // The corner ticks, drawn AFTER the picture so they frame it rather than
+  // hiding under it. Given the picture's own rect, not the monitor's, so a
+  // letterboxed 4:3 clip is framed where it actually is.
+  void drawMonitorCornerTicks(const SDL_Rect& picture, bool lit) {
+    if (picture.w < 24 || picture.h < 24) {
+      return;
+    }
+    const int len = std::clamp(std::min(picture.w, picture.h) / 12,
+                               uiScaled(8), uiScaled(22));
+    const int thick = std::max(1, uiScaled(2));
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    const SDL_Color tick {pal.light.r, pal.light.g, pal.light.b,
+                          static_cast<std::uint8_t>(lit ? 120 : 70)};
+    const int x0 = picture.x, y0 = picture.y;
+    const int x1 = picture.x + picture.w, y1 = picture.y + picture.h;
+    // Four corners, two strokes each, drawn just inside the picture.
+    const SDL_Rect strokes[] = {
+      {x0, y0, len, thick},                 {x0, y0, thick, len},
+      {x1 - len, y0, len, thick},           {x1 - thick, y0, thick, len},
+      {x0, y1 - thick, len, thick},         {x0, y1 - len, thick, len},
+      {x1 - len, y1 - thick, len, thick},   {x1 - thick, y1 - len, thick, len},
+    };
+    for (const SDL_Rect& r : strokes) {
+      Primitives::fillRect(controlRenderer_, r, tick);
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }
+
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs,
                          const char* overrideTip = nullptr) {
     static const char* kTips[] = {
@@ -2129,6 +2258,14 @@
                         std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(6))};
     drawUIPanel(liveBadge, pal.dark, pal.deep, pal.mid);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, liveBadge, "LIVE", pal.light);
+    // WHERE THE HEADER CHROME ACTUALLY ENDS, measured rather than assumed. The
+    // picture's rect used to start at a raw `y + 28` while this badge, the
+    // OUT/DEC/STR pills beside it and the caption at the foot were all sized
+    // with uiScaled() -- so at 1.5x the row was taller than the 28 reserved and
+    // the picture was drawn straight over it. It clipped the corner off this
+    // badge and sliced the "Output 1 3840x2160" caption in half lengthwise,
+    // which is what shipped in the README screenshot.
+    monitorChromeTop_ = liveBadge.y + liveBadge.h;
     // Live sparkle — gentle pulsing star when output is active
     if (hasLiveVideo) {
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
@@ -2335,12 +2472,17 @@
       }
     }
     
+    // After the picture, so they FRAME it rather than hide under it.
+    drawMonitorCornerTicks(warpMonitorInner_, hasLiveVideo);
+
     {
       int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
       auto [outW, outH] = outputRenderSizeForOutput(focusedOutputIndex);
       std::string outInfo = outputLabel(focusedOutputIndex)
         + "  " + std::to_string(outW) + "x" + std::to_string(outH);
-      SDL_Rect outInfoRect {programMonitorRect.x + 4, programMonitorRect.y + programMonitorRect.h - 32, programMonitorRect.w - 8, 20};
+      SDL_Rect outInfoRect {programMonitorRect.x + uiScaled(4), monitorChromeBottom_,
+                            programMonitorRect.w - uiScaled(8),
+                            std::max(uiScaled(20), textLineHeight(fontSmall_))};
       drawTextSafe(controlRenderer_, fontSmall_, outInfoRect, outInfo,
                    hasLiveVideo ? pal.mid : (showMascot ? pal.inkSoft : pal.dark));
     }
@@ -2389,7 +2531,22 @@
         }
       }
     }
-    warpMonitorInner_ = {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 48};
+    // The picture sits BETWEEN the two, with a hair of gap on each side, so it
+    // never touches the chrome at any UI scale.
+    monitorChromeBottom_ = programMonitorRect.y + programMonitorRect.h -
+                           std::max(uiScaled(20), textLineHeight(fontSmall_)) -
+                           uiScaled(4);
+    {
+      const int top = monitorChromeTop_ + uiScaled(2);
+      const int bottom = monitorChromeBottom_ - uiScaled(2);
+      warpMonitorInner_ = {programMonitorRect.x + uiScaled(4), top,
+                           programMonitorRect.w - uiScaled(8),
+                           std::max(uiScaled(24), bottom - top)};
+    }
+    // Before the picture: the recess sits outside it, so it costs the
+    // preview nothing.
+    drawMonitorBezel(warpMonitorInner_, hasLiveVideo);
+
     previewMonitorInner_ = {};
     // IN VJ MODE, WITH NOTHING ARMED, THE PROGRAM MONITOR SHOWS THE MIX.
     //

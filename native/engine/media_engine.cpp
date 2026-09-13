@@ -53,9 +53,11 @@
 #include <sstream>
 #include <string>
 
+#include "core/cue_effects.hpp"     // detail::parallelRows
 #include "core/cue_helpers.hpp"       // isSourceCueKind, resolvedCueEndAction
 #include "core/io_utils.hpp"          // readExact, readSome (pipe I/O)
 #include "core/pattern_helpers.hpp"   // normalizePatternTypeId, patternTypeIsAnimated
+#include "core/paths.hpp"             // dataDir, for the bundled face
 #include "core/pixel_effects.hpp"     // applyChromaKeyToPixels, applyColorControlsToPixels
 #include "core/subprocess.hpp"        // spawnProcess, ChildProcess
 #include "core/utils.hpp"             // trim, splitLines, formatTimecode
@@ -1884,6 +1886,351 @@ std::size_t utf8Advance(const std::string& text, std::size_t at, std::string& ou
   outChar = text.substr(at, width);
   return width;
 }
+
+// ── REAL TYPOGRAPHY INTO A GENERATED FRAME ───────────────────────────────────
+//
+// The engine draws its clock as seven-segment geometry so it never depends on
+// a font being installed, and that is still the right default for a stage
+// timer seen from the back of a room. But it was never a LIMIT: SDL_ttf is
+// right here, and rebuildFontGlyphs has been opening operator-chosen faces for
+// the character grid all along.
+//
+// So this is the shared way to put a string into a DecodedFrame's RGBA buffer
+// with a real face, for anything generated that wants words rather than
+// digits: the timer's typeface mode, and the teleprompter.
+//
+// FACES ARE CACHED, and that is not an optimisation -- it is the difference
+// between working and not. A live timer regenerates its whole picture every
+// tick, so opening eight faces from disk per call is eight file opens sixty
+// times a second. The first version did exactly that and the main thread
+// crawled: the app still answered socket QUERIES instantly (those are served
+// on the network thread) while anything that had to reach the main thread took
+// seconds. That asymmetry is the tell, and it is worth remembering -- an app
+// that answers STATUS but not TIMER FACE is not hung, it is starved.
+//
+// Fonts do not change under us, so the path and the point size are the whole
+// key. Entries are shared_ptr so an eviction cannot pull a face out from under
+// a frame that is mid-draw.
+namespace {
+
+// Every face to try, the operator's first. Per-CHARACTER fallback is what
+// rebuildFontGlyphs learned the hard way: coverage belongs to the character,
+// not to the font, so a face picked for its look does not cost you the
+// letters it happens not to have.
+struct FrameTextFaces {
+  std::vector<TTF_Font*> faces;
+  ~FrameTextFaces() {
+    for (TTF_Font* f : faces) {
+      if (f) TTF_CloseFont(f);
+    }
+  }
+  bool empty() const { return faces.empty(); }
+};
+
+void openFrameTextFaces(FrameTextFaces& out, const std::string& fontPath, int pt) {
+  if (pt < 4) {
+    return;
+  }
+  if (!fontPath.empty()) {
+    if (TTF_Font* chosen = TTF_OpenFont(fontPath.c_str(), static_cast<float>(pt))) {
+      out.faces.push_back(chosen);
+    }
+  }
+  // The bundled face first, so a show looks the same on all three platforms --
+  // the same reason Liberation is shipped rather than leaned on per-OS.
+  const std::string bundled = (deckboy::core::Paths::dataDir() /
+                               "fonts" / "LiberationSans-Regular.ttf").string();
+  if (TTF_Font* f = TTF_OpenFont(bundled.c_str(), static_cast<float>(pt))) {
+    out.faces.push_back(f);
+  }
+  for (const char* path : kFontGlyphCandidates) {
+    if (TTF_Font* f = TTF_OpenFont(path, static_cast<float>(pt))) {
+      out.faces.push_back(f);
+    }
+  }
+}
+
+// The cache. A timer's size follows the output raster, not the frame, so the
+// steady state is one or two entries; the cap only matters if something starts
+// asking with a new size every tick, and then it stops that eating every font
+// handle on the machine rather than letting it.
+std::shared_ptr<FrameTextFaces> frameTextFacesFor(const std::string& fontPath,
+                                                  int pt) {
+  static std::mutex mutex;
+  static std::map<std::pair<std::string, int>, std::shared_ptr<FrameTextFaces>> cache;
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto key = std::make_pair(fontPath, pt);
+  if (auto found = cache.find(key); found != cache.end()) {
+    return found->second;
+  }
+  if (cache.size() >= 16) {
+    // Safe to drop: anything mid-draw holds its own shared_ptr.
+    cache.clear();
+  }
+  auto made = std::make_shared<FrameTextFaces>();
+  openFrameTextFaces(*made, fontPath, pt);
+  cache.emplace(key, made);
+  return made;
+}
+
+// THE RENDERED STRING IS CACHED TOO, and this is the one that matters.
+//
+// Caching the FACES was not enough. A live timer rebuilds its whole picture
+// every tick, and at a 4K raster the clock is around a thousand pixels tall:
+// rasterising five glyphs that size and compositing them costs millions of
+// pixel operations sixty times a second. The main thread crawled -- socket
+// QUERIES still answered instantly off the network thread while anything that
+// had to reach the main thread took five seconds, which is the tell.
+//
+// The clock text changes once a second. So the glyphs are rasterised when the
+// STRING changes and blitted from a small RGBA buffer the rest of the time.
+// Same argument as timerLogoFor, which caches the decoded logo for the same
+// reason.
+struct FrameTextBitmap {
+  std::vector<std::uint8_t> rgba;
+  int w = 0;
+  int h = 0;
+};
+
+// Which face actually has this character. Coverage belongs to the CHARACTER,
+// not to the font -- the lesson rebuildFontGlyphs learned when a decorative
+// face picked for its stars cost the letters it did not have.
+TTF_Font* pickFrameTextFace(FrameTextFaces& faces, const std::string& one) {
+  if (faces.empty() || one.empty()) {
+    return nullptr;
+  }
+  const std::size_t width = one.size();
+  std::uint32_t code = static_cast<unsigned char>(one[0]);
+  if (width == 2)      code = ((code & 0x1Fu) << 6) | (one[1] & 0x3Fu);
+  else if (width == 3) code = ((code & 0x0Fu) << 12) | ((one[1] & 0x3Fu) << 6) |
+                              (one[2] & 0x3Fu);
+  else if (width == 4) code = ((code & 0x07u) << 18) | ((one[1] & 0x3Fu) << 12) |
+                              ((one[2] & 0x3Fu) << 6) | (one[3] & 0x3Fu);
+  for (TTF_Font* f : faces.faces) {
+    if (TTF_FontHasGlyph(f, code)) {
+      return f;
+    }
+  }
+  return faces.faces.front();
+}
+
+// How wide a string is in these faces, so a caller can centre or wrap it.
+int frameTextWidth(FrameTextFaces& faces, const std::string& text) {
+  if (faces.empty() || text.empty()) {
+    return 0;
+  }
+  int total = 0;
+  std::size_t at = 0;
+  std::string one;
+  while (at < text.size()) {
+    // ADVANCE BY THE WIDTH. utf8Advance returns the character's LENGTH, not
+    // the next offset -- `at = utf8Advance(...)` pins `at` at 1 on any ASCII
+    // string and spins for ever. It did, and it wedged the main thread so
+    // completely that the app went on answering network STATUS off its own
+    // thread while nothing else in the program ran. Three performance "fixes"
+    // went by before the number refused to move and the loop got read.
+    const std::size_t width = utf8Advance(text, at, one);
+    if (width == 0 || one.empty()) break;
+    at += width;
+    TTF_Font* font = pickFrameTextFace(faces, one);
+    int w = 0;
+    if (TTF_GetStringSize(font, one.c_str(), one.size(), &w, nullptr)) {
+      total += w;
+    }
+  }
+  return total;
+}
+
+// Blit one string at (x, y), alpha-composited over whatever is already there.
+// Returns the width drawn.
+// One string, rasterised once and kept. Keyed by everything that changes what
+// the pixels are; the colour is NOT part of the key because the glyphs are
+// rendered white and tinted on the way out, which is what lets an amber clock
+// and a red one share a rasterisation.
+const FrameTextBitmap* frameTextBitmapFor(const std::string& text,
+                                          const std::string& fontPath, int pt) {
+  static std::mutex mutex;
+  static std::map<std::tuple<std::string, std::string, int>, FrameTextBitmap> cache;
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto key = std::make_tuple(text, fontPath, pt);
+  if (auto found = cache.find(key); found != cache.end()) {
+    return &found->second;
+  }
+  // A clock cycles through a bounded set of strings ("4:59", "4:58", ...), so
+  // this settles; the cap is for a message that changes every frame through a
+  // {remaining} placeholder, which would otherwise grow without end.
+  if (cache.size() >= 256) {
+    cache.clear();
+  }
+  auto faces = frameTextFacesFor(fontPath, pt);
+  if (!faces || faces->empty() || text.empty()) {
+    return nullptr;
+  }
+  FrameTextBitmap bitmap;
+  // Measured first so the buffer is the right size; the ascent gives every
+  // glyph a common baseline, without which the digits would sit at whatever
+  // height each happened to rasterise to.
+  bitmap.w = frameTextWidth(*faces, text);
+  bitmap.h = 0;
+  int ascent = 0;
+  for (TTF_Font* f : faces->faces) {
+    bitmap.h = std::max(bitmap.h, TTF_GetFontHeight(f));
+    ascent = std::max(ascent, TTF_GetFontAscent(f));
+  }
+  if (bitmap.w <= 0 || bitmap.h <= 0) {
+    return nullptr;
+  }
+  bitmap.rgba.assign(static_cast<std::size_t>(bitmap.w) * bitmap.h * 4, 0);
+  int penX = 0;
+  std::size_t at = 0;
+  std::string one;
+  while (at < text.size()) {
+    // ADVANCE BY THE WIDTH. utf8Advance returns the character's LENGTH, not
+    // the next offset -- `at = utf8Advance(...)` pins `at` at 1 on any ASCII
+    // string and spins for ever. It did, and it wedged the main thread so
+    // completely that the app went on answering network STATUS off its own
+    // thread while nothing else in the program ran. Three performance "fixes"
+    // went by before the number refused to move and the loop got read.
+    const std::size_t width = utf8Advance(text, at, one);
+    if (width == 0 || one.empty()) break;
+    at += width;
+    TTF_Font* font = pickFrameTextFace(*faces, one);
+    if (!font) continue;
+    SDL_Surface* rendered = TTF_RenderText_Blended(
+      font, one.c_str(), one.size(), SDL_Color {255, 255, 255, 255});
+    if (!rendered) continue;
+    SDL_Surface* rgba = SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_ARGB8888);
+    SDL_DestroySurface(rendered);
+    if (!rgba) continue;
+    const int top = ascent - TTF_GetFontAscent(font);
+    const std::uint8_t* src = static_cast<const std::uint8_t*>(rgba->pixels);
+    for (int gy = 0; gy < rgba->h; ++gy) {
+      const int dy = top + gy;
+      if (dy < 0 || dy >= bitmap.h) continue;
+      for (int gx = 0; gx < rgba->w; ++gx) {
+        const int dx = penX + gx;
+        if (dx < 0 || dx >= bitmap.w) continue;
+        const std::uint8_t* sp =
+          src + static_cast<std::size_t>(gy) * rgba->pitch + gx * 4;
+        std::uint8_t* dp = bitmap.rgba.data() +
+          (static_cast<std::size_t>(dy) * bitmap.w + dx) * 4;
+        // ARGB8888 lands B,G,R,A little-endian. Stored as coverage: the glyph
+        // is white, so the alpha is all that matters and the tint comes later.
+        dp[3] = std::max(dp[3], sp[3]);
+      }
+    }
+    penX += rgba->w;
+    SDL_DestroySurface(rgba);
+  }
+  auto inserted = cache.emplace(key, std::move(bitmap));
+  return &inserted.first->second;
+}
+
+// Blit a cached string, tinted. This is what a per-frame caller should use.
+void drawFrameTextCached(DecodedFrame& frame, const std::string& text,
+                         const std::string& fontPath, int pt, int x, int y,
+                         SDL_Color color) {
+  const FrameTextBitmap* bitmap = frameTextBitmapFor(text, fontPath, pt);
+  if (!bitmap || frame.pixels.empty()) {
+    return;
+  }
+  // ACROSS THE CORES, like every other expensive pixel loop in this codebase.
+  // A stage clock at a 4K raster is a bitmap around a thousand pixels tall, and
+  // the timer regenerates its whole frame every tick -- composited on one
+  // thread that was enough to starve the main loop, which showed up as the app
+  // answering network QUERIES instantly while taking five seconds to act on
+  // anything. The rows are independent, which is the only question
+  // parallelRows asks.
+  deckboy::effects::detail::parallelRows(bitmap->h, bitmap->w,
+                                         [&](int firstRow, int lastRow) {
+    for (int gy = firstRow; gy < lastRow; ++gy) {
+      const int dy = y + gy;
+      if (dy < 0 || dy >= frame.height) continue;
+      const std::uint8_t* srcRow =
+        bitmap->rgba.data() + static_cast<std::size_t>(gy) * bitmap->w * 4;
+      std::uint8_t* dstRow =
+        frame.pixels.data() + static_cast<std::size_t>(dy) * frame.width * 4;
+      for (int gx = 0; gx < bitmap->w; ++gx) {
+        const int dx = x + gx;
+        if (dx < 0 || dx >= frame.width) continue;
+        const int a = srcRow[static_cast<std::size_t>(gx) * 4 + 3];
+        if (a == 0) continue;
+        std::uint8_t* dp = dstRow + static_cast<std::size_t>(dx) * 4;
+        dp[0] = static_cast<std::uint8_t>((color.r * a + dp[0] * (255 - a)) / 255);
+        dp[1] = static_cast<std::uint8_t>((color.g * a + dp[1] * (255 - a)) / 255);
+        dp[2] = static_cast<std::uint8_t>((color.b * a + dp[2] * (255 - a)) / 255);
+        dp[3] = static_cast<std::uint8_t>(std::min(255, dp[3] + a));
+      }
+    }
+  });
+}
+
+// How wide a cached string is, for centring it.
+int frameTextCachedWidth(const std::string& text, const std::string& fontPath,
+                         int pt) {
+  const FrameTextBitmap* bitmap = frameTextBitmapFor(text, fontPath, pt);
+  return bitmap ? bitmap->w : 0;
+}
+
+int drawFrameText(DecodedFrame& frame, FrameTextFaces& faces,
+                  const std::string& text, int x, int y, SDL_Color color) {
+  if (faces.empty() || text.empty() || frame.pixels.empty()) {
+    return 0;
+  }
+  int penX = x;
+  std::size_t at = 0;
+  std::string one;
+  while (at < text.size()) {
+    // ADVANCE BY THE WIDTH. utf8Advance returns the character's LENGTH, not
+    // the next offset -- `at = utf8Advance(...)` pins `at` at 1 on any ASCII
+    // string and spins for ever. It did, and it wedged the main thread so
+    // completely that the app went on answering network STATUS off its own
+    // thread while nothing else in the program ran. Three performance "fixes"
+    // went by before the number refused to move and the loop got read.
+    const std::size_t width = utf8Advance(text, at, one);
+    if (width == 0 || one.empty()) break;
+    at += width;
+    TTF_Font* font = pickFrameTextFace(faces, one);
+    SDL_Surface* rendered =
+      TTF_RenderText_Blended(font, one.c_str(), one.size(), color);
+    if (!rendered) {
+      continue;
+    }
+    SDL_Surface* rgba = SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_ARGB8888);
+    SDL_DestroySurface(rendered);
+    if (!rgba) {
+      continue;
+    }
+    const std::uint8_t* src = static_cast<const std::uint8_t*>(rgba->pixels);
+    for (int gy = 0; gy < rgba->h; ++gy) {
+      const int dy = y + gy;
+      if (dy < 0 || dy >= frame.height) continue;
+      for (int gx = 0; gx < rgba->w; ++gx) {
+        const int dx = penX + gx;
+        if (dx < 0 || dx >= frame.width) continue;
+        const std::uint8_t* sp =
+          src + static_cast<std::size_t>(gy) * rgba->pitch + gx * 4;
+        const int a = sp[3];
+        if (a == 0) continue;
+        std::uint8_t* dp = frame.pixels.data() +
+          (static_cast<std::size_t>(dy) * frame.width + dx) * 4;
+        // ARGB8888 lands as B,G,R,A on a little-endian machine; the frame is
+        // RGBA. Composite rather than replace, so text over a logo or a bar
+        // does not punch a hole in it.
+        const int sr = sp[2], sg = sp[1], sb = sp[0];
+        dp[0] = static_cast<std::uint8_t>((sr * a + dp[0] * (255 - a)) / 255);
+        dp[1] = static_cast<std::uint8_t>((sg * a + dp[1] * (255 - a)) / 255);
+        dp[2] = static_cast<std::uint8_t>((sb * a + dp[2] * (255 - a)) / 255);
+        dp[3] = static_cast<std::uint8_t>(std::min(255, dp[3] + a));
+      }
+    }
+    penX += rgba->w;
+    SDL_DestroySurface(rgba);
+  }
+  return penX - x;
+}
+
+}  // namespace
 
 void MediaEngine::rebuildFontGlyphs(const std::string& glyphs, int cellW, int cellH,
                                     const std::string& fontPath) {
@@ -8323,7 +8670,36 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
   int x = (W - totalW) / 2;
   const int y = (H - digitH) / 2;
 
-  for (std::size_t i = 0; i < glyphs.size(); ++i) {
+  // ── A REAL TYPEFACE ─────────────────────────────────────────────────────
+  //
+  // Drawn as ONE STRING, not glyph by glyph into the cells above. A
+  // proportional face laid out in fixed-width cells is not typesetting, it is
+  // a grid with a font in it -- the digits would float and the colons would
+  // sit wrong. So the geometric path keeps its cell arithmetic and this takes
+  // its own measurement.
+  bool drewTypeface = false;
+  if (cfg.face == TimerFace::Typeface) {
+    std::string clock;
+    for (int g : glyphs) {
+      clock += (g == -1) ? ':' : (g == 10 ? '+' : static_cast<char>('0' + g));
+    }
+    // Sized to the same height the geometric faces use, so switching face does
+    // not change how big the clock is on the wall.
+    const int pt = std::max(8, digitH);
+    const int textW = frameTextCachedWidth(clock, cfg.fontPath, pt);
+    if (textW > 0) {
+      drawFrameTextCached(frame, clock, cfg.fontPath, pt, (W - textW) / 2, y, ink);
+      drewTypeface = true;
+    }
+    // If no face would open at all it falls through to seven segments rather
+    // than drawing nothing: a clock that is not there is worse than a clock in
+    // the wrong font.
+  }
+
+  // NOT `return` when the typeface drew: the progress bar, the message and the
+  // logo all come AFTER this loop, and returning here silently dropped every
+  // one of them. Skip the loop, not the rest of the function.
+  for (std::size_t i = 0; !drewTypeface && i < glyphs.size(); ++i) {
     if (glyphs[i] == -1) {
       const int dotH = std::max(thick, digitH / 10);
       fillTimerRect(frame, x + (colonW - thick) / 2, y + digitH / 3 - dotH / 2,
@@ -8343,8 +8719,10 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
       fillTimerRect(frame, cx - thick / 2, cy - armW / 2, thick, armW, ink);
       x += digitW + gap;
     } else if (cfg.face == TimerFace::Blocky) {
-      // Same 5x7 table the message line uses, scaled to digit height. A second
-      // real face without reaching for a TTF the engine cannot see.
+      // Same 5x7 table the message line uses, scaled to digit height. Kept
+      // because it renders identically on every machine whatever is installed
+      // -- not, as this comment used to claim, because the engine cannot see a
+      // TTF. It can, and TimerFace::Typeface above uses one.
       const std::uint8_t* rows =
         timerGlyph5x7(static_cast<unsigned char>(48 + glyphs[i]));
       if (rows) {
@@ -8430,12 +8808,27 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
         }
       }
     }
-    const std::string msg = expanded.size() > 40 ? expanded.substr(0, 40) : expanded;
-    const int textW = static_cast<int>(msg.size()) * charW;
-    int mx = (W - textW) / 2;
     const int my = H - H / 5;
     SDL_Color msgInk = cfg.messageIsUrgent ? SDL_Color {255, 64, 64, 255}
                                            : SDL_Color {255, 255, 255, 255};
+    // THE MESSAGE FOLLOWS THE CLOCK'S FACE. On a typeface timer it is the
+    // operator's own text in the operator's own font -- mixed case, accents and
+    // all -- rather than being folded to upper case and cut at forty
+    // characters, which is what the 5x7 table can express and nothing more.
+    bool drewMessage = false;
+    if (cfg.face == TimerFace::Typeface) {
+      const int msgPt = std::max(8, H / 16);
+      const int msgW = frameTextCachedWidth(expanded, cfg.fontPath, msgPt);
+      if (msgW > 0) {
+        drawFrameTextCached(frame, expanded, cfg.fontPath, msgPt,
+                            (W - msgW) / 2, my, msgInk);
+        drewMessage = true;
+      }
+    }
+    if (!drewMessage) {
+    const std::string msg = expanded.size() > 40 ? expanded.substr(0, 40) : expanded;
+    const int textW = static_cast<int>(msg.size()) * charW;
+    int mx = (W - textW) / 2;
     for (char raw : msg) {
       const unsigned char c = static_cast<unsigned char>(std::toupper(raw));
       const std::uint8_t* rows = timerGlyph5x7(c);
@@ -8449,6 +8842,7 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
         }
       }
       mx += charW;
+    }
     }
   }
 

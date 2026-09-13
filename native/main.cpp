@@ -5356,10 +5356,31 @@ class App {
                      "Countdown, count up, or wall clock");
     rowY += ix.rowStep;
 
-    const char* faceLabel = cue.timer.face == TimerFace::Blocky ? "blocky" : "7-segment";
+    // The chosen face is named, not just its mode: "typeface" alone does not
+    // answer the question the operator is asking, which is WHICH one.
+    const std::string faceLabel =
+      cue.timer.face == TimerFace::Blocky ? std::string("blocky")
+      : cue.timer.face == TimerFace::Typeface
+          ? (cue.timer.fontPath.empty()
+               ? std::string("typeface")
+               : fs::path(cue.timer.fontPath).filename().string())
+      : std::string("7-segment");
     inspDrawValueRow(ix, rowY, "face", faceLabel, QuickAction::TimerCycleFace,
-                     "Clock typeface");
+                     "7-segment, blocky, or a real font");
     rowY += ix.rowStep;
+
+    // Only when a real face is in use -- a font picker on a seven-segment
+    // clock would do nothing, which is the kind of control this codebase has
+    // learned to leave out rather than grey out.
+    if (cue.timer.face == TimerFace::Typeface) {
+      inspDrawValueRow(ix, rowY, "font",
+                       cue.timer.fontPath.empty()
+                         ? std::string("the app's own")
+                         : fs::path(cue.timer.fontPath).filename().string(),
+                       QuickAction::TimerPickFont,
+                       "Choose a .ttf/.otf, or clear it for the bundled face");
+      rowY += ix.rowStep;
+    }
 
     inspDrawQuickRow(ix, rowY, "duration", QuickAction::TimerDurDec,
                      mmss(cue.timer.durationSeconds), QuickAction::TimerDurInc,
@@ -9126,6 +9147,19 @@ class App {
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
+  // Where the program monitor's chrome ends at the top and begins again at
+  // the bottom, measured from the badge and the caption as they are laid
+  // out. The picture goes between them. Members rather than locals because
+  // the badge, the picture and the caption are drawn hundreds of lines
+  // apart and two copies of this arithmetic is how they drifted.
+  // The monitor's dot field, rebuilt only when its rect or pitch changes --
+  // it is tens of thousands of points and recomputing them every frame to
+  // draw the same thing would be silly.
+  std::vector<SDL_FPoint> monitorDots_;
+  SDL_Rect monitorDotsRect_ {};
+  int monitorDotsPitch_ = 0;
+  int monitorChromeTop_ = 0;
+  int monitorChromeBottom_ = 0;
   SDL_Rect warpEditBtnRect_ {};
   SDL_Rect warpModeBtnRect_ {};
   SDL_Rect warpResetBtnRect_ {};

@@ -573,6 +573,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.meshTiltY
         << '\t' << cue.meshSpin
         << '\t' << cue.meshGrid
+        // AT THE END, per the warning on the read side. The timer's
+        // typeface: empty means the app's own bundled face, which is
+        // what every show saved before this carries.
+        << '\t' << escapeField(cue.timer.fontPath)
         << '\n';
     }
   }
@@ -1480,7 +1484,7 @@ Project loadProject(const fs::path& projectFile,
         // Appended after message. These four were rendering but NOT persisting,
         // so a saved show lost its timer mode and face on reload.
         cue.timer.mode = static_cast<TimerMode>(std::clamp(safeInt(fields, tb + 6, 0), 0, 2));
-        cue.timer.face = static_cast<TimerFace>(std::clamp(safeInt(fields, tb + 7, 0), 0, 1));
+        cue.timer.face = static_cast<TimerFace>(std::clamp(safeInt(fields, tb + 7, 0), 0, 2));
         cue.timer.showProgressBar = safeBool(fields, tb + 8, true);
         cue.timer.messageIsUrgent = safeBool(fields, tb + 9, false);
         cue.scheduledStartSeconds = safeDouble(fields, tb + 10, -1.0);
@@ -1670,6 +1674,10 @@ Project loadProject(const fs::path& projectFile,
         cue.meshSpin = std::clamp(
           static_cast<float>(safeDouble(fields, vs + 53, 0.15)), 0.0f, 1.0f);
         cue.meshGrid = std::clamp(safeInt(fields, vs + 54, 48), 8, 160);
+        // At the END. Absent on an older show, which safeString gives
+        // back empty -- the app's own face, which is what a timer that
+        // never had a typeface mode should use if it is switched to one.
+        cue.timer.fontPath = safeString(fields, vs + 55);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {

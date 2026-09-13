@@ -287,7 +287,8 @@ unavailable rather than accepting frames and quietly discarding them.
 
 **Hardware decode.** Two separate things, and they differ by platform. The
 *decode* runs on hardware where the platform has a decoder: D3D11VA on Windows,
-VAAPI on Linux. The *frame* additionally avoids a copy only on Windows, where
+VideoToolbox on macOS, VAAPI on Linux. The *frame* additionally avoids a copy
+only on Windows, where
 the decoder can be put on the output renderer's own device and the picture never
 touches system memory.
 
@@ -320,7 +321,6 @@ importantly, what each feature deliberately does not do.
 - Layer-based compositing and picture-in-picture layouts
 - NMOS discovery over mDNS, so a registry no longer has to be configured by URL
 - Hardware-paced ST 2110 output for narrow-model compliance
-- VideoToolbox decode on macOS, so it gets the hardware path Windows and Linux have
 - Syphon output on macOS, and Spout/Syphon *input* as a cue source
 - Developer ID signing and notarization for macOS releases
 

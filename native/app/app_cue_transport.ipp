@@ -3677,13 +3677,51 @@
     markProjectDirty();
   }
 
+  // The clock's face, from anywhere on the machine. Clearing it goes back to
+  // the app's own bundled sans, which is what makes the typeface mode work
+  // before anybody has picked anything -- and keeps a show looking the same on
+  // all three platforms, the same argument that had Liberation bundled at all.
+  void pickTimerFont() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    if (!cue->timer.fontPath.empty()) {
+      cue->timer.fontPath.clear();
+      markProjectDirty();
+      triggerToast("timer font: the app's own");
+      return;
+    }
+    // Static, because SDL needs the filter array to outlive the callback --
+    // the trap the file-dialog notes warn about.
+    static const std::vector<SDL_DialogFileFilter> kTimerFontFilters {
+      {"Fonts", "ttf;otf;ttc;otc"},
+      {"All files", "*"},
+    };
+    showOpenFileDialog(kTimerFontFilters, /*allowMany=*/false,
+                       [this](std::vector<std::string> picked) {
+      if (picked.empty()) return;
+      Cue* target = selectedCueMutable();
+      if (!target || target->kind != CueKind::Timer) return;
+      target->timer.fontPath = picked.front();
+      // Picking a font is asking for it to be USED. Leaving the face on
+      // seven-segment would store the choice and show none of it.
+      target->timer.face = TimerFace::Typeface;
+      markProjectDirty();
+      triggerToast("timer font: " + fs::path(picked.front()).filename().string());
+    });
+  }
+
   void cycleTimerFace() {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Timer) return;
     cue->timer.face = cue->timer.face == TimerFace::SevenSegment ? TimerFace::Blocky
-                                                                 : TimerFace::SevenSegment;
+                    : cue->timer.face == TimerFace::Blocky        ? TimerFace::Typeface
+                                                                  : TimerFace::SevenSegment;
     triggerToast(cue->timer.face == TimerFace::Blocky ? "timer face: blocky"
-                                                      : "timer face: 7-segment");
+                 : cue->timer.face == TimerFace::Typeface
+                     ? ("timer face: " + (cue->timer.fontPath.empty()
+                          ? std::string("typeface (the app's own)")
+                          : fs::path(cue->timer.fontPath).filename().string()))
+                     : std::string("timer face: 7-segment"));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }

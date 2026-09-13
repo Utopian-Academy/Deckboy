@@ -839,6 +839,7 @@
       case QuickAction::TimerRedInc:      adjustTimerField(&TimerSettings::redSeconds, 5); break;
       case QuickAction::TimerCycleMode:   cycleTimerMode(); break;
       case QuickAction::TimerCycleFace:   cycleTimerFace(); break;
+      case QuickAction::TimerPickFont:    pickTimerFont(); break;
       case QuickAction::TimerCountUpToggle: toggleTimerCountUp(); break;
       case QuickAction::TimerEditMessage: {
         Cue* sel = selectedCueMutable();

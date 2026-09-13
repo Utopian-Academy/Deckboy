@@ -457,6 +457,7 @@ enum class TimerMode {
 enum class TimerFace {
   SevenSegment,  // LED-panel look, chunky, maximum legibility at distance
   Blocky,        // 5x7 dot-matrix, squarer and more retro
+  Typeface,      // a real font -- the app's own, or any face the operator picks
 };
 
 struct TimerSettings {
@@ -467,6 +468,16 @@ struct TimerSettings {
   bool blinkAtZero = true;      // flash once time is up
   TimerMode mode = TimerMode::Countdown;
   TimerFace face = TimerFace::SevenSegment;
+  // WHICH FACE, when `face` is Typeface. Empty is the app's own bundled sans,
+  // so the mode works without picking anything and looks the same on all three
+  // platforms. A named font is tried first and the platform chain still backs
+  // it up per character -- the same contract the character grid uses.
+  //
+  // The geometric faces above are NOT a limitation and are staying: seven
+  // segments render identically on every machine whatever is installed, which
+  // is what a clock on a stage screen wants. This is for the times an event
+  // has a typeface and the clock is expected to be in it.
+  std::string fontPath;
   bool showProgressBar = true;  // length is readable from further back than digits
   bool messageIsUrgent = false; // red rather than white: the "wrap up NOW" state
   std::string message;          // optional line under the clock
@@ -1816,6 +1827,7 @@ enum class QuickAction {
   TimerRedDec, TimerRedInc,
   TimerCycleMode,
   TimerCycleFace,
+  TimerPickFont,
   TimerCountUpToggle,
   TimerEditMessage,
   TimerUrgentToggle,

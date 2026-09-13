@@ -1,5 +1,31 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.352 (the stage timer can use any font)
+
+**A third timer face: a real typeface.** Seven-segment and blocky stay, and stay
+the default -- they render identically on any machine whatever is installed,
+which is what a clock on a stage screen wants. But an event that has a typeface
+can now have its clock in it: pick a `.ttf` or `.otf` in the cue inspector, or
+`TIMER FACE typeface` and `TIMER FONT <path>` over the wire. Clearing the font
+goes back to the app's own bundled face, so the mode works before you have
+picked anything.
+
+The message line follows the clock's face. On a typeface timer it is your own
+text in your own font -- mixed case, accents and all -- instead of being folded
+to upper case and cut at forty characters, which is all the built-in 5x7 table
+can express.
+
+**The program monitor.** The picture was drawn over the chrome: it clipped the
+corner off the LIVE badge and sliced the "Output 1 3840x2160" caption in half
+lengthwise. The inset reserving room for them was written at 1x while the badge
+and the caption scale with the interface, so at anything above 100% the picture
+rode over both. Both are now measured from the chrome as it is actually laid
+out.
+
+And the monitor has some depth to it: a recessed bezel, corner ticks framing the
+picture, and a fine dot field in the surround -- the app does call itself a
+dot-matrix cue deck. Never over the picture, which is somebody's actual content.
+
 ## 2026-09-12 - v0.99.352 (IPTV channel lists)
 
 **Import an `.m3u` and get the channels.** An IPTV provider's playlist becomes
