@@ -26,6 +26,7 @@
         .prose p { margin-bottom: 1rem; color: var(--ink-soft); }
         .prose ul { margin: 0 0 1rem 1.25rem; color: var(--ink-soft); }
         .prose li { margin-bottom: .35rem; }
+        .prose .more { font-size: .9rem; margin-top: -.4rem; }
         .prose code { background: var(--dmg-dark); padding: .12em .4em;
                        font-size: .9em; }
     </style>
@@ -122,6 +123,7 @@
         source can be added as a cue and played like any other clip, and any output can send NDI
         while also sending SRT, RTMP, Blackmagic SDI or SMPTE ST 2110 — simultaneously, not
         instead of each other.</p>
+        <p class="more"><a href="manual.html#outputs-routing">Manual: Outputs &amp; Routing</a></p>
 
         <h2>How do I loop a video on a screen all day?</h2>
         <p>Import the clip, set the cue to loop, and send the deck to a fullscreen output on the
@@ -129,12 +131,14 @@
         desktop, which is the failure everybody has seen in a foyer. There is also a soak mode
         (<code>--soak</code>) that logs memory and stalls, so a machine can be proven before it is
         left unattended for a week.</p>
+        <p class="more"><a href="manual.html#playlists-loop-shuffle-cue-endings">Manual: Playlists, Loop, Shuffle &amp; Cue Endings</a></p>
 
         <h2>Can I trigger playback from a Stream Deck?</h2>
         <p>Yes — there is a Stream Deck plugin and a Bitfocus Companion module. Both poll Deckboy's
         status, so a key carries tally, transport state, output health and a countdown: the button
         knows whether the cue it fired actually went live, rather than just hoping. OSC, MIDI,
         Art-Net and LTC timecode work too.</p>
+        <p class="more"><a href="manual.html#remote-control">Manual: Remote Control</a></p>
 
         <h2>Can I play PDF or PowerPoint slides from a cue list?</h2>
         <p>Yes, and this is the thing Deckboy does that the other cue players do not do at all. A
@@ -183,6 +187,7 @@
         <p>Yes. Outputs are per-display, with display-native or fixed raster modes, and each output
         has its own area of interest, edge feathering and warp / keystone correction — enough for
         ordinary multi-projector work, though it is not a projection-mapping suite.</p>
+        <p class="more"><a href="manual.html#output-geometry-aoi-warp-edge-blend">Manual: Output Geometry: AOI, Warp, Edge Blend</a></p>
 
         <div class="cta-group" style="justify-content:flex-start;margin-top:2.5rem">
             <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>
