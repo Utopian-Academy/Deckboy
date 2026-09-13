@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-12 - v0.99.355 (a cue has a sound as well as a look)
+## 2026-09-12 - v0.99.356 (a cue has a sound as well as a look)
 
 **Every cue now carries an audio chain, the way it already carried a picture
 chain.** It sits directly under EFFECTS in the inspector and works the same way:
@@ -142,12 +142,12 @@ once rendered 10-bit HEVC flat green on Windows.
 of inferring it from a Direct3D device pointer, which macOS does not have. It
 would have reported the new path as the old one.
 
-**Measured since, on an M4** (see v0.99.354). It links against CoreVideo now,
+**Measured since, on an M4** -- see the entry at the top of this file. It links against CoreVideo now,
 which it did not at first: the header was included, every translation unit
 compiled and only the link failed, on the one platform that cannot be built
 here.
 
-## 2026-09-12 - v0.99.352 (the stage timer can use any font)
+### The stage timer can use any font
 
 **A third timer face: a real typeface.** Seven-segment and blocky stay, and stay
 the default -- they render identically on any machine whatever is installed,
@@ -209,7 +209,7 @@ Everything a hand controller would reach is on the wire -- `PROMPTER RUN`,
 `MIRROR`, `SCRIPT` -- and all of it has a page in Settings, under the output
 that is one.
 
-## 2026-09-12 - v0.99.350 (hardware decode on Linux, and a README with a picture in it)
+### Hardware decode on Linux, and a README with a picture in it
 
 **Hardware decode is no longer Windows-only.** The in-process decoder now asks
 each platform for its own decoder -- D3D11VA on Windows, VAAPI on Linux,
@@ -261,7 +261,7 @@ chose and moving it under you would be a bug rather than a courtesy.
 `PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h>` places one by numbers,
 in percent, for anybody building a screen from a script.
 
-## 2026-09-12 - v0.99.348 (notes that scroll, and a screen that is yours)
+### Notes that scroll, and a screen that is yours
 
 **The notes pane scrolls.** It used to stop at a line boundary with a
 "... more below" marker, which named the problem rather than solving it: the
@@ -292,7 +292,7 @@ rectangles, the captions in soft pills, the builds as dots rather than
 lit -- because "42 of 109" is a fact you have to do arithmetic on and a lit card
 two-thirds along the row is one you read at a glance from a lectern.
 
-## 2026-09-12 - v0.99.347 (the presenter view, finished; and notes out of a PowerPoint)
+### The presenter view, finished; and notes out of a PowerPoint
 
 **The presenter view draws all three of its layouts, in your colours.** WIDE
 puts the live picture large with the previous and next slides beside it and the
