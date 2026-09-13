@@ -3273,7 +3273,36 @@
   // The synth cue currently on air, if any. Notes go to what is LIVE rather
   // than what is selected: an operator playing along with a show is watching
   // the output, not the playlist.
+  // THE FOCUSED DECK FIRST, then whichever deck has one.
+  //
+  // This scanned from deck 0 and returned the first live synth it found, which
+  // is correct and unambiguous while one deck exists. With two -- and VJ mode
+  // exists precisely to give you two -- every note went to deck 1 no matter
+  // which deck was focused, so an arrangement with a bass on one and a lead on
+  // the other silently played both parts on the bass. Nothing reported it;
+  // it simply sounded wrong.
+  //
+  // The fallback keeps the old behaviour wherever the focused deck has no
+  // synth on air, so playing keys still works without having to focus first.
+  Cue* liveSynthCueOnDeck(int deckIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return nullptr;
+    }
+    Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return nullptr;
+    }
+    Cue& cue = deck.cues[static_cast<std::size_t>(deck.activeIndex)];
+    if (cue.kind == CueKind::Tone && cue.tone.waveform == ToneWaveform::Fds) {
+      return &cue;
+    }
+    return nullptr;
+  }
+
   Cue* liveSynthCue() {
+    if (Cue* focused = liveSynthCueOnDeck(project_.focusedDeckIndex)) {
+      return focused;
+    }
     for (auto& deck : project_.decks) {
       if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
         continue;
@@ -3286,7 +3315,17 @@
     return nullptr;
   }
 
+  // Same rule as liveSynthCue, and it has to be the SAME rule: the two are
+  // called together to send one note, so a cue from one deck and an engine
+  // from another would play the focused deck's timbre out of the other deck's
+  // voice.
   MediaEngine* liveSynthEngine() {
+    const int focused = project_.focusedDeckIndex;
+    if (liveSynthCueOnDeck(focused) && focused >= 0 &&
+        focused < static_cast<int>(deckRuntimes_.size()) &&
+        deckRuntimes_[static_cast<std::size_t>(focused)].mediaEngine) {
+      return deckRuntimes_[static_cast<std::size_t>(focused)].mediaEngine.get();
+    }
     for (std::size_t d = 0; d < project_.decks.size(); ++d) {
       const Deck& deck = project_.decks[d];
       if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
