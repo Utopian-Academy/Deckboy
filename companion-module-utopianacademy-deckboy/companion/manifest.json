@@ -1,6 +1,6 @@
 {
-	"id": "deckboy",
-	"name": "deckboy",
+	"id": "utopianacademy-deckboy",
+	"name": "utopianacademy-deckboy",
 	"shortname": "Deckboy",
 	"description": "Cue deck for live events — transport, cue tally, output health and countdowns",
 	"version": "1.0.0",

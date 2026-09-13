@@ -1,6 +1,6 @@
 # Deckboy Stream Deck + Companion Profile
 
-> **Prefer the real Companion module: [`companion-module-deckboy/`](../../companion-module-deckboy/).**
+> **Prefer the real Companion module: [`companion-module-utopianacademy-deckboy/`](../../companion-module-utopianacademy-deckboy/).**
 > It does everything below *and* reads Deckboy's state back, so buttons carry
 > cue tally, transport colour, output health and a countdown. The Generic
 > TCP/UDP mapping in this folder is one-way only — a key never knows whether the

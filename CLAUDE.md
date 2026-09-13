@@ -84,7 +84,7 @@ cmake --build build/windows --config Release
 | `native/core/sdl_compat.hpp` | SDL3 compat layer: int-rect draw overloads, display-index helpers, `deckboyCreateTexture*` (nearest scale), audio pause helper |
 | `native/engine/libav_decoder.hpp/.cpp` | In-process libav decode pipelines (v0.78.0): d3d11va zero-copy video, audio→s16/48k, D3D11 interop helpers. Behind `DECKBOY_INPROC_DECODE` |
 | `native/app/app_overlays.ipp` | `renderDependencyPrompt()` + detection helpers (`ndiRuntimeAvailable` etc.) |
-| `companion-module-deckboy/` | Bitfocus Companion module (Node/ESM). Polls `STATUS` for tally/feedbacks; `npm test` covers the parser against a captured reply |
+| `companion-module-utopianacademy-deckboy/` | Bitfocus Companion module (Node/ESM). Polls `STATUS` for tally/feedbacks; `npm test` covers the parser against a captured reply |
 
 ## Program-Monitor Tap (v0.81.0)
 

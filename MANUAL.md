@@ -781,7 +781,7 @@ theme written for a later version still loads.
 All remote inputs normalise to plain-text commands.
 
 - **Companion** — port **5510** by default. Use the Deckboy module in
-  `companion-module-deckboy/`: as well as sending commands it polls Deckboy's
+  `companion-module-utopianacademy-deckboy/`: as well as sending commands it polls Deckboy's
   state, so Stream Deck keys show cue tally, transport colour, output health and
   a countdown. A one-way *Generic TCP/UDP* mapping is still available in
   `docs/streamdeck/` for setups that can't install a module.

@@ -62,7 +62,7 @@ jobs:
         with:
           node-version: '20'
       - name: Install and test
-        working-directory: companion-module-deckboy
+        working-directory: companion-module-utopianacademy-deckboy
         run: |
           npm install --no-audit --no-fund
           npm test
@@ -107,7 +107,7 @@ jobs:
       # Until then the module is installed from source, which works, and the
       # release ships the Stream Deck plugin only.
       # - name: Companion module package
-      #   working-directory: companion-module-deckboy
+      #   working-directory: companion-module-utopianacademy-deckboy
       #   run: npx companion-module-build
 
       # Attached to the release below. Without this the plugins exist only for

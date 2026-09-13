@@ -1,5 +1,5 @@
 {
-	"name": "companion-module-deckboy",
+	"name": "companion-module-utopianacademy-deckboy",
 	"version": "1.0.0",
 	"type": "module",
 	"main": "main.js",
@@ -8,7 +8,7 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Utopian-Academy/Deckboy.git",
-		"directory": "companion-module-deckboy"
+		"directory": "companion-module-utopianacademy-deckboy"
 	},
 	"scripts": {
 		"test": "node --test test/*.test.js",

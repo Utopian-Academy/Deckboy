@@ -1,4 +1,4 @@
-# companion-module-deckboy
+# companion-module-utopianacademy-deckboy
 
 Bitfocus Companion module for [Deckboy](https://github.com/Utopian-Academy/Deckboy).
 
@@ -17,7 +17,7 @@ module:
 
 1. Copy or symlink this folder somewhere Companion can see it.
 2. In Companion, set **Settings → Developer modules path** to the folder that
-   *contains* `companion-module-deckboy`.
+   *contains* `companion-module-utopianacademy-deckboy`.
 3. Restart Companion, then add a connection: **Utopian Academy → Deckboy**.
 
 ```
