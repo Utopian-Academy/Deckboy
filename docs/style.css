@@ -1,36 +1,47 @@
 /* Deckboy's site, in Deckboy's clothes.
  *
- * The palette is not a choice. Sampling the application's own screenshot gives
- * #9bbc0f and #0f380f as the two dominant colours by a wide margin -- which are
- * the original Game Boy DMG greens, because that is the colourway the deck is
- * wearing. The site now uses the same four, and nothing else:
+ * The palette is not a taste decision. Sampling a capture of the application
+ * running its DEFAULT theme returns, in order of area:
  *
- *   #0f380f  darkest   ground
- *   #306230  dark      panels, borders
- *   #8bac0f  mid       secondary ink, rules
- *   #9bbc0f  lightest  primary ink
+ *   #fcfe1f  bright yellow   the buttons and the lit chrome
+ *   #1f601f  dark green      the panels everything sits on
+ *   #f3fdca  pale cream      secondary ink
+ *   #94ae79  sage            muted ink and rules
+ *
+ * So the site uses those. An earlier version of this file used the Game Boy
+ * DMG greens, because the screenshot that had been to hand was shot in the
+ * "gameboy" colourway -- one of about thirty themes the app ships -- and I
+ * took a theme for the identity. The default is yellow on green.
+ *
+ * Long body copy is set in the cream rather than the yellow. The application
+ * can put #fcfe1f on #1f601f because its text is short and its panels are
+ * small; a paragraph of it on a web page is a migraine. Headings, buttons and
+ * the lit accents keep the yellow, which is where the app uses it too.
  *
  * The font is not a choice either. The application draws its branding in
- * Press Start 2P (native/core/paths.cpp: "retro pixel font used for the Deckboy
- * branding/logo") and its interface in a monospace. So headings are Press Start
- * 2P and everything else is mono.
+ * Press Start 2P by name (native/core/paths.cpp: "retro pixel font used for
+ * the Deckboy branding/logo") and its interface in a monospace. Headings are
+ * Press Start 2P; everything else is mono.
  *
- * Press Start 2P is enormously wide and has no lower-case descender rhythm, so
- * it is used ONLY where a few words appear at a large size. Body copy in it is
- * unreadable, and a site nobody can read is not on brand, it is just broken.
+ * Press Start 2P is used ONLY at headline sizes -- it is enormously wide and
+ * has no lower-case rhythm, so body copy set in it is unreadable, and a site
+ * nobody can read is not on brand, it is broken.
  */
 
 :root {
-    --dmg-darkest: #0f380f;
-    --dmg-dark:    #306230;
-    --dmg-mid:     #8bac0f;
-    --dmg-light:   #9bbc0f;
+    --db-yellow:      #fcfe1f;
+    --db-yellow-dim:  #e3fd1f;
+    --db-green:       #1f601f;
+    --db-green-deep:  #143f14;
+    --db-cream:       #f3fdca;
+    --db-sage:        #94ae79;
 
-    --ground:      var(--dmg-darkest);
-    --panel:       #144814;
-    --ink:         var(--dmg-light);
-    --ink-soft:    var(--dmg-mid);
-    --rule:        var(--dmg-dark);
+    --ground:   var(--db-green-deep);
+    --panel:    var(--db-green);
+    --ink:      var(--db-yellow);
+    --ink-body: var(--db-cream);
+    --ink-soft: var(--db-sage);
+    --rule:     #2c7a2c;
 
     --pixel: 'Press Start 2P', 'Courier New', monospace;
     --mono: ui-monospace, 'Cascadia Mono', 'Consolas', 'Liberation Mono', Menlo, monospace;
@@ -41,17 +52,17 @@
 body {
     font-family: var(--mono);
     background-color: var(--ground);
-    color: var(--ink);
+    color: var(--ink-body);
     line-height: 1.7;
     overflow-x: hidden;
     position: relative;
     /* the faint scanline of a screen you are looking at rather than reading */
     background-image: repeating-linear-gradient(
-        0deg, rgba(155, 188, 15, 0.03) 0 1px, transparent 1px 3px);
+        0deg, rgba(252, 254, 31, 0.03) 0 1px, transparent 1px 3px);
 }
 
-/* The old design had two blurred colour blobs behind everything. A four-colour
- * console palette has no blur in it, so they are gone rather than recoloured. */
+/* The old design had two blurred colour blobs behind everything. Nothing in the
+ * interface is blurred, so they are gone rather than recoloured. */
 .background-glow { display: none; }
 
 /* ── navigation ─────────────────────────────────────────────────────────── */
@@ -90,7 +101,7 @@ body {
     color: var(--ink) !important;
 }
 
-.btn-primary:hover { background: var(--dmg-dark); }
+.btn-primary:hover { background: var(--db-green); }
 
 /* ── hero ───────────────────────────────────────────────────────────────── */
 
@@ -104,8 +115,8 @@ h1 {
     color: var(--ink);
 }
 
-/* was a pink-to-blue gradient. The DMG had four colours and no gradients. */
-.gradient-text { color: var(--dmg-mid); }
+/* was a pink-to-blue gradient. The interface has no gradients in it. */
+.gradient-text { color: var(--db-yellow-dim); }
 
 .hero-subtitle {
     margin-top: 1.5rem;
@@ -128,7 +139,7 @@ h1 {
     text-decoration: none;
     padding: 1rem 1.2rem;
     border: 2px solid var(--ink);
-    background: var(--dmg-dark);
+    background: var(--db-green);
     color: var(--ink);
 }
 
@@ -172,7 +183,7 @@ h1 {
     color: var(--ink);
 }
 
-.feature-card p { color: var(--ink-soft); font-size: 0.88rem; }
+.feature-card p { color: var(--ink-body); font-size: 0.88rem; }
 
 /* ── the screenshot ─────────────────────────────────────────────────────── */
 
@@ -199,11 +210,11 @@ h1 {
     border-bottom: 2px solid var(--rule);
 }
 
-.dot { width: 10px; height: 10px; background: var(--dmg-dark); border: 1px solid var(--ink-soft); }
+.dot { width: 10px; height: 10px; background: var(--db-green); border: 1px solid var(--ink-soft); }
 .dot.green { background: var(--ink-soft); }
 
 .terminal { padding: 1.5rem; font-size: 0.88rem; }
-.terminal p { margin-bottom: 0.55rem; color: var(--ink); }
+.terminal p { margin-bottom: 0.55rem; color: var(--ink-body); }
 .prompt { color: var(--ink-soft); margin-right: 0.5rem; }
 
 /* ── footer ─────────────────────────────────────────────────────────────── */
@@ -222,11 +233,11 @@ footer a { color: var(--ink); }
 
 .prose h2 { font-family: var(--pixel); font-size: 0.8rem; line-height: 1.8; color: var(--ink); }
 .prose h3 { font-family: var(--pixel); font-size: 0.68rem; line-height: 1.8; color: var(--ink); }
-.prose p, .prose li { color: var(--ink-soft); }
+.prose p, .prose li { color: var(--ink-body); }
 .prose a { color: var(--ink); }
 
 table th { font-family: var(--mono); color: var(--ink); }
-table td { color: var(--ink-soft); }
+table td { color: var(--ink-body); }
 table th, table td { border-bottom: 1px solid var(--rule); }
 
 .callout { border-left: 3px solid var(--ink-soft); background: var(--panel); }
