@@ -473,6 +473,7 @@ add_executable(deckboy-native
   # NMOS IS-04/IS-05 node: HTTP server + registration client for the 2110
   # senders. Plain sockets and a hand-rolled JSON reader, no SDK, so this also
   # compiles unconditionally.
+  native/platform/nmc_sync.cpp
   native/platform/nmos_node.cpp
   # Vendored Terrarium sim. This shim compiles upstream/terrarium_core.cpp
   # INSIDE `namespace terra` — do not add that .cpp here directly, or its

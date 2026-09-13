@@ -90,6 +90,7 @@
 #include "platform/ndi_api.hpp"
 #include "platform/ndi_trigger_api.hpp"
 #include "platform/network.hpp"
+#include "platform/nmc_sync.hpp"
 #include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
 #include "platform/browser.hpp"
@@ -10062,34 +10063,22 @@ class App {
   std::string lastOscFeedbackPayload_;
   Uint64 lastOscMirrorFeedbackBroadcastMs_ = 0;
   std::string lastOscMirrorFeedbackPayload_;
+  // The NMC bridge owns its socket, its thread and its change detection --
+  // see platform/nmc_sync.hpp for why that is not sixteen members here.
+  deckboy::platform::NmcSync nmcSync_;
+  bool nmcSyncHooked_ = false;
   SocketHandle atemBridgeSocket_ = kInvalidSocket;
   SocketHandle artNetSocket_ = kInvalidSocket;
   std::thread atemBridgeThread_;
   std::thread artNetBridgeThread_;
-  std::thread nmcSyncThread_;
   std::thread ndiTriggerThread_;
   std::atomic<bool> atemBridgeStop_ {false};
   std::atomic<bool> artNetBridgeStop_ {false};
-  std::atomic<bool> nmcSyncStop_ {false};
-  std::atomic<bool> nmcSyncRunning_ {false};
   std::atomic<bool> ndiTriggerStop_ {false};
   std::atomic<bool> ndiTriggerRunning_ {false};
-  SocketHandle nmcSyncSocket_ = kInvalidSocket;
   int atemBridgeListenPort_ = kDefaultAtemBridgePort;
   int artNetListenPort_ = kDefaultArtNetPort;
   std::array<std::uint8_t, 512> artNetLastDmx_ {};
-  sockaddr_in nmcSyncTargetAddress_ {};
-  std::string nmcSyncActiveMode_;
-  int nmcSyncActivePort_ = 0;
-  std::string nmcSyncActiveHost_;
-  std::string nmcSyncActiveSourceFilter_;
-  std::string nmcSyncLastError_;
-  std::string nmcSyncLastAnnouncedError_;
-  Uint64 nmcSyncRestartBlockedUntilMs_ = 0;
-  TransportState nmcSyncLastSentState_ = TransportState::Stopped;
-  double nmcSyncLastSentSeconds_ = -1.0;
-  Uint64 nmcSyncLastLocateSentMs_ = 0;
-  bool nmcSyncOutputStateInitialized_ = false;
   NdiTriggerApi ndiTriggerApi_;
   std::string ndiTriggerConnectedSource_;
   std::string ndiTriggerLastError_;

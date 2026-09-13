@@ -769,6 +769,65 @@
     return value.empty() ? "255.255.255.255" : value;
   }
 
+  // ── The NMC bridge ────────────────────────────────────────────────────────
+  //
+  // The socket, the listener thread and the change detection live in
+  // platform/nmc_sync.cpp. What stays here is the part that genuinely belongs
+  // to the app: reading the settings out of the project and the environment,
+  // and telling the bridge what the transport is doing. These five wrappers
+  // keep the names every other file already calls.
+
+  deckboy::platform::NmcSyncConfig nmcSyncConfig() const {
+    deckboy::platform::NmcSyncConfig config;
+    config.enabled = project_.nmcSyncEnabled;
+    config.mode = resolvedNmcSyncMode();
+    config.port = resolvedNmcSyncPort();
+    config.targetHost = resolvedNmcSyncTargetHost();
+    config.sourceFilter = resolvedNmcSyncSourceFilter();
+    config.locateIntervalMs = resolvedNmcSyncLocateIntervalMs();
+    config.localOnly = !project_.allowRemoteNetwork;
+    return config;
+  }
+
+  // Wired once, on first use: the bridge's listener thread must not touch the
+  // app, so an inbound packet becomes a queued command and an error becomes a
+  // toast, and nothing else crosses.
+  void ensureNmcSyncHooked() {
+    if (nmcSyncHooked_) {
+      return;
+    }
+    nmcSyncHooked_ = true;
+    nmcSync_.setHooks({
+      [this](const std::string& line) { enqueueRemoteCommand(line); },
+      [this](const std::string& message) { triggerToast(message); },
+    });
+  }
+
+  void refreshNmcSyncState() {
+    ensureNmcSyncHooked();
+    nmcSync_.refresh(nmcSyncConfig());
+  }
+
+  void stopNmcSyncBridge() { nmcSync_.stop(); }
+
+  // The settings screens call this after a change. It is refresh() under the
+  // old name: the bridge starts, stops or rebinds to match what the project
+  // now says, which is what every one of those call sites meant.
+  void startNmcSyncBridge() { refreshNmcSyncState(); }
+
+  std::string describeNmcSyncRuntime() const {
+    return nmcSync_.describe(nmcSyncConfig());
+  }
+
+  void tickNmcSyncOutput() {
+    MediaEngine* engine = focusedMediaEngine();
+    const Cue* activeCue = activeCuePtr();
+    const TransportState state = engine ? engine->state() : TransportState::Stopped;
+    const double seconds = engine ? engine->position() : 0.0;
+    nmcSync_.tickOutput(nmcSyncConfig(), state, seconds,
+                        engine != nullptr && activeCue != nullptr);
+  }
+
   std::string resolvedNmcSyncSourceFilter() const {
     if (!project_.nmcSourceFilter.empty()) {
       return project_.nmcSourceFilter;
@@ -777,72 +836,8 @@
     return env ? trim(env) : std::string();
   }
 
-  bool nmcSourceMatchesFilter(const std::string& sender, const std::string& filter) const {
-    if (filter.empty()) {
-      return true;
-    }
-    std::string senderUpper = toUpper(sender);
-    std::string filterUpper = toUpper(filter);
-    if (filterUpper == "LOCALHOST") {
-      return sender == "127.0.0.1";
-    }
-    return senderUpper == filterUpper || senderUpper.find(filterUpper) != std::string::npos;
-  }
 
-  bool resolveNmcSyncTargetAddress(sockaddr_in* outAddress, std::string* error) const {
-    if (!outAddress) {
-      return false;
-    }
-    std::memset(outAddress, 0, sizeof(sockaddr_in));
-    outAddress->sin_family = AF_INET;
-    outAddress->sin_port = htons(static_cast<std::uint16_t>(resolvedNmcSyncPort()));
 
-    std::string host = resolvedNmcSyncTargetHost();
-    if (host.empty()) {
-      if (error) {
-        *error = "nmc host missing";
-      }
-      return false;
-    }
-
-    addrinfo hints {};
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    addrinfo* results = nullptr;
-    int status = getaddrinfo(host.c_str(), nullptr, &hints, &results);
-    if (status != 0 || !results) {
-      if (error) {
-        *error = "nmc host resolve failed";
-      }
-      if (results) {
-        freeaddrinfo(results);
-      }
-      return false;
-    }
-
-    const auto* ipv4 = reinterpret_cast<const sockaddr_in*>(results->ai_addr);
-    outAddress->sin_addr = ipv4->sin_addr;
-    freeaddrinfo(results);
-    return true;
-  }
-
-  std::string describeNmcSyncRuntime() const {
-    if (!project_.nmcSyncEnabled) {
-      return "off";
-    }
-    std::ostringstream summary;
-    std::string mode = resolvedNmcSyncMode();
-    summary << mode << '@' << resolvedNmcSyncPort();
-    if (mode == "output") {
-      summary << " -> " << resolvedNmcSyncTargetHost();
-    } else {
-      std::string filter = resolvedNmcSyncSourceFilter();
-      if (!filter.empty()) {
-        summary << " from " << filter;
-      }
-    }
-    return summary.str();
-  }
 
   void startAtemBridgeListener() {
     stopAtemBridgeListener();
@@ -1317,231 +1312,12 @@
     }
   }
 
-  void resetNmcSyncOutputState() {
-    nmcSyncLastSentState_ = TransportState::Stopped;
-    nmcSyncLastSentSeconds_ = -1.0;
-    nmcSyncLastLocateSentMs_ = 0;
-    nmcSyncOutputStateInitialized_ = false;
-  }
 
-  void nmcSyncLoop() {
-    nmcSyncRunning_.store(true);
-    nmcSyncLastError_.clear();
-    std::string sourceFilter = resolvedNmcSyncSourceFilter();
-    while (!nmcSyncStop_.load()) {
-      fd_set readFds;
-      FD_ZERO(&readFds);
-      watchFd(nmcSyncSocket_, &readFds);
-      timeval timeout {};
-      timeout.tv_sec = 0;
-      timeout.tv_usec = 200000;
-      int ready = select(selectNfds(nmcSyncSocket_), &readFds, nullptr, nullptr, &timeout);
-      if (ready <= 0) {
-        continue;
-      }
-      if (!readyFd(nmcSyncSocket_, &readFds)) {
-        continue;
-      }
-      std::array<char, 1024> buffer {};
-      sockaddr_in sender {};
-      socklen_t senderLen = sizeof(sender);
-      int bytes = recvfrom(
-        nmcSyncSocket_,
-        buffer.data(),
-        static_cast<int>(buffer.size() - 1),
-        0,
-        reinterpret_cast<sockaddr*>(&sender),
-        &senderLen);
-      if (bytes <= 0) {
-        continue;
-      }
-      buffer[bytes] = '\0';
-      std::string senderLabel = socketAddressToString(sender);
-      if (!nmcSourceMatchesFilter(senderLabel, sourceFilter)) {
-        continue;
-      }
-      std::string payload = trim(std::string(buffer.data(), static_cast<size_t>(bytes)));
-      if (payload.empty()) {
-        continue;
-      }
-      enqueueRemoteCommand("NMCEVENT " + payload);
-    }
-    nmcSyncRunning_.store(false);
-  }
 
-  bool startNmcSyncBridge() {
-    stopNmcSyncBridge();
 
-    std::string mode = resolvedNmcSyncMode();
-    nmcSyncActiveMode_ = mode;
-    nmcSyncActivePort_ = resolvedNmcSyncPort();
-    nmcSyncActiveHost_ = resolvedNmcSyncTargetHost();
-    nmcSyncActiveSourceFilter_ = resolvedNmcSyncSourceFilter();
-    nmcSyncLastError_.clear();
-    nmcSyncLastAnnouncedError_.clear();
-    resetNmcSyncOutputState();
 
-    if (mode == "output") {
-      std::string error;
-      if (!resolveNmcSyncTargetAddress(&nmcSyncTargetAddress_, &error)) {
-        nmcSyncLastError_ = error.empty() ? "nmc target resolve failed" : error;
-        return false;
-      }
-      nmcSyncSocket_ = createDatagramSocket(true);
-      if (nmcSyncSocket_ == kInvalidSocket) {
-        nmcSyncLastError_ = "nmc output socket unavailable";
-        return false;
-      }
-      return true;
-    }
 
-    nmcSyncSocket_ = createBoundSocket(SOCK_DGRAM, nmcSyncActivePort_, false, !project_.allowRemoteNetwork);
-    if (nmcSyncSocket_ == kInvalidSocket) {
-      nmcSyncLastError_ = "nmc listen socket unavailable";
-      return false;
-    }
-    nmcSyncStop_.store(false);
-    nmcSyncRunning_.store(false);
-    nmcSyncThread_ = std::thread([this]() { nmcSyncLoop(); });
-    return true;
-  }
 
-  void stopNmcSyncBridge() {
-    nmcSyncStop_.store(true);
-    if (nmcSyncSocket_ != kInvalidSocket) {
-      closeSocket(nmcSyncSocket_);
-      nmcSyncSocket_ = kInvalidSocket;
-    }
-    if (nmcSyncThread_.joinable()) {
-      nmcSyncThread_.join();
-    }
-    nmcSyncRunning_.store(false);
-    nmcSyncActiveMode_.clear();
-    nmcSyncActivePort_ = 0;
-    nmcSyncActiveHost_.clear();
-    nmcSyncActiveSourceFilter_.clear();
-    resetNmcSyncOutputState();
-  }
-
-  void refreshNmcSyncState() {
-    if (!project_.nmcSyncEnabled) {
-      stopNmcSyncBridge();
-      nmcSyncLastError_.clear();
-      nmcSyncLastAnnouncedError_.clear();
-      nmcSyncRestartBlockedUntilMs_ = 0;
-      return;
-    }
-
-    std::string desiredMode = resolvedNmcSyncMode();
-    int desiredPort = resolvedNmcSyncPort();
-    std::string desiredHost = desiredMode == "output" ? resolvedNmcSyncTargetHost() : std::string();
-    std::string desiredFilter = desiredMode == "input" ? resolvedNmcSyncSourceFilter() : std::string();
-    bool configChanged = desiredMode != nmcSyncActiveMode_ ||
-                         desiredPort != nmcSyncActivePort_ ||
-                         desiredHost != nmcSyncActiveHost_ ||
-                         desiredFilter != nmcSyncActiveSourceFilter_;
-    if (configChanged) {
-      stopNmcSyncBridge();
-    }
-
-    if (nmcSyncThread_.joinable()) {
-      if (nmcSyncRunning_.load()) {
-        return;
-      }
-      nmcSyncThread_.join();
-    }
-
-    if (desiredMode == "output" && nmcSyncSocket_ != kInvalidSocket) {
-      return;
-    }
-
-    Uint64 now = SDL_GetTicks();
-    if (nmcSyncRestartBlockedUntilMs_ > now) {
-      if (!nmcSyncLastError_.empty() && nmcSyncLastError_ != nmcSyncLastAnnouncedError_) {
-        triggerToast("nmc sync: " + nmcSyncLastError_);
-        nmcSyncLastAnnouncedError_ = nmcSyncLastError_;
-      }
-      return;
-    }
-
-    if (!startNmcSyncBridge()) {
-      nmcSyncRestartBlockedUntilMs_ = now + 3000;
-      if (!nmcSyncLastError_.empty() && nmcSyncLastError_ != nmcSyncLastAnnouncedError_) {
-        triggerToast("nmc sync: " + nmcSyncLastError_);
-        nmcSyncLastAnnouncedError_ = nmcSyncLastError_;
-      }
-      return;
-    }
-    nmcSyncRestartBlockedUntilMs_ = 0;
-  }
-
-  bool sendNmcSyncPacket(const std::string& command, std::optional<double> seconds = std::nullopt) {
-    if (nmcSyncSocket_ == kInvalidSocket || normalizeNmcSyncModeToken(nmcSyncActiveMode_) != "output") {
-      return false;
-    }
-    std::string payload = formatNmcSyncPacket(command, seconds);
-    int sent = sendto(
-      nmcSyncSocket_,
-      payload.c_str(),
-      static_cast<int>(payload.size()),
-      kSocketSendFlags,
-      reinterpret_cast<const sockaddr*>(&nmcSyncTargetAddress_),
-      static_cast<socklen_t>(sizeof(nmcSyncTargetAddress_)));
-    if (sent < 0) {
-      nmcSyncLastError_ = "nmc send failed";
-      nmcSyncRestartBlockedUntilMs_ = SDL_GetTicks() + 3000;
-      closeSocket(nmcSyncSocket_);
-      nmcSyncSocket_ = kInvalidSocket;
-      return false;
-    }
-    nmcSyncLastError_.clear();
-    return true;
-  }
-
-  void tickNmcSyncOutput() {
-    if (!project_.nmcSyncEnabled || normalizeNmcSyncModeToken(nmcSyncActiveMode_) != "output") {
-      return;
-    }
-    if (nmcSyncSocket_ == kInvalidSocket) {
-      return;
-    }
-
-    MediaEngine* engine = focusedMediaEngine();
-    const Cue* activeCue = activeCuePtr();
-    TransportState state = engine ? engine->state() : TransportState::Stopped;
-    double seconds = (engine && activeCue) ? std::max(0.0, engine->position()) : 0.0;
-    Uint64 now = SDL_GetTicks();
-
-    bool stateChanged = !nmcSyncOutputStateInitialized_ || state != nmcSyncLastSentState_;
-    bool positionJumped = nmcSyncOutputStateInitialized_ && std::fabs(seconds - nmcSyncLastSentSeconds_) >= 0.75;
-    bool shouldSendLocate = activeCue &&
-      (state == TransportState::Playing
-       ? (!nmcSyncOutputStateInitialized_ ||
-          now >= nmcSyncLastLocateSentMs_ + static_cast<Uint64>(resolvedNmcSyncLocateIntervalMs()))
-       : positionJumped);
-
-    if (stateChanged) {
-      switch (state) {
-        case TransportState::Playing:
-          sendNmcSyncPacket("PLAY", seconds);
-          break;
-        case TransportState::Paused:
-          sendNmcSyncPacket("PAUSE", seconds);
-          break;
-        case TransportState::Stopped:
-          sendNmcSyncPacket("STOP", seconds);
-          break;
-      }
-      nmcSyncLastLocateSentMs_ = now;
-    } else if (shouldSendLocate) {
-      sendNmcSyncPacket("LOCATE", seconds);
-      nmcSyncLastLocateSentMs_ = now;
-    }
-
-    nmcSyncLastSentState_ = state;
-    nmcSyncLastSentSeconds_ = seconds;
-    nmcSyncOutputStateInitialized_ = true;
-  }
 
   std::string configuredNdiTriggerSourceFilter() const {
     const char* env = std::getenv("DECKBOY_NDI_TRIGGER_SOURCE");
