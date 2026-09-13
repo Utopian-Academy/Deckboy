@@ -94,6 +94,7 @@
 #include "platform/network.hpp"
 #include "platform/nmc_sync.hpp"
 #include "platform/artnet_bridge.hpp"
+#include "platform/atem.hpp"
 #include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
 #include "platform/browser.hpp"
@@ -9739,15 +9740,13 @@ class App {
   // see platform/nmc_sync.hpp for why that is not sixteen members here.
   deckboy::platform::NmcSync nmcSync_;
   deckboy::platform::ArtNetBridge artNetBridge_;
+  deckboy::platform::AtemTallyBridge atemTallyBridge_;
+  bool atemBridgeHooked_ = false;
   bool artNetHooked_ = false;
   bool nmcSyncHooked_ = false;
-  SocketHandle atemBridgeSocket_ = kInvalidSocket;
-  std::thread atemBridgeThread_;
   std::thread ndiTriggerThread_;
-  std::atomic<bool> atemBridgeStop_ {false};
   std::atomic<bool> ndiTriggerStop_ {false};
   std::atomic<bool> ndiTriggerRunning_ {false};
-  int atemBridgeListenPort_ = kDefaultAtemBridgePort;
   NdiTriggerApi ndiTriggerApi_;
   std::string ndiTriggerConnectedSource_;
   std::string ndiTriggerLastError_;

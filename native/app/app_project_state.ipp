@@ -1008,7 +1008,7 @@
       return;
     }
     *target = enabled;
-    if (backendId == "atem" && enabled && atemBridgeSocket_ == kInvalidSocket) {
+    if (backendId == "atem" && enabled && !atemTallyBridge_.running()) {
       startAtemBridgeListener();
     } else if (backendId == "nmc") {
       refreshNmcSyncState();
@@ -1041,7 +1041,7 @@
     apply(project_.mtcIngestEnabled);
     apply(project_.ltcIngestEnabled);
     apply(project_.dmxArtNetEnabled);
-    if (enabled && project_.atemTriggerEnabled && atemBridgeSocket_ == kInvalidSocket) {
+    if (enabled && project_.atemTriggerEnabled && !atemTallyBridge_.running()) {
       startAtemBridgeListener();
     }
     refreshNmcSyncState();

@@ -703,6 +703,26 @@
     stopArtNetBridgeListener();
   }
 
+  // ── The ATEM tally bridge ─────────────────────────────────────────────────
+  // Socket and thread in platform/atem.hpp. What stays is the port resolution
+  // and the two names the settings and project-state screens already call.
+
+  void ensureAtemBridgeHooked() {
+    if (atemBridgeHooked_) {
+      return;
+    }
+    atemBridgeHooked_ = true;
+    atemTallyBridge_.setEventSink(
+      [this](const std::string& line) { enqueueRemoteCommand(line); });
+  }
+
+  void startAtemBridgeListener() {
+    ensureAtemBridgeHooked();
+    atemTallyBridge_.start(resolvedAtemBridgePort(), !project_.allowRemoteNetwork);
+  }
+
+  void stopAtemBridgeListener() { atemTallyBridge_.stop(); }
+
   int resolvedAtemBridgePort() const {
     int port = kDefaultAtemBridgePort;
     const char* env = std::getenv("DECKBOY_ATEM_BRIDGE_PORT");
@@ -863,64 +883,8 @@
 
 
 
-  void startAtemBridgeListener() {
-    stopAtemBridgeListener();
-    atemBridgeListenPort_ = resolvedAtemBridgePort();
-    atemBridgeSocket_ = createBoundSocket(SOCK_DGRAM, atemBridgeListenPort_, false, !project_.allowRemoteNetwork);
-    if (atemBridgeSocket_ == kInvalidSocket) {
-      return;
-    }
-    atemBridgeStop_.store(false);
-    atemBridgeThread_ = std::thread([this]() { atemBridgeLoop(); });
-  }
 
-  void stopAtemBridgeListener() {
-    atemBridgeStop_.store(true);
-    if (atemBridgeSocket_ != kInvalidSocket) {
-      closeSocket(atemBridgeSocket_);
-      atemBridgeSocket_ = kInvalidSocket;
-    }
-    if (atemBridgeThread_.joinable()) {
-      atemBridgeThread_.join();
-    }
-  }
 
-  void atemBridgeLoop() {
-    while (!atemBridgeStop_.load()) {
-      fd_set readFds;
-      FD_ZERO(&readFds);
-      watchFd(atemBridgeSocket_, &readFds);
-      timeval timeout {};
-      timeout.tv_sec = 0;
-      timeout.tv_usec = 200000;
-      int ready = select(selectNfds(atemBridgeSocket_), &readFds, nullptr, nullptr, &timeout);
-      if (ready <= 0) {
-        continue;
-      }
-      if (!readyFd(atemBridgeSocket_, &readFds)) {
-        continue;
-      }
-      std::array<char, 1024> buffer {};
-      sockaddr_in sourceAddr {};
-      socklen_t sourceLen = sizeof(sourceAddr);
-      int bytes = recvfrom(
-        atemBridgeSocket_,
-        buffer.data(),
-        static_cast<int>(buffer.size() - 1),
-        0,
-        reinterpret_cast<sockaddr*>(&sourceAddr),
-        &sourceLen);
-      if (bytes <= 0) {
-        continue;
-      }
-      buffer[bytes] = '\0';
-      std::string payload = trim(std::string(buffer.data(), static_cast<size_t>(bytes)));
-      if (payload.empty()) {
-        continue;
-      }
-      enqueueRemoteCommand("ATEMEVENT " + payload);
-    }
-  }
 
 
   // ── Talking to an actual ATEM ───────────────────────────────────────────

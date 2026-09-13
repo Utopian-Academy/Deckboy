@@ -1615,7 +1615,7 @@
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{integX, integrationLineY, integTextW, sLineH},
                    integrationRoute.summary, soft);
-      int atemBridgePortDisplay = atemBridgeListenPort_;
+      int atemBridgePortDisplay = atemTallyBridge_.port();
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{integX, integrationLineY + netLineH, integTextW, sLineH},
                    "atem " + std::to_string(atemBridgePortDisplay) + "  artnet " + std::to_string(project_.artNetPort), soft);
