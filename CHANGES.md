@@ -3182,7 +3182,7 @@ a repeated keypress is natural.
   when peak-limited.
 
 ### Remote control
-- **A real Bitfocus Companion module** (`companion-module-utopianacademy-deckboy/`) replaces the
+- **A real Bitfocus Companion module** (`companion-module-deckboy/`) replaces the
   Generic TCP/UDP recipe. It polls `STATUS`, so buttons carry **cue tally**,
   transport colour, output health, a connection watchdog and a derived
   countdown, where a Generic connection could only push commands one way. Ships
@@ -4441,7 +4441,7 @@ UI polish, from the operator's screenshot notes:
 
 ## 2026-03-26 (Companion module + status snapshot)
 
-- **A Bitfocus Companion module** in `companion/companion-module-utopianacademy-deckboy/`:
+- **A Bitfocus Companion module** in `companion/companion-module-deckboy/`:
   - `connection.js` — a TCP client polling `STATUS JSON` on a configurable
     interval
   - `actions.js` — 35 actions covering transport, cue navigation, deck focus,
