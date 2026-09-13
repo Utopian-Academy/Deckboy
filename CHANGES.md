@@ -1,5 +1,115 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.101.0 (a cue has a sound as well as a look)
+
+**Every cue now carries an audio chain, the way it already carried a picture
+chain.** It sits directly under EFFECTS in the inspector and works the same way:
+the name is the picker, amount is always "how much of this", B bypasses without
+losing what you set, and the arrows move an effect through the chain. Order is
+the sound — a gate before a compressor is a different result from a compressor
+before a gate, and both are things people want.
+
+Fourteen effects. Nine of them are the ones a live events deck actually needs:
+
+**High pass · Low pass · Tilt EQ · Compressor · Gate · Delay · Reverb · Width ·
+Binaural** — enough to fix a room and shape a voice, and deliberately not eleven
+flavours of chorus.
+
+### Five that could not exist anywhere else
+
+Every audio effect ever written receives a buffer of samples and nothing else.
+That is not a limitation somebody chose; it is what a plugin *is*. A compressor
+inside a mixing desk cannot know that the thing it is compressing is a drone
+shot, that the shot is three-quarters of the way across the screen, that it has
+four seconds left, or that the operator has just held it.
+
+Deckboy holds the picture and the sound in the same object. So:
+
+**Picture** — the cue's own video plays the filter. Brightness opens it and
+darkness closes it, so a cut to black takes the top off the sound and a bright
+frame gives it back; movement pushes it further open, so a still shot sits back
+and a fast one comes forward. The sound of a shot following the shot.
+
+**Placement** — the sound is where the picture is. A PIP three-quarters of the
+way across the output sounds three-quarters of the way across the room, and
+shrinking it moves it away from you: the top comes off, the image narrows, the
+level drops the way distance actually does. Not a pan — a pan puts a sound
+between two speakers; this puts it in a position, which is why the far ear gets
+the delay and the head shadow as well as less level.
+
+**Seam** — the cue resolves instead of being severed. A fade is a volume ramp:
+it makes the last seconds quieter, which is not the same as making them sound
+finished. Over the last few seconds this brings the top down and a short room
+up, so the sound settles into the cut. The level is left alone; the fade still
+does that job if you want it.
+
+**Frame lock** — stutter on the frame, not on the beat. Every stutter effect
+there has ever been is quantised to a tempo, because a tempo is the only clock a
+plugin has. This one is quantised to the video frame period, so a grain is
+exactly one, two or four frames and the chop lands on a frame boundary. On a
+23.976 clip that is 41.708ms, which is not a musical value and is precisely the
+point.
+
+**Suspend** — a held cue keeps its room. Holding a cue holds the picture, and
+the sound stops dead, which on anything with room tone, an audience, rain or a
+hum is an obvious hole. This keeps the last moment of it going, crossfaded into
+itself so there is no seam, for as long as the hold lasts.
+
+Each of the five says on its own row when it has nothing to follow — Frame lock
+on an audio cue, Seam on an open-ended one, Picture on a cue with no picture.
+The effect passes the signal through untouched, which is right, and the row says
+why, which is the part that matters.
+
+### Working with it
+
+Edits reach every selected cue, the way gain, pan and mono already do — levels
+and a room want to agree across a set of cues. An effect arrives set to
+something worth hearing rather than at its neutral values, so adding a
+compressor compresses and adding a delay is audible. Delay and reverb are
+**sends**: turning one up adds it on top of a source that stays where it is.
+
+Over the wire: `AUDIOFX` reads the chain back, `AUDIOFX ADD <effect> [amount%]`
+appends one, `AUDIOFX <slot> <amount%> [a% b% c% d%]` sets it, plus `BYPASS`,
+`OFF` and `CLEAR`. Every number is a percentage, the same units the inspector
+shows. The chain saves as one field at the end of the cue record, so a show
+written before this loads unchanged and simply has none.
+
+### Hardware decode on a Mac, measured
+
+On an M4, 4K30 costs **0.46 seconds of CPU for ten seconds of video**. The same
+clip in software costs 5.48 — about twelve times as much — and the old ffmpeg
+subprocess path cannot hold 30fps at that raster at all, managing 20. Not one
+frame comes down to the CPU: the VideoToolbox picture is wrapped straight into a
+Metal texture.
+
+### The cue inspector's waveform
+
+The waveform strip was drawn **on top of the preview picture** — laid out at the
+bottom of the thumbnail box after the still had already been fitted to the whole
+of it. They are neighbours now, not layers. The box also never scaled, so at
+1.5x the strip took over half of it.
+
+And the waveform itself was a solid brick. There are 512 buckets whatever the
+file and each held the loudest sample in its span, so an eleven-minute cue put
+1.3 seconds in each one — and the loudest sample in 1.3 seconds of any programme
+material is within a couple of dB of the loudest sample in the whole file. The
+analysis keeps an RMS per bucket now and the lane is drawn twice: the peak as
+the outline, the RMS as the bright body. The RMS is the part that moves, which
+is the shape you are reading when you look for a line of dialogue.
+
+### Also
+
+- `--audio-fx-check` puts a speech-shaped signal through every effect and
+  reports what came out: level, peak, what it did to each end of the spectrum,
+  what it did to the noise floor between words, and whether anything was still
+  sounding after the input stopped.
+- `--decode-bench <file> [seconds] download` keeps the hardware decoder but asks
+  for a packed CPU format, which is the measurement that separates "hardware
+  decode is cheap" from "not downloading the frame is cheap".
+- The step buttons on every effect amount and parameter row now carry their
+  payload, so `-` and `+` work as well as scrubbing the value did.
+- `HELP ALL` lists `RENAME`, and counts itself correctly.
+
 ## 2026-09-12 - v0.100.1 (the inspector's waveform)
 
 **It was drawn on top of the picture.** The strip was laid out at the bottom of
