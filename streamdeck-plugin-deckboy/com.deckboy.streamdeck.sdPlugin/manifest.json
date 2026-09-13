@@ -9,8 +9,7 @@
 	"Icon": "imgs/plugin",
 	"CodePath": "bin/plugin.js",
 	"Nodejs": {
-		"Version": "20",
-		"Debug": "enabled"
+		"Version": "20"
 	},
 	"SDKVersion": 2,
 	"Software": {
@@ -24,7 +23,7 @@
 		{
 			"Name": "Take",
 			"UUID": "com.deckboy.streamdeck.take",
-			"Icon": "imgs/actions/take",
+			"Icon": "imgs/actions/take-list",
 			"Tooltip": "Take the selected cue, or a cue by number.",
 			"PropertyInspectorPath": "ui/take.html",
 			"Controllers": ["Keypad"],
@@ -35,7 +34,7 @@
 		{
 			"Name": "Stop",
 			"UUID": "com.deckboy.streamdeck.stop",
-			"Icon": "imgs/actions/stop",
+			"Icon": "imgs/actions/stop-list",
 			"Tooltip": "Stop the focused deck.",
 			"Controllers": ["Keypad"],
 			"States": [{ "Image": "imgs/actions/stop", "TitleAlignment": "bottom" }]
@@ -43,7 +42,7 @@
 		{
 			"Name": "Pause",
 			"UUID": "com.deckboy.streamdeck.pause",
-			"Icon": "imgs/actions/pause",
+			"Icon": "imgs/actions/pause-list",
 			"Tooltip": "Pause or resume the focused deck.",
 			"Controllers": ["Keypad"],
 			"States": [{ "Image": "imgs/actions/pause", "TitleAlignment": "bottom" }]
@@ -51,7 +50,7 @@
 		{
 			"Name": "Panic",
 			"UUID": "com.deckboy.streamdeck.panic",
-			"Icon": "imgs/actions/panic",
+			"Icon": "imgs/actions/panic-list",
 			"Tooltip": "Outputs off and engines stopped. Held for a moment so it cannot be hit by accident.",
 			"Controllers": ["Keypad"],
 			"States": [{ "Image": "imgs/actions/panic", "TitleAlignment": "bottom" }]
@@ -59,7 +58,7 @@
 		{
 			"Name": "Blackout",
 			"UUID": "com.deckboy.streamdeck.blackout",
-			"Icon": "imgs/actions/blackout",
+			"Icon": "imgs/actions/blackout-list",
 			"Tooltip": "Toggle blackout on the outputs.",
 			"Controllers": ["Keypad"],
 			"States": [{ "Image": "imgs/actions/blackout", "TitleAlignment": "bottom" }]
@@ -67,7 +66,7 @@
 		{
 			"Name": "Command",
 			"UUID": "com.deckboy.streamdeck.command",
-			"Icon": "imgs/actions/command",
+			"Icon": "imgs/actions/command-list",
 			"Tooltip": "Any Deckboy command, sent verbatim. The whole vocabulary is in MANUAL.md.",
 			"PropertyInspectorPath": "ui/command.html",
 			"Controllers": ["Keypad"],

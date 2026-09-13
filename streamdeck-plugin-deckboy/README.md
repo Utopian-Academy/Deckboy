@@ -63,9 +63,16 @@ nothing to install, audit or keep updated on a show machine.
 ## Developing
 
 ```
-npm test          # the protocol and connection behaviour, no hardware needed
-npm run build     # assemble the .sdPlugin folder
+npm test              # the protocol and connection behaviour, no hardware needed
+npm run build         # assemble the .sdPlugin folder
+python tools/make_icons.py   # redraw the artwork from the app icon and the glyphs
 ```
+
+The artwork is generated, not hand-cut, because Elgato's guidelines fix a
+different size for each ROLE an image plays -- 20x20 in the actions list,
+72x72 on the key, 256x256 in the Marketplace listing -- and a plugin loads
+perfectly well with all of them wrong. `npm run build` now measures every
+PNG the manifest names and refuses a mismatch.
 
 The WebSocket half needs Stream Deck to exercise it. Everything that decides
 what to send and what a key should say is an ordinary function, and that is
