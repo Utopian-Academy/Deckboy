@@ -28,6 +28,22 @@
  * nobody can read is not on brand, it is broken.
  */
 
+/* The application's OWN font files, copied from data/. Not Google's cut of
+ * Press Start 2P but the very binary the deck draws its wordmark with, and
+ * Liberation Mono because that is what the interface sets its text in. Served
+ * from the site so the page does not depend on a third party to look like
+ * itself. */
+@font-face {
+    font-family: 'Deckboy Pixel';
+    src: url('fonts/PressStart2P.ttf') format('truetype');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Deckboy Mono';
+    src: url('fonts/LiberationMono-Regular.ttf') format('truetype');
+    font-display: swap;
+}
+
 :root {
     --db-yellow:      #fcfe1f;
     --db-yellow-dim:  #e3fd1f;
@@ -43,8 +59,8 @@
     --ink-soft: var(--db-sage);
     --rule:     #2c7a2c;
 
-    --pixel: 'Press Start 2P', 'Courier New', monospace;
-    --mono: ui-monospace, 'Cascadia Mono', 'Consolas', 'Liberation Mono', Menlo, monospace;
+    --pixel: 'Deckboy Pixel', 'Press Start 2P', 'Courier New', monospace;
+    --mono: 'Deckboy Mono', ui-monospace, 'Consolas', Menlo, monospace;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
