@@ -1759,27 +1759,11 @@
   }
 
   void pushDeckStreamAudioSamples(int deckIndex, const std::vector<std::int16_t>& samples) {
-    if (deckIndex < 0 || samples.empty()) {
-      return;
-    }
-    static constexpr size_t kMaxBufferedSamplesPerDeck = static_cast<size_t>(48000 * 2 * 10); // ~10s stereo
-    std::lock_guard<std::mutex> lock(streamAudioMutex_);
-    if (deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
-      deckStreamAudioBuffers_.resize(deckIndex + 1);
-    }
-    DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
-    buffer.samples.insert(buffer.samples.end(), samples.begin(), samples.end());
-    if (buffer.samples.size() > kMaxBufferedSamplesPerDeck) {
-      size_t dropCount = buffer.samples.size() - kMaxBufferedSamplesPerDeck;
-      buffer.samples.erase(buffer.samples.begin(), buffer.samples.begin() + static_cast<std::ptrdiff_t>(dropCount));
-      buffer.droppedSamples += static_cast<std::uint64_t>(dropCount);
-    }
+    deckAudioRing_.push(deckIndex, samples);
   }
 
   void clearDeckStreamAudioBuffers() {
-    std::lock_guard<std::mutex> lock(streamAudioMutex_);
-    deckStreamAudioBuffers_.clear();
-    deckStreamAudioBuffers_.resize(project_.decks.size());
+    deckAudioRing_.clear(project_.decks.size());
   }
 
   std::vector<int> streamAudioDecksForOutput(int outputIndex) const {
@@ -2922,16 +2906,8 @@
       std::lock_guard<std::mutex> lock(audioInputMixMutex_);
       audioInputMixBuffer_.clear();
     }
-    auto deckIndices = streamAudioDecksForOutput(outputIndex);
-    std::lock_guard<std::mutex> lock(streamAudioMutex_);
-    for (int deckIndex : deckIndices) {
-      if (deckIndex < 0 || deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
-        runtime.streamAudioReadSamplesByDeck[deckIndex] = 0;
-        continue;
-      }
-      const DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
-      runtime.streamAudioReadSamplesByDeck[deckIndex] = buffer.droppedSamples + static_cast<std::uint64_t>(buffer.samples.size());
-    }
+    deckAudioRing_.primeEndPositions(streamAudioDecksForOutput(outputIndex),
+                                     runtime.streamAudioReadSamplesByDeck);
   }
 
   // NDI audio priming and sample collection — cross-platform (used by NDI send
@@ -2939,16 +2915,8 @@
   // works on Windows.
   void primeOutputNdiAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
     runtime.ndiAudioReadSamplesByDeck.clear();
-    auto deckIndices = streamAudioDecksForOutput(outputIndex);
-    std::lock_guard<std::mutex> lock(streamAudioMutex_);
-    for (int deckIndex : deckIndices) {
-      if (deckIndex < 0 || deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
-        runtime.ndiAudioReadSamplesByDeck[deckIndex] = 0;
-        continue;
-      }
-      const DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
-      runtime.ndiAudioReadSamplesByDeck[deckIndex] = buffer.droppedSamples + static_cast<std::uint64_t>(buffer.samples.size());
-    }
+    deckAudioRing_.primeEndPositions(streamAudioDecksForOutput(outputIndex),
+                                     runtime.ndiAudioReadSamplesByDeck);
   }
 
   std::vector<std::int16_t> collectOutputAudioFrameSamples(
@@ -2973,38 +2941,10 @@
     int interleavedSamples = sampleFrames * kChannels;
     std::vector<std::int32_t> mixed(interleavedSamples, 0);
 
-    auto deckIndices = streamAudioDecksForOutput(outputIndex);
-    {
-      std::lock_guard<std::mutex> lock(streamAudioMutex_);
-      if (deckStreamAudioBuffers_.size() < project_.decks.size()) {
-        deckStreamAudioBuffers_.resize(project_.decks.size());
-      }
-      for (int deckIndex : deckIndices) {
-        if (deckIndex < 0 || deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
-          continue;
-        }
-        const DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
-        std::uint64_t availableBegin = buffer.droppedSamples;
-        std::uint64_t availableEnd = availableBegin + static_cast<std::uint64_t>(buffer.samples.size());
-        auto [it, inserted] = readSamplesByDeck.try_emplace(deckIndex, availableEnd);
-        std::uint64_t& readPos = it->second;
-        if (inserted) {
-          continue;
-        }
-        if (readPos < availableBegin) {
-          readPos = availableBegin;
-        } else if (readPos > availableEnd) {
-          readPos = availableEnd;
-        }
-        std::uint64_t available = availableEnd - readPos;
-        size_t toMix = static_cast<size_t>(std::min<std::uint64_t>(available, static_cast<std::uint64_t>(interleavedSamples)));
-        size_t sourceOffset = static_cast<size_t>(readPos - availableBegin);
-        for (size_t i = 0; i < toMix; ++i) {
-          mixed[i] += static_cast<std::int32_t>(buffer.samples[sourceOffset + i]);
-        }
-        readPos += static_cast<std::uint64_t>(toMix);
-      }
-    }
+    deckAudioRing_.mixDecks(streamAudioDecksForOutput(outputIndex),
+                            readSamplesByDeck, mixed,
+                            static_cast<std::size_t>(interleavedSamples),
+                            project_.decks.size());
 
     // Live input, summed with the deck mix. This reaches the STREAM and the
     // RECORDING but never the speakers, which is deliberate -- see

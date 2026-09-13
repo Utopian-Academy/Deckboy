@@ -64,6 +64,7 @@
 #include "core/show_control.hpp"
 #include "core/types.hpp"
 #include "core/output_runtime.hpp"
+#include "core/deck_audio_ring.hpp"
 #include "core/utils.hpp"
 #include "deckboy_version.hpp"
 #include "core/paths.hpp"
@@ -1736,11 +1737,6 @@ static std::string browserCueStatusSummary(BrowserStartPhase phase, bool live, c
 
 // Audio buffer for streaming: accumulates PCM samples from the deck's
 // audio callback and packages them into stream packets.
-struct DeckStreamAudioBuffer {
-  std::vector<std::int16_t> samples;
-  std::uint64_t droppedSamples = 0;     // Samples dropped due to buffer overflow
-};
-
 // Encode presets. Each builds its own ffmpeg args; the queue tries them in
 // order and keeps the first that produces a file, so a GPU-first preset can
 // fall back to libx264 on machines without NVENC.
@@ -8065,8 +8061,10 @@ class App {
   Uint64 controlPreviewGpuLastMs_ = 0;
   DecodedFrame controlPreviewGpuScratch_;
 #endif
-  std::mutex streamAudioMutex_;
-  std::vector<DeckStreamAudioBuffer> deckStreamAudioBuffers_;
+  // Per-deck PCM for the stream writer, the recorder and the NDI sender. A
+  // sliding window addressed by absolute sample position, not a queue -- see
+  // core/deck_audio_ring.hpp for why those are not the same thing.
+  deckboy::core::DeckAudioRing deckAudioRing_;
 #if defined(DECKBOY_HAS_NDI_SDK)
   NdiApi ndiApi_;
 #endif
