@@ -888,6 +888,8 @@ using deckboy::platform::createBoundSocket;
 using deckboy::platform::createDatagramSocket;
 using deckboy::platform::socketAddressToString;
 using deckboy::platform::selectNfds;
+using deckboy::platform::watchFd;
+using deckboy::platform::readyFd;
 
 // ── Network Master Clock (NMC) sync ─────────────────────────────────────────
 // NMC provides transport synchronization between Deckboy instances over UDP.

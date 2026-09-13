@@ -223,4 +223,60 @@ inline int selectNfds(SocketHandle maxHandle) {
 #endif
 }
 
+// FD_SET ABORTS THE PROCESS ON A BAD DESCRIPTOR.
+//
+// glibc's fortified FD_SET does not return an error for a descriptor that is
+// negative or >= FD_SETSIZE -- it terminates the program:
+//
+//   *** bit out of range 0 - FD_SETSIZE on fd_set ***: terminated
+//
+// Shutdown closes these sockets and sets them to kInvalidSocket (-1 on
+// POSIX), and the loops here kept handing them to FD_SET. So quitting
+// Deckboy on Linux ended in "Aborted (core dumped)" rather than an exit --
+// which also stalled the updater, whose helper waits for this process to go
+// away cleanly.
+//
+// Every FD_SET in the app goes through here now. A socket that is not
+// valid is simply not watched, which is what the old code meant to do.
+// AND THE SAME FOR FD_ISSET.
+//
+// glibc fortifies FD_ISSET exactly as it does FD_SET, so testing a closed
+// socket aborts the process just as surely as adding one. Guarding only the
+// FD_SET side moved the crash rather than fixing it -- the loop skipped the
+// invalid socket, then asked whether it was ready and died there instead.
+inline bool readyFd(SocketHandle fd, const fd_set* set) {
+  if (fd == kInvalidSocket) {
+    return false;
+  }
+#ifndef _WIN32
+  if (fd < 0 || fd >= static_cast<SocketHandle>(FD_SETSIZE)) {
+    return false;
+  }
+#endif
+  return FD_ISSET(fd, set) != 0;
+}
+
+inline bool watchFd(SocketHandle fd, fd_set* set, SocketHandle& maxFd) {
+  if (fd == kInvalidSocket) {
+    return false;
+  }
+#ifndef _WIN32
+  if (fd < 0 || fd >= static_cast<SocketHandle>(FD_SETSIZE)) {
+    return false;
+  }
+#endif
+  FD_SET(fd, set);
+  if (fd > maxFd) {
+    maxFd = fd;
+  }
+  return true;
+}
+
+// Same guard where the caller sizes select() from the fd itself and keeps
+// no running maximum.
+inline bool watchFd(SocketHandle fd, fd_set* set) {
+  SocketHandle ignored = 0;
+  return watchFd(fd, set, ignored);
+}
+
 } // namespace deckboy::platform
