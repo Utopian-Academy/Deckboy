@@ -58,6 +58,10 @@ enum class AudioEffectKind : int {
   Reverb,       // put a dry source in the room
   Width,        // narrow to mono, or widen
   Binaural,     // place the source around the listener's head
+  // The end marker, so the inspector's picker is built FROM this list rather
+  // than from a second copy of it that can fall behind -- which is exactly how
+  // four cue kinds ended up missing from cueKindToken.
+  Count,
 };
 
 inline const char* audioEffectLabel(AudioEffectKind kind) {
@@ -71,7 +75,8 @@ inline const char* audioEffectLabel(AudioEffectKind kind) {
     case AudioEffectKind::Reverb:     return "Reverb";
     case AudioEffectKind::Width:      return "Width";
     case AudioEffectKind::Binaural:   return "Binaural";
-    case AudioEffectKind::None:       break;
+    case AudioEffectKind::None:
+    case AudioEffectKind::Count:      break;
   }
   return "None";
 }
@@ -89,7 +94,8 @@ inline const char* audioEffectToken(AudioEffectKind kind) {
     case AudioEffectKind::Reverb:     return "reverb";
     case AudioEffectKind::Width:      return "width";
     case AudioEffectKind::Binaural:   return "binaural";
-    case AudioEffectKind::None:       break;
+    case AudioEffectKind::None:
+    case AudioEffectKind::Count:      break;
   }
   return "none";
 }
@@ -135,6 +141,79 @@ inline const char* audioEffectParamLabel(AudioEffectKind kind, int slot) {
     case AudioEffectKind::Binaural:
       return slot == 0 ? "azimuth" : (slot == 1 ? "distance" : nullptr);
     case AudioEffectKind::None:
+    case AudioEffectKind::Count:
+      break;
+  }
+  return nullptr;
+}
+
+// WHAT THE KNOB DOES, in the operator's terms rather than the DSP's. Every
+// named slot gets one: a row whose label is "paramB" and whose tip is empty is
+// a control nobody can use during a show.
+inline const char* audioEffectParamTip(AudioEffectKind kind, int slot) {
+  switch (kind) {
+    case AudioEffectKind::HighPass:
+      return slot == 0 ? "Where the cut starts, 20Hz to 2kHz. Low takes out "
+                         "rumble and handling noise; high thins a voice on "
+                         "purpose."
+           : slot == 1 ? "Lift right at the corner. A little adds bite; a lot "
+                         "rings."
+                       : nullptr;
+    case AudioEffectKind::LowPass:
+      return slot == 0 ? "Where the top ends, 200Hz to 20kHz. Pull it down to "
+                         "take the harshness off a bright source."
+           : slot == 1 ? "Lift right at the corner. A little adds bite; a lot "
+                         "rings."
+                       : nullptr;
+    case AudioEffectKind::Tilt:
+      return slot == 0 ? "One knob for the whole balance: below the middle is "
+                         "darker, above it is brighter."
+           : slot == 1 ? "The frequency it pivots around -- what counts as "
+                         "'low' and 'high' for the tilt."
+                       : nullptr;
+    case AudioEffectKind::Compressor:
+      return slot == 0 ? "The level it starts working at. Lower catches more "
+                         "of the performance."
+           : slot == 1 ? "How hard it holds once it is working. Gentle at the "
+                         "bottom, a limiter at the top."
+           : slot == 2 ? "How fast it grabs. Quick catches consonants; slow "
+                         "lets them through and only rides the body."
+           : slot == 3 ? "How fast it lets go. Too quick breathes, too slow "
+                         "ducks the next line."
+                       : nullptr;
+    case AudioEffectKind::Gate:
+      return slot == 0 ? "The level below which the source is closed. Set it "
+                         "under the quietest thing you want to hear."
+           : slot == 1 ? "How fast it closes. Slow enough not to chop the "
+                         "ends off words."
+                       : nullptr;
+    case AudioEffectKind::Delay:
+      return slot == 0 ? "How long until the repeat, up to a second. Short is "
+                         "slap-back; long is a real echo."
+           : slot == 1 ? "How much comes back round. High enough and it runs "
+                         "away, which is sometimes the point."
+           : slot == 2 ? "Send the repeats across the stereo image instead of "
+                         "straight back where they started."
+                       : nullptr;
+    case AudioEffectKind::Reverb:
+      return slot == 0 ? "How big the room is. Small is a booth, large is a "
+                         "hall."
+           : slot == 1 ? "How quickly the room eats the top end. More damping "
+                         "is a softer, more furnished space."
+                       : nullptr;
+    case AudioEffectKind::Width:
+      return slot == 0 ? "Below the middle narrows toward mono -- which is "
+                         "what a single PA cluster is. Above it widens."
+                       : nullptr;
+    case AudioEffectKind::Binaural:
+      return slot == 0 ? "Where the source sits around the listener, all the "
+                         "way round. For headphones -- it is a timing and "
+                         "shading trick, not a pan."
+           : slot == 1 ? "How far away. Distance dulls the top and softens "
+                         "the difference between the ears."
+                       : nullptr;
+    case AudioEffectKind::None:
+    case AudioEffectKind::Count:
       break;
   }
   return nullptr;
@@ -143,8 +222,11 @@ inline const char* audioEffectParamLabel(AudioEffectKind kind, int slot) {
 struct AudioEffect {
   AudioEffectKind kind = AudioEffectKind::None;
   // 0 = inactive. For the shaping effects this is a dry/wet mix; for the
-  // dynamics it scales how much gain reduction is applied, so turning it down
-  // always means "less of this", never "something different".
+  // dynamics it scales how much gain reduction is applied; for the delay and
+  // the reverb it is a SEND, added on top of a source that stays where it is.
+  // Three behaviours, one meaning: turning it down is always "less of this"
+  // and never "something different", which is the only property that lets one
+  // control serve nine effects.
   float amount = 1.0f;
   // THE NEUTRAL VALUES ARE LOAD-BEARING, exactly as in cue_effects.hpp: a show
   // saved before a parameter existed carries 0.5 / 0 / 0 / 0, so every
@@ -157,6 +239,78 @@ struct AudioEffect {
   // time on, bypass takes it out of the chain and gives it back.
   bool bypassed = false;
 };
+
+
+// ── WHAT AN EFFECT ARRIVES SET TO ───────────────────────────────────────────
+//
+// NOT the struct's defaults, and the difference matters.
+//
+// The struct's 0.5 / 0 / 0 / 0 exist for BACKWARD COMPATIBILITY: a show saved
+// before a parameter existed carries those values, so every parameter is
+// defined so they reproduce what the effect did without it. That rule is about
+// old shows and it stays.
+//
+// This is about a NEW effect, where there is no old show to be faithful to and
+// the only thing that matters is what happens when somebody adds one during a
+// show. Those two wants are opposites for half of these: a compressor's
+// backward-compatible ratio is 1:1, which is a compressor that does not
+// compress, and an operator who adds one and hears no difference has been
+// handed a control that does nothing. So an effect ARRIVES set to something
+// worth hearing, and a saved show still loads exactly as it was written.
+inline AudioEffect audioEffectDefaults(AudioEffectKind kind) {
+  AudioEffect fx;
+  fx.kind = kind;
+  switch (kind) {
+    case AudioEffectKind::HighPass:
+      // ~80Hz: the standard "take the rumble out" setting, and the one a
+      // console's little HPF button is wired to.
+      fx.paramA = 0.30f; fx.paramB = 0.0f;
+      break;
+    case AudioEffectKind::LowPass:
+      // ~8kHz: audibly softer without sounding broken.
+      fx.paramA = 0.75f; fx.paramB = 0.0f;
+      break;
+    case AudioEffectKind::Tilt:
+      // Slightly bright, so the control is visibly doing something and the
+      // direction of the knob is obvious on the first move.
+      fx.paramA = 0.62f; fx.paramB = 0.5f;
+      break;
+    case AudioEffectKind::Compressor:
+      // -20 dBFS, 4:1, 10ms attack, 150ms release. A vocal setting: it catches
+      // a speaker who moves around the mic and is not audible as an effect.
+      fx.paramA = 0.67f; fx.paramB = 0.16f; fx.paramC = 0.10f; fx.paramD = 0.13f;
+      break;
+    case AudioEffectKind::Gate:
+      // -45 dBFS, 250ms release: under speech, over room noise.
+      fx.paramA = 0.58f; fx.paramB = 0.23f;
+      break;
+    case AudioEffectKind::Delay:
+      // 250ms, a third feeding back, straight rather than ping-pong -- a
+      // repeat you can hear as a repeat rather than as a smear, and at a
+      // length that fits inside a short cue.
+      fx.amount = 0.35f; fx.paramA = 0.12f; fx.paramB = 0.35f; fx.paramC = 0.0f;
+      break;
+    case AudioEffectKind::Reverb:
+      // A medium room with the top taken off it, sent at a level that sits
+      // behind the source instead of swallowing it.
+      fx.amount = 0.30f; fx.paramA = 0.5f; fx.paramB = 0.4f;
+      break;
+    case AudioEffectKind::Width:
+      // Wider, because narrower is the thing people reach for deliberately and
+      // wider is the thing they are exploring when they add this.
+      fx.paramA = 0.75f;
+      break;
+    case AudioEffectKind::Binaural:
+      // Slightly to the left at a middle distance: off-centre, so the effect
+      // announces itself, and not hard over, which sounds like a fault.
+      fx.paramA = 0.30f; fx.paramB = 0.5f;
+      break;
+    case AudioEffectKind::None:
+    case AudioEffectKind::Count:
+      break;
+  }
+  return fx;
+}
 
 // ── STATE ───────────────────────────────────────────────────────────────────
 //
@@ -416,8 +570,14 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           slot.line[slot.writeAt * 2] = inL;
           slot.line[slot.writeAt * 2 + 1] = inR;
           slot.writeAt = (slot.writeAt + 1) % maxDelay;
-          samples[i * 2] = dry * samples[i * 2] + wet * dl;
-          samples[i * 2 + 1] = dry * samples[i * 2 + 1] + wet * dr;
+          // A SEND, NOT A MIX. Amount is how much delay you hear ON TOP of
+          // the source, the way it works on every console -- which is what an
+          // operator means by turning the delay up. Treated as a dry/wet it
+          // meant amount 100% removed the speaker entirely and left only the
+          // echo, and with a one-second time and a half-second cue that is a
+          // cue which plays silence.
+          samples[i * 2] += wet * dl;
+          samples[i * 2 + 1] += wet * dr;
         }
         break;
       }
@@ -452,7 +612,9 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
             }
             sum *= 0.25;
             slot.line[slot.writeAt * 2 + c] = samples[i * 2 + c] + sum * 0.7;
-            samples[i * 2 + c] = dry * samples[i * 2 + c] + wet * sum;
+            // A send, for the same reason the delay is one: putting a source
+            // in a room does not mean removing the source.
+            samples[i * 2 + c] += wet * sum;
           }
           slot.writeAt = (slot.writeAt + 1) % maxDelay;
         }
@@ -512,6 +674,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         break;
       }
       case AudioEffectKind::None:
+      case AudioEffectKind::Count:
         break;
     }
   }

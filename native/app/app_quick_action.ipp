@@ -114,6 +114,27 @@
       case QuickAction::EffectParamDEdit: effectStackEditParam(param, 3); return;
       case QuickAction::CueSectionCodeToggle:
         cueSectionCodeOpen_ = !cueSectionCodeOpen_; return;
+      case QuickAction::AudioEffectAdd:         audioEffectStackAdd(); return;
+      case QuickAction::AudioEffectRemove:      audioEffectStackRemove(param); return;
+      case QuickAction::AudioEffectCycleKind:   audioEffectStackCycleKind(param); return;
+      case QuickAction::AudioEffectToggleBypass: audioEffectStackToggleBypass(param); return;
+      case QuickAction::AudioEffectAmountDec:   audioEffectStackNudge(param, -0.05f); return;
+      case QuickAction::AudioEffectAmountInc:   audioEffectStackNudge(param, +0.05f); return;
+      case QuickAction::AudioEffectEditAmount:  audioEffectStackEditAmount(param); return;
+      case QuickAction::AudioEffectMoveUp:      audioEffectStackMove(param, -1); return;
+      case QuickAction::AudioEffectMoveDown:    audioEffectStackMove(param, +1); return;
+      case QuickAction::AudioEffectParamADec:   audioEffectStackNudgeParam(param, 0, -0.05f); return;
+      case QuickAction::AudioEffectParamAInc:   audioEffectStackNudgeParam(param, 0, +0.05f); return;
+      case QuickAction::AudioEffectParamAEdit:  audioEffectStackEditParam(param, 0); return;
+      case QuickAction::AudioEffectParamBDec:   audioEffectStackNudgeParam(param, 1, -0.05f); return;
+      case QuickAction::AudioEffectParamBInc:   audioEffectStackNudgeParam(param, 1, +0.05f); return;
+      case QuickAction::AudioEffectParamBEdit:  audioEffectStackEditParam(param, 1); return;
+      case QuickAction::AudioEffectParamCDec:   audioEffectStackNudgeParam(param, 2, -0.05f); return;
+      case QuickAction::AudioEffectParamCInc:   audioEffectStackNudgeParam(param, 2, +0.05f); return;
+      case QuickAction::AudioEffectParamCEdit:  audioEffectStackEditParam(param, 2); return;
+      case QuickAction::AudioEffectParamDDec:   audioEffectStackNudgeParam(param, 3, -0.05f); return;
+      case QuickAction::AudioEffectParamDInc:   audioEffectStackNudgeParam(param, 3, +0.05f); return;
+      case QuickAction::AudioEffectParamDEdit:  audioEffectStackEditParam(param, 3); return;
       case QuickAction::CodeOpenEditor:     openCodeEditor(); return;
       case QuickAction::EffectLfoToggle:    effectLfoToggle(param); return;
       case QuickAction::EffectLfoShape:     effectLfoCycleShape(param); return;
@@ -821,6 +842,9 @@
       case QuickAction::DatamoshLookNext: cycleSelectedDatamoshLook(+1); break;
       case QuickAction::CueSectionEffectsToggle:
         cueSectionEffectsOpen_ = !cueSectionEffectsOpen_;
+        break;
+      case QuickAction::CueSectionAudioFxToggle:
+        cueSectionAudioFxOpen_ = !cueSectionAudioFxOpen_;
         break;
       case QuickAction::CueSectionTimerToggle:
         cueSectionTimerOpen_ = !cueSectionTimerOpen_;

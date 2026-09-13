@@ -4698,6 +4698,162 @@
       }
       return;
     }
+    if (command == "AUDIOFX") {
+      // AUDIOFX                          -- read the chain back
+      // AUDIOFX CLEAR                    -- empty it
+      // AUDIOFX ADD <token> [amount%]    -- append an effect
+      // AUDIOFX <n> OFF                  -- remove the nth (1-based)
+      // AUDIOFX <n> BYPASS ON|OFF
+      // AUDIOFX <n> <amount%> [a% [b% [c% [d%]]]]
+      //
+      // A BARE AUDIOFX IS A QUESTION, like a bare AUDIOGAIN. Without it there
+      // is no way to check what a chain actually is except by eye and ear,
+      // which is not a check at all -- and it is the only way a scripted test
+      // can prove the effect it asked for is the effect that landed.
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("AUDIOFX: no cue selected");
+        return;
+      }
+      if (parts.size() < 2) {
+        std::string reply;
+        for (std::size_t i = 0; i < cue->audioEffects.size(); ++i) {
+          const auto& fx = cue->audioEffects[i];
+          char buf[128];
+          std::snprintf(buf, sizeof(buf), "%zu:%s amount=%d%% a=%d b=%d c=%d d=%d%s",
+                        i + 1, deckboy::audiofx::audioEffectToken(fx.kind),
+                        static_cast<int>(std::lround(fx.amount * 100.0f)),
+                        static_cast<int>(std::lround(fx.paramA * 100.0f)),
+                        static_cast<int>(std::lround(fx.paramB * 100.0f)),
+                        static_cast<int>(std::lround(fx.paramC * 100.0f)),
+                        static_cast<int>(std::lround(fx.paramD * 100.0f)),
+                        fx.bypassed ? " BYPASSED" : "");
+          if (!reply.empty()) reply += "; ";
+          reply += buf;
+        }
+        remoteCommandDetail_ = reply.empty() ? "empty" : reply;
+        return;
+      }
+      const std::string first = toUpper(parts[1]);
+      if (first == "CLEAR") {
+        forEachSelectedAudioStack([](std::vector<deckboy::audiofx::AudioEffect>& s) {
+          s.clear();
+        });
+        triggerToast("audio chain cleared" + audioEditScopeSuffix());
+        return;
+      }
+      if (first == "ADD") {
+        if (parts.size() < 3) {
+          failRemoteCommand("AUDIOFX ADD: needs an effect token");
+          return;
+        }
+        const std::string token = toLower(parts[2]);
+        const auto kind = deckboy::audiofx::audioEffectKindFromToken(token);
+        if (kind == deckboy::audiofx::AudioEffectKind::None) {
+          // NAME THE OPTIONS. "unknown effect: hipass" and nothing else makes
+          // the caller guess at spelling; the list is nine words long.
+          std::string known;
+          for (int i = 1; i < static_cast<int>(deckboy::audiofx::AudioEffectKind::Count); ++i) {
+            if (!known.empty()) known += " ";
+            known += deckboy::audiofx::audioEffectToken(
+              static_cast<deckboy::audiofx::AudioEffectKind>(i));
+          }
+          failRemoteCommand("AUDIOFX ADD: unknown effect '" + token +
+                            "' (one of: " + known + ")");
+          return;
+        }
+        deckboy::audiofx::AudioEffect fx =
+          deckboy::audiofx::audioEffectDefaults(kind);
+        if (parts.size() > 3) {
+          if (auto amount = parseNumber(3)) {
+            fx.amount = std::clamp(static_cast<float>(*amount / 100.0), 0.0f, 1.0f);
+          }
+        }
+        bool full = false;
+        const bool any = forEachSelectedAudioStack(
+          [&fx, &full](std::vector<deckboy::audiofx::AudioEffect>& s) {
+            if (s.size() >= 8) { full = true; return; }
+            s.push_back(fx);
+          });
+        if (!any) {
+          failRemoteCommand("AUDIOFX ADD: no cue with audio selected");
+          return;
+        }
+        if (full) {
+          failRemoteCommand("AUDIOFX ADD: chain full (8)");
+          return;
+        }
+        remoteCommandDetail_ = std::string("added ") +
+                               deckboy::audiofx::audioEffectLabel(kind);
+        return;
+      }
+      // Everything else addresses one slot by its 1-based position, which is
+      // what the read-back prints -- the caller never has to convert.
+      auto slot = parseNumber(1);
+      if (!slot) {
+        failRemoteCommand("AUDIOFX: expected CLEAR, ADD or a slot number");
+        return;
+      }
+      const int index = static_cast<int>(std::lround(*slot)) - 1;
+      if (!audioEffectIndexValid(&cue->audioEffects, index)) {
+        failRemoteCommand("AUDIOFX: no effect in slot " + parts[1]);
+        return;
+      }
+      if (parts.size() >= 3) {
+        const std::string verb = toUpper(parts[2]);
+        if (verb == "OFF") {
+          audioEffectStackRemove(index);
+          return;
+        }
+        if (verb == "BYPASS") {
+          const bool want = parts.size() < 4 || toUpper(parts[3]) != "OFF";
+          forEachSelectedAudioStack(
+            [index, want](std::vector<deckboy::audiofx::AudioEffect>& s) {
+              if (index < static_cast<int>(s.size())) {
+                s[index].bypassed = want;
+              }
+            });
+          remoteCommandDetail_ = want ? "bypassed" : "active";
+          return;
+        }
+      }
+      // AUDIOFX <n> <amount%> [a% [b% [c% [d%]]]] -- every number is a
+      // percentage, the same units the inspector rows and the read-back show.
+      // Mixing 0-1 and 0-100 across the two is how somebody types 37 meaning
+      // 37% and pins the parameter to its maximum.
+      bool wrote = false;
+      for (std::size_t at = 2; at < parts.size() && at < 7; ++at) {
+        auto value = parseNumber(static_cast<int>(at));
+        if (!value) {
+          continue;
+        }
+        const float next = std::clamp(static_cast<float>(*value / 100.0), 0.0f, 1.0f);
+        const std::size_t which = at - 2;   // 0 = amount, 1-4 = paramA-D
+        forEachSelectedAudioStack(
+          [index, which, next](std::vector<deckboy::audiofx::AudioEffect>& s) {
+            if (index >= static_cast<int>(s.size())) {
+              return;
+            }
+            auto& target = s[index];
+            switch (which) {
+              case 0: target.amount = next; break;
+              case 1: target.paramA = next; break;
+              case 2: target.paramB = next; break;
+              case 3: target.paramC = next; break;
+              default: target.paramD = next; break;
+            }
+          });
+        wrote = true;
+      }
+      if (!wrote) {
+        failRemoteCommand("AUDIOFX: expected OFF, BYPASS, or amount and "
+                          "parameters as percentages");
+        return;
+      }
+      remoteCommandDetail_ = deckboy::audiofx::audioEffectToken(
+        cue->audioEffects[index].kind);
+      return;
+    }
     if (command == "SELECTALL") {
       // Ctrl+A's verb. Companion needs it to drive the multi-select edits, and
       // without it the cross-deck audio edits could not be exercised at all.

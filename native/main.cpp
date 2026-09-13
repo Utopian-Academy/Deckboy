@@ -4850,7 +4850,15 @@ class App {
                         std::string trailTip = "") {
     // A paramId is the modern way to make a value typeable: it needs no
     // per-control action, just a row in the numeric-parameter table.
-    if (paramId >= 0) {
+    //
+    // ONLY WHEN THE CALLER DID NOT NAME AN ACTION. The effect rows pass their
+    // own editor AND an index -- the index is which effect, not a
+    // NumericParam -- and this used to overwrite the editor with
+    // EditNumericParam regardless. Clicking "amount" on the first effect in
+    // the stack therefore opened NumericParam 0, the video synth's SPEED:
+    // wrong on a synth cue and silently nothing on every other kind, which is
+    // exactly what a control that does nothing looks like.
+    if (paramId >= 0 && valueAction == QuickAction::ToggleLoop) {
       valueEditable = true;
       valueAction = QuickAction::EditNumericParam;
     }
@@ -4913,7 +4921,16 @@ class App {
       drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
       drawUIPanel(decBtn, pal.tile, pal.deep, pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, decBtn, "-", pal.fg);
-      quickButtons_.push_back({decBtn, decAction, tip});
+      // THE PAYLOAD RIDES ON THE STEP BUTTONS TOO.
+      //
+      // Scrubbing the value carried paramId (valueScrubZones_ below) and
+      // clicking - or + did not, so on any row whose action needs the payload
+      // -- every effect amount and every effect parameter -- the two buttons
+      // fired with -1 and the handler bailed out. The value scrubbed and the
+      // buttons did nothing, which reads as a sticky control rather than a
+      // dead one. Harmless on the numeric-parameter rows: their step handlers
+      // take no argument.
+      quickButtons_.push_back({decBtn, decAction, tip, paramId});
 
       drawUIPanel(valRect, pal.mid, pal.deep, pal.light);
       std::string displayValue = ix.ellipsize
@@ -4936,7 +4953,7 @@ class App {
 
       drawUIPanel(incBtn, pal.tile, pal.deep, pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, incBtn, "+", pal.fg);
-      quickButtons_.push_back({incBtn, incAction, tip});
+      quickButtons_.push_back({incBtn, incAction, tip, paramId});
     }
   }
 
@@ -6677,6 +6694,136 @@ class App {
       }
     }
     return inspDrawEffectRows(ix, rowY, cue);
+  }
+
+  // audioEffectParamTip returns null for a slot an effect ignores. Those slots
+  // draw no row at all, so this can only be reached with a named one -- but a
+  // std::string built from a null pointer is undefined behaviour, not an empty
+  // string, and a belt here costs nothing.
+  static std::string audioParamTipOr(deckboy::audiofx::AudioEffectKind kind,
+                                     int slot) {
+    const char* tip = deckboy::audiofx::audioEffectParamTip(kind, slot);
+    return tip ? std::string(tip) : std::string();
+  }
+
+  // THE AUDIO CHAIN, drawn the same way the picture chain is.
+  //
+  // Same row order, same four-cell control strip, same "the name IS the
+  // picker" rule -- an operator who has learned the EFFECTS section has
+  // learned this one, and the two sections sitting one above the other with
+  // different conventions would be the worse outcome by far.
+  //
+  // What is deliberately NOT here: the per-parameter LFOs. A picture parameter
+  // that breathes is a look; an audio parameter that breathes on its own
+  // during a show is a fault the operator cannot see coming. If that is ever
+  // wanted it should be asked for, not inherited by symmetry.
+  int inspDrawAudioEffectRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    const auto& stack = cue.audioEffects;
+    for (int i = 0; i < static_cast<int>(stack.size()); ++i) {
+      const auto& fx = stack[i];
+      {
+        SDL_Rect nameRect {ix.ctrl.x + ix.inset, rowY,
+                           ix.ctrlW - ix.inset * 2, ix.rowH};
+        drawUIPanel(nameRect, fx.bypassed ? pal.mid : pal.tile, pal.deep, pal.mid);
+        std::string name = std::to_string(i + 1);
+        name += ". ";
+        name += deckboy::audiofx::audioEffectLabel(fx.kind);
+        if (fx.bypassed) {
+          name += "  (bypassed)";
+        }
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {nameRect.x + 6, nameRect.y, nameRect.w - 20, nameRect.h},
+                     name, fx.bypassed ? pal.inkSoft : pal.fg);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect {nameRect.x + nameRect.w - 16, nameRect.y, 14, nameRect.h},
+                             "v", pal.inkSoft);
+        quickButtons_.push_back({nameRect, QuickAction::AudioEffectCycleKind,
+                                 "Choose which effect this is", i});
+        rowY += ix.rowStep;
+      }
+      // AMOUNT MEANS THE SAME THING EVERY TIME. For the shaping effects it is
+      // a dry/wet mix; for the dynamics it scales the gain reduction. Either
+      // way turning it down is "less of this" and never "something else",
+      // which is the only property that makes one control serve nine effects.
+      char amountBuf[16];
+      std::snprintf(amountBuf, sizeof(amountBuf), "%d%%",
+                    static_cast<int>(std::lround(fx.amount * 100.0f)));
+      inspDrawQuickRow(ix, rowY, "amount",
+                       QuickAction::AudioEffectAmountDec, std::string(amountBuf),
+                       QuickAction::AudioEffectAmountInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Drag to scrub (shift = fine), click to type exact",
+                       true, QuickAction::AudioEffectEditAmount, i);
+      rowY += ix.rowStep;
+      for (int which = 0; which < 4; ++which) {
+        const char* paramLabel =
+          deckboy::audiofx::audioEffectParamLabel(fx.kind, which);
+        if (!paramLabel) {
+          continue;   // this effect ignores the slot; drawing it would be a
+                      // control that cannot do anything
+        }
+        const float rawParam = which == 0 ? fx.paramA : which == 1 ? fx.paramB
+                             : which == 2 ? fx.paramC : fx.paramD;
+        char paramBuf[16];
+        std::snprintf(paramBuf, sizeof(paramBuf), "%d%%",
+                      static_cast<int>(std::lround(rawParam * 100.0f)));
+        inspDrawQuickRow(ix, rowY, paramLabel,
+                         which == 0 ? QuickAction::AudioEffectParamADec
+                         : which == 1 ? QuickAction::AudioEffectParamBDec
+                         : which == 2 ? QuickAction::AudioEffectParamCDec
+                                      : QuickAction::AudioEffectParamDDec,
+                         std::string(paramBuf),
+                         which == 0 ? QuickAction::AudioEffectParamAInc
+                         : which == 1 ? QuickAction::AudioEffectParamBInc
+                         : which == 2 ? QuickAction::AudioEffectParamCInc
+                                      : QuickAction::AudioEffectParamDInc,
+                         QuickAction::ToggleLoop, false, false,
+                         audioParamTipOr(fx.kind, which),
+                         true,
+                         which == 0 ? QuickAction::AudioEffectParamAEdit
+                         : which == 1 ? QuickAction::AudioEffectParamBEdit
+                         : which == 2 ? QuickAction::AudioEffectParamCEdit
+                                      : QuickAction::AudioEffectParamDEdit,
+                         i);
+        rowY += ix.rowStep;
+      }
+      {
+        const int gap = 4;
+        const int cellW = (ix.ctrlW - ix.inset * 2 - gap * 3) / 4;
+        int cx = ix.ctrl.x + ix.inset;
+        struct Cell { const char* label; QuickAction action; const char* tip; bool lit; };
+        const Cell cells[4] = {
+          {"B", QuickAction::AudioEffectToggleBypass,
+           "Bypass: take it out of the chain but KEEP its settings. Turning "
+           "the amount to zero throws them away.", fx.bypassed},
+          {"^", QuickAction::AudioEffectMoveUp,
+           "Earlier in the chain. A gate before a compressor is a different "
+           "sound from a compressor before a gate.", false},
+          {"v", QuickAction::AudioEffectMoveDown, "Later in the chain", false},
+          {"X", QuickAction::AudioEffectRemove, "Remove this effect", false},
+        };
+        for (const Cell& cell : cells) {
+          SDL_Rect r {cx, rowY, cellW, ix.rowH};
+          drawUIPanel(r, cell.lit ? pal.dark : pal.tile, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, r, cell.label,
+                               cell.lit ? pal.light : pal.fg);
+          quickButtons_.push_back({r, cell.action, cell.tip, i});
+          cx += cellW + gap;
+        }
+        rowY += ix.rowStep;
+      }
+    }
+    if (stack.empty()) {
+      rowY = inspDrawMessageRow(ix, rowY, "no audio effects", pal.tile, pal.inkSoft);
+    }
+    rowY = inspDrawActionRow(ix, rowY, "+ add audio effect",
+                             QuickAction::AudioEffectAdd,
+                             "Filters, dynamics, delay, room and width, run in "
+                             "the order you put them in -- between the cue's "
+                             "gain and the output limiter.",
+                             pal.tile, pal.fg);
+    return rowY;
   }
 
   int inspDrawKeyRows(const InspectorCtx& ix, int startY, const Cue& cue) {
@@ -8566,6 +8713,9 @@ class App {
   bool cueSectionGeometryOpen_ = true;
   bool cueSectionKeyOpen_ = false;
   bool cueSectionEffectsOpen_ = true;   // datamosh lives here
+  // The audio chain, collapsed by default. Most cues never get one, and an
+  // always-open empty section pushes everything below it down the panel.
+  bool cueSectionAudioFxOpen_ = false;
   bool cueSectionCodeOpen_ = true;      // the live expression, on code cues
   bool cueSectionTimerOpen_ = true;     // stage timer controls
   bool cueSectionToneOpen_ = true;      // test tone generator controls
@@ -10304,7 +10454,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
-  "--decode-bench", "--ltc-generate",
+  "--decode-bench", "--ltc-generate", "--audio-fx-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
   "--devices", "--check-update",
@@ -10605,6 +10755,10 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     }
     return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
   }
+  if (mode == "--audio-fx-check") {
+    // Optional token: one effect, for when a change is being made to it.
+    return App::runAudioFxCheck(ops.empty() ? std::string() : ops[0]);
+  }
   if (mode == "--effect-bench") {
     if (ops.empty()) return missing("<token[:amount[:a[:b]]]> [WxH] [frames]");
     int bw = 1920, bh = 1080, bframes = 30;
@@ -10763,21 +10917,28 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
 
   if (mode == "--decode-bench") {
-    if (ops.empty()) return missing("<file> [seconds] [cli]");
+    if (ops.empty()) return missing("<file> [seconds] [cli|download]");
     double benchSeconds = 10.0;
     // --no-inproc-decode is the documented way to force the pipe path, so it
     // has to reach the bench too — otherwise the CLI decode path could not be
     // benchmarked at all. "cli" stays as the positional spelling.
     bool forceCli = MediaEngine::inprocDecodeDisabled();
+    // The A/B that isolates zero-copy: the hardware decoder stays, the frames
+    // come back through a download instead of staying on the GPU.
+    bool forceDownload = false;
     for (size_t i = 1; i < ops.size(); ++i) {
       if (ops[i] == "cli") {
         forceCli = true;
         continue;
       }
+      if (ops[i] == "download") {
+        forceDownload = true;
+        continue;
+      }
       const double parsed = std::atof(ops[i].c_str());
       if (parsed > 0.0) benchSeconds = parsed;
     }
-    return App::runDecodeBench(ops[0], benchSeconds, forceCli);
+    return App::runDecodeBench(ops[0], benchSeconds, forceCli, forceDownload);
   }
   if (mode == "--ltc-generate") {
     if (ops.empty()) return missing("<out.wav> [tc] [fps] [seconds]");

@@ -1,5 +1,65 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.354 (a cue has a sound as well as a look)
+
+**Every cue gets an audio chain, the way it already had a picture chain.** Nine
+effects -- high pass, low pass, tilt EQ, compressor, gate, delay, reverb, width
+and binaural -- run in the order you put them in, between the cue's own gain
+and the output limiter. Same shape as the EFFECTS section directly above it:
+the name is the picker, amount is always "how much of this", B bypasses without
+losing what you set, and the arrows move an effect through the chain. Order is
+the sound: a gate before a compressor is a different result from a compressor
+before a gate, and both are things people want.
+
+It is a deliberately short list and deliberately the useful end of one. A live
+events deck needs to fix a room and shape a voice; it does not need eleven
+flavours of chorus.
+
+**Edits reach every selected cue**, the way gain, pan and mono already do --
+levels and a room want to agree across a set of cues, and setting them one at a
+time is how they end up not agreeing.
+
+**An effect arrives set to something worth hearing.** A compressor's
+backward-compatible defaults are a 1:1 ratio, which is a compressor that does
+not compress; a tilt's are flat. Those values still load old shows exactly as
+they were saved, but a NEW effect starts on a setting somebody would choose --
+a vocal compressor, an 80Hz high pass, a 250ms delay.
+
+**The delay and the reverb are sends, not mixes.** Turning one up adds it on
+top of a source that stays where it is, the way it works on every console.
+Treated as a dry/wet, amount 100% removed the speaker entirely and left only
+the echo.
+
+Over the wire: `AUDIOFX` reads the chain back, `AUDIOFX ADD <effect> [amount%]`
+appends one, `AUDIOFX <slot> <amount%> [a% b% c% d%]` sets it, plus `BYPASS`,
+`OFF` and `CLEAR`. Every number is a percentage, the same units the inspector
+shows. Saved as one field at the end of the cue record, so a show written
+before this loads unchanged and simply has no chain.
+
+**`--audio-fx-check` measures them.** An effect that renders is not an effect
+that works, and on a picture you can tell the difference by looking. You cannot
+look at audio, so this puts a speech-shaped signal through every effect and
+reports what came out: level, peak, what it did to each end of the spectrum,
+what it did to the noise floor between words, and whether anything was still
+sounding half a second after the input stopped. It found four real faults on
+its first run, including a delay whose output was silence.
+
+### Hardware decode on a Mac, measured
+
+**On an M4, 4K30 costs 0.46 seconds of CPU for ten seconds of video.** The same
+clip decoded in software costs 5.48 -- about twelve times as much -- and the
+old ffmpeg subprocess path cannot hold 30fps at that raster at all, managing
+20. The zero-copy path reports `decoder=videotoolbox gpu-frames=300
+cpu-frames=0`: not one frame came down to the CPU.
+
+`--decode-bench <file> [seconds] download` is new and is the measurement that
+separates the two halves of that. `cli` and `DECKBOY_NO_HW_DECODE` both change
+the DECODER as well, so neither can tell you whether hardware decode is the
+cheap part or not downloading the frame is. `download` keeps the hardware
+decoder and asks for a packed CPU format, which is what a cue with a chroma key
+does. On the same 4K clip on Windows that is 30fps against 15.55: the download
+and the scale alone are half the budget.
+
 ## 2026-09-12 - v0.99.353 (zero-copy decode on macOS -- written, not yet measured)
 
 **On a Mac the picture no longer comes down to the CPU at all.** A VideoToolbox
@@ -23,10 +83,10 @@ once rendered 10-bit HEVC flat green on Windows.
 of inferring it from a Direct3D device pointer, which macOS does not have. It
 would have reported the new path as the old one.
 
-**Not yet measured on a Mac**, and the README still claims zero-copy for Windows
-only until it has been. There is no macOS toolchain here, so the first real run
-is a CI build on the machine it is for; the Windows and Linux paths are
-unchanged and verified.
+**Measured since, on an M4** (see v0.99.354). It links against CoreVideo now,
+which it did not at first: the header was included, every translation unit
+compiled and only the link failed, on the one platform that cannot be built
+here.
 
 ## 2026-09-12 - v0.99.352 (the stage timer can use any font)
 

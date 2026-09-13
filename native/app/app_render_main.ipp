@@ -3661,6 +3661,7 @@
     auto drawColorRows = [&](int startY, const Cue& cue) { return inspDrawColorRows(ix, startY, cue); };
     auto drawKeyRows = [&](int startY, const Cue& cue) { return inspDrawKeyRows(ix, startY, cue); };
     auto drawEffectsRows = [&](int startY, const Cue& cue) { return inspDrawEffectsRows(ix, startY, cue); };
+    auto drawAudioEffectRows = [&](int startY, const Cue& cue) { return inspDrawAudioEffectRows(ix, startY, cue); };
     auto drawTimerRows = [&](int startY, const Cue& cue) { return inspDrawTimerRows(ix, startY, cue); };
     auto beginInspectorSection = [&](int rowY, const std::string& title, bool open,
                                      QuickAction toggleAction, const std::string& tip) {
@@ -5148,6 +5149,28 @@
         fxY = drawEffectsRows(fxY, *selectedCue);
       }
       finishInspectorSection(fxSection, fxY);
+    }
+
+    // AUDIO FX, for any cue that HAS audio -- which is the honest test, and
+    // not the cue kind. A video cue with a soundtrack wants a high pass on the
+    // room as much as an audio cue does; a silent graphic has nothing for a
+    // chain to act on and showing it one would be a section full of controls
+    // that cannot do anything.
+    //
+    // Sits directly under EFFECTS, in the same shape, for the same reason the
+    // picture stack sits outside the per-kind chain: a section that belongs to
+    // more than one kind cannot live inside a branch.
+    if (selectedCue && selectedCue->hasAudio) {
+      int afxY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto afxSection = beginInspectorSection(afxY, "AUDIO FX",
+                                              cueSectionAudioFxOpen_,
+                                              QuickAction::CueSectionAudioFxToggle,
+                                              "Collapse/expand the cue's audio chain");
+      afxY = afxSection.bodyStartY;
+      if (cueSectionAudioFxOpen_) {
+        afxY = drawAudioEffectRows(afxY, *selectedCue);
+      }
+      finishInspectorSection(afxSection, afxY);
     }
 
     // TEXT MODE, for any cue kind at all.

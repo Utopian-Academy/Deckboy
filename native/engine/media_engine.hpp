@@ -558,6 +558,7 @@ class MediaEngine {
   double fadeGainAt(double positionSeconds) const;         // raw fade gain (in+out curve) at position
   double audioFadeGainAt(double positionSeconds) const;    // fade gain from atomic mirrors — the ONLY variant safe on the audio thread
   void syncAudioFadeParams();                              // publish fade params to the atomic mirrors (main thread)
+  void refreshAudioEffectStack();                          // pull a changed effect stack across (audio thread)
   void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
   void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
@@ -902,6 +903,20 @@ class MediaEngine {
   std::vector<double> limiterScratch_;       // gained interleaved stereo, pre-quantise
   std::vector<double> limiterFramePeak_;     // max(|L|,|R|) per frame
   std::deque<std::size_t> limiterWindow_;    // monotonic deque → look-ahead window min
+
+  // -- State: audio effect stack (v0.100) ---------------------------------------
+  // The chain is a VECTOR, so it cannot ride an atomic the way gain and pan do.
+  // The main thread writes the pending copy under the mutex and bumps the
+  // generation; the audio thread compares generations and only takes the lock
+  // when the operator has actually changed something -- which is almost never,
+  // measured against 48,000 samples a second. It then works from its own copy
+  // and touches no shared memory for the rest of the chunk.
+  std::mutex audioEffectsMutex_;
+  std::vector<deckboy::audiofx::AudioEffect> audioEffectsPending_;  // main thread writes
+  std::atomic<std::uint32_t> audioEffectsGeneration_ {0};
+  std::vector<deckboy::audiofx::AudioEffect> audioEffectsActive_;   // audio thread only
+  std::uint32_t audioEffectsSeen_ = 0;                              // audio thread only
+  deckboy::audiofx::AudioEffectState audioEffectState_;             // audio thread only
 
   // -- State: decoder lifecycle flags ------------------------------------------
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit

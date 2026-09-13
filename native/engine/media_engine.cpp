@@ -4599,6 +4599,58 @@ void MediaEngine::syncAudioFadeParams() {
   audioCueMono_.store(cue != nullptr && cue->audioMono, std::memory_order_relaxed);
   audioCuePairOffset_.store(cue ? std::clamp(cue->audioOutputPair, 0, 7) : 0,
                             std::memory_order_relaxed);
+  // The effect stack is a vector, so it goes across under the lock rather than
+  // through an atomic. Only bump the generation when it actually differs --
+  // this runs every tick, and a needless bump would make the audio thread take
+  // the lock and rebuild its copy sixty times a second for nothing.
+  {
+    const std::vector<deckboy::audiofx::AudioEffect> empty;
+    const std::vector<deckboy::audiofx::AudioEffect>& want =
+      cue ? cue->audioEffects : empty;
+    std::lock_guard<std::mutex> lock(audioEffectsMutex_);
+    bool same = want.size() == audioEffectsPending_.size();
+    for (std::size_t i = 0; same && i < want.size(); ++i) {
+      const deckboy::audiofx::AudioEffect& a = want[i];
+      const deckboy::audiofx::AudioEffect& b = audioEffectsPending_[i];
+      same = a.kind == b.kind && a.amount == b.amount && a.paramA == b.paramA &&
+             a.paramB == b.paramB && a.paramC == b.paramC &&
+             a.paramD == b.paramD && a.bypassed == b.bypassed;
+    }
+    if (!same) {
+      audioEffectsPending_ = want;
+      audioEffectsGeneration_.fetch_add(1, std::memory_order_release);
+    }
+  }
+}
+
+// Pull a changed stack across onto the audio thread. Called once per chunk;
+// the common case is an atomic load and a comparison.
+//
+// A stack whose SHAPE changed clears the filter and delay memory: the slots are
+// indexed by position, so inserting an effect at the top would otherwise hand a
+// delay's line to a compressor and a compressor's envelope to a gate. Turning a
+// knob keeps the memory, which is what lets somebody ride a filter live.
+void MediaEngine::refreshAudioEffectStack() {
+  const std::uint32_t generation =
+    audioEffectsGeneration_.load(std::memory_order_acquire);
+  if (generation == audioEffectsSeen_) {
+    return;
+  }
+  std::vector<deckboy::audiofx::AudioEffect> incoming;
+  {
+    std::lock_guard<std::mutex> lock(audioEffectsMutex_);
+    incoming = audioEffectsPending_;
+  }
+  bool shapeChanged = incoming.size() != audioEffectsActive_.size();
+  for (std::size_t i = 0; !shapeChanged && i < incoming.size(); ++i) {
+    shapeChanged = incoming[i].kind != audioEffectsActive_[i].kind;
+  }
+  audioEffectsActive_ = std::move(incoming);
+  audioEffectsSeen_ = generation;
+  if (shapeChanged) {
+    audioEffectState_.slots.assign(audioEffectsActive_.size(),
+                                   deckboy::audiofx::AudioEffectSlotState {});
+  }
 }
 
 // Audio-thread-safe fade gain: same curve as fadeGainAt but reads only the
@@ -5364,6 +5416,9 @@ void MediaEngine::clearAudio() {
   // Open the limiter back up: a new cue must not start ducked by whatever
   // transient the previous one ended on.
   limiterGain_ = 1.0;
+  // And empty the effect tails for the same reason -- the previous cue's delay
+  // repeats arriving over the top of the next one is worse than no delay.
+  audioEffectState_.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -5915,6 +5970,23 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     limiterScratch_[index + 1] = right;
     limiterFramePeak_[f] = std::max(std::fabs(left), std::fabs(right));
     audioTime += 1.0 / 48000.0;
+  }
+  // Stage 1b: the cue's effect chain, on the gained float scratch. HERE, and
+  // not anywhere else, for two reasons: the samples are already doubles at
+  // full scale so nothing quantises between effects, and the limiter still
+  // gets the last word -- a delay stacking repeats or a filter's resonance can
+  // add several dB, and an effect must not be able to put a show into clipping.
+  refreshAudioEffectStack();
+  if (!audioEffectsActive_.empty()) {
+    deckboy::audiofx::applyAudioEffectStack(limiterScratch_, audioEffectsActive_,
+                                            audioEffectState_);
+    // The peaks the gain stage measured describe the samples BEFORE the chain.
+    // Feeding those to the limiter would leave it guarding a waveform that no
+    // longer exists.
+    for (std::size_t f = 0; f < frames; ++f) {
+      limiterFramePeak_[f] = std::max(std::fabs(limiterScratch_[f * 2]),
+                                      std::fabs(limiterScratch_[f * 2 + 1]));
+    }
   }
   // Stage 2: hold the peaks under the ceiling by reducing gain, not by
   // truncating the waveform.

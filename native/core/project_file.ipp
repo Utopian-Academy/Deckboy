@@ -577,6 +577,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // typeface: empty means the app's own bundled face, which is
         // what every show saved before this carries.
         << '\t' << escapeField(cue.timer.fontPath)
+        // The audio effect stack, one field, for the same reason the picture
+        // stack is one field. STILL at the end.
+        << '\t' << escapeField(deckboy::audiofx::serializeAudioEffects(cue.audioEffects))
         << '\n';
     }
   }
@@ -1678,6 +1681,10 @@ Project loadProject(const fs::path& projectFile,
         // back empty -- the app's own face, which is what a timer that
         // never had a typeface mode should use if it is switched to one.
         cue.timer.fontPath = safeString(fields, vs + 55);
+        // And the audio stack after it. Absent on an older show, which parses
+        // to an empty chain -- the cue sounds exactly as it always has.
+        cue.audioEffects =
+          deckboy::audiofx::parseAudioEffects(safeString(fields, vs + 56));
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {

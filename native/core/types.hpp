@@ -26,6 +26,7 @@
 #define DECKBOY_CORE_TYPES_HPP
 
 #include "cue_effects.hpp"
+#include "audio_effects.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
 #include <string>
@@ -709,6 +710,11 @@ struct Cue {
   // Per-cue gain trim in dB, applied live in the audio thread. Range is
   // kCueAudioGainMinDb..kCueAudioGainMaxDb — never hardcode it at a clamp site.
   float audioGainDb = 0.0f;
+  // THE CUE'S AUDIO EFFECT STACK, the ear's half of what `effects` is for the
+  // eye. Evaluated in order, between the operator's gain decisions and the
+  // peak limiter -- see audio_effects.hpp for why that is the right place.
+  // Serialised as ONE field like the picture stack, for the same reason.
+  std::vector<deckboy::audiofx::AudioEffect> audioEffects;
   float audioPan = 0.0f;          // stereo balance: -1 full left .. +1 full right (0 = center)
   bool audioMono = false;         // downmix this cue to mono (mono sources / mono PA)
   // Independent audio fades: -1 = follow the visual fadeIn/OutSeconds
@@ -1720,6 +1726,32 @@ enum class QuickAction {
   EffectParamDDec,
   EffectParamDInc,
   EffectParamDEdit,
+  // THE AUDIO STACK, the same shape as the picture stack above and for the
+  // same reason: one action per control, the effect's INDEX in
+  // QuickButton::param, so a list of any length needs no new actions. Kept
+  // separate from the picture actions rather than sharing them with a flag --
+  // a single mis-set flag would then route a filter edit into a posterise.
+  AudioEffectAdd,
+  AudioEffectRemove,
+  AudioEffectCycleKind,
+  AudioEffectToggleBypass,
+  AudioEffectAmountDec,
+  AudioEffectAmountInc,
+  AudioEffectEditAmount,
+  AudioEffectMoveUp,
+  AudioEffectMoveDown,
+  AudioEffectParamADec,
+  AudioEffectParamAInc,
+  AudioEffectParamAEdit,
+  AudioEffectParamBDec,
+  AudioEffectParamBInc,
+  AudioEffectParamBEdit,
+  AudioEffectParamCDec,
+  AudioEffectParamCInc,
+  AudioEffectParamCEdit,
+  AudioEffectParamDDec,
+  AudioEffectParamDInc,
+  AudioEffectParamDEdit,
   CodeOpenEditor,
   // Parameter LFOs. Every one of these carries a PACKED id in the action's
   // param: effectIndex * 8 + slot, where slot 0-3 is paramA-D and 4 is the
@@ -1777,6 +1809,7 @@ enum class QuickAction {
   // Per-cue effects section. Datamosh is the first member; the section exists
   // so future per-cue effects have an obvious home that is not "KEY".
   CueSectionEffectsToggle,
+  CueSectionAudioFxToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
   TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,
   TimerNudgeSecUp, TimerNudgeSecDown,

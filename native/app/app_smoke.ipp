@@ -2249,6 +2249,263 @@
   }
 
   // ---------------------------------------------------------------------------
+  // runAudioFxCheck — `--audio-fx-check [token]`
+  //
+  // The audio equivalent of --effect-dump, and it exists for the same reason:
+  // an effect that renders is not an effect that WORKS, and the only way to
+  // tell them apart on a picture is to look at one. You cannot look at audio,
+  // so this measures it instead.
+  //
+  // Per effect, over a deterministic test signal:
+  //
+  //   in/out RMS      -- did it do anything at all? An effect that leaves the
+  //                      level and the spectrum untouched is a control that
+  //                      does nothing, which is this codebase's signature bug.
+  //   peak            -- did it blow up? A resonant filter or a delay with too
+  //                      much feedback can add 20dB, and the limiter after it
+  //                      should never be the only thing standing between an
+  //                      effect and a damaged PA.
+  //   low/high split  -- the point of a filter is WHICH end it removed. RMS
+  //                      alone cannot tell a high pass from a low pass, and
+  //                      the two were one keystroke apart when they were
+  //                      written.
+  //   tail            -- silence pushed through afterwards. A delay and a
+  //                      reverb must ring; everything else must go quiet, and
+  //                      an effect that keeps making noise after the signal
+  //                      has stopped is feeding back.
+  //   finite          -- no NaN and no infinity ever reaches the device. One
+  //                      denormal spiral in a feedback path is a burst of full
+  //                      scale into somebody's room.
+  //
+  // Deliberately not a pass/fail on the numbers themselves except for the two
+  // that ARE faults on any setting (non-finite output, and a peak over the
+  // ceiling). The rest is a table to read, like the contact sheet.
+  // ---------------------------------------------------------------------------
+  static int runAudioFxCheck(const std::string& only) {
+    namespace afx = deckboy::audiofx;
+    constexpr double kPi = 3.141592653589793;
+    constexpr int kRate = 48000;
+    constexpr int kFrames = kRate;            // one second
+    constexpr int kTailFrames = kRate / 2;    // and half a second of silence
+
+    // A signal with both ends of the spectrum in it, so a filter has something
+    // to remove either way: a 120Hz tone, a 6kHz tone, and a burst of noise in
+    // the middle so the dynamics have a transient to catch.
+    auto makeSignal = [&]() {
+      std::vector<double> s(static_cast<std::size_t>(kFrames) * 2, 0.0);
+      std::uint32_t rng = 22222u;
+      for (int f = 0; f < kFrames; ++f) {
+        const double t = static_cast<double>(f) / kRate;
+        rng = rng * 1664525u + 1013904223u;
+        const double noise = (static_cast<double>(rng >> 8) / 8388608.0 - 1.0);
+        // SPEECH-SHAPED, not a continuous tone. Three bursts with real gaps
+        // between them: a gate has nothing to close on if the signal never
+        // stops, and the first version of this signal ran a 120Hz tone from
+        // end to end -- so the gate correctly never moved and the check called
+        // it broken. Any test whose signal cannot exercise the thing it is
+        // measuring will report the measurement, not the truth.
+        // 330ms of speech, 150ms of pause, three times over. The pause has to
+        // be the length of a REAL one: a gate's release is a couple of hundred
+        // milliseconds by design -- long enough not to chop the ends off words
+        // -- so measuring it against 70ms gaps reports a gate that barely
+        // closes, and the fault is in the gaps.
+        const double phase = std::fmod(t, 0.48) / 0.48;
+        // RAMPED, not switched. A hard step is an impulse, every filter here
+        // rings on one, and the ring lands in the gap -- which made the noise
+        // floor of a high pass read 29dB ABOVE the source it was filtering.
+        // That was the test signal clicking, not the filter misbehaving. Real
+        // speech does not start and stop in one sample either.
+        const double ramp = 0.04;      // ~19ms in and out
+        double envelope = 0.002;
+        if (phase < 0.69) {
+          const double edge = std::min(phase, 0.69 - phase);
+          const double open = edge >= ramp ? 1.0
+            : 0.5 - 0.5 * std::cos(kPi * (edge / ramp));
+          envelope = 0.002 + 0.998 * open;
+        }
+        const double v = envelope * (8000.0 * std::sin(2.0 * kPi * 120.0 * t)
+                                   + 5000.0 * std::sin(2.0 * kPi * 6000.0 * t)
+                                   + 9000.0 * noise * (phase < 0.05 ? 1.0 : 0.15));
+        s[static_cast<std::size_t>(f) * 2] = v;
+        // The right channel is deliberately NOT the left: width, ping-pong
+        // delay and binaural all do nothing measurable on a mono-in-stereo
+        // signal, and reporting "no change" for them would be a lie about the
+        // effect rather than about the test.
+        s[static_cast<std::size_t>(f) * 2 + 1] =
+          v * 0.6 + envelope * 3000.0 * std::sin(2.0 * kPi * 300.0 * t);
+      }
+      return s;
+    };
+
+    // Energy above and below 1kHz, by the crudest one-pole split that can tell
+    // them apart. This is a measuring tool, not a signal path, so a proper
+    // filter bank would be precision nobody reads.
+    auto bandRms = [](const std::vector<double>& s, bool high) {
+      const double coeff = std::exp(-2.0 * kPi * 1000.0 / kRate);
+      double low = 0.0, sum = 0.0;
+      const std::size_t frames = s.size() / 2;
+      for (std::size_t f = 0; f < frames; ++f) {
+        const double x = s[f * 2];
+        low = x * (1.0 - coeff) + low * coeff;
+        const double v = high ? (x - low) : low;
+        sum += v * v;
+      }
+      return frames ? std::sqrt(sum / static_cast<double>(frames)) : 0.0;
+    };
+    auto rmsOf = [](const std::vector<double>& s) {
+      double sum = 0.0;
+      for (double v : s) sum += v * v;
+      return s.empty() ? 0.0 : std::sqrt(sum / static_cast<double>(s.size()));
+    };
+    auto peakOf = [](const std::vector<double>& s) {
+      double peak = 0.0;
+      for (double v : s) peak = std::max(peak, std::fabs(v));
+      return peak;
+    };
+    auto dbOf = [](double a, double b) {
+      if (a <= 1e-9 || b <= 1e-9) return 0.0;
+      return 20.0 * std::log10(a / b);
+    };
+
+    // WHICH FRAMES ARE THE QUIET ONES, decided from the dry signal and reused
+    // for the wet, so both are measured over the same stretch of time.
+    //
+    // A GATE CANNOT BE SEEN IN THE RMS. Its entire job is to change what
+    // happens in the GAPS, and the gaps are some 50dB down: shutting them
+    // completely moves the overall RMS by a few millionths, which rounds to
+    // "this effect does nothing". The first version of this check reported
+    // exactly that, and it was a statement about the measurement rather than
+    // about the gate.
+    auto quietFrames = [](const std::vector<double>& s) {
+      const std::size_t frames = s.size() / 2;
+      std::vector<double> mags(frames, 0.0);
+      for (std::size_t f = 0; f < frames; ++f) {
+        mags[f] = std::max(std::fabs(s[f * 2]), std::fabs(s[f * 2 + 1]));
+      }
+      std::vector<double> sorted = mags;
+      std::sort(sorted.begin(), sorted.end());
+      const double median = sorted.empty() ? 0.0 : sorted[sorted.size() / 2];
+      std::vector<std::size_t> quiet;
+      for (std::size_t f = 0; f < frames; ++f) {
+        if (mags[f] < median * 0.1) {
+          quiet.push_back(f);
+        }
+      }
+      return quiet;
+    };
+    auto floorRms = [](const std::vector<double>& s,
+                       const std::vector<std::size_t>& quiet) {
+      if (quiet.empty()) return 0.0;
+      double sum = 0.0;
+      for (std::size_t f : quiet) {
+        sum += s[f * 2] * s[f * 2] + s[f * 2 + 1] * s[f * 2 + 1];
+      }
+      return std::sqrt(sum / static_cast<double>(quiet.size() * 2));
+    };
+
+    const std::vector<double> dry = makeSignal();
+    const std::vector<std::size_t> quiet = quietFrames(dry);
+    const double dryFloor = floorRms(dry, quiet);
+    const double dryRms = rmsOf(dry);
+    const double dryLow = bandRms(dry, false);
+    const double dryHigh = bandRms(dry, true);
+
+    std::cout << "audio-fx-check: " << kFrames << " frames @ " << kRate
+              << "Hz, dry rms=" << std::fixed << std::setprecision(0) << dryRms
+              << " peak=" << peakOf(dry) << "\n";
+    std::cout << "  effect      rms        peak      low      high    floor"
+                 "     tail   verdict\n";
+
+    int failures = 0;
+    for (int k = 1; k < static_cast<int>(afx::AudioEffectKind::Count); ++k) {
+      const auto kind = static_cast<afx::AudioEffectKind>(k);
+      const std::string token = afx::audioEffectToken(kind);
+      if (!only.empty() && token != only) {
+        continue;
+      }
+      // WHAT THE EFFECT ARRIVES SET TO, which is what an operator who adds one
+      // during a show actually gets. Testing the struct's neutral defaults
+      // instead would report a flat tilt and a 1:1 compressor as broken, which
+      // is true of those numbers and false of the feature.
+      const afx::AudioEffect fx = afx::audioEffectDefaults(kind);
+      afx::AudioEffectState state;
+
+      std::vector<double> wet = dry;
+      afx::applyAudioEffectStack(wet, {fx}, state);
+
+      // The tail: silence through the SAME state, so a delay line that is
+      // still holding something has somewhere to put it.
+      std::vector<double> tail(static_cast<std::size_t>(kTailFrames) * 2, 0.0);
+      afx::applyAudioEffectStack(tail, {fx}, state);
+
+      bool finite = true;
+      for (double v : wet) if (!std::isfinite(v)) { finite = false; break; }
+      if (finite) {
+        for (double v : tail) if (!std::isfinite(v)) { finite = false; break; }
+      }
+
+      const double wetRms = rmsOf(wet);
+      const double wetPeak = peakOf(wet);
+      // THE SECOND HALF OF THE TAIL. Every filter here is still holding the
+      // last sample the moment the input stops, and its natural decay is a
+      // few milliseconds of perfectly correct output -- measuring the peak
+      // over the whole tail called each of them a runaway. What "still
+      // sounding" means is still sounding a quarter of a second later.
+      const std::vector<double> lateTail(
+        tail.begin() + static_cast<std::ptrdiff_t>(tail.size() / 2), tail.end());
+      const double tailPeak = peakOf(lateTail);
+      const double lowDb = dbOf(bandRms(wet, false), dryLow);
+      const double highDb = dbOf(bandRms(wet, true), dryHigh);
+      const double floorDb = dbOf(floorRms(wet, quiet), dryFloor);
+
+      std::string verdict;
+      // 32767 is full scale for the int16 the engine quantises to. An effect
+      // that exceeds it is relying on the limiter to save it, which is not
+      // what the limiter is there for.
+      if (!finite) {
+        verdict = "FAIL non-finite output";
+        ++failures;
+      } else if (wetPeak > 32767.0 * 4.0) {
+        verdict = "FAIL runaway (>12dB over full scale)";
+        ++failures;
+      } else if (std::fabs(dbOf(wetRms, dryRms)) < 0.05 &&
+                 std::fabs(lowDb) < 0.05 && std::fabs(highDb) < 0.05 &&
+                 std::fabs(floorDb) < 0.05) {
+        // Nothing moved anywhere. On a default amount of 1.0 that is an
+        // effect which is not connected to its own parameters.
+        verdict = "FAIL no audible change at amount 1.0";
+        ++failures;
+      } else {
+        const bool rings = kind == afx::AudioEffectKind::Delay ||
+                           kind == afx::AudioEffectKind::Reverb;
+        if (rings && tailPeak < 1.0) {
+          verdict = "FAIL no tail -- nothing was stored";
+          ++failures;
+        } else if (!rings && tailPeak > 32767.0 * 0.02) {
+          verdict = "FAIL still sounding after the input stopped";
+          ++failures;
+        } else {
+          verdict = rings ? "ok (rings)" : "ok";
+        }
+      }
+
+      std::ostringstream row;
+      row << "  " << std::left << std::setw(11) << token << std::right
+          << std::fixed << std::setprecision(1)
+          << std::setw(8) << dbOf(wetRms, dryRms) << "dB"
+          << std::setw(10) << std::setprecision(0) << wetPeak
+          << std::setprecision(1)
+          << std::setw(8) << lowDb << std::setw(9) << highDb
+          << std::setw(9) << floorDb
+          << std::setw(9) << std::setprecision(0) << tailPeak
+          << "   " << verdict;
+      std::cout << row.str() << '\n';
+    }
+    std::cout << "audio-fx-check: " << failures << " failures\n";
+    return failures == 0 ? 0 : 1;
+  }
+
+  // ---------------------------------------------------------------------------
   // runEffectBench — `--effect-bench <token[:amount[:a[:b]]]> [WxH] [frames]`
   //
   // What one effect costs per frame at a given raster, and what fraction of a
@@ -2734,10 +2991,17 @@
   // fps is pinned high so the consumer drains the queue every tick — the
   // number reported is decoder throughput, not playback pacing. `cli` forces
   // the ffmpeg subprocess pipe path for A/B against the in-process decoder.
+  //
+  // `download` keeps the hardware decoder but asks for a packed CPU format, so
+  // the frames come back through av_hwframe_transfer_data and swscale. That is
+  // the A/B that isolates what ZERO-COPY buys: `cli` and DECKBOY_NO_HW_DECODE
+  // both change the decoder as well, so neither can separate "hardware decode
+  // is cheaper" from "not downloading the frame is cheaper".
   // Zero-copy mode also exercises the GPU slice→texture copy the output
   // compositor performs per frame advance.
   // ---------------------------------------------------------------------------
-  static int runDecodeBench(const std::string& mediaPath, double benchSeconds, bool forceCli) {
+  static int runDecodeBench(const std::string& mediaPath, double benchSeconds, bool forceCli,
+                            bool forceDownload = false) {
 #if DECKBOY_INPROC_DECODE
     // Same as App::init — the shared decode device needs a thread-safe D3D11 device.
     SDL_SetHint(SDL_HINT_RENDER_DIRECT3D_THREADSAFE, "1");
@@ -2766,6 +3030,17 @@
     cue.duration = benchSeconds + 3600.0;  // never trip end-of-cue
     cue.fps = 240.0;                       // drain the queue: measure decode, not pacing
     cue.hasAudio = false;
+    // Asking for a packed CPU format is what a cue with a chroma key or a
+    // colour grade does, and it is the one thing that turns zero-copy off
+    // while leaving the hardware decoder in place. The key is armed with a
+    // colour nothing in the picture matches, so the format is the only thing
+    // that changes -- arming a grade would add its own per-pixel cost to the
+    // measurement and confuse the very comparison being made.
+    if (forceDownload) {
+      cue.chromaKeyEnabled = true;
+      cue.chromaKeyColor = SDL_Color {255, 0, 255, 255};
+      cue.chromaKeyTolerance = 0.0f;
+    }
     engine.loadCue(&cue, true);
 
 #if DECKBOY_INPROC_DECODE

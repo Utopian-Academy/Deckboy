@@ -619,6 +619,289 @@ void effectStackEditAmount(int index) {
 }
 
 // ---------------------------------------------------------------------------
+// The audio effect stack.
+// ---------------------------------------------------------------------------
+//
+// The same shape as the picture stack above, and deliberately so: an operator
+// who has learned one has learned the other. The differences are all about
+// what audio is:
+//
+//   - NO CPU-PATH REFRESH. A picture effect can require the decoder to be
+//     reopened in a format the effect can act on, which is why every edit up
+//     there checks. Audio is always decoded to PCM, so an edit here reaches
+//     the very next chunk with nothing to restart.
+//   - THE EDIT REACHES EVERY SELECTED CUE, the way gain, pan and mono already
+//     do. Same reason: levels and room want to agree across a set of cues, and
+//     doing that one cue at a time is how they end up not agreeing.
+//   - A CAP OF EIGHT. The chain runs per sample on the audio thread, where
+//     overrunning does not drop a frame -- it clicks.
+
+std::vector<deckboy::audiofx::AudioEffect>* selectedAudioEffectStack() {
+  Cue* cue = selectedCueMutable();
+  return cue ? &cue->audioEffects : nullptr;
+}
+
+bool audioEffectIndexValid(const std::vector<deckboy::audiofx::AudioEffect>* stack,
+                           int index) {
+  return stack && index >= 0 && index < static_cast<int>(stack->size());
+}
+
+// Apply an edit to the same set of cues every other audio edit reaches, and
+// report whether it landed anywhere. The callback is handed one stack at a
+// time. A cue whose chain is SHORTER than the edited position is skipped
+// rather than grown: inventing an effect in somebody else's cue so it has
+// somewhere to receive an edit is not what "apply to the selection" means.
+bool forEachSelectedAudioStack(
+    const std::function<void(std::vector<deckboy::audiofx::AudioEffect>&)>& edit) {
+  lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& each, int) {
+    if (each.hasAudio) {
+      edit(each.audioEffects);
+    }
+  });
+  const bool any = lastAudioEditDeckCount_ > 0;
+  if (any) {
+    markProjectDirty();
+  }
+  return any;
+}
+
+// Every audio effect, as dropdown choices, built FROM the enum rather than
+// from a second list beside it that can fall behind.
+std::vector<std::pair<std::string, std::string>> audioEffectChoices() {
+  std::vector<std::pair<std::string, std::string>> choices;
+  for (int i = 1; i < static_cast<int>(deckboy::audiofx::AudioEffectKind::Count); ++i) {
+    const auto kind = static_cast<deckboy::audiofx::AudioEffectKind>(i);
+    choices.push_back({deckboy::audiofx::audioEffectToken(kind),
+                       deckboy::audiofx::audioEffectLabel(kind)});
+  }
+  return choices;
+}
+
+void audioEffectStackAdd() {
+  auto* stack = selectedAudioEffectStack();
+  if (!stack) {
+    return;
+  }
+  if (stack->size() >= 8) {
+    triggerToast("audio chain full (8)");
+    return;
+  }
+  // PICK from the list, like the picture stack does. Appending a default and
+  // making the operator cycle to what they wanted was the worst part of the
+  // first version of that one.
+  const auto choices = audioEffectChoices();
+  openDropdown("cue.audiofx.add", lastInlineEditorAnchorRect_, choices,
+               choices.front().first,
+               [this](const std::string& token) {
+    const auto kind = deckboy::audiofx::audioEffectKindFromToken(token);
+    if (kind == deckboy::audiofx::AudioEffectKind::None) {
+      return;
+    }
+    // audioEffectDefaults, NOT the struct's own: those are the neutral values
+    // an old show carries, and for half of these that means a compressor at
+    // 1:1 and a tilt that is flat. An effect that arrives doing nothing at all
+    // looks exactly like an effect that is broken.
+    const deckboy::audiofx::AudioEffect fx =
+      deckboy::audiofx::audioEffectDefaults(kind);
+    const bool any = forEachSelectedAudioStack(
+      [&fx](std::vector<deckboy::audiofx::AudioEffect>& s) {
+        if (s.size() < 8) {
+          s.push_back(fx);
+        }
+      });
+    if (any) {
+      triggerToast(std::string("added ") +
+                   deckboy::audiofx::audioEffectLabel(kind) +
+                   audioEditScopeSuffix());
+    } else {
+      triggerToast("no cue with audio selected");
+    }
+  });
+}
+
+void audioEffectStackRemove(int index) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  const std::string gone =
+    deckboy::audiofx::audioEffectLabel((*stack)[index].kind);
+  forEachSelectedAudioStack([index](std::vector<deckboy::audiofx::AudioEffect>& s) {
+    if (index < static_cast<int>(s.size())) {
+      s.erase(s.begin() + index);
+    }
+  });
+  triggerToast("audio effect removed: " + gone);
+}
+
+void audioEffectStackCycleKind(int index) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  const auto choices = audioEffectChoices();
+  openDropdown("cue.audiofx.kind", lastInlineEditorAnchorRect_, choices,
+               deckboy::audiofx::audioEffectToken((*stack)[index].kind),
+               [this, index](const std::string& token) {
+    const auto kind = deckboy::audiofx::audioEffectKindFromToken(token);
+    if (kind == deckboy::audiofx::AudioEffectKind::None) {
+      return;
+    }
+    // AND ITS PARAMETERS, because slot 0 means "frequency" on a filter and
+    // "threshold" on a compressor: carrying 30% across turns an 80Hz high pass
+    // into a compressor at -42 dBFS, which is not what anyone asked for.
+    // Bypass and position are kept -- those are about the CHAIN, not the
+    // effect.
+    forEachSelectedAudioStack(
+      [index, kind](std::vector<deckboy::audiofx::AudioEffect>& s) {
+        if (index < static_cast<int>(s.size())) {
+          const bool wasBypassed = s[index].bypassed;
+          s[index] = deckboy::audiofx::audioEffectDefaults(kind);
+          s[index].bypassed = wasBypassed;
+        }
+      });
+  });
+}
+
+void audioEffectStackToggleBypass(int index) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  // Read the NEW state off the selected cue and write that same state
+  // everywhere, rather than flipping each in turn: a mixed selection would
+  // otherwise get further apart with every click instead of converging.
+  const bool next = !(*stack)[index].bypassed;
+  const std::string name =
+    deckboy::audiofx::audioEffectLabel((*stack)[index].kind);
+  forEachSelectedAudioStack(
+    [index, next](std::vector<deckboy::audiofx::AudioEffect>& s) {
+      if (index < static_cast<int>(s.size())) {
+        s[index].bypassed = next;
+      }
+    });
+  // Bypass RETURNS the setting; turning the amount to zero throws it away.
+  triggerToast(name + (next ? " bypassed" : " active"));
+}
+
+void audioEffectStackNudge(int index, float delta) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  const float next = std::clamp((*stack)[index].amount + delta, 0.0f, 1.0f);
+  forEachSelectedAudioStack(
+    [index, next](std::vector<deckboy::audiofx::AudioEffect>& s) {
+      if (index < static_cast<int>(s.size())) {
+        s[index].amount = next;
+      }
+    });
+}
+
+// The value is computed once from the selected cue and written to all of them,
+// for the same reason bypass is: a relative nudge applied to a mixed selection
+// keeps them mixed forever.
+void audioEffectStackNudgeParam(int index, int which, float delta) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  const auto& fx = (*stack)[index];
+  const float current = which == 0 ? fx.paramA : which == 1 ? fx.paramB
+                      : which == 2 ? fx.paramC : fx.paramD;
+  const float next = std::clamp(current + delta, 0.0f, 1.0f);
+  forEachSelectedAudioStack(
+    [index, which, next](std::vector<deckboy::audiofx::AudioEffect>& s) {
+      if (index >= static_cast<int>(s.size())) {
+        return;
+      }
+      auto& target = s[index];
+      (which == 0 ? target.paramA : which == 1 ? target.paramB
+       : which == 2 ? target.paramC : target.paramD) = next;
+    });
+}
+
+void audioEffectStackEditParam(int index, int which) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  const auto& fx = (*stack)[index];
+  const char* label = deckboy::audiofx::audioEffectParamLabel(fx.kind, which);
+  if (!label) {
+    return;   // this effect has no such parameter; nothing to type into
+  }
+  // PERCENT, because that is what the row shows. The picture stack already
+  // fell into the other version of this: a row reading 35% opening an editor
+  // that wanted 0.35, so a typed 37 pinned the parameter to its maximum.
+  const float raw = which == 0 ? fx.paramA : which == 1 ? fx.paramB
+                  : which == 2 ? fx.paramC : fx.paramD;
+  std::ostringstream current;
+  current << static_cast<int>(std::lround(raw * 100.0f));
+  openInlineNumericExpressionEditor(
+    which == 0 ? "cue.audiofx.paramA" : which == 1 ? "cue.audiofx.paramB"
+    : which == 2 ? "cue.audiofx.paramC" : "cue.audiofx.paramD", label,
+    "0-100% (supports + - * / and ())", current.str(),
+    [this, index, which](double value) {
+      const float next =
+        std::clamp(static_cast<float>(value / 100.0), 0.0f, 1.0f);
+      forEachSelectedAudioStack(
+        [index, which, next](std::vector<deckboy::audiofx::AudioEffect>& s) {
+          if (index >= static_cast<int>(s.size())) {
+            return;
+          }
+          auto& target = s[index];
+          (which == 0 ? target.paramA : which == 1 ? target.paramB
+           : which == 2 ? target.paramC : target.paramD) = next;
+        });
+    });
+}
+
+void audioEffectStackEditAmount(int index) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  std::ostringstream current;
+  current << static_cast<int>(std::lround((*stack)[index].amount * 100.0f));
+  openInlineNumericExpressionEditor(
+    "cue.audiofx.amount",
+    deckboy::audiofx::audioEffectLabel((*stack)[index].kind),
+    "Amount 0-100% (supports + - * / and ())", current.str(),
+    [this, index](double value) {
+      const float next =
+        std::clamp(static_cast<float>(value / 100.0), 0.0f, 1.0f);
+      forEachSelectedAudioStack(
+        [index, next](std::vector<deckboy::audiofx::AudioEffect>& s) {
+          if (index < static_cast<int>(s.size())) {
+            s[index].amount = next;
+          }
+        });
+    });
+}
+
+void audioEffectStackMove(int index, int direction) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  const int target = index + direction;
+  if (target < 0 || target >= static_cast<int>(stack->size())) {
+    return;
+  }
+  // ORDER IS THE SOUND. A gate before a compressor and a compressor before a
+  // gate are two different results, and both are things people want -- so this
+  // is a real edit, not a cosmetic reshuffle.
+  forEachSelectedAudioStack(
+    [index, target](std::vector<deckboy::audiofx::AudioEffect>& s) {
+      if (index < static_cast<int>(s.size()) &&
+          target < static_cast<int>(s.size())) {
+        std::swap(s[index], s[target]);
+      }
+    });
+}
+
+// ---------------------------------------------------------------------------
 // Motion driver: the clip whose movement puppeteers this cue.
 // ---------------------------------------------------------------------------
 
