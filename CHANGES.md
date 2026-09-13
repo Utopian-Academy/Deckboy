@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.357 (the audio chain reaches Companion)
+
+The per-cue audio chain shipped with a remote verb and no way to drive it from
+a Companion button, while the picture chain has had `FX ADD` / `FX AMOUNT` /
+`FX CLEAR` there all along. Five actions close that: add, amount, bypass,
+remove and clear.
+
+Amounts and parameters are **percentages** in these, because that is what
+`AUDIOFX` takes and what the inspector shows -- the picture actions stay 0-1
+because `FX` does. Each half matches the verb it drives rather than the module
+picking one notation and quietly converting.
+
 ## 2026-09-12 - v0.99.356 (a cue has a sound as well as a look)
 
 **Every cue now carries an audio chain, the way it already carried a picture

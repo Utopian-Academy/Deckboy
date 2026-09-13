@@ -369,6 +369,84 @@ export function buildActions(self) {
 			options: [],
 			callback: () => send('FX CLEAR'),
 		},
+
+		// -- Audio effects ---------------------------------------------------
+		// The ear's half of the block above, and deliberately the same shape:
+		// one action per control, the slot addressed by its 1-based position,
+		// which is what AUDIOFX prints when you read the chain back.
+		//
+		// Amounts and parameters are PERCENTAGES here, because that is what the
+		// verb takes and what the inspector shows. The picture actions above
+		// use 0-1 because FX does; mixing the two notations inside one module
+		// would be a trap, so each half matches the verb it drives.
+		audiofx_add: {
+			name: 'Add an audio effect',
+			description:
+				'Adds to the selected cue. Five of these follow the cue itself: picture, ' +
+				'placement, seam, framelock and suspend.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Effect',
+					id: 'effect',
+					default: 'comp',
+					choices: [
+						{ id: 'hpf', label: 'hpf' },
+						{ id: 'lpf', label: 'lpf' },
+						{ id: 'tilt', label: 'tilt' },
+						{ id: 'comp', label: 'comp' },
+						{ id: 'gate', label: 'gate' },
+						{ id: 'delay', label: 'delay' },
+						{ id: 'reverb', label: 'reverb' },
+						{ id: 'width', label: 'width' },
+						{ id: 'binaural', label: 'binaural' },
+						{ id: 'picture', label: 'picture' },
+						{ id: 'placement', label: 'placement' },
+						{ id: 'seam', label: 'seam' },
+						{ id: 'framelock', label: 'framelock' },
+						{ id: 'suspend', label: 'suspend' },
+					],
+				},
+				{ type: 'number', label: 'Amount %', id: 'amount', default: 100, min: 0, max: 100 },
+			],
+			callback: ({ options }) => send(`AUDIOFX ADD ${options.effect} ${options.amount}`),
+		},
+		audiofx_amount: {
+			name: 'Audio effect amount',
+			options: [
+				{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8 },
+				{ type: 'number', label: 'Amount %', id: 'value', default: 100, min: 0, max: 100 },
+			],
+			callback: ({ options }) => send(`AUDIOFX ${options.index} ${options.value}`),
+		},
+		audiofx_bypass: {
+			name: 'Bypass an audio effect',
+			description: 'Takes it out of the chain but keeps its settings.',
+			options: [
+				{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8 },
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'ON',
+					choices: [
+						{ id: 'ON', label: 'Bypassed' },
+						{ id: 'OFF', label: 'Active' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`AUDIOFX ${options.index} BYPASS ${options.state}`),
+		},
+		audiofx_remove: {
+			name: 'Remove an audio effect',
+			options: [{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8 }],
+			callback: ({ options }) => send(`AUDIOFX ${options.index} OFF`),
+		},
+		audiofx_clear: {
+			name: 'Clear the audio chain',
+			options: [],
+			callback: () => send('AUDIOFX CLEAR'),
+		},
 		fx_copy_paste: {
 			name: 'Copy or paste an effect chain',
 			description: 'The chain only — not geometry, fades or crop.',

@@ -172,6 +172,30 @@ test('VJ actions emit the expected commands', async () => {
 	assert.deepEqual(self.sent, ['VJ TAP', 'VJ BPM 124', 'VJ QUANTISE on', 'VJ DECKS 1 3'])
 })
 
+test('audio effect actions emit the expected commands', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+
+	await built.audiofx_add.callback({ options: { effect: 'comp', amount: 80 } })
+	assert.deepEqual(self.sent, ['AUDIOFX ADD comp 80'], 'add names the effect and a percent')
+
+	self.sent.length = 0
+	await built.audiofx_amount.callback({ options: { index: 2, value: 45 } })
+	assert.deepEqual(self.sent, ['AUDIOFX 2 45'], 'the slot is 1-based, as the read-back prints it')
+
+	self.sent.length = 0
+	await built.audiofx_bypass.callback({ options: { index: 3, state: 'ON' } })
+	assert.deepEqual(self.sent, ['AUDIOFX 3 BYPASS ON'])
+
+	self.sent.length = 0
+	await built.audiofx_remove.callback({ options: { index: 1 } })
+	assert.deepEqual(self.sent, ['AUDIOFX 1 OFF'])
+
+	self.sent.length = 0
+	await built.audiofx_clear.callback({ options: {} })
+	assert.deepEqual(self.sent, ['AUDIOFX CLEAR'])
+})
+
 test('effect actions emit the expected commands', async () => {
 	const self = stubInstance()
 	const built = buildActions(self)
