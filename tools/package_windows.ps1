@@ -169,8 +169,9 @@ if (Test-Path $DataSrc) {
     # The three packagers had also drifted apart — Linux stripped the crash and
     # soak logs and these two did not. One list, kept the same in all three.
     foreach ($StaleName in @("last_project.txt", "recent_projects.txt",
-                             "default.deckboy",
-                             "deckboy-crash.log", "deckboy-soak.log")) {
+                             "default.deckboy", "deckboy-first-run",
+                             "deckboy-crash.log", "deckboy-soak.log",
+                             "deckboy-show.log")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Force
@@ -187,7 +188,7 @@ if (Test-Path $DataSrc) {
     # output, gitignored, and never taught to ANY of the three packagers. Found
     # while building an isolated instance for demo capture -- a copied data/
     # brought both directories along.
-    foreach ($StaleDir in @("_converted", "recordings")) {
+    foreach ($StaleDir in @("_converted", "recordings", "updates")) {
         $StaleDirPath = Join-Path (Join-Path $StageDir "data") $StaleDir
         if (Test-Path $StaleDirPath) {
             $StaleMB = [math]::Round(((Get-ChildItem $StaleDirPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum) / 1MB)

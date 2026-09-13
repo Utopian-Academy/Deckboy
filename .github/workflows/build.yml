@@ -137,6 +137,14 @@ jobs:
       - name: No dead controls
         run: python3 tools/audit_actions.py --strict
 
+      # stateDir() is the only place the app writes, so anything it creates
+      # there describes the PACKAGING machine. That list has drifted three
+      # times -- a shipped show file, then recent_projects.txt, then
+      # _converted/ and recordings/ -- each time fixed with a comment saying
+      # "keep these in sync". Comments do not fail builds.
+      - name: Packagers strip everything the app writes
+        run: python3 tools/audit_packager_strip.py
+
   linux-build:
     name: Linux Build (Ubuntu)
     needs: version-check
