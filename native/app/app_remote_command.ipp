@@ -188,12 +188,18 @@
       return;
     }
     if (command == "DECKADD" || command == "NEWDECK") {
+      // AND THE MESSAGE ITSELF WAS FALSE. "single deck only" is not true: the
+      // app carries up to kMaxDecks and VJ mode adds the second precisely so
+      // there is something to mix. Only this verb cannot do it, so that is
+      // what it now says -- a refusal that misdescribes the app sends the
+      // caller looking for a limit that is not there, which is what happened.
+      //
       // UNDERSTOOD BUT CANNOT ACT, which is failRemoteCommand's whole purpose:
       // the operator still gets the toast and the caller gets the reason. This
       // answered a plain OK, so over the socket a refusal was indistinguishable
       // from success -- somebody drove it, believed decks were being created,
       // and concluded STATUS was lying about decks=1.
-      failRemoteCommand("single deck only");
+      failRemoteCommand("this verb cannot add a deck -- turn VJ mode on for a second");
       return;
     }
     if (command == "GO" || command == "TOGGLE") {
