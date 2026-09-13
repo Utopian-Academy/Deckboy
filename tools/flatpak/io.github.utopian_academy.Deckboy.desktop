@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Deckboy
+GenericName=Video Playback and Show Control
+Comment=Cue deck for live video
+Exec=deckboy %f
+Icon=io.github.utopian_academy.Deckboy
+Categories=AudioVideo;Video;Player;
+MimeType=application/x-deckboy-show;
+Keywords=playback;playout;cue;NDI;SRT;show control;live events;broadcast;
+Terminal=false
+StartupWMClass=Deckboy

@@ -1,0 +1,126 @@
+# Flatpak manifest for Deckboy.
+#
+# STATUS: DRAFT -- authored but NEVER BUILT. No machine available here has
+# flatpak-builder (WSL has cmake/g++/git/appstreamcli but installing more needs
+# sudo). Flatpak manifests essentially never build first try, so treat the
+# module list below as a researched starting point, not a working build.
+#
+# What IS verified:
+#   - the metainfo passes `appstreamcli validate` (1 pedantic note, see below)
+#   - runtime 25.08 is the current series (checked against flathub/org.videolan.VLC)
+#   - SDL 3.4 is Deckboy's floor (CMakeLists + docs); the runtime ships no SDL3,
+#     so it has to be built here
+#   - the ffmpeg tarball sha256 was checked by downloading it and hashing it,
+#     not copied from memory
+#
+# Open questions for the first real build:
+#   - ffmpeg: Deckboy uses libav IN-PROCESS *and* shells out to the ffmpeg /
+#     ffprobe BINARIES. The org.freedesktop.Platform.ffmpeg-full extension
+#     provides libraries, not the CLI, so ffmpeg is built as a module below to
+#     get the binaries. Confirm whether the extension alone can satisfy the
+#     in-process path and shrink this.
+#   - DeckLink and NDI are dlopen'd proprietary SDKs and are deliberately NOT
+#     bundled; they must degrade cleanly when absent inside the sandbox.
+#   - libltc is dlopen'd; the packagers bundle it, so it is built here too.
+---
+app-id: io.github.utopian_academy.Deckboy
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: deckboy
+
+finish-args:
+  # Display + input. SDL3 prefers Wayland and falls back to X11.
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+  # Audio.
+  - --socket=pulseaudio
+  # NDI, SRT, RTMP, ST 2110, OSC, Art-Net, NMOS and the Companion/TCP control
+  # port all need the network.
+  - --share=network
+  # MIDI controllers, Blackmagic cards and capture devices.
+  - --device=all
+  # Shows reference media anywhere on disk, and an operator picks files at will.
+  - --filesystem=host
+  # Playback must not be interrupted mid-show.
+  - --talk-name=org.freedesktop.ScreenSaver
+  - --talk-name=org.freedesktop.PowerManagement
+
+modules:
+  - name: sdl3
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DSDL_STATIC=OFF
+      - -DSDL_TESTS=OFF
+    sources:
+      - type: git
+        url: https://github.com/libsdl-org/SDL.git
+        tag: release-3.4.0
+
+  - name: sdl3_ttf
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DSDLTTF_SAMPLES=OFF
+      - -DSDLTTF_VENDORED=ON
+    sources:
+      - type: git
+        url: https://github.com/libsdl-org/SDL_ttf.git
+        tag: release-3.2.2
+
+  - name: libltc
+    buildsystem: autotools
+    sources:
+      - type: git
+        url: https://github.com/x42/libltc.git
+        tag: v1.3.2
+
+  - name: rtmidi
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DRTMIDI_BUILD_TESTING=OFF
+    sources:
+      - type: git
+        url: https://github.com/thestk/rtmidi.git
+        tag: 6.0.0
+
+  # Built for the ffmpeg / ffprobe BINARIES, which Deckboy invokes directly for
+  # conversion, probing and the subprocess decode fallback.
+  - name: ffmpeg
+    buildsystem: autotools
+    config-opts:
+      - --disable-debug
+      - --disable-doc
+      - --disable-static
+      - --enable-shared
+      - --enable-gpl
+      - --enable-version3
+      - --enable-libx264
+      - --enable-libvpx
+      - --enable-libopus
+      - --enable-libvorbis
+    sources:
+      - type: archive
+        url: https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz
+        sha256: 40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6
+
+  - name: deckboy
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DENABLE_DECKLINK=OFF
+    sources:
+      - type: dir
+        path: ../..
+    post-install:
+      - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml
+          /app/share/metainfo/io.github.utopian_academy.Deckboy.metainfo.xml
+      - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.desktop
+          /app/share/applications/io.github.utopian_academy.Deckboy.desktop
+      - install -Dm644 art/windows/icons/deckboy_app_master.png
+          /app/share/icons/hicolor/256x256/apps/io.github.utopian_academy.Deckboy.png
+      - install -Dm644 LICENSE /app/share/licenses/io.github.utopian_academy.Deckboy/LICENSE
