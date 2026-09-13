@@ -24,11 +24,27 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Files that become public text. A private note is not on this list.
-PUBLISHED = [ROOT / "CHANGES.md", ROOT / "README.md"]
+# Two tiers, because "published" is not one thing.
+#
+# EVERYTHING: any file whose text leaves the building. A leak here is a leak
+# whenever it was written, so the changelog is in even though it is history.
+PUBLISHED = [ROOT / "CHANGES.md", ROOT / "README.md", ROOT / "MANUAL.md"]
 PUBLISHED += sorted(ROOT.glob("docs/*.md"))
+# The Pages site itself -- the pages a search engine reads, and the ones that
+# were not being checked at all.
+PUBLISHED += sorted(ROOT.glob("docs/*.html"))
 
-# What must never appear in them. Each is a phrase that tells a reader HOW to
+# THE FRONT DOOR: what a person reads to find out what Deckboy is. The rule is
+# stricter here, because merely naming a hidden thing in current documentation
+# is enough to give it away -- someone reading the manual is not doing
+# archaeology, they are being told what the app has. The changelog and the
+# internal engineering notes under docs/ are deliberately NOT in this list: a
+# changelog records what happened, and the plan documents are excluded from the
+# site by docs/_config.yml.
+FRONT_DOOR = {ROOT / "README.md", ROOT / "MANUAL.md"}
+FRONT_DOOR |= set(ROOT.glob("docs/*.html"))
+
+# What must never appear anywhere. Each is a phrase that tells a reader HOW to
 # reach something hidden, or that there is something hidden to reach.
 FORBIDDEN = [
     (r"konami", "names the door to a hidden feature"),
@@ -40,6 +56,16 @@ FORBIDDEN = [
     (r"secret (code|key|sequence|combination)", "points at a hidden input"),
 ]
 
+# What must never appear in the front door, on top of the above. The manual
+# listed Terrarium among the test patterns as "a hidden ecosystem simulation,
+# unlocked per-save as a secret" -- the whole thing in one sentence, on the page
+# the metainfo points at as the help URL.
+FRONT_DOOR_FORBIDDEN = [
+    (r"terrarium", "names the hidden feature in current documentation"),
+    (r"hidden (feature|mode|pattern|simulation|ecosystem)", "announces a hidden thing"),
+    (r"unlocked? per[- ]save", "explains how the hidden thing is kept"),
+]
+
 
 def main() -> int:
     problems = 0
@@ -49,8 +75,9 @@ def main() -> int:
             continue
         scanned += 1
         text = path.read_text(encoding="utf-8", errors="replace")
+        rules = FORBIDDEN + (FRONT_DOOR_FORBIDDEN if path in FRONT_DOOR else [])
         for lineno, line in enumerate(text.splitlines(), 1):
-            for pattern, why in FORBIDDEN:
+            for pattern, why in rules:
                 if re.search(pattern, line, re.IGNORECASE):
                     print(f"{path.name}:{lineno}: {why}")
                     print(f"    {line.strip()[:100]}")

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deckboy Manual | Cue-based video playback and show control</title>
+    <meta name="description" content="The complete Deckboy manual: cues and decks, transport and transitions, NDI, SRT, SDI and SMPTE ST 2110 outputs, warp and edge blend, per-cue effects, audio, timecode, themes, remote control and the full keyboard reference.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/manual.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Deckboy Manual">
+    <meta property="og:description" content="Every part of Deckboy, written down: cues, decks, outputs, routing, effects, audio, timecode, themes and remote control.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/manual.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Deckboy Manual">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 860px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 3rem 0 .7rem; font-size: 1.3rem; color: var(--ink);
+                    scroll-margin-top: 5rem; }
+        .prose h3 { margin: 2rem 0 .5rem; font-size: 1.05rem; color: var(--ink);
+                    scroll-margin-top: 5rem; }
+        .prose h2 .anchor { color: inherit; text-decoration: none; }
+        .prose p, .prose li { color: var(--ink-soft); }
+        .prose p { margin-bottom: 1rem; }
+        .prose ul, .prose ol { margin: 0 0 1rem 1.25rem; }
+        .prose li { margin-bottom: .4rem; }
+        .prose code { background: var(--dmg-dark); padding: .12em .4em;
+                      font-size: .9em; }
+        .prose pre { background: var(--dmg-dark); padding: 1rem 1.1rem;
+                     overflow-x: auto; margin-bottom: 1.25rem; }
+        .prose pre code { background: none; padding: 0; font-size: .86em;
+                          line-height: 1.55; }
+        .prose blockquote { margin: 0 0 1rem; padding-left: 1rem;
+                            border-left: 3px solid var(--dmg-dark); }
+        .table-scroll { overflow-x: auto; margin-bottom: 1.25rem; }
+        .prose table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+        .prose th, .prose td { text-align: left; padding: .45rem .7rem;
+                               border-bottom: 1px solid var(--dmg-dark);
+                               color: var(--ink-soft); vertical-align: top; }
+        .prose th { color: var(--ink); white-space: nowrap; }
+        .toc { display: grid; gap: .3rem .9rem; margin: 0 0 3rem;
+               grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+               list-style: none; padding: 0; }
+        .toc li { margin: 0; }
+        .toc a { color: var(--ink-soft); text-decoration: none; font-size: .92rem; }
+        .toc a:hover { color: var(--ink); }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Deckboy Manual",
+      "description": "The complete operating manual for Deckboy, an open-source cue-based media playback and show control application for live video.",
+      "url": "https://utopian-academy.github.io/Deckboy/manual.html",
+      "inLanguage": "en",
+      "about": {
+        "@type": "SoftwareApplication",
+        "name": "Deckboy",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Windows 10, Windows 11, macOS 12, Linux",
+        "url": "https://utopian-academy.github.io/Deckboy/"
+      },
+      "author": { "@type": "Organization", "name": "Utopian Academy" },
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html"
+    }
+    </script>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="min-height:auto;padding-top:4rem;padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>Manual</h1>
+            <p class="hero-subtitle">Everything Deckboy does, and how to make it do it.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <ul class="toc">
+            <li><a href="#concepts">1. Concepts</a></li>
+            <li><a href="#running-deckboy">2. Running Deckboy</a></li>
+            <li><a href="#startup">3. Startup</a></li>
+            <li><a href="#interface-layout">4. Interface Layout</a></li>
+            <li><a href="#cue-types">5. Cue Types</a></li>
+            <li><a href="#importing-adding-cues">6. Importing &amp; Adding Cues</a></li>
+            <li><a href="#the-cue-inspector">7. The Cue Inspector</a></li>
+            <li><a href="#transport">8. Transport</a></li>
+            <li><a href="#playlists-loop-shuffle-cue-endings">9. Playlists, Loop, Shuffle &amp; Cue Endings</a></li>
+            <li><a href="#transitions">10. Transitions</a></li>
+            <li><a href="#multi-deck-operation">11. Multi-Deck Operation</a></li>
+            <li><a href="#outputs-routing">12. Outputs &amp; Routing</a></li>
+            <li><a href="#recording">13. Recording</a></li>
+            <li><a href="#per-cue-effects">14. Per-Cue Effects</a></li>
+            <li><a href="#the-code-source">14a. The Code Source</a></li>
+            <li><a href="#output-geometry-aoi-warp-edge-blend">15. Output Geometry: AOI, Warp, Edge Blend</a></li>
+            <li><a href="#overlays-pip-lower-thirds">16. Overlays: PiP &amp; Lower Thirds</a></li>
+            <li><a href="#audio">17. Audio</a></li>
+            <li><a href="#test-patterns">18. Test Patterns</a></li>
+            <li><a href="#timecode-chase">19. Timecode &amp; Chase</a></li>
+            <li><a href="#show-files-bundling-missing-media">20. Show Files, Bundling &amp; Missing Media</a></li>
+            <li><a href="#themes">21. Themes</a></li>
+            <li><a href="#remote-control">22. Remote Control</a></li>
+            <li><a href="#reliability-soak-testing">23. Reliability &amp; Soak Testing</a></li>
+            <li><a href="#keyboard-reference">24. Keyboard Reference</a></li>
+            <li><a href="#command-line-flags">25. Command-Line Flags</a></li>
+        </ul>
+
+        <h2 id="concepts"><a href="#concepts" class="anchor">1. Concepts</a></h2>
+        <ul><li><strong>Cue</strong> — one playable item (a video, image, pattern, live source, overlay, composite, or audio file) with its own trim, fades, geometry, and audio trim.</li><li><strong>Deck</strong> — an ordered playlist of cues with its own transport (play/stop/ seek), loop/shuffle mode, and default cue behaviour. Deckboy supports multiple decks.</li><li><strong>Output</strong> — a destination with its own window/compositor: a fullscreen display, an NDI/DeckLink/Spout sender, or a network stream. Outputs are separate from decks.</li><li><strong>Layer assignment</strong> — the mapping of decks onto outputs. Several decks can stack on one output; one deck can drive several outputs.</li><li><strong>Program</strong> vs <strong>Preview</strong> — the program monitor shows what is live on the focused deck; the cue list selection is what you are <em>about</em> to take.</li></ul>
+        <p>The operating loop is: select a cue → <strong>Take</strong> it (Enter) → it goes live on the deck's output(s), honouring its fade/transition → it ends per its end action (stop, hold, loop, or auto-advance to the next cue).</p>
+        <h2 id="running-deckboy"><a href="#running-deckboy" class="anchor">2. Running Deckboy</a></h2>
+        <p><strong>Windows (primary):</strong> launch <code>Deckboy.exe</code>. It resolves its <code>data/</code> directory by walking up from the executable, so run it from the build/dist folder that contains <code>data/</code>.</p>
+        <p><strong>Build from source (Windows):</strong></p>
+        <pre><code>cd native
+cmake -B ../build/windows -G "Visual Studio 17 2022" -A x64 ^
+  -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build ../build/windows --config Release</code></pre>
+        <p>The binary lands at <code>build/windows/Release/Deckboy.exe</code>.</p>
+        <p>Optional runtime dependencies are loaded dynamically and only needed for the matching feature: the NDI SDK (<code>Processing.NDI.Lib.x64.dll</code>) for NDI in/out, the Blackmagic DeckLink SDK for DeckLink output, Spout for texture sharing, and WebView2 for browser cues. Run <code>Deckboy.exe --self-check</code> to see what is detected.</p>
+        <h2 id="startup"><a href="#startup" class="anchor">3. Startup</a></h2>
+        <p>On launch Deckboy shows a startup card with the <strong>Deckboy</strong> wordmark, a version line, and a short boot log while backends come up. Press <strong>Enter</strong> to dismiss it and start.</p>
+        <p>Deckboy reopens the last show automatically. Set <code>DECKBOY_PROJECT=C:\path\show.deckboy</code> to force a specific show, or <code>DECKBOY_THEME=&lt;name&gt;</code> to force a colourway at launch.</p>
+        <p>A single-instance lock prevents accidental duplicate launches; use <code>--allow-multi-instance</code> to override it (debugging only).</p>
+        <h2 id="interface-layout"><a href="#interface-layout" class="anchor">4. Interface Layout</a></h2>
+        <p>The control window is split into:</p>
+        <ul><li><strong>Toolbar</strong> (top): <code>NEW</code>, <code>OPEN</code>, <code>SAVE</code>, <code>BUNDLE</code>, and — only when media is missing — a red <code>RELINK</code> button; loop/shuffle mode toggles; the master volume fader; and fullscreen / blackout controls.</li><li><strong>Playlist column</strong> (left): the focused deck's cue list. Each row shows cue number, type, name, duration/end action, a colour-tag chip, and quick action icons (fade in/out, loop, hold, audio). The live cue, the queued next cue, and the selection are highlighted distinctly.</li><li><strong>Timeline &amp; transport</strong> (centre): the program monitor, the video/audio lanes with the playhead and in/out trim, and the transport buttons.</li><li><strong>Cue Inspector</strong> (right): all settings for the selected cue, in collapsible sections. Drag the splitter between the program area and the inspector to resize.</li></ul>
+        <p>Two draggable dividers let you rebalance the layout: the vertical splitter between the program area and the inspector, and a horizontal grip in the gap under the program monitor — drag it up to shrink the preview and enlarge the timeline lanes, down to give the height back.</p>
+        <ul><li><strong>Monitors window</strong> (separate): per-output preview and routing.</li></ul>
+        <h2 id="cue-types"><a href="#cue-types" class="anchor">5. Cue Types</a></h2>
+        <div class="table-scroll"><table><thead><tr><th>Type</th><th>Source</th></tr></thead><tbody><tr><td><strong>Video</strong></td><td>A video file (any FFmpeg-readable container/codec, incl. HAP, ProRes, H.264/265 hardware-decoded)</td></tr><tr><td><strong>Image</strong></td><td>A still (held for a set duration or until taken away)</td></tr><tr><td><strong>Pattern</strong></td><td>A generated test pattern (see §18)</td></tr><tr><td><strong>Browser</strong></td><td>A live web page rendered via WebView2 (Windows)</td></tr><tr><td><strong>Window / Screen</strong></td><td>Desktop window or screen capture</td></tr><tr><td><strong>Camera</strong></td><td>A capture device</td></tr><tr><td><strong>Syphon / Spout</strong></td><td>A shared GPU texture from another app</td></tr><tr><td><strong>Stream (SRT)</strong></td><td>A live network input — <code>cue.path</code> is the full URL (<code>srt://</code>, <code>rtmp://</code>, <code>rtsp://</code>, <code>udp://</code>)</td></tr><tr><td><strong>NDI Source</strong></td><td>An NDI receive input — <code>ndi://SOURCE_NAME</code></td></tr><tr><td><strong>PiP</strong></td><td>Picture-in-picture overlay of another cue/source</td></tr><tr><td><strong>Lower Third</strong></td><td>Text overlay bar</td></tr><tr><td><strong>Composite</strong></td><td>A multi-slot scene (2-up, quad, 70/30, etc.)</td></tr><tr><td><strong>Audio</strong></td><td>An audio-only file with a waveform lane</td></tr><tr><td><strong>Tone</strong></td><td>A generated audio test tone, with optional on-screen diagnostics</td></tr><tr><td><strong>Timer</strong></td><td>A stage/speaker countdown with its own clock, thresholds, chimes and messages</td></tr><tr><td><strong>Video Synth</strong></td><td>Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets</td></tr><tr><td><strong>Synth</strong></td><td>A playable chip voice (2A03 / FDS), driven from MIDI or the computer keyboard</td></tr><tr><td><strong>Code</strong></td><td>A live-coded picture: an expression evaluated per pixel, edited while it runs (see §14a)</td></tr></tbody></table></div>
+        <h2 id="importing-adding-cues"><a href="#importing-adding-cues" class="anchor">6. Importing &amp; Adding Cues</a></h2>
+        <ul><li><strong>Import media:</strong> press <code>I</code> or <code>Import</code>, or drag files onto the window. Metadata is probed asynchronously (<code>probing…</code> shows on the row until done).</li><li><strong>Add a source cue:</strong> the SOURCE menu adds stream, NDI, camera, window, browser, PiP, lower-third, and composite cues.</li><li><strong>Add a pattern:</strong> press <code>P</code> or use the pattern menu.</li></ul>
+        <p>New cues inherit the deck's playlist defaults (fade lengths, loop, pause behaviour, audio-enabled). Reorder by dragging; multi-select with Shift/Ctrl; copy/paste cue settings with <code>Ctrl+C</code> / <code>Ctrl+V</code>.</p>
+        <h2 id="the-cue-inspector"><a href="#the-cue-inspector" class="anchor">7. The Cue Inspector</a></h2>
+        <p>The inspector edits the selected cue in collapsible sections. Most numeric rows have <code>−</code>/<code>+</code> steppers, are drag-to-scrub, and click-to-type an exact value.</p>
+        <ul><li><strong>PLAYBACK</strong> — loop &amp; loop count, hold last frame, pause at start, playback speed (0.25–4×, pitch-corrected audio), fade in/out, in/out trim, pause points, end action, goto target, next-transition toggle.</li><li><strong>AUDIO</strong> — per-cue gain, pan, mono, independent audio fades, loudness normalize, and output-pair routing (see §17).</li><li><strong>GEOMETRY</strong> — scale mode (fit/fill/stretch/unscaled), scale, offset, crop, rotation, and colour controls (brightness/contrast/saturation/hue).</li><li><strong>KEY</strong> — chroma key colour, tolerance, and softness.</li><li>Metadata — cue number, name, colour tag, notes.</li></ul>
+        <p>Values apply live where possible (fades, audio trim, geometry) without reloading the decode.</p>
+        <h2 id="transport"><a href="#transport" class="anchor">8. Transport</a></h2>
+        <div class="table-scroll"><table><thead><tr><th>Action</th><th>Key</th></tr></thead><tbody><tr><td>Take selected cue live</td><td><code>Enter</code></td></tr><tr><td>Play / Pause</td><td><code>Space</code></td></tr><tr><td>Stop active cue</td><td><code>S</code></td></tr><tr><td>Rerack (rewind to first frame, hold)</td><td><code>Ctrl+R</code></td></tr><tr><td>Skip ±10 s</td><td><code>Left</code> / <code>Right</code></td></tr><tr><td>Skip to start / end</td><td><code>Home</code> / <code>End</code></td></tr><tr><td>Set in / out point at playhead</td><td><code>Ctrl+I</code> / <code>Ctrl+O</code></td></tr></tbody></table></div>
+        <p>Click or drag the timeline lanes to seek. When a cue has audio, the video position slaves to the audio device clock, so long-form and variable-frame-rate playback stay in sync.</p>
+        <h2 id="playlists-loop-shuffle-cue-endings"><a href="#playlists-loop-shuffle-cue-endings" class="anchor">9. Playlists, Loop, Shuffle &amp; Cue Endings</a></h2>
+        <p>Each cue's <strong>end action</strong> decides what happens when it finishes:</p>
+        <ul><li><strong>Stop</strong> — go to black (or hold, if hold-last-frame is set).</li><li><strong>Loop</strong> — repeat (respecting the loop count, 0 = infinite).</li><li><strong>Hold</strong> — freeze on the last frame.</li><li><strong>Auto-Next</strong> — advance to the next playable cue.</li><li><strong>Goto</strong> — jump to a specific cue number.</li></ul>
+        <p>Deck modes (toolbar toggles):</p>
+        <ul><li><strong>Loop playlist</strong> — after the last cue, wrap to the first.</li><li><strong>Shuffle</strong> — auto-advance picks a random other cue. The shuffle generator is seeded from a real entropy source at launch, so the order differs every run.</li></ul>
+        <p>Missing cues are skipped on auto-advance so a single missing file can't stop the show (see §20).</p>
+        <h2 id="transitions"><a href="#transitions" class="anchor">10. Transitions</a></h2>
+        <p>Cue-to-cue transitions are set at the deck level and can be overridden per cue:</p>
+        <ul><li><strong>Cut</strong> — instant.</li><li><strong>Crossfade</strong> — alpha blend over the transition time.</li><li><strong>Dip to black</strong> — fade down, then up.</li></ul>
+        <p>Set the deck default in the playlist settings; override on a cue in its PLAYBACK section. The incoming cue's fade-in is the visible ramp on the output path. <code>next xfade</code> on a cue toggles whether a transition is used when auto-advancing into the next cue.</p>
+        <h2 id="multi-deck-operation"><a href="#multi-deck-operation" class="anchor">11. Multi-Deck Operation</a></h2>
+        <p>Multiple decks each have independent transport and playlists. Assign decks to outputs via layer assignments; deck opacity and auto-fade let stacked decks mix on a shared output. The focused deck is the one the keyboard/transport act on.</p>
+        <h3 id="vj-mode">VJ mode</h3>
+        <p>A toggle. Off, Deckboy is a cue deck and every show behaves exactly as it always has. On, <strong>two decks run at once and a crossfader decides what the audience sees</strong> — and it is impossible to enter by accident: the whole window is edged in a colour used nowhere else, breathing on the beat, and a bar across the program column carries the controls.</p>
+        <ul><li><strong>Crossfader</strong> between deck A and deck B, folded into the opacity each deck already had — so a deck faded down or mid cue-fade stays faded down.</li><li><strong>Blend</strong>: dissolve, add or multiply. On a dissolve both decks fade (they are drawn over black, so holding A up until B covered it would be a wipe); on add and multiply the base stays at full and only the incoming deck rides the fader.</li><li><strong>Tap tempo</strong>, averaged over recent taps rather than the last interval — nobody taps evenly. Taps more than two seconds apart start again.</li><li><strong>Quantised takes</strong> hold until the next beat. The point of tempo in a video mixer is not that anything moves by itself, it is that <strong>what you do lands on the music</strong>.</li><li>Both playlists are on screen side by side, each headed with which side of the crossfader it is, and A, the mix, and B each get their own monitor — a crossfader you cannot see both sides of is a blind control.</li></ul>
+        <p><code>VJ ON|OFF | MIX &lt;0-1&gt; | BLEND &lt;dissolve|add|multiply&gt; | TAP | BPM &lt;n&gt; | QUANTISE &lt;on|off&gt; | DECKS &lt;a&gt; &lt;b&gt; | STATUS</code> over the wire, because a fader is the one control nobody wants to reach for with a mouse.</p>
+        <h2 id="outputs-routing"><a href="#outputs-routing" class="anchor">12. Outputs &amp; Routing</a></h2>
+        <p>Outputs are managed in the Monitors window and <code>Settings → Video Outputs</code>. Each output is one of:</p>
+        <ul><li><strong>Window</strong> — a fullscreen (or windowed) display. Toggle the output window with <code>N</code>, fullscreen with <code>F</code>. Fullscreen recovery automatically re-raises a program output that gets minimised or lost, with strike-based backoff.</li><li><strong>NDI</strong> — network video send (optionally with a separate key/alpha source).</li><li><strong>DeckLink</strong> — SDI/HDMI out via a Blackmagic card.</li><li><strong>Spout / Syphon</strong> — share the output as a GPU texture to another app.</li><li><strong>Stream</strong> — push SRT/RTMP to a URL.</li></ul>
+        <p>Per output you can set alpha, delay, colour space, orientation (0/90/180/270), a test card, and a time overlay. <code>Blackout</code> (<code>B</code>) dims all outputs; panic profiles give a one-key safe state.</p>
+        <h2 id="recording"><a href="#recording" class="anchor">13. Recording</a></h2>
+        <p>The program output can be written to a file while the show runs. <code>RECORD</code> sits on the button bar in the OUTPUT group; it pulses while armed and shows the running file size. Recordings land in <code>Settings → Recording → Destination</code>, which is deliberately separate from the encode queue's output folder.</p>
+        <p><strong>The recording is its own standard.</strong> Raster and rate are set independently of the programme, and both default to <em>following the input</em> — a recording should look like what went in unless you say otherwise. Ask for something smaller and the composite is scaled on the GPU before it is read back, so a 1080 recording off a 4K programme moves a quarter of the bytes.</p>
+        <p>Rates are exact where broadcast says they are exact: 23.976 is 24000/1001, and the file carries it that way.</p>
+        <p><strong>Timecode.</strong> Start at a value, at time of day, or at zero. Drop-frame, non-drop, or auto — auto picks DF at 29.97 and 59.94 and NDF everywhere else, which is the correct answer. Drop-frame skips two timecode <em>numbers</em> a minute (except every tenth minute) so the count keeps pace with the wall clock; it never drops a picture.</p>
+        <p><strong>Codecs.</strong> H.264 and HEVC for a viewing copy; ProRes (LT, 422, HQ, 4444) and DNxHR (LB, SQ, HQ, HQX) for delivery, written to <code>.mov</code> at the right pixel format.</p>
+        <p><strong>Segmentation.</strong> Roll to a new file every N minutes or N megabytes. A 3.8 GB ceiling always applies, so a FAT32 card cannot silently truncate a take.</p>
+        <p><strong>If it cannot keep up, it says so.</strong> The file must contain exactly <code>rate × elapsed</code> frames — an encoder stamps by arrival order, so a shortfall does not slow the file down, it <em>shortens</em> it. Deckboy counts what is owed, repeats the last picture to cover a gap, and raises <code>RECORDING DROPPING FRAMES</code> on the output health state, as a toast, and in the show log if it falls behind. A recording that runs short will never look healthy.</p>
+        <p><strong>On stop</strong>, a fragmented recording is remuxed into a normal MP4. A power cut therefore leaves a playable file, and a clean stop leaves a tidy one.</p>
+        <p><strong>Platform note.</strong> The frame leaves the GPU asynchronously on every platform: Windows through a D3D11 staging ring, macOS and Linux through SDL_GPU's texture download (Metal and Vulkan underneath), which is why output windows there ask for the <code>gpu</code> renderer. Set <code>DECKBOY_OUTPUT_RENDERER=&lt;driver&gt;</code> to override that choice if a driver misbehaves.</p>
+        <p>Whether a given machine sustains 4K60 then comes down to its decoder and encoder, not to the recording path — and the dropped-frame alarm will say so if it does not.</p>
+        <p>Over the wire: <code>RECORD [on|off|toggle]</code>, <code>RECFORMAT &lt;WxH|program&gt; [fps|program]</code>, <code>RECCODEC &lt;token&gt;</code>, <code>RECTC &lt;hh:mm:ss:ff|timeofday&gt; [df|ndf|auto]</code>, <code>RECSEGMENT &lt;minutes&gt; [megabytes]</code>.</p>
+        <h2 id="per-cue-effects"><a href="#per-cue-effects" class="anchor">14. Per-Cue Effects</a></h2>
+        <p>Each cue carries an ordered <strong>effect stack</strong>, built in the inspector's EFFECTS section and saved with the show. Effects run in the order you arrange them, and order is part of the effect — posterise then invert is not invert then posterise. Each row has the amount (nudge, drag to scrub, hold shift for fine, or click the value to type an exact number), the effect's own parameters underneath, and a row for changing the effect, moving it up or down, and removing it. <strong>copy chain</strong> / <strong>paste chain</strong> move a whole look between cues without dragging geometry, fades or crop along with it.</p>
+        <p>Effects work on <strong>every kind of cue</strong> — video, stills, patterns, cameras, NDI, streams and the code source. Everything costs nothing at amount zero, and <strong>bypass</strong> is not the same as amount zero: turning an effect down loses the setting you spent time on, bypass takes it out of the chain and gives it back.</p>
+        <h3 id="the-stack">The stack</h3>
+        <div class="table-scroll"><table><thead><tr><th>Effect</th><th>What it does</th></tr></thead><tbody><tr><td>invert, posterise, solarise, threshold</td><td>Level shaping, each with a pivot and a channel skew</td></tr><tr><td>vignette, scanlines, grain</td><td>The classic framing and texture set</td></tr><tr><td>RGB split</td><td>Channel offset with an angle</td></tr><tr><td>temporal dither</td><td>See below</td></tr><tr><td>pixel sort, block glitch, datamosh</td><td>Glitch: sorted runs, torn bands, and real codec smear</td></tr><tr><td>polar warp, luma displace, ripple, kaleidoscope</td><td>Geometry</td></tr><tr><td>lightspeed</td><td>Relativistic aberration: field-of-view compression and Doppler shift</td></tr><tr><td>dye advect, reaction bloom</td><td>Fluid: curl-noise advection, and Gray–Scott growth</td></tr><tr><td>caustics</td><td>Refraction <em>and</em> the light gathering — see below</td></tr><tr><td>feedback</td><td>A controlled camera-into-monitor loop</td></tr><tr><td>motion puppet</td><td>Driven by another clip's movement</td></tr><tr><td>schlieren, chladni, wavefront, crystallise, night eyes, grain flow</td><td>See below</td></tr></tbody></table></div>
+        <p>Every effect fits inside a 60fps frame at 1080p; <code>--effect-bench &lt;token&gt;</code> reports what any of them costs on your machine.</p>
+        <h3 id="the-six-that-are-not-in-anything-else">The six that are not in anything else</h3>
+        <p><strong>Schlieren</strong> is the instrument physicists photograph air with. You cannot see a shockwave or the heat off a road, but light bent by a density gradient can be passed or blocked by a knife edge at the focus, which turns an invisible gradient into brightness. Here the picture is the density field. Rotating the knife changes <em>which features exist at all</em> — gradients along the edge miss it entirely — and that is what makes it read as an instrument rather than a filter.</p>
+        <p><strong>Chladni</strong> is the shape a sound makes. Sand on a bowed metal plate runs away from everything that is moving and piles up on the lines standing still. Your picture is the sand. The two mode numbers are the note: whole numbers give the clean classical figures, and between them the plate is being driven at a frequency it does not want.</p>
+        <p><strong>Wavefront</strong> solves the actual wave equation, seeded from the picture's own brightness — so unlike every sine-based ripple it has <em>inertia</em>. Waves leave their source and keep going, pass through each other and interfere, and reflect off the edges of the frame and come back.</p>
+        <p><strong>Crystallise</strong> is grain growth, not a mosaic. Crystals nucleate at scattered points and grow until they collide, so the cell a pixel lands in is the one whose seed reached it first — and because the seeds grow at <em>different speeds</em> the result is the irregular shard structure of a polished metal section rather than a honeycomb. Each grain gets a facet normal, so the light catches it.</p>
+        <p><strong>Night eyes</strong> is your own retina. Rods are fast and colour-blind, cones are slow and need light, so in the dark the brightness runs at full speed and the <strong>colour lags behind it</strong>: move something and it goes grey as it moves, its colour catching up a moment later. The purkinje control is the other half — as the rods take over, sensitivity slides toward blue, which is the real reason night looks blue.</p>
+        <p><strong>Grain flow</strong> smears the picture along its own grain. The direction comes from the structure tensor — the direction in which each neighbourhood changes least, which is <em>along</em> a feature rather than across it — so strokes run along a hair, around a jaw, down the length of a shadow. Flat areas are left alone; turn "across the grain" up and it combs the picture apart instead.</p>
+        <h3 id="how-many-effects-is-too-many">How many effects is too many</h3>
+        <p>A cue holds up to <strong>twelve</strong> effects, but the count is the wrong thing to watch: a dozen cheap ones are free and four expensive ones at 4K are not. So the EFFECTS section shows what the chain <strong>actually costs per frame</strong>, measured on your machine at your raster, once the cue has been live. A 60fps frame is 16.7ms; over that, it says so.</p>
+        <p>If you do go over, nothing breaks and nothing drifts. <strong>Audio is the master clock</strong>, so sound continues in real time and the picture slaves to it — you lose frames, not sync, and the show stays where it should be. The output fps counter (toggle it on the output bar) and <code>output_fps</code> in a <code>STATUS</code> reply both show it happening.</p>
+        <p>Cheapest ways back under budget, in order: drop the output raster (almost everything here scales with pixel count), bypass rather than delete while you find the culprit, and check the expensive ones first — <code>--effect-bench &lt;token&gt; 3840x2160</code> will tell you what any of them costs on your hardware.</p>
+        <h3 id="an-lfo-on-any-parameter">An LFO on any parameter</h3>
+        <p>Every parameter — and the effect's amount — has a <strong><code>~</code></strong> at the right of its row. Switch it on and that parameter moves on its own, with shape, rate and depth on the line underneath.</p>
+        <ul><li><strong>Shapes</strong>: sine, triangle, saw, ramp, square, and sample-and-hold (one random value per cycle, held — and repeatable, so the same moment of the show always gives the same value).</li><li><strong>Locked to the tempo</strong> or free-running. Locked, the cycle is measured in beats and follows the VJ tap tempo, so what moves is on the music.</li><li>The swing is <strong>centred on the value you set</strong>, so switching an LFO on never jumps the picture — it starts from where the parameter already was and averages back to it.</li></ul>
+        <p><code>FX LFO &lt;n&gt; &lt;A-E&gt; on|off|shape|rate|depth|phase|sync|beats [value]</code> does the same over the wire, where <code>E</code> is the amount.</p>
+        <h3 id="two-worth-trying-on-their-own">Two worth trying on their own</h3>
+        <p><strong>Temporal dither</strong> quantises hard to a tiny palette but advances the dither pattern every frame, so at 60Hz your eye integrates shades that are not in the palette at all — and it freezes into a visible checkerboard the moment you pause the deck. The still and the moving image are deliberately different pictures.</p>
+        <p><strong>Caustics</strong> computes what water does to the <em>light</em>, not just how it bends the picture. Where neighbouring rays are pushed together the brightness piles up, and those bright filaments are the moving net you see on the floor of a pool. Displacement alone is a wobble; the focusing is what the eye reads as water.</p>
+        <h3 id="motion-puppet">Motion puppet</h3>
+        <p><strong>Motion puppet</strong> drives this cue's pixels with a <em>different</em> clip's movement. Choose a driver in the EFFECTS section: that clip is decoded only for the per-macroblock motion vectors its codec already measured — its pictures are never shown — and those vectors displace this cue. A camera feed can be puppeteered by a crowd scene.</p>
+        <p>Its <strong>memory</strong> and <strong>spring</strong> decide how the displacement accumulates: memory is how much each frame's motion adds to what is already there, spring how fast it returns to rest. Both are needed — memory alone runs away, a return alone never builds. At memory 0 it follows a single frame's vectors, which is what it did before it had the control.</p>
+        <p>A driver is only as good as its motion. <code>Deckboy --motion-probe &lt;file&gt;</code> reports what a clip offers before you commit to it: a mostly static clip moves a couple of percent of its cells and will do nothing visible, while something with whole-frame movement moves half of them and is violent. A keyframe carries no vectors at all, so the picture is briefly left alone — that is the codec, not a fault.</p>
+        <h2 id="the-code-source"><a href="#the-code-source" class="anchor">14a. The Code Source</a></h2>
+        <p><strong>SOURCE → Code (live expression)</strong> makes a cue whose picture <em>is</em> an expression, evaluated once per pixel and edited while it runs.</p>
+        <p>sin(x*8+t)*0.5+0.5, sin(y*8+t*1.3)*0.5+0.5, sin((x+y)*8-t)*0.5+0.5</p>
+        <p>One expression, or three separated by commas for red, green and blue. The values available are <code>x</code> <code>y</code> (0-1 across the frame), <code>cx</code> <code>cy</code> (-1..1 from the centre), <code>r</code> (distance from the centre), <code>a</code> (angle) and <code>t</code> (seconds), with <code>sin cos tan abs floor fract sqrt min max mod pow atan2 step clamp mix</code> and <code>pi</code> to build from.</p>
+        <p>The cue inspector's <strong>CODE</strong> section opens the editor. It is syntax coloured — functions, values, numbers, brackets, operators and the commas that split the channels each have their own colour, and <strong>a name the compiler will refuse is red while you type it</strong>. Click into the text to place the cursor; click any value or function to insert it (a function arrives with its brackets and the cursor already inside). Ten worked examples are one click each, and a friend in the corner tells you what the name under your pointer does.</p>
+        <p><strong>A compile error never blacks the output.</strong> The cue keeps drawing the last expression that worked and the error appears in the editor. Someone editing live is mid-keystroke most of the time.</p>
+        <p>Division by zero, mod by zero and the square root of a negative are all bounded rather than producing infinities, because an operator typing at speed will produce all three.</p>
+        <p>Not GLSL, deliberately: Deckboy draws through SDL_Renderer, whose backend is D3D11, D3D12, Metal or OpenGL depending on the machine, and accepting GLSL at runtime everywhere would mean bundling a shader compiler to run arithmetic that fits in a few hundred lines. It is evaluated on the CPU, which is viable for the same reason the effect stack is: the frame splits across cores.</p>
+        <p><code>CODE GET | CODE SET &lt;expression&gt; | CODE EDIT</code> over the wire.</p>
+        <h3 id="caption-formats">Caption formats</h3>
+        <p>Captions load from <strong>SubRip</strong> (<code>.srt</code>), <strong>WebVTT</strong> (<code>.vtt</code>), <strong>SCC</strong> (<code>.scc</code>) and <strong>TTML/DFXP</strong> (<code>.ttml</code>, <code>.dfxp</code>) — whichever a job arrives in.</p>
+        <p>SCC is the broadcast one: not text with timestamps but the CEA-608 byte pairs an encoder would put on line 21, written as hex against drop-frame timecode. Deckboy decodes it, including the distinction between drop-frame and non-drop — the two differ by 3.6 seconds an hour, which is a caption on the wrong shot.</p>
+        <p><code>SUBTITLE CONVERT &lt;path&gt;</code> writes the cue's captions out again as <code>.srt</code> or <code>.vtt</code>, so moving between formats needs nothing else installed.</p>
+        <h3 id="text-mode">Text mode</h3>
+        <p>Available two ways: as the video synth's own mode, and as the <strong>TEXT MODE</strong> effect, which puts the same character grid on any cue at all -- a clip, a capture card, a camera, a browser cue or a still. Adding the effect gives the cue its own TEXT MODE section in the inspector with the same rows the synth has, and the effect's four parameters (columns, corruption, glyph set, ink) ride on top of them so the useful ones are on faders and can take an LFO. Its amount is a MIX rather than a switch: at 1.0 the grid replaces the picture, and part way it sits over the original.</p>
+        <p>The video synth can render as a character grid instead of as pixels, with a 16-colour indexed palette and its own corruption. Alongside the built-in glyph sets, two settings make the field yours:</p>
+        <ul><li><strong>custom glyphs</strong> — the characters the picture is built from, darkest first. Two characters gives binary rain; a word gives that word as texture; box-drawing pieces read as a schematic. Empty uses the chosen glyph set.</li><li><strong>phrases</strong> — words separated by <code>|</code>, one showing at a time, landing somewhere new each time it moves. <strong>phrase hold</strong> is how long each one stays; zero hides them without losing the list.</li></ul>
+        <p>The corruption still overwrites a phrase when it lands on that row, which is the intent: a terminal that can be corrupted can be corrupted mid-sentence.</p>
+        <p><code>ASCII ON|OFF|TOGGLE | ASCII GLYPHS &lt;chars&gt; | ASCII PHRASES &lt;a|b|c&gt; | ASCII HOLD &lt;seconds&gt;</code> over the wire; <code>GLYPHS</code> and <code>PHRASES</code> with no argument clear them.</p>
+        <h2 id="output-geometry-aoi-warp-edge-blend"><a href="#output-geometry-aoi-warp-edge-blend" class="anchor">15. Output Geometry: AOI, Warp, Edge Blend</a></h2>
+        <p>Applied per output (not per cue):</p>
+        <ul><li><strong>Area of Interest (AOI)</strong> — crop the rendered output to a sub-region (fractions from each edge) for multi-display slicing.</li><li><strong>Warp</strong> — corner-pin the output (drag the four corners; <code>Shift+drag</code> snaps to a grid). Copy/paste warp with <code>Ctrl+Shift+C</code> / <code>Ctrl+Shift+V</code>.</li><li><strong>Edge blend</strong> — feather each edge for projector soft-edge blending.</li></ul>
+        <p>Per-<em>cue</em> geometry (scale/crop/rotation/offset/keying/colour) lives in the cue inspector instead (§7).</p>
+        <h2 id="overlays-pip-lower-thirds"><a href="#overlays-pip-lower-thirds" class="anchor">16. Overlays: PiP &amp; Lower Thirds</a></h2>
+        <p>Lower-third and PiP cues fire into an overlay slot independently of the main program cue, so you can bring a name strap or inset up over whatever is live. Lower thirds carry two text lines and a background-bar opacity; PiP insets another cue/camera/NDI source. <code>G</code> adds the selected cue as a graphic overlay; <code>Backspace</code> clears all overlays.</p>
+        <h2 id="audio"><a href="#audio" class="anchor">17. Audio</a></h2>
+        <p>Video, audio, and browser cues play through the focused deck's selected audio device (<code>Settings → AUDIO OUTPUT</code>). UI click sounds use a separate device so they never touch the programme bus.</p>
+        <h3 id="per-cue-audio-inspector-audio">Per-cue audio (inspector → AUDIO)</h3>
+        <div class="table-scroll"><table><thead><tr><th>Control</th><th>Range</th><th>Notes</th></tr></thead><tbody><tr><td>Gain</td><td>−40 … +40 dB</td><td>Live trim in the audio thread</td></tr><tr><td>Pan</td><td>full L … full R</td><td>Constant-power balance; snaps to centre</td></tr><tr><td>Mono</td><td>on/off</td><td>Downmix for mono sources / mono PA</td></tr><tr><td>Audio fade in / out</td><td>follow / none / seconds</td><td><code>follow</code> tracks the visual fade; set a length to duck audio independently</td></tr><tr><td>Normalize (R128)</td><td>button</td><td>Measures EBU R128 loudness and sets gain for −16 LUFS. Target is always reached; peaks are handled by the deck limiter, not by backing the gain off</td></tr><tr><td>Outs</td><td>pair 1-2 … 7-8</td><td>Output pair on a multichannel device (below)</td></tr></tbody></table></div>
+        <p>The <strong>deck fader</strong> is a deck-level level on top of each cue's gain (the master fader in the header rides on top of everything). The effective audio-fade ramp is drawn over every waveform view — the timeline audio lane, the program strip, and both inspector thumbs — so what you see is what plays.</p>
+        <h3 id="a-v-delay-offset">A/V delay offset</h3>
+        <p><code>Settings → AUDIO OUTPUT → A/V delay</code> holds all audio back 0–1000 ms before the device, to line Deckboy up with a lagging display or PA DSP. Video anchors to the undelayed timeline so the offset is a real skew at the output.</p>
+        <h3 id="multichannel-output-routing">Multichannel output routing</h3>
+        <p><code>Settings → AUDIO OUTPUT → Outs</code> opens the deck device with 2/4/6/8 channels. Each cue routes its processed stereo onto a pair of those outs via the inspector's <strong>outs</strong> row (1-2, 3-4, 5-6, 7-8) — e.g. programme to the PA on 1-2, click to monitors on 3-4. The pipeline stays stereo end to end; expansion happens at the final write with silence on unused outs. On a device with fewer physical outputs, SDL folds extra pairs down, so you can prep on a laptop and route at the venue.</p>
+        <p>Companion: <code>AUDIOGAIN</code>, <code>AUDIOPAN</code>, <code>AUDIOMONO</code>, <code>AUDIONORM</code>, <code>AUDIOOUTS</code>.</p>
+        <h3 id="audio-input">Audio input</h3>
+        <p><code>Settings → AUDIO INPUT</code> opens a microphone or line input by device, with gain, a clip indicator, mono folding, and a recording bitrate. Routed to the programme it reaches both the stream and the recording, so a presenter's mic or a desk feed can be laid against the playback.</p>
+        <h3 id="asio">ASIO</h3>
+        <p>On Windows, an ASIO interface can be opened directly for cue audio, with a real-time callback and a ring buffer. A device whose sample rate does not match the material is converted rather than refused.</p>
+        <h2 id="test-patterns"><a href="#test-patterns" class="anchor">18. Test Patterns</a></h2>
+        <p>Pattern cues generate their pixels live and auto-scale to the selected output raster and refresh rate (unless the project overrides it). All motion is slow, smooth, and diagonal; full-frame solid colours have no motion option.</p>
+        <ul><li><strong>Pocket Test</strong> — a PM5544-style test card with a bouncing scene-porthole ball, a sync beacon, and an audio sync pop at the top of each second (use it to dial the A/V delay offset).</li><li><strong>Test Bars</strong> — motion diagnostics: saturated bars, a bouncing rainbow diagonal for tearing, a dissolving checker patch that provokes scaler and deinterlace artefacts, a sliding grey block for judder, and a clock.</li><li><strong>Test Clock</strong> — the sync and latency card. A large seconds counter over a frame counter, plus exact timecode in the corner: put it up and photograph two screens (or a screen and a downstream recorder) to see whether they agree. The circle is drawn from a true pixel radius, so it reads as an egg the moment a stretch mode or pixel aspect is wrong, and the scrolling hue band gives sub-second phase between captures a few frames apart.</li><li>Standard bars, crosshatch, solids, and gradients.</li></ul>
+        <h2 id="timecode-chase"><a href="#timecode-chase" class="anchor">19. Timecode &amp; Chase</a></h2>
+        <p>Each deck can <strong>chase</strong> incoming timecode (follow an external master), <strong>run/generate</strong> timecode, and <strong>trigger</strong> cues at set SMPTE times. MTC and LTC ingest are available as integration backends (<code>Settings → Network</code>). Set the deck's frame rate and freewheel behaviour in the timecode controls.</p>
+        <h2 id="show-files-bundling-missing-media"><a href="#show-files-bundling-missing-media" class="anchor">20. Show Files, Bundling &amp; Missing Media</a></h2>
+        <p>Shows are <code>.deckboy</code> files (plain text, tab-delimited).</p>
+        <div class="table-scroll"><table><thead><tr><th>Action</th><th>Key</th></tr></thead><tbody><tr><td>New show</td><td><code>Ctrl+N</code></td></tr><tr><td>Open</td><td><code>Ctrl+O</code></td></tr><tr><td>Save</td><td><code>Ctrl+S</code></td></tr><tr><td>Export bundle</td><td><code>Ctrl+Shift+E</code></td></tr></tbody></table></div>
+        <p><code>BUNDLE</code> (or <code>Ctrl+Shift+E</code>) exports the show plus a copy of every media file into a portable folder. Deckboy also autosaves with dirty tracking. The default show is <code>data/default.deckboy</code>; override with <code>DECKBOY_PROJECT</code>.</p>
+        <h3 id="missing-media-relink">Missing media &amp; relink</h3>
+        <p>On open, Deckboy scans every file-backed cue. Missing files get a red <strong>MISSING</strong> badge in the cue list, and a red <strong>RELINK n</strong> button appears in the toolbar (only while something is missing). <code>RELINK</code> first re-checks the disk (a re-mounted drive clears the warning), then opens a folder picker and repoints missing cues to same-named files found under that folder — an exact file-size match wins when several share a name.</p>
+        <p>Missing media is also caught at showtime: taking a cue whose file has vanished is refused with a <code>MEDIA MISSING</code> toast (the output holds), and auto-advance skips missing cues instead of cascading to black.</p>
+        <h2 id="themes"><a href="#themes" class="anchor">21. Themes</a></h2>
+        <p>Deckboy ships many console-inspired colourways (<code>Settings → theme</code>), from the default <strong>gameboy</strong> green through famicom, super-famicom, gamecube, n64, virtual-boy, metroid, and more.</p>
+        <p><strong>Terminal / OLED themes.</strong> Some dark themes render as a true-black terminal: OLED-black backgrounds and tiles with phosphor-bright text and per-theme accents (e.g. <strong>dark</strong> = green, <strong>virtual-boy</strong> = red). These use extra theme roles, all of which fall back to older roles so existing themes are unchanged:</p>
+        <div class="table-scroll"><table><thead><tr><th>Role</th><th>Purpose</th><th>Falls back to</th></tr></thead><tbody><tr><td><code>screen_fg</code></td><td>Primary on-body text ink (labels, hints, titles)</td><td><code>screen_deep</code></td></tr><tr><td><code>screen_fg_soft</code></td><td>Secondary on-tile text (cue-row subtext)</td><td><code>screen_dark</code></td></tr><tr><td><code>screen_tile</code></td><td>Interactive tile fill (buttons, idle rows)</td><td><code>screen_light</code></td></tr></tbody></table></div>
+        <p>Readability is a data contract: every theme must pass <code>tools/audit_theme_contrast.ps1</code>, which checks each ink/fill pair the UI draws against a WCAG-style minimum. Edit the theme, not the renderer, and re-run the audit.</p>
+        <h3 id="creatures">Creatures</h3>
+        <p>Some themes have things living in them. They occupy the empty part of the playlist below your last cue: a moth that drifts toward the program monitor, fireflies that breathe, fish, a crab that scuttles and stops, a cat asleep in the corner.</p>
+        <p>They never sit over a control, and <strong>they disappear the moment any output goes live</strong> — during a show the only thing moving should be the show. They come back when the outputs go down.</p>
+        <p>Twenty-eight themes have their own cast, most of them two species. <strong>Game Boy and the plain dark terminal deliberately have none</strong> — the signature look and the theme a fresh install lands on stay perfectly still, so if you want a machine that does not move, pick one of those. <code>Settings → CREATURES</code> turns them off, and only appears when the theme you are using has any.</p>
+        <p><strong>Writing your own.</strong> Add lines to a theme's <code>theme.txt</code>:</p>
+        <p>creature	firefly	4 creature	cat	1</p>
+        <p>The species are <code>moth</code>, <code>crab</code>, <code>fish</code>, <code>firefly</code>, <code>cat</code>, <code>snail</code>, <code>spider</code>, <code>mouse</code>, <code>frog</code>, <code>jellyfish</code> and <code>bird</code>, up to twelve of each. A species this build does not know is ignored rather than refused, so a theme written for a later version still loads.</p>
+        <h2 id="remote-control"><a href="#remote-control" class="anchor">22. Remote Control</a></h2>
+        <p>All remote inputs normalise to plain-text commands.</p>
+        <ul><li><strong>Companion</strong> — port <strong>5510</strong> by default. Use the Deckboy module in <code>companion-module-utopianacademy-deckboy/</code>: as well as sending commands it polls Deckboy's state, so Stream Deck keys show cue tally, transport colour, output health and a countdown. A one-way <em>Generic TCP/UDP</em> mapping is still available in <code>docs/streamdeck/</code> for setups that can't install a module. <strong>Deckboy listens on localhost only until Settings → Network → REMOTE is on</strong> — leave it off and only Companion on the same machine can connect.</li><li><strong>OSC</strong> — messages/bundles on the same port, plus an OSC Query HTTP endpoint and mirrored <code>/deckboy/state</code> feedback.</li><li><strong>HyperDeck</strong> — Deckboy answers the HyperDeck protocol for decks that speak it.</li><li><strong>Tally / triggers</strong> — TSL tally out, ATEM and NDI-metadata triggers, Art-Net channel map, NMC sync.</li></ul>
+        <p>Commands are case-insensitive. Examples: <code>TAKE</code>, <code>STOP</code>, <code>VOLUME 75</code>, <code>AUDIOGAIN -6</code>, <code>AUDIOOUTS 2</code>, <code>AUDIO NEXT</code>. Toggle adapters in <code>Settings → Network</code>.</p>
+        <h2 id="reliability-soak-testing"><a href="#reliability-soak-testing" class="anchor">23. Reliability &amp; Soak Testing</a></h2>
+        <ul><li><strong>Decode watchdog</strong> — a wedged decode reracks the deck dark and toasts the operator rather than hanging the show; if the file is gone it reports <code>MEDIA LOST</code> and raises the RELINK state.</li><li><strong>Fullscreen recovery</strong> — a program output that is minimised or lost is automatically re-raised, with strike-based backoff to avoid loops.</li><li><strong><code>--soak [minutes]</code></strong> — a long-run stability harness. It loops the loaded show (or synthesized patterns) through the real app loop and logs RSS, decode-stall, and missing-media counters once a minute to stdout and <code>deckboy-soak.log</code>, then quits. It never writes the looped state back to the show file. Default 24 h; e.g. <code>Deckboy.exe --soak 720</code> for a 12-hour run on show hardware.</li></ul>
+        <h2 id="keyboard-reference"><a href="#keyboard-reference" class="anchor">24. Keyboard Reference</a></h2>
+        <div class="table-scroll"><table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody><tr><td><code>Enter</code></td><td>Take selected cue live</td></tr><tr><td><code>Space</code></td><td>Play / Pause</td></tr><tr><td><code>S</code></td><td>Stop active cue</td></tr><tr><td><code>Ctrl+R</code></td><td>Rerack (rewind to start)</td></tr><tr><td><code>Up</code> / <code>Down</code></td><td>Navigate cue list</td></tr><tr><td><code>Left</code> / <code>Right</code></td><td>Skip back / forward 10 s</td></tr><tr><td><code>Home</code> / <code>End</code></td><td>Skip to start / end</td></tr><tr><td><code>I</code></td><td>Import media files</td></tr><tr><td><code>Ctrl+I</code> / <code>Ctrl+O</code></td><td>Set in / out point at playhead</td></tr><tr><td><code>Delete</code> / <code>Backspace</code></td><td>Delete selected cue(s)</td></tr><tr><td><code>Ctrl+C</code> / <code>Ctrl+V</code></td><td>Copy / paste cue settings</td></tr><tr><td><code>Ctrl+Shift+C</code> / <code>Ctrl+Shift+V</code></td><td>Copy / paste focused warp settings</td></tr><tr><td><code>Ctrl+Z</code> / <code>Ctrl+Shift+Z</code></td><td>Undo / Redo</td></tr><tr><td><code>Ctrl+G</code></td><td>GOTO cue number</td></tr><tr><td><code>Ctrl+F</code></td><td>Find cue by name / number</td></tr><tr><td><code>Ctrl+S</code></td><td>Save project</td></tr><tr><td><code>Ctrl+Shift+E</code></td><td>Export bundled project</td></tr><tr><td><code>Ctrl+O</code></td><td>Open project</td></tr><tr><td><code>Ctrl+N</code></td><td>New project</td></tr><tr><td><code>L</code></td><td>Toggle loop</td></tr><tr><td><code>H</code></td><td>Toggle hold (pause at end)</td></tr><tr><td><code>X</code></td><td>Cycle end action</td></tr><tr><td><code>K</code></td><td>Cycle colour tag</td></tr><tr><td><code>G</code></td><td>Add as graphic overlay</td></tr><tr><td><code>Backspace</code></td><td>Clear all overlays</td></tr><tr><td><code>N</code></td><td>Toggle output window</td></tr><tr><td><code>F</code></td><td>Toggle fullscreen output</td></tr><tr><td><code>B</code></td><td>Toggle blackout</td></tr><tr><td><code>P</code></td><td>Open preferences</td></tr><tr><td><code>Ctrl+/</code></td><td>Shortcut overlay</td></tr><tr><td><code>+</code> / <code>-</code></td><td>Volume up / down</td></tr><tr><td><code>Shift+drag</code></td><td>Snap warp corners to grid</td></tr></tbody></table></div>
+        <h2 id="command-line-flags"><a href="#command-line-flags" class="anchor">25. Command-Line Flags</a></h2>
+        <pre><code>Deckboy.exe --self-check            # verify dependencies + backend wiring
+Deckboy.exe --smoke                 # automated smoke test (exit 0 = pass)
+Deckboy.exe --soak [minutes]        # long-run stability harness (default 24h)
+Deckboy.exe --decode-bench FILE [seconds] [cli]  # decode benchmark; 'cli' forces the subprocess path
+Deckboy.exe --sync-pop-test         # verify the pocket-test audio sync path
+Deckboy.exe --motion-probe FILE [frames]  # is this clip a usable motion driver?
+Deckboy.exe --no-inproc-decode      # force the FFmpeg subprocess decode path
+Deckboy.exe --allow-multi-instance  # bypass the single-instance lock (debug)
+Deckboy.exe --effect-bench TOKEN[:amount[:a[:b]]] [WxH] [frames]   # what one effect costs
+Deckboy.exe --effect-dump TOKEN IN.ppm OUT.ppm [frame] [passes]   # one effect, headless
+Deckboy.exe --pattern-dump ID OUT.ppm [WxH] [t]     # one pattern, headless
+Deckboy.exe --import FILE           # import at launch, skipping the splash
+Deckboy.exe --settings [tab[.subtab]]               # open settings at boot
+Deckboy.exe --inspector-scroll PX   # scroll the inspector (a big number means the bottom)
+Deckboy.exe --code-editor           # open the code editor at boot</code></pre>
+        <p>Environment: <code>DECKBOY_PROJECT</code> (open a specific show), <code>DECKBOY_THEME</code> (force a colourway), <code>DECKBOY_COMPANION_PORT</code> (control port), <code>DECKBOY_UI_PROFILE=1</code> (UI timing + watchdog logs), <code>DECKBOY_EGRESS_READBACK=sync</code> (force the plain synchronous recording readback), <code>DECKBOY_EGRESS_BENCH=1</code> (print readback costs), <code>DECKBOY_OUTPUT_RENDERER=&lt;driver&gt;</code> (choose the output window's renderer, e.g. <code>gpu</code>, <code>direct3d11</code>, <code>metal</code>, <code>opengl</code>).</p>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:3rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>
+            <a href="./" class="btn-large btn-outline">Back to Deckboy</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+</body>
+</html>

@@ -679,8 +679,6 @@ smooth, and diagonal; full-frame solid colours have no motion option.
   stretch mode or pixel aspect is wrong, and the scrolling hue band gives
   sub-second phase between captures a few frames apart.
 - Standard bars, crosshatch, solids, and gradients.
-- **Terrarium** — a hidden ecosystem simulation, unlocked per-save as a secret
-  (not selectable until unlocked).
 
 ---
 
