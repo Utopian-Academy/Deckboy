@@ -3197,3 +3197,122 @@
     SDL_Quit();
     return 0;
   }
+
+  // ---------------------------------------------------------------------------
+  // runMtcCheck — `--mtc-check`
+  //
+  // MIDI timecode arrives as eight nibbles spread over two frames, from a
+  // machine that is not this one, over a cable. Which means the decoder was
+  // only ever exercised by plugging in a timecode sender and watching -- and
+  // until this release, only on Linux, because the decoder lived inside the
+  // ALSA block and the cross-platform MIDI input dropped 0xF1 on the floor.
+  //
+  // core::MtcQuarterFrameDecoder is pure arithmetic on bytes, so it can be
+  // checked on any platform with no interface and no cable, which is what this
+  // does. The encoder half (mtcQuarterFrameBytes) exists for exactly this: send
+  // what a sender would send, and require the same timecode back.
+  // ---------------------------------------------------------------------------
+  static int runMtcCheck() {
+    using deckboy::core::MtcQuarterFrameDecoder;
+    int failures = 0;
+    auto check = [&](const char* what, bool ok, const std::string& detail) {
+      std::cout << (ok ? "  ok   " : "  FAIL ") << what;
+      if (!detail.empty()) std::cout << "  " << detail;
+      std::cout << '\n';
+      if (!ok) ++failures;
+    };
+
+    struct Case { int h, m, s, f, rate; double fps; const char* name; };
+    const Case cases[] = {
+      {0,  0,  0,  0, 0, 24.0,  "24fps    00:00:00:00"},
+      {1,  2,  3,  4, 1, 25.0,  "25fps    01:02:03:04"},
+      {9, 59, 59, 29, 2, 29.97, "29.97fps 09:59:59:29"},
+      {23, 59, 59, 29, 3, 30.0, "30fps    23:59:59:29"},
+      {17, 5, 42, 11, 3, 30.0,  "30fps    17:05:42:11"},
+    };
+    for (const Case& c : cases) {
+      MtcQuarterFrameDecoder decoder;
+      const auto bytes = deckboy::core::mtcQuarterFrameBytes(c.h, c.m, c.s, c.f, c.rate);
+      std::optional<MtcQuarterFrameDecoder::Timecode> got;
+      int reportedEarly = 0;
+      for (std::size_t i = 0; i < bytes.size(); ++i) {
+        got = decoder.feed(bytes[i]);
+        // NOTHING may be reported before the eighth piece. A decoder that
+        // answers early answers with nibbles it has not received -- which on a
+        // sender that starts mid-sequence is a timecode nobody sent.
+        if (got && i + 1 < bytes.size()) ++reportedEarly;
+      }
+      const double want = c.h * 3600.0 + c.m * 60.0 + c.s + (c.f / c.fps);
+      const bool haveIt = got.has_value();
+      const double seconds = haveIt ? got->seconds : -1.0;
+      const double fps = haveIt ? got->fps : -1.0;
+      std::ostringstream detail;
+      detail << std::fixed << std::setprecision(6)
+             << "want " << want << "s @" << std::setprecision(2) << c.fps
+             << "  got " << std::setprecision(6) << seconds
+             << "s @" << std::setprecision(2) << fps;
+      check(c.name,
+            haveIt && reportedEarly == 0 &&
+              std::fabs(seconds - want) < 1e-6 && std::fabs(fps - c.fps) < 0.01,
+            detail.str());
+      if (reportedEarly) {
+        check("  (reported before all eight nibbles arrived)", false, "");
+      }
+    }
+
+    // A sender that is already running: the receiver joins mid-sequence and
+    // must stay silent until it has a whole timecode, then be right.
+    {
+      MtcQuarterFrameDecoder decoder;
+      const auto bytes = deckboy::core::mtcQuarterFrameBytes(2, 3, 4, 5, 1);
+      bool spokeEarly = false;
+      for (std::size_t i = 5; i < bytes.size(); ++i) {   // join at piece five
+        if (decoder.feed(bytes[i])) spokeEarly = true;
+      }
+      std::optional<MtcQuarterFrameDecoder::Timecode> got;
+      for (const int byte : bytes) got = decoder.feed(byte);
+      const double want = 2 * 3600.0 + 3 * 60.0 + 4 + (5 / 25.0);
+      check("joined mid-sequence, silent then correct",
+            !spokeEarly && got && std::fabs(got->seconds - want) < 1e-6,
+            got ? "" : "no timecode after a full set");
+    }
+
+    // A corrupt frame nibble must not become a whole second. The old clamp
+    // allowed frames == ceil(fps), which at 25fps put the time exactly one
+    // second out -- a clamp that admits the one value it exists to stop.
+    {
+      MtcQuarterFrameDecoder decoder;
+      auto bytes = deckboy::core::mtcQuarterFrameBytes(0, 0, 10, 0, 1);
+      bytes[0] = (0 << 4) | 0x0F;        // frames low nibble = 15
+      bytes[1] = (1 << 4) | 0x0F;        // frames high nibble = 15 -> 255
+      std::optional<MtcQuarterFrameDecoder::Timecode> got;
+      for (const int byte : bytes) got = decoder.feed(byte);
+      const bool ok = got && got->seconds >= 10.0 && got->seconds < 11.0;
+      std::ostringstream detail;
+      detail << std::fixed << std::setprecision(6)
+             << "want inside 10.0-11.0s  got " << (got ? got->seconds : -1.0);
+      check("corrupt frame count stays inside its second", ok, detail.str());
+    }
+
+    // Every rate code must map to a rate, and to a DIFFERENT one -- a switch
+    // that falls through to a default looks like it works until the one rate
+    // the show is running on turns out to be the default.
+    {
+      const double rates[4] = {
+        deckboy::core::mtcFpsForRateCode(0), deckboy::core::mtcFpsForRateCode(1),
+        deckboy::core::mtcFpsForRateCode(2), deckboy::core::mtcFpsForRateCode(3),
+      };
+      bool distinct = true;
+      for (int a = 0; a < 4; ++a) {
+        for (int b = a + 1; b < 4; ++b) {
+          if (std::fabs(rates[a] - rates[b]) < 0.001) distinct = false;
+        }
+      }
+      std::ostringstream detail;
+      detail << rates[0] << " " << rates[1] << " " << rates[2] << " " << rates[3];
+      check("four rate codes, four rates", distinct, detail.str());
+    }
+
+    std::cout << "mtc-check: " << failures << " failures\n";
+    return failures == 0 ? 0 : 1;
+  }

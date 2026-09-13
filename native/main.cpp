@@ -65,6 +65,7 @@
 #include "core/types.hpp"
 #include "core/output_runtime.hpp"
 #include "core/deck_audio_ring.hpp"
+#include "core/mtc_decode.hpp"
 #include "core/utils.hpp"
 #include "deckboy_version.hpp"
 #include "core/paths.hpp"
@@ -9700,10 +9701,14 @@ class App {
   int midiSeqPort_ = -1;
   std::thread midiThread_;
   std::atomic<bool> midiStop_ {false};
-  std::array<int, 8> midiMtcQuarterFrameNibbles_ {{-1, -1, -1, -1, -1, -1, -1, -1}};
+#endif
+  // NOT platform-gated, because timecode is not. These sat inside the ALSA
+  // block with the decoder, which is how Deckboy came to accept MIDI timecode
+  // on Linux and ignore it on Windows and macOS -- where the MIDI input is
+  // perfectly capable of carrying the same bytes.
+  deckboy::core::MtcQuarterFrameDecoder midiMtcDecoder_;
   double midiMtcLastSentSeconds_ = -1.0;
   double midiMtcLastSentFps_ = 0.0;
-#endif
 
   // Companion / OSC / integration bridge state (cross-platform)
   SocketHandle companionTcpListen_ = kInvalidSocket;
@@ -10198,7 +10203,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
-  "--decode-bench", "--ltc-generate", "--audio-fx-check",
+  "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
   "--devices", "--check-update",
@@ -10502,6 +10507,10 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   if (mode == "--audio-fx-check") {
     // Optional token: one effect, for when a change is being made to it.
     return App::runAudioFxCheck(ops.empty() ? std::string() : ops[0]);
+  }
+  if (mode == "--mtc-check") {
+    // No hardware, no cable, no platform: the timecode decoder is arithmetic.
+    return App::runMtcCheck();
   }
   if (mode == "--effect-bench") {
     if (ops.empty()) return missing("<token[:amount[:a[:b]]]> [WxH] [frames]");

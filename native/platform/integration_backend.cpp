@@ -68,8 +68,16 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       true,
       ""
     });
-    // MIDI Time Code ingest — requires ALSA sequencer (Linux + ALSA only)
-#if defined(DECKBOY_HAS_ALSA)
+    // MIDI Time Code ingest — wherever there is a MIDI input.
+    //
+    // This said "MTC ingest needs the ALSA sequencer (Linux only)", which was
+    // never true of MTC: a quarter frame is an ordinary two-byte MIDI message
+    // and any input can carry one. What was true is that the decoder had been
+    // written inside the ALSA block, and the cross-platform MIDI input dropped
+    // 0xF1 before anything saw it. A capability line that blames a platform for
+    // a wiring gap is worse than no line, because it tells an operator to stop
+    // looking.
+#if defined(DECKBOY_HAS_ALSA) || defined(DECKBOY_HAS_MIDI)
     out.push_back({
       IntegrationBackendKind::MtcIngest,
       "mtc",
@@ -83,7 +91,7 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       "mtc",
       "MTC Ingest",
       false,
-      "MTC ingest needs the ALSA sequencer (Linux only)"
+      "MTC ingest needs a MIDI input; this build has none"
     });
 #endif
 

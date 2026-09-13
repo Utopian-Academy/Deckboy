@@ -1203,51 +1203,51 @@
   }
 
   void resetMidiMtcDecoder() {
-#if defined(DECKBOY_HAS_ALSA)
-    midiMtcQuarterFrameNibbles_.fill(-1);
+    midiMtcDecoder_.reset();
     midiMtcLastSentSeconds_ = -1.0;
     midiMtcLastSentFps_ = 0.0;
-#endif
   }
 
-#if defined(DECKBOY_HAS_ALSA)
-  std::optional<std::pair<double, double>> decodeMidiMtcQuarterFrame(int qfByte) {
-    int messageType = (qfByte >> 4) & 0x07;
-    int nibbleValue = qfByte & 0x0F;
-    midiMtcQuarterFrameNibbles_[messageType] = nibbleValue;
-    for (int nibble : midiMtcQuarterFrameNibbles_) {
-      if (nibble < 0) {
-        return std::nullopt;
-      }
+  // ONE quarter frame in, at most one command out -- and this is the only
+  // place that turns timecode into a command, on every platform.
+  //
+  // The assembly moved to core::MtcQuarterFrameDecoder, which is pure
+  // arithmetic on bytes and has nothing to do with which library delivered
+  // them. What is left here is the part that IS Deckboy's: how much the time
+  // has to move before it is worth telling the rest of the app.
+  //
+  // That filter is why this has to be shared rather than written twice. A
+  // sender transmits a nibble every quarter frame, so a naive path would emit
+  // a command four times per frame for a clock that is simply running -- and
+  // two implementations of "has it changed enough" would let Linux and Windows
+  // disagree about what the same sender is doing. Half a frame is the
+  // threshold: below it the time is the same time, above it somebody has
+  // jumped.
+  std::string mtcCommandFromQuarterFrame(int dataByte) {
+    const auto decoded = midiMtcDecoder_.feed(dataByte);
+    if (!decoded) {
+      return {};   // fewer than eight nibbles seen; nothing is known yet
     }
-
-    int frames = (midiMtcQuarterFrameNibbles_[1] << 4) | midiMtcQuarterFrameNibbles_[0];
-    int seconds = (midiMtcQuarterFrameNibbles_[3] << 4) | midiMtcQuarterFrameNibbles_[2];
-    int minutes = (midiMtcQuarterFrameNibbles_[5] << 4) | midiMtcQuarterFrameNibbles_[4];
-    int hourLow = midiMtcQuarterFrameNibbles_[6];
-    int hourHighAndRate = midiMtcQuarterFrameNibbles_[7];
-    int hours = ((hourHighAndRate & 0x01) << 4) | hourLow;
-    int rateCode = (hourHighAndRate >> 1) & 0x03;
-
-    double fps = 30.0;
-    switch (rateCode) {
-      case 0: fps = 24.0; break;
-      case 1: fps = 25.0; break;
-      case 2: fps = 29.97; break;
-      case 3: fps = 30.0; break;
-      default: break;
+    const double seconds = decoded->seconds;
+    const double fps = decoded->fps;
+    const bool changed =
+      std::fabs(seconds - midiMtcLastSentSeconds_) > (0.5 / std::max(1.0, fps)) ||
+      std::fabs(fps - midiMtcLastSentFps_) > 0.01;
+    if (!changed) {
+      return {};
     }
-    if (fps < 1.0) {
-      return std::nullopt;
+    midiMtcLastSentSeconds_ = seconds;
+    midiMtcLastSentFps_ = fps;
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(6) << seconds;
+    std::ostringstream fpsText;
+    if (std::fabs(fps - 29.97) < 0.01) {
+      fpsText << "29.97";
+    } else {
+      fpsText << std::fixed << std::setprecision(2) << fps;
     }
-    frames = std::clamp(frames, 0, static_cast<int>(std::ceil(fps)));
-    seconds = std::clamp(seconds, 0, 59);
-    minutes = std::clamp(minutes, 0, 59);
-    hours = std::clamp(hours, 0, 23);
-    double tcSeconds = hours * 3600.0 + minutes * 60.0 + seconds + (frames / fps);
-    return std::make_pair(tcSeconds, fps);
+    return "MTCEXT " + ss.str() + " " + fpsText.str();
   }
-#endif
 
   // WHAT TO TYPE INTO THE OTHER BOX.
   //
@@ -2047,9 +2047,17 @@
     // note/CC mappings did nothing at all on the primary platform even though
     // RtMidi was compiled in and enumerating ports.
     //
-    // MTC quarter-frame and MMC/MSC sysex stay ALSA-only for now: the wrapper
-    // surfaces channel-voice messages only, which is why the integration
-    // catalog still reports mtc[stub] off Linux.
+    // MTC quarter-frame now arrives here too. The claim that it could not --
+    // "the wrapper surfaces channel-voice messages only" -- was true of the
+    // wrapper and not of MIDI: a quarter frame is an ordinary two-byte message
+    // and 0xF1 was simply being dropped one layer below, which is why the
+    // catalog used to report mtc as a stub off Linux and blame ALSA for it.
+    //
+    // MMC and MSC are not ALSA-only either, and have not been since this path
+    // gained onSysEx: they arrive here and go through showcontrol::parse. What
+    // IS still true is that the ALSA loop parses them a second time, inline and
+    // by hand, so the two platforms can disagree about the same desk -- see the
+    // SysEx case in midiLoop().
     stopMidiInput();
     auto devices = deckboy::platform::midi::MidiInput::listDevices();
     if (devices.empty()) {
@@ -2092,6 +2100,15 @@
     midiRt_.onRealtime([this](std::uint8_t status) { onMidiRealtime(status); });
     midiRt_.onSysEx([this](const std::vector<std::uint8_t>& data) {
       onMidiSysEx(data);
+    });
+    // MIDI TIMECODE ON THIS PLATFORM TOO. The bytes were always arriving --
+    // a quarter frame is ordinary MIDI -- and were being dropped one layer
+    // below, so an operator on Windows or macOS pointed a timecode sender at
+    // Deckboy and nothing happened at all. Same decoder, same threshold, same
+    // MTCEXT command as the ALSA path; the only difference is which library
+    // handed over the byte.
+    midiRt_.onQuarterFrame([this](std::uint8_t dataByte) {
+      queueMidiCommand(mtcCommandFromQuarterFrame(static_cast<int>(dataByte)));
     });
     if (!midiRt_.open(deviceId)) {
       return false;
@@ -2342,29 +2359,12 @@
         case SND_SEQ_EVENT_STOP:
           onMidiRealtime(0xFC);
           break;
-        case SND_SEQ_EVENT_QFRAME: {
-          auto decoded = decodeMidiMtcQuarterFrame(ev->data.control.value);
-          if (decoded) {
-            double seconds = decoded->first;
-            double fps = decoded->second;
-            bool changed = std::fabs(seconds - midiMtcLastSentSeconds_) > (0.5 / std::max(1.0, fps))
-                        || std::fabs(fps - midiMtcLastSentFps_) > 0.01;
-            if (changed) {
-              midiMtcLastSentSeconds_ = seconds;
-              midiMtcLastSentFps_ = fps;
-              std::ostringstream ss;
-              ss << std::fixed << std::setprecision(6) << seconds;
-              std::ostringstream fpsText;
-              if (std::fabs(fps - 29.97) < 0.01) {
-                fpsText << "29.97";
-              } else {
-                fpsText << std::fixed << std::setprecision(2) << fps;
-              }
-              cmd = "MTCEXT " + ss.str() + " " + fpsText.str();
-            }
-          }
+        case SND_SEQ_EVENT_QFRAME:
+          // ALSA hands over the data byte already separated from its status
+          // byte; RtMidi hands over both and platform/midi.cpp separates them.
+          // Past that point the two platforms run the same code.
+          cmd = mtcCommandFromQuarterFrame(ev->data.control.value);
           break;
-        }
         case SND_SEQ_EVENT_SYSEX: {
           // Check for MMC (F0 7F <dev> 06 <cmd> F7)
           auto* data = static_cast<unsigned char*>(ev->data.ext.ptr);

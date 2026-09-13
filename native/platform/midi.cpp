@@ -47,6 +47,7 @@ class MidiInput::Impl {
   MidiInput::ProgramChangeCallback progChangeCallback_;
   MidiInput::SysExCallback sysExCallback_;
   MidiInput::RealtimeCallback realtimeCallback_;
+  MidiInput::QuarterFrameCallback quarterFrameCallback_;
 
   bool isOpen_ = false;
   int deviceId_ = -1;
@@ -175,6 +176,18 @@ void MidiInput::update() {
       }
       continue;
     }
+    // MTC quarter frame (0xF1) before the parser too, and for the same reason:
+    // 0xF1 & 0xF0 is 0xF0, so the channel-voice parser reads a piece of
+    // timecode as the start of a SysEx and drops it. That is exactly what
+    // happened -- MIDI timecode was accepted on the ALSA path and silently
+    // ignored everywhere else, while the integration catalog blamed ALSA for
+    // it rather than the wiring.
+    if (data.size() >= 2 && data.front() == 0xF1) {
+      if (impl_->quarterFrameCallback_) {
+        impl_->quarterFrameCallback_(data[1]);
+      }
+      continue;
+    }
 
     auto parsed = parseMidiMessage(data);
     if (!parsed) continue;
@@ -214,6 +227,10 @@ void MidiInput::onSysEx(SysExCallback callback) {
 
 void MidiInput::onRealtime(RealtimeCallback callback) {
   impl_->realtimeCallback_ = std::move(callback);
+}
+
+void MidiInput::onQuarterFrame(QuarterFrameCallback callback) {
+  impl_->quarterFrameCallback_ = std::move(callback);
 }
 
 void MidiInput::onControlChange(ControlChangeCallback callback) {

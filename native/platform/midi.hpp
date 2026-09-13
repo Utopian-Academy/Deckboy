@@ -78,6 +78,14 @@ class MidiInput {
   // (0xFC), and what they mean is the caller's business, not this layer's.
   using RealtimeCallback = std::function<void(std::uint8_t status)>;
 
+  // MTC quarter frame (0xF1): System COMMON, not System Real-Time -- a status
+  // byte plus one data byte carrying one nibble of a timecode. It has to be
+  // taken before the channel-voice parser, which masks the channel nibble off
+  // and would read 0xF1 as 0xF0. Handed over as the data byte alone, because
+  // assembling eight of them into a time is core::MtcQuarterFrameDecoder's job
+  // and not this layer's.
+  using QuarterFrameCallback = std::function<void(std::uint8_t dataByte)>;
+
   MidiInput();
   ~MidiInput();
 
@@ -103,6 +111,7 @@ class MidiInput {
   void onProgramChange(ProgramChangeCallback callback);
   void onSysEx(SysExCallback callback);
   void onRealtime(RealtimeCallback callback);
+  void onQuarterFrame(QuarterFrameCallback callback);
 
  private:
   class Impl;
