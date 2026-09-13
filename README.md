@@ -14,7 +14,9 @@ Load your media. Build your playlist. Take it live.
      never a real show file. A client's deck in a public README is a client's
      deck on the internet. -->
 
-![Deckboy running a playlist of built-in test patterns, SMPTE colour bars live on the programme output](art/readme/hero.png)
+![Deckboy taking generated cues to air, then stacking scanlines, ripple and a kaleidoscope onto the live picture, then the built-in video synth in Game Boy green](art/readme/demo.gif)
+
+<sub>Every cue is a built-in generator. No show file, no client media.</sub>
 
 ---
 
