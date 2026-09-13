@@ -3875,6 +3875,39 @@
     // actions on screen. It was reachable only from the keyboard, which is the
     // one input an operator driving Deckboy from a Stream Deck does not have
     // their hands on.
+    // GET PAST THE BOOT SCREEN.
+    //
+    // Several verbs refuse while the startup dialog is up -- SHORTCUTS and
+    // DASH say so in as many words -- and nothing could put it down. The only
+    // ways past were a bare show path on the command line or --import, which
+    // both mean a scripted run has to have a FILE to hand just to reach the
+    // app. That is a real gap for anything driving Deckboy without a keyboard:
+    // scripted capture, a Stream Deck at a kiosk, and the driven tests this
+    // codebase relies on to prove a control actually works.
+    //
+    // DISMISS is Escape, exactly: it closes the dialog and chooses NOTHING. It
+    // does not start a new show, open a picker or load a recent -- each of
+    // those is a separate decision with its own button, and a verb that
+    // silently picked one would be a verb that quietly discards whatever was
+    // already loaded.
+    if (command == "STARTUP") {
+      // A bare STARTUP is a question, like a bare AUDIOGAIN.
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = showStartupDialog_ ? "dialog"
+                             : (showSplashOverlay_ ? "splash" : "clear");
+        return;
+      }
+      const std::string sub = toUpper(parts[1]);
+      if (sub != "DISMISS") {
+        failRemoteCommand("STARTUP: expected dismiss, got " + parts[1]);
+        return;
+      }
+      const bool had = showStartupDialog_ || showSplashOverlay_;
+      showStartupDialog_ = false;
+      showSplashOverlay_ = false;
+      remoteCommandDetail_ = had ? "dismissed" : "nothing was up";
+      return;
+    }
     if (command == "SHORTCUTS" || command == "KEYS") {
       const std::string sub = parts.size() < 2 ? std::string("TOGGLE") : toUpper(parts[1]);
       if (sub != "SHOW" && sub != "HIDE" && sub != "TOGGLE") {
