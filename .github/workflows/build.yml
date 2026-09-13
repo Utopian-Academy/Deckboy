@@ -54,7 +54,10 @@ jobs:
   # The Companion module is plain Node with no native deps, so it is by far the
   # cheapest signal in the matrix — run it first.
   companion-module:
-    name: Companion Module Tests
+    # Named for what it actually runs. Ten source checks live in this job, so a
+    # red cross on "Companion Module Tests" was most often an audit failing and
+    # nothing to do with Companion at all.
+    name: Source Checks + Companion Module
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -151,6 +154,44 @@ jobs:
       # test tone, and four of the video synth's palettes reopened as Mono.
       - name: Int-to-enum conversions keep up with their enums
         run: python3 tools/audit_enum_bounds.py
+
+      # The six below were all written after a real fault and then run by hand,
+      # which means they were run when somebody remembered. Each passed on the
+      # tree the day it was added and there is no reason any of them should
+      # ever start failing quietly.
+
+      # A show file is a document people send each other, and the paths in it
+      # used to reach std::system() inside double quotes -- which disarm
+      # nothing. Opening somebody else's show is meant to be safe.
+      - name: Nothing hands a runtime string to a shell
+        run: python3 tools/audit_shell_safety.py
+
+      # CHANGES.md becomes the GitHub release body verbatim, and has given away
+      # a hidden feature twice -- once key by key.
+      - name: Nothing published gives away a secret
+        run: python3 tools/audit_spoilers.py
+
+      # HELP is the only description of the remote protocol anybody sees. It
+      # has advertised verbs that answer "unknown command", and hidden twelve
+      # working ones that could only be found by reading the source.
+      - name: HELP describes the protocol that exists
+        run: python3 tools/audit_remote_help.py
+
+      # Text that went into the source encoded twice draws as mojibake, and no
+      # compiler, test or screenshot review has ever caught one.
+      - name: No double-encoded text
+        run: python3 tools/audit_encoding.py
+
+      # Both of these are RATCHETS against a recorded baseline rather than a
+      # verdict: the counts may be non-zero for good reasons, but they must not
+      # grow. Tighten the baseline when the number falls.
+      - name: No new UI geometry written in 1x pixels
+        run: python3 tools/audit_scaled_layout.py --strict
+
+      # The reachable count is at zero: every setting the show file persists
+      # can be changed by a person. Keeping it there is the point.
+      - name: Every saved setting can still be reached
+        run: python3 tools/audit_reachable.py --strict
 
   linux-build:
     name: Linux Build (Ubuntu)

@@ -73,10 +73,19 @@ def struct_fields(text, name):
     return out
 
 
+# The count this tree is allowed to have. It exists because the number reached
+# ZERO -- every saved setting can now be changed by a person -- and a zero is
+# only worth reaching if something notices when it stops being one.
+BASELINE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             'reachable_baseline.txt')
+
+
 def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(root)
     show_all = '--list' in sys.argv
+    strict = '--strict' in sys.argv
+    update = '--update-baseline' in sys.argv
 
     types = io.open(TYPES, encoding='utf-8', errors='replace').read()
 
@@ -149,8 +158,27 @@ def main():
     if not show_all and count:
         print()
         print('  (--list to see them)')
-    # Reported, not enforced: some of these are legitimately group-assigned.
-    # The number is the thing to watch -- it should go down, never up.
+
+    # A RATCHET, not a verdict. Some of these are legitimately group-assigned,
+    # so the right number is not always zero and a flat failure would be wrong.
+    # What is always wrong is the number going UP: that is a setting that
+    # persists in the show file and that nobody can reach, on the day it is
+    # added rather than whenever somebody next runs this by hand.
+    if update:
+        io.open(BASELINE_FILE, 'w', encoding='utf-8').write('%d\n' % count)
+        print('baseline set to %d' % count)
+        return 0
+    if strict:
+        if not os.path.exists(BASELINE_FILE):
+            print('no baseline recorded; run --update-baseline first')
+            return 1
+        baseline = int(io.open(BASELINE_FILE, encoding='utf-8').read().strip())
+        if count > baseline:
+            print('FAIL: %d > baseline %d -- a saved setting was added that '
+                  'nothing can change. Give it a control, a remote verb, or '
+                  'a reason.' % (count, baseline))
+            return 1
+        print('ok: %d <= baseline %d' % (count, baseline))
     return 0
 
 
