@@ -117,6 +117,11 @@ enum class VideoSynthPalette {
   Vapor,      // pink/cyan/purple, the modern glitch-art convention
 };
 
+// THE LIST HAS GROWN TWICE and the loader's clamp did not come with it: a cue
+// saved on Game Boy, CGA, NES or Vapor reopened on Mono, because anything
+// above 4 was clamped away. The look survived the show and died in the file.
+inline constexpr int kVideoSynthPaletteCount = 11;
+
 struct VideoSynthSettings {
   VideoSynthShape shape = VideoSynthShape::Plasma;
   VideoSynthMirror mirror = VideoSynthMirror::Quad;
@@ -312,6 +317,17 @@ enum class ToneWaveform {
              // signal, and a usable emergency synth. The token stays "Fds" so
              // shows saved before the 2A03 merge still load.
 };
+
+// THE READER HAS TO KNOW THIS NUMBER, and it did not. The loader clamped the
+// saved waveform to 0-4 while the UI cycled through 6, so a 2A03 synth cue
+// saved as 5 came back as 4 -- Identify, the channel-walking test tone. The
+// cue kept its name and its synth settings, the inspector kept drawing them,
+// and SYNTHNOTEON answered "no synth cue is live" because nothing on air was
+// a synth any more. It worked all session and only broke on reopen.
+//
+// Anything that turns an int back into one of these clamps to this, never to
+// a literal.
+inline constexpr int kToneWaveformCount = 6;
 
 // ---------------------------------------------------------------------------
 // FDS wavetable voice.

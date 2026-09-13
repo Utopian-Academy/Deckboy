@@ -1511,7 +1511,7 @@ Project loadProject(const fs::path& projectFile,
         // Tone settings. Appended after the timer block; a show saved before
         // tone cues existed simply gets the defaults.
         cue.tone.waveform = static_cast<ToneWaveform>(
-          std::clamp(safeInt(fields, tb + 22, 0), 0, 4));
+          std::clamp(safeInt(fields, tb + 22, 0), 0, kToneWaveformCount - 1));
         cue.tone.frequencyHz = std::clamp(safeDouble(fields, tb + 23, 1000.0), 20.0, 20000.0);
         cue.tone.levelDbfs = std::clamp(safeDouble(fields, tb + 24, -18.0), -60.0, -1.0);
         cue.tone.channel = std::clamp(safeInt(fields, tb + 25, -1), -1, 15);
@@ -1569,7 +1569,7 @@ Project loadProject(const fs::path& projectFile,
         cue.videoSynth.mirror = static_cast<VideoSynthMirror>(
           std::clamp(safeInt(fields, vs + 1, 2), 0, 3));
         cue.videoSynth.palette = static_cast<VideoSynthPalette>(
-          std::clamp(safeInt(fields, vs + 2, 0), 0, 4));
+          std::clamp(safeInt(fields, vs + 2, 0), 0, kVideoSynthPaletteCount - 1));
         cue.videoSynth.speed = std::clamp(safeDouble(fields, vs + 3, 1.0), 0.05, 8.0);
         cue.videoSynth.scale = std::clamp(safeDouble(fields, vs + 4, 1.0), 0.1, 8.0);
         cue.videoSynth.warp = std::clamp(safeDouble(fields, vs + 5, 0.35), 0.0, 2.0);

@@ -145,6 +145,13 @@ jobs:
       - name: Packagers strip everything the app writes
         run: python3 tools/audit_packager_strip.py
 
+      # An enum that grew past the bound its loader clamps to loses its newest
+      # members on reload -- the cue works all session and comes back as a
+      # different thing. Two shipped that way: the 2A03 synth reopened as a
+      # test tone, and four of the video synth's palettes reopened as Mono.
+      - name: Int-to-enum conversions keep up with their enums
+        run: python3 tools/audit_enum_bounds.py
+
   linux-build:
     name: Linux Build (Ubuntu)
     needs: version-check
