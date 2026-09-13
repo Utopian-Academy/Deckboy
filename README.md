@@ -69,9 +69,9 @@ live operators who need a reliable way to organise media, trigger cues, loop
 content and send video to production displays.
 
 That is the job it is built around, and it is built on a stubborn principle:
-**seize the means of playback <3**
+**seize the means of playback ♡**
 
-No subscription, no account, no telemetry, nothing phoning home, and no licence
+No subscription ♡ no account ♡ no telemetry ♡ nothing phoning home, and no licence
 server that can refuse to start the show at 19:55 because it could not reach the
 internet. The machine you carried into the venue is the machine that plays the
 show.
