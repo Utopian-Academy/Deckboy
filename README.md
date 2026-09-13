@@ -68,8 +68,13 @@ Deckboy is a native desktop application for video engineers, AV technicians and
 live operators who need a reliable way to organise media, trigger cues, loop
 content and send video to production displays.
 
-That is the job it is built around and the job the interface is optimised for:
-**when the lights go down, playback has to be right.**
+That is the job it is built around, and it is built on a stubborn principle:
+**seize the means of playback <3**
+
+No subscription, no account, no telemetry, nothing phoning home, and no licence
+server that can refuse to start the show at 19:55 because it could not reach the
+internet. The machine you carried into the venue is the machine that plays the
+show.
 
 - 🎯 **Prepare** media cues ahead of time
 - 🚀 **Trigger** clips instantly during a show
