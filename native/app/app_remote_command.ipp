@@ -3944,6 +3944,114 @@
     //
     // A bare sub-verb is a question, like a bare AUDIOGAIN, so a controller can
     // read the current look back rather than track it.
+    // CHIP <voice|duty|noise|env|quantise> ...  -- the 2A03's TIMBRE.
+    //
+    // SYNTHNOTEON could play a note and nothing could choose what played it,
+    // so every part recorded came out as the same pulse at the same duty --
+    // four copies of one instrument rather than four voices. Voice and duty
+    // are what make Pulse-at-eighth and Pulse-at-half two different parts.
+    //
+    // Named after the chip rather than SYNTH, which the VIDEO synth already
+    // owns. Named values, not indices, for the same reason as everything else
+    // on this surface.
+    if (command == "CHIP") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("CHIP: no cue selected");
+        return;
+      }
+      if (cue->kind != CueKind::Tone) {
+        failRemoteCommand("CHIP: the selected cue is not a chip synth");
+        return;
+      }
+      // VOICE, DUTY and NOISE are 2A03 registers and have no FDS equivalent --
+      // the FDS makes its timbre from a wavetable and a modulator instead. The
+      // envelope is shared, so ENV is allowed on either rather than refused
+      // for a chip that genuinely has one.
+      const bool isNes = cue->tone.synth.chip == SynthChip::Nes;
+      auto report = [&]() {
+        const auto& s = cue->tone.synth;
+        const char* voice = s.nesVoice == NesVoice::Triangle ? "triangle"
+                          : s.nesVoice == NesVoice::Noise    ? "noise" : "pulse";
+        const char* duty = s.nesDuty == NesDuty::Eighth       ? "eighth"
+                         : s.nesDuty == NesDuty::Quarter      ? "quarter"
+                         : s.nesDuty == NesDuty::ThreeQuarter ? "threequarter" : "half";
+        char buf[160];
+        std::snprintf(buf, sizeof(buf),
+                      "voice=%s duty=%s noise=%s attack=%.3f release=%.3f quantise=%d",
+                      voice, duty, s.nesNoiseShort ? "short" : "long",
+                      s.attackSeconds, s.releaseSeconds, s.nesQuantise ? 1 : 0);
+        remoteCommandDetail_ = buf;
+      };
+      if (parts.size() < 2) {
+        report();
+        return;
+      }
+      const std::string sub = toUpper(parts[1]);
+      std::string want;
+      for (std::size_t i = 2; i < parts.size() && i < 3; ++i) {
+        for (char c : parts[i]) {
+          if (c != ' ' && c != '_' && c != '-') {
+            want += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+          }
+        }
+      }
+
+      if (sub == "VOICE") {
+        if (!isNes) { failRemoteCommand("CHIP VOICE: this cue is an FDS synth, which has no voice"); return; }
+        if (want == "pulse")         cue->tone.synth.nesVoice = NesVoice::Pulse;
+        else if (want == "triangle") cue->tone.synth.nesVoice = NesVoice::Triangle;
+        else if (want == "noise")    cue->tone.synth.nesVoice = NesVoice::Noise;
+        else {
+          failRemoteCommand("CHIP VOICE: expected pulse|triangle|noise, got '" + want + "'");
+          return;
+        }
+      } else if (sub == "DUTY") {
+        if (!isNes) { failRemoteCommand("CHIP DUTY: this cue is an FDS synth, which has no duty"); return; }
+        // 75% is included because trackers expose it and people look for it.
+        // It is the phase inverse of 25% and sounds identical -- which is
+        // worth knowing before spending a take trying to hear the difference.
+        if (want == "eighth" || want == "12.5" || want == "125")   cue->tone.synth.nesDuty = NesDuty::Eighth;
+        else if (want == "quarter" || want == "25")                cue->tone.synth.nesDuty = NesDuty::Quarter;
+        else if (want == "half" || want == "50")                   cue->tone.synth.nesDuty = NesDuty::Half;
+        else if (want == "threequarter" || want == "75")           cue->tone.synth.nesDuty = NesDuty::ThreeQuarter;
+        else {
+          failRemoteCommand("CHIP DUTY: expected eighth|quarter|half|threequarter, got '" + want + "'");
+          return;
+        }
+      } else if (sub == "NOISE") {
+        if (!isNes) { failRemoteCommand("CHIP NOISE: this cue is an FDS synth, which has no noise"); return; }
+        if (want == "short" || want == "periodic")  cue->tone.synth.nesNoiseShort = true;
+        else if (want == "long" || want == "hiss")  cue->tone.synth.nesNoiseShort = false;
+        else {
+          failRemoteCommand("CHIP NOISE: expected short|long, got '" + want + "'");
+          return;
+        }
+      } else if (sub == "QUANTISE" || sub == "QUANTIZE") {
+        if (want == "on" || want == "1")       cue->tone.synth.nesQuantise = true;
+        else if (want == "off" || want == "0") cue->tone.synth.nesQuantise = false;
+        else {
+          failRemoteCommand("CHIP QUANTISE: expected on|off, got '" + want + "'");
+          return;
+        }
+      } else if (sub == "ENV") {
+        if (parts.size() < 4) {
+          failRemoteCommand("CHIP ENV: expected <attack> <release> in seconds");
+          return;
+        }
+        cue->tone.synth.attackSeconds = std::clamp(std::atof(parts[2].c_str()), 0.0, 5.0);
+        cue->tone.synth.releaseSeconds = std::clamp(std::atof(parts[3].c_str()), 0.0, 10.0);
+      } else {
+        failRemoteCommand("CHIP: expected voice|duty|noise|env|quantise, got " + parts[1]);
+        return;
+      }
+      // LIVE, like SYNTH: the edit reaches the engine's cue snapshot on the
+      // next tick, so the timbre changes under a held note rather than at the
+      // next take.
+      markProjectDirty();
+      report();
+      return;
+    }
     if (command == "SYNTH") {
       Cue* cue = selectedCueMutable();
       if (!cue) {
