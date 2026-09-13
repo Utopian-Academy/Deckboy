@@ -195,6 +195,13 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - Independent audio fades, separate from video fades
 - Content-authoritative stereo waveform display
 - Audio-only cues, and per-cue mute
+- **A per-cue effect chain** -- high pass, low pass, tilt EQ, compressor, gate,
+  delay, reverb, width and binaural placement, in the order you put them in
+- **Five effects that use what the deck knows**, which is something no plugin
+  is ever told: the cue's own picture driving a filter, its position on the
+  output becoming the sound's position in the room, the approaching end of the
+  cue resolving the tail, stutter quantised to the video frame period, and a
+  held cue keeping its room tone instead of stopping dead
 
 </details>
 
@@ -285,12 +292,15 @@ Spout *input* (treating another app's texture as a cue) is not built yet, and
 **Syphon on macOS is not built at all**. Deckboy reports the missing halves as
 unavailable rather than accepting frames and quietly discarding them.
 
-**Hardware decode.** Two separate things, and they differ by platform. The
-*decode* runs on hardware where the platform has a decoder: D3D11VA on Windows,
-VideoToolbox on macOS, VAAPI on Linux. The *frame* additionally avoids a copy
-only on Windows, where
-the decoder can be put on the output renderer's own device and the picture never
-touches system memory.
+**Hardware decode.** Two separate things. The *decode* runs on hardware where
+the platform has a decoder: D3D11VA on Windows, VideoToolbox on macOS, VAAPI on
+Linux. The *frame* additionally avoids a copy on Windows and macOS -- on
+Windows the decoder can be put on the output renderer's own device, and on macOS
+a VideoToolbox frame is an IOSurface that a Metal texture can wrap directly, so
+either way the picture never touches system memory.
+
+On an Apple M4, ten seconds of 4K30 costs about half a second of CPU that way
+against five and a half in software.
 
 Neither is about making playback possible — software decode is comfortable on
 modern hardware for ordinary material — they are about what else the machine can
