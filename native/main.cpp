@@ -1923,6 +1923,12 @@ struct OutputRuntime {
   // devices (secondary outputs) fall back to a CPU download into the
   // classic bridge texture.
   void* rendererD3DDevice = nullptr;                 // cached ID3D11Device*
+  // macOS: one wrapped CVPixelBuffer texture per deck, REPLACED per  frame
+  // advance rather than copied into. Kept separately from layerGpuTextures
+  // because the lifetime differs -- a D3D11 wrap persists across frames and a
+  // pixel-buffer wrap belongs to exactly one frame.
+  std::map<int, SDL_Texture*> layerPixelBufferTextures;
+  std::map<int, std::uint64_t> layerPixelBufferFrameIndices;
   std::map<int, SDL_Texture*> layerGpuTextures;      // wrapped SDL textures
   std::map<int, void*> layerGpuTexture2Ds;           // backing ID3D11Texture2D*
   std::map<int, std::pair<int, int>> layerGpuTextureSizes;

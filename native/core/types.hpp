@@ -1530,17 +1530,32 @@ struct DecodedFrame {
   FramePixelFormat format = FramePixelFormat::RGBA32;  // pixel layout for `pixels`
   std::vector<std::uint8_t> pixels;    // packed pixel data, layout per `format`
 
-  // GPU-resident payload (in-process zero-copy decode, Windows/D3D11).
-  // When gpuTexture is set the frame never touched the CPU: `pixels` is
-  // empty and the video lives in a decoder-owned NV12 texture-array slice.
-  // gpuFrameRef keeps the decoder surface (an AVFrame ref) alive for as long
-  // as this DecodedFrame exists. Consumers compare gpuDevice against their
-  // renderer's device and either GPU-copy the slice into a wrapped
-  // SDL_Texture or fall back to a CPU download (libav_decoder.hpp helpers).
+  // ── GPU-RESIDENT PAYLOAD (in-process zero-copy decode) ────────────────
+  //
+  // When gpuTexture is set the frame never touched the CPU: `pixels` is empty
+  // and the video lives in a surface the decoder owns. gpuFrameRef keeps that
+  // surface alive (it holds an AVFrame ref) for as long as this DecodedFrame
+  // exists, which is the whole reason a consumer can hold one across frames.
+  //
+  // WHAT gpuTexture POINTS AT DEPENDS ON THE PLATFORM, and gpuKind says which
+  // rather than leaving a consumer to infer it from which of the other fields
+  // happen to be null:
+  //
+  //   D3D11Texture  Windows. An ID3D11Texture2D* ARRAY texture; gpuSubresource
+  //                 is the slice, gpuDevice the device that owns it. A
+  //                 consumer must be on that same device, so it compares --
+  //                 and GPU-COPIES the slice into its own wrapped texture.
+  //   CVPixelBuffer macOS. A CVPixelBufferRef from VideoToolbox, backed by an
+  //                 IOSurface. gpuSubresource and gpuDevice are unused: an
+  //                 IOSurface can be wrapped by ANY Metal device, so there is
+  //                 nothing to compare and nothing to copy -- the consumer
+  //                 wraps this very buffer as a texture.
+  enum class GpuKind { None, D3D11Texture, CVPixelBuffer };
   std::shared_ptr<void> gpuFrameRef;   // opaque AVFrame ref (owns the surface)
-  void* gpuTexture = nullptr;          // ID3D11Texture2D* (decoder array texture)
-  int gpuSubresource = 0;              // array slice index within gpuTexture
-  void* gpuDevice = nullptr;           // ID3D11Device* that owns gpuTexture
+  void* gpuTexture = nullptr;          // ID3D11Texture2D* / CVPixelBufferRef
+  int gpuSubresource = 0;              // D3D11 only: array slice within gpuTexture
+  void* gpuDevice = nullptr;           // D3D11 only: the owning ID3D11Device*
+  GpuKind gpuKind = GpuKind::None;
   bool isGpu() const { return gpuTexture != nullptr; }
 };
 

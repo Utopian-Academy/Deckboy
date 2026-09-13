@@ -4224,6 +4224,17 @@
     runtime.transitionUploadStamps.clear();
     runtime.layerBridgeScratchPixels.clear();
 #if DECKBOY_INPROC_DECODE
+    // The pixel-buffer wraps go too. They hold a Metal view of an IOSurface
+    // the decoder owns; outliving this renderer is a use-after-free, and the
+    // AVFrame ref keeping the surface alive is released when the frame is.
+    for (auto& [pbDeckIndex, texture] : runtime.layerPixelBufferTextures) {
+      (void) pbDeckIndex;
+      if (texture) {
+        SDL_DestroyTexture(texture);
+      }
+    }
+    runtime.layerPixelBufferTextures.clear();
+    runtime.layerPixelBufferFrameIndices.clear();
     for (auto& [gpuDeckIndex, texture] : runtime.layerGpuTextures) {
       (void) gpuDeckIndex;
       if (texture) {

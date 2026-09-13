@@ -2809,7 +2809,9 @@
     const double elapsed = static_cast<double>(SDL_GetTicks() - startMs) / 1000.0;
     const char* mode = "cli-pipe";
     if (engine.inprocDecodeActive()) {
-      mode = engine.activeDecodeDevice() ? "inproc-zerocopy" : "inproc-cpu";
+      // Asked, not inferred from a device pointer -- macOS zero-copy has no
+      // device to hand back and would have been reported as a CPU decode.
+      mode = engine.activeDecodeZeroCopy() ? "inproc-zerocopy" : "inproc-cpu";
     }
     std::cout << "decode-bench: file=" << mediaPath
               << " mode=" << mode

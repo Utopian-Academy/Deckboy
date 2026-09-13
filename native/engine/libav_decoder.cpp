@@ -51,6 +51,12 @@ extern "C" {
 #endif
 }
 
+#if defined(__APPLE__)
+// Outside the extern "C" block: CoreVideo is a C API but its headers are not
+// written to be dragged into one.
+#include <CoreVideo/CoreVideo.h>
+#endif
+
 namespace deckboy::libav {
 
 namespace {
@@ -457,7 +463,15 @@ struct VideoPipeline::Impl {
                                    nullptr, 0) < 0) {
           hwDevice = nullptr;
         }
+#if defined(__APPLE__)
+        // macOS CAN zero-copy without a shared device: a VideoToolbox frame is
+        // an IOSurface-backed CVPixelBuffer and any Metal device can wrap it.
+        // The NV12 condition is the same one Windows applies -- the RGBA path
+        // exists for the CPU effects chain and has to stay on the CPU.
+        zeroCopy = hwDevice != nullptr && params.format == FramePixelFormat::NV12;
+#else
         zeroCopy = false;
+#endif
       }
       useHw = hwDevice != nullptr;
     }
@@ -647,6 +661,51 @@ struct VideoPipeline::Impl {
         out.gpuTexture = ref->data[0];
         out.gpuSubresource = static_cast<int>(reinterpret_cast<intptr_t>(ref->data[1]));
         out.gpuDevice = params.d3dDevice;
+        out.gpuKind = DecodedFrame::GpuKind::D3D11Texture;
+        return out.width > 0 && out.height > 0;
+      }
+    }
+#endif
+
+#if defined(__APPLE__)
+    // ── ZERO-COPY ON macOS ──────────────────────────────────────────────
+    //
+    // A VideoToolbox frame carries a CVPixelBufferRef in data[3], backed by an
+    // IOSurface, and SDL3's Metal renderer can wrap one directly
+    // (SDL_PROP_TEXTURE_CREATE_METAL_PIXELBUFFER_POINTER). So the picture goes
+    // decoder -> texture with no download, no swscale and no re-upload --
+    // which at 4K is most of the cost, far more than the decode itself.
+    //
+    // SIMPLER THAN THE WINDOWS PATH, and worth saying why: an IOSurface can be
+    // wrapped by ANY Metal device, so there is no device to match and no
+    // GPU-copy into a texture of our own. The frame IS the texture.
+    //
+    // ONLY THE FORMATS WE KNOW. A 10-bit decode produces a different pixel
+    // buffer type, and handing an unexpected one to a texture that assumes
+    // NV12 is precisely how 10-bit HEVC came out flat green on Windows
+    // (v0.79.10). Anything else falls through to the CPU path below, which is
+    // correct for every format rather than fast for two.
+    if (frame->format == AV_PIX_FMT_VIDEOTOOLBOX && zeroCopy && frame->data[3]) {
+      auto* pixelBuffer = reinterpret_cast<CVPixelBufferRef>(frame->data[3]);
+      const OSType pixelType = CVPixelBufferGetPixelFormatType(pixelBuffer);
+      const bool wrappable =
+        pixelType == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange ||
+        pixelType == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
+      if (wrappable) {
+        AVFrame* ref = av_frame_clone(frame);
+        if (!ref) {
+          return false;
+        }
+        out = DecodedFrame{};
+        out.width = frame->width & ~1;
+        out.height = frame->height & ~1;
+        out.format = FramePixelFormat::NV12;
+        out.presentationSeconds = ptsSeconds;
+        // The AVFrame ref owns the pixel buffer; holding it is what keeps the
+        // IOSurface alive while a texture is wrapped around it.
+        out.gpuFrameRef = std::shared_ptr<void>(ref, SharedAvFrameDeleter{});
+        out.gpuTexture = ref->data[3];
+        out.gpuKind = DecodedFrame::GpuKind::CVPixelBuffer;
         return out.width > 0 && out.height > 0;
       }
     }
@@ -1215,6 +1274,44 @@ void releaseD3D11Texture(void* texture2D) {
   }
 #else
   (void) texture2D;
+#endif
+}
+
+SDL_Texture* wrapPixelBufferTexture(SDL_Renderer* renderer,
+                                    const DecodedFrame& frame) {
+#if defined(__APPLE__)
+  if (!renderer || frame.gpuKind != DecodedFrame::GpuKind::CVPixelBuffer ||
+      !frame.gpuTexture) {
+    return nullptr;
+  }
+  // Only the Metal backend understands the property. SDL can be asked for a
+  // different renderer on macOS, and on one of those this has to fail cleanly
+  // so the caller downloads instead of getting a blank picture.
+  const char* backend = SDL_GetRendererName(renderer);
+  if (!backend || SDL_strcmp(backend, "metal") != 0) {
+    return nullptr;
+  }
+  SDL_PropertiesID props = SDL_CreateProperties();
+  if (!props) {
+    return nullptr;
+  }
+  SDL_SetPointerProperty(props, SDL_PROP_TEXTURE_CREATE_METAL_PIXELBUFFER_POINTER,
+                         frame.gpuTexture);
+  SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_ACCESS_NUMBER,
+                        SDL_TEXTUREACCESS_STATIC);
+  SDL_Texture* texture = SDL_CreateTextureWithProperties(renderer, props);
+  SDL_DestroyProperties(props);
+  if (texture) {
+    // The same nearest-neighbour rule every other texture in this app is
+    // created under -- see deckboyCreateTexture. A wrapped texture bypasses
+    // that helper, so it has to be said here.
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+  }
+  return texture;
+#else
+  (void) renderer;
+  (void) frame;
+  return nullptr;
 #endif
 }
 

@@ -1,5 +1,33 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-12 - v0.99.353 (zero-copy decode on macOS -- written, not yet measured)
+
+**On a Mac the picture no longer comes down to the CPU at all.** A VideoToolbox
+frame is a CVPixelBuffer backed by an IOSurface, and SDL's Metal renderer can
+wrap one directly -- so the frame goes decoder to texture with no download, no
+swscale pass and no re-upload. At 4K that round trip through system memory is
+most of the cost, considerably more than the decoding.
+
+It is simpler than the Windows equivalent, which is worth knowing if you read
+the code: on Windows the decoder has to sit on the renderer's own device and
+each frame's slice is GPU-copied into a texture we own. An IOSurface can be
+wrapped by any Metal device, so there is nothing to match and nothing to copy --
+the frame *is* the texture.
+
+Only the pixel formats known to be wrappable take this path; anything else --
+10-bit among them -- falls through to the download, which is correct for every
+format rather than fast for two. That guard exists because the same assumption
+once rendered 10-bit HEVC flat green on Windows.
+
+`--decode-bench` now asks the decoder whether the frame avoided a copy instead
+of inferring it from a Direct3D device pointer, which macOS does not have. It
+would have reported the new path as the old one.
+
+**Not yet measured on a Mac**, and the README still claims zero-copy for Windows
+only until it has been. There is no macOS toolchain here, so the first real run
+is a CI build on the machine it is for; the Windows and Linux paths are
+unchanged and verified.
+
 ## 2026-09-12 - v0.99.352 (the stage timer can use any font)
 
 **A third timer face: a real typeface.** Seven-segment and blocky stay, and stay

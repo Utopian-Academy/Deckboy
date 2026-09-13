@@ -5482,6 +5482,7 @@ void MediaEngine::stopDecoderThreads() {
   inprocDecodeActive_ = false;
   activeDecodeDevice_ = nullptr;
   activeDecodeName_ = "software";
+  activeDecodeZeroCopy_ = false;
   lastFramePushMs_.store(0);
   decodeStallLatched_ = false;
 
@@ -6244,6 +6245,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
     }
     activeDecodeDevice_ = videoPipeline_->device();
     activeDecodeName_ = videoPipeline_->hardwareDecodeName();
+    activeDecodeZeroCopy_ = videoPipeline_->zeroCopyActive();
   } else {
     // Audio-only cue: no video stream — mirrors the CLI video pipe's
     // immediate EOF so end-of-playback detection still keys off audio.

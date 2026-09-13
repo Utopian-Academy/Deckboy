@@ -208,6 +208,21 @@ void releaseD3D11Texture(void* texture2D);
 // created by createWrappedVideoTexture on the SAME device.
 bool copyGpuFrameToTexture(const DecodedFrame& frame, void* dstTexture2D);
 
+// macOS: wrap a frame's CVPixelBuffer AS an SDL_Texture, no copy at all.
+//
+// The counterpart to the two calls above rather than a third variant of them,
+// because the shape genuinely differs: on Windows a persistent texture is
+// created once and each frame's slice is copied into it; here every frame is
+// its own IOSurface and the texture is a wrapper around THAT buffer. So this
+// returns a new texture per frame and the caller destroys the previous one.
+// Creating it is cheap -- no pixel memory is allocated, only a Metal view of
+// an existing surface.
+//
+// Returns null on any other platform, on a non-CVPixelBuffer frame, or if the
+// renderer is not Metal, so a caller can always fall through to the CPU path.
+SDL_Texture* wrapPixelBufferTexture(SDL_Renderer* renderer,
+                                    const DecodedFrame& frame);
+
 // CPU download of a zero-copy frame (av_hwframe_transfer_data) into a packed
 // NV12 DecodedFrame — the fallback for consumers on a different device
 // (secondary outputs) and the throttled control-window preview. A 10-bit P010

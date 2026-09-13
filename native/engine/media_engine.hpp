@@ -375,6 +375,12 @@ class MediaEngine {
   // "software": on macOS and Linux the decode is on hardware and only the
   // frames come down, so reporting the copy alone hid the whole thing.
   const char* activeDecodeName() const { return activeDecodeName_; }
+  // WHETHER THE FRAME AVOIDED A COPY, asked directly rather than inferred from
+  // a device pointer. That inference was a Windows detail: on macOS zero-copy
+  // there IS no device to hand back (an IOSurface needs no matching), so a
+  // caller testing activeDecodeDevice() would call a zero-copy frame a CPU
+  // one -- and the bench would have reported the new path as the old one.
+  bool activeDecodeZeroCopy() const { return activeDecodeZeroCopy_; }
   bool consumeDecodeStall();
 
   // A cue that should have had sound and got none. Returns the reason ONCE,
@@ -912,6 +918,7 @@ class MediaEngine {
   OutputSizeProvider outputSizeProvider_;
   bool inprocDecodeActive_ = false;          // active cue decodes in-process
   const char* activeDecodeName_ = "software";  // d3d11va / videotoolbox / vaapi
+  bool activeDecodeZeroCopy_ = false;        // frames never touched the CPU
   void* activeDecodeDevice_ = nullptr;       // device zero-copy frames live on (null = CPU)
   std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)

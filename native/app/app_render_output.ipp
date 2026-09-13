@@ -1665,6 +1665,50 @@
     }
 #if DECKBOY_INPROC_DECODE
     if (sourceFrame->isGpu()) {
+      // ── macOS: THE FRAME IS THE TEXTURE ─────────────────────────────
+      //
+      // No device to match and nothing to copy: an IOSurface-backed
+      // CVPixelBuffer can be wrapped by any Metal device, so this output wraps
+      // the decoder's own buffer. One wrap per frame advance -- cheap, because
+      // no pixel memory is allocated, only a Metal view of a surface that
+      // already exists.
+      if (sourceFrame->gpuKind == DecodedFrame::GpuKind::CVPixelBuffer) {
+        auto frameIt = outputRuntime->layerPixelBufferFrameIndices.find(sourceDeckIndex);
+        SDL_Texture* wrapped = nullptr;
+        auto texIt = outputRuntime->layerPixelBufferTextures.find(sourceDeckIndex);
+        if (texIt != outputRuntime->layerPixelBufferTextures.end() &&
+            frameIt != outputRuntime->layerPixelBufferFrameIndices.end() &&
+            frameIt->second == sourceFrame->index) {
+          wrapped = texIt->second;      // same frame again: reuse the wrap
+        } else {
+          if (texIt != outputRuntime->layerPixelBufferTextures.end() && texIt->second) {
+            SDL_DestroyTexture(texIt->second);
+          }
+          wrapped = deckboy::libav::wrapPixelBufferTexture(
+            outputRuntime->outputRenderer, *sourceFrame);
+          outputRuntime->layerPixelBufferTextures[sourceDeckIndex] = wrapped;
+          outputRuntime->layerPixelBufferFrameIndices[sourceDeckIndex] =
+            sourceFrame->index;
+        }
+        if (wrapped) {
+          float pbOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
+          const float pbFade = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
+          SDL_BlendMode pbBlend = SDL_BLENDMODE_BLEND;
+          pbOpacity *= static_cast<float>(vjLayerGain(sourceDeckIndex, pbBlend));
+          const Uint8 pbAlpha = static_cast<Uint8>(std::lround(pbOpacity * pbFade * 255.0f));
+          SDL_SetTextureBlendMode(wrapped, pbBlend);
+          SDL_SetTextureAlphaMod(wrapped, pbAlpha);
+          renderTextureWithCueGeometry(outputRuntime->outputRenderer, wrapped,
+                                       sourceFrame->width, sourceFrame->height,
+                                       sourceCue, target, pbBlend);
+          SDL_SetTextureBlendMode(wrapped, SDL_BLENDMODE_BLEND);
+          SDL_SetTextureAlphaMod(wrapped, 255);
+          return;
+        }
+        // The wrap failed (not the Metal backend, or an unexpected buffer
+        // type): fall through to the download below, which works for
+        // everything.
+      }
       if (sourceFrame->gpuDevice && sourceFrame->gpuDevice == outputRuntime->rendererD3DDevice) {
         // Zero-copy: GPU-copy the decoded slice into this output's wrapped
         // NV12 texture on frame advance, then composite it like any texture.
