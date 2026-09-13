@@ -332,25 +332,30 @@ bool Paths::ensureDataDir() {
   // data/. When that is no longer where we write, carry them across once so an
   // upgrade in place doesn't look like the operator's show disappeared.
   if (!dataEc && !stateEc && stateDir() != dataDir()) {
-    // The show file is COPIED, so carrying it across is harmless: the new
-    // state dir gets its own.
+    // NOTHING TRAVELS INTO A STATE DIR THE OPERATOR FORCED.
     //
-    // last_project.txt is NOT a copy of anything -- it is an ABSOLUTE PATH,
-    // and usually a path to data/default.deckboy. Migrating it into a state
-    // dir that was forced by DECKBOY_STATE_DIR hands an "isolated" run a
-    // pointer straight back out to the operator's real show, which it then
-    // opens, edits and autosaves over. The isolation looks like it took and
-    // does not, which is the worst way for it to fail. That happened, and it
-    // cost a live show file.
+    // last_project.txt is an ABSOLUTE PATH, usually to data/default.deckboy.
+    // Migrating it into a dir forced by DECKBOY_STATE_DIR hands an "isolated"
+    // run a pointer straight back out to the operator's real show, which it
+    // then opens, edits and autosaves over. That happened, and it cost a live
+    // show file.
     //
-    // So the pointer travels only when the state dir MOVED ON ITS OWN -- the
-    // upgrade-in-place case the migration exists for, where the operator
-    // genuinely wants their last show back.
-    const bool isolated = stateDirWasOverridden();
+    // default.deckboy was exempted from that rule because it is COPIED, so it
+    // cannot destroy the original -- which is true, and is the wrong test. The
+    // question is not whether the isolated run can damage the real show; it is
+    // whether the isolated run is ISOLATED. A byte-identical copy of the
+    // operator's show is still the operator's show: it loads their cues, their
+    // media paths and their client's content into a session that was asked to
+    // have none. Two of those sessions were taking SCREENSHOTS at the time.
+    //
+    // So the migration now does what it says: it carries an operator's work
+    // across an upgrade IN PLACE, and does nothing at all when the state dir
+    // was chosen deliberately. An isolated run starts empty, which is the only
+    // thing "isolated" can usefully mean.
+    if (stateDirWasOverridden()) {
+      return !dataEc && !stateEc;
+    }
     for (const char* name : {"default.deckboy", "last_project.txt"}) {
-      if (isolated && std::string(name) == "last_project.txt") {
-        continue;
-      }
       std::error_code ec;
       fs::path from = dataDir() / name;
       fs::path to = stateDir() / name;
