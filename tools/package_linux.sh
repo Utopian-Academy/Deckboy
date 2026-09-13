@@ -121,6 +121,20 @@ if [ -d "$REPO_ROOT/data" ]; then
       echo "  - stripped data/$stale (build-machine state)"
     fi
   done
+
+  # Two directories of the OPERATOR'S OWN media, both gitignored -- which does
+  # not help, because .gitignore does not apply to a file copy. _converted holds
+  # transcodes, proxies and datamosh preps; recordings holds captured programme
+  # output. Only the Windows packager had learned _converted, and none of the
+  # three had ever heard of recordings, so this is the same drift the list above
+  # documents being fixed twice. Keep all three in step.
+  for stale_dir in _converted recordings; do
+    if [ -d "$STAGE_DIR/data/$stale_dir" ]; then
+      stale_mb=$(du -sm "$STAGE_DIR/data/$stale_dir" 2>/dev/null | cut -f1)
+      rm -rf "$STAGE_DIR/data/$stale_dir"
+      echo "  - stripped data/$stale_dir (operator media, ${stale_mb:-?} MB)"
+    fi
+  done
 fi
 
 [ -f "$REPO_ROOT/LICENSE" ] && cp "$REPO_ROOT/LICENSE" "$STAGE_DIR/LICENSE"

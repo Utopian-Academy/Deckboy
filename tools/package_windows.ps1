@@ -183,11 +183,17 @@ if (Test-Path $DataSrc) {
     # not apply to a file copy, so without this the zip ships whatever personal
     # footage is on the packaging machine. One real prep here was 1.7 GB, which
     # is how this was noticed.
-    $ConvertedDir = Join-Path (Join-Path $StageDir "data") "_converted"
-    if (Test-Path $ConvertedDir) {
-        $ConvertedMB = [math]::Round(((Get-ChildItem $ConvertedDir -Recurse -File | Measure-Object Length -Sum).Sum) / 1MB)
-        Remove-Item $ConvertedDir -Recurse -Force
-        Write-Host "  - stripped data\_converted (operator media, $ConvertedMB MB)"
+    # recordings/ is the same class one directory later: captured programme
+    # output, gitignored, and never taught to ANY of the three packagers. Found
+    # while building an isolated instance for demo capture -- a copied data/
+    # brought both directories along.
+    foreach ($StaleDir in @("_converted", "recordings")) {
+        $StaleDirPath = Join-Path (Join-Path $StageDir "data") $StaleDir
+        if (Test-Path $StaleDirPath) {
+            $StaleMB = [math]::Round(((Get-ChildItem $StaleDirPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum) / 1MB)
+            Remove-Item $StaleDirPath -Recurse -Force
+            Write-Host "  - stripped data\$StaleDir (operator media, $StaleMB MB)"
+        }
     }
 }
 $LicenseSrc = Join-Path $RepoRoot "LICENSE"
