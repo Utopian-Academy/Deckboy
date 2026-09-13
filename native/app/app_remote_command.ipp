@@ -3924,6 +3924,106 @@
     // those is a separate decision with its own button, and a verb that
     // silently picked one would be a verb that quietly discards whatever was
     // already loaded.
+    // SYNTH <shape|mirror|palette> <name>   -- the video synth's LOOK.
+    //
+    // These three were reachable only by clicking an inspector dropdown, which
+    // meant the runtime path -- changing the look of a synth cue that is
+    // ALREADY PLAYING -- could not be exercised at all. That is where this
+    // class of thing breaks: a control that works on a stopped cue and does
+    // nothing, or restarts it, on a live one.
+    //
+    // NAMED, not indexed, for the same reason AUDIOVIS and MESH are: a surface
+    // button sending "7" would follow the enum if a value were ever inserted,
+    // and silently start selecting a different picture on every show using it.
+    // Palettes especially -- the list has grown twice already.
+    //
+    // A bare sub-verb is a question, like a bare AUDIOGAIN, so a controller can
+    // read the current look back rather than track it.
+    if (command == "SYNTH") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("SYNTH: no cue selected");
+        return;
+      }
+      if (cue->kind != CueKind::VideoSynth) {
+        failRemoteCommand("SYNTH: the selected cue is not a video synth");
+        return;
+      }
+      if (parts.size() < 2) {
+        remoteCommandDetail_ =
+          std::string("shape=") + vsShapeLabel(cue->videoSynth.shape) +
+          " mirror=" + vsMirrorLabel(cue->videoSynth.mirror) +
+          " palette=" + vsPaletteLabel(cue->videoSynth.palette);
+        return;
+      }
+      const std::string sub = toUpper(parts[1]);
+      // The value, lower-cased and stripped of the spaces the labels carry --
+      // so "game boy", "gameboy" and "GAMEBOY" all work. An operator reading
+      // the name off the inspector should not have to guess the spelling.
+      std::string want;
+      for (std::size_t i = 2; i < parts.size(); ++i) {
+        for (char c : parts[i]) {
+          if (c != ' ' && c != '_' && c != '-') {
+            want += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+          }
+        }
+      }
+
+      auto named = [&](std::initializer_list<std::pair<const char*, int>> table,
+                       const char* what) -> std::optional<int> {
+        if (want.empty()) {
+          std::string known;
+          for (const auto& entry : table) {
+            if (!known.empty()) known += " ";
+            known += entry.first;
+          }
+          failRemoteCommand(std::string("SYNTH ") + what + ": expected one of: " + known);
+          return std::nullopt;
+        }
+        for (const auto& entry : table) {
+          if (want == entry.first) return entry.second;
+        }
+        std::string known;
+        for (const auto& entry : table) {
+          if (!known.empty()) known += " ";
+          known += entry.first;
+        }
+        failRemoteCommand(std::string("SYNTH ") + what + ": unknown '" + want +
+                          "' (one of: " + known + ")");
+        return std::nullopt;
+      };
+
+      if (sub == "SHAPE") {
+        auto v = named({{"plasma", 0}, {"diamond", 1}, {"rings", 2},
+                        {"grid", 3}, {"moire", 4}}, "SHAPE");
+        if (!v) return;
+        cue->videoSynth.shape = static_cast<VideoSynthShape>(*v);
+      } else if (sub == "MIRROR") {
+        auto v = named({{"none", 0}, {"horizontal", 1}, {"quad", 2},
+                        {"kaleido", 3}}, "MIRROR");
+        if (!v) return;
+        cue->videoSynth.mirror = static_cast<VideoSynthMirror>(*v);
+      } else if (sub == "PALETTE") {
+        auto v = named({{"spectrum", 0}, {"amber", 1}, {"ice", 2}, {"fire", 3},
+                        {"mono", 4}, {"ega16", 5}, {"ega", 5}, {"c64", 6},
+                        {"gameboy", 7}, {"cga", 8}, {"nes", 9},
+                        {"vapor", 10}}, "PALETTE");
+        if (!v) return;
+        cue->videoSynth.palette = static_cast<VideoSynthPalette>(*v);
+      } else {
+        failRemoteCommand("SYNTH: expected shape|mirror|palette, got " + parts[1]);
+        return;
+      }
+      // LIVE. markProjectDirty publishes the edit to the engine's cue snapshot
+      // on the next tick, which is what lets the look change under a cue that
+      // is already playing rather than at the next take.
+      markProjectDirty();
+      remoteCommandDetail_ =
+        std::string("shape=") + vsShapeLabel(cue->videoSynth.shape) +
+        " mirror=" + vsMirrorLabel(cue->videoSynth.mirror) +
+        " palette=" + vsPaletteLabel(cue->videoSynth.palette);
+      return;
+    }
     if (command == "STARTUP") {
       // A bare STARTUP is a question, like a bare AUDIOGAIN.
       if (parts.size() < 2) {
