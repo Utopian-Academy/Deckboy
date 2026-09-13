@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-13 - v0.99.358 (a synth stays a synth)
+
+**A chip synth cue now comes back as a chip synth.** Reopening a show turned
+one into the channel-walking line-up tone, keeping its name and every setting,
+so the only sign was that it would not play a note. The same reopen turned a
+video synth cue made on EGA, C64, Game Boy, CGA, NES or Vapor into Mono. Both
+are fixed, and a new source check guards the whole class -- eleven palettes
+today is fourteen next year, and the reader has to grow with the list.
+
+**Notes go to the deck you are looking at.** With two decks live, playing a
+note always reached the first one, so a bass on one deck and a lead on the
+other came out as two basses. Focus the deck, play the part.
+
+**CHIP** gives a controller the 2A03's timbre the way SYNTH gives it the video
+synth's look: `CHIP VOICE pulse|triangle|noise`, `CHIP DUTY eighth|quarter|
+half|threequarter`, `CHIP NOISE short|long`, `CHIP ENV <attack> <release>`,
+`CHIP QUANTISE on|off`. A bare `CHIP` reads the current timbre back. It applies
+under a held note, so a part can change instrument while it sounds.
+
+**Four more splash images**, taking the colour rotation to twenty-seven.
+
 ## 2026-09-12 - v0.99.357 (the audio chain reaches Companion)
 
 The per-cue audio chain shipped with a remote verb and no way to drive it from
