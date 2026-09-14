@@ -90,7 +90,7 @@ show.
 ### It is also a very good video Swiss army knife
 
 The same box speaks NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode,
-OSC, Art-Net and NMOS — so the machine you brought for playback usually solves
+OSC, Art-Net and NMOS — so the machine you brought for playout usually solves
 the other five problems on the day as well.
 
 - **Convert media** that will not play well, in place, without leaving the app
@@ -176,7 +176,7 @@ playable on site, minutes before doors.
 
 ![The presenter view: previous, live and next slides across the top, the speaker's notes below](art/readme/presenter.png)
 
-- **Prompter view**, also an output type, for the person in front of the camera:
+- **Teleprompter view**, also an output type, for the person in front of the camera:
   the script very large, scrolling up through a fixed reading line at a pace set
   in lines per minute, and mirrored for a beamsplitter. It prompts from the live
   cue's notes, or from a script of its own. Run, stop, jog, pace, size and
