@@ -48,17 +48,51 @@ if [ -z "$APPIMAGETOOL" ]; then
     echo "Fetching appimagetool"
     curl -fsSL -o "$APPIMAGETOOL" \
       "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
-    # A SIZE FLOOR, before anything trusts the bytes. curl -f rejects an
-    # error STATUS, but GitHub has been seen serving a gateway error as a
-    # 200 with a ~92-byte HTML body under the requested filename. That
-    # chmods happily and fails much later as "exec format error", which
-    # sends you looking at the AppImage instead of at the network.
-    # appimagetool is several megabytes; anything tiny is not it.
+    # CHECK THE SIZE BEFORE ANYTHING TRUSTS THE BYTES.
+    #
+    # curl -f rejects an error STATUS, so a plain 504 never reaches the
+    # disk. It cannot catch a 200 that carries an error page under the
+    # requested filename, and it cannot catch a truncated body either.
+    #
+    # A sibling session downloading a release asset during a GitHub wobble
+    # ended up with a 92-byte file containing a 504 page. Their curl had no
+    # -f and did not capture the status, so WHICH of those two cases it was
+    # is unknown and now unknowable -- do not let anyone tell you otherwise.
+    # The guard is worth having for either: 92 bytes of HTML chmods +x
+    # happily and fails several steps later as "exec format error", which
+    # names appimagetool, the AppDir and the runner long before it names
+    # the network.
+    #
+    # The release API knows how big the asset is meant to be, so ask it and
+    # compare exactly. A threshold needs a number somebody guessed; an
+    # exact match does not. If the API is unreachable -- which is likely to
+    # be true in exactly the conditions this guards against -- fall back to
+    # a floor, because appimagetool is megabytes and an error page is not.
+    expected=$(curl -fsSL --max-time 30 \
+      "https://api.github.com/repos/AppImage/appimagetool/releases/tags/continuous" \
+      2>/dev/null | python3 -c 'import json,sys
+try:
+    for a in json.load(sys.stdin).get("assets", []):
+        if a["name"] == "appimagetool-x86_64.AppImage":
+            print(a["size"]); break
+except Exception:
+    pass' 2>/dev/null || true)
     downloaded=$(wc -c < "$APPIMAGETOOL")
-    if [ "$downloaded" -lt 1000000 ]; then
-      echo "error: appimagetool download is only ${downloaded} bytes -- that is" >&2
-      echo "       an error page, not a binary. What arrived:" >&2
+    if [ -n "$expected" ] && [ "$downloaded" != "$expected" ]; then
+      echo "error: appimagetool is ${downloaded} bytes, the release says ${expected}." >&2
+      bad=1
+    elif [ -z "$expected" ] && [ "$downloaded" -lt 1000000 ]; then
+      echo "error: appimagetool download is only ${downloaded} bytes, and the" >&2
+      echo "       release API was unreachable to confirm the real size." >&2
+      bad=1
+    else
+      bad=0
+    fi
+    if [ "$bad" = 1 ]; then
+      echo "       This is not a binary. What arrived:" >&2
       head -c 200 "$APPIMAGETOOL" >&2; echo >&2
+      # Delete it: the download is skipped when an executable copy is
+      # already here, so a kept error page would poison every later run.
       rm -f "$APPIMAGETOOL"
       exit 1
     fi
