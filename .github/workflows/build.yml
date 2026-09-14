@@ -862,6 +862,19 @@ jobs:
           start = re.search(r"^## .*v%s\b.*$" % re.escape(version), text, re.M)
           if not start:
               raise SystemExit("no CHANGES.md section for v%s" % version)
+          # The changelog heading already carries a summary -- "(the audio chain
+          # reaches Companion)" -- and none of it reached the release title, which
+          # was "Deckboy v0.99.357" and said nothing at all. A release page is the
+          # best-ranking thing this project has: searching for Deckboy returns one
+          # ABOVE the repository. The title is what somebody decides to click, so
+          # it should say what the release actually does.
+          summary = re.search(r"\(([^)]+)\)\s*$", start.group(0))
+          title = "Deckboy v%s" % version
+          if summary:
+              title += " \u2014 " + summary.group(1).strip()
+          io.open("release-title.txt", "w", encoding="utf-8").write(title)
+          print("release title: " + title)
+
           rest = text[start.end():]
           nxt = re.search(r"^## \d{4}-", rest, re.M)
           body = (rest[: nxt.start()] if nxt else rest).strip()
@@ -949,6 +962,6 @@ jobs:
           VERSION: ${{ needs.version-check.outputs.version }}
         run: |
           gh release create "v$VERSION" \
-            --title "Deckboy v$VERSION" \
+            --title "$(cat release-title.txt)" \
             --notes-file release-notes.md \
             release/*
