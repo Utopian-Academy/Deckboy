@@ -3446,6 +3446,46 @@
         }
         SDL_UnlockSurface(surface);
       }
+      // AND ARE THEY REAL GLYPHS, or is every character the same empty box?
+      //
+      // Ink is not enough and this check used to stop at ink. A .notdef box --
+      // tofu -- is ink, so a face with no glyphs for the script it is being
+      // asked to draw passed this test cleanly. That is precisely the failure
+      // an operator reports as "no text": boxes are not text.
+      //
+      // So render a SECOND string of the SAME LENGTH and compare the rasters.
+      // Every character of a face that cannot draw this script maps to the same
+      // box with the same advance, so the two come out byte-identical; a face
+      // with real glyphs cannot. The equal length is load-bearing -- comparing
+      // strings of different lengths makes the images differ whether or not a
+      // single glyph exists, which is a test that always passes.
+      const char* sampleAlt = "Zxwvuts 3947k";   // 13 characters, as above
+      bool tofu = false;
+      if (SDL_Surface* alt = TTF_RenderText_Blended(font, sampleAlt, 0, white)) {
+        if (alt->w == surface->w && alt->h == surface->h) {
+          tofu = true;
+          if (SDL_LockSurface(surface)) {
+            if (SDL_LockSurface(alt)) {
+              const auto* details = SDL_GetPixelFormatDetails(surface->format);
+              const std::size_t rowBytes =
+                static_cast<std::size_t>(surface->w) * details->bytes_per_pixel;
+              for (int y = 0; y < surface->h && tofu; ++y) {
+                const auto* a = static_cast<const std::uint8_t*>(surface->pixels) +
+                                static_cast<std::size_t>(y) * surface->pitch;
+                const auto* b = static_cast<const std::uint8_t*>(alt->pixels) +
+                                static_cast<std::size_t>(y) * alt->pitch;
+                if (std::memcmp(a, b, rowBytes) != 0) {
+                  tofu = false;
+                }
+              }
+              SDL_UnlockSurface(alt);
+            }
+            SDL_UnlockSurface(surface);
+          }
+        }
+        SDL_DestroySurface(alt);
+      }
+
       // AND WHAT THE INTERFACE MEASURES, which is a different call from the one
       // that draws. Every label in Deckboy is measured with TTF_GetStringSize
       // first and then ellipsized or clipped to fit its box. If measuring
@@ -3458,6 +3498,7 @@
         TTF_GetStringSize(font, sample, 0, &measuredW, &measuredH);
       std::cout << "      open ok, rendered " << w << "x" << h
                 << ", ink " << (lit > 0 ? "present" : "NONE")
+                << (tofu ? ", GLYPHS NONE (every character drew the same box)" : "")
                 << ", measured ";
       if (!measured) {
         std::cout << "FAILED -- " << SDL_GetError();
@@ -3468,7 +3509,7 @@
         }
       }
       std::cout << "\n";
-      if (w <= 0 || h <= 0 || lit == 0 || !measured ||
+      if (w <= 0 || h <= 0 || lit == 0 || tofu || !measured ||
           measuredW != w || measuredH != h) {
         ++failures;
       }

@@ -1,5 +1,22 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-14 - v0.99.366 (the font check can tell letters from boxes)
+
+**`--font-check` passed a font that could not draw a single letter.** It asked
+whether anything had been drawn at all, and an empty box is something -- so a
+face with no characters for the language it was being asked to render came back
+clean. That is the exact complaint the check exists to diagnose: boxes are not
+text, and an operator reporting "no text" may be looking at a page of them.
+
+It now renders a second string of the same length and compares. Every character
+of a face that cannot draw a script comes out as the same box with the same
+width, so the two are identical to the pixel; a face with real letters cannot
+produce that. The report says GLYPHS NONE and the check fails.
+
+Verified by pointing it at a script the bundled fonts genuinely cannot draw:
+every face reported ink present -- which is what the old check called a pass --
+and every one is now caught.
+
 ## 2026-09-14 - v0.99.365 (a recording hears what the room hears)
 
 **Recorded sound ran ahead of its own picture by about seven frames.** Not a
