@@ -127,11 +127,18 @@ jobs:
       # errors; the second wants MIT source regardless. Untested, because a
       # local test cannot answer this question.
       #
-      # Until then the module is installed from source, which works, and the
-      # release ships the Stream Deck plugin only.
+      # Until then the module ships by the OTHER route Companion supports,
+      # which needs neither their packager nor their approval: the developer
+      # modules folder. The zip below carries the module and its production
+      # dependencies, so it unpacks and runs. That turns the instruction for a
+      # Companion user from "clone the repository and work it out" into three
+      # steps, which matters because those are exactly the people it is for.
       # - name: Companion module package
       #   working-directory: companion-module-utopianacademy-deckboy
       #   run: npx companion-module-build
+
+      - name: Companion module, for the developer modules folder
+        run: python3 tools/pack_companion_module.py
 
       # Attached to the release below. Without this the plugins exist only for
       # someone who clones and builds, which is not how an operator gets one.
@@ -141,6 +148,7 @@ jobs:
           name: Deckboy-plugins
           path: |
             streamdeck-plugin-deckboy/dist/*.streamDeckPlugin
+            companion-module-utopianacademy-deckboy/dist/Deckboy-companion-module-*.zip
           if-no-files-found: error
 
       # Source-level checks, so they need no toolchain and fail before any of
@@ -806,12 +814,14 @@ jobs:
             -name 'Deckboy-*.zip' -o -name 'Deckboy-*.dmg' \
             -o -name 'Deckboy-*-setup.exe' -o -name 'Deckboy-*.tar.gz' \
             -o -name 'Deckboy-*.AppImage' \
-            -o -name '*.streamDeckPlugin' \) \
+            -o -name '*.streamDeckPlugin' \
+            -o -name 'Deckboy-companion-module-*.zip' \) \
             -exec cp -v {} release/ \;
           ls -la release
 
-      # Seven files: an installer and a portable build for each of the three
-      # platforms, plus the Stream Deck plugin. Anything missing means a packaging job
+      # Eight files: an installer and a portable build for each of the three
+      # platforms, plus the Stream Deck plugin and the Companion module.
+      # Anything missing means a packaging job
       # silently produced nothing, and a half-empty release is worse than a
       # failed build.
       - name: Every platform must have shipped something
@@ -820,14 +830,15 @@ jobs:
           cd release
           for pattern in '*-windows-x64.zip' '*-windows-x64-setup.exe' \
                          '*-macos-*.zip' '*.dmg' '*.tar.gz' '*.AppImage' \
-                         '*.streamDeckPlugin'; do
+                         '*.streamDeckPlugin' \
+                         'Deckboy-companion-module-*.zip'; do
             count=$(ls $pattern 2>/dev/null | wc -l)
             if [ "$count" -eq 0 ]; then
               echo "MISSING: nothing matched $pattern" >&2
               exit 1
             fi
           done
-          echo "all seven artefacts present"
+          echo "all eight artefacts present"
 
       # A CHANGELOG ENTRY IS NOT A RELEASE PAGE.
       #
@@ -885,6 +896,16 @@ jobs:
           page.append("")
           page.append("Every build carries what it needs — the binary, ffmpeg and "
                       "its runtime libraries. Nothing else to install.")
+          page.append("")
+          page.append("### Control surfaces")
+          page.append("")
+          page.append("| Surface | File | How |")
+          page.append("|---|---|---|")
+          page.append("| **Stream Deck** | %s | Double-click it. |" % find(".streamDeckPlugin"))
+          page.append("| **Bitfocus Companion** | %s | Unzip it somewhere permanent, then point "
+                      "Companion's *developer modules path* at the folder containing it. "
+                      "INSTALL.txt inside has the three steps. |"
+                      % find("Deckboy-companion-module-", ".zip"))
           page.append("")
           page.append("### First run")
           page.append("")

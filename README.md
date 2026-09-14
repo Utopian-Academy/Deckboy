@@ -33,8 +33,11 @@ else to install.
 | **macOS** (Intel) | `…-macos-x86_64.dmg` | `…-macos-x86_64.zip` |
 | **Linux** | `…-x86_64.AppImage` — one file, `chmod +x` and run | `…-linux-x86_64.tar.gz` |
 
-A **Stream Deck plugin** (`…streamDeckPlugin`) ships alongside them, and the
-Bitfocus Companion module is in the repository.
+Both control surfaces ship with every release, so neither needs a build:
+**Stream Deck** (`…streamDeckPlugin` — double-click it) and **Bitfocus
+Companion** (`Deckboy-companion-module-….zip` — unzip it, then point
+Companion's *developer modules path* at the folder containing it;
+`INSTALL.txt` inside has the three steps).
 
 → **[Latest release](https://github.com/Utopian-Academy/Deckboy/releases/latest)**
 
