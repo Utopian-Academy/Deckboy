@@ -73,6 +73,20 @@ jobs:
       # The Stream Deck plugin has no dependencies at all, so there is nothing
       # to install -- the build assembles the .sdPlugin folder and checks every
       # path the manifest names, which is the failure Stream Deck reports worst.
+      # docs/manual.html is GENERATED from MANUAL.md. Edit the manual, forget
+      # the generator, and the site keeps serving the old text to everyone who
+      # arrives from a search -- silently, because the page still loads.
+      - name: The manual page matches the manual
+        run: |
+          python3 tools/build_manual_page.py
+          if ! git diff --quiet -- docs/manual.html; then
+            echo "docs/manual.html is out of date with MANUAL.md."
+            echo "Run: python tools/build_manual_page.py  and commit the result."
+            git --no-pager diff --stat -- docs/manual.html
+            exit 1
+          fi
+          echo "manual page is current"
+
       - name: Stream Deck plugin
         working-directory: streamdeck-plugin-deckboy
         run: |

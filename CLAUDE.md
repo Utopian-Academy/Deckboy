@@ -63,6 +63,7 @@ cmake --build build/windows --config Release
 | `native/platform/nmos_node.hpp/cpp` | NMOS IS-04 registration + Node API and IS-05 Connection API for the ST 2110 senders. Own HTTP server + registration threads. Tear down ONLY via `shutdownNmosNode()` — see DEVNOTES |
 | `native/platform/siphon_spout.hpp/cpp` | Spout (Windows) / Syphon (macOS) texture sharing |
 | `CHANGES.md` | User-facing changelog |
+| `MANUAL.md` | The manual. **It is also a published web page** — `docs/manual.html` is GENERATED from it by `tools/build_manual_page.py`, and CI fails if the two have drifted. Edit the manual, then run the generator and commit the page. Do not hand-edit `docs/manual.html` |
 | `private-notes/DECISIONS.md` | The decision log: every decision with who made it (James or Claude). James's are binding and win on conflict. Moved out of the repo root 2026-09-12 — it carries bugs and root causes, which public repo text does not |
 | `private-notes/DEVNOTES.md` | Internal architectural decisions (must be kept updated). NOT in the public repo — `private-notes/` is gitignored and carries its own local git history. See `private-notes/README.md` |
 | `docs/CODEMAP.md` | Full structural code map: file inventory, data flow, threading model |
