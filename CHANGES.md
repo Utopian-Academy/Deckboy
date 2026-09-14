@@ -18,11 +18,17 @@ against the device's own reported queue rather than any assumed figure, so
 there is no constant to get wrong and nothing to re-tune per machine.
 
 Measured against a clip carrying a white flash and a tone burst laid down at
-the same instant, once a second. Negative means sound early:
+the same instant, once a second. Negative means sound early; 25fps, three runs
+of each on a real sound device:
 
-    25fps    -285 ms  ->  -156 ms
-    50fps    -182 ms  ->  -104 ms
-    60fps    -192 ms  ->   -81 ms
+    before   -275, -307, -275 ms     mean -286
+    after    -189, -171, -164 ms     mean -175
+
+A second machine, different clip and different measuring method, found the same
+fault and the same direction, and recovered rather more: 157ms against 111ms
+here. That spread is expected -- the amount recovered IS whatever the sound
+device was holding, so it varies with the device and the driver, which is the
+reason nothing here is a fixed figure.
 
 **Live output was never affected and is not changed by this.** What an audience
 hears comes out of the device after that buffer, and the picture is timed
@@ -32,9 +38,10 @@ true than another player through the same capture rig. Only the tap read from
 the wrong end of the buffer, so only captured files were wrong.
 
 **What is left, stated plainly.** About four and a half frames of the offset
-remain at every frame rate, and that is a different thing -- picture taking
-longer to reach the encoder than sound does. It is measured, it is consistent,
-and it is not fixed here.
+remain -- 4.4 here, 4.3 on the other machine, holding steady across frame rates
+from 25 to 60. That is a different thing: picture taking longer to reach the
+encoder than sound does. It is measured, both machines agree, and it is not
+fixed here.
 
 **A take no longer loses the last fraction of a second of its sound.** Holding
 audio until it has played means some is always still held when playback ends;
