@@ -1,5 +1,44 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-14 - v0.99.363 (the interface stops re-drawing what has not changed)
+
+**Every label in the interface was being rasterised from scratch, turned into
+a texture, drawn, and thrown away -- once per label, per frame.** Three hundred
+and twelve places draw text, most of them inside loops over cues and settings
+rows, sixty times a second. Text measurement had been cached for years. The
+rasterisation never was.
+
+Labels are now rendered once and kept, keyed by the renderer that owns them,
+the face, the string and the ink, and dropped only when they fall out of use or
+the fonts reload. The steady state -- a screenful of labels that are all still
+there next frame -- now re-draws nothing at all.
+
+This started as an investigation into issue #6, where the interface on one Mac
+drew every panel, icon, image and colour with no text anywhere. The screenshots
+are what pointed here: images hold their textures, rectangles allocate nothing,
+and until this release text was the only thing in Deckboy churning allocations
+every frame. A path that allocates twenty thousand times a second is a path
+that fails first on whichever machine has the least room, which is the shape of
+a fault that appears on one person's computer and nobody else's.
+
+To be straight about what that does and does not settle: the machine that shows
+the fault is not one we have, so this is the most likely explanation rather than
+a proven one. v0.99.361 already moved macOS to Metal, which is the supported
+backend there and the right thing regardless. This removes the pressure that
+theory rests on.
+
+**`--ui-profile` now reports the label cache** every five seconds -- entries,
+memory, hit rate, and any rasterisation that failed. A failed label used to be
+invisible from inside the app, which is the main reason issue #6 could only be
+described and not measured.
+
+**The splash headline font was opened after the code that configures it.** In a
+right-to-left interface that meant the text-direction pass ran against the
+previous load's font -- freed on any UI-scale change. Left-to-right interfaces
+never touched it, which is why it was never seen. It is opened with the rest of
+the set now.
+
+
 ## 2026-09-14 - v0.99.362 (an audio cue makes a sound)
 
 **An AUDIO cue played silently.** Not to the speakers, not to a recording. It

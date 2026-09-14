@@ -121,12 +121,24 @@ inline SDL_Renderer* deckboyCreateRenderer(SDL_Window* window) {
 // and OpenGL creates. Deckboy has been running on a deprecated backend on
 // every Mac since this list was written, quietly, because it worked.
 //
-// On macOS 26 it stopped working properly: the interface drew -- panels,
-// icons, theme colours, the splash photograph -- with NO TEXT AT ALL
-// (issue #6). Measured on a Tahoe machine: the fonts open, rasterise ink and
-// measure correctly, and the whole text path is fine under the software
-// renderer, so nothing before the GPU is at fault. macOS 14 and 15 still draw
-// text through OpenGL, which is why CI never saw it.
+// On macOS 26 it stopped working properly on at least one machine: the
+// interface drew -- panels, icons, theme colours, the splash photograph --
+// with NO TEXT AT ALL (issue #6).
+//
+// BE CAREFUL WITH WHAT THAT PROVES, because the first version of this comment
+// was not. It cited fonts opening, rasterising ink and measuring correctly,
+// and the whole interface drawing under the software renderer, as evidence
+// that "nothing before the GPU is at fault". Every one of those measurements
+// was taken on a Tahoe machine that DRAWS TEXT FINE ON OPENGL. They were
+// measurements of a working machine, and they localised nothing.
+//
+// What the reporter's screenshots do show, and it is the useful part: the
+// pixel-art icons and the images render, the rectangles render, and only
+// glyphs are missing. Images and primitives hold their textures; until
+// v0.99.363 the text path created and destroyed one per label PER FRAME. An
+// all-or-nothing loss of exactly the churning path is what texture allocation
+// failing under an emulated GL driver looks like. See the text texture cache
+// in main.cpp. Metal is still the right backend here either way.
 //
 // Metal is the supported, tested backend on macOS and has been since 2018.
 // OpenGL stays in the list, one place lower, as the fallback it should always

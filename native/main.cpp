@@ -3778,6 +3778,9 @@ class App {
     monitorsOutputTexW_.clear();
     monitorsOutputTexH_.clear();
     if (monitorsRenderer_) {
+      // Cached labels belong to the renderer that made them — same rule as the
+      // PIP overlay textures above, and the same crash if it is skipped.
+      purgeTextTextureCache(monitorsRenderer_);
       SDL_DestroyRenderer(monitorsRenderer_);
       monitorsRenderer_ = nullptr;
     }
@@ -3791,6 +3794,7 @@ class App {
       scanlineOverlay_ = nullptr;
     }
     if (controlRenderer_) {
+      purgeTextTextureCache(controlRenderer_);
       SDL_DestroyRenderer(controlRenderer_);
       controlRenderer_ = nullptr;
     }
@@ -3838,6 +3842,30 @@ class App {
                << " layout=" << lastUiLayoutMs_ << "ms"
                << " render=" << lastUiRenderMs_ << "ms";
           uiProfileLog(line.str());
+        }
+        // WHAT THE LABEL CACHE IS DOING, once every five seconds. Before it
+        // existed this number was the whole problem and there was no way to
+        // see it: every label allocated and freed a texture every frame, and
+        // the only symptom was an interface with no text on a machine nobody
+        // here owned (issue #6). A hit rate near 100% is the healthy state --
+        // misses should settle to near zero once the screen stops changing.
+        static auto lastCacheLog = std::chrono::steady_clock::now();
+        if (afterRender - lastCacheLog > std::chrono::seconds(5)) {
+          lastCacheLog = afterRender;
+          const std::uint64_t total = textTextureHits_ + textTextureMisses_;
+          std::ostringstream cacheLine;
+          cacheLine << "text-cache entries=" << textTextureCache_.size()
+                    << " kb=" << (textTextureBytes_ / 1024u)
+                    << " hits=" << textTextureHits_
+                    << " misses=" << textTextureMisses_
+                    << " failures=" << textTextureFailures_;
+          if (total > 0) {
+            cacheLine << " hit-rate="
+                      << (textTextureHits_ * 100u / total) << "%";
+          }
+          uiProfileLog(cacheLine.str());
+          textTextureHits_ = 0;
+          textTextureMisses_ = 0;
         }
       }
       // Prevent CPU spin when vsync isn't gating (hidden window, browser cue, etc.)
@@ -7080,6 +7108,10 @@ class App {
     }
     fontLadders_.clear();
     textMeasureCache_.clear();
+    // Same reasoning, and it matters more here: a cached TEXTURE keyed on a
+    // recycled font pointer does not merely mis-measure, it draws the old
+    // face's glyphs at the new face's call site.
+    purgeTextTextureCache(nullptr);
     auto close = [](TTF_Font*& f) { if (f) { TTF_CloseFont(f); f = nullptr; } };
     close(fontLarge_);
     close(fontBase_);
@@ -7158,6 +7190,12 @@ class App {
     fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
     fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
     fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
+    // OPENED HERE, not after the direction block below. It used to be opened
+    // last, which put it in the right-to-left loop while it still held the
+    // PREVIOUS load's pointer -- freed by releaseFonts on any UI-scale change.
+    // Harmless in a left-to-right interface, which is the only reason it was
+    // never seen.
+    fontPixelTitle_ = TTF_OpenFont(pixel.c_str(), pt(42));  // splash/startup headline
 
     // What each face is and how big, so a label that overflows can be given a
     // smaller sibling instead of resizing the one everything else is using.
@@ -7207,7 +7245,6 @@ class App {
     } else {
       deckboy::core::i18n::noteRtlSupported(false);
     }
-    fontPixelTitle_ = TTF_OpenFont(pixel.c_str(), pt(42));  // splash/startup headline
     // Kerning OFF for every UI font. At these pixel sizes a negative kern pair
     // rounds to a whole pixel or two, which tucks the second glyph under the
     // first hard enough that the word visibly splits — "Target URL" rendered as
@@ -9578,6 +9615,42 @@ class App {
     }
   };
   mutable std::unordered_map<TextMeasureKey, int, TextMeasureKeyHash> textMeasureCache_;
+
+  // ── THE RASTERISED LABEL ITSELF, KEPT ───────────────────────────────────
+  //
+  // Measurement was cached here years ago. Rasterisation was not: every label
+  // in the interface rendered a fresh surface, created a texture, drew it and
+  // destroyed it, once per label PER FRAME. 312 call sites, most of them
+  // inside loops over cues and settings rows, at sixty frames a second.
+  //
+  // On Windows and on Metal that is merely wasteful. It stopped being merely
+  // wasteful on macOS 26, where OpenGL is an emulation layer over Metal:
+  // issue #6 is an interface with every rectangle, icon and image intact and
+  // no text anywhere, which is what this app looks like when texture creation
+  // starts failing and nothing else does. Images survive because they are
+  // allocated once; primitives survive because they allocate nothing. Only
+  // the text path churned, so only the text path went.
+  //
+  // The types themselves are defined in app_cue_mgmt.ipp, ABOVE the functions
+  // that return them: a nested type has to be declared before a member
+  // declaration can name it, and that include lands earlier in this class than
+  // this line does. Function BODIES see the whole class, which is why the
+  // counters below can stay here next to the measure cache they belong with.
+  mutable std::unordered_map<TextTextureKey, TextTextureEntry, TextTextureKeyHash>
+    textTextureCache_;
+  // Recency is counted in LOOKUPS, not frames. That needs no hook in the three
+  // places that present a frame, and it orders eviction correctly regardless.
+  mutable std::uint64_t textTextureTick_ = 0;
+  mutable std::size_t textTextureBytes_ = 0;
+  // What the cache saved, for --font-check and the diagnostics line.
+  mutable std::uint64_t textTextureHits_ = 0;
+  mutable std::uint64_t textTextureMisses_ = 0;
+  mutable std::uint64_t textTextureFailures_ = 0;
+  // Only visible labels are drawn, so the live set is bounded by the screen.
+  // A large UI scale makes each one bigger, hence a byte ceiling as well as a
+  // count: whichever is hit first trims the least recently used quarter.
+  static constexpr std::size_t kTextTextureMaxEntries = 1536;
+  static constexpr std::size_t kTextTextureMaxBytes = 48u * 1024u * 1024u;
   // Async cue probe futures (path → probed Cue)
   struct PendingProbe {
     int deckIndex;

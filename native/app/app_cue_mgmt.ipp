@@ -5745,10 +5745,103 @@
     return false;
   }
 
-  void drawTextRaw(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
-    if (!font || text.empty()) {
+  // ── THE LABEL CACHE'S TYPES ─────────────────────────────────────────────
+  // Defined here rather than beside the cache itself because the functions
+  // below name them in their return types, and a nested type must already be
+  // declared for that. The map and the counters live next to textMeasureCache_
+  // in main.cpp, which is where anyone looking for them will look.
+  //
+  // The key carries the RENDERER because a texture belongs to the one that
+  // made it, and the colour because the same string is drawn in several inks.
+  struct TextTextureKey {
+    SDL_Renderer* renderer = nullptr;
+    TTF_Font* font = nullptr;
+    std::string text;
+    std::uint32_t rgba = 0;
+    bool operator==(const TextTextureKey& o) const {
+      return renderer == o.renderer && font == o.font && rgba == o.rgba &&
+             text == o.text;
+    }
+  };
+  struct TextTextureKeyHash {
+    std::size_t operator()(const TextTextureKey& k) const {
+      std::size_t h = std::hash<const void*>{}(static_cast<const void*>(k.renderer));
+      h = h * 1000003u ^ std::hash<const void*>{}(static_cast<const void*>(k.font));
+      h = h * 1000003u ^ std::hash<std::uint32_t>{}(k.rgba);
+      return h * 1000003u ^ std::hash<std::string>{}(k.text);
+    }
+  };
+  struct TextTextureEntry {
+    SDL_Texture* texture = nullptr;
+    int w = 0;
+    int h = 0;
+    std::size_t bytes = 0;
+    std::uint64_t lastUsed = 0;
+  };
+
+  // Drop everything the cache holds for one renderer, or for all of them when
+  // given nullptr. MUST run before the renderer is destroyed and before any
+  // TTF_CloseFont: the allocator hands the same addresses back, and a stale
+  // entry keyed on a recycled pointer draws the previous font's glyphs.
+  void purgeTextTextureCache(SDL_Renderer* renderer) {
+    for (auto it = textTextureCache_.begin(); it != textTextureCache_.end();) {
+      if (renderer && it->first.renderer != renderer) {
+        ++it;
+        continue;
+      }
+      if (it->second.texture) SDL_DestroyTexture(it->second.texture);
+      textTextureBytes_ -= std::min(textTextureBytes_, it->second.bytes);
+      it = textTextureCache_.erase(it);
+    }
+    if (!renderer) {
+      textTextureBytes_ = 0;
+    }
+  }
+
+  // Evict the least recently used quarter. Called only when a ceiling is hit,
+  // so the steady state — a screenful of labels that are all drawn every
+  // frame — never evicts anything at all.
+  void trimTextTextureCache() {
+    if (textTextureCache_.size() <= kTextTextureMaxEntries &&
+        textTextureBytes_ <= kTextTextureMaxBytes) {
       return;
     }
+    std::vector<std::uint64_t> ages;
+    ages.reserve(textTextureCache_.size());
+    for (const auto& entry : textTextureCache_) {
+      ages.push_back(entry.second.lastUsed);
+    }
+    const std::size_t drop = std::max<std::size_t>(1, ages.size() / 4);
+    std::nth_element(ages.begin(), ages.begin() + (drop - 1), ages.end());
+    const std::uint64_t cutoff = ages[drop - 1];
+    for (auto it = textTextureCache_.begin(); it != textTextureCache_.end();) {
+      if (it->second.lastUsed <= cutoff) {
+        if (it->second.texture) SDL_DestroyTexture(it->second.texture);
+        textTextureBytes_ -= std::min(textTextureBytes_, it->second.bytes);
+        it = textTextureCache_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+
+  // The rasterised label, made once and kept. Returns nullptr only when the
+  // text genuinely cannot be drawn, which is the case issue #6 was made of.
+  const TextTextureEntry* cachedTextTexture(SDL_Renderer* renderer, TTF_Font* font,
+                                            const std::string& text, SDL_Color color) {
+    const std::uint32_t rgba = (static_cast<std::uint32_t>(color.r) << 24) |
+                               (static_cast<std::uint32_t>(color.g) << 16) |
+                               (static_cast<std::uint32_t>(color.b) << 8) |
+                               static_cast<std::uint32_t>(color.a);
+    TextTextureKey key{renderer, font, text, rgba};
+    const std::uint64_t tick = ++textTextureTick_;
+    auto found = textTextureCache_.find(key);
+    if (found != textTextureCache_.end()) {
+      found->second.lastUsed = tick;
+      ++textTextureHits_;
+      return &found->second;
+    }
+    ++textTextureMisses_;
     // Per string, not per language: a Latin label inside an Arabic interface
     // still reads left to right.
     if (deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::rtlSupported()) {
@@ -5757,17 +5850,47 @@
     }
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
     if (!surface) {
-      return;
+      ++textTextureFailures_;
+      return nullptr;
     }
     SDL_Texture* texture = deckboyCreateTextureFromSurface(renderer, surface);
+    const int w = surface->w;
+    const int h = surface->h;
+    SDL_DestroySurface(surface);
     if (!texture) {
-      SDL_DestroySurface(surface);
+      // deckboyCreateTextureFromSurface has already retried in RGBA32 and
+      // recorded the failure. Count it here too so --font-check can report a
+      // number rather than an impression.
+      ++textTextureFailures_;
+      return nullptr;
+    }
+    TextTextureEntry entry;
+    entry.texture = texture;
+    entry.w = w;
+    entry.h = h;
+    entry.bytes = static_cast<std::size_t>(w) * static_cast<std::size_t>(h) * 4u;
+    entry.lastUsed = tick;
+    textTextureBytes_ += entry.bytes;
+    textTextureCache_.emplace(key, entry);
+    // Trim AFTER inserting, and never the entry just made — its lastUsed is
+    // the newest tick, so it cannot be at or below the cutoff. Erasing from an
+    // unordered_map invalidates only the references it erased, but the lookup
+    // is repeated rather than reasoned about.
+    trimTextTextureCache();
+    found = textTextureCache_.find(key);
+    return found == textTextureCache_.end() ? nullptr : &found->second;
+  }
+
+  void drawTextRaw(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
+    if (!font || text.empty()) {
       return;
     }
-    SDL_Rect dst {x, y, surface->w, surface->h};
-    SDL_DestroySurface(surface);
-    SDL_RenderTexture(renderer, texture, nullptr, &dst);
-    SDL_DestroyTexture(texture);
+    const TextTextureEntry* entry = cachedTextTexture(renderer, font, text, color);
+    if (!entry) {
+      return;
+    }
+    SDL_Rect dst {x, y, entry->w, entry->h};
+    SDL_RenderTexture(renderer, entry->texture, nullptr, &dst);
   }
 
   // The translating entry point, for the ~45 sites that draw a source string
@@ -6165,24 +6288,17 @@
     if (!font || text.empty()) {
       return;
     }
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
-    if (!surface) {
-      return;
-    }
-    SDL_Texture* texture = deckboyCreateTextureFromSurface(renderer, surface);
-    if (!texture) {
-      SDL_DestroySurface(surface);
+    const TextTextureEntry* entry = cachedTextTexture(renderer, font, text, color);
+    if (!entry) {
       return;
     }
     SDL_Rect dst {
-      rect.x + (rect.w - surface->w) / 2,
-      rect.y + (rect.h - surface->h) / 2,
-      surface->w,
-      surface->h
+      rect.x + (rect.w - entry->w) / 2,
+      rect.y + (rect.h - entry->h) / 2,
+      entry->w,
+      entry->h
     };
-    SDL_DestroySurface(surface);
-    SDL_RenderTexture(renderer, texture, nullptr, &dst);
-    SDL_DestroyTexture(texture);
+    SDL_RenderTexture(renderer, entry->texture, nullptr, &dst);
   }
 
   // -----------------------------------------------------------------------
