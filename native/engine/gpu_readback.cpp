@@ -35,8 +35,28 @@ ID3D11Device* rendererDevice(SDL_Renderer* renderer) {
 //
 // The fix is the standard one: CopyResource into a ring of STAGING textures and
 // Map the OLDEST with DO_NOT_WAIT, so the CPU only ever touches a frame the GPU
-// finished with two frames ago and never waits. Costs two frames of latency,
-// which is meaningless for a file recording.
+// finished with two frames ago and never waits.
+//
+// THAT LATENCY IS NOT FREE, AND THIS COMMENT USED TO SAY IT WAS. It read
+// "costs two frames of latency, which is meaningless for a file recording",
+// which is true of the picture considered on its own and false the moment
+// anything has to stay in step with it. The picture handed over here was
+// composited about kAsyncReadbackDepth frames ago; the SOUND that gets muxed
+// beside it is read at hand-over time and is therefore current. MEASURED
+// 2026-09-14 on two machines: recorded sound sits 4.51 frames (sd 0.44, n=9)
+// ahead of its own picture, constant from 25 to 60fps, and this ring is where
+// it comes from.
+//
+// Not fixed, and the reason is worth knowing before anyone tries: a frame
+// carries no measure of its own age. `capturedAtMs` is stamped when the
+// readback COMPLETES, not when the frame was composited, so there is nothing
+// to ask. The audio-tap fix in v0.99.365 worked precisely because the device
+// COULD be asked what it was still holding; until a frame can be asked when it
+// was drawn, any correction here is a chosen constant rather than a measured
+// one. See private-notes/DEVNOTES.md for the steps.
+//
+// The recording pacer already allows for this latency. Nothing on the audio
+// side does.
 // ============================================================================
 
 namespace {
