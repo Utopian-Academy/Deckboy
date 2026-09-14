@@ -10633,7 +10633,14 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   if (mode == "--font-check") {
     // Needs no window and no GPU, so it runs over ssh on the machine that has
     // the fault -- which is the entire point of it.
-    return App::runFontCheck();
+    //
+    // The optional LANGUAGE is what makes it useful to anyone not running in
+    // English. The check opens the face the interface would open, and for a
+    // language the bundled faces cannot draw that is a system font named by the
+    // catalogue -- a font which draws Latin perfectly well and may have nothing
+    // for the script in question. Without this the check always answered for
+    // English and could pass on a machine whose interface was entirely boxes.
+    return App::runFontCheck(ops.empty() ? std::string() : ops[0]);
   }
   if (mode == "--mtc-check") {
     // No hardware, no cable, no platform: the timecode decoder is arithmetic.

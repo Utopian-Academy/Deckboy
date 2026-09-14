@@ -3339,8 +3339,20 @@
   // neither, which is what makes it runnable over ssh on the machine that has
   // the fault.
   // ---------------------------------------------------------------------------
-  static int runFontCheck() {
+  static int runFontCheck(const std::string& languageCode = std::string()) {
     std::cout << "Deckboy font check\n";
+    // Ask for the language BEFORE anything reads the active one, so every
+    // answer below is about the interface the operator actually has rather
+    // than about English.
+    if (!languageCode.empty()) {
+      std::string langError;
+      if (deckboy::core::i18n::setLanguage(languageCode, Paths::dataDir(), langError)) {
+        std::cout << "language requested: " << languageCode << "\n";
+      } else {
+        std::cout << "language requested: " << languageCode
+                  << " -- NOT AVAILABLE (" << langError << ")\n";
+      }
+    }
     if (!TTF_Init()) {
       std::cout << "TTF_Init: FAILED -- " << SDL_GetError() << "\n";
       std::cout << "font-check: 1 failure\n";
@@ -3380,6 +3392,74 @@
     }
 
     int failures = 0;
+
+    // Do these two strings rasterise to the same pixels? That is the question
+    // behind every "can this face draw that script" test here: a face with no
+    // glyphs maps every character to one .notdef box, so two different pieces
+    // of text come out identical. Ink alone cannot tell them apart, because a
+    // box is ink.
+    auto sameRaster = [](TTF_Font* f, const std::string& a,
+                         const std::string& b) -> bool {
+      SDL_Color white {255, 255, 255, 255};
+      SDL_Surface* sa = TTF_RenderText_Blended(f, a.c_str(), 0, white);
+      SDL_Surface* sb = TTF_RenderText_Blended(f, b.c_str(), 0, white);
+      bool same = false;
+      if (sa && sb && sa->w == sb->w && sa->h == sb->h && sa->w > 0) {
+        same = true;
+        if (SDL_LockSurface(sa)) {
+          if (SDL_LockSurface(sb)) {
+            const auto* details = SDL_GetPixelFormatDetails(sa->format);
+            const std::size_t rowBytes =
+              static_cast<std::size_t>(sa->w) * details->bytes_per_pixel;
+            for (int y = 0; y < sa->h && same; ++y) {
+              const auto* pa = static_cast<const std::uint8_t*>(sa->pixels) +
+                               static_cast<std::size_t>(y) * sa->pitch;
+              const auto* pb = static_cast<const std::uint8_t*>(sb->pixels) +
+                               static_cast<std::size_t>(y) * sb->pitch;
+              if (std::memcmp(pa, pb, rowBytes) != 0) {
+                same = false;
+              }
+            }
+            SDL_UnlockSurface(sb);
+          }
+          SDL_UnlockSurface(sa);
+        }
+      }
+      if (sa) SDL_DestroySurface(sa);
+      if (sb) SDL_DestroySurface(sb);
+      return same;
+    };
+
+    // The distinct characters of a UTF-8 string, each as its own string, so
+    // two of them can be rendered on their own and compared. Single characters
+    // rather than words: two words of the same script can differ in length and
+    // then differ as images whether or not a single glyph exists, which is a
+    // test that always passes.
+    auto distinctCharacters = [](const std::string& s) {
+      std::vector<std::string> out;
+      for (std::size_t i = 0; i < s.size();) {
+        const unsigned char c = static_cast<unsigned char>(s[i]);
+        std::size_t len = 1;
+        if ((c & 0xF8) == 0xF0)      len = 4;
+        else if ((c & 0xF0) == 0xE0) len = 3;
+        else if ((c & 0xE0) == 0xC0) len = 2;
+        if (i + len > s.size()) break;
+        std::string ch = s.substr(i, len);
+        if (ch != " " &&
+            std::find(out.begin(), out.end(), ch) == out.end()) {
+          out.push_back(ch);
+        }
+        i += len;
+      }
+      return out;
+    };
+
+    // The language names ITSELF in its own script -- `#name 日本語` -- so every
+    // catalogue ships the sample needed to test whether the face that will be
+    // opened for it can actually draw it.
+    const std::vector<std::string> scriptChars =
+      distinctCharacters(deckboy::core::i18n::activeName());
+
     struct Face { const char* label; Paths::FontName name; int size; };
     // The sizes the interface actually opens, not a token 16: a face can open
     // at one size and fail at another, and the one that matters is the one the
@@ -3460,30 +3540,26 @@
       // strings of different lengths makes the images differ whether or not a
       // single glyph exists, which is a test that always passes.
       const char* sampleAlt = "Zxwvuts 3947k";   // 13 characters, as above
-      bool tofu = false;
-      if (SDL_Surface* alt = TTF_RenderText_Blended(font, sampleAlt, 0, white)) {
-        if (alt->w == surface->w && alt->h == surface->h) {
-          tofu = true;
-          if (SDL_LockSurface(surface)) {
-            if (SDL_LockSurface(alt)) {
-              const auto* details = SDL_GetPixelFormatDetails(surface->format);
-              const std::size_t rowBytes =
-                static_cast<std::size_t>(surface->w) * details->bytes_per_pixel;
-              for (int y = 0; y < surface->h && tofu; ++y) {
-                const auto* a = static_cast<const std::uint8_t*>(surface->pixels) +
-                                static_cast<std::size_t>(y) * surface->pitch;
-                const auto* b = static_cast<const std::uint8_t*>(alt->pixels) +
-                                static_cast<std::size_t>(y) * alt->pitch;
-                if (std::memcmp(a, b, rowBytes) != 0) {
-                  tofu = false;
-                }
-              }
-              SDL_UnlockSurface(alt);
-            }
-            SDL_UnlockSurface(surface);
-          }
-        }
-        SDL_DestroySurface(alt);
+      const bool tofu = sameRaster(font, sample, sampleAlt);
+
+      // AND THE ACTIVE LANGUAGE'S OWN SCRIPT, which the Latin sample above
+      // cannot speak for. A Japanese interface opens a system face named by
+      // the catalogue; that face draws Latin perfectly well and may still have
+      // nothing for Japanese, and the check would pass while every label on
+      // screen was a box. Two single characters of the language's own name,
+      // rendered alone so their differing widths cannot mask the answer.
+      //
+      // NOT THE MONO FACE. The substitution deliberately leaves it alone, so it
+      // is never asked to draw the interface language -- it carries timecode,
+      // counters and technical readouts, which are ASCII whatever the language.
+      // Testing it here reported a failure on every non-Latin language for a
+      // face that was working exactly as intended, and a diagnostic that cries
+      // wolf is worse than one that says nothing.
+      bool scriptTofu = false;
+      const bool scriptTested =
+        scriptChars.size() >= 2 && face.name != Paths::FontName::Mono;
+      if (scriptTested) {
+        scriptTofu = sameRaster(font, scriptChars[0], scriptChars[1]);
       }
 
       // AND WHAT THE INTERFACE MEASURES, which is a different call from the one
@@ -3499,6 +3575,8 @@
       std::cout << "      open ok, rendered " << w << "x" << h
                 << ", ink " << (lit > 0 ? "present" : "NONE")
                 << (tofu ? ", GLYPHS NONE (every character drew the same box)" : "")
+                << (scriptTofu ? ", CANNOT DRAW THIS LANGUAGE (its own name came"
+                                 " out as identical boxes)" : "")
                 << ", measured ";
       if (!measured) {
         std::cout << "FAILED -- " << SDL_GetError();
@@ -3509,7 +3587,7 @@
         }
       }
       std::cout << "\n";
-      if (w <= 0 || h <= 0 || lit == 0 || tofu || !measured ||
+      if (w <= 0 || h <= 0 || lit == 0 || tofu || scriptTofu || !measured ||
           measuredW != w || measuredH != h) {
         ++failures;
       }

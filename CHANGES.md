@@ -13,9 +13,28 @@ of a face that cannot draw a script comes out as the same box with the same
 width, so the two are identical to the pixel; a face with real letters cannot
 produce that. The report says GLYPHS NONE and the check fails.
 
-Verified by pointing it at a script the bundled fonts genuinely cannot draw:
-every face reported ink present -- which is what the old check called a pass --
-and every one is now caught.
+**And it can now be asked about a language other than English.**
+`--font-check ja` (or ar, hi, ko, zh-Hans, any code the app offers) sets that
+language first, so the check opens the face the interface would really open for
+it. That matters because a language the bundled faces cannot draw is given a
+system font named by its own catalogue -- a font which draws Latin perfectly
+well and may have nothing for the script in question. Until now the check
+always answered for English and could pass cleanly on a machine whose interface
+was entirely boxes.
+
+Each language names itself in its own script, so the check has a sample for
+every one of them without carrying any text of its own.
+
+Verified both ways round, which is the only way a check like this is worth
+anything. Pointed at a script the bundled fonts genuinely cannot draw: every
+face reported ink present -- what the old check called a pass -- and every one
+is now caught. Pointed at the six languages that need a system face, on a
+machine that has them: all six pass.
+
+The timecode face is deliberately exempt. It is never swapped for the
+language's font because it carries counters and readouts rather than prose, so
+testing it reported a failure on every non-Latin language for a face that was
+working exactly as intended.
 
 ## 2026-09-14 - v0.99.365 (a recording hears what the room hears)
 
