@@ -1,6 +1,20 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-13 - v0.99.360 (the cue you took is the cue you see)
+## 2026-09-14 - v0.99.361 (the cue you took is the cue you see)
+
+**macOS: the interface had no text at all on macOS 26.** Panels, icons, theme
+colours and the splash all drew; every letter was missing. Deckboy had been
+choosing a deprecated OpenGL backend on every Mac since the renderer list was
+written -- it worked on macOS 14 and 15, so nobody noticed -- and on macOS 26 it
+keeps drawing shapes and stops drawing glyphs. Macs now use Metal, which is the
+supported backend there and has been for years. Reported by Joel Adria (#6).
+
+A machine that cannot draw text can now say so: `--font-check` opens every face
+at the sizes the interface uses, renders with it, checks there is ink in the
+result and that measuring agrees with drawing, and names the step that failed.
+The app also reports which renderer each window got, and a failed text texture
+is retried and recorded instead of silently drawing nothing.
+
 
 **Taking a still cue left the PREVIOUS one on the output.** Not briefly -- for
 good, with the cue name, the speaker notes, the slide dots and both timers all
