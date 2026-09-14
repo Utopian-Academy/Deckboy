@@ -3988,6 +3988,10 @@
       runtime->egressPublishedAtMs = frame->capturedAtMs;
     }
     packet.videoBytes = runtime->egressPublished;
+    // One entry per frame this tick will WRITE, filled below for a file sink
+    // and handed out to the packets as they are queued. A network sink pushes
+    // straight down the audio pipe instead and leaves this empty.
+    std::vector<std::vector<std::int16_t>> audioChunks;
     // Cross-platform. This was inside #ifndef _WIN32, so on Windows the packet
     // NEVER carried audio -- the deck mix sat buffered and unread while the
     // encoder muxed silence. Gated on the writer actually having somewhere to
@@ -4002,16 +4006,39 @@
       haveAudioSink = runtime->streamAudioPipeFd >= 0;
 #endif
       if (haveAudioSink) {
-        std::vector<std::int16_t> samples = collectOutputAudioFrameSamples(
-          outputIndex,
-          runtime->streamAudioReadSamplesByDeck,
-          runtime->streamAudioSampleRemainder,
-          fpsHint);
+        // ── ONE FRESH CHUNK PER FRAME WRITTEN, NOT PER FRAME CAPTURED ──────
+        //
+        // The pacer repeats a picture when the capture loop falls behind the
+        // wall clock, so one captured frame can become up to four written
+        // frames. The audio arithmetic is "48000/fps samples accompany one
+        // frame", which is right for the frames that get WRITTEN -- so a
+        // repeat needs its own chunk, read fresh from the ring.
+        //
+        // It used to collect one chunk and let the repeats COPY it along with
+        // the raster. The sample count still matched the frame count, which is
+        // why this survived every duration and frame-count check, but the
+        // samples were duplicates: every repeated frame replayed its 1/fps of
+        // audio. MEASURED, at 25fps against a marker clip: clicks arrived
+        // 1.033s apart instead of 1.000s, a constant 3.3% stretch, because the
+        // pacer was repeating about one frame in thirty. It grew to 10% at
+        // 60fps, where the loop had less slack -- and shrank back to 3.8% when
+        // the label texture cache freed up the main thread, which is what
+        // pointed here. Video was unaffected throughout: a repeated FRAME is
+        // correct output, a repeated SAMPLE is not.
+        //
+        // Collected before the writer lock is taken: the ring has its own
+        // mutex and pushOutputStreamAudio takes the audio mutex, so gathering
+        // these underneath writer->mutex would be a lock-order inversion.
+        const int audioChunksNeeded = std::max(1, pacerRepeats);
         if (toFileSink) {
-          // A recording rides the packet, because the pacer may emit the same
-          // frame several times and the audio has to be counted against the
-          // frames that are actually written. That path works; leave it.
-          packet.audioSamples = std::move(samples);
+          audioChunks.reserve(static_cast<std::size_t>(audioChunksNeeded));
+          for (int i = 0; i < audioChunksNeeded; ++i) {
+            audioChunks.push_back(collectOutputAudioFrameSamples(
+              outputIndex,
+              runtime->streamAudioReadSamplesByDeck,
+              runtime->streamAudioSampleRemainder,
+              fpsHint));
+          }
         } else {
           // A NETWORK SINK MUST NEVER WAIT ON THE VIDEO QUEUE FOR ITS AUDIO.
           //
@@ -4027,11 +4054,24 @@
           //
           // So audio goes straight to the audio thread, which has always had
           // its own pipe, its own mutex and its own condition variable. It is
-          // one frame's worth per captured frame either way (the collector
-          // pads with silence when a deck is quiet, so a silent show still
-          // feeds the encoder), which is what keeps the counts -- and
-          // therefore the sync -- aligned.
-          pushOutputStreamAudio(runtime->streamWriter, samples);
+          // one frame's worth per frame WRITTEN either way (the collector pads
+          // with silence when a deck is quiet, so a silent show still feeds
+          // the encoder), which is what keeps the counts -- and therefore the
+          // sync -- aligned. Per written frame, not per captured frame: a
+          // stream carried the pacer's repeated pictures while sending audio
+          // for only one of them, so a stream that repeated frames ran audio
+          // SHORT against its video. The same fault as the recording's, in the
+          // opposite direction, which is why neither showed up as a duration
+          // mismatch.
+          for (int i = 0; i < audioChunksNeeded; ++i) {
+            pushOutputStreamAudio(
+              runtime->streamWriter,
+              collectOutputAudioFrameSamples(
+                outputIndex,
+                runtime->streamAudioReadSamplesByDeck,
+                runtime->streamAudioSampleRemainder,
+                fpsHint));
+          }
         }
       }
     }
@@ -4069,9 +4109,22 @@
           break;
         }
         // The last repeat may move; the others share the same buffer, so each
-        // costs a pointer rather than a raster.
-        writer->queue.push_back(repeat + 1 < pacerRepeats ? packet
-                                                          : std::move(packet));
+        // costs a pointer rather than a raster. The AUDIO is per-packet and
+        // never shared -- each repeat takes the next chunk collected above, so
+        // consecutive written frames carry consecutive audio rather than the
+        // same audio several times.
+        if (repeat + 1 < pacerRepeats) {
+          OutputStreamPacket copy = packet;
+          if (static_cast<std::size_t>(repeat) < audioChunks.size()) {
+            copy.audioSamples = std::move(audioChunks[static_cast<std::size_t>(repeat)]);
+          }
+          writer->queue.push_back(std::move(copy));
+        } else {
+          if (static_cast<std::size_t>(repeat) < audioChunks.size()) {
+            packet.audioSamples = std::move(audioChunks[static_cast<std::size_t>(repeat)]);
+          }
+          writer->queue.push_back(std::move(packet));
+        }
         writer->packetsQueued += 1;
         ++accepted;
       }

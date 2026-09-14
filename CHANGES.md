@@ -1,5 +1,48 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-14 - v0.99.364 (a recording keeps time with itself)
+
+**Recorded audio ran 3.3% slow against its own picture.** A minute of recording
+drifted more than two seconds, and it never settled, because there was nothing
+for it to settle to -- it was a constant rate error, not a startup offset.
+
+When the capture loop falls a frame behind the wall clock, the pacer repeats
+the picture so the file stays constant-frame-rate. That is correct, and it is
+what keeps a recording the right length on a busy machine. But each repeated
+frame was queued as a copy of the whole packet -- and the packet carries its
+audio, so a repeated picture replayed its own fraction of a second of sound.
+About one frame in thirty was being repeated, which is where the 3.3% came
+from.
+
+The counts were right the whole time, which is why this survived: sample count
+matched frame count exactly, durations matched, no frames were dropped, and
+every check either of those numbers would satisfy passed. It was the CONTENT
+that was duplicated. A repeated frame is correct output; a repeated sample is
+not.
+
+Each written frame now takes its own audio, read fresh, so consecutive frames
+carry consecutive sound. Measured against a marker clip, before and after:
+
+    25fps, 640x360                       1.0332  ->  1.0025
+    50fps, 640x360                       1.0340  ->  0.9990
+    60fps, 640x360                       1.0387  ->  1.0015
+    25fps, 1080p + grain flow + caustics 1.0331  ->  1.0025
+
+1.0000 is perfect sync. What is left is the measuring harness quantising to
+frame boundaries, not the recording.
+
+**Streams had the same fault in the opposite direction.** A stream sends audio
+down its own pipe rather than with the picture, and it was sending one frame's
+worth per frame CAPTURED while the video queue received every repeat. So a
+stream that repeated frames ran audio short against its video, where a
+recording ran long. Both now count per frame written.
+
+**Recordings made at 60fps were worse than at 25 or 30**, and that part was
+already fixed by the label cache in v0.99.363 without anyone knowing: less work
+on the main thread meant fewer frames arriving late, which meant fewer repeats.
+The two faults had been adding up.
+
+
 ## 2026-09-14 - v0.99.363 (the interface stops re-drawing what has not changed)
 
 **Every label in the interface was being rasterised from scratch, turned into
