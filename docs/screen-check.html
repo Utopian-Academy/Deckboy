@@ -40,10 +40,12 @@
                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                    margin: 1.2rem 0 1.6rem; }
         .patgrid button { font: inherit; font-size: .92rem; cursor: pointer;
-                          padding: .65rem .5rem; color: var(--ink);
-                          background: var(--dmg-dark); border: 1px solid transparent; }
+                          padding: .7rem .5rem; color: var(--ink);
+                          background: var(--dmg-dark);
+                          border: 1px solid var(--ink-soft); }
         .patgrid button:hover, .patgrid button:focus-visible {
-                          border-color: var(--ink-soft); outline: none; }
+                          background: var(--ink); color: var(--dmg-dark);
+                          outline: none; }
 
         #stage { position: fixed; inset: 0; z-index: 9999; background: #000;
                  display: none; }
@@ -193,27 +195,45 @@
 
   // Median of the frame intervals: a mean is wrecked by the first few frames
   // and by whatever else the machine decided to do during the sample.
+  // A deadline that does NOT live inside the frame callback. If requestAnimationFrame
+  // stops being called at all -- a background tab, a throttled browser, a headless
+  // render -- nothing inside tick() ever runs again, and the readout sits on
+  // "sampling" forever looking broken. setTimeout still fires, so it is the net.
   (function measureRefresh() {
-    var times = [], last = 0, want = 140;
-    function tick(now) {
-      if (last) times.push(now - last);
-      last = now;
-      if (times.length < want) return requestAnimationFrame(tick);
+    var times = [], last = 0, want = 140, done = false;
+
+    function finish() {
+      if (done) return;
+      done = true;
+      if (times.length < 20) {
+        refreshCell.innerHTML = 'could not measure '
+          + '<span class="k">(this tab may be throttled)</span>';
+        return;
+      }
       times.sort(function (a, b) { return a - b; });
-      var mid = times[times.length >> 1];
-      var hz = 1000 / mid;
+      var hz = 1000 / times[times.length >> 1];
       // Snap only to a rate we are genuinely close to; otherwise say the number.
-      var common = [23.976, 24, 25, 29.97, 30, 48, 50, 59.94, 60, 75, 90, 100, 120, 144, 165, 240];
+      var common = [23.976, 24, 25, 29.97, 30, 48, 50, 59.94, 60, 75, 90, 100,
+                    120, 144, 165, 240];
       var snapped = null;
       for (var i = 0; i < common.length; i++) {
         if (Math.abs(hz - common[i]) < 0.6) { snapped = common[i]; break; }
       }
-      var spread = times[Math.floor(times.length * 0.9)] - times[Math.floor(times.length * 0.1)];
-      var steady = spread < 2.0;
+      var spread = times[Math.floor(times.length * 0.9)]
+                 - times[Math.floor(times.length * 0.1)];
       refreshCell.innerHTML = (snapped !== null ? snapped : hz.toFixed(1)) + ' Hz'
-        + (steady ? '' : ' <span class="k">(uneven)</span>');
+        + (spread < 2.0 ? '' : ' <span class="k">(uneven)</span>');
     }
+
+    function tick(now) {
+      if (last) times.push(now - last);
+      last = now;
+      if (times.length >= want) return finish();
+      requestAnimationFrame(tick);
+    }
+
     requestAnimationFrame(tick);
+    setTimeout(finish, 2500);
   })();
 
   // ---- The patterns --------------------------------------------------------
@@ -373,6 +393,9 @@
     t0 = 0;
     cancelAnimationFrame(raf); raf = 0;
     stage.classList.add('on');
+    if (location.hash.replace(/^#/, '') !== slugOf(patterns[current].name)) {
+      history.replaceState(null, '', '#' + slugOf(patterns[current].name));
+    }
     hint.firstChild.nodeValue = patterns[current].name + '  ·  ';
     if (stage.requestFullscreen) { stage.requestFullscreen().catch(function () {}); }
     // A frame's grace so the fullscreen resize has happened before measuring.
@@ -382,6 +405,7 @@
   function leave() {
     cancelAnimationFrame(raf); raf = 0;
     stage.classList.remove('on');
+    if (location.hash) history.replaceState(null, '', location.pathname);
     if (document.fullscreenElement && document.exitFullscreen) {
       document.exitFullscreen().catch(function () {});
     }
@@ -389,6 +413,13 @@
 
   var hint = document.getElementById('hint');
   hint.insertBefore(document.createTextNode(''), hint.firstChild);
+
+  // Each pattern has a slug, so a pattern can be linked to directly --
+  // #bars goes straight to bars. Useful for a bookmark on a show laptop, and
+  // for sending somebody the exact card you want them to look at.
+  function slugOf(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
 
   var grid = document.getElementById('patterns');
   patterns.forEach(function (p, i) {
@@ -398,6 +429,19 @@
     b.addEventListener('click', function () { show(i); });
     grid.appendChild(b);
   });
+
+  // Open whatever the address bar asked for, and keep it in step afterwards.
+  function fromHash() {
+    var want = (location.hash || '').replace(/^#/, '');
+    if (!want) return;
+    for (var i = 0; i < patterns.length; i++) {
+      if (slugOf(patterns[i].name) === want) { show(i); return; }
+    }
+  }
+  window.addEventListener('hashchange', function () {
+    if (!location.hash) { leave(); } else { fromHash(); }
+  });
+  fromHash();
 
   window.addEventListener('keydown', function (e) {
     if (!stage.classList.contains('on')) return;
