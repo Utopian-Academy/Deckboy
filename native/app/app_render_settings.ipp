@@ -1931,11 +1931,21 @@
         // the card means. It had no control anywhere in the interface -- only
         // a line in the network protocol -- so an operator could not reach the
         // presenter view at all.
+        // A DROPDOWN, not a cycling button, and that difference is the whole
+        // feature being findable or not. The control was already here and
+        // James still could not find the presenter view: the row read
+        // "Shows | PROGRAMME" as a plain button, directly above two rows that
+        // carry dropdown arrows -- so nothing on it said other choices existed,
+        // and it read as a status line reporting what this output is. A status
+        // line is not something you click, and every other way in is a network
+        // verb. A list names all four, which is also the only way "prompter"
+        // gets found by somebody who was not looking for it.
         SDL_Rect typeBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Shows");
-        drawUIValueControl(typeBtn,
+        drawUIDropdownValue(typeBtn,
           outputTypeLabel == "presenter" ? "PRESENTER VIEW"
             : outputTypeLabel == "prompter" ? "PROMPTER"
-            : (outputTypeLabel == "stream" ? "STREAM" : "PROGRAMME"));
+            : (outputTypeLabel == "stream" ? "STREAM" : "PROGRAMME"),
+          "settings.output_type");
         settingsBtns_.push_back({typeBtn, kSettingsActionOutputTypeCycle,
                                  "Programme picture, a presenter view for the "
                                  "operator, a prompter for the talent, or a stream"});
@@ -5075,20 +5085,27 @@
         setVjMode(!project_.vjModeEnabled);
         triggerToast(project_.vjModeEnabled ? "vj mode on" : "vj mode off");
       } else if (sb.action == kSettingsActionOutputTypeCycle) {
-        // programme -> presenter -> prompter -> stream -> programme
-        const std::string was = normalizeOutputType(focusedOutput().outputType);
-        const char* next = (was == "window")    ? "presenter"
-                         : (was == "presenter") ? "prompter"
-                         : (was == "prompter")  ? "stream"
-                                                : "window";
-        if (setFocusedOutputType(next)) {
-          const std::string chosen = next;
-          triggerToast("output shows: " +
-                       (chosen == "presenter" ? std::string("presenter view")
-                        : chosen == "prompter" ? std::string("prompter (the talent's screen)")
-                        : chosen == "stream"   ? std::string("stream")
-                                               : std::string("programme")));
-        }
+        // The four, NAMED, rather than a cycle that shows one at a time. The
+        // action id keeps its old name so nothing that already fires it breaks.
+        openDropdown(
+          "settings.output_type",
+          sb.rect,
+          {{"window", "PROGRAMME"},
+           {"presenter", "PRESENTER VIEW"},
+           {"prompter", "PROMPTER"},
+           {"stream", "STREAM"}},
+          normalizeOutputType(focusedOutput().outputType),
+          [this](const std::string& value) {
+            if (!setFocusedOutputType(value)) {
+              return;
+            }
+            triggerToast("output shows: " +
+                         (value == "presenter" ? std::string("presenter view")
+                          : value == "prompter" ? std::string("prompter (the talent's screen)")
+                          : value == "stream"   ? std::string("stream")
+                                                : std::string("programme")));
+          });
+        return;
       } else if (sb.action == kSettingsActionClockCycle) {
         // off -> 24h -> 12h -> analog -> off
         const std::string was =
