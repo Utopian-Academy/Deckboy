@@ -1,5 +1,56 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-13 - v0.99.360 (the cue you took is the cue you see)
+
+**Taking a still cue left the PREVIOUS one on the output.** Not briefly -- for
+good, with the cue name, the speaker notes, the slide dots and both timers all
+correct beside the wrong picture. It needed a cue to have been live before, so
+the first take after opening a show looked right, and taking the same cue twice
+looked right, which is how it survived. Video hid it completely. Anyone running
+slides was one slide behind all the way through, and the presenter view showed
+it too.
+
+**Audio and picture drift apart on some older AVI files, and now they do not.**
+The DivX-era files with packed B-frames -- a lot of ripped television -- gave
+their first frame a timestamp four frames late, so the picture ran about 170ms
+behind its own sound for the whole clip. The same fix ends the other half of
+that report: a single bad timestamp could park the picture ahead of the clock
+and freeze it for a second or two, now and then, for no visible reason.
+
+**A slide deck brings its transitions with it.** Importing a .pptx used to
+flatten every move to a cut, because the conversion goes through PDF and a PDF
+cannot carry one. The transitions were still in the PowerPoint the whole time:
+fades, pushes, wipes, dips and irises now come across per slide, with their
+durations, and PowerPoint's "advance after N seconds" keeps a self-running deck
+self-running. Keynote comes too, exported as .pptx.
+
+**The playlist has a scrollbar.** A thousand-cue deck was reachable only by
+mouse wheel, thirty-six pixels at a time, with nothing on screen saying where in
+the show you were. Grab the rail, or drag the thumb -- whose size tells you how
+long the list is.
+
+**The presenter view is findable.** It was always there, on an output's "Shows"
+row, as a plain button that looked like a status line. It is a dropdown now,
+which is also how anyone discovers the prompter.
+
+**Two things in the timeline that read as broken.** The countdown said
+"-01:20.3" underneath a label reading REMAINING, and the ruler's first time was
+printed on top of the "VIDEO" lane name. The playlist row's countdown keeps its
+minus sign, because there the sign is the only thing saying which way the number
+runs.
+
+**MIDI timecode works on Windows and macOS.** A quarter-frame is an ordinary
+MIDI message and always arrived; it was being dropped one layer below, while the
+app reported MTC as needing Linux. Any MIDI input can chase timecode now.
+
+**The Companion module ships in the release** rather than being something to
+fetch from the repository, and there is a screen check you can open on a phone
+in a venue.
+
+Under the hood: seven audits that existed and were run by hand now run in CI,
+including two ratchets that can only go down; a new check catches the class of
+bug where a saved value comes back as something else after a reload.
+
 ## 2026-09-13 - v0.99.359 (the rings come back)
 
 **The Rings shape stopped being rings a few seconds after it went up.** The
