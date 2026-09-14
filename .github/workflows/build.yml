@@ -87,6 +87,12 @@ jobs:
           fi
           echo "manual page is current"
 
+      # Six pages that link to each other and to anchors inside the manual.
+      # A dead link on a landing page loses the visitor after the expensive
+      # part -- getting them there -- has already been paid for.
+      - name: The site has no dead links
+        run: python3 tools/check_site_links.py
+
       - name: Stream Deck plugin
         working-directory: streamdeck-plugin-deckboy
         run: |
