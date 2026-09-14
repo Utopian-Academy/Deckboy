@@ -48,6 +48,20 @@ if [ -z "$APPIMAGETOOL" ]; then
     echo "Fetching appimagetool"
     curl -fsSL -o "$APPIMAGETOOL" \
       "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+    # A SIZE FLOOR, before anything trusts the bytes. curl -f rejects an
+    # error STATUS, but GitHub has been seen serving a gateway error as a
+    # 200 with a ~92-byte HTML body under the requested filename. That
+    # chmods happily and fails much later as "exec format error", which
+    # sends you looking at the AppImage instead of at the network.
+    # appimagetool is several megabytes; anything tiny is not it.
+    downloaded=$(wc -c < "$APPIMAGETOOL")
+    if [ "$downloaded" -lt 1000000 ]; then
+      echo "error: appimagetool download is only ${downloaded} bytes -- that is" >&2
+      echo "       an error page, not a binary. What arrived:" >&2
+      head -c 200 "$APPIMAGETOOL" >&2; echo >&2
+      rm -f "$APPIMAGETOOL"
+      exit 1
+    fi
     chmod +x "$APPIMAGETOOL"
   fi
 fi
