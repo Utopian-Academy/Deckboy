@@ -124,6 +124,8 @@ playable on site, minutes before doors.
 - Looping and hold-last-frame behaviour
 - Fade in/out, per cue and per deck
 - Cue trimming, and per-cue transition overrides
+- Thirteen transitions: cut, crossfade, dip to black or white, four pushes,
+  four wipes and an iris — set per deck, overridden per cue, timed in seconds
 
 </details>
 
