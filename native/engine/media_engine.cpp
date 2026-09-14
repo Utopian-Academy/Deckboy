@@ -5846,6 +5846,28 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     decodeW = fallbackW;
     decodeH = fallbackH;
   }
+  // AN AUDIO CUE HAS NO PICTURE, AND WAS BEING REFUSED FOR NOT HAVING ONE.
+  //
+  // The probe stores an audio-only cue as 1x1 -- the inspector shows it, "1
+  // Audio 1x1 01:30.0". One is not zero, so the fallback above leaves it
+  // alone; then the even-dimension rounding below turns 1 into 0, and the
+  // guard after it returns. So startDecoderThreads gave up BEFORE opening
+  // anything, and an audio cue never started a decoder, never produced a
+  // sample, never reached the tap, and never reached the speakers or the
+  // recording. It transported perfectly: Playing, position advancing,
+  // duration read from the file. It just made no sound, and said nothing.
+  //
+  // Verified as the cue KIND rather than the codec by taking mp3, WAV and M4A
+  // audio cues and an mp4 carrying MP3 audio in one recording: all three audio
+  // cues silent, the video cue with the same codec fine.
+  //
+  // The numbers are meaningless for this kind -- startInprocDecoders takes the
+  // audio-only path and never looks at them -- so give it the output raster
+  // and let it through.
+  if (cue.kind == CueKind::Audio) {
+    decodeW = fallbackW;
+    decodeH = fallbackH;
+  }
   // NV12 needs even dimensions for its half-resolution chroma plane. Round
   // down so the pipe byte count matches what SDL_UpdateNVTexture expects.
   // For RGBA the same trim is a no-op in practice — sources are virtually
@@ -6628,6 +6650,13 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
           if (queuedAudioBytes() > 5760 * audioStreamBytesPerFrame()) {
             SDL_Delay(4);
             continue;
+          }
+          {
+            static Uint64 dbgLast = 0;
+            const Uint64 nowDbg = SDL_GetTicks();
+            if (nowDbg - dbgLast > 1000) {
+              dbgLast = nowDbg;
+            }
           }
           int got = audioPipeline_->read(samples.data(), static_cast<int>(samples.size()));
           if (got <= 0) {
