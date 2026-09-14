@@ -351,14 +351,25 @@ the show (see §20).
 
 ## 10. Transitions
 
-Cue-to-cue transitions are set at the deck level and can be overridden per cue:
+Cue-to-cue transitions are set at the deck level and can be overridden per
+cue. There are **thirteen** styles:
 
-- **Cut** — instant.
-- **Crossfade** — alpha blend over the transition time.
-- **Dip to black** — fade down, then up.
+| Style | Token | What happens |
+|-------|-------|--------------|
+| Cut | `cut` | Instant |
+| Crossfade | `crossfade` | Alpha blend over the transition time |
+| Dip to black | `dipblack` | Down to black, then up |
+| Dip to white | `dipwhite` | The same through white — a flash rather than a breath |
+| Push left / right / up / down | `pushleft` … | The incoming cue shoves the outgoing one off the raster |
+| Wipe left / right / up / down | `wipeleft` … | A hard edge travels across, revealing the incoming cue |
+| Iris | `iris` | The incoming cue opens from the centre |
+
+A **push** moves both pictures; a **wipe** moves only the boundary. They look
+alike in a still and nothing alike in motion.
 
 Set the deck default in the playlist settings; override on a cue in its
-PLAYBACK section. The incoming cue's fade-in is the visible ramp on the output
+PLAYBACK section. Over the wire, `TRANSITIONSTYLE <token>` sets the style and
+`TRANSITION <seconds>` sets the time. The incoming cue's fade-in is the visible ramp on the output
 path. `next xfade` on a cue toggles whether a transition is used when
 auto-advancing into the next cue.
 
