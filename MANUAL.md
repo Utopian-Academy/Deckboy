@@ -864,7 +864,21 @@ smooth, and diagonal; full-frame solid colours have no motion option.
   circle is drawn from a true pixel radius, so it reads as an egg the moment a
   stretch mode or pixel aspect is wrong, and the scrolling hue band gives
   sub-second phase between captures a few frames apart.
-- Standard bars, crosshatch, solids, and gradients.
+- **Frame Count** — every frame carries its own number, so a dropped frame is a
+  gap in a sequence rather than a judgement about whether the motion looked
+  smooth. Photograph it at both ends of a chain and the difference is the
+  latency, in frames, with no stopwatch involved. There is an **emoji** variant
+  for when the far end is a phone camera and small digits will not survive it.
+- **SMPTE 75% colour bars**, **crosshatch**, **checkerboard**, and full-frame
+  **white, black, red, green and blue**.
+
+Pocket Test comes in four times of day — **day, sunset, night and storm** — for
+checking that a display's picture processing is not crushing shadows or clipping
+highlights at one end of its range.
+
+Most of the static cards also have a **(motion)** variant. Motion is the point:
+a still card cannot show you tearing, judder, or a deinterlacer making things
+up, and those are the faults that only appear once the picture moves.
 
 ---
 
@@ -978,9 +992,21 @@ All remote inputs normalise to plain-text commands.
 - **Tally / triggers** — TSL tally out, ATEM and NDI-metadata triggers,
   Art-Net channel map, NMC sync.
 
-Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
-`AUDIOGAIN -6`, `AUDIOOUTS 2`, `AUDIO NEXT`. Toggle adapters in
-`Settings → Network`.
+Commands are case-insensitive. There are **over 260 of them**, and rather than
+list them here — where they would go stale — **send `HELP` over the socket and
+Deckboy prints the protocol it is actually running.** That reply is generated
+from the same code that handles the commands, so it cannot drift.
+
+Examples: `TAKE`, `STOP`, `VOLUME 75`, `AUDIOGAIN -6`, `AUDIOOUTS 2`,
+`AUDIO NEXT`, `TRANSITIONSTYLE wipeleft`, `NOTESTEP NEXT`, `FX ADD ripple`.
+
+**Every command answers.** You get `OK <VERB>`, `ERR unknown command: <VERB>`,
+or `ERR <VERB>: <reason>` — so a controller can tell a typo from a refusal from
+a success, and a verb that was understood but could not act says why. Nothing is
+silently swallowed and nothing is silently clamped into range: an out-of-range
+value is an error, because a clamp is what makes a units mistake invisible.
+
+Toggle adapters in `Settings → Network`.
 
 ---
 
