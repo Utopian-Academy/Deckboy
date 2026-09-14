@@ -61,6 +61,20 @@ app reported MTC as needing Linux. Any MIDI input can chase timecode now.
 fetch from the repository, and there is a screen check you can open on a phone
 in a venue.
 
+**The Stream Deck plugin has a new id, and you will need to re-assign its keys
+once.** It was `com.deckboy.streamdeck`; it is now `com.utopian-academy.deckboy`,
+which is the form Elgato's Marketplace requires. A plugin's id can never change
+after it is published there, so this was the last release it could be done in --
+and doing it now costs one re-assignment, where doing it later would cost one
+from everybody. Install the new plugin, drag the actions back onto your keys,
+and remove the old one; nothing else about it has changed.
+
+**The manual was under-selling the transitions by ten.** It listed cut,
+crossfade and dip-to-black. Deckboy has thirteen: those plus dip to white, push
+left, right, up and down, wipe left, right, up and down, and an iris. Nothing
+changed in the program -- they were all there -- but if you have been reaching
+for a crossfade because you thought that was the choice, it was not.
+
 Under the hood: seven audits that existed and were run by hand now run in CI,
 including two ratchets that can only go down; a new check catches the class of
 bug where a saved value comes back as something else after a reload.
