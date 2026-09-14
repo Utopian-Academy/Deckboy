@@ -1542,7 +1542,14 @@
       }
     }
 
-    constexpr int kTimelineHeaderH = 60;
+    // SCALED, like everything it has to hold. This was a bare 60, so at 150%
+    // and 200% the two rows inside it grew with the font and the box did not --
+    // the cue name, the clock and the countdown plate were squeezed into a
+    // header the same height as at 1x. The rest of this block is still
+    // unscaled and is tracked by tools/audit_scaled_layout.py; this one is
+    // fixed because the countdown lives in it and the countdown is what got
+    // reported.
+    const int kTimelineHeaderH = uiScaled(60);
     constexpr int kVideoLaneBaseH = 92;
     constexpr int kAudioLaneBaseH = 68;
     constexpr int kTimelineGap = 6;
@@ -1712,7 +1719,11 @@
                                  countdownRect.w - uiScaled(20), tlLineH};
     drawTextSafe(controlRenderer_, fontSmall_, countdownLabelRect,
                  countdownActive ? "REMAINING" : "READY", countdownLabelInk);
-    std::string countdownText = countdownActive ? ("-" + formatSeconds(remaining)) : "--:--";
+    // NO MINUS SIGN. The plate above it already says REMAINING, so "-01:20.3"
+    // under that word reads as minus one minute twenty REMAINING -- i.e. as
+    // though the cue were already over and counting past. A broadcast
+    // countdown wears the minus INSTEAD of a label, never as well as one.
+    std::string countdownText = countdownActive ? formatSeconds(remaining) : "--:--";
     TTF_Font* countdownFont = fontLarge_ ? fontLarge_ : fontBase_;
     int countdownTextW = 0;
     int countdownTextH = 0;
@@ -2222,8 +2233,22 @@
       std::string leftStr = timelineZoomedToTrim ? formatSeconds(rulerBase) : std::string("0:00");
       std::string midStr = formatSeconds(rulerBase + timelineDuration / 2.0);
       std::string rightStr = formatSeconds(rulerBase + timelineDuration);
+      // PAST THE LANE'S OWN NAME. The comment above claimed the ruler sits
+      // inside the content area and so cannot collide with the "VIDEO" label
+      // in the border -- but progressBarRect_ is inset by THREE pixels, and the
+      // lane label starts eight in. "VIDEO" was at x+8 and "0:00" at x+7, three
+      // pixels apart vertically, so they were printed on top of each other and
+      // had been for as long as both existed.
+      //
+      // The left label moves right of the name rather than the name moving,
+      // because a left-aligned ruler label always sits just right of the tick
+      // it marks anyway; nothing about the reading changes.
+      int laneNameW = 0, laneNameH = 0;
+      if (fontSmall_) {
+        TTF_GetStringSize(fontSmall_, "VIDEO", 0, &laneNameW, &laneNameH);
+      }
       drawText(controlRenderer_, fontSmall_, leftStr, pal.dark,
-               progressBarRect_.x + 4, rulerY);
+               progressBarRect_.x + 4 + laneNameW + uiScaled(8), rulerY);
       int midW = 0, midH = 0;
       if (fontSmall_ && TTF_GetStringSize(fontSmall_, midStr.c_str(), 0, &midW, &midH)) {
         drawText(controlRenderer_, fontSmall_, midStr, pal.dark,
