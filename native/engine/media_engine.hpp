@@ -603,6 +603,12 @@ class MediaEngine {
   // Final stage: delay FIFO (chain A/V offset) → tap → SDL stream. Shared by
   // decode audio and the pocket-test sync pop.
   void queueDelayedAudio(std::vector<std::int16_t>& samples);
+  // Park samples handed to the device and release to audioTap_ only what the
+  // device has actually played. See tapFifo_ for why.
+  void tapPlayedAudio(const std::vector<std::int16_t>& sentToDevice);
+  // Release whatever is still parked. Called when playback ends, so a take
+  // does not lose its final buffer's worth of sound.
+  void flushTappedAudio();
   // Last write: expand processed stereo onto the cue's output pair when the
   // stream is open with >2 channels, then SDL_PutAudioStreamData.
   void putAudioToStream(const std::vector<std::int16_t>& stereo);
@@ -896,6 +902,28 @@ class MediaEngine {
   std::atomic<int> audioDeviceChannels_ {2}; // channels the SDL stream expects
   std::atomic<int> audioCuePairOffset_ {0};  // 0 = outs 1-2, 1 = outs 3-4, ...
   std::deque<std::int16_t> audioDelayFifo_;  // holds processed samples for the delay
+
+  // ── THE TAP RUNS ON PLAYED TIME, NOT QUEUE TIME ──────────────────────────
+  //
+  // audioTap_ feeds the recorder, the stream writers and NDI. It used to be
+  // called the instant samples were handed to the device, while the PICTURE is
+  // slaved to the audio clock computed as "queued minus still-buffered" -- what
+  // has actually played. So every captured file carried audio ahead of its own
+  // picture by the device buffer depth.
+  //
+  // MEASURED on 2026-09-14, two independent harnesses, sound early by 190-330ms
+  // depending on rate -- about seven frames at 25fps. The live output was
+  // measured clean in the same session (20ms better than ffplay through an
+  // identical capture rig), which is the whole reason this is the right place
+  // to fix it: the room hears played audio against the played-audio clock and
+  // already agrees. Only the tap was reading from the wrong end of the buffer.
+  //
+  // So samples are parked here and released only once the device has actually
+  // consumed them. Self-correcting: it releases against the device's own
+  // reported queue rather than any assumed latency, so it needs no constant.
+  std::mutex tapMutex_;
+  std::vector<std::int16_t> tapFifo_;         // queued but not yet played
+  std::uint64_t tapEmittedFrames_ = 0;        // stereo frames handed to the tap
                                              // (owned by whichever thread queues audio;
                                              // cleared only after threads are joined)
   // -- State: peak limiter (v0.81.5) -------------------------------------------

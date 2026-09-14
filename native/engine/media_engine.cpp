@@ -5655,6 +5655,11 @@ size_t MediaEngine::queuedFrames() {
 // ---------------------------------------------------------------------------
 void MediaEngine::stopDecoderThreads() {
   stopImageThread();
+  // Anything still parked for the tap goes out now. The decode thread is about
+  // to stop feeding, so nothing would ever come along to release the last
+  // buffer's worth and a take would end a fraction of a second early in its
+  // sound only.
+  flushTappedAudio();
   decodersRunning_ = false;
   audioClockValid_ = false;  // audio clock dies with the pipe
   decoderStop_.store(true);  // signal threads to exit their loop
@@ -6033,6 +6038,10 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
     syncAudioFadeParams();  // publish before the audio thread spawns
     audioFramesQueued_.store(0, std::memory_order_relaxed);
+    // The tap's accounting is measured against that counter, so it restarts
+    // with it. Otherwise the new cue's audio is held back by the previous
+    // cue's emitted total and the take opens silent.
+    { std::lock_guard<std::mutex> tl(tapMutex_); tapFifo_.clear(); tapEmittedFrames_ = 0; }
     audioClockStartSeconds_ = cueStartSeconds;
     lastAudioClockSeconds_ = -1.0;
     lastAudioClockAdvanceMs_ = 0;
@@ -6329,11 +6338,12 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
   const std::size_t holdValues =
     static_cast<std::size_t>(audioDelayMs_.load(std::memory_order_relaxed)) * 48u * 2u;
   if (holdValues == 0 && audioDelayFifo_.empty()) {
-    if (audioTap_) {
-      audioTap_(samples);
-    }
+    // Scope first and undelayed: the VU and waveform show what is being sent
+    // to the device, which is what the operator is riding. Only the TAP -- the
+    // recorder, the streams, NDI -- has to wait for the device to catch up.
     pushScopeSamples(samples.data(), samples.size() / 2, 2);
     putAudioToStream(samples);
+    tapPlayedAudio(samples);
     return;
   }
   audioDelayFifo_.insert(audioDelayFifo_.end(), samples.begin(), samples.end());
@@ -6346,11 +6356,80 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
                                  audioDelayFifo_.begin() + static_cast<std::ptrdiff_t>(emitCount));
   audioDelayFifo_.erase(audioDelayFifo_.begin(),
                         audioDelayFifo_.begin() + static_cast<std::ptrdiff_t>(emitCount));
-  if (audioTap_) {
-    audioTap_(emit);
-  }
   pushScopeSamples(emit.data(), emit.size() / 2, 2);
   putAudioToStream(emit);
+  tapPlayedAudio(emit);
+}
+
+// Hand the tap what the DEVICE HAS PLAYED, not what has been queued to it.
+//
+// audioFramesQueued_ counts at PROCESS time, deliberately -- it is the video
+// clock's anchor and must not move with the configured audio delay. So the
+// unplayed total here is everything still parked in the delay line PLUS
+// everything the device still holds.
+void MediaEngine::tapPlayedAudio(const std::vector<std::int16_t>& sentToDevice) {
+  if (!audioTap_) {
+    return;
+  }
+  // Read the device queue BEFORE taking the tap lock. queuedAudioBytes() takes
+  // audioStreamMutex_, and holding two audio locks at once on the decode
+  // thread is how the priority inversion in putAudioToStream was created.
+  const int bytesPerFrame = std::max(1, audioStreamBytesPerFrame());
+  const std::size_t bufferedFrames =
+    static_cast<std::size_t>(std::max(0, queuedAudioBytes())) /
+    static_cast<std::size_t>(bytesPerFrame);
+  const std::uint64_t processedFrames =
+    audioFramesQueued_.load(std::memory_order_relaxed);
+  const std::size_t delayedFrames = audioDelayFifo_.size() / 2;
+  const std::uint64_t unplayed =
+    static_cast<std::uint64_t>(bufferedFrames) +
+    static_cast<std::uint64_t>(delayedFrames);
+  const std::uint64_t played =
+    processedFrames > unplayed ? processedFrames - unplayed : 0;
+
+  std::vector<std::int16_t> ready;
+  {
+    std::lock_guard<std::mutex> lock(tapMutex_);
+    tapFifo_.insert(tapFifo_.end(), sentToDevice.begin(), sentToDevice.end());
+    if (played <= tapEmittedFrames_) {
+      return;   // device has not consumed anything new yet
+    }
+    std::size_t wanted =
+      static_cast<std::size_t>(played - tapEmittedFrames_) * 2u;
+    wanted = std::min(wanted, tapFifo_.size());
+    wanted -= wanted % 2u;   // never split a stereo pair
+    if (wanted == 0) {
+      return;
+    }
+    ready.assign(tapFifo_.begin(),
+                 tapFifo_.begin() + static_cast<std::ptrdiff_t>(wanted));
+    tapFifo_.erase(tapFifo_.begin(),
+                   tapFifo_.begin() + static_cast<std::ptrdiff_t>(wanted));
+    tapEmittedFrames_ += wanted / 2u;
+  }
+  // Outside the lock: the tap runs the recorder's ring push and the stream
+  // writers, and nothing it does should be able to block a decode thread that
+  // is holding an audio lock.
+  audioTap_(ready);
+}
+
+// Everything still parked goes out. Without this a take loses its last buffer
+// of sound -- the decoder stops feeding at EOF, so nothing would ever come
+// along to release the remainder.
+void MediaEngine::flushTappedAudio() {
+  if (!audioTap_) {
+    return;
+  }
+  std::vector<std::int16_t> ready;
+  {
+    std::lock_guard<std::mutex> lock(tapMutex_);
+    if (tapFifo_.empty()) {
+      return;
+    }
+    ready.swap(tapFifo_);
+    tapEmittedFrames_ += ready.size() / 2u;
+  }
+  audioTap_(ready);
 }
 
 // Expand processed stereo onto the cue's output pair. The engine pipeline —
@@ -6637,6 +6716,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
     } else {
       syncAudioFadeParams();  // publish before the audio thread spawns
       audioFramesQueued_.store(0, std::memory_order_relaxed);
+      { std::lock_guard<std::mutex> tl(tapMutex_); tapFifo_.clear(); tapEmittedFrames_ = 0; }
       audioClockStartSeconds_ = cueStartSeconds;
       lastAudioClockSeconds_ = -1.0;
       lastAudioClockAdvanceMs_ = 0;

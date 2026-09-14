@@ -1,5 +1,46 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-14 - v0.99.365 (a recording hears what the room hears)
+
+**Recorded sound ran ahead of its own picture by about seven frames.** Not a
+drift -- a constant lead, on every recording, whatever the source format and
+whenever recording started. A quarter of a second is well past the point where
+a face stops matching its voice.
+
+The recorder, the stream writers and NDI are all fed from one tap, and the tap
+was handing them each block of audio at the moment it was passed to the sound
+card -- while the picture is timed against what the sound card has actually
+PLAYED. Those are two different instants, separated by however much audio the
+device is holding. Everything captured carried the difference.
+
+Audio now reaches the tap only once the device has played it. It releases
+against the device's own reported queue rather than any assumed figure, so
+there is no constant to get wrong and nothing to re-tune per machine.
+
+Measured against a clip carrying a white flash and a tone burst laid down at
+the same instant, once a second. Negative means sound early:
+
+    25fps    -285 ms  ->  -156 ms
+    50fps    -182 ms  ->  -104 ms
+    60fps    -192 ms  ->   -81 ms
+
+**Live output was never affected and is not changed by this.** What an audience
+hears comes out of the device after that buffer, and the picture is timed
+against the same played-sound clock, so the two already agreed -- confirmed by
+measurement during this work, where Deckboy's live output ran 20ms closer to
+true than another player through the same capture rig. Only the tap read from
+the wrong end of the buffer, so only captured files were wrong.
+
+**What is left, stated plainly.** About four and a half frames of the offset
+remain at every frame rate, and that is a different thing -- picture taking
+longer to reach the encoder than sound does. It is measured, it is consistent,
+and it is not fixed here.
+
+**A take no longer loses the last fraction of a second of its sound.** Holding
+audio until it has played means some is always still held when playback ends;
+it is released at that point instead of being dropped.
+
+
 ## 2026-09-14 - v0.99.364 (a recording keeps time with itself)
 
 **Recorded audio ran 3.3% slow against its own picture.** A minute of recording
