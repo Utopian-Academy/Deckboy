@@ -3348,6 +3348,37 @@
     }
     std::cout << "TTF_Init: ok\n";
 
+    // WHAT THE INTERFACE WILL ACTUALLY OPEN, which is not always the default
+    // face. A language that Liberation cannot draw -- CJK, Devanagari, Arabic
+    // -- makes loadFonts replace BOTH the sans and the pixel face with a
+    // system font it found by name. A check that tests only the default would
+    // pass on a machine where the substituted face is the thing that fails,
+    // and the substitution is silent.
+    std::string substituted;
+    {
+      const auto candidates = deckboy::core::i18n::activeFontCandidates();
+      std::cout << "language: " << deckboy::core::i18n::activeCode();
+      if (!candidates.empty()) {
+        std::cout << "  needs one of:";
+        for (const std::string& name : candidates) std::cout << " " << name;
+      }
+      std::cout << "\n";
+      for (const std::string& name : candidates) {
+        std::error_code fec;
+        const fs::path bundled = Paths::dataDir() / "fonts" / name;
+        if (fs::exists(bundled, fec)) { substituted = bundled.string(); break; }
+        const fs::path system = Paths::systemFontDir() / name;
+        if (fs::exists(system, fec)) { substituted = system.string(); break; }
+      }
+      if (!substituted.empty()) {
+        std::cout << "substituted face (sans AND pixel): " << substituted
+                  << "\n";
+      } else if (!candidates.empty()) {
+        std::cout << "substituted face: none found -- the interface keeps the"
+                     " default and this language will draw as boxes" "\n";
+      }
+    }
+
     int failures = 0;
     struct Face { const char* label; Paths::FontName name; int size; };
     // The sizes the interface actually opens, not a token 16: a face can open
@@ -3362,7 +3393,11 @@
       {"pixel small", Paths::FontName::Pixel, 12},
     };
     for (const Face& face : faces) {
-      const std::string path = Paths::fontPath(face.name).string();
+      // The substitution replaces the sans and the pixel faces, never the mono.
+      std::string path = Paths::fontPath(face.name).string();
+      if (!substituted.empty() && face.name != Paths::FontName::Mono) {
+        path = substituted;
+      }
       std::error_code ec;
       const bool exists = fs::exists(path, ec);
       std::cout << "  " << face.label << " @" << face.size << "  " << path << "\n";
