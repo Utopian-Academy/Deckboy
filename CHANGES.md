@@ -1,5 +1,34 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-14 - v0.99.362 (an audio cue makes a sound)
+
+**An AUDIO cue played silently.** Not to the speakers, not to a recording. It
+transported perfectly while doing it -- Playing, position advancing, duration
+read off the file -- with a dead VU meter and no message of any kind. A cue
+deck that cannot play a music bed, a sting or a walk-in track, failing in the
+way that looks most like working.
+
+The cause is almost funny: an audio-only cue has no picture, so the probe
+stores it as 1x1, and the decoder's even-dimension rounding -- which exists for
+video and is right for video -- turned 1 into 0 and refused the cue before
+opening anything. The cue kind that needs the video path least was being
+turned away by it. Audio cues of every format now play and record.
+
+**The chip synth's pulse voices had no DC blocking.** An eighth-duty pulse is
+high for an eighth of its period and low for seven eighths, so it sat off
+centre and ate 8% of the available headroom before a note was played -- and a
+note starting or stopping was a step in that offset, which is where a thump on
+take comes from. The voice now goes through a gentle high-pass at 35Hz, as the
+real chip's output stage did. Measured: a 12.5% pulse went from a mean of
+-2630 to 1.9, with the triangle bass untouched.
+
+**"RECORDING PICTURE STALLED" no longer cries wolf.** Recording a slide, a
+graphic, an audio cue or a paused clip raised the output into an error state
+and said so once a second for the whole take, because the check could not tell
+a picture that is meant to sit still from a capture that has died. It now asks
+whether the picture is supposed to be moving, waits three seconds instead of
+half of one, and says it once.
+
 ## 2026-09-14 - v0.99.361 (the cue you took is the cue you see)
 
 **macOS: the interface had no text at all on macOS 26.** Panels, icons, theme
