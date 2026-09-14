@@ -696,6 +696,9 @@ class MediaEngine {
   // 2A03 state. The LFSR seeds to 1 because a zero register never leaves zero
   // -- the hardware powers up with bit 0 set for the same reason.
   double nesPhase_ = 0.0;
+  // One-pole DC blocker on the chip voice's output; see nesNextSample.
+  double chipDcPrevIn_ = 0.0;
+  double chipDcPrevOut_ = 0.0;
   double nesNoiseAccum_ = 0.0;
   unsigned nesLfsr_ = 1u;
   bool chipGated_ = false;      // a keyboard has taken over from the cue's own pitch

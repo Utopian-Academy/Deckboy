@@ -8486,7 +8486,42 @@ double MediaEngine::nesNextSample(const ToneSettings& tone, double dt) {
   if (tone.synth.nesQuantise) {
     sample = std::round(sample * 7.5) / 7.5;
   }
-  return sample * chipEnvelope(tone, dt);
+  sample *= chipEnvelope(tone, dt);
+
+  // TAKE THE DC OUT, which the real chip's output stage does and this did not.
+  //
+  // An asymmetric duty cycle does not sit around zero. A 12.5% pulse is high
+  // for one eighth of its period and low for seven, so its mean is a long way
+  // off centre; a 50% pulse is symmetrical and comes out at nothing. Measured
+  // across four thirty-second passes, same cue, timbre changed between takes:
+  //
+  //   lead   12.5% pulse    mean -2630.5    8.0% of headroom gone
+  //   harm   50%  pulse     mean    -0.3    0.0%
+  //   bass   triangle       mean   -58.2    0.2%
+  //   drums  noise          mean    +1.1    0.0%
+  //
+  // The correlation with duty is the whole diagnosis, and it is arithmetic
+  // rather than a defect in the oscillator -- the defect is that nothing
+  // removed it afterwards. It costs headroom before a note is played, it makes
+  // two pulse voices at different duties sum their offsets instead of
+  // cancelling, and a note starting or stopping becomes a STEP in the DC
+  // level, which is the classic source of a thump on take.
+  //
+  // The NES put its APU through first-order RC high-pass filters at 90Hz and
+  // 440Hz; every serious 2A03 emulation models at least the first. One pole at
+  // 35Hz is gentler than the hardware on purpose: it is low enough to leave a
+  // triangle bass alone -- C2 is 65Hz, and that part already measures nearly
+  // centred -- while removing an offset that is, by definition, at 0Hz.
+  {
+    const double corner = 35.0;
+    const double rc = 1.0 / (2.0 * 3.14159265358979323846 * corner);
+    const double alpha = rc / (rc + std::max(1e-9, dt));
+    const double filtered = alpha * (chipDcPrevOut_ + sample - chipDcPrevIn_);
+    chipDcPrevIn_ = sample;
+    chipDcPrevOut_ = filtered;
+    sample = filtered;
+  }
+  return sample;
 }
 
 // Shared envelope. Pitch and envelope belong to the NOTE, not to whichever
