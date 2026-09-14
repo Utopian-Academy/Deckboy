@@ -21,6 +21,7 @@ the primary platform; Linux and macOS builds share the same core.
 4. [Interface Layout](#4-interface-layout)
 5. [Cue Types](#5-cue-types)
 6. [Importing & Adding Cues](#6-importing--adding-cues)
+6a. [Slide Decks, Presenter View & Prompter](#6a-slide-decks-presenter-view--prompter)
 7. [The Cue Inspector](#7-the-cue-inspector)
 8. [Transport](#8-transport)
 9. [Playlists, Loop, Shuffle & Cue Endings](#9-playlists-loop-shuffle--cue-endings)
@@ -166,6 +167,138 @@ timeline lanes, down to give the height back.
 New cues inherit the deck's playlist defaults (fade lengths, loop, pause
 behaviour, audio-enabled). Reorder by dragging; multi-select with Shift/Ctrl;
 copy/paste cue settings with `Ctrl+C` / `Ctrl+V`.
+
+---
+
+## 6a. Slide Decks, Presenter View & Prompter
+
+A talk is a show like any other, and Deckboy runs one without a second
+application on the machine. A deck imports as cues, the speaker gets their own
+screen, and the reader gets a prompter — all three out of the one show file.
+
+### Importing a deck
+
+A PDF imports as **one image cue per page**, rasterised once at import and never
+touched again. That is the point rather than a shortcut: nothing in a live show
+should depend on a document renderer being fast, being installed, or deciding to
+reflow a page halfway through the keynote. Once the pages are stills they behave
+like every other cue — they take, they fade, they carry effects, they crossfade
+to the next one — and a presenter's clicker walks them with Page Down.
+
+Each platform uses the renderer it already has, so nothing is bundled:
+
+| Platform | Engine | Also used by |
+|---|---|---|
+| Windows | `Windows.Data.Pdf` | Edge |
+| macOS | CoreGraphics `CGPDFDocument` | Preview |
+| Linux | `pdftoppm`, from `poppler-utils` | the desktop's own PDF viewer |
+
+Linux is the one platform where this is a separate tool, and therefore the one
+where it has to be installed; Deckboy says so plainly if it is missing rather
+than refusing the file without a reason.
+
+Pages are rendered to a fixed **target width**, chosen for the largest output
+the application supports rather than the output currently configured. The three
+engines measure a page in three different units, so the same "2x" would produce
+a different raster on each platform, and an operator may change the output after
+importing anyway. The same deck therefore imports identically on every machine.
+
+### PowerPoint, Keynote and OpenDocument
+
+`.pptx`, `.ppt`, `.key` and `.odp` are not rasterised directly. Deckboy asks
+whatever already owns the format on that machine to export a PDF, then
+rasterises that:
+
+| Platform | Preference order |
+|---|---|
+| Windows | PowerPoint itself, then LibreOffice |
+| macOS | Keynote for `.key`, then LibreOffice, then PowerPoint if present |
+| Linux | LibreOffice |
+
+The format's owner goes first because it is the authority on its own format. A
+half-right renderer that puts a slide's type in the wrong place is worse on a
+show day than an honest refusal, so where none of them is installed the operator
+is told which one to install.
+
+**Exporting to PDF flattens builds and drops transitions.** That is a property
+of the export, not of Deckboy, and no PDF-based route avoids it: a PowerPoint
+deck that animates arrives as static slides. Keynote can export one page per
+build stage, and those come through as one cue per stage, which is usually what
+an operator wants. For a PowerPoint deck that genuinely has to animate, capture
+it live with a **window-source cue** instead and drive it in PowerPoint.
+
+**Speaker notes** are read out of a `.pptx` — the file is a ZIP with the notes
+as XML inside — one entry per slide, so they arrive attached to the cue that
+shows the slide.
+
+### Presenter view
+
+Presenter view is an **output type**, not a window: it is assigned to a display
+the way a programme output is, so the speaker's laptop screen or the confidence
+monitor at the lectern is simply another output of the show.
+
+Four layouts:
+
+| Layout | Shape |
+|---|---|
+| `wide` | current large, previous and next stacked beside it, notes below |
+| `filmstrip` | previous / current / next across the top, notes large below |
+| `notes` | notes dominate, the three pictures on a thin strip above |
+| `custom` | wherever the operator put the panels |
+
+The three named layouts **reflow**: switch a panel off and the others take its
+room. A custom layout does not, because it is an arrangement somebody chose and
+rearranging it under them would be a bug rather than a courtesy.
+
+Every panel can be switched off independently — live picture, previous, next,
+notes, clock and timers. Turning the three pictures off gives the notes the
+whole screen, which is what somebody reading a long script from a lectern
+actually wants. **Notes share** scales how much of the screen the notes take
+relative to the pictures, on top of whatever the chosen layout already thinks is
+sensible, and **notes scale** sets the type size — `1.0` is the size the rest of
+the interface uses, and the default is `1.4`, because notes are read from a
+lectern rather than from a desk. Background, ink and accent are set as hex
+colours, since a presenter screen is often somebody else's laptop in somebody
+else's room and "make it readable in here" is a real request.
+
+Panel positions in a custom layout are stored as **fractions** of the area
+between the header and the footer, so a layout arranged on a 1080 laptop is the
+same shape on the 4K screen it ends up on.
+
+### Note builds
+
+A cue's notes split on a line that is exactly `---`, and the presenter advances
+through those parts **without changing the slide** — so a long note is read at
+the speaker's pace instead of arriving all at once.
+
+There is an option to make the ordinary NEXT action spend the remaining builds
+before it advances the cue, which is how a slide clicker behaves in every other
+deck a presenter has used. It is off by default, because it changes what the
+transport does.
+
+### Prompter
+
+The prompter is the talent's screen, and it is a different job from the
+presenter's: one person reading out loud under a piece of glass.
+
+- **The script.** Left empty, the prompter follows the live cue's notes, which
+  is what a deck-driven show wants. A filled-in script is for a talk with no
+  slides, or one whose slides are somebody else's problem.
+- **Mirroring.** On by default horizontally, because a teleprompter's glass
+  reverses the picture on its way to the reader. Vertical mirroring exists as
+  well, since the beamsplitter can sit above or below the lens.
+- **Pace** is set in **lines per minute** rather than pixels per second — a pace
+  belongs to the reader, and it has to mean the same thing when the type size or
+  the screen changes. The default is 140.
+- **The reading line** sits a fraction of the way down the screen (0.42 by
+  default) and the text scrolls up *through* it, so the words being spoken are
+  always in the same place. That is the whole ergonomic point of a prompter, and
+  the line itself can be drawn or hidden.
+- Type is much larger than a presenter's — the default scale is 2.6 — and
+  background, ink and accent are hex colours as above.
+
+Whether the prompter is running is saved with the show, so a talk reopens armed
+the way it was left.
 
 ---
 
