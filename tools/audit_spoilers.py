@@ -67,6 +67,21 @@ FRONT_DOOR_FORBIDDEN = [
 ]
 
 
+def check_text(text):
+    """Check one string against the FRONT DOOR rules.
+
+    Used for anything generated rather than written -- the release title is
+    built from the changelog heading, and a heading like "(vivid Terrarium)"
+    is fine in a changelog and NOT fine as the title of a page a search engine
+    indexes. That exact one shipped, in a title, before this existed.
+    """
+    problems = []
+    for pattern, why in FORBIDDEN + FRONT_DOOR_FORBIDDEN:
+        if re.search(pattern, text, re.IGNORECASE):
+            problems.append(why)
+    return problems
+
+
 def main() -> int:
     problems = 0
     scanned = 0
@@ -94,4 +109,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # `--text "..."` checks a single generated string and says nothing on
+    # success, so a shell can use it as a gate.
+    if len(sys.argv) > 2 and sys.argv[1] == "--text":
+        found = check_text(sys.argv[2])
+        for reason in found:
+            print("that text %s: %s" % (reason, sys.argv[2]))
+        sys.exit(1 if found else 0)
     sys.exit(main())

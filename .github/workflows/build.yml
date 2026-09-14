@@ -875,6 +875,28 @@ jobs:
           io.open("release-title.txt", "w", encoding="utf-8").write(title)
           print("release title: " + title)
 
+          # The title is GENERATED from the changelog heading, and a heading may
+          # legitimately name something the release pages must not. "(vivid
+          # Terrarium)" is a fine changelog line and was a terrible release title,
+          # which is exactly what shipped before this check existed. Fall back to
+          # the bare version rather than failing the release over a summary.
+          import subprocess, sys
+          # sys.executable, not "python3" -- the interpreter already running this
+          # is by definition present, and hardcoding a name meant the gate could
+          # not RUN on a machine without it. That failure looked identical to a
+          # rejection and silently degraded a perfectly good title.
+          gate = subprocess.run(
+              [sys.executable, "tools/audit_spoilers.py", "--text", title],
+              capture_output=True, text=True)
+          if gate.returncode == 1 and gate.stdout.strip():
+              print("title rejected: " + gate.stdout.strip())
+              title = "Deckboy v%s" % version
+              io.open("release-title.txt", "w", encoding="utf-8").write(title)
+              print("release title: " + title)
+          elif gate.returncode != 0:
+              raise SystemExit("the spoiler audit could not run: "
+                               + (gate.stderr or gate.stdout).strip()[:300])
+
           rest = text[start.end():]
           nxt = re.search(r"^## \d{4}-", rest, re.M)
           body = (rest[: nxt.start()] if nxt else rest).strip()
