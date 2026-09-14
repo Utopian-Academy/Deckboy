@@ -2,14 +2,15 @@
 
 > dot-matrix cue deck
 
-Deckboy is a native desktop cue deck for live events: a fast, keyboard-driven
-player for video, stills, live sources, and generated patterns, with
-professional output routing (fullscreen windows, NDI, DeckLink, Spout, and
-network streams) and deep remote control (Companion, OSC, HyperDeck, timecode).
+Deckboy is a cue deck for live events. It plays video, stills, live sources and
+generated patterns from a keyboard-driven playlist, and sends the result to
+fullscreen displays, NDI, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 and Spout —
+several at once. A Stream Deck, Bitfocus Companion, OSC, MIDI, Art-Net or LTC
+timecode can drive it.
 
-It is built on SDL3 with in-process FFmpeg/libav decode. On Windows the
-hardware decode path is zero-copy (D3D11VA on the output's device). Windows is
-the primary platform; Linux and macOS builds share the same core.
+It is a native application built on SDL3, decoding in process through FFmpeg.
+On Windows, hardware-decoded frames stay on the GPU and are composited there.
+Windows, macOS and Linux run the same core and read the same show file.
 
 ---
 
@@ -49,16 +50,15 @@ the primary platform; Linux and macOS builds share the same core.
 
 - **Cue** — one playable item (a video, image, pattern, live source, overlay,
   composite, or audio file) with its own trim, fades, geometry, and audio trim.
-- **Deck** — an ordered playlist of cues with its own transport (play/stop/
-  seek), loop/shuffle mode, and default cue behaviour. Deckboy supports
-  multiple decks.
+- **Deck** — an ordered playlist of cues with its own transport, loop and
+  shuffle mode, and default cue behaviour. There can be several.
 - **Output** — a destination with its own window/compositor: a fullscreen
   display, an NDI/DeckLink/Spout sender, or a network stream. Outputs are
   separate from decks.
 - **Layer assignment** — the mapping of decks onto outputs. Several decks can
   stack on one output; one deck can drive several outputs.
-- **Program** vs **Preview** — the program monitor shows what is live on the
-  focused deck; the cue list selection is what you are *about* to take.
+- **Program** and **Preview** — the program monitor shows what is live on the
+  focused deck. The cue list selection is what you are *about* to take.
 
 The operating loop is: select a cue → **Take** it (Enter) → it goes live on the
 deck's output(s), honouring its fade/transition → it ends per its end action
@@ -68,41 +68,30 @@ deck's output(s), honouring its fade/transition → it ends per its end action
 
 ## 2. Running Deckboy
 
-**Windows (primary):** launch `Deckboy.exe`. It resolves its `data/` directory
-by walking up from the executable, so run it from the build/dist folder that
-contains `data/`.
+Install from the release for your platform, or unpack the portable build and
+run it in place. Both carry everything they need. Deckboy finds its `data/`
+directory by walking up from the executable, so keep the two together.
 
-**Build from source (Windows):**
+To build from source, follow the repository's README.
 
-```
-cd native
-cmake -B ../build/windows -G "Visual Studio 17 2022" -A x64 ^
-  -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-cmake --build ../build/windows --config Release
-```
-
-The binary lands at `build/windows/Release/Deckboy.exe`.
-
-Optional runtime dependencies are loaded dynamically and only needed for the
-matching feature: the NDI SDK (`Processing.NDI.Lib.x64.dll`) for NDI in/out,
-the Blackmagic DeckLink SDK for DeckLink output, Spout for texture sharing,
-and WebView2 for browser cues. Run `Deckboy.exe --self-check` to see what is
-detected.
+Four dependencies are optional, loaded only when you use the feature that wants
+them, and absent ones cost nothing: the NDI SDK for NDI in and out, the
+Blackmagic DeckLink SDK for DeckLink, Spout for texture sharing, and WebView2
+for browser cues. `--self-check` reports which of them this machine has.
 
 ---
 
 ## 3. Startup
 
-On launch Deckboy shows a startup card with the **Deckboy** wordmark, a version
-line, and a short boot log while backends come up. Press **Enter** to dismiss
-it and start.
+Deckboy opens on a startup card — the wordmark, the version, and a boot log
+while the backends come up. **Enter** dismisses it.
 
-Deckboy reopens the last show automatically. Set
-`DECKBOY_PROJECT=C:\path\show.deckboy` to force a specific show, or
-`DECKBOY_THEME=<name>` to force a colourway at launch.
+It then reopens the last show. To open a different one instead, pass it on the
+command line or set `DECKBOY_PROJECT`; `DECKBOY_THEME` forces a colourway.
+Either of those skips the startup card as well.
 
-A single-instance lock prevents accidental duplicate launches; use
-`--allow-multi-instance` to override it (debugging only).
+Deckboy refuses to start twice, so a stray double-click cannot take a second
+copy of the show live. `--allow-multi-instance` lifts that, for debugging.
 
 ---
 
@@ -119,15 +108,14 @@ The control window is split into:
   and the selection are highlighted distinctly.
 - **Timeline & transport** (centre): the program monitor, the video/audio
   lanes with the playhead and in/out trim, and the transport buttons.
-- **Cue Inspector** (right): all settings for the selected cue, in collapsible
-  sections. Drag the splitter between the program area and the inspector to
-  resize.
-
-Two draggable dividers let you rebalance the layout: the vertical splitter
-between the program area and the inspector, and a horizontal grip in the gap
-under the program monitor — drag it up to shrink the preview and enlarge the
-timeline lanes, down to give the height back.
+- **Cue Inspector** (right): every setting for the selected cue, in collapsible
+  sections.
 - **Monitors window** (separate): per-output preview and routing.
+
+Two dividers rebalance the layout. The vertical splitter sits between the
+program area and the inspector. The horizontal grip sits in the gap under the
+program monitor: drag it up to shrink the preview and grow the timeline lanes,
+down to give the height back.
 
 ---
 
