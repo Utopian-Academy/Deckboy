@@ -3861,9 +3861,50 @@
       // capture stopped producing anything new -- because the pacer will
       // happily paper over that with repeats and hand back a duration-correct
       // file of one still image, reporting no fault at all.
-      if (runtime->lastFreshCaptureMs != 0 &&
-          nowMs - runtime->lastFreshCaptureMs > 500) {
-        if (nowMs - runtime->lastDropWarnMs >= 1000) {
+      // A STILL IS NOT A STALL, and an alarm that cannot tell them apart is
+      // worse than no alarm -- it teaches the operator to ignore the one that
+      // matters. Recording a slide, a graphic, a paused clip or an audio cue
+      // produces no new picture BY DESIGN, and this used to raise the output
+      // into an ERROR state and toast about it once a second for the length of
+      // the take.
+      //
+      // So it asks whether the picture is SUPPOSED to be moving. A still-kind
+      // cue, an audio cue, a deck with nothing live, and a transport that is
+      // not playing are all legitimately frozen. Everything else -- a video, a
+      // camera, a capture card, an NDI source, mid-playback -- is not, and a
+      // frozen picture there is the fault this alarm was written for.
+      //
+      // A still with an animating effect stack still produces fresh frames, so
+      // it never reaches here in the first place.
+      const bool pictureShouldBeMoving = [&]() {
+        if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
+            project_.decks.empty()) {
+          return false;
+        }
+        const int lastDeck = static_cast<int>(project_.decks.size()) - 1;
+        const int wanted = project_.outputs[static_cast<std::size_t>(outputIndex)].hostDeckIndex;
+        const int hostDeck = std::clamp(wanted, 0, lastDeck);
+        const Cue* live = activeCuePtr(hostDeck);
+        if (!live) return false;                      // nothing on air
+        if (live->kind == CueKind::Audio) return false;  // no picture at all
+        if (isDefaultStillDurationCueKind(live->kind)) return false;
+        const DeckRuntime* deckRuntime = runtimeForDeck(hostDeck);
+        if (!deckRuntime || !deckRuntime->mediaEngine) return false;
+        return deckRuntime->mediaEngine->state() == TransportState::Playing;
+      }();
+      // THREE SECONDS, AND ONCE. Half a second of an unchanged picture is not
+      // a fault -- a slide, a held last frame, a shot of a locked-off camera
+      // on a still set, or simply a video of something that is not moving.
+      // What this is for is a file that will be ONE FRAME for its whole
+      // length, and that is still obvious after three seconds.
+      //
+      // It also said it once a second for the length of the take, which is how
+      // an alarm teaches an operator to ignore it. Now it speaks once per
+      // stall and goes quiet again the moment the picture moves.
+      if (pictureShouldBeMoving && runtime->lastFreshCaptureMs != 0 &&
+          nowMs - runtime->lastFreshCaptureMs > 3000) {
+        if (!runtime->recordStallWarned) {
+          runtime->recordStallWarned = true;
           runtime->lastDropWarnMs = nowMs;
           const std::string msg =
             "RECORDING PICTURE STALLED - no new frame for " +
@@ -4097,6 +4138,7 @@
       if (frameIsFresh) {
         runtime->recordFreshFrames += 1;
         runtime->lastFreshCaptureMs = SDL_GetTicks();
+        runtime->recordStallWarned = false;   // it moved; it may warn again
       }
     }
   }

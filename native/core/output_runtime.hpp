@@ -201,6 +201,10 @@ struct OutputRuntime {
   // one still image and reports itself healthy.
   std::uint64_t recordFreshFrames = 0;
   Uint64 lastFreshCaptureMs = 0;     // when the picture last actually changed
+  // ONE WARNING PER STALL, not one a second. Cleared the moment a fresh
+  // capture arrives, so a genuine stall still announces itself and a
+  // legitimately motionless picture does not nag for the length of the take.
+  bool recordStallWarned = false;
   Uint64 lastSegmentSizeCheckMs = 0;   // segment size is stat'd ~1Hz, not per frame
   Uint64 lastDropWarnMs = 0;           // dropped-frame alarm, rate limited to 1Hz
   std::uint64_t recordDroppedFrames = 0;
