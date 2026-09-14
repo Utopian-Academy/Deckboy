@@ -225,7 +225,7 @@ void MediaEngine::stopAll() {
   syncAudioFadeParams();
   frameRate_ = 0.0;
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
-  displayFrameSerial_ = 0;
+  // The serial is deliberately NOT reset here either -- see loadCue.
   displayFrame_.reset();
   resetMediaFpsTelemetry();
 }
@@ -314,7 +314,32 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   cueOutPointSeconds_ = cue ? cue->duration : 0.0;
   frameRate_ = cue && cue->kind == CueKind::Video && cue->fps > 1.0 ? cue->fps : 30.0;
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
-  displayFrameSerial_ = 0;
+  // THE SERIAL IS NOT RESET, AND THAT IS THE WHOLE OF A SERIOUS BUG.
+  //
+  // It is the IDENTITY of the picture on screen: the compositor caches the
+  // texture it uploaded per deck, keyed on this index plus the cue, and skips
+  // re-uploading when both still match. Restarting the count at every take
+  // made the first frame of every still cue index 1 -- and that collided,
+  // because of what happens in between:
+  //
+  //   1. the take hands the outgoing picture to heldFrame_ and clears the
+  //      display, then starts an ASYNCHRONOUS decode of the new still;
+  //   2. the very next rendered frame asks for a picture and is given the HELD
+  //      one -- the outgoing cue's -- because the new one has not arrived yet.
+  //      The compositor uploads it and records it under the INCOMING cue's key;
+  //   3. the still finishes decoding and becomes frame index 1;
+  //   4. the compositor compares: same cue key, same index 1. Nothing to do.
+  //
+  // So the output went on showing the PREVIOUS cue, permanently, with the
+  // header, the notes, the dots and both timers correct beside it. It needs a
+  // predecessor, so the first take of a fresh instance looked right; taking the
+  // same cue twice looked right; and video hid it entirely, because decoded
+  // frames keep counting up and the next one breaks the tie. Two sessions
+  // chased it as a presenter-view fault for an afternoon.
+  //
+  // A monotonic counter cannot collide, so step 4 sees a new index and
+  // uploads. Nothing wants it to restart: every user of it is asking "is this
+  // the same picture as last time", and across a take the answer must be no.
   resetMediaFpsTelemetry();
   decoderEof_ = false;
   reachedEnd_ = false;
@@ -6479,7 +6504,11 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
 
   if (wantVideo) {
     videoThread_ = std::thread([this, cueStartSeconds]() {
-      std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
+      const std::uint64_t startIndex =
+        static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
+      std::uint64_t frameIndex = startIndex;
+      // The first frame's timestamp is the ORIGIN, not zero. See below.
+      double firstPresentation = -1.0;
       while (!decoderStop_.load()) {
         while (!decoderStop_.load()) {
           bool hasRoom = false;
@@ -6504,11 +6533,46 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
         // clips) schedules against the audio clock by its actual timestamps
         // instead of a constant-fps counter that drifts. Kept strictly
         // increasing; falls back to the sequential counter when PTS is absent.
+        //
+        // TWO THINGS THE TIMESTAMPS CANNOT BE TRUSTED TO DO, both found on a
+        // DivX-era XVID AVI with PACKED B-FRAMES -- the kind ffmpeg warns about
+        // with "non-standard and wasteful way to store B-frames". That format
+        // carries 7-byte dummy packets and hands the decoder's first output the
+        // timestamp of a LATER packet:
+        //
+        // 1. START AT ZERO. That file's first decoded frame arrives stamped
+        //    0.1669s, which is frame four. Indexed against absolute zero, every
+        //    picture in the cue then sits four frames later than the sound that
+        //    belongs with it -- a fixed ~170ms of the picture lagging, for the
+        //    whole cue. So the first frame's own timestamp is the origin, and
+        //    the relative spacing between frames -- the entire point of the
+        //    telecine fix -- is untouched by measuring from it.
+        //
+        // 2. BE PLAUSIBLE. One bad timestamp used to move the picture forward
+        //    permanently: the index took max(pts, sequential) and the counter
+        //    followed it, so a single spurious jump parked every later frame
+        //    ahead of the clock and the picture FROZE until the audio caught
+        //    up. That is the "stuck on a frame for a second or two, but only
+        //    now and then" report. A timestamp more than half a second from
+        //    where the sequence says we are is not a variable frame rate, it is
+        //    a broken timestamp, and the counter is the better answer.
         if (frame.presentationSeconds >= 0.0 && frameRate_ > 0.0) {
-          std::uint64_t ptsIndex = static_cast<std::uint64_t>(
-            std::llround(frame.presentationSeconds * frameRate_));
-          frame.index = std::max(ptsIndex, frameIndex);
-          frameIndex = frame.index + 1;
+          if (firstPresentation < 0.0) {
+            firstPresentation = frame.presentationSeconds;
+          }
+          const double relative = frame.presentationSeconds - firstPresentation;
+          const std::int64_t ptsIndex =
+            static_cast<std::int64_t>(startIndex) +
+            std::llround(relative * frameRate_);
+          const std::int64_t expected = static_cast<std::int64_t>(frameIndex);
+          const std::int64_t tolerance =
+            std::max<std::int64_t>(2, std::llround(frameRate_ * 0.5));
+          if (ptsIndex < 0 || std::llabs(ptsIndex - expected) > tolerance) {
+            frame.index = frameIndex++;
+          } else {
+            frame.index = std::max(static_cast<std::uint64_t>(ptsIndex), frameIndex);
+            frameIndex = frame.index + 1;
+          }
         } else {
           frame.index = frameIndex++;
         }
