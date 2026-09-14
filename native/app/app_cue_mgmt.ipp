@@ -3716,8 +3716,14 @@
       // ZIP are the one case where they are certain to be there.
       const std::vector<std::string> slideNotes =
         loadSidecarSlideNotes(document, result.pagePaths.size());
+      // Read from the ORIGINAL document, for the same reason the notes are:
+      // by now `source` may be a PDF LibreOffice wrote, and a PDF has never
+      // carried a transition in its life.
+      const std::vector<deckboy::platform::SlideTransition> slideTransitions =
+        slideTransitionsForDocument(document, result.pagePaths.size());
       std::lock_guard<std::mutex> lock(sdlDialogMutex_);
-      sdlDialogActions_.emplace_back([this, result, title, converter, slideNotes]() {
+      sdlDialogActions_.emplace_back([this, result, title, converter, slideNotes,
+                                     slideTransitions]() {
         slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
         if (!result.ok()) {
           triggerToast("slides: " + (result.error.empty() ? std::string("no pages")
@@ -3728,7 +3734,7 @@
         // Straight back through the ordinary import, so the pages get deck
         // defaults, probing, thumbnails and undo exactly like any other still.
         // Notes that came with the deck ride along -- see loadSidecarSlideNotes.
-        importPaths(result.pagePaths, title, slideNotes);
+        importPaths(result.pagePaths, title, slideNotes, slideTransitions);
         // Naming the converter is not trivia: LibreOffice substitutes fonts it
         // has not got, so an operator who sees it named knows to check the
         // slides rather than discover a reflowed heading in front of a room.
@@ -3885,6 +3891,33 @@
   //
   // A `[file]` or `[notes]` section header (pdfpc writes them) is skipped, so
   // a real pdfpc file works unedited.
+  // The transitions the deck was authored with, if the .pptx is reachable.
+  //
+  // Only PowerPoint can answer this. There is no sidecar convention for
+  // transitions the way .pdfpc carries notes, and a PDF cannot hold one -- so
+  // either the original file is beside the PDF (which is what a Google Slides
+  // or Keynote export leaves you with) or the deck imports with the operator's
+  // own defaults, exactly as it always has.
+  std::vector<deckboy::platform::SlideTransition> slideTransitionsForDocument(
+      const fs::path& deckPath, std::size_t pageCount) {
+    std::vector<deckboy::platform::SlideTransition> none(pageCount);
+    if (pageCount == 0) return none;
+    std::error_code ec;
+    // The document itself, when a .pptx was imported directly.
+    const std::string ext = toLower(deckPath.extension().string());
+    if (ext == ".pptx" && fs::is_regular_file(deckPath, ec)) {
+      return deckboy::platform::slideTransitionsFromPptx(deckPath, pageCount);
+    }
+    // Or a .pptx sitting beside the PDF under the same name.
+    const fs::path stem = deckPath.parent_path() / deckPath.stem();
+    for (const char* candidate : {".pptx", ".PPTX"}) {
+      const fs::path office(stem.string() + candidate);
+      if (!fs::is_regular_file(office, ec)) continue;
+      return deckboy::platform::slideTransitionsFromPptx(office, pageCount);
+    }
+    return none;
+  }
+
   std::vector<std::string> loadSidecarSlideNotes(const fs::path& deckPath,
                                                  std::size_t pageCount) const {
     std::vector<std::string> notes(pageCount);
@@ -3898,6 +3931,7 @@
       fs::path(stem.string() + ".notes.md"),
       fs::path(stem.string() + ".notes"),
     };
+    // (see slideTransitionsForDocument below, which looks in the same places)
     // THE DECK'S OWN POWERPOINT, FIRST. A .pptx is a ZIP with the notes as
     // XML inside, so if the team exported a PDF to keep their fonts and left
     // the PowerPoint beside it -- which is what a Google Slides workflow
@@ -3979,7 +4013,9 @@
   // do, and it is what the deck defaults would have done.
   void importPaths(const std::vector<std::string>& rawPaths,
                    const std::string& slideDeckName = std::string(),
-                   const std::vector<std::string>& slideNotes = {}) {
+                   const std::vector<std::string>& slideNotes = {},
+                   const std::vector<deckboy::platform::SlideTransition>&
+                     slideTransitions = {}) {
     int deckIndex = project_.focusedDeckIndex;
     Deck& deck = focusedDeckMutable();
 
@@ -4108,6 +4144,32 @@
         if (static_cast<std::size_t>(addedCount) < slideNotes.size() &&
             !slideNotes[static_cast<std::size_t>(addedCount)].empty()) {
           placeholder.notes = slideNotes[static_cast<std::size_t>(addedCount)];
+        }
+        // AND WHAT THE DECK DOES BETWEEN SLIDES, when the .pptx is there to
+        // read it from. A PDF cannot carry a transition, so an imported deck
+        // has always cut between every slide no matter how it was authored --
+        // the operator then rebuilt by hand what the file already knew.
+        //
+        // An unset style is left alone deliberately: a deck with no
+        // transitions authored keeps the operator's own deck defaults rather
+        // than being flattened to cuts by an importer's opinion.
+        if (static_cast<std::size_t>(addedCount) < slideTransitions.size()) {
+          const auto& from = slideTransitions[static_cast<std::size_t>(addedCount)];
+          if (!from.style.empty()) {
+            placeholder.cueTransitionStyle = from.style;
+          }
+          if (from.seconds >= 0.0) {
+            placeholder.cueTransitionSeconds = from.seconds;
+          }
+          // A deck built to run itself keeps running: PowerPoint's "advance
+          // after N seconds" becomes the still's own duration and lets the
+          // deck move on, instead of waiting for a click nobody is there to
+          // give it.
+          if (from.advanceAfterSeconds > 0.0) {
+            placeholder.stillDurationSeconds = from.advanceAfterSeconds;
+            placeholder.transitionToNext = true;
+            placeholder.pauseOnLastFrame = false;
+          }
         }
       }
       deck.cues.push_back(std::move(placeholder));

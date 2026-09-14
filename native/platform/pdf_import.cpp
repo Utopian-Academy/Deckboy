@@ -1215,10 +1215,176 @@ std::vector<std::string> slideNotesFromPptx(const fs::path& pptxPath,
   return notes;
 }
 
+// ---------------------------------------------------------------------------
+// PowerPoint transitions, read from the .pptx rather than from the PDF.
+//
+// <p:transition spd="slow" advTm="5000" p14:dur="1200"><p:push dir="l"/></...>
+//
+// The element names the effect, and PowerPoint has about twenty of them
+// against Deckboy's thirteen. Anything without a real counterpart becomes a
+// crossfade, which is the honest neutral: a wrong-but-plausible motion is
+// worse than a dissolve, because an operator watching a rehearsal will believe
+// it was authored that way.
+//
+// DIRECTION IS TAKEN FROM THE FILE, not inferred. PowerPoint's dir attribute
+// on push/wipe/cover says which way the motion travels, which is the same
+// convention Deckboy's own tokens use, so l/r/u/d map straight across. Where
+// PowerPoint names an effect Deckboy has under another name -- "fade through
+// black" is a dip -- the mapping follows what it DOES, not what it is called.
+struct PptxTransitionMapping {
+  const char* pptx;
+  const char* deckboy;
+};
+
+std::string deckboyTransitionForPptxElement(const std::string& name,
+                                            const std::string& dir,
+                                            bool throughBlack) {
+  auto directional = [&dir](const char* base) {
+    std::string token = base;
+    if (dir == "l") return token + "-left";
+    if (dir == "r") return token + "-right";
+    if (dir == "u") return token + "-up";
+    if (dir == "d") return token + "-down";
+    return token + "-left";      // PowerPoint's own default for these
+  };
+  if (name == "cut")       return "cut";
+  if (name == "fade")      return throughBlack ? "dip-black" : "crossfade";
+  if (name == "dissolve")  return "crossfade";
+  if (name == "push")      return directional("push");
+  if (name == "pull")      return directional("push");
+  if (name == "cover")     return directional("push");
+  if (name == "wipe")      return directional("wipe");
+  if (name == "strips")    return directional("wipe");
+  if (name == "circle")    return "iris";
+  if (name == "zoom")      return "iris";
+  if (name == "wedge")     return "iris";
+  if (name == "flash")     return "dip-white";
+  // blinds, checker, comb, newsflash, plus, random, randomBar, split, wheel,
+  // and every p14: effect PowerPoint added later (morph, glitter, vortex,
+  // ripple, honeycomb, prestige...). Deckboy has none of these and inventing
+  // an approximation would misrepresent the deck.
+  return "crossfade";
+}
+
+std::vector<SlideTransition> slideTransitionsFromPptx(const fs::path& pptxPath,
+                                                      std::size_t slideCount) {
+  std::vector<SlideTransition> out(slideCount);
+  if (slideCount == 0) return out;
+  std::ifstream in(pptxPath, std::ios::binary);
+  if (!in) return out;
+  std::vector<unsigned char> buf((std::istreambuf_iterator<char>(in)),
+                                 std::istreambuf_iterator<char>());
+  if (buf.empty()) return out;
+  const auto index = zipIndex(buf);
+  if (index.empty()) return out;
+
+  for (std::size_t i = 0; i < slideCount; ++i) {
+    const std::string part =
+      "ppt/slides/slide" + std::to_string(i + 1) + ".xml";
+    const auto entry = index.find(part);
+    if (entry == index.end()) continue;
+    const std::string xml = zipRead(buf, entry->second);
+    const std::size_t open = xml.find("<p:transition");
+    if (open == std::string::npos) continue;
+    const std::size_t close = xml.find("</p:transition>", open);
+    const std::string block = xml.substr(
+      open, close == std::string::npos ? std::string::npos : close - open);
+
+    auto attribute = [&block](const char* name) -> std::string {
+      const std::string key = std::string(name) + "=\"";
+      const std::size_t found = block.find(key);
+      if (found == std::string::npos) return {};
+      const std::size_t start = found + key.size();
+      const std::size_t end = block.find('"', start);
+      if (end == std::string::npos) return {};
+      return block.substr(start, end - start);
+    };
+
+    // The effect is the first child element, whatever namespace it wears --
+    // <p:push/>, and under mc:AlternateContent <p14:glitter/>. Both are read
+    // the same way: take the local name after the colon.
+    std::string effect;
+    std::string dir;
+    bool throughBlack = false;
+    for (std::size_t at = block.find('<', 1); at != std::string::npos;
+         at = block.find('<', at + 1)) {
+      const std::size_t nameStart = at + 1;
+      if (nameStart >= block.size() || block[nameStart] == '/') continue;
+      std::size_t nameEnd = nameStart;
+      while (nameEnd < block.size() &&
+             block[nameEnd] != ' ' && block[nameEnd] != '>' &&
+             block[nameEnd] != '/') {
+        ++nameEnd;
+      }
+      std::string tag = block.substr(nameStart, nameEnd - nameStart);
+      const std::size_t colon = tag.find(':');
+      const std::string local =
+        colon == std::string::npos ? tag : tag.substr(colon + 1);
+      // Containers, not effects.
+      if (local == "AlternateContent" || local == "Choice" ||
+          local == "Fallback" || local == "extLst" || local == "ext") {
+        continue;
+      }
+      effect = local;
+      const std::size_t tagEnd = block.find('>', at);
+      const std::string element =
+        block.substr(at, tagEnd == std::string::npos ? std::string::npos
+                                                     : tagEnd - at);
+      const std::size_t dirAt = element.find("dir=\"");
+      if (dirAt != std::string::npos) {
+        const std::size_t start = dirAt + 5;
+        const std::size_t end = element.find('"', start);
+        if (end != std::string::npos) dir = element.substr(start, end - start);
+      }
+      throughBlack = element.find("thruBlk=\"1\"") != std::string::npos ||
+                     element.find("thruBlk=\"true\"") != std::string::npos;
+      break;
+    }
+    if (effect.empty()) continue;
+
+    SlideTransition& slide = out[i];
+    slide.style = deckboyTransitionForPptxElement(effect, dir, throughBlack);
+
+    // Duration: p14:dur is milliseconds and authoritative when present.
+    // Otherwise spd is PowerPoint's three-speed control, whose real durations
+    // vary per effect -- these are the round numbers an operator would set by
+    // hand for the same feel, not a claim about PowerPoint's internals.
+    const std::string durMs = attribute("p14:dur");
+    if (!durMs.empty()) {
+      const double ms = std::atof(durMs.c_str());
+      if (ms > 0.0) slide.seconds = std::clamp(ms / 1000.0, 0.0, 10.0);
+    } else {
+      const std::string spd = attribute("spd");
+      if (spd == "slow")      slide.seconds = 1.2;
+      else if (spd == "med")  slide.seconds = 0.7;
+      else if (spd == "fast") slide.seconds = 0.35;
+    }
+    if (slide.style == "cut") {
+      slide.seconds = 0.0;
+    }
+
+    // A SELF-RUNNING DECK STAYS SELF-RUNNING. advTm is the "after this many
+    // milliseconds" on PowerPoint's Advance Slide, and a deck built to run
+    // itself in a foyer is exactly the deck somebody imports and expects to
+    // keep running.
+    const std::string advance = attribute("advTm");
+    if (!advance.empty()) {
+      const double ms = std::atof(advance.c_str());
+      if (ms > 0.0) slide.advanceAfterSeconds = std::clamp(ms / 1000.0, 0.1, 3600.0);
+    }
+  }
+  return out;
+}
+
 #else   // no zlib
 
 std::vector<std::string> slideNotesFromPptx(const fs::path&, std::size_t slideCount) {
   return std::vector<std::string>(slideCount);
+}
+
+std::vector<SlideTransition> slideTransitionsFromPptx(const fs::path&,
+                                                      std::size_t slideCount) {
+  return std::vector<SlideTransition>(slideCount);
 }
 
 #endif

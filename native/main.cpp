@@ -10599,8 +10599,26 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       if (oneLine.size() > 100) oneLine = oneLine.substr(0, 100) + "...";
       std::printf("slide %zu: %s\n", i + 1, oneLine.c_str());
     }
-    std::printf("slides with notes: %d\n", withNotes);
-    return withNotes > 0 ? 0 : 1;
+    // The transitions too, from the same file, because the question an
+    // operator asks about an imported deck is "did it bring ITS deck across",
+    // and notes are only half of that.
+    const auto moves = deckboy::platform::slideTransitionsFromPptx(
+      std::filesystem::path(ops[0]),
+      static_cast<std::size_t>(count > 0 ? count : 200));
+    int withMoves = 0;
+    for (std::size_t i = 0; i < moves.size(); ++i) {
+      if (moves[i].style.empty()) continue;
+      ++withMoves;
+      std::printf("slide %zu: %s", i + 1, moves[i].style.c_str());
+      if (moves[i].seconds >= 0.0) std::printf("  %.2fs", moves[i].seconds);
+      if (moves[i].advanceAfterSeconds > 0.0) {
+        std::printf("  advance after %.1fs", moves[i].advanceAfterSeconds);
+      }
+      std::printf("\n");
+    }
+    std::printf("slides with notes: %d  with transitions: %d\n",
+                withNotes, withMoves);
+    return (withNotes > 0 || withMoves > 0) ? 0 : 1;
   }
   if (mode == "--pdf-probe") {
     if (ops.empty()) return missing("<file.pdf> [outdir] [width]");

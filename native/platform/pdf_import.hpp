@@ -148,6 +148,26 @@ bool pdfRasterAvailable(std::string& whyNot);
 std::vector<std::string> slideNotesFromPptx(const std::filesystem::path& pptxPath,
                                             std::size_t slideCount);
 
+// WHAT THE DECK WAS BUILT TO DO BETWEEN SLIDES.
+//
+// A PDF cannot carry this and never could, so converting a .pptx to PDF throws
+// it away -- which is why the import has always produced a deck of stills that
+// all cut. The transitions are still in the .pptx, though: each slide's XML
+// carries a <p:transition> element, in the same ZIP this file already opens to
+// read speaker notes. So it is not lost, only unread.
+//
+// Empty style means "the operator's deck default", not "cut" -- a deck with no
+// transitions set should import the way the operator has their deck set up,
+// not be forcibly flattened to cuts.
+struct SlideTransition {
+  std::string style;                 // a Deckboy transition token, or empty
+  double seconds = -1.0;             // < 0 leaves the deck default
+  double advanceAfterSeconds = -1.0; // < 0 = no automatic advance
+};
+
+std::vector<SlideTransition> slideTransitionsFromPptx(
+  const std::filesystem::path& pptxPath, std::size_t slideCount);
+
 }  // namespace deckboy::platform
 
 #endif  // DECKBOY_PLATFORM_PDF_IMPORT_HPP
