@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inside 16.7 milliseconds | Deckboy performance</title>
-    <meta name="description" content="A 60fps frame is 16.683 ms. Everything Deckboy does to a live picture has to fit inside one. What that costs, measured: grain flow 119ms to 13ms, Chladni 24ms to 7ms, channel lookup tables 10-66x, zero-copy GPU decode, and 34 video effects that all hold the budget at 1080p.">
+    <meta name="description" content="A 60fps frame is 16.683 ms. Everything Deckboy does to a live picture has to fit inside one. What that costs, measured: grain flow 119ms to 13ms, Chladni 24ms to 7ms, channel lookup tables 10-66x, zero-copy GPU decode, and 36 video effects that all hold the budget at 1080p.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/latency.html">
 
     <meta property="og:type" content="article">
@@ -62,6 +62,7 @@
         <div class="nav-links">
             <a href="compare.html">Compare</a>
             <a href="faq.html">FAQ</a>
+            <a href="manual.html">Manual</a>
             <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
             <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
         </div>
@@ -82,7 +83,7 @@
         page is the receipts.</p>
 
         <h2>Every effect is benchmarked, and over-budget is a bug</h2>
-        <p>Deckboy has <b>34 video effects</b>. Adding one is not finished when it looks right; it
+        <p>Deckboy has <b>36 video effects</b>. Adding one is not finished when it looks right; it
         is finished when <code>--effect-bench &lt;name&gt; 1920x1080</code> says it fits inside a
         frame. That check has caught every single one of them at least once, and in each case the
         cost was somewhere other than where it looked:</p>

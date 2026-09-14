@@ -144,15 +144,15 @@ timeline lanes, down to give the height back.
 | **Syphon / Spout** | A shared GPU texture from another app |
 | **Stream (SRT)** | A live network input — `cue.path` is the full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`) |
 | **NDI Source** | An NDI receive input — `ndi://SOURCE_NAME` |
+| **DeckLink Source** | A Blackmagic card's SDI or HDMI input, captured through the DeckLink SDK rather than through FFmpeg |
 | **PiP** | Picture-in-picture overlay of another cue/source |
 | **Lower Third** | Text overlay bar |
 | **Composite** | A multi-slot scene (2-up, quad, 70/30, etc.) |
 | **Audio** | An audio-only file with a waveform lane |
-| **Tone** | A generated audio test tone, with optional on-screen diagnostics |
+| **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages |
 | **Video Synth** | Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets |
-| **Synth** | A playable chip voice (2A03 / FDS), driven from MIDI or the computer keyboard |
-| **Code** | A live-coded picture: an expression evaluated per pixel, edited while it runs (see §14a) |
+| **Code** | A live-coded picture: an expression evaluated per pixel, edited while it runs (see §14a). It is a Pattern cue underneath, so anything true of patterns is true of it |
 
 ---
 
@@ -516,10 +516,19 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 | caustics | Refraction *and* the light gathering — see below |
 | feedback | A controlled camera-into-monitor loop |
 | motion puppet | Driven by another clip's movement |
+| slit scan | One open slit crosses the frame, smearing a long moment across it. Narrow is a scanner; wide is barely an effect |
+| motion mosh | Holds the previous frame and the smear between them, so a held cue smears into itself instead of sitting still |
+| ferrofluid | The highlights lift away from the surface into spikes, as iron filings do in a field |
+| shatter | The picture breaks into shards that slide and turn. Small is frosted glass; large is a dropped plate |
+| edge ignite | Edges catch and burn, the flame guttering frame to frame. Low sets the whole picture alight, high only the hardest lines |
+| relight | Brightness is treated as height and lit from the side, with the light walking around the frame |
+| depth split | Brightness is read as nearness and the two eyes disagree, with a slow rock that makes the depth read without glasses |
 | schlieren, chladni, wavefront, crystallise, night eyes, grain flow | See below |
 
-Every effect fits inside a 60fps frame at 1080p; `--effect-bench <token>`
-reports what any of them costs on your machine.
+There are **36** of them, and **every one fits inside a 60fps frame at 1080p**
+before it ships — that is a condition of shipping, not an aspiration.
+`--effect-bench <token> [WxH]` reports what any of them costs on your own
+machine and at your own raster.
 
 ### The six that are not in anything else
 
@@ -760,6 +769,51 @@ fader in the header rides on top of everything). The effective audio-fade ramp
 is drawn over every waveform view — the timeline audio lane, the program strip,
 and both inspector thumbs — so what you see is what plays.
 
+### Per-cue audio effects (inspector → AUDIO FX)
+
+Each cue carries an ordered chain of up to **eight** audio effects, arranged
+like the picture effects and saved with the show. It runs per sample on the
+audio thread, between the cue's gain and the deck limiter.
+
+**Amount always means "more of this, less of the original."** Dry/wet for the
+shaping effects, gain reduction for the dynamics, and a *send* for the delay and
+the reverb — a delay treated as dry/wet would play silence on a cue shorter than
+its own delay time.
+
+| Effect | What it does |
+|--------|--------------|
+| High pass, Low pass | Corner-frequency filters |
+| Tilt EQ | One control from dark to bright, pivoting in the middle |
+| Compressor | Threshold, ratio, attack, release. The backward-compatible ratio is 1:1 — a compressor that does not compress — so a cue saved before the control existed still sounds the way it did |
+| Gate | Shuts the tail off below a threshold |
+| Delay | A send, with time and feedback |
+| Reverb | A send, with size and damping |
+| Width | Narrows or widens the stereo image |
+| Binaural | Places the source around the listener's head |
+
+#### The five that need the deck
+
+A plug-in receives a buffer of samples and nothing else. That is not a
+limitation anyone chose; it is what a plug-in *is*. Deckboy holds the picture
+and the sound in one object, so five of its effects can read the frame they are
+playing under — which nothing hosted in a mixing desk can do.
+
+| Effect | What it reads |
+|--------|---------------|
+| **Picture** | The cue's own video drives the filter: the shot itself becomes the control signal |
+| **Placement** | Where the picture sits on the raster is where the sound sits in the room — move the shot, the sound moves with it |
+| **Seam** | The approaching end of the cue resolves the tail, so the outgoing sound lands *with* the cut instead of being chopped by it |
+| **Frame lock** | Granular stutter quantised to the video frame period rather than to a tempo you guessed |
+| **Suspend** | A held cue keeps its room tone instead of stopping dead |
+
+Every one of them has a neutral setting that passes audio through unchanged, and
+when a cue cannot supply what an effect needs — an audio-only cue has no picture
+— the inspector row says so rather than passing through in silence.
+
+`--audio-fx-check` runs the whole chain headlessly and reports what each effect
+does to a known signal. Its first run found four real faults, including a delay
+whose output was silence.
+
 ### A/V delay offset
 
 `Settings → AUDIO OUTPUT → A/V delay` holds all audio back 0–1000 ms before the
@@ -988,27 +1042,86 @@ Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
 
 ## 25. Command-Line Flags
 
+Deckboy runs with no arguments. These are for the times it does not do what you
+expect, or you want to prove it will before the doors open.
+
+### Before a show
+
 ```
-Deckboy.exe --self-check            # verify dependencies + backend wiring
+Deckboy.exe --devices               # every audio device, display, MIDI port and render driver
+                                    #   the machine can actually see, with real rates and names
+Deckboy.exe --self-check            # dependencies and backend wiring
 Deckboy.exe --smoke                 # automated smoke test (exit 0 = pass)
-Deckboy.exe --soak [minutes]        # long-run stability harness (default 24h)
-Deckboy.exe --decode-bench FILE [seconds] [cli]  # decode benchmark; 'cli' forces the subprocess path
-Deckboy.exe --sync-pop-test         # verify the pocket-test audio sync path
-Deckboy.exe --motion-probe FILE [frames]  # is this clip a usable motion driver?
-Deckboy.exe --no-inproc-decode      # force the FFmpeg subprocess decode path
-Deckboy.exe --allow-multi-instance  # bypass the single-instance lock (debug)
-Deckboy.exe --effect-bench TOKEN[:amount[:a[:b]]] [WxH] [frames]   # what one effect costs
-Deckboy.exe --effect-dump TOKEN IN.ppm OUT.ppm [frame] [passes]   # one effect, headless
-Deckboy.exe --pattern-dump ID OUT.ppm [WxH] [t]     # one pattern, headless
-Deckboy.exe --import FILE           # import at launch, skipping the splash
-Deckboy.exe --settings [tab[.subtab]]               # open settings at boot
-Deckboy.exe --inspector-scroll PX   # scroll the inspector (a big number means the bottom)
+Deckboy.exe --soak [minutes]        # long-run stability harness; logs memory and stalls
+Deckboy.exe --version               # the version this binary reports
+Deckboy.exe --check-update          # ask whether a newer release exists
+```
+
+`--devices` is the one to run first when somebody reports no sound, the wrong
+controller or a soft picture. It separates a Deckboy fault from a machine that
+cannot see its own hardware, and it spells device names the way a show file has
+to.
+
+### Opening something directly
+
+```
+Deckboy.exe show.deckboy            # open a show, skipping the splash
+Deckboy.exe --import FILE           # import a file at launch, skipping the splash
+Deckboy.exe --settings [tab[.subtab]]   # open the settings modal at a given tab
 Deckboy.exe --code-editor           # open the code editor at boot
 ```
 
-Environment: `DECKBOY_PROJECT` (open a specific show), `DECKBOY_THEME` (force a
-colourway), `DECKBOY_COMPANION_PORT` (control port), `DECKBOY_UI_PROFILE=1`
-(UI timing + watchdog logs), `DECKBOY_EGRESS_READBACK=sync` (force the plain
-synchronous recording readback), `DECKBOY_EGRESS_BENCH=1` (print readback costs),
-`DECKBOY_OUTPUT_RENDERER=<driver>` (choose the output window's renderer, e.g.
-`gpu`, `direct3d11`, `metal`, `opengl`).
+### When something will not play
+
+```
+Deckboy.exe --no-hw-decode          # decode in software: the A/B for the hardware path
+Deckboy.exe --no-inproc-decode      # use the FFmpeg subprocess path instead of in-process
+Deckboy.exe --decode-bench FILE [seconds] [cli]   # decode rate, and GPU vs CPU frame counts
+Deckboy.exe --motion-probe FILE [frames]          # is this clip usable as a motion driver?
+Deckboy.exe --hap-probe FILE        # report a HAP file's variant and chunking
+Deckboy.exe --pdf-probe FILE        # page count and raster of a PDF before importing it
+Deckboy.exe --pptx-notes FILE       # the speaker notes a PowerPoint deck would import
+Deckboy.exe --sync-pop-test         # verify the audio-sync beacon path
+```
+
+If a clip plays with `--no-hw-decode` and not without it, the fault is the
+hardware decoder on that machine, not the file.
+
+### Proving what a look costs
+
+```
+Deckboy.exe --effect-bench TOKEN[:amount[:a[:b]]] [WxH] [frames]  # what one effect costs
+Deckboy.exe --effect-dump TOKEN IN.ppm OUT.ppm [frame] [passes]   # one effect, headless
+Deckboy.exe --pattern-dump ID OUT.ppm [WxH] [t]                   # one pattern, headless
+Deckboy.exe --audio-fx-check        # run the audio chain against a known signal
+```
+
+`--effect-dump` renders without a window, so two builds can be compared frame
+for frame and byte for byte.
+
+### Other
+
+```
+Deckboy.exe --allow-multi-instance  # bypass the single-instance lock
+Deckboy.exe --inspector-scroll PX   # scroll the inspector at boot (a big number means the bottom)
+Deckboy.exe --help                  # the list this section is drawn from
+```
+
+### Environment
+
+| Variable | Effect |
+|----------|--------|
+| `DECKBOY_PROJECT` | Open a specific show |
+| `DECKBOY_STATE_DIR` | Where Deckboy writes: the show, the last-opened pointer, logs, converted media |
+| `DECKBOY_ROOT` | Where Deckboy reads `data/` from — themes, fonts, sounds |
+| `DECKBOY_THEME` | Force a colourway |
+| `DECKBOY_COMPANION_PORT` | The control port (see §22) |
+| `DECKBOY_NO_HW_DECODE` | As `--no-hw-decode` |
+| `DECKBOY_OUTPUT_RENDERER` | Choose the output window's renderer: `gpu`, `direct3d11`, `metal`, `opengl` |
+| `DECKBOY_EGRESS_READBACK=sync` | Force the plain synchronous recording readback |
+| `DECKBOY_EGRESS_BENCH=1` | Print per-frame readback costs |
+| `DECKBOY_UI_PROFILE=1` | UI timing and watchdog logs |
+
+`DECKBOY_ROOT` and `DECKBOY_STATE_DIR` together give a completely isolated
+instance, which is how to try something out without touching the show on the
+machine.
