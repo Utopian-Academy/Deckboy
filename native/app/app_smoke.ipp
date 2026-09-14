@@ -3316,3 +3316,109 @@
     std::cout << "mtc-check: " << failures << " failures\n";
     return failures == 0 ? 0 : 1;
   }
+
+  // ---------------------------------------------------------------------------
+  // runFontCheck — `--font-check`
+  //
+  // Does this machine actually draw text, and if not, which step fails?
+  //
+  // Written for a bug report that no existing check could answer: on macOS 26
+  // the whole interface rendered -- panels, icons, theme colours, splash art --
+  // with NO TEXT ANYWHERE. `--self-check` said "font-sans: ok" and meant only
+  // that the FILE EXISTS; it never opened it. Meanwhile every text draw in the
+  // app gives up silently:
+  //
+  //     SDL_Surface* surface = TTF_RenderText_Blended(...);
+  //     if (!surface) return;                     <- no log, no toast, nothing
+  //     SDL_Texture* texture = ...FromSurface(...);
+  //     if (!texture) { ...; return; }            <- same
+  //
+  // So an operator sees a blank interface and the app has nothing to say about
+  // it. This walks the whole path in order and names the step that fails, on
+  // any platform, with no window and no GPU -- rendering to a surface needs
+  // neither, which is what makes it runnable over ssh on the machine that has
+  // the fault.
+  // ---------------------------------------------------------------------------
+  static int runFontCheck() {
+    std::cout << "Deckboy font check\n";
+    if (!TTF_Init()) {
+      std::cout << "TTF_Init: FAILED -- " << SDL_GetError() << "\n";
+      std::cout << "font-check: 1 failure\n";
+      return 1;
+    }
+    std::cout << "TTF_Init: ok\n";
+
+    int failures = 0;
+    struct Face { const char* label; Paths::FontName name; int size; };
+    // The sizes the interface actually opens, not a token 16: a face can open
+    // at one size and fail at another, and the one that matters is the one the
+    // app asks for.
+    const Face faces[] = {
+      {"sans  large", Paths::FontName::Sans,  32},
+      {"sans  base",  Paths::FontName::Sans,  21},
+      {"sans  small", Paths::FontName::Sans,  17},
+      {"mono",        Paths::FontName::Mono,  18},
+      {"pixel",       Paths::FontName::Pixel, 24},
+      {"pixel small", Paths::FontName::Pixel, 12},
+    };
+    for (const Face& face : faces) {
+      const std::string path = Paths::fontPath(face.name).string();
+      std::error_code ec;
+      const bool exists = fs::exists(path, ec);
+      std::cout << "  " << face.label << " @" << face.size << "  " << path << "\n";
+      if (!exists) {
+        std::cout << "      file: MISSING\n";
+        ++failures;
+        continue;
+      }
+      TTF_Font* font = TTF_OpenFont(path.c_str(), static_cast<float>(face.size));
+      if (!font) {
+        std::cout << "      open: FAILED -- " << SDL_GetError() << "\n";
+        ++failures;
+        continue;
+      }
+      // A string with an ascender, a descender and a digit, so a face that
+      // loads but rasterises nothing is caught by the size being wrong rather
+      // than by the call returning null.
+      const char* sample = "Deckboy 1080p";
+      SDL_Color white {255, 255, 255, 255};
+      SDL_Surface* surface = TTF_RenderText_Blended(font, sample, 0, white);
+      if (!surface) {
+        std::cout << "      render: FAILED -- " << SDL_GetError() << "\n";
+        ++failures;
+        TTF_CloseFont(font);
+        continue;
+      }
+      const int w = surface->w;
+      const int h = surface->h;
+      // Is there any INK in it? A surface of the right size full of nothing is
+      // the shape this bug would take if the rasteriser stopped working while
+      // the metrics kept coming.
+      long long lit = 0;
+      if (SDL_LockSurface(surface)) {
+        const auto* details = SDL_GetPixelFormatDetails(surface->format);
+        for (int y = 0; y < surface->h && lit == 0; ++y) {
+          const auto* row = static_cast<const std::uint8_t*>(surface->pixels) +
+                            static_cast<std::size_t>(y) * surface->pitch;
+          for (int x = 0; x < surface->w; ++x) {
+            std::uint32_t pixel = 0;
+            std::memcpy(&pixel, row + static_cast<std::size_t>(x) * details->bytes_per_pixel,
+                        details->bytes_per_pixel);
+            std::uint8_t r = 0, g = 0, b = 0, a = 0;
+            SDL_GetRGBA(pixel, details, nullptr, &r, &g, &b, &a);
+            if (a > 8) { ++lit; break; }
+          }
+        }
+        SDL_UnlockSurface(surface);
+      }
+      std::cout << "      open ok, rendered " << w << "x" << h
+                << ", ink " << (lit > 0 ? "present" : "NONE") << "\n";
+      if (w <= 0 || h <= 0 || lit == 0) {
+        ++failures;
+      }
+      SDL_DestroySurface(surface);
+      TTF_CloseFont(font);
+    }
+    std::cout << "font-check: " << failures << (failures == 1 ? " failure\n" : " failures\n");
+    return failures == 0 ? 0 : 1;
+  }

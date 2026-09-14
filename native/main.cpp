@@ -10226,6 +10226,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
   {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
+  {"--font-check", "open every UI face and render with it; names the step that fails"},
   {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
      "apply one effect to one picture, no window"},
     {"--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]",
@@ -10254,7 +10255,7 @@ constexpr const char* kCliModeFlags[] = {
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
-  "--devices", "--check-update",
+  "--devices", "--check-update", "--font-check",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -10555,6 +10556,11 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   if (mode == "--audio-fx-check") {
     // Optional token: one effect, for when a change is being made to it.
     return App::runAudioFxCheck(ops.empty() ? std::string() : ops[0]);
+  }
+  if (mode == "--font-check") {
+    // Needs no window and no GPU, so it runs over ssh on the machine that has
+    // the fault -- which is the entire point of it.
+    return App::runFontCheck();
   }
   if (mode == "--mtc-check") {
     // No hardware, no cable, no platform: the timecode decoder is arithmetic.
