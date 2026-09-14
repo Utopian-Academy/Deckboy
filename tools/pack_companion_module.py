@@ -90,7 +90,61 @@ def main():
     print("packed %s  (%d files, %.1f MB)"
           % (archive.relative_to(ROOT), count + 1,
              archive.stat().st_size / 1048576))
-    return 0
+    return verify(archive, name)
+
+
+def verify(archive, name):
+    """Unpack what we just built and check it is loadable.
+
+    A module zip that is missing a dependency, or whose manifest points at
+    a file that is not there, fails silently: Companion just does not list
+    it, and the person who downloaded it concludes the module is broken
+    rather than the package. Cheaper to find here.
+
+    What cannot be checked without Companion itself is the IPC handshake --
+    main.js calls runEntrypoint, which needs Companion's environment, so
+    importing it standalone is SUPPOSED to fail. The sources it pulls in are
+    checked instead.
+    """
+    node = shutil.which("node") or shutil.which("node.exe")
+    if not node:
+        print("  (node not found -- skipping the load check)")
+        return 0
+
+    check_root = Path(tempfile.mkdtemp(prefix="deckboy-companion-check-"))
+    try:
+        with zipfile.ZipFile(archive) as bundle:
+            bundle.extractall(check_root)
+        unpacked = check_root / name
+
+        manifest = json.loads(
+            (unpacked / "companion" / "manifest.json").read_text(encoding="utf-8"))
+        entry = (unpacked / "companion" / manifest["runtime"]["entrypoint"]).resolve()
+        if not entry.exists():
+            print("  FAIL the manifest entrypoint %s is not in the zip"
+                  % manifest["runtime"]["entrypoint"])
+            return 1
+        print("  ok   manifest entrypoint resolves to %s" % entry.name)
+
+        sources = sorted(str(f.relative_to(unpacked)).replace("\\", "/")
+                         for f in (unpacked / "src").glob("*.js"))
+        script = ("Promise.all([%s].map(f => import(f))).then("
+                  "() => console.log('loaded'), "
+                  "e => { console.error(e.message); process.exit(1); });"
+                  % ", ".join("'./%s'" % f for f
+                              in ["node_modules/@companion-module/base/dist/index.js"]
+                                 + sources))
+        result = subprocess.run([node, "--input-type=module", "-e", script],
+                                cwd=str(unpacked), capture_output=True, text=True)
+        if result.returncode != 0:
+            print("  FAIL the packaged module does not load:")
+            print("       " + (result.stderr or result.stdout).strip()[:400])
+            return 1
+        print("  ok   %d source files and @companion-module/base load from the zip"
+              % len(sources))
+        return 0
+    finally:
+        shutil.rmtree(check_root, ignore_errors=True)
 
 
 def install_notes(version):
