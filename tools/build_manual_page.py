@@ -254,8 +254,10 @@ HEAD = """<!DOCTYPE html>
     <nav class="navbar">
         <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
         <div class="nav-links">
+            <a href="slides.html">Slides</a>
             <a href="compare.html">Compare</a>
             <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
             <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
             <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
         </div>
