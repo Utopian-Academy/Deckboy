@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play PowerPoint, Keynote and PDF slides from a cue list | Deckboy</title>
+    <meta name="description" content="Run a slide deck in a live show without the desktop showing: PDF, PowerPoint, Keynote and OpenDocument import as one cue per slide, with speaker notes, a presenter view on its own display and a mirrored teleprompter. Free and open source, for Windows, macOS and Linux.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/slides.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Slide decks in a live show">
+    <meta property="og:description" content="PowerPoint, Keynote and PDF decks as cues, with presenter view and a teleprompter on their own displays. Free and open source.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/slides.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Slide decks in a live show">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 820px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.8rem 0 .6rem; font-size: 1.22rem; color: var(--ink); }
+        .prose h3 { margin: 1.8rem 0 .4rem; font-size: 1.02rem; color: var(--ink); }
+        .prose p { margin-bottom: 1rem; color: var(--ink-soft); }
+        .prose ul, .prose ol { margin: 0 0 1rem 1.25rem; color: var(--ink-soft); }
+        .prose li { margin-bottom: .35rem; }
+        .prose .more { font-size: .9rem; margin-top: -.4rem; }
+        .prose code { background: var(--dmg-dark); padding: .12em .4em; font-size: .9em; }
+        .table-scroll { overflow-x: auto; margin-bottom: 1.25rem; }
+        .prose table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+        .prose th, .prose td { text-align: left; padding: .45rem .7rem;
+                               border-bottom: 1px solid var(--dmg-dark);
+                               color: var(--ink-soft); vertical-align: top; }
+        .prose th { color: var(--ink); white-space: nowrap; }
+        .prose figure { margin: 2rem 0; }
+        .prose figcaption { font-size: .88rem; color: var(--ink-soft); margin-top: .5rem; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Play a PowerPoint, Keynote or PDF deck from a live cue list",
+      "description": "Import a slide deck into Deckboy as one cue per slide, put presenter view on the speaker's display, and run the show without a desktop ever appearing on the projector.",
+      "totalTime": "PT5M",
+      "tool": [
+        { "@type": "HowToTool", "name": "Deckboy" },
+        { "@type": "HowToTool", "name": "PowerPoint, Keynote or LibreOffice (only for non-PDF decks)" }
+      ],
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Import the deck",
+          "text": "Add the .pdf, .pptx, .ppt, .key or .odp file as you would any other media. Deckboy renders every page once, at import, and adds one image cue per slide."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Send the deck to a fullscreen output",
+          "text": "Assign the deck to the projector or screen. Because slides are ordinary cues, the output holds the last frame between them rather than revealing a desktop."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Put presenter view on the speaker's display",
+          "text": "Add a second output and set its type to presenter. It shows the live slide, the previous and next slides, the speaker notes, a clock and timers."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Walk the slides",
+          "text": "A presenter's clicker advances the cues with Page Down, or the show can be driven from a Stream Deck, Bitfocus Companion, OSC, MIDI or LTC timecode."
+        }
+      ]
+    }
+    </script>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="min-height:auto;padding-top:4rem;padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>Slides, in a show</h1>
+            <p class="hero-subtitle">A deck is cues. The desktop never appears.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <p>Running a talk from PowerPoint on the show machine means the projector is
+        showing a window. Alt-tab, a notification, the end of the deck, a crash — any of
+        them puts a desktop on a screen a room is looking at. Meanwhile the video clips
+        live in a different application, the presenter's notes live on a laptop nobody
+        can cue from, and the handover between the two is a person hoping.</p>
+
+        <p>Deckboy imports the deck instead. Every page becomes an ordinary cue in the
+        same list as the clips, so slides and video are the same show, run the same way,
+        on outputs that hold the last frame rather than revealing anything behind them.</p>
+
+        <h2>What imports</h2>
+
+        <div class="table-scroll">
+        <table>
+            <thead><tr><th>File</th><th>How</th></tr></thead>
+            <tbody>
+            <tr><td><code>.pdf</code></td><td>Rendered directly, one image cue per page</td></tr>
+            <tr><td><code>.pptx</code>, <code>.ppt</code></td><td>PowerPoint exports a PDF, or LibreOffice where PowerPoint is not installed</td></tr>
+            <tr><td><code>.key</code></td><td>Keynote exports a PDF, then LibreOffice as a fallback</td></tr>
+            <tr><td><code>.odp</code></td><td>LibreOffice exports a PDF</td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <p>Deckboy does not reimplement anybody's slide format. It asks whatever already
+        owns that format on the machine to export a PDF and rasterises that with the
+        renderer the operating system already ships — <code>Windows.Data.Pdf</code> on
+        Windows, which is Edge's; CoreGraphics on macOS, which is Preview's;
+        <code>pdftoppm</code> on Linux. A half-right renderer that puts a slide's type
+        in the wrong place is worse on a show day than an honest refusal, so where none
+        of them is installed Deckboy says which one to install rather than calling the
+        file unsupported.</p>
+
+        <p>Pages are rasterised once, at import, and never again. Nothing during the show
+        depends on a document renderer being fast, being present, or deciding to reflow a
+        page halfway through the keynote. Once a slide is a still it behaves like every
+        other cue: it takes, it fades, it crossfades to the next one, it carries effects.</p>
+
+        <h2>The honest limitation</h2>
+
+        <p>Exporting to PDF flattens builds and drops transitions. That is a property of
+        the export, not of Deckboy, and no PDF-based route in any application avoids it:
+        a PowerPoint deck that animates arrives as static slides.</p>
+
+        <ul>
+            <li><strong>Keynote</strong> can export one page per build stage, and those
+            come through as one cue per stage — usually exactly what an operator wants.</li>
+            <li><strong>A PowerPoint deck that genuinely has to animate</strong> should be
+            driven in PowerPoint and captured live with a window-source cue, which Deckboy
+            treats like any other source. You keep the animation and still run it from the
+            cue list.</li>
+        </ul>
+
+        <p>If a deck's animations do not matter, importing is better in every way: no
+        second application on the show machine, no alt-tab, and the slides crossfade like
+        video because they <em>are</em> video cues.</p>
+
+        <h2>Speaker notes and presenter view</h2>
+
+        <p>Speaker notes come out of a <code>.pptx</code> with the slides — the file is a
+        ZIP with the notes as XML inside — so they arrive attached to the cue that shows
+        the slide.</p>
+
+        <p>Presenter view is an <strong>output type</strong>, not a window. It is assigned
+        to a display the way the projector feed is, so the speaker's laptop screen or the
+        confidence monitor at the lectern is simply another output of the show, driven by
+        the same cue list. It carries the live slide, the previous and next slides, the
+        notes, a clock and timers, and every one of those panels can be switched off.</p>
+
+        <p>Turn the three pictures off and the notes take the whole screen, which is what
+        somebody reading a long script from a lectern actually wants. Background, ink and
+        accent are set as hex colours, because a presenter screen is often somebody else's
+        laptop in somebody else's room and "make it readable in here" is a real request.</p>
+
+        <h3>Note builds</h3>
+
+        <p>A cue's notes split on a line that is exactly <code>---</code>, and the
+        presenter advances through those parts without changing the slide, so a long note
+        is read at the speaker's pace instead of arriving all at once.</p>
+
+        <h2>A teleprompter as well</h2>
+
+        <p>The prompter is a separate output type for the person reading out loud. Left
+        empty it follows the live cue's notes; given a script it runs a talk that has no
+        slides at all. It mirrors — horizontally by default, vertically as well, because
+        a beamsplitter can sit above or below the lens — and its pace is set in
+        <strong>lines per minute</strong> rather than pixels per second, so a pace belongs
+        to the reader and means the same thing when the type size or the screen changes.
+        Text scrolls up through a fixed reading line, so the words being spoken are always
+        in the same place.</p>
+
+        <h2>What it costs</h2>
+
+        <p>Nothing. Deckboy is GPL-3.0, for Windows, macOS and Linux, with no account, no
+        licence server and no telemetry. Presenter view and the prompter are not a tier.</p>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2.5rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>
+            <a href="manual.html#slide-decks-presenter-view-prompter" class="btn-large btn-outline">Read the chapter</a>
+        </div>
+
+        <p class="more" style="margin-top:2rem"><a href="compare.html">How Deckboy compares</a>
+        to ProPresenter, QLab, Mitti and the rest &middot;
+        <a href="faq.html">Questions people ask before a show</a></p>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+</body>
+</html>
