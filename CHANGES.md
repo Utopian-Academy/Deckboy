@@ -38,10 +38,11 @@ true than another player through the same capture rig. Only the tap read from
 the wrong end of the buffer, so only captured files were wrong.
 
 **What is left, stated plainly.** About four and a half frames of the offset
-remain -- 4.4 here, 4.3 on the other machine, holding steady across frame rates
-from 25 to 60. That is a different thing: picture taking longer to reach the
-encoder than sound does. It is measured, both machines agree, and it is not
-fixed here.
+remain -- 4.51 across nine runs on one machine and 4.4 on another, holding
+steady across frame rates from 25 to 60. That is a different thing: the
+recording reads each finished frame back from the graphics card a few frames
+after it was drawn, and the sound that goes with it is not held back to match.
+It is measured, both machines agree on the size, and it is not fixed here.
 
 **A take no longer loses the last fraction of a second of its sound.** Holding
 audio until it has played means some is always still held when playback ends;
