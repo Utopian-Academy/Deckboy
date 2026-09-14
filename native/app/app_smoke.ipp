@@ -3446,9 +3446,30 @@
         }
         SDL_UnlockSurface(surface);
       }
+      // AND WHAT THE INTERFACE MEASURES, which is a different call from the one
+      // that draws. Every label in Deckboy is measured with TTF_GetStringSize
+      // first and then ellipsized or clipped to fit its box. If measuring
+      // disagrees with rasterising -- says a short label is enormous, or fails
+      // outright -- the layout concludes nothing fits and draws nothing, on a
+      // machine whose font is perfectly fine. That failure looks exactly like a
+      // missing font and is not one.
+      int measuredW = -1, measuredH = -1;
+      const bool measured =
+        TTF_GetStringSize(font, sample, 0, &measuredW, &measuredH);
       std::cout << "      open ok, rendered " << w << "x" << h
-                << ", ink " << (lit > 0 ? "present" : "NONE") << "\n";
-      if (w <= 0 || h <= 0 || lit == 0) {
+                << ", ink " << (lit > 0 ? "present" : "NONE")
+                << ", measured ";
+      if (!measured) {
+        std::cout << "FAILED -- " << SDL_GetError();
+      } else {
+        std::cout << measuredW << "x" << measuredH;
+        if (measuredW != w || measuredH != h) {
+          std::cout << "  <-- DISAGREES WITH THE RENDER";
+        }
+      }
+      std::cout << "\n";
+      if (w <= 0 || h <= 0 || lit == 0 || !measured ||
+          measuredW != w || measuredH != h) {
         ++failures;
       }
       SDL_DestroySurface(surface);
