@@ -20,6 +20,8 @@
 #include <SDL3/SDL.h>
 
 #include <cstddef>
+#include <iostream>
+#include <string>
 
 // ── Draw-call overloads: int SDL_Rect → SDL_FRect at the boundary ──────────
 
@@ -111,15 +113,49 @@ inline SDL_Renderer* deckboyCreateRenderer(SDL_Window* window) {
   if (!window) {
     return nullptr;
   }
+// THE PLATFORM'S OWN BACKEND COMES FIRST, and it did not.
+//
+// This list was written to keep Windows off D3D9 and put the Windows backends
+// at the front, which it does. What nobody noticed is that it also puts
+// **OpenGL ahead of Metal**, so on macOS the first name that creates wins --
+// and OpenGL creates. Deckboy has been running on a deprecated backend on
+// every Mac since this list was written, quietly, because it worked.
+//
+// On macOS 26 it stopped working properly: the interface drew -- panels,
+// icons, theme colours, the splash photograph -- with NO TEXT AT ALL
+// (issue #6). Measured on a Tahoe machine: the fonts open, rasterise ink and
+// measure correctly, and the whole text path is fine under the software
+// renderer, so nothing before the GPU is at fault. macOS 14 and 15 still draw
+// text through OpenGL, which is why CI never saw it.
+//
+// Metal is the supported, tested backend on macOS and has been since 2018.
+// OpenGL stays in the list, one place lower, as the fallback it should always
+// have been.
+#if defined(__APPLE__)
   static const char* const kDrivers[] = {
-    "direct3d11", "direct3d12", "opengl", "metal", "gpu",
+    "metal", "opengl", "gpu", "software",
   };
+#elif defined(_WIN32)
+  static const char* const kDrivers[] = {
+    "direct3d11", "direct3d12", "opengl", "gpu",
+  };
+#else
+  static const char* const kDrivers[] = {
+    "opengl", "vulkan", "gpu",
+  };
+#endif
   for (const char* driver : kDrivers) {
     if (SDL_Renderer* renderer = SDL_CreateRenderer(window, driver)) {
+      // SAY WHICH ONE. Which backend a window ended up on decides how it
+      // behaves, and until issue #6 there was no way to find out short of
+      // reading this function and guessing. One line, once per window.
+      std::cerr << "renderer: " << driver << std::endl;
       return renderer;
     }
   }
-  return SDL_CreateRenderer(window, SDL_SOFTWARE_RENDERER);
+  SDL_Renderer* fallback = SDL_CreateRenderer(window, SDL_SOFTWARE_RENDERER);
+  std::cerr << "renderer: software (every hardware backend refused)" << std::endl;
+  return fallback;
 }
 
 inline SDL_Texture* deckboyCreateTexture(SDL_Renderer* renderer, Uint32 format,
@@ -131,10 +167,59 @@ inline SDL_Texture* deckboyCreateTexture(SDL_Renderer* renderer, Uint32 format,
   return texture;
 }
 
+// WHY THERE IS A SECOND ATTEMPT.
+//
+// Issue #6: on macOS 26 the entire interface drew -- panels, icons, theme
+// colours, the splash photograph -- with no text anywhere. Measured on a Tahoe
+// machine: the fonts open, rasterise ink and measure correctly, and the whole
+// text path works under the software renderer. The backend is the variable --
+// see deckboyCreateRenderer above, which had been handing macOS a deprecated
+// OpenGL context -- and the only step left between a good surface and a
+// missing glyph is this call.
+//
+// SDL_ttf hands back ARGB8888. Images in this app never take this path -- they
+// are streaming textures filled with SDL_UpdateTexture -- so a backend that
+// refuses a STATIC texture in that format loses every letter and nothing else,
+// which is exactly the reported picture. Converting to RGBA32 and trying again
+// costs one blit on a path that has already failed, and nothing at all on the
+// machines where the first attempt works.
+//
+// deckboyTextureFailures() is not decoration. Every text draw in the app used
+// to end at `if (!texture) return;` with no log, no toast and no counter, so an
+// operator looking at a blank interface had nothing to report and we had
+// nothing to ask for. Now the app can say it.
+inline unsigned& deckboyTextureFailureCount() {
+  static unsigned count = 0;
+  return count;
+}
+
+inline const std::string& deckboyTextureFailureReason() {
+  static std::string reason;
+  return reason;
+}
+
+inline void deckboyNoteTextureFailure(const char* what) {
+  ++deckboyTextureFailureCount();
+  if (deckboyTextureFailureCount() == 1) {
+    const_cast<std::string&>(deckboyTextureFailureReason()) =
+      std::string(what) + ": " + (SDL_GetError() ? SDL_GetError() : "(no error)");
+    std::cerr << "texture creation failed (" << what << "): "
+              << (SDL_GetError() ? SDL_GetError() : "(no error)") << std::endl;
+  }
+}
+
 inline SDL_Texture* deckboyCreateTextureFromSurface(SDL_Renderer* renderer, SDL_Surface* surface) {
   SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+  if (!texture && surface && surface->format != SDL_PIXELFORMAT_RGBA32) {
+    if (SDL_Surface* converted = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32)) {
+      texture = SDL_CreateTextureFromSurface(renderer, converted);
+      SDL_DestroySurface(converted);
+    }
+  }
   if (texture) {
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+  } else {
+    deckboyNoteTextureFailure("text/surface");
   }
   return texture;
 }
