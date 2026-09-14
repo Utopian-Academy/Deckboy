@@ -3970,7 +3970,48 @@ class App {
     cueSettingsScroll_ = static_cast<int>(std::lround(frac * cueSettingsScrollMax_));
   }
 
+  // Same arithmetic as the inspector's rail, against one deck's list. Kept
+  // beside it deliberately: two scrollbars that compute their thumb position
+  // differently will disagree about where "half way" is, and an operator uses
+  // both in the same minute.
+  void scrollDeckListToPointer(int deckIndex, int y) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckListScrollRails_.size())) {
+      return;
+    }
+    const SDL_Rect& rail = deckListScrollRails_[deckIndex];
+    const int scrollMax = (deckIndex < static_cast<int>(deckScrollMax_.size()))
+      ? deckScrollMax_[deckIndex] : 0;
+    if (rail.h <= 0 || scrollMax <= 0) {
+      return;
+    }
+    const int thumbH = deckListScrollThumbH_[deckIndex];
+    const int travel = std::max(1, rail.h - thumbH);
+    const int from = rail.y + thumbH / 2;
+    const double frac = std::clamp(
+      static_cast<double>(y - from) / static_cast<double>(travel), 0.0, 1.0);
+    if (deckIndex < static_cast<int>(deckScrolls_.size())) {
+      deckScrolls_[deckIndex] = static_cast<int>(std::lround(frac * scrollMax));
+      lastDeckScrollMs_ = SDL_GetTicks();
+    }
+  }
+
   void debugAuditSettingsLayout() { auditSettingsLayout_ = true; }
+  // SHOW THE CARD WITHOUT IMPORTING ANYTHING. `--slide-card <done>/<total>`
+  // puts the progress card on screen so it can be captured with --ui-dump and
+  // LOOKED AT on every theme.
+  //
+  // This card is only ever on screen while a real document is being rasterised,
+  // which is a slow operation an operator watches once and a developer almost
+  // never sees. That is how it came to sweep a bar in the on-body INK colour --
+  // the darkest thing in every light theme -- and keep doing it long enough to
+  // be reported twice.
+  void debugShowSlideRenderCard(int done, int total, std::string title) {
+    slideRenderJobs_ = std::max(1, slideRenderJobs_);
+    slideRenderTitle_ = std::move(title);
+    slideRenderPage_.store(std::max(0, done), std::memory_order_relaxed);
+    slideRenderTotal_.store(std::max(0, total), std::memory_order_relaxed);
+  }
+
 
   void debugPokeMascot(int pokes) {
     mascotPokes_ = pokes;
@@ -8856,6 +8897,12 @@ class App {
   std::vector<Uint64> deckScrollSettleMs_;          // per-deck last-frame time for the spring dt
   Uint64 lastDeckScrollMs_ = 0;                     // last wheel input, for rubber-band settle
   static constexpr int kDeckScrollOverscroll = 44;  // px of springy over-scroll past the bottom
+  // The playlist scrollbar, published by the renderer for the input layer --
+  // the same arrangement the inspector's rail uses, and for the same reason:
+  // only the renderer knows where the list ended up.
+  std::vector<SDL_Rect> deckListScrollRails_;
+  std::vector<int> deckListScrollThumbH_;
+  int deckListScrollDragDeck_ = -1;                 // which deck's thumb is held
   std::vector<int> deckOverlayScrolls_;
   int mouseX_ = 0;
   int mouseY_ = 0;
@@ -10178,6 +10225,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
+  {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
   {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
      "apply one effect to one picture, no window"},
     {"--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]",
@@ -10782,6 +10830,8 @@ int runDeckboyMain(int argc, char** argv) {
   fs::path startupProjectArg;
   int openSettingsTab = -1;
   int inspectorScrollArg = -1;
+  int slideCardDoneArg = -1;
+  int slideCardTotalArg = 0;
   std::string uiDumpArg;
   int uiDumpFramesArg = 90;   // ~1.5s at 60fps: fonts, theme and splash settled
   bool openCodeEditorArg = false;
@@ -10830,6 +10880,21 @@ int runDeckboyMain(int argc, char** argv) {
         return 2;
       }
       inspectorScrollArg = std::atoi(rest[++i].c_str());
+      continue;
+    }
+    if (arg == "--slide-card") {
+      // <done>/<total>, so the card can be captured part-way through a deck.
+      // A bare flag shows the "converting..." state, which is the one with no
+      // page count yet and its own animation.
+      if (i + 1 < rest.size() && rest[i + 1].find('/') != std::string::npos) {
+        const std::string spec = rest[++i];
+        const std::size_t slash = spec.find('/');
+        slideCardDoneArg = std::atoi(spec.substr(0, slash).c_str());
+        slideCardTotalArg = std::atoi(spec.substr(slash + 1).c_str());
+      } else {
+        slideCardDoneArg = 0;
+        slideCardTotalArg = 0;
+      }
       continue;
     }
     if (arg == "--ui-dump") {
@@ -10933,6 +10998,10 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (inspectorScrollArg >= 0) {
     app.debugScrollInspector(inspectorScrollArg);
+  }
+  if (slideCardDoneArg >= 0) {
+    app.debugShowSlideRenderCard(slideCardDoneArg, slideCardTotalArg,
+                                 "a test deck");
   }
   if (!uiDumpArg.empty()) {
     app.enableUiDump(uiDumpArg, uiDumpFramesArg);

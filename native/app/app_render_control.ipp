@@ -1424,6 +1424,50 @@
     }
     SDL_SetRenderClipRect(controlRenderer_, nullptr);
 
+    // THE PLAYLIST'S SCROLLBAR.
+    //
+    // The wheel was the only way down a deck, at 36 pixels a notch. That is
+    // fine for the twenty-cue show it was written against and useless for a
+    // thousand: forty thousand pixels of list is over a thousand notches, and
+    // nothing on screen said where in the show you were or how much of it was
+    // below you. An operator with a long rundown could not get to the bottom,
+    // and could not see that there WAS a bottom.
+    //
+    // Same shape as the inspector's: the whole rail is the target, a press
+    // anywhere on it jumps there, and the thumb is sized by how much of the
+    // list is showing -- so on a very long deck it becomes a small thumb,
+    // which is itself the information that the list is very long.
+    if (static_cast<int>(deckListScrollRails_.size()) <= deckIndex) {
+      deckListScrollRails_.resize(deckIndex + 1, SDL_Rect {0, 0, 0, 0});
+      deckListScrollThumbH_.resize(deckIndex + 1, 0);
+    }
+    if (primaryScrollMax > 0 && primaryClip.h > 0) {
+      SDL_Rect rail {primaryFrame.x + primaryFrame.w - 10, primaryClip.y, 4,
+                     primaryClip.h};
+      Primitives::fillRect(controlRenderer_, rail, pal.mid);
+      int thumbH = std::max(uiScaled(24),
+                            (primaryClip.h * primaryClip.h) /
+                              std::max(1, primaryClip.h + primaryScrollMax));
+      thumbH = std::min(thumbH, rail.h);
+      const int travel = std::max(1, rail.h - thumbH);
+      // Clamped against the scroll maximum rather than the live scroll value,
+      // which overshoots during the bottom rubber-band -- the thumb must stop
+      // at the end of the rail while the list springs back.
+      const int shown = std::clamp(deckScrolls_[deckIndex], 0, primaryScrollMax);
+      const int thumbOffset = static_cast<int>(std::lround(
+        static_cast<double>(shown) / static_cast<double>(primaryScrollMax) * travel));
+      SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
+      Primitives::drawFramedPanel(controlRenderer_, thumb, pal.dark, pal.deep,
+                                  pal.light);
+      // Widened for the input layer: four pixels is a drawing, not a target.
+      deckListScrollRails_[deckIndex] = SDL_Rect {rail.x - 6, rail.y,
+                                                  rail.w + 12, rail.h};
+      deckListScrollThumbH_[deckIndex] = thumbH;
+    } else {
+      deckListScrollRails_[deckIndex] = SDL_Rect {0, 0, 0, 0};
+      deckListScrollThumbH_[deckIndex] = 0;
+    }
+
     if (showOverlayBin) {
       drawUIPanel(overlayFrame, pal.shellInner, pal.deep, pal.mid);
       SDL_Rect overlayHeader {overlayFrame.x + 6, overlayFrame.y + 6, overlayFrame.w - 12, 22};
@@ -2575,11 +2619,42 @@
     // ── The scan bar ────────────────────────────────────────────────────────
     // Sweeps the full stage on its own slower clock, the one part that says
     // "something is being rendered" rather than "something is being moved".
+    //
+    // A SWEEP, NOT A SLAB. This drew its bar in `ink` -- pal.fg, the ON-BODY
+    // INK role, which on every light theme IS the darkest colour in the
+    // palette. Full stage height, so what an operator saw while a deck
+    // imported was a black vertical bar sliding across the card, which is
+    // exactly what it got reported as.
+    //
+    // The progress row below already carries a comment about the same mistake
+    // -- "a dark track with a bright fill, which on a light theme was a black
+    // slab bolted under the artwork" -- so this is the other half of a fault
+    // that was half fixed. Ink is for glyphs; a moving highlight is a FILL and
+    // takes a fill role.
+    //
+    // pal.mid is the accent/hover role and is a mid tone by construction on
+    // every theme, so it reads against a pale panel and a dark one without
+    // ever being the darkest thing on screen. Feathered either side so it
+    // passes as a sweep rather than an edge, and clipped to the stage so the
+    // feather cannot bleed onto the card's frame.
     const double sweep = std::fmod(t * 0.8, 1.0);
     const int sx = stage.x + static_cast<int>(sweep * std::max(1, stage.w - 2));
+    const int coreW = std::max(1, uiScaled(2));
+    const int stageRight = stage.x + stage.w;
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-    SDL_Color glow {ink.r, ink.g, ink.b, 120};
-    Primitives::fillRect(controlRenderer_, SDL_Rect{sx, stage.y, uiScaled(2), stage.h}, glow);
+    auto sweepBand = [&](int bx, Uint8 alpha) {
+      const int clampedX = std::clamp(bx, stage.x, stageRight);
+      const int clampedW = std::clamp(bx + coreW, stage.x, stageRight) - clampedX;
+      if (clampedW <= 0) {
+        return;
+      }
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect{clampedX, stage.y, clampedW, stage.h},
+                           SDL_Color{pal.mid.r, pal.mid.g, pal.mid.b, alpha});
+    };
+    sweepBand(sx - coreW, 45);
+    sweepBand(sx, 110);
+    sweepBand(sx + coreW, 45);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
     // ── The caption ─────────────────────────────────────────────────────────

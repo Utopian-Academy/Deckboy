@@ -773,6 +773,21 @@
       return;
     }
 
+    // THE PLAYLIST'S SCROLLBAR, for the same reason and before the cue rows:
+    // the rail sits over the right edge of the list, so a cue underneath it
+    // would otherwise take the press and the operator would take a cue instead
+    // of scrolling. On a thousand-cue deck that is a cue going on air.
+    for (int di = 0; di < static_cast<int>(deckListScrollRails_.size()); ++di) {
+      const int scrollMax = (di < static_cast<int>(deckScrollMax_.size()))
+        ? deckScrollMax_[di] : 0;
+      if (deckListScrollRails_[di].w > 0 && scrollMax > 0 &&
+          pointInRect(x, y, deckListScrollRails_[di])) {
+        deckListScrollDragDeck_ = di;
+        scrollDeckListToPointer(di, y);
+        return;
+      }
+    }
+
     // The LFO scribble pad, for the same reason as the driver bar above: WHERE
     // you pressed is the value, and a quick button only knows that it was hit.
     // Claimed before the button list so the first touch already draws.
@@ -852,6 +867,10 @@
   void handleMouseMotion(int x, int y) {
     if (cueSettingsScrollDragActive_) {
       scrollInspectorToPointer(y);
+      return;
+    }
+    if (deckListScrollDragDeck_ >= 0) {
+      scrollDeckListToPointer(deckListScrollDragDeck_, y);
       return;
     }
     if (lfoDrawActive_) {
