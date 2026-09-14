@@ -4057,12 +4057,16 @@
           // one frame's worth per frame WRITTEN either way (the collector pads
           // with silence when a deck is quiet, so a silent show still feeds
           // the encoder), which is what keeps the counts -- and therefore the
-          // sync -- aligned. Per written frame, not per captured frame: a
-          // stream carried the pacer's repeated pictures while sending audio
-          // for only one of them, so a stream that repeated frames ran audio
-          // SHORT against its video. The same fault as the recording's, in the
-          // opposite direction, which is why neither showed up as a duration
-          // mismatch.
+          // sync -- aligned.
+          //
+          // TODAY THIS LOOP RUNS ONCE. pacerRepeats is only ever raised inside
+          // the toFileSink branch above; a stream returns early on a repeated
+          // capture and never emits the same picture twice. The loop is here
+          // so the two sinks compute audio the same way and a future change
+          // that lets a stream repeat cannot reintroduce the recording's bug.
+          // It is NOT fixing a fault a stream can currently have -- an earlier
+          // version of this comment claimed it was, on a reading of the code
+          // rather than a measurement, and that was wrong.
           for (int i = 0; i < audioChunksNeeded; ++i) {
             pushOutputStreamAudio(
               runtime->streamWriter,

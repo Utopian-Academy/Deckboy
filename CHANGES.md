@@ -31,11 +31,10 @@ carry consecutive sound. Measured against a marker clip, before and after:
 1.0000 is perfect sync. What is left is the measuring harness quantising to
 frame boundaries, not the recording.
 
-**Streams had the same fault in the opposite direction.** A stream sends audio
-down its own pipe rather than with the picture, and it was sending one frame's
-worth per frame CAPTURED while the video queue received every repeat. So a
-stream that repeated frames ran audio short against its video, where a
-recording ran long. Both now count per frame written.
+**Streams are unaffected.** A stream never repeats a picture -- only a
+recording does, to hold its frame rate -- so a stream could not have had this
+fault. Both sinks now compute audio the same way regardless, so the recording's
+bug cannot reappear on the other path.
 
 **Recordings made at 60fps were worse than at 25 or 30**, and that part was
 already fixed by the label cache in v0.99.363 without anyone knowing: less work
