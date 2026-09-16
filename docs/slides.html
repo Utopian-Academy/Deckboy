@@ -128,9 +128,9 @@
         </table>
         </div>
 
-        <p>Deckboy does not reimplement anybody's slide format. It asks whatever already
-        owns that format on the machine to export a PDF and rasterises that with the
-        renderer the operating system already ships — <code>Windows.Data.Pdf</code> on
+        <p>Each format is handed to the application that owns it: that application
+        exports a PDF, and Deckboy rasterises it with the renderer the operating system
+        already ships — <code>Windows.Data.Pdf</code> on
         Windows, which is Edge's; CoreGraphics on macOS, which is Preview's;
         <code>pdftoppm</code> on Linux. A half-right renderer that puts a slide's type
         in the wrong place is worse on a show day than an honest refusal, so where none
