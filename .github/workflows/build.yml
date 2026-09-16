@@ -70,9 +70,6 @@ jobs:
           npm install --no-audit --no-fund
           npm test
 
-      # The Stream Deck plugin has no dependencies at all, so there is nothing
-      # to install -- the build assembles the .sdPlugin folder and checks every
-      # path the manifest names, which is the failure Stream Deck reports worst.
       # docs/manual.html is GENERATED from MANUAL.md. Edit the manual, forget
       # the generator, and the site keeps serving the old text to everyone who
       # arrives from a search -- silently, because the page still loads.
@@ -93,6 +90,9 @@ jobs:
       - name: The site has no dead links
         run: python3 tools/check_site_links.py
 
+      # The Stream Deck plugin has no dependencies at all, so there is nothing
+      # to install -- the build assembles the .sdPlugin folder and checks every
+      # path the manifest names, which is the failure Stream Deck reports worst.
       - name: Stream Deck plugin
         working-directory: streamdeck-plugin-deckboy
         run: |
@@ -1000,3 +1000,24 @@ jobs:
             --title "$(cat release-title.txt)" \
             --notes-file release-notes.md \
             release/*
+
+          # The release this one replaces now says so. Search engines keep old
+          # release pages, and people arrive on them and download whatever is
+          # in front of them -- a page two weeks stale gave no hint that anything
+          # newer existed. A release cannot carry this when it is created,
+          # because at that moment it IS the newest, so it is added to the
+          # previous one here. releases/latest always redirects, so the line
+          # never needs updating. Guarded on its own text so it cannot stack.
+          previous=$(gh release list --exclude-drafts --limit 2 --json tagName --jq ".[1].tagName // empty")
+          if [ -n "$previous" ] && [ "$previous" != "v$VERSION" ]; then
+            gh release view "$previous" --json body --jq .body > previous-body.md
+            if ! grep -q "This is an older release" previous-body.md; then
+              {
+                echo "> **This is an older release.** The current version is always at [releases/latest](https://github.com/${{ github.repository }}/releases/latest)."
+                echo
+                cat previous-body.md
+              } > previous-notes.md
+              gh release edit "$previous" --notes-file previous-notes.md
+              echo "marked $previous as superseded"
+            fi
+          fi
