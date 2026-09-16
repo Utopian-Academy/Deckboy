@@ -621,7 +621,7 @@ jobs:
           - features: none
             cmake_args: "-DENABLE_DECKLINK=OFF"
           - features: all
-            cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON"
+            cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON -DENABLE_WEBVIEW=ON"
     steps:
       - uses: actions/checkout@v4
 
@@ -638,7 +638,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/AppData/Local/vcpkg/archives
-          key: vcpkg-${{ runner.os }}-${{ matrix.features }}-sdl3
+          key: vcpkg-${{ runner.os }}-${{ matrix.features }}-sdl3-webview2
           restore-keys: vcpkg-${{ runner.os }}-
 
       - name: Install dependencies
@@ -646,9 +646,22 @@ jobs:
 
       # ENABLE_SPOUT hard-fails without the SDK, so the feature build needs
       # spout2 as well as rtmidi.
+      #
+      # WEBVIEW2 IS REQUIRED HERE, NOT DETECTED. CMake looks for it QUIETLY
+      # when ENABLE_WEBVIEW is off, and nothing here ever installed it -- so
+      # every release was built without browser cues, and they fell back to
+      # launching Edge full screen and grabbing it. The build stayed green
+      # throughout, because a quiet search that finds nothing is not an
+      # error. The feature build now passes -DENABLE_WEBVIEW=ON, which makes
+      # the search REQUIRED: if webview2 ever stops installing, this fails.
+      #
+      # Deliberately NOT in the shared install step above. The features=none
+      # build exists to prove Deckboy works without the optional pieces, and
+      # the quiet auto-detect would pick webview2 up there too and leave
+      # nothing exercising the fallback.
       - name: Install feature dependencies
         if: matrix.features == 'all'
-        run: .\vcpkg\vcpkg install rtmidi:x64-windows spout2:x64-windows
+        run: .\vcpkg\vcpkg install rtmidi:x64-windows spout2:x64-windows webview2:x64-windows
 
       # FFmpeg dev libraries are deliberately not installed here: the vcpkg
       # port builds from source and dominates CI time. DECKBOY_INPROC_DECODE
