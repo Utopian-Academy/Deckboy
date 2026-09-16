@@ -12,18 +12,29 @@ countdown**.
 
 ## Install
 
-Until this is published in Companion's module store, load it as a developer
-module:
+Until this is published in Companion's module store, it loads as a developer
+module — and every [Deckboy release](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+ships it ready to run, with its dependencies already inside. Nothing to build.
 
-1. Copy or symlink this folder somewhere Companion can see it.
-2. In Companion, set **Settings → Developer modules path** to the folder that
-   *contains* `companion-module-utopianacademy-deckboy`.
-3. Restart Companion, then add a connection: **Utopian Academy → Deckboy**.
+1. Download **`Deckboy-companion-module-<version>.zip`** from the latest release.
+2. Unzip it somewhere permanent — not Downloads, because Companion reads it every
+   time it starts.
+3. In Companion, set **Settings → Developer modules path** to the folder that
+   *contains* the unzipped `Deckboy-companion-module-<version>` folder.
+4. Restart Companion, then add a connection and search for **Deckboy**.
+
+The zip carries an `INSTALL.txt` with the same steps.
+
+### From source
+
+If you are working on the module itself:
 
 ```
 npm install         # once, to pull @companion-module/base
 npm test            # parser tests, run against a captured Deckboy status reply
 ```
+
+Then point the developer modules path at the folder that *contains* this one.
 
 ## Connect
 
@@ -55,7 +66,8 @@ deck has focus". A button that names its deck acts on that deck regardless of
 what the operator last touched.
 
 Anything not covered has a **Custom command** action that sends a raw Deckboy
-command — the full vocabulary is in [`MANUAL.md`](../MANUAL.md) §20.
+command — the full vocabulary is in the manual under
+[Remote Control](https://utopian-academy.github.io/Deckboy/manual.html#remote-control).
 
 ## Feedbacks
 
