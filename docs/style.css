@@ -77,6 +77,15 @@ body {
         0deg, rgba(252, 254, 31, 0.03) 0 1px, transparent 1px 3px);
 }
 
+/* Every link, unless something more specific says otherwise. Without this a
+   link in running text is the browser's own blue -- close to invisible on this
+   green -- and there are well over a hundred of them across the site. The nav,
+   the buttons and the footer keep their own rules below, which win on
+   specificity. */
+a { color: var(--ink); text-underline-offset: 0.18em; }
+a:visited { color: var(--ink); }
+a:hover, a:focus-visible { color: var(--ink-body); }
+
 /* The old design had two blurred colour blobs behind everything. Nothing in the
  * interface is blurred, so they are gone rather than recoloured. */
 .background-glow { display: none; }

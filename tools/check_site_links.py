@@ -48,6 +48,43 @@ def load(path):
     return page
 
 
+DEFINES = re.compile(r"(--[a-zA-Z0-9_-]+)\s*:")
+# A var() with a fallback still renders something, so only a bare one counts.
+USES = re.compile(r"var\(\s*(--[a-zA-Z0-9_-]+)\s*\)")
+
+
+def undefined_colours(pages):
+    """Every var(--x) a page relies on has to be defined somewhere it can see.
+
+    The palette was renamed once -- --dmg-* to --db-* -- and five pages and
+    the manual generator went on asking for --dmg-dark. CSS does not complain
+    about that: the declaration is simply dropped, so code chips, table rules
+    and button backgrounds quietly rendered as nothing, and it shipped. This is
+    the check that would have failed instead.
+
+    A page can see what style.css defines plus what its own <style> blocks
+    define. Uses are looked for in style.css, in each page's <style> blocks,
+    and in inline style="" attributes, which are easy to forget.
+    """
+    stylesheet = DOCS / "style.css"
+    shared_text = stylesheet.read_text(encoding="utf-8") if stylesheet.exists() else ""
+    shared = set(DEFINES.findall(shared_text))
+
+    problems = []
+    for missing in sorted(set(USES.findall(shared_text)) - shared):
+        problems.append("style.css uses %s, which nothing defines" % missing)
+
+    for name in sorted(pages):
+        text = (DOCS / name).read_text(encoding="utf-8", errors="replace")
+        blocks = " ".join(re.findall(r"<style[^>]*>(.*?)</style>", text, re.S))
+        inline = " ".join(re.findall(r'style="([^"]*)"', text))
+        known = shared | set(DEFINES.findall(blocks))
+        for missing in sorted(set(USES.findall(blocks + " " + inline)) - known):
+            problems.append("%s uses %s, which neither it nor style.css defines"
+                            % (name, missing))
+    return problems
+
+
 def main():
     pages = {p.name: load(p) for p in sorted(DOCS.glob("*.html"))}
     if not pages:
@@ -97,6 +134,8 @@ def main():
             problems.append("sitemap.xml lists %s, which is not in docs/" % missing)
         for unlisted in sorted(set(pages) - listed):
             problems.append("%s is not in sitemap.xml" % unlisted)
+
+    problems.extend(undefined_colours(pages))
 
     print("pages: %d   local links checked: %d   external (not fetched): %d"
           % (len(pages), checked, len(external)))
