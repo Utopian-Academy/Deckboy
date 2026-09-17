@@ -4,9 +4,10 @@
 
 Deckboy is a cue deck for live events. It plays video, stills, live sources and
 generated patterns from a keyboard-driven playlist, and sends the result to
-fullscreen displays, NDI, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 and Spout —
-several at once. A Stream Deck, Bitfocus Companion, OSC, MIDI, Art-Net or LTC
-timecode can drive it.
+fullscreen displays, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 and Spout — the
+same programme to more than one of them at a time — and to NDI in builds made
+with the NDI SDK (see *Running Deckboy*). A Stream Deck, Bitfocus
+Companion, OSC, MIDI, Art-Net or LTC timecode can drive it.
 
 It is a native application built on SDL3, decoding in process through FFmpeg.
 On Windows, hardware-decoded frames stay on the GPU and are composited there.
@@ -51,12 +52,14 @@ Windows, macOS and Linux run the same core and read the same show file.
 - **Cue** — one playable item (a video, image, pattern, live source, overlay,
   composite, or audio file) with its own trim, fades, geometry, and audio trim.
 - **Deck** — an ordered playlist of cues with its own transport, loop and
-  shuffle mode, and default cue behaviour. There can be several.
+  shuffle mode, and default cue behaviour. A show has one; VJ mode adds a second
+  and mixes the two into one programme.
 - **Output** — a destination with its own window/compositor: a fullscreen
-  display, an NDI/DeckLink/Spout sender, or a network stream. Outputs are
-  separate from decks.
-- **Layer assignment** — the mapping of decks onto outputs. Several decks can
-  stack on one output; one deck can drive several outputs.
+  display, a DeckLink/Spout/NDI sender, a network stream, or a presenter or
+  prompter screen. Every output shows the programme (or, for presenter and
+  prompter, a view of it), so one show can drive several outputs at once.
+  **A different deck on each output — multi-deck, multi-output playback — is
+  coming in Super Deckboy.**
 - **Program** and **Preview** — the program monitor shows what is live on the
   focused deck. The cue list selection is what you are *about* to take.
 
@@ -74,10 +77,17 @@ directory by walking up from the executable, so keep the two together.
 
 To build from source, follow the repository's README.
 
-Four dependencies are optional, loaded only when you use the feature that wants
-them, and absent ones cost nothing: the NDI SDK for NDI in and out, the
-Blackmagic DeckLink SDK for DeckLink, Spout for texture sharing, and WebView2
-for browser cues. `--self-check` reports which of them this machine has.
+Three dependencies are loaded only when you use the feature that wants them,
+and absent ones cost nothing: the Blackmagic DeckLink driver for DeckLink, Spout
+for texture sharing, and WebView2 for browser cues.
+
+**NDI is different: it is compiled in, not loaded.** NDI input and output exist
+only in a Deckboy built with the NDI SDK installed, and the downloadable builds
+are not made that way yet — so for NDI today, build from source with the SDK,
+and install the NDI runtime on the machine that runs it. `--self-check` says
+which you have: `ndi-sdk: headers detected` means NDI is in the build, and
+`ndi-sdk: not built` means it is not. The NDI *tally trigger* needs no SDK and
+works in every build.
 
 ---
 
@@ -377,9 +387,15 @@ auto-advancing into the next cue.
 
 ## 11. Multi-Deck Operation
 
-Multiple decks each have independent transport and playlists. Assign decks to
-outputs via layer assignments; deck opacity and auto-fade let stacked decks mix
-on a shared output. The focused deck is the one the keyboard/transport act on.
+A show starts with **one deck**. VJ mode, below, adds a second, and the two are
+mixed into a single programme by a crossfader; that programme is what every
+output shows. The focused deck is the one the keyboard and transport act on, and
+selecting a deck also moves the focused output to the one that deck plays on.
+
+**More than two decks, and a different deck on each output — multi-deck,
+multi-output playback — are coming in Super Deckboy.** They are not in Deckboy:
+adding a third deck is refused, and an output cannot yet be given a deck of its
+own.
 
 ### VJ mode
 
@@ -391,10 +407,10 @@ column carries the controls.
 
 - **Crossfader** between deck A and deck B, folded into the opacity each deck
   already had — so a deck faded down or mid cue-fade stays faded down.
-- **Blend**: dissolve, add or multiply. On a dissolve both decks fade (they are
-  drawn over black, so holding A up until B covered it would be a wipe); on add
-  and multiply the base stays at full and only the incoming deck rides the
-  fader.
+- **Blend**: dissolve, add, screen, multiply, lighten, darken, subtract,
+  undercut, infiltrate or ember. On a dissolve both decks fade (they are
+  drawn over black, so holding A up until B covered it would be a wipe); on the
+  others the base stays at full and only the incoming deck rides the fader.
 - **Tap tempo**, averaged over recent taps rather than the last interval —
   nobody taps evenly. Taps more than two seconds apart start again.
 - **Quantised takes** hold until the next beat. The point of tempo in a video
@@ -404,7 +420,7 @@ column carries the controls.
   crossfader it is, and A, the mix, and B each get their own monitor — a
   crossfader you cannot see both sides of is a blind control.
 
-`VJ ON|OFF | MIX <0-1> | BLEND <dissolve|add|multiply> | TAP | BPM <n> |
+`VJ ON|OFF | MIX <0-1> | BLEND [mode] | TAP | BPM <n> | CLOCK <on|off> |
 QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a fader is
 the one control nobody wants to reach for with a mouse.
 
@@ -412,16 +428,24 @@ the one control nobody wants to reach for with a mouse.
 
 ## 12. Outputs & Routing
 
-Outputs are managed in the Monitors window and `Settings → Video Outputs`. Each
-output is one of:
+Outputs are managed in the Monitors window and `Settings → Video Outputs`. Every
+output carries the programme — a show can drive several at once, each with its
+own settings — and a different deck on each output is coming in **Super
+Deckboy**. Each output is one of:
 
 - **Window** — a fullscreen (or windowed) display. Toggle the output window
   with `N`, fullscreen with `F`. Fullscreen recovery automatically re-raises a
   program output that gets minimised or lost, with strike-based backoff.
-- **NDI** — network video send (optionally with a separate key/alpha source).
+- **Stream** — push SRT/RTMP to a URL. It can run while the programme is
+  recorded.
+- **Presenter** — the speaker's screen: live slide, previous, next, notes and
+  clock ([Presenter view](#presenter-view)).
+- **Prompter** — the talent's scrolling script ([Prompter](#prompter)).
 - **DeckLink** — SDI/HDMI out via a Blackmagic card.
-- **Spout / Syphon** — share the output as a GPU texture to another app.
-- **Stream** — push SRT/RTMP to a URL.
+- **Spout** (Windows) — share the output as a GPU texture to another app. Syphon
+  on macOS is not built yet.
+- **NDI** — network video send, optionally with a separate key/alpha source, in
+  builds made with the NDI SDK (see *Running Deckboy*).
 
 Per output you can set alpha, delay, colour space, orientation (0/90/180/270),
 a test card, and a time overlay. `Blackout` (`B`) dims all outputs; panic
@@ -524,10 +548,10 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 | depth split | Brightness is read as nearness and the two eyes disagree, with a slow rock that makes the depth read without glasses |
 | schlieren, chladni, wavefront, crystallise, night eyes, grain flow | See below |
 
-There are **36** of them, and **every one fits inside a 60fps frame at 1080p**
-before it ships — that is a condition of shipping, not an aspiration.
-`--effect-bench <token> [WxH]` reports what any of them costs on your own
-machine and at your own raster.
+There are **36** of them. Timed one at a time at 1080p on a laptop processor,
+the heaviest measured — wavefront — takes about three-quarters of a 60fps frame,
+and most take under half. `--effect-bench <token> [WxH]` reports what any of
+them costs on your own machine and at your own raster.
 
 ### The six that are not in anything else
 
