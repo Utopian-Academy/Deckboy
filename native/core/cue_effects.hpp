@@ -88,6 +88,15 @@ enum class CueEffectKind : int {
   // that motion instead of drawing the new one — so it runs live on a camera,
   // an NDI feed, a browser page or the video synth, and sits on a knob.
   MotionMosh,
+  // Added 2026-09-17. The two halves of one idea: a picture is a stream of
+  // bytes and so is a sound, so each can be run through the other's machinery.
+  // Databend plays the frame INTO an audio chain -- delay, feedback, filter,
+  // wavefolder -- and paints what comes back. Audioprint does the reverse and
+  // draws the deck's own played audio through the picture. Put one of each in a
+  // chain, with an audio effect whose picture-reading is turned on, and the
+  // loop closes: sound bends the picture, picture bends the sound.
+  Databend,
+  Audioprint,
   Count,
 };
 
@@ -129,6 +138,8 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Relight:        return "relight";
     case CueEffectKind::DepthSplit:     return "depth split";
     case CueEffectKind::MotionMosh:     return "motion mosh";
+    case CueEffectKind::Databend:       return "databend";
+    case CueEffectKind::Audioprint:     return "audioprint";
     default:                            return "none";
   }
 }
@@ -173,6 +184,8 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Relight:        return "relight";
     case CueEffectKind::DepthSplit:     return "depth_split";
     case CueEffectKind::MotionMosh:     return "motion_mosh";
+    case CueEffectKind::Databend:       return "databend";
+    case CueEffectKind::Audioprint:     return "audioprint";
     default:                            return "none";
   }
 }
@@ -221,6 +234,11 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     // between calls, so it keeps evolving on a still cue — which is most of
     // the point: a held frame smears into itself rather than sitting there.
     case CueEffectKind::MotionMosh:
+    // Databend re-bends every frame from the frame index, so a held still
+    // keeps moving; audioprint follows the sound, which moves whatever the
+    // picture is doing.
+    case CueEffectKind::Databend:
+    case CueEffectKind::Audioprint:
       return true;
     default:
       return false;
@@ -326,6 +344,12 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::MotionMosh:
       return which == 0 ? "hold" : which == 1 ? "block size"
            : which == 2 ? "refresh" : nullptr;
+    case CueEffectKind::Databend:
+      return which == 0 ? "smear" : which == 1 ? "feedback"
+           : which == 2 ? "tone" : which == 3 ? "fold" : nullptr;
+    case CueEffectKind::Audioprint:
+      return which == 0 ? "throw" : which == 1 ? "span"
+           : which == 2 ? "ink" : nullptr;
     default:
       return nullptr;
   }
@@ -394,6 +418,25 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "flow."
         : "How often the real picture is allowed back in. At zero it never "
           "recovers, which is a mosh that keeps going.";
+    case CueEffectKind::Databend:
+      return which == 0
+        ? "How far back the chain listens. The picture is played through a "
+          "delay, so this is the distance the damage is dragged across."
+        : which == 1
+        ? "How much of the bent picture goes round again. High is where it "
+          "stops being an echo and starts eating itself."
+        : which == 2
+        ? "Dark end to bright end. Low keeps the slow, heavy damage; high "
+          "keeps the edges and the grain."
+        : "Folds the picture back on itself when it goes past full scale, "
+          "the way a hot signal folds instead of clipping.";
+    case CueEffectKind::Audioprint:
+      return which == 0
+        ? "How far the sound throws each line sideways."
+        : which == 1
+        ? "How much of the recent sound is drawn down the frame. Short reads "
+          "one syllable across the whole picture; long draws bars of it."
+        : "How much the sound colours what it moves, on top of moving it.";
     case CueEffectKind::Solarise:
       return which == 0
         ? "Where highlights fold back through black. Low folds most of the "
@@ -851,6 +894,14 @@ struct CueEffectContext {
   // screens drifting apart. The same fault the motion driver had, and the same
   // shape of answer.
   bool stateHold = false;
+
+  // The deck's recent PLAYED audio, mono, newest last, at the audio rate.
+  // Audioprint draws with it. Null wherever the caller has none to offer -- the
+  // headless effect dump, a deck with no sound -- and the effect then passes
+  // the picture through rather than inventing a signal, which is the same rule
+  // the deck-aware audio effects follow in the other direction.
+  const float* audioSamples = nullptr;
+  std::size_t audioSampleCount = 0;
 };
 
 namespace detail {
@@ -3540,6 +3591,165 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         break;
       }
 
+      case CueEffectKind::Databend: {
+        // THE PICTURE, PLAYED THROUGH AN AUDIO CHAIN.
+        //
+        // Not an imitation of one: the frame's colour planes are read out as a
+        // signal, sample by sample in scan order, and pushed through the same
+        // things a sound goes through -- a delay with feedback, a one-pole
+        // filter, a wavefolder -- and what comes back is painted. The look
+        // people chase by opening a JPEG in an audio editor, except it is a
+        // knob on a live cue rather than a file that has to be corrupted first.
+        //
+        // ON A REDUCED RASTER, and what is kept is the DIFFERENCE. A serial
+        // chain cannot be split across rows (that is the whole point: each
+        // sample depends on the ones before it), so at 1080p it would be eight
+        // million dependent steps a frame. Run small, the bend costs a
+        // millisecond; scaling the bent picture back up would soften the
+        // original, so the bend's DIFFERENCE is what gets scaled and added.
+        // The frame keeps its own detail and gains the damage.
+        const int bw = std::clamp(ctx.width / 4, 8, 480);
+        const int bh = std::clamp(ctx.height / 4, 8, 270);
+        const std::size_t plane = static_cast<std::size_t>(bw) * bh;
+        std::vector<float> dry(plane * 3);
+        for (int y = 0; y < bh; ++y) {
+          const int sy = y * ctx.height / bh;
+          for (int x = 0; x < bw; ++x) {
+            const int sx = x * ctx.width / bw;
+            const std::size_t at = (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+            const std::size_t to = static_cast<std::size_t>(y) * bw + x;
+            for (int c = 0; c < 3; ++c) {
+              // Byte to signal: 0..255 becomes -1..1, because every audio
+              // process here is built around a signal that swings through zero.
+              dry[plane * c + to] = static_cast<float>(pixels[at + c]) / 127.5f - 1.0f;
+            }
+          }
+        }
+        std::vector<float> wet = dry;
+
+        // Delay in SAMPLES, which on a picture is a distance along the scan --
+        // a short one smears within a line, a long one drags the damage down
+        // the frame. Offset by the frame index so a held still keeps bending
+        // instead of freezing on one pattern.
+        const std::size_t maxDelay = std::max<std::size_t>(2, plane / 2);
+        const double smear = 2.0 + pA * pA * static_cast<double>(maxDelay - 2);
+        const std::size_t delay = std::max<std::size_t>(
+          2, static_cast<std::size_t>(smear) +
+             static_cast<std::size_t>(ctx.frameIndex % 17));
+        const double feedback = std::clamp(pB, 0.0, 1.0) * 0.95;
+        // Tone: one pole, swept from heavy lag (dark, slow damage) at 0 to
+        // almost none (all edges and grain) at 1.
+        const double pole = 1.0 - (0.02 + pC * 0.97);
+        const double drive = 1.0 + pD * 6.0;
+        auto fold = [](double v) {
+          // Triangle fold: past full scale it comes back rather than flattening,
+          // which is why a folded signal keeps its detail where a clipped one
+          // turns to mush.
+          v = std::fmod(v + 1.0, 4.0);
+          if (v < 0.0) v += 4.0;
+          return (v < 2.0 ? v : 4.0 - v) - 1.0;
+        };
+        for (int c = 0; c < 3; ++c) {
+          float* s = wet.data() + plane * c;
+          double lp = 0.0;
+          for (std::size_t i = 0; i < plane; ++i) {
+            double v = s[i];
+            if (i >= delay) {
+              v += feedback * static_cast<double>(s[i - delay]);
+            }
+            lp = lp * pole + v * (1.0 - pole);
+            v = pC >= 0.5 ? v - lp * (pC - 0.5) * 2.0 : lp + (v - lp) * (pC * 2.0);
+            if (drive > 1.0) {
+              v = fold(v * drive) ;
+            }
+            s[i] = static_cast<float>(std::clamp(v, -1.0, 1.0));
+          }
+        }
+
+        // Back up, bilinearly, as a difference. Sampling the small buffer per
+        // output pixel rather than per cell is what keeps this from drawing
+        // visible squares -- the mistake wavefront shipped with.
+        const double mix = amt;
+        detail::parallelRows(ctx.height, ctx.width * 3, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const double fy = (static_cast<double>(y) + 0.5) * bh / ctx.height - 0.5;
+            const int y0 = std::clamp(static_cast<int>(std::floor(fy)), 0, bh - 1);
+            const int y1 = std::min(bh - 1, y0 + 1);
+            const double wy = std::clamp(fy - y0, 0.0, 1.0);
+            for (int x = 0; x < ctx.width; ++x) {
+              const double fxp = (static_cast<double>(x) + 0.5) * bw / ctx.width - 0.5;
+              const int x0 = std::clamp(static_cast<int>(std::floor(fxp)), 0, bw - 1);
+              const int x1 = std::min(bw - 1, x0 + 1);
+              const double wx = std::clamp(fxp - x0, 0.0, 1.0);
+              const std::size_t at = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                const float* w = wet.data() + plane * c;
+                const float* d = dry.data() + plane * c;
+                auto diff = [&](int px, int py) {
+                  const std::size_t k = static_cast<std::size_t>(py) * bw + px;
+                  return static_cast<double>(w[k] - d[k]);
+                };
+                const double top = diff(x0, y0) * (1.0 - wx) + diff(x1, y0) * wx;
+                const double bot = diff(x0, y1) * (1.0 - wx) + diff(x1, y1) * wx;
+                const double delta = (top * (1.0 - wy) + bot * wy) * 127.5 * mix;
+                pixels[at + c] = detail::clamp8(pixels[at + c] + delta);
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Audioprint: {
+        // THE SOUND, DRAWN THROUGH THE PICTURE.
+        //
+        // The other direction of the same idea. The deck's recently PLAYED
+        // audio is laid down the frame -- one slice of it per row -- and each
+        // row is thrown sideways by what that slice is doing, and tinted by how
+        // loud it is. A drum hits and the picture tears on the beat, because it
+        // is the same signal that made the sound.
+        //
+        // Played audio, not decoded audio: that is what the operator is
+        // hearing, so what the picture does matches what the room does.
+        if (ctx.audioSamples == nullptr || ctx.audioSampleCount < 2) {
+          break;   // no sound offered — pass the picture through, don't invent one
+        }
+        const std::size_t have = ctx.audioSampleCount;
+        // Span: how much of the recent sound is spread down the frame. Short is
+        // one syllable stretched over the whole picture; long draws bars.
+        const std::size_t span = std::max<std::size_t>(
+          64, static_cast<std::size_t>(have * (0.03 + pB * 0.97)));
+        const std::size_t first = have - std::min(span, have);
+        const double throwPx = (0.5 + pA * pA * 24.0) * ctx.width / 640.0 * amt;
+        const double ink = pC * amt;
+        const std::vector<std::uint8_t> source(pixels.begin(), pixels.begin() + count * 4);
+        detail::parallelRows(ctx.height, ctx.width * 2, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const std::size_t at =
+              first + static_cast<std::size_t>(
+                        static_cast<double>(y) / std::max(1, ctx.height - 1) *
+                        static_cast<double>(have - first - 1));
+            const double sample = static_cast<double>(ctx.audioSamples[std::min(at, have - 1)]);
+            const int shift = static_cast<int>(std::lround(sample * throwPx));
+            const double lift = std::fabs(sample) * ink;
+            for (int x = 0; x < ctx.width; ++x) {
+              const int sx = std::clamp(x + shift, 0, ctx.width - 1);
+              const std::size_t from = (static_cast<std::size_t>(y) * ctx.width + sx) * 4;
+              const std::size_t to = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              // The tint follows the SIGN of the sample, so the picture leans
+              // warm on one half of the waveform and cold on the other -- the
+              // shape of the sound, not just its size.
+              const double warm = sample > 0.0 ? lift : 0.0;
+              const double cool = sample < 0.0 ? lift : 0.0;
+              pixels[to]     = detail::clamp8(source[from]     * (1.0 + warm) - cool * 40.0);
+              pixels[to + 1] = detail::clamp8(source[from + 1] * (1.0 + lift * 0.25));
+              pixels[to + 2] = detail::clamp8(source[from + 2] * (1.0 + cool) - warm * 40.0);
+            }
+          }
+        });
+        break;
+      }
+
       case CueEffectKind::TextMode: {
         // The character grid, on any picture at all.
         //
@@ -3663,6 +3873,22 @@ inline bool modulateCueEffectStack(const std::vector<CueEffect>& stack,
     }
   }
   return true;
+}
+
+// Does this chain contain an effect that DRAWS with the deck's audio? The
+// caller only fetches the audio trace when this is true -- same rule as the
+// audio chain's picture reading in the other direction, so a cue that is not
+// using the loop pays nothing for it.
+inline bool cueEffectStackDrawsWithAudio(const std::vector<CueEffect>& stack) {
+  for (const CueEffect& fx : stack) {
+    if (fx.bypassed || fx.kind != CueEffectKind::Audioprint) {
+      continue;
+    }
+    if (fx.amount > 0.0005f || fx.lfo[4].on) {
+      return true;
+    }
+  }
+  return false;
 }
 
 inline bool cueEffectStackActive(const std::vector<CueEffect>& stack) {

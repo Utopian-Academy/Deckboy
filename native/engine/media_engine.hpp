@@ -135,6 +135,10 @@ class MediaEngine {
   // RGBA, any size; sampled on a coarse grid. Main thread.
   void publishPostEffectStats(const std::uint8_t* rgba, int width, int height);
   // This deck's sound after its effects, 0-1, meter-smoothed. Any thread.
+  // The recent played audio in time order, oldest first, mono, decimated.
+  // Returns how many samples were written; zero while nothing has played.
+  std::size_t copyRecentProgramAudio(std::vector<float>& out) const;
+
   double programAudioLevel01() const {
     return static_cast<double>(programLevel_.load(std::memory_order_relaxed));
   }
@@ -993,6 +997,15 @@ class MediaEngine {
   // the picture side's Audio LFO shape, which is the other half of the loop.
   std::atomic<float> programLevel_ {0.0f};
   double programLevelState_ = 0.0;                // audio thread only
+  // A decimated mono copy of the played programme audio, for the picture
+  // effects that draw with the SOUND rather than with its level. Written by the
+  // audio thread and read by whoever is compositing, so it sits behind a mutex
+  // and the reader takes a copy rather than holding the lock while it paints.
+  static constexpr std::size_t kRecentAudioSamples = 4096;  // ~0.68s at 48k/8
+  mutable std::mutex recentAudioMutex_;
+  std::vector<float> recentAudio_;
+  std::size_t recentAudioWrite_ = 0;
+  int recentAudioPhase_ = 0;                      // audio thread only
   // The previous frame's luma, so motion is a difference. Main thread only.
   double pictureStatsPrevLuma_ = -1.0;
 

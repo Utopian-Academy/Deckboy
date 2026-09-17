@@ -8632,6 +8632,16 @@ class App {
     return &s;
   }
 
+  // A deck's recent played audio, unrolled into time order for the picture
+  // effects that draw with it. One buffer per deck, reused: the engine hands
+  // over a few thousand floats and a fresh allocation per frame per output
+  // would be pure churn. Only filled when the chain actually contains an
+  // effect that reads it.
+  std::unordered_map<int, std::vector<float>> deckAudioTraceBuffers_;
+  std::vector<float>& deckAudioTraceScratch(int deckIndex) {
+    return deckAudioTraceBuffers_[deckIndex];
+  }
+
   // What this deck's effect chain actually costs per frame, on this machine, at
   // this raster.
   //

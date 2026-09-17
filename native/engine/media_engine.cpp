@@ -1133,6 +1133,24 @@ bool MediaEngine::consumeStillDecodeFailure() {
   return imageDecodeFailed_.exchange(false, std::memory_order_acq_rel);
 }
 
+std::size_t MediaEngine::copyRecentProgramAudio(std::vector<float>& out) const {
+  std::lock_guard<std::mutex> lock(recentAudioMutex_);
+  if (recentAudio_.size() != kRecentAudioSamples) {
+    out.clear();
+    return 0;
+  }
+  // Unrolled into time order here rather than at the drawing end: an effect
+  // should be handed a signal that reads left to right, not a ring and an index.
+  out.resize(kRecentAudioSamples);
+  const std::size_t head = recentAudioWrite_ % kRecentAudioSamples;
+  std::copy(recentAudio_.begin() + static_cast<std::ptrdiff_t>(head),
+            recentAudio_.end(), out.begin());
+  std::copy(recentAudio_.begin(),
+            recentAudio_.begin() + static_cast<std::ptrdiff_t>(head),
+            out.begin() + static_cast<std::ptrdiff_t>(kRecentAudioSamples - head));
+  return out.size();
+}
+
 bool MediaEngine::consumeSourceCaptureFallback() {
   return sourceCaptureFellBack_.exchange(false, std::memory_order_acq_rel);
 }
@@ -6396,6 +6414,27 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
   // room is about to hear -- bends included, which is what closes the loop.
   // Rises at once, falls over 300ms, like a meter: a picture that flickers at
   // audio rate is noise, one that breathes with the sound is a response.
+  // THE SHAPE OF THE SOUND, not just its size: a decimated mono copy of what
+  // is about to be heard, kept for the picture effects that DRAW with it
+  // (audioprint). One in eight samples is plenty -- the picture is asked to
+  // lean a few pixels, not to resolve a cymbal -- and it keeps the ring at a
+  // few thousand floats instead of a hundred thousand.
+  {
+    std::lock_guard<std::mutex> lock(recentAudioMutex_);
+    if (recentAudio_.size() != kRecentAudioSamples) {
+      recentAudio_.assign(kRecentAudioSamples, 0.0f);
+      recentAudioWrite_ = 0;
+    }
+    for (std::size_t f = 0; f < frames; ++f) {
+      if (recentAudioPhase_ = (recentAudioPhase_ + 1) & 7; recentAudioPhase_ != 0) {
+        continue;
+      }
+      const double summed =
+        (limiterScratch_[f * 2] + limiterScratch_[f * 2 + 1]) * 0.5 / 32768.0;
+      recentAudio_[recentAudioWrite_] = static_cast<float>(std::clamp(summed, -1.0, 1.0));
+      recentAudioWrite_ = (recentAudioWrite_ + 1) % kRecentAudioSamples;
+    }
+  }
   {
     double energy = 0.0;
     for (std::size_t i = 0; i < frames * 2; ++i) {

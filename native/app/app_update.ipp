@@ -1116,6 +1116,17 @@
           // programme agree about what the cue looks like.
           fxCtx.textMode =
             textModeRendererFor(project_.focusedDeckIndex, *previewCue);
+          // The same played sound the output draws with, so audioprint on the
+          // monitor shows what the programme is doing.
+          std::vector<float>& previewTrace =
+            deckAudioTraceScratch(project_.focusedDeckIndex);
+          if (const DeckRuntime* traceRuntime = runtimeForDeck(project_.focusedDeckIndex);
+              traceRuntime && traceRuntime->mediaEngine &&
+              deckboy::effects::cueEffectStackDrawsWithAudio(previewCue->effects)) {
+            traceRuntime->mediaEngine->copyRecentProgramAudio(previewTrace);
+            fxCtx.audioSamples = previewTrace.empty() ? nullptr : previewTrace.data();
+            fxCtx.audioSampleCount = previewTrace.size();
+          }
           // The same clock the output used this frame, so the monitor shows the
           // oscillator where the audience sees it.
           std::vector<deckboy::effects::CueEffect> previewModulated;

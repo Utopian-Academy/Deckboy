@@ -1845,6 +1845,17 @@
             fxCtx.stateHold = !claimDeckFeedbackAdvance(sourceDeckIndex);
             fxCtx.textMode =
               textModeRendererFor(sourceDeckIndex, *sourceCue);
+            // The deck's own played sound, for the picture effects that DRAW
+            // with it. Copied per frame only when the chain actually contains
+            // one: it is a few thousand floats, and every other cue would pay
+            // for it otherwise.
+            std::vector<float>& audioTrace = deckAudioTraceScratch(sourceDeckIndex);
+            if (sourceRuntime && sourceRuntime->mediaEngine &&
+                deckboy::effects::cueEffectStackDrawsWithAudio(sourceCue->effects)) {
+              sourceRuntime->mediaEngine->copyRecentProgramAudio(audioTrace);
+              fxCtx.audioSamples = audioTrace.empty() ? nullptr : audioTrace.data();
+              fxCtx.audioSampleCount = audioTrace.size();
+            }
             // Any armed LFO, evaluated for this frame. Returns false and costs
             // nothing when the cue has none, which is almost every cue.
             std::vector<deckboy::effects::CueEffect> modulated;
