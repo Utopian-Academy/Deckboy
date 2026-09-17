@@ -120,6 +120,9 @@ a:hover, a:focus-visible { color: var(--ink-body); }
 .nav-links a:hover { color: var(--ink); }
 
 .btn-primary {
+    /* Safe today only because .nav-links is flex, which blockifies it. Stated
+       here so it survives being written into a paragraph -- see .btn-large. */
+    display: inline-block;
     border: 2px solid var(--ink-soft);
     padding: 0.45rem 0.9rem;
     color: var(--ink) !important;
@@ -176,7 +179,9 @@ h1 {
 
 .btn-large:hover { background: var(--ink); color: var(--ground); }
 
-.btn-outline { background: transparent; }
+/* Worn beside .btn-large everywhere at present, so it inherits the display
+   from there; set again so the class does not depend on that pairing. */
+.btn-outline { display: inline-block; background: transparent; }
 
 .badges {
     display: flex;
