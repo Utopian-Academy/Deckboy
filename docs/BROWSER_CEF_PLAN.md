@@ -11,7 +11,7 @@ Three backends, three behaviours, one of them absent:
 | Platform | Today | How it works |
 |---|---|---|
 | Windows | WebView2 (`DECKBOY_HAS_WEBVIEW`) | Embedded, offscreen via PrintWindow |
-| Windows (no WebView2) | Edge/Chrome `--app=` + `gdigrab` | Spawns a real browser, screen-grabs it |
+| Windows (no WebView2) | Edge/Chrome `--app=` + window capture | Spawns a real browser and captures its window, the same path a window-source cue uses |
 | Linux | Chromium + Xvfb + `x11grab` | Spawns Xvfb, spawns Chromium, screen-grabs it |
 | macOS | — | Scaffold. Browser cues do not run. |
 

@@ -90,7 +90,7 @@ bodies of App**, not separate translation units. The whole app plus engine is
 | File | Owns |
 |------|------|
 | `platform/output_backend.hpp/.cpp` | Output backend catalog + `planOutputBackendRoute()` (window/stream/NDI/DeckLink/Spout availability) |
-| `platform/capture_backend.hpp/.cpp` | Source-capture catalog + `planSourceCapture()` (x11grab/v4l2 on Linux, gdigrab on Windows, scaffolds elsewhere) |
+| `platform/capture_backend.hpp/.cpp` | Source-capture catalog + `planSourceCapture()` (x11grab/v4l2 on Linux, Windows.Graphics.Capture on Windows with a gdigrab fallback, scaffolds elsewhere) |
 | `platform/integration_backend.hpp/.cpp` | Integration adapter catalog (ATEM/NDI-trigger/NMC/MTC/LTC/Art-Net) |
 | `platform/ndi_api.hpp` | NDI **send** runtime (dynamic load) |
 | `platform/ndi_trigger_api.hpp` | NDI **receive + find** runtime (dynamic load) |
