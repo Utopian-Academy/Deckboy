@@ -2155,13 +2155,31 @@
     // Only the capture sources whose backend works on this platform (same
     // catalog-driven list the inspector's type dropdown uses), so the menu can
     // never offer a cue that would do nothing when taken.
+    // WHERE THE FOLLOW-UP PICKER OPENS. Choosing Window or Camera opens a second
+    // list -- which window, which device -- anchored to lastInlineEditorAnchorRect_.
+    // Nothing on this path ever set it, so it was an empty rect and the picker
+    // opened in the TOP-LEFT CORNER of the window, over the file buttons, while
+    // the operator was looking at the SOURCE button at the bottom. On a large
+    // desk that is across the screen; any click elsewhere closed it with no cue
+    // made, which from the desk reads exactly as "window cues are missing".
+    //
+    // Anchored to the SOURCE button instead. The dropdown opens below its anchor
+    // and flips above when there is no room, so from the bottom bar it lands
+    // where this menu was.
+    SDL_Rect sourceButtonRect {};
+    if (buttons_.size() > 1 && buttons_[1].label == "SOURCE") {
+      sourceButtonRect = buttons_[1].rect;
+    }
     for (const auto& [token, label] : sourceCueTypeChoices()) {
       bool isDefault = (token == sourceDefaultTypeId_);
       contextItems_.push_back({
         (isDefault ? "* " : "  ") + label,
         {0, 0, 0, 0},
-        [this, token]() {
+        [this, token, sourceButtonRect]() {
           sourceDefaultTypeId_ = token;
+          if (sourceButtonRect.w > 0) {
+            lastInlineEditorAnchorRect_ = sourceButtonRect;
+          }
           CueKind kind = sourceCueKindFromToken(token);
           addSourceCue(kind, defaultSourceRefForKind(kind));
         }

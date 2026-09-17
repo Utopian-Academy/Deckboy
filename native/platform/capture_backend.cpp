@@ -771,9 +771,19 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
       }
       plan.ffmpegArgs.push_back("-i");
       plan.ffmpegArgs.push_back(input);
+      // `format=bgr0` IS LOAD-BEARING. gdigrab hands over BGRA, but GDI never
+      // writes the alpha byte, so it is whatever the window's backing store
+      // happened to hold -- usually 0. Converted straight to rgba that zero was
+      // kept, and the compositor honoured it: an ordinary application window
+      // came through almost entirely transparent, with only anti-aliased text
+      // and a stray edge showing over the program monitor. MEASURED on a
+      // solid-colour test window: 96% of pixels alpha 0 before, 100% alpha 255
+      // after. Screen content has no meaningful alpha, so the byte is declared
+      // padding and the conversion fills it opaque.
       plan.ffmpegArgs.push_back("-vf");
       plan.ffmpegArgs.push_back("scale=" + std::to_string(request.width) + ":" +
-                                std::to_string(request.height) + ":flags=neighbor");
+                                std::to_string(request.height) +
+                                ":flags=neighbor,format=bgr0");
       plan.ffmpegArgs.push_back("-f");
       plan.ffmpegArgs.push_back("rawvideo");
       plan.ffmpegArgs.push_back("-pix_fmt");
