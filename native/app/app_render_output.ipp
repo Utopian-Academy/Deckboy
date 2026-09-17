@@ -1848,8 +1848,11 @@
             // Any armed LFO, evaluated for this frame. Returns false and costs
             // nothing when the cue has none, which is almost every cue.
             std::vector<deckboy::effects::CueEffect> modulated;
+            // The deck's own sound feeds any LFO set to Audio -- the picture
+            // half of the loop the Ouroboros audio effect closes.
             const bool moving = deckboy::effects::modulateCueEffectStack(
-              sourceCue->effects, lfoSeconds_, lfoBeats_, modulated);
+              sourceCue->effects, lfoSeconds_, lfoBeats_, modulated,
+              sourceRuntime->mediaEngine->programAudioLevel01());
             // Timed, because "why is it stuttering" is a question an operator
             // should not have to answer by deleting effects one at a time. This
             // is the REAL cost on this machine at this raster, not an estimate.
@@ -1861,6 +1864,15 @@
               sourceDeckIndex,
               std::chrono::duration<double, std::milli>(
                 std::chrono::steady_clock::now() - fxBegan).count());
+            // And read the finished picture back to the deck's audio, for
+            // Ouroboros. Only by the FIRST consumer this frame -- the same rule
+            // stateHold keeps for the effects -- or two outputs showing one
+            // deck would each publish, and the second would read as no motion.
+            if (!fxCtx.stateHold) {
+              sourceRuntime->mediaEngine->publishPostEffectStats(
+                outputRuntime->layerBridgeScratchPixels.data(),
+                sourceFrame->width, sourceFrame->height);
+            }
           }
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }

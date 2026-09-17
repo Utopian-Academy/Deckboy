@@ -290,13 +290,7 @@ bool cueNeedsCpuPixelPath(const Cue& cue) {
 
 // Whether anything in the cue's audio chain follows the picture.
 bool cueAudioChainNeedsPicture(const Cue& cue) {
-  for (const deckboy::audiofx::AudioEffect& fx : cue.audioEffects) {
-    if (fx.kind == deckboy::audiofx::AudioEffectKind::Picture &&
-        !fx.bypassed && fx.amount > 0.0f) {
-      return true;
-    }
-  }
-  return false;
+  return deckboy::audiofx::audioChainNeedsPicture(cue.audioEffects);
 }
 
 // Re-take the live cue when that answer CHANGES, so the decoder is reopened in

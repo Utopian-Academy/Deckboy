@@ -6529,6 +6529,27 @@ class App {
           return "centred and full-frame - moves when the picture does";
         }
         return std::string();
+      case K::Scrub:
+        if (!cueSupportsEffectStack(cue)) {
+          return "no picture on this cue - nothing decides where the playhead is";
+        }
+        return "brightness moves the playhead (needs CPU frames)";
+      case K::Short:
+        if (!cueSupportsEffectStack(cue)) {
+          return "no picture - shorts run on a timer instead of on cuts";
+        }
+        return std::string();
+      case K::Resolution:
+        if (!cueSupportsEffectStack(cue) &&
+            cue.outputScaleX * cue.outputScaleY > 0.99f) {
+          return "full-frame and no picture - bends when the picture shrinks";
+        }
+        return std::string();
+      case K::Ouroboros:
+        if (!cueSupportsEffectStack(cue)) {
+          return "no picture on this cue - nothing to close the loop through";
+        }
+        return "pair with a picture effect whose LFO is set to Audio";
       default:
         return std::string();
     }

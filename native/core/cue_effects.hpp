@@ -608,6 +608,10 @@ enum class LfoShape : std::uint8_t {
   Square,    // two values, nothing between
   Sample,    // a new random value each cycle, HELD -- steps, not noise
   Drawn,     // whatever the operator sketched; see ParamLfo::curve
+  // Not an oscillator: the deck's own SOUND, 0-1, after its audio effects.
+  // Appended, never inserted -- shows store the shape as its index. This is
+  // the picture half of the loop the Ouroboros audio effect is the other half of.
+  Audio,
   Count
 };
 
@@ -620,6 +624,7 @@ inline const char* lfoShapeToken(LfoShape shape) {
     case LfoShape::Square:   return "square";
     case LfoShape::Sample:   return "sample";
     case LfoShape::Drawn:    return "drawn";
+    case LfoShape::Audio:    return "audio";
     default:                 return "sine";
   }
 }
@@ -688,7 +693,12 @@ inline double lfoPhase01(const ParamLfo& lfo, double seconds, double beats01) {
   return phase - std::floor(phase);
 }
 
-inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01) {
+inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
+                           double audio01 = 0.0) {
+  if (lfo.shape == LfoShape::Audio) {
+    // Rate, phase and tempo mean nothing here: the value is the sound.
+    return std::clamp(audio01, 0.0, 1.0);
+  }
   double phase = 0.0;
   if (lfo.beatSync) {
     const double cycle = std::max(0.25, static_cast<double>(lfo.beats));
@@ -743,11 +753,19 @@ inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01) 
 // the range the swing is necessarily lopsided; that is better than either
 // moving the centre or refusing to oscillate.
 inline float lfoApply(const ParamLfo& lfo, float base, double seconds,
-                      double beats01) {
+                      double beats01, double audio01 = 0.0) {
   if (!lfo.on) {
     return base;
   }
-  const double unit = lfoUnitValue(lfo, seconds, beats01);
+  const double unit = lfoUnitValue(lfo, seconds, beats01, audio01);
+  if (lfo.shape == LfoShape::Audio) {
+    // ONE-SIDED, UPWARD. Silence must leave the parameter exactly where the
+    // operator set it -- a centred swing would push it DOWN in every quiet
+    // moment, so the look they built would only ever be seen during a loud
+    // one. Sound pushes it up by as much as the depth, and no further.
+    const double out = static_cast<double>(base) + unit * static_cast<double>(lfo.depth);
+    return static_cast<float>(out < 0.0 ? 0.0 : (out > 1.0 ? 1.0 : out));
+  }
   const double swing = (unit - 0.5) * 2.0 * static_cast<double>(lfo.depth);
   const double out = static_cast<double>(base) + swing * 0.5;
   return static_cast<float>(out < 0.0 ? 0.0 : (out > 1.0 ? 1.0 : out));
@@ -3631,7 +3649,8 @@ inline bool cueEffectStackHasLfo(const std::vector<CueEffect>& stack) {
 // for a copy of the stack every frame.
 inline bool modulateCueEffectStack(const std::vector<CueEffect>& stack,
                                    double seconds, double beats01,
-                                   std::vector<CueEffect>& out) {
+                                   std::vector<CueEffect>& out,
+                                   double audio01 = 0.0) {
   if (!cueEffectStackHasLfo(stack)) {
     return false;
   }
@@ -3640,7 +3659,7 @@ inline bool modulateCueEffectStack(const std::vector<CueEffect>& stack,
     if (fx.bypassed) continue;
     float* slots[5] = {&fx.paramA, &fx.paramB, &fx.paramC, &fx.paramD, &fx.amount};
     for (int i = 0; i < 5; ++i) {
-      *slots[i] = lfoApply(fx.lfo[i], *slots[i], seconds, beats01);
+      *slots[i] = lfoApply(fx.lfo[i], *slots[i], seconds, beats01, audio01);
     }
   }
   return true;
@@ -3648,7 +3667,16 @@ inline bool modulateCueEffectStack(const std::vector<CueEffect>& stack,
 
 inline bool cueEffectStackActive(const std::vector<CueEffect>& stack) {
   for (const CueEffect& fx : stack) {
-    if (fx.kind != CueEffectKind::None && !fx.bypassed && fx.amount > 0.0005f) {
+    if (fx.kind == CueEffectKind::None || fx.bypassed) {
+      continue;
+    }
+    // AN AMOUNT AT ZERO WITH AN LFO ON IT IS NOT OFF. Index 4 is the amount's
+    // oscillator, and it can lift the effect in from nothing -- which is the
+    // obvious way to set up "appears with the beat" or "appears with the
+    // sound". Counting only the resting amount meant such an effect never ran
+    // at all: the compositor skipped the stack, and the decoder was told no
+    // CPU frames were needed, so there was no picture for it to act on.
+    if (fx.amount > 0.0005f || fx.lfo[4].on) {
       return true;
     }
   }

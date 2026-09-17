@@ -52,6 +52,7 @@
 #include <vector>
 
 #include "core/constants.hpp"
+#include "platform/capture_backend.hpp"  // SourceCapturePlan (window/camera capture)
 #include "platform/decklink.hpp"
 #include "platform/ndi_input.hpp"
 #include "platform/spout_input.hpp"
@@ -128,6 +129,15 @@ class MediaEngine {
 
   MediaEngine(const MediaEngine&) = delete;
   MediaEngine& operator=(const MediaEngine&) = delete;
+
+  // ── The two ends of the picture/sound loop ──
+  // The FINISHED picture (after its effects), from the output compositor.
+  // RGBA, any size; sampled on a coarse grid. Main thread.
+  void publishPostEffectStats(const std::uint8_t* rgba, int width, int height);
+  // This deck's sound after its effects, 0-1, meter-smoothed. Any thread.
+  double programAudioLevel01() const {
+    return static_cast<double>(programLevel_.load(std::memory_order_relaxed));
+  }
 
   // -- Transport controls (called from app_cue_transport.ipp) -----------------
   void stopAll();                         // kill all decode, clear everything
@@ -391,6 +401,11 @@ class MediaEngine {
   // format or corrupt file). The app polls this and tells the operator, instead
   // of the cue silently showing nothing. Cleared on read.
   bool consumeStillDecodeFailure();
+  // Latches true once when a window capture had to drop back to the older
+  // backend (see serviceWindowCaptureWatchdog). The operator is told, because
+  // the fallback's picture can be wrong on a scaled display and that is worth
+  // knowing before the show, not during it. Cleared on read.
+  bool consumeSourceCaptureFallback();
   // Process-wide break-glass switch (--no-inproc-decode, decode bench): when
   // disabled, every new decode uses the ffmpeg CLI pipe path even in builds
   // compiled with DECKBOY_INPROC_DECODE. Affects the next TAKE, not running decodes.
@@ -582,6 +597,9 @@ class MediaEngine {
   size_t queuedFrames();                                   // number of frames waiting in frameQueue_
   void stopDecoderThreads();                               // kill ffmpeg processes and join threads
   bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const; // build ffmpeg args for source capture
+  bool buildSourceCapturePlan(const Cue& cue, int w, int h,
+                              deckboy::platform::SourceCapturePlan& plan) const; // the whole plan: args, fallback line, repaint title
+  void serviceWindowCaptureWatchdog();                     // nudge a silent window cue, fall back if the capture never starts
   void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds);       // launch decode (in-process libav, or ffmpeg subprocess fallback)
 #if DECKBOY_INPROC_DECODE
   // In-process decode path. Returns false when this cue must use the CLI
@@ -965,6 +983,16 @@ class MediaEngine {
   std::atomic<float> audioCtxCoverage_ {1.0f};    // fraction of the output filled
   std::atomic<double> audioCtxFramePeriod_ {0.0}; // seconds per video frame
   std::atomic<bool> audioCtxHeld_ {false};        // the cue is held
+  // The picture AFTER its effects, published from the output compositor by
+  // publishPostEffectStats. Ouroboros reads these; see AudioEffectContext.
+  std::atomic<float> audioCtxPostLuma_ {0.5f};
+  std::atomic<float> audioCtxPostMotion_ {0.0f};
+  std::atomic<std::uint64_t> audioCtxPostAtMs_ {0};      // when it was last published
+  float postLumaPrev_ = -1.0f;                    // main thread only
+  // The deck's sound AFTER its effects, 0-1, with meter ballistics. Read by
+  // the picture side's Audio LFO shape, which is the other half of the loop.
+  std::atomic<float> programLevel_ {0.0f};
+  double programLevelState_ = 0.0;                // audio thread only
   // The previous frame's luma, so motion is a difference. Main thread only.
   double pictureStatsPrevLuma_ = -1.0;
 
@@ -1022,6 +1050,21 @@ class MediaEngine {
 
   // -- State: source capture ---------------------------------------------------
   bool isSourceCapturing_ = false;           // source capture is active
+  // Window capture through Windows.Graphics.Capture only produces a frame when
+  // the window paints, and a machine with an older ffmpeg has no WGC at all, so
+  // the capture is watched for its first frame rather than assumed live.
+  // serviceWindowCaptureWatchdog() owns all of these; the capture thread only
+  // ever increments the counter.
+  std::atomic<std::uint64_t> sourceFramesSeen_{0};   // frames the capture thread has pushed
+  std::string sourceRepaintTitle_;                   // window to poke while waiting (empty = nothing to poke)
+  std::vector<std::string> sourceFallbackArgs_;      // capture line to try if this one never delivers
+  std::string sourceFallbackBackendId_;
+  std::chrono::steady_clock::time_point sourceCaptureStartedAt_{};
+  std::chrono::steady_clock::time_point sourceNudgedAt_{};
+  int sourceNudgeCount_ = 0;
+  int sourceCaptureWidth_ = 0;
+  int sourceCaptureHeight_ = 0;
+  std::atomic<bool> sourceCaptureFellBack_{false};  // read once by the app, then cleared
 
   // -- State: fade control -----------------------------------------------------
   bool clearVisualOnReachedEnd_ = false;     // go to black when cue ends (vs hold last frame)

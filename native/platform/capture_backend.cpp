@@ -39,6 +39,7 @@
 #include "platform/dynamic_library.hpp"  // dlopen libX11 for the Linux window picker
 #include "core/utils.hpp"
 #include "core/paths.hpp"    // executablePath() to locate the mac capture helper
+#include "core/subprocess.hpp"  // readAllText() to ask ffmpeg what it can do
 #include <cstdio>
 #include <filesystem>
 
@@ -726,11 +727,104 @@ class LinuxAppTextureCaptureBackend final : public SourceCaptureBackend {
   }
 };
 
-// ── Windows desktop/region capture via ffmpeg gdigrab ────────────────────────
+// ── Windows window capture: Windows.Graphics.Capture, gdigrab for the desktop ─
 // Supports sourceRef format:
-//   "region:X,Y,W,H" — capture a specific screen region at pixel coordinates
-//   anything else     — capture entire desktop at default offset (0,0)
+//   "title:Some Window" — capture that window via WGC (gdigrab if unavailable)
+//   "region:X,Y,W,H"    — capture a specific screen region at pixel coordinates
+//   anything else       — capture entire desktop at default offset (0,0)
+//
+// WHY A WINDOW IS NOT CAPTURED WITH gdigrab ANY MORE. gdigrab BitBlts out of the
+// window's own device context, and on a scaled display (150% here, which is the
+// Windows default on a 4K laptop panel) an application that is not per-monitor
+// DPI aware draws into a backing store at its LOGICAL size while the desktop
+// reports it at its PHYSICAL size. MEASURED on a 640x360 Tk window at 150%:
+// gdigrab returned a 960x540 frame with the window's picture in the top-left
+// 640x360 of it and black across the rest -- so the cue came up as a small
+// picture in the corner of a black frame. The same grab also cannot see a
+// window that another window is sitting on top of.
+//
+// Windows.Graphics.Capture (ffmpeg's `gfxcapture` source, ffmpeg 8+) is the API
+// the OS itself uses for window capture: it hands over the window's own
+// composited surface at physical resolution, follows the window as it moves and
+// resizes, and is unaffected by what is in front of it. Same test window:
+// 960x540 frame, all four corner markers present, no black.
+//
+// It has one property worth knowing: frames arrive on REPAINT. A window showing
+// something static delivers nothing at all, so the plan carries the window title
+// and the engine nudges it (nudgeWindowRepaint) while it waits for frame one.
 #ifdef _WIN32
+
+// Find a top-level window whose title matches EXACTLY -- the same rule gdigrab's
+// `title=` used, so a show authored against the old backend picks the same
+// window. Visible windows win over hidden ones; an iconic window is still
+// returned, because the nudge can restore it.
+struct WindowsTitleMatch {
+  HWND hwnd = nullptr;
+  bool iconic = false;
+};
+
+struct WindowsTitleSearch {
+  const std::string* wanted = nullptr;
+  WindowsTitleMatch best;
+};
+
+BOOL CALLBACK windowsTitleMatchProc(HWND hwnd, LPARAM param) {
+  auto* search = reinterpret_cast<WindowsTitleSearch*>(param);
+  const int length = GetWindowTextLengthW(hwnd);
+  if (length <= 0) {
+    return TRUE;
+  }
+  std::wstring wide(static_cast<size_t>(length) + 1, L'\0');
+  const int copied = GetWindowTextW(hwnd, wide.data(), length + 1);
+  if (copied <= 0) {
+    return TRUE;
+  }
+  wide.resize(static_cast<size_t>(copied));
+  const int needed = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), copied,
+                                         nullptr, 0, nullptr, nullptr);
+  if (needed <= 0) {
+    return TRUE;
+  }
+  std::string title(static_cast<size_t>(needed), '\0');
+  WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), copied, title.data(), needed,
+                      nullptr, nullptr);
+  if (title != *search->wanted) {
+    return TRUE;
+  }
+  const bool iconic = IsIconic(hwnd) != FALSE;
+  if (search->best.hwnd == nullptr || (search->best.iconic && !iconic)) {
+    search->best.hwnd = hwnd;
+    search->best.iconic = iconic;
+  }
+  // Keep looking only while the match we have is a minimised one.
+  return search->best.iconic ? TRUE : FALSE;
+}
+
+WindowsTitleMatch findWindowByExactTitle(const std::string& title) {
+  WindowsTitleSearch search;
+  search.wanted = &title;
+  if (!title.empty()) {
+    EnumWindows(windowsTitleMatchProc, reinterpret_cast<LPARAM>(&search));
+  }
+  return search.best;
+}
+
+// Does the ffmpeg on this machine have the WGC source? Asked once, by running
+// `ffmpeg -h filter=gfxcapture` -- the honest question, since Deckboy captures
+// through whatever ffmpeg is on the PATH (or beside the exe), which on an
+// operator's machine may predate the filter. ffmpeg prints the option list for a
+// filter it has and "Unknown filter" for one it does not.
+bool ffmpegHasGraphicsCapture() {
+  static const bool available = [] {
+    auto text = readAllText({"ffmpeg", "-hide_banner", "-h", "filter=gfxcapture"});
+    if (!text) {
+      return false;
+    }
+    return text->find("window_title") != std::string::npos;
+  }();
+  return available;
+}
+
 class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
  public:
   SourceCaptureKind kind() const override {
@@ -792,11 +886,71 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
       return plan;
     };
 
+    // The WGC line for one window, by HWND. The handle is resolved here rather
+    // than passing the title through: `window_title` is a regular expression
+    // inside a filtergraph, so a title carrying a bracket, a colon or a plus
+    // would have to survive two levels of escaping to mean itself, and window
+    // titles are full of all three. A number cannot be misread.
+    auto graphicsCapturePlan = [&](HWND hwnd) {
+      std::string filter =
+        "gfxcapture=hwnd=" + std::to_string(reinterpret_cast<std::uintptr_t>(hwnd)) +
+        ":capture_cursor=" + (request.drawMouse ? "1" : "0") +
+        ":max_framerate=" + std::to_string(fps) +
+        // Stretch to the cue's raster on the GPU, which is what the gdigrab line
+        // did in swscale, and keeps the download to the bytes the deck needs.
+        // The default resize mode CROPS, so a window that grows mid-show would
+        // lose its edges.
+        ":resize_mode=scale:width=" + std::to_string(w) +
+        ":height=" + std::to_string(h);
+      return std::vector<std::string>{
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel", "error",
+        "-f", "lavfi",
+        "-i", filter,
+        // WGC frames land in D3D11 textures; hwdownload brings them to the CPU
+        // pipe the deck reads. The scale is a no-op at the negotiated size and
+        // the safety net if a future ffmpeg ignores width/height.
+        "-vf", "hwdownload,format=bgra,scale=" + std::to_string(w) + ":" +
+               std::to_string(h) + ":flags=neighbor,format=bgr0",
+        "-f", "rawvideo",
+        "-pix_fmt", "rgba",
+        "pipe:1",
+      };
+    };
+
     switch (ref.mode) {
-      case SourceRefMode::WindowTitle:
-        // gdigrab matches the title EXACTLY, so an app that retitles itself
+      case SourceRefMode::WindowTitle: {
+        // The title is matched EXACTLY, so an app that retitles itself
         // (a browser, per tab) needs re-picking after the title changes.
+        const WindowsTitleMatch match = findWindowByExactTitle(ref.title);
+        if (match.hwnd != nullptr && ffmpegHasGraphicsCapture()) {
+          // Keep the old line as the fallback: if this ffmpeg has the filter but
+          // the OS refuses the capture, a corner-of-a-black-frame picture still
+          // beats a dark cue, and the operator can see what they picked.
+          // `finish` fills the plan in place, so take its args first and then
+          // overwrite the plan with the WGC line.
+          std::vector<std::string> legacyArgs =
+            finish("title=" + ref.title, 0, 0, false).ffmpegArgs;
+          plan.supported = true;
+          plan.backendId = "gfxcapture";
+          plan.ffmpegArgs = graphicsCapturePlan(match.hwnd);
+          plan.fallbackFfmpegArgs = std::move(legacyArgs);
+          plan.fallbackBackendId = "gdigrab";
+          plan.repaintWindowTitle = ref.title;
+          return plan;
+        }
+        if (match.hwnd == nullptr) {
+          // Naming the window beats a black cue or a full-desktop grab: the
+          // title is what the show file stores, and "it is not open" is
+          // something the operator can act on.
+          plan.supported = false;
+          plan.reasonUnavailable =
+            "no open window is titled \"" + ref.title + "\" -- re-pick the window";
+          return plan;
+        }
         return finish("title=" + ref.title, 0, 0, false);
+      }
       case SourceRefMode::Region:
         if (ref.w > 0) w = ref.w;
         if (ref.h > 0) h = ref.h;
@@ -1127,6 +1281,32 @@ std::vector<CaptureWindowInfo> listCaptureWindows() {
 #endif
 
   return result;
+}
+
+// ── nudgeWindowRepaint ───────────────────────────────────────────────────────
+// Windows.Graphics.Capture is repaint-driven, so a window holding a static
+// picture hands over no frames at all -- MEASURED: a static test window gave
+// zero frames in 29 seconds, and a single RedrawWindow produced one immediately.
+// Restoring an iconic window matters as much: WGC reports "no client area" for a
+// minimised window and never recovers on its own.
+bool nudgeWindowRepaint(const std::string& windowTitle) {
+#ifdef _WIN32
+  const WindowsTitleMatch match = findWindowByExactTitle(windowTitle);
+  if (match.hwnd == nullptr) {
+    return false;
+  }
+  if (match.iconic) {
+    // SW_SHOWNOACTIVATE, not SW_RESTORE: the operator is driving Deckboy, and a
+    // window cue must never steal the keyboard from the deck mid-show.
+    ShowWindow(match.hwnd, SW_SHOWNOACTIVATE);
+  }
+  RedrawWindow(match.hwnd, nullptr, nullptr,
+               RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
+  return true;
+#else
+  (void)windowTitle;
+  return false;
+#endif
 }
 
 }  // namespace deckboy::platform

@@ -73,6 +73,16 @@ struct SourceCapturePlan {
   std::string backendId;                // which backend will be used
   std::vector<std::string> ffmpegArgs;  // full ffmpeg command-line arguments
   std::string reasonUnavailable;        // error message if not supported
+  // A second arg list to try if the first one dies without delivering a frame.
+  // Windows window capture prefers Windows.Graphics.Capture and keeps the old
+  // gdigrab line here, so a machine whose ffmpeg predates the WGC filter still
+  // gets a picture instead of a dark cue.
+  std::vector<std::string> fallbackFfmpegArgs;
+  std::string fallbackBackendId;
+  // Title of the window this plan captures, when the backend only receives
+  // frames on repaint (WGC). The engine asks the window to redraw while it is
+  // waiting for the first frame -- see nudgeWindowRepaint.
+  std::string repaintWindowTitle;
 };
 
 // Abstract catalog of available capture backends on the current platform.
@@ -111,5 +121,13 @@ struct CaptureWindowInfo {
 // Returns a list suitable for populating a window-picker dropdown in the inspector.
 // The first entry is always "Desktop (full screen)".
 std::vector<CaptureWindowInfo> listCaptureWindows();
+
+// Ask the window with this exact title to repaint itself, and un-minimise it if
+// it is iconic. Windows.Graphics.Capture delivers a frame only when the window
+// draws, so a window holding a static picture -- a slide, a score, a spreadsheet
+// -- hands over nothing at all until something invalidates it. Returns true if a
+// window was found and poked. No-op (false) off Windows, where the capture
+// backends are pull-based and do not need it.
+bool nudgeWindowRepaint(const std::string& windowTitle);
 
 }  // namespace deckboy::platform

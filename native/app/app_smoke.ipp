@@ -554,6 +554,21 @@
     }
 
     {
+      // A window cue whose window is not open must SAY SO. It used to plan a
+      // capture that ffmpeg then failed to start, which reached the operator as
+      // a cue that racked and stayed dark.
+      deckboy::platform::SourceCaptureRequest request;
+      request.kind = deckboy::platform::SourceCaptureKind::Window;
+      request.sourceRef = "title:Deckboy Smoke Test No Such Window";
+      request.width = 1280;
+      request.height = 720;
+      request.frameRate = 30;
+      auto plan = deckboy::platform::planSourceCapture(request);
+      expect(!plan.supported && !plan.reasonUnavailable.empty(),
+             "missing window cue reports a reason");
+    }
+
+    {
       deckboy::platform::SourceCaptureRequest request;
       request.kind = deckboy::platform::SourceCaptureKind::Window;
       request.sourceRef = "active-window";
@@ -1853,6 +1868,36 @@
              "and never writes back over what the operator set");
       stack[1].bypassed = true;
       expect(!cueEffectStackHasLfo(stack), "a bypassed effect's LFO does not run");
+
+      // THE AUDIO SHAPE: the picture half of the Ouroboros loop.
+      ParamLfo heard;
+      heard.on = true;
+      heard.shape = LfoShape::Audio;
+      heard.depth = 0.4f;
+      expect(lfoApply(heard, 0.3f, 12.0, 3.0, 0.0) == 0.3f,
+             "an Audio LFO in silence leaves the value where it was set");
+      expect(std::fabs(lfoApply(heard, 0.3f, 12.0, 3.0, 1.0) - 0.7f) < 1e-5,
+             "and full level pushes it up by exactly the depth");
+      expect(lfoApply(heard, 0.9f, 0.0, 0.0, 1.0) == 1.0f,
+             "and never past the top of the range");
+      expect(std::fabs(lfoApply(heard, 0.3f, 1.0, 0.0, 0.5) -
+                       lfoApply(heard, 0.3f, 99.0, 7.0, 0.5)) < 1e-6,
+             "and ignores the clock and the tempo");
+      expect(std::string(lfoShapeToken(LfoShape::Audio)) == "audio",
+             "the Audio shape has its own token");
+      std::vector<CueEffect> heardStack(1);
+      heardStack[0].kind = CueEffectKind::Invert;
+      heardStack[0].amount = 0.5f;   // not 1.0: a clamped top would prove nothing
+      heardStack[0].lfo[4] = heard;
+      expect(cueEffectStackHasLfo(heardStack),
+             "a stack whose only LFO follows the sound still counts as moving");
+      std::vector<CueEffect> heardOut;
+      modulateCueEffectStack(heardStack, 0.0, 0.0, heardOut, 1.0);
+      expect(heardOut.size() == 1 && std::fabs(heardOut[0].amount - 0.9f) < 1e-5,
+             "and modulateCueEffectStack carries the level through");
+      modulateCueEffectStack(heardStack, 0.0, 0.0, heardOut, 0.0);
+      expect(heardOut.size() == 1 && heardOut[0].amount == 0.5f,
+             "and in silence hands back what the operator set");
     }
 
     std::cout << "smoke failures: " << failures << '\n';
@@ -2461,6 +2506,11 @@
         c.duration = total;
         c.framePeriod = 1.0 / 23.976;   // deliberately not a musical value
         c.held = false;
+        // The finished picture: as if a picture effect inverted it, so Ouroboros
+        // has something different from the decoded frame to follow.
+        c.hasPostPicture = true;
+        c.postLuma = 1.0f - c.luma;
+        c.postMotion = c.motion;
         return c;
       };
 
@@ -2541,10 +2591,15 @@
         // it, so once the input goes quiet it is replaying silence: no tail is
         // the correct answer, and listing it as a ringing effect made the
         // check demand a fault.
+        // Scrub is here because its playhead sits up to two seconds behind
+        // now: after the input stops it is still playing what came before.
+        // The other bends are NOT -- their loudness meter follows the dry
+        // signal down, so silence in is silence out, and that is tested.
         const bool rings = kind == afx::AudioEffectKind::Delay ||
                            kind == afx::AudioEffectKind::Reverb ||
                            kind == afx::AudioEffectKind::Seam ||
-                           kind == afx::AudioEffectKind::Suspend;
+                           kind == afx::AudioEffectKind::Suspend ||
+                           kind == afx::AudioEffectKind::Scrub;
         const bool tailed = tailPeak >= 1.0;
         const bool movedInline = std::fabs(dbOf(wetRms, dryRms)) >= 0.05 ||
                                  std::fabs(lowDb) >= 0.05 ||
@@ -2587,6 +2642,114 @@
           << "   " << verdict;
       std::cout << row.str() << '\n';
     }
+
+    // ── THE THREE THINGS A ROW CANNOT SEE ─────────────────────────────────
+    if (only.empty() || only == "ouroboros" || only == "word") {
+      auto loudSine = [&](std::size_t frames, double amp) {
+        std::vector<double> v(frames * 2);
+        for (std::size_t f = 0; f < frames; ++f) {
+          const double s = amp * 32767.0 * std::sin(2.0 * kPi * 220.0 * f / kRate);
+          v[f * 2] = s;
+          v[f * 2 + 1] = s;
+        }
+        return v;
+      };
+      const std::size_t chunk = 2048;   // the engine's largest chunk
+
+      // 1. THE LOOP, CLOSED. Ouroboros's output drives a model of a picture
+      //    effect on an Audio LFO: the louder the bent sound, the brighter the
+      //    picture. Twelve seconds at the strongest coupling. It must stay
+      //    finite and inside the bend ceiling the whole way.
+      {
+        afx::AudioEffect fx = afx::audioEffectDefaults(afx::AudioEffectKind::Ouroboros);
+        fx.paramA = 1.0f;
+        afx::AudioEffectState state;
+        double prevLuma = 0.5;
+        double level = 0.0;
+        bool finite = true;
+        double peak = 0.0;
+        for (int n = 0; n < static_cast<int>(12.0 * kRate / chunk); ++n) {
+          std::vector<double> buf = loudSine(chunk, 0.6);
+          afx::AudioEffectContext c;
+          c.hasPicture = true;
+          c.hasPostPicture = true;
+          const double luma = std::clamp(0.5 + 0.5 * level, 0.0, 1.0);
+          c.postLuma = static_cast<float>(luma);
+          c.postMotion = static_cast<float>(std::clamp(std::fabs(luma - prevLuma) * 8.0, 0.0, 1.0));
+          prevLuma = luma;
+          c.position = static_cast<double>(n * chunk) / kRate;
+          afx::applyAudioEffectStack(buf, {fx}, state, c);
+          double e = 0.0;
+          for (double v : buf) {
+            if (!std::isfinite(v)) finite = false;
+            peak = std::max(peak, std::fabs(v));
+            e += (v / 32768.0) * (v / 32768.0);
+          }
+          level = std::min(1.0, 2.0 * std::sqrt(e / static_cast<double>(buf.size())));
+        }
+        const bool ok = finite && peak <= 32768.0 * 1.5;
+        std::cout << "  loop: 12s closed at full coupling, peak "
+                  << std::setprecision(0) << peak << (ok ? "   ok" : "   FAIL unstable")
+                  << "\n";
+        if (!ok) ++failures;
+      }
+
+      // 2. THE WATCHDOG. Drive the loop as hard as it goes -- a white, moving
+      //    picture under a loud input -- and it has to open itself within a
+      //    few seconds. A safety that never fires is a comment.
+      {
+        afx::AudioEffect fx = afx::audioEffectDefaults(afx::AudioEffectKind::Ouroboros);
+        fx.paramA = 1.0f;
+        fx.paramB = 1.0f;   // slowest leak: the hardest case to trip out of
+        afx::AudioEffectState state;
+        double trippedAt = -1.0;
+        for (int n = 0; n < static_cast<int>(6.0 * kRate / chunk); ++n) {
+          std::vector<double> buf = loudSine(chunk, 0.9);
+          afx::AudioEffectContext c;
+          c.hasPicture = true;
+          c.hasPostPicture = true;
+          c.postLuma = 1.0f;
+          c.postMotion = 1.0f;
+          c.position = static_cast<double>(n * chunk) / kRate;
+          afx::applyAudioEffectStack(buf, {fx}, state, c);
+          if (trippedAt < 0.0 && !state.slots.empty() &&
+              state.slots[0].tripSeconds > 0.0) {
+            trippedAt = c.position;
+          }
+        }
+        const bool ok = trippedAt >= 0.0 && trippedAt <= 4.0;
+        std::cout << "  watchdog: " << (trippedAt < 0.0 ? std::string("never tripped")
+                                        : "tripped at " + std::to_string(trippedAt).substr(0, 4) + "s")
+                  << (ok ? "   ok" : "   FAIL") << "\n";
+        if (!ok) ++failures;
+      }
+
+      // 3. REHEARSAL EQUALS SHOW. Two fresh runs of a bend over the same
+      //    moment must make the same noise, sample for sample.
+      {
+        const afx::AudioEffect fx = afx::audioEffectDefaults(afx::AudioEffectKind::Word);
+        std::vector<double> first;
+        for (int run = 0; run < 2; ++run) {
+          afx::AudioEffectState state;
+          std::vector<double> all;
+          for (int n = 0; n < 24; ++n) {
+            std::vector<double> buf = loudSine(chunk, 0.5);
+            afx::AudioEffectContext c;
+            c.position = 30.0 + static_cast<double>(n * chunk) / kRate;
+            afx::applyAudioEffectStack(buf, {fx}, state, c);
+            all.insert(all.end(), buf.begin(), buf.end());
+          }
+          if (run == 0) first = all;
+          else {
+            const bool same = all == first;
+            std::cout << "  determinism: word, same moment twice"
+                      << (same ? "   ok" : "   FAIL differs") << "\n";
+            if (!same) ++failures;
+          }
+        }
+      }
+    }
+
     std::cout << "audio-fx-check: " << failures << " failures\n";
     return failures == 0 ? 0 : 1;
   }

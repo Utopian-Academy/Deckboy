@@ -932,6 +932,9 @@ void MediaEngine::update() {
   // restore, snapshot sync). One relaxed store set per tick keeps the audio
   // thread at most a frame behind without sprinkling syncs at every site.
   syncAudioFadeParams();
+  // A window capture is watched, not assumed: see the function for the two
+  // failures it exists for (a window that never repaints, an ffmpeg with no WGC).
+  serviceWindowCaptureWatchdog();
   if (imageFramePending_.exchange(false)) {
     std::lock_guard<std::mutex> lk(imageMutex_);
     if (pendingImageFrame_) {
@@ -1128,6 +1131,10 @@ bool MediaEngine::consumeDecodeStall() {
 
 bool MediaEngine::consumeStillDecodeFailure() {
   return imageDecodeFailed_.exchange(false, std::memory_order_acq_rel);
+}
+
+bool MediaEngine::consumeSourceCaptureFallback() {
+  return sourceCaptureFellBack_.exchange(false, std::memory_order_acq_rel);
 }
 
 // Reset all FPS measurement state. Called on cue load and after runtime refresh
@@ -4501,17 +4508,31 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
   w = std::clamp(w, 160, 3840);
   h = std::clamp(h, 90, 2160);
 
-  std::vector<std::string> args;
-  if (!buildSourceCaptureArgs(cue, w, h, args)) {
+  deckboy::platform::SourceCapturePlan plan;
+  if (!buildSourceCapturePlan(cue, w, h, plan)) {
     return false;
   }
 
   stopDecoderThreads();
   isSourceCapturing_ = false;
 
-  if (!spawnPipeProcess(videoProcess_, args)) {
+  if (!spawnPipeProcess(videoProcess_, plan.ffmpegArgs)) {
     return false;
   }
+
+  // Watchdog state for the window-capture path. See
+  // serviceWindowCaptureWatchdog: a repaint-driven capture may need the window
+  // poked, and an ffmpeg that cannot do WGC at all has to be replaced by the
+  // gdigrab line before the operator is left looking at a dark cue.
+  sourceFramesSeen_.store(0);
+  sourceRepaintTitle_ = plan.repaintWindowTitle;
+  sourceFallbackArgs_ = plan.fallbackFfmpegArgs;
+  sourceFallbackBackendId_ = plan.fallbackBackendId;
+  sourceCaptureStartedAt_ = std::chrono::steady_clock::now();
+  sourceNudgedAt_ = {};
+  sourceNudgeCount_ = 0;
+  sourceCaptureWidth_ = w;
+  sourceCaptureHeight_ = h;
 
   const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
   int videoFd = videoProcess_.readFd;
@@ -4545,6 +4566,7 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
         break;
       }
 
+      sourceFramesSeen_.fetch_add(1);
       std::lock_guard<std::mutex> lk(frameMutex_);
       frameQueue_.push_back(std::move(frame));
     }
@@ -4552,6 +4574,110 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
   });
 
   return true;
+}
+
+// ---------------------------------------------------------------------------
+// serviceWindowCaptureWatchdog — make a window cue actually arrive.
+//
+// Runs once a tick on the main thread while a source capture is up. Two
+// failures it exists for, both measured rather than imagined:
+//
+//   1. Windows.Graphics.Capture delivers a frame only when the window PAINTS.
+//      A window holding something static -- a slide, a score, a chat window
+//      nobody is typing in -- gave zero frames in 29 seconds of capture. One
+//      RedrawWindow produced a frame immediately, so the window is poked while
+//      the capture is still waiting for its first one, and again if it later
+//      goes quiet for a second.
+//   2. WGC may not be there at all: the filter arrived in ffmpeg 8, and Deckboy
+//      captures through whichever ffmpeg the machine has. Planning already
+//      checks for the filter, but the capture can still fail inside the OS, and
+//      the symptom is the same -- ffmpeg exits having written nothing. After a
+//      second of that, the plan's gdigrab line is spawned in its place: an
+//      imperfect picture on a scaled display beats a dark cue.
+// ---------------------------------------------------------------------------
+void MediaEngine::serviceWindowCaptureWatchdog() {
+  if (!isSourceCapturing_ || sourceCaptureStartedAt_.time_since_epoch().count() == 0) {
+    return;
+  }
+  const auto now = std::chrono::steady_clock::now();
+  const double sinceStart =
+    std::chrono::duration<double>(now - sourceCaptureStartedAt_).count();
+  const std::uint64_t frames = sourceFramesSeen_.load();
+
+  // The capture process died before a single frame: swap in the fallback line.
+  if (frames == 0 && sinceStart > 1.0 && !sourceFallbackArgs_.empty() &&
+      (decoderEof_.load() || sinceStart > 3.0)) {
+    std::vector<std::string> fallback = sourceFallbackArgs_;
+    const std::string backendId = sourceFallbackBackendId_;
+    // Keep the repaint title: the fallback does not need it, but clearing the
+    // state before the respawn stops the watchdog trying the same swap twice.
+    sourceFallbackArgs_.clear();
+    sourceFallbackBackendId_.clear();
+    stopDecoderThreads();
+    if (spawnPipeProcess(videoProcess_, fallback)) {
+      const int w = sourceCaptureWidth_;
+      const int h = sourceCaptureHeight_;
+      const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
+      const int videoFd = videoProcess_.readFd;
+      decoderEof_ = false;
+      decoderStop_ = false;
+      isSourceCapturing_ = true;
+      state_ = TransportState::Playing;
+      sourceCaptureStartedAt_ = now;
+      sourceFramesSeen_.store(0);
+      videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
+        std::uint64_t frameIdx = 0;
+        while (!decoderStop_.load()) {
+          while (!decoderStop_.load()) {
+            bool hasRoom = false;
+            { std::lock_guard<std::mutex> lk(frameMutex_); hasRoom = frameQueue_.size() < kMaxVideoFrames; }
+            if (hasRoom) break;
+            SDL_Delay(4);
+          }
+          if (decoderStop_.load()) break;
+          DecodedFrame frame;
+          frame.width = w;
+          frame.height = h;
+          frame.index = frameIdx++;
+          frame.pixels.resize(frameBytes);
+          if (!readExact(videoFd, frame.pixels.data(), frameBytes)) {
+            decoderEof_ = true;
+            break;
+          }
+          sourceFramesSeen_.fetch_add(1);
+          std::lock_guard<std::mutex> lk(frameMutex_);
+          frameQueue_.push_back(std::move(frame));
+        }
+        decoderEof_ = true;
+      });
+      sourceCaptureFellBack_.store(true);
+    }
+    return;
+  }
+
+  if (sourceRepaintTitle_.empty()) {
+    return;
+  }
+  // Poke while waiting for frame one, then only if the window has gone quiet.
+  // Ten nudges at 350ms covers a slow-starting app without hammering a window
+  // that simply has nothing new to draw.
+  const bool waiting = (frames == 0 && sourceNudgeCount_ < 10);
+  const bool wentQuiet = (frames > 0 && sinceStart > 1.0);
+  if (!waiting && !wentQuiet) {
+    return;
+  }
+  const double sinceNudge = sourceNudgedAt_.time_since_epoch().count() == 0
+    ? 1e9
+    : std::chrono::duration<double>(now - sourceNudgedAt_).count();
+  const double interval = waiting ? 0.35 : 1.0;
+  if (sinceNudge < interval) {
+    return;
+  }
+  sourceNudgedAt_ = now;
+  if (waiting) {
+    ++sourceNudgeCount_;
+  }
+  deckboy::platform::nudgeWindowRepaint(sourceRepaintTitle_);
 }
 
 // ── Private methods ──────────────────────────────────────────────────────────
@@ -4726,6 +4852,37 @@ void MediaEngine::syncAudioFadeParams() {
 // number invented from nothing -- and cueNeedsCpuPixelPath asks for CPU frames
 // when a Picture effect is actually in the chain, which is the same mechanism
 // the picture effects already use to get pixels they can act on.
+// The picture as the audience sees it, read back for Ouroboros. Same coarse grid
+// and the same luma weights as publishPictureStats, so the two numbers mean the
+// same thing and differ only in WHEN they were taken.
+void MediaEngine::publishPostEffectStats(const std::uint8_t* rgba, int width, int height) {
+  if (!rgba || width <= 0 || height <= 0) {
+    return;
+  }
+  constexpr int kCols = 32;
+  constexpr int kRows = 18;
+  double sum = 0.0;
+  int count = 0;
+  for (int gy = 0; gy < kRows; ++gy) {
+    const int y = std::min(height - 1, (gy * height) / kRows + height / (kRows * 2));
+    for (int gx = 0; gx < kCols; ++gx) {
+      const int x = std::min(width - 1, (gx * width) / kCols + width / (kCols * 2));
+      const std::size_t at = (static_cast<std::size_t>(y) * static_cast<std::size_t>(width) +
+                              static_cast<std::size_t>(x)) * 4u;
+      sum += 0.2126 * rgba[at] + 0.7152 * rgba[at + 1] + 0.0722 * rgba[at + 2];
+      ++count;
+    }
+  }
+  const float luma = static_cast<float>(sum / (255.0 * std::max(1, count)));
+  const float motion = postLumaPrev_ < 0.0f
+    ? 0.0f
+    : std::clamp(std::fabs(luma - postLumaPrev_) * 8.0f, 0.0f, 1.0f);
+  postLumaPrev_ = luma;
+  audioCtxPostLuma_.store(luma, std::memory_order_relaxed);
+  audioCtxPostMotion_.store(motion, std::memory_order_relaxed);
+  audioCtxPostAtMs_.store(SDL_GetTicks(), std::memory_order_relaxed);
+}
+
 void MediaEngine::publishPictureStats(const DecodedFrame& frame) {
   if (frame.pixels.empty() || frame.width <= 0 || frame.height <= 0) {
     audioCtxHasPicture_.store(false, std::memory_order_relaxed);
@@ -5725,6 +5882,16 @@ void MediaEngine::stopDecoderThreads() {
 // capture backend for X11 screen capture (not needed on Windows/Wayland).
 // ---------------------------------------------------------------------------
 bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const {
+  deckboy::platform::SourceCapturePlan plan;
+  if (!buildSourceCapturePlan(cue, w, h, plan)) {
+    return false;
+  }
+  args = std::move(plan.ffmpegArgs);
+  return true;
+}
+
+bool MediaEngine::buildSourceCapturePlan(const Cue& cue, int w, int h,
+                                         deckboy::platform::SourceCapturePlan& plan) const {
   std::string sourceRef = sourceCueRefFromCue(cue);
   if (sourceRef.empty()) {
     sourceRef = defaultSourceRefForKind(cue.kind);
@@ -5753,12 +5920,8 @@ bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vect
   request.frameRate = 30;
   request.drawMouse = true;
   request.display = displayEnv;
-  auto plan = deckboy::platform::planSourceCapture(request);
-  if (!plan.supported || plan.ffmpegArgs.empty()) {
-    return false;
-  }
-  args = std::move(plan.ffmpegArgs);
-  return true;
+  plan = deckboy::platform::planSourceCapture(request);
+  return plan.supported && !plan.ffmpegArgs.empty();
 }
 
 // ---------------------------------------------------------------------------
@@ -5909,6 +6072,8 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     cue.chromaKeyEnabled ||
     colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
     deckboy::effects::cueEffectStackActive(cue.effects) ||
+    // The audio chain can need the picture too -- see audioChainNeedsPicture.
+    deckboy::audiofx::audioChainNeedsPicture(cue.audioEffects) ||
     forcePixelFrames_;
   const FramePixelFormat decodeFormat =
     needsRgbaForEffects ? FramePixelFormat::RGBA32 : FramePixelFormat::NV12;
@@ -6176,6 +6341,17 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     ctx.coverage = audioCtxCoverage_.load(std::memory_order_relaxed);
     ctx.framePeriod = audioCtxFramePeriod_.load(std::memory_order_relaxed);
     ctx.held = audioCtxHeld_.load(std::memory_order_relaxed);
+    // The finished picture counts only while it is being published. With no
+    // output armed nothing publishes it, and a value from a minute ago is not
+    // the picture on screen -- so after half a second it is treated as absent
+    // and Ouroboros falls back to the decoded frame.
+    {
+      const std::uint64_t postAt = audioCtxPostAtMs_.load(std::memory_order_relaxed);
+      const std::uint64_t now = SDL_GetTicks();
+      ctx.hasPostPicture = postAt != 0 && now >= postAt && now - postAt < 500;
+      ctx.postLuma = audioCtxPostLuma_.load(std::memory_order_relaxed);
+      ctx.postMotion = audioCtxPostMotion_.load(std::memory_order_relaxed);
+    }
     // WHERE THESE SAMPLES ARE, not where the transport is. audioTime is the
     // position of the chunk being processed; position() is where playback has
     // reached, which is up to a buffer ahead of it. Seam has to resolve into
@@ -6184,6 +6360,26 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     ctx.duration = audioFadeDuration_.load(std::memory_order_relaxed);
     deckboy::audiofx::applyAudioEffectStack(limiterScratch_, audioEffectsActive_,
                                             audioEffectState_, ctx);
+    // A NON-FINITE SAMPLE MUST NEVER REACH THE QUANTISER. clip() rounds with
+    // std::lround, whose result for NaN is unspecified -- on Windows' 32-bit
+    // long it is typically INT_MIN, which the clamp turns into -32768: a
+    // FULL-SCALE DC STEP out of the speakers. The limiter cannot catch it
+    // either, because every comparison with NaN is false. One unstable filter
+    // state is enough, and the bend effects deliberately flirt with those.
+    // So the whole chunk goes silent and the chain state is cleared, which
+    // costs one ~40ms dropout instead of a thump through a PA.
+    {
+      bool finite = true;
+      for (std::size_t i = 0; i < frames * 2 && finite; ++i) {
+        finite = std::isfinite(limiterScratch_[i]);
+      }
+      if (!finite) {
+        std::fill(limiterScratch_.begin(),
+                  limiterScratch_.begin() + static_cast<std::ptrdiff_t>(frames * 2),
+                  0.0);
+        audioEffectState_.clear();   // resets slots in place; no allocation here
+      }
+    }
     // The peaks the gain stage measured describe the samples BEFORE the chain.
     // Feeding those to the limiter would leave it guarding a waveform that no
     // longer exists.
@@ -6195,6 +6391,32 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
   // Stage 2: hold the peaks under the ceiling by reducing gain, not by
   // truncating the waveform.
   applyPeakLimiter();
+  // THE LEVEL THE PICTURE CAN FOLLOW. Measured here, after the effects and
+  // the limiter, so an Audio LFO on a picture effect follows the sound the
+  // room is about to hear -- bends included, which is what closes the loop.
+  // Rises at once, falls over 300ms, like a meter: a picture that flickers at
+  // audio rate is noise, one that breathes with the sound is a response.
+  {
+    double energy = 0.0;
+    for (std::size_t i = 0; i < frames * 2; ++i) {
+      const double v = limiterScratch_[i] / 32768.0;
+      energy += v * v;
+    }
+    const double rms = frames > 0
+      ? std::sqrt(energy / static_cast<double>(frames * 2)) : 0.0;
+    const double chunkSeconds = static_cast<double>(frames) / 48000.0;
+    // ON A METER'S SCALE, not a linear one: -50dBFS reads 0 and -6dBFS reads
+    // 1. Linear RMS put a quiet clip at 0.04, so a picture following it barely
+    // moved; people hear in decibels and a response should too.
+    const double dbfs = rms > 1e-7 ? 20.0 * std::log10(rms) : -120.0;
+    const double meterLevel = std::clamp((dbfs + 50.0) / 44.0, 0.0, 1.0);
+    const double released = programLevelState_ * std::exp(-chunkSeconds / 0.3);
+    programLevelState_ = std::max(meterLevel, released);
+    if (programLevelState_ < 1e-6) {
+      programLevelState_ = 0.0;
+    }
+    programLevel_.store(static_cast<float>(programLevelState_), std::memory_order_relaxed);
+  }
   // Stage 3: quantise. The hard clamp stays as the last-resort safety net —
   // the limiter should mean it never actually binds.
   for (std::size_t i = 0; i < frames * 2; ++i) {

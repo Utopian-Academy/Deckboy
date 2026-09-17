@@ -74,6 +74,18 @@ struct AudioEffectContext {
   double duration = 0.0;      // its length; 0 = open-ended or unknown
   double framePeriod = 0.0;   // seconds per video frame; 0 = no video clock
   bool held = false;          // the operator is holding this cue
+
+  // ── The picture AFTER its effects, as the audience sees it ──
+  //
+  // luma/motion above are measured on the DECODED frame, before any picture
+  // effect has touched it. These are measured on the finished composite, which
+  // is what closes the loop Ouroboros is built on: the bent sound moves a picture
+  // effect (through an Audio LFO), the picture effect changes what is on
+  // screen, and what is on screen is read back here. Neutral when nothing has
+  // published one -- no output armed, or a cue with no picture.
+  float postLuma = 0.5f;
+  float postMotion = 0.0f;
+  bool hasPostPicture = false;
 };
 
 // ── WHAT THERE IS ───────────────────────────────────────────────────────────
@@ -102,6 +114,21 @@ enum class AudioEffectKind : int {
   Seam,         // the approaching end of the cue resolves the tail
   FrameLock,    // granular stutter quantised to the VIDEO frame period
   Suspend,      // a held cue keeps its room tone instead of stopping dead
+  // ── THE BENDS ──
+  // Circuit bending done to the numbers rather than to a board: what a sound
+  // becomes when the machinery carrying it is shorted, starved or misread.
+  // The style comes from hardware video synths -- a short closes for a
+  // moment on a timer or a trigger, does something violent, and the clean
+  // signal comes straight back when it opens -- and "wrap, don't clip", because
+  // overflow is the sound. The last four read the deck.
+  Crush,        // fewer bits, fewer samples, rotting bits, overflow that wraps
+  Word,         // sample words misread: rotated, byte-swapped, offset, mu-law
+  Skip,         // a CD skipping: jumps back and repeats, spliced clean
+  Rail,         // a filter with corrupted coefficients, screaming but bounded
+  Resolution,   // the picture's size and brightness are the sound's resolution
+  Scrub,        // brightness is TIME: dark reaches back, a cut throws the head
+  Short,        // every cut closes a short across a small virtual circuit
+  Ouroboros,    // the loop: the finished picture drives the bend that drives it
   // The end marker, so the inspector's picker is built FROM this list rather
   // than from a second copy of it that can fall behind -- which is exactly how
   // four cue kinds ended up missing from cueKindToken.
@@ -124,6 +151,14 @@ inline const char* audioEffectLabel(AudioEffectKind kind) {
     case AudioEffectKind::Seam:       return "Seam";
     case AudioEffectKind::FrameLock:  return "Frame lock";
     case AudioEffectKind::Suspend:    return "Suspend";
+    case AudioEffectKind::Crush:      return "Crush";
+    case AudioEffectKind::Word:       return "Word";
+    case AudioEffectKind::Skip:       return "Skip";
+    case AudioEffectKind::Rail:       return "Rail";
+    case AudioEffectKind::Resolution: return "Resolution";
+    case AudioEffectKind::Scrub:      return "Scrub";
+    case AudioEffectKind::Short:      return "Short";
+    case AudioEffectKind::Ouroboros:  return "Ouroboros";
     case AudioEffectKind::None:
     case AudioEffectKind::Count:      break;
   }
@@ -148,6 +183,14 @@ inline const char* audioEffectToken(AudioEffectKind kind) {
     case AudioEffectKind::Seam:       return "seam";
     case AudioEffectKind::FrameLock:  return "framelock";
     case AudioEffectKind::Suspend:    return "suspend";
+    case AudioEffectKind::Crush:      return "crush";
+    case AudioEffectKind::Word:       return "word";
+    case AudioEffectKind::Skip:       return "skip";
+    case AudioEffectKind::Rail:       return "rail";
+    case AudioEffectKind::Resolution: return "resolution";
+    case AudioEffectKind::Scrub:      return "scrub";
+    case AudioEffectKind::Short:      return "short";
+    case AudioEffectKind::Ouroboros:     return "ouroboros";
     case AudioEffectKind::None:
     case AudioEffectKind::Count:      break;
   }
@@ -169,6 +212,14 @@ inline AudioEffectKind audioEffectKindFromToken(const std::string& token) {
   if (token == "seam")      return AudioEffectKind::Seam;
   if (token == "framelock") return AudioEffectKind::FrameLock;
   if (token == "suspend")   return AudioEffectKind::Suspend;
+  if (token == "crush")      return AudioEffectKind::Crush;
+  if (token == "word")       return AudioEffectKind::Word;
+  if (token == "skip")       return AudioEffectKind::Skip;
+  if (token == "rail")       return AudioEffectKind::Rail;
+  if (token == "resolution") return AudioEffectKind::Resolution;
+  if (token == "scrub")      return AudioEffectKind::Scrub;
+  if (token == "short")      return AudioEffectKind::Short;
+  if (token == "ouroboros")     return AudioEffectKind::Ouroboros;
   return AudioEffectKind::None;
 }
 
@@ -216,6 +267,46 @@ inline const char* audioEffectParamLabel(AudioEffectKind kind, int slot) {
            : slot == 2 ? "reverse" : nullptr;
     case AudioEffectKind::Suspend:
       return slot == 0 ? "loop" : (slot == 1 ? "settle" : nullptr);
+    case AudioEffectKind::Crush:
+      return slot == 0 ? "bits"
+           : slot == 1 ? "rate"
+           : slot == 2 ? "rot"
+           : slot == 3 ? "overflow" : nullptr;
+    case AudioEffectKind::Word:
+      return slot == 0 ? "depth"
+           : slot == 1 ? "self"
+           : slot == 2 ? "rate"
+           : slot == 3 ? "wire" : nullptr;
+    case AudioEffectKind::Skip:
+      return slot == 0 ? "jump"
+           : slot == 1 ? "repeats"
+           : slot == 2 ? "rate"
+           : slot == 3 ? "reverse" : nullptr;
+    case AudioEffectKind::Rail:
+      return slot == 0 ? "cutoff"
+           : slot == 1 ? "corrupt"
+           : slot == 2 ? "sag"
+           : slot == 3 ? "drive" : nullptr;
+    case AudioEffectKind::Resolution:
+      return slot == 0 ? "size"
+           : slot == 1 ? "dark"
+           : slot == 2 ? "cuts"
+           : slot == 3 ? "floor" : nullptr;
+    case AudioEffectKind::Scrub:
+      return slot == 0 ? "depth"
+           : slot == 1 ? "throw"
+           : slot == 2 ? "follow"
+           : slot == 3 ? "invert" : nullptr;
+    case AudioEffectKind::Short:
+      return slot == 0 ? "trigger"
+           : slot == 1 ? "hold"
+           : slot == 2 ? "damage"
+           : slot == 3 ? "wire" : nullptr;
+    case AudioEffectKind::Ouroboros:
+      return slot == 0 ? "coupling"
+           : slot == 1 ? "leak"
+           : slot == 2 ? "cut reset"
+           : slot == 3 ? "character" : nullptr;
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
       break;
@@ -331,6 +422,81 @@ inline const char* audioEffectParamTip(AudioEffectKind kind, int slot) {
            : slot == 1 ? "How fast it settles away while held. At zero it "
                          "holds indefinitely, which is what room tone under a "
                          "held title wants."
+                       : nullptr;
+    case AudioEffectKind::Crush:
+      return slot == 0 ? "How many bits are left. Left is clean; right is one "
+                         "bit, which is barely sound at all."
+           : slot == 1 ? "How often a new sample is taken. Up adds the metallic "
+                         "fold-back of an old sampler."
+           : slot == 2 ? "How often a high bit rots for a moment. A rotted bit "
+                         "is a burst of damage that snaps straight back."
+           : slot == 3 ? "Below halfway, loud peaks hit a ceiling. Above it they "
+                         "WRAP round to the other side, like an overflowing "
+                         "counter -- the bent-circuit sound."
+                       : nullptr;
+    case AudioEffectKind::Word:
+      return slot == 0 ? "How much of each sample the stray wire can reach. Low "
+                         "is fizz on the surface; high is the whole word."
+           : slot == 1 ? "Mixes each sample with an echo of itself at the bit "
+                         "level, not the audio level. Off at zero."
+           : slot == 2 ? "How often the wire touches. Each touch is short and "
+                         "the clean sound comes back the moment it lets go."
+           : slot == 3 ? "Which fault: rotated bits, swapped bytes, offset "
+                         "reading, or read as telephone mu-law. Fully left "
+                         "picks one at random each time, like a real loose wire."
+                       : nullptr;
+    case AudioEffectKind::Skip:
+      return slot == 0 ? "How far back each skip jumps, from a stutter to half "
+                         "a second."
+           : slot == 1 ? "How many times a skip repeats before the sound "
+                         "catches up again."
+           : slot == 2 ? "How often it skips."
+           : slot == 3 ? "Above halfway, the repeated piece plays backwards."
+                       : nullptr;
+    case AudioEffectKind::Rail:
+      return slot == 0 ? "Where the filter sits."
+           : slot == 1 ? "How often its settings are corrupted. Corrupted far "
+                         "enough it oscillates on its own -- loud, but it "
+                         "cannot run away."
+           : slot == 2 ? "A slow sag in the supply, pulling the filter up and "
+                         "down like a dying battery."
+           : slot == 3 ? "How hard it is driven into its own limits."
+                       : nullptr;
+    case AudioEffectKind::Resolution:
+      return slot == 0 ? "How much the picture's SIZE costs the sound. Full "
+                         "frame is clean; shrink the picture to a corner and "
+                         "the sound loses bits and samples with it."
+           : slot == 1 ? "How much darkness costs too. A fade to black takes "
+                         "the sound down to its bones."
+           : slot == 2 ? "A cut in the picture rots bits for one frame."
+           : slot == 3 ? "The least resolution it is allowed to reach."
+                       : nullptr;
+    case AudioEffectKind::Scrub:
+      return slot == 0 ? "How far back the sound can be pulled. Dark pictures "
+                         "reach further back; bright ones catch up to now, and "
+                         "the movement between them bends the pitch."
+           : slot == 1 ? "How far a cut throws the playhead."
+           : slot == 2 ? "How quickly the playhead follows. Slow is a tape "
+                         "machine winding; fast is a scratch."
+           : slot == 3 ? "Above halfway, bright reaches back instead of dark."
+                       : nullptr;
+    case AudioEffectKind::Short:
+      return slot == 0 ? "How small a cut sets it off. With no picture it runs "
+                         "on a timer instead, and this is how often."
+           : slot == 1 ? "How long a short stays closed, in VIDEO FRAMES."
+           : slot == 2 ? "How hard the short hits."
+           : slot == 3 ? "Where the wire lands. Fully left is a different place "
+                         "each time -- the same cut always gets the same one; "
+                         "further right picks one and keeps it."
+                       : nullptr;
+    case AudioEffectKind::Ouroboros:
+      return slot == 0 ? "How strongly the finished picture pushes the bend. "
+                         "Pair it with a picture effect whose LFO is set to "
+                         "Audio and the two drive each other."
+           : slot == 1 ? "How quickly the loop relaxes when nothing feeds it."
+           : slot == 2 ? "Above halfway, a hard cut in the picture resets the "
+                         "loop to clean."
+           : slot == 3 ? "Left leans on crushing; right leans on skipping."
                        : nullptr;
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
@@ -451,6 +617,43 @@ inline AudioEffect audioEffectDefaults(AudioEffectKind kind) {
       // you ask for; not stopping dead is the thing you wanted.
       fx.paramA = 0.23f; fx.paramB = 0.0f;
       break;
+    // THE BENDS ARRIVE AUDIBLE BUT NOT SAVAGE. Each is set so that adding one
+    // during a show is obviously doing something within a second, and nothing
+    // about it is loud enough to make anyone reach for the fader.
+    case AudioEffectKind::Crush:
+      // Six bits, a light sample hold, occasional rot, no wrap.
+      fx.paramA = 0.67f; fx.paramB = 0.25f; fx.paramC = 0.25f; fx.paramD = 0.0f;
+      break;
+    case AudioEffectKind::Word:
+      // Half the word reachable, no self-logic, a few touches a second,
+      // a different fault each touch.
+      fx.paramA = 0.5f; fx.paramB = 0.0f; fx.paramC = 0.35f; fx.paramD = 0.0f;
+      break;
+    case AudioEffectKind::Skip:
+      // Short jumps, three repeats, a skip every second or so, forwards.
+      fx.paramA = 0.3f; fx.paramB = 0.3f; fx.paramC = 0.55f; fx.paramD = 0.0f;
+      break;
+    case AudioEffectKind::Rail:
+      // Mid-low cutoff, some corruption, some sag, moderate drive.
+      fx.amount = 0.8f; fx.paramA = 0.45f; fx.paramB = 0.35f; fx.paramC = 0.3f; fx.paramD = 0.4f;
+      break;
+    case AudioEffectKind::Resolution:
+      // Size and darkness both count, cuts glitch, floor at four bits. Clean on
+      // a bright full-frame picture -- correct, not broken.
+      fx.paramA = 0.8f; fx.paramB = 0.5f; fx.paramC = 0.5f; fx.paramD = 0.2f;
+      break;
+    case AudioEffectKind::Scrub:
+      // Up to a second back, cuts throw it, a musical follow speed.
+      fx.amount = 0.7f; fx.paramA = 0.5f; fx.paramB = 0.4f; fx.paramC = 0.35f; fx.paramD = 0.0f;
+      break;
+    case AudioEffectKind::Short:
+      // Moderately sensitive, three-frame holds, firm damage, a new wire each time.
+      fx.paramA = 0.5f; fx.paramB = 0.1f; fx.paramC = 0.6f; fx.paramD = 0.0f;
+      break;
+    case AudioEffectKind::Ouroboros:
+      // Loop gain below one, a few seconds to relax, cuts reset it, balanced.
+      fx.paramA = 0.7f; fx.paramB = 0.3f; fx.paramC = 1.0f; fx.paramD = 0.4f;
+      break;
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
       break;
@@ -489,17 +692,83 @@ struct AudioEffectSlotState {
   std::size_t readAt = 0;
   int grainPass = 0;
 
+  // ── For the bends ──
+  // A DC blocker on every output that does arithmetic on sample WORDS: an
+  // offset reading or a flipped sign bit is a constant step, which a speaker
+  // does not want and the limiter does not remove.
+  double dcX[2] {0.0, 0.0};
+  double dcY[2] {0.0, 0.0};
+  // Loudness compensation, carried between chunks. Bent audio is routinely
+  // near full scale whatever went in, so the wet side is scaled back to the
+  // dry side's level -- never UP.
+  double comp = 1.0;
+  // Sample-and-hold for the rate reduction.
+  double holdValue[2] {0.0, 0.0};
+  double holdPhase = 0.0;
+  // The current bend event: which time slot it belongs to, how much of it is
+  // left, and what it does. Events are decided from the cue POSITION, so a
+  // rehearsal and the show make the same noise at the same moment.
+  std::int64_t eventSlot = -1;
+  std::size_t eventLeft = 0;
+  int eventMode = 0;
+  std::uint32_t eventBits = 0;
+  // A 3ms ramp between clean and bent, so a short opening or closing is a
+  // splice rather than a click.
+  double bend = 0.0;
+  // A smoothed level of the input, so misreads that turn silence into noise
+  // (byte swap, offset reading) cannot.
+  double inLevel = 0.0;
+  // State-variable filter integrators, bounded, for Rail and Short.
+  double svf1[2] {0.0, 0.0};
+  double svf2[2] {0.0, 0.0};
+  // Skip and Scrub read back from the line at their own position.
+  double head = 0.0;
+  std::size_t skipLeft = 0;
+  std::size_t skipLength = 0;
+  int skipRepeats = 0;
+  // Short's divider flip-flop and the sign it last saw, per channel.
+  int divider[2] {0, 0};
+  double lastSign[2] {1.0, 1.0};
+  double prevMotion = 0.0;
+  // Ouroboros's loop state and its safety watchdog.
+  double loop = 0.0;
+  double hotSeconds = 0.0;
+  double tripSeconds = 0.0;
+  // The bent chunk, built before it is mixed so its loudness can be measured
+  // and corrected in the SAME chunk. Grows once to the largest chunk seen.
+  std::vector<double> bent;
+
   void reset() {
     for (int c = 0; c < 2; ++c) {
       x1[c] = x2[c] = y1[c] = y2[c] = 0.0;
       envelope[c] = 1.0;
       for (int i = 0; i < 4; ++i) combY[c][i] = 0.0;
+      dcX[c] = dcY[c] = 0.0;
+      holdValue[c] = 0.0;
+      svf1[c] = svf2[c] = 0.0;
+      divider[c] = 0;
+      lastSign[c] = 1.0;
     }
     std::fill(line.begin(), line.end(), 0.0);
     writeAt = 0;
     readAt = 0;
     grainPass = 0;
     followed = 0.5;
+    comp = 1.0;
+    holdPhase = 0.0;
+    eventSlot = -1;
+    eventLeft = 0;
+    eventMode = 0;
+    eventBits = 0;
+    bend = 0.0;
+    inLevel = 0.0;
+    head = 0.0;
+    skipLeft = skipLength = 0;
+    skipRepeats = 0;
+    prevMotion = 0.0;
+    loop = 0.0;
+    hotSeconds = 0.0;
+    tripSeconds = 0.0;
   }
 };
 
@@ -591,6 +860,220 @@ inline double dbToGain(double db) { return std::pow(10.0, db / 20.0); }
 // One-pole smoothing coefficient for a time constant in milliseconds.
 inline double timeCoefficient(double ms) {
   return std::exp(-1.0 / (std::max(0.1, ms) * 0.001 * kSampleRate));
+}
+
+// ── BEND MACHINERY ──────────────────────────────────────────────────────────
+//
+// The scratch buffer carries doubles at INT16 SCALE (plus or minus 32768), so
+// "the sample word" below is a real sixteen-bit word, the same one a DAC would
+// have been handed.
+
+constexpr double kFullScale = 32768.0;
+// Every bend output is held inside one and a half times full scale before the
+// limiter ever sees it. The limiter is a limiter, not a crash barrier.
+constexpr double kBendCeiling = 32768.0 * 1.5;
+// 3ms: long enough that a short opening is a splice, short enough to be a snap.
+constexpr double kBendRampStep = 1.0 / (0.003 * kSampleRate);
+
+// Recursive states are snapped to zero rather than left to decay into
+// denormals, which on some CPUs cost a hundred times a normal multiply.
+// 1e-9 of int16 full scale is far below anything audible.
+inline double snap(double v) { return std::fabs(v) < 1e-9 ? 0.0 : v; }
+
+// DETERMINISTIC NOISE. Never rand(): a bend decided from the cue's position
+// makes the same noise at the same moment in rehearsal and in the show, the
+// same rule the picture effects keep.
+inline std::uint32_t hash32(std::uint64_t x) {
+  x += 0x9E3779B97F4A7C15ULL;
+  x = (x ^ (x >> 30)) * 0xBF58476D1CE4E5B9ULL;
+  x = (x ^ (x >> 27)) * 0x94D049BB133111EBULL;
+  x ^= x >> 31;
+  return static_cast<std::uint32_t>(x >> 32);
+}
+inline double hash01(std::uint64_t a, std::uint64_t b) {
+  return static_cast<double>(hash32(a * 0x9E3779B97F4A7C15ULL ^ (b + 0x632BE59BD9B4E019ULL)))
+         / 4294967296.0;
+}
+
+// Which slot of a `rate`-per-second clock the moment `pos` is in, and whether
+// that is a different slot from the last one this effect saw. A seek or a
+// re-take counts as a new slot, which is the honest answer.
+inline bool enterEventSlot(AudioEffectSlotState& s, double pos, double rate,
+                           std::int64_t& slotOut) {
+  const std::int64_t k = static_cast<std::int64_t>(std::floor(pos * rate));
+  slotOut = k;
+  if (k == s.eventSlot) {
+    return false;
+  }
+  s.eventSlot = k;
+  return true;
+}
+
+// Ten hertz, one pole: takes out the step an offset reading or a flipped sign
+// bit leaves behind, and nothing a person can hear.
+inline double dcBlock(AudioEffectSlotState& s, int c, double x) {
+  const double y = x - s.dcX[c] + 0.9987 * s.dcY[c];
+  s.dcX[c] = x;
+  s.dcY[c] = snap(y);
+  return y;
+}
+
+// A two's-complement sixteen-bit word from a 0-65535 value, spelled out rather
+// than cast so it means the same thing on every compiler.
+inline std::int32_t wordFromBits(std::uint32_t u) {
+  u &= 0xFFFFu;
+  return u >= 0x8000u ? static_cast<std::int32_t>(u) - 0x10000
+                      : static_cast<std::int32_t>(u);
+}
+
+// The sample as a sixteen-bit word. WRAP is the bent-circuit behaviour: a
+// value past the top comes round from the bottom, the way an overflowing
+// counter does, instead of flattening against a ceiling.
+inline std::int32_t toWord(double v, bool wrap) {
+  if (!std::isfinite(v)) {
+    return 0;
+  }
+  const double c = std::clamp(v, -1.0e9, 1.0e9);
+  const long long i = std::llround(c);
+  if (wrap) {
+    return wordFromBits(static_cast<std::uint32_t>(i & 0xFFFFLL));
+  }
+  return static_cast<std::int32_t>(std::clamp(i, -32768LL, 32767LL));
+}
+
+// Mid-tread requantising: zero stays exactly zero, so silence in is silence
+// out. Mid-rise would sit on a half step and hum.
+inline double requantise(double v, double bits) {
+  const double b = std::clamp(bits, 1.0, 16.0);
+  if (b >= 15.999) {
+    return v;
+  }
+  const double step = std::pow(2.0, 16.0 - b);
+  return std::round(v / step) * step;
+}
+
+// G.711 mu-law, read the wrong way on purpose: the high byte of a linear
+// sample treated as if it were a telephone byte.
+inline std::int32_t muLawDecode(std::uint32_t byteIn) {
+  const std::uint32_t byte = (~byteIn) & 0xFFu;
+  const std::int32_t exponent = static_cast<std::int32_t>((byte >> 4) & 7u);
+  const std::int32_t mantissa = static_cast<std::int32_t>(byte & 0x0Fu);
+  std::int32_t sample = ((mantissa << 3) + 0x84) << exponent;
+  sample -= 0x84;
+  return (byte & 0x80u) ? -sample : sample;
+}
+
+// LOUDNESS, NEVER UP. Bent audio sits near full scale whatever went in, and a
+// limiter only stops PEAKS -- it will happily pass full-scale noise at -1dBFS,
+// which through a PA is the actual danger. So each bend builds its whole chunk
+// into slot.bent first, and finishBend measures it against the dry chunk and
+// scales it back to the dry level -- in the SAME chunk, ramped from the last
+// chunk's correction so there is no step. It can only reduce, and silence in
+// drives it to silence out.
+//
+// The first version corrected the NEXT chunk from this one's measurement, and
+// the check caught it: a burst that started was uncompensated for its first
+// 40ms, and Word came out 4.6dB louder than its input with peaks past full
+// scale.
+inline void prepareBend(AudioEffectSlotState& s, std::size_t frames) {
+  if (s.bent.size() < frames * 2) {
+    s.bent.resize(frames * 2);
+  }
+}
+
+inline void finishBend(std::vector<double>& samples, std::size_t frames,
+                       AudioEffectSlotState& s, double dry, double wet) {
+  // IN 5ms BLOCKS, INSTANT DOWN AND SLOW UP -- a limiter's shape, not an
+  // average's. Measured over a whole chunk and ramped across it, a burst that
+  // began mid-chunk went out at nearly full gain: in the running app Crush put
+  // a full-scale spike on a -35dB input. Now a block that is too loud is
+  // brought down for its whole length, and the gain only recovers gradually.
+  constexpr std::size_t kBlock = 256;
+  for (std::size_t start = 0; start < frames; start += kBlock) {
+    const std::size_t end = std::min(frames, start + kBlock);
+    double dryEnergy = 0.0;
+    double wetEnergy = 0.0;
+    for (std::size_t i = start * 2; i < end * 2; ++i) {
+      dryEnergy += samples[i] * samples[i];
+      wetEnergy += s.bent[i] * s.bent[i];
+    }
+    double target = 1.0;
+    if (wetEnergy > 1e-3) {
+      target = std::min(1.0, std::sqrt(dryEnergy / wetEnergy));
+    }
+    const double from = s.comp;
+    const bool falling = target < from;
+    const double span = static_cast<double>(end - start);
+    for (std::size_t i = start; i < end; ++i) {
+      // Falling: the whole block at the lower gain, now. Rising: eased, and
+      // only a third of the way per block, so it breathes back rather than
+      // stepping.
+      const double g = falling
+        ? target
+        : from + (target - from) * (static_cast<double>(i - start) / span) * 0.33;
+      for (int c = 0; c < 2; ++c) {
+        double& x = samples[i * 2 + c];
+        const double w = std::clamp(s.bent[i * 2 + c] * g, -kBendCeiling, kBendCeiling);
+        x = dry * x + wet * w;
+      }
+    }
+    s.comp = snap(falling ? target : from + (target - from) * 0.33);
+  }
+}
+
+// THE CRUSH KERNEL, shared by Crush, Resolution and Ouroboros so the three agree
+// on what "fewer bits" means. One frame at a time: the sample hold advances
+// once per FRAME, so both channels are latched at the same instant and the
+// stereo image does not smear.
+struct CrushSettings {
+  double bits = 16.0;
+  double hold = 1.0;       // samples per held value; 1 = every sample
+  bool wrap = false;
+  double drive = 1.0;
+};
+
+inline bool crushLatch(AudioEffectSlotState& s, double hold) {
+  if (hold <= 1.0) {
+    return true;
+  }
+  s.holdPhase += 1.0;
+  if (s.holdPhase >= hold) {
+    s.holdPhase -= hold;
+    return true;
+  }
+  return false;
+}
+
+// The bit just above a sample's own size. Rot and stray-wire damage is placed
+// there rather than at the top of the word: flipping bit fifteen of a quiet
+// sample is a jump from -40dB to full scale, which is a speaker hazard and not
+// a sound. Relative to the signal, a flip is still a violent step -- sized to
+// the music it happened to.
+inline std::uint32_t bitAbove(std::int32_t word, int offset) {
+  std::uint32_t mag = static_cast<std::uint32_t>(word < 0 ? -word : word);
+  int top = 0;
+  while (mag > 1u && top < 14) {
+    mag >>= 1u;
+    ++top;
+  }
+  return 1u << static_cast<unsigned>(std::clamp(top + offset, 1, 14));
+}
+
+inline double crushSample(AudioEffectSlotState& s, int c, double x, bool latch,
+                          const CrushSettings& k, std::uint32_t rot) {
+  if (latch) {
+    s.holdValue[c] = x;
+  }
+  std::int32_t word = toWord(s.holdValue[c] * k.drive, k.wrap);
+  if (rot != 0u) {
+    // `rot` carries which of the three bits above the signal to flip.
+    word = wordFromBits(static_cast<std::uint32_t>(word) ^
+                        bitAbove(word, static_cast<int>(rot % 3u)));
+  }
+  const double q = requantise(static_cast<double>(word), k.bits);
+  // Drive raised the level to reach the wrap; take it back off afterwards so
+  // overflow changes the SHAPE, and the loudness meter handles the rest.
+  return dcBlock(s, c, q / std::max(1.0, k.drive));
 }
 
 }  // namespace detail
@@ -1133,11 +1616,628 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         break;
       }
 
+      // ── THE BENDS ────────────────────────────────────────────────────────
+      //
+      // Four rules every one of these keeps, because each is a way a bend
+      // effect hurts a show:
+      //  - wet is held inside kBendCeiling before anything else sees it;
+      //  - anything that does arithmetic on sample WORDS is DC-blocked;
+      //  - level-changing bends go through finishBend, which only ever reduces;
+      //  - events come from the cue position, never from rand().
+
+      case AudioEffectKind::Crush: {
+        // FEWER BITS, FEWER SAMPLES, AND BITS THAT ROT.
+        detail::CrushSettings k;
+        k.bits = 16.0 - detail::clamp01(fx.paramA) * 15.0;
+        const double b = detail::clamp01(fx.paramB);
+        k.hold = 1.0 + b * b * 63.0;
+        const double d = detail::clamp01(fx.paramD);
+        k.wrap = d >= 0.5;
+        k.drive = k.wrap ? 1.0 + (d - 0.5) * 14.0 : 1.0 + d * 2.0;
+        const double rotChance = detail::clamp01(fx.paramC);
+        const std::uint64_t salt = index * 7919u + 1u;
+        detail::prepareBend(slot, frames);
+        for (std::size_t i = 0; i < frames; ++i) {
+          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          std::int64_t eventSlot = 0;
+          if (detail::enterEventSlot(slot, pos, 8.0, eventSlot)) {
+            const std::uint64_t key = static_cast<std::uint64_t>(eventSlot);
+            if (rotChance > 0.0 && detail::hash01(key, salt) < rotChance) {
+              // One of the three bits just above the signal, for 10-200ms.
+              slot.eventBits = 3u + detail::hash32(key ^ salt) % 3u;
+              slot.eventLeft = static_cast<std::size_t>(
+                (0.01 + 0.19 * detail::hash01(key, salt + 1u)) * kSampleRate);
+            }
+          }
+          const std::uint32_t rot = slot.eventLeft > 0 ? slot.eventBits : 0u;
+          if (slot.eventLeft > 0) {
+            --slot.eventLeft;
+          }
+          const bool latch = detail::crushLatch(slot, k.hold);
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            double w = detail::crushSample(slot, c, s, latch, k, rot);
+            slot.bent[i * 2 + c] = w;
+          }
+        }
+        detail::finishBend(samples, frames, slot, dry, wet);
+        break;
+      }
+
+      case AudioEffectKind::Word: {
+        // A LOOSE WIRE ACROSS THE DAC'S BUS.
+        //
+        // Now and then -- on a clock, like a switch wired to a timer and
+        // slammed -- each sample word is misread: bits rotated, bytes swapped,
+        // read as unsigned, or read as a telephone byte. The clean sound
+        // comes straight back the moment the wire lets go.
+        const int depthBits = 1 + static_cast<int>(detail::clamp01(fx.paramA) * 11.0 + 0.5);
+        const std::uint32_t lowMask = (1u << depthBits) - 1u;
+        const double self = detail::clamp01(fx.paramB);
+        const double c01 = detail::clamp01(fx.paramC);
+        const double rate = 0.5 + c01 * c01 * 19.5;
+        const double wire = detail::clamp01(fx.paramD);
+        const std::uint64_t salt = index * 7919u + 2u;
+        const std::size_t selfDelay = std::max<std::size_t>(
+          static_cast<std::size_t>((0.001 + self * 0.049) * kSampleRate), 1);
+        const std::size_t lineFrames = static_cast<std::size_t>(0.05 * kSampleRate) + 2;
+        if (slot.line.size() < lineFrames * 2) {
+          slot.line.assign(lineFrames * 2, 0.0);
+          slot.writeAt = 0;
+        }
+        const std::uint32_t selfMask =
+          self > 0.0 ? ((1u << (4 + static_cast<int>(self * 11.0))) - 1u) : 0u;
+        detail::prepareBend(slot, frames);
+        for (std::size_t i = 0; i < frames; ++i) {
+          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          std::int64_t eventSlot = 0;
+          if (detail::enterEventSlot(slot, pos, rate, eventSlot)) {
+            const std::uint64_t key = static_cast<std::uint64_t>(eventSlot);
+            if (detail::hash01(key, salt) < 0.5) {
+              slot.eventLeft = static_cast<std::size_t>(
+                (0.3 + 0.7 * detail::hash01(key, salt + 1u)) * kSampleRate / rate);
+              slot.eventBits = detail::hash32(key * 31u + salt);
+              slot.eventMode = wire <= 0.2
+                ? static_cast<int>(detail::hash32(key + salt) % 4u)
+                : std::min(3, static_cast<int>((wire - 0.2) / 0.2));
+            }
+          }
+          const double target = slot.eventLeft > 0 ? 1.0 : 0.0;
+          if (slot.eventLeft > 0) {
+            --slot.eventLeft;
+          }
+          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
+                                  detail::kBendRampStep);
+          const double inMag = std::max(std::fabs(samples[i * 2]),
+                                        std::fabs(samples[i * 2 + 1])) / detail::kFullScale;
+          slot.inLevel = detail::snap(std::max(inMag, slot.inLevel * 0.9995));
+          const std::size_t readAt =
+            (slot.writeAt + lineFrames - std::min(selfDelay, lineFrames - 1)) % lineFrames;
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            const double x = s;
+            const double other = slot.line[readAt * 2 + c];
+            slot.line[slot.writeAt * 2 + c] = x;
+            if (slot.bend <= 0.0) {
+              slot.bent[i * 2 + c] = x;
+              continue;   // clean: dry and wet are the same sound
+            }
+            std::uint32_t u = static_cast<std::uint32_t>(detail::toWord(x, false)) & 0xFFFFu;
+            switch (slot.eventMode) {
+              case 0: {
+                const unsigned r = 1u + slot.eventBits % 15u;
+                u = ((u << r) | (u >> (16u - r))) & 0xFFFFu;
+                break;
+              }
+              case 1:
+                u = ((u >> 8) | (u << 8)) & 0xFFFFu;
+                break;
+              case 2:
+                u ^= 0x8000u;
+                break;
+              default:
+                u = static_cast<std::uint32_t>(detail::muLawDecode(u >> 8)) & 0xFFFFu;
+                break;
+            }
+            u ^= (slot.eventBits & lowMask);
+            if (selfMask != 0u) {
+              const std::uint32_t o =
+                static_cast<std::uint32_t>(detail::toWord(other, false)) & 0xFFFFu;
+              u ^= (o & selfMask);
+            }
+            double bent = static_cast<double>(detail::wordFromBits(u));
+            // Every one of these misreads can turn a quiet sample into a
+            // full-scale one. So the damage is held to a few times the input's
+            // own level, whatever the fault -- a quiet moment stays quiet, a
+            // loud one gets the whole wire.
+            {
+              const double limit = std::max(64.0, slot.inLevel * detail::kFullScale * 3.0);
+              bent = x + std::clamp(bent - x, -limit, limit);
+            }
+            bent = detail::dcBlock(slot, c, bent);
+            double w = x + slot.bend * (bent - x);
+            slot.bent[i * 2 + c] = w;
+          }
+          slot.writeAt = (slot.writeAt + 1) % lineFrames;
+        }
+        detail::finishBend(samples, frames, slot, dry, wet);
+        break;
+      }
+
+      case AudioEffectKind::Skip: {
+        // A DISC SKIPPING. Jump back, play the same piece again a few times,
+        // catch up. Every splice is ramped, so it skips without clicking.
+        const std::size_t lineFrames = static_cast<std::size_t>(2.0 * kSampleRate);
+        if (slot.line.size() < lineFrames * 2) {
+          slot.line.assign(lineFrames * 2, 0.0);
+          slot.writeAt = 0;
+          slot.skipRepeats = 0;
+          slot.readAt = 0;   // how much of the line holds real audio yet
+        }
+        const double a = detail::clamp01(fx.paramA);
+        const std::size_t jump = std::max<std::size_t>(
+          static_cast<std::size_t>((0.005 + a * a * 0.495) * kSampleRate), 32);
+        const int repeats = 1 + static_cast<int>(detail::clamp01(fx.paramB) * 7.0 + 0.5);
+        const double c01 = detail::clamp01(fx.paramC);
+        const double rate = 0.2 + c01 * c01 * 7.8;
+        const bool reverse = fx.paramD >= 0.5;
+        const std::uint64_t salt = index * 7919u + 3u;
+        const double edge = 0.003 * kSampleRate;
+        for (std::size_t i = 0; i < frames; ++i) {
+          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          std::int64_t eventSlot = 0;
+          if (detail::enterEventSlot(slot, pos, rate, eventSlot) &&
+              slot.skipRepeats == 0 && slot.readAt >= jump &&
+              detail::hash01(static_cast<std::uint64_t>(eventSlot), salt) < 0.75) {
+            slot.skipLength = jump;
+            slot.skipLeft = jump;
+            slot.skipRepeats = repeats;
+            slot.head = static_cast<double>((slot.writeAt + lineFrames - jump) % lineFrames);
+          }
+          const double target = slot.skipRepeats > 0 ? 1.0 : 0.0;
+          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
+                                  detail::kBendRampStep);
+          double replay[2] {0.0, 0.0};
+          if (slot.skipLength > 0 && slot.bend > 0.0) {
+            const std::size_t progress = slot.skipLength - std::min(slot.skipLeft, slot.skipLength);
+            const std::size_t offset = reverse ? (slot.skipLength - 1 - progress) : progress;
+            const std::size_t at =
+              (static_cast<std::size_t>(slot.head) + offset) % lineFrames;
+            // Each pass is faded in and out at its ends, so the loop point is
+            // a splice rather than a step.
+            const double env = std::min({1.0, static_cast<double>(progress) / edge,
+                                         static_cast<double>(slot.skipLength - progress) / edge});
+            replay[0] = slot.line[at * 2] * env;
+            replay[1] = slot.line[at * 2 + 1] * env;
+          }
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            const double x = s;
+            slot.line[slot.writeAt * 2 + c] = x;
+            const double w = x * (1.0 - slot.bend) + replay[c] * slot.bend;
+            s = dry * x + wet * std::clamp(w, -detail::kBendCeiling, detail::kBendCeiling);
+          }
+          slot.writeAt = (slot.writeAt + 1) % lineFrames;
+          slot.readAt = std::min(slot.readAt + 1, lineFrames);
+          if (slot.skipRepeats > 0 && slot.skipLeft > 0 && --slot.skipLeft == 0) {
+            if (--slot.skipRepeats > 0) {
+              slot.skipLeft = slot.skipLength;
+            }
+          }
+        }
+        break;
+      }
+
+      case AudioEffectKind::Rail: {
+        // A FILTER WHOSE SETTINGS ARE BEING CORRUPTED.
+        //
+        // A state-variable filter with every integrator pushed through tanh.
+        // A corrupted damping value can go NEGATIVE, which in a normal filter
+        // is a runaway; here it becomes self-oscillation that the saturation
+        // bounds, so it screams without escaping. A slow triangle sags the
+        // cutoff like a failing supply.
+        const double fcBase = detail::logFrequency(fx.paramA, 60.0, 12000.0);
+        const double corrupt = detail::clamp01(fx.paramB);
+        const double sagDepth = detail::clamp01(fx.paramC);
+        const double drive = 1.0 + detail::clamp01(fx.paramD) * 5.0;
+        const std::uint64_t salt = index * 7919u + 4u;
+        detail::prepareBend(slot, frames);
+        double k = 0.5;
+        double gScale = 1.0;
+        for (std::size_t i = 0; i < frames; ++i) {
+          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          std::int64_t eventSlot = 0;
+          detail::enterEventSlot(slot, pos, 6.0, eventSlot);
+          const std::uint64_t key = static_cast<std::uint64_t>(eventSlot);
+          if (corrupt > 0.0 && detail::hash01(key, salt) < corrupt) {
+            k = 0.5 * (1.0 - 2.2 * corrupt * detail::hash01(key, salt + 1u));
+            gScale = std::pow(2.0, (detail::hash01(key, salt + 2u) - 0.5) * 6.0 * corrupt);
+          } else {
+            k = 0.5;
+            gScale = 1.0;
+          }
+          // Once per 32 samples: the tan() is the costly part.
+          if ((i & 31u) == 0u) {
+            const double phase = pos * 0.3 - std::floor(pos * 0.3);
+            const double tri = 1.0 - 4.0 * std::fabs(phase - 0.5);
+            const double fc = std::min(fcBase * std::pow(2.0, sagDepth * 2.0 * tri) * gScale,
+                                       0.45 * kSampleRate);
+            slot.followed = std::tan(3.14159265358979323846 * fc / kSampleRate);
+          }
+          const double g = slot.followed;
+          const double denom = std::max(0.25, 1.0 + g * k + g * g);
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            const double x = s;
+            const double xn = x / detail::kFullScale * drive;
+            const double hp = (xn - (k + g) * slot.svf1[c] - slot.svf2[c]) / denom;
+            const double bp = g * hp + slot.svf1[c];
+            slot.svf1[c] = detail::snap(std::tanh(g * hp + bp));
+            const double lp = g * bp + slot.svf2[c];
+            slot.svf2[c] = detail::snap(std::tanh(g * bp + lp));
+            if (!std::isfinite(slot.svf1[c]) || !std::isfinite(slot.svf2[c])) {
+              slot.svf1[c] = slot.svf2[c] = 0.0;
+            }
+            double w = std::isfinite(lp) ? lp / drive * detail::kFullScale : 0.0;
+            slot.bent[i * 2 + c] = w;
+          }
+        }
+        detail::finishBend(samples, frames, slot, dry, wet);
+        break;
+      }
+
+      case AudioEffectKind::Resolution: {
+        // THE PICTURE'S SIZE IS THE SOUND'S RESOLUTION.
+        //
+        // A full-frame cue is clean. Shrink it into a corner and its sound
+        // loses bits and samples in proportion; fade it to black and it goes
+        // down to its bones. A cut rots bits for exactly one video frame.
+        // No plugin knows how big its picture is.
+        const double size = std::sqrt(detail::clamp01(static_cast<double>(ctx.coverage)));
+        double target = detail::clamp01(fx.paramA) * (1.0 - size);
+        if (ctx.hasPicture) {
+          target += detail::clamp01(fx.paramB) *
+                    (1.0 - detail::clamp01(static_cast<double>(ctx.luma)));
+          const double motion = detail::clamp01(static_cast<double>(ctx.motion));
+          if (fx.paramC > 0.0f && motion > 0.35 && slot.prevMotion <= 0.35) {
+            const double framePeriod = ctx.framePeriod > 0.0 ? ctx.framePeriod : 0.04;
+            slot.eventLeft = static_cast<std::size_t>(framePeriod * kSampleRate);
+            // Further up the knob, further above the signal the flip lands.
+            slot.eventBits = 3u + static_cast<std::uint32_t>(
+              detail::clamp01(fx.paramC) * 2.0 + 0.5);
+          }
+          slot.prevMotion = motion;
+        }
+        target = detail::clamp01(target);
+        const double floorBits = 2.0 + detail::clamp01(fx.paramD) * 10.0;
+        const double follow = detail::timeCoefficient(30.0);
+        detail::prepareBend(slot, frames);
+        for (std::size_t i = 0; i < frames; ++i) {
+          slot.loop = detail::snap(target + (slot.loop - target) * follow);
+          const double r = slot.loop;
+          const std::uint32_t rot = slot.eventLeft > 0 ? slot.eventBits : 0u;
+          if (slot.eventLeft > 0) {
+            --slot.eventLeft;
+          }
+          if (r < 0.001 && rot == 0u) {
+            slot.bent[i * 2] = samples[i * 2];
+            slot.bent[i * 2 + 1] = samples[i * 2 + 1];
+            continue;   // clean, and the state stays where it was
+          }
+          detail::CrushSettings k;
+          k.bits = 16.0 - r * (16.0 - floorBits);
+          k.hold = 1.0 + r * r * 31.0;
+          const bool latch = detail::crushLatch(slot, k.hold);
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            double w = detail::crushSample(slot, c, s, latch, k, rot);
+            slot.bent[i * 2 + c] = w;
+          }
+        }
+        detail::finishBend(samples, frames, slot, dry, wet);
+        break;
+      }
+
+      case AudioEffectKind::Scrub: {
+        // BRIGHTNESS IS TIME.
+        //
+        // The playhead sits behind "now" by an amount the picture decides:
+        // darker is further back. It MOVES between those positions rather than
+        // jumping, and a moving playhead bends pitch the way a tape machine
+        // winding does -- so a fade to black is a sound falling away, a flash
+        // is a chirp up to the present, and a hard cut throws the head.
+        if (!ctx.hasPicture) {
+          break;   // nothing decides where the head is
+        }
+        const std::size_t lineFrames = static_cast<std::size_t>(2.2 * kSampleRate);
+        if (slot.line.size() < lineFrames * 2) {
+          slot.line.assign(lineFrames * 2, 0.0);
+          slot.writeAt = 0;
+          slot.head = 1.0;
+        }
+        const double maxHead = static_cast<double>(lineFrames) - 4.0;
+        const double depth = detail::clamp01(fx.paramA) * 2.0 * kSampleRate;
+        double luma = detail::clamp01(static_cast<double>(ctx.luma));
+        if (fx.paramD < 0.5f) {
+          luma = 1.0 - luma;
+        }
+        const double target = std::clamp(depth * luma, 1.0, maxHead);
+        const double motion = detail::clamp01(static_cast<double>(ctx.motion));
+        if (motion > 0.35 && slot.prevMotion <= 0.35) {
+          slot.head = std::clamp(slot.head + detail::clamp01(fx.paramB) * 0.5 * kSampleRate,
+                                 1.0, maxHead);
+        }
+        slot.prevMotion = motion;
+        const double c01 = detail::clamp01(fx.paramC);
+        const double follow = detail::timeCoefficient(30.0 + c01 * c01 * 1970.0);
+        for (std::size_t i = 0; i < frames; ++i) {
+          slot.head = target + (slot.head - target) * follow;
+          const double readPos = static_cast<double>(slot.writeAt) - slot.head +
+                                 static_cast<double>(lineFrames);
+          const double whole = std::floor(readPos);
+          const double frac = readPos - whole;
+          const std::size_t r0 = static_cast<std::size_t>(whole) % lineFrames;
+          const std::size_t r1 = (r0 + 1) % lineFrames;
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            const double x = s;
+            slot.line[slot.writeAt * 2 + c] = x;
+            const double w = slot.line[r0 * 2 + c] * (1.0 - frac) +
+                             slot.line[r1 * 2 + c] * frac;
+            s = dry * x + wet * std::clamp(w, -detail::kBendCeiling, detail::kBendCeiling);
+          }
+          slot.writeAt = (slot.writeAt + 1) % lineFrames;
+        }
+        break;
+      }
+
+      case AudioEffectKind::Short: {
+        // EVERY CUT CLOSES A SHORT.
+        //
+        // A small circuit -- a filter, a delay, a divider clocked by the
+        // signal's own zero crossings, a supply -- with a wire that lands
+        // somewhere new each time the picture cuts, held for a number of VIDEO
+        // FRAMES. The same cut always gets the same wire, because the choice
+        // comes from where in the cue the cut is. With no picture it runs on a
+        // timer instead. A plugin has no idea where the edits are.
+        const double sensitivity = detail::clamp01(fx.paramA);
+        const int holdFrames = 1 + static_cast<int>(detail::clamp01(fx.paramB) * 23.0 + 0.5);
+        const double framePeriod = ctx.framePeriod > 0.0 ? ctx.framePeriod : 1.0 / 25.0;
+        const std::size_t hold = static_cast<std::size_t>(holdFrames * framePeriod * kSampleRate);
+        const double damage = detail::clamp01(fx.paramC);
+        const double fixedWire = detail::clamp01(fx.paramD);
+        const std::uint64_t salt = index * 7919u + 7u;
+        const std::size_t lineFrames = static_cast<std::size_t>(0.03 * kSampleRate);
+        if (slot.line.size() < lineFrames * 2) {
+          slot.line.assign(lineFrames * 2, 0.0);
+          slot.writeAt = 0;
+        }
+        auto close = [&](std::uint64_t key) {
+          slot.eventLeft = std::max<std::size_t>(hold, 1);
+          slot.eventMode = fixedWire <= 0.001
+            ? static_cast<int>(detail::hash32(key ^ salt) % 5u)
+            : std::min(4, static_cast<int>(fixedWire * 5.0));
+        };
+        if (ctx.hasPicture) {
+          const double motion = detail::clamp01(static_cast<double>(ctx.motion));
+          const double threshold = 0.6 - sensitivity * 0.5;
+          if (motion > threshold && slot.prevMotion <= threshold) {
+            close(static_cast<std::uint64_t>(std::llround(ctx.position * 100.0)));
+          }
+          slot.prevMotion = motion;
+        }
+        const double lpCoef = 1.0 - std::exp(-2.0 * 3.14159265358979323846 * 600.0 / kSampleRate);
+        detail::prepareBend(slot, frames);
+        for (std::size_t i = 0; i < frames; ++i) {
+          if (!ctx.hasPicture) {
+            const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+            std::int64_t eventSlot = 0;
+            if (detail::enterEventSlot(slot, pos, 0.5 + sensitivity * 7.5, eventSlot) &&
+                detail::hash01(static_cast<std::uint64_t>(eventSlot), salt) < 0.5) {
+              close(static_cast<std::uint64_t>(eventSlot));
+            }
+          }
+          const double target = slot.eventLeft > 0 ? 1.0 : 0.0;
+          if (slot.eventLeft > 0) {
+            --slot.eventLeft;
+          }
+          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
+                                  detail::kBendRampStep);
+          slot.holdPhase += 30.0 / kSampleRate;
+          slot.holdPhase -= std::floor(slot.holdPhase);
+          const double sag = 0.5 + 0.5 * (1.0 - 4.0 * std::fabs(slot.holdPhase - 0.5));
+          const std::size_t readAt = slot.writeAt;   // the oldest sample in the line
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            const double xs = s;
+            const double x = xs / detail::kFullScale;
+            slot.svf1[c] = detail::snap(slot.svf1[c] + lpCoef * (x - slot.svf1[c]));
+            const double lp = slot.svf1[c];
+            const double delayed = slot.line[readAt * 2 + c];
+            const double sign = x >= 0.0 ? 1.0 : -1.0;
+            if (sign != slot.lastSign[c]) {
+              slot.lastSign[c] = sign;
+              slot.divider[c] ^= 1;
+            }
+            const double square = slot.divider[c] ? 1.0 : -1.0;
+            slot.inLevel = detail::snap(std::max(std::fabs(x), slot.inLevel * 0.9995));
+            double shorted = x;
+            double feedback = 0.0;
+            if (slot.bend > 0.0) {
+              switch (slot.eventMode) {
+                case 0:   // the filter's output bridged to a hot input
+                  shorted = std::tanh(lp * (1.0 + 6.0 * damage)) * 0.8;
+                  break;
+                case 1:   // the delay's output wired back into itself
+                  feedback = std::tanh(delayed * (0.6 + 0.35 * damage));
+                  shorted = x + feedback;
+                  break;
+                case 2:   // the divider steals the clock: an octave-down fuzz
+                  shorted = x * (1.0 - damage) + square * slot.inLevel * damage * 1.5;
+                  break;
+                case 3:   // the supply sagging at 30Hz under the load
+                  shorted = x * (1.0 - damage * 0.9 * sag);
+                  break;
+                default:  // everything bridged onto one node
+                  shorted = std::tanh((x + delayed + lp) * (1.0 + 4.0 * damage)) * 0.7;
+                  break;
+              }
+            }
+            // The delay line is fed the clean signal, plus its own output only
+            // while that wire is closed -- so a short cannot leave a feedback
+            // loop running after it opens.
+            slot.line[slot.writeAt * 2 + c] = x + feedback * slot.bend * 0.9;
+            double w = (x + slot.bend * (shorted - x)) * detail::kFullScale;
+            w = detail::dcBlock(slot, c, w);
+            slot.bent[i * 2 + c] = w;
+          }
+          slot.writeAt = (slot.writeAt + 1) % lineFrames;
+        }
+        detail::finishBend(samples, frames, slot, dry, wet);
+        break;
+      }
+
+      case AudioEffectKind::Ouroboros: {
+        // THE LOOP.
+        //
+        // The bend is driven by the FINISHED picture -- after its effects, as
+        // the audience sees it. Put an effect on that picture whose LFO is set
+        // to Audio, and it follows this cue's sound. So: the sound bends, the
+        // bent sound moves the picture effect, the picture changes, the changed
+        // picture bends the sound. A feedback loop through a person's eyes.
+        //
+        // Every term in it is held between 0 and 1, so it cannot diverge; the
+        // worst it can do is sit somewhere loud or strobing. What stops that:
+        //  - coupling arrives below one, so the loop damps unless pushed;
+        //  - its input is slewed over 150ms, slower than one trip round it;
+        //  - it leaks back toward clean, so it needs feeding to stay excited;
+        //  - it bends TIMBRE, through the loudness meter, never level;
+        //  - a watchdog: hot input with a deep bend for two seconds opens the
+        //    loop for five, and a hard cut can reset it.
+        const double chunkSeconds = static_cast<double>(frames) / kSampleRate;
+        const double pl = ctx.hasPostPicture ? ctx.postLuma
+                        : (ctx.hasPicture ? ctx.luma : 0.5);
+        const double pm = ctx.hasPostPicture ? ctx.postMotion
+                        : (ctx.hasPicture ? ctx.motion : 0.0);
+        const double coupling = detail::clamp01(fx.paramA);
+        const double drive = detail::clamp01(
+          coupling * (2.0 * std::fabs(detail::clamp01(pl) - 0.5) +
+                      1.0 * detail::clamp01(pm)));
+        slot.loop += (drive - slot.loop) * (1.0 - std::exp(-chunkSeconds / 0.15));
+        const double leakSeconds = 1.0 + detail::clamp01(fx.paramB) * 9.0;
+        slot.loop = detail::snap(slot.loop * std::exp(-chunkSeconds / leakSeconds));
+        if (fx.paramC >= 0.5f && pm > 0.6 && slot.prevMotion <= 0.6) {
+          slot.loop = 0.0;
+        }
+        slot.prevMotion = pm;
+        double inEnergy = 0.0;
+        for (std::size_t i = 0; i < frames * 2; ++i) {
+          const double v = samples[i] / detail::kFullScale;
+          inEnergy += v * v;
+        }
+        const double inRms = std::sqrt(inEnergy / static_cast<double>(frames * 2));
+        if (slot.tripSeconds > 0.0) {
+          slot.tripSeconds = std::max(0.0, slot.tripSeconds - chunkSeconds);
+          slot.loop = 0.0;
+        } else if (inRms > 0.316 && slot.loop > 0.8) {
+          slot.hotSeconds += chunkSeconds;
+          if (slot.hotSeconds > 2.0) {
+            slot.tripSeconds = 5.0;
+            slot.hotSeconds = 0.0;
+            slot.loop = 0.0;
+          }
+        } else {
+          slot.hotSeconds = std::max(0.0, slot.hotSeconds - chunkSeconds);
+        }
+        const double depth = detail::clamp01(slot.loop);
+        const double character = detail::clamp01(fx.paramD);
+        detail::CrushSettings k;
+        k.bits = 16.0 - depth * 14.0 * (1.0 - character * 0.6);
+        k.hold = 1.0 + depth * depth * 40.0 * (1.0 - character * 0.6);
+        const std::size_t lineFrames = static_cast<std::size_t>(0.25 * kSampleRate);
+        if (slot.line.size() < lineFrames * 2) {
+          slot.line.assign(lineFrames * 2, 0.0);
+          slot.writeAt = 0;
+          slot.skipLeft = 0;
+        }
+        const std::uint64_t salt = index * 7919u + 8u;
+        const double stutterChance = depth * character;
+        detail::prepareBend(slot, frames);
+        for (std::size_t i = 0; i < frames; ++i) {
+          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          std::int64_t eventSlot = 0;
+          if (detail::enterEventSlot(slot, pos, 3.0, eventSlot) && slot.skipLeft == 0 &&
+              detail::hash01(static_cast<std::uint64_t>(eventSlot), salt) < stutterChance) {
+            slot.skipLength = static_cast<std::size_t>(
+              (0.03 + 0.09 * detail::hash01(static_cast<std::uint64_t>(eventSlot), salt + 1u)) *
+              kSampleRate);
+            slot.skipLeft = slot.skipLength * 2;
+            slot.head = static_cast<double>(
+              (slot.writeAt + lineFrames - slot.skipLength) % lineFrames);
+          }
+          const double target = (depth > 0.02) ? 1.0 : 0.0;
+          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
+                                  detail::kBendRampStep);
+          const bool latch = detail::crushLatch(slot, k.hold);
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            const double x = s;
+            slot.line[slot.writeAt * 2 + c] = x;
+            double source = x;
+            if (slot.skipLeft > 0 && slot.skipLength > 0) {
+              const std::size_t progress = (slot.skipLength * 2 - slot.skipLeft) % slot.skipLength;
+              const std::size_t at =
+                (static_cast<std::size_t>(slot.head) + progress) % lineFrames;
+              const double env = std::min({1.0, static_cast<double>(progress) / 144.0,
+                                           static_cast<double>(slot.skipLength - progress) / 144.0});
+              source = slot.line[at * 2 + c] * env;
+            }
+            const double crushed = detail::crushSample(slot, c, source, latch, k, 0u);
+            double w = x + slot.bend * (crushed - x);
+            slot.bent[i * 2 + c] = w;
+          }
+          slot.writeAt = (slot.writeAt + 1) % lineFrames;
+          if (slot.skipLeft > 0) {
+            --slot.skipLeft;
+          }
+        }
+        detail::finishBend(samples, frames, slot, dry, wet);
+        break;
+      }
+
       case AudioEffectKind::None:
       case AudioEffectKind::Count:
         break;
     }
   }
+}
+
+// ── DOES THIS CHAIN NEED TO SEE THE PICTURE? ────────────────────────────────
+//
+// ONE definition, used by the app's CPU-path decision AND by the engine's own
+// decode-format decision. There used to be only the app's, and the engine
+// never asked it: on the zero-copy GPU path a cue whose sound follows its
+// picture got no picture at all, and the effect sat there doing nothing.
+inline bool audioChainNeedsPicture(const std::vector<AudioEffect>& stack) {
+  for (const AudioEffect& fx : stack) {
+    if (fx.bypassed || fx.amount <= 0.0f) {
+      continue;
+    }
+    // Every effect that reads the frame's brightness or its cuts. Short and
+    // Resolution still do something without a picture (a timer, the
+    // geometry), but the part worth having is the part that follows the edit.
+    switch (fx.kind) {
+      case AudioEffectKind::Picture:
+      case AudioEffectKind::Resolution:
+      case AudioEffectKind::Scrub:
+      case AudioEffectKind::Short:
+      case AudioEffectKind::Ouroboros:
+        return true;
+      default:
+        break;
+    }
+  }
+  return false;
 }
 
 // ── SERIALISATION ───────────────────────────────────────────────────────────

@@ -768,6 +768,14 @@
           : "couldn't decode \"" + cueName + "\" — unsupported format or corrupt file");
       }
 
+      // A window capture that had to drop back to the older screen-grab
+      // backend. The picture is there, but on a scaled display it can come
+      // through at the wrong size, so say so rather than let it be discovered
+      // on the output.
+      if (engine->consumeSourceCaptureFallback()) {
+        triggerToast("window capture fell back to screen grab — update ffmpeg for exact window capture");
+      }
+
       // Animate pattern cues: rebuild frame every tick using wall-clock time.
       const Cue* activeCue = activeCuePtr(deckIndex);
       if (activeCue && activeCue->kind == CueKind::Pattern) {
@@ -1111,8 +1119,14 @@
           // The same clock the output used this frame, so the monitor shows the
           // oscillator where the audience sees it.
           std::vector<deckboy::effects::CueEffect> previewModulated;
+          // And the same sound for an Audio LFO, for the same reason.
+          const DeckRuntime* previewRuntime = runtimeForDeck(project_.focusedDeckIndex);
+          const double previewAudio =
+            (previewRuntime && previewRuntime->mediaEngine)
+              ? previewRuntime->mediaEngine->programAudioLevel01() : 0.0;
           const bool previewMoving = deckboy::effects::modulateCueEffectStack(
-            previewCue->effects, lfoSeconds_, lfoBeats_, previewModulated);
+            previewCue->effects, lfoSeconds_, lfoBeats_, previewModulated,
+            previewAudio);
           deckboy::effects::applyCueEffectStack(
             controlPreviewLookFrame_.pixels,
             previewMoving ? previewModulated : previewCue->effects, fxCtx);
