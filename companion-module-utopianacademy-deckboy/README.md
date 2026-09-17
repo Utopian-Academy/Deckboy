@@ -62,8 +62,11 @@ selection (`Select`/`Take` by number, `Goto` by id or name), `Seek`, levels
 find (`set token`, `next`, `previous`, `take match`).
 
 Every deck-targeted action takes a **Deck** number, where `0` means "whichever
-deck has focus". A button that names its deck acts on that deck regardless of
-what the operator last touched.
+deck has focus"; a button that names its deck acts on that deck regardless of
+what the operator last touched. Deckboy runs one deck, or two crossfaded into one programme in
+VJ mode, so in practice that is deck 1, or 1 and 2. Multi-deck, multi-output
+playback — a different deck on each output — is coming in Super Deckboy, and the
+module already addresses decks by number so it will not need to change.
 
 Anything not covered has a **Custom command** action that sends a raw Deckboy
 command — the full vocabulary is in the manual under
@@ -89,12 +92,14 @@ Global: `connected`, `version`, `focused_deck`, `deck_count`, `output_count`,
 `master_volume`, `master_dimmer`, `blackout`, `panic_profile`, `find_token`,
 `find_matches`.
 
-Per deck 1–4: `deckN_name`, `deckN_status`, `deckN_cue`, `deckN_cue_id`,
+Per deck (slots 1–4 are defined; today only deck 1, and deck 2 in VJ mode,
+report anything): `deckN_name`, `deckN_status`, `deckN_cue`, `deckN_cue_id`,
 `deckN_selected`, `deckN_active`, `deckN_position`, `deckN_duration`,
 `deckN_remaining`, `deckN_remaining_seconds`, `deckN_volume`, `deckN_raster`,
 `deckN_audio_device`, `deckN_timecode`.
 
-Per output 1–4: `outputN_name`, `outputN_enabled`, `outputN_health`,
+Per output 1–4 (every output carries the same programme, or a presenter view):
+`outputN_name`, `outputN_enabled`, `outputN_health`,
 `outputN_type`, `outputN_display`, `outputN_fps`.
 
 `deckN_remaining` is derived by the module (Deckboy reports position and
