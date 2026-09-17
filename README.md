@@ -374,6 +374,8 @@ Bundled components keep their own licences — ffmpeg ships with its LGPL/GPL
 notice beside the binary, and the NDI and DeckLink SDKs are loaded at runtime
 rather than distributed.
 
+NDI® is a registered trademark of Vizrt NDI AB.
+
 ---
 
 ## Contributing
