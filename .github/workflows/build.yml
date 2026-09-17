@@ -230,7 +230,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: "-DENABLE_DECKLINK=OFF"
+            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF"
           # ENABLE_DECKLINK is ON by default now that the SDK headers are
           # vendored in native/extras/decklink-sdk, so the `all` leg compiles
           # the real capture and playout code on every push. The `none` leg
@@ -310,8 +310,17 @@ jobs:
       - name: No hidden names, no unread locals
         run: python3 tools/audit_warnings.py build.log
 
+      # The feature build must have NDI compiled in. The headers are vendored,
+      # so this is a guard against the define not reaching the binary: every
+      # release until now shipped without NDI while CI stayed green.
       - name: Self-check
-        run: ./build/Deckboy --self-check
+        run: |
+          ./build/Deckboy --self-check > self-check.txt
+          cat self-check.txt
+          if [ '${{ matrix.features }}' = 'all' ] && ! grep -q '^ndi-sdk: headers detected' self-check.txt; then
+            echo "NDI is not compiled into this build." >&2
+            exit 1
+          fi
 
       - name: Smoke tests
         run: ./build/Deckboy --smoke
@@ -372,7 +381,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: "-DENABLE_DECKLINK=OFF"
+            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF"
           - features: all
             cmake_args: "-DENABLE_MIDI=ON"
     steps:
@@ -391,8 +400,17 @@ jobs:
       - name: Build
         run: cmake --build build -j"$(sysctl -n hw.ncpu)"
 
+      # The feature build must have NDI compiled in. The headers are vendored,
+      # so this is a guard against the define not reaching the binary: every
+      # release until now shipped without NDI while CI stayed green.
       - name: Self-check
-        run: ./build/Deckboy --self-check
+        run: |
+          ./build/Deckboy --self-check > self-check.txt
+          cat self-check.txt
+          if [ '${{ matrix.features }}' = 'all' ] && ! grep -q '^ndi-sdk: headers detected' self-check.txt; then
+            echo "NDI is not compiled into this build." >&2
+            exit 1
+          fi
 
       - name: Smoke tests
         run: ./build/Deckboy --smoke
@@ -619,7 +637,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: "-DENABLE_DECKLINK=OFF"
+            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF"
           - features: all
             cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON -DENABLE_WEBVIEW=ON"
     steps:
@@ -706,8 +724,14 @@ jobs:
         shell: pwsh
         run: |
           $p = Start-Process -FilePath .\build\Release\Deckboy.exe `
-                 -ArgumentList "--self-check" -Wait -NoNewWindow -PassThru
+                 -ArgumentList "--self-check" -Wait -NoNewWindow -PassThru `
+                 -RedirectStandardOutput self-check.txt
+          Get-Content self-check.txt
           if ($p.ExitCode -ne 0) { throw "self-check failed ($($p.ExitCode))" }
+          if ('${{ matrix.features }}' -eq 'all' -and
+              -not (Select-String -Path self-check.txt -Pattern '^ndi-sdk: headers detected' -Quiet)) {
+            throw "NDI is not compiled into this build."
+          }
 
       - name: Smoke tests
         shell: pwsh

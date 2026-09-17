@@ -126,7 +126,19 @@ if(DECKBOY_ENABLE_NDI)
       "$ENV{HOME}/NDI SDK for Linux/include"
       "/usr/local/include"
       "/usr/include"
+      # The vendored copy, last, so an installed SDK still wins locally.
+      "${CMAKE_CURRENT_SOURCE_DIR}/native/extras/ndi-sdk/include"
   )
+  # The headers are vendored, so a miss is a broken checkout, not a missing
+  # optional SDK. Before they were, this search failed silently in CI and every
+  # released package shipped without NDI while the build stayed green. Turn NDI
+  # off explicitly with -DDECKBOY_ENABLE_NDI=OFF to build the stub.
+  if(NOT DECKBOY_NDI_INCLUDE_DIR)
+    message(FATAL_ERROR "NDI headers not found. They should be vendored in "
+                        "native/extras/ndi-sdk/include; configure with "
+                        "-DDECKBOY_ENABLE_NDI=OFF to build without NDI.")
+  endif()
+  message(STATUS "NDI headers: ${DECKBOY_NDI_INCLUDE_DIR}")
 endif()
 
 option(DECKBOY_ENABLE_ALSA_MTC "Enable optional ALSA MTC ingest integration" ON)
