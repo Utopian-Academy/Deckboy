@@ -26,6 +26,11 @@ Every release ships an installer **and** a portable build for each platform.
 Both bundle everything they need — binary, ffmpeg, runtime libraries. Nothing
 else to install.
 
+> **NDI is not in the downloadable builds yet.** NDI input and output need the
+> NDI SDK at build time, and the release builds are made without it, so for now
+> NDI means building from source with the SDK installed. Everything else listed
+> below is in the downloads.
+
 | Platform | Installer | Portable |
 |---|---|---|
 | **Windows** | `…-windows-x64-setup.exe` — Start Menu, uninstaller, `.deckboy` file association | `…-windows-x64.zip` |
@@ -97,7 +102,8 @@ the other five problems on the day as well.
 - **Inspect any file** — codec, raster, frame rate, channels, duration — by importing it
 - **Generate test patterns** and a test card to prove a chain end to end
 - **Capture** a camera, a window or a screen and treat it as a cue
-- **Bridge formats** — NDI in, SDI / ST 2110 / SRT / RTMP out, simultaneously
+- **Bridge formats** — bring a camera, capture card or stream in and send the
+  programme out as SDI, ST 2110 or a stream, and record it
 - **Normalize loudness** to EBU R128 when a client sends a clip mastered too quiet
 - **Generate LTC timecode** on its own routable output
 
@@ -107,8 +113,8 @@ Live events • Corporate presentations • Churches • Schools & universities 
 Museums & installations • Digital signage • Projection • LED walls • Streaming
 
 And the jobs in between: bench-testing a screen before anyone arrives, proving a
-cable or converter with a real test card, getting an NDI source onto SDI,
-restreaming to SRT and RTMP at once, or making a client's unplayable file
+cable or converter with a real test card, getting a camera or a stream onto
+SDI, restreaming to SRT or RTMP, or making a client's unplayable file
 playable on site, minutes before doors.
 
 ---
@@ -132,13 +138,16 @@ playable on site, minutes before doors.
 <details>
 <summary><b>Video output</b></summary>
 
-- Dedicated fullscreen output windows, multiple displays, display selection
+- Dedicated fullscreen output windows, display selection, and the same programme
+  on more than one output at once. A *different* deck on each output — multi-deck,
+  multi-output playback — is coming in **Super Deckboy**
 - Display-native and fixed raster modes
 - Area of interest, edge feathering, warp / keystone correction
 - Per-output matte and still overlay, composited into the output's own picture
-- NDI output
+- NDI output, in builds made with the NDI SDK (not yet in the downloads)
 - DeckLink (SDI) output, wherever the Blackmagic SDK is present
-- SRT and RTMP streaming, configurable independently and live at once
+- SRT and RTMP streaming, each output with its own destination, running while
+  the programme is recorded
 
 </details>
 
@@ -146,7 +155,8 @@ playable on site, minutes before doors.
 <summary><b>Live sources</b></summary>
 
 - Stream cues take `srt://`, `rtmp://`, `rtsp://`, `udp://` and http HLS
-- NDI receive, and Blackmagic DeckLink capture through the SDK rather than a pipe
+- Blackmagic DeckLink capture through the SDK rather than a pipe, and NDI receive
+  in builds made with the NDI SDK
 - Camera, desktop window and screen capture
 - **IPTV channel lists**: import an `.m3u` and every channel becomes a cue, named
   from the entry with its group in the notes. An HLS media playlist that happens
@@ -241,7 +251,8 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
   renderer
 - Browser sources, on all three platforms
 - Camera, window and screen capture, on all three platforms
-- SRT, RTMP, RTSP and UDP stream input; NDI source input
+- SRT, RTMP, RTSP and UDP stream input; NDI source input in builds made with the
+  NDI SDK
 - Test patterns and a built-in test card
 - A **code source** — a live-coded expression evaluated per pixel, edited while
   it runs, with a compile error that never blacks the output
@@ -253,15 +264,18 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 
 - A per-cue effect stack on every kind of cue, ordered, with copy/paste of a
   whole chain between cues
-- Thirty-six effects, each with named parameters, all measured to fit inside a
-  60fps frame at 1080p — `--effect-bench` prints what each one costs
+- Thirty-six effects, each with named parameters. Timed one at a time at 1080p
+  on a laptop processor, the heaviest measured takes three-quarters of a 60fps
+  frame — `--effect-bench` prints what each one costs on yours
 - Six that exist nowhere else: schlieren gradient imaging, Chladni nodal
   figures, a true wave equation with inertia, crystal grain growth, retinal
   rod/cone persistence, and structure tensor grain flow
 - An LFO on any parameter — six shapes, free running or locked to a tap tempo
 - VJ mode: a second deck live, a crossfader with ten blend modes — dissolve,
   add, screen, multiply, lighten, darken, subtract, undercut, infiltrate and
-  ember — tap tempo, and takes quantised to the beat
+  ember — tap tempo, and takes quantised to the beat. Two decks mixed into one
+  programme is where it stops today: more decks, and a different deck on each
+  output, are coming in **Super Deckboy**
 
 </details>
 
@@ -342,8 +356,9 @@ importantly, what each feature deliberately does not do.
 
 ## Roadmap
 
-- Layer-based compositing and picture-in-picture layouts
-- NMOS discovery over mDNS, so a registry no longer has to be configured by URL
+- **Super Deckboy:** more than two decks, and multi-deck, multi-output playback —
+  a different deck on each output
+- NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
 - Syphon output on macOS, and Spout/Syphon *input* as a cue source
 - Developer ID signing and notarization for macOS releases
