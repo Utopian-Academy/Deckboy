@@ -87,6 +87,7 @@ EFFECTS = [
     ("edge_ignite",     "0.9:0.5:0.5"),
     ("relight",         "0.9:0.5:0.5"),
     ("depth_split",     "0.9:0.5:0.5"),
+    ("databend",        "0.9:0.55:0.6:0.5:0.55"),
 ]
 
 # Both need something a paused frame cannot give them.
@@ -96,7 +97,11 @@ SKIP = [("motion_puppet", "needs a motion driver and a moving picture"),
         # what makes it comparable — and is exactly what leaves motion mosh
         # nothing to measure. It drags the held picture along the motion
         # between two frames; a paused cue has none.
-        ("motion_mosh", "needs a moving picture; this sweep pauses on one frame")]
+        ("motion_mosh", "needs a moving picture; this sweep pauses on one frame"),
+        # Audioprint draws the audio the deck has just played. This sweep
+        # pauses, and a paused deck plays nothing, so the one thing it
+        # draws is the one thing this harness removes on purpose.
+        ("audioprint", "draws played audio; this sweep pauses, so there is none")]
 
 CAPTURE_PS1 = '''
 param([int]$ProcId, [string]$Out)

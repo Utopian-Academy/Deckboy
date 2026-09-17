@@ -65,6 +65,7 @@ EFFECTS = [
     ("crystallise",     "0.95:0.22:0.6:0.7:0.5"),
     ("scotopic",        "0.95:0.7:0.6:0.6"),
     ("grain_flow",      "0.95:0.5:0.0:0.4"),
+    ("databend",        "0.9:0.55:0.6:0.5:0.55"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -89,7 +90,10 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      "caustics",
                      # Added 2026-09-05.
                      "ferrofluid", "shatter", "edge_ignite", "relight",
-                     "depth_split"}
+                     "depth_split",
+                     # Added 2026-09-17: the delay offset moves with the
+                     # frame, so a held still keeps bending.
+                     "databend"}
 ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic", "text_mode",
                      # Holds the swept frame between calls.
                      "slit_scan",
@@ -137,6 +141,8 @@ PARAM_SLOTS = {
     "grain_flow":      ["stroke", "across the grain", "coherence"],
     "text_mode":       ["columns", "corruption", "glyph set", "ink"],
     "motion_puppet":   ["spring", "memory"],
+    "databend":        ["smear", "feedback", "tone", "fold"],
+    "audioprint":      ["throw", "span", "ink"],
 }
 
 # What a show saved before a parameter existed carries, and what it must still
@@ -152,6 +158,12 @@ NEUTRAL = [0.5, 0.0, 0.0, 0.0]
 # gets "no", and calls a working control dead.
 PARAM_BASE = {
     "scotopic": [0.5, 0.85, 0.0, 0.0],
+    # Databend's smear is a DELAY TIME, and the delayed signal is only mixed
+    # back in through the feedback. At neutral feedback nothing is fed back, so
+    # moving the delay moves nothing -- measured, 0.0% -- and the sweep would
+    # report a working control dead. Engage the feedback and the smear is what
+    # decides how far the damage drags.
+    "databend": [0.5, 0.6, 0.0, 0.0],
 }
 
 # Parameters whose whole subject is what happens BETWEEN frames, on a picture
@@ -170,6 +182,15 @@ MOVED = [0.9, 0.8, 0.8, 0.8]
 NOT_PIXEL_EFFECTS = [
     ("datamosh", "happens at decode, not on the pixels"),
     ("motion_puppet", "needs a driver clip's motion vectors"),
+    # Audioprint IS a pixel operation, but what it draws is the deck's
+    # recently PLAYED audio, and a headless dump plays nothing. With no
+    # sound offered it passes the picture through deliberately, so a
+    # "changes the picture" sweep would fail it for the right reason and
+    # the wrong one -- the motion-puppet trap again. It animates in the
+    # app by following the sound, which is why it is absent from both
+    # ANIMATES_ sets rather than listed in either: neither the frame
+    # index nor carried state is what moves it.
+    ("audioprint", "needs the deck's played audio; there is none in a headless dump"),
     # Motion mosh IS a pixel operation, but it works by dragging a held picture
     # along the motion BETWEEN two frames. This harness renders one still
     # picture, so the matcher correctly finds no motion and the effect
