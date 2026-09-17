@@ -1663,13 +1663,25 @@
           return;
         }
         const int index = std::atoi(parts[2].c_str()) - 1;
-        const int slot = std::atoi(parts[3].c_str());
+        // HELP says <A-E>, and this read the slot with atoi -- so "E" became
+        // 0, the letter every caller following HELP would type landed on the
+        // FIRST parameter instead of the amount, and it answered OK. Letters
+        // and digits are both accepted now; anything else is refused.
+        int slot = -1;
+        {
+          const std::string slotText = toUpper(parts[3]);
+          if (slotText.size() == 1 && slotText[0] >= 'A' && slotText[0] <= 'E') {
+            slot = slotText[0] - 'A';
+          } else if (slotText.size() == 1 && slotText[0] >= '0' && slotText[0] <= '4') {
+            slot = slotText[0] - '0';
+          }
+        }
         if (index < 0 || index >= static_cast<int>(cue->effects.size())) {
           failRemoteCommand("FX LFO: no effect " + parts[2]);
           return;
         }
-        if (slot < 0 || slot > 4) {
-          failRemoteCommand("FX LFO: slot is 0-4");
+        if (slot < 0) {
+          failRemoteCommand("FX LFO: slot is A-D for the parameters or E for the amount (or 0-4)");
           return;
         }
         auto& lfo = cue->effects[static_cast<std::size_t>(index)].lfo[slot];

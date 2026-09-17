@@ -2637,8 +2637,14 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           }
         }
       }
+      // WITH maxFd. select() on macOS and Linux only examines descriptors
+      // below its first argument, and this used the overload that discards
+      // the maximum -- so a client socket, always numbered above the listener,
+      // was never looked at there, and its commands waited until the listener
+      // or the UDP socket happened to wake the loop. Windows ignores that
+      // argument, which is why it never showed on the machine this is built on.
       for (auto client : clientSnapshot) {
-        watchFd(client, &readFds);
+        watchFd(client, &readFds, maxFd);
       }
 
       timeval timeout {};

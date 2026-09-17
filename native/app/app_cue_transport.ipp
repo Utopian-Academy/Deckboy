@@ -53,7 +53,7 @@
       playUiSound(dark ? UiSoundEffect::Toggle : UiSoundEffect::Clear);
     } else if (label == "RECORD") {
       toggleRecording();
-    } else if (label == "SETUP" || label == "SETTINGS") {   // old label still accepted
+    } else if (label == "MENU" || label == "SETUP" || label == "SETTINGS") {   // old labels still accepted
       settingsOpen_ = true;
       // SYSTEM, which is what the tab strip starts on and what the field
       // defaults to. This forced tab 3 (Video Outputs), so the button always

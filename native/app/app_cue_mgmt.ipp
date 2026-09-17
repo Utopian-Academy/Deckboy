@@ -5464,7 +5464,9 @@
         buttons_.back().text = SDL_Color{255, 210, 210, 255};
       }
     }
-    push("SETUP",      pal.mid, "Open settings");   // short enough not to ellipsize
+    // "MENU", James's word for it. SETUP and SETTINGS are still accepted by
+    // triggerButton, so anything that names the old labels keeps working.
+    push("MENU",       pal.mid, "Open settings");   // short enough not to ellipsize
 
     // WRAP RATHER THAN SHRINK THE WORDS.
     //

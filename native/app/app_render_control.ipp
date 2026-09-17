@@ -1415,12 +1415,39 @@
       y += kRowHeight + 8;
     }
     if (primaryIndices.empty()) {
+      // THE KEYS AS THEY ARE BOUND, not as they once were. This said
+      // "B  browser" long after B became BLACKOUT (v0.82.0) and the browser
+      // cue moved to Shift+B -- so a new operator doing what the empty deck
+      // told them blacked out the output. Check app_input.ipp before changing
+      // a key here.
+      //
+      // Kept to one-key actions and one gesture: "Shift+B" was accurate and
+      // read badly in the middle of an otherwise short column (James). A
+      // browser cue is one click away in SOURCE anyway.
+      //
+      // Two measured columns: the sans face is proportional, so "Drag" cannot
+      // be lined up with "I" by padding with spaces.
+      static const std::pair<const char*, const char*> kHints[] = {
+        {"I", "import"},
+        {"P", "pattern"},
+        {"Drag", "media in"},
+      };
       const int emptyLineH = textLineHeight(fontSmall_) + 4;
-      int hx = primaryClip.x + primaryClip.w / 2 - 30;
+      const int gap = uiScaled(10);
+      int keyW = 0;
+      int labelW = 0;
+      for (const auto& hint : kHints) {
+        keyW = std::max(keyW, measuredTextWidth(fontSmall_, hint.first));
+        labelW = std::max(labelW, measuredTextWidth(fontSmall_, hint.second));
+      }
+      const int blockW = keyW + gap + labelW;
+      const int hx = primaryClip.x + (primaryClip.w - blockW) / 2;
       int hy = primaryClip.y + primaryClip.h / 2 - emptyLineH;
-      drawText(controlRenderer_, fontSmall_, "I  import", pal.fg, hx, hy);
-      drawText(controlRenderer_, fontSmall_, "B  browser", pal.fg, hx, hy + emptyLineH);
-      drawText(controlRenderer_, fontSmall_, "P  pattern", pal.fg, hx, hy + emptyLineH * 2);
+      for (const auto& hint : kHints) {
+        drawText(controlRenderer_, fontSmall_, hint.first, pal.fg, hx, hy);
+        drawText(controlRenderer_, fontSmall_, hint.second, pal.fg, hx + keyW + gap, hy);
+        hy += emptyLineH;
+      }
     }
     SDL_SetRenderClipRect(controlRenderer_, nullptr);
 
@@ -2373,7 +2400,7 @@
       if (label == "STOP")     return &uiBtnStop_;
       if (label == "RERACK")   return &uiBtnRerack_;
       if (label == "CLEAR")    return &uiBtnClear_;
-      if (label == "SETUP" || label == "SETTINGS") return &uiBtnSettings_;
+      if (label == "MENU" || label == "SETUP" || label == "SETTINGS") return &uiBtnSettings_;
       return nullptr;
     };
 
