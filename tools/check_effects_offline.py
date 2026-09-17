@@ -259,14 +259,30 @@ def check_params(exe, src, base, work):
                 continue
             params = base_for(token)
             params[slot] = MOVED[slot]
-            shot = render(token, params)
-            if len(shot) != len(neutral):
+            # A parameter on an effect that moves with the frame index has to
+            # be compared at more than one frame. Edge ignite's flicker is an
+            # OSCILLATION, and frame 7 -- the single frame this check used to
+            # render -- happens to sit where flicker 0 and flicker 1 almost
+            # coincide: 0.16% of the picture there, 4.53% at frame 13, with
+            # peak differences of 23 and 199 levels. One frame called a working
+            # control dead, and the reading it gave was true and useless. Take
+            # the frame where the parameter shows most.
+            frames = (0, 7, 13) if token in ANIMATES_BY_INDEX else (7,)
+            pct = -1.0
+            bad = False
+            for frame in frames:
+                shot = render(token, params, frame)
+                reference = neutral if frame == 7 else render(token, base_for(token), frame)
+                if len(shot) != len(reference) or not shot:
+                    bad = True
+                    break
+                changed = sum(1 for a, b in zip(reference[::53], shot[::53])
+                              if abs(a - b) > 6)
+                pct = max(pct, 100.0 * changed / len(reference[::53]))
+            if bad:
                 print("%-16s %-15s %-6s %s" % (token, name, "FAIL", "bad render"))
                 dead += 1
                 continue
-            changed = sum(1 for a, b in zip(neutral[::53], shot[::53])
-                          if abs(a - b) > 6)
-            pct = 100.0 * changed / len(neutral[::53])
             verdict = "ok" if pct >= 0.5 else "DEAD"
             if verdict == "DEAD":
                 dead += 1
