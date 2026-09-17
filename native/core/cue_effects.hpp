@@ -3245,8 +3245,18 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // point: a shard that has moved shows a piece of somewhere else, so
         // the image stays readable while visibly coming apart.
         const int shard = std::max(4, static_cast<int>(8 + (1.0 - pA) * 120.0));
-        const double drift = amt * pB * shard * 1.2;
-        const double spin = amt * pC * 0.9;
+        // A DROPPED PANE IS BROKEN BEFORE ANYTHING IS ASKED OF IT. Drift and
+        // spin used to be pB and pC outright, so an effect added with its
+        // arriving values -- A=0.5, B=0, C=0 -- computed a grid of shards and
+        // then moved none of them: the operator got a picture that had not
+        // changed, and the shard size control could not do anything either,
+        // because a shard that has not moved looks the same at any size.
+        // MEASURED: shard size changed 0.00% of bytes at B=C=0 and 40.61% once
+        // something moved. The usual rule is that B=0/C=0 must reproduce what
+        // the effect did before those parameters existed -- here that was
+        // nothing at all, so there is nothing to preserve.
+        const double drift = amt * (0.18 + pB * 0.82) * shard * 1.2;
+        const double spin = amt * (0.06 + pC * 0.94) * 0.9;
         const double t = ctx.frameIndex * 0.02;
         const std::vector<std::uint8_t> src(pixels);
         detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
@@ -3299,7 +3309,15 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // room rather than a frozen picture, which is what the animates flag
         // says it is; the parameter takes it up to a draught.
         const double gutter = 0.10 + pC * 0.5;
-        const double flick = 1.0 - gutter * 0.5
+        // A DRAUGHT FLARES AS WELL AS GUTTERS. The swing used to hang off a
+        // mean of 1 - gutter/2, which made every setting of this control
+        // identical at the top of the cycle -- the flame reached full
+        // brightness whatever the draught, so at that instant the parameter
+        // did nothing, and a sweep that happened to sample there reported it
+        // DEAD. Letting the mean rise a little with the draught keeps the
+        // control readable at every phase and is the truer flame: more air is
+        // a brighter peak and a deeper dip, not just a deeper dip.
+        const double flick = 1.0 - gutter * 0.35
                            + gutter * 0.5 * std::sin(ctx.frameIndex * 0.31);
         auto luma = [&](int x, int y) {
           const std::size_t at = (static_cast<std::size_t>(std::clamp(y, 0, ctx.height - 1)) * ctx.width
