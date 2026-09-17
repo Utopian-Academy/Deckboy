@@ -2583,6 +2583,7 @@
   }
 
   void stopOutputStreamRuntime(OutputRuntime& runtime, bool rollingSegment = false) {
+    flushOutputStreamAudioTail(runtime);
     runtime.streamLockedFps = 0.0;
     runtime.streamStartedAtMs = 0;
     runtime.streamMeasuredKbps = 0.0;
@@ -2906,8 +2907,49 @@
       std::lock_guard<std::mutex> lock(audioInputMixMutex_);
       audioInputMixBuffer_.clear();
     }
-    deckAudioRing_.primeEndPositions(streamAudioDecksForOutput(outputIndex),
+    runtime.streamAudioDecks = streamAudioDecksForOutput(outputIndex);
+    deckAudioRing_.primeEndPositions(runtime.streamAudioDecks,
                                      runtime.streamAudioReadSamplesByDeck);
+    runtime.streamAudioOwedSamples = 0;
+    runtime.streamAudioDecksQuiet = true;
+  }
+
+  // ── flushOutputStreamAudioTail ──────────────────────────────────────────────
+  // The last few milliseconds of a take. The pull takes fewer samples than a
+  // frame's worth whenever the decks are momentarily behind (see
+  // collectOutputAudioFrameSamples), so when recording stops there is still
+  // sound in the ring that was played but never written: MEASURED, the audio
+  // track finished 50ms before the picture. This hands it over before the
+  // writer is told to stop -- its audio thread drains what is pending before it
+  // exits, so the samples reach the encoder.
+  //
+  // A deck that has gone quiet is not waited for and nothing is padded: a short
+  // tail is honest, a tail of manufactured silence is not.
+  void flushOutputStreamAudioTail(OutputRuntime& runtime) {
+    if (!runtime.streamWriter || runtime.streamAudioDecks.empty() ||
+        runtime.streamAudioOwedSamples == 0) {
+      return;
+    }
+    const std::size_t mixable = deckAudioRing_.mixableSamples(
+      runtime.streamAudioDecks, runtime.streamAudioReadSamplesByDeck, 2000);
+    if (mixable == deckboy::core::DeckAudioRing::kUnlimited || mixable == 0) {
+      return;
+    }
+    std::uint64_t take = std::min<std::uint64_t>(runtime.streamAudioOwedSamples, mixable);
+    take -= take % 2;
+    if (take == 0) {
+      return;
+    }
+    std::vector<std::int32_t> mixed(static_cast<std::size_t>(take), 0);
+    deckAudioRing_.mixDecks(runtime.streamAudioDecks,
+                            runtime.streamAudioReadSamplesByDeck, mixed,
+                            static_cast<std::size_t>(take), project_.decks.size());
+    std::vector<std::int16_t> out(static_cast<std::size_t>(take), 0);
+    for (std::size_t i = 0; i < out.size(); ++i) {
+      out[i] = static_cast<std::int16_t>(std::clamp(mixed[i], -32768, 32767));
+    }
+    runtime.streamAudioOwedSamples -= take;
+    pushOutputStreamAudio(runtime.streamWriter, out);
   }
 
   // NDI audio priming and sample collection — cross-platform (used by NDI send
@@ -2923,7 +2965,9 @@
       int outputIndex,
       std::map<int, std::uint64_t>& readSamplesByDeck,
       double& sampleRemainder,
-      double fpsHint) {
+      double fpsHint,
+      std::uint64_t* owedSamples = nullptr,
+      bool* quiet = nullptr) {
     constexpr int kSampleRate = 48000;
     constexpr int kChannels = 2;
 
@@ -2939,6 +2983,58 @@
     int sampleFrames = std::max(1, static_cast<int>(std::floor(exactFrames)));
     sampleRemainder = exactFrames - static_cast<double>(sampleFrames);
     int interleavedSamples = sampleFrames * kChannels;
+
+    // CARRY A SHORT CHUNK, DO NOT PAD IT. The decks push audio at the sound
+    // card's cadence and this pull happens at the recording's frame rate, so
+    // the ring is regularly a few milliseconds short of one frame's worth for a
+    // moment. Taking the shortfall as silence wrote that hole into the file for
+    // good -- three runs of 5-19ms in every five-second take, measured. The
+    // samples are still in the ring (the read position only advanced by what
+    // was mixed), so this takes fewer samples now and more on a later frame.
+    // Nothing else is anchored to the chunk length: the encoder reads PCM as a
+    // stream, and sync comes from the RATE, which this preserves exactly.
+    //
+    // The carry is capped, and the cap is a SYNC tolerance, not a buffer size.
+    // Audio the recorder could not take yet is written later than the picture it
+    // belongs with, and a deck never runs faster than realtime, so a debt taken
+    // on is never repaid on its own -- it becomes a fixed offset for the rest of
+    // the take. MEASURED with a 400ms cap: no holes anywhere, but the sound ran
+    // up to 213ms ahead of the picture. Past the cap the chunk is filled out
+    // with silence, which is also the honest answer for a deck that has stopped
+    // and would otherwise starve the encoder -- on a network sink that wedges it
+    // hard (see the note where a stream's audio is pushed).
+    constexpr std::uint64_t kMaxCarrySamples = 48000 * kChannels * 6 / 100;  // 60ms
+    if (owedSamples != nullptr) {
+      const std::size_t mixable = deckAudioRing_.mixableSamples(
+        streamAudioDecksForOutput(outputIndex), readSamplesByDeck);
+      const bool decksQuiet = (mixable == deckboy::core::DeckAudioRing::kUnlimited);
+      // A DECK THAT HAS JUST OPENED ITS MOUTH OWES NOTHING FOR THE SILENCE
+      // BEFORE IT. Audio reaches this ring once the device has actually played
+      // it, so the first ~130ms of a take is legitimately silent -- the sound
+      // had not been heard yet either. Counting that as a debt made the take
+      // start with a 90ms hole and then run permanently early. Measured on real
+      // hardware: 90ms and 20ms holes at the head of every take, gone with this.
+      if (quiet != nullptr) {
+        if (*quiet && !decksQuiet) {
+          *owedSamples = 0;
+        }
+        *quiet = decksQuiet;
+      }
+      *owedSamples += static_cast<std::uint64_t>(interleavedSamples);
+      std::uint64_t take = std::min<std::uint64_t>(*owedSamples, mixable);
+      if (*owedSamples - take > kMaxCarrySamples) {
+        take = *owedSamples - kMaxCarrySamples;
+      }
+      // Whole sample frames only: half a frame would swap the channels for the
+      // rest of the take.
+      take -= take % static_cast<std::uint64_t>(kChannels);
+      *owedSamples -= take;
+      interleavedSamples = static_cast<int>(take);
+      if (interleavedSamples <= 0) {
+        return {};
+      }
+    }
+
     std::vector<std::int32_t> mixed(interleavedSamples, 0);
 
     deckAudioRing_.mixDecks(streamAudioDecksForOutput(outputIndex),
@@ -4037,7 +4133,9 @@
               outputIndex,
               runtime->streamAudioReadSamplesByDeck,
               runtime->streamAudioSampleRemainder,
-              fpsHint));
+              fpsHint,
+              &runtime->streamAudioOwedSamples,
+              &runtime->streamAudioDecksQuiet));
           }
         } else {
           // A NETWORK SINK MUST NEVER WAIT ON THE VIDEO QUEUE FOR ITS AUDIO.

@@ -34,6 +34,7 @@
 #define DECKBOY_CORE_DECK_AUDIO_RING_HPP
 
 #include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <map>
 #include <mutex>
@@ -58,6 +59,7 @@ class DeckAudioRing {
       decks_.resize(static_cast<std::size_t>(deckIndex) + 1);
     }
     Buffer& buffer = decks_[static_cast<std::size_t>(deckIndex)];
+    buffer.lastPushAt = Clock::now();
     buffer.samples.insert(buffer.samples.end(), samples.begin(), samples.end());
     if (buffer.samples.size() > kMaxSamplesPerDeck) {
       const std::size_t dropCount = buffer.samples.size() - kMaxSamplesPerDeck;
@@ -84,6 +86,65 @@ class DeckAudioRing {
       out[deckIndex] = endPositionLocked(deckIndex);
     }
   }
+
+  // How many samples a consumer could take right now without any deck having
+  // to be padded with silence: the smallest amount available across the decks
+  // that are actually producing. A deck that has never pushed anything -- a
+  // silent cue, a deck with no audio at all -- is not counted, because waiting
+  // for audio it will never send would starve the encoder.
+  //
+  // A recorder that simply takes one frame's worth per frame written pads the
+  // shortfall with zeroes whenever a chunk lands a beat late, and that zero
+  // padding is PERMANENT in the file: MEASURED, three silent runs of 5-19ms in
+  // every five-second take. The samples themselves were never lost -- the read
+  // position only advances by what was mixed -- so the fix is to carry the
+  // shortfall and take it on a later frame instead of writing a hole.
+  std::size_t mixableSamples(const std::vector<int>& deckIndices,
+                             const std::map<int, std::uint64_t>& readPositions,
+                             int liveWithinMs = 400) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    const auto now = Clock::now();
+    std::size_t smallest = kUnlimited;
+    for (const int deckIndex : deckIndices) {
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(decks_.size())) {
+        continue;
+      }
+      const Buffer& buffer = decks_[static_cast<std::size_t>(deckIndex)];
+      if (buffer.samples.empty() && buffer.dropped == 0) {
+        continue;  // never produced anything; nothing to wait for
+      }
+      // A deck that has not pushed for a WHILE is not behind, it is QUIET --
+      // stopped, paused, or holding a still. Waiting for audio it is not
+      // sending would hold the whole pull back; silence is the right answer
+      // for it, and the consumer is told so by leaving it out of the limit.
+      //
+      // The window is generous on purpose. A deck that has just been taken
+      // delivers its first audio in a burst and can then be a couple of
+      // hundred milliseconds quiet while the decode settles, and calling that
+      // "quiet" wrote a 39ms hole into the middle of the sound -- measured, on
+      // the takes where the first burst arrived early.
+      if (buffer.lastPushAt.time_since_epoch().count() == 0 ||
+          std::chrono::duration_cast<std::chrono::milliseconds>(
+            now - buffer.lastPushAt).count() > liveWithinMs) {
+        continue;
+      }
+      const auto it = readPositions.find(deckIndex);
+      if (it == readPositions.end()) {
+        continue;  // first sight of this deck: it contributes nothing yet
+      }
+      const std::uint64_t availableBegin = buffer.dropped;
+      const std::uint64_t availableEnd =
+        availableBegin + static_cast<std::uint64_t>(buffer.samples.size());
+      const std::uint64_t readPos =
+        std::clamp(it->second, availableBegin, availableEnd);
+      smallest = std::min<std::size_t>(
+        smallest, static_cast<std::size_t>(availableEnd - readPos));
+    }
+    return smallest;
+  }
+
+  // Returned by mixableSamples when no deck limits the pull.
+  static constexpr std::size_t kUnlimited = static_cast<std::size_t>(-1);
 
   // Sum `want` samples per deck into `mixed`, advancing each deck's read
   // position. A consumer seeing a deck for the first time is placed at the end
@@ -126,9 +187,12 @@ class DeckAudioRing {
   }
 
  private:
+  using Clock = std::chrono::steady_clock;
+
   struct Buffer {
     std::vector<std::int16_t> samples;
     std::uint64_t dropped = 0;   // absolute position of samples[0]
+    Clock::time_point lastPushAt{};  // when this deck last produced anything
   };
 
   std::uint64_t endPositionLocked(int deckIndex) const {

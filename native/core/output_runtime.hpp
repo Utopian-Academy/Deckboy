@@ -284,6 +284,18 @@ struct OutputRuntime {
 #endif
   std::map<int, std::uint64_t> streamAudioReadSamplesByDeck;
   double streamAudioSampleRemainder = 0.0;
+  // Samples this sink is owed but could not take yet, because the decks had not
+  // produced them at the moment the frame was written. Carried rather than
+  // written as silence — see collectOutputAudioFrameSamples.
+  std::uint64_t streamAudioOwedSamples = 0;
+  // True while the decks feeding this sink are producing nothing. A deck that
+  // starts up owes NOTHING for the silence written before it opened its mouth:
+  // the audio did not start late, it started when it started, and carrying that
+  // "debt" pushed the whole take's sound ahead of its picture.
+  bool streamAudioDecksQuiet = true;
+  // The decks this sink is mixing, captured when its read positions were
+  // primed, so the tail flush at stop does not need the output index.
+  std::vector<int> streamAudioDecks;
   std::map<int, std::uint64_t> ndiAudioReadSamplesByDeck;
   double ndiAudioSampleRemainder = 0.0;
   std::string streamSpec;
