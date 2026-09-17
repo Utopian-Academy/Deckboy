@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deckboy | Free Video Playback and Show Control</title>
-    <meta name="description" content="Free, open-source cue-based video playback and show control. Trim, fade, loop and hold the last frame; NDI, SRT, RTMP, SDI and ST 2110 out at once; and slide decks import as cues with presenter view. No account, no licence server, no telemetry. Windows, macOS and Linux.">
+    <meta name="description" content="Free, open-source cue-based video playback and show control. Trim, fade, loop and hold the last frame; send it out over SRT, RTMP, SDI or ST 2110 while it records; and slide decks import as cues with presenter view. No account, no licence server, no telemetry. Windows, macOS and Linux.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Deckboy">
     <meta property="og:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta property="og:description" content="Cue-based video playback and show control for live events. NDI, SRT, SDI and ST 2110 out at once. Slide decks import as cues, with presenter view on its own display. Free, and nothing phones home.">
+    <meta property="og:description" content="Cue-based video playback and show control for live events. SRT, RTMP, SDI and ST 2110 out, recorded as it plays. Slide decks import as cues, with presenter view on its own display. Free, and nothing phones home.">
     <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/">
     <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
     <meta property="og:image:width" content="1280">
@@ -19,7 +19,7 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta name="twitter:description" content="Cue-based video playback and show control. NDI, SRT, SDI and ST 2110 out at once. Slide decks too, with presenter view. Free, and nothing phones home.">
+    <meta name="twitter:description" content="Cue-based video playback and show control. SRT, RTMP, SDI and ST 2110 out, recorded as it plays. Slide decks too, with presenter view. Free, and nothing phones home.">
     <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
 
     <script type="application/ld+json">
@@ -30,7 +30,7 @@
       "applicationCategory": "MultimediaApplication",
       "applicationSubCategory": "Video playback and show control",
       "operatingSystem": "Windows 10, Windows 11, macOS 12, Linux",
-      "description": "Open-source cue-based media playback and show control for live video. NDI, SRT, RTMP, DeckLink and SMPTE ST 2110 output, driven from Stream Deck, Bitfocus Companion, OSC, MIDI or LTC timecode.",
+      "description": "Open-source cue-based media playback and show control for live video. SRT, RTMP, DeckLink and SMPTE ST 2110 output, driven from Stream Deck, Bitfocus Companion, OSC, MIDI or LTC timecode.",
       "url": "https://utopian-academy.github.io/Deckboy/",
       "downloadUrl": "https://github.com/Utopian-Academy/Deckboy/releases/latest",
       "softwareHelp": "https://utopian-academy.github.io/Deckboy/manual.html",
@@ -41,7 +41,7 @@
       "featureList": [
         "Cue-based video playlist playback with trim, fades, loops and hold-last-frame",
         "Thirteen cue-to-cue transition styles: cut, crossfade, dip to black or white, four pushes, four wipes and an iris",
-        "NDI, SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output, simultaneously",
+        "SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output, with the programme recorded as it plays",
         "Per-cue pixel effect rack with oscillator-driven parameters",
         "Warp, keystone, edge blend and area-of-interest per output",
         "PDF, PowerPoint and Keynote slide decks imported as one cue per slide, with speaker notes",
@@ -79,7 +79,7 @@
         <div class="hero-content">
             <h1 class="animate-up">Seize the means of<br><span class="gradient-text">playback ♡</span></h1>
             <p class="hero-subtitle animate-up delay-1">A cue deck for live video ♡ Drag the clip in, trim it, fade it, loop it,
-            hold the last frame ♡ NDI, SRT, SDI and ST&nbsp;2110 out at once ♡ And it plays your slide decks too,
+            hold the last frame ♡ SRT, SDI and ST&nbsp;2110 out, recorded as it goes ♡ And it plays your slide decks too,
             presenter view and all<br>
             Windows, macOS and Linux, one show file. Free under the GPL: no account, no licence
             server, nothing that phones home.</p>
@@ -115,10 +115,14 @@
         </div>
         <div class="feature-card glass">
             <div class="icon">📡</div>
-            <h3>Five outputs, at once</h3>
-            <p>NDI, SRT, RTMP, Blackmagic SDI and SMPTE ST&nbsp;2110, several at once, each with its
-            own area of interest, edge feather and warp. Uncompressed IP video is normally the
-            preserve of equipment that arrives with a quotation attached.</p>
+            <h3>Out to the whole rig</h3>
+            <p>SRT and RTMP streams, Blackmagic SDI and SMPTE ST&nbsp;2110, each output with its own
+            area of interest, edge feather and warp. The same programme can go to several outputs
+            while it records, and presenter view takes an output of its own. Uncompressed IP video
+            is normally the preserve of equipment that arrives with a quotation attached.</p>
+            <p><small>NDI needs a build made with the NDI SDK, which the downloads do not
+            include yet. A different deck on each output &mdash; multi-deck, multi-output
+            playback &mdash; is coming in <b>Super Deckboy</b>.</small></p>
         </div>
         <div class="feature-card glass">
             <div class="icon">📽️</div>
@@ -170,7 +174,7 @@
         </div>
         <div class="terminal">
             <p><span class="prompt">></span> Clip in. Trimmed, faded, looped, holding the last frame.</p>
-            <p><span class="prompt">></span> NDI in. SDI, SRT and ST 2110 out. At the same time.</p>
+            <p><span class="prompt">></span> Programme out over SDI, SRT or ST 2110. Recorded while it plays.</p>
             <p><span class="prompt">></span> PowerPoint in. Presenter view on its own display, notes and all.</p>
             <p><span class="prompt">></span> A compressor that can see the shot it is compressing.</p>
             <p><span class="prompt">></span> 36 video effects on the live picture, every dial on an oscillator.</p>
