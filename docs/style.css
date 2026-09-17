@@ -157,9 +157,16 @@ h1 {
 }
 
 .btn-large {
+    /* inline-block, NOT inline: an inline box that wraps is drawn as two
+       fragments, each with its own padding and half the border, which is what
+       the kit button did on a phone. Its vertical padding would not push the
+       lines around it apart either. The buttons in .cta-group escaped it only
+       because flex blockifies its children; one written into a paragraph did not. */
+    display: inline-block;
     font-family: var(--pixel);
     font-size: 0.7rem;
     line-height: 1.6;
+    text-align: center;
     text-decoration: none;
     padding: 1rem 1.2rem;
     border: 2px solid var(--ink);
