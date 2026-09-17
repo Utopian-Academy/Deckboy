@@ -6461,11 +6461,6 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
   for (std::size_t i = 0; i < frames * 2; ++i) {
     scaled[i] = clip(limiterScratch_[i]);
   }
-  // The A/V master clock counts frames at PROCESS time, before the delay
-  // line: video must anchor to the undelayed timeline so the configured
-  // audio delay produces a real skew at the device (audio late vs video)
-  // instead of dragging video along with it.
-  audioFramesQueued_.fetch_add(scaled.size() / 2, std::memory_order_relaxed);
   queueDelayedAudio(scaled);
 }
 
@@ -6596,6 +6591,21 @@ bool MediaEngine::copyScopeSamples(std::vector<std::int16_t>& left,
 }
 
 void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
+  // The A/V master clock counts frames at PROCESS time, before the delay
+  // line: video must anchor to the undelayed timeline so the configured
+  // audio delay produces a real skew at the device (audio late vs video)
+  // instead of dragging video along with it.
+  //
+  // COUNTED HERE, where every producer passes, rather than in the decode
+  // path that used to own it. The tap releases audio to the recorder, the
+  // streams, NDI and the VU meter only as far as this counter says the
+  // device has PLAYED, so a producer that queued sound without counting it
+  // released nothing at all. That is what the pocket test card's sync pop
+  // did: it generates its own samples rather than decoding them, so the pop
+  // came out of the speakers and was missing from every recording of it --
+  // MEASURED, a ten-second take of the card whose audio track was digital
+  // silence end to end.
+  audioFramesQueued_.fetch_add(samples.size() / 2, std::memory_order_relaxed);
   const std::size_t holdValues =
     static_cast<std::size_t>(audioDelayMs_.load(std::memory_order_relaxed)) * 48u * 2u;
   if (holdValues == 0 && audioDelayFifo_.empty()) {
