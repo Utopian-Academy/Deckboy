@@ -53,6 +53,56 @@ DEFINES = re.compile(r"(--[a-zA-Z0-9_-]+)\s*:")
 USES = re.compile(r"var\(\s*(--[a-zA-Z0-9_-]+)\s*\)")
 
 
+RULES = re.compile(r"([^{}]+)\{([^{}]*)\}", re.S)
+CLASS_ATTR = re.compile(r'class="([^"]*)"')
+
+
+def button_display(pages):
+    """A class that looks like a button has to say what kind of box it is.
+
+    `.btn-large` set padding and a border but never `display`, so it stayed
+    inline. An inline box that wraps is drawn as two fragments, each with its
+    own padding and its own border down the middle, and its vertical padding
+    does not push the neighbouring lines apart -- which is what "the download
+    button looks broken on a phone" turned out to be.
+
+    Only the button written into a paragraph showed it. The others are flex
+    items, and flex blockifies its children, so they were safe by accident of
+    their parent. That is not safety: one of them copied into prose breaks the
+    same way. So every btn* class is checked, wherever it happens to sit.
+    """
+    stylesheet = DOCS / "style.css"
+    shared_text = stylesheet.read_text(encoding="utf-8") if stylesheet.exists() else ""
+
+    def declared(css_text):
+        """Classes the stylesheet gives a display to, and ones it styles at all."""
+        with_display, styled = set(), set()
+        for selector, body in RULES.findall(css_text):
+            names = set(re.findall(r"\.(btn[a-zA-Z0-9_-]*)", selector))
+            styled |= names
+            if re.search(r"(^|[;{\s])display\s*:", body):
+                with_display |= names
+        return with_display, styled
+
+    shared_display, shared_styled = declared(shared_text)
+
+    problems = []
+    for name in sorted(pages):
+        text = (DOCS / name).read_text(encoding="utf-8", errors="replace")
+        blocks = " ".join(re.findall(r"<style[^>]*>(.*?)</style>", text, re.S))
+        page_display, page_styled = declared(blocks)
+        with_display = shared_display | page_display
+        styled = shared_styled | page_styled
+        used = set()
+        for attr in CLASS_ATTR.findall(text):
+            used |= {c for c in attr.split() if c.startswith("btn")}
+        for cls in sorted(used & styled - with_display):
+            problems.append("%s uses .%s, which sets no display -- an inline "
+                            "button splits its own border when the label wraps"
+                            % (name, cls))
+    return problems
+
+
 def undefined_colours(pages):
     """Every var(--x) a page relies on has to be defined somewhere it can see.
 
@@ -136,6 +186,7 @@ def main():
             problems.append("%s is not in sitemap.xml" % unlisted)
 
     problems.extend(undefined_colours(pages))
+    problems.extend(button_display(pages))
 
     print("pages: %d   local links checked: %d   external (not fetched): %d"
           % (len(pages), checked, len(external)))
