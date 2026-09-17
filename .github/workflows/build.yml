@@ -973,10 +973,17 @@ jobs:
           # without leaving GitHub first.
           site = "https://utopian-academy.github.io/Deckboy/"
           repo = os.environ.get("GITHUB_REPOSITORY", "Utopian-Academy/Deckboy")
+          # Only what the download itself does. NDI video needs the NDI SDK at
+          # build time and CI releases do not have it yet, so it is not named.
+          # Outputs are joined with "or": simultaneity is claimed only for what
+          # was tested on a release -- a stream and a recording of the same
+          # picture, and presenter view beside the programme.
           page.append("**Deckboy** is free, open-source cue-based media playback "
-                      "and show control for live video — NDI, SRT, SDI and SMPTE "
-                      "ST 2110 out at once, driven from a Stream Deck, Bitfocus "
-                      "Companion, OSC, MIDI or LTC timecode.")
+                      "and show control for live video — clips, slides and live "
+                      "sources on one cue list, out to a screen, SRT or Blackmagic "
+                      "SDI, with a stream and a recording running at the same time "
+                      "and presenter view on its own display, driven from a Stream "
+                      "Deck, Bitfocus Companion, OSC, MIDI or LTC timecode.")
           page.append("")
           page.append("[What it does](%s) · [Manual](%smanual.html) · "
                       "[How it compares](%scompare.html) · [FAQ](%sfaq.html) · "
