@@ -1,5 +1,68 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-17 - v0.99.367 (cues that stay where they belong, and sound that bends the picture)
+
+Everything since v0.99.362, in one download.
+
+**Browser cues render inside the show on Windows.** A web page taken as a cue
+now draws straight into the programme output, the way a video does. Nothing
+opens on top of your desk, and the page keeps its size whatever screen you are
+on. Scroll it, click through a cookie banner, or hand it to the hands-on window
+from the inspector when it needs a login.
+
+**Window cues come in cleanly.** Choose SOURCE, then Window, and the list of
+windows opens right beside the button you pressed. On Windows the picture now
+comes from the window itself: it fills the frame at full resolution whatever
+your display scaling is set to, it follows the window as it is moved or
+resized, and anything sitting in front of it stays out of shot. A window
+holding a still page is caught as readily as one that is playing. If the
+window you picked is not open, Deckboy says so by name instead of showing you
+a dark cue.
+
+**Two new looks that run the picture and the sound through each other.**
+DATABEND plays the frame through an audio chain -- a delay with feedback, a
+filter and a wavefolder -- and paints what comes back, so the picture comes
+apart the way a file does when it is opened in the wrong program, on a knob,
+live, with no preparation. AUDIOPRINT goes the other way and draws the deck's
+own sound through the picture: the waveform is laid down the frame and throws
+each line sideways as it goes, so the image tears on the beat because it is
+the same signal that made the sound. Put one of each on a cue, with a
+parameter set to follow the audio, and the two chase each other.
+
+**Effects chains gained eight ways to bend a cue's sound**, including one that
+listens to the picture while the picture listens back.
+
+**SHATTER breaks the picture as soon as you add it**, and its shard size reads
+immediately rather than waiting for another control to be found.
+
+**NDI output is built in.** Every download now includes Deckboy's NDI sender;
+install the free NDI runtime and your programme appears on the network.
+
+**Recordings keep sound and picture together.** Audio in a recording now lines
+up with its picture, and stays lined up from the first minute to the last,
+whatever the frame rate. The sound is also continuous: a recording holds every
+sample the decks played, with nothing dropped between frames, and a take that
+is stopped keeps its last moments of sound instead of ending early.
+
+**The Pocket Test card's sync pop is in the recording.** Record the card and
+the beep is on the track with the flash, so a recording of it can be used to
+measure a chain end to end -- not just the live output.
+
+**A calmer, quicker desk.** The interface redraws far less work every frame,
+so the control window uses about a third of the processor it used to while
+it sits there.
+
+**Companion and remote control say what really happened.** LFO buttons in the
+Companion module now drive the parameter you chose. A command that cannot do
+what was asked -- a deck that does not exist, a feature this build does not
+have -- now answers with an error and the reason, instead of OK. On macOS and
+Linux, commands from a connected controller are answered straight away.
+
+**Small things.** The settings button is called MENU. An empty playlist
+suggests I to import, P for a pattern, or dragging media in. `--font-check`
+can be pointed at a language (`--font-check ja`) and tells you whether this
+machine can draw it.
+
 ## 2026-09-14 - v0.99.366 (the font check can tell letters from boxes)
 
 **`--font-check` passed a font that could not draw a single letter.** It asked
