@@ -958,7 +958,12 @@
       // rebuildDeckRuntimes tears down every engine, so this stops playback --
       // acceptable for a mode switch during setup, and said out loud below so
       // it is not a surprise if someone flips it mid-show.
-      project_.decks.push_back(Deck {});
+      // Named for its POSITION. Deck's default name is "Deck 1", so the deck
+      // VJ mode added was a second "Deck 1" -- visible in STATUS JSON and in
+      // anything a controller labels from it.
+      Deck added;
+      added.name = deckDefaultName(static_cast<int>(project_.decks.size()));
+      project_.decks.push_back(added);
       rebuildDeckRuntimes();
     }
     const int deckCount = static_cast<int>(project_.decks.size());

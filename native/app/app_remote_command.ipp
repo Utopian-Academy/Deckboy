@@ -164,18 +164,27 @@
       return;
     }
     if (command == "DECK") {
+      // Each of the three ways out used to be a bare return, which reads as
+      // OK: `DECK 3 STATUS` with two decks answered "OK DECK" and then did not
+      // run the STATUS at all.
       if (parts.size() < 2) {
+        failRemoteCommand("DECK: expected a deck number");
         return;
       }
+      int deckIndex = -1;
       try {
-        int deckIndex = std::stoi(parts[1]) - 1;
-        if (!setFocusedDeckIndex(deckIndex)) {
-          return;
-        }
-        if (parts.size() > 2) {
-          handleRemoteCommand(joinParts(parts, 2));
-        }
+        deckIndex = std::stoi(parts[1]) - 1;
       } catch (...) {
+        failRemoteCommand("DECK: '" + parts[1] + "' is not a deck number");
+        return;
+      }
+      if (!setFocusedDeckIndex(deckIndex)) {
+        failRemoteCommand("DECK: there is no deck " + parts[1] + " (" +
+                          std::to_string(project_.decks.size()) + " open)");
+        return;
+      }
+      if (parts.size() > 2) {
+        handleRemoteCommand(joinParts(parts, 2));
       }
       return;
     }
@@ -3316,7 +3325,20 @@
               layer = std::nullopt;
             }
           }
-          assignFocusedDeckToFocusedOutput(layer);
+          // UNDERSTOOD BUT CANNOT ACT. Every output carries the programme mix;
+          // sending one deck to one output is future work (James, 2026-09-16:
+          // multi-deck, multi-output playback is "Super Deckboy"). This used
+          // to answer OK and change nothing -- measured: two outputs set to two
+          // decks delivered byte-identical pictures -- so a controller was told
+          // it had routed a deck it had not.
+          if (project_.decks.size() > 1 || project_.outputs.size() > 1) {
+            failRemoteCommand("VIDEO OUTPUT ASSIGN: per-deck output routing is not "
+                              "available yet -- every output carries the programme");
+            return;
+          }
+          if (!assignFocusedDeckToFocusedOutput(layer)) {
+            failRemoteCommand("VIDEO OUTPUT ASSIGN: no such deck or output");
+          }
           return;
         }
         if (outputArg == "HOST") {
@@ -4370,7 +4392,9 @@
       std::vector<std::string> fields {key, joinParts(parts, 2)};
       auto ensureDeck = [this](std::size_t index) -> Deck& {
         while (project_.decks.size() <= index) {
-          project_.decks.emplace_back();
+          Deck added;
+          added.name = deckDefaultName(static_cast<int>(project_.decks.size()));
+          project_.decks.push_back(added);
         }
         return project_.decks[index];
       };
@@ -4502,6 +4526,18 @@
       std::string value = toUpper(parts[1]);
       if (value == "ON") {
         setFocusedOutputNdiEnabled(true);
+        // CHECK THAT IT HAPPENED. A build without the NDI SDK answered
+        // "OK NDI" here while ndiEnabled stayed false and nothing appeared on
+        // the network -- measured with an NDI receiver that saw every other
+        // source on the LAN. The operator gets the toast either way; the
+        // caller now gets the reason instead of a false success.
+        if (!focusedOutput().ndiEnabled) {
+#if defined(DECKBOY_HAS_NDI_SDK)
+          failRemoteCommand("NDI: output could not be enabled -- is the NDI runtime installed?");
+#else
+          failRemoteCommand("NDI: this build has no NDI output");
+#endif
+        }
       } else if (value == "OFF") {
         setFocusedOutputNdiEnabled(false);
       } else if (value == "TOGGLE") {
