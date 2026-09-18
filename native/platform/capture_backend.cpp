@@ -800,6 +800,31 @@ BOOL CALLBACK windowsTitleMatchProc(HWND hwnd, LPARAM param) {
   return search->best.iconic ? TRUE : FALSE;
 }
 
+// A window's TRUE bounds -- what is actually drawn -- rather than what
+// GetWindowRect reports, which includes the invisible resize border Windows
+// leaves around a window. Sizing a capture from GetWindowRect made the frame a
+// different SHAPE from the picture inside it, so the compositor fitted it and
+// put pillarbox down both sides of a 16:9 window. DWMWA_EXTENDED_FRAME_BOUNDS
+// is the rect the compositor itself uses.
+//
+// Loaded dynamically rather than linked: dwmapi is only pulled in by the
+// WebView2 configuration, and a window cue must not need a browser.
+bool windowFrameBounds(HWND hwnd, RECT& out) {
+  using DwmGetWindowAttributeFn = HRESULT (WINAPI*)(HWND, DWORD, PVOID, DWORD);
+  static DwmGetWindowAttributeFn dwmGetWindowAttribute = [] {
+    HMODULE lib = LoadLibraryW(L"dwmapi.dll");
+    return lib ? reinterpret_cast<DwmGetWindowAttributeFn>(
+                   GetProcAddress(lib, "DwmGetWindowAttribute"))
+               : nullptr;
+  }();
+  constexpr DWORD kExtendedFrameBounds = 9;   // DWMWA_EXTENDED_FRAME_BOUNDS
+  if (dwmGetWindowAttribute != nullptr &&
+      SUCCEEDED(dwmGetWindowAttribute(hwnd, kExtendedFrameBounds, &out, sizeof(out)))) {
+    return true;
+  }
+  return GetWindowRect(hwnd, &out) != FALSE;
+}
+
 WindowsTitleMatch findWindowByExactTitle(const std::string& title) {
   WindowsTitleSearch search;
   search.wanted = &title;
@@ -891,7 +916,7 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
     // inside a filtergraph, so a title carrying a bracket, a colon or a plus
     // would have to survive two levels of escaping to mean itself, and window
     // titles are full of all three. A number cannot be misread.
-    auto graphicsCapturePlan = [&](HWND hwnd) {
+    auto graphicsCapturePlan = [&](HWND hwnd, int& outFrameW, int& outFrameH) {
       // CROP THE WINDOW'S OWN FRAME OFF. What WGC hands over includes the
       // window's border line and its rounded corners, and on anything dark
       // those arrive as a grey line down every edge with a few lighter pixels
@@ -906,6 +931,23 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
       // the margin does too, and it is clamped so a small window cannot be
       // cropped into nothing. This is chrome, not content -- the same thing
       // other capture tools call "client area".
+      // THE CLIENT AREA, NOT THE WINDOW. What WGC hands over is the whole
+      // window: its border, its rounded corners and its title bar. A window
+      // cue wants what the application DRAWS -- an operator putting a score,
+      // a score-board or a browser on the programme did not ask for its title
+      // bar -- and including the chrome also makes the frame a different SHAPE
+      // from the content, so the compositor fits it and puts bars down the
+      // sides of a 16:9 picture.
+      //
+      // The client rect is turned into crop offsets against the window's TRUE
+      // bounds (DWMWA_EXTENDED_FRAME_BOUNDS, not GetWindowRect, which includes
+      // the invisible resize border). A small margin comes off as well: the
+      // rounded bottom corners cut INTO the client area, and their
+      // anti-aliasing is the handful of grey pixels an operator sees on a dark
+      // source. MEASURED on a near-black window at 150%: uncropped, 1440 bright
+      // pixels along the top edge and 1436 along the bottom; at 1px, 8 survive
+      // in the bottom corners; at 4px, none anywhere. The margin scales with
+      // DPI because the border and the corner radius both do.
       int margin = 4;
       {
         UINT dpi = GetDpiForWindow(hwnd);
@@ -913,26 +955,57 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
           dpi = 96;
         }
         margin = std::max(4, static_cast<int>(std::lround(4.0 * dpi / 96.0)));
-        RECT bounds {};
-        if (GetWindowRect(hwnd, &bounds)) {
-          const int windowW = bounds.right - bounds.left;
-          const int windowH = bounds.bottom - bounds.top;
-          margin = std::min(margin, std::max(0, std::min(windowW, windowH) / 8));
-        }
       }
-      const std::string crop = std::to_string(margin);
+      int cropLeft = margin, cropTop = margin, cropRight = margin, cropBottom = margin;
+      int frameW = w;
+      int frameH = h;
+      {
+        RECT frame {};
+        RECT client {};
+        POINT clientOrigin {0, 0};
+        if (windowFrameBounds(hwnd, frame) && GetClientRect(hwnd, &client) &&
+            ClientToScreen(hwnd, &clientOrigin)) {
+          const int clientW = static_cast<int>(client.right - client.left);
+          const int clientH = static_cast<int>(client.bottom - client.top);
+          if (clientW > 0 && clientH > 0) {
+            cropLeft   = std::max(0, static_cast<int>(clientOrigin.x - frame.left)) + margin;
+            cropTop    = std::max(0, static_cast<int>(clientOrigin.y - frame.top)) + margin;
+            cropRight  = std::max(0, static_cast<int>(frame.right - (clientOrigin.x + clientW))) + margin;
+            cropBottom = std::max(0, static_cast<int>(frame.bottom - (clientOrigin.y + clientH))) + margin;
+          }
+        }
+        const int capturedW = static_cast<int>(frame.right - frame.left) - cropLeft - cropRight;
+        const int capturedH = static_cast<int>(frame.bottom - frame.top) - cropTop - cropBottom;
+        // NEVER UPSCALE INTO THE CUE'S RASTER. A source cue asks for the
+        // output's size, and a 960x540 window blown up to 4K here costs
+        // sixteen times the readback and the pipe to carry pixels the window
+        // does not have -- MEASURED on exactly that window: ffmpeg at 155% of
+        // a core and Deckboy at 69%, for a picture a quarter of a megapixel in
+        // size. Captured at its own size instead, the compositor does the
+        // scaling on the GPU for nothing: 26% and 19%.
+        if (capturedW > 0 && capturedH > 0) {
+          frameW = std::clamp(std::min(w, capturedW), 16, w);
+          frameH = std::clamp(std::min(h, capturedH), 16, h);
+        }
+        // Even dimensions: an odd rawvideo width is legal but every encoder
+        // downstream of the deck would rather not be handed one.
+        frameW &= ~1;
+        frameH &= ~1;
+      }
       std::string filter =
         "gfxcapture=hwnd=" + std::to_string(reinterpret_cast<std::uintptr_t>(hwnd)) +
         ":capture_cursor=" + (request.drawMouse ? "1" : "0") +
         ":max_framerate=" + std::to_string(fps) +
-        ":crop_left=" + crop + ":crop_top=" + crop +
-        ":crop_right=" + crop + ":crop_bottom=" + crop +
-        // Stretch to the cue's raster on the GPU, which is what the gdigrab line
-        // did in swscale, and keeps the download to the bytes the deck needs.
-        // The default resize mode CROPS, so a window that grows mid-show would
-        // lose its edges.
-        ":resize_mode=scale:width=" + std::to_string(w) +
-        ":height=" + std::to_string(h);
+        ":crop_left=" + std::to_string(cropLeft) +
+        ":crop_top=" + std::to_string(cropTop) +
+        ":crop_right=" + std::to_string(cropRight) +
+        ":crop_bottom=" + std::to_string(cropBottom) +
+        // Sized on the GPU before the readback. The default resize mode
+        // CROPS, so a window that grows mid-show would lose its edges.
+        ":resize_mode=scale:width=" + std::to_string(frameW) +
+        ":height=" + std::to_string(frameH);
+      outFrameW = frameW;
+      outFrameH = frameH;
       return std::vector<std::string>{
         "ffmpeg",
         "-hide_banner",
@@ -942,8 +1015,8 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
         // WGC frames land in D3D11 textures; hwdownload brings them to the CPU
         // pipe the deck reads. The scale is a no-op at the negotiated size and
         // the safety net if a future ffmpeg ignores width/height.
-        "-vf", "hwdownload,format=bgra,scale=" + std::to_string(w) + ":" +
-               std::to_string(h) + ":flags=neighbor,format=bgr0",
+        "-vf", "hwdownload,format=bgra,scale=" + std::to_string(frameW) + ":" +
+               std::to_string(frameH) + ":flags=neighbor,format=bgr0",
         "-f", "rawvideo",
         "-pix_fmt", "rgba",
         "pipe:1",
@@ -963,9 +1036,26 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
           // overwrite the plan with the WGC line.
           std::vector<std::string> legacyArgs =
             finish("title=" + ref.title, 0, 0, false).ffmpegArgs;
+          int frameW = w;
+          int frameH = h;
+          std::vector<std::string> wgcArgs =
+            graphicsCapturePlan(match.hwnd, frameW, frameH);
           plan.supported = true;
           plan.backendId = "gfxcapture";
-          plan.ffmpegArgs = graphicsCapturePlan(match.hwnd);
+          plan.ffmpegArgs = std::move(wgcArgs);
+          plan.frameWidth = frameW;
+          plan.frameHeight = frameH;
+          // The fallback has to deliver the SAME frame size, or swapping to
+          // it mid-cue would hand the deck a pipe whose frames are a
+          // different length than the buffer waiting for them.
+          for (std::size_t i = 0; i + 1 < legacyArgs.size(); ++i) {
+            if (legacyArgs[i] == "-vf") {
+              legacyArgs[i + 1] = "scale=" + std::to_string(frameW) + ":" +
+                                  std::to_string(frameH) +
+                                  ":flags=neighbor,format=bgr0";
+              break;
+            }
+          }
           plan.fallbackFfmpegArgs = std::move(legacyArgs);
           plan.fallbackBackendId = "gdigrab";
           plan.repaintWindowTitle = ref.title;

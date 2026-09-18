@@ -4530,6 +4530,14 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
   if (!buildSourceCapturePlan(cue, w, h, plan)) {
     return false;
   }
+  // A capture may deliver frames SMALLER than the cue's raster -- a window
+  // is captured at its own size rather than blown up into a 4K pipe, and
+  // the compositor scales it on the GPU instead. Everything below sizes
+  // itself from what will actually arrive.
+  if (plan.frameWidth > 0 && plan.frameHeight > 0) {
+    w = plan.frameWidth;
+    h = plan.frameHeight;
+  }
 
   stopDecoderThreads();
   isSourceCapturing_ = false;

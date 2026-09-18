@@ -83,6 +83,13 @@ struct SourceCapturePlan {
   // frames on repaint (WGC). The engine asks the window to redraw while it is
   // waiting for the first frame -- see nudgeWindowRepaint.
   std::string repaintWindowTitle;
+  // The size frames will ACTUALLY arrive at, when that is not the size the
+  // request asked for. A capture is never upscaled into the cue's raster: a
+  // 960x540 window blown up to 4K in ffmpeg costs sixteen times the pipe
+  // bandwidth and the readback to carry pixels it does not have, and the
+  // compositor can scale on the GPU for nothing. Zero means "as requested".
+  int frameWidth = 0;
+  int frameHeight = 0;
 };
 
 // Abstract catalog of available capture backends on the current platform.
