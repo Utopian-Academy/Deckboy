@@ -2,11 +2,6 @@
 
 ## 2026-09-18 - v0.99.368 (window cues, tidied and quickened)
 
-**A window cue shows the application, not its window.** The picture is now
-taken from the app's own drawing area, so the title bar and the window border
-stay out of the shot and the picture fills the frame instead of sitting between
-bars. Nothing to set: pick the window and that is what goes out.
-
 **No stray pixels down the edges.** A window's rounded corners and a web page's
 unpainted edges used to leave a few white or grey pixels in the corners of a
 cue -- invisible on a bright picture, obvious on a dark one. Both are gone, and
