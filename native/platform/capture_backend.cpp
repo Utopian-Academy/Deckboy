@@ -916,7 +916,8 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
     // inside a filtergraph, so a title carrying a bracket, a colon or a plus
     // would have to survive two levels of escaping to mean itself, and window
     // titles are full of all three. A number cannot be misread.
-    auto graphicsCapturePlan = [&](HWND hwnd, int& outFrameW, int& outFrameH) {
+    auto graphicsCapturePlan = [&](HWND hwnd, int& outFrameW, int& outFrameH,
+                                   int& outFrameRate) {
       // TRIM THE EDGE, DO NOT HUNT FOR THE CLIENT AREA -- WGC already hands
       // over the client area. VERIFIED by capturing a 700x500 window directly
       // with no crop at all: all four of its corner markers present and no
@@ -976,10 +977,21 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
         frameH &= ~1;
       }
       const std::string crop = std::to_string(margin);
+      // SMOOTHNESS WHERE IT IS AFFORDABLE. A 30fps capture on a 60Hz output
+      // shows every frame twice, which reads as judder on anything that
+      // moves -- a video playing in the window, a page being scrolled. Now
+      // that a window is captured at its own size rather than blown up into
+      // the cue's raster, a window-sized picture at 60 costs less than the
+      // full-raster one did at 30. Above a 1080p-worth of pixels it stays at
+      // the requested rate, because that is where the pipe starts to hurt.
+      const long long capturedPixels =
+        static_cast<long long>(frameW) * static_cast<long long>(frameH);
+      const int captureFps =
+        (capturedPixels <= 1920LL * 1080LL) ? std::min(60, std::max(fps, 60)) : fps;
       std::string filter =
         "gfxcapture=hwnd=" + std::to_string(reinterpret_cast<std::uintptr_t>(hwnd)) +
         ":capture_cursor=" + (request.drawMouse ? "1" : "0") +
-        ":max_framerate=" + std::to_string(fps) +
+        ":max_framerate=" + std::to_string(captureFps) +
         ":crop_left=" + crop + ":crop_top=" + crop +
         ":crop_right=" + crop + ":crop_bottom=" + crop +
         // Sized on the GPU before the readback. The default resize mode
@@ -988,6 +1000,7 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
         ":height=" + std::to_string(frameH);
       outFrameW = frameW;
       outFrameH = frameH;
+      outFrameRate = captureFps;
       return std::vector<std::string>{
         "ffmpeg",
         "-hide_banner",
@@ -1020,13 +1033,15 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
             finish("title=" + ref.title, 0, 0, false).ffmpegArgs;
           int frameW = w;
           int frameH = h;
+          int captureRate = fps;
           std::vector<std::string> wgcArgs =
-            graphicsCapturePlan(match.hwnd, frameW, frameH);
+            graphicsCapturePlan(match.hwnd, frameW, frameH, captureRate);
           plan.supported = true;
           plan.backendId = "gfxcapture";
           plan.ffmpegArgs = std::move(wgcArgs);
           plan.frameWidth = frameW;
           plan.frameHeight = frameH;
+          plan.frameRate = captureRate;
           // The fallback has to deliver the SAME frame size, or swapping to
           // it mid-cue would hand the deck a pipe whose frames are a
           // different length than the buffer waiting for them.

@@ -4562,7 +4562,10 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
 
   const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
   int videoFd = videoProcess_.readFd;
-  frameRate_ = 30.0;
+  // The rate the CAPTURE settled on, which is not always the one asked
+  // for: a small enough window runs at 60 so it does not judder against a
+  // 60Hz output.
+  frameRate_ = plan.frameRate > 0 ? static_cast<double>(plan.frameRate) : 30.0;
   duration_ = 0.0;
   playbackClockStart_ = std::chrono::steady_clock::now();
   playbackStartPosition_ = 0.0;

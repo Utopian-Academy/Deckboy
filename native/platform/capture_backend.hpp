@@ -90,6 +90,11 @@ struct SourceCapturePlan {
   // compositor can scale on the GPU for nothing. Zero means "as requested".
   int frameWidth = 0;
   int frameHeight = 0;
+  // The rate frames will actually arrive at, when the backend chose one. A
+  // capture small enough to afford it runs at 60 rather than 30: half the
+  // frames of the output means every other frame is a repeat, which reads as
+  // judder on anything moving. Zero means "as requested".
+  int frameRate = 0;
 };
 
 // Abstract catalog of available capture backends on the current platform.
