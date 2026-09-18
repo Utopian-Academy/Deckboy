@@ -107,6 +107,66 @@ mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib" "$APPDIR/usr/share/deckboy"
 cp -a "$STAGE_SRC/bin/." "$APPDIR/usr/bin/"
 cp -a "$STAGE_SRC/lib/." "$APPDIR/usr/lib/"
 cp -a "$STAGE_SRC/data"  "$APPDIR/usr/share/deckboy/data"
+
+# ── Libraries the AppImage MUST NOT carry ───────────────────────────────────
+#
+# AppImage keeps an excludelist of libraries that have to come from the host,
+# and bundling one does not just fail their catalogue check -- it pins the
+# AppImage to the GLIBC OF THE MACHINE THAT BUILT IT. Reported from outside,
+# which is the only place it could have been: the AppImageHub test rig ran our
+# AppImage and got
+#
+#   WARNING: Blacklisted file libgpg-error.so.0 found
+#   .../libc.so.6: version `GLIBC_2.38' not found (required by libgpg-error.so.0)
+#
+# so the build would not START on Ubuntu 22.04, which is still supported and is
+# what a lot of venue machines run. Our own CI builds and runs it on a newer
+# runner, so nothing we test could ever have shown this.
+#
+# These arrive as transitive dependencies of things we do want (ffmpeg's TLS
+# stack pulls the gcrypt family in). Every one of them is present on any desktop
+# Linux and is ABI-stable, so dropping them is safe in a way that dropping, say,
+# SDL or the FFmpeg libraries would not be. The portable tarball keeps them: it
+# is not subject to AppImage's rules and is not claimed to run on an older
+# glibc than it was built on.
+#
+# Source: https://github.com/AppImage/pkg2appimage/blob/master/excludelist
+APPIMAGE_EXCLUDED="
+libgpg-error.so.0
+libgcrypt.so.20
+libp11-kit.so.0
+libtasn1.so.6
+libcom_err.so.2
+libkrb5.so.3
+libkrb5support.so.0
+libk5crypto.so.3
+libgssapi_krb5.so.2
+libkeyutils.so.1
+libglib-2.0.so.0
+libgobject-2.0.so.0
+libgmodule-2.0.so.0
+libgio-2.0.so.0
+libgthread-2.0.so.0
+"
+for soname in $APPIMAGE_EXCLUDED; do
+  if [ -e "$APPDIR/usr/lib/$soname" ]; then
+    rm -f "$APPDIR/usr/lib/$soname"
+    echo "  - usr/lib/$soname (host provides it; bundling raises the glibc floor)"
+  fi
+done
+
+# AppStream metainfo, which is what gives a catalogue entry its description and
+# its screenshots. The same validated file the Flatpak uses -- a copy, not a
+# second thing to keep in step.
+METAINFO="$REPO_ROOT/tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml"
+if [ -f "$METAINFO" ]; then
+  mkdir -p "$APPDIR/usr/share/metainfo"
+  cp "$METAINFO" "$APPDIR/usr/share/metainfo/"
+  echo "  + usr/share/metainfo/$(basename "$METAINFO")"
+else
+  echo "  ! metainfo not found at $METAINFO - the catalogue entry will have no description" >&2
+fi
+
 [ -f "$STAGE_SRC/LICENSE" ] && cp "$STAGE_SRC/LICENSE" "$APPDIR/"
 
 # Icon: AppImage wants a top-level <name>.png. Convert the master with whatever
