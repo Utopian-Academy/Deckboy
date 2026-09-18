@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-18 - v0.99.368 (window cues, tidied and quickened)
+
+**A window cue shows the application, not its window.** The picture is now
+taken from the app's own drawing area, so the title bar and the window border
+stay out of the shot and the picture fills the frame instead of sitting between
+bars. Nothing to set: pick the window and that is what goes out.
+
+**No stray pixels down the edges.** A window's rounded corners and a web page's
+unpainted edges used to leave a few white or grey pixels in the corners of a
+cue -- invisible on a bright picture, obvious on a dark one. Both are gone, and
+anything a page does not paint is black, like the rest of the frame.
+
+**A window cue costs a fifth of what it did.** A small window is no longer
+enlarged before it is handed to the deck, so the machine does a fraction of the
+work for the same picture: on a 960x540 window with a 4K output, processor use
+across the capture and the app fell from around 225% of a core to 45%.
+
+**The MENU button says MENU.** On an interface scaled above 1x -- which
+includes the 150% that a 4K laptop panel uses by default -- it was drawing as
+an ellipsis.
+
 ## 2026-09-17 - v0.99.367 (cues that stay where they belong, and sound that bends the picture)
 
 Everything since v0.99.362, in one download.
