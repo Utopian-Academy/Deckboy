@@ -801,7 +801,9 @@ jobs:
           # code in it at all.
           $selfCheck = (Start-Process -FilePath $exe.FullName `
                           -ArgumentList "--self-check" `
-                          -Wait -NoNewWindow -PassThru).ExitCode
+                          -Wait -NoNewWindow -PassThru `
+                          -RedirectStandardOutput dist\packaged-self-check.txt).ExitCode
+          Get-Content dist\packaged-self-check.txt
           $smoke = (Start-Process -FilePath $exe.FullName `
                       -ArgumentList "--smoke" `
                       -Wait -NoNewWindow -PassThru).ExitCode
@@ -816,6 +818,22 @@ jobs:
               Format-Table -AutoSize | Out-String | Write-Host
             throw "the packaged build did not run (self-check $selfCheck, smoke $smoke)"
           }
+          # What the product page claims about window cues -- full resolution
+          # whatever the display scaling, follows the window, unaffected by
+          # anything in front of it -- rests on the BUNDLED ffmpeg carrying
+          # the graphics-capture source, which arrived in 8.0. Move that pin
+          # backwards and the behaviour goes away silently: window cues still
+          # work, on the old screen-grab path, and nothing fails. The claim
+          # would simply stop being true with nobody having written a word.
+          # Checked on the unpacked package, because the bundle is what an
+          # operator downloads -- the build tree borrows whatever ffmpeg the
+          # runner happens to have.
+          if (-not (Select-String -Path dist\packaged-self-check.txt -Pattern '^window-capture: exact' -Quiet)) {
+            Write-Host "--- what the package says ---"
+            Get-Content dist\packaged-self-check.txt | Write-Host
+            throw "The packaged build falls back to screen-grab window capture: its bundled ffmpeg has no graphics-capture source."
+          }
+
 
       - name: Upload Windows packages
         if: matrix.features == 'all'

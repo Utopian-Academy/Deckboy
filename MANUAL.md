@@ -5,8 +5,7 @@
 Deckboy is a cue deck for live events. It plays video, stills, live sources and
 generated patterns from a keyboard-driven playlist, and sends the result to
 fullscreen displays, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 and Spout — the
-same programme to more than one of them at a time — and to NDI in builds made
-with the NDI SDK (see *Running Deckboy*). A Stream Deck, Bitfocus
+same programme to more than one of them at a time — and to NDI. A Stream Deck, Bitfocus
 Companion, OSC, MIDI, Art-Net or LTC timecode can drive it.
 
 It is a native application built on SDL3, decoding in process through FFmpeg.
@@ -81,13 +80,13 @@ Three dependencies are loaded only when you use the feature that wants them,
 and absent ones cost nothing: the Blackmagic DeckLink driver for DeckLink, Spout
 for texture sharing, and WebView2 for browser cues.
 
-**NDI is different: it is compiled in, not loaded.** NDI input and output exist
-only in a Deckboy built with the NDI SDK installed, and the downloadable builds
-are not made that way yet — so for NDI today, build from source with the SDK,
-and install the NDI runtime on the machine that runs it. `--self-check` says
-which you have: `ndi-sdk: headers detected` means NDI is in the build, and
-`ndi-sdk: not built` means it is not. The NDI *tally trigger* needs no SDK and
-works in every build.
+**NDI needs the NDI runtime on the machine, not in the download.** NDI input
+and output are in every published build; what they load at run time is the
+runtime that comes with **NDI Tools**, which is free from the same people who
+make NDI. Install that and NDI sources appear; leave it out and Deckboy says
+NDI is unavailable rather than failing quietly. `--self-check` reports what it
+found: `ndi-sdk: headers detected` means NDI is in the build. The NDI *tally
+trigger* works whether or not the runtime is there.
 
 ---
 
@@ -136,8 +135,8 @@ down to give the height back.
 | **Video** | A video file (any FFmpeg-readable container/codec, incl. HAP, ProRes, H.264/265 hardware-decoded) |
 | **Image** | A still (held for a set duration or until taken away) |
 | **Pattern** | A generated test pattern (see §18) |
-| **Browser** | A live web page rendered via WebView2 (Windows) |
-| **Window / Screen** | Desktop window or screen capture |
+| **Browser** | A live web page, rendered inside the programme rather than in a browser window on your desktop |
+| **Window / Screen** | A window on this machine, or a whole screen. A window arrives at full resolution whatever the display scaling is set to, follows the window as it moves and resizes, and is not interrupted by anything in front of it |
 | **Camera** | A capture device |
 | **Syphon / Spout** | A shared GPU texture from another app |
 | **Stream (SRT)** | A live network input — `cue.path` is the full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`) |
@@ -444,8 +443,8 @@ Deckboy**. Each output is one of:
 - **DeckLink** — SDI/HDMI out via a Blackmagic card.
 - **Spout** (Windows) — share the output as a GPU texture to another app. Syphon
   on macOS is not built yet.
-- **NDI** — network video send, optionally with a separate key/alpha source, in
-  builds made with the NDI SDK (see *Running Deckboy*).
+- **NDI** — network video send, optionally with a separate key/alpha source.
+  Needs the NDI runtime on the machine (see *Running Deckboy*).
 
 Per output you can set alpha, delay, colour space, orientation (0/90/180/270),
 a test card, and a time overlay. `Blackout` (`B`) dims all outputs; panic

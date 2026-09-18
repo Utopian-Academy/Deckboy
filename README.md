@@ -26,11 +26,6 @@ Every release ships an installer **and** a portable build for each platform.
 Both bundle everything they need — binary, ffmpeg, runtime libraries. Nothing
 else to install.
 
-> **NDI is not in the downloadable builds yet.** NDI input and output need the
-> NDI SDK at build time, and the release builds are made without it, so for now
-> NDI means building from source with the SDK installed. Everything else listed
-> below is in the downloads.
-
 | Platform | Installer | Portable |
 |---|---|---|
 | **Windows** | `…-windows-x64-setup.exe` — Start Menu, uninstaller, `.deckboy` file association | `…-windows-x64.zip` |
@@ -144,10 +139,14 @@ playable on site, minutes before doors.
 - Display-native and fixed raster modes
 - Area of interest, edge feathering, warp / keystone correction
 - Per-output matte and still overlay, composited into the output's own picture
-- NDI output, in builds made with the NDI SDK (not yet in the downloads)
+- NDI output, in every download. The NDI runtime itself comes from your own
+  NDI Tools install, so nothing is redistributed and a machine without it
+  says so rather than failing quietly
 - DeckLink (SDI) output, wherever the Blackmagic SDK is present
 - SRT and RTMP streaming, each output with its own destination, running while
   the programme is recorded
+- Recording that keeps its sound: the audio is continuous for the whole take,
+  and it ends with the picture rather than a moment before it
 
 </details>
 
@@ -155,8 +154,8 @@ playable on site, minutes before doors.
 <summary><b>Live sources</b></summary>
 
 - Stream cues take `srt://`, `rtmp://`, `rtsp://`, `udp://` and http HLS
-- Blackmagic DeckLink capture through the SDK rather than a pipe, and NDI receive
-  in builds made with the NDI SDK
+- Blackmagic DeckLink capture through the SDK rather than a pipe, and NDI
+  receive in every download
 - Camera, desktop window and screen capture
 - **IPTV channel lists**: import an `.m3u` and every channel becomes a cue, named
   from the entry with its group in the notes. An HLS media playlist that happens
@@ -226,6 +225,13 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
   output becoming the sound's position in the room, the approaching end of the
   cue resolving the tail, stutter quantised to the video frame period, and a
   held cue keeping its room tone instead of stopping dead
+- **Eight bends**, for when the point is damage rather than polish: fewer bits
+  and fewer samples, sample words misread, a CD skipping and splicing itself
+  clean, a filter with corrupted coefficients, and four that read the deck —
+  the picture's size and brightness setting the sound's resolution, its
+  brightness becoming *time* so a dark frame reaches backwards, a short circuit
+  closing on every cut, and *ouroboros*, where the finished picture drives the
+  bend that is driving the picture
 
 </details>
 
@@ -249,10 +255,14 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - **Slide decks** — a PDF imports as one image cue per page, rendered at import
   by the platform's own engine, so nothing during a show depends on a document
   renderer
-- Browser sources, on all three platforms
-- Camera, window and screen capture, on all three platforms
-- SRT, RTMP, RTSP and UDP stream input; NDI source input in builds made with the
-  NDI SDK
+- Browser cues, rendered inside the programme rather than by a browser
+  window on your desktop — a scoreboard, a dashboard or a lyric page is a
+  cue like any other, with the same fades and effects
+- Camera, window and screen capture, on all three platforms. A window cue
+  fills the frame at full resolution whatever your display scaling is set
+  to, follows the window as it moves and resizes, and anything in front of
+  it stays out of shot
+- SRT, RTMP, RTSP and UDP stream input, and NDI source input
 - Test patterns and a built-in test card
 - A **code source** — a live-coded expression evaluated per pixel, edited while
   it runs, with a compile error that never blacks the output
@@ -264,12 +274,19 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 
 - A per-cue effect stack on every kind of cue, ordered, with copy/paste of a
   whole chain between cues
-- Thirty-six effects, each with named parameters. Timed one at a time at 1080p
+- Thirty-seven effects, each with named parameters. Timed one at a time at 1080p
   on a laptop processor, the heaviest measured takes three-quarters of a 60fps
   frame — `--effect-bench` prints what each one costs on yours
 - Six that exist nowhere else: schlieren gradient imaging, Chladni nodal
   figures, a true wave equation with inertia, crystal grain growth, retinal
   rod/cone persistence, and structure tensor grain flow
+- **Two that cross between picture and sound.** *Databend* reads the frame out
+  as a signal and plays it through an audio chain — a delay with feedback, a
+  filter, a wavefolder — then paints what comes back, which is the look people
+  chase by opening a picture in an audio editor, on a live cue and on a knob.
+  *Audioprint* goes the other way and draws the audio the deck has just played
+  through the picture, a slice of sound per row. Put one of each on the same
+  cue and they bend each other
 - An LFO on any parameter — six shapes, free running or locked to a tap tempo
 - VJ mode: a second deck live, a crossfader with ten blend modes — dissolve,
   add, screen, multiply, lighten, darken, subtract, undercut, infiltrate and
