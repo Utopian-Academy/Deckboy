@@ -224,7 +224,23 @@ jobs:
   linux-build:
     name: Linux Build (Ubuntu)
     needs: version-check
-    runs-on: ubuntu-latest
+    # 22.04, NOT ubuntu-latest, and it is the glibc floor that decides it.
+    #
+    # An AppImage cannot run on an older glibc than the one it was built
+    # against, and the floor is set by the HIGHEST version anything inside it
+    # needs -- the binary as much as the bundled libraries, which are copied
+    # from THIS runner. Built on 24.04 the floor was 2.39, so the AppImage
+    # refused to start on 22.04, which is still supported and is what a lot of
+    # venue machines run. Nothing of ours caught it: our own CI runs the same
+    # new image it built on, so the test could not show the fault. The
+    # AppImageHub catalogue rig found it in ten minutes.
+    #
+    # The cost is the older toolchain, which is why gcc-12 is installed below
+    # rather than using the default gcc-11: Deckboy is C++20. gcc-12 comes
+    # from 22.04's own archive, so its libstdc++ is the one the distro already
+    # ships -- a newer compiler from a PPA would move the GLIBCXX floor
+    # instead of the glibc one and we would be back here.
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -256,6 +272,14 @@ jobs:
             libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev \
             libxss-dev libxfixes-dev libxinerama-dev libxtst-dev \
             libdbus-1-dev libibus-1.0-dev libgles2-mesa-dev libdecor-0-dev
+
+      # 22.04 defaults to gcc-11, which is short of C++20. gcc-12 is in the
+      # distro archive, so the runtime stays the one 22.04 ships.
+      - name: Install a C++20 compiler
+        run: |
+          sudo apt-get install -y gcc-12 g++-12
+          echo "CC=gcc-12"  >> "$GITHUB_ENV"
+          echo "CXX=g++-12" >> "$GITHUB_ENV"
 
       - name: Install RtMidi (feature builds)
         if: matrix.features == 'all'
@@ -354,6 +378,37 @@ jobs:
           sudo apt-get install -y ffmpeg file desktop-file-utils
           ./tools/package_linux.sh
           ./tools/package_linux_appimage.sh
+
+      # PROVE the floor rather than trusting the runner label. An AppImage
+      # will not start on an older glibc than the highest version anything
+      # inside it needs, and that is a SILENT failure: the file downloads,
+      # the loader refuses it, and nothing in a build fails. This reads the
+      # symbols out of every ELF in the AppImage that was just built.
+      - name: The AppImage must run on 22.04 (glibc 2.35)
+        if: matrix.features == 'all'
+        run: |
+          set -e
+          cd dist
+          chmod +x Deckboy-*.AppImage
+          ./Deckboy-*.AppImage --appimage-extract > /dev/null
+          worst=2.0
+          where=""
+          for f in $(find squashfs-root -type f); do
+            case "$(file -b "$f")" in *ELF*) ;; *) continue ;; esac
+            v=$(objdump -T "$f" 2>/dev/null | grep -o "GLIBC_[0-9.]*" | sed "s/GLIBC_//" | sort -V | tail -1)
+            [ -n "$v" ] || continue
+            highest=$(printf "%s\n%s\n" "$worst" "$v" | sort -V | tail -1)
+            if [ "$highest" = "$v" ] && [ "$v" != "$worst" ]; then
+              worst="$v"
+              where="$f"
+            fi
+          done
+          echo "highest glibc required: $worst  ($where)"
+          if [ "$(printf "2.35\n%s\n" "$worst" | sort -V | tail -1)" != "2.35" ]; then
+            echo "::error::The AppImage needs glibc $worst, so it cannot start on Ubuntu 22.04 (2.35). Raised by: $where"
+            exit 1
+          fi
+          rm -rf squashfs-root
 
       # A tarball that unpacks to nothing, or an AppImage that will not start,
       # is worse than no artefact: it looks like a release. Both are exercised
