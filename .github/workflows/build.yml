@@ -325,6 +325,19 @@ jobs:
       - name: Smoke tests
         run: ./build/Deckboy --smoke
 
+      # A named parameter that moves nothing is a knob the operator turns for
+      # no reason. Shatter shipped with its drift and rotation hanging off
+      # parameters that arrive at zero, so ADDING the effect did nothing at
+      # all, and it sat in a released build for twelve days because this check
+      # existed and nothing ran it. It costs about half a minute.
+      - name: Every effect, and every knob on it, changes the picture
+        if: matrix.features == 'all'
+        run: |
+          sudo apt-get install -y ffmpeg
+          python3 tools/check_effects_offline.py --exe ./build/Deckboy
+          python3 tools/check_effects_offline.py --exe ./build/Deckboy --params
+          python3 tools/check_effects_offline.py --exe ./build/Deckboy --animation
+
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
