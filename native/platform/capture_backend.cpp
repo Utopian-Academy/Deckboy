@@ -917,37 +917,26 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
     // would have to survive two levels of escaping to mean itself, and window
     // titles are full of all three. A number cannot be misread.
     auto graphicsCapturePlan = [&](HWND hwnd, int& outFrameW, int& outFrameH) {
-      // CROP THE WINDOW'S OWN FRAME OFF. What WGC hands over includes the
-      // window's border line and its rounded corners, and on anything dark
-      // those arrive as a grey line down every edge with a few lighter pixels
-      // in each corner where the rounding is anti-aliased. MEASURED on a
-      // near-black test window at 150%: with no crop, 1440 bright pixels along
-      // the top edge and 1436 along the bottom; at a 1px crop the edges clear
-      // but 8 pixels survive in the bottom corners -- which is exactly the
-      // "few stray white or grey pixels in the bottom corners" an operator
-      // sees; at 4px nothing survives on any edge.
+      // TRIM THE EDGE, DO NOT HUNT FOR THE CLIENT AREA -- WGC already hands
+      // over the client area. VERIFIED by capturing a 700x500 window directly
+      // with no crop at all: all four of its corner markers present and no
+      // title bar anywhere in the frame.
       //
-      // The border and the corner radius both scale with the window's DPI, so
-      // the margin does too, and it is clamped so a small window cannot be
-      // cropped into nothing. This is chrome, not content -- the same thing
-      // other capture tools call "client area".
-      // THE CLIENT AREA, NOT THE WINDOW. What WGC hands over is the whole
-      // window: its border, its rounded corners and its title bar. A window
-      // cue wants what the application DRAWS -- an operator putting a score,
-      // a score-board or a browser on the programme did not ask for its title
-      // bar -- and including the chrome also makes the frame a different SHAPE
-      // from the content, so the compositor fits it and puts bars down the
-      // sides of a 16:9 picture.
+      // An earlier version of this computed the client rect against the
+      // window's bounds and cropped the difference, on the assumption that the
+      // title bar was included. It is not, so that crop cut a title bar's
+      // height off the TOP OF THE PICTURE: the two top corner markers
+      // disappeared while the bottom two stayed. Cropping to fix something the
+      // capture never had is how you lose content.
       //
-      // The client rect is turned into crop offsets against the window's TRUE
-      // bounds (DWMWA_EXTENDED_FRAME_BOUNDS, not GetWindowRect, which includes
-      // the invisible resize border). A small margin comes off as well: the
-      // rounded bottom corners cut INTO the client area, and their
-      // anti-aliasing is the handful of grey pixels an operator sees on a dark
-      // source. MEASURED on a near-black window at 150%: uncropped, 1440 bright
-      // pixels along the top edge and 1436 along the bottom; at 1px, 8 survive
-      // in the bottom corners; at 4px, none anywhere. The margin scales with
-      // DPI because the border and the corner radius both do.
+      // What does need trimming is a few pixels of edge. On anything dark the
+      // window's own boundary arrives as a grey line, with lighter pixels in
+      // the corners where the rounding is anti-aliased. MEASURED on a
+      // near-black window at 150%: with no crop, 1440 bright pixels along the
+      // top edge and 1436 along the bottom; at 1px the edges clear but 8
+      // survive in the bottom corners -- exactly the "few stray white or grey
+      // pixels" an operator sees; at 4px, none anywhere. The margin scales with
+      // DPI, because both the boundary and the corner radius do.
       int margin = 4;
       {
         UINT dpi = GetDpiForWindow(hwnd);
@@ -956,50 +945,43 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
         }
         margin = std::max(4, static_cast<int>(std::lround(4.0 * dpi / 96.0)));
       }
-      int cropLeft = margin, cropTop = margin, cropRight = margin, cropBottom = margin;
       int frameW = w;
       int frameH = h;
       {
+        // The captured area is the client area, so its height is the window's
+        // bounds MINUS the title bar -- and the distance from the frame's top
+        // to the client's origin is exactly that, both being physical screen
+        // pixels in a per-monitor DPI-aware process.
         RECT frame {};
-        RECT client {};
         POINT clientOrigin {0, 0};
-        if (windowFrameBounds(hwnd, frame) && GetClientRect(hwnd, &client) &&
-            ClientToScreen(hwnd, &clientOrigin)) {
-          const int clientW = static_cast<int>(client.right - client.left);
-          const int clientH = static_cast<int>(client.bottom - client.top);
-          if (clientW > 0 && clientH > 0) {
-            cropLeft   = std::max(0, static_cast<int>(clientOrigin.x - frame.left)) + margin;
-            cropTop    = std::max(0, static_cast<int>(clientOrigin.y - frame.top)) + margin;
-            cropRight  = std::max(0, static_cast<int>(frame.right - (clientOrigin.x + clientW))) + margin;
-            cropBottom = std::max(0, static_cast<int>(frame.bottom - (clientOrigin.y + clientH))) + margin;
+        if (windowFrameBounds(hwnd, frame) && ClientToScreen(hwnd, &clientOrigin)) {
+          const int capturedW =
+            static_cast<int>(frame.right - frame.left) - margin * 2;
+          const int capturedH =
+            static_cast<int>(frame.bottom - clientOrigin.y) - margin * 2;
+          // NEVER UPSCALE INTO THE CUE'S RASTER. A source cue asks for the
+          // output's size, and a 960x540 window blown up to 4K here costs
+          // sixteen times the readback and the pipe to carry pixels the window
+          // does not have -- MEASURED on exactly that window: ffmpeg at 155% of
+          // a core and Deckboy at 69%. Captured at its own size instead, with
+          // the compositor scaling on the GPU for nothing: 20% and 27%.
+          if (capturedW > 0 && capturedH > 0) {
+            frameW = std::clamp(std::min(w, capturedW), 16, w);
+            frameH = std::clamp(std::min(h, capturedH), 16, h);
           }
-        }
-        const int capturedW = static_cast<int>(frame.right - frame.left) - cropLeft - cropRight;
-        const int capturedH = static_cast<int>(frame.bottom - frame.top) - cropTop - cropBottom;
-        // NEVER UPSCALE INTO THE CUE'S RASTER. A source cue asks for the
-        // output's size, and a 960x540 window blown up to 4K here costs
-        // sixteen times the readback and the pipe to carry pixels the window
-        // does not have -- MEASURED on exactly that window: ffmpeg at 155% of
-        // a core and Deckboy at 69%, for a picture a quarter of a megapixel in
-        // size. Captured at its own size instead, the compositor does the
-        // scaling on the GPU for nothing: 26% and 19%.
-        if (capturedW > 0 && capturedH > 0) {
-          frameW = std::clamp(std::min(w, capturedW), 16, w);
-          frameH = std::clamp(std::min(h, capturedH), 16, h);
         }
         // Even dimensions: an odd rawvideo width is legal but every encoder
         // downstream of the deck would rather not be handed one.
         frameW &= ~1;
         frameH &= ~1;
       }
+      const std::string crop = std::to_string(margin);
       std::string filter =
         "gfxcapture=hwnd=" + std::to_string(reinterpret_cast<std::uintptr_t>(hwnd)) +
         ":capture_cursor=" + (request.drawMouse ? "1" : "0") +
         ":max_framerate=" + std::to_string(fps) +
-        ":crop_left=" + std::to_string(cropLeft) +
-        ":crop_top=" + std::to_string(cropTop) +
-        ":crop_right=" + std::to_string(cropRight) +
-        ":crop_bottom=" + std::to_string(cropBottom) +
+        ":crop_left=" + crop + ":crop_top=" + crop +
+        ":crop_right=" + crop + ":crop_bottom=" + crop +
         // Sized on the GPU before the readback. The default resize mode
         // CROPS, so a window that grows mid-show would lose its edges.
         ":resize_mode=scale:width=" + std::to_string(frameW) +
