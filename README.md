@@ -259,9 +259,9 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
   window on your desktop — a scoreboard, a dashboard or a lyric page is a
   cue like any other, with the same fades and effects
 - Camera, window and screen capture, on all three platforms. A window cue
-  fills the frame at full resolution whatever your display scaling is set
-  to, follows the window as it moves and resizes, and anything in front of
-  it stays out of shot
+  arrives at the window's own full resolution whatever your display scaling
+  is set to, scaled to fit the frame, follows the window as it moves and
+  resizes, and anything in front of it stays out of shot
 - SRT, RTMP, RTSP and UDP stream input, and NDI source input
 - Test patterns and a built-in test card
 - A **code source** — a live-coded expression evaluated per pixel, edited while
