@@ -15,11 +15,16 @@
 //     LinuxAppTextureCaptureBackend — desktop-fallback (x11grab as Syphon/Spout proxy)
 //
 //   Windows:
-//     WindowsGdigrabCaptureBackend — gdigrab (GDI screen/region capture)
-//     UnsupportedCameraCaptureBackend — mediafoundation (scaffold only)
+//     WindowsGdigrabCaptureBackend — Windows.Graphics.Capture for a WINDOW
+//       (ffmpeg's gfxcapture, by HWND), gdigrab for the desktop and for a
+//       region, and gdigrab again as the fallback when this machine's
+//       ffmpeg has no WGC source
+//     WindowsDshowCameraBackend — dshow (DirectShow camera devices)
 //
 //   macOS:
-//     UnsupportedCameraCaptureBackend — avfoundation (scaffold only)
+//     MacCameraCaptureBackend — avfoundation (real: the device enumerates
+//       as "[0] <model> Camera")
+//     ScreenCaptureKit helper (deckboy-sckcapture) for screens and windows
 //
 // Each backend's plan() method interprets the SourceCaptureRequest's sourceRef
 // string (e.g. "x11::0+0,0", "id:0x1234", "v4l2:/dev/video0", "region:X,Y,W,H")
@@ -1131,13 +1136,31 @@ class DefaultCaptureBackendCatalog final : public CaptureBackendCatalog {
     // avfoundation screen capture was removed on current macOS). Whole-display
     // capture; per-window is a future extension of the same helper.
     out.push_back({CaptureBackendKind::Window, "screencapturekit", "Screen Capture (ScreenCaptureKit)", true, ""});
-    out.push_back({CaptureBackendKind::AppTexture, "syphon", "Syphon App Texture", false, "backend scaffold only"});
+    // Syphon SEND works (syphon_metal.mm publishes through SyphonMetalServer);
+    // there is no client, so Deckboy cannot RECEIVE a Syphon texture. Said
+    // plainly, because "scaffold only" reads as "nearly there" and an operator
+    // planning a show needs to know which direction works.
+    out.push_back({CaptureBackendKind::AppTexture, "syphon", "Syphon App Texture", false,
+                   "Deckboy can SEND Syphon but not receive it; no receiver is implemented"});
 #endif
 
 #if defined(_WIN32)
     out.push_back({CaptureBackendKind::Window, "gdigrab", "Window/Region Capture (GDI grab)", true, ""});
     out.push_back({CaptureBackendKind::Camera, "dshow", "Camera/Capture Device (DirectShow)", true, ""});
-    out.push_back({CaptureBackendKind::AppTexture, "spout", "Spout App Texture", false, "backend scaffold only"});
+    // Spout receive does NOT go through a capture backend -- no ffmpeg build
+    // can do it -- so the engine receives it natively, the way NDI and DeckLink
+    // are received (MediaEngine::startSpoutCapture). This entry still reported
+    // "scaffold only" long after that worked, which reads as "Spout input is
+    // broken" in --self-check. VERIFIED end to end: one Deckboy sending its
+    // programme over Spout, another taking it as a cue and recording the
+    // sender's test card in full colour.
+#if defined(DECKBOY_HAS_SPOUT)
+    out.push_back({CaptureBackendKind::AppTexture, "spout", "Spout App Texture", true,
+                   "received natively, not through ffmpeg"});
+#else
+    out.push_back({CaptureBackendKind::AppTexture, "spout", "Spout App Texture", false,
+                   "this build has no Spout support"});
+#endif
 #endif
 
     if (out.empty()) {
