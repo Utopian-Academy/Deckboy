@@ -7,6 +7,11 @@ unpainted edges used to leave a few white or grey pixels in the corners of a
 cue -- invisible on a bright picture, obvious on a dark one. Both are gone, and
 anything a page does not paint is black, like the rest of the frame.
 
+**Window cues move at sixty frames a second.** A captured window used to
+arrive at thirty, so every frame was shown twice and anything moving in it
+juddered. A window small enough to afford it now runs at the same rate as the
+output.
+
 **A window cue costs a fifth of what it did.** A small window is no longer
 enlarged before it is handed to the deck, so the machine does a fraction of the
 work for the same picture: on a 960x540 window with a 4K output, processor use
