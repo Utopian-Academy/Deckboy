@@ -46,6 +46,30 @@
         },
         {
           "@type": "Question",
+          "name": "Do I need the NDI SDK or a paid licence to use NDI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Neither. NDI is in every Deckboy download. The machine needs the free NDI Tools runtime, which Deckboy loads at run time; without it Deckboy reports NDI as unavailable rather than failing during a show."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I put a live application window on a projector or LED wall?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add a window cue and pick the window. Deckboy captures that application at full resolution whatever the display scaling is set to, follows it as it moves and resizes, and is not interrupted by anything in front of it, so the operator can keep working on the same machine. It is a cue like any other, with the same fades, effects and take button."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I show a web page, dashboard or scoreboard as a video cue?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. A browser cue renders the page inside the programme rather than in a browser window on the desktop, so a scoreboard, dashboard, countdown or lyric page can be faded, effected and taken like a clip. It goes out over every output at once, including NDI, SRT and SDI."
+          }
+        },
+        {
+          "@type": "Question",
           "name": "How do I loop a video on a screen all day?",
           "acceptedAnswer": {
             "@type": "Answer",
@@ -127,6 +151,29 @@
         while also sending SRT, RTMP, Blackmagic SDI or SMPTE ST 2110 — simultaneously, not
         instead of each other.</p>
         <p class="more"><a href="manual.html#outputs-routing">Manual: Outputs &amp; Routing</a></p>
+
+        <h2>Do I need the NDI SDK, or a paid NDI licence?</h2>
+        <p>Neither. NDI is in every download. What a machine needs is the free <b>NDI Tools</b>
+        runtime from the people who make NDI — Deckboy loads it if it is there and says NDI is
+        unavailable if it is not, rather than failing quietly mid-show. Nothing is bundled that is
+        not ours to give, and nothing is charged for.</p>
+        <p class="more"><a href="manual.html#outputs-routing">Manual: Outputs &amp; Routing</a></p>
+
+        <h2>How do I put a live application window on a projector or LED wall?</h2>
+        <p>Add a window cue and pick the window. The application arrives filling the frame at full
+        resolution whatever your display scaling is set to, follows the window as it moves and
+        resizes, and is not interrupted by anything in front of it — so the operator can keep
+        working on the same machine without it going to air. Rehearsal tools, score bugs, timers
+        and the spreadsheet somebody insists on all become cues with the same fades and effects as
+        a clip.</p>
+        <p class="more"><a href="manual.html#cue-types">Manual: Cue Types</a></p>
+
+        <h2>Can I show a web page, dashboard or scoreboard as a cue?</h2>
+        <p>Yes. A browser cue renders the page <em>inside</em> the programme, not in a browser
+        window on your desktop, so there is no window to keep on top and nothing to reveal by
+        accident. It fades, takes effects and goes out over every output at once — screen, NDI,
+        SRT, SDI — like any other cue.</p>
+        <p class="more"><a href="manual.html#cue-types">Manual: Cue Types</a></p>
 
         <h2>How do I loop a video on a screen all day?</h2>
         <p>Import the clip, set the cue to loop, and send the deck to a fullscreen output on the
