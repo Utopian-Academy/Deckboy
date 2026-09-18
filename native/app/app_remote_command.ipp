@@ -2880,6 +2880,48 @@
         }
       }
       std::string sourceRef = parts.size() > refStartIndex ? joinParts(parts, refStartIndex) : "";
+
+      // A SOURCE WITH NO REFERENCE OPENS A PICKER, AND A PICKER CANNOT BE
+      // ANSWERED OVER A SOCKET. addSourceCue asks which window or which camera
+      // when it is not told, which is right for an operator and useless for a
+      // controller: the dropdown opens on the desk, this command answers OK,
+      // and no cue is ever made. Measured with SOURCE CAMERA over the port --
+      // "OK SOURCE", then a deck with no cue on it at all.
+      //
+      // So the caller is told what to name, and given the list to choose from.
+      {
+        const std::string refLower = toLower(trim(sourceRef));
+        const bool wantsPicker =
+          (kind == CueKind::Camera &&
+           (refLower.empty() || refLower == "default-camera" || refLower == "default")) ||
+          (kind == CueKind::WindowSource &&
+           (refLower.empty() || refLower == "active-window"));
+        if (wantsPicker) {
+          std::string reason = (kind == CueKind::Camera)
+            ? "SOURCE CAMERA: name the device"
+            : "SOURCE WINDOW: name the window, e.g. title:Firefox (or \"desktop\")";
+          std::vector<std::string> choices;
+          if (kind == CueKind::WindowSource) {
+            for (const auto& window : deckboy::platform::listCaptureWindows()) {
+              choices.push_back(window.displayName);
+            }
+          }
+#ifdef _WIN32
+          if (kind == CueKind::Camera) {
+            choices = listDshowVideoDevices();
+          }
+#endif
+          if (!choices.empty()) {
+            reason += " -- available:";
+            for (std::size_t i = 0; i < choices.size() && i < 8; ++i) {
+              reason += (i == 0 ? " \"" : ", \"") + choices[i] + "\"";
+            }
+          }
+          failRemoteCommand(reason);
+          return;
+        }
+      }
+
       // NDI has its OWN builder, and it is not interchangeable: an NDI cue's
       // path is "ndi://<name>" while addSourceCue writes "source://<kind>/...".
       // Routing it through the general one would have produced a cue that
