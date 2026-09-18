@@ -280,6 +280,8 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - Six that exist nowhere else: schlieren gradient imaging, Chladni nodal
   figures, a true wave equation with inertia, crystal grain growth, retinal
   rod/cone persistence, and structure tensor grain flow
+![The databend effect brought up on a generated beach scene: the colours tear into horizontal bands, blocks repeat down the frame, and the picture settles back](docs/images/databend.gif)
+
 - **Two that cross between picture and sound.** *Databend* reads the frame out
   as a signal and plays it through an audio chain — a delay with feedback, a
   filter, a wavefolder — then paints what comes back, which is the look people
