@@ -119,10 +119,21 @@
             <li><b>Slides are part of the show.</b> PDF, PowerPoint and Keynote import as one
                 cue per slide with speaker notes, and presenter and prompter views are output
                 types of their own. Most cue players do not handle slides at all.</li>
-            <li><b>The sound needs to follow the picture.</b> Five of the fourteen per-cue audio
-                effects read the frame they are playing under &mdash; its brightness, where it
-                sits in the raster, how long it has left. A plug-in in a desk receives samples
-                and nothing else, so it cannot.</li>
+            <li><b>Something on the machine has to go to air.</b> A window on the show PC can
+                be a cue &mdash; a score bug, a timer, a rehearsal tool, the spreadsheet somebody
+                insists on &mdash; at the window&rsquo;s own resolution whatever the display
+                scaling is, following it as it moves, with anything in front of it kept out of
+                shot, so the operator can carry on working on the same box. A web page can be a
+                cue too, rendered inside the programme rather than in a browser window you have
+                to keep on top. Most cue players send you to a capture card or a second machine
+                for either.</li>
+            <li><b>The sound needs to follow the picture.</b> Five of the twenty-two per-cue
+                audio effects read the frame they are playing under &mdash; its brightness, where
+                it sits in the raster, how long it has left. A plug-in in a desk receives samples
+                and nothing else, so it cannot. Two effects cross the other way as well:
+                <b>databend</b> plays the picture through an audio chain and paints what comes
+                back, and <b>audioprint</b> draws the sound the deck has just played through the
+                picture.</li>
             <li><b>Budget is zero.</b> GPL-3.0, and nothing phones home.</li>
         </ul>
 
