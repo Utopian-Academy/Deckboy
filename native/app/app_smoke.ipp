@@ -83,6 +83,18 @@
     std::cout << "font-pixel: " << (fs::exists(Paths::fontPath(Paths::FontName::Pixel)) ? "ok" : "missing") << '\n';
     std::cout << "ffmpeg: " << (readAllText({"ffmpeg", "-version"}).has_value() ? "ok" : "missing") << '\n';
     std::cout << "ffprobe: " << (readAllText({"ffprobe", "-version"}).has_value() ? "ok" : "missing") << '\n';
+#ifdef _WIN32
+    // A window cue captured through Windows.Graphics.Capture comes through at
+    // the window's real size whatever the display scaling is; through the older
+    // screen grab it does not, and nothing fails -- the picture just arrives in
+    // the corner of a black frame. That depends entirely on the ffmpeg beside
+    // the exe having the source, so it is reported rather than assumed.
+    std::cout << "window-capture: "
+              << (deckboy::platform::windowCaptureIsExact()
+                    ? "exact (ffmpeg has the graphics-capture source)"
+                    : "screen-grab fallback (ffmpeg 8+ needed for exact window capture)")
+              << '\n';
+#endif
 #if defined(DECKBOY_HAS_NDI_SDK)
     std::cout << "ndi-sdk: headers detected (runtime loads when NDI is enabled)\n";
 #else

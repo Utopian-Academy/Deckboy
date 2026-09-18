@@ -130,4 +130,15 @@ std::vector<CaptureWindowInfo> listCaptureWindows();
 // backends are pull-based and do not need it.
 bool nudgeWindowRepaint(const std::string& windowTitle);
 
+// Can this machine's ffmpeg capture a window properly? True when the WGC source
+// is available, which is what makes a window cue come through at the right size
+// on a scaled display. False means window cues still work, through the older
+// screen grab, with the geometry caveat that goes with it. Always false off
+// Windows, where the window backends are different altogether.
+//
+// Reported by --self-check so a packaging change that moves the bundled ffmpeg
+// back below 8.0 shows up as a line that changed, rather than as window cues
+// quietly going back to a picture in the corner of a black frame.
+bool windowCaptureIsExact();
+
 }  // namespace deckboy::platform

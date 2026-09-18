@@ -1289,6 +1289,14 @@ std::vector<CaptureWindowInfo> listCaptureWindows() {
 // zero frames in 29 seconds, and a single RedrawWindow produced one immediately.
 // Restoring an iconic window matters as much: WGC reports "no client area" for a
 // minimised window and never recovers on its own.
+bool windowCaptureIsExact() {
+#ifdef _WIN32
+  return ffmpegHasGraphicsCapture();
+#else
+  return false;
+#endif
+}
+
 bool nudgeWindowRepaint(const std::string& windowTitle) {
 #ifdef _WIN32
   const WindowsTitleMatch match = findWindowByExactTitle(windowTitle);
