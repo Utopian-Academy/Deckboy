@@ -892,10 +892,41 @@ class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
     // would have to survive two levels of escaping to mean itself, and window
     // titles are full of all three. A number cannot be misread.
     auto graphicsCapturePlan = [&](HWND hwnd) {
+      // CROP THE WINDOW'S OWN FRAME OFF. What WGC hands over includes the
+      // window's border line and its rounded corners, and on anything dark
+      // those arrive as a grey line down every edge with a few lighter pixels
+      // in each corner where the rounding is anti-aliased. MEASURED on a
+      // near-black test window at 150%: with no crop, 1440 bright pixels along
+      // the top edge and 1436 along the bottom; at a 1px crop the edges clear
+      // but 8 pixels survive in the bottom corners -- which is exactly the
+      // "few stray white or grey pixels in the bottom corners" an operator
+      // sees; at 4px nothing survives on any edge.
+      //
+      // The border and the corner radius both scale with the window's DPI, so
+      // the margin does too, and it is clamped so a small window cannot be
+      // cropped into nothing. This is chrome, not content -- the same thing
+      // other capture tools call "client area".
+      int margin = 4;
+      {
+        UINT dpi = GetDpiForWindow(hwnd);
+        if (dpi == 0) {
+          dpi = 96;
+        }
+        margin = std::max(4, static_cast<int>(std::lround(4.0 * dpi / 96.0)));
+        RECT bounds {};
+        if (GetWindowRect(hwnd, &bounds)) {
+          const int windowW = bounds.right - bounds.left;
+          const int windowH = bounds.bottom - bounds.top;
+          margin = std::min(margin, std::max(0, std::min(windowW, windowH) / 8));
+        }
+      }
+      const std::string crop = std::to_string(margin);
       std::string filter =
         "gfxcapture=hwnd=" + std::to_string(reinterpret_cast<std::uintptr_t>(hwnd)) +
         ":capture_cursor=" + (request.drawMouse ? "1" : "0") +
         ":max_framerate=" + std::to_string(fps) +
+        ":crop_left=" + crop + ":crop_top=" + crop +
+        ":crop_right=" + crop + ":crop_bottom=" + crop +
         // Stretch to the cue's raster on the GPU, which is what the gdigrab line
         // did in swscale, and keeps the download to the bytes the deck needs.
         // The default resize mode CROPS, so a window that grows mid-show would

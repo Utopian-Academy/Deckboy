@@ -682,6 +682,20 @@ bool BrowserRenderer::start(const std::string& url, int width, int height) {
                 if (SUCCEEDED(ctrl->QueryInterface(IID_PPV_ARGS(&ctrl3)))) {
                   ctrl3->put_RasterizationScale(1.0);
                 }
+                // ANYTHING THE PAGE DOES NOT PAINT MUST BE BLACK, NOT WHITE.
+                // WebView2 composites on an opaque WHITE background by default,
+                // which is right for a browser and wrong for a programme
+                // output: a page whose layout leaves a sliver at an edge (which
+                // fractional sizing does routinely), a page with rounded
+                // corners, or the moment before the first paint all arrive as
+                // white or grey pixels -- reported from a show as "a few stray
+                // white or grey pixels in the bottom corners". Black is what
+                // the rest of the frame is.
+                Microsoft::WRL::ComPtr<ICoreWebView2Controller2> ctrl2;
+                if (SUCCEEDED(ctrl->QueryInterface(IID_PPV_ARGS(&ctrl2)))) {
+                  const COREWEBVIEW2_COLOR black {255, 0, 0, 0};   // A, R, G, B
+                  ctrl2->put_DefaultBackgroundColor(black);
+                }
                 // Log NavigationStarting to confirm navigation begins.
                 EventRegistrationToken navStartToken = {};
                 p->webview_->add_NavigationStarting(
