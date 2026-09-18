@@ -17,6 +17,21 @@ enlarged before it is handed to the deck, so the machine does a fraction of the
 work for the same picture: on a 960x540 window with a 4K output, processor use
 across the capture and the app fell from around 225% of a core to 45%.
 
+**A camera or a window can be named from a controller.** Asking for one over
+the control port without naming it used to answer OK and add nothing, because
+the desk was waiting for someone to choose from a list. It now answers with the
+list itself, so a show can be built by script as well as by hand.
+
+**Spout in and out, on Windows.** Deckboy's programme can be sent to another
+application and another application's Spout output can be taken as a cue --
+both confirmed end to end. On macOS, Deckboy sends Syphon; it does not receive
+it, and now says so plainly rather than describing the receiver as pending.
+
+**The Linux AppImage travels lighter.** It no longer carries libraries that
+belong to the host machine, which is what a portable build is supposed to leave
+alone, and it now carries its own description and screenshots for software
+catalogues.
+
 **The MENU button says MENU.** On an interface scaled above 1x -- which
 includes the 150% that a 4K laptop panel uses by default -- it was drawing as
 an ellipsis.
