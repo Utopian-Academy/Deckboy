@@ -2434,48 +2434,57 @@
       // operator strictly less than "SETTINGS" alone. Narrowing the OUTPUT
       // group to fit RECORD is what surfaced this, but it was always latent:
       // any window narrow enough truncated a labelled button silently.
+      // ONE GEOMETRY, used to DECIDE and to DRAW. The icon is an adornment and
+      // the label is the control, so when both cannot fit the icon goes -- a
+      // gear beside "..." tells an operator strictly less than the word alone.
+      //
+      // This decision was made twice before, in two different coordinate
+      // spaces: the probe measured a 24px icon and 8px insets while the draw
+      // used uiScaled() ones, so at any UI scale above 1x the probe believed
+      // there was room, kept the icon, and the draw then ellipsized the word.
+      // MENU came out as "..." beside a gear on exactly the machines where the
+      // interface is scaled up. Measuring one thing two ways is the fault; the
+      // numbers below are now computed once and used for both.
+      //
+      // Icon+text buttons take the pixel face, matching the text-only branch:
+      // these are short fixed labels (TAKE, STOP, IMPORT, MENU), the half of
+      // the UI the pixel font is actually good at.
+      TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+      const int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
+      const int iconX = button.rect.x + uiScaled(8);
+      const int textX = iconX + iconSize + uiScaled(4);
+      // Centred on the button's full height, like the text-only branch: the
+      // 8-above/14-total inset was a 1x offset and rode the label high once the
+      // font grew. safeTextRect is applied HERE because drawCenteredTextSafe
+      // applies it too -- comparing against the raw width was why an earlier
+      // attempt at this changed nothing.
+      const SDL_Rect labelRect = safeTextRect(SDL_Rect {
+        textX, button.rect.y,
+        button.rect.x + button.rect.w - textX - uiScaled(6),
+        button.rect.h});
       if (icon && icon->texture) {
-        TTF_Font* probeFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
-        const int probeIcon = std::min(24, button.rect.h - 16);
-        const int probeTextX = button.rect.x + 8 + probeIcon + 4;
-        // Measure against the rect the label ACTUALLY gets: drawCenteredTextSafe
-        // runs safeTextRect first, so comparing against the raw width leaves the
-        // label ellipsized anyway. That inset is why the first attempt at this
-        // changed nothing.
-        const SDL_Rect probeRect = safeTextRect(SDL_Rect {
-          probeTextX, button.rect.y + 8,
-          button.rect.x + button.rect.w - probeTextX - 6,
-          button.rect.h - 14});
         int fullW = 0;
-        if (probeFont) {
-          TTF_GetStringSize(probeFont, button.label.c_str(), button.label.size(),
+        if (btnFont) {
+          TTF_GetStringSize(btnFont, button.label.c_str(), button.label.size(),
                             &fullW, nullptr);
         }
-        if (fullW > probeRect.w) {
+        if (fullW > labelRect.w) {
           icon = nullptr;
         }
       }
 
       if (icon && icon->texture) {
-        // Icon on left, label on right
-        // Also scaled: a 24px icon in a doubled button looked like a speck,
-        // and the fixed 8px inset left the label starting in the wrong place.
-        int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
-        int iconX = button.rect.x + uiScaled(8);
+        // Icon on left, label on right. Scaled: a 24px icon in a doubled button
+        // looked like a speck, and a fixed 8px inset left the label starting in
+        // the wrong place.
         int iconY = button.rect.y + (button.rect.h - iconSize) / 2;
         SDL_Rect iconRect {iconX, iconY, iconSize, iconSize};
         drawUiImageContainTinted(*icon, iconRect);
-        int textX = iconX + iconSize + uiScaled(4);
-        int textW = button.rect.x + button.rect.w - textX - uiScaled(6);
-        // Centred on the button's full height, like the text-only branch:
-        // the 8-above/14-total inset was a 1x offset and rode the label
-        // high once the font grew.
-        SDL_Rect labelRect {textX, button.rect.y, textW, button.rect.h};
-        // Icon+text buttons take the pixel face too, matching the text-only
-        // branch below: these are short fixed labels (TAKE, STOP, IMPORT), the
-        // half of the UI the pixel font is actually good at.
-        TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
-        std::string clipped = ellipsizeToPixelWidth(btnFont, button.label, std::max(0, textW));
+        // The label is known to FIT by the test above, so this cannot ellipsize
+        // -- it is kept as the backstop for a face whose measurement and
+        // rendering disagree.
+        std::string clipped =
+          ellipsizeToPixelWidth(btnFont, button.label, std::max(0, labelRect.w));
         drawCenteredTextSafe(controlRenderer_, btnFont, labelRect, clipped, button.text);
       } else {
         // Text only — centered, prefer pixel font for that Nintendo feel
