@@ -133,14 +133,9 @@
         </table>
         </div>
 
-        <p>Each format is handed to the application that owns it: that application
-        exports a PDF, and Deckboy rasterises it with the renderer the operating system
-        already ships — <code>Windows.Data.Pdf</code> on
-        Windows, which is Edge's; CoreGraphics on macOS, which is Preview's;
-        <code>pdftoppm</code> on Linux. A half-right renderer that puts a slide's type
-        in the wrong place is worse on a show day than an honest refusal, so where none
-        of them is installed Deckboy says which one to install rather than calling the
-        file unsupported.</p>
+        <p>Slides are rendered once, at import, by the renderer your operating system
+        already ships &mdash; so your fonts come through exactly as the deck was built,
+        and there is nothing extra to install.</p>
 
         <p>Pages are rasterised once, at import, and never again. Nothing during the show
         depends on a document renderer being fast, being present, or deciding to reflow a
