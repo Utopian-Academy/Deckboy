@@ -14,8 +14,6 @@ Load your media. Build your playlist. Take it live.
      never a real show file. A client's deck in a public README is a client's
      deck on the internet. -->
 
-**[▶ Watch Deckboy in forty seconds](https://utopian-academy.github.io/Deckboy/#trailer)** — cues to air, thirteen transitions, effects that exist in no other player, a window and a web page taken as cues, slides with presenter view. Shot from the published build, driven over its own control port, scored with a chip-synth tune the application played.
-
 ![Deckboy taking generated cues to air, then stacking scanlines, ripple and a kaleidoscope onto the live picture, then the built-in video synth in Game Boy green](art/readme/demo.gif)
 
 <sub>Shown with the test patterns Deckboy generates itself, so nothing here is anyone’s show file.</sub>
