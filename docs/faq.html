@@ -46,10 +46,10 @@
         },
         {
           "@type": "Question",
-          "name": "Can I use my own VST3 plugins in Deckboy?",
+          "name": "Can I use my own VST3 plugins and instruments in Deckboy?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Deckboy hosts VST3 plugins inside a cue's audio chain, beside its own effects and in any order. The plugin's controls appear in the inspector and its settings are saved with the show. A plugin that cannot keep up with its block is removed from the chain and reported rather than glitching the output, and a show opened on a machine without a plugin keeps the slot and names what is missing."
+            "text": "Yes. Deckboy hosts VST3 effects and instruments inside a cue's audio chain, beside its own effects and in any order. Instruments are played from the computer keyboard, a MIDI keyboard or a controller over the network. Four of the plugin's parameters appear on Deckboy's own rows under the plugin's names for them, and everything else it was set to is saved with the show; there is no plugin editor window. A plugin that cannot keep up with its block is removed from the chain and reported rather than glitching the output, and a show opened on a machine without a plugin keeps the slot and names what is missing."
           }
         },
         {
@@ -166,14 +166,19 @@
         <p class="more"><a href="manual.html#outputs-routing">Manual: Outputs &amp; Routing</a></p>
 
         <h2>Can I use my own plugins?</h2>
-        <p>Yes &mdash; Deckboy hosts <b>VST3</b> plugins inside a cue's audio chain, alongside
-        its own effects and in whatever order you put them. Add a Plugin effect, pick from what
-        is installed on the machine, and that plugin's own controls appear beneath it; its
-        settings are saved with the show. Plugins are opened when a cue is prepared rather than
+        <p>Yes &mdash; Deckboy hosts <b>VST3 effects and instruments</b> inside a cue's audio
+        chain, alongside its own effects and in whatever order you put them. Add a Plugin
+        effect and pick from what is installed on the machine. <b>Instruments</b> are played
+        from the computer keyboard, a MIDI keyboard, or a controller over the network &mdash;
+        the same three ways Deckboy plays its own chip synth.</p>
+        <p>Four of the plugin's parameters appear on Deckboy's own rows beneath it, under the
+        plugin's names for them, and everything else the plugin was set to is saved with the
+        show. <b>There is no plugin editor window</b> &mdash; the controls are Deckboy's rows,
+        not the plugin's interface. Plugins are opened when a cue is prepared rather than
         between two buffers, and one that cannot keep up with its block is removed from the
-        chain and reported, instead of clicking through the PA. If a show opens on a machine
-        that does not have one, the slot and its settings are kept and Deckboy names the missing
-        plugin. Run <code>--plugins</code> to see what a machine has and where it looked.</p>
+        chain and reported instead of clicking through the PA. A show opened on a machine that
+        does not have one keeps the slot and its settings and names the missing plugin. Run
+        <code>--plugins</code> to see what a machine has and where it looked.</p>
         <p class="more"><a href="manual.html#audio">Manual: Audio</a></p>
 
         <h2>Do I need the NDI SDK, or a paid NDI licence?</h2>

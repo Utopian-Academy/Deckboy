@@ -14,7 +14,7 @@ that holds instead of revealing a desktop — out to a screen, NDI, SRT, RTMP,
 Blackmagic SDI or SMPTE ST 2110, several at once, while it records. Driven from
 a Stream Deck, Bitfocus Companion, OSC, MIDI, Art-Net or LTC timecode.
 
-It hosts **your own VST3 plugins** in a cue's audio chain, and it runs on a
+It hosts **your own VST3 effects and instruments** in a cue's audio chain, and runs on a
 machine with **no sound card at all** — a rack PC feeding a video wall still
 opens, plays and puts a picture out.
 
@@ -232,10 +232,14 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - Independent audio fades, separate from video fades
 - Content-authoritative stereo waveform display
 - Audio-only cues, and per-cue mute
-- **Your own VST3 plugins, in the cue's chain.** The reverb you already own or
-  the channel strip your mix is built around sits alongside Deckboy's effects,
-  in whatever order you put them, with the plugin's own controls on the rows
-  beneath it and its settings saved in the show. Plugins open when a cue is
+- **Your own VST3 effects and instruments, in the cue's chain.** The reverb you
+  already own or the channel strip your mix is built around sits alongside
+  Deckboy's effects, in whatever order you put them, with four of the plugin's
+  own parameters on the rows beneath it -- under the plugin's names for them --
+  and everything else it was set to saved in the show. Instruments play from
+  the computer keyboard, a MIDI keyboard, or a controller over the network, the
+  same three ways the deck plays its own chip synth. There is no plugin editor
+  window: the controls are Deckboy's own rows. Plugins open when a cue is
   prepared, never between two buffers, and one that cannot keep up with its
   block is taken out of the chain and reported rather than clicking through the
   PA. A show that opens on a machine missing a plugin keeps the slot, the
