@@ -8,9 +8,10 @@ fullscreen displays, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 and Spout — the
 same programme to more than one of them at a time — and to NDI. A Stream Deck, Bitfocus
 Companion, OSC, MIDI, Art-Net or LTC timecode can drive it.
 
-It is a native application built on SDL3, decoding in process through FFmpeg.
-On Windows, hardware-decoded frames stay on the GPU and are composited there.
-Windows, macOS and Linux run the same core and read the same show file.
+Windows, macOS and Linux run the same core and open the same show file, so the
+spare machine in the flight case runs it too. It is a native application on
+SDL3 decoding in process through FFmpeg, and on Windows hardware-decoded frames
+stay on the GPU and are composited there.
 
 ---
 
@@ -57,8 +58,6 @@ Windows, macOS and Linux run the same core and read the same show file.
   display, a DeckLink/Spout/NDI sender, a network stream, or a presenter or
   prompter screen. Every output shows the programme (or, for presenter and
   prompter, a view of it), so one show can drive several outputs at once.
-  **A different deck on each output — multi-deck, multi-output playback — is
-  coming in Super Deckboy.**
 - **Program** and **Preview** — the program monitor shows what is live on the
   focused deck. The cue list selection is what you are *about* to take.
 
@@ -391,10 +390,8 @@ mixed into a single programme by a crossfader; that programme is what every
 output shows. The focused deck is the one the keyboard and transport act on, and
 selecting a deck also moves the focused output to the one that deck plays on.
 
-**More than two decks, and a different deck on each output — multi-deck,
-multi-output playback — are coming in Super Deckboy.** They are not in Deckboy:
-adding a third deck is refused, and an output cannot yet be given a deck of its
-own.
+Two decks cover the great majority of shows: a programme, and something held
+ready behind it.
 
 ### VJ mode
 
@@ -429,8 +426,7 @@ the one control nobody wants to reach for with a mouse.
 
 Outputs are managed in the Monitors window and `Settings → Video Outputs`. Every
 output carries the programme — a show can drive several at once, each with its
-own settings — and a different deck on each output is coming in **Super
-Deckboy**. Each output is one of:
+own settings. Each output is one of:
 
 - **Window** — a fullscreen (or windowed) display. Toggle the output window
   with `N`, fullscreen with `F`. Fullscreen recovery automatically re-raises a

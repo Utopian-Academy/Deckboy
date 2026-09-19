@@ -295,9 +295,7 @@ A conformant packetiser a broadcast controller can discover and route. See
 - An LFO on any parameter — six shapes, free running or locked to a tap tempo
 - VJ mode: a second deck live, a crossfader with ten blend modes — dissolve,
   add, screen, multiply, lighten, darken, subtract, undercut, infiltrate and
-  ember — tap tempo, and takes quantised to the beat. Two decks mixed into one
-  programme is where it stops today: more decks, and a different deck on each
-  output, are coming in **Super Deckboy**
+  ember — tap tempo, and takes quantised to the beat
 
 </details>
 
