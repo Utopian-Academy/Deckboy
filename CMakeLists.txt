@@ -226,12 +226,36 @@ option(ENABLE_VST3 "Host third-party VST3 audio plugins" ON)
 # it just says it cannot load them -- so this never fails a build. It is found
 # rather than required for the same reason ffmpeg is: a contributor should be
 # able to build Deckboy without assembling every optional dependency first.
+# REQUIRE_VST3 EXISTS BECAUSE A QUIET SEARCH SHIPPED A HOLLOW RELEASE.
+#
+# find_path below is deliberately quiet, so a contributor can build without
+# assembling every optional dependency first. The cost of that, discovered the
+# hard way in v0.99.370: CI had no SDK, nobody noticed, and the published
+# binaries advertised plugin hosting while being physically incapable of it --
+# they listed the operator's plugins and refused to load them. The build was
+# green from end to end, because a quiet search that finds nothing is not an
+# error.
+#
+# This is the SECOND time that exact shape has bitten this project; see the
+# WEBVIEW2 comment in .github/workflows/build.yml, where every release shipped
+# without browser cues for the same reason.
+#
+# So anything that PUBLISHES passes -DREQUIRE_VST3=ON, and then a missing SDK
+# fails the build instead of quietly removing a headline feature.
+option(REQUIRE_VST3 "Fail the build if the VST3 SDK is missing (for releases)" OFF)
+
 if(ENABLE_VST3)
   find_path(VST3_INCLUDE_DIR
     NAMES pluginterfaces/base/funknown.h
     PATH_SUFFIXES vst3sdk)
   if(VST3_INCLUDE_DIR)
     message(STATUS "VST3 SDK: ${VST3_INCLUDE_DIR}")
+  elseif(REQUIRE_VST3)
+    message(FATAL_ERROR
+      "REQUIRE_VST3=ON but no VST3 SDK was found, so this build could not host "
+      "plugins. A release must not ship claiming it can. Fetch the headers "
+      "(git clone --depth 1 https://github.com/steinbergmedia/vst3_pluginterfaces "
+      "<dir>/pluginterfaces) and pass -DVST3_INCLUDE_DIR=<dir>.")
   else()
     message(STATUS "VST3 SDK: not found - plugins will be listed but not loadable")
   endif()
