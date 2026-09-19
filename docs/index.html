@@ -38,6 +38,15 @@
       "isAccessibleForFree": true,
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "screenshot": "https://utopian-academy.github.io/Deckboy/images/hero.png",
+      "video": {
+        "@type": "VideoObject",
+        "name": "Deckboy in forty seconds",
+        "description": "Cue-based playback, thirteen transitions, effects that exist nowhere else, a live application window and a web page taken as cues, slides with presenter view, and outputs over NDI, SRT, SDI and ST 2110.",
+        "thumbnailUrl": "https://utopian-academy.github.io/Deckboy/video/trailer-poster.png",
+        "contentUrl": "https://utopian-academy.github.io/Deckboy/video/deckboy-trailer.mp4",
+        "uploadDate": "2026-09-19",
+        "duration": "PT40S"
+      },
       "featureList": [
         "Cue-based video playlist playback with trim, fades, loops and hold-last-frame",
         "Thirteen cue-to-cue transition styles: cut, crossfade, dip to black or white, four pushes, four wipes and an iris",
@@ -100,6 +109,20 @@
             </div>
         </div>
     </header>
+
+    <section class="shot" id="trailer">
+        <video src="video/deckboy-trailer.mp4" poster="video/trailer-poster.png"
+               controls preload="none" playsinline
+               style="width:100%;height:auto;display:block;border:2px solid var(--rule)">
+            Your browser cannot play this video.
+            <a href="video/deckboy-trailer.mp4">Download it instead</a>.
+        </video>
+        <p class="shot-caption">Forty seconds of Deckboy running itself: cues to air, thirteen
+        transitions, six effects that exist in no other player, a window and a web page taken as
+        cues, slides with presenter view, and everything at once. Shot from the published build,
+        driven over its own control port, and scored with a chip-synth tune the application
+        played.</p>
+    </section>
 
     <section class="shot">
         <img src="images/demo.gif" alt="Deckboy taking generated cues to air, then stacking scanlines, ripple and a kaleidoscope onto the live picture, then the built-in video synth in Game Boy green." loading="lazy">
