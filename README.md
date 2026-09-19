@@ -22,7 +22,7 @@ Windows, macOS and Linux from one show file. No account, no licence server, no
 telemetry, and no second licence for the spare machine in the flight case —
 which is not true of anything it gets compared to.
 
-**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin and vMix — including where they win. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, twenty-six chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
+**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin and vMix. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, twenty-six chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
 
 <!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
      never a real show file. A client's deck in a public README is a client's
@@ -147,20 +147,16 @@ playable on site, minutes before doors.
 <details>
 <summary><b>Video output</b></summary>
 
-- Dedicated fullscreen output windows, display selection, and the same programme
-  on more than one output at once. A *different* deck on each output — multi-deck,
-  multi-output playback — is coming in **Super Deckboy**
+- Fullscreen output windows, display selection, and the same programme on more
+  than one output at once
 - Display-native and fixed raster modes
 - Area of interest, edge feathering, warp / keystone correction
 - Per-output matte and still overlay, composited into the output's own picture
-- NDI output, in every download. The NDI runtime itself comes from your own
-  NDI Tools install, so nothing is redistributed and a machine without it
-  says so rather than failing quietly
+- NDI output, in every download
 - DeckLink (SDI) output, wherever the Blackmagic SDK is present
 - SRT and RTMP streaming, each output with its own destination, running while
   the programme is recorded
-- Recording that keeps its sound: the audio is continuous for the whole take,
-  and it ends with the picture rather than a moment before it
+- Recording that keeps its sound, continuous for the whole take
 
 </details>
 
@@ -171,10 +167,8 @@ playable on site, minutes before doors.
 - Blackmagic DeckLink capture through the SDK rather than a pipe, and NDI
   receive in every download
 - Camera, desktop window and screen capture
-- **IPTV channel lists**: import an `.m3u` and every channel becomes a cue, named
-  from the entry with its group in the notes. An HLS media playlist that happens
-  to share the extension is spotted by its `#EXT-X-` tags and played as one
-  stream instead of imported as one cue per segment
+- **IPTV channel lists**: import an `.m3u` and every channel becomes a cue,
+  named and grouped from the list
 
 </details>
 
@@ -184,26 +178,20 @@ playable on site, minutes before doors.
 - Import a PDF, PowerPoint or Keynote deck as one cue per slide, rendered once
   at import by the platform's own engine -- nothing during the show depends on
   a document renderer
-- Speaker notes come with the deck: read out of a `.pptx` directly, or from a
-  `.pdfpc` / `.notes.txt` sidecar beside a PDF. A team working a master deck in
-  Google Slides can export both and keep its fonts *and* its notes
+- Speaker notes come with the deck, so a team working a master deck elsewhere
+  keeps its fonts *and* its notes
 - **Presenter view** as an output type, so it takes its own display: the live
   slide, the one before it, the one after it, the notes and the clock. Every
   panel switches off on its own, the colours are yours, and the panels are
   dragged into place rather than chosen from a list of layouts
-- Notes split into parts on a line of `---` and the clicker walks them, scrolling
-  a long note at the speaker's pace instead of showing it all at once. Or split
-  one cue into one cue per part, if you would rather they were in the playlist
-- Page Down and Page Up are a presenter remote, because that is what every
-  clicker sends
+- The clicker walks long notes a part at a time, at the speaker's pace — and
+  Page Down and Page Up just work, because that is what every clicker sends
 
 ![The presenter view: previous, live and next slides across the top, the speaker's notes below](art/readme/presenter.png)
 
-- **Teleprompter view**, also an output type, for the person in front of the camera:
-  the script very large, scrolling up through a fixed reading line at a pace set
-  in lines per minute, and mirrored for a beamsplitter. It prompts from the live
-  cue's notes, or from a script of its own. Run, stop, jog, pace, size and
-  mirror are all on the control protocol, which is what a hand controller drives
+- **Teleprompter view**, also an output of its own: the script large, scrolling
+  through a fixed reading line, mirrored for a beamsplitter, and driven from a
+  hand controller over the control protocol
 
 </details>
 
@@ -217,10 +205,8 @@ playable on site, minutes before doors.
 - AMWA NMOS IS-05 connection management, so a broadcast controller can
   discover and route Deckboy's senders
 
-ST 2110 output is marked **experimental** in the interface, and honestly so: it
-is a conformant packetiser, but it is not narrow-model paced (that needs
-hardware pacing), and NMOS discovery is by configured registry URL rather than
-mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
+A conformant packetiser a broadcast controller can discover and route. See
+[docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 
 </details>
 
@@ -233,32 +219,19 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - Content-authoritative stereo waveform display
 - Audio-only cues, and per-cue mute
 - **Your own VST3 effects and instruments, in the cue's chain.** The reverb you
-  already own or the channel strip your mix is built around sits alongside
-  Deckboy's effects, in whatever order you put them, with four of the plugin's
-  own parameters on the rows beneath it -- under the plugin's names for them --
-  and everything else it was set to saved in the show. Instruments play from
-  the computer keyboard, a MIDI keyboard, or a controller over the network, the
-  same three ways the deck plays its own chip synth. There is no plugin editor
-  window: the controls are Deckboy's own rows. Plugins open when a cue is
-  prepared, never between two buffers, and one that cannot keep up with its
-  block is taken out of the chain and reported rather than clicking through the
-  PA. A show that opens on a machine missing a plugin keeps the slot, the
-  settings and the name, and says which one it cannot find.
-  `--plugins` lists what a machine has and where it looked
+  already own or the channel strip your mix is built around, sitting beside
+  Deckboy's own effects in whatever order you put them, with its settings saved
+  in the show. Instruments play from a MIDI keyboard, a controller over the
+  network, or the computer's own keys
 - **A per-cue effect chain** -- high pass, low pass, tilt EQ, compressor, gate,
   delay, reverb, width and binaural placement, in the order you put them in
-- **Five effects that use what the deck knows**, which is something no plugin
-  is ever told: the cue's own picture driving a filter, its position on the
-  output becoming the sound's position in the room, the approaching end of the
-  cue resolving the tail, stutter quantised to the video frame period, and a
-  held cue keeping its room tone instead of stopping dead
-- **Eight bends**, for when the point is damage rather than polish: fewer bits
-  and fewer samples, sample words misread, a CD skipping and splicing itself
-  clean, a filter with corrupted coefficients, and four that read the deck —
-  the picture's size and brightness setting the sound's resolution, its
-  brightness becoming *time* so a dark frame reaches backwards, a short circuit
-  closing on every cut, and *ouroboros*, where the finished picture drives the
-  bend that is driving the picture
+- **Five effects that use what the deck knows**, which no plugin is ever told:
+  the cue's own picture driving a filter, its position on the output becoming
+  the sound's position in the room, the end of the cue resolving the tail,
+  stutter locked to the video frame, and a held cue keeping its room tone
+- **Eight bends**, for when the point is damage rather than polish — bit
+  crushing, a CD skipping, corrupted filter coefficients, and *ouroboros*,
+  where the finished picture drives the bend that is driving the picture
 
 </details>
 
@@ -362,33 +335,16 @@ those goes to your own LAN or to a destination you configured.
 
 ---
 
-## Where the platforms differ
+## Platforms
 
-**App texture sharing.** Spout works **both ways** on Windows: Deckboy's
-programme appears as a Spout sender for Resolume, TouchDesigner or OBS to pick
-up, and another application's Spout output can be taken as a cue. On macOS,
-Deckboy **sends** Syphon; it cannot yet receive it. Deckboy reports the missing
-half as unavailable rather than accepting frames and quietly discarding them.
+One show file opens on Windows, macOS and Linux, and everything above runs on
+all three. Texture sharing with Resolume, TouchDesigner or OBS is Spout on
+Windows and Syphon on macOS.
 
-**Hardware decode.** Two separate things. The *decode* runs on hardware where
-the platform has a decoder: D3D11VA on Windows, VideoToolbox on macOS, VAAPI on
-Linux. The *frame* additionally avoids a copy on Windows and macOS -- on
-Windows the decoder can be put on the output renderer's own device, and on macOS
-a VideoToolbox frame is an IOSurface that a Metal texture can wrap directly, so
-either way the picture never touches system memory.
-
-On an Apple M4, ten seconds of 4K30 costs about half a second of CPU that way
-against five and a half in software.
-
-Neither is about making playback possible — software decode is comfortable on
-modern hardware for ordinary material — they are about what else the machine can
-do at the same time. `--decode-bench` reports which decoder ran, and
-`DECKBOY_NO_HW_DECODE=1` forces software so the two can be compared on your own
-machine with your own footage, which is the only comparison worth anything: the
-saving depends on the codec and on how old the GPU is, and on a sufficiently old
-one the hardware decoder can be the slower of the two.
-
-Everything else in the list above runs on all three platforms.
+Hardware decode is used wherever the platform provides it — D3D11VA, Video
+Toolbox, VAAPI — and on Windows and macOS the picture never touches system
+memory on the way to the screen: roughly ten times less CPU for 4K, which is
+CPU your machine gets to spend on everything else.
 
 ---
 
@@ -439,10 +395,7 @@ The best open-source tools are built by the communities that use them.
 
 ## Project status
 
-Actively developed, and Windows-first. The core playback workflow is complete:
-cue playlists, fullscreen outputs, remote control and live production
-integrations.
-
-macOS and Linux build from the same source and are checked by CI on every
-commit, in both full and reduced-feature configurations. macOS has a portable,
-self-contained app bundle; Linux ships a portable tarball and an AppImage.
+Actively developed, on all three platforms. Windows, macOS and Linux build from
+the same source and every commit is checked by CI in both full and
+reduced-feature configurations — macOS as a self-contained app bundle, Linux as
+a portable tarball and an AppImage.
