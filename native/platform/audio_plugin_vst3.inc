@@ -87,9 +87,9 @@ using namespace Steinberg;
 // them and frees them on its own schedule.
 class HostAttributeList : public Vst::IAttributeList {
  public:
-  tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override {
-    if (FUnknownPrivate::iidEqual(iid, Vst::IAttributeList::iid) ||
-        FUnknownPrivate::iidEqual(iid, FUnknown::iid)) {
+  tresult PLUGIN_API queryInterface(const TUID wantedIid, void** obj) override {
+    if (FUnknownPrivate::iidEqual(wantedIid, Vst::IAttributeList::iid) ||
+        FUnknownPrivate::iidEqual(wantedIid, FUnknown::iid)) {
       *obj = static_cast<Vst::IAttributeList*>(this);
       addRef();
       return kResultOk;
@@ -203,9 +203,9 @@ class HostMessage : public Vst::IMessage {
     }
   }
 
-  tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override {
-    if (FUnknownPrivate::iidEqual(iid, Vst::IMessage::iid) ||
-        FUnknownPrivate::iidEqual(iid, FUnknown::iid)) {
+  tresult PLUGIN_API queryInterface(const TUID wantedIid, void** obj) override {
+    if (FUnknownPrivate::iidEqual(wantedIid, Vst::IMessage::iid) ||
+        FUnknownPrivate::iidEqual(wantedIid, FUnknown::iid)) {
       *obj = static_cast<Vst::IMessage*>(this);
       addRef();
       return kResultOk;
@@ -247,9 +247,9 @@ class HostMessage : public Vst::IMessage {
 // it can and says no to the rest.
 class DeckboyHostContext : public Vst::IHostApplication {
  public:
-  tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override {
-    if (FUnknownPrivate::iidEqual(iid, Vst::IHostApplication::iid) ||
-        FUnknownPrivate::iidEqual(iid, FUnknown::iid)) {
+  tresult PLUGIN_API queryInterface(const TUID wantedIid, void** obj) override {
+    if (FUnknownPrivate::iidEqual(wantedIid, Vst::IHostApplication::iid) ||
+        FUnknownPrivate::iidEqual(wantedIid, FUnknown::iid)) {
       *obj = static_cast<Vst::IHostApplication*>(this);
       addRef();
       return kResultOk;
@@ -265,17 +265,17 @@ class DeckboyHostContext : public Vst::IHostApplication {
     std::memcpy(name, kName, sizeof(kName));
     return kResultOk;
   }
-  tresult PLUGIN_API createInstance(TUID cid, TUID iid, void** obj) override {
+  tresult PLUGIN_API createInstance(TUID cid, TUID wantedIid, void** obj) override {
     // A message and an attribute list are the two things this is ever asked
     // for, and both are the host's to provide -- see HostMessage above for
     // what refusing them costs.
     if (FUnknownPrivate::iidEqual(cid, Vst::IMessage::iid) &&
-        FUnknownPrivate::iidEqual(iid, Vst::IMessage::iid)) {
+        FUnknownPrivate::iidEqual(wantedIid, Vst::IMessage::iid)) {
       *obj = static_cast<Vst::IMessage*>(new HostMessage());
       return kResultOk;
     }
     if (FUnknownPrivate::iidEqual(cid, Vst::IAttributeList::iid) &&
-        FUnknownPrivate::iidEqual(iid, Vst::IAttributeList::iid)) {
+        FUnknownPrivate::iidEqual(wantedIid, Vst::IAttributeList::iid)) {
       *obj = static_cast<Vst::IAttributeList*>(new HostAttributeList());
       return kResultOk;
     }
@@ -303,9 +303,9 @@ DeckboyHostContext& hostContext() {
 // a 40ms block is not something a cue deck's four mapped knobs need.
 class HostParamQueue : public Vst::IParamValueQueue {
  public:
-  tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override {
-    if (FUnknownPrivate::iidEqual(iid, Vst::IParamValueQueue::iid) ||
-        FUnknownPrivate::iidEqual(iid, FUnknown::iid)) {
+  tresult PLUGIN_API queryInterface(const TUID wantedIid, void** obj) override {
+    if (FUnknownPrivate::iidEqual(wantedIid, Vst::IParamValueQueue::iid) ||
+        FUnknownPrivate::iidEqual(wantedIid, FUnknown::iid)) {
       *obj = static_cast<Vst::IParamValueQueue*>(this);
       return kResultOk;
     }
@@ -356,9 +356,9 @@ class HostParamChanges : public Vst::IParameterChanges {
  public:
   static constexpr int kMaxQueues = 16;
 
-  tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override {
-    if (FUnknownPrivate::iidEqual(iid, Vst::IParameterChanges::iid) ||
-        FUnknownPrivate::iidEqual(iid, FUnknown::iid)) {
+  tresult PLUGIN_API queryInterface(const TUID wantedIid, void** obj) override {
+    if (FUnknownPrivate::iidEqual(wantedIid, Vst::IParameterChanges::iid) ||
+        FUnknownPrivate::iidEqual(wantedIid, FUnknown::iid)) {
       *obj = static_cast<Vst::IParameterChanges*>(this);
       return kResultOk;
     }
@@ -432,9 +432,9 @@ class MemoryStream : public IBStream {
   MemoryStream() = default;
   explicit MemoryStream(std::string data) : data_(std::move(data)) {}
 
-  tresult PLUGIN_API queryInterface(const TUID iid, void** obj) override {
-    if (FUnknownPrivate::iidEqual(iid, IBStream::iid) ||
-        FUnknownPrivate::iidEqual(iid, FUnknown::iid)) {
+  tresult PLUGIN_API queryInterface(const TUID wantedIid, void** obj) override {
+    if (FUnknownPrivate::iidEqual(wantedIid, IBStream::iid) ||
+        FUnknownPrivate::iidEqual(wantedIid, FUnknown::iid)) {
       *obj = static_cast<IBStream*>(this);
       return kResultOk;
     }
