@@ -32,10 +32,6 @@ namespace {
 
 namespace fs = std::filesystem;
 
-// Where each platform keeps its VST3s. The user folder comes FIRST: a plugin
-// installed for one user shadows a system copy of the same thing, which is what
-// every other host does and what an operator expects when they install a demo
-// over a licensed build.
 // Where VST2s live, which is a different set of folders from VST3 and much
 // less standardised -- there was never a spec for it, only a habit. Only ever
 // consulted in a build that turned VST2 on; see the ENABLE_VST2 block in
@@ -81,6 +77,10 @@ std::vector<fs::path> vst2SearchPaths() {
   return paths;
 }
 
+// Where each platform keeps its VST3s. The user folder comes FIRST: a plugin
+// installed for one user shadows a system copy of the same thing, which is what
+// every other host does and what an operator expects when they install a demo
+// over a licensed build.
 std::vector<fs::path> vst3SearchPaths() {
   std::vector<fs::path> paths;
   auto env = [](const char* name) -> std::string {
@@ -298,6 +298,62 @@ bool audioPluginsSupported() {
 #endif
 }
 
+namespace {
+
+// ── A PLUGIN THAT CRASHES MUST NOT TAKE THE SHOW WITH IT ────────────────────
+//
+// Loading a plugin runs somebody else's initialisation: it reads files, talks
+// to licence servers, spins up threads and, on the evidence, sometimes falls
+// over. It did here -- opening every plugin on one machine in turn died on the
+// forty-first, while that same plugin and the one before it both load
+// perfectly on their own. Whatever the interaction is, the host cannot be the
+// thing that disappears over it.
+//
+// So on Windows the open runs inside a structured-exception guard, and an
+// access violation in a plugin's own DLL becomes "that plugin would not load"
+// -- the same answer as any other refusal, reported the same way. The guard is
+// its own function with no C++ objects in the frame, because __try cannot
+// coexist with unwinding.
+//
+// This is not a substitute for scanning out of process, which is what a DAW
+// does and what this should become. It is the difference between one plugin
+// being unavailable and the operator's deck vanishing mid-show.
+#if defined(_WIN32)
+struct OpenRequest {
+  const std::string* reference;
+  double sampleRate;
+  int maxBlockFrames;
+  std::unique_ptr<AudioPluginInstance>* out;
+  std::unique_ptr<AudioPluginInstance> (*open)(const std::string&, double, int);
+};
+
+int invokeOpen(void* raw) {
+  OpenRequest* request = static_cast<OpenRequest*>(raw);
+  *request->out = request->open(*request->reference, request->sampleRate,
+                                request->maxBlockFrames);
+  return 0;
+}
+
+bool guardedOpen(std::unique_ptr<AudioPluginInstance> (*open)(const std::string&,
+                                                              double, int),
+                 const std::string& reference, double sampleRate,
+                 int maxBlockFrames,
+                 std::unique_ptr<AudioPluginInstance>& out) {
+  OpenRequest request {&reference, sampleRate, maxBlockFrames, &out, open};
+  __try {
+    invokeOpen(&request);
+    return true;
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    // The instance is abandoned rather than deleted: whatever state the plugin
+    // left behind, running more of its code is not the way out of it.
+    (void)out.release();
+    return false;
+  }
+}
+#endif
+
+}  // namespace
+
 std::unique_ptr<AudioPluginInstance> openAudioPlugin(const std::string& id,
                                                      double sampleRate,
                                                      int maxBlockFrames) {
@@ -312,15 +368,28 @@ std::unique_ptr<AudioPluginInstance> openAudioPlugin(const std::string& id,
   }
   const std::string format = id.substr(0, colon);
   const std::string reference = id.substr(colon + 1);
+  std::unique_ptr<AudioPluginInstance> (*opener)(const std::string&, double, int) =
+    nullptr;
   if (format == "vst3") {
-    return openVst3Plugin(reference, sampleRate, maxBlockFrames);
+    opener = &openVst3Plugin;
   }
 #if defined(DECKBOY_HAS_VST2)
   if (format == "vst2") {
-    return openVst2Plugin(reference, sampleRate, maxBlockFrames);
+    opener = &openVst2Plugin;
   }
 #endif
-  return nullptr;
+  if (!opener) {
+    return nullptr;
+  }
+  std::unique_ptr<AudioPluginInstance> instance;
+#if defined(_WIN32)
+  if (!guardedOpen(opener, reference, sampleRate, maxBlockFrames, instance)) {
+    return nullptr;   // it crashed on the way up; that is a refusal
+  }
+#else
+  instance = opener(reference, sampleRate, maxBlockFrames);
+#endif
+  return instance;
 #else
   (void)id;
   return nullptr;

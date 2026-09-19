@@ -2044,9 +2044,19 @@
     // will not load is the failure an operator meets at the worst moment.
     if (ap::audioPluginsSupported() && deckboyPluginLoadProbeRequested()) {
       std::cout << "\nloading each (this takes a moment):\n";
+      // NAME IT BEFORE OPENING IT, and flush. Loading somebody else's code can
+      // crash or simply never return -- both happened on the machine this was
+      // written on, opening a library of 124 -- and buffered output means the
+      // last thing printed is the plugin BEFORE the one that did it. Naming it
+      // first costs a flush per plugin and turns "it died somewhere" into "it
+      // died on this one".
+      std::cout << "  (each is named before it is opened, so if this stops, "
+                   "the last name is the plugin that stopped it)\n";
       int ok = 0, failed = 0, params = 0;
       for (const auto& p : found) {
+        std::cout << "  ... " << p.name << std::flush;
         auto instance = ap::openAudioPlugin(p.id, 48000.0, 1024);
+        std::cout << "\r" << std::string(p.name.size() + 6, ' ') << "\r";
         if (instance) {
           ++ok;
           params += static_cast<int>(instance->parameters().size());
