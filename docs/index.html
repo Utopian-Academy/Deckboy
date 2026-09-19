@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deckboy | Free Video Playback and Show Control</title>
-    <meta name="description" content="Free, open-source cue-based video playback and show control. Trim, fade, loop and hold the last frame; send it out over SRT, RTMP, SDI or ST 2110 while it records; and slide decks import as cues with presenter view. No account, no licence server, no telemetry. Windows, macOS and Linux.">
+    <meta name="description" content="Free, open-source cue-based video playback and show control. A clip, a slide, a live camera, a captured window, a web page, an NDI source, an SRT feed and a test card are all the same kind of object on one cue list — same transport, same fades, same effects. Out over NDI, SRT, RTMP, SDI or ST 2110 while it records. No account, no licence server, no telemetry. Windows, macOS and Linux.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Deckboy">
     <meta property="og:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta property="og:description" content="Cue-based video playback and show control for live events. SRT, RTMP, SDI and ST 2110 out, recorded as it plays. Slide decks import as cues, with presenter view on its own display. Free, and nothing phones home.">
+    <meta property="og:description" content="Everything is a cue — a clip, a slide, a camera, a window, a web page, an NDI source, an SRT feed, a test card, all on one list with one transport. Out over NDI, SRT, SDI and ST 2110, recorded as it plays. Free, and nothing phones home.">
     <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/">
     <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
     <meta property="og:image:width" content="1280">
@@ -19,7 +19,7 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deckboy - Open-Source Live Video Playback">
-    <meta name="twitter:description" content="Cue-based video playback and show control. SRT, RTMP, SDI and ST 2110 out, recorded as it plays. Slide decks too, with presenter view. Free, and nothing phones home.">
+    <meta name="twitter:description" content="Everything is a cue — clips, slides, a live camera, a window, a web page, NDI, SRT, a test card, all on one list with one transport. Out over NDI, SRT, SDI and ST 2110, recorded as it plays. Free, and nothing phones home.">
     <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
 
     <script type="application/ld+json">
@@ -30,7 +30,7 @@
       "applicationCategory": "MultimediaApplication",
       "applicationSubCategory": "Video playback and show control",
       "operatingSystem": "Windows 10, Windows 11, macOS 12, Linux",
-      "description": "Open-source cue-based media playback and show control for live video. SRT, RTMP, DeckLink and SMPTE ST 2110 output, driven from Stream Deck, Bitfocus Companion, OSC, MIDI or LTC timecode.",
+      "description": "Open-source cue-based media playback and show control for live video. Clips, stills, slide decks, cameras, captured windows, web pages, NDI sources, SRT and SDI inputs, test patterns and generated sources are all cues on one list, sharing one transport, one set of transitions and one effect rack. SRT, RTMP, NDI, DeckLink and SMPTE ST 2110 output, driven from Stream Deck, Bitfocus Companion, OSC, MIDI or LTC timecode.",
       "url": "https://utopian-academy.github.io/Deckboy/",
       "downloadUrl": "https://github.com/Utopian-Academy/Deckboy/releases/latest",
       "softwareHelp": "https://utopian-academy.github.io/Deckboy/manual.html",
@@ -48,6 +48,7 @@
         "duration": "PT40S"
       },
       "featureList": [
+        "One cue list for every kind of source: video, stills, slides, browser pages, captured windows and screens, cameras, NDI, SRT/RTMP/RTSP/UDP, DeckLink SDI, Spout, test patterns, tone, timers, lower thirds, composites and a video synth",
         "Cue-based video playlist playback with trim, fades, loops and hold-last-frame",
         "Thirteen cue-to-cue transition styles: cut, crossfade, dip to black or white, four pushes, four wipes and an iris",
         "SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output, with the programme recorded as it plays",
@@ -88,9 +89,11 @@
     <header class="hero">
         <div class="hero-content">
             <h1 class="animate-up">Seize the means of<br><span class="gradient-text">playback ♡</span></h1>
-            <p class="hero-subtitle animate-up delay-1">A cue deck for live video ♡ Drag the clip in, trim it, fade it, loop it,
-            hold the last frame ♡ SRT, SDI and ST&nbsp;2110 out, recorded as it goes ♡ And it plays your slide decks too,
-            presenter view and all<br>
+            <p class="hero-subtitle animate-up delay-1">A cue deck for live video, where <b>everything is a cue</b> ♡ A clip,
+            a slide, a live camera, a window on the machine, a web page, an NDI source, an SRT feed, a test card &mdash;
+            all the same kind of thing, on the same list, under the same spacebar ♡ Same trim, same fades, same loops,
+            same last frame held instead of a desktop, same effects, same recording ♡ Out to a screen, NDI, SRT, RTMP,
+            SDI or ST&nbsp;2110, several at once<br>
             Windows, macOS and Linux, one show file. Free under the GPL &mdash; the whole
             application, on every machine in the flight case, while the tools it is measured
             against are licensed per computer.</p>
@@ -115,6 +118,34 @@
     </section>
 
     <section class="features">
+        <div class="feature-card glass" style="grid-column: 1 / -1;">
+            <div class="icon">☰</div>
+            <h3>Everything is a cue</h3>
+            <p>This is the whole idea, and everything below is a consequence of it. A video file, a
+            still, a slide, a PDF, a live camera, a window on the machine, a web page, an NDI source,
+            an SRT or RTMP feed, an SDI input off a Blackmagic card, a shared texture from Resolume or
+            TouchDesigner, a test card, a countdown clock, a lower third, an audio file, a line-up tone,
+            a video synth, and an expression you type while it is on the screen &mdash; in Deckboy every
+            one of those is <b>the same kind of object</b>, on <b>the same list</b>, under
+            <b>the same spacebar</b>.</p>
+            <p>Same transport. Same trim and fades. Same thirteen transitions. Same effect rack. Same
+            Stream&nbsp;Deck button, the same OSC verb, the same line of Companion. Recorded the same way
+            on the way out. So a show can run</p>
+            <p style="text-align:center;"><b>VIDEO &rarr; SLIDE &rarr; LIVE CAMERA &rarr; WEB PAGE &rarr;
+            SRT FEED &rarr; TEST CARD &rarr; VIDEO</b></p>
+            <p>with one operator and no alt-tab, because none of those is a special case. The usual way
+            to do that is a media player, a slide program, a browser, a capture utility, a streaming tool
+            and a pattern generator &mdash; six applications, six ideas of what happens when you press
+            play, and a projector that shows the seams between them.</p>
+            <p>The other half of the same idea: every <b>destination</b> is one kind of object too. A
+            screen, NDI, SRT, RTMP, Blackmagic SDI, SMPTE&nbsp;ST&nbsp;2110, a recording &mdash; several
+            at once, each with its own warp, feather and area of interest. Which is also why the same
+            machine is a converter, a bridge and a test generator on the day: if a camera is a cue and
+            SDI is an output, that is already what it does.</p>
+            <p><b>Anything that can make a picture or a sound becomes a cue. Anything that needs to
+            receive the show becomes an output.</b>
+            <a href="manual.html#cue-types">The full table of cue types &rarr;</a></p>
+        </div>
         <div class="feature-card glass">
             <div class="icon">🎬</div>
             <h3>Video, cued</h3>
@@ -221,10 +252,13 @@
         </div>
         <div class="terminal">
             <p><span class="prompt">></span> Clip in. Trimmed, faded, looped, holding the last frame.</p>
-            <p><span class="prompt">></span> Programme out over SDI, SRT or ST 2110. Recorded while it plays.</p>
-            <p><span class="prompt">></span> PowerPoint in. Presenter view on its own display, notes and all.</p>
-            <p><span class="prompt">></span> A compressor that can see the shot it is compressing.</p>
+            <p><span class="prompt">></span> PowerPoint in. Same list. Presenter view on its own display, notes and all.</p>
+            <p><span class="prompt">></span> Camera in. Same list. Same fades, same effects, same button.</p>
+            <p><span class="prompt">></span> A web page in. Same list. Rendered into the programme, not onto your desktop.</p>
+            <p><span class="prompt">></span> A test card in. Same list. Proving the real chain, not a test box's.</p>
+            <p><span class="prompt">></span> Programme out over NDI, SDI, SRT or ST 2110. Recorded while it plays.</p>
             <p><span class="prompt">></span> 36 video effects on the live picture, every dial on an oscillator.</p>
+            <p><span class="prompt">></span> A compressor that can see the shot it is compressing.</p>
             <p><span class="prompt">></span> No account. No licence server. No telemetry. No catch.</p>
             <p><span class="prompt">></span> Windows, macOS and Linux. One show file.</p>
         </div>

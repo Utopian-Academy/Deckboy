@@ -6,13 +6,37 @@
 [![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](#)
 
 **Free, open-source cue-based media playback and show control for live video.**
-Load your media. Build your playlist. Take it live.
 
-Clips, stills, slide decks, a live camera, a web page and *any window on the
-machine* sit on one cue list and go to air with fades, loops and a last frame
-that holds instead of revealing a desktop — out to a screen, NDI, SRT, RTMP,
-Blackmagic SDI or SMPTE ST 2110, several at once, while it records. Driven from
-a Stream Deck, Bitfocus Companion, OSC, MIDI, Art-Net or LTC timecode.
+### Everything is a cue
+
+A clip. A still. A slide. A live camera. A window on the machine. A web page.
+An NDI source, an SRT feed, an SDI input. A test card, a countdown, a lower
+third, an audio file, a line-up tone. A line of code you type while it is on
+the screen. In Deckboy every one of those is the same kind of object, sitting
+on the same cue list, and it behaves the same way: same transport, same fades,
+same thirteen transitions, same effect rack, same remote control, recorded the
+same way on the way out.
+
+So a show can run
+
+```
+VIDEO → SLIDE → LIVE CAMERA → WEB PAGE → SRT FEED → TEST CARD → VIDEO
+```
+
+with one operator, one spacebar and no alt-tab, because none of those is a
+special case. The usual way to do that is a media player, a slide program, a
+browser, a capture utility, a streaming tool and a pattern generator, each with
+its own idea of what happens when you press play — and a projector that shows
+the seams between them.
+
+The other half of the same idea: every **destination** is the same kind of
+object too. A screen, NDI, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 — several
+at once, while it records, each with its own warp, feather and area of
+interest. Driven from a Stream Deck, Bitfocus Companion, OSC, MIDI, Art-Net or
+LTC timecode.
+
+Anything that can make a picture or a sound becomes a cue. Anything that needs
+to receive the show becomes an output.
 
 It hosts **your own VST3 effects and instruments** in a cue's audio chain, and runs on a
 machine with **no sound card at all** — a rack PC feeding a video wall still
@@ -95,13 +119,31 @@ server that can refuse to start the show at 19:55 because it could not reach the
 internet. The machine you carried into the venue is the machine that plays the
 show.
 
-- 🎯 **Prepare** media cues ahead of time
-- 🚀 **Trigger** clips instantly during a show
-- 🔁 **Keep loops running** reliably
-- 📺 **Send video** to dedicated fullscreen outputs
-- 🎛️ **Control playback** remotely from production tools
+### What can be a cue
 
-### It is also a very good video Swiss army knife
+| | |
+|---|---|
+| **Video** &middot; **Image** &middot; **Audio** | files, hardware-decoded, trimmed and faded |
+| **Slides** | a PDF, PowerPoint or Keynote deck, one cue per slide, with the notes |
+| **Browser** | a URL rendered into the programme, not a browser window on your desktop |
+| **Window** &middot; **Screen** &middot; **Camera** | captured live, at the window's own full resolution |
+| **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | somebody else's signal, taken in as a cue |
+| **Pattern** &middot; **Test card** &middot; **Tone** | generated on the spot, no file needed |
+| **Timer** &middot; **Lower third** | a stage countdown and a name strap, as cues |
+| **PiP** &middot; **Composite** | one cue built out of other cues — quad split, side by side |
+| **Video synth** &middot; **Code** | an oscillator with feedback, or an expression you type live |
+
+Every row takes the same fades, the same transitions, the same effect rack, the
+same trigger from a Stream Deck, and is recorded the same way on the way out.
+[Chapter 5 of the manual](https://utopian-academy.github.io/Deckboy/manual.html#cue-types)
+is the full table, source by source.
+
+### Which makes it a very good video Swiss army knife
+
+That is not a second feature list. It is what falls out of the first one. If a
+camera is a cue and SDI is an output, the machine is a converter. If a stream
+is a cue and NDI is an output, it is a bridge. If a test card is a cue, it is a
+pattern generator that proves the real chain instead of a test box's.
 
 The same box speaks NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode,
 OSC, Art-Net and NMOS — so the machine you brought for playout usually solves
@@ -130,6 +172,9 @@ playable on site, minutes before doors.
 
 ## Features
 
+The long version. It is long because the cue list absorbs so much — but it is
+all one object with one set of controls, not fifty separate things to learn.
+
 <details>
 <summary><b>Playback &amp; cues</b></summary>
 
@@ -145,7 +190,41 @@ playable on site, minutes before doors.
 </details>
 
 <details>
-<summary><b>Video output</b></summary>
+<summary><b>Sources — everything that can be a cue</b></summary>
+
+- Video clips, images and audio files
+- **Slide decks** — a PDF, PowerPoint or Keynote deck imports as one image cue
+  per page, rendered at import by the platform's own engine, so nothing during
+  a show depends on a document renderer
+- Browser cues, rendered inside the programme rather than by a browser
+  window on your desktop — a scoreboard, a dashboard or a lyric page is a
+  cue like any other, with the same fades and effects
+- Camera, window and screen capture, on all three platforms. A window cue
+  arrives at the window's own full resolution whatever your display scaling
+  is set to, scaled to fit the frame, follows the window as it moves and
+  resizes, and anything in front of it stays out of shot. It runs at sixty
+  frames a second where the window can afford it, and costs about a fifth of
+  what it did: on a 960x540 window with a 4K output, processor use across the
+  capture and the application fell from roughly 225% of a core to 45%
+- Stream cues take `srt://`, `rtmp://`, `rtsp://`, `udp://` and http HLS
+- NDI receive in every download, and Blackmagic DeckLink capture through the
+  SDK rather than through a pipe
+- Spout and Syphon shared textures from another application on the machine
+- **IPTV channel lists**: import an `.m3u` and every channel becomes a cue,
+  named and grouped from the list
+- Test patterns, a built-in test card, and generated line-up tone
+- Timer cues — a stage or speaker countdown with its own clock, thresholds and
+  chimes — and lower thirds, both cued like anything else
+- PiP and composite cues: one cue built out of other cues, 2-up, quad or 70/30
+- A **video synth** — oscillators with feedback, a glitch stack, text mode and
+  sprite sets — and a **code source**, a live-coded expression evaluated per
+  pixel and edited while it runs, with a compile error that never blacks the
+  output
+
+</details>
+
+<details>
+<summary><b>Outputs — everywhere a cue can go</b></summary>
 
 - Fullscreen output windows, display selection, and the same programme on more
   than one output at once
@@ -157,18 +236,6 @@ playable on site, minutes before doors.
 - SRT and RTMP streaming, each output with its own destination, running while
   the programme is recorded
 - Recording that keeps its sound, continuous for the whole take
-
-</details>
-
-<details>
-<summary><b>Live sources</b></summary>
-
-- Stream cues take `srt://`, `rtmp://`, `rtsp://`, `udp://` and http HLS
-- Blackmagic DeckLink capture through the SDK rather than a pipe, and NDI
-  receive in every download
-- Camera, desktop window and screen capture
-- **IPTV channel lists**: import an `.m3u` and every channel becomes a cue,
-  named and grouped from the list
 
 </details>
 
@@ -245,30 +312,6 @@ A conformant packetiser a broadcast controller can discover and route. See
 - Tally-driven playback: roll when an ATEM or an NDI receiver puts you on air
 - LTC timecode in, and an LTC generator routable to its own device and channel
 - MIDI input, Art-Net / DMX, NMC transport sync in and out
-
-</details>
-
-<details>
-<summary><b>Sources</b></summary>
-
-- Video clips, images and audio files
-- **Slide decks** — a PDF imports as one image cue per page, rendered at import
-  by the platform's own engine, so nothing during a show depends on a document
-  renderer
-- Browser cues, rendered inside the programme rather than by a browser
-  window on your desktop — a scoreboard, a dashboard or a lyric page is a
-  cue like any other, with the same fades and effects
-- Camera, window and screen capture, on all three platforms. A window cue
-  arrives at the window's own full resolution whatever your display scaling
-  is set to, scaled to fit the frame, follows the window as it moves and
-  resizes, and anything in front of it stays out of shot. It runs at sixty
-  frames a second where the window can afford it, and costs about a fifth of
-  what it did: on a 960x540 window with a 4K output, processor use across the
-  capture and the application fell from roughly 225% of a core to 45%
-- SRT, RTMP, RTSP and UDP stream input, and NDI source input
-- Test patterns and a built-in test card
-- A **code source** — a live-coded expression evaluated per pixel, edited while
-  it runs, with a compile error that never blacks the output
 
 </details>
 
