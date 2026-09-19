@@ -27,6 +27,15 @@
 #include <filesystem>
 #include <system_error>
 
+#if defined(_WIN32)
+// For the structured-exception guard around opening a plugin. Included HERE
+// rather than relied upon: the VST3 backend also includes it, so a build WITH
+// the SDK compiled fine and a build WITHOUT it -- which is what CI builds, and
+// what anyone without the SDK builds -- did not. The guard is in the file
+// whatever the SDK situation is, so its header has to be too.
+#include <windows.h>
+#endif
+
 namespace deckboy::platform::audioplugin {
 namespace {
 
