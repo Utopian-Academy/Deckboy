@@ -840,7 +840,13 @@ Deckboy's releases host VST3. VST2 is not included: Steinberg withdrew that SDK
 in 2018 and licenses it to no new host. The source carries an optional VST2
 backend for anyone who holds a licence of their own and builds it themselves.
 
-Companion: `AUDIOFX <slot> PLUGIN <name>`.
+**Instruments can be played.** An instrument in a cue's chain receives notes
+from the computer keyboard, from a MIDI keyboard, and from a controller over the
+network — the same three ways Deckboy plays its own chip synth. Put a Plugin
+effect on a tone cue, choose an instrument, and the keyboard plays it.
+
+Companion: `AUDIOFX <slot> PLUGIN <name>`, and `TONECUE` to make the cue to put
+it on.
 
 #### The five that need the deck
 

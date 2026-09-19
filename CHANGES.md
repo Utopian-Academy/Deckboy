@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-19 - v0.99.371 (plugins at the right level, and instruments you can play)
+
+**Plugins now receive the signal at the level they expect.** A hosted plugin
+was handed audio far hotter than full scale and its answer came back far too
+quiet, so an effect was distorted and an instrument could not be heard at all.
+Effects sound as their makers intended, and the cue chain and the plugin now
+agree about what full scale means.
+
+**Hosted instruments can be played.** Notes from the computer keyboard, from a
+MIDI keyboard, and from a controller over the network all reach an instrument
+loaded in a cue's chain -- the same three ways Deckboy already played its own
+chip synth. Add a Plugin effect to a tone cue, choose an instrument, and play
+it.
+
+**A tone cue's audio chain does something.** Effects, bends and plugin slots on
+a generated cue were drawn in the inspector and had no effect on the sound.
+They now process it, like every other cue.
+
+**TONECUE** makes a chip-synth cue from a controller, so a show that starts
+from a surface can create one without a mouse.
+
 ## 2026-09-19 - v0.99.370 (your own plugins, in the cue's chain)
 
 **Deckboy hosts your VST3 plugins.** A reverb you already own or the channel
