@@ -29,6 +29,12 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://utopian-academy.github.io/Deckboy/led-calculator.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://utopian-academy.github.io/Deckboy/led-wall.html</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>

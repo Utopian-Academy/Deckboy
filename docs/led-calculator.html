@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED wall calculator — resolution, size, viewing distance and readable text | Deckboy</title>
+    <meta name="description" content="Work out what an LED wall actually gives you: resolution from panel count and pitch, physical size in metres, the distance where the pixels stop being visible, pixels per degree, the smallest text anyone at the back can read, and how many 1080p or 4K sources it takes to cover. Free, instant, nothing to sign up for.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/led-calculator.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="LED wall calculator: resolution, size, viewing distance, readable text">
+    <meta property="og:description" content="The arithmetic everybody does on the back of an envelope before a quote — pitch, panel count, viewing distance, and the smallest text the back row can actually read.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/led-calculator.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/patterns/crosshatch.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LED wall calculator">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/patterns/crosshatch.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .lab { max-width: 1050px; margin: 0 auto 2rem; padding: 0 1.5rem; }
+        .fields { display: grid; gap: .9rem 1.4rem; margin: 1.2rem 0 1.6rem;
+                  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); }
+        .field label { display: block; font-size: .8rem; color: var(--ink-soft); margin-bottom: .3rem; }
+        .field input, .field select {
+            width: 100%; padding: .55rem .6rem; background: var(--panel); color: var(--ink);
+            border: 2px solid var(--rule); font-family: var(--mono); font-size: .95rem; }
+
+        .out { display: grid; gap: .1rem 1.5rem; margin: 0 0 1.6rem;
+               grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+        .out div { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline;
+                   padding: .5rem 0; border-bottom: 1px solid var(--rule); }
+        .out .k { color: var(--ink-soft); font-size: .88rem; }
+        .out .v { color: var(--ink); font-family: var(--mono); font-size: .98rem; text-align: right; }
+        .out .v small { color: var(--ink-soft); font-family: var(--mono); font-size: .78rem; }
+
+        .verdict { border: 2px solid var(--rule); background: var(--panel);
+                   padding: 1rem 1.2rem; margin: 0 0 1.6rem; }
+        .verdict p { margin: 0 0 .6rem; color: var(--ink-body); font-size: .95rem; }
+        .verdict p:last-child { margin: 0; }
+        .verdict b { color: var(--ink); }
+
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.4rem 0 .6rem; font-size: 1.18rem; color: var(--ink); }
+        .prose p, .prose li { color: var(--ink-soft); max-width: 62ch; margin-bottom: 1rem; }
+        .prose ul { margin-left: 1.3rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="trailer.html">Trailer</a>
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="test-patterns.html">Patterns</a>
+            <a href="led-wall.html">Generator</a>
+            <a href="databend.html">Databend</a>
+            <a href="screen-check.html">Screen check</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom:.5rem">
+        <div class="hero-content">
+            <h1>What that wall<br><span class="gradient-text">actually gives you</span></h1>
+            <p class="hero-subtitle">Panel count and pitch in, and out comes the resolution, the
+            size in metres, the distance where the pixels disappear, and the smallest text the
+            back row can read. The sum everybody does on the back of an envelope before a quote.</p>
+        </div>
+    </header>
+
+    <div class="lab">
+        <div class="fields">
+            <div class="field"><label for="pitch">Pixel pitch (mm)</label>
+                <input id="pitch" type="number" value="2.6" min="0.4" max="40" step="0.1"></div>
+            <div class="field"><label for="pw">Panel width (px)</label>
+                <input id="pw" type="number" value="128" min="4" max="4096" step="1"></div>
+            <div class="field"><label for="ph">Panel height (px)</label>
+                <input id="ph" type="number" value="128" min="4" max="4096" step="1"></div>
+            <div class="field"><label for="cols">Panels across</label>
+                <input id="cols" type="number" value="22" min="1" max="300" step="1"></div>
+            <div class="field"><label for="rows">Panels down</label>
+                <input id="rows" type="number" value="12" min="1" max="300" step="1"></div>
+            <div class="field"><label for="dist">Nearest viewer (m)</label>
+                <input id="dist" type="number" value="6" min="0.3" max="300" step="0.5"></div>
+            <div class="field"><label for="far">Furthest viewer (m)</label>
+                <input id="far" type="number" value="25" min="0.5" max="500" step="1"></div>
+        </div>
+
+        <div class="out" id="out"></div>
+        <div class="verdict" id="verdict"></div>
+
+        <div class="cta-group" style="justify-content:flex-start">
+            <a href="led-wall.html" class="btn-large">Patterns for this wall</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large btn-outline">Download Deckboy</a>
+        </div>
+    </div>
+
+    <div class="prose">
+        <h2>Where the numbers come from</h2>
+        <ul>
+            <li><b>Size</b> is pixels &times; pitch. A 2.6&nbsp;mm wall of 22&times;12 panels of 128
+                is 2816&times;1536 pixels and 7.32&times;3.99&nbsp;m. No rule of thumb involved.</li>
+            <li><b>The distance where pixels disappear</b> uses one arcminute, the usual figure for
+                what an average eye resolves: a pixel stops being separately visible at roughly
+                <code>3.44 &times; pitch</code> metres. That is the strict version of the old
+                trade rule that pitch in millimetres equals viewing distance in metres &mdash;
+                which is about three times more generous than the eye actually is.</li>
+            <li><b>Pixels per degree</b> is how much detail lands on the eye at a given distance.
+                Roughly 60 is the limit of useful resolution; below about 20 the structure of the
+                image starts doing the talking instead of the content.</li>
+            <li><b>Readable text</b> assumes a cap height of 16 arcminutes, which is comfortable
+                rather than heroic &mdash; the threshold for legibility is around 5, and designing
+                to the threshold is how you get a room full of people squinting.</li>
+        </ul>
+
+        <h2>The one that surprises people</h2>
+        <p>A wall is usually a strange resolution, and almost never 1920&times;1080. The example
+        above is 2816&times;1536: wider than 16:9 and not a multiple of anything convenient. Send
+        it a 1080p file and a processor scales it, which is exactly what ruins fine text and
+        one-pixel lines. Building content at the wall's own size is free; discovering the problem
+        on site is not.</p>
+        <p>Deckboy is free and open source, and it plays at the raster you give it &mdash; it also
+        <a href="led-wall.html">generates test patterns at your exact pixel map</a>, including a
+        numbered panel map that finds a swapped or rotated tile.</p>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.
+        Writing about it? <a href="press.html">Press kit</a>.</p>
+    </footer>
+
+<script>
+(function () {
+    "use strict";
+    var ids = ['pitch','pw','ph','cols','rows','dist','far'];
+    var el = {};
+    ids.forEach(function (i) { el[i] = document.getElementById(i); });
+    var out = document.getElementById('out'), verdict = document.getElementById('verdict');
+
+    function num(id, dflt) {
+        var v = parseFloat(el[id].value);
+        return (isFinite(v) && v > 0) ? v : dflt;
+    }
+
+    function row(k, v, note) {
+        return '<div><span class="k">' + k + '</span><span class="v">' + v +
+               (note ? ' <small>' + note + '</small>' : '') + '</span></div>';
+    }
+
+    function calc() {
+        var pitch = num('pitch', 2.6);
+        var W = Math.round(num('pw', 128) * num('cols', 22));
+        var H = Math.round(num('ph', 128) * num('rows', 12));
+        var near = num('dist', 6), far = num('far', 25);
+
+        var wM = W * pitch / 1000, hM = H * pitch / 1000;
+        var px = W * H;
+
+        // One arcminute is the usual figure for what an average eye resolves, so
+        // a pixel subtends less than that beyond 3.44 x pitch metres.
+        var blend = pitch * 3.438 / 1000 * 1000;      // metres
+        // Pixels per degree at a distance: one degree covers d*tan(1deg) metres.
+        var ppd = function (d) { return (d * Math.tan(Math.PI / 180) * 1000) / pitch; };
+        // A cap height of 16 arcminutes is comfortable reading.
+        var capMM = function (d) { return 2 * d * 1000 * Math.tan((16 / 60) * Math.PI / 360); };
+
+        var capNear = capMM(near), capFar = capMM(far);
+        var pxNear = capNear / pitch, pxFar = capFar / pitch;
+
+        // How many whole 1080p / 4K canvases it takes to cover the raster.
+        var hd = Math.ceil(W / 1920) * Math.ceil(H / 1080);
+        var uhd = Math.ceil(W / 3840) * Math.ceil(H / 2160);
+
+        out.innerHTML =
+            row('Resolution', W + ' &times; ' + H, (px / 1e6).toFixed(2) + ' megapixels') +
+            row('Physical size', wM.toFixed(2) + ' &times; ' + hM.toFixed(2) + ' m',
+                (wM * 3.281).toFixed(1) + ' &times; ' + (hM * 3.281).toFixed(1) + ' ft') +
+            row('Aspect ratio', (W / H).toFixed(3) + ':1',
+                Math.abs(W / H - 16 / 9) < 0.02 ? 'about 16:9' : 'not 16:9') +
+            row('Pixels vanish beyond', blend.toFixed(1) + ' m', 'one arcminute') +
+            row('Pixels per degree', ppd(near).toFixed(0) + ' at ' + near + ' m',
+                ppd(far).toFixed(0) + ' at ' + far + ' m') +
+            row('Readable cap height', Math.ceil(pxNear) + ' px at ' + near + ' m',
+                capNear.toFixed(0) + ' mm') +
+            row('For the back row', Math.ceil(pxFar) + ' px at ' + far + ' m',
+                capFar.toFixed(0) + ' mm tall') +
+            row('Covered by', hd + ' &times; 1080p', uhd + ' &times; 2160p');
+
+        var notes = [];
+        if (near < blend) {
+            notes.push('<p>At <b>' + near + ' m</b> the nearest viewer is inside ' +
+                blend.toFixed(1) + ' m, so they will see individual pixels. That is normal for a ' +
+                'stage wall people stand beside &mdash; it only matters if the front row is the ' +
+                'audience rather than the band.</p>');
+        } else {
+            notes.push('<p>At <b>' + near + ' m</b> nobody can resolve a single pixel: the wall ' +
+                'reads as a continuous picture from every seat.</p>');
+        }
+        notes.push('<p>Text needs a cap height of about <b>' + Math.ceil(pxFar) + ' px</b> to be ' +
+            'comfortable at ' + far + ' m &mdash; roughly a <b>' + Math.ceil(pxFar * 1.4) +
+            ' px</b> font. Anything smaller is decoration, not information.</p>');
+        if (Math.abs(W / H - 16 / 9) > 0.02) {
+            notes.push('<p>This wall is <b>' + W + '&times;' + H + '</b>, which is not 16:9. ' +
+                'Build content at that size rather than sending 1080p and letting a processor ' +
+                'scale it &mdash; scaling is what softens one-pixel lines and small type.</p>');
+        }
+        verdict.innerHTML = notes.join('');
+    }
+
+    ids.forEach(function (i) { el[i].addEventListener('input', calc); });
+    calc();
+})();
+</script>
+</body>
+</html>
