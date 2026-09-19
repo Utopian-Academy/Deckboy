@@ -233,8 +233,10 @@
         so it takes its own display: live slide, the one before, the one after, the notes and a
         clock. So is a mirrored prompter that scrolls at a pace you set. The alternative most rooms
         are still using is a second laptop and a long cable.</p>
-        <p>One honest limit: PowerPoint flattens its builds and drops its transitions on export, so
-        a deck that depends on animation is better captured live with a window-source cue.</p>
+        <p>PowerPoint's own export flattens builds and drops transitions &mdash; that is the
+        export, not the deck. So a presentation that genuinely has to animate runs in PowerPoint
+        and goes to air as a <b>window cue</b>: you keep every build, and it still fires from the
+        cue list with the same fades as everything else.</p>
 
         <h2>A client sent a file that will not play. What now?</h2>
         <p>Convert it in place, without leaving the application, with GPU encoding where the machine
@@ -257,11 +259,9 @@
         telemetry, nothing that phones home &mdash; which is a reliability argument as much as a
         principle, because a licence check is one more thing that can refuse to start a show at
         19:55.</p>
-        <p>One honest caveat: the builds are <b>not code-signed</b>. Signing needs paid Apple and
-        Microsoft developer accounts the project has not bought, so both operating systems warn
-        about an unknown developer the first time. The
-        <a href="https://github.com/Utopian-Academy/Deckboy#readme">README</a> has the one-time
-        steps.</p>
+        <p>First run: because the builds are not code-signed, Windows and macOS show an
+        unknown-developer notice once. It takes one click to get past, and the
+        <a href="https://github.com/Utopian-Academy/Deckboy#readme">README</a> has the steps.</p>
 
         <h2>Can I run more than one screen from one machine?</h2>
         <p>Yes. Outputs are per-display, with display-native or fixed raster modes, and each output
