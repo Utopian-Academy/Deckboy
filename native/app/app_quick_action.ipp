@@ -121,6 +121,7 @@
       case QuickAction::AudioEffectAmountDec:   audioEffectStackNudge(param, -0.05f); return;
       case QuickAction::AudioEffectAmountInc:   audioEffectStackNudge(param, +0.05f); return;
       case QuickAction::AudioEffectEditAmount:  audioEffectStackEditAmount(param); return;
+      case QuickAction::AudioEffectChoosePlugin: audioEffectStackChoosePlugin(param); return;
       case QuickAction::AudioEffectMoveUp:      audioEffectStackMove(param, -1); return;
       case QuickAction::AudioEffectMoveDown:    audioEffectStackMove(param, +1); return;
       case QuickAction::AudioEffectParamADec:   audioEffectStackNudgeParam(param, 0, -0.05f); return;

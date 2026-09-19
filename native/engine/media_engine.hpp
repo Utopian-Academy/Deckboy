@@ -52,6 +52,7 @@
 #include <vector>
 
 #include "core/constants.hpp"
+#include "platform/audio_plugin.hpp"     // AudioPluginInstance (plugin chain slots)
 #include "platform/capture_backend.hpp"  // SourceCapturePlan (window/camera capture)
 #include "platform/decklink.hpp"
 #include "platform/ndi_input.hpp"
@@ -411,6 +412,21 @@ class MediaEngine {
   // format or corrupt file). The app polls this and tells the operator, instead
   // of the cue silently showing nothing. Cleared on read.
   bool consumeStillDecodeFailure();
+  // The plugin instance sitting in a chain position, or null when that slot
+  // holds one of Deckboy's own effects, has no plugin chosen, or names one this
+  // machine has not got. The inspector asks so it can draw the plugin's OWN
+  // parameter names on the rows; nothing else may hold on to the pointer.
+  // Main thread only.
+  std::shared_ptr<deckboy::platform::audioplugin::AudioPluginInstance>
+  audioPluginForSlot(int index) const;
+  // Latches true once when a plugin overran its time budget often enough to be
+  // taken out of the chain. The operator is told WHICH one, because a plugin
+  // that cannot keep up is a plugin to take out of the show. Cleared on read.
+  bool consumeAudioPluginOverrun();
+  // The plugin a cue's chain asked for and this machine has not got, if any.
+  // A touring show keeps the id and the settings; it just cannot make the
+  // sound, and saying so is better than a slot that silently passes through.
+  std::string consumeMissingAudioPlugin();
   // Latches true once when a window capture had to drop back to the older
   // backend (see serviceWindowCaptureWatchdog). The operator is told, because
   // the fallback's picture can be wrong on a scaled display and that is worth
@@ -584,6 +600,13 @@ class MediaEngine {
   double audioFadeGainAt(double positionSeconds) const;    // fade gain from atomic mirrors — the ONLY variant safe on the audio thread
   void syncAudioFadeParams();                              // publish fade params to the atomic mirrors (main thread)
   void refreshAudioEffectStack();                          // pull a changed effect stack across (audio thread)
+  // Open, re-point and retire the plugin instances a cue's chain asks for.
+  // Main thread, from the same sync that publishes the stack.
+  std::vector<std::shared_ptr<deckboy::platform::audioplugin::AudioPluginInstance>>
+  reconcileAudioPlugins(const Cue* cue);
+  bool processAudioPluginSlot(std::size_t index,
+                              const deckboy::audiofx::AudioEffect& fx,
+                              double* samples, std::size_t frames);
   void publishPictureStats(const DecodedFrame& frame);      // frame brightness/motion for the audio effects (main thread)
   void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
@@ -977,6 +1000,49 @@ class MediaEngine {
   std::vector<deckboy::audiofx::AudioEffect> audioEffectsActive_;   // audio thread only
   std::uint32_t audioEffectsSeen_ = 0;                              // audio thread only
   deckboy::audiofx::AudioEffectState audioEffectState_;             // audio thread only
+
+  // -- State: third-party plugin slots -----------------------------------------
+  // A Plugin slot in the chain is somebody else's code, and everything about
+  // owning it is about WHICH THREAD does what:
+  //
+  //   OPENED on the main thread. Loading a module is a LoadLibrary, a factory
+  //   walk and the plugin's own initialise; some of them check a licence server.
+  //   None of that can happen between two audio buffers.
+  //
+  //   PROCESSED on the audio thread, through audioPluginsActive_, which is
+  //   index-parallel to audioEffectsActive_ so a slot's instance is found
+  //   without a lookup.
+  //
+  //   DESTROYED on the main thread. The audio thread hands an instance it is
+  //   done with back through audioPluginRetired_ rather than dropping the last
+  //   reference itself -- a plugin's destructor stops threads, frees megabytes
+  //   and occasionally closes a window, and a show does not need that happening
+  //   between two buffers either.
+  // The biggest block a plugin is set up for, and therefore the size the audio
+  // is handed to it in. A chunk longer than this is split rather than grown:
+  // a plugin refuses a block bigger than it was prepared for, and growing its
+  // buffers mid-show is the allocation on the audio thread this whole design
+  // is arranged to avoid. 2048 frames is 43ms at 48k -- comfortably more than
+  // this engine queues in one go.
+  static constexpr int kMaxAudioPluginBlockFrames = 2048;
+  using AudioPluginRef =
+    std::shared_ptr<deckboy::platform::audioplugin::AudioPluginInstance>;
+  std::vector<AudioPluginRef> audioPluginsPending_;   // main writes, under the mutex
+  std::vector<std::string> audioPluginPendingIds_;    // main thread only
+  std::vector<AudioPluginRef> audioPluginsActive_;    // audio thread only
+  std::vector<AudioPluginRef> audioPluginRetired_;    // audio hands back, main frees
+  std::vector<float> audioPluginScratch_;             // audio thread only
+  std::atomic<bool> audioPluginOverran_ {false};      // a plugin took itself out
+  std::string missingAudioPlugin_;                    // main thread only
+
+  // The chain calls back out here for a Plugin slot; see audio_effects.hpp.
+  struct AudioPluginHost final : deckboy::audiofx::AudioEffectHost {
+    MediaEngine* engine = nullptr;
+    bool processPluginSlot(std::size_t index,
+                           const deckboy::audiofx::AudioEffect& fx,
+                           double* samples, std::size_t frames) override;
+  };
+  AudioPluginHost audioPluginHost_;
 
   // -- State: what the deck-aware audio effects read ----------------------------
   // Picture, Placement, Seam, Frame lock and Suspend are the five effects that

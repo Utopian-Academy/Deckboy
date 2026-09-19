@@ -5106,6 +5106,13 @@
                         fx.bypassed ? " BYPASSED" : "");
           if (!reply.empty()) reply += "; ";
           reply += buf;
+          // WHICH plugin, or the read-back cannot tell two plugin slots apart
+          // -- and telling them apart is the only reason to read it back.
+          if (fx.kind == deckboy::audiofx::AudioEffectKind::Plugin) {
+            reply += " plugin=" +
+                     (fx.pluginId.empty() ? std::string("(none)")
+                                          : audioPluginSlotLabel(fx));
+          }
         }
         remoteCommandDetail_ = reply.empty() ? "empty" : reply;
         return;
@@ -5179,6 +5186,101 @@
         const std::string verb = toUpper(parts[2]);
         if (verb == "OFF") {
           audioEffectStackRemove(index);
+          return;
+        }
+        if (verb == "PLUGIN") {
+          // AUDIOFX <n> PLUGIN <id or part of a name>
+          //
+          // A plugin slot is the one kind whose identity is not its kind, so
+          // without this the remote can create the slot and never fill it.
+          // Matched on the NAME as well as the id because an id is a full
+          // path on Windows and nobody is typing that into a cue list.
+          if (cue->audioEffects[index].kind !=
+              deckboy::audiofx::AudioEffectKind::Plugin) {
+            failRemoteCommand("AUDIOFX PLUGIN: slot " + parts[1] +
+                              " is a " +
+                              deckboy::audiofx::audioEffectToken(
+                                cue->audioEffects[index].kind) +
+                              ", not a plugin slot");
+            return;
+          }
+          if (!deckboy::platform::audioplugin::audioPluginsSupported()) {
+            failRemoteCommand("AUDIOFX PLUGIN: this build has no plugin host");
+            return;
+          }
+          std::string wanted;
+          for (std::size_t at = 3; at < parts.size(); ++at) {
+            if (!wanted.empty()) wanted += " ";
+            wanted += parts[at];
+          }
+          const auto& catalog = audioPluginCatalog(true);
+          if (wanted.empty()) {
+            // NAME THE OPTIONS, as AUDIOFX ADD does. An empty failure makes
+            // the caller guess, and the guess is a file path.
+            std::string some;
+            for (std::size_t i = 0; i < catalog.size() && i < 6; ++i) {
+              if (!some.empty()) some += ", ";
+              some += catalog[i].name;
+            }
+            failRemoteCommand("AUDIOFX PLUGIN: needs a plugin name (" +
+                              std::to_string(catalog.size()) +
+                              " installed" +
+                              (some.empty() ? ")" : ", e.g. " + some + ")"));
+            return;
+          }
+          const std::string lowered = toLower(wanted);
+          const deckboy::platform::audioplugin::PluginDescriptor* match = nullptr;
+          for (const auto& d : catalog) {
+            if (d.id == wanted || toLower(d.name) == lowered) {
+              match = &d;
+              break;
+            }
+            if (!match && toLower(d.name).find(lowered) != std::string::npos) {
+              match = &d;   // keep looking for an exact one
+            }
+          }
+          if (!match) {
+            failRemoteCommand("AUDIOFX PLUGIN: no plugin matching '" + wanted +
+                              "' among " + std::to_string(catalog.size()) +
+                              " installed");
+            return;
+          }
+          // Opened HERE so a bad plugin fails the command rather than the
+          // show: the operator gets an error now instead of a silent slot
+          // when the cue goes.
+          auto probe = deckboy::platform::audioplugin::openAudioPlugin(
+            match->id, 48000.0, 2048);
+          if (!probe) {
+            failRemoteCommand("AUDIOFX PLUGIN: " + match->name +
+                              " would not load");
+            return;
+          }
+          float seeded[4] = {0.5f, 0.5f, 0.5f, 0.5f};
+          int taken = 0;
+          for (const auto& p : probe->parameters()) {
+            if (!p.automatable) {
+              continue;
+            }
+            if (taken >= 4) {
+              break;
+            }
+            seeded[taken++] = static_cast<float>(std::clamp(p.defaultValue, 0.0, 1.0));
+          }
+          const std::string id = match->id;
+          forEachSelectedAudioStack(
+            [index, &id, &seeded](std::vector<deckboy::audiofx::AudioEffect>& s) {
+              if (index >= static_cast<int>(s.size()) ||
+                  s[index].kind != deckboy::audiofx::AudioEffectKind::Plugin) {
+                return;
+              }
+              s[index].pluginId = id;
+              s[index].pluginState.clear();
+              s[index].paramA = seeded[0];
+              s[index].paramB = seeded[1];
+              s[index].paramC = seeded[2];
+              s[index].paramD = seeded[3];
+            });
+          remoteCommandDetail_ = match->name;
           return;
         }
         if (verb == "BYPASS") {

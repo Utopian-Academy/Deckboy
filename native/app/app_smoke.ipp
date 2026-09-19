@@ -1150,6 +1150,37 @@
       expect(formatSeconds(3599.999) == "60:00.0",
              "formatSeconds carries at the hour");
 
+      // A PLUGIN SLOT THROUGH THE SHOW FILE. Both fields are hostile to a
+      // colon-delimited record: the id is a Windows path with a drive letter
+      // in it, and the state is arbitrary binary that will contain a newline,
+      // a tab and a zero byte sooner rather than later. Checked at the
+      // serializer rather than through a save, so it fails on the encoding
+      // rather than on whatever else a full round trip touches.
+      {
+        namespace afx = deckboy::audiofx;
+        afx::AudioEffect slot = afx::audioEffectDefaults(afx::AudioEffectKind::Plugin);
+        slot.pluginId = "vst3:C:/Program Files/Common Files/VST3/A|B:reverb.vst3";
+        slot.pluginState = std::string("chunk\0\t\n|:%\xff\x01 end", 18);
+        slot.amount = 0.75f;
+        const std::vector<afx::AudioEffect> before {slot};
+        const std::vector<afx::AudioEffect> after =
+          afx::parseAudioEffects(afx::serializeAudioEffects(before));
+        expect(after.size() == 1 &&
+               after[0].kind == afx::AudioEffectKind::Plugin,
+               "plugin slot survives the show file");
+        expect(!after.empty() && after[0].pluginId == slot.pluginId,
+               "plugin id keeps its colons and bars");
+        expect(!after.empty() && after[0].pluginState == slot.pluginState,
+               "plugin state survives byte for byte");
+        // And a chain written before plugins existed still reads the same --
+        // the two fields are appended, so an old record has neither.
+        const std::vector<afx::AudioEffect> old =
+          afx::parseAudioEffects("comp:80:30:50:20:0:0|delay:40:25:35:0:0:1");
+        expect(old.size() == 2 && old[0].kind == afx::AudioEffectKind::Compressor &&
+               old[1].kind == afx::AudioEffectKind::Delay && old[1].bypassed,
+               "a chain saved before plugins still loads");
+      }
+
       fs::path smokePath = fs::path("/tmp") / "deckboy-smoke.deckboy";
       expect(saveProject(smokePath, project), "project save");
       Project loaded = loadProject(smokePath);
@@ -1979,6 +2010,13 @@
                     ? "vst3 (this build can load them)"
                     : "SCAN ONLY (this build has no VST3 host)")
               << '\n';
+    // A build with VST2 turned on says so, every time it is asked. An
+    // operator handed a binary should be able to find out what it is.
+#if defined(DECKBOY_HAS_VST2)
+    std::cout << "vst2: ON in this build. Somebody flipped the switch with\n"
+                 "their own SDK licence -- this is their binary, not a\n"
+                 "Deckboy release, and should not be passed off as one.\n";
+#endif
     std::cout << "searched:\n";
     for (const auto& path : ap::audioPluginSearchPaths()) {
       std::cout << "  " << path << '\n';
@@ -2023,6 +2061,294 @@
                 << ", " << params << " parameters in total\n";
     }
     return 0;
+  }
+
+  // ── runPluginChainCheck — `--plugin-chain-check [id-or-name]` ─────────────
+  //
+  // --audio-fx-check asks "does this effect do anything" of Deckboy's own
+  // twenty-two. This asks it of a PLUGIN SLOT, which is a different question
+  // in three ways worth a separate harness:
+  //
+  //   Does the chain reach it at all? A Plugin slot is the only kind whose
+  //   work happens outside audio_effects.hpp, through a host callback. A slot
+  //   that silently passes audio through is indistinguishable, from the
+  //   operator's chair, from a plugin that is doing nothing.
+  //
+  //   Do the four mapped controls move the sound? VST3 parameters reach the
+  //   PROCESSOR only through the block's parameter changes -- setting them on
+  //   the controller moves the plugin's own UI and nothing else. That bug
+  //   sounds exactly like a plugin working normally, which is why it gets its
+  //   own measurement rather than a code comment.
+  //
+  //   Does its state survive a save? A show that reopens with the plugin at
+  //   its defaults has lost work the operator did.
+  //
+  // With no argument it takes the first plugin that loads on this machine.
+  // ---------------------------------------------------------------------------
+  static int runPluginChainCheck(const std::string& wanted) {
+    namespace afx = deckboy::audiofx;
+    namespace ap = deckboy::platform::audioplugin;
+    if (!ap::audioPluginsSupported()) {
+      std::cout << "plugin-chain-check: this build has no plugin host\n";
+      return 1;
+    }
+    // Pick one: an exact id, a name containing the argument, or the first that
+    // opens. Matching on the NAME is what makes this runnable by hand.
+    const std::vector<ap::PluginDescriptor> found = ap::scanAudioPlugins();
+    std::unique_ptr<ap::AudioPluginInstance> instance;
+    std::string chosen;
+    for (const auto& d : found) {
+      const bool matches =
+        wanted.empty() || d.id == wanted ||
+        d.name.find(wanted) != std::string::npos;
+      if (!matches) {
+        continue;
+      }
+      auto candidate = ap::openAudioPlugin(d.id, 48000.0, 2048);
+      if (!candidate) {
+        if (!wanted.empty()) {
+          std::cout << "plugin-chain-check: " << d.name << " refused to load\n";
+          return 1;
+        }
+        continue;
+      }
+      // A NAMED plugin is the one asked about, whatever it is. An unnamed run
+      // is looking for a subject that can answer the questions: an instrument
+      // with no notes correctly outputs silence, and a plugin with no
+      // parameters has no knobs to sweep, so neither can tell us whether the
+      // chain and the parameter route work.
+      const bool usable = !candidate->descriptor().isInstrument &&
+                          !candidate->parameters().empty();
+      if (!wanted.empty() || usable) {
+        instance = std::move(candidate);
+        chosen = d.name;
+        break;
+      }
+      if (!instance) {
+        instance = std::move(candidate);   // keep the first as a fallback
+        chosen = d.name;
+      }
+    }
+    if (!instance) {
+      std::cout << "plugin-chain-check: no plugin "
+                << (wanted.empty() ? "loaded" : ("matched \"" + wanted + "\""))
+                << '\n';
+      return 1;
+    }
+    const bool isInstrument = instance->descriptor().isInstrument;
+    std::cout << "plugin-chain-check: " << chosen << ", "
+              << instance->parameters().size() << " parameters"
+              << (isInstrument ? ", INSTRUMENT (silent without notes)" : "")
+              << '\n';
+
+    // The host, standing in for MediaEngine's. Same contract: whole slot,
+    // dry/wet included, audio left alone when the plugin declines the block.
+    struct Host : afx::AudioEffectHost {
+      ap::AudioPluginInstance* plugin = nullptr;
+      std::vector<float> scratch;
+      int processed = 0;
+      bool processPluginSlot(std::size_t, const afx::AudioEffect& fx,
+                             double* samples, std::size_t frames) override {
+        const std::size_t need = frames * 2;
+        scratch.resize(need);
+        for (std::size_t i = 0; i < need; ++i) {
+          scratch[i] = static_cast<float>(samples[i]);
+        }
+        if (!plugin->process(scratch.data(), static_cast<int>(frames))) {
+          return false;
+        }
+        const double wet = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
+        for (std::size_t i = 0; i < need; ++i) {
+          samples[i] = (1.0 - wet) * samples[i] +
+                       wet * static_cast<double>(scratch[i]);
+        }
+        ++processed;
+        return true;
+      }
+    };
+    Host host;
+    host.plugin = instance.get();
+
+    constexpr int kRate = 48000;
+    constexpr int kFrames = kRate / 2;
+    constexpr double kPi = 3.141592653589793;
+    auto makeSignal = [&]() {
+      std::vector<double> s(static_cast<std::size_t>(kFrames) * 2, 0.0);
+      std::uint32_t rng = 9931u;
+      for (int f = 0; f < kFrames; ++f) {
+        const double t = static_cast<double>(f) / kRate;
+        rng = rng * 1664525u + 1013904223u;
+        const double noise = static_cast<double>(rng >> 8) / 8388608.0 - 1.0;
+        const double v = 0.4 * std::sin(2.0 * kPi * 220.0 * t) +
+                         0.2 * std::sin(2.0 * kPi * 3500.0 * t) + 0.05 * noise;
+        s[static_cast<std::size_t>(f) * 2] = v;
+        s[static_cast<std::size_t>(f) * 2 + 1] = v;
+      }
+      return s;
+    };
+    auto rms = [](const std::vector<double>& s) {
+      double sum = 0.0;
+      for (const double v : s) {
+        sum += v * v;
+      }
+      return s.empty() ? 0.0 : std::sqrt(sum / static_cast<double>(s.size()));
+    };
+    // How far apart two renders are, as a fraction of the signal. This is the
+    // number that answers "did the knob do anything", and it has to be a
+    // DIFFERENCE rather than a level: a filter and a pan both change the sound
+    // without necessarily changing its RMS.
+    auto difference = [](const std::vector<double>& a,
+                         const std::vector<double>& b) {
+      double sum = 0.0, ref = 0.0;
+      for (std::size_t i = 0; i < a.size() && i < b.size(); ++i) {
+        sum += (a[i] - b[i]) * (a[i] - b[i]);
+        ref += a[i] * a[i];
+      }
+      return ref > 0.0 ? std::sqrt(sum / ref) : 0.0;
+    };
+
+    // Run the chain in 512-frame blocks, as the engine does -- a plugin with
+    // any memory at all behaves differently given one long buffer.
+    auto render = [&](const afx::AudioEffect& fx) {
+      std::vector<double> signal = makeSignal();
+      afx::AudioEffectState state;
+      afx::AudioEffectContext ctx;
+      ctx.host = &host;
+      const std::vector<afx::AudioEffect> stack {fx};
+      const std::size_t block = 512;
+      std::vector<double> chunk;
+      for (std::size_t at = 0; at < signal.size(); at += block * 2) {
+        const std::size_t take = std::min(block * 2, signal.size() - at);
+        chunk.assign(signal.begin() + static_cast<std::ptrdiff_t>(at),
+                     signal.begin() + static_cast<std::ptrdiff_t>(at + take));
+        afx::applyAudioEffectStack(chunk, stack, state, ctx);
+        std::copy(chunk.begin(), chunk.end(),
+                  signal.begin() + static_cast<std::ptrdiff_t>(at));
+      }
+      return signal;
+    };
+
+    const std::vector<double> dry = makeSignal();
+    afx::AudioEffect fx = afx::audioEffectDefaults(afx::AudioEffectKind::Plugin);
+    const std::vector<double> wet = render(fx);
+
+    int failures = 0;
+    std::cout << "  blocks processed: " << host.processed << '\n';
+    if (host.processed == 0) {
+      std::cout << "  FAIL the chain never reached the plugin\n";
+      ++failures;
+    }
+    bool finite = true;
+    for (const double v : wet) {
+      finite = finite && std::isfinite(v);
+    }
+    if (!finite) {
+      std::cout << "  FAIL non-finite samples out of the plugin\n";
+      ++failures;
+    }
+    const double wetRms = rms(wet);
+    std::cout << "  dry rms " << rms(dry) << "  wet rms " << wetRms
+              << "  difference " << difference(dry, wet) << '\n';
+    // A plugin that emits nothing at all in half a second is not necessarily
+    // broken -- a long time-stretcher fills several seconds of buffer before
+    // anything comes out, and an instrument has had no note. It does mean the
+    // knob sweep below cannot answer anything, so it is reported and not
+    // counted: a check that fails a plugin for being slow to speak is a check
+    // nobody will trust.
+    const bool silent = wetRms < 1e-9;
+    if (silent) {
+      std::cout << "  note  no output in this window -- nothing to hear a "
+                   "control change in\n";
+    }
+
+    // THE KNOBS. Sweep each mapped parameter end to end and see whether the
+    // rendered audio moves. A plugin whose first four automatable parameters
+    // are genuinely inaudible (some are labels or meters) is reported rather
+    // than failed -- but all four silent means the parameter route is broken,
+    // which is the bug this check was written for.
+    int moved = 0;
+    for (int slot = 0; slot < 4; ++slot) {
+      afx::AudioEffect low = fx;
+      afx::AudioEffect high = fx;
+      float* lowP = slot == 0 ? &low.paramA : slot == 1 ? &low.paramB
+                  : slot == 2 ? &low.paramC : &low.paramD;
+      float* highP = slot == 0 ? &high.paramA : slot == 1 ? &high.paramB
+                   : slot == 2 ? &high.paramC : &high.paramD;
+      *lowP = 0.0f;
+      *highP = 1.0f;
+      // Through the same route the app uses: the mapped parameters are pushed
+      // onto the instance, not passed in the effect.
+      auto push = [&](float value) {
+        int taken = 0;
+        for (const auto& p : instance->parameters()) {
+          if (!p.automatable) {
+            continue;
+          }
+          if (taken == slot) {
+            instance->setParameter(p.id, static_cast<double>(value));
+            return;
+          }
+          if (++taken > 3) {
+            return;
+          }
+        }
+      };
+      push(0.0f);
+      const std::vector<double> atLow = render(low);
+      push(1.0f);
+      const std::vector<double> atHigh = render(high);
+      const double delta = difference(atLow, atHigh);
+      std::cout << "  control " << (slot + 1) << " sweep difference " << delta
+                << (delta > 1e-4 ? "" : "   (inaudible)") << '\n';
+      if (delta > 1e-4) {
+        ++moved;
+      }
+      push(0.5f);
+    }
+    if (moved == 0 && !isInstrument && !silent && !instance->parameters().empty()) {
+      std::cout << "  FAIL none of the four mapped controls changed the audio\n";
+      ++failures;
+    }
+
+    // STATE. Save, move everything, load it back, and the sound has to return.
+    const std::string saved = instance->saveState();
+    std::cout << "  state: " << saved.size() << " bytes\n";
+    if (saved.empty()) {
+      std::cout << "  note  this plugin gave no state to save\n";
+    } else {
+      const std::vector<double> before = render(fx);
+      for (const auto& p : instance->parameters()) {
+        if (p.automatable) {
+          instance->setParameter(p.id, 1.0);
+        }
+      }
+      // A RENDER IN BETWEEN, deliberately. Parameter changes reach the
+      // processor on the next block, so loading the state first and rendering
+      // once would deliver the queued changes ON TOP of the restored state and
+      // measure the harness rather than the plugin. That is exactly what the
+      // first version of this check did, and it reported a drift of 1.0.
+      (void)render(fx);
+      const bool restored = instance->loadState(saved);
+      const std::vector<double> after = render(fx);
+      const double drift = difference(before, after);
+      std::cout << "  state round-trip: " << (restored ? "loaded" : "REFUSED")
+                << ", drift " << drift << '\n';
+      if (!restored) {
+        std::cout << "  FAIL the plugin refused the state it had just given us\n";
+        ++failures;
+      }
+      // The base64 the show file carries has to come back byte for byte, or
+      // the plugin is handed something its author never wrote.
+      const std::string roundTrip =
+        afx::detail::base64Decode(afx::detail::base64Encode(saved));
+      if (roundTrip != saved) {
+        std::cout << "  FAIL base64 round-trip changed the state\n";
+        ++failures;
+      }
+    }
+
+    std::cout << "plugin-chain-check: " << failures << " failures\n";
+    return failures == 0 ? 0 : 1;
   }
 
   static int runDeviceReport() {
@@ -2548,6 +2874,17 @@
       const auto kind = static_cast<afx::AudioEffectKind>(k);
       const std::string token = afx::audioEffectToken(kind);
       if (!only.empty() && token != only) {
+        continue;
+      }
+      if (kind == afx::AudioEffectKind::Plugin) {
+        // A PLUGIN SLOT IS A HOLE, and this harness has nothing to put in it:
+        // the chain here runs with no host, which is exactly the condition
+        // under which a plugin slot is SUPPOSED to pass the audio through
+        // untouched. Measuring it would report "no audible change" as a fault
+        // when it is the specified behaviour. Its own check is
+        // --plugin-chain-check, which runs a real plugin.
+        std::cout << "  plugin      -- see --plugin-chain-check (needs a real "
+                     "plugin and a host)\n";
         continue;
       }
       // WHAT THE EFFECT ARRIVES SET TO, which is what an operator who adds one

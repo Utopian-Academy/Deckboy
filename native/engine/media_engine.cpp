@@ -4841,20 +4841,190 @@ void MediaEngine::syncAudioFadeParams() {
     const std::vector<deckboy::audiofx::AudioEffect> empty;
     const std::vector<deckboy::audiofx::AudioEffect>& want =
       cue ? cue->audioEffects : empty;
+    // OUTSIDE THE LOCK, because opening a plugin is a LoadLibrary and a
+    // licence check, and the audio thread takes this same mutex. It reuses
+    // the instances that are already open, so the common case is a walk over
+    // a short vector and no work at all.
+    std::vector<AudioPluginRef> plugins = reconcileAudioPlugins(cue);
+    // The instances the audio thread handed back when it last changed stacks,
+    // freed HERE -- a plugin's destructor stops threads and frees megabytes,
+    // and the audio thread is not where that should happen.
+    std::vector<AudioPluginRef> retired;
     std::lock_guard<std::mutex> lock(audioEffectsMutex_);
+    retired.swap(audioPluginRetired_);
     bool same = want.size() == audioEffectsPending_.size();
     for (std::size_t i = 0; same && i < want.size(); ++i) {
       const deckboy::audiofx::AudioEffect& a = want[i];
       const deckboy::audiofx::AudioEffect& b = audioEffectsPending_[i];
       same = a.kind == b.kind && a.amount == b.amount && a.paramA == b.paramA &&
              a.paramB == b.paramB && a.paramC == b.paramC &&
-             a.paramD == b.paramD && a.bypassed == b.bypassed;
+             a.paramD == b.paramD && a.bypassed == b.bypassed &&
+             // WHICH plugin, or picking one in a slot would never reach the
+             // audio thread: every other field can be identical across a
+             // change from one reverb to another.
+             a.pluginId == b.pluginId;
     }
-    if (!same) {
+    if (!same || plugins != audioPluginsPending_) {
       audioEffectsPending_ = want;
+      audioPluginsPending_ = std::move(plugins);
       audioEffectsGeneration_.fetch_add(1, std::memory_order_release);
     }
   }
+}
+
+// ── OPENING, KEEPING AND LETTING GO OF SOMEBODY ELSE'S CODE ─────────────────
+//
+// Main thread. Returns the instance for every position in the cue's chain --
+// null in the positions holding Deckboy's own effects, which keeps the vector
+// index-parallel to the stack so the audio thread never has to look anything
+// up.
+//
+// An instance is REUSED whenever the id in that position has not changed, so
+// riding a knob does not reload a plugin, and moving an effect up the chain
+// carries its plugin with it only if the id moved with it.
+std::vector<std::shared_ptr<deckboy::platform::audioplugin::AudioPluginInstance>>
+MediaEngine::reconcileAudioPlugins(const Cue* cue) {
+  namespace ap = deckboy::platform::audioplugin;
+  std::vector<AudioPluginRef> next;
+  std::vector<std::string> nextIds;
+  if (!cue) {
+    audioPluginPendingIds_.clear();
+    return next;
+  }
+  const std::vector<deckboy::audiofx::AudioEffect>& stack = cue->audioEffects;
+  next.resize(stack.size());
+  nextIds.resize(stack.size());
+  for (std::size_t i = 0; i < stack.size(); ++i) {
+    const deckboy::audiofx::AudioEffect& fx = stack[i];
+    if (fx.kind != deckboy::audiofx::AudioEffectKind::Plugin ||
+        fx.pluginId.empty()) {
+      continue;
+    }
+    nextIds[i] = fx.pluginId;
+    // Already open in this position? Then it keeps its state, its own editor
+    // settings and its delay tails.
+    if (i < audioPluginPendingIds_.size() &&
+        audioPluginPendingIds_[i] == fx.pluginId &&
+        i < audioPluginsPending_.size() && audioPluginsPending_[i]) {
+      next[i] = audioPluginsPending_[i];
+      continue;
+    }
+    // A BLOCK BIG ENOUGH FOR THE BIGGEST CHUNK THIS ENGINE QUEUES. A plugin
+    // set up for a smaller block refuses the buffer rather than growing one on
+    // the audio thread, which would be silence in the middle of a show.
+    std::shared_ptr<ap::AudioPluginInstance> instance =
+      ap::openAudioPlugin(fx.pluginId, 48000.0, kMaxAudioPluginBlockFrames);
+    if (!instance) {
+      // The show keeps the id and the settings; it just cannot make the sound
+      // on this machine. Said once, by name.
+      missingAudioPlugin_ = fx.pluginId;
+      continue;
+    }
+    if (!fx.pluginState.empty()) {
+      instance->loadState(fx.pluginState);
+    }
+    next[i] = std::move(instance);
+  }
+  // The four mapped controls, pushed from HERE rather than from the audio
+  // thread: setting a parameter is a plugin call like any other and may
+  // allocate. The plugin's own ring carries the value across to its processor.
+  for (std::size_t i = 0; i < next.size(); ++i) {
+    if (!next[i]) {
+      continue;
+    }
+    const auto& params = next[i]->parameters();
+    const float mapped[4] = {stack[i].paramA, stack[i].paramB,
+                             stack[i].paramC, stack[i].paramD};
+    int taken = 0;
+    for (const auto& p : params) {
+      if (!p.automatable) {
+        continue;
+      }
+      if (taken >= 4) {
+        break;
+      }
+      const double want = static_cast<double>(mapped[taken]);
+      // Only when it MOVED. Pushing four parameters sixty times a second would
+      // fight a plugin's own editor for control of them.
+      if (std::fabs(next[i]->parameter(p.id) - want) > 1e-6) {
+        next[i]->setParameter(p.id, want);
+      }
+      ++taken;
+    }
+  }
+  audioPluginPendingIds_ = std::move(nextIds);
+  return next;
+}
+
+std::shared_ptr<deckboy::platform::audioplugin::AudioPluginInstance>
+MediaEngine::audioPluginForSlot(int index) const {
+  if (index < 0 || index >= static_cast<int>(audioPluginsPending_.size())) {
+    return nullptr;
+  }
+  return audioPluginsPending_[static_cast<std::size_t>(index)];
+}
+
+bool MediaEngine::consumeAudioPluginOverrun() {
+  return audioPluginOverran_.exchange(false, std::memory_order_relaxed);
+}
+
+std::string MediaEngine::consumeMissingAudioPlugin() {
+  std::string out;
+  out.swap(missingAudioPlugin_);
+  return out;
+}
+
+// AUDIO THREAD. Everything here is either preallocated or already open; the
+// one call that is not ours is process(), and that carries its own budget.
+bool MediaEngine::AudioPluginHost::processPluginSlot(
+    std::size_t index, const deckboy::audiofx::AudioEffect& fx,
+    double* samples, std::size_t frames) {
+  return engine && engine->processAudioPluginSlot(index, fx, samples, frames);
+}
+
+bool MediaEngine::processAudioPluginSlot(std::size_t index,
+                                         const deckboy::audiofx::AudioEffect& fx,
+                                         double* samples, std::size_t frames) {
+  if (index >= audioPluginsActive_.size() || !audioPluginsActive_[index] ||
+      frames == 0) {
+    // An empty plugin slot is an empty slot, not a silence: the operator has
+    // added the slot and not yet chosen, or is on the machine that has not got
+    // the plugin. Either way the cue keeps its sound.
+    return false;
+  }
+  const std::size_t need = frames * 2;
+  if (audioPluginScratch_.size() < need) {
+    // Grows at most once per block size, exactly as limiterScratch_ above it
+    // does, and never while a plugin is mid-chain.
+    audioPluginScratch_.resize(need);
+  }
+  const auto& instance = audioPluginsActive_[index];
+  for (std::size_t i = 0; i < need; ++i) {
+    audioPluginScratch_[i] = static_cast<float>(samples[i]);
+  }
+  // SPLIT, never grow. The plugin was set up for kMaxAudioPluginBlockFrames and
+  // refuses anything longer; a chunk that happens to be bigger is several
+  // blocks, not a reason to reconfigure a plugin mid-cue.
+  for (std::size_t done = 0; done < frames;) {
+    const std::size_t take =
+      std::min(frames - done, static_cast<std::size_t>(kMaxAudioPluginBlockFrames));
+    if (!instance->process(audioPluginScratch_.data() + done * 2,
+                           static_cast<int>(take))) {
+      if (instance->overran()) {
+        audioPluginOverran_.store(true, std::memory_order_relaxed);
+      }
+      return false;   // the audio is exactly as the plugin found it
+    }
+    done += take;
+  }
+  // Amount means what it means everywhere else in this chain: less of this.
+  const double wet = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
+  const double dry = 1.0 - wet;
+  for (std::size_t i = 0; i < need; ++i) {
+    samples[i] = dry * samples[i] +
+                 wet * static_cast<double>(audioPluginScratch_[i]);
+  }
+  return true;
 }
 
 // Pull a changed stack across onto the audio thread. Called once per chunk;
@@ -4977,10 +5147,22 @@ void MediaEngine::refreshAudioEffectStack() {
     return;
   }
   std::vector<deckboy::audiofx::AudioEffect> incoming;
+  std::vector<AudioPluginRef> incomingPlugins;
   {
     std::lock_guard<std::mutex> lock(audioEffectsMutex_);
     incoming = audioEffectsPending_;
+    incomingPlugins = audioPluginsPending_;
+    // HAND THE OLD ONES BACK rather than dropping the last reference here. If
+    // this thread held the last one, the plugin's destructor would run on the
+    // audio thread -- stopping its threads and freeing its buffers between two
+    // buffers of a live show. The main thread frees them on its next tick.
+    for (auto& gone : audioPluginsActive_) {
+      if (gone) {
+        audioPluginRetired_.push_back(std::move(gone));
+      }
+    }
   }
+  audioPluginsActive_ = std::move(incomingPlugins);
   bool shapeChanged = incoming.size() != audioEffectsActive_.size();
   for (std::size_t i = 0; !shapeChanged && i < incoming.size(); ++i) {
     shapeChanged = incoming[i].kind != audioEffectsActive_[i].kind;
@@ -6445,6 +6627,11 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     // the end of the SOUND, so it wants the former.
     ctx.position = chunkStartTime;
     ctx.duration = audioFadeDuration_.load(std::memory_order_relaxed);
+    // Who fills a Plugin slot. Null in every other build of this header --
+    // the bench, the offline dumper and the unit tests all run the chain
+    // without one, and a plugin slot there passes the audio straight through.
+    audioPluginHost_.engine = this;
+    ctx.host = &audioPluginHost_;
     deckboy::audiofx::applyAudioEffectStack(limiterScratch_, audioEffectsActive_,
                                             audioEffectState_, ctx);
     // A NON-FINITE SAMPLE MUST NEVER REACH THE QUANTISER. clip() rounds with

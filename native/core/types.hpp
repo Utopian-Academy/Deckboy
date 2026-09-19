@@ -1768,6 +1768,9 @@ enum class QuickAction {
   AudioEffectParamDDec,
   AudioEffectParamDInc,
   AudioEffectParamDEdit,
+  // WHICH plugin fills a Plugin slot. Not a cycle: an operator with a hundred
+  // and twenty plugins installed is not going to click through them.
+  AudioEffectChoosePlugin,
   CodeOpenEditor,
   // Parameter LFOs. Every one of these carries a PACKED id in the action's
   // param: effectIndex * 8 + slot, where slot 0-3 is paramA-D and 4 is the

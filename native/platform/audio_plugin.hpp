@@ -11,13 +11,44 @@
 // reverb they already own, the compressor their mix is built around -- without
 // leaving the cue deck.
 //
-// FORMATS. VST3 only, and that is a licensing fact rather than a preference:
-// the VST3 SDK is dual-licensed GPLv3-or-proprietary, so a GPL-3 host may use
-// it. The VST2 SDK was withdrawn in 2018, is not licensed to new hosts, and its
-// terms do not sit with the GPL -- so a public Deckboy binary cannot carry VST2
-// support, whatever the operator's plugin folder happens to contain. CLAP is
-// the obvious second format when one is wanted: MIT, one header, and the
-// interface below is deliberately format-agnostic so it can be added behind it.
+// FORMATS. VST3 in everything Deckboy ships, and that is a licensing fact
+// rather than a preference: the VST3 SDK is dual-licensed GPLv3-or-proprietary,
+// so a GPL-3 host may use it.
+//
+// #########################################################################
+// ##                                                                     ##
+// ##         V S T 2 :   T H E   S W I T C H   W E   L E F T             ##
+// ##                                                                     ##
+// ##  Steinberg took the VST2 SDK away in 2018 and hands out no new      ##
+// ##  licences. Its terms and the GPL do not get on. We think that is a  ##
+// ##  daft way to treat twenty years of perfectly good plugins, and we   ##
+// ##  are going to respect it anyway, because the alternative is a       ##
+// ##  lawyer reading our commit messages.                                ##
+// ##                                                                     ##
+// ##  So: no Deckboy release is built with VST2, and none will be. No    ##
+// ##  part of that SDK is in this repository -- the backend declares the ##
+// ##  handful of structs and opcodes it needs and includes none of       ##
+// ##  Steinberg's headers.                                               ##
+// ##                                                                     ##
+// ##  But the switch is right there, unlocked, with the key in it:       ##
+// ##                                                                     ##
+// ##    -DENABLE_VST2=ON -DVST2_SDK_DIR=/your/own/copy                   ##
+// ##                                                                     ##
+// ##  Off by default, refuses to configure without a path to an SDK YOU  ##
+// ##  hold a licence for. Flip it and the plugins you already own work.  ##
+// ##  Flip it and you are the one distributing that build, under your    ##
+// ##  own terms -- which, conveniently, is exactly what a licence is.    ##
+// ##                                                                     ##
+// ##  Flipping it for something you then publish as Deckboy: don't.      ##
+// ##  That is the one way to make this everybody's problem.              ##
+// ##                                                                     ##
+// ##  See native/platform/audio_plugin_vst2.inc and the ENABLE_VST2      ##
+// ##  block in CMakeLists.txt.                                           ##
+// ##                                                                     ##
+// #########################################################################
+//
+// CLAP is the obvious next format: MIT, one header, and the interface below is
+// deliberately format-agnostic so it can be added behind it.
 //
 // THE AUDIO THREAD IS THE WHOLE DESIGN PROBLEM. Deckboy's own effects are
 // written to a rule: no allocation, no locks, bounded work. A plugin is

@@ -1201,7 +1201,46 @@
     markProjectDirty();
   }
 
+  // WHAT THE PLUGIN KNOWS THAT THE SHOW FILE DOES NOT.
+  //
+  // A cue stores which plugin and four mapped controls. Everything else a
+  // plugin has been set to -- and for a reverb or a channel strip that is most
+  // of it -- lives inside the plugin, and the only way to get it is to ask
+  // while the thing is loaded. So the live cues are asked, once, on the way to
+  // disk. A cue that is not playing keeps the state it was loaded with, which
+  // is the right answer: nothing has touched it.
+  void captureLiveAudioPluginState() {
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size());
+         ++deckIndex) {
+      Deck& deck = project_.decks[deckIndex];
+      if (deck.activeIndex < 0 ||
+          deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (!engine) {
+        continue;
+      }
+      Cue& cue = deck.cues[deck.activeIndex];
+      for (int i = 0; i < static_cast<int>(cue.audioEffects.size()); ++i) {
+        if (cue.audioEffects[i].kind != deckboy::audiofx::AudioEffectKind::Plugin) {
+          continue;
+        }
+        if (auto instance = engine->audioPluginForSlot(i)) {
+          std::string state = instance->saveState();
+          // Only when there IS one. A plugin that keeps no chunk state returns
+          // nothing, and overwriting a good saved state with nothing would
+          // lose the work on the next save.
+          if (!state.empty()) {
+            cue.audioEffects[i].pluginState = std::move(state);
+          }
+        }
+      }
+    }
+  }
+
   bool saveProjectNow(bool withToast = true) {
+    captureLiveAudioPluginState();
     normalizeProject(project_);
     if (currentProjectFile_.empty()) {
       currentProjectFile_ = defaultProjectFile();
@@ -1605,6 +1644,7 @@
   }
 
   void persistProject() {
+    captureLiveAudioPluginState();
     normalizeProject(project_);
     saveProject(currentProjectFile_, project_);
     rememberLastOpenedProjectFile(currentProjectFile_);

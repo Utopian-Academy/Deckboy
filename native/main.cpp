@@ -6637,6 +6637,29 @@ class App {
           rowY = inspDrawMessageRow(ix, rowY, why, pal.tile, pal.inkSoft);
         }
       }
+      // WHICH plugin, on its own row directly under the name. A Plugin slot is
+      // the one kind whose identity is not its kind, so without this row two
+      // adjacent slots both read "Plugin" and there is no way to tell a reverb
+      // from a limiter.
+      if (fx.kind == deckboy::audiofx::AudioEffectKind::Plugin) {
+        SDL_Rect pickRect {ix.ctrl.x + ix.inset, rowY,
+                           ix.ctrlW - ix.inset * 2, ix.rowH};
+        drawUIPanel(pickRect, pal.tile, pal.deep, pal.mid);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {pickRect.x + 6, pickRect.y, 58, pickRect.h},
+                     "plugin", pal.inkSoft);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {pickRect.x + 64, pickRect.y,
+                               pickRect.w - 84, pickRect.h},
+                     audioPluginSlotLabel(fx), pal.fg);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect {pickRect.x + pickRect.w - 16, pickRect.y,
+                                       14, pickRect.h},
+                             "v", pal.inkSoft);
+        quickButtons_.push_back({pickRect, QuickAction::AudioEffectChoosePlugin,
+                                 "Choose one of your own plugins for this slot", i});
+        rowY += ix.rowStep;
+      }
       // AMOUNT MEANS THE SAME THING EVERY TIME. For the shaping effects it is
       // a dry/wet mix; for the dynamics it scales the gain reduction. Either
       // way turning it down is "less of this" and never "something else",
@@ -6651,6 +6674,26 @@ class App {
                        "Drag to scrub (shift = fine), click to type exact",
                        true, QuickAction::AudioEffectEditAmount, i);
       rowY += ix.rowStep;
+      // A PLUGIN NAMES ITS OWN CONTROLS. "control 1" on a row that is really
+      // the plugin's threshold is a control nobody can use during a show, so
+      // where the plugin is loaded its first four automatable parameter names
+      // replace the generic ones -- and where it is not, the generic names are
+      // what keep the saved numbers visible and editable.
+      std::string pluginParamNames[4];
+      if (fx.kind == deckboy::audiofx::AudioEffectKind::Plugin) {
+        if (auto instance = audioPluginInstanceForRow(i)) {
+          int taken = 0;
+          for (const auto& p : instance->parameters()) {
+            if (!p.automatable) {
+              continue;
+            }
+            if (taken >= 4) {
+              break;
+            }
+            pluginParamNames[taken++] = p.name;
+          }
+        }
+      }
       for (int which = 0; which < 4; ++which) {
         const char* paramLabel =
           deckboy::audiofx::audioEffectParamLabel(fx.kind, which);
@@ -6658,12 +6701,15 @@ class App {
           continue;   // this effect ignores the slot; drawing it would be a
                       // control that cannot do anything
         }
+        std::string paramLabelText = pluginParamNames[which].empty()
+                                       ? std::string(paramLabel)
+                                       : pluginParamNames[which];
         const float rawParam = which == 0 ? fx.paramA : which == 1 ? fx.paramB
                              : which == 2 ? fx.paramC : fx.paramD;
         char paramBuf[16];
         std::snprintf(paramBuf, sizeof(paramBuf), "%d%%",
                       static_cast<int>(std::lround(rawParam * 100.0f)));
-        inspDrawQuickRow(ix, rowY, paramLabel,
+        inspDrawQuickRow(ix, rowY, paramLabelText,
                          which == 0 ? QuickAction::AudioEffectParamADec
                          : which == 1 ? QuickAction::AudioEffectParamBDec
                          : which == 2 ? QuickAction::AudioEffectParamCDec
@@ -10399,6 +10445,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
   {"--soak [minutes]", "long-run stability harness (default 1440); logs to deckboy-soak.log"},
   {"--devices", "list the audio, display and capture hardware this machine offers"},
   {"--plugins", "list the audio plugins this machine has, and where they were found"},
+  {"--plugin-chain-check", "run a plugin in a cue chain and measure that it, and its controls, do something"},
   {"--check-update", "ask GitHub whether there is a newer release, print it, and exit"},
   {"--no-inproc-decode", "keep every decode on the ffmpeg CLI pipe path"},
   {"--no-hw-decode", "decode in software (the A/B for the hardware path)"},
@@ -10411,7 +10458,7 @@ constexpr const char* kCliModeFlags[] = {
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
-  "--devices", "--plugins", "--check-update", "--font-check",
+  "--devices", "--plugins", "--plugin-chain-check", "--check-update", "--font-check",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -10711,6 +10758,11 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       if (parsed >= 0.0) dumpT = parsed;
     }
     return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
+  }
+  if (mode == "--plugin-chain-check") {
+    // Optional plugin name or id. With none it takes the first that loads,
+    // which is what makes this runnable on a machine nobody has described.
+    return App::runPluginChainCheck(ops.empty() ? std::string() : ops[0]);
   }
   if (mode == "--audio-fx-check") {
     // Optional token: one effect, for when a change is being made to it.

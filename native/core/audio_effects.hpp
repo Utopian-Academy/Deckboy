@@ -86,6 +86,12 @@ struct AudioEffectContext {
   float postLuma = 0.5f;
   float postMotion = 0.0f;
   bool hasPostPicture = false;
+
+  // ── Who owns the third-party plugins ──
+  // Null everywhere this header is tested, benched or dumped, which is why a
+  // Plugin slot with no host passes the audio through untouched rather than
+  // being an error. Declared below; see AudioEffectHost.
+  struct AudioEffectHost* host = nullptr;
 };
 
 // ── WHAT THERE IS ───────────────────────────────────────────────────────────
@@ -129,6 +135,12 @@ enum class AudioEffectKind : int {
   Scrub,        // brightness is TIME: dark reaches back, a cut throws the head
   Short,        // every cut closes a short across a small virtual circuit
   Ouroboros,    // the loop: the finished picture drives the bend that drives it
+  // ── SOMEBODY ELSE'S EFFECT ──
+  // A hole in the chain that a third-party plugin fills. Everything above is
+  // ours and runs anywhere Deckboy runs; this one is a slot the operator's own
+  // library plugs into, and it is the only kind whose behaviour this file
+  // cannot describe. See AudioEffectHost below.
+  Plugin,
   // The end marker, so the inspector's picker is built FROM this list rather
   // than from a second copy of it that can fall behind -- which is exactly how
   // four cue kinds ended up missing from cueKindToken.
@@ -159,6 +171,7 @@ inline const char* audioEffectLabel(AudioEffectKind kind) {
     case AudioEffectKind::Scrub:      return "Scrub";
     case AudioEffectKind::Short:      return "Short";
     case AudioEffectKind::Ouroboros:  return "Ouroboros";
+    case AudioEffectKind::Plugin:     return "Plugin";
     case AudioEffectKind::None:
     case AudioEffectKind::Count:      break;
   }
@@ -191,6 +204,7 @@ inline const char* audioEffectToken(AudioEffectKind kind) {
     case AudioEffectKind::Scrub:      return "scrub";
     case AudioEffectKind::Short:      return "short";
     case AudioEffectKind::Ouroboros:     return "ouroboros";
+    case AudioEffectKind::Plugin:        return "plugin";
     case AudioEffectKind::None:
     case AudioEffectKind::Count:      break;
   }
@@ -220,6 +234,7 @@ inline AudioEffectKind audioEffectKindFromToken(const std::string& token) {
   if (token == "scrub")      return AudioEffectKind::Scrub;
   if (token == "short")      return AudioEffectKind::Short;
   if (token == "ouroboros")     return AudioEffectKind::Ouroboros;
+  if (token == "plugin")        return AudioEffectKind::Plugin;
   return AudioEffectKind::None;
 }
 
@@ -307,6 +322,15 @@ inline const char* audioEffectParamLabel(AudioEffectKind kind, int slot) {
            : slot == 1 ? "leak"
            : slot == 2 ? "cut reset"
            : slot == 3 ? "character" : nullptr;
+    case AudioEffectKind::Plugin:
+      // The plugin's OWN four names replace these wherever the plugin is
+      // loaded. These are the fallback for a chain whose plugin is missing --
+      // the show still opens, the rows still draw, and the numbers are still
+      // the ones that were saved.
+      return slot == 0 ? "control 1"
+           : slot == 1 ? "control 2"
+           : slot == 2 ? "control 3"
+           : slot == 3 ? "control 4" : nullptr;
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
       break;
@@ -498,6 +522,11 @@ inline const char* audioEffectParamTip(AudioEffectKind kind, int slot) {
                          "loop to clean."
            : slot == 3 ? "Left leans on crushing; right leans on skipping."
                        : nullptr;
+    case AudioEffectKind::Plugin:
+      // Replaced by the plugin's own parameter names once it is loaded, so
+      // these describe the MAPPING rather than any particular knob.
+      return "The plugin's first four automatable controls, in its own order. "
+             "Everything else it has keeps whatever the plugin was left set to.";
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
       break;
@@ -524,6 +553,33 @@ struct AudioEffect {
   // Bypass is not amount 0: turning an effect down loses the setting you spent
   // time on, bypass takes it out of the chain and gives it back.
   bool bypassed = false;
+  // ── PLUGIN SLOTS ONLY ───────────────────────────────────────────────────
+  // Empty for all twenty-two effects above, and that is the point: a plugin
+  // is the one kind whose identity is not in its kind. The id is the
+  // "<format>:<reference>" spelling platform/audio_plugin.hpp hands out.
+  std::string pluginId;
+  // The plugin's own saved settings, as the RAW BYTES it handed over (base64
+  // only at the show-file boundary, where the format is text). Opaque by
+  // design -- a plugin's state is the plugin's business, and the four mapped
+  // parameters above are what Deckboy claims to understand.
+  std::string pluginState;
+};
+
+// ── THE HOLE IN THE CHAIN ───────────────────────────────────────────────────
+//
+// This file stays SDL-free, dlopen-free and SDK-free, which is what lets it be
+// benched and unit-tested without a window -- so it cannot load a plugin and
+// does not try. A Plugin slot calls back out to whoever owns the instances.
+// The host does the whole slot, dry/wet included, because it already owns the
+// de-interleaved scratch a plugin needs and the audio thread must not allocate
+// a second copy here.
+struct AudioEffectHost {
+  virtual ~AudioEffectHost() = default;
+  // `samples` is the interleaved-stereo buffer, processed in place. Returning
+  // false means nothing is loaded in that slot, and the chain then leaves the
+  // audio ALONE: an empty plugin slot is an empty slot, never a silence.
+  virtual bool processPluginSlot(std::size_t index, const AudioEffect& fx,
+                                 double* samples, std::size_t frames) = 0;
 };
 
 
@@ -653,6 +709,13 @@ inline AudioEffect audioEffectDefaults(AudioEffectKind kind) {
     case AudioEffectKind::Ouroboros:
       // Loop gain below one, a few seconds to relax, cuts reset it, balanced.
       fx.paramA = 0.7f; fx.paramB = 0.3f; fx.paramC = 1.0f; fx.paramD = 0.4f;
+      break;
+    case AudioEffectKind::Plugin:
+      // Fully wet and no plugin yet -- the operator picks one on the next row,
+      // and the four parameters are seeded from that plugin's own defaults at
+      // that moment, because a plugin's idea of neutral is not 50%.
+      fx.amount = 1.0f;
+      fx.paramA = fx.paramB = fx.paramC = fx.paramD = 0.5f;
       break;
     case AudioEffectKind::None:
     case AudioEffectKind::Count:
@@ -1109,6 +1172,16 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
     const double dry = 1.0 - wet;
 
     switch (fx.kind) {
+      case AudioEffectKind::Plugin: {
+        // Somebody else's code, at the position in the chain the operator put
+        // it. Everything about it -- the instance, the dry/wet, the scratch,
+        // the time budget it has to keep to -- belongs to the host; this is
+        // just where in the order it happens.
+        if (ctx.host) {
+          ctx.host->processPluginSlot(index, fx, samples.data(), frames);
+        }
+        break;
+      }
       case AudioEffectKind::HighPass:
       case AudioEffectKind::LowPass: {
         // 20Hz-2kHz for the high pass, 200Hz-20kHz for the low: the ranges
@@ -2246,6 +2319,115 @@ inline bool audioChainNeedsPicture(const std::vector<AudioEffect>& stack) {
 // picture stack uses one: a variable number of columns would shift every
 // positional index after it, which this project file already carries scars
 // from.
+namespace detail {
+
+// A show file is tab-delimited text and this record is colon-delimited inside
+// it, so a plugin id -- which on Windows reads "vst3:C:/Program Files/..." --
+// cannot go in raw. Percent-encoding, restricted to the characters that would
+// break a field, so the id stays readable in a diff.
+inline std::string escapeAudioField(const std::string& text) {
+  static const char* kHex = "0123456789ABCDEF";
+  std::string out;
+  out.reserve(text.size());
+  for (const unsigned char c : text) {
+    if (c == ':' || c == '|' || c == '%' || c == '\t' || c == '\n' ||
+        c == '\r' || c < 0x20) {
+      out.push_back('%');
+      out.push_back(kHex[c >> 4]);
+      out.push_back(kHex[c & 0x0f]);
+    } else {
+      out.push_back(static_cast<char>(c));
+    }
+  }
+  return out;
+}
+
+inline std::string unescapeAudioField(const std::string& text) {
+  auto hex = [](char c) -> int {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+  };
+  std::string out;
+  out.reserve(text.size());
+  for (std::size_t i = 0; i < text.size(); ++i) {
+    if (text[i] == '%' && i + 2 < text.size()) {
+      const int hi = hex(text[i + 1]);
+      const int lo = hex(text[i + 2]);
+      if (hi >= 0 && lo >= 0) {
+        out.push_back(static_cast<char>((hi << 4) | lo));
+        i += 2;
+        continue;
+      }
+    }
+    out.push_back(text[i]);
+  }
+  return out;
+}
+
+// A plugin's state is arbitrary binary -- often tens of kilobytes of it -- so
+// it goes in base64 rather than percent-encoded, which would treble the size of
+// something already the largest thing in the record.
+inline std::string base64Encode(const std::string& bytes) {
+  static const char* kSet =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  std::string out;
+  out.reserve((bytes.size() + 2) / 3 * 4);
+  std::size_t i = 0;
+  for (; i + 2 < bytes.size(); i += 3) {
+    const std::uint32_t v = (static_cast<unsigned char>(bytes[i]) << 16) |
+                            (static_cast<unsigned char>(bytes[i + 1]) << 8) |
+                            static_cast<unsigned char>(bytes[i + 2]);
+    out.push_back(kSet[(v >> 18) & 0x3f]);
+    out.push_back(kSet[(v >> 12) & 0x3f]);
+    out.push_back(kSet[(v >> 6) & 0x3f]);
+    out.push_back(kSet[v & 0x3f]);
+  }
+  if (i < bytes.size()) {
+    std::uint32_t v = static_cast<unsigned char>(bytes[i]) << 16;
+    const bool two = (i + 1) < bytes.size();
+    if (two) {
+      v |= static_cast<unsigned char>(bytes[i + 1]) << 8;
+    }
+    out.push_back(kSet[(v >> 18) & 0x3f]);
+    out.push_back(kSet[(v >> 12) & 0x3f]);
+    out.push_back(two ? kSet[(v >> 6) & 0x3f] : '=');
+    out.push_back('=');
+  }
+  return out;
+}
+
+inline std::string base64Decode(const std::string& text) {
+  auto value = [](char c) -> int {
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+    if (c >= '0' && c <= '9') return c - '0' + 52;
+    if (c == '+') return 62;
+    if (c == '/') return 63;
+    return -1;
+  };
+  std::string out;
+  out.reserve(text.size() / 4 * 3);
+  std::uint32_t acc = 0;
+  int bits = 0;
+  for (const char c : text) {
+    const int v = value(c);
+    if (v < 0) {
+      continue;   // padding, whitespace, or a character a text editor added
+    }
+    acc = (acc << 6) | static_cast<std::uint32_t>(v);
+    bits += 6;
+    if (bits >= 8) {
+      bits -= 8;
+      out.push_back(static_cast<char>((acc >> bits) & 0xff));
+    }
+  }
+  return out;
+}
+
+}  // namespace detail
+
 inline std::string serializeAudioEffects(const std::vector<AudioEffect>& stack) {
   std::string out;
   char buf[96];
@@ -2258,6 +2440,14 @@ inline std::string serializeAudioEffects(const std::vector<AudioEffect>& stack) 
                   fx.paramC, fx.paramD, fx.bypassed ? 1 : 0);
     if (!out.empty()) out += '|';
     out += buf;
+    // Only a plugin slot carries these, so every record written before plugins
+    // existed still round-trips byte for byte.
+    if (fx.kind == AudioEffectKind::Plugin) {
+      out += ':';
+      out += detail::escapeAudioField(fx.pluginId);
+      out += ':';
+      out += detail::base64Encode(fx.pluginState);
+    }
   }
   return out;
 }
@@ -2294,7 +2484,15 @@ inline std::vector<AudioEffect> parseAudioEffects(const std::string& text) {
     fx.paramC = std::clamp(num(4, 0.0f), 0.0f, 1.0f);
     fx.paramD = std::clamp(num(5, 0.0f), 0.0f, 1.0f);
     fx.bypassed = parts.size() > 6 && parts[6] == "1";
-    stack.push_back(fx);
+    if (fx.kind == AudioEffectKind::Plugin) {
+      if (parts.size() > 7) {
+        fx.pluginId = detail::unescapeAudioField(parts[7]);
+      }
+      if (parts.size() > 8) {
+        fx.pluginState = detail::base64Decode(parts[8]);
+      }
+    }
+    stack.push_back(std::move(fx));
   }
   return stack;
 }

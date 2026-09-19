@@ -776,6 +776,26 @@
         triggerToast("window capture fell back to screen grab — update ffmpeg for exact window capture");
       }
 
+      // A plugin a cue asked for that this machine has not got. The show still
+      // opens, the slot keeps the id and the settings, and it makes no sound
+      // -- which on a strange machine is worth being told once by name rather
+      // than discovering during the cue.
+      if (std::string missing = engine->consumeMissingAudioPlugin(); !missing.empty()) {
+        const std::size_t slash = missing.find_last_of("/\\");
+        if (slash != std::string::npos) {
+          missing = missing.substr(slash + 1);
+        }
+        triggerToast("plugin not installed here: " + missing);
+      }
+
+      // A plugin that could not keep up. It has taken itself out of the chain
+      // rather than click through the PA, and the operator is the only one who
+      // can decide what to do about it.
+      if (engine->consumeAudioPluginOverrun()) {
+        triggerToast("a plugin overran the audio thread and was bypassed — "
+                     "take it out of the chain");
+      }
+
       // Animate pattern cues: rebuild frame every tick using wall-clock time.
       const Cue* activeCue = activeCuePtr(deckIndex);
       if (activeCue && activeCue->kind == CueKind::Pattern) {

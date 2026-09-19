@@ -237,6 +237,68 @@ if(ENABLE_VST3)
   endif()
 endif()
 
+###############################################################################
+##                                                                           ##
+##             T H E   S W I T C H ,   A N D   W H Y   I T   I S            ##
+##                   L E F T   T U R N E D   O F F                          ##
+##                                                                           ##
+##  Here is the one rule we do not break, and we resent it properly.        ##
+##                                                                           ##
+##  Steinberg withdrew the VST2 SDK in 2018 and licenses it to nobody new.  ##
+##  Its terms and the GPL will not share a room. The result is twenty       ##
+##  years of working plugins stranded by paperwork, and we cannot fix that  ##
+##  by pretending it is not there: a Deckboy release carrying VST2 is a     ##
+##  Deckboy that cannot be released at all, and then nobody gets anything.  ##
+##  So ENABLE_VST2 is OFF here, it stays OFF, and every binary this         ##
+##  project publishes is built without it.                                  ##
+##                                                                           ##
+##  What we will not do is stand in your way. The host in                    ##
+##  audio_plugin_vst2.inc is written from the API's shape and includes      ##
+##  NONE of Steinberg's headers -- nothing of theirs is in this repo. Point ##
+##  it at an SDK you hold a licence for and it builds:                      ##
+##                                                                           ##
+##    cmake -B build -DENABLE_VST2=ON -DVST2_SDK_DIR=/path/to/VST2_SDK      ##
+##                                                                           ##
+##  It refuses to configure without that path, on purpose. Your SDK, your   ##
+##  build, your call -- and your name on it, which is the part that makes   ##
+##  it legitimate rather than clever.                                       ##
+##                                                                           ##
+##  Nothing else changes. The scan, the chain slot, the parameter rows and  ##
+##  the show format never cared what format a plugin was; VST2 is one more  ##
+##  branch in openAudioPlugin. That is what the seam was for.               ##
+##                                                                           ##
+##  Flipping this for something you then publish as Deckboy is the single   ##
+##  move that makes it everybody's problem. Don't be that pirate.           ##
+##                                                                           ##
+###############################################################################
+option(ENABLE_VST2 "Host VST2 plugins. OFF, and off in every shipped build: \
+the VST2 SDK is not licensed to new hosts. Requires VST2_SDK_DIR pointing at \
+an SDK you hold a licence for." OFF)
+set(VST2_SDK_DIR "" CACHE PATH "Your own VST2 SDK, for ENABLE_VST2 builds")
+
+if(ENABLE_VST2)
+  find_path(VST2_INCLUDE_DIR
+    NAMES pluginterfaces/vst2.x/aeffect.h public.sdk/source/vst2.x/aeffect.h aeffect.h
+    HINTS ${VST2_SDK_DIR}
+    NO_DEFAULT_PATH)
+  if(VST2_INCLUDE_DIR)
+    # LOUD, every configure. A switch like this must never be something a
+    # build turns on quietly and somebody notices later.
+    message(WARNING
+      "=========================================================\n"
+      "  VST2 HOSTING IS ON. Welcome aboard.\n"
+      "  SDK: ${VST2_INCLUDE_DIR}\n"
+      "  This is not a configuration Deckboy ships, so this\n"
+      "  binary is yours -- your SDK licence, your build, your\n"
+      "  name on it. Do not hand it out as a Deckboy release.\n"
+      "=========================================================")
+  else()
+    message(FATAL_ERROR
+      "ENABLE_VST2=ON but no VST2 SDK was found. Set VST2_SDK_DIR to your own "
+      "copy. Deckboy does not ship one and cannot obtain one for you.")
+  endif()
+endif()
+
 
 
 # ── zlib, for reading the notes out of a .pptx ──────────────────────────────
@@ -842,6 +904,12 @@ endif()
 if(VST3_INCLUDE_DIR)
   target_include_directories(deckboy-native PRIVATE ${VST3_INCLUDE_DIR})
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_VST3=1)
+endif()
+
+# OFF in everything this project releases; see the ENABLE_VST2 block above.
+if(VST2_INCLUDE_DIR)
+  target_include_directories(deckboy-native PRIVATE ${VST2_INCLUDE_DIR})
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_VST2=1)
 endif()
 
 if(ZLIB_FOUND)

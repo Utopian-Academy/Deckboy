@@ -750,6 +750,140 @@ void audioEffectStackAdd() {
   });
 }
 
+// ── THE OPERATOR'S OWN PLUGINS ──────────────────────────────────────────────
+//
+// Scanned once and kept: the scan is filesystem work rather than module
+// loading, but a machine with a hundred and twenty plugins across two folders
+// on a slow drive should still only pay for it once. Refreshed when the
+// operator asks for the list and it came back empty, because the usual reason
+// for that is a plugin installed while Deckboy was already running.
+std::vector<deckboy::platform::audioplugin::PluginDescriptor> audioPluginCatalog_;
+bool audioPluginCatalogScanned_ = false;
+
+const std::vector<deckboy::platform::audioplugin::PluginDescriptor>&
+audioPluginCatalog(bool rescan = false) {
+  if (!audioPluginCatalogScanned_ || rescan || audioPluginCatalog_.empty()) {
+    audioPluginCatalog_ = deckboy::platform::audioplugin::scanAudioPlugins();
+    audioPluginCatalogScanned_ = true;
+  }
+  return audioPluginCatalog_;
+}
+
+// What a plugin slot calls itself in the UI: the plugin's name where there is
+// one, the id where the plugin is not installed on this machine (so a touring
+// show says WHICH plugin it is missing rather than "none"), and an invitation
+// where nothing has been chosen yet.
+std::string audioPluginSlotLabel(const deckboy::audiofx::AudioEffect& fx) {
+  if (fx.pluginId.empty()) {
+    return "choose...";
+  }
+  for (const auto& d : audioPluginCatalog_) {
+    if (d.id == fx.pluginId) {
+      return d.vendor.empty() ? d.name : (d.vendor + " " + d.name);
+    }
+  }
+  // Not in the catalog: show the tail of the id, which is the plugin's own
+  // file name and the thing an operator would recognise.
+  const std::size_t slash = fx.pluginId.find_last_of("/\\");
+  const std::string tail = slash == std::string::npos
+                             ? fx.pluginId : fx.pluginId.substr(slash + 1);
+  return tail + "  (not installed)";
+}
+
+// The plugin actually LOADED in a chain position, or null. Only the live cue
+// on the focused deck has instances -- a cue sitting in the playlist has an id
+// and some saved state and nothing running -- so this answers null unless the
+// cue the inspector is showing is the one playing. The rows then fall back to
+// the generic control names, which is the honest answer: nothing is loaded, so
+// nothing can be asked what its knobs are called.
+std::shared_ptr<deckboy::platform::audioplugin::AudioPluginInstance>
+audioPluginInstanceForRow(int index) {
+  if (project_.focusedDeckIndex < 0 ||
+      project_.focusedDeckIndex >= static_cast<int>(project_.decks.size())) {
+    return nullptr;
+  }
+  const Deck& deck = focusedDeck();
+  if (deck.activeIndex < 0 ||
+      deck.activeIndex >= static_cast<int>(deck.cues.size()) ||
+      !cueIndexSelected(deck, deck.activeIndex)) {
+    return nullptr;
+  }
+  MediaEngine* engine = focusedMediaEngine();
+  return engine ? engine->audioPluginForSlot(index) : nullptr;
+}
+
+void audioEffectStackChoosePlugin(int index) {
+  auto* stack = selectedAudioEffectStack();
+  if (!audioEffectIndexValid(stack, index)) {
+    return;
+  }
+  if (!deckboy::platform::audioplugin::audioPluginsSupported()) {
+    // Never an empty list: "you own none" and "this build cannot load them"
+    // look identical to an operator, and only one of them is fixable by them.
+    triggerToast("this build has no plugin support");
+    return;
+  }
+  const auto& catalog = audioPluginCatalog(true);
+  if (catalog.empty()) {
+    const auto paths = deckboy::platform::audioplugin::audioPluginSearchPaths();
+    triggerToast(paths.empty() ? "no plugins found"
+                               : ("no plugins found in " + paths.front()));
+    return;
+  }
+  std::vector<std::pair<std::string, std::string>> choices;
+  choices.reserve(catalog.size() + 1);
+  choices.push_back({"", "(none)"});
+  for (const auto& d : catalog) {
+    choices.push_back({d.id, d.vendor.empty() ? d.name : (d.vendor + " " + d.name)});
+  }
+  openDropdown("cue.audiofx.plugin", lastInlineEditorAnchorRect_, choices,
+               (*stack)[index].pluginId,
+               [this, index](const std::string& id) {
+    // THE PARAMETERS COME FROM THE PLUGIN. Deckboy's own effects arrive at
+    // audioEffectDefaults, but a plugin's idea of neutral is its own -- a
+    // compressor at 50% threshold is not the same claim as a filter at 50%.
+    // So the four mapped controls are seeded by opening the plugin once, here,
+    // on the main thread, and reading what it says its defaults are.
+    float seeded[4] = {0.5f, 0.5f, 0.5f, 0.5f};
+    std::string name = "none";
+    if (!id.empty()) {
+      auto probe = deckboy::platform::audioplugin::openAudioPlugin(id, 48000.0, 2048);
+      if (!probe) {
+        triggerToast("could not load that plugin");
+        return;
+      }
+      int taken = 0;
+      for (const auto& p : probe->parameters()) {
+        if (!p.automatable) {
+          continue;
+        }
+        if (taken >= 4) {
+          break;
+        }
+        seeded[taken++] = static_cast<float>(
+          std::clamp(p.defaultValue, 0.0, 1.0));
+      }
+      name = probe->descriptor().name;
+    }
+    forEachSelectedAudioStack(
+      [index, &id, &seeded](std::vector<deckboy::audiofx::AudioEffect>& s) {
+        if (index >= static_cast<int>(s.size()) ||
+            s[index].kind != deckboy::audiofx::AudioEffectKind::Plugin) {
+          return;
+        }
+        s[index].pluginId = id;
+        // A different plugin's state means nothing to this one, and handing it
+        // over is how a plugin ends up in a state its own author never saw.
+        s[index].pluginState.clear();
+        s[index].paramA = seeded[0];
+        s[index].paramB = seeded[1];
+        s[index].paramC = seeded[2];
+        s[index].paramD = seeded[3];
+      });
+    triggerToast(id.empty() ? "plugin slot cleared" : ("loaded " + name));
+  });
+}
+
 void audioEffectStackRemove(int index) {
   auto* stack = selectedAudioEffectStack();
   if (!audioEffectIndexValid(stack, index)) {
