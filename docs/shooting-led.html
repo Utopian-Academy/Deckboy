@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shooting an LED wall — moiré, lenses, staging and what to check first | Deckboy</title>
+    <meta name="description" content="Why an LED wall moirés on camera and what actually fixes it: sensor pitch against panel pitch, aperture and focal length, distance and angle, shutter against the panel's refresh and scan rate, and the black-level and colour-shift traps. Plus the staging decisions — throw, height, rake, ambient spill — and an on-site order of checks. Practical, free, no sign-up.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/shooting-led.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Shooting an LED wall: moiré, lenses, staging">
+    <meta property="og:description" content="What actually causes moiré on a wall, what fixes it on the day, and the order to check things in when the camera goes live in an hour.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/shooting-led.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/patterns/crosshatch.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shooting an LED wall">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/patterns/crosshatch.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.8rem 0 .7rem; font-size: 1.22rem; color: var(--ink); }
+        .prose h3 { margin: 1.9rem 0 .45rem; font-size: 1.02rem; color: var(--ink); }
+        .prose p, .prose li { color: var(--ink-soft); max-width: 63ch; margin-bottom: 1rem; }
+        .prose ul, .prose ol { margin: 0 0 1rem 1.3rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+        .prose table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+        .prose th, .prose td { text-align: left; padding: .55rem .7rem; font-size: .92rem;
+                               vertical-align: top; }
+        .callout { border-left: 3px solid var(--ink-soft); background: var(--panel);
+                   padding: .9rem 1.1rem; margin: 1.2rem 0 1.8rem; }
+        .callout p { margin: 0; color: var(--ink-body); }
+        .order { counter-reset: step; list-style: none; margin-left: 0; }
+        .order li { position: relative; padding-left: 2.6rem; }
+        .order li::before { counter-increment: step; content: counter(step);
+            position: absolute; left: 0; top: .05rem; width: 1.8rem; height: 1.8rem;
+            display: grid; place-items: center; border: 2px solid var(--ink-soft);
+            color: var(--ink); font-family: var(--pixel); font-size: .6rem; }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="trailer.html">Trailer</a>
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="test-patterns.html">Patterns</a>
+            <a href="led-wall.html">Generator</a>
+            <a href="databend.html">Databend</a>
+            <a href="screen-check.html">Screen check</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom:.5rem">
+        <div class="hero-content">
+            <h1>Shooting<br><span class="gradient-text">an LED wall</span></h1>
+            <p class="hero-subtitle">Why it moirés, what actually fixes it, and the order to check
+            things in when the camera goes live in an hour. Written for the person holding the
+            lens, not the brochure.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <h2>Moiré is a sampling problem, not a screen fault</h2>
+        <p>A wall is a grid of emitters. A sensor is a grid of photosites. Point one at the other
+        and you are sampling a regular pattern with another regular pattern &mdash; and when the
+        two spacings land close to a simple ratio, the difference between them shows up as slow
+        bands that crawl when anything moves. That is aliasing, and the wall is innocent.</p>
+
+        <p>It follows that anything changing the <em>ratio</em> helps, and anything changing the
+        content does not. Repainting the graphic will not fix moiré. Moving the camera might.</p>
+
+        <h3>What changes the ratio</h3>
+        <table>
+            <tr><th>Move</th><th>What it does</th><th>Cost</th></tr>
+            <tr><td><b>Change distance</b></td>
+                <td>Alters how many panel pixels land on each photosite. Usually the fastest fix:
+                a metre either way often clears it.</td>
+                <td>Framing changes.</td></tr>
+            <tr><td><b>Change focal length</b> and re-frame from a new spot</td>
+                <td>Same effect, different route &mdash; same shot, different sampling.</td>
+                <td>Perspective changes.</td></tr>
+            <tr><td><b>Open the aperture</b></td>
+                <td>Shallower depth of field, so the wall falls slightly out of focus and the
+                grid is optically blurred before it is sampled. This is the classic fix and it
+                looks intentional.</td>
+                <td>Exposure, and the wall goes soft.</td></tr>
+            <tr><td><b>Come off axis</b></td>
+                <td>Rotates the sensor grid relative to the panel grid. A few degrees is often
+                enough.</td>
+                <td>Angle on the wall, and LED brightness falls off axis.</td></tr>
+            <tr><td><b>Defocus slightly</b></td>
+                <td>Blunt but effective on a background wall nobody is meant to read.</td>
+                <td>Obvious if there is text on it.</td></tr>
+        </table>
+
+        <div class="callout">
+            <p>Notice what is <b>not</b> on that list: the content, the processor, the brightness,
+            and the resolution of the file you are playing. If someone suggests re-exporting the
+            video to fix moiré, the shot is not the problem you are solving.</p>
+        </div>
+
+        <h3>The other banding, which is not moiré</h3>
+        <p>Horizontal bands that <em>roll</em> through the frame are the panel's refresh, not its
+        pixel grid. An LED wall does not hold a steady light level: it strobes, at a scan rate
+        that may be thousands of hertz, and a camera shutter that is not a whole multiple of that
+        period catches some strobes and misses others. The fixes are different:</p>
+        <ul>
+            <li><b>Shutter angle or speed</b> &mdash; walk it until the bands stop. 1/50 and 1/60
+                are the usual landing points, and a 180&deg; shutter at the frame rate you are
+                shooting is the first thing to try.</li>
+            <li><b>The wall's own scan and refresh settings</b> &mdash; a processor set to a higher
+                refresh, or to a camera-friendly scan mode, fixes it at source. This is the right
+                answer if the wall will be on camera all day, and it is a five-minute job for
+                whoever owns the processor.</li>
+            <li><b>Genlock</b> if the chain supports it.</li>
+        </ul>
+        <p>Tell the two apart by moving the camera: moiré from the pixel grid moves with the
+        camera, scan banding does not.</p>
+
+        <h2>What the wall does to your exposure</h2>
+        <ul>
+            <li><b>It is a light source, not a surface.</b> It does not take key light; it throws
+                it. Expose for the talent and the wall will usually be hot, which is why walls are
+                run at 30&ndash;60% brightness for camera rather than the full output they are sold on.</li>
+            <li><b>Black is not black on camera.</b> A wall's floor is a dark grey that a sensor
+                lifts further, so a "black" background often reads as a smoky panel with visible
+                seams. Check it on the camera, not with your eyes.</li>
+            <li><b>Colour shifts off axis.</b> LEDs are directional; a camera 40&deg; off centre
+                does not see the colour the front row sees. Grade to the camera's position if the
+                camera is the audience.</li>
+            <li><b>Watch for a green or magenta cast</b> that only appears on camera. Sensors and
+                LEDs disagree about spectrum, and the fix is a white balance shot off the wall
+                itself, not off a card in front of it.</li>
+        </ul>
+
+        <h2>Staging: the decisions made before anyone lifts a lens</h2>
+        <ul>
+            <li><b>Height and rake.</b> If the wall is above head height, everyone is looking up
+                and the camera is looking up with them &mdash; which puts the panels' worst viewing
+                angle in the shot. Lower is nearly always better on camera.</li>
+            <li><b>Distance to the nearest person.</b> Inside about
+                <code>3.4 &times; pitch</code> metres the pixels are individually visible.
+                <a href="led-calculator.html">The calculator</a> gives the number for a given wall;
+                if the front row is inside it, that wall is scenery, not a screen.</li>
+            <li><b>Ambient spill.</b> Stage wash landing on the panels raises their black level
+                far more than it raises anything else in shot. Flag the wash off the wall before
+                reaching for the processor.</li>
+            <li><b>Where the seams fall.</b> Panel joins are invisible in motion and obvious on a
+                flat colour, so put flat colour where the seams are not: a gradient, a texture or a
+                slow move hides a join that a plain background advertises.</li>
+            <li><b>Content at the wall's own raster.</b> Not 1080p scaled up. Scaling is what
+                softens the one-pixel detail moiré loves and text needs.</li>
+        </ul>
+
+        <h2>On the day, in this order</h2>
+        <ol class="order">
+            <li><b>Prove the pixel map before anything else.</b> Put up a
+                <a href="led-wall.html">numbered panel map</a> at the wall's exact raster. A
+                swapped tile shows the wrong number, a rotated one shows the corner marker in the
+                wrong corner, and a dead receiver card shows nothing. Five minutes here saves an
+                argument at rehearsal.</li>
+            <li><b>Check 1:1 mapping.</b> A one-pixel checkerboard should look like a crisp
+                checkerboard, not a soft grey field. If it is soft, something in the chain is
+                scaling and every later judgement is being made through it.</li>
+            <li><b>Set black level.</b> Dark-detail steps, with the house lights at show state,
+                looking at the camera's picture rather than the wall.</li>
+            <li><b>Check uniformity.</b> Flat fields at 25, 50 and 100 per cent. Mismatched batches
+                and dead pixels show on flat colour and nowhere else.</li>
+            <li><b>Then move the camera</b> for moiré: distance first, aperture second, angle
+                third.</li>
+            <li><b>Then walk the shutter</b> for scan banding.</li>
+            <li><b>White balance off the wall</b> and grade to the camera's position.</li>
+            <li><b>Only now</b> put the show content up. Every earlier step is quicker to diagnose
+                on a pattern than on a picture somebody has opinions about.</li>
+        </ol>
+
+        <h2>Patterns for each of those steps</h2>
+        <p>Free, generated at your wall's exact size, nothing to sign up for:
+        <a href="led-wall.html">panel map, 1:1 moiré tests, dark detail, uniformity, boresight,
+        crosshatch, SMPTE bars, PLUGE, convergence, multiburst and safe areas</a>. If you would
+        rather have a fixed 1920&times;1080 set to keep on a stick,
+        <a href="test-patterns.html">there is a kit</a>.</p>
+
+        <p>Deckboy plays them, and the show, from one cue list &mdash; free and open source for
+        Windows, macOS and Linux, at whatever raster the wall actually is, with a moving frame
+        counter and latency clock for the faults a still cannot show.</p>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2rem">
+            <a href="led-wall.html" class="btn-large">Generate the patterns</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large btn-outline">Download Deckboy</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.
+        Writing about it? <a href="press.html">Press kit</a>.</p>
+    </footer>
+</body>
+</html>
