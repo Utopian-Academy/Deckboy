@@ -1141,7 +1141,7 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount,
   // scratch vector across threads would be a race, and it is the only mutable
   // state here.
   detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
-  std::vector<std::uint32_t> run;
+  std::vector<std::uint64_t> run;
   for (int y = firstRow; y < lastRow; ++y) {
     const std::size_t rowOff = static_cast<std::size_t>(y) * w * 4;
     int x = 0;
@@ -1164,28 +1164,38 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount,
       for (int i = 0; i < len; ++i) {
         std::uint32_t px = 0;
         std::memcpy(&px, pixels + rowOff + static_cast<std::size_t>(begin + i) * 4, 4);
-        run.push_back(px);
+        // THE KEY IS BUILT ONCE PER PIXEL, NOT ONCE PER COMPARISON.
+        //
+        // The comparator below used to recompute both pixels' luma every time
+        // it was called -- six multiplies per comparison, and a sort makes
+        // about n log n of them, so a long run paid for its own luma dozens of
+        // times over. At a 4K output pixel sort measured 50.7ms a frame, the
+        // most expensive effect in the set.
+        //
+        // Luma is 16 bits (255 * 256 at most), so the whole ordering fits in
+        // one 64-bit key: luma in the high half, the pixel itself in the low
+        // half as the tiebreak that keeps the result identical on every
+        // platform. Sorting plain integers is then all the comparator has to
+        // do. Reversing flips the luma half only -- ties still break upward on
+        // the pixel, exactly as before.
+        const std::uint32_t lumaKey = static_cast<std::uint32_t>(
+          ((px >> 16) & 0xFF) * 77 + ((px >> 8) & 0xFF) * 151 + (px & 0xFF) * 28);
+        const std::uint64_t ordered = reverse ? (65535u - lumaKey) : lumaKey;
+        run.push_back((ordered << 32) | px);
       }
-      // A TOTAL ORDER, not just a luma comparison.
-      //
-      // std::sort says nothing about how it orders elements it considers
-      // equal, and two standard libraries do not have to agree. Sorting by
-      // luma alone left every equal-luma pixel free to land anywhere, so the
-      // same cue rendered visibly differently on macOS than on Windows --
-      // caught by diffing the two byte for byte, and invisible any other way.
-      // Breaking the tie on the pixel itself makes the result the same
-      // everywhere without a stable sort's allocation.
-      std::sort(run.begin(), run.end(), [reverse](std::uint32_t a, std::uint32_t b) {
-        const int la = ((a >> 16) & 0xFF) * 77 + ((a >> 8) & 0xFF) * 151 + (a & 0xFF) * 28;
-        const int lb = ((b >> 16) & 0xFF) * 77 + ((b >> 8) & 0xFF) * 151 + (b & 0xFF) * 28;
-        if (la != lb) {
-          return reverse ? lb < la : la < lb;
-        }
-        return a < b;
-      });
+      // A TOTAL ORDER, not just a luma comparison. std::sort says nothing about
+      // how it orders elements it considers equal, and two standard libraries
+      // do not have to agree -- sorting by luma alone left every equal-luma
+      // pixel free to land anywhere, so the same cue rendered visibly
+      // differently on macOS than on Windows. Caught by diffing the two byte
+      // for byte, and invisible any other way. The pixel in the key's low half
+      // is that tiebreak, so this is a plain integer sort with the same result
+      // everywhere.
+      std::sort(run.begin(), run.end());
       for (int i = 0; i < len; ++i) {
-        std::memcpy(pixels + rowOff + static_cast<std::size_t>(begin + i) * 4,
-                    &run[static_cast<std::size_t>(i)], 4);
+        const std::uint32_t px =
+          static_cast<std::uint32_t>(run[static_cast<std::size_t>(i)] & 0xFFFFFFFFu);
+        std::memcpy(pixels + rowOff + static_cast<std::size_t>(begin + i) * 4, &px, 4);
       }
     }
   }
