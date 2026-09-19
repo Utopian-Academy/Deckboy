@@ -1,5 +1,32 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-18 - v0.99.369 (a desk you can read at a glance)
+
+**Switches look switched on.** Every two-state control in the cue inspector and
+the settings menu -- loop, hold, fade, mute, and the rest -- drew its on and
+off states in the same colour on half the bundled themes, so the only way to
+tell was to read the word inside it. A lit control is now unmistakable at a
+glance, in every theme.
+
+**Straighter rows, and controls you can hit.** The playlist scrollbar is a
+proper bar with a target to match, rather than a hairline that ignored your
+interface scale. The loop icon sits inside its button. The transition style row
+lines up with the rows above and below it.
+
+**Deckboy opens to fit the screen it lands on.** On a display running at 125%
+or 150% -- which is how most 4K screens are set up -- the window now opens
+proportionally larger, so the bottom bar and the MENU button are there without
+resizing first.
+
+**The MENU button keeps its gear**, and the wall clock is Eddie's Clock.
+
+**A pattern that cannot be made says which one.** "pattern: invalid" now names
+the pattern it was asked for.
+
+**Linux: the AppImage runs on Ubuntu 22.04 again**, which is what a lot of
+venue machines run. Every library inside it is now built against that floor,
+and the build checks it on every run rather than trusting it.
+
 ## 2026-09-18 - v0.99.368 (window cues, tidied and quickened)
 
 **No stray pixels down the edges.** A window's rounded corners and a web page's
