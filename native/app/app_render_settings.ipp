@@ -829,7 +829,8 @@
       // Off by default. It sits beside the other operator-feedback switches
       // because that is what it is: nothing about the show changes, the
       // operator just gets told the time.
-      SDL_Rect clockBtn = settingsRow(appX, appW, appY, sRowH, "Clock", sGap);
+      // "Eddie's Clock", James's name for it.
+      SDL_Rect clockBtn = settingsRow(appX, appW, appY, sRowH, "Eddie's Clock", sGap);
       const std::string clockMode =
         project_.clockMode.empty() ? std::string("off") : project_.clockMode;
       drawPillToggle(clockBtn, clockMode != "off",

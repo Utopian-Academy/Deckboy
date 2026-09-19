@@ -2429,50 +2429,66 @@
       SDL_Color accent = emphasized ? pal.light : pal.dark;
       drawUIPanel(button.rect, button.fill, pal.deep, accent);
 
-      // An icon is an ADORNMENT; the label is the control. When both cannot
-      // fit, drop the icon, not the word — a gear beside "SET..." tells an
-      // operator strictly less than "SETTINGS" alone. Narrowing the OUTPUT
-      // group to fit RECORD is what surfaced this, but it was always latent:
-      // any window narrow enough truncated a labelled button silently.
-      // ONE GEOMETRY, used to DECIDE and to DRAW. The icon is an adornment and
-      // the label is the control, so when both cannot fit the icon goes -- a
-      // gear beside "..." tells an operator strictly less than the word alone.
+      // KEEP THE ICON AND THE WORD. James asked for the gear beside MENU, and
+      // an earlier fix here dropped the icon whenever the pair would not fit --
+      // which at a scaled-up interface was always. So the layout is TIGHTENED
+      // before anything is given up: normal spacing first, then close spacing,
+      // then a smaller icon, and only then the icon goes. A gear beside "..."
+      // would tell an operator less than the word alone, so the word is what
+      // survives at the very end.
       //
-      // This decision was made twice before, in two different coordinate
-      // spaces: the probe measured a 24px icon and 8px insets while the draw
-      // used uiScaled() ones, so at any UI scale above 1x the probe believed
-      // there was room, kept the icon, and the draw then ellipsized the word.
-      // MENU came out as "..." beside a gear on exactly the machines where the
-      // interface is scaled up. Measuring one thing two ways is the fault; the
-      // numbers below are now computed once and used for both.
+      // ONE GEOMETRY, used to DECIDE and to DRAW. That decision was once made
+      // in a different coordinate space from the drawing -- the probe measured
+      // a 24px icon with 8px insets while the draw used uiScaled() ones -- so
+      // above 1x the probe believed there was room, kept the icon, and the draw
+      // then ellipsized the word. MENU came out as "..." beside a gear on
+      // exactly the machines whose interface is scaled up, which includes the
+      // 150% a 4K panel defaults to. Whatever changes here must move both.
       //
       // Icon+text buttons take the pixel face, matching the text-only branch:
       // these are short fixed labels (TAKE, STOP, IMPORT, MENU), the half of
       // the UI the pixel font is actually good at.
       TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
-      const int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
-      const int iconX = button.rect.x + uiScaled(8);
-      const int textX = iconX + iconSize + uiScaled(4);
+      int labelW = 0;
+      if (btnFont) {
+        TTF_GetStringSize(btnFont, button.label.c_str(), button.label.size(),
+                          &labelW, nullptr);
+      }
+      int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
+      int padLeft = uiScaled(8);
+      int iconGap = uiScaled(4);
+      int padRight = uiScaled(6);
       // Centred on the button's full height, like the text-only branch: the
       // 8-above/14-total inset was a 1x offset and rode the label high once the
       // font grew. safeTextRect is applied HERE because drawCenteredTextSafe
       // applies it too -- comparing against the raw width was why an earlier
       // attempt at this changed nothing.
-      const SDL_Rect labelRect = safeTextRect(SDL_Rect {
-        textX, button.rect.y,
-        button.rect.x + button.rect.w - textX - uiScaled(6),
-        button.rect.h});
-      if (icon && icon->texture) {
-        int fullW = 0;
-        if (btnFont) {
-          TTF_GetStringSize(btnFont, button.label.c_str(), button.label.size(),
-                            &fullW, nullptr);
-        }
-        if (fullW > labelRect.w) {
-          icon = nullptr;
-        }
+      auto labelRectFor = [&](int size, int left, int gap, int right) {
+        const int textX = button.rect.x + left + size + gap;
+        return safeTextRect(SDL_Rect {
+          textX, button.rect.y,
+          button.rect.x + button.rect.w - textX - right,
+          button.rect.h});
+      };
+      SDL_Rect labelRect = labelRectFor(iconSize, padLeft, iconGap, padRight);
+      if (icon && icon->texture && labelW > labelRect.w) {
+        // Close the spacing up first: padding is the cheapest thing to lose.
+        padLeft = uiScaled(4);
+        iconGap = uiScaled(3);
+        padRight = uiScaled(4);
+        labelRect = labelRectFor(iconSize, padLeft, iconGap, padRight);
       }
-
+      if (icon && icon->texture && labelW > labelRect.w) {
+        // Then shrink the icon, down to two thirds. A smaller gear still reads
+        // as a gear; half a word does not read as a word.
+        iconSize = std::max(uiScaled(14), iconSize * 2 / 3);
+        labelRect = labelRectFor(iconSize, padLeft, iconGap, padRight);
+      }
+      if (icon && icon->texture && labelW > labelRect.w) {
+        icon = nullptr;
+        labelRect = labelRectFor(0, 0, 0, 0);
+      }
+      const int iconX = button.rect.x + padLeft;
       if (icon && icon->texture) {
         // Icon on left, label on right. Scaled: a 24px icon in a doubled button
         // looked like a speck, and a fixed 8px inset left the label starting in
