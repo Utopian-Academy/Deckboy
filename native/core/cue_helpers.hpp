@@ -79,6 +79,27 @@ inline bool isSourceCueKind(CueKind kind) {
     || kind == CueKind::Syphon;
 }
 
+// Is this cue kind ALWAYS audio, whatever its file says?
+//
+// `Cue::hasAudio` is discovered by probing a file, which is right for media and
+// meaningless for a cue that generates its own sound. A Tone cue is nothing but
+// audio, and it was created with hasAudio false -- so every audio edit, which
+// gates on that flag, refused it: "no cue with audio selected", on a cue that
+// was audibly playing. The per-cue effect rack, the gain and the pan were all
+// unreachable on the one kind that is pure sound.
+//
+// Asked as a KIND question rather than fixed only at creation, so shows saved
+// before the fix behave correctly when they are opened again.
+inline bool cueKindIsAlwaysAudio(CueKind kind) {
+  return kind == CueKind::Tone || kind == CueKind::Audio;
+}
+
+// True when this cue carries audio the operator can work on -- a probed file,
+// a live source that brought sound with it, or a kind that generates its own.
+inline bool cueCarriesAudio(const Cue& cue) {
+  return cue.hasAudio || cueKindIsAlwaysAudio(cue.kind);
+}
+
 // Does the inspector show this cue the plain live-picture layout?
 //
 // SEPARATE FROM isSourceCueKind, which is about the capture BACKEND -- the

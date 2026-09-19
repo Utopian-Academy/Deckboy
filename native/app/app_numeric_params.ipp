@@ -677,7 +677,7 @@ bool forEachSelectedAudioStack(
   // an effect to a silent cue would have reported success.
   int edited = 0;
   lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& each, int) {
-    if (each.hasAudio) {
+    if (cueCarriesAudio(each)) {
       edit(each.audioEffects);
       ++edited;
     }

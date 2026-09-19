@@ -3526,7 +3526,7 @@
                                                 "Per-cue audio: enable, trim, pan, mono, fades, normalize");
       int ay = audioSection.bodyStartY;
       if (cueSectionAudioOpen_) {
-        if (!selectedCue->hasAudio) {
+        if (!cueCarriesAudio(*selectedCue)) {
           ay = drawInspectorMessageRow(ay, "no audio track", pal.light, pal.deep);
         } else {
           drawQuickRow(ay, "audio", QuickAction::ToggleCueAudio,
@@ -3839,7 +3839,7 @@
         return cueSupportsKeying(&cue);
       });
       bool allHasAudio = allSelectedCues([&](const Cue& cue) {
-        return cue.hasAudio;
+        return cueCarriesAudio(cue);
       });
       bool allLowerThird = allSelectedCues([&](const Cue& cue) {
         return cue.kind == CueKind::LowerThird;
@@ -5216,7 +5216,7 @@
     // Sits directly under EFFECTS, in the same shape, for the same reason the
     // picture stack sits outside the per-kind chain: a section that belongs to
     // more than one kind cannot live inside a branch.
-    if (selectedCue && selectedCue->hasAudio) {
+    if (selectedCue && cueCarriesAudio(*selectedCue)) {
       int afxY = inspectorSectionBottomMax_ + kInspectorSectionGap;
       auto afxSection = beginInspectorSection(afxY, "AUDIO FX",
                                               cueSectionAudioFxOpen_,

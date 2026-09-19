@@ -3411,6 +3411,13 @@
     cue.pauseOnLastFrame = true;
     cue.stillDurationSeconds = 0.0;
     cue.endAction = CueEndAction::Stop;
+    // A CHIP SYNTH IS NOTHING BUT AUDIO, and it has to say so. `hasAudio` is
+    // what every audio edit gates on -- the per-cue effect rack, the gain, the
+    // pan -- so leaving it false on the one cue kind that is pure sound meant
+    // the rack refused to attach to it: "no cue with audio selected", on a cue
+    // that was audibly playing. Reported from the trailer, where the music was
+    // asked to run through Deckboy's own delay and reverb and came out dry.
+    cue.hasAudio = true;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
