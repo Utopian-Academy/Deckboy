@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Databend a picture in your browser — play an image through an audio chain | Deckboy</title>
+    <meta name="description" content="Play a picture through an audio chain and paint what comes back: a delay with feedback, a one-pole filter and a wavefolder, running on the image itself. Drop in your own photo — it never leaves your machine — and pull the knobs. The same effect runs live on a cue in Deckboy, the free open-source cue deck for live video.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/databend.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Databend a picture in your browser">
+    <meta property="og:description" content="A delay with feedback, a filter and a wavefolder — run on your picture instead of a sound. Drop a photo in and pull the knobs. Nothing is uploaded.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/databend.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/databend.gif">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Databend a picture in your browser">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/databend.gif">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .lab { max-width: 1100px; margin: 0 auto 3rem; padding: 0 1.5rem; }
+        .stagewrap { border: 2px solid var(--rule); background: var(--panel); padding: .75rem; }
+        canvas { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+
+        .knobs { display: grid; gap: 1rem 1.6rem; margin: 1.4rem 0 1rem;
+                 grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+        .knob label { display: flex; justify-content: space-between; font-size: .82rem;
+                      color: var(--ink-soft); margin-bottom: .3rem; }
+        .knob label b { color: var(--ink); font-family: var(--mono); font-weight: normal; }
+        .knob input[type=range] { width: 100%; accent-color: var(--ink); }
+        .knob p { font-size: .76rem; color: var(--ink-soft); margin-top: .3rem; max-width: 40ch; }
+
+        .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: 1rem 0; }
+        .row .btn-large { font-size: .62rem; padding: .7rem 1.1rem; }
+        .filelabel { display: inline-block; border: 2px solid var(--ink-soft); padding: .7rem 1.1rem;
+                     font-family: var(--pixel); font-size: .62rem; color: var(--ink); cursor: pointer; }
+        .filelabel input { display: none; }
+        .note { font-size: .8rem; color: var(--ink-soft); }
+
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.4rem 0 .6rem; font-size: 1.18rem; color: var(--ink); }
+        .prose p, .prose li { color: var(--ink-soft); max-width: 62ch; margin-bottom: 1rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="test-patterns.html">Patterns</a>
+            <a href="screen-check.html">Screen check</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>Play a picture<br><span class="gradient-text">through an audio chain</span></h1>
+            <p class="hero-subtitle">The frame is read out as a signal, sample by sample, and
+            pushed through the things a sound goes through &mdash; a delay with feedback, a
+            one-pole filter, a wavefolder &mdash; and what comes back is painted. Pull the knobs.</p>
+        </div>
+    </header>
+
+    <div class="lab">
+        <div class="stagewrap"><canvas id="c" width="720" height="405"></canvas></div>
+
+        <div class="row">
+            <label class="filelabel">Use your own picture
+                <input type="file" id="file" accept="image/*">
+            </label>
+            <button class="btn-large" id="play">Pause motion</button>
+            <button class="btn-large btn-outline" id="save">Save the frame</button>
+            <button class="btn-large btn-outline" id="reset">Reset</button>
+            <span class="note">Your picture never leaves this machine &mdash; there is no server
+            to send it to.</span>
+        </div>
+
+        <div class="knobs">
+            <div class="knob">
+                <label>Amount <b id="vAmt">65%</b></label>
+                <input type="range" id="amt" min="0" max="100" value="65">
+                <p>How much of the bent signal is mixed back over the original.</p>
+            </div>
+            <div class="knob">
+                <label>Smear <b id="vA">50%</b></label>
+                <input type="range" id="a" min="0" max="100" value="50">
+                <p>The delay time. Short smears within a line; long drags the damage down the
+                frame. It only does anything once there is feedback to bring it back.</p>
+            </div>
+            <div class="knob">
+                <label>Feedback <b id="vB">58%</b></label>
+                <input type="range" id="b" min="0" max="100" value="58">
+                <p>How much of the delayed signal is fed back in. This is what turns a smear
+                into repeats.</p>
+            </div>
+            <div class="knob">
+                <label>Tone <b id="vC">45%</b></label>
+                <input type="range" id="c2" min="0" max="100" value="45">
+                <p>One pole of filtering: heavy lag and dark damage at the bottom, all edges and
+                grain at the top.</p>
+            </div>
+            <div class="knob">
+                <label>Fold <b id="vD">55%</b></label>
+                <input type="range" id="d" min="0" max="100" value="55">
+                <p>Drive into a triangle wavefolder. Past full scale the signal comes back
+                instead of flattening, which is why it keeps detail where clipping turns to
+                mush.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="prose">
+        <h2>This is not a filter pretending to be one</h2>
+        <p>Every pixel value is turned into a signal that swings through zero, the three colour
+        planes are run through the chain in scan order, and the result is painted back. The
+        delay is measured in samples, which on a picture is a distance along the scan &mdash; so
+        a short delay smears within a line and a long one drags whatever it caught down the
+        frame. The feedback path is what makes it repeat. Nothing here is a lookup table of
+        "glitch textures".</p>
+
+        <p>It runs on a reduced raster and the <em>difference</em> is scaled back up over the
+        original, which is why the picture keeps its own detail and gains the damage rather than
+        going soft. That is the same shape as the version inside Deckboy, where it has to fit
+        inside a frame at 1080p &mdash; about 6.5 milliseconds there, on the processor rather
+        than in a browser.</p>
+
+        <h2>The same effect, on a live cue</h2>
+        <p>In <a href="https://github.com/Utopian-Academy/Deckboy">Deckboy</a> this is a knob on
+        a cue, so it runs on a clip, a camera, a captured window or a web page while the show is
+        going out, with every parameter drivable from an oscillator. Its opposite number,
+        <b>audioprint</b>, goes the other way: it draws the audio the deck has just played
+        through the picture. Put one of each on the same cue and they bend each other.</p>
+
+        <p>Deckboy is free and open source, for Windows, macOS and Linux &mdash; a cue deck for
+        live video, with clips, slides and live sources on one cue list and output to a screen,
+        NDI, SRT, Blackmagic SDI or SMPTE ST&nbsp;2110.</p>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Deckboy</a>
+            <a href="compare.html" class="btn-large btn-outline">How it compares</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+
+<script>
+(function () {
+    "use strict";
+    var canvas = document.getElementById('c');
+    var ctx = canvas.getContext('2d', { willReadFrequently: true });
+    var W = canvas.width, H = canvas.height;
+
+    // The bend runs on a REDUCED raster and what is kept is the difference,
+    // scaled back over the full-size picture. A serial chain cannot be split --
+    // each sample depends on the ones before it -- so at full size this would
+    // be a million dependent steps per frame in JavaScript.
+    var BW = 240, BH = Math.round(BW * H / W);
+
+    var src = null;            // full-size ImageData of the loaded picture
+    var small = null;          // the reduced raster, as three float planes
+    var out = null;            // scratch ImageData we paint into
+    var frame = 0, running = true;
+
+    var el = {
+        amt: document.getElementById('amt'), a: document.getElementById('a'),
+        b: document.getElementById('b'), c: document.getElementById('c2'),
+        d: document.getElementById('d')
+    };
+    var read = {
+        vAmt: document.getElementById('vAmt'), vA: document.getElementById('vA'),
+        vB: document.getElementById('vB'), vC: document.getElementById('vC'),
+        vD: document.getElementById('vD')
+    };
+
+    function showValues() {
+        read.vAmt.textContent = el.amt.value + '%';
+        read.vA.textContent = el.a.value + '%';
+        read.vB.textContent = el.b.value + '%';
+        read.vC.textContent = el.c.value + '%';
+        read.vD.textContent = el.d.value + '%';
+    }
+
+    function prepare(img) {
+        var tmp = document.createElement('canvas');
+        tmp.width = W; tmp.height = H;
+        var tc = tmp.getContext('2d');
+        // Cover, not stretch: a squashed photograph is a worse advert than a cropped one.
+        var s = Math.max(W / img.width, H / img.height);
+        var dw = img.width * s, dh = img.height * s;
+        tc.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+        src = tc.getImageData(0, 0, W, H);
+        out = tc.createImageData(W, H);
+
+        var plane = BW * BH;
+        small = new Float32Array(plane * 3);
+        for (var y = 0; y < BH; y++) {
+            var sy = Math.floor(y * H / BH);
+            for (var x = 0; x < BW; x++) {
+                var sx = Math.floor(x * W / BW);
+                var at = (sy * W + sx) * 4, to = y * BW + x;
+                for (var ch = 0; ch < 3; ch++) {
+                    // byte to signal: 0..255 becomes -1..1, because every process
+                    // here is built around something that swings through zero.
+                    small[plane * ch + to] = src.data[at + ch] / 127.5 - 1;
+                }
+            }
+        }
+    }
+
+    function fold(v) {
+        // Triangle fold: past full scale it comes back rather than flattening.
+        v = (v + 1) % 4;
+        if (v < 0) v += 4;
+        return (v < 2 ? v : 4 - v) - 1;
+    }
+
+    function bend() {
+        if (!small) return;
+        var plane = BW * BH;
+        var pA = el.a.value / 100, pB = el.b.value / 100;
+        var pC = el.c.value / 100, pD = el.d.value / 100;
+        var amount = el.amt.value / 100;
+
+        var maxDelay = Math.max(2, Math.floor(plane / 2));
+        var delay = Math.max(2, Math.floor(2 + pA * pA * (maxDelay - 2)) + (frame % 17));
+        var feedback = Math.min(1, Math.max(0, pB)) * 0.95;
+        var pole = 1 - (0.02 + pC * 0.97);
+        var drive = 1 + pD * 6;
+
+        var wet = new Float32Array(small);
+        for (var ch = 0; ch < 3; ch++) {
+            var off = plane * ch, lp = 0;
+            for (var i = 0; i < plane; i++) {
+                var v = wet[off + i];
+                if (i >= delay) v += feedback * wet[off + i - delay];
+                lp = lp * pole + v * (1 - pole);
+                wet[off + i] = fold(lp * drive);
+            }
+        }
+
+        // The difference, scaled back up with bilinear sampling and added to the
+        // full-size picture: detail from the original, damage from the chain.
+        var d = out.data, sd = src.data;
+        for (var y = 0; y < H; y++) {
+            var fy = y * (BH - 1) / (H - 1), y0 = Math.floor(fy), y1 = Math.min(BH - 1, y0 + 1);
+            var ty = fy - y0;
+            for (var x = 0; x < W; x++) {
+                var fx = x * (BW - 1) / (W - 1), x0 = Math.floor(fx), x1 = Math.min(BW - 1, x0 + 1);
+                var tx = fx - x0, at = (y * W + x) * 4;
+                for (var c3 = 0; c3 < 3; c3++) {
+                    var p = plane * c3;
+                    var i00 = p + y0 * BW + x0, i10 = p + y0 * BW + x1;
+                    var i01 = p + y1 * BW + x0, i11 = p + y1 * BW + x1;
+                    var diff =
+                        (wet[i00] - small[i00]) * (1 - tx) * (1 - ty) +
+                        (wet[i10] - small[i10]) * tx * (1 - ty) +
+                        (wet[i01] - small[i01]) * (1 - tx) * ty +
+                        (wet[i11] - small[i11]) * tx * ty;
+                    var value = sd[at + c3] + diff * 127.5 * amount;
+                    d[at + c3] = value < 0 ? 0 : value > 255 ? 255 : value;
+                }
+                d[at + 3] = 255;
+            }
+        }
+        ctx.putImageData(out, 0, 0);
+    }
+
+    function tick() {
+        if (running) { frame++; bend(); }
+        setTimeout(function () { requestAnimationFrame(tick); }, 90);
+    }
+
+    // Controls
+    Object.keys(el).forEach(function (k) {
+        el[k].addEventListener('input', function () { showValues(); bend(); });
+    });
+    document.getElementById('play').addEventListener('click', function () {
+        running = !running;
+        this.textContent = running ? 'Pause motion' : 'Resume motion';
+    });
+    document.getElementById('reset').addEventListener('click', function () {
+        el.amt.value = 65; el.a.value = 50; el.b.value = 58; el.c.value = 45; el.d.value = 55;
+        showValues(); bend();
+    });
+    document.getElementById('save').addEventListener('click', function () {
+        var link = document.createElement('a');
+        link.download = 'databend.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+    document.getElementById('file').addEventListener('change', function (e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        var img = new Image();
+        img.onload = function () { prepare(img); bend(); };
+        // A local object URL: the bytes stay in this tab.
+        img.src = URL.createObjectURL(f);
+    });
+
+    var sample = new Image();
+    sample.onload = function () { prepare(sample); bend(); tick(); };
+    sample.src = 'patterns/picture-day.png';
+    showValues();
+})();
+</script>
+</body>
+</html>
