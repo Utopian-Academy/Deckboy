@@ -813,12 +813,41 @@ its own delay time.
 | Width | Narrows or widens the stereo image |
 | Binaural | Places the source around the listener's head |
 
+#### Your own plugins
+
+Deckboy hosts **VST3** effects and instruments, so a reverb you already own or
+the channel strip your mix is built around can sit in the same chain as
+Deckboy's own effects, in whatever order you put them — a gate before your
+reverb is a different sound from a reverb before your gate.
+
+Add a **Plugin** effect and pick from what is installed on the machine. The row
+names the plugin, and the four rows beneath it carry that plugin's own first
+four automatable controls, under the plugin's names for them. Everything else
+the plugin was set to is saved with the show and comes back with it.
+
+Plugins are opened when the cue is prepared, never between two buffers, and each
+one runs against a time budget: a plugin that cannot keep up with the block it
+was handed is taken out of the chain and the operator is told, rather than
+clicking through the PA. A show that opens on a machine missing one of its
+plugins keeps the slot, the settings and the name, and says which plugin it
+cannot find.
+
+`--plugins` lists what the machine has and the folders searched — run it before
+believing "Deckboy cannot see my reverb". `--plugin-chain-check` runs one in a
+real chain and measures that it, and its controls, change the sound.
+
+Deckboy's releases host VST3. VST2 is not included: Steinberg withdrew that SDK
+in 2018 and licenses it to no new host. The source carries an optional VST2
+backend for anyone who holds a licence of their own and builds it themselves.
+
+Companion: `AUDIOFX <slot> PLUGIN <name>`.
+
 #### The five that need the deck
 
-A plug-in receives a buffer of samples and nothing else. That is not a
-limitation anyone chose; it is what a plug-in *is*. Deckboy holds the picture
-and the sound in one object, so five of its effects can read the frame they are
-playing under — which nothing hosted in a mixing desk can do.
+A hosted plug-in receives a buffer of samples and nothing else. That is not a
+limitation anyone chose; it is what the interface *is*. Deckboy holds the
+picture and the sound in one object, so five of its own effects can read the
+frame they are playing under — which nothing hosted in a mixing desk can do.
 
 | Effect | What it reads |
 |--------|---------------|

@@ -1,5 +1,44 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-19 - v0.99.370 (your own plugins, in the cue's chain)
+
+**Deckboy hosts your VST3 plugins.** A reverb you already own or the channel
+strip your mix is built around can now sit in a cue's audio chain alongside
+Deckboy's own effects, in whatever order you put them. Add a Plugin effect,
+pick from what is installed on the machine, and the rows beneath it carry that
+plugin's own controls under the plugin's names for them. Everything else the
+plugin was set to is saved with the show.
+
+Plugins open when a cue is prepared, never between two buffers, and each runs
+against a time budget: one that cannot keep up with the block it was handed is
+taken out of the chain and the operator is told, rather than clicking through
+the PA. A show that opens on a machine missing one of its plugins keeps the
+slot, the settings and the name, and says which plugin it cannot find.
+
+`--plugins` lists what a machine has and where it looked, so "Deckboy cannot
+see my reverb" is answerable without guessing. `--plugin-chain-check` runs one
+in a real chain and measures that it, and its controls, change the sound.
+Companion gains `AUDIOFX <slot> PLUGIN <name>`.
+
+**A machine with no sound card still shows a picture.** Deckboy no longer
+requires an audio device to start. On a machine with none -- a rack PC feeding
+a video wall, a laptop with the interface unplugged -- the deck opens, cues
+play and the picture goes out, with the missing device reported once rather
+than taken as a reason to stop.
+
+**The audio rack attaches to Deckboy's own generators.** Tone cues carry the
+audio chain, and Audioprint and the Audio LFO read generated cues as well as
+files, so the deck's own sound sources can drive its picture effects and be
+bent by its own chain.
+
+**Kaleidoscope and pixel sort are quicker.** Kaleidoscope builds its fold map
+once and reuses it; pixel sort builds each key once per pixel instead of once
+per comparison. Same picture, more headroom at 4K.
+
+**Window cues: the picture arrives.** A window that had stopped being redrawn
+is nudged and, where the capture still cannot deliver, the deck falls back and
+says so rather than showing a black cue.
+
 ## 2026-09-18 - v0.99.369 (a desk you can read at a glance)
 
 **Switches look switched on.** Every two-state control in the cue inspector and
