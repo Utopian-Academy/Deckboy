@@ -4999,8 +4999,25 @@ bool MediaEngine::processAudioPluginSlot(std::size_t index,
     audioPluginScratch_.resize(need);
   }
   const auto& instance = audioPluginsActive_[index];
+  // ── UNITS. A PLUGIN SPEAKS ±1.0, THIS CHAIN SPEAKS ±32767 ─────────────────
+  //
+  // Deckboy's audio chain works in int16-scaled doubles, because that is what
+  // the gain stage hands the limiter and what the quantiser expects back. Every
+  // plugin format instead defines float audio as nominally ±1.0.
+  //
+  // Handing a plugin the raw chain values feeds it a signal about 32768x too
+  // hot -- every plugin clips flat internally -- and its correct ±1.0 answer
+  // then comes back as a number so small that against an int16 scale it IS
+  // silence. Both halves of that are inaudible in different ways: an effect
+  // sounds destroyed, and an instrument sounds like nothing at all.
+  //
+  // MEASURED, not reasoned about: an instrument returned peak 0.394 while the
+  // recording measured digital silence. The offline harness missed it for a
+  // year of one afternoon because its test signal is already ±1.0, so it fed
+  // plugins sane numbers by accident and they sounded correct.
+  constexpr double kPluginFullScale = 32768.0;
   for (std::size_t i = 0; i < need; ++i) {
-    audioPluginScratch_[i] = static_cast<float>(samples[i]);
+    audioPluginScratch_[i] = static_cast<float>(samples[i] / kPluginFullScale);
   }
   // SPLIT, never grow. The plugin was set up for kMaxAudioPluginBlockFrames and
   // refuses anything longer; a chunk that happens to be bigger is several
@@ -5022,7 +5039,7 @@ bool MediaEngine::processAudioPluginSlot(std::size_t index,
   const double dry = 1.0 - wet;
   for (std::size_t i = 0; i < need; ++i) {
     samples[i] = dry * samples[i] +
-                 wet * static_cast<double>(audioPluginScratch_[i]);
+                 wet * static_cast<double>(audioPluginScratch_[i]) * kPluginFullScale;
   }
   return true;
 }

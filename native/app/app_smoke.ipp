@@ -2157,12 +2157,22 @@
       ap::AudioPluginInstance* plugin = nullptr;
       std::vector<float> scratch;
       int processed = 0;
+      // THE SAME UNIT CONVERSION THE ENGINE DOES, deliberately duplicated.
+      //
+      // This harness used to hand the plugin its samples unscaled, which was
+      // invisible here because the test signal below is already ±1.0 -- so the
+      // check fed plugins correct numbers by accident and passed, while the
+      // engine fed them int16-scaled ones and an instrument came out silent.
+      // A harness whose signal cannot expose the fault will report the
+      // measurement rather than the truth, so it now works at the engine's
+      // scale and converts exactly as the engine does.
       bool processPluginSlot(std::size_t, const afx::AudioEffect& fx,
                              double* samples, std::size_t frames) override {
+        constexpr double kPluginFullScale = 32768.0;
         const std::size_t need = frames * 2;
         scratch.resize(need);
         for (std::size_t i = 0; i < need; ++i) {
-          scratch[i] = static_cast<float>(samples[i]);
+          scratch[i] = static_cast<float>(samples[i] / kPluginFullScale);
         }
         if (!plugin->process(scratch.data(), static_cast<int>(frames))) {
           return false;
@@ -2170,7 +2180,7 @@
         const double wet = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
         for (std::size_t i = 0; i < need; ++i) {
           samples[i] = (1.0 - wet) * samples[i] +
-                       wet * static_cast<double>(scratch[i]);
+                       wet * static_cast<double>(scratch[i]) * kPluginFullScale;
         }
         ++processed;
         return true;
@@ -2189,8 +2199,12 @@
         const double t = static_cast<double>(f) / kRate;
         rng = rng * 1664525u + 1013904223u;
         const double noise = static_cast<double>(rng >> 8) / 8388608.0 - 1.0;
-        const double v = 0.4 * std::sin(2.0 * kPi * 220.0 * t) +
-                         0.2 * std::sin(2.0 * kPi * 3500.0 * t) + 0.05 * noise;
+        // AT THE ENGINE'S SCALE (int16-valued doubles), so the conversion in
+        // the host above is exercised rather than bypassed. A ±1.0 signal here
+        // is what let a unit mismatch pass this check for an afternoon.
+        const double v = 32768.0 * (0.4 * std::sin(2.0 * kPi * 220.0 * t) +
+                                    0.2 * std::sin(2.0 * kPi * 3500.0 * t) +
+                                    0.05 * noise);
         s[static_cast<std::size_t>(f) * 2] = v;
         s[static_cast<std::size_t>(f) * 2 + 1] = v;
       }
