@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The trailer — Deckboy filmed itself, and wrote the music | Deckboy</title>
+    <meta name="description" content="Forty seconds of Deckboy: cue-based playback, thirteen transitions, effects that exist in no other player, a live application window and a web page taken as cues, slides with presenter view. Shot by the application itself over its own control port, scored with a chip-synth tune it played through its own reverb and delay. Free and open source for Windows, macOS and Linux.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/trailer.html">
+
+    <meta property="og:type" content="video.other">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Deckboy filmed itself, and wrote the music">
+    <meta property="og:description" content="Forty seconds, shot by the application over its own control port, scored with a chip-synth tune it played through its own reverb. Nobody touched the mouse.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/trailer.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/video/trailer-poster.png">
+    <meta property="og:video" content="https://utopian-academy.github.io/Deckboy/video/deckboy-trailer.mp4">
+    <meta property="og:video:type" content="video/mp4">
+    <meta property="og:video:width" content="1280">
+    <meta property="og:video:height" content="738">
+
+    <meta name="twitter:card" content="player">
+    <meta name="twitter:title" content="Deckboy filmed itself, and wrote the music">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/video/trailer-poster.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .stage { max-width: 1100px; margin: 0 auto 2rem; padding: 0 1.5rem; }
+        .stage video { width: 100%; height: auto; display: block;
+                       border: 2px solid var(--rule); background: #000; }
+        .under { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+                 margin-top: 1rem; }
+        .under .btn-large { font-size: .62rem; padding: .7rem 1.1rem; }
+        .under .note { font-size: .82rem; color: var(--ink-soft); }
+
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.6rem 0 .6rem; font-size: 1.2rem; color: var(--ink); }
+        .prose p, .prose li { color: var(--ink-soft); max-width: 62ch; margin-bottom: 1rem; }
+        .prose ul { margin-left: 1.3rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+        .pair { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                margin: 1.6rem 0 2rem; }
+        .pair figure { margin: 0; }
+        .pair img { width: 100%; height: auto; display: block; border: 2px solid var(--rule);
+                    image-rendering: pixelated; }
+        .pair figcaption { font-size: .8rem; color: var(--ink-soft); margin-top: .5rem; }
+        audio { width: 100%; margin: .6rem 0 1.4rem; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": "Deckboy in forty seconds",
+      "description": "Cue-based playback, thirteen transitions, effects that exist in no other player, a live application window and a web page taken as cues, slides with presenter view, and an everything-at-once finale. Shot by Deckboy itself over its own control port and scored with a chip-synth tune it performed.",
+      "thumbnailUrl": "https://utopian-academy.github.io/Deckboy/video/trailer-poster.png",
+      "contentUrl": "https://utopian-academy.github.io/Deckboy/video/deckboy-trailer.mp4",
+      "embedUrl": "https://utopian-academy.github.io/Deckboy/trailer.html",
+      "uploadDate": "2026-09-19",
+      "duration": "PT40S",
+      "isFamilyFriendly": true,
+      "publisher": { "@type": "Organization", "name": "Utopian Academy" }
+    }
+    </script>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="trailer.html">Trailer</a>
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="test-patterns.html">Patterns</a>
+            <a href="led-wall.html">Generator</a>
+            <a href="databend.html">Databend</a>
+            <a href="screen-check.html">Screen check</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>Nobody was<br><span class="gradient-text">driving this</span></h1>
+            <p class="hero-subtitle">Forty seconds of Deckboy, shot by Deckboy. Every cue was
+            fired down its own control port, the picture was recorded by its own recorder, and
+            the music is a chip voice the application played through its own reverb and delay.</p>
+        </div>
+    </header>
+
+    <div class="stage">
+        <video src="video/deckboy-trailer.mp4" poster="video/trailer-poster.png"
+               controls preload="metadata" playsinline>
+            Your browser cannot play this video.
+            <a href="video/deckboy-trailer.mp4">Download it instead</a>.
+        </video>
+        <div class="under">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Deckboy</a>
+            <a href="video/deckboy-trailer.mp4" class="btn-large btn-outline" download>Download the trailer</a>
+            <span class="note">40 seconds &middot; 1280&times;738 &middot; free to reuse, GPL-3.0 like the rest of it</span>
+        </div>
+    </div>
+
+    <div class="prose">
+        <h2>What is in it</h2>
+        <ul>
+            <li>Cue-based playback and thirteen cue-to-cue transitions.</li>
+            <li>Six effects that exist in no other player, a bar each: schlieren imaging,
+                Chladni figures, a real wave equation, crystal grain growth, retinal rod and
+                cone persistence, and structure-tensor grain flow.</li>
+            <li><b>Databend</b> &mdash; the picture read out as a signal and played through an
+                audio chain. <a href="databend.html">You can try that one in your browser</a>.</li>
+            <li>A live application window taken as a cue, and a live web page taken as a cue.
+                <a href="window-cues.html">How the window one works</a>.</li>
+            <li>Slides as cues, with presenter view on its own output.</li>
+            <li>An everything-at-once ending, which is what the application looks like when
+                somebody stops demonstrating it and starts playing with it.</li>
+        </ul>
+
+        <div class="pair">
+            <figure>
+                <img src="video/chladni.gif" alt="The Chladni effect running on the video synth: concentric orange and black rings moving.">
+                <figcaption><b>Chladni</b> &mdash; the pattern sand makes on a vibrating plate,
+                solved per pixel. Your picture is the sand.</figcaption>
+            </figure>
+            <figure>
+                <img src="video/databend-loop.gif" alt="The databend effect: gold rings tearing into horizontal bands and settling back.">
+                <figcaption><b>Databend</b> &mdash; a delay with feedback, a filter and a
+                wavefolder, run on the frame instead of a sound.</figcaption>
+            </figure>
+        </div>
+
+        <h2>How it was made, which is the joke</h2>
+        <p>There is no footage of anybody using Deckboy in this trailer, because nobody used it.
+        The whole performance was scheduled against a beat grid and fired down the same TCP
+        control port a Stream Deck or a Bitfocus Companion button would use &mdash;
+        <code>TAKE</code>, <code>FX ADD databend 72</code>, <code>SOURCE WINDOW title:LIVE NOW</code>
+        &mdash; one command at a time, on the beat, for forty seconds. The mouse was not touched.</p>
+
+        <p>The picture is Deckboy's own control window, captured at its real size. The window
+        cue you see going to air is a real browser window sitting off to one side of the same
+        desktop; the web page cue is a real page being rendered inside the programme. Nothing is
+        a mock-up, and nothing is anybody's media &mdash; every picture in it is generated by
+        Deckboy itself, so no client's show file appears anywhere.</p>
+
+        <h2>The music is the application too</h2>
+        <p>The tune is played on Deckboy's <b>2A03 chip voice</b> &mdash; a Tone cue, the same
+        one an operator would use to check a PA &mdash; four passes for lead, counter-line, bass
+        and drums, each fired down that same control port and recorded by Deckboy's own recorder.
+        It is tuned to <b>A&nbsp;=&nbsp;432&nbsp;Hz</b>, which is a field in the cue rather than
+        something done to the file afterwards.</p>
+        <p>The mix then went back into Deckboy as a cue and out through its own audio rack
+        &mdash; tilt, crush, a CD-skip stutter, delay, reverb, width and a compressor &mdash;
+        and that is what you are hearing. YMCK by way of a breakbeat, at 145&nbsp;bpm.</p>
+        <audio controls preload="none" src="video/deckboy-theme.mp3"></audio>
+
+        <h2>Reuse it</h2>
+        <p>The trailer, the music and the GIFs on this page are GPL-3.0 like the rest of the
+        project. If you are writing about Deckboy, or you want a loop for a talk, take them.</p>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Deckboy</a>
+            <a href="compare.html" class="btn-large btn-outline">How it compares</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+</body>
+</html>
