@@ -265,6 +265,34 @@ footer {
 
 footer a { color: var(--ink); }
 
+/* The site outgrew a navigation bar: fourteen links across the top on every
+   page. The bar now carries six, and the rest live here -- grouped, labelled,
+   and one click from anywhere. auto-fit rather than a fixed column count so
+   it collapses to a single column on a phone without a media query. */
+.footer-cols {
+    display: grid;
+    gap: 2rem 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    max-width: 1000px;
+    margin: 0 auto 2rem;
+    text-align: left;
+}
+.footer-cols h4 {
+    font-family: var(--pixel);
+    font-size: 0.62rem;
+    line-height: 1.8;
+    color: var(--ink);
+    margin: 0 0 .7rem;
+}
+.footer-cols a {
+    display: block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: .22rem 0;
+}
+.footer-cols a:hover { color: var(--ink); text-decoration: underline; }
+.footer-note { margin: 0; opacity: .75; }
+
 /* ── prose, used by compare.html and faq.html ───────────────────────────── */
 
 .prose h2 { font-family: var(--pixel); font-size: 0.8rem; line-height: 1.8; color: var(--ink); }
