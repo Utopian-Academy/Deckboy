@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Put an application window on the big screen — window cues | Deckboy</title>
+    <meta name="description" content="How to send a live application window to a projector, LED wall, NDI, SRT or SDI without a second machine or a capture card. A window cue takes any window on the show PC at its own full resolution whatever the display scaling, follows it as it moves, and keeps everything in front of it out of shot, so the operator can carry on working. Free and open source, Windows, macOS and Linux.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/window-cues.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Put an application window on the big screen">
+    <meta property="og:description" content="A score bug, a timer, a rehearsal tool, somebody's spreadsheet — any window on the machine becomes a cue, with the same fades and effects as a clip, and out over NDI, SRT or SDI.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/window-cues.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/hero.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Put an application window on the big screen">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/hero.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.6rem 0 .6rem; font-size: 1.22rem; color: var(--ink); }
+        .prose h3 { margin: 1.8rem 0 .5rem; font-size: 1.02rem; color: var(--ink); }
+        .prose p, .prose li { margin-bottom: 1rem; color: var(--ink-soft); max-width: 62ch; }
+        .prose ol, .prose ul { margin: 0 0 1rem 1.3rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+        .prose table { border-collapse: collapse; margin: 1.2rem 0 2rem; width: 100%; }
+        .prose th, .prose td { text-align: left; padding: .55rem .7rem; font-size: .93rem; }
+        .steps { counter-reset: step; list-style: none; margin-left: 0; }
+        .steps li { position: relative; padding-left: 2.6rem; }
+        .steps li::before { counter-increment: step; content: counter(step);
+            position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem;
+            display: grid; place-items: center; border: 2px solid var(--ink-soft);
+            color: var(--ink); font-family: var(--pixel); font-size: .62rem; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Put a live application window on a projector or LED wall",
+      "description": "Send any application window on the show machine to a screen, NDI, SRT or SDI as a cue, using Deckboy.",
+      "totalTime": "PT2M",
+      "supply": [{ "@type": "HowToSupply", "name": "The application you want on screen, open on the show machine" }],
+      "tool": [{ "@type": "HowToTool", "name": "Deckboy" }],
+      "step": [
+        { "@type": "HowToStep", "name": "Open the application", "text": "Leave the window you want on air open on the show machine. It does not need to be in front, and it can be moved or resized while it is live." },
+        { "@type": "HowToStep", "name": "Add a window cue", "text": "In Deckboy, use the SOURCE menu and choose Window. Deckboy lists the windows it can see; pick one." },
+        { "@type": "HowToStep", "name": "Take it", "text": "Take the cue like any other. It fades, takes effects and holds, exactly as a clip does." },
+        { "@type": "HowToStep", "name": "Send it where it needs to go", "text": "The programme goes to a fullscreen output, and out over NDI, SRT, RTMP, Blackmagic SDI or SMPTE ST 2110 at the same time, while it records." }
+      ]
+    }
+    </script>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="test-patterns.html">Patterns</a>
+            <a href="screen-check.html">Screen check</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Put a window<br><span class="gradient-text">on the big screen</span></h1>
+            <p class="hero-subtitle">A score bug. A countdown. A rehearsal tool. The spreadsheet
+            somebody insists on. Any window on the show machine becomes a cue &mdash; and the
+            operator carries on working on the same machine.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <h2>The problem this replaces</h2>
+        <p>Something on the machine has to go to air, and it is not a video file. The usual
+        answers are a second computer and a capture card, or a projector fed from a spare
+        output with the operator locked out of their own desktop for the rest of the show.
+        Both cost money, space and a person.</p>
+
+        <p>A window cue is the third answer: the application stays where it is, and Deckboy
+        takes its picture as a cue.</p>
+
+        <h2>How to do it</h2>
+        <ol class="steps">
+            <li><b>Leave the window open.</b> It does not have to be in front, and it can be
+            moved or resized while it is live.</li>
+            <li><b>SOURCE &rarr; Window.</b> Deckboy lists what it can see. Pick the window.</li>
+            <li><b>Take it</b> like any other cue &mdash; same fades, same transitions, same
+            effects rack, same take button.</li>
+            <li><b>Send it on.</b> The programme goes to a fullscreen output and out over NDI,
+            SRT, RTMP, Blackmagic SDI or SMPTE ST&nbsp;2110 at the same time, while it records.</li>
+        </ol>
+
+        <h2>What makes it usable during a show</h2>
+        <table>
+            <tr><th>Behaviour</th><th>Why it matters at the desk</th></tr>
+            <tr><td>Arrives at the window's own full resolution, whatever your display scaling is
+                set to</td><td>A 150% desktop is normal on a 4K laptop. Naive window capture sends
+                the smaller, logical picture and it arrives soft.</td></tr>
+            <tr><td>Follows the window as it moves and resizes</td><td>Nobody has to keep the
+                window still, and nothing shifts on the screen when they do not.</td></tr>
+            <tr><td>Anything in front of it stays out of shot</td><td>The operator can open notes,
+                reply to a message, or run the rest of the show on the same machine.</td></tr>
+            <tr><td>It is a cue, not a mode</td><td>It fades in, holds, takes effects and sits in
+                the playlist beside the clips, so the show runs the same way it always does.</td></tr>
+        </table>
+
+        <h2>A web page instead of a window</h2>
+        <p>If the thing you need is a page rather than an application &mdash; a dashboard, a
+        scoreboard, a countdown, a lyric page &mdash; point a <b>browser cue</b> at the URL
+        instead. The page renders inside the programme rather than in a browser window on the
+        desktop, so there is nothing to keep on top and nothing to reveal by accident.</p>
+
+        <h2>Named from a controller</h2>
+        <p>A window or camera cue can be built over Deckboy's control port as well as by hand,
+        so a show can be assembled by script:</p>
+        <p><code>SOURCE WINDOW title:Scoreboard</code> &mdash; and asking without naming one
+        returns the list of what is available, so a controller can offer it.</p>
+        <p class="more"><a href="manual.html#remote-control">Manual: Remote control</a></p>
+
+        <h2>Platforms</h2>
+        <p>Window and screen capture work on Windows, macOS and Linux. Browser cues render
+        inside the programme on Windows and Linux; on macOS the browser cue is not implemented
+        yet, and Deckboy says so rather than showing you a black frame.</p>
+
+        <div class="cta-group" style="margin-top:2.5rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Deckboy</a>
+            <a href="compare.html" class="btn-large btn-outline">How it compares</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+</body>
+</html>
