@@ -5,8 +5,18 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#)
 [![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](#)
 
-**Open-source media playback and show control for live video.**
+**Free, open-source cue-based media playback and show control for live video.**
 Load your media. Build your playlist. Take it live.
+
+Clips, stills, slide decks, a live camera, a web page and *any window on the
+machine* sit on one cue list and go to air with fades, loops and a last frame
+that holds instead of revealing a desktop — out to a screen, NDI, SRT, RTMP,
+Blackmagic SDI or SMPTE ST 2110, several at once, while it records. Driven from
+a Stream Deck, Bitfocus Companion, OSC, MIDI, Art-Net or LTC timecode.
+
+Windows, macOS and Linux from one show file. No account, no licence server, no
+telemetry, and no second licence for the spare machine in the flight case —
+which is not true of anything it gets compared to.
 
 **[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin and vMix — including where they win. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, twenty-six chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
 
@@ -57,11 +67,11 @@ the macOS releases, where the warning is most in the way.
   that is also what avoids Gatekeeper's App Translocation sandbox.
 - **Windows** — SmartScreen may say "Windows protected your PC". Click
   **More info → Run anyway**.
-- **Linux** — the AppImage runs on any current distribution. Graphics, display
-  server, audio and the C/C++ runtime deliberately come from the host: they
-  have to match the machine actually running, and a bundled libGL cannot load
-  your GPU driver. Built on Ubuntu 24.04 / Mint 22, so target that vintage or
-  newer.
+- **Linux** — the AppImage runs on **Ubuntu 22.04 and anything newer**, which
+  is what a lot of venue machines are still on. Graphics, display server, audio
+  and the C/C++ runtime deliberately come from the host: they have to match the
+  machine actually running, and a bundled libGL cannot load your GPU driver.
+  The build checks that floor on every run rather than trusting it.
 
 </details>
 
@@ -261,7 +271,10 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 - Camera, window and screen capture, on all three platforms. A window cue
   arrives at the window's own full resolution whatever your display scaling
   is set to, scaled to fit the frame, follows the window as it moves and
-  resizes, and anything in front of it stays out of shot
+  resizes, and anything in front of it stays out of shot. It runs at sixty
+  frames a second where the window can afford it, and costs about a fifth of
+  what it did: on a 960x540 window with a 4K output, processor use across the
+  capture and the application fell from roughly 225% of a core to 45%
 - SRT, RTMP, RTSP and UDP stream input, and NDI source input
 - Test patterns and a built-in test card
 - A **code source** — a live-coded expression evaluated per pixel, edited while
@@ -301,7 +314,8 @@ mDNS. See [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 <details>
 <summary><b>Interface</b></summary>
 
-- Themeable, including high-contrast terminal themes suited to OLED panels
+- **Thirty bundled themes**, switchable live and from a controller, including
+  high-contrast terminal themes suited to OLED panels
 - Timeline with filmstrip thumbnails; resizable program monitor and timeline
 - UI scale that follows the desktop's own scaling
 - The interface reads in 38 languages, including Cubano, Klingon and a few
@@ -333,11 +347,11 @@ those goes to your own LAN or to a destination you configured.
 
 ## Where the platforms differ
 
-**App texture sharing.** Spout **output** works on Windows — Deckboy's picture
-appears as a Spout sender that Resolume, TouchDesigner or OBS can pick up.
-Spout *input* (treating another app's texture as a cue) is not built yet, and
-**Syphon on macOS is not built at all**. Deckboy reports the missing halves as
-unavailable rather than accepting frames and quietly discarding them.
+**App texture sharing.** Spout works **both ways** on Windows: Deckboy's
+programme appears as a Spout sender for Resolume, TouchDesigner or OBS to pick
+up, and another application's Spout output can be taken as a cue. On macOS,
+Deckboy **sends** Syphon; it cannot yet receive it. Deckboy reports the missing
+half as unavailable rather than accepting frames and quietly discarding them.
 
 **Hardware decode.** Two separate things. The *decode* runs on hardware where
 the platform has a decoder: D3D11VA on Windows, VideoToolbox on macOS, VAAPI on
@@ -379,7 +393,7 @@ importantly, what each feature deliberately does not do.
   a different deck on each output
 - NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
-- Syphon output on macOS, and Spout/Syphon *input* as a cue source
+- Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
 - Developer ID signing and notarization for macOS releases
 
 ---
