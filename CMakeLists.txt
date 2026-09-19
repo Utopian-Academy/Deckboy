@@ -217,48 +217,51 @@ option(ENABLE_VST3 "Host third-party VST3 audio plugins" ON)
 
 # -- VST3, for the operator's own plugins in a cue's audio chain -------------
 #
-# HEADERS ONLY, and optional. The VST3 SDK is dual-licensed GPLv3-or-
-# proprietary, so a GPL-3 host may use it; VST2's SDK is not licensed to new
-# hosts at all, which is why only this one is here. See
+# HEADERS ONLY, and vendored in native/extras/vst3-sdk. They are MIT, so a
+# GPL-3 project may simply carry them -- note that this is the INTERFACES
+# package, not the full VST3 SDK, which is the dual-licensed GPLv3-or-
+# proprietary one and is neither needed nor included. VST2's SDK is licensed
+# to no new host at all, which is why only this one is here. See
 # native/platform/audio_plugin.hpp.
 #
-# A build without the SDK still SCANS and still lists what the machine has --
-# it just says it cannot load them -- so this never fails a build. It is found
-# rather than required for the same reason ffmpeg is: a contributor should be
-# able to build Deckboy without assembling every optional dependency first.
-# REQUIRE_VST3 EXISTS BECAUSE A QUIET SEARCH SHIPPED A HOLLOW RELEASE.
+# A build with ENABLE_VST3=OFF still SCANS and still lists what the machine
+# has -- it just says it cannot load them -- so an operator is never shown an
+# empty list that reads as "you own none".
+# THE HEADERS ARE VENDORED, so this cannot quietly find nothing.
 #
-# find_path below is deliberately quiet, so a contributor can build without
-# assembling every optional dependency first. The cost of that, discovered the
-# hard way in v0.99.370: CI had no SDK, nobody noticed, and the published
-# binaries advertised plugin hosting while being physically incapable of it --
-# they listed the operator's plugins and refused to load them. The build was
-# green from end to end, because a quiet search that finds nothing is not an
-# error.
+# v0.99.370 was first published on all three platforms advertising VST3 plugin
+# hosting with no plugin host in it: the runners had no SDK, this search was
+# quiet by design, every job went green, and the binaries would have listed an
+# operator's plugins and refused to load every one. It was deleted before
+# anyone downloaded it.
 #
-# This is the SECOND time that exact shape has bitten this project; see the
-# WEBVIEW2 comment in .github/workflows/build.yml, where every release shipped
-# without browser cues for the same reason.
+# That is the same failure the NDI block above records ("every released package
+# shipped without NDI while the build stayed green") and the same one the
+# WEBVIEW2 comment in .github/workflows/build.yml records for browser cues.
+# Three times is a pattern, and the pattern is: an optional dependency that is
+# absent by accident looks exactly like one that is absent on purpose.
 #
-# So anything that PUBLISHES passes -DREQUIRE_VST3=ON, and then a missing SDK
-# fails the build instead of quietly removing a headline feature.
-option(REQUIRE_VST3 "Fail the build if the VST3 SDK is missing (for releases)" OFF)
-
+# So the answer is the one NDI and DeckLink already use -- vendor it, prefer an
+# installed copy, and treat a miss as a broken checkout. Turn plugin hosting
+# off deliberately with -DENABLE_VST3=OFF; there is no longer a way to lose it
+# by accident.
 if(ENABLE_VST3)
   find_path(VST3_INCLUDE_DIR
     NAMES pluginterfaces/base/funknown.h
+    PATHS
+      # An SDK installed on the machine wins, so a developer who keeps their
+      # own (vcpkg, a manual install) builds against that.
+      "$ENV{VST3_SDK_DIR}"
+      # The vendored copy, last. MIT-licensed; see native/extras/vst3-sdk.
+      "${CMAKE_CURRENT_SOURCE_DIR}/native/extras/vst3-sdk"
     PATH_SUFFIXES vst3sdk)
-  if(VST3_INCLUDE_DIR)
-    message(STATUS "VST3 SDK: ${VST3_INCLUDE_DIR}")
-  elseif(REQUIRE_VST3)
+  if(NOT VST3_INCLUDE_DIR)
     message(FATAL_ERROR
-      "REQUIRE_VST3=ON but no VST3 SDK was found, so this build could not host "
-      "plugins. A release must not ship claiming it can. Fetch the headers "
-      "(git clone --depth 1 https://github.com/steinbergmedia/vst3_pluginterfaces "
-      "<dir>/pluginterfaces) and pass -DVST3_INCLUDE_DIR=<dir>.")
-  else()
-    message(STATUS "VST3 SDK: not found - plugins will be listed but not loadable")
+      "VST3 headers not found. They should be vendored in "
+      "native/extras/vst3-sdk/pluginterfaces; configure with "
+      "-DENABLE_VST3=OFF to build without plugin hosting.")
   endif()
+  message(STATUS "VST3 SDK: ${VST3_INCLUDE_DIR}")
 endif()
 
 ###############################################################################

@@ -347,23 +347,8 @@ jobs:
           sudo cmake --install /tmp/SDL_ttf/build
           sudo ldconfig
 
-      # THE SDK HAS TO BE HERE OR THE FEATURE IS NOT IN THE BINARY.
-      #
-      # v0.99.370 shipped on every platform advertising VST3 plugin hosting
-      # while being physically incapable of it: no SDK on the runner, a quiet
-      # find_path, a green build, and binaries that listed an operator's
-      # plugins and then refused to load them. That is the third time this
-      # exact shape has bitten -- see the NDI and WEBVIEW2 comments in this
-      # same file.
-      #
-      # Headers only, about 1MB, dual-licensed GPLv3-or-proprietary, which is
-      # why a GPL-3 host may use them. REQUIRE_VST3=ON below turns a missing
-      # SDK into a failed build instead of a hollow release.
-      - name: Fetch VST3 SDK headers
-        run: git clone --depth 1 https://github.com/steinbergmedia/vst3_pluginterfaces.git vst3sdk/pluginterfaces
-
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DREQUIRE_VST3=ON -DVST3_INCLUDE_DIR="$PWD/vst3sdk" ${{ matrix.cmake_args }}
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
 
       - name: Build
         run: |
@@ -386,10 +371,11 @@ jobs:
             exit 1
           fi
 
-      # ASK THE BINARY, not the build system. REQUIRE_VST3 proves the SDK was
-      # on the runner; this proves the define reached the executable. That is
-      # the distinction that mattered for NDI above, and it is exactly how
-      # v0.99.370 shipped a plugin host that could not host anything.
+      # ASK THE BINARY, not the build system. The vendored headers prove the
+      # SDK was THERE; this proves the define reached the executable. Those
+      # are different facts -- the distinction that mattered for NDI above,
+      # and exactly how v0.99.370 was first published with a plugin host
+      # that could not host anything.
       - name: Plugin host is in the binary
         run: |
           ./build/Deckboy --plugins > plugins.txt 2>&1 || true
@@ -515,23 +501,8 @@ jobs:
         if: matrix.features == 'all'
         run: brew install rtmidi
 
-      # THE SDK HAS TO BE HERE OR THE FEATURE IS NOT IN THE BINARY.
-      #
-      # v0.99.370 shipped on every platform advertising VST3 plugin hosting
-      # while being physically incapable of it: no SDK on the runner, a quiet
-      # find_path, a green build, and binaries that listed an operator's
-      # plugins and then refused to load them. That is the third time this
-      # exact shape has bitten -- see the NDI and WEBVIEW2 comments in this
-      # same file.
-      #
-      # Headers only, about 1MB, dual-licensed GPLv3-or-proprietary, which is
-      # why a GPL-3 host may use them. REQUIRE_VST3=ON below turns a missing
-      # SDK into a failed build instead of a hollow release.
-      - name: Fetch VST3 SDK headers
-        run: git clone --depth 1 https://github.com/steinbergmedia/vst3_pluginterfaces.git vst3sdk/pluginterfaces
-
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DREQUIRE_VST3=ON -DVST3_INCLUDE_DIR="$PWD/vst3sdk" ${{ matrix.cmake_args }}
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
 
       - name: Build
         run: cmake --build build -j"$(sysctl -n hw.ncpu)"
@@ -548,10 +519,11 @@ jobs:
             exit 1
           fi
 
-      # ASK THE BINARY, not the build system. REQUIRE_VST3 proves the SDK was
-      # on the runner; this proves the define reached the executable. That is
-      # the distinction that mattered for NDI above, and it is exactly how
-      # v0.99.370 shipped a plugin host that could not host anything.
+      # ASK THE BINARY, not the build system. The vendored headers prove the
+      # SDK was THERE; this proves the define reached the executable. Those
+      # are different facts -- the distinction that mattered for NDI above,
+      # and exactly how v0.99.370 was first published with a plugin host
+      # that could not host anything.
       - name: Plugin host is in the binary
         run: |
           ./build/Deckboy --plugins > plugins.txt 2>&1 || true
@@ -647,25 +619,10 @@ jobs:
       - name: Install dependencies
         run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg libltc
 
-      # THE SDK HAS TO BE HERE OR THE FEATURE IS NOT IN THE BINARY.
-      #
-      # v0.99.370 shipped on every platform advertising VST3 plugin hosting
-      # while being physically incapable of it: no SDK on the runner, a quiet
-      # find_path, a green build, and binaries that listed an operator's
-      # plugins and then refused to load them. That is the third time this
-      # exact shape has bitten -- see the NDI and WEBVIEW2 comments in this
-      # same file.
-      #
-      # Headers only, about 1MB, dual-licensed GPLv3-or-proprietary, which is
-      # why a GPL-3 host may use them. REQUIRE_VST3=ON below turns a missing
-      # SDK into a failed build instead of a hollow release.
-      - name: Fetch VST3 SDK headers
-        run: git clone --depth 1 https://github.com/steinbergmedia/vst3_pluginterfaces.git vst3sdk/pluginterfaces
-
       - name: Configure and build
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
-            -DREQUIRE_VST3=ON -DVST3_INCLUDE_DIR="$PWD/vst3sdk"
+           
           cmake --build build -j"$(sysctl -n hw.ncpu)"
 
       - name: Package
@@ -853,28 +810,11 @@ jobs:
       # bash + an absolute, quoted toolchain path. The folded-scalar form under
       # PowerShell split the argument and dropped the ".cmake" suffix
       # ("Could not find toolchain file: .../vcpkg" + "Ignoring extra path .cmake").
-      # THE SDK HAS TO BE HERE OR THE FEATURE IS NOT IN THE BINARY.
-      #
-      # v0.99.370 shipped on every platform advertising VST3 plugin hosting
-      # while being physically incapable of it: no SDK on the runner, a quiet
-      # find_path, a green build, and binaries that listed an operator's
-      # plugins and then refused to load them. That is the third time this
-      # exact shape has bitten -- see the NDI and WEBVIEW2 comments in this
-      # same file.
-      #
-      # Headers only, about 1MB, dual-licensed GPLv3-or-proprietary, which is
-      # why a GPL-3 host may use them. REQUIRE_VST3=ON below turns a missing
-      # SDK into a failed build instead of a hollow release.
-      - name: Fetch VST3 SDK headers
-        run: git clone --depth 1 https://github.com/steinbergmedia/vst3_pluginterfaces.git vst3sdk/pluginterfaces
-
       - name: Configure
         shell: bash
         run: |
           cmake -S . -B build \
             -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" \
-            -DREQUIRE_VST3=ON \
-            -DVST3_INCLUDE_DIR="${{ github.workspace }}/vst3sdk" \
             ${{ matrix.cmake_args }}
 
       - name: Build

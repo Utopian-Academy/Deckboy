@@ -12,8 +12,11 @@
 // leaving the cue deck.
 //
 // FORMATS. VST3 in everything Deckboy ships, and that is a licensing fact
-// rather than a preference: the VST3 SDK is dual-licensed GPLv3-or-proprietary,
-// so a GPL-3 host may use it.
+// rather than a preference: the interface headers this host is built against
+// are MIT (see native/extras/vst3-sdk), so a GPL-3 project may carry them
+// outright. The FULL VST3 SDK -- which Deckboy does not need and does not
+// include -- is the dual-licensed GPLv3-or-proprietary one. They are different
+// packages and the distinction is worth keeping straight.
 //
 // #########################################################################
 // ##                                                                     ##
