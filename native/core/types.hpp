@@ -526,6 +526,41 @@ struct TimerSettings {
 // show the end-action badge icon. Serialized as integer index.
 enum class CueEndAction { Inherit, Stop, Loop, PauseOnLast, AutoNext };
 
+// Whether the next cue goes by itself, and from when. See Cue::continueMode.
+//
+// Distinct from CueEndAction::AutoNext, which is about what THIS cue does when
+// its media runs out. A continue is about the NEXT cue, fires whether or not
+// this one has ended, and is what lets a sequence of cues run from one GO.
+enum class CueContinueMode {
+  DoNotContinue,   // the operator fires the next one
+  AutoContinue,    // post-wait counted from when this cue STARTS
+  AutoFollow,      // post-wait counted from when this cue ENDS
+};
+
+inline const char* cueContinueModeToken(CueContinueMode mode) {
+  switch (mode) {
+    case CueContinueMode::AutoContinue: return "auto-continue";
+    case CueContinueMode::AutoFollow:   return "auto-follow";
+    case CueContinueMode::DoNotContinue: break;
+  }
+  return "none";
+}
+
+inline const char* cueContinueModeLabel(CueContinueMode mode) {
+  switch (mode) {
+    case CueContinueMode::AutoContinue: return "Auto-continue";
+    case CueContinueMode::AutoFollow:   return "Auto-follow";
+    case CueContinueMode::DoNotContinue: break;
+  }
+  return "Do not continue";
+}
+
+inline CueContinueMode cueContinueModeFromToken(const std::string& token) {
+  if (token == "auto-continue") return CueContinueMode::AutoContinue;
+  if (token == "auto-follow")   return CueContinueMode::AutoFollow;
+  return CueContinueMode::DoNotContinue;
+}
+
 // Current transport state of a deck's active cue. Drives the play/pause/stop
 // buttons in app_render_control.ipp and the MediaEngine decode loop.
 enum class TransportState {
@@ -679,6 +714,26 @@ struct Cue {
   // Runtime only: set once the schedule has fired so it cannot re-fire every
   // tick for the rest of that second, and cleared at midnight rollover.
   bool scheduledStartFired = false;
+  // ── THE SEQUENCING SPINE ───────────────────────────────────────────────
+  //
+  // What turns a list you fire into a list that runs itself, and the thing a
+  // theatre operator means by a cue list. All three default to "do what
+  // Deckboy always did", so a show saved before they existed behaves
+  // identically: no waits, and nothing follows anything.
+  //
+  // PRE-WAIT delays the cue's own start after GO. POST-WAIT is measured from
+  // the point the continue is armed, and CONTINUE says whether the next cue
+  // goes at all -- and if so, from WHEN:
+  //
+  //   AutoContinue  counts the post-wait from when this cue STARTS, so a
+  //                 sequence is laid out in absolute time from the GO.
+  //   AutoFollow    counts it from when this cue ENDS, so the next thing
+  //                 happens after this one is done however long it took.
+  //
+  // That distinction is the whole reason both exist: the first is for a
+  // designed sequence, the second for "and then the next thing".
+  double preWaitSeconds = 0.0;            // delay between GO and this cue starting
+  double postWaitSeconds = 0.0;           // delay before the continue fires
   double stillDurationSeconds = 0.0;      // display time for Image/Pattern/Browser cues
   double cueTransitionSeconds = -1.0;     // per-cue transition duration override (-1 = inherit)
   double playbackSpeed = 1.0;             // speed multiplier (0.25–4.0; 1.0 = normal)
@@ -713,6 +768,8 @@ struct Cue {
   int loopCount = 0;                       // number of times to loop (0 = infinite when loop=true)
   CueKind kind = CueKind::Video;           // discriminator — see CueKind enum above
   CueEndAction endAction = CueEndAction::Inherit; // what to do when playback finishes
+  // DoNotContinue is the default because it is what every existing show does.
+  CueContinueMode continueMode = CueContinueMode::DoNotContinue;
   ScaleMode scaleMode = ScaleMode::Fit;    // how source maps to output — see ScaleMode enum
 
   // -- 4-byte aligned: SDL_Color (RGBA) ----------------------------------------

@@ -580,6 +580,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // The audio effect stack, one field, for the same reason the picture
         // stack is one field. STILL at the end.
         << '\t' << escapeField(deckboy::audiofx::serializeAudioEffects(cue.audioEffects))
+        // The sequencing spine, appended so every show written before it loads
+        // unchanged: absent fields mean no waits and no continue, which is
+        // exactly what those shows did.
+        << '\t' << cue.preWaitSeconds
+        << '\t' << cue.postWaitSeconds
+        << '\t' << cueContinueModeToken(cue.continueMode)
         << '\n';
     }
   }
@@ -1685,6 +1691,13 @@ Project loadProject(const fs::path& projectFile,
         // to an empty chain -- the cue sounds exactly as it always has.
         cue.audioEffects =
           deckboy::audiofx::parseAudioEffects(safeString(fields, vs + 56));
+        // The sequencing spine, after it. Absent on an older show, and the
+        // defaults are what that show did: no waits, and nothing follows.
+        // Waits are clamped to something sane rather than trusted -- a
+        // negative pre-wait would fire a cue before its own GO.
+        cue.preWaitSeconds = std::max(0.0, safeDouble(fields, vs + 57, 0.0));
+        cue.postWaitSeconds = std::max(0.0, safeDouble(fields, vs + 58, 0.0));
+        cue.continueMode = cueContinueModeFromToken(safeString(fields, vs + 59));
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {

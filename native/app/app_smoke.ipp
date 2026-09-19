@@ -1181,6 +1181,17 @@
                "a chain saved before plugins still loads");
       }
 
+      // THE SEQUENCING SPINE THROUGH THE SHOW FILE. Three appended fields, so
+      // the thing that matters is that a show written WITHOUT them still loads
+      // as the show it was: no waits, nothing following anything. A cue list
+      // that quietly grew a continue would run a show by itself.
+      {
+        Cue& seq = project.decks[0].cues[0];
+        seq.preWaitSeconds = 2.5;
+        seq.postWaitSeconds = 1.25;
+        seq.continueMode = CueContinueMode::AutoFollow;
+      }
+
       fs::path smokePath = fs::path("/tmp") / "deckboy-smoke.deckboy";
       expect(saveProject(smokePath, project), "project save");
       Project loaded = loadProject(smokePath);
@@ -1188,6 +1199,46 @@
       if (!loaded.decks.empty() && !loaded.decks[0].cues.empty()) {
         const Deck& loadedDeck = loaded.decks[0];
         const Cue& loadedCue = loadedDeck.cues[0];
+        expect(std::fabs(loadedCue.preWaitSeconds - 2.5) < 1e-6 &&
+               std::fabs(loadedCue.postWaitSeconds - 1.25) < 1e-6 &&
+               loadedCue.continueMode == CueContinueMode::AutoFollow,
+               "pre-wait, post-wait and continue mode persist");
+        // A CUE LIST MUST NOT GROW A CONTINUE BY ITSELF. Simulated by taking
+        // the file just written and cutting the three new fields off every cue
+        // line, which is precisely what an older Deckboy wrote. Opening that
+        // has to give back a show with no waits and nothing following -- a
+        // show that started running itself on open would be unforgivable.
+        {
+          std::ifstream in(smokePath);
+          std::ostringstream older;
+          std::string line;
+          int trimmed = 0;
+          while (std::getline(in, line)) {
+            if (line.rfind("cue\t", 0) == 0) {
+              for (int i = 0; i < 3; ++i) {
+                const std::size_t tab = line.find_last_of('\t');
+                if (tab != std::string::npos) {
+                  line.erase(tab);
+                }
+              }
+              ++trimmed;
+            }
+            older << line << '\n';
+          }
+          in.close();
+          const fs::path olderPath = fs::path("/tmp") / "deckboy-smoke-older.deckboy";
+          { std::ofstream out(olderPath); out << older.str(); }
+          expect(trimmed > 0, "the older-show simulation found cue records to trim");
+          const Project revived = loadProject(olderPath);
+          bool inert = true;
+          for (const Deck& d : revived.decks) {
+            for (const Cue& c : d.cues) {
+              inert = inert && c.preWaitSeconds == 0.0 && c.postWaitSeconds == 0.0 &&
+                      c.continueMode == CueContinueMode::DoNotContinue;
+            }
+          }
+          expect(inert, "a show saved before the spine opens with no waits and no continue");
+        }
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
         expect(loaded.midiDeviceName == "APC40 mkII Control",
                "midi port persisted");
