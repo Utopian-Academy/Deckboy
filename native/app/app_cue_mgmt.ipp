@@ -3322,6 +3322,17 @@
     if (cue.kind == CueKind::Tone && cue.tone.waveform == ToneWaveform::Fds) {
       return &cue;
     }
+    // OR THE CUE HAS SOMETHING ELSE TO PLAY. A hosted instrument is played the
+    // same way the built-in chip is -- computer keyboard, MIDI in, SYNTHNOTEON
+    // -- and all three ask this function whether there is a synth on air. With
+    // only the FDS check, an instrument plugin loaded, processed, and could
+    // never be reached by any of them: "no synth cue is live" while an
+    // instrument sat in the chain waiting.
+    if (const MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+      if (engine->hasInstrumentPlugin()) {
+        return &cue;
+      }
+    }
     return nullptr;
   }
 

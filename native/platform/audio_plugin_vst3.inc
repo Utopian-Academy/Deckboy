@@ -59,6 +59,7 @@ DEF_CLASS_IID(IHostApplication)
 DEF_CLASS_IID(IParameterChanges)
 DEF_CLASS_IID(IParamValueQueue)
 DEF_CLASS_IID(IConnectionPoint)
+DEF_CLASS_IID(IEventList)
 DEF_CLASS_IID(IMessage)
 DEF_CLASS_IID(IAttributeList)
 }  // namespace Vst
@@ -419,6 +420,57 @@ class HostParamChanges : public Vst::IParameterChanges {
 
  private:
   HostParamQueue queues_[kMaxQueues];
+  int32 count_ = 0;
+};
+
+// ── NOTES, ON THEIR WAY TO AN INSTRUMENT ────────────────────────────────────
+//
+// An instrument hears nothing unless the host hands it events, the same way a
+// processor hears no knob unless the host hands it parameter changes. Same
+// shape as HostParamChanges above and for the same reason: fixed size,
+// preallocated, filled on the audio thread from a lock-free ring the main
+// thread writes when a key goes down.
+//
+// Deckboy already has three ways to play a note -- the computer keyboard, MIDI
+// in, and SYNTHNOTEON over the wire -- and all three arrive on the main thread
+// and land on MediaEngine::synthNoteOn. This is the last hop.
+class HostEventList : public Vst::IEventList {
+ public:
+  static constexpr int32 kMaxEvents = 64;
+
+  tresult PLUGIN_API queryInterface(const TUID wantedIid, void** obj) override {
+    if (FUnknownPrivate::iidEqual(wantedIid, Vst::IEventList::iid) ||
+        FUnknownPrivate::iidEqual(wantedIid, FUnknown::iid)) {
+      *obj = static_cast<Vst::IEventList*>(this);
+      return kResultOk;
+    }
+    *obj = nullptr;
+    return kNoInterface;
+  }
+  uint32 PLUGIN_API addRef() override { return 1; }
+  uint32 PLUGIN_API release() override { return 1; }
+
+  int32 PLUGIN_API getEventCount() override { return count_; }
+  tresult PLUGIN_API getEvent(int32 index, Vst::Event& e) override {
+    if (index < 0 || index >= count_) {
+      return kResultFalse;
+    }
+    e = events_[index];
+    return kResultOk;
+  }
+  tresult PLUGIN_API addEvent(Vst::Event& e) override {
+    if (count_ >= kMaxEvents) {
+      return kResultFalse;
+    }
+    events_[count_++] = e;
+    return kResultOk;
+  }
+
+  void reset() { count_ = 0; }
+  bool empty() const { return count_ == 0; }
+
+ private:
+  Vst::Event events_[kMaxEvents] {};
   int32 count_ = 0;
 };
 
@@ -798,10 +850,45 @@ class Vst3Instance final : public AudioPluginInstance {
       changes_.push(static_cast<Vst::ParamID>(p.id), p.value);
     }
 
+    // Every note the main thread played since the last block. Pinned to the
+    // start of the block rather than placed by sample offset: the keyboard,
+    // MIDI and the wire all arrive asynchronously, so there is no offset to
+    // honour that would be more truthful than "as soon as possible".
+    events_.reset();
+    const unsigned notesWritten = noteWrite_.load(std::memory_order_acquire);
+    if (notesWritten - noteRead_ > kRingSize) {
+      noteRead_ = notesWritten - kRingSize;   // overtaken; take what is left
+    }
+    for (; noteRead_ != notesWritten; ++noteRead_) {
+      const PendingNote& n = noteRing_[noteRead_ % kRingSize];
+      Vst::Event e {};
+      e.busIndex = 0;
+      e.sampleOffset = 0;
+      e.flags = Vst::Event::kIsLive;   // it IS live: somebody pressed a key
+      if (n.on) {
+        e.type = Vst::Event::kNoteOnEvent;
+        e.noteOn.channel = static_cast<int16>(n.channel);
+        e.noteOn.pitch = static_cast<int16>(n.key);
+        e.noteOn.velocity = static_cast<float>(n.velocity);
+        e.noteOn.length = 0;
+        e.noteOn.noteId = -1;
+        e.noteOn.tuning = 0.0f;
+      } else {
+        e.type = Vst::Event::kNoteOffEvent;
+        e.noteOff.channel = static_cast<int16>(n.channel);
+        e.noteOff.pitch = static_cast<int16>(n.key);
+        e.noteOff.velocity = 0.0f;
+        e.noteOff.noteId = -1;
+        e.noteOff.tuning = 0.0f;
+      }
+      events_.addEvent(e);
+    }
+
     Vst::ProcessData data {};
     data.processMode = Vst::kRealtime;
     data.symbolicSampleSize = Vst::kSample32;
     data.inputParameterChanges = changes_.empty() ? nullptr : &changes_;
+    data.inputEvents = events_.empty() ? nullptr : &events_;
     data.numSamples = frames;
     data.numInputs = hasInput_ ? 1 : 0;
     data.numOutputs = 1;
@@ -857,12 +944,17 @@ class Vst3Instance final : public AudioPluginInstance {
     return controller_ ? controller_->getParamNormalized(id) : 0.0;
   }
 
+  // A NOTE CROSSES THREADS THE SAME WAY A KNOB DOES. Called from the main
+  // thread -- a key going down, a MIDI message, SYNTHNOTEON over the wire --
+  // and drained into the block's event list by the audio thread. An effect
+  // with no event input simply never has them delivered, which is what an
+  // effect would do with a note anyway.
   void noteOn(int channel, int key, double velocity) override {
-    (void)channel; (void)key; (void)velocity;
-    // Note delivery arrives with the instrument work; an effect ignores it,
-    // which is what every effect would do with it anyway.
+    pushNote(true, channel, key, velocity);
   }
-  void noteOff(int channel, int key) override { (void)channel; (void)key; }
+  void noteOff(int channel, int key) override {
+    pushNote(false, channel, key, 0.0);
+  }
 
   // THE PROCESSOR'S STATE, not the editor's. A plugin keeps both, and the one
   // that decides what a show sounds like is the component's -- the controller
@@ -956,6 +1048,24 @@ class Vst3Instance final : public AudioPluginInstance {
   std::atomic<unsigned> ringWrite_ {0};
   unsigned ringRead_ = 0;          // audio thread only
   HostParamChanges changes_;       // audio thread only, preallocated
+
+  // Notes, on the same single-producer terms as the parameters above.
+  struct PendingNote {
+    bool on = false;
+    int channel = 0;
+    int key = 0;
+    double velocity = 0.0;
+  };
+  PendingNote noteRing_[kRingSize] {};
+  std::atomic<unsigned> noteWrite_ {0};
+  unsigned noteRead_ = 0;          // audio thread only
+  HostEventList events_;           // audio thread only, preallocated
+
+  void pushNote(bool on, int channel, int key, double velocity) {
+    const unsigned slot = noteWrite_.load(std::memory_order_relaxed);
+    noteRing_[slot % kRingSize] = PendingNote {on, channel, key, velocity};
+    noteWrite_.store(slot + 1, std::memory_order_release);
+  }
 };
 
 namespace {

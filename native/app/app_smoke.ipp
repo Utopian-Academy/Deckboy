@@ -2271,6 +2271,30 @@
                    "control change in\n";
     }
 
+    // CAN IT BE PLAYED? An instrument that loads and processes but makes no
+    // sound when a note arrives is exactly what Deckboy shipped in v0.99.370:
+    // hosting was real, note delivery was a stub, and nothing said so. Silence
+    // in, a note, and silence out is the whole test.
+    if (isInstrument) {
+      instance->noteOn(0, 60, 0.8);          // middle C, firmly
+      std::vector<double> played = render(fx);
+      const double playedRms = rms(played);
+      // A soft synth may take a block or two to start, and an attack envelope
+      // can be slower than half a second of test signal, so give it a second
+      // pass before believing the silence.
+      if (playedRms < 1e-6) {
+        played = render(fx);
+      }
+      instance->noteOff(0, 60);
+      const double afterRms = rms(render(fx));
+      std::cout << "  played a note: rms " << rms(played)
+                << "   after note-off: rms " << afterRms << '\n';
+      if (rms(played) < 1e-6) {
+        std::cout << "  FAIL an instrument was sent a note and made no sound\n";
+        ++failures;
+      }
+    }
+
     // THE KNOBS. Sweep each mapped parameter end to end and see whether the
     // rendered audio moves. A plugin whose first four automatable parameters
     // are genuinely inaudible (some are labels or meters) is reported rather

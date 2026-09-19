@@ -4036,6 +4036,19 @@
     // Named after the chip rather than SYNTH, which the VIDEO synth already
     // owns. Named values, not indices, for the same reason as everything else
     // on this surface.
+    // TONECUE -- make a chip-synth cue.
+    //
+    // The same gap NDICUE closed: addToneCue() existed and could be reached
+    // only from the SOURCE menu, so the one cue kind that is nothing but audio
+    // could not be created from a controller, and could not be tested without
+    // a human clicking. CHIP, SYNTHNOTEON and the whole keyboard surface all
+    // need a tone cue to exist before they do anything.
+    if (command == "TONECUE") {
+      addToneCue();
+      const Deck& deck = focusedDeck();
+      remoteCommandDetail_ = "tone cue " + std::to_string(deck.cues.size());
+      return;
+    }
     if (command == "CHIP") {
       Cue* cue = selectedCueMutable();
       if (!cue) {

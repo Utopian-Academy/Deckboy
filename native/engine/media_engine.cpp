@@ -9097,8 +9097,114 @@ double MediaEngine::nesNextSample(const ToneSettings& tone, double dt) {
 // ---------------------------------------------------------------------------
 // Played notes
 // ---------------------------------------------------------------------------
+// A NOTE IS PLAYED ON WHATEVER IS LOADED TO PLAY IT.
+//
+// Deckboy already had three ways to play one -- the computer keyboard, MIDI in
+// with its own play-or-fire switch, and SYNTHNOTEON over the wire -- and all
+// three land here. They drove only the built-in chip synth, so hosting an
+// instrument plugin produced something that loaded, processed, and could not
+// be played. This is the hop that was missing.
+//
+// Sent to EVERY instrument in the chain, on the main thread, where opening and
+// talking to a plugin already happens; each instance queues the note for its
+// own audio thread. An effect never sees it -- it has no event input, and a
+// note means nothing to a reverb.
+void MediaEngine::sendNoteToPlugins(bool on, double hz, int velocity) {
+  if (audioPluginsPending_.empty()) {
+    return;
+  }
+  // Hertz is what a cue deck speaks (tuning and reference pitch are per cue);
+  // a plugin wants a MIDI key. 12-TET against the cue's own A, so an
+  // instrument agrees with the chip synth about what middle C is.
+  const int key = std::clamp(
+    static_cast<int>(std::lround(69.0 + 12.0 * std::log2(hz / 440.0))), 0, 127);
+  for (const auto& instance : audioPluginsPending_) {
+    if (!instance || !instance->descriptor().isInstrument) {
+      continue;
+    }
+    if (on) {
+      instance->noteOn(0, key, std::clamp(velocity / 127.0, 0.0, 1.0));
+    } else {
+      instance->noteOff(0, key);
+    }
+  }
+}
+
+// Run the live cue's audio chain over generated device-width audio, in place.
+//
+// Separate from applyGainAndQueueAudio because the generator has already done
+// that function's other jobs -- level is in the tone's own amplitude, and the
+// routing is per channel rather than a stereo pan. What is missing is only the
+// chain and the safety net after it.
+void MediaEngine::applyAudioEffectsToGeneratedAudio(std::vector<std::int16_t>& out,
+                                                    std::size_t frames,
+                                                    int channels) {
+  if (frames == 0 || channels < 1) {
+    return;
+  }
+  refreshAudioEffectStack();
+  if (audioEffectsActive_.empty()) {
+    return;
+  }
+  const std::size_t stride = static_cast<std::size_t>(channels);
+  const std::size_t right = channels > 1 ? 1 : 0;
+  limiterScratch_.resize(frames * 2);
+  for (std::size_t f = 0; f < frames; ++f) {
+    limiterScratch_[f * 2]     = static_cast<double>(out[f * stride]);
+    limiterScratch_[f * 2 + 1] = static_cast<double>(out[f * stride + right]);
+  }
+
+  deckboy::audiofx::AudioEffectContext ctx;
+  ctx.luma = audioCtxLuma_.load(std::memory_order_relaxed);
+  ctx.motion = audioCtxMotion_.load(std::memory_order_relaxed);
+  ctx.hasPicture = audioCtxHasPicture_.load(std::memory_order_relaxed);
+  ctx.centerX = audioCtxCenterX_.load(std::memory_order_relaxed);
+  ctx.centerY = audioCtxCenterY_.load(std::memory_order_relaxed);
+  ctx.coverage = audioCtxCoverage_.load(std::memory_order_relaxed);
+  ctx.framePeriod = audioCtxFramePeriod_.load(std::memory_order_relaxed);
+  ctx.held = audioCtxHeld_.load(std::memory_order_relaxed);
+  ctx.position = currentPosition_;
+  ctx.duration = audioFadeDuration_.load(std::memory_order_relaxed);
+  audioPluginHost_.engine = this;
+  ctx.host = &audioPluginHost_;
+
+  deckboy::audiofx::applyAudioEffectStack(limiterScratch_, audioEffectsActive_,
+                                          audioEffectState_, ctx);
+
+  // The same rule as the decode path: a non-finite sample must never reach the
+  // quantiser, because std::lround of a NaN is a full-scale DC step out of the
+  // speakers and no comparison the limiter makes can catch it.
+  bool finite = true;
+  for (std::size_t i = 0; i < frames * 2 && finite; ++i) {
+    finite = std::isfinite(limiterScratch_[i]);
+  }
+  if (!finite) {
+    audioEffectState_.clear();
+    return;   // leave the generated audio as it was rather than emit a thump
+  }
+
+  for (std::size_t f = 0; f < frames; ++f) {
+    const std::int16_t l = static_cast<std::int16_t>(
+      std::clamp(static_cast<int>(std::lround(limiterScratch_[f * 2])), -32768, 32767));
+    const std::int16_t r = static_cast<std::int16_t>(
+      std::clamp(static_cast<int>(std::lround(limiterScratch_[f * 2 + 1])), -32768, 32767));
+    out[f * stride] = l;
+    out[f * stride + right] = r;
+  }
+}
+
+bool MediaEngine::hasInstrumentPlugin() const {
+  for (const auto& instance : audioPluginsPending_) {
+    if (instance && instance->descriptor().isInstrument) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void MediaEngine::synthNoteOn(double hz, int velocity) {
   if (hz <= 0.0) return;
+  sendNoteToPlugins(true, hz, velocity);
   chipGated_ = true;
   chipGateOpen_ = true;
   chipNoteHz_ = hz;
@@ -9110,6 +9216,11 @@ void MediaEngine::synthNoteOn(double hz, int velocity) {
 }
 
 void MediaEngine::synthNoteOff(double hz) {
+  // Sent to the plugins BEFORE the chip synth's roll-off rule below, which
+  // deliberately ignores the release of a note that is no longer sounding on a
+  // monophonic voice. A plugin is polyphonic and owns its own voices, so it
+  // must hear every release or a key stays down forever.
+  sendNoteToPlugins(false, hz, 0);
   // Ignore the release of a note that is no longer the one sounding. On a
   // monophonic voice, rolling from one key to the next means the first key's
   // release arrives AFTER the second key's press, and honouring it would cut
@@ -9122,6 +9233,15 @@ void MediaEngine::synthNoteOff(double hz) {
 }
 
 void MediaEngine::synthAllNotesOff() {
+  // Every key, because panic has to mean panic: a plugin holding a note when
+  // the operator hits stop is a drone through the PA.
+  for (int key = 0; key < 128; ++key) {
+    for (const auto& instance : audioPluginsPending_) {
+      if (instance && instance->descriptor().isInstrument) {
+        instance->noteOff(0, key);
+      }
+    }
+  }
   chipGateOpen_ = false;
   chipGated_ = false;
   chipReleaseLevel_ = 0.0;
@@ -9290,6 +9410,25 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
       for (int c = 0; c < channels; ++c) out[f * channels + c] = v;
     }
   }
+
+  // ── THE CUE'S AUDIO CHAIN, ON GENERATED SOUND TOO ────────────────────────
+  //
+  // A generated tone goes straight to the device rather than through
+  // applyGainAndQueueAudio, which is where the chain runs -- so every effect,
+  // every bend and every plugin slot on a Tone cue did nothing at all. The
+  // inspector drew the rack, the operator set it, and the sound was untouched.
+  //
+  // The same shape as the metering tap immediately below, which was retrofitted
+  // here for exactly the same reason and whose comment tells the same story:
+  // this path was written before there was anything else to hand the samples
+  // to, and each new consumer has had to be brought to it.
+  //
+  // The chain is stereo by contract, so it treats the first output pair -- the
+  // programme -- and leaves a tone deliberately routed elsewhere alone, which
+  // is the rule the tap already follows. An INSTRUMENT plugin is why this
+  // matters beyond effects: its sound arrives as the chain's wet output, so
+  // without this a hosted instrument could be played and never heard.
+  applyAudioEffectsToGeneratedAudio(out, frames, channels);
 
   // Keep the tail of what we just produced for the on-screen scope. Sized to
   // about 40ms, which is a few cycles at 100Hz and plenty at 1kHz.

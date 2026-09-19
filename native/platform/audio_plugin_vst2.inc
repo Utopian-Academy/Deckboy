@@ -124,6 +124,7 @@ enum : std::int32_t {
   effSetSampleRate = 10,
   effSetBlockSize = 11,
   effMainsChanged = 12,
+  effProcessEvents = 25,      // notes, handed over just before their block
   effGetChunk = 23,
   effSetChunk = 24,
   effGetEffectName = 45,
@@ -293,6 +294,7 @@ class Vst2Instance final : public AudioPluginInstance {
         frames > maxBlock_) {
       return false;
     }
+    deliverNotes();   // events belong to the block they arrive with
     for (int i = 0; i < frames; ++i) {
       left_[static_cast<std::size_t>(i)] = interleavedStereo[i * 2];
       right_[static_cast<std::size_t>(i)] = interleavedStereo[i * 2 + 1];
@@ -358,12 +360,15 @@ class Vst2Instance final : public AudioPluginInstance {
     return effect_->getParameter(effect_, static_cast<std::int32_t>(id));
   }
 
+  // Notes ride a VstEvents block handed over with effProcessEvents just before
+  // the audio block they belong to. Same single-producer ring as the VST3
+  // side; see that file for why a note crosses threads this way.
   void noteOn(int channel, int key, double velocity) override {
-    (void)channel; (void)key; (void)velocity;
-    // Notes ride in a VstEvents block passed to effProcessEvents, which
-    // arrives with the instrument work rather than ahead of it.
+    pushNote(0x90, channel, key, static_cast<int>(velocity * 127.0));
   }
-  void noteOff(int channel, int key) override { (void)channel; (void)key; }
+  void noteOff(int channel, int key) override {
+    pushNote(0x80, channel, key, 0);
+  }
 
   std::string saveState() const override {
     if (!effect_ || (effect_->flags & kEffFlagsProgramChunks) == 0) {
@@ -411,6 +416,75 @@ class Vst2Instance final : public AudioPluginInstance {
       parameters_.push_back(std::move(p));
     }
   }
+
+  // VstEvents is a variable-length struct: a count followed by that many
+  // pointers. Declared here at a fixed capacity rather than allocated, because
+  // it is filled on the audio thread.
+  struct VstMidiEvent {
+    std::int32_t type;          // 1 = kVstMidiType
+    std::int32_t byteSize;
+    std::int32_t deltaFrames;
+    std::int32_t flags;
+    std::int32_t noteLength;
+    std::int32_t noteOffset;
+    char midiData[4];
+    char detune;
+    char noteOffVelocity;
+    char reserved1;
+    char reserved2;
+  };
+  static constexpr int kMaxEvents = 64;
+  struct VstEventsBlock {
+    std::int32_t numEvents = 0;
+    std::intptr_t reserved = 0;
+    void* events[kMaxEvents] {};
+  };
+
+  void pushNote(int status, int channel, int key, int velocity) {
+    const unsigned slot = noteWrite_.load(std::memory_order_relaxed);
+    noteRing_[slot % kRingSize] = PendingNote {status, channel, key, velocity};
+    noteWrite_.store(slot + 1, std::memory_order_release);
+  }
+
+  // Drains the ring into the preallocated block and hands it over. Called at
+  // the top of process(), so the notes reach the plugin in the same block.
+  void deliverNotes() {
+    const unsigned written = noteWrite_.load(std::memory_order_acquire);
+    if (written - noteRead_ > kRingSize) {
+      noteRead_ = written - kRingSize;
+    }
+    block_.numEvents = 0;
+    for (; noteRead_ != written && block_.numEvents < kMaxEvents; ++noteRead_) {
+      const PendingNote& n = noteRing_[noteRead_ % kRingSize];
+      VstMidiEvent& e = events_[block_.numEvents];
+      e = VstMidiEvent {};
+      e.type = 1;                       // kVstMidiType
+      e.byteSize = sizeof(VstMidiEvent);
+      e.deltaFrames = 0;
+      e.midiData[0] = static_cast<char>(n.status | (n.channel & 0x0f));
+      e.midiData[1] = static_cast<char>(n.key & 0x7f);
+      e.midiData[2] = static_cast<char>(n.velocity & 0x7f);
+      e.midiData[3] = 0;
+      block_.events[block_.numEvents] = &e;
+      ++block_.numEvents;
+    }
+    if (block_.numEvents > 0) {
+      effect_->dispatcher(effect_, effProcessEvents, 0, 0, &block_, 0.0f);
+    }
+  }
+
+  static constexpr unsigned kRingSize = 64;
+  struct PendingNote {
+    int status = 0;
+    int channel = 0;
+    int key = 0;
+    int velocity = 0;
+  };
+  PendingNote noteRing_[kRingSize] {};
+  std::atomic<unsigned> noteWrite_ {0};
+  unsigned noteRead_ = 0;        // audio thread only
+  VstMidiEvent events_[kMaxEvents] {};
+  VstEventsBlock block_;
 
   static constexpr int kOverrunsBeforeBypass = 8;
 

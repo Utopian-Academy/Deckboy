@@ -301,6 +301,20 @@ class MediaEngine {
   // single 2A03 pulse channel plays one note, and pretending otherwise would
   // be a synth wearing a chip's clothes.
   void synthNoteOn(double hz, int velocity);
+  // Play a note on every instrument plugin in the live cue's chain. Main
+  // thread; each instance queues it for its own audio thread.
+  void sendNoteToPlugins(bool on, double hz, int velocity);
+  // True when the live cue carries a plugin that MAKES sound rather than
+  // treats it. What makes a cue playable from the keyboard, MIDI or the wire:
+  // before this, only the built-in FDS chip counted, so an instrument plugin
+  // loaded fine and could never be played. Main thread.
+  bool hasInstrumentPlugin() const;
+  // Run the live cue's audio chain over GENERATED device-width audio, in
+  // place. The decode path gets the chain inside applyGainAndQueueAudio; a
+  // tone or chip synth never went through that function, so its rack was
+  // drawn, set, and silent.
+  void applyAudioEffectsToGeneratedAudio(std::vector<std::int16_t>& out,
+                                         std::size_t frames, int channels);
   void synthNoteOff(double hz);
   void synthAllNotesOff();
   bool synthGated() const { return chipGated_; }
