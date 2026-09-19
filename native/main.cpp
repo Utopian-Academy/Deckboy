@@ -3450,9 +3450,20 @@ class App {
       }
     }
 #endif
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
+    // VIDEO AND EVENTS ARE THE APPLICATION; AUDIO IS A FEATURE OF IT.
+    //
+    // These used to be one call, so a machine whose audio subsystem would not
+    // start did not start Deckboy either -- and "plays a clip on a screen" is
+    // the whole job of a signage box, a rack rig or a VM, none of which need
+    // sound to do it. Asked for separately, a missing sound system costs the
+    // sound and nothing else.
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
       std::cerr << "SDL_Init failed: " << SDL_GetError() << '\n';
       return false;
+    }
+    if (!SDL_InitSubSystem(SDL_INIT_AUDIO)) {
+      std::cerr << "audio: no audio subsystem (" << SDL_GetError()
+                << ") -- Deckboy runs without sound\n";
     }
     if (!TTF_Init()) {
       std::cerr << "TTF_Init failed: " << SDL_GetError() << '\n';

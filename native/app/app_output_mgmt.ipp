@@ -4632,9 +4632,18 @@
     std::string effectiveName;
     SDL_AudioStream* newMain = openMainAudioDevice(preferredDeviceName, effectiveName,
                                                    deck.audioOutputChannels);
-    if (!newMain) {
-      return false;
-    }
+    // NO DEVICE IS NOT NO DECK, and this used to return here -- which mattered
+    // far more than it looks, because THE MEDIA ENGINE IS CREATED BELOW. A
+    // machine with no sound card therefore got a deck with no engine, and a
+    // deck with no engine cannot show a picture: TAKE answered OK and nothing
+    // went up. Reported from a test runner with no audio, and it describes
+    // every signage box, VM and rack rig there is.
+    //
+    // So the run continues with a null stream, which every audio path already
+    // tolerates -- that is how a deck behaves while it is between devices --
+    // and the function still returns false at the end so the CALLER can say
+    // "no audio" once. False means "no sound", not "no deck".
+    const bool haveDevice = newMain != nullptr;
 
     SDL_AudioStream* oldStream = runtime->audioStream;
     runtime->audioStream = newMain;
@@ -4648,7 +4657,7 @@
     // file; what we actually got belongs to this run.
     deck.audioOutputDeviceName = preferredDeviceName;
     runtime->audioDeviceInUse = effectiveName;
-    if (!preferredDeviceName.empty() && effectiveName != preferredDeviceName) {
+    if (haveDevice && !preferredDeviceName.empty() && effectiveName != preferredDeviceName) {
       triggerToast("audio: " + preferredDeviceName + " not found — using system default");
     }
     if (runtime->mediaEngine) {
@@ -4694,7 +4703,9 @@
     if (oldStream) {
       SDL_DestroyAudioStream(oldStream);
     }
-    return true;
+    // False means THERE IS NO SOUND, not that there is no deck: the
+    // engine above exists either way and the picture plays.
+    return haveDevice;
   }
 
   bool ensureNdiRuntimeReady(std::string* errorMessage = nullptr) {
@@ -6692,8 +6703,26 @@
     }
 
     if (!reopenDeckAudioOutput(deckIndex, deck.audioOutputDeviceName)) {
-      destroyDeckRuntime(runtime);
-      return false;
+      // A MACHINE WITH NO SOUND CARD STILL HAS A SCREEN.
+      //
+      // This used to destroy the deck and fail the whole startup, so a box with
+      // no audio device could not show a PICTURE either -- and that describes a
+      // lot of the machines this application exists for: signage players, rack
+      // rigs, VMs, a Pi driving a foyer screen. Reported from the AppImage
+      // catalogue's test runner, which has no sound card: "Deck runtime
+      // creation failed: ALSA: Couldn't open audio device", and then nothing.
+      //
+      // Deckboy already survives a NAMED device that has gone missing -- it
+      // moves the deck to the default and says so. This is the same idea one
+      // step further out: no devices at all is no audio, said once, and the
+      // show carries on. Every audio path already tolerates a null stream,
+      // because that is how a deck behaves between devices.
+      runtime.audioDeviceInUse.clear();
+      std::cerr << "audio: deck " << (deckIndex + 1)
+                << " has no audio device (" << SDL_GetError()
+                << ") -- the picture carries on without sound\n";
+      triggerToast("no audio device — picture only on deck " +
+                   deckDefaultName(deckIndex));
     }
 
     return true;
