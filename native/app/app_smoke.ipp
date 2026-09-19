@@ -2157,30 +2157,24 @@
       ap::AudioPluginInstance* plugin = nullptr;
       std::vector<float> scratch;
       int processed = 0;
-      // THE SAME UNIT CONVERSION THE ENGINE DOES, deliberately duplicated.
+      // THE ENGINE'S OWN IMPLEMENTATION, called rather than copied.
       //
-      // This harness used to hand the plugin its samples unscaled, which was
-      // invisible here because the test signal below is already ±1.0 -- so the
-      // check fed plugins correct numbers by accident and passed, while the
-      // engine fed them int16-scaled ones and an instrument came out silent.
-      // A harness whose signal cannot expose the fault will report the
-      // measurement rather than the truth, so it now works at the engine's
-      // scale and converts exactly as the engine does.
+      // This used to be a second copy of the unit conversion and the mix, with
+      // a comment proudly calling it "deliberately duplicated" -- and that is
+      // precisely why this check reported zero failures across a release in
+      // which the engine drove every plugin 32768x too hot. The check was
+      // exercising its own correct copy. A gate that does not run the shipped
+      // code path is not testing the shipped code path.
+      double inputPeak = 0.0;   // the loudest thing the plugin was handed
       bool processPluginSlot(std::size_t, const afx::AudioEffect& fx,
                              double* samples, std::size_t frames) override {
-        constexpr double kPluginFullScale = 32768.0;
-        const std::size_t need = frames * 2;
-        scratch.resize(need);
-        for (std::size_t i = 0; i < need; ++i) {
-          scratch[i] = static_cast<float>(samples[i] / kPluginFullScale);
-        }
-        if (!plugin->process(scratch.data(), static_cast<int>(frames))) {
+        double peak = 0.0;
+        if (!ap::applyPluginSlot(*plugin, static_cast<double>(fx.amount),
+                                 samples, frames, scratch, 2048, &peak)) {
           return false;
         }
-        const double wet = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
-        for (std::size_t i = 0; i < need; ++i) {
-          samples[i] = (1.0 - wet) * samples[i] +
-                       wet * static_cast<double>(scratch[i]) * kPluginFullScale;
+        if (peak > inputPeak) {
+          inputPeak = peak;
         }
         ++processed;
         return true;
@@ -2270,9 +2264,67 @@
       std::cout << "  FAIL non-finite samples out of the plugin\n";
       ++failures;
     }
+    // ── ABSOLUTE FACTS, BECAUSE A RATIO CANNOT SEE A SCALE ERROR ────────────
+    //
+    // `difference` is normalised, so it divides out exactly the fault it looks
+    // like it is testing. Run on the defective v0.99.370 and the fixed
+    // v0.99.371 it prints the SAME 0.550813, and the same four control sweeps
+    // to six figures, and "0 failures" on both -- while the plugin in one of
+    // them is being driven 32768x past full scale into a square wave. Only the
+    // rms scale moved, by exactly that factor.
+    //
+    // So the check now states three things a ratio cannot: how much of the
+    // output is pinned to the rail, and what the wet level is against the dry
+    // one IN THE SAME UNITS. Either would have failed that release loudly.
+    auto railedFraction = [](const std::vector<double>& s) {
+      if (s.empty()) {
+        return 0.0;
+      }
+      std::size_t railed = 0;
+      for (const double v : s) {
+        if (std::fabs(v) >= 32767.0 * 0.999) {
+          ++railed;
+        }
+      }
+      return static_cast<double>(railed) / static_cast<double>(s.size());
+    };
+    const double dryRms = rms(dry);
     const double wetRms = rms(wet);
-    std::cout << "  dry rms " << rms(dry) << "  wet rms " << wetRms
+    const double railed = railedFraction(wet);
+    const double levelRatio = dryRms > 0.0 ? wetRms / dryRms : 0.0;
+    std::cout << "  dry rms " << dryRms << "  wet rms " << wetRms
               << "  difference " << difference(dry, wet) << '\n';
+    std::cout << "  wet/dry level " << levelRatio
+              << "   railed " << (railed * 100.0) << "%\n";
+    // WHAT THE PLUGIN WAS HANDED. The single number that names the v0.99.370
+    // fault outright, and the only one that works for every plugin: a plugin
+    // that clips its output betrays an overdriven input, and one that does not
+    // hides it completely. Programme material converts to something near 1.0.
+    std::cout << "  level handed to the plugin: peak " << host.inputPeak << '\n';
+    if (host.inputPeak > 4.0) {
+      std::cout << "  FAIL the plugin is being handed peaks of "
+                << host.inputPeak
+                << " -- the host is in different units from the plugin\n";
+      ++failures;
+    }
+    // A plugin pinned to the rail is not processing, it is clipping. One
+    // sample in a hundred is generous for programme material that peaks well
+    // below full scale.
+    if (railed > 0.01) {
+      std::cout << "  FAIL " << (railed * 100.0)
+                << "% of the output is at full scale -- the plugin is being "
+                   "driven past its range\n";
+      ++failures;
+    }
+    // And a wet signal orders of magnitude from the dry one means the two
+    // sides disagree about what full scale IS. An instrument is exempt: it
+    // ignores the input, so its level has no relationship to the dry one.
+    if (!isInstrument && dryRms > 0.0 && (levelRatio > 8.0 || levelRatio < 0.02)) {
+      std::cout << "  FAIL wet is " << levelRatio
+                << "x the dry level -- host and plugin disagree about full "
+                   "scale\n";
+      ++failures;
+    }
     // A plugin that emits nothing at all in half a second is not necessarily
     // broken -- a long time-stretcher fills several seconds of buffer before
     // anything comes out, and an instrument has had no note. It does mean the
@@ -2303,8 +2355,16 @@
       const double afterRms = rms(render(fx));
       std::cout << "  played a note: rms " << rms(played)
                 << "   after note-off: rms " << afterRms << '\n';
-      if (rms(played) < 1e-6) {
-        std::cout << "  FAIL an instrument was sent a note and made no sound\n";
+      // IN THE ENGINE'S UNITS. This threshold was 1e-6, written when the
+      // harness worked at ±1.0, and never moved when it moved to int16 scale.
+      // With the unit bug in place an instrument returns rms 0.4 -- which is
+      // not zero, so the check passed, and which is -98 dBFS, which is
+      // silence. A threshold has to be in the same units as the thing it
+      // judges. About -80 dBFS: far below anything audible, far above nothing.
+      constexpr double kAudibleRms = 32768.0 * 0.0001;
+      if (rms(played) < kAudibleRms) {
+        std::cout << "  FAIL an instrument was sent a note and made no sound "
+                     "(rms " << rms(played) << ", silence at this scale)\n";
         ++failures;
       }
     }

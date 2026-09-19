@@ -4992,54 +4992,19 @@ bool MediaEngine::processAudioPluginSlot(std::size_t index,
     // the plugin. Either way the cue keeps its sound.
     return false;
   }
-  const std::size_t need = frames * 2;
-  if (audioPluginScratch_.size() < need) {
-    // Grows at most once per block size, exactly as limiterScratch_ above it
-    // does, and never while a plugin is mid-chain.
-    audioPluginScratch_.resize(need);
-  }
   const auto& instance = audioPluginsActive_[index];
-  // ── UNITS. A PLUGIN SPEAKS ±1.0, THIS CHAIN SPEAKS ±32767 ─────────────────
-  //
-  // Deckboy's audio chain works in int16-scaled doubles, because that is what
-  // the gain stage hands the limiter and what the quantiser expects back. Every
-  // plugin format instead defines float audio as nominally ±1.0.
-  //
-  // Handing a plugin the raw chain values feeds it a signal about 32768x too
-  // hot -- every plugin clips flat internally -- and its correct ±1.0 answer
-  // then comes back as a number so small that against an int16 scale it IS
-  // silence. Both halves of that are inaudible in different ways: an effect
-  // sounds destroyed, and an instrument sounds like nothing at all.
-  //
-  // MEASURED, not reasoned about: an instrument returned peak 0.394 while the
-  // recording measured digital silence. The offline harness missed it for a
-  // year of one afternoon because its test signal is already ±1.0, so it fed
-  // plugins sane numbers by accident and they sounded correct.
-  constexpr double kPluginFullScale = 32768.0;
-  for (std::size_t i = 0; i < need; ++i) {
-    audioPluginScratch_[i] = static_cast<float>(samples[i] / kPluginFullScale);
-  }
-  // SPLIT, never grow. The plugin was set up for kMaxAudioPluginBlockFrames and
-  // refuses anything longer; a chunk that happens to be bigger is several
-  // blocks, not a reason to reconfigure a plugin mid-cue.
-  for (std::size_t done = 0; done < frames;) {
-    const std::size_t take =
-      std::min(frames - done, static_cast<std::size_t>(kMaxAudioPluginBlockFrames));
-    if (!instance->process(audioPluginScratch_.data() + done * 2,
-                           static_cast<int>(take))) {
-      if (instance->overran()) {
-        audioPluginOverran_.store(true, std::memory_order_relaxed);
-      }
-      return false;   // the audio is exactly as the plugin found it
+  // THE SHARED IMPLEMENTATION, not a copy of it. Units, the plugin call and
+  // the dry/wet mix all live in applyPluginSlot (platform/audio_plugin.hpp),
+  // which --plugin-chain-check calls too. When the engine had its own copy and
+  // the check had another, the check could not see the engine's fault and a
+  // broken release went out green.
+  if (!deckboy::platform::audioplugin::applyPluginSlot(
+          *instance, static_cast<double>(fx.amount), samples, frames,
+          audioPluginScratch_, kMaxAudioPluginBlockFrames)) {
+    if (instance->overran()) {
+      audioPluginOverran_.store(true, std::memory_order_relaxed);
     }
-    done += take;
-  }
-  // Amount means what it means everywhere else in this chain: less of this.
-  const double wet = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
-  const double dry = 1.0 - wet;
-  for (std::size_t i = 0; i < need; ++i) {
-    samples[i] = dry * samples[i] +
-                 wet * static_cast<double>(audioPluginScratch_[i]) * kPluginFullScale;
+    return false;   // the audio is exactly as the plugin found it
   }
   return true;
 }

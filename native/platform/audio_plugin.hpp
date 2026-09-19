@@ -147,4 +147,79 @@ std::unique_ptr<AudioPluginInstance> openAudioPlugin(const std::string& id,
 // showing an empty list that looks like "you own no plugins".
 bool audioPluginsSupported();
 
+// ── PROCESSING ONE SLOT: THE ONLY IMPLEMENTATION ────────────────────────────
+//
+// Unit conversion, the plugin call, and the dry/wet mix, in one place used by
+// BOTH the engine and --plugin-chain-check.
+//
+// It lives here because the alternative was tried and it shipped a broken
+// release. The check had its own copy of this logic, with a comment calling it
+// "deliberately duplicated" -- and a check that duplicates the code under test
+// cannot detect a fault in the code under test. v0.99.370 drove every plugin
+// 32768x too hot and the gate reported zero failures across the whole release,
+// because the gate was exercising its own correct copy rather than the
+// engine's broken one.
+//
+// UNITS. Deckboy's chain works in int16-scaled doubles (±32767) -- what the
+// gain stage hands the limiter and what the quantiser expects back. Every
+// plugin format defines float audio as nominally ±1.0. This is the one place
+// that knows both, and there must not be a second.
+//
+// `samples` is interleaved stereo, processed in place. `scratch` is the
+// caller's reusable buffer, so nothing allocates once processing has started.
+// Returns false when the plugin declined the block, and then the audio is left
+// exactly as it was found.
+// `inputPeakOut`, when given, reports the peak of what was HANDED TO the
+// plugin, after conversion. That number is the one that names this bug
+// directly: it should sit near 1.0 for programme material, and it read 32767
+// in the release that shipped broken. The engine passes nullptr; the check
+// passes a pointer and asserts on it, because asking what the plugin RECEIVED
+// works for every plugin, while asking what it returned depends on whether
+// that particular plugin happens to clip.
+inline bool applyPluginSlot(AudioPluginInstance& plugin, double amount,
+                            double* samples, std::size_t frames,
+                            std::vector<float>& scratch, int maxBlockFrames,
+                            double* inputPeakOut = nullptr) {
+  if (frames == 0) {
+    return false;
+  }
+  constexpr double kPluginFullScale = 32768.0;
+  const std::size_t need = frames * 2;
+  if (scratch.size() < need) {
+    scratch.resize(need);
+  }
+  for (std::size_t i = 0; i < need; ++i) {
+    scratch[i] = static_cast<float>(samples[i] / kPluginFullScale);
+  }
+  if (inputPeakOut) {
+    double peak = 0.0;
+    for (std::size_t i = 0; i < need; ++i) {
+      const double v = scratch[i] < 0.0f ? -static_cast<double>(scratch[i])
+                                         : static_cast<double>(scratch[i]);
+      if (v > peak) {
+        peak = v;
+      }
+    }
+    *inputPeakOut = peak;
+  }
+  // SPLIT, never grow: a plugin refuses a block longer than it was set up for,
+  // and reconfiguring one mid-cue is not a thing to do to a live show.
+  const std::size_t chunk =
+    maxBlockFrames > 0 ? static_cast<std::size_t>(maxBlockFrames) : frames;
+  for (std::size_t done = 0; done < frames;) {
+    const std::size_t take = frames - done < chunk ? frames - done : chunk;
+    if (!plugin.process(scratch.data() + done * 2, static_cast<int>(take))) {
+      return false;
+    }
+    done += take;
+  }
+  const double wet = amount < 0.0 ? 0.0 : (amount > 1.0 ? 1.0 : amount);
+  const double dry = 1.0 - wet;
+  for (std::size_t i = 0; i < need; ++i) {
+    samples[i] = dry * samples[i] +
+                 wet * static_cast<double>(scratch[i]) * kPluginFullScale;
+  }
+  return true;
+}
+
 }  // namespace deckboy::platform::audioplugin
