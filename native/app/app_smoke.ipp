@@ -1960,6 +1960,44 @@
     return 0;
   }
 
+  // ── runPluginReport — `--plugins` ─────────────────────────────────────────
+  //
+  // The same job --devices does for hardware: say what this machine offers and
+  // where it was found, so "Deckboy cannot see my reverb" is answerable without
+  // guessing. Prints the folders FIRST, because the usual cause is a plugin
+  // installed somewhere the format does not name.
+  static int runPluginReport() {
+    namespace ap = deckboy::platform::audioplugin;
+    std::cout << "plugin support: "
+              << (ap::audioPluginsSupported()
+                    ? "vst3 (this build can load them)"
+                    : "SCAN ONLY (this build has no VST3 host)")
+              << '\n';
+    std::cout << "searched:\n";
+    for (const auto& path : ap::audioPluginSearchPaths()) {
+      std::cout << "  " << path << '\n';
+    }
+    const auto found = ap::scanAudioPlugins();
+    std::cout << "found: " << found.size() << '\n';
+    // A sentinel rather than an empty string: the first group's vendor IS empty
+    // (the plugins sitting at the top of the folder), so starting empty skipped
+    // its heading and those plugins looked like they belonged to nobody.
+    std::string vendor = "\x01";
+    for (const auto& p : found) {
+      if (p.vendor != vendor) {
+        vendor = p.vendor;
+        std::cout << "  " << (vendor.empty() ? std::string("(no vendor folder)") : vendor)
+                  << ":\n";
+      }
+      std::cout << "    " << p.name << '\n';
+    }
+    if (found.empty()) {
+      std::cout << "  nothing in those folders -- a plugin installed elsewhere is\n"
+                   "  invisible to every host, not just this one\n";
+    }
+    return 0;
+  }
+
   static int runDeviceReport() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
       std::cout << "devices: SDL init failed: " << SDL_GetError() << '\n';

@@ -461,6 +461,7 @@ add_executable(deckboy-native
   native/platform/browser.cpp
   native/platform/pdf_import.cpp
   native/platform/capture_backend.cpp
+  native/platform/audio_plugin.cpp
   native/platform/integration_backend.cpp
   native/platform/output_backend.cpp
   # ST 2110-20 sender: plain sockets only, no SDK, so it compiles unconditionally

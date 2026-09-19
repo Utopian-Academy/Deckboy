@@ -87,6 +87,7 @@
 #include "engine/gpu_readback.hpp"
 #include "engine/motion_field.hpp"
 #include "platform/capture_backend.hpp"
+#include "platform/audio_plugin.hpp"
 #include "platform/dynamic_library.hpp"
 #include "platform/ltc_api.hpp"
 #include "platform/midi.hpp"
@@ -10386,6 +10387,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
   {"--settings [tab[.subtab]]", "open the settings modal at boot, e.g. --settings 3.1"},
   {"--soak [minutes]", "long-run stability harness (default 1440); logs to deckboy-soak.log"},
   {"--devices", "list the audio, display and capture hardware this machine offers"},
+  {"--plugins", "list the audio plugins this machine has, and where they were found"},
   {"--check-update", "ask GitHub whether there is a newer release, print it, and exit"},
   {"--no-inproc-decode", "keep every decode on the ffmpeg CLI pipe path"},
   {"--no-hw-decode", "decode in software (the A/B for the hardware path)"},
@@ -10398,7 +10400,7 @@ constexpr const char* kCliModeFlags[] = {
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
-  "--devices", "--check-update", "--font-check",
+  "--devices", "--plugins", "--check-update", "--font-check",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -10668,6 +10670,9 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
   if (mode == "--devices") {
     return App::runDeviceReport();
+  }
+  if (mode == "--plugins") {
+    return App::runPluginReport();
   }
   if (mode == "--check-update") {
     return App::runUpdateCheckReport();
