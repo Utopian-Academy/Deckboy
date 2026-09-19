@@ -139,6 +139,12 @@ class MediaEngine {
   // Returns how many samples were written; zero while nothing has played.
   std::size_t copyRecentProgramAudio(std::vector<float>& out) const;
 
+  // Publish what the PICTURE follows: the waveform audioprint draws with and
+  // the level an Audio LFO rides. Called with the finished stereo by every
+  // producer -- decoded audio AND generated audio -- because a generator that
+  // skips it leaves both halves of the loop dead on that cue kind.
+  void noteProgrammeAudio(const std::int16_t* stereo, std::size_t frames);
+
   double programAudioLevel01() const {
     return static_cast<double>(programLevel_.load(std::memory_order_relaxed));
   }

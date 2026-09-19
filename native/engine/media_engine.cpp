@@ -6315,6 +6315,64 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
 // fade/volume/master gain, waveform tap, queue to the SDL stream, advance the
 // audio-clock counters. Keeping one implementation keeps the audio-master
 // A/V clock semantics identical across both decode paths.
+// ── WHAT THE PICTURE FOLLOWS ────────────────────────────────────────────────
+//
+// Two things are published here, from the finished stereo: a decimated mono
+// copy of the sound (what `audioprint` draws with) and its level on a meter's
+// scale (what an Audio LFO rides). One in eight samples is plenty -- the
+// picture is asked to lean a few pixels, not to resolve a cymbal -- and it
+// keeps the ring at a few thousand floats rather than a hundred thousand.
+//
+// ON A METER'S SCALE, not a linear one: -50dBFS reads 0 and -6dBFS reads 1.
+// Linear RMS put a quiet clip at 0.04, so a picture following it barely moved;
+// people hear in decibels and a response should too. Rises at once, falls over
+// 300ms: a picture that flickers at audio rate is noise, one that breathes with
+// the sound is a response.
+//
+// CALLED BY EVERY PRODUCER, which is the whole point of it being a function.
+// It used to live inside the decode path, so a TONE cue -- which generates its
+// own samples and writes them straight to the device -- left both halves dead:
+// audioprint drew nothing on a tone and an Audio LFO never moved. Reported from
+// the trailer shoot, where audioprint on a 2A03 tone cue produced a picture
+// pixel-identical to the un-effected one.
+void MediaEngine::noteProgrammeAudio(const std::int16_t* stereo, std::size_t frames) {
+  if (stereo == nullptr || frames == 0) {
+    return;
+  }
+  {
+    std::lock_guard<std::mutex> lock(recentAudioMutex_);
+    if (recentAudio_.size() != kRecentAudioSamples) {
+      recentAudio_.assign(kRecentAudioSamples, 0.0f);
+      recentAudioWrite_ = 0;
+    }
+    for (std::size_t f = 0; f < frames; ++f) {
+      if (recentAudioPhase_ = (recentAudioPhase_ + 1) & 7; recentAudioPhase_ != 0) {
+        continue;
+      }
+      const double summed =
+        (static_cast<double>(stereo[f * 2]) + static_cast<double>(stereo[f * 2 + 1]))
+        * 0.5 / 32768.0;
+      recentAudio_[recentAudioWrite_] = static_cast<float>(std::clamp(summed, -1.0, 1.0));
+      recentAudioWrite_ = (recentAudioWrite_ + 1) % kRecentAudioSamples;
+    }
+  }
+  double energy = 0.0;
+  for (std::size_t i = 0; i < frames * 2; ++i) {
+    const double v = static_cast<double>(stereo[i]) / 32768.0;
+    energy += v * v;
+  }
+  const double rms = std::sqrt(energy / static_cast<double>(frames * 2));
+  const double chunkSeconds = static_cast<double>(frames) / 48000.0;
+  const double dbfs = rms > 1e-7 ? 20.0 * std::log10(rms) : -120.0;
+  const double meterLevel = std::clamp((dbfs + 50.0) / 44.0, 0.0, 1.0);
+  const double released = programLevelState_ * std::exp(-chunkSeconds / 0.3);
+  programLevelState_ = std::max(meterLevel, released);
+  if (programLevelState_ < 1e-6) {
+    programLevelState_ = 0.0;
+  }
+  programLevel_.store(static_cast<float>(programLevelState_), std::memory_order_relaxed);
+}
+
 void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, double& audioTime) {
   const double cueGain = audioCueGain_.load(std::memory_order_relaxed);
   const double pan = static_cast<double>(audioCuePan_.load(std::memory_order_relaxed));
@@ -6420,53 +6478,6 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
   // Stage 2: hold the peaks under the ceiling by reducing gain, not by
   // truncating the waveform.
   applyPeakLimiter();
-  // THE LEVEL THE PICTURE CAN FOLLOW. Measured here, after the effects and
-  // the limiter, so an Audio LFO on a picture effect follows the sound the
-  // room is about to hear -- bends included, which is what closes the loop.
-  // Rises at once, falls over 300ms, like a meter: a picture that flickers at
-  // audio rate is noise, one that breathes with the sound is a response.
-  // THE SHAPE OF THE SOUND, not just its size: a decimated mono copy of what
-  // is about to be heard, kept for the picture effects that DRAW with it
-  // (audioprint). One in eight samples is plenty -- the picture is asked to
-  // lean a few pixels, not to resolve a cymbal -- and it keeps the ring at a
-  // few thousand floats instead of a hundred thousand.
-  {
-    std::lock_guard<std::mutex> lock(recentAudioMutex_);
-    if (recentAudio_.size() != kRecentAudioSamples) {
-      recentAudio_.assign(kRecentAudioSamples, 0.0f);
-      recentAudioWrite_ = 0;
-    }
-    for (std::size_t f = 0; f < frames; ++f) {
-      if (recentAudioPhase_ = (recentAudioPhase_ + 1) & 7; recentAudioPhase_ != 0) {
-        continue;
-      }
-      const double summed =
-        (limiterScratch_[f * 2] + limiterScratch_[f * 2 + 1]) * 0.5 / 32768.0;
-      recentAudio_[recentAudioWrite_] = static_cast<float>(std::clamp(summed, -1.0, 1.0));
-      recentAudioWrite_ = (recentAudioWrite_ + 1) % kRecentAudioSamples;
-    }
-  }
-  {
-    double energy = 0.0;
-    for (std::size_t i = 0; i < frames * 2; ++i) {
-      const double v = limiterScratch_[i] / 32768.0;
-      energy += v * v;
-    }
-    const double rms = frames > 0
-      ? std::sqrt(energy / static_cast<double>(frames * 2)) : 0.0;
-    const double chunkSeconds = static_cast<double>(frames) / 48000.0;
-    // ON A METER'S SCALE, not a linear one: -50dBFS reads 0 and -6dBFS reads
-    // 1. Linear RMS put a quiet clip at 0.04, so a picture following it barely
-    // moved; people hear in decibels and a response should too.
-    const double dbfs = rms > 1e-7 ? 20.0 * std::log10(rms) : -120.0;
-    const double meterLevel = std::clamp((dbfs + 50.0) / 44.0, 0.0, 1.0);
-    const double released = programLevelState_ * std::exp(-chunkSeconds / 0.3);
-    programLevelState_ = std::max(meterLevel, released);
-    if (programLevelState_ < 1e-6) {
-      programLevelState_ = 0.0;
-    }
-    programLevel_.store(static_cast<float>(programLevelState_), std::memory_order_relaxed);
-  }
   // Stage 3: quantise. The hard clamp stays as the last-resort safety net —
   // the limiter should mean it never actually binds.
   for (std::size_t i = 0; i < frames * 2; ++i) {
@@ -6602,6 +6613,13 @@ bool MediaEngine::copyScopeSamples(std::vector<std::int16_t>& left,
 }
 
 void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
+  // WHAT THE PICTURE FOLLOWS, published here for the same reason the frame
+  // counter is: every producer that uses the delay line passes through this
+  // one function. The pocket test card generates its own samples and would
+  // otherwise drive neither audioprint nor an Audio LFO, exactly as the tone
+  // cue did. The tone generator bypasses the delay line deliberately (it
+  // addresses device channels itself) and calls this directly.
+  noteProgrammeAudio(samples.data(), samples.size() / 2);
   // The A/V master clock counts frames at PROCESS time, before the delay
   // line: video must anchor to the undelayed timeline so the configured
   // audio delay produces a real skew at the device (audio late vs video)
@@ -9108,6 +9126,17 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
                               (channels > 1 ? 1 : 0)];
     }
     audioTap_(stereo);
+  }
+  // The same stereo the tap gets, to the picture side: without this a tone
+  // cue drives neither audioprint nor an Audio LFO.
+  {
+    std::vector<std::int16_t> stereo(frames * 2, 0);
+    for (std::size_t f = 0; f < frames; ++f) {
+      stereo[f * 2]     = out[f * static_cast<std::size_t>(channels)];
+      stereo[f * 2 + 1] = out[f * static_cast<std::size_t>(channels) +
+                              (channels > 1 ? 1 : 0)];
+    }
+    noteProgrammeAudio(stereo.data(), frames);
   }
 
   // Device-width already: the generator addresses channels individually, so it

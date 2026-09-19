@@ -3740,8 +3740,13 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const std::size_t first = have - std::min(span, have);
         const double throwPx = (0.5 + pA * pA * 24.0) * ctx.width / 640.0 * amt;
         const double ink = pC * amt;
-        const std::vector<std::uint8_t> source(pixels.begin(), pixels.begin() + count * 4);
+        // A ROW AT A TIME, NOT A FRAME AT A TIME. Every row is displaced by
+        // one constant, so the only scratch this needs is ONE ROW -- and the
+        // first version copied the whole picture instead. At a 4K output that
+        // is a 33MB allocation and a 33MB copy every frame, which took the
+        // recorder 112 frames behind on a cue it should not have troubled.
         detail::parallelRows(ctx.height, ctx.width * 2, [&](int firstRow, int lastRow) {
+          std::vector<std::uint8_t> row(static_cast<std::size_t>(ctx.width) * 4);
           for (int y = firstRow; y < lastRow; ++y) {
             const std::size_t at =
               first + static_cast<std::size_t>(
@@ -3750,18 +3755,20 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             const double sample = static_cast<double>(ctx.audioSamples[std::min(at, have - 1)]);
             const int shift = static_cast<int>(std::lround(sample * throwPx));
             const double lift = std::fabs(sample) * ink;
+            // The tint follows the SIGN of the sample, so the picture leans warm
+            // on one half of the waveform and cold on the other -- the shape of
+            // the sound, not just its size.
+            const double warm = sample > 0.0 ? lift : 0.0;
+            const double cool = sample < 0.0 ? lift : 0.0;
+            std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            std::memcpy(row.data(), dst, row.size());
             for (int x = 0; x < ctx.width; ++x) {
               const int sx = std::clamp(x + shift, 0, ctx.width - 1);
-              const std::size_t from = (static_cast<std::size_t>(y) * ctx.width + sx) * 4;
-              const std::size_t to = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
-              // The tint follows the SIGN of the sample, so the picture leans
-              // warm on one half of the waveform and cold on the other -- the
-              // shape of the sound, not just its size.
-              const double warm = sample > 0.0 ? lift : 0.0;
-              const double cool = sample < 0.0 ? lift : 0.0;
-              pixels[to]     = detail::clamp8(source[from]     * (1.0 + warm) - cool * 40.0);
-              pixels[to + 1] = detail::clamp8(source[from + 1] * (1.0 + lift * 0.25));
-              pixels[to + 2] = detail::clamp8(source[from + 2] * (1.0 + cool) - warm * 40.0);
+              const std::uint8_t* src = row.data() + static_cast<std::size_t>(sx) * 4;
+              std::uint8_t* out = dst + static_cast<std::size_t>(x) * 4;
+              out[0] = detail::clamp8(src[0] * (1.0 + warm) - cool * 40.0);
+              out[1] = detail::clamp8(src[1] * (1.0 + lift * 0.25));
+              out[2] = detail::clamp8(src[2] * (1.0 + cool) - warm * 40.0);
             }
           }
         });
