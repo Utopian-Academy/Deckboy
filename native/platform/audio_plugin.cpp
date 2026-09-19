@@ -138,6 +138,15 @@ void scanFolder(const fs::path& root, std::vector<PluginDescriptor>& out, int de
 }
 
 }  // namespace
+}  // namespace deckboy::platform::audioplugin
+
+// The SDK's headers have to be included at global scope, so the VST3 half opens
+// the namespace again for itself rather than being pulled inside this one.
+#if defined(DECKBOY_HAS_VST3)
+#include "platform/audio_plugin_vst3.inc"
+#endif
+
+namespace deckboy::platform::audioplugin {
 
 std::vector<std::string> audioPluginSearchPaths() {
   std::vector<std::string> out;
@@ -163,6 +172,13 @@ std::vector<PluginDescriptor> scanAudioPlugins() {
   return found;
 }
 
+#if defined(DECKBOY_HAS_VST3)
+// Defined in audio_plugin_vst3.inc.
+std::unique_ptr<AudioPluginInstance> openVst3Plugin(const std::string& path,
+                                                    double sampleRate,
+                                                    int maxBlockFrames);
+#endif
+
 bool audioPluginsSupported() {
 #if defined(DECKBOY_HAS_VST3)
   return true;
@@ -174,15 +190,23 @@ bool audioPluginsSupported() {
 std::unique_ptr<AudioPluginInstance> openAudioPlugin(const std::string& id,
                                                      double sampleRate,
                                                      int maxBlockFrames) {
-  (void)id;
   (void)sampleRate;
   (void)maxBlockFrames;
 #if defined(DECKBOY_HAS_VST3)
-  // The VST3 host lands here. Deliberately absent rather than half-written:
-  // a loader that opens a module and cannot promise the audio-thread contract
-  // in audio_plugin.hpp would be worse than none.
+  // Ids are "<format>:<reference>". Only vst3 exists today; the split is here
+  // so a second format is a branch rather than a rewrite.
+  const std::string::size_type colon = id.find(':');
+  if (colon == std::string::npos) {
+    return nullptr;
+  }
+  const std::string format = id.substr(0, colon);
+  const std::string reference = id.substr(colon + 1);
+  if (format == "vst3") {
+    return openVst3Plugin(reference, sampleRate, maxBlockFrames);
+  }
   return nullptr;
 #else
+  (void)id;
   return nullptr;
 #endif
 }

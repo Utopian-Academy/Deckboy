@@ -1966,6 +1966,12 @@
   // where it was found, so "Deckboy cannot see my reverb" is answerable without
   // guessing. Prints the folders FIRST, because the usual cause is a plugin
   // installed somewhere the format does not name.
+  // `--plugins load` asks for the slow, thorough version.
+  static bool deckboyPluginLoadProbeRequested() {
+    const char* env = std::getenv("DECKBOY_PLUGIN_LOAD");
+    return env && *env == '1';
+  }
+
   static int runPluginReport() {
     namespace ap = deckboy::platform::audioplugin;
     std::cout << "plugin support: "
@@ -1994,6 +2000,27 @@
     if (found.empty()) {
       std::cout << "  nothing in those folders -- a plugin installed elsewhere is\n"
                    "  invisible to every host, not just this one\n";
+    }
+    // `--plugins load` OPENS every one of them. Slow, and the only honest way
+    // to know what this machine can actually host: a plugin that scans and
+    // will not load is the failure an operator meets at the worst moment.
+    if (ap::audioPluginsSupported() && deckboyPluginLoadProbeRequested()) {
+      std::cout << "\nloading each (this takes a moment):\n";
+      int ok = 0, failed = 0, params = 0;
+      for (const auto& p : found) {
+        auto instance = ap::openAudioPlugin(p.id, 48000.0, 1024);
+        if (instance) {
+          ++ok;
+          params += static_cast<int>(instance->parameters().size());
+          std::cout << "  ok    " << p.name << "  ("
+                    << instance->parameters().size() << " parameters)\n";
+        } else {
+          ++failed;
+          std::cout << "  FAIL  " << p.name << '\n';
+        }
+      }
+      std::cout << "loaded " << ok << ", refused " << failed
+                << ", " << params << " parameters in total\n";
     }
     return 0;
   }

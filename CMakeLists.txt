@@ -213,6 +213,32 @@ option(ENABLE_SPOUT "Build with Windows Spout interprocess texture sharing" OFF)
 option(ENABLE_ASIO "Build with Steinberg ASIO low-latency audio (Windows)" ON)
 option(ENABLE_CEF "Build with Chromium Embedded Framework browser cues" OFF)
 
+option(ENABLE_VST3 "Host third-party VST3 audio plugins" ON)
+
+# -- VST3, for the operator's own plugins in a cue's audio chain -------------
+#
+# HEADERS ONLY, and optional. The VST3 SDK is dual-licensed GPLv3-or-
+# proprietary, so a GPL-3 host may use it; VST2's SDK is not licensed to new
+# hosts at all, which is why only this one is here. See
+# native/platform/audio_plugin.hpp.
+#
+# A build without the SDK still SCANS and still lists what the machine has --
+# it just says it cannot load them -- so this never fails a build. It is found
+# rather than required for the same reason ffmpeg is: a contributor should be
+# able to build Deckboy without assembling every optional dependency first.
+if(ENABLE_VST3)
+  find_path(VST3_INCLUDE_DIR
+    NAMES pluginterfaces/base/funknown.h
+    PATH_SUFFIXES vst3sdk)
+  if(VST3_INCLUDE_DIR)
+    message(STATUS "VST3 SDK: ${VST3_INCLUDE_DIR}")
+  else()
+    message(STATUS "VST3 SDK: not found - plugins will be listed but not loadable")
+  endif()
+endif()
+
+
+
 # ── zlib, for reading the notes out of a .pptx ──────────────────────────────
 #
 # A PowerPoint file is a ZIP, and the speaker notes are XML inside it -- which
@@ -811,6 +837,11 @@ if(ENABLE_SPOUT AND WIN32)
     target_include_directories(deckboy-native PRIVATE ${SPOUT_INCLUDE_DIR})
   endif()
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_SPOUT=1)
+endif()
+
+if(VST3_INCLUDE_DIR)
+  target_include_directories(deckboy-native PRIVATE ${VST3_INCLUDE_DIR})
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_VST3=1)
 endif()
 
 if(ZLIB_FOUND)
