@@ -587,7 +587,7 @@ static const std::vector<CodeExample>& codeExamples() {
         }
         SDL_Rect chip {cx, y, chipW, 22};
         const bool hover = pointInRect(mouseX_, mouseY_, chip);
-        drawUIPanel(chip, hover ? pal.light : pal.tile, pal.deep, pal.mid);
+        drawUIPanel(chip, paletteToggleFill(hover), pal.deep, pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, chip, entry.name,
                              hover ? pal.deep : pal.fg);
         codeEditor_.chipRects.push_back(chip);
@@ -631,7 +631,7 @@ static const std::vector<CodeExample>& codeExamples() {
       SDL_Rect box {ex, y, exW, 22};
       const bool current = codeEditor_.text == example.expression;
       const bool hover = pointInRect(mouseX_, mouseY_, box);
-      drawUIPanel(box, current ? pal.dark : (hover ? pal.light : pal.tile),
+      drawUIPanel(box, current ? pal.dark : (paletteToggleFill(hover)),
                   pal.deep, current ? pal.light : pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, box, example.name,
                            current ? pal.light : (hover ? pal.deep : pal.fg));

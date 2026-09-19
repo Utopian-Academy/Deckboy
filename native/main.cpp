@@ -3478,12 +3478,33 @@ class App {
     // are both in points, so they compare directly.
     int startW = kControlWidth, startH = kControlHeight;
     {
-      SDL_Rect usable{};
       SDL_DisplayID disp = SDL_GetPrimaryDisplay();
+      // THE DESK HAS TO GROW WITH THE TYPE. The interface follows the display's
+      // content scale -- fonts and the kLayout* metrics both -- but the window
+      // it all has to fit inside was a fixed 1760x1020. On the 150% that
+      // Windows uses by default on a 4K panel, that is the same desk carrying
+      // one-and-a-half times the type, so the bottom bar wraps and controls
+      // start hiding: reported as "the MENU button is not visible".
+      float contentScale = disp != 0 ? SDL_GetDisplayContentScale(disp) : 1.0f;
+      if (!std::isfinite(contentScale) || contentScale < 0.5f) {
+        contentScale = 1.0f;
+      }
+      startW = static_cast<int>(std::lround(kControlWidth * contentScale));
+      startH = static_cast<int>(std::lround(kControlHeight * contentScale));
+      SDL_Rect usable{};
       if (disp != 0 && SDL_GetDisplayUsableBounds(disp, &usable) &&
           usable.w > 0 && usable.h > 0) {
-        startW = std::min(startW, usable.w);
-        startH = std::min(startH, usable.h);
+        // Never larger than the screen it opens on, and never filling it
+        // completely: an operator has to be able to grab the title bar and get
+        // at whatever is behind. The defaults (1760x1020) overflow a laptop
+        // panel on their own -- a MacBook Air's logical screen is only
+        // ~1470-1710 points wide -- which is what this clamp was written for.
+        startW = std::min(startW, static_cast<int>(usable.w * 0.94));
+        startH = std::min(startH, static_cast<int>(usable.h * 0.94));
+        // ...but never SMALLER than it used to open, where the screen allows
+        // it, so no existing machine loses desk because of the scaling above.
+        startW = std::max(startW, std::min(kControlWidth, usable.w));
+        startH = std::max(startH, std::min(kControlHeight, usable.h));
       }
     }
     // CREATED HIDDEN, shown once there is a frame in it.
@@ -4488,6 +4509,22 @@ class App {
   // box to the same grid. Quick/editable/status rows previously picked
   // 108/98/98 (docked) and 88/70/70 (floating) independently, so the value
   // column zig-zagged down the panel.
+  // The same rule, for a row that does not carry an InspectorCtx. ONE label
+  // column for the whole inspector is the point: a row that invents its own
+  // puts its label and its value cell at different x from the rows above and
+  // below it, which is what "some items in the playback menu are out of
+  // line" looks like.
+  int inspLabelColumnWidthFor(TTF_Font* labelFont, bool ellipsize,
+                              int contentW, int reservedW) const {
+    const int fontFloor = labelFont
+      ? (measuredTextWidth(labelFont, "transition") + uiScaled(10))
+      : uiScaled(64);
+    const int minValueW = uiScaled(ellipsize ? 76 : 68);
+    const int preferred = std::max(uiScaled(ellipsize ? 104 : 84), fontFloor);
+    return std::clamp(preferred, fontFloor,
+                      std::max(fontFloor, contentW - reservedW - minValueW));
+  }
+
   int inspLabelColumnWidth(const InspectorCtx& ix, int contentW, int reservedW) const {
     // SCALED, and wide enough for the font actually in use. These were raw
     // pixel literals, so at a 1.5x desktop the label column stayed the width
@@ -4532,7 +4569,7 @@ class App {
     int bx = rx;
     for (const InspAction& a : actions) {
       SDL_Rect btn {bx, rowY, btnW, ix.rowH};
-      drawUIPanel(btn, a.lit ? pal.light : pal.tile, pal.deep,
+      drawUIPanel(btn, paletteToggleFill(a.lit), pal.deep,
                   a.lit ? pal.mid : pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, a.label,
                            a.lit ? pal.deep : pal.fg);
@@ -4658,8 +4695,10 @@ class App {
       SDL_Rect btn {rx + toggleLabelW + toggleGap, rowY,
                     std::max(uiScaled(60), contentW - toggleLabelW - toggleGap),
                     ix.rowH};
-      SDL_Color fill = toggleOn ? pal.light : pal.tile;
-      SDL_Color ink  = toggleOn ? pal.deep : pal.fg;
+      // See paletteToggleFill: screen_tile defaults to screen_light, so
+      // these two states used to be the same colour on most themes.
+      SDL_Color fill = paletteToggleFill(toggleOn);
+      SDL_Color ink  = paletteToggleInk(toggleOn);
       drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
       drawUIPanel(btn, fill, pal.deep, pal.mid);
       std::string text = ix.ellipsize
@@ -4683,7 +4722,7 @@ class App {
       SDL_Rect incBtn {valRect.x + valRect.w + gap, rowY, kBtnW, ix.rowH};
       if (hasTrail) {
         SDL_Rect trailBtn {incBtn.x + incBtn.w + gap, rowY, trailW, ix.rowH};
-        drawUIPanel(trailBtn, trailOn ? pal.light : pal.tile, pal.deep,
+        drawUIPanel(trailBtn, paletteToggleFill(trailOn), pal.deep,
                     trailOn ? pal.mid : pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, trailBtn, trailLabel,
                              trailOn ? pal.deep : pal.inkSoft);
@@ -6834,7 +6873,7 @@ class App {
   void drawUIDropdownValue(const SDL_Rect& rect, const std::string& value,
                            const std::string& owner) {
     const bool active = dropdown_.open && dropdown_.owner == owner;
-    const SDL_Color fill = active ? pal.light : pal.tile;
+    const SDL_Color fill = paletteToggleFill(active);
     const SDL_Color dropInk = active ? pal.deep : pal.fg;
     drawUIPanel(rect, fill, pal.deep, active ? pal.mid : pal.light);
     const int chevW = std::min(uiScaled(18), std::max(8, rect.w / 6));

@@ -96,3 +96,62 @@ inline void rebuildPalette() {
   pal.buttonBezel = paletteColorFromRgba(kButtonBezelColor);
   pal.deleteBezel = paletteColorFromRgba(kDeleteBezelColor);
 }
+
+// ── A LIT CONTROL HAS TO LOOK LIT ───────────────────────────────────────────
+//
+// Toggles draw their ON state with `pal.light` and their OFF state with
+// `pal.tile` -- and `screen_tile` DEFAULTS TO `screen_light`, deliberately, so
+// that a light theme which never heard of the tile role is unchanged. The two
+// roles therefore hold the SAME COLOUR on every such theme, which made every
+// toggle in the inspector and the settings modal identical in both states:
+// only the word inside it changed.
+//
+// MEASURED on the default theme: the lit "hold" pill and an unlit "loop" pill
+// were both RGB(140,174,15) -- a difference of zero. Reported from a show as
+// "the cue state toggles aren't lighting up when enabled" and "I'm clicking
+// pause on last frame and there's no visible change".
+//
+// It arrived with f44bfbc (2026-09-12, v0.99.339), which changed the lit fill
+// from `pal.dark` to `pal.light` so that a switched-on row would be the EASIEST
+// to read rather than the hardest. That intent is right and is kept; what was
+// missing is that the unlit state then has nothing to be brighter THAN. So when
+// a theme does not separate the two roles itself, the unlit fill recedes toward
+// the panel instead.
+inline SDL_Color paletteMix(SDL_Color a, SDL_Color b, double t) {
+  const double k = std::clamp(t, 0.0, 1.0);
+  auto lerp = [&](Uint8 x, Uint8 y) {
+    return static_cast<Uint8>(std::lround(x * (1.0 - k) + y * k));
+  };
+  return {lerp(a.r, b.r), lerp(a.g, b.g), lerp(a.b, b.b), a.a};
+}
+
+inline int paletteColorDistance(SDL_Color a, SDL_Color b) {
+  return std::abs(static_cast<int>(a.r) - static_cast<int>(b.r)) +
+         std::abs(static_cast<int>(a.g) - static_cast<int>(b.g)) +
+         std::abs(static_cast<int>(a.b) - static_cast<int>(b.b));
+}
+
+// The fill for a two-state control. ON IS INVERTED, NOT MERELY BRIGHTER.
+//
+// v0.99.339 changed the lit fill from `pal.dark` to `pal.light` on the grounds
+// that a switched-on row should be the easiest to read rather than the hardest.
+// That reasoning is fine in isolation and wrong in practice: `pal.light` is
+// what the panel and the unlit tiles are already made of, so "brighter" had
+// nothing to be brighter than, and on half the bundled themes the two states
+// came out the SAME COLOUR. Even once the unlit state was receded to restore a
+// difference, James's verdict on looking at it was that the older colours were
+// better and that on and off have to be CLEAR. His call, and it is the right
+// one: a lit control should be unmistakable across a dark room at a glance,
+// not a shade apart from its neighbour.
+//
+// So ON is the deep fill with light ink, OFF is the tile with its normal ink --
+// the two furthest-apart pairs the palette has, in every theme.
+inline SDL_Color paletteToggleFill(bool on) {
+  return on ? pal.dark : pal.tile;
+}
+
+// The ink that belongs on that fill, kept beside it so a caller cannot pair a
+// lit fill with the ink for an unlit one.
+inline SDL_Color paletteToggleInk(bool on) {
+  return on ? pal.light : pal.fg;
+}

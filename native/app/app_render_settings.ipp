@@ -454,7 +454,7 @@
                           const std::string& onLabel,
                           const std::string& offLabel) {
     Primitives::drawFramedPanel(controlRenderer_, rect,
-                                on ? pal.light : pal.tile,
+                                paletteToggleFill(on),
                                 pal.deep, on ? pal.mid : pal.light);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, rect,
                          on ? onLabel : offLabel,
@@ -465,7 +465,8 @@
   // a chip in a row of chips, a look, an action that is currently armed. Same
   // roles, so "this one is the live one" reads the same wherever it appears.
   void drawSettingsStateFill(const SDL_Rect& rect, bool on) {
-    drawUIPanel(rect, on ? pal.light : pal.tile, pal.deep, on ? pal.mid : pal.light);
+    drawUIPanel(rect, paletteToggleFill(on), pal.deep,
+                on ? pal.mid : pal.light);
   }
 
   // The ink that goes on drawSettingsStateFill, so a caller cannot pair a lit

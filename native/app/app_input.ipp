@@ -74,6 +74,7 @@
   }
 
   void handleMouseDown(int x, int y, Uint8 button) {
+
     if (showSplashOverlay_) {
       showSplashOverlay_ = false;
       return;

@@ -795,13 +795,19 @@
   // is following the deck.
   void inspDrawTransitionStyleRow(int x, int w, int y, int rowH,
                                   const std::string& curStyle, bool overridden) {
-    const int gap = 6;
-    const int labelW = std::max(uiScaled(56), w * 2 / 5);
+    // THE SAME COLUMNS AS EVERY OTHER ROW. This used to size its label as two
+    // fifths of the panel and space it with a raw 6px, so its label and its
+    // value cell sat at different x from the rows directly above and below --
+    // reported as the playback rows being out of line.
+    const int gap = uiScaled(6);
+    const int labelW = inspLabelColumnWidthFor(fontSmall_, true, w, gap);
     SDL_Rect labelRect {x, y, labelW, rowH};
     SDL_Rect styleBtn {x + labelW + gap, y, std::max(uiScaled(60), w - labelW - gap), rowH};
     drawTextSafe(controlRenderer_, fontSmall_, labelRect, "style", pal.fg);
-    const SDL_Color fill = overridden ? pal.light : pal.tile;
-    const SDL_Color ink  = overridden ? pal.deep : pal.fg;
+    // Lit means this cue overrides the deck, and it has to LOOK lit: see
+    // paletteToggleFill, where screen_tile defaults to screen_light.
+    const SDL_Color fill = paletteToggleFill(overridden);
+    const SDL_Color ink  = paletteToggleInk(overridden);
     drawUIPanel(styleBtn, fill, pal.deep, pal.mid);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 20, styleBtn.h},
@@ -2441,7 +2447,7 @@
           programMonitorRect.x + programMonitorRect.w - 76 - 8 - btnW - 6,
           programMonitorRect.y + 3, btnW, 26};
         const bool on = presenterLayoutEditMode_;
-        drawUIPanel(presenterLayoutBtnRect_, on ? pal.light : pal.tile, pal.deep,
+        drawUIPanel(presenterLayoutBtnRect_, paletteToggleFill(on), pal.deep,
                     pal.light);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, presenterLayoutBtnRect_,
                              "ARRANGE", on ? pal.deep : pal.fg);
@@ -2458,7 +2464,7 @@
       bool warpActive = warpEditMode_ && warpDeck.warpEnabled;
       warpEditBtnRect_ = {programMonitorRect.x + programMonitorRect.w - warpBtnW - 8,
                            programMonitorRect.y + 3, warpBtnW, 26};
-      SDL_Color warpFill = warpActive ? pal.light : pal.tile;
+      SDL_Color warpFill = paletteToggleFill(warpActive);
       SDL_Color warpInk2 = warpActive ? pal.deep : pal.fg;
       drawUIPanel(warpEditBtnRect_, warpFill, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, warpEditBtnRect_,
@@ -3929,7 +3935,7 @@
           const std::string styleLabel = stringMixedLabel([&](const Cue& cue) {
             return cue.cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue.cueTransitionStyle;
           }, "deck");
-          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, ry,
+          inspDrawTransitionStyleRow(ctrl.x + kInspectorInset, kCtrlW - kInspectorInset * 2, ry,
                                      kInspectorRowH, styleLabel, true);
         }
         ry += kRowStep;
@@ -4077,7 +4083,7 @@
         {
           const std::string curStyle = selectedCue->cueTransitionStyle.empty()
             ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, ry + kRowStep * 6,
+          inspDrawTransitionStyleRow(ctrl.x + kInspectorInset, kCtrlW - kInspectorInset * 2, ry + kRowStep * 6,
                                      kInspectorRowH, curStyle, hasCueTrans);
         }
       }
@@ -4577,7 +4583,7 @@
         {
           const std::string curStyle = selectedCue->cueTransitionStyle.empty()
             ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, playbackY,
+          inspDrawTransitionStyleRow(ctrl.x + kInspectorInset, kCtrlW - kInspectorInset * 2, playbackY,
                                      kInspectorRowH, curStyle, hasCueTrans);
         }
         playbackY += kRowStep;
@@ -4670,7 +4676,7 @@
                                                "Set browser URL/path");
           {
             SDL_Rect rfBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
-            SDL_Color rfFill = selectedCue->refreshOnTake ? pal.light : pal.tile;
+            SDL_Color rfFill = paletteToggleFill(selectedCue->refreshOnTake);
             SDL_Color rfInk  = selectedCue->refreshOnTake ? pal.deep : pal.fg;
             drawUIPanel(rfBtn, rfFill, pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, rfBtn,
@@ -4712,7 +4718,7 @@
                                    "banner, or sign in. The cue stays on air";
 #endif
             SDL_Rect handBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
-            drawUIPanel(handBtn, showing ? pal.light : pal.tile, pal.deep, pal.mid);
+            drawUIPanel(handBtn, paletteToggleFill(showing), pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, handBtn,
                                  showing ? onLabel : offLabel,
                                  showing ? pal.deep : pal.fg);
@@ -5029,7 +5035,7 @@
         {
           const std::string curStyle = selectedCue->cueTransitionStyle.empty()
             ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-          inspDrawTransitionStyleRow(ctrl.x + 10, kCtrlW - 20, playbackY,
+          inspDrawTransitionStyleRow(ctrl.x + kInspectorInset, kCtrlW - kInspectorInset * 2, playbackY,
                                      kInspectorRowH, curStyle, hasCueTrans);
         }
         playbackY += kRowStep;

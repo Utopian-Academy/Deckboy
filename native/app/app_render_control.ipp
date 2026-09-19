@@ -1469,8 +1469,16 @@
       deckListScrollThumbH_.resize(deckIndex + 1, 0);
     }
     if (primaryScrollMax > 0 && primaryClip.h > 0) {
-      SDL_Rect rail {primaryFrame.x + primaryFrame.w - 10, primaryClip.y, 4,
-                     primaryClip.h};
+      // SCALED, like everything else the operator has to hit. These were raw
+      // pixels: a 4px bar 10px from the edge, with a 16px target. At a 150%
+      // desktop -- the Windows default on a 4K panel -- that is a hairline
+      // with a target a third the width of a finger, and it was reported as
+      // "I cannot click the playlist scrollbar". The hit test was always
+      // right; there was just nothing to aim at.
+      const int railW = uiScaled(6);
+      const int railInset = uiScaled(12);
+      SDL_Rect rail {primaryFrame.x + primaryFrame.w - railInset, primaryClip.y,
+                     railW, primaryClip.h};
       Primitives::fillRect(controlRenderer_, rail, pal.mid);
       int thumbH = std::max(uiScaled(24),
                             (primaryClip.h * primaryClip.h) /
@@ -1486,9 +1494,10 @@
       SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
       Primitives::drawFramedPanel(controlRenderer_, thumb, pal.dark, pal.deep,
                                   pal.light);
-      // Widened for the input layer: four pixels is a drawing, not a target.
-      deckListScrollRails_[deckIndex] = SDL_Rect {rail.x - 6, rail.y,
-                                                  rail.w + 12, rail.h};
+      // Widened for the input layer: the bar is a drawing, not a target.
+      const int grab = uiScaled(9);
+      deckListScrollRails_[deckIndex] = SDL_Rect {rail.x - grab, rail.y,
+                                                  rail.w + grab * 2, rail.h};
       deckListScrollThumbH_[deckIndex] = thumbH;
     } else {
       deckListScrollRails_[deckIndex] = SDL_Rect {0, 0, 0, 0};
@@ -2027,7 +2036,15 @@
           // this strip is now geometry, which cannot depend on font coverage.
           const int cx = rect.x + rect.w / 2;
           const int cy = rect.y + rect.h / 2;
-          const int r = std::max(2, rect.h / 2 - 4);
+          // SIZED BY BOTH AXES. The figure of eight is two circles of radius r
+          // centred at cx +/- r, so it spans FOUR r across and only two down --
+          // and r was taken from the height alone. On a button as wide as it is
+          // tall that is twice the width of its own box, and the loop glyph
+          // hung out over both edges while every other icon in the strip sat
+          // inside: reported as "the loop icon is outside its box".
+          const int rByWidth = (rect.w - uiScaled(4)) / 4;
+          const int rByHeight = static_cast<int>((rect.h - uiScaled(4)) / 2 / 0.9);
+          const int r = std::max(2, std::min(rByWidth, rByHeight));
           for (int lobe = -1; lobe <= 1; lobe += 2) {
             const int ox = cx + lobe * r;
             for (int a = 0; a < 360; a += 12) {
@@ -2090,7 +2107,7 @@
       SDL_Rect btn {buttonX, row.y + uiScaled(48), cueActionBtnW, kCueActionBtnH};
       SDL_Color btnFill = !enabled
         ? pal.mid
-        : (on ? pal.light : pal.tile);
+        : (paletteToggleFill(on));
       SDL_Color btnAccent = enabled && on ? pal.mid : pal.mid;
       SDL_Color iconInk = !enabled
         ? pal.inkSoft

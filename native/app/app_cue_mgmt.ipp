@@ -2522,7 +2522,15 @@
       typeId = "checkerboard";
     }
     if (typeId.empty() || !isKnownPatternType(typeId)) {
-      triggerToast("pattern: invalid");
+      // NAME THE THING THAT WAS WRONG. "pattern: invalid" on its own is a
+      // report nobody can act on -- reported from a show as "I keep seeing
+      // pattern: invalid", with no way to tell which id, from which control,
+      // was being refused. Every id the picker offers is valid (all 28 checked
+      // by hand), so whatever produces this is building an id rather than
+      // choosing one, and the id is the evidence.
+      triggerToast(typeId.empty()
+        ? std::string("pattern: no type given")
+        : "pattern: \"" + typeId + "\" is not a pattern type");
       return false;
     }
 
@@ -3447,7 +3455,8 @@
       typeId = "checkerboard";
     }
     if (!isKnownPatternType(typeId)) {
-      triggerToast("pattern: invalid");
+      // Same as the type-change path: say WHICH id was refused.
+      triggerToast("pattern: \"" + typeId + "\" is not a pattern type");
       return;
     }
     patternDefaultTypeId_ = typeId;
