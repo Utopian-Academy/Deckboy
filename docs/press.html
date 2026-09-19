@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Press kit — screenshots, trailer, and copy you can paste | Deckboy</title>
+    <meta name="description" content="Everything needed to write about Deckboy or list it: screenshots at full resolution, the trailer, animated GIFs, the logo, a one-line and a one-paragraph description, the feature list, and the facts — free, GPL-3.0, Windows, macOS and Linux. All of it reusable, no permission needed, no sign-up.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/press.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Deckboy press kit">
+    <meta property="og:description" content="Screenshots, the trailer, GIFs and paste-ready copy. Free to reuse, no permission needed.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/press.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Deckboy press kit">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.6rem 0 .7rem; font-size: 1.2rem; color: var(--ink); }
+        .prose h3 { margin: 1.8rem 0 .4rem; font-size: 1rem; color: var(--ink); }
+        .prose p, .prose li { color: var(--ink-soft); max-width: 64ch; margin-bottom: 1rem; }
+        .prose ul { margin-left: 1.3rem; }
+        .prose table { border-collapse: collapse; width: 100%; margin: 1rem 0 2rem; }
+        .prose th, .prose td { text-align: left; padding: .5rem .7rem; font-size: .92rem;
+                               vertical-align: top; }
+
+        /* A block meant to be selected and pasted, so it says so. */
+        .paste { border: 2px solid var(--rule); background: var(--panel);
+                 padding: 1rem 1.2rem; margin: .6rem 0 1.6rem; }
+        .paste p { margin: 0 0 .7rem; color: var(--ink-body); }
+        .paste p:last-child { margin-bottom: 0; }
+
+        .assets { display: grid; gap: 1.2rem; margin: 1.2rem 0 2rem;
+                  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+        .assets figure { margin: 0; }
+        .assets img { width: 100%; height: auto; display: block;
+                      border: 2px solid var(--rule); image-rendering: pixelated; }
+        .assets figcaption { font-size: .8rem; color: var(--ink-soft); margin-top: .45rem; }
+        .assets a { color: var(--ink); }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="trailer.html">Trailer</a>
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="test-patterns.html">Patterns</a>
+            <a href="led-wall.html">Generator</a>
+            <a href="databend.html">Databend</a>
+            <a href="screen-check.html">Screen check</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>Press kit<br><span class="gradient-text">take what you need</span></h1>
+            <p class="hero-subtitle">Screenshots, the trailer, GIFs and copy written to be
+            pasted. All of it is GPL-3.0 like the application, so you do not need to ask, and
+            there is nobody here to ask anyway.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <h2>The facts</h2>
+        <table>
+            <tr><th>Name</th><td>Deckboy</td></tr>
+            <tr><th>What it is</th><td>Cue-based media playback and show control for live video</td></tr>
+            <tr><th>Price</th><td>Free. No paid tier, no account, no licence server, no telemetry</td></tr>
+            <tr><th>Licence</th><td>GPL-3.0-or-later</td></tr>
+            <tr><th>Platforms</th><td>Windows, macOS and Linux, from one show file</td></tr>
+            <tr><th>Built with</th><td>Native C++ on SDL3, decoding through FFmpeg in process</td></tr>
+            <tr><th>Made by</th><td>Utopian Academy</td></tr>
+            <tr><th>Download</th><td><a href="https://github.com/Utopian-Academy/Deckboy/releases">github.com/Utopian-Academy/Deckboy/releases</a></td></tr>
+            <tr><th>Source</th><td><a href="https://github.com/Utopian-Academy/Deckboy">github.com/Utopian-Academy/Deckboy</a></td></tr>
+        </table>
+
+        <h2>Copy, ready to paste</h2>
+
+        <h3>One line</h3>
+        <div class="paste"><p>Deckboy is free, open-source cue-based media playback and show
+        control for live video &mdash; clips, slides and live sources on one cue list, out to a
+        screen, NDI, SRT or Blackmagic SDI, driven from a Stream Deck, Bitfocus Companion, OSC,
+        MIDI or timecode.</p></div>
+
+        <h3>One paragraph</h3>
+        <div class="paste">
+            <p>Deckboy is a cue deck for live events: a playlist of clips, stills, slide decks
+            and live sources that an operator takes to air one at a time, with fades, loops and a
+            last frame that holds instead of revealing a desktop. The programme goes to a
+            fullscreen output and out over NDI, SRT, RTMP, Blackmagic SDI or SMPTE ST&nbsp;2110 at
+            the same time, while it records. Any window on the machine or any web page can be a
+            cue. Slide decks import as one cue per slide, with presenter view as an output of its
+            own. It is native C++ on SDL3 for Windows, macOS and Linux, free under the GPL, with
+            no account and nothing that phones home.</p>
+        </div>
+
+        <h3>What makes it unusual</h3>
+        <div class="paste">
+            <p>Three things no other free player has. A <b>window cue</b> takes any application
+            on the show machine to air at its own full resolution, following it as it moves, with
+            anything in front of it kept out of shot &mdash; so the operator carries on working on
+            the same computer. A rack of <b>effects built from physics rather than filters</b>:
+            schlieren imaging, Chladni figures, a wave equation, crystal grain growth, retinal
+            persistence. And a <b>pair that crosses between picture and sound</b> &mdash; one
+            plays the picture through an audio chain, the other draws the played audio through the
+            picture.</p>
+        </div>
+
+        <h2>Images</h2>
+        <p>Right-click to save, or link them directly. Full resolution behind each one.</p>
+        <div class="assets">
+            <figure>
+                <a href="images/hero.png"><img src="images/hero.png" alt="The Deckboy interface: playlist, timeline, programme monitor and cue inspector."></a>
+                <figcaption><a href="images/hero.png">hero.png</a> &mdash; the interface,
+                1600&times;966. Shown with Deckboy's own generated patterns, not a client's show.</figcaption>
+            </figure>
+            <figure>
+                <a href="images/presenter.png"><img src="images/presenter.png" alt="Presenter view mid-build: live slide, speaker notes advancing, previous and next slides."></a>
+                <figcaption><a href="images/presenter.png">presenter.png</a> &mdash; presenter
+                view mid-build, 1920&times;1080.</figcaption>
+            </figure>
+            <figure>
+                <a href="images/demo.gif"><img src="images/demo.gif" alt="Cues going to air, effects stacking on the live picture, then the video synth."></a>
+                <figcaption><a href="images/demo.gif">demo.gif</a> &mdash; cues to air, effects
+                stacking, the video synth.</figcaption>
+            </figure>
+            <figure>
+                <a href="images/databend.gif"><img src="images/databend.gif" alt="The databend effect tearing a generated beach scene into bands and settling back."></a>
+                <figcaption><a href="images/databend.gif">databend.gif</a> &mdash; the picture
+                played through an audio chain.</figcaption>
+            </figure>
+            <figure>
+                <a href="video/chladni.gif"><img src="video/chladni.gif" alt="The Chladni effect: concentric orange and black rings moving."></a>
+                <figcaption><a href="video/chladni.gif">chladni.gif</a> &mdash; the pattern sand
+                makes on a vibrating plate.</figcaption>
+            </figure>
+            <figure>
+                <a href="images/social-card.png"><img src="images/social-card.png" alt="Deckboy social card: the interface with SMPTE colour bars on the programme output."></a>
+                <figcaption><a href="images/social-card.png">social-card.png</a> &mdash; link
+                card, 1280&times;640.</figcaption>
+            </figure>
+        </div>
+
+        <h2>Video and audio</h2>
+        <ul>
+            <li><a href="video/deckboy-trailer-370.mp4">The trailer</a> &mdash; 40 seconds,
+                1280&times;738, H.264. <a href="trailer.html">How it was made</a>: Deckboy shot it
+                itself, over its own control port.</li>
+            <li><a href="video/deckboy-theme.mp3">The theme</a> &mdash; the music from the
+                trailer, played on Deckboy's own chip voice and run through its own audio rack.</li>
+        </ul>
+
+        <h2>Things people get wrong</h2>
+        <ul>
+            <li>It is <b>not</b> a switcher. It is a source and a player; it pairs with a switcher
+                rather than replacing one.</li>
+            <li>It is <b>not</b> a projection-mapping suite, though it has warp, keystone and edge
+                blend per output.</li>
+            <li>There is <b>no</b> paid version, no "pro" tier and no upgrade path. This is the
+                whole application.</li>
+            <li>The builds are <b>not code-signed</b>, so Windows and macOS warn about an unknown
+                developer. Signing needs paid developer accounts the project has not bought.</li>
+        </ul>
+
+        <h2>Try it without installing anything</h2>
+        <ul>
+            <li><a href="databend.html">Databend a picture in your browser</a> &mdash; the real
+                effect, running on your own photo.</li>
+            <li><a href="led-wall.html">Generate test patterns</a> at any raster, including a
+                numbered LED panel map.</li>
+            <li><a href="screen-check.html">Check the screen in front of you</a>.</li>
+        </ul>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Deckboy</a>
+            <a href="compare.html" class="btn-large btn-outline">How it compares</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.
+        Writing about it? <a href="press.html">Press kit</a>.</p>
+    </footer>
+</body>
+</html>

@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://utopian-academy.github.io/Deckboy/press.html</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://utopian-academy.github.io/Deckboy/trailer.html</loc>
     <lastmod>2026-09-19</lastmod>
     <changefreq>monthly</changefreq>
