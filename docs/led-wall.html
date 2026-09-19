@@ -77,16 +77,35 @@
 
     <div class="lab">
         <div class="fields">
-            <div class="field"><label for="w">Wall width (px)</label>
+            <div class="field"><label for="mode">Size the wall by</label>
+                <select id="mode">
+                    <option value="px">pixels</option>
+                    <option value="panels">panels (columns &times; rows)</option>
+                </select></div>
+            <div class="field bypx"><label for="w">Wall width (px)</label>
                 <input id="w" type="number" value="2816" min="16" max="16384" step="1"></div>
-            <div class="field"><label for="h">Wall height (px)</label>
+            <div class="field bypx"><label for="h">Wall height (px)</label>
                 <input id="h" type="number" value="1536" min="16" max="16384" step="1"></div>
+            <div class="field bypanels" hidden><label for="cols">Panels across</label>
+                <input id="cols" type="number" value="22" min="1" max="200" step="1"></div>
+            <div class="field bypanels" hidden><label for="rows">Panels down</label>
+                <input id="rows" type="number" value="12" min="1" max="200" step="1"></div>
             <div class="field"><label for="pw">Panel width (px)</label>
                 <input id="pw" type="number" value="128" min="4" max="4096" step="1"></div>
             <div class="field"><label for="ph">Panel height (px)</label>
                 <input id="ph" type="number" value="128" min="4" max="4096" step="1"></div>
             <div class="field"><label for="pitch">Pixel pitch (mm, optional)</label>
                 <input id="pitch" type="number" value="2.6" min="0.5" max="40" step="0.1"></div>
+            <div class="field"><label for="border">Border inset (px)</label>
+                <input id="border" type="number" value="0" min="0" max="512" step="1"></div>
+            <div class="field"><label for="ink">Colour</label>
+                <input id="ink" type="color" value="#ffffff"></div>
+            <div class="field"><label for="ink2">Second colour</label>
+                <input id="ink2" type="color" value="#000000"></div>
+            <div class="field"><label for="overlay" style="display:block">Panel grid overlay</label>
+                <label class="stat" style="display:flex;gap:.5rem;align-items:center">
+                    <input id="overlay" type="checkbox" style="width:auto"> draw tile edges on any pattern
+                </label></div>
         </div>
 
         <div class="picks" id="picks"></div>
@@ -168,6 +187,7 @@
         ['burst',     'Multiburst'],
         ['window',    'Windows'],
         ['checker',   'Checkerboard'],
+        ['solid',     'Solid colour'],
         ['moire',     'Moir\u00e9 1:1'],
         ['dark',      'Dark detail'],
         ['uniform',   'Uniformity'],
@@ -193,11 +213,25 @@
 
     function dims() {
         var v = function (id, d) {
-            var n = parseInt(document.getElementById(id).value, 10);
+            var el = document.getElementById(id);
+            var n = el ? parseInt(el.value, 10) : NaN;
             return (isFinite(n) && n > 0) ? n : d;
         };
-        var W = Math.min(16384, v('w', 1920)), H = Math.min(16384, v('h', 1080));
-        return { W: W, H: H, pw: Math.min(W, v('pw', 128)), ph: Math.min(H, v('ph', 128)) };
+        var pw = v('pw', 128), ph = v('ph', 128);
+        var W, H;
+        if (document.getElementById('mode').value === 'panels') {
+            // The numbers written on the flight case, rather than the ones an
+            // installer has to work out from them.
+            W = Math.min(16384, v('cols', 22) * pw);
+            H = Math.min(16384, v('rows', 12) * ph);
+        } else {
+            W = Math.min(16384, v('w', 1920));
+            H = Math.min(16384, v('h', 1080));
+        }
+        return { W: W, H: H, pw: Math.min(W, pw), ph: Math.min(H, ph),
+                 ink: document.getElementById('ink').value,
+                 ink2: document.getElementById('ink2').value,
+                 border: v('border', 0) };
     }
 
     function fontFor(px) { return 'bold ' + Math.max(8, Math.round(px)) + 'px monospace'; }
@@ -560,11 +594,15 @@
                      d.W / 2, d.H * 0.04);
     }
 
+    function drawSolid(d) {
+        ctx.fillStyle = d.ink; ctx.fillRect(0, 0, d.W, d.H);
+    }
+
     function drawChecker(d) {
         var cells = 8, cw = d.W / cells, ch = d.H / cells;
         for (var r = 0; r < cells; r++) {
             for (var c = 0; c < cells; c++) {
-                ctx.fillStyle = ((r + c) % 2) ? '#ffffff' : '#000000';
+                ctx.fillStyle = ((r + c) % 2) ? d.ink : d.ink2;
                 ctx.fillRect(Math.round(c * cw), Math.round(r * ch),
                              Math.ceil(cw), Math.ceil(ch));
             }
@@ -574,7 +612,7 @@
     var DRAW = { map: drawMap, boresight: drawBoresight, crosshatch: drawCrosshatch,
                  smpte: drawSmpte, greyscale: drawGreyscale, pluge: drawPluge,
                  converge: drawConverge, burst: drawBurst, window: drawWindow,
-                 checker: drawChecker, moire: drawMoire, dark: drawDark,
+                 checker: drawChecker, solid: drawSolid, moire: drawMoire, dark: drawDark,
                  uniform: drawUniform, ramps: drawRamps, safe: drawSafe };
 
     function draw() {
@@ -583,10 +621,40 @@
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.fillStyle = '#000'; ctx.fillRect(0, 0, d.W, d.H);
         DRAW[current](d);
+
+        // The tile edges, over ANY pattern: the fastest way to tell whether a
+        // fault follows the panels or the picture.
+        if (document.getElementById('overlay').checked && current !== 'map') {
+            ctx.strokeStyle = 'rgba(58,209,58,0.85)';
+            ctx.lineWidth = 1;
+            for (var x = d.pw; x < d.W; x += d.pw) {
+                ctx.beginPath(); ctx.moveTo(Math.round(x) + 0.5, 0);
+                ctx.lineTo(Math.round(x) + 0.5, d.H); ctx.stroke();
+            }
+            for (var y = d.ph; y < d.H; y += d.ph) {
+                ctx.beginPath(); ctx.moveTo(0, Math.round(y) + 0.5);
+                ctx.lineTo(d.W, Math.round(y) + 0.5); ctx.stroke();
+            }
+        }
+
+        // A border inset, for a wall whose outer rows are hidden by trim.
+        if (d.border > 0) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, d.W, d.border);
+            ctx.fillRect(0, d.H - d.border, d.W, d.border);
+            ctx.fillRect(0, 0, d.border, d.H);
+            ctx.fillRect(d.W - d.border, 0, d.border, d.H);
+        }
+
         var cols = Math.ceil(d.W / d.pw), rows = Math.ceil(d.H / d.ph);
         var odd = (d.W % d.pw) || (d.H % d.ph);
-        statEl.textContent = d.W + '×' + d.H + '  ·  ' + cols + '×' + rows
-            + ' panels' + (odd ? '  ·  the wall is not a whole number of panels' : '');
+        var pitch = parseFloat(document.getElementById('pitch').value);
+        var metres = (isFinite(pitch) && pitch > 0)
+            ? '  \u00b7  ' + (d.W * pitch / 1000).toFixed(2) + '\u00d7'
+              + (d.H * pitch / 1000).toFixed(2) + ' m' : '';
+        statEl.textContent = d.W + '\u00d7' + d.H + '  \u00b7  ' + cols + '\u00d7' + rows
+            + ' panels' + metres
+            + (odd ? '  \u00b7  not a whole number of panels' : '');
     }
 
     function save(id, name) {
@@ -611,8 +679,18 @@
             i++; setTimeout(next, 700);
         })();
     });
-    ['w', 'h', 'pw', 'ph', 'pitch'].forEach(function (id) {
-        document.getElementById(id).addEventListener('input', draw);
+    ['w', 'h', 'cols', 'rows', 'pw', 'ph', 'pitch', 'border', 'ink', 'ink2']
+        .forEach(function (id) {
+            document.getElementById(id).addEventListener('input', draw);
+        });
+    document.getElementById('overlay').addEventListener('change', draw);
+    document.getElementById('mode').addEventListener('change', function () {
+        var byPanels = this.value === 'panels';
+        Array.prototype.forEach.call(document.querySelectorAll('.bypx'),
+            function (el) { el.hidden = byPanels; });
+        Array.prototype.forEach.call(document.querySelectorAll('.bypanels'),
+            function (el) { el.hidden = !byPanels; });
+        draw();
     });
 
     draw();
