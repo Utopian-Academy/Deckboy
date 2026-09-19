@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test pattern generator — boresight, crosshatch, SMPTE, ramps, at any resolution | Deckboy</title>
+    <meta name="description" content="Free test patterns drawn at whatever raster you actually have: boresight, crosshatch, SMPTE 75% bars, PLUGE, greyscale steps, convergence, multiburst, windows, checkerboard, ramps, safe areas — plus a numbered LED panel map that finds swapped, rotated and dead tiles, and 1:1 moiré tests at true pixel pitch. Enter the size, download the PNG. Nothing is uploaded and there is no sign-up.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/led-wall.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="LED wall test patterns, generated for your exact pixel map">
+    <meta property="og:description" content="A numbered panel map that finds swapped and rotated tiles, moiré tests at true pixel pitch, dark-detail steps, uniformity fields and safe areas — at your wall's real resolution.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/led-wall.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/patterns/crosshatch.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LED wall test pattern generator">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/patterns/crosshatch.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .lab { max-width: 1150px; margin: 0 auto 2.5rem; padding: 0 1.5rem; }
+        .fields { display: grid; gap: .9rem 1.4rem; margin: 1.4rem 0;
+                  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+        .field label { display: block; font-size: .8rem; color: var(--ink-soft); margin-bottom: .3rem; }
+        .field input, .field select {
+            width: 100%; padding: .55rem .6rem; background: var(--panel); color: var(--ink);
+            border: 2px solid var(--rule); font-family: var(--mono); font-size: .92rem; }
+        .picks { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0 1.2rem; }
+        .pick { border: 2px solid var(--rule); background: var(--panel); color: var(--ink-body);
+                padding: .5rem .8rem; font-family: var(--pixel); font-size: .58rem;
+                cursor: pointer; }
+        .pick[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); }
+        .stagewrap { border: 2px solid var(--rule); background: #000; padding: .6rem; }
+        canvas { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+        .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: 1rem 0 0; }
+        .row .btn-large { font-size: .62rem; padding: .7rem 1.1rem; }
+        .stat { font-size: .82rem; color: var(--ink-soft); font-family: var(--mono); }
+
+        .prose { max-width: 900px; margin: 2rem auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.4rem 0 .6rem; font-size: 1.18rem; color: var(--ink); }
+        .prose p, .prose li { color: var(--ink-soft); max-width: 62ch; margin-bottom: 1rem; }
+        .prose ul { margin-left: 1.3rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="manual.html">Manual</a>
+            <a href="slides.html">Slides</a>
+            <a href="compare.html">Compare</a>
+            <a href="faq.html">FAQ</a>
+            <a href="latency.html">Latency</a>
+            <a href="test-patterns.html">Patterns</a>
+            <a href="screen-check.html">Screen check</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom:.5rem">
+        <div class="hero-content">
+            <h1>Test patterns at<br><span class="gradient-text">your exact raster</span></h1>
+            <p class="hero-subtitle">Boresight, crosshatch, SMPTE bars, PLUGE, greyscale,
+            convergence, multiburst, windows, ramps &mdash; and an LED panel map with every tile
+            numbered. A generic 1920&times;1080 chart tells you nothing about a 2816&times;1536
+            wall of 128-pixel tiles, so put your real numbers in and take away a pattern drawn at
+            one image pixel per LED.</p>
+        </div>
+    </header>
+
+    <div class="lab">
+        <div class="fields">
+            <div class="field"><label for="w">Wall width (px)</label>
+                <input id="w" type="number" value="2816" min="16" max="16384" step="1"></div>
+            <div class="field"><label for="h">Wall height (px)</label>
+                <input id="h" type="number" value="1536" min="16" max="16384" step="1"></div>
+            <div class="field"><label for="pw">Panel width (px)</label>
+                <input id="pw" type="number" value="128" min="4" max="4096" step="1"></div>
+            <div class="field"><label for="ph">Panel height (px)</label>
+                <input id="ph" type="number" value="128" min="4" max="4096" step="1"></div>
+            <div class="field"><label for="pitch">Pixel pitch (mm, optional)</label>
+                <input id="pitch" type="number" value="2.6" min="0.5" max="40" step="0.1"></div>
+        </div>
+
+        <div class="picks" id="picks"></div>
+
+        <div class="stagewrap"><canvas id="c"></canvas></div>
+
+        <div class="row">
+            <button class="btn-large" id="save">Download this pattern</button>
+            <button class="btn-large btn-outline" id="saveall">Download all of them</button>
+            <span class="stat" id="stat"></span>
+        </div>
+    </div>
+
+    <div class="prose">
+        <h2>What each one is for</h2>
+        <ul>
+            <li><b>Panel map</b> &mdash; every tile numbered by row and column, with its own pixel
+                origin printed inside it and a corner marker that is different in each corner. A
+                swapped tile shows the wrong number, a rotated one shows the marker in the wrong
+                corner, and a dead receiver card shows nothing. This is the pattern that turns
+                "something is wrong up there" into "row 3, column 7".</li>
+            <li><b>Moir&eacute; 1:1</b> &mdash; a one-pixel checkerboard, plus one-pixel horizontal
+                and vertical lines. On a wall being shot by a camera this is where moir&eacute; and
+                scan artefacts appear, and it only means anything if the image is mapped one
+                pixel per LED. If it looks soft, something in the chain is scaling.</li>
+            <li><b>Dark detail</b> &mdash; steps from black to 12%, which is where LED walls
+                actually struggle: crushed blacks, a grey floor that is not black, and tiles that
+                disagree with each other in the dark long before they disagree in the light.</li>
+            <li><b>Uniformity</b> &mdash; flat fields at 25%, 50%, 75% and 100%, and full red,
+                green and blue. Flat colour is unforgiving: a panel with a different batch of
+                LEDs shows up immediately, and so does a dead pixel.</li>
+            <li><b>Banding ramps</b> &mdash; horizontal ramps per channel and in grey, for finding
+                the bit depth you are really getting after processing.</li>
+            <li><b>Safe areas</b> &mdash; centre cross, thirds, and 90% / 80% boxes, so content can
+                be framed against the wall's real aspect rather than a guess.</li>
+        </ul>
+
+        <h2>Why the size matters</h2>
+        <p>An LED wall is not a screen with a resolution someone chose &mdash; it is however many
+        tiles are on the truck. Send it a 1920&times;1080 chart and a processor scales it, which
+        destroys precisely the thing a one-pixel pattern is testing. Generated at the wall's own
+        size, a pixel in the file is a pixel on the wall.</p>
+        <p>Everything here is drawn in your browser and saved straight to your machine. Nothing is
+        uploaded, there is no sign-up, and the patterns are yours to use on any job.</p>
+
+        <h2>Playing them on the wall</h2>
+        <p>Any player will show a PNG. <a href="https://github.com/Utopian-Academy/Deckboy">Deckboy</a>
+        is a free, open-source cue deck that will hold them as cues beside the show, send them out
+        over NDI, SRT, Blackmagic SDI or SMPTE ST&nbsp;2110, and generate its own moving diagnostics
+        &mdash; a frame counter, a latency clock and a motion test card &mdash; for the faults a
+        still cannot show. It also has a
+        <a href="test-patterns.html">ready-made kit</a> at 1920&times;1080 and a
+        <a href="screen-check.html">browser screen check</a> for the screen in front of you.</p>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Deckboy</a>
+            <a href="test-patterns.html" class="btn-large btn-outline">The 1080p kit</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built as an open-source project by Utopian-Academy.
+        <a href="https://github.com/Utopian-Academy/Deckboy">Contribute on GitHub</a>.</p>
+    </footer>
+
+<script>
+(function () {
+    "use strict";
+    var canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
+    var statEl = document.getElementById('stat');
+    var PATTERNS = [
+        ['map',       'Panel map'],
+        ['boresight', 'Boresight'],
+        ['crosshatch','Crosshatch'],
+        ['smpte',     'SMPTE 75% bars'],
+        ['greyscale', 'Greyscale steps'],
+        ['pluge',     'PLUGE'],
+        ['converge',  'Convergence'],
+        ['burst',     'Multiburst'],
+        ['window',    'Windows'],
+        ['checker',   'Checkerboard'],
+        ['moire',     'Moir\u00e9 1:1'],
+        ['dark',      'Dark detail'],
+        ['uniform',   'Uniformity'],
+        ['ramps',     'Banding ramps'],
+        ['safe',      'Safe areas']
+    ];
+    var current = 'map';
+
+    var picks = document.getElementById('picks');
+    PATTERNS.forEach(function (p) {
+        var b = document.createElement('button');
+        b.className = 'pick'; b.textContent = p[1]; b.dataset.id = p[0];
+        b.setAttribute('aria-pressed', p[0] === current ? 'true' : 'false');
+        b.addEventListener('click', function () {
+            current = p[0];
+            Array.prototype.forEach.call(picks.children, function (o) {
+                o.setAttribute('aria-pressed', o.dataset.id === current ? 'true' : 'false');
+            });
+            draw();
+        });
+        picks.appendChild(b);
+    });
+
+    function dims() {
+        var v = function (id, d) {
+            var n = parseInt(document.getElementById(id).value, 10);
+            return (isFinite(n) && n > 0) ? n : d;
+        };
+        var W = Math.min(16384, v('w', 1920)), H = Math.min(16384, v('h', 1080));
+        return { W: W, H: H, pw: Math.min(W, v('pw', 128)), ph: Math.min(H, v('ph', 128)) };
+    }
+
+    function fontFor(px) { return 'bold ' + Math.max(8, Math.round(px)) + 'px monospace'; }
+
+    // ── the patterns ───────────────────────────────────────────────────────
+    function drawMap(d) {
+        var cols = Math.ceil(d.W / d.pw), rows = Math.ceil(d.H / d.ph);
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, d.W, d.H);
+        for (var r = 0; r < rows; r++) {
+            for (var c = 0; c < cols; c++) {
+                var x = c * d.pw, y = r * d.ph;
+                // A checker of two very dark greys, so tile edges read even
+                // where the border lines land on a seam.
+                ctx.fillStyle = ((r + c) % 2) ? '#0d0d0d' : '#141414';
+                ctx.fillRect(x, y, d.pw, d.ph);
+                ctx.strokeStyle = '#3ad13a'; ctx.lineWidth = 1;
+                ctx.strokeRect(x + 0.5, y + 0.5, d.pw - 1, d.ph - 1);
+
+                // Corner markers, DIFFERENT in each corner: a rotated tile
+                // shows the wrong one in the wrong place, which a symmetrical
+                // pattern can never reveal.
+                var m = Math.max(3, Math.round(Math.min(d.pw, d.ph) * 0.09));
+                ctx.fillStyle = '#ff3b30'; ctx.fillRect(x + 2, y + 2, m, m);                    // TL square
+                ctx.fillStyle = '#ffd60a';
+                ctx.beginPath(); ctx.moveTo(x + d.pw - 2, y + 2);
+                ctx.lineTo(x + d.pw - 2 - m, y + 2); ctx.lineTo(x + d.pw - 2, y + 2 + m);
+                ctx.closePath(); ctx.fill();                                                    // TR triangle
+                ctx.fillStyle = '#0a84ff';
+                ctx.beginPath(); ctx.arc(x + 2 + m / 2, y + d.ph - 2 - m / 2, m / 2, 0, 6.284);
+                ctx.fill();                                                                     // BL dot
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x + d.pw - 2 - m, y + d.ph - 4, m, 2);                             // BR bar
+
+                var label = (r + 1) + ',' + (c + 1);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = fontFor(Math.min(d.pw, d.ph) * 0.26);
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(label, x + d.pw / 2, y + d.ph / 2 - Math.min(d.pw, d.ph) * 0.06);
+                ctx.fillStyle = '#7ee787';
+                ctx.font = fontFor(Math.min(d.pw, d.ph) * 0.12);
+                ctx.fillText(x + '·' + y, x + d.pw / 2, y + d.ph / 2 + Math.min(d.pw, d.ph) * 0.18);
+            }
+        }
+        // The wall's own identity, once, in the middle.
+        var pitch = parseFloat(document.getElementById('pitch').value);
+        var line = d.W + '×' + d.H + '  ·  ' + cols + '×' + rows + ' panels of '
+                 + d.pw + '×' + d.ph;
+        if (isFinite(pitch) && pitch > 0) {
+            line += '  ·  ' + (d.W * pitch / 1000).toFixed(2) + '×'
+                  + (d.H * pitch / 1000).toFixed(2) + ' m at ' + pitch + 'mm';
+        }
+        var pad = Math.max(10, Math.round(d.H * 0.02));
+        ctx.font = fontFor(Math.max(12, d.H * 0.028));
+        var tw = ctx.measureText(line).width;
+        ctx.fillStyle = 'rgba(0,0,0,0.78)';
+        ctx.fillRect(d.W / 2 - tw / 2 - pad, d.H / 2 - pad * 1.6, tw + pad * 2, pad * 3.2);
+        ctx.strokeStyle = '#3ad13a'; ctx.strokeRect(d.W / 2 - tw / 2 - pad, d.H / 2 - pad * 1.6,
+                                                   tw + pad * 2, pad * 3.2);
+        ctx.fillStyle = '#ffffff'; ctx.fillText(line, d.W / 2, d.H / 2);
+    }
+
+    function drawMoire(d) {
+        var band = Math.floor(d.H / 3);
+        var img = ctx.createImageData(d.W, d.H), p = img.data;
+        for (var y = 0; y < d.H; y++) {
+            for (var x = 0; x < d.W; x++) {
+                var on;
+                if (y < band) on = ((x + y) % 2) === 0;              // 1px checkerboard
+                else if (y < band * 2) on = (y % 2) === 0;           // 1px horizontal lines
+                else on = (x % 2) === 0;                             // 1px vertical lines
+                var i = (y * d.W + x) * 4, v = on ? 255 : 0;
+                p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255;
+            }
+        }
+        ctx.putImageData(img, 0, 0);
+        ctx.font = fontFor(Math.max(12, d.H * 0.022));
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        [['1px checkerboard', 0], ['1px horizontal lines', band], ['1px vertical lines', band * 2]]
+            .forEach(function (t) {
+                var pad = Math.max(6, Math.round(d.H * 0.012));
+                var w = ctx.measureText(t[0]).width + pad * 2;
+                ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                ctx.fillRect(pad, t[1] + pad, w, d.H * 0.035);
+                ctx.fillStyle = '#7ee787'; ctx.fillText(t[0], pad * 2, t[1] + pad * 1.6);
+            });
+    }
+
+    function drawDark(d) {
+        var steps = [0, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 26];      // percent
+        var w = d.W / steps.length;
+        steps.forEach(function (pc, i) {
+            var v = Math.round(pc / 100 * 255);
+            ctx.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+            ctx.fillRect(Math.round(i * w), 0, Math.ceil(w), d.H);
+            ctx.fillStyle = pc > 8 ? '#000' : '#4a4a4a';
+            ctx.font = fontFor(Math.max(10, d.H * 0.025));
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText(pc + '%', i * w + w / 2, d.H - d.H * 0.03);
+        });
+    }
+
+    function drawUniform(d) {
+        // Quarters of flat colour, then a band of the primaries: one page that
+        // shows batch mismatch, dead pixels and colour balance together.
+        var fields = ['#404040', '#808080', '#bfbfbf', '#ffffff'];
+        var top = Math.round(d.H * 0.62), qw = d.W / 4;
+        fields.forEach(function (col, i) {
+            ctx.fillStyle = col; ctx.fillRect(Math.round(i * qw), 0, Math.ceil(qw), top);
+        });
+        var prim = ['#ff0000', '#00ff00', '#0000ff', '#000000'], pwid = d.W / 4;
+        prim.forEach(function (col, i) {
+            ctx.fillStyle = col;
+            ctx.fillRect(Math.round(i * pwid), top, Math.ceil(pwid), d.H - top);
+        });
+        ctx.fillStyle = '#000'; ctx.font = fontFor(Math.max(10, d.H * 0.022));
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ['25%', '50%', '75%', '100%'].forEach(function (t, i) {
+            ctx.fillStyle = i > 1 ? '#000' : '#fff';
+            ctx.fillText(t, i * qw + qw / 2, d.H * 0.02);
+        });
+    }
+
+    function drawRamps(d) {
+        var rows = [['r', 'red'], ['g', 'green'], ['b', 'blue'], ['w', 'grey']];
+        var rh = d.H / rows.length;
+        rows.forEach(function (row, i) {
+            var g = ctx.createLinearGradient(0, 0, d.W, 0);
+            var dark = row[0] === 'r' ? '#000' : '#000';
+            g.addColorStop(0, dark);
+            g.addColorStop(1, row[0] === 'r' ? '#f00' : row[0] === 'g' ? '#0f0'
+                            : row[0] === 'b' ? '#00f' : '#fff');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, Math.round(i * rh), d.W, Math.ceil(rh));
+            ctx.fillStyle = '#ffffff'; ctx.font = fontFor(Math.max(10, d.H * 0.022));
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText(row[1], d.W * 0.012, i * rh + rh / 2);
+        });
+    }
+
+    function drawSafe(d) {
+        ctx.fillStyle = '#101010'; ctx.fillRect(0, 0, d.W, d.H);
+        var line = Math.max(2, Math.round(d.H * 0.003));
+        function box(frac, colour, label) {
+            var w = d.W * frac, h = d.H * frac;
+            ctx.strokeStyle = colour; ctx.lineWidth = line;
+            ctx.strokeRect((d.W - w) / 2, (d.H - h) / 2, w, h);
+            ctx.fillStyle = colour; ctx.font = fontFor(Math.max(11, d.H * 0.024));
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText(label, (d.W - w) / 2 + line * 2, (d.H - h) / 2 + line * 2);
+        }
+        box(0.9, '#ffd60a', '90%');
+        box(0.8, '#ff3b30', '80%');
+        ctx.strokeStyle = '#3ad13a'; ctx.lineWidth = Math.max(1, Math.round(line / 2));
+        [1 / 3, 2 / 3].forEach(function (f) {
+            ctx.beginPath(); ctx.moveTo(d.W * f, 0); ctx.lineTo(d.W * f, d.H); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, d.H * f); ctx.lineTo(d.W, d.H * f); ctx.stroke();
+        });
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = line;
+        var arm = Math.min(d.W, d.H) * 0.06;
+        ctx.beginPath(); ctx.moveTo(d.W / 2 - arm, d.H / 2); ctx.lineTo(d.W / 2 + arm, d.H / 2);
+        ctx.moveTo(d.W / 2, d.H / 2 - arm); ctx.lineTo(d.W / 2, d.H / 2 + arm); ctx.stroke();
+    }
+
+    function drawBoresight(d) {
+        // Geometry, centring and corner convergence in one page: the pattern
+        // a projector is lined up with before anyone argues about focus.
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, d.W, d.H);
+        var line = Math.max(2, Math.round(Math.min(d.W, d.H) * 0.002));
+        var cx = d.W / 2, cy = d.H / 2;
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = line;
+        // Concentric circles, spaced on the SHORT side so they stay circles.
+        var step = Math.min(d.W, d.H) / 10;
+        for (var r = step; r <= Math.min(d.W, d.H) / 2; r += step) {
+            ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.2832); ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, cy); ctx.lineTo(d.W, cy);
+        ctx.moveTo(cx, 0); ctx.lineTo(cx, d.H);
+        ctx.stroke();
+        // Diagonals to the true corners: a shifted lens shows immediately.
+        ctx.strokeStyle = '#3ad13a';
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(d.W, d.H); ctx.moveTo(d.W, 0); ctx.lineTo(0, d.H);
+        ctx.stroke();
+        // Corner boxes, one pixel inside the raster, so overscan is visible.
+        var box = Math.round(Math.min(d.W, d.H) * 0.08);
+        ctx.strokeStyle = '#ff3b30';
+        [[0, 0], [d.W - box, 0], [0, d.H - box], [d.W - box, d.H - box]].forEach(function (c) {
+            ctx.strokeRect(c[0] + line / 2, c[1] + line / 2, box - line, box - line);
+        });
+        // Centre cross, drawn last so it sits on top of everything.
+        ctx.strokeStyle = '#ffd60a'; ctx.lineWidth = line * 2;
+        var arm = Math.min(d.W, d.H) * 0.05;
+        ctx.beginPath();
+        ctx.moveTo(cx - arm, cy); ctx.lineTo(cx + arm, cy);
+        ctx.moveTo(cx, cy - arm); ctx.lineTo(cx, cy + arm);
+        ctx.stroke();
+    }
+
+    function drawCrosshatch(d) {
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, d.W, d.H);
+        // Squares on the SHORT side, so the boxes are square on any aspect --
+        // a grid of rectangles cannot show pincushion honestly.
+        var cells = 16, step = Math.min(d.W, d.H) / cells;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(1, Math.round(Math.min(d.W, d.H) * 0.0015));
+        for (var x = 0; x <= d.W; x += step) {
+            ctx.beginPath(); ctx.moveTo(Math.round(x) + 0.5, 0);
+            ctx.lineTo(Math.round(x) + 0.5, d.H); ctx.stroke();
+        }
+        for (var y = 0; y <= d.H; y += step) {
+            ctx.beginPath(); ctx.moveTo(0, Math.round(y) + 0.5);
+            ctx.lineTo(d.W, Math.round(y) + 0.5); ctx.stroke();
+        }
+        ctx.strokeStyle = '#ffd60a';
+        ctx.lineWidth = Math.max(2, Math.round(Math.min(d.W, d.H) * 0.003));
+        ctx.strokeRect(1, 1, d.W - 2, d.H - 2);
+    }
+
+    function drawSmpte(d) {
+        // 75% bars, the reversed strip, and the PLUGE trio: levels, decode and
+        // black level on one page.
+        var top = Math.round(d.H * 0.667), mid = Math.round(d.H * 0.75);
+        var bars = ['#bfbfbf', '#bfbf00', '#00bfbf', '#00bf00',
+                    '#bf00bf', '#bf0000', '#0000bf'];
+        var w = d.W / 7;
+        bars.forEach(function (c, i) {
+            ctx.fillStyle = c; ctx.fillRect(Math.round(i * w), 0, Math.ceil(w), top);
+        });
+        var strip = ['#0000bf', '#131313', '#bf00bf', '#131313',
+                     '#00bfbf', '#131313', '#bfbfbf'];
+        strip.forEach(function (c, i) {
+            ctx.fillStyle = c; ctx.fillRect(Math.round(i * w), top, Math.ceil(w), mid - top);
+        });
+        // Bottom: -I, white, +Q, black, then the pluge steps.
+        var bw = d.W / 6;
+        var bottom = [['#00214c', 0], ['#ffffff', 1], ['#32006a', 2], ['#131313', 3]];
+        bottom.forEach(function (b) {
+            ctx.fillStyle = b[0];
+            ctx.fillRect(Math.round(b[1] * bw), mid, Math.ceil(bw), d.H - mid);
+        });
+        var pl = [['#0a0a0a', 0], ['#131313', 1], ['#1c1c1c', 2]];
+        var plw = (d.W - 4 * bw) / 3;
+        pl.forEach(function (b) {
+            ctx.fillStyle = b[0];
+            ctx.fillRect(Math.round(4 * bw + b[1] * plw), mid, Math.ceil(plw), d.H - mid);
+        });
+    }
+
+    function drawGreyscale(d) {
+        var steps = 11;
+        var w = d.W / steps;
+        for (var i = 0; i < steps; i++) {
+            var pc = i * 10, v = Math.round(pc / 100 * 255);
+            ctx.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+            ctx.fillRect(Math.round(i * w), 0, Math.ceil(w), d.H);
+            ctx.fillStyle = pc > 55 ? '#000' : '#bbb';
+            ctx.font = fontFor(Math.max(10, d.H * 0.026));
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText(pc + '%', i * w + w / 2, d.H - d.H * 0.04);
+        }
+    }
+
+    function drawPluge(d) {
+        // Black level, set in the dark: two bars below black and two above.
+        ctx.fillStyle = '#131313'; ctx.fillRect(0, 0, d.W, d.H);
+        var vals = [-4, -2, 0, 2, 4];
+        var bw = d.W / 9, y = d.H * 0.2, bh = d.H * 0.6;
+        vals.forEach(function (v, i) {
+            var base = 19 + Math.round(v * 2.55);
+            base = Math.max(0, Math.min(255, base));
+            ctx.fillStyle = 'rgb(' + base + ',' + base + ',' + base + ')';
+            ctx.fillRect(Math.round((i * 2 + 1) * bw), y, Math.ceil(bw), bh);
+            ctx.fillStyle = '#7a7a7a'; ctx.font = fontFor(Math.max(10, d.H * 0.024));
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText((v > 0 ? '+' : '') + v, (i * 2 + 1.5) * bw, y + bh + d.H * 0.03);
+        });
+        ctx.fillStyle = '#5a5a5a'; ctx.font = fontFor(Math.max(11, d.H * 0.026));
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('raise brightness until +2 and +4 separate, and -2 and -4 do not',
+                     d.W / 2, d.H * 0.06);
+    }
+
+    function drawConverge(d) {
+        // One grid per channel, offset by nothing: any separation you see is
+        // the wall or the lens, not the file.
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, d.W, d.H);
+        var step = Math.min(d.W, d.H) / 12;
+        var cols = ['#ff0000', '#00ff00', '#0000ff'];
+        ctx.lineWidth = Math.max(1, Math.round(Math.min(d.W, d.H) * 0.0015));
+        for (var c = 0; c < 3; c++) {
+            ctx.strokeStyle = cols[c];
+            var band = d.H / 3, y0 = c * band;
+            for (var x = 0; x <= d.W; x += step) {
+                ctx.beginPath(); ctx.moveTo(Math.round(x) + 0.5, y0);
+                ctx.lineTo(Math.round(x) + 0.5, y0 + band); ctx.stroke();
+            }
+            for (var y = y0; y <= y0 + band; y += step) {
+                ctx.beginPath(); ctx.moveTo(0, Math.round(y) + 0.5);
+                ctx.lineTo(d.W, Math.round(y) + 0.5); ctx.stroke();
+            }
+        }
+        // And a white grid over the middle, where all three must agree.
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+        var cy = d.H / 2, h = d.H * 0.14;
+        for (var xx = 0; xx <= d.W; xx += step) {
+            ctx.beginPath(); ctx.moveTo(Math.round(xx) + 0.5, cy - h);
+            ctx.lineTo(Math.round(xx) + 0.5, cy + h); ctx.stroke();
+        }
+    }
+
+    function drawBurst(d) {
+        // Frequency wedges: 1, 2, 3, 4, 6 and 8 pixel periods. Whichever one
+        // turns to mush is the resolution you are really getting.
+        ctx.fillStyle = '#131313'; ctx.fillRect(0, 0, d.W, d.H);
+        var periods = [2, 4, 6, 8, 12, 16];
+        var bh = d.H / periods.length;
+        var img = ctx.createImageData(d.W, d.H), p = img.data;
+        for (var y = 0; y < d.H; y++) {
+            var per = periods[Math.min(periods.length - 1, Math.floor(y / bh))];
+            for (var x = 0; x < d.W; x++) {
+                var on = (x % per) < (per / 2);
+                var i = (y * d.W + x) * 4, v = on ? 235 : 16;
+                p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255;
+            }
+        }
+        ctx.putImageData(img, 0, 0);
+        ctx.font = fontFor(Math.max(10, d.H * 0.022));
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        periods.forEach(function (per, i) {
+            var label = per + 'px period';
+            var pad = Math.max(6, d.H * 0.01);
+            var w = ctx.measureText(label).width + pad * 2;
+            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+            ctx.fillRect(pad, i * bh + bh / 2 - d.H * 0.018, w, d.H * 0.036);
+            ctx.fillStyle = '#7ee787'; ctx.fillText(label, pad * 2, i * bh + bh / 2);
+        });
+    }
+
+    function drawWindow(d) {
+        // 10% and 50% windows: what a wall's power supply and a projector's
+        // iris do when most of the screen is black.
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, d.W, d.H);
+        function win(frac, label) {
+            var area = d.W * d.H * frac;
+            var w = Math.sqrt(area * (d.W / d.H)), h = area / w;
+            return [w, h, label];
+        }
+        var a = win(0.10), b = win(0.50);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect((d.W - b[0]) / 2, (d.H - b[1]) / 2, b[0], b[1]);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect((d.W - a[0]) / 2, (d.H - a[1]) / 2, a[0], a[1]);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect((d.W - a[0]) / 2 + a[0] * 0.08, (d.H - a[1]) / 2 + a[1] * 0.08,
+                     a[0] * 0.84, a[1] * 0.84);
+        ctx.fillStyle = '#7a7a7a'; ctx.font = fontFor(Math.max(11, d.H * 0.024));
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('10% window inside a 50% window \· watch for the white level moving',
+                     d.W / 2, d.H * 0.04);
+    }
+
+    function drawChecker(d) {
+        var cells = 8, cw = d.W / cells, ch = d.H / cells;
+        for (var r = 0; r < cells; r++) {
+            for (var c = 0; c < cells; c++) {
+                ctx.fillStyle = ((r + c) % 2) ? '#ffffff' : '#000000';
+                ctx.fillRect(Math.round(c * cw), Math.round(r * ch),
+                             Math.ceil(cw), Math.ceil(ch));
+            }
+        }
+    }
+
+    var DRAW = { map: drawMap, boresight: drawBoresight, crosshatch: drawCrosshatch,
+                 smpte: drawSmpte, greyscale: drawGreyscale, pluge: drawPluge,
+                 converge: drawConverge, burst: drawBurst, window: drawWindow,
+                 checker: drawChecker, moire: drawMoire, dark: drawDark,
+                 uniform: drawUniform, ramps: drawRamps, safe: drawSafe };
+
+    function draw() {
+        var d = dims();
+        canvas.width = d.W; canvas.height = d.H;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, d.W, d.H);
+        DRAW[current](d);
+        var cols = Math.ceil(d.W / d.pw), rows = Math.ceil(d.H / d.ph);
+        var odd = (d.W % d.pw) || (d.H % d.ph);
+        statEl.textContent = d.W + '×' + d.H + '  ·  ' + cols + '×' + rows
+            + ' panels' + (odd ? '  ·  the wall is not a whole number of panels' : '');
+    }
+
+    function save(id, name) {
+        var was = current; current = id; draw();
+        var link = document.createElement('a');
+        link.download = name; link.href = canvas.toDataURL('image/png');
+        link.click();
+        current = was; draw();
+    }
+
+    document.getElementById('save').addEventListener('click', function () {
+        var d = dims();
+        save(current, 'ledwall-' + current + '-' + d.W + 'x' + d.H + '.png');
+    });
+    document.getElementById('saveall').addEventListener('click', function () {
+        var d = dims(), i = 0;
+        // Spaced out, because six synthetic download clicks at once is the
+        // shape browsers block.
+        (function next() {
+            if (i >= PATTERNS.length) return;
+            save(PATTERNS[i][0], 'ledwall-' + PATTERNS[i][0] + '-' + d.W + 'x' + d.H + '.png');
+            i++; setTimeout(next, 700);
+        })();
+    });
+    ['w', 'h', 'pw', 'ph', 'pitch'].forEach(function (id) {
+        document.getElementById(id).addEventListener('input', draw);
+    });
+
+    draw();
+})();
+</script>
+</body>
+</html>
