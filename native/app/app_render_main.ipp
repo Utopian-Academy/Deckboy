@@ -1493,6 +1493,15 @@
       pendingLiveDeleteConfirmDeckIndex_ == project_.focusedDeckIndex &&
       !pendingLiveDeleteConfirmMessage_.empty() &&
       animationNow_ <= pendingLiveDeleteConfirmUntilMs_;
+    // NEW's guard shares the banner slot. It is not deck-scoped the way the
+    // delete guard is -- NEW takes the whole show -- so it does not test the
+    // focused deck, and it wins the slot if both are somehow armed at once.
+    bool newShowWarnActive =
+      !pendingNewShowConfirmMessage_.empty() &&
+      animationNow_ <= pendingNewShowConfirmUntilMs_;
+    bool confirmWarnActive = liveDeleteWarnActive || newShowWarnActive;
+    const std::string& confirmWarnMessage =
+      newShowWarnActive ? pendingNewShowConfirmMessage_ : pendingLiveDeleteConfirmMessage_;
     const Cue* timelineCue = activeCue ? activeCue : selectedCue;
     int timelineCueIndex = activeCue ? deck.activeIndex : deck.selectedIndex;
     double timelineDuration = 0.0;
@@ -1567,7 +1576,7 @@
     // below) to grow the two lanes; the video lane gets the larger share.
     int baseReservedH = kTimelineHeaderH + 2 + kVideoLaneBaseH + kTimelineGap
                       + kAudioLaneBaseH + kTimelineGap + kTransportRowH;
-    if (liveDeleteWarnActive) {
+    if (confirmWarnActive) {
       baseReservedH += kDeleteWarnH + kTimelineGap;
     }
     // Monitor height when no extra is taken; clamp the operator's request so
@@ -1754,7 +1763,7 @@
     SDL_Rect videoLaneOuter {x, timelineTopY + kTimelineHeaderH + 2, innerW, videoLaneH};
     SDL_Rect audioLaneOuter {x, videoLaneOuter.y + videoLaneOuter.h + kTimelineGap, innerW, audioLaneH};
     int deleteWarnY = audioLaneOuter.y + audioLaneOuter.h + kTimelineGap;
-    int transportRowY = deleteWarnY + (liveDeleteWarnActive ? (kDeleteWarnH + kTimelineGap) : 0);
+    int transportRowY = deleteWarnY + (confirmWarnActive ? (kDeleteWarnH + kTimelineGap) : 0);
     progressBarRect_ = insetRect(videoLaneOuter, 3);
     SDL_Rect audioLaneRect = insetRect(audioLaneOuter, 2);
     audioProgressBarRect_ = audioLaneRect;  // audio lane is click-to-seek too
@@ -2933,7 +2942,7 @@
     }
 
 
-    if (liveDeleteWarnActive) {
+    if (confirmWarnActive) {
       SDL_Rect warnRect {x, deleteWarnY, innerW, kDeleteWarnH};
       SDL_Color warnFill {176, 116, 18, 255};
       SDL_Color warnBorder {44, 26, 0, 255};
@@ -2944,7 +2953,7 @@
       Primitives::strokeRect(controlRenderer_, insetRect(warnRect, 1), glow);
       SDL_Rect warnMsgRect {warnRect.x + 12, warnRect.y + 4, warnRect.w - 24, warnRect.h - 8};
       drawCenteredTextSafe(controlRenderer_, fontBase_, warnMsgRect,
-                           pendingLiveDeleteConfirmMessage_, warnInk);
+                           confirmWarnMessage, warnInk);
     }
 
     {

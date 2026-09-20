@@ -1610,7 +1610,96 @@
     });
   }
 
+  // Is this deck RUNNING, as opposed to merely holding an active cue? The
+  // distinction matters to the NEW guard: activeIndex survives a stop, so
+  // asking it alone means every show that was ever taken stays "live" until it
+  // is reloaded, and the confirmation starts firing when there is nothing to
+  // protect. Same three cases transportStatusLabel splits on.
+  bool deckIsRunning(int deckIndex) const {
+    const Cue* activeCue = activeCuePtr(deckIndex);
+    if (!activeCue) {
+      return false;
+    }
+    if (activeCue->kind == CueKind::Browser) {
+      const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+      return runtime && runtime->browserCueLive;
+    }
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (!engine) {
+      return false;
+    }
+    if (isSourceCueKind(activeCue->kind)) {
+      return engine->isSourceCapturing();
+    }
+    return engine->state() == TransportState::Playing;
+  }
+
+  // Is anything actually on air? NEW empties both decks and disarms every
+  // output in one frame, so the guard below only fires when that would cost
+  // something: an armed output (the picture is leaving the building, whatever
+  // the transport is doing -- a held still and a paused video are both on
+  // screen) or a deck that is genuinely running. A cold NEW stays one click.
+  bool showIsLive() const {
+    for (const auto& output : project_.outputs) {
+      if (output.enabled) {
+        return true;
+      }
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (deckIsRunning(deckIndex)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void clearPendingNewShowConfirmation() {
+    pendingNewShowConfirmMessage_.clear();
+    pendingNewShowConfirmUntilMs_ = 0;
+  }
+
+  // Undo was never a way back from NEW: it pushed no snapshot and cleared
+  // nothing, so Ctrl+Z restored whatever stale mid-edit state was on the stack
+  // rather than the show that had just been replaced.
+  //
+  // The snapshot goes on with its outputs already disarmed. Undo owns show
+  // CONTENT -- no output toggle anywhere pushes a snapshot -- so restoring
+  // enabled outputs would put arming back in the project with no window or
+  // stream behind it. Ctrl+Z gives every cue back; the operator re-arms.
+  void pushUndoSnapshotForShowReplace() {
+    Project snapshot = project_;
+    for (auto& output : snapshot.outputs) {
+      output.enabled = false;
+    }
+    undoStack_.push_back(std::move(snapshot));
+    if (static_cast<int>(undoStack_.size()) > kMaxUndoLevels) {
+      undoStack_.erase(undoStack_.begin());
+    }
+    redoStack_.clear();
+  }
+
+  // The press-again guard NEW never had. It is the most destructive control on
+  // the toolbar -- both decks cleared, every output dark -- and it sits one 8px
+  // gap from OPEN, which is what an operator reaches for at the top of a show.
+  // Same 2.5s shape as the live-cue delete guard, for the same reason.
+  bool requestNewShow(bool withToast = true) {
+    if (showIsLive()) {
+      Uint64 now = SDL_GetTicks();
+      bool confirmed = !pendingNewShowConfirmMessage_.empty() &&
+                       now <= pendingNewShowConfirmUntilMs_;
+      if (!confirmed) {
+        pendingNewShowConfirmMessage_ = "NEW SHOW? OUTPUTS GO DARK  -  PRESS NEW AGAIN";
+        pendingNewShowConfirmUntilMs_ = now + 2500;
+        triggerToast("new show disarms all outputs: press new again");
+        return false;
+      }
+    }
+    pushUndoSnapshotForShowReplace();
+    return startNewShow(withToast);
+  }
+
   bool startNewShow(bool withToast = true) {
+    clearPendingNewShowConfirmation();
     resetTransientPreviewState();
     project_ = Project {};
     // A fresh show resets to the default skin rather than carrying over the

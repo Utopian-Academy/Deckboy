@@ -9104,6 +9104,10 @@ class App {
   std::string pendingLiveDeleteConfirmSignature_;
   std::string pendingLiveDeleteConfirmMessage_;
   Uint64 pendingLiveDeleteConfirmUntilMs_ = 0;
+  // NEW's press-again guard. Not deck-scoped the way the delete one is: NEW
+  // takes the whole show, so there is nothing to key it to.
+  std::string pendingNewShowConfirmMessage_;
+  Uint64 pendingNewShowConfirmUntilMs_ = 0;
   bool showStartupDialog_ = false;
   bool showSplashOverlay_ = true;
   Uint64 splashStartedAt_ = 0;

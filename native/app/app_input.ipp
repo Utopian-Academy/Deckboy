@@ -557,7 +557,7 @@
       return;
     }
     if (pointInRect(x, y, fileNewBtnRect_)) {
-      startNewShow(true);
+      requestNewShow(true);
       return;
     }
     if (pointInRect(x, y, fileOpenBtnRect_)) {
@@ -1355,7 +1355,7 @@
       return;
     }
     if (ctrl && key == SDLK_N) {
-      startNewShow(true);
+      requestNewShow(true);
       return;
     }
     if (ctrl && !shift && key == SDLK_A) {

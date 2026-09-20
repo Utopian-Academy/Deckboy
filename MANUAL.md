@@ -960,6 +960,13 @@ Shows are `.deckboy` files (plain text, tab-delimited).
 into a portable folder. Deckboy also autosaves with dirty tracking. The default
 show is `data/default.deckboy`; override with `DECKBOY_PROJECT`.
 
+**NEW asks twice while you are live.** Starting an empty show empties both decks
+and disarms every output, so if an output is armed or a deck is running, the
+first `NEW` (or `Ctrl+N`) only arms the warning banner — press it again within
+2.5 seconds to go through. With nothing on air it goes straight through. The
+show you were on is left on disk either way, and `Ctrl+Z` brings it back (with
+outputs left disarmed, so you re-arm them yourself).
+
 ### Missing media & relink
 
 On open, Deckboy scans every file-backed cue. Missing files get a red
