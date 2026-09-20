@@ -1042,7 +1042,10 @@ All remote inputs normalise to plain-text commands.
 - **Companion** — port **5510** by default. Use the Deckboy module in
   `companion-module-utopianacademy-deckboy/`: as well as sending commands it polls Deckboy's
   state, so Stream Deck keys show cue tally, transport colour, output health and
-  a countdown. A one-way *Generic TCP/UDP* mapping is still available in
+  a countdown. The module is built on `@companion-module/base` 2.x and
+  **requires Companion 5**; Companion 4.2 and earlier cannot load it, so stay
+  on the module from an earlier Deckboy release until you have upgraded.
+  A one-way *Generic TCP/UDP* mapping is still available in
   `docs/streamdeck/` for setups that can't install a module.
   **Deckboy listens on localhost only until Settings → Network → REMOTE is on** —
   leave it off and only Companion on the same machine can connect.

@@ -75,7 +75,8 @@ Both control surfaces ship with every release, so neither needs a build:
 **Stream Deck** (`…streamDeckPlugin` — double-click it) and **Bitfocus
 Companion** (`Deckboy-companion-module-….zip` — unzip it, then point
 Companion's *developer modules path* at the folder containing it;
-`INSTALL.txt` inside has the three steps).
+`INSTALL.txt` inside has the three steps). The Companion module requires
+**Companion 5**.
 
 → **[Latest release](https://github.com/Utopian-Academy/Deckboy/releases/latest)**
 
