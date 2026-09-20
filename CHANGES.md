@@ -1,5 +1,28 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-20 - v0.99.372 (a second press before the show goes dark, and Companion 5)
+
+**NEW asks twice while you are live.** Starting an empty show empties both
+decks and disarms every output, and NEW sits one gap from OPEN on the toolbar.
+With an output armed or a deck running, the first press now raises a warning
+banner and the second one goes through -- the same second-press guard that
+deleting a live cue has always had. With nothing on air it is still one press,
+because a confirmation that fires when there is nothing to protect is one you
+learn to click past. `Ctrl+Z` brings the show back afterwards, with outputs
+left disarmed for you to re-arm.
+
+**The Companion module speaks Companion 5.** It is rebuilt on
+`@companion-module/base` 2.x and Node 22 -- the current Companion line rather
+than the previous one. Presets now arrive grouped into sections in the preset
+browser; actions, feedbacks, variables and transport work as they did.
+Companion 4.2 and earlier can no longer load it, so stay on the previous
+module zip if you are not on Companion 5 yet.
+
+**A controller is told when it names a pattern that does not exist.**
+`PATTERN ADD` and `PATTERN SET` answer with an error naming the id they did
+not recognise, so a script or a surface finds out rather than carrying on as
+though the cue had been made.
+
 ## 2026-09-19 - v0.99.371 (plugins at the right level, and instruments you can play)
 
 **Plugins now receive the signal at the level they expect.** A hosted plugin
