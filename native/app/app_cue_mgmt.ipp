@@ -3474,7 +3474,12 @@
     }
     if (!isKnownPatternType(typeId)) {
       // Same as the type-change path: say WHICH id was refused.
-      triggerToast("pattern: \"" + typeId + "\" is not a pattern type");
+      //
+      // And say it to the CALLER, not just the room. This replied OK while
+      // adding nothing, so a controller or script asking for a pattern it had
+      // misspelled was told the cue existed. The operator got the toast; the
+      // machine that could have done something about it got a success.
+      failRemoteCommand("pattern: \"" + typeId + "\" is not a pattern type");
       return;
     }
     patternDefaultTypeId_ = typeId;

@@ -2826,7 +2826,12 @@
             typeId = "checkerboard";
           }
           if (typeId.empty() || !isKnownPatternType(typeId)) {
-            triggerToast("pattern default: invalid");
+            // Same OK-that-wasn't-true as PATTERN ADD had, and name the id
+            // rather than saying "invalid" about something the caller cannot
+            // see from the reply.
+            failRemoteCommand(typeId.empty()
+              ? "PATTERN SET needs a pattern id"
+              : ("pattern default: \"" + typeId + "\" is not a pattern type"));
             return;
           }
           patternDefaultTypeId_ = typeId;
