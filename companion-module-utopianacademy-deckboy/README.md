@@ -31,8 +31,12 @@ If you are working on the module itself:
 
 ```
 npm install         # once, to pull @companion-module/base
-npm test            # parser tests, run against a captured Deckboy status reply
+npm test            # parser and wiring tests, no Companion needed
 ```
+
+Needs **Node 22 or newer** — `@companion-module/base` 2.x declares
+`engines.node ^22.20 || ^26.5`, and `node22` is the oldest runtime the module
+manifest schema accepts.
 
 Then point the developer modules path at the folder that *contains* this one.
 

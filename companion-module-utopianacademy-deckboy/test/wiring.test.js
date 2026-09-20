@@ -16,7 +16,7 @@ import { test } from 'node:test'
 
 import { buildActions } from '../src/actions.js'
 import { buildFeedbacks } from '../src/feedbacks.js'
-import { buildPresets } from '../src/presets.js'
+import { buildPresetSections, buildPresets } from '../src/presets.js'
 import { buildVariableDefinitions } from '../src/variables.js'
 
 function stubInstance() {
@@ -25,7 +25,9 @@ function stubInstance() {
 		sent,
 		state: { connected: true, global: { focus: '1' }, decks: new Map(), outputs: new Map() },
 		sendCommand: (cmd) => sent.push(cmd),
-		parseVariablesInString: async (s) => s,
+		// No parseVariablesInString: base 2.x resolves option values before the
+		// callback sees them, and removed the method. A stub that still offered
+		// it would let a re-introduced call pass here and fail in Companion.
 		log: () => {},
 	}
 }
@@ -33,7 +35,8 @@ function stubInstance() {
 const actions = buildActions(stubInstance())
 const feedbacks = buildFeedbacks(stubInstance())
 const presets = buildPresets()
-const variableIds = new Set(buildVariableDefinitions().map((v) => v.variableId))
+const variableDefinitions = buildVariableDefinitions()
+const variableIds = new Set(Object.keys(variableDefinitions))
 
 test('every action has a callback and well-formed options', () => {
 	for (const [id, action] of Object.entries(actions)) {
@@ -80,6 +83,47 @@ test('presets only reference feedbacks that exist', () => {
 				`preset "${presetId}" references unknown feedback "${feedback.feedbackId}"`
 			)
 		}
+	}
+})
+
+test('variable definitions are keyed by id, as base 2.x expects', () => {
+	assert.ok(!Array.isArray(variableDefinitions), 'definitions must be an object, not an array')
+	for (const [variableId, definition] of Object.entries(variableDefinitions)) {
+		assert.ok(variableId.length > 0, 'a variable has an empty id')
+		assert.ok(definition?.name, `variable "${variableId}" needs a name`)
+		assert.ok(
+			!Object.hasOwn(definition, 'variableId'),
+			`variable "${variableId}" still carries the 1.x variableId field`
+		)
+	}
+})
+
+test('presets use the 2.x simple type and carry no category', () => {
+	for (const [presetId, preset] of Object.entries(presets)) {
+		assert.equal(preset.type, 'simple', `preset "${presetId}" must be type simple`)
+		assert.ok(
+			!Object.hasOwn(preset, 'category'),
+			`preset "${presetId}" still carries a 1.x category; sections replace it`
+		)
+	}
+})
+
+test('every preset appears in exactly one section, and every section entry exists', () => {
+	const sections = buildPresetSections()
+	const seen = new Map()
+	for (const section of sections) {
+		assert.ok(section.id, 'a section has no id')
+		assert.ok(section.name, `section "${section.id}" has no name`)
+		for (const presetId of section.definitions) {
+			assert.ok(Object.hasOwn(presets, presetId), `section "${section.id}" lists unknown preset "${presetId}"`)
+			assert.ok(!seen.has(presetId), `preset "${presetId}" is listed in two sections`)
+			seen.set(presetId, section.id)
+		}
+	}
+	for (const presetId of Object.keys(presets)) {
+		// A preset missing from the structure is defined but unreachable: it
+		// simply never appears in Companion's preset browser.
+		assert.ok(seen.has(presetId), `preset "${presetId}" is in no section and would be invisible`)
 	}
 })
 

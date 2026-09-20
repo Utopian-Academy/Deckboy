@@ -10,11 +10,11 @@
  * re-sent on a timer and every reply refreshes variables and feedbacks.
  */
 
-import { InstanceBase, InstanceStatus, Regex, TCPHelper, runEntrypoint } from '@companion-module/base'
+import { InstanceBase, InstanceStatus, Regex, TCPHelper } from '@companion-module/base'
 
 import { buildActions } from './src/actions.js'
 import { buildFeedbacks } from './src/feedbacks.js'
-import { buildPresets } from './src/presets.js'
+import { buildPresetSections, buildPresets } from './src/presets.js'
 import { buildVariableDefinitions, buildVariableValues } from './src/variables.js'
 import { parseStatus } from './src/protocol.js'
 
@@ -34,7 +34,7 @@ class DeckboyInstance extends InstanceBase {
 		this.config = config
 		this.setActionDefinitions(buildActions(this))
 		this.setFeedbackDefinitions(buildFeedbacks(this))
-		this.setPresetDefinitions(buildPresets())
+		this.setPresetDefinitions(buildPresetSections(), buildPresets())
 		this.setVariableDefinitions(buildVariableDefinitions())
 		this.publishState()
 		this.openConnection()
@@ -231,8 +231,15 @@ class DeckboyInstance extends InstanceBase {
 
 	publishState() {
 		this.setVariableValues(buildVariableValues(this.state))
-		this.checkFeedbacks()
+		// Every feedback this module has reads the same polled STATUS, so a
+		// report refreshes all of them. base 2.x split the no-argument form of
+		// checkFeedbacks() out into its own method and made the type argument
+		// mandatory -- calling checkFeedbacks() with nothing now checks nothing.
+		this.checkAllFeedbacks()
 	}
 }
 
-runEntrypoint(DeckboyInstance, [])
+// base 2.x loads the module from the default export instead of runEntrypoint().
+// Upgrade scripts, which used to be runEntrypoint's second argument, are not
+// needed here: this module has never changed an option id or shape.
+export default DeckboyInstance

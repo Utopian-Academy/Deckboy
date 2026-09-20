@@ -20,8 +20,11 @@ export function buildActions(self) {
 		min: 0,
 		max: 16,
 	}
+	// base 2.x resolves variables and expressions in option values BEFORE the
+	// callback runs, and removed parseVariablesInString from both the class and
+	// the callback context. Option values are read directly from here on.
 	const withDeck = async (options, command) => {
-		const deck = Number(await self.parseVariablesInString(String(options.deck ?? 0)))
+		const deck = Number(options.deck ?? 0)
 		if (Number.isFinite(deck) && deck > 0) {
 			send(`DECK ${deck}`)
 		}
@@ -55,7 +58,7 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const cue = await self.parseVariablesInString(options.cue)
+				const cue = String(options.cue ?? '')
 				await withDeck(options, `SELECT ${cue}`)
 			},
 		},
@@ -68,7 +71,7 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const cue = await self.parseVariablesInString(options.cue)
+				const cue = String(options.cue ?? '')
 				await withDeck(options, `SELECT ${cue}`)
 				send('TAKE')
 			},
@@ -81,7 +84,7 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Cue id or name', id: 'token', default: '', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const token = await self.parseVariablesInString(options.token)
+				const token = String(options.token ?? '')
 				if (token.trim().length > 0) await withDeck(options, `GOTO ${token}`)
 			},
 		},
@@ -103,7 +106,7 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Seconds', id: 'seconds', default: '10', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const secs = await self.parseVariablesInString(options.seconds)
+				const secs = String(options.seconds ?? '')
 				await withDeck(options, options.mode === 'abs' ? `SEEKPOS ${secs}` : `SEEK ${secs}`)
 			},
 		},
@@ -193,7 +196,7 @@ export function buildActions(self) {
 			name: 'Find cue (set search token)',
 			options: [{ type: 'textinput', label: 'Search text', id: 'token', default: '', useVariables: true }],
 			callback: async ({ options }) => {
-				const token = await self.parseVariablesInString(options.token)
+				const token = String(options.token ?? '')
 				send(token.trim().length > 0 ? `FIND ${token}` : 'FINDCLEAR')
 			},
 		},
@@ -295,7 +298,7 @@ export function buildActions(self) {
 				{ type: 'number', label: 'Amount', id: 'amount', default: 1, min: 0, max: 1, step: 0.01 },
 			],
 			callback: async ({ options }) => {
-				const effect = (await self.parseVariablesInString(options.effect)).trim()
+				const effect = String(options.effect ?? '').trim()
 				if (effect.length > 0) send(`FX ADD ${effect} ${options.amount}`)
 			},
 		},
@@ -360,7 +363,7 @@ export function buildActions(self) {
 				},
 			],
 			callback: async ({ options }) => {
-				const value = (await self.parseVariablesInString(options.value)).trim()
+				const value = String(options.value ?? '').trim()
 				send(`FX LFO ${options.index} ${options.slot} ${options.what}${value ? ' ' + value : ''}`)
 			},
 		},
@@ -472,7 +475,7 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Expression', id: 'expression', default: '', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const expression = (await self.parseVariablesInString(options.expression)).trim()
+				const expression = String(options.expression ?? '').trim()
 				if (expression.length > 0) send(`CODE SET ${expression}`)
 			},
 		},
@@ -504,7 +507,7 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Characters', id: 'glyphs', default: '', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const glyphs = (await self.parseVariablesInString(options.glyphs)).trim()
+				const glyphs = String(options.glyphs ?? '').trim()
 				send(glyphs.length > 0 ? `ASCII GLYPHS ${glyphs}` : 'ASCII GLYPHS')
 			},
 		},
@@ -517,7 +520,7 @@ export function buildActions(self) {
 				{ type: 'number', label: 'Hold (seconds, 0 hides)', id: 'hold', default: 2.5, min: 0, max: 60 },
 			],
 			callback: async ({ options }) => {
-				const phrases = (await self.parseVariablesInString(options.phrases)).trim()
+				const phrases = String(options.phrases ?? '').trim()
 				send(phrases.length > 0 ? `ASCII PHRASES ${phrases}` : 'ASCII PHRASES')
 				send(`ASCII HOLD ${options.hold}`)
 			},
@@ -529,7 +532,7 @@ export function buildActions(self) {
 				'Any Deckboy remote command, sent verbatim. See MANUAL.md section 22 for the full vocabulary.',
 			options: [{ type: 'textinput', label: 'Command', id: 'command', default: '', useVariables: true }],
 			callback: async ({ options }) => {
-				const command = await self.parseVariablesInString(options.command)
+				const command = String(options.command ?? '')
 				if (command.trim().length > 0) send(command.trim())
 			},
 		},

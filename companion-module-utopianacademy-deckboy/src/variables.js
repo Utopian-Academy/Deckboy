@@ -59,7 +59,11 @@ export function buildVariableDefinitions() {
 		)
 	}
 
-	return definitions
+	// base 2.x takes the definitions as an OBJECT keyed by variable id rather
+	// than an array of {variableId, name}. They are still built as a list
+	// because the deck and output blocks are generated in loops; the keying
+	// happens once, on the way out.
+	return Object.fromEntries(definitions.map(({ variableId, name }) => [variableId, { name }]))
 }
 
 /** Map the parsed status into the flat variable object Companion wants. */

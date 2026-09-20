@@ -2,6 +2,11 @@
  * Presets — drag-and-drop buttons that already carry their feedback wiring.
  * The point is that a new user gets a working, self-colouring transport page
  * without having to know which feedback goes with which action.
+ *
+ * base 2.x split presets in two. A preset no longer carries a `category`
+ * string; the grouping is a SEPARATE structure passed alongside the
+ * definitions, and the preset type is 'simple' rather than 'button'. The
+ * sections below are the old categories, in the order an operator meets them.
  */
 
 import { combineRgb } from '@companion-module/base'
@@ -13,13 +18,20 @@ const RED = combineRgb(200, 0, 0)
 const GREEN = combineRgb(0, 160, 60)
 const AMBER = combineRgb(210, 130, 0)
 
-export function buildPresets() {
+// Both exports are thin wrappers over this: the presets and the sections are
+// built together from one pass, so neither can go stale against the other, and
+// nothing is kept in module state between calls.
+function buildAll() {
 	const presets = {}
+	const sections = new Map()
 
+	// `category` is still an argument: it is what buildPresetSections() groups
+	// on, so the two cannot drift apart the way a separate hand-written list
+	// would. It is recorded here and stripped from the definition itself.
 	const button = (id, category, name, text, actionId, options = {}, feedbacks = [], size = '18') => {
+		sections.set(category, [...(sections.get(category) ?? []), id])
 		presets[id] = {
-			type: 'button',
-			category,
+			type: 'simple',
 			name,
 			style: { text, size, color: WHITE, bgcolor: DARK },
 			steps: [{ down: [{ actionId, options }], up: [] }],
@@ -45,9 +57,9 @@ export function buildPresets() {
 	button('select_prev', 'Transport', 'Select previous', 'SEL\\n▲', 'select_prev', { deck: 0 })
 
 	// ── Status readouts ──
+	sections.set('Status', [...(sections.get('Status') ?? []), 'now_playing'])
 	presets['now_playing'] = {
-		type: 'button',
-		category: 'Status',
+		type: 'simple',
 		name: 'Now playing (cue name + remaining)',
 		style: {
 			text: '$(deckboy:deck1_cue)\\n$(deckboy:deck1_remaining)',
@@ -65,9 +77,9 @@ export function buildPresets() {
 			},
 		],
 	}
+	sections.set('Status', [...(sections.get('Status') ?? []), 'connection'])
 	presets['connection'] = {
-		type: 'button',
-		category: 'Status',
+		type: 'simple',
 		name: 'Connection watchdog',
 		style: { text: 'DECKBOY\\n$(deckboy:connected)', size: '14', color: WHITE, bgcolor: DARK },
 		steps: [{ down: [], up: [] }],
@@ -84,9 +96,9 @@ export function buildPresets() {
 	button('blackout', 'Output', 'Blackout', 'BLACK\\nOUT', 'blackout', { state: 'toggle' }, [
 		{ feedbackId: 'blackout_active', options: {}, style: { bgcolor: RED, color: WHITE } },
 	])
+	sections.set('Output', [...(sections.get('Output') ?? []), 'panic'])
 	presets['panic'] = {
-		type: 'button',
-		category: 'Output',
+		type: 'simple',
 		name: 'PANIC',
 		style: { text: 'PANIC', size: '18', color: WHITE, bgcolor: RED },
 		steps: [{ down: [{ actionId: 'panic', options: {} }], up: [] }],
@@ -94,9 +106,9 @@ export function buildPresets() {
 	}
 
 	// ── Cue tally: one preset the operator duplicates per cue ──
+	sections.set('Cues', [...(sections.get('Cues') ?? []), 'cue_tally'])
 	presets['cue_tally'] = {
-		type: 'button',
-		category: 'Cues',
+		type: 'simple',
 		name: 'Cue button with tally (edit the cue number)',
 		style: { text: 'CUE 1', size: '18', color: WHITE, bgcolor: DARK },
 		steps: [{ down: [{ actionId: 'take_cue', options: { deck: 0, cue: '1' } }], up: [] }],
@@ -106,5 +118,23 @@ export function buildPresets() {
 		],
 	}
 
-	return presets
+	const structure = [...sections.entries()].map(([name, presetIds]) => ({
+		id: name.toLowerCase(),
+		name,
+		definitions: presetIds,
+	}))
+	return { presets, structure }
+}
+
+export function buildPresets() {
+	return buildAll().presets
+}
+
+/**
+ * The section structure base 2.x wants as setPresetDefinitions' first argument.
+ * Derived from the same `category` labels the presets declare, so a preset can
+ * never end up defined but unreachable in the UI.
+ */
+export function buildPresetSections() {
+	return buildAll().structure
 }

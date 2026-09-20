@@ -73,10 +73,9 @@ export function buildFeedbacks(self) {
 				deckOption,
 				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
 			],
-			callback: async ({ options }) => {
-				const cue = await self.parseVariablesInString(options.cue)
-				return String(deckFields(options)?.active ?? '') === String(cue).trim()
-			},
+			// base 2.x hands the callback option values that already have their
+			// variables and expressions resolved; parseVariablesInString is gone.
+			callback: ({ options }) => String(deckFields(options)?.active ?? '') === String(options.cue ?? '').trim(),
 		},
 
 		cue_is_selected: {
@@ -87,10 +86,8 @@ export function buildFeedbacks(self) {
 				deckOption,
 				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
 			],
-			callback: async ({ options }) => {
-				const cue = await self.parseVariablesInString(options.cue)
-				return String(deckFields(options)?.selected ?? '') === String(cue).trim()
-			},
+			callback: ({ options }) =>
+				String(deckFields(options)?.selected ?? '') === String(options.cue ?? '').trim(),
 		},
 
 		deck_remaining_below: {

@@ -63,7 +63,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # 22, not 20: @companion-module/base 2.x declares
+          # engines.node ^22.20 || ^26.5, and node22 is also the oldest
+          # runtime.type the module manifest schema still accepts.
+          node-version: '22'
       - name: Install and test
         working-directory: companion-module-utopianacademy-deckboy
         run: |

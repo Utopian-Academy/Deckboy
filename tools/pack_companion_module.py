@@ -128,12 +128,16 @@ def verify(archive, name):
 
         sources = sorted(str(f.relative_to(unpacked)).replace("\\", "/")
                          for f in (unpacked / "src").glob("*.js"))
+        # The framework is imported BY NAME, not by a path into its dist/.
+        # It used to be checked as `.../base/dist/index.js`, which stopped
+        # existing when base 2.x renamed its entry to dist/main.js -- so the
+        # gate failed on a bundle that was fine. A bare specifier resolves
+        # through the package's own exports map and survives the next rename.
+        imports = ["'@companion-module/base'"] + ["'./%s'" % f for f in sources]
         script = ("Promise.all([%s].map(f => import(f))).then("
                   "() => console.log('loaded'), "
                   "e => { console.error(e.message); process.exit(1); });"
-                  % ", ".join("'./%s'" % f for f
-                              in ["node_modules/@companion-module/base/dist/index.js"]
-                                 + sources))
+                  % ", ".join(imports))
         result = subprocess.run([node, "--input-type=module", "-e", script],
                                 cwd=str(unpacked), capture_output=True, text=True)
         if result.returncode != 0:
