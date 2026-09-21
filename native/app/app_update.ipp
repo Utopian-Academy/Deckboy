@@ -109,75 +109,7 @@
           break;
         case SDL_EVENT_MOUSE_WHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
-            if (handleDropdownMouseWheel(static_cast<int>(event.wheel.y))) {
-              break;
-            }
-            // THE WHEEL OVER A LIVE BROWSER CUE SCROLLS THE PAGE.
-            //
-            // The scrollbars are hidden -- deliberately, they are chrome an
-            // audience should not see -- so this is how the page moves. Only
-            // while a browser cue is actually live in the monitor, so it never
-            // takes the wheel away from anything else.
-            if (warpMonitorInner_.w > 0 &&
-                pointInRect(mouseX_, mouseY_, warpMonitorInner_) &&
-                activeCueIsBrowser(project_.focusedDeckIndex)) {
-              // Only consume the wheel if the page actually took it. On a
-              // backend that cannot drive the page, the event must fall
-              // through to whatever would otherwise have handled it rather
-              // than vanishing into a browser cue that ignored it.
-              if (auto* page = liveBrowserRenderer()) {
-                if (page->scrollBy(0, -static_cast<int>(event.wheel.y) * 90)) {
-                  break;
-                }
-              }
-            }
-            if (settingsOpen_ && settingsTab_ == 0 &&
-                settingsSystemViewport_.w > 0 && settingsSystemViewport_.h > 0 &&
-                pointInRect(mouseX_, mouseY_, settingsSystemViewport_) &&
-                settingsSystemScrollMax_ > 0) {
-              settingsSystemScroll_ = std::clamp(
-                settingsSystemScroll_ - static_cast<int>(event.wheel.y) * 36,
-                0, settingsSystemScrollMax_);
-              break;
-            }
-            if (settingsOpen_ && settingsTab_ == 3 &&
-                settingsVideoViewport_.w > 0 && settingsVideoViewport_.h > 0 &&
-                pointInRect(mouseX_, mouseY_, settingsVideoViewport_) &&
-                settingsVideoScrollMax_ > 0) {
-              settingsVideoScroll_ = std::clamp(
-                settingsVideoScroll_ - static_cast<int>(event.wheel.y) * 36,
-                0, settingsVideoScrollMax_);
-              break;
-            }
-            if (cueSettingsViewportRect_.w > 0 && cueSettingsViewportRect_.h > 0 &&
-                pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_) &&
-                cueSettingsScrollMax_ > 0) {
-              cueSettingsScroll_ = std::clamp(
-                cueSettingsScroll_ - static_cast<int>(event.wheel.y) * 36,
-                0,
-                cueSettingsScrollMax_);
-              break;
-            }
-            for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
-              if (di < static_cast<int>(deckOverlayClipRects_.size()) &&
-                  pointInRect(mouseX_, mouseY_, deckOverlayClipRects_[di])) {
-                if (di < static_cast<int>(deckOverlayScrolls_.size())) {
-                  deckOverlayScrolls_[di] = std::max(0, deckOverlayScrolls_[di] - static_cast<int>(event.wheel.y) * 36);
-                }
-                break;
-              }
-              if (di < static_cast<int>(deckListClipRects_.size()) &&
-                  pointInRect(mouseX_, mouseY_, deckListClipRects_[di])) {
-                if (di < static_cast<int>(deckScrolls_.size())) {
-                  int maxS = (di < static_cast<int>(deckScrollMax_.size())) ? deckScrollMax_[di] : 0;
-                  int over = maxS > 0 ? kDeckScrollOverscroll : 0;
-                  // Bottom-only overscroll: top stays hard-clamped at 0.
-                  deckScrolls_[di] = std::clamp(deckScrolls_[di] - static_cast<int>(event.wheel.y) * 36, 0, maxS + over);
-                  lastDeckScrollMs_ = SDL_GetTicks();
-                }
-                break;
-              }
-            }
+            handleMouseWheel(static_cast<int>(event.wheel.y));
           }
           break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
