@@ -74,6 +74,15 @@
   }
 
   void handleMouseDown(int x, int y, Uint8 button) {
+    // Before anything else: the middle button has its own meaning now, and must
+    // never fall through to the left-button paths below.
+    if (beginAutoScrollIfMiddle(x, y, button)) {
+      return;
+    }
+    // Any other press cancels a latched autoscroll.
+    if (autoScrollDeck_ >= 0) {
+      endAutoScroll();
+    }
 
     if (showSplashOverlay_) {
       showSplashOverlay_ = false;
@@ -879,6 +888,82 @@
   // THE WHEEL, lifted out of the event loop so it can be driven and tested the
   // way handleMouseDown already can. Priority order is the hit test: dropdown,
   // a live browser cue, the settings panes, the inspector, then the deck lists.
+  // MIDDLE-BUTTON AUTOSCROLL on the cue list.
+  //
+  // Pressing the wheel is what somebody does when a long list will not move,
+  // and until now it did nothing of its own: the middle button fell through to
+  // the same code as the left one, so it SELECTED the cue under the pointer and
+  // armed a drag. Middle-click-and-move could quietly reorder a rundown.
+  //
+  // Latched rather than held, which is the Windows behaviour: one press anchors
+  // it, moving away from the anchor scrolls at a speed set by the distance, and
+  // the next press anywhere stops it.
+  bool beginAutoScrollIfMiddle(int x, int y, Uint8 button) {
+    if (button != SDL_BUTTON_MIDDLE) {
+      return false;
+    }
+    if (autoScrollDeck_ >= 0) {       // already running: this press stops it
+      endAutoScroll();
+      return true;
+    }
+    for (int di = 0; di < static_cast<int>(deckListClipRects_.size()); ++di) {
+      const int scrollMax = (di < static_cast<int>(deckScrollMax_.size()))
+        ? deckScrollMax_[di] : 0;
+      if (scrollMax > 0 && deckListClipRects_[di].w > 0 &&
+          pointInRect(x, y, deckListClipRects_[di])) {
+        setFocusedDeckIndex(di);
+        autoScrollDeck_ = di;
+        autoScrollAnchorY_ = y;
+        autoScrollRemainder_ = 0.0;
+        return true;
+      }
+    }
+    // Middle-pressed somewhere with nothing to scroll. Still swallowed: acting
+    // as a left click is not something the middle button should ever do.
+    return true;
+  }
+
+  void endAutoScroll() {
+    autoScrollDeck_ = -1;
+    autoScrollRemainder_ = 0.0;
+  }
+
+  // Called every frame while it is latched. Speed comes from the distance
+  // between the pointer and the anchor, with a dead zone around the anchor so
+  // it can be parked; the fractional remainder carries between frames so slow
+  // speeds move smoothly rather than stalling at zero.
+  void serviceAutoScroll(double frameSeconds) {
+    if (autoScrollDeck_ < 0) {
+      return;
+    }
+    const int di = autoScrollDeck_;
+    if (di >= static_cast<int>(deckScrolls_.size()) ||
+        di >= static_cast<int>(deckScrollMax_.size()) || deckScrollMax_[di] <= 0) {
+      endAutoScroll();
+      return;
+    }
+    const int deadZone = uiScaled(12);
+    const double offset = static_cast<double>(mouseY_ - autoScrollAnchorY_);
+    const double past = std::abs(offset) - deadZone;
+    if (past <= 0.0) {
+      autoScrollRemainder_ = 0.0;
+      return;
+    }
+    // Rows per second, rising with distance. Scaled by the row pitch so the
+    // feel is the same at every UI scale.
+    const double rowsPerSecond = std::min(40.0, past / std::max(1, uiScaled(10)));
+    const double pixels = rowsPerSecond * (kRowHeight + 8) * frameSeconds *
+                          (offset < 0.0 ? -1.0 : 1.0);
+    autoScrollRemainder_ += pixels;
+    const int whole = static_cast<int>(autoScrollRemainder_);
+    if (whole == 0) {
+      return;
+    }
+    autoScrollRemainder_ -= whole;
+    deckScrolls_[di] = std::clamp(deckScrolls_[di] + whole, 0, deckScrollMax_[di]);
+    lastDeckScrollMs_ = SDL_GetTicks();
+  }
+
   // How far one notch of the wheel moves a list.
   //
   // This was a flat, UNSCALED 36px everywhere. A cue row is kRowHeight, which

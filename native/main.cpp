@@ -9068,6 +9068,12 @@ class App {
   std::vector<SDL_Rect> deckListScrollRails_;
   std::vector<int> deckListScrollThumbH_;
   int deckListScrollDragDeck_ = -1;                 // which deck's thumb is held
+  // Middle-button autoscroll: the deck it is anchored in, and the pointer Y it
+  // was anchored at. -1 = not running. Latched, like Windows: one press starts
+  // it, the next press anywhere stops it.
+  int autoScrollDeck_ = -1;
+  int autoScrollAnchorY_ = 0;
+  double autoScrollRemainder_ = 0.0;
   std::vector<int> deckOverlayScrolls_;
   int mouseX_ = 0;
   int mouseY_ = 0;
