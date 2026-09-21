@@ -496,6 +496,32 @@
       dispatchQuickAction(hit.action);
       return;
     }
+    // THE PLAYLIST'S SCROLLBAR, and it has to be HERE -- above the deck column
+    // loop below, not merely above the cue rows inside it.
+    //
+    // The rail is drawn over the right edge of the list, so it is inside the
+    // deck column. That loop handles every click that lands in a column and
+    // returns on all of them, so this test sat 200 lines below code that could
+    // never fall through to it: pressing the rail selected whatever cue was
+    // underneath and the list did not move. The target was widened once to fix
+    // "I cannot click the playlist scrollbar" and that was never the problem --
+    // the hit test was unreachable, not too small.
+    //
+    // Only claims the press when the list can actually scroll; a rail with
+    // nothing to scroll is zeroed by the renderer, so short decks are
+    // unaffected and the rows keep the whole width.
+    for (int di = 0; di < static_cast<int>(deckListScrollRails_.size()); ++di) {
+      const int scrollMax = (di < static_cast<int>(deckScrollMax_.size()))
+        ? deckScrollMax_[di] : 0;
+      if (deckListScrollRails_[di].w > 0 && scrollMax > 0 &&
+          pointInRect(x, y, deckListScrollRails_[di])) {
+        setFocusedDeckIndex(di);
+        deckListScrollDragDeck_ = di;
+        scrollDeckListToPointer(di, y);
+        return;
+      }
+    }
+
     for (int deckIndex = 0; deckIndex < static_cast<int>(deckColumnRects_.size()); ++deckIndex) {
       if (!pointInRect(x, y, deckColumnRects_[deckIndex])) {
         continue;
@@ -772,21 +798,6 @@
       cueSettingsScrollDragActive_ = true;
       scrollInspectorToPointer(y);
       return;
-    }
-
-    // THE PLAYLIST'S SCROLLBAR, for the same reason and before the cue rows:
-    // the rail sits over the right edge of the list, so a cue underneath it
-    // would otherwise take the press and the operator would take a cue instead
-    // of scrolling. On a thousand-cue deck that is a cue going on air.
-    for (int di = 0; di < static_cast<int>(deckListScrollRails_.size()); ++di) {
-      const int scrollMax = (di < static_cast<int>(deckScrollMax_.size()))
-        ? deckScrollMax_[di] : 0;
-      if (deckListScrollRails_[di].w > 0 && scrollMax > 0 &&
-          pointInRect(x, y, deckListScrollRails_[di])) {
-        deckListScrollDragDeck_ = di;
-        scrollDeckListToPointer(di, y);
-        return;
-      }
     }
 
     // The LFO scribble pad, for the same reason as the driver bar above: WHERE
