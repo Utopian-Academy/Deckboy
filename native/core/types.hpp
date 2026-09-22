@@ -851,6 +851,11 @@ struct Cue {
   CueEndAction endAction = CueEndAction::Inherit; // what to do when playback finishes
   // DoNotContinue is the default because it is what every existing show does.
   CueContinueMode continueMode = CueContinueMode::DoNotContinue;
+  // The LED tile size the panel map is drawn to. 128x128 is the common one,
+  // but a wall that is not made of those is exactly the wall that needs a map,
+  // and mapping a 168px panel as 128 puts every label in the wrong place.
+  int ledPanelWidth = 128;
+  int ledPanelHeight = 128;
   int targetDeckIndex = -1;                // Target cue: which deck its victim is on
   CueTargetVerb targetVerb = CueTargetVerb::Start;  // Target cue: what it does to it
   ScaleMode scaleMode = ScaleMode::Fit;    // how source maps to output — see ScaleMode enum
@@ -2005,6 +2010,10 @@ enum class QuickAction {
   // Target cues. The victim is picked deck-then-cue, and the verb cycles,
   // so three stepped rows and no free text: a target that points at a typo
   // is the fault the whole broken-cue panel exists to catch.
+  // The LED tile size a panel map is drawn to. Only shown on that pattern:
+  // a tile size on a colour-bars cue is a control that cannot do anything.
+  PanelWidthDec, PanelWidthInc,
+  PanelHeightDec, PanelHeightInc,
   CueSectionTargetToggle,
   TargetDeckPrev,
   TargetDeckNext,

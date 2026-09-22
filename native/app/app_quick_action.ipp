@@ -863,6 +863,10 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::PanelWidthDec:  nudgeLedPanelSize(true, -16); break;
+      case QuickAction::PanelWidthInc:  nudgeLedPanelSize(true, +16); break;
+      case QuickAction::PanelHeightDec: nudgeLedPanelSize(false, -16); break;
+      case QuickAction::PanelHeightInc: nudgeLedPanelSize(false, +16); break;
 
       case QuickAction::CueSectionTargetToggle:
         cueSectionTargetOpen_ = !cueSectionTargetOpen_;

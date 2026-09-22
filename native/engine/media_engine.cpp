@@ -7410,6 +7410,625 @@ void MediaEngine::buildSmpte75Bars(DecodedFrame& frame) {
 }
 
 // ---------------------------------------------------------------------------
+// ENGINEERING PATTERNS
+//
+// Deckboy's own LED page generates these in a browser. The app could draw
+// three of them. A site that advertises twelve charts the product does not
+// have is the "CI green isn't shipped" mistake pointed the other way, so this
+// is the same set, drawn at the output raster instead of downloaded as a PNG
+// somebody then has to import at the wrong size.
+//
+// All of them are pure functions of the frame. None animates: a reference
+// level that moves is not a reference.
+// ---------------------------------------------------------------------------
+
+// A 3x5 bitmap font. This existed twice already -- as a lambda inside
+// buildTestClock and another inside buildFrameCount, each knowing a different
+// handful of characters. Two definitions of one thing is the bug CLAUDE.md
+// warns about; a third would have been careless.
+namespace {
+
+const std::uint8_t* patternGlyphRows(char c) {
+  // Each row is three bits, MSB left. Digits first because that is what a
+  // panel map is mostly made of.
+  static const std::uint8_t digits[10][5] = {
+    {7,5,5,5,7}, {2,6,2,2,7}, {7,1,7,4,7}, {7,1,3,1,7}, {5,5,7,1,1},
+    {7,4,7,1,7}, {7,4,7,5,7}, {7,1,1,1,1}, {7,5,7,5,7}, {7,5,7,1,7},
+  };
+  static const std::uint8_t letters[26][5] = {
+    {7,5,7,5,5}, {6,5,6,5,6}, {7,4,4,4,7}, {6,5,5,5,6}, {7,4,6,4,7},
+    {7,4,6,4,4}, {7,4,5,5,7}, {5,5,7,5,5}, {7,2,2,2,7}, {1,1,1,5,7},
+    {5,5,6,5,5}, {4,4,4,4,7}, {5,7,7,5,5}, {7,5,5,5,5}, {7,5,5,5,7},
+    {7,5,7,4,4}, {7,5,5,7,3}, {7,5,6,5,5}, {7,4,7,1,7}, {7,2,2,2,2},
+    {5,5,5,5,7}, {5,5,5,5,2}, {5,5,7,7,5}, {5,5,2,5,5}, {5,5,2,2,2},
+    {7,1,2,4,7},
+  };
+  static const std::uint8_t colon[5]   = {0,2,0,2,0};
+  static const std::uint8_t dot[5]     = {0,0,0,0,2};
+  static const std::uint8_t dash[5]    = {0,0,7,0,0};
+  static const std::uint8_t slash[5]   = {1,1,2,4,4};
+  static const std::uint8_t percent[5] = {5,1,2,4,5};
+  static const std::uint8_t plus[5]    = {0,2,7,2,0};
+  static const std::uint8_t blank[5]   = {0,0,0,0,0};
+  if (c >= '0' && c <= '9') return digits[c - '0'];
+  if (c >= 'A' && c <= 'Z') return letters[c - 'A'];
+  if (c >= 'a' && c <= 'z') return letters[c - 'a'];
+  if (c == ':') return colon;
+  if (c == '.') return dot;
+  if (c == '-') return dash;
+  if (c == '/') return slash;
+  if (c == '%') return percent;
+  if (c == '+') return plus;
+  return blank;
+}
+
+}  // namespace
+
+int MediaEngine::patternGlyphWidth(std::size_t chars, int scale) {
+  if (chars == 0) {
+    return 0;
+  }
+  return static_cast<int>(chars) * 4 * scale - scale;
+}
+
+void MediaEngine::drawPatternGlyphs(DecodedFrame& frame, int x, int y,
+                                    const std::string& text, int scale,
+                                    SDL_Color color) {
+  int cx = x;
+  for (char c : text) {
+    const std::uint8_t* rows = patternGlyphRows(c);
+    for (int ry = 0; ry < 5; ++ry) {
+      for (int rx = 0; rx < 3; ++rx) {
+        if (rows[ry] & (4 >> rx)) {
+          fillPixelRect(frame, cx + rx * scale, y + ry * scale, scale, scale, color);
+        }
+      }
+    }
+    cx += 4 * scale;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// buildPanelMap -- every tile numbered, with its own pixel origin inside it
+// and a corner marker that differs in each corner of the wall.
+//
+// This is the pattern that turns "something is wrong up there" into "row 3,
+// column 7". A swapped tile shows the wrong number, a rotated one shows the
+// marker on the wrong side, and a dead receiver card shows nothing at all.
+//
+// The tile size is the operator's, not a guess: a wall of 168x168 panels
+// mapped as 128x128 puts every label in the wrong place, which is worse than
+// no map.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildPanelMap(DecodedFrame& frame, int panelW, int panelH) {
+  const int W = frame.width;
+  const int H = frame.height;
+  panelW = std::clamp(panelW, 8, std::max(8, W));
+  panelH = std::clamp(panelH, 8, std::max(8, H));
+  fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
+
+  const int cols = (W + panelW - 1) / panelW;
+  const int rows = (H + panelH - 1) / panelH;
+  // Alternating tile wash, so the grid reads even where a label does not fit.
+  for (int r = 0; r < rows; ++r) {
+    for (int c = 0; c < cols; ++c) {
+      const int x = c * panelW;
+      const int y = r * panelH;
+      const int w = std::min(panelW, W - x);
+      const int h = std::min(panelH, H - y);
+      const bool alt = ((r + c) & 1) != 0;
+      fillPixelRect(frame, x, y, w, h, alt ? SDL_Color {16, 16, 22, 255}
+                                           : SDL_Color {28, 28, 36, 255});
+      // Tile edges, one pixel, so a seam is visible at 1:1 and nowhere else.
+      fillPixelRect(frame, x, y, w, 1, {90, 90, 110, 255});
+      fillPixelRect(frame, x, y, 1, h, {90, 90, 110, 255});
+
+      // R<row>C<col> as large as the tile allows, then the pixel origin under
+      // it. The origin is what catches a panel cabled into the wrong port:
+      // the number can look plausible while the coordinates do not.
+      char label[32];
+      std::snprintf(label, sizeof(label), "R%dC%d", r + 1, c + 1);
+      const std::string text(label);
+      int scale = std::max(1, std::min((h - 6) / 7,
+                                       (w - 6) / (4 * static_cast<int>(text.size()))));
+      const int tw = patternGlyphWidth(text.size(), scale);
+      // A WALL IS RARELY A WHOLE NUMBER OF PANELS TALL, so the bottom row is
+      // often a sliver. Clamped inside the tile: centring blindly drew a short
+      // tile's label on the tile ABOVE it, which is the one thing a panel map
+      // must never do.
+      const int labelY = y + std::max(1, std::min(h - 5 * scale - 1,
+                                                  h / 2 - 5 * scale));
+      drawPatternGlyphs(frame, x + (w - tw) / 2, labelY, text, scale,
+                        {235, 235, 245, 255});
+
+      char origin[40];
+      std::snprintf(origin, sizeof(origin), "%d.%d", x, y);
+      const std::string otext(origin);
+      const int oscale = std::max(1, scale / 2);
+      const int ow = patternGlyphWidth(otext.size(), oscale);
+      const int originY = labelY + 6 * scale;
+      if (ow < w - 4 && originY + 5 * oscale < y + h) {
+        drawPatternGlyphs(frame, x + (w - ow) / 2, originY, otext, oscale,
+                          {120, 190, 255, 255});
+      }
+    }
+  }
+
+  // Corner markers, each a different shape AND colour, so a wall rotated 180
+  // degrees is obvious from the back of the room rather than from the numbers.
+  // HOLLOW, and small. Solid blocks the size of a tile hid the very numbers
+  // the map is for -- the top-right one covered R1C15 completely.
+  const int m = std::max(8, std::min(W, H) / 24);
+  const int mt = std::max(2, m / 6);
+  fillPixelRect(frame, 0, 0, m, mt, {255, 60, 60, 255});             // TL: bar
+  fillPixelRect(frame, 0, 0, mt, m, {255, 60, 60, 255});
+  fillPixelRect(frame, W - m, 0, m, mt, {60, 220, 90, 255});         // TR: box
+  fillPixelRect(frame, W - m, 0, mt, m, {60, 220, 90, 255});
+  fillPixelRect(frame, W - mt, 0, mt, m, {60, 220, 90, 255});
+  fillPixelRect(frame, W - m, m - mt, m, mt, {60, 220, 90, 255});
+  for (int i = 0; i < m; i += 2) {                                   // BL: wedge
+    fillPixelRect(frame, 0, H - 1 - i, m - i, 1, {90, 140, 255, 255});
+  }
+  for (int i = 0; i < m; i += std::max(2, m / 6)) {                  // BR: rings
+    fillPixelRect(frame, W - m + i, H - m + i, m - 2 * i, 1, {255, 210, 60, 255});
+    fillPixelRect(frame, W - m + i, H - 1 - i, m - 2 * i, 1, {255, 210, 60, 255});
+    fillPixelRect(frame, W - m + i, H - m + i, 1, m - 2 * i, {255, 210, 60, 255});
+    fillPixelRect(frame, W - 1 - i, H - m + i, 1, m - 2 * i, {255, 210, 60, 255});
+  }
+
+  // What the wall claims to be, spelled out. A map with no header is a map
+  // somebody will photograph and then not be able to identify.
+  char header[96];
+  std::snprintf(header, sizeof(header), "%dX%d  %dX%d TILE  %dC %dR",
+                W, H, panelW, panelH, cols, rows);
+  const std::string htext(header);
+  // ALONG THE BOTTOM EDGE, not the top: centred at the top it sat squarely on
+  // the first row of tiles and hid R1's labels -- the map's own header
+  // destroying the map.
+  //
+  // SIZED TO THE SLIVER. A wall is rarely a whole number of panels tall, so
+  // the last row is usually a part-tile with no room for a label of its own;
+  // a header that fits in exactly that strip costs nothing. Sized by height
+  // alone it was 126px tall on a 1080 raster and swallowed row 8 as well.
+  const int sliverH = H - (rows - 1) * panelH;
+  const int budget = (sliverH >= 18 && sliverH < panelH) ? sliverH : panelH / 3;
+  const int hscale = std::max(1, std::min(budget / 9,
+                       W / (4 * static_cast<int>(htext.size()) + 8)));
+  const int hw = patternGlyphWidth(htext.size(), hscale);
+  const int plateH = 9 * hscale;
+  const int hy = H - plateH + 2 * hscale;
+  fillPixelRect(frame, (W - hw) / 2 - 4 * hscale, H - plateH,
+                hw + 8 * hscale, plateH, {0, 0, 0, 255});
+  drawPatternGlyphs(frame, (W - hw) / 2, hy, htext, hscale,
+                    {255, 255, 255, 255});
+}
+
+// ---------------------------------------------------------------------------
+// buildMoire -- one-pixel checkerboard, plus one-pixel horizontal and vertical
+// line fields.
+//
+// This one only means anything at 1:1. If it looks soft or swims, something in
+// the chain is scaling -- which is the fact it exists to establish, before any
+// argument about the camera.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildMoire(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  const int bandH = std::max(1, H / 3);
+  for (int y = 0; y < H; ++y) {
+    const int band = std::min(2, y / std::max(1, bandH));
+    for (int x = 0; x < W; ++x) {
+      bool on = false;
+      if (band == 0) {
+        on = ((x + y) & 1) != 0;        // checker
+      } else if (band == 1) {
+        on = (y & 1) != 0;              // horizontal lines
+      } else {
+        on = (x & 1) != 0;              // vertical lines
+      }
+      writePixel(frame, x, y, on ? SDL_Color {255, 255, 255, 255}
+                                 : SDL_Color {0, 0, 0, 255});
+    }
+  }
+  // Band labels on a plate, since three fields of one-pixel detail are hard to
+  // tell apart in a photograph of the wall.
+  const int scale = std::max(1, std::min(H / 90, W / 200));
+  const char* names[3] = {"CHECKER 1PX", "H LINES 1PX", "V LINES 1PX"};
+  for (int band = 0; band < 3; ++band) {
+    const std::string t(names[band]);
+    const int tw = patternGlyphWidth(t.size(), scale);
+    const int ty = band * bandH + bandH / 2 - 3 * scale;
+    fillPixelRect(frame, 6 * scale, ty - 2 * scale, tw + 6 * scale, 9 * scale,
+                  {0, 0, 0, 255});
+    drawPatternGlyphs(frame, 9 * scale, ty, t, scale, {255, 120, 60, 255});
+  }
+}
+
+// ---------------------------------------------------------------------------
+// buildDarkDetail -- steps from black to 12%, which is where LED walls
+// actually struggle.
+//
+// Crushed blacks, a grey floor that is not black, and tiles that disagree with
+// each other down here long before they disagree in the light. A 0-100%
+// staircase hides all of it in one step.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildDarkDetail(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  constexpr int kSteps = 13;                 // 0% .. 12% in 1% steps
+  const int stepW = std::max(1, W / kSteps);
+  fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
+  const int scale = std::max(1, std::min(H / 40, W / 140));
+  for (int i = 0; i < kSteps; ++i) {
+    const int x = i * stepW;
+    const int w = (i == kSteps - 1) ? (W - x) : stepW;
+    const Uint8 v = static_cast<Uint8>(std::lround(255.0 * i / 100.0));
+    fillPixelRect(frame, x, 0, w, H - 12 * scale, {v, v, v, 255});
+    char label[8];
+    std::snprintf(label, sizeof(label), "%d%%", i);
+    const std::string t(label);
+    const int tw = patternGlyphWidth(t.size(), scale);
+    drawPatternGlyphs(frame, x + (w - tw) / 2, H - 9 * scale, t, scale,
+                      {200, 200, 200, 255});
+  }
+}
+
+// ---------------------------------------------------------------------------
+// buildUniformity -- flat fields at 25/50/75/100 and full R, G, B.
+//
+// Flat colour is unforgiving. A panel from a different LED batch shows up at
+// once, and so does a dead pixel, neither of which a busy picture reveals.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildUniformity(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  const SDL_Color fields[7] = {
+    { 64,  64,  64, 255}, {128, 128, 128, 255}, {191, 191, 191, 255},
+    {255, 255, 255, 255}, {255,   0,   0, 255}, {  0, 255,   0, 255},
+    {  0,   0, 255, 255},
+  };
+  const char* names[7] = {"25%", "50%", "75%", "100%", "RED", "GREEN", "BLUE"};
+  const int cellW = std::max(1, W / 4);
+  const int cellH = std::max(1, H / 2);
+  const int scale = std::max(1, std::min(cellH / 14, cellW / 40));
+  for (int i = 0; i < 7; ++i) {
+    const int cx = (i % 4) * cellW;
+    const int cy = (i / 4) * cellH;
+    const int w = (i % 4 == 3) ? (W - cx) : cellW;
+    const int h = (i / 4 == 1) ? (H - cy) : cellH;
+    fillPixelRect(frame, cx, cy, w, h, fields[i]);
+    // Ink chosen against the field it sits on, or the label vanishes on white
+    // and on the 25% patch alike.
+    const bool bright = fields[i].r + fields[i].g + fields[i].b > 300;
+    const std::string t(names[i]);
+    const int tw = patternGlyphWidth(t.size(), scale);
+    drawPatternGlyphs(frame, cx + (w - tw) / 2, cy + h - 10 * scale, t, scale,
+                      bright ? SDL_Color {0, 0, 0, 255}
+                             : SDL_Color {235, 235, 235, 255});
+  }
+  // The eighth cell is black, which is a reference too.
+  fillPixelRect(frame, 3 * cellW, cellH, W - 3 * cellW, H - cellH, {0, 0, 0, 255});
+  const std::string t("BLACK");
+  const int tw = patternGlyphWidth(t.size(), scale);
+  drawPatternGlyphs(frame, 3 * cellW + (W - 3 * cellW - tw) / 2, H - 10 * scale,
+                    t, scale, {120, 120, 120, 255});
+}
+
+// ---------------------------------------------------------------------------
+// buildBandingRamps -- horizontal ramps per channel and in grey.
+//
+// For finding the bit depth you are REALLY getting after processing. A 10-bit
+// chain that has been quietly truncated to 8 shows its steps here and nowhere
+// else in a show.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildBandingRamps(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  const int bandH = std::max(1, H / 4);
+  for (int y = 0; y < H; ++y) {
+    const int band = std::min(3, y / bandH);
+    for (int x = 0; x < W; ++x) {
+      // Rounded, not truncated: a truncating ramp has a step at the top end
+      // that belongs to the arithmetic rather than to the display.
+      const Uint8 v = static_cast<Uint8>(std::lround(255.0 * x / std::max(1, W - 1)));
+      SDL_Color c {0, 0, 0, 255};
+      if (band == 0)      c = {v, v, v, 255};
+      else if (band == 1) c = {v, 0, 0, 255};
+      else if (band == 2) c = {0, v, 0, 255};
+      else                c = {0, 0, v, 255};
+      writePixel(frame, x, y, c);
+    }
+  }
+  const int scale = std::max(1, std::min(bandH / 10, W / 120));
+  const char* names[4] = {"GREY", "RED", "GREEN", "BLUE"};
+  for (int band = 0; band < 4; ++band) {
+    const std::string t(names[band]);
+    const int tw = patternGlyphWidth(t.size(), scale);
+    const int ty = band * bandH + 3 * scale;
+    fillPixelRect(frame, 4 * scale, ty - 2 * scale, tw + 6 * scale, 9 * scale,
+                  {0, 0, 0, 255});
+    drawPatternGlyphs(frame, 7 * scale, ty, t, scale, {255, 255, 255, 255});
+  }
+}
+
+// ---------------------------------------------------------------------------
+// buildSafeAreas -- centre cross, thirds, and 90% / 80% boxes.
+//
+// So content can be framed against the wall's REAL aspect rather than a guess.
+// The percentages are of the raster, which on an LED wall is the only frame
+// that exists -- there is no overscan to allow for and pretending otherwise
+// wastes the top and bottom of a wall somebody paid for.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildSafeAreas(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  fillPixelRect(frame, 0, 0, W, H, {14, 14, 18, 255});
+  const int t = std::max(1, std::min(W, H) / 400 + 1);
+
+  auto box = [&](double frac, SDL_Color c) {
+    const int ix = static_cast<int>(std::lround(W * (1.0 - frac) / 2.0));
+    const int iy = static_cast<int>(std::lround(H * (1.0 - frac) / 2.0));
+    const int bw = W - ix * 2;
+    const int bh = H - iy * 2;
+    fillPixelRect(frame, ix, iy, bw, t, c);
+    fillPixelRect(frame, ix, iy + bh - t, bw, t, c);
+    fillPixelRect(frame, ix, iy, t, bh, c);
+    fillPixelRect(frame, ix + bw - t, iy, t, bh, c);
+  };
+  box(0.90, {80, 200, 110, 255});
+  box(0.80, {240, 190, 70, 255});
+
+  // Thirds, for framing rather than for safety.
+  for (int i = 1; i <= 2; ++i) {
+    fillPixelRect(frame, W * i / 3, 0, t, H, {70, 70, 90, 255});
+    fillPixelRect(frame, 0, H * i / 3, W, t, {70, 70, 90, 255});
+  }
+  // Centre cross last, over everything, because it is the reference.
+  fillPixelRect(frame, W / 2 - t, 0, t * 2, H, {230, 60, 60, 255});
+  fillPixelRect(frame, 0, H / 2 - t, W, t * 2, {230, 60, 60, 255});
+
+  const int scale = std::max(1, std::min(H / 50, W / 90));
+  // EACH LABEL INSIDE THE BOX IT NAMES, on its own corner. Both were placed at
+  // the top-left of their own box, and at 90% versus 80% those two corners are
+  // close enough that the words sat on top of one another -- which is the
+  // failure this pattern exists to help people avoid.
+  drawPatternGlyphs(frame, W / 2 - W * 45 / 100 + 3 * scale,
+                    H / 2 - H * 45 / 100 + 3 * scale, "90%", scale,
+                    {80, 200, 110, 255});
+  drawPatternGlyphs(frame, W / 2 + W * 40 / 100 - patternGlyphWidth(3, scale) - 3 * scale,
+                    H / 2 + H * 40 / 100 - 8 * scale, "80%", scale,
+                    {240, 190, 70, 255});
+  char dims[40];
+  std::snprintf(dims, sizeof(dims), "%dX%d", W, H);
+  const std::string dt(dims);
+  drawPatternGlyphs(frame, (W - patternGlyphWidth(dt.size(), scale)) / 2,
+                    H / 2 + 4 * scale, dt, scale, {200, 200, 210, 255});
+}
+
+// ---------------------------------------------------------------------------
+// buildBoresight -- the alignment chart: centre cross, concentric rings, and
+// markers at each corner and edge midpoint.
+//
+// For lining a projector or a camera up on the middle of the screen when the
+// content has not been built yet.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildBoresight(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
+  const int cx = W / 2;
+  const int cy = H / 2;
+  const int t = std::max(1, std::min(W, H) / 500 + 1);
+
+  // Rings every 1/8 of the short half-side. Drawn by scanning rows rather than
+  // by stepping an angle: an angular walk leaves gaps in the near-horizontal
+  // parts of a large circle, which reads as a broken pattern.
+  const int maxR = std::min(W, H) / 2;
+  const int ringStep = std::max(4, maxR / 8);
+  for (int y = 0; y < H; ++y) {
+    const double dy = static_cast<double>(y - cy);
+    for (int x = 0; x < W; ++x) {
+      const double dx = static_cast<double>(x - cx);
+      const double r = std::sqrt(dx * dx + dy * dy);
+      const double m = std::fmod(r, static_cast<double>(ringStep));
+      if (m < t && r <= maxR) {
+        writePixel(frame, x, y, {90, 170, 255, 255});
+      }
+    }
+  }
+  // Cross and diagonals.
+  fillPixelRect(frame, cx - t, 0, t * 2, H, {255, 255, 255, 255});
+  fillPixelRect(frame, 0, cy - t, W, t * 2, {255, 255, 255, 255});
+  for (int i = 0; i < std::min(W, H); ++i) {
+    const int dx = (i - std::min(W, H) / 2);
+    writePixel(frame, cx + dx, cy + dx, {70, 70, 80, 255});
+    writePixel(frame, cx + dx, cy - dx, {70, 70, 80, 255});
+  }
+  // Centre bullseye, so the exact middle is a point and not an intersection of
+  // two lines that a lens can blur into a smudge.
+  for (int r = 0; r < std::max(3, maxR / 40); ++r) {
+    fillPixelRect(frame, cx - r, cy - r, r * 2 + 1, r * 2 + 1,
+                  {255, 60, 60, 255});
+  }
+  // Edge and corner markers.
+  const int m = std::max(6, std::min(W, H) / 20);
+  const SDL_Color mk {255, 210, 60, 255};
+  fillPixelRect(frame, 0, 0, m, t * 2, mk);
+  fillPixelRect(frame, 0, 0, t * 2, m, mk);
+  fillPixelRect(frame, W - m, 0, m, t * 2, mk);
+  fillPixelRect(frame, W - t * 2, 0, t * 2, m, mk);
+  fillPixelRect(frame, 0, H - t * 2, m, t * 2, mk);
+  fillPixelRect(frame, 0, H - m, t * 2, m, mk);
+  fillPixelRect(frame, W - m, H - t * 2, m, t * 2, mk);
+  fillPixelRect(frame, W - t * 2, H - m, t * 2, m, mk);
+  fillPixelRect(frame, cx - m / 2, 0, m, t * 2, mk);
+  fillPixelRect(frame, cx - m / 2, H - t * 2, m, t * 2, mk);
+  fillPixelRect(frame, 0, cy - m / 2, t * 2, m, mk);
+  fillPixelRect(frame, W - t * 2, cy - m / 2, t * 2, m, mk);
+}
+
+// ---------------------------------------------------------------------------
+// buildPluge -- black level. Bars just below, at, and just above black.
+//
+// Set brightness so the below-black bar is invisible and the above-black one
+// is only just visible. Everything else about a wall's picture is downstream
+// of getting this right, which is why it is its own chart and not a strip.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildPluge(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  fillPixelRect(frame, 0, 0, W, H, {16, 16, 16, 255});
+  // -2%, 0, +2%, +4% around a 16-code black, in 8-bit terms.
+  const int levels[4] = {12, 16, 21, 26};
+  const char* names[4] = {"-2%", "BLACK", "+2%", "+4%"};
+  const int barW = std::max(1, W / 6);
+  const int barH = std::max(1, H * 3 / 5);
+  const int y0 = (H - barH) / 2;
+  const int scale = std::max(1, std::min(H / 40, W / 110));
+  for (int i = 0; i < 4; ++i) {
+    const int x = W / 2 - barW * 2 + i * barW;
+    const Uint8 v = static_cast<Uint8>(levels[i]);
+    fillPixelRect(frame, x, y0, barW, barH, {v, v, v, 255});
+    const std::string t(names[i]);
+    const int tw = patternGlyphWidth(t.size(), scale);
+    drawPatternGlyphs(frame, x + (barW - tw) / 2, y0 + barH + 4 * scale, t,
+                      scale, {170, 170, 170, 255});
+  }
+  // A 100% white patch for the other end of the range, so peak and floor are
+  // set from one chart.
+  fillPixelRect(frame, W / 2 + barW * 2, y0, barW, barH, {255, 255, 255, 255});
+  const std::string wt("100%");
+  drawPatternGlyphs(frame, W / 2 + barW * 2 +
+                      (barW - patternGlyphWidth(wt.size(), scale)) / 2,
+                    y0 + barH + 4 * scale, wt, scale, {170, 170, 170, 255});
+}
+
+// ---------------------------------------------------------------------------
+// buildGreyscaleSteps -- an 11-step staircase, 0 to 100 in tens.
+//
+// Gamma and grey tracking. A wall that goes green in the mids or loses the top
+// two steps shows it here in a second.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildGreyscaleSteps(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  constexpr int kSteps = 11;
+  const int stepW = std::max(1, W / kSteps);
+  const int scale = std::max(1, std::min(H / 30, W / 130));
+  for (int i = 0; i < kSteps; ++i) {
+    const int x = i * stepW;
+    const int w = (i == kSteps - 1) ? (W - x) : stepW;
+    const Uint8 v = static_cast<Uint8>(std::lround(255.0 * i / (kSteps - 1)));
+    fillPixelRect(frame, x, 0, w, H, {v, v, v, 255});
+    char label[8];
+    std::snprintf(label, sizeof(label), "%d", i * 10);
+    const std::string t(label);
+    const int tw = patternGlyphWidth(t.size(), scale);
+    drawPatternGlyphs(frame, x + (w - tw) / 2, H - 10 * scale, t, scale,
+                      v > 128 ? SDL_Color {0, 0, 0, 255}
+                              : SDL_Color {230, 230, 230, 255});
+  }
+}
+
+// ---------------------------------------------------------------------------
+// buildConvergence -- a fine white grid on black, one pixel wide.
+//
+// Distinct from crosshatch, which is a 64px geometry grid with a safe area on
+// it. This is tight and plain: it is for looking at colour fringing on an
+// edge, so anything else in the frame is a distraction.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildConvergence(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
+  const int step = std::max(8, std::min(W, H) / 36);
+  // Anchored to the centre so the middle lines land on the exact centre at any
+  // raster -- the same fix buildCrosshatch needed.
+  for (int x = ((W / 2) % step); x < W; x += step) {
+    fillPixelRect(frame, x, 0, 1, H, {255, 255, 255, 255});
+  }
+  for (int y = ((H / 2) % step); y < H; y += step) {
+    fillPixelRect(frame, 0, y, W, 1, {255, 255, 255, 255});
+  }
+  // Pure R, G and B crosses along the top and bottom: fringing is a colour
+  // fault, and a white grid alone does not say WHICH channel is off.
+  const int m = std::max(10, std::min(W, H) / 10);
+  const SDL_Color rgb[3] = {{255, 0, 0, 255}, {0, 255, 0, 255}, {0, 0, 255, 255}};
+  const int px[3] = {m, W / 2, W - m};
+  for (int i = 0; i < 3; ++i) {
+    fillPixelRect(frame, px[i] - m / 2, m - 1, m, 2, rgb[i]);
+    fillPixelRect(frame, px[i] - 1, m - m / 2, 2, m, rgb[i]);
+    fillPixelRect(frame, px[i] - m / 2, H - m - 1, m, 2, rgb[i]);
+    fillPixelRect(frame, px[i] - 1, H - m - m / 2, 2, m, rgb[i]);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// buildMultiburst -- vertical bar packets at rising frequencies.
+//
+// Bandwidth and scaling. The finest packet going grey means detail is being
+// lost somewhere between here and the panel, and WHICH packet fails says
+// roughly where.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildMultiburst(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  fillPixelRect(frame, 0, 0, W, H, {128, 128, 128, 255});
+  // Bar half-periods in pixels. 1 is the Nyquist case and the one that
+  // actually catches a scaler.
+  const int periods[6] = {16, 8, 4, 3, 2, 1};
+  const int packW = std::max(1, W / 6);
+  const int packH = std::max(1, H * 3 / 4);
+  const int y0 = (H - packH) / 2;
+  const int scale = std::max(1, std::min(H / 34, W / 130));
+  for (int p = 0; p < 6; ++p) {
+    const int x0 = p * packW;
+    const int w = (p == 5) ? (W - x0) : packW;
+    for (int x = x0; x < x0 + w; ++x) {
+      const bool on = ((x - x0) / periods[p]) % 2 == 0;
+      fillPixelRect(frame, x, y0, 1, packH,
+                    on ? SDL_Color {255, 255, 255, 255}
+                       : SDL_Color {0, 0, 0, 255});
+    }
+    char label[16];
+    std::snprintf(label, sizeof(label), "%dPX", periods[p]);
+    const std::string t(label);
+    const int tw = patternGlyphWidth(t.size(), scale);
+    drawPatternGlyphs(frame, x0 + (w - tw) / 2, y0 + packH + 4 * scale, t,
+                      scale, {20, 20, 20, 255});
+  }
+}
+
+// ---------------------------------------------------------------------------
+// buildWindowPattern -- a white window of a given area on black.
+//
+// For peak brightness at a realistic average picture level. A wall that hits
+// its rated nits on a 10% window and nowhere near it on a full field is
+// behaving normally, and this is how that gets measured rather than argued
+// about.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildWindowPattern(DecodedFrame& frame, int percent) {
+  const int W = frame.width;
+  const int H = frame.height;
+  percent = std::clamp(percent, 1, 100);
+  fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
+  // A window of `percent` AREA, keeping the raster's aspect so the shape does
+  // not change as the size does.
+  const double side = std::sqrt(percent / 100.0);
+  const int ww = std::max(1, static_cast<int>(std::lround(W * side)));
+  const int wh = std::max(1, static_cast<int>(std::lround(H * side)));
+  fillPixelRect(frame, (W - ww) / 2, (H - wh) / 2, ww, wh,
+                {255, 255, 255, 255});
+  char label[16];
+  std::snprintf(label, sizeof(label), "%d%% WINDOW", percent);
+  const std::string t(label);
+  const int scale = std::max(1, std::min(H / 40, W / 130));
+  const int tw = patternGlyphWidth(t.size(), scale);
+  drawPatternGlyphs(frame, (W - tw) / 2, H - 12 * scale, t, scale,
+                    {150, 150, 150, 255});
+}
+
+// ---------------------------------------------------------------------------
 // buildCrosshatch — Generate a crosshatch grid test pattern.
 //
 // White grid lines on black background at 64px intervals, plus:
@@ -10923,6 +11542,34 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 255, 0, 255});
   } else if (basePatternType == "full-blue") {
     fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, 255, 255});
+  // The engineering set. None of them animates: a reference that moves is not
+  // a reference, so there is no -motion variant and the flag is ignored.
+  } else if (basePatternType == "panel-map") {
+    buildPanelMap(frame, cue.ledPanelWidth, cue.ledPanelHeight);
+  } else if (basePatternType == "moire") {
+    buildMoire(frame);
+  } else if (basePatternType == "dark-detail") {
+    buildDarkDetail(frame);
+  } else if (basePatternType == "uniformity") {
+    buildUniformity(frame);
+  } else if (basePatternType == "ramps") {
+    buildBandingRamps(frame);
+  } else if (basePatternType == "safe-areas") {
+    buildSafeAreas(frame);
+  } else if (basePatternType == "boresight") {
+    buildBoresight(frame);
+  } else if (basePatternType == "pluge") {
+    buildPluge(frame);
+  } else if (basePatternType == "greyscale") {
+    buildGreyscaleSteps(frame);
+  } else if (basePatternType == "convergence") {
+    buildConvergence(frame);
+  } else if (basePatternType == "multiburst") {
+    buildMultiburst(frame);
+  } else if (basePatternType == "window-10") {
+    buildWindowPattern(frame, 10);
+  } else if (basePatternType == "window-50") {
+    buildWindowPattern(frame, 50);
   } else if (basePatternType == "test-bars") {
     // Broadcast motion diagnostics — always animated, no -motion variant.
     buildTestBars(frame, animTime);

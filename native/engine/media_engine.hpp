@@ -721,6 +721,35 @@ class MediaEngine {
   // history each frame rather than carrying state, so any frame renders alone
   // and identically -- see the note in the builder.
   static void buildFireside(DecodedFrame& frame, double t);
+
+  // -- Engineering patterns ----------------------------------------------------
+  //
+  // The set Deckboy's own LED page generates in a browser. It drew twelve
+  // charts the app could not, which is the wrong way round: the site is the
+  // advert and the app is the product. Every one is a pure function of the
+  // raster, so they dump, diff and bench like any other pattern.
+  //
+  // A shared 3x5 glyph routine, because the same font was already a lambda
+  // inside buildTestClock AND buildFrameCount and a third copy is how two
+  // definitions of one function start.
+  static int patternGlyphWidth(std::size_t chars, int scale);
+  static void drawPatternGlyphs(DecodedFrame& frame, int x, int y,
+                                const std::string& text, int scale, SDL_Color color);
+  // panelW/panelH are the LED tile size in pixels -- 128x128 is the common
+  // one, but a wall that is not made of those is exactly the wall that needs
+  // the map.
+  static void buildPanelMap(DecodedFrame& frame, int panelW, int panelH);
+  static void buildMoire(DecodedFrame& frame);
+  static void buildDarkDetail(DecodedFrame& frame);
+  static void buildUniformity(DecodedFrame& frame);
+  static void buildBandingRamps(DecodedFrame& frame);
+  static void buildSafeAreas(DecodedFrame& frame);
+  static void buildBoresight(DecodedFrame& frame);
+  static void buildPluge(DecodedFrame& frame);
+  static void buildGreyscaleSteps(DecodedFrame& frame);
+  static void buildConvergence(DecodedFrame& frame);
+  static void buildMultiburst(DecodedFrame& frame);
+  static void buildWindowPattern(DecodedFrame& frame, int percent);
   void syncPixelEffectsFromCue();   // colour/key edits reach EVERY view, not just the preview
   static void buildFrameCount(DecodedFrame& frame, double t, bool emojiBackdrop = false);                           // drop/duplicate + latency counter
   static void drawPocketTestCardStatic(DecodedFrame& frame);                           // cacheable layer: grid, bands, patches, border, crosshair

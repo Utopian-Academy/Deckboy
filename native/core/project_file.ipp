@@ -593,6 +593,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.targetDeckIndex
         << '\t' << cueTargetVerbToken(cue.targetVerb)
         << '\t' << (cue.armed ? 1 : 0)
+        // The LED tile size a panel map is drawn to.
+        << '\t' << cue.ledPanelWidth
+        << '\t' << cue.ledPanelHeight
         << '\n';
     }
   }
@@ -1721,6 +1724,10 @@ Project loadProject(const fs::path& projectFile,
         // show has no field here, and reading a missing field as 0 would open
         // every show ever saved with every cue disarmed.
         cue.armed = safeBool(fields, vs + 64, true);
+        // 128x128 is the common LED tile, and the value an older show
+        // that never had a panel map should come back with.
+        cue.ledPanelWidth = std::max(8, safeInt(fields, vs + 65, 128));
+        cue.ledPanelHeight = std::max(8, safeInt(fields, vs + 66, 128));
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
