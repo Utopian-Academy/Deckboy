@@ -1733,6 +1733,9 @@
     if (command == "JUMPMODE" || command == "JUMP_MODE") {
       if (parts.size() < 2) {
         triggerToast("jump mode: " + jumpModeLabelFromToken(project_.jumpMode));
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "jump mode: " + jumpModeLabelFromToken(project_.jumpMode);
         return;
       }
       std::string value = toUpper(parts[1]);
@@ -1755,6 +1758,9 @@
     if (command == "PANICPROFILE" || command == "PANIC_PROFILE") {
       if (parts.size() < 2) {
         triggerToast("panic profile: " + panicProfileLabelFromToken(project_.panicProfile));
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "panic profile: " + panicProfileLabelFromToken(project_.panicProfile);
         return;
       }
       std::string value = toUpper(parts[1]);
@@ -1775,6 +1781,9 @@
         std::ostringstream label;
         label << std::fixed << std::setprecision(1) << project_.panicFadeSeconds;
         triggerToast("panic fade " + label.str() + "s");
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "panic fade " + label.str() + "s";
       } else if (auto value = parseNumber(1); value) {
         setPanicFadeSeconds(*value);
       }
@@ -1809,6 +1818,9 @@
     if (command == "OSCQUERYPORT" || command == "OSC_QUERY_PORT") {
       if (parts.size() < 2) {
         triggerToast("osc query port: " + std::to_string(project_.oscQueryPort));
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "osc query port: " + std::to_string(project_.oscQueryPort);
       } else if (auto value = parseNumber(1); value) {
         setOscQueryPort(static_cast<int>(std::lround(*value)));
       }
@@ -1826,6 +1838,9 @@
     if (command == "OSCFEEDBACKRATE" || command == "OSC_FEEDBACK_RATE") {
       if (parts.size() < 2) {
         triggerToast("osc feedback rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms");
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "osc feedback rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms";
       } else if (auto value = parseNumber(1); value) {
         setOscFeedbackRateMs(static_cast<int>(std::lround(*value)));
       }
@@ -1914,6 +1929,9 @@
     if (command == "ARTNETPORT" || command == "DMXPORT" || command == "ART_NET_PORT") {
       if (parts.size() < 2) {
         triggerToast("artnet port: " + std::to_string(project_.artNetPort));
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "artnet port: " + std::to_string(project_.artNetPort);
       } else if (auto value = parseNumber(1); value) {
         setArtNetPort(static_cast<int>(std::lround(*value)));
       }
@@ -3862,6 +3880,9 @@
       }
       if (parts.size() <= 1) {
         triggerToast("cue id: " + (cue->cueId.empty() ? std::string("(none)") : cue->cueId));
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "cue id: " + (cue->cueId.empty() ? std::string("(none)") : cue->cueId);
       } else {
         std::string cueIdShort = normalizeCueIdShort(parts[1]);
         forEachFocusedSelectedCueMutable([&](Cue& each, int) {
@@ -4050,6 +4071,9 @@
     if (command == "TIMECODE" || command == "TC") {
       if (parts.size() < 2) {
         triggerToast("tc " + formatTimecode(focusedDeck().timecodeCurrentSeconds, focusedDeck().timecodeFps));
+        // The answer goes to the CALLER as well as the screen: a query
+        // whose reply is a bare OK has not answered.
+        remoteCommandDetail_ = "tc " + formatTimecode(focusedDeck().timecodeCurrentSeconds, focusedDeck().timecodeFps);
         return;
       }
       std::string sub = toUpper(parts[1]);
