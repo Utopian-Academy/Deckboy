@@ -252,6 +252,7 @@
     serviceAutoScroll(1.0 / 60.0);
     serviceBusyCritters(1.0 / 60.0);
     refreshNormalizingIds();
+    servicePendingTakes();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;
       syncEngineCueSnapshots();
@@ -779,7 +780,14 @@
           const Cue& endedCue = deck.cues[deck.activeIndex];
 
           // Cue end behavior follows the cue itself: hold = hold, hold off = next.
-          bool shouldAdvance = cueAdvancesWhenFinished(endedCue);
+          //
+          // AUTO-FOLLOW is the same advance with a delay in front of it, and it
+          // OVERRIDES the end action: a continue is an explicit instruction
+          // about the next cue, so it wins over a cue that would otherwise
+          // hold. With no continue set this is byte-identical to before, which
+          // is what keeps every existing show behaving as it did.
+          const bool autoFollow = endedCue.continueMode == CueContinueMode::AutoFollow;
+          bool shouldAdvance = cueAdvancesWhenFinished(endedCue) || autoFollow;
 
           // Goto target / shuffle / adjacent + missing-media walk — shared
           // with the manual SKIP action (resolveAutoAdvanceIndex).
@@ -793,7 +801,14 @@
               }
             }
             markProjectDirty();
-            if (shouldAdvance) {
+            if (shouldAdvance && autoFollow && endedCue.postWaitSeconds > 0.0) {
+              // Hold the ended frame while the post-wait runs, so the screen
+              // shows the last frame rather than going black between two cues
+              // that the operator asked to run together.
+              keepEndedFrameVisible = true;
+              schedulePendingTake(deckIndex, nextIndex, endedCue.postWaitSeconds,
+                                  endedCue.transitionToNext, "continue");
+            } else if (shouldAdvance) {
               keepEndedFrameVisible = true;
               int previousFocus = project_.focusedDeckIndex;
               project_.focusedDeckIndex = deckIndex;

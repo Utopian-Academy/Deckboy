@@ -8304,6 +8304,9 @@ class App {
   mutable std::mutex normalizeResultsMutex_;
   std::set<std::string> normalizeInFlight_;   // cue ids under the needle now
   std::set<std::string> normalizingIds_;      // per-frame snapshot, see refreshNormalizingIds
+
+  // Declared in app_cue_transport.ipp, which is included above this.
+  std::vector<PendingTake> deckPendingTakes_;
   std::vector<NormalizeResult> normalizeResults_;
 
 #if DECKBOY_INPROC_DECODE

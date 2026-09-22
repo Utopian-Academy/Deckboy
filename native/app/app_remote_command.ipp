@@ -211,6 +211,68 @@
       failRemoteCommand("this verb cannot add a deck -- turn VJ mode on for a second");
       return;
     }
+    if (command == "PREWAIT" || command == "POSTWAIT" || command == "CONTINUE") {
+      // The sequencing spine, over the wire. These three fields have existed
+      // in the show file since the spine landed and NOTHING could set them --
+      // no inspector row, no verb. They persisted perfectly and did nothing.
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand(command + ": select a cue first");
+        return;
+      }
+      if (command == "CONTINUE") {
+        if (parts.size() < 2) {
+          remoteCommandDetail_ = std::string("continue: ") +
+                                 cueContinueModeToken(cue->continueMode);
+          return;
+        }
+        const std::string mode = toUpper(parts[1]);
+        if (mode == "OFF" || mode == "NONE" || mode == "DONOTCONTINUE") {
+          cue->continueMode = CueContinueMode::DoNotContinue;
+        } else if (mode == "AUTO" || mode == "AUTOCONTINUE" || mode == "CONTINUE") {
+          cue->continueMode = CueContinueMode::AutoContinue;
+        } else if (mode == "FOLLOW" || mode == "AUTOFOLLOW") {
+          cue->continueMode = CueContinueMode::AutoFollow;
+        } else {
+          failRemoteCommand("CONTINUE: use OFF, AUTO (from the start) or FOLLOW (from the end)");
+          return;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = std::string("continue: ") +
+                               cueContinueModeToken(cue->continueMode);
+        return;
+      }
+      double& field = (command == "PREWAIT") ? cue->preWaitSeconds : cue->postWaitSeconds;
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = toLower(command) + ": " + formatSeconds(field);
+        return;
+      }
+      try {
+        // Clamped at zero rather than trusted: a negative pre-wait would ask
+        // for a cue to start before its own GO.
+        field = std::max(0.0, std::stod(parts[1]));
+      } catch (...) {
+        failRemoteCommand(command + ": expected seconds");
+        return;
+      }
+      markProjectDirty();
+      remoteCommandDetail_ = toLower(command) + ": " + formatSeconds(field);
+      return;
+    }
+    if (command == "PENDING") {
+      // What a deck is about to take, and in how long. Nothing could see this.
+      std::ostringstream out;
+      bool any = false;
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        const double left = pendingTakeRemaining(d);
+        if (left < 0.0) continue;
+        any = true;
+        out << (any && !out.str().empty() ? " | " : "")
+            << "deck " << (d + 1) << " in " << formatSeconds(left);
+      }
+      remoteCommandDetail_ = any ? out.str() : "nothing pending";
+      return;
+    }
     if (command == "MASTER" || command == "MASTERCUE") {
       // MASTER NEW                     -> add a master cue to this deck
       // MASTER DECK <n> <cue>          -> assign: deck n plays cue <cue>

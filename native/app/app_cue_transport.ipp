@@ -288,6 +288,10 @@
 
   void stopTransport() {
     showLog("STOP", showLogCueRef(project_.focusedDeckIndex, focusedDeck().activeIndex));
+    // STOP is a decision. Anything this deck was about to take -- a pre-wait
+    // counting down, a continue waiting -- dies with it, or it fires seconds
+    // later on top of an operator who thought they had stopped the show.
+    cancelPendingTake(project_.focusedDeckIndex);
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
@@ -594,6 +598,154 @@
     }
   }
 
+  // The next cue in the running order, by the same rules a manual skip uses --
+  // goto targets, shuffle, and walking past cues whose media has vanished.
+  int continueTargetIndex(Deck& deck, const Cue& from) {
+    return resolveAutoAdvanceIndex(deck, from, true);
+  }
+
+  // Arm the continue that counts from a cue STARTING. Does nothing unless the
+  // cue asked for AutoContinue, so a show with no continues behaves exactly as
+  // it always has.
+  void scheduleContinueAfterStart(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    const Cue cue = deck.cues[cueIndex];   // copied: resolve may reorder nothing,
+                                           // but the reference outliving a take
+                                           // is not worth risking
+    if (cue.continueMode != CueContinueMode::AutoContinue) {
+      return;
+    }
+    const int next = continueTargetIndex(deck, cue);
+    if (next < 0 || next == cueIndex) {
+      return;                            // nowhere to go, or it would re-fire itself
+    }
+    schedulePendingTake(deckIndex, next, cue.postWaitSeconds,
+                        cue.transitionToNext, "continue");
+  }
+
+  // ── THE SEQUENCING SPINE'S ONE PIECE OF RUNTIME STATE ──────────────────
+  //
+  // A cue that has been fired but has not started yet: a pre-wait counting
+  // down, or a continue waiting on its post-wait. One per deck, because a deck
+  // can only be about to play one thing.
+  //
+  // NOT saved. A show reopened must never come back mid-countdown with a cue
+  // about to fire on its own -- the operator did not press anything.
+  //
+  // Declared here rather than beside the other members because this file is
+  // included into the class body ABOVE them, and the type has to exist before
+  // the functions below name it.
+  struct PendingTake {
+    bool armed = false;
+    int cueIndex = -1;
+    double dueAtSeconds = 0.0;
+    bool useTransition = true;
+    std::string reason;        // "pre-wait" / "continue", for the toast
+  };
+
+  // ── PENDING TAKES: pre-waits and continues ────────────────────────────
+  //
+  // Everything in the sequencing spine that does not happen immediately goes
+  // through here. A cue with a pre-wait is fired, then waits. A cue with a
+  // continue schedules the NEXT one. Both are "a deck is about to take
+  // something", which is one fact per deck.
+  //
+  // ANY MANUAL ACTION ON A DECK CANCELS ITS PENDING TAKE. An operator who hits
+  // STOP has decided; a cue that fires two seconds later because a countdown
+  // nobody could see was still running is the exact failure that makes people
+  // distrust an auto-follow.
+  double nowSeconds() const {
+    return static_cast<double>(SDL_GetTicks()) / 1000.0;
+  }
+
+  PendingTake& pendingTakeFor(int deckIndex) {
+    if (static_cast<int>(deckPendingTakes_.size()) <= deckIndex) {
+      deckPendingTakes_.resize(deckIndex + 1);
+    }
+    return deckPendingTakes_[deckIndex];
+  }
+
+  void cancelPendingTake(int deckIndex, const char* why = nullptr) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckPendingTakes_.size())) {
+      return;
+    }
+    PendingTake& p = deckPendingTakes_[deckIndex];
+    if (!p.armed) {
+      return;
+    }
+    p = PendingTake {};
+    if (why) {
+      triggerToast(std::string("cancelled: ") + why);
+    }
+  }
+
+  void cancelAllPendingTakes() {
+    for (auto& p : deckPendingTakes_) {
+      p = PendingTake {};
+    }
+  }
+
+  void schedulePendingTake(int deckIndex, int cueIndex, double delaySeconds,
+                           bool useTransition, const char* reason) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(project_.decks[deckIndex].cues.size())) {
+      return;
+    }
+    PendingTake& p = pendingTakeFor(deckIndex);
+    p.armed = true;
+    p.cueIndex = cueIndex;
+    p.dueAtSeconds = nowSeconds() + std::max(0.0, delaySeconds);
+    p.useTransition = useTransition;
+    p.reason = reason ? reason : "";
+  }
+
+  // How long until a deck's pending take fires, or -1 when nothing is pending.
+  // The UI wants this for a countdown; the remote wants it to report.
+  double pendingTakeRemaining(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckPendingTakes_.size())) {
+      return -1.0;
+    }
+    const PendingTake& p = deckPendingTakes_[deckIndex];
+    return p.armed ? std::max(0.0, p.dueAtSeconds - nowSeconds()) : -1.0;
+  }
+
+  void servicePendingTakes() {
+    const double now = nowSeconds();
+    for (int deckIndex = 0; deckIndex < static_cast<int>(deckPendingTakes_.size()); ++deckIndex) {
+      PendingTake& p = deckPendingTakes_[deckIndex];
+      if (!p.armed || now < p.dueAtSeconds) {
+        continue;
+      }
+      if (deckIndex >= static_cast<int>(project_.decks.size())) {
+        p = PendingTake {};
+        continue;
+      }
+      const int cueIndex = p.cueIndex;
+      const bool useTransition = p.useTransition;
+      // Disarm BEFORE taking: takeSelected can schedule the next continue, and
+      // an armed slot underneath it would be overwritten or, worse, re-fire.
+      p = PendingTake {};
+      Deck& deck = project_.decks[deckIndex];
+      if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+        continue;                       // deleted while it waited
+      }
+      const int savedFocus = project_.focusedDeckIndex;
+      project_.focusedDeckIndex = deckIndex;
+      selectCueInDeck(deckIndex, cueIndex, false, false);
+      // honourPreWait=false: the wait has already been served.
+      takeSelected(true, useTransition, false, false);
+      project_.focusedDeckIndex = savedFocus;
+    }
+  }
+
   // ── MASTER CUES ───────────────────────────────────────────────────────
   //
   // A master cue is an Analog Way LiveCore MASTER MEMORY: it recalls one cue on
@@ -699,18 +851,38 @@
     markProjectDirty();
   }
 
-  void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false) {
+  void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false,
+                    bool honourPreWait = true) {
     Deck& deck = focusedDeckMutable();
     int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     MediaEngine* engine = focusedMediaEngine();
     if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
       return;
     }
+    // Taking anything cancels whatever this deck was about to take. The
+    // operator has just made a decision; an older countdown must not survive
+    // it and fire on top.
+    cancelPendingTake(deckIndex);
+
+    // PRE-WAIT: fired now, starts later. Applies however the cue was fired --
+    // by GO, by a continue, or by a master -- because the wait belongs to the
+    // cue, not to whoever pressed something. honourPreWait is false only when
+    // the pending service is calling back, having already served it.
+    if (honourPreWait && deck.cues[deck.selectedIndex].preWaitSeconds > 0.0) {
+      const Cue& waiting = deck.cues[deck.selectedIndex];
+      schedulePendingTake(deckIndex, deck.selectedIndex, waiting.preWaitSeconds,
+                          useTransition, "pre-wait");
+      triggerToast("pre-wait " + formatSeconds(waiting.preWaitSeconds) + ": " +
+                   waiting.name);
+      return;
+    }
+
     // A MASTER FIRES OTHER DECKS and is never handed to this deck's engine --
     // it has no media. Intercepted before the engine check below, because a
     // master deck legitimately has no engine of its own to speak of.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Master) {
       fireMasterCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
     if (!engine) {
@@ -830,6 +1002,11 @@
     activateAttachedOverlaysForCue(deck, deckIndex, cue);
     playUiSound(UiSoundEffect::Take);
     notifyTallyStateChange();
+    // AUTO-CONTINUE is counted from HERE -- the moment the cue starts -- which
+    // is the whole difference between it and auto-follow. The next cue can
+    // therefore begin while this one is still playing, which is what makes a
+    // sting land over the top of a video rather than after it.
+    scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
     markProjectDirty();
   }
 
