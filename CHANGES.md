@@ -1,5 +1,69 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-22 - v0.99.373 (EXPERIMENTAL - a cue list that is a program, and a deck that speaks)
+
+**This is a pre-release.** Everything below is new and none of it has been
+through a real show yet. Run it alongside the version you trust, not instead
+of it.
+
+**A cue list is a program now.** Every cue has a pre-wait, a post-wait and a
+continue mode, so a running order can carry itself: a cue can wait before it
+starts, and start the next one when it begins or when it ends. A STANDBY
+pointer sits apart from the selection -- the selection is where you are
+looking, the standby is what GO fires -- and GO advances it down the list.
+
+**Cues that do things to other cues.** A TARGET cue starts, stops, pauses,
+resumes, loads, arms or disarms another cue on any deck. A FADE cue ramps a
+deck's picture level, a deck's volume or the master dimmer to a value over a
+duration, on a linear, eased or S curve, and can stop that deck when it lands.
+A MASTER cue fires an assigned cue on several decks at once.
+
+**Every cue can be disarmed.** It keeps its settings, stays where it is, and
+does nothing; GO steps over it and the row is washed out so the list says so.
+
+**Deckboy speaks on GO.** It has listened to MIDI, MSC, OSC, Art-Net and
+timecode for a long time and said almost nothing back. Now:
+
+- **MIDI cues** send a note, a control change, a program change, MIDI Show
+  Control GO/STOP/RESUME, or your own bytes.
+- **Network cues** send OSC, a UDP datagram, or a line of TCP.
+- **Timecode cues** start, stop or jam the LTC generator from the cue list.
+- **DMX cues** send Art-Net channel levels with a fade time -- house lights to
+  20% on cue 14, without Deckboy pretending to be a lighting console.
+- **Script cues** run Deckboy's own protocol lines, so one cue can fire a
+  master, send MIDI, jam timecode and ping the media server.
+
+**CHECK: everything wrong with the show, before doors.** One button beside
+RELINK counts the faults and walks you to each: missing media, a goto pointing
+at a deleted cue, a master or target whose destination is gone, a MIDI or DMX
+cue that cannot build its message, a network cue with nowhere to send.
+
+**AUDITION and PRELOAD.** Audition plays a cue to the control window with the
+outputs untouched. Preload racks a cue paused, decode already running and held
+off air, so taking it starts with no spin-up.
+
+**A second deck can be seen.** Outputs now show the deck they are hosted by,
+and you can add an output and choose its deck from the Video Outputs card.
+Before this, every output carried deck 1 whatever it said.
+
+**The audio crosspoint matrix.** Per cue, how much of its left and right
+reaches each channel of the audio device, with a gain on every crosspoint --
+a grid in the inspector. Two sources onto one output sum, so a mono fold-down
+is expressible. Device channels go to 64, which is what makes a Dante Virtual
+Soundcard or a large ASIO interface worth having. A cue with no matrix routes
+exactly as it always did.
+
+**Thirteen new test patterns**, the same set the LED page generates: a panel
+map with every tile numbered and its pixel origin printed inside it, moire
+1:1, dark detail, uniformity, banding ramps, safe areas, boresight, PLUGE,
+greyscale steps, convergence, multiburst, and 10% and 50% windows. The free
+kit on the site now includes them too.
+
+**Also:** a FIRESIDE source, loading indicators on the jobs that used to look
+frozen, the playlist scrollbar can be dragged and the wheel moves it three
+rows at a time, the update check tells you what is blocking it, and the
+Companion module moved to base 2.x.
+
 ## 2026-09-20 - v0.99.372 (a second press before the show goes dark, and Companion 5)
 
 **NEW asks twice while you are live.** Starting an empty show empties both
