@@ -2463,6 +2463,7 @@
     // Terrarium is deliberately absent: it's the Konami secret, listed only
     // once unlocked in the current save (see patternPickerTypes).
     static const std::vector<std::pair<std::string, std::string>> types {
+      {"fireside",     "Fireside (a hearth that burns)"},
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
       {"test-bars",    "Test Bars (motion diagnostics)"},
       {"test-clock",   "Test Clock (sync + latency)"},
