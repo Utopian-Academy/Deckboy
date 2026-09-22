@@ -10024,20 +10024,26 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t) {
   // and called from whichever decoder thread owns the deck. That is exactly the
   // ownership we want: two decks showing a hearth each get their own fire
   // instead of sharing one buffer across threads.
-  static thread_local std::vector<std::uint8_t> heat;
-  bool primeFire = false;
-  if (static_cast<int>(heat.size()) != gw * gh) {
-    heat.assign(static_cast<std::size_t>(gw) * static_cast<std::size_t>(gh), 0);
-    // A cold buffer propagates one row per frame, so the first second would be
-    // a line of embers climbing into a flame. Nobody wants to watch a hearth
-    // boot up, and a single-frame dump would show one too, so it is primed to
-    // a settled fire before it is ever seen.
-    primeFire = true;
-  }
+  // THE FIRE IS A PURE FUNCTION OF THE CLOCK, rebuilt from nothing each frame.
+  //
+  // It used to carry its heat grid between calls, which is the obvious way to
+  // write a fire and was wrong here. `--pattern-dump` runs a whole process per
+  // frame, and tools/build_test_patterns.py renders a clip by calling it in a
+  // loop -- so every frame got a freshly primed grid and the "animation" would
+  // have been incoherent flicker rather than a flame. The live path would have
+  // looked right and the rendered clip would not.
+  //
+  // Instead each frame replays a fixed window of history whose randomness is
+  // keyed to the frame index. Consecutive frames share all but one step of that
+  // window, so they evolve smoothly, and any frame can be rendered alone, in
+  // any order, in any process, and come out identical. It also means no state
+  // to own and nothing shared between decks or threads.
+  const int kWarm = 20;
+  const int frameIndex = static_cast<int>(t * 60.0);
+  std::vector<std::uint8_t> heat(static_cast<std::size_t>(gw) *
+                                 static_cast<std::size_t>(gh), 0);
 
-  // Deterministic and allocation-free; advanced by the frame so no two are
-  // alike without carrying a PRNG object around.
-  std::uint32_t seed = static_cast<std::uint32_t>(t * 1000.0) * 2654435761u + 1u;
+  std::uint32_t seed = 1u;
   auto rnd = [&seed]() -> std::uint32_t {
     seed ^= seed << 13;
     seed ^= seed >> 17;
@@ -10046,8 +10052,18 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t) {
   };
 
   // The bed breathes at two rates, so the fire surges and settles rather than
-  // roaring flat.
+  // roaring flat. Sampled at the frame being drawn, for the light and sparks.
   const double breath = 0.72 + 0.28 * std::sin(t * 1.7) * std::sin(t * 0.63);
+
+  for (int step = 0; step <= kWarm; ++step) {
+  const int stepFrame = frameIndex - (kWarm - step);
+  const double stepT = stepFrame / 60.0;
+  // Keyed to the ABSOLUTE frame, so a given frame of history is the same
+  // whichever frame is asking for it -- that is what makes the sequence
+  // continuous across independent renders.
+  seed = static_cast<std::uint32_t>(stepFrame) * 2654435761u + 1u;
+  const double stepBreath =
+    0.72 + 0.28 * std::sin(stepT * 1.7) * std::sin(stepT * 0.63);
   for (int x = 0; x < gw; ++x) {
     // The fuel bed is the middle of the grate, not the whole opening -- fire
     // comes off the logs, and seeding edge to edge is what made it a dome.
@@ -10058,16 +10074,15 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t) {
     }
     // Hot spots along the bed rather than an even glow, so tongues form where
     // the logs actually are.
-    const double lumps = 0.62 + 0.38 * std::sin(x * 1.9 + t * 0.8) *
-                                       std::sin(x * 0.7 - t * 1.3);
-    const double bed = (1.0 - dx * dx * 0.55) * breath * lumps;
+    const double lumps = 0.62 + 0.38 * std::sin(x * 1.9 + stepT * 0.8) *
+                                       std::sin(x * 0.7 - stepT * 1.3);
+    const double bed = (1.0 - dx * dx * 0.55) * stepBreath * lumps;
     const int base = std::clamp(static_cast<int>(bed * 255.0), 0, 255);
     const int jitter = static_cast<int>(rnd() % 60u);
     heat[static_cast<std::size_t>(gh - 1) * gw + x] =
       static_cast<std::uint8_t>(std::clamp(base - jitter, 0, 255));
   }
 
-  for (int pass = 0, passes = primeFire ? gh / 2 : 1; pass < passes; ++pass) {
   for (int y = 0; y < gh - 1; ++y) {
     for (int x = 0; x < gw; ++x) {
       const int xl = std::max(0, x - 1);

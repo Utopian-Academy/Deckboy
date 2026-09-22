@@ -717,9 +717,9 @@ class MediaEngine {
   static void buildPocketTestCard(DecodedFrame& frame, double t);                      // PM5544-style card: bouncing scene porthole
   static void buildTestBars(DecodedFrame& frame, double t);                            // testsrc2-style motion-diagnostics bars
   static void buildTestClock(DecodedFrame& frame, double t);
-  // The hearth keeps a heat grid between frames -- that is what makes it a
-  // fire rather than a field of noise -- but it lives in a thread_local inside
-  // the builder, so this stays static like its neighbours.
+  // Pure function of the clock: the hearth replays a fixed window of its own
+  // history each frame rather than carrying state, so any frame renders alone
+  // and identically -- see the note in the builder.
   static void buildFireside(DecodedFrame& frame, double t);
   void syncPixelEffectsFromCue();   // colour/key edits reach EVERY view, not just the preview
   static void buildFrameCount(DecodedFrame& frame, double t, bool emojiBackdrop = false);                           // drop/duplicate + latency counter
