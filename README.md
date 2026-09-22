@@ -5,7 +5,8 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#)
 [![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](#)
 
-**Free, open-source cue-based media playback and show control for live video.**
+**Free, open-source cue-based media playback and show control for live video —
+theatre, live events, worship and broadcast.**
 
 ### Everything is a cue
 
