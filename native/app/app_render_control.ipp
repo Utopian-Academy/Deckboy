@@ -911,6 +911,28 @@
                              relinkLabel, SDL_Color {255, 210, 210, 255});
       }
 
+      // CHECK -- everything wrong with the show, before doors rather than at
+      // take. Same shape as RELINK: it only exists when there is something to
+      // say, so an unbroken show carries no clutter. Amber, not red: these are
+      // things to fix, where a missing file is already broken.
+      //
+      // Rescanned on a cadence rather than every frame -- it walks every cue on
+      // every deck and stats files, which is not a per-frame cost.
+      fileCheckBtnRect_ = SDL_Rect {};
+      const Uint64 nowMs = SDL_GetTicks();
+      if (nowMs - lastShowCheckMs_ > 4000) {
+        lastShowCheckMs_ = nowMs;
+        showProblemCount_ = static_cast<int>(scanShowForProblems().size());
+      }
+      if (showProblemCount_ > 0) {
+        const std::string checkLabel = "CHECK " + std::to_string(showProblemCount_);
+        const int checkW = autoW(checkLabel.c_str(), 104);
+        fileCheckBtnRect_ = {ax, ty, checkW, kTBtnH}; ax += checkW + kTGrpGap;
+        drawUIPanel(fileCheckBtnRect_, SDL_Color {150, 104, 16, 255}, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, btnFont, fileCheckBtnRect_,
+                             checkLabel, SDL_Color {255, 236, 200, 255});
+      }
+
       SDL_Rect sep1 {ax, ty + 4, 2, kTBtnH - 8};
       Primitives::fillRect(controlRenderer_, sep1, pal.mid);
       ax += 2 + kTGrpGap;

@@ -8309,6 +8309,10 @@ class App {
   std::vector<PendingTake> deckPendingTakes_;
   bool cueSectionSequenceOpen_ = true;
   bool cueSectionMasterOpen_ = true;
+  SDL_Rect fileCheckBtnRect_ {};
+  int showProblemCount_ = 0;        // rescanned on a cadence, not per frame
+  int showProblemCursor_ = 0;       // which one the next click walks to
+  Uint64 lastShowCheckMs_ = 0;
   std::vector<NormalizeResult> normalizeResults_;
 
 #if DECKBOY_INPROC_DECODE

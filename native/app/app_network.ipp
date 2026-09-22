@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (289)\n"
+        "DECKBOY_0.01 every verb (291)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -452,7 +452,7 @@
         "CLICK HOVER MIDICLOCK\n"
         "MESH MESH3D\n"
         "AUTOID AUTONEXT BLACKOUT\n"
-        "BLEND BROWSER CAMERACUE CANVAS CC CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
+        "BLEND BROKEN BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
         "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD\n"
@@ -502,6 +502,7 @@
         "standby:   STANDBY [<cue>|NEXT|PREV|CLEAR] - the cue GO will fire, kept apart from the selection\n"
         "spine:     PREWAIT <s> POSTWAIT <s> CONTINUE OFF|AUTO|FOLLOW - AUTO counts from the cue STARTING, FOLLOW from it ENDING\n"
         "           PENDING - what each deck is about to take, and in how long\n"
+        "check:     CHECK [<n>] - everything wrong with the show, before doors rather than at take; <n> jumps to one\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"
         "           PRESENTER LAYOUT wide|filmstrip|notes|custom | LIVE|PREV|NEXT|NOTES|CLOCK|TIMERS|BUILDS [on|off]\n"

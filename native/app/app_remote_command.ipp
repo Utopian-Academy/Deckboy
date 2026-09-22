@@ -216,6 +216,53 @@
       }
       return;
     }
+    if (command == "CHECK" || command == "BROKEN") {
+      // CHECK        -> list everything wrong with the show
+      // CHECK <n>    -> jump to the nth problem
+      //
+      // The validation TAKE already does, run across the whole show before
+      // doors instead of one cue at a time during it.
+      const std::vector<ShowProblem> problems = scanShowForProblems();
+      if (problems.empty()) {
+        remoteCommandDetail_ = "nothing broken";
+        return;
+      }
+      if (parts.size() > 1) {
+        int which = 0;
+        try {
+          which = std::stoi(parts[1]) - 1;
+        } catch (...) {
+          failRemoteCommand("CHECK: expected a problem number");
+          return;
+        }
+        if (which < 0 || which >= static_cast<int>(problems.size())) {
+          failRemoteCommand("CHECK: there are " +
+                            std::to_string(problems.size()) + " problems");
+          return;
+        }
+        const ShowProblem& p = problems[which];
+        setFocusedDeckIndex(p.deckIndex);
+        selectCueInDeck(p.deckIndex, p.cueIndex, false, false);
+        scrollDeckToCueIndex(p.deckIndex, p.cueIndex, false);
+        remoteCommandDetail_ = "deck " + std::to_string(p.deckIndex + 1) +
+                               " cue " + std::to_string(p.cueIndex + 1) +
+                               ": " + p.what;
+        return;
+      }
+      std::ostringstream out;
+      out << problems.size() << (problems.size() == 1 ? " problem" : " problems");
+      int shown = 0;
+      for (const auto& p : problems) {
+        if (shown++ >= 12) {             // a socket reply, not a report
+          out << " | ...";
+          break;
+        }
+        out << " | " << (shown) << ") deck " << (p.deckIndex + 1)
+            << " cue " << (p.cueIndex + 1) << ": " << p.what;
+      }
+      remoteCommandDetail_ = out.str();
+      return;
+    }
     if (command == "PREWAIT" || command == "POSTWAIT" || command == "CONTINUE") {
       // The sequencing spine, over the wire. These three fields have existed
       // in the show file since the spine landed and NOTHING could set them --

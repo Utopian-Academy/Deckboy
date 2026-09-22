@@ -1456,6 +1456,91 @@
 
   // ── VJ mixer + tempo ─────────────────────────────────────────────────────
 
+  // ── WHAT IS WRONG WITH THIS SHOW ──────────────────────────────────────
+  //
+  // Deckboy has always validated a cue -- at TAKE, which is during the show.
+  // "MEDIA MISSING, take blocked" at 20:01 is the correct refusal at the worst
+  // possible moment. The same checks, run across the whole show BEFORE doors,
+  // are the difference between a surprise and a to-do list.
+  //
+  // Everything here is derived. Nothing is cached and nothing is stored on the
+  // cue, so the list cannot go stale: fix the problem and it leaves.
+  struct ShowProblem {
+    int deckIndex = -1;
+    int cueIndex = -1;
+    std::string what;                  // short, operator-facing
+  };
+
+  std::vector<ShowProblem> scanShowForProblems() {
+    std::vector<ShowProblem> out;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      Deck& deck = project_.decks[d];
+      for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+        Cue& cue = deck.cues[c];
+
+        // The file is gone. The check TAKE already does, asked early.
+        if (cueUsesFilesystemMedia(cue)) {
+          auto resolved = resolveCueFilesystemPath(cue, currentProjectFile_);
+          if (resolved && !resolved->empty()) {
+            std::error_code ec;
+            if (!fs::exists(*resolved, ec)) {
+              out.push_back({d, c, "media missing"});
+            }
+          }
+        }
+
+        // A goto that points at nothing. The cue plays and then the show stops
+        // where nobody expected it to, which is the hardest kind to find later.
+        const std::string goto_ = trim(cue.gotoTarget);
+        if (!goto_.empty() && !cueIndexByTokenInOverlayRole(deck, goto_, false)) {
+          out.push_back({d, c, "goto \"" + goto_ + "\" matches no cue"});
+        }
+
+        // A master pointing at a cue that has been deleted or moved to another
+        // deck. This class of fault did not exist until master cues did, and
+        // it is invisible until the master is fired.
+        if (cue.kind == CueKind::Master) {
+          if (cue.masterAssignments.empty()) {
+            out.push_back({d, c, "master fires nothing"});
+          }
+          for (const auto& a : cue.masterAssignments) {
+            if (a.deckIndex < 0 || a.deckIndex >= static_cast<int>(project_.decks.size())) {
+              out.push_back({d, c, "master names deck " +
+                                   std::to_string(a.deckIndex + 1) +
+                                   ", which does not exist"});
+            } else if (findCueIndexById(a.deckIndex, a.cueId) < 0) {
+              out.push_back({d, c, "master target on deck " +
+                                   std::to_string(a.deckIndex + 1) + " is gone"});
+            }
+          }
+        }
+      }
+    }
+    return out;
+  }
+
+  // One click, one problem, then the next one. Cycles rather than stopping at
+  // the end so the button never becomes inert while faults remain.
+  void jumpToNextShowProblem() {
+    const std::vector<ShowProblem> problems = scanShowForProblems();
+    if (problems.empty()) {
+      triggerToast("nothing broken");
+      return;
+    }
+    if (showProblemCursor_ < 0 ||
+        showProblemCursor_ >= static_cast<int>(problems.size())) {
+      showProblemCursor_ = 0;
+    }
+    const ShowProblem& p = problems[showProblemCursor_];
+    showProblemCursor_ = (showProblemCursor_ + 1) % static_cast<int>(problems.size());
+    setFocusedDeckIndex(p.deckIndex);
+    selectCueInDeck(p.deckIndex, p.cueIndex, false, false);
+    scrollDeckToCueIndex(p.deckIndex, p.cueIndex, false);
+    triggerToast(std::to_string(problems.size()) + " to fix — deck " +
+                 std::to_string(p.deckIndex + 1) + " cue " +
+                 std::to_string(p.cueIndex + 1) + ": " + p.what);
+  }
+
   // ADD A DECK. The app has always carried up to kMaxDecks and only VJ mode
   // could ever create one -- as a side effect, capped at two, so a show that
   // wanted three destinations could not have them unless a file already said

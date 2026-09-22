@@ -611,6 +611,10 @@
       jumpToCurrentCue();
       return;
     }
+    if (fileCheckBtnRect_.w > 0 && pointInRect(x, y, fileCheckBtnRect_)) {
+      jumpToNextShowProblem();
+      return;
+    }
     if (fileRelinkBtnRect_.w > 0 && pointInRect(x, y, fileRelinkBtnRect_)) {
       // Re-check first: if the drive came back on its own, clear the state
       // without making the operator pick a folder.
