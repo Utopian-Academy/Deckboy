@@ -789,9 +789,15 @@ if(WIN32)
 endif()
 
 # Platform modules (conditional)
-if(ENABLE_MIDI)
-  target_sources(deckboy-native PRIVATE native/platform/midi.cpp)
-endif()
+
+# midi.cpp compiles unconditionally, for exactly the reason decklink.cpp does
+# below. It already carries a full stub set behind !DECKBOY_HAS_MIDI --
+# listDevices returns {}, open returns false, send returns false -- and MIDI
+# CUES call MidiOutput and the message encoder without feature guards. Built
+# only when ENABLE_MIDI was on, every ENABLE_MIDI=OFF configuration failed at
+# LINK on all three platforms, which is precisely what CI's "none" job caught
+# and the Windows dev build (MIDI on) never could.
+target_sources(deckboy-native PRIVATE native/platform/midi.cpp)
 
 # decklink.cpp compiles unconditionally: it already carries a full stub
 # implementation behind !DECKBOY_HAS_DECKLINK (listDevices returns {}, init

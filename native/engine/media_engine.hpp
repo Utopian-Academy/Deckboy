@@ -38,6 +38,7 @@
 
 #include "core/sdl_compat.hpp"
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cmath>
