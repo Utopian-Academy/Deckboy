@@ -2594,6 +2594,18 @@
       case UiSoundEffect::Navigate:
         queueUiPattern({{880.0, 26}, {1046.5, 34}}, 0.08f);
         break;
+      case UiSoundEffect::PowerUp:
+        // AN ORIGINAL FIGURE, not anybody's famous jingle: three major
+        // arpeggios, each a whole tone above the last, climbing into a held
+        // top note. Rising sequences read as "growing" in any game, which is
+        // the whole of what this has to say -- and a textbook sequence is
+        // nobody's melody.
+        queueUiPattern({
+          {523.3, 28}, {659.3, 28}, {784.0, 28}, {1046.5, 34},   // C  E  G  C
+          {587.3, 28}, {740.0, 28}, {880.0, 28}, {1174.7, 34},   // D  F# A  D
+          {659.3, 28}, {830.6, 28}, {987.8, 28}, {1318.5, 180},  // E  G# B  E, held
+        }, 0.12f);
+        break;
       case UiSoundEffect::Import:
         queueUiPattern({{523.3, 34}, {659.3, 34}, {784.0, 48}}, 0.10f);
         break;

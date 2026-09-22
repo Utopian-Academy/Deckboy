@@ -2429,7 +2429,8 @@ enum class UiSoundEffect {
   Delete,     // cue deleted from list
   Error,      // action refused (missing media, blocked take)
   Panic,      // panic — everything off
-  Shuffle     // shuffle mode toggled on
+  Shuffle,    // shuffle mode toggled on
+  PowerUp     // a second deck arrives: Deckboy becomes Super Deckboy
 };
 
 #endif

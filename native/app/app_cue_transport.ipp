@@ -3480,7 +3480,15 @@
     }
     Deck added;
     added.name = deckDefaultName(static_cast<int>(project_.decks.size()));
+    const bool becomingSuper = project_.decks.size() == 1;
     project_.decks.push_back(added);
+    // THE SECOND DECK IS THE EVOLUTION. Only the step from one to two: a
+    // third or fourth deck is more of Super Deckboy, not another evolution,
+    // and a jingle on every one would stop being a moment and start being a
+    // noise.
+    if (becomingSuper) {
+      evolveIntoSuperDeckboy();
+    }
     // Tears down and recreates every engine, so it stops playback. Said out
     // loud rather than discovered: this is a setup action, not a show one.
     rebuildDeckRuntimes();
@@ -3489,6 +3497,103 @@
       triggerToast("added " + added.name + " (playback stopped)");
     }
     return true;
+  }
+
+  // ── SUPER DECKBOY ─────────────────────────────────────────────────────
+  //
+  // "Super Deckboy" was the name for the future where Deckboy could run more
+  // than one deck to more than one output. That future is this release, so
+  // the second deck gets the moment it earned: a power-up, a flash, and the
+  // app wearing its new name.
+  void evolveIntoSuperDeckboy() {
+    // NEVER DURING A SHOW. Adding a deck already stops playback -- it is a
+    // setup action -- but the jingle goes to the operator's system audio,
+    // and on plenty of rigs that IS the PA. A fanfare through the house
+    // because somebody added a deck at the wrong moment is exactly the kind
+    // of thing the app must never do to a room.
+    if (!showIsLive()) {
+      playUiSound(UiSoundEffect::PowerUp);
+    }
+    superDeckboyEvolveAt_ = SDL_GetTicks();
+    refreshSuperDeckboyTitle();
+    triggerToast("Deckboy evolved into SUPER DECKBOY!");
+  }
+
+  // The window title follows the deck count both ways, so removing back to
+  // one deck is plain Deckboy again. Checked every frame because decks can
+  // appear from a show file, VJ mode, or the network, and every path should
+  // agree rather than each remembering to set it.
+  void refreshSuperDeckboyTitle() {
+    if (!controlWindow_) {
+      return;
+    }
+    const bool super = project_.decks.size() > 1;
+    if (super == superDeckboyTitle_) {
+      return;
+    }
+    superDeckboyTitle_ = super;
+    SDL_SetWindowTitle(controlWindow_, super ? "Super Deckboy" : kAppTitle.data());
+  }
+
+  // The evolution itself: a white flash that fades, a burst of stars, and the
+  // name in the middle -- about a second and a half, then gone. Drawn over
+  // everything but it is NOT modal and takes no input: a showpiece, not a
+  // dialog anybody has to dismiss.
+  void renderSuperDeckboyEvolution() {
+    if (superDeckboyEvolveAt_ == 0) {
+      return;
+    }
+    const Uint64 kDurationMs = 1600;
+    const Uint64 elapsed = SDL_GetTicks() - superDeckboyEvolveAt_;
+    if (elapsed >= kDurationMs) {
+      superDeckboyEvolveAt_ = 0;
+      return;
+    }
+    int winW = 0;
+    int winH = 0;
+    SDL_GetCurrentRenderOutputSize(controlRenderer_, &winW, &winH);
+    const double t = static_cast<double>(elapsed) / static_cast<double>(kDurationMs);
+    const int cx = winW / 2;
+    const int cy = winH / 2;
+
+    // The flash: three quick pulses, the way an evolution flickers between
+    // the old form and the new one before it settles.
+    const double flicker = (elapsed < 600)
+      ? (std::sin(static_cast<double>(elapsed) * 0.035) * 0.5 + 0.5)
+      : 0.0;
+    const double fade = 1.0 - t;
+    const Uint8 flashA = static_cast<Uint8>(
+      std::clamp(flicker * 150.0 + fade * 60.0, 0.0, 200.0));
+    Primitives::fillRect(controlRenderer_, SDL_Rect {0, 0, winW, winH},
+                         SDL_Color {255, 255, 240, flashA});
+
+    // The stars: twelve of them flying outward from the middle, in the
+    // theme's own light colour so it belongs to whatever colourway is on.
+    const double reach = std::min(winW, winH) * 0.45 * t;
+    for (int i = 0; i < 12; ++i) {
+      const double a = (static_cast<double>(i) / 12.0) * 6.2831853 + t * 1.5;
+      const int sx = cx + static_cast<int>(std::cos(a) * reach);
+      const int sy = cy + static_cast<int>(std::sin(a) * reach);
+      const int r = std::max(2, uiScaled(6) - static_cast<int>(t * uiScaled(4)));
+      SDL_Color star = pal.light;
+      star.a = static_cast<Uint8>(255.0 * fade);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {sx - r, sy, r * 2 + 1, 1}, star);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {sx, sy - r, 1, r * 2 + 1}, star);
+    }
+
+    // The name, on a plate so it reads over any picture behind it.
+    const std::string name = "SUPER DECKBOY!";
+    const int textW = measuredTextWidth(fontLarge_, name);
+    const int textH = textLineHeight(fontLarge_);
+    const int pad = uiScaled(14);
+    SDL_Rect plate {cx - textW / 2 - pad, cy - textH / 2 - pad / 2,
+                    textW + pad * 2, textH + pad};
+    SDL_Color plateCol = pal.dark;
+    plateCol.a = static_cast<Uint8>(230.0 * std::min(1.0, fade * 2.0));
+    drawUIPanel(plate, plateCol, pal.deep, pal.light);
+    SDL_Color ink = pal.light;
+    ink.a = static_cast<Uint8>(255.0 * std::min(1.0, fade * 2.0));
+    drawCenteredTextSafe(controlRenderer_, fontLarge_, plate, name, ink);
   }
 
   void setVjMode(bool on) {

@@ -8414,6 +8414,11 @@ class App {
   // that cue can be another script -- which is useful, and which is also how a
   // show hangs forever. See runScriptCue.
   int scriptDepth_ = 0;
+  // SUPER DECKBOY. The second deck was the thing "Super Deckboy" meant; it
+  // shipped, so the app becomes it. evolveAt is the moment the transformation
+  // started, and drives a short one-shot animation; 0 means none is playing.
+  Uint64 superDeckboyEvolveAt_ = 0;
+  bool superDeckboyTitle_ = false;
   std::mutex networkResultMutex_;
   std::vector<std::string> networkResults_;
   SDL_Rect fileCheckBtnRect_ {};

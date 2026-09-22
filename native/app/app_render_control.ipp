@@ -1270,6 +1270,10 @@
         Primitives::strokeRect(controlRenderer_, ring, edge);
       }
     }
+    // Super Deckboy: the title follows the deck count, and the one-shot
+    // evolution draws over everything while it is playing.
+    refreshSuperDeckboyTitle();
+    renderSuperDeckboyEvolution();
     SDL_RenderPresent(controlRenderer_);
     revealControlWindow();  // the main control-window frame
     auto uiFrameEnd = std::chrono::steady_clock::now();
