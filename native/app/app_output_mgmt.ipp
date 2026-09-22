@@ -3372,6 +3372,14 @@
   // Which output the control window's program monitor mirrors: the focused
   // deck's primary output, when that output is actually compositing.
   std::optional<int> previewTapOutputIndex() const {
+    // AN AUDITIONED DECK IS NOT ON ITS OUTPUT, so its output's composite is
+    // black and tapping it would show the operator the nothing that the room
+    // is correctly seeing. Refusing the tap drops the preview to the decoder
+    // path, which draws the cue and applies its look itself -- see the
+    // fallback in app_update.ipp.
+    if (deckIsAuditioning(project_.focusedDeckIndex)) {
+      return std::nullopt;
+    }
     auto primary = primaryOutputIndexForDeck(project_.focusedDeckIndex);
     if (!primary) {
       return std::nullopt;

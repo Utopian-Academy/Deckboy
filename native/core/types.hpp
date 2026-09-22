@@ -2117,6 +2117,8 @@ enum class QuickAction {
   // a tile size on a colour-bars cue is a control that cannot do anything.
   PanelWidthDec, PanelWidthInc,
   PanelHeightDec, PanelHeightInc,
+  // Audition the selected cue: play it to the operator, not to the room.
+  AuditionSelected,
   CueSectionFadeToggle,
   FadeWhatCycle,
   FadeCurveCycle,

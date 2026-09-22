@@ -5510,6 +5510,18 @@
                      "GO steps over it");
         sqY += kInspectorRowStep;
 
+        // Audition. Sits with the spine because it is about whether this cue
+        // reaches the room, which is the same question arming answers.
+        drawQuickRow(sqY, "audition", QuickAction::AuditionSelected,
+                     deckIsAuditioning(project_.focusedDeckIndex)
+                       ? std::string("HOLDING OFF AIR")
+                       : std::string("look at it"),
+                     QuickAction::AuditionSelected, QuickAction::AuditionSelected,
+                     true, deckIsAuditioning(project_.focusedDeckIndex),
+                     "Play this cue to the preview only; the outputs keep what "
+                     "they have");
+        sqY += kInspectorRowStep;
+
         // What this deck is about to do, when it is about to do something.
         const double pending = pendingTakeRemaining(deckIndex);
         if (pending >= 0.0) {

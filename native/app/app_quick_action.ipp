@@ -863,6 +863,15 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::AuditionSelected:
+        // A toggle, because the operator who started it is the one who wants
+        // it to stop and should not need a second control to say so.
+        if (anyDeckAuditioning()) {
+          endAudition();
+        } else {
+          (void)auditionSelected();
+        }
+        break;
       case QuickAction::CueSectionFadeToggle:
         cueSectionFadeOpen_ = !cueSectionFadeOpen_;
         break;

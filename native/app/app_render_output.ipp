@@ -2378,6 +2378,13 @@
       renderPresenterView(outputIndex, hostDeckIndex, bounds);
     } else {
       for (const auto& entry : outputLayers) {
+        // AUDITION: this deck is being looked at, not shown. Skipped here
+        // rather than by dropping it from outputLayers, so the transition
+        // below and everything downstream still sees the same list and one
+        // condition governs the whole thing.
+        if (deckIsAuditioning(entry.second)) {
+          continue;
+        }
         renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);
         // ── THE TRANSITION, ON TOP OF THE INCOMING PICTURE ────────────────
         //

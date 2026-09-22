@@ -444,8 +444,8 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (297)\n"
-        "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM\n"
+        "DECKBOY_0.01 every verb (299)\n"
+        "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
@@ -454,7 +454,7 @@
         "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROKEN BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
-        "DISARM FADE FADECUE TARGET TARGETCUE\n"
+        "DISARM FADE FADECUE PFL TARGET TARGETCUE\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
         "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD\n"
         "DECKAUTOFADE DECKDIM DECKFADE DECKLINK DECKNEXT DECKOPACITY\n"
@@ -506,6 +506,7 @@
         "check:     CHECK [<n>] - everything wrong with the show, before doors rather than at take; <n> jumps to one\n"
         "target:    TARGET NEW|CUE <deck> <cue>|VERB start/stop/pause/resume/load/arm/disarm|CLEAR|FIRE - a cue that acts on another cue\n"
         "arm:       ARM|DISARM [<n>|ALL] - a disarmed cue stays in the list and does nothing; GO steps over it\n"
+        "audition:  AUDITION [OFF|END|STATUS] (PFL) - play the selected cue to the preview only; outputs keep what they have\n"
         "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"

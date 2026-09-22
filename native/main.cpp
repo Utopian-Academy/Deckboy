@@ -8316,6 +8316,18 @@ class App {
   bool cueSectionMasterOpen_ = true;
   bool cueSectionTargetOpen_ = true;
   bool cueSectionFadeOpen_ = true;
+  // AUDITION: the deck whose picture is being kept off the outputs so the
+  // operator can look at a cue without the room seeing it. -1 when nobody is
+  // auditioning, which is almost always.
+  //
+  // A deck index rather than a bool, because with outputs now hosted per deck
+  // "which deck" is the whole question -- auditioning deck 2 must not blank
+  // deck 1's screen.
+  int auditionDeckIndex_ = -1;
+  // True only for the instant auditionSelected spends inside takeSelected, so
+  // the take it makes itself is not mistaken for the operator putting the cue
+  // on air.
+  bool auditionStarting_ = false;
   SDL_Rect fileCheckBtnRect_ {};
   int showProblemCount_ = 0;        // rescanned on a cadence, not per frame
   int showProblemCursor_ = 0;       // which one the next click walks to

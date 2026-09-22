@@ -296,6 +296,12 @@
     // operator stopped the show is the same fault as a pending take that
     // fires after it -- see cancelPendingTake, directly above.
     cancelFadesForDeck(project_.focusedDeckIndex);
+    // And the audition, if this was the deck being auditioned. Stopping is how
+    // an operator finishes looking at something; leaving the deck held off the
+    // outputs after it would silently black their screen for the next cue.
+    if (deckIsAuditioning(project_.focusedDeckIndex)) {
+      endAudition(false);
+    }
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
@@ -1145,6 +1151,59 @@
     (void)fireFadeCue(deckIndex, deck.selectedIndex);
   }
 
+  // ── AUDITION ──────────────────────────────────────────────────────────
+  //
+  // Play a cue to the operator without sending it anywhere. Deckboy already
+  // had the two worlds it needs -- the output's composite and the control
+  // window's own preview -- so this is a ROUTE, not a renderer: the deck is
+  // skipped by the output compositor, and the preview stops tapping the
+  // output and draws the decoder frame instead.
+  bool deckIsAuditioning(int deckIndex) const {
+    return auditionDeckIndex_ >= 0 && auditionDeckIndex_ == deckIndex;
+  }
+
+  bool anyDeckAuditioning() const { return auditionDeckIndex_ >= 0; }
+
+  void endAudition(bool announce = true) {
+    if (auditionDeckIndex_ < 0) {
+      return;
+    }
+    const int was = auditionDeckIndex_;
+    auditionDeckIndex_ = -1;
+    if (announce) {
+      triggerToast("audition ended - deck " + std::to_string(was + 1) +
+                   " is live again");
+    }
+  }
+
+  // Take the selected cue with this deck held off the outputs.
+  std::string auditionSelected() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return "select a cue first";
+    }
+    // ONE AUDITION AT A TIME. Auditioning a second deck while the first is
+    // still held off would black two screens for one look, and the operator
+    // cannot see both anyway -- the preview shows the focused deck.
+    if (auditionDeckIndex_ >= 0 && auditionDeckIndex_ != deckIndex) {
+      endAudition(false);
+    }
+    // Set BEFORE the take, so the first composited frame is already
+    // suppressed. Setting it after let one frame of the cue reach the output,
+    // which on a show is the entire thing you were trying to avoid.
+    auditionDeckIndex_ = deckIndex;
+    auditionStarting_ = true;
+    takeSelected(true);
+    auditionStarting_ = false;
+    const std::string name = deck.cues[deck.selectedIndex].name;
+    triggerToast("audition: " + name);
+    return name;
+  }
+
   void toggleSelectedCueArmed() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
@@ -1561,6 +1620,14 @@
     // operator has just made a decision; an older countdown must not survive
     // it and fire on top.
     cancelPendingTake(deckIndex);
+
+    // AN ORDINARY TAKE ENDS AN AUDITION. auditionSelected sets the flag and
+    // then calls straight through to here, so this must not undo its own take
+    // -- the check is for a take arriving from anywhere else, which is the
+    // operator deciding to put something on air.
+    if (deckIsAuditioning(deckIndex) && !auditionStarting_) {
+      endAudition(false);
+    }
 
     // A DISARMED CUE DOES NOTHING AT ALL -- not its pre-wait, not its media,
     // not its continue. Checked first so that is true however it was fired:

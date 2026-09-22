@@ -325,6 +325,34 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "AUDITION" || command == "PFL") {
+      // AUDITION            -> audition the selected cue (PFL, as a sound desk
+      //                        calls the same idea: pre-fade listen)
+      // AUDITION OFF|END    -> put the deck back on its output
+      // AUDITION STATUS     -> who, if anyone
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub == "OFF" || sub == "END" || sub == "STOP") {
+        if (!anyDeckAuditioning()) {
+          remoteCommandDetail_ = "nothing auditioning";
+          return;
+        }
+        endAudition(false);
+        remoteCommandDetail_ = "audition ended";
+        return;
+      }
+      if (sub == "STATUS") {
+        remoteCommandDetail_ = anyDeckAuditioning()
+          ? ("deck " + std::to_string(auditionDeckIndex_ + 1) + " auditioning")
+          : std::string("nothing auditioning");
+        return;
+      }
+      if (!sub.empty()) {
+        failRemoteCommand("AUDITION: expected OFF, END or STATUS");
+        return;
+      }
+      remoteCommandDetail_ = auditionSelected();
+      return;
+    }
     if (command == "FADE" || command == "FADECUE") {
       // FADE NEW                -> add a fade cue to this deck
       // FADE WHAT opacity|volume|dimmer

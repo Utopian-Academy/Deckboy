@@ -373,6 +373,10 @@
              // cue moves, so anything showing deck state needs to see it.
              << " opacity=" << static_cast<int>(std::lround(
                   std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f))
+             // Held off its output so the operator can look at it. A deck that
+             // is playing but deliberately invisible is exactly the state a
+             // control surface must not have to guess at.
+             << " audition=" << (deckIsAuditioning(deckIndex) ? "on" : "off")
              << " display=" << (displayIndex + 1)
              << " route=" << routeLabel
              << " layer=" << layerIndex
