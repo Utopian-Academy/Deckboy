@@ -823,6 +823,106 @@
     return any;
   }
 
+  // Which cue of `targetDeck` this master currently assigns, or -1 for none.
+  int masterAssignedIndex(const Cue& master, int targetDeck) const {
+    for (const auto& a : master.masterAssignments) {
+      if (a.deckIndex == targetDeck) {
+        return findCueIndexById(targetDeck, a.cueId);
+      }
+    }
+    return -1;
+  }
+
+  // Does this master name that deck at all? Distinct from whether the cue it
+  // names still exists -- "none" and "UNRESOLVED" are different problems and
+  // the operator has to be able to tell them apart.
+  bool hasMasterAssignmentFor(const Cue& master, int targetDeck) const {
+    for (const auto& a : master.masterAssignments) {
+      if (a.deckIndex == targetDeck) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool masterAssignmentBypassed(const Cue& master, int targetDeck) const {
+    for (const auto& a : master.masterAssignments) {
+      if (a.deckIndex == targetDeck) {
+        return a.bypassed;
+      }
+    }
+    return false;
+  }
+
+  // Step which cue of a deck this master assigns. Walking off either end
+  // CLEARS the assignment rather than wrapping: "this master does not touch
+  // deck 3" has to be reachable with the same control that set it, or the only
+  // way to undo an assignment is to know a remote verb exists.
+  void stepMasterAssignment(int targetDeck, int delta) {
+    Cue* master = selectedCueMutable();
+    if (!master || master->kind != CueKind::Master) {
+      return;
+    }
+    if (targetDeck < 0 || targetDeck >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& target = project_.decks[targetDeck];
+    if (target.cues.empty()) {
+      triggerToast("deck " + std::to_string(targetDeck + 1) + " has no cues");
+      return;
+    }
+    const int current = masterAssignedIndex(*master, targetDeck);
+    const int next = current + delta;      // -1 + 1 == 0, so "none" steps to the first
+    if (next < 0 || next >= static_cast<int>(target.cues.size())) {
+      clearMasterAssignment(targetDeck);
+      return;
+    }
+    const std::string id = target.cues[next].id;
+    for (auto& a : master->masterAssignments) {
+      if (a.deckIndex == targetDeck) {
+        a.cueId = id;
+        markProjectDirty();
+        return;
+      }
+    }
+    MasterAssignment added;
+    added.deckIndex = targetDeck;
+    added.cueId = id;
+    master->masterAssignments.push_back(added);
+    markProjectDirty();
+  }
+
+  void clearMasterAssignment(int targetDeck) {
+    Cue* master = selectedCueMutable();
+    if (!master || master->kind != CueKind::Master) {
+      return;
+    }
+    auto& list = master->masterAssignments;
+    list.erase(std::remove_if(list.begin(), list.end(),
+                              [&](const MasterAssignment& a) {
+                                return a.deckIndex == targetDeck;
+                              }),
+               list.end());
+    markProjectDirty();
+  }
+
+  void toggleMasterBypass(int targetDeck) {
+    Cue* master = selectedCueMutable();
+    if (!master || master->kind != CueKind::Master) {
+      return;
+    }
+    for (auto& a : master->masterAssignments) {
+      if (a.deckIndex == targetDeck) {
+        a.bypassed = !a.bypassed;
+        markProjectDirty();
+        triggerToast("deck " + std::to_string(targetDeck + 1) +
+                     (a.bypassed ? ": bypassed" : ": active"));
+        return;
+      }
+    }
+    triggerToast("deck " + std::to_string(targetDeck + 1) + " is not assigned");
+  }
+
   void fireMasterCue(int masterDeckIndex, int masterCueIndex) {
     if (masterDeckIndex < 0 || masterDeckIndex >= static_cast<int>(project_.decks.size())) {
       return;
@@ -1356,6 +1456,41 @@
 
   // ── VJ mixer + tempo ─────────────────────────────────────────────────────
 
+  // ADD A DECK. The app has always carried up to kMaxDecks and only VJ mode
+  // could ever create one -- as a side effect, capped at two, so a show that
+  // wanted three destinations could not have them unless a file already said
+  // so. Master cues made that gap load-bearing: you cannot assign a master to
+  // deck 3 if deck 3 cannot exist.
+  //
+  // This is VJ mode's recipe, generalised rather than copied: name it for its
+  // POSITION (Deck's default name is "Deck 1", so a second one added naively is
+  // another "Deck 1" in STATUS and in anything a controller labels from it),
+  // then rebuild the runtimes so the new deck has an engine.
+  //
+  // APPEND ONLY, deliberately. Outputs address their source by hostDeckIndex
+  // and master cues address their targets by deck index, so removing a deck
+  // from the middle would silently repoint both at their neighbours. Removal
+  // needs those references remapped and is not in here.
+  bool addDeck(bool announce = true) {
+    if (static_cast<int>(project_.decks.size()) >= kMaxDecks) {
+      if (announce) {
+        failRemoteCommand("deck limit is " + std::to_string(kMaxDecks));
+      }
+      return false;
+    }
+    Deck added;
+    added.name = deckDefaultName(static_cast<int>(project_.decks.size()));
+    project_.decks.push_back(added);
+    // Tears down and recreates every engine, so it stops playback. Said out
+    // loud rather than discovered: this is a setup action, not a show one.
+    rebuildDeckRuntimes();
+    markProjectDirty();
+    if (announce) {
+      triggerToast("added " + added.name + " (playback stopped)");
+    }
+    return true;
+  }
+
   void setVjMode(bool on) {
     if (project_.vjModeEnabled == on) {
       return;
@@ -1375,10 +1510,9 @@
       // Named for its POSITION. Deck's default name is "Deck 1", so the deck
       // VJ mode added was a second "Deck 1" -- visible in STATUS JSON and in
       // anything a controller labels from it.
-      Deck added;
-      added.name = deckDefaultName(static_cast<int>(project_.decks.size()));
-      project_.decks.push_back(added);
-      rebuildDeckRuntimes();
+      // One deck-creating path, so the naming and the runtime rebuild cannot
+      // drift between here and DECKADD.
+      addDeck(false);
     }
     const int deckCount = static_cast<int>(project_.decks.size());
     project_.vjDeckA = std::clamp(project_.vjDeckA, 0, std::max(0, deckCount - 1));

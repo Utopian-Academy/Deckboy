@@ -1922,12 +1922,19 @@ enum class QuickAction {
   // The sequencing spine, per cue. Every kind has these, so they live in a
   // section drawn after the per-kind chain -- see EFFECTS.
   CueSectionSequenceToggle,
+  CueSectionMasterToggle,
   CuePreWaitDec,
   CuePreWaitInc,
   CuePostWaitDec,
   CuePostWaitInc,
   CueContinueCycle,
   CueStandbySet,
+  // Master cue assignments. The param is the DECK INDEX being assigned, which
+  // is what makes one row per deck work through the ordinary quick-row helper.
+  MasterAssignPrev,
+  MasterAssignNext,
+  MasterAssignClear,
+  MasterBypassToggle,
   CueSectionAudioFxToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
   TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,

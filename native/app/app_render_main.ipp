@@ -5216,6 +5216,68 @@
       finishInspectorSection(fxSection, fxY);
     }
 
+    // MASTER: one row per deck, which is what a master cue IS.
+    //
+    // A row per DESTINATION, not a second playlist. The UI bottleneck that got
+    // masters removed the first time was trying to show several playlists at
+    // once; this shows one line per deck saying what that deck will play, with
+    // a bypass on the end. Analog Way's master memories look like this for the
+    // same reason.
+    if (selectedCue && selectedCue->kind == CueKind::Master) {
+      int mY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto mSection = beginInspectorSection(mY, "MASTER", cueSectionMasterOpen_,
+                                            QuickAction::CueSectionMasterToggle,
+                                            "Collapse/expand what this master fires");
+      mY = mSection.bodyStartY;
+      if (cueSectionMasterOpen_) {
+        const int masterDeck = project_.focusedDeckIndex;
+        int assigned = 0;
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          if (d == masterDeck) {
+            continue;                  // a master deck does not fire itself
+          }
+          const int idx = masterAssignedIndex(*selectedCue, d);
+          const bool bypassed = masterAssignmentBypassed(*selectedCue, d);
+          std::string value;
+          if (idx >= 0) {
+            ++assigned;
+            const Cue& target = project_.decks[d].cues[idx];
+            value = cueDisplayToken(target, idx) + "  " + target.name;
+          } else {
+            // Named rather than blank: "not assigned" is a state the operator
+            // chose, and an empty cell reads as a control that failed.
+            value = hasMasterAssignmentFor(*selectedCue, d) ? "UNRESOLVED" : "none";
+          }
+          // inspDrawQuickRow directly, not the drawQuickRow lambda above: the
+          // lambda stops at the editable-value arguments and the bypass chip
+          // lives past them.
+          inspDrawQuickRow(ix, mY, project_.decks[d].name.empty()
+                             ? ("deck " + std::to_string(d + 1))
+                             : project_.decks[d].name,
+                       QuickAction::MasterAssignPrev, value,
+                       QuickAction::MasterAssignNext,
+                       QuickAction::MasterAssignClear, false, false,
+                       "Which cue this master fires on that deck; step off the "
+                       "end to clear it",
+                       false, QuickAction::ToggleLoop, d,
+                       QuickAction::MasterBypassToggle, bypassed, d, "B",
+                       "Bypass: this master leaves that deck alone");
+          mY += kInspectorRowStep;
+        }
+        if (project_.decks.size() <= 1) {
+          drawInspectorMessageRow(mY, "only one deck - a master needs somewhere to fire");
+          mY += kInspectorRowStep;
+        } else if (assigned == 0) {
+          drawInspectorMessageRow(mY, "nothing assigned yet");
+          mY += kInspectorRowStep;
+        } else if (masterCueIsLive(*selectedCue)) {
+          drawInspectorMessageRow(mY, "LIVE - every assigned deck matches");
+          mY += kInspectorRowStep;
+        }
+      }
+      finishInspectorSection(mSection, mY);
+    }
+
     // SEQUENCE: the spine, per cue. Pre-wait, post-wait, continue mode, and
     // arming this cue as the standby.
     //

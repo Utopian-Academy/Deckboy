@@ -95,6 +95,12 @@
       case QuickAction::EffectRemove:     effectStackRemove(param); return;
       case QuickAction::EffectCycleKind:  effectStackCycleKind(param); return;
       case QuickAction::EffectToggleBypass: effectStackToggleBypass(param); return;
+      // Master assignments: the param is the DECK being assigned, the same way
+      // the effect rows below use it for which effect.
+      case QuickAction::MasterAssignPrev:   stepMasterAssignment(param, -1); return;
+      case QuickAction::MasterAssignNext:   stepMasterAssignment(param, +1); return;
+      case QuickAction::MasterAssignClear:  clearMasterAssignment(param); return;
+      case QuickAction::MasterBypassToggle: toggleMasterBypass(param); return;
       case QuickAction::EffectAmountDec:  effectStackNudge(param, -0.05f); return;
       case QuickAction::EffectAmountInc:  effectStackNudge(param, +0.05f); return;
       case QuickAction::EffectEditAmount: effectStackEditAmount(param); return;
@@ -847,12 +853,16 @@
       case QuickAction::CueSectionSequenceToggle:
         cueSectionSequenceOpen_ = !cueSectionSequenceOpen_;
         break;
+      case QuickAction::CueSectionMasterToggle:
+        cueSectionMasterOpen_ = !cueSectionMasterOpen_;
+        break;
       case QuickAction::CuePreWaitDec:  nudgeSelectedWait(true, -0.5); break;
       case QuickAction::CuePreWaitInc:  nudgeSelectedWait(true, +0.5); break;
       case QuickAction::CuePostWaitDec: nudgeSelectedWait(false, -0.5); break;
       case QuickAction::CuePostWaitInc: nudgeSelectedWait(false, +0.5); break;
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
+
       case QuickAction::CueSectionAudioFxToggle:
         cueSectionAudioFxOpen_ = !cueSectionAudioFxOpen_;
         break;

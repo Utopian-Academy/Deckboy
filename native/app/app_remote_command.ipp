@@ -208,7 +208,12 @@
       // answered a plain OK, so over the socket a refusal was indistinguishable
       // from success -- somebody drove it, believed decks were being created,
       // and concluded STATUS was lying about decks=1.
-      failRemoteCommand("this verb cannot add a deck -- turn VJ mode on for a second");
+      // It can now. This refused for as long as there was no general way to
+      // create a deck; master cues made that a real limit rather than a
+      // curiosity, because a master fires OTHER decks.
+      if (addDeck()) {
+        remoteCommandDetail_ = "decks: " + std::to_string(project_.decks.size());
+      }
       return;
     }
     if (command == "PREWAIT" || command == "POSTWAIT" || command == "CONTINUE") {
