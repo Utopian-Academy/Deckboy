@@ -1216,7 +1216,8 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 4;   // preWait, postWait, continue, masters
+        constexpr int kSpineTailFields = 8;   // preWait, postWait, continue, masters,
+                                              // target id/deck/verb, armed
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -1243,7 +1244,11 @@
           for (const Deck& d : revived.decks) {
             for (const Cue& c : d.cues) {
               inert = inert && c.preWaitSeconds == 0.0 && c.postWaitSeconds == 0.0 &&
-                      c.continueMode == CueContinueMode::DoNotContinue;
+                      c.continueMode == CueContinueMode::DoNotContinue &&
+                      // And armed, which is the one whose missing-field default
+                      // is NOT the zero value: a show trimmed of this field must
+                      // come back with every cue live, not every cue inert.
+                      c.armed;
             }
           }
           expect(inert, "a show saved before the spine opens with no waits and no continue");

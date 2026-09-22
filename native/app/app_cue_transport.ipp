@@ -378,7 +378,14 @@
       return;
     }
     Deck& deck = project_.decks[deckIndex];
-    const int next = current + 1;
+    // A DISARMED CUE IS STEPPED OVER, not stood by. That is the whole reason
+    // the flag exists: an operator disarms a cue so the running order flows
+    // past it without them having to remember it is there. Standing by on one
+    // would make every GO need a second GO.
+    int next = current + 1;
+    while (next < static_cast<int>(deck.cues.size()) && !deck.cues[next].armed) {
+      ++next;
+    }
     deck.standbyIndex = (next < static_cast<int>(deck.cues.size())) ? next : -1;
     if (deck.standbyIndex >= 0) {
       scrollDeckToCueIndex(deckIndex, deck.standbyIndex, true);
@@ -985,6 +992,230 @@
     markProjectDirty();
   }
 
+  // ---------------------------------------------------------------------
+  // Target cues: a cue that acts on another cue.
+  //
+  // Every verb here borrows focus and calls the ordinary operator path, for
+  // the same reason fireMasterCue does. A Target cue must not be a second way
+  // of stopping a deck -- it must be the SAME way, reached from the cue list.
+  // ---------------------------------------------------------------------------
+
+  // The deck index on a Target cue is a HINT, not the truth. Cue ids are unique
+  // across the show, so a victim that was dragged to another deck is still
+  // found rather than reported broken. The hint is only there to make the
+  // common case a two-element scan instead of a whole-show one.
+  bool resolveTargetCue(const Cue& target, int& outDeck, int& outIndex) const {
+    if (target.targetCueId.empty()) {
+      return false;
+    }
+    const int hinted = findCueIndexById(target.targetDeckIndex, target.targetCueId);
+    if (hinted >= 0) {
+      outDeck = target.targetDeckIndex;
+      outIndex = hinted;
+      return true;
+    }
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const int idx = findCueIndexById(d, target.targetCueId);
+      if (idx >= 0) {
+        outDeck = d;
+        outIndex = idx;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void toggleSelectedCueArmed() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return;
+    }
+    cue->armed = !cue->armed;
+    markProjectDirty();
+    triggerToast((cue->armed ? "armed: " : "disarmed: ") + cue->name);
+  }
+
+  // Step which DECK a target points at. Walking off either end clears the
+  // target, the same way stepping a master assignment off the end does -- the
+  // control that sets a thing has to be able to unset it.
+  void stepTargetDeck(int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Target) {
+      return;
+    }
+    const int count = static_cast<int>(project_.decks.size());
+    const int next = cue->targetDeckIndex + delta;
+    if (next < 0 || next >= count) {
+      cue->targetDeckIndex = -1;
+      cue->targetCueId.clear();
+      markProjectDirty();
+      return;
+    }
+    cue->targetDeckIndex = next;
+    // Changing deck invalidates the cue: an id from the old deck would resolve
+    // through the whole-show fallback and point back where it came from, so
+    // the row would read as if the deck had not changed at all.
+    cue->targetCueId.clear();
+    if (!project_.decks[next].cues.empty()) {
+      cue->targetCueId = project_.decks[next].cues[0].id;
+    }
+    markProjectDirty();
+  }
+
+  void stepTargetCue(int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Target) {
+      return;
+    }
+    const int d = cue->targetDeckIndex;
+    if (d < 0 || d >= static_cast<int>(project_.decks.size())) {
+      triggerToast("pick a deck first");
+      return;
+    }
+    const Deck& deck = project_.decks[d];
+    if (deck.cues.empty()) {
+      triggerToast("deck " + std::to_string(d + 1) + " has no cues");
+      return;
+    }
+    const int current = findCueIndexById(d, cue->targetCueId);
+    const int next = current + delta;        // -1 + 1 == 0, so "none" steps to the first
+    if (next < 0 || next >= static_cast<int>(deck.cues.size())) {
+      cue->targetCueId.clear();
+      markProjectDirty();
+      return;
+    }
+    cue->targetCueId = deck.cues[next].id;
+    markProjectDirty();
+  }
+
+  void cycleTargetVerb() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Target) {
+      return;
+    }
+    static const CueTargetVerb kOrder[] = {
+      CueTargetVerb::Start, CueTargetVerb::Stop, CueTargetVerb::Pause,
+      CueTargetVerb::Resume, CueTargetVerb::Load, CueTargetVerb::Arm,
+      CueTargetVerb::Disarm,
+    };
+    const int count = static_cast<int>(sizeof(kOrder) / sizeof(kOrder[0]));
+    int at = 0;
+    for (int i = 0; i < count; ++i) {
+      if (kOrder[i] == cue->targetVerb) {
+        at = i;
+        break;
+      }
+    }
+    cue->targetVerb = kOrder[(at + 1) % count];
+    markProjectDirty();
+  }
+
+  void fireSelectedTargetCue() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    if (deck.cues[deck.selectedIndex].kind != CueKind::Target) {
+      return;
+    }
+    (void)fireTargetCue(deckIndex, deck.selectedIndex);
+  }
+
+  std::string fireTargetCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "no cue";
+    }
+    // Copied for the same reason a master copies its plan: acting on the
+    // victim's deck can reallocate any cue vector under a reference.
+    const Cue targeting = deck.cues[cueIndex];
+
+    int victimDeck = -1;
+    int victimIndex = -1;
+    if (!resolveTargetCue(targeting, victimDeck, victimIndex)) {
+      const std::string why = targeting.targetCueId.empty()
+                                ? "targets nothing"
+                                : "target cue is gone";
+      triggerToast(targeting.name + ": " + why);
+      return why;
+    }
+    // A TARGET MAY NOT TARGET A TARGET. Two pointing at each other would
+    // recurse until the stack gave out, which is the same reason a master
+    // refuses to fire a master.
+    if (project_.decks[victimDeck].cues[victimIndex].kind == CueKind::Target) {
+      const std::string why = "a target cannot target another target";
+      triggerToast(targeting.name + ": " + why);
+      return why;
+    }
+    const std::string victimName = project_.decks[victimDeck].cues[victimIndex].name;
+    const char* verbLabel = cueTargetVerbLabel(targeting.targetVerb);
+
+    // Arm and disarm are edits, not transport: they change the victim and stop.
+    if (targeting.targetVerb == CueTargetVerb::Arm ||
+        targeting.targetVerb == CueTargetVerb::Disarm) {
+      const bool arm = targeting.targetVerb == CueTargetVerb::Arm;
+      project_.decks[victimDeck].cues[victimIndex].armed = arm;
+      markProjectDirty();
+      const std::string did = std::string(verbLabel) + ": " + victimName;
+      triggerToast(did);
+      return did;
+    }
+
+    // STOP, PAUSE AND RESUME ACT ON A DECK, and the named cue is the only
+    // thing that makes them mean anything. If something else has since been
+    // taken on that deck, a Stop target would stop THAT -- a cue labelled
+    // "stop the walk-in music" killing the keynote. Refuse instead: a target
+    // whose victim is not on air has nothing to do.
+    const bool needsVictimLive = targeting.targetVerb == CueTargetVerb::Stop ||
+                                 targeting.targetVerb == CueTargetVerb::Pause ||
+                                 targeting.targetVerb == CueTargetVerb::Resume;
+    if (needsVictimLive && project_.decks[victimDeck].activeIndex != victimIndex) {
+      const std::string why = std::string(verbLabel) + ": " + victimName +
+                              " is not on air";
+      triggerToast(why);
+      return why;
+    }
+
+    const int savedFocus = project_.focusedDeckIndex;
+    project_.focusedDeckIndex = victimDeck;
+    switch (targeting.targetVerb) {
+      case CueTargetVerb::Start:
+        selectCueInDeck(victimDeck, victimIndex, false, false);
+        takeSelected(true);
+        break;
+      case CueTargetVerb::Load:
+        // Selects and stands by without taking: the next GO on that deck
+        // fires it. This is the verb that lets one list drive another's
+        // running order without also firing it.
+        selectCueInDeck(victimDeck, victimIndex, false, false);
+        setStandbyIndex(victimDeck, victimIndex, false);
+        break;
+      case CueTargetVerb::Stop:
+        stopTransport();
+        break;
+      case CueTargetVerb::Pause:
+        pauseTransport();
+        break;
+      case CueTargetVerb::Resume:
+        playTransport();
+        break;
+      case CueTargetVerb::Arm:
+      case CueTargetVerb::Disarm:
+        break;                                // handled above
+    }
+    project_.focusedDeckIndex = savedFocus;
+    const std::string did = std::string(verbLabel) + ": " + victimName;
+    triggerToast(did);
+    return did;
+  }
+
   void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false,
                     bool honourPreWait = true) {
     Deck& deck = focusedDeckMutable();
@@ -997,6 +1228,14 @@
     // operator has just made a decision; an older countdown must not survive
     // it and fire on top.
     cancelPendingTake(deckIndex);
+
+    // A DISARMED CUE DOES NOTHING AT ALL -- not its pre-wait, not its media,
+    // not its continue. Checked first so that is true however it was fired:
+    // by hand, by a continue, or by a master.
+    if (!deck.cues[deck.selectedIndex].armed) {
+      triggerToast("disarmed: " + deck.cues[deck.selectedIndex].name);
+      return;
+    }
 
     // PRE-WAIT: fired now, starts later. Applies however the cue was fired --
     // by GO, by a continue, or by a master -- because the wait belongs to the
@@ -1016,6 +1255,12 @@
     // master deck legitimately has no engine of its own to speak of.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Master) {
       fireMasterCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
+    // A TARGET acts on another cue and is likewise never handed to an engine.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Target) {
+      (void)fireTargetCue(deckIndex, deck.selectedIndex);
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
@@ -1514,6 +1759,27 @@
             }
           }
         }
+
+        // A target with nobody to act on, for the same reason.
+        if (cue.kind == CueKind::Target) {
+          int vd = -1;
+          int vi = -1;
+          if (cue.targetCueId.empty()) {
+            out.push_back({d, c, "target acts on nothing"});
+          } else if (!resolveTargetCue(cue, vd, vi)) {
+            out.push_back({d, c, std::string(cueTargetVerbLabel(cue.targetVerb)) +
+                                 " target is gone"});
+          }
+        }
+
+        // A DISARMED CUE IS NOT A FAULT -- somebody meant it -- but a whole
+        // deck of them is: GO would walk the list and never fire anything.
+        // Reported once, on the first cue, rather than once per cue.
+      }
+      const bool anyArmed = std::any_of(deck.cues.begin(), deck.cues.end(),
+                                        [](const Cue& c) { return c.armed; });
+      if (!deck.cues.empty() && !anyArmed) {
+        out.push_back({d, 0, "every cue on this deck is disarmed"});
       }
     }
     return out;

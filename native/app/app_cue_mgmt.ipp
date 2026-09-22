@@ -2305,6 +2305,21 @@
       {0, 0, 0, 0},
       [this]() { addSynthCue(SynthChip::Fds); }
     });
+    // The two cues that carry no picture at all. They are here because this is
+    // the only ADD A CUE menu in the app -- a master cue was reachable solely
+    // over the socket, which for anyone driving Deckboy by hand meant it did
+    // not exist. Where a kind belongs in the taxonomy matters less than
+    // whether an operator can find it.
+    contextItems_.push_back({
+      "  Master Cue (fires other decks)",
+      {0, 0, 0, 0},
+      [this]() { addMasterCue(); }
+    });
+    contextItems_.push_back({
+      "  Target Cue (acts on another cue)",
+      {0, 0, 0, 0},
+      [this]() { addTargetCue(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -3308,6 +3323,42 @@
     v = std::clamp(v + delta, lo, hi);
     markProjectDirty();
     triggerToast(std::string(label) + " " + fmtFloat(v, 2));
+  }
+
+  // A master cue and a target cue are both "a cue that does something to other
+  // cues", so they arrive the same way: no path, no media, a colour that reads
+  // as control rather than content, and no end action to speak of.
+  void addMasterCue() {
+    Cue cue;
+    cue.kind = CueKind::Master;
+    Deck& deck = focusedDeckMutable();
+    cue.name = "Master " + std::to_string(deck.cues.size() + 1);
+    cue.color = {120, 80, 30, 255};
+    cue.formatName = "control";
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    // A deck that holds masters IS the master deck, which is what lets the
+    // rest of the app tell one apart from a playlist.
+    deck.isMasterDeck = true;
+    onSelectionChanged();
+    markProjectDirty();
+    triggerToast("master cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  void addTargetCue() {
+    Cue cue;
+    cue.kind = CueKind::Target;
+    Deck& deck = focusedDeckMutable();
+    cue.name = "Target " + std::to_string(deck.cues.size() + 1);
+    cue.color = {30, 90, 120, 255};
+    cue.formatName = "control";
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    markProjectDirty();
+    triggerToast("target cue added");
+    playUiSound(UiSoundEffect::Import);
   }
 
   void addVideoSynthCue() {

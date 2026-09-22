@@ -588,6 +588,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.postWaitSeconds
         << '\t' << cueContinueModeToken(cue.continueMode)
         << '\t' << escapeField(serializeMasterAssignments(cue.masterAssignments))
+        // A Target cue's victim and verb, and the arm flag every cue carries.
+        << '\t' << escapeField(cue.targetCueId)
+        << '\t' << cue.targetDeckIndex
+        << '\t' << cueTargetVerbToken(cue.targetVerb)
+        << '\t' << (cue.armed ? 1 : 0)
         << '\n';
     }
   }
@@ -1351,6 +1356,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "tone" ? CueKind::Tone :
         (kind == "video_synth" || kind == "vsynth") ? CueKind::VideoSynth :
         kind == "master" ? CueKind::Master :
+        kind == "target" ? CueKind::Target :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1707,13 +1713,22 @@ Project loadProject(const fs::path& projectFile,
         // A master cue's assignments. Absent on every older show, which is
         // correct: they had no masters.
         cue.masterAssignments = parseMasterAssignments(safeString(fields, vs + 60));
+        // A Target cue's victim. Absent on an older show for the same reason.
+        cue.targetCueId = safeString(fields, vs + 61);
+        cue.targetDeckIndex = safeInt(fields, vs + 62, -1);
+        cue.targetVerb = cueTargetVerbFromToken(safeString(fields, vs + 63));
+        // ARMED DEFAULTS TRUE, and that matters more than it looks: an older
+        // show has no field here, and reading a missing field as 0 would open
+        // every show ever saved with every cue disarmed.
+        cue.armed = safeBool(fields, vs + 64, true);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
       // it was opened. Every kind before this one carried a path, even the
       // generated ones ("pattern://", "timer://"), so the gate was safe until
       // now.
-      if (!cue.path.empty() || cue.kind == CueKind::Master) {
+      if (!cue.path.empty() || cue.kind == CueKind::Master ||
+          cue.kind == CueKind::Target) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

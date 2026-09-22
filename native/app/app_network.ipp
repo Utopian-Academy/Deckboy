@@ -444,8 +444,8 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (291)\n"
-        "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
+        "DECKBOY_0.01 every verb (295)\n"
+        "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
@@ -454,6 +454,7 @@
         "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROKEN BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
+        "DISARM TARGET TARGETCUE\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
         "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD\n"
         "DECKAUTOFADE DECKDIM DECKFADE DECKLINK DECKNEXT DECKOPACITY\n"
@@ -503,6 +504,8 @@
         "spine:     PREWAIT <s> POSTWAIT <s> CONTINUE OFF|AUTO|FOLLOW - AUTO counts from the cue STARTING, FOLLOW from it ENDING\n"
         "           PENDING - what each deck is about to take, and in how long\n"
         "check:     CHECK [<n>] - everything wrong with the show, before doors rather than at take; <n> jumps to one\n"
+        "target:    TARGET NEW|CUE <deck> <cue>|VERB start/stop/pause/resume/load/arm/disarm|CLEAR|FIRE - a cue that acts on another cue\n"
+        "arm:       ARM|DISARM [<n>|ALL] - a disarmed cue stays in the list and does nothing; GO steps over it\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"
         "           PRESENTER LAYOUT wide|filmstrip|notes|custom | LIVE|PREV|NEXT|NOTES|CLOCK|TIMERS|BUILDS [on|off]\n"

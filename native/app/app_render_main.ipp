@@ -5278,6 +5278,70 @@
       finishInspectorSection(mSection, mY);
     }
 
+    // TARGET: the one cue this cue acts on, and what it does to it.
+    //
+    // Three stepped rows and no typing. A target that points at a cue by a
+    // name the operator typed is a link that breaks silently when the name
+    // changes; stepping a real list cannot produce one that never existed.
+    if (selectedCue && selectedCue->kind == CueKind::Target) {
+      int tgY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto tgSection = beginInspectorSection(tgY, "TARGET", cueSectionTargetOpen_,
+                                             QuickAction::CueSectionTargetToggle,
+                                             "Collapse/expand what this cue acts on");
+      tgY = tgSection.bodyStartY;
+      if (cueSectionTargetOpen_) {
+        const int td = selectedCue->targetDeckIndex;
+        const bool deckOk = td >= 0 && td < static_cast<int>(project_.decks.size());
+        std::string deckValue = "none";
+        if (deckOk) {
+          deckValue = project_.decks[td].name.empty()
+                        ? ("deck " + std::to_string(td + 1))
+                        : project_.decks[td].name;
+        }
+        drawQuickRow(tgY, "deck", QuickAction::TargetDeckPrev, deckValue,
+                     QuickAction::TargetDeckNext, QuickAction::TargetDeckNext,
+                     false, false,
+                     "Which deck the cue it acts on lives on");
+        tgY += kInspectorRowStep;
+
+        std::string cueValue = "none";
+        if (deckOk) {
+          const int ti = findCueIndexById(td, selectedCue->targetCueId);
+          if (ti >= 0) {
+            cueValue = cueDisplayToken(project_.decks[td].cues[ti], ti) + "  " +
+                       project_.decks[td].cues[ti].name;
+          } else if (!selectedCue->targetCueId.empty()) {
+            cueValue = "UNRESOLVED";
+          }
+        }
+        drawQuickRow(tgY, "cue", QuickAction::TargetCuePrev, cueValue,
+                     QuickAction::TargetCueNext, QuickAction::TargetCueNext,
+                     false, false,
+                     "Which cue on that deck; step off the end to clear it");
+        tgY += kInspectorRowStep;
+
+        drawQuickRow(tgY, "does", QuickAction::TargetVerbCycle,
+                     cueTargetVerbLabel(selectedCue->targetVerb),
+                     QuickAction::TargetVerbCycle, QuickAction::TargetVerbCycle,
+                     false, false,
+                     "Start, Stop, Pause, Resume, Load (stand it by without "
+                     "firing), Arm or Disarm it");
+        tgY += kInspectorRowStep;
+
+        drawQuickRow(tgY, "fire", QuickAction::TargetFire, std::string("now"),
+                     QuickAction::TargetFire, QuickAction::TargetFire,
+                     false, false,
+                     "Do it now, without taking the cue");
+        tgY += kInspectorRowStep;
+
+        if (selectedCue->targetCueId.empty()) {
+          drawInspectorMessageRow(tgY, "nothing targeted yet");
+          tgY += kInspectorRowStep;
+        }
+      }
+      finishInspectorSection(tgSection, tgY);
+    }
+
     // SEQUENCE: the spine, per cue. Pre-wait, post-wait, continue mode, and
     // arming this cue as the standby.
     //
@@ -5335,6 +5399,17 @@
                      QuickAction::CueStandbySet, QuickAction::CueStandbySet,
                      false, false,
                      "Arm this cue as the one GO will fire");
+        sqY += kInspectorRowStep;
+
+        // Armed. Sits with the spine because it is about whether the running
+        // order fires this cue at all, which is the same question the waits
+        // and the continue answer.
+        drawQuickRow(sqY, "armed", QuickAction::CueArmToggle,
+                     selectedCue->armed ? std::string("yes") : std::string("NO"),
+                     QuickAction::CueArmToggle, QuickAction::CueArmToggle,
+                     false, false,
+                     "A disarmed cue stays in the list and does nothing; "
+                     "GO steps over it");
         sqY += kInspectorRowStep;
 
         // What this deck is about to do, when it is about to do something.

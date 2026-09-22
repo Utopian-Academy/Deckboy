@@ -862,6 +862,17 @@
       case QuickAction::CuePostWaitInc: nudgeSelectedWait(false, +0.5); break;
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
+      case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+
+      case QuickAction::CueSectionTargetToggle:
+        cueSectionTargetOpen_ = !cueSectionTargetOpen_;
+        break;
+      case QuickAction::TargetDeckPrev:  stepTargetDeck(-1); break;
+      case QuickAction::TargetDeckNext:  stepTargetDeck(+1); break;
+      case QuickAction::TargetCuePrev:   stepTargetCue(-1); break;
+      case QuickAction::TargetCueNext:   stepTargetCue(+1); break;
+      case QuickAction::TargetVerbCycle: cycleTargetVerb(); break;
+      case QuickAction::TargetFire:      fireSelectedTargetCue(); break;
 
       case QuickAction::CueSectionAudioFxToggle:
         cueSectionAudioFxOpen_ = !cueSectionAudioFxOpen_;

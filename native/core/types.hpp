@@ -67,9 +67,67 @@ enum class CueKind {
                  // channel identify. The audio equivalent of Pattern
   VideoSynth,    // oscillator-driven video with feedback and mirroring, in the
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
-  Master         // fires an assigned cue on each of several decks at once.
+  Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Target         // acts ON another cue rather than playing anything: start it,
+                 // stop it, pause it, arm it. Carries no media either — see
+                 // CueTargetVerb and Cue::targetCueId
 };
+
+// ---------------------------------------------------------------------------
+// What a Target cue does to the cue it points at.
+//
+// Every one of these is a transport call the app already makes; the cue is
+// only a way to put one in the list and fire it in sequence. That is also why
+// there is no verb here that does not already exist as an operator action --
+// a Target cue must never be the only way to reach a behaviour, or the
+// behaviour goes untested everywhere else.
+// ---------------------------------------------------------------------------
+enum class CueTargetVerb {
+  Start,     // take it on its own deck
+  Stop,      // stop that deck
+  Pause,     // pause it where it is
+  Resume,    // carry on from where it was paused
+  Load,      // select it without taking it -- next GO on that deck fires it
+  Arm,       // make it live-able again
+  Disarm,    // leave it in the list, inert: GO passes straight over it
+};
+
+inline const char* cueTargetVerbToken(CueTargetVerb v) {
+  switch (v) {
+    case CueTargetVerb::Stop:   return "stop";
+    case CueTargetVerb::Pause:  return "pause";
+    case CueTargetVerb::Resume: return "resume";
+    case CueTargetVerb::Load:   return "load";
+    case CueTargetVerb::Arm:    return "arm";
+    case CueTargetVerb::Disarm: return "disarm";
+    case CueTargetVerb::Start:  break;
+  }
+  return "start";
+}
+
+inline const char* cueTargetVerbLabel(CueTargetVerb v) {
+  switch (v) {
+    case CueTargetVerb::Stop:   return "Stop";
+    case CueTargetVerb::Pause:  return "Pause";
+    case CueTargetVerb::Resume: return "Resume";
+    case CueTargetVerb::Load:   return "Load";
+    case CueTargetVerb::Arm:    return "Arm";
+    case CueTargetVerb::Disarm: return "Disarm";
+    case CueTargetVerb::Start:  break;
+  }
+  return "Start";
+}
+
+inline CueTargetVerb cueTargetVerbFromToken(const std::string& token) {
+  if (token == "stop")   return CueTargetVerb::Stop;
+  if (token == "pause")  return CueTargetVerb::Pause;
+  if (token == "resume") return CueTargetVerb::Resume;
+  if (token == "load")   return CueTargetVerb::Load;
+  if (token == "arm")    return CueTargetVerb::Arm;
+  if (token == "disarm") return CueTargetVerb::Disarm;
+  return CueTargetVerb::Start;
+}
 
 // ---------------------------------------------------------------------------
 // Video synth.
@@ -693,6 +751,9 @@ struct Cue {
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  // A Target cue's victim, by ID for the same reason a MasterAssignment is:
+  // an index repoints at the neighbour the moment anything above it moves.
+  std::string targetCueId;
   std::string cueTransitionStyle;          // per-cue override: "cut"/"crossfade"/"dipblack" (empty=inherit)
   std::string lowerThirdText;              // primary text line for LowerThird cue kind
   std::string lowerThirdSubtext;           // secondary text line for LowerThird cue kind
@@ -790,6 +851,8 @@ struct Cue {
   CueEndAction endAction = CueEndAction::Inherit; // what to do when playback finishes
   // DoNotContinue is the default because it is what every existing show does.
   CueContinueMode continueMode = CueContinueMode::DoNotContinue;
+  int targetDeckIndex = -1;                // Target cue: which deck its victim is on
+  CueTargetVerb targetVerb = CueTargetVerb::Start;  // Target cue: what it does to it
   ScaleMode scaleMode = ScaleMode::Fit;    // how source maps to output — see ScaleMode enum
 
   // -- 4-byte aligned: SDL_Color (RGBA) ----------------------------------------
@@ -840,6 +903,10 @@ struct Cue {
   float meshTiltY = 0.0f;       // -1..1 yaw
   float meshSpin = 0.15f;       // 0-1: how fast the yaw drifts on its own
   int meshGrid = 48;            // cells across; the cost is this squared
+  // A disarmed cue stays in the list, keeps its settings, and does nothing.
+  // GO steps over it. True by default so every show that predates the flag
+  // behaves exactly as it did.
+  bool armed = true;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -1935,6 +2002,19 @@ enum class QuickAction {
   MasterAssignNext,
   MasterAssignClear,
   MasterBypassToggle,
+  // Target cues. The victim is picked deck-then-cue, and the verb cycles,
+  // so three stepped rows and no free text: a target that points at a typo
+  // is the fault the whole broken-cue panel exists to catch.
+  CueSectionTargetToggle,
+  TargetDeckPrev,
+  TargetDeckNext,
+  TargetCuePrev,
+  TargetCueNext,
+  TargetVerbCycle,
+  TargetFire,
+  // Arm/disarm the selected cue. Lives with the spine, not with targets --
+  // every cue has it.
+  CueArmToggle,
   CueSectionAudioFxToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
   TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,

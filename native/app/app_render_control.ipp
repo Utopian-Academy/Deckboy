@@ -2218,6 +2218,25 @@
       }
     }
     
+    // A DISARMED CUE IS WASHED OUT, in one place, over the finished row.
+    //
+    // Deliberately a scrim rather than a dimmer ink on each element: a row
+    // draws a number, a name, a still, a kind chip, badges and a duration, and
+    // dimming them one at a time is exactly how a control ends up looking
+    // half-disabled -- the thing that gets fixed systemically or not at all.
+    // Painted in the row's own fill so it washes toward the panel it sits in
+    // on every theme, light or dark, instead of toward a fixed grey.
+    if (!cue.armed) {
+      SDL_Color scrim = fill;
+      scrim.a = 165;
+      Primitives::fillRect(controlRenderer_, insetRect(row, 1), scrim);
+      // And one mark that survives the wash, so a disarmed row is readable as
+      // a decision rather than as a rendering fault.
+      const SDL_Rect tag {row.x + row.w - uiScaled(26), row.y + uiScaled(4),
+                          uiScaled(20), std::max(uiScaled(14), textLineHeight(fontMono_))};
+      drawCenteredTextSafe(controlRenderer_, fontMono_, tag, "--", pal.fgSoft);
+    }
+
     // Selection pulse
     if (project_.uiTransitionsEnabled && isSelected) {
       double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);

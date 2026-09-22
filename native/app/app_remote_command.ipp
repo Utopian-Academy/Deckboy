@@ -325,6 +325,159 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "TARGET" || command == "TARGETCUE") {
+      // TARGET NEW                  -> add a target cue to this deck
+      // TARGET CUE <deck> <cue>     -> point it at deck <deck>'s cue <cue>
+      // TARGET VERB <verb>          -> start|stop|pause|resume|load|arm|disarm
+      // TARGET FIRE                 -> do it now
+      // TARGET                      -> report what it points at
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("TARGET: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Target;
+        cue.name = "Target " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "target cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("TARGET: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Target) {
+        failRemoteCommand("TARGET: the selected cue is not a target");
+        return;
+      }
+
+      if (sub.empty()) {
+        int vd = -1;
+        int vi = -1;
+        std::ostringstream out;
+        out << cueTargetVerbLabel(cue.targetVerb) << " -> ";
+        if (!resolveTargetCue(cue, vd, vi)) {
+          out << (cue.targetCueId.empty() ? "nothing" : "UNRESOLVED");
+        } else {
+          out << "deck " << (vd + 1) << " cue " << (vi + 1) << " "
+              << project_.decks[vd].cues[vi].name;
+        }
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "FIRE" || sub == "GO" || sub == "TAKE") {
+        // The reply says what it DID, not merely that the verb was understood.
+        // A Stop aimed at a cue that is no longer on air and a Stop that
+        // stopped one are the same "OK TARGET" otherwise, which makes the
+        // whole thing untestable and unloggable.
+        remoteCommandDetail_ = fireTargetCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "CLEAR") {
+        cue.targetCueId.clear();
+        cue.targetDeckIndex = -1;
+        markProjectDirty();
+        remoteCommandDetail_ = "target cleared";
+        return;
+      }
+      if (sub == "VERB" && parts.size() >= 3) {
+        const std::string token = toLower(parts[2]);
+        // Checked against the token list rather than trusted: an unknown verb
+        // would fall back to Start, and a cue labelled "stop the music" that
+        // quietly starts it is the worst possible failure here.
+        static const char* kVerbs[] = {"start", "stop", "pause", "resume",
+                                       "load", "arm", "disarm"};
+        bool known = false;
+        for (const char* v : kVerbs) {
+          known = known || token == v;
+        }
+        if (!known) {
+          failRemoteCommand("TARGET VERB: expected start|stop|pause|resume|load|arm|disarm");
+          return;
+        }
+        cue.targetVerb = cueTargetVerbFromToken(token);
+        markProjectDirty();
+        remoteCommandDetail_ = cueTargetVerbLabel(cue.targetVerb);
+        return;
+      }
+      if (sub == "CUE" && parts.size() >= 4) {
+        int target = 0;
+        int cueNumber = 0;
+        try {
+          target = std::stoi(parts[2]) - 1;
+          cueNumber = std::stoi(parts[3]) - 1;
+        } catch (...) {
+          failRemoteCommand("TARGET CUE: expected a deck number and a cue number");
+          return;
+        }
+        if (target < 0 || target >= static_cast<int>(project_.decks.size())) {
+          failRemoteCommand("TARGET CUE: no deck " + parts[2]);
+          return;
+        }
+        const Deck& targetDeck = project_.decks[target];
+        if (cueNumber < 0 || cueNumber >= static_cast<int>(targetDeck.cues.size())) {
+          failRemoteCommand("TARGET CUE: deck " + parts[2] + " has no cue " + parts[3]);
+          return;
+        }
+        cue.targetCueId = targetDeck.cues[cueNumber].id;
+        cue.targetDeckIndex = target;
+        markProjectDirty();
+        remoteCommandDetail_ = "-> deck " + parts[2] + " " + targetDeck.cues[cueNumber].name;
+        return;
+      }
+      failRemoteCommand("TARGET: expected NEW, CUE, VERB, CLEAR or FIRE");
+      return;
+    }
+    if (command == "ARM" || command == "DISARM") {
+      // ARM / DISARM            -> the selected cue
+      // ARM <n> / DISARM <n>    -> cue n of this deck
+      // ARM ALL / DISARM ALL    -> every cue on this deck
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand(command + ": no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const bool arm = command == "ARM";
+      if (parts.size() > 1 && toUpper(parts[1]) == "ALL") {
+        for (Cue& c : deck.cues) {
+          c.armed = arm;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = std::string(arm ? "armed " : "disarmed ") +
+                               std::to_string(deck.cues.size()) + " cue(s)";
+        return;
+      }
+      int index = deck.selectedIndex;
+      if (parts.size() > 1) {
+        try {
+          index = std::stoi(parts[1]) - 1;
+        } catch (...) {
+          failRemoteCommand(command + ": expected a cue number or ALL");
+          return;
+        }
+      }
+      if (index < 0 || index >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand(command + ": no cue " +
+                          (parts.size() > 1 ? parts[1] : std::string("selected")));
+        return;
+      }
+      deck.cues[index].armed = arm;
+      markProjectDirty();
+      remoteCommandDetail_ = std::string(arm ? "armed: " : "disarmed: ") +
+                             deck.cues[index].name;
+      return;
+    }
     if (command == "MASTER" || command == "MASTERCUE") {
       // MASTER NEW                     -> add a master cue to this deck
       // MASTER DECK <n> <cue>          -> assign: deck n plays cue <cue>
@@ -2749,7 +2902,25 @@
       return;
     }
     if (command == "DELETE") {
+      // DELETE ANSWERS HONESTLY. Deleting a cue that is on air asks for a
+      // second DELETE to confirm, and activeIndex never clears on a stop --
+      // so a cue that has ever been taken keeps asking. Replying OK to a
+      // delete that did not happen makes that indistinguishable from one that
+      // did, which is the exact failure `failRemoteCommand` exists for.
+      const int deckIndex = project_.focusedDeckIndex;
+      const std::size_t before =
+        deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size())
+          ? project_.decks[deckIndex].cues.size() : 0;
       deleteSelected();
+      const std::size_t after =
+        deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size())
+          ? project_.decks[deckIndex].cues.size() : 0;
+      if (after == before) {
+        failRemoteCommand("DELETE: nothing deleted - send DELETE again to "
+                          "confirm a cue that is on air");
+        return;
+      }
+      remoteCommandDetail_ = "deleted " + std::to_string(before - after) + " cue(s)";
       return;
     }
     if (command == "LOOP") {
