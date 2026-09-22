@@ -863,6 +863,13 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionScriptToggle:
+        cueSectionScriptOpen_ = !cueSectionScriptOpen_;
+        break;
+      // The code source's editor, which is already multi-line -- a script that
+      // has to be typed on one line is a script nobody writes.
+      case QuickAction::ScriptEdit:   openCodeEditor(); break;
+      case QuickAction::ScriptRunNow: runSelectedScriptCue(); break;
       case QuickAction::CueSectionTimecodeToggle:
         cueSectionTimecodeOpen_ = !cueSectionTimecodeOpen_;
         break;

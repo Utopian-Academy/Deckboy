@@ -224,13 +224,15 @@ static const std::vector<CodeExample>& codeExamples() {
 
   void openCodeEditor() {
     const Cue* cue = selectedCuePtr();
-    if (!cue || !cueIsCodeSource(*cue)) {
+    const bool isScript = cue && cue->kind == CueKind::Script;
+    if (!cue || (!cueIsCodeSource(*cue) && !isScript)) {
       return;
     }
     closeDropdown(true);
     codeEditor_ = CodeEditorState {};
     codeEditor_.open = true;
-    codeEditor_.text = cue->codeExpression;
+    codeEditor_.script = isScript;
+    codeEditor_.text = isScript ? cue->scriptText : cue->codeExpression;
     codeEditor_.caret = codeEditor_.text.size();
     codeEditor_.deckIndex = project_.focusedDeckIndex;
     codeEditor_.cueIndex = focusedDeck().selectedIndex;
@@ -272,6 +274,15 @@ static const std::vector<CodeExample>& codeExamples() {
     Deck& deck = project_.decks[codeEditor_.deckIndex];
     if (codeEditor_.cueIndex < 0 ||
         codeEditor_.cueIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    // A SCRIPT IS NOT COMPILED. Its lines are checked when it runs, by the
+    // same dispatcher that answers the socket, and a line that is wrong should
+    // be reportable rather than unsaveable -- half a script is still worth
+    // keeping while you work out the other half.
+    if (codeEditor_.script) {
+      deck.cues[codeEditor_.cueIndex].scriptText = codeEditor_.text;
+      markProjectDirty();
       return;
     }
     if (!deckboy::code::compile(codeEditor_.text).ok()) {

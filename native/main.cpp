@@ -8319,6 +8319,7 @@ class App {
   bool cueSectionMidiOpen_ = true;
   bool cueSectionNetworkOpen_ = true;
   bool cueSectionTimecodeOpen_ = true;
+  bool cueSectionScriptOpen_ = true;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.
@@ -8352,6 +8353,10 @@ class App {
   // saved start offset would leave the show permanently re-timed, which is the
   // same reason a fade cue never writes a cue's saved gain.
   double ltcJamOffsetSeconds_ = 0.0;
+  // How deep inside script cues we currently are. A script can TAKE a cue, and
+  // that cue can be another script -- which is useful, and which is also how a
+  // show hangs forever. See runScriptCue.
+  int scriptDepth_ = 0;
   std::mutex networkResultMutex_;
   std::vector<std::string> networkResults_;
   SDL_Rect fileCheckBtnRect_ {};
@@ -8453,6 +8458,11 @@ class App {
     // a cue being added or removed underneath it.
     int deckIndex = -1;
     int cueIndex = -1;
+    // The same editor serves the code source and the script cue. They differ
+    // in one thing -- a code expression is compiled before it is kept and a
+    // script is not -- so one flag is cheaper and more honest than a second
+    // editor that would drift from this one.
+    bool script = false;
     SDL_Rect panelRect {};
     SDL_Rect fieldRect {};
     SDL_Rect applyRect {};

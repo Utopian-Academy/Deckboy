@@ -69,6 +69,9 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Script,        // runs Deckboy's OWN remote-protocol lines on GO. Every
+                 // verb the socket accepts, from the cue list -- which is 90%
+                 // of what a script cue is for without embedding a language
   Timecode,      // starts, stops or jams the LTC generator on GO. The
                  // generator already existed and could only be reached from a
                  // settings toggle, which is not something a show can cue
@@ -852,6 +855,11 @@ struct Cue {
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  // A Script cue's lines, newline-separated. Edited in the same multi-line
+  // editor the code source uses -- a script that has to be typed on one line
+  // is a script nobody writes.
+  std::string scriptText;
+
   // A Timecode cue. start | stop | jam.
   std::string tcAction = "start";
 
@@ -2162,6 +2170,9 @@ enum class QuickAction {
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.
   PreloadSelected,
+  CueSectionScriptToggle,
+  ScriptEdit,
+  ScriptRunNow,
   CueSectionTimecodeToggle,
   TcActionCycle,
   TcJamDec, TcJamInc,

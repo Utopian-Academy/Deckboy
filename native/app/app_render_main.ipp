@@ -5360,6 +5360,60 @@
       finishInspectorSection(tgSection, tgY);
     }
 
+    // SCRIPT: the protocol lines this cue runs on GO.
+    if (selectedCue && selectedCue->kind == CueKind::Script) {
+      const int lineCount = scriptLineCount(selectedCue->scriptText);
+
+      int scY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto scSection = beginInspectorSection(scY, "SCRIPT", cueSectionScriptOpen_,
+                                             QuickAction::CueSectionScriptToggle,
+                                             "Collapse/expand the lines this cue runs");
+      scY = scSection.bodyStartY;
+      if (cueSectionScriptOpen_) {
+        drawQuickRow(scY, "lines", QuickAction::ScriptEdit,
+                     lineCount == 0 ? std::string("none - click to write some")
+                                    : (std::to_string(lineCount) + " line" +
+                                       (lineCount == 1 ? "" : "s")),
+                     QuickAction::ScriptEdit, QuickAction::ScriptEdit,
+                     false, false,
+                     "Deckboy's own remote-protocol verbs, one per line; # is "
+                     "a comment");
+        scY += kInspectorRowStep;
+
+        drawQuickRow(scY, "run", QuickAction::ScriptRunNow, std::string("now"),
+                     QuickAction::ScriptRunNow, QuickAction::ScriptRunNow,
+                     false, false, "Run it now, without taking the cue");
+        scY += kInspectorRowStep;
+
+        // THE FIRST FEW LINES, so the cue is identifiable without opening it.
+        // A cue list full of "Script 7" tells an operator nothing.
+        if (lineCount > 0) {
+          std::istringstream preview(selectedCue->scriptText);
+          std::string line;
+          int shown = 0;
+          while (std::getline(preview, line) && shown < 3) {
+            if (!line.empty() && line.back() == '\r') {
+              line.pop_back();
+            }
+            const std::string trimmed = trim(line);
+            if (trimmed.empty() || trimmed.front() == '#' ||
+                trimmed.compare(0, 2, "//") == 0) {
+              continue;
+            }
+            drawInspectorMessageRow(scY, trimmed);
+            scY += kInspectorRowStep;
+            ++shown;
+          }
+          if (lineCount > shown) {
+            drawInspectorMessageRow(scY, "... and " +
+              std::to_string(lineCount - shown) + " more");
+            scY += kInspectorRowStep;
+          }
+        }
+      }
+      finishInspectorSection(scSection, scY);
+    }
+
     // TIMECODE: what this cue does to the LTC generator.
     if (selectedCue && selectedCue->kind == CueKind::Timecode) {
       const std::string action = toLower(trim(selectedCue->tcAction));

@@ -1441,6 +1441,142 @@
     return did;
   }
 
+  // ── SCRIPT CUES ───────────────────────────────────────────────────────
+  //
+  // A script cue runs Deckboy's OWN remote-protocol lines. That is deliberate
+  // and it is most of why this was worth building: every verb the socket
+  // accepts already exists, is already tested, and already answers honestly,
+  // so a script cue inherits all of it without the project taking on an
+  // embedded language and its security surface.
+  //
+  // It also composes with everything else: one cue that fires a master, sends
+  // MIDI, jams timecode and pings the media server is four lines.
+  static constexpr int kMaxScriptDepth = 4;
+
+  std::string runScriptCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "no cue";
+    }
+    // A SCRIPT THAT RUNS A SCRIPT IS FINE. A script that runs ITSELF is not,
+    // and neither is a pair that run each other -- both hang the app with no
+    // way back. Depth is the guard because it catches every shape of it,
+    // including ones that are not literally a cycle.
+    if (scriptDepth_ >= kMaxScriptDepth) {
+      const std::string why = "script nesting stopped at " +
+                              std::to_string(kMaxScriptDepth) + " deep";
+      triggerToast(why);
+      showLog("SCRIPT", why);
+      return why;
+    }
+
+    // COPIED before anything runs: a line can delete the cue it is written on.
+    const std::string text = deck.cues[cueIndex].scriptText;
+    const std::string name = deck.cues[cueIndex].name;
+
+    // THE DISPATCHER'S REPLY STATE IS SAVED AND PUT BACK.
+    //
+    // handleRemoteCommand writes remoteCommandRecognized_, _Detail_ and
+    // _Error_, and this calls it in a loop -- so a script containing one bad
+    // line left those flags set to that line's failure, and whatever asked
+    // for the script (the socket, a TAKE) reported ITSELF as unknown. Caught
+    // by the test: `SCRIPTCUE RUN` on a script with a typo in it answered
+    // "ERR unknown command: SCRIPTCUE".
+    const bool savedRecognized = remoteCommandRecognized_;
+    const std::string savedDetail = remoteCommandDetail_;
+    const std::string savedError = remoteCommandError_;
+
+    ++scriptDepth_;
+    int ran = 0;
+    int failed = 0;
+    std::string firstError;
+    std::istringstream lines(text);
+    std::string line;
+    while (std::getline(lines, line)) {
+      // A trailing CR from a file that travelled through Windows, a blank
+      // line, and a comment are all "nothing to do" rather than errors.
+      if (!line.empty() && line.back() == '\r') {
+        line.pop_back();
+      }
+      const std::string trimmed = trim(line);
+      if (trimmed.empty() || trimmed.front() == '#' ||
+          trimmed.compare(0, 2, "//") == 0) {
+        continue;
+      }
+      ++ran;
+      // Straight into the dispatcher the socket uses, so a script line means
+      // exactly what the same line typed over the wire means. There is no
+      // second interpretation of the protocol to keep in step with this one.
+      remoteCommandRecognized_ = true;
+      remoteCommandDetail_.clear();
+      remoteCommandError_.clear();
+      handleRemoteCommand(trimmed);
+      if (!remoteCommandRecognized_ || !remoteCommandError_.empty()) {
+        ++failed;
+        if (firstError.empty()) {
+          firstError = trimmed + (remoteCommandError_.empty()
+                                    ? std::string(" - unknown command")
+                                    : (" - " + remoteCommandError_));
+        }
+      }
+    }
+    --scriptDepth_;
+    remoteCommandRecognized_ = savedRecognized;
+    remoteCommandDetail_ = savedDetail;
+    remoteCommandError_ = savedError;
+
+    std::string did = name + ": " + std::to_string(ran) + " line" +
+                      (ran == 1 ? "" : "s");
+    if (failed > 0) {
+      // THE FAILURES ARE NAMED, not counted silently. A script that half-ran
+      // and said "ok" is the worst outcome available here.
+      did += ", " + std::to_string(failed) + " failed - " + firstError;
+    }
+    showLog("SCRIPT", did);
+    triggerToast(did);
+    return did;
+  }
+
+  Cue* selectedScriptCue() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Script) ? cue : nullptr;
+  }
+
+  void runSelectedScriptCue() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size()) ||
+        deck.cues[deck.selectedIndex].kind != CueKind::Script) {
+      return;
+    }
+    (void)runScriptCue(deckIndex, deck.selectedIndex);
+  }
+
+  // How many lines will actually run, for the inspector and the problem scan.
+  static int scriptLineCount(const std::string& text) {
+    int count = 0;
+    std::istringstream lines(text);
+    std::string line;
+    while (std::getline(lines, line)) {
+      if (!line.empty() && line.back() == '\r') {
+        line.pop_back();
+      }
+      const std::string trimmed = trim(line);
+      if (trimmed.empty() || trimmed.front() == '#' ||
+          trimmed.compare(0, 2, "//") == 0) {
+        continue;
+      }
+      ++count;
+    }
+    return count;
+  }
+
   Cue* selectedTimecodeCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Timecode) ? cue : nullptr;
@@ -2335,6 +2471,12 @@
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
+    // A SCRIPT CUE RUNS ITS LINES AND IS DONE.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Script) {
+      (void)runScriptCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
     // A TIMECODE CUE ACTS ON THE GENERATOR AND IS DONE.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Timecode) {
       (void)fireTimecodeCue(deckIndex, deck.selectedIndex);
@@ -2854,6 +2996,12 @@
                                    std::to_string(a.deckIndex + 1) + " is gone"});
             }
           }
+        }
+
+        // A script with no lines in it. Not a fault anybody would notice
+        // until the cue did nothing on the night.
+        if (cue.kind == CueKind::Script && scriptLineCount(cue.scriptText) == 0) {
+          out.push_back({d, c, "script has no lines"});
         }
 
         // A network cue with nowhere to send. The host is checked as an

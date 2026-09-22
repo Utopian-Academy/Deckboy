@@ -325,6 +325,85 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "SCRIPTCUE") {
+      // SCRIPTCUE NEW           -> add a script cue to this deck
+      // SCRIPTCUE ADD <line>    -> append a line
+      // SCRIPTCUE CLEAR         -> empty it
+      // SCRIPTCUE RUN           -> run it now
+      // SCRIPTCUE               -> report how many lines, and the first one
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("SCRIPTCUE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Script;
+        cue.name = "Script " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "script cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("SCRIPTCUE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Script) {
+        failRemoteCommand("SCRIPTCUE: the selected cue is not a script cue");
+        return;
+      }
+
+      if (sub.empty()) {
+        const int count = scriptLineCount(cue.scriptText);
+        std::string first;
+        std::istringstream lines(cue.scriptText);
+        std::string line;
+        while (std::getline(lines, line)) {
+          const std::string trimmed = trim(line);
+          if (!trimmed.empty() && trimmed.front() != '#') {
+            first = trimmed;
+            break;
+          }
+        }
+        remoteCommandDetail_ = std::to_string(count) + " line" +
+                               (count == 1 ? "" : "s") +
+                               (first.empty() ? std::string() : (" | " + first));
+        return;
+      }
+      if (sub == "RUN" || sub == "FIRE" || sub == "GO") {
+        remoteCommandDetail_ = runScriptCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "CLEAR") {
+        cue.scriptText.clear();
+        markProjectDirty();
+        remoteCommandDetail_ = "cleared";
+        return;
+      }
+      if (sub == "ADD" && parts.size() >= 3) {
+        // The rest of the line verbatim: a protocol line has spaces in it and
+        // is not this verb's business to interpret.
+        const std::string added = joinParts(parts, 2);
+        if (!cue.scriptText.empty() && cue.scriptText.back() != '\n') {
+          cue.scriptText.push_back('\n');
+        }
+        cue.scriptText += added;
+        markProjectDirty();
+        remoteCommandDetail_ = std::to_string(scriptLineCount(cue.scriptText)) +
+                               " line(s)";
+        return;
+      }
+      failRemoteCommand("SCRIPTCUE: expected NEW, ADD, CLEAR or RUN");
+      return;
+    }
     if (command == "TCCUE" || command == "TIMECODECUE") {
       // TCCUE NEW              -> add a timecode cue to this deck
       // TCCUE ACTION start|stop|jam

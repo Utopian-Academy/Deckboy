@@ -621,6 +621,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // A Timecode cue.
         << '\t' << escapeField(cue.tcAction)
         << '\t' << cue.tcJamSeconds
+        // A Script cue's lines. escapeField carries the newlines.
+        << '\t' << escapeField(cue.scriptText)
         << '\n';
     }
   }
@@ -1389,6 +1391,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "midi" ? CueKind::Midi :
         kind == "network" ? CueKind::Network :
         kind == "timecode" ? CueKind::Timecode :
+        kind == "script" ? CueKind::Script :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1799,6 +1802,7 @@ Project loadProject(const fs::path& projectFile,
           cue.tcAction = "start";
         }
         cue.tcJamSeconds = std::max(0.0, safeDouble(fields, vs + 87, 0.0));
+        cue.scriptText = safeString(fields, vs + 88);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -1808,7 +1812,7 @@ Project loadProject(const fs::path& projectFile,
       if (!cue.path.empty() || cue.kind == CueKind::Master ||
           cue.kind == CueKind::Target || cue.kind == CueKind::Fade ||
           cue.kind == CueKind::Midi || cue.kind == CueKind::Network ||
-          cue.kind == CueKind::Timecode) {
+          cue.kind == CueKind::Timecode || cue.kind == CueKind::Script) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

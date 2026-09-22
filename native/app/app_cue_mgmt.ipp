@@ -2340,6 +2340,11 @@
       {0, 0, 0, 0},
       [this]() { addTimecodeCue(); }
     });
+    contextItems_.push_back({
+      "  Script Cue (runs Deckboy commands)",
+      {0, 0, 0, 0},
+      [this]() { addScriptCue(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -3379,6 +3384,21 @@
     onSelectionChanged();
     markProjectDirty();
     triggerToast("master cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  void addScriptCue() {
+    Cue cue;
+    cue.kind = CueKind::Script;
+    Deck& deck = focusedDeckMutable();
+    cue.name = "Script " + std::to_string(deck.cues.size() + 1);
+    cue.color = {100, 100, 60, 255};
+    cue.formatName = "control";
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    markProjectDirty();
+    triggerToast("script cue added");
     playUiSound(UiSoundEffect::Import);
   }
 
