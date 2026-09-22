@@ -445,6 +445,27 @@
       "Normalize matches loudness across cues.",
       "Esc clears the desk, then the output, then quits.",
       "Stream SRT and RTMP at the same time.",
+      // The cue list as a program, and the cues that act rather than play.
+      // NONE OF THESE NAMES A KEY. Every one is reached from a control or the
+      // network protocol, which is what the note above is about: a tip that
+      // names the wrong key is worse than no tip.
+      "CHECK lists what is broken, before doors.",
+      "A cue can wait before it starts.",
+      "A cue can start the next one by itself.",
+      "Disarm a cue and GO steps over it.",
+      "Audition plays a cue to you, not the room.",
+      "Preload racks the next cue warm, off air.",
+      "A target cue starts or stops another cue.",
+      "A fade cue takes a deck down, then stops it.",
+      "A master cue fires one cue on every deck.",
+      "A MIDI cue can tell the lighting desk to go.",
+      "A network cue speaks OSC, UDP or TCP.",
+      "A DMX cue fades the house lights on a cue.",
+      "A script cue runs Deckboy's own commands.",
+      "A timecode cue jams LTC to a value.",
+      "Each output can show a different deck.",
+      "The matrix sends audio to any channel.",
+      "The panel map numbers every LED tile.",
     };
     const int tipCount = static_cast<int>(sizeof(kTips) / sizeof(kTips[0]));
 
