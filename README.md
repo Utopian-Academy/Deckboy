@@ -33,8 +33,8 @@ the seams between them.
 The other half of the same idea: every **destination** is the same kind of
 object too. A screen, NDI, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 — several
 at once, while it records, each with its own warp, feather and area of
-interest. Driven from a Stream Deck, Bitfocus Companion, OSC, MIDI, Art-Net or
-LTC timecode.
+interest. Driven from a Stream Deck, Bitfocus Companion, OSC, MIDI, MIDI Show Control
+from the lighting desk, Art-Net or LTC timecode.
 
 Anything that can make a picture or a sound becomes a cue. Anything that needs
 to receive the show becomes an output.
@@ -322,7 +322,7 @@ A conformant packetiser a broadcast controller can discover and route. See
 
 - A per-cue effect stack on every kind of cue, ordered, with copy/paste of a
   whole chain between cues
-- Thirty-seven effects, each with named parameters. Timed one at a time at 1080p
+- Thirty-eight effects, each with named parameters. Timed one at a time at 1080p
   on a laptop processor, the heaviest measured takes three-quarters of a 60fps
   frame — `--effect-bench` prints what each one costs on yours
 - Six that exist nowhere else: schlieren gradient imaging, Chladni nodal

@@ -110,6 +110,14 @@
         },
         {
           "@type": "Question",
+          "name": "Can the lighting desk fire the video cues?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Deckboy answers MIDI Show Control. A lighting desk such as an ETC Eos or a grandMA sends GO with a cue number and Deckboy takes the cue with that number. STOP, RESUME, LOAD, ALL_OFF and RESET are honoured, and so is MIDI Machine Control."
+          }
+        },
+        {
+          "@type": "Question",
           "name": "Is there a Mitti, PlaybackPro or QLab alternative for Windows?",
           "acceptedAnswer": {
             "@type": "Answer",
@@ -211,6 +219,15 @@
         status, so a key carries tally, transport state, output health and a countdown: the button
         knows whether the cue it fired actually went live, rather than just hoping. OSC, MIDI,
         Art-Net and LTC timecode work too.</p>
+        <p class="more"><a href="manual.html#remote-control">Manual: Remote Control</a></p>
+
+        <h2>Can the lighting desk fire the video cues?</h2>
+        <p>Yes. Deckboy answers <b>MIDI Show Control</b>, which is how theatres keep lighting,
+        sound and video on one GO. An ETC Eos, a grandMA or any desk that sends MSC fires GO with
+        a cue number, and Deckboy takes the cue with that number. MSC cue numbers are text, so
+        <code>12.4.1</code> works as well as <code>12</code>. STOP, RESUME, LOAD, ALL_OFF and
+        RESET are honoured, and so is MIDI Machine Control. The device ID match is exact, so
+        Deckboy ignores a message meant for another device in the rig.</p>
         <p class="more"><a href="manual.html#remote-control">Manual: Remote Control</a></p>
 
         <h2>Can I play PDF or PowerPoint slides from a cue list?</h2>

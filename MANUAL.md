@@ -6,7 +6,8 @@ Deckboy is a cue deck for live events. It plays video, stills, live sources and
 generated patterns from a keyboard-driven playlist, and sends the result to
 fullscreen displays, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 and Spout — the
 same programme to more than one of them at a time — and to NDI. A Stream Deck, Bitfocus
-Companion, OSC, MIDI, Art-Net or LTC timecode can drive it.
+Companion, OSC, MIDI, MIDI Show Control from a lighting desk, Art-Net or LTC
+timecode can drive it.
 
 Windows, macOS and Linux run the same core and open the same show file, so the
 spare machine in the flight case runs it too. It is a native application on
@@ -1055,6 +1056,22 @@ All remote inputs normalise to plain-text commands.
   leave it off and only Companion on the same machine can connect.
 - **OSC** — messages/bundles on the same port, plus an OSC Query HTTP endpoint
   and mirrored `/deckboy/state` feedback.
+- **MIDI** — turn **MIDI input** on in Settings and pick the port. A note
+  0–127 takes that cue in the focused playlist, CC 7 is master volume and CC 20
+  playback speed, and MIDI Machine Control PLAY / STOP / PAUSE / LOCATE drive
+  the transport.
+- **MIDI Show Control** — how a lighting desk fires the video. The desk sends
+  **GO** with a cue number and Deckboy takes the cue with that number; a GO
+  with no number takes the next cue, which is how a desk runs a straight
+  rundown. MSC cue numbers are text, so `12.4.1` and `A` both work. **LOAD**
+  selects a cue without firing it, **STOP** stops, **RESUME** continues,
+  **RESET** reracks the current cue to its first frame, and **ALL_OFF** is
+  the panic button: every output off, playback stopped. Set
+  **MSC device id** under the MIDI settings to match the desk's patch for
+  this machine, or **127** to answer the all-call. Any other ID must match
+  exactly, so Deckboy never acts on a GO meant for another device. Every
+  message is written to the show log, so "did the desk's GO reach this
+  machine?" always has an answer.
 - **HyperDeck** — Deckboy answers the HyperDeck protocol for decks that speak
   it.
 - **Tally / triggers** — TSL tally out, ATEM and NDI-metadata triggers,
