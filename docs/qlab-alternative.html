@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A free QLab alternative for Windows and Linux | Deckboy</title>
+    <meta name="description" content="QLab runs only on a Mac. Deckboy is a free, open-source cue list for theatre and live events on Windows, macOS and Linux: video, audio, slides and live sources on one GO, fired by MIDI Show Control from the lighting desk, OSC, MIDI or timecode. What carries over from QLab, what does not, and where it goes further.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/qlab-alternative.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="A free QLab alternative for Windows and Linux">
+    <meta property="og:description" content="A cue list with a GO button, fired from the lighting desk by MIDI Show Control, on Windows, macOS and Linux. What carries over from QLab, and what honestly does not.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/qlab-alternative.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="A free QLab alternative for Windows and Linux">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.6rem 0 .6rem; font-size: 1.22rem; color: var(--ink); }
+        .prose h3 { margin: 1.8rem 0 .5rem; font-size: 1.02rem; color: var(--ink); }
+        .prose p, .prose li { margin-bottom: 1rem; color: var(--ink-soft); max-width: 62ch; }
+        .prose ul { margin: 0 0 1rem 1.3rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+        .table-wrap { overflow-x: auto; margin: 1.2rem 0 2rem; }
+        .prose table { border-collapse: collapse; width: 100%; min-width: 520px; }
+        .prose th, .prose td { text-align: left; padding: .55rem .7rem; font-size: .93rem;
+            border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-soft); }
+        .prose th { color: var(--ink); }
+        .note { border-left: 3px solid var(--ink-soft); padding: .2rem 0 .2rem 1rem; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Is there a version of QLab for Windows?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. QLab runs only on macOS. Deckboy is a separate, free, open-source cue list that runs on Windows, macOS and Linux from the same show file. It is not affiliated with QLab or Figure 53." } },
+        { "@type": "Question", "name": "Can a lighting desk fire video cues on a Windows machine?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Deckboy answers MIDI Show Control: a desk such as an ETC Eos or a grandMA sends GO with a cue number and Deckboy takes the cue with that number. STOP, RESUME, LOAD, ALL_OFF and RESET are honoured too, and the device ID match is exact so it does not answer messages meant for the rest of the rig. MIDI is in the Windows and Linux downloads; the current macOS download does not include it." } },
+        { "@type": "Question", "name": "What does QLab do that Deckboy does not?",
+          "acceptedAnswer": { "@type": "Answer", "text": "QLab has group cues, devamp, memo and microphone cues, pre-wait and post-wait, cues that send MIDI, OSC and DMX, a lighting system and AppleScript. Deckboy has none of those today. It receives show control rather than sending it, and it is strongest where the show is pictures: video, slides, cameras, windows and web pages out to screens, NDI, SRT and SDI." } }
+      ]
+    }
+    </script>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="trailer.html">Trailer</a>
+            <a href="compare.html">Compare</a>
+            <a href="manual.html">Manual</a>
+            <a href="faq.html">FAQ</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>A free QLab alternative<br><span class="gradient-text">for Windows and Linux</span></h1>
+            <p class="hero-subtitle">QLab runs only on a Mac. When the show machine is a PC, or
+            the venue has a mixture, Deckboy is a cue list with a GO button that runs on Windows,
+            macOS and Linux from one show file, and takes its cues from the lighting desk.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <p class="note">Deckboy is independent open-source software. It is not affiliated with
+        QLab or Figure&nbsp;53. QLab is very good, and if your show machine is a Mac and your
+        show is mostly sound, you should probably use it.</p>
+
+        <h2>The short version</h2>
+        <p>Deckboy started as a video cue deck and grew toward show control. It is strongest where
+        the show is <b>pictures</b>: clips, stills, slide decks, cameras, a window on the machine,
+        a web page, NDI and SRT feeds, all as cues on one list, out to a projector, an LED wall,
+        NDI, SRT or SDI. It plays audio cues too, but QLab is the deeper audio tool.</p>
+
+        <h2>Fired from the lighting desk</h2>
+        <p>In most theatres the lighting desk is the master and everything else follows it.
+        Deckboy answers <b>MIDI Show Control</b>: an ETC Eos or a grandMA sends GO with a cue
+        number, and Deckboy takes the cue with that number. MSC cue numbers are text, so
+        <code>12.4.1</code> and <code>A</code> both work. STOP, RESUME, LOAD, ALL_OFF and RESET
+        are honoured, and so is MIDI Machine Control. The device ID match is exact, so Deckboy
+        does not answer a message meant for the rest of the rig. MIDI is in the Windows and Linux
+        downloads; the current macOS download does not include it.</p>
+        <p>It also takes OSC, MIDI notes and controllers, Art-Net and LTC timecode, and it can be
+        run from a Stream Deck or Bitfocus Companion.</p>
+
+        <h2>What carries over from QLab</h2>
+        <div class="table-wrap">
+        <table>
+            <tr><th>In QLab</th><th>In Deckboy</th></tr>
+            <tr><td>Cue list and GO</td><td>A cue list with GO. The selection is the cue you are about
+                to take, and the live cue is marked separately</td></tr>
+            <tr><td>Auto-follow</td><td>Each cue ends by stopping, holding its last frame, looping,
+                or moving on to the next cue by itself</td></tr>
+            <tr><td>Video and camera cues</td><td>Clips, stills, cameras, capture cards, NDI, SRT,
+                windows and web pages, with trim, fades, loops and a held last frame</td></tr>
+            <tr><td>Audio cues</td><td>Audio cues with fades and loudness normalising, 22 per-cue
+                audio effects, and VST3 plugins in the chain</td></tr>
+            <tr><td>Fades</td><td>Fade in and out on every cue, 13 cue-to-cue transitions, and a
+                master level</td></tr>
+            <tr><td>Text cues</td><td>Lower thirds and stage timers</td></tr>
+            <tr><td>Receiving MIDI Show Control</td><td>GO by cue number, LOAD, STOP, RESUME, RESET and
+                ALL_OFF, plus MIDI Machine Control (Windows and Linux)</td></tr>
+            <tr><td>Receiving OSC and timecode</td><td>OSC, Art-Net and LTC timecode chase</td></tr>
+            <tr><td>macOS</td><td>Windows, macOS and Linux</td></tr>
+        </table>
+        </div>
+
+        <h2>What Deckboy does not do</h2>
+        <ul>
+            <li><b>Sending show control.</b> Deckboy is fired by other devices: MSC, OSC, MIDI,
+                Art-Net and timecode all come in. It does not yet send MIDI, OSC or DMX to other
+                equipment from a cue.</li>
+            <li><b>Pre-wait, post-wait and cues that act on other cues.</b> Cues run in order and
+                can move on to the next when they end, but there are no wait times and no
+                start/stop/fade cues that target another cue.</li>
+            <li><b>Group cues, devamp and memo cues.</b></li>
+            <li><b>Microphone cues.</b> There is no live-mic cue with its own processing.</li>
+            <li><b>A lighting system.</b> Deckboy is not a lighting console.</li>
+            <li><b>Scripting.</b> There is no script cue. Other software drives Deckboy through
+                its text control protocol instead.</li>
+            <li><b>Years in the field.</b> QLab has a long record in theatres. The show-control
+                side of Deckboy is new, so run it next to the version you trust before it runs a
+                show on its own.</li>
+        </ul>
+
+        <h2>Where Deckboy goes further</h2>
+        <ul>
+            <li><b>It runs on the PC you already have</b>, and on Linux, from the same show file
+                as the Mac.</li>
+            <li><b>Every feature is free on every machine.</b> No licence per computer, so the
+                backup machine in the flight case has everything the main one has.</li>
+            <li><b>The picture leaves in more than one shape.</b> NDI, SRT, RTMP, Blackmagic SDI
+                and SMPTE ST&nbsp;2110, while it records.</li>
+            <li><b>A window or a web page is a cue.</b> A rehearsal timer, a surtitle page or a
+                score bug goes to air without a capture card or a second machine.
+                <a href="window-cues.html">How window cues work</a>.</li>
+            <li><b>Slides are cues.</b> PDF, PowerPoint and Keynote import one cue per slide, with
+                presenter view as an output of its own. <a href="slides.html">Slides and
+                presenting</a>.</li>
+            <li><b>Test patterns for the projector and the LED wall</b> are built in.
+                <a href="test-patterns.html">The free pattern kit</a>.</li>
+        </ul>
+
+        <h2>Trying it on a show</h2>
+        <p>Download the stable release, build the cue list, and point the desk's MSC output at the
+        show machine with Deckboy's device ID set to match. The
+        <a href="manual.html#remote-control">manual</a> covers MIDI Show Control and every
+        cue type. As with anything new to a rig, run it through a tech rehearsal before it runs
+        a show.</p>
+
+        <div class="cta-group" style="margin-top:2.5rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download Deckboy</a>
+            <a href="compare.html" class="btn-large btn-outline">Compare with Mitti, Millumin and vMix</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-cols">
+            <div>
+                <h4>Deckboy</h4>
+                <a href="./">What it does</a>
+                <a href="trailer.html">The trailer</a>
+                <a href="compare.html">How it compares</a>
+                <a href="qlab-alternative.html">Coming from QLab</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">Download</a>
+            </div>
+            <div>
+                <h4>Using it</h4>
+                <a href="manual.html">Manual</a>
+                <a href="faq.html">FAQ</a>
+                <a href="slides.html">Slides &amp; presenting</a>
+                <a href="window-cues.html">Window &amp; browser cues</a>
+                <a href="latency.html">Where latency hides</a>
+            </div>
+            <div>
+                <h4>Tools</h4>
+                <a href="test-patterns.html">Test patterns</a>
+                <a href="led-wall.html">LED pattern generator</a>
+                <a href="led-calculator.html">LED calculator</a>
+                <a href="screen-check.html">Screen check</a>
+                <a href="databend.html">Databend</a>
+            </div>
+            <div>
+                <h4>Guides</h4>
+                <a href="shooting-led.html">Shooting an LED wall</a>
+                <a href="press.html">Press kit</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy">Source on GitHub</a>
+            </div>
+        </div>
+        <p class="footer-note">Built as an open-source project by Utopian-Academy.
+        Free under the GPL-3.0. QLab is a trademark of Figure&nbsp;53, LLC.</p>
+    </footer>
+</body>
+</html>
