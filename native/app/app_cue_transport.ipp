@@ -1381,6 +1381,144 @@
     return did;
   }
 
+  // ── TIMECODE CUES ─────────────────────────────────────────────────────
+  //
+  // The LTC generator has existed for a while and could only be reached from a
+  // settings toggle, which is not something a show can cue. Three verbs cover
+  // what a running order needs: start the carrier, stop it, and jam it to a
+  // value at a known moment.
+  std::string fireTimecodeCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "no cue";
+    }
+    const Cue& cue = deck.cues[cueIndex];
+    const std::string action = toLower(trim(cue.tcAction));
+
+    if (action == "stop") {
+      project_.ltcOutputEnabled = false;
+      stopLtcOutput();
+      markProjectDirty();
+      const std::string did = "timecode stopped";
+      showLog("TIMECODE", did);
+      triggerToast(did);
+      return did;
+    }
+
+    if (action == "jam") {
+      // The jam is the DIFFERENCE between where the clock is about to read and
+      // where the operator wants it to read, worked out now. Computed rather
+      // than stored so a jam means the same thing wherever the deck happens to
+      // be when it fires.
+      ltcJamOffsetSeconds_ = 0.0;
+      const double natural = ltcOutputTimecodeSeconds();
+      ltcJamOffsetSeconds_ = cue.tcJamSeconds - natural;
+      const std::string did = "timecode jammed to " +
+                              formatTimecode(cue.tcJamSeconds, deck.playlistTimebaseFps);
+      showLog("TIMECODE", did);
+      triggerToast(did);
+      return did;
+    }
+
+    // START, which is also what an unrecognised action does -- the safe
+    // reading of a cue somebody labelled "timecode" is that they want some.
+    if (!project_.ltcOutputEnabled) {
+      project_.ltcOutputEnabled = true;
+      markProjectDirty();
+    }
+    if (!startLtcOutput()) {
+      // startLtcOutput already said why -- no libltc, no encoder, no device.
+      project_.ltcOutputEnabled = false;
+      return "timecode could not start";
+    }
+    const std::string did = "timecode running @ " +
+                            fmtFloat(std::clamp(project_.ltcOutputFps, 23.0, 60.0), 2) + "fps";
+    showLog("TIMECODE", did);
+    triggerToast(did);
+    return did;
+  }
+
+  Cue* selectedTimecodeCue() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Timecode) ? cue : nullptr;
+  }
+
+  void cycleTimecodeAction() {
+    Cue* cue = selectedTimecodeCue();
+    if (!cue) {
+      return;
+    }
+    const std::string now = toLower(trim(cue->tcAction));
+    cue->tcAction = now == "start" ? "stop" : (now == "stop" ? "jam" : "start");
+    markProjectDirty();
+    triggerToast(toUpper(cue->tcAction));
+  }
+
+  void nudgeTimecodeJam(double delta) {
+    Cue* cue = selectedTimecodeCue();
+    if (!cue) {
+      return;
+    }
+    cue->tcJamSeconds = std::max(0.0, cue->tcJamSeconds + delta);
+    markProjectDirty();
+  }
+
+  void editTimecodeJam() {
+    if (!selectedTimecodeCue()) {
+      return;
+    }
+    openInlineTextEditor("cue.tc_jam", "Jam To",
+                         "hh:mm:ss or seconds",
+                         formatTimecode(selectedTimecodeCue()->tcJamSeconds,
+                                        focusedDeck().playlistTimebaseFps),
+                         [this](const std::string& value) {
+                           Cue* c = selectedTimecodeCue();
+                           if (!c) {
+                             return;
+                           }
+                           // Accepts a timecode or a bare number of seconds,
+                           // because both are things people type.
+                           const std::string text = trim(value);
+                           double seconds = 0.0;
+                           if (text.find(':') != std::string::npos) {
+                             // The existing parser, which returns nullopt on
+                             // rubbish rather than a plausible wrong time.
+                             auto parsed = parseTimecodeSeconds(
+                               text, focusedDeck().playlistTimebaseFps);
+                             if (!parsed) {
+                               triggerToast("jam: not a timecode");
+                               return;
+                             }
+                             seconds = *parsed;
+                           } else {
+                             try {
+                               seconds = std::stod(text);
+                             } catch (...) {
+                               triggerToast("jam: not a time");
+                               return;
+                             }
+                           }
+                           c->tcJamSeconds = std::max(0.0, seconds);
+                           markProjectDirty();
+                         });
+  }
+
+  void fireSelectedTimecodeCue() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size()) ||
+        deck.cues[deck.selectedIndex].kind != CueKind::Timecode) {
+      return;
+    }
+    (void)fireTimecodeCue(deckIndex, deck.selectedIndex);
+  }
+
   Cue* selectedNetworkCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Network) ? cue : nullptr;
@@ -2194,6 +2332,12 @@
     // A TARGET acts on another cue and is likewise never handed to an engine.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Target) {
       (void)fireTargetCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
+    // A TIMECODE CUE ACTS ON THE GENERATOR AND IS DONE.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Timecode) {
+      (void)fireTimecodeCue(deckIndex, deck.selectedIndex);
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }

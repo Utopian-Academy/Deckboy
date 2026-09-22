@@ -325,6 +325,93 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "TCCUE" || command == "TIMECODECUE") {
+      // TCCUE NEW              -> add a timecode cue to this deck
+      // TCCUE ACTION start|stop|jam
+      // TCCUE JAM <hh:mm:ss:ff|seconds>
+      // TCCUE FIRE             -> do it now
+      // TCCUE                  -> report it, and whether the generator is up
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("TCCUE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Timecode;
+        cue.name = "Timecode " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "timecode cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("TCCUE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Timecode) {
+        failRemoteCommand("TCCUE: the selected cue is not a timecode cue");
+        return;
+      }
+
+      if (sub.empty()) {
+        std::ostringstream out;
+        out << toUpper(cue.tcAction);
+        if (toLower(trim(cue.tcAction)) == "jam") {
+          out << " " << formatTimecode(cue.tcJamSeconds, deck.playlistTimebaseFps);
+        }
+        out << " | generator " << (project_.ltcOutputEnabled ? "on" : "off");
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "FIRE" || sub == "GO" || sub == "TAKE") {
+        remoteCommandDetail_ = fireTimecodeCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "ACTION" && parts.size() >= 3) {
+        const std::string token = toLower(parts[2]);
+        if (token != "start" && token != "stop" && token != "jam") {
+          failRemoteCommand("TCCUE ACTION: expected start, stop or jam");
+          return;
+        }
+        cue.tcAction = token;
+        markProjectDirty();
+        remoteCommandDetail_ = toUpper(token);
+        return;
+      }
+      if (sub == "JAM" && parts.size() >= 3) {
+        const std::string text = trim(parts[2]);
+        double seconds = 0.0;
+        if (text.find(':') != std::string::npos) {
+          auto parsed = parseTimecodeSeconds(text, deck.playlistTimebaseFps);
+          if (!parsed) {
+            failRemoteCommand("TCCUE JAM: " + text + " is not a timecode");
+            return;
+          }
+          seconds = *parsed;
+        } else {
+          auto parsed = parseNumber(2);
+          if (!parsed || *parsed < 0.0) {
+            failRemoteCommand("TCCUE JAM: expected a timecode or seconds");
+            return;
+          }
+          seconds = *parsed;
+        }
+        cue.tcJamSeconds = seconds;
+        markProjectDirty();
+        remoteCommandDetail_ = formatTimecode(seconds, deck.playlistTimebaseFps);
+        return;
+      }
+      failRemoteCommand("TCCUE: expected NEW, ACTION, JAM or FIRE");
+      return;
+    }
     if (command == "NETCUE") {
       // NETCUE NEW                 -> add a network cue to this deck
       // NETCUE PROTO osc|udp|tcp

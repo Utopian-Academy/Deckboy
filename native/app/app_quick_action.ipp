@@ -863,6 +863,14 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionTimecodeToggle:
+        cueSectionTimecodeOpen_ = !cueSectionTimecodeOpen_;
+        break;
+      case QuickAction::TcActionCycle: cycleTimecodeAction(); break;
+      case QuickAction::TcJamDec:      nudgeTimecodeJam(-1.0); break;
+      case QuickAction::TcJamInc:      nudgeTimecodeJam(+1.0); break;
+      case QuickAction::TcEditJam:     editTimecodeJam(); break;
+      case QuickAction::TcFireNow:     fireSelectedTimecodeCue(); break;
       case QuickAction::CueSectionNetworkToggle:
         cueSectionNetworkOpen_ = !cueSectionNetworkOpen_;
         break;

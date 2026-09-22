@@ -5360,6 +5360,55 @@
       finishInspectorSection(tgSection, tgY);
     }
 
+    // TIMECODE: what this cue does to the LTC generator.
+    if (selectedCue && selectedCue->kind == CueKind::Timecode) {
+      const std::string action = toLower(trim(selectedCue->tcAction));
+      const bool isJam = action == "jam";
+      const double fps = focusedDeck().playlistTimebaseFps;
+
+      int tcY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto tcSection = beginInspectorSection(tcY, "TIMECODE", cueSectionTimecodeOpen_,
+                                             QuickAction::CueSectionTimecodeToggle,
+                                             "Collapse/expand what this cue does to timecode");
+      tcY = tcSection.bodyStartY;
+      if (cueSectionTimecodeOpen_) {
+        drawQuickRow(tcY, "does", QuickAction::TcActionCycle,
+                     action == "stop" ? std::string("STOP")
+                       : isJam ? std::string("JAM") : std::string("START"),
+                     QuickAction::TcActionCycle, QuickAction::TcActionCycle,
+                     false, false,
+                     "Start the LTC carrier, stop it, or jam it to a value");
+        tcY += kInspectorRowStep;
+
+        // The jam row only exists for a jam, for the same reason the OSC
+        // address row only exists for OSC.
+        if (isJam) {
+          drawQuickRow(tcY, "jam to", QuickAction::TcJamDec,
+                       formatTimecode(selectedCue->tcJamSeconds, fps),
+                       QuickAction::TcJamInc, QuickAction::TcEditJam,
+                       false, false,
+                       "Where the clock reads from this cue on; click the "
+                       "value to type one");
+          tcY += kInspectorRowStep;
+        }
+
+        drawQuickRow(tcY, "do it", QuickAction::TcFireNow, std::string("now"),
+                     QuickAction::TcFireNow, QuickAction::TcFireNow,
+                     false, false, "Act now, without taking the cue");
+        tcY += kInspectorRowStep;
+
+        // WHETHER THERE IS ANY TIMECODE TO ACT ON. The generator needs libltc
+        // and an audio device, and a cue that cannot do anything should say so
+        // here rather than at GO.
+        drawInspectorMessageRow(tcY,
+          project_.ltcOutputEnabled
+            ? ("running @ " + fmtFloat(project_.ltcOutputFps, 2) + "fps")
+            : std::string("generator is off - a START cue turns it on"));
+        tcY += kInspectorRowStep;
+      }
+      finishInspectorSection(tcSection, tcY);
+    }
+
     // NETWORK: where this cue sends, and what.
     //
     // The OSC address row is drawn only for OSC, because UDP and TCP have no

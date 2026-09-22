@@ -618,6 +618,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << escapeField(cue.netAddress)
         << '\t' << escapeField(cue.netPayload)
         << '\t' << cue.netPort
+        // A Timecode cue.
+        << '\t' << escapeField(cue.tcAction)
+        << '\t' << cue.tcJamSeconds
         << '\n';
     }
   }
@@ -1385,6 +1388,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "fade" ? CueKind::Fade :
         kind == "midi" ? CueKind::Midi :
         kind == "network" ? CueKind::Network :
+        kind == "timecode" ? CueKind::Timecode :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1789,6 +1793,12 @@ Project loadProject(const fs::path& projectFile,
         cue.netAddress = safeString(fields, vs + 83);
         cue.netPayload = safeString(fields, vs + 84);
         cue.netPort = std::clamp(safeInt(fields, vs + 85, 53000), 1, 65535);
+        // A Timecode cue. Absent on every older show, which had none.
+        cue.tcAction = safeString(fields, vs + 86);
+        if (cue.tcAction.empty()) {
+          cue.tcAction = "start";
+        }
+        cue.tcJamSeconds = std::max(0.0, safeDouble(fields, vs + 87, 0.0));
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -1797,7 +1807,8 @@ Project loadProject(const fs::path& projectFile,
       // now.
       if (!cue.path.empty() || cue.kind == CueKind::Master ||
           cue.kind == CueKind::Target || cue.kind == CueKind::Fade ||
-          cue.kind == CueKind::Midi || cue.kind == CueKind::Network) {
+          cue.kind == CueKind::Midi || cue.kind == CueKind::Network ||
+          cue.kind == CueKind::Timecode) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

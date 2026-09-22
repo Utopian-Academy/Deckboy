@@ -69,6 +69,9 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Timecode,      // starts, stops or jams the LTC generator on GO. The
+                 // generator already existed and could only be reached from a
+                 // settings toggle, which is not something a show can cue
   Network,       // SENDS on GO: an OSC message, a UDP datagram, or a line
                  // of TCP. The other half of the show-control story -- Deckboy
                  // has listened on all three and spoken on none
@@ -849,6 +852,9 @@ struct Cue {
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  // A Timecode cue. start | stop | jam.
+  std::string tcAction = "start";
+
   // A Network cue's message. Host and payload are text because that is what
   // an operator types and what a show file should carry; the port is a number
   // because it is one.
@@ -970,6 +976,10 @@ struct Cue {
   // The LED tile size the panel map is drawn to. 128x128 is the common one,
   // but a wall that is not made of those is exactly the wall that needs a map,
   // and mapping a 168px panel as 128 puts every label in the wrong place.
+  // Where a jam puts the clock. Seconds, because that is what the rest of the
+  // app keeps time in; the inspector shows it as a timecode.
+  double tcJamSeconds = 0.0;
+
   // 53000 is QLab's OSC port, which makes the commonest thing somebody wants
   // to do with this cue work without configuring anything.
   int netPort = 53000;
@@ -2152,6 +2162,11 @@ enum class QuickAction {
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.
   PreloadSelected,
+  CueSectionTimecodeToggle,
+  TcActionCycle,
+  TcJamDec, TcJamInc,
+  TcEditJam,
+  TcFireNow,
   CueSectionNetworkToggle,
   NetProtocolCycle,
   NetEditHost,

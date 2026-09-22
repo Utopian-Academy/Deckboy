@@ -8318,6 +8318,7 @@ class App {
   bool cueSectionFadeOpen_ = true;
   bool cueSectionMidiOpen_ = true;
   bool cueSectionNetworkOpen_ = true;
+  bool cueSectionTimecodeOpen_ = true;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.
@@ -8346,6 +8347,11 @@ class App {
   // Results from TCP network cues, which run off the main thread. Drained once
   // a tick in the update loop -- the same shape as sdlDialogActions_, and for
   // the same reason: a worker must not touch the UI.
+  // Where a timecode JAM put the clock, relative to what the deck would
+  // otherwise emit. RUNTIME, not persisted: a cue that rewrote the deck's
+  // saved start offset would leave the show permanently re-timed, which is the
+  // same reason a fade cue never writes a cue's saved gain.
+  double ltcJamOffsetSeconds_ = 0.0;
   std::mutex networkResultMutex_;
   std::vector<std::string> networkResults_;
   SDL_Rect fileCheckBtnRect_ {};

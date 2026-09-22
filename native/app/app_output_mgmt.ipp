@@ -645,7 +645,9 @@
     if (const MediaEngine* engine = focusedMediaEngine()) {
       seconds += std::max(0.0, engine->position());
     }
-    return std::max(0.0, seconds);
+    // Plus whatever a timecode cue jammed the clock to. Added here rather
+    // than written into the deck, so it disappears when the app does.
+    return std::max(0.0, seconds + ltcJamOffsetSeconds_);
   }
 
   bool startLtcOutput() {

@@ -2335,6 +2335,11 @@
       {0, 0, 0, 0},
       [this]() { addNetworkCue(); }
     });
+    contextItems_.push_back({
+      "  Timecode Cue (start / stop / jam LTC)",
+      {0, 0, 0, 0},
+      [this]() { addTimecodeCue(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -3374,6 +3379,21 @@
     onSelectionChanged();
     markProjectDirty();
     triggerToast("master cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  void addTimecodeCue() {
+    Cue cue;
+    cue.kind = CueKind::Timecode;
+    Deck& deck = focusedDeckMutable();
+    cue.name = "Timecode " + std::to_string(deck.cues.size() + 1);
+    cue.color = {60, 120, 90, 255};
+    cue.formatName = "control";
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    markProjectDirty();
+    triggerToast("timecode cue added");
     playUiSound(UiSoundEffect::Import);
   }
 
