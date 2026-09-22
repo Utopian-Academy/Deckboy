@@ -1501,12 +1501,24 @@
   // Naming the blocker is the whole fix. It is the same rule the remote
   // protocol already follows: a verb that cannot act says which part it could
   // not do, rather than repeating that it could not.
-  std::string whatIsLive() const {
+  // deckOut / outputOut report WHICH one is blocking, so the caller can put
+  // the operator in front of it. Naming the blocker was half the fix; the
+  // other half is that the thing which clears it has to be reachable.
+  std::string whatIsLive(int* deckOut = nullptr, int* outputOut = nullptr) const {
+    if (deckOut) {
+      *deckOut = -1;
+    }
+    if (outputOut) {
+      *outputOut = -1;
+    }
     for (std::size_t i = 0; i < deckRuntimes_.size(); ++i) {
       const auto& runtime = deckRuntimes_[i];
       if (runtime.mediaEngine &&
           runtime.mediaEngine->state() != TransportState::Stopped) {
         const bool paused = runtime.mediaEngine->state() == TransportState::Paused;
+        if (deckOut) {
+          *deckOut = static_cast<int>(i);
+        }
         return "deck " + std::to_string(i + 1) +
                (paused ? " is paused, not stopped" : " is playing");
       }
@@ -1514,13 +1526,39 @@
     for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
       const OutputTarget& output = project_.outputs[i];
       if (output.enabled) {
+        if (outputOut) {
+          *outputOut = static_cast<int>(i);
+        }
         return "output " + std::to_string(i + 1) + " is armed";
       }
       if (output.streamEnabled) {
+        if (outputOut) {
+          *outputOut = static_cast<int>(i);
+        }
         return "output " + std::to_string(i + 1) + " is streaming";
       }
     }
     return {};
+  }
+
+  // Put the operator in front of whatever is blocking the update.
+  //
+  // Naming it was not enough on its own, and this is the report that proved
+  // it: "I stop playback and it still says playback is active." STOP acts on
+  // the FOCUSED deck and disarm on the FOCUSED output, while the guard asks
+  // about every one of them -- so a second deck paused off screen refuses
+  // forever while the operator stops the one they can see, over and over.
+  // Focusing the blocker makes the very next STOP or disarm the right one.
+  std::string whatIsLiveAndFocusIt() {
+    int deckIndex = -1;
+    int outputIndex = -1;
+    std::string live = whatIsLive(&deckIndex, &outputIndex);
+    if (deckIndex >= 0) {
+      setFocusedDeckIndex(deckIndex);
+    } else if (outputIndex >= 0) {
+      project_.focusedOutputIndex = outputIndex;
+    }
+    return live;
   }
 
   // Ask GitHub what the newest release is. Blocking, so it is called from a
@@ -1666,10 +1704,10 @@
       triggerToast("update: nothing to install");
       return;
     }
-    if (const std::string live = whatIsLive(); !live.empty()) {
-      // Name it. "Disarm outputs first" with the outputs already disarmed is
-      // the report that produced this change.
-      triggerToast("update blocked: " + live);
+    if (const std::string live = whatIsLiveAndFocusIt(); !live.empty()) {
+      // Name it, then FOCUS it: the operator was stopping the deck in front of
+      // them while a different one held the update up.
+      triggerToast("update blocked: " + live + " (now focused)");
       return;
     }
     if (updateCheckRunning_.exchange(true)) {
@@ -1728,10 +1766,10 @@
       triggerToast("update: nothing downloaded");
       return;
     }
-    if (const std::string live = whatIsLive(); !live.empty()) {
-      // Name it. "Disarm outputs first" with the outputs already disarmed is
-      // the report that produced this change.
-      triggerToast("update blocked: " + live);
+    if (const std::string live = whatIsLiveAndFocusIt(); !live.empty()) {
+      // Name it, then FOCUS it: the operator was stopping the deck in front of
+      // them while a different one held the update up.
+      triggerToast("update blocked: " + live + " (now focused)");
       return;
     }
     updateRunningInstaller_ = fs::path(installer).filename().string();
