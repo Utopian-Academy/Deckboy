@@ -259,7 +259,7 @@ HEAD = """<!DOCTYPE html>
             <a href="manual.html">Manual</a>
             <a href="faq.html">FAQ</a>
             <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
-            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-primary">Download Free</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
         </div>
     </nav>
 
@@ -278,7 +278,7 @@ TOC
 BODY
 
         <div class="cta-group" style="justify-content:flex-start;margin-top:3rem">
-            <a href="https://github.com/Utopian-Academy/Deckboy/releases" class="btn-large">Download Latest Release</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download Latest Release</a>
             <a href="./" class="btn-large btn-outline">Back to Deckboy</a>
         </div>
     </div>
@@ -290,7 +290,7 @@ BODY
                 <a href="./">What it does</a>
                 <a href="trailer.html">The trailer</a>
                 <a href="compare.html">How it compares</a>
-                <a href="https://github.com/Utopian-Academy/Deckboy/releases">Download</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">Download</a>
             </div>
             <div>
                 <h4>Using it</h4>
