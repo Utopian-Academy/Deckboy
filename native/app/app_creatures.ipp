@@ -291,3 +291,118 @@
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
   }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BUSY CRITTERS — a critter that means "this is working"
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// An operation that takes time and says nothing is indistinguishable from one
+// that is broken. Normalise measured loudness on worker threads and kept its own
+// batch counters, and not one of them was ever read by a renderer -- so it ran in
+// complete silence and was reported as doing nothing. The update download had a
+// status line that existed only inside the settings panel, so it was invisible
+// unless you were already looking at the one place that had it.
+//
+// So a critter appears ON the thing that is working, scurries while it works and
+// leaves when it is done. Local rather than one global spinner, because the point
+// is to say WHICH thing is busy -- a status bar cannot.
+//
+// THESE ARE NOT THE THEME'S CREATURES above, and the difference is deliberate.
+// creaturesShouldBeAwake() silences the ambient animals while an output is live
+// and whenever the operator has switched them off. A busy critter obeys neither
+// rule: it is information, not decoration, and silence during work is the entire
+// complaint it exists to answer. What it does keep is the spirit of that rule --
+// it never leaves the rect it was given, so nothing wanders the chrome mid-show.
+
+  static constexpr int kBusyCritterFrames = 4;
+
+  // Art lives in data/sprites/critters/<species>-<1..4>.png and is loaded through
+  // the ordinary UI image path, so it goes through the same decoder and the same
+  // nearest-neighbour texture rule as every other picture in the chrome.
+  SDL_Texture* busyCritterFrame(const std::string& species, int frame) {
+    const std::string key = species + "-" +
+      std::to_string((frame % kBusyCritterFrames) + 1);
+    auto it = busyCritterArt_.find(key);
+    if (it == busyCritterArt_.end()) {
+      UiImageAsset asset;
+      asset.path = Paths::dataDir() / "sprites" / "critters" / (key + ".png");
+      it = busyCritterArt_.emplace(key, std::move(asset)).first;
+    }
+    // A failed load latches through attemptedLoad, so a missing file is not
+    // re-read every frame.
+    return ensureUiImageLoaded(it->second) ? it->second.texture : nullptr;
+  }
+
+  static double busyCritterHash(const std::string& s) {
+    std::uint32_t h = 2166136261u;
+    for (unsigned char c : s) {
+      h = (h ^ c) * 16777619u;
+    }
+    return static_cast<double>(h % 10000u) / 10000.0;
+  }
+
+  // Called EVERY FRAME by whatever is working, with the rect it is working in.
+  // Anything that stops calling fades and is dropped, so no operation has to
+  // remember to announce that it finished -- forgetting exactly that is the
+  // class of bug this whole feature is about.
+  void markBusy(const std::string& id, const char* species, const SDL_Rect& where) {
+    if (where.w <= 0 || where.h <= 0) {
+      return;
+    }
+    BusyCritter& b = busyCritters_[id];
+    if (b.species.empty()) {
+      b.species = species;
+      // Started somewhere arbitrary along the rect, so two rows busy at once are
+      // not in lockstep -- that reads as one animation rather than two animals.
+      b.x = 0.15 + 0.7 * busyCritterHash(id);
+      b.dir = (busyCritterHash(id + "d") < 0.5) ? -1.0 : 1.0;
+    }
+    b.home = where;
+    b.seenAtMs = SDL_GetTicks();
+  }
+
+  void serviceBusyCritters(double dt) {
+    const Uint64 now = SDL_GetTicks();
+    for (auto it = busyCritters_.begin(); it != busyCritters_.end(); ) {
+      BusyCritter& b = it->second;
+      const bool alive = (now - b.seenAtMs) < 120;
+      b.fade += ((alive ? 1.0 : 0.0) - b.fade) * std::min(1.0, dt * 6.0);
+      if (!alive && b.fade < 0.02) {
+        it = busyCritters_.erase(it);
+        continue;
+      }
+      b.phase += dt * 9.0;               // about nine frames a second of walk
+      b.x += b.dir * dt * 0.42;          // across its own rect, in fractions
+      if (b.x < 0.06) { b.x = 0.06; b.dir = 1.0; }
+      if (b.x > 0.94) { b.x = 0.94; b.dir = -1.0; }
+      ++it;
+    }
+  }
+
+  void renderBusyCritters() {
+    if (busyCritters_.empty()) {
+      return;
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    for (const auto& [id, b] : busyCritters_) {
+      SDL_Texture* tex = busyCritterFrame(b.species, static_cast<int>(b.phase));
+      if (!tex) {
+        continue;
+      }
+      // Sized from the rect it lives in, so one on a cue row and one on a
+      // toolbar button are each right for their own furniture.
+      const int size = std::clamp(b.home.h - uiScaled(6), uiScaled(12), uiScaled(28));
+      const int x = b.home.x + static_cast<int>(b.x * (b.home.w - size));
+      const int y = b.home.y + (b.home.h - size) / 2;
+      const int bob = static_cast<int>(std::lround(std::sin(b.phase * 1.6)));
+      SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(
+        std::clamp(b.fade, 0.0, 1.0) * 255.0));
+      SDL_FRect dst {static_cast<float>(x), static_cast<float>(y + bob),
+                     static_cast<float>(size), static_cast<float>(size)};
+      // Faced by flipping, so one set of art walks both ways.
+      SDL_RenderTextureRotated(controlRenderer_, tex, nullptr, &dst, 0.0, nullptr,
+                               b.dir < 0.0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+      SDL_SetTextureAlphaMod(tex, 255);
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }

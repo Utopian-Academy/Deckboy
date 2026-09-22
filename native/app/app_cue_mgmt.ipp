@@ -548,6 +548,13 @@
       QueuedNormalize job = std::move(normalizeQueue_.front());
       normalizeQueue_.pop_front();
       normalizeRunning_.fetch_add(1, std::memory_order_acq_rel);
+      {
+        // Which cue is under the needle, so the row can say so. The COUNT was
+        // tracked already and never reached a renderer, which is why normalise
+        // looked like it did nothing at all.
+        std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
+        normalizeInFlight_.insert(job.cueId);
+      }
       std::thread([this, path = job.path, cueId = job.cueId]() {
         NormalizeResult result;
         result.cueId = cueId;
@@ -594,11 +601,31 @@
         }
         {
           std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
+          normalizeInFlight_.erase(cueId);
           normalizeResults_.push_back(std::move(result));
         }
         normalizeRunning_.fetch_sub(1, std::memory_order_acq_rel);
       }).detach();
     }
+  }
+
+  // Is this cue queued for, or currently under, loudness measurement?
+  bool cueIsNormalizing(const std::string& cueId) const {
+    if (cueId.empty()) {
+      return false;
+    }
+    {
+      std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
+      if (normalizeInFlight_.count(cueId) != 0) {
+        return true;
+      }
+    }
+    for (const auto& job : normalizeQueue_) {
+      if (job.cueId == cueId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   int normalizeOutstanding() const {

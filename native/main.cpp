@@ -8248,7 +8248,8 @@ class App {
     bool peakLimited = false;
     bool ok = false;
   };
-  std::mutex normalizeResultsMutex_;
+  mutable std::mutex normalizeResultsMutex_;
+  std::set<std::string> normalizeInFlight_;   // cue ids under the needle now
   std::vector<NormalizeResult> normalizeResults_;
 
 #if DECKBOY_INPROC_DECODE
@@ -8371,6 +8372,19 @@ class App {
   std::vector<Colony> colonies_;
   std::vector<deckboy::creatures::Creature> creatures_;
   deckboy::creatures::Habitat creatureHabitat_ {};
+  // A critter pinned to whatever is working. Keyed by a job id the caller
+  // invents; see the BUSY CRITTERS block in app_creatures.ipp.
+  struct BusyCritter {
+    std::string species;
+    SDL_Rect home {};
+    double x = 0.5;      // position along the rect, 0..1
+    double dir = 1.0;
+    double phase = 0.0;
+    double fade = 0.0;
+    Uint64 seenAtMs = 0;
+  };
+  std::map<std::string, BusyCritter> busyCritters_;
+  std::map<std::string, UiImageAsset> busyCritterArt_;
   double creatureFade_ = 0.0;       // eased, so they leave rather than blink out
   double creatureLastTime_ = 0.0;
   SDL_Rect playlistFreeRect_ {};    // the empty part of the focused playlist

@@ -1156,6 +1156,7 @@
       ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
+    renderBusyCritters();
     renderSlideRenderCard(width, height);
     renderImportProgress(width, height);
     if (confirmQuit_) {
@@ -1412,6 +1413,13 @@
     for (int cueIndex : primaryIndices) {
       SDL_Rect row {primaryClip.x, y, primaryClip.w, kRowHeight};
       renderCueRow(row, deckIndex, cueIndex);
+      // A cue under the loudness needle gets a critter on its own row. Marked
+      // from here because this is where the row's rect is known; the critter
+      // stops as soon as the cue stops being marked.
+      if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size()) &&
+          cueIsNormalizing(deck.cues[cueIndex].id)) {
+        markBusy("norm:" + deck.cues[cueIndex].id, "mouse", row);
+      }
       y += kRowHeight + 8;
     }
     if (primaryIndices.empty()) {
