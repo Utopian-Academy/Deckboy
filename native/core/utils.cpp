@@ -294,6 +294,7 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::Master:         return "Master";
     case CueKind::Target:         return "Target";
     case CueKind::Fade:           return "Fade";
+    case CueKind::Midi:           return "MIDI";
   }
   return "Video";
 }
@@ -330,6 +331,7 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::Master:       return "master";
     case CueKind::Target:       return "target";
     case CueKind::Fade:         return "fade";
+    case CueKind::Midi:         return "midi";
     case CueKind::Video:
     default:                    return "video";
   }

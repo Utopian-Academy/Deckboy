@@ -28,7 +28,9 @@
 
 #include "midi.hpp"
 
+#include <cctype>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #if defined(DECKBOY_HAS_MIDI)
@@ -304,6 +306,294 @@ std::optional<std::pair<MessageType, std::vector<int>>> parseMidiMessage(const s
   }
 
   return std::nullopt;  // Incomplete message (not enough data bytes)
+}
+
+// ── MIDI OUT ────────────────────────────────────────────────────────────────
+
+const char* outMessageKindToken(OutMessageKind kind) {
+  switch (kind) {
+    case OutMessageKind::NoteOff:       return "note-off";
+    case OutMessageKind::ControlChange: return "cc";
+    case OutMessageKind::ProgramChange: return "program";
+    case OutMessageKind::MscGo:         return "msc-go";
+    case OutMessageKind::MscStop:       return "msc-stop";
+    case OutMessageKind::MscResume:     return "msc-resume";
+    case OutMessageKind::Raw:           return "raw";
+    case OutMessageKind::NoteOn:        break;
+  }
+  return "note-on";
+}
+
+const char* outMessageKindLabel(OutMessageKind kind) {
+  switch (kind) {
+    case OutMessageKind::NoteOff:       return "Note off";
+    case OutMessageKind::ControlChange: return "Control change";
+    case OutMessageKind::ProgramChange: return "Program change";
+    case OutMessageKind::MscGo:         return "MSC GO";
+    case OutMessageKind::MscStop:       return "MSC STOP";
+    case OutMessageKind::MscResume:     return "MSC RESUME";
+    case OutMessageKind::Raw:           return "Raw bytes";
+    case OutMessageKind::NoteOn:        break;
+  }
+  return "Note on";
+}
+
+OutMessageKind outMessageKindFromToken(const std::string& token) {
+  if (token == "note-off")   return OutMessageKind::NoteOff;
+  if (token == "cc")         return OutMessageKind::ControlChange;
+  if (token == "program")    return OutMessageKind::ProgramChange;
+  if (token == "msc-go")     return OutMessageKind::MscGo;
+  if (token == "msc-stop")   return OutMessageKind::MscStop;
+  if (token == "msc-resume") return OutMessageKind::MscResume;
+  if (token == "raw")        return OutMessageKind::Raw;
+  return OutMessageKind::NoteOn;
+}
+
+namespace {
+
+// MSC carries cue numbers as ASCII with the dots intact -- "12.5" is twelve
+// point five, not 125 -- which is why Cue::mscCue is text and not a number.
+void appendMscAscii(std::vector<std::uint8_t>& out, const std::string& text) {
+  for (char c : text) {
+    const unsigned char u = static_cast<unsigned char>(c);
+    // Only the characters MSC defines for a cue number. Anything else would
+    // put a byte above 0x7F inside a SysEx and terminate it early, which
+    // desks answer by ignoring the whole message.
+    if ((u >= '0' && u <= '9') || u == '.') {
+      out.push_back(static_cast<std::uint8_t>(u));
+    }
+  }
+}
+
+int clampByte(int v) { return v < 0 ? 0 : (v > 127 ? 127 : v); }
+
+}  // namespace
+
+std::vector<std::uint8_t> encodeOutMessage(const OutMessage& message) {
+  std::vector<std::uint8_t> out;
+  // Operators count channels from 1; the wire counts from 0.
+  const int channel = (message.channel < 1 ? 1 : (message.channel > 16 ? 16 : message.channel)) - 1;
+
+  switch (message.kind) {
+    case OutMessageKind::NoteOn:
+      out = {static_cast<std::uint8_t>(0x90 | channel),
+             static_cast<std::uint8_t>(clampByte(message.data1)),
+             static_cast<std::uint8_t>(clampByte(message.data2))};
+      return out;
+    case OutMessageKind::NoteOff:
+      out = {static_cast<std::uint8_t>(0x80 | channel),
+             static_cast<std::uint8_t>(clampByte(message.data1)),
+             static_cast<std::uint8_t>(clampByte(message.data2))};
+      return out;
+    case OutMessageKind::ControlChange:
+      out = {static_cast<std::uint8_t>(0xB0 | channel),
+             static_cast<std::uint8_t>(clampByte(message.data1)),
+             static_cast<std::uint8_t>(clampByte(message.data2))};
+      return out;
+    case OutMessageKind::ProgramChange:
+      out = {static_cast<std::uint8_t>(0xC0 | channel),
+             static_cast<std::uint8_t>(clampByte(message.data1))};
+      return out;
+    case OutMessageKind::Raw: {
+      // "90 3C 7F" or "903C7F". Anything that is not a pair of hex digits ends
+      // the parse and yields NOTHING, rather than a truncated message: half a
+      // MIDI message on a show network is worse than silence.
+      std::string digits;
+      for (char c : message.rawHex) {
+        if (std::isxdigit(static_cast<unsigned char>(c))) {
+          digits.push_back(c);
+        } else if (c != ' ' && c != ',' && c != '\t') {
+          return {};
+        }
+      }
+      if (digits.empty() || (digits.size() % 2) != 0) {
+        return {};
+      }
+      for (std::size_t i = 0; i + 1 < digits.size(); i += 2) {
+        out.push_back(static_cast<std::uint8_t>(
+          std::stoi(digits.substr(i, 2), nullptr, 16)));
+      }
+      return out;
+    }
+    case OutMessageKind::MscGo:
+    case OutMessageKind::MscStop:
+    case OutMessageKind::MscResume:
+      break;
+  }
+
+  // MIDI Show Control, the same shape this app already PARSES on the way in
+  // (see core/show_control.hpp) -- which is why the vocabulary matches and a
+  // Deckboy can drive another Deckboy.
+  //
+  //   F0 7F <device> 02 <command format> <command> [<cue> 00 <list>] F7
+  //
+  // Command format 0x01 is "lighting general"; 0x7F is all-types, which is
+  // what a cue aimed at a whole rack wants and what Deckboy itself accepts.
+  const std::uint8_t command =
+    message.kind == OutMessageKind::MscGo     ? 0x01 :
+    message.kind == OutMessageKind::MscStop   ? 0x02 : 0x03;
+  out.push_back(0xF0);
+  out.push_back(0x7F);
+  out.push_back(static_cast<std::uint8_t>(clampByte(message.mscDevice)));
+  out.push_back(0x02);                       // MSC
+  out.push_back(0x7F);                       // all-types
+  out.push_back(command);
+  if (!message.mscCue.empty()) {
+    appendMscAscii(out, message.mscCue);
+    if (!message.mscList.empty()) {
+      out.push_back(0x00);                   // separator
+      appendMscAscii(out, message.mscList);
+    }
+  }
+  out.push_back(0xF7);
+  return out;
+}
+
+std::string describeOutMessage(const OutMessage& message) {
+  std::string text = outMessageKindLabel(message.kind);
+  switch (message.kind) {
+    case OutMessageKind::NoteOn:
+    case OutMessageKind::NoteOff:
+      return text + " ch" + std::to_string(message.channel) +
+             " note " + std::to_string(message.data1) +
+             " vel " + std::to_string(message.data2);
+    case OutMessageKind::ControlChange:
+      return text + " ch" + std::to_string(message.channel) +
+             " cc " + std::to_string(message.data1) +
+             " = " + std::to_string(message.data2);
+    case OutMessageKind::ProgramChange:
+      return text + " ch" + std::to_string(message.channel) +
+             " program " + std::to_string(message.data1);
+    case OutMessageKind::Raw:
+      return text + " " + (message.rawHex.empty() ? std::string("(none)") : message.rawHex);
+    case OutMessageKind::MscGo:
+    case OutMessageKind::MscStop:
+    case OutMessageKind::MscResume:
+      break;
+  }
+  text += " device " + std::to_string(message.mscDevice);
+  if (!message.mscCue.empty()) {
+    text += " cue " + message.mscCue;
+  }
+  if (!message.mscList.empty()) {
+    text += " list " + message.mscList;
+  }
+  return text;
+}
+
+class MidiOutput::Impl {
+ public:
+  bool isOpen_ = false;
+  std::string portInUse_;
+#if defined(DECKBOY_HAS_MIDI)
+  std::unique_ptr<RtMidiOut> midiOut_;
+#endif
+};
+
+MidiOutput::MidiOutput() : impl_(std::make_unique<Impl>()) {}
+
+MidiOutput::~MidiOutput() { close(); }
+
+std::vector<DeviceInfo> MidiOutput::listDevices() {
+  std::vector<DeviceInfo> devices;
+#if defined(DECKBOY_HAS_MIDI)
+  try {
+    RtMidiOut probe;
+    unsigned int nPorts = probe.getPortCount();
+    for (unsigned int i = 0; i < nPorts; ++i) {
+      DeviceInfo info;
+      info.id = static_cast<int>(i);
+      info.name = probe.getPortName(i);
+      devices.push_back(info);
+    }
+  } catch (const RtMidiError& e) {
+    std::cerr << "MIDI out enumerate failed: " << e.getMessage() << '\n';
+  }
+#endif
+  return devices;
+}
+
+bool MidiOutput::open(int deviceId) {
+  close();
+#if defined(DECKBOY_HAS_MIDI)
+  try {
+    impl_->midiOut_ = std::make_unique<RtMidiOut>();
+    unsigned int nPorts = impl_->midiOut_->getPortCount();
+    if (deviceId < 0 || static_cast<unsigned int>(deviceId) >= nPorts) {
+      std::cerr << "MIDI out open: port " << deviceId << " out of range\n";
+      impl_->midiOut_.reset();
+      return false;
+    }
+    impl_->portInUse_ = impl_->midiOut_->getPortName(static_cast<unsigned int>(deviceId));
+    impl_->midiOut_->openPort(static_cast<unsigned int>(deviceId));
+    impl_->isOpen_ = true;
+    return true;
+  } catch (const RtMidiError& e) {
+    std::cerr << "MIDI out open failed: " << e.getMessage() << '\n';
+    impl_->midiOut_.reset();
+    return false;
+  }
+#else
+  (void)deviceId;
+  return false;
+#endif
+}
+
+bool MidiOutput::openByName(const std::string& name) {
+  if (name.empty()) {
+    return false;
+  }
+  // A NAMED PORT THAT IS ABSENT IS REPORTED, NOT SWAPPED. The same rule the
+  // app already applies to a named MIDI input and a named audio device: what
+  // the operator asked for is the request, and binding to whatever happens to
+  // enumerate first is how a show ends up driving the wrong desk.
+  const auto devices = listDevices();
+  for (const auto& d : devices) {
+    if (d.name == name) {
+      return open(d.id);
+    }
+  }
+  for (const auto& d : devices) {
+    if (d.name.find(name) != std::string::npos) {
+      return open(d.id);
+    }
+  }
+  return false;
+}
+
+bool MidiOutput::isOpen() const { return impl_->isOpen_; }
+
+const std::string& MidiOutput::portInUse() const { return impl_->portInUse_; }
+
+void MidiOutput::close() {
+#if defined(DECKBOY_HAS_MIDI)
+  if (impl_->midiOut_) {
+    try {
+      impl_->midiOut_->closePort();
+    } catch (const RtMidiError&) {
+    }
+    impl_->midiOut_.reset();
+  }
+#endif
+  impl_->isOpen_ = false;
+  impl_->portInUse_.clear();
+}
+
+bool MidiOutput::send(const std::vector<std::uint8_t>& bytes) {
+  if (bytes.empty() || !impl_->isOpen_) {
+    return false;
+  }
+#if defined(DECKBOY_HAS_MIDI)
+  try {
+    impl_->midiOut_->sendMessage(&bytes);
+    return true;
+  } catch (const RtMidiError& e) {
+    std::cerr << "MIDI out send failed: " << e.getMessage() << '\n';
+    return false;
+  }
+#else
+  return false;
+#endif
 }
 
 }  // namespace deckboy::platform::midi

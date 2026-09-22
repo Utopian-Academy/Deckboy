@@ -8316,6 +8316,7 @@ class App {
   bool cueSectionMasterOpen_ = true;
   bool cueSectionTargetOpen_ = true;
   bool cueSectionFadeOpen_ = true;
+  bool cueSectionMidiOpen_ = true;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.
@@ -8335,6 +8336,12 @@ class App {
   int preloadDeckIndex_ = -1;
   int preloadCueIndex_ = -1;
   bool preloadStarting_ = false;
+  // The MIDI port a cue last asked for, kept open between cues so a run of
+  // MIDI cues on one port does not re-open it for each. Opening a port costs
+  // milliseconds and can fail; doing it once per GO would put that on the show
+  // rather than on the first cue.
+  deckboy::platform::midi::MidiOutput midiOut_;
+  std::string midiOutPortRequested_;
   SDL_Rect fileCheckBtnRect_ {};
   int showProblemCount_ = 0;        // rescanned on a cadence, not per frame
   int showProblemCursor_ = 0;       // which one the next click walks to

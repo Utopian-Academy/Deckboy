@@ -5360,6 +5360,135 @@
       finishInspectorSection(tgSection, tgY);
     }
 
+    // MIDI: the message this cue sends on GO.
+    //
+    // Only the rows the chosen message actually uses are drawn. A note has a
+    // channel and two data bytes; an MSC GO has a device and a cue number and
+    // no channel at all. Showing all of them at once would put four controls
+    // on screen that cannot affect anything, which is the same fault as a
+    // control that does nothing -- just multiplied.
+    if (selectedCue && selectedCue->kind == CueKind::Midi) {
+      using deckboy::platform::midi::OutMessageKind;
+      const OutMessageKind mk =
+        deckboy::platform::midi::outMessageKindFromToken(selectedCue->midiMessage);
+      const bool isMsc = mk == OutMessageKind::MscGo ||
+                         mk == OutMessageKind::MscStop ||
+                         mk == OutMessageKind::MscResume;
+      const bool isRaw = mk == OutMessageKind::Raw;
+      const bool hasChannel = !isMsc && !isRaw;
+      const bool hasData2 = hasChannel && mk != OutMessageKind::ProgramChange;
+
+      int mdY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto mdSection = beginInspectorSection(mdY, "MIDI", cueSectionMidiOpen_,
+                                             QuickAction::CueSectionMidiToggle,
+                                             "Collapse/expand the message this cue sends");
+      mdY = mdSection.bodyStartY;
+      if (cueSectionMidiOpen_) {
+        drawQuickRow(mdY, "sends", QuickAction::MidiKindCycle,
+                     deckboy::platform::midi::outMessageKindLabel(mk),
+                     QuickAction::MidiKindCycle, QuickAction::MidiKindCycle,
+                     false, false,
+                     "Note, control change, program change, MIDI Show Control, "
+                     "or your own bytes");
+        mdY += kInspectorRowStep;
+
+        drawQuickRow(mdY, "port", QuickAction::MidiPortCycle,
+                     selectedCue->midiPortName.empty()
+                       ? std::string("first available")
+                       : selectedCue->midiPortName,
+                     QuickAction::MidiPortCycle, QuickAction::MidiPortCycle,
+                     false, false,
+                     "Which MIDI output; a named port that is missing is "
+                     "reported rather than swapped");
+        mdY += kInspectorRowStep;
+
+        if (hasChannel) {
+          drawQuickRow(mdY, "channel", QuickAction::MidiChannelDec,
+                       std::to_string(selectedCue->midiChannel),
+                       QuickAction::MidiChannelInc, QuickAction::ToggleLoop,
+                       false, false, "1-16, as the desk counts them");
+          mdY += kInspectorRowStep;
+
+          // Named for what the byte MEANS in this message, not "data 1".
+          const char* d1 = mk == OutMessageKind::ControlChange ? "controller"
+                         : mk == OutMessageKind::ProgramChange ? "program"
+                                                               : "note";
+          drawQuickRow(mdY, d1, QuickAction::MidiData1Dec,
+                       std::to_string(selectedCue->midiData1),
+                       QuickAction::MidiData1Inc, QuickAction::ToggleLoop,
+                       false, false, "0-127");
+          mdY += kInspectorRowStep;
+
+          if (hasData2) {
+            const char* d2 = mk == OutMessageKind::ControlChange ? "value"
+                                                                 : "velocity";
+            drawQuickRow(mdY, d2, QuickAction::MidiData2Dec,
+                         std::to_string(selectedCue->midiData2),
+                         QuickAction::MidiData2Inc, QuickAction::ToggleLoop,
+                         false, false, "0-127");
+            mdY += kInspectorRowStep;
+          }
+        }
+
+        if (isMsc) {
+          drawQuickRow(mdY, "device", QuickAction::MidiMscDeviceDec,
+                       selectedCue->mscDevice == 127
+                         ? std::string("127 (all)")
+                         : std::to_string(selectedCue->mscDevice),
+                       QuickAction::MidiMscDeviceInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "0-127; 127 addresses every device on the line");
+          mdY += kInspectorRowStep;
+
+          drawQuickRow(mdY, "cue number", QuickAction::MidiEditCueNumber,
+                       selectedCue->mscCue.empty() ? std::string("none")
+                                                   : selectedCue->mscCue,
+                       QuickAction::MidiEditCueNumber,
+                       QuickAction::MidiEditCueNumber, false, false,
+                       "The cue number on the other desk, e.g. 12.5");
+          mdY += kInspectorRowStep;
+        }
+
+        if (isRaw) {
+          drawQuickRow(mdY, "bytes", QuickAction::MidiEditRawHex,
+                       selectedCue->midiRawHex.empty()
+                         ? std::string("none")
+                         : selectedCue->midiRawHex,
+                       QuickAction::MidiEditRawHex, QuickAction::MidiEditRawHex,
+                       false, false, "Hex, e.g. 90 3C 7F");
+          mdY += kInspectorRowStep;
+        }
+
+        drawQuickRow(mdY, "send", QuickAction::MidiSendNow, std::string("now"),
+                     QuickAction::MidiSendNow, QuickAction::MidiSendNow,
+                     false, false, "Send it now, without taking the cue");
+        mdY += kInspectorRowStep;
+
+        // WHAT WILL ACTUALLY GO DOWN THE WIRE, spelled out. A MIDI cue is the
+        // one kind whose effect is entirely invisible from here, so the panel
+        // says what it would send -- and says so when it cannot build it.
+        const auto preview =
+          deckboy::platform::midi::encodeOutMessage(midiMessageForCue(*selectedCue));
+        if (preview.empty()) {
+          drawInspectorMessageRow(mdY, "nothing to send - check the message");
+        } else {
+          std::string hex;
+          for (std::size_t i = 0; i < preview.size() && i < 12; ++i) {
+            char buf[4];
+            std::snprintf(buf, sizeof(buf), "%02X", preview[i]);
+            if (!hex.empty()) hex += " ";
+            hex += buf;
+          }
+          if (preview.size() > 12) {
+            hex += " ...";
+          }
+          drawInspectorMessageRow(mdY, hex);
+        }
+        mdY += kInspectorRowStep;
+      }
+      finishInspectorSection(mdSection, mdY);
+    }
+
     // FADE: what this cue ramps, to where, how fast and in what shape.
     if (selectedCue && selectedCue->kind == CueKind::Fade) {
       int fdY = inspectorSectionBottomMax_ + kInspectorSectionGap;

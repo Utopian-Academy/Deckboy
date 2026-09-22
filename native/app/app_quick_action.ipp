@@ -863,6 +863,22 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionMidiToggle:
+        cueSectionMidiOpen_ = !cueSectionMidiOpen_;
+        break;
+      case QuickAction::MidiKindCycle:     cycleMidiCueKind(); break;
+      case QuickAction::MidiPortCycle:     cycleMidiCuePort(); break;
+      case QuickAction::MidiChannelDec:    nudgeMidiCueField(0, -1); break;
+      case QuickAction::MidiChannelInc:    nudgeMidiCueField(0, +1); break;
+      case QuickAction::MidiData1Dec:      nudgeMidiCueField(1, -1); break;
+      case QuickAction::MidiData1Inc:      nudgeMidiCueField(1, +1); break;
+      case QuickAction::MidiData2Dec:      nudgeMidiCueField(2, -1); break;
+      case QuickAction::MidiData2Inc:      nudgeMidiCueField(2, +1); break;
+      case QuickAction::MidiMscDeviceDec:  nudgeMidiCueField(3, -1); break;
+      case QuickAction::MidiMscDeviceInc:  nudgeMidiCueField(3, +1); break;
+      case QuickAction::MidiEditCueNumber: editMidiCueNumber(); break;
+      case QuickAction::MidiEditRawHex:    editMidiCueRawHex(); break;
+      case QuickAction::MidiSendNow:       sendSelectedMidiCueNow(); break;
       case QuickAction::PreloadSelected:
         // A toggle for the same reason audition is: whoever racked it is the
         // one who wants it gone, and should not need a second control.

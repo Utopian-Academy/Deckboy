@@ -1282,6 +1282,218 @@
     return name;
   }
 
+  // ── MIDI CUES ─────────────────────────────────────────────────────────
+  //
+  // Deckboy has listened to MIDI, MSC and MMC for a long time and has never
+  // said anything. This is the other direction: a cue that, on GO, tells the
+  // lighting desk or the sound rig or another Deckboy to do something.
+  //
+  // The bytes are built by a pure function in platform/midi.hpp, which is what
+  // lets them be tested with no hardware in the room -- and the encoder tests
+  // in --smoke are the only part of this a machine can check.
+
+  // Resolve the port a cue asks for, opening it only when it changes.
+  //
+  // A NAMED PORT THAT IS ABSENT IS REPORTED, NOT SWAPPED, the same rule the
+  // app already applies to a named MIDI input and a named audio device. A cue
+  // that quietly drove whatever port happened to enumerate first would be a
+  // show sending GOs to the wrong desk.
+  bool ensureMidiOutPort(const std::string& requested, std::string& reasonOut) {
+    const std::string want = trim(requested);
+    if (want.empty()) {
+      // No port named: use the first one there is, which is what a rig with a
+      // single interface wants and never has to configure.
+      const auto ports = deckboy::platform::midi::MidiOutput::listDevices();
+      if (ports.empty()) {
+        reasonOut = "no MIDI output ports on this machine";
+        return false;
+      }
+      if (midiOut_.isOpen() && midiOutPortRequested_.empty()) {
+        return true;
+      }
+      midiOutPortRequested_.clear();
+      if (!midiOut_.open(ports.front().id)) {
+        reasonOut = "could not open " + ports.front().name;
+        return false;
+      }
+      return true;
+    }
+    if (midiOut_.isOpen() && midiOutPortRequested_ == want) {
+      return true;
+    }
+    if (!midiOut_.openByName(want)) {
+      reasonOut = "MIDI port not found: " + want;
+      midiOutPortRequested_.clear();
+      return false;
+    }
+    midiOutPortRequested_ = want;
+    return true;
+  }
+
+  deckboy::platform::midi::OutMessage midiMessageForCue(const Cue& cue) const {
+    deckboy::platform::midi::OutMessage message;
+    message.kind = deckboy::platform::midi::outMessageKindFromToken(cue.midiMessage);
+    message.channel = cue.midiChannel;
+    message.data1 = cue.midiData1;
+    message.data2 = cue.midiData2;
+    message.mscDevice = cue.mscDevice;
+    message.mscCue = cue.mscCue;
+    message.mscList = cue.mscList;
+    message.rawHex = cue.midiRawHex;
+    return message;
+  }
+
+  std::string fireMidiCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "no cue";
+    }
+    const Cue& cue = deck.cues[cueIndex];
+    const auto message = midiMessageForCue(cue);
+    const auto bytes = deckboy::platform::midi::encodeOutMessage(message);
+    // AN UNBUILDABLE MESSAGE SENDS NOTHING AND SAYS SO. Half a MIDI message on
+    // a show network is worse than silence, and a cue that silently sent
+    // nothing would be indistinguishable from a cable fault.
+    if (bytes.empty()) {
+      const std::string why = cue.name + ": nothing to send (check the message)";
+      triggerToast(why);
+      return why;
+    }
+    std::string reason;
+    if (!ensureMidiOutPort(cue.midiPortName, reason)) {
+      triggerToast(cue.name + ": " + reason);
+      return reason;
+    }
+    if (!midiOut_.send(bytes)) {
+      const std::string why = cue.name + ": the port refused the message";
+      triggerToast(why);
+      return why;
+    }
+    const std::string did = deckboy::platform::midi::describeOutMessage(message) +
+                            " -> " + (midiOut_.portInUse().empty()
+                                        ? std::string("default port")
+                                        : midiOut_.portInUse());
+    showLog("MIDI OUT", did);
+    triggerToast(did);
+    return did;
+  }
+
+  Cue* selectedMidiCue() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Midi) ? cue : nullptr;
+  }
+
+  void cycleMidiCueKind() {
+    Cue* cue = selectedMidiCue();
+    if (!cue) {
+      return;
+    }
+    static const char* kOrder[] = {"note-on", "note-off", "cc", "program",
+                                   "msc-go", "msc-stop", "msc-resume", "raw"};
+    const int count = static_cast<int>(sizeof(kOrder) / sizeof(kOrder[0]));
+    int at = 0;
+    for (int i = 0; i < count; ++i) {
+      if (cue->midiMessage == kOrder[i]) {
+        at = i;
+        break;
+      }
+    }
+    cue->midiMessage = kOrder[(at + 1) % count];
+    markProjectDirty();
+    triggerToast(deckboy::platform::midi::outMessageKindLabel(
+      deckboy::platform::midi::outMessageKindFromToken(cue->midiMessage)));
+  }
+
+  // Steps through the ports that exist RIGHT NOW, plus an empty entry meaning
+  // "the first one there is". Enumerated at every press rather than cached:
+  // interfaces get plugged in during setup, and a list from boot would be a
+  // list of what used to be there.
+  void cycleMidiCuePort() {
+    Cue* cue = selectedMidiCue();
+    if (!cue) {
+      return;
+    }
+    const auto ports = deckboy::platform::midi::MidiOutput::listDevices();
+    if (ports.empty()) {
+      triggerToast("no MIDI output ports on this machine");
+      return;
+    }
+    int at = -1;
+    for (int i = 0; i < static_cast<int>(ports.size()); ++i) {
+      if (ports[i].name == cue->midiPortName) {
+        at = i;
+        break;
+      }
+    }
+    const int next = at + 1;
+    cue->midiPortName = next >= static_cast<int>(ports.size())
+                          ? std::string() : ports[next].name;
+    markProjectDirty();
+    triggerToast(cue->midiPortName.empty() ? "first port available"
+                                           : cue->midiPortName);
+  }
+
+  // 0 channel, 1 data1, 2 data2, 3 MSC device.
+  void nudgeMidiCueField(int which, int delta) {
+    Cue* cue = selectedMidiCue();
+    if (!cue) {
+      return;
+    }
+    switch (which) {
+      case 0: cue->midiChannel = std::clamp(cue->midiChannel + delta, 1, 16); break;
+      case 1: cue->midiData1 = std::clamp(cue->midiData1 + delta, 0, 127); break;
+      case 2: cue->midiData2 = std::clamp(cue->midiData2 + delta, 0, 127); break;
+      default: cue->mscDevice = std::clamp(cue->mscDevice + delta, 0, 127); break;
+    }
+    markProjectDirty();
+  }
+
+  void editMidiCueNumber() {
+    Cue* cue = selectedMidiCue();
+    if (!cue) {
+      return;
+    }
+    openInlineTextEditor("cue.msc_number", "MSC Cue Number",
+                         "e.g. 12.5", cue->mscCue,
+                         [this](const std::string& value) {
+                           if (Cue* c = selectedMidiCue()) {
+                             c->mscCue = trim(value);
+                             markProjectDirty();
+                           }
+                         });
+  }
+
+  void editMidiCueRawHex() {
+    Cue* cue = selectedMidiCue();
+    if (!cue) {
+      return;
+    }
+    openInlineTextEditor("cue.midi_raw", "Raw MIDI Bytes",
+                         "e.g. 90 3C 7F", cue->midiRawHex,
+                         [this](const std::string& value) {
+                           if (Cue* c = selectedMidiCue()) {
+                             c->midiRawHex = trim(value);
+                             markProjectDirty();
+                           }
+                         });
+  }
+
+  void sendSelectedMidiCueNow() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size()) ||
+        deck.cues[deck.selectedIndex].kind != CueKind::Midi) {
+      return;
+    }
+    (void)fireMidiCue(deckIndex, deck.selectedIndex);
+  }
+
   void toggleSelectedCueArmed() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
@@ -1750,6 +1962,13 @@
     // A TARGET acts on another cue and is likewise never handed to an engine.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Target) {
       (void)fireTargetCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
+    // A MIDI CUE SENDS AND IS DONE. Never handed to an engine: it has no
+    // media, and it must not disturb whatever picture the deck is carrying.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Midi) {
+      (void)fireMidiCue(deckIndex, deck.selectedIndex);
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
@@ -2253,6 +2472,14 @@
                                    std::to_string(a.deckIndex + 1) + " is gone"});
             }
           }
+        }
+
+        // A MIDI cue whose message cannot be built. Checked here rather than
+        // at GO, which is the whole point of the panel: a raw string with a
+        // typo in it is silent on the night and obvious before doors.
+        if (cue.kind == CueKind::Midi &&
+            deckboy::platform::midi::encodeOutMessage(midiMessageForCue(cue)).empty()) {
+          out.push_back({d, c, "MIDI cue has nothing to send"});
         }
 
         // A fade that does nothing: zero length AND already at its value is

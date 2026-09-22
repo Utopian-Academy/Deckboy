@@ -1216,7 +1216,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 15;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 24;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop
         {
@@ -1254,6 +1254,112 @@
           }
           expect(inert, "a show saved before the spine opens with no waits and no continue");
         }
+    // ── MIDI OUT: THE BYTES ────────────────────────────────────────────────
+    //
+    // The encoder is a pure function precisely so it can be checked here, with
+    // no desk in the room. Whether a port carried the bytes to a console is a
+    // question only a console can answer; whether the bytes were RIGHT is a
+    // question for a test, and it is the half that goes wrong silently.
+    {
+      using deckboy::platform::midi::OutMessage;
+      using deckboy::platform::midi::OutMessageKind;
+      using deckboy::platform::midi::encodeOutMessage;
+      auto bytesOf = [](const OutMessage& m) { return encodeOutMessage(m); };
+      auto eq = [](const std::vector<std::uint8_t>& got,
+                   const std::vector<std::uint8_t>& want) { return got == want; };
+
+      OutMessage note;
+      note.kind = OutMessageKind::NoteOn;
+      note.channel = 1;
+      note.data1 = 60;
+      note.data2 = 127;
+      expect(eq(bytesOf(note), {0x90, 0x3C, 0x7F}), "note on, channel 1");
+
+      // CHANNEL 16 IS 0x0F ON THE WIRE, NOT 0x10. Operators count from one and
+      // the wire counts from zero, and getting that backwards puts every
+      // message on the wrong channel in a way that looks like a cabling fault.
+      note.channel = 16;
+      expect(eq(bytesOf(note), {0x9F, 0x3C, 0x7F}), "note on, channel 16 is 0x9F");
+
+      OutMessage off = note;
+      off.kind = OutMessageKind::NoteOff;
+      off.channel = 1;
+      expect(eq(bytesOf(off), {0x80, 0x3C, 0x7F}), "note off");
+
+      OutMessage cc;
+      cc.kind = OutMessageKind::ControlChange;
+      cc.channel = 2;
+      cc.data1 = 7;
+      cc.data2 = 100;
+      expect(eq(bytesOf(cc), {0xB1, 0x07, 0x64}), "control change");
+
+      OutMessage prog;
+      prog.kind = OutMessageKind::ProgramChange;
+      prog.channel = 3;
+      prog.data1 = 5;
+      expect(eq(bytesOf(prog), {0xC2, 0x05}), "program change is two bytes");
+
+      // Out-of-range data is clamped rather than wrapped: 200 wrapping to 72
+      // would send a plausible wrong note instead of an obvious loud one.
+      OutMessage wild = note;
+      wild.channel = 1;
+      wild.data1 = 200;
+      wild.data2 = -5;
+      expect(eq(bytesOf(wild), {0x90, 0x7F, 0x00}), "data bytes clamp, not wrap");
+
+      OutMessage go;
+      go.kind = OutMessageKind::MscGo;
+      go.mscDevice = 1;
+      go.mscCue = "12.5";
+      expect(eq(bytesOf(go),
+                {0xF0, 0x7F, 0x01, 0x02, 0x7F, 0x01, '1', '2', '.', '5', 0xF7}),
+             "MSC GO carries its cue number with the dot intact");
+
+      go.mscList = "2";
+      expect(eq(bytesOf(go),
+                {0xF0, 0x7F, 0x01, 0x02, 0x7F, 0x01,
+                 '1', '2', '.', '5', 0x00, '2', 0xF7}),
+             "MSC cue list follows a null separator");
+
+      OutMessage stop = go;
+      stop.kind = OutMessageKind::MscStop;
+      stop.mscList.clear();
+      expect(bytesOf(stop).size() > 6 && bytesOf(stop)[5] == 0x02, "MSC STOP");
+      OutMessage resume = stop;
+      resume.kind = OutMessageKind::MscResume;
+      expect(bytesOf(resume)[5] == 0x03, "MSC RESUME");
+
+      // Device 127 addresses everything, which is what the receive side
+      // already honours -- so one Deckboy can drive a rack of them.
+      go.mscDevice = 127;
+      expect(bytesOf(go)[2] == 0x7F, "MSC device 127 addresses everything");
+
+      // A cue number with rubbish in it must not put a byte above 0x7F inside
+      // a SysEx: that terminates the message early and desks answer by
+      // ignoring the whole thing.
+      OutMessage dirty = go;
+      dirty.mscCue = "12/5x";
+      dirty.mscList.clear();
+      const auto dirtyBytes = bytesOf(dirty);
+      expect(std::none_of(dirtyBytes.begin() + 1, dirtyBytes.end() - 1,
+                          [](std::uint8_t b) { return b >= 0x80; }),
+             "a bad cue number cannot terminate the SysEx early");
+
+      OutMessage raw;
+      raw.kind = OutMessageKind::Raw;
+      raw.rawHex = "90 3C 7F";
+      expect(eq(bytesOf(raw), {0x90, 0x3C, 0x7F}), "raw hex with spaces");
+      raw.rawHex = "903C7F";
+      expect(eq(bytesOf(raw), {0x90, 0x3C, 0x7F}), "raw hex without spaces");
+      // HALF A MESSAGE IS WORSE THAN SILENCE, so a malformed raw string sends
+      // nothing at all rather than as much as it could parse.
+      raw.rawHex = "90 3C 7";
+      expect(bytesOf(raw).empty(), "an odd number of hex digits sends nothing");
+      raw.rawHex = "90 ZZ 7F";
+      expect(bytesOf(raw).empty(), "a non-hex byte sends nothing");
+      raw.rawHex = "";
+      expect(bytesOf(raw).empty(), "an empty raw string sends nothing");
+    }
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
         expect(loaded.midiDeviceName == "APC40 mkII Control",
                "midi port persisted");
@@ -2622,6 +2728,15 @@
       for (const auto& dev : midiDevices) {
         std::cout << "  [" << dev.id << "] " << dev.name << '\n';
       }
+      // AND THE OUTPUTS, now that cues can send. These are a DIFFERENT list
+      // from the inputs -- an interface often offers one and not the other --
+      // and a MIDI cue names one of these, so printing only the inputs would
+      // hand somebody the wrong name to type.
+      auto midiOuts = deckboy::platform::midi::MidiOutput::listDevices();
+      std::cout << "midi out:  " << midiOuts.size() << '\n';
+      for (const auto& dev : midiOuts) {
+        std::cout << "  [" << dev.id << "] " << dev.name << '\n';
+      }
     }
 #else
     // midi.cpp is only compiled when ENABLE_MIDI is on, so this has to be
@@ -2630,6 +2745,7 @@
     // never sees. Saying so is more useful than printing "0 ports" and letting
     // someone conclude their controller is broken.
     std::cout << "midi in:   (this build has no MIDI support)" << '\n';
+    std::cout << "midi out:  (this build has no MIDI support)" << '\n';
 #endif
 
     int renderCount = SDL_GetNumRenderDrivers();

@@ -123,4 +123,81 @@ class MidiInput {
 // Helper: Parse MIDI message from raw bytes
 std::optional<std::pair<MessageType, std::vector<int>>> parseMidiMessage(const std::vector<std::uint8_t>& data);
 
+// ── MIDI OUT ────────────────────────────────────────────────────────────────
+//
+// Deckboy has listened to MIDI, MSC and MMC since early on and has never
+// spoken a word of any of them. A cue list that cannot tell the lighting desk
+// to go is half a show-control system.
+//
+// THE ENCODER IS SEPARATE FROM THE PORT, and deliberately: building the bytes
+// is a pure function that can be tested with no hardware in the room, which is
+// the only part of this that can be checked by a machine. Whether a socket
+// actually carried them to a desk is a question for a desk.
+// ---------------------------------------------------------------------------
+
+// What a MIDI cue sends.
+enum class OutMessageKind {
+  NoteOn,
+  NoteOff,
+  ControlChange,
+  ProgramChange,
+  MscGo,          // MIDI Show Control: GO
+  MscStop,
+  MscResume,
+  Raw,            // the operator's own bytes, for everything else
+};
+
+const char* outMessageKindToken(OutMessageKind kind);
+const char* outMessageKindLabel(OutMessageKind kind);
+OutMessageKind outMessageKindFromToken(const std::string& token);
+
+// Everything a MIDI cue carries. Channel and the two data bytes cover the
+// channel-voice messages; the MSC fields cover the show-control ones; raw
+// carries whatever the operator typed.
+struct OutMessage {
+  OutMessageKind kind = OutMessageKind::NoteOn;
+  int channel = 1;          // 1-16 as an operator counts them
+  int data1 = 60;           // note number, controller number, or program
+  int data2 = 127;          // velocity or controller value
+  int mscDevice = 0;        // 0-127, or 127 for "all devices"
+  std::string mscCue;       // "12.5" -- kept as text, because the dots matter
+  std::string mscList;
+  std::string rawHex;       // "90 3C 7F", for Raw
+};
+
+// Build the bytes. Returns empty when the message cannot be built, which is
+// the same answer as "do not send anything" -- a half-formed MIDI message on
+// a show network is worse than silence.
+std::vector<std::uint8_t> encodeOutMessage(const OutMessage& message);
+
+// A description an operator can read, for the inspector row and the log.
+std::string describeOutMessage(const OutMessage& message);
+
+class MidiOutput {
+ public:
+  MidiOutput();
+  ~MidiOutput();
+  MidiOutput(const MidiOutput&) = delete;
+  MidiOutput& operator=(const MidiOutput&) = delete;
+
+  static std::vector<DeviceInfo> listDevices();
+
+  // BY NAME, because that is what a show file can carry and a port number is
+  // not: plug in one more controller and every number after it moves. Matches
+  // on exact name first, then on a substring, and reports rather than guessing
+  // when it finds nothing.
+  bool openByName(const std::string& name);
+  bool open(int deviceId);
+  bool isOpen() const;
+  void close();
+  const std::string& portInUse() const;
+
+  // False when the port is not open or the bytes are empty.
+  bool send(const std::vector<std::uint8_t>& bytes);
+
+ private:
+  class Impl;
+  std::unique_ptr<Impl> impl_;
+};
+
 }  // namespace deckboy::platform::midi

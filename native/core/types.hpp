@@ -69,6 +69,9 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Midi,          // SENDS a MIDI message on GO: note, CC, program or MSC.
+                 // Deckboy has listened to MIDI since early on and never
+                 // spoken a word of it -- see platform/midi.hpp
   Fade,          // ramps something over time: a deck's opacity, its audio, or
                  // the master dimmer. Carries no media either -- see CueFadeWhat
   Target         // acts ON another cue rather than playing anything: start it,
@@ -843,6 +846,16 @@ struct Cue {
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  // A MIDI cue's message. The KIND is kept as its token rather than an enum
+  // so core/types.hpp stays free of any platform header -- the encoder that
+  // turns these into bytes lives in platform/midi.hpp and is a pure function
+  // (see encodeOutMessage), which is what lets it be tested without a desk.
+  std::string midiPortName;                // the port asked for, by NAME
+  std::string midiMessage = "note-on";     // note-on|note-off|cc|program|msc-*|raw
+  std::string midiRawHex;                  // "90 3C 7F", for the raw kind
+  std::string mscCue;                      // "12.5" -- text, because the dots matter
+  std::string mscList;
+
   // A Target cue's victim, by ID for the same reason a MasterAssignment is:
   // an index repoints at the neighbour the moment anything above it moves.
   std::string targetCueId;
@@ -946,6 +959,10 @@ struct Cue {
   // The LED tile size the panel map is drawn to. 128x128 is the common one,
   // but a wall that is not made of those is exactly the wall that needs a map,
   // and mapping a 168px panel as 128 puts every label in the wrong place.
+  int midiChannel = 1;                     // 1-16, as an operator counts them
+  int midiData1 = 60;                      // note, controller, or program number
+  int midiData2 = 127;                     // velocity or controller value
+  int mscDevice = 0;                       // 0-127; 127 addresses every device
   int ledPanelWidth = 128;
   int ledPanelHeight = 128;
   // A Fade cue aims with the SAME fields a Target cue does -- targetDeckIndex
@@ -2121,6 +2138,16 @@ enum class QuickAction {
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.
   PreloadSelected,
+  CueSectionMidiToggle,
+  MidiKindCycle,
+  MidiPortCycle,
+  MidiChannelDec, MidiChannelInc,
+  MidiData1Dec, MidiData1Inc,
+  MidiData2Dec, MidiData2Inc,
+  MidiMscDeviceDec, MidiMscDeviceInc,
+  MidiEditCueNumber,
+  MidiEditRawHex,
+  MidiSendNow,
   CueSectionFadeToggle,
   FadeWhatCycle,
   FadeCurveCycle,

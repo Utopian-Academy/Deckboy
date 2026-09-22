@@ -602,6 +602,16 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cueFadeWhatToken(cue.fadeWhat)
         << '\t' << cueFadeCurveToken(cue.fadeCurve)
         << '\t' << (cue.fadeStopWhenDone ? 1 : 0)
+        // A MIDI cue's message.
+        << '\t' << escapeField(cue.midiPortName)
+        << '\t' << escapeField(cue.midiMessage)
+        << '\t' << escapeField(cue.midiRawHex)
+        << '\t' << escapeField(cue.mscCue)
+        << '\t' << escapeField(cue.mscList)
+        << '\t' << cue.midiChannel
+        << '\t' << cue.midiData1
+        << '\t' << cue.midiData2
+        << '\t' << cue.mscDevice
         << '\n';
     }
   }
@@ -1367,6 +1377,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "master" ? CueKind::Master :
         kind == "target" ? CueKind::Target :
         kind == "fade" ? CueKind::Fade :
+        kind == "midi" ? CueKind::Midi :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1742,6 +1753,21 @@ Project loadProject(const fs::path& projectFile,
         cue.fadeWhat = cueFadeWhatFromToken(safeString(fields, vs + 69));
         cue.fadeCurve = cueFadeCurveFromToken(safeString(fields, vs + 70));
         cue.fadeStopWhenDone = safeBool(fields, vs + 71, false);
+        // A MIDI cue's message. The defaults are a middle-C note on
+        // channel 1, which is what a NEW midi cue arrives as -- an older
+        // show has no MIDI cues at all, so nothing here can restage one.
+        cue.midiPortName = safeString(fields, vs + 72);
+        cue.midiMessage = safeString(fields, vs + 73);
+        if (cue.midiMessage.empty()) {
+          cue.midiMessage = "note-on";
+        }
+        cue.midiRawHex = safeString(fields, vs + 74);
+        cue.mscCue = safeString(fields, vs + 75);
+        cue.mscList = safeString(fields, vs + 76);
+        cue.midiChannel = std::clamp(safeInt(fields, vs + 77, 1), 1, 16);
+        cue.midiData1 = std::clamp(safeInt(fields, vs + 78, 60), 0, 127);
+        cue.midiData2 = std::clamp(safeInt(fields, vs + 79, 127), 0, 127);
+        cue.mscDevice = std::clamp(safeInt(fields, vs + 80, 0), 0, 127);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -1749,7 +1775,8 @@ Project loadProject(const fs::path& projectFile,
       // generated ones ("pattern://", "timer://"), so the gate was safe until
       // now.
       if (!cue.path.empty() || cue.kind == CueKind::Master ||
-          cue.kind == CueKind::Target || cue.kind == CueKind::Fade) {
+          cue.kind == CueKind::Target || cue.kind == CueKind::Fade ||
+          cue.kind == CueKind::Midi) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

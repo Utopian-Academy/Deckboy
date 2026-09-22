@@ -2325,6 +2325,11 @@
       {0, 0, 0, 0},
       [this]() { addFadeCue(); }
     });
+    contextItems_.push_back({
+      "  MIDI Cue (sends a message on GO)",
+      {0, 0, 0, 0},
+      [this]() { addMidiCue(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -3364,6 +3369,21 @@
     onSelectionChanged();
     markProjectDirty();
     triggerToast("master cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  void addMidiCue() {
+    Cue cue;
+    cue.kind = CueKind::Midi;
+    Deck& deck = focusedDeckMutable();
+    cue.name = "MIDI " + std::to_string(deck.cues.size() + 1);
+    cue.color = {120, 60, 90, 255};
+    cue.formatName = "control";
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    markProjectDirty();
+    triggerToast("midi cue added");
     playUiSound(UiSoundEffect::Import);
   }
 

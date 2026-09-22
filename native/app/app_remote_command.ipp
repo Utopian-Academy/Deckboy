@@ -325,6 +325,174 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "MIDICUE") {
+      // MIDICUE NEW              -> add a MIDI cue to this deck
+      // MIDICUE PORTS            -> what this machine can send to
+      // MIDICUE PORT <name>      -> which one this cue uses ("" = first found)
+      // MIDICUE KIND <token>     -> note-on|note-off|cc|program|msc-go|
+      //                             msc-stop|msc-resume|raw
+      // MIDICUE CH <1-16> | D1 <0-127> | D2 <0-127>
+      // MIDICUE DEVICE <0-127> | CUENUM <n> | LIST <n> | RAW <hex>
+      // MIDICUE SEND             -> send it now
+      // MIDICUE                  -> report it, and the bytes it would send
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("MIDICUE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "PORTS") {
+        const auto ports = deckboy::platform::midi::MidiOutput::listDevices();
+        if (ports.empty()) {
+          remoteCommandDetail_ = "no MIDI output ports";
+          return;
+        }
+        std::ostringstream out;
+        for (std::size_t i = 0; i < ports.size(); ++i) {
+          if (i) out << " | ";
+          out << (i + 1) << ":" << ports[i].name;
+        }
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Midi;
+        cue.name = "MIDI " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "midi cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("MIDICUE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Midi) {
+        failRemoteCommand("MIDICUE: the selected cue is not a midi cue");
+        return;
+      }
+
+      if (sub.empty()) {
+        const auto message = midiMessageForCue(cue);
+        const auto bytes = deckboy::platform::midi::encodeOutMessage(message);
+        std::ostringstream out;
+        out << deckboy::platform::midi::describeOutMessage(message)
+            << " -> " << (cue.midiPortName.empty() ? std::string("first available")
+                                                   : cue.midiPortName)
+            << " | ";
+        if (bytes.empty()) {
+          out << "NOTHING TO SEND";
+        } else {
+          for (std::size_t i = 0; i < bytes.size(); ++i) {
+            char buf[4];
+            std::snprintf(buf, sizeof(buf), "%02X", bytes[i]);
+            if (i) out << " ";
+            out << buf;
+          }
+        }
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "SEND" || sub == "FIRE" || sub == "GO") {
+        remoteCommandDetail_ = fireMidiCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "KIND" && parts.size() >= 3) {
+        const std::string token = toLower(parts[2]);
+        static const char* kKnown[] = {"note-on", "note-off", "cc", "program",
+                                       "msc-go", "msc-stop", "msc-resume", "raw"};
+        bool known = false;
+        for (const char* k : kKnown) {
+          known = known || token == k;
+        }
+        // Checked against the list rather than trusted: an unknown token falls
+        // back to note-on, and a cue labelled "house lights out" that sends a
+        // note instead is the worst possible failure here.
+        if (!known) {
+          failRemoteCommand("MIDICUE KIND: expected note-on, note-off, cc, "
+                            "program, msc-go, msc-stop, msc-resume or raw");
+          return;
+        }
+        cue.midiMessage = token;
+        markProjectDirty();
+        remoteCommandDetail_ = deckboy::platform::midi::outMessageKindLabel(
+          deckboy::platform::midi::outMessageKindFromToken(token));
+        return;
+      }
+      if (sub == "PORT") {
+        if (parts.size() < 3) {
+          cue.midiPortName.clear();
+          markProjectDirty();
+          remoteCommandDetail_ = "first available";
+          return;
+        }
+        // The rest of the line, because port names have spaces in them.
+        std::string name = trim(joinParts(parts, 2));
+        cue.midiPortName = name;
+        markProjectDirty();
+        remoteCommandDetail_ = name.empty() ? "first available" : name;
+        return;
+      }
+      if (sub == "RAW") {
+        cue.midiRawHex = parts.size() >= 3 ? trim(joinParts(parts, 2)) : std::string();
+        markProjectDirty();
+        remoteCommandDetail_ = cue.midiRawHex.empty() ? "cleared" : cue.midiRawHex;
+        return;
+      }
+      if ((sub == "CUENUM" || sub == "CUE") && parts.size() >= 3) {
+        cue.mscCue = trim(parts[2]);
+        markProjectDirty();
+        remoteCommandDetail_ = cue.mscCue;
+        return;
+      }
+      if (sub == "LIST" && parts.size() >= 3) {
+        cue.mscList = trim(parts[2]);
+        markProjectDirty();
+        remoteCommandDetail_ = cue.mscList;
+        return;
+      }
+      if ((sub == "CH" || sub == "CHANNEL" || sub == "D1" || sub == "D2" ||
+           sub == "DEVICE") && parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        if (!parsed) {
+          failRemoteCommand("MIDICUE " + sub + ": expected a number");
+          return;
+        }
+        const int v = static_cast<int>(std::lround(*parsed));
+        // NOT CLAMPED SILENTLY. Out of range is refused with the range in the
+        // message, the same rule MASTERVOL had to learn: a clamp is what makes
+        // wrong units invisible.
+        if (sub == "CH" || sub == "CHANNEL") {
+          if (v < 1 || v > 16) {
+            failRemoteCommand("MIDICUE CHANNEL: expected 1-16");
+            return;
+          }
+          cue.midiChannel = v;
+        } else if (v < 0 || v > 127) {
+          failRemoteCommand("MIDICUE " + sub + ": expected 0-127");
+          return;
+        } else if (sub == "D1") {
+          cue.midiData1 = v;
+        } else if (sub == "D2") {
+          cue.midiData2 = v;
+        } else {
+          cue.mscDevice = v;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = std::to_string(v);
+        return;
+      }
+      failRemoteCommand("MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, "
+                        "DEVICE, CUENUM, LIST, RAW or SEND");
+      return;
+    }
     if (command == "PRELOAD") {
       // PRELOAD [<seconds>]  -> rack the selected cue paused at that position,
       //                         held off the outputs, decode warm
