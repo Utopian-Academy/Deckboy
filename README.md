@@ -211,7 +211,7 @@ all one object with one set of controls, not fifty separate things to learn.
 - Stream cues take `srt://`, `rtmp://`, `rtsp://`, `udp://` and http HLS
 - NDI receive in every download, and Blackmagic DeckLink capture through the
   SDK rather than through a pipe
-- Spout and Syphon shared textures from another application on the machine
+- Spout shared textures from another application on the machine (Windows)
 - **IPTV channel lists**: import an `.m3u` and every channel becomes a cue,
   named and grouped from the list
 - Test patterns, a built-in test card, and generated line-up tone
@@ -380,9 +380,10 @@ those goes to your own LAN or to a destination you configured.
 
 ## Platforms
 
-One show file opens on Windows, macOS and Linux, and everything above runs on
-all three. Texture sharing with Resolume, TouchDesigner or OBS is Spout on
-Windows and Syphon on macOS.
+One show file opens on Windows, macOS and Linux, and nearly everything above
+runs on all three. The exceptions: texture sharing with Resolume, TouchDesigner
+or OBS is Spout, on Windows only, and MIDI (including MIDI Show Control) is in
+the Windows and Linux downloads but not in the current macOS one.
 
 Hardware decode is used wherever the platform provides it — D3D11VA, Video
 Toolbox, VAAPI — and on Windows and macOS the picture never touches system

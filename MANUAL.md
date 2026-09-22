@@ -138,7 +138,7 @@ down to give the height back.
 | **Browser** | A live web page, rendered inside the programme rather than in a browser window on your desktop |
 | **Window / Screen** | A window on this machine, or a whole screen. A window arrives at full resolution whatever the display scaling is set to, follows the window as it moves and resizes, and is not interrupted by anything in front of it |
 | **Camera** | A capture device |
-| **Syphon / Spout** | A shared GPU texture from another app |
+| **Syphon / Spout** | A shared GPU texture from another app, through Spout on Windows. Syphon receive on macOS is not built yet |
 | **Stream (SRT)** | A live network input — `cue.path` is the full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`) |
 | **NDI Source** | An NDI receive input — `ndi://SOURCE_NAME` |
 | **DeckLink Source** | A Blackmagic card's SDI or HDMI input, captured through the DeckLink SDK rather than through FFmpeg |
@@ -1056,7 +1056,8 @@ All remote inputs normalise to plain-text commands.
   leave it off and only Companion on the same machine can connect.
 - **OSC** — messages/bundles on the same port, plus an OSC Query HTTP endpoint
   and mirrored `/deckboy/state` feedback.
-- **MIDI** — turn **MIDI input** on in Settings and pick the port. A note
+- **MIDI** — on Windows and Linux; the current macOS download does not
+  include MIDI. Turn **MIDI input** on in Settings and pick the port. A note
   0–127 takes that cue in the focused playlist, CC 7 is master volume and CC 20
   playback speed, and MIDI Machine Control PLAY / STOP / PAUSE / LOCATE drive
   the transport.
