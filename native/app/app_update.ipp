@@ -251,6 +251,7 @@
   void update() {
     serviceAutoScroll(1.0 / 60.0);
     serviceBusyCritters(1.0 / 60.0);
+    refreshNormalizingIds();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;
       syncEngineCueSnapshots();

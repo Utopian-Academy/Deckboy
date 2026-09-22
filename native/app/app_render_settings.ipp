@@ -1045,6 +1045,15 @@
       SDL_Rect updCheckBtn {updActionRow.x, updActionRow.y, updHalf, sRowH};
       SDL_Rect updActBtn {updActionRow.x + updHalf + sGap, updActionRow.y,
                           updActionRow.w - updHalf - sGap, sRowH};
+      // An update that is working says so HERE, where the operator pressed.
+      // The status line existed already but reads as static text, and "is it
+      // downloading or has it hung" was the question it failed to answer.
+      if (updateLine.find("download") != std::string::npos ||
+          updateLine.find("Download") != std::string::npos ||
+          updateLine.find("checking") != std::string::npos ||
+          updateLine.find("Checking") != std::string::npos) {
+        markBusy("update", "eel", updActionRow);
+      }
       drawSettingsStateFill(updCheckBtn, false);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, updCheckBtn, "CHECK NOW",
                            settingsStateInk(false));

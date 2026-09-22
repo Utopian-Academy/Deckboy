@@ -2843,6 +2843,9 @@
     SDL_Rect track {strip.x + uiScaled(8), strip.y + strip.h - uiScaled(9),
                     strip.w - uiScaled(16), uiScaled(4)};
     Primitives::fillRect(controlRenderer_, track, pal.deep);
+    // This one already had an honest bar; the critter is company, not the
+    // information. It swims the length of the strip while the walk runs.
+    markBusy("import", "clownfish", strip);
 
     std::string label;
     if (scanning) {

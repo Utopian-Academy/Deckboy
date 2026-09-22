@@ -8250,6 +8250,7 @@ class App {
   };
   mutable std::mutex normalizeResultsMutex_;
   std::set<std::string> normalizeInFlight_;   // cue ids under the needle now
+  std::set<std::string> normalizingIds_;      // per-frame snapshot, see refreshNormalizingIds
   std::vector<NormalizeResult> normalizeResults_;
 
 #if DECKBOY_INPROC_DECODE

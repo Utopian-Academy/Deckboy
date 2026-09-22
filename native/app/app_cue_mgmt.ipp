@@ -609,23 +609,36 @@
     }
   }
 
-  // Is this cue queued for, or currently under, loudness measurement?
-  bool cueIsNormalizing(const std::string& cueId) const {
-    if (cueId.empty()) {
-      return false;
+  // The set of cues under, or queued for, loudness measurement -- rebuilt ONCE
+  // a frame rather than asked per row.
+  //
+  // The first version answered this per cue row per frame, and each answer took
+  // the results mutex and walked the queue. "Normalise ALL" puts thousands of
+  // jobs in that queue, so a full playlist turned one cheap question into
+  // hundreds of locked scans of a long deque every single frame. Nothing about
+  // a decorative critter is worth that.
+  //
+  // Costs nothing when idle: with no outstanding work the set is cleared once
+  // and every later frame sees an empty set and a single branch.
+  void refreshNormalizingIds() {
+    if (normalizeOutstanding() <= 0) {
+      if (!normalizingIds_.empty()) {
+        normalizingIds_.clear();
+      }
+      return;
     }
+    normalizingIds_.clear();
     {
       std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
-      if (normalizeInFlight_.count(cueId) != 0) {
-        return true;
-      }
+      normalizingIds_ = normalizeInFlight_;
     }
     for (const auto& job : normalizeQueue_) {
-      if (job.cueId == cueId) {
-        return true;
-      }
+      normalizingIds_.insert(job.cueId);
     }
-    return false;
+  }
+
+  bool cueIsNormalizing(const std::string& cueId) const {
+    return !normalizingIds_.empty() && normalizingIds_.count(cueId) != 0;
   }
 
   int normalizeOutstanding() const {
