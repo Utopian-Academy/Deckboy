@@ -594,11 +594,123 @@
     }
   }
 
+  // ── MASTER CUES ───────────────────────────────────────────────────────
+  //
+  // A master cue is an Analog Way LiveCore MASTER MEMORY: it recalls one cue on
+  // each of several decks at once. It carries no media and is never taken on
+  // its own deck's engine -- firing it means taking OTHER decks.
+  //
+  // It stores assignments and nothing else. Whether a master "is live" is
+  // DERIVED by asking the decks it names, never remembered here: two sources of
+  // truth drift the first time somebody takes a cue on a target deck by hand,
+  // and then nothing can say which is right.
+  int findCueIndexById(int deckIndex, const std::string& cueId) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return -1;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    for (int i = 0; i < static_cast<int>(deck.cues.size()); ++i) {
+      if (deck.cues[i].id == cueId) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  // Is every deck this master names currently holding the cue it assigned?
+  // Asked at render time; nothing caches it.
+  bool masterCueIsLive(const Cue& master) const {
+    bool any = false;
+    for (const auto& a : master.masterAssignments) {
+      if (a.bypassed) {
+        continue;
+      }
+      const int idx = findCueIndexById(a.deckIndex, a.cueId);
+      if (idx < 0) {
+        return false;                       // dangling: cannot be live
+      }
+      if (project_.decks[a.deckIndex].activeIndex != idx) {
+        return false;
+      }
+      any = true;
+    }
+    return any;
+  }
+
+  void fireMasterCue(int masterDeckIndex, int masterCueIndex) {
+    if (masterDeckIndex < 0 || masterDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& masterDeck = project_.decks[masterDeckIndex];
+    if (masterCueIndex < 0 || masterCueIndex >= static_cast<int>(masterDeck.cues.size())) {
+      return;
+    }
+    // Copied, not referenced: taking on the target decks can reallocate any
+    // deck's cue vector, and a reference into it would dangle mid-loop.
+    const std::vector<MasterAssignment> plan = masterDeck.cues[masterCueIndex].masterAssignments;
+    const std::string masterName = masterDeck.cues[masterCueIndex].name;
+
+    const int savedFocus = project_.focusedDeckIndex;
+    int fired = 0;
+    int dangling = 0;
+    for (const auto& a : plan) {
+      if (a.bypassed) {
+        continue;
+      }
+      if (a.deckIndex == masterDeckIndex) {
+        continue;                           // a master deck does not fire itself
+      }
+      const int idx = findCueIndexById(a.deckIndex, a.cueId);
+      if (idx < 0) {
+        ++dangling;                         // deleted or reordered away
+        continue;
+      }
+      // A master may not fire another master. Nesting is not the model here,
+      // and without this a pair of masters pointing at each other recurses
+      // until the stack gives out.
+      if (project_.decks[a.deckIndex].cues[idx].kind == CueKind::Master) {
+        ++dangling;
+        continue;
+      }
+      // takeSelected acts on the FOCUSED deck, which is how every take in the
+      // app reaches its guards -- media checks, the motion driver, the
+      // feedback-loop reset. Borrowing focus per assignment runs the real take
+      // path rather than a parallel one that would drift from it.
+      project_.focusedDeckIndex = a.deckIndex;
+      selectCueInDeck(a.deckIndex, idx, false, false);
+      takeSelected(true);
+      ++fired;
+    }
+    project_.focusedDeckIndex = savedFocus;
+
+    // The master deck's own pointer, so the list shows which master was last
+    // fired. This is the master deck's state, not a copy of the targets'.
+    masterDeck.activeIndex = masterCueIndex;
+
+    std::string msg = "master: " + masterName + " — " + std::to_string(fired) +
+                      (fired == 1 ? " deck" : " decks");
+    if (dangling > 0) {
+      msg += ", " + std::to_string(dangling) + " unresolved";
+    }
+    triggerToast(msg);
+    if (dangling > 0) {
+      playUiSound(UiSoundEffect::Error);
+    }
+    markProjectDirty();
+  }
+
   void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false) {
     Deck& deck = focusedDeckMutable();
     int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     MediaEngine* engine = focusedMediaEngine();
     if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    // A MASTER FIRES OTHER DECKS and is never handed to this deck's engine --
+    // it has no media. Intercepted before the engine check below, because a
+    // master deck legitimately has no engine of its own to speak of.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Master) {
+      fireMasterCue(deckIndex, deck.selectedIndex);
       return;
     }
     if (!engine) {

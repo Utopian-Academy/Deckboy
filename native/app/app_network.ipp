@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (284)\n"
+        "DECKBOY_0.01 every verb (285)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -480,7 +480,7 @@
         "RECSEGMENT RECTC RENAME RENUMBER RERACK ROUTE SCALE SCALEMODE SCALEX SCALEY SCENE\n"
         "SCHEDULE SECTION SEEK SEEKPOS SELECT SELECTALL SELECTID SFX SHORTID SHUFFLE\n"
         "SHORTCUTS SKIP SKIPBACK SKIPEND SOURCE SPEED SPOUTCUE SRC ST2110\n"
-        "STARTUP STILLDUR SYNTH KEYS NOTESTEP PRESENTER SPLITNOTES PROMPTER\n"
+        "STANDBY STARTUP STILLDUR SYNTH KEYS NOTESTEP PRESENTER SPLITNOTES PROMPTER\n"
         "STOP SUB SUBTITLE SUBTITLES SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
         "SYNTHNOTEON SYPHONCUE TAKE TAKEID TALLYEVENT TC TCMARK TIMECODE TONECUE\n"
         "TIMECODEEXT\n"
@@ -499,6 +499,8 @@
         "DECKBOY_0.01 help\n"
         "queries (answered immediately): STATUS | STATUS JSON | STATUS CUES | STATUS <deck> | FINDSTATUS | HELP\n"
         "transport: TAKE GO PLAY PAUSE STOP TOGGLE RERACK CLEAR SKIP SKIPBACK GOEND NEXT PREV SEEK <s> LOOP <on|off>\n"
+        "standby:   STANDBY [<cue>|NEXT|PREV|CLEAR] - the cue GO will fire, kept apart from the selection\n"
+        "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"
         "           PRESENTER LAYOUT wide|filmstrip|notes|custom | LIVE|PREV|NEXT|NOTES|CLOCK|TIMERS|BUILDS [on|off]\n"
         "           PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h>   (percent; CAPTURE makes the current layout editable)\n"

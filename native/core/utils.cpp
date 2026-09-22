@@ -291,6 +291,7 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::Timer:          return "Timer";
     case CueKind::Tone:           return "Tone";
     case CueKind::VideoSynth:     return "Video Synth";
+    case CueKind::Master:         return "Master";
   }
   return "Video";
 }
@@ -324,6 +325,7 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::Timer:        return "timer";
     case CueKind::Tone:         return "tone";
     case CueKind::VideoSynth:   return "video_synth";
+    case CueKind::Master:       return "master";
     case CueKind::Video:
     default:                    return "video";
   }

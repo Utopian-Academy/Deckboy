@@ -1204,10 +1204,19 @@
                loadedCue.continueMode == CueContinueMode::AutoFollow,
                "pre-wait, post-wait and continue mode persist");
         // A CUE LIST MUST NOT GROW A CONTINUE BY ITSELF. Simulated by taking
-        // the file just written and cutting the three new fields off every cue
-        // line, which is precisely what an older Deckboy wrote. Opening that
-        // has to give back a show with no waits and nothing following -- a
-        // show that started running itself on open would be unforgivable.
+        // the file just written and cutting every field from preWaitSeconds
+        // onward off each cue line, which is precisely what an older Deckboy
+        // wrote. Opening that has to give back a show with no waits and
+        // nothing following -- a show that started running itself on open
+        // would be unforgivable.
+        //
+        // kSpineTailFields IS THE NUMBER OF FIELDS AT OR AFTER preWaitSeconds,
+        // and it MUST be raised by one every time a field is appended to the
+        // cue record. It was 3, then master assignments were appended after
+        // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
+        // failed loudly, which is the only reason this comment exists rather
+        // than a silent hole in the backward-compatibility check.
+        constexpr int kSpineTailFields = 4;   // preWait, postWait, continue, masters
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -1215,7 +1224,7 @@
           int trimmed = 0;
           while (std::getline(in, line)) {
             if (line.rfind("cue\t", 0) == 0) {
-              for (int i = 0; i < 3; ++i) {
+              for (int i = 0; i < kSpineTailFields; ++i) {
                 const std::size_t tab = line.find_last_of('\t');
                 if (tab != std::string::npos) {
                   line.erase(tab);

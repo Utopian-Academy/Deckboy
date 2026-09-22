@@ -1981,6 +1981,59 @@ void parseMarkerNames(Cue& cue, const std::string& field) {
 
 // Effect stack <-> one tab field. Colons inside an entry, pipes between them,
 // so a stack of any length occupies a single column.
+// A master cue's assignments as one field: "deck:cueId:bypassed", entries
+// joined by '|'. Same shape as the effect stack above -- pipe between entries,
+// colon within one -- because the record is tab-delimited and a variable-length
+// list has to live inside a single field.
+//
+// The cue is referenced BY ID. Ids are generated hex ("cue-158f9d9e1a117c37"),
+// so they carry neither separator; a path would have carried both.
+std::string serializeMasterAssignments(const std::vector<MasterAssignment>& list) {
+  std::string out;
+  for (const auto& a : list) {
+    if (a.deckIndex < 0 || a.cueId.empty()) continue;
+    if (!out.empty()) out += '|';
+    out += std::to_string(a.deckIndex);
+    out += ':';
+    out += a.cueId;
+    out += ':';
+    out += (a.bypassed ? '1' : '0');
+  }
+  return out;
+}
+
+std::vector<MasterAssignment> parseMasterAssignments(const std::string& text) {
+  std::vector<MasterAssignment> out;
+  if (text.empty()) return out;
+  std::size_t start = 0;
+  while (start <= text.size()) {
+    const std::size_t bar = text.find('|', start);
+    const std::string entry = text.substr(start, bar == std::string::npos
+                                                 ? std::string::npos : bar - start);
+    if (!entry.empty()) {
+      const std::size_t c1 = entry.find(':');
+      const std::size_t c2 = (c1 == std::string::npos)
+                             ? std::string::npos : entry.find(':', c1 + 1);
+      if (c1 != std::string::npos && c2 != std::string::npos) {
+        MasterAssignment a;
+        try {
+          a.deckIndex = std::stoi(entry.substr(0, c1));
+        } catch (...) {
+          a.deckIndex = -1;
+        }
+        a.cueId = entry.substr(c1 + 1, c2 - c1 - 1);
+        a.bypassed = entry.substr(c2 + 1) == "1";
+        if (a.deckIndex >= 0 && !a.cueId.empty()) {
+          out.push_back(std::move(a));
+        }
+      }
+    }
+    if (bar == std::string::npos) break;
+    start = bar + 1;
+  }
+  return out;
+}
+
 std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& stack) {
   std::string out;
   for (const auto& fx : stack) {

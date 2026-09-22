@@ -211,6 +211,137 @@
       failRemoteCommand("this verb cannot add a deck -- turn VJ mode on for a second");
       return;
     }
+    if (command == "MASTER" || command == "MASTERCUE") {
+      // MASTER NEW                     -> add a master cue to this deck
+      // MASTER DECK <n> <cue>          -> assign: deck n plays cue <cue>
+      // MASTER BYPASS <n> ON|OFF       -> skip deck n when this master fires
+      // MASTER CLEAR                   -> drop every assignment
+      // MASTER FIRE                    -> take it now
+      // MASTER                         -> report what it holds
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("MASTER: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Master;
+        // No id set here: normalizeProject assigns one to any cue that lacks
+        // it and dedupes the result, which is how every other cue-creating
+        // path does it.
+        cue.name = "Master " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.isMasterDeck = true;   // a deck that holds masters IS the master deck
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "master cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("MASTER: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Master) {
+        failRemoteCommand("MASTER: the selected cue is not a master");
+        return;
+      }
+
+      if (sub.empty()) {
+        std::ostringstream out;
+        out << cue.masterAssignments.size() << " assignment(s)";
+        for (const auto& a : cue.masterAssignments) {
+          const int idx = findCueIndexById(a.deckIndex, a.cueId);
+          out << " | deck " << (a.deckIndex + 1) << " -> "
+              << (idx < 0 ? std::string("UNRESOLVED")
+                          : project_.decks[a.deckIndex].cues[idx].name)
+              << (a.bypassed ? " (bypassed)" : "");
+        }
+        out << (masterCueIsLive(cue) ? " | LIVE" : "");
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "FIRE" || sub == "GO" || sub == "TAKE") {
+        fireMasterCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "CLEAR") {
+        cue.masterAssignments.clear();
+        markProjectDirty();
+        remoteCommandDetail_ = "master cleared";
+        return;
+      }
+      if (sub == "DECK" && parts.size() >= 4) {
+        int target = 0;
+        int cueNumber = 0;
+        try {
+          target = std::stoi(parts[2]) - 1;
+          cueNumber = std::stoi(parts[3]) - 1;
+        } catch (...) {
+          failRemoteCommand("MASTER DECK: expected a deck number and a cue number");
+          return;
+        }
+        if (target < 0 || target >= static_cast<int>(project_.decks.size())) {
+          failRemoteCommand("MASTER DECK: no deck " + parts[2]);
+          return;
+        }
+        const Deck& targetDeck = project_.decks[target];
+        if (cueNumber < 0 || cueNumber >= static_cast<int>(targetDeck.cues.size())) {
+          failRemoteCommand("MASTER DECK: deck " + parts[2] + " has no cue " + parts[3]);
+          return;
+        }
+        // Stored BY ID: an index would silently repoint at the neighbour the
+        // moment somebody reorders or deletes a cue above it.
+        const std::string id = targetDeck.cues[cueNumber].id;
+        bool replaced = false;
+        for (auto& a : cue.masterAssignments) {
+          if (a.deckIndex == target) {
+            a.cueId = id;
+            replaced = true;
+            break;
+          }
+        }
+        if (!replaced) {
+          MasterAssignment a;
+          a.deckIndex = target;
+          a.cueId = id;
+          cue.masterAssignments.push_back(a);
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = "deck " + parts[2] + " -> " + targetDeck.cues[cueNumber].name;
+        return;
+      }
+      if (sub == "BYPASS" && parts.size() >= 3) {
+        int target = 0;
+        try {
+          target = std::stoi(parts[2]) - 1;
+        } catch (...) {
+          failRemoteCommand("MASTER BYPASS: expected a deck number");
+          return;
+        }
+        const std::string state = parts.size() > 3 ? toUpper(parts[3]) : std::string("TOGGLE");
+        for (auto& a : cue.masterAssignments) {
+          if (a.deckIndex == target) {
+            a.bypassed = (state == "ON") ? true
+                       : (state == "OFF") ? false
+                       : !a.bypassed;
+            markProjectDirty();
+            remoteCommandDetail_ = "deck " + parts[2] +
+              (a.bypassed ? " bypassed" : " active");
+            return;
+          }
+        }
+        failRemoteCommand("MASTER BYPASS: deck " + parts[2] + " is not assigned");
+        return;
+      }
+      failRemoteCommand("MASTER: use NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE");
+      return;
+    }
     if (command == "STANDBY") {
       // STANDBY            -> report what is armed
       // STANDBY <n>        -> arm cue n (1-based, as the list numbers them)
@@ -691,9 +822,11 @@
       triggerToast("all decks stopped");
       return;
     }
-    if (command == "GROUP" || command == "MASTER" || command == "MASTERCUE" ||
-        command == "PRESET" || command == "GROUPPRESET") {
-      triggerToast("master scene commands: removed");
+    // MASTER and MASTERCUE are implemented again, above -- master cues came
+    // back 2026-09-21. The other three named the OLD scene-preset feature,
+    // which is a different idea and stays gone.
+    if (command == "GROUP" || command == "PRESET" || command == "GROUPPRESET") {
+      failRemoteCommand("scene presets: removed. For master cues use MASTER");
       return;
     }
     if (command == "CLEAR") {

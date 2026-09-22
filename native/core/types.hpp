@@ -65,8 +65,10 @@ enum class CueKind {
 ,
   Tone,          // procedurally generated audio: line-up tone, noise, sweep,
                  // channel identify. The audio equivalent of Pattern
-  VideoSynth     // oscillator-driven video with feedback and mirroring, in the
+  VideoSynth,    // oscillator-driven video with feedback and mirroring, in the
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
+  Master         // fires an assigned cue on each of several decks at once.
+                 // Carries no media of its own — see MasterAssignment
 };
 
 // ---------------------------------------------------------------------------
@@ -616,6 +618,23 @@ enum class ScaleMode {
 // output frame. The compositor in app_render_output.ipp iterates these
 // slots to blit each source into its designated rectangle.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// MasterAssignment — one line of a master cue: "deck 2 plays cue 7".
+//
+// A master cue is an Analog Way LiveCore MASTER MEMORY. A deck is a
+// destination holding its own content, a cue is that destination's memory, and
+// a master recalls one memory on each destination at once.
+//
+// The cue is referenced BY ID, not by index: indices move the moment somebody
+// reorders or deletes a cue above the target, and a master that silently
+// repoints at its neighbour is worse than one that reports a broken link.
+// ---------------------------------------------------------------------------
+struct MasterAssignment {
+  int deckIndex = -1;         // which destination
+  std::string cueId;          // which of that deck's cues, by id
+  bool bypassed = false;      // skip this deck when the master fires
+};
+
 struct CompositeSlot {
   std::string id;                           // unique slot identifier (UUID)
   std::string name;                         // operator-facing label ("Slot 1")
@@ -691,6 +710,7 @@ struct Cue {
 
   // -- 8-byte aligned: vectors ------------------------------------------------
   std::vector<CompositeSlot> compositeSlots; // sub-regions for Composite cue layout
+  std::vector<MasterAssignment> masterAssignments;  // Master cue: what it fires
   std::vector<double> pausePoints;           // timecodes (seconds) where playback auto-pauses
   // Named jump marks inside a clip (PLAYDECK-style). Distinct from pausePoints,
   // which STOP playback: a marker is somewhere you can jump TO. Kept sorted by
@@ -935,6 +955,9 @@ struct Deck {
   // the selection, as it always has. Every show saved before this loads with
   // -1, so nothing changes until an operator arms one.
   int standbyIndex = -1;
+  // A deck whose cues are MASTER cues: the running order, not a content pool.
+  // It owns no media and routes to no output -- it only fires other decks.
+  bool isMasterDeck = false;
   int outputDisplayIndex = 0;              // which display to open the output window on
   int outputRouteDeckIndex = -1;           // route this deck's output to another deck's window (-1=own)
 

@@ -587,6 +587,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.preWaitSeconds
         << '\t' << cue.postWaitSeconds
         << '\t' << cueContinueModeToken(cue.continueMode)
+        << '\t' << escapeField(serializeMasterAssignments(cue.masterAssignments))
         << '\n';
     }
   }
@@ -1349,6 +1350,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "timer" ? CueKind::Timer :
         kind == "tone" ? CueKind::Tone :
         (kind == "video_synth" || kind == "vsynth") ? CueKind::VideoSynth :
+        kind == "master" ? CueKind::Master :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1702,10 +1704,20 @@ Project loadProject(const fs::path& projectFile,
         cue.preWaitSeconds = std::max(0.0, safeDouble(fields, vs + 57, 0.0));
         cue.postWaitSeconds = std::max(0.0, safeDouble(fields, vs + 58, 0.0));
         cue.continueMode = cueContinueModeFromToken(safeString(fields, vs + 59));
+        // A master cue's assignments. Absent on every older show, which is
+        // correct: they had no masters.
+        cue.masterAssignments = parseMasterAssignments(safeString(fields, vs + 60));
       }
-      if (!cue.path.empty()) {
+      // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
+      // without a word -- the show would come back one cue shorter every time
+      // it was opened. Every kind before this one carried a path, even the
+      // generated ones ("pattern://", "timer://"), so the gate was safe until
+      // now.
+      if (!cue.path.empty() || cue.kind == CueKind::Master) {
         if (cue.name.empty()) {
-          cue.name = fs::path(cue.path).stem().string();
+          cue.name = cue.kind == CueKind::Master
+            ? std::string("Master")
+            : fs::path(cue.path).stem().string();
         }
         ensureDeck(deckIndex).cues.push_back(cue);
       }
