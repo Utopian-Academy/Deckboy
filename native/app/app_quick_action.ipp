@@ -863,6 +863,15 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::PreloadSelected:
+        // A toggle for the same reason audition is: whoever racked it is the
+        // one who wants it gone, and should not need a second control.
+        if (deckIsPreloading(project_.focusedDeckIndex)) {
+          clearPreload(true);
+        } else {
+          (void)preloadSelected(0.0);
+        }
+        break;
       case QuickAction::AuditionSelected:
         // A toggle, because the operator who started it is the one who wants
         // it to stop and should not need a second control to say so.

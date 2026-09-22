@@ -8328,6 +8328,13 @@ class App {
   // the take it makes itself is not mistaken for the operator putting the cue
   // on air.
   bool auditionStarting_ = false;
+  // PRELOAD: a cue racked and paused, decode warm, held off the outputs until
+  // it is taken. Which cue matters as well as which deck, because taking THAT
+  // cue releases the preload instantly while taking any other one throws it
+  // away.
+  int preloadDeckIndex_ = -1;
+  int preloadCueIndex_ = -1;
+  bool preloadStarting_ = false;
   SDL_Rect fileCheckBtnRect_ {};
   int showProblemCount_ = 0;        // rescanned on a cadence, not per frame
   int showProblemCursor_ = 0;       // which one the next click walks to

@@ -3377,7 +3377,7 @@
     // is correctly seeing. Refusing the tap drops the preview to the decoder
     // path, which draws the cue and applies its look itself -- see the
     // fallback in app_update.ipp.
-    if (deckIsAuditioning(project_.focusedDeckIndex)) {
+    if (deckIsHeldOffOutput(project_.focusedDeckIndex)) {
       return std::nullopt;
     }
     auto primary = primaryOutputIndexForDeck(project_.focusedDeckIndex);

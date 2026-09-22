@@ -325,6 +325,47 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "PRELOAD") {
+      // PRELOAD [<seconds>]  -> rack the selected cue paused at that position,
+      //                         held off the outputs, decode warm
+      // PRELOAD OFF|CLEAR    -> forget it
+      // PRELOAD STATUS       -> what is racked, if anything
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub == "OFF" || sub == "CLEAR" || sub == "END") {
+        if (preloadDeckIndex_ < 0) {
+          remoteCommandDetail_ = "nothing preloaded";
+          return;
+        }
+        clearPreload();
+        remoteCommandDetail_ = "preload cleared";
+        return;
+      }
+      if (sub == "STATUS") {
+        if (preloadDeckIndex_ < 0 ||
+            preloadDeckIndex_ >= static_cast<int>(project_.decks.size())) {
+          remoteCommandDetail_ = "nothing preloaded";
+          return;
+        }
+        const Deck& d = project_.decks[preloadDeckIndex_];
+        remoteCommandDetail_ =
+          "deck " + std::to_string(preloadDeckIndex_ + 1) + " cue " +
+          std::to_string(preloadCueIndex_ + 1) +
+          (preloadCueIndex_ >= 0 && preloadCueIndex_ < static_cast<int>(d.cues.size())
+             ? (" " + d.cues[preloadCueIndex_].name) : std::string());
+        return;
+      }
+      double at = 0.0;
+      if (!sub.empty()) {
+        auto parsed = parseNumber(1);
+        if (!parsed || *parsed < 0.0) {
+          failRemoteCommand("PRELOAD: expected a position in seconds, OFF or STATUS");
+          return;
+        }
+        at = *parsed;
+      }
+      remoteCommandDetail_ = preloadSelected(at);
+      return;
+    }
     if (command == "AUDITION" || command == "PFL") {
       // AUDITION            -> audition the selected cue (PFL, as a sound desk
       //                        calls the same idea: pre-fade listen)

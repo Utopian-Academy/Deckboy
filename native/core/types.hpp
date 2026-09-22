@@ -2119,6 +2119,8 @@ enum class QuickAction {
   PanelHeightDec, PanelHeightInc,
   // Audition the selected cue: play it to the operator, not to the room.
   AuditionSelected,
+  // Rack the selected cue paused and off air, so GO is instant.
+  PreloadSelected,
   CueSectionFadeToggle,
   FadeWhatCycle,
   FadeCurveCycle,

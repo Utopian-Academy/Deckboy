@@ -377,6 +377,10 @@
              // is playing but deliberately invisible is exactly the state a
              // control surface must not have to guess at.
              << " audition=" << (deckIsAuditioning(deckIndex) ? "on" : "off")
+             // Racked, warm, and waiting off air. Same reason as audition: a
+             // deck holding a cue nobody can see is a state a control surface
+             // must not have to infer.
+             << " preload=" << (deckIsPreloading(deckIndex) ? "on" : "off")
              << " display=" << (displayIndex + 1)
              << " route=" << routeLabel
              << " layer=" << layerIndex

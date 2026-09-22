@@ -302,6 +302,7 @@
     if (deckIsAuditioning(project_.focusedDeckIndex)) {
       endAudition(false);
     }
+    clearPreload();
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
@@ -1164,6 +1165,83 @@
 
   bool anyDeckAuditioning() const { return auditionDeckIndex_ >= 0; }
 
+  bool deckIsPreloading(int deckIndex) const {
+    return preloadDeckIndex_ >= 0 && preloadDeckIndex_ == deckIndex;
+  }
+
+  // The two reasons a deck's picture is deliberately not on its output. One
+  // predicate, because the compositor and the preview tap must never disagree
+  // about which of them is in force.
+  bool deckIsHeldOffOutput(int deckIndex) const {
+    return deckIsAuditioning(deckIndex) || deckIsPreloading(deckIndex);
+  }
+
+  void clearPreload(bool announce = false) {
+    if (preloadDeckIndex_ < 0) {
+      return;
+    }
+    preloadDeckIndex_ = -1;
+    preloadCueIndex_ = -1;
+    if (announce) {
+      triggerToast("preload cleared");
+    }
+  }
+
+  // Rack a cue paused at a position, decode warm, without the room seeing it.
+  //
+  // Deckboy could already load a cue paused -- takeSelected(false) does it --
+  // but that puts the paused frame straight on the output, so preparing the
+  // next cue meant showing it. Held off the output it becomes what it is for:
+  // the spin-up paid early so GO is instant.
+  std::string preloadSelected(double atSeconds) {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return "select a cue first";
+    }
+    // Held off the output BEFORE the rack, for the same reason audition is:
+    // set afterwards, one frame of it reaches the output first.
+    preloadDeckIndex_ = deckIndex;
+    preloadCueIndex_ = deck.selectedIndex;
+    preloadStarting_ = true;
+    // No transition and no autoplay: this is a rack, not a take. A transition
+    // here would animate a picture nobody can see and leave the outgoing cue
+    // mid-dissolve.
+    takeSelected(false, false);
+    preloadStarting_ = false;
+
+    const std::string name = deck.cues[deck.selectedIndex].name;
+    if (atSeconds > 0.0) {
+      if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+        engine->seek(atSeconds, false);
+      }
+      const std::string did = "preloaded " + name + " at " + formatSeconds(atSeconds);
+      triggerToast(did);
+      return did;
+    }
+    const std::string did = "preloaded " + name;
+    triggerToast(did);
+    return did;
+  }
+
+  // Let go of a preloaded cue: it is already racked and already at its
+  // position, so this is a play rather than a load. That is the whole point --
+  // no decoder spin-up between GO and the first frame.
+  bool releasePreloadIfTaking(int deckIndex, int cueIndex) {
+    if (!deckIsPreloading(deckIndex) || preloadCueIndex_ != cueIndex) {
+      return false;
+    }
+    clearPreload();
+    if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+      engine->play();
+    }
+    return true;
+  }
+
+
   void endAudition(bool announce = true) {
     if (auditionDeckIndex_ < 0) {
       return;
@@ -1627,6 +1705,17 @@
     // operator deciding to put something on air.
     if (deckIsAuditioning(deckIndex) && !auditionStarting_) {
       endAudition(false);
+    }
+    // TAKING THE PRELOADED CUE IS A PLAY, NOT A LOAD. The cue is already
+    // racked at its position, so re-loading it here would throw away the very
+    // spin-up the preload paid for and put a decoder stall between GO and the
+    // first frame -- the opposite of the feature.
+    if (!preloadStarting_ && releasePreloadIfTaking(deckIndex, deck.selectedIndex)) {
+      return;
+    }
+    // Taking anything ELSE abandons the preload; it is no longer what is next.
+    if (!preloadStarting_ && deckIsPreloading(deckIndex)) {
+      clearPreload();
     }
 
     // A DISARMED CUE DOES NOTHING AT ALL -- not its pre-wait, not its media,

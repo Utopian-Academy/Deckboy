@@ -2382,7 +2382,7 @@
         // rather than by dropping it from outputLayers, so the transition
         // below and everything downstream still sees the same list and one
         // condition governs the whole thing.
-        if (deckIsAuditioning(entry.second)) {
+        if (deckIsHeldOffOutput(entry.second)) {
           continue;
         }
         renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);

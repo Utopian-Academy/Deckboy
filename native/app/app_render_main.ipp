@@ -5522,6 +5522,18 @@
                      "they have");
         sqY += kInspectorRowStep;
 
+        // Preload. Next to audition because both hold a deck off the
+        // outputs; they differ only in what happens next.
+        drawQuickRow(sqY, "preload", QuickAction::PreloadSelected,
+                     deckIsPreloading(project_.focusedDeckIndex)
+                       ? std::string("RACKED, WARM")
+                       : std::string("rack it"),
+                     QuickAction::PreloadSelected, QuickAction::PreloadSelected,
+                     true, deckIsPreloading(project_.focusedDeckIndex),
+                     "Rack this cue paused and off air so GO starts it with no "
+                     "decoder spin-up");
+        sqY += kInspectorRowStep;
+
         // What this deck is about to do, when it is about to do something.
         const double pending = pendingTakeRemaining(deckIndex);
         if (pending >= 0.0) {
