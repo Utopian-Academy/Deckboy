@@ -259,6 +259,8 @@
     // TCP network cues answer from their own thread; this is where their
     // answers become toasts.
     drainNetworkResults();
+    // DMX fades, and the continuous Art-Net refresh a rig expects.
+    serviceDmx();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;
       syncEngineCueSnapshots();

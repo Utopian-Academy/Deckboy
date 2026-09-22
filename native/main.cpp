@@ -8320,6 +8320,7 @@ class App {
   bool cueSectionNetworkOpen_ = true;
   bool cueSectionTimecodeOpen_ = true;
   bool cueSectionScriptOpen_ = true;
+  bool cueSectionDmxOpen_ = true;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.

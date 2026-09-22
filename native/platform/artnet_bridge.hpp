@@ -30,12 +30,143 @@
 #include <atomic>
 #include <cstdint>
 #include <functional>
+#include <optional>
+#include <sstream>
 #include <string>
+#include <utility>
+#include <vector>
 #include <thread>
 
 #include "platform/network.hpp"
 
 namespace deckboy::platform {
+
+// ── ART-NET OUT ─────────────────────────────────────────────────────────────
+//
+// The bridge above LISTENS for ArtDMX. This builds one, because a cue deck
+// that can be told "house lights to 20%" and cannot say it is only half of a
+// show-control system.
+//
+// THE PACKET IS A PURE FUNCTION, for the same reason the MIDI encoder is: it
+// is the only part of this a machine can check without a lighting rig in the
+// room, and a header one byte wrong is dropped by every node on the network
+// while looking exactly like a cabling fault.
+//
+// ArtDMX, per the Art-Net 4 specification:
+//
+//   0   "Art-Net\0"          8 bytes, null terminated
+//   8   OpCode 0x5000        LITTLE endian, so 0x00 0x50
+//   10  ProtVer 14           BIG endian, so 0x00 0x0E
+//   12  Sequence             1-255, 0 means "sequencing disabled"
+//   13  Physical             informational only
+//   14  SubUni               low byte of the 15-bit port address
+//   15  Net                  high byte
+//   16  Length               BIG endian, even, 2..512
+//   18  Data                 Length bytes
+// ---------------------------------------------------------------------------
+inline std::vector<std::uint8_t> buildArtDmxPacket(
+    int universe, const std::vector<std::uint8_t>& channels, std::uint8_t sequence) {
+  std::vector<std::uint8_t> packet;
+  packet.reserve(18 + 512);
+
+  static const char kId[] = "Art-Net";
+  for (int i = 0; i < 7; ++i) {
+    packet.push_back(static_cast<std::uint8_t>(kId[i]));
+  }
+  packet.push_back(0);                                   // the terminator
+
+  packet.push_back(0x00);                                // OpCode, little endian
+  packet.push_back(0x50);
+  packet.push_back(0x00);                                // ProtVer, big endian
+  packet.push_back(0x0E);
+  packet.push_back(sequence);
+  packet.push_back(0x00);                                // Physical
+
+  const int clampedUniverse = universe < 0 ? 0 : (universe > 32767 ? 32767 : universe);
+  packet.push_back(static_cast<std::uint8_t>(clampedUniverse & 0xFF));
+  packet.push_back(static_cast<std::uint8_t>((clampedUniverse >> 8) & 0xFF));
+
+  // AT LEAST 2, AT MOST 512, AND ALWAYS EVEN. An odd length is legal to write
+  // and illegal to read: nodes reject the packet outright, so a rig would go
+  // dark with nothing in any log to say why.
+  std::size_t length = channels.size();
+  if (length < 2) {
+    length = 2;
+  }
+  if (length > 512) {
+    length = 512;
+  }
+  if ((length % 2) != 0) {
+    ++length;
+  }
+  packet.push_back(static_cast<std::uint8_t>((length >> 8) & 0xFF));   // big endian
+  packet.push_back(static_cast<std::uint8_t>(length & 0xFF));
+
+  for (std::size_t i = 0; i < length; ++i) {
+    packet.push_back(i < channels.size() ? channels[i] : 0);
+  }
+  return packet;
+}
+
+// "1=255, 5=128, 10-14=64" into a sparse list of (1-based channel, value).
+//
+// Returns nothing at all when any part of it is malformed, rather than as much
+// as it could read. A DMX line that half-applies is a lighting state nobody
+// asked for, and on a show that is worse than one that plainly did not fire.
+inline std::optional<std::vector<std::pair<int, std::uint8_t>>>
+parseDmxChannelSpec(const std::string& spec) {
+  std::vector<std::pair<int, std::uint8_t>> out;
+  std::string token;
+  std::stringstream stream(spec);
+  while (std::getline(stream, token, ',')) {
+    // trim
+    std::size_t a = token.find_first_not_of(" \t");
+    if (a == std::string::npos) {
+      continue;                                          // an empty item is not a fault
+    }
+    std::size_t b = token.find_last_not_of(" \t");
+    token = token.substr(a, b - a + 1);
+
+    const std::size_t eq = token.find('=');
+    if (eq == std::string::npos) {
+      return std::nullopt;
+    }
+    const std::string left = token.substr(0, eq);
+    const std::string right = token.substr(eq + 1);
+
+    int value = 0;
+    try {
+      value = std::stoi(right);
+    } catch (...) {
+      return std::nullopt;
+    }
+    if (value < 0 || value > 255) {
+      return std::nullopt;
+    }
+
+    const std::size_t dash = left.find('-');
+    int first = 0;
+    int last = 0;
+    try {
+      if (dash == std::string::npos) {
+        first = last = std::stoi(left);
+      } else {
+        first = std::stoi(left.substr(0, dash));
+        last = std::stoi(left.substr(dash + 1));
+      }
+    } catch (...) {
+      return std::nullopt;
+    }
+    // CHANNELS ARE 1-BASED, as every lighting desk in the world counts them.
+    if (first < 1 || last < first || last > 512) {
+      return std::nullopt;
+    }
+    for (int channel = first; channel <= last; ++channel) {
+      out.emplace_back(channel, static_cast<std::uint8_t>(value));
+    }
+  }
+  return out;
+}
 
 class ArtNetBridge {
  public:

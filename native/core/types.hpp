@@ -69,6 +69,9 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Dmx,           // sends DMX channel levels over Art-Net on GO, with a fade
+                 // time. NOT a lighting console -- "house lights to 20% on cue
+                 // 14" is the case this serves, at a fraction of the cost
   Script,        // runs Deckboy's OWN remote-protocol lines on GO. Every
                  // verb the socket accepts, from the cue list -- which is 90%
                  // of what a script cue is for without embedding a language
@@ -855,6 +858,11 @@ struct Cue {
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  // A DMX cue. The channel spec is the operator's own text -- "1=255,
+  // 10-14=64" -- kept as typed so it reads back the way it was written.
+  std::string dmxChannels;
+  std::string dmxHost = "255.255.255.255";   // Art-Net's broadcast default
+
   // A Script cue's lines, newline-separated. Edited in the same multi-line
   // editor the code source uses -- a script that has to be typed on one line
   // is a script nobody writes.
@@ -984,9 +992,16 @@ struct Cue {
   // The LED tile size the panel map is drawn to. 128x128 is the common one,
   // but a wall that is not made of those is exactly the wall that needs a map,
   // and mapping a 168px panel as 128 puts every label in the wrong place.
+  // How long the levels take to arrive. 0 is a snap, which is what a
+  // blackout wants.
+  double dmxFadeSeconds = 0.0;
+
   // Where a jam puts the clock. Seconds, because that is what the rest of the
   // app keeps time in; the inspector shows it as a timecode.
   double tcJamSeconds = 0.0;
+
+  int dmxUniverse = 0;                     // Art-Net port address, 0-32767
+  int dmxPort = 6454;                      // 6454 is Art-Net's registered port
 
   // 53000 is QLab's OSC port, which makes the commonest thing somebody wants
   // to do with this cue work without configuring anything.
@@ -2170,6 +2185,13 @@ enum class QuickAction {
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.
   PreloadSelected,
+  CueSectionDmxToggle,
+  DmxEditChannels,
+  DmxEditHost,
+  DmxFadeDec, DmxFadeInc,
+  DmxUniverseDec, DmxUniverseInc,
+  DmxFireNow,
+  DmxBlackout,
   CueSectionScriptToggle,
   ScriptEdit,
   ScriptRunNow,

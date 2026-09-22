@@ -863,6 +863,17 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionDmxToggle:
+        cueSectionDmxOpen_ = !cueSectionDmxOpen_;
+        break;
+      case QuickAction::DmxEditChannels: editDmxChannels(); break;
+      case QuickAction::DmxEditHost:     editDmxHost(); break;
+      case QuickAction::DmxFadeDec:      nudgeDmxField(1, -1); break;
+      case QuickAction::DmxFadeInc:      nudgeDmxField(1, +1); break;
+      case QuickAction::DmxUniverseDec:  nudgeDmxField(0, -1); break;
+      case QuickAction::DmxUniverseInc:  nudgeDmxField(0, +1); break;
+      case QuickAction::DmxFireNow:      fireSelectedDmxCue(); break;
+      case QuickAction::DmxBlackout:     (void)dmxBlackout(); break;
       case QuickAction::CueSectionScriptToggle:
         cueSectionScriptOpen_ = !cueSectionScriptOpen_;
         break;

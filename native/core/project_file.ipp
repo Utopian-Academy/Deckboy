@@ -623,6 +623,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.tcJamSeconds
         // A Script cue's lines. escapeField carries the newlines.
         << '\t' << escapeField(cue.scriptText)
+        // A DMX cue.
+        << '\t' << escapeField(cue.dmxChannels)
+        << '\t' << escapeField(cue.dmxHost)
+        << '\t' << cue.dmxFadeSeconds
+        << '\t' << cue.dmxUniverse
+        << '\t' << cue.dmxPort
         << '\n';
     }
   }
@@ -1392,6 +1398,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "network" ? CueKind::Network :
         kind == "timecode" ? CueKind::Timecode :
         kind == "script" ? CueKind::Script :
+        kind == "dmx" ? CueKind::Dmx :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1803,6 +1810,16 @@ Project loadProject(const fs::path& projectFile,
         }
         cue.tcJamSeconds = std::max(0.0, safeDouble(fields, vs + 87, 0.0));
         cue.scriptText = safeString(fields, vs + 88);
+        // A DMX cue. Broadcast and the registered Art-Net port are the
+        // defaults, which is what a rig on its own network wants.
+        cue.dmxChannels = safeString(fields, vs + 89);
+        cue.dmxHost = safeString(fields, vs + 90);
+        if (cue.dmxHost.empty()) {
+          cue.dmxHost = "255.255.255.255";
+        }
+        cue.dmxFadeSeconds = std::max(0.0, safeDouble(fields, vs + 91, 0.0));
+        cue.dmxUniverse = std::clamp(safeInt(fields, vs + 92, 0), 0, 32767);
+        cue.dmxPort = std::clamp(safeInt(fields, vs + 93, 6454), 1, 65535);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -1812,7 +1829,8 @@ Project loadProject(const fs::path& projectFile,
       if (!cue.path.empty() || cue.kind == CueKind::Master ||
           cue.kind == CueKind::Target || cue.kind == CueKind::Fade ||
           cue.kind == CueKind::Midi || cue.kind == CueKind::Network ||
-          cue.kind == CueKind::Timecode || cue.kind == CueKind::Script) {
+          cue.kind == CueKind::Timecode || cue.kind == CueKind::Script ||
+          cue.kind == CueKind::Dmx) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

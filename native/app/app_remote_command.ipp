@@ -325,6 +325,123 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "DMXCUE") {
+      // DMXCUE NEW                 -> add a DMX cue to this deck
+      // DMXCUE SET <spec>          -> "1=255, 10-14=64"
+      // DMXCUE FADE <seconds> | UNIVERSE <n> | HOST <ipv4> | PORT <n>
+      // DMXCUE FIRE                -> send it now
+      // DMXCUE BLACKOUT            -> every channel on every universe to 0
+      // DMXCUE                     -> report it, and whether it can send
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("DMXCUE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "BLACKOUT") {
+        remoteCommandDetail_ = dmxBlackout();
+        return;
+      }
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Dmx;
+        cue.name = "DMX " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "dmx cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("DMXCUE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Dmx) {
+        failRemoteCommand("DMXCUE: the selected cue is not a dmx cue");
+        return;
+      }
+
+      if (sub.empty()) {
+        auto spec = deckboy::platform::parseDmxChannelSpec(cue.dmxChannels);
+        std::ostringstream out;
+        out << (cue.dmxChannels.empty() ? std::string("(no channels)") : cue.dmxChannels)
+            << " -> universe " << cue.dmxUniverse
+            << " " << cue.dmxHost << ":" << cue.dmxPort
+            << (cue.dmxFadeSeconds > 0.0
+                  ? (" over " + formatSeconds(cue.dmxFadeSeconds))
+                  : std::string(" now"))
+            << " | " << (spec && !spec->empty()
+                           ? (std::to_string(spec->size()) + " channel(s)")
+                           : std::string("NOTHING TO SEND"));
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "FIRE" || sub == "GO" || sub == "SEND") {
+        remoteCommandDetail_ = fireDmxCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "SET" || sub == "CHANNELS") {
+        const std::string text = parts.size() >= 3 ? trim(joinParts(parts, 2))
+                                                   : std::string();
+        // CHECKED WHEN TYPED, not at GO. A typo here is silent on the night.
+        if (!text.empty() && !deckboy::platform::parseDmxChannelSpec(text)) {
+          failRemoteCommand("DMXCUE SET: expected channel=level pairs, e.g. "
+                            "1=255,10-14=64");
+          return;
+        }
+        cue.dmxChannels = text;
+        markProjectDirty();
+        remoteCommandDetail_ = text.empty() ? "cleared" : text;
+        return;
+      }
+      if (sub == "HOST" && parts.size() >= 3) {
+        const std::string host = trim(parts[2]);
+        sockaddr_in probe {};
+        if (inet_pton(AF_INET, host.c_str(), &probe.sin_addr) != 1) {
+          failRemoteCommand("DMXCUE HOST: " + host + " is not an IPv4 address");
+          return;
+        }
+        cue.dmxHost = host;
+        markProjectDirty();
+        remoteCommandDetail_ = host;
+        return;
+      }
+      if ((sub == "FADE" || sub == "UNIVERSE" || sub == "PORT") && parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        if (!parsed || *parsed < 0.0) {
+          failRemoteCommand("DMXCUE " + sub + ": expected a number");
+          return;
+        }
+        if (sub == "FADE") {
+          cue.dmxFadeSeconds = *parsed;
+          remoteCommandDetail_ = formatSeconds(cue.dmxFadeSeconds);
+        } else if (sub == "UNIVERSE") {
+          if (*parsed > 32767.0) {
+            failRemoteCommand("DMXCUE UNIVERSE: expected 0-32767");
+            return;
+          }
+          cue.dmxUniverse = static_cast<int>(std::lround(*parsed));
+          remoteCommandDetail_ = std::to_string(cue.dmxUniverse);
+        } else {
+          if (*parsed < 1.0 || *parsed > 65535.0) {
+            failRemoteCommand("DMXCUE PORT: expected 1-65535");
+            return;
+          }
+          cue.dmxPort = static_cast<int>(std::lround(*parsed));
+          remoteCommandDetail_ = std::to_string(cue.dmxPort);
+        }
+        markProjectDirty();
+        return;
+      }
+      failRemoteCommand("DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, "
+                        "FIRE or BLACKOUT");
+      return;
+    }
     if (command == "SCRIPTCUE") {
       // SCRIPTCUE NEW           -> add a script cue to this deck
       // SCRIPTCUE ADD <line>    -> append a line

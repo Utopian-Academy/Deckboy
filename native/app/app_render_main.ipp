@@ -5360,6 +5360,78 @@
       finishInspectorSection(tgSection, tgY);
     }
 
+    // DMX: the levels this cue sends, and how fast.
+    if (selectedCue && selectedCue->kind == CueKind::Dmx) {
+      auto spec = deckboy::platform::parseDmxChannelSpec(selectedCue->dmxChannels);
+
+      int dxY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto dxSection = beginInspectorSection(dxY, "DMX", cueSectionDmxOpen_,
+                                             QuickAction::CueSectionDmxToggle,
+                                             "Collapse/expand the levels this cue sends");
+      dxY = dxSection.bodyStartY;
+      if (cueSectionDmxOpen_) {
+        drawQuickRow(dxY, "channels", QuickAction::DmxEditChannels,
+                     selectedCue->dmxChannels.empty()
+                       ? std::string("none - click to set some")
+                       : selectedCue->dmxChannels,
+                     QuickAction::DmxEditChannels, QuickAction::DmxEditChannels,
+                     false, false,
+                     "Channel=level, comma separated. Ranges too: 1=255, "
+                     "10-14=64. Channels count from 1");
+        dxY += kInspectorRowStep;
+
+        drawQuickRow(dxY, "fade", QuickAction::DmxFadeDec,
+                     selectedCue->dmxFadeSeconds > 0.0
+                       ? formatSeconds(selectedCue->dmxFadeSeconds)
+                       : std::string("snap"),
+                     QuickAction::DmxFadeInc, QuickAction::ToggleLoop,
+                     false, false,
+                     "How long the levels take to arrive; zero is a snap");
+        dxY += kInspectorRowStep;
+
+        drawQuickRow(dxY, "universe", QuickAction::DmxUniverseDec,
+                     std::to_string(selectedCue->dmxUniverse),
+                     QuickAction::DmxUniverseInc, QuickAction::ToggleLoop,
+                     false, false, "Art-Net port address, 0-32767");
+        dxY += kInspectorRowStep;
+
+        drawQuickRow(dxY, "to", QuickAction::DmxEditHost,
+                     selectedCue->dmxHost.empty()
+                       ? std::string("255.255.255.255")
+                       : selectedCue->dmxHost,
+                     QuickAction::DmxEditHost, QuickAction::DmxEditHost,
+                     false, false,
+                     "An IPv4 address, or 255.255.255.255 to broadcast to the "
+                     "whole network");
+        dxY += kInspectorRowStep;
+
+        drawQuickRow(dxY, "send", QuickAction::DmxFireNow, std::string("now"),
+                     QuickAction::DmxFireNow, QuickAction::DmxFireNow,
+                     false, false, "Send it now, without taking the cue");
+        dxY += kInspectorRowStep;
+
+        drawQuickRow(dxY, "blackout", QuickAction::DmxBlackout,
+                     std::string("all to 0"),
+                     QuickAction::DmxBlackout, QuickAction::DmxBlackout,
+                     false, false,
+                     "Every channel on every universe this session has touched");
+        dxY += kInspectorRowStep;
+
+        // WHAT WILL ACTUALLY GO OUT, and what is wrong when something is.
+        if (selectedCue->dmxChannels.empty()) {
+          drawInspectorMessageRow(dxY, "no channels - this cue sends nothing");
+        } else if (!spec || spec->empty()) {
+          drawInspectorMessageRow(dxY, "channel list is not readable");
+        } else {
+          drawInspectorMessageRow(dxY, std::to_string(spec->size()) + " channel" +
+            (spec->size() == 1 ? "" : "s") + " -> universe " +
+            std::to_string(selectedCue->dmxUniverse));
+        }
+        dxY += kInspectorRowStep;
+      }
+      finishInspectorSection(dxSection, dxY);
+    }
+
     // SCRIPT: the protocol lines this cue runs on GO.
     if (selectedCue && selectedCue->kind == CueKind::Script) {
       const int lineCount = scriptLineCount(selectedCue->scriptText);

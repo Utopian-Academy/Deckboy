@@ -2345,6 +2345,11 @@
       {0, 0, 0, 0},
       [this]() { addScriptCue(); }
     });
+    contextItems_.push_back({
+      "  DMX Cue (Art-Net levels with a fade)",
+      {0, 0, 0, 0},
+      [this]() { addDmxCue(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -3384,6 +3389,21 @@
     onSelectionChanged();
     markProjectDirty();
     triggerToast("master cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  void addDmxCue() {
+    Cue cue;
+    cue.kind = CueKind::Dmx;
+    Deck& deck = focusedDeckMutable();
+    cue.name = "DMX " + std::to_string(deck.cues.size() + 1);
+    cue.color = {130, 110, 40, 255};
+    cue.formatName = "control";
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    markProjectDirty();
+    triggerToast("dmx cue added");
     playUiSound(UiSoundEffect::Import);
   }
 

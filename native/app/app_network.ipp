@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (305)\n"
+        "DECKBOY_0.01 every verb (306)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -454,7 +454,7 @@
         "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROKEN BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
-        "DISARM FADE FADECUE MIDICUE NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TIMECODECUE\n"
+        "DISARM DMXCUE FADE FADECUE MIDICUE NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TIMECODECUE\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
         "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD\n"
         "DECKAUTOFADE DECKDIM DECKFADE DECKLINK DECKNEXT DECKOPACITY\n"
@@ -512,6 +512,7 @@
         "net out:   NETCUE NEW|PROTO osc/udp/tcp|HOST <ipv4>|PORT <n>|ADDRESS </path>|PAYLOAD <text>|SEND\n"
         "timecode:  TCCUE NEW|ACTION start/stop/jam|JAM <hh:mm:ss:ff or seconds>|FIRE - drives the LTC generator from the cue list\n"
         "script:    SCRIPTCUE NEW|ADD <line>|CLEAR|RUN - a cue that runs Deckboy protocol lines; # is a comment\n"
+        "dmx out:   DMXCUE NEW|SET <1=255,10-14=64>|FADE <s>|UNIVERSE <n>|HOST <ipv4>|PORT <n>|FIRE|BLACKOUT - Art-Net levels on GO\n"
         "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"

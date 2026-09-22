@@ -1540,6 +1540,244 @@
     return did;
   }
 
+  // ── DMX CUES ──────────────────────────────────────────────────────────
+  //
+  // A cue that sends channel levels over Art-Net, with a fade time. NOT a
+  // lighting console: "house lights to 20% on cue 14" is the case, and it is
+  // served at a fraction of the cost of patch, instruments, groups and
+  // submasters -- see the plan's Phase 5, which recommends exactly this and
+  // recommends against the console.
+  //
+  // The app already LISTENED to Art-Net and could not speak it, the same shape
+  // MIDI was in this morning.
+  struct DmxUniverse {
+    int universe = 0;
+    std::string host;
+    int port = 6454;
+    std::array<std::uint8_t, 512> level {};   // where the levels are now
+    std::array<std::uint8_t, 512> from {};    // where a fade started
+    std::array<std::uint8_t, 512> to {};      // where it is going
+    bool fading = false;
+    double fadeSeconds = 0.0;
+    Uint64 fadeStartMs = 0;
+    std::uint8_t sequence = 1;
+  };
+  std::vector<DmxUniverse> dmxUniverses_;
+  Uint64 dmxLastSendMs_ = 0;
+
+  DmxUniverse& dmxUniverseFor(int universe, const std::string& host, int port) {
+    for (DmxUniverse& u : dmxUniverses_) {
+      if (u.universe == universe) {
+        u.host = host;
+        u.port = port;
+        return u;
+      }
+    }
+    DmxUniverse added;
+    added.universe = universe;
+    added.host = host;
+    added.port = port;
+    dmxUniverses_.push_back(added);
+    return dmxUniverses_.back();
+  }
+
+  std::string fireDmxCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "no cue";
+    }
+    const Cue& cue = deck.cues[cueIndex];
+
+    auto parsed = deckboy::platform::parseDmxChannelSpec(cue.dmxChannels);
+    // NOTHING, rather than as much as it could read. A DMX line that
+    // half-applies is a lighting state nobody asked for.
+    if (!parsed || parsed->empty()) {
+      const std::string why = cue.name + ": " +
+        (cue.dmxChannels.empty() ? "no channels set"
+                                 : "channel list is not readable");
+      triggerToast(why);
+      return why;
+    }
+
+    const std::string host = trim(cue.dmxHost).empty() ? std::string("255.255.255.255")
+                                                       : trim(cue.dmxHost);
+    sockaddr_in probe {};
+    if (inet_pton(AF_INET, host.c_str(), &probe.sin_addr) != 1) {
+      const std::string why = cue.name + ": " + host + " is not an IPv4 address";
+      triggerToast(why);
+      return why;
+    }
+
+    DmxUniverse& u = dmxUniverseFor(std::clamp(cue.dmxUniverse, 0, 32767), host,
+                                    std::clamp(cue.dmxPort, 1, 65535));
+    // The fade starts from WHERE THE LEVELS ARE, not from zero, so a cue that
+    // takes the house from 80% to 20% does not dip to black on the way.
+    u.from = u.level;
+    u.to = u.level;
+    for (const auto& [channel, value] : *parsed) {
+      u.to[static_cast<std::size_t>(channel - 1)] = value;
+    }
+    u.fadeSeconds = std::max(0.0, cue.dmxFadeSeconds);
+    if (u.fadeSeconds <= 0.0) {
+      u.level = u.to;
+      u.fading = false;
+    } else {
+      u.fading = true;
+      u.fadeStartMs = SDL_GetTicks();
+    }
+
+    const std::string did = std::to_string(parsed->size()) + " channel" +
+      (parsed->size() == 1 ? "" : "s") + " on universe " +
+      std::to_string(u.universe) +
+      (u.fadeSeconds > 0.0 ? (" over " + formatSeconds(u.fadeSeconds))
+                           : std::string(" now"));
+    showLog("DMX", did);
+    triggerToast(did);
+    return did;
+  }
+
+  // Called every tick. Art-Net nodes expect a CONTINUOUS stream and hold their
+  // last value only briefly, so this keeps sending at about 30 Hz for as long
+  // as any universe has been touched -- which is what a lighting output does,
+  // and what stops a rig snapping back between cues.
+  void serviceDmx() {
+    if (dmxUniverses_.empty()) {
+      return;
+    }
+    const Uint64 now = SDL_GetTicks();
+
+    for (DmxUniverse& u : dmxUniverses_) {
+      if (!u.fading) {
+        continue;
+      }
+      const double elapsed = static_cast<double>(now - u.fadeStartMs) / 1000.0;
+      if (u.fadeSeconds <= 0.0 || elapsed >= u.fadeSeconds) {
+        // LANDS EXACTLY on the target, for the same reason the fade cue does:
+        // a house light that finishes at 19% instead of 20% is invisible in
+        // rehearsal and visible on the night.
+        u.level = u.to;
+        u.fading = false;
+        continue;
+      }
+      const double t = elapsed / u.fadeSeconds;
+      for (std::size_t i = 0; i < u.level.size(); ++i) {
+        const double a = static_cast<double>(u.from[i]);
+        const double b = static_cast<double>(u.to[i]);
+        u.level[i] = static_cast<std::uint8_t>(std::lround(a + (b - a) * t));
+      }
+    }
+
+    // 30 Hz. Faster buys nothing a lighting rig can use and costs a packet per
+    // universe per frame on a network that is carrying a show.
+    if (now - dmxLastSendMs_ < 33) {
+      return;
+    }
+    dmxLastSendMs_ = now;
+    if (companionUdpSocket_ == deckboy::platform::kInvalidSocket) {
+      return;
+    }
+    for (DmxUniverse& u : dmxUniverses_) {
+      sockaddr_in target {};
+      target.sin_family = AF_INET;
+      target.sin_port = htons(static_cast<uint16_t>(u.port));
+      if (inet_pton(AF_INET, u.host.c_str(), &target.sin_addr) != 1) {
+        continue;
+      }
+      const std::vector<std::uint8_t> channels(u.level.begin(), u.level.end());
+      const auto packet = deckboy::platform::buildArtDmxPacket(u.universe, channels,
+                                                               u.sequence);
+      // The sequence byte wraps 1..255; 0 means "sequencing disabled" and must
+      // not appear in a stream that is using it.
+      u.sequence = u.sequence == 255 ? 1 : static_cast<std::uint8_t>(u.sequence + 1);
+      sendto(companionUdpSocket_, reinterpret_cast<const char*>(packet.data()),
+             static_cast<int>(packet.size()), 0,
+             reinterpret_cast<const sockaddr*>(&target),
+             static_cast<socklen_t>(sizeof(target)));
+    }
+  }
+
+  // Everything to zero, on every universe this session has touched. The one
+  // thing a lighting output must always be able to do.
+  std::string dmxBlackout() {
+    if (dmxUniverses_.empty()) {
+      return "no DMX universes in use";
+    }
+    for (DmxUniverse& u : dmxUniverses_) {
+      u.level.fill(0);
+      u.to.fill(0);
+      u.from.fill(0);
+      u.fading = false;
+    }
+    const std::string did = "DMX blackout on " +
+      std::to_string(dmxUniverses_.size()) + " universe(s)";
+    showLog("DMX", did);
+    triggerToast(did);
+    return did;
+  }
+
+  Cue* selectedDmxCue() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Dmx) ? cue : nullptr;
+  }
+
+  void nudgeDmxField(int which, int delta) {
+    Cue* cue = selectedDmxCue();
+    if (!cue) {
+      return;
+    }
+    if (which == 0) {
+      cue->dmxUniverse = std::clamp(cue->dmxUniverse + delta, 0, 32767);
+    } else {
+      cue->dmxFadeSeconds = std::max(0.0, cue->dmxFadeSeconds + delta * 0.5);
+    }
+    markProjectDirty();
+  }
+
+  void editDmxChannels() {
+    if (!selectedDmxCue()) {
+      return;
+    }
+    openInlineTextEditor("cue.dmx_channels", "DMX Channels",
+                         "e.g. 1=255, 10-14=64", selectedDmxCue()->dmxChannels,
+                         [this](const std::string& value) {
+                           if (Cue* c = selectedDmxCue()) {
+                             c->dmxChannels = trim(value);
+                             markProjectDirty();
+                           }
+                         });
+  }
+
+  void editDmxHost() {
+    if (!selectedDmxCue()) {
+      return;
+    }
+    openInlineTextEditor("cue.dmx_host", "Art-Net Destination",
+                         "an IPv4 address, or 255.255.255.255 to broadcast",
+                         selectedDmxCue()->dmxHost,
+                         [this](const std::string& value) {
+                           if (Cue* c = selectedDmxCue()) {
+                             c->dmxHost = trim(value);
+                             markProjectDirty();
+                           }
+                         });
+  }
+
+  void fireSelectedDmxCue() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size()) ||
+        deck.cues[deck.selectedIndex].kind != CueKind::Dmx) {
+      return;
+    }
+    (void)fireDmxCue(deckIndex, deck.selectedIndex);
+  }
+
   Cue* selectedScriptCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Script) ? cue : nullptr;
@@ -2471,6 +2709,12 @@
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
+    // A DMX CUE SETS LEVELS AND IS DONE; the fade outlives the take.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Dmx) {
+      (void)fireDmxCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
     // A SCRIPT CUE RUNS ITS LINES AND IS DONE.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Script) {
       (void)runScriptCue(deckIndex, deck.selectedIndex);
@@ -2995,6 +3239,17 @@
               out.push_back({d, c, "master target on deck " +
                                    std::to_string(a.deckIndex + 1) + " is gone"});
             }
+          }
+        }
+
+        // A DMX cue whose channel list cannot be read. The whole point of
+        // checking it here is that a typo is silent on the night.
+        if (cue.kind == CueKind::Dmx) {
+          auto spec = deckboy::platform::parseDmxChannelSpec(cue.dmxChannels);
+          if (cue.dmxChannels.empty()) {
+            out.push_back({d, c, "DMX cue has no channels"});
+          } else if (!spec || spec->empty()) {
+            out.push_back({d, c, "DMX channel list is not readable"});
           }
         }
 

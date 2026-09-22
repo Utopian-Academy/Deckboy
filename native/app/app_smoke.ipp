@@ -1216,7 +1216,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 32;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 37;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop
         {
@@ -1359,6 +1359,69 @@
       expect(bytesOf(raw).empty(), "a non-hex byte sends nothing");
       raw.rawHex = "";
       expect(bytesOf(raw).empty(), "an empty raw string sends nothing");
+    }
+    // ── ART-NET OUT: THE PACKET ────────────────────────────────────────────
+    //
+    // Pure function, checked here, for the same reason the MIDI encoder is: a
+    // header one byte wrong is dropped by every node on the network while
+    // looking exactly like a cabling fault.
+    {
+      using deckboy::platform::buildArtDmxPacket;
+      using deckboy::platform::parseDmxChannelSpec;
+
+      auto packet = buildArtDmxPacket(0, {255, 128}, 1);
+      expect(packet.size() == 18 + 2, "ArtDMX is an 18-byte header plus data");
+      expect(std::string(packet.begin(), packet.begin() + 8) ==
+               std::string("Art-Net\0", 8),
+             "ArtDMX starts with a null-terminated Art-Net");
+      // OpCode 0x5000 is LITTLE endian on the wire and ProtVer is BIG endian.
+      // Getting either the wrong way round is the classic Art-Net bug and it
+      // produces a packet every node ignores in silence.
+      expect(packet[8] == 0x00 && packet[9] == 0x50, "OpCode 0x5000, little endian");
+      expect(packet[10] == 0x00 && packet[11] == 0x0E, "ProtVer 14, big endian");
+      expect(packet[12] == 1, "the sequence byte is carried");
+      expect(packet[16] == 0x00 && packet[17] == 0x02, "length is big endian");
+      expect(packet[18] == 255 && packet[19] == 128, "the channel data follows");
+
+      // A 15-bit port address splits across SubUni and Net.
+      auto uni = buildArtDmxPacket(0x0102, {1, 2}, 0);
+      expect(uni[14] == 0x02 && uni[15] == 0x01, "universe splits into SubUni and Net");
+
+      // LENGTH IS ALWAYS EVEN. An odd length is legal to write and illegal to
+      // read: nodes reject the packet, so a rig goes dark with nothing in any
+      // log to say why.
+      auto odd = buildArtDmxPacket(0, {1, 2, 3}, 0);
+      expect(odd.size() == 18 + 4, "an odd channel count is padded to even");
+      // Data starts at 18, so the third channel is 20 and the pad is 21.
+      expect(odd[20] == 3 && odd[21] == 0, "the pad byte is zero");
+
+      auto tiny = buildArtDmxPacket(0, {7}, 0);
+      expect(tiny.size() == 18 + 2, "a single channel still sends the legal minimum");
+      auto big = buildArtDmxPacket(0, std::vector<std::uint8_t>(600, 9), 0);
+      expect(big.size() == 18 + 512, "more than a universe is truncated to 512");
+
+      // ── THE CHANNEL SPEC ────────────────────────────────────────────────
+      auto one = parseDmxChannelSpec("1=255");
+      expect(one && one->size() == 1 && (*one)[0].first == 1 && (*one)[0].second == 255,
+             "a single channel parses, 1-based");
+      auto range = parseDmxChannelSpec("10-14=64");
+      expect(range && range->size() == 5 && (*range)[0].first == 10 &&
+               (*range)[4].first == 14,
+             "a range expands inclusively");
+      auto several = parseDmxChannelSpec(" 1=255 , 5=128 ,10-11=64 ");
+      expect(several && several->size() == 4, "spaces and several items parse");
+
+      // ANY MALFORMED PART YIELDS NOTHING AT ALL. A DMX line that half-applies
+      // is a lighting state nobody asked for, which on a show is worse than
+      // one that plainly did not fire.
+      expect(!parseDmxChannelSpec("1"), "a channel with no value is refused");
+      expect(!parseDmxChannelSpec("1=300"), "a value above 255 is refused");
+      expect(!parseDmxChannelSpec("0=255"), "channel 0 is refused -- DMX counts from 1");
+      expect(!parseDmxChannelSpec("513=255"), "channel 513 is refused");
+      expect(!parseDmxChannelSpec("5-2=255"), "a backwards range is refused");
+      expect(!parseDmxChannelSpec("1=255,fish"), "one bad item refuses the whole line");
+      expect(parseDmxChannelSpec("") && parseDmxChannelSpec("")->empty(),
+             "an empty spec is empty rather than an error");
     }
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
         expect(loaded.midiDeviceName == "APC40 mkII Control",
