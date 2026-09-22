@@ -72,6 +72,62 @@ PATTERNS = [
     ("pocket-night", "picture-night", "still",
      "The same picture at night, for black level and shadow detail. A screen "
      "that looked fine on bars can still crush everything below 10%."),
+
+    # The engineering set. These are the charts the LED page generates in a
+    # browser; shipping them here too means the kit and the page agree, and
+    # somebody without Deckboy gets the same charts the app draws live.
+    ("panel-map", "panel-map", "still",
+     "Every LED tile numbered by row and column, with its own pixel origin "
+     "printed inside it and a different marker in each corner of the wall. A "
+     "swapped tile shows the wrong number, a rotated one shows the marker on "
+     "the wrong side, and a dead receiver card shows nothing. This is the one "
+     "that turns \"something is wrong up there\" into \"row 3, column 7\". The "
+     "PNG is drawn for 128x128 tiles; Deckboy draws it for whatever yours are."),
+    ("moire", "moire", "still",
+     "One-pixel checkerboard and one-pixel line fields. It only means anything "
+     "at 1:1 -- if it looks soft or swims, something in the chain is scaling, "
+     "which is worth establishing before anyone blames the camera."),
+    ("dark-detail", "dark-detail", "still",
+     "Steps from black to 12%, where LED walls actually struggle: crushed "
+     "blacks, a grey floor that is not black, and tiles that disagree with "
+     "each other down here long before they disagree in the light."),
+    ("uniformity", "uniformity", "still",
+     "Flat fields at 25, 50, 75 and 100% plus full red, green and blue. Flat "
+     "colour is unforgiving -- a panel from a different LED batch shows up at "
+     "once, and so does a dead pixel."),
+    ("ramps", "banding-ramps", "still",
+     "Ramps per channel and in grey, for finding the bit depth you are really "
+     "getting after processing. A 10-bit chain quietly truncated to 8 shows "
+     "its steps here and nowhere else in a show."),
+    ("safe-areas", "safe-areas", "still",
+     "Centre cross, thirds, and 90% and 80% boxes, so content is framed "
+     "against the screen's real aspect rather than a guess."),
+    ("boresight", "boresight", "still",
+     "Centre cross, concentric rings and markers at every corner and edge "
+     "midpoint. For lining a projector or a camera up on the middle of the "
+     "screen before any content exists."),
+    ("pluge", "pluge", "still",
+     "Black level. Set brightness so the below-black bar is invisible and the "
+     "just-above-black one is only barely visible. Everything else about a "
+     "picture is downstream of getting this right."),
+    ("greyscale", "greyscale-steps", "still",
+     "An 11-step staircase for gamma and grey tracking. A screen that goes "
+     "green in the mids or loses the top two steps shows it in a second."),
+    ("convergence", "convergence", "still",
+     "A fine one-pixel grid with pure red, green and blue crosses on it. "
+     "Fringing is a colour fault, and a white grid alone does not tell you "
+     "which channel is off."),
+    ("multiburst", "multiburst", "still",
+     "Bar packets from 16 pixels down to 1. The finest packet going grey means "
+     "detail is being lost somewhere, and which packet fails says roughly "
+     "where."),
+    ("window-10", "window-10", "still",
+     "A 10% white window on black, for peak brightness at a realistic average "
+     "picture level. A screen that hits its rated figure here and nowhere near "
+     "it on a full field is behaving normally."),
+    ("window-50", "window-50", "still",
+     "The same measurement at 50%, which is closer to what real content asks "
+     "a screen for."),
 ]
 
 
