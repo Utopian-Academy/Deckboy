@@ -369,6 +369,10 @@
              << " selected_id=\"" << selectedId << "\""
              << " active_num=\"" << activeNum << "\""
              << " active_id=\"" << activeId << "\""
+             // How much of this deck reaches the output. A live value a fade
+             // cue moves, so anything showing deck state needs to see it.
+             << " opacity=" << static_cast<int>(std::lround(
+                  std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f))
              << " display=" << (displayIndex + 1)
              << " route=" << routeLabel
              << " layer=" << layerIndex
@@ -532,6 +536,10 @@
            << " selected_id=\"" << selectedId << "\""
            << " active_num=\"" << activeNum << "\""
            << " active_id=\"" << activeId << "\""
+           // How much of this deck reaches the output. A live value a fade cue
+           // moves, so anything showing deck state needs to be able to see it.
+           << " opacity=" << static_cast<int>(std::lround(
+                std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f))
            << " display=" << (displayIndex + 1)
            << " route=" << routeLabel
            << " layer=" << layerIndex

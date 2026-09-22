@@ -5360,6 +5360,86 @@
       finishInspectorSection(tgSection, tgY);
     }
 
+    // FADE: what this cue ramps, to where, how fast and in what shape.
+    if (selectedCue && selectedCue->kind == CueKind::Fade) {
+      int fdY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto fdSection = beginInspectorSection(fdY, "FADE", cueSectionFadeOpen_,
+                                             QuickAction::CueSectionFadeToggle,
+                                             "Collapse/expand what this cue fades");
+      fdY = fdSection.bodyStartY;
+      if (cueSectionFadeOpen_) {
+        drawQuickRow(fdY, "fades", QuickAction::FadeWhatCycle,
+                     cueFadeWhatLabel(selectedCue->fadeWhat),
+                     QuickAction::FadeWhatCycle, QuickAction::FadeWhatCycle,
+                     false, false,
+                     "Deck opacity, deck volume, or the master dimmer");
+        fdY += kInspectorRowStep;
+
+        // The deck row is hidden for the master dimmer, which belongs to no
+        // deck -- a control that cannot affect anything is worse than none.
+        if (selectedCue->fadeWhat != CueFadeWhat::MasterDimmer) {
+          const int fd = selectedCue->targetDeckIndex;
+          const bool named = fd >= 0 && fd < static_cast<int>(project_.decks.size());
+          std::string deckValue = "this deck";
+          if (named) {
+            deckValue = project_.decks[fd].name.empty()
+                          ? ("deck " + std::to_string(fd + 1))
+                          : project_.decks[fd].name;
+          }
+          drawQuickRow(fdY, "on", QuickAction::FadeDeckPrev, deckValue,
+                       QuickAction::FadeDeckNext, QuickAction::FadeDeckNext,
+                       false, false,
+                       "Which deck it acts on; step off the end for the one "
+                       "this cue lives on");
+          fdY += kInspectorRowStep;
+        }
+
+        char pct[8];
+        std::snprintf(pct, sizeof(pct), "%d%%",
+                      static_cast<int>(std::lround(selectedCue->fadeToValue * 100.0)));
+        drawQuickRow(fdY, "to", QuickAction::FadeToDec, std::string(pct),
+                     QuickAction::FadeToInc, QuickAction::ToggleLoop, false, false,
+                     "Where the ramp ends");
+        fdY += kInspectorRowStep;
+
+        drawQuickRow(fdY, "over", QuickAction::FadeOverDec,
+                     selectedCue->fadeOverSeconds > 0.0
+                       ? formatSeconds(selectedCue->fadeOverSeconds)
+                       : std::string("snap"),
+                     QuickAction::FadeOverInc, QuickAction::ToggleLoop, false, false,
+                     "How long it takes; zero is a snap rather than a fade");
+        fdY += kInspectorRowStep;
+
+        drawQuickRow(fdY, "curve", QuickAction::FadeCurveCycle,
+                     cueFadeCurveLabel(selectedCue->fadeCurve),
+                     QuickAction::FadeCurveCycle, QuickAction::FadeCurveCycle,
+                     false, false,
+                     "Linear, ease in, ease out or S-curve");
+        fdY += kInspectorRowStep;
+
+        drawQuickRow(fdY, "then stop", QuickAction::FadeStopToggle,
+                     selectedCue->fadeStopWhenDone ? "yes" : "no",
+                     QuickAction::FadeStopToggle, QuickAction::FadeStopToggle,
+                     true, selectedCue->fadeStopWhenDone,
+                     "Stop that deck when the ramp lands - the usual "
+                     "take-it-down-and-stop-it");
+        fdY += kInspectorRowStep;
+
+        drawQuickRow(fdY, "fire", QuickAction::FadeFire, std::string("now"),
+                     QuickAction::FadeFire, QuickAction::FadeFire, false, false,
+                     "Run it now, without taking the cue");
+        fdY += kInspectorRowStep;
+
+        // What is actually running, if anything. A fade is the one cue whose
+        // effect happens AFTER you fire it, so the panel has to say so.
+        if (!fadeRuns_.empty()) {
+          drawInspectorMessageRow(fdY, fadeRunSummary());
+          fdY += kInspectorRowStep;
+        }
+      }
+      finishInspectorSection(fdSection, fdY);
+    }
+
     // SEQUENCE: the spine, per cue. Pre-wait, post-wait, continue mode, and
     // arming this cue as the standby.
     //

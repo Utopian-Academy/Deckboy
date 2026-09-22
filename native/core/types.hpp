@@ -69,6 +69,8 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Fade,          // ramps something over time: a deck's opacity, its audio, or
+                 // the master dimmer. Carries no media either -- see CueFadeWhat
   Target         // acts ON another cue rather than playing anything: start it,
                  // stop it, pause it, arm it. Carries no media either — see
                  // CueTargetVerb and Cue::targetCueId
@@ -92,6 +94,96 @@ enum class CueTargetVerb {
   Arm,       // make it live-able again
   Disarm,    // leave it in the list, inert: GO passes straight over it
 };
+
+// ---------------------------------------------------------------------------
+// What a Fade cue ramps.
+//
+// Three things, chosen because all three already exist as live values that are
+// safe to move: a deck's picture level, a deck's audio level, and the master
+// dimmer. None of them is a field the show file keeps a fade in -- the deck's
+// engine volume is runtime, and the opacity has a target the app already ramps
+// toward -- so a fade cannot leave a show permanently quieter than it was
+// saved.
+// ---------------------------------------------------------------------------
+enum class CueFadeWhat {
+  DeckOpacity,   // Deck::playlistOpacity -- how much of that deck reaches the output
+  DeckVolume,    // the deck engine's runtime volume, not any cue's saved gain
+  MasterDimmer,  // Project::masterDimmer -- everything, at once
+};
+
+inline const char* cueFadeWhatToken(CueFadeWhat w) {
+  switch (w) {
+    case CueFadeWhat::DeckVolume:   return "volume";
+    case CueFadeWhat::MasterDimmer: return "dimmer";
+    case CueFadeWhat::DeckOpacity:  break;
+  }
+  return "opacity";
+}
+
+inline const char* cueFadeWhatLabel(CueFadeWhat w) {
+  switch (w) {
+    case CueFadeWhat::DeckVolume:   return "Deck volume";
+    case CueFadeWhat::MasterDimmer: return "Master dimmer";
+    case CueFadeWhat::DeckOpacity:  break;
+  }
+  return "Deck opacity";
+}
+
+inline CueFadeWhat cueFadeWhatFromToken(const std::string& token) {
+  if (token == "volume") return CueFadeWhat::DeckVolume;
+  if (token == "dimmer") return CueFadeWhat::MasterDimmer;
+  return CueFadeWhat::DeckOpacity;
+}
+
+// The shape of the ramp. Linear is the default because it is what every
+// existing fade in the app already does, so a show that gains a fade cue does
+// not also gain a curve nobody asked for.
+enum class CueFadeCurve {
+  Linear,
+  EaseIn,    // slow to start: good for bringing something up under speech
+  EaseOut,   // slow to finish: the standard music fade-out
+  SCurve,    // slow at both ends
+};
+
+inline const char* cueFadeCurveToken(CueFadeCurve c) {
+  switch (c) {
+    case CueFadeCurve::EaseIn:  return "ease-in";
+    case CueFadeCurve::EaseOut: return "ease-out";
+    case CueFadeCurve::SCurve:  return "s-curve";
+    case CueFadeCurve::Linear:  break;
+  }
+  return "linear";
+}
+
+inline const char* cueFadeCurveLabel(CueFadeCurve c) {
+  switch (c) {
+    case CueFadeCurve::EaseIn:  return "Ease in";
+    case CueFadeCurve::EaseOut: return "Ease out";
+    case CueFadeCurve::SCurve:  return "S-curve";
+    case CueFadeCurve::Linear:  break;
+  }
+  return "Linear";
+}
+
+inline CueFadeCurve cueFadeCurveFromToken(const std::string& token) {
+  if (token == "ease-in")  return CueFadeCurve::EaseIn;
+  if (token == "ease-out") return CueFadeCurve::EaseOut;
+  if (token == "s-curve")  return CueFadeCurve::SCurve;
+  return CueFadeCurve::Linear;
+}
+
+// Progress 0-1 in, shaped 0-1 out. Endpoints are exact for every curve, which
+// is what lets a fade finish ON its target rather than near it.
+inline double applyCueFadeCurve(CueFadeCurve c, double t) {
+  t = t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t);
+  switch (c) {
+    case CueFadeCurve::EaseIn:  return t * t;
+    case CueFadeCurve::EaseOut: return t * (2.0 - t);
+    case CueFadeCurve::SCurve:  return t * t * (3.0 - 2.0 * t);
+    case CueFadeCurve::Linear:  break;
+  }
+  return t;
+}
 
 inline const char* cueTargetVerbToken(CueTargetVerb v) {
   switch (v) {
@@ -856,8 +948,15 @@ struct Cue {
   // and mapping a 168px panel as 128 puts every label in the wrong place.
   int ledPanelWidth = 128;
   int ledPanelHeight = 128;
+  // A Fade cue aims with the SAME fields a Target cue does -- targetDeckIndex
+  // says which deck, and it needs no cue id because everything it can move is
+  // a deck-wide or master value.
+  double fadeOverSeconds = 3.0;            // how long the ramp takes
+  double fadeToValue = 0.0;                // where it ends up, 0-1
   int targetDeckIndex = -1;                // Target cue: which deck its victim is on
   CueTargetVerb targetVerb = CueTargetVerb::Start;  // Target cue: what it does to it
+  CueFadeWhat fadeWhat = CueFadeWhat::DeckOpacity;  // Fade cue: what it ramps
+  CueFadeCurve fadeCurve = CueFadeCurve::Linear;    // Fade cue: the shape of it
   ScaleMode scaleMode = ScaleMode::Fit;    // how source maps to output — see ScaleMode enum
 
   // -- 4-byte aligned: SDL_Color (RGBA) ----------------------------------------
@@ -912,6 +1011,10 @@ struct Cue {
   // GO steps over it. True by default so every show that predates the flag
   // behaves exactly as it did.
   bool armed = true;
+  // Stop the deck when the fade reaches the end. This is the single most used
+  // fade in any show -- take the music down and stop it -- and without the
+  // flag it is two cues that have to be kept in step by hand.
+  bool fadeStopWhenDone = false;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -2014,6 +2117,14 @@ enum class QuickAction {
   // a tile size on a colour-bars cue is a control that cannot do anything.
   PanelWidthDec, PanelWidthInc,
   PanelHeightDec, PanelHeightInc,
+  CueSectionFadeToggle,
+  FadeWhatCycle,
+  FadeCurveCycle,
+  FadeToDec, FadeToInc,
+  FadeOverDec, FadeOverInc,
+  FadeDeckPrev, FadeDeckNext,
+  FadeStopToggle,
+  FadeFire,
   CueSectionTargetToggle,
   TargetDeckPrev,
   TargetDeckNext,

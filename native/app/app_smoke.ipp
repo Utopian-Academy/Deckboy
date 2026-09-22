@@ -1216,8 +1216,9 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 10;  // preWait, postWait, continue, masters,
-                                              // target id/deck/verb, armed, panel w/h
+        constexpr int kSpineTailFields = 15;  // preWait, postWait, continue, masters,
+                                              // target id/deck/verb, armed, panel w/h,
+                                              // fade secs/to/what/curve/stop
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

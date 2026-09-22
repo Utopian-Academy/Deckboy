@@ -292,6 +292,10 @@
     // counting down, a continue waiting -- dies with it, or it fires seconds
     // later on top of an operator who thought they had stopped the show.
     cancelPendingTake(project_.focusedDeckIndex);
+    // And anything this deck was fading. A fade that lands seconds after the
+    // operator stopped the show is the same fault as a pending take that
+    // fires after it -- see cancelPendingTake, directly above.
+    cancelFadesForDeck(project_.focusedDeckIndex);
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
@@ -1050,6 +1054,97 @@
     }
   }
 
+  // ── Fade cue edits ────────────────────────────────────────────────────
+  //
+  // Every one of these guards on the KIND. A fade control that quietly edited
+  // a video cue's fields would be invisible until the show file came back
+  // carrying a ramp nobody put there.
+  Cue* selectedFadeCue() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Fade) ? cue : nullptr;
+  }
+
+  void cycleFadeWhat() {
+    Cue* cue = selectedFadeCue();
+    if (!cue) {
+      return;
+    }
+    cue->fadeWhat = cue->fadeWhat == CueFadeWhat::DeckOpacity  ? CueFadeWhat::DeckVolume
+                  : cue->fadeWhat == CueFadeWhat::DeckVolume   ? CueFadeWhat::MasterDimmer
+                                                               : CueFadeWhat::DeckOpacity;
+    markProjectDirty();
+    triggerToast(cueFadeWhatLabel(cue->fadeWhat));
+  }
+
+  void cycleFadeCurve() {
+    Cue* cue = selectedFadeCue();
+    if (!cue) {
+      return;
+    }
+    cue->fadeCurve = cue->fadeCurve == CueFadeCurve::Linear  ? CueFadeCurve::EaseIn
+                   : cue->fadeCurve == CueFadeCurve::EaseIn  ? CueFadeCurve::EaseOut
+                   : cue->fadeCurve == CueFadeCurve::EaseOut ? CueFadeCurve::SCurve
+                                                             : CueFadeCurve::Linear;
+    markProjectDirty();
+    triggerToast(cueFadeCurveLabel(cue->fadeCurve));
+  }
+
+  void nudgeFadeTo(double delta) {
+    Cue* cue = selectedFadeCue();
+    if (!cue) {
+      return;
+    }
+    cue->fadeToValue = std::clamp(cue->fadeToValue + delta, 0.0, 1.0);
+    markProjectDirty();
+  }
+
+  void nudgeFadeOver(double delta) {
+    Cue* cue = selectedFadeCue();
+    if (!cue) {
+      return;
+    }
+    // Floored at zero, not at some minimum: a zero-length fade is a SET, and
+    // turning the duration all the way down is how an operator asks for one.
+    cue->fadeOverSeconds = std::max(0.0, cue->fadeOverSeconds + delta);
+    markProjectDirty();
+  }
+
+  void stepFadeDeck(int delta) {
+    Cue* cue = selectedFadeCue();
+    if (!cue) {
+      return;
+    }
+    const int count = static_cast<int>(project_.decks.size());
+    const int next = cue->targetDeckIndex + delta;
+    // Off either end means "the deck this cue lives on", which is what a
+    // single-deck show wants and should never have to set.
+    cue->targetDeckIndex = (next < 0 || next >= count) ? -1 : next;
+    markProjectDirty();
+  }
+
+  void toggleFadeStopWhenDone() {
+    Cue* cue = selectedFadeCue();
+    if (!cue) {
+      return;
+    }
+    cue->fadeStopWhenDone = !cue->fadeStopWhenDone;
+    markProjectDirty();
+    triggerToast(cue->fadeStopWhenDone ? "stop when done" : "leave it running");
+  }
+
+  void fireSelectedFadeCue() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size()) ||
+        deck.cues[deck.selectedIndex].kind != CueKind::Fade) {
+      return;
+    }
+    (void)fireFadeCue(deckIndex, deck.selectedIndex);
+  }
+
   void toggleSelectedCueArmed() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
@@ -1148,6 +1243,219 @@
       return;
     }
     (void)fireTargetCue(deckIndex, deck.selectedIndex);
+  }
+
+  // ── FADE CUES ─────────────────────────────────────────────────────────
+  //
+  // A fade is a RUN, not a setting: it has a start, a shape and an end, and it
+  // has to be able to be interrupted by the next one without either of them
+  // getting stuck halfway. So each firing pushes one of these and the update
+  // loop walks them, rather than a per-deck "currently fading" flag that two
+  // cues would fight over.
+  //
+  // What a fade moves is deliberately never a field the show file keeps. Deck
+  // opacity has a target the app already ramps toward, and deck volume is the
+  // engine's runtime level -- so a fade can never leave a saved show quieter
+  // or darker than the operator left it.
+  struct FadeRun {
+    int deckIndex = -1;                     // -1 for master-scope fades
+    CueFadeWhat what = CueFadeWhat::DeckOpacity;
+    CueFadeCurve curve = CueFadeCurve::Linear;
+    double from = 0.0;
+    double to = 0.0;
+    double durationSeconds = 0.0;
+    Uint64 startMs = 0;
+    bool stopWhenDone = false;
+    std::string label;                      // for the toast when it lands
+  };
+  std::vector<FadeRun> fadeRuns_;
+
+  // Where a fade would start from RIGHT NOW. Read at fire time rather than
+  // stored on the cue: a fade that always started from 100% would jump the
+  // level up before taking it down, which is the single most visible way to
+  // get a fade wrong.
+  double currentFadeValue(int deckIndex, CueFadeWhat what) const {
+    switch (what) {
+      case CueFadeWhat::MasterDimmer:
+        return std::clamp(project_.masterDimmer, 0.0, 1.0);
+      case CueFadeWhat::DeckVolume: {
+        const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+        return engine ? std::clamp(static_cast<double>(engine->volume()), 0.0, 1.0) : 0.0;
+      }
+      case CueFadeWhat::DeckOpacity:
+        break;
+    }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return 0.0;
+    }
+    return std::clamp(static_cast<double>(project_.decks[deckIndex].playlistOpacity), 0.0, 1.0);
+  }
+
+  void applyFadeValue(int deckIndex, CueFadeWhat what, double value) {
+    value = std::clamp(value, 0.0, 1.0);
+    switch (what) {
+      case CueFadeWhat::MasterDimmer:
+        project_.masterDimmer = value;
+        return;
+      case CueFadeWhat::DeckVolume:
+        if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+          engine->setVolume(static_cast<float>(value));
+        }
+        return;
+      case CueFadeWhat::DeckOpacity:
+        break;
+    }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    project_.decks[deckIndex].playlistOpacity = static_cast<float>(value);
+    // AND THE TARGET, every tick. The app already ramps playlistOpacity toward
+    // deckPlaylistOpacityTargets_ at the DECK's fade rate; leaving that target
+    // where it was would have the two pulling in opposite directions and the
+    // fade would never arrive. Writing both means the old ramp sees no error
+    // and stands down while this one owns the value.
+    setDeckPlaylistOpacityTarget(deckIndex, static_cast<float>(value));
+  }
+
+  // One fade per deck per thing. A new fade on the same pair replaces the old
+  // one from wherever it had got to, which is what an operator means when they
+  // fire a fade up in the middle of a fade down.
+  void cancelFadesFor(int deckIndex, CueFadeWhat what) {
+    fadeRuns_.erase(std::remove_if(fadeRuns_.begin(), fadeRuns_.end(),
+                                   [&](const FadeRun& f) {
+                                     return f.deckIndex == deckIndex && f.what == what;
+                                   }),
+                    fadeRuns_.end());
+  }
+
+  // STOP means stop. Anything this deck was fading dies with it, for the same
+  // reason a pending take does -- otherwise a fade lands seconds later on an
+  // operator who thought they had stopped the show.
+  void cancelFadesForDeck(int deckIndex) {
+    fadeRuns_.erase(std::remove_if(fadeRuns_.begin(), fadeRuns_.end(),
+                                   [&](const FadeRun& f) {
+                                     return f.deckIndex == deckIndex;
+                                   }),
+                    fadeRuns_.end());
+  }
+
+  std::string fireFadeCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "no cue";
+    }
+    const Cue fading = deck.cues[cueIndex];
+
+    // A fade with no deck named acts on the deck it lives on, which is what a
+    // single-deck show wants and never has to be set.
+    int victimDeck = fading.targetDeckIndex;
+    if (victimDeck < 0 || victimDeck >= static_cast<int>(project_.decks.size())) {
+      victimDeck = deckIndex;
+    }
+    if (fading.fadeWhat == CueFadeWhat::MasterDimmer) {
+      victimDeck = -1;                      // master scope: no deck owns it
+    }
+
+    FadeRun run;
+    run.deckIndex = victimDeck;
+    run.what = fading.fadeWhat;
+    run.curve = fading.fadeCurve;
+    run.from = currentFadeValue(victimDeck, fading.fadeWhat);
+    run.to = std::clamp(fading.fadeToValue, 0.0, 1.0);
+    run.durationSeconds = std::max(0.0, fading.fadeOverSeconds);
+    run.startMs = SDL_GetTicks();
+    run.stopWhenDone = fading.fadeStopWhenDone;
+    run.label = fading.name;
+
+    cancelFadesFor(victimDeck, fading.fadeWhat);
+
+    char pct[8];
+    std::snprintf(pct, sizeof(pct), "%d%%", static_cast<int>(std::lround(run.to * 100.0)));
+    const std::string did = std::string(cueFadeWhatLabel(run.what)) + " -> " + pct +
+                            " over " + formatSeconds(run.durationSeconds);
+
+    // A ZERO-LENGTH FADE IS A SET, and must land on this tick rather than
+    // waiting for the next one -- a fade cue with the duration turned all the
+    // way down is how an operator asks for a snap.
+    if (run.durationSeconds <= 0.0) {
+      applyFadeValue(run.deckIndex, run.what, run.to);
+      if (run.stopWhenDone) {
+        finishFadeStop(run.deckIndex);
+      }
+      triggerToast(did);
+      return did;
+    }
+    fadeRuns_.push_back(run);
+    triggerToast(did);
+    return did;
+  }
+
+  void finishFadeStop(int deckIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const int savedFocus = project_.focusedDeckIndex;
+    project_.focusedDeckIndex = deckIndex;
+    stopTransport();
+    project_.focusedDeckIndex = savedFocus;
+  }
+
+  // Called once a tick. Walks backwards so a run can be erased in place.
+  void serviceFades() {
+    if (fadeRuns_.empty()) {
+      return;
+    }
+    const Uint64 now = SDL_GetTicks();
+    for (int i = static_cast<int>(fadeRuns_.size()) - 1; i >= 0; --i) {
+      FadeRun& run = fadeRuns_[static_cast<std::size_t>(i)];
+      const double elapsed = static_cast<double>(now - run.startMs) / 1000.0;
+      const double raw = run.durationSeconds > 0.0 ? elapsed / run.durationSeconds : 1.0;
+      if (raw >= 1.0) {
+        // LANDS EXACTLY ON THE TARGET. Interpolating one last time would leave
+        // it a fraction short, and "the fade ends at 0.3% instead of black" is
+        // the kind of thing nobody sees in rehearsal and everybody sees on the
+        // night.
+        applyFadeValue(run.deckIndex, run.what, run.to);
+        const bool stop = run.stopWhenDone;
+        const int deckIndex = run.deckIndex;
+        const std::string label = run.label;
+        fadeRuns_.erase(fadeRuns_.begin() + i);
+        if (stop) {
+          finishFadeStop(deckIndex);
+        }
+        showLog("FADE DONE", label);
+        continue;
+      }
+      const double shaped = applyCueFadeCurve(run.curve, raw);
+      applyFadeValue(run.deckIndex, run.what, run.from + (run.to - run.from) * shaped);
+    }
+  }
+
+  // What is fading, for the operator and for a remote caller. Derived, like
+  // everything else that answers a question about now.
+  std::string fadeRunSummary() const {
+    if (fadeRuns_.empty()) {
+      return "nothing fading";
+    }
+    const Uint64 now = SDL_GetTicks();
+    std::ostringstream out;
+    bool first = true;
+    for (const FadeRun& run : fadeRuns_) {
+      if (!first) {
+        out << " | ";
+      }
+      first = false;
+      const double elapsed = static_cast<double>(now - run.startMs) / 1000.0;
+      const double left = std::max(0.0, run.durationSeconds - elapsed);
+      if (run.deckIndex >= 0) {
+        out << "deck " << (run.deckIndex + 1) << " ";
+      }
+      out << cueFadeWhatLabel(run.what) << " " << formatSeconds(left) << " left";
+    }
+    return out.str();
   }
 
   std::string fireTargetCue(int deckIndex, int cueIndex) {
@@ -1286,6 +1594,12 @@
     // A TARGET acts on another cue and is likewise never handed to an engine.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Target) {
       (void)fireTargetCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
+    // A FADE starts a ramp and is done; the ramp outlives the take.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Fade) {
+      (void)fireFadeCue(deckIndex, deck.selectedIndex);
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
@@ -1783,6 +2097,16 @@
                                    std::to_string(a.deckIndex + 1) + " is gone"});
             }
           }
+        }
+
+        // A fade that does nothing: zero length AND already at its value is
+        // fine (it is a set), but a fade naming a deck that has gone is not.
+        if (cue.kind == CueKind::Fade && cue.fadeWhat != CueFadeWhat::MasterDimmer &&
+            cue.targetDeckIndex >= 0 &&
+            cue.targetDeckIndex >= static_cast<int>(project_.decks.size())) {
+          out.push_back({d, c, "fade names deck " +
+                               std::to_string(cue.targetDeckIndex + 1) +
+                               ", which does not exist"});
         }
 
         // A target with nobody to act on, for the same reason.

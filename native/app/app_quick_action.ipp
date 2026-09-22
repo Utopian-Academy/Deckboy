@@ -863,6 +863,19 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionFadeToggle:
+        cueSectionFadeOpen_ = !cueSectionFadeOpen_;
+        break;
+      case QuickAction::FadeWhatCycle:  cycleFadeWhat(); break;
+      case QuickAction::FadeCurveCycle: cycleFadeCurve(); break;
+      case QuickAction::FadeToDec:      nudgeFadeTo(-0.05); break;
+      case QuickAction::FadeToInc:      nudgeFadeTo(+0.05); break;
+      case QuickAction::FadeOverDec:    nudgeFadeOver(-0.5); break;
+      case QuickAction::FadeOverInc:    nudgeFadeOver(+0.5); break;
+      case QuickAction::FadeDeckPrev:   stepFadeDeck(-1); break;
+      case QuickAction::FadeDeckNext:   stepFadeDeck(+1); break;
+      case QuickAction::FadeStopToggle: toggleFadeStopWhenDone(); break;
+      case QuickAction::FadeFire:       fireSelectedFadeCue(); break;
       case QuickAction::PanelWidthDec:  nudgeLedPanelSize(true, -16); break;
       case QuickAction::PanelWidthInc:  nudgeLedPanelSize(true, +16); break;
       case QuickAction::PanelHeightDec: nudgeLedPanelSize(false, -16); break;

@@ -596,6 +596,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // The LED tile size a panel map is drawn to.
         << '\t' << cue.ledPanelWidth
         << '\t' << cue.ledPanelHeight
+        // A Fade cue's ramp.
+        << '\t' << cue.fadeOverSeconds
+        << '\t' << cue.fadeToValue
+        << '\t' << cueFadeWhatToken(cue.fadeWhat)
+        << '\t' << cueFadeCurveToken(cue.fadeCurve)
+        << '\t' << (cue.fadeStopWhenDone ? 1 : 0)
         << '\n';
     }
   }
@@ -1360,6 +1366,7 @@ Project loadProject(const fs::path& projectFile,
         (kind == "video_synth" || kind == "vsynth") ? CueKind::VideoSynth :
         kind == "master" ? CueKind::Master :
         kind == "target" ? CueKind::Target :
+        kind == "fade" ? CueKind::Fade :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1728,6 +1735,13 @@ Project loadProject(const fs::path& projectFile,
         // that never had a panel map should come back with.
         cue.ledPanelWidth = std::max(8, safeInt(fields, vs + 65, 128));
         cue.ledPanelHeight = std::max(8, safeInt(fields, vs + 66, 128));
+        // A Fade cue's ramp. The defaults are a 3-second linear fade to
+        // black on the deck's picture, which is the one everybody means.
+        cue.fadeOverSeconds = std::max(0.0, safeDouble(fields, vs + 67, 3.0));
+        cue.fadeToValue = std::clamp(safeDouble(fields, vs + 68, 0.0), 0.0, 1.0);
+        cue.fadeWhat = cueFadeWhatFromToken(safeString(fields, vs + 69));
+        cue.fadeCurve = cueFadeCurveFromToken(safeString(fields, vs + 70));
+        cue.fadeStopWhenDone = safeBool(fields, vs + 71, false);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -1735,7 +1749,7 @@ Project loadProject(const fs::path& projectFile,
       // generated ones ("pattern://", "timer://"), so the gate was safe until
       // now.
       if (!cue.path.empty() || cue.kind == CueKind::Master ||
-          cue.kind == CueKind::Target) {
+          cue.kind == CueKind::Target || cue.kind == CueKind::Fade) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

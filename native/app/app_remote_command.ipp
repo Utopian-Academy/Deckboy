@@ -325,6 +325,160 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "FADE" || command == "FADECUE") {
+      // FADE NEW                -> add a fade cue to this deck
+      // FADE WHAT opacity|volume|dimmer
+      // FADE TO <0-100>         -> where the ramp ends
+      // FADE OVER <seconds>
+      // FADE CURVE linear|ease-in|ease-out|s-curve
+      // FADE DECK <n>           -> which deck it acts on
+      // FADE STOP on|off        -> stop that deck when the ramp lands
+      // FADE FIRE               -> run it now
+      // FADE                    -> report it, and what is currently fading
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("FADE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Fade;
+        cue.name = "Fade " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "fade cue " + std::to_string(deck.cues.size());
+        return;
+      }
+      if (sub == "RUNNING" || sub == "ACTIVE") {
+        remoteCommandDetail_ = fadeRunSummary();
+        return;
+      }
+      if (sub == "CANCEL") {
+        const std::size_t before = fadeRuns_.size();
+        fadeRuns_.clear();
+        remoteCommandDetail_ = "cancelled " + std::to_string(before) + " fade(s)";
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("FADE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Fade) {
+        failRemoteCommand("FADE: the selected cue is not a fade");
+        return;
+      }
+
+      if (sub.empty()) {
+        char pct[8];
+        std::snprintf(pct, sizeof(pct), "%d%%",
+                      static_cast<int>(std::lround(cue.fadeToValue * 100.0)));
+        std::ostringstream out;
+        out << cueFadeWhatLabel(cue.fadeWhat) << " -> " << pct
+            << " over " << formatSeconds(cue.fadeOverSeconds)
+            << ", " << cueFadeCurveLabel(cue.fadeCurve);
+        if (cue.fadeWhat != CueFadeWhat::MasterDimmer) {
+          out << ", deck " << (cue.targetDeckIndex >= 0
+                                 ? std::to_string(cue.targetDeckIndex + 1)
+                                 : std::string("this one"));
+        }
+        if (cue.fadeStopWhenDone) {
+          out << ", then stop";
+        }
+        out << " | " << fadeRunSummary();
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "FIRE" || sub == "GO" || sub == "TAKE") {
+        remoteCommandDetail_ = fireFadeCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "WHAT" && parts.size() >= 3) {
+        const std::string token = toLower(parts[2]);
+        if (token != "opacity" && token != "volume" && token != "dimmer") {
+          failRemoteCommand("FADE WHAT: expected opacity, volume or dimmer");
+          return;
+        }
+        cue.fadeWhat = cueFadeWhatFromToken(token);
+        markProjectDirty();
+        remoteCommandDetail_ = cueFadeWhatLabel(cue.fadeWhat);
+        return;
+      }
+      if (sub == "CURVE" && parts.size() >= 3) {
+        const std::string token = toLower(parts[2]);
+        if (token != "linear" && token != "ease-in" && token != "ease-out" &&
+            token != "s-curve") {
+          failRemoteCommand("FADE CURVE: expected linear, ease-in, ease-out or s-curve");
+          return;
+        }
+        cue.fadeCurve = cueFadeCurveFromToken(token);
+        markProjectDirty();
+        remoteCommandDetail_ = cueFadeCurveLabel(cue.fadeCurve);
+        return;
+      }
+      if (sub == "TO" && parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        // Percent, and NOT clamped into range silently -- MASTERVOL taught that
+        // lesson by quietly folding a percent into a multiplier for years while
+        // nobody could see it.
+        if (!parsed || *parsed < 0.0 || *parsed > 100.0) {
+          failRemoteCommand("FADE TO: expected a percent from 0 to 100");
+          return;
+        }
+        cue.fadeToValue = *parsed / 100.0;
+        markProjectDirty();
+        remoteCommandDetail_ = std::to_string(static_cast<int>(std::lround(*parsed))) + "%";
+        return;
+      }
+      if (sub == "OVER" && parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        if (!parsed || *parsed < 0.0) {
+          failRemoteCommand("FADE OVER: expected a duration in seconds");
+          return;
+        }
+        cue.fadeOverSeconds = *parsed;
+        markProjectDirty();
+        remoteCommandDetail_ = formatSeconds(cue.fadeOverSeconds);
+        return;
+      }
+      if (sub == "DECK" && parts.size() >= 3) {
+        int target = 0;
+        try {
+          target = std::stoi(parts[2]) - 1;
+        } catch (...) {
+          failRemoteCommand("FADE DECK: expected a deck number");
+          return;
+        }
+        if (target < 0 || target >= static_cast<int>(project_.decks.size())) {
+          failRemoteCommand("FADE DECK: no deck " + parts[2]);
+          return;
+        }
+        cue.targetDeckIndex = target;
+        markProjectDirty();
+        remoteCommandDetail_ = "deck " + parts[2];
+        return;
+      }
+      if (sub == "STOP" && parts.size() >= 3) {
+        auto state = parseToggleWord(2);
+        if (!state) {
+          failRemoteCommand("FADE STOP: expected on or off");
+          return;
+        }
+        cue.fadeStopWhenDone = *state;
+        markProjectDirty();
+        remoteCommandDetail_ = cue.fadeStopWhenDone ? "stop when done" : "leave it running";
+        return;
+      }
+      failRemoteCommand("FADE: expected NEW, WHAT, TO, OVER, CURVE, DECK, STOP, "
+                        "FIRE, RUNNING or CANCEL");
+      return;
+    }
     if (command == "TARGET" || command == "TARGETCUE") {
       // TARGET NEW                  -> add a target cue to this deck
       // TARGET CUE <deck> <cue>     -> point it at deck <deck>'s cue <cue>
@@ -3031,8 +3185,12 @@
     }
     if (command == "PLAYLISTOPACITY" || command == "DECKOPACITY" || command == "DECKDIM") {
       if (parts.size() <= 1) {
+        // A QUERY ANSWERS THE CALLER. This toasted the number onto the screen
+        // and sent back a bare OK, so the one thing a remote asking "what is
+        // the opacity" wanted was the one thing it could not have.
         int pct = static_cast<int>(std::lround(std::clamp(focusedDeck().playlistOpacity, 0.0f, 1.0f) * 100.0f));
         triggerToast("deck opacity: " + std::to_string(pct) + "%");
+        remoteCommandDetail_ = std::to_string(pct) + "%";
         return;
       }
       std::string value = toUpper(parts[1]);

@@ -253,6 +253,9 @@
     serviceBusyCritters(1.0 / 60.0);
     refreshNormalizingIds();
     servicePendingTakes();
+    // Fade cues, ticked beside the pending takes: both are things the show
+    // asked for earlier that have to happen now.
+    serviceFades();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;
       syncEngineCueSnapshots();
