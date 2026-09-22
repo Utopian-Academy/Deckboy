@@ -101,6 +101,9 @@
       case QuickAction::MasterAssignNext:   stepMasterAssignment(param, +1); return;
       case QuickAction::MasterAssignClear:  clearMasterAssignment(param); return;
       case QuickAction::MasterBypassToggle: toggleMasterBypass(param); return;
+      // The matrix packs source and destination into one param, the same way
+      // the effect rows pack an index.
+      case QuickAction::MatrixCellCycle:  cycleCueMatrixCell(param); return;
       case QuickAction::EffectAmountDec:  effectStackNudge(param, -0.05f); return;
       case QuickAction::EffectAmountInc:  effectStackNudge(param, +0.05f); return;
       case QuickAction::EffectEditAmount: effectStackEditAmount(param); return;
@@ -863,6 +866,11 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionMatrixToggle:
+        cueSectionMatrixOpen_ = !cueSectionMatrixOpen_;
+        break;
+      case QuickAction::MatrixSeed:  seedCueMatrixFromPair(); break;
+      case QuickAction::MatrixClear: clearCueMatrix(); break;
       case QuickAction::CueSectionDmxToggle:
         cueSectionDmxOpen_ = !cueSectionDmxOpen_;
         break;

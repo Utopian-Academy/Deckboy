@@ -1216,7 +1216,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 37;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 38;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop
         {
@@ -1422,6 +1422,21 @@
       expect(!parseDmxChannelSpec("1=255,fish"), "one bad item refuses the whole line");
       expect(parseDmxChannelSpec("") && parseDmxChannelSpec("")->empty(),
              "an empty spec is empty rather than an error");
+    }
+    // ── THE AUDIO CROSSPOINT MIX ───────────────────────────────────────────
+    {
+      auto mix = &MediaEngine::mixCrosspointSample;
+      expect(mix(1000.0f, 0.0f, 1.0f, 0.0f) == 1000, "left at unity passes through");
+      expect(mix(1000.0f, 0.0f, 0.0f, 1.0f) == 0, "left does not reach a right-only cell");
+      expect(mix(1000.0f, 500.0f, 0.5f, 0.5f) == 750, "a crosspoint scales by its gain");
+      // THE POINT OF A MATRIX: two sources onto one output must ADD. A mono
+      // fold-down is exactly this, and if it did not sum it would silently
+      // drop one side.
+      expect(mix(1000.0f, 1000.0f, 1.0f, 1.0f) == 2000, "two sources onto one out sum");
+      // CLAMPED, NOT WRAPPED. A wrap here is a bang out of the PA.
+      expect(mix(30000.0f, 30000.0f, 1.0f, 1.0f) == 32767, "a hot sum clips rather than wraps");
+      expect(mix(-30000.0f, -30000.0f, 1.0f, 1.0f) == -32768, "and clips at the bottom too");
+      expect(mix(1000.0f, 1000.0f, 0.0f, 0.0f) == 0, "a cell with no gain is silence");
     }
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
         expect(loaded.midiDeviceName == "APC40 mkII Control",

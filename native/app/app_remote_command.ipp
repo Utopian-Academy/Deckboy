@@ -325,6 +325,87 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "MATRIX") {
+      // MATRIX                    -> report the selected cue's routing
+      // MATRIX SET <src> <dest> <0-100>   src 1=L 2=R, dest is 1-based
+      // MATRIX SEED               -> open it, routed exactly as it is now
+      // MATRIX CLEAR              -> back to the stereo pair
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("MATRIX: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("MATRIX: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub.empty()) {
+        if (cue.audioMatrix.empty()) {
+          remoteCommandDetail_ = "off - stereo pair on outs " +
+            std::to_string(cue.audioOutputPair * 2 + 1) + "-" +
+            std::to_string(cue.audioOutputPair * 2 + 2);
+          return;
+        }
+        std::ostringstream out;
+        out << cue.audioMatrix.size() << " point(s)";
+        for (const AudioCrosspoint& p : cue.audioMatrix) {
+          out << " | " << (p.source == 0 ? "L" : "R") << "->" << (p.dest + 1)
+              << " " << static_cast<int>(std::lround(p.gain * 100.0f)) << "%";
+        }
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "SEED" || sub == "ON") {
+        seedCueMatrixFromPair();
+        remoteCommandDetail_ = std::to_string(cue.audioMatrix.size()) + " point(s)";
+        return;
+      }
+      if (sub == "CLEAR" || sub == "OFF") {
+        clearCueMatrix();
+        remoteCommandDetail_ = "off - back to the output pair";
+        return;
+      }
+      if (sub == "SET" && parts.size() >= 5) {
+        int src = 0;
+        int dest = 0;
+        double pct = 0.0;
+        try {
+          src = std::stoi(parts[2]);
+          dest = std::stoi(parts[3]);
+          pct = std::stod(parts[4]);
+        } catch (...) {
+          failRemoteCommand("MATRIX SET: expected <source 1-2> <dest> <0-100>");
+          return;
+        }
+        // ONE-BASED ON THE WIRE, both of them, because that is how an operator
+        // counts a channel and how every desk labels one. Refused rather than
+        // clamped, the same rule MASTERVOL had to learn.
+        if (src < 1 || src > 2) {
+          failRemoteCommand("MATRIX SET: source is 1 (left) or 2 (right)");
+          return;
+        }
+        if (dest < 1 || dest > 64) {
+          failRemoteCommand("MATRIX SET: destination is 1-64");
+          return;
+        }
+        if (pct < 0.0 || pct > 100.0) {
+          failRemoteCommand("MATRIX SET: level is a percent from 0 to 100");
+          return;
+        }
+        setCueMatrixGain(cue, src - 1, dest - 1, static_cast<float>(pct / 100.0));
+        refreshLiveCueAudioMatrix();
+        remoteCommandDetail_ = std::string(src == 1 ? "L" : "R") + "->" +
+                               std::to_string(dest) + " " +
+                               std::to_string(static_cast<int>(std::lround(pct))) + "%";
+        return;
+      }
+      failRemoteCommand("MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR");
+      return;
+    }
     if (command == "DMXCUE") {
       // DMXCUE NEW                 -> add a DMX cue to this deck
       // DMXCUE SET <spec>          -> "1=255, 10-14=64"

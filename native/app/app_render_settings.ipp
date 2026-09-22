@@ -3809,8 +3809,13 @@
         // Cycle deck device channels: 2 → 4 → 6 → 8 → 2, reopening the
         // device so the new stream spec applies immediately.
         Deck& deck = focusedDeckMutable();
+        // PAST EIGHT NOW. Dante Virtual Soundcard and most ASIO interfaces
+        // offer far more, and the crosspoint matrix can only address channels
+        // the device was opened wide enough to have.
         int cur = deck.audioOutputChannels;
-        deck.audioOutputChannels = (cur <= 2) ? 4 : (cur <= 4) ? 6 : (cur <= 6) ? 8 : 2;
+        deck.audioOutputChannels = (cur <= 2) ? 4 : (cur <= 4) ? 6 : (cur <= 6) ? 8
+                                 : (cur <= 8) ? 16 : (cur <= 16) ? 32
+                                 : (cur <= 32) ? 64 : 2;
         reopenDeckAudioOutput(project_.focusedDeckIndex, deck.audioOutputDeviceName);
         triggerToast("audio outs: " + std::to_string(deck.audioOutputChannels)
                      + " ch (" + std::to_string(deck.audioOutputChannels / 2) + " pairs)");

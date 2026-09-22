@@ -1988,6 +1988,61 @@ void parseMarkerNames(Cue& cue, const std::string& field) {
 //
 // The cue is referenced BY ID. Ids are generated hex ("cue-158f9d9e1a117c37"),
 // so they carry neither separator; a path would have carried both.
+// The audio crosspoint matrix, "source:dest:gain|source:dest:gain". Sparse, so
+// a cue with a plain stereo pair on outs 7-8 writes two cells rather than a
+// 2x64 grid of zeroes -- and a cue with no matrix at all writes nothing.
+std::string serializeAudioMatrix(const std::vector<AudioCrosspoint>& list) {
+  std::string out;
+  for (const auto& p : list) {
+    if (p.source < 0 || p.dest < 0 || p.gain <= 0.0f) {
+      continue;                 // a zero cell is the absence of a cell
+    }
+    if (!out.empty()) out += '|';
+    out += std::to_string(p.source);
+    out += ':';
+    out += std::to_string(p.dest);
+    out += ':';
+    // Three decimals: enough for a dB step, short enough not to bloat a show
+    // file with a matrix on every cue.
+    char buf[16];
+    std::snprintf(buf, sizeof(buf), "%.3f", p.gain);
+    out += buf;
+  }
+  return out;
+}
+
+std::vector<AudioCrosspoint> parseAudioMatrix(const std::string& text) {
+  std::vector<AudioCrosspoint> out;
+  if (text.empty()) return out;
+  std::size_t start = 0;
+  while (start <= text.size()) {
+    std::size_t bar = text.find('|', start);
+    if (bar == std::string::npos) bar = text.size();
+    const std::string cell = text.substr(start, bar - start);
+    start = bar + 1;
+    if (cell.empty()) continue;
+    const std::size_t c1 = cell.find(':');
+    if (c1 == std::string::npos) continue;
+    const std::size_t c2 = cell.find(':', c1 + 1);
+    if (c2 == std::string::npos) continue;
+    AudioCrosspoint p;
+    try {
+      p.source = std::stoi(cell.substr(0, c1));
+      p.dest = std::stoi(cell.substr(c1 + 1, c2 - c1 - 1));
+      p.gain = std::stof(cell.substr(c2 + 1));
+    } catch (...) {
+      continue;                 // one bad cell is skipped, not fatal
+    }
+    // Clamped on the way IN, so a hand-edited or corrupted show cannot put a
+    // gain of 900 on the audio thread.
+    if (p.source < 0 || p.source > 1 || p.dest < 0 || p.dest >= 64) continue;
+    p.gain = p.gain < 0.0f ? 0.0f : (p.gain > 4.0f ? 4.0f : p.gain);
+    if (p.gain <= 0.0f) continue;
+    out.push_back(p);
+  }
+  return out;
+}
+
 std::string serializeMasterAssignments(const std::vector<MasterAssignment>& list) {
   std::string out;
   for (const auto& a : list) {
@@ -8321,6 +8376,7 @@ class App {
   bool cueSectionTimecodeOpen_ = true;
   bool cueSectionScriptOpen_ = true;
   bool cueSectionDmxOpen_ = true;
+  bool cueSectionMatrixOpen_ = true;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.

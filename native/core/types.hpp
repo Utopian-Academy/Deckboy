@@ -800,6 +800,24 @@ struct MasterAssignment {
   bool bypassed = false;      // skip this deck when the master fires
 };
 
+// ---------------------------------------------------------------------------
+// AUDIO CROSSPOINT.
+//
+// One cell of the matrix: how much of a cue's source channel reaches one
+// channel of the deck's audio device. This is QLab's signature audio feature
+// and the thing sound designers name first, and it is what makes a 64-channel
+// Dante or ASIO interface worth having -- 64 channels of transport behind a
+// fixed stereo pair is 62 channels nobody can reach.
+//
+// SPARSE, deliberately. A show with one cue routed to outs 7-8 should carry
+// two crosspoints, not a 2x64 grid of zeroes in every cue record.
+// ---------------------------------------------------------------------------
+struct AudioCrosspoint {
+  int source = 0;      // 0 = the cue's left, 1 = its right
+  int dest = 0;        // 0-based channel of the deck's audio device
+  float gain = 1.0f;   // 0..1, linear
+};
+
 struct CompositeSlot {
   std::string id;                           // unique slot identifier (UUID)
   std::string name;                         // operator-facing label ("Slot 1")
@@ -910,6 +928,12 @@ struct Cue {
   // -- 8-byte aligned: vectors ------------------------------------------------
   std::vector<CompositeSlot> compositeSlots; // sub-regions for Composite cue layout
   std::vector<MasterAssignment> masterAssignments;  // Master cue: what it fires
+  // The audio matrix. EMPTY MEANS "use audioOutputPair", which is what every
+  // show saved before this existed says -- and which reproduces exactly what
+  // those shows did. Nothing is migrated on load; the fallback IS the old
+  // behaviour, so a show that never touches the matrix behaves identically
+  // whether it is opened by this build or an older one.
+  std::vector<AudioCrosspoint> audioMatrix;
   std::vector<double> pausePoints;           // timecodes (seconds) where playback auto-pauses
   // Named jump marks inside a clip (PLAYDECK-style). Distinct from pausePoints,
   // which STOP playback: a marker is somewhere you can jump TO. Kept sorted by
@@ -2185,6 +2209,10 @@ enum class QuickAction {
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.
   PreloadSelected,
+  CueSectionMatrixToggle,
+  MatrixCellCycle,
+  MatrixSeed,
+  MatrixClear,
   CueSectionDmxToggle,
   DmxEditChannels,
   DmxEditHost,

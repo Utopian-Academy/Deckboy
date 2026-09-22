@@ -629,6 +629,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.dmxFadeSeconds
         << '\t' << cue.dmxUniverse
         << '\t' << cue.dmxPort
+        // The audio crosspoint matrix. Empty for every cue that has not
+        // been given one, which is every cue in every older show.
+        << '\t' << escapeField(serializeAudioMatrix(cue.audioMatrix))
         << '\n';
     }
   }
@@ -1820,6 +1823,9 @@ Project loadProject(const fs::path& projectFile,
         cue.dmxFadeSeconds = std::max(0.0, safeDouble(fields, vs + 91, 0.0));
         cue.dmxUniverse = std::clamp(safeInt(fields, vs + 92, 0), 0, 32767);
         cue.dmxPort = std::clamp(safeInt(fields, vs + 93, 6454), 1, 65535);
+        // The audio matrix. ABSENT MEANS EMPTY, and empty means "use
+        // audioOutputPair" -- so an older show routes exactly as it did.
+        cue.audioMatrix = parseAudioMatrix(safeString(fields, vs + 94));
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time

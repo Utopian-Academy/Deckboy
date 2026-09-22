@@ -219,8 +219,62 @@ class MediaEngine {
   void setAudioDelayMs(int ms) { audioDelayMs_.store(std::clamp(ms, 0, 1000)); }
   // Channel count the deck's SDL stream was opened with (2/4/6/8). Must match
   // the open spec or every byte↔frame conversion in the engine goes wrong.
+  // UP TO 64 NOW, not 8. A Dante Virtual Soundcard or an ASIO interface
+  // offers far more than eight, and the crosspoint matrix only means anything
+  // if the device can be opened wide enough to reach them.
   void setAudioDeviceChannels(int channels) {
-    audioDeviceChannels_.store(std::clamp(channels, 2, 8));
+    audioDeviceChannels_.store(std::clamp(channels, 2, kMaxAudioMatrixOuts));
+  }
+
+  // ── THE AUDIO MATRIX, MIRRORED INTO ATOMICS ───────────────────────────
+  //
+  // The audio thread must never touch activeCue_ or any vector -- the same
+  // rule the per-cue fades already follow. So the matrix is published here as
+  // a flat array of atomic gains that the mixer reads relaxed, and the "is
+  // there a matrix at all" question is one more atomic so the common case
+  // (no matrix, use the pair) costs a single load.
+  static constexpr int kMaxAudioMatrixOuts = 64;
+  static constexpr int kAudioMatrixSources = 2;
+
+  void setAudioMatrix(const std::vector<AudioCrosspoint>& points) {
+    for (auto& g : audioMatrixGain_) {
+      g.store(0.0f, std::memory_order_relaxed);
+    }
+    int live = 0;
+    for (const AudioCrosspoint& p : points) {
+      if (p.source < 0 || p.source >= kAudioMatrixSources ||
+          p.dest < 0 || p.dest >= kMaxAudioMatrixOuts) {
+        continue;
+      }
+      const float gain = p.gain < 0.0f ? 0.0f : (p.gain > 4.0f ? 4.0f : p.gain);
+      audioMatrixGain_[static_cast<std::size_t>(p.source) * kMaxAudioMatrixOuts +
+                       static_cast<std::size_t>(p.dest)]
+        .store(gain, std::memory_order_relaxed);
+      if (gain > 0.0f) {
+        ++live;
+      }
+    }
+    // PUBLISHED LAST, with release, so the audio thread cannot see "a matrix
+    // is active" before it can see the gains that make it up.
+    audioMatrixActive_.store(live > 0, std::memory_order_release);
+  }
+
+  // ONE CROSSPOINT SUM, pulled out so it can be tested.
+  //
+  // Two sources landing on one output is the POINT of a matrix -- a mono
+  // fold-down is L and R onto the same channel -- so they must add. Adding can
+  // exceed full scale, and the difference between clamping and wrapping there
+  // is the difference between a loud moment and a bang out of the PA.
+  static std::int16_t mixCrosspointSample(float left, float right,
+                                          float gainL, float gainR) {
+    const float mixed = left * gainL + right * gainR;
+    if (mixed > 32767.0f) return 32767;
+    if (mixed < -32768.0f) return -32768;
+    return static_cast<std::int16_t>(mixed);
+  }
+
+  void clearAudioMatrix() {
+    audioMatrixActive_.store(false, std::memory_order_release);
   }
   void setPausePoints(std::vector<double> points); // set auto-pause timecodes
 
@@ -998,6 +1052,9 @@ class MediaEngine {
   // The whole engine pipeline stays stereo — expansion happens only at the
   // final SDL_PutAudioStreamData (putAudioToStream).
   std::atomic<int> audioDeviceChannels_ {2}; // channels the SDL stream expects
+  std::atomic<bool> audioMatrixActive_ {false};
+  std::array<std::atomic<float>, kAudioMatrixSources * kMaxAudioMatrixOuts>
+    audioMatrixGain_ {};
   std::atomic<int> audioCuePairOffset_ {0};  // 0 = outs 1-2, 1 = outs 3-4, ...
   std::deque<std::int16_t> audioDelayFifo_;  // holds processed samples for the delay
 

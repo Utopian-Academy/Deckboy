@@ -1718,6 +1718,120 @@
     return did;
   }
 
+  // ── THE AUDIO CROSSPOINT MATRIX ───────────────────────────────────────
+  //
+  // How much of a cue's left and right reaches each channel of the deck's
+  // audio device. QLab's signature audio feature, and the thing that makes a
+  // 64-channel Dante or ASIO interface worth having.
+  static constexpr int kMatrixSources = 2;
+
+  float cueMatrixGain(const Cue& cue, int source, int dest) const {
+    for (const AudioCrosspoint& p : cue.audioMatrix) {
+      if (p.source == source && p.dest == dest) {
+        return p.gain;
+      }
+    }
+    return 0.0f;
+  }
+
+  void setCueMatrixGain(Cue& cue, int source, int dest, float gain) {
+    auto& list = cue.audioMatrix;
+    for (auto it = list.begin(); it != list.end(); ++it) {
+      if (it->source == source && it->dest == dest) {
+        if (gain <= 0.0f) {
+          // A ZERO CELL IS THE ABSENCE OF A CELL. Keeping zeroes would grow
+          // the show file by a 2xN grid per cue and mean "silent" and "not
+          // routed" were two different things that look identical.
+          list.erase(it);
+        } else {
+          it->gain = gain;
+        }
+        markProjectDirty();
+        return;
+      }
+    }
+    if (gain > 0.0f) {
+      list.push_back(AudioCrosspoint {source, dest, gain});
+      markProjectDirty();
+    }
+  }
+
+  // Click a cell to walk it: off -> full -> -3 -> -6 -> -12 -> off.
+  //
+  // A cycle rather than a drag, because the grid is a grid of small squares
+  // and a drag in one would be a drag in all of them. The steps are the ones
+  // an operator actually reaches for; anything between them is a job for the
+  // remote verb, which takes a number.
+  void cycleCueMatrixCell(int packed) {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return;
+    }
+    const int source = packed / MediaEngine::kMaxAudioMatrixOuts;
+    const int dest = packed % MediaEngine::kMaxAudioMatrixOuts;
+    if (source < 0 || source >= kMatrixSources) {
+      return;
+    }
+    const float now = cueMatrixGain(*cue, source, dest);
+    float next = 0.0f;
+    if (now <= 0.0f)            next = 1.0f;     // off  -> full
+    else if (now > 0.85f)       next = 0.707f;   // full -> -3 dB
+    else if (now > 0.6f)        next = 0.5f;     // -3   -> -6 dB
+    else if (now > 0.35f)       next = 0.25f;    // -6   -> -12 dB
+    else                        next = 0.0f;     // -12  -> off
+    setCueMatrixGain(*cue, source, dest, next);
+    refreshLiveCueAudioMatrix();
+  }
+
+  // A matrix edit has to reach the engine NOW, not at the next cue change: an
+  // operator ringing out a PA is listening while they click.
+  void refreshLiveCueAudioMatrix() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex != deck.selectedIndex ||
+        deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+      const Cue& cue = deck.cues[deck.activeIndex];
+      if (cue.audioMatrix.empty()) {
+        engine->clearAudioMatrix();
+      } else {
+        engine->setAudioMatrix(cue.audioMatrix);
+      }
+    }
+  }
+
+  // Start from what the cue does today, so turning the matrix on never changes
+  // the sound. Without this the first click would silence a cue that was
+  // happily playing, which is the worst possible introduction to a feature.
+  void seedCueMatrixFromPair() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cue->audioMatrix.empty()) {
+      return;
+    }
+    const int pair = std::clamp(cue->audioOutputPair, 0, 31);
+    cue->audioMatrix.push_back(AudioCrosspoint {0, pair * 2, 1.0f});
+    cue->audioMatrix.push_back(AudioCrosspoint {1, pair * 2 + 1, 1.0f});
+    markProjectDirty();
+    refreshLiveCueAudioMatrix();
+    triggerToast("matrix on, routed as it was");
+  }
+
+  void clearCueMatrix() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return;
+    }
+    cue->audioMatrix.clear();
+    markProjectDirty();
+    refreshLiveCueAudioMatrix();
+    triggerToast("matrix off - back to the output pair");
+  }
+
   Cue* selectedDmxCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Dmx) ? cue : nullptr;

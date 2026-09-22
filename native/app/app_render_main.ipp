@@ -5360,6 +5360,102 @@
       finishInspectorSection(tgSection, tgY);
     }
 
+    // AUDIO MATRIX: the grid. Drawn for any cue that carries audio, under the
+    // audio chain, because it answers "where does it go" after "what does it
+    // sound like".
+    if (selectedCue && cueCarriesAudio(*selectedCue)) {
+      const int outs = std::clamp(focusedDeck().audioOutputChannels, 2, 64);
+      const bool on = !selectedCue->audioMatrix.empty();
+
+      int mxY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto mxSection = beginInspectorSection(mxY, "MATRIX", cueSectionMatrixOpen_,
+                                             QuickAction::CueSectionMatrixToggle,
+                                             "Collapse/expand where this cue's audio goes");
+      mxY = mxSection.bodyStartY;
+      if (cueSectionMatrixOpen_) {
+        if (!on) {
+          // OFF is a real state and says what it is doing instead, rather
+          // than showing an empty grid that looks broken.
+          drawQuickRow(mxY, "routing", QuickAction::MatrixSeed,
+                       std::string("outs ") +
+                         std::to_string(selectedCue->audioOutputPair * 2 + 1) + "-" +
+                         std::to_string(selectedCue->audioOutputPair * 2 + 2),
+                       QuickAction::MatrixSeed, QuickAction::MatrixSeed,
+                       false, false,
+                       "A plain stereo pair. Click to open the matrix, starting "
+                       "from exactly this routing");
+          mxY += kInspectorRowStep;
+          drawInspectorMessageRow(mxY, "click to open the grid");
+          mxY += kInspectorRowStep;
+        } else {
+          // ── THE GRID ──────────────────────────────────────────────────
+          const int inset = ctrl.x + kInspectorInset;
+          const int avail = kCtrlW - kInspectorInset * 2;
+          const int labelW = measuredTextWidth(fontSmall_, "R") + uiScaled(10);
+          // Square-ish cells that fit the panel. Eight across is the common
+          // case and gets generous cells; a 64-out interface gets small ones
+          // rather than a grid that runs off the side of the window.
+          const int cell = std::max(uiScaled(10),
+                                    std::min(uiScaled(26),
+                                             (avail - labelW) / std::max(1, outs) - uiScaled(2)));
+          const int step = cell + uiScaled(2);
+
+          // Column numbers, every channel when there is room and every fourth
+          // when there is not -- a row of unreadable digits is worse than none.
+          const int numberEvery = cell >= uiScaled(16) ? 1 : 4;
+          for (int d = 0; d < outs; ++d) {
+            if ((d % numberEvery) != 0) {
+              continue;
+            }
+            drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                                 SDL_Rect {inset + labelW + d * step, mxY, cell,
+                                           textLineHeight(fontSmall_)},
+                                 std::to_string(d + 1), pal.inkSoft);
+          }
+          mxY += textLineHeight(fontSmall_) + uiScaled(2);
+
+          for (int s = 0; s < kMatrixSources; ++s) {
+            drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                                 SDL_Rect {inset, mxY, labelW, cell},
+                                 s == 0 ? "L" : "R", pal.fg);
+            for (int d = 0; d < outs; ++d) {
+              const SDL_Rect box {inset + labelW + d * step, mxY, cell, cell};
+              const float gain = cueMatrixGain(*selectedCue, s, d);
+              // The cell IS the level: an empty square is silence and a full
+              // one is unity, so the routing reads as a shape rather than as
+              // a table of numbers.
+              drawUIPanel(box, pal.tile, pal.deep, pal.mid);
+              if (gain > 0.0f) {
+                const int fill = std::max(uiScaled(2),
+                                          static_cast<int>(std::lround((box.h - uiScaled(4)) * gain)));
+                Primitives::fillRect(controlRenderer_,
+                                     SDL_Rect {box.x + uiScaled(2),
+                                               box.y + box.h - uiScaled(2) - fill,
+                                               box.w - uiScaled(4), fill},
+                                     gain > 0.85f ? pal.light : pal.mid);
+              }
+              // Every cell is a control, so every cell is registered as one.
+              quickButtons_.push_back({box, QuickAction::MatrixCellCycle,
+                                       "Click to walk this crosspoint: off, full, -3, -6, -12",
+                                       s * MediaEngine::kMaxAudioMatrixOuts + d});
+            }
+            mxY += step;
+          }
+          mxY += uiScaled(2);
+
+          drawQuickRow(mxY, "matrix", QuickAction::MatrixClear,
+                       std::to_string(selectedCue->audioMatrix.size()) + " point" +
+                         (selectedCue->audioMatrix.size() == 1 ? "" : "s"),
+                       QuickAction::MatrixClear, QuickAction::MatrixClear,
+                       false, false,
+                       "Click a cell to walk it: off, full, -3, -6, -12. This "
+                       "row turns the matrix off again");
+          mxY += kInspectorRowStep;
+        }
+      }
+      finishInspectorSection(mxSection, mxY);
+    }
+
     // DMX: the levels this cue sends, and how fast.
     if (selectedCue && selectedCue->kind == CueKind::Dmx) {
       auto spec = deckboy::platform::parseDmxChannelSpec(selectedCue->dmxChannels);

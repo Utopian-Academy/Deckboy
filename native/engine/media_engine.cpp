@@ -4807,6 +4807,15 @@ void MediaEngine::syncAudioFadeParams() {
   audioCueMono_.store(cue != nullptr && cue->audioMono, std::memory_order_relaxed);
   audioCuePairOffset_.store(cue ? std::clamp(cue->audioOutputPair, 0, 7) : 0,
                             std::memory_order_relaxed);
+  // AND THE MATRIX, from the same place and at the same moment as everything
+  // else the audio thread needs. Published here rather than from the app so
+  // there is one path: every edit that reaches the engine's cue snapshot
+  // reaches the matrix too, and none can be forgotten.
+  if (cue && !cue->audioMatrix.empty()) {
+    setAudioMatrix(cue->audioMatrix);
+  } else {
+    clearAudioMatrix();
+  }
   // WHERE THE PICTURE IS AND HOW LONG IS LEFT, for the deck-aware effects.
   // Geometry is the cue's own output scale and offset, which is what the
   // compositor uses -- so "where it sounds" and "where it is" cannot drift
@@ -7001,13 +7010,44 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
                            static_cast<int>(stereo.size() * sizeof(std::int16_t)));
     return;
   }
+  const std::size_t frames = stereo.size() / 2;
+  std::vector<std::int16_t> wide(frames * static_cast<std::size_t>(deviceChannels), 0);
+
+  // THE CROSSPOINT MATRIX, when the cue has one.
+  //
+  // Read straight out of the atomics published by setAudioMatrix -- no vector,
+  // no cue pointer, nothing that can be reallocated under the audio thread.
+  // Acquire pairs with the release in setAudioMatrix so the gains are visible
+  // whenever the flag is.
+  if (audioMatrixActive_.load(std::memory_order_acquire)) {
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+      std::int16_t* out = wide.data() + frame * static_cast<std::size_t>(deviceChannels);
+      const float left = static_cast<float>(stereo[frame * 2]);
+      const float right = static_cast<float>(stereo[frame * 2 + 1]);
+      for (int dest = 0; dest < deviceChannels && dest < kMaxAudioMatrixOuts; ++dest) {
+        const float gl = audioMatrixGain_[static_cast<std::size_t>(dest)]
+                           .load(std::memory_order_relaxed);
+        const float gr = audioMatrixGain_[static_cast<std::size_t>(kMaxAudioMatrixOuts + dest)]
+                           .load(std::memory_order_relaxed);
+        if (gl == 0.0f && gr == 0.0f) {
+          continue;
+        }
+        out[dest] = mixCrosspointSample(left, right, gl, gr);
+      }
+    }
+    SDL_PutAudioStreamData(audioStream_, wide.data(),
+                           static_cast<int>(wide.size() * sizeof(std::int16_t)));
+    return;
+  }
+
+  // NO MATRIX: the stereo pair, exactly as before. This is what every show
+  // saved before the matrix existed asks for, and it has to stay byte for
+  // byte what it was.
   int pair = audioCuePairOffset_.load(std::memory_order_relaxed);
   if (pair < 0 || pair * 2 + 1 >= deviceChannels) {
     pair = 0;
   }
   const std::size_t offset = static_cast<std::size_t>(pair) * 2;
-  const std::size_t frames = stereo.size() / 2;
-  std::vector<std::int16_t> wide(frames * static_cast<std::size_t>(deviceChannels), 0);
   for (std::size_t frame = 0; frame < frames; ++frame) {
     std::int16_t* out = wide.data() + frame * static_cast<std::size_t>(deviceChannels);
     out[offset] = stereo[frame * 2];
