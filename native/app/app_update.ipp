@@ -256,6 +256,9 @@
     // Fade cues, ticked beside the pending takes: both are things the show
     // asked for earlier that have to happen now.
     serviceFades();
+    // TCP network cues answer from their own thread; this is where their
+    // answers become toasts.
+    drainNetworkResults();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;
       syncEngineCueSnapshots();

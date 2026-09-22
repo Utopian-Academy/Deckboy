@@ -863,6 +863,16 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionNetworkToggle:
+        cueSectionNetworkOpen_ = !cueSectionNetworkOpen_;
+        break;
+      case QuickAction::NetProtocolCycle: cycleNetworkProtocol(); break;
+      case QuickAction::NetEditHost:      editNetworkHost(); break;
+      case QuickAction::NetPortDec:       nudgeNetworkPort(-1); break;
+      case QuickAction::NetPortInc:       nudgeNetworkPort(+1); break;
+      case QuickAction::NetEditAddress:   editNetworkAddress(); break;
+      case QuickAction::NetEditPayload:   editNetworkPayload(); break;
+      case QuickAction::NetSendNow:       sendSelectedNetworkCueNow(); break;
       case QuickAction::CueSectionMidiToggle:
         cueSectionMidiOpen_ = !cueSectionMidiOpen_;
         break;

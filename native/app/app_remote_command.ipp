@@ -325,6 +325,126 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    if (command == "NETCUE") {
+      // NETCUE NEW                 -> add a network cue to this deck
+      // NETCUE PROTO osc|udp|tcp
+      // NETCUE HOST <ipv4> | PORT <1-65535>
+      // NETCUE ADDRESS </osc/path> | PAYLOAD <text...>
+      // NETCUE SEND                -> send it now
+      // NETCUE                     -> report where it sends and what
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("NETCUE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "NEW") {
+        Cue cue;
+        cue.kind = CueKind::Network;
+        cue.name = "Network " + std::to_string(deck.cues.size() + 1);
+        deck.cues.push_back(cue);
+        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        onSelectionChanged();
+        markProjectDirty();
+        remoteCommandDetail_ = "network cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("NETCUE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Network) {
+        failRemoteCommand("NETCUE: the selected cue is not a network cue");
+        return;
+      }
+
+      if (sub.empty()) {
+        std::ostringstream out;
+        out << toUpper(cue.netProtocol) << " -> " << cue.netHost << ":" << cue.netPort;
+        if (toLower(trim(cue.netProtocol)) == "osc") {
+          out << " " << cue.netAddress;
+        }
+        out << " | " << (cue.netPayload.empty() ? std::string("(empty)") : cue.netPayload);
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "SEND" || sub == "FIRE" || sub == "GO") {
+        remoteCommandDetail_ = fireNetworkCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "PROTO" || sub == "PROTOCOL") {
+        if (parts.size() < 3) {
+          failRemoteCommand("NETCUE PROTO: expected osc, udp or tcp");
+          return;
+        }
+        const std::string token = toLower(parts[2]);
+        // Checked, not trusted: an unknown protocol would otherwise fall
+        // through to "send nothing" and look like a network fault.
+        if (token != "osc" && token != "udp" && token != "tcp") {
+          failRemoteCommand("NETCUE PROTO: expected osc, udp or tcp");
+          return;
+        }
+        cue.netProtocol = token;
+        markProjectDirty();
+        remoteCommandDetail_ = toUpper(token);
+        return;
+      }
+      if (sub == "HOST" && parts.size() >= 3) {
+        const std::string host = trim(parts[2]);
+        sockaddr_in probe {};
+        // REFUSED HERE, not at GO. A name that needs DNS is not usable from a
+        // cue at all, so saying so when it is typed is the only useful moment.
+        if (inet_pton(AF_INET, host.c_str(), &probe.sin_addr) != 1) {
+          failRemoteCommand("NETCUE HOST: " + host + " is not an IPv4 address");
+          return;
+        }
+        cue.netHost = host;
+        markProjectDirty();
+        remoteCommandDetail_ = host;
+        return;
+      }
+      if (sub == "PORT" && parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        if (!parsed || *parsed < 1.0 || *parsed > 65535.0) {
+          failRemoteCommand("NETCUE PORT: expected 1-65535");
+          return;
+        }
+        cue.netPort = static_cast<int>(std::lround(*parsed));
+        markProjectDirty();
+        remoteCommandDetail_ = std::to_string(cue.netPort);
+        return;
+      }
+      if (sub == "ADDRESS" || sub == "ADDR" || sub == "PATH") {
+        if (parts.size() < 3) {
+          failRemoteCommand("NETCUE ADDRESS: expected an OSC path starting with /");
+          return;
+        }
+        const std::string address = trim(parts[2]);
+        if (address.empty() || address.front() != '/') {
+          failRemoteCommand("NETCUE ADDRESS: an OSC address must start with /");
+          return;
+        }
+        cue.netAddress = address;
+        markProjectDirty();
+        remoteCommandDetail_ = address;
+        return;
+      }
+      if (sub == "PAYLOAD" || sub == "ARG" || sub == "TEXT") {
+        // The rest of the line, untrimmed on the right: a trailing space or
+        // newline is often the point of a line-based protocol.
+        cue.netPayload = parts.size() >= 3 ? joinParts(parts, 2) : std::string();
+        markProjectDirty();
+        remoteCommandDetail_ = cue.netPayload.empty() ? "cleared" : cue.netPayload;
+        return;
+      }
+      failRemoteCommand("NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, "
+                        "PAYLOAD or SEND");
+      return;
+    }
     if (command == "MIDICUE") {
       // MIDICUE NEW              -> add a MIDI cue to this deck
       // MIDICUE PORTS            -> what this machine can send to

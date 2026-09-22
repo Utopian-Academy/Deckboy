@@ -5360,6 +5360,90 @@
       finishInspectorSection(tgSection, tgY);
     }
 
+    // NETWORK: where this cue sends, and what.
+    //
+    // The OSC address row is drawn only for OSC, because UDP and TCP have no
+    // such thing -- the same rule the MIDI section follows. A control that
+    // cannot affect anything is worse than a missing one.
+    if (selectedCue && selectedCue->kind == CueKind::Network) {
+      const std::string proto = toLower(trim(selectedCue->netProtocol));
+      const bool isOsc = proto == "osc";
+
+      int nwY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto nwSection = beginInspectorSection(nwY, "NETWORK", cueSectionNetworkOpen_,
+                                             QuickAction::CueSectionNetworkToggle,
+                                             "Collapse/expand where this cue sends");
+      nwY = nwSection.bodyStartY;
+      if (cueSectionNetworkOpen_) {
+        drawQuickRow(nwY, "protocol", QuickAction::NetProtocolCycle,
+                     toUpper(proto.empty() ? std::string("osc") : proto),
+                     QuickAction::NetProtocolCycle, QuickAction::NetProtocolCycle,
+                     false, false,
+                     "OSC and UDP are fire and forget; TCP connects, so it "
+                     "runs off the show thread");
+        nwY += kInspectorRowStep;
+
+        drawQuickRow(nwY, "to", QuickAction::NetEditHost,
+                     selectedCue->netHost.empty() ? std::string("none")
+                                                  : selectedCue->netHost,
+                     QuickAction::NetEditHost, QuickAction::NetEditHost,
+                     false, false,
+                     "An IPv4 address. Names are not resolved: a DNS lookup "
+                     "is a blocking call and GO must not make one");
+        nwY += kInspectorRowStep;
+
+        drawQuickRow(nwY, "port", QuickAction::NetPortDec,
+                     std::to_string(selectedCue->netPort),
+                     QuickAction::NetPortInc, QuickAction::ToggleLoop,
+                     false, false, "1-65535");
+        nwY += kInspectorRowStep;
+
+        if (isOsc) {
+          drawQuickRow(nwY, "address", QuickAction::NetEditAddress,
+                       selectedCue->netAddress.empty() ? std::string("none")
+                                                       : selectedCue->netAddress,
+                       QuickAction::NetEditAddress, QuickAction::NetEditAddress,
+                       false, false, "The OSC path, e.g. /cue/1/start");
+          nwY += kInspectorRowStep;
+        }
+
+        drawQuickRow(nwY, isOsc ? "argument" : "payload", QuickAction::NetEditPayload,
+                     selectedCue->netPayload.empty() ? std::string("(empty)")
+                                                     : selectedCue->netPayload,
+                     QuickAction::NetEditPayload, QuickAction::NetEditPayload,
+                     false, false,
+                     "What is sent. Backslash-n, -r, -t and -0 become those "
+                     "characters");
+        nwY += kInspectorRowStep;
+
+        drawQuickRow(nwY, "send", QuickAction::NetSendNow, std::string("now"),
+                     QuickAction::NetSendNow, QuickAction::NetSendNow,
+                     false, false, "Send it now, without taking the cue");
+        nwY += kInspectorRowStep;
+
+        // WHAT WILL ACTUALLY HAPPEN, spelled out, and what is wrong when
+        // something is. A network cue's effect is entirely invisible from
+        // here, exactly like a MIDI cue's.
+        sockaddr_in probe {};
+        const std::string host = trim(selectedCue->netHost);
+        std::string verdict;
+        if (host.empty()) {
+          verdict = "no host - this cue sends nothing";
+        } else if (inet_pton(AF_INET, host.c_str(), &probe.sin_addr) != 1) {
+          verdict = host + " is not an IPv4 address";
+        } else if (isOsc && (trim(selectedCue->netAddress).empty() ||
+                             trim(selectedCue->netAddress).front() != '/')) {
+          verdict = "an OSC address must start with /";
+        } else {
+          verdict = toUpper(proto) + " -> " + host + ":" +
+                    std::to_string(selectedCue->netPort);
+        }
+        drawInspectorMessageRow(nwY, verdict);
+        nwY += kInspectorRowStep;
+      }
+      finishInspectorSection(nwSection, nwY);
+    }
+
     // MIDI: the message this cue sends on GO.
     //
     // Only the rows the chosen message actually uses are drawn. A note has a

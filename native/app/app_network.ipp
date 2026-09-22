@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (301)\n"
+        "DECKBOY_0.01 every verb (302)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -454,7 +454,7 @@
         "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROKEN BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
-        "DISARM FADE FADECUE MIDICUE PFL PRELOAD TARGET TARGETCUE\n"
+        "DISARM FADE FADECUE MIDICUE NETCUE PFL PRELOAD TARGET TARGETCUE\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
         "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD\n"
         "DECKAUTOFADE DECKDIM DECKFADE DECKLINK DECKNEXT DECKOPACITY\n"
@@ -509,6 +509,7 @@
         "audition:  AUDITION [OFF|END|STATUS] (PFL) - play the selected cue to the preview only; outputs keep what they have\n"
         "preload:   PRELOAD [<seconds>|OFF|STATUS] - rack the selected cue paused and off air; taking it then starts instantly\n"
         "midi out:  MIDICUE NEW|PORTS|PORT <name>|KIND <token>|CH <1-16>|D1 <0-127>|D2 <0-127>|DEVICE <0-127>|CUENUM <n>|LIST <n>|RAW <hex>|SEND\n"
+        "net out:   NETCUE NEW|PROTO osc/udp/tcp|HOST <ipv4>|PORT <n>|ADDRESS </path>|PAYLOAD <text>|SEND\n"
         "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"

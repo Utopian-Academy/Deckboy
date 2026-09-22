@@ -612,6 +612,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.midiData1
         << '\t' << cue.midiData2
         << '\t' << cue.mscDevice
+        // A Network cue's message.
+        << '\t' << escapeField(cue.netProtocol)
+        << '\t' << escapeField(cue.netHost)
+        << '\t' << escapeField(cue.netAddress)
+        << '\t' << escapeField(cue.netPayload)
+        << '\t' << cue.netPort
         << '\n';
     }
   }
@@ -1378,6 +1384,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "target" ? CueKind::Target :
         kind == "fade" ? CueKind::Fade :
         kind == "midi" ? CueKind::Midi :
+        kind == "network" ? CueKind::Network :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1768,6 +1775,20 @@ Project loadProject(const fs::path& projectFile,
         cue.midiData1 = std::clamp(safeInt(fields, vs + 78, 60), 0, 127);
         cue.midiData2 = std::clamp(safeInt(fields, vs + 79, 127), 0, 127);
         cue.mscDevice = std::clamp(safeInt(fields, vs + 80, 0), 0, 127);
+        // A Network cue's message. An older show has no network cues,
+        // so nothing here can restage one -- these are the defaults a
+        // NEW cue arrives with.
+        cue.netProtocol = safeString(fields, vs + 81);
+        if (cue.netProtocol.empty()) {
+          cue.netProtocol = "osc";
+        }
+        cue.netHost = safeString(fields, vs + 82);
+        if (cue.netHost.empty()) {
+          cue.netHost = "127.0.0.1";
+        }
+        cue.netAddress = safeString(fields, vs + 83);
+        cue.netPayload = safeString(fields, vs + 84);
+        cue.netPort = std::clamp(safeInt(fields, vs + 85, 53000), 1, 65535);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -1776,7 +1797,7 @@ Project loadProject(const fs::path& projectFile,
       // now.
       if (!cue.path.empty() || cue.kind == CueKind::Master ||
           cue.kind == CueKind::Target || cue.kind == CueKind::Fade ||
-          cue.kind == CueKind::Midi) {
+          cue.kind == CueKind::Midi || cue.kind == CueKind::Network) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

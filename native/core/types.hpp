@@ -69,6 +69,9 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Network,       // SENDS on GO: an OSC message, a UDP datagram, or a line
+                 // of TCP. The other half of the show-control story -- Deckboy
+                 // has listened on all three and spoken on none
   Midi,          // SENDS a MIDI message on GO: note, CC, program or MSC.
                  // Deckboy has listened to MIDI since early on and never
                  // spoken a word of it -- see platform/midi.hpp
@@ -846,6 +849,14 @@ struct Cue {
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  // A Network cue's message. Host and payload are text because that is what
+  // an operator types and what a show file should carry; the port is a number
+  // because it is one.
+  std::string netProtocol = "osc";          // osc | udp | tcp
+  std::string netHost = "127.0.0.1";
+  std::string netAddress = "/deckboy/go";   // the OSC path; unused by udp/tcp
+  std::string netPayload;
+
   // A MIDI cue's message. The KIND is kept as its token rather than an enum
   // so core/types.hpp stays free of any platform header -- the encoder that
   // turns these into bytes lives in platform/midi.hpp and is a pure function
@@ -959,6 +970,9 @@ struct Cue {
   // The LED tile size the panel map is drawn to. 128x128 is the common one,
   // but a wall that is not made of those is exactly the wall that needs a map,
   // and mapping a 168px panel as 128 puts every label in the wrong place.
+  // 53000 is QLab's OSC port, which makes the commonest thing somebody wants
+  // to do with this cue work without configuring anything.
+  int netPort = 53000;
   int midiChannel = 1;                     // 1-16, as an operator counts them
   int midiData1 = 60;                      // note, controller, or program number
   int midiData2 = 127;                     // velocity or controller value
@@ -2138,6 +2152,13 @@ enum class QuickAction {
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.
   PreloadSelected,
+  CueSectionNetworkToggle,
+  NetProtocolCycle,
+  NetEditHost,
+  NetPortDec, NetPortInc,
+  NetEditAddress,
+  NetEditPayload,
+  NetSendNow,
   CueSectionMidiToggle,
   MidiKindCycle,
   MidiPortCycle,

@@ -1381,6 +1381,89 @@
     return did;
   }
 
+  Cue* selectedNetworkCue() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Network) ? cue : nullptr;
+  }
+
+  void cycleNetworkProtocol() {
+    Cue* cue = selectedNetworkCue();
+    if (!cue) {
+      return;
+    }
+    const std::string now = toLower(trim(cue->netProtocol));
+    cue->netProtocol = now == "osc" ? "udp" : (now == "udp" ? "tcp" : "osc");
+    markProjectDirty();
+    triggerToast(toUpper(cue->netProtocol));
+  }
+
+  void nudgeNetworkPort(int delta) {
+    Cue* cue = selectedNetworkCue();
+    if (!cue) {
+      return;
+    }
+    cue->netPort = std::clamp(cue->netPort + delta, 1, 65535);
+    markProjectDirty();
+  }
+
+  void editNetworkHost() {
+    if (!selectedNetworkCue()) {
+      return;
+    }
+    openInlineTextEditor("cue.net_host", "Destination Address",
+                         "e.g. 192.168.1.50", selectedNetworkCue()->netHost,
+                         [this](const std::string& value) {
+                           if (Cue* c = selectedNetworkCue()) {
+                             c->netHost = trim(value);
+                             markProjectDirty();
+                           }
+                         });
+  }
+
+  void editNetworkAddress() {
+    if (!selectedNetworkCue()) {
+      return;
+    }
+    openInlineTextEditor("cue.net_address", "OSC Address",
+                         "e.g. /cue/1/start", selectedNetworkCue()->netAddress,
+                         [this](const std::string& value) {
+                           if (Cue* c = selectedNetworkCue()) {
+                             c->netAddress = trim(value);
+                             markProjectDirty();
+                           }
+                         });
+  }
+
+  void editNetworkPayload() {
+    if (!selectedNetworkCue()) {
+      return;
+    }
+    openInlineTextEditor("cue.net_payload", "Payload",
+                         "text to send", selectedNetworkCue()->netPayload,
+                         [this](const std::string& value) {
+                           if (Cue* c = selectedNetworkCue()) {
+                             // NOT trimmed: a trailing newline is often the
+                             // whole point of a TCP line, and trimming it here
+                             // would silently break every line-based protocol.
+                             c->netPayload = value;
+                             markProjectDirty();
+                           }
+                         });
+  }
+
+  void sendSelectedNetworkCueNow() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size()) ||
+        deck.cues[deck.selectedIndex].kind != CueKind::Network) {
+      return;
+    }
+    (void)fireNetworkCue(deckIndex, deck.selectedIndex);
+  }
+
   Cue* selectedMidiCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Midi) ? cue : nullptr;
@@ -1492,6 +1575,155 @@
       return;
     }
     (void)fireMidiCue(deckIndex, deck.selectedIndex);
+  }
+
+  // ── NETWORK CUES ──────────────────────────────────────────────────────
+  //
+  // Deckboy listens on OSC, UDP and TCP and has never spoken on any of them
+  // except as feedback. A network cue is the other direction: on GO, tell the
+  // media server or the desk or the other Deckboy to do something.
+  //
+  // UDP AND OSC ARE FIRE AND FORGET and cost nothing on the main thread. TCP
+  // is not: a connect to a machine that is off can block for the operating
+  // system's timeout, and a GO that stalls for even a second is unusable. So
+  // TCP runs on a detached thread and reports back through a queue.
+
+  // The payload an operator typed, with the escapes they would expect. Kept
+  // small deliberately: this is a show-control line, not a scripting language.
+  static std::string expandNetworkEscapes(const std::string& text) {
+    std::string out;
+    out.reserve(text.size());
+    for (std::size_t i = 0; i < text.size(); ++i) {
+      if (text[i] != '\\' || i + 1 >= text.size()) {
+        out.push_back(text[i]);
+        continue;
+      }
+      switch (text[++i]) {
+        case 'n': out.push_back('\n'); break;
+        case 'r': out.push_back('\r'); break;
+        case 't': out.push_back('\t'); break;
+        case '0': out.push_back('\0'); break;
+        case '\\': out.push_back('\\'); break;
+        // An unknown escape keeps BOTH characters rather than eating the
+        // backslash: a Windows path in a payload should survive being typed.
+        default: out.push_back('\\'); out.push_back(text[i]); break;
+      }
+    }
+    return out;
+  }
+
+  void drainNetworkResults() {
+    std::vector<std::string> results;
+    {
+      std::lock_guard<std::mutex> lock(networkResultMutex_);
+      if (networkResults_.empty()) {
+        return;
+      }
+      results.swap(networkResults_);
+    }
+    for (const std::string& line : results) {
+      triggerToast(line);
+      showLog("NETWORK", line);
+    }
+  }
+
+  std::string fireNetworkCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "no deck";
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "no cue";
+    }
+    const Cue& cue = deck.cues[cueIndex];
+    const std::string host = trim(cue.netHost);
+    const int port = std::clamp(cue.netPort, 1, 65535);
+    const std::string protocol = toLower(trim(cue.netProtocol));
+    if (host.empty()) {
+      const std::string why = cue.name + ": no host";
+      triggerToast(why);
+      return why;
+    }
+
+    sockaddr_in target {};
+    target.sin_family = AF_INET;
+    target.sin_port = htons(static_cast<uint16_t>(port));
+    // NUMERIC ADDRESSES ONLY, and said so rather than guessed at. Resolving a
+    // name means a DNS lookup, which is a blocking call with no bound on a
+    // show network -- exactly what a GO must not do.
+    if (inet_pton(AF_INET, host.c_str(), &target.sin_addr) != 1) {
+      const std::string why = cue.name + ": " + host +
+                              " is not an IPv4 address";
+      triggerToast(why);
+      return why;
+    }
+
+    const std::string payload = expandNetworkEscapes(cue.netPayload);
+    const std::string where = host + ":" + std::to_string(port);
+
+    if (protocol == "osc") {
+      const std::string address = trim(cue.netAddress);
+      if (address.empty() || address.front() != '/') {
+        const std::string why = cue.name + ": an OSC address must start with /";
+        triggerToast(why);
+        return why;
+      }
+      sendOscStringTo(target, address, payload);
+      const std::string did = "OSC " + address + " -> " + where;
+      showLog("NETWORK", did);
+      triggerToast(did);
+      return did;
+    }
+
+    if (protocol == "udp") {
+      if (companionUdpSocket_ == deckboy::platform::kInvalidSocket) {
+        const std::string why = cue.name + ": no UDP socket";
+        triggerToast(why);
+        return why;
+      }
+      sendto(companionUdpSocket_, payload.data(),
+             static_cast<int>(payload.size()), 0,
+             reinterpret_cast<const sockaddr*>(&target),
+             static_cast<socklen_t>(sizeof(target)));
+      const std::string did = "UDP " + std::to_string(payload.size()) +
+                              " bytes -> " + where;
+      showLog("NETWORK", did);
+      triggerToast(did);
+      return did;
+    }
+
+    if (protocol == "tcp") {
+      // OFF THE MAIN THREAD, always. Everything it needs is copied in: the cue
+      // can be edited or deleted while this is in flight.
+      std::thread([this, target, payload, where, name = cue.name]() {
+        std::string result;
+        deckboy::platform::SocketHandle fd =
+          socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (fd == deckboy::platform::kInvalidSocket) {
+          result = name + ": could not open a socket";
+        } else {
+          if (connect(fd, reinterpret_cast<const sockaddr*>(&target),
+                      static_cast<socklen_t>(sizeof(target))) == 0) {
+            const int sent = static_cast<int>(
+              ::send(fd, payload.data(), static_cast<int>(payload.size()), 0));
+            result = sent >= 0
+              ? ("TCP " + std::to_string(sent) + " bytes -> " + where)
+              : (name + ": TCP send failed to " + where);
+          } else {
+            result = name + ": nothing answered at " + where;
+          }
+          deckboy::platform::closeSocket(fd);
+        }
+        std::lock_guard<std::mutex> lock(networkResultMutex_);
+        networkResults_.push_back(result);
+      }).detach();
+      const std::string did = "TCP -> " + where + " (sending)";
+      return did;
+    }
+
+    const std::string why = cue.name + ": unknown protocol " + protocol;
+    triggerToast(why);
+    return why;
   }
 
   void toggleSelectedCueArmed() {
@@ -1962,6 +2194,12 @@
     // A TARGET acts on another cue and is likewise never handed to an engine.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Target) {
       (void)fireTargetCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
+    // A NETWORK CUE SENDS AND IS DONE, for the same reasons as a MIDI one.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Network) {
+      (void)fireNetworkCue(deckIndex, deck.selectedIndex);
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
@@ -2471,6 +2709,24 @@
               out.push_back({d, c, "master target on deck " +
                                    std::to_string(a.deckIndex + 1) + " is gone"});
             }
+          }
+        }
+
+        // A network cue with nowhere to send. The host is checked as an
+        // address here rather than at GO for the same reason as everything
+        // else on this list: a typo is silent on the night.
+        if (cue.kind == CueKind::Network) {
+          sockaddr_in probe {};
+          const std::string host = trim(cue.netHost);
+          if (host.empty()) {
+            out.push_back({d, c, "network cue has no host"});
+          } else if (inet_pton(AF_INET, host.c_str(), &probe.sin_addr) != 1) {
+            out.push_back({d, c, "network cue host \"" + host +
+                                 "\" is not an IPv4 address"});
+          } else if (toLower(trim(cue.netProtocol)) == "osc" &&
+                     (trim(cue.netAddress).empty() ||
+                      trim(cue.netAddress).front() != '/')) {
+            out.push_back({d, c, "OSC address must start with /"});
           }
         }
 
