@@ -69,6 +69,9 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
+  Text,          // words on the screen, as a SOURCE rather than an overlay:
+                 // a title card, a holding slide, a scrolling notice. Animated
+                 // from the cue's own transport clock -- see CueTextAnimation
   Dmx,           // sends DMX channel levels over Art-Net on GO, with a fade
                  // time. NOT a lighting console -- "house lights to 20% on cue
                  // 14" is the case this serves, at a fraction of the cost
@@ -801,6 +804,55 @@ struct MasterAssignment {
 };
 
 // ---------------------------------------------------------------------------
+// How a Text cue moves.
+//
+// Every one of these is driven by the cue's transport position, not a wall
+// clock, so a text cue scrubs, pauses and loops with everything else -- and
+// two outputs showing the same deck cannot drift apart.
+// ---------------------------------------------------------------------------
+enum class CueTextAnimation {
+  None,        // it just sits there, which is what a title card wants
+  FadeIn,      // up over the first second
+  Typewriter,  // a character at a time
+  ScrollUp,    // credits: bottom to top
+  Crawl,       // a news ticker: right to left, on one line
+  Pulse,       // breathes, for a holding slide nobody should mistake for frozen
+};
+
+inline const char* cueTextAnimationToken(CueTextAnimation a) {
+  switch (a) {
+    case CueTextAnimation::FadeIn:     return "fade";
+    case CueTextAnimation::Typewriter: return "typewriter";
+    case CueTextAnimation::ScrollUp:   return "scroll";
+    case CueTextAnimation::Crawl:      return "crawl";
+    case CueTextAnimation::Pulse:      return "pulse";
+    case CueTextAnimation::None:       break;
+  }
+  return "none";
+}
+
+inline const char* cueTextAnimationLabel(CueTextAnimation a) {
+  switch (a) {
+    case CueTextAnimation::FadeIn:     return "Fade in";
+    case CueTextAnimation::Typewriter: return "Typewriter";
+    case CueTextAnimation::ScrollUp:   return "Scroll up";
+    case CueTextAnimation::Crawl:      return "Crawl";
+    case CueTextAnimation::Pulse:      return "Pulse";
+    case CueTextAnimation::None:       break;
+  }
+  return "Still";
+}
+
+inline CueTextAnimation cueTextAnimationFromToken(const std::string& t) {
+  if (t == "fade")       return CueTextAnimation::FadeIn;
+  if (t == "typewriter") return CueTextAnimation::Typewriter;
+  if (t == "scroll")     return CueTextAnimation::ScrollUp;
+  if (t == "crawl")      return CueTextAnimation::Crawl;
+  if (t == "pulse")      return CueTextAnimation::Pulse;
+  return CueTextAnimation::None;
+}
+
+// ---------------------------------------------------------------------------
 // AUDIO CROSSPOINT.
 //
 // One cell of the matrix: how much of a cue's source channel reaches one
@@ -876,6 +928,15 @@ struct Cue {
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  // FIRESIDE, as a source rather than a test card. How hard it burns and how
+  // much it throws off -- the two things anybody actually wants to change
+  // about a fire behind a panel.
+  double firesideIntensity = 1.0;          // 0.2 embers .. 2.0 roaring
+  int firesideSparks = 34;                 // 0 none .. 160
+
+  // A Text cue. The body is the operator's own words, newlines and all.
+  std::string textBody = "DECKBOY";
+
   // A DMX cue. The channel spec is the operator's own text -- "1=255,
   // 10-14=64" -- kept as typed so it reads back the way it was written.
   std::string dmxChannels;
@@ -1016,6 +1077,12 @@ struct Cue {
   // The LED tile size the panel map is drawn to. 128x128 is the common one,
   // but a wall that is not made of those is exactly the wall that needs a map,
   // and mapping a 168px panel as 128 puts every label in the wrong place.
+  // Text size as a PERCENT OF THE RASTER HEIGHT, not points. A cue that reads
+  // right on a 1080 screen then has to read right on a 2160 one, and a point
+  // size cannot promise that.
+  double textSizePct = 12.0;
+  double textSpeed = 1.0;                  // multiplier on whatever it does
+
   // How long the levels take to arrive. 0 is a snap, which is what a
   // blackout wants.
   double dmxFadeSeconds = 0.0;
@@ -1024,6 +1091,9 @@ struct Cue {
   // app keeps time in; the inspector shows it as a timecode.
   double tcJamSeconds = 0.0;
 
+  int textAlign = 1;                       // 0 left, 1 centre, 2 right
+  int textBgAlpha = 0;                     // 0 is over the picture, 255 is a card
+  CueTextAnimation textAnimation = CueTextAnimation::None;
   int dmxUniverse = 0;                     // Art-Net port address, 0-32767
   int dmxPort = 6454;                      // 6454 is Art-Net's registered port
 
@@ -1051,6 +1121,7 @@ struct Cue {
   SDL_Color color {48, 98, 48, 255};                 // cue list row tint (DMG green default)
   SDL_Color compositeBackgroundColor {18, 24, 18, 255}; // background fill for Composite cue
   SDL_Color chromaKeyColor {0, 255, 0, 255};          // target color for chroma key removal
+  SDL_Color textColor {255, 255, 255, 255};           // a Text cue's ink
 
   // -- 1-byte aligned: bools ---------------------------------------------------
   bool hasAudio = false;          // true if ffprobe detected an audio stream
@@ -2209,6 +2280,15 @@ enum class QuickAction {
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.
   PreloadSelected,
+  FireIntensityDec, FireIntensityInc,
+  FireSparksDec, FireSparksInc,
+  CueSectionTextToggle,
+  TextEditBody,
+  TextAnimCycle,
+  TextAlignCycle,
+  TextSizeDec, TextSizeInc,
+  TextSpeedDec, TextSpeedInc,
+  TextBgDec, TextBgInc,
   CueSectionMatrixToggle,
   MatrixCellCycle,
   MatrixSeed,

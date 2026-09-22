@@ -866,6 +866,22 @@
       case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
       case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueArmToggle: toggleSelectedCueArmed(); break;
+      case QuickAction::CueSectionTextToggle:
+        cueSectionTextOpen_ = !cueSectionTextOpen_;
+        break;
+      case QuickAction::FireIntensityDec: nudgeFireside(0, -1); break;
+      case QuickAction::FireIntensityInc: nudgeFireside(0, +1); break;
+      case QuickAction::FireSparksDec:    nudgeFireside(1, -1); break;
+      case QuickAction::FireSparksInc:    nudgeFireside(1, +1); break;
+      case QuickAction::TextEditBody:   editTextBody(); break;
+      case QuickAction::TextAnimCycle:  cycleTextAnimation(); break;
+      case QuickAction::TextAlignCycle: cycleTextAlign(); break;
+      case QuickAction::TextSizeDec:    nudgeTextField(0, -1); break;
+      case QuickAction::TextSizeInc:    nudgeTextField(0, +1); break;
+      case QuickAction::TextSpeedDec:   nudgeTextField(1, -1); break;
+      case QuickAction::TextSpeedInc:   nudgeTextField(1, +1); break;
+      case QuickAction::TextBgDec:      nudgeTextField(2, -1); break;
+      case QuickAction::TextBgInc:      nudgeTextField(2, +1); break;
       case QuickAction::CueSectionMatrixToggle:
         cueSectionMatrixOpen_ = !cueSectionMatrixOpen_;
         break;

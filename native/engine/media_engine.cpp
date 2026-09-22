@@ -10611,7 +10611,10 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
 // handheld; a smooth 256-step gradient would sit outside that. Six reads as
 // fire and stays graphic.
 // ---------------------------------------------------------------------------
-void MediaEngine::buildFireside(DecodedFrame& frame, double t) {
+void MediaEngine::buildFireside(DecodedFrame& frame, double t,
+                                double intensity, int sparks) {
+  intensity = intensity < 0.2 ? 0.2 : (intensity > 2.0 ? 2.0 : intensity);
+  sparks = sparks < 0 ? 0 : (sparks > 160 ? 160 : sparks);
   const int W = frame.width;
   const int H = frame.height;
   if (W <= 0 || H <= 0 || frame.pixels.empty()) {
@@ -10712,7 +10715,11 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t) {
 
   // The bed breathes at two rates, so the fire surges and settles rather than
   // roaring flat. Sampled at the frame being drawn, for the light and sparks.
-  const double breath = 0.72 + 0.28 * std::sin(t * 1.7) * std::sin(t * 0.63);
+  // INTENSITY RIDES THE BREATH rather than replacing it, so embers still
+  // surge and settle instead of sitting at a flat low -- a fire that does not
+  // move reads as a photograph of a fire.
+  const double breath = (0.72 + 0.28 * std::sin(t * 1.7) * std::sin(t * 0.63))
+                        * intensity;
 
   for (int step = 0; step <= kWarm; ++step) {
   const int stepFrame = frameIndex - (kWarm - step);
@@ -10881,7 +10888,7 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t) {
   // Stateless on purpose: an ember's whole life is a function of its index and
   // the clock, so there is no particle list to own, grow, or keep in step with
   // a resized raster. Cheap, deterministic, and it cannot leak.
-  const int kSparks = 34;
+  const int kSparks = sparks;
   for (int i = 0; i < kSparks; ++i) {
     const std::uint32_t sh = static_cast<std::uint32_t>(i + 1) * 2654435761u;
     const double life = 1.4 + ((sh >> 3) % 100u) / 100.0 * 1.8;   // 1.4-3.2s
@@ -11621,7 +11628,7 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     buildFrameCount(frame, animTime, false);
   } else if (basePatternType == "fireside") {
     // Always animated: a still fire is a photograph of a fire.
-    buildFireside(frame, animTime);
+    buildFireside(frame, animTime, cue.firesideIntensity, cue.firesideSparks);
   } else if (basePatternType == "test-clock") {
     // Sync/latency card — always animated, no -motion variant.
     buildTestClock(frame, animTime);

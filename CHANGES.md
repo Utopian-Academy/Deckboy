@@ -59,7 +59,19 @@ map with every tile numbered and its pixel origin printed inside it, moire
 greyscale steps, convergence, multiburst, and 10% and 50% windows. The free
 kit on the site now includes them too.
 
-**Also:** a FIRESIDE source, loading indicators on the jobs that used to look
+**Words on the screen.** A TEXT source puts a title card, a holding slide or a
+crawl on the output as the deck's own picture rather than an overlay. It fades
+in, types itself out, scrolls up like credits, crawls like a ticker, or
+breathes so nobody mistakes a holding slide for a frozen machine -- all driven
+by the cue's own transport, so it scrubs and pauses with everything else. Size
+is a percentage of the raster, so a card that reads on a 1080 screen reads on
+a 2160 one.
+
+**FIRESIDE is a source now, not a test card.** It has its own entry in the
+SOURCE menu and two controls: how hard it burns, from embers to roaring, and
+how much it throws off. It still surges and settles at any setting.
+
+**Also:** loading indicators on the jobs that used to look
 frozen, the playlist scrollbar can be dragged and the wheel moves it three
 rows at a time, the update check tells you what is blocking it, and the
 Companion module moved to base 2.x.

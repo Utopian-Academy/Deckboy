@@ -5477,6 +5477,103 @@
       finishInspectorSection(mxSection, mxY);
     }
 
+    // FIRESIDE: how hard it burns. Only on a fireside cue -- these controls
+    // mean nothing on a colour-bars pattern and drawing them there would be
+    // two more things that cannot do anything.
+    if (selectedCue && selectedCue->kind == CueKind::Pattern &&
+        normalizePatternTypeId(selectedCue->path) == "fireside") {
+      int fiY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto fiSection = beginInspectorSection(fiY, "FIRESIDE", cueSectionFiresideOpen_,
+                                             QuickAction::CueSectionTextToggle,
+                                             "Collapse/expand the hearth's controls");
+      fiY = fiSection.bodyStartY;
+      if (cueSectionFiresideOpen_) {
+        char amt[16];
+        std::snprintf(amt, sizeof(amt), "%.1fx", selectedCue->firesideIntensity);
+        drawQuickRow(fiY, "burns", QuickAction::FireIntensityDec, std::string(amt),
+                     QuickAction::FireIntensityInc, QuickAction::ToggleLoop,
+                     false, false,
+                     "Embers to roaring. It still surges and settles at any "
+                     "setting -- a fire that does not move reads as a photo");
+        fiY += kInspectorRowStep;
+        drawQuickRow(fiY, "sparks", QuickAction::FireSparksDec,
+                     std::to_string(selectedCue->firesideSparks),
+                     QuickAction::FireSparksInc, QuickAction::ToggleLoop,
+                     false, false, "How much it throws off; 0 is a clean burn");
+        fiY += kInspectorRowStep;
+      }
+      finishInspectorSection(fiSection, fiY);
+    }
+
+    // TEXT: the words, how big, and how they move.
+    if (selectedCue && selectedCue->kind == CueKind::Text) {
+      int txY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto txSection = beginInspectorSection(txY, "TEXT", cueSectionTextOpen_,
+                                             QuickAction::CueSectionTextToggle,
+                                             "Collapse/expand the words and how they move");
+      txY = txSection.bodyStartY;
+      if (cueSectionTextOpen_) {
+        // The first line only, and a count when there are more: a body of
+        // text does not fit in a row and pretending it does just truncates
+        // something the operator then cannot read.
+        std::string preview = selectedCue->textBody;
+        const std::size_t nl = preview.find('\n');
+        std::string more;
+        if (nl != std::string::npos) {
+          const int extra = static_cast<int>(std::count(selectedCue->textBody.begin(),
+                                                        selectedCue->textBody.end(), '\n'));
+          preview = preview.substr(0, nl);
+          more = "  (+" + std::to_string(extra) + ")";
+        }
+        drawQuickRow(txY, "words", QuickAction::TextEditBody,
+                     preview.empty() ? std::string("none - click to write some")
+                                     : (preview + more),
+                     QuickAction::TextEditBody, QuickAction::TextEditBody,
+                     false, false, "The text this cue puts on screen");
+        txY += kInspectorRowStep;
+
+        drawQuickRow(txY, "moves", QuickAction::TextAnimCycle,
+                     cueTextAnimationLabel(selectedCue->textAnimation),
+                     QuickAction::TextAnimCycle, QuickAction::TextAnimCycle,
+                     false, false,
+                     "Still, fade in, typewriter, scroll up, crawl or pulse -- "
+                     "all driven by the cue's own transport");
+        txY += kInspectorRowStep;
+
+        char pct[16];
+        std::snprintf(pct, sizeof(pct), "%.0f%%", selectedCue->textSizePct);
+        drawQuickRow(txY, "size", QuickAction::TextSizeDec, std::string(pct),
+                     QuickAction::TextSizeInc, QuickAction::ToggleLoop, false, false,
+                     "Height of one line as a percent of the raster, so a card "
+                     "reads the same on any screen");
+        txY += kInspectorRowStep;
+
+        drawQuickRow(txY, "align", QuickAction::TextAlignCycle,
+                     selectedCue->textAlign == 0 ? "Left"
+                       : selectedCue->textAlign == 2 ? "Right" : "Centre",
+                     QuickAction::TextAlignCycle, QuickAction::TextAlignCycle,
+                     false, false, "Left, centre or right");
+        txY += kInspectorRowStep;
+
+        char sp[16];
+        std::snprintf(sp, sizeof(sp), "%.2fx", selectedCue->textSpeed);
+        drawQuickRow(txY, "speed", QuickAction::TextSpeedDec, std::string(sp),
+                     QuickAction::TextSpeedInc, QuickAction::ToggleLoop, false, false,
+                     "How fast it moves; no effect when it is still");
+        txY += kInspectorRowStep;
+
+        drawQuickRow(txY, "card", QuickAction::TextBgDec,
+                     selectedCue->textBgAlpha == 0
+                       ? std::string("over the picture")
+                       : (std::to_string(selectedCue->textBgAlpha * 100 / 255) + "%"),
+                     QuickAction::TextBgInc, QuickAction::ToggleLoop, false, false,
+                     "Black behind the words. Zero leaves it over whatever the "
+                     "output already has");
+        txY += kInspectorRowStep;
+      }
+      finishInspectorSection(txSection, txY);
+    }
+
     // DMX: the levels this cue sends, and how fast.
     if (selectedCue && selectedCue->kind == CueKind::Dmx) {
       auto spec = deckboy::platform::parseDmxChannelSpec(selectedCue->dmxChannels);

@@ -225,14 +225,17 @@ static const std::vector<CodeExample>& codeExamples() {
   void openCodeEditor() {
     const Cue* cue = selectedCuePtr();
     const bool isScript = cue && cue->kind == CueKind::Script;
-    if (!cue || (!cueIsCodeSource(*cue) && !isScript)) {
+    const bool isText = cue && cue->kind == CueKind::Text;
+    if (!cue || (!cueIsCodeSource(*cue) && !isScript && !isText)) {
       return;
     }
     closeDropdown(true);
     codeEditor_ = CodeEditorState {};
     codeEditor_.open = true;
     codeEditor_.script = isScript;
-    codeEditor_.text = isScript ? cue->scriptText : cue->codeExpression;
+    codeEditor_.textCue = isText;
+    codeEditor_.text = isText ? cue->textBody
+                      : isScript ? cue->scriptText : cue->codeExpression;
     codeEditor_.caret = codeEditor_.text.size();
     codeEditor_.deckIndex = project_.focusedDeckIndex;
     codeEditor_.cueIndex = focusedDeck().selectedIndex;
@@ -280,6 +283,13 @@ static const std::vector<CodeExample>& codeExamples() {
     // same dispatcher that answers the socket, and a line that is wrong should
     // be reportable rather than unsaveable -- half a script is still worth
     // keeping while you work out the other half.
+    if (codeEditor_.textCue) {
+      // A TEXT CUE'S BODY IS WHATEVER WAS TYPED. No compile, no validation:
+      // any characters at all are legitimate words on a screen.
+      deck.cues[codeEditor_.cueIndex].textBody = codeEditor_.text;
+      markProjectDirty();
+      return;
+    }
     if (codeEditor_.script) {
       deck.cues[codeEditor_.cueIndex].scriptText = codeEditor_.text;
       markProjectDirty();

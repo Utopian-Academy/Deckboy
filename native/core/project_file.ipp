@@ -632,6 +632,19 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // The audio crosspoint matrix. Empty for every cue that has not
         // been given one, which is every cue in every older show.
         << '\t' << escapeField(serializeAudioMatrix(cue.audioMatrix))
+        // A Text cue.
+        << '\t' << escapeField(cue.textBody)
+        << '\t' << cueTextAnimationToken(cue.textAnimation)
+        << '\t' << cue.textSizePct
+        << '\t' << cue.textSpeed
+        << '\t' << cue.textAlign
+        << '\t' << cue.textBgAlpha
+        << '\t' << static_cast<int>(cue.textColor.r)
+        << '\t' << static_cast<int>(cue.textColor.g)
+        << '\t' << static_cast<int>(cue.textColor.b)
+        // Fireside, as a source with parameters.
+        << '\t' << cue.firesideIntensity
+        << '\t' << cue.firesideSparks
         << '\n';
     }
   }
@@ -1402,6 +1415,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "timecode" ? CueKind::Timecode :
         kind == "script" ? CueKind::Script :
         kind == "dmx" ? CueKind::Dmx :
+        kind == "text" ? CueKind::Text :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its
@@ -1826,6 +1840,21 @@ Project loadProject(const fs::path& projectFile,
         // The audio matrix. ABSENT MEANS EMPTY, and empty means "use
         // audioOutputPair" -- so an older show routes exactly as it did.
         cue.audioMatrix = parseAudioMatrix(safeString(fields, vs + 94));
+        // A Text cue. Absent on every older show, which had none.
+        cue.textBody = safeString(fields, vs + 95);
+        cue.textAnimation = cueTextAnimationFromToken(safeString(fields, vs + 96));
+        cue.textSizePct = std::clamp(safeDouble(fields, vs + 97, 12.0), 1.0, 100.0);
+        cue.textSpeed = std::clamp(safeDouble(fields, vs + 98, 1.0), 0.05, 20.0);
+        cue.textAlign = std::clamp(safeInt(fields, vs + 99, 1), 0, 2);
+        cue.textBgAlpha = std::clamp(safeInt(fields, vs + 100, 0), 0, 255);
+        cue.textColor.r = static_cast<Uint8>(std::clamp(safeInt(fields, vs + 101, 255), 0, 255));
+        cue.textColor.g = static_cast<Uint8>(std::clamp(safeInt(fields, vs + 102, 255), 0, 255));
+        cue.textColor.b = static_cast<Uint8>(std::clamp(safeInt(fields, vs + 103, 255), 0, 255));
+        cue.textColor.a = 255;
+        // Fireside. The defaults are exactly what it burned at before it
+        // had controls, so an older show's hearth is unchanged.
+        cue.firesideIntensity = std::clamp(safeDouble(fields, vs + 104, 1.0), 0.2, 2.0);
+        cue.firesideSparks = std::clamp(safeInt(fields, vs + 105, 34), 0, 160);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -1836,7 +1865,7 @@ Project loadProject(const fs::path& projectFile,
           cue.kind == CueKind::Target || cue.kind == CueKind::Fade ||
           cue.kind == CueKind::Midi || cue.kind == CueKind::Network ||
           cue.kind == CueKind::Timecode || cue.kind == CueKind::Script ||
-          cue.kind == CueKind::Dmx) {
+          cue.kind == CueKind::Dmx || cue.kind == CueKind::Text) {
         if (cue.name.empty()) {
           cue.name = cue.kind == CueKind::Master
             ? std::string("Master")

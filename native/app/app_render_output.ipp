@@ -1642,6 +1642,146 @@
     }
   }
 
+  // ── TEXT AS A SOURCE ──────────────────────────────────────────────────
+  //
+  // Words on the screen as the deck's PICTURE, not an overlay on someone
+  // else's: a title card, a holding slide, a scrolling notice, a crawl.
+  //
+  // Everything moves on the cue's TRANSPORT position rather than a wall
+  // clock. That is what makes a text cue scrub, pause and loop like any other
+  // cue -- and it is why two outputs showing the same deck cannot drift apart,
+  // which a wall clock would guarantee they eventually did.
+  void renderTextCueIntoOutput(SDL_Renderer* renderer, const Cue& cue,
+                               const SDL_Rect& target, double seconds) {
+    if (!renderer || !fontLarge_ || target.w <= 0 || target.h <= 0) {
+      return;
+    }
+    const double speed = std::clamp(cue.textSpeed, 0.05, 20.0);
+    const double t = std::max(0.0, seconds) * speed;
+
+    // The card behind the words. Alpha 0 means the text sits over whatever is
+    // already on the output, which is how a text cue becomes a caption.
+    if (cue.textBgAlpha > 0) {
+      SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(renderer, 0, 0, 0,
+                             static_cast<Uint8>(std::clamp(cue.textBgAlpha, 0, 255)));
+      SDL_RenderFillRect(renderer, &target);
+    }
+
+    std::vector<std::string> lines;
+    {
+      std::string body = cue.textBody;
+      std::size_t start = 0;
+      while (start <= body.size()) {
+        std::size_t nlPos = body.find('\n', start);
+        if (nlPos == std::string::npos) nlPos = body.size();
+        std::string line = body.substr(start, nlPos - start);
+        if (!line.empty() && line.back() == '\r') {
+          line.pop_back();
+        }
+        lines.push_back(line);
+        start = nlPos + 1;
+      }
+    }
+    if (lines.empty()) {
+      return;
+    }
+
+    // TYPEWRITER REVEALS CHARACTERS, so it is applied before anything is
+    // measured -- the block has to be laid out from what is actually visible,
+    // or the text would jump as each letter arrived.
+    if (cue.textAnimation == CueTextAnimation::Typewriter) {
+      std::size_t budget = static_cast<std::size_t>(std::max(0.0, t * 18.0));
+      for (std::string& line : lines) {
+        if (budget >= line.size()) {
+          budget -= line.size();
+        } else {
+          line = line.substr(0, budget);
+          budget = 0;
+        }
+      }
+    }
+
+    // SIZED AS A FRACTION OF THE RASTER, never in points: a card that reads on
+    // a 1080 screen has to read on a 2160 one, and a point size cannot promise
+    // that. The font is rendered once at its own size and scaled, which is
+    // also what keeps one cached texture per line rather than one per size.
+    const double lineH = std::max(1.0, target.h * std::clamp(cue.textSizePct, 1.0, 100.0) / 100.0);
+    const double lineStep = lineH * 1.18;
+    double blockH = lineStep * static_cast<double>(lines.size());
+
+    double alpha = 1.0;
+    double originY = target.y + (target.h - blockH) / 2.0;
+    double crawlX = 0.0;
+
+    switch (cue.textAnimation) {
+      case CueTextAnimation::FadeIn:
+        alpha = std::clamp(t, 0.0, 1.0);
+        break;
+      case CueTextAnimation::ScrollUp:
+        // Starts below the frame and leaves above it, so a credit roll runs
+        // clean off both edges rather than popping.
+        originY = target.y + target.h - (t * lineStep * 2.0);
+        break;
+      case CueTextAnimation::Crawl:
+        // One line, right to left. The whole block width has to clear the
+        // frame before it wraps, so nothing is ever half on screen at the
+        // start of a pass.
+        crawlX = target.w - std::fmod(t * target.w * 0.25,
+                                      static_cast<double>(target.w) * 2.0);
+        blockH = lineStep;
+        originY = target.y + (target.h - blockH) / 2.0;
+        break;
+      case CueTextAnimation::Pulse:
+        // Never all the way out: a holding slide that vanishes reads as a
+        // fault, and the point of this one is to prove the machine is alive.
+        alpha = 0.72 + 0.28 * std::sin(t * 2.2);
+        break;
+      case CueTextAnimation::Typewriter:
+      case CueTextAnimation::None:
+        break;
+    }
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    for (std::size_t i = 0; i < lines.size(); ++i) {
+      if (lines[i].empty()) {
+        continue;
+      }
+      const TextTextureEntry* entry =
+        cachedTextTexture(renderer, fontLarge_, lines[i], cue.textColor);
+      if (!entry || !entry->texture || entry->h <= 0) {
+        continue;
+      }
+      const double scale = lineH / static_cast<double>(entry->h);
+      const int w = std::max(1, static_cast<int>(std::lround(entry->w * scale)));
+      const int h = std::max(1, static_cast<int>(std::lround(entry->h * scale)));
+      int x = target.x + (target.w - w) / 2;              // centre
+      if (cue.textAlign == 0) {
+        x = target.x + target.w / 24;                     // left, with a margin
+      } else if (cue.textAlign == 2) {
+        x = target.x + target.w - w - target.w / 24;      // right
+      }
+      if (cue.textAnimation == CueTextAnimation::Crawl) {
+        x = target.x + static_cast<int>(std::lround(crawlX));
+      }
+      const int y = static_cast<int>(std::lround(originY + lineStep * static_cast<double>(i)));
+      // Off the frame entirely: nothing to draw, and nothing to pay for.
+      if (y + h < target.y || y > target.y + target.h) {
+        continue;
+      }
+      SDL_SetTextureAlphaMod(entry->texture,
+                             static_cast<Uint8>(std::clamp(alpha, 0.0, 1.0) * 255.0));
+      SDL_FRect dst {static_cast<float>(x), static_cast<float>(y),
+                     static_cast<float>(w), static_cast<float>(h)};
+      SDL_RenderTexture(renderer, entry->texture, nullptr, &dst);
+      // PUT BACK, because the texture is SHARED: the cache hands the same one
+      // to the control window and to every other output, and a leftover alpha
+      // would follow it there.
+      SDL_SetTextureAlphaMod(entry->texture, 255);
+    }
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
@@ -1656,6 +1796,13 @@
     }
     DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
     if (!sourceRuntime || !sourceRuntime->mediaEngine) {
+      return;
+    }
+    // A TEXT CUE HAS NO DECODED FRAME, so it must be drawn before the frame
+    // check below returns. It is the deck's picture, not an overlay on one.
+    if (sourceCue->kind == CueKind::Text) {
+      renderTextCueIntoOutput(outputRuntime->outputRenderer, *sourceCue, target,
+                              sourceRuntime->mediaEngine->position());
       return;
     }
     const DecodedFrame* sourceFrame = sourceRuntime->mediaEngine->currentFrame();

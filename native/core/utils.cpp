@@ -299,6 +299,7 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::Timecode:       return "Timecode";
     case CueKind::Script:         return "Script";
     case CueKind::Dmx:            return "DMX";
+    case CueKind::Text:           return "Text";
   }
   return "Video";
 }
@@ -340,6 +341,7 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::Timecode:     return "timecode";
     case CueKind::Script:       return "script";
     case CueKind::Dmx:          return "dmx";
+    case CueKind::Text:         return "text";
     case CueKind::Video:
     default:                    return "video";
   }

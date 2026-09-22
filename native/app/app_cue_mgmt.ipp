@@ -2267,6 +2267,16 @@
     // "code source" thinks to open the pattern list. Where a thing lives in
     // the code is not where an operator expects to find it.
     contextItems_.push_back({
+      "  Fireside (a hearth that burns)",
+      {0, 0, 0, 0},
+      [this]() { addFiresideCue(); }
+    });
+    contextItems_.push_back({
+      "  Text (a title card, or a crawl)",
+      {0, 0, 0, 0},
+      [this]() { addTextCue(); }
+    });
+    contextItems_.push_back({
       "  Code (live expression)",
       {0, 0, 0, 0},
       [this]() { addPatternCue("code"); }
@@ -2564,6 +2574,11 @@
       // A live-coded source: the picture is whatever expression the operator
       // types, evaluated per pixel. Listed with the patterns because that is
       // what it is -- a procedural source that rebuilds at the output raster.
+      // FIRESIDE IS A SOURCE, NOT A TEST CARD, so it is no longer offered in
+      // the pattern picker -- it has its own SOURCE entry with its own
+      // controls. Still VALID here, so every show that already has one opens
+      // exactly as it did.
+      list.emplace_back("fireside",       "Fireside (a hearth that burns)");
       list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
@@ -3389,6 +3404,44 @@
     onSelectionChanged();
     markProjectDirty();
     triggerToast("master cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  void addFiresideCue() {
+    addPatternCue("fireside");
+    // Named for what it is rather than "Pattern 12": it arrives from the
+    // SOURCE menu now, and a hearth in a cue list should read as a hearth.
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& cue = deck.cues.back();
+      cue.name = "Fireside";
+      cue.color = {120, 52, 28, 255};
+      markProjectDirty();
+    }
+  }
+
+  void addTextCue() {
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::Text;
+    Deck& deck = focusedDeckMutable();
+    cue.name = "Text " + std::to_string(deck.cues.size() + 1);
+    cue.color = {40, 110, 100, 255};
+    cue.formatName = "generated";
+    cue.width = rasterW;
+    cue.height = rasterH;
+    applyDeckDefaultsToCue(cue, deck);
+    // Holds until it is taken off, like every other generated source: a title
+    // card that times out after eight seconds is a title card that will
+    // disappear in the middle of somebody's introduction.
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.endAction = CueEndAction::Stop;
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    markProjectDirty();
+    triggerToast("text added");
     playUiSound(UiSoundEffect::Import);
   }
 

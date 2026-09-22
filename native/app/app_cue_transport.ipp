@@ -1832,6 +1832,85 @@
     triggerToast("matrix off - back to the output pair");
   }
 
+  // A fireside edit must reach the picture NOW: it is an animated pattern, so
+  // the next frame rebuilds from the cue -- but the engine holds its own
+  // snapshot, and without marking dirty the hearth would not change until
+  // something else did.
+  void nudgeFireside(int which, int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || normalizePatternTypeId(cue->path) != "fireside") {
+      return;
+    }
+    if (which == 0) {
+      cue->firesideIntensity = std::clamp(cue->firesideIntensity + delta * 0.1, 0.2, 2.0);
+    } else {
+      cue->firesideSparks = std::clamp(cue->firesideSparks + delta * 4, 0, 160);
+    }
+    markProjectDirty();
+  }
+
+  Cue* selectedTextCue() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Text) ? cue : nullptr;
+  }
+
+  void cycleTextAnimation() {
+    Cue* cue = selectedTextCue();
+    if (!cue) {
+      return;
+    }
+    static const CueTextAnimation kOrder[] = {
+      CueTextAnimation::None, CueTextAnimation::FadeIn,
+      CueTextAnimation::Typewriter, CueTextAnimation::ScrollUp,
+      CueTextAnimation::Crawl, CueTextAnimation::Pulse,
+    };
+    const int count = static_cast<int>(sizeof(kOrder) / sizeof(kOrder[0]));
+    int at = 0;
+    for (int i = 0; i < count; ++i) {
+      if (kOrder[i] == cue->textAnimation) {
+        at = i;
+        break;
+      }
+    }
+    cue->textAnimation = kOrder[(at + 1) % count];
+    markProjectDirty();
+    triggerToast(cueTextAnimationLabel(cue->textAnimation));
+  }
+
+  void cycleTextAlign() {
+    Cue* cue = selectedTextCue();
+    if (!cue) {
+      return;
+    }
+    cue->textAlign = (cue->textAlign + 1) % 3;
+    markProjectDirty();
+  }
+
+  // 0 size, 1 speed, 2 background
+  void nudgeTextField(int which, int delta) {
+    Cue* cue = selectedTextCue();
+    if (!cue) {
+      return;
+    }
+    if (which == 0) {
+      cue->textSizePct = std::clamp(cue->textSizePct + delta * 1.0, 1.0, 100.0);
+    } else if (which == 1) {
+      cue->textSpeed = std::clamp(cue->textSpeed + delta * 0.1, 0.05, 20.0);
+    } else {
+      cue->textBgAlpha = std::clamp(cue->textBgAlpha + delta * 16, 0, 255);
+    }
+    markProjectDirty();
+  }
+
+  void editTextBody() {
+    if (!selectedTextCue()) {
+      return;
+    }
+    // The CODE editor, because it is the only multi-line one there is and a
+    // title card with two lines is the normal case, not the exception.
+    openCodeEditor();
+  }
+
   Cue* selectedDmxCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Dmx) ? cue : nullptr;

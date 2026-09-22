@@ -406,6 +406,130 @@
       failRemoteCommand("MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR");
       return;
     }
+    if (command == "TEXTCUE") {
+      // TEXTCUE NEW                 -> add a text cue to this deck
+      // TEXTCUE BODY <words...>     -> what it says (\n makes a new line)
+      // TEXTCUE ANIM none|fade|typewriter|scroll|crawl|pulse
+      // TEXTCUE SIZE <1-100>        -> percent of the raster height
+      // TEXTCUE SPEED <0.05-20>
+      // TEXTCUE ALIGN left|centre|right
+      // TEXTCUE CARD <0-255>        -> black behind the words
+      // TEXTCUE                     -> report it
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("TEXTCUE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+
+      if (sub == "NEW") {
+        addTextCue();
+        remoteCommandDetail_ = "text cue " + std::to_string(deck.cues.size());
+        return;
+      }
+
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("TEXTCUE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::Text) {
+        failRemoteCommand("TEXTCUE: the selected cue is not a text cue");
+        return;
+      }
+
+      if (sub.empty()) {
+        std::string first = cue.textBody;
+        const std::size_t nl = first.find('\n');
+        if (nl != std::string::npos) {
+          first = first.substr(0, nl) + " ...";
+        }
+        char buf[160];
+        std::snprintf(buf, sizeof(buf), "%s | %s | %.0f%% | %.2fx | %s | card %d",
+                      first.empty() ? "(empty)" : first.c_str(),
+                      cueTextAnimationLabel(cue.textAnimation),
+                      cue.textSizePct, cue.textSpeed,
+                      cue.textAlign == 0 ? "left" : (cue.textAlign == 2 ? "right" : "centre"),
+                      cue.textBgAlpha);
+        remoteCommandDetail_ = buf;
+        return;
+      }
+      if (sub == "BODY" || sub == "TEXT") {
+        // The rest of the line verbatim, with the same tiny escape set the
+        // network cue uses -- a title card wants a second line more often than
+        // it wants a backslash.
+        cue.textBody = parts.size() >= 3
+          ? expandNetworkEscapes(joinParts(parts, 2)) : std::string();
+        markProjectDirty();
+        remoteCommandDetail_ = cue.textBody.empty() ? "cleared" : cue.textBody;
+        return;
+      }
+      if (sub == "ANIM" && parts.size() >= 3) {
+        const std::string token = toLower(parts[2]);
+        static const char* kKnown[] = {"none", "fade", "typewriter",
+                                       "scroll", "crawl", "pulse"};
+        bool known = false;
+        for (const char* k : kKnown) {
+          known = known || token == k;
+        }
+        if (!known) {
+          failRemoteCommand("TEXTCUE ANIM: expected none, fade, typewriter, "
+                            "scroll, crawl or pulse");
+          return;
+        }
+        cue.textAnimation = cueTextAnimationFromToken(token);
+        markProjectDirty();
+        remoteCommandDetail_ = cueTextAnimationLabel(cue.textAnimation);
+        return;
+      }
+      if (sub == "ALIGN" && parts.size() >= 3) {
+        const std::string token = toLower(parts[2]);
+        if (token == "left")        cue.textAlign = 0;
+        else if (token == "centre" || token == "center") cue.textAlign = 1;
+        else if (token == "right")  cue.textAlign = 2;
+        else {
+          failRemoteCommand("TEXTCUE ALIGN: expected left, centre or right");
+          return;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = token;
+        return;
+      }
+      if ((sub == "SIZE" || sub == "SPEED" || sub == "CARD") && parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        if (!parsed) {
+          failRemoteCommand("TEXTCUE " + sub + ": expected a number");
+          return;
+        }
+        // Refused rather than clamped, the rule the whole protocol follows.
+        if (sub == "SIZE") {
+          if (*parsed < 1.0 || *parsed > 100.0) {
+            failRemoteCommand("TEXTCUE SIZE: expected 1-100 (percent of the raster)");
+            return;
+          }
+          cue.textSizePct = *parsed;
+        } else if (sub == "SPEED") {
+          if (*parsed < 0.05 || *parsed > 20.0) {
+            failRemoteCommand("TEXTCUE SPEED: expected 0.05-20");
+            return;
+          }
+          cue.textSpeed = *parsed;
+        } else {
+          if (*parsed < 0.0 || *parsed > 255.0) {
+            failRemoteCommand("TEXTCUE CARD: expected 0-255");
+            return;
+          }
+          cue.textBgAlpha = static_cast<int>(std::lround(*parsed));
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = parts[2];
+        return;
+      }
+      failRemoteCommand("TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, "
+                        "ALIGN or CARD");
+      return;
+    }
     if (command == "DMXCUE") {
       // DMXCUE NEW                 -> add a DMX cue to this deck
       // DMXCUE SET <spec>          -> "1=255, 10-14=64"

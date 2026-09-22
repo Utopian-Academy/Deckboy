@@ -8377,6 +8377,8 @@ class App {
   bool cueSectionScriptOpen_ = true;
   bool cueSectionDmxOpen_ = true;
   bool cueSectionMatrixOpen_ = true;
+  bool cueSectionTextOpen_ = true;
+  bool cueSectionFiresideOpen_ = true;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.
@@ -8525,6 +8527,7 @@ class App {
     // script is not -- so one flag is cheaper and more honest than a second
     // editor that would drift from this one.
     bool script = false;
+    bool textCue = false;
     SDL_Rect panelRect {};
     SDL_Rect fieldRect {};
     SDL_Rect applyRect {};
