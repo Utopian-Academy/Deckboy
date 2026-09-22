@@ -619,13 +619,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # rtmidi is what the RELEASE needs for MIDI, MIDI Show Control and MIDI
+      # cues. Through v0.99.372 only the macos-build test leg installed it, so
+      # every published Mac app had no MIDI while CI stayed green.
       - name: Install dependencies
-        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg libltc
+        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg libltc rtmidi
 
       - name: Configure and build
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
-           
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_MIDI=ON
           cmake --build build -j"$(sysctl -n hw.ncpu)"
 
       - name: Package
@@ -668,6 +670,27 @@ jobs:
             exit 1
           fi
           echo "clean - every dependency is bundled"
+
+      # Ask the PACKAGED app whether MIDI is in it, not the configure flag. A
+      # flag can be ON while the library never lands, and a missing optional
+      # dependency looks exactly like one switched off on purpose (WebView2,
+      # NDI and VST3 each shipped missing that way). Both halves are checked:
+      # the binary links RtMidi, and the dylib it links is inside the bundle.
+      - name: Verify MIDI is in the bundle
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          BIN="$APP/Contents/MacOS/Deckboy"
+          link=$(otool -L "$BIN" | awk '{print $1}' | grep -i 'rtmidi' || true)
+          if [ -z "$link" ]; then
+            echo "::error::the packaged Deckboy does not link RtMidi - this Mac release would have no MIDI"
+            exit 1
+          fi
+          echo "links: $link"
+          if ! ls "$APP/Contents/Frameworks/" | grep -qi 'rtmidi'; then
+            echo "::error::RtMidi is linked but not bundled in Contents/Frameworks"
+            exit 1
+          fi
+          echo "MIDI is in the bundle"
 
       # install_name_tool invalidates signatures, and an unsigned/broken-signed
       # binary is killed on sight by Apple Silicon. This proves the re-sign step
