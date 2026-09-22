@@ -5138,6 +5138,84 @@
     // advertising "OUT <on|off>" was wrong.
     if (command == "OUTPUT") {
       const std::string sub = parts.size() < 2 ? std::string("STATUS") : toUpper(parts[1]);
+      // OUTPUT ADD [<deck>]  -> a second output, hosted by that deck
+      // OUTPUT DECK <n>      -> point the focused output at deck n
+      // OUTPUT SELECT <n>    -> which output the other verbs act on
+      //
+      // Until now a deck other than the first had nowhere to go: adding a deck
+      // created no output, and every output composited deck 1 regardless. So
+      // these three are what make a second deck visible at all.
+      if (sub == "ADD" || sub == "NEW") {
+        int host = static_cast<int>(project_.decks.size()) - 1;
+        if (parts.size() >= 3) {
+          try {
+            host = std::stoi(parts[2]) - 1;
+          } catch (...) {
+            failRemoteCommand("OUTPUT ADD: expected a deck number");
+            return;
+          }
+        }
+        if (host < 0 || host >= static_cast<int>(project_.decks.size())) {
+          failRemoteCommand("OUTPUT ADD: no deck " +
+                            (parts.size() >= 3 ? parts[2] : std::to_string(host + 1)));
+          return;
+        }
+        const int added = addOutput(host);
+        if (added < 0 || added >= static_cast<int>(project_.outputs.size())) {
+          failRemoteCommand("OUTPUT ADD: could not add an output");
+          return;
+        }
+        setFocusedOutputIndex(added);
+        markProjectDirty();
+        remoteCommandDetail_ = "output " + std::to_string(added + 1) +
+                               " hosting deck " + std::to_string(host + 1);
+        return;
+      }
+      if (sub == "SELECT" && parts.size() >= 3) {
+        int which = 0;
+        try {
+          which = std::stoi(parts[2]) - 1;
+        } catch (...) {
+          failRemoteCommand("OUTPUT SELECT: expected an output number");
+          return;
+        }
+        if (which < 0 || which >= static_cast<int>(project_.outputs.size())) {
+          failRemoteCommand("OUTPUT SELECT: no output " + parts[2]);
+          return;
+        }
+        setFocusedOutputIndex(which);
+        remoteCommandDetail_ = "output " + parts[2];
+        return;
+      }
+      if (sub == "DECK") {
+        if (project_.outputs.empty()) {
+          failRemoteCommand("OUTPUT DECK: no outputs");
+          return;
+        }
+        if (parts.size() < 3) {
+          remoteCommandDetail_ = "deck " +
+            std::to_string(std::clamp(focusedOutput().hostDeckIndex, 0,
+                                      static_cast<int>(project_.decks.size()) - 1) + 1);
+          return;
+        }
+        int host = 0;
+        try {
+          host = std::stoi(parts[2]) - 1;
+        } catch (...) {
+          failRemoteCommand("OUTPUT DECK: expected a deck number");
+          return;
+        }
+        if (host < 0 || host >= static_cast<int>(project_.decks.size())) {
+          failRemoteCommand("OUTPUT DECK: no deck " + parts[2]);
+          return;
+        }
+        project_.outputs[project_.focusedOutputIndex].hostDeckIndex = host;
+        markProjectDirty();
+        remoteCommandDetail_ = "output " +
+                               std::to_string(project_.focusedOutputIndex + 1) +
+                               " -> deck " + parts[2];
+        return;
+      }
       if (sub == "STATUS") {
         if (project_.outputs.empty()) {
           failRemoteCommand("OUTPUT: no outputs");

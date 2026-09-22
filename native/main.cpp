@@ -8151,6 +8151,11 @@ class App {
   // in the interface: it was reachable only from the network protocol, so the
   // presenter view would have been a feature you could not switch on.
   static constexpr int kSettingsActionOutputTypeCycle = 791;
+  // WHICH DECK AN OUTPUT SHOWS. The field has always been saved and there has
+  // never been a control for it, because until now every output composited
+  // deck 1 whatever it said -- so the control would have done nothing.
+  static constexpr int kSettingsActionOutputHostDeckCycle = 792;
+  static constexpr int kSettingsActionOutputAdd = 793;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;

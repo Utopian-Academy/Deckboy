@@ -1928,7 +1928,17 @@
 
         // Display & Raster — 3 rows (display, resolution, fullscreen+orientation)
         // 4 rows now (display, resolution, raster/refresh/depth, fullscreen+orientation).
-        int dispSectionH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH, kRowH, kRowH, kRowH});
+        // Two more rows than before -- SOURCE DECK and the ADD/REMOVE pair.
+        // The deck row is only drawn on a multi-deck show, so its height is
+        // given back when there is one deck: a section that reserves rows it
+        // does not draw leaves a hole, and one that draws rows it did not
+        // reserve clips the last control. That exact fault squashed the
+        // DECKLINK card's 10-BIT toggle on every platform.
+        int dispSectionH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH,
+                                     kRowH, kRowH, kRowH, kRowH, kRowH});
+        if (project_.decks.size() <= 1) {
+          dispSectionH -= snapUpToGrid(kRowH) + kRowGap;
+        }
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
         VerticalLayout dLayout(dBody, kRowGap);
@@ -1951,6 +1961,53 @@
         // line is not something you click, and every other way in is a network
         // verb. A list names all four, which is also the only way "prompter"
         // gets found by somebody who was not looking for it.
+        // WHICH DECK THIS OUTPUT SHOWS, above everything else on the card,
+        // because it decides what all of it is describing. A second deck used
+        // to have nowhere to go at all: adding one created no output, and
+        // every output composited deck 1 regardless of this field. Measured,
+        // not assumed -- deck 2 showing full white recorded a mean of 0 while
+        // deck 1 showing the same pattern recorded 251.
+        //
+        // Only drawn when there IS more than one deck. On the single-deck show
+        // that most of them are, a row offering a choice of one is noise.
+        if (project_.decks.size() > 1) {
+          const int hostDeck = std::clamp(outputTarget.hostDeckIndex, 0,
+                                          static_cast<int>(project_.decks.size()) - 1);
+          SDL_Rect hostBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Source deck");
+          const std::string hostLabel =
+            project_.decks[hostDeck].name.empty()
+              ? ("DECK " + std::to_string(hostDeck + 1))
+              : project_.decks[hostDeck].name;
+          drawUIDropdownValue(hostBtn, hostLabel, "settings.output_host_deck");
+          settingsBtns_.push_back({hostBtn, kSettingsActionOutputHostDeckCycle,
+                                   "Which deck's picture this output carries"});
+        }
+
+        // ADD and REMOVE, side by side. Adding an output was reachable only
+        // from the network protocol, which from inside the app meant a second
+        // deck could not be given a screen at all.
+        {
+          SDL_Rect addRow = dLayout.takeFixed(kRowH);
+          // REMOVE IS NOT DRAWN WHEN IT CANNOT WORK. The last output has to
+          // stay -- an app with no outputs has no picture and no way back to
+          // one, because this card is drawn FROM the focused output -- and a
+          // greyed button that still looks live is the control-that-does-
+          // nothing bug wearing a disabled coat. ADD simply takes the width.
+          const bool canRemove = project_.outputs.size() > 1;
+          if (canRemove) {
+            const int half = (addRow.w - kCtlGap) / 2;
+            SDL_Rect addBtn {addRow.x, addRow.y, half, addRow.h};
+            SDL_Rect remBtn {addRow.x + half + kCtlGap, addRow.y,
+                             addRow.w - half - kCtlGap, addRow.h};
+            drawActionBtn(addBtn, "ADD OUTPUT", kSettingsActionOutputAdd, false);
+            // 269 and removeOutput() already existed -- reusing them rather
+            // than adding a second path to the same thing.
+            drawActionBtn(remBtn, "REMOVE OUTPUT", kSettingsActionOutputRemove, false);
+          } else {
+            drawActionBtn(addRow, "ADD OUTPUT", kSettingsActionOutputAdd, false);
+          }
+        }
+
         SDL_Rect typeBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Shows");
         drawUIDropdownValue(typeBtn,
           outputTypeLabel == "presenter" ? "PRESENTER VIEW"
@@ -4407,6 +4464,44 @@
   // Third part of the settings-click handler, split off to keep the
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart3(const SettingsButton& sb) {
+    // ── OUTPUTS: WHICH DECK, AND HOW MANY ─────────────────────────────────
+    if (sb.action == kSettingsActionOutputHostDeckCycle) {
+      if (project_.outputs.empty() || project_.decks.size() < 2) {
+        return;
+      }
+      OutputTarget& out = focusedOutputMutable();
+      const int count = static_cast<int>(project_.decks.size());
+      out.hostDeckIndex = (std::clamp(out.hostDeckIndex, 0, count - 1) + 1) % count;
+      markProjectDirty();
+      triggerToast(outputLabel(project_.focusedOutputIndex) + " -> " +
+                   (project_.decks[out.hostDeckIndex].name.empty()
+                      ? ("deck " + std::to_string(out.hostDeckIndex + 1))
+                      : project_.decks[out.hostDeckIndex].name));
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
+    if (sb.action == kSettingsActionOutputAdd) {
+      // Hosted by the first deck that has no output yet, because that is
+      // always what somebody adding one means. Falling back to the last deck
+      // keeps it useful on a show where every deck already has a screen and
+      // the operator wants a second feed of one.
+      int host = static_cast<int>(project_.decks.size()) - 1;
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        if (outputIndexForHostDeck(d) < 0) {
+          host = d;
+          break;
+        }
+      }
+      const int added = addOutput(std::max(0, host));
+      if (added < 0 || added >= static_cast<int>(project_.outputs.size())) {
+        triggerToast("could not add an output");
+        return;
+      }
+      setFocusedOutputIndex(added);
+      markProjectDirty();
+      playUiSound(UiSoundEffect::Import);
+      return;
+    }
     // ── PRESENTER VIEW ────────────────────────────────────────────────────
     //
     // All of these act on the FOCUSED output, which is the one the card above

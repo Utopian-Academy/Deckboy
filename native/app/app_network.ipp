@@ -531,6 +531,7 @@
         "         BROWSER INTERACT [on|off]  (hands-on mode: a window, or keys)\n"
         "         BROWSER TYPE <text> | BROWSER KEY <Enter|Tab|Backspace|Escape>\n"
         "output: OUTPUT [STATUS|LIST|ON|OFF|TOGGLE|SPOUT ...|<n>]\n"
+        "        OUTPUT ADD [<deck>] | SELECT <n> | DECK [<n>] - a second screen, and which deck it shows\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
         "dashboard: DASH LIST | DASH <n> | DASH SET <n> <label> | <cmd> [| <glyph>]\n"
         "           DASH CLEAR <n>   (a slot runs any command line above)\n"

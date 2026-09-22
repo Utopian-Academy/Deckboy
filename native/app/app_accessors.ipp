@@ -519,7 +519,15 @@
     if (project_.outputs.empty()) {
       return std::nullopt;
     }
-    return 0;
+    // The output this deck is shown on, which is the one hosting it. Returning
+    // 0 unconditionally meant every deck reported deck 1's raster, bit depth
+    // and routing label -- so even where a second deck DID have an output, the
+    // status said otherwise.
+    //
+    // Falls back to 0 when no output claims this deck, which is what every
+    // single-deck show is and keeps their behaviour identical.
+    const int owned = outputIndexForHostDeck(deckIndex);
+    return owned >= 0 ? owned : 0;
   }
 
   int resolveDeckOutputHostIndex(int deckIndex) const {
@@ -584,9 +592,21 @@
       }
       return entries;
     }
-    // Single-deck: just deck 0 at layer 0.
+    // EVERY OUTPUT SHOWS THE DECK IT IS HOSTED BY.
+    //
+    // This said `entries.emplace_back(0, 0)` -- deck 0, always, whatever the
+    // output was. OutputTarget::hostDeckIndex existed the whole time, was
+    // saved, was settable, and was overridden here, so a second deck could
+    // decode and play and never appear anywhere. Measured rather than read:
+    // deck 1 showing full white recorded a mean of 251, deck 2 showing the
+    // same pattern with deck 1 stopped recorded 0.
+    //
+    // That is also what made master cues decorative for picture -- a master
+    // fires cues on decks 2 and 3 that nothing composites.
     if (!project_.decks.empty()) {
-      entries.emplace_back(0, 0);
+      const int host = std::clamp(project_.outputs[outputIndex].hostDeckIndex,
+                                  0, static_cast<int>(project_.decks.size()) - 1);
+      entries.emplace_back(0, host);
     }
     return entries;
   }
