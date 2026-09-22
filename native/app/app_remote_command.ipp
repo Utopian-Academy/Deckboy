@@ -211,6 +211,48 @@
       failRemoteCommand("this verb cannot add a deck -- turn VJ mode on for a second");
       return;
     }
+    if (command == "STANDBY") {
+      // STANDBY            -> report what is armed
+      // STANDBY <n>        -> arm cue n (1-based, as the list numbers them)
+      // STANDBY NEXT|PREV  -> step it
+      // STANDBY CLEAR      -> disarm; GO falls back to the selection
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("STANDBY: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const int current = standbyIndexFor(deckIndex);
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = current < 0
+          ? "standby: none"
+          : ("standby: " + std::to_string(current + 1) + " " + deck.cues[current].name);
+        return;
+      }
+      const std::string sub = toUpper(parts[1]);
+      if (sub == "CLEAR" || sub == "NONE" || sub == "OFF") {
+        setStandbyIndex(deckIndex, -1);
+        return;
+      }
+      if (sub == "NEXT" || sub == "PREV" || sub == "PREVIOUS") {
+        if (deck.cues.empty()) {
+          failRemoteCommand("STANDBY: the deck is empty");
+          return;
+        }
+        const int step = (sub == "NEXT") ? 1 : -1;
+        const int base = (current < 0) ? (step > 0 ? -1 : static_cast<int>(deck.cues.size()))
+                                       : current;
+        setStandbyIndex(deckIndex,
+                        std::clamp(base + step, 0, static_cast<int>(deck.cues.size()) - 1));
+        return;
+      }
+      try {
+        setStandbyIndex(deckIndex, std::stoi(parts[1]) - 1);
+      } catch (...) {
+        failRemoteCommand("STANDBY: expected a cue number, NEXT, PREV or CLEAR");
+      }
+      return;
+    }
     if (command == "GO" || command == "TOGGLE") {
       toggleTransport();
       return;

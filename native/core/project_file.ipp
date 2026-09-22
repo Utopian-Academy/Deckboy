@@ -343,6 +343,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (deck.playlistDefaultPauseAtEnd ? 1 : 0) << '\t'
       << (deck.playlistDefaultTransitionToNext ? 1 : 0) << '\t'
       << deck.audioOutputChannels
+      << '	' << deck.standbyIndex
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1307,6 +1308,9 @@ Project loadProject(const fs::path& projectFile,
       deck.playlistDefaultPauseAtEnd = safeBool(fields, 53 + warpFieldOffset, true);
       deck.playlistDefaultTransitionToNext = safeBool(fields, 54 + warpFieldOffset, true);
       deck.audioOutputChannels = std::clamp(safeInt(fields, 55 + warpFieldOffset, 2), 2, 8);
+      // Neutral default -1: a show written before the standby pointer existed
+      // opens with no standby and behaves exactly as it did.
+      deck.standbyIndex = safeInt(fields, 56 + warpFieldOffset, -1);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;

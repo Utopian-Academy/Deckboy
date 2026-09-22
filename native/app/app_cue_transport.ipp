@@ -309,10 +309,101 @@
     playUiSound(UiSoundEffect::Stop);
   }
 
+  // ── STANDBY ───────────────────────────────────────────────────────────
+  //
+  // The cue GO will fire, kept apart from the selection. See Deck::standbyIndex
+  // for why the two are different things.
+
+  // Clamp to something real. A standby can be orphaned by a delete, a reorder
+  // or a show that arrived with a stale index, and a pointer into nothing is
+  // worse than none -- GO would silently do nothing on a show day.
+  int standbyIndexFor(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return -1;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.standbyIndex < 0 ||
+        deck.standbyIndex >= static_cast<int>(deck.cues.size())) {
+      return -1;
+    }
+    return deck.standbyIndex;
+  }
+
+  void setStandbyIndex(int deckIndex, int cueIndex, bool announce = true) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      deck.standbyIndex = -1;
+      if (announce) {
+        triggerToast("standby cleared");
+      }
+      markProjectDirty();
+      return;
+    }
+    deck.standbyIndex = cueIndex;
+    scrollDeckToCueIndex(deckIndex, cueIndex, true);
+    if (announce) {
+      triggerToast("standby: " + cueDisplayToken(deck.cues[cueIndex], cueIndex) +
+                   "  " + deck.cues[cueIndex].name);
+    }
+    markProjectDirty();
+  }
+
+  // Arm the cue the operator is looking at.
+  void setStandbyToSelected() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0) {
+      triggerToast("standby: select a cue first");
+      return;
+    }
+    setStandbyIndex(deckIndex, deck.selectedIndex);
+  }
+
+  // After firing, the standby steps to the next cue -- that is the whole point
+  // of a running order. Off the end it clears rather than wrapping: a list that
+  // silently returns to the top is how a show restarts itself on the last GO.
+  void advanceStandby(int deckIndex) {
+    const int current = standbyIndexFor(deckIndex);
+    if (current < 0) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    const int next = current + 1;
+    deck.standbyIndex = (next < static_cast<int>(deck.cues.size())) ? next : -1;
+    if (deck.standbyIndex >= 0) {
+      scrollDeckToCueIndex(deckIndex, deck.standbyIndex, true);
+    }
+    markProjectDirty();
+  }
+
   void toggleTransport() {
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
+    // AN ARMED STANDBY OWNS GO -- whatever is playing.
+    //
+    // This check has to come BEFORE the active-cue branch below, not after.
+    // Behind it, GO only reached the standby when nothing was live, so it
+    // fired once at the top of a session and then went back to being
+    // play/pause forever: a running order that runs one cue. Walking the list
+    // IS the feature, so while a standby is armed, GO walks it.
+    //
+    // With none armed nothing below changes, which is the whole compatibility
+    // story: every existing show opens with -1 and keeps select-and-take.
+    const int deckIndex = project_.focusedDeckIndex;
+    const int standby = standbyIndexFor(deckIndex);
+    if (standby >= 0) {
+      selectCueInDeck(deckIndex, standby, false, false);
+      takeSelected(true);
+      advanceStandby(deckIndex);
+      return;
+    }
     if (!activeCue && selectedCuePtr()) {
       takeSelected(true);
       return;

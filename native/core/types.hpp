@@ -924,6 +924,17 @@ struct Deck {
   // their stereo onto a pair of these outs (Cue::audioOutputPair). When the
   // physical device has fewer channels, SDL folds the extra pairs down.
   int audioOutputChannels = 2;
+  // THE STANDBY POINTER: the cue GO will fire, kept apart from the selection.
+  //
+  // Selection is the EDITING cursor -- what the inspector shows, what the
+  // arrows move, what a click lands on. Standby is the RUNNING ORDER -- what
+  // happens next. One highlight doing both jobs is why clicking a cue to look
+  // at it during a show also changes what the next GO does.
+  //
+  // -1 means unset, and unset reproduces the old behaviour exactly: GO takes
+  // the selection, as it always has. Every show saved before this loads with
+  // -1, so nothing changes until an operator arms one.
+  int standbyIndex = -1;
   int outputDisplayIndex = 0;              // which display to open the output window on
   int outputRouteDeckIndex = -1;           // route this deck's output to another deck's window (-1=own)
 
