@@ -1919,6 +1919,15 @@ enum class QuickAction {
   // Per-cue effects section. Datamosh is the first member; the section exists
   // so future per-cue effects have an obvious home that is not "KEY".
   CueSectionEffectsToggle,
+  // The sequencing spine, per cue. Every kind has these, so they live in a
+  // section drawn after the per-kind chain -- see EFFECTS.
+  CueSectionSequenceToggle,
+  CuePreWaitDec,
+  CuePreWaitInc,
+  CuePostWaitDec,
+  CuePostWaitInc,
+  CueContinueCycle,
+  CueStandbySet,
   CueSectionAudioFxToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
   TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,

@@ -1670,6 +1670,10 @@
     bool isSelected = cueIndexSelected(deck, index);
     bool isLive = index == deck.activeIndex;
     bool isQueued = !isLive && index == nextCueIndexForDeck(deckIndex);
+    // THE STANDBY: the cue GO will fire. Deliberately its own state and not a
+    // shade of "selected" -- the whole point of a standby is that it is NOT
+    // the selection, so drawing it as a variant of one would undo the idea.
+    const bool isStandby = deck.standbyIndex == index;
     
     // Idle/queued rows use the tile fill (bright in light themes, near-black in
     // terminal themes); selected stays a bright inverse-video highlight, live
@@ -1685,6 +1689,11 @@
       accent = pal.dark;
     } else if (isSelected) {
       fill = pal.mid;
+    } else if (isStandby) {
+      // Not filled: a standby is armed, not current, and filling it would make
+      // the list read as though two cues were up. The rail on the left edge,
+      // added below, is what says so.
+      border = pal.light;
     } else if (isQueued) {
       fill = pal.tile;
       border = pal.dark;
@@ -1701,6 +1710,13 @@
       accent.a = fa;
     }
     drawUIPanel(row, fill, border, accent);
+    // A rail down the left edge for the armed cue, and only when it is not
+    // also the live one -- a cue that is both would otherwise wear two marks
+    // for one fact.
+    if (isStandby && !isLive) {
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect {row.x, row.y, uiScaled(4), row.h}, pal.light);
+    }
 
     // Color tag chip
     // ── The clip's own picture, at the head of its row ──────────────────

@@ -5216,6 +5216,75 @@
       finishInspectorSection(fxSection, fxY);
     }
 
+    // SEQUENCE: the spine, per cue. Pre-wait, post-wait, continue mode, and
+    // arming this cue as the standby.
+    //
+    // OUTSIDE the per-kind chain, for the reason EFFECTS is: these belong to
+    // every kind, and there are five PLAYBACK branches. Put in one of them and
+    // a timer cue or a pattern would silently have no waits -- which is how
+    // EFFECTS and TEXT MODE were both invisible on most kinds once already.
+    if (selectedCue) {
+      int sqY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto sqSection = beginInspectorSection(sqY, "SEQUENCE", cueSectionSequenceOpen_,
+                                             QuickAction::CueSectionSequenceToggle,
+                                             "Collapse/expand waits and continue");
+      sqY = sqSection.bodyStartY;
+      if (cueSectionSequenceOpen_) {
+        const int deckIndex = project_.focusedDeckIndex;
+        const Deck& sqDeck = project_.decks[deckIndex];
+
+        drawQuickRow(sqY, "pre-wait", QuickAction::CuePreWaitDec,
+                     selectedCue->preWaitSeconds > 0.0
+                       ? formatSeconds(selectedCue->preWaitSeconds)
+                       : std::string("none"),
+                     QuickAction::CuePreWaitInc, QuickAction::ToggleLoop, false, false,
+                     "Delay between GO and this cue starting");
+        sqY += kInspectorRowStep;
+
+        drawQuickRow(sqY, "post-wait", QuickAction::CuePostWaitDec,
+                     selectedCue->postWaitSeconds > 0.0
+                       ? formatSeconds(selectedCue->postWaitSeconds)
+                       : std::string("none"),
+                     QuickAction::CuePostWaitInc, QuickAction::ToggleLoop, false, false,
+                     "Delay before the continue fires");
+        sqY += kInspectorRowStep;
+
+        // Named for what the operator is choosing, not for the enum: "from
+        // start" and "from end" say WHAT the post-wait is counted from, which
+        // is the only difference between the two and the thing people get
+        // wrong.
+        const char* contLabel =
+          selectedCue->continueMode == CueContinueMode::AutoContinue ? "from start"
+          : selectedCue->continueMode == CueContinueMode::AutoFollow ? "from end"
+          : "off";
+        drawQuickRow(sqY, "continue", QuickAction::CueContinueCycle,
+                     contLabel, QuickAction::CueContinueCycle,
+                     QuickAction::CueContinueCycle, false, false,
+                     "Off, from start (next cue fires when this one starts) "
+                     "or from end (when it finishes)");
+        sqY += kInspectorRowStep;
+
+        // Standby: the cue GO will fire. Shows whether THIS cue is the armed
+        // one, so the row answers "is it me?" rather than only offering to arm.
+        const bool isStandby = sqDeck.standbyIndex >= 0 &&
+                               sqDeck.standbyIndex == sqDeck.selectedIndex;
+        drawQuickRow(sqY, "standby", QuickAction::CueStandbySet,
+                     isStandby ? std::string("THIS CUE") : std::string("arm"),
+                     QuickAction::CueStandbySet, QuickAction::CueStandbySet,
+                     false, false,
+                     "Arm this cue as the one GO will fire");
+        sqY += kInspectorRowStep;
+
+        // What this deck is about to do, when it is about to do something.
+        const double pending = pendingTakeRemaining(deckIndex);
+        if (pending >= 0.0) {
+          drawInspectorMessageRow(sqY, "waiting " + formatSeconds(pending));
+          sqY += kInspectorRowStep;
+        }
+      }
+      finishInspectorSection(sqSection, sqY);
+    }
+
     // AUDIO FX, for any cue that HAS audio -- which is the honest test, and
     // not the cue kind. A video cue with a soundtrack wants a high pass on the
     // room as much as an audio cue does; a silent graphic has nothing for a

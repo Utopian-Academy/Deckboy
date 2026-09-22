@@ -629,6 +629,40 @@
                         cue.transitionToNext, "continue");
   }
 
+  // Nudge a wait on the selected cue. Clamped at zero: a negative pre-wait
+  // would ask for a cue to start before its own GO.
+  void nudgeSelectedWait(bool preWait, double delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      triggerToast("select a cue first");
+      return;
+    }
+    double& field = preWait ? cue->preWaitSeconds : cue->postWaitSeconds;
+    field = std::max(0.0, field + delta);
+    markProjectDirty();
+    triggerToast(std::string(preWait ? "pre-wait " : "post-wait ") +
+                 formatSeconds(field));
+  }
+
+  void cycleSelectedContinueMode() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      triggerToast("select a cue first");
+      return;
+    }
+    switch (cue->continueMode) {
+      case CueContinueMode::DoNotContinue:
+        cue->continueMode = CueContinueMode::AutoContinue; break;
+      case CueContinueMode::AutoContinue:
+        cue->continueMode = CueContinueMode::AutoFollow; break;
+      case CueContinueMode::AutoFollow:
+      default:
+        cue->continueMode = CueContinueMode::DoNotContinue; break;
+    }
+    markProjectDirty();
+    triggerToast(std::string("continue: ") + cueContinueModeToken(cue->continueMode));
+  }
+
   // ── THE SEQUENCING SPINE'S ONE PIECE OF RUNTIME STATE ──────────────────
   //
   // A cue that has been fired but has not started yet: a pre-wait counting

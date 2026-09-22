@@ -8307,6 +8307,7 @@ class App {
 
   // Declared in app_cue_transport.ipp, which is included above this.
   std::vector<PendingTake> deckPendingTakes_;
+  bool cueSectionSequenceOpen_ = true;
   std::vector<NormalizeResult> normalizeResults_;
 
 #if DECKBOY_INPROC_DECODE

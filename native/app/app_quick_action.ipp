@@ -844,6 +844,15 @@
       case QuickAction::CueSectionEffectsToggle:
         cueSectionEffectsOpen_ = !cueSectionEffectsOpen_;
         break;
+      case QuickAction::CueSectionSequenceToggle:
+        cueSectionSequenceOpen_ = !cueSectionSequenceOpen_;
+        break;
+      case QuickAction::CuePreWaitDec:  nudgeSelectedWait(true, -0.5); break;
+      case QuickAction::CuePreWaitInc:  nudgeSelectedWait(true, +0.5); break;
+      case QuickAction::CuePostWaitDec: nudgeSelectedWait(false, -0.5); break;
+      case QuickAction::CuePostWaitInc: nudgeSelectedWait(false, +0.5); break;
+      case QuickAction::CueContinueCycle: cycleSelectedContinueMode(); break;
+      case QuickAction::CueStandbySet: setStandbyToSelected(); break;
       case QuickAction::CueSectionAudioFxToggle:
         cueSectionAudioFxOpen_ = !cueSectionAudioFxOpen_;
         break;
