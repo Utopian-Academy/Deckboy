@@ -4,9 +4,13 @@
 [![License](https://img.shields.io/github/license/Utopian-Academy/Deckboy)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#)
 [![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](#)
+[![Stars](https://img.shields.io/github/stars/Utopian-Academy/Deckboy?style=social)](https://github.com/Utopian-Academy/Deckboy/stargazers)
 
 **Free, open-source cue-based media playback and show control for live video —
 theatre, live events, worship and broadcast.**
+
+If Deckboy runs part of your show, a ⭐ on this page is how the next operator
+finds it.
 
 ### Everything is a cue
 
