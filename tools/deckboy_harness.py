@@ -216,7 +216,16 @@ class Deckboy:
             # only evidence there will be once the root is cleaned up.
             print("   no recording: RECORD START -> %r, STOP -> %r" % (started[:100], stopped[:100]))
             print("   recordings folder: %s" % (sorted(listing()) or "empty or missing"))
-            self.log_excerpt(r"record|ffmpeg|readback|encod|stream|error|fail")
+            print("   ffmpeg on PATH: %s" % (shutil.which("ffmpeg") or "none"))
+            # Did it land somewhere else? The root, and the user's Videos folder.
+            since = time.time() - seconds - 60
+            for top in (self.root, os.path.join(os.path.expanduser("~"), "Videos")):
+                for dirpath, _, files in os.walk(top):
+                    for f in files:
+                        full = os.path.join(dirpath, f)
+                        if f.lower().endswith((".mp4", ".mov", ".mkv")) and os.path.getmtime(full) > since:
+                            print("   recent video elsewhere: %s (%d bytes)" % (full, os.path.getsize(full)))
+            self.log_excerpt(r".", lines=40)
         return path
 
     def log_excerpt(self, pattern, lines=15):
