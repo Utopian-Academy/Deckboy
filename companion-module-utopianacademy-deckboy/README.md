@@ -124,4 +124,5 @@ the cue number).
 
 ## Licence
 
-GPL-3.0-or-later, same as Deckboy.
+MIT. The module is also published at
+[bitfocus/companion-module-utopianacademy-deckboy](https://github.com/bitfocus/companion-module-utopianacademy-deckboy).

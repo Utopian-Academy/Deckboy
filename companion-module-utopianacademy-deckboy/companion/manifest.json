@@ -5,7 +5,7 @@
 	"shortname": "Deckboy",
 	"description": "Cue deck for live events — transport, cue tally, output health and countdowns",
 	"version": "1.0.0",
-	"license": "GPL-3.0-or-later",
+	"license": "MIT",
 	"repository": "https://github.com/Utopian-Academy/Deckboy",
 	"bugs": "https://github.com/Utopian-Academy/Deckboy/issues",
 	"maintainers": [
