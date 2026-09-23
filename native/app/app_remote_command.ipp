@@ -1533,6 +1533,30 @@
         return;
       }
       if (sub == "FIRE" || sub == "GO" || sub == "TAKE") {
+        // WITH A NAME, it fires THAT master wherever it lives; without one,
+        // the selected cue as before. A dashboard button has no selection --
+        // it is pressed from across the room, from Companion, or from a
+        // controller -- so a verb that can only fire "the current one" makes
+        // every button on a dashboard of masters do the same thing.
+        if (parts.size() >= 3) {
+          const std::string wanted = trim(joinParts(parts, 2));
+          for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+            const Deck& searched = project_.decks[d];
+            for (int c = 0; c < static_cast<int>(searched.cues.size()); ++c) {
+              const Cue& candidate = searched.cues[c];
+              if (candidate.kind != CueKind::Master) {
+                continue;
+              }
+              if (candidate.id == wanted || candidate.name == wanted) {
+                fireMasterCue(d, c);
+                remoteCommandDetail_ = candidate.name;
+                return;
+              }
+            }
+          }
+          failRemoteCommand("MASTER FIRE: no master cue called '" + wanted + "'");
+          return;
+        }
         fireMasterCue(deckIndex, deck.selectedIndex);
         return;
       }

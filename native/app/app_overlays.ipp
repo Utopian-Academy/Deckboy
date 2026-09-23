@@ -809,6 +809,22 @@
       drawCenteredTextSafe(controlRenderer_, fontSmall_, editBtn, "...", pal.fg);
       dashButtons_.push_back({editBtn, QuickAction::DashSlotEdit,
                                "Set this button's label, command and glyph", i});
+
+      // DELETE, top-right, diagonally opposite nothing else and as far from
+      // the middle of the tile as the tile allows. Armed it turns red and
+      // says so, because the press that follows is the one that counts.
+      const bool armed = dashDeleteArmedSlot_ == i &&
+                         animationNow_ - dashDeleteArmedAtMs_ <= 4000;
+      SDL_Rect delBtn {tile.x + tile.w - uiScaled(18), tile.y + uiScaled(4),
+                       uiScaled(14), uiScaled(13)};
+      Primitives::drawFramedPanel(controlRenderer_, delBtn,
+                                  armed ? SDL_Color {170, 40, 40, 255} : pal.shellInner,
+                                  pal.deep, pal.deep);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, delBtn, "x",
+                           armed ? SDL_Color {255, 220, 220, 255} : pal.fg);
+      dashButtons_.push_back({delBtn, QuickAction::DashSlotDelete,
+                               armed ? "Press again to delete this button"
+                                     : "Delete this button (asks twice)", i});
     }
 
     if (slots == 0) {
@@ -817,6 +833,60 @@
                                     area.w, uiScaled(18)},
                            "a button can run any command the network protocol understands",
                            pal.fgSoft);
+    }
+
+    // ── SOMETHING LIVES HERE ────────────────────────────────────────────
+    //
+    // The dashboard is the one page in Deckboy an operator opens on purpose
+    // and then just looks at, and it was a grid of rectangles on a flat
+    // ground. The habitat is the strip BELOW the last row of tiles -- the
+    // same rule the playlist creatures follow, and for the same reason: the
+    // one thing that must never happen is an animal wandering over a button
+    // that fires a command.
+    //
+    // NOTHING MOVES WHILE THE SHOW IS LIVE, also as on the playlist. A page
+    // full of motion behind an operator's decision is not charm, it is noise
+    // at the worst possible moment.
+    {
+      const int usedRows = (cells + cols - 1) / cols;
+      const int habitatTop = area.y + usedRows * (tileH + gap);
+      SDL_Rect habitat {area.x, habitatTop, area.w,
+                        std::max(0, area.y + area.h - habitatTop - uiScaled(4))};
+      if (habitat.h >= uiScaled(26) && !showIsLive()) {
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        // Three of them, each on its own path across the strip, each pausing
+        // at a different point in its walk. Drawn in the panel's own inks so
+        // they read on every theme -- the moth that vanished on bright
+        // colourways was drawn in a FILL role, not an ink one.
+        for (int c = 0; c < 3; ++c) {
+          const double speed = 0.055 + c * 0.021;
+          const double walk = std::fmod(t * speed + c * 0.37, 1.0);
+          // A little dwell in the middle of the walk, so they amble rather
+          // than track across at a constant rate like a progress bar.
+          const double eased = walk + std::sin(walk * 6.2831853) * 0.04;
+          const int cx = habitat.x + static_cast<int>(eased * habitat.w);
+          const int bob = static_cast<int>(std::lround(std::sin(t * 2.1 + c * 1.9) * 2.0));
+          const int cy = habitat.y + habitat.h / 2 + bob + (c - 1) * uiScaled(5);
+          const int size = uiScaled(c == 1 ? 5 : 4);
+          SDL_Color ink = (c == 1) ? pal.fg : pal.fgSoft;
+          ink.a = 170;
+          Primitives::fillRect(controlRenderer_, SDL_Rect {cx, cy, size, size}, ink);
+          // Two legs, alternating, which is the whole of what makes a square
+          // read as walking rather than sliding.
+          const int step = (static_cast<int>(t * 6.0 + c) % 2) ? 1 : -1;
+          Primitives::fillRect(controlRenderer_,
+                               SDL_Rect {cx - 1, cy + size, 1, uiScaled(2)}, ink);
+          Primitives::fillRect(controlRenderer_,
+                               SDL_Rect {cx + size, cy + size + step, 1, uiScaled(2)}, ink);
+          // An antenna, on the middle one only: one of them being different
+          // is what stops three identical squares reading as a loading bar.
+          if (c == 1) {
+            Primitives::fillRect(controlRenderer_,
+                                 SDL_Rect {cx + size / 2, cy - uiScaled(3), 1, uiScaled(3)}, ink);
+          }
+        }
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      }
     }
   }
 

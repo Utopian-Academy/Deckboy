@@ -53,6 +53,16 @@
       playUiSound(dark ? UiSoundEffect::Toggle : UiSoundEffect::Clear);
     } else if (label == "RECORD") {
       toggleRecording();
+    } else if (label == "DASH" || label == "DASHBOARD") {
+      // IT HAD NO DOOR. The dashboard could only be opened with Ctrl+D, so an
+      // operator who has not read the shortcuts page has no way to know it
+      // exists at all -- and no way in if they cannot reach the keyboard,
+      // which on a touch panel is most of them.
+      if (showStartupDialog_ || showSplashOverlay_) {
+        triggerToast("choose a show first");
+        return;
+      }
+      dashboardOverlayOpen_ = !dashboardOverlayOpen_;
     } else if (label == "MENU" || label == "SETUP" || label == "SETTINGS") {   // old labels still accepted
       settingsOpen_ = true;
       // SYSTEM, which is what the tab strip starts on and what the field

@@ -8435,6 +8435,10 @@ class App {
   bool cueSectionMatrixOpen_ = true;
   bool cueSectionTextOpen_ = true;
   bool cueSectionFiresideOpen_ = true;
+  // Which dashboard tile is one press away from being deleted, and when it
+  // was armed. A button that runs a command is easy to hit by accident.
+  int dashDeleteArmedSlot_ = -1;
+  Uint32 dashDeleteArmedAtMs_ = 0;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.

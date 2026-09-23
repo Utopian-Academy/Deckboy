@@ -63,6 +63,60 @@
         editDashboardSlot(param);
         return;
       }
+      // A master cue IS a show state: every playlist set to the cue it should
+      // be on. The dashboard is where an operator reaches for a show state.
+      // This is the one press that connects them.
+      case QuickAction::MasterToDashboard: {
+        const Cue* cue = selectedCuePtr();
+        if (!cue || cue->kind != CueKind::Master) {
+          triggerToast("select a master cue first");
+          return;
+        }
+        // BY ID, not by name: a rename must not break the button, and two
+        // masters may legitimately share a name.
+        for (const DashboardSlot& existing : project_.dashboard) {
+          if (existing.command == "MASTER FIRE " + cue->id) {
+            triggerToast("already on the dashboard");
+            return;
+          }
+        }
+        DashboardSlot slot;
+        slot.label = cue->name;
+        slot.command = "MASTER FIRE " + cue->id;
+        slot.glyph = "*";
+        slot.colorIndex = static_cast<int>(project_.dashboard.size()) % 8;
+        project_.dashboard.push_back(slot);
+        markProjectDirty();
+        playUiSound(UiSoundEffect::Import);
+        triggerToast("on the dashboard - Ctrl+D or the DASH button");
+        return;
+      }
+      // ── DELETING A BUTTON ────────────────────────────────────────────
+      //
+      // There was no way to remove one at all: you could add, edit and
+      // recolour a tile, and a tile you regretted was permanent.
+      //
+      // TWO PRESSES, because the tile next to it FIRES A COMMAND -- a single
+      // small x beside a live GO button is a mis-tap that stops a show. The
+      // first press arms and says so; the second, within four seconds,
+      // removes it. Anything else disarms it.
+      case QuickAction::DashSlotDelete: {
+        const int at = param;
+        if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) break;
+        const Uint32 now = SDL_GetTicks();
+        if (dashDeleteArmedSlot_ != at || now - dashDeleteArmedAtMs_ > 4000) {
+          dashDeleteArmedSlot_ = at;
+          dashDeleteArmedAtMs_ = now;
+          triggerToast("press again to delete this button");
+          return;
+        }
+        dashDeleteArmedSlot_ = -1;
+        project_.dashboard.erase(project_.dashboard.begin() + at);
+        markProjectDirty();
+        playUiSound(UiSoundEffect::Delete);
+        triggerToast("button deleted");
+        return;
+      }
       case QuickAction::ToggleBrowserInteract: {
         auto* page = liveBrowserRenderer();
         if (!page) {

@@ -489,7 +489,29 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   playbackStartPosition_ = 0.0;
   pausedPosition_ = 0.0;
   if (audioStream_) {
-    deckboySetAudioPaused(audioStream_, !autoplay);
+    // NOT RELEASED HERE ANY MORE on a playing file cue -- see
+    // kAudioPrimeDeadlineMs. The device was unpaused the instant the decoder
+    // threads were spawned, so on a cold file it played an empty stream while
+    // ffmpeg was still opening the thing, and the picture followed a clock
+    // built on samples that did not exist.
+    // ONLY WHEN THERE IS AUDIO COMING. startDecoderThreads spawns the audio
+    // thread only for a cue that has a track and has it enabled, so its
+    // joinability is the honest answer to "will samples arrive?". Priming a
+    // silent cue would hold its picture for the whole deadline and delay
+    // every mute clip in the show by 400ms -- the fault, moved somewhere
+    // less visible.
+    // The same condition both decode paths use to decide whether to spawn an
+    // audio thread at all, stated once here rather than inferred from the
+    // thread's lifecycle.
+    const bool audioIsComing = autoplay && audioStream_ != nullptr &&
+                               cue->hasAudio && cue->audioEnabled;
+    deckboySetAudioPaused(audioStream_, true);
+    audioPrimePending_ = audioIsComing;
+    if (audioIsComing) {
+      audioPrimeStartedAt_ = std::chrono::steady_clock::now();
+    } else if (autoplay) {
+      deckboySetAudioPaused(audioStream_, false);
+    }
   }
 }
 
@@ -923,6 +945,37 @@ void MediaEngine::finalizeReachedEnd(bool keepVisibleFrame) {
 // This must be called every frame from the main thread (not a decode thread).
 // ---------------------------------------------------------------------------
 void MediaEngine::update() {
+  // ── RELEASE THE PRIMED DEVICE ─────────────────────────────────────────
+  //
+  // Here rather than on the audio thread: the audio thread must not touch
+  // the transport, and this is the tick that already runs once a frame.
+  if (audioPrimePending_) {
+    const bool enough =
+      queuedAudioBytes() >= kAudioPrimeFrames * audioStreamBytesPerFrame();
+    const auto waited = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now() - audioPrimeStartedAt_).count();
+    if (enough || waited >= kAudioPrimeDeadlineMs ||
+        state_ != TransportState::Playing) {
+      audioPrimePending_ = false;
+      if (audioStream_ && state_ == TransportState::Playing) {
+        deckboySetAudioPaused(audioStream_, false);
+        // THE CLOCK STARTS WITH THE SOUND, not with the take -- but only
+        // when the wait was long enough to be worth correcting for.
+        //
+        // Two reasons for the threshold, both measured. On the DEADLINE the
+        // audio never came at all, and re-basing then would push the picture
+        // back 400ms to keep time with something that is not playing. And on
+        // a WARM file the audio is there within one tick, so re-basing buys
+        // nothing and costs the tick's own jitter: tools/record_avsync_check
+        // went from +72.7ms to +81.5ms mean video-late with the clock reset
+        // running unconditionally. Under 30ms there is nothing to correct.
+        if (enough && waited >= 30) {
+          playbackClockStart_ = std::chrono::steady_clock::now();
+        }
+      }
+    }
+  }
+
   // Colour and key edits are adopted here rather than in render(): the output
   // window does not go through render() at all.
   syncPixelEffectsFromCue();

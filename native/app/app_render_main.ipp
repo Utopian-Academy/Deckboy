@@ -5311,8 +5311,16 @@
                        "Bypass: this master leaves that deck alone");
           mY += kInspectorRowStep;
         }
+        // The button that makes it a button. Always offered, because a
+        // master with nothing assigned yet is still worth putting somewhere
+        // you can reach before the show.
+        mY = drawChoiceRow(mY, "dashboard", "put it on a button",
+                           QuickAction::MasterToDashboard,
+                           "Add a dashboard button that fires this master by "
+                           "name, from anywhere");
         if (project_.decks.size() <= 1) {
-          drawInspectorMessageRow(mY, "only one deck - a master needs somewhere to fire");
+          drawInspectorMessageRow(mY, "only one playlist - use the routing chip "
+                                      "on the header to add another");
           mY += kInspectorRowStep;
         } else if (assigned == 0) {
           drawInspectorMessageRow(mY, "nothing assigned yet");

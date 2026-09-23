@@ -748,6 +748,27 @@ class MediaEngine {
   // Guarded like every other audio-thread touch of the stream; reads 0 once the
   // device has been detached, which unblocks the backpressure wait so the
   // thread can see decoderStop_ and exit.
+  // ── PRIMING ───────────────────────────────────────────────────────────
+  //
+  // Set when a file cue starts playing, cleared the moment the device is
+  // actually released. While it is set the device stays paused, so the first
+  // sound heard is the first sample decoded rather than whatever the device
+  // makes of an empty stream.
+  //
+  // THE DEADLINE IS NOT OPTIONAL. A cue whose audio track is silent, whose
+  // decoder failed, or which simply has no audio at all would otherwise wait
+  // for a sample that is never coming -- so after this long the device is
+  // released regardless and playback proceeds exactly as it did before.
+  // 400ms is longer than a warm start needs by an order of magnitude and
+  // shorter than an operator can attribute to anything.
+  static constexpr int kAudioPrimeDeadlineMs = 400;
+  // Roughly 20ms at 48k stereo: enough that the device has a run-up, small
+  // enough that a warm file clears it on the first read.
+  static constexpr int kAudioPrimeFrames = 960;
+
+  bool audioPrimePending_ = false;
+  std::chrono::steady_clock::time_point audioPrimeStartedAt_ {};
+
   int queuedAudioBytes() {
     std::lock_guard<std::mutex> lock(audioStreamMutex_);
     // With an external sink the SDL stream is not the thing playing, so its

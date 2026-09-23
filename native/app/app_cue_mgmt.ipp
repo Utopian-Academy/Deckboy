@@ -5779,6 +5779,7 @@
     }
     // "MENU", James's word for it. SETUP and SETTINGS are still accepted by
     // triggerButton, so anything that names the old labels keeps working.
+    push("DASH",       pal.mid, "Ctrl+D - the dashboard: your own buttons, running any command");
     push("MENU",       pal.mid, "Open settings");   // short enough not to ellipsize
 
     // WRAP RATHER THAN SHRINK THE WORDS.
