@@ -505,6 +505,17 @@
       dispatchQuickAction(hit.action);
       return;
     }
+    // THE ROUTING CHIP, and like the scrollbar below it this has to be tested
+    // ABOVE the deck-column loop: that loop claims every press landing in a
+    // column and returns on all of them, and the header is inside the column.
+    for (int di = 0; di < static_cast<int>(deckRoutingChipRects_.size()); ++di) {
+      if (deckRoutingChipRects_[di].w > 0 && pointInRect(x, y, deckRoutingChipRects_[di])) {
+        setFocusedDeckIndex(di);
+        openPlaylistRoutingMenu(di, x, y);
+        return;
+      }
+    }
+
     // THE PLAYLIST'S SCROLLBAR, and it has to be HERE -- above the deck column
     // loop below, not merely above the cue rows inside it.
     //

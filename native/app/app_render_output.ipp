@@ -1737,12 +1737,79 @@
         // fault, and the point of this one is to prove the machine is alive.
         alpha = 0.72 + 0.28 * std::sin(t * 2.2);
         break;
+      case CueTextAnimation::Wobble:
+        // Nothing to set up: wobble is per CHARACTER, handled in the draw
+        // loop below. The block itself stays exactly where a still card
+        // would be, so turning it on never moves the words off their mark.
+        break;
       case CueTextAnimation::Typewriter:
       case CueTextAnimation::None:
         break;
     }
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // ── WOBBLE: EVERY CHARACTER ON ITS OWN ORBIT ──────────────────────────
+    //
+    // The one animation here that moves the letters AGAINST each other rather
+    // than the block as a whole, which is why it cannot ride the cached
+    // per-line texture the others use: each glyph is drawn on its own, at a
+    // phase taken from its position in the line.
+    //
+    // The line is MEASURED FIRST and only then drawn, so alignment is the
+    // alignment of the resting line -- a right-aligned wobble that took its
+    // width from the wobbling glyphs would breathe in and out from the edge.
+    if (cue.textAnimation == CueTextAnimation::Wobble) {
+      const double amp = lineH * 0.14;
+      for (std::size_t i = 0; i < lines.size(); ++i) {
+        if (lines[i].empty()) {
+          continue;
+        }
+        std::vector<const TextTextureEntry*> glyphs;
+        std::vector<double> widths;
+        double lineW = 0.0;
+        double scale = 1.0;
+        for (char ch : lines[i]) {
+          const TextTextureEntry* g =
+            cachedTextTexture(renderer, fontLarge_, std::string(1, ch), cue.textColor);
+          glyphs.push_back(g);
+          if (!g || g->h <= 0) {
+            widths.push_back(lineH * 0.3);   // a space, or a glyph with no box
+            lineW += widths.back();
+            continue;
+          }
+          scale = lineH / static_cast<double>(g->h);
+          widths.push_back(g->w * scale);
+          lineW += widths.back();
+        }
+        double x = target.x + (target.w - lineW) / 2.0;
+        if (cue.textAlign == 0) {
+          x = target.x + target.w / 24.0;
+        } else if (cue.textAlign == 2) {
+          x = target.x + target.w - lineW - target.w / 24.0;
+        }
+        const double baseY = originY + lineStep * static_cast<double>(i);
+        for (std::size_t c = 0; c < glyphs.size(); ++c) {
+          const TextTextureEntry* g = glyphs[c];
+          if (g && g->texture && g->h > 0 && lines[i][c] != ' ') {
+            const double phase = t * 3.1 + static_cast<double>(c) * 0.7 +
+                                 static_cast<double>(i) * 1.3;
+            const int w = std::max(1, static_cast<int>(std::lround(g->w * scale)));
+            const int h = std::max(1, static_cast<int>(std::lround(g->h * scale)));
+            SDL_FRect dst {
+              static_cast<float>(x + std::cos(phase * 0.8) * amp * 0.5),
+              static_cast<float>(baseY + std::sin(phase) * amp),
+              static_cast<float>(w), static_cast<float>(h)};
+            SDL_SetTextureAlphaMod(g->texture, 255);
+            SDL_RenderTexture(renderer, g->texture, nullptr, &dst);
+          }
+          x += widths[c];
+        }
+      }
+      SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+      return;
+    }
+
     for (std::size_t i = 0; i < lines.size(); ++i) {
       if (lines[i].empty()) {
         continue;

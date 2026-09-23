@@ -468,14 +468,14 @@
       if (sub == "ANIM" && parts.size() >= 3) {
         const std::string token = toLower(parts[2]);
         static const char* kKnown[] = {"none", "fade", "typewriter",
-                                       "scroll", "crawl", "pulse"};
+                                       "scroll", "crawl", "pulse", "wobble"};
         bool known = false;
         for (const char* k : kKnown) {
           known = known || token == k;
         }
         if (!known) {
           failRemoteCommand("TEXTCUE ANIM: expected none, fade, typewriter, "
-                            "scroll, crawl or pulse");
+                            "scroll, crawl, pulse or wobble");
           return;
         }
         cue.textAnimation = cueTextAnimationFromToken(token);
@@ -4871,19 +4871,52 @@
               layer = std::nullopt;
             }
           }
-          // UNDERSTOOD BUT CANNOT ACT. Every output carries the programme mix;
-          // sending one deck to one output is future work (James, 2026-09-16:
-          // multi-deck, multi-output playback is "Super Deckboy"). This used
-          // to answer OK and change nothing -- measured: two outputs set to two
-          // decks delivered byte-identical pictures -- so a controller was told
-          // it had routed a deck it had not.
-          if (project_.decks.size() > 1 || project_.outputs.size() > 1) {
-            failRemoteCommand("VIDEO OUTPUT ASSIGN: per-deck output routing is not "
-                              "available yet -- every output carries the programme");
+          // IT CAN ACT NOW. This used to refuse with "per-deck output
+          // routing is not available yet" -- correctly, because every output
+          // composited the programme whatever it was told. Super Deckboy is
+          // that routing, so the refusal is gone and the verb does what its
+          // name has always said.
+          if (!assignFocusedDeckToFocusedOutput(layer)) {
+            failRemoteCommand("VIDEO OUTPUT ASSIGN: already on this output, or "
+                              "no such deck or output");
+          }
+          return;
+        }
+        if (outputArg == "UNASSIGN") {
+          if (!unassignDeckFromOutput(project_.focusedDeckIndex,
+                                      project_.focusedOutputIndex)) {
+            failRemoteCommand("VIDEO OUTPUT UNASSIGN: this deck is not on this "
+                              "output, or it is the only thing on it");
+          }
+          return;
+        }
+        if (outputArg == "LAYER") {
+          // No argument: report the whole stack, which is the only way to see
+          // it over the wire and the first thing a test asks for.
+          if (parts.size() <= 3) {
+            const OutputTarget& out = focusedOutput();
+            std::ostringstream report;
+            report << layerLetter(0) << ":" << deckLabel(out.hostDeckIndex);
+            for (std::size_t i = 0; i < out.layerDecks.size(); ++i) {
+              report << " | " << layerLetter(static_cast<int>(i) + 1) << ":"
+                     << deckLabel(out.layerDecks[i]);
+            }
+            remoteCommandDetail_ = report.str();
             return;
           }
-          if (!assignFocusedDeckToFocusedOutput(layer)) {
-            failRemoteCommand("VIDEO OUTPUT ASSIGN: no such deck or output");
+          auto parsed = parseNumber(3);
+          if (!parsed) {
+            failRemoteCommand("VIDEO OUTPUT LAYER: expected a layer number "
+                              "(1 is the base)");
+            return;
+          }
+          // Spoken as 1 = the base, because that is how the UI numbers them;
+          // stored as 0 = the base.
+          const int wanted = static_cast<int>(std::lround(*parsed)) - 1;
+          if (!setDeckOutputAssignmentLayer(project_.focusedDeckIndex,
+                                            project_.focusedOutputIndex, wanted)) {
+            failRemoteCommand("VIDEO OUTPUT LAYER: this deck is not on this "
+                              "output, or it is already at that layer");
           }
           return;
         }
@@ -5127,6 +5160,14 @@
           int outputIndex = std::stoi(parts[2]);
           setFocusedOutputIndex(std::max(0, outputIndex - 1));
         } catch (...) {
+          // NOT SILENTLY OK. Anything that is not a number here is a sub-verb
+          // this branch does not have, and answering OK to one is how
+          // "VIDEO OUTPUT SELECT 1" came back successful while selecting
+          // nothing -- which then made a measurement of the layer stack look
+          // like a product fault.
+          failRemoteCommand("VIDEO OUTPUT: no such option '" + parts[2] +
+                            "' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, "
+                            "HOST, TYPE, MIRROR or an output number");
         }
         return;
       }

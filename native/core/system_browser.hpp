@@ -44,6 +44,7 @@
   #endif
   #include <windows.h>
   #include <shellapi.h>
+  #include <shlobj.h>
 #else
   #include <cstdlib>
 #endif
@@ -103,23 +104,58 @@ inline bool revealFileInFileManager(const std::string& path) {
     return false;
   }
 #if defined(_WIN32)
-  // explorer.exe /select,"C:\path\file.mp4" opens the parent folder with the
-  // file highlighted. Backslashes required — forward slashes make Explorer
-  // fall back to the Documents folder.
+  // THE SHELL API, NOT A COMMAND LINE.
+  //
+  // This used to run  explorer.exe /select,"C:\path\file.mp4"  and it worked
+  // for most files while silently degrading to "just open the folder" for the
+  // rest, because Explorer's own argument parser splits that switch on COMMAS
+  // -- inside the quotes as well as outside them. So any file with a comma in
+  // its name or its folder opened the directory with nothing selected, which
+  // is exactly the fault reported against a clip called
+  // "...Awesome Show, Great Job! - 01X08 - Anniversary.avi".
+  //
+  // SHOpenFolderAndSelectItems takes the path as a PIDL, so there is no
+  // quoting, escaping or delimiter left to get wrong.
   std::string native = path;
   for (char& c : native) {
     if (c == '/') c = '\\';
   }
-  std::string args = "/select,\"" + native + "\"";
-  int wlen = ::MultiByteToWideChar(CP_UTF8, 0, args.c_str(), -1, nullptr, 0);
+  int wlen = ::MultiByteToWideChar(CP_UTF8, 0, native.c_str(), -1, nullptr, 0);
   if (wlen <= 0) {
     return false;
   }
-  std::wstring wargs(wlen, L'\0');
-  ::MultiByteToWideChar(CP_UTF8, 0, args.c_str(), -1, &wargs[0], wlen);
-  HINSTANCE result = ::ShellExecuteW(nullptr, L"open", L"explorer.exe",
-                                      wargs.c_str(), nullptr, SW_SHOWNORMAL);
-  return reinterpret_cast<INT_PTR>(result) > 32;
+  std::wstring wpath(static_cast<std::size_t>(wlen), L'\0');
+  ::MultiByteToWideChar(CP_UTF8, 0, native.c_str(), -1, &wpath[0], wlen);
+  while (!wpath.empty() && wpath.back() == L'\0') {
+    wpath.pop_back();
+  }
+
+  // The shell needs COM on this thread. RPC_E_CHANGED_MODE means somebody
+  // else already initialised it in the other apartment model, which is fine
+  // to work in -- but it must NOT be balanced with CoUninitialize, or we
+  // would tear down an apartment we do not own.
+  const HRESULT initHr = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+  const bool ownsCom = SUCCEEDED(initHr);
+
+  bool ok = false;
+  PIDLIST_ABSOLUTE pidl = nullptr;
+  if (SUCCEEDED(::SHParseDisplayName(wpath.c_str(), nullptr, &pidl, 0, nullptr)) && pidl) {
+    ok = SUCCEEDED(::SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0));
+    ::CoTaskMemFree(pidl);
+  }
+  if (ownsCom) {
+    ::CoUninitialize();
+  }
+  if (ok) {
+    return true;
+  }
+  // LAST RESORT: open the containing folder. Better than nothing when the
+  // path has gone away between the menu opening and the click.
+  const std::size_t slash = native.find_last_of('\\');
+  if (slash == std::string::npos) {
+    return false;
+  }
+  return openExternalUrl(native.substr(0, slash));
 #elif defined(__APPLE__)
   ChildProcess child;
   if (!spawnDetachedProcess(child, {"open", "-R", path})) {

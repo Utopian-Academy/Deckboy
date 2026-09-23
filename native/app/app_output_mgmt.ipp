@@ -1867,6 +1867,29 @@
     return -1;
   }
 
+  // WHICH OUTPUT IS "THE PROGRAMME" for something that wants to copy it.
+  //
+  // The first window output, because that is the one an audience is looking
+  // at; a show made only of streams falls back to the first output that is
+  // not the one asking. -1 means there is nothing to mirror, which a caller
+  // must treat as "render your own".
+  int primaryProgrammeOutputIndex(int excludingIndex) const {
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (i == excludingIndex) {
+        continue;
+      }
+      if (normalizeOutputType(project_.outputs[i].outputType) == "window") {
+        return i;
+      }
+    }
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (i != excludingIndex) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   // Created only when the operator actually turns a destination on, so an
   // untouched show never accumulates phantom outputs.
   int ensureStreamOutputForProtocol(const std::string& protocol) {
@@ -1888,6 +1911,19 @@
     out.streamUrl = defaultOutputStreamUrl(wanted, index);
     out.streamEnabled = false;   // configured, not yet live
     out.enabled = false;
+    // IT RECORDS THE PROGRAMME, NOT A DECK.
+    //
+    // This output was created hosting whatever deck happened to be focused,
+    // and then recorded that deck alone for the rest of the session. On a
+    // single-deck show the two were the same thing and nobody could tell.
+    // With Super Deckboy they are not: an operator with a lower-thirds
+    // playlist layered over a camera would record the camera, and a file
+    // named "Program Recording" that does not contain the programme is the
+    // worst kind of wrong -- it is only discovered afterwards.
+    //
+    // Mirroring is how a stream output already says "show what that one
+    // shows", layer stack included, so it costs no new path.
+    out.mirrorSourceOutputIndex = primaryProgrammeOutputIndex(index);
     // addOutput focuses what it creates; the Streaming page is not an output
     // picker, so put the operator's focus back where it was.
     project_.focusedOutputIndex = std::clamp(previousFocus, 0,

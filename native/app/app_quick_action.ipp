@@ -869,6 +869,9 @@
       case QuickAction::CueSectionTextToggle:
         cueSectionTextOpen_ = !cueSectionTextOpen_;
         break;
+      case QuickAction::CueSectionFiresideToggle:
+        cueSectionFiresideOpen_ = !cueSectionFiresideOpen_;
+        break;
       case QuickAction::FireIntensityDec: nudgeFireside(0, -1); break;
       case QuickAction::FireIntensityInc: nudgeFireside(0, +1); break;
       case QuickAction::FireSparksDec:    nudgeFireside(1, -1); break;

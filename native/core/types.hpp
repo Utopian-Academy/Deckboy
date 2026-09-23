@@ -817,6 +817,10 @@ enum class CueTextAnimation {
   ScrollUp,    // credits: bottom to top
   Crawl,       // a news ticker: right to left, on one line
   Pulse,       // breathes, for a holding slide nobody should mistake for frozen
+  Wobble,      // every character on its own little orbit, like the TEXT MODE
+               // effect -- asked for by name, and the one animation here that
+               // moves the letters against each other rather than the block
+               // as a whole
 };
 
 inline const char* cueTextAnimationToken(CueTextAnimation a) {
@@ -826,6 +830,7 @@ inline const char* cueTextAnimationToken(CueTextAnimation a) {
     case CueTextAnimation::ScrollUp:   return "scroll";
     case CueTextAnimation::Crawl:      return "crawl";
     case CueTextAnimation::Pulse:      return "pulse";
+    case CueTextAnimation::Wobble:     return "wobble";
     case CueTextAnimation::None:       break;
   }
   return "none";
@@ -838,6 +843,7 @@ inline const char* cueTextAnimationLabel(CueTextAnimation a) {
     case CueTextAnimation::ScrollUp:   return "Scroll up";
     case CueTextAnimation::Crawl:      return "Crawl";
     case CueTextAnimation::Pulse:      return "Pulse";
+    case CueTextAnimation::Wobble:     return "Wobble";
     case CueTextAnimation::None:       break;
   }
   return "Still";
@@ -849,6 +855,7 @@ inline CueTextAnimation cueTextAnimationFromToken(const std::string& t) {
   if (t == "scroll")     return CueTextAnimation::ScrollUp;
   if (t == "crawl")      return CueTextAnimation::Crawl;
   if (t == "pulse")      return CueTextAnimation::Pulse;
+  if (t == "wobble")     return CueTextAnimation::Wobble;
   return CueTextAnimation::None;
 }
 
@@ -1366,6 +1373,22 @@ struct OutputTarget {
   bool enabled = false;                    // output is active (window open / stream running)
   std::string outputType = "window";       // "window" (SDL fullscreen) | "stream" (ffmpeg egress)
   int mirrorSourceOutputIndex = -1;        // mirror another output's frame (-1 = render own)
+
+  // ── SUPER DECKBOY: THE LAYER STACK ────────────────────────────────────
+  //
+  // Extra decks composited ON TOP of hostDeckIndex, bottom-first. The host is
+  // layer A and always exists; these are layers B, C, D... so an output can
+  // show a camera playlist with a lower-thirds playlist over it, and a second
+  // output can show the same camera with nothing over it -- the clean feed and
+  // the one with the bug, at the same time, from one show.
+  //
+  // PER OUTPUT, which is the whole difference from VJ mode: VJ mode picks two
+  // decks globally and crossfades them into every output at once. This is a
+  // routing decision that each destination makes for itself.
+  //
+  // Each deck's own playlistOpacity is what blends it, so a layer fades in and
+  // out with the control that already existed for exactly that.
+  std::vector<int> layerDecks;
 
   // -- Streaming egress (ffmpeg SRT/RTMP) --------------------------------------
   bool streamEnabled = false;              // start streaming when output is enabled
@@ -2283,6 +2306,7 @@ enum class QuickAction {
   FireIntensityDec, FireIntensityInc,
   FireSparksDec, FireSparksInc,
   CueSectionTextToggle,
+  CueSectionFiresideToggle,
   TextEditBody,
   TextAnimCycle,
   TextAlignCycle,

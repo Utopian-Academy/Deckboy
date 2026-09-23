@@ -604,9 +604,21 @@
     // That is also what made master cues decorative for picture -- a master
     // fires cues on decks 2 and 3 that nothing composites.
     if (!project_.decks.empty()) {
+      const int deckCount = static_cast<int>(project_.decks.size());
       const int host = std::clamp(project_.outputs[outputIndex].hostDeckIndex,
-                                  0, static_cast<int>(project_.decks.size()) - 1);
+                                  0, deckCount - 1);
       entries.emplace_back(0, host);
+      // SUPER DECKBOY: the rest of the stack, bottom first. The compositor
+      // below already walks whatever this returns and draws each deck in
+      // order, so the whole of "playlist 2 sits on top of playlist 1 on this
+      // output" is this loop.
+      int layer = 1;
+      for (int extra : project_.outputs[outputIndex].layerDecks) {
+        if (extra < 0 || extra >= deckCount || extra == host) {
+          continue;   // normalizeProject prunes these; belt and braces
+        }
+        entries.emplace_back(layer++, extra);
+      }
     }
     return entries;
   }
@@ -784,7 +796,44 @@
     return true;
   }
 
-  bool assignDeckToOutput(int deckIndex, int outputIndex, std::optional<int> /*requestedLayer*/ = std::nullopt) {
+  // ── SUPER DECKBOY: DECK -> OUTPUT ROUTING ─────────────────────────────
+  //
+  // Every function in this block was a single-deck stub. assignDeckToOutput
+  // ignored the layer it was handed and set a field nothing composited;
+  // assignmentIndexForDeckOutput answered "deck 0 on output 0" and nothing
+  // else; setDeckOutputAssignmentLayer returned false; unassign refused
+  // outright. The output menu's ASSIGN, LAYER - / + and MOVE controls were all
+  // wired to them, so all six controls did nothing at all -- which is what
+  // "the UI is a mess, with controls missing" reads like from the operator's
+  // side, and why there was no way to answer "how do I assign a playlist to an
+  // output?" except over the socket.
+  //
+  // The stack is the output's, not the deck's: layer 0 IS hostDeckIndex, and
+  // layerDecks holds 1..N above it.
+
+  // Which layer this deck occupies on this output, or nothing if it is not
+  // on it at all.
+  std::optional<int> assignmentIndexForDeckOutput(int deckIndex, int outputIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return std::nullopt;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return std::nullopt;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (output.hostDeckIndex == deckIndex) {
+      return 0;
+    }
+    for (std::size_t i = 0; i < output.layerDecks.size(); ++i) {
+      if (output.layerDecks[i] == deckIndex) {
+        return static_cast<int>(i) + 1;
+      }
+    }
+    return std::nullopt;
+  }
+
+  bool assignDeckToOutput(int deckIndex, int outputIndex,
+                          std::optional<int> requestedLayer = std::nullopt) {
     normalizeProject(project_);
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return false;
@@ -793,8 +842,29 @@
       return false;
     }
     project_.focusedOutputIndex = outputIndex;
-    project_.decks[deckIndex].outputRouteDeckIndex = std::clamp(project_.outputs[outputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
-    triggerToast("assign: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex));
+    OutputTarget& output = project_.outputs[outputIndex];
+    if (output.hostDeckIndex == deckIndex) {
+      triggerToast(deckLabel(deckIndex) + " is already the base of " + outputLabel(outputIndex));
+      return false;
+    }
+    if (assignmentIndexForDeckOutput(deckIndex, outputIndex)) {
+      triggerToast(deckLabel(deckIndex) + " is already on " + outputLabel(outputIndex));
+      return false;
+    }
+    if (static_cast<int>(output.layerDecks.size()) + 1 >= kMaxDecks) {
+      triggerToast("layer limit reached on " + outputLabel(outputIndex));
+      return false;
+    }
+    // A requested layer of 0 would mean "be the base", which is a different
+    // operation (setFocusedOutputHostDeck) -- so the lowest a new layer can
+    // land is 1, directly above the host.
+    int at = static_cast<int>(output.layerDecks.size());
+    if (requestedLayer) {
+      at = std::clamp(*requestedLayer - 1, 0, static_cast<int>(output.layerDecks.size()));
+    }
+    output.layerDecks.insert(output.layerDecks.begin() + at, deckIndex);
+    triggerToast("assign: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex) +
+                 " layer " + layerLetter(at + 1));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
     return true;
@@ -804,33 +874,132 @@
     return assignDeckToOutput(project_.focusedDeckIndex, project_.focusedOutputIndex, requestedLayer);
   }
 
-  std::optional<int> assignmentIndexForDeckOutput(int deckIndex, int outputIndex) const {
-    // Single-deck: deck 0 is always assigned to output 0.
-    if (deckIndex == 0 && outputIndex == 0 && !project_.decks.empty() && !project_.outputs.empty()) {
-      return 0;
-    }
-    return std::nullopt;
-  }
-
+  // How many destinations this deck reaches. Used to warn about a playlist
+  // that is running and going nowhere.
   int enabledAssignmentCountForDeck(int deckIndex) const {
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return 0;
+    int count = 0;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (assignmentIndexForDeckOutput(deckIndex, i)) {
+        ++count;
+      }
     }
-    return project_.outputs.empty() ? 0 : 1;
+    return count;
   }
 
-  bool setDeckOutputAssignmentLayer(int /*deckIndex*/, int /*outputIndex*/, int /*layerIndex*/) {
-    // Single-deck: no layer assignments to modify.
-    return false;
+  bool setDeckOutputAssignmentLayer(int deckIndex, int outputIndex, int layerIndex) {
+    auto at = assignmentIndexForDeckOutput(deckIndex, outputIndex);
+    if (!at) {
+      return false;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    const int stackSize = static_cast<int>(output.layerDecks.size());
+    // MOVING THE BASE, OR MOVING SOMETHING ONTO THE BASE, IS A SWAP.
+    //
+    // The host is layer 0 and cannot simply be reordered out of existence --
+    // an output with no base deck has nothing to composite onto. So dragging
+    // the base up, or a layer down to 0, exchanges the two.
+    if (layerIndex <= 0) {
+      if (*at == 0) {
+        return false;   // already the base
+      }
+      const int wasHost = output.hostDeckIndex;
+      output.hostDeckIndex = deckIndex;
+      output.layerDecks[static_cast<std::size_t>(*at) - 1] = wasHost;
+      triggerToast(deckLabel(deckIndex) + " is now the base of " + outputLabel(outputIndex));
+      markProjectDirty();
+      return true;
+    }
+    if (layerIndex > stackSize) {
+      return false;
+    }
+    if (*at == 0) {
+      const int promoted = output.layerDecks[static_cast<std::size_t>(layerIndex) - 1];
+      output.layerDecks[static_cast<std::size_t>(layerIndex) - 1] = deckIndex;
+      output.hostDeckIndex = promoted;
+      triggerToast(deckLabel(deckIndex) + " -> layer " + layerLetter(layerIndex));
+      markProjectDirty();
+      return true;
+    }
+    if (*at == layerIndex) {
+      return false;
+    }
+    const int deck = output.layerDecks[static_cast<std::size_t>(*at) - 1];
+    output.layerDecks.erase(output.layerDecks.begin() + (*at - 1));
+    output.layerDecks.insert(output.layerDecks.begin() + (layerIndex - 1), deck);
+    triggerToast(deckLabel(deckIndex) + " -> layer " + layerLetter(layerIndex));
+    markProjectDirty();
+    return true;
   }
 
-  bool unassignDeckFromOutput(int /*deckIndex*/, int /*outputIndex*/) {
-    triggerToast("routing: keep at least one output");
-    return false;
+  bool unassignDeckFromOutput(int deckIndex, int outputIndex) {
+    auto at = assignmentIndexForDeckOutput(deckIndex, outputIndex);
+    if (!at) {
+      return false;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    if (*at == 0) {
+      // THE BASE CANNOT JUST LEAVE. If something is layered above it, that
+      // becomes the base; if nothing is, the output would have no picture at
+      // all, and an output that silently shows black is the fault this whole
+      // feature exists to stop being possible.
+      if (output.layerDecks.empty()) {
+        triggerToast("an output needs a base playlist");
+        return false;
+      }
+      output.hostDeckIndex = output.layerDecks.front();
+      output.layerDecks.erase(output.layerDecks.begin());
+      triggerToast(deckLabel(output.hostDeckIndex) + " is now the base of " +
+                   outputLabel(outputIndex));
+      markProjectDirty();
+      return true;
+    }
+    output.layerDecks.erase(output.layerDecks.begin() + (*at - 1));
+    triggerToast("off " + outputLabel(outputIndex) + ": " + deckLabel(deckIndex));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
   }
 
-  bool moveDeckToOutput(int deckIndex, int outputIndex, std::optional<int> requestedLayer = std::nullopt) {
+  // Take this deck off every other output and put it on this one. What the
+  // output menu's "move" arrows mean.
+  bool moveDeckToOutput(int deckIndex, int outputIndex,
+                        std::optional<int> requestedLayer = std::nullopt) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (i == outputIndex) {
+        continue;
+      }
+      // Only where it can leave without stranding that output.
+      if (assignmentIndexForDeckOutput(deckIndex, i)) {
+        OutputTarget& other = project_.outputs[i];
+        if (other.hostDeckIndex == deckIndex && other.layerDecks.empty()) {
+          continue;
+        }
+        unassignDeckFromOutput(deckIndex, i);
+      }
+    }
+    if (assignmentIndexForDeckOutput(deckIndex, outputIndex)) {
+      project_.focusedOutputIndex = outputIndex;
+      return true;
+    }
     return assignDeckToOutput(deckIndex, outputIndex, requestedLayer);
+  }
+
+  // A, B, C... An output's layers are read out loud far more often than they
+  // are counted, and "layer B over layer A" is how an operator says it.
+  static std::string layerLetter(int layerIndex) {
+    if (layerIndex < 0) {
+      return "-";
+    }
+    if (layerIndex < 26) {
+      return std::string(1, static_cast<char>('A' + layerIndex));
+    }
+    return std::to_string(layerIndex + 1);
   }
 
   bool setFocusedOutputHostDeck(int hostDeckIndex) {

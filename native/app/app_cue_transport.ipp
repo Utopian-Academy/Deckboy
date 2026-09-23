@@ -1863,6 +1863,7 @@
       CueTextAnimation::None, CueTextAnimation::FadeIn,
       CueTextAnimation::Typewriter, CueTextAnimation::ScrollUp,
       CueTextAnimation::Crawl, CueTextAnimation::Pulse,
+      CueTextAnimation::Wobble,
     };
     const int count = static_cast<int>(sizeof(kOrder) / sizeof(kOrder[0]));
     int at = 0;

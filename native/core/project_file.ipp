@@ -20,6 +20,42 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // Does this cue carry an unbypassed TEXT MODE effect? Free, because both the
 // writer and the migration ask it.
+// A LIST OF INDICES IN ONE FIELD.
+//
+// The output record is positional and tab-delimited, so a list whose length
+// varies cannot have a column each without moving every field after it. One
+// comma-separated field keeps the format append-only, which is the rule the
+// whole file follows.
+inline std::string joinIntList(const std::vector<int>& values) {
+  std::string out;
+  for (std::size_t i = 0; i < values.size(); ++i) {
+    if (i) out += ',';
+    out += std::to_string(values[i]);
+  }
+  return out;
+}
+
+inline std::vector<int> parseIntList(const std::string& text) {
+  std::vector<int> out;
+  std::size_t start = 0;
+  while (start <= text.size()) {
+    std::size_t comma = text.find(',', start);
+    if (comma == std::string::npos) comma = text.size();
+    const std::string token = trim(text.substr(start, comma - start));
+    if (!token.empty()) {
+      try {
+        out.push_back(std::stoi(token));
+      } catch (...) {
+        // A field that is not a number is dropped rather than defaulted to
+        // zero: zero is deck 1, and silently layering deck 1 onto an output
+        // because a show file was damaged is worse than losing the layer.
+      }
+    }
+    start = comma + 1;
+  }
+  return out;
+}
+
 inline bool cueHasTextModeEffect(const Cue& cue) {
   for (const auto& fx : cue.effects) {
     if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
@@ -281,6 +317,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.prompter.background)
       << '\t' << escapeField(outputTarget.prompter.ink)
       << '\t' << escapeField(outputTarget.prompter.accent)
+      // Super Deckboy's layer stack (field 77). One field, comma separated,
+      // because the count varies per output and the format is positional --
+      // a variable number of columns would move every field after it.
+      << '\t' << escapeField(joinIntList(outputTarget.layerDecks))
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1122,6 +1162,12 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                             if (!pbg.empty()) outputTarget.prompter.background = pbg;
                             if (!pink.empty()) outputTarget.prompter.ink = pink;
                             if (!pacc.empty()) outputTarget.prompter.accent = pacc;
+                          }
+                          // The layer stack. Absent means "just the host",
+                          // which is what every show saved before Super
+                          // Deckboy did and must keep doing.
+                          if (fields.size() >= 78) {
+                            outputTarget.layerDecks = parseIntList(safeString(fields, 77));
                           }
                         }
                       }

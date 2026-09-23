@@ -571,6 +571,7 @@
     deckScrolls_.resize(numDecks, 0);
     deckOverlayScrolls_.resize(numDecks, 0);
     deckColumnRects_.resize(numDecks);
+    deckRoutingChipRects_.assign(static_cast<std::size_t>(numDecks), SDL_Rect {});
     deckListClipRects_.resize(numDecks);
     deckOverlayClipRects_.resize(numDecks);
     outputMenuButtons_.clear();
@@ -1323,6 +1324,37 @@
     // cue that's playing. Only for the focused deck's column (the one the
     // keyboard acts on). Sized to its label so the text never ellipsizes
     // into a mystery ">..." chip.
+    // ── WHERE THIS PLAYLIST GOES ────────────────────────────────────────
+    //
+    // On the header, on every column, always: the question "which output does
+    // this one reach?" has no other answer anywhere in the program, and the
+    // menu behind it is the only way to add a playlist or move one between
+    // outputs without a socket.
+    if (deckRoutingChipRects_.size() < project_.decks.size()) {
+      deckRoutingChipRects_.resize(project_.decks.size(), SDL_Rect {});
+    }
+    int routingChipW = 0;
+    {
+      TTF_Font* rcFont = fontSmall_;
+      const std::string routing = playlistRoutingChipLabel(deckIndex);
+      int txtW = 0;
+      if (rcFont) {
+        TTF_GetStringSize(rcFont, routing.c_str(), routing.size(), &txtW, nullptr);
+      }
+      routingChipW = std::max(uiScaled(44), txtW + uiScaled(18));
+      SDL_Rect chip {colHeader.x + colHeader.w - routingChipW - uiScaled(6),
+                     colHeader.y + uiScaled(3), routingChipW,
+                     colHeader.h - uiScaled(6)};
+      // UNROUTED IS A WARNING COLOUR. A playlist nobody can see is a fault
+      // that otherwise announces itself only as "the output is black".
+      const bool routed = routing != "--";
+      drawUIPanel(chip, routed ? pal.light : SDL_Color {150, 80, 30, 255},
+                  pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, rcFont, chip, routing,
+                           routed ? pal.deep : pal.light);
+      deckRoutingChipRects_[deckIndex] = chip;
+    }
+
     bool jumpBtnShown = deckIndex == project_.focusedDeckIndex && !deck.cues.empty();
     int jumpBtnW = 0;
     if (jumpBtnShown) {
@@ -1333,8 +1365,11 @@
         TTF_GetStringSize(jbFont, ">LIVE", 0, &txtW, &txtH);
       }
       jumpBtnW = std::max(56, txtW + 16);
-      SDL_Rect jb {colHeader.x + colHeader.w - jumpBtnW - 6, colHeader.y + 3,
-                   jumpBtnW, colHeader.h - 6};
+      // LEFT OF THE ROUTING CHIP, which is pinned to the right edge. Two
+      // controls measured from the same edge is how one ends up drawn on top
+      // of the other, and the one underneath then looks like it does nothing.
+      SDL_Rect jb {colHeader.x + colHeader.w - jumpBtnW - 6 - routingChipW - 6,
+                   colHeader.y + 3, jumpBtnW, colHeader.h - 6};
       drawUIPanel(jb, pal.light, pal.deep, pal.mid);
       drawCenteredTextSafe(controlRenderer_, jbFont, jb, ">LIVE", pal.deep);
       playlistJumpBtnRect_ = jb;
@@ -1346,7 +1381,7 @@
     // stops short of the >LIVE button so the dots never crawl across it.
     {
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-      int dotRightEdge = colHeader.x + colHeader.w - 12
+      int dotRightEdge = colHeader.x + colHeader.w - 12 - routingChipW - 6
                        - (jumpBtnShown ? jumpBtnW + 10 : 0);
       int dotTrack = dotRightEdge - (colHeader.x + 80);
       if (dotTrack > 20) {

@@ -2806,6 +2806,24 @@ void normalizeProjectOutputsAndLayers(Project& project) {
       output.name = outputDefaultName(static_cast<int>(i));
     }
     output.hostDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
+    // SUPER DECKBOY'S LAYER STACK, cleaned once here so nothing downstream
+    // has to. A deck that no longer exists, or the host repeated above
+    // itself, would each composite the same picture twice at a cost and to
+    // no effect -- and a show that once had four decks and now has two must
+    // still open.
+    {
+      std::vector<int> cleaned;
+      for (int extra : output.layerDecks) {
+        if (extra < 0 || extra >= deckCount || extra == output.hostDeckIndex) {
+          continue;
+        }
+        if (std::find(cleaned.begin(), cleaned.end(), extra) != cleaned.end()) {
+          continue;
+        }
+        cleaned.push_back(extra);
+      }
+      output.layerDecks.swap(cleaned);
+    }
     output.displayIndex = std::max(0, output.displayIndex);
     output.outputType = normalizeOutputType(output.outputType);
     output.mirrorSourceOutputIndex = std::clamp(output.mirrorSourceOutputIndex, -1, static_cast<int>(project.outputs.size()) - 1);
@@ -5085,6 +5103,44 @@ class App {
     drawCenteredTextSafe(controlRenderer_, ix.valueFont, btnRect, label, ink);
     quickButtons_.push_back({btnRect, action, tip});
     return rowY + step;
+  }
+
+  // ── A ROW THAT IS ONE CONTROL, WITH THE ANSWER ON IT ──────────────────
+  //
+  // Label on the left, and the value itself IS the button. This exists
+  // because forty rows of the new cue kinds were drawn as stepper rows --
+  // label, "-", value, "+" -- for actions that are not steppable: "fire now",
+  // "click to open the grid", "typewriter". A stepper row registers only its
+  // two 28px chevrons as controls, so on every one of those rows the label was
+  // dead, the value was dead, and the only live pixels were two arrows that
+  // had no business being there. That is precisely what "the controls are
+  // missing" looks like from the other side of the screen.
+  //
+  // Shaped like the TOGGLE row rather than the stepper row, because that is
+  // what it is: one question on the left, one answer on the right, and the
+  // whole row does the thing.
+  int inspDrawChoiceRow(const InspectorCtx& ix, int rowY, const std::string& label,
+                        const std::string& value, QuickAction action,
+                        const std::string& tip, int paramId = -1,
+                        bool emphasise = false) {
+    const int gap = ix.ellipsize ? 8 : 6;
+    const int contentW = ix.ctrlW - ix.inset * 2;
+    const int labelW = inspLabelColumnWidth(ix, contentW, gap);
+    SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
+    SDL_Rect btn {labelRect.x + labelW + gap, rowY,
+                  std::max(uiScaled(60), contentW - labelW - gap), ix.rowH};
+    const SDL_Color fill = emphasise ? pal.mid : pal.light;
+    const SDL_Color ink  = pal.deep;
+    drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
+    drawUIPanel(btn, fill, pal.deep, pal.mid);
+    const std::string text = ix.ellipsize
+      ? ellipsizeToPixelWidth(ix.valueFont, value, btn.w - 12) : value;
+    drawCenteredTextSafe(controlRenderer_, ix.valueFont, btn, text, ink);
+    // BOTH HALVES, like the toggle row: a row-shaped control that only
+    // responds on half its area is the same bug in a smaller size.
+    quickButtons_.push_back({btn, action, tip, paramId});
+    quickButtons_.push_back({labelRect, action, tip, paramId});
+    return rowY + ix.rowStep;
   }
 
   int inspDrawEditableRow(const InspectorCtx& ix, int rowY,
@@ -8464,6 +8520,8 @@ class App {
     SDL_Rect rect {};
   };
   std::vector<ContextItem> contextItems_;
+  // One per deck: the routing chip on that playlist's column header.
+  std::vector<SDL_Rect> deckRoutingChipRects_;
 
   struct DropdownOptionItem {
     std::string id;

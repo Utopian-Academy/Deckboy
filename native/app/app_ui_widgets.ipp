@@ -160,6 +160,110 @@
     }
   }
 
+  // ── WHERE THIS PLAYLIST GOES ──────────────────────────────────────────
+  //
+  // Everything Super Deckboy can do to one playlist, in one menu: which
+  // outputs it reaches and at which layer, which way to move it in the stack,
+  // and how to make another playlist in the first place.
+  //
+  // A MENU RATHER THAN A ROW OF CHIPS, because the number of outputs is not
+  // bounded and the column header is. The chip that opens it always says the
+  // answer, so the routing is readable without opening anything.
+  void openPlaylistRoutingMenu(int deckIdx, int mx, int my) {
+    if (deckIdx < 0 || deckIdx >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    contextMenuOpen_ = true;
+    contextMenuDeckIdx_ = deckIdx;
+    contextMenuCueIdx_ = -1;
+    contextItems_.clear();
+
+    contextItems_.push_back({deckLabel(deckIdx), {0, 0, 0, 0}, nullptr});
+
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size());
+         ++outputIndex) {
+      const auto layer = assignmentIndexForDeckOutput(deckIdx, outputIndex);
+      std::string label = layer
+        ? "  * " + outputLabel(outputIndex) + "   layer " + layerLetter(*layer)
+        : "    " + outputLabel(outputIndex);
+      contextItems_.push_back({
+        label,
+        layer ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
+        [this, deckIdx, outputIndex]() {
+          if (assignmentIndexForDeckOutput(deckIdx, outputIndex)) {
+            unassignDeckFromOutput(deckIdx, outputIndex);
+          } else {
+            assignDeckToOutput(deckIdx, outputIndex);
+          }
+        }});
+    }
+
+    // Moving within the stack of the output this playlist is focused on.
+    // Only offered where there is a stack to move within -- an entry that
+    // cannot do anything is the same thing as a dead control.
+    const int focusedOut = std::clamp(project_.focusedOutputIndex, 0,
+                                      std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+    const auto here = assignmentIndexForDeckOutput(deckIdx, focusedOut);
+    if (here && !project_.outputs.empty() &&
+        !project_.outputs[focusedOut].layerDecks.empty()) {
+      const int top = static_cast<int>(project_.outputs[focusedOut].layerDecks.size());
+      if (*here > 0) {
+        contextItems_.push_back({
+          "  v  down a layer on " + outputLabel(focusedOut), {0, 0, 0, 0},
+          [this, deckIdx, focusedOut, here]() {
+            setDeckOutputAssignmentLayer(deckIdx, focusedOut, *here - 1);
+          }});
+      }
+      if (*here < top) {
+        contextItems_.push_back({
+          "  ^  up a layer on " + outputLabel(focusedOut), {0, 0, 0, 0},
+          [this, deckIdx, focusedOut, here]() {
+            setDeckOutputAssignmentLayer(deckIdx, focusedOut, *here + 1);
+          }});
+      }
+    }
+
+    contextItems_.push_back({
+      "  + new playlist", SDL_Color {40, 90, 130, 255},
+      [this]() { addDeck(); }});
+    contextItems_.push_back({
+      "  + new output", SDL_Color {40, 90, 130, 255},
+      [this]() { addOutput(project_.focusedDeckIndex); }});
+
+    int winW = 0, winH = 0;
+    SDL_GetWindowSize(controlWindow_, &winW, &winH);
+    constexpr int kItemH = 32;
+    constexpr int kMenuW = 246;
+    const int menuH = static_cast<int>(contextItems_.size()) * kItemH + 8;
+    const int mx2 = std::max(4, std::min(mx, winW - kMenuW - 4));
+    const int my2 = std::max(4, std::min(my, winH - menuH - 4));
+    contextMenuRect_ = {mx2, my2, kMenuW, menuH};
+    int iy = my2 + 4;
+    for (auto& item : contextItems_) {
+      item.rect = {mx2 + 4, iy, kMenuW - 8, kItemH - 2};
+      iy += kItemH;
+    }
+    uiWatchdogPopupEvent("context_menu", true, static_cast<int>(contextItems_.size()));
+  }
+
+  // What the chip says: every output this playlist reaches, with its layer.
+  // "--" is a real and important answer -- a playlist that is running and
+  // reaching nothing looks identical to a broken one until it says so.
+  std::string playlistRoutingChipLabel(int deckIndex) const {
+    std::string out;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      const auto layer = assignmentIndexForDeckOutput(deckIndex, i);
+      if (!layer) {
+        continue;
+      }
+      if (!out.empty()) {
+        out += " ";
+      }
+      out += "O" + std::to_string(i + 1) + layerLetter(*layer);
+    }
+    return out.empty() ? std::string("--") : out;
+  }
+
   void openContextMenu(int deckIdx, int cueIdx, int mx, int my) {
     contextMenuOpen_ = true;
     contextMenuDeckIdx_ = deckIdx;

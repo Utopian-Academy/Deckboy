@@ -3480,6 +3480,14 @@
       inspDrawQuickRow(ix, rowY, label, decAction, value, incAction, toggleAction, isToggle, toggleOn, tip, valueEditable, valueAction);
     };
 
+    // Label, then the value AS the button. For a row whose whole job is one
+    // action -- fire it, cycle it, open it -- rather than a number to step.
+    auto drawChoiceRow = [&](int rowY, const std::string& label, const std::string& value,
+                             QuickAction action, const std::string& tip,
+                             bool emphasise = false) {
+      return inspDrawChoiceRow(ix, rowY, label, value, action, tip, -1, emphasise);
+    };
+
     auto drawInspectorMessageRow = [&](int rowY, const std::string& text,
                                        SDL_Color fill = pal.light, SDL_Color ink = pal.deep) {
       return inspDrawMessageRow(ix, rowY, text, fill, ink);
@@ -5359,18 +5367,15 @@
                      "Which cue on that deck; step off the end to clear it");
         tgY += kInspectorRowStep;
 
-        drawQuickRow(tgY, "does", QuickAction::TargetVerbCycle,
-                     cueTargetVerbLabel(selectedCue->targetVerb),
-                     QuickAction::TargetVerbCycle, QuickAction::TargetVerbCycle,
-                     false, false,
-                     "Start, Stop, Pause, Resume, Load (stand it by without "
+        drawChoiceRow(tgY, "does", cueTargetVerbLabel(selectedCue->targetVerb),
+                      QuickAction::TargetVerbCycle,
+                      "Start, Stop, Pause, Resume, Load (stand it by without "
                      "firing), Arm or Disarm it");
         tgY += kInspectorRowStep;
 
-        drawQuickRow(tgY, "fire", QuickAction::TargetFire, std::string("now"),
-                     QuickAction::TargetFire, QuickAction::TargetFire,
-                     false, false,
-                     "Do it now, without taking the cue");
+        drawChoiceRow(tgY, "fire", std::string("now"),
+                      QuickAction::TargetFire,
+                      "Do it now, without taking the cue");
         tgY += kInspectorRowStep;
 
         if (selectedCue->targetCueId.empty()) {
@@ -5397,13 +5402,11 @@
         if (!on) {
           // OFF is a real state and says what it is doing instead, rather
           // than showing an empty grid that looks broken.
-          drawQuickRow(mxY, "routing", QuickAction::MatrixSeed,
-                       std::string("outs ") +
+          drawChoiceRow(mxY, "routing", std::string("outs ") +
                          std::to_string(selectedCue->audioOutputPair * 2 + 1) + "-" +
                          std::to_string(selectedCue->audioOutputPair * 2 + 2),
-                       QuickAction::MatrixSeed, QuickAction::MatrixSeed,
-                       false, false,
-                       "A plain stereo pair. Click to open the matrix, starting "
+                      QuickAction::MatrixSeed,
+                      "A plain stereo pair. Click to open the matrix, starting "
                        "from exactly this routing");
           mxY += kInspectorRowStep;
           drawInspectorMessageRow(mxY, "click to open the grid");
@@ -5464,12 +5467,10 @@
           }
           mxY += uiScaled(2);
 
-          drawQuickRow(mxY, "matrix", QuickAction::MatrixClear,
-                       std::to_string(selectedCue->audioMatrix.size()) + " point" +
+          drawChoiceRow(mxY, "matrix", std::to_string(selectedCue->audioMatrix.size()) + " point" +
                          (selectedCue->audioMatrix.size() == 1 ? "" : "s"),
-                       QuickAction::MatrixClear, QuickAction::MatrixClear,
-                       false, false,
-                       "Click a cell to walk it: off, full, -3, -6, -12. This "
+                      QuickAction::MatrixClear,
+                      "Click a cell to walk it: off, full, -3, -6, -12. This "
                        "row turns the matrix off again");
           mxY += kInspectorRowStep;
         }
@@ -5484,7 +5485,7 @@
         normalizePatternTypeId(selectedCue->path) == "fireside") {
       int fiY = inspectorSectionBottomMax_ + kInspectorSectionGap;
       auto fiSection = beginInspectorSection(fiY, "FIRESIDE", cueSectionFiresideOpen_,
-                                             QuickAction::CueSectionTextToggle,
+                                             QuickAction::CueSectionFiresideToggle,
                                              "Collapse/expand the hearth's controls");
       fiY = fiSection.bodyStartY;
       if (cueSectionFiresideOpen_) {
@@ -5525,18 +5526,15 @@
           preview = preview.substr(0, nl);
           more = "  (+" + std::to_string(extra) + ")";
         }
-        drawQuickRow(txY, "words", QuickAction::TextEditBody,
-                     preview.empty() ? std::string("none - click to write some")
+        drawChoiceRow(txY, "words", preview.empty() ? std::string("none - click to write some")
                                      : (preview + more),
-                     QuickAction::TextEditBody, QuickAction::TextEditBody,
-                     false, false, "The text this cue puts on screen");
+                      QuickAction::TextEditBody,
+                      "The text this cue puts on screen");
         txY += kInspectorRowStep;
 
-        drawQuickRow(txY, "moves", QuickAction::TextAnimCycle,
-                     cueTextAnimationLabel(selectedCue->textAnimation),
-                     QuickAction::TextAnimCycle, QuickAction::TextAnimCycle,
-                     false, false,
-                     "Still, fade in, typewriter, scroll up, crawl or pulse -- "
+        drawChoiceRow(txY, "moves", cueTextAnimationLabel(selectedCue->textAnimation),
+                      QuickAction::TextAnimCycle,
+                      "Still, fade in, typewriter, scroll up, crawl or pulse -- "
                      "all driven by the cue's own transport");
         txY += kInspectorRowStep;
 
@@ -5548,11 +5546,10 @@
                      "reads the same on any screen");
         txY += kInspectorRowStep;
 
-        drawQuickRow(txY, "align", QuickAction::TextAlignCycle,
-                     selectedCue->textAlign == 0 ? "Left"
+        drawChoiceRow(txY, "align", selectedCue->textAlign == 0 ? "Left"
                        : selectedCue->textAlign == 2 ? "Right" : "Centre",
-                     QuickAction::TextAlignCycle, QuickAction::TextAlignCycle,
-                     false, false, "Left, centre or right");
+                      QuickAction::TextAlignCycle,
+                      "Left, centre or right");
         txY += kInspectorRowStep;
 
         char sp[16];
@@ -5584,13 +5581,11 @@
                                              "Collapse/expand the levels this cue sends");
       dxY = dxSection.bodyStartY;
       if (cueSectionDmxOpen_) {
-        drawQuickRow(dxY, "channels", QuickAction::DmxEditChannels,
-                     selectedCue->dmxChannels.empty()
+        drawChoiceRow(dxY, "channels", selectedCue->dmxChannels.empty()
                        ? std::string("none - click to set some")
                        : selectedCue->dmxChannels,
-                     QuickAction::DmxEditChannels, QuickAction::DmxEditChannels,
-                     false, false,
-                     "Channel=level, comma separated. Ranges too: 1=255, "
+                      QuickAction::DmxEditChannels,
+                      "Channel=level, comma separated. Ranges too: 1=255, "
                      "10-14=64. Channels count from 1");
         dxY += kInspectorRowStep;
 
@@ -5609,26 +5604,22 @@
                      false, false, "Art-Net port address, 0-32767");
         dxY += kInspectorRowStep;
 
-        drawQuickRow(dxY, "to", QuickAction::DmxEditHost,
-                     selectedCue->dmxHost.empty()
+        drawChoiceRow(dxY, "to", selectedCue->dmxHost.empty()
                        ? std::string("255.255.255.255")
                        : selectedCue->dmxHost,
-                     QuickAction::DmxEditHost, QuickAction::DmxEditHost,
-                     false, false,
-                     "An IPv4 address, or 255.255.255.255 to broadcast to the "
+                      QuickAction::DmxEditHost,
+                      "An IPv4 address, or 255.255.255.255 to broadcast to the "
                      "whole network");
         dxY += kInspectorRowStep;
 
-        drawQuickRow(dxY, "send", QuickAction::DmxFireNow, std::string("now"),
-                     QuickAction::DmxFireNow, QuickAction::DmxFireNow,
-                     false, false, "Send it now, without taking the cue");
+        drawChoiceRow(dxY, "send", std::string("now"),
+                      QuickAction::DmxFireNow,
+                      "Send it now, without taking the cue");
         dxY += kInspectorRowStep;
 
-        drawQuickRow(dxY, "blackout", QuickAction::DmxBlackout,
-                     std::string("all to 0"),
-                     QuickAction::DmxBlackout, QuickAction::DmxBlackout,
-                     false, false,
-                     "Every channel on every universe this session has touched");
+        drawChoiceRow(dxY, "blackout", std::string("all to 0"),
+                      QuickAction::DmxBlackout,
+                      "Every channel on every universe this session has touched");
         dxY += kInspectorRowStep;
 
         // WHAT WILL ACTUALLY GO OUT, and what is wrong when something is.
@@ -5656,19 +5647,17 @@
                                              "Collapse/expand the lines this cue runs");
       scY = scSection.bodyStartY;
       if (cueSectionScriptOpen_) {
-        drawQuickRow(scY, "lines", QuickAction::ScriptEdit,
-                     lineCount == 0 ? std::string("none - click to write some")
+        drawChoiceRow(scY, "lines", lineCount == 0 ? std::string("none - click to write some")
                                     : (std::to_string(lineCount) + " line" +
                                        (lineCount == 1 ? "" : "s")),
-                     QuickAction::ScriptEdit, QuickAction::ScriptEdit,
-                     false, false,
-                     "Deckboy's own remote-protocol verbs, one per line; # is "
+                      QuickAction::ScriptEdit,
+                      "Deckboy's own remote-protocol verbs, one per line; # is "
                      "a comment");
         scY += kInspectorRowStep;
 
-        drawQuickRow(scY, "run", QuickAction::ScriptRunNow, std::string("now"),
-                     QuickAction::ScriptRunNow, QuickAction::ScriptRunNow,
-                     false, false, "Run it now, without taking the cue");
+        drawChoiceRow(scY, "run", std::string("now"),
+                      QuickAction::ScriptRunNow,
+                      "Run it now, without taking the cue");
         scY += kInspectorRowStep;
 
         // THE FIRST FEW LINES, so the cue is identifiable without opening it.
@@ -5712,12 +5701,10 @@
                                              "Collapse/expand what this cue does to timecode");
       tcY = tcSection.bodyStartY;
       if (cueSectionTimecodeOpen_) {
-        drawQuickRow(tcY, "does", QuickAction::TcActionCycle,
-                     action == "stop" ? std::string("STOP")
+        drawChoiceRow(tcY, "does", action == "stop" ? std::string("STOP")
                        : isJam ? std::string("JAM") : std::string("START"),
-                     QuickAction::TcActionCycle, QuickAction::TcActionCycle,
-                     false, false,
-                     "Start the LTC carrier, stop it, or jam it to a value");
+                      QuickAction::TcActionCycle,
+                      "Start the LTC carrier, stop it, or jam it to a value");
         tcY += kInspectorRowStep;
 
         // The jam row only exists for a jam, for the same reason the OSC
@@ -5732,9 +5719,9 @@
           tcY += kInspectorRowStep;
         }
 
-        drawQuickRow(tcY, "do it", QuickAction::TcFireNow, std::string("now"),
-                     QuickAction::TcFireNow, QuickAction::TcFireNow,
-                     false, false, "Act now, without taking the cue");
+        drawChoiceRow(tcY, "do it", std::string("now"),
+                      QuickAction::TcFireNow,
+                      "Act now, without taking the cue");
         tcY += kInspectorRowStep;
 
         // WHETHER THERE IS ANY TIMECODE TO ACT ON. The generator needs libltc
@@ -5764,20 +5751,16 @@
                                              "Collapse/expand where this cue sends");
       nwY = nwSection.bodyStartY;
       if (cueSectionNetworkOpen_) {
-        drawQuickRow(nwY, "protocol", QuickAction::NetProtocolCycle,
-                     toUpper(proto.empty() ? std::string("osc") : proto),
-                     QuickAction::NetProtocolCycle, QuickAction::NetProtocolCycle,
-                     false, false,
-                     "OSC and UDP are fire and forget; TCP connects, so it "
+        drawChoiceRow(nwY, "protocol", toUpper(proto.empty() ? std::string("osc") : proto),
+                      QuickAction::NetProtocolCycle,
+                      "OSC and UDP are fire and forget; TCP connects, so it "
                      "runs off the show thread");
         nwY += kInspectorRowStep;
 
-        drawQuickRow(nwY, "to", QuickAction::NetEditHost,
-                     selectedCue->netHost.empty() ? std::string("none")
+        drawChoiceRow(nwY, "to", selectedCue->netHost.empty() ? std::string("none")
                                                   : selectedCue->netHost,
-                     QuickAction::NetEditHost, QuickAction::NetEditHost,
-                     false, false,
-                     "An IPv4 address. Names are not resolved: a DNS lookup "
+                      QuickAction::NetEditHost,
+                      "An IPv4 address. Names are not resolved: a DNS lookup "
                      "is a blocking call and GO must not make one");
         nwY += kInspectorRowStep;
 
@@ -5788,26 +5771,23 @@
         nwY += kInspectorRowStep;
 
         if (isOsc) {
-          drawQuickRow(nwY, "address", QuickAction::NetEditAddress,
-                       selectedCue->netAddress.empty() ? std::string("none")
+          drawChoiceRow(nwY, "address", selectedCue->netAddress.empty() ? std::string("none")
                                                        : selectedCue->netAddress,
-                       QuickAction::NetEditAddress, QuickAction::NetEditAddress,
-                       false, false, "The OSC path, e.g. /cue/1/start");
+                      QuickAction::NetEditAddress,
+                      "The OSC path, e.g. /cue/1/start");
           nwY += kInspectorRowStep;
         }
 
-        drawQuickRow(nwY, isOsc ? "argument" : "payload", QuickAction::NetEditPayload,
-                     selectedCue->netPayload.empty() ? std::string("(empty)")
+        drawChoiceRow(nwY, isOsc ? "argument" : "payload", selectedCue->netPayload.empty() ? std::string("(empty)")
                                                      : selectedCue->netPayload,
-                     QuickAction::NetEditPayload, QuickAction::NetEditPayload,
-                     false, false,
-                     "What is sent. Backslash-n, -r, -t and -0 become those "
+                      QuickAction::NetEditPayload,
+                      "What is sent. Backslash-n, -r, -t and -0 become those "
                      "characters");
         nwY += kInspectorRowStep;
 
-        drawQuickRow(nwY, "send", QuickAction::NetSendNow, std::string("now"),
-                     QuickAction::NetSendNow, QuickAction::NetSendNow,
-                     false, false, "Send it now, without taking the cue");
+        drawChoiceRow(nwY, "send", std::string("now"),
+                      QuickAction::NetSendNow,
+                      "Send it now, without taking the cue");
         nwY += kInspectorRowStep;
 
         // WHAT WILL ACTUALLY HAPPEN, spelled out, and what is wrong when
@@ -5857,21 +5837,17 @@
                                              "Collapse/expand the message this cue sends");
       mdY = mdSection.bodyStartY;
       if (cueSectionMidiOpen_) {
-        drawQuickRow(mdY, "sends", QuickAction::MidiKindCycle,
-                     deckboy::platform::midi::outMessageKindLabel(mk),
-                     QuickAction::MidiKindCycle, QuickAction::MidiKindCycle,
-                     false, false,
-                     "Note, control change, program change, MIDI Show Control, "
+        drawChoiceRow(mdY, "sends", deckboy::platform::midi::outMessageKindLabel(mk),
+                      QuickAction::MidiKindCycle,
+                      "Note, control change, program change, MIDI Show Control, "
                      "or your own bytes");
         mdY += kInspectorRowStep;
 
-        drawQuickRow(mdY, "port", QuickAction::MidiPortCycle,
-                     selectedCue->midiPortName.empty()
+        drawChoiceRow(mdY, "port", selectedCue->midiPortName.empty()
                        ? std::string("first available")
                        : selectedCue->midiPortName,
-                     QuickAction::MidiPortCycle, QuickAction::MidiPortCycle,
-                     false, false,
-                     "Which MIDI output; a named port that is missing is "
+                      QuickAction::MidiPortCycle,
+                      "Which MIDI output; a named port that is missing is "
                      "reported rather than swapped");
         mdY += kInspectorRowStep;
 
@@ -5913,28 +5889,25 @@
                        "0-127; 127 addresses every device on the line");
           mdY += kInspectorRowStep;
 
-          drawQuickRow(mdY, "cue number", QuickAction::MidiEditCueNumber,
-                       selectedCue->mscCue.empty() ? std::string("none")
+          drawChoiceRow(mdY, "cue number", selectedCue->mscCue.empty() ? std::string("none")
                                                    : selectedCue->mscCue,
-                       QuickAction::MidiEditCueNumber,
-                       QuickAction::MidiEditCueNumber, false, false,
-                       "The cue number on the other desk, e.g. 12.5");
+                      QuickAction::MidiEditCueNumber,
+                      "The cue number on the other desk, e.g. 12.5");
           mdY += kInspectorRowStep;
         }
 
         if (isRaw) {
-          drawQuickRow(mdY, "bytes", QuickAction::MidiEditRawHex,
-                       selectedCue->midiRawHex.empty()
+          drawChoiceRow(mdY, "bytes", selectedCue->midiRawHex.empty()
                          ? std::string("none")
                          : selectedCue->midiRawHex,
-                       QuickAction::MidiEditRawHex, QuickAction::MidiEditRawHex,
-                       false, false, "Hex, e.g. 90 3C 7F");
+                      QuickAction::MidiEditRawHex,
+                      "Hex, e.g. 90 3C 7F");
           mdY += kInspectorRowStep;
         }
 
-        drawQuickRow(mdY, "send", QuickAction::MidiSendNow, std::string("now"),
-                     QuickAction::MidiSendNow, QuickAction::MidiSendNow,
-                     false, false, "Send it now, without taking the cue");
+        drawChoiceRow(mdY, "send", std::string("now"),
+                      QuickAction::MidiSendNow,
+                      "Send it now, without taking the cue");
         mdY += kInspectorRowStep;
 
         // WHAT WILL ACTUALLY GO DOWN THE WIRE, spelled out. A MIDI cue is the
@@ -5970,11 +5943,9 @@
                                              "Collapse/expand what this cue fades");
       fdY = fdSection.bodyStartY;
       if (cueSectionFadeOpen_) {
-        drawQuickRow(fdY, "fades", QuickAction::FadeWhatCycle,
-                     cueFadeWhatLabel(selectedCue->fadeWhat),
-                     QuickAction::FadeWhatCycle, QuickAction::FadeWhatCycle,
-                     false, false,
-                     "Deck opacity, deck volume, or the master dimmer");
+        drawChoiceRow(fdY, "fades", cueFadeWhatLabel(selectedCue->fadeWhat),
+                      QuickAction::FadeWhatCycle,
+                      "Deck opacity, deck volume, or the master dimmer");
         fdY += kInspectorRowStep;
 
         // The deck row is hidden for the master dimmer, which belongs to no
@@ -6012,11 +5983,9 @@
                      "How long it takes; zero is a snap rather than a fade");
         fdY += kInspectorRowStep;
 
-        drawQuickRow(fdY, "curve", QuickAction::FadeCurveCycle,
-                     cueFadeCurveLabel(selectedCue->fadeCurve),
-                     QuickAction::FadeCurveCycle, QuickAction::FadeCurveCycle,
-                     false, false,
-                     "Linear, ease in, ease out or S-curve");
+        drawChoiceRow(fdY, "curve", cueFadeCurveLabel(selectedCue->fadeCurve),
+                      QuickAction::FadeCurveCycle,
+                      "Linear, ease in, ease out or S-curve");
         fdY += kInspectorRowStep;
 
         drawQuickRow(fdY, "then stop", QuickAction::FadeStopToggle,
@@ -6027,9 +5996,9 @@
                      "take-it-down-and-stop-it");
         fdY += kInspectorRowStep;
 
-        drawQuickRow(fdY, "fire", QuickAction::FadeFire, std::string("now"),
-                     QuickAction::FadeFire, QuickAction::FadeFire, false, false,
-                     "Run it now, without taking the cue");
+        drawChoiceRow(fdY, "fire", std::string("now"),
+                      QuickAction::FadeFire,
+                      "Run it now, without taking the cue");
         fdY += kInspectorRowStep;
 
         // What is actually running, if anything. A fade is the one cue whose
@@ -6083,10 +6052,9 @@
           selectedCue->continueMode == CueContinueMode::AutoContinue ? "from start"
           : selectedCue->continueMode == CueContinueMode::AutoFollow ? "from end"
           : "off";
-        drawQuickRow(sqY, "continue", QuickAction::CueContinueCycle,
-                     contLabel, QuickAction::CueContinueCycle,
-                     QuickAction::CueContinueCycle, false, false,
-                     "Off, from start (next cue fires when this one starts) "
+        drawChoiceRow(sqY, "continue", contLabel,
+                      QuickAction::CueContinueCycle,
+                      "Off, from start (next cue fires when this one starts) "
                      "or from end (when it finishes)");
         sqY += kInspectorRowStep;
 
@@ -6094,21 +6062,17 @@
         // one, so the row answers "is it me?" rather than only offering to arm.
         const bool isStandby = sqDeck.standbyIndex >= 0 &&
                                sqDeck.standbyIndex == sqDeck.selectedIndex;
-        drawQuickRow(sqY, "standby", QuickAction::CueStandbySet,
-                     isStandby ? std::string("THIS CUE") : std::string("arm"),
-                     QuickAction::CueStandbySet, QuickAction::CueStandbySet,
-                     false, false,
-                     "Arm this cue as the one GO will fire");
+        drawChoiceRow(sqY, "standby", isStandby ? std::string("THIS CUE") : std::string("arm"),
+                      QuickAction::CueStandbySet,
+                      "Arm this cue as the one GO will fire");
         sqY += kInspectorRowStep;
 
         // Armed. Sits with the spine because it is about whether the running
         // order fires this cue at all, which is the same question the waits
         // and the continue answer.
-        drawQuickRow(sqY, "armed", QuickAction::CueArmToggle,
-                     selectedCue->armed ? std::string("yes") : std::string("NO"),
-                     QuickAction::CueArmToggle, QuickAction::CueArmToggle,
-                     false, false,
-                     "A disarmed cue stays in the list and does nothing; "
+        drawChoiceRow(sqY, "armed", selectedCue->armed ? std::string("yes") : std::string("NO"),
+                      QuickAction::CueArmToggle,
+                      "A disarmed cue stays in the list and does nothing; "
                      "GO steps over it");
         sqY += kInspectorRowStep;
 

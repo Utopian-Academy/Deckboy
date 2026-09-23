@@ -505,29 +505,39 @@ static const std::vector<CodeExample>& codeExamples() {
       }
     }
     const int fieldH = std::clamp(fieldLines + 2, 4, 16) * codeEditorLineH_;
-    const int valueRows = codeChipRows(deckboy::code::languageVariables(), chipsW);
-    const int fnRows = codeChipRows(deckboy::code::languageFunctions(), chipsW);
-    const int exampleRows = codeChipRows2(codeExamples(), chipsW);
+    // A TEXT CUE IS NOT CODE. The same field is the only multi-line editor
+    // there is, so a text cue borrows it -- but it borrowed the whole of it,
+    // furniture included: an operator typing a title card got a window headed
+    // CODE SOURCE, their words syntax-highlighted, a red line telling them
+    // "HELLO" does not compile, and two rows of language chips. That is not a
+    // text editor wearing the wrong hat, it reads as the wrong dialog opening.
+    const bool words = codeEditor_.textCue;
+    const int valueRows = words ? 0 : codeChipRows(deckboy::code::languageVariables(), chipsW);
+    const int fnRows = words ? 0 : codeChipRows(deckboy::code::languageFunctions(), chipsW);
+    const int exampleRows = words ? 0 : codeChipRows2(codeExamples(), chipsW);
     const int contentH =
         58                                   // title and the how-to line
       + fieldH + 8
-      + 26                                   // the compile result
-      + (20 + valueRows * 26) + 2            // VALUES
-      + (20 + fnRows * 26) + 2               // FUNCTIONS
-      + 26                                   // the hint line
-      + (20 + exampleRows * 26)              // EXAMPLES
+      + 26                                   // the compile result / the count
+      + (words ? 0 : (20 + valueRows * 26) + 2)   // VALUES
+      + (words ? 0 : (20 + fnRows * 26) + 2)      // FUNCTIONS
+      + (words ? 0 : 26)                          // the hint line
+      + (words ? 0 : (20 + exampleRows * 26))     // EXAMPLES
       + 52;                                  // the buttons
     const int panelH = std::clamp(contentH, 360, std::max(360, winH - 100));
     SDL_Rect panel {(winW - panelW) / 2, (winH - panelH) / 2, panelW, panelH};
     codeEditor_.panelRect = panel;
     Primitives::drawFramedPanel(controlRenderer_, panel, pal.light, pal.deep, pal.mid);
 
-    drawText(controlRenderer_, fontBase_, "CODE SOURCE", pal.deep,
+    drawText(controlRenderer_, fontBase_, words ? "TEXT" : "CODE SOURCE", pal.deep,
              panel.x + 16, panel.y + 12);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {panel.x + 16, panel.y + 36, bodyW - 32, 18},
-                 "name values with  d = ...;  end with one expression, or three "
-                 "for red green blue  |  Shift+Enter: new line  |  Enter: apply",
+                 words
+                   ? "the words this cue puts on screen  |  Shift+Enter: new "
+                     "line  |  Enter: apply"
+                   : "name values with  d = ...;  end with one expression, or three "
+                     "for red green blue  |  Shift+Enter: new line  |  Enter: apply",
                  pal.dark);
 
     // ── The field ────────────────────────────────────────────────────────────
@@ -546,9 +556,13 @@ static const std::vector<CodeExample>& codeExamples() {
     // fraction of a pixel per run, and the caret slowly stops agreeing with the
     // text under it.
     const auto cells = codeEditorCells(codeEditor_.text, cols);
-    const auto runs = deckboy::code::highlight(codeEditor_.text);
+    const auto runs = words
+      ? std::vector<deckboy::code::SyntaxRun> {
+          {0, codeEditor_.text.size(), deckboy::code::Syntax::Unknown}}
+      : deckboy::code::highlight(codeEditor_.text);
     for (const auto& run : runs) {
-      const SDL_Color ink = codeSyntaxColour(run.kind);
+      const SDL_Color ink = words ? SDL_Color {236, 238, 244, 255}
+                                  : codeSyntaxColour(run.kind);
       for (std::size_t i = run.begin; i < run.end && i < codeEditor_.text.size(); ++i) {
         const char ch = codeEditor_.text[i];
         if (ch == ' ' || ch == 0x0A) continue;
@@ -575,6 +589,25 @@ static const std::vector<CodeExample>& codeExamples() {
 
     // ── Does it compile ──────────────────────────────────────────────────────
     int y = field.y + field.h + 8;
+    // READ BY THE FRIEND, below, which draws for both kinds -- so they are
+    // declared out here rather than inside the code-only branch.
+    std::string hoverHint;
+    std::string codeError;
+    if (words) {
+      const int lineCount = 1 + static_cast<int>(std::count(
+        codeEditor_.text.begin(), codeEditor_.text.end(), '\n'));
+      char count[96];
+      std::snprintf(count, sizeof(count), "%d line%s, %d character%s",
+                    lineCount, lineCount == 1 ? "" : "s",
+                    static_cast<int>(codeEditor_.text.size()),
+                    codeEditor_.text.size() == 1 ? "" : "s");
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {panel.x + 16, y, bodyW - 32, 20}, count, pal.dark);
+      y += 26;
+      codeEditor_.chipRects.clear();
+      codeEditor_.chips.clear();
+      codeEditor_.exampleRects.clear();
+    } else {
     const deckboy::code::CompiledSource compiled =
       deckboy::code::compile(codeEditor_.text);
     drawTextSafe(controlRenderer_, fontSmall_,
@@ -587,12 +620,14 @@ static const std::vector<CodeExample>& codeExamples() {
                    : compiled.error,
                  compiled.ok() ? SDL_Color {150, 220, 140, 255}
                                : SDL_Color {236, 110, 96, 255});
+    if (!compiled.ok()) {
+      codeError = compiled.error;
+    }
     y += 26;
 
     // ── Helpers ──────────────────────────────────────────────────────────────
     codeEditor_.chipRects.clear();
     codeEditor_.chips.clear();
-    std::string hoverHint;
     auto drawChipRow = [&](const char* heading,
                            const std::vector<deckboy::code::LanguageEntry>& entries) {
       drawText(controlRenderer_, fontSmall_, heading, pal.dark, panel.x + 16, y);
@@ -659,6 +694,7 @@ static const std::vector<CodeExample>& codeExamples() {
       codeEditor_.exampleRects.push_back(box);
       ex += exW + 6;
     }
+    }   // end of the code-only furniture
 
     // ── Apply / Cancel / Clear ───────────────────────────────────────────────
     SDL_Rect applyRect {panel.x + bodyW - 194, panel.y + panel.h - 42, 88, 30};
@@ -694,8 +730,23 @@ static const std::vector<CodeExample>& codeExamples() {
       // What they say, in order of what is most worth saying:
       //   the name under the pointer, then the error, then an idle line.
       std::string say = hoverHint;
-      if (say.empty() && !compiled.ok()) {
-        say = compiled.error;
+      if (say.empty() && !codeError.empty()) {
+        say = codeError;
+      }
+      if (say.empty() && words) {
+        // A DIFFERENT SET FOR WORDS. The code idle lines are about sin and
+        // fract, which is no help at all to somebody typing a title card.
+        static const char* kWordsIdle[] = {
+          "shift+enter for a second line",
+          "size is a percent of the screen, so it reads the same anywhere",
+          "card at zero puts the words over the picture",
+          "wobble gives every letter its own little orbit",
+          "crawl runs it right to left, like a ticker",
+          "scroll up is a credit roll",
+          "the animation runs on the cue's own clock, so it scrubs",
+        };
+        const int n = static_cast<int>(sizeof(kWordsIdle) / sizeof(kWordsIdle[0]));
+        say = kWordsIdle[(animationNow_ / 5200) % n];
       }
       if (say.empty()) {
         // Idle: nothing is wrong and nothing is hovered, so they offer
