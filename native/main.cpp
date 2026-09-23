@@ -8307,6 +8307,8 @@ class App {
   // deck 1 whatever it said -- so the control would have done nothing.
   static constexpr int kSettingsActionOutputHostDeckCycle = 792;
   static constexpr int kSettingsActionOutputAdd = 793;
+  // 690 -- from the 690-701 gap; the 700s are not contiguous (see CLAUDE.md).
+  static constexpr int kSettingsActionDeckAdd = 690;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;

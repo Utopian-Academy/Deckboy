@@ -1983,6 +1983,24 @@
                                    "Which deck's picture this output carries"});
         }
 
+        // ── AND A WAY TO MAKE A PLAYLIST ──────────────────────────────
+        //
+        // OUTSIDE the "more than one deck" test above, deliberately: that
+        // test hides the Source deck row on a single-deck show, and this is
+        // the button that creates the second deck. Putting it inside meant it
+        // appeared only once it was no longer needed -- which is how the
+        // first version of this went in, and it is the same shape of mistake
+        // as every other one on this list.
+        //
+        // James, on the released build: "it seems to refer to a 2nd deck, but
+        // i still only see the one deck and no way to add more." The playlist
+        // header's routing chip is the main door; this is the one at the
+        // place the question is actually asked.
+        drawActionBtn(dLayout.takeFixed(kRowH),
+                      project_.decks.size() > 1
+                        ? "ADD ANOTHER PLAYLIST" : "ADD A SECOND PLAYLIST",
+                      kSettingsActionDeckAdd, false);
+
         // ADD and REMOVE, side by side. Adding an output was reachable only
         // from the network protocol, which from inside the app meant a second
         // deck could not be given a screen at all.
@@ -4483,6 +4501,13 @@
                       ? ("deck " + std::to_string(out.hostDeckIndex + 1))
                       : project_.decks[out.hostDeckIndex].name));
       playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
+    if (sb.action == kSettingsActionDeckAdd) {
+      // The same one call DECKADD and the routing chip make, so a playlist
+      // created here is identical to one created anywhere else -- including
+      // the evolution the second one triggers.
+      addDeck();
       return;
     }
     if (sb.action == kSettingsActionOutputAdd) {
