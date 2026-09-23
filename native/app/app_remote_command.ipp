@@ -425,6 +425,24 @@
                              std::to_string(project_.decks.size());
       return;
     }
+    if (command == "MULTIVIEW" || command == "MULTI") {
+      // MULTIVIEW [ON|OFF|TOGGLE] -- the programme and every playlist in a
+      // grid where the single monitor usually is.
+      const std::string arg = parts.size() > 1 ? toUpper(parts[1]) : std::string("TOGGLE");
+      if (arg == "ON")        project_.multiviewMode = 1;
+      else if (arg == "OFF")  project_.multiviewMode = 0;
+      else if (arg == "TOGGLE") project_.multiviewMode = project_.multiviewMode ? 0 : 1;
+      else {
+        failRemoteCommand("MULTIVIEW: expected ON, OFF or TOGGLE");
+        return;
+      }
+      if (project_.multiviewMode == 0) {
+        clearDeckPreviewTextures();
+      }
+      markProjectDirty();
+      remoteCommandDetail_ = project_.multiviewMode ? "on" : "off";
+      return;
+    }
     if (command == "MIDIFILE") {
       // MIDIFILE            -> report the selected midi file cue
       // MIDIFILE PORT [name]-> which output it plays to ("" = first found)
@@ -4563,7 +4581,12 @@
       triggerParkedCueCreationToast("pip");
       return;
     }
-    if (command == "COMPOSITE" || command == "SCENE" || command == "MULTIVIEW") {
+    // MULTIVIEW WAS AN ALIAS HERE, on a PARKED cue kind that answers "not
+    // built yet" -- and the name now belongs to the monitor grid, which is
+    // both the industry meaning of the word and a thing that exists. This
+    // branch keeps its own two names. Caught by audit_remote_help, which saw
+    // two branches for one verb and said the second could never run.
+    if (command == "COMPOSITE" || command == "SCENE") {
       triggerParkedCueCreationToast("scene");
       return;
     }
@@ -5043,6 +5066,10 @@
           }
           if (typeArg == "STREAM") {
             setFocusedOutputType("stream");
+            return;
+          }
+          if (typeArg == "MULTIVIEW" || typeArg == "MULTI") {
+            setFocusedOutputType("multiview");
             return;
           }
           if (typeArg == "PROMPTER" || typeArg == "TELEPROMPTER") {

@@ -66,6 +66,17 @@
       // A master cue IS a show state: every playlist set to the cue it should
       // be on. The dashboard is where an operator reaches for a show state.
       // This is the one press that connects them.
+      case QuickAction::MultiviewToggle:
+        project_.multiviewMode = project_.multiviewMode ? 0 : 1;
+        if (project_.multiviewMode == 0) {
+          // Give the textures back rather than holding one per playlist for
+          // the rest of the session.
+          clearDeckPreviewTextures();
+        }
+        markProjectDirty();
+        triggerToast(project_.multiviewMode ? "multiview on" : "multiview off");
+        playUiSound(UiSoundEffect::Toggle);
+        return;
       case QuickAction::MasterToDashboard: {
         const Cue* cue = selectedCuePtr();
         if (!cue || cue->kind != CueKind::Master) {

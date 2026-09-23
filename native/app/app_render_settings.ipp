@@ -2029,6 +2029,7 @@
         SDL_Rect typeBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Shows");
         drawUIDropdownValue(typeBtn,
           outputTypeLabel == "presenter" ? "PRESENTER VIEW"
+            : outputTypeLabel == "multiview" ? "MULTIVIEW"
             : outputTypeLabel == "prompter" ? "PROMPTER"
             : (outputTypeLabel == "stream" ? "STREAM" : "PROGRAMME"),
           "settings.output_type");
@@ -5221,12 +5222,13 @@
         setVjMode(!project_.vjModeEnabled);
         triggerToast(project_.vjModeEnabled ? "vj mode on" : "vj mode off");
       } else if (sb.action == kSettingsActionOutputTypeCycle) {
-        // The four, NAMED, rather than a cycle that shows one at a time. The
-        // action id keeps its old name so nothing that already fires it breaks.
+        // NAMED, rather than a cycle that shows one at a time. The action id
+        // keeps its old name so nothing that already fires it breaks.
         openDropdown(
           "settings.output_type",
           sb.rect,
           {{"window", "PROGRAMME"},
+           {"multiview", "MULTIVIEW (every playlist)"},
            {"presenter", "PRESENTER VIEW"},
            {"prompter", "PROMPTER"},
            {"stream", "STREAM"}},
@@ -5238,6 +5240,7 @@
             triggerToast("output shows: " +
                          (value == "presenter" ? std::string("presenter view")
                           : value == "prompter" ? std::string("prompter (the talent's screen)")
+                          : value == "multiview" ? std::string("multiview - every playlist")
                           : value == "stream"   ? std::string("stream")
                                                 : std::string("programme")));
           });

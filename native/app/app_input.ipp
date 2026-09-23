@@ -505,6 +505,54 @@
       dispatchQuickAction(hit.action);
       return;
     }
+    if (multiviewBtnRect_.w > 0 && pointInRect(x, y, multiviewBtnRect_)) {
+      dispatchQuickAction(QuickAction::MultiviewToggle);
+      return;
+    }
+
+    // ── THE MULTIVIEW ───────────────────────────────────────────────────
+    //
+    // The fader first: it sits inside its tile, and testing the tile first
+    // would mean a press on the fader only ever focused the deck.
+    for (std::size_t i = 0; i < multiviewFaderRects_.size(); ++i) {
+      const SDL_Rect& rail = multiviewFaderRects_[i];
+      if (rail.w <= 0 || !pointInRect(x, y, rail)) {
+        continue;
+      }
+      const int deckIndex = multiviewTileDecks_[i];
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        continue;
+      }
+      const bool altHeld = (SDL_GetModState() & SDL_KMOD_ALT) != 0;
+      float value = static_cast<float>(faderValueFromX(x, rail));
+      if (altHeld) {
+        value = value >= 0.5f ? 1.0f : 0.0f;
+      }
+      setFocusedDeckIndex(deckIndex);
+      deckOpacityDragIndex_ = deckIndex;
+      deckOpacityDragRail_ = rail;
+      setDeckPlaylistOpacity(deckIndex, value, true);
+      return;
+    }
+    for (std::size_t i = 0; i < multiviewTileRects_.size(); ++i) {
+      if (!pointInRect(x, y, multiviewTileRects_[i])) {
+        continue;
+      }
+      const int deckIndex = multiviewTileDecks_[i];
+      if (deckIndex == -2) {
+        addDeck();
+      } else if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size())) {
+        setFocusedDeckIndex(deckIndex);
+        playUiSound(UiSoundEffect::Navigate);
+      }
+      return;
+    }
+
+    if (deckAddTabRect_.w > 0 && pointInRect(x, y, deckAddTabRect_)) {
+      addDeck();
+      return;
+    }
+
     // THE PLAYLIST TABS, above the column loop -- the tabs sit inside the
     // playlist area, and that loop claims every press landing in a column.
     for (int di = 0; di < static_cast<int>(deckTabRects_.size()); ++di) {
@@ -570,6 +618,7 @@
         // click-only: every adjustment meant guessing a pixel and clicking
         // again, with no way to slide up to the value you wanted.
         deckOpacityDragIndex_ = deckIndex;
+        deckOpacityDragRail_ = rail;
         setDeckPlaylistOpacity(deckIndex, value, true);
         return;
       }
@@ -1109,8 +1158,8 @@
       return;
     }
     if (deckOpacityDragIndex_ >= 0 &&
-        deckOpacityDragIndex_ < static_cast<int>(deckOpacityFaderRects_.size())) {
-      const SDL_Rect& rail = deckOpacityFaderRects_[deckOpacityDragIndex_];
+        deckOpacityDragIndex_ < static_cast<int>(project_.decks.size())) {
+      const SDL_Rect& rail = deckOpacityDragRail_;
       if (rail.w > 0) {
         setDeckPlaylistOpacity(deckOpacityDragIndex_,
                                static_cast<float>(faderValueFromX(x, rail)), true);

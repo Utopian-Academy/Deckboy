@@ -114,6 +114,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "midi_clock_slave\t" << (project.midiClockSlave ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
+  output << "multiview\t" << project.multiviewMode << '\n';
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
   // The recording FORMAT is part of the show. An operator who set 1080p25
   // ProRes with drop-frame timecode must get it back tomorrow, not the
@@ -875,6 +876,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
   } else if (fields[0] == "splash_character") {
     std::string v = safeString(fields, 1);
     project.splashCharacter = v.empty() ? std::string("deckbot") : v;
+  } else if (fields[0] == "multiview") {
+    project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "update_check") {
     project.updateCheckEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "clock_mode") {

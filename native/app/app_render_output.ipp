@@ -1849,6 +1849,75 @@
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
   }
 
+  // ── A MULTIVIEW ON A SCREEN ───────────────────────────────────────────
+  //
+  // One tile per playlist, each drawn by the same function that draws a layer
+  // -- so every cue kind works in a tile because every cue kind works in a
+  // layer, and nothing is downloaded from the GPU to get here.
+  //
+  // NO PROGRAMME TILE. A multiview output showing "the programme" while being
+  // an output itself is a question with no good answer (which programme? this
+  // one?), and a switcher's wall shows SOURCES. The programme has its own
+  // screen.
+  void renderMultiviewIntoOutput(int outputIndex, const SDL_Rect& bounds) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer) {
+      return;
+    }
+    const int deckCount = static_cast<int>(project_.decks.size());
+    if (deckCount <= 0 || bounds.w <= 0 || bounds.h <= 0) {
+      return;
+    }
+    int cols = 1;
+    while (cols * cols < deckCount) {
+      ++cols;
+    }
+    const int rows = (deckCount + cols - 1) / cols;
+    const int gap = std::max(2, bounds.w / 240);
+    const int tileW = (bounds.w - gap * (cols - 1)) / cols;
+    const int tileH = (bounds.h - gap * (rows - 1)) / rows;
+    if (tileW <= 8 || tileH <= 8) {
+      return;
+    }
+    for (int d = 0; d < deckCount; ++d) {
+      const int col = d % cols;
+      const int row = d / cols;
+      SDL_Rect tile {bounds.x + col * (tileW + gap), bounds.y + row * (tileH + gap),
+                     tileW, tileH};
+      // AUDITION AND PRELOAD STILL HOLD A DECK OFF, the same rule the
+      // compositor follows -- a deck being looked at privately must not
+      // appear on a wall in the room.
+      if (!deckIsHeldOffOutput(d)) {
+        renderDeckLayerIntoOutput(outputIndex, d, tile);
+      }
+      // A border, and the name, so the wall says which is which.
+      SDL_SetRenderDrawColor(runtime->outputRenderer, 40, 40, 48, 255);
+      SDL_Rect edges[] = {
+        {tile.x, tile.y, tile.w, 1},
+        {tile.x, tile.y + tile.h - 1, tile.w, 1},
+        {tile.x, tile.y, 1, tile.h},
+        {tile.x + tile.w - 1, tile.y, 1, tile.h},
+      };
+      for (const SDL_Rect& edge : edges) {
+        SDL_FRect r {static_cast<float>(edge.x), static_cast<float>(edge.y),
+                     static_cast<float>(edge.w), static_cast<float>(edge.h)};
+        SDL_RenderFillRect(runtime->outputRenderer, &r);
+      }
+      if (fontSmall_ && tileH > 28) {
+        SDL_Rect strip {tile.x, tile.y + tile.h - 18, tile.w, 18};
+        SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 170);
+        SDL_FRect sr {static_cast<float>(strip.x), static_cast<float>(strip.y),
+                      static_cast<float>(strip.w), static_cast<float>(strip.h)};
+        SDL_RenderFillRect(runtime->outputRenderer, &sr);
+        SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+        drawTextSafe(runtime->outputRenderer, fontSmall_,
+                     SDL_Rect {strip.x + 4, strip.y + 1, strip.w - 8, 16},
+                     deckLabel(d), pal.light);
+      }
+    }
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
@@ -2538,6 +2607,19 @@
       compositionOutputIndex = output.mirrorSourceOutputIndex;
     }
     const OutputTarget& compositionOutput = project_.outputs[compositionOutputIndex];
+    // WHAT TO DRAW COMES FROM THE OUTPUT BEING MIRRORED, not from this one.
+    //
+    // outputType is this destination's own kind and governs EGRESS -- whether
+    // there is a window or an encoder on the end of it. What gets drawn is a
+    // separate question, and when this output mirrors another the honest
+    // answer is "whatever that one shows". It was taken from outputType
+    // regardless, so a stream mirroring a presenter view, a prompter or a
+    // multiview recorded the PROGRAMME instead of the thing it was pointed
+    // at -- silently, and only discoverable by watching the file afterwards.
+    //
+    // Without a mirror the two are the same output, so this changes nothing
+    // for every show that has one destination.
+    const std::string viewType = normalizeOutputType(compositionOutput.outputType);
     int hostDeckIndex = std::clamp(compositionOutput.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     const Deck& hostDeck = project_.decks[hostDeckIndex];
 
@@ -2583,10 +2665,15 @@
     }
     if (output.outputTestCardEnabled) {
       renderOutputTestCard(outputIndex, runtime->outputRenderer, renderW, renderH);
-    } else if (outputType == "prompter") {
+    } else if (viewType == "prompter") {
       // The talent's screen, not the programme.
       renderPrompterView(outputIndex, hostDeckIndex, bounds);
-    } else if (outputType == "presenter") {
+    } else if (viewType == "multiview") {
+      // EVERY PLAYLIST, ON A SCREEN. Drawn with the same per-deck path the
+      // compositor uses for layers, so a GPU-decoded frame stays on the GPU
+      // and a tile costs what a layer costs.
+      renderMultiviewIntoOutput(outputIndex, bounds);
+    } else if (viewType == "presenter") {
       // Not the programme: what the OPERATOR needs to see. Same window, same
       // display picker, same arming -- a different picture.
       renderPresenterView(outputIndex, hostDeckIndex, bounds);

@@ -2630,6 +2630,13 @@ std::string normalizeOutputType(std::string outputType) {
   if (outputType == "prompter" || outputType == "teleprompter") {
     return "prompter";
   }
+  // MULTIVIEW is the same trick a third time: a screen showing every playlist
+  // at once, which is what a switcher's monitor wall is for. Not a cue kind
+  // for the same reason the other two are not -- it is a thing a DESTINATION
+  // shows, not a thing a playlist plays.
+  if (outputType == "multiview" || outputType == "multi") {
+    return "multiview";
+  }
   return "window";
 }
 
@@ -8572,6 +8579,7 @@ class App {
   // One per deck: the tab that selects it, across the top of the playlist
   // column. Only drawn when there is more than one playlist.
   std::vector<SDL_Rect> deckTabRects_;
+  SDL_Rect deckAddTabRect_ {};   // the + on the end of the strip
   // The program monitor while nothing is live. A creature habitat -- see
   // creatureHabitats() for why the other two are so often empty.
   SDL_Rect idleMonitorRect_ {};
@@ -8792,6 +8800,9 @@ class App {
   // CLICK is a fader you cannot trim: to move it you had to guess a pixel and
   // click again, and to reach an end you had to hit the last pixel exactly.
   int deckOpacityDragIndex_ = -1;
+  // The rail the drag actually started on. Looked up from the column's fader
+  // before, so a fader drawn anywhere else tracked the wrong rectangle.
+  SDL_Rect deckOpacityDragRail_ {};
 
   // A rail position as a 0..1 value, with the ends made reachable.
   //
@@ -8906,6 +8917,23 @@ class App {
   std::string previewCueKey_;
   Cue previewResolvedCue_;
   bool previewResolvedCueValid_ = false;
+  // One small picture per playlist, for the multiview. Refreshed one deck
+  // per tick (see syncDeckPreviewTextures) so the cost does not grow with the
+  // number of playlists.
+  struct DeckPreviewTex {
+    SDL_Texture* tex = nullptr;
+    int w = 0;
+    int h = 0;
+    Uint32 fmt = 0;
+    std::uint64_t frameIdx = 0;
+  };
+  std::vector<DeckPreviewTex> deckPreviewTex_;
+  int deckPreviewCursor_ = 0;
+  std::vector<SDL_Rect> multiviewTileRects_;
+  std::vector<int> multiviewTileDecks_;   // -1 = the programme tile
+  std::vector<SDL_Rect> multiviewFaderRects_;
+  SDL_Rect multiviewBtnRect_ {};
+
   SDL_Texture* controlPreviewTex_ = nullptr;
   int controlPreviewTexW_ = 0;
   int controlPreviewTexH_ = 0;

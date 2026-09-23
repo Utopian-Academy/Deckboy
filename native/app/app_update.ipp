@@ -264,6 +264,7 @@
     // The notes in a MIDI file cue, sent from the cue's own transport
     // position -- so it scrubs, pauses and loops like everything else.
     serviceMidiFileCues();
+    syncDeckPreviewTextures();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;
       syncEngineCueSnapshots();
@@ -1184,6 +1185,69 @@
         pendingTimelineStripReadyTiles_ = 0;
       }
     }
+  }
+
+  // ── ONE PLAYLIST'S PICTURE PER TICK ───────────────────────────────────
+  //
+  // Round-robin rather than all of them: a GPU-resident frame has to be
+  // downloaded to be shown on the control renderer, and doing that for every
+  // deck every frame is the readback cost that used to pin the old preview at
+  // 10fps -- multiplied by the number of playlists. One per tick means five
+  // playlists cost what one does and each tile refreshes about twelve times a
+  // second, which for a thumbnail is indistinguishable from live.
+  void syncDeckPreviewTextures() {
+    const int deckCount = static_cast<int>(project_.decks.size());
+    if (project_.multiviewMode == 0 || deckCount <= 0) {
+      return;
+    }
+    if (static_cast<int>(deckPreviewTex_.size()) != deckCount) {
+      // Grown or shrunk with the show. Textures beyond the new end are
+      // destroyed rather than leaked -- a removed playlist must not keep a
+      // texture alive for the rest of the session.
+      for (int i = deckCount; i < static_cast<int>(deckPreviewTex_.size()); ++i) {
+        if (deckPreviewTex_[i].tex) {
+          SDL_DestroyTexture(deckPreviewTex_[i].tex);
+        }
+      }
+      deckPreviewTex_.resize(deckCount);
+    }
+    deckPreviewCursor_ = (deckPreviewCursor_ + 1) % deckCount;
+    const int deckIndex = deckPreviewCursor_;
+    MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (!engine) {
+      return;
+    }
+    const DecodedFrame* frame = engine->currentFrame();
+    if (!frame) {
+      return;
+    }
+#if DECKBOY_INPROC_DECODE
+    if (frame->isGpu()) {
+      // The download scratch is SHARED across decks on purpose: only one deck
+      // is converted per tick, so one buffer is all that is ever in flight.
+      if (!deckboy::libav::downloadGpuFrameNV12(*frame, controlPreviewGpuScratch_)) {
+        return;
+      }
+      frame = &controlPreviewGpuScratch_;
+    }
+#endif
+    DeckPreviewTex& slot = deckPreviewTex_[deckIndex];
+    if (frame->index == slot.frameIdx && slot.tex) {
+      return;   // nothing new decoded since this tile was last refreshed
+    }
+    if (syncFrameTexture(controlRenderer_, slot.tex, slot.w, slot.h, slot.fmt, *frame)) {
+      slot.frameIdx = frame->index;
+      SDL_SetTextureScaleMode(slot.tex, SDL_SCALEMODE_LINEAR);
+    }
+  }
+
+  void clearDeckPreviewTextures() {
+    for (DeckPreviewTex& slot : deckPreviewTex_) {
+      if (slot.tex) {
+        SDL_DestroyTexture(slot.tex);
+      }
+    }
+    deckPreviewTex_.clear();
   }
 
   void render() {

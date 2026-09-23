@@ -1813,6 +1813,13 @@ struct Project {
   // to ask for them before anything appears, so this switch is for an operator
   // who wants a themed machine WITHOUT the company rather than a guard against
   // surprise. They hide themselves whenever an output is live regardless.
+  // ── THE MULTIVIEW ─────────────────────────────────────────────────────
+  //
+  // 0 = off, the single program monitor. 1 = on: the monitor area becomes a
+  // grid with the programme in the first tile and every playlist after it.
+  // Off by default, because a one-playlist show has nothing to multi-view and
+  // the big monitor is worth more.
+  int multiviewMode = 0;
   bool creaturesEnabled = true;
   // Whether they stay out while an output is live. Off by default: during a
   // show the only thing moving on this machine should be the show. On for
@@ -2135,6 +2142,7 @@ enum class QuickAction {
   // Dashboard tiles. Each carries its slot index in QuickButton::param.
   DashSlotFire, DashSlotEdit, DashSlotColor, DashSlotAdd, DashSlotDelete,
   MasterToDashboard,
+  MultiviewToggle,
   CueSectionAudioToggle,
   // -- Metadata / labels ---
   CycleColorTag,

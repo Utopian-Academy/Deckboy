@@ -424,6 +424,150 @@
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
   }
 
+  // ── THE MULTIVIEW ─────────────────────────────────────────────────────
+  //
+  // The programme, then every playlist, in one grid where the single monitor
+  // used to be. With playlists LAYERED onto an output the composite cannot
+  // tell you what any one of them is doing -- which is the whole reason this
+  // exists: "each deck needs its own preview too, no?"
+  //
+  // AND THE LAYER FADER LIVES HERE. Each deck's playlistOpacity is what
+  // decides how much of that layer you see, and it had been a thin strip at
+  // the bottom of the playlist column, which was fine when it was a deck dim
+  // and is not fine now that it is the layer mixer. On the tile it sits under
+  // the picture it controls, which is where a mixer puts a fader.
+  //
+  // Returns false when there is nothing to multi-view, so the caller draws
+  // the ordinary monitor.
+  bool renderMultiview(const SDL_Rect& area) {
+    multiviewTileRects_.clear();
+    multiviewTileDecks_.clear();
+    multiviewFaderRects_.clear();
+    const int deckCount = static_cast<int>(project_.decks.size());
+    if (project_.multiviewMode == 0 || deckCount < 1 ||
+        area.w < uiScaled(160) || area.h < uiScaled(120)) {
+      return false;
+    }
+    // The programme, the playlists, and a trailing tile that makes another --
+    // the same "never a dead end" rule the dashboard's grid follows, and the
+    // answer to "a way for those decks to be added in the ui" being asked in
+    // the one place where you are looking at all of them at once.
+    const bool canAdd = deckCount < kMaxDecks;
+    const int tileCount = deckCount + 1 + (canAdd ? 1 : 0);
+    // A grid that is WIDER than tall, because a tile is 16:9 and a column of
+    // them wastes the panel. ceil(sqrt) alone gives 2x2 for three tiles, which
+    // leaves a hole; this fills across first.
+    int cols = 1;
+    while (cols * cols < tileCount) {
+      ++cols;
+    }
+    if (cols > 1 && (cols - 1) * cols >= tileCount) {
+      // e.g. 6 tiles -> 3x2 rather than 3x3 with three empty cells.
+    }
+    const int rows = (tileCount + cols - 1) / cols;
+    const int gap = uiScaled(4);
+    const int tileW = (area.w - gap * (cols - 1)) / cols;
+    const int tileH = (area.h - gap * (rows - 1)) / rows;
+    if (tileW < uiScaled(70) || tileH < uiScaled(52)) {
+      return false;   // too small to be a picture; the single monitor is better
+    }
+    const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
+    const int faderH = uiScaled(7);
+
+    for (int i = 0; i < tileCount; ++i) {
+      const int col = i % cols;
+      const int row = i / cols;
+      SDL_Rect tile {area.x + col * (tileW + gap), area.y + row * (tileH + gap),
+                     tileW, tileH};
+      const int deckIndex = i - 1;          // -1 is the programme
+      const bool isAddTile = canAdd && i == tileCount - 1;
+      if (isAddTile) {
+        drawUIPanel(tile, pal.tile, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontLarge_ ? fontLarge_ : fontBase_,
+                             SDL_Rect {tile.x, tile.y + tile.h / 2 - uiScaled(18),
+                                       tile.w, uiScaled(28)},
+                             "+", pal.fg);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect {tile.x, tile.y + tile.h - labelH - uiScaled(4),
+                                       tile.w, labelH},
+                             "add a playlist", pal.fgSoft);
+        multiviewTileRects_.push_back(tile);
+        multiviewTileDecks_.push_back(-2);   // -2 is the add tile
+        multiviewFaderRects_.push_back(SDL_Rect {});
+        continue;
+      }
+      const bool isProgramme = deckIndex < 0;
+      const bool focused = !isProgramme && deckIndex == project_.focusedDeckIndex;
+
+      drawUIPanel(tile, pal.deep, pal.deep, focused ? pal.light : pal.mid);
+
+      // The picture, letterboxed into what is left above the label.
+      SDL_Rect pic {tile.x + uiScaled(2), tile.y + uiScaled(2),
+                    tile.w - uiScaled(4),
+                    tile.h - labelH - (isProgramme ? 0 : faderH) - uiScaled(5)};
+      SDL_Texture* tex = nullptr;
+      int texW = 0;
+      int texH = 0;
+      if (isProgramme) {
+        tex = controlPreviewTex_;
+        texW = controlPreviewTexW_;
+        texH = controlPreviewTexH_;
+      } else if (deckIndex < static_cast<int>(deckPreviewTex_.size())) {
+        tex = deckPreviewTex_[deckIndex].tex;
+        texW = deckPreviewTex_[deckIndex].w;
+        texH = deckPreviewTex_[deckIndex].h;
+      }
+      if (tex && texW > 0 && texH > 0 && pic.w > 0 && pic.h > 0) {
+        const double scale = std::min(static_cast<double>(pic.w) / texW,
+                                      static_cast<double>(pic.h) / texH);
+        const int dw = std::max(1, static_cast<int>(std::lround(texW * scale)));
+        const int dh = std::max(1, static_cast<int>(std::lround(texH * scale)));
+        SDL_FRect dst {static_cast<float>(pic.x + (pic.w - dw) / 2),
+                       static_cast<float>(pic.y + (pic.h - dh) / 2),
+                       static_cast<float>(dw), static_cast<float>(dh)};
+        SDL_RenderTexture(controlRenderer_, tex, nullptr, &dst);
+      } else if (pic.w > 0 && pic.h > 0) {
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, pic,
+                             isProgramme ? "NO PROGRAMME" : "no picture", pal.dark);
+      }
+
+      // The name, and for a playlist whether it is reaching anything.
+      SDL_Rect label {tile.x + uiScaled(3), tile.y + tile.h - labelH - uiScaled(2),
+                      tile.w - uiScaled(6), labelH};
+      if (!isProgramme) {
+        label.y -= faderH + uiScaled(1);
+      }
+      std::string name = isProgramme ? std::string("PROGRAMME") : deckLabel(deckIndex);
+      if (!isProgramme) {
+        name += "  " + playlistRoutingChipLabel(deckIndex);
+      }
+      drawTextSafe(controlRenderer_, fontSmall_, label,
+                   ellipsizeToPixelWidth(fontSmall_, name, label.w),
+                   focused ? pal.light : pal.fgSoft);
+
+      // ── THE LAYER FADER ─────────────────────────────────────────────
+      if (!isProgramme) {
+        SDL_Rect rail {tile.x + uiScaled(3), tile.y + tile.h - faderH - uiScaled(2),
+                       tile.w - uiScaled(6), faderH};
+        const float value = std::clamp(project_.decks[deckIndex].playlistOpacity,
+                                       0.0f, 1.0f);
+        drawUIPanel(rail, pal.tile, pal.deep, pal.mid);
+        SDL_Rect filled {rail.x + 1, rail.y + 1,
+                         std::max(0, static_cast<int>((rail.w - 2) * value)),
+                         rail.h - 2};
+        Primitives::fillRect(controlRenderer_, filled,
+                             value > 0.98f ? pal.light : pal.mid);
+        multiviewFaderRects_.push_back(rail);
+      } else {
+        multiviewFaderRects_.push_back(SDL_Rect {});
+      }
+
+      multiviewTileRects_.push_back(tile);
+      multiviewTileDecks_.push_back(deckIndex);
+    }
+    return true;
+  }
+
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs,
                          const char* overrideTip = nullptr) {
     static const char* kTips[] = {
@@ -2487,6 +2631,22 @@
       }
     }
 
+    // ── MULTI toggle, left of WARP ──────────────────────────────────────
+    //
+    // Only with more than one playlist: on a single-deck show the grid would
+    // be the programme and one tile of the same thing, so the button would
+    // offer a worse version of what is already on screen.
+    multiviewBtnRect_ = SDL_Rect {};
+    if (project_.decks.size() > 1) {
+      const int mvW = uiScaled(66);
+      multiviewBtnRect_ = {programMonitorRect.x + programMonitorRect.w - 76 - 8 - mvW - 4,
+                           programMonitorRect.y + 3, mvW, 26};
+      const bool on = project_.multiviewMode != 0;
+      drawUIPanel(multiviewBtnRect_, paletteToggleFill(on), pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, multiviewBtnRect_,
+                           "MULTI", paletteToggleInk(on));
+    }
+
     // WARP edit toggle button in program monitor header
     {
       const Deck& warpDeck = focusedDeck();
@@ -2628,7 +2788,16 @@
     // it, so it was assigned and wiped on the same frame and the animals had
     // nowhere to be -- the exact fault it was added to fix.
     idleMonitorRect_ = SDL_Rect {};
-    if (vjMixPreview) {
+    // ── THE MULTIVIEW TAKES THE MONITOR, OR NOTHING CHANGES ─────────────
+    //
+    // One branch at the head of the picture chain rather than a second copy
+    // of it: when the grid draws, every arm below is skipped; when it does
+    // not -- multiview off, one playlist, or a panel too small for readable
+    // tiles -- the ordinary monitor draws exactly as before.
+    const bool multiviewDrawn = renderMultiview(warpMonitorInner_);
+    if (multiviewDrawn) {
+      // The grid is the picture. Nothing else to draw here.
+    } else if (vjMixPreview) {
       SDL_Rect inner = warpMonitorInner_;
       const int deckCount = static_cast<int>(project_.decks.size());
       const int decks[2] = {std::clamp(project_.vjDeckA, 0, deckCount - 1),

@@ -1101,6 +1101,7 @@
     // every other hit list: reset where the frame starts, not where the thing
     // is drawn.
     deckTabRects_.clear();
+    deckAddTabRect_ = SDL_Rect {};
 
     if (vjSplitDecks) {
       // A on the left and B on the right, matching the bar above and the way
@@ -1140,22 +1141,37 @@
       if (playlistCol.w < uiScaled(220)) {
         columnsThatFit = 1;
       }
-      // ONLY WHEN THEY DO NOT ALL FIT. With every playlist on screen the tabs
-      // are a row of buttons that select what you are already looking at, and
-      // they cost the columns a row of height and their headers the room to
-      // say their own names.
-      if (deckCountForTabs > columnsThatFit) {
+      // ── ALWAYS, AND WITH A + ON THE END ────────────────────────────────
+      //
+      // This used to appear only when the playlists did not all fit, on the
+      // reasoning that tabs selecting what you can already see are noise.
+      // True as far as it went, and it left a one-playlist show with NO
+      // visible way to make a second one -- which James asked about four
+      // times: "a clear way to add decks", "i dont see a way".
+      //
+      // The strip is where playlists live, so the + belongs on it, and a row
+      // that is always there is a row somebody can learn. The cost is one
+      // row of height; the thing it buys is the feature being findable at
+      // all.
+      {
         const int tabH = uiScaled(22);
         const int count = deckCountForTabs;
+        const bool canAddDeck = count < kMaxDecks;
         deckTabRects_.assign(static_cast<std::size_t>(count), SDL_Rect {});
         const int gap = uiScaled(2);
-        const int each = (playlistCol.w - gap * (count - 1)) / count;
+        // The + takes a fixed narrow slot; the tabs share what is left.
+        const int addW = canAddDeck ? uiScaled(26) : 0;
+        const int tabsW = playlistCol.w - (canAddDeck ? addW + gap : 0);
+        const int each = (tabsW - gap * (count - 1)) / std::max(1, count);
         for (int d = 0; d < count; ++d) {
           SDL_Rect tab {playlistCol.x + d * (each + gap), playlistCol.y,
                         (d == count - 1)
-                          ? playlistCol.x + playlistCol.w - (playlistCol.x + d * (each + gap))
+                          ? playlistCol.x + tabsW - (playlistCol.x + d * (each + gap) - playlistCol.x) - playlistCol.x + playlistCol.x
                           : each,
                         tabH};
+          if (d == count - 1) {
+            tab.w = playlistCol.x + tabsW - tab.x;
+          }
           const bool focused = d == project_.focusedDeckIndex;
           drawUIPanel(tab, focused ? pal.light : pal.dark, pal.deep, pal.mid);
           // The NAME, ellipsized, because a playlist that has been named
@@ -1175,10 +1191,16 @@
                                focused ? pal.deep : pal.fg);
           deckTabRects_[d] = tab;
         }
+        if (canAddDeck) {
+          SDL_Rect add {playlistCol.x + tabsW + gap, playlistCol.y, addW, tabH};
+          drawUIPanel(add, pal.tile, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, add, "+", pal.fg);
+          deckAddTabRect_ = add;
+        } else {
+          deckAddTabRect_ = SDL_Rect {};
+        }
         playlistCol.y += tabH + gap;
         playlistCol.h -= tabH + gap;
-      } else {
-        deckTabRects_.clear();
       }
 
       // ── ONE COLUMN PER PLAYLIST ────────────────────────────────────────
