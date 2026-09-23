@@ -2622,6 +2622,12 @@
     const bool vjMixPreview = project_.vjModeEnabled && project_.decks.size() > 1 &&
                               !controlPreviewIsComposite_ &&
                               vjPreviewTex_[0] && vjPreviewTex_[1];
+    // Cleared before the branches, not after one of them: this is the rect
+    // the creatures live in, and only the branch that draws an EMPTY monitor
+    // may fill it. The first attempt cleared it below the branch that sets
+    // it, so it was assigned and wiped on the same frame and the animals had
+    // nowhere to be -- the exact fault it was added to fix.
+    idleMonitorRect_ = SDL_Rect {};
     if (vjMixPreview) {
       SDL_Rect inner = warpMonitorInner_;
       const int deckCount = static_cast<int>(project_.decks.size());
@@ -2684,6 +2690,21 @@
         const char* advice = hoverTipLast_.empty()
           ? nullptr : mascotAdviceForTip(hoverTipLast_);
         drawStartupMascot(warpMonitorInner_, animationNow_, advice);
+        // SOMEWHERE FOR THE ANIMALS TO BE. The two original habitats are the
+        // empty part of the playlist and the empty part of the inspector --
+        // and in a real show neither exists: James's playlist has 964 cues
+        // and a video cue fills the inspector past the bottom, so
+        // creaturesShouldBeAwake() had been answering "nowhere to be" since
+        // the feature shipped. He had never seen a single one.
+        //
+        // The idle monitor is the one large empty space a working show
+        // actually has, it is already where the mascot waits, and it is
+        // occupied by a picture exactly when the creatures are asleep anyway.
+        idleMonitorRect_ = SDL_Rect {
+          warpMonitorInner_.x + uiScaled(8),
+          warpMonitorInner_.y + warpMonitorInner_.h * 2 / 3,
+          warpMonitorInner_.w - uiScaled(16),
+          warpMonitorInner_.h / 3 - uiScaled(8)};
       } else {
         SDL_Rect emptyRect {programMonitorRect.x + 12, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 24, 20};
         drawCenteredTextSafe(controlRenderer_, fontSmall_, emptyRect,

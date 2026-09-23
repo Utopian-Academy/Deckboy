@@ -169,6 +169,59 @@
   // A MENU RATHER THAN A ROW OF CHIPS, because the number of outputs is not
   // bounded and the column header is. The chip that opens it always says the
   // answer, so the routing is readable without opening anything.
+  // ── WHERE A POPUP MENU GOES, AND HOW IT FITS ──────────────────────────
+  //
+  // One implementation, because there were three and the one thing they all
+  // got wrong was the same thing: a menu taller than the window clamps to the
+  // top and then runs off the bottom regardless. The SOURCE menu offers more
+  // than twenty cue types, so on a 1080 screen its last few -- the DMX cue,
+  // the script cue -- were drawn past the edge and could not be picked at all.
+  //
+  // COLUMNS, not a scrollbar. A menu is a thing you pick from at a glance; a
+  // list you have to scroll to see the end of is a menu that has stopped
+  // being one. Two columns of twelve read faster than twenty-four rows even
+  // when they do fit.
+  //
+  // `anchorX/anchorY` is where the caller would LIKE it, usually the control
+  // it belongs to. It is honoured when it can be.
+  void layoutContextMenu(int anchorX, int anchorY, bool anchorIsBottom = false) {
+    int winW = 0, winH = 0;
+    SDL_GetWindowSize(controlWindow_, &winW, &winH);
+    const int itemH = uiScaled(32);
+    const int pad = uiScaled(4);
+    const int colW = uiScaled(246);
+    const int count = static_cast<int>(contextItems_.size());
+    if (count == 0) {
+      contextMenuRect_ = SDL_Rect {};
+      return;
+    }
+
+    // How many rows fit in the window at all, leaving a margin top and bottom.
+    const int usableH = std::max(itemH, winH - uiScaled(16));
+    const int rowsPerColumn = std::max(1, (usableH - pad * 2) / itemH);
+    const int columns = std::max(1, (count + rowsPerColumn - 1) / rowsPerColumn);
+    const int rows = (count + columns - 1) / columns;
+
+    const int menuW = colW * columns + pad * 2 + uiScaled(4) * (columns - 1);
+    const int menuH = rows * itemH + pad * 2;
+
+    int x = anchorX;
+    int y = anchorIsBottom ? anchorY - menuH - uiScaled(4) : anchorY;
+    x = std::clamp(x, uiScaled(4), std::max(uiScaled(4), winW - menuW - uiScaled(4)));
+    y = std::clamp(y, uiScaled(4), std::max(uiScaled(4), winH - menuH - uiScaled(4)));
+    contextMenuRect_ = {x, y, menuW, menuH};
+
+    for (int i = 0; i < count; ++i) {
+      const int col = i / rows;
+      const int row = i % rows;
+      contextItems_[static_cast<std::size_t>(i)].rect = {
+        x + pad + col * (colW + uiScaled(4)),
+        y + pad + row * itemH,
+        colW, itemH - uiScaled(2)};
+    }
+    uiWatchdogPopupEvent("context_menu", true, count);
+  }
+
   void openPlaylistRoutingMenu(int deckIdx, int mx, int my) {
     if (deckIdx < 0 || deckIdx >= static_cast<int>(project_.decks.size())) {
       return;
@@ -230,20 +283,7 @@
       "  + new output", SDL_Color {40, 90, 130, 255},
       [this]() { addOutput(project_.focusedDeckIndex); }});
 
-    int winW = 0, winH = 0;
-    SDL_GetWindowSize(controlWindow_, &winW, &winH);
-    constexpr int kItemH = 32;
-    constexpr int kMenuW = 246;
-    const int menuH = static_cast<int>(contextItems_.size()) * kItemH + 8;
-    const int mx2 = std::max(4, std::min(mx, winW - kMenuW - 4));
-    const int my2 = std::max(4, std::min(my, winH - menuH - 4));
-    contextMenuRect_ = {mx2, my2, kMenuW, menuH};
-    int iy = my2 + 4;
-    for (auto& item : contextItems_) {
-      item.rect = {mx2 + 4, iy, kMenuW - 8, kItemH - 2};
-      iy += kItemH;
-    }
-    uiWatchdogPopupEvent("context_menu", true, static_cast<int>(contextItems_.size()));
+    layoutContextMenu(mx, my);
   }
 
   // What the chip says: every output this playlist reaches, with its layer.
@@ -385,32 +425,50 @@
     // Picking a named item out of a right-click menu is already deliberate, so
     // this deletes on the first click and says plainly what it is about to do.
     {
-      const bool isLive = cueIdx == deck.activeIndex ||
-        std::find(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(), cueIdx) !=
-          deck.overlayActiveIndices.end();
+      // ── IT DELETES THE SELECTION, NOT THE CUE UNDER THE POINTER ─────────
+      //
+      // Right-clicking one of several selected cues and choosing delete
+      // removed exactly one of them: the menu was built with the clicked
+      // index and nothing else, so a multi-selection was silently ignored by
+      // the one command most likely to be used on one. Every other row action
+      // in the playlist already applies to the whole selection when the cue
+      // you pressed is part of it; this did not.
+      //
+      // ONLY WHEN THE CLICKED CUE IS IN THE SELECTION. Right-clicking OUTSIDE
+      // a selection means "I mean this one", and deleting somebody's whole
+      // selection because they right-clicked past it would be far worse than
+      // the bug being fixed.
+      std::vector<int> victims {cueIdx};
+      const bool clickedInSelection =
+        std::find(deck.selectedIndices.begin(), deck.selectedIndices.end(), cueIdx)
+          != deck.selectedIndices.end();
+      if (clickedInSelection && deck.selectedIndices.size() > 1) {
+        victims = deck.selectedIndices;
+      }
+      bool anyLive = false;
+      for (int victim : victims) {
+        anyLive = anyLive || victim == deck.activeIndex ||
+          std::find(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(),
+                    victim) != deck.overlayActiveIndices.end();
+      }
+      // The label says HOW MANY, because "delete cue" on a selection of nine
+      // is the one place a wrong guess costs the most.
+      std::string label;
+      if (victims.size() > 1) {
+        label = std::string(anyLive ? "— delete " : "— delete ") +
+                std::to_string(victims.size()) + " cues" + (anyLive ? " (one is LIVE)" : "");
+      } else {
+        label = anyLive ? "— delete LIVE cue" : "— delete cue";
+      }
       contextItems_.push_back({
-        isLive ? "— delete LIVE cue" : "— delete cue",
-        isLive ? SDL_Color{140, 30, 30, 255} : SDL_Color{80, 30, 30, 255},
-        [this, deckIdx, cueIdx]() {
-          requestDeleteCueIndices(deckIdx, {cueIdx}, /*alreadyConfirmed=*/true);
+        label,
+        anyLive ? SDL_Color{140, 30, 30, 255} : SDL_Color{80, 30, 30, 255},
+        [this, deckIdx, victims]() {
+          requestDeleteCueIndices(deckIdx, victims, /*alreadyConfirmed=*/true);
         }});
     }
 
-    // Position menu so it fits on screen
-    int winW = 0, winH = 0;
-    SDL_GetWindowSize(controlWindow_, &winW, &winH);
-    constexpr int kItemH = 32;
-    constexpr int kMenuW = 212;
-    int menuH = static_cast<int>(contextItems_.size()) * kItemH + 8;
-    int mx2 = std::min(mx, winW - kMenuW - 4);
-    int my2 = std::min(my, winH - menuH - 4);
-    contextMenuRect_ = {mx2, my2, kMenuW, menuH};
-    int iy = my2 + 4;
-    for (auto& item : contextItems_) {
-      item.rect = {mx2 + 4, iy, kMenuW - 8, kItemH - 2};
-      iy += kItemH;
-    }
-    uiWatchdogPopupEvent("context_menu", true, static_cast<int>(contextItems_.size()));
+    layoutContextMenu(mx, my);
   }
 
   void handleContextMenuClick(int x, int y) {
@@ -422,7 +480,13 @@
     }
     for (auto& item : contextItems_) {
       if (pointInRect(x, y, item.rect)) {
-        if (item.action) item.action();
+        // A HEADING IS NOT A MISS. Closing the menu because somebody's finger
+        // landed on the word SOURCES is the most annoying way to lose a menu
+        // there is: nothing happened, and now it is gone.
+        if (!item.action) {
+          return;
+        }
+        item.action();
         contextMenuOpen_ = false;
         uiWatchdogPopupEvent("context_menu", false);
         return;
@@ -431,32 +495,68 @@
     contextMenuOpen_ = false;
     uiWatchdogPopupEvent("context_menu", false);
   }
-  // ── A MENU IS OPAQUE, AND IT BELONGS TO THE THEME ───────────────────────
+  // ── A MENU IS OPAQUE, BELONGS TO THE THEME, AND HAS DEPTH ───────────────
   //
-  // This filled with a hardcoded dark green at alpha 245 -- so it ignored the
-  // theme entirely (a dark green box on a light colourway), and at 96% opacity
-  // whatever was behind it read straight through: with the menu open over the
-  // timeline you could read "The timeline can be scrubbed" through the list of
-  // source types.
+  // It filled with a hardcoded dark green at alpha 245 -- ignoring the theme
+  // entirely, and at 96% opacity you could read the timeline's hint text
+  // straight through the list of source types. That was fixed by using the
+  // chrome roles CLAUDE.md names for a structural panel, at full opacity.
   //
-  // It now uses the chrome roles CLAUDE.md names for a structural panel --
-  // pal.tile filled, pal.fg inked -- at full opacity, and the hovered row goes
-  // BRIGHTER with dark ink like every other lit control in the program.
+  // What that left was a flat list: a rectangle with rows of text in it, in a
+  // program where every other control is a raised tile with a bezel. James,
+  // on the source picker: "i dont like the way the popup menu works when
+  // selecting a source, its too flat."
+  //
+  // So each ITEM is a control now, drawn like one -- and the rows that are
+  // not controls (a heading, a name at the top of a routing menu) are drawn
+  // as headings instead, which is information the flat version threw away:
+  // every row looked equally pressable and half of them were not.
   void renderContextMenu() {
     if (!contextMenuOpen_) return;
-    drawUIPanel(contextMenuRect_, pal.tile, pal.deep, pal.mid);
+
+    // A shadow, so the menu sits ABOVE the window rather than in it. Four
+    // offset rects rather than a blur: cheap, and at this size a hard shadow
+    // reads as depth just as well.
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    for (int step = 1; step <= 3; ++step) {
+      const int off = uiScaled(step * 2);
+      SDL_Rect shade {contextMenuRect_.x + off, contextMenuRect_.y + off,
+                      contextMenuRect_.w, contextMenuRect_.h};
+      Primitives::fillRect(controlRenderer_, shade,
+                           SDL_Color {0, 0, 0, static_cast<Uint8>(60 - step * 15)});
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    Primitives::drawFramedPanel(controlRenderer_, contextMenuRect_,
+                                pal.tile, pal.deep, pal.mid);
     const int swatchW = uiScaled(12);
-    const int textX = uiScaled(18);
+    const int textX = uiScaled(22);
     for (const auto& item : contextItems_) {
       const bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, item.rect);
-      if (hover) {
-        Primitives::fillRect(controlRenderer_, item.rect, pal.light);
+      // A ROW WITH NO ACTION IS A HEADING, and headings do not get a tile --
+      // that is the whole point of the distinction. Underlined, so the group
+      // it heads reads as a group.
+      if (!item.action) {
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {item.rect.x + uiScaled(4), item.rect.y,
+                               item.rect.w - uiScaled(8), item.rect.h},
+                     item.label, pal.fgSoft);
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect {item.rect.x + uiScaled(4),
+                                       item.rect.y + item.rect.h - uiScaled(2),
+                                       item.rect.w - uiScaled(8), std::max(1, uiScaled(1))},
+                             pal.mid);
+        continue;
       }
-      // Colour swatch (small square on the left).
+      // Every other row IS a control, so it is drawn as one: a raised tile
+      // with the same lit/unlit pair every toggle in the program uses, which
+      // is what makes a menu feel like a stack of buttons rather than a list.
+      drawUIPanel(item.rect, paletteToggleFill(hover), pal.deep, pal.mid);
       if (item.swatch.a > 0) {
-        SDL_Rect sw {item.rect.x, item.rect.y + uiScaled(5),
+        SDL_Rect sw {item.rect.x + uiScaled(4), item.rect.y + uiScaled(5),
                      swatchW, item.rect.h - uiScaled(10)};
         Primitives::fillRect(controlRenderer_, sw, item.swatch);
+        Primitives::strokeRect(controlRenderer_, sw, pal.deep);
       }
       // Into a rect, so a long source name ellipsizes inside the menu instead
       // of running out of its right edge.
@@ -464,7 +564,7 @@
                    SDL_Rect {item.rect.x + textX, item.rect.y,
                              std::max(uiScaled(40), item.rect.w - textX - uiScaled(6)),
                              item.rect.h},
-                   item.label, hover ? pal.deep : pal.fg);
+                   item.label, paletteToggleInk(hover));
     }
   }
 

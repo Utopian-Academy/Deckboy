@@ -1109,7 +1109,108 @@
         renderPlaylistColumn(colB, deckB);
       }
     } else {
-      renderPlaylistColumn(playlistCol, 0);
+      // ── A TAB PER PLAYLIST ─────────────────────────────────────────────
+      //
+      // Splitting the column side by side is the right thing when it fits,
+      // and at the default width it does not -- so on its own it left an
+      // operator who had just added a playlist looking at the same single
+      // column, with the second one reachable only by dragging a splitter
+      // they have no reason to think is involved.
+      //
+      // The tabs are the answer that works at every width. They appear only
+      // with more than one playlist, so a single-deck show is untouched.
+      const int deckCountForTabs = static_cast<int>(project_.decks.size());
+      const int minColumnWForTabs = uiScaled(96);
+      const int columnsThatFit = std::max(1, std::min(deckCountForTabs,
+        (playlistCol.w + kLayoutPanelGap) / (minColumnWForTabs + kLayoutPanelGap)));
+      // ONLY WHEN THEY DO NOT ALL FIT. With every playlist on screen the tabs
+      // are a row of buttons that select what you are already looking at, and
+      // they cost the columns a row of height and their headers the room to
+      // say their own names.
+      if (deckCountForTabs > columnsThatFit) {
+        const int tabH = uiScaled(22);
+        const int count = deckCountForTabs;
+        deckTabRects_.assign(static_cast<std::size_t>(count), SDL_Rect {});
+        const int gap = uiScaled(2);
+        const int each = (playlistCol.w - gap * (count - 1)) / count;
+        for (int d = 0; d < count; ++d) {
+          SDL_Rect tab {playlistCol.x + d * (each + gap), playlistCol.y,
+                        (d == count - 1)
+                          ? playlistCol.x + playlistCol.w - (playlistCol.x + d * (each + gap))
+                          : each,
+                        tabH};
+          const bool focused = d == project_.focusedDeckIndex;
+          drawUIPanel(tab, focused ? pal.light : pal.dark, pal.deep, pal.mid);
+          // The NAME, ellipsized, because a playlist that has been named
+          // "Lower thirds" is worth far more than "2" -- and the number is
+          // still there in front of it.
+          std::string label = std::to_string(d + 1) + " " +
+            (project_.decks[d].name.empty() ? deckDefaultName(d) : project_.decks[d].name);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, tab,
+                               ellipsizeToPixelWidth(fontSmall_, label, tab.w - uiScaled(8)),
+                               focused ? pal.deep : pal.fg);
+          deckTabRects_[d] = tab;
+        }
+        playlistCol.y += tabH + gap;
+        playlistCol.h -= tabH + gap;
+      } else {
+        deckTabRects_.clear();
+      }
+
+      // ── ONE COLUMN PER PLAYLIST ────────────────────────────────────────
+      //
+      // This said `renderPlaylistColumn(playlistCol, 0)` -- deck 0, always.
+      // Outside VJ mode the column drew DECK 1 whatever the focused deck was
+      // and however many decks existed, so adding a second playlist changed
+      // nothing visible: the deck was there, it decoded, it played, and it
+      // had no column. The compositor had the identical fault a layer down.
+      //
+      // SIDE BY SIDE while they fit, because that is the whole point of
+      // having two: a camera playlist and a lower-thirds playlist are worked
+      // TOGETHER, and a tab strip would mean looking away from one to touch
+      // the other. Below a readable width the focused one takes the column on
+      // its own -- a row of 90px columns is not two playlists, it is neither.
+      // THE SAME SPLIT VJ MODE ALREADY MAKES. The first version of this
+      // demanded 210 scaled pixels a column before it would split, so at the
+      // playlist's default width it never did -- and adding a playlist still
+      // showed one column. James, looking at it: "it split nicely in vj mode
+      // already." VJ mode halves the column with no minimum at all, and it
+      // reads perfectly well, so this uses the same figure: whatever a half
+      // is, that is wide enough.
+      const int deckCount = static_cast<int>(project_.decks.size());
+      const int minColumnW = uiScaled(96);
+      int columns = std::max(1, std::min(deckCount,
+                                         (playlistCol.w + kLayoutPanelGap) /
+                                           (minColumnW + kLayoutPanelGap)));
+      if (columns <= 1) {
+        renderPlaylistColumn(playlistCol, std::clamp(project_.focusedDeckIndex,
+                                                     0, deckCount - 1));
+      } else {
+        // THE FOCUSED DECK IS ALWAYS ONE OF THEM. With more playlists than
+        // fit, the window shows a run of them starting at the focused one,
+        // so selecting a deck can never leave the operator looking at a set
+        // of columns that does not contain the one they are working on.
+        int first = std::clamp(project_.focusedDeckIndex, 0, deckCount - 1);
+        first = std::min(first, std::max(0, deckCount - columns));
+        const int gaps = kLayoutPanelGap * (columns - 1);
+        const int each = (playlistCol.w - gaps) / columns;
+        for (int i = 0; i < columns; ++i) {
+          const int deckIndex = first + i;
+          if (deckIndex >= deckCount) {
+            break;
+          }
+          SDL_Rect col {playlistCol.x + i * (each + kLayoutPanelGap),
+                        playlistCol.y,
+                        // The last one takes the remainder, so integer
+                        // division never leaves a sliver of background down
+                        // the right-hand edge.
+                        (i == columns - 1) ? playlistCol.x + playlistCol.w -
+                                               (playlistCol.x + i * (each + kLayoutPanelGap))
+                                           : each,
+                        playlistCol.h};
+          renderPlaylistColumn(col, deckIndex);
+        }
+      }
     }
     if (mainPanel.w > 60 && mainPanel.h > 60) {
       renderMainPanel(mainPanel);
@@ -1171,7 +1272,7 @@
     {
       std::size_t wanted = 0;
       for (const auto& r : themeCreatures_) wanted += r.count;
-      if (creatures_.size() != wanted) rebuildCreatures();
+      if (placedCreatureCount() != wanted) rebuildCreatures();
     }
     creatureLureX_ = programAreaRect_.w > 0
       ? programAreaRect_.x + programAreaRect_.w * 0.5 : width * 0.5;
@@ -1286,8 +1387,15 @@
   // and both saying "PLAYLIST" is the ambiguity that puts the wrong clip in
   // front of an audience, so each says which side of the crossfader it is.
   std::string playlistColumnTitle(int deckIndex) const {
-    if (!project_.vjModeEnabled || project_.decks.size() < 2) {
+    if (project_.decks.size() < 2) {
       return "PLAYLIST";
+    }
+    if (!project_.vjModeEnabled) {
+      // WHICH ONE, not what it is. With two columns side by side, two headers
+      // both reading PLAYLIST say nothing, and at that width the word was
+      // being ellipsized to "P|" anyway -- which reads as a fault.
+      const std::string& name = project_.decks[deckIndex].name;
+      return name.empty() ? deckDefaultName(deckIndex) : name;
     }
     const int deckCount = static_cast<int>(project_.decks.size());
     if (deckIndex == std::clamp(project_.vjDeckA, 0, deckCount - 1)) {

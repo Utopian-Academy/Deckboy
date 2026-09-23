@@ -505,6 +505,16 @@
       dispatchQuickAction(hit.action);
       return;
     }
+    // THE PLAYLIST TABS, above the column loop -- the tabs sit inside the
+    // playlist area, and that loop claims every press landing in a column.
+    for (int di = 0; di < static_cast<int>(deckTabRects_.size()); ++di) {
+      if (deckTabRects_[di].w > 0 && pointInRect(x, y, deckTabRects_[di])) {
+        setFocusedDeckIndex(di);
+        playUiSound(UiSoundEffect::Navigate);
+        return;
+      }
+    }
+
     // THE ROUTING CHIP, and like the scrollbar below it this has to be tested
     // ABOVE the deck-column loop: that loop claims every press landing in a
     // column and returns on all of them, and the header is inside the column.

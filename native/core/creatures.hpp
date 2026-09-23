@@ -101,6 +101,11 @@ struct Creature {
 struct Habitat {
   int x = 0, y = 0, w = 0, h = 0;
   bool ledge = false;   // a horizontal edge things can walk along
+  // IS THE GROUND DARK? The app knows what it laid out behind each gap; the
+  // creatures do not, and an animal inked for a tile-filled panel is one
+  // barely-visible pixel on the near-black floor of an idle monitor. This is
+  // the one thing about the surroundings they are told.
+  bool darkGround = false;
 };
 
 // Deterministic, so a creature does not teleport when the window is resized and

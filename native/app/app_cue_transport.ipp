@@ -1923,7 +1923,6 @@
   // was and where it is now.
   void serviceMidiFileCues() {
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      const Deck& deck = project_.decks[deckIndex];
       double& cursor = midiFileCursorForDeck(deckIndex);
       const Cue* cue = activeCuePtr(deckIndex);
       if (!cue || cue->kind != CueKind::MidiFile) {

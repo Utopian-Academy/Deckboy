@@ -131,27 +131,60 @@ inline int paletteColorDistance(SDL_Color a, SDL_Color b) {
          std::abs(static_cast<int>(a.b) - static_cast<int>(b.b));
 }
 
-// The fill for a two-state control. ON IS INVERTED, NOT MERELY BRIGHTER.
+// The fill for a two-state control. ON IS THE LIT ONE, AND IT IS LIT IN EVERY
+// THEME -- which is harder than it sounds, and has now been got wrong twice in
+// opposite directions.
 //
-// v0.99.339 changed the lit fill from `pal.dark` to `pal.light` on the grounds
-// that a switched-on row should be the easiest to read rather than the hardest.
-// That reasoning is fine in isolation and wrong in practice: `pal.light` is
-// what the panel and the unlit tiles are already made of, so "brighter" had
-// nothing to be brighter than, and on half the bundled themes the two states
-// came out the SAME COLOUR. Even once the unlit state was receded to restore a
-// difference, James's verdict on looking at it was that the older colours were
-// better and that on and off have to be CLEAR. His call, and it is the right
-// one: a lit control should be unmistakable across a dark room at a glance,
-// not a shade apart from its neighbour.
+// v0.99.339 made the lit fill `pal.light` on the grounds that a switched-on row
+// should be the easiest to read. That was right in principle and broken in
+// practice: `pal.light` is what panels and unlit tiles are already made of, so
+// on half the bundled themes the two states came out the SAME COLOUR. It was
+// reverted to ON = `pal.dark`, OFF = `pal.tile`, which is unmistakable -- but
+// only on themes where `tile` is recessive. On a terminal theme `tile` IS the
+// bright one, so an operator looking at this reads every OFF row as lit and
+// every ON row as dark. James, looking at exactly that: "the cue toggles seem
+// lit when deactivated and dark when activated, this seems inverted to me."
 //
-// So ON is the deep fill with light ink, OFF is the tile with its normal ink --
-// the two furthest-apart pairs the palette has, in every theme.
+// Both attempts picked a fixed pair of palette roles and hoped they landed the
+// right way round. They cannot: the roles mean different brightnesses in
+// different themes. So pick by BRIGHTNESS, which is the thing the eye is
+// actually reading, and guarantee the gap.
+namespace detail {
+
+inline int paletteLuma(SDL_Color c) {
+  // Rec. 601, which is close enough for "which of these two looks brighter"
+  // and needs no floating point.
+  return (299 * c.r + 587 * c.g + 114 * c.b) / 1000;
+}
+
+}  // namespace detail
+
 inline SDL_Color paletteToggleFill(bool on) {
-  return on ? pal.dark : pal.tile;
+  // The brightest and the dimmest fills the palette offers for a small raised
+  // control. ON takes the bright end, OFF the dim end, whatever those happen
+  // to be called in this theme.
+  const SDL_Color candidates[] = {pal.light, pal.tile, pal.dark, pal.deep};
+  const SDL_Color* brightest = &candidates[0];
+  const SDL_Color* dimmest = &candidates[0];
+  for (const SDL_Color& c : candidates) {
+    if (detail::paletteLuma(c) > detail::paletteLuma(*brightest)) brightest = &c;
+    if (detail::paletteLuma(c) < detail::paletteLuma(*dimmest)) dimmest = &c;
+  }
+  // AND THE GAP IS GUARANTEED. If a theme's fills are all close together,
+  // the unlit one is pushed further from the lit one rather than left a shade
+  // apart -- a difference nobody can see is the same bug in a third form.
+  if (!on && paletteColorDistance(*brightest, *dimmest) < 90) {
+    return paletteMix(*dimmest, detail::paletteLuma(*brightest) > 128
+                                  ? SDL_Color {0, 0, 0, 255}
+                                  : SDL_Color {255, 255, 255, 255}, 0.35);
+  }
+  return on ? *brightest : *dimmest;
 }
 
 // The ink that belongs on that fill, kept beside it so a caller cannot pair a
-// lit fill with the ink for an unlit one.
+// lit fill with the ink for an unlit one. Chosen for contrast against the fill
+// rather than assumed, for the same reason the fill is.
 inline SDL_Color paletteToggleInk(bool on) {
-  return on ? pal.light : pal.fg;
+  const SDL_Color fill = paletteToggleFill(on);
+  return detail::paletteLuma(fill) > 128 ? pal.deep : pal.light;
 }

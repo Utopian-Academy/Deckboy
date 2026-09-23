@@ -2210,6 +2210,14 @@
     if (buttons_.size() > 1 && buttons_[1].label == "SOURCE") {
       sourceButtonRect = buttons_[1].rect;
     }
+    // ── GROUPED ────────────────────────────────────────────────────────
+    //
+    // The list ran twenty-odd entries with no structure at all, so a camera
+    // and a DMX cue sat in the same undifferentiated column -- which is most
+    // of what "too flat" is. They are three different kinds of thing and the
+    // menu now says so. A heading is an item with no action; renderContextMenu
+    // draws those as headings and the click handler ignores them.
+    contextItems_.push_back({"LIVE PICTURE", {0, 0, 0, 0}, nullptr});
     for (const auto& [token, label] : sourceCueTypeChoices()) {
       bool isDefault = (token == sourceDefaultTypeId_);
       contextItems_.push_back({
@@ -2266,6 +2274,7 @@
     // only from the PATTERN picker -- and nobody looking for a SOURCE called
     // "code source" thinks to open the pattern list. Where a thing lives in
     // the code is not where an operator expects to find it.
+    contextItems_.push_back({"MADE BY DECKBOY", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
       "  Fireside (a hearth that burns)",
       {0, 0, 0, 0},
@@ -2320,6 +2329,7 @@
     // over the socket, which for anyone driving Deckboy by hand meant it did
     // not exist. Where a kind belongs in the taxonomy matters less than
     // whether an operator can find it.
+    contextItems_.push_back({"CUES THAT DO THINGS", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
       "  Master Cue (fires other decks)",
       {0, 0, 0, 0},
@@ -2364,39 +2374,15 @@
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
     SDL_GetWindowSize(controlWindow_, &winW, &winH);
-    // SCALED, and tall enough for the font actually in use. The width was
-    // already measured from the labels; the row height was a raw 32, so at a
-    // 1.5x desktop the items were a menu's worth of larger text in a menu
-    // sized for smaller text.
-    const int kItemH = std::max(uiScaled(32), textLineHeight(fontSmall_) + uiScaled(10));
-    const int kMenuPad = uiScaled(18);
-    int kMenuW = uiScaled(212);
-    if (fontSmall_) {
-      for (const auto& item : contextItems_) {
-        const int tw = measuredTextWidth(fontSmall_, item.label);
-        if (tw > 0) {
-          kMenuW = std::max(kMenuW, tw + kMenuPad * 2);
-        }
-      }
-    }
-    int menuH = static_cast<int>(contextItems_.size()) * kItemH + uiScaled(8);
-    int mx = 0, my = 0;
+    // ABOVE the SOURCE button, which is what it belongs to. The row height
+    // and the column width belong to layoutContextMenu now -- they were
+    // measured here and in two other places, and only one of the three
+    // scaled with the font.
     if (buttons_.size() > 1 && buttons_[1].label == "SOURCE") {
-      mx = buttons_[1].rect.x;
-      my = buttons_[1].rect.y - menuH - 4;
+      layoutContextMenu(buttons_[1].rect.x, buttons_[1].rect.y, true);
     } else {
-      mx = winW / 2 - kMenuW / 2;
-      my = winH / 2 - menuH / 2;
+      layoutContextMenu(winW / 2 - uiScaled(123), winH / 3);
     }
-    mx = std::clamp(mx, 4, std::max(4, winW - kMenuW - 4));
-    my = std::clamp(my, 4, std::max(4, winH - menuH - 4));
-    contextMenuRect_ = {mx, my, kMenuW, menuH};
-    int iy = my + uiScaled(4);
-    for (auto& item : contextItems_) {
-      item.rect = {mx + uiScaled(4), iy, kMenuW - uiScaled(8), kItemH - uiScaled(2)};
-      iy += kItemH;
-    }
-    uiWatchdogPopupEvent("context_menu", true, static_cast<int>(contextItems_.size()));
   }
 
   void addLowerThirdCue() {
@@ -5747,7 +5733,10 @@
     // than ideal is readable, one drawn on top of its neighbour is not.
     const int fitsPerButton =
       (std::min(mediaGroupRect_.w, transportGroupRect_.w) - (kLayoutButtonGap * 4)) / 3;
-    int buttonW = std::clamp(fitsPerButton, 1, uiScaled(144));
+    // ... and wider, for the same reason. 144 was a cap chosen when the bar
+    // held fewer groups; on a wide window it left three small buttons adrift
+    // in a box three times their width.
+    int buttonW = std::clamp(fitsPerButton, 1, uiScaled(240));
 
     auto push = [&](std::string label, SDL_Color fill, std::string tip = "") {
       Button button;
@@ -5847,7 +5836,25 @@
         }
       }
 
+      // ── THE BUTTONS TAKE THE BOX ──────────────────────────────────────
+      //
+      // They were kLayoutButtonHeight tall in a box more than twice that
+      // deep, so the bottom bar read as three big empty panels with a thin
+      // strip of controls in the middle of each -- James, twice: "are the
+      // bottom buttons a bit small?" and then "still a bit smol, M8?".
+      //
+      // DECIDED HERE, because here is the only place that knows whether this
+      // group wrapped: one row takes the whole inner height, two rows take
+      // half each. Deciding it outside meant either small buttons or a
+      // second row that could never fit, which is the wrap fix undone.
       const int rows = (count + perRow - 1) / perRow;
+      const int innerH = std::max(0, groupRect.h - titleH - kLayoutSpacingUnit);
+      if (rows == 1) {
+        buttonH = std::max(kLayoutButtonHeight, innerH);
+      } else {
+        buttonH = std::max(kLayoutButtonHeight,
+                           (innerH - kLayoutButtonGap) / rows);
+      }
       const int rowsH = rows * buttonH + (rows - 1) * kLayoutButtonGap;
       int y = groupRect.y + titleH;
       // Centre the block vertically in whatever is left, so a two-row group
@@ -5873,13 +5880,44 @@
                                          rowBw, buttonH};
       }
     };
-    if (buttons_.size() == 10) {
-      placeGroupButtons(0, 3, mediaGroupRect_);
-      placeGroupButtons(3, 3, transportGroupRect_);
-      // OUTPUT now holds four: BLACKOUT, CLEAR, RECORD, SETTINGS.
-      // Four buttons in this group, and the same rule: fit first.
-      int outBtnW = std::clamp((outputGroupRect_.w - kLayoutButtonGap * 5) / 4, 1, buttonW);
-      placeGroupButtons(6, 4, outputGroupRect_, outBtnW);
+    // ── PLACING THEM, WITHOUT COUNTING THEM ───────────────────────────────
+    //
+    // This was guarded by `if (buttons_.size() == 10)`. Adding an eleventh
+    // button did not add an eleventh button: it made the guard false, so
+    // NOTHING was placed, every rect stayed {0,0,0,0}, and the whole bottom
+    // bar drew as three empty boxes -- IMPORT, SOURCE, PATTERN, TAKE, STOP,
+    // RERACK, BLACK, CLEAR, RECORD and MENU all gone at once, from one line.
+    //
+    // An exact count is a tripwire, not a guard. The groups are fixed sizes
+    // from the front and the REST goes in OUTPUT, so a new button lands
+    // somewhere sensible instead of deleting the bar.
+    {
+      const int total = static_cast<int>(buttons_.size());
+      const int mediaCount = std::min(3, total);                 // IMPORT SOURCE PATTERN
+      const int transportCount = std::min(3, total - mediaCount); // TAKE STOP RERACK
+      const int outputCount = total - mediaCount - transportCount;
+      if (mediaCount > 0) {
+        placeGroupButtons(0, mediaCount, mediaGroupRect_);
+      }
+      if (transportCount > 0) {
+        placeGroupButtons(mediaCount, transportCount, transportGroupRect_);
+      }
+      if (outputCount > 0) {
+        const int outBtnW = std::clamp(
+          (outputGroupRect_.w - kLayoutButtonGap * (outputCount + 1)) / outputCount,
+          1, buttonW);
+        placeGroupButtons(mediaCount + transportCount, outputCount,
+                          outputGroupRect_, outBtnW);
+      }
+      // AND SAY SO IF ONE WAS MISSED. A button with no rect cannot be drawn
+      // and cannot be pressed; silently having none is exactly the failure
+      // this replaced.
+      for (const Button& button : buttons_) {
+        if (button.rect.w <= 0 || button.rect.h <= 0) {
+          std::cerr << "bottom bar: '" << button.label
+                    << "' was given no place to sit" << std::endl;
+        }
+      }
     }
   }
 

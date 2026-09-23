@@ -69,14 +69,18 @@
   // nothing about panels.
   std::vector<deckboy::creatures::Habitat> creatureHabitats() const {
     std::vector<deckboy::creatures::Habitat> out;
-    auto consider = [&out](const SDL_Rect& r, bool ledge) {
+    auto consider = [&out](const SDL_Rect& r, bool ledge, bool darkGround = false) {
       if (r.w >= 80 && r.h >= 70) {
-        out.push_back(deckboy::creatures::Habitat {r.x, r.y, r.w, r.h, ledge});
+        out.push_back(deckboy::creatures::Habitat {r.x, r.y, r.w, r.h, ledge, darkGround});
       }
     };
     // The empty part of the playlist, under the last cue. A ledge: the row
     // above it is a surface things can walk along.
     consider(playlistFreeRect_, true);
+    // The floor of the idle program monitor. A ledge, like the playlist: the
+    // bottom of the monitor is a surface. Cleared the moment a cue goes live
+    // (see below), so nothing is ever drawn over a picture.
+    consider(idleMonitorRect_, true, /*darkGround=*/true);
     // The empty part of the inspector, under its last open section. No ledge --
     // it is a wall of panel, so this is where the fliers go.
     if (inspectorBodyRect_.w > 0 && inspectorSectionBottomMax_ > 0) {
@@ -88,9 +92,22 @@
     return out;
   }
 
+  // How many animals are actually placed, across every colony. The rebuild
+  // trigger asks this; it used to ask `creatures_.size()`, a vector that is
+  // cleared here and filled NOWHERE -- so the answer was always 0, never
+  // matched the theme's request, and rebuildCreatures() ran on every single
+  // frame. Every animal was re-placed at its seed position sixty times a
+  // second, which is a colony that can never take a step.
+  std::size_t placedCreatureCount() const {
+    std::size_t total = 0;
+    for (const Colony& colony : colonies_) {
+      total += colony.creatures.size();
+    }
+    return total;
+  }
+
   void rebuildCreatures() {
     colonies_.clear();
-    creatures_.clear();
     // Nowhere to put them yet. Placing against an empty habitat pinned every
     // animal to 0,0 and left it clamped against an edge for the rest of the
     // session -- the cat was there the whole time, drawn half outside the
@@ -132,7 +149,11 @@
     // wings were the same colour as the background and a moth was one dark
     // pixel. The chrome contract says tile is filled with tile and inked with
     // fg/fgSoft, and creatures are no exception to it.
-    SDL_Color ink = pal.fg;
+    // ON A DARK GROUND THEY ARE INKED BRIGHT. pal.fg is an ink for a
+    // tile-filled panel; on the near-black floor of an idle monitor it is a
+    // creature nobody can see -- which, with the habitat bug that kept them
+    // out of the playlist gap, is the whole of why James had never seen one.
+    SDL_Color ink = home.darkGround ? pal.light : pal.fg;
     ink.a = alpha;
     SDL_Color accent = pal.fgSoft;
     accent.a = alpha;

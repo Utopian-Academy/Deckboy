@@ -4353,6 +4353,30 @@ class App {
     gShouldQuit.store(true);
   }
 
+  // A POPUP MENU, OPENED FROM THE COMMAND LINE.
+  //
+  // Scripted mouse input does not reach SDL3, so nothing in a harness could
+  // ever open one -- which means the menus were the one part of the UI that
+  // could not be looked at without a person doing it by hand. That is exactly
+  // where "too flat" lived unnoticed.
+  //
+  // Sits beside debugOpenSettings for the same reason it exists.
+  void debugOpenMenu(const std::string& which) {
+    showStartupDialog_ = false;
+    showSplashOverlay_ = false;
+    if (which == "source") {
+      openSourceTypeMenu();
+    } else if (which == "routing") {
+      openPlaylistRoutingMenu(project_.focusedDeckIndex, 260, 200);
+    } else if (which == "cue") {
+      const Deck& deck = focusedDeck();
+      if (!deck.cues.empty()) {
+        openContextMenu(project_.focusedDeckIndex,
+                        std::max(0, deck.selectedIndex), 260, 200);
+      }
+    }
+  }
+
   void debugOpenSettings(int tab, int videoSubTab = 0) {
     showStartupDialog_ = false;
     showSplashOverlay_ = false;
@@ -8543,6 +8567,12 @@ class App {
   std::vector<ContextItem> contextItems_;
   // One per deck: the routing chip on that playlist's column header.
   std::vector<SDL_Rect> deckRoutingChipRects_;
+  // One per deck: the tab that selects it, across the top of the playlist
+  // column. Only drawn when there is more than one playlist.
+  std::vector<SDL_Rect> deckTabRects_;
+  // The program monitor while nothing is live. A creature habitat -- see
+  // creatureHabitats() for why the other two are so often empty.
+  SDL_Rect idleMonitorRect_ {};
 
   struct DropdownOptionItem {
     std::string id;
@@ -8632,7 +8662,6 @@ class App {
     std::vector<deckboy::creatures::Creature> creatures;
   };
   std::vector<Colony> colonies_;
-  std::vector<deckboy::creatures::Creature> creatures_;
   deckboy::creatures::Habitat creatureHabitat_ {};
   // A critter pinned to whatever is working. Keyed by a job id the caller
   // invents; see the BUSY CRITTERS block in app_creatures.ipp.
@@ -11357,6 +11386,7 @@ int runDeckboyMain(int argc, char** argv) {
   bool auditSettingsLayoutArg = false;
   fs::path startupProjectArg;
   int openSettingsTab = -1;
+  std::string openMenuName;
   int inspectorScrollArg = -1;
   int slideCardDoneArg = -1;
   int slideCardTotalArg = 0;
@@ -11454,6 +11484,14 @@ int runDeckboyMain(int argc, char** argv) {
       }
       continue;
     }
+    if (arg == "--menu") {
+      // --menu source|routing|cue -- open a popup so a harness can see it.
+      if (i + 1 < rest.size()) {
+        openMenuName = rest[i + 1];
+        ++i;
+      }
+      continue;
+    }
     if (arg == "--soak") {
       // Long-run stability harness on the real app loop. Optional minutes
       // argument; default 24 h. Loops the loaded show (see tickSoak).
@@ -11511,6 +11549,9 @@ int runDeckboyMain(int argc, char** argv) {
   }
   for (const std::string& importPath : importPathsArg) {
     app.debugImportPath(importPath);
+  }
+  if (!openMenuName.empty()) {
+    app.debugOpenMenu(openMenuName);
   }
   if (openSettingsTab >= 0) {
     app.debugOpenSettings(openSettingsTab, openSettingsSubTab);
