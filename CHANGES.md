@@ -1,5 +1,44 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## Unreleased - fixing what 0.99.373 got wrong
+
+Not a release. James tested the pre-release and reported the new work as
+broadly broken; this is that list, and it is being worked through before
+anything is tagged.
+
+**The controls you could see, you can now press.** Thirty-one rows across the
+new cue kinds were drawn as stepper rows -- label, minus, value, plus -- for
+actions that are not numbers. A stepper row only registers its two small
+chevrons as controls, so on every one of them the label and the value were
+inert: "fire now", "click to open the grid", the text body, the animation, and
+every MIDI, DMX, network, timecode, fade and script control. They are rows
+now, the value is the button, and the misleading arrows are gone.
+
+**Super Deckboy is additional playlists, assigned to outputs and to layers.**
+Each output carries its own stack, so one playlist can run a camera on layer A
+while another puts lower thirds on layer B over it -- and a second output can
+show the same camera clean. The playlist header says where it goes and opens a
+menu that can send it anywhere, or make another playlist. (VJ mode is the other
+thing, and stays what it was: two decks crossfaded into one output.)
+
+**The recording records the programme.** It was recording whichever playlist
+happened to be focused when it was first armed.
+
+**A MIDI file is a source.** Drop a .mid in the playlist and it plays out, on
+the cue's own transport, to whichever port you pick.
+
+**The dashboard has a door.** It could only be opened with a keyboard shortcut.
+Its buttons can be deleted, which they could not be. A master cue can be put on
+one in a single press.
+
+**A cold file no longer lags on its first play.** The audio device was started
+before a single sample existed.
+
+**Also:** "show in explorer" selects the file, including the ones with a comma
+in the name; a text cue is edited in a text editor rather than the code prompt,
+and its words can wobble; and the hearth's own controls collapse the hearth.
+
+
 ## 2026-09-22 - v0.99.373 (EXPERIMENTAL - a cue list that is a program, and a deck that speaks)
 
 **This is a pre-release.** Everything below is new and none of it has been
