@@ -578,11 +578,24 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return entries;
     }
-    // VJ MODE: two decks, A under B, and the crossfader decides how much of
-    // B you see. This hook has always returned a single deck, but the
-    // layering it was built for is exactly what a mixer needs -- so the mixer
-    // uses it instead of adding a second path through the compositor.
-    if (project_.vjModeEnabled && project_.decks.size() > 1) {
+    // ── VJ MODE IS ONE OUTPUT'S CROSSFADER, NOT THE WHOLE SHOW'S ──────
+    //
+    // Two decks, A under B, and the crossfader decides how much of B you see.
+    //
+    // IT USED TO CLAIM EVERY OUTPUT. This branch tested only "is VJ mode on",
+    // so with it enabled every output in the show composited the A/B pair and
+    // each output's own layer stack was silently discarded -- a clean feed and
+    // a feed with a bug would both become the crossfade, with nothing on
+    // screen to say why. Harmless when the stack did not exist; not harmless
+    // now that it does.
+    //
+    // So it applies to the output VJ mode is FOR, which is the programme --
+    // the first window output, the one an audience is looking at. Every other
+    // destination keeps the routing it was given.
+    const bool vjOwnsThisOutput =
+      project_.vjModeEnabled && project_.decks.size() > 1 &&
+      outputIndex == std::max(0, primaryProgrammeOutputIndex(-1));
+    if (vjOwnsThisOutput) {
       const int deckCount = static_cast<int>(project_.decks.size());
       const int deckA = std::clamp(project_.vjDeckA, 0, deckCount - 1);
       const int deckB = std::clamp(project_.vjDeckB, 0, deckCount - 1);
@@ -851,7 +864,12 @@
       triggerToast(deckLabel(deckIndex) + " is already on " + outputLabel(outputIndex));
       return false;
     }
-    if (static_cast<int>(output.layerDecks.size()) + 1 >= kMaxDecks) {
+    // Bounded by how many playlists there ARE, which is the real limit: an
+    // output cannot carry more layers than the show has decks to put on them.
+    // This said kMaxDecks, which is a different quantity that happens to be a
+    // safe number -- the kind of coincidence that stops being one later.
+    if (static_cast<int>(output.layerDecks.size()) + 1 >=
+        static_cast<int>(project_.decks.size())) {
       triggerToast("layer limit reached on " + outputLabel(outputIndex));
       return false;
     }

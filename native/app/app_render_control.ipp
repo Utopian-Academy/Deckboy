@@ -1093,6 +1093,14 @@
     playlistSplitterRect_ = {playlistCol.x + playlistCol.w, contentArea.y, kLayoutPanelGap, contentArea.h};
     cueRowActionHits_.clear();
     visiblePlaylistDecks_.clear();
+    // CLEARED BEFORE THE BRANCH. Both reset sites for the tabs were inside
+    // the non-VJ arm, so turning VJ mode ON left the previous frame's tab
+    // rects in place for ever -- and they are tested above the deck-column
+    // loop, so they would go on swallowing presses in the playlist area and
+    // selecting decks instead of cues. The rule this file already follows for
+    // every other hit list: reset where the frame starts, not where the thing
+    // is drawn.
+    deckTabRects_.clear();
 
     if (vjSplitDecks) {
       // A on the left and B on the right, matching the bar above and the way
@@ -1119,10 +1127,19 @@
       //
       // The tabs are the answer that works at every width. They appear only
       // with more than one playlist, so a single-deck show is untouched.
+      // THE SAME RULE the columns below use, stated once each rather than
+      // twice differently -- if these two disagree the tabs appear when every
+      // playlist is already on screen, or vanish when one is not.
       const int deckCountForTabs = static_cast<int>(project_.decks.size());
-      const int minColumnWForTabs = uiScaled(96);
-      const int columnsThatFit = std::max(1, std::min(deckCountForTabs,
-        (playlistCol.w + kLayoutPanelGap) / (minColumnWForTabs + kLayoutPanelGap)));
+      const int comfortableForTabs = uiScaled(200);
+      int columnsThatFit = std::min(deckCountForTabs, 2);
+      if (playlistCol.w >= comfortableForTabs * 3 + kLayoutPanelGap * 2) {
+        columnsThatFit = std::min(deckCountForTabs,
+          (playlistCol.w + kLayoutPanelGap) / (comfortableForTabs + kLayoutPanelGap));
+      }
+      if (playlistCol.w < uiScaled(220)) {
+        columnsThatFit = 1;
+      }
       // ONLY WHEN THEY DO NOT ALL FIT. With every playlist on screen the tabs
       // are a row of buttons that select what you are already looking at, and
       // they cost the columns a row of height and their headers the room to
@@ -1144,10 +1161,17 @@
           // The NAME, ellipsized, because a playlist that has been named
           // "Lower thirds" is worth far more than "2" -- and the number is
           // still there in front of it.
-          std::string label = std::to_string(d + 1) + " " +
-            (project_.decks[d].name.empty() ? deckDefaultName(d) : project_.decks[d].name);
+          // THE NUMBER ALWAYS, the name only when it fits whole. Five tabs
+          // across the default panel gave each about sixty pixels, so every
+          // one of them read "1 Dec..." -- five identical stubs, which is
+          // worse than no label at all because it looks like information.
+          const std::string name =
+            project_.decks[d].name.empty() ? deckDefaultName(d) : project_.decks[d].name;
+          const std::string full = std::to_string(d + 1) + " " + name;
+          const bool nameFits =
+            measuredTextWidth(fontSmall_, full) <= tab.w - uiScaled(8);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, tab,
-                               ellipsizeToPixelWidth(fontSmall_, label, tab.w - uiScaled(8)),
+                               nameFits ? full : std::to_string(d + 1),
                                focused ? pal.deep : pal.fg);
           deckTabRects_[d] = tab;
         }
@@ -1177,11 +1201,24 @@
       // already." VJ mode halves the column with no minimum at all, and it
       // reads perfectly well, so this uses the same figure: whatever a half
       // is, that is wide enough.
+      // TWO BY DEFAULT, which is the split VJ mode makes and the one James
+      // called nice. A THIRD only when the panel has been widened enough that
+      // every column is still readable -- at the default width, three columns
+      // is 110px each: the header loses its title, the routing chip collides
+      // with it and the cue rows say "Harv...". Two playlists side by side is
+      // a working pair; three squeezed is none.
+      //
+      // The rest are reached by the tabs, which is what they are for.
       const int deckCount = static_cast<int>(project_.decks.size());
-      const int minColumnW = uiScaled(96);
-      int columns = std::max(1, std::min(deckCount,
-                                         (playlistCol.w + kLayoutPanelGap) /
-                                           (minColumnW + kLayoutPanelGap)));
+      const int comfortable = uiScaled(200);
+      int columns = std::min(deckCount, 2);
+      if (playlistCol.w >= comfortable * 3 + kLayoutPanelGap * 2) {
+        columns = std::min(deckCount,
+                           (playlistCol.w + kLayoutPanelGap) / (comfortable + kLayoutPanelGap));
+      }
+      if (playlistCol.w < uiScaled(220)) {
+        columns = 1;   // too narrow even to halve
+      }
       if (columns <= 1) {
         renderPlaylistColumn(playlistCol, std::clamp(project_.focusedDeckIndex,
                                                      0, deckCount - 1));
@@ -1427,7 +1464,13 @@
     SDL_Rect colHeader {col.x, col.y, col.w, kPlaylistHeaderH};
     drawUIPanel(colHeader, pal.dark,
                 pal.deep, pal.mid);
-    drawPanelHeaderTitle(colHeader, playlistColumnTitle(deckIndex));
+    // NOT WHEN THE TABS ARE SAYING IT. A header with a title, a >LIVE button
+    // and a routing chip in 180px has room for two of the three, and the
+    // title is the one the tabs above already carry -- it was being clipped
+    // to "De", which reads as a fault rather than as a heading.
+    if (deckTabRects_.empty()) {
+      drawPanelHeaderTitle(colHeader, playlistColumnTitle(deckIndex));
+    }
     // "Jump to live cue" button — snaps the (possibly huge) list back to the
     // cue that's playing. Only for the focused deck's column (the one the
     // keyboard acts on). Sized to its label so the text never ellipsizes

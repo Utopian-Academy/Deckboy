@@ -103,7 +103,7 @@
       case QuickAction::DashSlotDelete: {
         const int at = param;
         if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) break;
-        const Uint32 now = SDL_GetTicks();
+        const Uint64 now = SDL_GetTicks();
         if (dashDeleteArmedSlot_ != at || now - dashDeleteArmedAtMs_ > 4000) {
           dashDeleteArmedSlot_ = at;
           dashDeleteArmedAtMs_ = now;

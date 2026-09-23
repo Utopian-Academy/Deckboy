@@ -1863,8 +1863,14 @@
   //
   // Parsed once and cached by path, because a file with ten thousand events
   // is parsed in a millisecond but not sixty times a second.
+  // HELD BY POINTER so the parsed files never move. A vector of them by
+  // VALUE reallocates on push_back, which invalidates every pointer handed
+  // out by an earlier call -- and this function hands out pointers: the
+  // inspector holds one while it draws, and the player holds one while it
+  // walks the events. It had not crashed yet because no caller kept one
+  // across a second call, which is not a property anybody can rely on.
   struct LoadedMidiFile {
-    deckboy::platform::midi::File file;
+    std::unique_ptr<deckboy::platform::midi::File> file;
     std::string path;
   };
   std::vector<LoadedMidiFile> midiFileCache_;
@@ -1872,7 +1878,7 @@
   const deckboy::platform::midi::File* loadedMidiFile(const std::string& path) {
     for (const LoadedMidiFile& entry : midiFileCache_) {
       if (entry.path == path) {
-        return &entry.file;
+        return entry.file.get();
       }
     }
     if (path.empty()) {
@@ -1880,19 +1886,33 @@
     }
     LoadedMidiFile entry;
     entry.path = path;
-    entry.file = deckboy::platform::midi::readMidiFile(path);
+    entry.file = std::make_unique<deckboy::platform::midi::File>(
+      deckboy::platform::midi::readMidiFile(path));
     // CACHED EVEN WHEN IT FAILED. Otherwise a file that cannot be parsed is
     // re-read from disk every frame for as long as the cue is selected.
+    const deckboy::platform::midi::File* result = entry.file.get();
     midiFileCache_.push_back(std::move(entry));
     if (midiFileCache_.size() > 32) {
       midiFileCache_.erase(midiFileCache_.begin());
     }
-    return &midiFileCache_.back().file;
+    return result;
   }
 
   // Where each deck's MIDI file playhead had got to, so the next tick knows
   // which events it has already sent. Negative means "nothing sent yet".
   std::vector<double> midiFileSentUpTo_;
+  // AND WHICH PORT IT WAS SENDING TO. Needed because the cue may be GONE by
+  // the time we have to silence it -- re-racked, deleted, or replaced -- and
+  // an all-notes-off sent to "the first available port" goes to the wrong
+  // instrument while the notes it was meant to stop ring on for ever.
+  std::vector<std::string> midiFilePortInUse_;
+
+  std::string& midiFilePortForDeck(int deckIndex) {
+    if (midiFilePortInUse_.size() <= static_cast<std::size_t>(deckIndex)) {
+      midiFilePortInUse_.resize(deckIndex + 1);
+    }
+    return midiFilePortInUse_[deckIndex];
+  }
 
   double& midiFileCursorForDeck(int deckIndex) {
     if (midiFileSentUpTo_.size() <= static_cast<std::size_t>(deckIndex)) {
@@ -1927,12 +1947,14 @@
       const Cue* cue = activeCuePtr(deckIndex);
       if (!cue || cue->kind != CueKind::MidiFile) {
         if (cursor >= 0.0) {
-          // The cue has gone. Whatever it left ringing is ours to stop.
-          silenceMidiFile(std::string());
+          // The cue has gone, so its port is remembered rather than asked
+          // for -- see midiFilePortInUse_.
+          silenceMidiFile(midiFilePortForDeck(deckIndex));
           cursor = -1.0;
         }
         continue;
       }
+      midiFilePortForDeck(deckIndex) = cue->midiPortName;
       const MediaEngine* engine = mediaEngineForDeck(deckIndex);
       if (!engine) {
         continue;
@@ -3727,7 +3749,142 @@
     rebuildDeckRuntimes();
     markProjectDirty();
     if (announce) {
+      // ITS OWN SOUND, and not on the second deck -- that one already gets
+      // the power-up, and two jingles at once is a mess rather than a moment.
+      if (!becomingSuper) {
+        playUiSound(UiSoundEffect::DeckAdded);
+      }
       triggerToast("added " + added.name + " (playback stopped)");
+    }
+    return true;
+  }
+
+  // ── REMOVING A PLAYLIST ───────────────────────────────────────────────
+  //
+  // addDeck() is append-only and said so, because everything that points at a
+  // deck points at it BY INDEX: an output's host, an output's layer stack, a
+  // master cue's assignments, a target cue's deck, each deck's own route, and
+  // VJ mode's A and B. Removing one from the middle shifts every index above
+  // it, and a reference that is not remapped does not break -- it silently
+  // starts meaning the NEIGHBOUR, which is the worst way for this to fail.
+  //
+  // So the remap is one function and every holder goes through it. A reference
+  // TO the removed deck is cleared where that is meaningful and repointed
+  // where it is not (an output must have a host).
+  void remapDeckReferencesAfterRemoval(int removed) {
+    auto shift = [removed](int index) {
+      if (index == removed) return -1;          // gone
+      return index > removed ? index - 1 : index;
+    };
+    const int deckCount = static_cast<int>(project_.decks.size());
+
+    for (OutputTarget& output : project_.outputs) {
+      // THE HOST CANNOT BE NOTHING. If the removed deck was this output's
+      // base, the first layer above it takes over; if there was none, it
+      // falls to deck 0 -- an output with no source shows black and there is
+      // nothing on screen to tell anyone why.
+      std::vector<int> layers;
+      for (int layer : output.layerDecks) {
+        const int moved = shift(layer);
+        if (moved >= 0 && moved < deckCount) {
+          layers.push_back(moved);
+        }
+      }
+      const int host = shift(output.hostDeckIndex);
+      if (host >= 0 && host < deckCount) {
+        output.hostDeckIndex = host;
+      } else if (!layers.empty()) {
+        output.hostDeckIndex = layers.front();
+        layers.erase(layers.begin());
+      } else {
+        output.hostDeckIndex = 0;
+      }
+      output.layerDecks.swap(layers);
+    }
+
+    for (int d = 0; d < deckCount; ++d) {
+      Deck& deck = project_.decks[d];
+      const int route = shift(deck.outputRouteDeckIndex);
+      deck.outputRouteDeckIndex = (route >= 0 && route < deckCount) ? route : d;
+      for (Cue& cue : deck.cues) {
+        // A MASTER LOSES THE ASSIGNMENT, rather than keeping one that now
+        // names a different playlist. An assignment that quietly moved would
+        // fire the wrong cue on the wrong deck at the worst moment.
+        std::vector<MasterAssignment> kept;
+        for (const MasterAssignment& a : cue.masterAssignments) {
+          MasterAssignment moved = a;
+          moved.deckIndex = shift(a.deckIndex);
+          if (moved.deckIndex >= 0 && moved.deckIndex < deckCount) {
+            kept.push_back(moved);
+          }
+        }
+        cue.masterAssignments.swap(kept);
+        const int target = shift(cue.targetDeckIndex);
+        cue.targetDeckIndex = target;
+        if (target < 0 || target >= deckCount) {
+          // The target is unresolvable now, and the inspector already draws
+          // that state honestly as "nothing targeted yet".
+          cue.targetCueId.clear();
+          cue.targetDeckIndex = 0;
+        }
+      }
+    }
+
+    const int a = shift(project_.vjDeckA);
+    const int b = shift(project_.vjDeckB);
+    project_.vjDeckA = std::clamp(a < 0 ? 0 : a, 0, std::max(0, deckCount - 1));
+    project_.vjDeckB = std::clamp(b < 0 ? 0 : b, 0, std::max(0, deckCount - 1));
+    project_.focusedDeckIndex =
+      std::clamp(project_.focusedDeckIndex > removed ? project_.focusedDeckIndex - 1
+                                                     : project_.focusedDeckIndex,
+                 0, std::max(0, deckCount - 1));
+
+    // ── AND THE DEFAULT NAMES FOLLOW THE POSITIONS ──────────────────────
+    //
+    // A playlist called "Deck 3" sitting in slot 2 is a playlist whose label
+    // disagrees with the tab it is under, the chip that routes it and the
+    // number every remote verb takes -- and it stays wrong for the rest of
+    // the show. Removing the middle of four left exactly that.
+    //
+    // ONLY THE DEFAULT ONES. A playlist somebody has named "Lower thirds"
+    // keeps that name: renumbering it would throw away the one piece of
+    // information in this that a person put there.
+    for (int d = 0; d < deckCount; ++d) {
+      Deck& deck = project_.decks[d];
+      bool isDefaultName = deck.name.empty();
+      for (int was = 0; was <= deckCount && !isDefaultName; ++was) {
+        isDefaultName = deck.name == deckDefaultName(was);
+      }
+      if (isDefaultName) {
+        deck.name = deckDefaultName(d);
+      }
+    }
+  }
+
+  bool removeDeck(int deckIndex, bool announce = true) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    if (project_.decks.size() <= 1) {
+      // THE LAST ONE STAYS. A show with no playlist has no cues, no
+      // inspector and no way back to one.
+      if (announce) {
+        failRemoteCommand("a show needs at least one playlist");
+      }
+      return false;
+    }
+    const std::string name = deckLabel(deckIndex);
+    project_.decks.erase(project_.decks.begin() + deckIndex);
+    remapDeckReferencesAfterRemoval(deckIndex);
+    normalizeProject(project_);
+    // Tears down and recreates every engine, so it stops playback -- the same
+    // bargain adding one makes, and said out loud for the same reason.
+    rebuildDeckRuntimes();
+    refreshSuperDeckboyTitle();
+    markProjectDirty();
+    if (announce) {
+      playUiSound(UiSoundEffect::DeckRemoved);
+      triggerToast("removed " + name + " (playback stopped)");
     }
     return true;
   }

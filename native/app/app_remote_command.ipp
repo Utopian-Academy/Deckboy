@@ -406,6 +406,25 @@
       failRemoteCommand("MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR");
       return;
     }
+    if (command == "DECKREMOVE" || command == "DECKDEL") {
+      // DECKREMOVE [<n>]  -- the focused playlist, or the one named.
+      int victim = project_.focusedDeckIndex;
+      if (parts.size() > 1) {
+        auto parsed = parseDeckReferenceToken(parts[1]);
+        if (!parsed) {
+          failRemoteCommand("DECKREMOVE: no such playlist '" + parts[1] + "'");
+          return;
+        }
+        victim = *parsed;
+      }
+      const std::string name = deckLabel(victim);
+      if (!removeDeck(victim)) {
+        return;   // removeDeck said why
+      }
+      remoteCommandDetail_ = "removed " + name + "; decks: " +
+                             std::to_string(project_.decks.size());
+      return;
+    }
     if (command == "MIDIFILE") {
       // MIDIFILE            -> report the selected midi file cue
       // MIDIFILE PORT [name]-> which output it plays to ("" = first found)

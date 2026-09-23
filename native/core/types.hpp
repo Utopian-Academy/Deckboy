@@ -2538,7 +2538,9 @@ enum class UiSoundEffect {
   Error,      // action refused (missing media, blocked take)
   Panic,      // panic — everything off
   Shuffle,    // shuffle mode toggled on
-  PowerUp     // a second deck arrives: Deckboy becomes Super Deckboy
+  PowerUp,    // a second deck arrives: Deckboy becomes Super Deckboy
+  DeckAdded,  // a playlist joins the show
+  DeckRemoved // a playlist leaves it
 };
 
 #endif

@@ -231,7 +231,7 @@
     contextMenuCueIdx_ = -1;
     contextItems_.clear();
 
-    contextItems_.push_back({deckLabel(deckIdx), {0, 0, 0, 0}, nullptr});
+    contextItems_.push_back({deckLabel(deckIdx) + " goes to:", {0, 0, 0, 0}, nullptr});
 
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size());
          ++outputIndex) {
@@ -249,38 +249,47 @@
             assignDeckToOutput(deckIdx, outputIndex);
           }
         }});
-    }
 
-    // Moving within the stack of the output this playlist is focused on.
-    // Only offered where there is a stack to move within -- an entry that
-    // cannot do anything is the same thing as a dead control.
-    const int focusedOut = std::clamp(project_.focusedOutputIndex, 0,
-                                      std::max(0, static_cast<int>(project_.outputs.size()) - 1));
-    const auto here = assignmentIndexForDeckOutput(deckIdx, focusedOut);
-    if (here && !project_.outputs.empty() &&
-        !project_.outputs[focusedOut].layerDecks.empty()) {
-      const int top = static_cast<int>(project_.outputs[focusedOut].layerDecks.size());
-      if (*here > 0) {
+      // ── AND THE LAYER, UNDER THE OUTPUT IT IS A LAYER OF ──────────────
+      //
+      // These were two loose rows at the bottom acting on "the focused
+      // output", which is a thing the menu never names. An output and its
+      // layer are one decision made in one order, so they are one group.
+      if (!layer) {
+        continue;
+      }
+      const int top = static_cast<int>(project_.outputs[outputIndex].layerDecks.size());
+      if (*layer > 0) {
         contextItems_.push_back({
-          "  v  down a layer on " + outputLabel(focusedOut), {0, 0, 0, 0},
-          [this, deckIdx, focusedOut, here]() {
-            setDeckOutputAssignmentLayer(deckIdx, focusedOut, *here - 1);
+          "      v  down to layer " + layerLetter(*layer - 1), {0, 0, 0, 0},
+          [this, deckIdx, outputIndex, layer]() {
+            setDeckOutputAssignmentLayer(deckIdx, outputIndex, *layer - 1);
           }});
       }
-      if (*here < top) {
+      if (*layer < top) {
         contextItems_.push_back({
-          "  ^  up a layer on " + outputLabel(focusedOut), {0, 0, 0, 0},
-          [this, deckIdx, focusedOut, here]() {
-            setDeckOutputAssignmentLayer(deckIdx, focusedOut, *here + 1);
+          "      ^  up to layer " + layerLetter(*layer + 1), {0, 0, 0, 0},
+          [this, deckIdx, outputIndex, layer]() {
+            setDeckOutputAssignmentLayer(deckIdx, outputIndex, *layer + 1);
           }});
       }
     }
 
+    contextItems_.push_back({"PLAYLISTS", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
-      "  + new playlist", SDL_Color {40, 90, 130, 255},
+      "  + add a playlist", SDL_Color {40, 90, 130, 255},
       [this]() { addDeck(); }});
+    // REMOVING IS OFFERED HERE TOO, because this is the menu about playlists
+    // and a feature you can only ever add to is a feature that accumulates.
+    // Not offered on the last one -- removeDeck refuses it anyway, and an
+    // entry that always refuses is a dead control.
+    if (project_.decks.size() > 1) {
+      contextItems_.push_back({
+        "  - remove " + deckLabel(deckIdx), SDL_Color {130, 50, 40, 255},
+        [this, deckIdx]() { removeDeck(deckIdx); }});
+    }
     contextItems_.push_back({
-      "  + new output", SDL_Color {40, 90, 130, 255},
+      "  + add an output", SDL_Color {40, 90, 130, 255},
       [this]() { addOutput(project_.focusedDeckIndex); }});
 
     layoutContextMenu(mx, my);

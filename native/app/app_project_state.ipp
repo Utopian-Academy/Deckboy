@@ -1757,12 +1757,23 @@
   }
 
   void pushUndoSnapshot() {
-    // Debounce: don't push if stack top matches current state (same cue count + selection)
+    // Debounce: don't push if the stack top already matches the current state.
+    //
+    // EVERY DECK, NOT DECK 0. This compared deck 0's cue count and selection
+    // and nothing else, so with more than one playlist an edit on deck 2 --
+    // adding a cue, deleting one, changing the selection -- left deck 0
+    // identical, the snapshot was skipped, and the edit became unundoable.
+    // Harmless while a show effectively had one deck; with Super Deckboy it is
+    // silent loss of an operator's last action on any playlist but the first.
     if (!undoStack_.empty()) {
       const auto& top = undoStack_.back();
-      if (top.decks.size() == project_.decks.size() && !top.decks.empty() && !project_.decks.empty() &&
-          top.decks[0].cues.size() == project_.decks[0].cues.size() &&
-          top.decks[0].selectedIndex == project_.decks[0].selectedIndex) {
+      bool identical = top.decks.size() == project_.decks.size() &&
+                       !top.decks.empty() && !project_.decks.empty();
+      for (std::size_t d = 0; identical && d < project_.decks.size(); ++d) {
+        identical = top.decks[d].cues.size() == project_.decks[d].cues.size() &&
+                    top.decks[d].selectedIndex == project_.decks[d].selectedIndex;
+      }
+      if (identical) {
         return;
       }
     }
@@ -2605,6 +2616,18 @@
           {587.3, 28}, {740.0, 28}, {880.0, 28}, {1174.7, 34},   // D  F# A  D
           {659.3, 28}, {830.6, 28}, {987.8, 28}, {1318.5, 180},  // E  G# B  E, held
         }, 0.12f);
+        break;
+      case UiSoundEffect::DeckAdded:
+        // A DECK ARRIVING HAS ITS OWN VOICE. Not the power-up -- that fires
+        // once, for the evolution into Super Deckboy, and a fanfare on every
+        // playlist after it would stop being a moment. This is a short rising
+        // fourth with a confirming octave on top: "one more of these".
+        queueUiPattern({{440.0, 30}, {587.3, 30}, {880.0, 56}}, 0.10f);
+        break;
+      case UiSoundEffect::DeckRemoved:
+        // The same shape backwards and lower, which is what makes a pair of
+        // sounds read as opposites rather than as two unrelated noises.
+        queueUiPattern({{880.0, 30}, {587.3, 30}, {329.6, 70}}, 0.10f);
         break;
       case UiSoundEffect::Import:
         queueUiPattern({{523.3, 34}, {659.3, 34}, {784.0, 48}}, 0.10f);

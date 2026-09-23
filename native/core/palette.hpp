@@ -160,25 +160,38 @@ inline int paletteLuma(SDL_Color c) {
 }  // namespace detail
 
 inline SDL_Color paletteToggleFill(bool on) {
-  // The brightest and the dimmest fills the palette offers for a small raised
-  // control. ON takes the bright end, OFF the dim end, whatever those happen
-  // to be called in this theme.
-  const SDL_Color candidates[] = {pal.light, pal.tile, pal.dark, pal.deep};
-  const SDL_Color* brightest = &candidates[0];
-  const SDL_Color* dimmest = &candidates[0];
-  for (const SDL_Color& c : candidates) {
-    if (detail::paletteLuma(c) > detail::paletteLuma(*brightest)) brightest = &c;
-    if (detail::paletteLuma(c) < detail::paletteLuma(*dimmest)) dimmest = &c;
+  // THE LIT ONE IS THE BRIGHT ONE, AND BOTH ARE STILL CHROME.
+  //
+  // Third attempt, and the first two failed in opposite directions. Fixed
+  // palette roles (ON = dark, OFF = tile) invert themselves on a theme where
+  // tile is the bright colour -- James: "the cue toggles seem lit when
+  // deactivated and dark when activated." Picking the brightest and dimmest
+  // of every fill role fixed the direction and broke the look, because the
+  // dimmest role is pal.deep, the PANEL BACKGROUND -- so every off toggle
+  // became a black hole punched through the inspector. James again: "toggle
+  // buttons looking like shit rn."
+  //
+  // So: the lit state takes the brightest role that is actually a FILL, and
+  // the unlit state is the tile RECESSED -- still made of the chrome the
+  // panel is made of, just sat back from it. That reads as a switch rather
+  // than as a hole, in either polarity of theme.
+  const SDL_Color litCandidate =
+    detail::paletteLuma(pal.light) >= detail::paletteLuma(pal.tile) ? pal.light : pal.tile;
+  if (on) {
+    return litCandidate;
   }
-  // AND THE GAP IS GUARANTEED. If a theme's fills are all close together,
-  // the unlit one is pushed further from the lit one rather than left a shade
-  // apart -- a difference nobody can see is the same bug in a third form.
-  if (!on && paletteColorDistance(*brightest, *dimmest) < 90) {
-    return paletteMix(*dimmest, detail::paletteLuma(*brightest) > 128
-                                  ? SDL_Color {0, 0, 0, 255}
-                                  : SDL_Color {255, 255, 255, 255}, 0.35);
+  // Recede AWAY from the lit colour: on a light theme that means darker, on a
+  // dark one lighter. Mixing blindly toward black made dark themes worse.
+  const SDL_Color away = detail::paletteLuma(litCandidate) > 128
+                           ? pal.deep : pal.light;
+  SDL_Color unlit = paletteMix(pal.tile, away, 0.42);
+  // AND THE GAP IS GUARANTEED. A theme whose tile and light are already close
+  // would otherwise give two states nobody can tell apart -- which is the
+  // fault the very first version of this shipped with.
+  if (paletteColorDistance(litCandidate, unlit) < 110) {
+    unlit = paletteMix(unlit, away, 0.5);
   }
-  return on ? *brightest : *dimmest;
+  return unlit;
 }
 
 // The ink that belongs on that fill, kept beside it so a caller cannot pair a
