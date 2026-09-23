@@ -118,18 +118,28 @@ class Deckboy:
         self.proc = subprocess.Popen([self.args.exe, self.show] + self.extra_args, env=env,
                                      cwd=os.path.dirname(self.args.exe),
                                      stdout=self.log, stderr=subprocess.STDOUT)
-        self.wait_ready()
-        self.send("MASTERVOL 0")
-        self.send("SHUFFLE OFF")
-        time.sleep(1.0)
+        # A failure from here on is raised out of __enter__, and Python does
+        # not call __exit__ for that: without this the app would be left
+        # running -- one stray per failed run, holding the binary open.
+        try:
+            self.wait_ready()
+            self.send("MASTERVOL 0")
+            self.send("SHUFFLE OFF")
+            time.sleep(1.0)
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
         return self
 
     def __exit__(self, *exc):
-        self.proc.terminate()
-        try:
-            self.proc.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            self.proc.kill()
+        """Stop the app and make sure it is gone, not just asked to go."""
+        if self.proc.poll() is None:
+            self.proc.terminate()
+            try:
+                self.proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+                self.proc.wait(timeout=10)
         self.log.close()
         if not self.args.keep:
             shutil.rmtree(self.root, ignore_errors=True)
@@ -184,9 +194,9 @@ class Deckboy:
             return set(os.listdir(self.recordings)) if os.path.isdir(self.recordings) else set()
 
         before = listing()
-        self.send("RECORD START")
+        started = self.send("RECORD START")
         time.sleep(seconds)
-        self.send("RECORD STOP")
+        stopped = self.send("RECORD STOP")
         # Wait for the file to be FINISHED, not for a fixed time: the encoder
         # drains after STOP, and at 4K that outlasted the three seconds this
         # used to sleep, so a frame was asked of a file still being written.
@@ -201,7 +211,25 @@ class Deckboy:
             size = os.path.getsize(path)
             steady = steady + 1 if size == last_size and size > 0 else 0
             last_size = size
+        if not path or last_size <= 0:
+            # Say WHY, in the run's own output: on a CI runner this is the
+            # only evidence there will be once the root is cleaned up.
+            print("   no recording: RECORD START -> %r, STOP -> %r" % (started[:100], stopped[:100]))
+            print("   recordings folder: %s" % (sorted(listing()) or "empty or missing"))
+            self.log_excerpt(r"record|ffmpeg|readback|encod|stream|error|fail")
         return path
+
+    def log_excerpt(self, pattern, lines=15):
+        """Print the app log's last lines matching `pattern` (a regex)."""
+        import re
+        self.log.flush()
+        try:
+            text = io.open(os.path.join(self.root, "app.log"), encoding="utf-8", errors="replace").read()
+        except OSError:
+            return
+        hits = [line for line in text.splitlines() if re.search(pattern, line, re.I)]
+        for line in hits[-lines:]:
+            print("   log: %s" % line[:200])
 
     def saved_show(self, settle=5.0):
         """The show file as saved, after giving the autosave time to land."""
@@ -213,13 +241,18 @@ class Deckboy:
         if not mp4:
             return None
         ffmpeg = find_ffmpeg(self.args.exe, self.args.ffmpeg)
+        if not ffmpeg:
+            print("   no ffmpeg to read the recording back: pass --ffmpeg or put one on PATH")
+            return None
         ppm = os.path.join(self.root, "frame.ppm")
         if os.path.exists(ppm):
             os.unlink(ppm)
-        subprocess.run([ffmpeg, "-nostdin", "-loglevel", "error", "-y", "-ss", at, "-i", mp4,
-                        "-frames:v", "1", "-pix_fmt", "rgb24", "-f", "image2", ppm],
-                       capture_output=True)
+        run = subprocess.run([ffmpeg, "-nostdin", "-loglevel", "error", "-y", "-ss", at, "-i", mp4,
+                              "-frames:v", "1", "-pix_fmt", "rgb24", "-f", "image2", ppm],
+                             capture_output=True, text=True)
         if not os.path.exists(ppm):
+            print("   could not read a frame from %s (%d bytes): %s"
+                  % (os.path.basename(mp4), os.path.getsize(mp4), run.stderr.strip()[:200]))
             return None
         with open(ppm, "rb") as f:
             assert f.readline().strip() == b"P6"
