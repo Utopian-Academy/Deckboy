@@ -1764,7 +1764,13 @@
       }
       return;
     }
-    if (command == "GO" || command == "TOGGLE") {
+    if (command == "GO") {
+      goTransport();
+      return;
+    }
+    if (command == "TOGGLE") {
+      // PLAY/PAUSE, and only that. It shared GO's implementation, so a show
+      // with a standby armed could not be paused from a controller either.
       toggleTransport();
       return;
     }

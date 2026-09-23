@@ -1601,14 +1601,32 @@
         expect(loadedDeck.ndiKeyEnabled && loadedDeck.ndiKeySourceName == "Smoke Key", "ndi key persisted");
         expect(loadedDeck.canvasViewX == 320 && loadedDeck.canvasViewY == 40, "canvas view persisted");
         expect(loadedDeck.outputRouteDeckIndex == 0, "deck route persisted");
-        expect(loadedDeck.warpEnabled &&
-               loadedDeck.warpMode == "perspective" &&
-               std::abs(loadedDeck.warpTopLeftX + 12.0f) < 0.01f &&
-               std::abs(loadedDeck.warpBottomRightY + 6.0f) < 0.01f, "warp persisted");
-        expect(std::abs(loadedDeck.edgeBlendLeft - 0.08f) < 0.001f &&
-               std::abs(loadedDeck.edgeBlendRight - 0.12f) < 0.001f &&
-               std::abs(loadedDeck.edgeBlendTop - 0.03f) < 0.001f &&
-               std::abs(loadedDeck.edgeBlendBottom - 0.05f) < 0.001f, "edge blend persisted");
+        // ── WARP AND EDGE BLEND MIGRATE OFF THE DECK ────────────────────
+        //
+        // The show above sets them on the DECK, which is where every show
+        // saved before this release has them. Loading it must lift them onto
+        // that deck's OUTPUT and clear the deck -- so the projector stays
+        // aligned exactly as it was, and the value has exactly one home
+        // afterwards.
+        //
+        // This test used to assert they came back on the deck, which is the
+        // old model; asserting the migration is worth more than asserting the
+        // field survived a round trip.
+        expect(loaded.outputs[0].warpEnabled &&
+               loaded.outputs[0].warpMode == "perspective" &&
+               std::abs(loaded.outputs[0].warpTopLeftX + 12.0f) < 0.01f &&
+               std::abs(loaded.outputs[0].warpBottomRightY + 6.0f) < 0.01f,
+               "warp migrated from the deck to its output");
+        expect(!loadedDeck.warpEnabled &&
+               std::abs(loadedDeck.warpTopLeftX) < 0.001f,
+               "and the deck no longer carries it");
+        expect(std::abs(loaded.outputs[0].edgeBlendLeft - 0.08f) < 0.001f &&
+               std::abs(loaded.outputs[0].edgeBlendRight - 0.12f) < 0.001f &&
+               std::abs(loaded.outputs[0].edgeBlendTop - 0.03f) < 0.001f &&
+               std::abs(loaded.outputs[0].edgeBlendBottom - 0.05f) < 0.001f,
+               "edge blend migrated too");
+        expect(std::abs(loadedDeck.edgeBlendLeft) < 0.001f,
+               "and the deck no longer carries that either");
         expect(std::abs(loadedDeck.transitionSeconds - 1.5) < 0.01, "transition persisted");
         expect(parseTransitionStyleToken(loadedDeck.transitionStyle) == TransitionStyle::DipBlack, "transition style persisted");
         expect(std::abs(loadedDeck.playlistOpacity - 0.62f) < 0.01f &&

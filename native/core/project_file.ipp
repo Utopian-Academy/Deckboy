@@ -322,6 +322,21 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       // because the count varies per output and the format is positional --
       // a variable number of columns would move every field after it.
       << '\t' << escapeField(joinIntList(outputTarget.layerDecks))
+      // Projection mapping (fields 78-91), which used to live on the deck.
+      << '\t' << (outputTarget.warpEnabled ? 1 : 0)
+      << '\t' << escapeField(outputTarget.warpMode)
+      << '\t' << outputTarget.warpTopLeftX
+      << '\t' << outputTarget.warpTopLeftY
+      << '\t' << outputTarget.warpTopRightX
+      << '\t' << outputTarget.warpTopRightY
+      << '\t' << outputTarget.warpBottomRightX
+      << '\t' << outputTarget.warpBottomRightY
+      << '\t' << outputTarget.warpBottomLeftX
+      << '\t' << outputTarget.warpBottomLeftY
+      << '\t' << outputTarget.edgeBlendLeft
+      << '\t' << outputTarget.edgeBlendRight
+      << '\t' << outputTarget.edgeBlendTop
+      << '\t' << outputTarget.edgeBlendBottom
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1171,6 +1186,27 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                           // Deckboy did and must keep doing.
                           if (fields.size() >= 78) {
                             outputTarget.layerDecks = parseIntList(safeString(fields, 77));
+                          }
+                          // Projection mapping. ABSENT means the show predates
+                          // per-output warp, and normalizeProjectOutputsAndLayers
+                          // lifts it off the host deck instead -- so an old show
+                          // keeps exactly the alignment it was set up with.
+                          if (fields.size() >= 92) {
+                            outputTarget.warpEnabled = safeBool(fields, 78, false);
+                            const std::string wm = safeString(fields, 79);
+                            if (!wm.empty()) outputTarget.warpMode = wm;
+                            outputTarget.warpTopLeftX     = static_cast<float>(safeDouble(fields, 80, 0.0));
+                            outputTarget.warpTopLeftY     = static_cast<float>(safeDouble(fields, 81, 0.0));
+                            outputTarget.warpTopRightX    = static_cast<float>(safeDouble(fields, 82, 0.0));
+                            outputTarget.warpTopRightY    = static_cast<float>(safeDouble(fields, 83, 0.0));
+                            outputTarget.warpBottomRightX = static_cast<float>(safeDouble(fields, 84, 0.0));
+                            outputTarget.warpBottomRightY = static_cast<float>(safeDouble(fields, 85, 0.0));
+                            outputTarget.warpBottomLeftX  = static_cast<float>(safeDouble(fields, 86, 0.0));
+                            outputTarget.warpBottomLeftY  = static_cast<float>(safeDouble(fields, 87, 0.0));
+                            outputTarget.edgeBlendLeft    = static_cast<float>(safeDouble(fields, 88, 0.0));
+                            outputTarget.edgeBlendRight   = static_cast<float>(safeDouble(fields, 89, 0.0));
+                            outputTarget.edgeBlendTop     = static_cast<float>(safeDouble(fields, 90, 0.0));
+                            outputTarget.edgeBlendBottom  = static_cast<float>(safeDouble(fields, 91, 0.0));
                           }
                         }
                       }

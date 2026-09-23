@@ -59,7 +59,12 @@
   // Compute the edge blend alpha (0–255) for a given UV coordinate.
   // Each edge fades linearly from 0 at the edge to full alpha at the
   // blend boundary. When edges overlap at corners, the alphas multiply.
-  static Uint8 edgeBlendAlphaForUv(const Deck& deck, float u, float v) {
+  // TEMPLATED ON WHAT CARRIES THE EDGES, because they moved from the Deck to
+  // the OutputTarget and both spell the fields the same way. One function
+  // rather than two that can drift apart -- the "two definitions of one
+  // function" trap this codebase has been caught by before.
+  template <typename WithEdges>
+  static Uint8 edgeBlendAlphaForUv(const WithEdges& deck, float u, float v) {
     float ax = 1.0f;
     if (deck.edgeBlendLeft > 0.0001f && u < deck.edgeBlendLeft) {
       ax = std::min(ax, u / deck.edgeBlendLeft);

@@ -414,20 +414,15 @@
     markProjectDirty();
   }
 
-  void toggleTransport() {
-    MediaEngine* engine = focusedMediaEngine();
-    DeckRuntime* runtime = focusedRuntime();
-    const Cue* activeCue = activeCuePtr();
-    // AN ARMED STANDBY OWNS GO -- whatever is playing.
-    //
-    // This check has to come BEFORE the active-cue branch below, not after.
-    // Behind it, GO only reached the standby when nothing was live, so it
-    // fired once at the top of a session and then went back to being
-    // play/pause forever: a running order that runs one cue. Walking the list
-    // IS the feature, so while a standby is armed, GO walks it.
-    //
-    // With none armed nothing below changes, which is the whole compatibility
-    // story: every existing show opens with -1 and keeps select-and-take.
+  // ── GO IS NOT PAUSE, AND THEY WERE THE SAME FUNCTION ──────────────────
+  //
+  // GO walks the standby down the running order; TOGGLE is play/pause. Both
+  // were toggleTransport(), and the standby check sat at the top of it -- so
+  // the moment a standby was armed, SPACEBAR STOPPED PAUSING and started
+  // firing cues instead. James: "spacebar also does not seem to pause".
+  //
+  // Two verbs, two jobs. Spacebar and TOGGLE take the second one.
+  void goTransport() {
     const int deckIndex = project_.focusedDeckIndex;
     const int standby = standbyIndexFor(deckIndex);
     if (standby >= 0) {
@@ -436,6 +431,18 @@
       advanceStandby(deckIndex);
       return;
     }
+    if (!activeCuePtr() && selectedCuePtr()) {
+      takeSelected(true);
+      return;
+    }
+    // Nothing standing by and something already live: GO means play.
+    toggleTransport();
+  }
+
+  void toggleTransport() {
+    MediaEngine* engine = focusedMediaEngine();
+    DeckRuntime* runtime = focusedRuntime();
+    const Cue* activeCue = activeCuePtr();
     if (!activeCue && selectedCuePtr()) {
       takeSelected(true);
       return;

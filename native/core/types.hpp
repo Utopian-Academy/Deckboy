@@ -1391,6 +1391,8 @@ struct OutputTarget {
   // out with the control that already existed for exactly that.
   std::vector<int> layerDecks;
 
+
+
   // -- Streaming egress (ffmpeg SRT/RTMP) --------------------------------------
   bool streamEnabled = false;              // start streaming when output is enabled
   std::string streamProtocol = "srt";      // "srt" | "rtmp" | "rtmps"
@@ -1570,6 +1572,39 @@ struct OutputTarget {
   float aoiRight = 0.0f;                   // crop fraction from right edge
   float aoiTop = 0.0f;                     // crop fraction from top edge
   float aoiBottom = 0.0f;                  // crop fraction from bottom edge
+
+
+
+  // ── PROJECTION MAPPING, WHERE IT BELONGS ──────────────────────────────
+  //
+  // Warp and edge blend correct for the SCREEN a picture lands on -- the
+  // keystone of a projector, the soft edge where two of them overlap. That is
+  // a property of the destination, and Deck's copy of these even said
+  // "per-output" in its comment while sitting on the deck.
+  //
+  // It worked while one deck fed one screen, because the compositor reached
+  // them through the output's HOST deck. It stops working the moment a deck
+  // feeds two destinations: a projector that needs keystone and a clean
+  // stream that must not have it got the same warp, with no way to separate
+  // them. James: "and warp per output?" -- yes.
+  //
+  // The Deck fields remain as the landing pad for shows saved before this;
+  // normalizeProjectOutputsAndLayers lifts them onto the host's output once
+  // and clears them. Nothing else reads them.
+  bool warpEnabled = false;
+  std::string warpMode = "linear";
+  float warpTopLeftX = 0.0f;
+  float warpTopLeftY = 0.0f;
+  float warpTopRightX = 0.0f;
+  float warpTopRightY = 0.0f;
+  float warpBottomRightX = 0.0f;
+  float warpBottomRightY = 0.0f;
+  float warpBottomLeftX = 0.0f;
+  float warpBottomLeftY = 0.0f;
+  float edgeBlendLeft = 0.0f;
+  float edgeBlendRight = 0.0f;
+  float edgeBlendTop = 0.0f;
+  float edgeBlendBottom = 0.0f;
 };
 
 

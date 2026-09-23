@@ -6464,7 +6464,7 @@
   }
 
   void setFocusedDeckWarpEnabled(bool enabled) {
-    Deck& deck = focusedDeckMutable();
+    OutputTarget& deck = focusedOutputMutable();
     if (deck.warpEnabled == enabled) {
       return;
     }
@@ -6482,7 +6482,7 @@
   }
 
   bool setFocusedDeckWarpMode(const std::string& modeToken) {
-    Deck& deck = focusedDeckMutable();
+    OutputTarget& deck = focusedOutputMutable();
     std::string normalized = normalizeWarpMode(modeToken);
     if (deck.warpMode == normalized) {
       triggerToast("warp mode: " + toLower(warpModeLabel(normalized)));
@@ -6504,7 +6504,7 @@
   }
 
   void resetFocusedDeckWarp() {
-    Deck& deck = focusedDeckMutable();
+    OutputTarget& deck = focusedOutputMutable();
     deck.warpTopLeftX = 0.0f;
     deck.warpTopLeftY = 0.0f;
     deck.warpTopRightX = 0.0f;
@@ -6522,7 +6522,7 @@
   }
 
   void adjustFocusedDeckWarpCorner(const std::string& cornerToken, float dx, float dy) {
-    Deck& deck = focusedDeckMutable();
+    OutputTarget& deck = focusedOutputMutable();
     std::string corner = toUpper(cornerToken);
     if (corner == "TL" || corner == "TOPLEFT") {
       deck.warpTopLeftX += dx;
@@ -6539,13 +6539,15 @@
     } else {
       return;
     }
-    normalizeDeck(deck, project_.focusedDeckIndex);
+    // The OUTPUT's geometry is clamped by normalizeProjectOutputsAndLayers,
+    // which is where every other per-output value is kept in range.
+    normalizeProject(project_);
     triggerToast("warp " + corner + " " + std::to_string(static_cast<int>(std::lround(dx))) + "," + std::to_string(static_cast<int>(std::lround(dy))));
     markProjectDirty();
   }
 
   void setFocusedDeckEdgeBlend(const std::string& edgeToken, float value) {
-    Deck& deck = focusedDeckMutable();
+    OutputTarget& deck = focusedOutputMutable();
     float v = std::clamp(value, 0.0f, 0.49f);
     std::string edge = toUpper(edgeToken);
     if (edge == "L" || edge == "LEFT") {
@@ -6559,7 +6561,7 @@
     } else {
       return;
     }
-    normalizeDeck(deck, project_.focusedDeckIndex);
+    normalizeProject(project_);
     triggerToast("blend " + edge + " " + std::to_string(static_cast<int>(std::lround(v * 100.0f))) + "%");
     markProjectDirty();
   }

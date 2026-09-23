@@ -67,10 +67,13 @@
       }
     }
 
-    bool hasBlend = deck.edgeBlendLeft > 0.0001f || deck.edgeBlendRight > 0.0001f
-      || deck.edgeBlendTop > 0.0001f || deck.edgeBlendBottom > 0.0001f;
-    bool hasWarp = deck.warpEnabled;
-    std::string warpMode = normalizeWarpMode(deck.warpMode);
+    // FROM THE OUTPUT, not from its host deck. Warp and edge blend correct
+    // for the screen this destination lands on, so one deck feeding a warped
+    // projector and a clean stream no longer warps both.
+    bool hasBlend = output.edgeBlendLeft > 0.0001f || output.edgeBlendRight > 0.0001f
+      || output.edgeBlendTop > 0.0001f || output.edgeBlendBottom > 0.0001f;
+    bool hasWarp = output.warpEnabled;
+    std::string warpMode = normalizeWarpMode(output.warpMode);
     bool usePerspectiveWarp = hasWarp && warpMode == "perspective";
     int orientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
     bool hasOrientation = orientationDegrees != 0;
@@ -108,10 +111,10 @@
       SDL_FPoint p2 {static_cast<float>(windowW), static_cast<float>(windowH)};
       SDL_FPoint p3 {0.0f, static_cast<float>(windowH)};
       if (hasWarp) {
-        p0.x += deck.warpTopLeftX;      p0.y += deck.warpTopLeftY;
-        p1.x += deck.warpTopRightX;     p1.y += deck.warpTopRightY;
-        p2.x += deck.warpBottomRightX;  p2.y += deck.warpBottomRightY;
-        p3.x += deck.warpBottomLeftX;   p3.y += deck.warpBottomLeftY;
+        p0.x += output.warpTopLeftX;      p0.y += output.warpTopLeftY;
+        p1.x += output.warpTopRightX;     p1.y += output.warpTopRightY;
+        p2.x += output.warpBottomRightX;  p2.y += output.warpBottomRightY;
+        p3.x += output.warpBottomLeftX;   p3.y += output.warpBottomLeftY;
       }
 
       if (usePerspectiveWarp) {
@@ -1903,8 +1906,16 @@
                      static_cast<float>(edge.w), static_cast<float>(edge.h)};
         SDL_RenderFillRect(runtime->outputRenderer, &r);
       }
-      if (fontSmall_ && tileH > 28) {
-        SDL_Rect strip {tile.x, tile.y + tile.h - 18, tile.w, 18};
+      // SIZED FROM THE TILE, not from uiScaled().
+      //
+      // This is drawn into an OUTPUT -- a projector, a card, a stream -- and
+      // the operator's desktop scale has nothing to do with that raster. A
+      // label that is 18 UI pixels tall is a different fraction of a 720p
+      // tile than of a 2160p one. Proportional to the tile is the only
+      // measure that means the same thing on every screen.
+      const int stripH = std::clamp(tileH / 8, 12, 40);
+      if (fontSmall_ && tileH > stripH + 10) {
+        SDL_Rect strip {tile.x, tile.y + tile.h - stripH, tile.w, stripH};
         SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 170);
         SDL_FRect sr {static_cast<float>(strip.x), static_cast<float>(strip.y),
@@ -1912,7 +1923,7 @@
         SDL_RenderFillRect(runtime->outputRenderer, &sr);
         SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
         drawTextSafe(runtime->outputRenderer, fontSmall_,
-                     SDL_Rect {strip.x + 4, strip.y + 1, strip.w - 8, 16},
+                     SDL_Rect {strip.x + 4, strip.y + 1, strip.w - 8, strip.h - 2},
                      deckLabel(d), pal.light);
       }
     }

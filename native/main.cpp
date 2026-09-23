@@ -2813,6 +2813,58 @@ void normalizeProjectOutputsAndLayers(Project& project) {
       output.name = outputDefaultName(static_cast<int>(i));
     }
     output.hostDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
+    // ── PROJECTION MAPPING MOVES UP FROM THE HOST DECK, ONCE ────────────
+    //
+    // Warp and edge blend used to live on the Deck and were applied through
+    // whichever deck hosted this output. A show saved that way has them on
+    // the deck and nothing on the output, so they are lifted here and the
+    // deck's are cleared -- which reproduces exactly what that show did, and
+    // cannot run twice because the deck no longer has anything to give.
+    //
+    // Only from the HOST: a deck that is merely a layer on this output never
+    // supplied its warp, so taking one now would invent an alignment nobody
+    // set.
+    {
+      Deck& host = project.decks[output.hostDeckIndex];
+      const bool outputHasNone =
+        !output.warpEnabled && output.warpTopLeftX == 0.0f && output.warpTopLeftY == 0.0f &&
+        output.warpTopRightX == 0.0f && output.warpTopRightY == 0.0f &&
+        output.warpBottomRightX == 0.0f && output.warpBottomRightY == 0.0f &&
+        output.warpBottomLeftX == 0.0f && output.warpBottomLeftY == 0.0f &&
+        output.edgeBlendLeft == 0.0f && output.edgeBlendRight == 0.0f &&
+        output.edgeBlendTop == 0.0f && output.edgeBlendBottom == 0.0f;
+      const bool deckHasSome =
+        host.warpEnabled || host.warpTopLeftX != 0.0f || host.warpTopLeftY != 0.0f ||
+        host.warpTopRightX != 0.0f || host.warpTopRightY != 0.0f ||
+        host.warpBottomRightX != 0.0f || host.warpBottomRightY != 0.0f ||
+        host.warpBottomLeftX != 0.0f || host.warpBottomLeftY != 0.0f ||
+        host.edgeBlendLeft != 0.0f || host.edgeBlendRight != 0.0f ||
+        host.edgeBlendTop != 0.0f || host.edgeBlendBottom != 0.0f;
+      if (outputHasNone && deckHasSome) {
+        output.warpEnabled = host.warpEnabled;
+        output.warpMode = host.warpMode;
+        output.warpTopLeftX = host.warpTopLeftX;
+        output.warpTopLeftY = host.warpTopLeftY;
+        output.warpTopRightX = host.warpTopRightX;
+        output.warpTopRightY = host.warpTopRightY;
+        output.warpBottomRightX = host.warpBottomRightX;
+        output.warpBottomRightY = host.warpBottomRightY;
+        output.warpBottomLeftX = host.warpBottomLeftX;
+        output.warpBottomLeftY = host.warpBottomLeftY;
+        output.edgeBlendLeft = host.edgeBlendLeft;
+        output.edgeBlendRight = host.edgeBlendRight;
+        output.edgeBlendTop = host.edgeBlendTop;
+        output.edgeBlendBottom = host.edgeBlendBottom;
+        host.warpEnabled = false;
+        host.warpTopLeftX = host.warpTopLeftY = 0.0f;
+        host.warpTopRightX = host.warpTopRightY = 0.0f;
+        host.warpBottomRightX = host.warpBottomRightY = 0.0f;
+        host.warpBottomLeftX = host.warpBottomLeftY = 0.0f;
+        host.edgeBlendLeft = host.edgeBlendRight = 0.0f;
+        host.edgeBlendTop = host.edgeBlendBottom = 0.0f;
+      }
+    }
+    output.warpMode = normalizeWarpMode(output.warpMode);
     // SUPER DECKBOY'S LAYER STACK, cleaned once here so nothing downstream
     // has to. A deck that no longer exists, or the host repeated above
     // itself, would each composite the same picture twice at a cost and to

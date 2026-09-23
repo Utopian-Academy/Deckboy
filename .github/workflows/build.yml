@@ -179,6 +179,13 @@ jobs:
       - name: No stubs that lie to their callers
         run: python3 tools/audit_reachable.py
 
+      # Two verbs sharing one implementation is fine when they are synonyms
+      # and a trap when they are not: GO and TOGGLE were aliases, the standby
+      # walker went in at the top of the shared function, and the SPACEBAR
+      # stopped pausing. Every wiring audit passed.
+      - name: Aliased verbs mean the same thing
+        run: python3 tools/audit_verb_aliases.py
+
       # stateDir() is the only place the app writes, so anything it creates
       # there describes the PACKAGING machine. That list has drifted three
       # times -- a shipped show file, then recent_projects.txt, then
