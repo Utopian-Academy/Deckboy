@@ -1,186 +1,99 @@
-"""Which saved settings can a person actually change?
+#!/usr/bin/env python3
+"""Find functions that always fail while their callers treat them as working.
 
-Every field in Project, OutputTarget, Deck and Cue is written to the show file
-and read back, so each one is a promise that something can set it. This session
-kept finding fields where nothing could:
+WHY THIS EXISTS. v0.99.373 shipped with six deck-to-output routing functions
+that were single-deck stubs -- `assignDeckToOutput` ignored the layer it was
+handed, `assignmentIndexForDeckOutput` answered "deck 0 on output 0" and
+nothing else, `setDeckOutputAssignmentLayer` returned false, and
+`unassignDeckFromOutput` refused outright -- while nine call sites, and the
+whole output-routing UI, were written as though they worked.
 
-  - OutputTarget::spoutEnabled had no remote verb and no keyboard path, so
-    turning Spout on meant hand-editing the show file.
-  - CueKind::NdiSource could only be added from a dialog, so an NDI input could
-    not be added from a control surface -- or tested at all.
-  - VideoSynthSettings::asciiGlyphs and asciiPhrases had editors that read the
-    right cue and wrote a different one, so typing into them did nothing.
+Nothing caught it. `audit_actions.py` checks that every QuickAction has a
+handler and that something fires it; both were true. The compiler is happy
+with a function that returns false. Only pressing the program found it.
 
-A field nothing writes is not necessarily a bug -- some are derived, some are
-runtime-only, some are set as a group. But it should be a DECISION, and right
-now it is a surprise. This lists them so the surprises can be looked at.
+WHAT THIS DOES NOT DO, and three attempts are recorded so the next one does
+not repeat them. A check for "a capability the socket can reach and no control
+can" was tried three ways:
 
-    python tools/audit_reachable.py            # summary
-    python tools/audit_reachable.py --list     # every unreachable field
+  - "called from a file that draws" named 38 functions, every one of which the
+    UI reached through one more hop.
+  - "does anything that draws write the same field" fired on nothing at all,
+    because almost every field is written somewhere.
+  - a transitive walk of the call graph could not be made to FAIL on a
+    capability whose doors had been removed by hand, which means its clean
+    result was not evidence of anything.
+
+A check for "an action whose only control is a stepper chevron" -- the shape
+that left thirty-one inspector rows dead -- cannot be written against the
+source either: the chevrons are registered inside one shared helper, which
+pushes a variable rather than a named action, so every row looks identical
+from here.
+
+Both faults are real and both were found by driving the program. A gate that
+reports clean without being able to fail is worse than no gate; it is what let
+all of this ship. So this file holds the one check that has been shown to
+fail on the real fault, and says plainly what it does not cover.
 """
 import io
 import os
 import re
 import sys
 
-TYPES = os.path.join('native', 'core', 'types.hpp')
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+NATIVE = os.path.join(ROOT, "native")
 
-# Structs whose fields are operator-visible settings.
-STRUCTS = ('Project', 'OutputTarget', 'Deck', 'Cue', 'VideoSynthSettings',
-           'DashboardSlot')
-
-# Fields that are deliberately not settable by hand.
-EXPECT_UNSETTABLE = {
-    # Identity and bookkeeping, assigned by the app.
-    'outputId', 'cueId', 'shortId', 'autoId',
-    # Runtime-only, never meant to persist a user choice.
-    'loadedCleanly',
-    # MIGRATION FIELDS. Read from an old show to seed the setting that replaced
-    # them, and never written by a control on purpose -- giving one a button
-    # would wire the UI to a flag the renderer no longer reads.
-    # asciiGreen seeds asciiInk (project_file.ipp: safeInt(..., asciiGreen ? 1 : 0)).
-    'asciiGreen',
+# Deliberate cases. A name here is a promise that somebody looked at it and
+# wrote down why, not a way to make the audit quiet.
+ALLOW = {
+    # Nothing yet. When one lands, say why it is allowed to do nothing.
 }
 
-FIELD = re.compile(
-    r'^\s{2,}(?:std::)?[A-Za-z_][\w:<>,\s\*&]*?\s([a-z][A-Za-z0-9_]*)\s*(?:=|;)')
 
-
-def struct_fields(text, name):
-    """Field names declared directly in `struct name`."""
-    m = re.search(r'\bstruct\s+' + name + r'\b[^{]*\{', text)
-    if not m:
-        return []
-    depth = 1
-    i = m.end()
-    body_start = i
-    while i < len(text) and depth:
-        if text[i] == '{':
-            depth += 1
-        elif text[i] == '}':
-            depth -= 1
-        i += 1
-    body = text[body_start:i - 1]
-    # Drop nested struct bodies so their fields are not attributed here.
-    body = re.sub(r'\bstruct\s+\w+[^{]*\{[^{}]*\}[^;]*;', '', body)
-    out = []
-    for line in body.split('\n'):
-        if line.strip().startswith('//'):
+def sources():
+    for base, _dirs, files in os.walk(NATIVE):
+        if "upstream" in base:
             continue
-        fm = FIELD.match(line)
-        if fm:
-            out.append(fm.group(1))
-    return out
+        for name in files:
+            if name.endswith((".cpp", ".hpp", ".ipp")):
+                yield os.path.join(base, name)
 
 
-# The count this tree is allowed to have. It exists because the number reached
-# ZERO -- every saved setting can now be changed by a person -- and a zero is
-# only worth reaching if something notices when it stops being one.
-BASELINE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             'reachable_baseline.txt')
+FILES = {p: io.open(p, encoding="utf-8", errors="replace").read() for p in sources()}
+ALL = "\n".join(FILES.values())
 
+# The SHAPE of a body that does nothing: a single return of a falsy value,
+# optionally after a toast, optionally after comments. A function that refuses
+# for a reason tests something first, so it cannot match this.
+STUB = re.compile(
+    r"\n  (?:bool|int|std::optional<[^>]+>|std::string)\s+(\w+)\s*\([^;{]*\)\s*(?:const\s*)?\{\s*"
+    r"(?://[^\n]*\n\s*)*"
+    r"(?:triggerToast\([^;]*\);\s*)?"
+    r"return\s*(?:false|-1|\{\}|std::nullopt|\"\")\s*;\s*\}", re.S)
 
-def main():
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    os.chdir(root)
-    show_all = '--list' in sys.argv
-    strict = '--strict' in sys.argv
-    update = '--update-baseline' in sys.argv
+fails = []
+checked = 0
+for path, text in FILES.items():
+    for m in STUB.finditer(text):
+        checked += 1
+        name = m.group(1)
+        if name in ALLOW:
+            continue
+        # Only a fault if something else calls it. An unused stub is dead
+        # code -- untidy, but it is not lying to anybody.
+        callers = len(re.findall(r"\b%s\s*\(" % re.escape(name), ALL)) - 1
+        if callers > 0:
+            fails.append("%s() always fails, and %d call site%s treat it as working  (%s)"
+                         % (name, callers, "" if callers == 1 else "s",
+                            os.path.basename(path)))
 
-    types = io.open(TYPES, encoding='utf-8', errors='replace').read()
-
-    # Everything that could set a field: the UI, the remote protocol, the
-    # quick actions. NOT the loader or the writer -- those are what make a
-    # field persist, not what lets a person change it.
-    reach = ''
-    for dirpath, _dirnames, filenames in os.walk(os.path.join('native', 'app')):
-        for fn in filenames:
-            if fn.endswith(('.ipp', '.hpp')):
-                reach += io.open(os.path.join(dirpath, fn),
-                                 encoding='utf-8', errors='replace').read()
-    reach += io.open(os.path.join('native', 'main.cpp'),
-                     encoding='utf-8', errors='replace').read()
-
-    total = 0
-    unreachable = {}
-    for struct in STRUCTS:
-        fields = struct_fields(types, struct)
-        if not fields:
-            print('FAIL: no fields found in struct %s -- it has moved or been'
-                  % struct)
-            print('renamed, and this audit is reading the wrong thing.')
-            return 2
-        missing = []
-        for f in fields:
-            total += 1
-            if f in EXPECT_UNSETTABLE:
-                continue
-            # An assignment to the field anywhere a person's action reaches.
-            # Through a dot OR an arrow: half the codebase holds a Cue* and
-            # `cue->field =` is as much an assignment as `cue.field =`. Missing
-            # the arrow form made this report six fields as unreachable that
-            # are set from the inspector every day.
-            if re.search(r'(?:\.|->)' + re.escape(f) +
-                         r'\s*(?:=[^=]|\+=|-=)', reach):
-                continue
-            # A nested settings struct is reached through its own fields, never
-            # assigned whole -- `cue.videoSynth.asciiCols = x`, not
-            # `cue.videoSynth = ...`. Those are not unreachable, they are
-            # containers.
-            if re.search(r'(?:\.|->)' + re.escape(f) + r'\.[a-z]', reach):
-                continue
-            # Written through a REFERENCE out-parameter rather than by a visible
-            # `=`. The remote handlers parse-and-assign in one step:
-            #
-            #     if (sub == "HEIGHT" && number(2, 0.0f, 1.0f, cue->meshHeight))
-            #
-            # which sets the field if the argument parses and leaves it alone if
-            # it does not. Looking only for an `=` reported all five mesh
-            # controls as unreachable while MESH HEIGHT/TILT/YAW/SPIN/GRID were
-            # setting them from any control surface -- four phantom findings on
-            # every run, which is how a gate stops being read.
-            if re.search(r'\b\w+\s*\([^;]*(?:\.|->)' + re.escape(f) +
-                         r'\s*\)', reach):
-                continue
-            missing.append(f)
-        if missing:
-            unreachable[struct] = missing
-
-    count = sum(len(v) for v in unreachable.values())
-    print('settings fields: %d   never assigned by any UI or remote path: %d'
-          % (total, count))
-    print()
-    for struct, fields in sorted(unreachable.items()):
-        print('  %s: %d' % (struct, len(fields)))
-        if show_all:
-            for f in fields:
-                print('      %s' % f)
-    if not show_all and count:
-        print()
-        print('  (--list to see them)')
-
-    # A RATCHET, not a verdict. Some of these are legitimately group-assigned,
-    # so the right number is not always zero and a flat failure would be wrong.
-    # What is always wrong is the number going UP: that is a setting that
-    # persists in the show file and that nobody can reach, on the day it is
-    # added rather than whenever somebody next runs this by hand.
-    if update:
-        io.open(BASELINE_FILE, 'w', encoding='utf-8').write('%d\n' % count)
-        print('baseline set to %d' % count)
-        return 0
-    if strict:
-        if not os.path.exists(BASELINE_FILE):
-            print('no baseline recorded; run --update-baseline first')
-            return 1
-        baseline = int(io.open(BASELINE_FILE, encoding='utf-8').read().strip())
-        if count > baseline:
-            print('FAIL: %d > baseline %d -- a saved setting was added that '
-                  'nothing can change. Give it a control, a remote verb, or '
-                  'a reason.' % (count, baseline))
-            return 1
-        print('ok: %d <= baseline %d' % (count, baseline))
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+print("audit: stubs that lie to their callers")
+print()
+print("  files scanned:     %d" % len(FILES))
+print("  do-nothing bodies: %d" % checked)
+print()
+for f in fails:
+    print("  FAIL " + f)
+print()
+print("clean" if not fails else "%d finding%s" % (len(fails), "" if len(fails) == 1 else "s"))
+sys.exit(1 if fails else 0)

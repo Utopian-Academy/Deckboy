@@ -171,6 +171,14 @@ jobs:
       - name: No dead controls
         run: python3 tools/audit_actions.py --strict
 
+      # And the other half of that, which the check above cannot see: a
+      # function whose whole body is `return false;` while its callers are
+      # written as though it works. Six of the deck-to-output routing
+      # functions were exactly this in v0.99.373, with the whole routing UI
+      # wired to them, and every gate reported clean.
+      - name: No stubs that lie to their callers
+        run: python3 tools/audit_reachable.py
+
       # stateDir() is the only place the app writes, so anything it creates
       # there describes the PACKAGING machine. That list has drifted three
       # times -- a shipped show file, then recent_projects.txt, then
