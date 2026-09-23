@@ -26,6 +26,68 @@
 // varies cannot have a column each without moving every field after it. One
 // comma-separated field keeps the format append-only, which is the rule the
 // whole file follows.
+// A LAYER LIST IN ONE FIELD, and it still reads what the old one wrote.
+//
+// "1,2" meant decks 1 and 2 full-frame; it now writes
+// "1:0:0:1:1:dissolve,2:...". A token with no colons is the old form and gets
+// the defaults, which ARE full-frame dissolve -- so a show saved this morning
+// opens with its layers exactly where they were.
+inline std::string joinLayerList(const std::vector<OutputLayer>& layers) {
+  std::ostringstream out;
+  for (std::size_t i = 0; i < layers.size(); ++i) {
+    if (i) out << ',';
+    const OutputLayer& l = layers[i];
+    out << l.deckIndex << ':' << l.x << ':' << l.y << ':' << l.w << ':' << l.h
+        << ':' << (l.blendMode.empty() ? "dissolve" : l.blendMode);
+  }
+  return out.str();
+}
+
+inline std::vector<OutputLayer> parseLayerList(const std::string& text) {
+  std::vector<OutputLayer> out;
+  std::size_t start = 0;
+  while (start <= text.size()) {
+    std::size_t comma = text.find(',', start);
+    if (comma == std::string::npos) comma = text.size();
+    const std::string token = trim(text.substr(start, comma - start));
+    start = comma + 1;
+    if (token.empty()) {
+      continue;
+    }
+    std::vector<std::string> bits;
+    std::size_t p = 0;
+    while (p <= token.size()) {
+      std::size_t colon = token.find(':', p);
+      if (colon == std::string::npos) colon = token.size();
+      bits.push_back(token.substr(p, colon - p));
+      p = colon + 1;
+    }
+    OutputLayer layer;
+    try {
+      layer.deckIndex = std::stoi(bits[0]);
+    } catch (...) {
+      continue;   // not a number: drop it rather than default to deck 1
+    }
+    auto readF = [&](std::size_t at, float fallback) {
+      if (at >= bits.size()) return fallback;
+      try {
+        return std::stof(bits[at]);
+      } catch (...) {
+        return fallback;
+      }
+    };
+    layer.x = readF(1, 0.0f);
+    layer.y = readF(2, 0.0f);
+    layer.w = readF(3, 1.0f);
+    layer.h = readF(4, 1.0f);
+    if (bits.size() > 5 && !bits[5].empty()) {
+      layer.blendMode = bits[5];
+    }
+    out.push_back(layer);
+  }
+  return out;
+}
+
 inline std::string joinIntList(const std::vector<int>& values) {
   std::string out;
   for (std::size_t i = 0; i < values.size(); ++i) {
@@ -321,7 +383,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       // Super Deckboy's layer stack (field 77). One field, comma separated,
       // because the count varies per output and the format is positional --
       // a variable number of columns would move every field after it.
-      << '\t' << escapeField(joinIntList(outputTarget.layerDecks))
+      << '\t' << escapeField(joinLayerList(outputTarget.layerDecks))
       // Projection mapping (fields 78-91), which used to live on the deck.
       << '\t' << (outputTarget.warpEnabled ? 1 : 0)
       << '\t' << escapeField(outputTarget.warpMode)
@@ -1185,7 +1247,7 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                           // which is what every show saved before Super
                           // Deckboy did and must keep doing.
                           if (fields.size() >= 78) {
-                            outputTarget.layerDecks = parseIntList(safeString(fields, 77));
+                            outputTarget.layerDecks = parseLayerList(safeString(fields, 77));
                           }
                           // Projection mapping. ABSENT means the show predates
                           // per-output warp, and normalizeProjectOutputsAndLayers

@@ -872,6 +872,31 @@ inline CueTextAnimation cueTextAnimationFromToken(const std::string& t) {
 // SPARSE, deliberately. A show with one cue routed to outs 7-8 should carry
 // two crosspoints, not a 2x64 grid of zeroes in every cue record.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// ONE LAYER OF AN OUTPUT.
+//
+// A playlist, WHERE it sits in the frame, and HOW it is blended over what is
+// under it. It was a bare deck index, so every layer filled the frame and the
+// top one simply hid the rest -- which makes a lower-thirds playlist over a
+// camera impossible, and is what James meant by "no way to mix or scale them".
+//
+// GEOMETRY IS FRACTIONS OF THE OUTPUT, never pixels: a layout built against a
+// 1080 projector has to mean the same thing on a 2160 one. 0,0,1,1 is the
+// whole frame, which is what every existing layer becomes.
+//
+// The BLEND is where VJ mode's blend modes now live. They were a property of
+// "the B deck" -- but a B deck IS a layer, so this is the same idea with the
+// special case removed.
+// ---------------------------------------------------------------------------
+struct OutputLayer {
+  int deckIndex = 0;
+  float x = 0.0f;
+  float y = 0.0f;
+  float w = 1.0f;
+  float h = 1.0f;
+  std::string blendMode = "dissolve";   // dissolve | add | multiply | screen ...
+};
+
 struct AudioCrosspoint {
   int source = 0;      // 0 = the cue's left, 1 = its right
   int dest = 0;        // 0-based channel of the deck's audio device
@@ -1389,7 +1414,7 @@ struct OutputTarget {
   //
   // Each deck's own playlistOpacity is what blends it, so a layer fades in and
   // out with the control that already existed for exactly that.
-  std::vector<int> layerDecks;
+  std::vector<OutputLayer> layerDecks;
 
 
 

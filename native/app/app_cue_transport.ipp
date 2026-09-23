@@ -3790,18 +3790,20 @@
       // base, the first layer above it takes over; if there was none, it
       // falls to deck 0 -- an output with no source shows black and there is
       // nothing on screen to tell anyone why.
-      std::vector<int> layers;
-      for (int layer : output.layerDecks) {
-        const int moved = shift(layer);
+      std::vector<OutputLayer> layers;
+      for (const OutputLayer& layer : output.layerDecks) {
+        const int moved = shift(layer.deckIndex);
         if (moved >= 0 && moved < deckCount) {
-          layers.push_back(moved);
+          OutputLayer kept = layer;   // keeps its geometry and its blend
+          kept.deckIndex = moved;
+          layers.push_back(kept);
         }
       }
       const int host = shift(output.hostDeckIndex);
       if (host >= 0 && host < deckCount) {
         output.hostDeckIndex = host;
       } else if (!layers.empty()) {
-        output.hostDeckIndex = layers.front();
+        output.hostDeckIndex = layers.front().deckIndex;
         layers.erase(layers.begin());
       } else {
         output.hostDeckIndex = 0;

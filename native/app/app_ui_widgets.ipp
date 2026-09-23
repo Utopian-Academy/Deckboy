@@ -298,19 +298,52 @@
   // What the chip says: every output this playlist reaches, with its layer.
   // "--" is a real and important answer -- a playlist that is running and
   // reaching nothing looks identical to a broken one until it says so.
+  // ── SAID IN WORDS, NOT IN A CODE ──────────────────────────────────────
+  //
+  // This read "O1A" / "O2B", which is exactly as informative as it looks.
+  // James: "i dont like how layers are labeled now. needs to be clearer and
+  // easier to understand what is happening."
+  //
+  // BASE is the layer everything else sits on; OVER is a layer on top of it,
+  // numbered when there is more than one. A playlist reaching nothing says so
+  // in words too, because that is the state most worth noticing.
+  // ── THE HEADER ANSWERS ONE QUESTION: WHERE DOES THIS GO? ──────────────
+  //
+  // Two earlier tries were both wrong in the same way -- they put the LAYER
+  // in the chip. "O1A" was a code ("i dont like how layers are labeled"), and
+  // spelling it out as "OUT1 BASE" traded a code for jargon ("i dont like
+  // something that says out1 base").
+  //
+  // The layer is the wrong thing to put here. Which layer a playlist is on is
+  // visible where the layers are: stacked in the multiview, listed in the
+  // routing menu. What the header has room to say, and what somebody scanning
+  // a column actually wants, is the destination.
   std::string playlistRoutingChipLabel(int deckIndex) const {
-    std::string out;
+    std::string list;
     for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
-      const auto layer = assignmentIndexForDeckOutput(deckIndex, i);
-      if (!layer) {
+      if (!assignmentIndexForDeckOutput(deckIndex, i)) {
         continue;
       }
-      if (!out.empty()) {
-        out += " ";
-      }
-      out += "O" + std::to_string(i + 1) + layerLetter(*layer);
+      list += (list.empty() ? "" : ",") + std::to_string(i + 1);
     }
-    return out.empty() ? std::string("--") : out;
+    if (list.empty()) {
+      // THE STATE MOST WORTH NOTICING, said plainly rather than as "--".
+      return "no output";
+    }
+    return (list.find(',') == std::string::npos ? "to Out " : "to Outs ") + list;
+  }
+
+  // The same thing for one output, for a tile or a row that already knows
+  // which output it is talking about.
+  std::string layerRoleLabel(int deckIndex, int outputIndex) const {
+    const auto layer = assignmentIndexForDeckOutput(deckIndex, outputIndex);
+    if (!layer) {
+      return "not on this output";
+    }
+    if (*layer == 0) {
+      return "base layer";
+    }
+    return "over, layer " + std::to_string(*layer);
   }
 
   void openContextMenu(int deckIdx, int cueIdx, int mx, int my) {

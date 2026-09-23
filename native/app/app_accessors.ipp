@@ -626,11 +626,12 @@
       // order, so the whole of "playlist 2 sits on top of playlist 1 on this
       // output" is this loop.
       int layer = 1;
-      for (int extra : project_.outputs[outputIndex].layerDecks) {
-        if (extra < 0 || extra >= deckCount || extra == host) {
+      for (const OutputLayer& entry : project_.outputs[outputIndex].layerDecks) {
+        if (entry.deckIndex < 0 || entry.deckIndex >= deckCount ||
+            entry.deckIndex == host) {
           continue;   // normalizeProject prunes these; belt and braces
         }
-        entries.emplace_back(layer++, extra);
+        entries.emplace_back(layer++, entry.deckIndex);
       }
     }
     return entries;
@@ -838,7 +839,7 @@
       return 0;
     }
     for (std::size_t i = 0; i < output.layerDecks.size(); ++i) {
-      if (output.layerDecks[i] == deckIndex) {
+      if (output.layerDecks[i].deckIndex == deckIndex) {
         return static_cast<int>(i) + 1;
       }
     }
@@ -880,7 +881,9 @@
     if (requestedLayer) {
       at = std::clamp(*requestedLayer - 1, 0, static_cast<int>(output.layerDecks.size()));
     }
-    output.layerDecks.insert(output.layerDecks.begin() + at, deckIndex);
+    OutputLayer added;
+    added.deckIndex = deckIndex;   // full frame, dissolve: see OutputLayer
+    output.layerDecks.insert(output.layerDecks.begin() + at, added);
     triggerToast("assign: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex) +
                  " layer " + layerLetter(at + 1));
     playUiSound(UiSoundEffect::Toggle);
@@ -922,7 +925,9 @@
       }
       const int wasHost = output.hostDeckIndex;
       output.hostDeckIndex = deckIndex;
-      output.layerDecks[static_cast<std::size_t>(*at) - 1] = wasHost;
+      // The demoted host takes the geometry of the slot it drops into, which
+      // is what "swap places" means -- a base deck has no geometry of its own.
+      output.layerDecks[static_cast<std::size_t>(*at) - 1].deckIndex = wasHost;
       triggerToast(deckLabel(deckIndex) + " is now the base of " + outputLabel(outputIndex));
       markProjectDirty();
       return true;
@@ -931,8 +936,8 @@
       return false;
     }
     if (*at == 0) {
-      const int promoted = output.layerDecks[static_cast<std::size_t>(layerIndex) - 1];
-      output.layerDecks[static_cast<std::size_t>(layerIndex) - 1] = deckIndex;
+      const int promoted = output.layerDecks[static_cast<std::size_t>(layerIndex) - 1].deckIndex;
+      output.layerDecks[static_cast<std::size_t>(layerIndex) - 1].deckIndex = deckIndex;
       output.hostDeckIndex = promoted;
       triggerToast(deckLabel(deckIndex) + " -> layer " + layerLetter(layerIndex));
       markProjectDirty();
@@ -941,9 +946,9 @@
     if (*at == layerIndex) {
       return false;
     }
-    const int deck = output.layerDecks[static_cast<std::size_t>(*at) - 1];
+    const OutputLayer moved = output.layerDecks[static_cast<std::size_t>(*at) - 1];
     output.layerDecks.erase(output.layerDecks.begin() + (*at - 1));
-    output.layerDecks.insert(output.layerDecks.begin() + (layerIndex - 1), deck);
+    output.layerDecks.insert(output.layerDecks.begin() + (layerIndex - 1), moved);
     triggerToast(deckLabel(deckIndex) + " -> layer " + layerLetter(layerIndex));
     markProjectDirty();
     return true;
@@ -964,7 +969,7 @@
         triggerToast("an output needs a base playlist");
         return false;
       }
-      output.hostDeckIndex = output.layerDecks.front();
+      output.hostDeckIndex = output.layerDecks.front().deckIndex;
       output.layerDecks.erase(output.layerDecks.begin());
       triggerToast(deckLabel(output.hostDeckIndex) + " is now the base of " +
                    outputLabel(outputIndex));

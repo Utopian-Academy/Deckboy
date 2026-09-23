@@ -5024,7 +5024,7 @@
             report << layerLetter(0) << ":" << deckLabel(out.hostDeckIndex);
             for (std::size_t i = 0; i < out.layerDecks.size(); ++i) {
               report << " | " << layerLetter(static_cast<int>(i) + 1) << ":"
-                     << deckLabel(out.layerDecks[i]);
+                     << deckLabel(out.layerDecks[i].deckIndex);
             }
             remoteCommandDetail_ = report.str();
             return;

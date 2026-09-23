@@ -1102,6 +1102,7 @@
     // is drawn.
     deckTabRects_.clear();
     deckAddTabRect_ = SDL_Rect {};
+    deckRemoveTabRect_ = SDL_Rect {};
 
     if (vjSplitDecks) {
       // A on the left and B on the right, matching the bar above and the way
@@ -1160,8 +1161,15 @@
         deckTabRects_.assign(static_cast<std::size_t>(count), SDL_Rect {});
         const int gap = uiScaled(2);
         // The + takes a fixed narrow slot; the tabs share what is left.
+        // A + and, once there is more than one playlist, a - beside it.
+        // "how do i remove decks?" was asked with the + already on screen,
+        // which is the answer: the place you add them is the only place
+        // anybody will look for taking one away.
+        const bool canRemoveDeck = count > 1;
         const int addW = canAddDeck ? uiScaled(26) : 0;
-        const int tabsW = playlistCol.w - (canAddDeck ? addW + gap : 0);
+        const int remW = canRemoveDeck ? uiScaled(26) : 0;
+        const int trailW = (canAddDeck ? addW + gap : 0) + (canRemoveDeck ? remW + gap : 0);
+        const int tabsW = playlistCol.w - trailW;
         const int each = (tabsW - gap * (count - 1)) / std::max(1, count);
         for (int d = 0; d < count; ++d) {
           SDL_Rect tab {playlistCol.x + d * (each + gap), playlistCol.y,
@@ -1191,13 +1199,30 @@
                                focused ? pal.deep : pal.fg);
           deckTabRects_[d] = tab;
         }
+        int trailX = playlistCol.x + tabsW + gap;
         if (canAddDeck) {
-          SDL_Rect add {playlistCol.x + tabsW + gap, playlistCol.y, addW, tabH};
+          SDL_Rect add {trailX, playlistCol.y, addW, tabH};
           drawUIPanel(add, pal.tile, pal.deep, pal.mid);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, add, "+", pal.fg);
           deckAddTabRect_ = add;
+          trailX += addW + gap;
         } else {
           deckAddTabRect_ = SDL_Rect {};
+        }
+        if (canRemoveDeck) {
+          // ARMED IS RED AND SAYS SO. This discards a playlist and its cues
+          // and stops playback; one press beside a + that is one press is
+          // exactly the mis-tap worth spending a second press to prevent.
+          const bool armed = deckRemoveArmedIndex_ == project_.focusedDeckIndex &&
+                             animationNow_ - deckRemoveArmedAtMs_ <= 4000;
+          SDL_Rect rem {trailX, playlistCol.y, remW, tabH};
+          drawUIPanel(rem, armed ? SDL_Color {170, 40, 40, 255} : pal.tile,
+                      pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, rem, "-",
+                               armed ? SDL_Color {255, 220, 220, 255} : pal.fg);
+          deckRemoveTabRect_ = rem;
+        } else {
+          deckRemoveTabRect_ = SDL_Rect {};
         }
         playlistCol.y += tabH + gap;
         playlistCol.h -= tabH + gap;
@@ -1486,13 +1511,6 @@
     SDL_Rect colHeader {col.x, col.y, col.w, kPlaylistHeaderH};
     drawUIPanel(colHeader, pal.dark,
                 pal.deep, pal.mid);
-    // NOT WHEN THE TABS ARE SAYING IT. A header with a title, a >LIVE button
-    // and a routing chip in 180px has room for two of the three, and the
-    // title is the one the tabs above already carry -- it was being clipped
-    // to "De", which reads as a fault rather than as a heading.
-    if (deckTabRects_.empty()) {
-      drawPanelHeaderTitle(colHeader, playlistColumnTitle(deckIndex));
-    }
     // "Jump to live cue" button — snaps the (possibly huge) list back to the
     // cue that's playing. Only for the focused deck's column (the one the
     // keyboard acts on). Sized to its label so the text never ellipsizes
@@ -1526,9 +1544,14 @@
       drawCenteredTextSafe(controlRenderer_, rcFont, chip, routing,
                            routed ? pal.deep : pal.light);
       deckRoutingChipRects_[deckIndex] = chip;
+      playlistHeaderLeftEdge_ = chip.x;
     }
 
-    bool jumpBtnShown = deckIndex == project_.focusedDeckIndex && !deck.cues.empty();
+    // ONLY WHEN IT DOES NOT COST THE TITLE. >LIVE is a convenience; a column
+    // that cannot say which playlist it is is not one.
+    const int roomLeftOfChip = playlistHeaderLeftEdge_ - colHeader.x;
+    bool jumpBtnShown = deckIndex == project_.focusedDeckIndex &&
+                        !deck.cues.empty() && roomLeftOfChip >= uiScaled(150);
     int jumpBtnW = 0;
     if (jumpBtnShown) {
       TTF_Font* jbFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
@@ -1541,13 +1564,38 @@
       // LEFT OF THE ROUTING CHIP, which is pinned to the right edge. Two
       // controls measured from the same edge is how one ends up drawn on top
       // of the other, and the one underneath then looks like it does nothing.
-      SDL_Rect jb {colHeader.x + colHeader.w - jumpBtnW - 6 - routingChipW - 6,
+      SDL_Rect jb {playlistHeaderLeftEdge_ - jumpBtnW - uiScaled(4),
                    colHeader.y + 3, jumpBtnW, colHeader.h - 6};
+      playlistHeaderLeftEdge_ = jb.x;
       drawUIPanel(jb, pal.light, pal.deep, pal.mid);
       drawCenteredTextSafe(controlRenderer_, jbFont, jb, ">LIVE", pal.deep);
       playlistJumpBtnRect_ = jb;
     } else if (deckIndex == project_.focusedDeckIndex) {
       playlistJumpBtnRect_ = SDL_Rect {};
+    }
+
+    // THE COLUMN ALWAYS SAYS WHICH PLAYLIST IT IS.
+    //
+    // It was dropped whenever the tabs were showing, on the reasoning that
+    // the tabs already name the decks. They do not: the tabs name the
+    // FOCUSED one and number the rest, so two columns side by side were two
+    // unlabelled lists and there was no way to tell which was which. The
+    // >LIVE button gives up its space instead -- it is a convenience, and a
+    // column that does not say what it is is not.
+    // DRAWN LAST, INTO WHAT IS LEFT. The title used to be drawn across the
+    // whole header while the chip and the >LIVE button were pinned to the
+    // right of it, so at two columns all three sat on top of each other:
+    // ">LIVE" clipped at the left edge, "Deck 2" cut in half by the chip.
+    // Whoever draws across somebody else's pixels is the bug, so the title
+    // is given a rect that already excludes them.
+    {
+      const int rightTaken = (colHeader.x + colHeader.w) - playlistHeaderLeftEdge_;
+      SDL_Rect titleRect {colHeader.x, colHeader.y,
+                          std::max(0, colHeader.w - rightTaken - uiScaled(4)),
+                          colHeader.h};
+      if (titleRect.w >= uiScaled(24)) {
+        drawPanelHeaderTitle(titleRect, playlistColumnTitle(deckIndex));
+      }
     }
 
     // Playlist header — scrolling dot animation (like a marquee). The track
@@ -1683,12 +1731,33 @@
         labelW = std::max(labelW, measuredTextWidth(fontSmall_, hint.second));
       }
       const int blockW = keyW + gap + labelW;
-      const int hx = primaryClip.x + (primaryClip.w - blockW) / 2;
+      const int avail = primaryClip.w - uiScaled(8);
       int hy = primaryClip.y + primaryClip.h / 2 - emptyLineH;
-      for (const auto& hint : kHints) {
-        drawText(controlRenderer_, fontSmall_, hint.first, pal.fg, hx, hy);
-        drawText(controlRenderer_, fontSmall_, hint.second, pal.fg, hx + keyW + gap, hy);
-        hy += emptyLineH;
+      if (blockW <= avail) {
+        const int hx = primaryClip.x + (primaryClip.w - blockW) / 2;
+        for (const auto& hint : kHints) {
+          drawText(controlRenderer_, fontSmall_, hint.first, pal.fg, hx, hy);
+          drawText(controlRenderer_, fontSmall_, hint.second, pal.fg, hx + keyW + gap, hy);
+          hy += emptyLineH;
+        }
+      } else {
+        // ── TOO NARROW FOR TWO COLUMNS ──────────────────────────────────
+        //
+        // These were drawn with raw drawText at a CENTRED x, so the moment
+        // the block was wider than the column -- which is the moment a second
+        // playlist appears and halves it -- hx went negative and the hint ran
+        // off both edges at once. Reported twice: "the i for import text in
+        // the decks gets fucked up and cut off the moment 2nd deck appears".
+        //
+        // One column, drawn into the clip rect through the safe helper, so
+        // the worst case is an ellipsis rather than text over the border.
+        for (const auto& hint : kHints) {
+          drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                               SDL_Rect {primaryClip.x + uiScaled(4), hy,
+                                         primaryClip.w - uiScaled(8), emptyLineH},
+                               std::string(hint.first) + "  " + hint.second, pal.fg);
+          hy += emptyLineH;
+        }
       }
     }
     SDL_SetRenderClipRect(controlRenderer_, nullptr);

@@ -2871,15 +2871,30 @@ void normalizeProjectOutputsAndLayers(Project& project) {
     // no effect -- and a show that once had four decks and now has two must
     // still open.
     {
-      std::vector<int> cleaned;
-      for (int extra : output.layerDecks) {
-        if (extra < 0 || extra >= deckCount || extra == output.hostDeckIndex) {
+      std::vector<OutputLayer> cleaned;
+      for (const OutputLayer& layer : output.layerDecks) {
+        if (layer.deckIndex < 0 || layer.deckIndex >= deckCount ||
+            layer.deckIndex == output.hostDeckIndex) {
           continue;
         }
-        if (std::find(cleaned.begin(), cleaned.end(), extra) != cleaned.end()) {
+        bool already = false;
+        for (const OutputLayer& kept : cleaned) {
+          already = already || kept.deckIndex == layer.deckIndex;
+        }
+        if (already) {
           continue;
         }
-        cleaned.push_back(extra);
+        OutputLayer fixed = layer;
+        // Geometry kept inside the frame and never inverted: a layer with a
+        // negative width is a layer nobody can see and nothing to explain it.
+        fixed.w = std::clamp(fixed.w, 0.02f, 1.0f);
+        fixed.h = std::clamp(fixed.h, 0.02f, 1.0f);
+        fixed.x = std::clamp(fixed.x, 0.0f, 1.0f - fixed.w);
+        fixed.y = std::clamp(fixed.y, 0.0f, 1.0f - fixed.h);
+        if (fixed.blendMode.empty()) {
+          fixed.blendMode = "dissolve";
+        }
+        cleaned.push_back(fixed);
       }
       output.layerDecks.swap(cleaned);
     }
@@ -3045,6 +3060,18 @@ void normalizeProject(Project& project) {
   project.outputCanvasWidth = std::clamp(project.outputCanvasWidth, 320, 16384);
   project.outputCanvasHeight = std::clamp(project.outputCanvasHeight, 180, 16384);
   project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
+  // ── ONE PLAYLIST IS PLAIN DECKBOY AGAIN ────────────────────────────────
+  //
+  // "when going from two or more decks back to one deck, deckboy should morph
+  // back to deckboy. no need for multiview or other multi out complications."
+  //
+  // The multiview of a single playlist is the programme and one tile of the
+  // same picture, which is a worse monitor than the monitor. Turned off here
+  // rather than in removeDeck so it is also true for a show that arrives with
+  // one deck and the flag set.
+  if (project.decks.size() <= 1) {
+    project.multiviewMode = 0;
+  }
   project.jumpMode = normalizeJumpModeToken(project.jumpMode);
   project.panicProfile = normalizePanicProfileToken(project.panicProfile);
   project.uiTransitionsEnabled = true;
@@ -8632,6 +8659,14 @@ class App {
   // column. Only drawn when there is more than one playlist.
   std::vector<SDL_Rect> deckTabRects_;
   SDL_Rect deckAddTabRect_ {};   // the + on the end of the strip
+  SDL_Rect deckRemoveTabRect_ {};  // and the - beside it
+  // Where the right-hand furniture of a playlist header begins, so the
+  // title can be drawn into what is left rather than across it.
+  int playlistHeaderLeftEdge_ = 0;
+  // Removing a playlist throws away its cues, so it asks twice -- the same
+  // arm-then-confirm the dashboard's delete uses.
+  int deckRemoveArmedIndex_ = -1;
+  Uint64 deckRemoveArmedAtMs_ = 0;
   // The program monitor while nothing is live. A creature habitat -- see
   // creatureHabitats() for why the other two are so often empty.
   SDL_Rect idleMonitorRect_ {};
