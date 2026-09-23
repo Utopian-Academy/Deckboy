@@ -88,6 +88,32 @@ inline std::vector<OutputLayer> parseLayerList(const std::string& text) {
   return out;
 }
 
+// A list of NAMES in one field. Semicolon separated, because an audio device
+// name routinely contains a comma ("Speakers (2- USB Audio, Realtek)").
+inline std::string joinStringList(const std::vector<std::string>& values, char sep) {
+  std::string out;
+  for (std::size_t i = 0; i < values.size(); ++i) {
+    if (i) out += sep;
+    out += values[i];
+  }
+  return out;
+}
+
+inline std::vector<std::string> parseStringList(const std::string& text, char sep) {
+  std::vector<std::string> out;
+  std::size_t start = 0;
+  while (start <= text.size()) {
+    std::size_t at = text.find(sep, start);
+    if (at == std::string::npos) at = text.size();
+    const std::string token = trim(text.substr(start, at - start));
+    if (!token.empty()) {
+      out.push_back(token);
+    }
+    start = at + 1;
+  }
+  return out;
+}
+
 inline std::string joinIntList(const std::vector<int>& values) {
   std::string out;
   for (std::size_t i = 0; i < values.size(); ++i) {
@@ -462,6 +488,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (deck.playlistDefaultTransitionToNext ? 1 : 0) << '\t'
       << deck.audioOutputChannels
       << '	' << deck.standbyIndex
+      // Extra audio destinations, appended: one field, semicolon
+      // separated, because a device name may contain a comma.
+      << '	' << escapeField(joinStringList(deck.extraAudioDeviceNames, ';'))
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1516,6 +1545,12 @@ Project loadProject(const fs::path& projectFile,
       // Neutral default -1: a show written before the standby pointer existed
       // opens with no standby and behaves exactly as it did.
       deck.standbyIndex = safeInt(fields, 56 + warpFieldOffset, -1);
+      // Appended after standbyIndex; a show saved before this has none,
+      // which is exactly "only the one device".
+      if (fields.size() >= 58 + warpFieldOffset) {
+        deck.extraAudioDeviceNames =
+          parseStringList(safeString(fields, 57 + warpFieldOffset), ';');
+      }
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;

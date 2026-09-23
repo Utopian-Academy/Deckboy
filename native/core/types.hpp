@@ -1307,6 +1307,17 @@ struct Deck {
 
   // -- Audio + output routing --------------------------------------------------
   std::string audioOutputDeviceName;       // SDL audio device name (empty = system default)
+  // ── AND ANYWHERE ELSE IT SHOULD GO ────────────────────────────────────
+  //
+  // The same finished audio, sent to more devices at the same time: the PA
+  // and the stream encoder, the house and a wedge on another interface. The
+  // crosspoint matrix routes a cue across the CHANNELS of one device; this is
+  // the other axis, and there was no way to do it at all.
+  //
+  // BY NAME, like the primary, for the same reason: a name is what a show
+  // file can carry and a device index is not. A name that is absent at open
+  // is reported and skipped, never silently swapped for something else.
+  std::vector<std::string> extraAudioDeviceNames;
   // Channels to open the deck's audio device with (2/4/6/8). Cues route
   // their stereo onto a pair of these outs (Cue::audioOutputPair). When the
   // physical device has fewer channels, SDL folds the extra pairs down.

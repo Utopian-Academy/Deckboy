@@ -1893,6 +1893,9 @@ struct DeckRuntime {
   SDL_Window* outputWindow = nullptr;    // Legacy (unused — outputs moved to OutputRuntime)
   SDL_Renderer* outputRenderer = nullptr;
   SDL_AudioStream* audioStream = nullptr;  // device-bound SDL3 stream for this deck's audio output
+  // Extra destinations for the same audio (Deck::extraAudioDeviceNames).
+  // Owned here so they are closed exactly where the primary one is.
+  std::vector<SDL_AudioStream*> extraAudioStreams;
   // WHAT WE ACTUALLY GOT, which is not always what was asked for. Deck::
   // audioOutputDeviceName is the operator's REQUEST and is persisted; this is
   // the device currently open, empty for the system default. They differ while

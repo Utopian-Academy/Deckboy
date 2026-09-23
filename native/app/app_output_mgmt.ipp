@@ -4693,6 +4693,38 @@
 
     SDL_AudioStream* oldStream = runtime->audioStream;
     runtime->audioStream = newMain;
+
+    // ── THE EXTRA DESTINATIONS ──────────────────────────────────────────
+    //
+    // Opened HERE, with the primary, because this is the one place a deck's
+    // audio devices change and the engine's contract is that streams are
+    // swapped from the main thread while it owns them. Opening them anywhere
+    // else would mean a second lifecycle to keep in step with this one.
+    std::vector<SDL_AudioStream*> oldExtras;
+    oldExtras.swap(runtime->extraAudioStreams);
+    std::vector<SDL_AudioStream*> newExtras;
+    for (const std::string& name : deck.extraAudioDeviceNames) {
+      if (trim(name).empty()) {
+        continue;
+      }
+      std::string gotName;
+      SDL_AudioStream* extra = openMainAudioDevice(name, gotName, deck.audioOutputChannels);
+      if (!extra) {
+        triggerToast("audio: could not open " + name);
+        continue;
+      }
+      // NAMED OR NOTHING. The primary falls back to the system default
+      // because a deck with no sound at all is worse; an EXTRA destination
+      // falling back would quietly double the sound onto a device the
+      // operator never asked for, which is worse than silence.
+      if (gotName != name) {
+        triggerToast("audio: " + name + " not found - not sending there");
+        SDL_DestroyAudioStream(extra);
+        continue;
+      }
+      newExtras.push_back(extra);
+    }
+    runtime->extraAudioStreams = newExtras;
     // The REQUEST is kept, not the result.
     //
     // This used to store the effective name here, so a named interface that
@@ -4710,6 +4742,7 @@
       // Hot-swap the output device on the existing engine so a device change
       // mid-cue keeps playing instead of tearing the engine down.
       runtime->mediaEngine->setAudioDevice(newMain);
+      runtime->mediaEngine->setExtraAudioStreams(newExtras);
       runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
     } else {
       runtime->mediaEngine = std::make_unique<MediaEngine>(
@@ -4745,6 +4778,13 @@
       // present the driver never frees what we upload. See uploadFrame.
       runtime->mediaEngine->setHiddenUploadTarget(true);
       runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
+    }
+    for (SDL_AudioStream* extra : oldExtras) {
+      // After the engine has been given the new set, never before: the audio
+      // thread may be part way through a write to one of these.
+      if (extra) {
+        SDL_DestroyAudioStream(extra);
+      }
     }
     if (oldStream) {
       SDL_DestroyAudioStream(oldStream);

@@ -7011,8 +7011,34 @@ void MediaEngine::putWideAudioToStream(const std::vector<std::int16_t>& wide,
     return;
   }
   if (!audioStream_) return;
-  SDL_PutAudioStreamData(audioStream_, wide.data(),
+  queueToDevices(wide.data(),
                          static_cast<int>(wide.size() * sizeof(std::int16_t)));
+}
+
+// ── EVERY DEVICE THIS DECK FEEDS ────────────────────────────────────────────
+//
+// One place, because there are four paths into it -- the subprocess decoder,
+// the in-process decoder, the tone generator and the synth -- and a
+// destination added to one of them and missed by the other three is a cue
+// that reaches the PA from a file and not from a tone.
+//
+// The buffer is already finished: gain, pan, mono, the effect chain and the
+// crosspoint matrix have all run. Extra devices get exactly what the first one
+// gets, which is the point -- there is no second mix to drift.
+//
+// ON THE AUDIO THREAD. No allocation, no locking beyond what the primary
+// write already takes, and the extras are read from atomics that only ever
+// change while the decoder threads are stopped.
+void MediaEngine::queueToDevices(const void* data, int bytes) {
+  if (!data || bytes <= 0) {
+    return;
+  }
+  SDL_PutAudioStreamData(audioStream_, data, bytes);
+  for (auto& slot : extraAudioStreams_) {
+    if (SDL_AudioStream* extra = slot.load(std::memory_order_relaxed)) {
+      SDL_PutAudioStreamData(extra, data, bytes);
+    }
+  }
 }
 
 void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
@@ -7075,7 +7101,7 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
   }
   const int deviceChannels = audioDeviceChannels_.load(std::memory_order_relaxed);
   if (deviceChannels <= 2) {
-    SDL_PutAudioStreamData(audioStream_, stereo.data(),
+    queueToDevices(stereo.data(),
                            static_cast<int>(stereo.size() * sizeof(std::int16_t)));
     return;
   }
@@ -7104,7 +7130,7 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
         out[dest] = mixCrosspointSample(left, right, gl, gr);
       }
     }
-    SDL_PutAudioStreamData(audioStream_, wide.data(),
+    queueToDevices(wide.data(),
                            static_cast<int>(wide.size() * sizeof(std::int16_t)));
     return;
   }
@@ -7122,7 +7148,7 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
     out[offset] = stereo[frame * 2];
     out[offset + 1] = stereo[frame * 2 + 1];
   }
-  SDL_PutAudioStreamData(audioStream_, wide.data(),
+  queueToDevices(wide.data(),
                          static_cast<int>(wide.size() * sizeof(std::int16_t)));
 }
 

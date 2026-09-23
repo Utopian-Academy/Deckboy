@@ -237,6 +237,17 @@ class MediaEngine {
   static constexpr int kMaxAudioMatrixOuts = 64;
   static constexpr int kAudioMatrixSources = 2;
 
+  // Install the extra destinations. Called ONLY with the decoder threads
+  // stopped, the same rule the primary stream follows -- a stream handed over
+  // while the audio thread is mid-write is a stream it can write to after it
+  // has been closed.
+  void setExtraAudioStreams(const std::vector<SDL_AudioStream*>& streams) {
+    for (int i = 0; i < kMaxExtraAudioOuts; ++i) {
+      SDL_AudioStream* s = (i < static_cast<int>(streams.size())) ? streams[i] : nullptr;
+      extraAudioStreams_[static_cast<std::size_t>(i)].store(s, std::memory_order_release);
+    }
+  }
+
   void setAudioMatrix(const std::vector<AudioCrosspoint>& points) {
     for (auto& g : audioMatrixGain_) {
       g.store(0.0f, std::memory_order_relaxed);
@@ -732,6 +743,9 @@ class MediaEngine {
   // Last write: expand processed stereo onto the cue's output pair when the
   // stream is open with >2 channels, then SDL_PutAudioStreamData.
   void putAudioToStream(const std::vector<std::int16_t>& stereo);
+  // Every write to a device goes through here, so a destination cannot be
+  // added to one code path and missed by the other three.
+  void queueToDevices(const void* data, int bytes);
   // Already at DEVICE width. putAudioToStream takes STEREO and widens it onto
   // a pair, which is wrong for a generator that addresses channels
   // individually -- a 1kHz tone sent to output 6 must not be folded into a
@@ -920,6 +934,17 @@ class MediaEngine {
   // on; see putAudioToStream for why waiting here is not an option.
   std::vector<std::int16_t> pendingSinkAudio_;
   SDL_AudioStream* audioStream_ = nullptr;
+  // ── EXTRA DESTINATIONS ────────────────────────────────────────────────
+  //
+  // The same finished audio, written to more devices. Atomic pointers because
+  // the audio thread reads them and the main thread installs them; a fixed
+  // array because the audio thread must not touch a vector that can
+  // reallocate underneath it.
+  //
+  // Seven, so a deck can reach eight devices in total. Past that the limit is
+  // the machine's, not ours, and nobody has eight interfaces and one cue.
+  static constexpr int kMaxExtraAudioOuts = 7;
+  std::array<std::atomic<SDL_AudioStream*>, kMaxExtraAudioOuts> extraAudioStreams_ {};
   std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback
   // The engine OWNS a snapshot of the loaded cue. activeCue_ points at

@@ -425,6 +425,94 @@
                              std::to_string(project_.decks.size());
       return;
     }
+    if (command == "AUDIOALSO") {
+      // AUDIOALSO                 -> where else this deck's sound goes
+      // AUDIOALSO ADD <name>      -> send it there too
+      // AUDIOALSO REMOVE <name>   -> stop
+      // AUDIOALSO CLEAR           -> only the main device again
+      //
+      // The crosspoint MATRIX routes a cue across the channels of one device;
+      // this is the other axis -- the same audio, to more devices at once.
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("AUDIOALSO: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub.empty()) {
+        std::ostringstream out;
+        out << "main: "
+            << (deck.audioOutputDeviceName.empty() ? std::string("system default")
+                                                   : deck.audioOutputDeviceName);
+        if (deck.extraAudioDeviceNames.empty()) {
+          out << " | and nowhere else";
+        } else {
+          for (const std::string& name : deck.extraAudioDeviceNames) {
+            out << " | also: " << name;
+            if (audioPlaybackDeviceIdForName(name) == 0) {
+              out << " (NOT PRESENT)";
+            }
+          }
+        }
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (sub == "CLEAR") {
+        deck.extraAudioDeviceNames.clear();
+        reopenDeckAudioOutput(deckIndex, deck.audioOutputDeviceName);
+        markProjectDirty();
+        remoteCommandDetail_ = "only the main device";
+        return;
+      }
+      if ((sub == "ADD" || sub == "REMOVE") && parts.size() >= 3) {
+        // The rest of the line, because device names have spaces in them.
+        const std::string name = trim(joinParts(parts, 2));
+        auto& list = deck.extraAudioDeviceNames;
+        auto at = std::find(list.begin(), list.end(), name);
+        if (sub == "ADD") {
+          if (name == deck.audioOutputDeviceName) {
+            failRemoteCommand("AUDIOALSO ADD: that is already this deck's main "
+                              "device -- it would play twice");
+            return;
+          }
+          if (at != list.end()) {
+            failRemoteCommand("AUDIOALSO ADD: already sending to " + name);
+            return;
+          }
+          if (list.size() >= 7) {
+            failRemoteCommand("AUDIOALSO ADD: seven extra destinations is the limit");
+            return;
+          }
+          list.push_back(name);
+        } else {
+          if (at == list.end()) {
+            failRemoteCommand("AUDIOALSO REMOVE: not sending to " + name);
+            return;
+          }
+          list.erase(at);
+        }
+        reopenDeckAudioOutput(deckIndex, deck.audioOutputDeviceName);
+        markProjectDirty();
+        // THE NAME IS KEPT EVEN WHEN THE DEVICE IS NOT THERE, which is the
+        // same rule the primary device follows and for the same reason: a
+        // rack powered on after the PC, a USB interface still enumerating.
+        // The request belongs in the show; what opened belongs to this run.
+        //
+        // But it is SAID. Answering "1 extra destination" for a name that
+        // reached nothing is the reply-contract fault this protocol keeps
+        // having to relearn -- understood is not the same as done.
+        std::string detail = std::to_string(list.size()) + " extra destination(s)";
+        if (sub == "ADD" && audioPlaybackDeviceIdForName(name) == 0) {
+          detail += "; " + name + " is NOT PRESENT right now - kept, and it "
+                    "will be used when it appears";
+        }
+        remoteCommandDetail_ = detail;
+        return;
+      }
+      failRemoteCommand("AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR");
+      return;
+    }
     if (command == "MULTIVIEW" || command == "MULTI") {
       // MULTIVIEW [ON|OFF|TOGGLE] -- the programme and every playlist in a
       // grid where the single monitor usually is.

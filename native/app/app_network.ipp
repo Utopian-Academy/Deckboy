@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (312)\n"
+        "DECKBOY_0.01 every verb (313)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -454,7 +454,7 @@
         "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROKEN BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
-        "DISARM DMXCUE FADE FADECUE MATRIX MIDICUE MIDIFILE MULTI MULTIVIEW NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TEXTCUE TIMECODECUE\n"
+        "DISARM DMXCUE FADE FADECUE MATRIX AUDIOALSO MIDICUE MIDIFILE MULTI MULTIVIEW NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TEXTCUE TIMECODECUE\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
         "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD DECKDEL\n"
         "DECKAUTOFADE DECKDIM DECKFADE DECKLINK DECKNEXT DECKOPACITY DECKREMOVE\n"
@@ -544,6 +544,7 @@
         "        OUTPUT ADD [<deck>] | SELECT <n> | DECK [<n>] - a second screen, and which deck it shows\n"
         "super deckboy: DECKADD - another playlist | DECKREMOVE [<n>] - take one away\n"
         "        MULTIVIEW [ON|OFF] - the programme and every playlist, in a grid\n"
+        "audio fan-out: AUDIOALSO [ADD <device>|REMOVE <device>|CLEAR] - the same sound to more devices at once\n"
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"
         "        - which playlists composite onto the focused output, and in what order\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
