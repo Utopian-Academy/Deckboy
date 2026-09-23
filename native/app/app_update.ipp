@@ -261,6 +261,9 @@
     drainNetworkResults();
     // DMX fades, and the continuous Art-Net refresh a rig expects.
     serviceDmx();
+    // The notes in a MIDI file cue, sent from the cue's own transport
+    // position -- so it scrubs, pauses and loops like everything else.
+    serviceMidiFileCues();
     if (engineCueSyncPending_) {
       engineCueSyncPending_ = false;
       syncEngineCueSnapshots();

@@ -406,6 +406,59 @@
       failRemoteCommand("MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR");
       return;
     }
+    if (command == "MIDIFILE") {
+      // MIDIFILE            -> report the selected midi file cue
+      // MIDIFILE PORT [name]-> which output it plays to ("" = first found)
+      //
+      // There is no NEW: a midi file cue comes from a FILE, so it is made by
+      // importing one. A verb that made an empty one would make a cue that
+      // can never play anything.
+      const int deckIndex = project_.focusedDeckIndex;
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("MIDIFILE: no deck");
+        return;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        failRemoteCommand("MIDIFILE: select a cue first");
+        return;
+      }
+      Cue& cue = deck.cues[deck.selectedIndex];
+      if (cue.kind != CueKind::MidiFile) {
+        failRemoteCommand("MIDIFILE: the selected cue is not a midi file cue");
+        return;
+      }
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub == "PORT") {
+        cue.midiPortName = parts.size() >= 3 ? trim(joinParts(parts, 2)) : std::string();
+        markProjectDirty();
+        remoteCommandDetail_ = cue.midiPortName.empty() ? "first available"
+                                                        : cue.midiPortName;
+        return;
+      }
+      if (sub.empty()) {
+        // READ FROM THE PARSE, not from the cue record: the answer to "what
+        // will this send" has to come from the file on disk, or a file that
+        // has been replaced since import reports what it used to be.
+        const auto* parsed =
+          loadedMidiFile(resolvedCueFilesystemPathString(cue, currentProjectFile_));
+        std::ostringstream out;
+        if (!parsed || !parsed->ok) {
+          out << "UNREADABLE: "
+              << (parsed && !parsed->error.empty() ? parsed->error : "no such file");
+        } else {
+          out << "format " << parsed->format << " | " << parsed->trackCount
+              << " track(s) | " << parsed->events.size() << " event(s) | "
+              << formatSeconds(parsed->durationSeconds) << " | -> "
+              << (cue.midiPortName.empty() ? std::string("first available")
+                                           : cue.midiPortName);
+        }
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      failRemoteCommand("MIDIFILE: expected PORT, or no argument to report it");
+      return;
+    }
     if (command == "TEXTCUE") {
       // TEXTCUE NEW                 -> add a text cue to this deck
       // TEXTCUE BODY <words...>     -> what it says (\n makes a new line)

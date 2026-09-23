@@ -410,6 +410,22 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     return;
   }
 
+  // A MIDI FILE HAS A LENGTH AND NO PICTURE.
+  //
+  // The transport is the whole of what the engine does for it: a duration and
+  // a position. Sending the notes is the app's job, once a tick, from that
+  // position -- which is what makes the file scrub, pause and loop with
+  // everything else rather than running on a clock of its own.
+  if (cue->kind == CueKind::MidiFile) {
+    duration_ = std::max(0.0, cue->duration);
+    currentPosition_ = 0.0;
+    pausedPosition_ = 0.0;
+    playbackStartPosition_ = 0.0;
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    state_ = autoplay ? TransportState::Playing : TransportState::Paused;
+    return;
+  }
+
   if (cue->kind == CueKind::Timer) {
     // Duration is the countdown PLUS an overtime allowance, so the transport
     // keeps advancing past zero instead of hitting its end and auto-advancing

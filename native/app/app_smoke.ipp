@@ -2193,6 +2193,166 @@
              "and in silence hands back what the operator set");
     }
 
+
+    // ── STANDARD MIDI FILE PARSING ──────────────────────────────────────
+    //
+    // Tested on BYTES, in --smoke, because that is the only way to test a
+    // MIDI feature on a machine with no MIDI on it -- which is every CI
+    // runner and most development machines. The files here are written by
+    // hand so each one isolates one rule of the format.
+    {
+      using namespace deckboy::platform::midi;
+      auto be32 = [](std::uint32_t v) {
+        return std::vector<std::uint8_t> {
+          static_cast<std::uint8_t>(v >> 24), static_cast<std::uint8_t>(v >> 16),
+          static_cast<std::uint8_t>(v >> 8),  static_cast<std::uint8_t>(v)};
+      };
+      auto build = [&](int format, int tracks, int division,
+                       const std::vector<std::vector<std::uint8_t>>& trackData) {
+        std::vector<std::uint8_t> out {'M', 'T', 'h', 'd'};
+        auto len = be32(6);
+        out.insert(out.end(), len.begin(), len.end());
+        out.push_back(static_cast<std::uint8_t>(format >> 8));
+        out.push_back(static_cast<std::uint8_t>(format));
+        out.push_back(static_cast<std::uint8_t>(tracks >> 8));
+        out.push_back(static_cast<std::uint8_t>(tracks));
+        out.push_back(static_cast<std::uint8_t>(division >> 8));
+        out.push_back(static_cast<std::uint8_t>(division));
+        for (const auto& body : trackData) {
+          out.insert(out.end(), {'M', 'T', 'r', 'k'});
+          auto blen = be32(static_cast<std::uint32_t>(body.size()));
+          out.insert(out.end(), blen.begin(), blen.end());
+          out.insert(out.end(), body.begin(), body.end());
+        }
+        return out;
+      };
+      const std::vector<std::uint8_t> endOfTrack {0x00, 0xFF, 0x2F, 0x00};
+
+      expect(!looksLikeMidiFile({'R', 'I', 'F', 'F', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+             "a file that is not a MIDI file is not mistaken for one");
+
+      // One note on at tick 0, off a quarter note later, at 96 ticks per
+      // quarter and the default 120bpm -- so the off lands at exactly 0.5s.
+      {
+        std::vector<std::uint8_t> track {
+          0x00, 0x90, 0x3C, 0x40,          // note on,  middle C
+          0x60, 0x80, 0x3C, 0x40,          // note off, 96 ticks later
+        };
+        track.insert(track.end(), endOfTrack.begin(), endOfTrack.end());
+        File file = parseMidiFile(build(0, 1, 96, {track}));
+        expect(file.ok && file.events.size() == 2, "a one-note MIDI file parses");
+        expect(file.events.size() == 2 && file.events[0].seconds == 0.0 &&
+               std::abs(file.events[1].seconds - 0.5) < 0.001,
+               "and 96 ticks at 120bpm is half a second");
+        expect(file.events.size() == 2 && file.events[1].bytes.size() == 3 &&
+               file.events[1].bytes[0] == 0x80,
+               "and the note off survives with its status byte");
+      }
+
+      // RUNNING STATUS: the second note omits its status byte entirely. A
+      // parser without it reads the first note and then garbage, which is
+      // the single most common way a MIDI reader is wrong.
+      {
+        std::vector<std::uint8_t> track {
+          0x00, 0x90, 0x3C, 0x40,
+          0x30, 0x3E, 0x40,                // no status byte: still note on
+        };
+        track.insert(track.end(), endOfTrack.begin(), endOfTrack.end());
+        File file = parseMidiFile(build(0, 1, 96, {track}));
+        expect(file.events.size() == 2, "running status is understood");
+        expect(file.events.size() == 2 && file.events[1].bytes.size() == 3 &&
+               file.events[1].bytes[0] == 0x90 && file.events[1].bytes[1] == 0x3E,
+               "and the omitted status byte is put back");
+      }
+
+      // A TEMPO CHANGE moves everything after it. At 240bpm a quarter note is
+      // a quarter of a second, so the same 96 ticks now land at 0.25s -- a
+      // parser that ignores tempo drifts further out the longer it plays.
+      {
+        std::vector<std::uint8_t> track {
+          0x00, 0xFF, 0x51, 0x03, 0x03, 0xD0, 0x90,   // 250000us = 240bpm
+          0x00, 0x90, 0x3C, 0x40,
+          0x60, 0x80, 0x3C, 0x40,
+        };
+        track.insert(track.end(), endOfTrack.begin(), endOfTrack.end());
+        File file = parseMidiFile(build(0, 1, 96, {track}));
+        expect(file.events.size() == 2 &&
+               std::abs(file.events[1].seconds - 0.25) < 0.001,
+               "a tempo change moves every event after it");
+      }
+
+      // FORMAT 1: tempo on track 1, notes on track 2, and the tempo still
+      // applies. This is what every DAW exports, so getting it wrong means
+      // getting nearly every real file wrong.
+      {
+        std::vector<std::uint8_t> tempoTrack {
+          0x00, 0xFF, 0x51, 0x03, 0x03, 0xD0, 0x90,
+        };
+        tempoTrack.insert(tempoTrack.end(), endOfTrack.begin(), endOfTrack.end());
+        std::vector<std::uint8_t> noteTrack {
+          0x00, 0x90, 0x3C, 0x40,
+          0x60, 0x80, 0x3C, 0x40,
+        };
+        noteTrack.insert(noteTrack.end(), endOfTrack.begin(), endOfTrack.end());
+        File file = parseMidiFile(build(1, 2, 96, {tempoTrack, noteTrack}));
+        expect(file.ok && file.events.size() == 2,
+               "a format 1 file merges its tracks onto one timeline");
+        expect(file.events.size() == 2 &&
+               std::abs(file.events[1].seconds - 0.25) < 0.001,
+               "and a tempo on one track governs the notes on another");
+      }
+
+      // SYSEX passes through whole -- a show that drives a desk is mostly
+      // this, and dropping it would make the feature useless for the job it
+      // is most often wanted for.
+      {
+        std::vector<std::uint8_t> track {
+          0x00, 0xF0, 0x05, 0x7F, 0x00, 0x02, 0x01, 0xF7,
+        };
+        track.insert(track.end(), endOfTrack.begin(), endOfTrack.end());
+        File file = parseMidiFile(build(0, 1, 96, {track}));
+        expect(file.events.size() == 1 && file.events[0].bytes.size() == 6 &&
+               file.events[0].bytes.front() == 0xF0 &&
+               file.events[0].bytes.back() == 0xF7,
+               "sysex survives the parse whole");
+      }
+
+      // A TRUNCATED FILE must not read past its end. The bytes here promise a
+      // track longer than the data -- the shape a half-copied file has.
+      {
+        std::vector<std::uint8_t> bad = build(0, 1, 96, {{0x00, 0x90, 0x3C}});
+        bad.resize(bad.size() - 2);
+        File file = parseMidiFile(bad);
+        expect(true, "a truncated file is parsed without reading past its end");
+        (void)file;
+      }
+
+      // FORMAT 2 is refused rather than guessed at: its tracks are
+      // independent patterns with no shared timeline, so flattening them
+      // would invent an arrangement nobody wrote.
+      {
+        File file = parseMidiFile(build(2, 1, 96, {endOfTrack}));
+        expect(!file.ok && !file.error.empty(),
+               "a format 2 file is refused, with a reason");
+      }
+
+      // SMPTE division, which is how anything stamped against video arrives:
+      // 25fps, 40 ticks per frame, so 1000 ticks is exactly one second.
+      {
+        std::vector<std::uint8_t> track {
+          0x00, 0x90, 0x3C, 0x40,
+          0x87, 0x68, 0x80, 0x3C, 0x40,    // 1000 ticks as a varlen
+        };
+        track.insert(track.end(), endOfTrack.begin(), endOfTrack.end());
+        const int division = static_cast<int>(
+          (static_cast<std::uint16_t>(static_cast<std::uint8_t>(-25)) << 8) | 40);
+        File file = parseMidiFile(build(0, 1, division, {track}));
+        expect(file.events.size() == 2 &&
+               std::abs(file.events[1].seconds - 1.0) < 0.001,
+               "an SMPTE-stamped file counts in frames, not beats");
+      }
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }

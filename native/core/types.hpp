@@ -69,7 +69,8 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
-  Text,          // words on the screen, as a SOURCE rather than an overlay:
+  Text,
+  MidiFile,          // words on the screen, as a SOURCE rather than an overlay:
                  // a title card, a holding slide, a scrolling notice. Animated
                  // from the cue's own transport clock -- see CueTextAnimation
   Dmx,           // sends DMX channel levels over Art-Net on GO, with a fade
@@ -2308,6 +2309,8 @@ enum class QuickAction {
   FireSparksDec, FireSparksInc,
   CueSectionTextToggle,
   CueSectionFiresideToggle,
+  CueSectionMidiFileToggle,
+  MidiFilePortCycle,
   TextEditBody,
   TextAnimCycle,
   TextAlignCycle,

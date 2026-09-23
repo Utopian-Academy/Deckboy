@@ -1462,6 +1462,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "script" ? CueKind::Script :
         kind == "dmx" ? CueKind::Dmx :
         kind == "text" ? CueKind::Text :
+        kind == "midifile" ? CueKind::MidiFile :
         CueKind::Video;
       // Repair shows written while the round trip was broken. cueKindToken was
       // missing SEVEN kinds, so each was saved as "video" while keeping its

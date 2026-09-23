@@ -3016,6 +3016,22 @@ bool isImagePath(const fs::path& path) {
   return std::find(kImageExts.begin(), kImageExts.end(), ext) != kImageExts.end();
 }
 
+// A MIDI FILE IS NOT AUDIO, whatever the folder it lives in says. It carries
+// no sound at all -- it is a score, and what it needs is an instrument on the
+// other end of a cable. Classed as audio it would be handed to the decoder,
+// which would find no stream and rack a silent cue that looks broken.
+//
+// THE EXTENSION IS ONLY THE FIRST QUESTION. The bytes are checked for MThd
+// before a cue is made, because a .mid that is really something else should be
+// refused rather than played as nothing.
+bool isMidiFilePath(const fs::path& path) {
+  std::string ext = path.extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  return ext == ".mid" || ext == ".midi" || ext == ".smf";
+}
+
 bool isAudioPath(const fs::path& path) {
   std::string ext = path.extension().string();
   std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
@@ -8434,6 +8450,7 @@ class App {
   bool cueSectionDmxOpen_ = true;
   bool cueSectionMatrixOpen_ = true;
   bool cueSectionTextOpen_ = true;
+  bool cueSectionMidiFileOpen_ = true;
   bool cueSectionFiresideOpen_ = true;
   // Which dashboard tile is one press away from being deleted, and when it
   // was armed. A button that runs a command is easy to hit by accident.

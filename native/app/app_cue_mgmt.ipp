@@ -4463,8 +4463,26 @@
       placeholder.path = pathStr;
       placeholder.name = path.stem().string();
       placeholder.kind = isImagePath(path) ? CueKind::Image
+                       : isMidiFilePath(path) ? CueKind::MidiFile
                        : isAudioPath(path) ? CueKind::Audio
                        : CueKind::Video;
+      if (placeholder.kind == CueKind::MidiFile) {
+        // Parsed AT IMPORT, for two reasons: the cue needs its length before
+        // it can sit in a playlist at all, and a file that is not really a
+        // MIDI file should be refused here rather than racked as a cue that
+        // does nothing when it is taken.
+        const auto parsed = deckboy::platform::midi::readMidiFile(pathStr);
+        if (!parsed.ok || parsed.events.empty()) {
+          triggerToast(path.filename().string() + ": " +
+                       (parsed.error.empty() ? "not a playable MIDI file" : parsed.error));
+          continue;
+        }
+        placeholder.duration = parsed.durationSeconds;
+        placeholder.stillDurationSeconds = parsed.durationSeconds;
+        placeholder.hasAudio = false;
+        placeholder.formatName = "midi";
+        placeholder.color = {90, 60, 130, 255};
+      }
       applyDeckDefaultsToCue(placeholder, deck);
       if (!slideDeckName.empty()) {
         placeholder.name = slideDeckName + " " + std::to_string(addedCount + 1);

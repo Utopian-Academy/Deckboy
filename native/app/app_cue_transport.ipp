@@ -1859,6 +1859,150 @@
     markProjectDirty();
   }
 
+  // ── PLAYING A MIDI FILE ───────────────────────────────────────────────
+  //
+  // Parsed once and cached by path, because a file with ten thousand events
+  // is parsed in a millisecond but not sixty times a second.
+  struct LoadedMidiFile {
+    deckboy::platform::midi::File file;
+    std::string path;
+  };
+  std::vector<LoadedMidiFile> midiFileCache_;
+
+  const deckboy::platform::midi::File* loadedMidiFile(const std::string& path) {
+    for (const LoadedMidiFile& entry : midiFileCache_) {
+      if (entry.path == path) {
+        return &entry.file;
+      }
+    }
+    if (path.empty()) {
+      return nullptr;
+    }
+    LoadedMidiFile entry;
+    entry.path = path;
+    entry.file = deckboy::platform::midi::readMidiFile(path);
+    // CACHED EVEN WHEN IT FAILED. Otherwise a file that cannot be parsed is
+    // re-read from disk every frame for as long as the cue is selected.
+    midiFileCache_.push_back(std::move(entry));
+    if (midiFileCache_.size() > 32) {
+      midiFileCache_.erase(midiFileCache_.begin());
+    }
+    return &midiFileCache_.back().file;
+  }
+
+  // Where each deck's MIDI file playhead had got to, so the next tick knows
+  // which events it has already sent. Negative means "nothing sent yet".
+  std::vector<double> midiFileSentUpTo_;
+
+  double& midiFileCursorForDeck(int deckIndex) {
+    if (midiFileSentUpTo_.size() <= static_cast<std::size_t>(deckIndex)) {
+      midiFileSentUpTo_.resize(deckIndex + 1, -1.0);
+    }
+    return midiFileSentUpTo_[deckIndex];
+  }
+
+  // EVERY NOTE OFF ON EVERY CHANNEL. Sent whenever a MIDI file stops, is
+  // re-racked or is scrubbed backwards, because a note-on whose note-off was
+  // never reached is a note that plays until the instrument is power-cycled.
+  // Two messages per channel: all-notes-off, then all-sound-off, because
+  // plenty of instruments honour only one of them.
+  void silenceMidiFile(const std::string& portName) {
+    std::string reason;
+    if (!ensureMidiOutPort(portName, reason)) {
+      return;
+    }
+    auto& out = midiOut_;
+    for (int channel = 0; channel < 16; ++channel) {
+      const std::uint8_t status = static_cast<std::uint8_t>(0xB0 | channel);
+      out.send({status, 0x7B, 0x00});   // all notes off
+      out.send({status, 0x78, 0x00});   // all sound off
+    }
+  }
+
+  // Called once a tick per deck. Sends everything between where the playhead
+  // was and where it is now.
+  void serviceMidiFileCues() {
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const Deck& deck = project_.decks[deckIndex];
+      double& cursor = midiFileCursorForDeck(deckIndex);
+      const Cue* cue = activeCuePtr(deckIndex);
+      if (!cue || cue->kind != CueKind::MidiFile) {
+        if (cursor >= 0.0) {
+          // The cue has gone. Whatever it left ringing is ours to stop.
+          silenceMidiFile(std::string());
+          cursor = -1.0;
+        }
+        continue;
+      }
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (!engine) {
+        continue;
+      }
+      if (engine->state() != TransportState::Playing) {
+        if (cursor >= 0.0) {
+          silenceMidiFile(cue->midiPortName);
+          cursor = -1.0;
+        }
+        continue;
+      }
+      const deckboy::platform::midi::File* file =
+        loadedMidiFile(resolvedCueFilesystemPathString(*cue, currentProjectFile_));
+      if (!file || !file->ok || file->events.empty()) {
+        continue;
+      }
+      const double now = engine->position();
+      // A JUMP BACKWARDS is a scrub or a loop, not a gap to fill in. Sending
+      // everything between the old position and the new one would replay the
+      // whole file at once.
+      if (now < cursor) {
+        silenceMidiFile(cue->midiPortName);
+        cursor = -1.0;
+      }
+      std::string reason;
+      if (!ensureMidiOutPort(cue->midiPortName, reason)) {
+        continue;
+      }
+      for (const auto& event : file->events) {
+        if (event.seconds <= cursor) {
+          continue;
+        }
+        if (event.seconds > now) {
+          break;   // sorted, so nothing after this is due either
+        }
+        midiOut_.send(event.bytes);
+      }
+      cursor = now;
+    }
+  }
+
+  // Steps through the ports this machine actually has, ending on "first
+  // available" -- which is what a rig with one interface wants and never has
+  // to configure. Shared by the MIDI cue and the MIDI file cue, because a
+  // port is a port.
+  void cycleMidiPortForSelectedCue() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return;
+    }
+    const auto ports = deckboy::platform::midi::MidiOutput::listDevices();
+    if (ports.empty()) {
+      triggerToast("no MIDI output ports on this machine");
+      return;
+    }
+    int at = -1;   // -1 is "first available"
+    for (int i = 0; i < static_cast<int>(ports.size()); ++i) {
+      if (ports[i].name == cue->midiPortName) {
+        at = i;
+        break;
+      }
+    }
+    ++at;
+    cue->midiPortName = (at >= static_cast<int>(ports.size()))
+      ? std::string() : ports[at].name;
+    markProjectDirty();
+    triggerToast(cue->midiPortName.empty() ? "first available" : cue->midiPortName);
+  }
+
   Cue* selectedTextCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Text) ? cue : nullptr;

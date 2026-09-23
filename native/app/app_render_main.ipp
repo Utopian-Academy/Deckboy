@@ -5514,6 +5514,46 @@
       finishInspectorSection(fiSection, fiY);
     }
 
+    // MIDI FILE: what it will send, and where.
+    if (selectedCue && selectedCue->kind == CueKind::MidiFile) {
+      int mfY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto mfSection = beginInspectorSection(mfY, "MIDI FILE", cueSectionMidiFileOpen_,
+                                             QuickAction::CueSectionMidiFileToggle,
+                                             "Collapse/expand the file and its port");
+      mfY = mfSection.bodyStartY;
+      if (cueSectionMidiFileOpen_) {
+        mfY = drawChoiceRow(mfY, "port",
+                            selectedCue->midiPortName.empty()
+                              ? std::string("first available")
+                              : selectedCue->midiPortName,
+                            QuickAction::MidiFilePortCycle,
+                            "Which MIDI output this file plays to; step past the "
+                            "end for the first one available");
+        // WHAT IS ACTUALLY IN THE FILE, read from the parse rather than
+        // promised: a cue that says "3 events" when the operator expected
+        // three hundred has told them something the moment they look.
+        const deckboy::platform::midi::File* parsed =
+          loadedMidiFile(resolvedCueFilesystemPathString(*selectedCue, currentProjectFile_));
+        if (!parsed || !parsed->ok) {
+          drawInspectorMessageRow(mfY, parsed && !parsed->error.empty()
+                                         ? parsed->error : "the file cannot be read");
+          mfY += kInspectorRowStep;
+        } else {
+          char summary[120];
+          std::snprintf(summary, sizeof(summary),
+                        "format %d, %d track%s, %d event%s, %s",
+                        parsed->format, parsed->trackCount,
+                        parsed->trackCount == 1 ? "" : "s",
+                        static_cast<int>(parsed->events.size()),
+                        parsed->events.size() == 1 ? "" : "s",
+                        formatSeconds(parsed->durationSeconds).c_str());
+          drawInspectorMessageRow(mfY, summary);
+          mfY += kInspectorRowStep;
+        }
+      }
+      finishInspectorSection(mfSection, mfY);
+    }
+
     // TEXT: the words, how big, and how they move.
     if (selectedCue && selectedCue->kind == CueKind::Text) {
       int txY = inspectorSectionBottomMax_ + kInspectorSectionGap;

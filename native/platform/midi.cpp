@@ -28,7 +28,10 @@
 
 #include "midi.hpp"
 
+#include <algorithm>
 #include <cctype>
+#include <fstream>
+#include <iterator>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -594,6 +597,255 @@ bool MidiOutput::send(const std::vector<std::uint8_t>& bytes) {
 #else
   return false;
 #endif
+}
+
+
+// ── STANDARD MIDI FILE PARSING ──────────────────────────────────────────────
+
+namespace {
+
+std::uint32_t beU32(const std::uint8_t* p) {
+  return (static_cast<std::uint32_t>(p[0]) << 24) |
+         (static_cast<std::uint32_t>(p[1]) << 16) |
+         (static_cast<std::uint32_t>(p[2]) << 8) |
+         static_cast<std::uint32_t>(p[3]);
+}
+
+std::uint16_t beU16(const std::uint8_t* p) {
+  return static_cast<std::uint16_t>((static_cast<std::uint16_t>(p[0]) << 8) | p[1]);
+}
+
+// A variable-length quantity: seven bits per byte, high bit means "another
+// one follows". Capped at four bytes, which is the format's own limit -- an
+// uncapped reader walks off the end of a damaged file.
+bool readVarLen(const std::vector<std::uint8_t>& d, std::size_t& at, std::uint32_t& out) {
+  out = 0;
+  for (int i = 0; i < 4; ++i) {
+    if (at >= d.size()) {
+      return false;
+    }
+    const std::uint8_t byte = d[at++];
+    out = (out << 7) | static_cast<std::uint32_t>(byte & 0x7F);
+    if ((byte & 0x80) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+}  // namespace
+
+bool looksLikeMidiFile(const std::vector<std::uint8_t>& data) {
+  return data.size() >= 14 && data[0] == 'M' && data[1] == 'T' &&
+         data[2] == 'h' && data[3] == 'd';
+}
+
+File parseMidiFile(const std::vector<std::uint8_t>& data) {
+  File file;
+  if (!looksLikeMidiFile(data)) {
+    file.error = "not a MIDI file (no MThd header)";
+    return file;
+  }
+  const std::uint32_t headerLen = beU32(&data[4]);
+  if (headerLen < 6 || 8 + headerLen > data.size()) {
+    file.error = "the header is truncated";
+    return file;
+  }
+  file.format = beU16(&data[8]);
+  file.trackCount = beU16(&data[10]);
+  const std::int16_t division = static_cast<std::int16_t>(beU16(&data[12]));
+  if (file.format == 2) {
+    // Refused rather than guessed. Format 2's tracks are independent patterns
+    // with no shared timeline, so "play the file" has no single meaning --
+    // flattening them would invent an arrangement nobody wrote.
+    file.error = "format 2 files are a set of independent patterns, not a performance";
+    return file;
+  }
+
+  // TICKS PER QUARTER, or SMPTE. A negative division is frames-per-second in
+  // the high byte and ticks-per-frame in the low one, which is how anything
+  // stamped against video arrives -- and its tempo is fixed by the format, so
+  // tempo meta events do not apply to it.
+  double secondsPerTick = 0.0;
+  bool smpte = false;
+  int ticksPerQuarter = 0;
+  if (division > 0) {
+    ticksPerQuarter = division;
+    secondsPerTick = 0.5 / static_cast<double>(ticksPerQuarter);   // 120bpm until told
+  } else {
+    smpte = true;
+    const int fps = -(division >> 8);
+    const int ticksPerFrame = division & 0xFF;
+    if (fps <= 0 || ticksPerFrame <= 0) {
+      file.error = "the time division is not readable";
+      return file;
+    }
+    // 29 in the file means 29.97 drop-frame; every other value is exact.
+    const double realFps = (fps == 29) ? 30000.0 / 1001.0 : static_cast<double>(fps);
+    secondsPerTick = 1.0 / (realFps * static_cast<double>(ticksPerFrame));
+  }
+
+  // Each track is read into (tick, bytes) first and the tracks are merged
+  // afterwards, because TEMPO IS GLOBAL: a tempo change on track 1 moves
+  // every later event on every track, so nothing can be converted to seconds
+  // until all of them are on one timeline.
+  struct RawEvent {
+    std::uint64_t tick = 0;
+    std::size_t order = 0;            // keeps a stable sort within one tick
+    std::vector<std::uint8_t> bytes;
+    int tempoMicros = 0;              // non-zero: a tempo change, not a message
+  };
+  std::vector<RawEvent> raw;
+  std::size_t at = 8 + headerLen;
+  std::size_t order = 0;
+
+  for (int track = 0; track < file.trackCount; ++track) {
+    if (at + 8 > data.size()) {
+      break;   // fewer tracks than the header promised; play what is there
+    }
+    if (!(data[at] == 'M' && data[at + 1] == 'T' && data[at + 2] == 'r' &&
+          data[at + 3] == 'k')) {
+      // An unknown chunk is skipped by its own length, which is exactly what
+      // the specification says to do -- it is how a file survives a writer
+      // that stores its own private data alongside the music.
+      const std::uint32_t skip = beU32(&data[at + 4]);
+      at += 8 + skip;
+      continue;
+    }
+    const std::uint32_t trackLen = beU32(&data[at + 4]);
+    std::size_t p = at + 8;
+    const std::size_t trackEnd = std::min(data.size(), p + trackLen);
+    at = trackEnd;
+
+    std::uint64_t tick = 0;
+    std::uint8_t runningStatus = 0;
+    while (p < trackEnd) {
+      std::uint32_t delta = 0;
+      if (!readVarLen(data, p, delta)) {
+        break;
+      }
+      tick += delta;
+      if (p >= trackEnd) {
+        break;
+      }
+      std::uint8_t status = data[p];
+      if (status < 0x80) {
+        // RUNNING STATUS: no status byte, so the last one still applies. A
+        // parser without this reads one note correctly and then nonsense.
+        if (runningStatus == 0) {
+          break;
+        }
+        status = runningStatus;
+      } else {
+        ++p;
+        if (status < 0xF0) {
+          runningStatus = status;
+        }
+      }
+
+      if (status == 0xFF) {
+        // Meta. Not sent to the port -- it is information about the file.
+        if (p >= trackEnd) break;
+        const std::uint8_t type = data[p++];
+        std::uint32_t len = 0;
+        if (!readVarLen(data, p, len)) break;
+        if (p + len > trackEnd) break;
+        if (type == 0x51 && len == 3 && !smpte) {
+          RawEvent ev;
+          ev.tick = tick;
+          ev.order = order++;
+          ev.tempoMicros = (data[p] << 16) | (data[p + 1] << 8) | data[p + 2];
+          raw.push_back(std::move(ev));
+        }
+        p += len;
+        if (type == 0x2F) {
+          break;   // end of track
+        }
+        continue;
+      }
+      if (status == 0xF0 || status == 0xF7) {
+        // SysEx, passed through whole -- a show that drives a desk is mostly
+        // this, and dropping it would make the feature useless for the one
+        // job it is most often wanted for.
+        std::uint32_t len = 0;
+        if (!readVarLen(data, p, len)) break;
+        if (p + len > trackEnd) break;
+        RawEvent ev;
+        ev.tick = tick;
+        ev.order = order++;
+        ev.bytes.push_back(status);
+        ev.bytes.insert(ev.bytes.end(), data.begin() + p, data.begin() + p + len);
+        raw.push_back(std::move(ev));
+        p += len;
+        continue;
+      }
+
+      // An ordinary channel message: one or two data bytes by status.
+      const int dataBytes =
+        ((status & 0xF0) == 0xC0 || (status & 0xF0) == 0xD0) ? 1 : 2;
+      if (p + static_cast<std::size_t>(dataBytes) > trackEnd) {
+        break;
+      }
+      RawEvent ev;
+      ev.tick = tick;
+      ev.order = order++;
+      ev.bytes.push_back(status);
+      for (int i = 0; i < dataBytes; ++i) {
+        ev.bytes.push_back(data[p++]);
+      }
+      raw.push_back(std::move(ev));
+    }
+  }
+
+  std::stable_sort(raw.begin(), raw.end(), [](const RawEvent& a, const RawEvent& b) {
+    return a.tick != b.tick ? a.tick < b.tick : a.order < b.order;
+  });
+
+  // Walk the merged timeline once, converting ticks to seconds and applying
+  // each tempo change from the tick it happens at.
+  double seconds = 0.0;
+  std::uint64_t lastTick = 0;
+  for (const RawEvent& ev : raw) {
+    seconds += static_cast<double>(ev.tick - lastTick) * secondsPerTick;
+    lastTick = ev.tick;
+    if (ev.tempoMicros > 0) {
+      if (ticksPerQuarter > 0) {
+        secondsPerTick = (static_cast<double>(ev.tempoMicros) / 1000000.0) /
+                         static_cast<double>(ticksPerQuarter);
+      }
+      continue;
+    }
+    if (ev.bytes.empty()) {
+      continue;
+    }
+    FileEvent out;
+    out.seconds = seconds;
+    out.bytes = ev.bytes;
+    file.events.push_back(std::move(out));
+  }
+
+  file.durationSeconds = file.events.empty() ? 0.0 : file.events.back().seconds;
+  file.ok = true;
+  if (file.events.empty()) {
+    file.error = "the file has no playable events";
+  }
+  return file;
+}
+
+File readMidiFile(const std::string& path) {
+  File file;
+  std::ifstream in(path, std::ios::binary);
+  if (!in) {
+    file.error = "could not open " + path;
+    return file;
+  }
+  std::vector<std::uint8_t> data((std::istreambuf_iterator<char>(in)),
+                                 std::istreambuf_iterator<char>());
+  if (data.empty()) {
+    file.error = "the file is empty";
+    return file;
+  }
+  return parseMidiFile(data);
 }
 
 }  // namespace deckboy::platform::midi
