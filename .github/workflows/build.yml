@@ -914,6 +914,33 @@ jobs:
         if: matrix.features == 'all'
         run: choco install ffmpeg innosetup -y --no-progress
 
+      # What only exists when playlists meet an output -- a second playlist
+      # composited on top, a multiview putting every playlist on screen, a
+      # playlist removed from the MIDDLE with every reference remapped -- and a
+      # MIDI file becoming a cue that plays. Each harness launches the real app
+      # in an isolated root and MEASURES: pixels in a recording, fields in the
+      # saved show. A setter answering OK proves only that a setter ran.
+      #
+      # Windows only: the harnesses need a desktop session and ffmpeg, which
+      # this job has (ffmpeg arrives in the step above). The Linux leg would
+      # need a virtual display first.
+      #
+      # ADVISORY until it has run green here. A GUI harness that flakes on the
+      # runner would teach everyone to read red as noise, which is worse than
+      # no gate; drop continue-on-error once it has proved itself.
+      - name: Playlists, layers, multiview and MIDI files, measured in the app
+        if: matrix.features == 'all'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $failed = @()
+          foreach ($t in 'superdeck', 'manydecks', 'multiview_out', 'midifile') {
+            Write-Host "--- check_$t"
+            python tools/check_$t.py --exe build\Release\Deckboy.exe
+            if ($LASTEXITCODE -ne 0) { $failed += $t }
+          }
+          if ($failed) { throw "failed: $($failed -join ', ')" }
+
       - name: Package portable zip and installer
         if: matrix.features == 'all'
         shell: pwsh
