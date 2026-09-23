@@ -103,43 +103,19 @@ jobs:
           npm test
           node tools/pack.js
 
-      # The module Companion actually installs, rather than the source tree.
-      #
-      # NOT BUILT YET. Bitfocus's packager refuses GPL-3.0-or-later: they
-      # require module SOURCE to be MIT so it stays portable, with the
-      # distribution licence declared in companion/manifest.json instead. That
-      # is a relicensing decision for the owner, not something to work around
-      # -- and pinning an older tools version to dodge the check would only
-      # move the refusal to submission time.
-      #
-      # VERIFIED 2026-09-02, THE HARD WAY. Enabling this failed CI with:
-      #
-      #   LICENSE ERROR: Your module source is licensed as GPL-3.0-or-later in
-      #   package.json, but the Companion project requires module source to be
-      #   MIT so it stays portable.
-      #
-      # It builds CLEANLY ON A DEVELOPER MACHINE, which is what made me think
-      # this note was wrong and turn the step back on. The check arrived in
-      # @companion-module/tools 3.x; package.json asks for ^2.7.2, a stale
-      # node_modules keeps serving 2.7.2, and CI's fresh install resolves 3.1.0
-      # and enforces it. A tarball built by hand here is not evidence, and
-      # neither is a green local run -- only a clean install is.
-      #
-      # The refusal also names GPL-3.0-only and GPL-2.0-only as acceptable for
-      # the PUBLISHED licence, but that clears only the first of the two
-      # errors; the second wants MIT source regardless. Untested, because a
-      # local test cannot answer this question.
-      #
-      # Until then the module ships by the OTHER route Companion supports,
-      # which needs neither their packager nor their approval: the developer
-      # modules folder. The zip below carries the module and its production
-      # dependencies, so it unpacks and runs. That turns the instruction for a
-      # Companion user from "clone the repository and work it out" into three
-      # steps, which matters because those are exactly the people it is for.
-      # - name: Companion module package
-      #   working-directory: companion-module-utopianacademy-deckboy
-      #   run: npx companion-module-build
+      # The module Companion actually installs, rather than the source tree:
+      # Bitfocus's own packager, on a clean install. It refused the module
+      # while its source was GPL-3.0-or-later (Bitfocus require MIT source);
+      # the module was relicensed MIT on 2026-09-23 (James's call) and is
+      # published at bitfocus/companion-module-utopianacademy-deckboy, so a
+      # build that fails here would fail their submission too.
+      - name: Companion module package
+        working-directory: companion-module-utopianacademy-deckboy
+        run: npx companion-module-build
 
+      # And the route that needs no store at all: the developer modules
+      # folder. The zip carries the module and its production dependencies,
+      # so it unpacks and runs -- three steps for a Companion user.
       - name: Companion module, for the developer modules folder
         run: python3 tools/pack_companion_module.py
 
@@ -1219,14 +1195,14 @@ jobs:
           # without leaving GitHub first.
           site = "https://utopian-academy.github.io/Deckboy/"
           repo = os.environ.get("GITHUB_REPOSITORY", "Utopian-Academy/Deckboy")
-          # Only what the download itself does. NDI video needs the NDI SDK at
-          # build time and CI releases do not have it yet, so it is not named.
-          # Outputs are joined with "or": simultaneity is claimed only for what
+          # Only what the download itself does. NDI is named because the
+          # feature build now refuses to pass Self-check without the NDI SDK
+          # compiled in, so every release carries it. Outputs are joined with "or": simultaneity is claimed only for what
           # was tested on a release -- a stream and a recording of the same
           # picture, and presenter view beside the programme.
           page.append("**Deckboy** is free, open-source cue-based media playback "
                       "and show control for live video — clips, slides and live "
-                      "sources on one cue list, out to a screen, SRT or Blackmagic "
+                      "sources on one cue list, out to a screen, NDI, SRT or Blackmagic "
                       "SDI, with a stream and a recording running at the same time "
                       "and presenter view on its own display, driven from a Stream "
                       "Deck, Bitfocus Companion, OSC, MIDI or LTC timecode.")
@@ -1235,6 +1211,12 @@ jobs:
                       "[How it compares](%scompare.html) · [FAQ](%sfaq.html) · "
                       "[Full history](https://github.com/%s/blob/main/CHANGES.md)"
                       % (site, site, site, site, repo))
+          page.append("")
+          # Most people who reach a release page never visit the front page,
+          # so the one ask that helps the next operator find it goes here too.
+          page.append("If Deckboy runs part of your show, a ⭐ on "
+                      "[the repository](https://github.com/%s) is how the next "
+                      "operator finds it." % repo)
 
           out = "\n".join(page).rstrip() + "\n"
           io.open("release-notes.md", "w", encoding="utf-8").write(out)
