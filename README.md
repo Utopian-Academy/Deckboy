@@ -411,8 +411,6 @@ importantly, what each feature deliberately does not do.
 
 ## Roadmap
 
-- **Super Deckboy:** more than two decks, and multi-deck, multi-output playback —
-  a different deck on each output
 - NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
 - Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
