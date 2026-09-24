@@ -4,7 +4,7 @@ The check_* harnesses built on this measure what the app DOES -- pixels in a
 recording, lines in the saved show -- not what it says over the socket. A
 setter that answers OK proves only that a setter ran.
 
-Four traps, each of which has already produced a false result here:
+Five traps, each of which has already produced a false result here:
 
   - RECORD makes its own stream output that MIRRORS THE PROGRAMME. Measure an
     effect that lands on some other output and you are measuring the wrong
@@ -14,6 +14,12 @@ Four traps, each of which has already produced a false result here:
   - Default deck names follow their position. Remove deck 2 and deck 3 becomes
     "Deck 2"; assert on names without knowing that and you report a product
     fault that is your own assumption.
+  - RECORD answering OK means the output was ARMED, not that an encoder
+    attached. The file only appears once the ffmpeg egress starts, so a
+    missing or stub ffmpeg (Chocolatey's shim on a CI runner) gives OK, a
+    capture size in the log, and no file. And only builds from c66fffd on
+    record what a mirroring output actually shows; older ones recorded the
+    programme whatever the output was.
   - Scripted mouse and keyboard input does not reach SDL3. The socket verbs and
     screenshots are the only ways in; --menu source|routing|cue opens a menu
     for a screenshot, and check_preview_effects.py has a window capture.
