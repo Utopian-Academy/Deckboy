@@ -4058,13 +4058,13 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // Back up to full size, bilinearly, and over the picture by amount.
         detail::parallelRows(H, W, [&](int y0, int y1) {
           for (int y = y0; y < y1; ++y) {
-            const double fy = std::clamp((y + 0.5) * rh / H - 0.5, 0.0, rh - 1.0);
-            const int ya = static_cast<int>(fy), yb = std::min(rh - 1, ya + 1);
-            const double wy = fy - ya;
+            const double uy = std::clamp((y + 0.5) * rh / H - 0.5, 0.0, rh - 1.0);
+            const int ya = static_cast<int>(uy), yb = std::min(rh - 1, ya + 1);
+            const double wy = uy - ya;
             for (int x = 0; x < W; ++x) {
-              const double fx = std::clamp((x + 0.5) * rw / W - 0.5, 0.0, rw - 1.0);
-              const int xa = static_cast<int>(fx), xb = std::min(rw - 1, xa + 1);
-              const double wx = fx - xa;
+              const double ux = std::clamp((x + 0.5) * rw / W - 0.5, 0.0, rw - 1.0);
+              const int xa = static_cast<int>(ux), xb = std::min(rw - 1, xa + 1);
+              const double wx = ux - xa;
               std::uint8_t* p = pixels.data() + (static_cast<std::size_t>(y) * W + x) * 4;
               for (int c = 0; c < 3; ++c) {
                 auto s = [&](int xx, int yy) {
