@@ -1,73 +1,57 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-23 - v0.99.374 (what 0.99.373 got wrong, and Super Deckboy properly)
+## 2026-09-23 - v0.99.374 (Super Deckboy properly: every playlist on its own output, a walk-up sting)
 
-James tested 0.99.373 and reported the new work as broadly broken. This is
-that list, worked through -- plus the features that came out of going through
-it with him.
+Everything 0.99.373 previewed, finished -- plus the features that came out of
+working through it on a real desk.
 
-**Two show-file changes.** Projection mapping moved from the deck to the
-output, and a layer gained a position and a blend mode. Both migrate on load,
-so an existing show opens with the alignment and the layers it had. An OLDER
-Deckboy opening a show saved by this one will not see either: it will read the
-deck's warp (now empty) and the layers without their geometry.
+**Two show-file changes, both of which migrate on load.** Projection mapping
+now belongs to the OUTPUT rather than the deck, and a layer carries a position
+and a blend mode. An existing show opens with the alignment and the layers it
+already had. Worth knowing before you roll back: an older Deckboy opening a
+show saved by this one will not see either.
 
-**Super Deckboy, as it was meant to be.** A playlist is assigned to an output
-and then to a LAYER within it, and the routing menu now draws each output's
-whole stack with an insertion point between every pair -- so picking a layer is
-picking a row, and you can see what an output is made of. Playlists can be
-removed as well as added, each with its own sound, and every reference to a deck
-index is remapped when one goes.
+**Super Deckboy: a playlist goes to an output, and to a layer within it.**
+Each output carries its own stack, so one playlist can run a camera while
+another puts lower thirds over it -- and a second output can show the same
+camera clean. The routing menu draws each output's whole stack with an
+insertion point between every pair, so choosing a layer is choosing a row, and
+you can see what an output is made of. Playlists can be added and removed from
+the playlist strip, each with its own sound.
 
-**A multiview**, on the control window and as an output type of its own, with
-each playlist's picture, where it is routed, and its layer fader.
+**A multiview**, in the control window and as an output type of its own. Every
+playlist's picture at once, each tile showing where that playlist is routed and
+carrying its layer fader -- which is the control that decides how much of a
+layer you see. Put it on a second screen and work from it.
+
+**Projection mapping per output.** Warp and edge blend correct for the screen a
+picture lands on, so one playlist can feed a keystoned projector and a clean
+stream at the same time.
 
 **One cue's audio to several devices at once.** The crosspoint matrix routes a
-cue across the channels of one device; this is the other axis.
-
-**A MIDI file is a source.** Drop a .mid in the playlist and it plays out.
-
-**A built-in walk-up sting**, generated rather than a file, with sliders for
-pitch, length, sweep and body. It is the one generated signal here that ends by
-itself.
-
-**The spacebar pauses again.** GO and TOGGLE shared an implementation, and the
-standby walker going in at the top of it meant that with a cue standing by the
-spacebar fired cues instead of pausing.
-
-
-**The controls you could see, you can now press.** Thirty-one rows across the
-new cue kinds were drawn as stepper rows -- label, minus, value, plus -- for
-actions that are not numbers. A stepper row only registers its two small
-chevrons as controls, so on every one of them the label and the value were
-inert: "fire now", "click to open the grid", the text body, the animation, and
-every MIDI, DMX, network, timecode, fade and script control. They are rows
-now, the value is the button, and the misleading arrows are gone.
-
-**Super Deckboy is additional playlists, assigned to outputs and to layers.**
-Each output carries its own stack, so one playlist can run a camera on layer A
-while another puts lower thirds on layer B over it -- and a second output can
-show the same camera clean. The playlist header says where it goes and opens a
-menu that can send it anywhere, or make another playlist. (VJ mode is the other
-thing, and stays what it was: two decks crossfaded into one output.)
-
-**The recording records the programme.** It was recording whichever playlist
-happened to be focused when it was first armed.
+cue across the channels of one interface; this is the other axis -- the same
+sound to the PA and the encoder, or to the house and a wedge on another box.
 
 **A MIDI file is a source.** Drop a .mid in the playlist and it plays out, on
-the cue's own transport, to whichever port you pick.
+the cue's own transport, to whichever port you pick -- so it scrubs, pauses and
+loops like everything else.
 
-**The dashboard has a door.** It could only be opened with a keyboard shortcut.
-Its buttons can be deleted, which they could not be. A master cue can be put on
-one in a single press.
+**A built-in walk-up sting**, generated rather than a file, with sliders for
+pitch, length, sweep and body. The one generated signal here that ends by
+itself, so it sits in a running order like a clip.
 
-**A cold file no longer lags on its first play.** The audio device was started
-before a single sample existed.
+**The dashboard** has a button on the bar, its tiles can be deleted, and a
+master cue can be put on one in a single press.
 
-**Also:** "show in explorer" selects the file, including the ones with a comma
-in the name; a text cue is edited in a text editor rather than the code prompt,
-and its words can wobble; and the hearth's own controls collapse the hearth.
+**Text on screen** as a source of its own: a title card, a scroll, a crawl, or
+a wobble, animated from the cue's transport.
 
+**Thirteen engineering test patterns**, and a free downloadable kit of them.
+
+**Smaller things:** every inspector row is pressable across its whole width;
+"show in explorer" selects the file; recordings capture the programme; a cold
+file starts cleanly on its first play; the spacebar is play/pause and GO walks
+the standby; and the playlist has animals in it again.
 
 ## 2026-09-22 - v0.99.373 (EXPERIMENTAL - a cue list that is a program, and a deck that speaks)
 
