@@ -88,6 +88,7 @@ EFFECTS = [
     ("relight",         "0.9:0.5:0.5"),
     ("depth_split",     "0.9:0.5:0.5"),
     ("databend",        "0.9:0.55:0.6:0.5:0.55"),
+    ("time_cube",       "1.0:0.35:0.5:0:0.4:0.2"),
 ]
 
 # Both need something a paused frame cannot give them.

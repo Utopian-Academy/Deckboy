@@ -97,6 +97,11 @@ enum class CueEffectKind : int {
   // loop closes: sound bends the picture, picture bends the sound.
   Databend,
   Audioprint,
+  // Added 2026-09-24. Time as a third dimension: the last few seconds kept
+  // as a block of pictures -- width, height, time -- and drawn as a solid
+  // turning in space. The face towards you is now; the sides are the same
+  // moments seen edge-on, so everything that moved is a streak through time.
+  TimeCube,
   Count,
 };
 
@@ -140,6 +145,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::MotionMosh:     return "motion mosh";
     case CueEffectKind::Databend:       return "databend";
     case CueEffectKind::Audioprint:     return "audioprint";
+    case CueEffectKind::TimeCube:       return "time cube";
     default:                            return "none";
   }
 }
@@ -186,6 +192,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::MotionMosh:     return "motion_mosh";
     case CueEffectKind::Databend:       return "databend";
     case CueEffectKind::Audioprint:     return "audioprint";
+    case CueEffectKind::TimeCube:       return "time_cube";
     default:                            return "none";
   }
 }
@@ -239,6 +246,9 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     // picture is doing.
     case CueEffectKind::Databend:
     case CueEffectKind::Audioprint:
+    // The time cube holds the recent frames, so it keeps changing while the
+    // picture does and must re-run on every frame.
+    case CueEffectKind::TimeCube:
       return true;
     default:
       return false;
@@ -350,6 +360,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Audioprint:
       return which == 0 ? "throw" : which == 1 ? "span"
            : which == 2 ? "ink" : nullptr;
+    case CueEffectKind::TimeCube:
+      return which == 0 ? "turn" : which == 1 ? "depth"
+           : which == 2 ? "see through" : which == 3 ? "zoom" : nullptr;
     default:
       return nullptr;
   }
@@ -430,6 +443,17 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "keeps the edges and the grain."
         : "Folds the picture back on itself when it goes past full scale, "
           "the way a hot signal folds instead of clipping.";
+    case CueEffectKind::TimeCube:
+      return which == 0
+        ? "Which way the block faces. Centre is a three-quarter view; put an "
+          "LFO on it and the block turns."
+        : which == 1
+        ? "How much time the block holds: 12 to 96 frames, about three "
+          "seconds at the top at 30fps. More time, longer streaks."
+        : which == 2
+        ? "Solid to see-through. Solid shows the faces; see-through shows the "
+          "whole block as a glowing volume, every moment at once."
+        : "How close the camera is to the block.";
     case CueEffectKind::Audioprint:
       return which == 0
         ? "How far the sound throws each line sideways."
@@ -3798,6 +3822,257 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 const double bot = diff(x0, y1) * (1.0 - wx) + diff(x1, y1) * wx;
                 const double delta = (top * (1.0 - wy) + bot * wy) * 127.5 * mix;
                 pixels[at + c] = detail::clamp8(pixels[at + c] + delta);
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::TimeCube: {
+        // TIME CUBE -- time as a third dimension.
+        //
+        // The last few seconds are kept as a block: width, height, and time
+        // running back from the face towards you. The block is drawn turning
+        // in space. Its front is now; its top and sides are every moment at
+        // once, seen edge-on, so a person who walked across the picture is a
+        // streak through time. See-through draws the whole block as a volume.
+        //
+        // The history lives in this effect's state slot at a reduced size,
+        // and the block is ray-traced at a reduced size too, then scaled up
+        // bilinearly: a smear of time needs no more than that, and it keeps
+        // the effect inside a frame. With no state from the caller (a
+        // headless dump) the block is built from this frame alone.
+        const int W = ctx.width, H = ctx.height;
+        const int sw = std::max(16, std::min(240, W / 6));
+        const int sh = std::max(9, static_cast<int>(std::lround(sw * static_cast<double>(H) / W)));
+        const int depth = 12 + static_cast<int>(std::lround(pB * 84.0));
+        const std::size_t slice = static_cast<std::size_t>(sw) * sh * 3;
+        const std::size_t header = 16;
+        std::vector<std::uint8_t> scratch;
+        std::vector<std::uint8_t>& vol = state ? *state : scratch;
+        auto readU32 = [&](std::size_t at) {
+          std::uint32_t v = 0;
+          std::memcpy(&v, vol.data() + at, 4);
+          return v;
+        };
+        auto writeU32 = [&](std::size_t at, std::uint32_t v) { std::memcpy(vol.data() + at, &v, 4); };
+        auto shrink = [&](std::uint8_t* out) {
+          for (int y = 0; y < sh; ++y) {
+            const int sy = std::min(H - 1, static_cast<int>((y + 0.5) * H / sh));
+            for (int x = 0; x < sw; ++x) {
+              const int sx = std::min(W - 1, static_cast<int>((x + 0.5) * W / sw));
+              const std::uint8_t* s = pixels.data() + (static_cast<std::size_t>(sy) * W + sx) * 4;
+              std::uint8_t* o = out + (static_cast<std::size_t>(y) * sw + x) * 3;
+              o[0] = s[0]; o[1] = s[1]; o[2] = s[2];
+            }
+          }
+        };
+        const bool fresh = vol.size() != header + slice * depth || readU32(0) != static_cast<std::uint32_t>(sw)
+                           || readU32(4) != static_cast<std::uint32_t>(sh) || readU32(8) != static_cast<std::uint32_t>(depth);
+        if (fresh) {
+          // A new block starts full of the present, so it has a shape at once.
+          vol.assign(header + slice * depth, 0);
+          writeU32(0, sw); writeU32(4, sh); writeU32(8, depth); writeU32(12, 0);
+          shrink(vol.data() + header);
+          for (int k = 1; k < depth; ++k) {
+            std::memcpy(vol.data() + header + slice * k, vol.data() + header, slice);
+          }
+        } else if (!ctx.stateHold) {
+          // One writer per frame: a second output showing this deck reads.
+          const std::uint32_t head = readU32(12);
+          shrink(vol.data() + header + slice * head);
+          writeU32(12, (head + 1) % depth);
+        }
+        const int newest = (static_cast<int>(readU32(12)) + depth - 1) % depth;
+        const std::uint8_t* frames = vol.data() + header;
+
+        // The block: x across the picture, y up it, z from now (front) back
+        // through time. Aspect as the picture; depth set by the time held.
+        const double ax = 0.5 * W / static_cast<double>(H), ay = 0.5;
+        const double az = 0.18 + pB * 0.62;
+        const double yaw = (pA - 0.5) * 6.2831853 + 0.62;
+        const double pitch = 0.38;
+        const double zoom = 1.0 + pD * 1.3;
+        const double cyw = std::cos(yaw), syw = std::sin(yaw), cp = std::cos(pitch), sp = std::sin(pitch);
+        const double see = pC;
+        const int rw = std::max(32, std::min(480, W / 3));
+        const int rh = std::max(18, static_cast<int>(std::lround(rw * static_cast<double>(H) / W)));
+        std::vector<std::uint8_t> lowres(static_cast<std::size_t>(rw) * rh * 3, 0);
+
+        // Colour at a point of the block, (u, v) across the picture from the
+        // top left and t from now (0) to oldest (1), blending neighbouring
+        // moments so the time axis is smooth.
+        auto sampleVol = [&](double u, double v, double tt, double* rgb) {
+          const double vx = std::clamp(u, 0.0, 1.0) * (sw - 1);
+          const double vy = std::clamp(v, 0.0, 1.0) * (sh - 1);
+          const double vt = std::clamp(tt, 0.0, 1.0) * (depth - 1);
+          const int x0 = static_cast<int>(vx), y0 = static_cast<int>(vy), t0 = static_cast<int>(vt);
+          const int x1 = std::min(sw - 1, x0 + 1), y1 = std::min(sh - 1, y0 + 1), t1 = std::min(depth - 1, t0 + 1);
+          const double wx = vx - x0, wy = vy - y0, wt = vt - t0;
+          const std::uint8_t* s0 = frames + slice * ((newest - t0 + depth) % depth);
+          const std::uint8_t* s1 = frames + slice * ((newest - t1 + depth) % depth);
+          for (int c = 0; c < 3; ++c) {
+            auto at = [&](const std::uint8_t* s, int x, int y) {
+              return static_cast<double>(s[(static_cast<std::size_t>(y) * sw + x) * 3 + c]);
+            };
+            const double a = (at(s0, x0, y0) * (1 - wx) + at(s0, x1, y0) * wx) * (1 - wy)
+                           + (at(s0, x0, y1) * (1 - wx) + at(s0, x1, y1) * wx) * wy;
+            const double b = (at(s1, x0, y0) * (1 - wx) + at(s1, x1, y0) * wx) * (1 - wy)
+                           + (at(s1, x0, y1) * (1 - wx) + at(s1, x1, y1) * wx) * wy;
+            rgb[c] = a * (1 - wt) + b * wt;
+          }
+        };
+
+        // Every pixel here is a ray, many times the work of a pixel copy, so
+        // tell the splitter so: at 720p the raster alone is under its
+        // threshold and the march ran on one core.
+        detail::parallelRows(rh, rw * 16, [&](int y0, int y1) {
+          for (int py = y0; py < y1; ++py) {
+            for (int px = 0; px < rw; ++px) {
+              // A pinhole camera looking down -z at the block, then the block's
+              // turn undone so the ray is in the block's own frame.
+              const double sx = ((px + 0.5) / rw - 0.5) * 2.0 * (static_cast<double>(W) / H) * 0.62 / zoom;
+              const double sy = (0.5 - (py + 0.5) / rh) * 2.0 * 0.62 / zoom;
+              double ox = 0, oy = 0, oz = 3.2;
+              double dx = sx, dy = sy, dz = -1.6;
+              const double len = std::sqrt(dx * dx + dy * dy + dz * dz);
+              dx /= len; dy /= len; dz /= len;
+              auto unturn = [&](double& x, double& y, double& z) {
+                const double y2 = y * cp + z * sp, z2 = -y * sp + z * cp;   // undo pitch
+                const double x3 = x * cyw - z2 * syw, z3 = x * syw + z2 * cyw;  // undo yaw
+                x = x3; y = y2; z = z3;
+              };
+              unturn(ox, oy, oz);
+              unturn(dx, dy, dz);
+              // Slab intersection with the block.
+              double tn = -1e9, tf = 1e9;
+              const double o[3] = {ox, oy, oz}, d[3] = {dx, dy, dz}, e[3] = {ax, ay, az};
+              bool hit = true;
+              for (int k = 0; k < 3 && hit; ++k) {
+                if (std::fabs(d[k]) < 1e-9) {
+                  if (o[k] < -e[k] || o[k] > e[k]) hit = false;
+                } else {
+                  double t1 = (-e[k] - o[k]) / d[k], t2 = (e[k] - o[k]) / d[k];
+                  if (t1 > t2) std::swap(t1, t2);
+                  tn = std::max(tn, t1);
+                  tf = std::min(tf, t2);
+                }
+              }
+              std::uint8_t* out = lowres.data() + (static_cast<std::size_t>(py) * rw + px) * 3;
+              if (!hit || tf < std::max(tn, 0.0)) {
+                continue;   // outside the block: black, like the space around it
+              }
+              auto toUVT = [&](double t, double* u, double* v, double* tt) {
+                const double x = ox + dx * t, y = oy + dy * t, z = oz + dz * t;
+                *u = (x + ax) / (2 * ax);
+                *v = (ay - y) / (2 * ay);
+                *tt = (az - z) / (2 * az);
+              };
+              double col[3] = {0, 0, 0};
+              if (see < 0.999) {
+                // The face the ray meets, shaded a little by which face it is.
+                double u, v, tt, rgb[3];
+                toUVT(tn, &u, &v, &tt);
+                sampleVol(u, v, tt, rgb);
+                const bool front = tt < 0.004;
+                const double shade = front ? 1.0 : (v < 0.004 ? 0.92 : 0.8);
+                for (int c = 0; c < 3; ++c) col[c] = rgb[c] * shade * (1.0 - see);
+              }
+              if (see > 0.001) {
+                // Through the block: front-to-back, brighter moments more solid.
+                // Each step reads the nearest stored texel -- a dark scene never
+                // turns opaque, so every ray runs all the way through, and eight
+                // reads a step did not fit in a frame. A fixed per-pixel offset
+                // on the first step turns the banding that leaves into fine
+                // noise, which the scale back up smooths away.
+                const int steps = 28;
+                double acc[3] = {0, 0, 0}, alpha = 0;
+                const double t0 = std::max(tn, 0.0), step = (tf - t0) / steps;
+                const double jitter = static_cast<double>((px * 7 + py * 13) % 16) / 16.0;
+                for (int k = 0; k < steps && alpha < 0.97; ++k) {
+                  double u, v, tt, rgb[3];
+                  toUVT(t0 + (k + jitter) * step, &u, &v, &tt);
+                  const int nx = static_cast<int>(std::clamp(u, 0.0, 1.0) * (sw - 1) + 0.5);
+                  const int ny = static_cast<int>(std::clamp(v, 0.0, 1.0) * (sh - 1) + 0.5);
+                  const int nt = static_cast<int>(std::clamp(tt, 0.0, 1.0) * (depth - 1) + 0.5);
+                  const std::uint8_t* s = frames + slice * ((newest - nt + depth) % depth) + (static_cast<std::size_t>(ny) * sw + nx) * 3;
+                  rgb[0] = s[0]; rgb[1] = s[1]; rgb[2] = s[2];
+                  const double lum = (rgb[0] + rgb[1] + rgb[2]) / 765.0;
+                  const double a = std::min(1.0, (0.035 + lum * 0.09) * 28.0 / steps);
+                  for (int c = 0; c < 3; ++c) acc[c] += (1 - alpha) * a * rgb[c];
+                  alpha += (1 - alpha) * a;
+                }
+                for (int c = 0; c < 3; ++c) col[c] += acc[c] * see;
+              }
+              out[0] = detail::clamp8(col[0]);
+              out[1] = detail::clamp8(col[1]);
+              out[2] = detail::clamp8(col[2]);
+            }
+          }
+        });
+        // The block's twelve edges as fine lines, the far ones fainter: the
+        // corners are turned back into the camera and projected, then each
+        // edge is laid down with its brightness split between neighbouring
+        // pixels, so it stays a continuous line at the reduced size.
+        {
+          auto project = [&](double bx, double by, double bz, double* px, double* py, double* depthOut) {
+            const double x = bx * cyw + bz * syw, z2 = -bx * syw + bz * cyw;   // redo yaw
+            const double y = by * cp - z2 * sp, z = by * sp + z2 * cp;          // redo pitch
+            const double k = 1.6 / std::max(0.05, 3.2 - z);
+            const double sx = x * k, sy = y * k;
+            *px = (sx / (2.0 * (static_cast<double>(W) / H) * 0.62 / zoom) + 0.5) * rw - 0.5;
+            *py = (0.5 - sy / (2.0 * 0.62 / zoom)) * rh - 0.5;
+            *depthOut = z;
+          };
+          const double cx[2] = {-ax, ax}, cyy[2] = {-ay, ay}, cz[2] = {-az, az};
+          const int corners[12][2][3] = {
+            {{0, 0, 0}, {1, 0, 0}}, {{0, 1, 0}, {1, 1, 0}}, {{0, 0, 1}, {1, 0, 1}}, {{0, 1, 1}, {1, 1, 1}},
+            {{0, 0, 0}, {0, 1, 0}}, {{1, 0, 0}, {1, 1, 0}}, {{0, 0, 1}, {0, 1, 1}}, {{1, 0, 1}, {1, 1, 1}},
+            {{0, 0, 0}, {0, 0, 1}}, {{1, 0, 0}, {1, 0, 1}}, {{0, 1, 0}, {0, 1, 1}}, {{1, 1, 0}, {1, 1, 1}}};
+          for (const auto& e : corners) {
+            double x0, y0, d0, x1, y1, d1;
+            project(cx[e[0][0]], cyy[e[0][1]], cz[e[0][2]], &x0, &y0, &d0);
+            project(cx[e[1][0]], cyy[e[1][1]], cz[e[1][2]], &x1, &y1, &d1);
+            const double ink = (d0 + d1) * 0.5 > 0.0 ? 185.0 : 95.0;   // nearer half brighter
+            const int n = std::max(2, static_cast<int>(std::ceil(std::max(std::fabs(x1 - x0), std::fabs(y1 - y0)) * 2.0)));
+            for (int s = 0; s <= n; ++s) {
+              const double f = static_cast<double>(s) / n;
+              const double lx = x0 + (x1 - x0) * f, ly = y0 + (y1 - y0) * f;
+              const int ix = static_cast<int>(std::floor(lx)), iy = static_cast<int>(std::floor(ly));
+              const double gx = lx - ix, gy = ly - iy;
+              const double w4[4] = {(1 - gx) * (1 - gy), gx * (1 - gy), (1 - gx) * gy, gx * gy};
+              const int dx4[4] = {0, 1, 0, 1}, dy4[4] = {0, 0, 1, 1};
+              for (int q = 0; q < 4; ++q) {
+                const int qx = ix + dx4[q], qy = iy + dy4[q];
+                if (qx < 0 || qy < 0 || qx >= rw || qy >= rh) continue;
+                std::uint8_t* o = lowres.data() + (static_cast<std::size_t>(qy) * rw + qx) * 3;
+                const double cover = std::min(1.0, w4[q] * 1.4);
+                for (int c = 0; c < 3; ++c) {
+                  if (ink > o[c]) o[c] = detail::clamp8(o[c] + (ink - o[c]) * cover);
+                }
+              }
+            }
+          }
+        }
+        // Back up to full size, bilinearly, and over the picture by amount.
+        detail::parallelRows(H, W, [&](int y0, int y1) {
+          for (int y = y0; y < y1; ++y) {
+            const double fy = std::clamp((y + 0.5) * rh / H - 0.5, 0.0, rh - 1.0);
+            const int ya = static_cast<int>(fy), yb = std::min(rh - 1, ya + 1);
+            const double wy = fy - ya;
+            for (int x = 0; x < W; ++x) {
+              const double fx = std::clamp((x + 0.5) * rw / W - 0.5, 0.0, rw - 1.0);
+              const int xa = static_cast<int>(fx), xb = std::min(rw - 1, xa + 1);
+              const double wx = fx - xa;
+              std::uint8_t* p = pixels.data() + (static_cast<std::size_t>(y) * W + x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                auto s = [&](int xx, int yy) {
+                  return static_cast<double>(lowres[(static_cast<std::size_t>(yy) * rw + xx) * 3 + c]);
+                };
+                const double v = (s(xa, ya) * (1 - wx) + s(xb, ya) * wx) * (1 - wy)
+                               + (s(xa, yb) * (1 - wx) + s(xb, yb) * wx) * wy;
+                p[c] = detail::clamp8(p[c] * (1.0 - amt) + v * amt);
               }
             }
           }

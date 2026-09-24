@@ -66,6 +66,7 @@ EFFECTS = [
     ("scotopic",        "0.95:0.7:0.6:0.6"),
     ("grain_flow",      "0.95:0.5:0.0:0.4"),
     ("databend",        "0.9:0.55:0.6:0.5:0.55"),
+    ("time_cube",       "1.0:0.35:0.5:0.4:0.2"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -99,7 +100,9 @@ ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic", "text_mode",
                      "slit_scan",
                      # Holds the smeared picture AND the previous frame's luma,
                      # so it keeps evolving on a still cue.
-                     "motion_mosh"}
+                     "motion_mosh",
+                     # Holds the last few seconds as a block of time.
+                     "time_cube"}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
@@ -143,6 +146,7 @@ PARAM_SLOTS = {
     "motion_puppet":   ["spring", "memory"],
     "databend":        ["smear", "feedback", "tone", "fold"],
     "audioprint":      ["throw", "span", "ink"],
+    "time_cube":       ["turn", "depth", "see through", "zoom"],
 }
 
 # What a show saved before a parameter existed carries, and what it must still
