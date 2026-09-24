@@ -65,7 +65,7 @@ modules:
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DSDLTTF_SAMPLES=OFF
-      - -DSDLTTF_VENDORED=ON
+      - -DSDLTTF_VENDORED=OFF
     sources:
       - type: git
         url: https://github.com/libsdl-org/SDL_ttf.git
