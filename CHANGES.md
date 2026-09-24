@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-24 - v0.99.377 (Set a layer's mapping, and it applies wherever the picture goes)
+## 2026-09-24 - v0.99.377 (Master cues as a tracker, and every button says what it is)
 
 **`VIDEO OUTPUT LAYERWARP` sets a layer's corner pin** over the network: eight
 fractions clockwise from the top left, or `OFF`. Fractions of the layer's own
@@ -13,6 +13,21 @@ A destination that mirrors another composites the same mapped layers it does.
 **`tools/check_layer_warp.py`** records the programme and compares corner
 patches, so the pin is checked by what it puts on screen rather than by what
 it stores.
+**Master cues, as a tracker.** The dashboard has a second view: steps down the
+page, playlists across it, and every cell a cue that step fires. A master cue
+has always held one instruction per playlist -- this is the first time you can
+see the whole sequence at once, read down it for time and across it for
+destinations, and pick a cell from a list. Switch between TILES and TRACKER in
+the dashboard's header (Ctrl+D).
+
+**Every button says what it is.** A button whose whole face is an icon now
+falls back to a short word when its picture is unavailable, so the playlist's
+LOOP and ONCE are always readable.
+
+**`--image-check`** answers "can this machine draw the interface's pictures",
+and names the step that fails if it cannot -- the companion to `--font-check`.
+Deckboy decodes its icons and splash art with ffprobe and ffmpeg, and this
+reports whether they are reachable and whether a picture actually comes back.
 
 ## 2026-09-24 - v0.99.376 (Projection mapping end to end, and a monitor of your own)
 
