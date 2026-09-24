@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-24 - v0.99.377 (Set a layer's mapping, and it applies wherever the picture goes)
+
+**`VIDEO OUTPUT LAYERWARP` sets a layer's corner pin** over the network: eight
+fractions clockwise from the top left, or `OFF`. Fractions of the layer's own
+rect, so a pin still means the same thing after the layer is moved or resized.
+
+**A layer's mapping applies wherever that picture goes** -- the programme, a
+recording, a stream, an NDI sender, or a second screen showing the programme.
+A destination that mirrors another composites the same mapped layers it does.
+
+**`tools/check_layer_warp.py`** records the programme and compares corner
+patches, so the pin is checked by what it puts on screen rather than by what
+it stores.
+
 ## 2026-09-24 - v0.99.376 (Projection mapping end to end, and a monitor of your own)
 
 **Mapping belongs to the layer as well as the output.** The output's warp lines
