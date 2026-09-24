@@ -70,12 +70,37 @@ def main():
 
         # Nothing is heard without MIDI hardware, but the cue must still run a
         # transport rather than sit at zero.
-        db.send("TAKE")
+        take_reply = db.send("TAKE")
         time.sleep(1.5)
         pos = db.status("DECK 1", "pos")
         print("4  after TAKE:  pos=%s" % pos)
         if pos in ("", "00:00.0"):
             fails.append("taking the cue did not start a transport (pos stayed at %r)" % pos)
+            # -- WHY, as far as the app will say ---------------------------
+            #
+            # This has only ever happened on a CI runner: the cue is active
+            # and reports its duration, so the take reached the engine, and
+            # the transport is nonetheless not running. Everything below is
+            # read only on failure, so a passing run is unchanged.
+            print("   the take did not start. what the app says:")
+            print("     TAKE replied:  %s" % take_reply[:120])
+            for line in db.send("STATUS").splitlines():
+                if line.startswith("DECK 1") or line.startswith("APP"):
+                    print("     %s" % line[:200])
+            # The cue itself: a disarmed cue and a pre-waiting one both look
+            # exactly like this from the outside, and both are ruled in or out
+            # by one line.
+            # PREWAIT with no argument reports rather than sets, and a
+            # pre-waiting cue is the one explanation that looks EXACTLY like
+            # this from the outside: active, correct duration, not running.
+            print("     PREWAIT:       %s" % db.send("PREWAIT")[:160])
+            print("     MIDIFILE:      %s" % db.send("MIDIFILE")[:160])
+            log = os.path.join(db.root, "app.log")
+            if os.path.exists(log):
+                tail = io.open(log, encoding="utf-8", errors="replace").read()[-900:]
+                print("     --- app.log tail ---")
+                for line in tail.splitlines()[-14:]:
+                    print("     | %s" % line[:160])
 
         # Read AFTER the take: STATUS describes the active cue.
         dur = db.status("DECK 1", "dur")
