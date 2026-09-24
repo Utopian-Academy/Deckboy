@@ -909,6 +909,16 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
+          # The REAL ffmpeg first on PATH, not Chocolatey's shim: RECORD
+          # answered OK here and no file ever appeared, because the egress
+          # pipes raw frames into ffmpeg's stdin and it is the real binary a
+          # packaged build carries. Found the way the packaging step finds it.
+          $real = Get-ChildItem -Path "C:\ProgramData\chocolatey\lib" -Recurse `
+                    -Filter ffmpeg.exe -ErrorAction SilentlyContinue |
+                  Where-Object { Test-Path (Join-Path $_.DirectoryName "ffprobe.exe") } |
+                  Select-Object -First 1
+          if ($real) { $env:PATH = "$($real.DirectoryName);$env:PATH" }
+          Write-Host "ffmpeg for the harnesses: $((Get-Command ffmpeg).Source)"
           $failed = @()
           foreach ($t in 'superdeck', 'manydecks', 'multiview_out', 'midifile') {
             Write-Host "--- check_$t"
