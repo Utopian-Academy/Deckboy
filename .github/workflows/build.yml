@@ -897,37 +897,46 @@ jobs:
         if: matrix.features == 'all'
         run: choco install ffmpeg innosetup -y --no-progress
 
-      # What only exists when playlists meet an output -- a second playlist
-      # composited on top, a multiview putting every playlist on screen, a
-      # playlist removed from the MIDDLE with every reference remapped -- and a
-      # MIDI file becoming a cue that plays. Each harness launches the real app
-      # in an isolated root and MEASURES: pixels in a recording, fields in the
-      # saved show. A setter answering OK proves only that a setter ran.
+      # What only exists when playlists meet an output. Each harness launches
+      # the real app in an isolated root and MEASURES -- fields in the saved
+      # show, pixels in a recording -- because a setter answering OK proves
+      # only that a setter ran. Windows only: they need a desktop session.
       #
-      # Windows only: the harnesses need a desktop session and ffmpeg, which
-      # this job has (ffmpeg arrives in the step above). The Linux leg would
-      # need a virtual display first.
-      #
-      # ADVISORY until it has run green here. A GUI harness that flakes on the
-      # runner would teach everyone to read red as noise, which is worse than
-      # no gate; drop continue-on-error once it has proved itself.
-      - name: Playlists, layers, multiview and MIDI files, measured in the app
+      # A GATE: a playlist removed from the MIDDLE with every reference
+      # remapped, and a MIDI file becoming a cue that plays. Both read the
+      # socket and the saved show, and both have passed on this runner.
+      - name: Playlists and MIDI files, measured in the app
+        if: matrix.features == 'all'
+        shell: pwsh
+        run: |
+          $failed = @()
+          foreach ($t in 'manydecks', 'midifile') {
+            Write-Host "--- check_$t"
+            python tools/check_$t.py --exe build\Release\Deckboy.exe
+            if ($LASTEXITCODE -ne 0) { $failed += $t }
+          }
+          if ($failed) { throw "failed: $($failed -join ', ')" }
+
+      # ADVISORY: a second playlist composited on top, and a multiview. These
+      # are measured in a RECORDING, and this runner answers OK to RECORD and
+      # writes no file -- with the real ffmpeg first on PATH (not the shim),
+      # without an audio device being the cause (reproduced locally: records
+      # fine with none), and with nothing landing anywhere else. The likeliest
+      # remaining cause is that a runner session never presents the output
+      # window, so the egress never gets a first frame. Unproven. They pass on
+      # a desktop machine: python tools/check_superdeck.py / check_multiview_out.py
+      - name: Layers and multiview, measured in a recording (advisory)
         if: matrix.features == 'all'
         continue-on-error: true
         shell: pwsh
         run: |
-          # The REAL ffmpeg first on PATH, not Chocolatey's shim: RECORD
-          # answered OK here and no file ever appeared, because the egress
-          # pipes raw frames into ffmpeg's stdin and it is the real binary a
-          # packaged build carries. Found the way the packaging step finds it.
           $real = Get-ChildItem -Path "C:\ProgramData\chocolatey\lib" -Recurse `
                     -Filter ffmpeg.exe -ErrorAction SilentlyContinue |
                   Where-Object { Test-Path (Join-Path $_.DirectoryName "ffprobe.exe") } |
                   Select-Object -First 1
           if ($real) { $env:PATH = "$($real.DirectoryName);$env:PATH" }
-          Write-Host "ffmpeg for the harnesses: $((Get-Command ffmpeg).Source)"
           $failed = @()
-          foreach ($t in 'superdeck', 'manydecks', 'multiview_out', 'midifile') {
+          foreach ($t in 'superdeck', 'multiview_out') {
             Write-Host "--- check_$t"
             python tools/check_$t.py --exe build\Release\Deckboy.exe
             if ($LASTEXITCODE -ne 0) { $failed += $t }
