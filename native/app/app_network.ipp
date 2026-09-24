@@ -553,6 +553,7 @@
         "        MONITOR DECK <n>|FOLLOW - which playlist you hear\n"
         "        MONITOR ROOM <n> ON|OFF - whether that playlist reaches its own device\n"
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"
+        "        VIDEO OUTPUT LAYERWARP [OFF | <8 corner fractions>] - map a layer onto a surface\n"
         "        - which playlists composite onto the focused output, and in what order\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
         "dashboard: DASH LIST | DASH <n> | DASH SET <n> <label> | <cmd> [| <glyph>]\n"

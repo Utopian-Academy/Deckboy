@@ -5367,6 +5367,84 @@
           }
           return;
         }
+        if (outputArg == "LAYERWARP") {
+          // VIDEO OUTPUT LAYERWARP
+          //   -> the focused playlist's corner pin on the focused output
+          // VIDEO OUTPUT LAYERWARP OFF
+          // VIDEO OUTPUT LAYERWARP <tlx> <tly> <trx> <try> <brx> <bry> <blx> <bly>
+          //
+          // Eight numbers, clockwise from the top left, each a FRACTION of
+          // the layer's own rect -- so a pin means the same thing after the
+          // layer is moved or resized. The output's warp is in pixels for
+          // the opposite reason: its raster does not move.
+          OutputTarget& out = focusedOutputMutable();
+          OutputLayer* layer = nullptr;
+          for (OutputLayer& candidate : out.layerDecks) {
+            if (candidate.deckIndex == project_.focusedDeckIndex) {
+              layer = &candidate;
+              break;
+            }
+          }
+          if (!layer) {
+            // The HOST is not a layer and has no pin of its own -- the
+            // output's warp is its mapping. Saying so is better than
+            // silently doing nothing to a deck that is plainly on the output.
+            failRemoteCommand("VIDEO OUTPUT LAYERWARP: " +
+                              deckLabel(project_.focusedDeckIndex) +
+                              " is not a layer on this output (the base uses "
+                              "the output's own warp)");
+            return;
+          }
+          if (parts.size() <= 3) {
+            std::ostringstream report;
+            report << (layer->warpEnabled ? "on" : "off");
+            if (layer->warpEnabled) {
+              report << " " << layer->warpTopLeftX << "," << layer->warpTopLeftY
+                     << " " << layer->warpTopRightX << "," << layer->warpTopRightY
+                     << " " << layer->warpBottomRightX << "," << layer->warpBottomRightY
+                     << " " << layer->warpBottomLeftX << "," << layer->warpBottomLeftY;
+            }
+            remoteCommandDetail_ = report.str();
+            return;
+          }
+          const std::string mode = toUpper(parts[3]);
+          if (mode == "OFF" || mode == "RESET" || mode == "NONE") {
+            layer->warpEnabled = false;
+            layer->warpTopLeftX = layer->warpTopLeftY = 0.0f;
+            layer->warpTopRightX = layer->warpTopRightY = 0.0f;
+            layer->warpBottomRightX = layer->warpBottomRightY = 0.0f;
+            layer->warpBottomLeftX = layer->warpBottomLeftY = 0.0f;
+            markProjectDirty();
+            remoteCommandDetail_ = "off";
+            return;
+          }
+          if (parts.size() < 11) {
+            failRemoteCommand("VIDEO OUTPUT LAYERWARP: expected OFF, or eight "
+                              "numbers clockwise from the top left");
+            return;
+          }
+          float corners[8];
+          for (int i = 0; i < 8; ++i) {
+            auto value = parseNumber(3 + i);
+            if (!value) {
+              failRemoteCommand("VIDEO OUTPUT LAYERWARP: '" + parts[3 + i] +
+                                "' is not a number");
+              return;
+            }
+            // A corner may legitimately go outside the layer -- that is what
+            // pinning onto a bigger surface looks like -- but not so far that
+            // the quad turns inside out or leaves the raster entirely.
+            corners[i] = std::clamp(static_cast<float>(*value), -2.0f, 2.0f);
+          }
+          layer->warpTopLeftX = corners[0];  layer->warpTopLeftY = corners[1];
+          layer->warpTopRightX = corners[2]; layer->warpTopRightY = corners[3];
+          layer->warpBottomRightX = corners[4]; layer->warpBottomRightY = corners[5];
+          layer->warpBottomLeftX = corners[6];  layer->warpBottomLeftY = corners[7];
+          layer->warpEnabled = true;
+          markProjectDirty();
+          remoteCommandDetail_ = "on for " + deckLabel(project_.focusedDeckIndex);
+          return;
+        }
         if (outputArg == "HOST") {
           if (parts.size() <= 3) {
             setFocusedOutputHostDeck(project_.focusedDeckIndex);

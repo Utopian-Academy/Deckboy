@@ -2000,7 +2000,16 @@
     return nullptr;
   }
 
-  void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
+  // `layerSourceOutputIndex` is the output whose LAYER LIST this draw belongs
+  // to, which is not always the output being drawn. A mirroring destination --
+  // a recording, a stream, an NDI sender, a second screen showing the
+  // programme -- composites the SOURCE output's stack onto its own raster. Its
+  // own layerDecks is empty, so looking the layer record up by the rendering
+  // index found nothing and silently dropped the layer's corner pin: the
+  // programme window was mapped and everything downstream of it was not.
+  // -1 means 'the same output', which is every non-mirroring case.
+  void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target,
+                                 int layerSourceOutputIndex = -1) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
       return;
@@ -2016,7 +2025,9 @@
     // frame takes -- CPU, GPU bridge or wrapped pixel buffer. Looking it up
     // in only one of them is how a feature comes to work on one machine and
     // not another.
-    const OutputLayer* layerWarp = layerRecordFor(outputIndex, sourceDeckIndex);
+    const OutputLayer* layerWarp = layerRecordFor(
+      layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex,
+      sourceDeckIndex);
     DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
     if (!sourceRuntime || !sourceRuntime->mediaEngine) {
       return;
@@ -2773,7 +2784,8 @@
         if (deckIsHeldOffOutput(entry.second)) {
           continue;
         }
-        renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);
+        renderDeckLayerIntoOutput(outputIndex, entry.second, bounds,
+                                  compositionOutputIndex);
         // ── THE TRANSITION, ON TOP OF THE INCOMING PICTURE ────────────────
         //
         // Here, in the compositor, because this is where every cue kind meets:
