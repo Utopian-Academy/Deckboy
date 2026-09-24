@@ -517,6 +517,133 @@
       // MULTIVIEW [ON|OFF|TOGGLE] -- the programme and every playlist in a
       // grid where the single monitor usually is.
       const std::string arg = parts.size() > 1 ? toUpper(parts[1]) : std::string("TOGGLE");
+      // -- THE WINDOWS ------------------------------------------------
+      //
+      //   MULTIVIEW WINDOW                      what every window shows
+      //   MULTIVIEW WINDOW <n> <source>         programme | deck:<i> | empty
+      //   MULTIVIEW WINDOW <n> SAFE|METER|LABEL ON|OFF
+      //   MULTIVIEW WINDOW ADD | MULTIVIEW WINDOW REMOVE <n>
+      //   MULTIVIEW WINDOW RESET                back to one per playlist
+      //
+      // Windows are numbered from 1 the way the operator sees them.
+      if (arg == "WINDOW" || arg == "TILE") {
+        if (parts.size() == 2) {
+          const auto plan = multiviewTilePlan();
+          std::string detail;
+          for (std::size_t t = 0; t < plan.size(); ++t) {
+            if (!detail.empty()) detail += "; ";
+            detail += std::to_string(t + 1) + "=" +
+                      (plan[t].source.empty() ? std::string("empty") : plan[t].source);
+            if (plan[t].safeAreas) detail += "+safe";
+            if (plan[t].vuMeter)   detail += "+meter";
+            if (!plan[t].label)    detail += "-label";
+          }
+          remoteCommandDetail_ = detail.empty() ? "no windows" : detail;
+          return;
+        }
+        const std::string sub = toUpper(parts[2]);
+        if (project_.multiviewTiles.empty()) {
+          project_.multiviewTiles = multiviewTilePlan();
+        }
+        if (sub == "RESET") {
+          project_.multiviewTiles.clear();
+          markProjectDirty();
+          remoteCommandDetail_ = "back to one window per playlist";
+          return;
+        }
+        if (sub == "ADD") {
+          if (static_cast<int>(project_.multiviewTiles.size()) >= kMaxMultiviewTiles) {
+            failRemoteCommand("MULTIVIEW WINDOW: already at the limit of " +
+                              std::to_string(kMaxMultiviewTiles));
+            return;
+          }
+          MultiviewTile fresh;
+          fresh.source = "";
+          project_.multiviewTiles.push_back(fresh);
+          markProjectDirty();
+          remoteCommandDetail_ = "windows: " +
+                                 std::to_string(project_.multiviewTiles.size());
+          return;
+        }
+        // Everything below names a window by number.
+        const int which = std::atoi(parts[2].c_str()) - 1;
+        if (sub == "REMOVE" || sub == "DEL") {
+          const int victim = (parts.size() > 3) ? std::atoi(parts[3].c_str()) - 1 : -1;
+          if (victim < 0 ||
+              victim >= static_cast<int>(project_.multiviewTiles.size())) {
+            failRemoteCommand("MULTIVIEW WINDOW REMOVE: expected a window number");
+            return;
+          }
+          if (project_.multiviewTiles.size() <= 1) {
+            failRemoteCommand("MULTIVIEW WINDOW: the last window stays");
+            return;
+          }
+          project_.multiviewTiles.erase(project_.multiviewTiles.begin() + victim);
+          markProjectDirty();
+          remoteCommandDetail_ = "windows: " +
+                                 std::to_string(project_.multiviewTiles.size());
+          return;
+        }
+        if (which < 0 ||
+            which >= static_cast<int>(project_.multiviewTiles.size())) {
+          failRemoteCommand("MULTIVIEW WINDOW: there is no window " + parts[2]);
+          return;
+        }
+        MultiviewTile& tile = project_.multiviewTiles[which];
+        if (parts.size() < 4) {
+          failRemoteCommand("MULTIVIEW WINDOW <n>: expected a source, or "
+                            "SAFE/METER/LABEL ON|OFF");
+          return;
+        }
+        const std::string what = toUpper(parts[3]);
+        if (what == "SAFE" || what == "METER" || what == "LABEL") {
+          if (parts.size() < 5) {
+            failRemoteCommand("MULTIVIEW WINDOW " + parts[2] + " " + parts[3] +
+                              ": expected ON or OFF");
+            return;
+          }
+          const std::string state = toUpper(parts[4]);
+          if (state != "ON" && state != "OFF") {
+            failRemoteCommand("MULTIVIEW WINDOW: expected ON or OFF");
+            return;
+          }
+          const bool on = state == "ON";
+          if (what == "SAFE")       tile.safeAreas = on;
+          else if (what == "METER") tile.vuMeter = on;
+          else                      tile.label = on;
+          markProjectDirty();
+          remoteCommandDetail_ = "window " + parts[2] + " " + parts[3] + " " + state;
+          return;
+        }
+        // A SOURCE. Validated rather than stored blind: a window pointed at a
+        // playlist that does not exist draws "missing", which is honest but is
+        // not something a caller should be able to ask for by accident.
+        std::string source = parts[3];
+        const std::string upper = toUpper(source);
+        if (upper == "EMPTY" || upper == "NONE" || upper == "OFF") {
+          source = "";
+        } else if (upper == "PROGRAMME" || upper == "PROGRAM" || upper == "PGM") {
+          source = "programme";
+        } else if (upper.rfind("DECK", 0) == 0) {
+          const char* digits = source.c_str() + 4;
+          while (*digits == ':' || *digits == ' ') ++digits;
+          const int d = std::atoi(digits) - 1;   // the operator counts from 1
+          if (d < 0 || d >= static_cast<int>(project_.decks.size())) {
+            failRemoteCommand("MULTIVIEW WINDOW: there is no playlist " +
+                              std::string(digits));
+            return;
+          }
+          source = "deck:" + std::to_string(d);
+        } else {
+          failRemoteCommand("MULTIVIEW WINDOW: expected PROGRAMME, DECK<n> or EMPTY");
+          return;
+        }
+        tile.source = source;
+        markProjectDirty();
+        remoteCommandDetail_ = "window " + parts[2] + " shows " +
+                               (source.empty() ? std::string("nothing") : source);
+        return;
+      }
       if (arg == "ON")        project_.multiviewMode = 1;
       else if (arg == "OFF")  project_.multiviewMode = 0;
       else if (arg == "TOGGLE") project_.multiviewMode = project_.multiviewMode ? 0 : 1;

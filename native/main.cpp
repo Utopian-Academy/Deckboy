@@ -8697,6 +8697,10 @@ class App {
   // One per deck: the tab that selects it, across the top of the playlist
   // column. Only drawn when there is more than one playlist.
   std::vector<SDL_Rect> deckTabRects_;
+  // The windows the multiview drew this frame, in tile order -- so the
+  // click handler and the tile menu act on the same list the renderer
+  // used rather than rebuilding it and risking a different answer.
+  std::vector<MultiviewTile> multiviewPlan_;
   SDL_Rect deckAddTabRect_ {};   // the + on the end of the strip
   SDL_Rect deckRemoveTabRect_ {};  // and the - beside it
   // Where the right-hand furniture of a playlist header begins, so the
@@ -10895,7 +10899,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--asio-tone <name> [secs] [ch]", "play a quiet 440Hz tone through an ASIO driver"},
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
-  {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
+  {"--pattern-dump <pattern[:variant]> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
   {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
   {"--font-check", "open every UI face and render with it; names the step that fails"},

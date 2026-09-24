@@ -203,6 +203,16 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "multiview\t" << project.multiviewMode << '\n';
+  // One line per window, in the order they are drawn. Written only when the
+  // operator has actually arranged them: an empty list means "the automatic
+  // set", and writing no lines at all is how that round-trips.
+  for (const auto& tile : project.multiviewTiles) {
+    output << "multiview_tile\t" << escapeField(tile.source)
+           << '\t' << (tile.vuMeter ? 1 : 0)
+           << '\t' << (tile.safeAreas ? 1 : 0)
+           << '\t' << (tile.label ? 1 : 0)
+           << '\n';
+  }
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
   // The recording FORMAT is part of the show. An operator who set 1080p25
   // ProRes with drop-frame timecode must get it back tomorrow, not the
@@ -792,6 +802,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // Fireside, as a source with parameters.
         << '\t' << cue.firesideIntensity
         << '\t' << cue.firesideSparks
+        << '\t' << cue.firesideView
         << '\n';
     }
   }
@@ -984,6 +995,13 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.splashCharacter = v.empty() ? std::string("deckbot") : v;
   } else if (fields[0] == "multiview") {
     project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
+  } else if (fields[0] == "multiview_tile") {
+    MultiviewTile tile;
+    tile.source = safeString(fields, 1);
+    tile.vuMeter = safeBool(fields, 2, false);
+    tile.safeAreas = safeBool(fields, 3, false);
+    tile.label = safeBool(fields, 4, true);
+    project.multiviewTiles.push_back(tile);
   } else if (fields[0] == "update_check") {
     project.updateCheckEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "clock_mode") {
@@ -2038,6 +2056,10 @@ Project loadProject(const fs::path& projectFile,
         // had controls, so an older show's hearth is unchanged.
         cue.firesideIntensity = std::clamp(safeDouble(fields, vs + 104, 1.0), 0.2, 2.0);
         cue.firesideSparks = std::clamp(safeInt(fields, vs + 105, 34), 0, 160);
+        // A show saved before the window defaults to not having one, so it
+        // opens as the bare brick wall it was saved as.
+        cue.firesideView = std::clamp(safeInt(fields, vs + 106, 0), 0,
+                                      kFiresideViewCount - 1);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time

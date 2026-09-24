@@ -1,5 +1,35 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-24 - v0.99.375 (A multiview you arrange yourself, and a window by the hearth)
+
+**The multiview is a set of windows you lay out.** It used to be one window
+per playlist, in order, always -- which is a lot of windows once a show has
+several playlists, and a playlist that only exists as a layer over another one
+is already visible in the window of the output it feeds. Now each window is
+yours to assign: right-click one to say what it shows -- the programme, any
+playlist, or nothing -- and to give it safe areas (action 90%, title 80%) and
+its own audio meter. Add windows, remove them, or reset to one per playlist
+whenever you like. A show that never touches this looks exactly as it did.
+
+**Pick a playlist from a list.** The output's source-deck row opens the menu it
+has always looked like, so choosing the eighth playlist takes one press.
+
+**A window on the hearth wall.** The fireside pattern can look out onto a
+garden, rain, snow or the sea, each drawn on the same coarse grid as the fire
+so the room is one picture. Pick one on the cue's FIRESIDE row. The fire keeps
+burning exactly as it did.
+
+**Taking a playlist away.** The `-` beside the playlist tabs arms in red on the
+first press and removes on the second, so it cannot be caught by a mis-tap next
+to the `+`.
+
+**Clearer playlist footers.** The play mode and the layer level each get their
+own space, so both stay readable however narrow the column gets.
+
+**For scripting and checking:** `MULTIVIEW WINDOW` reads and arranges the
+windows over the network, and `--pattern-dump fireside:snow` renders any of the
+hearth's views to a file without opening a window.
+
 ## 2026-09-23 - v0.99.374 (Super Deckboy properly: every playlist on its own output, a walk-up sting)
 
 Everything 0.99.373 previewed, finished -- plus the features that came out of

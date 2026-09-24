@@ -987,6 +987,7 @@
       case QuickAction::FireIntensityInc: nudgeFireside(0, +1); break;
       case QuickAction::FireSparksDec:    nudgeFireside(1, -1); break;
       case QuickAction::FireSparksInc:    nudgeFireside(1, +1); break;
+      case QuickAction::FireViewCycle:    nudgeFireside(2, +1); break;
       case QuickAction::TextEditBody:   editTextBody(); break;
       case QuickAction::TextAnimCycle:  cycleTextAnimation(); break;
       case QuickAction::TextAlignCycle: cycleTextAlign(); break;

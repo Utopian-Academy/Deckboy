@@ -108,6 +108,20 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
   void handleRightClick(int x, int y) {
+    // A MULTIVIEW WINDOW, FIRST. Left-click focuses the playlist a window
+    // shows, which is the action you want ninety-nine times out of a
+    // hundred; right-click is how you say what the window IS. Tested before
+    // anything else because the multiview occupies the monitor area, and the
+    // handlers below claim large parts of it.
+    for (std::size_t i = 0; i < multiviewTileRects_.size(); ++i) {
+      if (multiviewTileRects_[i].w > 0 && pointInRect(x, y, multiviewTileRects_[i])) {
+        if (i < multiviewTileDecks_.size() && multiviewTileDecks_[i] == -3) {
+          return;   // the + tile has nothing to configure
+        }
+        openMultiviewTileMenu(static_cast<int>(i), x, y);
+        return;
+      }
+    }
     // Right-click on trim handles to clear them
     if (trimInHandleRect_.w > 0 && pointInRect(x, y, trimInHandleRect_)) {
       if (Cue* cue = activeCueMutable()) {
@@ -220,6 +234,113 @@
         colW, itemH - uiScaled(2)};
     }
     uiWatchdogPopupEvent("context_menu", true, count);
+  }
+
+  // -- ONE WINDOW OF THE MULTIVIEW ---------------------------------------
+  //
+  // James: "there needs to be a clear way to assign what each window of a
+  // multi is". Clicking a window used to focus whatever playlist it happened
+  // to show, which is an action ABOUT the playlist -- it never said what the
+  // window was, and there was no way to make it be something else.
+  //
+  // Opening the list here also MATERIALISES the automatic set: the moment
+  // you arrange one window the whole arrangement becomes explicit and is
+  // saved, so it cannot silently rearrange itself when a playlist is added
+  // later. That is the behaviour you want from a multiview and the opposite
+  // of what a derived list would do.
+  void openMultiviewTileMenu(int tileIndex, int mx, int my) {
+    if (project_.multiviewTiles.empty()) {
+      project_.multiviewTiles = multiviewTilePlan();
+    }
+    if (tileIndex < 0 ||
+        tileIndex >= static_cast<int>(project_.multiviewTiles.size())) {
+      return;
+    }
+    contextItems_.clear();
+    const MultiviewTile current = project_.multiviewTiles[tileIndex];
+    contextItems_.push_back({
+      "WINDOW " + std::to_string(tileIndex + 1) + " - " +
+        multiviewTileSourceLabel(current), {0, 0, 0, 0}, nullptr});
+
+    contextItems_.push_back({"SHOWS", {0, 0, 0, 0}, nullptr});
+    auto sourceRow = [&](const std::string& id, const std::string& label) {
+      const bool on = current.source == id;
+      contextItems_.push_back({
+        std::string(on ? "  * " : "    ") + label,
+        on ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
+        [this, tileIndex, id]() {
+          if (tileIndex < static_cast<int>(project_.multiviewTiles.size())) {
+            project_.multiviewTiles[tileIndex].source = id;
+            markProjectDirty();
+          }
+        }});
+    };
+    sourceRow("programme", "the programme");
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      sourceRow("deck:" + std::to_string(d), deckLabel(d));
+    }
+    sourceRow("", "nothing - leave it empty");
+
+    // -- THE BELLS AND WHISTLES, PER WINDOW ------------------------------
+    contextItems_.push_back({"OVER THE PICTURE", {0, 0, 0, 0}, nullptr});
+    auto toggleRow = [&](const std::string& label, bool on,
+                         std::function<void(MultiviewTile&)> flip,
+                         const std::string& tail) {
+      contextItems_.push_back({
+        std::string(on ? "  [x] " : "  [ ] ") + label + tail,
+        on ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
+        [this, tileIndex, flip]() {
+          if (tileIndex < static_cast<int>(project_.multiviewTiles.size())) {
+            flip(project_.multiviewTiles[tileIndex]);
+            markProjectDirty();
+          }
+        }});
+    };
+    toggleRow("safe areas", current.safeAreas,
+              [](MultiviewTile& t) { t.safeAreas = !t.safeAreas; },
+              "   action 90%, title 80%");
+    toggleRow("audio meter", current.vuMeter,
+              [](MultiviewTile& t) { t.vuMeter = !t.vuMeter; },
+              "   this window's own level");
+    toggleRow("name and routing", current.label,
+              [](MultiviewTile& t) { t.label = !t.label; }, "");
+
+    contextItems_.push_back({"WINDOWS", {0, 0, 0, 0}, nullptr});
+    if (static_cast<int>(project_.multiviewTiles.size()) < kMaxMultiviewTiles) {
+      contextItems_.push_back({
+        "  + another window after this one", SDL_Color {40, 90, 130, 255},
+        [this, tileIndex]() {
+          if (tileIndex < static_cast<int>(project_.multiviewTiles.size())) {
+            MultiviewTile fresh;
+            fresh.source = "";
+            project_.multiviewTiles.insert(
+              project_.multiviewTiles.begin() + tileIndex + 1, fresh);
+            markProjectDirty();
+          }
+        }});
+    }
+    // The LAST window stays. A multiview with no windows is a blank panel
+    // with no way back to one -- the same rule the last playlist follows.
+    if (project_.multiviewTiles.size() > 1) {
+      contextItems_.push_back({
+        "  - remove this window", SDL_Color {130, 50, 40, 255},
+        [this, tileIndex]() {
+          if (tileIndex < static_cast<int>(project_.multiviewTiles.size())) {
+            project_.multiviewTiles.erase(
+              project_.multiviewTiles.begin() + tileIndex);
+            markProjectDirty();
+          }
+        }});
+    }
+    contextItems_.push_back({
+      "  reset to one window per playlist", {0, 0, 0, 0},
+      [this]() {
+        project_.multiviewTiles.clear();   // empty means automatic again
+        markProjectDirty();
+        triggerToast("multiview: back to the automatic set");
+      }});
+
+    layoutContextMenu(mx, my);
   }
 
   void openPlaylistRoutingMenu(int deckIdx, int mx, int my) {

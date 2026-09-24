@@ -864,6 +864,29 @@ inline const char* cueTextAnimationLabel(CueTextAnimation a) {
   return "Still";
 }
 
+// The window on the hearth wall, named. The inspector row says what the view
+// IS rather than showing a number the operator has to learn, and the token form
+// is what `--pattern-dump fireside:snow` takes.
+inline const char* firesideViewLabel(int view) {
+  switch (view) {
+    case 1: return "garden";
+    case 2: return "rain";
+    case 3: return "snow";
+    case 4: return "sea";
+    default: return "no window";
+  }
+}
+inline int firesideViewFromToken(const std::string& token) {
+  if (token == "garden") return 1;
+  if (token == "rain")   return 2;
+  if (token == "snow")   return 3;
+  if (token == "sea")    return 4;
+  return 0;
+}
+// One past the last view, so a cycling control wraps without repeating the
+// list in two places.
+inline constexpr int kFiresideViewCount = 5;
+
 inline CueTextAnimation cueTextAnimationFromToken(const std::string& t) {
   if (t == "fade")       return CueTextAnimation::FadeIn;
   if (t == "typewriter") return CueTextAnimation::Typewriter;
@@ -902,6 +925,24 @@ inline CueTextAnimation cueTextAnimationFromToken(const std::string& t) {
 // "the B deck" -- but a B deck IS a layer, so this is the same idea with the
 // special case removed.
 // ---------------------------------------------------------------------------
+// One window of the multiview, and what is drawn over it.
+//
+// `source` is a small language rather than an int so a show file stays
+// readable and so a new kind of source (an output's finished composite, a
+// return feed) can be added without renumbering anything that already exists:
+//   ""           an empty window -- a hole, kept so the grid does not reflow
+//   "programme"  what the programme output is showing
+//   "deck:<n>"   playlist n, zero based
+struct MultiviewTile {
+  std::string source = "programme";
+  // Off by default, both of them. A multiview whose every window arrives
+  // wearing meters and safe areas is a multiview you cannot see the pictures
+  // in; these are for the one or two windows that need them.
+  bool vuMeter = false;
+  bool safeAreas = false;
+  bool label = true;
+};
+
 struct OutputLayer {
   int deckIndex = 0;
   float x = 0.0f;
@@ -980,6 +1021,10 @@ struct Cue {
   // about a fire behind a panel.
   double firesideIntensity = 1.0;          // 0.2 embers .. 2.0 roaring
   int firesideSparks = 34;                 // 0 none .. 160
+  // What is through the window on the hearth wall: 0 none, 1 garden, 2 rain,
+  // 3 snow, 4 sea. A wall with a window is a room; a wall without one is a
+  // texture.
+  int firesideView = 0;
 
   // A Text cue. The body is the operator's own words, newlines and all.
   std::string textBody = "DECKBOY";
@@ -1905,6 +1950,25 @@ struct Project {
   // Off by default, because a one-playlist show has nothing to multi-view and
   // the big monitor is worth more.
   int multiviewMode = 0;
+  // ── ONE WINDOW OF THE MULTIVIEW ───────────────────────────────────────
+  //
+  // The multiview used to BE a rule: the programme, then every playlist, in
+  // that order, forever. With sixteen playlists allowed that is seventeen
+  // windows nobody asked for, and a playlist that only ever exists as a layer
+  // over another one does not need a window of its own -- you are already
+  // looking at it, composited, in the window of the output it feeds.
+  //
+  // James: "it should be a decision what gets added and shown in the
+  // multiview. it doesnt need to show every layer separately as a window,
+  // that is crazy" -- and, a moment later, "but the option to is still nice
+  // to have". So the rule becomes the DEFAULT and the decision becomes
+  // possible: an empty tile list means the old automatic behaviour, and the
+  // moment a window is assigned the list is what is drawn.
+  //
+  // Everything a broadcast multiview puts over a window is per tile, because
+  // that is how it is useful: safe areas on the one feeding a screen with
+  // bezels, a meter on the one carrying the sound.
+  std::vector<MultiviewTile> multiviewTiles;
   bool creaturesEnabled = true;
   // Whether they stay out while an output is live. Off by default: during a
   // show the only thing moving on this machine should be the show. On for
@@ -2400,6 +2464,7 @@ enum class QuickAction {
   PreloadSelected,
   FireIntensityDec, FireIntensityInc,
   FireSparksDec, FireSparksInc,
+  FireViewCycle,
   CueSectionTextToggle,
   CueSectionFiresideToggle,
   CueSectionMidiFileToggle,

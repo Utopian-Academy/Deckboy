@@ -88,6 +88,10 @@ constexpr size_t kMaxVideoFrames = 6;
 // Sixteen is far above any real show -- VJ mode wants two -- and small enough
 // that the worst case is merely slow.
 constexpr int kMaxDecks = 16;
+// Windows in the multiview. More than the playlists, because a window can
+// also carry the programme and a show may want the same playlist twice --
+// once with safe areas for the screen it feeds, once clean.
+constexpr int kMaxMultiviewTiles = 24;
 
 // And how many outputs, for the same reason: an output record names its index
 // too, and every output gets a window and a renderer.

@@ -1216,9 +1216,10 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 49;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 50;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
-                                              // fade secs/to/what/curve/stop
+                                              // fade secs/to/what/curve/stop,
+                                              // fireside view
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -3105,7 +3106,17 @@
     Cue cue;
     cue.kind = CueKind::Pattern;
     cue.name = "pattern-dump";
-    cue.path = patternId;
+    // `fireside:snow` -- a pattern id may carry one variant, the way
+    // --effect-dump carries its amount. Without it the hearth's window could
+    // only be seen by clicking it in a running app, and a headless dump is the
+    // only kind of check that runs in CI or over ssh.
+    std::string id = patternId;
+    const std::size_t variantAt = id.find(':');
+    if (variantAt != std::string::npos) {
+      cue.firesideView = firesideViewFromToken(id.substr(variantAt + 1));
+      id = id.substr(0, variantAt);
+    }
+    cue.path = id;
     cue.width = w;
     cue.height = h;
     auto frame = MediaEngine::buildPatternFrame(cue, t, w, h);

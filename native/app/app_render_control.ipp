@@ -1848,26 +1848,61 @@
       + std::string("  |  ") + (deck.shuffle ? "SHUFFLE" : "ORDER");
     // Height derived from the live font, not a literal 24 — scaled/HiDPI
     // faces are taller and the hardcoded rect clipped the descenders.
-    drawTextSafe(controlRenderer_, fontSmall_,
-                 {footer.x + 6, footer.y + 6, footer.w - 12, textLineHeight(fontSmall_)},
-                 playlistInfo, pal.dark);
+    // ── TWO TEXTS, NEVER ONE RECT ─────────────────────────────────────────
+    //
+    // The mode and the layer readout were both handed the FULL footer width:
+    // the mode ellipsized against the column edge as though it were alone,
+    // and the readout was then drawn over the top of it. On a wide column
+    // they happened to miss each other. With five playlists the column is
+    // about 130px and they land on the same pixels -- "LAYER 99%" printed
+    // straight through the middle of "ORDER".
+    //
+    // So measure both and give each its own rect. They share a line while
+    // they fit; the readout drops to a line of its own when they do not; and
+    // if even that has no room the mode gives up its width, rather than the
+    // two of them overlapping. Ellipsized text is readable; two strings on
+    // one baseline are not.
+    const int lineH = textLineHeight(fontSmall_);
+    const bool showLayer = project_.decks.size() > 1;
+    std::string opacityLabel;
+    int layerLabelW = 0;
+    if (showLayer) {
+      const int opacityPct = static_cast<int>(std::lround(
+        std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f));
+      opacityLabel = "LAYER " + std::to_string(opacityPct) + "%";
+      layerLabelW = measuredTextWidth(fontSmall_, opacityLabel);
+    }
+    const int footerInnerW = footer.w - 12;
+    const int footerGapW = uiScaled(8);
+    // The rail is the floor: a second line may only be used above it.
+    const int layerRailTop = footerY + kColFooterH - 12;
+    const bool roomForTwoLines = footer.y + 6 + lineH * 2 <= layerRailTop - 2;
+    const bool shareOneLine =
+      !showLayer ||
+      measuredTextWidth(fontSmall_, playlistInfo) + footerGapW + layerLabelW
+        <= footerInnerW ||
+      !roomForTwoLines;
+    SDL_Rect infoRect {footer.x + 6, footer.y + 6,
+                       (showLayer && shareOneLine)
+                         ? std::max(0, footerInnerW - layerLabelW - footerGapW)
+                         : footerInnerW,
+                       lineH};
+    drawTextSafe(controlRenderer_, fontSmall_, infoRect,
+                 ellipsizeToPixelWidth(fontSmall_, playlistInfo, infoRect.w),
+                 pal.dark);
     // Deck LAYER fader — the compositing opacity for stacking multiple
     // decks on one output (the multi-deck "Super Deckboy" model). It is not
     // a per-cue control, so in a single-deck show it's meaningless clutter:
     // hide it entirely and let multi-deck shows get it back, labeled.
-    if (project_.decks.size() > 1) {
-      int opacityPct = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f));
-      std::string opacityLabel = "LAYER " + std::to_string(opacityPct) + "%";
-      int labelW = 0, labelH = 0;
-      if (fontSmall_) TTF_GetStringSize(fontSmall_, opacityLabel.c_str(), 0, &labelW, &labelH);
+    if (showLayer) {
       // Same row as LOOP|ORDER (the 50px footer only fits one text line),
       // right-aligned in fg ink — reads on the shellInner footer fill in
       // light themes (fg = deep) and on black in terminal themes.
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   {footer.x + footer.w - labelW - 10, footer.y + 6,
-                    labelW + 4, textLineHeight(fontSmall_)},
-                   opacityLabel, pal.fg);
-      SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
+      SDL_Rect layerRect {footer.x + footer.w - layerLabelW - 6,
+                          shareOneLine ? footer.y + 6 : footer.y + 6 + lineH,
+                          layerLabelW, lineH};
+      drawTextSafe(controlRenderer_, fontSmall_, layerRect, opacityLabel, pal.fg);
+      SDL_Rect opacityRail {col.x + 8, layerRailTop, col.w - 16, 8};
       Primitives::drawFramedPanel(controlRenderer_, opacityRail, pal.light,
                       pal.deep, pal.shellOuter);
       int fillW = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * (opacityRail.w - 4)));

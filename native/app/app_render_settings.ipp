@@ -4490,18 +4490,42 @@
   void handleSettingsClickPart3(const SettingsButton& sb) {
     // ── OUTPUTS: WHICH DECK, AND HOW MANY ─────────────────────────────────
     if (sb.action == kSettingsActionOutputHostDeckCycle) {
+      // ── A LIST, NOT A LAP OF THE LIST ────────────────────────────────
+      //
+      // This row is DRAWN as a dropdown -- drawUIDropdownValue, chevron and
+      // all -- and stepped one deck per press. With sixteen playlists
+      // allowed, choosing the one before the current one is fifteen clicks,
+      // and the control had been telling the operator it was a menu the
+      // whole time. James, counting: "clicking 7 times to select the right
+      // deck sucks."
+      //
+      // So it opens the menu it draws. The cycle is kept for nothing: a
+      // dropdown is strictly better at one deck per press too.
       if (project_.outputs.empty() || project_.decks.size() < 2) {
         return;
       }
-      OutputTarget& out = focusedOutputMutable();
       const int count = static_cast<int>(project_.decks.size());
-      out.hostDeckIndex = (std::clamp(out.hostDeckIndex, 0, count - 1) + 1) % count;
-      markProjectDirty();
-      triggerToast(outputLabel(project_.focusedOutputIndex) + " -> " +
-                   (project_.decks[out.hostDeckIndex].name.empty()
-                      ? ("deck " + std::to_string(out.hostDeckIndex + 1))
-                      : project_.decks[out.hostDeckIndex].name));
-      playUiSound(UiSoundEffect::Toggle);
+      std::vector<std::pair<std::string, std::string>> choices;
+      choices.reserve(static_cast<std::size_t>(count));
+      for (int d = 0; d < count; ++d) {
+        choices.emplace_back(std::to_string(d), deckLabel(d));
+      }
+      const int hostNow = std::clamp(focusedOutputMutable().hostDeckIndex,
+                                     0, count - 1);
+      openDropdown("settings.output_host_deck", sb.rect, choices,
+                   std::to_string(hostNow),
+                   [this](const std::string& id) {
+                     if (project_.outputs.empty() || project_.decks.empty()) {
+                       return;
+                     }
+                     const int count2 = static_cast<int>(project_.decks.size());
+                     const int picked = std::clamp(std::atoi(id.c_str()), 0, count2 - 1);
+                     focusedOutputMutable().hostDeckIndex = picked;
+                     markProjectDirty();
+                     triggerToast(outputLabel(project_.focusedOutputIndex) +
+                                  " -> " + deckLabel(picked));
+                     playUiSound(UiSoundEffect::Toggle);
+                   });
       return;
     }
     if (sb.action == kSettingsActionDeckAdd) {

@@ -1860,8 +1860,16 @@
     }
     if (which == 0) {
       cue->firesideIntensity = std::clamp(cue->firesideIntensity + delta * 0.1, 0.2, 2.0);
-    } else {
+    } else if (which == 1) {
       cue->firesideSparks = std::clamp(cue->firesideSparks + delta * 4, 0, 160);
+    } else {
+      // Wraps, so one row reaches all five views without a second button.
+      // The `+ kFiresideViewCount` is what keeps a step backwards positive --
+      // C++'s % would hand back -1 from view 0.
+      cue->firesideView = (cue->firesideView + kFiresideViewCount + delta) %
+                          kFiresideViewCount;
+      triggerToast(std::string("hearth window: ") +
+                   firesideViewLabel(cue->firesideView));
     }
     markProjectDirty();
   }

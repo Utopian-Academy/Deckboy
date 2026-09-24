@@ -539,17 +539,62 @@
         continue;
       }
       const int deckIndex = multiviewTileDecks_[i];
-      if (deckIndex == -2) {
-        addDeck();
-      } else if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size())) {
+      if (deckIndex == -3) {
+        // The + tile. It used to add a PLAYLIST, which is a different thing
+        // entirely -- the multiview is where you arrange windows, and adding
+        // a playlist from it created a window you did not ask for as a side
+        // effect. It adds a window now, empty, for you to assign.
+        if (project_.multiviewTiles.empty()) {
+          project_.multiviewTiles = multiviewTilePlan();
+        }
+        if (static_cast<int>(project_.multiviewTiles.size()) < kMaxMultiviewTiles) {
+          MultiviewTile fresh;
+          fresh.source = "";
+          project_.multiviewTiles.push_back(fresh);
+          markProjectDirty();
+          playUiSound(UiSoundEffect::Navigate);
+        }
+        return;
+      }
+      // FOCUS WITH THE LEFT BUTTON, ARRANGE WITH THE RIGHT -- or with a
+      // click on a window that has nothing in it, since focusing an empty
+      // window is not an action anybody wants.
+      if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size())) {
         setFocusedDeckIndex(deckIndex);
         playUiSound(UiSoundEffect::Navigate);
+      } else {
+        openMultiviewTileMenu(static_cast<int>(i), x, y);
       }
       return;
     }
 
     if (deckAddTabRect_.w > 0 && pointInRect(x, y, deckAddTabRect_)) {
       addDeck();
+      return;
+    }
+
+    // THE - BESIDE IT. Armed, then done: the first press turns it red and
+    // says so, the second inside four seconds removes the focused playlist.
+    // It discards that playlist's cues and stops playback, and it sits one
+    // press away from the +, which is exactly the mis-tap worth a second
+    // press to prevent.
+    //
+    // The renderer had drawn both the armed and unarmed states since the
+    // button was added, and `deckRemoveArmedIndex_` was read there every
+    // frame -- but NOTHING ever read this rect or set that index, so the
+    // button was a picture of a control. Pressing it did nothing at all.
+    if (deckRemoveTabRect_.w > 0 && pointInRect(x, y, deckRemoveTabRect_)) {
+      const int victim = project_.focusedDeckIndex;
+      if (deckRemoveArmedIndex_ == victim &&
+          animationNow_ - deckRemoveArmedAtMs_ <= 4000) {
+        deckRemoveArmedIndex_ = -1;
+        removeDeck(victim);
+      } else {
+        deckRemoveArmedIndex_ = victim;
+        deckRemoveArmedAtMs_ = animationNow_;
+        playUiSound(UiSoundEffect::Navigate);
+        triggerToast("press - again to remove " + deckLabel(victim));
+      }
       return;
     }
 

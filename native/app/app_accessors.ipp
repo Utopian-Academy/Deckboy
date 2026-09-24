@@ -573,6 +573,79 @@
     return static_cast<int>(project_.outputs.size()) - 1;
   }
 
+  // -- THE MULTIVIEW'S WINDOWS --------------------------------------------
+  //
+  // The effective tile list: what the operator arranged, or -- while they
+  // have arranged nothing -- the automatic set the multiview always drew.
+  //
+  // Returning a BUILT list rather than a flag keeps every caller (the
+  // renderer, the click handler, the menu, the remote verb) working from one
+  // answer. The alternative is four places that each decide what a window is,
+  // which is how the compositor and the playlist column came to disagree
+  // about which deck an output showed.
+  std::vector<MultiviewTile> multiviewTilePlan() const {
+    if (!project_.multiviewTiles.empty()) {
+      return project_.multiviewTiles;
+    }
+    std::vector<MultiviewTile> plan;
+    MultiviewTile programme;
+    programme.source = "programme";
+    plan.push_back(programme);
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      MultiviewTile tile;
+      tile.source = "deck:" + std::to_string(d);
+      plan.push_back(tile);
+    }
+    return plan;
+  }
+
+  // The deck a tile shows, or -1 for the programme, or -2 for an empty
+  // window. An out-of-range deck reads as empty rather than as deck 0:
+  // a window pointed at a playlist that has since been removed must say so,
+  // not quietly show a different one.
+  int multiviewTileDeck(const MultiviewTile& tile) const {
+    if (tile.source == "programme") {
+      return -1;
+    }
+    if (tile.source.rfind("deck:", 0) == 0) {
+      const int d = std::atoi(tile.source.c_str() + 5);
+      return (d >= 0 && d < static_cast<int>(project_.decks.size())) ? d : -2;
+    }
+    return -2;
+  }
+
+  std::string multiviewTileSourceLabel(const MultiviewTile& tile) const {
+    const int d = multiviewTileDeck(tile);
+    if (d == -1) {
+      return "PROGRAMME";
+    }
+    if (d == -2) {
+      return tile.source.empty() ? std::string("empty")
+                                 : std::string("missing: ") + tile.source;
+    }
+    return deckLabel(d);
+  }
+
+  // The level this window's meter shows. The programme window meters the
+  // programme; a playlist window meters that playlist, which is the whole
+  // point of having one per window rather than one for the desk.
+  double multiviewTileLevel01(const MultiviewTile& tile) const {
+    const int d = multiviewTileDeck(tile);
+    const DeckRuntime* runtime =
+      (d >= 0) ? runtimeForDeck(d)
+               : runtimeForDeck(std::max(0, project_.focusedDeckIndex));
+    if (d == -1) {
+      const int host = project_.outputs.empty()
+        ? 0 : std::clamp(project_.outputs[0].hostDeckIndex, 0,
+                         std::max(0, static_cast<int>(project_.decks.size()) - 1));
+      runtime = runtimeForDeck(host);
+    }
+    if (!runtime || !runtime->mediaEngine) {
+      return 0.0;
+    }
+    return runtime->mediaEngine->programAudioLevel01();
+  }
+
   std::vector<std::pair<int, int>> layeredDeckEntriesForOutput(int outputIndex) const {
     std::vector<std::pair<int, int>> entries;
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {

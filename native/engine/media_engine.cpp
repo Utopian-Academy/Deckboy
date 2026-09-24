@@ -10759,8 +10759,147 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
 // handheld; a smooth 256-step gradient would sit outside that. Six reads as
 // fire and stays graphic.
 // ---------------------------------------------------------------------------
+// ── WHAT IS THROUGH THE WINDOW ──────────────────────────────────────────────
+//
+// Drawn AFTER the brickwork and BEFORE the hearth opening is darkened, so the
+// fire and its sparks are never covered by glass.
+//
+// Everything sits on the same coarse cell grid the flame uses. A smooth
+// gradient sky beside a six-step fire would read as two pictures stuck
+// together rather than as one room.
+void MediaEngine::buildFiresideWindow(DecodedFrame& frame, double t, int view) {
+  if (view <= 0 || view >= kFiresideViewCount) {
+    return;
+  }
+  const int W = frame.width;
+  const int H = frame.height;
+
+  // High on the wall and left of the hearth, where a window goes. Sized from
+  // the raster, so it is the same window at any resolution -- and it clears
+  // the arch horizontally, which is why the fire and the view never compete
+  // for the same pixels.
+  const int cell = std::max(2, W / 200);
+  const int winW = std::max(20, W / 6);
+  const int winH = std::max(16, H / 5);
+  const int winX = std::max(cell * 2, W / 12);
+  const int winY = std::max(cell * 2, H / 7);
+
+  const SDL_Color kSash {46, 30, 24, 255};
+  const SDL_Color kSill {62, 42, 32, 255};
+
+  fillPixelRect(frame, winX - cell * 2, winY - cell * 2,
+                winW + cell * 4, winH + cell * 4, kSash);
+
+  const int cols = std::max(1, winW / cell);
+  const int rows = std::max(1, winH / cell);
+  auto glass = [&](int gx, int gy, SDL_Color c) {
+    fillPixelRect(frame, winX + gx * cell, winY + gy * cell, cell, cell, c);
+  };
+  // A drifted column can go negative and C++'s % keeps the sign, which would
+  // break the flake pattern along one edge rather than wrap it.
+  auto wrap = [](int v, int n) { return ((v % n) + n) % n; };
+
+  for (int gy = 0; gy < rows; ++gy) {
+    const double v = static_cast<double>(gy) / std::max(1, rows - 1);
+    for (int gx = 0; gx < cols; ++gx) {
+      const double u = static_cast<double>(gx) / std::max(1, cols - 1);
+      SDL_Color c {18, 22, 34, 255};
+      switch (view) {
+        case 1: {   // GARDEN -- sky above, planting below, swaying slowly
+          // The slowest thing on screen. A garden through glass is the calmest
+          // possible background for a talking head, so the sway runs well
+          // under the rate of the fire beside it.
+          const double sway = std::sin(t * 0.55 + v * 4.0) * 0.045;
+          const double leafLine = 0.42 + std::sin(u * 7.0 + t * 0.35) * 0.06;
+          if (v < leafLine) {
+            c = (v < leafLine * 0.45) ? SDL_Color {120, 150, 178, 255}
+                                      : SDL_Color {150, 172, 190, 255};
+          } else {
+            const double n = std::sin((u + sway) * 23.0) *
+                             std::cos(v * 19.0 + t * 0.4);
+            c = (n > 0.35)  ? SDL_Color {58, 104, 58, 255}
+              : (n > -0.15) ? SDL_Color {40, 82, 46, 255}
+                            : SDL_Color {26, 58, 34, 255};
+          }
+          break;
+        }
+        case 2: {   // RAIN -- streaks through a grey evening
+          // No lightning, deliberately: a flash behind a presenter is a
+          // distraction, and it would fight the fire's own flicker.
+          const double base = 44.0 + v * 26.0;
+          c = SDL_Color {static_cast<Uint8>(base * 0.72),
+                         static_cast<Uint8>(base * 0.80),
+                         static_cast<Uint8>(base), 255};
+          // Each column falls at its own rate. That is the whole of why rain
+          // has depth instead of being one sliding texture.
+          const double speed = 5.5 + static_cast<double>(wrap(gx * 37, 11)) * 0.65;
+          const double drop = std::fmod(v + t * speed * 0.1 +
+                                        static_cast<double>(wrap(gx * 53, 17)) * 0.11,
+                                        1.0);
+          if (drop < 0.07 && wrap(gx * 29, 5) == 0) {
+            c = SDL_Color {150, 168, 190, 255};
+          }
+          break;
+        }
+        case 3: {   // SNOW -- flakes drifting sideways as they fall
+          const double base = 58.0 + v * 22.0;
+          c = SDL_Color {static_cast<Uint8>(base * 0.86),
+                         static_cast<Uint8>(base * 0.90),
+                         static_cast<Uint8>(base), 255};
+          // THE DRIFT IS WHAT MAKES IT SNOW; straight down is rain in a
+          // lighter colour.
+          //
+          // It asks "is there a flake HERE", reading back along the drift,
+          // rather than drawing one into a neighbouring cell -- because the
+          // sky for that cell is written after, and would paint over any flake
+          // the drift rounded to nothing. Half the snow would silently
+          // disappear, which is exactly the kind of fault a screenshot of a
+          // snowstorm does not show.
+          const double drift = std::sin(t * 0.5 + v * 6.28) * 2.2;
+          const int src = gx - static_cast<int>(std::lround(drift));
+          const double fall = std::fmod(v + t * 0.16 +
+                                        static_cast<double>(wrap(src * 41, 13)) * 0.08,
+                                        1.0);
+          if (fall < 0.06 && wrap(src * 31, 7) == 0) {
+            c = SDL_Color {224, 232, 240, 255};
+          }
+          break;
+        }
+        default: {  // SEA -- a horizon, and bands that slide at their own pace
+          const double horizon = 0.46;
+          if (v < horizon) {
+            const double k = v / horizon;
+            c = SDL_Color {static_cast<Uint8>(96 + k * 54),
+                           static_cast<Uint8>(120 + k * 50),
+                           static_cast<Uint8>(152 + k * 38), 255};
+          } else {
+            const double d = (v - horizon) / (1.0 - horizon);
+            // Nearer bands move faster. Parallax is the only cue that sells
+            // flat colour as water.
+            const double wave = std::sin(u * 12.0 + t * (0.5 + d * 1.9) + d * 5.0);
+            c = (wave > 0.55) ? SDL_Color {104, 146, 168, 255}
+              : (wave > -0.2) ? SDL_Color {46, 88, 118, 255}
+                              : SDL_Color {28, 60, 88, 255};
+          }
+          break;
+        }
+      }
+      glass(gx, gy, c);
+    }
+  }
+
+  // Glazing bars and a sill, so it reads as a window rather than as a picture
+  // hung on the wall.
+  fillPixelRect(frame, winX + winW / 2 - cell / 2, winY,
+                std::max(1, cell), winH, kSash);
+  fillPixelRect(frame, winX, winY + winH / 2 - cell / 2,
+                winW, std::max(1, cell), kSash);
+  fillPixelRect(frame, winX - cell * 3, winY + winH + cell * 2,
+                winW + cell * 6, cell * 2, kSill);
+}
+
 void MediaEngine::buildFireside(DecodedFrame& frame, double t,
-                                double intensity, int sparks) {
+                                double intensity, int sparks, int view) {
   intensity = intensity < 0.2 ? 0.2 : (intensity > 2.0 ? 2.0 : intensity);
   sparks = sparks < 0 ? 0 : (sparks > 160 ? 160 : sparks);
   const int W = frame.width;
@@ -10814,6 +10953,8 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
     }
     fillPixelRect(frame, 0, y + bh - 1, W, 1, kMortar);
   }
+
+  buildFiresideWindow(frame, t, view);
 
   // The opening is dark; the fire is drawn into it next.
   for (int y = openY; y < std::min(H, openY + openH); ++y) {
@@ -11776,7 +11917,8 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     buildFrameCount(frame, animTime, false);
   } else if (basePatternType == "fireside") {
     // Always animated: a still fire is a photograph of a fire.
-    buildFireside(frame, animTime, cue.firesideIntensity, cue.firesideSparks);
+    buildFireside(frame, animTime, cue.firesideIntensity, cue.firesideSparks,
+                  cue.firesideView);
   } else if (basePatternType == "test-clock") {
     // Sync/latency card — always animated, no -motion variant.
     buildTestClock(frame, animTime);
