@@ -43,9 +43,9 @@
         { "@type": "Question", "name": "Is there a version of QLab for Windows?",
           "acceptedAnswer": { "@type": "Answer", "text": "No. QLab runs only on macOS. Deckboy is a separate, free, open-source cue list that runs on Windows, macOS and Linux from the same show file. It is not affiliated with QLab or Figure 53." } },
         { "@type": "Question", "name": "Can a lighting desk fire video cues on a Windows machine?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Deckboy answers MIDI Show Control: a desk such as an ETC Eos or a grandMA sends GO with a cue number and Deckboy takes the cue with that number. STOP, RESUME, LOAD, ALL_OFF and RESET are honoured too, and the device ID match is exact so it does not answer messages meant for the rest of the rig. MIDI is in the Windows and Linux downloads; the current macOS download does not include it." } },
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Deckboy answers MIDI Show Control: a desk such as an ETC Eos or a grandMA sends GO with a cue number and Deckboy takes the cue with that number. STOP, RESUME, LOAD, ALL_OFF and RESET are honoured too, and the device ID match is exact so it does not answer messages meant for the rest of the rig." } },
         { "@type": "Question", "name": "What does QLab do that Deckboy does not?",
-          "acceptedAnswer": { "@type": "Answer", "text": "QLab has group cues, devamp, memo and microphone cues, pre-wait and post-wait, cues that send MIDI, OSC and DMX, a lighting system and AppleScript. Deckboy has none of those today. It receives show control rather than sending it, and it is strongest where the show is pictures: video, slides, cameras, windows and web pages out to screens, NDI, SRT and SDI." } }
+          "acceptedAnswer": { "@type": "Answer", "text": "QLab has group cues, devamp, memo and microphone cues, a lighting system with fixture patching, and AppleScript. Deckboy has none of those. Its lighting output is Art-Net channel levels with a fade, and its script cues run Deckboy's own control protocol." } }
       ]
     }
     </script>
@@ -91,8 +91,7 @@
         number, and Deckboy takes the cue with that number. MSC cue numbers are text, so
         <code>12.4.1</code> and <code>A</code> both work. STOP, RESUME, LOAD, ALL_OFF and RESET
         are honoured, and so is MIDI Machine Control. The device ID match is exact, so Deckboy
-        does not answer a message meant for the rest of the rig. MIDI is in the Windows and Linux
-        downloads; the current macOS download does not include it.</p>
+        does not answer a message meant for the rest of the rig.</p>
         <p>It also takes OSC, MIDI notes and controllers, Art-Net and LTC timecode, and it can be
         run from a Stream Deck or Bitfocus Companion.</p>
 
@@ -100,37 +99,48 @@
         <div class="table-wrap">
         <table>
             <tr><th>In QLab</th><th>In Deckboy</th></tr>
-            <tr><td>Cue list and GO</td><td>A cue list with GO. The selection is the cue you are about
-                to take, and the live cue is marked separately</td></tr>
-            <tr><td>Auto-follow</td><td>Each cue ends by stopping, holding its last frame, looping,
-                or moving on to the next cue by itself</td></tr>
+            <tr><td>Cue list, GO, standby</td><td>A cue list with a GO button. A standby pointer
+                separate from the selection</td></tr>
+            <tr><td>Pre-wait, post-wait, auto-continue, auto-follow</td><td>Pre-wait, post-wait and
+                a continue mode on every cue</td></tr>
             <tr><td>Video and camera cues</td><td>Clips, stills, cameras, capture cards, NDI, SRT,
                 windows and web pages, with trim, fades, loops and a held last frame</td></tr>
-            <tr><td>Audio cues</td><td>Audio cues with fades and loudness normalising, 22 per-cue
-                audio effects, and VST3 plugins in the chain</td></tr>
-            <tr><td>Fades</td><td>Fade in and out on every cue, 13 cue-to-cue transitions, and a
-                master level</td></tr>
-            <tr><td>Text cues</td><td>Lower thirds and stage timers</td></tr>
-            <tr><td>Receiving MIDI Show Control</td><td>GO by cue number, LOAD, STOP, RESUME, RESET and
-                ALL_OFF, plus MIDI Machine Control (Windows and Linux)</td></tr>
-            <tr><td>Receiving OSC and timecode</td><td>OSC, Art-Net and LTC timecode chase</td></tr>
+            <tr><td>Audio cues</td><td>Audio cues with fades and loudness normalising, and 22
+                per-cue audio effects plus VST3 plugins. A crosspoint matrix routes each cue to up
+                to 64 device channels</td></tr>
+            <tr><td>Fade cues</td><td>Fade a deck's picture, its volume or the master to a level
+                on a linear, eased or S curve</td></tr>
+            <tr><td>Start, Stop, Pause, Load, Arm, Disarm, Target</td><td>Target cues start, stop,
+                pause, resume, load, arm or disarm another cue</td></tr>
+            <tr><td>MIDI cues</td><td>Send notes, control and program changes, MSC GO/STOP/RESUME
+                or raw bytes</td></tr>
+            <tr><td>Network cues</td><td>Send OSC, a UDP datagram or a line of TCP</td></tr>
+            <tr><td>Timecode cues</td><td>Start, stop or jam the LTC generator from the cue list</td></tr>
+            <tr><td>Light cues</td><td>Art-Net channel levels with a fade time. Not a lighting
+                system: no fixtures, no patch</td></tr>
+            <tr><td>Script cues (AppleScript)</td><td>Script cues run lines of Deckboy's own control
+                protocol, so one cue can fire several things</td></tr>
+            <tr><td>Text cues</td><td>Lower thirds and timers</td></tr>
+            <tr><td>Multiple cue lists</td><td>Up to 16 decks, each with its own list and transport.
+                Each output can show a different deck</td></tr>
+            <tr><td>Load to time, preview</td><td>Audition plays a cue to the control window only.
+                Preload racks it paused with decoding already running</td></tr>
+            <tr><td>Checking the workspace</td><td>CHECK lists missing media, broken targets and
+                cues that cannot build their message, before doors</td></tr>
             <tr><td>macOS</td><td>Windows, macOS and Linux</td></tr>
         </table>
         </div>
 
         <h2>What Deckboy does not do</h2>
         <ul>
-            <li><b>Sending show control.</b> Deckboy is fired by other devices: MSC, OSC, MIDI,
-                Art-Net and timecode all come in. It does not yet send MIDI, OSC or DMX to other
-                equipment from a cue.</li>
-            <li><b>Pre-wait, post-wait and cues that act on other cues.</b> Cues run in order and
-                can move on to the next when they end, but there are no wait times and no
-                start/stop/fade cues that target another cue.</li>
-            <li><b>Group cues, devamp and memo cues.</b></li>
+            <li><b>Group cues, devamp and memo cues.</b> There is no group cue that holds and
+                fires a sequence. A master cue fires on several decks at once, and a chain of
+                continue modes does the rest.</li>
             <li><b>Microphone cues.</b> There is no live-mic cue with its own processing.</li>
-            <li><b>A lighting system.</b> Deckboy is not a lighting console.</li>
-            <li><b>Scripting.</b> There is no script cue. Other software drives Deckboy through
-                its text control protocol instead.</li>
+            <li><b>A lighting system.</b> Deckboy sends channel levels over Art-Net. It does not
+                patch fixtures, and it is not a lighting console.</li>
+            <li><b>AppleScript.</b> Script cues speak Deckboy's own protocol, which works the same
+                on every platform.</li>
             <li><b>Years in the field.</b> QLab has a long record in theatres. The show-control
                 side of Deckboy is new, so run it next to the version you trust before it runs a
                 show on its own.</li>
@@ -157,9 +167,11 @@
         <h2>Trying it on a show</h2>
         <p>Download the stable release, build the cue list, and point the desk's MSC output at the
         show machine with Deckboy's device ID set to match. The
-        <a href="manual.html#remote-control">manual</a> covers MIDI Show Control and every
-        cue type. As with anything new to a rig, run it through a tech rehearsal before it runs
-        a show.</p>
+        <a href="manual.html">manual</a> covers remote control and every cue type. To try the
+        features tagged, the pre-release is on the
+        <a href="https://github.com/Utopian-Academy/Deckboy/releases">releases page</a>, marked
+        as a pre-release. Keep it off a show machine until it has survived your own tech
+        rehearsal.</p>
 
         <div class="cta-group" style="margin-top:2.5rem">
             <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download Deckboy</a>
