@@ -88,6 +88,18 @@ modules:
         url: https://github.com/thestk/rtmidi.git
         tag: 6.0.0
 
+  # H.264 for recordings and streams: the SDK carries no x264.
+  - name: x264
+    buildsystem: autotools
+    config-opts:
+      - --enable-shared
+      - --enable-pic
+      - --disable-cli
+    sources:
+      - type: git
+        url: https://code.videolan.org/videolan/x264.git
+        branch: stable
+
   # Built for the ffmpeg / ffprobe BINARIES, which Deckboy invokes directly for
   # conversion, probing and the subprocess decode fallback.
   - name: ffmpeg
@@ -113,6 +125,7 @@ modules:
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DENABLE_DECKLINK=OFF
+      - -DENABLE_MIDI=ON
     sources:
       - type: dir
         path: ../..

@@ -1,0 +1,31 @@
+# Builds the Flatpak (tools/flatpak) inside Flathub's own build container, so
+# the manifest is proven the way Flathub will build it before it is submitted
+# there. The bundle is uploaded for anyone to try: flatpak install deckboy.flatpak
+name: Flatpak
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/flatpak/**'
+      - '.github/workflows/flatpak.yml'
+jobs:
+  flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
+        with:
+          bundle: deckboy.flatpak
+          manifest-path: tools/flatpak/io.github.utopian_academy.Deckboy.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+      # Flathub's own linter, on the manifest and the metainfo.
+      - name: Flathub lint
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y --noninteractive flathub org.flatpak.Builder
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest tools/flatpak/io.github.utopian_academy.Deckboy.yml || true
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml || true
