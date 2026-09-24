@@ -22,6 +22,14 @@ jobs:
           bundle: deckboy.flatpak
           manifest-path: tools/flatpak/io.github.utopian_academy.Deckboy.yml
           cache-key: flatpak-builder-${{ github.sha }}
+      # A package that builds is not a package that runs: install the bundle
+      # and ask Deckboy about itself, from inside the sandbox.
+      - name: The bundle installs and runs
+        run: |
+          flatpak install --user -y --noninteractive --bundle deckboy.flatpak
+          flatpak run --command=deckboy io.github.utopian_academy.Deckboy --version
+          xvfb-run -a flatpak run --command=deckboy io.github.utopian_academy.Deckboy --self-check | tee self-check.txt
+          grep -q "ndi-sdk: headers detected" self-check.txt
       # Flathub's own linter, on the manifest and the metainfo.
       - name: Flathub lint
         run: |

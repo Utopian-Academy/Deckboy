@@ -42,8 +42,17 @@ finish-args:
   - --share=network
   # MIDI controllers, Blackmagic cards and capture devices.
   - --device=all
-  # Shows reference media anywhere on disk, and an operator picks files at will.
-  - --filesystem=host
+  # Show media lives in the usual folders or on removable drives. Anything
+  # elsewhere comes in through the file chooser portal, which Deckboy's
+  # dialogs use, and which grants that file.
+  - --filesystem=xdg-videos
+  - --filesystem=xdg-pictures
+  - --filesystem=xdg-music
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-download
+  - --filesystem=/media
+  - --filesystem=/run/media
+  - --filesystem=/mnt
   # Playback must not be interrupted mid-show.
   - --talk-name=org.freedesktop.ScreenSaver
   - --talk-name=org.freedesktop.PowerManagement
@@ -59,6 +68,7 @@ modules:
       - type: git
         url: https://github.com/libsdl-org/SDL.git
         tag: release-3.4.0
+        commit: a962f40bbba175e9716557a25d5d7965f134a3d3
 
   - name: sdl3_ttf
     buildsystem: cmake-ninja
@@ -70,6 +80,7 @@ modules:
       - type: git
         url: https://github.com/libsdl-org/SDL_ttf.git
         tag: release-3.2.2
+        commit: a1ce3670aec736ecbf0936c43f2f0cc53aa61e5b
 
   - name: libltc
     buildsystem: autotools
@@ -77,6 +88,7 @@ modules:
       - type: git
         url: https://github.com/x42/libltc.git
         tag: v1.3.2
+        commit: bf84b01097a1789c0296cc5fcfc3bf4608407930
 
   - name: rtmidi
     buildsystem: cmake-ninja
@@ -87,6 +99,7 @@ modules:
       - type: git
         url: https://github.com/thestk/rtmidi.git
         tag: 6.0.0
+        commit: 1e5b49925aa60065db52de44c366d446a902547b
 
   # H.264 for recordings and streams: the SDK carries no x264.
   - name: x264
