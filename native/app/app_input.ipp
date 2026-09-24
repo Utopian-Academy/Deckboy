@@ -775,7 +775,10 @@
     }
     // Warp editor buttons
     if (warpEditBtnRect_.w > 0 && pointInRect(x, y, warpEditBtnRect_)) {
-      Deck& wd = focusedDeckMutable();
+      // THE OUTPUT, not the deck. Warp belongs to the screen the picture
+      // lands on; Deck still carries the old fields for migration and
+      // nothing renders them.
+      const OutputTarget& wd = focusedOutput();
       if (!wd.warpEnabled) {
         setFocusedDeckWarpEnabled(true);
         warpEditMode_ = true;
@@ -792,7 +795,7 @@
     }
     if (warpResetBtnRect_.w > 0 && pointInRect(x, y, warpResetBtnRect_)) {
       pushUndoSnapshot();
-      Deck& wd = focusedDeckMutable();
+      OutputTarget& wd = focusedOutputMutable();
       wd.warpTopLeftX = wd.warpTopLeftY = 0.0f;
       wd.warpTopRightX = wd.warpTopRightY = 0.0f;
       wd.warpBottomRightX = wd.warpBottomRightY = 0.0f;
@@ -811,7 +814,7 @@
           triggerToast("warp preset: name required");
           return;
         }
-        const Deck& wd = focusedDeck();
+        const OutputTarget& wd = focusedOutput();
         WarpPreset p;
         p.name = name;
         p.tlx = wd.warpTopLeftX; p.tly = wd.warpTopLeftY;
@@ -837,7 +840,7 @@
         static int lastRecalled = -1;
         lastRecalled = (lastRecalled + 1) % static_cast<int>(warpPresets_.size());
         const WarpPreset& p = warpPresets_[lastRecalled];
-        Deck& wd = focusedDeckMutable();
+        OutputTarget& wd = focusedOutputMutable();
         wd.warpTopLeftX = p.tlx; wd.warpTopLeftY = p.tly;
         wd.warpTopRightX = p.trx; wd.warpTopRightY = p.try_;
         wd.warpBottomRightX = p.brx; wd.warpBottomRightY = p.bry;
@@ -850,8 +853,8 @@
       return;
     }
     // Warp corner drag start
-    if (warpEditMode_ && focusedDeck().warpEnabled && warpMonitorInner_.w > 0) {
-      const Deck& wd = focusedDeck();
+    if (warpEditMode_ && focusedOutput().warpEnabled && warpMonitorInner_.w > 0) {
+      const OutputTarget& wd = focusedOutput();
       SDL_Rect mi = warpMonitorInner_;
       int focOutIdx = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
       auto [outW, outH] = outputRenderSizeForOutput(focOutIdx);
@@ -1283,7 +1286,7 @@
     }
     // Warp corner dragging — convert mouse delta in monitor-space to output-pixel warp offsets
     if (warpDragCorner_ >= 0 && warpEditMode_ && warpMonitorInner_.w > 0) {
-      Deck& wd = focusedDeckMutable();
+      OutputTarget& wd = focusedOutputMutable();
       SDL_Rect mi = warpMonitorInner_;
       int focOutIdx = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
       auto [outW, outH] = outputRenderSizeForOutput(focOutIdx);

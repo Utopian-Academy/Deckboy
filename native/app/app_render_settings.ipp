@@ -2411,7 +2411,11 @@
         // as AOI below; operators get px everywhere on this tab). Stored as
         // fractions of the raster dimension, unchanged.
         {
-          const Deck& bd = focusedDeck();
+          // THE OUTPUT. Edge blend feathers where two projectors meet,
+          // which is a property of the screen, and it moved with warp in
+          // 0.99.374. This row kept reading the deck, so it displayed a
+          // value the compositor never looks at.
+          const OutputTarget& bd = focusedOutput();
           auto [ebRasterW, ebRasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
           ebRasterW = std::max(16, ebRasterW);
           ebRasterH = std::max(16, ebRasterH);
@@ -4373,7 +4377,9 @@
         }
         setAllOutputsTestCardEnabled(anyOff);
       } else if (sb.action >= kSettingsActionOutputEdgeBlendLInc && sb.action <= kSettingsActionOutputEdgeBlendBDec) {
-        Deck& bd = focusedDeckMutable();
+        // And the same for the handler: these eight buttons were adjusting
+        // a number nothing renders, so the blend never moved.
+        OutputTarget& bd = focusedOutputMutable();
         float step = 0.02f;
         switch (sb.action) {
           case kSettingsActionOutputEdgeBlendLInc: bd.edgeBlendLeft  = std::clamp(bd.edgeBlendLeft  + step, 0.0f, 0.49f); break;
@@ -4386,7 +4392,11 @@
           case kSettingsActionOutputEdgeBlendBDec: bd.edgeBlendBottom= std::clamp(bd.edgeBlendBottom- step, 0.0f, 0.49f); break;
           default: break;
         }
-        normalizeDeck(bd, project_.focusedDeckIndex);
+        // normalizeProject clamps the output's own fields; the per-deck
+        // normalise this used to call cannot take an OutputTarget and has
+        // nothing to say about one. The clamps above are the whole of what
+        // it did for these four values anyway.
+        normalizeProject(project_);
         markProjectDirty();
       } else if (sb.action == kSettingsActionOutputAoiSizeDropdown) {
         AoiRectPx cur = focusedOutputAoiRectPx();

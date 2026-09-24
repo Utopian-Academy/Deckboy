@@ -280,6 +280,20 @@
     return deck.cues[cueIndex].id;
   }
 
+  // THE WARP THAT APPLIES TO THIS DECK, which lives on the output its
+  // picture lands on. Reported under the deck because that is the shape
+  // every control surface already parses; a deck on no output reports the
+  // neutral values, because nothing is warping a picture nobody can see.
+  const OutputTarget& warpSourceForDeck(int deckIndex) const {
+    static const OutputTarget kNone {};
+    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+    if (!outputIndex || *outputIndex < 0 ||
+        *outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return kNone;
+    }
+    return project_.outputs[*outputIndex];
+  }
+
   std::string buildCueProgrammingSnapshot() const {
     std::ostringstream output;
     output << "DECKBOY_0.01 cues"
@@ -389,12 +403,12 @@
              << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
              << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
              << " view=" << deck.canvasViewX << "," << deck.canvasViewY
-             << " warp=" << (deck.warpEnabled ? "on" : "off")
-             << " warp_mode=" << normalizeWarpMode(deck.warpMode)
-             << " blend=" << static_cast<int>(std::lround(deck.edgeBlendLeft * 100.0f))
-             << "," << static_cast<int>(std::lround(deck.edgeBlendRight * 100.0f))
-             << "," << static_cast<int>(std::lround(deck.edgeBlendTop * 100.0f))
-             << "," << static_cast<int>(std::lround(deck.edgeBlendBottom * 100.0f))
+             << " warp=" << (warpSourceForDeck(deckIndex).warpEnabled ? "on" : "off")
+             << " warp_mode=" << normalizeWarpMode(warpSourceForDeck(deckIndex).warpMode)
+             << " blend=" << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendLeft * 100.0f))
+             << "," << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendRight * 100.0f))
+             << "," << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendTop * 100.0f))
+             << "," << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendBottom * 100.0f))
              << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
              << " transition_s=" << deck.transitionSeconds
              << " tc=" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)
@@ -556,12 +570,12 @@
            << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
            << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
            << " view=" << deck.canvasViewX << "," << deck.canvasViewY
-           << " warp=" << (deck.warpEnabled ? "on" : "off")
-           << " warp_mode=" << normalizeWarpMode(deck.warpMode)
-           << " blend=" << static_cast<int>(std::lround(deck.edgeBlendLeft * 100.0f))
-           << "," << static_cast<int>(std::lround(deck.edgeBlendRight * 100.0f))
-           << "," << static_cast<int>(std::lround(deck.edgeBlendTop * 100.0f))
-           << "," << static_cast<int>(std::lround(deck.edgeBlendBottom * 100.0f))
+           << " warp=" << (warpSourceForDeck(deckIndex).warpEnabled ? "on" : "off")
+           << " warp_mode=" << normalizeWarpMode(warpSourceForDeck(deckIndex).warpMode)
+           << " blend=" << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendLeft * 100.0f))
+           << "," << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendRight * 100.0f))
+           << "," << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendTop * 100.0f))
+           << "," << static_cast<int>(std::lround(warpSourceForDeck(deckIndex).edgeBlendBottom * 100.0f))
            << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
            << " transition_s=" << deck.transitionSeconds
            << " tc=" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)
@@ -741,20 +755,20 @@
              << "\"timeOverlay\":" << (deck.timeOverlayEnabled ? "true" : "false") << ","
              << "\"canvasViewX\":" << deck.canvasViewX << ","
              << "\"canvasViewY\":" << deck.canvasViewY << ","
-             << "\"warpEnabled\":" << (deck.warpEnabled ? "true" : "false") << ","
-             << "\"warpMode\":\"" << escapeJson(normalizeWarpMode(deck.warpMode)) << "\","
-             << "\"warpTopLeftX\":" << deck.warpTopLeftX << ","
-             << "\"warpTopLeftY\":" << deck.warpTopLeftY << ","
-             << "\"warpTopRightX\":" << deck.warpTopRightX << ","
-             << "\"warpTopRightY\":" << deck.warpTopRightY << ","
-             << "\"warpBottomRightX\":" << deck.warpBottomRightX << ","
-             << "\"warpBottomRightY\":" << deck.warpBottomRightY << ","
-             << "\"warpBottomLeftX\":" << deck.warpBottomLeftX << ","
-             << "\"warpBottomLeftY\":" << deck.warpBottomLeftY << ","
-             << "\"edgeBlendLeft\":" << deck.edgeBlendLeft << ","
-             << "\"edgeBlendRight\":" << deck.edgeBlendRight << ","
-             << "\"edgeBlendTop\":" << deck.edgeBlendTop << ","
-             << "\"edgeBlendBottom\":" << deck.edgeBlendBottom << ","
+             << "\"warpEnabled\":" << (warpSourceForDeck(deckIndex).warpEnabled ? "true" : "false") << ","
+             << "\"warpMode\":\"" << escapeJson(normalizeWarpMode(warpSourceForDeck(deckIndex).warpMode)) << "\","
+             << "\"warpTopLeftX\":" << warpSourceForDeck(deckIndex).warpTopLeftX << ","
+             << "\"warpTopLeftY\":" << warpSourceForDeck(deckIndex).warpTopLeftY << ","
+             << "\"warpTopRightX\":" << warpSourceForDeck(deckIndex).warpTopRightX << ","
+             << "\"warpTopRightY\":" << warpSourceForDeck(deckIndex).warpTopRightY << ","
+             << "\"warpBottomRightX\":" << warpSourceForDeck(deckIndex).warpBottomRightX << ","
+             << "\"warpBottomRightY\":" << warpSourceForDeck(deckIndex).warpBottomRightY << ","
+             << "\"warpBottomLeftX\":" << warpSourceForDeck(deckIndex).warpBottomLeftX << ","
+             << "\"warpBottomLeftY\":" << warpSourceForDeck(deckIndex).warpBottomLeftY << ","
+             << "\"edgeBlendLeft\":" << warpSourceForDeck(deckIndex).edgeBlendLeft << ","
+             << "\"edgeBlendRight\":" << warpSourceForDeck(deckIndex).edgeBlendRight << ","
+             << "\"edgeBlendTop\":" << warpSourceForDeck(deckIndex).edgeBlendTop << ","
+             << "\"edgeBlendBottom\":" << warpSourceForDeck(deckIndex).edgeBlendBottom << ","
              << "\"transitionStyle\":\"" << escapeJson(transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))) << "\","
              << "\"transitionSeconds\":" << deck.transitionSeconds << ","
              << "\"timecode\":\"" << escapeJson(formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)) << "\","

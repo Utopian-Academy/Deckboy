@@ -5732,6 +5732,8 @@
       }
       if (value == "VIEW" || value == "PAN") {
         if (parts.size() <= 2) {
+          // The DECK, deliberately: canvas panning is where this playlist
+          // looks within a larger canvas, which did not move with warp.
           const Deck& focused = focusedDeck();
           triggerToast("view: " + std::to_string(focused.canvasViewX) + "," + std::to_string(focused.canvasViewY));
           return;
@@ -5778,9 +5780,11 @@
       }
       if (value == "WARP") {
         if (parts.size() <= 2) {
-          const Deck& deck = focusedDeck();
-          triggerToast(std::string("warp: ") + (deck.warpEnabled ? "on" : "off")
-                       + " (" + toLower(warpModeLabel(deck.warpMode)) + ")");
+          // Reports the OUTPUT, which is where every setter below writes.
+          // Reading the deck meant WARP always answered 'off'.
+          const OutputTarget& out = focusedOutput();
+          triggerToast(std::string("warp: ") + (out.warpEnabled ? "on" : "off")
+                       + " (" + toLower(warpModeLabel(out.warpMode)) + ")");
           return;
         }
         std::string warpArg = toUpper(parts[2]);
@@ -5802,7 +5806,7 @@
         }
         if (warpArg == "MODE") {
           if (parts.size() <= 3) {
-            triggerToast("warp mode: " + toLower(warpModeLabel(focusedDeck().warpMode)));
+            triggerToast("warp mode: " + toLower(warpModeLabel(focusedOutput().warpMode)));
             return;
           }
           std::string modeArg = toUpper(parts[3]);
@@ -5840,7 +5844,7 @@
       }
       if (value == "BLEND") {
         if (parts.size() <= 2) {
-          const Deck& focused = focusedDeck();
+          const OutputTarget& focused = focusedOutput();
           triggerToast(
             "blend: L" + std::to_string(static_cast<int>(std::lround(focused.edgeBlendLeft * 100.0f))) +
             " R" + std::to_string(static_cast<int>(std::lround(focused.edgeBlendRight * 100.0f))) +

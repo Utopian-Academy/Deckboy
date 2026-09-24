@@ -8914,7 +8914,9 @@ class App {
   // is wanted when only the LOOK is worth keeping.
   std::vector<deckboy::effects::CueEffect> effectChainClipboard_;
   std::string effectChainClipboardDriver_;
-  std::optional<Deck> warpSettingsClipboard_;
+  // The OUTPUT's mapping, since that is what warp is. Was a Deck, which is
+  // the struct the 0.99.374 migration moved warp OFF.
+  std::optional<OutputTarget> warpSettingsClipboard_;
 
   // Master fader
   SDL_Rect masterFaderRect_ {};

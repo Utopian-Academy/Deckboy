@@ -39,6 +39,15 @@ inline std::string joinLayerList(const std::vector<OutputLayer>& layers) {
     const OutputLayer& l = layers[i];
     out << l.deckIndex << ':' << l.x << ':' << l.y << ':' << l.w << ':' << l.h
         << ':' << (l.blendMode.empty() ? "dissolve" : l.blendMode);
+    // The layer's own corner pin, appended. Written only when it is armed,
+    // so a show that does not map keeps the short token it always had.
+    if (l.warpEnabled) {
+      out << ':' << 1
+          << ':' << l.warpTopLeftX     << ':' << l.warpTopLeftY
+          << ':' << l.warpTopRightX    << ':' << l.warpTopRightY
+          << ':' << l.warpBottomRightX << ':' << l.warpBottomRightY
+          << ':' << l.warpBottomLeftX  << ':' << l.warpBottomLeftY;
+    }
   }
   return out.str();
 }
@@ -83,6 +92,17 @@ inline std::vector<OutputLayer> parseLayerList(const std::string& text) {
     if (bits.size() > 5 && !bits[5].empty()) {
       layer.blendMode = bits[5];
     }
+    // The layer's corner pin. Absent in every show written before it, which
+    // readF already answers with the neutral value.
+    layer.warpEnabled = readF(6, 0.0f) != 0.0f;
+    layer.warpTopLeftX     = readF(7, 0.0f);
+    layer.warpTopLeftY     = readF(8, 0.0f);
+    layer.warpTopRightX    = readF(9, 0.0f);
+    layer.warpTopRightY    = readF(10, 0.0f);
+    layer.warpBottomRightX = readF(11, 0.0f);
+    layer.warpBottomRightY = readF(12, 0.0f);
+    layer.warpBottomLeftX  = readF(13, 0.0f);
+    layer.warpBottomLeftY  = readF(14, 0.0f);
     out.push_back(layer);
   }
   return out;

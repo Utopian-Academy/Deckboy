@@ -2712,7 +2712,9 @@
 
     // WARP edit toggle button in program monitor header
     {
-      const Deck& warpDeck = focusedDeck();
+      // Lit from the OUTPUT, which is what the button actually arms --
+      // asking the deck meant it never lit however armed the warp was.
+      const OutputTarget& warpDeck = focusedOutput();
       int warpBtnW = 76;
       bool warpActive = warpEditMode_ && warpDeck.warpEnabled;
       warpEditBtnRect_ = {programMonitorRect.x + programMonitorRect.w - warpBtnW - 8,
@@ -3088,9 +3090,12 @@
     drawPresenterLayoutEditor(programMonitorRect);
 
     // Warp editor overlay on program monitor
-    if (!presenterLayoutEditMode_ && warpEditMode_ && focusedDeck().warpEnabled &&
+    // THE OUTPUT'S WARP. The handles have to be drawn from the same struct
+    // the drag writes and the compositor reads, or they sit where the warp
+    // is not.
+    if (!presenterLayoutEditMode_ && warpEditMode_ && focusedOutput().warpEnabled &&
         warpMonitorInner_.w > 0 && warpMonitorInner_.h > 0) {
-      const Deck& wd = focusedDeck();
+      const OutputTarget& wd = focusedOutput();
       SDL_Rect mi = warpMonitorInner_;
       float fw = static_cast<float>(mi.w);
       float fh = static_cast<float>(mi.h);
@@ -3153,7 +3158,7 @@
         SDL_Color warpBtnInk {255, 220, 0, 255};
         SDL_Color warpBtnDim {160, 150, 96, 255};
 
-        std::string modeLabel = focusedDeck().warpMode == "perspective" ? "PERSP" : "LINEAR";
+        std::string modeLabel = focusedOutput().warpMode == "perspective" ? "PERSP" : "LINEAR";
         int bx = mi.x + 4;
         warpModeBtnRect_ = {bx, toolY, 64, toolH};
         Primitives::fillRect(controlRenderer_, warpModeBtnRect_, warpBtnFill);

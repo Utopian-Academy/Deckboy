@@ -950,6 +950,25 @@ struct OutputLayer {
   float w = 1.0f;
   float h = 1.0f;
   std::string blendMode = "dissolve";   // dissolve | add | multiply | screen ...
+  // -- MAPPING, ON THE LAYER ---------------------------------------------
+  //
+  // The output's warp lines a projector up with its screen. THIS one puts a
+  // layer onto a surface within that screen, which is what mapping several
+  // objects from one projector means. They compose: the layer is placed
+  // first, then the output's correction is applied over the whole raster.
+  //
+  // NORMALISED to the layer's own rect, unlike the output's pixel offsets. A
+  // layer can be moved and resized, and corner offsets in pixels would mean
+  // something different the moment it was.
+  bool warpEnabled = false;
+  float warpTopLeftX = 0.0f;
+  float warpTopLeftY = 0.0f;
+  float warpTopRightX = 0.0f;
+  float warpTopRightY = 0.0f;
+  float warpBottomRightX = 0.0f;
+  float warpBottomRightY = 0.0f;
+  float warpBottomLeftX = 0.0f;
+  float warpBottomLeftY = 0.0f;
 };
 
 struct AudioCrosspoint {

@@ -350,7 +350,12 @@
                                     // caller had just set and that silently
                                     // discarded the VJ mixer's add and
                                     // multiply while dissolve appeared to work.
-                                    SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND) {
+                                    SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND,
+                                    // The LAYER's own corner pin, when it has
+                                    // one. Null for every caller that is not
+                                    // compositing a mapped layer, which is
+                                    // all of them but one.
+                                    const OutputLayer* layerWarp = nullptr) {
     if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
       return;
     }
@@ -425,6 +430,56 @@
                                cue->meshGrid, 1.0f)) {
       SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);
       return;
+    }
+    // -- THE LAYER'S CORNER PIN ------------------------------------------
+    //
+    // Four vertices instead of a rect, so a layer can be pinned onto a
+    // surface that is not square-on to the projector. The OUTPUT's warp is
+    // applied later over the finished raster; this one is about where the
+    // content sits inside it, and the two compose.
+    //
+    // The offsets are fractions of the DESTINATION, so a pin survives the
+    // layer being moved or resized -- which is the whole reason they are not
+    // stored in pixels the way the output's are.
+    //
+    // Rotation is not applied here. A cue rotation and a corner pin are two
+    // ways of saying the same thing and composing them silently produces a
+    // quad nobody asked for; the pin wins, because it is the more specific
+    // instruction. A rotated cue on a pinned layer is warned about below.
+    if (layerWarp && layerWarp->warpEnabled) {
+      const float dx = static_cast<float>(destination.x);
+      const float dy = static_cast<float>(destination.y);
+      const float dw = static_cast<float>(destination.w);
+      const float dh = static_cast<float>(destination.h);
+      SDL_FPoint p0 {dx + layerWarp->warpTopLeftX * dw,
+                     dy + layerWarp->warpTopLeftY * dh};
+      SDL_FPoint p1 {dx + dw + layerWarp->warpTopRightX * dw,
+                     dy + layerWarp->warpTopRightY * dh};
+      SDL_FPoint p2 {dx + dw + layerWarp->warpBottomRightX * dw,
+                     dy + dh + layerWarp->warpBottomRightY * dh};
+      SDL_FPoint p3 {dx + layerWarp->warpBottomLeftX * dw,
+                     dy + dh + layerWarp->warpBottomLeftY * dh};
+      const float u0 = static_cast<float>(source.x) / static_cast<float>(textureWidth);
+      const float v0 = static_cast<float>(source.y) / static_cast<float>(textureHeight);
+      const float u1 = static_cast<float>(source.x + source.w) /
+                       static_cast<float>(textureWidth);
+      const float v1 = static_cast<float>(source.y + source.h) /
+                       static_cast<float>(textureHeight);
+      const SDL_FColor kOpaque {1.0f, 1.0f, 1.0f, 1.0f};
+      SDL_Vertex verts[4] {
+        {p0, kOpaque, SDL_FPoint {u0, v0}},
+        {p1, kOpaque, SDL_FPoint {u1, v0}},
+        {p2, kOpaque, SDL_FPoint {u1, v1}},
+        {p3, kOpaque, SDL_FPoint {u0, v1}},
+      };
+      const int indices[6] {0, 1, 2, 0, 2, 3};
+      if (SDL_RenderGeometry(renderer, texture, verts, 4, indices, 6)) {
+        SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);
+        return;
+      }
+      // Geometry can fail on a renderer that cannot do it. Falling through
+      // to the flat blit shows the picture unmapped, which is wrong but
+      // visible -- and visible beats a black layer nobody can diagnose.
     }
     SDL_Point center {destination.w / 2, destination.h / 2};
     SDL_RenderTextureRotated(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
@@ -1929,6 +1984,22 @@
     }
   }
 
+  // The layer record for a deck on an output, or null when this deck is the
+  // output's HOST rather than one of its layers. The host has no OutputLayer,
+  // so it has no corner pin of its own -- the output's own warp is its
+  // mapping, which is exactly the right split.
+  const OutputLayer* layerRecordFor(int outputIndex, int deckIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return nullptr;
+    }
+    for (const OutputLayer& layer : project_.outputs[outputIndex].layerDecks) {
+      if (layer.deckIndex == deckIndex) {
+        return &layer;
+      }
+    }
+    return nullptr;
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
@@ -1941,6 +2012,11 @@
     if (!sourceCue) {
       return;
     }
+    // Resolved once and passed to whichever of the three draw paths this
+    // frame takes -- CPU, GPU bridge or wrapped pixel buffer. Looking it up
+    // in only one of them is how a feature comes to work on one machine and
+    // not another.
+    const OutputLayer* layerWarp = layerRecordFor(outputIndex, sourceDeckIndex);
     DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
     if (!sourceRuntime || !sourceRuntime->mediaEngine) {
       return;
@@ -1994,7 +2070,7 @@
           SDL_SetTextureAlphaMod(wrapped, pbAlpha);
           renderTextureWithCueGeometry(outputRuntime->outputRenderer, wrapped,
                                        sourceFrame->width, sourceFrame->height,
-                                       sourceCue, target, pbBlend);
+                                       sourceCue, target, pbBlend, layerWarp);
           SDL_SetTextureBlendMode(wrapped, SDL_BLENDMODE_BLEND);
           SDL_SetTextureAlphaMod(wrapped, 255);
           return;
@@ -2033,7 +2109,7 @@
           SDL_SetTextureAlphaMod(gpuTexture, gpuAlpha);
           renderTextureWithCueGeometry(outputRuntime->outputRenderer, gpuTexture,
                                        sourceFrame->width, sourceFrame->height, sourceCue,
-                                       target, gpuBlend);
+                                       target, gpuBlend, layerWarp);
           SDL_SetTextureBlendMode(gpuTexture, SDL_BLENDMODE_BLEND);
           SDL_SetTextureAlphaMod(gpuTexture, 255);
           return;
@@ -2197,7 +2273,7 @@
     Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * fadeGain * 255.0f));
     SDL_SetTextureBlendMode(bridgeTexture, layerBlend);
     SDL_SetTextureAlphaMod(bridgeTexture, alpha);
-    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target, layerBlend);
+    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target, layerBlend, layerWarp);
     // Left as found: this texture is reused, and a mix must not leak into
     // whatever draws with it next.
     SDL_SetTextureBlendMode(bridgeTexture, SDL_BLENDMODE_BLEND);

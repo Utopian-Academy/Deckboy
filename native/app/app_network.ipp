@@ -103,7 +103,10 @@
       auto outputIndex = primaryOutputIndexForDeck(deckIndex);
       values.emplace_back(prefix + "/route_output", std::to_string(outputIndex ? *outputIndex + 1 : 0));
       values.emplace_back(prefix + "/layer", std::to_string(primaryLayerIndexForDeck(deckIndex)));
-      values.emplace_back(prefix + "/warp_mode", normalizeWarpMode(deck.warpMode));
+      // The output this deck feeds, for the same reason the STATUS
+      // snapshot does: warp is the screen's, not the playlist's.
+      values.emplace_back(prefix + "/warp_mode",
+                          normalizeWarpMode(warpSourceForDeck(deckIndex).warpMode));
     }
 
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {

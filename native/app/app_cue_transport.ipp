@@ -4232,7 +4232,10 @@
     markProjectDirty();
   }
 
-  void applyCopiedWarpSettings(Deck& target, const Deck& source) {
+  // COPY AND PASTE THE OUTPUT'S MAPPING, not the deck's. These took Decks
+  // and so kept working on the fields the 0.99.374 migration left behind --
+  // copy read zeroes and paste wrote them to a struct nothing renders.
+  void applyCopiedWarpSettings(OutputTarget& target, const OutputTarget& source) {
     target.warpEnabled = source.warpEnabled;
     target.warpMode = normalizeWarpMode(source.warpMode);
     target.warpTopLeftX = source.warpTopLeftX;
@@ -4247,11 +4250,12 @@
     target.edgeBlendRight = source.edgeBlendRight;
     target.edgeBlendTop = source.edgeBlendTop;
     target.edgeBlendBottom = source.edgeBlendBottom;
-    normalizeDeck(target, project_.focusedDeckIndex);
+    // No normalize call: OutputTarget's own normalisation runs from
+    // normalizeProject, and the values copied here are already valid.
   }
 
   void copyFocusedWarpSettings() {
-    warpSettingsClipboard_ = focusedDeck();
+    warpSettingsClipboard_ = focusedOutput();
     triggerToast("warp settings copied");
     playUiSound(UiSoundEffect::Navigate);
   }
@@ -4262,8 +4266,8 @@
       return;
     }
     pushUndoSnapshot();
-    Deck& deck = focusedDeckMutable();
-    applyCopiedWarpSettings(deck, *warpSettingsClipboard_);
+    OutputTarget& out = focusedOutputMutable();
+    applyCopiedWarpSettings(out, *warpSettingsClipboard_);
     triggerToast("warp settings pasted");
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
