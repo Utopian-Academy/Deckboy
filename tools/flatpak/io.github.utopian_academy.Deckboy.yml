@@ -122,6 +122,11 @@ modules:
 
   - name: deckboy
     buildsystem: cmake-ninja
+    # Deckboy has no CMake install rules; the portable Linux package copies
+    # files into place, and so does this: bin/ beside data/, found by the
+    # app walking up from its own directory. /app is read-only, so shows and
+    # settings go to the user's data directory, which is the app's fallback.
+    no-make-install: true
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DENABLE_DECKLINK=OFF
@@ -130,6 +135,10 @@ modules:
       - type: dir
         path: ../..
     post-install:
+      - install -Dm755 "$(find /run/build/deckboy -name Deckboy -type f -perm -u+x | head -1)" /app/lib/deckboy/bin/Deckboy
+      - cp -R data /app/lib/deckboy/data
+      - rm -rf /app/lib/deckboy/data/_converted /app/lib/deckboy/data/recordings /app/lib/deckboy/data/*.deckboy
+      - mkdir -p /app/bin && ln -sf ../lib/deckboy/bin/Deckboy /app/bin/deckboy
       - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml
           /app/share/metainfo/io.github.utopian_academy.Deckboy.metainfo.xml
       - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.desktop
