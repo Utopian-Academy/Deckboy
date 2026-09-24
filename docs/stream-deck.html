@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run video cues from a Stream Deck or Bitfocus Companion | Deckboy</title>
+    <meta name="description" content="A Stream Deck plugin and a Bitfocus Companion module ship with every Deckboy release: take cues, stop, pause, black out and panic from keys, with tally, transport state, output health and a countdown on the buttons. Free and open source.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/stream-deck.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Run video cues from a Stream Deck or Companion">
+    <meta property="og:description" content="Keys that take cues and buttons that answer back: tally on the live cue, output health and a countdown, from a free cue player.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/stream-deck.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/hero.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Run video cues from a Stream Deck or Companion">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/hero.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.6rem 0 .6rem; font-size: 1.22rem; color: var(--ink); }
+        .prose h3 { margin: 1.8rem 0 .5rem; font-size: 1.02rem; color: var(--ink); }
+        .prose p, .prose li { margin-bottom: 1rem; color: var(--ink-soft); max-width: 62ch; }
+        .prose ol, .prose ul { margin: 0 0 1rem 1.3rem; }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+        .prose table { border-collapse: collapse; margin: 1.2rem 0 2rem; width: 100%; }
+        .prose th, .prose td { text-align: left; padding: .55rem .7rem; font-size: .93rem; }
+        .steps { counter-reset: step; list-style: none; margin-left: 0; }
+        .steps li { position: relative; padding-left: 2.6rem; }
+        .steps li::before { counter-increment: step; content: counter(step);
+            position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem;
+            display: grid; place-items: center; border: 2px solid var(--ink-soft);
+            color: var(--ink); font-family: var(--pixel); font-size: .62rem; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Run a video cue list from a Stream Deck or Bitfocus Companion",
+      "description": "Take cues, stop, pause, black out and panic from Stream Deck keys, with tally and countdowns on the buttons through Bitfocus Companion.",
+      "tool": [{ "@type": "HowToTool", "name": "Deckboy" }],
+      "step": [
+        { "@type": "HowToStep", "name": "Stream Deck", "text": "Double-click the .streamDeckPlugin file that ships with every Deckboy release." },
+        { "@type": "HowToStep", "name": "Companion", "text": "Unzip the Companion module from the release somewhere permanent and point Companion's developer modules path at the folder containing it. Requires Companion 5." },
+        { "@type": "HowToStep", "name": "Connect", "text": "Add a Deckboy connection. The default port is 5510; turn on REMOTE in Deckboy to accept a Companion on another machine." }
+      ]
+    }
+    </script>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="trailer.html">Trailer</a>
+            <a href="compare.html">Compare</a>
+            <a href="manual.html">Manual</a>
+            <a href="faq.html">FAQ</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Video cues<br><span class="gradient-text">from a Stream Deck</span></h1>
+            <p class="hero-subtitle">Take, stop, black out and panic from the keys &mdash; and, through Bitfocus Companion, buttons that answer back with tally, output health and the time left.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <h2>Two ways in, both in every release</h2>
+        <table>
+            <tr><th></th><th>Stream Deck plugin</th><th>Bitfocus Companion module</th></tr>
+            <tr><td>Install</td><td>Double-click the <code>.streamDeckPlugin</code> file</td>
+                <td>Unzip it, then point Companion's <i>developer modules path</i> at the
+                folder containing it (Companion 5)</td></tr>
+            <tr><td>Keys</td><td>Take, Stop, Pause, Blackout, Panic and a free Command
+                key</td><td>Transport, cues by number, levels, outputs, blackout, PANIC, find,
+                and a custom command</td></tr>
+            <tr><td>Buttons that answer back</td><td>&mdash;</td><td>Tally on the live cue,
+                transport state, output health, a remaining-time countdown, and a watchdog when
+                Deckboy stops answering</td></tr>
+        </table>
+
+        <h2>Why the answering back matters</h2>
+        <p>A key that only sends a command cannot tell the operator whether the cue went live.
+        The Companion module asks Deckboy for its status several times a second, so the button
+        for the cue on air lights red, the next cue shows green, and a button can carry the
+        time left in the clip &mdash; the "wrap it up" number the stage manager wants.</p>
+
+        <h2>Setting it up</h2>
+        <ol class="steps">
+            <li><b>Download the latest release</b>. The plugin and the module are in it,
+            beside the downloads for each platform.</li>
+            <li><b>Install the one you use</b> (both work at once).</li>
+            <li><b>Connect</b> to Deckboy's control port, <code>5510</code> by default. Deckboy
+            listens only to its own machine until you turn on <b>REMOTE</b> in its network
+            settings, which is what lets a Companion on another computer in.</li>
+            <li><b>Drag in a preset</b>: transport, a now-playing button with a countdown, output
+            controls, and a cue button with tally to duplicate for each cue.</li>
+        </ol>
+
+        <h2>Without a Stream Deck</h2>
+        <p>The same control port takes plain text commands from anything that can open a TCP
+        connection, and Deckboy also answers OSC, MIDI and MIDI Show Control, and chases LTC
+        timecode. Send <code>HELP</code> to the port for the whole vocabulary.</p>
+        <p class="more"><a href="manual.html#remote-control">Manual: Remote control</a> &middot;
+        <a href="qlab-alternative.html">Coming from QLab</a></p>
+
+        <div class="cta-group" style="margin-top:2.5rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download Deckboy</a>
+            <a href="compare.html" class="btn-large btn-outline">How it compares</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-cols">
+            <div>
+                <h4>Deckboy</h4>
+                <a href="./">What it does</a>
+                <a href="trailer.html">The trailer</a>
+                <a href="compare.html">How it compares</a>
+                <a href="qlab-alternative.html">Coming from QLab</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">Download</a>
+            </div>
+            <div>
+                <h4>Using it</h4>
+                <a href="manual.html">Manual</a>
+                <a href="faq.html">FAQ</a>
+                <a href="slides.html">Slides &amp; presenting</a>
+                <a href="window-cues.html">Window &amp; browser cues</a>
+                <a href="ndi.html">NDI in and out</a>
+                <a href="stream-deck.html">Stream Deck &amp; Companion</a>
+                <a href="latency.html">Where latency hides</a>
+            </div>
+            <div>
+                <h4>Tools</h4>
+                <a href="test-patterns.html">Test patterns</a>
+                <a href="led-wall.html">LED pattern generator</a>
+                <a href="led-calculator.html">LED calculator</a>
+                <a href="screen-check.html">Screen check</a>
+                <a href="databend.html">Databend</a>
+            </div>
+            <div>
+                <h4>Guides</h4>
+                <a href="shooting-led.html">Shooting an LED wall</a>
+                <a href="press.html">Press kit</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy">Source on GitHub</a>
+            </div>
+        </div>
+        <p class="footer-note">Built as an open-source project by Utopian-Academy.
+        Free under the GPL-3.0.</p>
+    </footer>
+</body>
+</html>
