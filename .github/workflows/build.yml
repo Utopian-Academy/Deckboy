@@ -193,6 +193,13 @@ jobs:
       - name: Nothing published gives away a secret
         run: python3 tools/audit_spoilers.py
 
+      # And the other way that file can embarrass a release. The v0.99.374
+      # section was nearly published opening on "reported the new work as
+      # broadly broken", because it had been used as a working log through the
+      # day and then a release was cut from it.
+      - name: Release notes say what the release does
+        run: python3 tools/audit_release_tone.py
+
       # HELP is the only description of the remote protocol anybody sees. It
       # has advertised verbs that answer "unknown command", and hidden twelve
       # working ones that could only be found by reading the source.
