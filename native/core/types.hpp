@@ -1710,6 +1710,19 @@ struct OutputTarget {
   // The Deck fields remain as the landing pad for shows saved before this;
   // normalizeProjectOutputsAndLayers lifts them onto the host's output once
   // and clears them. Nothing else reads them.
+  // -- THE CROSSFADER ---------------------------------------------------
+  //
+  // Between two entries of THIS output's stack: 0 is the base, 1..N are
+  // the layers over it. Off by default, so an output composites its stack
+  // exactly as it always has.
+  //
+  // The blend is the LAYER's own, not a second setting -- a crossfader
+  // that carried its own blend mode would disagree with the layer it is
+  // fading, and one of them would have to win silently.
+  bool crossfadeEnabled = false;
+  int crossfadeFrom = 0;          // stack index faded OUT of
+  int crossfadeTo = 1;            // stack index faded IN to
+  double crossfadeMix = 0.0;      // 0 = all FROM, 1 = all TO
   bool warpEnabled = false;
   std::string warpMode = "linear";
   float warpTopLeftX = 0.0f;

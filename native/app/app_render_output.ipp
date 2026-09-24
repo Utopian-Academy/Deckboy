@@ -575,6 +575,54 @@
   // over black: holding A at full until B covered it would be a wipe, not a
   // dissolve. Add and multiply are ways of COMBINING two pictures, so there
   // the base stays at full and only the incoming deck rides the fader.
+  // THE CROSSFADER, as the compositor sees it: what to multiply a stack
+  // entry's opacity by, and what to blend it with.
+  //
+  // Takes the STACK POSITION rather than a deck, because an output's
+  // crossfader is about its own layers -- the same playlist can sit on two
+  // outputs and be faded on one of them only. vjLayerGain could not express
+  // that: it knew about decks and about one output.
+  double outputCrossfadeGain(int outputIndex, int stackIndex,
+                             SDL_BlendMode& blendOut) const {
+    blendOut = SDL_BLENDMODE_BLEND;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return 1.0;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.crossfadeEnabled) {
+      return 1.0;
+    }
+    const int stackSize = static_cast<int>(output.layerDecks.size()) + 1;
+    const int from = std::clamp(output.crossfadeFrom, 0, stackSize - 1);
+    const int to = std::clamp(output.crossfadeTo, 0, stackSize - 1);
+    if (from == to) {
+      return 1.0;   // a crossfader with one end is not a crossfader
+    }
+    const double mix = std::clamp(output.crossfadeMix, 0.0, 1.0);
+    // The blend belongs to the layer being faded IN. Index 0 is the base,
+    // which has no OutputLayer record and therefore no blend of its own.
+    std::string mode = "dissolve";
+    if (to > 0 && to - 1 < static_cast<int>(output.layerDecks.size())) {
+      const std::string& layerMode = output.layerDecks[to - 1].blendMode;
+      if (!layerMode.empty()) {
+        mode = layerMode;
+      }
+    }
+    // ONLY DISSOLVE FADES THE OUTGOING SIDE. Every other mode leaves it at
+    // full and brings the incoming one in over it, which is what makes add
+    // and multiply look like themselves rather than like a crossfade
+    // wearing a costume. Carried over from VJ mode intact.
+    const bool dissolve = mode == "dissolve";
+    if (stackIndex == to) {
+      blendOut = vjBlendModeFor(mode);
+      return mix;
+    }
+    if (stackIndex == from) {
+      return dissolve ? (1.0 - mix) : 1.0;
+    }
+    return 1.0;
+  }
+
   double vjLayerGain(int deckIndex, SDL_BlendMode& blendOut) const {
     blendOut = SDL_BLENDMODE_BLEND;
     if (!project_.vjModeEnabled || project_.decks.size() < 2) {
@@ -1988,6 +2036,25 @@
   // output's HOST rather than one of its layers. The host has no OutputLayer,
   // so it has no corner pin of its own -- the output's own warp is its
   // mapping, which is exactly the right split.
+  // 0 is the base, 1..N are the layers over it -- the same numbering the
+  // crossfader and the routing menu use. -1 when this deck is not on that
+  // output at all, which a crossfader must treat as neither of its ends.
+  int stackPositionFor(int outputIndex, int deckIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return -1;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (output.hostDeckIndex == deckIndex) {
+      return 0;
+    }
+    for (std::size_t i = 0; i < output.layerDecks.size(); ++i) {
+      if (output.layerDecks[i].deckIndex == deckIndex) {
+        return static_cast<int>(i) + 1;
+      }
+    }
+    return -1;
+  }
+
   const OutputLayer* layerRecordFor(int outputIndex, int deckIndex) const {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return nullptr;
@@ -2025,9 +2092,14 @@
     // frame takes -- CPU, GPU bridge or wrapped pixel buffer. Looking it up
     // in only one of them is how a feature comes to work on one machine and
     // not another.
-    const OutputLayer* layerWarp = layerRecordFor(
-      layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex,
-      sourceDeckIndex);
+    const int stackOutputIndex =
+      layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex;
+    const OutputLayer* layerWarp = layerRecordFor(stackOutputIndex, sourceDeckIndex);
+    // WHERE THIS DECK SITS IN THAT OUTPUT'S STACK, which is what the
+    // crossfader works on. Taken from the COMPOSITION output for the same
+    // reason the corner pin is: a mirroring destination draws the source
+    // output's stack, so it must fade by the source output's crossfader.
+    const int stackIndex = stackPositionFor(stackOutputIndex, sourceDeckIndex);
     DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
     if (!sourceRuntime || !sourceRuntime->mediaEngine) {
       return;
@@ -2075,7 +2147,8 @@
           float pbOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
           const float pbFade = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
           SDL_BlendMode pbBlend = SDL_BLENDMODE_BLEND;
-          pbOpacity *= static_cast<float>(vjLayerGain(sourceDeckIndex, pbBlend));
+          pbOpacity *= static_cast<float>(
+            outputCrossfadeGain(stackOutputIndex, stackIndex, pbBlend));
           const Uint8 pbAlpha = static_cast<Uint8>(std::lround(pbOpacity * pbFade * 255.0f));
           SDL_SetTextureBlendMode(wrapped, pbBlend);
           SDL_SetTextureAlphaMod(wrapped, pbAlpha);
@@ -2114,7 +2187,8 @@
           // dissolve appeared to work because both decks happened to inherit
           // the same wrong alpha, and add and multiply did nothing at all.
           SDL_BlendMode gpuBlend = SDL_BLENDMODE_BLEND;
-          gpuDeckOpacity *= static_cast<float>(vjLayerGain(sourceDeckIndex, gpuBlend));
+          gpuDeckOpacity *= static_cast<float>(
+            outputCrossfadeGain(stackOutputIndex, stackIndex, gpuBlend));
           Uint8 gpuAlpha = static_cast<Uint8>(std::lround(gpuDeckOpacity * gpuFadeGain * 255.0f));
           SDL_SetTextureBlendMode(gpuTexture, gpuBlend);
           SDL_SetTextureAlphaMod(gpuTexture, gpuAlpha);
@@ -2280,7 +2354,8 @@
     // Outside VJ mode the multiplier is 1 and every existing show renders
     // exactly as before, through the same call.
     SDL_BlendMode layerBlend = SDL_BLENDMODE_BLEND;
-    deckOpacity *= static_cast<float>(vjLayerGain(sourceDeckIndex, layerBlend));
+    deckOpacity *= static_cast<float>(
+      outputCrossfadeGain(stackOutputIndex, stackIndex, layerBlend));
     Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * fadeGain * 255.0f));
     SDL_SetTextureBlendMode(bridgeTexture, layerBlend);
     SDL_SetTextureAlphaMod(bridgeTexture, alpha);

@@ -2872,6 +2872,43 @@ void normalizeProjectOutputsAndLayers(Project& project) {
       }
     }
     output.warpMode = normalizeWarpMode(output.warpMode);
+
+    // -- VJ MODE BECOMES THIS OUTPUT'S CROSSFADER -----------------------
+    //
+    // VJ mode was a global that claimed the programme output and replaced
+    // whatever stack it had with an A/B pair. That is the layer stack again,
+    // in a weaker form: one output, exactly two decks, and every other
+    // routing decision silently discarded while it was on.
+    //
+    // So it migrates, the way warp did. The programme output gets deck A as
+    // its base and deck B as a layer over it carrying VJ's blend mode, and
+    // the crossfader takes the mix position. Then the old fields are CLEARED
+    // -- warp's migration left its originals in place and half the interface
+    // went on reading them for two releases.
+    if (project.vjModeEnabled && project.decks.size() > 1 &&
+        i == 0 && !output.crossfadeEnabled) {
+      // deckCount is already in scope from the top of this function.
+      const int deckA = std::clamp(project.vjDeckA, 0, deckCount - 1);
+      const int deckB = std::clamp(project.vjDeckB, 0, deckCount - 1);
+      if (deckA != deckB) {
+        output.hostDeckIndex = deckA;
+        // B goes on top, keeping whatever blend the crossfader was using.
+        OutputLayer over;
+        over.deckIndex = deckB;
+        over.blendMode = project.vjBlendMode.empty() ? std::string("dissolve")
+                                                     : project.vjBlendMode;
+        output.layerDecks.clear();
+        output.layerDecks.push_back(over);
+        output.crossfadeEnabled = true;
+        output.crossfadeFrom = 0;   // the base, which is deck A
+        output.crossfadeTo = 1;     // the layer, which is deck B
+        output.crossfadeMix = std::clamp(project.vjMixPosition, 0.0, 1.0);
+      }
+      // vjModeEnabled STAYS: it is the operator's switch for showing the
+      // A/B previews and the fader bar, and it is already wired to a
+      // settings button and a verb. Only the DATA moved onto the output.
+      project.vjMixPosition = 0.0;   // migrated onto the output above
+    }
     // SUPER DECKBOY'S LAYER STACK, cleaned once here so nothing downstream
     // has to. A deck that no longer exists, or the host repeated above
     // itself, would each composite the same picture twice at a cost and to

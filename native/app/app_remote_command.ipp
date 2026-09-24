@@ -620,6 +620,106 @@
       failRemoteCommand("MONITOR: expected DEVICE, DECK or ROOM");
       return;
     }
+    // NO XFADE ALIAS. XFADE has meant TRANSITION -- the cue transition
+    // TIME -- for as long as that verb has existed, and this branch
+    // sits earlier in the dispatcher, so claiming it would have taken
+    // the name from every script already using it without a word.
+    // audit_remote_help caught it; it is the second time this release
+    // that a new verb reached for a name that was already spoken for.
+    if (command == "CROSSFADE") {
+      // CROSSFADE                      -> what the focused output is doing
+      // CROSSFADE OFF                  -> no fade; the stack composites plain
+      // CROSSFADE <0-100>              -> the position, arming it if needed
+      // CROSSFADE <from> <to> [<0-100>]-> which two stack entries, 1 = base
+      //
+      // Stack positions are spoken 1-based, the way the routing menu and the
+      // layer verb number them, and stored 0-based.
+      //
+      // THIS IS WHAT VJ MODE BECAME. It was a global that claimed the
+      // programme output and knew about exactly two decks; an output can now
+      // fade between any two entries of its own stack, and the blend comes
+      // from the layer rather than from a second setting that could disagree
+      // with it.
+      if (project_.outputs.empty()) {
+        failRemoteCommand("CROSSFADE: there are no outputs");
+        return;
+      }
+      OutputTarget& out = focusedOutputMutable();
+      const int stackSize = static_cast<int>(out.layerDecks.size()) + 1;
+      if (parts.size() <= 1) {
+        if (!out.crossfadeEnabled) {
+          remoteCommandDetail_ = "off";
+          return;
+        }
+        remoteCommandDetail_ =
+          std::to_string(out.crossfadeFrom + 1) + " -> " +
+          std::to_string(out.crossfadeTo + 1) + " at " +
+          std::to_string(static_cast<int>(std::lround(out.crossfadeMix * 100.0))) + "%";
+        return;
+      }
+      const std::string first = toUpper(parts[1]);
+      if (first == "OFF" || first == "NONE") {
+        out.crossfadeEnabled = false;
+        markProjectDirty();
+        remoteCommandDetail_ = "off";
+        return;
+      }
+      // A CROSSFADER NEEDS SOMETHING TO FADE BETWEEN. An output with only a
+      // base has one picture, and a fader on it would be a control that
+      // cannot do anything.
+      if (stackSize < 2) {
+        failRemoteCommand("CROSSFADE: " + outputLabel(project_.focusedOutputIndex) +
+                          " has only a base; assign a playlist as a layer first");
+        return;
+      }
+      auto position = [&](std::size_t index) -> std::optional<double> {
+        return parseNumber(static_cast<int>(index));
+      };
+      if (parts.size() == 2) {
+        auto value = position(1);
+        if (!value) {
+          failRemoteCommand("CROSSFADE: expected OFF, a percent, or two stack "
+                            "positions");
+          return;
+        }
+        out.crossfadeMix = std::clamp(*value / 100.0, 0.0, 1.0);
+        out.crossfadeEnabled = true;
+        markProjectDirty();
+        remoteCommandDetail_ =
+          std::to_string(static_cast<int>(std::lround(out.crossfadeMix * 100.0))) + "%";
+        return;
+      }
+      auto fromValue = position(1);
+      auto toValue = position(2);
+      if (!fromValue || !toValue) {
+        failRemoteCommand("CROSSFADE: expected two stack positions (1 is the base)");
+        return;
+      }
+      const int from = static_cast<int>(std::lround(*fromValue)) - 1;
+      const int to = static_cast<int>(std::lround(*toValue)) - 1;
+      if (from < 0 || from >= stackSize || to < 0 || to >= stackSize) {
+        failRemoteCommand("CROSSFADE: this output has " + std::to_string(stackSize) +
+                          " stack positions");
+        return;
+      }
+      if (from == to) {
+        failRemoteCommand("CROSSFADE: a fader needs two different positions");
+        return;
+      }
+      out.crossfadeFrom = from;
+      out.crossfadeTo = to;
+      out.crossfadeEnabled = true;
+      if (parts.size() > 3) {
+        if (auto mix = position(3)) {
+          out.crossfadeMix = std::clamp(*mix / 100.0, 0.0, 1.0);
+        }
+      }
+      markProjectDirty();
+      remoteCommandDetail_ =
+        std::to_string(from + 1) + " -> " + std::to_string(to + 1) + " at " +
+        std::to_string(static_cast<int>(std::lround(out.crossfadeMix * 100.0))) + "%";
+      return;
+    }
     if (command == "MULTIVIEW" || command == "MULTI") {
       // MULTIVIEW [ON|OFF|TOGGLE] -- the programme and every playlist in a
       // grid where the single monitor usually is.

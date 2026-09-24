@@ -458,6 +458,13 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << outputTarget.edgeBlendRight
       << '\t' << outputTarget.edgeBlendTop
       << '\t' << outputTarget.edgeBlendBottom
+      // The crossfader, appended at the END of the record. An output written
+      // before it comes back with the fader off, which is what every show
+      // that has never used one already does.
+      << '\t' << (outputTarget.crossfadeEnabled ? 1 : 0)
+      << '\t' << outputTarget.crossfadeFrom
+      << '\t' << outputTarget.crossfadeTo
+      << '\t' << outputTarget.crossfadeMix
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1346,6 +1353,12 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                             outputTarget.edgeBlendRight   = static_cast<float>(safeDouble(fields, 89, 0.0));
                             outputTarget.edgeBlendTop     = static_cast<float>(safeDouble(fields, 90, 0.0));
                             outputTarget.edgeBlendBottom  = static_cast<float>(safeDouble(fields, 91, 0.0));
+                            if (fields.size() >= 96) {
+                              outputTarget.crossfadeEnabled = safeBool(fields, 92, false);
+                              outputTarget.crossfadeFrom    = safeInt(fields, 93, 0);
+                              outputTarget.crossfadeTo      = safeInt(fields, 94, 1);
+                              outputTarget.crossfadeMix     = safeDouble(fields, 95, 0.0);
+                            }
                           }
                         }
                       }

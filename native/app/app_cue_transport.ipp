@@ -4048,7 +4048,17 @@
   }
 
   void setVjMix(double position) {
-    project_.vjMixPosition = std::clamp(position, 0.0, 1.0);
+    // THE OUTPUT'S FADER, not the old global. The widget is unchanged --
+    // this is the one place that decides what it is moving.
+    if (!project_.outputs.empty()) {
+      OutputTarget& out = focusedOutputMutable();
+      out.crossfadeMix = std::clamp(position, 0.0, 1.0);
+      // Armed on first move, so dragging it does something rather than
+      // storing a number nothing composites.
+      if (!out.layerDecks.empty()) {
+        out.crossfadeEnabled = true;
+      }
+    }
     markProjectDirty();
   }
 

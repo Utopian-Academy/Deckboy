@@ -447,7 +447,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (315)\n"
+        "DECKBOY_0.01 every verb (316)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -456,7 +456,7 @@
         "MESH MESH3D\n"
         "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROKEN BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
-        "COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
+        "CROSSFADE COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
         "DISARM DMXCUE FADE FADECUE MATRIX AUDIOALSO MIDICUE MIDIFILE MULTI MULTIVIEW NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TEXTCUE TIMECODECUE\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
         "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD DECKDEL\n"
@@ -552,6 +552,8 @@
         "        MONITOR DEVICE [<name>] - listen here; no name turns it off\n"
         "        MONITOR DECK <n>|FOLLOW - which playlist you hear\n"
         "        MONITOR ROOM <n> ON|OFF - whether that playlist reaches its own device\n"
+        "crossfade: CROSSFADE [OFF | <0-100> | <from> <to> [<0-100>]] - fade between two\n"
+        "        entries of the focused output's stack (1 is the base)\n"
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"
         "        VIDEO OUTPUT LAYERWARP [OFF | <8 corner fractions>] - map a layer onto a surface\n"
         "        - which playlists composite onto the focused output, and in what order\n"

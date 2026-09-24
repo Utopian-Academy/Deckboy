@@ -1597,7 +1597,7 @@
       vjCrossfaderRect_ = SDL_Rect {cx, rowY, faderW, rowH};
       drawUIPanel(vjCrossfaderRect_, pal.tile, pal.deep, pal.mid);
       {
-        const double mix = std::clamp(project_.vjMixPosition, 0.0, 1.0);
+        const double mix = std::clamp(focusedOutput().crossfadeMix, 0.0, 1.0);
         // Fill from the left so the bar reads as "how much B", and a handle so
         // the exact position is visible at a glance from across a room.
         SDL_Rect fill {vjCrossfaderRect_.x + 2, vjCrossfaderRect_.y + 2,
@@ -2780,7 +2780,7 @@
       const int decks[2] = {std::clamp(project_.vjDeckA, 0, deckCount - 1),
                             std::clamp(project_.vjDeckB, 0, deckCount - 1)};
       const SDL_Rect rects[2] = {vjPreviewRectA_, vjPreviewRectB_};
-      const double mix = std::clamp(project_.vjMixPosition, 0.0, 1.0);
+      const double mix = std::clamp(focusedOutput().crossfadeMix, 0.0, 1.0);
       for (int side = 0; side < 2; ++side) {
         const SDL_Rect& box = rects[side];
         // The one the audience is mostly seeing is edged, so a glance says

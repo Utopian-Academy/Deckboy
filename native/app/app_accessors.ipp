@@ -796,33 +796,18 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return entries;
     }
-    // ── VJ MODE IS ONE OUTPUT'S CROSSFADER, NOT THE WHOLE SHOW'S ──────
+    // THE CROSSFADER IS NOT DECIDED HERE ANY MORE.
     //
-    // Two decks, A under B, and the crossfader decides how much of B you see.
+    // VJ mode used to replace this output's whole stack with an A/B pair
+    // whenever its global flag was on, discarding the routing every other
+    // output had been given. It is now a property of the output itself
+    // (OutputTarget::crossfadeEnabled) and is applied when the stack is
+    // COMPOSITED rather than when it is chosen -- so what follows is the
+    // whole answer, and a fade can change how much of a layer you see but
+    // never which layers an output has.
     //
-    // IT USED TO CLAIM EVERY OUTPUT. This branch tested only "is VJ mode on",
-    // so with it enabled every output in the show composited the A/B pair and
-    // each output's own layer stack was silently discarded -- a clean feed and
-    // a feed with a bug would both become the crossfade, with nothing on
-    // screen to say why. Harmless when the stack did not exist; not harmless
-    // now that it does.
-    //
-    // So it applies to the output VJ mode is FOR, which is the programme --
-    // the first window output, the one an audience is looking at. Every other
-    // destination keeps the routing it was given.
-    const bool vjOwnsThisOutput =
-      project_.vjModeEnabled && project_.decks.size() > 1 &&
-      outputIndex == std::max(0, primaryProgrammeOutputIndex(-1));
-    if (vjOwnsThisOutput) {
-      const int deckCount = static_cast<int>(project_.decks.size());
-      const int deckA = std::clamp(project_.vjDeckA, 0, deckCount - 1);
-      const int deckB = std::clamp(project_.vjDeckB, 0, deckCount - 1);
-      entries.emplace_back(0, deckA);
-      if (deckB != deckA) {
-        entries.emplace_back(1, deckB);
-      }
-      return entries;
-    }
+    // normalizeProjectOutputsAndLayers migrates an old show's VJ settings
+    // onto that crossfader on load, so no show has to be rebuilt.
     // EVERY OUTPUT SHOWS THE DECK IT IS HOSTED BY.
     //
     // This said `entries.emplace_back(0, 0)` -- deck 0, always, whatever the
