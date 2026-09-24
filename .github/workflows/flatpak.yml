@@ -11,6 +11,14 @@ on:
       - '.github/workflows/flatpak.yml'
 jobs:
   flatpak:
+    strategy:
+      fail-fast: false
+      matrix:
+        # The checkout build, and the exact manifest submitted to Flathub,
+        # which builds the tagged release from GitHub.
+        manifest:
+          - tools/flatpak/io.github.utopian_academy.Deckboy.yml
+          - tools/flatpak/flathub/io.github.utopian_academy.Deckboy.yml
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
@@ -20,8 +28,8 @@ jobs:
       - uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
         with:
           bundle: deckboy.flatpak
-          manifest-path: tools/flatpak/io.github.utopian_academy.Deckboy.yml
-          cache-key: flatpak-builder-${{ github.sha }}
+          manifest-path: ${{ matrix.manifest }}
+          cache-key: flatpak-builder-${{ strategy.job-index }}-${{ github.sha }}
       # A package that builds is not a package that runs: install the bundle
       # and ask Deckboy about itself, from inside the sandbox.
       - name: The bundle installs and runs
@@ -35,5 +43,5 @@ jobs:
         run: |
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user -y --noninteractive flathub org.flatpak.Builder
-          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest tools/flatpak/io.github.utopian_academy.Deckboy.yml || true
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest ${{ matrix.manifest }} || true
           flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml || true
