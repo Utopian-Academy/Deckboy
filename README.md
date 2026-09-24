@@ -86,6 +86,19 @@ Companion's *developer modules path* at the folder containing it;
 
 → **[Latest release](https://github.com/Utopian-Academy/Deckboy/releases/latest)**
 
+Or from a package manager, which follows each new release:
+
+```powershell
+# Windows (Scoop)
+scoop bucket add deckboy https://github.com/Utopian-Academy/scoop-deckboy
+scoop install deckboy/deckboy
+```
+
+```sh
+# macOS (Homebrew)
+brew install --cask utopian-academy/deckboy/deckboy
+```
+
 <details>
 <summary><b>"Unknown developer" warnings — what to do</b></summary>
 
