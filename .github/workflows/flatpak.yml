@@ -44,6 +44,11 @@ jobs:
           flatpak run --command=deckboy io.github.utopian_academy.Deckboy --version
           xvfb-run -a flatpak run --command=deckboy io.github.utopian_academy.Deckboy --self-check | tee self-check.txt
           grep -q "ndi-sdk: headers detected" self-check.txt
+          # The interface's icons and splash art are decoded by running the
+          # ffprobe and ffmpeg binaries, which only exist in here because the
+          # manifest builds them. Without them every picture in the interface
+          # goes blank and the app otherwise looks healthy.
+          flatpak run --command=deckboy io.github.utopian_academy.Deckboy --image-check
       - name: Flathub's linter, on the manifest and the metainfo
         run: |
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
