@@ -1,5 +1,32 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-24 - v0.99.376 (Projection mapping end to end, and a monitor of your own)
+
+**Mapping belongs to the layer as well as the output.** The output's warp lines
+a projector up with the screen it is pointed at; a layer's own corner pin puts
+that playlist onto a surface within it. Together they map several objects from
+one projector. A layer's corners are held relative to the layer, so a pin
+survives the layer being moved or resized.
+
+**The mapping controls, end to end.** Warp corner dragging, RESET, presets,
+copy and paste, the edge-blend controls, the WARP button's own lit state, the
+WARP and BLEND replies over the network, and what Deckboy tells a control
+surface about mapping all act on the output the picture lands on -- the same
+place the compositor reads, so what you adjust is what you see.
+
+**A monitor of your own.** Choose a device and hear one playlist on it, by
+itself, while the room hears the show. It follows the playlist you are working
+on, or pin it to one. Switching is instant: nothing is reopened, so it never
+clicks. A named monitor device that is not present stays silent and says so
+rather than falling back to the room.
+
+**And a playlist can stay out of the room.** A playlist feeding a second screen
+can be taken out of the PA while remaining on your monitor. Both switches are
+in the playlist's routing menu, with the monitor device in Settings > Audio.
+
+**For scripting:** `MONITOR` reads and sets all of it, and reports what the
+audio engines are actually doing rather than what was asked for.
+
 ## 2026-09-24 - v0.99.375 (A multiview you arrange yourself, and a window by the hearth)
 
 **The multiview is a set of windows you lay out.** It used to be one window
