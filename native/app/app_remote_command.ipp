@@ -513,6 +513,113 @@
       failRemoteCommand("AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR");
       return;
     }
+    if (command == "MONITOR") {
+      // MONITOR                      -> the device, the playlist, the room
+      // MONITOR DEVICE [<name>]      -> listen here ("" turns the monitor off)
+      // MONITOR DECK <n>|FOLLOW      -> which playlist you hear
+      // MONITOR ROOM <n> ON|OFF      -> whether playlist n reaches its device
+      //
+      // Two separate things on purpose. Playing several videos at once put
+      // every playlist onto the same default device with no way to hear one
+      // by itself and no way to keep one out of the PA; the monitor answers
+      // the first and ROOM answers the second.
+      if (parts.size() == 1) {
+        std::string detail = project_.monitorDeviceName.empty()
+          ? std::string("no monitor device")
+          : ("on " + project_.monitorDeviceName);
+        // READ THE ENGINES, not the project. The project says what was asked
+        // for; the engine gates are what the audio thread actually obeys, and
+        // a report built from the intent would agree with itself even if
+        // applyAudioMonitorSelection had never run. That is the difference
+        // between a check that measures and one that restates its own input.
+        std::string audible;
+        std::string muted;
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          const DeckRuntime* runtime = runtimeForDeck(d);
+          if (!runtime || !runtime->mediaEngine) {
+            continue;
+          }
+          if (!runtime->mediaEngine->monitorMuted()) {
+            if (!audible.empty()) audible += ", ";
+            audible += deckLabel(d);
+          }
+          if (runtime->mediaEngine->mainDeviceMuted()) {
+            if (!muted.empty()) muted += ", ";
+            muted += deckLabel(d);
+          }
+        }
+        detail += "; hearing " + (audible.empty() ? std::string("nothing") : audible);
+        detail += project_.monitorDeckIndex < 0 ? " (follows focus)" : " (pinned)";
+        detail += "; out of the room: " + (muted.empty() ? std::string("none") : muted);
+        remoteCommandDetail_ = detail;
+        return;
+      }
+      const std::string sub = toUpper(parts[1]);
+      if (sub == "DEVICE") {
+        // An empty name is a real answer: it turns the monitor off.
+        std::string wanted;
+        for (std::size_t i = 2; i < parts.size(); ++i) {
+          if (!wanted.empty()) wanted += " ";
+          wanted += parts[i];
+        }
+        project_.monitorDeviceName = wanted;
+        markProjectDirty();
+        // The device really has to be opened, so this one DOES reopen -- it
+        // is the only part of the monitor that touches hardware.
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          reopenDeckAudioOutput(d, project_.decks[d].audioOutputDeviceName);
+        }
+        applyAudioMonitorSelection();
+        remoteCommandDetail_ = wanted.empty() ? "monitor off" : ("monitor on " + wanted);
+        return;
+      }
+      if (sub == "DECK" || sub == "PLAYLIST") {
+        if (parts.size() < 3) {
+          failRemoteCommand("MONITOR DECK: expected a playlist number or FOLLOW");
+          return;
+        }
+        const std::string which = toUpper(parts[2]);
+        if (which == "FOLLOW" || which == "FOCUS" || which == "AUTO") {
+          project_.monitorDeckIndex = -1;
+        } else {
+          auto parsed = parseDeckReferenceToken(parts[2]);
+          if (!parsed) {
+            failRemoteCommand("MONITOR DECK: no such playlist '" + parts[2] + "'");
+            return;
+          }
+          project_.monitorDeckIndex = *parsed;
+        }
+        markProjectDirty();
+        applyAudioMonitorSelection();
+        remoteCommandDetail_ = "hearing " + deckLabel(monitoredDeckIndex()) +
+                               (project_.monitorDeckIndex < 0 ? " (follows focus)" : "");
+        return;
+      }
+      if (sub == "ROOM" || sub == "PROGRAM" || sub == "PROGRAMME") {
+        if (parts.size() < 4) {
+          failRemoteCommand("MONITOR ROOM: expected a playlist and ON or OFF");
+          return;
+        }
+        auto parsed = parseDeckReferenceToken(parts[2]);
+        if (!parsed) {
+          failRemoteCommand("MONITOR ROOM: no such playlist '" + parts[2] + "'");
+          return;
+        }
+        const std::string state = toUpper(parts[3]);
+        if (state != "ON" && state != "OFF") {
+          failRemoteCommand("MONITOR ROOM: expected ON or OFF");
+          return;
+        }
+        project_.decks[*parsed].audioToProgram = (state == "ON");
+        markProjectDirty();
+        applyAudioMonitorSelection();
+        remoteCommandDetail_ = deckLabel(*parsed) +
+          (state == "ON" ? " reaches the room" : " is out of the room");
+        return;
+      }
+      failRemoteCommand("MONITOR: expected DEVICE, DECK or ROOM");
+      return;
+    }
     if (command == "MULTIVIEW" || command == "MULTI") {
       // MULTIVIEW [ON|OFF|TOGGLE] -- the programme and every playlist in a
       // grid where the single monitor usually is.

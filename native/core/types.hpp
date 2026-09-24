@@ -1377,6 +1377,11 @@ struct Deck {
   // file can carry and a device index is not. A name that is absent at open
   // is reported and skipped, never silently swapped for something else.
   std::vector<std::string> extraAudioDeviceNames;
+  // Whether this playlist's sound reaches its OWN device -- the room.
+  // True for every show that has ever been saved, because that is what
+  // every deck did. Turn it off for a playlist that feeds a second screen
+  // and should not also be in the PA; it stays audible on the monitor.
+  bool audioToProgram = true;
   // Channels to open the deck's audio device with (2/4/6/8). Cues route
   // their stereo onto a pair of these outs (Cue::audioOutputPair). When the
   // physical device has fewer channels, SDL folds the extra pairs down.
@@ -1969,6 +1974,20 @@ struct Project {
   // that is how it is useful: safe areas on the one feeding a screen with
   // bezels, a meter on the one carrying the sound.
   std::vector<MultiviewTile> multiviewTiles;
+  // -- THE MONITOR ------------------------------------------------------
+  //
+  // The device you listen on, and which playlist you hear on it. Empty
+  // device means there is no monitor at all, which is what every show
+  // before this had.
+  //
+  // The device is a NAME and it is the REQUEST, the same contract every
+  // other device in the show follows: if it is not there when the show
+  // opens it is reported, never silently swapped for whatever enumerated
+  // first, and never written back over what the operator asked for.
+  std::string monitorDeviceName;
+  // -1 = follow the focused playlist, which is what an operator flicking
+  // through a show wants. Otherwise the playlist is pinned.
+  int monitorDeckIndex = -1;
   bool creaturesEnabled = true;
   // Whether they stay out while an output is live. Off by default: during a
   // show the only thing moving on this machine should be the show. On for

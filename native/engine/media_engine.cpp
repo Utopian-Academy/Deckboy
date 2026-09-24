@@ -7051,7 +7051,19 @@ void MediaEngine::queueToDevices(const void* data, int bytes) {
   if (!data || bytes <= 0) {
     return;
   }
-  SDL_PutAudioStreamData(audioStream_, data, bytes);
+  // THE ROOM. Gated, so a playlist that feeds a second screen can be taken
+  // out of the PA -- before this every deck defaulted to the system default
+  // device and they all arrived together, whatever their picture was doing.
+  if (!mainDeviceMuted_.load(std::memory_order_relaxed)) {
+    SDL_PutAudioStreamData(audioStream_, data, bytes);
+  }
+  // THE MONITOR. Open on every deck, written by one -- so choosing which
+  // playlist you are listening to costs a store, not a device reopen.
+  if (SDL_AudioStream* monitor = monitorStream_.load(std::memory_order_relaxed)) {
+    if (!monitorMuted_.load(std::memory_order_relaxed)) {
+      SDL_PutAudioStreamData(monitor, data, bytes);
+    }
+  }
   for (auto& slot : extraAudioStreams_) {
     if (SDL_AudioStream* extra = slot.load(std::memory_order_relaxed)) {
       SDL_PutAudioStreamData(extra, data, bytes);

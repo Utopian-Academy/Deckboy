@@ -1166,6 +1166,13 @@
       SDL_DestroyAudioStream(runtime.audioStream);
       runtime.audioStream = nullptr;
     }
+    // The monitor is opened per deck, so it is closed per deck. Adding a
+    // playlist rebuilds every runtime, so a miss here leaks one audio device
+    // per deck per rebuild rather than once.
+    if (runtime.monitorAudioStream) {
+      SDL_DestroyAudioStream(runtime.monitorAudioStream);
+      runtime.monitorAudioStream = nullptr;
+    }
     if (runtime.outputRenderer) {
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
@@ -4725,6 +4732,34 @@
       newExtras.push_back(extra);
     }
     runtime->extraAudioStreams = newExtras;
+
+    // -- AND THE MONITOR ------------------------------------------------
+    //
+    // Opened for EVERY deck, not just the one being listened to, so that
+    // choosing a different playlist to monitor is a store rather than a
+    // device reopen. Reopening would click, and with the monitor following
+    // the focused playlist it would click on every arrow key.
+    //
+    // Named or nothing, like the extras: a monitor that quietly fell back to
+    // the system default would put the thing you are auditioning into the
+    // room, which is the exact opposite of what a monitor is for.
+    // HANDED OVER, NOT FREED HERE. The old stream is kept until after the
+    // engine has been given the new one, exactly as oldExtras is: the audio
+    // thread may be part way through a write to it, and freeing it while the
+    // engine still points at it is a write to freed memory.
+    SDL_AudioStream* oldMonitor = runtime->monitorAudioStream;
+    runtime->monitorAudioStream = nullptr;
+    const std::string monitorWanted = trim(project_.monitorDeviceName);
+    if (!monitorWanted.empty() && monitorWanted != effectiveName) {
+      std::string monitorGot;
+      SDL_AudioStream* monitor =
+        openMainAudioDevice(monitorWanted, monitorGot, deck.audioOutputChannels);
+      if (monitor && monitorGot == monitorWanted) {
+        runtime->monitorAudioStream = monitor;
+      } else if (monitor) {
+        SDL_DestroyAudioStream(monitor);
+      }
+    }
     // The REQUEST is kept, not the result.
     //
     // This used to store the effective name here, so a named interface that
@@ -4743,6 +4778,8 @@
       // mid-cue keeps playing instead of tearing the engine down.
       runtime->mediaEngine->setAudioDevice(newMain);
       runtime->mediaEngine->setExtraAudioStreams(newExtras);
+      runtime->mediaEngine->setMonitorStream(runtime->monitorAudioStream);
+      runtime->mediaEngine->setMainDeviceMuted(!deck.audioToProgram);
       runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
     } else {
       runtime->mediaEngine = std::make_unique<MediaEngine>(
@@ -4785,6 +4822,9 @@
       if (extra) {
         SDL_DestroyAudioStream(extra);
       }
+    }
+    if (oldMonitor) {
+      SDL_DestroyAudioStream(oldMonitor);   // same rule, same reason
     }
     if (oldStream) {
       SDL_DestroyAudioStream(oldStream);
@@ -6936,6 +6976,14 @@
         return false;
       }
     }
+    // THE ENGINES ARE NEW, SO THEY KNOW NOTHING. Every gate on them defaults
+    // to 'audible in the room, silent on the monitor', which is right for a
+    // fresh deck and wrong for one rebuilt from a show that had already said
+    // otherwise. Without this a show REOPENED with a monitor set and a
+    // playlist held out of the PA came back with neither in force -- the
+    // fields round-tripped perfectly and did nothing, which is why MONITOR
+    // reports the engines rather than the fields.
+    applyAudioMonitorSelection();
     return true;
   }
 

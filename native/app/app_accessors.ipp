@@ -583,6 +583,38 @@
   // answer. The alternative is four places that each decide what a window is,
   // which is how the compositor and the playlist column came to disagree
   // about which deck an output showed.
+  // -- THE MONITOR: WHICH PLAYLIST YOU HEAR -------------------------------
+  //
+  // -1 means follow the focused playlist. Resolved here rather than stored,
+  // so following focus cannot go stale and cannot be left pointing at a
+  // playlist that has since been removed.
+  int monitoredDeckIndex() const {
+    const int count = static_cast<int>(project_.decks.size());
+    if (count <= 0) {
+      return -1;
+    }
+    if (project_.monitorDeckIndex < 0) {
+      return std::clamp(project_.focusedDeckIndex, 0, count - 1);
+    }
+    return std::clamp(project_.monitorDeckIndex, 0, count - 1);
+  }
+
+  // Push that decision onto the engines. Cheap enough to call whenever
+  // anything that feeds it changes -- it is a store per deck, no devices are
+  // touched -- which is what lets the monitor follow the focused playlist
+  // without an audio reopen on every arrow key.
+  void applyAudioMonitorSelection() {
+    const int listening = monitoredDeckIndex();
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      DeckRuntime* runtime = runtimeForDeck(d);
+      if (!runtime || !runtime->mediaEngine) {
+        continue;
+      }
+      runtime->mediaEngine->setMonitorMuted(d != listening);
+      runtime->mediaEngine->setMainDeviceMuted(!project_.decks[d].audioToProgram);
+    }
+  }
+
   std::vector<MultiviewTile> multiviewTilePlan() const {
     if (!project_.multiviewTiles.empty()) {
       return project_.multiviewTiles;
@@ -764,6 +796,11 @@
     cueSettingsScroll_ = 0;
     cueSettingsScrollMax_ = 0;
     clearCueFindState();
+    // The monitor follows the focused playlist unless one is pinned, so the
+    // decision is re-pushed here. It is a store per deck -- no device is
+    // opened or closed -- which is the whole reason the monitor stream is
+    // held open on every deck rather than moved between them.
+    applyAudioMonitorSelection();
     triggerToast("deck: " + focusedDeckLabel());
     markProjectDirty();
     return true;

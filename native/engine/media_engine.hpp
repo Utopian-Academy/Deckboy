@@ -248,6 +248,39 @@ class MediaEngine {
     }
   }
 
+  // -- THE MONITOR --------------------------------------------------------
+  //
+  // Its own slot rather than one of the extras, because the extras are the
+  // operator's own fan-out and every one of them is unconditional. The
+  // monitor is the one destination that is switched, and it has to be
+  // switchable without reopening a device: see the note at the top of the
+  // patch that added this.
+  //
+  // Installed under the same rule as every other stream -- decoder threads
+  // stopped -- but MUTED from the audio thread at any time, which is safe
+  // because a bool is not a pointer.
+  void setMonitorStream(SDL_AudioStream* stream) {
+    monitorStream_.store(stream, std::memory_order_release);
+  }
+  void setMonitorMuted(bool muted) {
+    monitorMuted_.store(muted, std::memory_order_relaxed);
+  }
+  // Whether this deck reaches its OWN device -- the room. A deck feeding a
+  // second screen can be taken out of the PA without being taken off the
+  // monitor, which is the whole point of having the two separately.
+  void setMainDeviceMuted(bool muted) {
+    mainDeviceMuted_.store(muted, std::memory_order_relaxed);
+  }
+  bool mainDeviceMuted() const {
+    return mainDeviceMuted_.load(std::memory_order_relaxed);
+  }
+  bool monitorMuted() const {
+    return monitorMuted_.load(std::memory_order_relaxed);
+  }
+  bool hasMonitorStream() const {
+    return monitorStream_.load(std::memory_order_relaxed) != nullptr;
+  }
+
   void setAudioMatrix(const std::vector<AudioCrosspoint>& points) {
     for (auto& g : audioMatrixGain_) {
       g.store(0.0f, std::memory_order_relaxed);
@@ -950,6 +983,13 @@ class MediaEngine {
   // the machine's, not ours, and nobody has eight interfaces and one cue.
   static constexpr int kMaxExtraAudioOuts = 7;
   std::array<std::atomic<SDL_AudioStream*>, kMaxExtraAudioOuts> extraAudioStreams_ {};
+  // The monitor, and the two gates. Muted by default both ways round: a deck
+  // that has never been told it is monitored must not arrive in somebody's
+  // headphones, and a deck that has never been muted must still reach the
+  // room exactly as it always did.
+  std::atomic<SDL_AudioStream*> monitorStream_ {nullptr};
+  std::atomic<bool> monitorMuted_ {true};
+  std::atomic<bool> mainDeviceMuted_ {false};
   std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback
   // The engine OWNS a snapshot of the loaded cue. activeCue_ points at

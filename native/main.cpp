@@ -1896,6 +1896,10 @@ struct DeckRuntime {
   // Extra destinations for the same audio (Deck::extraAudioDeviceNames).
   // Owned here so they are closed exactly where the primary one is.
   std::vector<SDL_AudioStream*> extraAudioStreams;
+  // The monitor. Open on every deck whenever the show names a monitor device;
+  // which deck you actually HEAR is a mute on the engine, not this pointer,
+  // so switching cannot click. Owned here for the same reason as the extras.
+  SDL_AudioStream* monitorAudioStream = nullptr;
   // WHAT WE ACTUALLY GOT, which is not always what was asked for. Deck::
   // audioOutputDeviceName is the operator's REQUEST and is persisted; this is
   // the device currently open, empty for the system default. They differ while
@@ -8486,6 +8490,8 @@ class App {
   // audit_actions.py caught it. GREP THE VALUE before allocating another.
   static constexpr int kSettingsActionVjModeToggle = 722;
   // 723-725: the update checker. Next free id is 726.
+  static constexpr int kSettingsActionMonitorDevice = 794;
+  static constexpr int kSettingsActionMonitorDeck = 795;
   static constexpr int kSettingsActionUpdateCheckToggle = 723;
   static constexpr int kSettingsActionUpdateCheckNow = 724;
   static constexpr int kSettingsActionUpdateDownload = 725;

@@ -422,6 +422,63 @@
       }
     }
 
+    // -- AND WHERE ITS SOUND GOES -----------------------------------------
+    //
+    // This menu is about where a playlist goes, and until now it only meant
+    // the picture. A deck's audio device has never had any connection to its
+    // output routing, so several playlists at once all arrived on the same
+    // default device together -- "the original program is trying to receive
+    // all decks, even if they are assigned to other outputs".
+    //
+    // Two separate switches, because they are two separate questions: does
+    // the room hear this, and do YOU hear this.
+    contextItems_.push_back({"SOUND", {0, 0, 0, 0}, nullptr});
+    {
+      const bool inRoom = project_.decks[deckIdx].audioToProgram;
+      contextItems_.push_back({
+        std::string(inRoom ? "  [x] " : "  [ ] ") + "in the room" +
+          (inRoom ? "" : "   (silent on its own device)"),
+        inRoom ? SDL_Color {40, 130, 90, 255} : SDL_Color {130, 50, 40, 255},
+        [this, deckIdx]() {
+          if (deckIdx < static_cast<int>(project_.decks.size())) {
+            Deck& d = project_.decks[deckIdx];
+            d.audioToProgram = !d.audioToProgram;
+            applyAudioMonitorSelection();
+            markProjectDirty();
+            triggerToast(deckLabel(deckIdx) +
+                         (d.audioToProgram ? " is in the room"
+                                           : " is out of the room"));
+          }
+        }});
+
+      // The monitor only means something once a device is named for it, so
+      // say so rather than offering a switch that cannot do anything.
+      if (project_.monitorDeviceName.empty()) {
+        contextItems_.push_back({
+          "      no monitor device set (Settings > Audio)", {0, 0, 0, 0}, nullptr});
+      } else {
+        const bool pinnedHere = project_.monitorDeckIndex == deckIdx;
+        const bool audible = monitoredDeckIndex() == deckIdx;
+        contextItems_.push_back({
+          std::string(audible ? "  [x] " : "  [ ] ") + "on the monitor" +
+            (pinnedHere ? "   (pinned)"
+                        : audible ? "   (follows focus)" : ""),
+          audible ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
+          [this, deckIdx]() {
+            // Clicking the one you are already pinned to releases the pin
+            // and goes back to following focus, so the switch has somewhere
+            // to go in both directions.
+            project_.monitorDeckIndex =
+              (project_.monitorDeckIndex == deckIdx) ? -1 : deckIdx;
+            applyAudioMonitorSelection();
+            markProjectDirty();
+            triggerToast(project_.monitorDeckIndex < 0
+                           ? std::string("monitor follows the focused playlist")
+                           : ("monitoring " + deckLabel(deckIdx)));
+          }});
+      }
+    }
+
     contextItems_.push_back({"PLAYLISTS", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
       "  + add a playlist", SDL_Color {40, 90, 130, 255},

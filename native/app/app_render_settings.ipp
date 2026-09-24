@@ -1210,6 +1210,48 @@
       drawUIDropdownValue(devBtn, devName, "settings.audio_device");
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
 
+      // -- THE MONITOR -------------------------------------------------
+      //
+      // Directly under the output device, because it is the same question
+      // asked about a different pair of ears: that row is where the room
+      // hears this playlist, this one is where YOU hear it. Before this
+      // there was no second answer at all -- every playlist went to the same
+      // default device and arrived mixed together.
+      {
+        std::string monName = project_.monitorDeviceName.empty()
+          ? std::string("(no monitor)")
+          : project_.monitorDeviceName;
+        // Says when the named device is not actually there, the same way the
+        // output device row does. A monitor deliberately does NOT fall back
+        // to the system default -- that would put what you are auditioning
+        // into the room -- so absent means silent, and silence needs saying.
+        if (!project_.monitorDeviceName.empty()) {
+          const DeckRuntime* monRt = runtimeForDeck(monitoredDeckIndex());
+          if (!monRt || !monRt->mediaEngine ||
+              !monRt->mediaEngine->hasMonitorStream()) {
+            monName += "  (not found -- nothing is being monitored)";
+          }
+        }
+        SDL_Rect monBtn = settingsRow(audioX, audioW, rowY, sTallH,
+                                      "Monitor device", sGap);
+        drawUIDropdownValue(monBtn, monName, "settings.monitor_device");
+        settingsBtns_.push_back({monBtn, kSettingsActionMonitorDevice,
+                                 "Hear one playlist by itself, without "
+                                 "sending it to the room"});
+
+        if (!project_.monitorDeviceName.empty()) {
+          const std::string monDeck = project_.monitorDeckIndex < 0
+            ? ("follows the focused playlist  (" +
+               deckLabel(monitoredDeckIndex()) + ")")
+            : deckLabel(monitoredDeckIndex());
+          SDL_Rect monDeckBtn = settingsRow(audioX, audioW, rowY, sTallH,
+                                            "Monitor playlist", sGap);
+          drawUIDropdownValue(monDeckBtn, monDeck, "settings.monitor_deck");
+          settingsBtns_.push_back({monDeckBtn, kSettingsActionMonitorDeck,
+                                   "Which playlist you hear on the monitor"});
+        }
+      }
+
       {
         // Live input. Sits with the output device because they are the two ends
         // of the same question: where audio comes from, and where it goes.
@@ -3741,6 +3783,51 @@
           [this](const std::string& value) {
             setAudioOutputDevice(value);
           });
+        return;
+      } else if (sb.action == kSettingsActionMonitorDevice) {
+        // "(none)" first, so turning the monitor off is a choice in the list
+        // rather than something you have to know to type.
+        std::vector<std::pair<std::string, std::string>> choices;
+        choices.emplace_back("", "(no monitor)");
+        for (const auto& option : audioOutputDeviceDropdownChoices()) {
+          if (!option.first.empty()) {
+            choices.push_back(option);
+          }
+        }
+        openDropdown("settings.monitor_device", sb.rect, choices,
+                     project_.monitorDeviceName,
+                     [this](const std::string& value) {
+                       project_.monitorDeviceName = value;
+                       markProjectDirty();
+                       // The only part of the monitor that touches hardware,
+                       // so the only part that reopens anything.
+                       for (int d = 0;
+                            d < static_cast<int>(project_.decks.size()); ++d) {
+                         reopenDeckAudioOutput(
+                           d, project_.decks[d].audioOutputDeviceName);
+                       }
+                       applyAudioMonitorSelection();
+                       triggerToast(value.empty()
+                                      ? std::string("monitor off")
+                                      : ("monitoring on " + value));
+                     });
+        return;
+      } else if (sb.action == kSettingsActionMonitorDeck) {
+        std::vector<std::pair<std::string, std::string>> choices;
+        choices.emplace_back("-1", "follow the focused playlist");
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          choices.emplace_back(std::to_string(d), deckLabel(d));
+        }
+        openDropdown("settings.monitor_deck", sb.rect, choices,
+                     std::to_string(project_.monitorDeckIndex),
+                     [this](const std::string& value) {
+                       project_.monitorDeckIndex = std::atoi(value.c_str());
+                       applyAudioMonitorSelection();
+                       markProjectDirty();
+                       triggerToast(project_.monitorDeckIndex < 0
+                         ? std::string("monitor follows the focused playlist")
+                         : ("monitoring " + deckLabel(monitoredDeckIndex())));
+                     });
         return;
       } else if (sb.action == 201) {
         project_.uiSoundsEnabled = !project_.uiSoundsEnabled;

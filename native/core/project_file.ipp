@@ -203,6 +203,8 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "multiview\t" << project.multiviewMode << '\n';
+  output << "monitor_device\t" << escapeField(project.monitorDeviceName) << '\n';
+  output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
   // One line per window, in the order they are drawn. Written only when the
   // operator has actually arranged them: an empty list means "the automatic
   // set", and writing no lines at all is how that round-trips.
@@ -501,6 +503,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       // Extra audio destinations, appended: one field, semicolon
       // separated, because a device name may contain a comma.
       << '	' << escapeField(joinStringList(deck.extraAudioDeviceNames, ';'))
+      << '	' << (deck.audioToProgram ? 1 : 0)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -993,6 +996,10 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
   } else if (fields[0] == "splash_character") {
     std::string v = safeString(fields, 1);
     project.splashCharacter = v.empty() ? std::string("deckbot") : v;
+  } else if (fields[0] == "monitor_device") {
+    project.monitorDeviceName = safeString(fields, 1);
+  } else if (fields[0] == "monitor_deck") {
+    project.monitorDeckIndex = safeInt(fields, 1, -1);
   } else if (fields[0] == "multiview") {
     project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "multiview_tile") {
@@ -1568,6 +1575,13 @@ Project loadProject(const fs::path& projectFile,
       if (fields.size() >= 58 + warpFieldOffset) {
         deck.extraAudioDeviceNames =
           parseStringList(safeString(fields, 57 + warpFieldOffset), ';');
+      }
+      // Appended after the extra devices. TRUE is the backward-compatible
+      // default and it is not the zero value: every show written before the
+      // monitor existed had every playlist going to the room, and one that
+      // came back silent would be a show that had lost its sound.
+      if (fields.size() >= 59 + warpFieldOffset) {
+        deck.audioToProgram = safeBool(fields, 58 + warpFieldOffset, true);
       }
     } else if (fields[0] == "cue") {
       int deckIndex = 0;

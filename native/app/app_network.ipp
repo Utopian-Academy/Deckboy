@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (314)\n"
+        "DECKBOY_0.01 every verb (315)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -468,7 +468,7 @@
         "LOWERALPHA LOWERSUB LOWERTEXT LOWERTHIRD LTC LTCEXT LTCINGEST\n"
         "LTCOUT LTC_INGEST MARK MARKER MASTER MASTERCUE MASTERVOL\n"
         "MASTERVOLUME MIDI MIDIINPUT MIDI_INPUT MOSH MOSHLOOK MTC MTCEXT\n"
-        "MTCINGEST MTC_INGEST MULTIVIEW NDI NDICUE NDIEVENT NDIKEY NDIKEYER\n"
+        "MONITOR MTCINGEST MTC_INGEST MULTIVIEW NDI NDICUE NDIEVENT NDIKEY NDIKEYER\n"
         "NDIKEYNAME NDINAME NDITRIGGER NDI_TRIGGER NEWDECK NEXT NEXTTRANS\n"
         "NMC NMCEVENT NMCSYNC NMC_SYNC NMOS OSCFEEDBACK OSCFEEDBACKRATE\n"
         "OSCQUERY OSCQUERYPORT OSC_FEEDBACK OSC_FEEDBACK_RATE OSC_QUERY\n"
@@ -545,6 +545,10 @@
         "super deckboy: DECKADD - another playlist | DECKREMOVE [<n>] - take one away\n"
         "        MULTIVIEW [ON|OFF] - the programme and every playlist, in a grid\n"
         "audio fan-out: AUDIOALSO [ADD <device>|REMOVE <device>|CLEAR] - the same sound to more devices at once\n"
+        "monitor: MONITOR - what you hear, and who is in the room\n"
+        "        MONITOR DEVICE [<name>] - listen here; no name turns it off\n"
+        "        MONITOR DECK <n>|FOLLOW - which playlist you hear\n"
+        "        MONITOR ROOM <n> ON|OFF - whether that playlist reaches its own device\n"
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"
         "        - which playlists composite onto the focused output, and in what order\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
