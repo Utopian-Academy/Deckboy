@@ -3852,6 +3852,19 @@ class App {
     rebuildPalette();
     initUiAssetPackPaths();
     preloadUiAssets();
+    // THE PACK IS HERE AND NOTHING IN IT DECODED. Raised as a prompt rather
+    // than a toast because the same helpers decode the operator's media: an
+    // app in this state will not play anything either, and blank buttons are
+    // the part you happen to see first.
+    //
+    // macOS only, deliberately. Everywhere else a decode failure means a
+    // genuinely missing or broken ffmpeg, which --self-check already reports
+    // and which has a different remedy; quarantine is the Mac's own.
+#ifdef __APPLE__
+    if (uiPackAvailable_ && uiImagesDecoded_ == 0) {
+      promptForBlockedHelpers();
+    }
+#endif
     currentProjectFile_ = startupProjectFile();
     // Startup is the case that matters most for the loading overlay — a big
     // show is usually opened by launching into it, not by using OPEN — and it
@@ -8092,6 +8105,23 @@ class App {
     ensureUiImageLoaded(uiModeOnce_);
     ensureUiImageLoaded(uiModeShuffleOn_);
     ensureUiImageLoaded(uiModeOrder_);
+
+    // NOT ONE PICTURE CAME BACK. The pack is here -- uiPackAvailable_ said so
+    // above -- so this is not a missing asset, it is a decode that cannot
+    // run. Every one of these goes through ffprobe and then ffmpeg, and those
+    // same helpers decode the operator's media, so an app in this state is
+    // not going to play anything either.
+    //
+    // Counted rather than probed: this is the symptom itself, so an ffmpeg
+    // that runs and returns nothing cannot talk its way past it.
+    uiImagesDecoded_ = 0;
+    for (const UiImageAsset* asset : {
+           &uiHeaderArt_, &uiSplashArt_, &uiBtnTake_, &uiBtnStop_,
+           &uiModeLoopOn_, &uiModeOnce_, &uiCueIconVideo_ }) {
+      if (asset->texture) {
+        ++uiImagesDecoded_;
+      }
+    }
   }
 
   void releaseUiAssets() {
@@ -9005,6 +9035,9 @@ class App {
 
   fs::path uiPackRoot_;
   bool uiPackAvailable_ = false;
+  // How many of a representative handful actually decoded. Zero, with the
+  // pack present, is the state that used to be completely silent.
+  int uiImagesDecoded_ = -1;
   UiImageAsset uiHeaderArt_;
   UiImageAsset uiAboutLogo_;
   UiImageAsset uiSplashArt_;

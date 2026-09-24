@@ -160,6 +160,21 @@
       "Open WebView2 page");
   }
 
+  // THE FOURTH, which the note above anticipated -- and the only one that is
+  // not about something to install. Everything Deckboy needs is already in
+  // the bundle; the machine is refusing to run it.
+  void promptForBlockedHelpers() {
+    showDependencyPrompt(
+      "macOS is blocking Deckboy's own tools",
+      "Deckboy draws its icons and decodes video with ffmpeg, which ships "
+      "inside the app. macOS quarantines anything downloaded and will not "
+      "run those tools until the quarantine is cleared, so buttons appear "
+      "blank and media will not play. Move Deckboy to Applications, then in "
+      "Terminal run:  xattr -dr com.apple.quarantine /Applications/Deckboy.app",
+      "https://github.com/Utopian-Academy/Deckboy#macos",
+      "Open the macOS notes");
+  }
+
   // Open the dependency prompt with the given message + vendor URL. Caller
   // is responsible for deciding whether the dep is missing in the first
   // place — this is just the presentation step.
