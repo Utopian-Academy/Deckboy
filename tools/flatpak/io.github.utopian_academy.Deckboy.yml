@@ -143,6 +143,6 @@ modules:
           /app/share/metainfo/io.github.utopian_academy.Deckboy.metainfo.xml
       - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.desktop
           /app/share/applications/io.github.utopian_academy.Deckboy.desktop
-      - install -Dm644 art/windows/icons/deckboy_app_master.png
-          /app/share/icons/hicolor/256x256/apps/io.github.utopian_academy.Deckboy.png
+      - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.png
+          /app/share/icons/hicolor/512x512/apps/io.github.utopian_academy.Deckboy.png
       - install -Dm644 LICENSE /app/share/licenses/io.github.utopian_academy.Deckboy/LICENSE
