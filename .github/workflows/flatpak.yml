@@ -1,47 +1,98 @@
-# Builds the Flatpak (tools/flatpak) inside Flathub's own build container, so
-# the manifest is proven the way Flathub will build it before it is submitted
-# there. The bundle is uploaded for anyone to try: flatpak install deckboy.flatpak
+# Builds the Flatpak (tools/flatpak) inside Flathub's build container, installs
+# it and runs Deckboy's self-check from inside the sandbox. On a release tag the
+# tested bundle is attached to the GitHub release, beside the AppImage.
+#
+# Not submitted to Flathub: its policy forbids AI agents opening submission
+# pull requests and AI-assisted manifests, and this manifest is both.
 name: Flatpak
 on:
   workflow_dispatch:
   push:
     branches: [main]
+    tags: ['v*']
     paths:
       - 'tools/flatpak/**'
       - '.github/workflows/flatpak.yml'
 jobs:
   flatpak:
-    strategy:
-      fail-fast: false
-      matrix:
-        # The checkout build, and the exact manifest submitted to Flathub,
-        # which builds the tagged release from GitHub.
-        manifest:
-          - tools/flatpak/io.github.utopian_academy.Deckboy.yml
-          - tools/flatpak/flathub/io.github.utopian_academy.Deckboy.yml
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
       options: --privileged
+    outputs:
+      bundle: ${{ steps.name.outputs.bundle }}
     steps:
       - uses: actions/checkout@v4
+      - id: name
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "bundle=Deckboy-${GITHUB_REF_NAME#v}-x86_64.flatpak" >> "$GITHUB_OUTPUT"
+          else
+            echo "bundle=deckboy.flatpak" >> "$GITHUB_OUTPUT"
+          fi
       - uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
         with:
-          bundle: deckboy.flatpak
-          manifest-path: ${{ matrix.manifest }}
-          cache-key: flatpak-builder-${{ strategy.job-index }}-${{ github.sha }}
+          bundle: ${{ steps.name.outputs.bundle }}
+          manifest-path: tools/flatpak/io.github.utopian_academy.Deckboy.yml
+          cache-key: flatpak-builder-${{ github.sha }}
       # A package that builds is not a package that runs: install the bundle
       # and ask Deckboy about itself, from inside the sandbox.
       - name: The bundle installs and runs
         run: |
-          flatpak install --user -y --noninteractive --bundle deckboy.flatpak
+          flatpak install --user -y --noninteractive --bundle "${{ steps.name.outputs.bundle }}"
           flatpak run --command=deckboy io.github.utopian_academy.Deckboy --version
           xvfb-run -a flatpak run --command=deckboy io.github.utopian_academy.Deckboy --self-check | tee self-check.txt
           grep -q "ndi-sdk: headers detected" self-check.txt
-      # Flathub's own linter, on the manifest and the metainfo.
-      - name: Flathub lint
+      - name: Flathub's linter, on the manifest and the metainfo
         run: |
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user -y --noninteractive flathub org.flatpak.Builder
-          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest ${{ matrix.manifest }} || true
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest tools/flatpak/io.github.utopian_academy.Deckboy.yml || true
           flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-bundle
+          path: ${{ steps.name.outputs.bundle }}
+          if-no-files-found: error
+
+  # The release itself is published by Deckboy CI when its own builds finish,
+  # usually after this job; wait for it rather than race it.
+  attach:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: flatpak
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BUNDLE: ${{ needs.flatpak.outputs.bundle }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: flatpak-bundle
+      - name: Wait for the release to be published
+        run: |
+          for i in $(seq 1 120); do
+            if gh release view "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft' 2>/dev/null | grep -q false; then
+              exit 0
+            fi
+            sleep 60
+          done
+          echo "::error::release $GITHUB_REF_NAME was not published within two hours"; exit 1
+      - name: Attach the bundle, then say so on the release page
+        run: |
+          gh release upload "$GITHUB_REF_NAME" "$BUNDLE" -R "$GITHUB_REPOSITORY" --clobber
+          gh release view "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --json body --jq .body > notes.md
+          python3 - <<'PY'
+          import os
+          bundle = os.environ["BUNDLE"]
+          body = open("notes.md", encoding="utf-8").read()
+          if bundle not in body:
+              line = ("**Linux (Flatpak):** `%s` &mdash; "
+                      "`flatpak install --user %s` (the runtime comes from Flathub).\n\n" % (bundle, bundle))
+              marker = "### Control surfaces"
+              body = body.replace(marker, line + marker, 1) if marker in body else body.rstrip() + "\n\n" + line
+          open("notes.md", "w", encoding="utf-8").write(body)
+          PY
+          gh release edit "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --notes-file notes.md
