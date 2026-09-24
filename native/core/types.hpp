@@ -487,6 +487,8 @@ enum class ToneWaveform {
   Fds,       // Chip voice -- FDS or 2A03. A musical source rather than a test
              // signal, and a usable emergency synth. The token stays "Fds" so
              // shows saved before the 2A03 merge still load.
+  Sting,     // A short musical gesture for a walk-up: struck, swept and
+             // decayed. The only waveform here that ENDS by itself.
 };
 
 // THE READER HAS TO KNOW THIS NUMBER, and it did not. The loader clamped the
@@ -498,7 +500,7 @@ enum class ToneWaveform {
 //
 // Anything that turns an int back into one of these clamps to this, never to
 // a literal.
-inline constexpr int kToneWaveformCount = 6;
+inline constexpr int kToneWaveformCount = 7;
 
 // ---------------------------------------------------------------------------
 // FDS wavetable voice.
@@ -609,6 +611,18 @@ struct ToneSettings {
   // by walking channels itself.
   int channel = -1;
   double identifySecondsPerChannel = 2.0;
+
+  // ── THE STING ─────────────────────────────────────────────────────────
+  //
+  // Defaults chosen to be usable on the first press rather than to be
+  // neutral: a rising major gesture around A4 over three quarters of a
+  // second, which is what a walk-up sting sounds like before anybody touches
+  // a slider. A default of "silence until configured" is a feature nobody
+  // discovers.
+  double stingPitchHz = 440.0;      // where it starts
+  double stingSeconds = 0.75;       // the whole gesture
+  double stingSweepSemitones = 7.0; // + rises, - falls, 0 is a struck note
+  double stingBody = 0.45;          // 0 a pure sine, 1 a bright stack
 
   // On-screen display. These are DIAGNOSTIC first and decorative second --
   // each one answers a question an engineer actually asks during a check.
@@ -2458,6 +2472,10 @@ enum class QuickAction {
   ToneCycleWaveform,
   ToneFreqDec, ToneFreqInc,
   ToneLevelDec, ToneLevelInc,
+  StingPitchDec, StingPitchInc,
+  StingLenDec, StingLenInc,
+  StingSweepDec, StingSweepInc,
+  StingBodyDec, StingBodyInc,
   ToneChannelDec, ToneChannelInc,
   ToneCycleVisual, ToneVisualToggle,
   FdsCycleCarrier, FdsCycleModulator,

@@ -1,10 +1,40 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## Unreleased - fixing what 0.99.373 got wrong
+## 2026-09-23 - v0.99.374 (what 0.99.373 got wrong, and Super Deckboy properly)
 
-Not a release. James tested the pre-release and reported the new work as
-broadly broken; this is that list, and it is being worked through before
-anything is tagged.
+James tested 0.99.373 and reported the new work as broadly broken. This is
+that list, worked through -- plus the features that came out of going through
+it with him.
+
+**Two show-file changes.** Projection mapping moved from the deck to the
+output, and a layer gained a position and a blend mode. Both migrate on load,
+so an existing show opens with the alignment and the layers it had. An OLDER
+Deckboy opening a show saved by this one will not see either: it will read the
+deck's warp (now empty) and the layers without their geometry.
+
+**Super Deckboy, as it was meant to be.** A playlist is assigned to an output
+and then to a LAYER within it, and the routing menu now draws each output's
+whole stack with an insertion point between every pair -- so picking a layer is
+picking a row, and you can see what an output is made of. Playlists can be
+removed as well as added, each with its own sound, and every reference to a deck
+index is remapped when one goes.
+
+**A multiview**, on the control window and as an output type of its own, with
+each playlist's picture, where it is routed, and its layer fader.
+
+**One cue's audio to several devices at once.** The crosspoint matrix routes a
+cue across the channels of one device; this is the other axis.
+
+**A MIDI file is a source.** Drop a .mid in the playlist and it plays out.
+
+**A built-in walk-up sting**, generated rather than a file, with sliders for
+pitch, length, sweep and body. It is the one generated signal here that ends by
+itself.
+
+**The spacebar pauses again.** GO and TOGGLE shared an implementation, and the
+standby walker going in at the top of it meant that with a cue standing by the
+spacebar fired cues instead of pausing.
+
 
 **The controls you could see, you can now press.** Thirty-one rows across the
 new cue kinds were drawn as stepper rows -- label, minus, value, plus -- for

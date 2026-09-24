@@ -381,6 +381,24 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   // Like Timer: duration 0 so the transport holds them on air indefinitely
   // rather than auto-advancing the playlist out from under a live signal.
   if (cue->kind == CueKind::Tone || cue->kind == CueKind::VideoSynth) {
+    // A STING ENDS BY ITSELF, which no other generated waveform here does.
+    // Its length IS its duration, so it sits in a playlist like a clip: it
+    // finishes, and whatever the cue's end action says then happens.
+    stingElapsed_ = 0.0;
+    stingPhase_ = 0.0;
+    if (cue->kind == CueKind::Tone && cue->tone.waveform == ToneWaveform::Sting) {
+      duration_ = std::clamp(cue->tone.stingSeconds, 0.05, 10.0);
+      currentPosition_ = 0.0;
+      pausedPosition_ = 0.0;
+      playbackStartPosition_ = 0.0;
+      playbackClockStart_ = std::chrono::steady_clock::now();
+      state_ = autoplay ? TransportState::Playing : TransportState::Paused;
+      if (audioStream_) {
+        deckboySetAudioPaused(audioStream_, !autoplay);
+      }
+      rebuildToneFrame(*cue);
+      return;
+    }
     duration_ = 0.0;
     currentPosition_ = 0.0;
     pausedPosition_ = 0.0;
@@ -10096,6 +10114,41 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
       case ToneWaveform::White:
         sample = nextWhite(toneSeed_);
         break;
+      case ToneWaveform::Sting: {
+        // ── A STRUCK, SWEPT, DECAYING GESTURE ─────────────────────────
+        //
+        // stingElapsed_ is the cue's own clock rather than the transport's,
+        // because this is generated on the audio thread and the transport
+        // position is not safe to read there -- the same rule every other
+        // generated waveform here follows.
+        const double len = std::clamp(cue.tone.stingSeconds, 0.05, 10.0);
+        const double t = std::clamp(stingElapsed_ / len, 0.0, 1.0);
+        // The sweep is in SEMITONES, so it is musical at any pitch: seven
+        // semitones is a fifth whether it starts at 220Hz or 880Hz. A ratio
+        // in Hz would be a different interval at every pitch.
+        const double semis = cue.tone.stingSweepSemitones * t;
+        const double hz = std::clamp(cue.tone.stingPitchHz, 20.0, 12000.0) *
+                          std::pow(2.0, semis / 12.0);
+        stingPhase_ += 2.0 * 3.14159265358979323846 * hz * dt;
+        if (stingPhase_ > 6.283185307179586) stingPhase_ -= 6.283185307179586;
+        // BODY IS HARMONICS, not a filter: odd partials at falling weight,
+        // which takes a pure sine to something with brass in it without
+        // needing a filter that would have to be stable on the audio thread.
+        const double body = std::clamp(cue.tone.stingBody, 0.0, 1.0);
+        sample = std::sin(stingPhase_);
+        if (body > 0.0) {
+          sample += body * 0.50 * std::sin(stingPhase_ * 2.0);
+          sample += body * 0.28 * std::sin(stingPhase_ * 3.0);
+          sample += body * 0.14 * std::sin(stingPhase_ * 5.0);
+          sample /= (1.0 + body * 0.92);   // keep the peak where it was
+        }
+        // A fast attack and an exponential tail: struck, not faded in. A
+        // linear decay reads as a machine turning something down.
+        const double attack = std::min(1.0, stingElapsed_ / 0.008);
+        sample *= attack * std::exp(-3.2 * t);
+        stingElapsed_ += dt;
+        break;
+      }
       case ToneWaveform::Fds:
         sample = (cue.tone.synth.chip == SynthChip::Nes)
                    ? nesNextSample(cue.tone, dt)

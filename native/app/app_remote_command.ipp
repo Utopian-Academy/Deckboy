@@ -5793,6 +5793,82 @@
     // could not be created from a controller, and could not be tested without
     // a human clicking. CHIP, SYNTHNOTEON and the whole keyboard surface all
     // need a tone cue to exist before they do anything.
+    if (command == "STING") {
+      // STING              -> report it
+      // STING ON           -> make the selected tone cue a sting
+      // STING PITCH <hz> | LENGTH <s> | SWEEP <semitones> | BODY <0-100>
+      //
+      // The built-in walk-up sting: generated, not a file. A tone cue with
+      // this waveform ENDS by itself, unlike every other signal here.
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::Tone) {
+        failRemoteCommand("STING: select a tone cue first (TONECUE makes one)");
+        return;
+      }
+      ToneSettings& t = cue->tone;
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub == "ON") {
+        t.waveform = ToneWaveform::Sting;
+        markProjectDirty();
+        refreshAllLiveCueRuntimes();
+        remoteCommandDetail_ = "sting";
+        return;
+      }
+      if (sub.empty()) {
+        char buf[160];
+        std::snprintf(buf, sizeof(buf),
+                      "%s | %.0f Hz | %.2f s | %+.1f semitones | body %.0f%%",
+                      t.waveform == ToneWaveform::Sting ? "sting"
+                                                        : "NOT a sting (set STING ON)",
+                      t.stingPitchHz, t.stingSeconds, t.stingSweepSemitones,
+                      t.stingBody * 100.0);
+        remoteCommandDetail_ = buf;
+        return;
+      }
+      if (parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        if (!parsed) {
+          failRemoteCommand("STING " + sub + ": expected a number");
+          return;
+        }
+        // REFUSED RATHER THAN CLAMPED, the rule the whole protocol follows:
+        // a clamp is what makes wrong units invisible.
+        if (sub == "PITCH") {
+          if (*parsed < 20.0 || *parsed > 12000.0) {
+            failRemoteCommand("STING PITCH: expected 20-12000 Hz");
+            return;
+          }
+          t.stingPitchHz = *parsed;
+        } else if (sub == "LENGTH" || sub == "LEN") {
+          if (*parsed < 0.05 || *parsed > 10.0) {
+            failRemoteCommand("STING LENGTH: expected 0.05-10 seconds");
+            return;
+          }
+          t.stingSeconds = *parsed;
+        } else if (sub == "SWEEP") {
+          if (*parsed < -24.0 || *parsed > 24.0) {
+            failRemoteCommand("STING SWEEP: expected -24 to 24 semitones");
+            return;
+          }
+          t.stingSweepSemitones = *parsed;
+        } else if (sub == "BODY") {
+          if (*parsed < 0.0 || *parsed > 100.0) {
+            failRemoteCommand("STING BODY: expected 0-100");
+            return;
+          }
+          t.stingBody = *parsed / 100.0;
+        } else {
+          failRemoteCommand("STING: expected ON, PITCH, LENGTH, SWEEP or BODY");
+          return;
+        }
+        markProjectDirty();
+        refreshAllLiveCueRuntimes();
+        remoteCommandDetail_ = parts[2];
+        return;
+      }
+      failRemoteCommand("STING: expected ON, PITCH, LENGTH, SWEEP or BODY");
+      return;
+    }
     if (command == "TONECUE") {
       addToneCue();
       const Deck& deck = focusedDeck();

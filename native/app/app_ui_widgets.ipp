@@ -233,44 +233,70 @@
 
     contextItems_.push_back({deckLabel(deckIdx) + " goes to:", {0, 0, 0, 0}, nullptr});
 
+    // ── EVERY OUTPUT, ITS WHOLE STACK, AND A SLOT BETWEEN EACH ──────────
+    //
+    // The stack is drawn bottom to top -- the base first, then what sits over
+    // it -- with a "put it here" row at every insertion point. Choosing a
+    // layer is choosing a row, rather than adding at the top and then moving.
+    //
+    // It also means the menu SHOWS the stack, which nothing did: you could
+    // not see what an output was composited from without reading the
+    // multiview or asking over the socket.
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size());
          ++outputIndex) {
-      const auto layer = assignmentIndexForDeckOutput(deckIdx, outputIndex);
-      std::string label = layer
-        ? "  * " + outputLabel(outputIndex) + "   layer " + layerLetter(*layer)
-        : "    " + outputLabel(outputIndex);
-      contextItems_.push_back({
-        label,
-        layer ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
-        [this, deckIdx, outputIndex]() {
-          if (assignmentIndexForDeckOutput(deckIdx, outputIndex)) {
-            unassignDeckFromOutput(deckIdx, outputIndex);
-          } else {
-            assignDeckToOutput(deckIdx, outputIndex);
-          }
-        }});
+      const OutputTarget& output = project_.outputs[outputIndex];
+      const auto here = assignmentIndexForDeckOutput(deckIdx, outputIndex);
+      contextItems_.push_back({outputLabel(outputIndex), {0, 0, 0, 0}, nullptr});
 
-      // ── AND THE LAYER, UNDER THE OUTPUT IT IS A LAYER OF ──────────────
-      //
-      // These were two loose rows at the bottom acting on "the focused
-      // output", which is a thing the menu never names. An output and its
-      // layer are one decision made in one order, so they are one group.
-      if (!layer) {
-        continue;
-      }
-      const int top = static_cast<int>(project_.outputs[outputIndex].layerDecks.size());
-      if (*layer > 0) {
+      // The stack, bottom first. Index 0 is the base; 1..N sit over it.
+      const int slots = static_cast<int>(output.layerDecks.size()) + 1;
+      for (int slot = 0; slot < slots; ++slot) {
+        const int occupantDeck = (slot == 0) ? output.hostDeckIndex
+                                             : output.layerDecks[slot - 1].deckIndex;
+        const bool isThisPlaylist = occupantDeck == deckIdx;
+        const std::string role = (slot == 0) ? "base" : "over " + layerLetter(slot);
         contextItems_.push_back({
-          "      v  down to layer " + layerLetter(*layer - 1), {0, 0, 0, 0},
-          [this, deckIdx, outputIndex, layer]() {
-            setDeckOutputAssignmentLayer(deckIdx, outputIndex, *layer - 1);
+          std::string("    ") + role + " - " + deckLabel(occupantDeck) +
+            (isThisPlaylist ? "   <- this one" : ""),
+          isThisPlaylist ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
+          nullptr});
+        // A slot to go ABOVE this one, unless this playlist is already there
+        // or directly above it -- an insertion that changes nothing is a row
+        // that does nothing.
+        const bool wouldBeANoOp = here && (*here == slot || *here == slot + 1);
+        if (!wouldBeANoOp) {
+          const int targetLayer = slot + 1;
+          contextItems_.push_back({
+            "        put it here, over " + deckLabel(occupantDeck),
+            SDL_Color {40, 90, 130, 255},
+            [this, deckIdx, outputIndex, targetLayer]() {
+              if (assignmentIndexForDeckOutput(deckIdx, outputIndex)) {
+                setDeckOutputAssignmentLayer(deckIdx, outputIndex, targetLayer);
+              } else {
+                assignDeckToOutput(deckIdx, outputIndex, targetLayer);
+              }
+            }});
+        }
+      }
+      // AS THE BASE is its own row: it is a swap with whatever is there, not
+      // an insertion, and an output must always have one.
+      if (!here || *here != 0) {
+        contextItems_.push_back({
+          "        make it the base",
+          SDL_Color {40, 90, 130, 255},
+          [this, deckIdx, outputIndex]() {
+            if (!assignmentIndexForDeckOutput(deckIdx, outputIndex)) {
+              assignDeckToOutput(deckIdx, outputIndex);
+            }
+            setDeckOutputAssignmentLayer(deckIdx, outputIndex, 0);
           }});
       }
-      if (*layer < top) {
+      if (here) {
         contextItems_.push_back({
-          "      ^  up to layer " + layerLetter(*layer + 1), {0, 0, 0, 0},
-          [this, deckIdx, outputIndex, layer]() {
-            setDeckOutputAssignmentLayer(deckIdx, outputIndex, *layer + 1);
+          "        take it off this output",
+          SDL_Color {130, 50, 40, 255},
+          [this, deckIdx, outputIndex]() {
+            unassignDeckFromOutput(deckIdx, outputIndex);
           }});
       }
     }

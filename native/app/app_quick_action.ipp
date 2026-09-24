@@ -66,6 +66,46 @@
       // A master cue IS a show state: every playlist set to the cue it should
       // be on. The dashboard is where an operator reaches for a show state.
       // This is the one press that connects them.
+      case QuickAction::StingPitchDec:
+      case QuickAction::StingPitchInc:
+      case QuickAction::StingLenDec:
+      case QuickAction::StingLenInc:
+      case QuickAction::StingSweepDec:
+      case QuickAction::StingSweepInc:
+      case QuickAction::StingBodyDec:
+      case QuickAction::StingBodyInc: {
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->kind != CueKind::Tone) {
+          return;
+        }
+        ToneSettings& t = cue->tone;
+        switch (action) {
+          // Pitch steps in SEMITONES, not in Hz: a fixed number of Hz is a
+          // different interval at every pitch, so a stepper in Hz walks fast
+          // low down and barely moves up top.
+          case QuickAction::StingPitchDec:
+            t.stingPitchHz = std::clamp(t.stingPitchHz / 1.059463, 20.0, 12000.0); break;
+          case QuickAction::StingPitchInc:
+            t.stingPitchHz = std::clamp(t.stingPitchHz * 1.059463, 20.0, 12000.0); break;
+          case QuickAction::StingLenDec:
+            t.stingSeconds = std::clamp(t.stingSeconds - 0.05, 0.05, 10.0); break;
+          case QuickAction::StingLenInc:
+            t.stingSeconds = std::clamp(t.stingSeconds + 0.05, 0.05, 10.0); break;
+          case QuickAction::StingSweepDec:
+            t.stingSweepSemitones = std::clamp(t.stingSweepSemitones - 1.0, -24.0, 24.0); break;
+          case QuickAction::StingSweepInc:
+            t.stingSweepSemitones = std::clamp(t.stingSweepSemitones + 1.0, -24.0, 24.0); break;
+          case QuickAction::StingBodyDec:
+            t.stingBody = std::clamp(t.stingBody - 0.05, 0.0, 1.0); break;
+          default:
+            t.stingBody = std::clamp(t.stingBody + 0.05, 0.0, 1.0); break;
+        }
+        markProjectDirty();
+        // The length is the cue's duration, so the engine has to be told --
+        // otherwise the sting keeps the length it was taken with.
+        refreshAllLiveCueRuntimes();
+        return;
+      }
       case QuickAction::MultiviewToggle:
         project_.multiviewMode = project_.multiviewMode ? 0 : 1;
         if (project_.multiviewMode == 0) {

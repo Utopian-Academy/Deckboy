@@ -2684,6 +2684,7 @@
       case ToneWaveform::Sweep:    return "sweep";
       case ToneWaveform::Identify: return "identify";
       case ToneWaveform::Fds:      return "FDS synth";
+      case ToneWaveform::Sting:    return "sting";
       default:                     return "sine";
     }
   }

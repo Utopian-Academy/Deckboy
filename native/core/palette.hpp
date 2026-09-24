@@ -180,16 +180,27 @@ inline SDL_Color paletteToggleFill(bool on) {
   if (on) {
     return litCandidate;
   }
-  // Recede AWAY from the lit colour: on a light theme that means darker, on a
-  // dark one lighter. Mixing blindly toward black made dark themes worse.
+  // ── UNLIT IS RECESSED, NOT EXTINGUISHED ─────────────────────────────
+  //
+  // MEASURED, after three tries by eye. On the theme James was looking at,
+  // the previous version put a lit toggle at luma 135 and an unlit one at 21
+  // -- while every ordinary value pill in the same column sits at 89 and the
+  // panel behind them at 41. So an off toggle was a near-black hole punched
+  // through a row of blue controls, darker than the panel it sat on. That is
+  // what "cue toggles messed up again" was looking at.
+  //
+  // It is derived from the lit colour instead of mixed toward black by a
+  // guessed amount: a fixed fraction of the way from lit toward the panel's
+  // own depth, which lands it clearly below lit and clearly above the
+  // background on any theme, because both ends are that theme's own colours.
   const SDL_Color away = detail::paletteLuma(litCandidate) > 128
                            ? pal.deep : pal.light;
-  SDL_Color unlit = paletteMix(pal.tile, away, 0.42);
-  // AND THE GAP IS GUARANTEED. A theme whose tile and light are already close
-  // would otherwise give two states nobody can tell apart -- which is the
-  // fault the very first version of this shipped with.
-  if (paletteColorDistance(litCandidate, unlit) < 110) {
-    unlit = paletteMix(unlit, away, 0.5);
+  SDL_Color unlit = paletteMix(litCandidate, away, 0.62);
+  // AND THE GAP IS GUARANTEED. A theme whose roles are already close would
+  // otherwise give two states nobody can tell apart -- the fault the very
+  // first version of this shipped with.
+  if (paletteColorDistance(litCandidate, unlit) < 90) {
+    unlit = paletteMix(litCandidate, away, 0.8);
   }
   return unlit;
 }

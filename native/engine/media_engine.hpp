@@ -856,6 +856,10 @@ class MediaEngine {
   // Tone generator state. Lives across pump calls so the waveform is
   // continuous -- restarting the phase every block would click audibly.
   double tonePhase_ = 0.0;
+  // The sting's own clock and phase. Advanced on the audio thread, reset when
+  // the cue is taken -- see loadCue.
+  double stingElapsed_ = 0.0;
+  double stingPhase_ = 0.0;
   double toneSweepSeconds_ = 0.0;
   int toneIdentifyChannel_ = 0;
   std::uint32_t toneSeed_ = 0x1234567u;

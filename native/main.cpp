@@ -5662,7 +5662,43 @@ class App {
                      static_cast<int>(NumericParam::ToneLevel));
     rowY += ix.rowStep;
 
-    if (cue.tone.waveform == ToneWaveform::Sine) {
+    // ── THE STING'S FOUR SLIDERS ──────────────────────────────────────
+    //
+    // Four, and no more: pitch, how long, how far it travels and how much
+    // weight it has. Everything else about a walk-up sting -- the attack, the
+    // decay curve, the harmonic weighting -- is what MAKES it a sting rather
+    // than a tone, and a control for each would be a synthesiser, which is
+    // the FDS voice next door.
+    if (cue.tone.waveform == ToneWaveform::Sting) {
+      inspDrawQuickRow(ix, rowY, "pitch", QuickAction::StingPitchDec,
+                       std::to_string(static_cast<int>(cue.tone.stingPitchHz)) + " Hz",
+                       QuickAction::StingPitchInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Where the sting starts. Under a voice it wants to stay "
+                       "out of the way; over a room it wants to cut through.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "length", QuickAction::StingLenDec,
+                       fmtFloat(cue.tone.stingSeconds, 2) + " s",
+                       QuickAction::StingLenInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "The whole gesture. This IS the cue's duration -- a "
+                       "sting is the one generated signal here that ends.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "sweep", QuickAction::StingSweepDec,
+                       fmtFloat(cue.tone.stingSweepSemitones, 1) + " st",
+                       QuickAction::StingSweepInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "How far it travels, in semitones. Up reads as arrival, "
+                       "down as departure, zero is a struck note.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "body", QuickAction::StingBodyDec,
+                       std::to_string(static_cast<int>(cue.tone.stingBody * 100.0)) + "%",
+                       QuickAction::StingBodyInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Harmonic weight: a pure chime at zero, brass at full. "
+                       "This is the difference between a ping and a fanfare.");
+      rowY += ix.rowStep;
+    } else if (cue.tone.waveform == ToneWaveform::Sine) {
       inspDrawQuickRow(ix, rowY, "freq", QuickAction::ToneFreqDec,
                        std::to_string(static_cast<int>(cue.tone.frequencyHz)) + " Hz",
                        QuickAction::ToneFreqInc, QuickAction::ToggleLoop,
