@@ -223,6 +223,10 @@ class Deckboy:
             print("   no recording: RECORD START -> %r, STOP -> %r" % (started[:100], stopped[:100]))
             print("   recordings folder: %s" % (sorted(listing()) or "empty or missing"))
             print("   ffmpeg on PATH: %s" % (shutil.which("ffmpeg") or "none"))
+            # Every output, a recording included, needs an SDL window for its
+            # renderer; with no display session that fails and the health
+            # says so ("window create failed") while RECORD still answers OK.
+            print("   OUTPUT STATUS: %s" % self.send("OUTPUT STATUS")[:300].replace("\n", " | "))
             # Did it land somewhere else? The root, and the user's Videos folder.
             since = time.time() - seconds - 60
             for top in (self.root, os.path.join(os.path.expanduser("~"), "Videos")):
