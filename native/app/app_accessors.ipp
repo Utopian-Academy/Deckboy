@@ -615,6 +615,119 @@
     }
   }
 
+  // -- THE MASTER TRACKER ------------------------------------------------
+  //
+  // Every master cue in the show, in deck then cue order: the rows. A master
+  // already holds one assignment per destination deck, so a row already has
+  // its cells -- this only finds them.
+  std::vector<std::pair<int, int>> masterTrackerRows() const {
+    std::vector<std::pair<int, int>> rows;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[d];
+      for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+        if (deck.cues[c].kind == CueKind::Master) {
+          rows.emplace_back(d, c);
+        }
+      }
+    }
+    return rows;
+  }
+
+  const Cue* masterTrackerCue(int masterDeck, int masterCue) const {
+    if (masterDeck < 0 || masterDeck >= static_cast<int>(project_.decks.size())) {
+      return nullptr;
+    }
+    const Deck& deck = project_.decks[masterDeck];
+    if (masterCue < 0 || masterCue >= static_cast<int>(deck.cues.size())) {
+      return nullptr;
+    }
+    return &deck.cues[masterCue];
+  }
+
+  // What one cell says. Empty means this step does nothing on this playlist,
+  // which is a real and common answer -- a step usually touches one or two.
+  std::string masterTrackerCellLabel(int masterDeck, int masterCue,
+                                     int targetDeck, bool* bypassed = nullptr) const {
+    if (bypassed) {
+      *bypassed = false;
+    }
+    const Cue* master = masterTrackerCue(masterDeck, masterCue);
+    if (!master) {
+      return std::string();
+    }
+    for (const MasterAssignment& a : master->masterAssignments) {
+      if (a.deckIndex != targetDeck) {
+        continue;
+      }
+      if (bypassed) {
+        *bypassed = a.bypassed;
+      }
+      const int idx = findCueIndexById(targetDeck, a.cueId);
+      if (idx < 0) {
+        // The cue it named has been deleted. Said out loud rather than drawn
+        // as empty: an empty cell means 'does nothing here', and a step that
+        // silently stopped firing is the opposite of that.
+        return std::string("(missing)");
+      }
+      const std::string& name = project_.decks[targetDeck].cues[idx].name;
+      return name.empty() ? ("cue " + std::to_string(idx + 1)) : name;
+    }
+    return std::string();
+  }
+
+  // Point a cell at one of that playlist's cues, or at nothing. Takes the
+  // master EXPLICITLY -- the older helpers all act on the selected cue, which
+  // a grid where every row is visible at once cannot use.
+  bool setMasterTrackerCell(int masterDeck, int masterCue, int targetDeck,
+                            int targetCueIndex) {
+    if (masterDeck < 0 || masterDeck >= static_cast<int>(project_.decks.size()) ||
+        targetDeck < 0 || targetDeck >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    Deck& deck = project_.decks[masterDeck];
+    if (masterCue < 0 || masterCue >= static_cast<int>(deck.cues.size())) {
+      return false;
+    }
+    Cue& master = deck.cues[masterCue];
+    if (master.kind != CueKind::Master) {
+      return false;
+    }
+    auto& list = master.masterAssignments;
+    if (targetCueIndex < 0) {
+      list.erase(std::remove_if(list.begin(), list.end(),
+                                [&](const MasterAssignment& a) {
+                                  return a.deckIndex == targetDeck;
+                                }),
+                 list.end());
+      markProjectDirty();
+      return true;
+    }
+    const Deck& target = project_.decks[targetDeck];
+    if (targetCueIndex >= static_cast<int>(target.cues.size())) {
+      return false;
+    }
+    // A master firing a master is not the model, and fireMasterCue already
+    // refuses it at the point of firing. Refusing it here as well means the
+    // grid cannot be made to hold a cell that will never do anything.
+    if (target.cues[targetCueIndex].kind == CueKind::Master) {
+      return false;
+    }
+    const std::string id = target.cues[targetCueIndex].id;
+    for (MasterAssignment& a : list) {
+      if (a.deckIndex == targetDeck) {
+        a.cueId = id;
+        markProjectDirty();
+        return true;
+      }
+    }
+    MasterAssignment added;
+    added.deckIndex = targetDeck;
+    added.cueId = id;
+    list.push_back(added);
+    markProjectDirty();
+    return true;
+  }
+
   std::vector<MultiviewTile> multiviewTilePlan() const {
     if (!project_.multiviewTiles.empty()) {
       return project_.multiviewTiles;

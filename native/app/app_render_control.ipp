@@ -945,24 +945,38 @@
         deckLoopBtnRect_    = {ax, ty, kModeBtnW, kTBtnH}; ax += kModeBtnW + kTBtnGap;
         deckShuffleBtnRect_ = {ax, ty, kModeBtnW, kTBtnH}; ax += kModeBtnW + kTGrpGap;
 
-        auto drawModeBtn = [&](const SDL_Rect& rect, UiImageAsset& icon, bool lit) {
+        // THE FACE IS THE FALLBACK. An icon-only button with no icon is a
+        // blank rectangle, and these two have no label to read: an operator
+        // cannot tell loop from once, or shuffle from order, by looking at
+        // nothing. The word is worse-looking than the glyph and infinitely
+        // better than an empty box.
+        auto drawModeBtn = [&](const SDL_Rect& rect, UiImageAsset& icon, bool lit,
+                               const char* face) {
           SDL_Color fill = lit ? pal.dark : pal.light;
           SDL_Color ink  = lit ? pal.light : pal.deep;
           drawUIPanel(rect, fill, pal.deep, pal.mid);
-          if (icon.texture) {
-            int iconSize = std::min(20, std::min(rect.w - 12, rect.h - 12));
-            SDL_Rect iconRect {
-              rect.x + (rect.w - iconSize) / 2,
-              rect.y + (rect.h - iconSize) / 2,
-              iconSize, iconSize
-            };
-            drawUiImageContain(icon, iconRect, 255, ink);
+          // ensureUiImageLoaded is what actually decodes, and it is called by
+          // drawUiImageContain -- so ASK it, rather than reading a texture
+          // that is null until the first attempt has been made.
+          int iconSize = std::min(20, std::min(rect.w - 12, rect.h - 12));
+          SDL_Rect iconRect {
+            rect.x + (rect.w - iconSize) / 2,
+            rect.y + (rect.h - iconSize) / 2,
+            iconSize, iconSize
+          };
+          if (!drawUiImageContain(icon, iconRect, 255, ink)) {
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, rect,
+                                 ellipsizeToPixelWidth(fontSmall_, face,
+                                                       rect.w - uiScaled(4)),
+                                 ink);
           }
         };
         UiImageAsset& loopIcon = focDeck.playlistLoop ? uiModeLoopOn_ : uiModeOnce_;
         UiImageAsset& shuffIcon = focDeck.shuffle ? uiModeShuffleOn_ : uiModeOrder_;
-        drawModeBtn(deckLoopBtnRect_, loopIcon, focDeck.playlistLoop);
-        drawModeBtn(deckShuffleBtnRect_, shuffIcon, focDeck.shuffle);
+        drawModeBtn(deckLoopBtnRect_, loopIcon, focDeck.playlistLoop,
+                    focDeck.playlistLoop ? "LOOP" : "ONCE");
+        drawModeBtn(deckShuffleBtnRect_, shuffIcon, focDeck.shuffle,
+                    focDeck.shuffle ? "RND" : "ORD");
         // These two are ICON ONLY, which is where a tip is worth most: there
         // is no label to read and no way to tell loop from once by looking.
         if (pointInRect(mouseX_, mouseY_, deckLoopBtnRect_)) {

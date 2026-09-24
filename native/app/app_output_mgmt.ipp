@@ -6558,7 +6558,7 @@
   }
 
   void toggleFocusedDeckWarpEnabled() {
-    setFocusedDeckWarpEnabled(!focusedDeck().warpEnabled);
+    setFocusedDeckWarpEnabled(!focusedOutput().warpEnabled);
   }
 
   bool setFocusedDeckWarpMode(const std::string& modeToken) {
@@ -6576,7 +6576,7 @@
 
   void cycleFocusedDeckWarpMode(int direction) {
     static constexpr std::array<const char*, 2> kModes {"linear", "perspective"};
-    std::string current = normalizeWarpMode(focusedDeck().warpMode);
+    std::string current = normalizeWarpMode(focusedOutput().warpMode);
     int index = current == "perspective" ? 1 : 0;
     int step = direction < 0 ? -1 : 1;
     int next = (index + step + static_cast<int>(kModes.size())) % static_cast<int>(kModes.size());

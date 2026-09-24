@@ -678,6 +678,130 @@
     }
   }
 
+  // -- THE MASTER TRACKER -------------------------------------------------
+  //
+  // Steps down the page, playlists across it. A master cue already holds one
+  // assignment per destination, so this draws data that was always there and
+  // was only ever shown as a single row in a cue list -- which is why picking
+  // what a master fires has been awkward everywhere else.
+  //
+  // Reading DOWN is time and reading ACROSS is destinations. That is the whole
+  // reason a grid beats a list here: you can see a whole sequence and what
+  // fires together, at once.
+  void renderMasterTracker(const SDL_Rect& area) {
+    const auto rows = masterTrackerRows();
+    const int deckCount = static_cast<int>(project_.decks.size());
+    const int rowH = std::max(uiScaled(22), textLineHeight(fontSmall_) + uiScaled(8));
+    const int stepW = uiScaled(132);
+    const int gap = uiScaled(3);
+
+    if (rows.empty()) {
+      // NEVER A DEAD END. An empty tracker that only says 'empty' gives an
+      // operator nowhere to go; this row makes the first step.
+      SDL_Rect make {area.x, area.y, std::min(area.w, uiScaled(320)), rowH};
+      drawUIPanel(make, pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, make,
+                           "+  a first step", pal.deep);
+      dashButtons_.push_back({make, QuickAction::TrackerAddStep,
+                              "Make a step: one cue on each playlist, fired together"});
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {area.x, area.y + rowH + uiScaled(8), area.w, rowH},
+                   "A step fires one cue on each playlist, all at once.",
+                   pal.fgSoft);
+      return;
+    }
+
+    // The columns share whatever is left after the step name.
+    const int colsW = std::max(uiScaled(60), area.w - stepW - gap);
+    const int colW = std::max(uiScaled(56),
+                              (colsW - gap * std::max(0, deckCount - 1)) /
+                                std::max(1, deckCount));
+
+    // -- THE HEADER: which playlist each column is ----------------------
+    SDL_Rect stepHead {area.x, area.y, stepW, rowH};
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {stepHead.x + uiScaled(4), stepHead.y,
+                           stepHead.w - uiScaled(8), stepHead.h},
+                 "STEP", pal.fgSoft);
+    for (int d = 0; d < deckCount; ++d) {
+      SDL_Rect head {area.x + stepW + gap + d * (colW + gap), area.y, colW, rowH};
+      if (head.x + head.w > area.x + area.w) {
+        break;
+      }
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, head,
+                           ellipsizeToPixelWidth(fontSmall_, deckLabel(d),
+                                                 head.w - uiScaled(6)),
+                           d == project_.focusedDeckIndex ? pal.light : pal.fgSoft);
+    }
+
+    // -- THE STEPS ------------------------------------------------------
+    int y = area.y + rowH + gap;
+    for (std::size_t r = 0; r < rows.size(); ++r) {
+      if (y + rowH > area.y + area.h) {
+        break;      // the rest wait for a bigger window
+      }
+      const int masterDeck = rows[r].first;
+      const int masterCue = rows[r].second;
+      const Cue* master = masterTrackerCue(masterDeck, masterCue);
+      if (!master) {
+        continue;
+      }
+      // THE STEP NAME IS THE GO BUTTON. In a tracker the row header is what
+      // you hit to play the row, and a separate button would be a second
+      // thing to aim at in a grid that is already dense.
+      const bool isLive = project_.decks[masterDeck].activeIndex == masterCue;
+      SDL_Rect stepRect {area.x, y, stepW, rowH};
+      drawUIPanel(stepRect, isLive ? pal.mid : pal.tile, pal.deep, pal.mid);
+      char label[96];
+      std::snprintf(label, sizeof(label), "%2d  %s", static_cast<int>(r) + 1,
+                    master->name.empty() ? "step" : master->name.c_str());
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {stepRect.x + uiScaled(5), stepRect.y,
+                             stepRect.w - uiScaled(10), stepRect.h},
+                   ellipsizeToPixelWidth(fontSmall_, label, stepRect.w - uiScaled(10)),
+                   isLive ? pal.deep : pal.fg);
+      dashButtons_.push_back({stepRect, QuickAction::TrackerFire,
+                              "Fire this step on every playlist at once",
+                              static_cast<int>(r)});
+
+      for (int d = 0; d < deckCount; ++d) {
+        SDL_Rect cell {area.x + stepW + gap + d * (colW + gap), y, colW, rowH};
+        if (cell.x + cell.w > area.x + area.w) {
+          break;
+        }
+        bool bypassed = false;
+        const std::string text =
+          masterTrackerCellLabel(masterDeck, masterCue, d, &bypassed);
+        const bool empty = text.empty();
+        const bool missing = text == "(missing)";
+        drawUIPanel(cell, empty ? pal.deep : (bypassed ? pal.tile : pal.light),
+                    pal.deep, pal.mid);
+        drawCenteredTextSafe(
+          controlRenderer_, fontSmall_, cell,
+          empty ? std::string("--")
+                : ellipsizeToPixelWidth(fontSmall_, text, cell.w - uiScaled(6)),
+          empty ? pal.fgSoft
+                : missing ? SDL_Color {200, 90, 70, 255}
+                          : (bypassed ? pal.fgSoft : pal.deep));
+        // One id per cell, so a click knows both the step and the playlist.
+        // The row AND the column in one number, because a button carries one
+        // param and a cell is two coordinates.
+        dashButtons_.push_back({cell, QuickAction::TrackerCell,
+                                "Pick what this step fires on this playlist",
+                                static_cast<int>(r) * kMaxDecks + d});
+      }
+      y += rowH + gap;
+    }
+
+    if (y + rowH <= area.y + area.h) {
+      SDL_Rect add {area.x, y, stepW, rowH};
+      drawUIPanel(add, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, add, "+  step", pal.fg);
+      dashButtons_.push_back({add, QuickAction::TrackerAddStep,
+                              "Another step at the end"});
+    }
+  }
+
   void renderDashboardOverlay() {
     dashButtons_.clear();
     dashModalRect_ = SDL_Rect {};
@@ -710,6 +834,22 @@
                            hintW, uiScaled(18)},
                  "Ctrl+D or Esc to close", pal.fgSoft);
 
+    // TILES or TRACKER. Two views of the same page rather than two pages:
+    // the dashboard is where a show is laid out, and a master sequence is
+    // exactly that.
+    {
+      const int swW = uiScaled(88);
+      SDL_Rect sw {modal.x + mw - hintW - swW - uiScaled(20),
+                   modal.y + uiScaled(10), swW, uiScaled(22)};
+      const bool tracker = project_.dashboardMode == 1;
+      drawUIPanel(sw, tracker ? pal.mid : pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, sw,
+                           tracker ? "TRACKER" : "TILES",
+                           tracker ? pal.deep : pal.fg);
+      dashButtons_.push_back({sw, QuickAction::TrackerToggle,
+                              "Switch between the tiles and the master tracker"});
+    }
+
     // ── The grid ────────────────────────────────────────────────────────────
     const int pad = uiScaled(14);
     // Clear of the title AND its baseline. At 40 the first row of tiles rode
@@ -722,6 +862,11 @@
     const int tileH = uiScaled(96);
     const int gap = uiScaled(10);
     const int cols = std::max(1, (area.w + gap) / (tileW + gap));
+
+    if (project_.dashboardMode == 1) {
+      renderMasterTracker(area);
+      return;
+    }
 
     const int slots = static_cast<int>(project_.dashboard.size());
     // One trailing tile to add another, so the page is never a dead end.

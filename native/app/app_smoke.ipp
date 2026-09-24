@@ -4452,6 +4452,123 @@
   }
 
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // runImageCheck -- `--image-check`
+  //
+  // Does this machine draw the interface's PICTURES, and if not, which step
+  // fails? The same question --font-check asks about text.
+  //
+  // Written for a report no existing check could answer: on macOS Ventura the
+  // whole interface rendered -- text, panels, theme colours -- with every icon
+  // button blank and no splash art. `--self-check` said "ffmpeg: ok" and meant
+  // only that ffmpeg could be RUN; it never asked whether a picture came back.
+  // Meanwhile every image load gives up silently, the way every text draw used
+  // to:
+  //
+  //     auto size = probeStillImageSize(asset.path);
+  //     if (!size) return false;               <- no log, no toast, nothing
+  //
+  // DECKBOY DECODES ITS OWN CHROME BY SPAWNING ffprobe AND THEN ffmpeg, once
+  // per image. That is the one thing the missing pieces have in common and the
+  // thing nothing else in the interface needs, so it is the first thing to
+  // ask about -- on a machine where spawning those helpers fails, every
+  // picture in the interface disappears together and nothing reports it.
+  //
+  // Needs no window and no GPU: it stops at the decoded pixels, which is the
+  // step that was failing, and that makes it runnable over ssh on the machine
+  // that has the fault.
+  // ---------------------------------------------------------------------------
+  static int runImageCheck() {
+    std::cout << "Deckboy image check\n";
+    App app;
+    const fs::path dataDir = Paths::dataDir();
+    std::cout << "  data dir:      " << dataDir.string() << "\n";
+
+    fs::path root = dataDir / kUiPackRelativePathV3;
+    std::string which = "v3";
+    if (!fs::exists(root)) {
+      root = dataDir / kUiPackRelativePathV2;
+      which = "v2 (the v3 pack is not here)";
+    }
+    std::cout << "  ui pack:       " << (fs::exists(root) ? which : "NONE")
+              << "  " << root.string() << "\n";
+    if (!fs::exists(root)) {
+      std::cout << "\n  The pack is missing, so there is nothing to decode.\n";
+      return 1;
+    }
+
+    // Count what is there before decoding anything, so 'present but not
+    // decodable' and 'not present' cannot be confused for each other.
+    int files = 0;
+    std::vector<fs::path> samples;
+    std::error_code ec;
+    for (auto it = fs::recursive_directory_iterator(root, ec);
+         it != fs::recursive_directory_iterator(); it.increment(ec)) {
+      if (ec) break;
+      if (!it->is_regular_file(ec)) continue;
+      if (it->path().extension() != ".png") continue;
+      ++files;
+      // One from each of the directories the operator actually sees.
+      const std::string parent = it->path().parent_path().filename().string();
+      if ((parent == "mode_icons" || parent == "toolbar" ||
+           parent == "controls" || parent == "splash") && samples.size() < 4) {
+        bool haveThisDir = false;
+        for (const fs::path& s : samples) {
+          if (s.parent_path().filename().string() == parent) haveThisDir = true;
+        }
+        if (!haveThisDir) samples.push_back(it->path());
+      }
+    }
+    std::cout << "  png files:     " << files << "\n";
+
+    // THE TWO HELPERS, separately. ffprobe gives the size and ffmpeg gives the
+    // pixels; either can be the one that is unreachable, and saying which
+    // turns 'no icons' into something somebody can act on.
+    const bool haveProbe = readAllText({"ffprobe", "-version"}).has_value();
+    const bool haveFfmpeg = readAllText({"ffmpeg", "-version"}).has_value();
+    std::cout << "  ffprobe:       " << (haveProbe ? "ok" : "CANNOT RUN") << "\n";
+    std::cout << "  ffmpeg:        " << (haveFfmpeg ? "ok" : "CANNOT RUN") << "\n";
+
+    int decoded = 0;
+    for (const fs::path& sample : samples) {
+      const std::string label = sample.parent_path().filename().string() +
+                                "/" + sample.filename().string();
+      auto size = app.probeStillImageSize(sample);
+      if (!size) {
+        std::cout << "  FAIL  " << label << "  -- ffprobe read no size\n";
+        continue;
+      }
+      std::vector<std::uint8_t> rgba;
+      if (!app.decodeStillImageRgba(sample, size->first, size->second, rgba)) {
+        std::cout << "  FAIL  " << label << "  -- " << size->first << "x"
+                  << size->second << ", but no pixels came back\n";
+        continue;
+      }
+      ++decoded;
+      std::cout << "  ok    " << label << "  " << size->first << "x"
+                << size->second << ", " << rgba.size() << " bytes\n";
+    }
+
+    std::cout << "\n";
+    if (samples.empty()) {
+      std::cout << "  no sample images found in the pack\n";
+      return 1;
+    }
+    if (decoded == static_cast<int>(samples.size())) {
+      std::cout << "  every sample decoded: the interface's pictures will draw.\n";
+      return 0;
+    }
+    std::cout << "  " << (static_cast<int>(samples.size()) - decoded) << " of "
+              << samples.size() << " did not decode.\n";
+    if (!haveProbe || !haveFfmpeg) {
+      std::cout << "  Deckboy decodes every icon and the splash art by spawning\n"
+                << "  ffprobe and ffmpeg. Neither is reachable here, so every\n"
+                << "  picture in the interface will be missing while the text\n"
+                << "  and panels draw normally.\n";
+    }
+    return 1;
+  }
+
   // runFontCheck — `--font-check`
   //
   // Does this machine actually draw text, and if not, which step fails?

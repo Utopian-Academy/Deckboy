@@ -10908,6 +10908,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern[:variant]> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
+  {"--image-check", "can this machine decode the interface's icons and splash art"},
   {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
   {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
   {"--font-check", "open every UI face and render with it; names the step that fails"},
@@ -10937,7 +10938,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
-  "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
+  "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench", "--image-check",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
@@ -11250,6 +11251,12 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   if (mode == "--audio-fx-check") {
     // Optional token: one effect, for when a change is being made to it.
     return App::runAudioFxCheck(ops.empty() ? std::string() : ops[0]);
+  }
+  if (mode == "--image-check") {
+    // The other half of the chrome. Needs no window and no GPU, for the same
+    // reason --font-check does not: it stops at the decoded pixels, which is
+    // the step that fails.
+    return App::runImageCheck();
   }
   if (mode == "--font-check") {
     // Needs no window and no GPU, so it runs over ssh on the machine that has

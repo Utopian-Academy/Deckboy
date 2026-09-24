@@ -27,6 +27,99 @@
       //
       // The slot index rides in QuickButton::param, so one action serves any
       // number of tiles rather than needing an action apiece.
+      case QuickAction::TrackerToggle:
+        project_.dashboardMode = project_.dashboardMode == 1 ? 0 : 1;
+        markProjectDirty();
+        playUiSound(UiSoundEffect::Navigate);
+        break;
+
+      case QuickAction::TrackerAddStep: {
+        // A step is a MASTER CUE, which is what it has always been -- the
+        // tracker is a view of them, not a second kind of thing. Made on the
+        // focused playlist so it lands somewhere the operator can find it in
+        // the ordinary cue list too.
+        addMasterCue();
+        break;
+      }
+
+      case QuickAction::TrackerFire: {
+        const auto rows = masterTrackerRows();
+        if (param < 0 || param >= static_cast<int>(rows.size())) {
+          break;
+        }
+        fireMasterCue(rows[param].first, rows[param].second);
+        break;
+      }
+
+      case QuickAction::TrackerCell: {
+        // The param carries both coordinates; unpack before anything else.
+        const int rowIndex = param / kMaxDecks;
+        const int targetDeck = param % kMaxDecks;
+        const auto rows = masterTrackerRows();
+        if (rowIndex < 0 || rowIndex >= static_cast<int>(rows.size()) ||
+            targetDeck < 0 || targetDeck >= static_cast<int>(project_.decks.size())) {
+          break;
+        }
+        const int masterDeck = rows[rowIndex].first;
+        const int masterCue = rows[rowIndex].second;
+        const Deck& target = project_.decks[targetDeck];
+
+        // A LIST, not a cycle. James on the output's source-deck row:
+        // "clicking 7 times to select the right deck sucks" -- a cell in a
+        // grid has exactly the same problem and a longer list to walk.
+        std::vector<std::pair<std::string, std::string>> choices;
+        choices.emplace_back("-1", "nothing on this playlist");
+        for (int c = 0; c < static_cast<int>(target.cues.size()); ++c) {
+          // A master firing a master is not the model, so it is not offered.
+          if (target.cues[c].kind == CueKind::Master) {
+            continue;
+          }
+          const std::string& name = target.cues[c].name;
+          choices.emplace_back(
+            std::to_string(c),
+            std::to_string(c + 1) + "  " +
+              (name.empty() ? std::string("(unnamed)") : name));
+        }
+        if (choices.size() == 1) {
+          triggerToast(deckLabel(targetDeck) + " has no cues to fire");
+          break;
+        }
+        // Anchored on the cell, so the list opens where the eye already is.
+        SDL_Rect anchorRect {};
+        for (const auto& button : dashButtons_) {
+          if (button.action == QuickAction::TrackerCell && button.param == param) {
+            anchorRect = button.rect;
+            break;
+          }
+        }
+        std::string current = "-1";
+        if (const Cue* master = masterTrackerCue(masterDeck, masterCue)) {
+          for (const MasterAssignment& a : master->masterAssignments) {
+            if (a.deckIndex == targetDeck) {
+              const int idx = findCueIndexById(targetDeck, a.cueId);
+              if (idx >= 0) {
+                current = std::to_string(idx);
+              }
+              break;
+            }
+          }
+        }
+        openDropdown("tracker.cell", anchorRect, choices, current,
+                     [this, masterDeck, masterCue, targetDeck](const std::string& value) {
+                       const int picked = std::atoi(value.c_str());
+                       if (!setMasterTrackerCell(masterDeck, masterCue,
+                                                 targetDeck, picked)) {
+                         triggerToast("that cue cannot be fired by a step");
+                         return;
+                       }
+                       triggerToast(picked < 0
+                         ? (deckLabel(targetDeck) + ": nothing")
+                         : (deckLabel(targetDeck) + ": " +
+                            masterTrackerCellLabel(masterDeck, masterCue, targetDeck)));
+                     });
+        break;
+      }
+
       case QuickAction::DashSlotFire: {
         const int at = param;
         if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) break;

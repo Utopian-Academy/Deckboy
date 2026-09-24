@@ -5425,8 +5425,10 @@
           }
           float corners[8];
           for (int i = 0; i < 8; ++i) {
-            auto value = parseNumber(3 + i);
-            if (!value) {
+            // `corner`, not `value`: the VIDEO branch already has a `value`
+            // in scope and hiding it is what the warnings audit fails on.
+            auto corner = parseNumber(3 + i);
+            if (!corner) {
               failRemoteCommand("VIDEO OUTPUT LAYERWARP: '" + parts[3 + i] +
                                 "' is not a number");
               return;
@@ -5434,7 +5436,7 @@
             // A corner may legitimately go outside the layer -- that is what
             // pinning onto a bigger surface looks like -- but not so far that
             // the quad turns inside out or leaves the raster entirely.
-            corners[i] = std::clamp(static_cast<float>(*value), -2.0f, 2.0f);
+            corners[i] = std::clamp(static_cast<float>(*corner), -2.0f, 2.0f);
           }
           layer->warpTopLeftX = corners[0];  layer->warpTopLeftY = corners[1];
           layer->warpTopRightX = corners[2]; layer->warpTopRightY = corners[3];

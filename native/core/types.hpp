@@ -1993,6 +1993,9 @@ struct Project {
   // that is how it is useful: safe areas on the one feeding a screen with
   // bezels, a meter on the one carrying the sound.
   std::vector<MultiviewTile> multiviewTiles;
+  // The dashboard's view: 0 the tiles, 1 the master tracker. Tiles by
+  // default, because that is what the dashboard has always been.
+  int dashboardMode = 0;
   // -- THE MONITOR ------------------------------------------------------
   //
   // The device you listen on, and which playlist you hear on it. Empty
@@ -2503,6 +2506,9 @@ enum class QuickAction {
   FireIntensityDec, FireIntensityInc,
   FireSparksDec, FireSparksInc,
   FireViewCycle,
+  // The master tracker on the dashboard. TrackerCell carries the row and the
+  // column in one param (row * kMaxDecks + deck), because a button has one.
+  TrackerToggle, TrackerAddStep, TrackerFire, TrackerCell,
   CueSectionTextToggle,
   CueSectionFiresideToggle,
   CueSectionMidiFileToggle,
