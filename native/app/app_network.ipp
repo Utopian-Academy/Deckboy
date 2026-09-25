@@ -520,6 +520,8 @@
         "matrix:    MATRIX [SET <src 1-2> <dest 1-64> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
         "midi file: MIDIFILE [PORT <name>] - drop a .mid in the playlist and it plays out\n"
         "text:      TEXTCUE NEW|BODY <words>|ANIM none/fade/typewriter/scroll/crawl/pulse/wobble|SIZE <1-100>|SPEED <n>|ALIGN <side>|CARD <0-255>\n"
+        "lower 3rd: TEXTCUE LOWERNEW | LOWER on/off | TITLE <words> | SUB <words> | LOOK bar/boxes/line/tag/glass\n"
+        "           TEXTCUE IN|OUTMOVE cut/fade/left/right/rise/wipe/grow/typewriter/pop | TEXTCUE OUT (plays the out, then off)\n"
         "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "tracker:   TRACKER [GO|BACK|PLAY|STOP|STEP <n>|LOOP [on|off]|CLICKER [on|off]] - the master cues as a sequence\n"

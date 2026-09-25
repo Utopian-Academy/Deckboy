@@ -845,6 +845,19 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.portal.outline
         << '\t' << cue.portal.speed
         << '\t' << cue.portal.hue
+        // A text cue's lower-third layout.
+        << '\t' << (cue.lowerThird.on ? 1 : 0)
+        << '\t' << static_cast<int>(cue.lowerThird.look)
+        << '\t' << lowerThirdMoveToken(cue.lowerThird.moveIn)
+        << '\t' << lowerThirdMoveToken(cue.lowerThird.moveOut)
+        << '\t' << cue.lowerThird.inSeconds
+        << '\t' << cue.lowerThird.outSeconds
+        << '\t' << cue.lowerThird.holdSeconds
+        << '\t' << cue.lowerThird.side
+        << '\t' << cue.lowerThird.height
+        << '\t' << cue.lowerThird.size
+        << '\t' << cue.lowerThird.bar
+        << '\t' << cue.lowerThird.accent
         << '\n';
     }
   }
@@ -2137,6 +2150,28 @@ Project loadProject(const fs::path& projectFile,
           cue.portal.outline = std::clamp(safeDouble(fields, vs + 111, fresh.outline), 0.0, 1.0);
           cue.portal.speed = std::clamp(safeDouble(fields, vs + 112, fresh.speed), 0.1, 3.0);
           cue.portal.hue = std::clamp(safeDouble(fields, vs + 113, fresh.hue), 0.0, 1.0);
+        }
+        // A lower third. Off on an older show, which is what it was.
+        {
+          const LowerThirdDesign fresh;
+          LowerThirdDesign& l = cue.lowerThird;
+          l.on = safeBool(fields, vs + 114, false);
+          l.look = static_cast<LowerThirdLook>(std::clamp(
+            safeInt(fields, vs + 115, static_cast<int>(fresh.look)), 0,
+            static_cast<int>(LowerThirdLook::Count) - 1));
+          const std::string moveIn = safeString(fields, vs + 116);
+          const std::string moveOut = safeString(fields, vs + 117);
+          l.moveIn = moveIn.empty() ? fresh.moveIn : lowerThirdMoveFromToken(moveIn);
+          l.moveOut = moveOut.empty() ? fresh.moveOut : lowerThirdMoveFromToken(moveOut);
+          l.inSeconds = std::clamp(safeDouble(fields, vs + 118, fresh.inSeconds), 0.0, 5.0);
+          l.outSeconds = std::clamp(safeDouble(fields, vs + 119, fresh.outSeconds), 0.0, 5.0);
+          l.holdSeconds = std::clamp(safeDouble(fields, vs + 120, fresh.holdSeconds), 0.0, 600.0);
+          l.side = std::clamp(safeInt(fields, vs + 121, fresh.side), 0, 2);
+          l.height = std::clamp(safeDouble(fields, vs + 122, fresh.height), 0.0, 0.8);
+          l.size = std::clamp(safeDouble(fields, vs + 123, fresh.size), 0.5, 2.0);
+          l.bar = std::clamp(safeInt(fields, vs + 124, fresh.bar), 0, kLowerThirdColourCount - 1);
+          l.accent = std::clamp(safeInt(fields, vs + 125, fresh.accent), 0,
+                                kLowerThirdColourCount - 1);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

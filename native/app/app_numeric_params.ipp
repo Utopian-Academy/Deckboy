@@ -51,6 +51,13 @@ enum class NumericParam : int {
   PortalOutline,
   PortalSpeed,
   PortalHue,
+
+  // Lower third (a text cue's layout)
+  L3Height,
+  L3Size,
+  L3InSeconds,
+  L3OutSeconds,
+  L3HoldSeconds,
 };
 
 struct NumericParamSpec {
@@ -204,6 +211,33 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
                                        0.0, 1.0, 2, false, 0.05};
       return &s;
     }
+    case NumericParam::L3Height: {
+      static const NumericParamSpec s {"l3.height", "Height",
+                                       "Space under it, as a fraction of the frame, 0-0.8",
+                                       0.0, 0.8, 2, false, 0.01};
+      return &s;
+    }
+    case NumericParam::L3Size: {
+      static const NumericParamSpec s {"l3.size", "Size",
+                                       "Scale of the whole graphic, 0.5-2", 0.5, 2.0, 2, false, 0.05};
+      return &s;
+    }
+    case NumericParam::L3InSeconds: {
+      static const NumericParamSpec s {"l3.in", "In time",
+                                       "Seconds the in move takes, 0-5", 0.0, 5.0, 1, false, 0.1};
+      return &s;
+    }
+    case NumericParam::L3OutSeconds: {
+      static const NumericParamSpec s {"l3.out", "Out time",
+                                       "Seconds the out move takes, 0-5", 0.0, 5.0, 1, false, 0.1};
+      return &s;
+    }
+    case NumericParam::L3HoldSeconds: {
+      static const NumericParamSpec s {"l3.hold", "On screen",
+                                       "Seconds before it leaves by itself; 0 waits for OUT",
+                                       0.0, 600.0, 0, false, 1.0};
+      return &s;
+    }
     default:
       return nullptr;
   }
@@ -254,6 +288,22 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
           : p.hue;
       return true;
     }
+    case NumericParam::L3Height:
+    case NumericParam::L3Size:
+    case NumericParam::L3InSeconds:
+    case NumericParam::L3OutSeconds:
+    case NumericParam::L3HoldSeconds: {
+      if (cue.kind != CueKind::Text || !cue.lowerThird.on) {
+        return false;
+      }
+      const LowerThirdDesign& l = cue.lowerThird;
+      out = id == NumericParam::L3Height ? l.height
+          : id == NumericParam::L3Size ? l.size
+          : id == NumericParam::L3InSeconds ? l.inSeconds
+          : id == NumericParam::L3OutSeconds ? l.outSeconds
+          : l.holdSeconds;
+      return true;
+    }
     default: return false;
   }
 }
@@ -287,6 +337,11 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::PortalOutline: cue.portal.outline = value; break;
     case NumericParam::PortalSpeed:  cue.portal.speed = value; break;
     case NumericParam::PortalHue:    cue.portal.hue = value; break;
+    case NumericParam::L3Height:      cue.lowerThird.height = value; break;
+    case NumericParam::L3Size:        cue.lowerThird.size = value; break;
+    case NumericParam::L3InSeconds:   cue.lowerThird.inSeconds = value; break;
+    case NumericParam::L3OutSeconds:  cue.lowerThird.outSeconds = value; break;
+    case NumericParam::L3HoldSeconds: cue.lowerThird.holdSeconds = value; break;
     default: break;
   }
 }

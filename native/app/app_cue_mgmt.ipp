@@ -385,6 +385,8 @@
       {"tracker",   "Previous step",   "TRACKER BACK",     "<"},
       {"tracker",   "Play sequence",   "TRACKER PLAY",     "|>"},
       {"tracker",   "Stop sequence",   "TRACKER STOP",     "[]"},
+      // A lower third's exit, from a button that needs no selection.
+      {"graphics",  "Lower third out", "TEXTCUE OUT",      "v"},
     };
     return kPresets;
   }
@@ -2577,6 +2579,11 @@
       [this]() { addPortalCue(); }
     });
     contextItems_.push_back({
+      "  Lower third (name and role, in and out)",
+      {0, 0, 0, 0},
+      [this]() { addLowerThirdTextCue(); }
+    });
+    contextItems_.push_back({
       "  Text (a title card, or a crawl)",
       {0, 0, 0, 0},
       [this]() { addTextCue(); }
@@ -3740,6 +3747,23 @@
     markProjectDirty();
     triggerToast("text added");
     playUiSound(UiSoundEffect::Import);
+  }
+
+  // A text cue already laid out as a lower third: the first thing an operator
+  // wants from one is to change the words, so it arrives with some to change.
+  void addLowerThirdTextCue() {
+    addTextCue();
+    Deck& deck = focusedDeckMutable();
+    if (deck.cues.empty()) {
+      return;
+    }
+    Cue& cue = deck.cues.back();
+    cue.name = "Lower third";
+    cue.color = {38, 110, 228, 255};
+    cue.textBody = "Name Surname\nTitle or role";
+    cue.lowerThird.on = true;
+    markProjectDirty();
+    triggerToast("lower third added - put its playlist on a layer");
   }
 
   void addDmxCue() {

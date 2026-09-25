@@ -142,6 +142,15 @@
         break;
       }
 
+      case QuickAction::LowerThirdLayoutToggle: toggleLowerThirdLayout(); return;
+      case QuickAction::LowerThirdCycle:        cycleLowerThird(param); return;
+      case QuickAction::LowerThirdEditTitle:    editLowerThirdLine(0); return;
+      case QuickAction::LowerThirdEditSub:      editLowerThirdLine(1); return;
+      case QuickAction::LowerThirdOut:
+        if (lowerThirdTakeOutAnywhere() == 0) {
+          triggerToast("no lower third on air");
+        }
+        return;
       case QuickAction::TrackerGo:
         trackerGo();
         return;

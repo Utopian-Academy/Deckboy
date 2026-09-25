@@ -5481,7 +5481,15 @@
     } else if (!selectedCue) {
       // The "SELECTED CUE" summary panel above already renders the
       // NO CUE SELECTED empty state — nothing further to draw here.
-    } else {
+    } else if (selectedCue->kind != CueKind::Text && selectedCue->kind != CueKind::Master &&
+               selectedCue->kind != CueKind::MidiFile && selectedCue->kind != CueKind::Dmx &&
+               selectedCue->kind != CueKind::Fade && selectedCue->kind != CueKind::Midi &&
+               selectedCue->kind != CueKind::Network && selectedCue->kind != CueKind::Script &&
+               selectedCue->kind != CueKind::Target && selectedCue->kind != CueKind::Timecode) {
+      // NOT FOR A KIND WITH A SECTION OF ITS OWN FURTHER DOWN. Those are drawn
+      // after this chain, so saying "no per-cue settings" was false for every
+      // one of them -- and it is drawn at a fixed place, not in the scrolled
+      // list, so it sat on top of whichever of their rows scrolled under it.
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, textLineHeight(fontSmall_)},
                    "no per-cue settings for this type",
@@ -5875,6 +5883,81 @@
                                              "Collapse/expand the words and how they move");
       txY = txSection.bodyStartY;
       if (cueSectionTextOpen_) {
+        txY = inspDrawChoiceRow(ix, txY, "layout",
+                                selectedCue->lowerThird.on ? "lower third" : "card",
+                                QuickAction::LowerThirdLayoutToggle,
+                                "A card fills the frame; a lower third is a name and a "
+                                "role, low on a transparent frame, with an in and an out",
+                                -1, selectedCue->lowerThird.on);
+      }
+      if (cueSectionTextOpen_ && selectedCue->lowerThird.on) {
+        const LowerThirdDesign& l = selectedCue->lowerThird;
+        const std::string title = textBodyLine(selectedCue->textBody, 0);
+        const std::string subtitle = textBodyLine(selectedCue->textBody, 1);
+        txY = drawInspectorEditableRow(txY, "title", title.empty() ? "(none)" : title,
+                                       QuickAction::LowerThirdEditTitle, "The name");
+        txY = drawInspectorEditableRow(txY, "subtitle",
+                                       subtitle.empty() ? "(none)" : subtitle,
+                                       QuickAction::LowerThirdEditSub,
+                                       "The role, or leave it empty");
+        struct L3Choice {
+          const char* label;
+          std::string value;
+          int which;
+          const char* tip;
+        };
+        const L3Choice choices[] = {
+          {"look", lowerThirdLookLabel(l.look), 0,
+           "Bar, boxes, line, tag or glass"},
+          {"side", l.side == 0 ? "left" : l.side == 2 ? "right" : "centre", 1,
+           "Which side of the frame it sits on"},
+          {"bar", lowerThirdColourName(l.bar), 2, "The colour behind the words"},
+          {"accent", lowerThirdColourName(l.accent), 3,
+           "The second colour: the edge, the rule, the tag"},
+          {"in", lowerThirdMoveLabel(l.moveIn), 4, "How it arrives"},
+          {"out", lowerThirdMoveLabel(l.moveOut), 5, "How it leaves"},
+        };
+        for (const L3Choice& c : choices) {
+          txY = inspDrawChoiceRow(ix, txY, c.label, c.value, QuickAction::LowerThirdCycle,
+                                  c.tip, c.which);
+        }
+        struct L3Number {
+          const char* label;
+          NumericParam id;
+          std::string value;
+          const char* tip;
+        };
+        char hBuf[16], sBuf[16], inBuf[16], outBuf[16], holdBuf[24];
+        std::snprintf(hBuf, sizeof(hBuf), "%d%%", static_cast<int>(std::lround(l.height * 100.0)));
+        std::snprintf(sBuf, sizeof(sBuf), "%.2fx", l.size);
+        std::snprintf(inBuf, sizeof(inBuf), "%.1f s", l.inSeconds);
+        std::snprintf(outBuf, sizeof(outBuf), "%.1f s", l.outSeconds);
+        if (l.holdSeconds > 0.0) {
+          std::snprintf(holdBuf, sizeof(holdBuf), "%.0f s", l.holdSeconds);
+        } else {
+          std::snprintf(holdBuf, sizeof(holdBuf), "until OUT");
+        }
+        const L3Number numbers[] = {
+          {"height", NumericParam::L3Height, hBuf, "Space under it, as a share of the frame"},
+          {"size", NumericParam::L3Size, sBuf, "Scale of the whole graphic"},
+          {"in time", NumericParam::L3InSeconds, inBuf, "How long the in move takes"},
+          {"out time", NumericParam::L3OutSeconds, outBuf, "How long the out move takes"},
+          {"on screen", NumericParam::L3HoldSeconds, holdBuf,
+           "How long it stays before leaving by itself. 0 waits for OUT"},
+        };
+        for (const L3Number& n : numbers) {
+          inspDrawQuickRow(ix, txY, n.label, QuickAction::NumericParamDec, n.value,
+                           QuickAction::NumericParamInc, QuickAction::ToggleLoop,
+                           false, false, n.tip, true, QuickAction::EditNumericParam,
+                           static_cast<int>(n.id));
+          txY += kInspectorRowStep;
+        }
+        txY = inspDrawActionRow(ix, txY, "OUT", QuickAction::LowerThirdOut,
+                                "Play the out move now, then take it off",
+                                pal.dark, pal.light);
+        txY = drawInspectorMessageRow(txY, "transparent: put its playlist on a layer",
+                                      pal.tile, pal.fgSoft);
+      } else if (cueSectionTextOpen_) {
         // The first line only, and a count when there are more: a body of
         // text does not fit in a row and pretending it does just truncates
         // something the operator then cannot read.

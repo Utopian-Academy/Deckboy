@@ -365,6 +365,30 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     return;
   }
 
+  // A TEXT CUE IS DRAWN BY THE OUTPUTS, never decoded -- but it moves on this
+  // engine's clock, so the clock has to RUN.
+  //
+  // There was no branch for it here. It fell through to startDecoderThreads
+  // with an empty path, which failed, and the deck sat Stopped at position 0
+  // for as long as the cue was up. The outputs draw a text cue whether or not
+  // its engine plays, so the card still appeared -- and every animation it
+  // has froze on its first frame: FADE IN stayed at nothing, TYPEWRITER typed
+  // no letters, SCROLL sat below the frame. A still's timer would not do
+  // either: with no duration it holds Paused at 0 for the same reason.
+  //
+  // Playing with no duration is a clock with no end, which is what a card
+  // that "holds until it is taken off" means. A duration, if one is set, ends
+  // it like any still.
+  if (cue->kind == CueKind::Text) {
+    duration_ = cue->stillDurationSeconds > 0.0 ? cue->stillDurationSeconds : 0.0;
+    currentPosition_ = 0.0;
+    pausedPosition_ = 0.0;
+    playbackStartPosition_ = 0.0;
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    state_ = autoplay ? TransportState::Playing : TransportState::Paused;
+    return;
+  }
+
   if (cue->kind == CueKind::Pattern) {
     loadPatternFrame(*cue);
     initStillTimer(*cue, autoplay);
@@ -829,6 +853,16 @@ void MediaEngine::stop(bool clearVisual) {
     pausedPosition_ = 0.0;
     currentPosition_ = 0.0;
     applyVisualClear();
+    return;
+  }
+  // A TEXT CUE HAS NO FRAME TO CLEAR: the outputs draw it from the cue while
+  // its engine is not Stopped. So "darken" has to be the state itself --
+  // Paused at 0 below would leave a card on screen after STOP. RERACK (no
+  // clear) holds it at its first moment, as it does every other still.
+  if (activeCue_->kind == CueKind::Text) {
+    state_ = clearVisual ? TransportState::Stopped : TransportState::Paused;
+    pausedPosition_ = 0.0;
+    currentPosition_ = 0.0;
     return;
   }
   bool isAV = activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio;

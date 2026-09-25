@@ -996,6 +996,23 @@
         remoteCommandDetail_ = "text cue " + std::to_string(deck.cues.size());
         return;
       }
+      // A lower third already laid out, and OUT for whichever is on air --
+      // neither needs a selection, which is what makes them work from a
+      // Companion button in the middle of a show.
+      if (sub == "LOWERNEW" || sub == "L3NEW") {
+        addLowerThirdTextCue();
+        remoteCommandDetail_ = "lower third " + std::to_string(deck.cues.size());
+        return;
+      }
+      if (sub == "OUT") {
+        const int sent = lowerThirdTakeOutAnywhere();
+        if (sent == 0) {
+          failRemoteCommand("TEXTCUE OUT: no lower third on air");
+          return;
+        }
+        remoteCommandDetail_ = std::to_string(sent) + " leaving";
+        return;
+      }
 
       if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
         failRemoteCommand("TEXTCUE: select a cue first");
@@ -1094,8 +1111,52 @@
         remoteCommandDetail_ = parts[2];
         return;
       }
-      failRemoteCommand("TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, "
-                        "ALIGN or CARD");
+      // THE LOWER-THIRD LAYOUT.
+      if (sub == "LOWER" || sub == "L3") {
+        const std::string v = parts.size() > 2 ? toUpper(parts[2]) : std::string("ON");
+        cue.lowerThird.on = v == "ON" || v == "1" || v == "TRUE";
+        if (cue.lowerThird.on && cue.textBody.empty()) {
+          cue.textBody = "Name Surname\nTitle or role";
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = cue.lowerThird.on ? "lower third" : "card";
+        return;
+      }
+      if (sub == "TITLE" || sub == "SUB") {
+        setTextBodyLine(cue.textBody, sub == "TITLE" ? 0 : 1,
+                        parts.size() >= 3 ? joinParts(parts, 2) : std::string());
+        markProjectDirty();
+        remoteCommandDetail_ = textBodyLine(cue.textBody, sub == "TITLE" ? 0 : 1);
+        return;
+      }
+      if (sub == "LOOK" && parts.size() >= 3) {
+        const std::string want = toLower(parts[2]);
+        for (int i = 0; i < static_cast<int>(LowerThirdLook::Count); ++i) {
+          if (want == lowerThirdLookLabel(static_cast<LowerThirdLook>(i))) {
+            cue.lowerThird.look = static_cast<LowerThirdLook>(i);
+            markProjectDirty();
+            remoteCommandDetail_ = want;
+            return;
+          }
+        }
+        failRemoteCommand("TEXTCUE LOOK: bar, boxes, line, tag or glass");
+        return;
+      }
+      if ((sub == "IN" || sub == "OUTMOVE") && parts.size() >= 3) {
+        const std::string want = toLower(parts[2]);
+        const LowerThirdMove move = lowerThirdMoveFromToken(want);
+        if (move == LowerThirdMove::None && want != "cut") {
+          failRemoteCommand("TEXTCUE " + sub + ": cut, fade, left, right, rise, "
+                            "wipe, grow, typewriter or pop");
+          return;
+        }
+        (sub == "IN" ? cue.lowerThird.moveIn : cue.lowerThird.moveOut) = move;
+        markProjectDirty();
+        remoteCommandDetail_ = lowerThirdMoveLabel(move);
+        return;
+      }
+      failRemoteCommand("TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, "
+                        "CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, IN, OUTMOVE or OUT");
       return;
     }
     if (command == "DMXCUE") {

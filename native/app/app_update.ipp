@@ -271,6 +271,7 @@
     refreshNormalizingIds();
     servicePendingTakes();
     tickTracker();
+    tickLowerThirds();
     // Fade cues, ticked beside the pending takes: both are things the show
     // asked for earlier that have to happen now.
     serviceFades();

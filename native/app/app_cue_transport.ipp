@@ -2367,6 +2367,224 @@
     openCodeEditor();
   }
 
+  // ── LOWER THIRDS ──────────────────────────────────────────────────────
+  //
+  // The layout lives on the text cue (see LowerThirdDesign); what lives here
+  // is its exit. OUT marks the moment on the deck's transport clock, the
+  // renderer plays the out move from there, and once it has finished the
+  // playlist takes the cue off -- so OUT is never a cut unless the out move
+  // is one.
+
+  double lowerThirdOutAtFor(int deckIndex) const {
+    return (deckIndex >= 0 && deckIndex < static_cast<int>(lowerThirdOutAt_.size()))
+      ? lowerThirdOutAt_[static_cast<std::size_t>(deckIndex)] : -1.0;
+  }
+
+  // ON AIR, not merely the deck's last cue: a stopped deck still remembers
+  // its active index, and OUT on a lower third that has already gone must say
+  // there is nothing to send out rather than claim it sent one.
+  const Cue* liveLowerThird(int deckIndex) const {
+    const Cue* cue = activeCuePtr(deckIndex);
+    if (!cue || cue->kind != CueKind::Text || !cue->lowerThird.on) {
+      return nullptr;
+    }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckRuntimes_.size()) ||
+        !deckRuntimes_[static_cast<std::size_t>(deckIndex)].mediaEngine ||
+        deckRuntimes_[static_cast<std::size_t>(deckIndex)].mediaEngine->state() ==
+          TransportState::Stopped) {
+      return nullptr;
+    }
+    return cue;
+  }
+
+  // Start the out move on one playlist. False when nothing there is a lower
+  // third on air.
+  bool lowerThirdTakeOut(int deckIndex) {
+    if (!liveLowerThird(deckIndex)) {
+      return false;
+    }
+    MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (!engine) {
+      return false;
+    }
+    if (static_cast<int>(lowerThirdOutAt_.size()) <= deckIndex) {
+      lowerThirdOutAt_.resize(static_cast<std::size_t>(deckIndex) + 1, -1.0);
+    }
+    double& at = lowerThirdOutAt_[static_cast<std::size_t>(deckIndex)];
+    if (at < 0.0) {
+      at = engine->position();
+    }
+    return true;
+  }
+
+  // OUT from a button that does not say which playlist: the focused one if
+  // its live cue is a lower third, otherwise every playlist that has one up.
+  // Returns how many were sent out.
+  int lowerThirdTakeOutAnywhere() {
+    if (lowerThirdTakeOut(project_.focusedDeckIndex)) {
+      return 1;
+    }
+    int sent = 0;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      if (lowerThirdTakeOut(d)) {
+        ++sent;
+      }
+    }
+    return sent;
+  }
+
+  // Once a frame: finish the exits that have played out.
+  void tickLowerThirds() {
+    const int decks = static_cast<int>(project_.decks.size());
+    if (static_cast<int>(lowerThirdOutAt_.size()) < decks) {
+      lowerThirdOutAt_.resize(static_cast<std::size_t>(decks), -1.0);
+    }
+    for (int d = 0; d < decks; ++d) {
+      double& manual = lowerThirdOutAt_[static_cast<std::size_t>(d)];
+      const Cue* cue = liveLowerThird(d);
+      MediaEngine* engine = cue ? mediaEngineForDeck(d) : nullptr;
+      if (!cue || !engine) {
+        manual = -1.0;
+        continue;
+      }
+      const double position = engine->position();
+      // Taken again: the clock has gone back past the moment OUT was pressed,
+      // so that OUT belonged to the last time it was on.
+      if (manual >= 0.0 && position + 0.001 < manual) {
+        manual = -1.0;
+      }
+      const LowerThirdDesign& design = cue->lowerThird;
+      const double outAt = manual >= 0.0 ? manual
+        : (design.holdSeconds > 0.0 ? std::max(0.0, design.inSeconds) + design.holdSeconds
+                                    : -1.0);
+      if (outAt < 0.0 || position < outAt + std::max(0.0, design.outSeconds)) {
+        continue;
+      }
+      manual = -1.0;
+      // Off, the ordinary way: STOP on that playlist, borrowing focus the way
+      // a master cue does, so it runs every guard a STOP runs.
+      const int savedFocus = project_.focusedDeckIndex;
+      project_.focusedDeckIndex = d;
+      stopTransport();
+      project_.focusedDeckIndex = savedFocus;
+    }
+  }
+
+  // Replace one line of a text cue's body, making the lines up to it.
+  static void setTextBodyLine(std::string& body, int line, const std::string& value) {
+    std::vector<std::string> lines;
+    std::size_t start = 0;
+    while (true) {
+      const std::size_t nl = body.find('\n', start);
+      lines.push_back(body.substr(start, nl == std::string::npos ? std::string::npos
+                                                                  : nl - start));
+      if (nl == std::string::npos) break;
+      start = nl + 1;
+    }
+    while (static_cast<int>(lines.size()) <= line) {
+      lines.emplace_back();
+    }
+    lines[static_cast<std::size_t>(line)] = value;
+    // Trailing empty lines are dropped, so clearing the subtitle does not
+    // leave a dangling newline on a one-line title.
+    while (lines.size() > 1 && lines.back().empty()) {
+      lines.pop_back();
+    }
+    body.clear();
+    for (std::size_t i = 0; i < lines.size(); ++i) {
+      if (i) body += '\n';
+      body += lines[i];
+    }
+  }
+
+  static std::string textBodyLine(const std::string& body, int line) {
+    std::size_t start = 0;
+    for (int i = 0; i < line; ++i) {
+      const std::size_t nl = body.find('\n', start);
+      if (nl == std::string::npos) return std::string();
+      start = nl + 1;
+    }
+    const std::size_t nl = body.find('\n', start);
+    return body.substr(start, nl == std::string::npos ? std::string::npos : nl - start);
+  }
+
+  void editLowerThirdLine(int line) {
+    Cue* cue = selectedTextCue();
+    if (!cue) {
+      return;
+    }
+    const std::string id = cue->id;
+    openInlineTextEditor(line == 0 ? "lowerthird.title" : "lowerthird.sub",
+                         line == 0 ? "Lower third - title" : "Lower third - subtitle",
+                         line == 0 ? "the name" : "the role, or leave it empty",
+                         textBodyLine(cue->textBody, line),
+                         [this, id, line](const std::string& value) {
+      for (Deck& deck : project_.decks) {
+        for (Cue& each : deck.cues) {
+          if (each.id == id) {
+            setTextBodyLine(each.textBody, line, value);
+            markProjectDirty();
+            return;
+          }
+        }
+      }
+    });
+  }
+
+  void cycleLowerThird(int which) {
+    Cue* cue = selectedTextCue();
+    if (!cue || !cue->lowerThird.on) {
+      return;
+    }
+    LowerThirdDesign& d = cue->lowerThird;
+    auto step = [](int value, int count) { return (value + 1) % count; };
+    switch (which) {
+      case 0:
+        d.look = static_cast<LowerThirdLook>(
+          step(static_cast<int>(d.look), static_cast<int>(LowerThirdLook::Count)));
+        triggerToast(std::string("look: ") + lowerThirdLookLabel(d.look));
+        break;
+      case 1:
+        d.side = step(d.side, 3);
+        triggerToast(d.side == 0 ? "left" : d.side == 2 ? "right" : "centre");
+        break;
+      case 2:
+        d.bar = step(d.bar, kLowerThirdColourCount);
+        triggerToast(std::string("bar: ") + lowerThirdColourName(d.bar));
+        break;
+      case 3:
+        d.accent = step(d.accent, kLowerThirdColourCount);
+        triggerToast(std::string("accent: ") + lowerThirdColourName(d.accent));
+        break;
+      case 4:
+        d.moveIn = static_cast<LowerThirdMove>(
+          step(static_cast<int>(d.moveIn), static_cast<int>(LowerThirdMove::Count)));
+        triggerToast(std::string("in: ") + lowerThirdMoveLabel(d.moveIn));
+        break;
+      case 5:
+        d.moveOut = static_cast<LowerThirdMove>(
+          step(static_cast<int>(d.moveOut), static_cast<int>(LowerThirdMove::Count)));
+        triggerToast(std::string("out: ") + lowerThirdMoveLabel(d.moveOut));
+        break;
+      default:
+        return;
+    }
+    markProjectDirty();
+  }
+
+  void toggleLowerThirdLayout() {
+    Cue* cue = selectedTextCue();
+    if (!cue) {
+      return;
+    }
+    cue->lowerThird.on = !cue->lowerThird.on;
+    if (cue->lowerThird.on && cue->textBody.empty()) {
+      cue->textBody = "Name Surname\nTitle or role";
+    }
+    markProjectDirty();
+    triggerToast(cue->lowerThird.on ? "layout: lower third" : "layout: card");
+  }
+
   Cue* selectedDmxCue() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::Dmx) ? cue : nullptr;

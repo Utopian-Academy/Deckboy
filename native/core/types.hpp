@@ -293,6 +293,138 @@ enum class VideoSynthPalette {
 // above 4 was clamped away. The look survived the show and died in the file.
 inline constexpr int kVideoSynthPaletteCount = 11;
 
+// ── A LOWER THIRD, AS A TEXT CUE'S LAYOUT ─────────────────────────────────
+//
+// A name and a role, drawn low on the frame over a TRANSPARENT background so
+// the cue sits on a layer over whatever another playlist is showing. It
+// animates IN from the cue's own transport clock -- so it scrubs, and two
+// outputs showing it cannot disagree -- and OUT when it is told to, or after
+// its time on screen, and then the playlist takes it off.
+//
+// The title and subtitle are the first two lines of the text cue's body, so
+// the words are edited, saved and sent over the network the way every text
+// cue's already are.
+enum class LowerThirdLook : int {
+  Bar,     // one solid bar, an accent down its leading edge
+  Boxes,   // the title in a box, the subtitle in a smaller one under it
+  Line,    // no box: the words over a thick accent rule
+  Tag,     // an accent tab for the title, the subtitle beside it
+  Glass,   // a translucent band across the frame, a thin accent line on top
+  Count
+};
+
+enum class LowerThirdMove : int {
+  None,
+  Fade,
+  SlideLeft,    // in from the left edge (out the same way)
+  SlideRight,   // in from the right edge
+  SlideUp,      // up from below the frame
+  Wipe,         // revealed left to right
+  Grow,         // the bar draws itself across, then the words arrive
+  Typewriter,   // the bar, then the title a letter at a time
+  Pop,          // springs up from nothing, overshoots a touch, settles
+  Count
+};
+
+inline const char* lowerThirdLookLabel(LowerThirdLook look) {
+  switch (look) {
+    case LowerThirdLook::Bar:   return "bar";
+    case LowerThirdLook::Boxes: return "boxes";
+    case LowerThirdLook::Line:  return "line";
+    case LowerThirdLook::Tag:   return "tag";
+    case LowerThirdLook::Glass: return "glass";
+    default: break;
+  }
+  return "bar";
+}
+
+inline const char* lowerThirdMoveLabel(LowerThirdMove move) {
+  switch (move) {
+    case LowerThirdMove::None:       return "cut";
+    case LowerThirdMove::Fade:       return "fade";
+    case LowerThirdMove::SlideLeft:  return "slide from left";
+    case LowerThirdMove::SlideRight: return "slide from right";
+    case LowerThirdMove::SlideUp:    return "rise";
+    case LowerThirdMove::Wipe:       return "wipe";
+    case LowerThirdMove::Grow:       return "grow";
+    case LowerThirdMove::Typewriter: return "typewriter";
+    case LowerThirdMove::Pop:        return "pop";
+    default: break;
+  }
+  return "cut";
+}
+
+// One word each, for the show file and the network.
+inline const char* lowerThirdMoveToken(LowerThirdMove move) {
+  switch (move) {
+    case LowerThirdMove::Fade:       return "fade";
+    case LowerThirdMove::SlideLeft:  return "left";
+    case LowerThirdMove::SlideRight: return "right";
+    case LowerThirdMove::SlideUp:    return "rise";
+    case LowerThirdMove::Wipe:       return "wipe";
+    case LowerThirdMove::Grow:       return "grow";
+    case LowerThirdMove::Typewriter: return "typewriter";
+    case LowerThirdMove::Pop:        return "pop";
+    default: break;
+  }
+  return "cut";
+}
+
+inline LowerThirdMove lowerThirdMoveFromToken(const std::string& token) {
+  for (int i = 0; i < static_cast<int>(LowerThirdMove::Count); ++i) {
+    const auto move = static_cast<LowerThirdMove>(i);
+    if (token == lowerThirdMoveToken(move)) {
+      return move;
+    }
+  }
+  return LowerThirdMove::None;
+}
+
+// The colours a lower third can be made of. A short fixed list rather than a
+// picker: these are the ones that read over a picture, and a list is a thing
+// an operator can step through with one button on a desk.
+inline constexpr int kLowerThirdColourCount = 9;
+inline SDL_Color lowerThirdColour(int index) {
+  static const SDL_Color kColours[kLowerThirdColourCount] = {
+    {18, 22, 30, 255},     // ink
+    {244, 244, 240, 255},  // paper
+    {206, 38, 52, 255},    // red
+    {240, 138, 32, 255},   // orange
+    {245, 204, 44, 255},   // yellow
+    {56, 186, 96, 255},    // green
+    {38, 110, 228, 255},   // blue
+    {138, 78, 218, 255},   // violet
+    {155, 188, 15, 255},   // deckboy
+  };
+  const int i = ((index % kLowerThirdColourCount) + kLowerThirdColourCount) %
+                kLowerThirdColourCount;
+  return kColours[i];
+}
+
+inline const char* lowerThirdColourName(int index) {
+  static const char* const kNames[kLowerThirdColourCount] = {
+    "ink", "paper", "red", "orange", "yellow", "green", "blue", "violet", "deckboy",
+  };
+  const int i = ((index % kLowerThirdColourCount) + kLowerThirdColourCount) %
+                kLowerThirdColourCount;
+  return kNames[i];
+}
+
+struct LowerThirdDesign {
+  bool on = false;                          // this text cue is a lower third
+  LowerThirdLook look = LowerThirdLook::Bar;
+  LowerThirdMove moveIn = LowerThirdMove::SlideLeft;
+  LowerThirdMove moveOut = LowerThirdMove::Fade;
+  double inSeconds = 0.6;
+  double outSeconds = 0.5;
+  double holdSeconds = 0.0;   // 0: on screen until OUT is pressed
+  int side = 0;               // 0 left, 1 centre, 2 right
+  double height = 0.10;       // bottom margin, as a fraction of the frame
+  double size = 1.0;          // 0.5-2, on a title a sixteenth of the frame tall
+  int bar = 0;                // lowerThirdColour index
+  int accent = 6;             // lowerThirdColour index
+};
+
 // A PORTAL source: a swarm of particles melted into metaballs, each blob a
 // window into deep space with a neon rim that runs green, yellow, pink and
 // blue. Outside the blobs the picture is TRANSPARENT, so it is made to sit on
@@ -1347,6 +1479,8 @@ struct Cue {
   std::array<deckboy::effects::ParamLfo, 9> geometryLfo {};
   // A Portal source's controls. Only meaningful on a "portal" pattern cue.
   PortalSettings portal;
+  // A text cue laid out as a lower third. Off on every other cue.
+  LowerThirdDesign lowerThird;
   // Clip whose MOTION drives the motion-puppet effect. Its pictures are never
   // shown -- only the per-macroblock vectors its codec already computed -- so
   // it can be small, and it loops independently of this cue's transport.
@@ -2593,6 +2727,10 @@ enum class QuickAction {
   // Step a row of the numeric-parameter table; param is the NumericParam.
   NumericParamDec, NumericParamInc,
   CueSectionPortalToggle,
+  // A text cue laid out as a lower third. LowerThirdCycle's param says which
+  // choice steps: 0 look, 1 side, 2 bar colour, 3 accent, 4 in, 5 out.
+  LowerThirdLayoutToggle, LowerThirdCycle, LowerThirdEditTitle,
+  LowerThirdEditSub, LowerThirdOut,
   CueSectionTextToggle,
   CueSectionFiresideToggle,
   CueSectionMidiFileToggle,

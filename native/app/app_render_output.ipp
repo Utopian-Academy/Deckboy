@@ -1795,6 +1795,327 @@
     }
   }
 
+  // ── A LOWER THIRD ─────────────────────────────────────────────────────
+  //
+  // Drawn straight into the output's renderer, like the rest of a text cue,
+  // over NOTHING: no card, so whatever sits under this playlist in the
+  // output's layer stack shows round it.
+  //
+  // One progress value from 0 (not there) to 1 (fully on) drives every move,
+  // in and out alike: IN counts up from the cue's start, OUT counts down from
+  // the moment it was told to go -- `outStartedAt`, on the same transport
+  // clock, or its time on screen running out. So OUT with "slide from left"
+  // leaves the way it came.
+  void renderLowerThirdIntoOutput(SDL_Renderer* renderer, const Cue& cue,
+                                  const SDL_Rect& target, double seconds,
+                                  double outStartedAt) {
+    const LowerThirdDesign& d = cue.lowerThird;
+    // The words: the first two lines of the body.
+    std::string title = cue.textBody;
+    std::string subtitle;
+    if (const std::size_t nl = title.find('\n'); nl != std::string::npos) {
+      subtitle = title.substr(nl + 1);
+      title = title.substr(0, nl);
+      if (const std::size_t nl2 = subtitle.find('\n'); nl2 != std::string::npos) {
+        subtitle = subtitle.substr(0, nl2);
+      }
+    }
+    for (std::string* s : {&title, &subtitle}) {
+      if (!s->empty() && s->back() == '\r') s->pop_back();
+    }
+    if (title.empty() && subtitle.empty()) {
+      return;
+    }
+
+    // ── WHERE IT IS IN ITS LIFE ─────────────────────────────────────────
+    double outAt = outStartedAt;
+    if (outAt < 0.0 && d.holdSeconds > 0.0) {
+      outAt = std::max(0.0, d.inSeconds) + d.holdSeconds;
+    }
+    const bool leaving = outAt >= 0.0 && seconds >= outAt;
+    const LowerThirdMove move = leaving ? d.moveOut : d.moveIn;
+    double p = 1.0;
+    if (leaving) {
+      p = d.outSeconds > 0.0 ? 1.0 - std::clamp((seconds - outAt) / d.outSeconds, 0.0, 1.0)
+                             : 0.0;
+    } else {
+      p = d.inSeconds > 0.0 ? std::clamp(seconds / d.inSeconds, 0.0, 1.0) : 1.0;
+    }
+    if (move == LowerThirdMove::None) {
+      p = p > 0.0 ? 1.0 : 0.0;
+    }
+    if (p <= 0.0) {
+      return;
+    }
+    auto easeOut = [](double x) { return 1.0 - std::pow(1.0 - x, 3.0); };
+    // The subtitle trails the title a touch on the moves that travel, so the
+    // two arrive as two things rather than one slab.
+    const double pSub = std::clamp((p - 0.12) / 0.88, 0.0, 1.0);
+
+    // ── MEASURE ─────────────────────────────────────────────────────────
+    const double unit = static_cast<double>(target.h);
+    const double titleH = unit * 0.058 * std::clamp(d.size, 0.5, 2.0);
+    const double subH = titleH * 0.62;
+    const double pad = titleH * 0.45;
+    const SDL_Color barColour = lowerThirdColour(d.bar);
+    const SDL_Color accent = lowerThirdColour(d.accent);
+    auto inkOn = [](SDL_Color fill) {
+      const int lum = (fill.r * 299 + fill.g * 587 + fill.b * 114) / 1000;
+      return lum > 150 ? SDL_Color {18, 22, 30, 255} : SDL_Color {250, 250, 250, 255};
+    };
+    const bool boxless = d.look == LowerThirdLook::Line;
+    const SDL_Color titleInk = boxless ? SDL_Color {250, 250, 250, 255}
+                             : inkOn(d.look == LowerThirdLook::Tag ? accent : barColour);
+    const SDL_Color subInk = boxless ? SDL_Color {225, 228, 235, 255}
+                           : inkOn(d.look == LowerThirdLook::Boxes ? accent : barColour);
+
+    // TYPEWRITER shows the title a letter at a time once the bar is in.
+    std::string shownTitle = title;
+    if (move == LowerThirdMove::Typewriter) {
+      const double letters = std::clamp((p - 0.3) / 0.7, 0.0, 1.0);
+      shownTitle = title.substr(0, static_cast<std::size_t>(
+        std::lround(letters * static_cast<double>(title.size()))));
+    }
+    const TextTextureEntry* titleTex = title.empty() ? nullptr
+      : cachedTextTexture(renderer, fontLarge_, title, titleInk);
+    const TextTextureEntry* shownTex = shownTitle.empty() ? nullptr
+      : (shownTitle == title ? titleTex
+                             : cachedTextTexture(renderer, fontLarge_, shownTitle, titleInk));
+    const TextTextureEntry* subTex = subtitle.empty() ? nullptr
+      : cachedTextTexture(renderer, fontLarge_, subtitle, subInk);
+    auto widthAt = [](const TextTextureEntry* t, double h) {
+      return (t && t->h > 0) ? t->w * h / static_cast<double>(t->h) : 0.0;
+    };
+    const double titleW = widthAt(titleTex, titleH);   // the FULL title: the box
+    const double subW = widthAt(subTex, subH);          // does not grow as it types
+
+    // ── LAY IT OUT, at rest ─────────────────────────────────────────────
+    struct Box { double x, y, w, h; SDL_Color fill; int alpha; };
+    std::vector<Box> boxes;
+    double titleX = 0.0, titleY = 0.0, subX = 0.0, subY = 0.0;
+    double blockW = 0.0, blockH = 0.0;
+    const double accentW = titleH * 0.16;
+    const bool rightSide = d.side == 2;
+    switch (d.look) {
+      case LowerThirdLook::Boxes: {
+        const double tw = titleW + pad * 2.0;
+        const double th = titleH + pad;
+        const double sw = subTex ? subW + pad * 1.6 : 0.0;
+        const double sh = subTex ? subH + pad * 0.7 : 0.0;
+        const double indent = pad * 0.8;
+        blockW = std::max(tw, indent + sw);
+        blockH = th + sh;
+        const double tx = rightSide ? blockW - tw : 0.0;
+        const double sx = rightSide ? blockW - indent - sw : indent;
+        boxes.push_back({tx, 0.0, tw, th, barColour, 255});
+        if (subTex) boxes.push_back({sx, th, sw, sh, accent, 255});
+        titleX = tx + pad; titleY = pad * 0.5;
+        subX = sx + pad * 0.8; subY = th + pad * 0.35;
+        break;
+      }
+      case LowerThirdLook::Line: {
+        const double rule = std::max(2.0, titleH * 0.11);
+        blockW = std::max(titleW, subW);
+        blockH = titleH + pad * 0.35 + rule + (subTex ? pad * 0.35 + subH : 0.0);
+        titleX = rightSide ? blockW - titleW : 0.0; titleY = 0.0;
+        boxes.push_back({0.0, titleH + pad * 0.35, blockW, rule, accent, 255});
+        subX = rightSide ? blockW - subW : 0.0;
+        subY = titleH + pad * 0.7 + rule;
+        break;
+      }
+      case LowerThirdLook::Tag: {
+        const double tw = titleW + pad * 2.0;
+        const double th = titleH + pad;
+        const double sw = subTex ? subW + pad * 1.6 : 0.0;
+        const double sh = subTex ? subH + pad * 0.7 : 0.0;
+        blockW = tw + sw;
+        blockH = th;
+        const double tx = rightSide ? sw : 0.0;
+        const double sx = rightSide ? 0.0 : tw;
+        boxes.push_back({tx, 0.0, tw, th, accent, 255});
+        if (subTex) boxes.push_back({sx, (th - sh) / 2.0, sw, sh, barColour, 235});
+        titleX = tx + pad; titleY = pad * 0.5;
+        subX = sx + pad * 0.8; subY = (th - sh) / 2.0 + pad * 0.35;
+        break;
+      }
+      case LowerThirdLook::Glass: {
+        blockW = static_cast<double>(target.w);
+        blockH = pad * 1.4 + titleH + (subTex ? subH + pad * 0.25 : 0.0);
+        boxes.push_back({0.0, 0.0, blockW, blockH, barColour, 175});
+        boxes.push_back({0.0, 0.0, blockW, std::max(2.0, titleH * 0.06), accent, 255});
+        const double margin = target.w * 0.055;
+        const double textW = std::max(titleW, subW);
+        const double tx = d.side == 0 ? margin
+                        : d.side == 2 ? blockW - margin - textW
+                                      : (blockW - textW) / 2.0;
+        titleX = d.side == 1 ? (blockW - titleW) / 2.0
+               : rightSide ? blockW - margin - titleW : tx;
+        subX = d.side == 1 ? (blockW - subW) / 2.0
+             : rightSide ? blockW - margin - subW : tx;
+        titleY = pad * 0.7;
+        subY = titleY + titleH + pad * 0.25;
+        break;
+      }
+      case LowerThirdLook::Bar:
+      default: {
+        const double textW = std::max(titleW, subW);
+        blockW = textW + pad * 2.0 + accentW;
+        blockH = pad * 1.4 + titleH + (subTex ? subH + pad * 0.25 : 0.0);
+        boxes.push_back({0.0, 0.0, blockW, blockH, barColour, 240});
+        boxes.push_back({rightSide ? blockW - accentW : 0.0, 0.0, accentW, blockH, accent, 255});
+        const double tx = rightSide ? pad : accentW + pad;
+        titleX = rightSide ? blockW - accentW - pad - titleW : tx;
+        subX = rightSide ? blockW - accentW - pad - subW : tx;
+        titleY = pad * 0.7;
+        subY = titleY + titleH + pad * 0.25;
+        break;
+      }
+    }
+
+    // Where the block sits on the frame.
+    const double marginX = target.w * 0.055;
+    const double bottom = target.h * std::clamp(d.height, 0.0, 0.8);
+    double blockX = target.x + marginX;
+    if (d.look == LowerThirdLook::Glass) {
+      blockX = target.x;
+    } else if (d.side == 1) {
+      blockX = target.x + (target.w - blockW) / 2.0;
+    } else if (rightSide) {
+      blockX = target.x + target.w - marginX - blockW;
+    }
+    const double blockY = target.y + target.h - bottom - blockH;
+
+    // ── THE MOVE ────────────────────────────────────────────────────────
+    const double e = easeOut(p);
+    double alpha = 1.0;
+    double dx = 0.0, dy = 0.0, scale = 1.0;
+    double barFrac = 1.0;       // Grow / Typewriter: how much of each box is drawn
+    double textAlpha = 1.0;
+    double wipe = 1.0;
+    switch (move) {
+      case LowerThirdMove::Fade:
+        alpha = p;
+        break;
+      case LowerThirdMove::SlideLeft:
+        dx = -(1.0 - e) * (blockX - target.x + blockW + 8.0);
+        break;
+      case LowerThirdMove::SlideRight:
+        dx = (1.0 - e) * (target.x + target.w - blockX + 8.0);
+        break;
+      case LowerThirdMove::SlideUp:
+        dy = (1.0 - e) * (target.y + target.h - blockY + 8.0);
+        break;
+      case LowerThirdMove::Wipe:
+        wipe = e;
+        break;
+      case LowerThirdMove::Grow:
+        barFrac = easeOut(std::clamp(p / 0.6, 0.0, 1.0));
+        textAlpha = std::clamp((p - 0.5) / 0.5, 0.0, 1.0);
+        break;
+      case LowerThirdMove::Typewriter:
+        barFrac = easeOut(std::clamp(p / 0.35, 0.0, 1.0));
+        textAlpha = 1.0;
+        break;
+      case LowerThirdMove::Pop: {
+        // Back-out: past 1 and back, the overshoot that makes it spring.
+        const double c1 = 1.70158;
+        const double c3 = c1 + 1.0;
+        const double x = p - 1.0;
+        scale = std::max(0.0, 1.0 + c3 * x * x * x + c1 * x * x);
+        alpha = std::clamp(p * 3.0, 0.0, 1.0);
+        break;
+      }
+      default:
+        break;
+    }
+    const double cx = blockX + blockW / 2.0;
+    const double cy = blockY + blockH / 2.0;
+    auto place = [&](double x, double y, double w, double h) {
+      SDL_FRect r;
+      r.x = static_cast<float>(cx + (blockX + x - cx) * scale + dx);
+      r.y = static_cast<float>(cy + (blockY + y - cy) * scale + dy);
+      r.w = static_cast<float>(w * scale);
+      r.h = static_cast<float>(h * scale);
+      return r;
+    };
+
+    // Clipped to the frame, and to the wipe when there is one.
+    SDL_Rect previousClip {};
+    const bool hadClip = SDL_RenderClipEnabled(renderer);
+    if (hadClip) {
+      SDL_GetRenderClipRect(renderer, &previousClip);
+    }
+    SDL_Rect clip = target;
+    if (wipe < 1.0) {
+      const int shown = static_cast<int>(std::lround(blockW * wipe));
+      clip = SDL_Rect {static_cast<int>(std::floor(blockX)), target.y,
+                       std::max(0, shown), target.h};
+      SDL_GetRectIntersection(&clip, &target, &clip);
+    }
+    SDL_SetRenderClipRect(renderer, &clip);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    for (const Box& b : boxes) {
+      double w = b.w * barFrac;
+      double x = rightSide ? b.x + (b.w - w) : b.x;
+      SDL_FRect r = place(x, b.y, w, b.h);
+      SDL_SetRenderDrawColor(renderer, b.fill.r, b.fill.g, b.fill.b,
+                             static_cast<Uint8>(std::clamp(b.alpha * alpha, 0.0, 255.0)));
+      SDL_RenderFillRect(renderer, &r);
+    }
+
+    auto drawWords = [&](const TextTextureEntry* tex, double x, double y, double h,
+                         double a) {
+      if (!tex || !tex->texture || tex->h <= 0 || a <= 0.0) {
+        return;
+      }
+      const double w = tex->w * h / static_cast<double>(tex->h);
+      if (boxless) {
+        // A soft shadow, because a line of words with no box behind it has to
+        // read over a white shirt as well as a dark stage.
+        SDL_FRect shadow = place(x + h * 0.05, y + h * 0.05, w, h);
+        SDL_SetTextureColorMod(tex->texture, 0, 0, 0);
+        SDL_SetTextureAlphaMod(tex->texture, static_cast<Uint8>(std::clamp(150.0 * a, 0.0, 255.0)));
+        SDL_RenderTexture(renderer, tex->texture, nullptr, &shadow);
+        SDL_SetTextureColorMod(tex->texture, 255, 255, 255);
+      }
+      SDL_FRect dst = place(x, y, w, h);
+      SDL_SetTextureAlphaMod(tex->texture, static_cast<Uint8>(std::clamp(255.0 * a, 0.0, 255.0)));
+      SDL_RenderTexture(renderer, tex->texture, nullptr, &dst);
+      SDL_SetTextureAlphaMod(tex->texture, 255);
+    };
+    const bool travels = move == LowerThirdMove::SlideLeft || move == LowerThirdMove::SlideRight ||
+                         move == LowerThirdMove::SlideUp;
+    drawWords(shownTex, titleX, titleY, titleH, alpha * textAlpha);
+    // The subtitle trails on the moves that travel: drawn a little further
+    // back along the same path.
+    // Only where the subtitle has no box of its own to stay inside: on the
+    // boxed looks the box travels with the block, and words trailing out of
+    // it look like a fault rather than a flourish.
+    if (travels && boxless && pSub < 1.0) {
+      // The title's offset is (1 - e) of the way along the path; the
+      // subtitle's is (1 - eSub), so it sits the difference further back.
+      const double eSub = easeOut(pSub);
+      double extraX = 0.0;
+      double extraY = 0.0;
+      if (move == LowerThirdMove::SlideLeft) {
+        extraX = (eSub - e) * (blockX - target.x + blockW + 8.0);
+      } else if (move == LowerThirdMove::SlideRight) {
+        extraX = (e - eSub) * (target.x + target.w - blockX + 8.0);
+      } else {
+        extraY = (e - eSub) * (target.y + target.h - blockY + 8.0);
+      }
+      drawWords(subTex, subX + extraX, subY + extraY, subH, alpha);
+    } else {
+      drawWords(subTex, subX, subY, subH,
+                alpha * (move == LowerThirdMove::Typewriter
+                           ? std::clamp((p - 0.85) / 0.15, 0.0, 1.0) : textAlpha));
+    }
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
+  }
+
   // ── TEXT AS A SOURCE ──────────────────────────────────────────────────
   //
   // Words on the screen as the deck's PICTURE, not an overlay on someone
@@ -1805,8 +2126,13 @@
   // cue -- and it is why two outputs showing the same deck cannot drift apart,
   // which a wall clock would guarantee they eventually did.
   void renderTextCueIntoOutput(SDL_Renderer* renderer, const Cue& cue,
-                               const SDL_Rect& target, double seconds) {
+                               const SDL_Rect& target, double seconds,
+                               double lowerThirdOutAt = -1.0) {
     if (!renderer || !fontLarge_ || target.w <= 0 || target.h <= 0) {
+      return;
+    }
+    if (cue.lowerThird.on) {
+      renderLowerThirdIntoOutput(renderer, cue, target, seconds, lowerThirdOutAt);
       return;
     }
     const double speed = std::clamp(cue.textSpeed, 0.05, 20.0);
@@ -2154,8 +2480,16 @@
     // A TEXT CUE HAS NO DECODED FRAME, so it must be drawn before the frame
     // check below returns. It is the deck's picture, not an overlay on one.
     if (sourceCue->kind == CueKind::Text) {
+      // A STOPPED text cue is off. Its deck keeps the cue as its active one
+      // after STOP, and nothing here asked whether it was still playing --
+      // which went unnoticed only because a text cue's engine never left
+      // Stopped at all until it was given a clock (see loadCue).
+      if (sourceRuntime->mediaEngine->state() == TransportState::Stopped) {
+        return;
+      }
       renderTextCueIntoOutput(outputRuntime->outputRenderer, *sourceCue, target,
-                              sourceRuntime->mediaEngine->position());
+                              sourceRuntime->mediaEngine->position(),
+                              lowerThirdOutAtFor(sourceDeckIndex));
       return;
     }
     const DecodedFrame* sourceFrame = sourceRuntime->mediaEngine->currentFrame();

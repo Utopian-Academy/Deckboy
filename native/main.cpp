@@ -8790,6 +8790,9 @@ class App {
   // tile does. Same clock as animationNow_.
   int trackerSquishRow_ = -1;
   Uint64 trackerSquishAtMs_ = 0;
+  // Where each playlist's lower third was told to leave, on that deck's
+  // transport clock; -1 while it is not leaving. Indexed by deck.
+  std::vector<double> lowerThirdOutAt_;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.
