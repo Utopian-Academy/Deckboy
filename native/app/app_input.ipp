@@ -1298,9 +1298,10 @@
       // pointer's offset from the program-area top (clamped to a usable
       // preview), and whatever height we shave off the preview becomes the
       // extra the timeline lanes get.
+      const int floorH = std::min(programMonitorFloorH_, programFullMonitorH_);
       int desiredMonitorH = std::clamp(y - programAreaRect_.y,
-                                       kProgramMonitorMinH, programFullMonitorH_);
-      int maxExtra = std::max(0, programFullMonitorH_ - kProgramMonitorMinH);
+                                       floorH, programFullMonitorH_);
+      int maxExtra = std::max(0, programFullMonitorH_ - floorH);
       timelineExtraH_ = std::clamp(programFullMonitorH_ - desiredMonitorH, 0, maxExtra);
       return;
     }

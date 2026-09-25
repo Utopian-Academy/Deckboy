@@ -941,7 +941,9 @@
       // Deck loop and shuffle toggles — icon buttons
       const Deck& focDeck = focusedDeck();
       {
-        constexpr int kModeBtnW = 44;
+        // Scaled like everything else on this bar: a raw 44 stayed 44 at 2x
+        // and shrank relative to its neighbours at every other scale.
+        const int kModeBtnW = uiScaled(44);
         deckLoopBtnRect_    = {ax, ty, kModeBtnW, kTBtnH}; ax += kModeBtnW + kTBtnGap;
         deckShuffleBtnRect_ = {ax, ty, kModeBtnW, kTBtnH}; ax += kModeBtnW + kTGrpGap;
 
@@ -1563,18 +1565,28 @@
 
     // ONLY WHEN IT DOES NOT COST THE TITLE. >LIVE is a convenience; a column
     // that cannot say which playlist it is is not one.
+    //
+    // MEASURED, both of them. This was "room >= 150", a guess at what the
+    // title and the button need together; with the pixel face at 0.9x it was
+    // short, and the column read "PLA..." beside a >LIVE button that had fit.
     const int roomLeftOfChip = playlistHeaderLeftEdge_ - colHeader.x;
+    TTF_Font* jbFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+    int jumpTxtW = 0;
+    int titleTxtW = 0;
+    if (jbFont) {
+      TTF_GetStringSize(jbFont, ">LIVE", 0, &jumpTxtW, nullptr);
+      // drawPanelHeaderTitle draws in this same face, inset 8 each side.
+      const std::string title = playlistColumnTitle(deckIndex);
+      TTF_GetStringSize(jbFont, title.c_str(), title.size(), &titleTxtW, nullptr);
+    }
+    const int jumpBtnNeeds = std::max(uiScaled(56), jumpTxtW + uiScaled(16));
+    const int titleNeeds = titleTxtW + 16 + uiScaled(4);
     bool jumpBtnShown = deckIndex == project_.focusedDeckIndex &&
-                        !deck.cues.empty() && roomLeftOfChip >= uiScaled(150);
+                        !deck.cues.empty() &&
+                        roomLeftOfChip - jumpBtnNeeds - uiScaled(4) >= titleNeeds;
     int jumpBtnW = 0;
     if (jumpBtnShown) {
-      TTF_Font* jbFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
-      int txtW = 0;
-      int txtH = 0;
-      if (jbFont) {
-        TTF_GetStringSize(jbFont, ">LIVE", 0, &txtW, &txtH);
-      }
-      jumpBtnW = std::max(56, txtW + 16);
+      jumpBtnW = jumpBtnNeeds;
       // LEFT OF THE ROUTING CHIP, which is pinned to the right edge. Two
       // controls measured from the same edge is how one ends up drawn on top
       // of the other, and the one underneath then looks like it does nothing.
@@ -2875,12 +2887,20 @@
       // font grew. safeTextRect is applied HERE because drawCenteredTextSafe
       // applies it too -- comparing against the raw width was why an earlier
       // attempt at this changed nothing.
-      auto labelRectFor = [&](int size, int left, int gap, int right) {
+      // THE RAW RECT IS WHAT GETS DRAWN INTO, the safe one what gets measured
+      // against. Passing the safe rect to drawCenteredTextSafe inset it a
+      // second time, so a label that measured as fitting was drawn into less
+      // room than it was measured for -- invisible with slack, and "C..." for
+      // CLEAR once a small window took the slack away.
+      auto labelRawFor = [&](int size, int left, int gap, int right) {
         const int textX = button.rect.x + left + size + gap;
-        return safeTextRect(SDL_Rect {
+        return SDL_Rect {
           textX, button.rect.y,
           button.rect.x + button.rect.w - textX - right,
-          button.rect.h});
+          button.rect.h};
+      };
+      auto labelRectFor = [&](int size, int left, int gap, int right) {
+        return safeTextRect(labelRawFor(size, left, gap, right));
       };
       SDL_Rect labelRect = labelRectFor(iconSize, padLeft, iconGap, padRight);
       if (icon && icon->texture && labelW > labelRect.w) {
@@ -2913,7 +2933,9 @@
         // rendering disagree.
         std::string clipped =
           ellipsizeToPixelWidth(btnFont, button.label, std::max(0, labelRect.w));
-        drawCenteredTextSafe(controlRenderer_, btnFont, labelRect, clipped, button.text);
+        drawCenteredTextSafe(controlRenderer_, btnFont,
+                             labelRawFor(iconSize, padLeft, iconGap, padRight),
+                             clipped, button.text);
       } else {
         // Text only — centered, prefer pixel font for that Nintendo feel
         // "Is this button small?" is a question about the LAYOUT, so the
@@ -2923,11 +2945,26 @@
                               ((button.rect.h < uiScaled(34) || button.rect.w < uiScaled(112)
                                 || button.label.size() > 7)
                               ? fontSmall_ : fontBase_);
-        std::string clipped = ellipsizeToPixelWidth(titleFont, button.label, std::max(0, button.rect.w - 10));
         // Centred on the button, so the label does not ride high in it when
         // the font grows: the 8-above/14-total inset was a 1x offset.
         SDL_Rect titleRect {button.rect.x + uiScaled(4), button.rect.y,
                             button.rect.w - uiScaled(8), button.rect.h};
+        // Measured against the room drawCenteredTextSafe will actually leave,
+        // for the reason given at labelRawFor above.
+        const int titleRoom = std::max(0, safeTextRect(titleRect).w);
+        // A SMALLER FACE BEFORE AN ELLIPSIS. At a small window's scale the
+        // buttons narrow and "PATTERN" became "PAT..." in the pixel face while
+        // the small one had room for the whole word.
+        {
+          int titleW = 0;
+          if (titleFont && fontSmall_ && titleFont != fontSmall_ &&
+              TTF_GetStringSize(titleFont, button.label.c_str(), button.label.size(),
+                                &titleW, nullptr) &&
+              titleW > titleRoom) {
+            titleFont = fontSmall_;
+          }
+        }
+        std::string clipped = ellipsizeToPixelWidth(titleFont, button.label, titleRoom);
         drawCenteredTextSafe(controlRenderer_, titleFont, titleRect, clipped, button.text);
       }
     }

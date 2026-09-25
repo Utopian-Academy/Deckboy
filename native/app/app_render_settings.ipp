@@ -867,7 +867,14 @@
       // Says what it is DOING, not what is stored: "0.00x" would be nonsense
       // on a button and tells the operator nothing about how big the desk is.
       char scaleLabel[40];
-      if (project_.uiScale > 0.01) {
+      if (project_.uiScale > 0.01 &&
+          std::abs(effectiveUiScale() - project_.uiScale) > 0.001) {
+        // Chosen, and held smaller because the window cannot hold it. Both
+        // numbers, or the operator sees the desk shrink under a setting that
+        // says it did not.
+        snprintf(scaleLabel, sizeof(scaleLabel), "%.2fx  fit %.2fx",
+                 project_.uiScale, effectiveUiScale());
+      } else if (project_.uiScale > 0.01) {
         snprintf(scaleLabel, sizeof(scaleLabel), "%.2fx", project_.uiScale);
       } else {
         snprintf(scaleLabel, sizeof(scaleLabel), "auto  %.2fx", effectiveUiScale());

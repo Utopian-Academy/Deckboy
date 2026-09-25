@@ -1793,42 +1793,73 @@
     // fixed because the countdown lives in it and the countdown is what got
     // reported.
     const int kTimelineHeaderH = uiScaled(60);
-    constexpr int kVideoLaneBaseH = 92;
-    constexpr int kAudioLaneBaseH = 68;
-    constexpr int kTimelineGap = 6;
-    constexpr int kDeleteWarnH = 42;
-    constexpr int kTransportRowH = 24;
-    constexpr int kMonitorGap = 12;
+    // The rest of the column scaled too, now that a small window draws at a
+    // small scale: these were raw pixels, so at 0.75x the lanes and the
+    // transport row kept their 1x heights inside a column that had shrunk,
+    // and the transport row went under the bottom bar.
+    int kVideoLaneBaseH = uiScaled(92);
+    int kAudioLaneBaseH = uiScaled(68);
+    const int kTimelineGap = uiScaled(6);
+    const int kDeleteWarnH = uiScaled(42);
+    const int kTransportRowH = uiScaled(24);
+    const int kMonitorGap = uiScaled(12);
+    auto timelineReservedFor = [&](int videoH, int audioH) {
+      return kTimelineHeaderH + 2 + videoH + kTimelineGap + audioH + kTimelineGap +
+             kTransportRowH + (confirmWarnActive ? kDeleteWarnH + kTimelineGap : 0);
+    };
+    // SHORT OF ROOM, THE LANES GIVE WAY FIRST. Nothing in this column may be
+    // pushed off the bottom -- the transport row is under everything and it is
+    // the one that went. So when the column cannot hold the monitor at its
+    // floor plus the lanes at their base, the audio lane shrinks, then the
+    // video lane, and only then does the monitor go below its usual floor.
+    int monitorFloorH = uiScaled(kProgramMonitorMinH);
+    {
+      int shortBy = monitorFloorH + kMonitorGap +
+                    timelineReservedFor(kVideoLaneBaseH, kAudioLaneBaseH) - innerH;
+      if (shortBy > 0) {
+        const int audioGives = std::clamp(shortBy, 0, kAudioLaneBaseH - uiScaled(28));
+        kAudioLaneBaseH -= audioGives;
+        shortBy -= audioGives;
+      }
+      if (shortBy > 0) {
+        const int videoGives = std::clamp(shortBy, 0, kVideoLaneBaseH - uiScaled(44));
+        kVideoLaneBaseH -= videoGives;
+        shortBy -= videoGives;
+      }
+      if (shortBy > 0) {
+        monitorFloorH = std::max(uiScaled(90), monitorFloorH - shortBy);
+      }
+    }
     // Fixed timeline chrome plus the base lane heights. The operator can steal
     // extra height from the preview (timelineExtraH_, dragged via the splitter
     // below) to grow the two lanes; the video lane gets the larger share.
-    int baseReservedH = kTimelineHeaderH + 2 + kVideoLaneBaseH + kTimelineGap
-                      + kAudioLaneBaseH + kTimelineGap + kTransportRowH;
-    if (confirmWarnActive) {
-      baseReservedH += kDeleteWarnH + kTimelineGap;
-    }
+    int baseReservedH = timelineReservedFor(kVideoLaneBaseH, kAudioLaneBaseH);
     // Monitor height when no extra is taken; clamp the operator's request so
-    // the preview never drops below kProgramMonitorMinH.
-    int fullMonitorH = std::max(kProgramMonitorMinH, innerH - baseReservedH - kMonitorGap);
+    // the preview never drops below its floor.
+    int fullMonitorH = std::max(monitorFloorH, innerH - baseReservedH - kMonitorGap);
     programAreaRect_ = {innerX, innerY, innerW, innerH};
     programFullMonitorH_ = fullMonitorH;
-    int maxExtra = std::max(0, fullMonitorH - kProgramMonitorMinH);
+    programMonitorFloorH_ = monitorFloorH;
+    int maxExtra = std::max(0, fullMonitorH - monitorFloorH);
     timelineExtraH_ = std::clamp(timelineExtraH_, 0, maxExtra);
     int videoLaneH = kVideoLaneBaseH + (timelineExtraH_ * 57) / 100;
     int audioLaneH = kAudioLaneBaseH + (timelineExtraH_ - (timelineExtraH_ * 57) / 100);
     int reservedTimelineH = baseReservedH - kVideoLaneBaseH - kAudioLaneBaseH + videoLaneH + audioLaneH;
-    int monitorAreaH = std::max(kProgramMonitorMinH, innerH - reservedTimelineH - kMonitorGap);
+    int monitorAreaH = std::max(monitorFloorH, innerH - reservedTimelineH - kMonitorGap);
 
     // Program / Preview monitors.
     int monitorY = innerY;
 
-    constexpr int kVuMeterW = 84;
-    constexpr int kVuMeterGap = 8;
-    int vuMeterW = std::clamp(innerW / 11, 68, kVuMeterW);
-    int monitorContentW = std::max(360, innerW - vuMeterW - kVuMeterGap);
+    const int kVuMeterW = uiScaled(84);
+    const int kVuMeterGap = uiScaled(8);
+    int vuMeterW = std::clamp(innerW / 11, uiScaled(68), kVuMeterW);
+    // A floor the column can actually hold at a small scale: a raw 360 was
+    // wider than the whole column at 1024 wide, and the monitor ran over the
+    // VU meter and on under the inspector.
+    int monitorContentW = std::max(uiScaled(240), innerW - vuMeterW - kVuMeterGap);
     int programMonitorW = monitorContentW;
 
-    int monitorH = std::max(160, monitorAreaH);
+    int monitorH = std::max(monitorFloorH, monitorAreaH);
     // The program monitor's own left edge. VJ mode pushes it right to make room
     // for the A preview, and it must be a SEPARATE value from the column's x:
     // advancing x itself shifted the timeline info, both lanes and the whole
@@ -3236,8 +3267,8 @@
     }
 
     {
-      constexpr int kTBtnH = kTransportRowH;
-      constexpr int kTBtnGap = 4;
+      const int kTBtnH = kTransportRowH;
+      const int kTBtnGap = uiScaled(4);
       int btnY = transportRowY;
       int btnX = x;
       auto drawTCtrl = [&](const std::string& label, int width, QuickAction action,
@@ -3245,7 +3276,7 @@
         SDL_Rect btn {btnX, btnY, width, kTBtnH};
         drawUIPanel(btn, pal.light, pal.deep, pal.mid);
         if (icon && icon->texture) {
-          int sz = std::min(16, std::min(btn.w - 6, btn.h - 6));
+          int sz = std::min(uiScaled(16), std::min(btn.w - 6, btn.h - 6));
           SDL_Rect ir {btn.x + (btn.w - sz) / 2, btn.y + (btn.h - sz) / 2, sz, sz};
           drawUiImageContain(*icon, ir, 255, pal.deep);
         } else {
@@ -3255,27 +3286,29 @@
         quickButtons_.push_back({btn, action, tip});
         btnX += width + kTBtnGap;
       };
-      drawTCtrl("<|", 36, QuickAction::TransportSkipPrev, ", — skip to previous cue");
-      drawTCtrl("|<", 36, QuickAction::TransportSkipStart, "Home — skip to start", &uiBtnRerack_);
-      drawTCtrl("<<", 42, QuickAction::TransportSkipBack, "Left — skip back 10s");
+      // Widths scaled with the row: raw pixels here overflowed a column drawn
+      // at 0.75x and left the trailing note no room at all.
+      drawTCtrl("<|", uiScaled(36), QuickAction::TransportSkipPrev, ", — skip to previous cue");
+      drawTCtrl("|<", uiScaled(36), QuickAction::TransportSkipStart, "Home — skip to start", &uiBtnRerack_);
+      drawTCtrl("<<", uiScaled(42), QuickAction::TransportSkipBack, "Left — skip back 10s");
       bool transportPlaying = false;
       if (MediaEngine* eng = focusedMediaEngine()) {
         transportPlaying = (eng->state() == TransportState::Playing);
       }
       // Reflect state: show a pause glyph/icon while playing, play while paused,
       // so the button's meaning is unambiguous.
-      drawTCtrl(transportPlaying ? "||" : "\xe2\x96\xba", 52, QuickAction::TransportPlayPause,
+      drawTCtrl(transportPlaying ? "||" : "\xe2\x96\xba", uiScaled(52), QuickAction::TransportPlayPause,
                 transportPlaying ? "Space — pause" : "Space — play",
                 transportPlaying ? &uiBtnPause_ : &uiBtnPlay_);
-      drawTCtrl(">>", 42, QuickAction::TransportSkipForward, "Right — skip forward 10s");
-      drawTCtrl(">|", 36, QuickAction::TransportSkipNext, ". — skip to next cue");
-      drawTCtrl("-30", 46, QuickAction::GotoMinus30, "-30 seconds from end");
-      drawTCtrl("-20", 46, QuickAction::GotoMinus20, "-20 seconds from end");
-      drawTCtrl("-10", 46, QuickAction::GotoMinus10, "-10 seconds from end");
+      drawTCtrl(">>", uiScaled(42), QuickAction::TransportSkipForward, "Right — skip forward 10s");
+      drawTCtrl(">|", uiScaled(36), QuickAction::TransportSkipNext, ". — skip to next cue");
+      drawTCtrl("-30", uiScaled(46), QuickAction::GotoMinus30, "-30 seconds from end");
+      drawTCtrl("-20", uiScaled(46), QuickAction::GotoMinus20, "-20 seconds from end");
+      drawTCtrl("-10", uiScaled(46), QuickAction::GotoMinus10, "-10 seconds from end");
       if (activeCue && timelineCue == activeCue &&
           (activeCue->inPointSeconds > 0.001 ||
            (activeCue->outPointSeconds > 0.001 && activeCue->outPointSeconds < timelineDuration - 0.01))) {
-        drawTCtrl("RESET", 56, QuickAction::TrimReset, "Clear in/out trim points");
+        drawTCtrl("RESET", uiScaled(56), QuickAction::TrimReset, "Clear in/out trim points");
       }
       SDL_Rect noteRect {btnX + 8, btnY, std::max(0, innerW - (btnX - x) - 8), kTBtnH};
       std::string note = timelineCue == activeCue

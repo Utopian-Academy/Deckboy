@@ -328,6 +328,15 @@ Current field counts:
   Both roles fall back (`tile`→`screen_light`, `fg`→`screen_deep`), so themes
   without them are unchanged. When adding a large structural panel, use the
   tile/fg pair; use light/deep only for small raised controls.
+- **The window can hold the scale below the chosen one** (`windowFitUiScale`,
+  main.cpp). The layout is designed down to 1366x768 at 1x; a smaller window
+  draws at a smaller scale, stepped in twentieths, floor 0.6, re-applied 300ms
+  after a resize or a move to a screen with different desktop scaling
+  (`serviceWindowFitScale`). `effectiveUiScale()` is the APPLIED scale -- what
+  the fonts were loaded at -- and `chosenUiScale()` the operator's. So a
+  layout constant written as raw pixels is now wrong in BOTH directions: it no
+  longer only fails at 2x, it overflows a small window drawn at 0.75x. That is
+  how the timeline's transport row ended up under the bottom bar.
 - **Known gap**: `Project::uiScale` scales fonts and the `kLayout*` metrics, but
   the settings modal's per-control geometry is still authored at 1×, so large
   scales (Pocket 3 / 2.0×) still overlap. Deferred deliberately.

@@ -3859,7 +3859,12 @@ class App {
     // Retina laptop panel plus a large external). Shrink-and-recenter if it
     // overflows, and cap the minimum size so the window can always fit this
     // screen (a fixed 1500x900 minimum could exceed a 13" panel outright).
-    int minW = 1500, minH = 900;
+    //
+    // 960x540 rather than the 1500x900 it was: below the layout's design size
+    // the UI scale now shrinks to fit the window (windowFitUiScale), so a
+    // small window is a smaller desk rather than a squashed one, and a small
+    // external monitor can take it at a size that suits it.
+    int minW = 960, minH = 540;
     {
       SDL_Rect ub{};
       SDL_DisplayID wd = SDL_GetDisplayForWindow(controlWindow_);
@@ -7937,23 +7942,81 @@ class App {
   // they have not made one. uiScale <= 0 is the "follow the desktop" value,
   // which is what a show saved before this existed does NOT contain -- those
   // carry 1.0 and keep behaving exactly as they did.
-  double effectiveUiScale() const {
+  double chosenUiScale() const {
     if (project_.uiScale > 0.01) return project_.uiScale;
     return std::clamp(desktopUiScale(), 0.75, 3.0);
   }
 
+  // THE WINDOW WINS. The layout is designed to hold together down to about
+  // 1366x768 at 1x; below that at a given scale, the bottom bar kept its full
+  // height, the timeline slid under it, and every label ellipsized -- on a
+  // small external monitor the whole desk squished. So a window smaller than
+  // the design at the chosen scale draws at a SMALLER scale, fonts and metrics
+  // together, until it fits. Never larger than chosen, and never below 0.6x,
+  // where the text stops being text.
+  //
+  // Stepped in twentieths, rounding DOWN, so a resize by a few pixels does not
+  // reload every font and the result always fits rather than nearly fits.
+  static constexpr int kFitDesignW = 1366;
+  static constexpr int kFitDesignH = 768;
+  double windowFitUiScale(double chosen) const {
+    if (!controlWindow_ || !(chosen > 0.0)) return chosen;
+    int w = 0, h = 0;
+    SDL_GetWindowSize(controlWindow_, &w, &h);
+    if (w <= 0 || h <= 0) return chosen;
+    const double fit = std::min(static_cast<double>(w) / (kFitDesignW * chosen),
+                                static_cast<double>(h) / (kFitDesignH * chosen));
+    if (fit >= 1.0) return chosen;
+    const double stepped = std::floor(chosen * fit * 20.0 + 1e-6) / 20.0;
+    return std::max(std::min(0.6, chosen), stepped);
+  }
+
+  // The scale actually drawn at RIGHT NOW: what the fonts were loaded at and
+  // the metrics built for. uiScaled() reads it, so the two can never disagree
+  // -- including in the moment between a resize and the reload it asks for.
+  double effectiveUiScale() const {
+    if (appliedUiScale_ > 0.0) return appliedUiScale_;
+    return chosenUiScale();
+  }
+
+  // Watched every tick: a resize, or a move to a screen with different
+  // desktop scaling, changes the scale the window wants. Applied once the
+  // window has held still for a moment -- dragging an edge would otherwise
+  // reload every font on every frame of the drag.
+  void serviceWindowFitScale() {
+    if (!controlWindow_ || appliedUiScale_ <= 0.0) return;
+    const double want = windowFitUiScale(chosenUiScale());
+    const auto now = std::chrono::steady_clock::now();
+    if (std::abs(want - appliedUiScale_) < 0.001) {
+      fitScalePending_ = false;
+      return;
+    }
+    if (!fitScalePending_ || std::abs(want - fitScalePendingValue_) > 0.001) {
+      fitScalePending_ = true;
+      fitScalePendingValue_ = want;
+      fitScalePendingSince_ = now;
+      return;
+    }
+    if (now - fitScalePendingSince_ >= std::chrono::milliseconds(300)) {
+      fitScalePending_ = false;
+      applyUiScale();
+    }
+  }
+
   void applyUiScale() {
-    const double scale = effectiveUiScale();
+    const double scale = windowFitUiScale(chosenUiScale());
     releaseFonts();
     if (!loadFonts(scale)) {
       // Fall back to 1.0× so the UI isn't fontless. The new value is still
       // persisted; the operator can try again or pick a smaller scale.
       releaseFonts();
       loadFonts(1.0);
+      appliedUiScale_ = 1.0;
       rebuildLayoutMetrics(1.0);
       refreshMiamiCursor();
       return;
     }
+    appliedUiScale_ = scale;
     rebuildLayoutMetrics(scale);
     // The pointer is part of the furniture: it has to grow with everything
     // else or it becomes a speck on a 4K desk.
@@ -9208,6 +9271,12 @@ class App {
   // How much theme accent the current splash takes: 1.0 for the grayscale
   // masters, ~0.35 for finished colour art, 0 for the branded wordmark.
   bool firstRunEver_ = false;   // very first launch on this machine
+  // The scale the fonts are loaded at, which the window-fit may hold below the
+  // chosen one; 0 until the first applyUiScale. See windowFitUiScale.
+  double appliedUiScale_ = 0.0;
+  bool fitScalePending_ = false;
+  double fitScalePendingValue_ = 0.0;
+  std::chrono::steady_clock::time_point fitScalePendingSince_ {};
   float splashTintStrength_ = 0.0f;
   fs::path lastSplashChoice_;    // so two boots running do not pick the same art
   UiImageAsset uiMonitorFrameArt_;
@@ -9864,6 +9933,10 @@ class App {
   int programFullMonitorH_ = 0;
   int timelineExtraH_ = 0;
   static constexpr int kProgramMonitorMinH = 200;
+  // The floor the last frame actually used: kProgramMonitorMinH scaled, and
+  // lower when a short window could not hold it. The splitter drag clamps
+  // against this so it agrees with what was drawn.
+  int programMonitorFloorH_ = kProgramMonitorMinH;
   // Startup mascot: an animated kawaii Deckboy face with rotating tips fills
   // the empty program monitor until the first clip is loaded into it this
   // session. Once a clip loads, it retires for the rest of the run.
