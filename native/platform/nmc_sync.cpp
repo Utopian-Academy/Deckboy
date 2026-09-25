@@ -164,7 +164,14 @@ bool NmcSync::start(const NmcSyncConfig& config) {
     return false;
   }
   stopFlag_.store(false);
-  running_.store(false);
+  // RUNNING FROM THE MOMENT IT IS STARTED, not from the moment the thread is
+  // first scheduled. refresh() runs every frame and joins a thread that is
+  // joinable but not running -- meaning one that has finished. With the flag
+  // set by the thread itself, a refresh landing before the new thread got its
+  // first slice saw "not running", joined a thread nobody had asked to stop,
+  // and waited forever: the main loop, the interface and every output froze.
+  // Found by fuzzing the remote protocol; the busier the machine, the likelier.
+  running_.store(true);
   thread_ = std::thread([this]() { listenLoop(); });
   return true;
 }
