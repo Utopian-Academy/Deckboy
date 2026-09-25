@@ -10174,6 +10174,10 @@ class App {
   std::mutex statusSnapshotMutex_;
   std::string statusSnapshot_;
   std::string statusSnapshotJson_;
+  // STATUS ENCODER, built on the main thread with the other snapshots. It was
+  // built on the network thread straight from conversionJobs_, which the main
+  // thread adds to and removes from -- a vector read mid-reallocation.
+  std::string statusEncoderSnapshot_;
   std::string statusCueSnapshot_;
   std::vector<std::string> statusDeckSnapshots_;
   // Structured snapshot for the HyperDeck server. Its handlers run on the

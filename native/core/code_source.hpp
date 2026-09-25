@@ -32,6 +32,7 @@
 #define DECKBOY_CORE_CODE_SOURCE_HPP
 
 #include <cmath>
+#include <cstdlib>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -106,9 +107,25 @@ inline std::vector<Token> tokenise(const std::string& src, std::string& error) {
     if (c == ' ' || c == '\t' || c == '\n' || c == '\r') { ++i; continue; }
     Token token;
     if ((c >= '0' && c <= '9') || (c == '.' && i + 1 < src.size())) {
-      std::size_t used = 0;
+      // strtod, NOT std::stod. stod THROWS -- on a dot that starts no number
+      // (".x", or "., " half-way through typing ".5") and on anything past the
+      // range of a double ("1e999") -- and nothing between here and the main
+      // loop catches it, so one typo in a live-code cue closed Deckboy, outputs
+      // and all. A bad number is a compile error like any other.
+      const char* begin = src.c_str() + i;
+      char* end = nullptr;
+      const double value = std::strtod(begin, &end);
+      const std::size_t used = static_cast<std::size_t>(end - begin);
+      if (used == 0) {
+        error = "not a number at \"" + src.substr(i, 8) + "\"";
+        return out;
+      }
+      if (!std::isfinite(value)) {
+        error = "number out of range: " + src.substr(i, used);
+        return out;
+      }
       token.kind = Token::Kind::Number;
-      token.number = std::stod(src.substr(i), &used);
+      token.number = value;
       i += used;
     } else if (isNameChar(c) && !(c >= '0' && c <= '9')) {
       std::size_t start = i;
