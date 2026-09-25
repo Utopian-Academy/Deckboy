@@ -812,6 +812,29 @@ enum class ScaleMode {
 // reorders or deletes a cue above the target, and a master that silently
 // repoints at its neighbour is worse than one that reports a broken link.
 // ---------------------------------------------------------------------------
+// Which geometry parameter each of Cue::geometryLfo drives.
+//
+// SCALE X ALONE PULSES THE WHOLE SIZE. A breathing picture is what almost
+// everybody reaching for a scale LFO wants, and making them arm two identical
+// oscillators to get it would be a trap; give height its own and the two move
+// separately, which is how squash-and-stretch is made.
+// Where the geometry oscillators sit in the packed LFO id the inspector hands
+// its controls (effectIndex * 8 + slot for an effect). Far above any effect.
+constexpr int kGeometryLfoPackBase = 1 << 20;
+
+enum CueGeometryLfoSlot : int {
+  kGeoLfoOffsetX = 0,
+  kGeoLfoOffsetY,
+  kGeoLfoScaleX,
+  kGeoLfoScaleY,
+  kGeoLfoRotation,
+  kGeoLfoCropLeft,
+  kGeoLfoCropRight,
+  kGeoLfoCropTop,
+  kGeoLfoCropBottom,
+  kGeoLfoCount
+};
+
 struct MasterAssignment {
   int deckIndex = -1;         // which destination
   std::string cueId;          // which of that deck's cues, by id
@@ -1300,6 +1323,12 @@ struct Cue {
   // The operator's effect stack, applied in list order. Empty on every cue
   // that has never had one, which is the common case and costs nothing.
   std::vector<deckboy::effects::CueEffect> effects;
+  // An oscillator per GEOMETRY parameter, indexed by CueGeometryLfoSlot. The
+  // same ParamLfo the effect parameters use -- shape, rate, depth, tempo sync,
+  // a drawn curve -- evaluated at composite time, so the cue moves on the
+  // output and in the preview alike without its pixels being touched. All off
+  // on every cue that has never had one, which is what an older show means.
+  std::array<deckboy::effects::ParamLfo, 9> geometryLfo {};
   // Clip whose MOTION drives the motion-puppet effect. Its pictures are never
   // shown -- only the per-macroblock vectors its codec already computed -- so
   // it can be small, and it loops independently of this cue's transport.
@@ -1336,6 +1365,17 @@ struct Cue {
   // badge and the toolbar RELINK button.
   bool mediaMissing = false;
 };
+
+// Is any of this cue's geometry on an oscillator? Asked per frame by the
+// compositor, so the ordinary cue pays for nine bools and nothing else.
+inline bool cueHasGeometryLfo(const Cue& cue) {
+  for (const auto& lfo : cue.geometryLfo) {
+    if (lfo.on) {
+      return true;
+    }
+  }
+  return false;
+}
 
 // ---------------------------------------------------------------------------
 // Deck — A playlist of cues with transport state and output configuration.

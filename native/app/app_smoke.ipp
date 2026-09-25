@@ -1216,10 +1216,10 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 50;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 51;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
-                                              // fireside view
+                                              // fireside view, geometry LFOs
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -2210,6 +2210,40 @@
       modulateCueEffectStack(heardStack, 0.0, 0.0, heardOut, 0.0);
       expect(heardOut.size() == 1 && heardOut[0].amount == 0.5f,
              "and in silence hands back what the operator set");
+    }
+
+    // ── GEOMETRY LFOS ROUND-TRIP ────────────────────────────────────────
+    //
+    // Nine oscillators in one field, written only when one is armed. The
+    // empty case matters as much as the full one: every cue that never had a
+    // geometry LFO must write nothing and read back all-off.
+    {
+      using deckboy::effects::LfoShape;
+      std::array<deckboy::effects::ParamLfo, 9> none {};
+      expect(serializeGeometryLfos(none).empty(),
+             "a cue with no geometry LFO writes an empty field");
+      for (const auto& lfo : parseGeometryLfos(std::string())) {
+        expect(!lfo.on, "and an empty field reads back with every oscillator off");
+        break;
+      }
+      std::array<deckboy::effects::ParamLfo, 9> some {};
+      some[kGeoLfoRotation].on = true;
+      some[kGeoLfoRotation].shape = LfoShape::Saw;
+      some[kGeoLfoRotation].rateHz = 0.1f;
+      some[kGeoLfoRotation].depth = 1.0f;
+      some[kGeoLfoCropBottom].on = true;
+      some[kGeoLfoCropBottom].beatSync = true;
+      some[kGeoLfoCropBottom].beats = 8.0f;
+      const auto back = parseGeometryLfos(serializeGeometryLfos(some));
+      expect(back[kGeoLfoRotation].on && back[kGeoLfoRotation].shape == LfoShape::Saw &&
+               std::fabs(back[kGeoLfoRotation].rateHz - 0.1f) < 1e-6f &&
+               back[kGeoLfoRotation].depth == 1.0f,
+             "a rotation saw survives a save");
+      expect(back[kGeoLfoCropBottom].on && back[kGeoLfoCropBottom].beatSync &&
+               back[kGeoLfoCropBottom].beats == 8.0f,
+             "and a tempo-locked crop keeps its lock and its length");
+      expect(!back[kGeoLfoOffsetX].on && !back[kGeoLfoScaleY].on,
+             "and the ones left off stay off");
     }
 
 

@@ -2096,6 +2096,92 @@ std::vector<MasterAssignment> parseMasterAssignments(const std::string& text) {
   return out;
 }
 
+// ONE OSCILLATOR, as the show file spells it: commas inside, and the caller
+// chooses what separates one from the next. Shared by the effect parameters
+// and the geometry, so the two cannot drift into two spellings of one thing.
+void writeParamLfo(std::ostream& one, const deckboy::effects::ParamLfo& lfo) {
+  one << (lfo.on ? 1 : 0) << ',' << static_cast<int>(lfo.shape) << ','
+      << lfo.rateHz << ',' << lfo.depth << ',' << lfo.phase << ','
+      << (lfo.beatSync ? 1 : 0) << ',' << lfo.beats;
+  // The drawn curve rides along ONLY when it is the shape in use, and
+  // only when it is not still the default ramp. Thirty-two numbers on
+  // every LFO of every effect of every cue would be most of a show file
+  // spent on curves nobody drew.
+  //
+  // Appended after `beats`, so a build that predates it reads the seven
+  // fields it knows and stops -- and a curve written by a newer build
+  // degrades to the shape token, which is the honest fallback.
+  if (lfo.shape == deckboy::effects::LfoShape::Drawn) {
+    for (int c = 0; c < deckboy::effects::ParamLfo::kLfoCurvePoints; ++c) {
+      one << ',' << lfo.curve[static_cast<std::size_t>(c)];
+    }
+  }
+}
+
+void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
+  std::vector<std::string> f;
+  std::size_t c0 = 0;
+  for (;;) {
+    const std::size_t comma = one.find(',', c0);
+    f.push_back(one.substr(c0, comma == std::string::npos
+                                 ? std::string::npos : comma - c0));
+    if (comma == std::string::npos) break;
+    c0 = comma + 1;
+  }
+  if (f.size() > 0) lfo.on = std::atoi(f[0].c_str()) != 0;
+  if (f.size() > 1) {
+    const int shape = std::atoi(f[1].c_str());
+    lfo.shape = static_cast<deckboy::effects::LfoShape>(
+      std::clamp(shape, 0,
+                 static_cast<int>(deckboy::effects::LfoShape::Count) - 1));
+  }
+  if (f.size() > 2) lfo.rateHz = static_cast<float>(std::atof(f[2].c_str()));
+  if (f.size() > 3) lfo.depth = static_cast<float>(std::atof(f[3].c_str()));
+  if (f.size() > 4) lfo.phase = static_cast<float>(std::atof(f[4].c_str()));
+  if (f.size() > 5) lfo.beatSync = std::atoi(f[5].c_str()) != 0;
+  if (f.size() > 6) lfo.beats = static_cast<float>(std::atof(f[6].c_str()));
+  // The drawn curve, if this show carries one. A partial curve is
+  // read as far as it goes and the rest keeps the default ramp,
+  // rather than being rejected: half a curve still oscillates.
+  for (int c = 0; c < deckboy::effects::ParamLfo::kLfoCurvePoints; ++c) {
+    const std::size_t curveAt = static_cast<std::size_t>(7 + c);
+    if (f.size() <= curveAt) break;
+    lfo.curve[static_cast<std::size_t>(c)] =
+      std::clamp(static_cast<float>(std::atof(f[curveAt].c_str())), 0.0f, 1.0f);
+  }
+}
+
+// A cue's geometry oscillators, one field. EMPTY when none is armed, which is
+// every cue that has never had one -- so the field costs a tab and nothing
+// else, and an older build reading a newer show sees one more field it skips.
+std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, 9>& lfos) {
+  bool any = false;
+  for (const auto& lfo : lfos) {
+    any = any || lfo.on;
+  }
+  if (!any) {
+    return std::string();
+  }
+  std::ostringstream out;
+  for (std::size_t i = 0; i < lfos.size(); ++i) {
+    if (i) out << ';';
+    writeParamLfo(out, lfos[i]);
+  }
+  return out.str();
+}
+
+std::array<deckboy::effects::ParamLfo, 9> parseGeometryLfos(const std::string& text) {
+  std::array<deckboy::effects::ParamLfo, 9> lfos {};
+  std::size_t at = 0;
+  for (std::size_t i = 0; i < lfos.size() && !text.empty() && at != std::string::npos; ++i) {
+    const std::size_t semi = text.find(';', at);
+    readParamLfo(text.substr(at, semi == std::string::npos ? std::string::npos : semi - at),
+                 lfos[i]);
+    at = semi == std::string::npos ? std::string::npos : semi + 1;
+  }
+  return lfos;
+}
+
 std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& stack) {
   std::string out;
   for (const auto& fx : stack) {
@@ -2121,24 +2207,8 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     if (deckboy::effects::cueEffectStackHasLfo({fx})) {
       one << ':';
       for (int i = 0; i < 5; ++i) {
-        const auto& lfo = fx.lfo[i];
         if (i) one << ';';
-        one << (lfo.on ? 1 : 0) << ',' << static_cast<int>(lfo.shape) << ','
-            << lfo.rateHz << ',' << lfo.depth << ',' << lfo.phase << ','
-            << (lfo.beatSync ? 1 : 0) << ',' << lfo.beats;
-        // The drawn curve rides along ONLY when it is the shape in use, and
-        // only when it is not still the default ramp. Thirty-two numbers on
-        // every LFO of every effect of every cue would be most of a show file
-        // spent on curves nobody drew.
-        //
-        // Appended after `beats`, so a build that predates it reads the seven
-        // fields it knows and stops -- and a curve written by a newer build
-        // degrades to the shape token, which is the honest fallback.
-        if (lfo.shape == deckboy::effects::LfoShape::Drawn) {
-          for (int c = 0; c < deckboy::effects::ParamLfo::kLfoCurvePoints; ++c) {
-            one << ',' << lfo.curve[static_cast<std::size_t>(c)];
-          }
-        }
+        writeParamLfo(one, fx.lfo[i]);
       }
     }
     out += one.str();
@@ -2182,39 +2252,9 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
           std::size_t at = 0;
           for (int i = 0; i < 5 && at != std::string::npos; ++i) {
             const std::size_t semi = parts[7].find(';', at);
-            const std::string one = parts[7].substr(
-              at, semi == std::string::npos ? std::string::npos : semi - at);
-            std::vector<std::string> f;
-            std::size_t c0 = 0;
-            for (;;) {
-              const std::size_t comma = one.find(',', c0);
-              f.push_back(one.substr(c0, comma == std::string::npos
-                                           ? std::string::npos : comma - c0));
-              if (comma == std::string::npos) break;
-              c0 = comma + 1;
-            }
-            auto& lfo = fx.lfo[i];
-            if (f.size() > 0) lfo.on = std::atoi(f[0].c_str()) != 0;
-            if (f.size() > 1) {
-              const int shape = std::atoi(f[1].c_str());
-              lfo.shape = static_cast<deckboy::effects::LfoShape>(
-                std::clamp(shape, 0,
-                           static_cast<int>(deckboy::effects::LfoShape::Count) - 1));
-            }
-            if (f.size() > 2) lfo.rateHz = static_cast<float>(std::atof(f[2].c_str()));
-            if (f.size() > 3) lfo.depth = static_cast<float>(std::atof(f[3].c_str()));
-            if (f.size() > 4) lfo.phase = static_cast<float>(std::atof(f[4].c_str()));
-            if (f.size() > 5) lfo.beatSync = std::atoi(f[5].c_str()) != 0;
-            if (f.size() > 6) lfo.beats = static_cast<float>(std::atof(f[6].c_str()));
-            // The drawn curve, if this show carries one. A partial curve is
-            // read as far as it goes and the rest keeps the default ramp,
-            // rather than being rejected: half a curve still oscillates.
-            for (int c = 0; c < deckboy::effects::ParamLfo::kLfoCurvePoints; ++c) {
-              const std::size_t curveAt = static_cast<std::size_t>(7 + c);
-              if (f.size() <= curveAt) break;
-              lfo.curve[static_cast<std::size_t>(c)] =
-                std::clamp(static_cast<float>(std::atof(f[curveAt].c_str())), 0.0f, 1.0f);
-            }
+            readParamLfo(parts[7].substr(
+                           at, semi == std::string::npos ? std::string::npos : semi - at),
+                         fx.lfo[i]);
             at = semi == std::string::npos ? std::string::npos : semi + 1;
           }
         }
@@ -5106,8 +5146,21 @@ class App {
     if (slot < 0 || slot > 4 || !fx.lfo[slot].on) {
       return rowY;
     }
-    const auto& lfo = fx.lfo[slot];
-    const int packed = effectIndex * 8 + slot;
+    return inspDrawLfoRowFor(ix, rowY, fx.lfo[slot], effectIndex * 8 + slot);
+  }
+
+  // A geometry parameter's oscillator: the same row, addressed in the
+  // geometry range of the packed id.
+  int inspDrawGeometryLfoRow(const InspectorCtx& ix, int rowY, const Cue& cue, int slot) {
+    if (slot < 0 || slot >= kGeoLfoCount || !cue.geometryLfo[static_cast<std::size_t>(slot)].on) {
+      return rowY;
+    }
+    return inspDrawLfoRowFor(ix, rowY, cue.geometryLfo[static_cast<std::size_t>(slot)],
+                             kGeometryLfoPackBase + slot);
+  }
+
+  int inspDrawLfoRowFor(const InspectorCtx& ix, int rowY,
+                        const deckboy::effects::ParamLfo& lfo, int packed) {
     const int inset = ix.inset;
     const int contentW = ix.ctrlW - inset * 2;
     // Indented, so it reads as belonging to the row above rather than as
@@ -5406,6 +5459,9 @@ class App {
 
   int inspDrawGeometryRows(const InspectorCtx& ix, int startY, const Cue& cue, bool includeScaleOffset) {
     int rowY = startY;
+    auto geoLfoOn = [&](int slot) {
+      return cue.geometryLfo[static_cast<std::size_t>(slot)].on;
+    };
     if (includeScaleOffset) {
       inspDrawQuickRow(ix, rowY, "mode", QuickAction::CycleScaleMode, fmtScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
                        QuickAction::ToggleLoop, false, false, "Fit/Fill/Stretch/Unscaled");
@@ -5422,40 +5478,78 @@ class App {
         int finalH = std::max(1, static_cast<int>(std::lround(baseH * cue.outputScaleY)));
         inspDrawQuickRow(ix, rowY, "width", QuickAction::ScaleXDec, std::to_string(finalW) + "px",
                          QuickAction::ScaleXInc, QuickAction::ToggleLoop, false, false,
-                         "Output width in pixels | click value to type exact px", true, QuickAction::EditScaleX);
+                         "Output width in pixels | click value to type exact px", true, QuickAction::EditScaleX,
+                         -1, QuickAction::EffectLfoToggle, geoLfoOn(kGeoLfoScaleX),
+                         kGeometryLfoPackBase + kGeoLfoScaleX, "~",
+                         "Pulse the size. On its own this moves width AND height "
+                         "together; give height its own ~ to squash and stretch");
         rowY += ix.rowStep;
+        rowY = inspDrawGeometryLfoRow(ix, rowY, cue, kGeoLfoScaleX);
         inspDrawQuickRow(ix, rowY, "height", QuickAction::ScaleYDec, std::to_string(finalH) + "px",
                          QuickAction::ScaleYInc, QuickAction::ToggleLoop, false, false,
-                         "Output height in pixels | click value to type exact px", true, QuickAction::EditScaleY);
+                         "Output height in pixels | click value to type exact px", true, QuickAction::EditScaleY,
+                         -1, QuickAction::EffectLfoToggle, geoLfoOn(kGeoLfoScaleY),
+                         kGeometryLfoPackBase + kGeoLfoScaleY, "~",
+                         "Move the height on its own oscillator");
+        rowY += ix.rowStep;
+        rowY = inspDrawGeometryLfoRow(ix, rowY, cue, kGeoLfoScaleY);
       }
-      rowY += ix.rowStep;
       inspDrawQuickRow(ix, rowY, "offset X", QuickAction::OffsetXDec, std::to_string(static_cast<int>(cue.outputOffsetX)) + "px", QuickAction::OffsetXInc,
-                       QuickAction::ToggleLoop, false, false, "Horizontal output offset in pixels", true, QuickAction::EditOffsetX);
+                       QuickAction::ToggleLoop, false, false, "Horizontal output offset in pixels", true, QuickAction::EditOffsetX,
+                       -1, QuickAction::EffectLfoToggle, geoLfoOn(kGeoLfoOffsetX),
+                       kGeometryLfoPackBase + kGeoLfoOffsetX, "~",
+                       "Sway sideways. Depth 1 is half the frame either way");
       rowY += ix.rowStep;
+      rowY = inspDrawGeometryLfoRow(ix, rowY, cue, kGeoLfoOffsetX);
       inspDrawQuickRow(ix, rowY, "offset Y", QuickAction::OffsetYDec, std::to_string(static_cast<int>(cue.outputOffsetY)) + "px", QuickAction::OffsetYInc,
-                       QuickAction::ToggleLoop, false, false, "Vertical output offset in pixels", true, QuickAction::EditOffsetY);
+                       QuickAction::ToggleLoop, false, false, "Vertical output offset in pixels", true, QuickAction::EditOffsetY,
+                       -1, QuickAction::EffectLfoToggle, geoLfoOn(kGeoLfoOffsetY),
+                       kGeometryLfoPackBase + kGeoLfoOffsetY, "~",
+                       "Bob up and down. Depth 1 is half the frame either way");
       rowY += ix.rowStep;
+      rowY = inspDrawGeometryLfoRow(ix, rowY, cue, kGeoLfoOffsetY);
     }
     inspDrawQuickRow(ix, rowY, "rotation", QuickAction::RotDec, fmtFloat(cue.outputRotationDegrees, 1) + " deg", QuickAction::RotInc,
-                     QuickAction::ToggleLoop, false, false, "Output rotation angle (-180..180)", true, QuickAction::EditRotation);
+                     QuickAction::ToggleLoop, false, false, "Output rotation angle (-180..180)", true, QuickAction::EditRotation,
+                     -1, QuickAction::EffectLfoToggle, geoLfoOn(kGeoLfoRotation),
+                     kGeometryLfoPackBase + kGeoLfoRotation, "~",
+                     "Rock or spin. Depth 1 is half a turn either way; a saw at "
+                     "depth 1 turns it all the way round");
     rowY += ix.rowStep;
+    rowY = inspDrawGeometryLfoRow(ix, rowY, cue, kGeoLfoRotation);
     auto fmtCropPx = [&](float cropFrac, int sourceDim) -> std::string {
       if (sourceDim <= 0) return fmtPercent(cropFrac);
       int px = static_cast<int>(std::lround(cropFrac * sourceDim));
       return std::to_string(px) + "px";
     };
-    inspDrawQuickRow(ix, rowY, "crop left", QuickAction::CropLDec, fmtCropPx(cue.cropLeft, cue.width), QuickAction::CropLInc,
-                     QuickAction::ToggleLoop, false, false, "Crop from left");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "crop right", QuickAction::CropRDec, fmtCropPx(cue.cropRight, cue.width), QuickAction::CropRInc,
-                     QuickAction::ToggleLoop, false, false, "Crop from right");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "crop top", QuickAction::CropTDec, fmtCropPx(cue.cropTop, cue.height), QuickAction::CropTInc,
-                     QuickAction::ToggleLoop, false, false, "Crop from top");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "crop bottom", QuickAction::CropBDec, fmtCropPx(cue.cropBottom, cue.height), QuickAction::CropBInc,
-                     QuickAction::ToggleLoop, false, false, "Crop from bottom");
-    rowY += ix.rowStep;
+    struct CropRow {
+      const char* label;
+      QuickAction dec;
+      QuickAction inc;
+      float value;
+      int dim;
+      int slot;
+      const char* tip;
+    };
+    const CropRow crops[] = {
+      {"crop left", QuickAction::CropLDec, QuickAction::CropLInc, cue.cropLeft, cue.width,
+       kGeoLfoCropLeft, "Crop from left"},
+      {"crop right", QuickAction::CropRDec, QuickAction::CropRInc, cue.cropRight, cue.width,
+       kGeoLfoCropRight, "Crop from right"},
+      {"crop top", QuickAction::CropTDec, QuickAction::CropTInc, cue.cropTop, cue.height,
+       kGeoLfoCropTop, "Crop from top"},
+      {"crop bottom", QuickAction::CropBDec, QuickAction::CropBInc, cue.cropBottom, cue.height,
+       kGeoLfoCropBottom, "Crop from bottom"},
+    };
+    for (const CropRow& c : crops) {
+      inspDrawQuickRow(ix, rowY, c.label, c.dec, fmtCropPx(c.value, c.dim), c.inc,
+                       QuickAction::ToggleLoop, false, false, c.tip, false,
+                       QuickAction::ToggleLoop, -1, QuickAction::EffectLfoToggle,
+                       geoLfoOn(c.slot), kGeometryLfoPackBase + c.slot, "~",
+                       "Open and close this edge on an oscillator -- a wipe that breathes");
+      rowY += ix.rowStep;
+      rowY = inspDrawGeometryLfoRow(ix, rowY, cue, c.slot);
+    }
     return rowY;
   }
 

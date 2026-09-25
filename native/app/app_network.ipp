@@ -447,7 +447,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (318)\n"
+        "DECKBOY_0.01 every verb (319)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -490,7 +490,7 @@
         "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
-        "TRACKER SEQUENCE\n"
+        "TRACKER SEQUENCE GEOLFO\n"
         "UPDATE VIDEO VIEW VJ VOLUME WARP WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
@@ -540,6 +540,8 @@
         "          AUDIOFX <slot> PLUGIN <name>  (fills a plugin slot from your own installed plugins)\n"
         "       AUDIOVIS [waveform|scope|lissajous|spectrum|level|cover]  (what an audio cue shows)\n"
         "picture: MESH [on|off|toggle|height <0-1>|tilt <-1..1>|yaw|spin|grid <8-160>]\n"
+        "geometry lfo: GEOLFO [x|y|width|height|rotation|cropleft|cropright|croptop|cropbottom\n"
+        "              on|off|shape <s>|rate <hz>|depth <0-1>|phase <0-1>|sync <on|off>|beats <n>]\n"
         "browser: BROWSER <url>  (makes a cue)   -- on the LIVE browser cue:\n"
         "         BROWSER SCROLL <px> | TOP | BOTTOM | CLICK <x0-1> <y0-1>\n"
         "         BROWSER BACK | FORWARD | RELOAD | URL <addr> | SCROLLBAR on|off\n"

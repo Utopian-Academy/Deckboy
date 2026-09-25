@@ -35,6 +35,62 @@
     return "fit";
   }
 
+  // One oscillator's property, set from a remote line: parts[whatAt] names
+  // it and parts[whatAt + 1] is the value. Shared by FX LFO and GEOLFO so the
+  // two verbs cannot grow different spellings of the same settings. Reports
+  // its own failure; returns false when there was one.
+  bool setLfoFromRemote(deckboy::effects::ParamLfo& lfo,
+                        const std::vector<std::string>& parts, std::size_t whatAt,
+                        const char* verb) {
+    const std::string what = parts.size() > whatAt ? toUpper(parts[whatAt]) : std::string("ON");
+    const std::string valueText = parts.size() > whatAt + 1 ? parts[whatAt + 1] : std::string();
+    const double value = std::atof(valueText.c_str());
+    if (what == "ON")       { lfo.on = true; }
+    else if (what == "OFF") { lfo.on = false; }
+    else if (what == "SYNC") {
+      lfo.beatSync = valueText.empty() || toUpper(valueText) == "ON" ||
+                     valueText == "1";
+    } else if (what == "SHAPE") {
+      const std::string want = toLower(valueText);
+      int found = -1;
+      for (int s = 0; s < static_cast<int>(deckboy::effects::LfoShape::Count); ++s) {
+        if (want == deckboy::effects::lfoShapeToken(
+                      static_cast<deckboy::effects::LfoShape>(s))) {
+          found = s;
+          break;
+        }
+      }
+      if (found < 0) {
+        failRemoteCommand(std::string(verb) + " SHAPE: sine, triangle, saw, ramp, square or sample");
+        return false;
+      }
+      lfo.shape = static_cast<deckboy::effects::LfoShape>(found);
+    } else if (what == "RATE") {
+      if (value <= 0.0 || value > 40.0) {
+        failRemoteCommand(std::string(verb) + " RATE: hertz, 0-40");
+        return false;
+      }
+      lfo.rateHz = static_cast<float>(value);
+    } else if (what == "DEPTH" || what == "PHASE") {
+      if (value < 0.0 || value > 1.0) {
+        failRemoteCommand(std::string(verb) + " " + what + ": 0-1");
+        return false;
+      }
+      (what == "DEPTH" ? lfo.depth : lfo.phase) = static_cast<float>(value);
+    } else if (what == "BEATS") {
+      if (value < 0.25 || value > 64.0) {
+        failRemoteCommand(std::string(verb) + " BEATS: 0.25-64");
+        return false;
+      }
+      lfo.beats = static_cast<float>(value);
+    } else {
+      failRemoteCommand(std::string(verb) + ": on | off | shape <s> | rate <hz> | "
+                        "depth <0-1> | phase <0-1> | sync <on|off> | beats <n>");
+      return false;
+    }
+    return true;
+  }
+
   void handleRemoteCommand(const std::string& rawCommand) {
     // Cleared only by falling off the end of this function (see the note
     // there); processRemoteCommands reads it to answer the caller OK or ERR.
@@ -3916,58 +3972,70 @@
           return;
         }
         auto& lfo = cue->effects[idx].lfo[slotName[0] - 'A'];
-        const std::string what = parts.size() > 4 ? toUpper(parts[4]) : std::string("ON");
-        const std::string valueText = parts.size() > 5 ? parts[5] : std::string();
-        const double value = std::atof(valueText.c_str());
-        if (what == "ON")       { lfo.on = true; }
-        else if (what == "OFF") { lfo.on = false; }
-        else if (what == "SYNC") {
-          lfo.beatSync = valueText.empty() || toUpper(valueText) == "ON" ||
-                         valueText == "1";
-        } else if (what == "SHAPE") {
-          const std::string want = toLower(valueText);
-          int found = -1;
-          for (int s = 0; s < static_cast<int>(deckboy::effects::LfoShape::Count); ++s) {
-            if (want == deckboy::effects::lfoShapeToken(
-                          static_cast<deckboy::effects::LfoShape>(s))) {
-              found = s;
-              break;
-            }
-          }
-          if (found < 0) {
-            failRemoteCommand("FX LFO SHAPE: sine, triangle, saw, ramp, square or sample");
-            return;
-          }
-          lfo.shape = static_cast<deckboy::effects::LfoShape>(found);
-        } else if (what == "RATE") {
-          if (value <= 0.0 || value > 40.0) {
-            failRemoteCommand("FX LFO RATE: hertz, 0-40");
-            return;
-          }
-          lfo.rateHz = static_cast<float>(value);
-        } else if (what == "DEPTH" || what == "PHASE") {
-          if (value < 0.0 || value > 1.0) {
-            failRemoteCommand("FX LFO " + what + ": 0-1");
-            return;
-          }
-          (what == "DEPTH" ? lfo.depth : lfo.phase) = static_cast<float>(value);
-        } else if (what == "BEATS") {
-          if (value < 0.25 || value > 64.0) {
-            failRemoteCommand("FX LFO BEATS: 0.25-64");
-            return;
-          }
-          lfo.beats = static_cast<float>(value);
-        } else {
-          failRemoteCommand("FX LFO: on | off | shape <s> | rate <hz> | "
-                            "depth <0-1> | phase <0-1> | sync <on|off> | beats <n>");
-          return;
+        if (setLfoFromRemote(lfo, parts, 4, "FX LFO")) {
+          markProjectDirty();
         }
-        markProjectDirty();
         return;
       }
       failRemoteCommand("FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | "
                         "PARAM <n> <A-D> <0-1> | LFO <n> <A-E> ... | "
                         "COPY | PASTE | CLEAR");
+      return;
+    }
+    if (command == "GEOLFO") {
+      // GEOLFO                              -> which geometry is moving
+      // GEOLFO <param> <on|off|shape|rate|depth|phase|sync|beats> [value]
+      //   params: X Y WIDTH HEIGHT ROTATION CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM
+      // On the selected cue, like every other geometry verb.
+      static const std::pair<const char*, int> kParams[] = {
+        {"X", kGeoLfoOffsetX}, {"Y", kGeoLfoOffsetY},
+        {"WIDTH", kGeoLfoScaleX}, {"W", kGeoLfoScaleX}, {"SIZE", kGeoLfoScaleX},
+        {"HEIGHT", kGeoLfoScaleY}, {"H", kGeoLfoScaleY},
+        {"ROTATION", kGeoLfoRotation}, {"ROT", kGeoLfoRotation},
+        {"CROPLEFT", kGeoLfoCropLeft}, {"CROPRIGHT", kGeoLfoCropRight},
+        {"CROPTOP", kGeoLfoCropTop}, {"CROPBOTTOM", kGeoLfoCropBottom},
+      };
+      static const char* const kNames[kGeoLfoCount] = {
+        "x", "y", "width", "height", "rotation",
+        "cropleft", "cropright", "croptop", "cropbottom",
+      };
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("GEOLFO: select a cue first");
+        return;
+      }
+      if (parts.size() < 2) {
+        std::string moving;
+        for (int slot = 0; slot < kGeoLfoCount; ++slot) {
+          const auto& lfo = cue->geometryLfo[static_cast<std::size_t>(slot)];
+          if (lfo.on) {
+            if (!moving.empty()) moving += " | ";
+            moving += std::string(kNames[slot]) + " " +
+                      deckboy::effects::lfoShapeToken(lfo.shape);
+          }
+        }
+        remoteCommandDetail_ = moving.empty() ? std::string("nothing moving") : moving;
+        return;
+      }
+      const std::string wanted = toUpper(parts[1]);
+      int slot = -1;
+      for (const auto& param : kParams) {
+        if (wanted == param.first) {
+          slot = param.second;
+          break;
+        }
+      }
+      if (slot < 0) {
+        failRemoteCommand("GEOLFO: x, y, width, height, rotation, cropleft, "
+                          "cropright, croptop or cropbottom");
+        return;
+      }
+      if (setLfoFromRemote(cue->geometryLfo[static_cast<std::size_t>(slot)], parts, 2,
+                           "GEOLFO")) {
+        markProjectDirty();
+        remoteCommandDetail_ = std::string(kNames[slot]) +
+          (cue->geometryLfo[static_cast<std::size_t>(slot)].on ? " moving" : " still");
+      }
       return;
     }
     if (command == "GOEND" || command == "SKIPEND") {

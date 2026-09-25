@@ -454,6 +454,17 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
+  // The GEOMETRY oscillators share every LFO control -- shape, rate, depth,
+  // sync, the scribble pad -- by living in their own range of the same packed
+  // number. One set of handlers rather than a second set that could drift.
+  if (packed >= kGeometryLfoPackBase) {
+    const int slot = packed - kGeometryLfoPackBase;
+    Cue* cue = selectedCueMutable();
+    if (!cue || slot < 0 || slot >= kGeoLfoCount) {
+      return nullptr;
+    }
+    return &cue->geometryLfo[static_cast<std::size_t>(slot)];
+  }
   auto* stack = selectedEffectStack();
   const int index = packed / 8;
   const int slot = packed % 8;

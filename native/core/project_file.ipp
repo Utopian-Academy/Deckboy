@@ -836,6 +836,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.firesideIntensity
         << '\t' << cue.firesideSparks
         << '\t' << cue.firesideView
+        // The geometry oscillators. Empty unless one is armed.
+        << '\t' << escapeField(serializeGeometryLfos(cue.geometryLfo))
         << '\n';
     }
   }
@@ -2116,6 +2118,8 @@ Project loadProject(const fs::path& projectFile,
         // opens as the bare brick wall it was saved as.
         cue.firesideView = std::clamp(safeInt(fields, vs + 106, 0), 0,
                                       kFiresideViewCount - 1);
+        // Absent on an older show, which leaves every oscillator off.
+        cue.geometryLfo = parseGeometryLfos(safeString(fields, vs + 107));
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time

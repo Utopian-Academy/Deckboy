@@ -337,6 +337,25 @@
     return texIt->second;
   }
 
+  // A geometry oscillator's swing this frame, as a fraction of its range:
+  // -depth/2..+depth/2, or 0..depth for the one-sided Audio shape (silence
+  // leaves the picture where the operator put it). 0 when it is off.
+  double geoLfoSwing(const deckboy::effects::ParamLfo& lfo) const {
+    if (!lfo.on) {
+      return 0.0;
+    }
+    const double unit = deckboy::effects::lfoUnitValue(lfo, lfoSeconds_, lfoBeats_,
+                                                       reactiveAudioLevel_);
+    return lfo.shape == deckboy::effects::LfoShape::Audio
+      ? unit * static_cast<double>(lfo.depth)
+      : (unit - 0.5) * static_cast<double>(lfo.depth);
+  }
+
+  // For the 0-1 geometry (the crops): the effect parameters' own rule.
+  float lfoApplyGeo(const deckboy::effects::ParamLfo& lfo, float base) const {
+    return deckboy::effects::lfoApply(lfo, base, lfoSeconds_, lfoBeats_, reactiveAudioLevel_);
+  }
+
   void renderTextureWithCueGeometry(SDL_Renderer* renderer,
                                     SDL_Texture* texture,
                                     int textureWidth,
@@ -363,6 +382,18 @@
     float cropRight = cue ? cue->cropRight : 0.0f;
     float cropTop = cue ? cue->cropTop : 0.0f;
     float cropBottom = cue ? cue->cropBottom : 0.0f;
+    // THE GEOMETRY OSCILLATORS, evaluated here because every picture of a cue
+    // -- the output, a second screen, the preview -- is placed by this one
+    // function. Same clock the effect LFOs read, so a size pulse and an
+    // effect parameter on one cue stay in step.
+    const bool geoLfo = cue && cueHasGeometryLfo(*cue);
+    if (geoLfo) {
+      const auto& L = cue->geometryLfo;
+      cropLeft = lfoApplyGeo(L[kGeoLfoCropLeft], cropLeft);
+      cropRight = lfoApplyGeo(L[kGeoLfoCropRight], cropRight);
+      cropTop = lfoApplyGeo(L[kGeoLfoCropTop], cropTop);
+      cropBottom = lfoApplyGeo(L[kGeoLfoCropBottom], cropBottom);
+    }
     int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureWidth) * cropLeft)), 0, textureWidth - 1);
     int cropR = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureWidth) * cropRight)), 0, textureWidth - 1);
     int cropT = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureHeight) * cropTop)), 0, textureHeight - 1);
@@ -396,6 +427,22 @@
     float offsetX = cue ? cue->outputOffsetX : 0.0f;
     float offsetY = cue ? cue->outputOffsetY : 0.0f;
     float rotationDegrees = cue ? cue->outputRotationDegrees : 0.0f;
+    if (geoLfo) {
+      const auto& L = cue->geometryLfo;
+      // Position: depth 1 is half the frame either way.
+      offsetX += static_cast<float>(geoLfoSwing(L[kGeoLfoOffsetX]) * target.w);
+      offsetY += static_cast<float>(geoLfoSwing(L[kGeoLfoOffsetY]) * target.h);
+      // Size, in OCTAVES: depth 1 is half size to double size. A linear swing
+      // would shrink further than it grows and read as lopsided.
+      const auto& sx = L[kGeoLfoScaleX];
+      const auto& sy = L[kGeoLfoScaleY];
+      const float fx = sx.on ? static_cast<float>(std::pow(2.0, geoLfoSwing(sx) * 2.0)) : 1.0f;
+      const float fy = sy.on ? static_cast<float>(std::pow(2.0, geoLfoSwing(sy) * 2.0)) : fx;
+      outputScaleX *= fx;
+      outputScaleY *= fy;
+      // Rotation: depth 1 is half a turn either way, so a saw spins it round.
+      rotationDegrees += static_cast<float>(geoLfoSwing(L[kGeoLfoRotation]) * 360.0);
+    }
     int drawW = std::max(1, static_cast<int>(std::round(srcW * baseScaleX * static_cast<double>(outputScaleX))));
     int drawH = std::max(1, static_cast<int>(std::round(srcH * baseScaleY * static_cast<double>(outputScaleY))));
     SDL_Rect destination {
