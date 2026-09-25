@@ -2942,11 +2942,11 @@
     // ─── Bottom bar sparkle area ───
     // Ambient sparkles + state-indicating animations in the empty space
     // within the output group, after the 2 buttons
-    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 10) {
-      // Rightmost button in the output group — SETTINGS, now buttons_[9]
-      // after BLACKOUT and RECORD joined the group. Index-based anchors like
-      // this are exactly what breaks when the bar changes; keep it in step.
-      SDL_Rect lastOutBtn = buttons_[9].rect;
+    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && !buttons_.empty()) {
+      // After the LAST button, whichever that is. This read buttons_[9],
+      // which was MENU until DASH arrived in front of it -- and then the
+      // sparkles started after DASH and were drawn across MENU's label.
+      SDL_Rect lastOutBtn = buttons_.back().rect;
       int sparkleAreaX = lastOutBtn.x + lastOutBtn.w + 12;
       int sparkleAreaW = outputGroupRect_.x + outputGroupRect_.w - sparkleAreaX - 8;
       if (sparkleAreaW < 40) {

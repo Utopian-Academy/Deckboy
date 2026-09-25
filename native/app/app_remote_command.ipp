@@ -1989,6 +1989,67 @@
                              deck.cues[index].name;
       return;
     }
+    if (command == "TRACKER" || command == "SEQUENCE") {
+      // TRACKER GO|NEXT        -> fire the next step
+      // TRACKER BACK|PREV      -> fire the step before
+      // TRACKER PLAY | STOP    -> run the sequence on the steps' lengths / halt it
+      // TRACKER STEP <n>       -> fire step n (1-based)
+      // TRACKER LOOP [ON|OFF]  -> wrap from the last step to the first
+      // TRACKER CLICKER [ON|OFF] -> Page Down / Page Up step the tracker
+      // TRACKER                -> where the sequence stands
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      const auto rows = masterTrackerRows();
+      auto onOff = [&](bool current) {
+        if (parts.size() < 3) return !current;
+        const std::string v = toUpper(parts[2]);
+        return v == "ON" || v == "1" || v == "TRUE";
+      };
+      if (sub.empty() || sub == "STATUS") {
+        const int head = trackerPlayheadRow();
+        std::ostringstream out;
+        out << rows.size() << " steps";
+        if (head >= 0) out << " | step " << (head + 1);
+        out << (trackerPlaying_ ? " | playing" : " | stopped");
+        const double remaining = trackerRemainingSeconds();
+        if (remaining >= 0.0) out << " | next in " << std::fixed << std::setprecision(1) << remaining << "s";
+        out << (project_.trackerLoop ? " | loop" : "")
+            << (project_.clickerDrivesTracker ? " | clicker" : "");
+        remoteCommandDetail_ = out.str();
+        return;
+      }
+      if (rows.empty() && sub != "LOOP" && sub != "CLICKER") {
+        failRemoteCommand("TRACKER: there are no steps (MASTER NEW makes one)");
+        return;
+      }
+      if (sub == "GO" || sub == "NEXT") { trackerGo(); return; }
+      if (sub == "BACK" || sub == "PREV" || sub == "PREVIOUS") { trackerBack(); return; }
+      if (sub == "PLAY") { trackerPlay(); return; }
+      if (sub == "STOP" || sub == "HALT") { trackerStop(); return; }
+      if (sub == "STEP" && parts.size() >= 3) {
+        const int step = std::atoi(parts[2].c_str());
+        if (step < 1 || step > static_cast<int>(rows.size())) {
+          failRemoteCommand("TRACKER STEP: no step " + parts[2] + " (1-" +
+                            std::to_string(rows.size()) + ")");
+          return;
+        }
+        fireTrackerRow(step - 1);
+        return;
+      }
+      if (sub == "LOOP") {
+        project_.trackerLoop = onOff(project_.trackerLoop);
+        markProjectDirty();
+        remoteCommandDetail_ = project_.trackerLoop ? "loop on" : "loop off";
+        return;
+      }
+      if (sub == "CLICKER") {
+        project_.clickerDrivesTracker = onOff(project_.clickerDrivesTracker);
+        markProjectDirty();
+        remoteCommandDetail_ = project_.clickerDrivesTracker ? "clicker on" : "clicker off";
+        return;
+      }
+      failRemoteCommand("TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, LOOP or CLICKER");
+      return;
+    }
     if (command == "MASTER" || command == "MASTERCUE") {
       // MASTER NEW                     -> add a master cue to this deck
       // MASTER DECK <n> <cue>          -> assign: deck n plays cue <cue>
@@ -6590,6 +6651,19 @@
         return;
       }
 
+      // Which view the page shows, and show it: a Companion page that runs
+      // the master sequence wants the tracker up, not the tiles.
+      if (sub == "TRACKER" || sub == "TILES") {
+        if (showStartupDialog_ || showSplashOverlay_) {
+          failRemoteCommand("DASH: the startup dialog is up");
+          return;
+        }
+        project_.dashboardMode = sub == "TRACKER" ? 1 : 0;
+        dashboardOverlayOpen_ = true;
+        markProjectDirty();
+        remoteCommandDetail_ = sub == "TRACKER" ? "tracker shown" : "tiles shown";
+        return;
+      }
       // Put the page on screen. A surface that can fire a slot should also
       // be able to show the operator the page those slots live on.
       if (sub == "SHOW" || sub == "HIDE" || sub == "TOGGLE") {

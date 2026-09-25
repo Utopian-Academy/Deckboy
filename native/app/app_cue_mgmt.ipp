@@ -380,6 +380,11 @@
       {"output",    "Output on/off",   "OUTPUT TOGGLE",    "O"},
       {"output",    "Fullscreen",      "FULLSCREEN",       "F"},
       {"output",    "Record",          "RECORD toggle",    "R"},
+      // The master sequence, so a row of tiles can be its transport.
+      {"tracker",   "Next step",       "TRACKER GO",       ">"},
+      {"tracker",   "Previous step",   "TRACKER BACK",     "<"},
+      {"tracker",   "Play sequence",   "TRACKER PLAY",     "|>"},
+      {"tracker",   "Stop sequence",   "TRACKER STOP",     "[]"},
     };
     return kPresets;
   }
@@ -443,6 +448,242 @@
       target.glyph = list[index].glyph;
       markProjectDirty();
       triggerToast(std::string("button set to ") + list[index].command);
+    });
+  }
+
+  // Right-click on the dashboard: everything that can be done to the thing
+  // under the pointer, in one list. A tile gets edit / rename / colour /
+  // delete; a tracker step gets rename / move / delete. Delete from here is a
+  // single choice -- opening a menu and picking the word is already the
+  // deliberate second step the x button asks for.
+  void openDashboardContextMenu(int x, int y) {
+    const QuickButton* hit = nullptr;
+    for (auto it = dashButtons_.rbegin(); it != dashButtons_.rend(); ++it) {
+      if (pointInRect(x, y, it->rect)) {
+        hit = &*it;
+        break;
+      }
+    }
+    if (!hit) {
+      return;
+    }
+    const SDL_Rect anchor = hit->rect;
+    lastInlineEditorAnchorRect_ = anchor;
+    if (hit->action == QuickAction::DashSlotFire ||
+        hit->action == QuickAction::DashSlotEdit ||
+        hit->action == QuickAction::DashSlotColor ||
+        hit->action == QuickAction::DashSlotDelete) {
+      const int at = hit->param;
+      if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+        return;
+      }
+      static const std::vector<std::pair<std::string, std::string>> kTileMenu = {
+        {"edit",   "change what it does..."},
+        {"text",   "label, command and glyph as text..."},
+        {"colour", "next colour"},
+        {"delete", "delete this button"},
+      };
+      openDropdown("dashboard.menu" + std::to_string(at), anchor, kTileMenu, "edit",
+                   [this, at](const std::string& chosen) {
+        if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+          return;
+        }
+        if (chosen == "edit") {
+          editDashboardSlot(at);
+        } else if (chosen == "text") {
+          editDashboardSlotAsText(at);
+        } else if (chosen == "colour") {
+          dispatchQuickAction(QuickAction::DashSlotColor, at);
+        } else if (chosen == "delete") {
+          dashDeleteArmedSlot_ = -1;
+          project_.dashboard.erase(project_.dashboard.begin() + at);
+          markProjectDirty();
+          playUiSound(UiSoundEffect::Delete);
+          triggerToast("button deleted");
+        }
+      });
+      return;
+    }
+    if (hit->action == QuickAction::TrackerFire ||
+        hit->action == QuickAction::TrackerCell) {
+      const int row = hit->action == QuickAction::TrackerFire
+        ? hit->param : hit->param / kMaxDecks;
+      openTrackerStepMenu(row, anchor);
+    }
+  }
+
+  // The master cue behind a tracker row, for editing. Null when the row has
+  // gone (the list is rebuilt every frame, a menu outlives it).
+  Cue* trackerStepCueMutable(int row, int* deckOut = nullptr, int* cueOut = nullptr) {
+    const auto rows = masterTrackerRows();
+    if (row < 0 || row >= static_cast<int>(rows.size())) {
+      return nullptr;
+    }
+    const int d = rows[row].first;
+    const int c = rows[row].second;
+    if (deckOut) *deckOut = d;
+    if (cueOut) *cueOut = c;
+    return &project_.decks[d].cues[c];
+  }
+
+  // A step's length IS its continue: see the tracker's transport.
+  void openTrackerLengthMenu(int row, const SDL_Rect& anchor) {
+    const Cue* step = trackerStepCueMutable(row);
+    if (!step) {
+      return;
+    }
+    static const std::vector<std::pair<std::string, std::string>> kLengths = {
+      {"go",  "wait for GO"},
+      {"end", "when its cues end"},
+      {"0.5", "0.5 s"}, {"1", "1 s"}, {"2", "2 s"}, {"4", "4 s"},
+      {"8", "8 s"}, {"15", "15 s"}, {"30", "30 s"}, {"60", "1 min"},
+      {"type", "type a length in seconds..."},
+    };
+    std::string current = "go";
+    if (step->continueMode == CueContinueMode::AutoFollow) {
+      current = "end";
+    } else if (step->continueMode == CueContinueMode::AutoContinue) {
+      current = "type";
+      for (const auto& option : kLengths) {
+        const double v = std::atof(option.first.c_str());
+        if (v > 0.0 && std::abs(v - step->postWaitSeconds) < 0.01) {
+          current = option.first;
+        }
+      }
+    }
+    // The row is re-resolved when the choice lands: the menu is open for as
+    // long as the operator likes, and steps can be added underneath it.
+    const std::string stepId = step->id;
+    auto apply = [this, stepId](CueContinueMode mode, double seconds) {
+      for (Deck& deck : project_.decks) {
+        for (Cue& cue : deck.cues) {
+          if (cue.kind == CueKind::Master && cue.id == stepId) {
+            cue.continueMode = mode;
+            cue.postWaitSeconds = std::max(0.0, seconds);
+            markProjectDirty();
+            return;
+          }
+        }
+      }
+    };
+    openDropdown("tracker.length" + stepId, anchor, kLengths, current,
+                 [this, row, apply](const std::string& chosen) {
+      if (chosen == "go") {
+        apply(CueContinueMode::DoNotContinue, 0.0);
+      } else if (chosen == "end") {
+        apply(CueContinueMode::AutoFollow, 0.0);
+      } else if (chosen == "type") {
+        const Cue* now = trackerStepCueMutable(row);
+        const double was = now ? now->postWaitSeconds : 4.0;
+        char text[32];
+        std::snprintf(text, sizeof(text), "%g", was > 0.0 ? was : 4.0);
+        openInlineTextEditor("tracker.length", "Step length",
+                             "seconds this step holds before PLAY moves on",
+                             text, [apply](const std::string& value) {
+          const double seconds = std::atof(value.c_str());
+          if (seconds > 0.0) {
+            apply(CueContinueMode::AutoContinue, std::min(seconds, 86400.0));
+          }
+        });
+        return;
+      } else {
+        apply(CueContinueMode::AutoContinue, std::atof(chosen.c_str()));
+      }
+      triggerToast("step " + std::to_string(row + 1) + ": " + trackerStepLengthLabel(row));
+    });
+  }
+
+  // Swap two cues in one playlist, carrying the selection and the live
+  // pointer with them so nothing on air changes identity.
+  void swapCuesInDeck(int deckIndex, int a, int b) {
+    Deck& deck = project_.decks[deckIndex];
+    std::swap(deck.cues[a], deck.cues[b]);
+    auto remap = [a, b](int& index) {
+      if (index == a) index = b;
+      else if (index == b) index = a;
+    };
+    remap(deck.selectedIndex);
+    remap(deck.activeIndex);
+    for (int& index : deck.selectedIndices) {
+      remap(index);
+    }
+    markProjectDirty();
+  }
+
+  // Right-click on a step: everything that changes the step rather than
+  // what it fires.
+  void openTrackerStepMenu(int row, const SDL_Rect& anchor) {
+    int deckIndex = -1;
+    int cueIndex = -1;
+    Cue* step = trackerStepCueMutable(row, &deckIndex, &cueIndex);
+    if (!step) {
+      return;
+    }
+    static const std::vector<std::pair<std::string, std::string>> kStepMenu = {
+      {"rename",    "rename..."},
+      {"length",    "length..."},
+      {"up",        "move up"},
+      {"down",      "move down"},
+      {"duplicate", "duplicate"},
+      {"delete",    "delete step"},
+    };
+    const std::string stepId = step->id;
+    openDropdown("tracker.step" + stepId, anchor, kStepMenu, "rename",
+                 [this, row, anchor, stepId](const std::string& chosen) {
+      int d = -1;
+      int c = -1;
+      Cue* live = trackerStepCueMutable(row, &d, &c);
+      if (!live || live->id != stepId) {
+        return;   // the steps moved while the menu was open
+      }
+      if (chosen == "rename") {
+        openInlineTextEditor("tracker.rename", "Step " + std::to_string(row + 1),
+                             "a name for this step", live->name,
+                             [this, stepId](const std::string& value) {
+          for (Deck& deck : project_.decks) {
+            for (Cue& cue : deck.cues) {
+              if (cue.id == stepId) {
+                cue.name = trim(value);
+                markProjectDirty();
+                return;
+              }
+            }
+          }
+        });
+      } else if (chosen == "length") {
+        openTrackerLengthMenu(row, anchor);
+      } else if (chosen == "up" || chosen == "down") {
+        // Within its own playlist, to the neighbouring MASTER: a master deck
+        // may hold other cues, and hopping over one of those would not move
+        // the step in the tracker at all.
+        const int direction = chosen == "up" ? -1 : 1;
+        const Deck& deck = project_.decks[d];
+        int other = c + direction;
+        while (other >= 0 && other < static_cast<int>(deck.cues.size()) &&
+               deck.cues[other].kind != CueKind::Master) {
+          other += direction;
+        }
+        if (other < 0 || other >= static_cast<int>(deck.cues.size())) {
+          triggerToast(direction < 0 ? "already the first step" : "already the last step");
+          return;
+        }
+        pushUndoSnapshot();
+        swapCuesInDeck(d, c, other);
+      } else if (chosen == "duplicate") {
+        pushUndoSnapshot();
+        Cue copy = *live;
+        copy.id.clear();   // normalizeProject gives it its own
+        copy.name = live->name.empty() ? std::string("step") : live->name + " copy";
+        Deck& deck = project_.decks[d];
+        deck.cues.insert(deck.cues.begin() + c + 1, copy);
+        if (deck.activeIndex > c) deck.activeIndex += 1;
+        if (deck.selectedIndex > c) deck.selectedIndex += 1;
+        deck.selectedIndices.clear();
+        normalizeProject(project_);
+        markProjectDirty();
+      } else if (chosen == "delete") {
+        requestDeleteCueIndices(d, {c});
+      }
     });
   }
 
@@ -1189,9 +1430,59 @@
     return static_cast<int>(probeQueue_.size() + probeFutures_.size());
   }
 
-  void handleDropFile(const char* rawPath) {
+  // Where a drop landed, in control-window coordinates. The drop event carries
+  // the position of the last SDL_EVENT_DROP_POSITION, and a backend that sends
+  // none leaves it at 0,0 -- which is a real place in the window, so it cannot
+  // be trusted. Then the pointer is asked instead: during an OS drag it is
+  // over the window, where the file is about to land.
+  std::optional<SDL_Point> dropPointInControlWindow(float dropX, float dropY) const {
+    if (dropPositionKnown_) {
+      return SDL_Point {static_cast<int>(dropX), static_cast<int>(dropY)};
+    }
+    float globalX = 0.0f, globalY = 0.0f;
+    SDL_GetGlobalMouseState(&globalX, &globalY);
+    int windowX = 0, windowY = 0;
+    if (!SDL_GetWindowPosition(controlWindow_, &windowX, &windowY)) {
+      return std::nullopt;
+    }
+    return SDL_Point {static_cast<int>(globalX) - windowX,
+                      static_cast<int>(globalY) - windowY};
+  }
+
+  // The playlist a point in the control window belongs to, or -1. A tab
+  // names its playlist even when that playlist is not the one drawn, so the
+  // tabs are asked first.
+  int deckIndexAtControlPoint(int x, int y) const {
+    for (int di = 0; di < static_cast<int>(deckTabRects_.size()); ++di) {
+      if (deckTabRects_[di].w > 0 && pointInRect(x, y, deckTabRects_[di])) {
+        return di;
+      }
+    }
+    for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
+      if (deckColumnRects_[di].w > 0 && pointInRect(x, y, deckColumnRects_[di])) {
+        return di;
+      }
+    }
+    for (int di = 0; di < static_cast<int>(deckListClipRects_.size()); ++di) {
+      if (deckListClipRects_[di].w > 0 && pointInRect(x, y, deckListClipRects_[di])) {
+        return di;
+      }
+    }
+    return -1;
+  }
+
+  void handleDropFile(const char* rawPath, std::optional<SDL_Point> at = std::nullopt) {
     if (!rawPath) {
       return;
+    }
+    // Dropped onto a playlist: select it, and the import below follows the
+    // selection. Anywhere else (or over the settings, which cover the
+    // playlists) keeps the selected one, as before.
+    if (at && !settingsOpen_) {
+      const int target = deckIndexAtControlPoint(at->x, at->y);
+      if (target >= 0 && target != project_.focusedDeckIndex) {
+        setFocusedDeckIndex(target);
+      }
     }
     importPaths({rawPath});
   }
@@ -5714,30 +6005,10 @@
     bottomBarRect_ = {barX, barY, barW, barH};
 
     SDL_Rect groupBounds {barX + kLayoutSpacingUnit, barY + 8, barW - kLayoutSpacingUnit * 2, barH - 16};
-    GridLayout groups(groupBounds, 3, 1, kLayoutPanelGap);
-    mediaGroupRect_ = groups.cell(0, 0);
-    transportGroupRect_ = groups.cell(1, 0);
-    outputGroupRect_ = groups.cell(2, 0);
 
     int buttonH = kLayoutButtonHeight;
-    // SCALED BOUNDS. The kLayout* metrics follow uiScale but these two numbers
-    // did not, so at Pocket/touch scale the font doubled inside a button that
-    // could still be no wider than 144px: IMPORT became "IM...", SOURCE became
-    // "SO...", and the whole bottom bar stopped saying what its buttons do.
-    // A MINIMUM THAT DOES NOT FIT IS NOT A MINIMUM, IT IS AN OVERLAP.
-    //
-    // This wanted a comfortable touch target, so it clamped UP to one. At
-    // Pocket scale that floor (192px) was wider than a third of the group, and
-    // three of them ran straight out of the box: PATTERN was drawn across
-    // TRANSPORT, RERACK across OUTPUT. The available width is the hard limit
-    // and the preferred size is only a preference -- a button that is smaller
-    // than ideal is readable, one drawn on top of its neighbour is not.
-    const int fitsPerButton =
-      (std::min(mediaGroupRect_.w, transportGroupRect_.w) - (kLayoutButtonGap * 4)) / 3;
-    // ... and wider, for the same reason. 144 was a cap chosen when the bar
-    // held fewer groups; on a wide window it left three small buttons adrift
-    // in a box three times their width.
-    int buttonW = std::clamp(fitsPerButton, 1, uiScaled(240));
+    // Set once the buttons are known: every button on the bar is this wide.
+    int buttonW = 1;
 
     auto push = [&](std::string label, SDL_Color fill, std::string tip = "") {
       Button button;
@@ -5802,6 +6073,53 @@
     // Two rows of wide buttons say what they do; one row of narrow ones does
     // not, and shrinking the label on a touch target is the wrong trade twice
     // over.
+    // ── EVERY BUTTON THE SAME SIZE ────────────────────────────────────────
+    //
+    // The three groups were a third of the bar each, whatever they held. So
+    // MEDIA and TRANSPORT spread three buttons across a third while OUTPUT
+    // crammed five into the same width: its buttons came out half as wide,
+    // dropped to the smaller font, and RECORD read "REC..." at 1280 -- the
+    // bar looked like two sizes of button that had wandered in from
+    // different apps. The groups are now as wide as what they hold, so a
+    // button is one width everywhere on the bar and the words match.
+    //
+    // Still capped: on a very wide window eleven 400px buttons are banners,
+    // not buttons. The width the cap leaves over is shared out between the
+    // groups in proportion, and each group centres its row.
+    {
+      const int total = static_cast<int>(buttons_.size());
+      const int counts[3] = {
+        std::min(3, total),
+        std::min(3, std::max(0, total - 3)),
+        std::max(0, total - 6),
+      };
+      const int pad = kLayoutSpacingUnit;
+      int fixed = 2 * kLayoutPanelGap;
+      int buttonsCounted = 0;
+      for (int c : counts) {
+        fixed += 2 * pad + std::max(0, c - 1) * kLayoutButtonGap;
+        buttonsCounted += c;
+      }
+      // A MINIMUM THAT DOES NOT FIT IS NOT A MINIMUM, IT IS AN OVERLAP: the
+      // available width is the hard limit and the preferred size is only a
+      // preference. (At Pocket scale a clamped-up floor ran PATTERN across
+      // TRANSPORT once.)
+      buttonW = std::clamp((groupBounds.w - fixed) / std::max(1, buttonsCounted),
+                           1, uiScaled(240));
+      const int spare = std::max(0, groupBounds.w - fixed - buttonW * buttonsCounted);
+      SDL_Rect* rects[3] = {&mediaGroupRect_, &transportGroupRect_, &outputGroupRect_};
+      int x = groupBounds.x;
+      for (int g = 0; g < 3; ++g) {
+        int w = 2 * pad + counts[g] * buttonW + std::max(0, counts[g] - 1) * kLayoutButtonGap
+              + spare * counts[g] / std::max(1, buttonsCounted);
+        if (g == 2) {
+          w = groupBounds.x + groupBounds.w - x;   // rounding lands on the edge
+        }
+        *rects[g] = SDL_Rect {x, groupBounds.y, w, groupBounds.h};
+        x += w + kLayoutPanelGap;
+      }
+    }
+
     auto placeGroupButtons = [&](int startIndex, int count, const SDL_Rect& groupRect, int overrideW = 0) {
       const int titleH = 36;
       const int avail = groupRect.w - kLayoutSpacingUnit * 2;
@@ -5904,11 +6222,7 @@
         placeGroupButtons(mediaCount, transportCount, transportGroupRect_);
       }
       if (outputCount > 0) {
-        const int outBtnW = std::clamp(
-          (outputGroupRect_.w - kLayoutButtonGap * (outputCount + 1)) / outputCount,
-          1, buttonW);
-        placeGroupButtons(mediaCount + transportCount, outputCount,
-                          outputGroupRect_, outBtnW);
+        placeGroupButtons(mediaCount + transportCount, outputCount, outputGroupRect_);
       }
       // AND SAY SO IF ONE WAS MISSED. A button with no rect cannot be drawn
       // and cannot be pressed; silently having none is exactly the failure

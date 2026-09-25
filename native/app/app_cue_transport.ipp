@@ -1007,6 +1007,11 @@
     // The master deck's own pointer, so the list shows which master was last
     // fired. This is the master deck's state, not a copy of the targets'.
     masterDeck.activeIndex = masterCueIndex;
+    // And the tracker's playhead, however this master was fired -- the
+    // tracker, its playlist, a dashboard tile, Companion. By id, so a step
+    // moved or inserted above it does not move the playhead with it.
+    trackerPlayheadDeck_ = masterDeckIndex;
+    trackerPlayheadCueId_ = masterDeck.cues[masterCueIndex].id;
 
     std::string msg = "master: " + masterName + " — " + std::to_string(fired) +
                       (fired == 1 ? " deck" : " decks");
@@ -1018,6 +1023,266 @@
       playUiSound(UiSoundEffect::Error);
     }
     markProjectDirty();
+  }
+
+  // -- THE TRACKER'S TRANSPORT ---------------------------------------------
+  //
+  // A sequence of master cues, played. The steps are the tracker's rows, and
+  // a step's LENGTH is the sequencing spine every cue already carries:
+  // AUTO-CONTINUE with a post-wait is "hold this long, then the next step",
+  // AUTO-FOLLOW is "when the cues it fired have ended", and no continue is
+  // "wait for GO". So a step means the same thing in the tracker as it does
+  // fired from its own playlist, and nothing new is saved to say it.
+  //
+  // The tracker keeps its OWN clock rather than borrowing the deck's
+  // continue, because a sequence crosses playlists when masters live on more
+  // than one, and because STOP and LOOP belong to the sequence, not to a deck.
+  //
+  // GO and BACK step by hand and leave PLAY as it was; a slide clicker is
+  // GO and BACK. PLAY resumes from wherever the sequence is standing.
+
+  int trackerPlayheadRow() const {
+    if (trackerPlayheadDeck_ < 0 || trackerPlayheadCueId_.empty()) {
+      return -1;
+    }
+    const auto rows = masterTrackerRows();
+    for (int r = 0; r < static_cast<int>(rows.size()); ++r) {
+      const Cue* master = masterTrackerCue(rows[r].first, rows[r].second);
+      if (rows[r].first == trackerPlayheadDeck_ && master &&
+          master->id == trackerPlayheadCueId_) {
+        return r;
+      }
+    }
+    return -1;
+  }
+
+  // How long one fired cue runs, or -1 when it has no end (a loop, a live
+  // source, a still with no duration). Trims respected; speed is not, which
+  // errs on the side of holding a step a little long rather than cutting it.
+  static double trackerCueSeconds(const Cue& cue) {
+    if (cue.loop) {
+      return -1.0;
+    }
+    if (cue.duration > 0.0) {
+      const double end = cue.outPointSeconds > 0.0
+        ? std::min(cue.outPointSeconds, cue.duration) : cue.duration;
+      return std::max(0.0, end - std::max(0.0, cue.inPointSeconds));
+    }
+    if (cue.stillDurationSeconds > 0.0) {
+      return cue.stillDurationSeconds;
+    }
+    return -1.0;
+  }
+
+  // How long a step holds before PLAY moves on, or -1 for "wait for GO".
+  double trackerStepSeconds(int row) const {
+    const auto rows = masterTrackerRows();
+    if (row < 0 || row >= static_cast<int>(rows.size())) {
+      return -1.0;
+    }
+    const Cue* master = masterTrackerCue(rows[row].first, rows[row].second);
+    if (!master) {
+      return -1.0;
+    }
+    switch (master->continueMode) {
+      case CueContinueMode::AutoContinue:
+        return std::max(0.0, master->postWaitSeconds);
+      case CueContinueMode::AutoFollow: {
+        double longest = -1.0;
+        for (const MasterAssignment& a : master->masterAssignments) {
+          if (a.bypassed) {
+            continue;
+          }
+          const int idx = findCueIndexById(a.deckIndex, a.cueId);
+          if (idx < 0) {
+            continue;
+          }
+          longest = std::max(longest,
+                             trackerCueSeconds(project_.decks[a.deckIndex].cues[idx]));
+        }
+        // Nothing it fires has an end -- a loop, a camera -- so there is no
+        // "when they end" to wait for. Holding is the honest answer.
+        return longest < 0.0 ? -1.0 : longest + std::max(0.0, master->postWaitSeconds);
+      }
+      case CueContinueMode::DoNotContinue:
+        break;
+    }
+    return -1.0;
+  }
+
+  // Short enough for a narrow cell: 4s, 0.5s, 1:30.
+  static std::string trackerSecondsLabel(double seconds) {
+    char out[32];
+    if (seconds >= 60.0) {
+      const int whole = static_cast<int>(std::lround(seconds));
+      std::snprintf(out, sizeof(out), "%d:%02d", whole / 60, whole % 60);
+    } else if (std::abs(seconds - std::round(seconds)) < 0.05) {
+      std::snprintf(out, sizeof(out), "%ds", static_cast<int>(std::lround(seconds)));
+    } else {
+      std::snprintf(out, sizeof(out), "%.1fs", seconds);
+    }
+    return out;
+  }
+
+  // What the LEN cell says: GO, a time, or END for "when the cues end".
+  std::string trackerStepLengthLabel(int row) const {
+    const auto rows = masterTrackerRows();
+    if (row < 0 || row >= static_cast<int>(rows.size())) {
+      return std::string();
+    }
+    const Cue* master = masterTrackerCue(rows[row].first, rows[row].second);
+    if (!master) {
+      return std::string();
+    }
+    if (master->continueMode == CueContinueMode::AutoFollow) {
+      return master->postWaitSeconds > 0.0
+        ? "END+" + trackerSecondsLabel(master->postWaitSeconds) : std::string("END");
+    }
+    if (master->continueMode == CueContinueMode::AutoContinue) {
+      return trackerSecondsLabel(master->postWaitSeconds);
+    }
+    return std::string("GO");
+  }
+
+  // Fire one step. When the sequence is playing, arm the clock for the next.
+  void fireTrackerRow(int row) {
+    const auto rows = masterTrackerRows();
+    if (row < 0 || row >= static_cast<int>(rows.size())) {
+      return;
+    }
+    const int masterDeck = rows[row].first;
+    // A continue armed on the master deck by an earlier GO from its playlist
+    // would fire a step of its own on top of the tracker's clock.
+    cancelPendingTake(masterDeck);
+    fireMasterCue(masterDeck, rows[row].second);
+    trackerSquishRow_ = row;
+    trackerSquishAtMs_ = SDL_GetTicks();
+    if (!trackerPlaying_) {
+      trackerNextDueSeconds_ = -1.0;
+      return;
+    }
+    const double hold = trackerStepSeconds(row);
+    if (hold < 0.0) {
+      trackerPlaying_ = false;
+      trackerNextDueSeconds_ = -1.0;
+      triggerToast("holding at step " + std::to_string(row + 1) + " - GO to continue");
+      return;
+    }
+    trackerNextDueSeconds_ = nowSeconds() + hold;
+  }
+
+  // The step after (or before) the playhead, walking past disarmed ones --
+  // a disarmed cue does nothing at all, however it is reached. -1 when the
+  // sequence has run out and is not looping.
+  int trackerNeighbourRow(int direction) const {
+    const auto rows = masterTrackerRows();
+    const int count = static_cast<int>(rows.size());
+    if (count == 0) {
+      return -1;
+    }
+    const int from = trackerPlayheadRow();
+    // BACK before anything has fired has nowhere to go back TO -- unless the
+    // sequence loops, where the step before the first is the last.
+    if (from < 0 && direction < 0 && !project_.trackerLoop) {
+      return -1;
+    }
+    int row = from < 0 ? (direction > 0 ? 0 : count - 1) : from + direction;
+    for (int walked = 0; walked < count; ++walked) {
+      if (row >= count || row < 0) {
+        if (!project_.trackerLoop) {
+          return -1;
+        }
+        row = row >= count ? 0 : count - 1;
+      }
+      const Cue* master = masterTrackerCue(rows[row].first, rows[row].second);
+      if (master && master->armed) {
+        return row;
+      }
+      row += direction;
+    }
+    return -1;
+  }
+
+  void trackerGo() {
+    const int next = trackerNeighbourRow(+1);
+    if (next < 0) {
+      trackerPlaying_ = false;
+      trackerNextDueSeconds_ = -1.0;
+      triggerToast(masterTrackerRows().empty() ? "the tracker has no steps"
+                                               : "end of the sequence");
+      return;
+    }
+    fireTrackerRow(next);
+  }
+
+  void trackerBack() {
+    const int previous = trackerNeighbourRow(-1);
+    if (previous < 0) {
+      triggerToast(masterTrackerRows().empty() ? "the tracker has no steps"
+                                               : "at the first step");
+      return;
+    }
+    fireTrackerRow(previous);
+  }
+
+  // Resume the sequence from where it stands: the current step's length is
+  // counted from now, and a step that waits for GO is treated as GO.
+  void trackerPlay() {
+    if (masterTrackerRows().empty()) {
+      triggerToast("the tracker has no steps");
+      return;
+    }
+    trackerPlaying_ = true;
+    const int current = trackerPlayheadRow();
+    const double hold = current < 0 ? -1.0 : trackerStepSeconds(current);
+    if (current < 0 || hold < 0.0) {
+      trackerGo();
+      return;
+    }
+    trackerNextDueSeconds_ = nowSeconds() + hold;
+    triggerToast("playing from step " + std::to_string(current + 1));
+  }
+
+  void trackerStop() {
+    const bool was = trackerPlaying_;
+    trackerPlaying_ = false;
+    trackerNextDueSeconds_ = -1.0;
+    if (was) {
+      triggerToast("sequence stopped");
+    }
+  }
+
+  // Once a frame, from update().
+  void tickTracker() {
+    if (!trackerPlaying_ || trackerNextDueSeconds_ < 0.0 ||
+        nowSeconds() < trackerNextDueSeconds_) {
+      return;
+    }
+    // The step that was playing has been deleted. "Next" from nowhere is
+    // step 1, and jumping back to the top of a show is not what anybody
+    // deleting one step meant -- so the sequence stops and says so.
+    if (trackerPlayheadRow() < 0) {
+      trackerPlaying_ = false;
+      trackerNextDueSeconds_ = -1.0;
+      triggerToast("the playing step was removed - sequence stopped");
+      return;
+    }
+    const int next = trackerNeighbourRow(+1);
+    if (next < 0) {
+      trackerPlaying_ = false;
+      trackerNextDueSeconds_ = -1.0;
+      triggerToast("sequence ended");
+      return;
+    }
+    fireTrackerRow(next);
+  }
+
+  // Seconds until PLAY fires the next step, or -1 when it is not counting.
+  double trackerRemainingSeconds() const {
+    if (!trackerPlaying_ || trackerNextDueSeconds_ < 0.0) {
+      return -1.0;
+    }
+    return std::max(0.0, trackerNextDueSeconds_ - nowSeconds());
   }
 
   // ---------------------------------------------------------------------

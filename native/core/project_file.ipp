@@ -226,6 +226,8 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "monitor_device\t" << escapeField(project.monitorDeviceName) << '\n';
   output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
   output << "dashboard_mode\t" << project.dashboardMode << '\n';
+  output << "tracker_loop\t" << (project.trackerLoop ? 1 : 0) << '\n';
+  output << "clicker_tracker\t" << (project.clickerDrivesTracker ? 1 : 0) << '\n';
   // One line per window, in the order they are drawn. Written only when the
   // operator has actually arranged them: an empty list means "the automatic
   // set", and writing no lines at all is how that round-trips.
@@ -1030,6 +1032,10 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.monitorDeckIndex = safeInt(fields, 1, -1);
   } else if (fields[0] == "dashboard_mode") {
     project.dashboardMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
+  } else if (fields[0] == "tracker_loop") {
+    project.trackerLoop = safeBool(fields, 1, false);
+  } else if (fields[0] == "clicker_tracker") {
+    project.clickerDrivesTracker = safeBool(fields, 1, false);
   } else if (fields[0] == "multiview") {
     project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "multiview_tile") {

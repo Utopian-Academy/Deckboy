@@ -102,11 +102,28 @@
           }
           break;
         }
-        case SDL_EVENT_DROP_FILE:
+        case SDL_EVENT_DROP_BEGIN:
+        case SDL_EVENT_DROP_COMPLETE:
+          dropPositionKnown_ = false;
+          break;
+        case SDL_EVENT_DROP_POSITION:
+          dropPositionKnown_ = true;
+          break;
+        case SDL_EVENT_DROP_FILE: {
           // event.drop.data is owned by SDL in SDL3 — valid until the next
           // event poll, never freed by the app.
-          handleDropFile(event.drop.data);
+          //
+          // Dropped on a playlist, it goes into THAT playlist. It went into the
+          // selected one wherever it landed, so dropping onto the second
+          // playlist put the file in the first unless you had clicked the
+          // second beforehand.
+          std::optional<SDL_Point> at;
+          if (event.drop.windowID == SDL_GetWindowID(controlWindow_)) {
+            at = dropPointInControlWindow(event.drop.x, event.drop.y);
+          }
+          handleDropFile(event.drop.data, at);
           break;
+        }
         case SDL_EVENT_MOUSE_WHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
             handleMouseWheel(static_cast<int>(event.wheel.y));
@@ -253,6 +270,7 @@
     serviceBusyCritters(1.0 / 60.0);
     refreshNormalizingIds();
     servicePendingTakes();
+    tickTracker();
     // Fade cues, ticked beside the pending takes: both are things the show
     // asked for earlier that have to happen now.
     serviceFades();

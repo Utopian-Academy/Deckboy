@@ -447,7 +447,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (316)\n"
+        "DECKBOY_0.01 every verb (318)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -490,6 +490,7 @@
         "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
+        "TRACKER SEQUENCE\n"
         "UPDATE VIDEO VIEW VJ VOLUME WARP WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
@@ -521,6 +522,7 @@
         "text:      TEXTCUE NEW|BODY <words>|ANIM none/fade/typewriter/scroll/crawl/pulse/wobble|SIZE <1-100>|SPEED <n>|ALIGN <side>|CARD <0-255>\n"
         "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
+        "tracker:   TRACKER [GO|BACK|PLAY|STOP|STEP <n>|LOOP [on|off]|CLICKER [on|off]] - the master cues as a sequence\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"
         "           PRESENTER LAYOUT wide|filmstrip|notes|custom | LIVE|PREV|NEXT|NOTES|CLOCK|TIMERS|BUILDS [on|off]\n"
         "           PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h>   (percent; CAPTURE makes the current layout editable)\n"
@@ -560,6 +562,7 @@
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
         "dashboard: DASH LIST | DASH <n> | DASH SET <n> <label> | <cmd> [| <glyph>]\n"
         "           DASH CLEAR <n>   (a slot runs any command line above)\n"
+        "           DASH SHOW|HIDE|TOGGLE | DASH TRACKER|TILES   (put the page, or one view of it, on screen)\n"
         "        FULLSCREEN DISPLAY <n> TC <hh:mm:ss:ff>   (OUT is trim-out)\n"
         "vj: VJ ON|OFF|TOGGLE | VJ MIX <0-1> | VJ BLEND [mode]\n"
         "    blends: dissolve add screen multiply lighten darken subtract\n"

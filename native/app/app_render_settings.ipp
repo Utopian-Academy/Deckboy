@@ -658,9 +658,12 @@
       // numbers, so a taller font pushes the card out instead of overflowing it.
       int colGap = uiScaled(12);
       int colH = content.h - uiScaled(20);
-      int leftW = std::max(uiScaled(320), (content.w - uiScaled(12) - colGap) / 2);
-      int rightW = std::max(uiScaled(320), content.w - uiScaled(12) - colGap - leftW);
-      const int kCardGap = uiScaled(10);
+      // The same margin on BOTH sides. The columns were sized from content.w
+      // less one margin, so the right column ran to the frame's edge -- under
+      // the scroll track -- while the left one sat 12px in.
+      int leftW = std::max(uiScaled(320), (content.w - uiScaled(24) - colGap) / 2);
+      int rightW = std::max(uiScaled(320), content.w - uiScaled(24) - colGap - leftW);
+      int kCardGap = uiScaled(10);
 
       // APPEARANCE, in the order it is laid out below: theme, SFX, hover tips,
       // Miami cursor, mascot, creatures, UI scale, Pocket 3. Eight rows, and
@@ -701,6 +704,25 @@
       int leftNeeded = appearanceH + kCardGap + safetyH + kCardGap + flowH;
       int rightNeeded = cueToolsH + kCardGap + prefsH + kCardGap + updateH +
                         kCardGap + recordH;
+      // A NEAR MISS IS TAKEN OUT OF THE GAPS, not given a scrollbar. A page
+      // that scrolls by four pixels reads as broken: the whole tab moves a
+      // hair and nothing new comes into view. When closing the gaps between
+      // cards (down to a floor that still separates them) is enough to fit,
+      // that is what happens; only a real overflow scrolls.
+      {
+        const int leftFixed = appearanceH + safetyH + flowH;
+        const int rightFixed = cueToolsH + prefsH + updateH + recordH;
+        const int floorGap = uiScaled(3);
+        const int needed = std::max(leftFixed + 2 * kCardGap, rightFixed + 3 * kCardGap);
+        if (needed > colH) {
+          const int fitGap = std::min((colH - leftFixed) / 2, (colH - rightFixed) / 3);
+          if (fitGap >= floorGap) {
+            kCardGap = std::min(kCardGap, fitGap);
+            leftNeeded = leftFixed + 2 * kCardGap;
+            rightNeeded = rightFixed + 3 * kCardGap;
+          }
+        }
+      }
       // MEASURED, not predicted. These heights are hand-computed constants
       // that must match the controls laid out under them, and when one of
       // them was too small the control that fell outside its card could not be
@@ -865,9 +887,12 @@
       // What APPEARANCE actually used, measured at the point its last control
       // was placed. Compared against the card it was given so an overflow
       // cannot silently clip.
+      // appY has already stepped past the last row AND its gap, so the card's
+      // bottom is one gap back up plus the padding -- not a whole row further
+      // down, which is what this measured before.
       settingsSystemDrawnH_ = std::max(
         settingsSystemDrawnH_,
-        (appY + sRowH + sPad) - colTop);
+        (appY - sGap + sPad) - colTop);
 
       drawCard(safetyRect, "SAFETY / TIMECODE", "Emergency fade and sync behavior");
       // Four questions, four rows, same shape as APPEARANCE above it. It used
@@ -1171,7 +1196,15 @@
       // This used to measure a chip layout that wrapped differently per
       // platform and per window width, so the height and the contents were two
       // separate guesses about the same thing.
-      std::vector<int> audioRows {sTallH, sTallH};          // output device, live input
+      //
+      // The monitor rows went in without being added here, so the card came
+      // out one row short -- two with a monitor set -- and its last lines
+      // were drawn loose below the frame.
+      std::vector<int> audioRows {sTallH, sTallH};          // output device, monitor device
+      if (!project_.monitorDeviceName.empty()) {
+        audioRows.push_back(sTallH);                        // monitor playlist
+      }
+      audioRows.push_back(sTallH);                          // live input
       if (micLive) {
         audioRows.insert(audioRows.end(), {sRowH, sRowH, sRowH});  // gain, mono, to-recording
       }

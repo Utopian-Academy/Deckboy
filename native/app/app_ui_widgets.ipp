@@ -108,6 +108,12 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
   void handleRightClick(int x, int y) {
+    // THE DASHBOARD IS MODAL, for the right button too. Without this a
+    // right-click on a tile went through to whatever the dashboard covers.
+    if (dashboardOverlayOpen_) {
+      openDashboardContextMenu(x, y);
+      return;
+    }
     // A MULTIVIEW WINDOW, FIRST. Left-click focuses the playlist a window
     // shows, which is the action you want ninety-nine times out of a
     // hundred; right-click is how you say what the window IS. Tested before
@@ -1813,7 +1819,10 @@
     const int kMinW = uiScaled(980);
     const int kMinH = uiScaled(700);
     const int kMaxW = uiScaled(1320);
-    const int kMaxH = uiScaled(940);
+    // 1000, not 940: at 940 the System tab was a few pixels taller than its
+    // frame on a full-HD screen and scrolled by a hair. Still bounded by the
+    // window below, so a smaller screen is unchanged.
+    const int kMaxH = uiScaled(1000);
     int modalW = std::clamp(width - kMargin * 2, std::min(kMinW, width), kMaxW);
     int modalH = std::clamp(height - kMargin * 2, std::min(kMinH, height), kMaxH);
     modalW = std::min(modalW, std::max(320, width - 12));

@@ -703,12 +703,78 @@
   // Reading DOWN is time and reading ACROSS is destinations. That is the whole
   // reason a grid beats a list here: you can see a whole sequence and what
   // fires together, at once.
-  void renderMasterTracker(const SDL_Rect& area) {
+  void renderMasterTracker(const SDL_Rect& fullArea) {
     const auto rows = masterTrackerRows();
     const int deckCount = static_cast<int>(project_.decks.size());
     const int rowH = std::max(uiScaled(22), textLineHeight(fontSmall_) + uiScaled(8));
     const int stepW = uiScaled(132);
+    const int lenW = uiScaled(58);
     const int gap = uiScaled(3);
+
+    // -- THE TRANSPORT -------------------------------------------------
+    //
+    // Above the grid, because it acts on the whole sequence rather than on
+    // a row. BACK and GO are also what a slide clicker sends (Page Up /
+    // Page Down) while the tracker is open, or always with CLICKER on.
+    const int barH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(10));
+    {
+      struct TransportButton {
+        const char* label;
+        QuickAction action;
+        const char* tip;
+        bool lit;
+        int w;
+      };
+      const TransportButton buttons[] = {
+        {"< BACK", QuickAction::TrackerBack,
+         "Fire the step before this one (Page Up)", false, 76},
+        {"GO >", QuickAction::TrackerGo,
+         "Fire the next step (Page Down)", false, 76},
+        {trackerPlaying_ ? "STOP" : "PLAY", QuickAction::TrackerPlay,
+         "Run the sequence: each step holds for its LEN, then the next fires",
+         trackerPlaying_, 70},
+        {"LOOP", QuickAction::TrackerLoopToggle,
+         "At the last step, go back to the first instead of stopping",
+         project_.trackerLoop, 60},
+        {"CLICKER", QuickAction::TrackerClickerToggle,
+         "Page Down / Page Up step the tracker even with the dashboard closed",
+         project_.clickerDrivesTracker, 82},
+      };
+      int bx = fullArea.x;
+      for (const TransportButton& b : buttons) {
+        SDL_Rect r {bx, fullArea.y, uiScaled(b.w), barH};
+        drawUIPanel(r, b.lit ? pal.dark : pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, r, b.label,
+                             b.lit ? pal.light : pal.deep);
+        dashButtons_.push_back({r, b.action, b.tip});
+        bx += r.w + uiScaled(6);
+      }
+      // Where the sequence stands, in words.
+      const int playhead = trackerPlayheadRow();
+      std::string status;
+      if (rows.empty()) {
+        status = "no steps yet";
+      } else if (playhead < 0) {
+        status = std::to_string(rows.size()) + " steps - GO fires the first";
+      } else {
+        status = "step " + std::to_string(playhead + 1) + " of " +
+                 std::to_string(rows.size());
+        const double remaining = trackerRemainingSeconds();
+        if (remaining >= 0.0) {
+          char next[48];
+          std::snprintf(next, sizeof(next), " - next in %.1fs", remaining);
+          status += next;
+        } else if (trackerPlaying_) {
+          status += " - playing";
+        }
+      }
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {bx + uiScaled(4), fullArea.y,
+                             std::max(0, fullArea.x + fullArea.w - bx - uiScaled(4)), barH},
+                   status, pal.fg);
+    }
+    SDL_Rect area {fullArea.x, fullArea.y + barH + uiScaled(8), fullArea.w,
+                   std::max(0, fullArea.h - barH - uiScaled(8))};
 
     if (rows.empty()) {
       // NEVER A DEAD END. An empty tracker that only says 'empty' gives an
@@ -726,20 +792,43 @@
       return;
     }
 
-    // The columns share whatever is left after the step name.
-    const int colsW = std::max(uiScaled(60), area.w - stepW - gap);
+    // WHICH PLAYLISTS GET A COLUMN. Not one that holds nothing but steps: a
+    // step cannot fire the playlist it lives on, so that column could only
+    // ever read "--" all the way down. A playlist with anything else in it
+    // keeps its column, even if a step lives there too.
+    std::vector<int> shown;
+    for (int d = 0; d < deckCount; ++d) {
+      const Deck& deck = project_.decks[d];
+      bool onlySteps = !deck.cues.empty() || deck.isMasterDeck;
+      for (const Cue& cue : deck.cues) {
+        if (cue.kind != CueKind::Master) {
+          onlySteps = false;
+          break;
+        }
+      }
+      if (!onlySteps) {
+        shown.push_back(d);
+      }
+    }
+    const int shownCount = static_cast<int>(shown.size());
+
+    // The columns share whatever is left after the step name and its length.
+    const int colsX = area.x + stepW + gap + lenW + gap;
+    const int colsW = std::max(uiScaled(60), area.x + area.w - colsX);
     const int colW = std::max(uiScaled(56),
-                              (colsW - gap * std::max(0, deckCount - 1)) /
-                                std::max(1, deckCount));
+                              (colsW - gap * std::max(0, shownCount - 1)) /
+                                std::max(1, shownCount));
 
     // -- THE HEADER: which playlist each column is ----------------------
-    SDL_Rect stepHead {area.x, area.y, stepW, rowH};
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {stepHead.x + uiScaled(4), stepHead.y,
-                           stepHead.w - uiScaled(8), stepHead.h},
+                 SDL_Rect {area.x + uiScaled(4), area.y, stepW - uiScaled(8), rowH},
                  "STEP", pal.fgSoft);
-    for (int d = 0; d < deckCount; ++d) {
-      SDL_Rect head {area.x + stepW + gap + d * (colW + gap), area.y, colW, rowH};
+    drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect {area.x + stepW + gap, area.y, lenW, rowH},
+                         "LEN", pal.fgSoft);
+    for (int col = 0; col < shownCount; ++col) {
+      const int d = shown[col];
+      SDL_Rect head {colsX + col * (colW + gap), area.y, colW, rowH};
       if (head.x + head.w > area.x + area.w) {
         break;
       }
@@ -749,12 +838,25 @@
                            d == project_.focusedDeckIndex ? pal.light : pal.fgSoft);
     }
 
-    // -- THE STEPS ------------------------------------------------------
-    int y = area.y + rowH + gap;
-    for (std::size_t r = 0; r < rows.size(); ++r) {
-      if (y + rowH > area.y + area.h) {
-        break;      // the rest wait for a bigger window
+    // -- WHICH STEPS FIT, and the playhead kept among them ---------------
+    const int gridTop = area.y + rowH + gap;
+    // One row is kept back for "+ step" and the hint under the grid.
+    const int visibleRows = std::max(1, (area.y + area.h - gridTop) / (rowH + gap) - 1);
+    const int rowCount = static_cast<int>(rows.size());
+    const int playhead = trackerPlayheadRow();
+    if (playhead != trackerLastFollowedRow_) {
+      trackerLastFollowedRow_ = playhead;
+      if (playhead >= 0 && (playhead < trackerScrollRow_ ||
+                            playhead >= trackerScrollRow_ + visibleRows)) {
+        trackerScrollRow_ = playhead - visibleRows / 2;
       }
+    }
+    trackerScrollRow_ = std::clamp(trackerScrollRow_, 0,
+                                   std::max(0, rowCount - visibleRows));
+
+    // -- THE STEPS ------------------------------------------------------
+    int y = gridTop;
+    for (int r = trackerScrollRow_; r < rowCount && r < trackerScrollRow_ + visibleRows; ++r) {
       const int masterDeck = rows[r].first;
       const int masterCue = rows[r].second;
       const Cue* master = masterTrackerCue(masterDeck, masterCue);
@@ -764,25 +866,74 @@
       // THE STEP NAME IS THE GO BUTTON. In a tracker the row header is what
       // you hit to play the row, and a separate button would be a second
       // thing to aim at in a grid that is already dense.
-      const bool isLive = project_.decks[masterDeck].activeIndex == masterCue;
+      const bool isHead = r == playhead;
       SDL_Rect stepRect {area.x, y, stepW, rowH};
-      drawUIPanel(stepRect, isLive ? pal.mid : pal.tile, pal.deep, pal.mid);
+      // KAWAII, BUT THE GRID STAYS STILL. A fired step springs the way a
+      // dashboard tile does, and the playhead's step breathes by a pixel --
+      // enough to find it at a glance. The cells never move: a grid you
+      // read across has to line up.
+      {
+        int sq = 0;
+        if (r == trackerSquishRow_ && animationNow_ >= trackerSquishAtMs_) {
+          const double age = static_cast<double>(animationNow_ - trackerSquishAtMs_) / 320.0;
+          if (age < 1.0) {
+            sq = static_cast<int>(std::lround(
+              std::sin(age * 3.14159265358979) * (1.0 - age) * 5.0));
+          }
+        }
+        const int bob = isHead
+          ? static_cast<int>(std::lround(std::sin(animationNow_ / 1000.0 * 3.2) * 1.2)) : 0;
+        stepRect = SDL_Rect {stepRect.x + sq, stepRect.y + sq / 2 + bob,
+                             stepRect.w - sq * 2, stepRect.h - sq};
+      }
+      // The playhead in the ACTIVE style the settings tabs use -- dark fill,
+      // light ink. light-on-tile was the same green as every other step in
+      // half the themes, and the > was left doing all the work.
+      drawUIPanel(stepRect, isHead ? pal.dark : pal.tile, pal.deep,
+                  isHead ? pal.light : pal.mid);
       char label[96];
-      std::snprintf(label, sizeof(label), "%2d  %s", static_cast<int>(r) + 1,
+      std::snprintf(label, sizeof(label), "%s%2d  %s", isHead ? ">" : " ", r + 1,
                     master->name.empty() ? "step" : master->name.c_str());
+      const SDL_Color stepInk = !master->armed ? pal.fgSoft
+                              : isHead ? pal.light : pal.fg;
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {stepRect.x + uiScaled(5), stepRect.y,
                              stepRect.w - uiScaled(10), stepRect.h},
                    ellipsizeToPixelWidth(fontSmall_, label, stepRect.w - uiScaled(10)),
-                   isLive ? pal.deep : pal.fg);
+                   stepInk);
       dashButtons_.push_back({stepRect, QuickAction::TrackerFire,
-                              "Fire this step on every playlist at once",
-                              static_cast<int>(r)});
+                              "Fire this step on every playlist at once "
+                              "(right-click: rename, move, delete)", r});
 
-      for (int d = 0; d < deckCount; ++d) {
-        SDL_Rect cell {area.x + stepW + gap + d * (colW + gap), y, colW, rowH};
+      // LEN, with the countdown drawn through it while PLAY is running.
+      SDL_Rect lenRect {area.x + stepW + gap, y, lenW, rowH};
+      drawUIPanel(lenRect, pal.tile, pal.deep, pal.mid);
+      const double remaining = isHead ? trackerRemainingSeconds() : -1.0;
+      const double hold = remaining >= 0.0 ? trackerStepSeconds(r) : -1.0;
+      if (hold > 0.0) {
+        const double done = std::clamp(1.0 - remaining / hold, 0.0, 1.0);
+        SDL_Rect fill {lenRect.x + 2, lenRect.y + lenRect.h - uiScaled(4),
+                       static_cast<int>((lenRect.w - 4) * done), uiScaled(3)};
+        Primitives::fillRect(controlRenderer_, fill, pal.light);
+      }
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, lenRect,
+                           trackerStepLengthLabel(r), pal.fg);
+      dashButtons_.push_back({lenRect, QuickAction::TrackerLength,
+                              "How long this step holds when the sequence plays", r});
+
+      for (int col = 0; col < shownCount; ++col) {
+        const int d = shown[col];
+        SDL_Rect cell {colsX + col * (colW + gap), y, colW, rowH};
         if (cell.x + cell.w > area.x + area.w) {
           break;
+        }
+        if (d == masterDeck) {
+          // The step's own playlist: it cannot fire here, and says so rather
+          // than offering a cell that would never do anything.
+          drawUIPanel(cell, pal.tile, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, cell, "(step lives here)",
+                               pal.fgSoft);
+          continue;
         }
         bool bypassed = false;
         const std::string text =
@@ -790,7 +941,7 @@
         const bool empty = text.empty();
         const bool missing = text == "(missing)";
         drawUIPanel(cell, empty ? pal.deep : (bypassed ? pal.tile : pal.light),
-                    pal.deep, pal.mid);
+                    pal.deep, isHead ? pal.light : pal.mid);
         drawCenteredTextSafe(
           controlRenderer_, fontSmall_, cell,
           empty ? std::string("--")
@@ -803,17 +954,26 @@
         // param and a cell is two coordinates.
         dashButtons_.push_back({cell, QuickAction::TrackerCell,
                                 "Pick what this step fires on this playlist",
-                                static_cast<int>(r) * kMaxDecks + d});
+                                r * kMaxDecks + d});
       }
       y += rowH + gap;
     }
 
-    if (y + rowH <= area.y + area.h) {
-      SDL_Rect add {area.x, y, stepW, rowH};
-      drawUIPanel(add, pal.tile, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, add, "+  step", pal.fg);
-      dashButtons_.push_back({add, QuickAction::TrackerAddStep,
-                              "Another step at the end"});
+    SDL_Rect add {area.x, y, stepW, rowH};
+    drawUIPanel(add, pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, add, "+  step", pal.fg);
+    dashButtons_.push_back({add, QuickAction::TrackerAddStep,
+                            "Another step at the end"});
+    // More steps than the page shows: say so, and how to reach them.
+    if (rowCount > visibleRows) {
+      char more[64];
+      std::snprintf(more, sizeof(more), "steps %d-%d of %d  (wheel to scroll)",
+                    trackerScrollRow_ + 1,
+                    std::min(rowCount, trackerScrollRow_ + visibleRows), rowCount);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {add.x + add.w + uiScaled(10), y,
+                             std::max(0, area.x + area.w - add.x - add.w - uiScaled(10)), rowH},
+                   more, pal.fgSoft);
     }
   }
 
@@ -947,16 +1107,21 @@
         ? (slot.command.empty() ? std::string("(empty)") : slot.command)
         : slot.label;
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                           SDL_Rect{tile.x + 4, tile.y + tile.h - uiScaled(34),
-                                    tile.w - 8, uiScaled(16)},
+                           SDL_Rect{tile.x + 4, tile.y + tile.h - uiScaled(44),
+                                    tile.w - 8, uiScaled(18)},
                            label, pal.deep);
 
       // Firing is the whole tile; the two small controls sit in the bottom
       // corners so a fat finger aiming at the middle can never hit them.
-      SDL_Rect editBtn {tile.x + tile.w - uiScaled(22), tile.y + tile.h - uiScaled(16),
-                        uiScaled(18), uiScaled(13)};
-      SDL_Rect colBtn {tile.x + uiScaled(4), tile.y + tile.h - uiScaled(16),
-                       uiScaled(18), uiScaled(13)};
+      //
+      // Big enough to find. They were 18x13 with "..." on the pencil, and
+      // "there is no way to edit or remove a button" was the report -- with
+      // both controls on screen. EDIT says what it does; right-click on the
+      // tile reaches the same things for anyone who never spots them.
+      SDL_Rect editBtn {tile.x + tile.w - uiScaled(44), tile.y + tile.h - uiScaled(24),
+                        uiScaled(40), uiScaled(20)};
+      SDL_Rect colBtn {tile.x + uiScaled(4), tile.y + tile.h - uiScaled(24),
+                       uiScaled(24), uiScaled(20)};
       dashButtons_.push_back({tile, QuickAction::DashSlotFire,
                                slot.command.empty() ? "Empty - use the pencil to set a command"
                                                     : ("Run: " + slot.command), i});
@@ -966,17 +1131,17 @@
       // On its own plate. Drawn straight onto the tile it was ink-on-ink at
       // several tints and simply vanished.
       Primitives::drawFramedPanel(controlRenderer_, editBtn, pal.shellInner, pal.deep, pal.deep);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, editBtn, "...", pal.fg);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, editBtn, "EDIT", pal.fg);
       dashButtons_.push_back({editBtn, QuickAction::DashSlotEdit,
-                               "Set this button's label, command and glyph", i});
+                               "Change what this button does", i});
 
       // DELETE, top-right, diagonally opposite nothing else and as far from
       // the middle of the tile as the tile allows. Armed it turns red and
       // says so, because the press that follows is the one that counts.
       const bool armed = dashDeleteArmedSlot_ == i &&
                          animationNow_ - dashDeleteArmedAtMs_ <= 4000;
-      SDL_Rect delBtn {tile.x + tile.w - uiScaled(18), tile.y + uiScaled(4),
-                       uiScaled(14), uiScaled(13)};
+      SDL_Rect delBtn {tile.x + tile.w - uiScaled(24), tile.y + uiScaled(4),
+                       uiScaled(20), uiScaled(20)};
       Primitives::drawFramedPanel(controlRenderer_, delBtn,
                                   armed ? SDL_Color {170, 40, 40, 255} : pal.shellInner,
                                   pal.deep, pal.deep);

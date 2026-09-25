@@ -2009,6 +2009,13 @@ struct Project {
   // The dashboard's view: 0 the tiles, 1 the master tracker. Tiles by
   // default, because that is what the dashboard has always been.
   int dashboardMode = 0;
+  // The tracker's sequence. LOOP: PLAY goes from the last step back to the
+  // first instead of stopping. CLICKER: Page Down / Page Up (what every
+  // presentation remote sends) step the tracker instead of the focused
+  // playlist, with the dashboard open or not. Both off in an older show,
+  // which is what it did.
+  bool trackerLoop = false;
+  bool clickerDrivesTracker = false;
   // -- THE MONITOR ------------------------------------------------------
   //
   // The device you listen on, and which playlist you hear on it. Empty
@@ -2522,6 +2529,9 @@ enum class QuickAction {
   // The master tracker on the dashboard. TrackerCell carries the row and the
   // column in one param (row * kMaxDecks + deck), because a button has one.
   TrackerToggle, TrackerAddStep, TrackerFire, TrackerCell,
+  // The tracker's transport, and a step's length (param = the row).
+  TrackerGo, TrackerBack, TrackerPlay,   // PLAY is also STOP while running
+  TrackerLoopToggle, TrackerClickerToggle, TrackerLength,
   CueSectionTextToggle,
   CueSectionFiresideToggle,
   CueSectionMidiFileToggle,

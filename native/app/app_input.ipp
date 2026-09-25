@@ -160,7 +160,12 @@
     // click anywhere inside its panel is consumed either way -- a modal that
     // lets clicks through to the controls it covers fires the wrong thing.
     if (dashboardOverlayOpen_) {
-      for (const auto& db : dashButtons_) {
+      // LAST DRAWN WINS. A tile's edit, colour and delete controls sit INSIDE
+      // the tile and are pushed after it, so a first-match walk handed every
+      // press on them to the tile underneath: the pencil and the x fired the
+      // button instead, and a button could be neither changed nor removed.
+      for (auto it = dashButtons_.rbegin(); it != dashButtons_.rend(); ++it) {
+        const auto& db = *it;
         if (pointInRect(x, y, db.rect)) {
           lastInlineEditorAnchorRect_ = db.rect;
           dispatchQuickAction(db.action, db.param);
@@ -1107,8 +1112,23 @@
     return uiScaled(36);
   }
 
+  // Whether the presenter clicker's two keys belong to the tracker right now.
+  bool clickerDrivesTrackerNow() const {
+    return project_.clickerDrivesTracker ||
+           (dashboardOverlayOpen_ && project_.dashboardMode == 1);
+  }
+
   void handleMouseWheel(int wheelY) {
     if (handleDropdownMouseWheel(wheelY)) {
+      return;
+    }
+    // THE DASHBOARD IS MODAL for the wheel as well. In the tracker it
+    // scrolls the steps; on the tiles there is nothing to scroll, and it must
+    // not reach the playlist underneath either way.
+    if (dashboardOverlayOpen_) {
+      if (project_.dashboardMode == 1) {
+        trackerScrollRow_ = std::max(0, trackerScrollRow_ - wheelY);
+      }
       return;
     }
     // THE WHEEL OVER A LIVE BROWSER CUE SCROLLS THE PAGE.
@@ -1829,7 +1849,6 @@
       case SDLK_J:
         jumpToCurrentCue();
         break;
-      case SDLK_PERIOD:
       // PAGE DOWN AND PAGE UP ARE THE PRESENTER REMOTE.
       //
       // Every presentation clicker -- D'San Perfect Cue, Logitech, Kensington,
@@ -1840,11 +1859,29 @@
       //
       // Advancing a slide is taking the next cue, which is what these already
       // do, so the remote works by pointing the two keys at them.
+      //
+      // With the tracker open -- or CLICKER on in it -- they step the MASTER
+      // SEQUENCE instead, which moves every playlist at once. Period and
+      // comma stay on the playlist either way: they are keyboard keys, not
+      // what a clicker sends.
       case SDLK_PAGEDOWN:
+        if (clickerDrivesTrackerNow()) {
+          trackerGo();
+        } else {
+          skipToNextCue();
+        }
+        break;
+      case SDLK_PERIOD:
         skipToNextCue();
         break;
-      case SDLK_COMMA:
       case SDLK_PAGEUP:
+        if (clickerDrivesTrackerNow()) {
+          trackerBack();
+        } else {
+          skipToPrevCue();
+        }
+        break;
+      case SDLK_COMMA:
         skipToPrevCue();
         break;
       case SDLK_LEFTBRACKET:

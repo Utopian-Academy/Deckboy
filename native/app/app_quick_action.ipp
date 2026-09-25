@@ -35,10 +35,24 @@
 
       case QuickAction::TrackerAddStep: {
         // A step is a MASTER CUE, which is what it has always been -- the
-        // tracker is a view of them, not a second kind of thing. Made on the
-        // focused playlist so it lands somewhere the operator can find it in
-        // the ordinary cue list too.
-        addMasterCue();
+        // tracker is a view of them, not a second kind of thing.
+        //
+        // The FIRST one lands on the focused playlist, so it is somewhere the
+        // operator can find it in the ordinary cue list too. Every one after
+        // goes beside the LAST step, wherever the focus has wandered: the
+        // steps of a sequence belong together, and "+ step" on a page that
+        // shows one sequence should not scatter it across playlists.
+        const auto rows = masterTrackerRows();
+        if (rows.empty()) {
+          addMasterCue();
+        } else {
+          const int savedFocus = project_.focusedDeckIndex;
+          project_.focusedDeckIndex = rows.back().first;
+          addMasterCue();
+          project_.focusedDeckIndex = savedFocus;
+        }
+        trackerSquishRow_ = static_cast<int>(masterTrackerRows().size()) - 1;
+        trackerSquishAtMs_ = SDL_GetTicks();
         break;
       }
 
@@ -47,7 +61,9 @@
         if (param < 0 || param >= static_cast<int>(rows.size())) {
           break;
         }
-        fireMasterCue(rows[param].first, rows[param].second);
+        // Through the transport, so a step picked by hand while PLAY runs
+        // restarts the countdown from THIS step rather than the one before.
+        fireTrackerRow(param);
         break;
       }
 
@@ -62,6 +78,10 @@
         }
         const int masterDeck = rows[rowIndex].first;
         const int masterCue = rows[rowIndex].second;
+        if (targetDeck == masterDeck) {
+          triggerToast("a step cannot fire the playlist it lives on");
+          break;
+        }
         const Deck& target = project_.decks[targetDeck];
 
         // A LIST, not a cycle. James on the output's source-deck row:
@@ -118,6 +138,45 @@
                             masterTrackerCellLabel(masterDeck, masterCue, targetDeck)));
                      });
         break;
+      }
+
+      case QuickAction::TrackerGo:
+        trackerGo();
+        return;
+      case QuickAction::TrackerBack:
+        trackerBack();
+        return;
+      case QuickAction::TrackerPlay:
+        if (trackerPlaying_) {
+          trackerStop();
+        } else {
+          trackerPlay();
+        }
+        return;
+      case QuickAction::TrackerLoopToggle:
+        project_.trackerLoop = !project_.trackerLoop;
+        markProjectDirty();
+        playUiSound(UiSoundEffect::Toggle);
+        triggerToast(project_.trackerLoop ? "sequence loops" : "sequence stops at the end");
+        return;
+      case QuickAction::TrackerClickerToggle:
+        project_.clickerDrivesTracker = !project_.clickerDrivesTracker;
+        markProjectDirty();
+        playUiSound(UiSoundEffect::Toggle);
+        triggerToast(project_.clickerDrivesTracker
+                       ? "Page Down / Page Up step the tracker"
+                       : "Page Down / Page Up step the focused playlist");
+        return;
+      case QuickAction::TrackerLength: {
+        SDL_Rect anchorRect = lastInlineEditorAnchorRect_;
+        for (const auto& button : dashButtons_) {
+          if (button.action == QuickAction::TrackerLength && button.param == param) {
+            anchorRect = button.rect;
+            break;
+          }
+        }
+        openTrackerLengthMenu(param, anchorRect);
+        return;
       }
 
       case QuickAction::DashSlotFire: {

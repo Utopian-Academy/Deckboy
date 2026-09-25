@@ -692,6 +692,11 @@
     if (master.kind != CueKind::Master) {
       return false;
     }
+    // fireMasterCue skips a master's own deck, so a cell pointing there would
+    // be one that never does anything. Refused here rather than stored.
+    if (targetDeck == masterDeck && targetCueIndex >= 0) {
+      return false;
+    }
     auto& list = master.masterAssignments;
     if (targetCueIndex < 0) {
       list.erase(std::remove_if(list.begin(), list.end(),

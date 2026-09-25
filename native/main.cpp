@@ -8680,6 +8680,21 @@ class App {
   // was armed. A button that runs a command is easy to hit by accident.
   int dashDeleteArmedSlot_ = -1;
   Uint64 dashDeleteArmedAtMs_ = 0;   // same clock as animationNow_
+  // THE TRACKER'S TRANSPORT. The playhead is the step last fired from
+  // anywhere, held by id; trackerNextDueSeconds_ is when PLAY fires the next
+  // step (nowSeconds() clock), -1 while nothing is counting down.
+  int trackerPlayheadDeck_ = -1;
+  std::string trackerPlayheadCueId_;
+  bool trackerPlaying_ = false;
+  double trackerNextDueSeconds_ = -1.0;
+  // First step drawn, for a sequence longer than the page. Follows the
+  // playhead; the wheel moves it by hand.
+  int trackerScrollRow_ = 0;
+  int trackerLastFollowedRow_ = -1;
+  // The step that just fired (or was just made) springs, like a dashboard
+  // tile does. Same clock as animationNow_.
+  int trackerSquishRow_ = -1;
+  Uint64 trackerSquishAtMs_ = 0;
   // AUDITION: the deck whose picture is being kept off the outputs so the
   // operator can look at a cue without the room seeing it. -1 when nobody is
   // auditioning, which is almost always.
@@ -8750,6 +8765,9 @@ class App {
   std::vector<SDL_Rect> deckColumnRects_;
   std::vector<SDL_Rect> deckListClipRects_;
   std::vector<SDL_Rect> deckOverlayClipRects_;
+  // True once this drag has sent SDL_EVENT_DROP_POSITION, so the drop event's
+  // x/y is where the file landed rather than an unset 0,0.
+  bool dropPositionKnown_ = false;
   SDL_Rect progressBarRect_ {};
   SDL_Rect audioProgressBarRect_ {};  // audio lane, also click-to-seek like the video lane
 
