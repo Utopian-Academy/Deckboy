@@ -1,5 +1,47 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-25 - v0.99.378 (Presets, portals, and a lower third you can watch yourself make)
+
+**Presets: a moment of the whole show, recalled as much or as little as asked.**
+Store the desk as it stands and bring it back -- everything, or only the parts
+you name.
+
+**Portal, a source and a transition.** Blobs of deep space with a neon rim,
+transparent between them so it sits on a layer over another playlist. As a
+transition the blobs melt open through the outgoing picture.
+
+**Time cube.** The last frames of a clip stacked as a block and turned in
+space: the front face is now and the sides are streaks through time. See-
+through renders the whole volume.
+
+**Oscillators on the geometry.** Every geometry row -- width, height, offset X
+and Y, rotation and the four crops -- carries the same control effect
+parameters have: shape, rate or beats, depth, tempo lock and a curve you can
+draw. The number you set stays the number you set; the swing is applied as the
+picture is drawn.
+
+**Lower thirds, properly.** A name and a role on a transparent frame, fired
+from its own playlist over another. Five looks, nine colours that read over a
+picture, and eight ways in and out. They now draw in the program monitor and
+in the multiview while you build them, with no output armed -- so you can see
+what you are making.
+
+**A crossfader that belongs to an output.** Between any two entries of that
+output's stack, taking its blend from the layer. Dissolve fades the outgoing
+side; every other blend brings the incoming one in over it.
+
+**A monitor of your own.** Hear one playlist by itself on a device you choose,
+while the room hears the show -- and keep a playlist out of the room entirely
+without losing it on the monitor.
+
+**The master tracker plays.** Steps down the page, playlists across it, and
+dashboard buttons you can edit.
+
+**Steadier:** toggling NMC sync no longer freezes the app, a typo in a live-code
+cue no longer closes it, and reading the encoder's state over the network no
+longer races the encode queue. A small window is a smaller desk rather than a
+squashed one, and a Linux build in `build/linux` finds its data folder.
+
 ## 2026-09-24 - v0.99.377 (Master cues as a tracker, and every button says what it is)
 
 **`VIDEO OUTPUT LAYERWARP` sets a layer's corner pin** over the network: eight
