@@ -1190,6 +1190,37 @@
         seq.preWaitSeconds = 2.5;
         seq.postWaitSeconds = 1.25;
         seq.continueMode = CueContinueMode::AutoFollow;
+        // And the things this cue record grew after it: a lower third's
+        // layout and a portal's controls, each round-tripped below.
+        seq.lowerThird.on = true;
+        seq.lowerThird.look = LowerThirdLook::Tag;
+        seq.lowerThird.moveIn = LowerThirdMove::Pop;
+        seq.lowerThird.moveOut = LowerThirdMove::Wipe;
+        seq.lowerThird.holdSeconds = 12.0;
+        seq.lowerThird.accent = 4;
+        seq.portal.blobs = 31;
+        seq.portal.hue = 0.25;
+        // A preset, with a playlist and an output in it.
+        ShowPreset preset;
+        preset.id = "preset-smoke";
+        preset.name = "Smoke preset";
+        preset.scope = kPresetPosition | kPresetLevels;
+        preset.masterVolume = 0.8;
+        PresetDeckState pd;
+        pd.deckIndex = 0;
+        pd.live = true;
+        pd.cueId = seq.id;
+        pd.opacity = 0.4f;
+        pd.scaleX = 0.5f;
+        pd.rotation = 12.5f;
+        pd.effects = "invert:0.5:0.5:0:0:0:0";
+        preset.decks.push_back(pd);
+        PresetOutputState po;
+        po.outputIndex = 0;
+        po.crossfadeEnabled = true;
+        po.crossfadeMix = 0.25;
+        preset.outputs.push_back(po);
+        project.presets = {preset};
       }
 
       fs::path smokePath = fs::path("/tmp") / "deckboy-smoke.deckboy";
@@ -1203,6 +1234,29 @@
                std::fabs(loadedCue.postWaitSeconds - 1.25) < 1e-6 &&
                loadedCue.continueMode == CueContinueMode::AutoFollow,
                "pre-wait, post-wait and continue mode persist");
+        const LowerThirdDesign& l3 = loadedCue.lowerThird;
+        expect(l3.on && l3.look == LowerThirdLook::Tag && l3.moveIn == LowerThirdMove::Pop &&
+                 l3.moveOut == LowerThirdMove::Wipe && l3.holdSeconds == 12.0 &&
+                 l3.accent == 4,
+               "a lower third's layout persists");
+        expect(loadedCue.portal.blobs == 31 && std::fabs(loadedCue.portal.hue - 0.25) < 1e-6,
+               "a portal's controls persist");
+        expect(loaded.presets.size() == 1 && loaded.presets[0].name == "Smoke preset" &&
+                 loaded.presets[0].scope == (kPresetPosition | kPresetLevels) &&
+                 std::fabs(loaded.presets[0].masterVolume - 0.8) < 1e-6,
+               "a preset persists, with what it recalls");
+        if (loaded.presets.size() == 1 && loaded.presets[0].decks.size() == 1 &&
+            loaded.presets[0].outputs.size() == 1) {
+          const PresetDeckState& back = loaded.presets[0].decks[0];
+          expect(back.live && back.opacity == 0.4f && back.scaleX == 0.5f &&
+                   back.rotation == 12.5f && back.effects == "invert:0.5:0.5:0:0:0:0",
+                 "and the playlist it captured");
+          expect(loaded.presets[0].outputs[0].crossfadeEnabled &&
+                   loaded.presets[0].outputs[0].crossfadeMix == 0.25,
+                 "and the output");
+        } else {
+          expect(false, "a preset keeps its playlist and its output");
+        }
         // A CUE LIST MUST NOT GROW A CONTINUE BY ITSELF. Simulated by taking
         // the file just written and cutting every field from preWaitSeconds
         // onward off each cue line, which is precisely what an older Deckboy

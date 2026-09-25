@@ -1122,9 +1122,18 @@
                         uiScaled(40), uiScaled(20)};
       SDL_Rect colBtn {tile.x + uiScaled(4), tile.y + tile.h - uiScaled(24),
                        uiScaled(24), uiScaled(20)};
-      dashButtons_.push_back({tile, QuickAction::DashSlotFire,
-                               slot.command.empty() ? "Empty - use the pencil to set a command"
-                                                    : ("Run: " + slot.command), i});
+      std::string tileTip = slot.command.empty()
+        ? std::string("Empty - EDIT sets what it does")
+        : ("Run: " + slot.command);
+      if (slot.command.rfind("PRESET RECALL ", 0) == 0) {
+        if (const ShowPreset* preset = findPreset(trim(slot.command.substr(14)))) {
+          tileTip = "Recall " + preset->name + ": " + presetScopeSummary(preset->scope) +
+                    "  (right-click: capture again, or change what it recalls)";
+        } else {
+          tileTip = "This preset has been deleted";
+        }
+      }
+      dashButtons_.push_back({tile, QuickAction::DashSlotFire, tileTip, i});
       Primitives::drawFramedPanel(controlRenderer_, colBtn,
                                   dashboardSlotColor(slot.colorIndex + 1), pal.deep, pal.deep);
       dashButtons_.push_back({colBtn, QuickAction::DashSlotColor, "Change this tile's colour", i});

@@ -2367,6 +2367,279 @@
     openCodeEditor();
   }
 
+  // ── PRESETS ───────────────────────────────────────────────────────────
+  //
+  // See ShowPreset. Capture takes everything; recall puts back only what the
+  // preset's scope says. A preset that recalls POSITION without CUES puts the
+  // captured geometry on whatever each playlist is showing NOW -- which is
+  // what "a preset for just positions" means to an operator.
+
+  bool deckIsOnAir(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size()) ||
+        deckIndex >= static_cast<int>(deckRuntimes_.size())) {
+      return false;
+    }
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    const auto& engine = deckRuntimes_[static_cast<std::size_t>(deckIndex)].mediaEngine;
+    return deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size()) &&
+           engine && engine->state() != TransportState::Stopped;
+  }
+
+  // By 1-based number, id, or name -- whichever the caller has.
+  ShowPreset* findPreset(const std::string& key) {
+    if (key.empty()) {
+      return nullptr;
+    }
+    if (key.find_first_not_of("0123456789") == std::string::npos) {
+      const int n = std::atoi(key.c_str());
+      if (n >= 1 && n <= static_cast<int>(project_.presets.size())) {
+        return &project_.presets[static_cast<std::size_t>(n - 1)];
+      }
+    }
+    for (ShowPreset& p : project_.presets) {
+      if (p.id == key) return &p;
+    }
+    const std::string wanted = toLower(key);
+    for (ShowPreset& p : project_.presets) {
+      if (toLower(p.name) == wanted) return &p;
+    }
+    return nullptr;
+  }
+
+  // Everything, as it is now, into `into` (keeping its id, name and scope).
+  void capturePresetState(ShowPreset& into) const {
+    into.decks.clear();
+    into.outputs.clear();
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      PresetDeckState s;
+      s.deckIndex = d;
+      s.live = deckIsOnAir(d);
+      s.opacity = deck.playlistOpacity;
+      // The live cue's parameters; with nothing live, the selected one's, so
+      // a preset captured with a playlist parked still knows its geometry.
+      int source = s.live ? deck.activeIndex : deck.selectedIndex;
+      if (source >= 0 && source < static_cast<int>(deck.cues.size())) {
+        const Cue& cue = deck.cues[static_cast<std::size_t>(source)];
+        s.cueId = cue.id;
+        s.scaleMode = static_cast<int>(cue.scaleMode);
+        s.scaleX = cue.outputScaleX;
+        s.scaleY = cue.outputScaleY;
+        s.offsetX = cue.outputOffsetX;
+        s.offsetY = cue.outputOffsetY;
+        s.rotation = cue.outputRotationDegrees;
+        s.cropLeft = cue.cropLeft;
+        s.cropRight = cue.cropRight;
+        s.cropTop = cue.cropTop;
+        s.cropBottom = cue.cropBottom;
+        s.geometryLfo = serializeGeometryLfos(cue.geometryLfo);
+        s.brightness = cue.brightness;
+        s.contrast = cue.contrast;
+        s.saturation = cue.saturation;
+        s.hueShift = cue.hueShift;
+        s.keyOn = cue.chromaKeyEnabled;
+        s.keyColor = cue.chromaKeyColor;
+        s.keyTolerance = cue.chromaKeyTolerance;
+        s.keySoftness = cue.chromaKeySoftness;
+        s.effects = serializeCueEffects(cue.effects);
+      }
+      into.decks.push_back(s);
+    }
+    for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+      const OutputTarget& output = project_.outputs[static_cast<std::size_t>(o)];
+      PresetOutputState s;
+      s.outputIndex = o;
+      s.hostDeckIndex = output.hostDeckIndex;
+      s.layers = joinLayerList(output.layerDecks);
+      s.crossfadeEnabled = output.crossfadeEnabled;
+      s.crossfadeFrom = output.crossfadeFrom;
+      s.crossfadeTo = output.crossfadeTo;
+      s.crossfadeMix = output.crossfadeMix;
+      into.outputs.push_back(s);
+    }
+    into.masterDimmer = masterDimmerTarget_;
+    into.masterVolume = project_.masterVolume;
+  }
+
+  ShowPreset& savePresetFromNow(const std::string& name) {
+    ShowPreset preset;
+    // Unique for the life of the show: a dashboard button holds the id, so it
+    // must not be reused by a preset made after this one is deleted.
+    preset.id = "preset-" + std::to_string(SDL_GetTicks()) + "-" +
+                std::to_string(project_.presets.size() + 1);
+    preset.name = name.empty() ? "Preset " + std::to_string(project_.presets.size() + 1)
+                               : name;
+    capturePresetState(preset);
+    project_.presets.push_back(preset);
+    markProjectDirty();
+    return project_.presets.back();
+  }
+
+  std::string presetScopeSummary(unsigned scope) const {
+    if ((scope & kPresetScopeAll) == kPresetScopeAll) {
+      return "everything";
+    }
+    std::string out;
+    for (int bit = 0; bit < kPresetScopeCount; ++bit) {
+      if (scope & (1u << bit)) {
+        if (!out.empty()) out += ", ";
+        out += presetScopeToken(bit);
+      }
+    }
+    return out.empty() ? std::string("nothing") : out;
+  }
+
+  void recallPreset(const ShowPreset& preset) {
+    const unsigned scope = preset.scope;
+    const int savedFocus = project_.focusedDeckIndex;
+    for (const PresetDeckState& s : preset.decks) {
+      if (s.deckIndex < 0 || s.deckIndex >= static_cast<int>(project_.decks.size())) {
+        continue;
+      }
+      const int d = s.deckIndex;
+      // CUES first, so the parameters below land on the cue that is now live.
+      if (scope & kPresetCues) {
+        const int idx = s.cueId.empty() ? -1 : findCueIndexById(d, s.cueId);
+        if (s.live && idx >= 0) {
+          if (!(project_.decks[static_cast<std::size_t>(d)].activeIndex == idx && deckIsOnAir(d))) {
+            // The real take path, borrowing focus the way a master cue does.
+            project_.focusedDeckIndex = d;
+            selectCueInDeck(d, idx, false, false);
+            takeSelected(true);
+          }
+        } else if (!s.live && deckIsOnAir(d)) {
+          project_.focusedDeckIndex = d;
+          stopTransport();
+        }
+      }
+      Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      if (scope & (kPresetPosition | kPresetLook | kPresetEffects)) {
+        int target = -1;
+        if (scope & kPresetCues) {
+          target = s.cueId.empty() ? -1 : findCueIndexById(d, s.cueId);
+        } else if (deckIsOnAir(d)) {
+          target = deck.activeIndex;
+        } else if (!s.cueId.empty()) {
+          target = findCueIndexById(d, s.cueId);
+        }
+        if (target >= 0 && target < static_cast<int>(deck.cues.size())) {
+          Cue& cue = deck.cues[static_cast<std::size_t>(target)];
+          const bool neededCpu = cueNeedsCpuPixelPath(cue);
+          if (scope & kPresetPosition) {
+            cue.scaleMode = static_cast<ScaleMode>(s.scaleMode);
+            cue.outputScaleX = s.scaleX;
+            cue.outputScaleY = s.scaleY;
+            cue.outputOffsetX = s.offsetX;
+            cue.outputOffsetY = s.offsetY;
+            cue.outputRotationDegrees = s.rotation;
+            cue.cropLeft = s.cropLeft;
+            cue.cropRight = s.cropRight;
+            cue.cropTop = s.cropTop;
+            cue.cropBottom = s.cropBottom;
+            cue.geometryLfo = parseGeometryLfos(s.geometryLfo);
+          }
+          if (scope & kPresetLook) {
+            cue.brightness = s.brightness;
+            cue.contrast = s.contrast;
+            cue.saturation = s.saturation;
+            cue.hueShift = s.hueShift;
+            cue.chromaKeyEnabled = s.keyOn;
+            cue.chromaKeyColor = s.keyColor;
+            cue.chromaKeyTolerance = s.keyTolerance;
+            cue.chromaKeySoftness = s.keySoftness;
+          }
+          if (scope & kPresetEffects) {
+            cue.effects = parseCueEffects(s.effects);
+          }
+          // The decode format is chosen at take. A recalled grade or effect
+          // on a live cue that was decoding for the fast path would otherwise
+          // do nothing until the next take -- the "control that does nothing"
+          // this codebase keeps meeting.
+          if (target == deck.activeIndex && cueNeedsCpuPixelPath(cue) != neededCpu) {
+            if (MediaEngine* engine = mediaEngineForDeck(d)) {
+              engine->refreshActiveCueRuntime(&cue);
+            }
+          }
+        }
+      }
+      if (scope & kPresetLevels) {
+        setDeckPlaylistOpacity(d, s.opacity, true);
+      }
+    }
+    project_.focusedDeckIndex = savedFocus;
+
+    if (scope & kPresetRouting) {
+      const int deckCount = static_cast<int>(project_.decks.size());
+      for (const PresetOutputState& o : preset.outputs) {
+        if (o.outputIndex < 0 || o.outputIndex >= static_cast<int>(project_.outputs.size())) {
+          continue;
+        }
+        OutputTarget& output = project_.outputs[static_cast<std::size_t>(o.outputIndex)];
+        output.hostDeckIndex = std::clamp(o.hostDeckIndex, 0, std::max(0, deckCount - 1));
+        std::vector<OutputLayer> layers;
+        for (const OutputLayer& layer : parseLayerList(o.layers)) {
+          // A playlist removed since the capture is left out rather than
+          // repointed at whichever deck now has its number.
+          if (layer.deckIndex >= 0 && layer.deckIndex < deckCount &&
+              layer.deckIndex != output.hostDeckIndex) {
+            layers.push_back(layer);
+          }
+        }
+        output.layerDecks.swap(layers);
+        output.crossfadeEnabled = o.crossfadeEnabled;
+        output.crossfadeFrom = o.crossfadeFrom;
+        output.crossfadeTo = o.crossfadeTo;
+        output.crossfadeMix = o.crossfadeMix;
+      }
+    }
+    if (scope & kPresetMaster) {
+      masterDimmerTarget_ = std::clamp(preset.masterDimmer, 0.0, 1.0);
+      project_.masterVolume = std::clamp(preset.masterVolume, 0.0, 2.0);
+    }
+    markProjectDirty();
+    triggerToast("preset: " + preset.name + " (" + presetScopeSummary(scope) + ")");
+  }
+
+  // The dashboard tile that recalls a preset carries this command.
+  static std::string presetRecallCommand(const ShowPreset& preset) {
+    return "PRESET RECALL " + preset.id;
+  }
+
+  // Tick groups on and off; the menu comes back after each so several can be
+  // changed in one visit.
+  void openPresetScopeMenu(const std::string& presetId, const SDL_Rect& anchor) {
+    ShowPreset* preset = findPreset(presetId);
+    if (!preset) {
+      return;
+    }
+    std::vector<std::pair<std::string, std::string>> choices;
+    choices.emplace_back("all", "everything");
+    for (int bit = 0; bit < kPresetScopeCount; ++bit) {
+      choices.emplace_back(std::to_string(bit),
+                           std::string((preset->scope & (1u << bit)) ? "[x] " : "[  ] ") +
+                             presetScopeLabel(bit));
+    }
+    choices.emplace_back("done", "done");
+    openDropdown("preset.scope." + presetId, anchor, choices, "done",
+                 [this, presetId, anchor](const std::string& chosen) {
+      ShowPreset* p = findPreset(presetId);
+      if (!p || chosen == "done") {
+        return;
+      }
+      if (chosen == "all") {
+        p->scope = kPresetScopeAll;
+      } else {
+        const int bit = std::atoi(chosen.c_str());
+        if (bit >= 0 && bit < kPresetScopeCount) {
+          p->scope ^= (1u << bit);
+        }
+      }
+      markProjectDirty();
+      triggerToast(p->name + " recalls " + presetScopeSummary(p->scope));
+      openPresetScopeMenu(presetId, anchor);
+    });
+  }
+
   // ── LOWER THIRDS ──────────────────────────────────────────────────────
   //
   // The layout lives on the text cue (see LowerThirdDesign); what lives here

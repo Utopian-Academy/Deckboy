@@ -415,6 +415,12 @@
       choices.push_back({std::to_string(i),
                          std::string(presets[i].group) + " - " + presets[i].label});
     }
+    // PRESETS, so a tile can be one: a new one captured from what is on now,
+    // or any that already exist.
+    choices.push_back({"preset:new", "preset - a new preset from what is on now"});
+    for (const ShowPreset& preset : project_.presets) {
+      choices.push_back({"preset:" + preset.id, "preset - recall " + preset.name});
+    }
     choices.push_back({"custom", "type a command myself..."});
 
     // A brand-new slot opens at the TOP of the list. Defaulting to "custom"
@@ -437,6 +443,23 @@
       }
       if (chosen == "custom") {
         editDashboardSlotAsText(at);
+        return;
+      }
+      if (chosen.rfind("preset:", 0) == 0) {
+        const std::string wanted = chosen.substr(7);
+        const ShowPreset* preset = wanted == "new" ? &savePresetFromNow(std::string())
+                                                   : findPreset(wanted);
+        if (!preset) {
+          return;
+        }
+        DashboardSlot& target = project_.dashboard[at];
+        target.label = preset->name;
+        target.command = presetRecallCommand(*preset);
+        target.glyph = "P";
+        markProjectDirty();
+        triggerToast(wanted == "new" ? ("captured " + preset->name + " - right-click to "
+                                        "choose what it recalls")
+                                     : ("button recalls " + preset->name));
         return;
       }
       const auto& list = dashboardActionPresets();
@@ -479,15 +502,36 @@
       if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
         return;
       }
-      static const std::vector<std::pair<std::string, std::string>> kTileMenu = {
-        {"edit",   "change what it does..."},
-        {"text",   "label, command and glyph as text..."},
-        {"colour", "next colour"},
-        {"delete", "delete this button"},
-      };
-      openDropdown("dashboard.menu" + std::to_string(at), anchor, kTileMenu, "edit",
-                   [this, at](const std::string& chosen) {
+      std::vector<std::pair<std::string, std::string>> tileMenu;
+      // A PRESET TILE gets the preset's own verbs first: they are why it is
+      // there.
+      const std::string& command = project_.dashboard[static_cast<std::size_t>(at)].command;
+      const std::string presetId = command.rfind("PRESET RECALL ", 0) == 0
+        ? trim(command.substr(14)) : std::string();
+      if (!presetId.empty() && findPreset(presetId)) {
+        tileMenu.push_back({"p.update", "capture again - what is on now"});
+        tileMenu.push_back({"p.scope", "what it recalls..."});
+      }
+      tileMenu.push_back({"edit",   "change what it does..."});
+      tileMenu.push_back({"text",   "label, command and glyph as text..."});
+      tileMenu.push_back({"colour", "next colour"});
+      tileMenu.push_back({"delete", "delete this button"});
+      openDropdown("dashboard.menu" + std::to_string(at), anchor, tileMenu,
+                   presetId.empty() ? "edit" : "p.scope",
+                   [this, at, presetId, anchor](const std::string& chosen) {
         if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+          return;
+        }
+        if (chosen == "p.update") {
+          if (ShowPreset* preset = findPreset(presetId)) {
+            capturePresetState(*preset);
+            markProjectDirty();
+            triggerToast(preset->name + " captured again");
+          }
+          return;
+        }
+        if (chosen == "p.scope") {
+          openPresetScopeMenu(presetId, anchor);
           return;
         }
         if (chosen == "edit") {

@@ -1956,6 +1956,86 @@ struct OutputTarget {
 // The glyph is a character, not an icon file: Deckboy already carries every
 // symbol and emoji text mode can draw, so a dashboard can be decorated from
 // the same alphabet without shipping any art.
+// ── PRESETS: A MOMENT OF THE WHOLE SHOW, RECALLED AS MUCH OR AS LITTLE AS ASKED
+//
+// A preset always CAPTURES everything below, and recalls only the groups
+// switched on in its scope. Capturing everything means the scope can be
+// changed afterwards -- narrowing "everything" to "just positions" -- without
+// having to set the show up again and capture it twice.
+//
+// Master cues say which cue each playlist plays; a preset can too (CUES), and
+// can also put back HOW they are playing it.
+enum PresetScopeBit : unsigned {
+  kPresetCues     = 1u << 0,  // which cue each playlist is on, or that it is off
+  kPresetPosition = 1u << 1,  // size, position, rotation, crop, fit, geometry LFOs
+  kPresetLook     = 1u << 2,  // brightness, contrast, saturation, hue, key
+  kPresetEffects  = 1u << 3,  // the effect stack, with its LFOs
+  kPresetLevels   = 1u << 4,  // each playlist's fader
+  kPresetRouting  = 1u << 5,  // what each output shows: base, layers, crossfader
+  kPresetMaster   = 1u << 6,  // master dimmer and master volume
+};
+inline constexpr int kPresetScopeCount = 7;
+inline constexpr unsigned kPresetScopeAll = (1u << kPresetScopeCount) - 1u;
+
+inline const char* presetScopeToken(int bit) {
+  static const char* const kTokens[kPresetScopeCount] = {
+    "cues", "position", "look", "effects", "levels", "routing", "master"};
+  return (bit >= 0 && bit < kPresetScopeCount) ? kTokens[bit] : "";
+}
+
+inline const char* presetScopeLabel(int bit) {
+  static const char* const kLabels[kPresetScopeCount] = {
+    "cues - what each playlist is playing",
+    "position - size, position, rotation, crop",
+    "look - brightness, contrast, colour, key",
+    "effects - the effect stack",
+    "levels - each playlist's fader",
+    "routing - what each output shows",
+    "master - dimmer and volume"};
+  return (bit >= 0 && bit < kPresetScopeCount) ? kLabels[bit] : "";
+}
+
+// One playlist, as it was. The parameters are those of the cue that was live
+// (or, with nothing live, the selected one), held by value so that editing the
+// cue afterwards does not rewrite the preset.
+struct PresetDeckState {
+  int deckIndex = 0;
+  bool live = false;
+  std::string cueId;
+  float opacity = 1.0f;
+  int scaleMode = 0;
+  float scaleX = 1.0f, scaleY = 1.0f;
+  float offsetX = 0.0f, offsetY = 0.0f;
+  float rotation = 0.0f;
+  float cropLeft = 0.0f, cropRight = 0.0f, cropTop = 0.0f, cropBottom = 0.0f;
+  std::string geometryLfo;   // as the show file spells it
+  float brightness = 1.0f, contrast = 1.0f, saturation = 1.0f, hueShift = 0.0f;
+  bool keyOn = false;
+  SDL_Color keyColor {0, 255, 0, 255};
+  float keyTolerance = 60.0f, keySoftness = 20.0f;
+  std::string effects;       // as the show file spells it
+};
+
+struct PresetOutputState {
+  int outputIndex = 0;
+  int hostDeckIndex = 0;
+  std::string layers;        // as the show file spells an output's stack
+  bool crossfadeEnabled = false;
+  int crossfadeFrom = 0;
+  int crossfadeTo = 1;
+  double crossfadeMix = 0.0;
+};
+
+struct ShowPreset {
+  std::string id;
+  std::string name;
+  unsigned scope = kPresetScopeAll;
+  std::vector<PresetDeckState> decks;
+  std::vector<PresetOutputState> outputs;
+  double masterDimmer = 1.0;
+  double masterVolume = 1.0;
+};
+
 struct DashboardSlot {
   std::string label;    // what it says on the button
   std::string command;  // any remote command line, e.g. "VJ BLEND ember"
@@ -1970,6 +2050,7 @@ struct Project {
   std::vector<OutputTarget> outputs {OutputTarget {}}; // all outputs (at least one)
   int focusedOutputIndex = 0;                 // which output is selected in settings UI
   std::vector<DashboardSlot> dashboard;       // operator-assembled buttons
+  std::vector<ShowPreset> presets;            // see ShowPreset
 
   // -- UI preferences ----------------------------------------------------------
   // -- SMPTE LTC generator (timecode OUT) --------------------------------------

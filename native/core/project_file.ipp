@@ -356,6 +356,42 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
            << '\t' << escapeField(slot.glyph)
            << '\t' << slot.colorIndex << '\n';
   }
+  // PRESETS: a header line each, then one line per playlist and per output it
+  // captured. Key/value records like the dashboard's, and none at all in a
+  // show that has no presets.
+  for (const ShowPreset& preset : project.presets) {
+    output << "preset\t" << escapeField(preset.id)
+           << '\t' << escapeField(preset.name)
+           << '\t' << preset.scope
+           << '\t' << preset.masterDimmer
+           << '\t' << preset.masterVolume << '\n';
+    for (const PresetDeckState& d : preset.decks) {
+      output << "preset_deck\t" << escapeField(preset.id)
+             << '\t' << d.deckIndex << '\t' << (d.live ? 1 : 0)
+             << '\t' << escapeField(d.cueId) << '\t' << d.opacity
+             << '\t' << d.scaleMode << '\t' << d.scaleX << '\t' << d.scaleY
+             << '\t' << d.offsetX << '\t' << d.offsetY << '\t' << d.rotation
+             << '\t' << d.cropLeft << '\t' << d.cropRight
+             << '\t' << d.cropTop << '\t' << d.cropBottom
+             << '\t' << escapeField(d.geometryLfo)
+             << '\t' << d.brightness << '\t' << d.contrast
+             << '\t' << d.saturation << '\t' << d.hueShift
+             << '\t' << (d.keyOn ? 1 : 0)
+             << '\t' << static_cast<int>(d.keyColor.r)
+             << '\t' << static_cast<int>(d.keyColor.g)
+             << '\t' << static_cast<int>(d.keyColor.b)
+             << '\t' << d.keyTolerance << '\t' << d.keySoftness
+             << '\t' << escapeField(d.effects) << '\n';
+    }
+    for (const PresetOutputState& o : preset.outputs) {
+      output << "preset_output\t" << escapeField(preset.id)
+             << '\t' << o.outputIndex << '\t' << o.hostDeckIndex
+             << '\t' << escapeField(o.layers)
+             << '\t' << (o.crossfadeEnabled ? 1 : 0)
+             << '\t' << o.crossfadeFrom << '\t' << o.crossfadeTo
+             << '\t' << o.crossfadeMix << '\n';
+    }
+  }
   for (size_t outputIndex = 0; outputIndex < project.outputs.size(); ++outputIndex) {
     const auto& outputTarget = project.outputs[outputIndex];
     output
@@ -1054,10 +1090,6 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.monitorDeckIndex = safeInt(fields, 1, -1);
   } else if (fields[0] == "dashboard_mode") {
     project.dashboardMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
-  } else if (fields[0] == "tracker_loop") {
-    project.trackerLoop = safeBool(fields, 1, false);
-  } else if (fields[0] == "clicker_tracker") {
-    project.clickerDrivesTracker = safeBool(fields, 1, false);
   } else if (fields[0] == "multiview") {
     project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "multiview_tile") {
@@ -1111,6 +1143,73 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                                  EnsureDeck&& ensureDeck) {
   if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
+  } else if (fields[0] == "tracker_loop") {
+    project.trackerLoop = safeBool(fields, 1, false);
+  } else if (fields[0] == "clicker_tracker") {
+    project.clickerDrivesTracker = safeBool(fields, 1, false);
+  } else if (fields[0] == "preset") {
+    if (project.presets.size() < 512) {   // a bound, as for the dashboard
+      ShowPreset preset;
+      preset.id = safeString(fields, 1);
+      preset.name = safeString(fields, 2);
+      preset.scope = static_cast<unsigned>(safeInt(fields, 3, static_cast<int>(kPresetScopeAll))) &
+                     kPresetScopeAll;
+      preset.masterDimmer = std::clamp(safeDouble(fields, 4, 1.0), 0.0, 1.0);
+      preset.masterVolume = std::clamp(safeDouble(fields, 5, 1.0), 0.0, 2.0);
+      project.presets.push_back(preset);
+    }
+  } else if (fields[0] == "preset_deck" || fields[0] == "preset_output") {
+    // Belongs to the preset with its id -- the most recent one, normally, but
+    // looked up rather than assumed so a hand-edited show still reads.
+    const std::string presetId = safeString(fields, 1);
+    ShowPreset* owner = nullptr;
+    for (auto it = project.presets.rbegin(); it != project.presets.rend(); ++it) {
+      if (it->id == presetId) {
+        owner = &*it;
+        break;
+      }
+    }
+    if (owner && fields[0] == "preset_deck" && owner->decks.size() < 64) {
+      PresetDeckState d;
+      d.deckIndex = std::max(0, safeInt(fields, 2, 0));
+      d.live = safeBool(fields, 3, false);
+      d.cueId = safeString(fields, 4);
+      d.opacity = static_cast<float>(std::clamp(safeDouble(fields, 5, 1.0), 0.0, 1.0));
+      d.scaleMode = safeInt(fields, 6, 0);
+      d.scaleX = static_cast<float>(safeDouble(fields, 7, 1.0));
+      d.scaleY = static_cast<float>(safeDouble(fields, 8, 1.0));
+      d.offsetX = static_cast<float>(safeDouble(fields, 9, 0.0));
+      d.offsetY = static_cast<float>(safeDouble(fields, 10, 0.0));
+      d.rotation = static_cast<float>(safeDouble(fields, 11, 0.0));
+      d.cropLeft = static_cast<float>(safeDouble(fields, 12, 0.0));
+      d.cropRight = static_cast<float>(safeDouble(fields, 13, 0.0));
+      d.cropTop = static_cast<float>(safeDouble(fields, 14, 0.0));
+      d.cropBottom = static_cast<float>(safeDouble(fields, 15, 0.0));
+      d.geometryLfo = safeString(fields, 16);
+      d.brightness = static_cast<float>(safeDouble(fields, 17, 1.0));
+      d.contrast = static_cast<float>(safeDouble(fields, 18, 1.0));
+      d.saturation = static_cast<float>(safeDouble(fields, 19, 1.0));
+      d.hueShift = static_cast<float>(safeDouble(fields, 20, 0.0));
+      d.keyOn = safeBool(fields, 21, false);
+      d.keyColor = SDL_Color {static_cast<Uint8>(std::clamp(safeInt(fields, 22, 0), 0, 255)),
+                              static_cast<Uint8>(std::clamp(safeInt(fields, 23, 255), 0, 255)),
+                              static_cast<Uint8>(std::clamp(safeInt(fields, 24, 0), 0, 255)),
+                              255};
+      d.keyTolerance = static_cast<float>(safeDouble(fields, 25, 60.0));
+      d.keySoftness = static_cast<float>(safeDouble(fields, 26, 20.0));
+      d.effects = safeString(fields, 27);
+      owner->decks.push_back(d);
+    } else if (owner && fields[0] == "preset_output" && owner->outputs.size() < 64) {
+      PresetOutputState o;
+      o.outputIndex = std::max(0, safeInt(fields, 2, 0));
+      o.hostDeckIndex = std::max(0, safeInt(fields, 3, 0));
+      o.layers = safeString(fields, 4);
+      o.crossfadeEnabled = safeBool(fields, 5, false);
+      o.crossfadeFrom = safeInt(fields, 6, 0);
+      o.crossfadeTo = safeInt(fields, 7, 1);
+      o.crossfadeMix = std::clamp(safeDouble(fields, 8, 0.0), 0.0, 1.0);
+      owner->outputs.push_back(o);
+    }
   } else if (fields[0] == "theme") {
     project.theme = safeString(fields, 1);
   } else if (fields[0] == "terrarium_unlocked") {

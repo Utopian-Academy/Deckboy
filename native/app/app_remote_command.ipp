@@ -2829,8 +2829,125 @@
     // MASTER and MASTERCUE are implemented again, above -- master cues came
     // back 2026-09-21. The other three named the OLD scene-preset feature,
     // which is a different idea and stays gone.
-    if (command == "GROUP" || command == "PRESET" || command == "GROUPPRESET") {
-      failRemoteCommand("scene presets: removed. For master cues use MASTER");
+    if (command == "GROUP" || command == "GROUPPRESET") {
+      failRemoteCommand("group presets became master cues: use MASTER");
+      return;
+    }
+    if (command == "PRESET") {
+      // PRESET | PRESET LIST             -> what there is, and what each recalls
+      // PRESET SAVE [name]               -> a new preset from what is on now
+      // PRESET UPDATE <n|name|id>        -> capture again into it
+      // PRESET RECALL <n|name|id>, or PRESET <n>
+      // PRESET SCOPE <n|name|id> [ALL | ONLY <group...> | <group> ON|OFF ...]
+      //   groups: cues position look effects levels routing master
+      // PRESET RENAME <n|name|id> <name> | PRESET DELETE <n|name|id>
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("LIST");
+      auto groupBit = [](const std::string& word) {
+        const std::string w = toLower(word);
+        for (int bit = 0; bit < kPresetScopeCount; ++bit) {
+          if (w == presetScopeToken(bit)) return bit;
+        }
+        return -1;
+      };
+      if (sub == "LIST") {
+        if (project_.presets.empty()) {
+          remoteCommandDetail_ = "no presets (PRESET SAVE makes one)";
+          return;
+        }
+        std::string out;
+        for (std::size_t i = 0; i < project_.presets.size(); ++i) {
+          if (i) out += " | ";
+          out += std::to_string(i + 1) + " " + project_.presets[i].name + " [" +
+                 presetScopeSummary(project_.presets[i].scope) + "]";
+        }
+        remoteCommandDetail_ = out;
+        return;
+      }
+      if (sub == "SAVE" || sub == "NEW") {
+        const ShowPreset& made = savePresetFromNow(parts.size() > 2 ? joinParts(parts, 2)
+                                                                    : std::string());
+        remoteCommandDetail_ = std::to_string(project_.presets.size()) + " " + made.name +
+                               " (" + made.id + ")";
+        return;
+      }
+      // Everything below names a preset. A bare number is a recall. RECALL,
+      // UPDATE and DELETE take the rest of the line, so a name with spaces in
+      // it works; SCOPE and RENAME have more to say after it, so there it is
+      // one word -- a number or an id always is.
+      const bool bareNumber = sub.find_first_not_of("0123456789") == std::string::npos;
+      const bool restIsName = sub == "RECALL" || sub == "GO" || sub == "FIRE" ||
+                              sub == "UPDATE" || sub == "CAPTURE" ||
+                              sub == "DELETE" || sub == "REMOVE";
+      const std::string key = bareNumber ? parts[1]
+        : parts.size() <= 2 ? std::string()
+        : restIsName ? joinParts(parts, 2) : parts[2];
+      ShowPreset* preset = findPreset(key);
+      if (!preset) {
+        failRemoteCommand("PRESET: no preset '" + key + "'");
+        return;
+      }
+      if (bareNumber || sub == "RECALL" || sub == "GO" || sub == "FIRE") {
+        recallPreset(*preset);
+        remoteCommandDetail_ = preset->name;
+        return;
+      }
+      if (sub == "UPDATE" || sub == "CAPTURE") {
+        capturePresetState(*preset);
+        markProjectDirty();
+        remoteCommandDetail_ = preset->name + " updated";
+        return;
+      }
+      if (sub == "RENAME" && parts.size() > 3) {
+        preset->name = joinParts(parts, 3);
+        markProjectDirty();
+        remoteCommandDetail_ = preset->name;
+        return;
+      }
+      if (sub == "DELETE" || sub == "REMOVE") {
+        const std::string name = preset->name;
+        project_.presets.erase(project_.presets.begin() + (preset - project_.presets.data()));
+        markProjectDirty();
+        remoteCommandDetail_ = name + " deleted";
+        return;
+      }
+      if (sub == "SCOPE") {
+        std::size_t at = 3;
+        if (parts.size() > at) {
+          const std::string first = toUpper(parts[at]);
+          if (first == "ALL") {
+            preset->scope = kPresetScopeAll;
+            ++at;
+          } else if (first == "ONLY") {
+            preset->scope = 0;
+            for (++at; at < parts.size(); ++at) {
+              const int bit = groupBit(parts[at]);
+              if (bit < 0) {
+                failRemoteCommand("PRESET SCOPE: no group '" + parts[at] + "'");
+                return;
+              }
+              preset->scope |= (1u << bit);
+            }
+          }
+          for (; at < parts.size(); at += 2) {
+            const int bit = groupBit(parts[at]);
+            if (bit < 0) {
+              failRemoteCommand("PRESET SCOPE: no group '" + parts[at] + "' (cues, position, "
+                                "look, effects, levels, routing, master)");
+              return;
+            }
+            const std::string v = at + 1 < parts.size() ? toUpper(parts[at + 1]) : std::string("ON");
+            if (v == "OFF" || v == "0") {
+              preset->scope &= ~(1u << bit);
+            } else {
+              preset->scope |= (1u << bit);
+            }
+          }
+          markProjectDirty();
+        }
+        remoteCommandDetail_ = preset->name + " recalls " + presetScopeSummary(preset->scope);
+        return;
+      }
+      failRemoteCommand("PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE");
       return;
     }
     if (command == "CLEAR") {
@@ -7962,6 +8079,19 @@
     }
     if (command == "SCALE") {
       // Backward compatibility: SCALE sets both X and Y
+      // A QUERY ANSWERS THE CALLER, the rule DECKOPACITY follows: with no value
+      // this says what the selected cue's scale is.
+      if (parts.size() <= 1) {
+        if (const Cue* cue = selectedCueMutable()) {
+          std::ostringstream ss;
+          ss << std::fixed << std::setprecision(2) << cue->outputScaleX << " "
+             << cue->outputScaleY;
+          remoteCommandDetail_ = ss.str();
+        } else {
+          failRemoteCommand("SCALE: select a cue first");
+        }
+        return;
+      }
       auto value = parseNumber(1);
       if (value && *value > 0.0) {
         if (Cue* cue = selectedCueMutable()) {
