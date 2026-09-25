@@ -1372,7 +1372,12 @@
     {
       std::size_t wanted = 0;
       for (const auto& r : themeCreatures_) wanted += r.count;
-      if (placedCreatureCount() != wanted) rebuildCreatures();
+      // The count, and whether the places they live still exist. The second
+      // is what ends a colony's tenancy on a monitor that now has a picture
+      // in it.
+      if (placedCreatureCount() != wanted || reconcileCreatureHabitats()) {
+        rebuildCreatures();
+      }
     }
     creatureLureX_ = programAreaRect_.w > 0
       ? programAreaRect_.x + programAreaRect_.w * 0.5 : width * 0.5;

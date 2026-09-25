@@ -106,6 +106,24 @@
     return total;
   }
 
+  // WHETHER THE ANIMALS ARE STILL SOMEWHERE THAT EXISTS.
+  //
+  // Called every frame. A habitat appearing or disappearing means the colonies
+  // are wrong and have to be rebuilt -- that is what takes fireflies off the
+  // program monitor the moment a cue goes live. A habitat that has merely
+  // MOVED is re-bounded in place instead, because re-placing on a one-pixel
+  // layout shift would pin every animal to its seed position forever.
+  bool reconcileCreatureHabitats() {
+    const std::vector<deckboy::creatures::Habitat> homes = creatureHabitats();
+    if (homes.size() != colonies_.size()) {
+      return true;   // the set changed: rebuild
+    }
+    for (std::size_t i = 0; i < homes.size(); ++i) {
+      colonies_[i].home = homes[i];
+    }
+    return false;
+  }
+
   void rebuildCreatures() {
     colonies_.clear();
     // Nowhere to put them yet. Placing against an empty habitat pinned every
