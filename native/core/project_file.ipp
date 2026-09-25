@@ -834,6 +834,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.firesideIntensity
         << '\t' << cue.firesideSparks
         << '\t' << cue.firesideView
+        // How a lower third arrives and leaves, appended at the end. A cue
+        // written before this comes back as `none`, which is what it did.
+        << '\t' << cue.lowerThirdStyle
+        << '\t' << cue.lowerThirdAnimSeconds
         << '\n';
     }
   }
@@ -2110,6 +2114,9 @@ Project loadProject(const fs::path& projectFile,
         // opens as the bare brick wall it was saved as.
         cue.firesideView = std::clamp(safeInt(fields, vs + 106, 0), 0,
                                       kFiresideViewCount - 1);
+        cue.lowerThirdStyle = std::clamp(safeInt(fields, vs + 107, 0), 0,
+                                         kLowerThirdStyleCount - 1);
+        cue.lowerThirdAnimSeconds = std::clamp(safeDouble(fields, vs + 108, 0.4), 0.0, 5.0);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time

@@ -1813,7 +1813,13 @@
     const int kMinW = uiScaled(980);
     const int kMinH = uiScaled(700);
     const int kMaxW = uiScaled(1320);
-    const int kMaxH = uiScaled(940);
+    // 980, not 940. MEASURED rather than nudged: at 1x the System tab's
+    // left column (appearance + safety + show flow) wants 820 against a
+    // 810 viewport, so it scrolled by exactly ten pixels -- reported as
+    // "just millimeters". The extra 40 clears that and leaves room for a
+    // row or two before it comes back. Still clamped to the window below,
+    // so a short screen keeps its scroll instead of losing the bottom.
+    const int kMaxH = uiScaled(980);
     int modalW = std::clamp(width - kMargin * 2, std::min(kMinW, width), kMaxW);
     int modalH = std::clamp(height - kMargin * 2, std::min(kMinH, height), kMaxH);
     modalW = std::min(modalW, std::max(320, width - 12));

@@ -2754,6 +2754,50 @@
     runtime->blackedWhileDisabled = true;
   }
 
+  // 0 at the instant it is asked for, 1 once it has fully arrived, and back
+  // down to 0 as it leaves. Everything the styles do is a function of this
+  // one number, so they cannot disagree about how far along it is.
+  //
+  // 1.0 for a style of `none`, for a time of 0, and for anything that is not
+  // a lower third -- all of which must draw exactly as they always have.
+  double overlayMoveProgress(int deckIndex, int cueIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return 1.0;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return 1.0;
+    }
+    const Cue& cue = deck.cues[cueIndex];
+    if (cue.kind != CueKind::LowerThird || cue.lowerThirdStyle == 0) {
+      return 1.0;
+    }
+    const double seconds = std::clamp(cue.lowerThirdAnimSeconds, 0.0, 5.0);
+    if (seconds <= 0.001) {
+      return 1.0;
+    }
+    const Uint64 now = SDL_GetTicks();
+    const auto key = std::make_pair(deckIndex, cueIndex);
+    auto leaving = overlayLeavingAtMs_.find(key);
+    if (leaving != overlayLeavingAtMs_.end()) {
+      const double gone = static_cast<double>(now - leaving->second) / 1000.0;
+      return std::clamp(1.0 - gone / seconds, 0.0, 1.0);
+    }
+    auto shown = overlayShownAtMs_.find(key);
+    if (shown == overlayShownAtMs_.end()) {
+      return 1.0;   // already up when the show opened; no arrival to play
+    }
+    const double up = static_cast<double>(now - shown->second) / 1000.0;
+    return std::clamp(up / seconds, 0.0, 1.0);
+  }
+
+  // Eased, because a lower third that moves linearly reads as a value
+  // changing and one that eases reads as a hand. Smoothstep both ways.
+  static double overlayEase(double t) {
+    t = std::clamp(t, 0.0, 1.0);
+    return t * t * (3.0 - 2.0 * t);
+  }
+
   void renderOutputWindow(int outputIndex) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
@@ -2916,8 +2960,42 @@
           int barY = renderH - barH - renderH / 20 - overlaySlot * (barH + 8);
           SDL_Rect bar {0, barY, renderW, barH};
 
+          // -- HOW IT ARRIVES AND LEAVES ------------------------------
+          //
+          // One progress number drives all of it. A style of `none`, a time
+          // of 0, or an overlay that was already up when the show opened all
+          // give 1.0, which is the picture this used to draw always.
+          const double moved = overlayMoveProgress(hostDeckIndex, ovIdx);
+          const double eased = overlayEase(moved);
+          double alphaScale = 1.0;
+          if (lc.lowerThirdStyle == 1) {            // fade
+            alphaScale = eased;
+          } else if (lc.lowerThirdStyle == 2) {     // rise, up from below
+            bar.y += static_cast<int>(std::lround((1.0 - eased) * barH));
+            alphaScale = eased;
+          } else if (lc.lowerThirdStyle == 3) {     // slide, in from the left
+            bar.x -= static_cast<int>(std::lround((1.0 - eased) * renderW));
+          } else if (lc.lowerThirdStyle == 4) {     // wipe, out from the strip
+            bar.w = std::max(8, static_cast<int>(std::lround(bar.w * eased)));
+          }
+          // Nothing to draw yet, and nothing left to draw.
+          if (alphaScale <= 0.003 || bar.w <= 0) {
+            ++overlaySlot;
+            continue;
+          }
+          // THE TEXT IS CLIPPED TO THE BAR. Without this a wipe reveals the
+          // bar while the words sit there in full from the first frame,
+          // which is not a wipe -- it is a bar growing behind finished text.
+          SDL_Rect priorClip;
+          const bool hadClip = SDL_RenderClipEnabled(runtime->outputRenderer);
+          if (hadClip) {
+            SDL_GetRenderClipRect(runtime->outputRenderer, &priorClip);
+          }
+          SDL_SetRenderClipRect(runtime->outputRenderer, &bar);
+
           SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
-          SDL_SetRenderDrawColor(runtime->outputRenderer, 8, 16, 24, static_cast<Uint8>(lc.lowerThirdBgAlpha));
+          SDL_SetRenderDrawColor(runtime->outputRenderer, 8, 16, 24,
+            static_cast<Uint8>(std::lround(lc.lowerThirdBgAlpha * alphaScale)));
           SDL_RenderFillRect(runtime->outputRenderer, &bar);
 
           // Coloured accent strip (hue shifts per slot for differentiation)
@@ -2928,7 +3006,8 @@
             {188, 155,  15, 220},
           }};
           SDL_Color acc = accentColors[static_cast<size_t>(overlaySlot) % accentColors.size()];
-          SDL_SetRenderDrawColor(runtime->outputRenderer, acc.r, acc.g, acc.b, acc.a);
+          SDL_SetRenderDrawColor(runtime->outputRenderer, acc.r, acc.g, acc.b,
+            static_cast<Uint8>(std::lround(acc.a * alphaScale)));
           SDL_Rect strip {bar.x, bar.y, 8, bar.h};
           SDL_RenderFillRect(runtime->outputRenderer, &strip);
           SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
@@ -2940,6 +3019,10 @@
             drawText(runtime->outputRenderer, fontBase_, lc.lowerThirdSubtext,
                      {200, 220, 200, 255}, bar.x + 26, bar.y + barH - 36);
           }
+          // The clip goes back before the next overlay in the stack, which
+          // has its own bar and its own progress.
+          SDL_SetRenderClipRect(runtime->outputRenderer,
+                                hadClip ? &priorClip : nullptr);
           ++overlaySlot;
         } else if (lc.kind == CueKind::Pip) {
           PipOverlayRuntime* pipRuntime = pipOverlayRuntimeForCue(hostDeckIndex, ovIdx);

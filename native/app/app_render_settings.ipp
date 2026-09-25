@@ -1171,7 +1171,15 @@
       // This used to measure a chip layout that wrapped differently per
       // platform and per window width, so the height and the contents were two
       // separate guesses about the same thing.
-      std::vector<int> audioRows {sTallH, sTallH};          // output device, live input
+      // OUTPUT DEVICE, MONITOR DEVICE, LIVE INPUT. The monitor row was added
+      // to the card and not to this list, so the card came out one tall row
+      // short and the two hint lines at the bottom were drawn outside its
+      // frame -- which is the note directly above this one, ignored within
+      // a day of being written.
+      std::vector<int> audioRows {sTallH, sTallH, sTallH};
+      if (!project_.monitorDeviceName.empty()) {
+        audioRows.push_back(sTallH);   // and which playlist you hear on it
+      }
       if (micLive) {
         audioRows.insert(audioRows.end(), {sRowH, sRowH, sRowH});  // gain, mono, to-recording
       }

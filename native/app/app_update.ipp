@@ -105,7 +105,7 @@
         case SDL_EVENT_DROP_FILE:
           // event.drop.data is owned by SDL in SDL3 — valid until the next
           // event poll, never freed by the app.
-          handleDropFile(event.drop.data);
+          handleDropFile(event.drop.data, event.drop.x, event.drop.y);
           break;
         case SDL_EVENT_MOUSE_WHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
@@ -253,6 +253,11 @@
     serviceBusyCritters(1.0 / 60.0);
     refreshNormalizingIds();
     servicePendingTakes();
+    // An overlay told to go stays on screen until its out-move has run,
+    // and this is what finally takes it off. Beside the pending takes
+    // for the same reason: something the show asked for earlier that
+    // has to happen now.
+    serviceLeavingOverlays();
     // Fade cues, ticked beside the pending takes: both are things the show
     // asked for earlier that have to happen now.
     serviceFades();
