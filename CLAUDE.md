@@ -30,6 +30,20 @@ cmake --build build/windows --config Release
 
 ---
 
+## Shared working tree
+
+Several sessions work in this one checkout at the same time, each with
+uncommitted changes the others can see. Commit by naming files (`git add
+<file>`), never `git add -A`. **Never `git pull --rebase --autostash` here, and
+never `git stash` the tree:** the stash takes every session's work, and the
+restore can be partial without saying so. On 2026-09-25 it put back one file of
+six and reported success, while another session was editing the other five.
+Push when origin has not moved (a push that is behind fails safely), and after
+any git command that touches the working tree, compare `git status` with what
+was modified before it.
+
+---
+
 ## Version Flow
 
 - Single source of truth: `VERSION` file (root)
