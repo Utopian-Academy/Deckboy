@@ -295,3 +295,97 @@ test('feedbacks read the polled state', async () => {
 	assert.equal(built.output_health.callback({ options: { output: 1, health: 'live' } }), true)
 	assert.equal(built.connection_lost.callback({ options: {} }), false)
 })
+
+/*
+ * The three changes requested on the v1.0.1 review. Each of these fails
+ * silently in the field -- an empty variable, a surface that stops updating, a
+ * second command nobody typed -- so each is asserted rather than trusted.
+ */
+
+test('every deck and output the options offer has variables behind it', () => {
+	// The options used to offer 1-16 while variables were built for four, so a
+	// button on deck 7 drove a real playlist and every variable about it was
+	// empty. Read the ranges out of the built options rather than restating
+	// them, so this fails if they drift apart again.
+	const maxOf = (defs, label) => {
+		let seen = 0
+		for (const def of Object.values(defs)) {
+			for (const opt of def.options ?? []) {
+				if (String(opt.label ?? '').startsWith(label) && Number.isFinite(opt.max)) {
+					seen = Math.max(seen, opt.max)
+				}
+			}
+		}
+		return seen
+	}
+	const deckMax = Math.max(maxOf(actions, 'Deck'), maxOf(feedbacks, 'Deck'))
+	const outputMax = Math.max(maxOf(actions, 'Output'), maxOf(feedbacks, 'Output'))
+	assert.ok(deckMax > 0, 'no deck option found to check')
+	for (let d = 1; d <= deckMax; d++) {
+		assert.ok(variableIds.has(`deck${d}_cue`), `deck ${d} is selectable but has no variables`)
+	}
+	for (let o = 1; o <= outputMax; o++) {
+		assert.ok(variableIds.has(`output${o}_enabled`), `output ${o} is selectable but has no variables`)
+	}
+})
+
+test('a newline in an option cannot smuggle a second command', async () => {
+	// The protocol is newline-delimited, and option values have their variables
+	// resolved before the callback sees them. A value carrying a newline used to
+	// become two commands in one send -- the second of which could be anything.
+	const { default: DeckboyInstance } = await import('../main.js')
+	const sends = []
+	const instance = Object.create(DeckboyInstance.prototype)
+	instance.socket = { isConnected: true, send: (s) => sends.push(s) }
+	instance.log = () => {}
+
+	instance.sendCommand('GOTO My Cue\nBLACKOUT')
+	assert.equal(sends.length, 1, 'one press must be one send')
+	assert.equal(sends[0].match(/\n/g).length, 1, 'exactly one newline, at the end')
+	assert.ok(!/\nBLACKOUT/.test(sends[0]), 'the smuggled command must not survive')
+
+	sends.length = 0
+	instance.sendCommand('SELECT 3\r\nPANIC')
+	assert.equal(sends.length, 1)
+	assert.ok(!/PANIC\n/.test(sends[0].replace(/ PANIC/, '')), 'CRLF must not split either')
+})
+
+test('a STATUS that never answers does not stop polling', async () => {
+	// statusPending was cleared in exactly one place, after a reply carrying a
+	// DECKBOY line. A reply that never arrived left it true for the life of the
+	// connection and the surface quietly stopped updating.
+	const { default: DeckboyInstance } = await import('../main.js')
+	const sends = []
+	const instance = Object.create(DeckboyInstance.prototype)
+	instance.socket = { isConnected: true, send: (s) => sends.push(s) }
+	instance.log = () => {}
+	instance.config = { pollInterval: 250 }
+	instance.statusPending = false
+	instance.statusSentAt = 0
+
+	instance.requestStatus()
+	assert.equal(sends.length, 1, 'the first poll goes out')
+	instance.requestStatus()
+	assert.equal(sends.length, 1, 'a second is held while one is outstanding')
+
+	// Nothing ever answers. Wind the clock past the stall window.
+	instance.statusSentAt = Date.now() - (instance.statusStallMs() + 50)
+	instance.requestStatus()
+	assert.equal(sends.length, 2, 'a stalled request is abandoned and polling resumes')
+})
+
+test('a reply with no DECKBOY line still ends the request', async () => {
+	// The other half of the stall, and the likelier one: Deckboy DID answer, the
+	// answer carried nothing parseable, and flushReport's empty path returned
+	// without clearing the flag. Polling then stopped for the rest of the
+	// session with no error, because nothing had failed.
+	const { default: DeckboyInstance } = await import('../main.js')
+	const instance = Object.create(DeckboyInstance.prototype)
+	instance.log = () => {}
+	instance.pendingReport = []
+	instance.statusPending = true
+
+	instance.flushReport()
+	assert.equal(instance.statusPending, false, 'an empty reply must end the request')
+	assert.equal(instance.pendingReport, undefined)
+})

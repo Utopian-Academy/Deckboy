@@ -5,6 +5,7 @@
  * of being a write-only remote.
  */
 
+import { MAX_DECKS, MAX_OUTPUTS } from './variables.js'
 import { combineRgb } from '@companion-module/base'
 import { isOn, remainingSeconds } from './protocol.js'
 
@@ -22,7 +23,7 @@ export function buildFeedbacks(self) {
 		id: 'deck',
 		default: 0,
 		min: 0,
-		max: 16,
+		max: MAX_DECKS,
 	}
 	const deckFields = (options) => {
 		const requested = Number(options?.deck ?? 0)
@@ -111,7 +112,7 @@ export function buildFeedbacks(self) {
 			type: 'boolean',
 			name: 'Output armed',
 			defaultStyle: { bgcolor: GREEN, color: WHITE },
-			options: [{ type: 'number', label: 'Output (1-based)', id: 'output', default: 1, min: 1, max: 16 }],
+			options: [{ type: 'number', label: 'Output (1-based)', id: 'output', default: 1, min: 1, max: MAX_OUTPUTS }],
 			callback: ({ options }) => isOn(self.state.outputs.get(Number(options.output))?.enabled),
 		},
 
@@ -121,7 +122,7 @@ export function buildFeedbacks(self) {
 			description: 'Catch an output that has dropped out of fullscreen or lost its display.',
 			defaultStyle: { bgcolor: RED, color: WHITE },
 			options: [
-				{ type: 'number', label: 'Output (1-based)', id: 'output', default: 1, min: 1, max: 16 },
+				{ type: 'number', label: 'Output (1-based)', id: 'output', default: 1, min: 1, max: MAX_OUTPUTS },
 				{
 					type: 'dropdown',
 					label: 'Health',

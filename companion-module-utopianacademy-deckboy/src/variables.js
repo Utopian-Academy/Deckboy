@@ -11,8 +11,16 @@
 
 import { remainingSeconds, secondsToClock } from './protocol.js'
 
-export const MAX_DECKS = 4
-export const MAX_OUTPUTS = 4
+// SIXTEEN, because Deckboy has sixteen: kMaxDecks and kMaxOutputs are both 16
+// in native/core/constants.hpp. These were four while the deck and output
+// OPTIONS offered 1-16, so a button could address playlist 7 -- a real one --
+// and every variable about it was empty.
+//
+// Exported so actions.js and feedbacks.js build their option ranges from the
+// same number. Three files each carrying their own copy is how they came
+// apart.
+export const MAX_DECKS = 16
+export const MAX_OUTPUTS = 16
 
 export function buildVariableDefinitions() {
 	const definitions = [

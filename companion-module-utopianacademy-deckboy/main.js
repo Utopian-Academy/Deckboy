@@ -25,6 +25,7 @@ class DeckboyInstance extends InstanceBase {
 		this.pollTimer = undefined
 		this.receiveBuffer = ''
 		this.statusPending = false
+		this.statusSentAt = 0
 		this.pendingReport = undefined
 		// Shared with feedbacks.js and variables.js — the last parsed STATUS.
 		this.state = { connected: false, global: {}, decks: new Map(), outputs: new Map() }
@@ -152,17 +153,62 @@ class DeckboyInstance extends InstanceBase {
 	requestStatus() {
 		// One outstanding STATUS at a time: if Deckboy is busy (a big show
 		// loading, a slow drive) piling on more requests only makes it worse.
-		if (this.statusPending) return
+		//
+		// BUT NOT FOREVER. This flag used to be cleared in exactly one place --
+		// flushReport, after a reply that carried a DECKBOY line. A reply that
+		// never arrived, or arrived without one, left it true for the life of the
+		// connection and the surface quietly stopped updating: no error, because
+		// nothing had failed. A stalled request is abandoned after a few poll
+		// intervals so the next one goes out.
+		const now = Date.now()
+		if (this.statusPending) {
+			const waited = now - (this.statusSentAt || 0)
+			if (waited < this.statusStallMs()) return
+			this.log('debug', `STATUS did not answer in ${waited}ms — asking again`)
+		}
 		this.statusPending = true
+		this.statusSentAt = now
 		this.sendCommand('STATUS')
 	}
 
+	// How long a STATUS may be outstanding before the next poll is allowed
+	// through. Several intervals, so an ordinary slow reply is still waited
+	// for, with a floor for very fast poll rates and a ceiling so a surface
+	// cannot sit dead for long.
+	statusStallMs() {
+		const interval = Number(this.config?.pollInterval) || 250
+		return Math.min(5000, Math.max(1500, interval * 4))
+	}
+
+	// ONE LINE PER SEND, whatever the option said.
+	//
+	// The protocol is newline-delimited and this is the only place the newline
+	// is appended, so it is the only place that has to be sure there is exactly
+	// one. Every free-text option resolves Companion variables BEFORE the
+	// callback sees the value, so a value carrying a newline -- a typo, a
+	// pasted multi-line string, a variable fed in by another module -- turned
+	// one button press into two commands. That is command injection into the
+	// operator's own desk, and on a cue deck the smuggled one could be
+	// anything: BLACKOUT, PANIC, a take.
+	//
+	// Fixed HERE rather than at the eight options that take free text, because
+	// a ninth will be added and would not know to do it.
+	//
+	// Folded to spaces rather than refused: the button then sends one command
+	// with a wrong argument, which Deckboy answers with ERR, instead of
+	// silently doing nothing. Either is safe; this one says so.
 	sendCommand(command) {
+		const raw = String(command)
+		const oneLine = raw.replace(/[\r\n]+/g, ' ').trim()
+		if (oneLine !== raw.trim()) {
+			this.log('warn', `Line break removed from command: ${JSON.stringify(raw)}`)
+		}
+		if (!oneLine) return
 		if (!this.socket || !this.socket.isConnected) {
-			this.log('warn', `Not connected — dropped command: ${command}`)
+			this.log('warn', `Not connected — dropped command: ${oneLine}`)
 			return
 		}
-		this.socket.send(`${command}\n`)
+		this.socket.send(`${oneLine}\n`)
 	}
 
 	// ── Incoming data ────────────────────────────────────────────────────────
@@ -200,7 +246,12 @@ class DeckboyInstance extends InstanceBase {
 
 	flushReport() {
 		if (!this.pendingReport || this.pendingReport.length === 0) {
+			// A REPLY WITH NOTHING IN IT STILL ENDS THE REQUEST. This returned
+			// without clearing the flag, which is the other half of the stall:
+			// Deckboy answered, the answer had no DECKBOY line, and polling
+			// stopped for the rest of the session.
 			this.pendingReport = undefined
+			this.statusPending = false
 			return
 		}
 		const payload = this.pendingReport.join('\n')

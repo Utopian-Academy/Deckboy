@@ -7,6 +7,8 @@
  * bottom, so the module never becomes the reason something isn't possible.
  */
 
+import { MAX_DECKS, MAX_OUTPUTS } from './variables.js'
+
 export function buildActions(self) {
 	const send = (cmd) => self.sendCommand(cmd)
 
@@ -18,7 +20,7 @@ export function buildActions(self) {
 		id: 'deck',
 		default: 0,
 		min: 0,
-		max: 16,
+		max: MAX_DECKS,
 	}
 	// base 2.x resolves variables and expressions in option values BEFORE the
 	// callback runs, and removed parseVariablesInString from both the class and
@@ -160,7 +162,7 @@ export function buildActions(self) {
 
 		focus_deck: {
 			name: 'Focus deck',
-			options: [{ type: 'number', label: 'Deck', id: 'deck', default: 1, min: 1, max: 16 }],
+			options: [{ type: 'number', label: 'Deck', id: 'deck', default: 1, min: 1, max: MAX_DECKS }],
 			callback: ({ options }) => send(`DECK ${options.deck}`),
 		},
 

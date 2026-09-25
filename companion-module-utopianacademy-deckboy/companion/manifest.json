@@ -4,7 +4,7 @@
 	"name": "utopianacademy-deckboy",
 	"shortname": "Deckboy",
 	"description": "Cue deck for live events — transport, cue tally, output health and countdowns",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"license": "MIT",
 	"repository": "https://github.com/Utopian-Academy/Deckboy",
 	"bugs": "https://github.com/Utopian-Academy/Deckboy/issues",
@@ -23,6 +23,13 @@
 		"entrypoint": "../main.js"
 	},
 	"manufacturer": "Utopian Academy",
-	"products": ["Deckboy"],
-	"keywords": ["Playback", "Media", "Video", "Cue"]
+	"products": [
+		"Deckboy"
+	],
+	"keywords": [
+		"Playback",
+		"Media",
+		"Video",
+		"Cue"
+	]
 }
