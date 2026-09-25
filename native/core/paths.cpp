@@ -171,8 +171,16 @@ fs::path resolveProjectRoot() {
       // Skip known build subdirectory names BEFORE checking for data/.
       // This prevents false-positive matches on build/windows/Release/data/
       // (which the app itself may have created at runtime).
+      //
+      // "linux" and "macos" too: tools/linux_build.sh builds into build/linux,
+      // and without them the walk stopped there, found no data/, and fell back
+      // to the exe's own folder -- so every build made with the repo's own
+      // Linux script ran with no icons, no splash and no bundled themes, and
+      // --image-check reported the pack missing. CI builds into plain build/,
+      // which is why it never saw it.
       if (nameLower == "bin" || nameLower == "build" || nameLower == "native" ||
           nameLower == "debug" || nameLower == "release" || nameLower == "windows" ||
+          nameLower == "linux" || nameLower == "macos" ||
           nameLower == "x64" || nameLower == "x86") {
         dir = dir.parent_path();
         continue;
