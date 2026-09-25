@@ -6987,6 +6987,38 @@
     return true;
   }
 
+  // GROWTH ONLY: a new playlist gets an engine of its own and every playlist
+  // already running keeps playing.
+  //
+  // Adding a playlist used to go through rebuildDeckRuntimes, which tears
+  // every engine down -- so putting a second playlist in to hold a LAYER took
+  // the base off air at the very moment the operator was building the
+  // composite, and the layer then sat over black. That reads as "layers do
+  // not composite" until the base is taken again, and then it "suddenly
+  // works". The toast said "(playback stopped)", which was honest and did not
+  // make it any less of a trap.
+  //
+  // Safe to grow in place: a DeckRuntime owns its engine through a unique_ptr
+  // and otherwise holds only SDL handles, so moving it when the vector grows
+  // moves nothing the engine or its threads can see, and nothing keeps a
+  // DeckRuntime's address across frames. The audio ring grows itself on push.
+  bool growDeckRuntimes() {
+    normalizeProject(project_);
+    const std::size_t had = deckRuntimes_.size();
+    if (had > project_.decks.size()) {
+      return rebuildDeckRuntimes();   // shrinking is not growth; do it properly
+    }
+    deckRuntimes_.resize(project_.decks.size());
+    ensureTimecodeFollowerStateSize();
+    for (std::size_t index = had; index < project_.decks.size(); ++index) {
+      if (!createDeckRuntime(static_cast<int>(index))) {
+        return false;
+      }
+    }
+    applyAudioMonitorSelection();
+    return true;
+  }
+
   bool ensureOutputRuntimesSynced() {
     normalizeProject(project_);
     if (outputRuntimes_.size() == project_.outputs.size()) {

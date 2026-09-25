@@ -23,6 +23,8 @@
   void dispatchQuickAction(QuickAction action, int param = -1) {
     switch (action) {
       case QuickAction::EditNumericParam: editNumericParam(param); return;
+      case QuickAction::NumericParamDec: nudgeNumericParam(param, -1); return;
+      case QuickAction::NumericParamInc: nudgeNumericParam(param, +1); return;
       // ── Dashboard tiles ──────────────────────────────────────────────
       //
       // The slot index rides in QuickButton::param, so one action serves any
@@ -1126,6 +1128,9 @@
       case QuickAction::CueSectionTextToggle:
         cueSectionTextOpen_ = !cueSectionTextOpen_;
         break;
+      case QuickAction::CueSectionPortalToggle:
+        cueSectionPortalOpen_ = !cueSectionPortalOpen_;
+        return;
       case QuickAction::CueSectionFiresideToggle:
         cueSectionFiresideOpen_ = !cueSectionFiresideOpen_;
         break;

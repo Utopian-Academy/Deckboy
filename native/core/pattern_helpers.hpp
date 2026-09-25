@@ -138,6 +138,12 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          // frame. Both were reported as "editing the code doesn't do
          // anything", which is exactly what it looked like.
          normalized == "code" ||
+         normalized == "portal" ||                     // born, drifting, melting
+         // FIRESIDE WAS NOT HERE, the same omission as `code` above: the
+         // builder animates from the clock, every comment about it calls it
+         // animated, and it was drawn once at take and held -- a photograph of
+         // a fire, which its own builder says is the one thing it must not be.
+         normalized == "fireside" ||
          normalized.find("kawaii") != std::string::npos || // legacy alias for pocket
          endsWith(normalized, "-motion");               // motion variant of static pattern
 }

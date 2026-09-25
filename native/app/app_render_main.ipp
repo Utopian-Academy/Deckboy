@@ -5778,6 +5778,55 @@
       finishInspectorSection(fiSection, fiY);
     }
 
+    // PORTAL: the swarm's controls. Only on a portal, for the reason FIRESIDE
+    // gives above.
+    if (selectedCue && selectedCue->kind == CueKind::Pattern &&
+        normalizePatternTypeId(selectedCue->path) == "portal") {
+      int poY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto poSection = beginInspectorSection(poY, "PORTAL", cueSectionPortalOpen_,
+                                             QuickAction::CueSectionPortalToggle,
+                                             "Collapse/expand the portal's controls");
+      poY = poSection.bodyStartY;
+      if (cueSectionPortalOpen_) {
+        const PortalSettings& p = selectedCue->portal;
+        struct PortalRow {
+          const char* label;
+          NumericParam id;
+          std::string value;
+          const char* tip;
+        };
+        auto pct = [](double v) {
+          return std::to_string(static_cast<int>(std::lround(v * 100.0))) + "%";
+        };
+        char speedText[16];
+        std::snprintf(speedText, sizeof(speedText), "%.1fx", p.speed);
+        const PortalRow rows[] = {
+          {"blobs", NumericParam::PortalBlobs, std::to_string(p.blobs),
+           "How many are alive at once. Each is born, drifts out, grows and fades"},
+          {"size", NumericParam::PortalSize, pct(p.size), "How big a blob grows"},
+          {"melt", NumericParam::PortalBlend, pct(p.blend),
+           "How readily neighbours merge into one shape. 0 keeps every blob round"},
+          {"rim", NumericParam::PortalOutline, pct(p.outline),
+           "Thickness of the glowing edge"},
+          {"speed", NumericParam::PortalSpeed, std::string(speedText),
+           "How fast they are born, drift and fade"},
+          {"colour", NumericParam::PortalHue, pct(p.hue),
+           "Turns the rim's colours round the wheel -- green, yellow, pink, "
+           "violet, blue"},
+        };
+        for (const PortalRow& row : rows) {
+          inspDrawQuickRow(ix, poY, row.label, QuickAction::NumericParamDec, row.value,
+                           QuickAction::NumericParamInc, QuickAction::ToggleLoop,
+                           false, false, row.tip, true, QuickAction::EditNumericParam,
+                           static_cast<int>(row.id));
+          poY += kInspectorRowStep;
+        }
+        poY = drawInspectorMessageRow(poY, "transparent outside the blobs: put it on a layer",
+                                      pal.tile, pal.fgSoft);
+      }
+      finishInspectorSection(poSection, poY);
+    }
+
     // MIDI FILE: what it will send, and where.
     if (selectedCue && selectedCue->kind == CueKind::MidiFile) {
       int mfY = inspectorSectionBottomMax_ + kInspectorSectionGap;

@@ -1216,10 +1216,11 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 51;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 57;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
-                                              // fireside view, geometry LFOs
+                                              // fireside view, geometry LFOs,
+                                              // the six portal controls
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -3163,11 +3164,17 @@
       std::cout << "pattern-dump: cannot write " << outPath << '\n';
       return 1;
     }
+    // OVER BLACK, the way an output with nothing beneath it shows it. PPM
+    // has no alpha, and writing the colour channels straight drew a
+    // transparent source's glow at full strength where the output fades it
+    // out -- the dump looked nothing like the picture. Every opaque pattern
+    // (alpha 255 throughout) writes exactly the bytes it always did.
     out << "P6\n" << frame->width << ' ' << frame->height << "\n255\n";
     for (std::size_t i = 0; i + 3 < frame->pixels.size(); i += 4) {
-      out.put(static_cast<char>(frame->pixels[i]));
-      out.put(static_cast<char>(frame->pixels[i + 1]));
-      out.put(static_cast<char>(frame->pixels[i + 2]));
+      const unsigned alpha = frame->pixels[i + 3];
+      for (int c = 0; c < 3; ++c) {
+        out.put(static_cast<char>(frame->pixels[i + c] * alpha / 255u));
+      }
     }
     std::cout << "pattern-dump: wrote " << outPath << " ("
               << frame->width << "x" << frame->height << ")\n";

@@ -10754,6 +10754,311 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
 }
 
 // ---------------------------------------------------------------------------
+// buildPortal - a swarm of particles melted into metaballs, each blob a window
+// into deep space with a neon rim.
+//
+// Made after a Unity "VFX portal": particles born inside a circle, drifting
+// out and growing then shrinking over their life, smooth-unioned so that
+// neighbours melt into one shape, the edge drawn as a glowing line whose
+// colour runs round the wheel, and a starfield through the middle. Outside the
+// shapes it is TRANSPARENT, because the point of it is to sit on a layer over
+// something else.
+//
+// THE DISTANCE FIELD IS COMPUTED SMALL AND SHADED LARGE. Every pixel against
+// every blob is two million times eighteen smooth-mins a frame; a quarter-
+// resolution grid is a sixteenth of that. The grid holds DISTANCE, not colour,
+// and distance interpolates bilinearly without losing anything -- so the rim
+// is still drawn at full resolution, one pixel sharp. (The CLAUDE.md rule: a
+// field whose job is to be smooth can be computed small; sample it back
+// bilinearly or it shows squares.)
+//
+// Deterministic in t. Every blob's life is a function of the clock and a hash
+// of its index and generation, so the same t is the same picture: dumpable,
+// and two outputs showing it cannot disagree.
+// ---------------------------------------------------------------------------
+namespace {
+
+inline std::uint64_t portalHash(std::uint64_t x) {
+  x += 0x9e3779b97f4a7c15ull;
+  x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
+  x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
+  return x ^ (x >> 31);
+}
+
+inline double portalRand(std::uint64_t seed, int k) {
+  return static_cast<double>(portalHash(seed * 131ull + static_cast<std::uint64_t>(k)) >> 11) *
+         (1.0 / 9007199254740992.0);
+}
+
+// Polynomial smooth minimum: the metaball melt. k is the distance over which
+// two shapes start to merge; 0 is a hard union.
+inline float portalSmin(float a, float b, float k) {
+  if (k <= 0.0f) {
+    return a < b ? a : b;
+  }
+  const float h = std::clamp(0.5f + 0.5f * (b - a) / k, 0.0f, 1.0f);
+  return b + (a - b) * h - k * h * (1.0f - h);
+}
+
+// exp(-x*x) without the exp: close enough for a glow, and this runs for every
+// pixel in the rim band.
+inline float portalBell(float x) {
+  const float x2 = x * x;
+  return 1.0f / (1.0f + x2 + 0.5f * x2 * x2);
+}
+
+// Smooth value noise on a lattice, for the nebula inside. Two octaves.
+inline float portalNoise(float x, float y, std::uint64_t salt) {
+  auto lattice = [salt](int ix, int iy) {
+    return static_cast<float>(portalRand(salt ^ (static_cast<std::uint64_t>(
+             static_cast<std::uint32_t>(ix)) << 32 | static_cast<std::uint32_t>(iy)), 0));
+  };
+  float total = 0.0f;
+  float amp = 0.65f;
+  for (int octave = 0; octave < 2; ++octave) {
+    const int ix = static_cast<int>(std::floor(x));
+    const int iy = static_cast<int>(std::floor(y));
+    const float fx = x - static_cast<float>(ix);
+    const float fy = y - static_cast<float>(iy);
+    const float sx = fx * fx * (3.0f - 2.0f * fx);
+    const float sy = fy * fy * (3.0f - 2.0f * fy);
+    const float a = lattice(ix, iy);
+    const float b = lattice(ix + 1, iy);
+    const float c = lattice(ix, iy + 1);
+    const float d = lattice(ix + 1, iy + 1);
+    total += amp * ((a + (b - a) * sx) + ((c + (d - c) * sx) - (a + (b - a) * sx)) * sy);
+    x *= 2.03f;
+    y *= 2.03f;
+    amp *= 0.5f;
+  }
+  return total / 0.975f;
+}
+
+}  // namespace
+
+void MediaEngine::buildPortal(DecodedFrame& frame, double t, const PortalSettings& in) {
+  const int W = frame.width;
+  const int H = frame.height;
+  if (W <= 0 || H <= 0 || frame.pixels.size() < static_cast<std::size_t>(W) * H * 4u) {
+    return;
+  }
+  const int blobs = std::clamp(in.blobs, 3, 48);
+  const double size = std::clamp(in.size, 0.0, 1.0);
+  const double blend = std::clamp(in.blend, 0.0, 1.0);
+  const double outline = std::clamp(in.outline, 0.0, 1.0);
+  const double speed = std::clamp(in.speed, 0.05, 4.0);
+  const double hue = in.hue - std::floor(in.hue);
+
+  const double unit = static_cast<double>(std::min(W, H));
+  const double cx = W * 0.5;
+  const double cy = H * 0.5;
+  const double clock = t * speed;
+
+  // ── THE PARTICLES ─────────────────────────────────────────────────────
+  //
+  // Each index is a slot that is reborn every `life` seconds as a new
+  // generation, staggered so births are spread out rather than in waves.
+  struct Blob { float x, y, r; };
+  std::vector<Blob> live;
+  live.reserve(static_cast<std::size_t>(blobs));
+  const double life = 7.0;
+  const double emitR = unit * 0.30;
+  const double travel = unit * 0.20;
+  const double maxR = unit * (0.045 + 0.16 * size);
+  for (int i = 0; i < blobs; ++i) {
+    const double at = clock / life + static_cast<double>(i) / blobs;
+    const double generation = std::floor(at);
+    const double age = at - generation;
+    const std::uint64_t seed = portalHash(static_cast<std::uint64_t>(i) * 7919ull +
+                                          static_cast<std::uint64_t>(
+                                            static_cast<std::int64_t>(generation) + (1ll << 40)));
+    const double angle0 = portalRand(seed, 1) * 6.283185307179586;
+    const double born = std::sqrt(portalRand(seed, 2)) * emitR;
+    // A slow sideways sway, so they drift in curves rather than rays.
+    const double angle = angle0 + 0.55 * std::sin(clock * 0.6 + portalRand(seed, 3) * 6.283) * age;
+    const double dist = born + travel * age * (0.4 + portalRand(seed, 4));
+    // Size over life: up quickly, down slowly -- the same hump as the clip's
+    // size-over-lifetime curve.
+    const double hump = std::pow(std::sin(3.141592653589793 * std::pow(age, 0.7)), 0.8);
+    const double r = maxR * (0.35 + 0.65 * portalRand(seed, 5)) * hump;
+    if (r < 0.75) {
+      continue;
+    }
+    live.push_back({static_cast<float>(cx + std::cos(angle) * dist),
+                    static_cast<float>(cy + std::sin(angle) * dist),
+                    static_cast<float>(r)});
+  }
+
+  // ── THE FIELD, SMALL ──────────────────────────────────────────────────
+  const int step = unit >= 480.0 ? 4 : 2;
+  const int gw = W / step + 2;
+  const int gh = H / step + 2;
+  std::vector<float> field(static_cast<std::size_t>(gw) * gh);
+  std::vector<float> nebula(static_cast<std::size_t>(gw) * gh);
+  const float meltK = static_cast<float>(unit * (0.004 + 0.13 * blend));
+  const float far = static_cast<float>(unit * 4.0);
+  const float nebScale = static_cast<float>(3.2 / unit);
+  const float nebDrift = static_cast<float>(t * 0.035);
+  deckboy::effects::detail::parallelRows(gh, gw * 8, [&](int y0, int y1) {
+    for (int gy = y0; gy < y1; ++gy) {
+      const float py = static_cast<float>(gy * step);
+      for (int gx = 0; gx < gw; ++gx) {
+        const float px = static_cast<float>(gx * step);
+        float d = far;
+        for (const Blob& b : live) {
+          const float dx = px - b.x;
+          const float dy = py - b.y;
+          const float di = std::sqrt(dx * dx + dy * dy) - b.r;
+          if (di < d + meltK) {
+            d = portalSmin(d, di, meltK);
+          }
+        }
+        const std::size_t at = static_cast<std::size_t>(gy) * gw + gx;
+        field[at] = d;
+        nebula[at] = portalNoise(px * nebScale + nebDrift, py * nebScale, 0x5eedull);
+      }
+    }
+  });
+
+  // ── THE RIM'S COLOURS ─────────────────────────────────────────────────
+  //
+  // Green, yellow, pink, violet, blue, back to green -- a wheel, tabled, and
+  // looked up from a smooth field over the frame rather than from the angle
+  // round the centre. The angle has a singularity in the middle: every
+  // colour met at one point and the glow there drew a little pinwheel.
+  static const float kStops[6][3] = {
+    {60, 255, 80}, {255, 244, 90}, {255, 150, 228},
+    {175, 125, 255}, {70, 120, 255}, {60, 255, 80},
+  };
+  float wheel[256][3];
+  for (int i = 0; i < 256; ++i) {
+    const float u = static_cast<float>(i) / 256.0f * 5.0f;
+    const int s = std::min(4, static_cast<int>(u));
+    const float f = u - static_cast<float>(s);
+    for (int c = 0; c < 3; ++c) {
+      wheel[i][c] = kStops[s][c] + (kStops[s + 1][c] - kStops[s][c]) * f;
+    }
+  }
+
+  const float rimW = static_cast<float>(unit * (0.0018 + 0.010 * outline));
+  const float glowW = rimW * 3.5f + static_cast<float>(unit * 0.006);
+  const float cutoff = glowW * 5.0f;
+  const float spin = static_cast<float>(hue + clock * 0.015);
+  const float hueFx = static_cast<float>(3.1 / unit);
+  const float hueFy = static_cast<float>(2.6 / unit);
+  const float invStep = 1.0f / static_cast<float>(step);
+  const double starShift = t * unit * 0.012;   // the stars drift, slowly
+  const int starCell = std::max(10, static_cast<int>(unit / 46.0));
+
+  // ── SHADED LARGE ──────────────────────────────────────────────────────
+  deckboy::effects::detail::parallelRows(H, W, [&](int y0, int y1) {
+    for (int y = y0; y < y1; ++y) {
+      std::uint8_t* row = frame.pixels.data() + static_cast<std::size_t>(y) * W * 4u;
+      const float gyf = static_cast<float>(y) * invStep;
+      const int gy = std::min(gh - 2, static_cast<int>(gyf));
+      const float fy = gyf - static_cast<float>(gy);
+      for (int x = 0; x < W; ++x) {
+        const float gxf = static_cast<float>(x) * invStep;
+        const int gx = std::min(gw - 2, static_cast<int>(gxf));
+        const float fx = gxf - static_cast<float>(gx);
+        const std::size_t a = static_cast<std::size_t>(gy) * gw + gx;
+        const float d0 = field[a] + (field[a + 1] - field[a]) * fx;
+        const float d1 = field[a + gw] + (field[a + gw + 1] - field[a + gw]) * fx;
+        const float d = d0 + (d1 - d0) * fy;
+        std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+        if (d > cutoff) {
+          px[0] = px[1] = px[2] = px[3] = 0;   // outside: nothing, for the layer below
+          continue;
+        }
+        // The rim: a bright line on the boundary, a white-hot core, and a
+        // glow that falls away outside.
+        float rimR = 0.0f;
+        float rimG = 0.0f;
+        float rimB = 0.0f;
+        float core = 0.0f;
+        float glow = 0.0f;
+        if (d > -rimW * 4.0f) {
+          float u = 0.5f + 0.32f * std::sin(static_cast<float>(x) * hueFx + spin * 6.2831853f) +
+                    0.32f * std::cos(static_cast<float>(y) * hueFy - spin * 4.3982297f);
+          u -= std::floor(u);
+          const float* wc = wheel[std::min(255, static_cast<int>(u * 256.0f))];
+          core = portalBell(d / rimW);
+          const float hot = portalBell(d / (rimW * 0.45f)) * 0.55f;
+          rimR = wc[0] + (255.0f - wc[0]) * hot;
+          rimG = wc[1] + (255.0f - wc[1]) * hot;
+          rimB = wc[2] + (255.0f - wc[2]) * hot;
+          if (d > 0.0f) {
+            glow = 0.6f * portalBell(d / glowW);
+          }
+        } else if (d > 0.0f) {
+          glow = 0.0f;
+        }
+        if (d >= 0.0f) {
+          // Outside the shape: the rim's colour, as much of it as shows.
+          const float alpha = std::max(core, glow);
+          px[0] = static_cast<std::uint8_t>(std::min(255.0f, rimR));
+          px[1] = static_cast<std::uint8_t>(std::min(255.0f, rimG));
+          px[2] = static_cast<std::uint8_t>(std::min(255.0f, rimB));
+          px[3] = static_cast<std::uint8_t>(std::clamp(alpha * 255.0f, 0.0f, 255.0f));
+          continue;
+        }
+        // INSIDE: deep space. Navy into indigo on the nebula, lifting toward
+        // blue near the edge so the rim reads as light spilling in.
+        const float n = nebula[a] + (nebula[a + 1] - nebula[a]) * fx;
+        float r = 10.0f + 34.0f * n;
+        float g = 6.0f + 10.0f * n;
+        float b = 42.0f + 88.0f * n;
+        const float edge = std::clamp(1.0f + d / (rimW * 22.0f), 0.0f, 1.0f);
+        const float edge2 = edge * edge;
+        r += 26.0f * edge2;
+        g += 50.0f * edge2;
+        b += 118.0f * edge2;
+        // Stars: one candidate per cell of a slowly drifting grid.
+        {
+          const double sx = static_cast<double>(x) + starShift;
+          const int cxs = static_cast<int>(std::floor(sx / starCell));
+          const int cys = y / starCell;
+          const std::uint64_t cell = portalHash((static_cast<std::uint64_t>(
+                                         static_cast<std::uint32_t>(cxs)) << 32) |
+                                       static_cast<std::uint32_t>(cys));
+          if ((cell & 0xff) < 110) {
+            const double ox = cxs * static_cast<double>(starCell) +
+                              ((cell >> 8) & 0xff) / 255.0 * starCell;
+            const double oy = cys * static_cast<double>(starCell) +
+                              ((cell >> 16) & 0xff) / 255.0 * starCell;
+            const float dx = static_cast<float>(sx - ox);
+            const float dy = static_cast<float>(y - oy);
+            if (std::abs(dx) < 4.0f && std::abs(dy) < 4.0f) {
+              const float twinkle = 0.55f + 0.45f * std::sin(static_cast<float>(t) * 2.6f +
+                                                             static_cast<float>((cell >> 24) & 0xff));
+              const float big = ((cell >> 32) & 0xff) < 40 ? 1.6f : 1.0f;
+              float s = portalBell(std::sqrt(dx * dx + dy * dy) / (0.9f * big)) * twinkle;
+              // The odd one sparkles: a little cross, as in the clip.
+              if (((cell >> 40) & 0xff) < 12) {
+                s = std::max(s, twinkle * 0.7f *
+                                  std::max(portalBell(dy * 1.6f) * portalBell(dx * 0.35f),
+                                           portalBell(dx * 1.6f) * portalBell(dy * 0.35f)));
+              }
+              r += 225.0f * s;
+              g += 225.0f * s;
+              b += 240.0f * s;
+            }
+          }
+        }
+        // The rim over the inside of the edge.
+        r += (rimR - r) * core;
+        g += (rimG - g) * core;
+        b += (rimB - b) * core;
+        px[0] = static_cast<std::uint8_t>(std::clamp(r, 0.0f, 255.0f));
+        px[1] = static_cast<std::uint8_t>(std::clamp(g, 0.0f, 255.0f));
+        px[2] = static_cast<std::uint8_t>(std::clamp(b, 0.0f, 255.0f));
+        px[3] = 255;
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // buildFireside - a hearth that burns, for a fireside chat.
 //
 // Set dressing rather than a test card. A talking-head show wants something
@@ -11927,6 +12232,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "frame-count") {
     // Drop/duplicate + latency card -- always animated.
     buildFrameCount(frame, animTime, false);
+  } else if (basePatternType == "portal") {
+    // Always animated: the blobs are born, drift, melt and fade.
+    buildPortal(frame, animTime, cue.portal);
   } else if (basePatternType == "fireside") {
     // Always animated: a still fire is a photograph of a fire.
     buildFireside(frame, animTime, cue.firesideIntensity, cue.firesideSparks,

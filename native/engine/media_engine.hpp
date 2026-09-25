@@ -844,6 +844,7 @@ class MediaEngine {
   // history each frame rather than carrying state, so any frame renders alone
   // and identically -- see the note in the builder.
   static void buildFiresideWindow(DecodedFrame& frame, double t, int view);
+  static void buildPortal(DecodedFrame& frame, double t, const PortalSettings& settings);
   static void buildFireside(DecodedFrame& frame, double t,
                             double intensity = 1.0, int sparks = 34, int view = 0);
 

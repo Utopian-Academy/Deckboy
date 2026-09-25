@@ -293,6 +293,22 @@ enum class VideoSynthPalette {
 // above 4 was clamped away. The look survived the show and died in the file.
 inline constexpr int kVideoSynthPaletteCount = 11;
 
+// A PORTAL source: a swarm of particles melted into metaballs, each blob a
+// window into deep space with a neon rim that runs green, yellow, pink and
+// blue. Outside the blobs the picture is TRANSPARENT, so it is made to sit on
+// a layer over another playlist. See MediaEngine::buildPortal.
+//
+// Every control is 0-1 or a count, and the defaults are the look it arrives
+// with -- a show that never touched them gets exactly that.
+struct PortalSettings {
+  int blobs = 18;        // how many are alive at once, 3-48
+  double size = 0.5;     // how big a blob grows, 0-1
+  double blend = 0.5;    // how readily neighbours melt together, 0-1
+  double outline = 0.4;  // rim thickness, 0-1
+  double speed = 1.0;    // how fast they are born, drift and fade, 0.1-3
+  double hue = 0.0;      // turns the rim's colours round the wheel, 0-1
+};
+
 struct VideoSynthSettings {
   VideoSynthShape shape = VideoSynthShape::Plasma;
   VideoSynthMirror mirror = VideoSynthMirror::Quad;
@@ -1329,6 +1345,8 @@ struct Cue {
   // output and in the preview alike without its pixels being touched. All off
   // on every cue that has never had one, which is what an older show means.
   std::array<deckboy::effects::ParamLfo, 9> geometryLfo {};
+  // A Portal source's controls. Only meaningful on a "portal" pattern cue.
+  PortalSettings portal;
   // Clip whose MOTION drives the motion-puppet effect. Its pictures are never
   // shown -- only the per-macroblock vectors its codec already computed -- so
   // it can be small, and it loops independently of this cue's transport.
@@ -2572,6 +2590,9 @@ enum class QuickAction {
   // The tracker's transport, and a step's length (param = the row).
   TrackerGo, TrackerBack, TrackerPlay,   // PLAY is also STOP while running
   TrackerLoopToggle, TrackerClickerToggle, TrackerLength,
+  // Step a row of the numeric-parameter table; param is the NumericParam.
+  NumericParamDec, NumericParamInc,
+  CueSectionPortalToggle,
   CueSectionTextToggle,
   CueSectionFiresideToggle,
   CueSectionMidiFileToggle,

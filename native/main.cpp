@@ -8770,6 +8770,7 @@ class App {
   bool cueSectionTextOpen_ = true;
   bool cueSectionMidiFileOpen_ = true;
   bool cueSectionFiresideOpen_ = true;
+  bool cueSectionPortalOpen_ = true;
   // Which dashboard tile is one press away from being deleted, and when it
   // was armed. A button that runs a command is easy to hit by accident.
   int dashDeleteArmedSlot_ = -1;

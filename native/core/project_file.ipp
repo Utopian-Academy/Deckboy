@@ -838,6 +838,13 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.firesideView
         // The geometry oscillators. Empty unless one is armed.
         << '\t' << escapeField(serializeGeometryLfos(cue.geometryLfo))
+        // A Portal source's controls.
+        << '\t' << cue.portal.blobs
+        << '\t' << cue.portal.size
+        << '\t' << cue.portal.blend
+        << '\t' << cue.portal.outline
+        << '\t' << cue.portal.speed
+        << '\t' << cue.portal.hue
         << '\n';
     }
   }
@@ -2120,6 +2127,17 @@ Project loadProject(const fs::path& projectFile,
                                       kFiresideViewCount - 1);
         // Absent on an older show, which leaves every oscillator off.
         cue.geometryLfo = parseGeometryLfos(safeString(fields, vs + 107));
+        // A Portal's controls. The defaults are the look it arrives with, and
+        // an older show has no portals to restage.
+        {
+          const PortalSettings fresh;
+          cue.portal.blobs = std::clamp(safeInt(fields, vs + 108, fresh.blobs), 3, 48);
+          cue.portal.size = std::clamp(safeDouble(fields, vs + 109, fresh.size), 0.0, 1.0);
+          cue.portal.blend = std::clamp(safeDouble(fields, vs + 110, fresh.blend), 0.0, 1.0);
+          cue.portal.outline = std::clamp(safeDouble(fields, vs + 111, fresh.outline), 0.0, 1.0);
+          cue.portal.speed = std::clamp(safeDouble(fields, vs + 112, fresh.speed), 0.1, 3.0);
+          cue.portal.hue = std::clamp(safeDouble(fields, vs + 113, fresh.hue), 0.0, 1.0);
+        }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time

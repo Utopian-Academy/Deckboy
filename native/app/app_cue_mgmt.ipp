@@ -2572,6 +2572,11 @@
       [this]() { addFiresideCue(); }
     });
     contextItems_.push_back({
+      "  Portal (blobs of deep space, for a layer)",
+      {0, 0, 0, 0},
+      [this]() { addPortalCue(); }
+    });
+    contextItems_.push_back({
       "  Text (a title card, or a crawl)",
       {0, 0, 0, 0},
       [this]() { addTextCue(); }
@@ -2856,6 +2861,7 @@
       // controls. Still VALID here, so every show that already has one opens
       // exactly as it did.
       list.emplace_back("fireside",       "Fireside (a hearth that burns)");
+      list.emplace_back("portal",         "Portal (blobs of deep space)");
       list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
@@ -3683,6 +3689,19 @@
     markProjectDirty();
     triggerToast("master cue added");
     playUiSound(UiSoundEffect::Import);
+  }
+
+  // A Portal arrives named for what it is. It is drawn transparent outside its
+  // blobs, to sit on a layer over another playlist.
+  void addPortalCue() {
+    addPatternCue("portal");
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& cue = deck.cues.back();
+      cue.name = "Portal";
+      cue.color = {60, 40, 150, 255};
+      markProjectDirty();
+    }
   }
 
   void addFiresideCue() {

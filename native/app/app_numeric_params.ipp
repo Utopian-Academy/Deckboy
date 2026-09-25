@@ -43,6 +43,14 @@ enum class NumericParam : int {
   FdsDepth,
   FdsRatio,
   FdsRetrig,
+
+  // Portal source
+  PortalBlobs,
+  PortalSize,
+  PortalBlend,
+  PortalOutline,
+  PortalSpeed,
+  PortalHue,
 };
 
 struct NumericParamSpec {
@@ -53,6 +61,9 @@ struct NumericParamSpec {
   double hi = 1.0;
   int precision = 2;
   bool integral = false;
+  // One press of - or +. Zero means a fiftieth of the range, which suits a
+  // row that only ever had typed entry; a count wants 1.
+  double step = 0.0;
 };
 
 const NumericParamSpec* numericParamSpec(NumericParam id) {
@@ -161,6 +172,38 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
                                        "Seconds between retriggers, 0-8", 0.0, 8.0, 2, false};
       return &s;
     }
+    case NumericParam::PortalBlobs: {
+      static const NumericParamSpec s {"portal.blobs", "Blobs",
+                                       "How many are alive at once, 3-48", 3.0, 48.0, 0, true, 1.0};
+      return &s;
+    }
+    case NumericParam::PortalSize: {
+      static const NumericParamSpec s {"portal.size", "Size",
+                                       "How big a blob grows, 0-1", 0.0, 1.0, 2, false, 0.05};
+      return &s;
+    }
+    case NumericParam::PortalBlend: {
+      static const NumericParamSpec s {"portal.melt", "Melt",
+                                       "How readily neighbours merge, 0 (never) to 1",
+                                       0.0, 1.0, 2, false, 0.05};
+      return &s;
+    }
+    case NumericParam::PortalOutline: {
+      static const NumericParamSpec s {"portal.rim", "Rim",
+                                       "Thickness of the glowing edge, 0-1", 0.0, 1.0, 2, false, 0.05};
+      return &s;
+    }
+    case NumericParam::PortalSpeed: {
+      static const NumericParamSpec s {"portal.speed", "Speed",
+                                       "Birth, drift and fade rate, 0.1-3", 0.1, 3.0, 2, false, 0.1};
+      return &s;
+    }
+    case NumericParam::PortalHue: {
+      static const NumericParamSpec s {"portal.hue", "Colour",
+                                       "Turns the rim's colours round the wheel, 0-1",
+                                       0.0, 1.0, 2, false, 0.05};
+      return &s;
+    }
     default:
       return nullptr;
   }
@@ -191,6 +234,26 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
     case NumericParam::FdsDepth:     out = cue.tone.synth.modDepth; return true;
     case NumericParam::FdsRatio:     out = cue.tone.synth.modRatio; return true;
     case NumericParam::FdsRetrig:    out = cue.tone.synth.retriggerSeconds; return true;
+    // Only on a portal: the other pattern cues carry these fields too (every
+    // Cue does), and a stale row must not write into a colour-bars cue.
+    case NumericParam::PortalBlobs:
+    case NumericParam::PortalSize:
+    case NumericParam::PortalBlend:
+    case NumericParam::PortalOutline:
+    case NumericParam::PortalSpeed:
+    case NumericParam::PortalHue: {
+      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "portal") {
+        return false;
+      }
+      const PortalSettings& p = cue.portal;
+      out = id == NumericParam::PortalBlobs ? p.blobs
+          : id == NumericParam::PortalSize ? p.size
+          : id == NumericParam::PortalBlend ? p.blend
+          : id == NumericParam::PortalOutline ? p.outline
+          : id == NumericParam::PortalSpeed ? p.speed
+          : p.hue;
+      return true;
+    }
     default: return false;
   }
 }
@@ -218,8 +281,45 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::FdsDepth:     cue.tone.synth.modDepth = static_cast<int>(std::lround(value)); break;
     case NumericParam::FdsRatio:     cue.tone.synth.modRatio = value; break;
     case NumericParam::FdsRetrig:    cue.tone.synth.retriggerSeconds = value; break;
+    case NumericParam::PortalBlobs:  cue.portal.blobs = static_cast<int>(std::lround(value)); break;
+    case NumericParam::PortalSize:   cue.portal.size = value; break;
+    case NumericParam::PortalBlend:  cue.portal.blend = value; break;
+    case NumericParam::PortalOutline: cue.portal.outline = value; break;
+    case NumericParam::PortalSpeed:  cue.portal.speed = value; break;
+    case NumericParam::PortalHue:    cue.portal.hue = value; break;
     default: break;
   }
+}
+
+// The - and + of any row in the table: one step, clamped to the same range
+// typed entry uses. Every selected cue that carries the value moves together,
+// the way typed entry already does.
+void nudgeNumericParam(int rawId, int direction) {
+  const NumericParam id = static_cast<NumericParam>(rawId);
+  const NumericParamSpec* spec = numericParamSpec(id);
+  if (!spec) {
+    return;
+  }
+  const double step = spec->step > 0.0 ? spec->step : (spec->hi - spec->lo) / 50.0;
+  bool changed = false;
+  double shown = 0.0;
+  forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+    double current = 0.0;
+    if (!readNumericParam(each, id, current)) {
+      return;
+    }
+    const double next = std::clamp(current + step * direction, spec->lo, spec->hi);
+    writeNumericParam(each, id, next);
+    shown = next;
+    changed = true;
+  });
+  if (!changed) {
+    return;
+  }
+  std::ostringstream ss;
+  ss << std::fixed << std::setprecision(spec->precision) << shown;
+  triggerToast(std::string(spec->label) + " " + ss.str());
+  markProjectDirty();
 }
 
 // The one handler behind QuickAction::EditNumericParam.

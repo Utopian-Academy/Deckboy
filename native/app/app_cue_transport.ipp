@@ -4024,9 +4024,9 @@
     if (becomingSuper) {
       evolveIntoSuperDeckboy();
     }
-    // Tears down and recreates every engine, so it stops playback. Said out
-    // loud rather than discovered: this is a setup action, not a show one.
-    rebuildDeckRuntimes();
+    // Only the new playlist's engine is made: what is on air stays on air
+    // (see growDeckRuntimes).
+    growDeckRuntimes();
     markProjectDirty();
     if (announce) {
       // ITS OWN SOUND, and not on the second deck -- that one already gets
@@ -4034,7 +4034,7 @@
       if (!becomingSuper) {
         playUiSound(UiSoundEffect::DeckAdded);
       }
-      triggerToast("added " + added.name + " (playback stopped)");
+      triggerToast("added " + added.name);
     }
     return true;
   }
@@ -4178,8 +4178,8 @@
   // the second deck gets the moment it earned: a power-up, a flash, and the
   // app wearing its new name.
   void evolveIntoSuperDeckboy() {
-    // NEVER DURING A SHOW. Adding a deck already stops playback -- it is a
-    // setup action -- but the jingle goes to the operator's system audio,
+    // NEVER DURING A SHOW. Adding a deck is a setup action, and the jingle
+    // goes to the operator's system audio,
     // and on plenty of rigs that IS the PA. A fanfare through the house
     // because somebody added a deck at the wrong moment is exactly the kind
     // of thing the app must never do to a room.
