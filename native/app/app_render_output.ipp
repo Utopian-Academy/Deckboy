@@ -2989,11 +2989,26 @@
       SDL_SetTextureAlphaMod(tex, 255);
       return;
     }
-    // RGBA32 four bytes a pixel, like every other CPU blit on this path. An
-    // NV12 held frame would need the two-plane update; the held frame always
-    // comes from displayFrame_, which the compositor has already proven it can
-    // draw, so this matches what the layer above it just did.
-    SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
+    // THE HELD FRAME IS WHATEVER THE DECODER MADE, and a video cue that needs
+    // no CPU work decodes to NV12. This used to upload every held frame as
+    // RGBA -- four bytes a pixel over a buffer of one and a half -- so every
+    // transition OUT of such a video drew the old picture as scrambled tiles
+    // (and read past the end of the buffer doing it). Two planes, as the
+    // overlay path already uploads them.
+    if (frame.format == FramePixelFormat::NV12 || frame.format == FramePixelFormat::P010) {
+      const int bytesPerSample = frame.format == FramePixelFormat::P010 ? 2 : 1;
+      const std::size_t lumaBytes = static_cast<std::size_t>(frame.width) *
+                                    static_cast<std::size_t>(frame.height) * bytesPerSample;
+      if (frame.pixels.size() < lumaBytes + lumaBytes / 2) {
+        stamp = 0;   // nothing went in, so nothing may be drawn from it later
+        return;
+      }
+      const std::uint8_t* y = frame.pixels.data();
+      SDL_UpdateNVTexture(tex, nullptr, y, frame.width * bytesPerSample,
+                          y + lumaBytes, frame.width * bytesPerSample);
+    } else {
+      SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
+    }
     SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
     SDL_SetTextureAlphaMod(tex, alpha);
     const SDL_Rect dst = target;
