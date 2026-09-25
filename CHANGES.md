@@ -1,5 +1,24 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-25 - v0.99.379 (Companion module 1.0.2, and the animals stay off the picture)
+
+**Companion module 1.0.2**, with the changes asked for in review:
+
+- Every playlist and output a button can address now has variables behind it.
+  The options offered sixteen while the variables stopped at four, so a button
+  on playlist 7 worked and everything it reported was blank.
+- A status request that goes unanswered no longer stops the polling. A surface
+  keeps its tally and countdowns instead of quietly freezing.
+- Text typed into an action, or arriving from another module's variable, is
+  sent as exactly one command.
+
+It also carries its own help page inside Companion, including what to check
+when it will not connect.
+
+**The animals stay off the picture.** A theme's creatures may live in the idle
+program monitor, and they now leave it the moment a cue goes live rather than
+keeping the spot they were given when the app opened.
+
 ## 2026-09-25 - v0.99.378 (Presets, portals, and a lower third you can watch yourself make)
 
 **Presets: a moment of the whole show, recalled as much or as little as asked.**
