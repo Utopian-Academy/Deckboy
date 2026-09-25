@@ -10930,7 +10930,9 @@ void MediaEngine::buildPortal(DecodedFrame& frame, double t, const PortalSetting
   std::vector<float> field(static_cast<std::size_t>(gw) * gh);
   std::vector<float> nebula(static_cast<std::size_t>(gw) * gh);
   const float meltK = static_cast<float>(unit * (0.004 + 0.13 * blend));
-  const float far = static_cast<float>(unit * 4.0);
+  // NOT `far`: that is a macro in the Windows headers, with near, min, max
+  // and small, and a local by that name silently stops being C++ there.
+  const float outOfReach = static_cast<float>(unit * 4.0);
   const float nebScale = static_cast<float>(3.2 / unit);
   const float nebDrift = static_cast<float>(t * 0.035);
   deckboy::effects::detail::parallelRows(gh, gw * 8, [&](int y0, int y1) {
@@ -10938,7 +10940,7 @@ void MediaEngine::buildPortal(DecodedFrame& frame, double t, const PortalSetting
       const float py = static_cast<float>(gy * step);
       for (int gx = 0; gx < gw; ++gx) {
         const float px = static_cast<float>(gx * step);
-        float d = far;
+        float d = outOfReach;
         for (const Blob& b : live) {
           const float dx = px - b.x;
           const float dy = py - b.y;
