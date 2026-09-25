@@ -28,6 +28,8 @@ stay on the GPU and are composited there.
 7. [The Cue Inspector](#7-the-cue-inspector)
 8. [Transport](#8-transport)
 9. [Playlists, Loop, Shuffle & Cue Endings](#9-playlists-loop-shuffle--cue-endings)
+9a. [The Running Order: Standby, Waits & Continue](#9a-the-running-order-standby-waits--continue)
+9b. [Show-Control Cues](#9b-show-control-cues)
 10. [Transitions](#10-transitions)
 11. [Multi-Deck Operation](#11-multi-deck-operation)
 12. [Outputs & Routing](#12-outputs--routing)
@@ -53,8 +55,9 @@ stay on the GPU and are composited there.
 - **Cue** — one playable item (a video, image, pattern, live source, overlay,
   composite, or audio file) with its own trim, fades, geometry, and audio trim.
 - **Deck** — an ordered playlist of cues with its own transport, loop and
-  shuffle mode, and default cue behaviour. A show has one; VJ mode adds a second
-  and mixes the two into one programme.
+  shuffle mode, and default cue behaviour. A show starts with one and can have
+  up to 16. VJ mode mixes two into one programme, and from v0.99.373 each
+  output can show a different deck.
 - **Output** — a destination with its own window/compositor: a fullscreen
   display, a DeckLink/Spout/NDI sender, a network stream, or a presenter or
   prompter screen. Every output shows the programme (or, for presenter and
@@ -150,6 +153,22 @@ down to give the height back.
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages |
 | **Video Synth** | Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets |
 | **Code** | A live-coded picture: an expression evaluated per pixel, edited while it runs (see §14a). It is a Pattern cue underneath, so anything true of patterns is true of it |
+
+These cues play nothing themselves. They act on other cues, or send a message
+to other equipment, when they are taken (*v0.99.373 and later.*; see §9b):
+
+| Type | What it does on GO |
+|------|--------------------|
+| **Target** | Starts, stops, pauses, resumes, loads, arms or disarms another cue |
+| **Fade** | Ramps a deck's picture, a deck's volume or the master dimmer to a level over time |
+| **Master** | Fires an assigned cue on each of several decks at once |
+| **MIDI** | Sends a note, control change, program change, MIDI Show Control GO / STOP / RESUME, or raw bytes |
+| **Network** | Sends an OSC message, a UDP datagram or a line of TCP |
+| **Timecode** | Starts, stops or jams the LTC generator |
+| **DMX** | Sends Art-Net channel levels, with a fade time |
+| **Script** | Runs lines of Deckboy's own control protocol |
+
+All of them are on the `SOURCE` menu.
 
 ---
 
@@ -358,6 +377,143 @@ the show (see §20).
 
 ---
 
+## 9a. The Running Order: Standby, Waits & Continue
+
+*v0.99.373 and later.*
+
+Everything in this chapter defaults to what Deckboy always did, so a show made
+before it behaves exactly as before: no waits, nothing follows anything, and GO
+takes the selected cue. The controls are in the inspector's **SEQUENCE**
+section, on every cue type.
+
+### Standby
+
+The **standby** is the cue GO will fire, kept apart from the selection. The
+selection is where you are looking: what the inspector shows and what the
+arrow keys move. The standby is the running order: what happens next. Keeping
+them apart means clicking a cue to check it during a show does not change what
+the next GO does.
+
+Set it with the **standby** row (it reads `THIS CUE` on the cue that has it).
+While a standby is set, **Space is GO**: it takes the standby cue and moves the
+standby down to the next armed cue. At the end of the list the standby clears
+rather than wrapping to the top, so the last GO cannot restart the show. With
+no standby set, Enter and Space work as they always have.
+
+### Pre-wait, post-wait and continue
+
+- **pre-wait** — how long after GO this cue starts.
+- **continue** — whether the next cue goes by itself, and from when:
+  - **off** — the operator fires the next one.
+  - **from start** — the post-wait is counted from when this cue *starts*, so a
+    sequence is laid out in time from a single GO.
+  - **from end** — the post-wait is counted from when this cue *finishes*, for
+    "and then the next thing", however long this one took.
+- **post-wait** — the delay before the continue fires.
+
+A continue is about the next cue and fires whether or not this cue has ended.
+That is what makes it different from the **Auto-Next** end action in §9, which
+is about what this cue does when its media runs out.
+
+### Armed
+
+A cue that is not **armed** stays in the list with all its settings, does
+nothing, and is stepped over by GO and by the standby. The row is washed out so
+the list shows it. Disarm a cue to skip it tonight without deleting it.
+
+### Audition and preload
+
+- **audition** plays the selected cue to the control window's preview only.
+  The outputs keep what they have. Use it to check a cue during a show without
+  the room seeing it.
+- **preload** racks the selected cue on its deck, paused and held off the
+  outputs, with decoding already running, so taking it starts with no spin-up.
+
+### CHECK: everything wrong, before doors
+
+When a show has problems, a **CHECK** button beside `RELINK` shows how many.
+Click it to walk to each one in turn. It finds:
+
+- media that is missing
+- a goto that points at a cue that no longer exists
+- a master or target cue whose destination has gone, or that names a deck
+  that does not exist
+- a MIDI cue with nothing to send, a DMX cue with no channels or with a
+  channel list that cannot be read, and a script cue with no lines
+- a network cue with no host, a host that is not an IPv4 address, or an OSC
+  address that does not start with `/`
+
+---
+
+## 9b. Show-Control Cues
+
+*v0.99.373 and later.*
+
+These cues carry no media. Each one does its job when it is taken, which means
+it can be fired by GO, by the standby, by a continue, by a master cue or by
+another controller. Every one has a **fire** (or **send**) row in the inspector
+to try it without taking the cue. Add them from the `SOURCE` menu.
+
+### Target cue
+
+Acts on another cue: **Start**, **Stop**, **Pause**, **Resume**, **Load**
+(stand it by without firing it), **Arm** or **Disarm**. Pick the **deck** and
+the **cue**. Stop, pause and resume act only when the named cue is the one on
+air, so a target cannot stop something else by mistake.
+
+### Fade cue
+
+Ramps a level over time: a deck's **opacity**, a deck's **volume**, or the
+**master dimmer**. Set where it ends (**to**), how long it takes (**over**;
+zero is a snap), and the **curve**: linear, ease in, ease out or S-curve. Turn
+on **then stop** to stop the deck when the ramp lands, which is the usual
+"take it down and stop it".
+
+### Master cue
+
+Fires an assigned cue on each of several decks at once. For each deck, pick
+the cue to fire, or bypass that deck. A master cannot fire another master.
+
+### MIDI cue
+
+Sends a **note**, a **control change**, a **program change**, **MIDI Show
+Control** GO, STOP or RESUME, or your own **bytes** in hex (for example
+`90 3C 7F`). Choose the output **port**. If a named port is missing, Deckboy
+reports it rather than sending to whatever port it finds. **channel** counts
+1–16, as a desk does. For MSC, set the **device** (127 addresses every device
+on the line) and the **cue number** on the other desk, for example `12.5`.
+
+### Network cue
+
+Sends **OSC**, a **UDP** datagram or a line of **TCP** to an IPv4 address and
+port. OSC and UDP are fire and forget. TCP has to connect, so it runs off the
+show thread and GO never waits for it. Hostnames are refused on purpose: a DNS
+lookup can block, and GO must not.
+
+### Timecode cue
+
+Starts the LTC generator, stops it, or **jams** it to a time, so the cue list
+can run a timecode sequence (see §19).
+
+### DMX cue
+
+Sends Art-Net channel levels with a **fade** time. Write the levels as
+`channel=level`, separated by commas, with ranges allowed:
+`1=255, 10-14=64`. Channels count from 1. Set the **universe** (Art-Net port
+address, 0–32767) and the destination: an IPv4 address, or
+`255.255.255.255` to broadcast. **blackout** zeroes every channel on every
+universe the session has touched. Deckboy is not a lighting console: this is
+for house lights and practicals, not a rig.
+
+### Script cue
+
+Runs lines of Deckboy's own control protocol (§22), one command per line, with
+`#` for comments. One script cue can fire a master, send MIDI, jam timecode and
+ping a media server. Scripts can run other script cues, up to four deep, and
+then Deckboy stops and says so rather than looping forever.
+
+---
+
 ## 10. Transitions
 
 Cue-to-cue transitions are set at the deck level and can be overridden per
@@ -386,10 +542,13 @@ auto-advancing into the next cue.
 
 ## 11. Multi-Deck Operation
 
-A show starts with **one deck**. VJ mode, below, adds a second, and the two are
-mixed into a single programme by a crossfader; that programme is what every
-output shows. The focused deck is the one the keyboard and transport act on, and
-selecting a deck also moves the focused output to the one that deck plays on.
+A show starts with **one deck** and can have up to **16**. VJ mode, below, mixes
+two of them into a single programme with a crossfader. From v0.99.373 **each
+output can show a different deck**: choose the deck on the output's card in
+`Settings → Video Outputs` (§12). While a show has more than one deck, the
+window is titled **Super Deckboy**. The focused deck is the one the keyboard and
+transport act on, and selecting a deck also moves the focused output to the one
+that deck plays on.
 
 Two decks cover the great majority of shows: a programme, and something held
 ready behind it.
@@ -425,9 +584,11 @@ the one control nobody wants to reach for with a mouse.
 
 ## 12. Outputs & Routing
 
-Outputs are managed in the Monitors window and `Settings → Video Outputs`. Every
-output carries the programme — a show can drive several at once, each with its
-own settings. Each output is one of:
+Outputs are managed in the Monitors window and `Settings → Video Outputs`. A
+show can drive several at once, each with its own settings. From v0.99.373 each
+output has a **Source deck**, the deck whose picture it carries, and
+**ADD OUTPUT** on the Video Outputs card adds one and lets you choose its deck.
+Before that, every output carried the first deck. Each output is one of:
 
 - **Window** — a fullscreen (or windowed) display. Toggle the output window
   with `N`, fullscreen with `F`. Fullscreen recovery automatically re-raises a
@@ -876,7 +1037,9 @@ the undelayed timeline so the offset is a real skew at the output.
 
 ### Multichannel output routing
 
-`Settings → AUDIO OUTPUT → Outs` opens the deck device with 2/4/6/8 channels.
+`Settings → AUDIO OUTPUT → Outs` opens the deck device with 2, 4, 6 or 8
+channels, and from v0.99.373 with 16, 32 or 64, which is what makes a Dante
+Virtual Soundcard or a large ASIO interface worth having.
 Each cue routes its processed stereo onto a pair of those outs via the
 inspector's **outs** row (1-2, 3-4, 5-6, 7-8) — e.g. programme to the PA on
 1-2, click to monitors on 3-4. The pipeline stays stereo end to end; expansion
@@ -885,6 +1048,19 @@ physical outputs, SDL folds extra pairs down, so you can prep on a laptop and
 route at the venue.
 
 Companion: `AUDIOGAIN`, `AUDIOPAN`, `AUDIOMONO`, `AUDIONORM`, `AUDIOOUTS`.
+
+### The crosspoint matrix
+
+*v0.99.373 and later.*
+
+For routing a pair cannot express, the inspector's **MATRIX** section sets, per
+cue, how much of its left and right reaches each channel of the audio device.
+Click **routing** to open the matrix, starting from the pair the cue already
+uses. Each cell steps through off, full, −3, −6 and −12 dB. Two sources sent to
+one channel add together, so a mono fold-down is just both sources onto the same
+out. The matrix reaches every channel the device was opened with (see **Outs**
+above). A cue with no matrix routes exactly as it always did. `MATRIX` over the
+remote protocol does the same.
 
 ### Audio input
 
@@ -930,6 +1106,23 @@ smooth, and diagonal; full-frame solid colours have no motion option.
   for when the far end is a phone camera and small digits will not survive it.
 - **SMPTE 75% colour bars**, **crosshatch**, **checkerboard**, and full-frame
   **white, black, red, green and blue**.
+
+The engineering set (*v0.99.373 and later.*), the same patterns the site's LED page generates:
+
+- **Panel Map** — every LED tile numbered, with its pixel origin printed inside
+  it. Set **tile w** and **tile h** to the wall's real panel size, because a
+  168px panel mapped as 128 puts every label in the wrong place.
+- **Moire 1:1** — shows at once whether anything in the chain is scaling.
+- **Dark Detail** (0–12%) and **PLUGE** — black level.
+- **Uniformity** — flat fields for colour shift and dead or dim tiles.
+- **Banding Ramps** — the chain's real bit depth.
+- **Safe Areas** — 90%, 80% and thirds.
+- **Boresight** — projector and camera alignment.
+- **Greyscale Steps** — gamma.
+- **Convergence** — a fine grid for colour registration.
+- **Multiburst** — bandwidth and sharpness.
+- **Window 10%** and **Window 50%** — peak brightness at low and mid picture
+  level.
 
 Pocket Test comes in four times of day — **day, sunset, night and storm** — for
 checking that a display's picture processing is not crushing shadows or clipping
@@ -1085,6 +1278,13 @@ from the same code that handles the commands, so it cannot drift.
 
 Examples: `TAKE`, `STOP`, `VOLUME 75`, `AUDIOGAIN -6`, `AUDIOOUTS 2`,
 `AUDIO NEXT`, `TRANSITIONSTYLE wipeleft`, `NOTESTEP NEXT`, `FX ADD ripple`.
+
+The running order has verbs too (*v0.99.373 and later.*): `STANDBY <n>`, `STANDBY NEXT`,
+`STANDBY CLEAR`, `PREWAIT <s>`, `POSTWAIT <s>`,
+`CONTINUE OFF|AUTO|FOLLOW`, `ARM`, `DISARM`, `AUDITION`, `AUDITION OFF`,
+`PRELOAD`, `PRELOAD OFF`, and `CHECK` (with `CHECK <n>` to jump to a problem).
+Each show-control cue type has its own verb (`TARGET`, `FADE`, `MIDICUE`,
+`NETCUE`, `TCCUE`, `DMXCUE`, `SCRIPTCUE`); `HELP` lists their arguments.
 
 **Every command answers.** You get `OK <VERB>`, `ERR unknown command: <VERB>`,
 or `ERR <VERB>: <reason>` — so a controller can tell a typo from a refusal from

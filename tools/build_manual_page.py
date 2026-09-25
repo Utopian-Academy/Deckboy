@@ -290,6 +290,7 @@ BODY
                 <a href="./">What it does</a>
                 <a href="trailer.html">The trailer</a>
                 <a href="compare.html">How it compares</a>
+                <a href="qlab-alternative.html">Coming from QLab</a>
                 <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">Download</a>
             </div>
             <div>
@@ -298,6 +299,8 @@ BODY
                 <a href="faq.html">FAQ</a>
                 <a href="slides.html">Slides &amp; presenting</a>
                 <a href="window-cues.html">Window &amp; browser cues</a>
+                <a href="ndi.html">NDI in and out</a>
+                <a href="stream-deck.html">Stream Deck &amp; Companion</a>
                 <a href="latency.html">Where latency hides</a>
             </div>
             <div>
