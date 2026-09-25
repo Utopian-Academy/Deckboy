@@ -418,8 +418,24 @@
     };
 
     if (upper == "STATUS ENCODER" || upper == "STATE ENCODER") {
-      // The encode queue, readable from a script or Companion. Progress is a
-      // percentage, or "--" before ffmpeg has reported anything.
+      // Built on the main thread (updateStatusSnapshot); this thread only
+      // copies the finished text out under the lock.
+      std::string reply;
+      {
+        std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+        reply = statusEncoderSnapshot_;
+      }
+      sendSnapshot(reply);
+      return true;
+    }
+    return maybeRespondToCompanionQueryPart2(query, upper, sendSnapshot);
+  }
+
+  // The encode queue, readable from a script or Companion. Progress is a
+  // percentage, or "--" before ffmpeg has reported anything. MAIN THREAD ONLY:
+  // it walks conversionJobs_.
+  std::string buildEncoderStatusSnapshot() const {
+    {
       std::string reply = "DECKBOY_0.01 encoder jobs=" +
                           std::to_string(static_cast<int>(conversionJobs_.size())) +
                           " concurrency=" + std::to_string(encoderConcurrency_) +
@@ -433,9 +449,15 @@
                             : std::to_string(static_cast<int>(pct * 100.0 + 0.5))) +
                  " name=\"" + job.label + "\"\n";
       }
-      sendSnapshot(reply);
-      return true;
+      return reply;
     }
+  }
+
+  // The rest of the direct answers, split off only so the encoder snapshot's
+  // builder could sit on its own outside the network thread's function.
+  template <typename SendFn>
+  bool maybeRespondToCompanionQueryPart2(const std::string& query,
+                                         const std::string& upper, SendFn& sendSnapshot) {
     // EVERY verb, for anyone building a surface. The summary below is what
     // fits on a screen and covers a quarter of the protocol; a Companion or
     // Stream Deck author reading only that would never learn that PIP,

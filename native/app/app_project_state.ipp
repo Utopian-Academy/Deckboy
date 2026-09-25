@@ -801,6 +801,7 @@
     std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
     statusSnapshot_ = buildStatusSnapshot();
     statusSnapshotJson_ = buildStatusSnapshotJson();
+    statusEncoderSnapshot_ = buildEncoderStatusSnapshot();
     statusCueSnapshot_ = buildCueProgrammingSnapshot();
     statusDeckSnapshots_.clear();
     statusDeckSnapshots_.reserve(project_.decks.size());
