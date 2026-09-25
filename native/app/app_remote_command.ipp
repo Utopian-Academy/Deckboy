@@ -5015,7 +5015,7 @@
         if (!recognised) {
           failRemoteCommand("transitionstyle: unknown style \"" + parts[1] +
                             "\" -- try cut, crossfade, dip, dipwhite, "
-                            "push-left/right/up/down, wipe-left/right/up/down, iris");
+                            "push-left/right/up/down, wipe-left/right/up/down, iris, portal");
           return;
         }
         setTransitionStyle(style);

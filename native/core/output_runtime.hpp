@@ -248,6 +248,9 @@ struct OutputRuntime {
   // transition.
   std::map<std::string, std::uintptr_t> transitionUploadStamps;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
+  // The Portal transition's picture: the outgoing frame with the holes melted
+  // through it, rebuilt every frame the transition runs.
+  std::vector<std::uint8_t> portalTransitionPixels;
 #if DECKBOY_INPROC_DECODE
   // Zero-copy compositing (in-process d3d11va decode): per-deck persistent
   // NV12 D3D11 texture wrapped as an SDL_Texture. Decoded texture-array

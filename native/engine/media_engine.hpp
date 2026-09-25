@@ -592,6 +592,15 @@ class MediaEngine {
   // outgoing picture, how far through we are, and which style was asked for.
   // The outgoing frame is the one heldFrame_ already keeps to stop the black
   // flash between cues; a transition is that same hold, drawn on top.
+  // The Portal TRANSITION: the outgoing picture with the portal's melting
+  // blobs eaten out of it and the neon rim on every edge, written to `dst` as
+  // RGBA to draw OVER the incoming one. Empty `dst` means it could not (the
+  // held frame is neither RGBA nor NV12) and the caller should dissolve instead.
+  static void buildPortalTransition(const DecodedFrame& outgoing,
+                                    std::vector<std::uint8_t>& dst,
+                                    double progress, double elapsedSeconds,
+                                    std::uint64_t seed);
+
   const DecodedFrame* outgoingFrame() const {
     return heldFrame_.has_value() ? &(*heldFrame_) : nullptr;
   }

@@ -528,6 +528,7 @@ cue. There are **thirteen** styles:
 | Push left / right / up / down | `pushleft` … | The incoming cue shoves the outgoing one off the raster |
 | Wipe left / right / up / down | `wipeleft` … | A hard edge travels across, revealing the incoming cue |
 | Iris | `iris` | The incoming cue opens from the centre |
+| Portal | `portal` | The Portal's blobs melt open through the old picture, with the neon rim on every edge, until the new cue is all that is left |
 
 A **push** moves both pictures; a **wipe** moves only the boundary. They look
 alike in a still and nothing alike in motion.

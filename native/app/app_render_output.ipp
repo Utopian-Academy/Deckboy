@@ -2900,6 +2900,33 @@
       return;
     }
 
+    // ── PORTAL ──────────────────────────────────────────────────────────
+    //
+    // The Portal source's blobs, melting open through the outgoing picture
+    // until nothing of it is left. Built on the CPU as one RGBA picture with
+    // the holes already in it -- SDL has no shaped clip, and the iris's band
+    // trick cannot draw a rim -- then drawn over the incoming cue like any
+    // other held frame. A held frame that is not CPU RGBA dissolves instead,
+    // rather than drawing nothing.
+    if (style == TransitionStyle::Portal) {
+      std::vector<std::uint8_t>& pixels = outputRuntime->portalTransitionPixels;
+      MediaEngine::buildPortalTransition(*out, pixels, progress, progress * seconds,
+                                         static_cast<std::uint64_t>(out->index));
+      if (!pixels.empty()) {
+        const std::string key = "portal:" + std::to_string(sourceDeckIndex);
+        SDL_Texture* tex = ensureOverlayBridgeTexture(
+          *outputRuntime, key, out->width, out->height, SDL_PIXELFORMAT_RGBA32);
+        if (tex) {
+          SDL_UpdateTexture(tex, nullptr, pixels.data(), out->width * 4);
+          SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+          SDL_SetTextureAlphaMod(tex, 255);
+          const SDL_Rect dst = target;
+          SDL_RenderTexture(outputRuntime->outputRenderer, tex, nullptr, &dst);
+          return;
+        }
+      }
+    }
+
     if (style == TransitionStyle::DipWhite) {
       // The same shape as dip-to-black, through white: a flash rather than a
       // blink, and the one an operator reaches for on a camera cut.

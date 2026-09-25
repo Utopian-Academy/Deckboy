@@ -928,6 +928,7 @@ enum class TransitionStyle {
   WipeUp,
   WipeDown,
   Iris,        // a circle opens from the centre of the frame
+  Portal,      // the Portal's melting blobs open through the old picture, neon rim
   Count
 };
 

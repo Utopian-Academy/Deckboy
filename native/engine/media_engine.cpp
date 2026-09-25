@@ -10868,6 +10868,24 @@ inline float portalNoise(float x, float y, std::uint64_t salt) {
   return total / 0.975f;
 }
 
+// The rim's colour wheel: green, yellow, pink, violet, blue, back to green,
+// tabled. Shared by the Portal source and the Portal transition so the two are
+// one look.
+inline void portalWheel(float (&wheel)[256][3]) {
+  static const float kStops[6][3] = {
+    {60, 255, 80}, {255, 244, 90}, {255, 150, 228},
+    {175, 125, 255}, {70, 120, 255}, {60, 255, 80},
+  };
+  for (int i = 0; i < 256; ++i) {
+    const float u = static_cast<float>(i) / 256.0f * 5.0f;
+    const int s = std::min(4, static_cast<int>(u));
+    const float f = u - static_cast<float>(s);
+    for (int c = 0; c < 3; ++c) {
+      wheel[i][c] = kStops[s][c] + (kStops[s + 1][c] - kStops[s][c]) * f;
+    }
+  }
+}
+
 }  // namespace
 
 void MediaEngine::buildPortal(DecodedFrame& frame, double t, const PortalSettings& in) {
@@ -10962,19 +10980,8 @@ void MediaEngine::buildPortal(DecodedFrame& frame, double t, const PortalSetting
   // looked up from a smooth field over the frame rather than from the angle
   // round the centre. The angle has a singularity in the middle: every
   // colour met at one point and the glow there drew a little pinwheel.
-  static const float kStops[6][3] = {
-    {60, 255, 80}, {255, 244, 90}, {255, 150, 228},
-    {175, 125, 255}, {70, 120, 255}, {60, 255, 80},
-  };
   float wheel[256][3];
-  for (int i = 0; i < 256; ++i) {
-    const float u = static_cast<float>(i) / 256.0f * 5.0f;
-    const int s = std::min(4, static_cast<int>(u));
-    const float f = u - static_cast<float>(s);
-    for (int c = 0; c < 3; ++c) {
-      wheel[i][c] = kStops[s][c] + (kStops[s + 1][c] - kStops[s][c]) * f;
-    }
-  }
+  portalWheel(wheel);
 
   const float rimW = static_cast<float>(unit * (0.0018 + 0.010 * outline));
   const float glowW = rimW * 3.5f + static_cast<float>(unit * 0.006);
@@ -11089,6 +11096,326 @@ void MediaEngine::buildPortal(DecodedFrame& frame, double t, const PortalSetting
         px[1] = static_cast<std::uint8_t>(std::clamp(g, 0.0f, 255.0f));
         px[2] = static_cast<std::uint8_t>(std::clamp(b, 0.0f, 255.0f));
         px[3] = 255;
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// buildPortalTransition - the Portal as a way from one cue to the next.
+//
+// The outgoing picture has holes melted through it: a heart at the centre that
+// grows until it has swallowed every corner, and a ring of smaller blobs that
+// open late, further out, and run into it. Every edge carries the source's neon
+// rim, and just inside it a band of deep space before the incoming picture
+// shows. What is drawn is the OUTGOING layer only -- the incoming cue is already
+// on the output underneath, live, so this costs one pass over one frame.
+//
+// It must END on the incoming picture, never on a stray island of the old one,
+// so the heart's final radius is sized to the far corner with room to spare;
+// the satellites are decoration on the way.
+//
+// Deterministic in (progress, elapsed, seed): two outputs showing one deck
+// draw the same frame.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
+                                        std::vector<std::uint8_t>& dst,
+                                        double progress, double elapsedSeconds,
+                                        std::uint64_t seed) {
+  const int W = outgoing.width;
+  const int H = outgoing.height;
+  const std::size_t pixelsN = static_cast<std::size_t>(std::max(0, W)) *
+                              static_cast<std::size_t>(std::max(0, H));
+  const std::size_t bytes = pixelsN * 4u;
+  const bool rgba = outgoing.format == FramePixelFormat::RGBA32 &&
+                    outgoing.pixels.size() >= bytes;
+  // A video cue's held frame is very often NV12 -- the pipe hands it over that
+  // way whenever the cue needs no CPU work -- so it is converted here rather
+  // than turned away; turning it away would make the Portal a dissolve on
+  // exactly the cues it is most likely to be used on.
+  const bool nv12 = outgoing.format == FramePixelFormat::NV12 &&
+                    (W % 2) == 0 && (H % 2) == 0 &&
+                    outgoing.pixels.size() >= pixelsN + pixelsN / 2;
+  if (W <= 0 || H <= 0 || (!rgba && !nv12)) {
+    dst.clear();
+    return;
+  }
+  dst.resize(bytes);
+  const std::uint8_t* src = outgoing.pixels.data();
+  const std::uint8_t* uvPlane = src + pixelsN;
+  // One pixel of the OUTGOING picture into o[0..3]. NV12 is converted as
+  // FULL-RANGE BT.601, because that is what SDL draws an NV12 texture as
+  // (SDL_COLORSPACE_JPEG, its default for YUV) -- so the first frame of the
+  // transition is the same colour as the last frame of the cue, not a shade
+  // off it.
+  auto fetch = [&](int x, int y, std::uint8_t* o) {
+    if (rgba) {
+      std::memcpy(o, src + (static_cast<std::size_t>(y) * W + x) * 4u, 4);
+      return;
+    }
+    const float Y = src[static_cast<std::size_t>(y) * W + x];
+    const std::uint8_t* uv = uvPlane + static_cast<std::size_t>(y / 2) * W + (x & ~1);
+    const float U = static_cast<float>(uv[0]) - 128.0f;
+    const float V = static_cast<float>(uv[1]) - 128.0f;
+    o[0] = static_cast<std::uint8_t>(std::clamp(Y + 1.402f * V, 0.0f, 255.0f));
+    o[1] = static_cast<std::uint8_t>(
+      std::clamp(Y - 0.344136f * U - 0.714136f * V, 0.0f, 255.0f));
+    o[2] = static_cast<std::uint8_t>(std::clamp(Y + 1.772f * U, 0.0f, 255.0f));
+    o[3] = 255;
+  };
+
+  const double p = std::clamp(progress, 0.0, 1.0);
+  const double t = std::max(0.0, elapsedSeconds);
+  const double unit = static_cast<double>(std::min(W, H));
+  const double cx = W * 0.5;
+  const double cy = H * 0.5;
+  const double reach = std::sqrt(cx * cx + cy * cy);   // centre to corner
+
+  auto smooth = [](double a, double b, double x) {
+    const double k = std::clamp((x - a) / (b - a), 0.0, 1.0);
+    return k * k * (3.0 - 2.0 * k);
+  };
+
+  struct Blob { float x, y, r; };
+  std::vector<Blob> live;
+  live.reserve(24);
+  // THE HEART. Seen opening from the first frames, and reaching the last
+  // corner only at the very end: a steeper curve left the first third looking
+  // like nothing had happened and the last third with nothing left to open.
+  {
+    const double s = smooth(0.0, 1.0, p);
+    const double r = reach * 1.04 * std::pow(s, 1.35);
+    if (r >= 0.75) {
+      live.push_back({static_cast<float>(cx), static_cast<float>(cy), static_cast<float>(r)});
+    }
+  }
+  // THE SATELLITES: born further out the later they open, so the opening reads
+  // as spreading rather than as twenty holes appearing at once.
+  const std::uint64_t salt = portalHash(seed ^ 0x9072a1ull);
+  for (int i = 0; i < 20; ++i) {
+    const std::uint64_t bs = portalHash(salt + static_cast<std::uint64_t>(i) * 7919ull);
+    const double out01 = 0.2 + 0.8 * std::sqrt(portalRand(bs, 1));
+    const double start = 0.04 + 0.42 * out01 + 0.10 * portalRand(bs, 2);
+    const double grow = smooth(start, start + 0.34, p);
+    if (grow <= 0.0) {
+      continue;
+    }
+    const double angle = portalRand(bs, 3) * 6.283185307179586 +
+                         0.18 * std::sin(t * 1.3 + portalRand(bs, 4) * 6.283);
+    const double dist = out01 * reach * 0.88 * (1.0 + 0.12 * p);
+    const double r = unit * (0.06 + 0.09 * portalRand(bs, 5)) * grow * (1.0 + 0.8 * p);
+    if (r < 0.75) {
+      continue;
+    }
+    live.push_back({static_cast<float>(cx + std::cos(angle) * dist),
+                    static_cast<float>(cy + std::sin(angle) * dist),
+                    static_cast<float>(r)});
+  }
+
+  // ── THE FIELD, SMALL (as the source does it) ─────────────────────────
+  // The same grid in picture terms at every raster: a 4K frame on the 1080p
+  // step would compute four times the cells for nothing the eye can see.
+  const int step = unit >= 1400.0 ? 8 : (unit >= 480.0 ? 4 : 2);
+  const int gw = W / step + 2;
+  const int gh = H / step + 2;
+  const float outOfReach = static_cast<float>(unit * 4.0);
+  std::vector<float> field(static_cast<std::size_t>(gw) * gh, outOfReach);
+  std::vector<float> hueField(static_cast<std::size_t>(gw) * gh, 0.0f);
+  const float meltK = static_cast<float>(unit * 0.08);
+  // A slow ripple on every edge, so a growing circle never looks like a
+  // compass drew it.
+  const float rippleAmp = static_cast<float>(unit * 0.006);
+  const float rippleFx = static_cast<float>(9.0 / unit);
+  const float rippleFy = static_cast<float>(7.0 / unit);
+  const float tf = static_cast<float>(t);
+  const float spin = static_cast<float>(t * 0.12);
+  const float hueFx = static_cast<float>(3.1 / unit);
+  const float hueFy = static_cast<float>(2.6 / unit);
+  if (!live.empty()) {
+    deckboy::effects::detail::parallelRows(gh, gw * 8, [&](int y0, int y1) {
+      for (int gy = y0; gy < y1; ++gy) {
+        const float py = static_cast<float>(gy * step);
+        for (int gx = 0; gx < gw; ++gx) {
+          const float px = static_cast<float>(gx * step);
+          float d = outOfReach;
+          for (const Blob& b : live) {
+            const float dx = px - b.x;
+            const float dy = py - b.y;
+            const float di = std::sqrt(dx * dx + dy * dy) - b.r;
+            if (di < d + meltK) {
+              d = portalSmin(d, di, meltK);
+            }
+          }
+          d += rippleAmp * std::sin(px * rippleFx + tf * 2.1f) *
+               std::cos(py * rippleFy - tf * 1.7f);
+          const std::size_t at = static_cast<std::size_t>(gy) * gw + gx;
+          field[at] = d;
+          // NOT wrapped here: interpolating between 0.95 and 0.05 lands on 0.5,
+          // a thin line of the wrong colour wherever the wheel comes round.
+          // Wrapped per pixel, after the interpolation.
+          hueField[at] = 0.5f + 0.32f * std::sin(px * hueFx + spin * 6.2831853f) +
+                         0.32f * std::cos(py * hueFy - spin * 4.3982297f);
+        }
+      }
+    });
+  }
+
+  float wheel[256][3];
+  portalWheel(wheel);
+  const float rimW = static_cast<float>(unit * 0.0065);
+  const float glowW = rimW * 3.5f + static_cast<float>(unit * 0.006);
+  const float spaceW = rimW * 16.0f;
+  // Where each side's light has fallen below a level of the eight bits.
+  const float outsideCut = glowW * 3.5f;
+  const float insideCut = std::max(spaceW, glowW * 3.5f);
+  const float invStep = 1.0f / static_cast<float>(step);
+  // Deep space just inside the edge, the source's navy, fading into the
+  // incoming picture.
+  const float navyR = 12.0f;
+  const float navyG = 10.0f;
+  const float navyB = 58.0f;
+
+  // THE EDGE'S PROFILE, TABLED. Everything the shading needs except the
+  // picture and the colour depends only on the distance to the edge, and the
+  // band is a few hundred pixels wide -- so it is worked out once per frame
+  // rather than three divisions per pixel, which was most of the 4K cost.
+  struct Profile { float core, hot, light, space; };
+  constexpr int kProfileN = 2048;
+  std::array<Profile, kProfileN> profile {};
+  const float profileSpan = insideCut + outsideCut;
+  const float profileScale = static_cast<float>(kProfileN - 1) / profileSpan;
+  for (int i = 0; i < kProfileN; ++i) {
+    const float d = -insideCut + static_cast<float>(i) / profileScale;
+    Profile& pr = profile[static_cast<std::size_t>(i)];
+    pr.core = portalBell(d / rimW);
+    pr.hot = portalBell(d / (rimW * 0.45f)) * 0.55f;
+    if (d >= 0.0f) {
+      pr.light = 0.6f * portalBell(d / glowW);   // glow over the old picture
+      pr.space = 0.0f;
+    } else {
+      pr.light = std::max(pr.core, 0.45f * portalBell(d / glowW));
+      const float sp = std::clamp(1.0f + d / spaceW, 0.0f, 1.0f);
+      pr.space = sp * sp * 0.8f;
+    }
+  }
+
+  // ── WHICH CELLS NEED SHADING ─────────────────────────────────────────
+  //
+  // Bilinear interpolation never leaves the range of its four corners, so a
+  // grid cell whose corners are all clear of the edge is clear everywhere
+  // inside it: the old picture untouched, or a hole with nothing in it. Only
+  // cells ON an edge are shaded per pixel. Shading every pixel measured 15-20ms
+  // a frame at 1080p mid-transition, which is a dropped frame at 60.
+  enum : std::uint8_t { kKeep = 0, kClear = 1, kShade = 2 };
+  const int cw = gw - 1;
+  const int ch = gh - 1;
+  std::vector<std::uint8_t> cellKind(static_cast<std::size_t>(cw) * ch, kKeep);
+  if (!live.empty()) {
+    deckboy::effects::detail::parallelRows(ch, cw * 8, [&](int y0, int y1) {
+      for (int gy = y0; gy < y1; ++gy) {
+        for (int gx = 0; gx < cw; ++gx) {
+          const std::size_t a = static_cast<std::size_t>(gy) * gw + gx;
+          const float c0 = field[a];
+          const float c1 = field[a + 1];
+          const float c2 = field[a + gw];
+          const float c3 = field[a + gw + 1];
+          const float lo = std::min(std::min(c0, c1), std::min(c2, c3));
+          const float hi = std::max(std::max(c0, c1), std::max(c2, c3));
+          cellKind[static_cast<std::size_t>(gy) * cw + gx] =
+            lo > outsideCut ? kKeep : (hi < -insideCut ? kClear : kShade);
+        }
+      }
+    });
+  }
+
+  // ── SHADED LARGE ──────────────────────────────────────────────────────
+  deckboy::effects::detail::parallelRows(H, W, [&](int y0, int y1) {
+    for (int y = y0; y < y1; ++y) {
+      std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
+      const float gyf = static_cast<float>(y) * invStep;
+      const int gy = std::min(gh - 2, static_cast<int>(gyf));
+      const float fy = gyf - static_cast<float>(gy);
+      const std::uint8_t* kinds = cellKind.data() + static_cast<std::size_t>(gy) * cw;
+      for (int gx = 0; gx * step < W; ++gx) {
+        const int x0 = gx * step;
+        const int x1 = std::min(W, x0 + step);
+        const int cgx = std::min(cw - 1, gx);
+        const std::uint8_t kind = kinds[cgx];
+        if (kind == kClear) {
+          std::memset(row + static_cast<std::size_t>(x0) * 4u, 0,
+                      static_cast<std::size_t>(x1 - x0) * 4u);
+          continue;
+        }
+        if (kind == kKeep) {
+          if (rgba) {
+            std::memcpy(row + static_cast<std::size_t>(x0) * 4u,
+                        src + (static_cast<std::size_t>(y) * W + x0) * 4u,
+                        static_cast<std::size_t>(x1 - x0) * 4u);
+          } else {
+            for (int x = x0; x < x1; ++x) {
+              fetch(x, y, row + static_cast<std::size_t>(x) * 4u);
+            }
+          }
+          continue;
+        }
+        for (int x = x0; x < x1; ++x) {
+          const float fx = static_cast<float>(x) * invStep - static_cast<float>(cgx);
+          const std::size_t a = static_cast<std::size_t>(gy) * gw + cgx;
+          const float d0 = field[a] + (field[a + 1] - field[a]) * fx;
+          const float d1 = field[a + gw] + (field[a + gw + 1] - field[a + gw]) * fx;
+          const float d = d0 + (d1 - d0) * fy;
+          std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+          if (d > outsideCut) {
+            fetch(x, y, px);   // untouched old picture
+            continue;
+          }
+          if (d < -insideCut) {
+            px[0] = px[1] = px[2] = px[3] = 0;
+            continue;
+          }
+          const float h0 = hueField[a] + (hueField[a + 1] - hueField[a]) * fx;
+          const float h1 = hueField[a + gw] + (hueField[a + gw + 1] - hueField[a + gw]) * fx;
+          float hu = h0 + (h1 - h0) * fy;
+          hu -= std::floor(hu);
+          const float* wc = wheel[std::min(255, static_cast<int>(hu * 256.0f))];
+          const Profile& pr = profile[static_cast<std::size_t>(std::clamp(
+            static_cast<int>((d + insideCut) * profileScale + 0.5f), 0, kProfileN - 1))];
+          const float core = pr.core;
+          const float hot = pr.hot;
+          const float rimR = wc[0] + (255.0f - wc[0]) * hot;
+          const float rimG = wc[1] + (255.0f - wc[1]) * hot;
+          const float rimB = wc[2] + (255.0f - wc[2]) * hot;
+          if (d >= 0.0f) {
+            // Still the old picture: the rim laid over it, and its glow added
+            // as light.
+            std::uint8_t s[4];
+            fetch(x, y, s);
+            const float glow = pr.light;
+            const float r = s[0] + (rimR - s[0]) * core + rimR * glow * 0.6f;
+            const float g = s[1] + (rimG - s[1]) * core + rimG * glow * 0.6f;
+            const float b = s[2] + (rimB - s[2]) * core + rimB * glow * 0.6f;
+            px[0] = static_cast<std::uint8_t>(std::min(255.0f, r));
+            px[1] = static_cast<std::uint8_t>(std::min(255.0f, g));
+            px[2] = static_cast<std::uint8_t>(std::min(255.0f, b));
+            px[3] = 255;
+            continue;
+          }
+          // Through the hole: space, then the rim's light over it, both with
+          // their own alpha so the incoming picture shows through what is left.
+          const float space = pr.space;
+          const float light = pr.light;
+          const float alpha = light + space * (1.0f - light);
+          if (alpha <= 0.002f) {
+            px[0] = px[1] = px[2] = px[3] = 0;
+            continue;
+          }
+          const float under = space * (1.0f - light);
+          const float inv = 1.0f / alpha;
+          px[0] = static_cast<std::uint8_t>(std::min(255.0f, (rimR * light + navyR * under) * inv));
+          px[1] = static_cast<std::uint8_t>(std::min(255.0f, (rimG * light + navyG * under) * inv));
+          px[2] = static_cast<std::uint8_t>(std::min(255.0f, (rimB * light + navyB * under) * inv));
+          px[3] = static_cast<std::uint8_t>(std::clamp(alpha * 255.0f, 0.0f, 255.0f));
+        }
       }
     }
   });
