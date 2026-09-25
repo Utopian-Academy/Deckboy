@@ -5355,26 +5355,61 @@
       return;
     }
     if (command == "LOWERSTYLE") {
-      // LOWERSTYLE              -> what this lower third does
-      // LOWERSTYLE NEXT         -> step to the next style
-      // LOWERSTYLE <name>       -> none | fade | rise | slide | wipe
+      // LOWERSTYLE                 -> how this lower third comes on
+      // LOWERSTYLE NEXT            -> step to the next move
+      // LOWERSTYLE <name>          -> cut | fade | left | right | rise |
+      //                               wipe | grow | typewriter | pop
+      //
+      // Acts on the TEXT-CUE lower third, which is what the SOURCE menu and
+      // the LOWERTHIRD verb make. It used to require CueKind::LowerThird --
+      // the other, older overlay kind -- so it answered "select a lower third
+      // first" about the cue you had just created. TEXTCUE IN / OUTMOVE are
+      // the fuller controls; these two stay because they are documented and
+      // scripts may already use them.
       Cue* cue = selectedCueMutable();
-      if (!cue || cue->kind != CueKind::LowerThird) {
-        failRemoteCommand("LOWERSTYLE: select a lower third first");
+      if (!cue) {
+        failRemoteCommand("LOWERSTYLE: select a cue first");
+        return;
+      }
+      const bool designed = cue->lowerThird.on;
+      const bool legacy = cue->kind == CueKind::LowerThird;
+      if (!designed && !legacy) {
+        failRemoteCommand("LOWERSTYLE: this cue is not a lower third");
         return;
       }
       if (parts.size() < 2) {
-        remoteCommandDetail_ = lowerThirdStyleLabel(cue->lowerThirdStyle);
+        remoteCommandDetail_ = designed
+          ? lowerThirdMoveLabel(cue->lowerThird.moveIn)
+          : lowerThirdStyleLabel(cue->lowerThirdStyle);
         return;
       }
+      if (designed) {
+        const std::string arg = toUpper(parts[1]);
+        if (arg == "NEXT") {
+          const int count = static_cast<int>(LowerThirdMove::Count);
+          cue->lowerThird.moveIn = static_cast<LowerThirdMove>(
+            (static_cast<int>(cue->lowerThird.moveIn) + 1) % count);
+        } else {
+          // NAMED OR REFUSED. An unknown name quietly becoming `cut` would be
+          // a move that does nothing and answers OK.
+          const std::string token = toLower(parts[1]);
+          const LowerThirdMove picked = lowerThirdMoveFromToken(token);
+          if (picked == LowerThirdMove::None && token != "cut") {
+            failRemoteCommand("LOWERSTYLE: no move called '" + parts[1] + "'");
+            return;
+          }
+          cue->lowerThird.moveIn = picked;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = lowerThirdMoveLabel(cue->lowerThird.moveIn);
+        return;
+      }
+      // The legacy overlay kind, for a show that still has one.
       const std::string arg = toUpper(parts[1]);
       if (arg == "NEXT") {
         cue->lowerThirdStyle =
           (cue->lowerThirdStyle + 1) % kLowerThirdStyleCount;
       } else {
-        // NAMED OR REFUSED. An unknown name silently becoming `none` would be
-        // a style that does nothing and answers OK, which is the fault this
-        // codebase keeps finding.
         const int picked = lowerThirdStyleFromToken(toLower(parts[1]));
         if (picked == 0 && toLower(parts[1]) != "none") {
           failRemoteCommand("LOWERSTYLE: expected none, fade, rise, slide, "
@@ -5390,12 +5425,19 @@
     if (command == "LOWERANIM") {
       // LOWERANIM [<seconds>] -- how long the move takes, each way.
       Cue* cue = selectedCueMutable();
-      if (!cue || cue->kind != CueKind::LowerThird) {
-        failRemoteCommand("LOWERANIM: select a lower third first");
+      if (!cue) {
+        failRemoteCommand("LOWERANIM: select a cue first");
+        return;
+      }
+      const bool designed = cue->lowerThird.on;
+      const bool legacy = cue->kind == CueKind::LowerThird;
+      if (!designed && !legacy) {
+        failRemoteCommand("LOWERANIM: this cue is not a lower third");
         return;
       }
       if (parts.size() < 2) {
-        remoteCommandDetail_ = formatSeconds(cue->lowerThirdAnimSeconds);
+        remoteCommandDetail_ = formatSeconds(
+          designed ? cue->lowerThird.inSeconds : cue->lowerThirdAnimSeconds);
         return;
       }
       auto seconds = parseNumber(1);
@@ -5403,9 +5445,17 @@
         failRemoteCommand("LOWERANIM: '" + parts[1] + "' is not a number");
         return;
       }
-      cue->lowerThirdAnimSeconds = std::clamp(*seconds, 0.0, 5.0);
+      const double value = std::clamp(*seconds, 0.0, 5.0);
+      if (designed) {
+        // BOTH WAYS, which is what this verb has always meant. TEXTCUE IN and
+        // TEXTCUE OUT set them apart when that is wanted.
+        cue->lowerThird.inSeconds = value;
+        cue->lowerThird.outSeconds = value;
+      } else {
+        cue->lowerThirdAnimSeconds = value;
+      }
       markProjectDirty();
-      remoteCommandDetail_ = formatSeconds(cue->lowerThirdAnimSeconds);
+      remoteCommandDetail_ = formatSeconds(value);
       return;
     }
     if (command == "LOWERALPHA") {

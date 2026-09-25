@@ -537,6 +537,17 @@
                        static_cast<float>(pic.y + (pic.h - dh) / 2),
                        static_cast<float>(dw), static_cast<float>(dh)};
         SDL_RenderTexture(controlRenderer_, tex, nullptr, &dst);
+      } else if (deckIndex >= 0 && pic.w > 0 && pic.h > 0 &&
+                 activeCuePtr(deckIndex) &&
+                 activeCuePtr(deckIndex)->kind == CueKind::Text) {
+        // THE SAME GAP AS THE MONITOR, in the second place that draws a
+        // deck's picture. A text cue has no decoded frame, so a tile
+        // showing a lower third said "no picture" -- which is where an
+        // operator looks FIRST when several playlists are up.
+        const MediaEngine* tileEngine = mediaEngineForDeck(deckIndex);
+        renderTextCueIntoOutput(controlRenderer_, *activeCuePtr(deckIndex),
+                                pic,
+                                tileEngine ? tileEngine->position() : 0.0);
       } else if (pic.w > 0 && pic.h > 0) {
         drawCenteredTextSafe(controlRenderer_, fontSmall_, pic,
                              isEmptyTile ? multiviewTileSourceLabel(tile0)
@@ -2921,6 +2932,21 @@
         controlPreviewTexH_,
         controlPreviewIsComposite_ ? nullptr : activeCue,
         inner);
+    } else if (activeCue && activeCue->kind == CueKind::Text) {
+      // A TEXT CUE HAS NO DECODED FRAME, so there is nothing for the
+      // preview's fallback to show and the monitor sat empty. The output
+      // path has renderTextCueIntoOutput for exactly this reason; the
+      // preview never got the same treatment.
+      //
+      // It matters most for a LOWER THIRD, which is a text cue on a
+      // transparent frame living on its own playlist: building one at a
+      // desk with no output armed showed the operator nothing at all,
+      // which is not a subtle failure -- "i saw no lower third in
+      // preview".
+      SDL_Rect inner = warpMonitorInner_;
+      const MediaEngine* textEngine = focusedMediaEngine();
+      renderTextCueIntoOutput(controlRenderer_, *activeCue, inner,
+                              textEngine ? textEngine->position() : 0.0);
     } else if (activeCue && activeCue->kind == CueKind::Composite) {
       SDL_Rect inner = warpMonitorInner_;
       renderCompositeCuePlaceholder(controlRenderer_, inner, *activeCue, true);
