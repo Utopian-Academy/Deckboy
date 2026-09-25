@@ -121,6 +121,12 @@ CONFIRMED = {
     ("MULTIVIEW", "MULTI"),
     ("TCCUE", "TIMECODECUE"),
     ("MASTER", "MASTERCUE"),
+    # 2026-09-25: the master-cue tracker's transport; SEQUENCE is what an
+    # operator calls a running order, TRACKER what the panel is called.
+    ("TRACKER", "SEQUENCE"),
+    # 2026-09-25: both retired in favour of MASTER, and both answer with the
+    # same pointer to it.
+    ("GROUP", "GROUPPRESET"),
     ("PREV", "PREVIOUS"),
     ("COMPOSITE", "SCENE"),
     ("MASTERVOL", "MASTERVOLUME"),
