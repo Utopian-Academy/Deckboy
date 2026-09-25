@@ -1246,21 +1246,91 @@
     markProjectDirty();
   }
 
+  // CLEARING STARTS THE EXIT, it does not perform it. An overlay removed from
+  // overlayActiveIndices cannot be drawn leaving, so it stays in the list,
+  // marked, until serviceLeavingOverlays has let its out-move run.
+  //
+  // A style of `none` or a time of 0 still goes instantly: the service sees a
+  // zero-length move and removes it on the next tick.
   void clearOverlay() {
     Deck& deck = focusedDeckMutable();
-    deck.overlayActiveIndices.clear();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
+    const int deckIndex = project_.focusedDeckIndex;
+    const Uint64 now = SDL_GetTicks();
+    for (int cueIndex : deck.overlayActiveIndices) {
+      overlayLeavingAtMs_.emplace(std::make_pair(deckIndex, cueIndex), now);
+    }
     triggerToast("overlay cleared");
     markProjectDirty();
   }
 
+  // How long this overlay's move takes, each way. Anything that is not a
+  // lower third leaves instantly -- a PiP has its own geometry and no style.
+  double overlayMoveSeconds(const Deck& deck, int cueIndex) const {
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return 0.0;
+    }
+    const Cue& cue = deck.cues[cueIndex];
+    if (cue.kind != CueKind::LowerThird || cue.lowerThirdStyle == 0) {
+      return 0.0;
+    }
+    return std::clamp(cue.lowerThirdAnimSeconds, 0.0, 5.0);
+  }
+
+  // Called once a frame. Takes a departed overlay out of the list when its
+  // out-move has finished, and forgets both stamps.
+  void serviceLeavingOverlays() {
+    if (overlayLeavingAtMs_.empty()) {
+      return;
+    }
+    const Uint64 now = SDL_GetTicks();
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      Deck& deck = project_.decks[deckIndex];
+      auto& live = deck.overlayActiveIndices;
+      const std::size_t before = live.size();
+      live.erase(std::remove_if(live.begin(), live.end(), [&](int cueIndex) {
+                   auto it = overlayLeavingAtMs_.find(std::make_pair(deckIndex, cueIndex));
+                   if (it == overlayLeavingAtMs_.end()) {
+                     return false;
+                   }
+                   const double moved = static_cast<double>(now - it->second) / 1000.0;
+                   return moved >= overlayMoveSeconds(deck, cueIndex);
+                 }),
+                 live.end());
+      if (live.size() != before) {
+        syncPipOverlayRuntimesForDeck(deckIndex, now);
+      }
+    }
+    // Forget the stamps for anything no longer on screen.
+    for (auto it = overlayLeavingAtMs_.begin(); it != overlayLeavingAtMs_.end();) {
+      const int deckIndex = it->first.first;
+      bool stillUp = false;
+      if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size())) {
+        const auto& live = project_.decks[deckIndex].overlayActiveIndices;
+        stillUp = std::find(live.begin(), live.end(), it->first.second) != live.end();
+      }
+      if (stillUp) {
+        ++it;
+      } else {
+        overlayShownAtMs_.erase(it->first);
+        it = overlayLeavingAtMs_.erase(it);
+      }
+    }
+  }
+
   void popOverlay() {
     Deck& deck = focusedDeckMutable();
-    if (!deck.overlayActiveIndices.empty()) {
-      deck.overlayActiveIndices.pop_back();
-      syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
+    // The topmost one that is not already on its way out, so pressing this
+    // twice quickly takes two of them off rather than the same one.
+    for (auto it = deck.overlayActiveIndices.rbegin();
+         it != deck.overlayActiveIndices.rend(); ++it) {
+      auto key = std::make_pair(project_.focusedDeckIndex, *it);
+      if (overlayLeavingAtMs_.count(key)) {
+        continue;
+      }
+      overlayLeavingAtMs_[key] = SDL_GetTicks();
       triggerToast("overlay popped");
       markProjectDirty();
+      return;
     }
   }
 
@@ -1808,6 +1878,13 @@
 
 
   void applyDeckDefaultsToCue(Cue& cue, const Deck& deck) {
+    // A LOWER THIRD MADE TODAY MOVES. The struct default is `none` so a
+    // show written before the styles existed keeps popping exactly as it
+    // did; this is the other default, the one a NEW cue arrives with, and
+    // nobody making a lower third wants it to appear instantly.
+    if (cue.kind == CueKind::LowerThird && cue.lowerThirdStyle == 0) {
+      cue.lowerThirdStyle = 2;   // rise
+    }
     cue.loop = deck.playlistDefaultLoop;
     cue.pauseAtBeginning = deck.playlistDefaultPauseAtBeginning;
     cue.pauseOnLastFrame = deck.playlistDefaultPauseAtEnd;
@@ -2623,7 +2700,7 @@
       [this]() { addPortalCue(); }
     });
     contextItems_.push_back({
-      "  Lower third (name and role, in and out)",
+      "  Lower third (fire it from its own playlist, over another)",
       {0, 0, 0, 0},
       [this]() { addLowerThirdTextCue(); }
     });
@@ -2677,6 +2754,25 @@
     // not exist. Where a kind belongs in the taxonomy matters less than
     // whether an operator can find it.
     contextItems_.push_back({"CUES THAT DO THINGS", {0, 0, 0, 0}, nullptr});
+    // -- OVERLAYS, which go OVER the deck's picture rather than being it --
+    //
+    // Both of these were complete and unreachable: addLowerThirdCue and
+    // addPipCue had no callers at all, and the LOWERTHIRD and PIP verbs were
+    // parked on "not built yet". They rendered, composited, stacked and
+    // saved; there was simply no way to make one.
+    //
+    // THE LOWER THIRD IS NOT OFFERED HERE. The one an operator wants is fired
+    // from a playlist of its own and composited over another, which is the
+    // text-cue lower third under MADE BY DECKBOY. This overlay kind still
+    // loads, draws and animates for any show that has one; it is just not
+    // the one a new show is steered to, and two entries both called "lower
+    // third" was a question nobody should have to answer at the menu.
+    contextItems_.push_back({"OVERLAYS", {0, 0, 0, 0}, nullptr});
+    contextItems_.push_back({
+      "  Picture in Picture (a second clip in a box)",
+      {0, 0, 0, 0},
+      [this]() { addPipCue(); }});
+
     contextItems_.push_back({
       "  Master Cue (fires other decks)",
       {0, 0, 0, 0},

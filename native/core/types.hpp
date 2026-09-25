@@ -1022,6 +1022,27 @@ inline const char* cueTextAnimationToken(CueTextAnimation a) {
   return "none";
 }
 
+// How a lower third arrives and leaves. Named rather than numbered on the
+// row, because `3` tells an operator nothing and `slide` tells them
+// everything they need.
+inline const char* lowerThirdStyleLabel(int style) {
+  switch (style) {
+    case 1: return "fade";
+    case 2: return "rise";
+    case 3: return "slide";
+    case 4: return "wipe";
+    default: return "none (instant)";
+  }
+}
+inline int lowerThirdStyleFromToken(const std::string& token) {
+  if (token == "fade")  return 1;
+  if (token == "rise")  return 2;
+  if (token == "slide") return 3;
+  if (token == "wipe")  return 4;
+  return 0;
+}
+inline constexpr int kLowerThirdStyleCount = 5;
+
 inline const char* cueTextAnimationLabel(CueTextAnimation a) {
   switch (a) {
     case CueTextAnimation::FadeIn:     return "Fade in";
@@ -1350,7 +1371,16 @@ struct Cue {
   int height = 0;                          // source video height (pixels, from ffprobe)
   int audioChannels = 0;                   // number of audio channels (from ffprobe)
   int audioSampleRate = 0;                 // audio sample rate in Hz (from ffprobe)
-  int lowerThirdBgAlpha = 180;             // background bar opacity for LowerThird (0–255)
+  int lowerThirdBgAlpha = 180;             // background bar opacity for LowerThird (0-255)
+  // HOW IT ARRIVES AND LEAVES. 0 none (instant), 1 fade, 2 rise, 3 slide,
+  // 4 wipe. `none` is the struct default on purpose: a show written before
+  // this popped, and it must go on popping rather than quietly acquiring an
+  // animation nobody asked for. A lower third MADE today arrives as `rise`
+  // -- see applyDeckDefaultsToCue.
+  int lowerThirdStyle = 0;
+  // Seconds for the move, each way. 0 is instant whatever the style says,
+  // which is the one value that has to keep working.
+  double lowerThirdAnimSeconds = 0.4;
   int loopCount = 0;                       // number of times to loop (0 = infinite when loop=true)
   CueKind kind = CueKind::Video;           // discriminator — see CueKind enum above
   CueEndAction endAction = CueEndAction::Inherit; // what to do when playback finishes
@@ -2812,6 +2842,8 @@ enum class QuickAction {
   // choice steps: 0 look, 1 side, 2 bar colour, 3 accent, 4 in, 5 out.
   LowerThirdLayoutToggle, LowerThirdCycle, LowerThirdEditTitle,
   LowerThirdEditSub, LowerThirdOut,
+  // How a lower third arrives and leaves, and how long it takes.
+  LowerStyleCycle, LowerAnimDec, LowerAnimInc,
   CueSectionTextToggle,
   CueSectionFiresideToggle,
   CueSectionMidiFileToggle,

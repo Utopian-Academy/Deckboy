@@ -447,7 +447,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (319)\n"
+        "DECKBOY_0.01 every verb (321)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -468,7 +468,7 @@
         "GO GOEND GOTO GOTOTARGET GRAPHIC GROUP GROUPPRESET HEIGHT HOLD\n"
         "HOLDLAST IN INTEGRATION INTEGRATIONS JUMPMODE JUMPTRANS\n"
         "JUMPTRANSITION JUMP_MODE JUMP_XFADE LAYER LAYERNAME LOOP LOOPCOUNT\n"
-        "LOWERALPHA LOWERSUB LOWERTEXT LOWERTHIRD LTC LTCEXT LTCINGEST\n"
+        "LOWERALPHA LOWERANIM LOWERSTYLE LOWERSUB LOWERTEXT LOWERTHIRD LTC LTCEXT LTCINGEST\n"
         "LTCOUT LTC_INGEST MARK MARKER MASTER MASTERCUE MASTERVOL\n"
         "MASTERVOLUME MIDI MIDIINPUT MIDI_INPUT MOSH MOSHLOOK MTC MTCEXT\n"
         "MONITOR MTCINGEST MTC_INGEST MULTIVIEW NDI NDICUE NDIEVENT NDIKEY NDIKEYER\n"
@@ -561,6 +561,9 @@
         "        MONITOR DEVICE [<name>] - listen here; no name turns it off\n"
         "        MONITOR DECK <n>|FOLLOW - which playlist you hear\n"
         "        MONITOR ROOM <n> ON|OFF - whether that playlist reaches its own device\n"
+        "lower thirds: LOWERTHIRD - make one | LOWERTEXT / LOWERSUB - its two lines\n"
+        "        LOWERSTYLE [none|fade|rise|slide|wipe|NEXT] - how it comes on and goes off\n"
+        "        LOWERANIM [<seconds>] - how long that move takes, each way\n"
         "crossfade: CROSSFADE [OFF | <0-100> | <from> <to> [<0-100>]] - fade between two\n"
         "        entries of the focused output's stack (1 is the base)\n"
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"

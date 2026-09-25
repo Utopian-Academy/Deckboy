@@ -272,6 +272,11 @@
     servicePendingTakes();
     tickTracker();
     tickLowerThirds();
+    // An overlay told to go stays on screen until its out-move has run,
+    // and this is what finally takes it off. Beside the pending takes
+    // for the same reason: something the show asked for earlier that
+    // has to happen now.
+    serviceLeavingOverlays();
     // Fade cues, ticked beside the pending takes: both are things the show
     // asked for earlier that have to happen now.
     serviceFades();

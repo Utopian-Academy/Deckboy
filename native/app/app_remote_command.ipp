@@ -5309,11 +5309,18 @@
       return;
     }
     if (command == "GRAPHIC" || command == "LOWERTHIRD") {
-      triggerParkedCueCreationToast("lower third");
+      // The lower third the SOURCE menu makes: a text cue laid out as one,
+      // fired from its own playlist over another. TEXTCUE TITLE / SUB / LOOK
+      // / IN / OUTMOVE / OUT drive it from there.
+      addLowerThirdTextCue();
+      remoteCommandDetail_ = "lower third added to " + focusedDeckLabel();
       return;
     }
     if (command == "PIP") {
-      triggerParkedCueCreationToast("pip");
+      // Same again: addPipCue was complete, with its own overlay decoder
+      // runtime, and nothing could call it.
+      addPipCue();
+      remoteCommandDetail_ = "pip added to " + focusedDeckLabel();
       return;
     }
     // MULTIVIEW WAS AN ALIAS HERE, on a PARKED cue kind that answers "not
@@ -5345,6 +5352,60 @@
           markProjectDirty();
         }
       }
+      return;
+    }
+    if (command == "LOWERSTYLE") {
+      // LOWERSTYLE              -> what this lower third does
+      // LOWERSTYLE NEXT         -> step to the next style
+      // LOWERSTYLE <name>       -> none | fade | rise | slide | wipe
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::LowerThird) {
+        failRemoteCommand("LOWERSTYLE: select a lower third first");
+        return;
+      }
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = lowerThirdStyleLabel(cue->lowerThirdStyle);
+        return;
+      }
+      const std::string arg = toUpper(parts[1]);
+      if (arg == "NEXT") {
+        cue->lowerThirdStyle =
+          (cue->lowerThirdStyle + 1) % kLowerThirdStyleCount;
+      } else {
+        // NAMED OR REFUSED. An unknown name silently becoming `none` would be
+        // a style that does nothing and answers OK, which is the fault this
+        // codebase keeps finding.
+        const int picked = lowerThirdStyleFromToken(toLower(parts[1]));
+        if (picked == 0 && toLower(parts[1]) != "none") {
+          failRemoteCommand("LOWERSTYLE: expected none, fade, rise, slide, "
+                            "wipe or NEXT");
+          return;
+        }
+        cue->lowerThirdStyle = picked;
+      }
+      markProjectDirty();
+      remoteCommandDetail_ = lowerThirdStyleLabel(cue->lowerThirdStyle);
+      return;
+    }
+    if (command == "LOWERANIM") {
+      // LOWERANIM [<seconds>] -- how long the move takes, each way.
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::LowerThird) {
+        failRemoteCommand("LOWERANIM: select a lower third first");
+        return;
+      }
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = formatSeconds(cue->lowerThirdAnimSeconds);
+        return;
+      }
+      auto seconds = parseNumber(1);
+      if (!seconds) {
+        failRemoteCommand("LOWERANIM: '" + parts[1] + "' is not a number");
+        return;
+      }
+      cue->lowerThirdAnimSeconds = std::clamp(*seconds, 0.0, 5.0);
+      markProjectDirty();
+      remoteCommandDetail_ = formatSeconds(cue->lowerThirdAnimSeconds);
       return;
     }
     if (command == "LOWERALPHA") {

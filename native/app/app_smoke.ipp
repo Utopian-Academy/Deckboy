@@ -1270,12 +1270,13 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 69;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 71;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
-                                              // fireside view, geometry LFOs,
-                                              // the six portal controls, the twelve
-                                              // lower-third fields
+                                              // fireside view, overlay lower-third
+                                              // style and time, geometry LFOs, the
+                                              // six portal controls, the twelve
+                                              // text lower-third fields
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

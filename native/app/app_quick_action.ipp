@@ -1154,6 +1154,31 @@
       case QuickAction::FireSparksDec:    nudgeFireside(1, -1); break;
       case QuickAction::FireSparksInc:    nudgeFireside(1, +1); break;
       case QuickAction::FireViewCycle:    nudgeFireside(2, +1); break;
+
+      case QuickAction::LowerStyleCycle: {
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->kind != CueKind::LowerThird) {
+          break;
+        }
+        cue->lowerThirdStyle =
+          (cue->lowerThirdStyle + 1) % kLowerThirdStyleCount;
+        triggerToast(std::string("lower third: ") +
+                     lowerThirdStyleLabel(cue->lowerThirdStyle));
+        markProjectDirty();
+        break;
+      }
+      case QuickAction::LowerAnimDec:
+      case QuickAction::LowerAnimInc: {
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->kind != CueKind::LowerThird) {
+          break;
+        }
+        const double step = (action == QuickAction::LowerAnimInc) ? 0.05 : -0.05;
+        cue->lowerThirdAnimSeconds =
+          std::clamp(cue->lowerThirdAnimSeconds + step, 0.0, 5.0);
+        markProjectDirty();
+        break;
+      }
       case QuickAction::TextEditBody:   editTextBody(); break;
       case QuickAction::TextAnimCycle:  cycleTextAnimation(); break;
       case QuickAction::TextAlignCycle: cycleTextAlign(); break;

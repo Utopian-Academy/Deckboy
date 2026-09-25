@@ -872,6 +872,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.firesideIntensity
         << '\t' << cue.firesideSparks
         << '\t' << cue.firesideView
+        // How a lower third arrives and leaves, appended at the end. A cue
+        // written before this comes back as `none`, which is what it did.
+        << '\t' << cue.lowerThirdStyle
+        << '\t' << cue.lowerThirdAnimSeconds
         // The geometry oscillators. Empty unless one is armed.
         << '\t' << escapeField(serializeGeometryLfos(cue.geometryLfo))
         // A Portal source's controls.
@@ -2237,39 +2241,42 @@ Project loadProject(const fs::path& projectFile,
         // opens as the bare brick wall it was saved as.
         cue.firesideView = std::clamp(safeInt(fields, vs + 106, 0), 0,
                                       kFiresideViewCount - 1);
+        cue.lowerThirdStyle = std::clamp(safeInt(fields, vs + 107, 0), 0,
+                                         kLowerThirdStyleCount - 1);
+        cue.lowerThirdAnimSeconds = std::clamp(safeDouble(fields, vs + 108, 0.4), 0.0, 5.0);
         // Absent on an older show, which leaves every oscillator off.
-        cue.geometryLfo = parseGeometryLfos(safeString(fields, vs + 107));
+        cue.geometryLfo = parseGeometryLfos(safeString(fields, vs + 109));
         // A Portal's controls. The defaults are the look it arrives with, and
         // an older show has no portals to restage.
         {
           const PortalSettings fresh;
-          cue.portal.blobs = std::clamp(safeInt(fields, vs + 108, fresh.blobs), 3, 48);
-          cue.portal.size = std::clamp(safeDouble(fields, vs + 109, fresh.size), 0.0, 1.0);
-          cue.portal.blend = std::clamp(safeDouble(fields, vs + 110, fresh.blend), 0.0, 1.0);
-          cue.portal.outline = std::clamp(safeDouble(fields, vs + 111, fresh.outline), 0.0, 1.0);
-          cue.portal.speed = std::clamp(safeDouble(fields, vs + 112, fresh.speed), 0.1, 3.0);
-          cue.portal.hue = std::clamp(safeDouble(fields, vs + 113, fresh.hue), 0.0, 1.0);
+          cue.portal.blobs = std::clamp(safeInt(fields, vs + 110, fresh.blobs), 3, 48);
+          cue.portal.size = std::clamp(safeDouble(fields, vs + 111, fresh.size), 0.0, 1.0);
+          cue.portal.blend = std::clamp(safeDouble(fields, vs + 112, fresh.blend), 0.0, 1.0);
+          cue.portal.outline = std::clamp(safeDouble(fields, vs + 113, fresh.outline), 0.0, 1.0);
+          cue.portal.speed = std::clamp(safeDouble(fields, vs + 114, fresh.speed), 0.1, 3.0);
+          cue.portal.hue = std::clamp(safeDouble(fields, vs + 115, fresh.hue), 0.0, 1.0);
         }
         // A lower third. Off on an older show, which is what it was.
         {
           const LowerThirdDesign fresh;
           LowerThirdDesign& l = cue.lowerThird;
-          l.on = safeBool(fields, vs + 114, false);
+          l.on = safeBool(fields, vs + 116, false);
           l.look = static_cast<LowerThirdLook>(std::clamp(
-            safeInt(fields, vs + 115, static_cast<int>(fresh.look)), 0,
+            safeInt(fields, vs + 117, static_cast<int>(fresh.look)), 0,
             static_cast<int>(LowerThirdLook::Count) - 1));
-          const std::string moveIn = safeString(fields, vs + 116);
-          const std::string moveOut = safeString(fields, vs + 117);
+          const std::string moveIn = safeString(fields, vs + 118);
+          const std::string moveOut = safeString(fields, vs + 119);
           l.moveIn = moveIn.empty() ? fresh.moveIn : lowerThirdMoveFromToken(moveIn);
           l.moveOut = moveOut.empty() ? fresh.moveOut : lowerThirdMoveFromToken(moveOut);
-          l.inSeconds = std::clamp(safeDouble(fields, vs + 118, fresh.inSeconds), 0.0, 5.0);
-          l.outSeconds = std::clamp(safeDouble(fields, vs + 119, fresh.outSeconds), 0.0, 5.0);
-          l.holdSeconds = std::clamp(safeDouble(fields, vs + 120, fresh.holdSeconds), 0.0, 600.0);
-          l.side = std::clamp(safeInt(fields, vs + 121, fresh.side), 0, 2);
-          l.height = std::clamp(safeDouble(fields, vs + 122, fresh.height), 0.0, 0.8);
-          l.size = std::clamp(safeDouble(fields, vs + 123, fresh.size), 0.5, 2.0);
-          l.bar = std::clamp(safeInt(fields, vs + 124, fresh.bar), 0, kLowerThirdColourCount - 1);
-          l.accent = std::clamp(safeInt(fields, vs + 125, fresh.accent), 0,
+          l.inSeconds = std::clamp(safeDouble(fields, vs + 120, fresh.inSeconds), 0.0, 5.0);
+          l.outSeconds = std::clamp(safeDouble(fields, vs + 121, fresh.outSeconds), 0.0, 5.0);
+          l.holdSeconds = std::clamp(safeDouble(fields, vs + 122, fresh.holdSeconds), 0.0, 600.0);
+          l.side = std::clamp(safeInt(fields, vs + 123, fresh.side), 0, 2);
+          l.height = std::clamp(safeDouble(fields, vs + 124, fresh.height), 0.0, 0.8);
+          l.size = std::clamp(safeDouble(fields, vs + 125, fresh.size), 0.5, 2.0);
+          l.bar = std::clamp(safeInt(fields, vs + 126, fresh.bar), 0, kLowerThirdColourCount - 1);
+          l.accent = std::clamp(safeInt(fields, vs + 127, fresh.accent), 0,
                                 kLowerThirdColourCount - 1);
         }
       }

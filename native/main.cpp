@@ -4418,6 +4418,9 @@ class App {
     // Scripted import goes straight to the deck — no splash, no startup menu.
     showStartupDialog_ = false;
     showSplashOverlay_ = false;
+    // No point: a scripted import is not aimed at a column, so it goes
+    // to the focused playlist the way it always has. -1 lands outside
+    // every rect, which is exactly that.
     handleDropFile(path.c_str());
   }
 
@@ -8890,6 +8893,14 @@ class App {
   // click handler and the tile menu act on the same list the renderer
   // used rather than rebuilding it and risking a different answer.
   std::vector<MultiviewTile> multiviewPlan_;
+  // WHEN AN OVERLAY WENT UP, and when it was told to go. Keyed by deck and
+  // cue index. Runtime only: a show says which lower thirds exist, not when
+  // one happened to be on screen.
+  //
+  // A cleared overlay stays in overlayActiveIndices until its out-move has
+  // run -- something removed from that list cannot be drawn leaving.
+  std::map<std::pair<int, int>, Uint64> overlayShownAtMs_;
+  std::map<std::pair<int, int>, Uint64> overlayLeavingAtMs_;
   SDL_Rect deckAddTabRect_ {};   // the + on the end of the strip
   SDL_Rect deckRemoveTabRect_ {};  // and the - beside it
   // Where the right-hand furniture of a playlist header begins, so the

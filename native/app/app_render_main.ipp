@@ -4747,6 +4747,22 @@
                              pal.dark);
         playbackY += 32;
 
+        // HOW IT ARRIVES, above how it looks: the first question anybody asks
+        // of a lower third is whether it moves.
+        playbackY = drawChoiceRow(playbackY, "style",
+                                  lowerThirdStyleLabel(selectedCue->lowerThirdStyle),
+                                  QuickAction::LowerStyleCycle,
+                                  "How it comes on and goes off: none, fade, "
+                                  "rise, slide or wipe");
+        char l3anim[24];
+        std::snprintf(l3anim, sizeof(l3anim), "%.2fs",
+                      selectedCue->lowerThirdAnimSeconds);
+        drawQuickRow(playbackY, "in/out", QuickAction::LowerAnimDec,
+                     std::string(l3anim), QuickAction::LowerAnimInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "How long the move takes, each way. 0 is instant "
+                     "whatever the style says");
+        playbackY += kRowStep;
         drawQuickRow(playbackY, "bg alpha", QuickAction::LowerBgDec,
                      std::to_string(selectedCue->lowerThirdBgAlpha), QuickAction::LowerBgInc,
                      QuickAction::ToggleLoop, false, false, "Lower Third background opacity (0-255)");

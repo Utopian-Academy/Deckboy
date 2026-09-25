@@ -501,7 +501,7 @@
     playUiSound(UiSoundEffect::Stop);
   }
 
-  bool activateOverlayCueIndex(Deck& deck, int cueIndex) {
+  bool activateOverlayCueIndex(Deck& deck, int deckIndex, int cueIndex) {
     if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
       return false;
     }
@@ -523,6 +523,12 @@
       liveOverlays.erase(liveOverlays.begin());
     }
     liveOverlays.push_back(cueIndex);
+    // STAMPED AS IT GOES UP, so the renderer can ask how far through its
+    // arrival it is. Any earlier departure for this slot is forgotten --
+    // re-firing a lower third on its way out brings it back rather than
+    // leaving it half gone.
+    overlayShownAtMs_[std::make_pair(deckIndex, cueIndex)] = SDL_GetTicks();
+    overlayLeavingAtMs_.erase(std::make_pair(deckIndex, cueIndex));
     return true;
   }
 
@@ -539,7 +545,7 @@
       if (deck.cues[*overlayIndex].kind != overlayKind) {
         return;
       }
-      activateOverlayCueIndex(deck, *overlayIndex);
+      activateOverlayCueIndex(deck, deckIndex, *overlayIndex);
     };
 
     activateAttachedOverlay(CueKind::LowerThird, cue.attachedLowerThirdCue);
@@ -3912,7 +3918,7 @@
     const Cue& cue = deck.cues[deck.selectedIndex];
     // Overlay cues go to the overlay slot, not the main slot.
     if (cue.kind == CueKind::LowerThird || cue.kind == CueKind::Pip) {
-      activateOverlayCueIndex(deck, deck.selectedIndex);
+      activateOverlayCueIndex(deck, deckIndex, deck.selectedIndex);
       syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks());
       triggerToast(cue.kind == CueKind::Pip ? ("pip live: " + cue.name) : ("overlay live: " + cue.name));
       playUiSound(UiSoundEffect::Take);
