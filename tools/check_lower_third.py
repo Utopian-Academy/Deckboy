@@ -96,15 +96,26 @@ def main():
         print("check: a lower third that moves")
         print()
 
-        # Something behind it, so the bar has a picture to arrive over.
+        # THE REAL WORKFLOW, which is the whole point of this design: a lower
+        # third is a TEXT CUE on a TRANSPARENT frame, so it lives on its own
+        # playlist and composites over another. Fired on the same deck it
+        # simply replaces the picture -- which is what "i saw no lower third"
+        # looks like from the operator's chair, and what this check did wrong
+        # on its first three runs.
         db.send("DECK 1")
-        db.send("PATTERN ADD full-black")
+        db.send("PATTERN ADD smpte-bars")
         db.send("TAKE")
-        print("  making a lower third:")
-        print("    %s" % db.send("LOWERTHIRD")[:90])
+        db.send("DECKADD")
+        db.send("DECK 2")
+        print("  making a lower third on its own playlist:")
+        print("    make:   %s" % db.send("LOWERTHIRD")[:80])
         db.send("SELECT LAST")
-        print("    title:   %s" % db.send("LOWERTEXT Doctor Bird")[:70])
-        print("    sub:     %s" % db.send("LOWERSUB Chief Engineer")[:70])
+        print("    title:  %s" % db.send("LOWERTEXT Doctor Bird")[:60])
+        print("    sub:    %s" % db.send("LOWERSUB Chief Engineer")[:60])
+        print("    layer:  %s" % db.send("VIDEO OUTPUT ASSIGN")[:60])
+        print("    stack:  %s" % db.send("VIDEO OUTPUT LAYER")[:80])
+        db.send("TAKE")
+        time.sleep(1.0)
         print()
 
         probe = frames(db, "probe", seconds=1.0, count=1)
@@ -114,19 +125,26 @@ def main():
             print("  never receives a frame.")
             return finish("lower third (setup only)", fails)
 
-        for style, moving in (("rise", True), ("slide", True),
-                              ("fade", True), ("none", False)):
+        # "cut" is this build's name for instant -- not "none", which was
+        # the name in a parallel implementation of the same feature. Three
+        # times now this check has driven the real thing with the wrong
+        # vocabulary and reported the feature dead; the fix each time was to
+        # read the replies rather than assume.
+        for style, moving in (("rise", True), ("wipe", True),
+                              ("fade", True), ("cut", False)):
             # Set the style by cycling to it would be guesswork; the cue field
             # is what the renderer reads, so drive it the way an operator does.
+            db.send("DECK 2")
             db.send("SELECT LAST")
-            for _ in range(6):
+            for _ in range(10):
                 if style in db.send("LOWERSTYLE").lower():
                     break
                 db.send("LOWERSTYLE NEXT")
             db.send("LOWERANIM 1.2")
-            db.send("OVERLAY CLEAR")
-            time.sleep(1.6)
-            db.send("TAKE")            # fire it; the move starts now
+            # Off air, then on: the move only happens on the way in.
+            db.send("STOP")
+            time.sleep(1.4)
+            db.send("TAKE")
             shots = frames(db, style, seconds=2.0, count=2)
             if len(shots) < 2:
                 note("  %s: two frames of the move" % style, False,
@@ -138,7 +156,7 @@ def main():
                      "%d bytes differ between two moments; it is not moving"
                      % changed)
             else:
-                note("  none is instant, as an old show expects", changed < 400,
+                note("  cut is instant, as an old show expects", changed < 400,
                      "%d bytes differ; it should not be animating" % changed)
 
     return finish("lower third", fails)
