@@ -1716,11 +1716,26 @@
     // no control and no value, and the part of the window an operator's eye
     // rests on between cues. It shrinks as the playlist grows, and when there
     // is nothing left they simply have nowhere to be.
-    if (deckIndex == project_.focusedDeckIndex) {
+    // EVERY PLAYLIST'S FREE SPACE, not just the focused one's. This was
+    // gated on the focused deck, so with several playlists up the animals
+    // only ever used one column -- James: "do critters only appear in the
+    // first deck?" They appeared in whichever had focus, which with deck 1
+    // focused is indistinguishable from the first.
+    //
+    // The cast is DEALT ROUND the habitats rather than copied into each, so
+    // more columns spreads the same animals wider rather than breeding them.
+    playlistFreeRects_.resize(project_.decks.size());
+    {
       const int used = std::max(0, primaryTotalH - deckScrolls_[deckIndex]);
-      playlistFreeRect_ = SDL_Rect {
+      const SDL_Rect freeRect {
         primaryClip.x, primaryClip.y + used + 8,
         primaryClip.w, std::max(0, primaryClip.h - used - 12)};
+      if (deckIndex < static_cast<int>(playlistFreeRects_.size())) {
+        playlistFreeRects_[deckIndex] = freeRect;
+      }
+      if (deckIndex == project_.focusedDeckIndex) {
+        playlistFreeRect_ = freeRect;   // kept: other callers read this one
+      }
     }
     int y = primaryClip.y - deckScrolls_[deckIndex];
     for (int cueIndex : primaryIndices) {

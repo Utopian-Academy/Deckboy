@@ -9082,6 +9082,9 @@ class App {
   double creatureFade_ = 0.0;       // eased, so they leave rather than blink out
   double creatureLastTime_ = 0.0;
   SDL_Rect playlistFreeRect_ {};    // the empty part of the focused playlist
+  // The same, per playlist. The focused one above is kept because other
+  // callers read it; the animals use all of these.
+  std::vector<SDL_Rect> playlistFreeRects_;
   SDL_Rect inspectorBodyRect_ {};   // the inspector column, for its free space
   // Coarse brightness of the current frame, for the displacement mesh.
   std::vector<float> meshLumaField_;

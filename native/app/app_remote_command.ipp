@@ -5909,7 +5909,8 @@
             // silently doing nothing to a deck that is plainly on the output.
             failRemoteCommand("VIDEO OUTPUT LAYERWARP: " +
                               deckLabel(project_.focusedDeckIndex) +
-                              " is not a layer on this output (the base uses "
+                              " is not a layer on " + outputLabel(project_.focusedOutputIndex) +
+                              " (the base uses "
                               "the output's own warp)");
             return;
           }

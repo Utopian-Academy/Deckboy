@@ -76,7 +76,11 @@
     };
     // The empty part of the playlist, under the last cue. A ledge: the row
     // above it is a surface things can walk along.
-    consider(playlistFreeRect_, true);
+    // EVERY playlist's empty space, not only the focused one's. A ledge:
+    // the row above is a surface things can walk along.
+    for (const SDL_Rect& freeRect : playlistFreeRects_) {
+      consider(freeRect, true);
+    }
     // The floor of the idle program monitor. A ledge, like the playlist: the
     // bottom of the monitor is a surface. Cleared the moment a cue goes live
     // (see below), so nothing is ever drawn over a picture.
