@@ -52,7 +52,11 @@ enum class Op : std::uint8_t {
   PushUser, StoreUser,
   // Enough of a standard library that the common shapes are one call rather
   // than a line of algebra: a distance, a soft edge, a choice.
-  Length, Smoothstep, Sign, Exp, Log, Atan, If,
+  Length, Smoothstep, Sign, Exp, Log, Atan, If, Noise,
+  // Value noise. The one shape in the reference reel that algebra cannot
+  // reach: a gem is straight lines and a flash is a sine in the angle, but
+  // a cloud is noise with a threshold on it. Four of these at doubling
+  // frequencies is an fbm, written in the language rather than built in.
 };
 
 struct Instruction {
@@ -69,6 +73,12 @@ struct CompiledSource {
   // pixel and then read by whichever channels want them.
   Program prelude;
   Program channel[3];
+  // ALPHA, the fourth expression, and the whole reason a shape can sit
+  // over a picture instead of replacing it. Absent unless the source
+  // wrote four expressions, and absent means opaque -- which is what every
+  // source written before this one meant, and still means.
+  Program alpha;
+  bool hasAlpha = false;
   // One entry per name the source declared, in the order the slots were
   // allocated. The editor colours these as variables, and the evaluator sizes
   // its scratch from the count.
@@ -173,7 +183,7 @@ inline bool functionOp(const std::string& name, Op& op, int& args) {
     {"length", Op::Length, 2},     {"smoothstep", Op::Smoothstep, 3},
     {"sign", Op::Sign, 1},         {"exp", Op::Exp, 1},
     {"log", Op::Log, 1},           {"atan", Op::Atan, 1},
-    {"if", Op::If, 3},
+    {"if", Op::If, 3},         {"noise", Op::Noise, 2},
   };
   for (const Entry& e : kTable) {
     if (name == e.name) { op = e.op; args = e.args; return true; }
@@ -205,12 +215,22 @@ inline Op binaryOp(const std::string& op) {
 // Compile one channel expression to a flat program. Shunting-yard, so the
 // output is already in the order the evaluator wants and nothing needs walking
 // per pixel.
+// APPENDS to `out`. It does not clear it, and that is load-bearing: compile()
+// builds the whole prelude by calling this once per statement with the same
+// program, so each named value's expression has to land after the ones above
+// it. This used to begin `out.clear()`, which erased every statement but the
+// last and left every named value except the final one reading zero -- six of
+// the sixteen shipped examples drew the wrong picture for it. Callers that
+// want a fresh program pass a fresh program; all of them already do.
 inline bool compileExpression(const std::string& source, Program& out,
                               std::string& error,
                               const std::vector<std::string>& names = {}) {
-  out.clear();
   std::vector<detail::Token> tokens = detail::tokenise(source, error);
   if (!error.empty()) return false;
+  // Where THIS call started. The guard at the bottom used to ask whether the
+  // program was empty, which stopped meaning anything once the prelude began
+  // accumulating several statements into one program.
+  const std::size_t startedAt = out.size();
 
   // Shunting-yard. The stack holds three kinds of thing and they behave
   // differently, so they are distinguished rather than encoded in a string:
@@ -220,6 +240,13 @@ inline bool compileExpression(const std::string& source, Program& out,
     Op op = Op::Add;
     int precedence = 0;
     bool rightAssociative = false;
+    // Arity, carried by the function that wants it and counted by the paren
+    // that sees the commas. `call` marks a paren as belonging to a function
+    // rather than grouping an expression, so (1+2) is never counted.
+    int wantArgs = 0;
+    int gotArgs = 0;
+    bool call = false;
+    std::string name;
   };
   std::vector<Entry> stack;
   bool expectValue = true;   // tells a unary minus from a subtraction
@@ -245,7 +272,12 @@ inline bool compileExpression(const std::string& source, Program& out,
         out.push_back({Op::PushConst, 3.14159265358979323846, 0});
         expectValue = false;
       } else if (detail::functionOp(token.text, fnOp, args)) {
-        stack.push_back({Entry::Kind::Function, fnOp, 0, false});
+        Entry fn;
+        fn.kind = Entry::Kind::Function;
+        fn.op = fnOp;
+        fn.wantArgs = args;
+        fn.name = token.text;
+        stack.push_back(fn);
         expectValue = true;
       } else {
         // A name the source declared earlier. Searched AFTER the built-ins, so
@@ -291,7 +323,14 @@ inline bool compileExpression(const std::string& source, Program& out,
                        prec, rightAssoc});
       expectValue = true;
     } else if (token.kind == Kind::LParen) {
-      stack.push_back({Entry::Kind::Paren, Op::Add, 0, false});
+      Entry paren;
+      paren.kind = Entry::Kind::Paren;
+      // A paren sitting directly on a function is that call's argument list.
+      // It starts at one argument and each comma adds another; an immediately
+      // closing paren takes it back to zero.
+      paren.call = !stack.empty() && stack.back().kind == Entry::Kind::Function;
+      paren.gotArgs = 1;
+      stack.push_back(paren);
       expectValue = true;
     } else if (token.kind == Kind::Comma) {
       // Pop back to the open paren but LEAVE IT: the argument list is still
@@ -304,6 +343,7 @@ inline bool compileExpression(const std::string& source, Program& out,
         error = "comma outside a function call";
         return false;
       }
+      ++stack.back().gotArgs;
       expectValue = true;
     } else if (token.kind == Kind::RParen) {
       while (!stack.empty() && stack.back().kind != Entry::Kind::Paren) {
@@ -313,7 +353,20 @@ inline bool compileExpression(const std::string& source, Program& out,
         error = "unbalanced )";
         return false;
       }
+      // `f()` from `f(x)`: still waiting for a value means none arrived.
+      const bool wasCall = stack.back().call;
+      const int supplied = expectValue ? 0 : stack.back().gotArgs;
       stack.pop_back();                       // the paren itself
+      if (wasCall && !stack.empty() &&
+          stack.back().kind == Entry::Kind::Function) {
+        const Entry& fn = stack.back();
+        if (supplied != fn.wantArgs) {
+          error = fn.name + " takes " + std::to_string(fn.wantArgs) +
+                  (fn.wantArgs == 1 ? " value, not " : " values, not ") +
+                  std::to_string(supplied);
+          return false;
+        }
+      }
       if (!stack.empty() && stack.back().kind == Entry::Kind::Function) {
         emitTop();                            // now the call can be emitted
       }
@@ -331,7 +384,7 @@ inline bool compileExpression(const std::string& source, Program& out,
     }
     emitTop();
   }
-  if (out.empty()) {
+  if (out.size() == startedAt) {
     error = "empty expression";
     return false;
   }
@@ -414,6 +467,7 @@ inline const std::vector<LanguageEntry>& languageFunctions() {
     {"exp",   "grows fast; good for glows and falloff", true},
     {"log",   "grows slowly; tames a value that runs away", true},
     {"atan",  "the angle of a slope", true},
+    {"noise", "a smooth random field: noise(x*6, y*6) -- clouds, edges", true},
   };
   return kFns;
 }
@@ -595,8 +649,13 @@ inline CompiledSource compile(const std::string& source) {
     parts.push_back(parts[0]);
     parts.push_back(parts[0]);
   }
-  if (parts.size() != 3) {
-    compiled.error = "expected one expression or three separated by commas";
+  // FOUR is a shape: the last one is alpha, and the source draws over whatever
+  // is beneath it rather than replacing the frame. Three and one are the whole
+  // of the old language and compile to exactly what they did before -- no
+  // alpha program, and the renderer writes 255 as it always has.
+  if (parts.size() != 3 && parts.size() != 4) {
+    compiled.error = "expected one expression, three for colour, "
+                     "or four with alpha";
     return compiled;
   }
   for (int c = 0; c < 3; ++c) {
@@ -606,6 +665,14 @@ inline CompiledSource compile(const std::string& source) {
       compiled.error = std::string(c == 0 ? "red: " : c == 1 ? "green: " : "blue: ") + error;
       return compiled;
     }
+  }
+  if (parts.size() == 4) {
+    std::string error;
+    if (!compileExpression(parts[3], compiled.alpha, error, compiled.names)) {
+      compiled.error = "alpha: " + error;
+      return compiled;
+    }
+    compiled.hasAlpha = true;
   }
   // Which of the two expensive variables does this source read? The prelude
   // counts as well as the channels -- a named value can be the only thing that
@@ -621,7 +688,42 @@ inline CompiledSource compile(const std::string& source) {
   for (int c = 0; c < 3; ++c) {
     scan(compiled.channel[c]);
   }
+  // The alpha counts as a reader. A shape whose COLOUR is flat and whose only
+  // use of the angle is the star's arms would otherwise be told it does not
+  // need `a`, and every arm would collapse to zero.
+  scan(compiled.alpha);
   return compiled;
+}
+
+// Value noise on a unit grid: hash the four corners of the cell, blend with a
+// smoothstep so the result has no visible creases along the cell edges.
+//
+// The cell index is WRAPPED before it is hashed. The hash multiplies the
+// coordinate by a large constant and keeps the fraction, which runs out of
+// precision once the coordinate is big -- and a source written as
+// `noise(x*4, y*4 + t)` has a coordinate that grows without bound for as long
+// as the show runs. Left alone it would look right for a few minutes and then
+// slowly flatten into mush, which is the worst kind of fault: nobody sees it
+// in rehearsal.
+inline double valueNoise(double x, double y) {
+  const double fx = std::floor(x), fy = std::floor(y);
+  const double tx = x - fx, ty = y - fy;
+  // Smoothstep on the fraction, so neighbouring cells meet with equal slope.
+  const double sx = tx * tx * (3.0 - 2.0 * tx);
+  const double sy = ty * ty * (3.0 - 2.0 * ty);
+  const auto corner = [](double i, double j) {
+    // 4096 is arbitrary and large enough that the repeat is never reached in
+    // a frame; the point is only that the argument to sin stays small.
+    i = std::fmod(i, 4096.0);
+    j = std::fmod(j, 4096.0);
+    const double s = std::sin(i * 127.1 + j * 311.7) * 43758.5453;
+    return s - std::floor(s);
+  };
+  const double a = corner(fx, fy),       b = corner(fx + 1.0, fy);
+  const double c = corner(fx, fy + 1.0), d = corner(fx + 1.0, fy + 1.0);
+  const double top = a + (b - a) * sx;
+  const double bottom = c + (d - c) * sx;
+  return top + (bottom - top) * sy;
 }
 
 // Run one compiled channel. The stack is the caller's, reused across pixels so
@@ -666,6 +768,8 @@ inline double evaluate(const Program& program, const double (&vars)[7],
                             stack.push_back(f * f * (3.0 - 2.0 * f)); break; }
       case Op::If:        { const double no = pop(), yes = pop(), cond = pop();
                             stack.push_back(cond > 0.5 ? yes : no); break; }
+      case Op::Noise:     { const double ny = pop(), nx = pop();
+                            stack.push_back(valueNoise(nx, ny)); break; }
       case Op::Neg:       stack.push_back(-pop()); break;
       case Op::Sin:       stack.push_back(std::sin(pop())); break;
       case Op::Cos:       stack.push_back(std::cos(pop())); break;

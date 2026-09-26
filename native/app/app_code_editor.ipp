@@ -110,6 +110,68 @@ static const std::vector<CodeExample>& codeExamples() {
      "fract(a/pi*4+r*6-t), r, 1-fract(r*3+t*0.3)"},
     {"pulse",
      "abs(sin(t))*step(r,0.7), r*abs(cos(t*0.7)), fract(a/pi*2)"},
+    // ── SHAPES ─────────────────────────────────────────────────────────────
+    // The five below end in FOUR expressions, not three: the last one is
+    // alpha, so they draw over whatever is beneath them instead of replacing
+    // the frame. Put one on a layer above a camera and it is an overlay.
+    // Everything above this line is three-channel and opaque, as it was.
+    {"gem",
+     "table = -0.52;\n"
+     "girdle = -0.24;\n"
+     "culet = 0.70;\n"
+     "crown = mix(0.24, 0.46, smoothstep(table, girdle, cy));\n"
+     "pavil = mix(0.46, 0.015, smoothstep(girdle, culet, cy));\n"
+     "tw = if(cy < girdle, crown, pavil);\n"
+     "body = smoothstep(0, 0.01, tw - abs(cx))\n"
+     "     * smoothstep(0, 0.01, cy - table)\n"
+     "     * smoothstep(0, 0.01, culet - cy);\n"
+     "f = abs(cx) / max(tw, 0.001);\n"
+     "facet = 0.55 + 0.45*sin(floor(cx/max(tw,0.001)*3.5)*1.9 + 0.7);\n"
+     "seam = smoothstep(0.02, 0, abs(cy - girdle));\n"
+     "lit = mix(1, 0.38, f)*facet + seam*0.55;\n"
+     "lit*0.5, lit*0.8, lit, body"},
+    {"gem cluster",
+     "s = 1.9;\n"
+     "gx = fract(x*s) - 0.5;\n"
+     "gy = fract(y*s) - 0.5;\n"
+     "id = floor(x*s)*7.3 + floor(y*s)*3.1;\n"
+     "jit = fract(sin(id)*4375.5);\n"
+     "sz = 0.26 + 0.14*jit;\n"
+     "sp = t*0.5 + jit*6.3;\n"
+     "rx = gx*cos(sp) - gy*sin(sp);\n"
+     "ry = gx*sin(sp) + gy*cos(sp);\n"
+     "tw = sz*0.58*(1 - abs(ry)/sz);\n"
+     "body = smoothstep(0, 0.005, tw - abs(rx))\n"
+     "     * smoothstep(0, 0.005, sz - abs(ry));\n"
+     "f = abs(rx)/max(tw, 0.001);\n"
+     "lit = mix(1, 0.28, f) * (0.72 + 0.28*sign(rx));\n"
+     "lit*(0.35+0.5*jit), lit*0.82, lit, body"},
+    {"flash",
+     "ray = pow(abs(cos(a*2)), 70);\n"
+     "diag = pow(abs(cos(a*2 + pi/2)), 110);\n"
+     "lim = 0.025 + 0.9*ray + 0.42*diag;\n"
+     "star = smoothstep(0.015, 0, r - lim);\n"
+     "core = smoothstep(0.13, 0, r);\n"
+     "ring = smoothstep(0.02, 0, abs(r - 0.68));\n"
+     "hot = clamp(star + core, 0, 1);\n"
+     "beat = 0.72 + 0.28*sin(t*3);\n"
+     "g = clamp(hot + ring*0.95, 0, 1) * beat;\n"
+     "1, 0.4 + 0.6*hot, 1, g"},
+    {"cloud",
+     "n1 = noise(x*4 + t*0.06, y*4);\n"
+     "n2 = noise(x*9 - t*0.04, y*9)*0.5;\n"
+     "n3 = noise(x*18, y*18)*0.25;\n"
+     "f = (n1+n2+n3)/1.75;\n"
+     "env = smoothstep(1.05, 0.2, length(cx*0.85, cy*1.7));\n"
+     "puff = smoothstep(0.5, 0.72, f*env*1.7);\n"
+     "lit = 0.78 + 0.22*smoothstep(0.45, 0.85, f);\n"
+     "lit, lit, 1, puff"},
+    {"ghast",
+     "wob = 0.5 + 0.09*sin(a*9 + t*1.2) + 0.06*sin(a*17 - t*0.8);\n"
+     "spike = 0.05*noise(a*3 + t*0.2, 4);\n"
+     "body = smoothstep(0.02, -0.02, r - (wob + spike));\n"
+     "core = smoothstep(0.55, 0, r);\n"
+     "0.55 + 0.25*core, 0.2 + 0.35*core, 0.75, body*(0.5 + 0.5*core)"},
   };
   return kExamples;
 }

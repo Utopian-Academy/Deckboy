@@ -11185,6 +11185,8 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern[:variant]> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
+  {"--code-dump <expression|@file> <out.ppm> [WxH] [seconds]", "render one expression source to a PPM file"},
+  {"--code-check", "assert the expression language against expected values"},
   {"--image-check", "can this machine decode the interface's icons and splash art"},
   {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
   {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
@@ -11215,7 +11217,8 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
-  "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench", "--image-check",
+  "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
+  "--effect-dump", "--effect-bench", "--image-check",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
@@ -11519,6 +11522,21 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       if (parsed >= 0.0) dumpT = parsed;
     }
     return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
+  }
+  if (mode == "--code-check") {
+    // Arithmetic: no window, no GPU, no media. Runs in CI and over ssh.
+    return App::runCodeCheck();
+  }
+  if (mode == "--code-dump") {
+    if (ops.size() < 2) return missing("<expression|@file> <out.ppm> [WxH] [seconds]");
+    int codeW = 1280, codeH = 720;
+    double codeT = 0.0;
+    for (size_t i = 2; i < ops.size(); ++i) {
+      if (parseCliRaster(ops[i], codeW, codeH)) continue;
+      const double parsed = std::atof(ops[i].c_str());
+      if (parsed >= 0.0) codeT = parsed;
+    }
+    return App::runCodeDump(ops[0], ops[1], codeW, codeH, codeT);
   }
   if (mode == "--plugin-chain-check") {
     // Optional plugin name or id. With none it takes the first that loads,

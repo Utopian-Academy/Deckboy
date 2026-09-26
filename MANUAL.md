@@ -832,16 +832,43 @@ expression, evaluated once per pixel and edited while it runs.
 One expression, or three separated by commas for red, green and blue. The
 values available are `x` `y` (0-1 across the frame), `cx` `cy` (-1..1 from the
 centre), `r` (distance from the centre), `a` (angle) and `t` (seconds), with
-`sin cos tan abs floor fract sqrt min max mod pow atan2 step clamp mix` and
-`pi` to build from.
+`sin cos tan abs floor fract sqrt min max mod pow atan2 step clamp mix length
+smoothstep sign exp log atan if noise` and `pi` to build from.
+
+**Name a value and reuse it.** Any line before the last one names something,
+and the lines below it can read that name. A distance used three times is then
+computed once:
+
+    d = length(cx, cy);
+    fall = exp(-d*d*4);
+    fall, fall*0.7, fall*0.35
+
+**A fourth expression is alpha, and that makes the source a *shape*.** With
+three expressions the cue fills the frame, the way it always has. With four,
+the last one says how opaque each pixel is — so the cue draws *over* whatever
+is beneath it. Put one on a layer above a camera and it is an overlay, not a
+background:
+
+    d = length(cx, cy);
+    1, 0.9, 0.3, smoothstep(0.42, 0.38, d)
+
+That is a soft-edged amber disc over the picture, and nothing else.
+
+`noise(x, y)` is a smooth random field, for the shapes algebra cannot reach.
+Stack a few at doubling frequencies and you have cloud:
+
+    f = noise(x*4+t*0.06, y*4) + noise(x*9, y*9)*0.5 + noise(x*18, y*18)*0.25;
+    f/1.75, f/1.75, 1, smoothstep(0.55, 0.75, f/1.75)
 
 The cue inspector's **CODE** section opens the editor. It is syntax coloured —
 functions, values, numbers, brackets, operators and the commas that split the
 channels each have their own colour, and **a name the compiler will refuse is
 red while you type it**. Click into the text to place the cursor; click any
 value or function to insert it (a function arrives with its brackets and the
-cursor already inside). Ten worked examples are one click each, and a friend in
-the corner tells you what the name under your pointer does.
+cursor already inside). Twenty-one worked examples are one click each — the
+last five (**gem**, **gem cluster**, **flash**, **cloud**, **ghast**) are
+shapes with alpha, meant to sit over a picture — and a friend in the corner
+tells you what the name under your pointer does.
 
 **A compile error never blacks the output.** The cue keeps drawing the last
 expression that worked and the error appears in the editor. Someone editing
@@ -858,6 +885,12 @@ fits in a few hundred lines. It is evaluated on the CPU, which is viable for
 the same reason the effect stack is: the frame splits across cores.
 
 `CODE GET | CODE SET <expression> | CODE EDIT` over the wire.
+
+Two command-line tools go with it, neither of which needs a window or a GPU:
+`--code-dump "<expression>" out.ppm [WxH] [seconds]` renders one frame (or
+`@file` to read the expression from a file, which avoids arguing with a shell
+about semicolons), and reports how much of the frame the shape covers.
+`--code-check` asserts the language itself against expected values.
 
 ### Caption formats
 

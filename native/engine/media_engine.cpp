@@ -12510,7 +12510,18 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
           v = v < 0.0 ? 0.0 : (v > 1.0 ? 1.0 : v);
           p[c] = static_cast<std::uint8_t>(v * 255.0 + 0.5);
         }
-        p[3] = 255;
+        // THE FOURTH CHANNEL, which is what lets a source be a shape over a
+        // picture rather than a picture of its own. A source that wrote three
+        // expressions has no alpha program and stays opaque, exactly as it
+        // was before there was a fourth channel to write.
+        if (program.hasAlpha) {
+          double av = deckboy::code::evaluate(program.alpha, vars, stack, &named);
+          if (!(av == av)) av = 0.0;
+          av = av < 0.0 ? 0.0 : (av > 1.0 ? 1.0 : av);
+          p[3] = static_cast<std::uint8_t>(av * 255.0 + 0.5);
+        } else {
+          p[3] = 255;
+        }
       }
     }
     });

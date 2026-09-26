@@ -3192,6 +3192,244 @@
   // Renders one frame of a procedural pattern to a binary PPM for visual
   // inspection outside the app (test-card development, docs screenshots).
   // ---------------------------------------------------------------------------
+  // runCodeCheck -- `--code-check`
+  //
+  // The expression language, asserted against expected values. It is
+  // arithmetic: no window, no GPU, no media, so it runs in CI and over ssh.
+  //
+  // The first case is a regression. compileExpression used to clear the
+  // program it was given, so compile() -- which builds the prelude by calling
+  // it once per statement -- erased every statement but the last, and every
+  // named value except the final one read zero. Six shipped examples drew the
+  // wrong picture and nothing said so, because a wrong picture is still a
+  // picture. A test that reads a NUMBER back is the only kind that catches it.
+  static int runCodeCheck() {
+    std::cout << "Deckboy code-source check\n";
+    int failures = 0;
+    // x, y, cx, cy, r, a, t -- the same order the renderer fills.
+    const double vars[7] = {0.25, 0.75, -0.5, 0.5, 0.7071, 2.3562, 2.0};
+
+    struct Case {
+      const char* what;
+      const char* source;
+      int channel;          // 0..2, or 3 for alpha
+      double expect;
+    };
+    // Tolerance is loose on purpose: these assert that a value ARRIVED, not
+    // that the libm on this machine rounds a sine the same way as the last.
+    const double kTol = 1e-6;
+    const Case kCases[] = {
+      // ── the regression ───────────────────────────────────────────────────
+      {"a named value reads the one above it", "a1 = 0.7;\nb1 = a1;\nb1, 0, 0", 0, 0.7},
+      {"three deep", "p = 0.2;\nq = p + 0.3;\ns = q * 2;\ns, 0, 0", 0, 1.0},
+      {"the last name still works", "k = 0.4;\nk, 0, 0", 0, 0.4},
+      {"a name reads a variable", "h = cx;\nh, 0, 0", 0, -0.5},
+      {"a name is reused, not redeclared", "n = 1;\nn = n + 2;\nn, 0, 0", 0, 3.0},
+      // ── the fourth channel ───────────────────────────────────────────────
+      {"alpha is the fourth expression", "0, 0, 0, 0.25", 3, 0.25},
+      {"alpha sees the named values", "m = 0.6;\n0, 0, 0, m", 3, 0.6},
+      // ── the old shapes of source, unchanged ──────────────────────────────
+      {"one expression is grey (red)",   "0.3", 0, 0.3},
+      {"one expression is grey (blue)",  "0.3", 2, 0.3},
+      {"three expressions still work",   "0.1, 0.2, 0.3", 2, 0.3},
+      // ── arithmetic that the presets lean on ──────────────────────────────
+      {"mix blends a to b",        "mix(0, 10, 0.25), 0, 0", 0, 2.5},
+      {"clamp holds the range",    "clamp(5, 0, 1), 0, 0", 0, 1.0},
+      {"smoothstep at the middle", "smoothstep(0, 1, 0.5), 0, 0", 0, 0.5},
+      {"smoothstep below the low edge", "smoothstep(0, 1, -3), 0, 0", 0, 0.0},
+      {"a reversed smoothstep inverts", "smoothstep(1, 0, 0), 0, 0", 0, 1.0},
+      {"length is a distance",     "length(3, 4), 0, 0", 0, 5.0},
+      {"if picks the branch",      "if(1, 7, 9), 0, 0", 0, 7.0},
+      {"if picks the other one",   "if(0, 7, 9), 0, 0", 0, 9.0},
+      {"unary minus",              "0 - -2, 0, 0", 0, 2.0},
+      {"precedence",               "1 + 2 * 3, 0, 0", 0, 7.0},
+      {"power is right associative", "2 ^ 3 ^ 2, 0, 0", 0, 512.0},
+    };
+
+    std::vector<double> stack;
+    for (const Case& c : kCases) {
+      const deckboy::code::CompiledSource compiled = deckboy::code::compile(c.source);
+      if (!compiled.ok()) {
+        std::cout << "  FAIL " << c.what << ": " << compiled.error << '\n';
+        ++failures;
+        continue;
+      }
+      std::vector<double> named(compiled.names.size(), 0.0);
+      if (!compiled.prelude.empty()) {
+        deckboy::code::evaluate(compiled.prelude, vars, stack, &named);
+      }
+      const deckboy::code::Program& program =
+        c.channel == 3 ? compiled.alpha : compiled.channel[c.channel];
+      if (c.channel == 3 && !compiled.hasAlpha) {
+        std::cout << "  FAIL " << c.what << ": no alpha program was compiled\n";
+        ++failures;
+        continue;
+      }
+      const double got = deckboy::code::evaluate(program, vars, stack, &named);
+      if (std::fabs(got - c.expect) > kTol) {
+        std::cout << "  FAIL " << c.what << ": expected " << c.expect
+                  << " got " << got << '\n';
+        ++failures;
+      }
+    }
+
+    // NOISE. Not a fixed value -- the hash is an implementation detail and
+    // pinning it would make every future improvement a test failure. What it
+    // must do is stay in range, return the same answer for the same input,
+    // and actually vary, because a noise that returns a constant makes a cloud
+    // that is a rectangle and nothing else would notice.
+    {
+      const deckboy::code::CompiledSource n =
+        deckboy::code::compile("noise(x*7, y*7), 0, 0");
+      if (!n.ok()) {
+        std::cout << "  FAIL noise compiles: " << n.error << '\n';
+        ++failures;
+      } else {
+        double lo = 2.0, hi = -1.0, first = 0.0;
+        bool varied = false;
+        std::vector<double> named;
+        for (int i = 0; i < 64; ++i) {
+          const double u = i / 64.0;
+          const double probe[7] = {u, 1.0 - u, 0, 0, 0, 0, 0};
+          const double v = deckboy::code::evaluate(n.channel[0], probe, stack, &named);
+          if (i == 0) first = v;
+          if (std::fabs(v - first) > 1e-9) varied = true;
+          lo = v < lo ? v : lo;
+          hi = v > hi ? v : hi;
+        }
+        if (lo < 0.0 || hi > 1.0) {
+          std::cout << "  FAIL noise stays in 0..1: got " << lo << ".." << hi << '\n';
+          ++failures;
+        }
+        if (!varied) {
+          std::cout << "  FAIL noise varies: every sample was " << first << '\n';
+          ++failures;
+        }
+        const double probe[7] = {0.3, 0.4, 0, 0, 0, 0, 0};
+        const double a = deckboy::code::evaluate(n.channel[0], probe, stack, &named);
+        const double b = deckboy::code::evaluate(n.channel[0], probe, stack, &named);
+        if (a != b) {
+          std::cout << "  FAIL noise repeats: " << a << " then " << b << '\n';
+          ++failures;
+        }
+      }
+    }
+
+    // A BAD SOURCE MUST SAY SO. Reporting an error is half the language: the
+    // editor shows it, and a source that compiled to something wrong instead
+    // would be the fault above all over again.
+    const char* kBad[] = {
+      "nosuchname",              // unknown name
+      "sin()",                   // no argument
+      "sin(1, 2)",               // too many
+      "1, 2",                    // two expressions is not a thing
+      "1, 2, 3, 4, 5",           // nor five
+      "(1 + 2",                  // unbalanced
+      "1e999",                   // out of range
+      "x = ;",                   // nothing to assign
+      "t = 1;\n0, 0, 0",         // t is already part of the language
+      "sin = 1;\n0, 0, 0",       // so is sin
+      "later;\nlater = 1;\n0,0,0",   // forward reference
+    };
+    for (const char* bad : kBad) {
+      if (deckboy::code::compile(bad).ok()) {
+        std::cout << "  FAIL should not compile: " << bad << '\n';
+        ++failures;
+      }
+    }
+
+    // THE SHIPPED PRESETS, every one of them. They are the language's
+    // documentation and its most-used surface; a preset that stops compiling
+    // is a broken button on the editor.
+    for (const auto& example : codeExamples()) {
+      const deckboy::code::CompiledSource compiled =
+        deckboy::code::compile(example.expression);
+      if (!compiled.ok()) {
+        std::cout << "  FAIL preset \"" << example.name << "\": "
+                  << compiled.error << '\n';
+        ++failures;
+      }
+    }
+
+    std::cout << (failures ? "code-check: FAILED " : "code-check: ok, ")
+              << (failures ? std::to_string(failures) + " failures"
+                           : std::string("all cases passed"))
+              << '\n';
+    return failures ? 1 : 0;
+  }
+
+  // runCodeDump -- `--code-dump <expression|@file> <out.ppm> [WxH] [t]`
+  //
+  // The expression source, rendered once with no window and no GPU. The app
+  // keeps the last good picture when an expression will not compile, which is
+  // right for someone typing live and wrong for a check: here a compile error
+  // is an exit code and the message is printed, so a preset that has rotted
+  // fails the sweep instead of quietly writing the frame before it.
+  //
+  // `@path` reads the expression from a file. Presets carry semicolons,
+  // commas and newlines, and no quoting convention survives being passed
+  // through a shell on three platforms.
+  static int runCodeDump(const std::string& expressionOrFile,
+                         const std::string& outPath, int w, int h, double t) {
+    std::string expression = expressionOrFile;
+    if (!expression.empty() && expression[0] == '@') {
+      std::ifstream in(expression.substr(1), std::ios::binary);
+      if (!in) {
+        std::cout << "code-dump: cannot read " << expression.substr(1) << '\n';
+        return 1;
+      }
+      std::ostringstream buffer;
+      buffer << in.rdbuf();
+      expression = buffer.str();
+    }
+    // Compiled here as well as in the renderer, only so the error can be
+    // reported. The renderer's own cache does the compile that counts.
+    const deckboy::code::CompiledSource compiled = deckboy::code::compile(expression);
+    if (!compiled.ok()) {
+      std::cout << "code-dump: " << compiled.error << '\n';
+      return 1;
+    }
+    Cue cue;
+    cue.kind = CueKind::Pattern;
+    cue.name = "code-dump";
+    cue.path = "code";
+    cue.codeExpression = expression;
+    cue.width = w;
+    cue.height = h;
+    auto frame = MediaEngine::buildPatternFrame(cue, t, w, h);
+    if (!frame || frame->pixels.empty()) {
+      std::cout << "code-dump: build failed\n";
+      return 1;
+    }
+    std::ofstream out(outPath, std::ios::binary | std::ios::trunc);
+    if (!out) {
+      std::cout << "code-dump: cannot write " << outPath << '\n';
+      return 1;
+    }
+    // Over black, for the same reason --pattern-dump does it: PPM has no
+    // alpha, and a shape written straight would draw its glow at full
+    // strength where the output fades it away.
+    out << "P6\n" << frame->width << ' ' << frame->height << "\n255\n";
+    std::size_t opaque = 0, clear = 0;
+    for (std::size_t i = 0; i + 3 < frame->pixels.size(); i += 4) {
+      const unsigned alpha = frame->pixels[i + 3];
+      if (alpha == 255) ++opaque; else if (alpha == 0) ++clear;
+      for (int c = 0; c < 3; ++c) {
+        out.put(static_cast<char>(frame->pixels[i + c] * alpha / 255u));
+      }
+    }
+    // The coverage numbers are the point of the tool for a SHAPE. A preset
+    // that is meant to sit over a picture and comes back 100% opaque has
+    // silently become a background, and the picture alone does not say so --
+    // it looks fine over the black the dump writes.
+    const std::size_t total = static_cast<std::size_t>(frame->width) * frame->height;
+    std::cout << "code-dump: wrote " << outPath << " ("
+              << frame->width << "x" << frame->height << ") opaque "
+              << (total ? opaque * 100 / total : 0) << "% clear "
+              << (total ? clear * 100 / total : 0) << "%\n";
+    return 0;
+  }
+
   static int runPatternDump(const std::string& patternId, const std::string& outPath,
                             int w, int h, double t) {
     Cue cue;

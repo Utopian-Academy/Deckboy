@@ -1,5 +1,41 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.380 (Shapes: a source that draws *over* the picture)
+
+**The code source can now draw a shape with a hole in it.** A fourth
+expression, after red, green and blue, is **alpha** -- so an expression cue
+stops being a full-frame background and becomes something that sits *over*
+whatever is beneath it. Put one on a layer above a camera and it is an
+overlay:
+
+    d = length(cx, cy);
+    1, 0.9, 0.3, smoothstep(0.42, 0.38, d)
+
+Three expressions still mean exactly what they always did, so every show that
+already has a code cue opens unchanged.
+
+**Five shapes to start from**, one click each in the code editor: **gem**,
+**gem cluster**, **flash** (an eight-point sparkle with a ring), **cloud** and
+**ghast**. They are ordinary expressions -- open one, read it, change it.
+
+**`noise(x, y)`**, a smooth random field, for the shapes arithmetic cannot
+reach. Three of them at doubling frequencies is a cloud.
+
+**Two fixes to the expression language, both of which changed pictures:**
+
+- **A named value can read the one above it.** It could not, and only the
+  last name in a source was ever computed -- every earlier one quietly read
+  zero. Six of the worked examples drew the wrong picture for it, including
+  *spotlight*, *rings* and *orbit*. A source with a single name was always
+  fine, which is why this was not obvious.
+- **A function call with the wrong number of values is now refused.**
+  `sin()` and `sin(1, 2)` used to compile and read whatever was left over.
+
+**Two new command-line tools**, neither needing a window or a GPU:
+`--code-dump` renders one expression to a picture and reports how much of the
+frame it covers, and `--code-check` asserts the language against expected
+values.
+
 ## 2026-09-25 - v0.99.379 (Companion module 1.0.2, and the animals stay off the picture)
 
 **Companion module 1.0.2**, with the changes asked for in review:
