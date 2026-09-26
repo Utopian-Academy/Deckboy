@@ -184,6 +184,30 @@ New cues inherit the deck's playlist defaults (fade lengths, loop, pause
 behaviour, audio-enabled). Reorder by dragging; multi-select with Shift/Ctrl;
 copy/paste cue settings with `Ctrl+C` / `Ctrl+V`.
 
+### A playlist that fills itself
+
+**Settings → System → WATCH FOLDER** points the focused playlist at a folder.
+Anything playable dropped in there becomes a cue, by itself, while the show is
+running — which is what you want when somebody keeps putting new VTs on the
+NAS during rehearsal.
+
+Each playlist can watch its own folder, so the VT drop and the stings can be
+different places. The card names the playlist it is about; switch playlists
+with the tabs and set another.
+
+Three things it deliberately does:
+
+- **It waits for the copy to finish.** A large file appears in the folder the
+  moment the copy starts, and a cue built from a half-written file fails on
+  air. Nothing is taken until its size has stopped changing, which costs a
+  couple of seconds and removes the whole problem.
+- **It never takes the same file twice**, including across reopening the show.
+- **Deleting a cue is final.** Removing something from the playlist does not
+  bring it back on the next scan; you deleting it was a decision.
+
+Over the wire: `WATCH` to see what is being watched and whether the scan is
+running, `WATCH <deck> <folder>` to set one, `WATCH <deck> OFF` to stop.
+
 ---
 
 ## 6a. Slide Decks, Presenter View & Prompter
@@ -999,6 +1023,7 @@ its own delay time.
 |--------|--------------|
 | High pass, Low pass | Corner-frequency filters |
 | Tilt EQ | One control from dark to bright, pivoting in the middle |
+| EQ band | One parametric band: frequency, gain, width, and a shape that makes it a bell or either shelf. It arrives **flat**, the way a band on any desk does, so adding one changes nothing until you move the gain. Stack three or four for a full strip — the order is the order you drag them into |
 | Compressor | Threshold, ratio, attack, release. The backward-compatible ratio is 1:1 — a compressor that does not compress — so a cue saved before the control existed still sounds the way it did |
 | Gate | Shuts the tail off below a threshold |
 | Delay | A send, with time and feedback |

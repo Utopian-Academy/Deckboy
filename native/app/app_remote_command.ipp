@@ -3858,6 +3858,70 @@
         "GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>");
       return;
     }
+    if (command == "WATCH") {
+      // WATCH                  -- report every playlist that is watching
+      // WATCH <deck> <path>    -- point that playlist at a folder
+      // WATCH <deck> OFF       -- stop
+      if (parts.size() < 2) {
+        std::string report;
+        for (std::size_t i = 0; i < project_.decks.size(); ++i) {
+          if (project_.decks[i].watchFolder.empty()) continue;
+          if (!report.empty()) report += "; ";
+          report += std::to_string(i + 1) + " " + project_.decks[i].watchFolder;
+        }
+        // The counters matter as much as the paths: a folder nobody is
+        // scanning and a folder being scanned that is empty look identical
+        // from the playlist, and only one of them is a fault.
+        report += (report.empty() ? std::string() : std::string("; ")) +
+                  "scans=" + std::to_string(watchFolderScanCount_) +
+                  " seen=" + std::to_string(watchFolderLastSeen_) +
+                  " taken=" + std::to_string(watchFolderTakenTotal_);
+        remoteCommandDetail_ = report;
+        triggerToast(report);
+        return;
+      }
+      const int deckNumber = std::atoi(parts[1].c_str());
+      if (deckNumber < 1 || deckNumber > static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("WATCH: there is no playlist " + parts[1]);
+        return;
+      }
+      Deck& deck = project_.decks[static_cast<std::size_t>(deckNumber - 1)];
+      if (parts.size() < 3) {
+        remoteCommandDetail_ =
+          deck.watchFolder.empty() ? "off" : deck.watchFolder;
+        triggerToast(deck.watchFolder.empty() ? "not watching" : deck.watchFolder);
+        return;
+      }
+      const std::string rest = joinParts(parts, 2);
+      if (toUpper(rest) == "OFF") {
+        deck.watchFolder.clear();
+        markProjectDirty();
+        triggerToast(deck.name + ": no longer watching a folder");
+        return;
+      }
+      std::error_code ec;
+      fs::path folder = fs::absolute(trim(rest), ec);
+      // REFUSED, not stored. A watch folder pointed at nothing looks exactly
+      // like a watch folder that does not work, and the difference only shows
+      // up as files failing to arrive.
+      if (ec || !fs::is_directory(folder, ec)) {
+        failRemoteCommand("WATCH: not a folder: " + rest);
+        return;
+      }
+      deck.watchFolder = folder.string();
+      // Forget what this deck has already taken, so pointing it at a new
+      // folder takes that folder's contents rather than skipping whatever
+      // happens to share a name with something imported earlier.
+      if (watchFolderSeen_.size() > static_cast<std::size_t>(deckNumber - 1)) {
+        watchFolderSeen_[static_cast<std::size_t>(deckNumber - 1)].clear();
+      }
+      if (watchFolderSeeded_.size() > static_cast<std::size_t>(deckNumber - 1)) {
+        watchFolderSeeded_[static_cast<std::size_t>(deckNumber - 1)] = false;
+      }
+      markProjectDirty();
+      triggerToast(deck.name + " is watching " + folder.filename().string());
+      return;
+    }
     if (command == "CODE") {
       // The code source, over the wire.
       //

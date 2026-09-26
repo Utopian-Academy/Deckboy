@@ -469,7 +469,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (321)\n"
+        "DECKBOY_0.01 every verb (322)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -513,7 +513,7 @@
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
         "TRACKER SEQUENCE GEOLFO\n"
-        "UPDATE VIDEO VIEW VJ VOLUME WARP WIDTH WINDOWSOURCE XFADE\n"
+        "UPDATE VIDEO VIEW VJ VOLUME WARP WATCH WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
       return true;
@@ -607,6 +607,8 @@
         "         FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [v]\n"
         "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
+        "watch: WATCH | WATCH <deck> <folder> | WATCH <deck> OFF\n"
+        "       (media dropped in the folder joins that playlist by itself)\n"
         "text mode: ASCII ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET\n"
         "           ASCII FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1>\n"
         "           ASCII WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH | PHRASES | HOLD\n"

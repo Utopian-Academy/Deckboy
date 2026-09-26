@@ -1576,6 +1576,11 @@ inline bool cueHasGeometryLfo(const Cue& cue) {
 // ---------------------------------------------------------------------------
 struct Deck {
   std::string name = "Deck 1";            // operator-facing deck label
+  // WATCH FOLDER. Empty is off, which is what every show that predates this
+  // loads as. New media appearing here is imported into this playlist by
+  // itself -- see serviceWatchFolders() in app_cue_mgmt.ipp for why the scan
+  // runs on a worker and why a file has to hold still before it is taken.
+  std::string watchFolder;
   std::vector<Cue> cues;                  // ordered cue list for this deck
   int selectedIndex = -1;                 // UI cursor position (-1 = nothing selected)
   int activeIndex = -1;                   // currently playing/on-air cue (-1 = none)

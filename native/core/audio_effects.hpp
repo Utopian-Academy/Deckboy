@@ -141,6 +141,13 @@ enum class AudioEffectKind : int {
   // library plugs into, and it is the only kind whose behaviour this file
   // cannot describe. See AudioEffectHost below.
   Plugin,
+  // ── Added 2026-09-26 ──
+  // A parametric band: frequency, gain, width, and a shape that makes it a
+  // bell or either shelf. The chain had a high pass, a low pass and a tilt --
+  // three ways to take something away -- and no way to lift one range and
+  // leave the rest. Stack three or four for a full strip; the order is the
+  // order they are dragged into.
+  Eq,
   // The end marker, so the inspector's picker is built FROM this list rather
   // than from a second copy of it that can fall behind -- which is exactly how
   // four cue kinds ended up missing from cueKindToken.
@@ -149,6 +156,7 @@ enum class AudioEffectKind : int {
 
 inline const char* audioEffectLabel(AudioEffectKind kind) {
   switch (kind) {
+    case AudioEffectKind::Eq:          return "eq band";
     case AudioEffectKind::HighPass:   return "High pass";
     case AudioEffectKind::LowPass:    return "Low pass";
     case AudioEffectKind::Tilt:       return "Tilt EQ";
@@ -182,6 +190,7 @@ inline const char* audioEffectLabel(AudioEffectKind kind) {
 // turn an effect in an existing show into a different effect, or into nothing.
 inline const char* audioEffectToken(AudioEffectKind kind) {
   switch (kind) {
+    case AudioEffectKind::Eq:          return "eq";
     case AudioEffectKind::HighPass:   return "hpf";
     case AudioEffectKind::LowPass:    return "lpf";
     case AudioEffectKind::Tilt:       return "tilt";
@@ -243,6 +252,9 @@ inline AudioEffectKind audioEffectKindFromToken(const std::string& token) {
 // never shows a control it ignores.
 inline const char* audioEffectParamLabel(AudioEffectKind kind, int slot) {
   switch (kind) {
+    case AudioEffectKind::Eq:
+      return slot == 0 ? "frequency" : slot == 1 ? "gain"
+           : slot == 2 ? "width" : slot == 3 ? "shape" : nullptr;
     case AudioEffectKind::HighPass:
     case AudioEffectKind::LowPass:
       return slot == 0 ? "frequency" : (slot == 1 ? "resonance" : nullptr);
@@ -343,6 +355,18 @@ inline const char* audioEffectParamLabel(AudioEffectKind kind, int slot) {
 // a control nobody can use during a show.
 inline const char* audioEffectParamTip(AudioEffectKind kind, int slot) {
   switch (kind) {
+    case AudioEffectKind::Eq:
+      return slot == 0
+        ? "Where the band sits, 30Hz to 16kHz across the travel."
+        : slot == 1
+        ? "Lift or cut, 12dB either way. The centre is flat, so a band that "
+          "has just been added does nothing until this is moved."
+        : slot == 2
+        ? "How much either side comes with it. Narrow is a notch for one "
+          "ringing frequency; wide is a tone control."
+        : "Bell, low shelf or high shelf. A bell lifts a range and leaves the "
+          "rest; a shelf lifts everything below or above the frequency, which "
+          "is what a high pass and a low pass cannot do.";
     case AudioEffectKind::HighPass:
       return slot == 0 ? "Where the cut starts, 20Hz to 2kHz. Low takes out "
                          "rumble and handling noise; high thins a voice on "
@@ -600,6 +624,20 @@ struct AudioEffectHost {
 // handed a control that does nothing. So an effect ARRIVES set to something
 // worth hearing, and a saved show still loads exactly as it was written.
 inline AudioEffect audioEffectDefaults(AudioEffectKind kind) {
+  // FLAT ON ARRIVAL. Gain at the centre of its travel is 0dB, so a band
+  // dropped into a chain mid-show changes nothing until it is dialled. The
+  // struct default would put gain at 0, which maps to a 12dB CUT -- a new
+  // effect that silently guts a range is the worst possible welcome.
+  if (kind == AudioEffectKind::Eq) {
+    AudioEffect eq;
+    eq.kind = kind;
+    eq.amount = 1.0f;    // fully in circuit; the gain is what does nothing yet
+    eq.paramA = 0.5f;    // ~700Hz, the middle of the log sweep
+    eq.paramB = 0.5f;    // 0 dB
+    eq.paramC = 0.35f;   // a musical bell, not a notch
+    eq.paramD = 0.0f;    // bell
+    return eq;
+  }
   AudioEffect fx;
   fx.kind = kind;
   switch (kind) {
@@ -918,6 +956,40 @@ inline Biquad makeLowShelf(double freq, double gainDb) {
   return f;
 }
 
+inline Biquad makeHighShelf(double freq, double gainDb) {
+  const double A = std::pow(10.0, gainDb / 40.0);
+  const double w = 2.0 * 3.14159265358979323846 * freq / kSampleRate;
+  const double cosw = std::cos(w), sinw = std::sin(w);
+  const double alpha = sinw / 2.0 * std::sqrt((A + 1.0 / A) * (1.0 / 0.9 - 1.0) + 2.0);
+  const double twoSqrtAalpha = 2.0 * std::sqrt(A) * alpha;
+  const double a0 = (A + 1.0) - (A - 1.0) * cosw + twoSqrtAalpha;
+  Biquad f;
+  f.b0 = (A * ((A + 1.0) + (A - 1.0) * cosw + twoSqrtAalpha)) / a0;
+  f.b1 = (-2.0 * A * ((A - 1.0) + (A + 1.0) * cosw)) / a0;
+  f.b2 = (A * ((A + 1.0) + (A - 1.0) * cosw - twoSqrtAalpha)) / a0;
+  f.a1 = (2.0 * ((A - 1.0) - (A + 1.0) * cosw)) / a0;
+  f.a2 = ((A + 1.0) - (A - 1.0) * cosw - twoSqrtAalpha) / a0;
+  return f;
+}
+
+// A bell. Unlike the shelves, gain of exactly 0dB here produces the identity
+// filter rather than something very close to it, which matters because a band
+// arrives flat and must be audibly absent until it is moved.
+inline Biquad makePeaking(double freq, double gainDb, double q) {
+  const double A = std::pow(10.0, gainDb / 40.0);
+  const double w = 2.0 * 3.14159265358979323846 * freq / kSampleRate;
+  const double cosw = std::cos(w), sinw = std::sin(w);
+  const double alpha = sinw / (2.0 * std::max(0.1, q));
+  const double a0 = 1.0 + alpha / A;
+  Biquad f;
+  f.b0 = (1.0 + alpha * A) / a0;
+  f.b1 = (-2.0 * cosw) / a0;
+  f.b2 = (1.0 - alpha * A) / a0;
+  f.a1 = f.b1;
+  f.a2 = (1.0 - alpha / A) / a0;
+  return f;
+}
+
 inline double dbToGain(double db) { return std::pow(10.0, db / 20.0); }
 
 // One-pole smoothing coefficient for a time constant in milliseconds.
@@ -1179,6 +1251,29 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         // just where in the order it happens.
         if (ctx.host) {
           ctx.host->processPluginSlot(index, fx, samples.data(), frames);
+        }
+        break;
+      }
+      case AudioEffectKind::Eq: {
+        // One band. Coefficients are computed once per buffer, not per
+        // sample: the operator's knob does not move within a buffer, and a
+        // biquad design per sample would be honest and far too slow for the
+        // audio thread -- the same call the high pass above already makes.
+        const double freq = detail::logFrequency(fx.paramA, 30.0, 16000.0);
+        const double gainDb = (detail::clamp01(fx.paramB) - 0.5) * 24.0;
+        // Wide to narrow. 0.4 is a broad tone control, 8 is a notch tight
+        // enough to pull one ringing frequency out of a room.
+        const double q = 0.4 + detail::clamp01(fx.paramC) * 7.6;
+        const double shape = detail::clamp01(fx.paramD);
+        const detail::Biquad f =
+          shape < 0.34 ? detail::makePeaking(freq, gainDb, q)
+        : shape < 0.67 ? detail::makeLowShelf(freq, gainDb)
+                       : detail::makeHighShelf(freq, gainDb);
+        for (std::size_t i = 0; i < frames; ++i) {
+          for (int c = 0; c < 2; ++c) {
+            double& s = samples[i * 2 + c];
+            s = dry * s + wet * f.run(slot, c, s);
+          }
         }
         break;
       }

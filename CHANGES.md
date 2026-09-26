@@ -1,5 +1,31 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.382 (A playlist that fills itself, and an EQ band)
+
+**Watch folders.** Point a playlist at a folder in **Settings → System →
+WATCH FOLDER** and anything playable dropped in there becomes a cue by itself,
+while the show runs. Each playlist can watch its own folder.
+
+It waits for a copy to finish before taking a file — a large VT shows up in
+the folder the instant the copy starts, and a cue made from a half-written
+file fails on air. It never takes the same file twice, and deleting a cue is
+final rather than something the next scan undoes.
+
+The scan runs off the main thread, so a network share having a bad day cannot
+stall the interface, the transport or the output.
+
+Over the wire: `WATCH`, `WATCH <deck> <folder>`, `WATCH <deck> OFF`. `WATCH`
+on its own also reports whether the scan is running, which is how you tell a
+folder nobody is looking at from a folder that is simply empty.
+
+**An EQ band, per cue.** The audio chain had a high pass, a low pass and a
+tilt -- three ways to take something away -- and no way to lift one range.
+Frequency, gain, width, and a shape that makes it a bell or either shelf.
+
+It arrives **flat**, the way a new band does on every desk, so dropping one
+into a chain mid-show changes nothing until the gain is moved. Stack three or
+four for a full parametric strip; the order is the order you drag them into.
+
 ## 2026-09-26 - v0.99.381 (Feedback Bloom)
 
 **Feedback Bloom**, a second video-feedback effect. The first one moves the

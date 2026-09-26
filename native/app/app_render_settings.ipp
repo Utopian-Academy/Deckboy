@@ -697,6 +697,9 @@
       // display routing. It is mirrored here rather than moved, so the control
       // sits beside the RECORD button's own tab AND where people look first.
       int recordH = stackH({sLineH, sRowH});
+      // A line for the folder in use and a row for the two buttons -- the same
+      // shape as RECORDING, because it is the same kind of setting.
+      int watchH = stackH({sLineH, sRowH});
 
       // At large UI scales the cards are genuinely taller than the window can
       // show, so the tab scrolls rather than silently cropping the bottom card.
@@ -769,9 +772,11 @@
       rightY += prefsRect.h + kCardGap;
       SDL_Rect updateRect {rightCol.x, rightY, rightCol.w, updateH};
       rightY += updateRect.h + kCardGap;
-      SDL_Rect recordRect {rightCol.x, rightY, rightCol.w,
-                           systemScrolls ? recordH
-                                         : std::max(recordH, rightCol.y + rightCol.h - rightY)};
+      SDL_Rect recordRect {rightCol.x, rightY, rightCol.w, recordH};
+      rightY += recordRect.h + kCardGap;
+      SDL_Rect watchRect {rightCol.x, rightY, rightCol.w,
+                          systemScrolls ? watchH
+                                        : std::max(watchH, rightCol.y + rightCol.h - rightY)};
 
       drawCard(appearanceRect, "APPEARANCE", "Theme and operator feedback");
       std::string themeName = currentThemeName_.empty() ? "gameboy" : currentThemeName_;
@@ -1146,6 +1151,44 @@
       drawCenteredTextSafe(controlRenderer_, fontSmall_, recClear, "DEFAULT",
                            settingsStateInk(false));
       settingsBtns_.push_back({recClear, kSettingsActionRecordDirClear, "record_dir_clear"});
+
+      // WATCH FOLDER. Media dropped into the folder joins the focused playlist
+      // by itself. Under RECORDING because both are "a folder on disk this
+      // show reads from or writes to", and an operator looking for one is
+      // looking where the other is.
+      //
+      // It names the playlist it is about. The card acts on whichever playlist
+      // has focus, and a card that silently meant "some playlist" would be the
+      // control that edits the wrong thing.
+      const Deck& watchDeck = focusedDeck();
+      drawCard(watchRect, "WATCH FOLDER",
+               "New media joins " + watchDeck.name + " by itself");
+      const int watX = cardBodyX(watchRect);
+      const int watW = cardBodyW(watchRect);
+      int watY = cardBodyY(watchRect);
+      const std::string watchLabel =
+        watchDeck.watchFolder.empty()
+          ? std::string("Not watching a folder")
+          : fs::path(watchDeck.watchFolder).filename().string();
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{watX, watY, watW, sLineH},
+                   ellipsizeToPixelWidth(fontSmall_, watchLabel, watW),
+                   pal.inkSoft);
+      watY += sLineH + sGap;
+      const SDL_Rect watRow = settingsRow(watX, watW, watY, sRowH, "Folder", sGap);
+      const int watHalf = (watRow.w - sGap) / 2;
+      SDL_Rect watPick {watRow.x, watRow.y, watHalf, sRowH};
+      SDL_Rect watClear {watRow.x + watHalf + sGap, watRow.y,
+                         watRow.w - watHalf - sGap, sRowH};
+      const bool watching = !watchDeck.watchFolder.empty();
+      drawSettingsStateFill(watPick, watching);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, watPick, "FOLDER...",
+                           settingsStateInk(watching));
+      settingsBtns_.push_back({watPick, kSettingsActionWatchFolderPick, "watch_dir_pick"});
+      drawSettingsStateFill(watClear, false);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, watClear, "OFF",
+                           settingsStateInk(false));
+      settingsBtns_.push_back({watClear, kSettingsActionWatchFolderClear, "watch_dir_clear"});
 
       SDL_SetRenderClipRect(controlRenderer_, hadSettingsClip ? &previousSettingsClip : nullptr);
       // Scrolled-away controls are painted outside the viewport by the clip, so
@@ -3766,6 +3809,18 @@
         continue;
       }
       if (sb.action == kSettingsActionRecordDirPick)  { pickRecordingDir(); continue; }
+      if (sb.action == kSettingsActionWatchFolderPick) { pickWatchFolder(); continue; }
+      if (sb.action == kSettingsActionWatchFolderClear) {
+        Deck& deck = focusedDeckMutable();
+        if (deck.watchFolder.empty()) {
+          triggerToast(deck.name + " was not watching a folder");
+        } else {
+          deck.watchFolder.clear();
+          markProjectDirty();
+          triggerToast(deck.name + ": no longer watching a folder");
+        }
+        continue;
+      }
       if (sb.action == kSettingsActionRecordDirClear) {
         project_.recordingDir.clear();
         markProjectDirty();

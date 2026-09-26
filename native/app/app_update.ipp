@@ -284,6 +284,9 @@
     // TCP network cues answer from their own thread; this is where their
     // answers become toasts.
     drainNetworkResults();
+    // A watched folder's scan runs on a worker; this is where its findings
+    // become cues. Beside the network results for exactly that reason.
+    serviceWatchFolders();
     // DMX fades, and the continuous Art-Net refresh a rig expects.
     serviceDmx();
     // The notes in a MIDI file cue, sent from the cue's own transport

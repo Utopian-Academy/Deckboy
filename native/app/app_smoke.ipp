@@ -3783,7 +3783,46 @@
       // during a show actually gets. Testing the struct's neutral defaults
       // instead would report a flat tilt and a 1:1 compressor as broken, which
       // is true of those numbers and false of the feature.
-      const afx::AudioEffect fx = afx::audioEffectDefaults(kind);
+      afx::AudioEffect fx = afx::audioEffectDefaults(kind);
+
+      // AN EQ BAND ARRIVES FLAT, and that is correct: every desk hands you a
+      // new band doing nothing, and one that arrived boosting would damage
+      // the first cue it was dropped onto. Measuring it where it arrives
+      // would therefore report a working band as dead.
+      //
+      // So it is probed with the gain dialled up instead of being exempted.
+      // The check still demands an audible change -- it just asks the
+      // question at a setting where the answer is supposed to be yes. The
+      // flat arrival is asserted separately, immediately below, so both
+      // halves are actually tested rather than one being assumed.
+      if (kind == afx::AudioEffectKind::Eq) {
+        {
+          // Flat on arrival, proven rather than trusted.
+          afx::AudioEffect flat = afx::audioEffectDefaults(kind);
+          afx::AudioEffectState flatState;
+          std::vector<double> probe(2048 * 2, 0.0);
+          for (std::size_t i = 0; i < probe.size() / 2; ++i) {
+            const double v = std::sin(static_cast<double>(i) * 0.05) * 8000.0;
+            probe[i * 2] = v;
+            probe[i * 2 + 1] = v;
+          }
+          const std::vector<double> before = probe;
+          afx::applyAudioEffectStack(probe, {flat}, flatState, {});
+          double worst = 0.0;
+          for (std::size_t i = 0; i < probe.size(); ++i) {
+            worst = std::max(worst, std::fabs(probe[i] - before[i]));
+          }
+          // A biquad at unity is not bit-exact -- it is a ratio of computed
+          // coefficients -- so the tolerance is "inaudible", not "identical".
+          if (worst > 1.0) {
+            std::cout << "  eq          FAIL not flat on arrival: moved a "
+                      << "sample by " << worst << "\n";
+            ++failures;
+          }
+        }
+        fx.paramB = 0.92f;   // a firm lift, so the measurement has something to see
+      }
+
       afx::AudioEffectState state;
 
       // A CUE FOR THE FIVE THAT NEED ONE.

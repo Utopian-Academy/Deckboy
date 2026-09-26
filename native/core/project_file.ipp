@@ -570,6 +570,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       // separated, because a device name may contain a comma.
       << '	' << escapeField(joinStringList(deck.extraAudioDeviceNames, ';'))
       << '	' << (deck.audioToProgram ? 1 : 0)
+      << '	' << escapeField(deck.watchFolder)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1749,6 +1750,11 @@ Project loadProject(const fs::path& projectFile,
       // came back silent would be a show that had lost its sound.
       if (fields.size() >= 59 + warpFieldOffset) {
         deck.audioToProgram = safeBool(fields, 58 + warpFieldOffset, true);
+      }
+      // Appended after audioToProgram. Empty is off, so a show written before
+      // watch folders existed opens watching nothing.
+      if (fields.size() >= 60 + warpFieldOffset) {
+        deck.watchFolder = safeString(fields, 59 + warpFieldOffset);
       }
     } else if (fields[0] == "cue") {
       int deckIndex = 0;

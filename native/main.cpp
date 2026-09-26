@@ -8716,6 +8716,13 @@ class App {
   // double-allocation that once silently killed whichever handler ran second.
   // audit_actions.py caught it. GREP THE VALUE before allocating another.
   static constexpr int kSettingsActionVjModeToggle = 722;
+  // Watch folders, from the 691-701 gap. NOT 723: that is the update-check
+  // pair, and CLAUDE.md said to allocate from 723+, which is how this got
+  // double-allocated on the first attempt. audit_actions caught it -- which is
+  // the whole reason that check exists, after ids 634-637 silently killed a
+  // settings tab in v0.76.24.
+  static constexpr int kSettingsActionWatchFolderPick = 691;
+  static constexpr int kSettingsActionWatchFolderClear = 692;
   // 723-725: the update checker. Next free id is 726.
   static constexpr int kSettingsActionMonitorDevice = 794;
   static constexpr int kSettingsActionMonitorDeck = 795;
