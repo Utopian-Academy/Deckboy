@@ -1,5 +1,29 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.391 (The desk is no longer 48k only)
+
+**Settings → Audio → Sample rate**: 44100, 48000, 88200, 96000 or 192000 Hz.
+
+48000 is still the default and still usually right -- every film and
+broadcast file carries 48k, so it is the rate that costs no conversion on the
+common path. The rest are for a desk wired into a music rig that runs
+somewhere else, where converting twice to meet it is worse than running there.
+
+Everything follows it, not just the device: the decoder's resampler, **every
+filter corner, time constant and delay length in the cue audio chain**, and
+the video clock, which counts frames of audio the device has played. Forty
+three things in the effects read a fixed 48000 before this -- at 96k a 1kHz
+filter would have sat at 500Hz and a 200ms delay would have run 100ms.
+
+Proven by running the whole `--audio-fx-check` battery at 44.1k, 48k and 96k
+and checking the measurements do not move: an effect that is genuinely
+rate-aware sounds the same at any rate.
+
+It cannot be changed while a cue is playing -- reopening the devices is a gap
+in the sound. Source files at any rate still play at any setting.
+
+Over the wire: `SAMPLERATE`, `SAMPLERATE <hz>`.
+
 ## 2026-09-26 - v0.99.390 (Browse for media without leaving the window)
 
 **SOURCE → Browse media...** lists the current folder in the window --

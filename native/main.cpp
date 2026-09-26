@@ -8739,6 +8739,8 @@ class App {
   // Key + fill on SDI. Same 691-701 gap; audit_actions.py is the check.
   static constexpr int kSettingsActionDeckLinkKeyFillToggle = 696;
   static constexpr int kSettingsActionDeckLinkKeyDeviceDropdown = 697;
+  // The desk's sample rate. Same 691-701 gap; audit_actions.py is the check.
+  static constexpr int kSettingsActionAudioSampleRateDropdown = 698;
   // 723-725: the update checker. Next free id is 726.
   static constexpr int kSettingsActionMonitorDevice = 794;
   static constexpr int kSettingsActionMonitorDeck = 795;
@@ -11588,7 +11590,19 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
   if (mode == "--audio-fx-check") {
     // Optional token: one effect, for when a change is being made to it.
-    return App::runAudioFxCheck(ops.empty() ? std::string() : ops[0]);
+    // Optional rate: run the whole battery at something other than 48k, which
+    // is how the rate-aware effect chain is proven.
+    std::string fxOnly;
+    int fxRate = 48000;
+    for (const std::string& op : ops) {
+      const int asRate = std::atoi(op.c_str());
+      if (asRate >= 8000) {
+        fxRate = asRate;
+      } else if (fxOnly.empty()) {
+        fxOnly = op;
+      }
+    }
+    return App::runAudioFxCheck(fxOnly, fxRate);
   }
   if (mode == "--image-check") {
     // The other half of the chrome. Needs no window and no GPU, for the same

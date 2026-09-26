@@ -483,6 +483,9 @@ class MediaEngine {
   TransportState state() const { return state_; }
   double duration() const { return duration_; }
   double position() const;
+  // The sample rate this deck's audio runs at. Set before the device opens.
+  void setAudioRate(int rate) { audioRate_ = rate > 0 ? rate : 48000; }
+  int audioRate() const { return audioRate_; }
   // The playhead discontinuity counters. See the members for what they mean.
   std::uint64_t avJumpCount() const { return avJumpCount_; }
   double avJumpWorstSeconds() const { return avJumpWorstSeconds_; }
@@ -848,6 +851,16 @@ class MediaEngine {
   static constexpr int kAudioPrimeDeadlineMs = 400;
   // Roughly 20ms at 48k stereo: enough that the device has a run-up, small
   // enough that a warm file clears it on the first read.
+  // THE RATE THIS ENGINE RUNS AT. Set from the project when the deck's
+  // device is opened; 48000 until then, which is what it always was. Every
+  // sum below that turns frames into seconds reads it, so a stale value here
+  // is not a glitch -- it is the video clock running at the wrong speed.
+  int audioRate_ = 48000;
+
+  // Twenty milliseconds of audio before the device is released, at whatever
+  // rate is running. It was 960 frames, which is 20ms only at 48k -- at 96k
+  // it would have been ten.
+  int audioPrimeFrames() const { return audioRate_ / 50; }
   static constexpr int kAudioPrimeFrames = 960;
 
   bool audioPrimePending_ = false;

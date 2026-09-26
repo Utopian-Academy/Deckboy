@@ -1138,7 +1138,30 @@ its own delay time.
 | Width | Narrows or widens the stereo image |
 | Binaural | Places the source around the listener's head |
 
-#### Your own plugins
+#### Sample rate
+
+**Settings → Audio → Sample rate** picks what the whole desk runs at:
+**44100, 48000, 88200, 96000 or 192000 Hz**.
+
+**48000 is the default and usually the right answer** — every film and
+broadcast file carries 48k audio, so it is the one rate that costs no
+conversion on the common path. The others are there for a desk wired into a
+music rig that runs at something else, where converting twice to meet it is
+worse than simply running there.
+
+Everything follows the setting: the output device, the decoder's resampler,
+every filter corner and delay length in the cue audio chain, and the video
+clock (which counts frames of audio the device has played).
+
+**It cannot be changed while a cue is playing.** Changing it reopens every
+deck's device, and that is a gap in the sound.
+
+Source files at any rate still play at any setting — they are resampled on
+decode, as they always were.
+
+Over the wire: `SAMPLERATE`, `SAMPLERATE <hz>`.
+
+### Your own plugins
 
 Deckboy hosts **VST3** effects and instruments, so a reverb you already own or
 the channel strip your mix is built around can sit in the same chain as

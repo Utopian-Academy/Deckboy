@@ -980,7 +980,8 @@ struct AudioPipeline::Impl {
     // aformat pins the sink output to the exact stream format the engine
     // expects, so no sink option plumbing is needed.
     std::string chain = buildAtempoChain(params.speed) +
-      ",aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo";
+      ",aformat=sample_fmts=s16:sample_rates=" +
+      std::to_string(params.sampleRate) + ":channel_layouts=stereo";
     AVFilterInOut* outputs = avfilter_inout_alloc();
     AVFilterInOut* inputs = avfilter_inout_alloc();
     if (!outputs || !inputs) {
@@ -1007,7 +1008,8 @@ struct AudioPipeline::Impl {
 
   bool initSwr(const AVFrame* first) {
     AVChannelLayout outLayout = AV_CHANNEL_LAYOUT_STEREO;
-    if (swr_alloc_set_opts2(&swrCtx, &outLayout, AV_SAMPLE_FMT_S16, 48000,
+    if (swr_alloc_set_opts2(&swrCtx, &outLayout, AV_SAMPLE_FMT_S16,
+                            params.sampleRate,
                             &first->ch_layout,
                             static_cast<AVSampleFormat>(first->format),
                             first->sample_rate, 0, nullptr) < 0) {
@@ -1044,7 +1046,8 @@ struct AudioPipeline::Impl {
         if (useFilter) {
           lead /= std::max(0.01, params.speed);  // atempo rescales time
         }
-        skipOutValues = static_cast<std::int64_t>(std::llround(lead * 48000.0)) * 2;
+        skipOutValues = static_cast<std::int64_t>(
+          std::llround(lead * static_cast<double>(params.sampleRate))) * 2;
       }
       trimPending = false;
     }
@@ -1081,9 +1084,10 @@ struct AudioPipeline::Impl {
       return true;
     }
     int inCount = input ? input->nb_samples : 0;
-    int64_t delay = swr_get_delay(swrCtx, input ? input->sample_rate : 48000);
-    int maxOut = static_cast<int>(av_rescale_rnd(delay + inCount, 48000,
-                                                 input ? input->sample_rate : 48000,
+    const int fallbackRate = params.sampleRate;
+    int64_t delay = swr_get_delay(swrCtx, input ? input->sample_rate : fallbackRate);
+    int maxOut = static_cast<int>(av_rescale_rnd(delay + inCount, params.sampleRate,
+                                                 input ? input->sample_rate : fallbackRate,
                                                  AV_ROUND_UP)) + 64;
     std::vector<std::int16_t> buf(static_cast<std::size_t>(maxOut) * 2);
     std::uint8_t* outPlanes[1] = {reinterpret_cast<std::uint8_t*>(buf.data())};

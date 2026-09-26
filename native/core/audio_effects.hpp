@@ -39,7 +39,12 @@
 
 namespace deckboy::audiofx {
 
-constexpr double kSampleRate = 48000.0;
+// NO GLOBAL SAMPLE RATE. It used to live here and forty three things read
+// it, which is why every effect was silently tuned for 48k and only 48k. The
+// rate now arrives on AudioEffectContext, and the free functions below take
+// it as a required argument -- required rather than defaulted, so a missed
+// call site is a compile error instead of something that works at 48k and is
+// wrong everywhere else.
 
 // ── WHAT THE DECK KNOWS THAT A PLUGIN CANNOT ────────────────────────────────
 //
@@ -58,6 +63,13 @@ constexpr double kSampleRate = 48000.0;
 // duration still passes through all five without a fault, it simply has
 // nothing for them to follow.
 struct AudioEffectContext {
+  // THE SAMPLE RATE EVERYTHING IS COMPUTED AGAINST. Every filter corner,
+  // time constant, delay length and grain size in this file is derived from
+  // it, so a wrong value here is not a glitch -- it is every effect quietly
+  // mistuned. 48000 is the default because it is what video carries and what
+  // the desk runs at unless the operator chooses otherwise.
+  double sampleRate = 48000.0;
+
   // ── The picture, as the frame the audio is playing under ──
   float luma = 0.5f;          // 0-1, the frame's average brightness
   float motion = 0.0f;        // 0-1, how much of it changed since the last one
@@ -912,7 +924,7 @@ struct Biquad {
   }
 };
 
-inline Biquad makeHighPass(double freq, double q) {
+inline Biquad makeHighPass(double freq, double q, double kSampleRate) {
   const double w = 2.0 * 3.14159265358979323846 * freq / kSampleRate;
   const double cosw = std::cos(w), sinw = std::sin(w);
   const double alpha = sinw / (2.0 * std::max(0.1, q));
@@ -926,7 +938,7 @@ inline Biquad makeHighPass(double freq, double q) {
   return f;
 }
 
-inline Biquad makeLowPass(double freq, double q) {
+inline Biquad makeLowPass(double freq, double q, double kSampleRate) {
   const double w = 2.0 * 3.14159265358979323846 * freq / kSampleRate;
   const double cosw = std::cos(w), sinw = std::sin(w);
   const double alpha = sinw / (2.0 * std::max(0.1, q));
@@ -940,7 +952,7 @@ inline Biquad makeLowPass(double freq, double q) {
   return f;
 }
 
-inline Biquad makeLowShelf(double freq, double gainDb) {
+inline Biquad makeLowShelf(double freq, double gainDb, double kSampleRate) {
   const double A = std::pow(10.0, gainDb / 40.0);
   const double w = 2.0 * 3.14159265358979323846 * freq / kSampleRate;
   const double cosw = std::cos(w), sinw = std::sin(w);
@@ -956,7 +968,7 @@ inline Biquad makeLowShelf(double freq, double gainDb) {
   return f;
 }
 
-inline Biquad makeHighShelf(double freq, double gainDb) {
+inline Biquad makeHighShelf(double freq, double gainDb, double kSampleRate) {
   const double A = std::pow(10.0, gainDb / 40.0);
   const double w = 2.0 * 3.14159265358979323846 * freq / kSampleRate;
   const double cosw = std::cos(w), sinw = std::sin(w);
@@ -975,7 +987,7 @@ inline Biquad makeHighShelf(double freq, double gainDb) {
 // A bell. Unlike the shelves, gain of exactly 0dB here produces the identity
 // filter rather than something very close to it, which matters because a band
 // arrives flat and must be audibly absent until it is moved.
-inline Biquad makePeaking(double freq, double gainDb, double q) {
+inline Biquad makePeaking(double freq, double gainDb, double q, double kSampleRate) {
   const double A = std::pow(10.0, gainDb / 40.0);
   const double w = 2.0 * 3.14159265358979323846 * freq / kSampleRate;
   const double cosw = std::cos(w), sinw = std::sin(w);
@@ -993,7 +1005,7 @@ inline Biquad makePeaking(double freq, double gainDb, double q) {
 inline double dbToGain(double db) { return std::pow(10.0, db / 20.0); }
 
 // One-pole smoothing coefficient for a time constant in milliseconds.
-inline double timeCoefficient(double ms) {
+inline double timeCoefficient(double ms, double kSampleRate) {
   return std::exp(-1.0 / (std::max(0.1, ms) * 0.001 * kSampleRate));
 }
 
@@ -1008,7 +1020,12 @@ constexpr double kFullScale = 32768.0;
 // limiter ever sees it. The limiter is a limiter, not a crash barrier.
 constexpr double kBendCeiling = 32768.0 * 1.5;
 // 3ms: long enough that a short opening is a splice, short enough to be a snap.
-constexpr double kBendRampStep = 1.0 / (0.003 * kSampleRate);
+// Three milliseconds to cross the full range, whatever the rate. It was a
+// constexpr against a fixed 48000 and is a function now, because the whole
+// point of this change is that the rate is not known until the device opens.
+inline double bendRampStep(double kSampleRate) {
+  return 1.0 / (0.003 * kSampleRate);
+}
 
 // Recursive states are snapped to zero rather than left to decay into
 // denormals, which on some CPUs cost a hundred times a normal multiply.
@@ -1232,6 +1249,9 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
   if (frames == 0) {
     return;
   }
+  // The rate everything below is computed against. Named short because it
+  // appears in four dozen expressions; read it as "sample rate".
+  const double sr = ctx.sampleRate > 0.0 ? ctx.sampleRate : 48000.0;
   state.ensure(stack.size());
 
   for (std::size_t index = 0; index < stack.size(); ++index) {
@@ -1266,9 +1286,9 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double q = 0.4 + detail::clamp01(fx.paramC) * 7.6;
         const double shape = detail::clamp01(fx.paramD);
         const detail::Biquad f =
-          shape < 0.34 ? detail::makePeaking(freq, gainDb, q)
-        : shape < 0.67 ? detail::makeLowShelf(freq, gainDb)
-                       : detail::makeHighShelf(freq, gainDb);
+          shape < 0.34 ? detail::makePeaking(freq, gainDb, q, sr)
+        : shape < 0.67 ? detail::makeLowShelf(freq, gainDb, sr)
+                       : detail::makeHighShelf(freq, gainDb, sr);
         for (std::size_t i = 0; i < frames; ++i) {
           for (int c = 0; c < 2; ++c) {
             double& s = samples[i * 2 + c];
@@ -1286,8 +1306,8 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double freq = high ? detail::logFrequency(fx.paramA, 20.0, 2000.0)
                                  : detail::logFrequency(fx.paramA, 200.0, 20000.0);
         const double q = 0.707 + detail::clamp01(fx.paramB) * 4.0;
-        const detail::Biquad f = high ? detail::makeHighPass(freq, q)
-                                      : detail::makeLowPass(freq, q);
+        const detail::Biquad f = high ? detail::makeHighPass(freq, q, sr)
+                                      : detail::makeLowPass(freq, q, sr);
         for (std::size_t i = 0; i < frames; ++i) {
           for (int c = 0; c < 2; ++c) {
             double& s = samples[i * 2 + c];
@@ -1302,7 +1322,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double tiltDb = (detail::clamp01(fx.paramA) - 0.5) * 24.0;
         const double pivot = detail::logFrequency(fx.paramB > 0.0 ? fx.paramB : 0.5,
                                                   200.0, 4000.0);
-        const detail::Biquad f = detail::makeLowShelf(pivot, -tiltDb);
+        const detail::Biquad f = detail::makeLowShelf(pivot, -tiltDb, sr);
         const double makeUp = detail::dbToGain(tiltDb * 0.5);
         for (std::size_t i = 0; i < frames; ++i) {
           for (int c = 0; c < 2; ++c) {
@@ -1320,9 +1340,9 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double threshold = detail::dbToGain(thresholdDb) * 32768.0;
         const double ratio = 1.0 + detail::clamp01(fx.paramB) * 19.0;
         const double attack = detail::timeCoefficient(
-          0.5 + detail::clamp01(fx.paramC) * 99.5);
+          0.5 + detail::clamp01(fx.paramC) * 99.5, sr);
         const double release = detail::timeCoefficient(
-          20.0 + detail::clamp01(fx.paramD) * 980.0);
+          20.0 + detail::clamp01(fx.paramD) * 980.0, sr);
         for (std::size_t i = 0; i < frames; ++i) {
           // Stereo-linked: the loudest channel decides, or the image shifts
           // every time something hits one side.
@@ -1345,7 +1365,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double thresholdDb = -80.0 + detail::clamp01(fx.paramA) * 60.0;
         const double threshold = detail::dbToGain(thresholdDb) * 32768.0;
         const double release = detail::timeCoefficient(
-          20.0 + detail::clamp01(fx.paramB) * 980.0);
+          20.0 + detail::clamp01(fx.paramB) * 980.0, sr);
         for (std::size_t i = 0; i < frames; ++i) {
           const double peak = std::max(std::fabs(samples[i * 2]),
                                        std::fabs(samples[i * 2 + 1]));
@@ -1362,14 +1382,14 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         break;
       }
       case AudioEffectKind::Delay: {
-        const std::size_t maxDelay = static_cast<std::size_t>(kSampleRate * 2.0);
+        const std::size_t maxDelay = static_cast<std::size_t>(sr * 2.0);
         if (slot.line.size() < maxDelay * 2) {
           slot.line.assign(maxDelay * 2, 0.0);
           slot.writeAt = 0;
         }
         const double seconds = 0.01 + detail::clamp01(fx.paramA) * 1.99;
         const std::size_t delay =
-          std::clamp<std::size_t>(static_cast<std::size_t>(seconds * kSampleRate),
+          std::clamp<std::size_t>(static_cast<std::size_t>(seconds * sr),
                                   1, maxDelay - 1);
         const double feedback = detail::clamp01(fx.paramB) * 0.95;
         const double pingPong = detail::clamp01(fx.paramC);
@@ -1398,7 +1418,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         // Four combs into the same line at mutually prime-ish lengths, which
         // is the cheap Schroeder answer and sounds like a room rather than a
         // flutter. Not a convolution, and not pretending to be.
-        const std::size_t maxDelay = static_cast<std::size_t>(kSampleRate * 0.2);
+        const std::size_t maxDelay = static_cast<std::size_t>(sr * 0.2);
         if (slot.line.size() < maxDelay * 2) {
           slot.line.assign(maxDelay * 2, 0.0);
           slot.writeAt = 0;
@@ -1460,11 +1480,11 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double azimuth = (detail::clamp01(fx.paramA) - 0.5) * 2.0;  // -1 left, +1 right
         const double distance = 0.2 + detail::clamp01(fx.paramB) * 0.8;
         const std::size_t itd = static_cast<std::size_t>(
-          std::fabs(azimuth) * 0.0007 * kSampleRate);
+          std::fabs(azimuth) * 0.0007 * sr);
         // The far ear is shadowed: a gentle low pass and a little level off it.
         const detail::Biquad shadow =
           detail::makeLowPass(detail::logFrequency(1.0 - std::fabs(azimuth) * 0.7,
-                                                   1200.0, 18000.0), 0.707);
+                                                   1200.0, 18000.0), 0.707, sr);
         const double farGain = 1.0 - std::fabs(azimuth) * 0.3;
         for (std::size_t i = 0; i < frames; ++i) {
           const double mono = (samples[i * 2] + samples[i * 2 + 1]) * 0.5;
@@ -1514,7 +1534,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         // slow end is the musical one -- a filter that breathes with the edit
         // rather than flickering with the grain.
         const double followMs = 10.0 + std::pow(detail::clamp01(fx.paramC), 2.0) * 1990.0;
-        const double follow = detail::timeCoefficient(followMs);
+        const double follow = detail::timeCoefficient(followMs, sr);
         const bool invert = fx.paramD >= 0.5;
 
         double drive = detail::clamp01(static_cast<double>(ctx.luma));
@@ -1535,7 +1555,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           // twentieth of the cost.
           if ((i & 63u) == 0u || i == 0) {
             const detail::Biquad built = detail::makeLowPass(
-              detail::logFrequency(slot.followed, 300.0, 18000.0), 0.707);
+              detail::logFrequency(slot.followed, 300.0, 18000.0), 0.707, sr);
             slot.cached[0] = built.b0; slot.cached[1] = built.b1;
             slot.cached[2] = built.b2; slot.cached[3] = built.a1;
             slot.cached[4] = built.a2;
@@ -1582,9 +1602,9 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           static_cast<double>(ctx.coverage)));
         const double distance = (1.0 - size) * depthAmount;
         const std::size_t itd = static_cast<std::size_t>(
-          std::fabs(azimuth) * 0.0007 * kSampleRate);
+          std::fabs(azimuth) * 0.0007 * sr);
         const detail::Biquad air = detail::makeLowPass(
-          detail::logFrequency(1.0 - distance * 0.75, 1500.0, 20000.0), 0.707);
+          detail::logFrequency(1.0 - distance * 0.75, 1500.0, 20000.0), 0.707, sr);
         // Distance also narrows: two ears stop being able to tell much apart
         // about something far away, which is why a distant source collapses
         // toward the middle.
@@ -1646,13 +1666,13 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double into = detail::clamp01(1.0 - remaining / window);
         const double darken = detail::clamp01(fx.paramB) * into;
         const double roomAmount = detail::clamp01(fx.paramC) * into;
-        const std::size_t maxDelay = static_cast<std::size_t>(kSampleRate * 0.08);
+        const std::size_t maxDelay = static_cast<std::size_t>(sr * 0.08);
         if (slot.line.size() < maxDelay * 2) {
           slot.line.assign(maxDelay * 2, 0.0);
           slot.writeAt = 0;
         }
         const detail::Biquad top = detail::makeLowPass(
-          detail::logFrequency(1.0 - darken * 0.85, 400.0, 20000.0), 0.707);
+          detail::logFrequency(1.0 - darken * 0.85, 400.0, 20000.0), 0.707, sr);
         for (std::size_t i = 0; i < frames; ++i) {
           for (int c = 0; c < 2; ++c) {
             const std::size_t readAt =
@@ -1686,8 +1706,8 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const int grainFrames = 1 + static_cast<int>(
           detail::clamp01(fx.paramA) * 7.0 + 0.5);
         const std::size_t grain = std::max<std::size_t>(
-          static_cast<std::size_t>(ctx.framePeriod * grainFrames * kSampleRate), 16);
-        const std::size_t maxDelay = static_cast<std::size_t>(kSampleRate * 0.5);
+          static_cast<std::size_t>(ctx.framePeriod * grainFrames * sr), 16);
+        const std::size_t maxDelay = static_cast<std::size_t>(sr * 0.5);
         if (slot.line.size() < maxDelay * 2) {
           slot.line.assign(maxDelay * 2, 0.0);
           slot.writeAt = 0;
@@ -1733,7 +1753,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         // indistinguishable from silence in the material.
         const double loopSeconds = 0.05 + detail::clamp01(fx.paramA) * 1.95;
         const std::size_t loop = std::max<std::size_t>(
-          static_cast<std::size_t>(loopSeconds * kSampleRate), 64);
+          static_cast<std::size_t>(loopSeconds * sr), 64);
         if (slot.line.size() < loop * 2) {
           slot.line.assign(loop * 2, 0.0);
           slot.writeAt = 0;
@@ -1806,7 +1826,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const std::uint64_t salt = index * 7919u + 1u;
         detail::prepareBend(slot, frames);
         for (std::size_t i = 0; i < frames; ++i) {
-          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          const double pos = ctx.position + static_cast<double>(i) / sr;
           std::int64_t eventSlot = 0;
           if (detail::enterEventSlot(slot, pos, 8.0, eventSlot)) {
             const std::uint64_t key = static_cast<std::uint64_t>(eventSlot);
@@ -1814,7 +1834,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
               // One of the three bits just above the signal, for 10-200ms.
               slot.eventBits = 3u + detail::hash32(key ^ salt) % 3u;
               slot.eventLeft = static_cast<std::size_t>(
-                (0.01 + 0.19 * detail::hash01(key, salt + 1u)) * kSampleRate);
+                (0.01 + 0.19 * detail::hash01(key, salt + 1u)) * sr);
             }
           }
           const std::uint32_t rot = slot.eventLeft > 0 ? slot.eventBits : 0u;
@@ -1847,8 +1867,8 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double wire = detail::clamp01(fx.paramD);
         const std::uint64_t salt = index * 7919u + 2u;
         const std::size_t selfDelay = std::max<std::size_t>(
-          static_cast<std::size_t>((0.001 + self * 0.049) * kSampleRate), 1);
-        const std::size_t lineFrames = static_cast<std::size_t>(0.05 * kSampleRate) + 2;
+          static_cast<std::size_t>((0.001 + self * 0.049) * sr), 1);
+        const std::size_t lineFrames = static_cast<std::size_t>(0.05 * sr) + 2;
         if (slot.line.size() < lineFrames * 2) {
           slot.line.assign(lineFrames * 2, 0.0);
           slot.writeAt = 0;
@@ -1857,13 +1877,13 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           self > 0.0 ? ((1u << (4 + static_cast<int>(self * 11.0))) - 1u) : 0u;
         detail::prepareBend(slot, frames);
         for (std::size_t i = 0; i < frames; ++i) {
-          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          const double pos = ctx.position + static_cast<double>(i) / sr;
           std::int64_t eventSlot = 0;
           if (detail::enterEventSlot(slot, pos, rate, eventSlot)) {
             const std::uint64_t key = static_cast<std::uint64_t>(eventSlot);
             if (detail::hash01(key, salt) < 0.5) {
               slot.eventLeft = static_cast<std::size_t>(
-                (0.3 + 0.7 * detail::hash01(key, salt + 1u)) * kSampleRate / rate);
+                (0.3 + 0.7 * detail::hash01(key, salt + 1u)) * sr / rate);
               slot.eventBits = detail::hash32(key * 31u + salt);
               slot.eventMode = wire <= 0.2
                 ? static_cast<int>(detail::hash32(key + salt) % 4u)
@@ -1874,8 +1894,8 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           if (slot.eventLeft > 0) {
             --slot.eventLeft;
           }
-          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
-                                  detail::kBendRampStep);
+          slot.bend += std::clamp(target - slot.bend, -detail::bendRampStep(sr),
+                                  detail::bendRampStep(sr));
           const double inMag = std::max(std::fabs(samples[i * 2]),
                                         std::fabs(samples[i * 2 + 1])) / detail::kFullScale;
           slot.inLevel = detail::snap(std::max(inMag, slot.inLevel * 0.9995));
@@ -1935,7 +1955,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
       case AudioEffectKind::Skip: {
         // A DISC SKIPPING. Jump back, play the same piece again a few times,
         // catch up. Every splice is ramped, so it skips without clicking.
-        const std::size_t lineFrames = static_cast<std::size_t>(2.0 * kSampleRate);
+        const std::size_t lineFrames = static_cast<std::size_t>(2.0 * sr);
         if (slot.line.size() < lineFrames * 2) {
           slot.line.assign(lineFrames * 2, 0.0);
           slot.writeAt = 0;
@@ -1944,15 +1964,15 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         }
         const double a = detail::clamp01(fx.paramA);
         const std::size_t jump = std::max<std::size_t>(
-          static_cast<std::size_t>((0.005 + a * a * 0.495) * kSampleRate), 32);
+          static_cast<std::size_t>((0.005 + a * a * 0.495) * sr), 32);
         const int repeats = 1 + static_cast<int>(detail::clamp01(fx.paramB) * 7.0 + 0.5);
         const double c01 = detail::clamp01(fx.paramC);
         const double rate = 0.2 + c01 * c01 * 7.8;
         const bool reverse = fx.paramD >= 0.5;
         const std::uint64_t salt = index * 7919u + 3u;
-        const double edge = 0.003 * kSampleRate;
+        const double edge = 0.003 * sr;
         for (std::size_t i = 0; i < frames; ++i) {
-          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          const double pos = ctx.position + static_cast<double>(i) / sr;
           std::int64_t eventSlot = 0;
           if (detail::enterEventSlot(slot, pos, rate, eventSlot) &&
               slot.skipRepeats == 0 && slot.readAt >= jump &&
@@ -1963,8 +1983,8 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
             slot.head = static_cast<double>((slot.writeAt + lineFrames - jump) % lineFrames);
           }
           const double target = slot.skipRepeats > 0 ? 1.0 : 0.0;
-          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
-                                  detail::kBendRampStep);
+          slot.bend += std::clamp(target - slot.bend, -detail::bendRampStep(sr),
+                                  detail::bendRampStep(sr));
           double replay[2] {0.0, 0.0};
           if (slot.skipLength > 0 && slot.bend > 0.0) {
             const std::size_t progress = slot.skipLength - std::min(slot.skipLeft, slot.skipLength);
@@ -2013,7 +2033,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         double k = 0.5;
         double gScale = 1.0;
         for (std::size_t i = 0; i < frames; ++i) {
-          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          const double pos = ctx.position + static_cast<double>(i) / sr;
           std::int64_t eventSlot = 0;
           detail::enterEventSlot(slot, pos, 6.0, eventSlot);
           const std::uint64_t key = static_cast<std::uint64_t>(eventSlot);
@@ -2029,8 +2049,8 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
             const double phase = pos * 0.3 - std::floor(pos * 0.3);
             const double tri = 1.0 - 4.0 * std::fabs(phase - 0.5);
             const double fc = std::min(fcBase * std::pow(2.0, sagDepth * 2.0 * tri) * gScale,
-                                       0.45 * kSampleRate);
-            slot.followed = std::tan(3.14159265358979323846 * fc / kSampleRate);
+                                       0.45 * sr);
+            slot.followed = std::tan(3.14159265358979323846 * fc / sr);
           }
           const double g = slot.followed;
           const double denom = std::max(0.25, 1.0 + g * k + g * g);
@@ -2069,7 +2089,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           const double motion = detail::clamp01(static_cast<double>(ctx.motion));
           if (fx.paramC > 0.0f && motion > 0.35 && slot.prevMotion <= 0.35) {
             const double framePeriod = ctx.framePeriod > 0.0 ? ctx.framePeriod : 0.04;
-            slot.eventLeft = static_cast<std::size_t>(framePeriod * kSampleRate);
+            slot.eventLeft = static_cast<std::size_t>(framePeriod * sr);
             // Further up the knob, further above the signal the flip lands.
             slot.eventBits = 3u + static_cast<std::uint32_t>(
               detail::clamp01(fx.paramC) * 2.0 + 0.5);
@@ -2078,7 +2098,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         }
         target = detail::clamp01(target);
         const double floorBits = 2.0 + detail::clamp01(fx.paramD) * 10.0;
-        const double follow = detail::timeCoefficient(30.0);
+        const double follow = detail::timeCoefficient(30.0, sr);
         detail::prepareBend(slot, frames);
         for (std::size_t i = 0; i < frames; ++i) {
           slot.loop = detail::snap(target + (slot.loop - target) * follow);
@@ -2117,14 +2137,14 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         if (!ctx.hasPicture) {
           break;   // nothing decides where the head is
         }
-        const std::size_t lineFrames = static_cast<std::size_t>(2.2 * kSampleRate);
+        const std::size_t lineFrames = static_cast<std::size_t>(2.2 * sr);
         if (slot.line.size() < lineFrames * 2) {
           slot.line.assign(lineFrames * 2, 0.0);
           slot.writeAt = 0;
           slot.head = 1.0;
         }
         const double maxHead = static_cast<double>(lineFrames) - 4.0;
-        const double depth = detail::clamp01(fx.paramA) * 2.0 * kSampleRate;
+        const double depth = detail::clamp01(fx.paramA) * 2.0 * sr;
         double luma = detail::clamp01(static_cast<double>(ctx.luma));
         if (fx.paramD < 0.5f) {
           luma = 1.0 - luma;
@@ -2132,12 +2152,12 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double target = std::clamp(depth * luma, 1.0, maxHead);
         const double motion = detail::clamp01(static_cast<double>(ctx.motion));
         if (motion > 0.35 && slot.prevMotion <= 0.35) {
-          slot.head = std::clamp(slot.head + detail::clamp01(fx.paramB) * 0.5 * kSampleRate,
+          slot.head = std::clamp(slot.head + detail::clamp01(fx.paramB) * 0.5 * sr,
                                  1.0, maxHead);
         }
         slot.prevMotion = motion;
         const double c01 = detail::clamp01(fx.paramC);
-        const double follow = detail::timeCoefficient(30.0 + c01 * c01 * 1970.0);
+        const double follow = detail::timeCoefficient(30.0 + c01 * c01 * 1970.0, sr);
         for (std::size_t i = 0; i < frames; ++i) {
           slot.head = target + (slot.head - target) * follow;
           const double readPos = static_cast<double>(slot.writeAt) - slot.head +
@@ -2171,11 +2191,11 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double sensitivity = detail::clamp01(fx.paramA);
         const int holdFrames = 1 + static_cast<int>(detail::clamp01(fx.paramB) * 23.0 + 0.5);
         const double framePeriod = ctx.framePeriod > 0.0 ? ctx.framePeriod : 1.0 / 25.0;
-        const std::size_t hold = static_cast<std::size_t>(holdFrames * framePeriod * kSampleRate);
+        const std::size_t hold = static_cast<std::size_t>(holdFrames * framePeriod * sr);
         const double damage = detail::clamp01(fx.paramC);
         const double fixedWire = detail::clamp01(fx.paramD);
         const std::uint64_t salt = index * 7919u + 7u;
-        const std::size_t lineFrames = static_cast<std::size_t>(0.03 * kSampleRate);
+        const std::size_t lineFrames = static_cast<std::size_t>(0.03 * sr);
         if (slot.line.size() < lineFrames * 2) {
           slot.line.assign(lineFrames * 2, 0.0);
           slot.writeAt = 0;
@@ -2194,11 +2214,11 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           }
           slot.prevMotion = motion;
         }
-        const double lpCoef = 1.0 - std::exp(-2.0 * 3.14159265358979323846 * 600.0 / kSampleRate);
+        const double lpCoef = 1.0 - std::exp(-2.0 * 3.14159265358979323846 * 600.0 / sr);
         detail::prepareBend(slot, frames);
         for (std::size_t i = 0; i < frames; ++i) {
           if (!ctx.hasPicture) {
-            const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+            const double pos = ctx.position + static_cast<double>(i) / sr;
             std::int64_t eventSlot = 0;
             if (detail::enterEventSlot(slot, pos, 0.5 + sensitivity * 7.5, eventSlot) &&
                 detail::hash01(static_cast<std::uint64_t>(eventSlot), salt) < 0.5) {
@@ -2209,9 +2229,9 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
           if (slot.eventLeft > 0) {
             --slot.eventLeft;
           }
-          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
-                                  detail::kBendRampStep);
-          slot.holdPhase += 30.0 / kSampleRate;
+          slot.bend += std::clamp(target - slot.bend, -detail::bendRampStep(sr),
+                                  detail::bendRampStep(sr));
+          slot.holdPhase += 30.0 / sr;
           slot.holdPhase -= std::floor(slot.holdPhase);
           const double sag = 0.5 + 0.5 * (1.0 - 4.0 * std::fabs(slot.holdPhase - 0.5));
           const std::size_t readAt = slot.writeAt;   // the oldest sample in the line
@@ -2282,7 +2302,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         //  - it bends TIMBRE, through the loudness meter, never level;
         //  - a watchdog: hot input with a deep bend for two seconds opens the
         //    loop for five, and a hard cut can reset it.
-        const double chunkSeconds = static_cast<double>(frames) / kSampleRate;
+        const double chunkSeconds = static_cast<double>(frames) / sr;
         const double pl = ctx.hasPostPicture ? ctx.postLuma
                         : (ctx.hasPicture ? ctx.luma : 0.5);
         const double pm = ctx.hasPostPicture ? ctx.postMotion
@@ -2322,7 +2342,7 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         detail::CrushSettings k;
         k.bits = 16.0 - depth * 14.0 * (1.0 - character * 0.6);
         k.hold = 1.0 + depth * depth * 40.0 * (1.0 - character * 0.6);
-        const std::size_t lineFrames = static_cast<std::size_t>(0.25 * kSampleRate);
+        const std::size_t lineFrames = static_cast<std::size_t>(0.25 * sr);
         if (slot.line.size() < lineFrames * 2) {
           slot.line.assign(lineFrames * 2, 0.0);
           slot.writeAt = 0;
@@ -2332,20 +2352,20 @@ inline void applyAudioEffectStack(std::vector<double>& samples,
         const double stutterChance = depth * character;
         detail::prepareBend(slot, frames);
         for (std::size_t i = 0; i < frames; ++i) {
-          const double pos = ctx.position + static_cast<double>(i) / kSampleRate;
+          const double pos = ctx.position + static_cast<double>(i) / sr;
           std::int64_t eventSlot = 0;
           if (detail::enterEventSlot(slot, pos, 3.0, eventSlot) && slot.skipLeft == 0 &&
               detail::hash01(static_cast<std::uint64_t>(eventSlot), salt) < stutterChance) {
             slot.skipLength = static_cast<std::size_t>(
               (0.03 + 0.09 * detail::hash01(static_cast<std::uint64_t>(eventSlot), salt + 1u)) *
-              kSampleRate);
+              sr);
             slot.skipLeft = slot.skipLength * 2;
             slot.head = static_cast<double>(
               (slot.writeAt + lineFrames - slot.skipLength) % lineFrames);
           }
           const double target = (depth > 0.02) ? 1.0 : 0.0;
-          slot.bend += std::clamp(target - slot.bend, -detail::kBendRampStep,
-                                  detail::kBendRampStep);
+          slot.bend += std::clamp(target - slot.bend, -detail::bendRampStep(sr),
+                                  detail::bendRampStep(sr));
           const bool latch = detail::crushLatch(slot, k.hold);
           for (int c = 0; c < 2; ++c) {
             double& s = samples[i * 2 + c];

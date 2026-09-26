@@ -3858,6 +3858,19 @@
         "GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>");
       return;
     }
+    if (command == "SAMPLERATE" || command == "AUDIORATE") {
+      if (parts.size() < 2) {
+        const std::string report = std::to_string(project_.audioSampleRate) + " Hz";
+        remoteCommandDetail_ = report;
+        triggerToast("sample rate: " + report);
+        return;
+      }
+      std::string why;
+      if (!setAudioSampleRate(std::atoi(parts[1].c_str()), &why)) {
+        failRemoteCommand(why);
+      }
+      return;
+    }
     if (command == "BROWSE") {
       // BROWSE          -- open the media browser where it last looked
       // BROWSE <folder> -- open it there

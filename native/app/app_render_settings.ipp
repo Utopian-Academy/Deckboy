@@ -1266,7 +1266,7 @@
       audioRows.push_back(sTallH);                          // ASIO driver
       audioRows.push_back(sRowH);                           // ASIO outs
 #endif
-      audioRows.insert(audioRows.end(), {sRowH, sRowH, sRowH});    // buffer, A/V delay, outs
+      audioRows.insert(audioRows.end(), {sRowH, sRowH, sRowH, sRowH});  // rate, buffer, A/V delay, outs
       audioRows.insert(audioRows.end(), {sLineH, sLineH});         // two-line hint
       int audioH = sCardHeaderH + sPad;
       for (std::size_t i = 0; i < audioRows.size(); ++i) {
@@ -1429,6 +1429,17 @@
       // the window width. Each is a question with one answer, so each is a row,
       // and they line up with the device pickers above them on every build.
       {
+        // THE RATE THE WHOLE DESK RUNS AT, above the buffer because it is the
+        // more fundamental of the two: the buffer is how much latency, this is
+        // what the numbers mean. 48000 unless the desk is wired into a rig
+        // that runs at something else.
+        SDL_Rect rateBtn = settingsRow(audioX, audioW, rowY, sRowH, "Sample rate", sGap);
+        drawUIDropdown(rateBtn, "",
+                       std::to_string(project_.audioSampleRate) + " Hz",
+                       "settings.audio_sample_rate");
+        settingsBtns_.push_back({rateBtn, kSettingsActionAudioSampleRateDropdown,
+                                 "audio_sample_rate"});
+
         SDL_Rect bufBtn = settingsRow(audioX, audioW, rowY, sRowH, "Buffer", sGap);
         drawUIValueControl(bufBtn, std::to_string(project_.audioBufferSamples) + " smp");
         settingsBtns_.push_back({bufBtn, kSettingsActionAudioBufferCycle, "audio_buffer_samples"});
@@ -4148,6 +4159,23 @@
         markProjectDirty();
       } else if (sb.action == kSettingsActionOscQueryToggle) {
         setOscQueryEnabled(!project_.oscQueryEnabled);
+      } else if (sb.action == kSettingsActionAudioSampleRateDropdown) {
+        // Only the rates the desk is built for. 48000 is named as the video
+        // standard because that is the reason it is the default, and an
+        // operator changing it should know what they are leaving.
+        std::vector<std::pair<std::string, std::string>> rates {
+          {"44100", "44100 Hz  (CD, music rigs)"},
+          {"48000", "48000 Hz  (video standard)"},
+          {"88200", "88200 Hz"},
+          {"96000", "96000 Hz"},
+          {"192000", "192000 Hz"},
+        };
+        openDropdown("settings.audio_sample_rate", sb.rect, rates,
+                     std::to_string(project_.audioSampleRate),
+                     [this](const std::string& value) {
+                       setAudioSampleRate(std::atoi(value.c_str()));
+                     });
+        return;
       } else if (sb.action == kSettingsActionVmixToggle) {
         setVmixApiEnabled(!project_.vmixApiEnabled);
       } else if (sb.action == kSettingsActionVmixHttpPortPrompt) {

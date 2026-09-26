@@ -3698,12 +3698,17 @@
   // that ARE faults on any setting (non-finite output, and a peak over the
   // ceiling). The rest is a table to read, like the contact sheet.
   // ---------------------------------------------------------------------------
-  static int runAudioFxCheck(const std::string& only) {
+  static int runAudioFxCheck(const std::string& only, int rate = 48000) {
     namespace afx = deckboy::audiofx;
     constexpr double kPi = 3.141592653589793;
-    constexpr int kRate = 48000;
-    constexpr int kFrames = kRate;            // one second
-    constexpr int kTailFrames = kRate / 2;    // and half a second of silence
+    // THE RATE IS AN ARGUMENT. An effect chain that has been made rate-aware
+    // is unproven until it has actually been run at another rate, and the
+    // assertion is not that any measurement takes a particular value -- it is
+    // that the SAME measurements come out when the rate changes, because an
+    // effect that is correctly rate-aware sounds the same at any rate.
+    const int kRate = rate > 0 ? rate : 48000;
+    const int kFrames = kRate;                // one second
+    const int kTailFrames = kRate / 2;        // and half a second of silence
 
     // A signal with both ends of the spectrum in it, so a filter has something
     // to remove either way: a 120Hz tone, a 6kHz tone, and a burst of noise in
@@ -3757,7 +3762,7 @@
     // Energy above and below 1kHz, by the crudest one-pole split that can tell
     // them apart. This is a measuring tool, not a signal path, so a proper
     // filter bank would be precision nobody reads.
-    auto bandRms = [](const std::vector<double>& s, bool high) {
+    auto bandRms = [kRate](const std::vector<double>& s, bool high) {
       const double coeff = std::exp(-2.0 * kPi * 1000.0 / kRate);
       double low = 0.0, sum = 0.0;
       const std::size_t frames = s.size() / 2;
@@ -3908,6 +3913,7 @@
       // frame rate -- and drives them through it.
       auto contextAt = [&](double t, double total) {
         afx::AudioEffectContext c;
+        c.sampleRate = static_cast<double>(kRate);
         c.hasPicture = true;
         // A picture that goes dark and comes back, with a cut in the middle of
         // it so there is something for `motion` to be.
@@ -4088,6 +4094,7 @@
         for (int n = 0; n < static_cast<int>(12.0 * kRate / chunk); ++n) {
           std::vector<double> buf = loudSine(chunk, 0.6);
           afx::AudioEffectContext c;
+        c.sampleRate = static_cast<double>(kRate);
           c.hasPicture = true;
           c.hasPostPicture = true;
           const double luma = std::clamp(0.5 + 0.5 * level, 0.0, 1.0);
@@ -4123,6 +4130,7 @@
         for (int n = 0; n < static_cast<int>(6.0 * kRate / chunk); ++n) {
           std::vector<double> buf = loudSine(chunk, 0.9);
           afx::AudioEffectContext c;
+        c.sampleRate = static_cast<double>(kRate);
           c.hasPicture = true;
           c.hasPostPicture = true;
           c.postLuma = 1.0f;
@@ -4152,6 +4160,7 @@
           for (int n = 0; n < 24; ++n) {
             std::vector<double> buf = loudSine(chunk, 0.5);
             afx::AudioEffectContext c;
+        c.sampleRate = static_cast<double>(kRate);
             c.position = 30.0 + static_cast<double>(n * chunk) / kRate;
             afx::applyAudioEffectStack(buf, {fx}, state, c);
             all.insert(all.end(), buf.begin(), buf.end());

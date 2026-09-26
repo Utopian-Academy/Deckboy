@@ -162,6 +162,10 @@ struct AudioOpenParams {
   std::string path;
   double startSeconds = 0.0;
   double speed = 1.0;                  // atempo chain when != 1
+  // WHAT TO RESAMPLE TO. Was hardcoded 48000 in three places inside the
+  // pipeline; a deck running at another rate got audio at the wrong speed,
+  // which is the one fault in this file that would be obvious instantly.
+  int sampleRate = 48000;
 };
 
 class AudioPipeline {
@@ -175,7 +179,8 @@ class AudioPipeline {
   // simply runs without audio (same as a failed CLI spawn today).
   bool open(const AudioOpenParams& params);
 
-  // Fill up to maxSamples int16 values (interleaved stereo @48 kHz).
+  // Fill up to maxSamples int16 values, interleaved stereo at the rate the
+  // caller asked for in AudioOpenParams::sampleRate.
   // Returns the count written, 0 on EOF, <0 on unrecoverable error.
   int read(std::int16_t* out, int maxSamples);
 

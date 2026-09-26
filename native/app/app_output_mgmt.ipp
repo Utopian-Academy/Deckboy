@@ -600,11 +600,18 @@
     return result;
   }
 
+  // THE DECK PLAYBACK DEVICE, opened at the rate the show asks for.
+  //
+  // Only this one follows the setting. The UI sound effects are bundled 48k
+  // assets, the mic input path converts to 48k mono of its own accord, and
+  // LTC is generated against 48k -- all three are deliberately left alone,
+  // because none of them is the signal the operator chose a rate for.
   SDL_AudioStream* openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName,
                                        int channels = kAudioChannels) {
     applyAudioBufferSizeHint();
     SDL_AudioSpec desired {};
-    desired.freq = kAudioRate;
+    desired.freq = project_.audioSampleRate > 0 ? project_.audioSampleRate
+                                                : kAudioRate;
     desired.format = kAudioFormat;
     // Even channel counts only (stereo pairs); SDL folds down when the
     // physical device has fewer outs.
@@ -4629,6 +4636,72 @@
   // A deck that asked for the system default is left alone. SDL follows the
   // system default on its own for a stream opened that way, and reopening it
   // would interrupt audio to achieve nothing.
+  // ── THE SAMPLE RATE THE DESK RUNS AT ──────────────────────────────────────
+  //
+  // Changing it reopens every deck's audio device, because the rate is a
+  // property of the open device and there is no way to change one in place.
+  // Refused outright while anything is playing: reopening a device under a
+  // live cue is a gap in the sound, and the operator asking for 96k in the
+  // middle of a show has almost certainly clicked the wrong thing.
+  // Returns false and fills `why` when it refused, so the remote verb can
+  // answer ERR with a reason -- "understood but cannot act" is an error, not
+  // an OK, and a script setting a rate needs to know which it got.
+  bool setAudioSampleRate(int rate, std::string* why = nullptr) {
+    static const int kRates[] = {44100, 48000, 88200, 96000, 192000};
+    bool known = false;
+    for (int candidate : kRates) {
+      if (candidate == rate) { known = true; break; }
+    }
+    if (!known) {
+      const std::string reason = std::to_string(rate) + " is not one of "
+        "44100, 48000, 88200, 96000, 192000";
+      if (why) *why = reason;
+      triggerToast("sample rate: " + reason,
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      return false;
+    }
+    if (project_.audioSampleRate == rate) {
+      triggerToast("sample rate: " + std::to_string(rate) + " Hz");
+      return true;   // already there is not a failure
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (engine && engine->state() == TransportState::Playing) {
+        const std::string reason = "not while a cue is playing";
+        if (why) *why = reason;
+        triggerToast("sample rate: " + reason,
+                     kToastWarnFill, kToastWarnInk, kToastReadableMs);
+        return false;
+      }
+    }
+    project_.audioSampleRate = rate;
+    // Every deck's engine, then the devices: the engine has to know the rate
+    // before the device it will feed is opened at it.
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+        engine->setAudioRate(rate);
+      }
+    }
+    // Hand every device back and let the reconcile reopen them at the new
+    // rate. detachAudioDevice FIRST on each, for the reason destroyDeckRuntime
+    // gives: the engine must not be holding a stream while it is destroyed.
+    for (DeckRuntime& runtime : deckRuntimes_) {
+      if (runtime.mediaEngine) {
+        runtime.mediaEngine->detachAudioDevice();
+      }
+      if (runtime.audioStream) {
+        SDL_DestroyAudioStream(runtime.audioStream);
+        runtime.audioStream = nullptr;
+      }
+      runtime.audioDeviceInUse.clear();
+    }
+    reconcileDeckAudioDevices();
+    triggerToast("sample rate: " + std::to_string(rate) + " Hz");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
   void reconcileDeckAudioDevices() {
     std::vector<std::string> present;
     int count = 0;

@@ -285,6 +285,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
   output << "browse_folder\t" << escapeField(project.browseFolder) << '\n';
+  output << "audio_sample_rate\t" << project.audioSampleRate << '\n';
   output << "vmix_api_enabled\t" << (project.vmixApiEnabled ? 1 : 0) << '\n';
   output << "vmix_http_port\t" << project.vmixHttpPort << '\n';
   output << "vmix_tcp_port\t" << project.vmixTcpPort << '\n';
@@ -1268,6 +1269,14 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.oscQueryPort = safeInt(fields, 1, 5511);
   } else if (fields[0] == "browse_folder") {
     project.browseFolder = safeString(fields, 1);
+  } else if (fields[0] == "audio_sample_rate") {
+    // Only the rates the desk is built to run at. A show carrying anything
+    // else -- hand-edited, or written by something else -- opens at 48000
+    // rather than trying to open a device at a rate nothing supports.
+    const int wanted = safeInt(fields, 1, 48000);
+    project.audioSampleRate =
+      (wanted == 44100 || wanted == 48000 || wanted == 88200 ||
+       wanted == 96000 || wanted == 192000) ? wanted : 48000;
   } else if (fields[0] == "vmix_api_enabled") {
     project.vmixApiEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "vmix_http_port") {

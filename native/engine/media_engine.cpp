@@ -1026,7 +1026,7 @@ void MediaEngine::update() {
   // the transport, and this is the tick that already runs once a frame.
   if (audioPrimePending_) {
     const bool enough =
-      queuedAudioBytes() >= kAudioPrimeFrames * audioStreamBytesPerFrame();
+      queuedAudioBytes() >= audioPrimeFrames() * audioStreamBytesPerFrame();
     const auto waited = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::steady_clock::now() - audioPrimeStartedAt_).count();
     if (enough || waited >= kAudioPrimeDeadlineMs ||
@@ -1199,7 +1199,8 @@ void MediaEngine::update() {
       audioStream_ != nullptr && !decoderEof_.load()) {
     std::uint64_t queuedFrames = audioFramesQueued_.load(std::memory_order_relaxed);
     if (queuedFrames >= 4800) {  // trust the clock only after ~100ms of audio
-      double queuedSeconds = static_cast<double>(queuedFrames) / 48000.0;
+      const double rate = static_cast<double>(audioRate_);
+      double queuedSeconds = static_cast<double>(queuedFrames) / rate;
       // WHAT THE DEVICE HAS NOT PLAYED YET is the device's own queue PLUS
       // anything parked in the operator's delay line. audioFramesQueued_
       // counts at process time, before the delay, so leaving the delay out
@@ -1209,10 +1210,10 @@ void MediaEngine::update() {
       // subtracted both; this reader was missed when the delay line landed.
       double bufferedSeconds =
         static_cast<double>(std::max(0, SDL_GetAudioStreamQueued(audioStream_)))
-        / (48000.0 * static_cast<double>(audioStreamBytesPerFrame()));
+        / (rate * static_cast<double>(audioStreamBytesPerFrame()));
       bufferedSeconds +=
         static_cast<double>(audioDelayHeldFrames_.load(std::memory_order_relaxed))
-        / 48000.0;
+        / rate;
       double playedWallSeconds = std::max(0.0, queuedSeconds - bufferedSeconds);
       // atempo re-times the pipe to wall rate; position space runs at
       // playbackSpeed_ × wall, so scale before comparing.
@@ -5197,7 +5198,8 @@ MediaEngine::reconcileAudioPlugins(const Cue* cue) {
     // set up for a smaller block refuses the buffer rather than growing one on
     // the audio thread, which would be silence in the middle of a show.
     std::shared_ptr<ap::AudioPluginInstance> instance =
-      ap::openAudioPlugin(fx.pluginId, 48000.0, kMaxAudioPluginBlockFrames);
+      ap::openAudioPlugin(fx.pluginId, static_cast<double>(audioRate_),
+                          kMaxAudioPluginBlockFrames);
     if (!instance) {
       // The show keeps the id and the settings; it just cannot make the sound
       // on this machine. Said once, by name.
@@ -6223,7 +6225,7 @@ void MediaEngine::clearAudio() {
 // feeds the VU/waveform tap like any decoded audio.
 // ---------------------------------------------------------------------------
 void MediaEngine::queuePocketSyncAudio() {
-  constexpr int kRate = 48000;
+  const int kRate = audioRate_;
   constexpr double kBeepSeconds = 0.08;
   constexpr int kChunkFrames = 1024;  // ~21 ms per fill
   int queuedBytes = std::max(0, SDL_GetAudioStreamQueued(audioStream_));
@@ -6731,7 +6733,8 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
       audioArgs.push_back(atempoChain);
     }
     audioArgs.insert(audioArgs.end(), {
-      "-f", "s16le", "-acodec", "pcm_s16le", "-ac", "2", "-ar", "48000", "pipe:1"
+      "-f", "s16le", "-acodec", "pcm_s16le", "-ac", "2",
+      "-ar", std::to_string(audioRate_), "pipe:1"
     });
     if (spawnPipeProcess(audioProcess_, audioArgs)) {
       int audioFd = audioProcess_.readFd;
@@ -6819,7 +6822,8 @@ void MediaEngine::noteProgrammeAudio(const std::int16_t* stereo, std::size_t fra
     energy += v * v;
   }
   const double rms = std::sqrt(energy / static_cast<double>(frames * 2));
-  const double chunkSeconds = static_cast<double>(frames) / 48000.0;
+  const double chunkSeconds =
+    static_cast<double>(frames) / static_cast<double>(audioRate_);
   const double dbfs = rms > 1e-7 ? 20.0 * std::log10(rms) : -120.0;
   const double meterLevel = std::clamp((dbfs + 50.0) / 44.0, 0.0, 1.0);
   const double released = programLevelState_ * std::exp(-chunkSeconds / 0.3);
@@ -6864,7 +6868,7 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     limiterScratch_[index] = left;
     limiterScratch_[index + 1] = right;
     limiterFramePeak_[f] = std::max(std::fabs(left), std::fabs(right));
-    audioTime += 1.0 / 48000.0;
+    audioTime += 1.0 / static_cast<double>(audioRate_);
   }
   // Stage 1b: the cue's effect chain, on the gained float scratch. HERE, and
   // not anywhere else, for two reasons: the samples are already doubles at
@@ -6877,6 +6881,10 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     // change faster than a video frame, and a filter cutoff that moved
     // mid-buffer would be a discontinuity for no gain.
     deckboy::audiofx::AudioEffectContext ctx;
+    // Every filter corner, time constant and delay length in the chain is
+    // computed against this. Left at its 48000 default it would mistune the
+    // whole chain on any other rate.
+    ctx.sampleRate = static_cast<double>(audioRate_);
     ctx.luma = audioCtxLuma_.load(std::memory_order_relaxed);
     ctx.motion = audioCtxMotion_.load(std::memory_order_relaxed);
     ctx.hasPicture = audioCtxHasPicture_.load(std::memory_order_relaxed);
@@ -7097,8 +7105,12 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
   // MEASURED, a ten-second take of the card whose audio track was digital
   // silence end to end.
   audioFramesQueued_.fetch_add(samples.size() / 2, std::memory_order_relaxed);
+  // Frames per millisecond at the running rate, not a hardcoded 48. A 200ms
+  // delay would have been 90ms at 96k and 217ms at 44.1k.
+  const std::size_t framesPerMs = static_cast<std::size_t>(audioRate_) / 1000u;
   const std::size_t holdValues =
-    static_cast<std::size_t>(audioDelayMs_.load(std::memory_order_relaxed)) * 48u * 2u;
+    static_cast<std::size_t>(audioDelayMs_.load(std::memory_order_relaxed)) *
+    framesPerMs * 2u;
   if (holdValues == 0 && audioDelayFifo_.empty()) {
     // Scope first and undelayed: the VU and waveform show what is being sent
     // to the device, which is what the operator is riding. Only the TAP -- the
@@ -7539,6 +7551,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
   }
   if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
     deckboy::libav::AudioOpenParams audioParams;
+    audioParams.sampleRate = audioRate_;
     audioParams.path = mediaPath;
     audioParams.startSeconds = mediaStartSeconds;
     audioParams.speed = speed;
@@ -10122,6 +10135,7 @@ void MediaEngine::applyAudioEffectsToGeneratedAudio(std::vector<std::int16_t>& o
   }
 
   deckboy::audiofx::AudioEffectContext ctx;
+  ctx.sampleRate = static_cast<double>(audioRate_);
   ctx.luma = audioCtxLuma_.load(std::memory_order_relaxed);
   ctx.motion = audioCtxMotion_.load(std::memory_order_relaxed);
   ctx.hasPicture = audioCtxHasPicture_.load(std::memory_order_relaxed);

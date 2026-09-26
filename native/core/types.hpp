@@ -2478,6 +2478,18 @@ struct Project {
   // -- Audio configuration -----------------------------------------------------
   int audioBufferSamples = 1024;  // SDL audio callback buffer: 256/512/1024/2048 samples
   int audioDelayMs = 0;           // chain A/V offset: delay ALL deck audio 0–1000 ms
+  // THE SAMPLE RATE THE WHOLE DESK RUNS AT.
+  //
+  // 48000 because that is what video carries: every film and broadcast file
+  // has 48k audio, so it is the one rate that costs no conversion on the
+  // common path. The others are here because a desk is sometimes wired into
+  // a music rig that runs at 44.1 or 96, and converting twice to meet it is
+  // worse than simply running there.
+  //
+  // Everything downstream follows it -- the device, the decoder's resampler,
+  // every filter coefficient and delay length in the cue audio chain, and
+  // the video clock, which counts frames of audio the device has played.
+  int audioSampleRate = 48000;
                                   // (displays/PA DSP lag video — dial in with the
                                   // Pocket Test beacon until flash and pop align)
   double masterVolume = 1.0;      // 0.0–1.0 master audio volume

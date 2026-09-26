@@ -307,6 +307,15 @@
       if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
         engine->setMasterGain(static_cast<float>(project_.masterVolume));
         engine->setAudioDelayMs(project_.audioDelayMs);
+        // The rate, published the same way and for the same reason: it is a
+        // project setting the engine has to act on, and this is the one tick
+        // that already carries them across. Changing it takes effect when the
+        // deck's device is next opened -- an engine mid-cue keeps the rate it
+        // started on, because retuning a running chain would click.
+        if (engine->audioRate() != project_.audioSampleRate &&
+            engine->state() != TransportState::Playing) {
+          engine->setAudioRate(project_.audioSampleRate);
+        }
       }
     }
     flushDirtyProject();
