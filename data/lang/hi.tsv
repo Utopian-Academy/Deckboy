@@ -1,4 +1,5 @@
 #name हिन्दी
+#english Hindi
 #font Nirmala.ttc, NirmalaS.ttf, NirmalaB.ttf, Kohinoor.ttc, NotoSansDevanagari-Regular.ttf, truetype/noto/NotoSansDevanagari-Regular.ttf
 # This script is not in the bundled faces, so the line above names the ones
 # that can draw it. They are tried in order: data/fonts first, then the

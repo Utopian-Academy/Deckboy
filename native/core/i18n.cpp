@@ -234,7 +234,8 @@ bool readCatalogue(const fs::path& file,
                    std::unordered_map<std::string, std::string>& into,
                    std::string& displayName,
                    std::string* fontFile = nullptr,
-                   bool* rtl = nullptr) {
+                   bool* rtl = nullptr,
+                   std::string* englishName = nullptr) {
   std::ifstream in(file);
   if (!in) return false;
   std::string line;
@@ -247,6 +248,15 @@ bool readCatalogue(const fs::path& file,
       const std::string fontTag = "#font";
       if (fontFile && line.rfind(fontTag, 0) == 0) {
         *fontFile = trim(line.substr(fontTag.size()));
+      }
+      // THE NAME IN ENGLISH, so the picker can be read in the language you
+      // are leaving. Every entry is shown in its own script, and the face
+      // only changes once a language has been chosen -- so on an English
+      // desk the CJK, Arabic and Devanagari entries are boxes and you cannot
+      // read what you are selecting.
+      const std::string englishTag = "#english";
+      if (englishName && line.rfind(englishTag, 0) == 0) {
+        *englishName = trim(line.substr(englishTag.size()));
       }
       const std::string rtlTag = "#rtl";
       if (rtl && line.rfind(rtlTag, 0) == 0) {
@@ -271,7 +281,7 @@ bool readCatalogue(const fs::path& file,
 
 std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
   std::vector<LanguageInfo> out;
-  out.push_back({"en", "English", false});
+  out.push_back({"en", "English", "English", false});
 
   std::error_code ec;
   const fs::path dir = catalogueDir(dataDir);
@@ -286,8 +296,9 @@ std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
       std::unordered_map<std::string, std::string> probe;
       std::string name = code;
       std::string font;
+      std::string english;
       bool rtl = false;
-      if (!readCatalogue(entry.path(), probe, name, &font, &rtl)) continue;
+      if (!readCatalogue(entry.path(), probe, name, &font, &rtl, &english)) continue;
       // Offering a right-to-left language that this build cannot shape means
       // offering unjoined letters in the wrong order. Better absent, and
       // --self-check says why.
@@ -295,7 +306,7 @@ std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
       // An empty catalogue is a file somebody started, not a language anybody
       // can pick; offering it would just be English under another name.
       if (probe.empty()) continue;
-      found.push_back({code, name, false});
+      found.push_back({code, name, english, false});
     }
     std::sort(found.begin(), found.end(),
               [](const LanguageInfo& a, const LanguageInfo& b) { return a.name < b.name; });
@@ -303,7 +314,7 @@ std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
   }
 
   for (int i = 0; i < kCypherCount; ++i) {
-    out.push_back({kCyphers[i].code, kCyphers[i].name, true});
+    out.push_back({kCyphers[i].code, kCyphers[i].name, kCyphers[i].name, true});
   }
   return out;
 }

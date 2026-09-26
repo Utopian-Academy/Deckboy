@@ -1,5 +1,27 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.392 (A readable language picker, and a pointer that gets out of the way)
+
+**You can read the language picker again.** Every entry was shown only in its
+own script -- 日本語, 简体中文, 한국어, العربية, हिन्दी -- while the interface
+was still in the font of the language you were leaving. The face only changes
+*after* you choose, so on an English desk those entries were empty boxes and
+the only way to find out what one said was to pick it. Each now reads
+**"Japanese - 日本語"**, so the half that always draws comes first.
+
+The translations themselves were never broken: all thirty-one catalogues load,
+the fonts for them resolve, and a desk booted into Japanese draws 新規 / 開く
+/ 保存 / タイムライン correctly.
+
+**They are, however, thin** -- about 7% of the interface, the same for every
+language. `tools/audit_i18n.py` measures it now, per language, and lists what
+is missing.
+
+**The pointer gets out of the way of the picture.** Left still for three
+seconds over the program monitor or an output window, it hides; any movement
+or click brings it straight back. It never hides over the playlist, the
+buttons, or while a menu or the settings are open.
+
 ## 2026-09-26 - v0.99.391 (The desk is no longer 48k only)
 
 **Settings → Audio → Sample rate**: 44100, 48000, 88200, 96000 or 192000 Hz.

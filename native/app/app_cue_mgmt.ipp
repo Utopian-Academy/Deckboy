@@ -7261,6 +7261,66 @@
   // when the UI scale changes, because the cursor has to grow with the rest of
   // the furniture or it becomes a speck on a 4K desk.
   // ---------------------------------------------------------------------------
+
+  // ── THE POINTER OVER THE PICTURE ──────────────────────────────────────────
+  //
+  // See the members in main.cpp for why this is tracked rather than left to
+  // SDL: cursor visibility is per-process, so it must be restored reliably.
+
+  void notePointerActivity(Uint32 windowId) {
+    lastPointerMoveMs_ = SDL_GetTicks();
+    lastPointerWindowId_ = windowId;
+    if (pointerHiddenForIdle_) {
+      SDL_ShowCursor();
+      pointerHiddenForIdle_ = false;
+    }
+  }
+
+  // Is the pointer somewhere a cursor would be ON the picture? An output
+  // window is entirely picture; in the control window it is the program
+  // monitor only, so the playlist and the buttons keep their pointer.
+  bool pointerIsOverPicture() const {
+    if (lastPointerWindowId_ == 0) return false;
+    if (outputIndexForWindowId(lastPointerWindowId_).has_value()) {
+      return true;
+    }
+    if (!controlWindow_ || lastPointerWindowId_ != SDL_GetWindowID(controlWindow_)) {
+      return false;
+    }
+    return programAreaRect_.w > 0 && programAreaRect_.h > 0 &&
+           pointInRect(mouseX_, mouseY_, programAreaRect_);
+  }
+
+  void servicePointerIdle() {
+    // Three seconds. A pointer that vanishes the instant you stop moving
+    // feels broken, and holding still ON the picture is exactly what an
+    // operator does while looking at it.
+    constexpr Uint64 kHideAfterMs = 3000;
+    if (lastPointerMoveMs_ == 0) return;
+
+    if (!pointerIsOverPicture()) {
+      // Moved off the picture without a motion event reaching us -- a window
+      // change, a drag that ended elsewhere. Bring it back rather than
+      // leaving it hidden over the chrome.
+      if (pointerHiddenForIdle_) {
+        SDL_ShowCursor();
+        pointerHiddenForIdle_ = false;
+      }
+      return;
+    }
+    if (pointerHiddenForIdle_) return;
+    // Never over a modal, a menu or a dropdown: those are things being
+    // pointed AT, and the picture behind them is not what the operator is
+    // looking at.
+    if (settingsOpen_ || contextMenuOpen_ || dropdown_.open || codeEditorOpen()) {
+      return;
+    }
+    if (SDL_GetTicks() - lastPointerMoveMs_ >= kHideAfterMs) {
+      SDL_HideCursor();
+      pointerHiddenForIdle_ = true;
+    }
+  }
+
   void refreshMiamiCursor() {
     if (!project_.miamiCursorEnabled) {
       if (miamiCursor_) {

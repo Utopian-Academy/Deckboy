@@ -1,4 +1,5 @@
 #name 한국어
+#english Korean
 #font malgun.ttf, AppleSDGothicNeo.ttc, NotoSansCJK-Regular.ttc
 # This script is not in the bundled faces, so the line above names the ones
 # that can draw it. They are tried in order: data/fonts first, then the

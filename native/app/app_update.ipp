@@ -130,6 +130,10 @@
           }
           break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
+          // A click is activity, wherever it lands -- including an output
+          // window, whose events are otherwise ignored here. Getting the
+          // cursor back must not depend on which window it is over.
+          notePointerActivity(event.button.windowID);
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
             if (handleInlineTextEditorMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y))) {
               break;
@@ -192,6 +196,11 @@
             }
           break;
         case SDL_EVENT_MOUSE_MOTION:
+          // ANY motion, in ANY window, wakes the pointer -- including the
+          // output windows, whose motion events are otherwise ignored here.
+          // Getting the cursor BACK must never depend on which window it
+          // happens to be over.
+          notePointerActivity(event.motion.windowID);
           if (event.motion.windowID == SDL_GetWindowID(controlWindow_)) {
             mouseX_ = static_cast<int>(event.motion.x);
             mouseY_ = static_cast<int>(event.motion.y);
@@ -290,6 +299,9 @@
     // The media browser's next folder, parked by the dropdown callback so the
     // click that chose it is finished before the new list opens.
     serviceMediaBrowser();
+    // The pointer gets out of the way of the picture after a few still
+    // seconds, and comes straight back on any movement.
+    servicePointerIdle();
     // DMX fades, and the continuous Art-Net refresh a rig expects.
     serviceDmx();
     // The notes in a MIDI file cue, sent from the cue's own transport

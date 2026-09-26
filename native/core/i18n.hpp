@@ -67,6 +67,12 @@ namespace i18n {
 struct LanguageInfo {
   std::string code;      // "es", "es-CU", "tlh", "cy-rot13"
   std::string name;      // what to show in the picker, in its own language
+  // AND IN ENGLISH, because the picker is read in the language being left:
+  // every entry is drawn in its own script while the interface is still in
+  // the old font, so 日本語 and العربية are boxes until after they are
+  // chosen. Empty for the cyphers and for English itself, whose names are
+  // already Latin.
+  std::string english;
   bool cypher = false;   // true = a transform, not a catalogue
 };
 

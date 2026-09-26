@@ -4704,7 +4704,14 @@
       } else if (sb.action == kSettingsActionLanguageDropdown) {
         std::vector<std::pair<std::string, std::string>> choices;
         for (const auto& lang : deckboy::core::i18n::availableLanguages(Paths::dataDir())) {
-          choices.push_back({lang.code, lang.name});
+          // ENGLISH FIRST, then the endonym. The endonym is the courteous
+          // label and it is also the one that may be unreadable here -- the
+          // face does not change until the language does -- so the half that
+          // always draws goes first and the row stays scannable either way.
+          const bool sameName = lang.english.empty() || lang.english == lang.name;
+          choices.push_back({lang.code,
+                             sameName ? lang.name
+                                      : (lang.english + "  -  " + lang.name)});
         }
         openDropdown("settings.language", sb.rect, choices,
                      deckboy::core::i18n::activeCode(),

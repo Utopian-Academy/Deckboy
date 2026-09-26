@@ -1,4 +1,5 @@
 #name 日本語
+#english Japanese
 #font YuGothR.ttc, meiryo.ttc, msgothic.ttc, Hiragino Sans GB.ttc, PingFang.ttc, NotoSansCJK-Regular.ttc, opentype/noto/NotoSansCJK-Regular.ttc
 # This script is not in the bundled faces, so the line above names the ones
 # that can draw it. They are tried in order: data/fonts first, then the

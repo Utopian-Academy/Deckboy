@@ -1,4 +1,5 @@
 #name العربية
+#english Arabic
 #font arial.ttf, segoeui.ttf, tahoma.ttf, ArabicTypesetting.ttf, GeezaPro.ttc, NotoSansArabic-Regular.ttf, truetype/noto/NotoSansArabic-Regular.ttf
 #rtl 1
 # Arabic needs two things the bundled faces cannot give it.

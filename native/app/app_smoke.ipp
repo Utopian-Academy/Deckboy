@@ -2535,6 +2535,51 @@
       expect(fill[0] == 255, "key+fill: a null source leaves the buffers alone");
     }
 
+
+    // ── EVERY LANGUAGE IS READABLE IN THE PICKER ──────────────────────────
+    //
+    // Each entry is drawn in its OWN script while the interface is still in
+    // the previous language's font, so the CJK, Arabic and Devanagari names
+    // are boxes on an English desk -- you cannot read the thing you are
+    // choosing. Every catalogue therefore carries a Latin name as well.
+    //
+    // Checked here because the failure is silent: a language added without
+    // one still shows up in the picker, just unreadably.
+    {
+      const auto langs = deckboy::core::i18n::availableLanguages(Paths::dataDir());
+      expect(langs.size() > 8, "languages: the catalogues were found at all");
+      int missingEnglish = 0;
+      int nonLatinEnglish = 0;
+      std::string firstBad;
+      for (const auto& lang : langs) {
+        if (lang.cypher) continue;   // a cypher's name is already Latin
+        if (lang.english.empty()) {
+          ++missingEnglish;
+          if (firstBad.empty()) firstBad = lang.code;
+          continue;
+        }
+        // An "English name" written in the language's own script is the same
+        // bug wearing a hat, so it has to be plain ASCII.
+        for (unsigned char c : lang.english) {
+          if (c > 0x7F) {
+            ++nonLatinEnglish;
+            if (firstBad.empty()) firstBad = lang.code;
+            break;
+          }
+        }
+      }
+      expect(missingEnglish == 0,
+             "languages: every catalogue names itself in English too" +
+               (missingEnglish ? (" (" + std::to_string(missingEnglish) +
+                                  " without, first " + firstBad + ")")
+                               : std::string()));
+      expect(nonLatinEnglish == 0,
+             "languages: those English names are readable in a Latin font" +
+               (nonLatinEnglish ? (" (" + std::to_string(nonLatinEnglish) +
+                                   " not, first " + firstBad + ")")
+                                : std::string()));
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }

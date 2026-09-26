@@ -1,4 +1,5 @@
 #name tlhIngan Hol
+#english Klingon
 # tlhIngan Hol, Latin transliteration -- pIqaD is not in Unicode and no
 # bundled font has it. Capitalisation is phonemic here (D and d are different
 # consonants), so these deliberately do not follow the all-caps house style:

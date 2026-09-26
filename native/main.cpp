@@ -10747,6 +10747,17 @@ class App {
   SocketHandle companionTcpListen_ = kInvalidSocket;
   SocketHandle companionUdpSocket_ = kInvalidSocket;
   SocketHandle oscQueryTcpListen_ = kInvalidSocket;
+  // ── THE POINTER OVER THE PICTURE ──────────────────────────────────────────
+  //
+  // Hidden after a few still seconds while it is over the program monitor or
+  // an output window, and brought straight back by any movement. SDL's cursor
+  // visibility is per-PROCESS, so the state has to be tracked here and undone
+  // reliably -- an operator who cannot find their mouse is a worse problem
+  // than the one this solves.
+  Uint64 lastPointerMoveMs_ = 0;
+  Uint32 lastPointerWindowId_ = 0;
+  bool pointerHiddenForIdle_ = false;
+
   bool oscQueryReady_ = false;
   std::atomic<bool> oscQueryStop_ {false};
   std::thread oscQueryThread_;

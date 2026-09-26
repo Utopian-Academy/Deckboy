@@ -1,4 +1,5 @@
 #name 简体中文
+#english Chinese (Simplified)
 #font msyh.ttc, simsun.ttc, YuGothR.ttc, meiryo.ttc, msgothic.ttc, Hiragino Sans GB.ttc, PingFang.ttc, NotoSansCJK-Regular.ttc, opentype/noto/NotoSansCJK-Regular.ttc
 # This script is not in the bundled faces, so the line above names the ones
 # that can draw it. They are tried in order: data/fonts first, then the
