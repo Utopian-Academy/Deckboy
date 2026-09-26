@@ -798,6 +798,11 @@
   }
 
   void updateStatusSnapshot() {
+    // The vMix document is built here too, and for the same reason this
+    // function exists: the project belongs to the main thread, and a server
+    // thread walking the playlists while a cue is being imported is a data
+    // race. It takes its own mutex, so it is outside the lock below.
+    refreshVmixSnapshots();
     std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
     statusSnapshot_ = buildStatusSnapshot();
     statusSnapshotJson_ = buildStatusSnapshotJson();
@@ -961,6 +966,62 @@
     }
     triggerToast("osc query port: " + std::to_string(project_.oscQueryPort));
     playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  // ── The vMix-compatible surface ───────────────────────────────────────────
+  //
+  // Same shape as the OSC query server above: flipping it on starts the
+  // listeners and a bind failure turns the setting back off rather than
+  // leaving it claiming to be on. A setting that says "on" while nothing is
+  // listening is the fault this codebase keeps finding.
+  void setVmixApiEnabled(bool enabled) {
+    normalizeProject(project_);
+    if (project_.vmixApiEnabled == enabled) {
+      triggerToast(std::string("vmix api: ") + (enabled ? "on" : "off"));
+      return;
+    }
+    project_.vmixApiEnabled = enabled;
+    if (project_.vmixApiEnabled) {
+      if (!startVmixServer()) {
+        project_.vmixApiEnabled = false;
+        triggerToast("vmix api: neither port could be opened");
+        playUiSound(UiSoundEffect::Toggle);
+        return;
+      }
+      // The document has to exist before the first client asks: a panel that
+      // connects and gets an empty XML decides the desk is broken.
+      refreshVmixSnapshots();
+    } else {
+      stopVmixServer();
+    }
+    triggerToast(std::string("vmix api: ") +
+                 (project_.vmixApiEnabled
+                    ? ("on, http " + std::to_string(project_.vmixHttpPort) +
+                       " tcp " + std::to_string(project_.vmixTcpPort))
+                    : std::string("off")));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setVmixPorts(int httpPort, int tcpPort) {
+    normalizeProject(project_);
+    const int http = std::clamp(httpPort, 1, 65535);
+    const int tcp = std::clamp(tcpPort, 1, 65535);
+    if (http == tcp) {
+      triggerToast("vmix api: the two ports must differ");
+      return;
+    }
+    if (project_.vmixHttpPort == http && project_.vmixTcpPort == tcp) return;
+    project_.vmixHttpPort = http;
+    project_.vmixTcpPort = tcp;
+    if (project_.vmixApiEnabled) {
+      stopVmixServer();
+      startVmixServer();
+      refreshVmixSnapshots();
+    }
+    triggerToast("vmix api: http " + std::to_string(http) +
+                 " tcp " + std::to_string(tcp));
     markProjectDirty();
   }
 

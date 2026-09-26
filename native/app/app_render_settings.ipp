@@ -1588,6 +1588,10 @@
       leftY += oscRect.h + kCardGap;
       // NMC IN & OUT. Four rows and one line saying what the chosen
       // direction actually does.
+      // vMix-compatible surface: a status line and three rows.
+      int vmixH = stackH({sLineH, sRowH, sRowH, sRowH});
+      SDL_Rect vmixRect {leftCol.x, leftY, leftCol.w, vmixH};
+      leftY += vmixRect.h + kCardGap;
       int nmcH = stackH({sRowH, sRowH, sRowH, sRowH, sLineH});
       SDL_Rect nmcRect {leftCol.x, leftY, leftCol.w, nmcH};
       leftY += nmcRect.h + kCardGap;
@@ -1675,6 +1679,46 @@
       SDL_Rect fbRateBtn = settingsRow(oscX, oscW, oscY, sRowH, "Mirror rate", sGap);
       drawUIValueControl(fbRateBtn, std::to_string(project_.oscFeedbackRateMs) + " ms");
       settingsBtns_.push_back({fbRateBtn, kSettingsActionOscFeedbackRatePrompt, "osc_feedback_rate"});
+
+      // ── vMix-COMPATIBLE SURFACE ─────────────────────────────────────────
+      //
+      // Deckboy speaks one protocol that nothing else speaks. These are vMix's
+      // own ports and vMix's own commands, so a Stream Deck plugin, Companion
+      // module or touch panel built for a vMix rig drives this desk with
+      // nothing further written by anybody.
+      //
+      // ON AND LISTENING ARE DIFFERENT THINGS, and the status line says which.
+      // A machine that also runs vMix has 8088 taken, and an operator who is
+      // told "on" while nothing is bound spends the evening on it.
+      drawCard(vmixRect, "vMix API", "Panels built for a vMix rig, unchanged");
+      {
+        const int vmX = cardBodyX(vmixRect);
+        const int vmW = cardBodyW(vmixRect);
+        int vmY = cardBodyY(vmixRect);
+        const std::string vmixStatus =
+          !project_.vmixApiEnabled ? std::string("off")
+          : vmixReady_ ? ("listening on " + std::to_string(project_.vmixHttpPort) +
+                          " and " + std::to_string(project_.vmixTcpPort))
+                       : std::string("on, but neither port could be opened");
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{vmX, vmY, vmW, sLineH},
+                     "status: " + vmixStatus, soft);
+        vmY += sLineH + sGap;
+
+        SDL_Rect vmixToggle = settingsRow(vmX, vmW, vmY, sRowH, "vMix API", sGap);
+        drawPill(vmixToggle, project_.vmixApiEnabled, "ON", "OFF",
+                 kSettingsActionVmixToggle);
+
+        SDL_Rect vmixHttpBtn = settingsRow(vmX, vmW, vmY, sRowH, "HTTP port", sGap);
+        drawUIValueControl(vmixHttpBtn, std::to_string(project_.vmixHttpPort));
+        settingsBtns_.push_back({vmixHttpBtn, kSettingsActionVmixHttpPortPrompt,
+                                 "vmix_http_port"});
+
+        SDL_Rect vmixTcpBtn = settingsRow(vmX, vmW, vmY, sRowH, "TCP port", sGap);
+        drawUIValueControl(vmixTcpBtn, std::to_string(project_.vmixTcpPort));
+        settingsBtns_.push_back({vmixTcpBtn, kSettingsActionVmixTcpPortPrompt,
+                                 "vmix_tcp_port"});
+      }
 
       // ── NMC IN & OUT ────────────────────────────────────────────────────
       //
@@ -4061,6 +4105,14 @@
         markProjectDirty();
       } else if (sb.action == kSettingsActionOscQueryToggle) {
         setOscQueryEnabled(!project_.oscQueryEnabled);
+      } else if (sb.action == kSettingsActionVmixToggle) {
+        setVmixApiEnabled(!project_.vmixApiEnabled);
+      } else if (sb.action == kSettingsActionVmixHttpPortPrompt) {
+        settingsOpen_ = false;
+        openInlineVmixPortEditor(true);
+      } else if (sb.action == kSettingsActionVmixTcpPortPrompt) {
+        settingsOpen_ = false;
+        openInlineVmixPortEditor(false);
       } else if (sb.action == kSettingsActionOscQueryPortPrompt) {
         settingsOpen_ = false;
         openInlineOscQueryPortEditor();

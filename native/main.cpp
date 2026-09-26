@@ -4040,6 +4040,11 @@ class App {
     if (project_.oscQueryEnabled) {
       startOscQueryServer();
     }
+    // A show saved with the vMix surface on comes back with it on. It binds
+    // the same way the other listeners do, and reports if it cannot.
+    if (project_.vmixApiEnabled) {
+      startVmixServer();
+    }
     startHyperDeckServer();
     startAtemSwitcherClient();
     startIntegrationBridges();
@@ -4064,6 +4069,7 @@ class App {
     stopAtemSwitcherClient();
     stopMidiInput();
     stopOscQueryServer();
+    stopVmixServer();
     // Before the output runtimes go away: this releases any IS-05 caller parked
     // in the patch handler, then joins the node's threads.
     shutdownNmosNode();
@@ -8723,6 +8729,10 @@ class App {
   // settings tab in v0.76.24.
   static constexpr int kSettingsActionWatchFolderPick = 691;
   static constexpr int kSettingsActionWatchFolderClear = 692;
+  // The vMix-compatible surface. Same gap; audit_actions.py is the check.
+  static constexpr int kSettingsActionVmixToggle = 693;
+  static constexpr int kSettingsActionVmixHttpPortPrompt = 694;
+  static constexpr int kSettingsActionVmixTcpPortPrompt = 695;
   // 723-725: the update checker. Next free id is 726.
   static constexpr int kSettingsActionMonitorDevice = 794;
   static constexpr int kSettingsActionMonitorDeck = 795;
@@ -10732,6 +10742,26 @@ class App {
   bool oscQueryReady_ = false;
   std::atomic<bool> oscQueryStop_ {false};
   std::thread oscQueryThread_;
+
+  // vMix-compatible surface: HTTP on 8088 and the text protocol on 8099, both
+  // served by one thread so they cannot disagree or be half-running.
+  SocketHandle vmixHttpListen_ = kInvalidSocket;
+  SocketHandle vmixTcpListen_ = kInvalidSocket;
+  bool vmixReady_ = false;
+  std::atomic<bool> vmixStop_ {false};
+  std::thread vmixThread_;
+  std::mutex vmixClientsMutex_;            // protects the two containers below
+  std::vector<SocketHandle> vmixClients_;
+  std::set<SocketHandle> vmixSubscribers_;
+  // The document and the tally string, rebuilt on the MAIN thread beside the
+  // status snapshot. The server thread only ever reads these two strings, so
+  // it never walks the project while the main thread is editing it.
+  std::mutex vmixSnapshotMutex_;
+  std::string vmixXmlSnapshot_;
+  std::string vmixTallySnapshot_;
+  // Server-thread only: what was last pushed, so subscribers get a frame when
+  // the tally CHANGES rather than one per tick.
+  std::string vmixLastPushedTally_;
   std::mutex companionClientsMutex_;  // protects companionClients_ + companionClientBuffers_
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;

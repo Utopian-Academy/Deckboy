@@ -2337,6 +2337,29 @@
                          });
   }
 
+  void openInlineVmixPortEditor(bool httpSide) {
+    openInlineTextEditor(httpSide ? "settings.vmix_http_port"
+                                  : "settings.vmix_tcp_port",
+                         httpSide ? "vMix HTTP Port" : "vMix TCP Port",
+                         httpSide ? "port number (vMix uses 8088)"
+                                  : "port number (vMix uses 8099)",
+                         std::to_string(httpSide ? project_.vmixHttpPort
+                                                 : project_.vmixTcpPort),
+                         [this, httpSide](const std::string& value) {
+                           try {
+                             const int p = std::stoi(trim(value));
+                             if (p > 0 && p < 65536) {
+                               setVmixPorts(httpSide ? p : project_.vmixHttpPort,
+                                            httpSide ? project_.vmixTcpPort : p);
+                             } else {
+                               triggerToast("vmix port: invalid");
+                             }
+                           } catch (...) {
+                             triggerToast("vmix port: invalid");
+                           }
+                         });
+  }
+
   void openInlineOscQueryPortEditor() {
     openInlineTextEditor("settings.osc_query_port",
                          "OSC Query HTTP Port",

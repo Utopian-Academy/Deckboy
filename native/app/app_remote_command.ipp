@@ -3858,6 +3858,35 @@
         "GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>");
       return;
     }
+    if (command == "VMIX") {
+      // VMIX                -- report
+      // VMIX ON|OFF|TOGGLE  -- the surface
+      // VMIX PORTS <http> <tcp>
+      if (parts.size() < 2) {
+        const std::string report =
+          std::string(project_.vmixApiEnabled ? "on" : "off") +
+          " http " + std::to_string(project_.vmixHttpPort) +
+          " tcp " + std::to_string(project_.vmixTcpPort) +
+          " inputs " + std::to_string(vmixInputs().size());
+        remoteCommandDetail_ = report;
+        triggerToast("vmix api: " + report);
+        return;
+      }
+      const std::string sub = toUpper(parts[1]);
+      if (sub == "ON")     { setVmixApiEnabled(true);  return; }
+      if (sub == "OFF")    { setVmixApiEnabled(false); return; }
+      if (sub == "TOGGLE") { setVmixApiEnabled(!project_.vmixApiEnabled); return; }
+      if (sub == "PORTS") {
+        if (parts.size() < 4) {
+          failRemoteCommand("VMIX PORTS: expected an http port and a tcp port");
+          return;
+        }
+        setVmixPorts(std::atoi(parts[2].c_str()), std::atoi(parts[3].c_str()));
+        return;
+      }
+      failRemoteCommand("VMIX: expected ON, OFF, TOGGLE or PORTS");
+      return;
+    }
     if (command == "WATCH") {
       // WATCH                  -- report every playlist that is watching
       // WATCH <deck> <path>    -- point that playlist at a folder

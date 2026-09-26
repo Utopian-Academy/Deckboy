@@ -284,6 +284,9 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
   output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
+  output << "vmix_api_enabled\t" << (project.vmixApiEnabled ? 1 : 0) << '\n';
+  output << "vmix_http_port\t" << project.vmixHttpPort << '\n';
+  output << "vmix_tcp_port\t" << project.vmixTcpPort << '\n';
   output << "osc_feedback_mirror\t" << (project.oscFeedbackMirrorEnabled ? 1 : 0) << '\n';
   output << "osc_feedback_rate_ms\t" << project.oscFeedbackRateMs << '\n';
   output << "integration_atem_trigger\t" << (project.atemTriggerEnabled ? 1 : 0) << '\n';
@@ -1257,6 +1260,12 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.oscQueryEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "osc_query_port") {
     project.oscQueryPort = safeInt(fields, 1, 5511);
+  } else if (fields[0] == "vmix_api_enabled") {
+    project.vmixApiEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "vmix_http_port") {
+    project.vmixHttpPort = safeInt(fields, 1, 8088);
+  } else if (fields[0] == "vmix_tcp_port") {
+    project.vmixTcpPort = safeInt(fields, 1, 8099);
   } else if (fields[0] == "osc_feedback_mirror") {
     project.oscFeedbackMirrorEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "osc_feedback_rate_ms") {

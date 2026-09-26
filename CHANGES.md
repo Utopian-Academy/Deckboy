@@ -1,5 +1,30 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.384 (Deckboy answers the vMix APIs)
+
+**Panels built for a vMix rig now drive Deckboy, unchanged.**
+**Settings → Network → vMix API** makes it answer vMix's HTTP API on 8088 and
+vMix's text protocol on 8099 -- their ports, their commands -- so a Stream
+Deck plugin, Companion module, touch panel or show-control system already set
+up for vMix works here with nothing written and nothing configured beyond
+pointing it at this machine.
+
+A vMix **Input** is a Deckboy **cue**, numbered straight through every
+playlist, so per-cue tally works the way a panel expects. Each playlist also
+appears as a vMix **mix**.
+
+`TALLY`, `FUNCTION`, `XML`, `SUBSCRIBE` and the rest of the text protocol are
+there, and `SUBSCRIBE TALLY` pushes on change rather than making the panel
+poll. Fifteen Functions are understood, from Cut and Fade to SetVolume.
+
+A Function Deckboy has no equivalent for is **refused** -- 404 over HTTP,
+`FUNCTION ER` over TCP. vMix answers success to a Function that failed; a desk
+that says a cue was taken when it was not is worse than one that says it
+cannot.
+
+Off by default, and like the control port it listens on localhost only until
+**Listen on** says otherwise. There is no password on it yet.
+
 ## 2026-09-26 - v0.99.383 (Windows gets its timecode back)
 
 **LTC works on Windows again** -- and, on the evidence, for the first time.

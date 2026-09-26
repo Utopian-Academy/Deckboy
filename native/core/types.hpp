@@ -2402,6 +2402,13 @@ struct Project {
   bool allowRemoteNetwork = false;       // false = listeners bind to localhost only; true = all interfaces
   bool oscQueryEnabled = false;          // OSC query server (Companion, TouchOSC, etc.)
   int oscQueryPort = 5511;               // TCP/UDP port for OSC
+  // vMix-compatible control surface. OFF by default: it is a second way into
+  // the show, and a second way in is a decision the operator makes rather than
+  // one that arrives switched on. The ports are vMix's own, so a panel
+  // configured for a vMix rig needs nothing changed.
+  bool vmixApiEnabled = false;           // answer the vMix HTTP and TCP APIs
+  int vmixHttpPort = 8088;               // vMix's HTTP API port
+  int vmixTcpPort = 8099;                // vMix's TCP API port
   bool oscFeedbackMirrorEnabled = false; // mirror OSC feedback to all connected clients
   int oscFeedbackRateMs = 120;           // throttle interval for OSC feedback packets
   bool atemTriggerEnabled = false;       // ATEM switcher tally/trigger integration

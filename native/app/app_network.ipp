@@ -270,6 +270,752 @@
                      "Deckboy OSC Query endpoint not found.\n");
   }
 
+
+  // ══ vMix-COMPATIBLE CONTROL SURFACE ═══════════════════════════════════════
+  //
+  // Deckboy speaks one protocol that nothing else speaks, so every controller
+  // needs a module written for it. The vMix TCP and HTTP APIs are the most
+  // widely implemented desk protocol there is, and answering them means every
+  // Stream Deck plugin, Companion module and touch panel already built for a
+  // vMix rig drives Deckboy with nothing further written by anybody.
+  //
+  // THE MAPPING:
+  //   vMix INPUT   = a Deckboy CUE, flattened across playlists in order. Not
+  //                  a playlist -- a panel's tally wants to say "this clip is
+  //                  on air", and every vMix surface is built around that.
+  //   ACTIVE       = the live cue of the focused playlist.
+  //   PREVIEW      = the selected cue of the focused playlist.
+  //   MIX n        = playlist n. vMix has four; Deckboy reports all of its
+  //                  own, and a panel that only knows mix1-4 sees the first
+  //                  four, which is the right way to degrade.
+  //
+  // A Function vMix has and Deckboy has no equivalent for answers 404 and
+  // "Function not supported". vMix answers 200 even when a Function failed;
+  // we do not, because a surface that reports success for something that did
+  // not happen is how a show goes dark with every light green.
+
+  struct VmixInput {
+    int number = 0;          // 1-based, flat across playlists
+    int deckIndex = 0;
+    int cueIndex = 0;
+    std::string title;
+    std::string shortTitle;
+    std::string state;       // Running / Paused / Stopped
+    double durationMs = 0.0;
+    double positionMs = 0.0;
+  };
+
+  // The flat input list, built from the project. Order is playlist order then
+  // cue order, and it must stay stable within a snapshot: the TALLY string,
+  // the XML and any Function that takes an Input number all index into it, and
+  // a list that renumbered between two of those would move the cue under a
+  // panel's finger.
+  std::vector<VmixInput> vmixInputs() const {
+    std::vector<VmixInput> out;
+    int number = 1;
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+      const Deck& deck = project_.decks[d];
+      for (std::size_t c = 0; c < deck.cues.size(); ++c) {
+        const Cue& cue = deck.cues[c];
+        VmixInput in;
+        in.number = number++;
+        in.deckIndex = static_cast<int>(d);
+        in.cueIndex = static_cast<int>(c);
+        in.title = cue.name.empty() ? std::string("Cue ") + std::to_string(c + 1)
+                                    : cue.name;
+        in.shortTitle = in.title;
+        // vMix has three input states and Deckboy's engine has more, so the
+        // mapping is deliberate rather than a string copy: anything producing
+        // picture reads Running, because that is what a tally is for. A source
+        // that is warm but not capturing is Stopped, not Paused -- Paused on a
+        // vMix panel means "there is a clip here and it is held", and a camera
+        // that has not come up is not that.
+        const bool live = static_cast<int>(c) == deck.activeIndex;
+        const MediaEngine* engine = live ? mediaEngineForDeck(static_cast<int>(d))
+                                         : nullptr;
+        if (!live || !engine) {
+          in.state = "Stopped";
+        } else if (engine->state() == TransportState::Paused) {
+          in.state = "Paused";
+        } else if (engine->state() == TransportState::Playing) {
+          in.state = "Running";
+        } else {
+          in.state = "Stopped";
+        }
+        in.durationMs = cue.duration * 1000.0;
+        in.positionMs = (live && engine) ? engine->position() * 1000.0 : 0.0;
+        out.push_back(std::move(in));
+      }
+    }
+    return out;
+  }
+
+  // The flat number of a playlist's live or selected cue, or 0 for none --
+  // which is what vMix uses when there is nothing there.
+  int vmixFlatNumber(int deckIndex, int cueIndex) const {
+    if (deckIndex < 0 || cueIndex < 0) return 0;
+    int number = 1;
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+      for (std::size_t c = 0; c < project_.decks[d].cues.size(); ++c) {
+        if (static_cast<int>(d) == deckIndex && static_cast<int>(c) == cueIndex) {
+          return number;
+        }
+        ++number;
+      }
+    }
+    return 0;
+  }
+
+  static std::string vmixXmlEscape(const std::string& raw) {
+    std::string out;
+    out.reserve(raw.size());
+    for (char c : raw) {
+      switch (c) {
+        case '&':  out += "&amp;"; break;
+        case '<':  out += "&lt;"; break;
+        case '>':  out += "&gt;"; break;
+        case '"':  out += "&quot;"; break;
+        case '\'': out += "&apos;"; break;
+        default:
+          // Control characters are not legal in XML 1.0 at all, and a cue
+          // named from a filename can carry them. Dropped rather than
+          // escaped, because there is no escape that makes them legal.
+          if (static_cast<unsigned char>(c) >= 0x20 || c == '\t') out += c;
+          break;
+      }
+    }
+    return out;
+  }
+
+  static std::string vmixTimeString(double ms) {
+    if (!(ms > 0.0)) return "00:00:00.000";
+    const long long total = static_cast<long long>(ms);
+    char buffer[32];
+    std::snprintf(buffer, sizeof(buffer), "%02lld:%02lld:%02lld.%03lld",
+                  total / 3600000, (total / 60000) % 60,
+                  (total / 1000) % 60, total % 1000);
+    return buffer;
+  }
+
+  // The state document. Both transports serve this one string, so the HTTP
+  // and TCP surfaces can never disagree about what the desk is doing.
+  std::string vmixStatusXml() const {
+    const std::vector<VmixInput> inputs = vmixInputs();
+    const Deck& focused = focusedDeck();
+    const int focusedIndex = project_.focusedDeckIndex;
+    std::ostringstream xml;
+    xml << "<vmix>\r\n";
+    xml << "<version>" << deckboy::core::version::kVersionTag << "</version>\r\n";
+    xml << "<edition>Deckboy</edition>\r\n";
+    xml << "<preset></preset>\r\n";
+    xml << "<inputs>\r\n";
+    for (const VmixInput& in : inputs) {
+      xml << "<input key=\"" << in.number
+          << "\" number=\"" << in.number
+          << "\" type=\"Video\""
+          << " title=\"" << vmixXmlEscape(in.title) << "\""
+          << " shortTitle=\"" << vmixXmlEscape(in.shortTitle) << "\""
+          << " state=\"" << in.state << "\""
+          << " position=\"" << static_cast<long long>(in.positionMs) << "\""
+          << " duration=\"" << static_cast<long long>(in.durationMs) << "\""
+          << " loop=\"False\">"
+          << vmixXmlEscape(in.title) << "</input>\r\n";
+    }
+    xml << "</inputs>\r\n";
+    xml << "<overlays>\r\n";
+    for (int i = 1; i <= 4; ++i) xml << "<overlay number=\"" << i << "\"/>\r\n";
+    xml << "</overlays>\r\n";
+    xml << "<preview>" << vmixFlatNumber(focusedIndex, focused.selectedIndex)
+        << "</preview>\r\n";
+    xml << "<active>" << vmixFlatNumber(focusedIndex, focused.activeIndex)
+        << "</active>\r\n";
+    // The same test the status snapshot uses for blackout, so the two
+    // surfaces cannot disagree about the same desk.
+    xml << "<fadeToBlack>" << (masterDimmerTarget_ <= 0.001 ? "True" : "False")
+        << "</fadeToBlack>\r\n";
+    xml << "<recording>" << (recordingActive() ? "True" : "False") << "</recording>\r\n";
+    xml << "<external>False</external>\r\n";
+    xml << "<streaming>False</streaming>\r\n";
+    xml << "<playList>False</playList>\r\n";
+    xml << "<multiCorder>False</multiCorder>\r\n";
+    xml << "<fullscreen>False</fullscreen>\r\n";
+    // EVERY playlist as a mix, not only the four vMix has. A panel that knows
+    // about mix1-mix4 reads the first four and ignores the rest.
+    xml << "<mix>\r\n";
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+      const Deck& deck = project_.decks[d];
+      xml << "<mix number=\"" << (d + 1) << "\">"
+          << "<preview>" << vmixFlatNumber(static_cast<int>(d), deck.selectedIndex)
+          << "</preview>"
+          << "<active>" << vmixFlatNumber(static_cast<int>(d), deck.activeIndex)
+          << "</active>"
+          << "</mix>\r\n";
+    }
+    xml << "</mix>\r\n";
+    xml << "</vmix>\r\n";
+    return xml.str();
+  }
+
+  // One digit per input: 0 off, 1 program, 2 preview. Program wins, which is
+  // vMix's own rule and the one every panel draws from.
+  std::string vmixTallyString() const {
+    const std::vector<VmixInput> inputs = vmixInputs();
+    std::string tally(inputs.size(), '0');
+    for (std::size_t i = 0; i < inputs.size(); ++i) {
+      const Deck& deck = project_.decks[static_cast<std::size_t>(inputs[i].deckIndex)];
+      if (inputs[i].cueIndex == deck.activeIndex) {
+        tally[i] = '1';
+      } else if (inputs[i].cueIndex == deck.selectedIndex) {
+        tally[i] = '2';
+      }
+    }
+    return tally;
+  }
+
+  // ── Functions ─────────────────────────────────────────────────────────────
+  //
+  // Translated into Deckboy's own verbs and queued on the main thread like any
+  // other remote command, so a vMix Function and the equivalent typed command
+  // take exactly the same path and cannot drift apart.
+  //
+  // Returns false for a Function this desk has no equivalent for. The caller
+  // turns that into a 404 and "Function not supported" rather than a cheerful
+  // 200 -- see the header.
+  bool vmixFunctionToCommand(const std::string& function,
+                             const std::map<std::string, std::string>& args,
+                             std::string& commandOut) const {
+    const std::string fn = toLower(trim(function));
+    const auto arg = [&args](const char* name) -> std::string {
+      auto it = args.find(toLower(name));
+      return it == args.end() ? std::string() : it->second;
+    };
+    // An Input argument is a FLAT number; it has to become a playlist and a
+    // cue before any Deckboy verb can use it.
+    const auto inputTarget = [&](int& deckOut, int& cueOut) -> bool {
+      const std::string raw = arg("input");
+      if (raw.empty()) return false;
+      int wanted = std::atoi(raw.c_str());
+      if (wanted < 1) return false;
+      int number = 1;
+      for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+        for (std::size_t c = 0; c < project_.decks[d].cues.size(); ++c) {
+          if (number == wanted) {
+            deckOut = static_cast<int>(d);
+            cueOut = static_cast<int>(c);
+            return true;
+          }
+          ++number;
+        }
+      }
+      return false;
+    };
+
+    int deckIndex = 0, cueIndex = 0;
+    if (fn == "cut") { commandOut = "TAKE"; return true; }
+    if (fn == "fade" || fn == "transition1") {
+      const std::string duration = arg("duration");
+      commandOut = duration.empty() ? "TAKE" : ("CROSSFADE " + duration);
+      return true;
+    }
+    if (fn == "play")  { commandOut = "PLAY";  return true; }
+    if (fn == "pause") { commandOut = "PAUSE"; return true; }
+    if (fn == "stop")  { commandOut = "STOP";  return true; }
+    if (fn == "playpause") { commandOut = "PLAY"; return true; }
+    if (fn == "previewinput" || fn == "preview") {
+      if (!inputTarget(deckIndex, cueIndex)) return false;
+      commandOut = "DECK " + std::to_string(deckIndex + 1) +
+                   " SELECT " + std::to_string(cueIndex + 1);
+      return true;
+    }
+    if (fn == "activeinput" || fn == "cutdirect") {
+      if (!inputTarget(deckIndex, cueIndex)) return false;
+      commandOut = "DECK " + std::to_string(deckIndex + 1) +
+                   " TAKE " + std::to_string(cueIndex + 1);
+      return true;
+    }
+    if (fn == "fadetoblack" || fn == "ftb") { commandOut = "BLACKOUT"; return true; }
+    if (fn == "startrecording") { commandOut = "RECORD ON"; return true; }
+    if (fn == "stoprecording")  { commandOut = "RECORD OFF"; return true; }
+    if (fn == "setmastervolume") {
+      const std::string value = arg("value");
+      if (value.empty()) return false;
+      commandOut = "MASTERVOL " + value;
+      return true;
+    }
+    if (fn == "setvolume") {
+      const std::string value = arg("value");
+      if (value.empty() || !inputTarget(deckIndex, cueIndex)) return false;
+      commandOut = "DECK " + std::to_string(deckIndex + 1) + " VOLUME " + value;
+      return true;
+    }
+    if (fn == "nextitem" || fn == "next")     { commandOut = "NEXT"; return true; }
+    if (fn == "previousitem" || fn == "previous") { commandOut = "PREVIOUS"; return true; }
+    if (fn == "restart") { commandOut = "RERACK"; return true; }
+    return false;
+  }
+
+  // Percent-decoding, for the HTTP query string. A cue name with a space in
+  // it arrives as %20 and a panel that sends a '+' means a space too.
+  static std::string vmixUrlDecode(const std::string& raw) {
+    std::string out;
+    out.reserve(raw.size());
+    for (std::size_t i = 0; i < raw.size(); ++i) {
+      if (raw[i] == '+') { out += ' '; continue; }
+      if (raw[i] == '%' && i + 2 < raw.size()) {
+        const auto hex = [](char c) -> int {
+          if (c >= '0' && c <= '9') return c - '0';
+          if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+          if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+          return -1;
+        };
+        const int hi = hex(raw[i + 1]), lo = hex(raw[i + 2]);
+        if (hi >= 0 && lo >= 0) {
+          out += static_cast<char>(hi * 16 + lo);
+          i += 2;
+          continue;
+        }
+      }
+      out += raw[i];
+    }
+    return out;
+  }
+
+  // Keys are lowercased: vMix panels are inconsistent about Function= vs
+  // function= and Input= vs input=, and a surface that only answered one
+  // spelling would work with some panels and not others.
+  static std::map<std::string, std::string> vmixParseQuery(const std::string& query) {
+    std::map<std::string, std::string> out;
+    std::size_t at = 0;
+    while (at < query.size()) {
+      std::size_t amp = query.find('&', at);
+      if (amp == std::string::npos) amp = query.size();
+      const std::string pair = query.substr(at, amp - at);
+      const std::size_t eq = pair.find('=');
+      if (eq != std::string::npos) {
+        out[toLower(vmixUrlDecode(pair.substr(0, eq)))] =
+          vmixUrlDecode(pair.substr(eq + 1));
+      } else if (!pair.empty()) {
+        out[toLower(vmixUrlDecode(pair))] = "";
+      }
+      at = amp + 1;
+    }
+    return out;
+  }
+
+
+  // ── The listeners ─────────────────────────────────────────────────────────
+
+  bool startVmixServer() {
+    if (!project_.vmixApiEnabled) {
+      vmixReady_ = false;
+      return false;
+    }
+    if (vmixHttpListen_ != kInvalidSocket || vmixTcpListen_ != kInvalidSocket) {
+      return true;
+    }
+    // LOOPBACK UNLESS TOLD OTHERWISE, the same rule the 5510 port follows.
+    // This is a second door into a live show and it must not be a wider one.
+    const bool loopbackOnly = !project_.allowRemoteNetwork;
+    vmixHttpListen_ = createBoundSocket(SOCK_STREAM, project_.vmixHttpPort, true,
+                                        loopbackOnly);
+    vmixTcpListen_ = createBoundSocket(SOCK_STREAM, project_.vmixTcpPort, true,
+                                       loopbackOnly);
+    // A TCP bind failure is not fatal to the HTTP side and the reverse is also
+    // true: a machine that already runs vMix itself has 8088 taken, and half a
+    // surface is worth more than none. It is reported either way, because a
+    // port that quietly did not open is the thing an operator spends an
+    // evening on.
+    if (vmixHttpListen_ == kInvalidSocket && vmixTcpListen_ == kInvalidSocket) {
+      triggerToast("vMix API: neither port could be opened (" +
+                     std::to_string(project_.vmixHttpPort) + ", " +
+                     std::to_string(project_.vmixTcpPort) + ")",
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      vmixReady_ = false;
+      return false;
+    }
+    if (vmixHttpListen_ == kInvalidSocket) {
+      triggerToast("vMix API: port " + std::to_string(project_.vmixHttpPort) +
+                     " is taken; the TCP surface is up",
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+    }
+    if (vmixTcpListen_ == kInvalidSocket) {
+      triggerToast("vMix API: port " + std::to_string(project_.vmixTcpPort) +
+                     " is taken; the HTTP surface is up",
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+    }
+    vmixStop_.store(false);
+    vmixThread_ = std::thread([this]() { vmixLoop(); });
+    vmixReady_ = true;
+    return true;
+  }
+
+  void stopVmixServer() {
+    vmixStop_.store(true);
+    if (vmixHttpListen_ != kInvalidSocket) {
+      closeSocket(vmixHttpListen_);
+      vmixHttpListen_ = kInvalidSocket;
+    }
+    if (vmixTcpListen_ != kInvalidSocket) {
+      closeSocket(vmixTcpListen_);
+      vmixTcpListen_ = kInvalidSocket;
+    }
+    if (vmixThread_.joinable()) {
+      vmixThread_.join();
+    }
+    {
+      std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+      for (SocketHandle client : vmixClients_) closeSocket(client);
+      vmixClients_.clear();
+      vmixSubscribers_.clear();
+    }
+    vmixReady_ = false;
+  }
+
+  void vmixSendLine(SocketHandle client, const std::string& line) {
+    const std::string wire = line + "\r\n";
+    send(client, wire.data(), static_cast<int>(wire.size()), kSocketSendFlags);
+  }
+
+  // One TCP command. Replies follow vMix's shape: "<COMMAND> OK ..." or
+  // "<COMMAND> ER <reason>", which is what the panels parse.
+  void vmixHandleTcpCommand(SocketHandle client, const std::string& raw,
+                            bool& disconnect) {
+    const std::string line = trim(raw);
+    if (line.empty()) return;
+    std::string verb = line;
+    std::string rest;
+    const std::size_t space = line.find(' ');
+    if (space != std::string::npos) {
+      verb = line.substr(0, space);
+      rest = trim(line.substr(space + 1));
+    }
+    verb = toUpper(verb);
+
+    if (verb == "QUIT") {
+      vmixSendLine(client, "QUIT OK");
+      disconnect = true;
+      return;
+    }
+    if (verb == "VERSION") {
+      vmixSendLine(client, std::string("VERSION OK ") +
+                             deckboy::core::version::kVersionTag);
+      return;
+    }
+    if (verb == "TALLY") {
+      std::string tally;
+      {
+        std::lock_guard<std::mutex> lock(vmixSnapshotMutex_);
+        tally = vmixTallySnapshot_;
+      }
+      vmixSendLine(client, "TALLY OK " + tally);
+      return;
+    }
+    if (verb == "SUBSCRIBE") {
+      const std::string what = toUpper(rest);
+      if (what.empty() || what == "TALLY" || what == "ACTS") {
+        std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+        vmixSubscribers_.insert(client);
+        vmixSendLine(client, "SUBSCRIBE OK " + (what.empty() ? std::string("TALLY") : what));
+      } else {
+        vmixSendLine(client, "SUBSCRIBE ER Unknown subscription");
+      }
+      return;
+    }
+    if (verb == "UNSUBSCRIBE") {
+      std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+      vmixSubscribers_.erase(client);
+      vmixSendLine(client, "UNSUBSCRIBE OK");
+      return;
+    }
+    if (verb == "XML" || verb == "XMLTEXT") {
+      std::string xml;
+      {
+        std::lock_guard<std::mutex> lock(vmixSnapshotMutex_);
+        xml = vmixXmlSnapshot_;
+      }
+      // LENGTH FIRST, THEN EXACTLY THAT MANY BYTES. The panels read the
+      // number and then read that many; a mismatch wedges the client until it
+      // times out, which is why the body is sent raw rather than line-wise.
+      vmixSendLine(client, "XML " + std::to_string(xml.size()));
+      send(client, xml.data(), static_cast<int>(xml.size()), kSocketSendFlags);
+      return;
+    }
+    if (verb == "FUNCTION") {
+      // FUNCTION Cut
+      // FUNCTION PreviewInput Input=3
+      std::string function = rest;
+      std::map<std::string, std::string> args;
+      const std::size_t argsAt = rest.find(' ');
+      if (argsAt != std::string::npos) {
+        function = rest.substr(0, argsAt);
+        std::istringstream pairs(rest.substr(argsAt + 1));
+        std::string pair;
+        while (pairs >> pair) {
+          const std::size_t eq = pair.find('=');
+          if (eq != std::string::npos) {
+            args[toLower(pair.substr(0, eq))] = pair.substr(eq + 1);
+          }
+        }
+      }
+      if (function.empty()) {
+        vmixSendLine(client, "FUNCTION ER Function name required");
+        return;
+      }
+      std::string command;
+      if (!vmixFunctionToCommand(function, args, command)) {
+        // NOT "OK". vMix answers success to a Function it could not carry
+        // out; a desk that says a cue was taken when it was not is worse than
+        // one that says it cannot.
+        vmixSendLine(client, "FUNCTION ER Function not supported: " + function);
+        return;
+      }
+      enqueueRemoteCommand(command);
+      vmixSendLine(client, "FUNCTION OK Completed");
+      return;
+    }
+    if (verb == "ACTS") {
+      // A single activator's state. Enough of it to answer what panels ask
+      // for; anything else answers 0, which is what vMix does for an
+      // activator it does not know.
+      std::string tally;
+      {
+        std::lock_guard<std::mutex> lock(vmixSnapshotMutex_);
+        tally = vmixTallySnapshot_;
+      }
+      std::istringstream parts(rest);
+      std::string what;
+      int which = 0;
+      parts >> what >> which;
+      const std::string kind = toUpper(what);
+      int value = 0;
+      if (which >= 1 && which <= static_cast<int>(tally.size())) {
+        const char digit = tally[static_cast<std::size_t>(which - 1)];
+        if (kind == "INPUT") value = digit == '1' ? 1 : 0;
+        else if (kind == "INPUTPREVIEW") value = digit == '2' ? 1 : 0;
+      }
+      vmixSendLine(client, "ACTS OK " + (kind.empty() ? std::string("Input") : what) +
+                             " " + std::to_string(which) + " " + std::to_string(value));
+      return;
+    }
+    vmixSendLine(client, "ER Unknown command: " + verb);
+  }
+
+  void vmixHandleHttpClient(SocketHandle client) {
+    std::string request;
+    std::array<char, 2048> buffer {};
+    // The same five-second deadline the OSC query server uses, for the same
+    // reason: a client that opens a connection and never finishes its request
+    // must not hold this thread.
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    while (request.find("\r\n\r\n") == std::string::npos && request.size() < 16384) {
+      auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(
+        deadline - std::chrono::steady_clock::now());
+      if (remaining.count() <= 0) break;
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      watchFd(client, &readFds);
+      timeval tv {};
+      tv.tv_sec = static_cast<long>(remaining.count() / 1000000);
+      tv.tv_usec = static_cast<long>(remaining.count() % 1000000);
+      if (select(selectNfds(client), &readFds, nullptr, nullptr, &tv) <= 0) break;
+      const int bytes = recv(client, buffer.data(),
+                             static_cast<int>(buffer.size()), 0);
+      if (bytes <= 0) break;
+      request.append(buffer.data(), static_cast<std::size_t>(bytes));
+    }
+    if (request.empty()) return;
+
+    std::istringstream head(request);
+    std::string method, target, protocol;
+    head >> method >> target >> protocol;
+    if (toUpper(method) != "GET") {
+      sendHttpResponse(client, "405 Method Not Allowed", "text/plain; charset=utf-8",
+                       "Only GET is supported.\n");
+      return;
+    }
+    std::string path = target;
+    std::string query;
+    const std::size_t queryAt = target.find('?');
+    if (queryAt != std::string::npos) {
+      path = target.substr(0, queryAt);
+      query = target.substr(queryAt + 1);
+    }
+    // vMix accepts /api and /API; a panel configured by hand uses either.
+    const std::string lowered = toLower(path);
+    if (lowered != "/api" && lowered != "/api/") {
+      sendHttpResponse(client, "404 Not Found", "text/plain; charset=utf-8",
+                       "Deckboy answers the vMix API at /api\n");
+      return;
+    }
+    const std::map<std::string, std::string> args = vmixParseQuery(query);
+    const auto functionArg = args.find("function");
+    if (functionArg == args.end() || functionArg->second.empty()) {
+      std::string xml;
+      {
+        std::lock_guard<std::mutex> lock(vmixSnapshotMutex_);
+        xml = vmixXmlSnapshot_;
+      }
+      sendHttpResponse(client, "200 OK", "application/xml", xml);
+      return;
+    }
+    std::string command;
+    if (!vmixFunctionToCommand(functionArg->second, args, command)) {
+      // 404, which is what an unknown Function gets. A panel can tell the
+      // difference between "I do not have that" and "that went wrong".
+      sendHttpResponse(client, "404 Not Found", "text/plain; charset=utf-8",
+                       "Function not supported: " + functionArg->second + "\n");
+      return;
+    }
+    enqueueRemoteCommand(command);
+    std::string xml;
+    {
+      std::lock_guard<std::mutex> lock(vmixSnapshotMutex_);
+      xml = vmixXmlSnapshot_;
+    }
+    sendHttpResponse(client, "200 OK", "application/xml", xml);
+  }
+
+  void vmixLoop() {
+    std::map<SocketHandle, std::string> buffers;
+    while (!vmixStop_.load()) {
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      SocketHandle maxFd = kInvalidSocket;
+      if (vmixHttpListen_ != kInvalidSocket) watchFd(vmixHttpListen_, &readFds, maxFd);
+      if (vmixTcpListen_ != kInvalidSocket) watchFd(vmixTcpListen_, &readFds, maxFd);
+      {
+        std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+        for (SocketHandle client : vmixClients_) watchFd(client, &readFds, maxFd);
+      }
+      timeval timeout {};
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 100000;
+      const int ready = select(selectNfds(maxFd), &readFds, nullptr, nullptr, &timeout);
+      if (ready < 0) {
+#ifndef _WIN32
+        if (errno == EINTR) continue;
+#endif
+        break;
+      }
+      // PUSH TALLY ON CHANGE, every pass including the idle one. A subscriber
+      // is waiting to be told; polling it back would defeat the point of
+      // SUBSCRIBE existing.
+      vmixPushTallyIfChanged();
+      if (ready == 0) continue;
+
+      if (vmixHttpListen_ != kInvalidSocket && readyFd(vmixHttpListen_, &readFds)) {
+        sockaddr_in address {};
+        socklen_t length = sizeof(address);
+        SocketHandle client = accept(vmixHttpListen_,
+                                     reinterpret_cast<sockaddr*>(&address), &length);
+        if (client != kInvalidSocket) {
+          setCloseOnExec(client);
+          // HTTP here is one request per connection, answered inline, exactly
+          // like the OSC query server. The TCP surface is the one that holds
+          // connections open.
+          vmixHandleHttpClient(client);
+          closeSocket(client);
+        }
+      }
+
+      if (vmixTcpListen_ != kInvalidSocket && readyFd(vmixTcpListen_, &readFds)) {
+        sockaddr_in address {};
+        socklen_t length = sizeof(address);
+        SocketHandle client = accept(vmixTcpListen_,
+                                     reinterpret_cast<sockaddr*>(&address), &length);
+        if (client != kInvalidSocket) {
+          setCloseOnExec(client);
+          std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+          constexpr std::size_t kMaxVmixClients = 16;
+          if (vmixClients_.size() >= kMaxVmixClients) {
+            closeSocket(client);
+          } else {
+            vmixClients_.push_back(client);
+            buffers[client] = "";
+          }
+        }
+      }
+
+      std::vector<SocketHandle> live;
+      {
+        std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+        live = vmixClients_;
+      }
+      std::vector<SocketHandle> dead;
+      for (SocketHandle client : live) {
+        if (!readyFd(client, &readFds)) continue;
+        std::array<char, 2048> buffer {};
+        const int bytes = recv(client, buffer.data(),
+                               static_cast<int>(buffer.size()), 0);
+        if (bytes <= 0) {
+          dead.push_back(client);
+          continue;
+        }
+        std::string& pending = buffers[client];
+        pending.append(buffer.data(), static_cast<std::size_t>(bytes));
+        // A client that never sends a newline must not be able to grow this
+        // without bound.
+        if (pending.size() > 65536) {
+          dead.push_back(client);
+          continue;
+        }
+        bool disconnect = false;
+        std::size_t at = 0;
+        while (true) {
+          const std::size_t nl = pending.find('\n', at);
+          if (nl == std::string::npos) break;
+          const std::string line = pending.substr(at, nl - at);
+          at = nl + 1;
+          vmixHandleTcpCommand(client, line, disconnect);
+          if (disconnect) break;
+        }
+        pending.erase(0, at);
+        if (disconnect) dead.push_back(client);
+      }
+      if (!dead.empty()) {
+        std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+        for (SocketHandle client : dead) {
+          vmixClients_.erase(std::remove(vmixClients_.begin(), vmixClients_.end(), client),
+                             vmixClients_.end());
+          vmixSubscribers_.erase(client);
+          buffers.erase(client);
+          closeSocket(client);
+        }
+      }
+    }
+  }
+
+  void vmixPushTallyIfChanged() {
+    std::string tally;
+    {
+      std::lock_guard<std::mutex> lock(vmixSnapshotMutex_);
+      tally = vmixTallySnapshot_;
+    }
+    if (tally == vmixLastPushedTally_) return;
+    vmixLastPushedTally_ = tally;
+    std::vector<SocketHandle> subscribers;
+    {
+      std::lock_guard<std::mutex> lock(vmixClientsMutex_);
+      subscribers.assign(vmixSubscribers_.begin(), vmixSubscribers_.end());
+    }
+    for (SocketHandle client : subscribers) {
+      vmixSendLine(client, "TALLY OK " + tally);
+    }
+  }
+
+  // Refreshed on the MAIN THREAD, beside the status snapshot, for the reason
+  // that snapshot exists: the project belongs to the main thread and a server
+  // thread walking the decks while a cue is being imported is a data race.
+  // Both transports read these two strings under a mutex and nothing else.
+  void refreshVmixSnapshots() {
+    if (!project_.vmixApiEnabled) return;
+    std::string xml = vmixStatusXml();
+    std::string tally = vmixTallyString();
+    std::lock_guard<std::mutex> lock(vmixSnapshotMutex_);
+    vmixXmlSnapshot_ = std::move(xml);
+    vmixTallySnapshot_ = std::move(tally);
+  }
+
   bool startOscQueryServer() {
     if (!project_.oscQueryEnabled) {
       oscQueryReady_ = false;
@@ -469,7 +1215,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (322)\n"
+        "DECKBOY_0.01 every verb (323)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -513,7 +1259,7 @@
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
         "TRACKER SEQUENCE GEOLFO\n"
-        "UPDATE VIDEO VIEW VJ VOLUME WARP WATCH WIDTH WINDOWSOURCE XFADE\n"
+        "UPDATE VIDEO VIEW VJ VMIX VOLUME WARP WATCH WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
       return true;
@@ -607,6 +1353,9 @@
         "         FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [v]\n"
         "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
+        "vmix: VMIX | VMIX ON|OFF|TOGGLE | VMIX PORTS <http> <tcp>\n"
+        "      (answers the vMix HTTP and TCP APIs, so a Stream Deck plugin or\n"
+        "       panel built for a vMix rig drives this desk unchanged)\n"
         "watch: WATCH | WATCH <deck> <folder> | WATCH <deck> OFF\n"
         "       (media dropped in the folder joins that playlist by itself)\n"
         "text mode: ASCII ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET\n"

@@ -917,6 +917,49 @@ Two command-line tools go with it, neither of which needs a window or a GPU:
 about semicolons), and reports how much of the frame the shape covers.
 `--code-check` asserts the language itself against expected values.
 
+### Panels built for a vMix rig
+
+**Settings → Network → vMix API** makes Deckboy answer the two APIs vMix
+speaks: the HTTP one on **8088** and the text protocol on **8099**. Those are
+vMix's own ports, so a Stream Deck plugin, Companion module, touch panel or
+show-control system already set up for a vMix rig drives Deckboy with nothing
+changed and nothing written.
+
+How the two desks line up:
+
+| vMix | Deckboy |
+|------|---------|
+| Input | a **cue**, numbered straight through every playlist in order |
+| Active | the live cue of the focused playlist |
+| Preview | the selected cue of the focused playlist |
+| Mix *n* | playlist *n*. vMix has four; Deckboy reports all of its own, and a panel that only knows mix1–mix4 reads the first four |
+
+Inputs are cues rather than playlists because a panel's tally light wants to
+say *this clip is on air*, which is what every vMix surface is built around.
+
+**HTTP:** `GET /api` returns the state document. `GET /api?Function=Cut`, and
+so on, does the thing and returns the same document.
+
+**TCP:** `TALLY`, `FUNCTION`, `XML`, `XMLTEXT`, `SUBSCRIBE`, `UNSUBSCRIBE`,
+`ACTS`, `VERSION`, `QUIT`. `SUBSCRIBE TALLY` pushes a new tally string
+whenever it changes, which is what a panel should use instead of polling.
+
+Functions understood: Cut, Fade, Play, Pause, Stop, PreviewInput,
+ActiveInput, FadeToBlack, StartRecording, StopRecording, SetMasterVolume,
+SetVolume, NextItem, PreviousItem, Restart.
+
+**A Function this desk has no equivalent for is refused** — 404 over HTTP,
+`FUNCTION ER` over TCP. vMix itself answers success to a Function that
+failed; Deckboy does not, because a surface reporting that a cue was taken
+when it was not is how a show goes dark with every light green.
+
+**There is no password on it**, and like the control port it binds to
+localhost unless **Listen on** is set to all interfaces. vMix's own HTTP API
+offers BasicAuth and this does not yet. On a venue or hotel network, put
+Deckboy behind a firewall rule.
+
+Over the wire: `VMIX`, `VMIX ON|OFF|TOGGLE`, `VMIX PORTS <http> <tcp>`.
+
 ### Caption formats
 
 Captions load from **SubRip** (`.srt`), **WebVTT** (`.vtt`), **SCC**
