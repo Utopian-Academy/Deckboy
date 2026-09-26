@@ -258,6 +258,7 @@ HEAD = """<!DOCTYPE html>
             <a href="compare.html">Compare</a>
             <a href="manual.html">Manual</a>
             <a href="faq.html">FAQ</a>
+            <a href="specs.html">Specs</a>
             <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
             <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
         </div>
@@ -297,6 +298,7 @@ BODY
                 <h4>Using it</h4>
                 <a href="manual.html">Manual</a>
                 <a href="faq.html">FAQ</a>
+                <a href="specs.html">Specifications</a>
                 <a href="slides.html">Slides &amp; presenting</a>
                 <a href="window-cues.html">Window &amp; browser cues</a>
                 <a href="ndi.html">NDI in and out</a>

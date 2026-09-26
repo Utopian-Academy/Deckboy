@@ -38,6 +38,36 @@
       "mainEntity": [
         {
           "@type": "Question",
+          "name": "Which video format and codec should I use?",
+          "acceptedAnswer": { "@type": "Answer", "text": "For most shows, H.264 in an .mp4: it is decoded on the graphics chip on Windows, macOS and Linux and the files stay small. HEVC is as good wherever the GPU decodes it. When several videos play at once, use HAP: it skips the decoder and every frame is a keyframe; the files are about four times larger. ProRes and DNxHR play, decoded on the processor." }
+        },
+        {
+          "@type": "Question",
+          "name": "What files will it play?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Video: .mp4, .mov, .mkv, .avi, .webm, .m4v, .mpg, .mpeg, .wmv, .flv, .ogv, .ts, .m2ts and .mxf. Stills: .png, .jpg, .webp, .bmp, .gif, .tif, .avif, .heic and .heif. Audio: .mp3, .wav, .flac, .aac, .ogg, .m4a, .opus, .wma and .aiff. Slides: PDF, one cue per page." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it record the show, and in what?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The programme records as it plays, in H.264 or HEVC (.mp4), or ProRes Proxy to 4444 and DNxHR LB to HQX (.mov), at any size and frame rate, with timecode, split into files by length or size." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it need the internet during a show?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. There is no account, licence server or activation. Deckboy only uses the network for what you switch on, such as NDI, streams and OSC." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which computers does it run on?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Windows 64-bit; macOS 13 or later on Apple Silicon and Intel; and Linux x86-64 (an AppImage for Ubuntu 22.04 and newer, a tarball or a Flatpak). One show file opens on all three." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work with Dante?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Through a Dante Virtual Soundcard. Each deck can open an audio device with up to 64 channels, and each cue can be routed onto any of them with a crosspoint matrix." }
+        },
+        {
+          "@type": "Question",
           "name": "Is there a free NDI player for Windows?",
           "acceptedAnswer": {
             "@type": "Answer",
@@ -146,6 +176,7 @@
             <a href="compare.html">Compare</a>
             <a href="manual.html">Manual</a>
             <a href="faq.html">FAQ</a>
+            <a href="specs.html">Specs</a>
             <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
             <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
         </div>
@@ -159,6 +190,47 @@
     </header>
 
     <div class="prose">
+        <h2 id="formats">Which video format and codec should I use?</h2>
+        <p>For most shows, <b>H.264 in an .mp4</b>. Every current computer decodes it on the graphics
+        chip &mdash; Direct3D&nbsp;11 on Windows, VideoToolbox on macOS, VA-API on Linux &mdash; so it
+        costs the processor very little and the files stay small. <b>HEVC</b> is just as good on any
+        machine whose GPU decodes it, and on Windows 10-bit HEVC stays 10-bit.</p>
+        <p>When <b>several videos play at the same time</b> &mdash; layers, a multiview, one clip per
+        output &mdash; use <b>HAP</b>. It skips the decoder entirely and every frame is a keyframe, so
+        cueing into the middle of a clip lands straight on the frame. The price is disk space: about four times the size
+        of the same clip in H.264. Make HAP files with any encoder that supports it.</p>
+        <p><b>ProRes and DNxHR</b> play, but they decode on the processor rather than the graphics chip,
+        so they cost more CPU than H.264 or HAP. They are the formats to <em>record</em> in if the
+        footage is going on to an edit.</p>
+
+        <h2 id="files">What files will it play?</h2>
+        <p><b>Video:</b> .mp4, .mov, .mkv, .avi, .webm, .m4v, .mpg, .mpeg, .wmv, .flv, .ogv, .ts,
+        .m2ts and .mxf. <b>Stills:</b> .png, .jpg, .webp, .bmp, .gif, .tif, .avif, .heic and .heif.
+        <b>Audio:</b> .mp3, .wav, .flac, .aac, .ogg, .m4a, .opus, .wma and .aiff. <b>Slides:</b> PDF,
+        one cue per page. FFmpeg comes with every download, so there is nothing else to install.</p>
+
+        <h2 id="recording">Can it record the show, and in what?</h2>
+        <p>Yes &mdash; the programme records as it plays, while it also goes to every other output. In
+        <b>H.264 or HEVC</b> (.mp4) for sharing, or <b>ProRes</b> Proxy, LT, 422, HQ and 4444 and
+        <b>DNxHR</b> LB, SQ, HQ and HQX (.mov) for an edit, at any size and frame rate, stamped with
+        timecode and split into files by length or size.</p>
+
+        <h2 id="offline">Does it need the internet during a show?</h2>
+        <p>No. There is no account, no licence server and no activation, so nothing can refuse to start
+        because the venue's network is down. Deckboy only uses the network for the things you switch on
+        &mdash; NDI, streams, OSC, NMOS &mdash; and for an update check you can turn off.</p>
+
+        <h2 id="system">Which computers does it run on?</h2>
+        <p><b>Windows</b> 64-bit; <b>macOS 13</b> or later on Apple Silicon and Intel; and <b>Linux</b>
+        x86-64, as an AppImage for Ubuntu 22.04 and anything newer, a tarball or a Flatpak. One show file
+        opens on all three. The full list of formats and outputs is on the
+        <a href="specs.html">specifications page</a>.</p>
+
+        <h2 id="dante">Does it work with Dante?</h2>
+        <p>Through a <b>Dante Virtual Soundcard</b>, yes. Each deck can open an audio device with up to 64
+        channels, and each cue can be routed onto any of them with a crosspoint matrix &mdash; programme
+        to the PA, click to the monitors, stems to wherever they are wanted.</p>
+
         <h2>Is there a free NDI player for Windows?</h2>
         <p>Deckboy sends <em>and</em> receives NDI on Windows, macOS and Linux, at no cost. An NDI
         source can be added as a cue and played like any other clip, and any output can send NDI
@@ -301,6 +373,7 @@
                 <h4>Using it</h4>
                 <a href="manual.html">Manual</a>
                 <a href="faq.html">FAQ</a>
+                <a href="specs.html">Specifications</a>
                 <a href="slides.html">Slides &amp; presenting</a>
                 <a href="window-cues.html">Window &amp; browser cues</a>
                 <a href="ndi.html">NDI in and out</a>

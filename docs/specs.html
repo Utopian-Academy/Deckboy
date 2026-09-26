@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deckboy specifications | Formats, codecs, outputs and requirements</title>
+    <meta name="description" content="Deckboy's technical specifications: video, image and audio formats, hardware decode and HAP, output formats up to 2160p60 at 10-bit, NDI, SRT, DeckLink SDI and SMPTE ST 2110, recording codecs including ProRes and DNxHR, 64-channel audio, show control and system requirements.">
+    <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/specs.html">
+
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Deckboy">
+    <meta property="og:title" content="Deckboy specifications">
+    <meta property="og:description" content="Formats, codecs, outputs, recording, audio, show control and system requirements.">
+    <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/specs.html">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Deckboy specifications">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose h2 { margin: 2.8rem 0 .8rem; font-size: 1.22rem; color: var(--ink); }
+        .prose p { margin-bottom: 1rem; color: var(--ink-soft); }
+        .prose code { background: var(--rule); padding: .12em .4em; font-size: .9em; }
+        .spec { width: 100%; border-collapse: collapse; margin: 0 0 1rem; }
+        .spec th, .spec td { text-align: left; vertical-align: top; padding: .55rem .7rem;
+                             border-bottom: 1px solid var(--rule); }
+        .spec th { width: 30%; color: var(--ink); font-weight: normal; }
+        .spec td { color: var(--ink-soft); }
+        .asof { font-size: .85rem; color: var(--ink-soft); }
+    </style>
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="./" style="color:inherit;text-decoration:none">Deckboy</a></div>
+        <div class="nav-links">
+            <a href="trailer.html">Trailer</a>
+            <a href="compare.html">Compare</a>
+            <a href="manual.html">Manual</a>
+            <a href="faq.html">FAQ</a>
+            <a href="specs.html">Specs</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy">GitHub</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+
+    <header class="hero" style="padding-bottom:1rem">
+        <div class="hero-content">
+            <h1>Specifications</h1>
+            <p class="hero-subtitle">What goes in, what comes out, and what it runs on.</p>
+        </div>
+    </header>
+
+    <div class="prose">
+        <p class="asof">As of Deckboy 0.99.379. For which format to choose, see
+        <a href="faq.html#formats">the FAQ</a>.</p>
+
+        <h2 id="video">Video and codecs</h2>
+        <div class="table-wrap"><table class="spec">
+            <tr><th>Video files</th><td>.mp4, .mov, .mkv, .avi, .webm, .m4v, .mpg, .mpeg, .wmv, .flv, .ogv, .ts, .m2ts, .mxf</td></tr>
+            <tr><th>Hardware decode</th><td>Direct3D&nbsp;11 (D3D11VA) on Windows, VideoToolbox on macOS, VA-API on Linux &mdash; for whichever codecs the machine's GPU decodes, typically H.264 and HEVC, and VP9 or AV1 on newer GPUs. On Windows and macOS the decoded picture stays on the GPU.</td></tr>
+            <tr><th>10-bit</th><td>HEVC Main&nbsp;10, VP9 Profile&nbsp;2 and 10-bit AV1 stay 10-bit on the Windows GPU path</td></tr>
+            <tr><th>HAP</th><td>HAP in .mov is read straight to the GPU with no decoder, and every frame is a keyframe</td></tr>
+            <tr><th>Everything else</th><td>Decoded on the processor by FFmpeg, which comes with every download &mdash; ProRes, DNxHR and the rest play, at a higher CPU cost</td></tr>
+            <tr><th>Stills</th><td>.png, .jpg, .jpeg, .webp, .bmp, .gif, .tif, .tiff, .avif, .heic, .heif</td></tr>
+            <tr><th>Slides</th><td>PDF, one cue per page, rendered once at import by the operating system's own PDF engine. PowerPoint and Keynote as a live window cue</td></tr>
+            <tr><th>Live sources</th><td>Cameras, application windows and screens, web pages, NDI, SRT, RTMP, RTSP, UDP, Blackmagic DeckLink capture, Spout (Windows)</td></tr>
+            <tr><th>Generated</th><td>Test patterns, a video synth, live-coded pictures, timers, lower thirds and tone</td></tr>
+            <tr><th>Effects</th><td>39 video effects on the live picture, every parameter drivable by an oscillator; 13 cue-to-cue transitions</td></tr>
+        </table></div>
+
+        <h2 id="output">Output</h2>
+        <div class="table-wrap"><table class="spec">
+            <tr><th>Destinations</th><td>Displays (windowed or fullscreen), NDI, SRT, RTMP, RTSP and UDP streams, Blackmagic DeckLink SDI where the Blackmagic driver is installed, Spout (Windows), SMPTE ST&nbsp;2110</td></tr>
+            <tr><th>Formats</th><td>720p at 50, 59.94 and 60; 1080i at 50, 59.94 and 60; 1080p and 2160p at 23.98, 24, 25, 29.97, 30, 50, 59.94 and 60</td></tr>
+            <tr><th>Bit depth</th><td>8-bit or 10-bit</td></tr>
+            <tr><th>SMPTE ST 2110</th><td>ST&nbsp;2110-20 uncompressed video and ST&nbsp;2110-30 (AES67) audio, with AMWA NMOS IS-04 registration and IS-05 connection management</td></tr>
+            <tr><th>Decks and outputs</th><td>Up to 16 playlists, each output showing whichever one you choose, or several composited as layers; a multiview you arrange yourself</td></tr>
+            <tr><th>Mapping</th><td>Per-output warp and edge blending; a corner pin per layer</td></tr>
+            <tr><th>Operator screens</th><td>Presenter view and a mirrored prompter, each an output of its own</td></tr>
+        </table></div>
+
+        <h2 id="recording">Recording</h2>
+        <div class="table-wrap"><table class="spec">
+            <tr><th>What</th><td>The programme, as it plays, while it goes to every other output</td></tr>
+            <tr><th>Codecs</th><td>H.264 and HEVC in .mp4; Apple ProRes Proxy, LT, 422, HQ and 4444 and Avid DNxHR LB, SQ, HQ and HQX in .mov</td></tr>
+            <tr><th>Format</th><td>Any size and frame rate, or the programme's own</td></tr>
+            <tr><th>Timecode</th><td>Stamped from a set start or time of day, drop or non-drop frame</td></tr>
+            <tr><th>Segments</th><td>Split into files by length or by size</td></tr>
+        </table></div>
+
+        <h2 id="audio">Audio</h2>
+        <div class="table-wrap"><table class="spec">
+            <tr><th>Sample rate</th><td>48 kHz</td></tr>
+            <tr><th>Audio files</th><td>.mp3, .wav, .flac, .aac, .ogg, .oga, .m4a, .opus, .wma, .aiff</td></tr>
+            <tr><th>Output channels</th><td>2, 4, 6, 8, 16, 32 or 64 per deck device &mdash; enough for a Dante Virtual Soundcard</td></tr>
+            <tr><th>Routing</th><td>A stereo pair per cue, or a per-cue crosspoint matrix to any channel, stepped off, full, &minus;3, &minus;6 and &minus;12&nbsp;dB</td></tr>
+            <tr><th>Processing</th><td>22 audio effects per cue, and your own VST3 effects and instruments in the same chain</td></tr>
+            <tr><th>Input</th><td>A microphone or line input, by device</td></tr>
+        </table></div>
+
+        <h2 id="control">Show control and timecode</h2>
+        <div class="table-wrap"><table class="spec">
+            <tr><th>Remote protocol</th><td>Plain-text commands over TCP or UDP on port 5510; every command answers <code>OK</code> or <code>ERR</code> with the reason</td></tr>
+            <tr><th>Controllers</th><td>A Bitfocus Companion module and an Elgato Stream Deck plugin</td></tr>
+            <tr><th>MIDI</th><td>Notes, control changes and program changes in and out, MIDI Show Control, and MIDI files played out as cues</td></tr>
+            <tr><th>Network</th><td>OSC in, with OSC Query discovery, and out; Art-Net DMX in (a lighting desk fires cues) and out (DMX cues); Blackmagic ATEM switcher tally and triggers</td></tr>
+            <tr><th>Timecode</th><td>An LTC generator and LTC chase in the macOS and Linux downloads</td></tr>
+            <tr><th>Running order</th><td>Standby and GO, pre-wait, post-wait and continue, arm and disarm, audition, preload, and a pre-show CHECK</td></tr>
+            <tr><th>Show-control cues</th><td>Target, fade, master, MIDI, network (OSC, UDP, TCP), timecode, DMX and script cues</td></tr>
+        </table></div>
+
+        <h2 id="system">System</h2>
+        <div class="table-wrap"><table class="spec">
+            <tr><th>Windows</th><td>64-bit, installer or portable zip; also through Scoop</td></tr>
+            <tr><th>macOS</th><td>macOS&nbsp;13 or later, on Apple Silicon and Intel; also through Homebrew</td></tr>
+            <tr><th>Linux</th><td>x86-64: an AppImage for Ubuntu 22.04 and anything newer, a portable tarball, or a Flatpak bundle</td></tr>
+            <tr><th>Show files</th><td>One file opens on all three</td></tr>
+            <tr><th>Interface</th><td>37 languages</td></tr>
+            <tr><th>Licence</th><td>GPL-3.0, free. No account, no licence server, and nothing needs the internet to play a show</td></tr>
+        </table></div>
+
+        <div class="cta-group" style="justify-content:flex-start;margin-top:2.4rem">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download Deckboy</a>
+            <a href="faq.html#formats" class="btn-large btn-outline">Which format to use</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-cols">
+            <div>
+                <h4>Deckboy</h4>
+                <a href="./">What it does</a>
+                <a href="trailer.html">The trailer</a>
+                <a href="compare.html">How it compares</a>
+                <a href="qlab-alternative.html">Coming from QLab</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">Download</a>
+            </div>
+            <div>
+                <h4>Using it</h4>
+                <a href="manual.html">Manual</a>
+                <a href="faq.html">FAQ</a>
+                <a href="specs.html">Specifications</a>
+                <a href="slides.html">Slides &amp; presenting</a>
+                <a href="window-cues.html">Window &amp; browser cues</a>
+                <a href="ndi.html">NDI in and out</a>
+                <a href="stream-deck.html">Stream Deck &amp; Companion</a>
+                <a href="latency.html">Where latency hides</a>
+            </div>
+            <div>
+                <h4>Tools</h4>
+                <a href="test-patterns.html">Test patterns</a>
+                <a href="led-wall.html">LED pattern generator</a>
+                <a href="led-calculator.html">LED calculator</a>
+                <a href="screen-check.html">Screen check</a>
+                <a href="databend.html">Databend</a>
+            </div>
+            <div>
+                <h4>Guides</h4>
+                <a href="shooting-led.html">Shooting an LED wall</a>
+                <a href="press.html">Press kit</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy">Source on GitHub</a>
+            </div>
+        </div>
+        <p class="footer-note">Built as an open-source project by Utopian-Academy.
+        Free under the GPL-3.0.</p>
+    </footer>
+</body>
+</html>
