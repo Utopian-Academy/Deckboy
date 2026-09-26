@@ -1,5 +1,20 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.381 (Feedback Bloom)
+
+**Feedback Bloom**, a second video-feedback effect. The first one moves the
+echo; this one also **turns its colour and distorts it on every pass**, so
+both compound -- iridescent trails that walk through the spectrum and melt
+into the picture rather than fading to dim.
+
+Four controls: **hue turn**, **melt**, **zoom** and **swirl**. It shows best
+over something dark, where the echo is the brightest thing in the frame.
+
+Bounded the way feedback is: the echo is mixed by lightening rather than
+adding, so it cannot climb to white however long it runs -- and the colour
+turn is normalised so no channel can come back brighter than it went in.
+Feedback itself is untouched, so shows that use it are unchanged.
+
 ## 2026-09-26 - v0.99.380 (Shapes: a source that draws *over* the picture)
 
 **The code source can now draw a shape with a hole in it.** A fourth

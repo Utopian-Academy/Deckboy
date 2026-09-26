@@ -696,6 +696,7 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 | dye advect, reaction bloom | Fluid: curl-noise advection, and Gray–Scott growth |
 | caustics | Refraction *and* the light gathering — see below |
 | feedback | A controlled camera-into-monitor loop |
+| feedback bloom | The same loop, but the echo turns colour and is warped on every pass, so both compound: iridescent trails that melt. Bounded the same way feedback is |
 | motion puppet | Driven by another clip's movement |
 | slit scan | One open slit crosses the frame, smearing a long moment across it. Narrow is a scanner; wide is barely an effect |
 | motion mosh | Holds the previous frame and the smear between them, so a held cue smears into itself instead of sitting still |

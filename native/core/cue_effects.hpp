@@ -102,6 +102,12 @@ enum class CueEffectKind : int {
   // turning in space. The face towards you is now; the sides are the same
   // moments seen edge-on, so everything that moved is a streak through time.
   TimeCube,
+  // Added 2026-09-26. The loop that changes colour and melts: video feedback
+  // with a hue turn and a warp applied on every pass, rather than the plain
+  // affine step Feedback takes. Separate from Feedback because Feedback's
+  // four parameters are all spoken for and re-meaning one would restage every
+  // show that uses it.
+  FeedbackBloom,
   Count,
 };
 
@@ -129,6 +135,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Relativistic:   return "lightspeed";
     case CueEffectKind::Caustics:       return "caustics";
     case CueEffectKind::Feedback:       return "feedback";
+    case CueEffectKind::FeedbackBloom:  return "feedback bloom";
     case CueEffectKind::Schlieren:      return "schlieren";
     case CueEffectKind::Chladni:        return "chladni";
     case CueEffectKind::Wavefront:      return "wavefront";
@@ -176,6 +183,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Relativistic:   return "relativistic";
     case CueEffectKind::Caustics:       return "caustics";
     case CueEffectKind::Feedback:       return "feedback";
+    case CueEffectKind::FeedbackBloom:  return "feedback_bloom";
     case CueEffectKind::Schlieren:      return "schlieren";
     case CueEffectKind::Chladni:        return "chladni";
     case CueEffectKind::Wavefront:      return "wavefront";
@@ -223,6 +231,7 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::Caustics:
     // Carry state between calls, so they move without reading the index.
     case CueEffectKind::Feedback:
+    case CueEffectKind::FeedbackBloom:
     case CueEffectKind::Scotopic:
     case CueEffectKind::MotionPuppet:
     // Phrases move on their own clock and the cell corruption re-rolls every
@@ -312,6 +321,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Feedback:
       return which == 0 ? "zoom" : which == 1 ? "spin"
            : which == 2 ? "drift" : which == 3 ? "colour bleed" : nullptr;
+    case CueEffectKind::FeedbackBloom:
+      return which == 0 ? "hue turn" : which == 1 ? "melt"
+           : which == 2 ? "zoom" : which == 3 ? "swirl" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -558,6 +570,16 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "Zero leaves the colour alone and it reads as a lens instead."
         : "Moves the direction of travel off the centre of frame, so the "
           "picture rushes past rather than straight at you.";
+    case CueEffectKind::FeedbackBloom:
+      return which == 0
+        ? "How far the colour turns on each trip round the loop. This is the "
+          "oil-slick: the trail walks through the spectrum instead of fading."
+        : which == 1
+        ? "How much the echo is distorted each pass. It compounds, so a little "
+          "ripples and a lot melts the picture into itself."
+        : which == 2
+        ? "Grows or shrinks the echo each pass. Centre holds still."
+        : "Turns the echo each pass, which winds the melt into a spiral.";
     case CueEffectKind::Feedback:
       return which == 0
         ? "How much the echo grows or shrinks each pass. Centre holds still; "
@@ -2499,6 +2521,142 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 // strictly dimmer each pass, so trails decay to nothing and the
                 // loop is bounded however long it runs.
                 const std::uint8_t echoed = echoLut[c][pp[c]];
+                const std::uint8_t v = echoed > lp[c] ? echoed : lp[c];
+                lp[c] = v;
+                if (kp) kp[c] = v;
+              }
+              lp[3] = 255;
+              if (kp) kp[3] = 255;
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::FeedbackBloom: {
+        // THE OIL-SLICK LOOP. Feedback moves the echo; this one also turns its
+        // colour and distorts it, on every pass, so both compound.
+        //
+        // The buffer is Feedback's: two planes and a cursor byte in the one
+        // allocation the caller carries, read from one and written to the
+        // other so nothing aliases and nothing is allocated per frame.
+        if (!state) {
+          break;   // no buffer from this caller: do nothing rather than pretend
+        }
+        std::vector<std::uint8_t>& store = *state;
+        const std::size_t bytes = count * 4;
+        const std::size_t wanted = bytes * 2 + 1;
+        if (store.size() != wanted) {
+          store.assign(wanted, 0);
+          std::memcpy(store.data(), pixels.data(), bytes);
+          std::memcpy(store.data() + bytes, pixels.data(), bytes);
+          break;
+        }
+        const bool secondPlaneIsLatest = store[bytes * 2] != 0;
+        const bool hold = ctx.stateHold;
+        const std::uint8_t* previous =
+          store.data() + ((secondPlaneIsLatest != hold) ? bytes : 0);
+        std::uint8_t* record =
+          hold ? nullptr : store.data() + (secondPlaneIsLatest ? 0 : bytes);
+        if (!hold) {
+          store[bytes * 2] = secondPlaneIsLatest ? 0 : 1;
+        }
+
+        const double echo = amt * 0.92;
+        const double turn = (pA - 0.5) * 0.55;          // radians of hue, per pass
+        const double melt = pB * 0.05 * ctx.width;      // pixels of warp, per pass
+        const double zoom = 1.0 + (pC - 0.5) * 0.20;    // 0.5 holds still
+        const double spin = (pD - 0.5) * 0.10;
+
+        // HUE ROTATION, as a 3x3 on RGB. The standard construction: the grey
+        // axis is fixed and the plane orthogonal to it turns.
+        const double cosH = std::cos(turn), sinH = std::sin(turn);
+        const double third = 1.0 / 3.0;
+        const double rt3 = std::sqrt(1.0 / 3.0);
+        double m[3][3];
+        for (int i = 0; i < 3; ++i) {
+          for (int j = 0; j < 3; ++j) {
+            const double same = (i == j) ? 1.0 : 0.0;
+            // The cross-product term's sign depends on which way round the
+            // pair is; (i + 1) % 3 == j is the "next" direction.
+            const double cross = (i == j) ? 0.0
+                               : (((i + 1) % 3 == j) ? -rt3 : rt3);
+            m[i][j] = third + cosH * (same - third) + sinH * cross;
+          }
+        }
+        // NON-AMPLIFYING, which is the whole safety argument. Each row sums to
+        // one, so white stays white, but the rows carry negative coefficients
+        // and the POSITIVE ones can sum past one -- a channel then comes back
+        // brighter than it went in, and in a loop that is a ratchet to white.
+        // Scaling by the largest positive row sum makes every pass strictly
+        // non-amplifying at any angle.
+        double gain = 1.0;
+        for (int i = 0; i < 3; ++i) {
+          double positive = 0.0;
+          for (int j = 0; j < 3; ++j) {
+            if (m[i][j] > 0.0) positive += m[i][j];
+          }
+          if (positive > gain) gain = positive;
+        }
+        for (int i = 0; i < 3; ++i) {
+          for (int j = 0; j < 3; ++j) m[i][j] *= echo / gain;
+        }
+
+        // THE WARP IS SEPARABLE: the horizontal offset depends only on the row
+        // and the vertical only on the column, so it is two tables built once
+        // rather than two sines per pixel -- four million of each at 1080p.
+        // The phase walks with the frame index so the melt keeps moving on a
+        // held still.
+        const double phase = static_cast<double>(ctx.frameIndex) * 0.031;
+        std::vector<double> warpX(static_cast<std::size_t>(ctx.height));
+        std::vector<double> warpY(static_cast<std::size_t>(ctx.width));
+        for (int y = 0; y < ctx.height; ++y) {
+          const double v = static_cast<double>(y) / std::max(1, ctx.height);
+          warpX[static_cast<std::size_t>(y)] =
+            melt * (std::sin(v * 11.0 + phase) * 0.6 +
+                    std::sin(v * 4.3 - phase * 0.7) * 0.4);
+        }
+        for (int x = 0; x < ctx.width; ++x) {
+          const double u = static_cast<double>(x) / std::max(1, ctx.width);
+          warpY[static_cast<std::size_t>(x)] =
+            melt * (std::sin(u * 9.0 - phase * 1.3) * 0.6 +
+                    std::sin(u * 3.7 + phase * 0.5) * 0.4);
+        }
+
+        const double cx = ctx.width * 0.5;
+        const double cy = ctx.height * 0.5;
+        const double cosSpin = std::cos(spin);
+        const double sinSpin = std::sin(spin);
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const double ny = (y - cy) / zoom;
+            const double dx = warpX[static_cast<std::size_t>(y)];
+            const std::size_t rowBase = static_cast<std::size_t>(y) * ctx.width * 4;
+            std::uint8_t* live = pixels.data() + rowBase;
+            std::uint8_t* keep = record ? record + rowBase : nullptr;
+            for (int x = 0; x < ctx.width; ++x) {
+              const double nx = (x - cx);
+              const double sxf = cx + (nx * cosSpin / zoom - ny * sinSpin) + dx;
+              const double syf = cy + (nx * sinSpin / zoom + ny * cosSpin)
+                               + warpY[static_cast<std::size_t>(x)];
+              const int sx = static_cast<int>(std::lround(sxf));
+              const int sy = static_cast<int>(std::lround(syf));
+              std::uint8_t* lp = live + static_cast<std::size_t>(x) * 4;
+              std::uint8_t* kp = keep ? keep + static_cast<std::size_t>(x) * 4 : nullptr;
+              if (sx < 0 || sy < 0 || sx >= ctx.width || sy >= ctx.height) {
+                // Off the edge is not black: there is no echo there, so the
+                // live picture stands alone and the frame keeps its border.
+                if (kp) { kp[0] = lp[0]; kp[1] = lp[1]; kp[2] = lp[2]; kp[3] = 255; }
+                continue;
+              }
+              const std::uint8_t* pp =
+                previous + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              const double pr = pp[0], pg = pp[1], pb = pp[2];
+              for (int c = 0; c < 3; ++c) {
+                const double turned = m[c][0] * pr + m[c][1] * pg + m[c][2] * pb;
+                const std::uint8_t echoed = detail::clamp8(turned);
+                // LIGHTEN, not add: the fixed point is the input rather than
+                // input/(1-echo), so the loop cannot climb to white however
+                // long it runs.
                 const std::uint8_t v = echoed > lp[c] ? echoed : lp[c];
                 lp[c] = v;
                 if (kp) kp[c] = v;

@@ -59,6 +59,7 @@ EFFECTS = [
     ("relativistic",    "0.85:0.55:0.8"),
     ("caustics",        "0.8:0.45:0.4:0.7"),
     ("feedback",        "1.0:0.85:0.62:0.62:0.4"),
+    ("feedback_bloom",  "1.0:0.78:0.55:0.62:0.62"),
     ("schlieren",       "0.95:0.12:0.55:0.5"),
     ("chladni",         "0.9:0.45:0.7:0.6:0.5"),
     ("wavefront",       "0.9:0.5:0.45:0.3:0.4"),
@@ -74,7 +75,10 @@ EFFECTS = [
 # fills the buffer it will later echo. --effect-dump takes a pass count for
 # exactly this, and running the rest more than once would only measure them
 # chewing on their own output.
-PASSES = {"feedback": 12, "scotopic": 6}
+# Feedback bloom is the same argument as feedback: the first pass is the
+# picture with a faint tinted copy on it, and the hue walk and the melt
+# only exist once the loop has gone round enough times to compound.
+PASSES = {"feedback": 12, "feedback_bloom": 12, "scotopic": 6}
 
 # Effects that look different from one frame to the next on an unchanging
 # picture -- mirroring cueEffectKindAnimates in cue_effects.hpp, which the
@@ -95,7 +99,8 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      # Added 2026-09-17: the delay offset moves with the
                      # frame, so a held still keeps bending.
                      "databend"}
-ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic", "text_mode",
+ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
+                    "scotopic", "text_mode",
                      # Holds the swept frame between calls.
                      "slit_scan",
                      # Holds the smeared picture AND the previous frame's luma,
@@ -136,6 +141,7 @@ PARAM_SLOTS = {
     "relativistic":    ["field of view", "doppler", "off-axis"],
     "caustics":        ["chop", "swell speed", "focus"],
     "feedback":        ["zoom", "spin", "drift", "colour bleed"],
+    "feedback_bloom":  ["hue turn", "melt", "zoom", "swirl"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],
