@@ -908,9 +908,16 @@ jobs:
       #
       # ffmpeg is bundled into the payload rather than required on the operator's
       # machine, so it has to be present here to be copied.
+      # ffmpeg-FULL, not ffmpeg. Chocolatey's `ffmpeg` is gyan's "essentials"
+      # build, which is not compiled with --enable-libsnappy and therefore has
+      # hap as a DECODER only. Every published Windows zip up to v0.99.392
+      # offered HAP in the encoder list on a developer machine, where the
+      # local full build was picked up, and silently dropped it on an
+      # operator's. The packager gate below will not let that recur, but the
+      # right binary has to be here for the gate to pass.
       - name: Install ffmpeg and Inno Setup
         if: matrix.features == 'all'
-        run: choco install ffmpeg innosetup -y --no-progress
+        run: choco install ffmpeg-full innosetup -y --no-progress
 
       # What only exists when playlists meet an output. Each harness launches
       # the real app in an isolated root and MEASURES -- fields in the saved

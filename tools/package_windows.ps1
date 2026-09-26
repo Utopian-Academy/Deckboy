@@ -336,6 +336,50 @@ if ($LtcLine -notmatch "ltc-runtime:\s*ok") {
 }
 Write-Host '  libltc loads'
 
+
+# --- The bundled ffmpeg has to encode what Deckboy offers --------------------
+#
+# The app PROBES ffmpeg at runtime and quietly drops any format whose encoder
+# is absent, so a missing one is invisible: the operator simply never sees it
+# in the list and cannot tell "never supported" from "silently lost". That is
+# how every Windows release up to v0.99.392 shipped without a HAP encoder --
+# CI installed chocolatey's "essentials" ffmpeg, which has hap as a decoder
+# only, while a developer machine with a full build showed it working.
+#
+# Checked against the STAGED copy, which is the one that goes in the zip.
+Write-Host "Checking the staged ffmpeg can encode what Deckboy offers"
+$StagedFfmpeg = Join-Path $StageDir "ffmpeg.exe"
+if (-not (Test-Path $StagedFfmpeg)) {
+    throw "No ffmpeg.exe was staged; the zip would have no decoder at all."
+}
+$EncoderList = & $StagedFfmpeg -hide_banner -encoders 2>&1 | Out-String
+# The ones an operator is offered and would notice the absence of. Not the
+# whole catalogue: some formats are genuinely optional and the app is right to
+# hide those. These are the masters and the GPU-native format, and a zip
+# without them is not the product.
+$Required = @{
+    "hap"       = "HAP / HAP Alpha / HAP Q (needs --enable-libsnappy)"
+    "prores_ks" = "ProRes 422 and 4444"
+    "dnxhd"     = "DNxHR"
+    "libx264"   = "H.264"
+    "qtrle"     = "QuickTime RLE"
+}
+$MissingEncoders = @()
+foreach ($name in $Required.Keys) {
+    # The encoders table lists one per line as "FLAGS name description", so a
+    # word-boundary match on the name column avoids matching a description.
+    if ($EncoderList -notmatch "(?m)^\s*\S+\s+$([regex]::Escape($name))\s") {
+        $MissingEncoders += ("  {0} -- {1}" -f $name, $Required[$name])
+    }
+}
+if ($MissingEncoders.Count -gt 0) {
+    throw ("The staged ffmpeg cannot encode:" + [Environment]::NewLine +
+           ($MissingEncoders -join [Environment]::NewLine) + [Environment]::NewLine +
+           "Deckboy offers these in its encoder list and would silently drop " +
+           "them. Use a full ffmpeg build (chocolatey: ffmpeg-full, not ffmpeg).")
+}
+Write-Host "  ffmpeg encodes all of them"
+
 # --- Zip --------------------------------------------------------------------
 if (Test-Path $ZipPath) {
     Remove-Item $ZipPath -Force

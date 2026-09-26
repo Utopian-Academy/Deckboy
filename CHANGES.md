@@ -1,5 +1,22 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.393 (Windows gets its HAP encoder)
+
+**HAP encoding works in the Windows build.** It did not: the encoder list
+offered HAP, HAP Alpha and HAP Q, and the ffmpeg in the published zip could
+only DECODE them -- so the formats were quietly dropped and never appeared.
+Deckboy probes ffmpeg and hides what it cannot do, which is the right
+behaviour and also why nobody could tell the difference between "not
+supported" and "silently missing".
+
+The cause was the build being bundled: CI installed the "essentials" ffmpeg,
+which is not compiled with the library HAP needs. It now installs the full
+one.
+
+**And the packager refuses to build a zip whose ffmpeg cannot encode what
+Deckboy offers** -- HAP, ProRes, DNxHR, H.264 and QuickTime RLE. Checked
+against the staged copy, which is the one that goes in the zip.
+
 ## 2026-09-26 - v0.99.392 (A readable language picker, and a pointer that gets out of the way)
 
 **You can read the language picker again.** Every entry was shown only in its
