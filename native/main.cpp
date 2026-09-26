@@ -4465,6 +4465,9 @@ class App {
   // Same reason as debugScrollInspector: the editor covers the window and
   // nothing scriptable can open it, so --code-editor does.
   void debugOpenCodeEditor() { openCodeEditor(); }
+  // Same argument again for the media browser: it is a dropdown over the
+  // window and scripted clicks do not reach SDL3, so --browse opens it.
+  void debugOpenMediaBrowser(const std::string& folder) { openMediaBrowser(folder); }
 
   void debugScrollInspector(int pixels) {
     // Held, not applied. The scroll is clamped to cueSettingsScrollMax_ every
@@ -11903,6 +11906,7 @@ int runDeckboyMain(int argc, char** argv) {
   std::string uiDumpArg;
   int uiDumpFramesArg = 90;   // ~1.5s at 60fps: fonts, theme and splash settled
   bool openCodeEditorArg = false;
+  std::string browseFolderArg;
   int openSettingsSubTab = 0;
   for (size_t i = 0; i < rest.size(); ++i) {
     const std::string& arg = rest[i];
@@ -11940,6 +11944,13 @@ int runDeckboyMain(int argc, char** argv) {
     }
     if (arg == "--code-editor") {
       openCodeEditorArg = true;
+      continue;
+    }
+    // The media browser, for the same reason --code-editor exists: scripted
+    // clicks do not reach SDL3, so without this there is no way to open it
+    // and look at it.
+    if (arg == "--browse") {
+      browseFolderArg = i + 1 < rest.size() ? rest[++i] : std::string(".");
       continue;
     }
     if (arg == "--inspector-scroll") {
@@ -12068,6 +12079,9 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (openCodeEditorArg) {
     app.debugOpenCodeEditor();
+  }
+  if (!browseFolderArg.empty()) {
+    app.debugOpenMediaBrowser(browseFolderArg);
   }
   if (mascotPokesArg > 0) {
     app.debugPokeMascot(mascotPokesArg);

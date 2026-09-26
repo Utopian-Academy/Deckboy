@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.390 (Browse for media without leaving the window)
+
+**SOURCE → Browse media...** lists the current folder in the window --
+directories, then anything Deckboy can play. Go into a folder, `..` to come
+back, choose a file to add it to the focused playlist. It **stays open** on
+the same folder, so adding six clips is six clicks.
+
+**Type to filter**, which on a folder of two hundred episodes is the point.
+
+It opens where it last looked, remembered with the show; the first time, it
+opens wherever the playlist's existing media came from.
+
+Over the wire: `BROWSE`, `BROWSE <folder>`.
+
 ## 2026-09-26 - v0.99.389 (The stutter after a take)
 
 **A cue no longer starts playing before it has any pictures in hand.** The

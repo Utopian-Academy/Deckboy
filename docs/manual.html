@@ -153,6 +153,11 @@
         <h2 id="importing-adding-cues"><a href="#importing-adding-cues" class="anchor">6. Importing &amp; Adding Cues</a></h2>
         <ul><li><strong>Import media:</strong> press <code>I</code> or <code>Import</code>, or drag files onto the window. Metadata is probed asynchronously (<code>probing…</code> shows on the row until done).</li><li><strong>Add a source cue:</strong> the SOURCE menu adds stream, NDI, camera, window, browser, PiP, lower-third, and composite cues.</li><li><strong>Add a pattern:</strong> press <code>P</code> or use the pattern menu.</li></ul>
         <p>New cues inherit the deck's playlist defaults (fade lengths, loop, pause behaviour, audio-enabled). Reorder by dragging; multi-select with Shift/Ctrl; copy/paste cue settings with <code>Ctrl+C</code> / <code>Ctrl+V</code>.</p>
+        <h3 id="browsing-for-media-without-the-file-dialog">Browsing for media without the file dialog</h3>
+        <p><strong>SOURCE → Browse media...</strong> opens a list of the current folder right in the window: directories first, then anything Deckboy can play. Choosing a folder goes into it, <code>..</code> goes back up, and choosing a file adds it to the focused playlist and <strong>stays where it is</strong>, so adding six clips is six clicks rather than six trips through a dialog.</p>
+        <p><strong>Type to filter.</strong> On a folder of two hundred episodes this is the whole feature — start typing any part of the name.</p>
+        <p>It opens where it last looked, remembered with the show. If it has never been used it starts wherever the playlist's own media came from.</p>
+        <p>Over the wire: <code>BROWSE</code>, or <code>BROWSE &lt;folder&gt;</code>.</p>
         <h3 id="a-playlist-that-fills-itself">A playlist that fills itself</h3>
         <p><strong>Settings → System → WATCH FOLDER</strong> points the focused playlist at a folder. Anything playable dropped in there becomes a cue, by itself, while the show is running — which is what you want when somebody keeps putting new VTs on the NAS during rehearsal.</p>
         <p>Each playlist can watch its own folder, so the VT drop and the stings can be different places. The card names the playlist it is about; switch playlists with the tabs and set another.</p>

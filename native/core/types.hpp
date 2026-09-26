@@ -2416,6 +2416,9 @@ struct Project {
   // the show, and a second way in is a decision the operator makes rather than
   // one that arrives switched on. The ports are vMix's own, so a panel
   // configured for a vMix rig needs nothing changed.
+  // Where the media browser last looked. Remembered with the show so a desk
+  // set up for one job opens where that job's media lives.
+  std::string browseFolder;
   bool vmixApiEnabled = false;           // answer the vMix HTTP and TCP APIs
   int vmixHttpPort = 8088;               // vMix's HTTP API port
   int vmixTcpPort = 8099;                // vMix's TCP API port

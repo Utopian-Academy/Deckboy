@@ -2827,6 +2827,11 @@
       [this]() { addTimecodeCue(); }
     });
     contextItems_.push_back({
+      "  Browse media... (add without the file dialog)",
+      {0, 0, 0, 0},
+      [this]() { openMediaBrowser(mediaBrowserStartFolder()); }
+    });
+    contextItems_.push_back({
       "  Script Cue (runs Deckboy commands)",
       {0, 0, 0, 0},
       [this]() { addScriptCue(); }
@@ -4862,6 +4867,135 @@
 
   static std::string watchFolderKey(int deckIndex, const std::string& path) {
     return std::to_string(deckIndex) + "\n" + path;
+  }
+
+
+  // ── MEDIA BROWSER ─────────────────────────────────────────────────────────
+  //
+  // Browse the disk and add cues without going out to the operating system's
+  // file dialog. Built on the dropdown because the dropdown already is a
+  // scrollable, type-to-filter, keyboard-navigable list with a callback --
+  // see the note above openMediaBrowser for why that beats a new panel.
+
+  // Parked here and acted on in the update tick rather than reopened inside
+  // the dropdown's own callback: the click that chose the row is still being
+  // handled, and the next mouse-up would land on the new list.
+  std::string pendingBrowseFolder_;
+
+  void serviceMediaBrowser() {
+    if (pendingBrowseFolder_.empty()) return;
+    const std::string folder = pendingBrowseFolder_;
+    pendingBrowseFolder_.clear();
+    openMediaBrowser(folder);
+  }
+
+  // Where browsing starts. The last folder used, remembered with the show, so
+  // a desk set up for one job opens where that job's media lives.
+  std::string mediaBrowserStartFolder() const {
+    std::error_code ec;
+    if (!project_.browseFolder.empty() &&
+        fs::is_directory(fs::path(project_.browseFolder), ec)) {
+      return project_.browseFolder;
+    }
+    // Then the folder the focused playlist's own media came from: browsing
+    // almost always means "more of what is already here".
+    const Deck& deck = focusedDeck();
+    for (auto it = deck.cues.rbegin(); it != deck.cues.rend(); ++it) {
+      if (it->path.empty()) continue;
+      fs::path parent = fs::path(it->path).parent_path();
+      if (!parent.empty() && fs::is_directory(parent, ec)) {
+        return parent.string();
+      }
+    }
+    return fs::current_path(ec).string();
+  }
+
+  void openMediaBrowser(const std::string& folderIn) {
+    std::error_code ec;
+    fs::path folder = fs::absolute(fs::path(folderIn), ec);
+    if (ec || !fs::is_directory(folder, ec)) {
+      triggerToast("browse: not a folder: " + folderIn,
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      return;
+    }
+
+    std::vector<std::pair<std::string, std::string>> options;
+    const fs::path parent = folder.parent_path();
+    if (!parent.empty() && parent != folder) {
+      options.push_back({"dir:" + parent.string(), ".. up to " +
+                         (parent.filename().empty() ? parent.string()
+                                                    : parent.filename().string())});
+    }
+
+    std::vector<std::pair<std::string, std::string>> dirs;
+    std::vector<std::pair<std::string, std::string>> files;
+    std::error_code walkEc;
+    fs::directory_iterator it(folder, walkEc), end;
+    if (walkEc) {
+      // A folder that cannot be read says so. Listing it as empty is the
+      // difference between "there is nothing here" and "I could not look".
+      triggerToast("browse: cannot read " + folder.filename().string() +
+                     " (" + walkEc.message() + ")",
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      return;
+    }
+    for (; it != end; it.increment(walkEc)) {
+      if (walkEc) break;
+      const fs::path entry = it->path();
+      const std::string name = entry.filename().string();
+      if (name.empty() || name[0] == '.') continue;   // hidden, and "." / ".."
+      std::error_code kindEc;
+      if (it->is_directory(kindEc)) {
+        dirs.push_back({"dir:" + entry.string(), "[ " + name + " ]"});
+      } else if (it->is_regular_file(kindEc) && isAcceptableMediaPath(entry)) {
+        files.push_back({"file:" + entry.string(), name});
+      }
+    }
+    // Case-insensitive, so a folder of episodes reads the way it does
+    // everywhere else rather than putting every capital letter first.
+    const auto byName = [](const std::pair<std::string, std::string>& a,
+                           const std::pair<std::string, std::string>& b) {
+      return toLower(a.second) < toLower(b.second);
+    };
+    std::sort(dirs.begin(), dirs.end(), byName);
+    std::sort(files.begin(), files.end(), byName);
+    options.insert(options.end(), dirs.begin(), dirs.end());
+    options.insert(options.end(), files.begin(), files.end());
+
+    if (options.empty()) {
+      triggerToast(folder.filename().string() + ": nothing playable here");
+      return;
+    }
+    // Remembered before the list is shown, not after a choice: an operator
+    // who browses somewhere and closes the list still meant to go there.
+    project_.browseFolder = folder.string();
+    markProjectDirty();
+
+    // Anchored on the IMPORT button, which is the thing this is an
+    // alternative to. The owner carries the path so two openings of different
+    // folders are never mistaken for a toggle of the same dropdown.
+    SDL_Rect anchor {0, 0, 0, 0};
+    for (const auto& button : buttons_) {
+      if (button.label == "IMPORT") { anchor = button.rect; break; }
+    }
+    if (anchor.w <= 0) {
+      int winW = 0, winH = 0;
+      SDL_GetWindowSize(controlWindow_, &winW, &winH);
+      anchor = SDL_Rect{winW / 2 - uiScaled(160), winH / 2, uiScaled(320), uiScaled(28)};
+    }
+    openDropdown("media_browser:" + folder.string(), anchor, options, std::string(),
+      [this, folder](const std::string& chosen) {
+        if (chosen.rfind("dir:", 0) == 0) {
+          pendingBrowseFolder_ = chosen.substr(4);
+          return;
+        }
+        if (chosen.rfind("file:", 0) == 0) {
+          importPaths({chosen.substr(5)});
+          // Straight back to the same folder, so adding six clips is six
+          // clicks rather than six trips through the menu.
+          pendingBrowseFolder_ = folder.string();
+        }
+      });
   }
 
   void pickWatchFolder() {

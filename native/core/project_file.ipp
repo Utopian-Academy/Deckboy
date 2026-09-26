@@ -284,6 +284,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
   output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
+  output << "browse_folder\t" << escapeField(project.browseFolder) << '\n';
   output << "vmix_api_enabled\t" << (project.vmixApiEnabled ? 1 : 0) << '\n';
   output << "vmix_http_port\t" << project.vmixHttpPort << '\n';
   output << "vmix_tcp_port\t" << project.vmixTcpPort << '\n';
@@ -1265,6 +1266,8 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.oscQueryEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "osc_query_port") {
     project.oscQueryPort = safeInt(fields, 1, 5511);
+  } else if (fields[0] == "browse_folder") {
+    project.browseFolder = safeString(fields, 1);
   } else if (fields[0] == "vmix_api_enabled") {
     project.vmixApiEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "vmix_http_port") {

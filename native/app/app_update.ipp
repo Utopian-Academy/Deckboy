@@ -287,6 +287,9 @@
     // A watched folder's scan runs on a worker; this is where its findings
     // become cues. Beside the network results for exactly that reason.
     serviceWatchFolders();
+    // The media browser's next folder, parked by the dropdown callback so the
+    // click that chose it is finished before the new list opens.
+    serviceMediaBrowser();
     // DMX fades, and the continuous Art-Net refresh a rig expects.
     serviceDmx();
     // The notes in a MIDI file cue, sent from the cue's own transport

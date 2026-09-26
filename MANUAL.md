@@ -184,6 +184,22 @@ New cues inherit the deck's playlist defaults (fade lengths, loop, pause
 behaviour, audio-enabled). Reorder by dragging; multi-select with Shift/Ctrl;
 copy/paste cue settings with `Ctrl+C` / `Ctrl+V`.
 
+### Browsing for media without the file dialog
+
+**SOURCE → Browse media...** opens a list of the current folder right in the
+window: directories first, then anything Deckboy can play. Choosing a folder
+goes into it, `..` goes back up, and choosing a file adds it to the focused
+playlist and **stays where it is**, so adding six clips is six clicks rather
+than six trips through a dialog.
+
+**Type to filter.** On a folder of two hundred episodes this is the whole
+feature — start typing any part of the name.
+
+It opens where it last looked, remembered with the show. If it has never been
+used it starts wherever the playlist's own media came from.
+
+Over the wire: `BROWSE`, or `BROWSE <folder>`.
+
 ### A playlist that fills itself
 
 **Settings → System → WATCH FOLDER** points the focused playlist at a folder.

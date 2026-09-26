@@ -3858,6 +3858,19 @@
         "GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>");
       return;
     }
+    if (command == "BROWSE") {
+      // BROWSE          -- open the media browser where it last looked
+      // BROWSE <folder> -- open it there
+      const std::string where = parts.size() > 1 ? joinParts(parts, 1)
+                                                 : mediaBrowserStartFolder();
+      std::error_code ec;
+      if (!fs::is_directory(fs::path(trim(where)), ec)) {
+        failRemoteCommand("not a folder: " + where);
+        return;
+      }
+      openMediaBrowser(trim(where));
+      return;
+    }
     if (command == "AVJUMP") {
       // AVJUMP        -- how many times the playhead has jumped, per playlist
       // AVJUMP RESET  -- start counting again
@@ -3918,13 +3931,13 @@
       if (sub == "TOGGLE") { setVmixApiEnabled(!project_.vmixApiEnabled); return; }
       if (sub == "PORTS") {
         if (parts.size() < 4) {
-          failRemoteCommand("VMIX PORTS: expected an http port and a tcp port");
+          failRemoteCommand("PORTS: expected an http port and a tcp port");
           return;
         }
         setVmixPorts(std::atoi(parts[2].c_str()), std::atoi(parts[3].c_str()));
         return;
       }
-      failRemoteCommand("VMIX: expected ON, OFF, TOGGLE or PORTS");
+      failRemoteCommand("expected ON, OFF, TOGGLE or PORTS");
       return;
     }
     if (command == "WATCH") {
@@ -3951,7 +3964,7 @@
       }
       const int deckNumber = std::atoi(parts[1].c_str());
       if (deckNumber < 1 || deckNumber > static_cast<int>(project_.decks.size())) {
-        failRemoteCommand("WATCH: there is no playlist " + parts[1]);
+        failRemoteCommand("there is no playlist " + parts[1]);
         return;
       }
       Deck& deck = project_.decks[static_cast<std::size_t>(deckNumber - 1)];
@@ -3974,7 +3987,7 @@
       // like a watch folder that does not work, and the difference only shows
       // up as files failing to arrive.
       if (ec || !fs::is_directory(folder, ec)) {
-        failRemoteCommand("WATCH: not a folder: " + rest);
+        failRemoteCommand("not a folder: " + rest);
         return;
       }
       deck.watchFolder = folder.string();
