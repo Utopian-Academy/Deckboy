@@ -2845,7 +2845,8 @@
           int halfW = (subContentW - 8) / 2;
 
           // DeckLink
-          int dlH = sectionH({kRowH, kRowH, kRowH, kRowH});
+          // Six rows now: the four it had, plus key+fill and its device.
+          int dlH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH, kRowH});
           SDL_Rect dlSection {cx, sy, halfW, dlH};
           SDL_Rect dlBody = drawSectionFrame(dlSection, "DECKLINK SDI / HDMI");
           VerticalLayout dlLayout(dlBody, kRowGap);
@@ -2881,6 +2882,44 @@
           SDL_Rect bitBtn = dlLayout.takeFixed(kRowH);
           drawActionBtn(bitBtn, outputTarget.deckLink10Bit ? "10-BIT: ON" : "10-BIT: OFF",
                         kSettingsActionDeckLink10BitToggle, outputTarget.deckLink10Bit);
+
+          // KEY + FILL. Two signals: the picture, and a matte saying how
+          // opaque it is, so a vision mixer downstream can lay a graphic over
+          // its programme with real soft edges.
+          //
+          // It changes what this output IS -- in key+fill the composite is
+          // built over transparency rather than black, so everything sampled
+          // from it carries alpha. That is why it sits with the output's own
+          // settings rather than being a property of the card.
+          SDL_Rect kfBtn = dlLayout.takeFixed(kRowH);
+          drawActionBtn(kfBtn,
+                        outputTarget.deckLinkKeyFill ? "KEY+FILL: ON" : "KEY+FILL: OFF",
+                        kSettingsActionDeckLinkKeyFillToggle,
+                        outputTarget.deckLinkKeyFill);
+          {
+            // THE LABEL SAYS WHEN IT CANNOT WORK. Key+fill with no second
+            // device sends the fill alone -- a premultiplied picture on black,
+            // which looks almost right and is not what was asked for. A
+            // control that is on and doing half its job has to say so where
+            // the operator is looking.
+            std::string keyDevLabel = "None - fill only";
+            if (outputTarget.deckLinkKeyDeviceId >= 0) {
+              keyDevLabel = "Device " + std::to_string(outputTarget.deckLinkKeyDeviceId);
+              auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
+              for (const auto& d : devices) {
+                if (d.id == outputTarget.deckLinkKeyDeviceId) {
+                  keyDevLabel = d.modelName;
+                  break;
+                }
+              }
+            }
+            SDL_Rect keyDevBtn = dlLayout.takeFixed(kRowH);
+            drawUIDropdown(keyDevBtn, "Key out", keyDevLabel,
+                           "settings.decklink_key_device");
+            settingsBtns_.push_back({keyDevBtn,
+                                     kSettingsActionDeckLinkKeyDeviceDropdown,
+                                     "decklink_key_device"});
+          }
 
           // Interprocess texture share. The rest of the app calls this pair
           // "Syphon / Spout" -- the cue kind, the source picker, the remote
@@ -5070,6 +5109,51 @@
         shutdownOutputDeckLink(rt);
         triggerToast(std::string("decklink 10-bit: ") + (output.deckLink10Bit ? "on" : "off"));
         markProjectDirty();
+      } else if (sb.action == kSettingsActionDeckLinkKeyFillToggle) {
+        OutputTarget& output = focusedOutputMutable();
+        output.deckLinkKeyFill = !output.deckLinkKeyFill;
+        // Both cards re-init: the mode changes what the composite contains,
+        // not just where it goes.
+        auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+        shutdownOutputDeckLink(rt);
+        // SAY WHEN IT CANNOT WORK. On with no key device sends the fill and
+        // nothing else -- a premultiplied picture on black, which looks
+        // almost right and is not what the operator asked for.
+        if (output.deckLinkKeyFill && output.deckLinkKeyDeviceId < 0) {
+          triggerToast("key+fill on - now pick a Key out device",
+                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
+        } else {
+          triggerToast(std::string("key+fill: ") +
+                       (output.deckLinkKeyFill ? "on" : "off"));
+        }
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionDeckLinkKeyDeviceDropdown) {
+        auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
+        std::vector<std::pair<std::string, std::string>> choices;
+        choices.push_back({"-1", "None - fill only"});
+        for (const auto& d : devices) {
+          // The fill's own device is deliberately still offered rather than
+          // filtered out: which card is which is the operator's decision, and
+          // a picker that silently hides an entry is harder to reason about
+          // than one that lets a wrong choice be made and corrected.
+          std::string label = d.modelName;
+          if (d.id == focusedOutput().deckLinkDeviceId) label += " (fill card)";
+          choices.push_back({std::to_string(d.id), label});
+        }
+        openDropdown("settings.decklink_key_device", sb.rect, choices,
+          std::to_string(focusedOutput().deckLinkKeyDeviceId),
+          [this](const std::string& value) {
+            OutputTarget& output = focusedOutputMutable();
+            int newId = -1;
+            try { newId = std::stoi(trim(value)); } catch (...) {}
+            if (output.deckLinkKeyDeviceId != newId) {
+              output.deckLinkKeyDeviceId = newId;
+              auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+              shutdownOutputDeckLink(rt);
+              markProjectDirty();
+            }
+          });
+        return;
       } else if (sb.action == kSettingsActionSpoutToggle) {
         OutputTarget& output = focusedOutputMutable();
         output.spoutEnabled = !output.spoutEnabled;

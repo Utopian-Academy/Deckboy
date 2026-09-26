@@ -3295,7 +3295,24 @@
     }
     int renderW = usingCompositor ? runtime->compositorWidth : width;
     int renderH = usingCompositor ? runtime->compositorHeight : height;
-    SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
+    // TRANSPARENT IN KEY+FILL MODE, opaque black otherwise.
+    //
+    // This one line is the whole reason key+fill is a mode on the output and
+    // not just a second device setting. Cleared to opaque black, every pixel
+    // of the composite has alpha 255 and a key built from it is solid white --
+    // a key that keys nothing. Cleared to transparent, the layers accumulate
+    // real coverage (dstA = srcA + dstA*(1-srcA), which is what
+    // SDL_BLENDMODE_BLEND onto a transparent target already does), and the
+    // alpha channel becomes the matte a downstream keyer needs.
+    //
+    // Everything sampled from this output sees it: the preview tap, a
+    // recording, an NDI send. That is correct -- in this mode the output
+    // genuinely is a graphic with holes in it rather than a picture.
+    const bool keyFillMode = outputIndex >= 0
+      && outputIndex < static_cast<int>(project_.outputs.size())
+      && project_.outputs[static_cast<std::size_t>(outputIndex)].deckLinkKeyFill;
+    SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0,
+                           keyFillMode ? 0 : 255);
     SDL_RenderClear(runtime->outputRenderer);
 
     SDL_Rect bounds {0, 0, renderW, renderH};

@@ -917,6 +917,34 @@ Two command-line tools go with it, neither of which needs a window or a GPU:
 about semicolons), and reports how much of the frame the shape covers.
 `--code-check` asserts the language itself against expected values.
 
+### Key and fill, for a downstream keyer
+
+A broadcast keyer wants two signals: the **fill**, which is the picture, and
+the **key**, a greyscale matte saying how opaque the fill is at each point.
+Send a lower third that way and the vision mixer downstream lays it over its
+own programme with real soft edges. It is how graphics reach air in a gallery.
+
+**Settings → Video Outputs → Devices → KEY+FILL**, with a second DeckLink
+card picked as **Key out**. The fill leaves on the output's own device and the
+key on that one.
+
+Turning it on **changes what the output is**. The composite is built over
+transparency instead of black, so the alpha channel becomes a real matte —
+and everything sampled from that output sees it, including the preview and
+any recording. An output in key+fill is a graphic with holes in it, not a
+picture.
+
+The fill is sent **premultiplied** (colour × alpha), which is what hardware
+keyers expect. Unmultiplied fill is the reason a lower third comes back with
+a bright halo round every soft edge, and it looks almost right until it is on
+air.
+
+With key+fill on and no **Key out** device chosen, only the fill goes out —
+Deckboy says so when you turn it on, because a premultiplied picture on black
+also looks almost right.
+
+Over the wire: `DECKLINK KEYFILL ON|OFF|TOGGLE [device]`, `DECKLINK KEYDEVICE <n>`.
+
 ### Panels built for a vMix rig
 
 **Settings → Network → vMix API** makes Deckboy answer the two APIs vMix

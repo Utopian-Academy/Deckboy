@@ -2463,6 +2463,78 @@
       }
     }
 
+
+    // ── KEY + FILL ────────────────────────────────────────────────────────
+    //
+    // The one half of key+fill that can be checked without a DeckLink card in
+    // the machine, which is why the arithmetic was moved out from behind the
+    // SDK ifdef to reach it. Each case below is a fault that would only show
+    // up on air:
+    //
+    //   Unmultiplied fill is the classic halo round a soft-edged graphic.
+    //   A truncating multiply is a dirty fringe on a large one.
+    //   Alpha 255 not being exact means a solid graphic is not quite solid.
+    //   A key that carries its own transparency is invisible to a keyer.
+    {
+      // Four pixels: opaque white, transparent white, half white, opaque red.
+      const std::uint8_t rgba[16] = {
+        255, 255, 255, 255,
+        255, 255, 255,   0,
+        255, 255, 255, 128,
+        255,   0,   0, 255,
+      };
+      std::uint8_t fill[16] = {};
+      std::uint8_t key[16] = {};
+      splitKeyAndFill(rgba, 4, fill, key);
+
+      expect(fill[0] == 255 && fill[1] == 255 && fill[2] == 255,
+             "key+fill: a fully opaque pixel keeps its colour exactly");
+      expect(fill[3] == 255, "key+fill: the fill is sent opaque");
+      expect(fill[4] == 0 && fill[5] == 0 && fill[6] == 0,
+             "key+fill: a fully transparent pixel becomes black in the fill");
+      // 255 * 128 / 255 = 128 exactly with rounding; truncation gives 127.
+      expect(fill[8] == 128 && fill[9] == 128 && fill[10] == 128,
+             "key+fill: a half-transparent pixel is premultiplied, and rounded");
+      expect(fill[12] == 255 && fill[13] == 0 && fill[14] == 0,
+             "key+fill: colour is premultiplied per channel, not as luma");
+
+      expect(key[0] == 255 && key[1] == 255 && key[2] == 255,
+             "key+fill: the key is white where the fill is solid");
+      expect(key[4] == 0 && key[5] == 0 && key[6] == 0,
+             "key+fill: the key is black where there is nothing");
+      expect(key[8] == 128 && key[9] == 128 && key[10] == 128,
+             "key+fill: the key carries the alpha, on all three channels");
+      expect(key[3] == 255 && key[7] == 255,
+             "key+fill: the key is itself opaque, or a keyer cannot see it");
+
+      // Every alpha, checked against the exact rational. A rounding rule that
+      // is right at 0, 128 and 255 and wrong in between is the version of
+      // this bug that a three-value test would miss.
+      bool everyAlphaExact = true;
+      for (int a = 0; a <= 255; ++a) {
+        const std::uint8_t one[4] = {200, 100, 50, static_cast<std::uint8_t>(a)};
+        std::uint8_t f[4] = {};
+        std::uint8_t k[4] = {};
+        splitKeyAndFill(one, 1, f, k);
+        const auto exact = [a](int v) {
+          return static_cast<std::uint8_t>(
+            static_cast<int>(static_cast<double>(v) * a / 255.0 + 0.5));
+        };
+        if (f[0] != exact(200) || f[1] != exact(100) || f[2] != exact(50) ||
+            k[0] != static_cast<std::uint8_t>(a)) {
+          everyAlphaExact = false;
+          break;
+        }
+      }
+      expect(everyAlphaExact,
+             "key+fill: the premultiply matches the exact rounding at every alpha");
+
+      // A null buffer must be a no-op rather than a crash: the send path can
+      // reach here with a capture that failed.
+      splitKeyAndFill(nullptr, 4, fill, key);
+      expect(fill[0] == 255, "key+fill: a null source leaves the buffers alone");
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }

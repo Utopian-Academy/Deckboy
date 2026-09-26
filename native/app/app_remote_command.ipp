@@ -7542,6 +7542,35 @@
         else if (bitSub == "OFF") output.deckLink10Bit = false;
         else output.deckLink10Bit = !output.deckLink10Bit;
         triggerToast(output.deckLink10Bit ? "DeckLink 10-bit ON" : "DeckLink 10-bit off");
+      } else if (sub == "KEYFILL") {
+        // DECKLINK KEYFILL ON|OFF|TOGGLE [key device index]
+        const std::string kfSub = parts.size() > 2 ? toUpper(parts[2]) : "TOGGLE";
+        if (kfSub == "ON") output.deckLinkKeyFill = true;
+        else if (kfSub == "OFF") output.deckLinkKeyFill = false;
+        else output.deckLinkKeyFill = !output.deckLinkKeyFill;
+        if (parts.size() > 3) {
+          output.deckLinkKeyDeviceId = std::atoi(parts[3].c_str());
+        }
+        // SAY WHEN IT CANNOT WORK. Key+fill with no second device sends the
+        // fill and nothing else -- a premultiplied picture on black, which
+        // looks almost right and is not what was asked for.
+        if (output.deckLinkKeyFill && output.deckLinkKeyDeviceId < 0) {
+          triggerToast("key+fill ON, but no key device set "
+                       "(DECKLINK KEYFILL ON <device>)",
+                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
+        } else {
+          triggerToast(output.deckLinkKeyFill
+                         ? ("key+fill ON, key on device " +
+                            std::to_string(output.deckLinkKeyDeviceId))
+                         : std::string("key+fill off"));
+        }
+      } else if (sub == "KEYDEVICE") {
+        auto val = parseNumber(2);
+        if (val) {
+          output.deckLinkKeyDeviceId = static_cast<int>(*val);
+          triggerToast("DeckLink key device " +
+                       std::to_string(output.deckLinkKeyDeviceId));
+        }
       }
       markProjectDirty();
       return;

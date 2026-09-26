@@ -1,5 +1,29 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.386 (Key and fill on SDI)
+
+**Deckboy can hand a graphic to a downstream keyer.** Turn on **Settings →
+Video Outputs → Devices → KEY+FILL**, pick a second DeckLink card as **Key
+out**, and the output leaves as two signals: the fill on one card, and the
+key -- a greyscale matte of the alpha -- on the other. A vision mixer lays it
+over its own programme with real soft edges. This is the missing half of the
+lower thirds: Deckboy could draw one and had no way to give it to anybody.
+
+Turning it on **changes what the output is**. The composite is built over
+transparency rather than black, so the alpha channel becomes a real matte and
+everything sampled from that output carries it.
+
+The fill is **premultiplied**, which is what hardware keyers expect --
+unmultiplied fill is the reason a graphic comes back with a bright halo round
+every soft edge, and it looks almost right until it is on air.
+
+**Not yet proven against a card.** There is no DeckLink hardware here. What is
+proven: it compiles with the SDK enabled, the composite is built over
+transparency in this mode, and the fill/key split is exact at every one of the
+256 alpha values (checked in `--smoke`). Whether a real card accepts the two
+streams is untested, so treat this as ready to try rather than ready to trust,
+and tell us how it goes.
+
 ## 2026-09-26 - v0.99.385 (The loading animals were invisible)
 
 **The little critter that says a thing is working now actually appears.** It

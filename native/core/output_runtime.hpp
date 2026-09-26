@@ -131,6 +131,46 @@ struct OutputStreamWriterState {
 
 // Per-output runtime state: SDL window/renderer, compositor, stream writer,
 // NDI sender, DeckLink output, and FPS telemetry.
+
+// ── KEY + FILL ────────────────────────────────────────────────────────────
+//
+// Split one composited RGBA frame into the two signals a broadcast keyer
+// wants: FILL, the picture, and KEY, a greyscale matte saying how opaque the
+// fill is. A vision mixer downstream lays the fill over its programme through
+// the key, which is how a graphic reaches air in a gallery.
+//
+// IN CORE, NOT BEHIND THE DECKLINK IFDEF, on purpose. This is arithmetic on a
+// buffer; putting it beside the card code meant the one part of key+fill that
+// can be verified without hardware could only be compiled on a machine with
+// the SDK. Now --smoke checks it everywhere.
+//
+// THE FILL IS PREMULTIPLIED, which every hardware keyer expects: a
+// half-transparent white goes out as mid grey at 50% key, not white at 50%
+// key. Unmultiplied fill puts a bright fringe around every soft edge and is
+// invisible until it is on air.
+inline void splitKeyAndFill(const std::uint8_t* rgba, std::size_t pixelCount,
+                            std::uint8_t* fill, std::uint8_t* key) {
+  if (!rgba || !fill || !key) return;
+  for (std::size_t i = 0; i < pixelCount; ++i) {
+    const std::size_t at = i * 4;
+    const unsigned a = rgba[at + 3];
+    // ROUNDED, not truncated: (v * a + 127) / 255 is the exact 8-bit multiply.
+    // Truncating darkens every partly transparent pixel by up to a code value,
+    // which reads as a dirty fringe on a large soft-edged graphic.
+    fill[at + 0] = static_cast<std::uint8_t>((rgba[at + 0] * a + 127) / 255);
+    fill[at + 1] = static_cast<std::uint8_t>((rgba[at + 1] * a + 127) / 255);
+    fill[at + 2] = static_cast<std::uint8_t>((rgba[at + 2] * a + 127) / 255);
+    fill[at + 3] = 255;
+    // The key is the alpha drawn as a picture: white where the fill is solid.
+    // Opaque itself, because a keyer reads luminance and a key carrying its
+    // own transparency is invisible to one.
+    key[at + 0] = static_cast<std::uint8_t>(a);
+    key[at + 1] = static_cast<std::uint8_t>(a);
+    key[at + 2] = static_cast<std::uint8_t>(a);
+    key[at + 3] = 255;
+  }
+}
+
 struct OutputRuntime {
 #ifdef _WIN32
   // Server end of the audio named pipe. Windows children get one piped
@@ -355,6 +395,12 @@ struct OutputRuntime {
 #if defined(DECKBOY_HAS_DECKLINK)
   std::unique_ptr<deckboy::platform::video::DeckLinkOutput> deckLinkOutput;
   std::vector<std::uint8_t> deckLinkFrameBuffer;
+  // KEY + FILL. A second card carries the matte, and the two buffers the
+  // composite is split into live here rather than being allocated per frame:
+  // at 1080p that would be sixteen megabytes of churn every frame.
+  std::unique_ptr<deckboy::platform::video::DeckLinkOutput> deckLinkKeyOutput;
+  std::vector<std::uint8_t> deckLinkFillBuffer;
+  std::vector<std::uint8_t> deckLinkKeyBuffer;
 #endif
 #if defined(DECKBOY_HAS_SPOUT)
   std::unique_ptr<deckboy::platform::video::SiphonSpoutSender> spoutSender;

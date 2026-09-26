@@ -506,6 +506,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << outputTarget.crossfadeFrom
       << '\t' << outputTarget.crossfadeTo
       << '\t' << outputTarget.crossfadeMix
+      // Key + fill (fields 96-97), appended at the END. An output written
+      // before this comes back with key+fill off, which is every output
+      // that has ever been saved.
+      << '\t' << (outputTarget.deckLinkKeyFill ? 1 : 0)
+      << '\t' << outputTarget.deckLinkKeyDeviceId
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1499,6 +1504,12 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                               outputTarget.crossfadeFrom    = safeInt(fields, 93, 0);
                               outputTarget.crossfadeTo      = safeInt(fields, 94, 1);
                               outputTarget.crossfadeMix     = safeDouble(fields, 95, 0.0);
+                              if (fields.size() >= 98) {
+                                outputTarget.deckLinkKeyFill =
+                                  safeBool(fields, 96, false);
+                                outputTarget.deckLinkKeyDeviceId =
+                                  safeInt(fields, 97, -1);
+                              }
                             }
                           }
                         }

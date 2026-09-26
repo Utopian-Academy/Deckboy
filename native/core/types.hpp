@@ -1898,6 +1898,16 @@ struct OutputTarget {
   int deckLinkDeviceId = -1;               // DeckLink device index (-1 = not assigned)
   std::string deckLinkMode = "1080p60";    // output mode string (e.g. "1080p60", "720p50")
   bool deckLink10Bit = true;               // use 10-bit output (vs 8-bit)
+  // KEY + FILL. When on, this output composites over TRANSPARENT instead of
+  // black and emits two signals: the fill (RGB premultiplied by alpha) on the
+  // device above, and the key (alpha as a greyscale picture) on the device
+  // below. That is how a graphic reaches a downstream keyer in a gallery.
+  //
+  // It changes what the composite MEANS, which is why it is a mode on the
+  // output rather than a second device setting: everything sampled from this
+  // output -- the preview tap, a recording, NDI -- sees the alpha too.
+  bool deckLinkKeyFill = false;            // emit key + fill on two devices
+  int deckLinkKeyDeviceId = -1;            // the KEY device (-1 = not assigned)
 
   // -- Spout output (Windows interprocess texture sharing) ---------------------
   bool spoutEnabled = false;               // route output to Spout sender

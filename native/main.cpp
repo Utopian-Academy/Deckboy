@@ -8733,6 +8733,9 @@ class App {
   static constexpr int kSettingsActionVmixToggle = 693;
   static constexpr int kSettingsActionVmixHttpPortPrompt = 694;
   static constexpr int kSettingsActionVmixTcpPortPrompt = 695;
+  // Key + fill on SDI. Same 691-701 gap; audit_actions.py is the check.
+  static constexpr int kSettingsActionDeckLinkKeyFillToggle = 696;
+  static constexpr int kSettingsActionDeckLinkKeyDeviceDropdown = 697;
   // 723-725: the update checker. Next free id is 726.
   static constexpr int kSettingsActionMonitorDevice = 794;
   static constexpr int kSettingsActionMonitorDeck = 795;

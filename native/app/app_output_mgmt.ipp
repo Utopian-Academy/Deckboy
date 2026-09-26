@@ -5564,7 +5564,60 @@
     int fw = frameCapture->width;
     int fh = frameCapture->height;
     int stride = fw * 4;
-    outputRuntime.deckLinkOutput->sendFrame(frameCapture->pixels.data(), fw, fh, stride);
+
+    if (!output.deckLinkKeyFill) {
+      outputRuntime.deckLinkOutput->sendFrame(frameCapture->pixels.data(), fw, fh, stride);
+      return;
+    }
+
+    // ── KEY + FILL ───────────────────────────────────────────────────────
+    //
+    // Two signals out of one composite. The FILL is the picture and the KEY
+    // is a greyscale matte saying how opaque it is; a vision mixer downstream
+    // lays the fill over its programme through the key.
+    //
+    // THE FILL IS PREMULTIPLIED. Every hardware keyer expects fill = RGB x
+    // alpha: a half-transparent white goes out as mid grey at 50% key, not
+    // white at 50% key. Sending straight RGB puts a bright fringe around
+    // every soft edge, which is the classic "why does my lower third have a
+    // halo" fault and is invisible until it is on air.
+    //
+    // Both buffers are kept on the runtime rather than allocated per frame:
+    // at 1080p that would be sixteen megabytes of churn a frame.
+    const std::size_t pixels = static_cast<std::size_t>(fw) * fh;
+    const std::size_t bytes = pixels * 4;
+    if (outputRuntime.deckLinkFillBuffer.size() != bytes) {
+      outputRuntime.deckLinkFillBuffer.assign(bytes, 0);
+    }
+    if (outputRuntime.deckLinkKeyBuffer.size() != bytes) {
+      outputRuntime.deckLinkKeyBuffer.assign(bytes, 0);
+    }
+    // The arithmetic lives in core so it can be checked without a card --
+    // see splitKeyAndFill in output_runtime.hpp and its --smoke case.
+    std::uint8_t* fill = outputRuntime.deckLinkFillBuffer.data();
+    std::uint8_t* key = outputRuntime.deckLinkKeyBuffer.data();
+    splitKeyAndFill(frameCapture->pixels.data(), pixels, fill, key);
+    outputRuntime.deckLinkOutput->sendFrame(fill, fw, fh, stride);
+
+    // The key goes out of a SECOND device. Without one there is nothing to
+    // send it down, and sending only the fill would be worse than not
+    // offering the mode -- the fill alone is a premultiplied picture on
+    // black, which is not what the operator asked for and looks almost right.
+    if (output.deckLinkKeyDeviceId < 0) {
+      return;
+    }
+    if (!outputRuntime.deckLinkKeyOutput) {
+      outputRuntime.deckLinkKeyOutput =
+        std::make_unique<deckboy::platform::video::DeckLinkOutput>();
+    }
+    if (!outputRuntime.deckLinkKeyOutput->isInitialized()) {
+      auto mode = deckboy::platform::video::parseDeckLinkMode(output.deckLinkMode);
+      if (!outputRuntime.deckLinkKeyOutput->init(output.deckLinkKeyDeviceId, mode,
+                                                 output.deckLink10Bit)) {
+        return;
+      }
+    }
+    outputRuntime.deckLinkKeyOutput->sendFrame(key, fw, fh, stride);
 #else
     (void) outputIndex;
     (void) outputRuntime;
@@ -5580,7 +5633,13 @@
       outputRuntime.deckLinkOutput->shutdown();
       outputRuntime.deckLinkOutput.reset();
     }
+    if (outputRuntime.deckLinkKeyOutput) {
+      outputRuntime.deckLinkKeyOutput->shutdown();
+      outputRuntime.deckLinkKeyOutput.reset();
+    }
     outputRuntime.deckLinkFrameBuffer.clear();
+    outputRuntime.deckLinkFillBuffer.clear();
+    outputRuntime.deckLinkKeyBuffer.clear();
 #else
     (void) outputRuntime;
 #endif
