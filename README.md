@@ -399,9 +399,8 @@ those goes to your own LAN or to a destination you configured.
 ## Platforms
 
 One show file opens on Windows, macOS and Linux, and nearly everything above
-runs on all three. The exceptions: texture sharing with Resolume, TouchDesigner
-or OBS is Spout, on Windows only, and MIDI (including MIDI Show Control) is in
-the Windows and Linux downloads but not in the current macOS one.
+runs on all three. The exception: texture sharing with Resolume, TouchDesigner
+or OBS is Spout, on Windows only.
 
 Hardware decode is used wherever the platform provides it — D3D11VA, Video
 Toolbox, VAAPI — and on Windows and macOS the picture never touches system
