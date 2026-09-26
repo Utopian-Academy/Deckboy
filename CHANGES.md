@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.385 (The loading animals were invisible)
+
+**The little critter that says a thing is working now actually appears.** It
+was drawn *before* the settings modal and the popups, so the one that sits on
+the update download -- the case the whole feature was built for -- was painted
+over by the modal it lives in, every frame, for its entire life. They are
+drawn above the popups now.
+
+It also **asked the status text** whether an update was working, by searching
+it for "download" or "checking". So it kept scurrying over "download failed"
+and "download was incomplete", and it showed nothing at all during the quiet
+check at startup, which never sets that text. It now asks whether a check or
+download is genuinely in flight.
+
 ## 2026-09-26 - v0.99.384 (Deckboy answers the vMix APIs)
 
 **Panels built for a vMix rig now drive Deckboy, unchanged.**

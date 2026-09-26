@@ -1385,7 +1385,9 @@
       ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
-    renderBusyCritters();
+    // THE BUSY CRITTERS ARE NOT DRAWN HERE. See below, above the popups: the
+    // update one lives inside the settings modal and was painted over by it
+    // every frame, so nobody ever saw one.
     renderSlideRenderCard(width, height);
     renderImportProgress(width, height);
     if (confirmQuit_) {
@@ -1400,6 +1402,18 @@
     // Popups rendered last (on top)
     renderContextMenu();
     renderSettingsModal();
+    // ABOVE THE POPUPS, for the reason the toast below is: a critter says
+    // which control is working right now, and the control it is sitting on
+    // can be inside the settings modal -- the update download is exactly
+    // that. Drawn before the modal, it was painted over every frame and the
+    // feature was invisible for its whole life.
+    //
+    // Also AFTER the modal has run, so a markBusy issued while the modal drew
+    // is honoured on this frame rather than the next one.
+    //
+    // Safe on top because markBusy clamps every critter to the rect it was
+    // handed; none of them can wander into the chrome.
+    renderBusyCritters();
     // THE TOAST GOES ABOVE THE POPUPS, not below them.
     //
     // It used to be drawn before this block, so any message raised by a

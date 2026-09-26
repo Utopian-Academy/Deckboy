@@ -1085,10 +1085,14 @@
       // An update that is working says so HERE, where the operator pressed.
       // The status line existed already but reads as static text, and "is it
       // downloading or has it hung" was the question it failed to answer.
-      if (updateLine.find("download") != std::string::npos ||
-          updateLine.find("Download") != std::string::npos ||
-          updateLine.find("checking") != std::string::npos ||
-          updateLine.find("Checking") != std::string::npos) {
+      //
+      // ASKED, NOT SNIFFED. This used to search the operator-facing status
+      // text for "download" or "checking" -- so "download failed" and
+      // "download was incomplete" matched too, and the animal kept scurrying
+      // over an operation that had finished and failed. updateCheckRunning_
+      // is true for exactly the span of a check or a download and for nothing
+      // else.
+      if (updateCheckRunning_.load()) {
         markBusy("update", "eel", updActionRow);
       }
       drawSettingsStateFill(updCheckBtn, false);
