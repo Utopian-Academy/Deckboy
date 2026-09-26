@@ -295,6 +295,47 @@ if ($StagedVersion -ne $Version) {
 }
 Write-Host "  staged build reports v$StagedVersion"
 
+# --- The staged copy has to have libltc, and it has to WORK -----------------
+#
+# Every Windows release up to v0.99.379 shipped with no ltc.dll at all, so LTC
+# generation, LTC chase and timecode cues were dead in the zip while working
+# on the machine that built them. vcpkg has no libltc port, so the Windows CI
+# job had nothing that could have produced one; macOS and Linux install it
+# from brew and apt, so only Windows was affected and only Windows had no way
+# to notice. tools/build_libltc_windows.ps1 builds it now.
+#
+# THIS ASKS THE BINARY, not the file system. A Test-Path would pass on a DLL
+# that exports nothing -- which is exactly what libltc built the obvious way
+# on MSVC produces, because its headers carry no __declspec(dllexport), and
+# LoadLibrary succeeds while every GetProcAddress fails. --self-check loads it
+# through the code path the show uses.
+#
+# FATAL, not a warning. An optional dependency missing by accident is
+# indistinguishable from one left out on purpose, and three features have
+# shipped disabled that way already.
+Write-Host "Checking the staged build can load libltc"
+$LtcOut = Join-Path $env:TEMP ("deckboy-ltc-" + [guid]::NewGuid() + ".txt")
+$LtcProc = Start-Process -FilePath $StagedExe -ArgumentList "--self-check" `
+                         -Wait -NoNewWindow -PassThru `
+                         -RedirectStandardOutput $LtcOut
+$LtcLine = ""
+if (Test-Path $LtcOut) {
+    $LtcLine = (Select-String -Path $LtcOut -Pattern "^ltc-runtime:" |
+                Select-Object -First 1).Line
+    Remove-Item $LtcOut -Force -ErrorAction SilentlyContinue
+}
+if (-not $LtcLine) {
+    throw ("The staged build printed no ltc-runtime line at all " +
+           "(--self-check exit $($LtcProc.ExitCode)).")
+}
+if ($LtcLine -notmatch "ltc-runtime:\s*ok") {
+    throw ("The staged build cannot use libltc: '$LtcLine'. " +
+           "LTC generation, LTC chase and timecode cues would be dead in this " +
+           "zip. Run tools/build_libltc_windows.ps1 -OutDir '$BuildDir' and " +
+           "package again.")
+}
+Write-Host '  libltc loads'
+
 # --- Zip --------------------------------------------------------------------
 if (Test-Path $ZipPath) {
     Remove-Item $ZipPath -Force

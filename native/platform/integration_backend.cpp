@@ -29,6 +29,8 @@
 
 #include "platform/integration_backend.hpp"
 
+#include "platform/ltc_api.hpp"
+
 #include <unordered_map>
 
 namespace deckboy::platform {
@@ -95,13 +97,33 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
     });
 #endif
 
-    // Linear Time Code ingest via audio input (cross-platform, libltc loaded dynamically)
+    // Linear Time Code ingest via audio input (cross-platform, libltc loaded
+    // dynamically).
+    //
+    // ASKED, NOT ASSUMED. Every other entry here answers a COMPILE-time
+    // question -- was the SDK present when this was built -- and a constant is
+    // correct for those. libltc is dlopen'd and never linked, so whether LTC
+    // works is a question about the machine this is running on, and this entry
+    // said "true" unconditionally. Every Windows release up to v0.99.379
+    // shipped with no libltc at all and still reported ltc[ok] here, so an
+    // operator checking whether timecode would work was told the wrong thing
+    // by the one line that exists to tell them.
+    //
+    // Probed once: the answer cannot change while the process runs, and the
+    // catalog is rebuilt often enough that a LoadLibrary per call would be
+    // rude.
+    static const bool kLtcRuntimeReady = [] {
+      LtcApi probe;
+      const bool ok = probe.ensureLoaded();
+      probe.shutdown();
+      return ok;
+    }();
     out.push_back({
       IntegrationBackendKind::LtcIngest,
       "ltc",
       "LTC Ingest",
-      true,
-      ""
+      kLtcRuntimeReady,
+      kLtcRuntimeReady ? "" : "libltc is not installed or could not be loaded"
     });
 
     // Art-Net DMX lighting control — UDP broadcast (cross-platform)

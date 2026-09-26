@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.383 (Windows gets its timecode back)
+
+**LTC works on Windows again** -- and, on the evidence, for the first time.
+Every Windows release up to v0.99.379 shipped without libltc, so **LTC
+generation, LTC chase and timecode cues were dead in the zip** while working
+perfectly on the machine that built them. The zip's own `--self-check` said
+`ltc-runtime: missing`, and the integration report beside it said `ltc[ok]`,
+which is the part that kept it hidden.
+
+Three changes, so it cannot happen again:
+
+- Windows builds now build libltc from source (vcpkg has no port for it,
+  which is why there was never anything to install).
+- **The packager refuses to make a zip whose binary cannot load it.** It asks
+  the staged executable, not the file system, because a library that is
+  present and exports nothing looks identical to one that works.
+- The integration report asks the runtime instead of answering `ok`
+  unconditionally. A machine without libltc now reads `ltc[stub]`.
+
+macOS and Linux were never affected.
+
 ## 2026-09-26 - v0.99.382 (A playlist that fills itself, and an EQ band)
 
 **Watch folders.** Point a playlist at a folder in **Settings → System →

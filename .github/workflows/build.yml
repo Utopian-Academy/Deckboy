@@ -808,6 +808,21 @@ jobs:
       - name: Install dependencies
         run: .\vcpkg\vcpkg install sdl3:x64-windows sdl3-ttf:x64-windows
 
+      # LIBLTC IS BUILT FROM SOURCE, because vcpkg has no port for it --
+      # 2761 ports and not one of them. macOS and Linux install it from brew
+      # and apt; Windows had nothing, so every Windows release up to
+      # v0.99.379 shipped without ltc.dll and LTC generation, LTC chase and
+      # timecode cues were dead in the zip while working perfectly in the
+      # development tree, which had one put there by hand months earlier.
+      #
+      # Not conditional on matrix.features. LTC is not an optional extra that
+      # the "none" build exists to test the absence of -- it is timecode, and
+      # a desk that cannot read timecode is a different product. The packager
+      # now refuses to build a zip whose binary cannot load it.
+      - name: Build libltc
+        shell: pwsh
+        run: pwsh tools/build_libltc_windows.ps1 -OutDir build/Release
+
       # ENABLE_SPOUT hard-fails without the SDK, so the feature build needs
       # spout2 as well as rtmidi.
       #
