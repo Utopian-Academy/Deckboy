@@ -917,6 +917,21 @@ Two command-line tools go with it, neither of which needs a window or a GPU:
 about semicolons), and reports how much of the frame the shape covers.
 `--code-check` asserts the language itself against expected values.
 
+### When the picture stutters
+
+`AVJUMP` over the control port counts **playhead jumps**: moments when the
+playhead moved by something other than elapsed time, with takes, seeks, loop
+wraps and resumes excused. That is what "the video freezes and then speeds up
+to catch up" actually is, and it is far easier to count than to watch for.
+
+    AVJUMP RESET      start counting
+    AVJUMP            deck1=0/worst0.000/last0.000
+
+`worst` and `last` are in seconds, signed: negative means the playhead fell
+behind and was pulled forward. A handful of tiny values over a long show is
+the audio-master correction doing its job. Anything you can see is worth
+reporting, with the clip and the machine.
+
 ### Key and fill, for a downstream keyer
 
 A broadcast keyer wants two signals: the **fill**, which is the picture, and

@@ -3858,6 +3858,38 @@
         "GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>");
       return;
     }
+    if (command == "AVJUMP") {
+      // AVJUMP        -- how many times the playhead has jumped, per playlist
+      // AVJUMP RESET  -- start counting again
+      //
+      // A jump is the playhead moving by something other than elapsed wall
+      // time, with deliberate moves (take, seek, loop wrap, resume) excused.
+      // It is what "the video freezes and then speeds up to catch up" IS.
+      const bool reset = parts.size() > 1 && toUpper(parts[1]) == "RESET";
+      std::string report;
+      for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+        MediaEngine* engine = mediaEngineForDeck(static_cast<int>(d));
+        if (!engine) continue;
+        if (reset) {
+          engine->resetAvJumps();
+          continue;
+        }
+        if (!report.empty()) report += " ";
+        char buf[128];
+        std::snprintf(buf, sizeof(buf), "deck%d=%llu/worst%.3f/last%.3f",
+                      static_cast<int>(d + 1),
+                      static_cast<unsigned long long>(engine->avJumpCount()),
+                      engine->avJumpWorstSeconds(), engine->avJumpLastSeconds());
+        report += buf;
+      }
+      if (reset) {
+        triggerToast("av jumps: counting from zero");
+        return;
+      }
+      remoteCommandDetail_ = report.empty() ? "no engines" : report;
+      triggerToast(remoteCommandDetail_);
+      return;
+    }
     if (command == "VMIX") {
       // VMIX                -- report
       // VMIX ON|OFF|TOGGLE  -- the surface

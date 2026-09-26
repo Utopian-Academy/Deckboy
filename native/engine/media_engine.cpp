@@ -619,6 +619,7 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
   currentPosition_ = nextPosition;
   playbackStartPosition_ = nextPosition;
   playbackClockStart_ = std::chrono::steady_clock::now();
+  avJumpExpected_ = true;   // a loop wrap is a deliberate move
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
   resetMediaFpsTelemetry();
   decoderEof_ = false;
@@ -727,6 +728,7 @@ void MediaEngine::detachAudioDevice() {
     deckboySetAudioPaused(stream, true);
   }
   audioDelayFifo_.clear();
+  audioDelayHeldFrames_.store(0, std::memory_order_relaxed);
 }
 
 void MediaEngine::play() {
@@ -751,6 +753,10 @@ void MediaEngine::play() {
   }
   playbackClockStart_ = std::chrono::steady_clock::now();
   playbackStartPosition_ = pausedPosition_;
+  // Resuming re-anchors the clock on purpose, so the next tick is not a jump.
+  // Everything AFTER that tick is fair game -- which is the whole point, since
+  // the fault being hunted shows up just after a resume.
+  avJumpExpected_ = true;
   state_ = TransportState::Playing;
   if (audioStream_ != nullptr && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
     deckboySetAudioPaused(audioStream_, false);
@@ -912,6 +918,7 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
   currentPosition_ = clamped;
   playbackStartPosition_ = clamped;
   playbackClockStart_ = std::chrono::steady_clock::now();
+  avJumpExpected_ = true;   // a seek is a deliberate move
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
   resetMediaFpsTelemetry();
   if (clearVisualFrame) {
@@ -1125,14 +1132,33 @@ void MediaEngine::update() {
   // video position by more than ~2 frames, re-anchor the wall clock to it.
   // Skipped near EOF (audio drains before video finishes) and for live
   // streams (audioClockValid_ is false there).
-  if (state_ == TransportState::Playing && audioClockValid_ && audioStream_ != nullptr &&
-      !decoderEof_.load()) {
+  // A DECK WITH NOTHING GOING TO THE DEVICE HAS NO AUDIO CLOCK.
+  // queueToDevices skips the device entirely when the deck is muted out of
+  // the PA, but audioFramesQueued_ has already counted those frames -- so the
+  // queue stays empty while the counter climbs, and "counted minus buffered"
+  // reports the DECODER's progress as though it were the device's. It tracks
+  // roughly, because decode is throttled by the video queue, which is the
+  // worst kind of wrong: plausible until the decoder gets ahead. A silent
+  // deck uses the wall clock, which is what it should have been doing.
+  const bool audioReachesDevice = !mainDeviceMuted_.load(std::memory_order_relaxed);
+  if (state_ == TransportState::Playing && audioClockValid_ && audioReachesDevice &&
+      audioStream_ != nullptr && !decoderEof_.load()) {
     std::uint64_t queuedFrames = audioFramesQueued_.load(std::memory_order_relaxed);
     if (queuedFrames >= 4800) {  // trust the clock only after ~100ms of audio
       double queuedSeconds = static_cast<double>(queuedFrames) / 48000.0;
+      // WHAT THE DEVICE HAS NOT PLAYED YET is the device's own queue PLUS
+      // anything parked in the operator's delay line. audioFramesQueued_
+      // counts at process time, before the delay, so leaving the delay out
+      // made the video clock run ahead of the sound by exactly the delay --
+      // and the correction below then dragged the picture forward to match a
+      // clock that was wrong. tapPlayedAudio forty lines down has always
+      // subtracted both; this reader was missed when the delay line landed.
       double bufferedSeconds =
         static_cast<double>(std::max(0, SDL_GetAudioStreamQueued(audioStream_)))
         / (48000.0 * static_cast<double>(audioStreamBytesPerFrame()));
+      bufferedSeconds +=
+        static_cast<double>(audioDelayHeldFrames_.load(std::memory_order_relaxed))
+        / 48000.0;
       double playedWallSeconds = std::max(0.0, queuedSeconds - bufferedSeconds);
       // atempo re-times the pipe to wall rate; position space runs at
       // playbackSpeed_ × wall, so scale before comparing.
@@ -1157,6 +1183,40 @@ void MediaEngine::update() {
         currentPosition_ = audioClock;
       }
     }
+  }
+
+  // ── DID THE PLAYHEAD JUMP? ───────────────────────────────────────────────
+  //
+  // After the audio-master correction on purpose: a correction that yanks the
+  // playhead is one of the things being measured, not an excuse.
+  //
+  // Compared against ELAPSED WALL TIME rather than against a frame period,
+  // because the tick rate varies -- a long frame is not a jump, and calling
+  // one would bury the real thing in noise.
+  {
+    const auto tickNow = std::chrono::steady_clock::now();
+    if (state_ != TransportState::Playing || avJumpExpected_ ||
+        avJumpPrevPosition_ < 0.0) {
+      avJumpExpected_ = false;
+    } else {
+      const double wall = std::chrono::duration<double>(tickNow - avJumpPrevAt_).count();
+      const double expected = wall * playbackSpeed_;
+      const double moved = currentPosition_ - avJumpPrevPosition_;
+      const double slip = moved - expected;
+      // A tenth of a second. The audio-master correction is allowed to move
+      // the playhead by up to its own 0.06 threshold as a matter of course,
+      // and a scheduler hiccup adds a few more milliseconds; anything past
+      // this is the operator seeing a freeze.
+      if (std::abs(slip) > 0.1) {
+        ++avJumpCount_;
+        avJumpLastSeconds_ = slip;
+        if (std::abs(slip) > std::abs(avJumpWorstSeconds_)) {
+          avJumpWorstSeconds_ = slip;
+        }
+      }
+    }
+    avJumpPrevPosition_ = currentPosition_;
+    avJumpPrevAt_ = tickNow;
   }
 
   if (state_ == TransportState::Playing && nextPausePointIdx_ < pausePoints_.size()) {
@@ -6047,6 +6107,7 @@ void MediaEngine::clearAudio() {
   // Safe here: callers only clear audio after decode threads are stopped,
   // and the sync pop runs on this (main) thread.
   audioDelayFifo_.clear();
+  audioDelayHeldFrames_.store(0, std::memory_order_relaxed);
   // Open the limiter back up: a new cue must not start ducked by whatever
   // transient the previous one ended on.
   limiterGain_ = 1.0;
@@ -6946,6 +7007,8 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
     return;
   }
   audioDelayFifo_.insert(audioDelayFifo_.end(), samples.begin(), samples.end());
+  audioDelayHeldFrames_.store(audioDelayFifo_.size() / 2,
+                              std::memory_order_relaxed);
   if (audioDelayFifo_.size() <= holdValues) {
     return;  // still filling the delay line
   }
@@ -6955,6 +7018,8 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
                                  audioDelayFifo_.begin() + static_cast<std::ptrdiff_t>(emitCount));
   audioDelayFifo_.erase(audioDelayFifo_.begin(),
                         audioDelayFifo_.begin() + static_cast<std::ptrdiff_t>(emitCount));
+  audioDelayHeldFrames_.store(audioDelayFifo_.size() / 2,
+                              std::memory_order_relaxed);
   pushScopeSamples(emit.data(), emit.size() / 2, 2);
   putAudioToStream(emit);
   tapPlayedAudio(emit);

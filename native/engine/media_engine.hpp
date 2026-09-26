@@ -482,7 +482,18 @@ class MediaEngine {
   const Cue* activeCue() const { return activeCue_; }
   TransportState state() const { return state_; }
   double duration() const { return duration_; }
-  double position() const;                // current playback position in seconds
+  double position() const;
+  // The playhead discontinuity counters. See the members for what they mean.
+  std::uint64_t avJumpCount() const { return avJumpCount_; }
+  double avJumpWorstSeconds() const { return avJumpWorstSeconds_; }
+  double avJumpLastSeconds() const { return avJumpLastSeconds_; }
+  void resetAvJumps() {
+    avJumpCount_ = 0;
+    avJumpWorstSeconds_ = 0.0;
+    avJumpLastSeconds_ = 0.0;
+    avJumpPrevPosition_ = -1.0;
+    avJumpExpected_ = true;
+  }                // current playback position in seconds
   double mediaFpsMeasured() const { return mediaFpsMeasured_; } // actual decode fps
   bool reachedEnd();                      // true once playback reached the end
   bool shouldClearVisualOnReachedEnd() const { return clearVisualOnReachedEnd_; }
@@ -1134,6 +1145,28 @@ class MediaEngine {
   double audioClockStartSeconds_ = 0.0;               // cue position where the audio pipe started
   bool audioClockValid_ = false;                      // audio pipe live for this cue (not a live stream)
   double lastAudioClockSeconds_ = -1.0;               // last observed audio clock (stall detection)
+  // Frames sitting in the operator's audio delay line: counted by
+  // audioFramesQueued_ but not yet handed to the device, so the video clock
+  // has to subtract them as well as the device's own queue. An atomic mirror
+  // because the FIFO belongs to the decode thread and the clock is read on
+  // the main one.
+  std::atomic<std::uint64_t> audioDelayHeldFrames_{0};
+
+  // ── PLAYHEAD DISCONTINUITY DETECTOR ───────────────────────────────────────
+  //
+  // Freeze-then-rush is the playhead jumping, not the decoder stalling: the
+  // frame loop dumps everything up to the new target in one tick and then
+  // waits. These count the jumps so the fault can be measured instead of
+  // watched for.
+  //
+  // Only DELIBERATE moves are excused -- a take, a seek, a loop wrap -- and
+  // those set avJumpExpected_ so the next tick is not counted.
+  std::uint64_t avJumpCount_ = 0;             // jumps since the last reset
+  double avJumpWorstSeconds_ = 0.0;           // largest, signed by magnitude
+  double avJumpLastSeconds_ = 0.0;            // the most recent one
+  double avJumpPrevPosition_ = -1.0;          // playhead at the previous tick
+  std::chrono::steady_clock::time_point avJumpPrevAt_{};   // when that was
+  bool avJumpExpected_ = false;               // a deliberate move just happened
   Uint64 lastAudioClockAdvanceMs_ = 0;                // when the audio clock last moved forward
 
   // -- State: audio-thread fade mirrors -----------------------------------------

@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.387 (Two faults in the video clock, and a way to catch the third)
+
+**The video clock ignored the audio delay.** Deckboy's video position follows
+the audio device, worked out as "audio counted, minus audio the device has not
+played yet". The delay line was left out of that second half -- so a cue with
+**A/V delay** set ran its picture ahead of its sound by exactly the delay, and
+the clock correction then dragged the picture along to match. Lip sync on any
+show using the delay was out by the delay itself.
+
+**A deck muted out of the PA had no real clock.** With the deck's audio not
+reaching the device at all, the same sum reported the *decoder's* progress as
+though it were the device's. It tracked roughly, which is the worst way to be
+wrong. A silent deck now uses the wall clock, which is what it should always
+have done.
+
+**`AVJUMP`, to catch the one that got away.** A stutter after pause/unpause
+was reported and does not reproduce here -- twelve rapid pause cycles, three
+ten-second pauses, both decode paths, zero jumps. Rather than guess, Deckboy
+now counts them: `AVJUMP RESET`, run the show, `AVJUMP`. It is in the manual
+under **When the picture stutters**.
+
 ## 2026-09-26 - v0.99.386 (Key and fill on SDI)
 
 **Deckboy can hand a graphic to a downstream keyer.** Turn on **Settings →
