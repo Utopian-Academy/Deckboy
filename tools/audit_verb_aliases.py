@@ -130,6 +130,10 @@ CONFIRMED = {
     ("PREV", "PREVIOUS"),
     ("COMPOSITE", "SCENE"),
     ("MASTERVOL", "MASTERVOLUME"),
+    # Two names for the desk's sample rate. SAMPLERATE is what it is;
+    # AUDIORATE is what somebody reaches for when the setting they have in
+    # mind is "the audio rate".
+    ("SAMPLERATE", "AUDIORATE"),
     ("BLACK", "BLACKOUT"),
     ("MENU", "SETTINGS", "SETUP"),
 }
