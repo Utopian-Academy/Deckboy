@@ -1,5 +1,31 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.389 (The stutter after a take)
+
+**A cue no longer starts playing before it has any pictures in hand.** The
+clock started the instant a cue was taken, while the decoder was still opening
+the file, seeking and working through the first group of frames. Measured on
+1080p ten-bit HEVC, the frame queue ran down to **one frame of six** in that
+moment -- no slack at all, so any jitter showed as the picture holding. It got
+worse the more times a cue was taken and stopped.
+
+Deckboy now waits for a cushion before time starts running, the way it already
+waited for the sound. **The picture is not delayed** -- the first frame appears
+the moment it arrives -- only the clock, and only until there is a few frames'
+headroom behind it or a quarter of a second has passed, whichever comes first.
+Live sources are never held: a camera has no beginning to wait for.
+
+Measured on the clips it was reported with, before and after, over twenty
+take/stop and twenty pause/resume cycles:
+
+| | before | after |
+|---|---|---|
+| stalls | 1 (135ms) | 0 |
+| queue low-water after takes | 1 of 6, falling | 2 of 6, steady |
+
+`AVJUMP` also reports `queuelow` now, so a machine that still stutters can say
+whether the decoder is starving or something else is.
+
 ## 2026-09-26 - v0.99.388 (Counting the stutter)
 
 **`AVJUMP` now counts stalls as well as jumps.** They look the same from the

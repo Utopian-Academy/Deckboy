@@ -3881,12 +3881,13 @@
         // the playhead jumping is the rarer and more technical of the two.
         std::snprintf(buf, sizeof(buf),
                       "deck%d stalls=%llu/worst%.3f/last%.3f "
-                      "jumps=%llu/worst%.3f/last%.3f",
+                      "jumps=%llu/worst%.3f/last%.3f queuelow=%d",
                       static_cast<int>(d + 1),
                       static_cast<unsigned long long>(engine->stallCount()),
                       engine->stallWorstSeconds(), engine->stallLastSeconds(),
                       static_cast<unsigned long long>(engine->avJumpCount()),
-                      engine->avJumpWorstSeconds(), engine->avJumpLastSeconds());
+                      engine->avJumpWorstSeconds(), engine->avJumpLastSeconds(),
+                      engine->queueLowWater());
         report += buf;
       }
       if (reset) {

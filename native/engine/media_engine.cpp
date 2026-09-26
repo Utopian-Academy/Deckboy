@@ -1046,8 +1046,62 @@ void MediaEngine::update() {
         // running unconditionally. Under 30ms there is nothing to correct.
         if (enough && waited >= 30) {
           playbackClockStart_ = std::chrono::steady_clock::now();
+          // A deliberate re-base, like every other one -- otherwise the
+          // discontinuity detector reports the audio prime doing its job as
+          // a fault, which it did: one jump of -0.128s per take.
+          avJumpExpected_ = true;
         }
       }
+    }
+  }
+
+  // ── HOLD THE CLOCK UNTIL THERE IS A CUSHION ───────────────────────────
+  //
+  // The same argument as the audio prime above, measured on the same clips:
+  // the frame queue runs down to one frame of six in the moment after a take,
+  // because the clock starts at the take while the decoder is still opening
+  // and seeking. One frame is no slack, and the picture holds.
+  //
+  // The PICTURE is not delayed -- frame zero shows the moment it arrives,
+  // since a held clock keeps targetFrame at zero. What waits is time starting
+  // to run.
+  if (videoPrimePending_) {
+    std::size_t queued = 0;
+    {
+      std::lock_guard<std::mutex> lock(frameMutex_);
+      queued = frameQueue_.size();
+    }
+    const auto waited = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now() - videoPrimeStartedAt_).count();
+    const bool enough = queued >= kVideoPrimeFrames;
+    // The deadline matters as much as the target. A short cue, a still that
+    // decodes to one frame, or a file that is simply slow must not be able to
+    // hold the clock indefinitely -- a take that never starts is far worse
+    // than a take that stutters.
+    // THE EXIT CONDITIONS ARE ONLY "FULL", "TOO LATE" AND "NOTHING COMING".
+    //
+    // The first version also gave up when the transport was not yet playing or
+    // the decoders were not yet running -- and those are exactly the state of
+    // a cue in the instant after a take, which is the ONLY moment this exists
+    // for. It cancelled itself on its first tick every time, and the measured
+    // queue low-water did not move: still one frame of six after twenty take
+    // cycles, with the stall still there. A cue that is taken and never
+    // played is handled by the deadline, which is what a deadline is for.
+    if (enough || waited >= kVideoPrimeDeadlineMs || decoderEof_.load()) {
+      videoPrimePending_ = false;
+      // Re-base so the time spent waiting is not charged to the cue. Only
+      // when the wait was real: on a warm file the queue is there within a
+      // tick, and re-basing then buys nothing and costs the tick's jitter --
+      // the same threshold, and the same reason, as the audio prime.
+      if (enough && waited >= 30 && state_ == TransportState::Playing) {
+        playbackClockStart_ = std::chrono::steady_clock::now();
+        avJumpExpected_ = true;   // a deliberate re-base, not a fault
+      }
+    } else if (state_ == TransportState::Playing) {
+      // Still filling: keep the clock at the start position by pushing its
+      // origin forward every tick. Only while playing -- a cue that has been
+      // taken but not started has no clock running to hold.
+      playbackClockStart_ = std::chrono::steady_clock::now();
     }
   }
 
@@ -1248,6 +1302,13 @@ void MediaEngine::update() {
   // a paused cue and a cue holding its last frame all correctly show the same
   // picture forever, and counting those would bury the real thing.
   {
+    // NOT WHILE PRIMING. The queue is filling from empty by design there, so
+    // sampling it would make the low-water measure the prime rather than the
+    // headroom the cue actually plays with -- which is the number this is for.
+    if (state_ == TransportState::Playing && decodersRunning_ && !videoPrimePending_) {
+      std::lock_guard<std::mutex> lock(frameMutex_);
+      queueLowWater_ = std::min(queueLowWater_, static_cast<int>(frameQueue_.size()));
+    }
     const bool shouldBeMoving =
       state_ == TransportState::Playing && decodersRunning_ &&
       !decoderEof_.load() && activeCue_ &&
@@ -6388,6 +6449,14 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   std::string mediaPath = moshing ? cue.moshPath : mediaPathForCue(cue);
   if (mediaPath.empty()) {
     return;
+  }
+  // ARM THE VIDEO PRIME. A file-backed video cue starts with an empty frame
+  // queue and the clock already running, which is where the measured stutter
+  // lives -- see the prime in update(). A LIVE SOURCE is never primed: a
+  // camera has no beginning to wait for and no queue to fill, and holding its
+  // clock would be holding reality.
+  if (cue.kind == CueKind::Video && !isSourceCueKind(cue.kind)) {
+    armVideoPrime();
   }
   int decodeW = cue.width;
   int decodeH = cue.height;

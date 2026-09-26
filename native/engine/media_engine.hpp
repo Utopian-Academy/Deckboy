@@ -488,9 +488,17 @@ class MediaEngine {
   double avJumpWorstSeconds() const { return avJumpWorstSeconds_; }
   double avJumpLastSeconds() const { return avJumpLastSeconds_; }
   std::uint64_t stallCount() const { return stallCount_; }
+  int queueLowWater() const { return queueLowWater_; }
   double stallWorstSeconds() const { return stallWorstSeconds_; }
   double stallLastSeconds() const { return stallLastSeconds_; }
+  // Arm the video prime. Called where playback of a file-backed video cue
+  // begins; a live source has no queue to fill and is never primed.
+  void armVideoPrime() {
+    videoPrimePending_ = true;
+    videoPrimeStartedAt_ = std::chrono::steady_clock::now();
+  }
   void resetStalls() {
+    queueLowWater_ = 9999;
     stallCount_ = 0;
     stallWorstSeconds_ = 0.0;
     stallLastSeconds_ = 0.0;
@@ -1189,6 +1197,25 @@ class MediaEngine {
   double stallLastSeconds_ = 0.0;             // the most recent
   std::chrono::steady_clock::time_point stallLastAdvanceAt_{};
   bool stallTimingValid_ = false;             // a frame has been shown since play
+  // How close to empty the frame queue ran while playing. A stall with a FULL
+  // queue is a presentation fault; a stall with an empty one is the decoder
+  // not keeping up. Those need opposite fixes, so the reading decides.
+  int queueLowWater_ = 9999;
+
+  // ── VIDEO PRIME ───────────────────────────────────────────────────────────
+  //
+  // The frame queue runs down to one frame in the moment after a take, while
+  // the decoder is still opening and seeking; the clock meanwhile started at
+  // the take. So the clock is held until there is a cushion, exactly as
+  // audioPrimePending_ holds the audio device until there is sound to play.
+  //
+  // Three of six frames: half the queue, about 125ms at 23.976. Enough to
+  // absorb the jitter that was showing as a hold, and small enough that the
+  // wait is not itself perceptible.
+  static constexpr std::size_t kVideoPrimeFrames = 3;
+  static constexpr int kVideoPrimeDeadlineMs = 250;
+  bool videoPrimePending_ = false;
+  std::chrono::steady_clock::time_point videoPrimeStartedAt_{};
   Uint64 lastAudioClockAdvanceMs_ = 0;                // when the audio clock last moved forward
 
   // -- State: audio-thread fade mirrors -----------------------------------------
