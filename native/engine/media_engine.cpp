@@ -1242,6 +1242,39 @@ void MediaEngine::update() {
     }
   }
 
+  // ── DID THE PICTURE STALL? ───────────────────────────────────────────────
+  //
+  // Only while a VIDEO cue is actually playing with decoders running. A still,
+  // a paused cue and a cue holding its last frame all correctly show the same
+  // picture forever, and counting those would bury the real thing.
+  {
+    const bool shouldBeMoving =
+      state_ == TransportState::Playing && decodersRunning_ &&
+      !decoderEof_.load() && activeCue_ &&
+      (activeCue_->kind == CueKind::Video || isSourceCueKind(activeCue_->kind));
+    const auto tickNow = std::chrono::steady_clock::now();
+    if (!shouldBeMoving) {
+      stallTimingValid_ = false;
+    } else if (advancedDisplayFrame || !stallTimingValid_) {
+      if (stallTimingValid_) {
+        const double gap =
+          std::chrono::duration<double>(tickNow - stallLastAdvanceAt_).count();
+        // Three frame periods, floored at 100ms so a slow-framerate cue does
+        // not report a stall for every ordinary gap. At 23.976 that is 125ms:
+        // past it, the operator sees the picture hold.
+        const double period = frameRate_ > 1.0 ? 1.0 / frameRate_ : 0.04;
+        const double threshold = std::max(0.1, period * 3.0);
+        if (gap > threshold) {
+          ++stallCount_;
+          stallLastSeconds_ = gap;
+          if (gap > stallWorstSeconds_) stallWorstSeconds_ = gap;
+        }
+      }
+      stallLastAdvanceAt_ = tickNow;
+      stallTimingValid_ = true;
+    }
+  }
+
   if (advancedDisplayFrame && shouldMeasureMediaFps()) {
     recordMediaFrameAdvance(advancedFrameIndex);
   }

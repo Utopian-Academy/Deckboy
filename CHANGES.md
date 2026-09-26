@@ -1,5 +1,16 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-26 - v0.99.388 (Counting the stutter)
+
+**`AVJUMP` now counts stalls as well as jumps.** They look the same from the
+operator's chair and are different faults: a stall is the picture not moving
+when it should, a jump is the playhead moving when it should not. The reported
+stutter is the first, so the first is now measured -- three frame periods of
+held picture on a playing cue, counted, with the worst gap kept.
+
+Run `AVJUMP RESET`, do the show, `AVJUMP`. It is in the manual under **When
+the picture stutters**.
+
 ## 2026-09-26 - v0.99.387 (Two faults in the video clock, and a way to catch the third)
 
 **The video clock ignored the audio delay.** Deckboy's video position follows

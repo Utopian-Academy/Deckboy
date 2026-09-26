@@ -3872,12 +3872,19 @@
         if (!engine) continue;
         if (reset) {
           engine->resetAvJumps();
+          engine->resetStalls();
           continue;
         }
         if (!report.empty()) report += " ";
         char buf[128];
-        std::snprintf(buf, sizeof(buf), "deck%d=%llu/worst%.3f/last%.3f",
+        // STALLS FIRST. "The picture stopped" is what an operator reports;
+        // the playhead jumping is the rarer and more technical of the two.
+        std::snprintf(buf, sizeof(buf),
+                      "deck%d stalls=%llu/worst%.3f/last%.3f "
+                      "jumps=%llu/worst%.3f/last%.3f",
                       static_cast<int>(d + 1),
+                      static_cast<unsigned long long>(engine->stallCount()),
+                      engine->stallWorstSeconds(), engine->stallLastSeconds(),
                       static_cast<unsigned long long>(engine->avJumpCount()),
                       engine->avJumpWorstSeconds(), engine->avJumpLastSeconds());
         report += buf;

@@ -919,13 +919,18 @@ about semicolons), and reports how much of the frame the shape covers.
 
 ### When the picture stutters
 
-`AVJUMP` over the control port counts **playhead jumps**: moments when the
-playhead moved by something other than elapsed time, with takes, seeks, loop
-wraps and resumes excused. That is what "the video freezes and then speeds up
-to catch up" actually is, and it is far easier to count than to watch for.
+`AVJUMP` over the control port counts two different faults that look alike
+from the operator's chair:
 
-    AVJUMP RESET      start counting
-    AVJUMP            deck1=0/worst0.000/last0.000
+- **stalls** — the picture not moving when it should. This is "it stuttered".
+- **jumps** — the playhead moving by something other than elapsed time, with
+  takes, seeks, loop wraps and resumes excused. This is "it froze and then
+  sped up to catch up".
+
+```
+AVJUMP RESET      start counting
+AVJUMP            deck1 stalls=1/worst0.140/last0.140 jumps=0/worst0.000/last0.000
+```
 
 `worst` and `last` are in seconds, signed: negative means the playhead fell
 behind and was pulled forward. A handful of tiny values over a long show is

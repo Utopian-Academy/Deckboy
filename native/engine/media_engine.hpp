@@ -487,6 +487,15 @@ class MediaEngine {
   std::uint64_t avJumpCount() const { return avJumpCount_; }
   double avJumpWorstSeconds() const { return avJumpWorstSeconds_; }
   double avJumpLastSeconds() const { return avJumpLastSeconds_; }
+  std::uint64_t stallCount() const { return stallCount_; }
+  double stallWorstSeconds() const { return stallWorstSeconds_; }
+  double stallLastSeconds() const { return stallLastSeconds_; }
+  void resetStalls() {
+    stallCount_ = 0;
+    stallWorstSeconds_ = 0.0;
+    stallLastSeconds_ = 0.0;
+    stallTimingValid_ = false;
+  }
   void resetAvJumps() {
     avJumpCount_ = 0;
     avJumpWorstSeconds_ = 0.0;
@@ -1167,6 +1176,19 @@ class MediaEngine {
   double avJumpPrevPosition_ = -1.0;          // playhead at the previous tick
   std::chrono::steady_clock::time_point avJumpPrevAt_{};   // when that was
   bool avJumpExpected_ = false;               // a deliberate move just happened
+
+  // ── STALL DETECTOR ────────────────────────────────────────────────────────
+  //
+  // A jump is the playhead moving when it should not; a STALL is the picture
+  // not moving when it should. The reported fault is the second one, and it
+  // gets worse with repeated transport changes -- which is what a COUNT that
+  // survives across takes is for: if the worst gap grows cycle by cycle,
+  // something is accumulating.
+  std::uint64_t stallCount_ = 0;              // gaps past the threshold
+  double stallWorstSeconds_ = 0.0;            // the longest one
+  double stallLastSeconds_ = 0.0;             // the most recent
+  std::chrono::steady_clock::time_point stallLastAdvanceAt_{};
+  bool stallTimingValid_ = false;             // a frame has been shown since play
   Uint64 lastAudioClockAdvanceMs_ = 0;                // when the audio clock last moved forward
 
   // -- State: audio-thread fade mirrors -----------------------------------------

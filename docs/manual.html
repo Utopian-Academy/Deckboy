@@ -309,8 +309,10 @@
         <p><code>CODE GET | CODE SET &lt;expression&gt; | CODE EDIT</code> over the wire.</p>
         <p>Two command-line tools go with it, neither of which needs a window or a GPU: <code>--code-dump "&lt;expression&gt;" out.ppm [WxH] [seconds]</code> renders one frame (or <code>@file</code> to read the expression from a file, which avoids arguing with a shell about semicolons), and reports how much of the frame the shape covers. <code>--code-check</code> asserts the language itself against expected values.</p>
         <h3 id="when-the-picture-stutters">When the picture stutters</h3>
-        <p><code>AVJUMP</code> over the control port counts <strong>playhead jumps</strong>: moments when the playhead moved by something other than elapsed time, with takes, seeks, loop wraps and resumes excused. That is what "the video freezes and then speeds up to catch up" actually is, and it is far easier to count than to watch for.</p>
-        <p>AVJUMP RESET      start counting AVJUMP            deck1=0/worst0.000/last0.000</p>
+        <p><code>AVJUMP</code> over the control port counts two different faults that look alike from the operator's chair:</p>
+        <ul><li><strong>stalls</strong> — the picture not moving when it should. This is "it stuttered".</li><li><strong>jumps</strong> — the playhead moving by something other than elapsed time, with takes, seeks, loop wraps and resumes excused. This is "it froze and then sped up to catch up".</li></ul>
+        <pre><code>AVJUMP RESET      start counting
+AVJUMP            deck1 stalls=1/worst0.140/last0.140 jumps=0/worst0.000/last0.000</code></pre>
         <p><code>worst</code> and <code>last</code> are in seconds, signed: negative means the playhead fell behind and was pulled forward. A handful of tiny values over a long show is the audio-master correction doing its job. Anything you can see is worth reporting, with the clip and the machine.</p>
         <h3 id="key-and-fill-for-a-downstream-keyer">Key and fill, for a downstream keyer</h3>
         <p>A broadcast keyer wants two signals: the <strong>fill</strong>, which is the picture, and the <strong>key</strong>, a greyscale matte saying how opaque the fill is at each point. Send a lower third that way and the vision mixer downstream lays it over its own programme with real soft edges. It is how graphics reach air in a gallery.</p>
