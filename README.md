@@ -369,8 +369,8 @@ A conformant packetiser a broadcast controller can discover and route. See
   high-contrast terminal themes suited to OLED panels
 - Timeline with filmstrip thumbnails; resizable program monitor and timeline
 - UI scale that follows the desktop's own scaling
-- The interface reads in 38 languages, including Cubano, Klingon and a few
-  written in cypher
+- A language picker with 38 languages, including Cubano, Klingon and a few
+  written in cypher, with their translations still filling in
 - Missing-media detection with folder relink, so a moved drive does not cost you
   a rebuild
 
