@@ -81,3 +81,297 @@ OFF	關
 Stopped	已停止
 Playing	播放中
 Paused	已暫停
+2-UP	雙畫面
+DONE	完成
+EDIT	編輯
+HELD	已保持
+Mode	模式
+PICK	選取
+QUAD	四畫面
+Rate	速率
+STEP	步
+Apply	套用
+CLOSE	關閉
+FIXED	固定
+Help!	說明！
+ORDER	順序
+READY	就緒
+TILES	平舖
+VIDEO	視訊
+ALL ON	全部開
+ALWAYS	永遠
+ANALOG	類比
+Buffer	緩衝區
+Cancel	取消
+Custom	自訂
+Device	裝置
+Folder	資料夾
+FORMAT	格式
+HIDDEN	隱藏
+Length	長度
+Mascot	吉祥物
+Mirror	鏡像
+NATIVE	原生
+PRESET	預設組
+Sender	傳送端
+SUMMED	已混合
+TOGGLE	切換
+12 HOUR	12 小時
+24 HOUR	24 小時
+ALL OFF	全部關
+ARRANGE	排列
+Channel	聲道
+CONVERT	轉換
+DEFAULT	預設
+END CUE	CUE 結束
+Key out	Key 輸出
+LTC out	LTC 輸出
+MISSING	缺少
+PRESETS	預設組
+PROJECT	專案
+RUNNING	執行中
+Send to	傳送至
+SHUFFLE	隨機
+UPDATES	更新
+VJ MODE	VJ 模式
+CLOCK ON	時鐘開
+DOWNLOAD	下載
+EXAMPLES	範例
+Mappings	對應
+NMC sync	NMC 同步
+PROMPTER	提示機
+SHOW SDP	顯示 SDP
+TCP port	TCP 通訊埠
+UI scale	介面縮放
+WATCHING	監看中
+A/V delay	影音延遲
+ASIO outs	ASIO 輸出
+BOTH AXES	兩個軸
+CHECK NOW	立即檢查
+CLOCK OFF	時鐘關
+Creatures	小生物
+CUE TOOLS	CUE 工具
+Direction	方向
+Freewheel	自由運行
+HTTP port	HTTP 通訊埠
+Jump mode	跳轉模式
+Listen on	監聽於
+OSC Query	OSC 查詢
+OUTPUT ON	輸出開
+Panic now	立即緊急停止
+RECORDING	錄製中
+REMAINING	剩餘
+RESET ALL	全部重設
+RUN PANIC	執行緊急停止
+SHOW FLOW	演出流程
+TIMERS ON	計時器開
+WHEN IDLE	閒置時
+ADD OUTPUT	新增輸出
+BUILT WITH	建置使用
+CANCEL ALL	全部取消
+colour tag	顏色標記
+copy chain	複製鏈
+Hover tips	停留提示
+Input gain	輸入增益
+Input mono	輸入單聲道
+live audio	即時音訊
+Live input	即時輸入
+MIDI input	MIDI 輸入
+no picture	無畫面
+no preview	無預覽
+OPEN SAVED	開啟已儲存
+OUTPUT OFF	輸出關
+Panic fade	緊急淡出
+Tally port	Tally 通訊埠
+TIMERS OFF	計時器關
+Accept from	接受來自
+ASIO driver	ASIO 驅動程式
+BACK TO TOP	回到頂端
+CANVAS MODE	畫布模式
+CODE SOURCE	程式碼來源
+Cue numbers	CUE 編號
+Destination	目的地
+Mirror rate	鏡像速率
+no duration	無長度
+NO LIVE CUE	無播出 CUE
+NO PREVIOUS	無上一個
+OVERLAY BIN	疊加層收納
+paste chain	貼上鏈
+Sample rate	取樣率
+SENDING OUT	正在傳送
+Shift: snap	Shift: 貼齊
+THIS OUTPUT	此輸出
+(no matches)	(無相符項)
+(no subtext)	(無副文字)
+add a button	新增按鈕
+add a window	新增視窗
+Art-Net port	Art-Net 通訊埠
+AUDIO OUTPUT	音訊輸出
+Auto restore	自動還原
+DECKLINK: ON	DECKLINK: 開
+free running	自由運行
+KEY+FILL: ON	KEY+FILL: 開
+LISTENING IN	正在接收
+Miami cursor	Miami 游標
+MIDI CONTROL	MIDI 控制
+Mirror state	鏡像狀態
+NDI KEY: OFF	NDI KEY: 關
+NDI KEY: ON	NDI KEY: 開
+NO PROGRAMME	無節目
+ST 2110: OFF	ST 2110: 關
+ST 2110: ON	ST 2110: 開
+WATCH FOLDER	監看資料夾
+COMPOSITE CUE	合成 CUE
+DECKLINK: OFF	DECKLINK: 關
+default route	預設路徑
+Every adapter	所有網路卡
+KEY+FILL: OFF	KEY+FILL: 關
+LEFT TO RIGHT	從左到右
+MEDIA ENCODER	媒體編碼器
+MSC device id	MSC 裝置編號
+NEW SHOW FILE	新增演出檔
+No cue loaded	未載入 CUE
+nothing taken	未播出任何內容
+OPEN PREVIOUS	開啟上一個
+Output device	輸出裝置
+Panic profile	緊急停止設定檔
+Quit Deckboy?	結束 Deckboy？
+REMOVE OUTPUT	移除輸出
+Sound effects	音效
+Tally address	Tally 位址
+TOP TO BOTTOM	從上到下
+127 (all-call)	127 (全體呼叫)
+ALL INTERFACES	所有網路介面
+LOCALHOST ONLY	僅 localhost
+Monitor device	監聽裝置
+no audio track	無音訊軌
+PRESENTER VIEW	主講人檢視
+RECORD TO DISK	錄製到磁碟
+STOP RECORDING	停止錄製
+STOP STREAMING	停止串流
+TALLY TRIGGERS	Tally 觸發
+Device channels	裝置聲道
+NDI SENDING: ON	NDI 傳送: 開
+NO CUE SELECTED	未選取 CUE
+Output channels	輸出聲道
+preview pending	預覽產生中
+START RECORDING	開始錄製
+START STREAMING	開始串流
+(system default)	(系統預設)
+Check at startup	啟動時檢查
+Global crossfade	全域交叉淡化
+Mic to recording	麥克風錄入
+Monitor playlist	監聽播放清單
+NDI SENDING: OFF	NDI 傳送: 關
+no still preview	無靜幀預覽
+Pocket 3 / touch	Pocket 3 / 觸控
+SMPTE LTC OUTPUT	SMPTE LTC 輸出
+the whole screen	整個螢幕
+Check for one now	立即檢查
+INSTALL & RESTART	安裝並重新啟動
+Registry: NOT SET	登錄檔: 未設定
+SAFETY / TIMECODE	安全 / 時間碼
+Timecode jam sync	時間碼 jam sync
+esc or N to cancel	按 Esc 或 N 取消
+KEYBOARD SHORTCUTS	鍵盤快速鍵
+loading preview...	正在載入預覽...
+CONVERT ALL FLAGGED	轉換所有已標記項
+dot-matrix cue deck	點陣式 CUE 控制台
+HyperDeck emulation	HyperDeck 模擬
+locked to the tempo	鎖定到節拍
+VJ mode (two decks)	VJ 模式 (兩個播放器)
+ADD ANOTHER PLAYLIST	再新增一個播放清單
+Companion / OSC port	Companion / OSC 通訊埠
+Esc or click to skip	按 Esc 或點擊略過
+PLAYLIST PREFERENCES	播放清單偏好設定
+press ENTER to start	按 ENTER 開始
+ADD A SECOND PLAYLIST	新增第二個播放清單
+filmstrip unavailable	縮圖條無法使用
+(empty — import media)	(空 – 請匯入媒體)
+Ctrl+D or Esc to close	按 Ctrl+D 或 Esc 關閉
+(no notes for this cue)	(此 CUE 沒有備註)
+Timebase / start / fade	時基 / 起點 / 淡化
+No cues need conversion.	沒有 CUE 需要轉換。
+CLICK TO SAMPLE KEY COLOR	點擊取樣 KEY 顏色
+normalize loudness (R128)	響度正規化 (R128)
+off - all channels silent	關 – 所有聲道靜音
+no video lane for this cue	此 CUE 沒有視訊軌
+HyperDeck emulation is off.	HyperDeck 模擬已關閉。
+OWN SCRIPT  (click to edit)	自己的稿件  (點擊編輯)
+Theme and operator feedback	主題與操作回饋
+Discovery and mirrored state	探索與鏡像狀態
+FOLLOWING THE LIVE CUE NOTES	正在跟隨播出 CUE 的備註
+Listening on all interfaces.	正在所有網路介面上監聽。
+Network-facing runtime notes	面向網路的執行說明
+Hi! Press I to import a clip.	你好！按 I 匯入片段。
+Global jump and panic behavior	全域跳轉與緊急停止行為
+Roll when the show cuts to you	切到你時開始播放
+Choose a cue to inspect it here	選擇一個 CUE 以在此檢視
+Defaults for newly created cues	新建 CUE 的預設值
+Device routing for cue playback	CUE 播放的裝置路徑
+Smaller buffer = lower latency.	緩衝區越小延遲越低。
+Emergency fade and sync behavior	緊急淡出與同步行為
+mixed selection: key unavailable	混合選取: KEY 無法使用
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (實驗性)
+Esc=continue with current session	Esc = 繼續目前工作階段
+no per-cue settings for this type	此類型沒有個別的 CUE 設定
+On stop: remux to an ordinary MP4	停止時: 重新封裝為一般 MP4
+Where RECORD writes the programme	RECORD 把節目寫到哪裡
+dot-matrix cue deck for live events	用於現場活動的點陣式 CUE 控制台
+Listening on localhost (127.0.0.1).	正在 localhost (127.0.0.1) 上監聽。
+three expressions: red, green, blue	三個運算式: 紅、綠、藍
+Transport sync with another machine	與另一台機器同步走帶
+Add slot sources in the cue inspector	在 CUE 檢閱器中新增來源
+Ask GitHub; never installs on its own	詢問 GitHub；絕不自行安裝
+Import or click a cue in the playlist	匯入，或點擊播放清單中的 CUE
+mixed selection: geometry unavailable	混合選取: 幾何無法使用
+generate timecode for the rig to chase	產生供設備跟隨的時間碼
+Lower Third and PIP fire independently	下方字幕條與子母畫面各自觸發
+Panels built for a vMix rig, unchanged	為 vMix 設備設計的面板，未更動
+Incoming transport arrives as NMCEVENT.	收到的走帶訊息以 NMCEVENT 送達。
+not in this build - saved with the show	此版本中沒有 – 隨演出一起儲存
+Find from the playlist, not from a modal	從播放清單搜尋，而不是彈出視窗
+take or select a cue to open the timeline	播出或選取一個 CUE 即可開啟時間軸
+Optional external transport and cue control	選用的外部走帶與 CUE 控制
+No previous show file found at startup path.	啟動時未找到先前的演出檔。
+Use Ctrl+F or type a cue id/number to search.	按 Ctrl+F 或輸入 CUE 編號來搜尋。
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC 接入與 HyperDeck 模擬
+A/V delay holds audio back for lagging displays.	影音延遲為反應慢的螢幕延後聲音。
+On stop: leave the crash-resilient file as it is	停止時: 保留抗當機檔案不變
+same disk as Deckboy - a separate drive is safer	與 Deckboy 同一磁碟 – 獨立硬碟更安全
+A step fires one cue on each playlist, all at once.	一步會同時在每個播放清單上觸發一個 CUE。
+one expression: the same value in red, green and blue	一個運算式: 紅、綠、藍取同一個值
+NDI transport is configured per output in Video Outputs.	NDI 傳輸在「視訊輸出」中按輸出分別設定。
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	走帶移動時傳送 PLAY / PAUSE / STOP / LOCATE。
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC 訂閱: 從控制器傳送 /deckboy/subscribe。
+NMC mode / host / port are runtime-configurable for sync work.	NMC 的模式 / 主機 / 通訊埠可在執行時變更。
+Going on air takes the cue. Deckboy never sends the switcher a command.	播出即取用該 CUE。Deckboy 絕不會向切換台傳送指令。
+FPS: ON	FPS: 開
+FPS: OFF	FPS: 關
+NMOS: ON	NMOS: 開
+NMOS: OFF	NMOS: 關
+SPOUT: ON	SPOUT: 開
+SPOUT: OFF	SPOUT: 關
+CANVAS: ON	畫布: 開
+CANVAS: OFF	畫布: 關
+10-BIT: ON	10 位元: 開
+10-BIT: OFF	10 位元: 關
+EDIT...	編輯...
+FOLDER...	資料夾...
+ARRANGE...	排列...
+ADD FILE...	新增檔案...
+RENUMBER...	重新編號...
+set a port...	設定通訊埠...
+no script	無稿件
++ OUTPUT	+ 輸出
+Eddie's Clock	Eddie 的時鐘
+Ctrl+/ to close	按 Ctrl+/ 關閉
+(step lives here)	(步在此處)
+4:2:2  8-BIT	4:2:2  8 位元
+4:2:2  10-BIT	4:2:2  10 位元
+No outputs — click + OUTPUT to add one.	沒有輸出 – 點擊 + 輸出 新增一個。
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM、NDI 觸發、NMC、MTC、LTC、Art-Net 和 Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	把 Deckboy 播不好的 CUE 轉成 H.264
+a button can run any command the network protocol understands	一個按鈕可以執行協定能理解的任何指令
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	排列主講人檢視  -  拖曳面板移動，拖曳邊角調整大小
+vMix API	vMix API

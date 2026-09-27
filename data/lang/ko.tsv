@@ -81,3 +81,297 @@ OFF	꺼짐
 Stopped	정지됨
 Playing	재생 중
 Paused	일시 정지
+2-UP	2분할
+DONE	완료
+EDIT	편집
+HELD	보류됨
+Mode	모드
+PICK	선택
+QUAD	4분할
+Rate	레이트
+STEP	스텝
+Apply	적용
+CLOSE	닫기
+FIXED	고정
+Help!	도움말!
+ORDER	순서
+READY	준비됨
+TILES	타일
+VIDEO	비디오
+ALL ON	전체 켜기
+ALWAYS	항상
+ANALOG	아날로그
+Buffer	버퍼
+Cancel	취소
+Custom	사용자 지정
+Device	장치
+Folder	폴더
+FORMAT	형식
+HIDDEN	숨김
+Length	길이
+Mascot	마스코트
+Mirror	미러
+NATIVE	기본
+PRESET	프리셋
+Sender	보내는 쪽
+SUMMED	합산됨
+TOGGLE	전환
+12 HOUR	12시간
+24 HOUR	24시간
+ALL OFF	전체 끄기
+ARRANGE	배치
+Channel	채널
+CONVERT	변환
+DEFAULT	기본값
+END CUE	큐 종료
+Key out	키 출력
+LTC out	LTC 출력
+MISSING	없음
+PRESETS	프리셋
+PROJECT	프로젝트
+RUNNING	실행 중
+Send to	보낼 곳
+SHUFFLE	무작위
+UPDATES	업데이트
+VJ MODE	VJ 모드
+CLOCK ON	시계 켜기
+DOWNLOAD	다운로드
+EXAMPLES	예제
+Mappings	매핑
+NMC sync	NMC 동기화
+PROMPTER	프롬프터
+SHOW SDP	SDP 보기
+TCP port	TCP 포트
+UI scale	인터페이스 배율
+WATCHING	감시 중
+A/V delay	A/V 지연
+ASIO outs	ASIO 출력
+BOTH AXES	두 축 모두
+CHECK NOW	지금 확인
+CLOCK OFF	시계 끄기
+Creatures	생물
+CUE TOOLS	큐 도구
+Direction	방향
+Freewheel	프리런
+HTTP port	HTTP 포트
+Jump mode	점프 모드
+Listen on	수신 대상
+OSC Query	OSC 질의
+OUTPUT ON	출력 켜기
+Panic now	지금 패닉
+RECORDING	녹화 중
+REMAINING	남음
+RESET ALL	전체 초기화
+RUN PANIC	패닉 실행
+SHOW FLOW	쇼 흐름
+TIMERS ON	타이머 켜기
+WHEN IDLE	대기 중일 때
+ADD OUTPUT	출력 추가
+BUILT WITH	사용 기술
+CANCEL ALL	전체 취소
+colour tag	색 태그
+copy chain	체인 복사
+Hover tips	도구 설명
+Input gain	입력 게인
+Input mono	입력 모노
+live audio	라이브 오디오
+Live input	라이브 입력
+MIDI input	MIDI 입력
+no picture	영상 없음
+no preview	미리보기 없음
+OPEN SAVED	저장된 것 열기
+OUTPUT OFF	출력 끄기
+Panic fade	패닉 페이드
+Tally port	탤리 포트
+TIMERS OFF	타이머 끄기
+Accept from	수신 허용
+ASIO driver	ASIO 드라이버
+BACK TO TOP	맨 위로
+CANVAS MODE	캔버스 모드
+CODE SOURCE	코드 소스
+Cue numbers	큐 번호
+Destination	대상
+Mirror rate	미러 레이트
+no duration	길이 없음
+NO LIVE CUE	라이브 큐 없음
+NO PREVIOUS	이전 항목 없음
+OVERLAY BIN	오버레이 보관함
+paste chain	체인 붙여넣기
+Sample rate	샘플레이트
+SENDING OUT	전송 중
+Shift: snap	Shift: 스냅
+THIS OUTPUT	이 출력
+(no matches)	(일치 없음)
+(no subtext)	(부제 없음)
+add a button	버튼 추가
+add a window	창 추가
+Art-Net port	Art-Net 포트
+AUDIO OUTPUT	오디오 출력
+Auto restore	자동 복원
+DECKLINK: ON	DECKLINK: 켜짐
+free running	프리런
+KEY+FILL: ON	KEY+FILL: 켜짐
+LISTENING IN	수신 중
+Miami cursor	Miami 커서
+MIDI CONTROL	MIDI 제어
+Mirror state	상태 미러
+NDI KEY: OFF	NDI KEY: 꺼짐
+NDI KEY: ON	NDI KEY: 켜짐
+NO PROGRAMME	프로그램 없음
+ST 2110: OFF	ST 2110: 꺼짐
+ST 2110: ON	ST 2110: 켜짐
+WATCH FOLDER	감시 폴더
+COMPOSITE CUE	합성 큐
+DECKLINK: OFF	DECKLINK: 꺼짐
+default route	기본 경로
+Every adapter	모든 어댑터
+KEY+FILL: OFF	KEY+FILL: 꺼짐
+LEFT TO RIGHT	왼쪽에서 오른쪽
+MEDIA ENCODER	미디어 인코더
+MSC device id	MSC 장치 번호
+NEW SHOW FILE	새 쇼 파일
+No cue loaded	불러온 큐 없음
+nothing taken	송출된 것 없음
+OPEN PREVIOUS	이전 것 열기
+Output device	출력 장치
+Panic profile	패닉 프로필
+Quit Deckboy?	Deckboy를 종료할까요?
+REMOVE OUTPUT	출력 제거
+Sound effects	효과음
+Tally address	탤리 주소
+TOP TO BOTTOM	위에서 아래로
+127 (all-call)	127 (전체 호출)
+ALL INTERFACES	모든 인터페이스
+LOCALHOST ONLY	localhost만
+Monitor device	모니터 장치
+no audio track	오디오 트랙 없음
+PRESENTER VIEW	발표자 보기
+RECORD TO DISK	디스크에 녹화
+STOP RECORDING	녹화 중지
+STOP STREAMING	스트리밍 중지
+TALLY TRIGGERS	탤리 트리거
+Device channels	장치 채널
+NDI SENDING: ON	NDI 전송: 켜짐
+NO CUE SELECTED	선택된 큐 없음
+Output channels	출력 채널
+preview pending	미리보기 준비 중
+START RECORDING	녹화 시작
+START STREAMING	스트리밍 시작
+(system default)	(시스템 기본값)
+Check at startup	시작할 때 확인
+Global crossfade	전역 크로스페이드
+Mic to recording	마이크를 녹음으로
+Monitor playlist	재생 목록 모니터
+NDI SENDING: OFF	NDI 전송: 꺼짐
+no still preview	정지 화면 미리보기 없음
+Pocket 3 / touch	Pocket 3 / 터치
+SMPTE LTC OUTPUT	SMPTE LTC 출력
+the whole screen	화면 전체
+Check for one now	지금 확인
+INSTALL & RESTART	설치하고 다시 시작
+Registry: NOT SET	레지스트리: 설정되지 않음
+SAFETY / TIMECODE	안전 / 타임코드
+Timecode jam sync	타임코드 잼 싱크
+esc or N to cancel	Esc 또는 N을 눌러 취소
+KEYBOARD SHORTCUTS	키보드 단축키
+loading preview...	미리보기 불러오는 중...
+CONVERT ALL FLAGGED	표시된 항목 모두 변환
+dot-matrix cue deck	도트매트릭스 큐 데크
+HyperDeck emulation	HyperDeck 에뮬레이션
+locked to the tempo	템포에 고정됨
+VJ mode (two decks)	VJ 모드 (데크 2개)
+ADD ANOTHER PLAYLIST	재생 목록 더 추가
+Companion / OSC port	Companion / OSC 포트
+Esc or click to skip	Esc 또는 클릭으로 건너뛰기
+PLAYLIST PREFERENCES	재생 목록 환경설정
+press ENTER to start	ENTER를 눌러 시작
+ADD A SECOND PLAYLIST	두 번째 재생 목록 추가
+filmstrip unavailable	필름스트립을 쓸 수 없음
+(empty — import media)	(비어 있음 – 미디어를 가져오세요)
+Ctrl+D or Esc to close	Ctrl+D 또는 Esc로 닫기
+(no notes for this cue)	(이 큐에 메모가 없습니다)
+Timebase / start / fade	타임베이스 / 시작 / 페이드
+No cues need conversion.	변환이 필요한 큐가 없습니다.
+CLICK TO SAMPLE KEY COLOR	클릭하여 키 색을 추출
+normalize loudness (R128)	음량 정규화 (R128)
+off - all channels silent	꺼짐 – 모든 채널 무음
+no video lane for this cue	이 큐에 비디오 레인이 없습니다
+HyperDeck emulation is off.	HyperDeck 에뮬레이션이 꺼져 있습니다.
+OWN SCRIPT  (click to edit)	직접 쓴 원고  (클릭하여 편집)
+Theme and operator feedback	테마와 오퍼레이터 표시
+Discovery and mirrored state	탐색과 미러된 상태
+FOLLOWING THE LIVE CUE NOTES	라이브 큐의 메모를 따라감
+Listening on all interfaces.	모든 인터페이스에서 수신 중입니다.
+Network-facing runtime notes	네트워크 쪽 동작 메모
+Hi! Press I to import a clip.	안녕하세요! I를 눌러 클립을 가져오세요.
+Global jump and panic behavior	전역 점프와 패닉 동작
+Roll when the show cuts to you	방송이 넘어오면 재생 시작
+Choose a cue to inspect it here	큐를 고르면 여기에 표시됩니다
+Defaults for newly created cues	새로 만든 큐의 기본값
+Device routing for cue playback	큐 재생을 위한 장치 라우팅
+Smaller buffer = lower latency.	버퍼가 작을수록 지연이 줄어듭니다.
+Emergency fade and sync behavior	비상 페이드와 동기화 동작
+mixed selection: key unavailable	혼합 선택: 키를 쓸 수 없음
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (실험적)
+Esc=continue with current session	Esc = 현재 세션을 계속
+no per-cue settings for this type	이 종류에는 큐 설정이 없습니다
+On stop: remux to an ordinary MP4	중지할 때: 일반 MP4로 다시 묶기
+Where RECORD writes the programme	RECORD가 프로그램을 쓰는 위치
+dot-matrix cue deck for live events	라이브 행사용 도트매트릭스 큐 데크
+Listening on localhost (127.0.0.1).	localhost (127.0.0.1)에서 수신 중입니다.
+three expressions: red, green, blue	식 세 개: 빨강, 초록, 파랑
+Transport sync with another machine	다른 기기와 트랜스포트 동기화
+Add slot sources in the cue inspector	큐 인스펙터에서 소스를 추가하세요
+Ask GitHub; never installs on its own	GitHub에 물어봅니다. 스스로 설치하지 않습니다
+Import or click a cue in the playlist	가져오거나 재생 목록의 큐를 클릭하세요
+mixed selection: geometry unavailable	혼합 선택: 지오메트리를 쓸 수 없음
+generate timecode for the rig to chase	장비가 따라갈 타임코드를 생성
+Lower Third and PIP fire independently	하단 자막과 PiP는 각각 따로 작동합니다
+Panels built for a vMix rig, unchanged	vMix 장비용으로 만든 패널, 그대로
+Incoming transport arrives as NMCEVENT.	들어오는 트랜스포트는 NMCEVENT로 도착합니다.
+not in this build - saved with the show	이 빌드에는 없음 – 쇼와 함께 저장됩니다
+Find from the playlist, not from a modal	재생 목록에서 찾습니다. 별도 창이 아닙니다
+take or select a cue to open the timeline	큐를 송출하거나 선택하면 타임라인이 열립니다
+Optional external transport and cue control	선택 사항인 외부 트랜스포트와 큐 제어
+No previous show file found at startup path.	시작 경로에서 이전 쇼 파일을 찾지 못했습니다.
+Use Ctrl+F or type a cue id/number to search.	Ctrl+F 또는 큐 번호를 입력해 검색하세요.
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC 수신과 HyperDeck 에뮬레이션
+A/V delay holds audio back for lagging displays.	A/V 지연은 느린 화면을 위해 소리를 늦춥니다.
+On stop: leave the crash-resilient file as it is	중지할 때: 장애에 강한 파일을 그대로 둡니다
+same disk as Deckboy - a separate drive is safer	Deckboy와 같은 디스크 – 별도 드라이브가 더 안전합니다
+A step fires one cue on each playlist, all at once.	한 스텝은 각 재생 목록의 큐를 동시에 하나씩 실행합니다.
+one expression: the same value in red, green and blue	식 하나: 빨강, 초록, 파랑에 같은 값
+NDI transport is configured per output in Video Outputs.	NDI 트랜스포트는 비디오 출력에서 출력별로 설정합니다.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	트랜스포트가 움직일 때 PLAY / PAUSE / STOP / LOCATE를 보냅니다.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC 구독: 컨트롤러에서 /deckboy/subscribe를 보내세요.
+NMC mode / host / port are runtime-configurable for sync work.	NMC 모드 / 호스트 / 포트는 실행 중에 바꿀 수 있습니다.
+Going on air takes the cue. Deckboy never sends the switcher a command.	방송에 나가면 큐가 송출됩니다. Deckboy는 스위처에 명령을 보내지 않습니다.
+FPS: ON	FPS: 켜짐
+FPS: OFF	FPS: 꺼짐
+NMOS: ON	NMOS: 켜짐
+NMOS: OFF	NMOS: 꺼짐
+SPOUT: ON	SPOUT: 켜짐
+SPOUT: OFF	SPOUT: 꺼짐
+CANVAS: ON	캔버스: 켜짐
+CANVAS: OFF	캔버스: 꺼짐
+10-BIT: ON	10비트: 켜짐
+10-BIT: OFF	10비트: 꺼짐
+EDIT...	편집...
+FOLDER...	폴더...
+ARRANGE...	배치...
+ADD FILE...	파일 추가...
+RENUMBER...	번호 다시 매기기...
+set a port...	포트 설정...
+no script	원고 없음
++ OUTPUT	+ 출력
+Eddie's Clock	에디의 시계
+Ctrl+/ to close	Ctrl+/로 닫기
+(step lives here)	(스텝은 여기 있습니다)
+4:2:2  8-BIT	4:2:2  8비트
+4:2:2  10-BIT	4:2:2  10비트
+No outputs — click + OUTPUT to add one.	출력이 없습니다 – + 출력 을 눌러 추가하세요.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI 트리거, NMC, MTC, LTC, Art-Net, Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Deckboy가 잘 재생하지 못하는 큐를 H.264로 변환합니다
+a button can run any command the network protocol understands	버튼은 프로토콜이 이해하는 어떤 명령이든 실행할 수 있습니다
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	발표자 보기 배치  -  패널을 끌어 옮기고, 모서리를 끌어 크기를 바꿉니다
+vMix API	vMix API
