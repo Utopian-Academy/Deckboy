@@ -1053,7 +1053,13 @@
                  transitionStyleLabel(curStyle), ink);
     drawCenteredTextSafe(controlRenderer_, fontSmall_,
                          SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
-                         "â¼", ink);
+                         // ESCAPED, not pasted. This is the same triangle
+                         // drawUIDropdownValue draws, and it is written the
+                         // same way for the same reason: pasted into the
+                         // source it had already been through UTF-8 twice and
+                         // was drawing as mojibake beside every cue's
+                         // transition style.
+                         "\xe2\x96\xbc", ink);
     cueTransitionStyleDropdownRect_ = styleBtn;
   }
 

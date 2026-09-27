@@ -36,6 +36,27 @@ SOURCE_SUFFIXES = (".cpp", ".hpp", ".ipp", ".h")
 # takes for the characters that actually turn up in this source.
 DOUBLE_ENCODED = (bytes([0xC3, 0x82]), bytes([0xC3, 0x83]))
 
+# ── THE ONE THAT CATCHES THE REST ────────────────────────────────────────────
+#
+# The two signatures above are what double-encoding a Latin-1 character leaves
+# behind, and they missed every double-encoded ARROW and SYMBOL in the tree,
+# because those are three bytes rather than one. Put U+25BC (the dropdown
+# triangle) through UTF-8 twice and you get C3 A2 C2 96 C2 BC: the lead byte
+# becomes C3 A2, which is not in the list above, and nothing fired.
+#
+# What every one of them does leave is a byte in U+0080..U+009F -- encoded as
+# C2 80 through C2 9F. Those code points are the C1 control characters: not
+# letters, not punctuation, not printable, and not something anybody types.
+# Any three-byte glyph (arrows, box drawing, music, stars, the whole symbol
+# range) has a continuation byte in 0x80..0x9F, so double-encoding it always
+# produces one of these, and nothing legitimate ever does.
+#
+# This found two that had been sitting in the tree: a dropdown triangle drawn
+# as mojibake beside the cue transition style, and a smoke test feeding the
+# text-mode renderer a double-encoded music note and star, so it had been
+# exercising the wrong characters.
+C1_CONTROLS = tuple(bytes([0xC2, b]) for b in range(0x80, 0xA0))
+
 
 def source_files(roots):
     for root in roots:
@@ -51,21 +72,48 @@ def line_of(data, offset):
 
 
 def context(data, offset, before=45, after=25):
+    """The bytes around a hit, rendered so any console can print them.
+
+    This used to hand the decoded text straight to print(), which throws
+    UnicodeEncodeError on a Windows console (cp1252 has no U+0096) -- so the
+    check crashed on exactly the fault it had just found, reporting a traceback
+    instead of a file and a line. Anything outside printable ASCII is shown as
+    \\xNN, which is also more use here: the whole point is which BYTES are
+    wrong, and a mojibake glyph rendered as a mojibake glyph tells you nothing.
+    """
     start = max(0, offset - before)
-    text = data[start:offset + after].decode("utf-8", "replace")
-    return text.replace("\n", " ").strip()
+    chunk = data[start:offset + after]
+    out = []
+    for byte in chunk:
+        if byte == 0x0A:
+            out.append(" ")
+        elif 0x20 <= byte < 0x7F:
+            out.append(chr(byte))
+        else:
+            out.append("\\x%02x" % byte)
+    return "".join(out).strip()
 
 
 def find_double_encoded(path, data):
     out = []
-    for signature in DOUBLE_ENCODED:
+    for signature in DOUBLE_ENCODED + C1_CONTROLS:
         at = -1
         while True:
             at = data.find(signature, at + 1)
             if at < 0:
                 break
             out.append((path, line_of(data, at), context(data, at)))
-    return out
+    # One report per line: a double-encoded arrow trips several signatures at
+    # once and three lines saying the same thing reads as three faults.
+    seen = set()
+    unique = []
+    for entry in out:
+        key = (entry[0], entry[1])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(entry)
+    return sorted(unique, key=lambda e: e[1])
 
 
 def find_nonascii_literals(path, data):
@@ -124,9 +172,19 @@ def main():
     if not doubles and not literals:
         print("\nclean")
         return 0
-    # [2] is advisory: a glyph the bundled font HAS is fine, and this cannot
-    # tell. [1] is never acceptable.
-    if args.strict and doubles:
+    # [1] IS ALWAYS FATAL, and it used to need --strict to be fatal at all --
+    # which CI does not pass. So the one thing this check calls never
+    # acceptable was the one thing it could not fail a build over, and two
+    # double-encoded glyphs sat in the tree being reported to nobody. The
+    # comment already said it was never acceptable; now the exit code agrees.
+    #
+    # [2] stays advisory even under --strict-less runs: a glyph the bundled
+    # font HAS is perfectly fine and this cannot tell which. --strict is what
+    # promotes [2] to a failure.
+    if doubles:
+        print("\n%d double-encoded sequence(s): these draw as mojibake." % len(doubles))
+        return 1
+    if args.strict and literals:
         return 1
     return 0
 

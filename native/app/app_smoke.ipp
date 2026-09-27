@@ -1137,7 +1137,11 @@
             // -- if it did not, this would leave the raster half drawn, and
             // that fallback is the part most likely to differ between a dev
             // box and a CI runner.
-            tvs.asciiGlyphs = (cols % 20 == 0) ? std::string("âªâ")
+            // A music note and a star, ESCAPED rather than pasted: these had
+            // been through UTF-8 twice, so this case had been feeding the
+            // renderer four mojibake characters instead of the two symbols it
+            // meant to test.
+            tvs.asciiGlyphs = (cols % 20 == 0) ? std::string("\xe2\x99\xaa\xe2\x98\x85")
                                                : std::string();
             textEngine.renderTextMode(srcPix.data(), W, H, dstPix.data(), W, H, tvs, 0, 0.0);
             std::size_t stillMagenta = 0;
