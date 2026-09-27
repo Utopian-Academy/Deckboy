@@ -1048,17 +1048,27 @@
     const SDL_Color fill = paletteToggleFill(overridden);
     const SDL_Color ink  = paletteToggleInk(overridden);
     drawUIPanel(styleBtn, fill, pal.deep, pal.mid);
+    // THE CHEVRON COLUMN, SIZED THE WAY drawUIDropdownValue SIZES IT.
+    //
+    // This was a bare 14 pixels, unscaled, and drawCenteredTextSafe clips to
+    // the rect it is given -- so above 1x the triangle was wider than its own
+    // column and vanished entirely, leaving a dropdown with nothing to say it
+    // was one. (Before that it was drawing as mojibake, which is how the
+    // unscaled rect stayed hidden: nobody was looking for a missing arrow
+    // while there was a scramble of characters in its place.)
+    const int chevW = std::min(uiScaled(18), std::max(8, styleBtn.w / 6));
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 20, styleBtn.h},
+                 SDL_Rect {styleBtn.x + uiScaled(6), styleBtn.y,
+                           std::max(uiScaled(4), styleBtn.w - chevW - uiScaled(8)),
+                           styleBtn.h},
                  transitionStyleLabel(curStyle), ink);
     drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
-                         // ESCAPED, not pasted. This is the same triangle
-                         // drawUIDropdownValue draws, and it is written the
-                         // same way for the same reason: pasted into the
-                         // source it had already been through UTF-8 twice and
-                         // was drawing as mojibake beside every cue's
-                         // transition style.
+                         SDL_Rect {styleBtn.x + styleBtn.w - chevW - 2, styleBtn.y,
+                                   chevW, styleBtn.h},
+                         // ESCAPED, not pasted. The same triangle
+                         // drawUIDropdownValue draws, written the same way for
+                         // the same reason: pasted into the source it had
+                         // already been through UTF-8 twice.
                          "\xe2\x96\xbc", ink);
     cueTransitionStyleDropdownRect_ = styleBtn;
   }
