@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-27 - v0.99.393
+## 2026-09-27 - v0.99.393 (thirty-one languages, three new transitions, and the tracker you already owned)
 
 A large release: new sources and effects, a second control surface, and two
 features that now work on Windows for the first time.
