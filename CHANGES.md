@@ -1,300 +1,134 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-26 - v0.99.393 (Windows gets its HAP encoder)
+## 2026-09-27 - v0.99.393
 
-**HAP encoding works in the Windows build.** It did not: the encoder list
-offered HAP, HAP Alpha and HAP Q, and the ffmpeg in the published zip could
-only DECODE them -- so the formats were quietly dropped and never appeared.
-Deckboy probes ffmpeg and hides what it cannot do, which is the right
-behaviour and also why nobody could tell the difference between "not
-supported" and "silently missing".
+A large release: new sources and effects, a second control surface, and two
+features that now work on Windows for the first time.
 
-The cause was the build being bundled: CI installed the "essentials" ffmpeg,
-which is not compiled with the library HAP needs. It now installs the full
-one.
+### Sources and looks
 
-**And the packager refuses to build a zip whose ffmpeg cannot encode what
-Deckboy offers** -- HAP, ProRes, DNxHR, H.264 and QuickTime RLE. Checked
-against the staged copy, which is the one that goes in the zip.
+**Shapes.** The live-coded source can draw with **alpha** -- a fourth
+expression after red, green and blue -- so it sits *over* the picture instead
+of replacing it. Five to start from, one click each in the editor: **gem**,
+**gem cluster**, **flash**, **cloud** and **ghast**. They are ordinary
+expressions; open one and change it. `noise(x, y)` comes with them, for the
+shapes arithmetic cannot reach.
 
-## 2026-09-26 - v0.99.392 (A readable language picker, and a pointer that gets out of the way)
+**Feedback Bloom.** Video feedback whose echo turns colour and warps on every
+pass, so both compound -- iridescent trails that melt into the picture rather
+than fading. Four controls: hue turn, melt, zoom and swirl. Best over
+something dark.
 
-**You can read the language picker again.** Every entry was shown only in its
-own script -- 日本語, 简体中文, 한국어, العربية, हिन्दी -- while the interface
-was still in the font of the language you were leaving. The face only changes
-*after* you choose, so on an English desk those entries were empty boxes and
-the only way to find out what one said was to pick it. Each now reads
-**"Japanese - 日本語"**, so the half that always draws comes first.
+**Three transitions that are not a shape moving.** **Shatter** breaks the
+outgoing picture into shards that fly off in waves, turning and catching the
+light along the break -- `gems` and `glass` also select it. **Clouds** sends
+weather up through the frame, eating the picture where it is thickest, with the
+bright fringe of a cloud edge with light behind it. **Ghastly** drains the
+colour to a cold blue-grey, smears the picture upward and lets wisps rise and
+take it from below. Set them like any other style, per deck or per cue.
 
-The translations themselves were never broken: all thirty-one catalogues load,
-the fonts for them resolve, and a desk booted into Japanese draws 新規 / 開く
-/ 保存 / タイムライン correctly.
+**An EQ band, per cue.** Frequency, gain, width, and a shape that makes it a
+bell or either shelf. It arrives flat, the way a new band does on any desk, so
+adding one changes nothing until you move it. Stack three or four for a full
+strip.
 
-**They are, however, thin** -- about 7% of the interface, the same for every
-language. `tools/audit_i18n.py` measures it now, per language, and lists what
-is missing.
+### Getting media in
 
-**The pointer gets out of the way of the picture.** Left still for three
-seconds over the program monitor or an output window, it hides; any movement
-or click brings it straight back. It never hides over the playlist, the
-buttons, or while a menu or the settings are open.
-
-## 2026-09-26 - v0.99.391 (The desk is no longer 48k only)
-
-**Settings → Audio → Sample rate**: 44100, 48000, 88200, 96000 or 192000 Hz.
-
-48000 is still the default and still usually right -- every film and
-broadcast file carries 48k, so it is the rate that costs no conversion on the
-common path. The rest are for a desk wired into a music rig that runs
-somewhere else, where converting twice to meet it is worse than running there.
-
-Everything follows it, not just the device: the decoder's resampler, **every
-filter corner, time constant and delay length in the cue audio chain**, and
-the video clock, which counts frames of audio the device has played. Forty
-three things in the effects read a fixed 48000 before this -- at 96k a 1kHz
-filter would have sat at 500Hz and a 200ms delay would have run 100ms.
-
-Proven by running the whole `--audio-fx-check` battery at 44.1k, 48k and 96k
-and checking the measurements do not move: an effect that is genuinely
-rate-aware sounds the same at any rate.
-
-It cannot be changed while a cue is playing -- reopening the devices is a gap
-in the sound. Source files at any rate still play at any setting.
-
-Over the wire: `SAMPLERATE`, `SAMPLERATE <hz>`.
-
-## 2026-09-26 - v0.99.390 (Browse for media without leaving the window)
-
-**SOURCE → Browse media...** lists the current folder in the window --
-directories, then anything Deckboy can play. Go into a folder, `..` to come
-back, choose a file to add it to the focused playlist. It **stays open** on
-the same folder, so adding six clips is six clicks.
-
-**Type to filter**, which on a folder of two hundred episodes is the point.
-
-It opens where it last looked, remembered with the show; the first time, it
-opens wherever the playlist's existing media came from.
-
-Over the wire: `BROWSE`, `BROWSE <folder>`.
-
-## 2026-09-26 - v0.99.389 (The stutter after a take)
-
-**A cue no longer starts playing before it has any pictures in hand.** The
-clock started the instant a cue was taken, while the decoder was still opening
-the file, seeking and working through the first group of frames. Measured on
-1080p ten-bit HEVC, the frame queue ran down to **one frame of six** in that
-moment -- no slack at all, so any jitter showed as the picture holding. It got
-worse the more times a cue was taken and stopped.
-
-Deckboy now waits for a cushion before time starts running, the way it already
-waited for the sound. **The picture is not delayed** -- the first frame appears
-the moment it arrives -- only the clock, and only until there is a few frames'
-headroom behind it or a quarter of a second has passed, whichever comes first.
-Live sources are never held: a camera has no beginning to wait for.
-
-Measured on the clips it was reported with, before and after, over twenty
-take/stop and twenty pause/resume cycles:
-
-| | before | after |
-|---|---|---|
-| stalls | 1 (135ms) | 0 |
-| queue low-water after takes | 1 of 6, falling | 2 of 6, steady |
-
-`AVJUMP` also reports `queuelow` now, so a machine that still stutters can say
-whether the decoder is starving or something else is.
-
-## 2026-09-26 - v0.99.388 (Counting the stutter)
-
-**`AVJUMP` now counts stalls as well as jumps.** They look the same from the
-operator's chair and are different faults: a stall is the picture not moving
-when it should, a jump is the playhead moving when it should not. The reported
-stutter is the first, so the first is now measured -- three frame periods of
-held picture on a playing cue, counted, with the worst gap kept.
-
-Run `AVJUMP RESET`, do the show, `AVJUMP`. It is in the manual under **When
-the picture stutters**.
-
-## 2026-09-26 - v0.99.387 (Two faults in the video clock, and a way to catch the third)
-
-**The video clock ignored the audio delay.** Deckboy's video position follows
-the audio device, worked out as "audio counted, minus audio the device has not
-played yet". The delay line was left out of that second half -- so a cue with
-**A/V delay** set ran its picture ahead of its sound by exactly the delay, and
-the clock correction then dragged the picture along to match. Lip sync on any
-show using the delay was out by the delay itself.
-
-**A deck muted out of the PA had no real clock.** With the deck's audio not
-reaching the device at all, the same sum reported the *decoder's* progress as
-though it were the device's. It tracked roughly, which is the worst way to be
-wrong. A silent deck now uses the wall clock, which is what it should always
-have done.
-
-**`AVJUMP`, to catch the one that got away.** A stutter after pause/unpause
-was reported and does not reproduce here -- twelve rapid pause cycles, three
-ten-second pauses, both decode paths, zero jumps. Rather than guess, Deckboy
-now counts them: `AVJUMP RESET`, run the show, `AVJUMP`. It is in the manual
-under **When the picture stutters**.
-
-## 2026-09-26 - v0.99.386 (Key and fill on SDI)
-
-**Deckboy can hand a graphic to a downstream keyer.** Turn on **Settings →
-Video Outputs → Devices → KEY+FILL**, pick a second DeckLink card as **Key
-out**, and the output leaves as two signals: the fill on one card, and the
-key -- a greyscale matte of the alpha -- on the other. A vision mixer lays it
-over its own programme with real soft edges. This is the missing half of the
-lower thirds: Deckboy could draw one and had no way to give it to anybody.
-
-Turning it on **changes what the output is**. The composite is built over
-transparency rather than black, so the alpha channel becomes a real matte and
-everything sampled from that output carries it.
-
-The fill is **premultiplied**, which is what hardware keyers expect --
-unmultiplied fill is the reason a graphic comes back with a bright halo round
-every soft edge, and it looks almost right until it is on air.
-
-**Not yet proven against a card.** There is no DeckLink hardware here. What is
-proven: it compiles with the SDK enabled, the composite is built over
-transparency in this mode, and the fill/key split is exact at every one of the
-256 alpha values (checked in `--smoke`). Whether a real card accepts the two
-streams is untested, so treat this as ready to try rather than ready to trust,
-and tell us how it goes.
-
-## 2026-09-26 - v0.99.385 (The loading animals were invisible)
-
-**The little critter that says a thing is working now actually appears.** It
-was drawn *before* the settings modal and the popups, so the one that sits on
-the update download -- the case the whole feature was built for -- was painted
-over by the modal it lives in, every frame, for its entire life. They are
-drawn above the popups now.
-
-It also **asked the status text** whether an update was working, by searching
-it for "download" or "checking". So it kept scurrying over "download failed"
-and "download was incomplete", and it showed nothing at all during the quiet
-check at startup, which never sets that text. It now asks whether a check or
-download is genuinely in flight.
-
-## 2026-09-26 - v0.99.384 (Deckboy answers the vMix APIs)
-
-**Panels built for a vMix rig now drive Deckboy, unchanged.**
-**Settings → Network → vMix API** makes it answer vMix's HTTP API on 8088 and
-vMix's text protocol on 8099 -- their ports, their commands -- so a Stream
-Deck plugin, Companion module, touch panel or show-control system already set
-up for vMix works here with nothing written and nothing configured beyond
-pointing it at this machine.
-
-A vMix **Input** is a Deckboy **cue**, numbered straight through every
-playlist, so per-cue tally works the way a panel expects. Each playlist also
-appears as a vMix **mix**.
-
-`TALLY`, `FUNCTION`, `XML`, `SUBSCRIBE` and the rest of the text protocol are
-there, and `SUBSCRIBE TALLY` pushes on change rather than making the panel
-poll. Fifteen Functions are understood, from Cut and Fade to SetVolume.
-
-A Function Deckboy has no equivalent for is **refused** -- 404 over HTTP,
-`FUNCTION ER` over TCP. vMix answers success to a Function that failed; a desk
-that says a cue was taken when it was not is worse than one that says it
-cannot.
-
-Off by default, and like the control port it listens on localhost only until
-**Listen on** says otherwise. There is no password on it yet.
-
-## 2026-09-26 - v0.99.383 (Windows gets its timecode back)
-
-**LTC works on Windows again** -- and, on the evidence, for the first time.
-Every Windows release up to v0.99.379 shipped without libltc, so **LTC
-generation, LTC chase and timecode cues were dead in the zip** while working
-perfectly on the machine that built them. The zip's own `--self-check` said
-`ltc-runtime: missing`, and the integration report beside it said `ltc[ok]`,
-which is the part that kept it hidden.
-
-Three changes, so it cannot happen again:
-
-- Windows builds now build libltc from source (vcpkg has no port for it,
-  which is why there was never anything to install).
-- **The packager refuses to make a zip whose binary cannot load it.** It asks
-  the staged executable, not the file system, because a library that is
-  present and exports nothing looks identical to one that works.
-- The integration report asks the runtime instead of answering `ok`
-  unconditionally. A machine without libltc now reads `ltc[stub]`.
-
-macOS and Linux were never affected.
-
-## 2026-09-26 - v0.99.382 (A playlist that fills itself, and an EQ band)
+**Browse for media without leaving the window.** **SOURCE → Browse media...**
+lists the current folder: directories, then anything Deckboy can play. Choose
+a file and it joins the focused playlist and stays open on the same folder, so
+adding six clips is six clicks. **Type to filter**, which on a folder of two
+hundred episodes is the whole feature.
 
 **Watch folders.** Point a playlist at a folder in **Settings → System →
-WATCH FOLDER** and anything playable dropped in there becomes a cue by itself,
-while the show runs. Each playlist can watch its own folder.
+WATCH FOLDER** and anything dropped in there becomes a cue by itself, while
+the show runs. Each playlist can watch its own. It waits for a copy to finish
+before taking a file, never takes the same file twice, and deleting a cue is
+final.
 
-It waits for a copy to finish before taking a file — a large VT shows up in
-the folder the instant the copy starts, and a cue made from a half-written
-file fails on air. It never takes the same file twice, and deleting a cue is
-final rather than something the next scan undoes.
+### Control and output
 
-The scan runs off the main thread, so a network share having a bad day cannot
-stall the interface, the transport or the output.
+**Deckboy answers the vMix APIs.** **Settings → Network → vMix API** makes it
+speak vMix's HTTP API on 8088 and vMix's text protocol on 8099 -- their ports,
+their commands -- so a Stream Deck plugin, Companion module or touch panel
+already set up for a vMix rig drives this desk with nothing written. A vMix
+*input* is a Deckboy *cue*, numbered through every playlist, so per-cue tally
+works as a panel expects.
 
-Over the wire: `WATCH`, `WATCH <deck> <folder>`, `WATCH <deck> OFF`. `WATCH`
-on its own also reports whether the scan is running, which is how you tell a
-folder nobody is looking at from a folder that is simply empty.
+**Key and fill on SDI.** **Settings → Video Outputs → Devices → KEY+FILL**
+with a second DeckLink card as **Key out** sends the picture on one card and a
+greyscale matte of its alpha on the other, so a vision mixer can lay a graphic
+over its programme with real soft edges. The output composites over
+transparency in this mode and the fill is premultiplied, which is what
+hardware keyers expect. New in this release and not yet tried on a card --
+tell us how it goes.
 
-**An EQ band, per cue.** The audio chain had a high pass, a low pass and a
-tilt -- three ways to take something away -- and no way to lift one range.
-Frequency, gain, width, and a shape that makes it a bell or either shelf.
+**Any sample rate**, not only 48k: **44100, 48000, 88200, 96000 or 192000 Hz**
+in **Settings → Audio**. Everything follows it -- the device, the decoder,
+every filter and delay in the cue audio chain, and the video clock.
 
-It arrives **flat**, the way a new band does on every desk, so dropping one
-into a chain mid-show changes nothing until the gain is moved. Stack three or
-four for a full parametric strip; the order is the order you drag them into.
+### Working on Windows for the first time
 
-## 2026-09-26 - v0.99.381 (Feedback Bloom)
+**Timecode.** LTC generation, LTC chase and timecode cues now work in the
+Windows build; the library they need travels with it.
 
-**Feedback Bloom**, a second video-feedback effect. The first one moves the
-echo; this one also **turns its colour and distorts it on every pass**, so
-both compound -- iridescent trails that walk through the spectrum and melt
-into the picture rather than fading to dim.
+**HAP encoding.** HAP, HAP Alpha and HAP Q are available in the encoder, with
+an ffmpeg that can write them.
 
-Four controls: **hue turn**, **melt**, **zoom** and **swirl**. It shows best
-over something dark, where the echo is the brightest thing in the frame.
+### Playback and interface
 
-Bounded the way feedback is: the echo is mixed by lightening rather than
-adding, so it cannot climb to white however long it runs -- and the colour
-turn is normalised so no channel can come back brighter than it went in.
-Feedback itself is untouched, so shows that use it are unchanged.
+**Cues start with frames in hand.** A cue used to start its clock the instant
+it was taken, while the decoder was still opening the file -- so on heavy
+media the picture could hold for a moment and then rush. It now waits for a
+few frames of headroom first. The picture is not delayed; only the clock.
 
-## 2026-09-26 - v0.99.380 (Shapes: a source that draws *over* the picture)
+**`AVJUMP`** over the control port counts stalls and playhead jumps, so a
+machine that stutters can say what it is doing rather than being watched for.
 
-**The code source can now draw a shape with a hole in it.** A fourth
-expression, after red, green and blue, is **alpha** -- so an expression cue
-stops being a full-frame background and becomes something that sits *over*
-whatever is beneath it. Put one on a layer above a camera and it is an
-overlay:
+**The pointer gets out of the way.** Left still for three seconds over the
+program monitor or an output window it hides, and any movement brings it back.
 
-    d = length(cx, cy);
-    1, 0.9, 0.3, smoothstep(0.42, 0.38, d)
+**Thirty-one languages, filled in.** Every catalogue that shipped as a stub now
+covers around nine tenths of the text Deckboy draws -- German, French, Spanish,
+Cuban Spanish, Italian, Dutch, Brazilian Portuguese, Polish, Danish, Finnish,
+Icelandic, Scots, Gaelic, Greek, Bulgarian, Russian, Ukrainian, Turkish,
+Japanese, Chinese in both scripts, Korean, Arabic, Hindi, Zulu, and Lumeni,
+Klingon and Sindarin for the fun of it. Where a language needs a face the
+bundled fonts do not have, Deckboy finds one on the machine; **--font-check
+<language>** says whether it did.
 
-Three expressions still mean exactly what they always did, so every show that
-already has a code cue opens unchanged.
+The broadcast words the trade leaves in English -- TAKE, PROGRAM, NDI, SRT,
+OSC -- stay in English in every one of them, so an operator who learned the
+desk in one country can work it in another.
 
-**Five shapes to start from**, one click each in the code editor: **gem**,
-**gem cluster**, **flash** (an eight-point sparkle with a ring), **cloud** and
-**ghast**. They are ordinary expressions -- open one, read it, change it.
+**Navajo, Mohawk and Muscogee are marked "(unreviewed)" in the picker.** No
+speaker of those languages has read those files yet, and the rest of each is
+deliberately left in English rather than filled with invented technical
+vocabulary. If you speak one and want to fix it, the files are plain text in
+`data/lang/`.
 
-**`noise(x, y)`**, a smooth random field, for the shapes arithmetic cannot
-reach. Three of them at doubling frequencies is a cloud.
+**A readable language picker.** Entries read "Japanese - 日本語". Each was
+shown only in its own script, in the font of the language you were leaving, so
+several were unreadable until after you chose one.
 
-**Two fixes to the expression language, both of which changed pictures:**
+**The master tracker, written down at last.** **Ctrl+D** opens the dashboard,
+and its **TILES / TRACKER** switch turns it into a grid of steps by playlists:
+one step fires a cue on every playlist at once, each with its own length, a
+countdown, LOOP, and Page Up / Page Down from a presenter's clicker. It has
+been in Deckboy for a while and nothing told you how to reach it. Manual
+section 11a.
 
-- **A named value can read the one above it.** It could not, and only the
-  last name in a source was ever computed -- every earlier one quietly read
-  zero. Six of the worked examples drew the wrong picture for it, including
-  *spotlight*, *rings* and *orbit*. A source with a single name was always
-  fine, which is why this was not obvious.
-- **A function call with the wrong number of values is now refused.**
-  `sin()` and `sin(1, 2)` used to compile and read whatever was left over.
+**Nine keys that worked and were never listed** are now on the **Ctrl+/**
+overlay, including take, play/pause and stop on *every* deck at once
+(**Ctrl+Enter**, **Ctrl+Space**, **Ctrl+Shift+Space**) and **Ctrl+A** to select
+a whole playlist. The manual's key table is generated from that same list, so
+the two cannot drift apart again.
 
-**Two new command-line tools**, neither needing a window or a GPU:
-`--code-dump` renders one expression to a picture and reports how much of the
-frame it covers, and `--code-check` asserts the language against expected
-values.
+**The transition style button shows its arrow** rather than a scramble of
+characters.
+
+**The little critter that says a thing is working** now actually appears --
+it was being drawn underneath the panel it lives in.
 
 ## 2026-09-25 - v0.99.379 (Companion module 1.0.2, and the animals stay off the picture)
 
