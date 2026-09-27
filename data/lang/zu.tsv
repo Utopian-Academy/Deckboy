@@ -80,3 +80,297 @@ OFF	VALIWE
 Stopped	Kumisiwe
 Playing	Kuyadlala
 Paused	Kumisiwe okwesikhashana
+2-UP	2 EDUZE
+DONE	KWENZIWE
+EDIT	HLELA
+HELD	KUBAMBILE
+Mode	Indlela
+PICK	KHETHA
+QUAD	OKUNE
+Rate	Izinga
+STEP	ISINYATHELO
+Apply	Sebenzisa
+CLOSE	VALA
+FIXED	KUMISIWE
+Help!	Usizo!
+ORDER	UKUHLELEKA
+READY	KULUNGILE
+TILES	AMATHAYILI
+VIDEO	IVIDIYO
+ALL ON	KONKE KUVULIWE
+ALWAYS	NJALO
+ANALOG	I-ANALOG
+Buffer	Isibuffer
+Cancel	Khansela
+Custom	Okwakho
+Device	Idivayisi
+Folder	Ifolda
+FORMAT	IFOMETHI
+HIDDEN	KUFIHLIWE
+Length	Ubude
+Mascot	Isilwane sethu
+Mirror	Isibuko
+NATIVE	OKWANGEMPELA
+PRESET	OKUMISIWE
+Sender	Othumelayo
+SUMMED	KUHLANGANISIWE
+TOGGLE	SHINTSHA
+12 HOUR	12 AMAHORA
+24 HOUR	24 AMAHORA
+ALL OFF	KONKE KUVALIWE
+ARRANGE	HLELA
+Channel	Isiteshi
+CONVERT	GUQULA
+DEFAULT	OKUJWAYELEKILE
+END CUE	UKUPHELA KWE-CUE
+Key out	Okuphuma kwe-key
+LTC out	Okuphuma kwe-LTC
+MISSING	AKUTHOLAKALI
+PRESETS	OKUMISIWE
+PROJECT	IPHROJEKTHI
+RUNNING	IYASEBENZA
+Send to	Thumela ku
+SHUFFLE	HLANGANISA
+UPDATES	IZIBUYEKEZO
+VJ MODE	INDLELA YE-VJ
+CLOCK ON	IWASHI LIVULIWE
+DOWNLOAD	LANDA
+EXAMPLES	IZIBONELO
+Mappings	Ukuhlelwa
+NMC sync	Ukuvumelanisa i-NMC
+PROMPTER	ISIKHUMBUZI
+SHOW SDP	BONISA I-SDP
+TCP port	Imbobo ye-TCP
+UI scale	Ubukhulu bobuso
+vMix API	I-API ye-vMix
+WATCHING	IYABUKA
+A/V delay	Ukubambezeleka kwe-A/V
+ASIO outs	Okuphuma kwe-ASIO
+BOTH AXES	AMA-AXIS OMABILI
+CHECK NOW	HLOLA MANJE
+CLOCK OFF	IWASHI LIVALIWE
+Creatures	Izidalwa
+CUE TOOLS	AMATHULUZI E-CUE
+Direction	Inkomba
+Freewheel	Ukuzihambela
+HTTP port	Imbobo ye-HTTP
+Jump mode	Indlela yokweqa
+Listen on	Lalela ku
+OSC Query	Umbuzo we-OSC
+OUTPUT ON	OKUPHUMAYO KUVULIWE
+Panic now	Misa manje
+RECORDING	IYAREKHODA
+REMAINING	OKUSELE
+RESET ALL	SETHA KONKE KABUSHA
+RUN PANIC	MISA MASISHANE
+SHOW FLOW	UKUGELEZA KOMBUKISO
+TIMERS ON	AMAWASHI AVULIWE
+WHEN IDLE	LAPHO KUNGENZI LUTHO
+ADD OUTPUT	ENGEZA OKUPHUMAYO
+BUILT WITH	KWAKHIWE NGE
+CANCEL ALL	KHANSELA KONKE
+colour tag	uphawu lombala
+copy chain	kopisha uchungechunge
+Hover tips	Amacebo
+Input gain	Ukukhulisa okungenayo
+Input mono	Okungenayo kube mono
+live audio	umsindo obukhoma
+Live input	Okungenayo obukhoma
+MIDI input	Okungenayo kwe-MIDI
+no picture	asikho isithombe
+no preview	akukho ukubuka kuqala
+OPEN SAVED	VULA OKULONDOLOZIWE
+OUTPUT OFF	OKUPHUMAYO KUVALIWE
+Panic fade	Ukucima masishane
+Tally port	Imbobo ye-tally
+TIMERS OFF	AMAWASHI AVALIWE
+Accept from	Yamukela ku
+ASIO driver	Umshayeli we-ASIO
+BACK TO TOP	BUYELA PHEZULU
+CANVAS MODE	INDLELA YEKHANVASI
+CODE SOURCE	UMTHOMBO WEKHODI
+Cue numbers	Izinombolo ze-cue
+Destination	Okuyiwa kuyo
+Mirror rate	Izinga lesibuko
+no duration	akukho ubude
+NO LIVE CUE	AKUKHO CUE OBUKHOMA
+NO PREVIOUS	AKUKHO OKWANGAPHAMBILI
+OVERLAY BIN	IBHOKISI LOKWEMBESA
+paste chain	namathisela uchungechunge
+Sample rate	Izinga lesampula
+SENDING OUT	IYATHUMELA
+Shift: snap	Shift: namathela
+THIS OUTPUT	LOKHU OKUPHUMAYO
+(no matches)	(akukho okufanayo)
+(no subtext)	(akukho umbhalo ongezansi)
+add a button	engeza inkinobho
+add a window	engeza iwindi
+Art-Net port	Imbobo ye-Art-Net
+AUDIO OUTPUT	OKUPHUMA KOMSINDO
+Auto restore	Buyisela ngokwako
+DECKLINK: ON	DECKLINK: KUVULIWE
+free running	ukuzihambela
+KEY+FILL: ON	KEY+FILL: KUVULIWE
+LISTENING IN	IYALALELA
+Miami cursor	Inkomba ye-Miami
+MIDI CONTROL	UKULAWULA I-MIDI
+Mirror state	Bonisa isimo esibukweni
+NDI KEY: OFF	NDI KEY: KUVALIWE
+NDI KEY: ON	NDI KEY: KUVULIWE
+NO PROGRAMME	AKUKHO UHLELO
+ST 2110: OFF	ST 2110: KUVALIWE
+ST 2110: ON	ST 2110: KUVULIWE
+WATCH FOLDER	IFOLDA EBUKWAYO
+COMPOSITE CUE	I-CUE EHLANGANISIWE
+DECKLINK: OFF	DECKLINK: KUVALIWE
+default route	umgwaqo ojwayelekile
+Every adapter	Yonke i-adaptha
+KEY+FILL: OFF	KEY+FILL: KUVALIWE
+LEFT TO RIGHT	KUSUKA KWESOBUNXELE KWESOKUDLA
+MEDIA ENCODER	ISIBHALI SEMIDIYA
+MSC device id	Inombolo yedivayisi ye-MSC
+NEW SHOW FILE	IFAYELA LOMBUKISO ELISHA
+No cue loaded	Akukho cue elifakiwe
+nothing taken	akukho lutho olukhishwe
+OPEN PREVIOUS	VULA OKWANGAPHAMBILI
+Output device	Idivayisi ekhiphayo
+Panic profile	Iphrofayela yokumisa
+Quit Deckboy?	Uyaphuma ku-Deckboy?
+REMOVE OUTPUT	SUSA OKUPHUMAYO
+Sound effects	Imisindo
+Tally address	Ikheli le-tally
+TOP TO BOTTOM	KUSUKA PHEZULU KUYA PHANSI
+127 (all-call)	127 (ubizo lwabo bonke)
+ALL INTERFACES	ZONKE IZIXHUMANISI
+LOCALHOST ONLY	I-LOCALHOST KUPHELA
+Monitor device	Idivayisi yokulalela
+no audio track	akukho ithrekhi yomsindo
+PRESENTER VIEW	UKUBUKA KOMETHULI
+RECORD TO DISK	REKHODA KUDISKI
+STOP RECORDING	MISA UKUREKHODA
+STOP STREAMING	MISA UKUSAKAZA
+TALLY TRIGGERS	OKUQALISA I-TALLY
+Device channels	Iziteshi zedivayisi
+NDI SENDING: ON	UKUTHUMELA I-NDI: KUVULIWE
+NO CUE SELECTED	AKUKHO CUE ELIKHETHIWE
+Output channels	Iziteshi ezikhiphayo
+preview pending	ukubuka kuqala kusalungiswa
+START RECORDING	QALA UKUREKHODA
+START STREAMING	QALA UKUSAKAZA
+(system default)	(okujwayelekile kwesistimu)
+Check at startup	Hlola ekuqaleni
+Global crossfade	Ukuxubana kwazo zonke
+Mic to recording	Imakrofoni kokurekhodwayo
+Monitor playlist	Lalela uhlu lokudlala
+NDI SENDING: OFF	UKUTHUMELA I-NDI: KUVALIWE
+no still preview	akukho ukubuka isithombe
+Pocket 3 / touch	Pocket 3 / ukuthinta
+SMPTE LTC OUTPUT	OKUPHUMA KWE-SMPTE LTC
+the whole screen	isikrini sonke
+Check for one now	Hlola manje
+INSTALL & RESTART	FAKA BESE UQALA KABUSHA
+Registry: NOT SET	Irejista: AKUMISIWE
+SAFETY / TIMECODE	UKUPHEPHA / I-TIMECODE
+Timecode jam sync	I-jam sync ye-timecode
+esc or N to cancel	Esc noma N ukukhansela
+KEYBOARD SHORTCUTS	IZINDLELA EZIFUSHANE
+loading preview...	kufakwa ukubuka kuqala...
+CONVERT ALL FLAGGED	GUQULA KONKE OKUPHAWULIWE
+dot-matrix cue deck	ideki ye-cue yamachashazi
+HyperDeck emulation	Ukulingisa i-HyperDeck
+locked to the tempo	kuhlanganiswe nesigqi
+VJ mode (two decks)	Indlela ye-VJ (amadeki amabili)
+ADD ANOTHER PLAYLIST	ENGEZA OLUNYE UHLU LOKUDLALA
+Companion / OSC port	Imbobo ye-Companion / OSC
+Esc or click to skip	Esc noma chofoza ukweqa
+PLAYLIST PREFERENCES	IZINTANDO ZOHLU LOKUDLALA
+press ENTER to start	cindezela u-ENTER ukuqala
+ADD A SECOND PLAYLIST	ENGEZA UHLU LWESIBILI
+filmstrip unavailable	umucu wefilimu awutholakali
+(empty — import media)	(akunalutho – ngenisa imidiya)
+Ctrl+D or Esc to close	Ctrl+D noma Esc ukuvala
+(no notes for this cue)	(akukho amanothi kule cue)
+Timebase / start / fade	Isisekelo sesikhathi / ukuqala / ukucima
+No cues need conversion.	Akukho cue eludinga ukuguqulwa.
+CLICK TO SAMPLE KEY COLOR	CHOFOZA UKUTHATHA UMBALA WE-KEY
+normalize loudness (R128)	linganisa ukuzwakala (R128)
+off - all channels silent	kuvaliwe – zonke iziteshi zithule
+no video lane for this cue	akukho umzila wevidiyo kule cue
+HyperDeck emulation is off.	Ukulingisa i-HyperDeck kuvaliwe.
+OWN SCRIPT  (click to edit)	ISIKRIPTHI SAKHO  (chofoza ukuhlela)
+Theme and operator feedback	Isimo sombala nempendulo kumsebenzisi
+Discovery and mirrored state	Ukutholakala nesimo esibukweni
+FOLLOWING THE LIVE CUE NOTES	KULANDELA AMANOTHI E-CUE OBUKHOMA
+Listening on all interfaces.	Ilalela kuzo zonke izixhumanisi.
+Network-facing runtime notes	Amanothi abhekene nenethiwekhi
+Hi! Press I to import a clip.	Sawubona! Cindezela u-I ukungenisa isiqeshana.
+Global jump and panic behavior	Ukweqa nokumisa kwazo zonke
+Roll when the show cuts to you	Qala lapho umbukiso udlulela kuwe
+Choose a cue to inspect it here	Khetha i-cue ukuyibuka lapha
+Defaults for newly created cues	Okujwayelekile kuma-cue amasha
+Device routing for cue playback	Umgwaqo wedivayisi wokudlala i-cue
+Smaller buffer = lower latency.	Isibuffer esincane = ukubambezeleka okuncane.
+Emergency fade and sync behavior	Ukucima masishane nokuvumelanisa
+mixed selection: key unavailable	ukukhetha okuxubile: i-key ayitholakali
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (OKUSAHLOLWA)
+Esc=continue with current session	Esc = qhubeka ngalesi sikhathi
+no per-cue settings for this type	akukho izilungiselelo ze-cue kulolu hlobo
+On stop: remux to an ordinary MP4	Uma kumiswa: pakisha kabusha kube i-MP4 ejwayelekile
+Where RECORD writes the programme	Lapho i-RECORD ibhala uhlelo
+dot-matrix cue deck for live events	ideki ye-cue yamachashazi yemicimbi ebukhoma
+Listening on localhost (127.0.0.1).	Ilalela ku-localhost (127.0.0.1).
+three expressions: red, green, blue	izinkulumo ezintathu: bomvu, luhlaza, luhlaza okwesibhakabhaka
+Transport sync with another machine	Ukuvumelanisa nomunye umshini
+Add slot sources in the cue inspector	Engeza imithombo kumhloli we-cue
+Ask GitHub; never installs on its own	Ibuza i-GitHub; ayifaki ngokwayo
+Import or click a cue in the playlist	Ngenisa noma chofoza i-cue ohlwini
+mixed selection: geometry unavailable	ukukhetha okuxubile: ubukhulu abutholakali
+generate timecode for the rig to chase	khiqiza i-timecode ukuthi imishini iyilandele
+Lower Third and PIP fire independently	Umbhalo ongezansi ne-PiP zisebenza ngokwazo
+Panels built for a vMix rig, unchanged	Amaphaneli akhelwe i-vMix, awashintshwanga
+Incoming transport arrives as NMCEVENT.	Okungenayo kufika njenge-NMCEVENT.
+not in this build - saved with the show	akukho kulesi sakhiwo – kulondolozwa nombukiso
+Find from the playlist, not from a modal	Thola ohlwini lokudlala, hhayi kuwindi
+take or select a cue to open the timeline	khipha noma khetha i-cue ukuvula umugqa wesikhathi
+Optional external transport and cue control	Ukulawula okungaphandle kwe-transport ne-cue
+No previous show file found at startup path.	Akutholakalanga ifayela lombukiso langaphambilini.
+Use Ctrl+F or type a cue id/number to search.	Sebenzisa u-Ctrl+F noma bhala inombolo ye-cue.
+Companion / OSC ingress and HyperDeck emulation	Okungenayo kwe-Companion / OSC nokulingisa i-HyperDeck
+A/V delay holds audio back for lagging displays.	Ukubambezeleka kwe-A/V kubamba umsindo kwizikrini ezihamba kancane.
+On stop: leave the crash-resilient file as it is	Uma kumiswa: shiya ifayela eliqinile njengalokhu
+same disk as Deckboy - a separate drive is safer	idiski efanayo ne-Deckboy – idrayivu ehlukile iphephile
+A step fires one cue on each playlist, all at once.	Isinyathelo sikhipha i-cue elilodwa kuhlu ngalunye ngasikhathi sinye.
+one expression: the same value in red, green and blue	inkulumo eyodwa: inani elifanayo kubomvu, luhlaza nokwesibhakabhaka
+NDI transport is configured per output in Video Outputs.	I-NDI ilungiselelwa ngokuphuma ngakunye kokuphuma kwevidiyo.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Ithumela u-PLAY / PAUSE / STOP / LOCATE njengoba kuhamba.
+OSC subscribe: send /deckboy/subscribe from your controller.	Ukubhalisa i-OSC: thumela u-/deckboy/subscribe kumlawuli wakho.
+NMC mode / host / port are runtime-configurable for sync work.	Indlela / umsingathi / imbobo ye-NMC kungashintshwa ngesikhathi isebenza.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Ukungena emoyeni kukhipha i-cue. I-Deckboy ayithumeli neze umyalo kumshintshi.
+FPS: ON	FPS: KUVULIWE
+FPS: OFF	FPS: KUVALIWE
+NMOS: ON	NMOS: KUVULIWE
+NMOS: OFF	NMOS: KUVALIWE
+SPOUT: ON	SPOUT: KUVULIWE
+SPOUT: OFF	SPOUT: KUVALIWE
+CANVAS: ON	IKHANVASI: KUVULIWE
+CANVAS: OFF	IKHANVASI: KUVALIWE
+10-BIT: ON	10-BIT: KUVULIWE
+10-BIT: OFF	10-BIT: KUVALIWE
+EDIT...	HLELA...
+FOLDER...	IFOLDA...
+ARRANGE...	HLELA...
+ADD FILE...	ENGEZA IFAYELA...
+RENUMBER...	NIKA IZINOMBOLO KABUSHA...
+set a port...	misa imbobo...
+no script	akukho isikriphthi
++ OUTPUT	+ OKUPHUMAYO
+Eddie's Clock	Iwashi lika-Eddie
+Ctrl+/ to close	Ctrl+/ ukuvala
+(step lives here)	(isinyathelo silapha)
+No outputs — click + OUTPUT to add one.	Akukho okuphumayo – chofoza u-+ OKUPHUMAYO.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, i-NDI trigger, NMC, MTC, LTC, Art-Net ne-Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Guqulela ku-H.264 ama-cue i-Deckboy engawadlali kahle
+a button can run any command the network protocol understands	inkinobho ingasebenzisa noma yimuphi umyalo iprothokholi iwuqondayo
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	HLELA UKUBUKA KOMETHULI  -  hudula iphaneli ukuyihambisa, ikhona ukushintsha ubukhulu
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT

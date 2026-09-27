@@ -211,6 +211,12 @@ jobs:
       - name: No double-encoded text
         run: python3 tools/audit_encoding.py
 
+      # A word built from two alphabets -- a Cyrillic a inside a Latin
+      # word -- draws correctly and matches nothing. In a catalogue KEY it
+      # makes that string untranslatable forever, silently.
+      - name: No catalogue word mixes two alphabets
+        run: python3 tools/audit_i18n.py
+
       # Both of these are RATCHETS against a recorded baseline rather than a
       # verdict: the counts may be non-zero for good reasons, but they must not
       # grow. Tighten the baseline when the number falls.
@@ -975,11 +981,31 @@ jobs:
           # copied into the package is a stub that looks for a binary the
           # operator's machine has never had. The package must carry the actual
           # ffmpeg.exe and ffprobe.exe, so find them in choco's library.
-          $real = Get-ChildItem -Path "C:\ProgramData\chocolatey\lib" -Recurse `
-                    -Filter ffmpeg.exe -ErrorAction SilentlyContinue |
-                  Where-Object { Test-Path (Join-Path $_.DirectoryName "ffprobe.exe") } |
-                  Select-Object -First 1
-          if (-not $real) { throw "no real ffmpeg.exe/ffprobe.exe pair found to bundle" }
+          #
+          # CHOSEN BY WHAT IT CAN DO. There can be more than one pair on the
+          # image -- ffmpeg-full is what this job installs, but a runner that
+          # also carries the plain `ffmpeg` package has the "essentials" build
+          # too, and that one has hap as a DECODER only. Taking whichever is
+          # found first is a coin toss, and losing it bundles an ffmpeg that
+          # cannot encode HAP; the packager gate then fails the job with a
+          # message about HAP rather than about having picked the wrong one.
+          $pairs = Get-ChildItem -Path "C:\ProgramData\chocolatey\lib" -Recurse `
+                     -Filter ffmpeg.exe -ErrorAction SilentlyContinue |
+                   Where-Object { Test-Path (Join-Path $_.DirectoryName "ffprobe.exe") }
+          if (-not $pairs) { throw "no real ffmpeg.exe/ffprobe.exe pair found to bundle" }
+          $real = $null
+          foreach ($candidate in $pairs) {
+            $encoders = & $candidate.FullName -hide_banner -encoders 2>&1 | Out-String
+            if ($encoders -match "(?m)^\s*\S+\s+hap\s") {
+              $real = $candidate
+              Write-Host "  $($candidate.DirectoryName) has the hap encoder"
+              break
+            }
+            Write-Host "  $($candidate.DirectoryName) cannot encode hap; looking further"
+          }
+          # None of them can. Bundle the first anyway so the packager gate is
+          # the thing that reports it, with the full list of what is missing.
+          if (-not $real) { $real = $pairs | Select-Object -First 1 }
           $ffmpeg = $real.DirectoryName
           Write-Host "bundling ffmpeg from $ffmpeg"
           # -BuildDir because CI builds to build\Release, while the script's

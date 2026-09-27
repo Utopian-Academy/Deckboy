@@ -14,6 +14,12 @@
 #   dek deck - mir see - sen send - hal hold - nir dark - pon ready - tam whole
 #   kis small - zar fast - ran edge - fes open - klu shut - gra write - set change
 #   nov new - gur keep - ala all - kae place - tir pull - dor door/way
+#   bat button - fen window - kan channel - num number - por gate/port
+#   kar box - hup help - pik choose - buf store - pen wait - lis hear
+#   tal count - jan device - hol word - mun origin - vel copy - lan place-on
+#   sov concerning - dop facing - pat body/assembly - mun source
+#   Suffix -wia is the one who does it: grawia, writer (the encoder).
+#   Numerals: una dua tria kwara; beyond four the interface uses digits.
 NEW	NOVA
 OPEN	FESI
 SAVE	GURI
@@ -35,7 +41,7 @@ MEDIA	VEKADORA
 TRANSPORT	TIRADORA
 OUTPUT	SENADORA
 PROGRAM	KORAVEKA
-WARP	
+WARP	RANASETA
 LIVE	LUMO
 DECODE	VEKAMIRI
 STREAM	RETASENI
@@ -86,3 +92,297 @@ OFF	VAP
 Stopped	Halo
 Playing	Lumo
 Paused	Halo kiso
+2-UP	DUA VEKA
+DONE	TAMO
+EDIT	SETI
+HELD	HALO
+Mode	Dopa
+PICK	PIKI
+QUAD	KWARA VEKA
+Rate	Zara
+STEP	BETA
+Apply	Seti
+CLOSE	KLUI
+FIXED	HALO
+Help!	Hupa!
+ORDER	RANAKU
+READY	PONO
+TILES	KARAKU
+VIDEO	VEKA
+ALL ON	ALA PON
+ALWAYS	ALATOKA
+ANALOG	RANASONA
+Buffer	Bufa
+Cancel	Vaseti
+Custom	Korasovo
+Device	Jana
+Folder	Kara
+FORMAT	PATA
+HIDDEN	NIRO
+Length	Toka
+Mascot	Kisjana
+Mirror	Mirapata
+NATIVE	KORO
+PRESET	SETAGURA
+Sender	Senawia
+SUMMED	ALASONO
+TOGGLE	SETI
+12 HOUR	12 TOKA
+24 HOUR	24 TOKA
+ALL OFF	ALA VAP
+ARRANGE	KAESETI
+Channel	Kana
+CONVERT	PATASETI
+DEFAULT	KORO
+END CUE	VEKA HALO
+Key out	Nirasena
+LTC out	LTC sena
+MISSING	VAKAE
+PRESETS	SETAGURAKU
+PROJECT	KORAGURA
+RUNNING	ZARO
+Send to	Seni kae
+SHUFFLE	RANAVA
+UPDATES	NOVAKU
+VJ MODE	VJ DOPA
+CLOCK ON	TOKA PON
+DOWNLOAD	RETATIRI
+EXAMPLES	MIRAKU
+Mappings	Kaeku
+NMC sync	NMC tokara
+PROMPTER	HOLAMIRA
+SHOW SDP	MIRI SDP
+TCP port	TCP pora
+UI scale	Vekatama
+vMix API	vMix dora
+WATCHING	MIRO
+A/V delay	Sonaveka pena
+ASIO outs	ASIO senaku
+BOTH AXES	DUA RANA
+CHECK NOW	MIRI NOVTOK
+CLOCK OFF	TOKA VAP
+Creatures	Kisjanaku
+CUE TOOLS	VEKADORAKU
+Direction	Dopa
+Freewheel	Vahalo zara
+HTTP port	HTTP pora
+Jump mode	Zaradopa
+Listen on	Lisi kae
+OSC Query	OSC mira
+OUTPUT ON	SENA PON
+Panic now	Nirtam novtok
+RECORDING	GRAO
+REMAINING	TOKA VASENO
+RESET ALL	NOVASETI ALA
+RUN PANIC	NIRTAMI
+SHOW FLOW	VEKARANA
+TIMERS ON	TOKAWIAKU PON
+WHEN IDLE	TOK VAZARO
+ADD OUTPUT	LANI SENADORA
+BUILT WITH	GRAO SO
+CANCEL ALL	VASETI ALA
+colour tag	lumahola
+copy chain	veli ranaku
+Hover tips	Hupaku
+Input gain	Tirasona zaro
+Input mono	Tira unasona
+live audio	sona lumo
+Live input	Tira lumo
+MIDI input	MIDI tira
+no picture	vaveka
+no preview	vamira
+OPEN SAVED	FESI GURO
+OUTPUT OFF	SENA VAP
+Panic fade	Nirtam lumahali
+Tally port	Tala pora
+TIMERS OFF	TOKAWIAKU VAP
+Accept from	Tiri mun
+ASIO driver	ASIO korawia
+BACK TO TOP	RANA KORA
+CANVAS MODE	VEKAKAE DOPA
+CODE SOURCE	GRAMUNGA
+Cue numbers	Vekanumaku
+Destination	Senakae
+Mirror rate	Mirapata zara
+no duration	vatoka
+NO LIVE CUE	VAVEKA LUMO
+NO PREVIOUS	VARANA KORA
+OVERLAY BIN	VEKALUMA KARA
+paste chain	lani ranaku
+Sample rate	Sonazara
+SENDING OUT	SENO
+Shift: snap	Shift: ranahali
+THIS OUTPUT	SENADORA NAKAE
+(no matches)	(varapo)
+(no subtext)	(vahola kiso)
+add a button	lani bata
+add a window	lani fena
+Art-Net port	Art-Net pora
+AUDIO OUTPUT	SONASENA
+Auto restore	Korgur novtok
+DECKLINK: ON	DECKLINK: PON
+free running	zaro vahalo
+KEY+FILL: ON	KEY+FILL: PON
+LISTENING IN	LISO
+Miami cursor	Miami tirwia
+MIDI CONTROL	MIDI SETA
+Mirror state	Mirapata kora
+NDI KEY: OFF	NDI KEY: VAP
+NDI KEY: ON	NDI KEY: PON
+NO PROGRAMME	VAKORAVEKA
+ST 2110: OFF	ST 2110: VAP
+ST 2110: ON	ST 2110: PON
+WATCH FOLDER	KARA MIRO
+COMPOSITE CUE	ALAVEKA
+DECKLINK: OFF	DECKLINK: VAP
+default route	dora koro
+Every adapter	Ala retajana
+KEY+FILL: OFF	KEY+FILL: VAP
+LEFT TO RIGHT	POSA GO NIRA
+MEDIA ENCODER	VEKAGRAWIA
+MSC device id	MSC jananuma
+NEW SHOW FILE	NOVA VEKAGURA
+No cue loaded	Vaveka tiro
+nothing taken	vaseno
+OPEN PREVIOUS	FESI RANA KORA
+Output device	Senajana
+Panic profile	Nirtam pata
+Quit Deckboy?	Hali Deckboy?
+REMOVE OUTPUT	TIRI SENADORA
+Sound effects	Sonasetaku
+Tally address	Tala kae
+TOP TO BOTTOM	KORA GO RANA
+127 (all-call)	127 (alahola)
+ALL INTERFACES	ALA RETADORA
+LOCALHOST ONLY	KORARETA UNO
+Monitor device	Mirajana
+no audio track	vasona rana
+PRESENTER VIEW	HOLAWIA MIRA
+RECORD TO DISK	GRAI KARA
+STOP RECORDING	HALI GRAI
+STOP STREAMING	HALI RETASENI
+TALLY TRIGGERS	TALA SETAKU
+Device channels	Jana kanaku
+NDI SENDING: ON	NDI SENA: PON
+NO CUE SELECTED	VAVEKA PIKO
+Output channels	Sena kanaku
+preview pending	mira peno
+START RECORDING	TIRI GRAI
+START STREAMING	TIRI RETASENI
+(system default)	(korapata koro)
+Check at startup	Miri tok novtiri
+Global crossfade	Ala lumaseta
+Mic to recording	Sonatira go grai
+Monitor playlist	Miri vekaku
+NDI SENDING: OFF	NDI SENA: VAP
+no still preview	vamira halo
+Pocket 3 / touch	Pocket 3 / tiri
+SMPTE LTC OUTPUT	SMPTE LTC SENA
+the whole screen	vekadeka tamo
+Check for one now	Miri novtok
+INSTALL & RESTART	LANI SO NOVATOKI
+Registry: NOT SET	Koragura: VASETO
+SAFETY / TIMECODE	GURA / TOKAGRA
+Timecode jam sync	Tokagra halara
+esc or N to cancel	Esc va N go vaseti
+KEYBOARD SHORTCUTS	HOLABATAKU
+loading preview...	tiri mira...
+CONVERT ALL FLAGGED	PATASETI ALA HOLO
+dot-matrix cue deck	kisluma vekadeka
+HyperDeck emulation	HyperDeck mirapata
+locked to the tempo	halo go zara
+VJ mode (two decks)	VJ dopa (dua deka)
+ADD ANOTHER PLAYLIST	LANI NOVA VEKAKU
+Companion / OSC port	Companion / OSC pora
+Esc or click to skip	Esc va tiri go rani
+PLAYLIST PREFERENCES	VEKAKU SETAKU
+press ENTER to start	tiri ENTER go tiri
+ADD A SECOND PLAYLIST	LANI DUA VEKAKU
+filmstrip unavailable	vekarana vakae
+(empty — import media)	(vakaro – tiri vekaku)
+Ctrl+D or Esc to close	Ctrl+D va Esc go klui
+(no notes for this cue)	(vahola go veka nakae)
+Timebase / start / fade	Tokakora / tiri / lumahali
+No cues need conversion.	Vaveka tiri pataseta.
+CLICK TO SAMPLE KEY COLOR	TIRI GO PIKI NIRALUMA
+normalize loudness (R128)	sonatami (R128)
+off - all channels silent	vap – ala kanaku vasono
+no video lane for this cue	vaveka rana go veka nakae
+HyperDeck emulation is off.	HyperDeck mirapata vapo.
+OWN SCRIPT  (click to edit)	KORAHOLA  (tiri go seti)
+Theme and operator feedback	Nirolumo so korawia hola
+Discovery and mirrored state	Mira so mirapata kora
+FOLLOWING THE LIVE CUE NOTES	MIRO HOLAKU GO VEKA LUMO
+Listening on all interfaces.	Liso go ala retadora.
+Network-facing runtime notes	Reta holaku zaro
+Hi! Press I to import a clip.	Luma! Tiri I go tiri vekakis.
+Global jump and panic behavior	Ala zaradopa so nirtam pata
+Roll when the show cuts to you	Zari tok vekarana seni go tu
+Choose a cue to inspect it here	Piki veka go miri kae nakae
+Defaults for newly created cues	Koro go vekaku nova
+Device routing for cue playback	Jana dora go veka lumakora
+Smaller buffer = lower latency.	Bufa kiso = pena kiso.
+Emergency fade and sync behavior	Nirtam lumahali so tokara
+mixed selection: key unavailable	piko ranava: nira vakae
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (MIRATOK)
+Esc=continue with current session	Esc = tami toka nakae
+no per-cue settings for this type	vasetaku go pata nakae
+On stop: remux to an ordinary MP4	Tok hali: pataseta go MP4 koro
+Where RECORD writes the programme	Kae GRAI grai koraveka
+dot-matrix cue deck for live events	kisluma vekadeka go tokaku lumo
+Listening on localhost (127.0.0.1).	Liso go localhost (127.0.0.1).
+three expressions: red, green, blue	tria hola: nira, lumaran, retaluma
+Transport sync with another machine	Tiradora tokara so jana nova
+Add slot sources in the cue inspector	Lani mungaku go vekamira
+Ask GitHub; never installs on its own	Miri GitHub; vatok lani korkae
+Import or click a cue in the playlist	Tiri va tiri veka go vekaku
+mixed selection: geometry unavailable	piko ranava: ranakora vakae
+generate timecode for the rig to chase	grai tokagra go janaku miri
+Lower Third and PIP fire independently	Holaran so VEKAKIS zari korkae
+Panels built for a vMix rig, unchanged	Fenaku grao go vMix, vaseto
+Incoming transport arrives as NMCEVENT.	Tiradora tiro kae NMCEVENT.
+not in this build - saved with the show	vakae go grao nakae – guro so vekarana
+Find from the playlist, not from a modal	Miri mun vekaku, va mun fena
+take or select a cue to open the timeline	seni va piki veka go fesi tokarana
+Optional external transport and cue control	Rantiradora so vekaseta, piko
+No previous show file found at startup path.	Varana vekagura kaeo tok novtiri.
+Use Ctrl+F or type a cue id/number to search.	Tiri Ctrl+F va grai vekanuma go miri.
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC tira so HyperDeck mirapata
+A/V delay holds audio back for lagging displays.	Sonaveka pena hali sona go vekadekaku zaro kiso.
+On stop: leave the crash-resilient file as it is	Tok hali: guri kara halo kae nakae
+same disk as Deckboy - a separate drive is safer	kara rapo so Deckboy – kara nova guro tamo
+A step fires one cue on each playlist, all at once.	Beta zari una veka go ala vekaku, unatok.
+one expression: the same value in red, green and blue	una hola: numa rapo go nira, lumaran so retaluma
+NDI transport is configured per output in Video Outputs.	NDI tiradora seto go ala senadora kae Vekasenaku.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Seni PLAY / PAUSE / STOP / LOCATE tok tiradora zari.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC lisi: seni /deckboy/subscribe mun setajana tu.
+NMC mode / host / port are runtime-configurable for sync work.	NMC dopa / korakae / pora seto tok zaro.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Tiri luma seni veka. Deckboy vatok seni hola go setajana.
+FPS: ON	FPS: PON
+FPS: OFF	FPS: VAP
+NMOS: ON	NMOS: PON
+NMOS: OFF	NMOS: VAP
+SPOUT: ON	SPOUT: PON
+SPOUT: OFF	SPOUT: VAP
+CANVAS: ON	VEKAKAE: PON
+CANVAS: OFF	VEKAKAE: VAP
+10-BIT: ON	10-BIT: PON
+10-BIT: OFF	10-BIT: VAP
+EDIT...	SETI...
+FOLDER...	KARA...
+ARRANGE...	KAESETI...
+ADD FILE...	LANI KARA...
+RENUMBER...	NOVANUMI...
+set a port...	seti pora...
+no script	vahola
++ OUTPUT	+ SENADORA
+Eddie's Clock	Toka go Eddie
+Ctrl+/ to close	Ctrl+/ go klui
+(step lives here)	(beta kae nakae)
+No outputs — click + OUTPUT to add one.	Vasenadora – tiri + SENADORA go lani una.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI seta, NMC, MTC, LTC, Art-Net so Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Pataseti go H.264 vekaku Deckboy valumakora tamo
+a button can run any command the network protocol understands	bata zari ala hola retadora miri
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	KAESETI HOLAWIA MIRA  -  tiri fena go kaeseti, rana go tamaseti
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT

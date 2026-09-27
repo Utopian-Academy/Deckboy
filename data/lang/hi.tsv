@@ -81,3 +81,297 @@ OFF	बंद
 Stopped	रुका
 Playing	चल रहा
 Paused	ठहरा
+2-UP	2 साथ-साथ
+DONE	पूर्ण
+EDIT	संपादित करें
+HELD	रोका गया
+Mode	मोड
+PICK	चुनें
+QUAD	चार
+Rate	दर
+STEP	चरण
+Apply	लागू करें
+CLOSE	बंद करें
+FIXED	स्थिर
+Help!	सहायता!
+ORDER	क्रम
+READY	तैयार
+TILES	टाइलें
+VIDEO	वीडियो
+ALL ON	सभी चालू
+ALWAYS	हमेशा
+ANALOG	एनालॉग
+Buffer	बफ़र
+Cancel	रद्द करें
+Custom	अपना
+Device	डिवाइस
+Folder	फ़ोल्डर
+FORMAT	प्रारूप
+HIDDEN	छिपा
+Length	अवधि
+Mascot	शुभंकर
+Mirror	मिरर
+NATIVE	मूल
+PRESET	प्रीसेट
+Sender	भेजने वाला
+SUMMED	जोड़ा गया
+TOGGLE	बदलें
+12 HOUR	12 घंटे
+24 HOUR	24 घंटे
+ALL OFF	सभी बंद
+ARRANGE	व्यवस्थित करें
+Channel	चैनल
+CONVERT	बदलें
+DEFAULT	डिफ़ॉल्ट
+END CUE	क्यू का अंत
+Key out	की आउट
+LTC out	LTC आउट
+MISSING	अनुपलब्ध
+PRESETS	प्रीसेट
+PROJECT	प्रोजेक्ट
+RUNNING	चल रहा है
+Send to	यहाँ भेजें
+SHUFFLE	यादृच्छिक
+UPDATES	अपडेट
+VJ MODE	VJ मोड
+CLOCK ON	घड़ी चालू
+DOWNLOAD	डाउनलोड
+EXAMPLES	उदाहरण
+Mappings	मैपिंग
+NMC sync	NMC सिंक
+PROMPTER	प्रॉम्प्टर
+SHOW SDP	SDP दिखाएँ
+TCP port	TCP पोर्ट
+UI scale	इंटरफ़ेस आकार
+WATCHING	देख रहा है
+A/V delay	A/V विलंब
+ASIO outs	ASIO आउटपुट
+BOTH AXES	दोनों अक्ष
+CHECK NOW	अभी जाँचें
+CLOCK OFF	घड़ी बंद
+Creatures	जीव
+CUE TOOLS	क्यू उपकरण
+Direction	दिशा
+Freewheel	स्वतंत्र चाल
+HTTP port	HTTP पोर्ट
+Jump mode	जंप मोड
+Listen on	यहाँ सुनें
+OSC Query	OSC क्वेरी
+OUTPUT ON	आउटपुट चालू
+Panic now	अभी पैनिक
+RECORDING	रिकॉर्डिंग
+REMAINING	शेष
+RESET ALL	सब रीसेट करें
+RUN PANIC	पैनिक चलाएँ
+SHOW FLOW	शो का क्रम
+TIMERS ON	टाइमर चालू
+WHEN IDLE	निष्क्रिय होने पर
+ADD OUTPUT	आउटपुट जोड़ें
+BUILT WITH	इससे बना
+CANCEL ALL	सब रद्द करें
+colour tag	रंग चिह्न
+copy chain	चेन कॉपी करें
+Hover tips	संकेत
+Input gain	इनपुट गेन
+Input mono	इनपुट मोनो
+live audio	लाइव ऑडियो
+Live input	लाइव इनपुट
+MIDI input	MIDI इनपुट
+no picture	कोई चित्र नहीं
+no preview	कोई प्रीव्यू नहीं
+OPEN SAVED	सहेजा हुआ खोलें
+OUTPUT OFF	आउटपुट बंद
+Panic fade	पैनिक फ़ेड
+Tally port	टैली पोर्ट
+TIMERS OFF	टाइमर बंद
+Accept from	इससे स्वीकारें
+ASIO driver	ASIO ड्राइवर
+BACK TO TOP	ऊपर जाएँ
+CANVAS MODE	कैनवास मोड
+CODE SOURCE	कोड स्रोत
+Cue numbers	क्यू संख्या
+Destination	गंतव्य
+Mirror rate	मिरर दर
+no duration	कोई अवधि नहीं
+NO LIVE CUE	कोई लाइव क्यू नहीं
+NO PREVIOUS	कोई पिछला नहीं
+OVERLAY BIN	ओवरले पेटी
+paste chain	चेन चिपकाएँ
+Sample rate	सैंपल दर
+SENDING OUT	भेज रहा है
+Shift: snap	Shift: स्नैप
+THIS OUTPUT	यह आउटपुट
+(no matches)	(कोई मेल नहीं)
+(no subtext)	(कोई उपपाठ नहीं)
+add a button	बटन जोड़ें
+add a window	विंडो जोड़ें
+Art-Net port	Art-Net पोर्ट
+AUDIO OUTPUT	ऑडियो आउटपुट
+Auto restore	स्वतः पुनर्स्थापित
+DECKLINK: ON	DECKLINK: चालू
+free running	स्वतंत्र चाल
+KEY+FILL: ON	KEY+FILL: चालू
+LISTENING IN	सुन रहा है
+Miami cursor	Miami कर्सर
+MIDI CONTROL	MIDI नियंत्रण
+Mirror state	स्थिति मिरर करें
+NDI KEY: OFF	NDI KEY: बंद
+NDI KEY: ON	NDI KEY: चालू
+NO PROGRAMME	कोई प्रोग्राम नहीं
+ST 2110: OFF	ST 2110: बंद
+ST 2110: ON	ST 2110: चालू
+WATCH FOLDER	निगरानी फ़ोल्डर
+COMPOSITE CUE	मिश्रित क्यू
+DECKLINK: OFF	DECKLINK: बंद
+default route	डिफ़ॉल्ट मार्ग
+Every adapter	हर अडैप्टर
+KEY+FILL: OFF	KEY+FILL: बंद
+LEFT TO RIGHT	बाएँ से दाएँ
+MEDIA ENCODER	मीडिया एनकोडर
+MSC device id	MSC डिवाइस आईडी
+NEW SHOW FILE	नई शो फ़ाइल
+No cue loaded	कोई क्यू लोड नहीं
+nothing taken	कुछ प्रसारित नहीं
+OPEN PREVIOUS	पिछला खोलें
+Output device	आउटपुट डिवाइस
+Panic profile	पैनिक प्रोफ़ाइल
+Quit Deckboy?	Deckboy बंद करें?
+REMOVE OUTPUT	आउटपुट हटाएँ
+Sound effects	ध्वनि प्रभाव
+Tally address	टैली पता
+TOP TO BOTTOM	ऊपर से नीचे
+127 (all-call)	127 (सर्व-आह्वान)
+ALL INTERFACES	सभी इंटरफ़ेस
+LOCALHOST ONLY	केवल localhost
+Monitor device	मॉनिटर डिवाइस
+no audio track	कोई ऑडियो ट्रैक नहीं
+PRESENTER VIEW	प्रस्तुतकर्ता दृश्य
+RECORD TO DISK	डिस्क पर रिकॉर्ड करें
+STOP RECORDING	रिकॉर्डिंग रोकें
+STOP STREAMING	स्ट्रीमिंग रोकें
+TALLY TRIGGERS	टैली ट्रिगर
+Device channels	डिवाइस चैनल
+NDI SENDING: ON	NDI भेजना: चालू
+NO CUE SELECTED	कोई क्यू चुना नहीं
+Output channels	आउटपुट चैनल
+preview pending	प्रीव्यू बन रहा है
+START RECORDING	रिकॉर्डिंग शुरू करें
+START STREAMING	स्ट्रीमिंग शुरू करें
+(system default)	(सिस्टम डिफ़ॉल्ट)
+Check at startup	शुरू होने पर जाँचें
+Global crossfade	वैश्विक क्रॉसफ़ेड
+Mic to recording	माइक रिकॉर्डिंग में
+Monitor playlist	प्लेलिस्ट सुनें
+NDI SENDING: OFF	NDI भेजना: बंद
+no still preview	कोई स्थिर प्रीव्यू नहीं
+Pocket 3 / touch	Pocket 3 / स्पर्श
+SMPTE LTC OUTPUT	SMPTE LTC आउटपुट
+the whole screen	पूरी स्क्रीन
+Check for one now	अभी जाँचें
+INSTALL & RESTART	इंस्टॉल करें और पुनःप्रारंभ
+Registry: NOT SET	रजिस्ट्री: निर्धारित नहीं
+SAFETY / TIMECODE	सुरक्षा / टाइमकोड
+Timecode jam sync	टाइमकोड jam sync
+esc or N to cancel	रद्द करने के लिए Esc या N
+KEYBOARD SHORTCUTS	कीबोर्ड शॉर्टकट
+loading preview...	प्रीव्यू लोड हो रहा है...
+CONVERT ALL FLAGGED	सभी चिह्नित बदलें
+dot-matrix cue deck	डॉट-मैट्रिक्स क्यू डेक
+HyperDeck emulation	HyperDeck अनुकरण
+locked to the tempo	लय से बँधा
+VJ mode (two decks)	VJ मोड (दो डेक)
+ADD ANOTHER PLAYLIST	एक और प्लेलिस्ट जोड़ें
+Companion / OSC port	Companion / OSC पोर्ट
+Esc or click to skip	छोड़ने के लिए Esc या क्लिक
+PLAYLIST PREFERENCES	प्लेलिस्ट वरीयताएँ
+press ENTER to start	शुरू करने के लिए ENTER दबाएँ
+ADD A SECOND PLAYLIST	दूसरी प्लेलिस्ट जोड़ें
+filmstrip unavailable	फ़िल्मस्ट्रिप उपलब्ध नहीं
+(empty — import media)	(खाली – मीडिया आयात करें)
+Ctrl+D or Esc to close	बंद करने के लिए Ctrl+D या Esc
+(no notes for this cue)	(इस क्यू के लिए कोई टिप्पणी नहीं)
+Timebase / start / fade	समय-आधार / आरंभ / फ़ेड
+No cues need conversion.	किसी क्यू को बदलने की ज़रूरत नहीं।
+CLICK TO SAMPLE KEY COLOR	की रंग लेने के लिए क्लिक करें
+normalize loudness (R128)	ध्वनि-स्तर सामान्य करें (R128)
+off - all channels silent	बंद – सभी चैनल मौन
+no video lane for this cue	इस क्यू के लिए कोई वीडियो लेन नहीं
+HyperDeck emulation is off.	HyperDeck अनुकरण बंद है।
+OWN SCRIPT  (click to edit)	अपनी पटकथा  (संपादित करने के लिए क्लिक करें)
+Theme and operator feedback	थीम और संचालक को संकेत
+Discovery and mirrored state	खोज और मिरर स्थिति
+FOLLOWING THE LIVE CUE NOTES	लाइव क्यू की टिप्पणियों का अनुसरण
+Listening on all interfaces.	सभी इंटरफ़ेस पर सुन रहा है।
+Network-facing runtime notes	नेटवर्क की ओर की रनटाइम टिप्पणियाँ
+Hi! Press I to import a clip.	नमस्ते! क्लिप आयात करने के लिए I दबाएँ।
+Global jump and panic behavior	वैश्विक जंप और पैनिक व्यवहार
+Roll when the show cuts to you	जब शो आप पर आए तब चलाएँ
+Choose a cue to inspect it here	यहाँ देखने के लिए एक क्यू चुनें
+Defaults for newly created cues	नए क्यू के लिए डिफ़ॉल्ट
+Device routing for cue playback	क्यू चलाने के लिए डिवाइस मार्ग
+Smaller buffer = lower latency.	छोटा बफ़र = कम विलंब।
+Emergency fade and sync behavior	आपात फ़ेड और सिंक व्यवहार
+mixed selection: key unavailable	मिश्रित चयन: की उपलब्ध नहीं
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (प्रयोगात्मक)
+Esc=continue with current session	Esc = वर्तमान सत्र जारी रखें
+no per-cue settings for this type	इस प्रकार के लिए कोई क्यू सेटिंग नहीं
+On stop: remux to an ordinary MP4	रुकने पर: सामान्य MP4 में फिर से पैक करें
+Where RECORD writes the programme	RECORD प्रोग्राम कहाँ लिखता है
+dot-matrix cue deck for live events	लाइव आयोजनों के लिए डॉट-मैट्रिक्स क्यू डेक
+Listening on localhost (127.0.0.1).	localhost (127.0.0.1) पर सुन रहा है।
+three expressions: red, green, blue	तीन व्यंजक: लाल, हरा, नीला
+Transport sync with another machine	दूसरी मशीन के साथ ट्रांसपोर्ट सिंक
+Add slot sources in the cue inspector	क्यू इंस्पेक्टर में स्रोत जोड़ें
+Ask GitHub; never installs on its own	GitHub से पूछता है; स्वयं इंस्टॉल नहीं करता
+Import or click a cue in the playlist	आयात करें या प्लेलिस्ट में क्यू पर क्लिक करें
+mixed selection: geometry unavailable	मिश्रित चयन: ज्यामिति उपलब्ध नहीं
+generate timecode for the rig to chase	उपकरण के पीछा करने योग्य टाइमकोड बनाएँ
+Lower Third and PIP fire independently	निचली पट्टी और PiP अलग-अलग चलते हैं
+Panels built for a vMix rig, unchanged	vMix उपकरण के लिए बने पैनल, अपरिवर्तित
+Incoming transport arrives as NMCEVENT.	आने वाला ट्रांसपोर्ट NMCEVENT के रूप में मिलता है।
+not in this build - saved with the show	इस बिल्ड में नहीं – शो के साथ सहेजा जाता है
+Find from the playlist, not from a modal	प्लेलिस्ट से खोजें, किसी विंडो से नहीं
+take or select a cue to open the timeline	टाइमलाइन खोलने के लिए क्यू प्रसारित करें या चुनें
+Optional external transport and cue control	वैकल्पिक बाहरी ट्रांसपोर्ट और क्यू नियंत्रण
+No previous show file found at startup path.	शुरू होने पर कोई पिछली शो फ़ाइल नहीं मिली।
+Use Ctrl+F or type a cue id/number to search.	खोजने के लिए Ctrl+F या क्यू संख्या लिखें।
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC प्रवेश और HyperDeck अनुकरण
+A/V delay holds audio back for lagging displays.	A/V विलंब धीमी स्क्रीन के लिए ध्वनि रोक रखता है।
+On stop: leave the crash-resilient file as it is	रुकने पर: क्रैश-प्रतिरोधी फ़ाइल वैसी ही छोड़ें
+same disk as Deckboy - a separate drive is safer	Deckboy वाली ही डिस्क – अलग ड्राइव अधिक सुरक्षित है
+A step fires one cue on each playlist, all at once.	एक चरण हर प्लेलिस्ट पर एक क्यू एक साथ चलाता है।
+one expression: the same value in red, green and blue	एक व्यंजक: लाल, हरे और नीले में वही मान
+NDI transport is configured per output in Video Outputs.	NDI ट्रांसपोर्ट वीडियो आउटपुट में हर आउटपुट के लिए अलग तय होता है।
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	ट्रांसपोर्ट चलने पर PLAY / PAUSE / STOP / LOCATE भेजता है।
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC सदस्यता: अपने कंट्रोलर से /deckboy/subscribe भेजें।
+NMC mode / host / port are runtime-configurable for sync work.	NMC मोड / होस्ट / पोर्ट चलते समय बदले जा सकते हैं।
+Going on air takes the cue. Deckboy never sends the switcher a command.	प्रसारण पर जाने से क्यू चलता है। Deckboy स्विचर को कभी आदेश नहीं भेजता।
+FPS: ON	FPS: चालू
+FPS: OFF	FPS: बंद
+NMOS: ON	NMOS: चालू
+NMOS: OFF	NMOS: बंद
+SPOUT: ON	SPOUT: चालू
+SPOUT: OFF	SPOUT: बंद
+CANVAS: ON	कैनवास: चालू
+CANVAS: OFF	कैनवास: बंद
+10-BIT: ON	10-बिट: चालू
+10-BIT: OFF	10-बिट: बंद
+EDIT...	संपादित करें...
+FOLDER...	फ़ोल्डर...
+ARRANGE...	व्यवस्थित करें...
+ADD FILE...	फ़ाइल जोड़ें...
+RENUMBER...	फिर से क्रमांकित करें...
+set a port...	पोर्ट निर्धारित करें...
+no script	कोई पटकथा नहीं
++ OUTPUT	+ आउटपुट
+Eddie's Clock	एडी की घड़ी
+Ctrl+/ to close	बंद करने के लिए Ctrl+/
+(step lives here)	(चरण यहाँ है)
+4:2:2  8-BIT	4:2:2  8-बिट
+4:2:2  10-BIT	4:2:2  10-बिट
+No outputs — click + OUTPUT to add one.	कोई आउटपुट नहीं – जोड़ने के लिए + आउटपुट दबाएँ।
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI ट्रिगर, NMC, MTC, LTC, Art-Net और Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	जिन क्यू को Deckboy ठीक से नहीं चला पाता, उन्हें H.264 में बदलें
+a button can run any command the network protocol understands	एक बटन कोई भी आदेश चला सकता है जिसे प्रोटोकॉल समझता है
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	प्रस्तुतकर्ता दृश्य व्यवस्थित करें  -  हिलाने के लिए पैनल खींचें, आकार के लिए कोना
+vMix API	vMix API

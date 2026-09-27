@@ -157,6 +157,82 @@ def catalogue_keys(path):
     return keys
 
 
+# ── ONE WORD, TWO ALPHABETS ──────────────────────────────────────────────────
+#
+# Latin a, Cyrillic а and Greek α are three different characters that draw as
+# the same mark. Put one in the middle of a Latin word and the word is still
+# legible on screen, still passes every eye and every diff, and no longer
+# matches anything. In a value that is a misspelling nobody can see; in a KEY
+# the lookup silently misses and that string stays English forever.
+#
+# It is not enough to forbid a catalogue from mixing scripts. "NDI KEY: ВКЛ."
+# is Cyrillic and Latin on one line and entirely correct, because the trade's
+# own vocabulary stays in English in every language. The fault is narrower:
+# a single WORD built out of two alphabets. No language does that on purpose,
+# so every instance is a typo or a bad paste.
+#
+# Written because exactly that happened -- four Cyrillic letters reached a
+# Latin-script catalogue through a hand-written batch, and nothing caught them
+# until the bytes were counted.
+SCRIPT_RANGES = (
+    ("Latin",    ((0x0041, 0x005A), (0x0061, 0x007A), (0x00C0, 0x024F))),
+    ("Greek",    ((0x0370, 0x03FF), (0x1F00, 0x1FFF))),
+    ("Cyrillic", ((0x0400, 0x052F),)),
+)
+
+# Characters that belong to a word without belonging to an alphabet, so they
+# neither start a word nor end one: digits, the two apostrophes, the hyphen
+# used inside a compound.
+WORD_GLUE = "0123456789-_'’"
+
+
+def script_of(ch):
+    cp = ord(ch)
+    for name, ranges in SCRIPT_RANGES:
+        for lo, hi in ranges:
+            if lo <= cp <= hi:
+                return name
+    return None
+
+
+def mixed_script_words(s):
+    """The words of s built from more than one alphabet, as (word, scripts)."""
+    out = []
+    word = ""
+    scripts = set()
+    for ch in s + " ":
+        script = script_of(ch)
+        if script is not None:
+            word += ch
+            scripts.add(script)
+            continue
+        if ch in WORD_GLUE and word:
+            word += ch
+            continue
+        if len(scripts) > 1:
+            out.append((word, sorted(scripts)))
+        word = ""
+        scripts = set()
+    return out
+
+
+def confusable_report():
+    """Every mixed-script word in every catalogue: (code, line, field, word, scripts)."""
+    bad = []
+    for name in sorted(f for f in os.listdir(LANG_DIR) if f.endswith(".tsv")):
+        path = os.path.join(LANG_DIR, name)
+        with open(path, encoding="utf-8", errors="replace") as handle:
+            for number, line in enumerate(handle, 1):
+                line = line.rstrip("\r\n")
+                if not line or line.startswith("#") or "\t" not in line:
+                    continue
+                key, _, value = line.partition("\t")
+                for field, text in (("key", key), ("value", value)):
+                    for word, scripts in mixed_script_words(text):
+                        bad.append((name[:-4], number, field, word, scripts))
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--missing", action="store_true",
@@ -195,6 +271,18 @@ def main():
             print("  %-46s %s" % (('"' + s + '"')[:46], drawn[s]))
         if len(missing) > args.top:
             print("  ... and %d more" % (len(missing) - args.top))
+    # A word spelled out of two alphabets is always a mistake, and it is
+    # the one mistake in a catalogue that nobody can see.
+    confusables = confusable_report()
+    if confusables:
+        print()
+        print("MIXED-SCRIPT WORDS: %d" % len(confusables))
+        for code, number, field, word, scripts in confusables[:20]:
+            print("  %-10s line %-5d %-5s %-24s %s"
+                  % (code, number, field, word[:24], "+".join(scripts)))
+        if len(confusables) > 20:
+            print("  ... and %d more" % (len(confusables) - 20))
+        return 1
     return 0
 
 
