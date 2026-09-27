@@ -4709,9 +4709,14 @@
           // face does not change until the language does -- so the half that
           // always draws goes first and the row stays scannable either way.
           const bool sameName = lang.english.empty() || lang.english == lang.name;
-          choices.push_back({lang.code,
-                             sameName ? lang.name
-                                      : (lang.english + "  -  " + lang.name)});
+          std::string label = sameName ? lang.name
+                                       : (lang.english + "  -  " + lang.name);
+          // SAY WHICH ONES NOBODY HAS CHECKED. A catalogue reads as finished
+          // work whether or not a speaker ever saw it, and the operator has no
+          // way to tell. For a living language that matters: choosing it should
+          // be an informed choice, not a surprise.
+          if (lang.unverified) label += "  (unreviewed)";
+          choices.push_back({lang.code, label});
         }
         openDropdown("settings.language", sb.rect, choices,
                      deckboy::core::i18n::activeCode(),

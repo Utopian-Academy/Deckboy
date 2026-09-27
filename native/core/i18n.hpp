@@ -74,6 +74,16 @@ struct LanguageInfo {
   // already Latin.
   std::string english;
   bool cypher = false;   // true = a transform, not a catalogue
+  // NOT CHECKED BY ANYONE WHO SPEAKS IT.
+  //
+  // Set by `#unverified` in the catalogue. The constructed languages are one
+  // thing -- nobody is misrepresented by a shaky Klingon heading -- but a
+  // living language with a speaker community is another, and a catalogue of
+  // machine-guessed technical vocabulary puts words in its mouth that no
+  // speaker sanctioned. An operator cannot tell a good catalogue from a bad
+  // one by looking at it, so the picker says which ones are unreviewed instead
+  // of letting them pass as finished.
+  bool unverified = false;
 };
 
 // Every language this build can actually draw: the built-in cyphers plus every

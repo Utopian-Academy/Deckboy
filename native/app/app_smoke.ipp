@@ -67,6 +67,24 @@
       }
       const auto langs = deckboy::core::i18n::availableLanguages(Paths::dataDir());
       std::cout << "languages: " << langs.size() << " available";
+      // WHICH ONES NOBODY HAS CHECKED, counted here because this is the report
+      // somebody reads before a release, and "unreviewed" is exactly the sort
+      // of state that quietly becomes permanent if nothing ever says it.
+      int unreviewed = 0;
+      for (const auto& lang : langs) {
+        if (lang.unverified) ++unreviewed;
+      }
+      if (unreviewed > 0) {
+        std::cout << "; " << unreviewed << " unreviewed by a speaker (";
+        bool first = true;
+        for (const auto& lang : langs) {
+          if (!lang.unverified) continue;
+          if (!first) std::cout << " ";
+          std::cout << lang.code;
+          first = false;
+        }
+        std::cout << ")";
+      }
       const auto waiting =
         deckboy::core::i18n::languagesAwaitingShaping(Paths::dataDir());
       if (!waiting.empty()) {

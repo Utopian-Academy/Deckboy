@@ -239,7 +239,8 @@ bool readCatalogue(const fs::path& file,
                    std::string& displayName,
                    std::string* fontFile = nullptr,
                    bool* rtl = nullptr,
-                   std::string* englishName = nullptr) {
+                   std::string* englishName = nullptr,
+                   bool* unverified = nullptr) {
   std::ifstream in(file);
   if (!in) return false;
   std::string line;
@@ -261,6 +262,13 @@ bool readCatalogue(const fs::path& file,
       const std::string englishTag = "#english";
       if (englishName && line.rfind(englishTag, 0) == 0) {
         *englishName = trim(line.substr(englishTag.size()));
+      }
+      // NOBODY WHO SPEAKS IT HAS READ THIS FILE. A bare `#unverified` marks a
+      // catalogue whose entries were produced without a speaker's review, so
+      // the picker can say so rather than presenting it as finished work.
+      const std::string unverifiedTag = "#unverified";
+      if (unverified && line.rfind(unverifiedTag, 0) == 0) {
+        *unverified = true;
       }
       const std::string rtlTag = "#rtl";
       if (rtl && line.rfind(rtlTag, 0) == 0) {
@@ -302,7 +310,11 @@ std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
       std::string font;
       std::string english;
       bool rtl = false;
-      if (!readCatalogue(entry.path(), probe, name, &font, &rtl, &english)) continue;
+      bool unverified = false;
+      if (!readCatalogue(entry.path(), probe, name, &font, &rtl, &english,
+                         &unverified)) {
+        continue;
+      }
       // Offering a right-to-left language that this build cannot shape means
       // offering unjoined letters in the wrong order. Better absent, and
       // --self-check says why.
@@ -310,7 +322,7 @@ std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
       // An empty catalogue is a file somebody started, not a language anybody
       // can pick; offering it would just be English under another name.
       if (probe.empty()) continue;
-      found.push_back({code, name, english, false});
+      found.push_back({code, name, english, false, unverified});
     }
     std::sort(found.begin(), found.end(),
               [](const LanguageInfo& a, const LanguageInfo& b) { return a.name < b.name; });

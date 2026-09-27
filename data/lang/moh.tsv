@@ -1,5 +1,20 @@
 #name Kanienʼkéha
 #english Mohawk
+#unverified
+# UNREVIEWED. No speaker of this language has read this file.
+#
+# The entries below were produced without a speaker's review, and some of
+# them are wrong in ways only a speaker would catch -- a real word used for
+# the wrong thing reads as confidently as a right one. The rest of the
+# interface is deliberately NOT filled in: a line left out falls through to
+# English, and English is better than invented technical vocabulary put into
+# the mouth of a living language.
+#
+# So this is a starting point for a speaker to correct, not a translation.
+# The picker says so, so that choosing it is an informed choice.
+#
+# To help: each line is english<TAB>translation, and tools/add_translations.py
+# checks the file every way it can be broken silently.
 # Deckboy interface catalogue.
 #
 # english<TAB>translation. A line left out, or left empty, falls through to the

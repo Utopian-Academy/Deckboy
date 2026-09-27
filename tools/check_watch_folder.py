@@ -146,6 +146,26 @@ def counters(reply):
     return out
 
 
+def refuse_if_port_held(port=5510):
+    """Stop if something already holds Deckboy's control port.
+
+    The port is fixed, so a Deckboy already running on this machine owns it and
+    the instance this check launches will not get it. Everything after that is
+    answered by the wrong process -- which reads as a mysterious failure when
+    the other build is older, and as a PASS when it happens to answer
+    plausibly. A pass for code that never ran is the worst outcome available
+    here, so this is fatal rather than a warning.
+    """
+    try:
+        socket.create_connection(("127.0.0.1", port), 0.5).close()
+    except OSError:
+        return                      # nothing there: the port is ours to take
+    sys.exit("%s: something is already listening on %d, so this check would\n"
+             "  measure THAT process instead of the one it launches. Close the\n"
+             "  other Deckboy (or pass --exe and run this on an idle machine)."
+             % (os.path.basename(sys.argv[0]), port))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exe", default=default_exe())
@@ -155,6 +175,10 @@ def main():
 
     if not args.exe or not os.path.isfile(args.exe):
         sys.exit("check_watch_folder: no Deckboy binary; pass --exe")
+
+    # Before anything is launched: if the port is already held, this check
+    # would silently measure the other process.
+    refuse_if_port_held()
 
     work = tempfile.mkdtemp(prefix="deckboy_watch_")
     watched = os.path.join(work, "drop")
