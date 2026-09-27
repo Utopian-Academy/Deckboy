@@ -400,10 +400,13 @@ The settings click handler is split across three functions to stay under MSVC's 
 
 `Video`, `Image`, `Pattern`, `Browser`, `WindowSource`, `Camera`, `Syphon`,
 `SrtStream`, `NdiSource`, `DeckLinkSource`, `Pip`, `LowerThird`, `Composite`,
-`Audio`, `Timer`, `Tone`, `VideoSynth` — the enum in `core/types.hpp` is the
-list; this one was four kinds out of date and that is not a harmless drift. Four
-places have to know about every kind, and each fails differently when one is
-missed:
+`Audio`, `Timer`, `Tone`, `VideoSynth`, `Master`, `Text`, `MidiFile`, `Dmx`,
+`Script`, `Timecode`, `Network`, `Midi`, `Fade`, `Target` — 27 in all. The enum
+in `core/types.hpp` is the list; this paragraph has now been out of date twice,
+first by four kinds and then by ten, so **count the enum rather than trusting
+this line**. (When the ten were found, `cueKindToken` and `cueKindLabel` were
+both complete at 27/27 — the drift was only here. Check anyway.) Four places have
+to know about every kind, and each fails differently when one is missed:
 
 | Place | What a missed kind does |
 |-------|-------------------------|

@@ -32,6 +32,7 @@ stay on the GPU and are composited there.
 9b. [Show-Control Cues](#9b-show-control-cues)
 10. [Transitions](#10-transitions)
 11. [Multi-Deck Operation](#11-multi-deck-operation)
+11a. [The Dashboard & The Master Tracker](#11a-the-dashboard--the-master-tracker)
 12. [Outputs & Routing](#12-outputs--routing)
 13. [Recording](#13-recording)
 14. [Per-Cue Effects](#14-per-cue-effects)
@@ -620,6 +621,49 @@ column carries the controls.
 `VJ ON|OFF | MIX <0-1> | BLEND [mode] | TAP | BPM <n> | CLOCK <on|off> |
 QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a fader is
 the one control nobody wants to reach for with a mouse.
+
+---
+
+## 11a. The Dashboard & The Master Tracker
+
+**Ctrl+D** opens the dashboard. Its header has a **TILES / TRACKER** switch:
+tiles are where a show is laid out, and the tracker is the same page seen as a
+grid.
+
+The tracker is the **multi-output timeline**. Rows are **steps**; columns are
+**playlists**; each cell is the cue that step fires on that playlist. One step
+fires a cue on every playlist **at once**, so "video wall to the logo, stage
+screen to the speaker's slide, foldback to the countdown" is one GO instead of
+three.
+
+A step is not a new kind of thing — it is a **Master cue**, and the tracker only
+finds them. Every Master cue in the show becomes a row, in playlist then cue
+order. That means a step lives on one of the playlists, and the tracker marks
+that column *(step lives here)* rather than offering a cell that could never do
+anything.
+
+| Column | What it is |
+|--------|------------|
+| Step | The Master cue's name and number. Click to fire it on every playlist now. Right-click to rename, move or delete |
+| LEN | How long the step holds when the sequence runs. The countdown is drawn through this cell while PLAY is going |
+| One per playlist | What this step fires there. `--` means it does nothing on that playlist, which is normal — most steps touch one or two |
+
+Across the top:
+
+- **< BACK** and **GO >** fire the previous and next step. These are also what a
+  presenter's slide clicker sends: **Page Up / Page Down** drive the tracker
+  while the dashboard is open, or always if **CLICKER** is on.
+- **PLAY** runs the sequence unattended: each step holds for its LEN, then the
+  next one fires. **STOP** halts it.
+- **LOOP** wraps from the last step back to the first instead of stopping.
+- The status line says where the sequence stands — `step 3 of 11 - next in 4.2s`.
+
+An empty tracker offers a **+ a first step** row rather than just saying it is
+empty.
+
+`TRACKER GO|NEXT | BACK|PREV | PLAY | STOP | STEP <n> | LOOP [on|off] |
+CLICKER [on|off] | STATUS` over the wire (`SEQUENCE` is the same verb), so the
+whole show flow can hang off one Stream Deck key.
 
 ---
 
@@ -1504,43 +1548,69 @@ Toggle adapters in `Settings → Network`.
 
 ## 24. Keyboard Reference
 
+This table is generated from the list the app itself draws on **Ctrl+/**, and
+`tools/audit_shortcuts.py` fails the build if the two ever disagree.
+
 | Key | Action |
 |-----|--------|
 | `Enter` | Take selected cue live |
 | `Space` | Play / Pause |
+| `.` / `,` | Skip to next / previous cue |
+| `PgDn` / `PgUp` | Same, for a presenter remote |
 | `S` | Stop active cue |
+| `Ctrl+Enter` | Take on every deck at once |
+| `Ctrl+Space` | Play / Pause every deck |
+| `Ctrl+Shift+Space` | Stop every deck |
 | `Ctrl+R` | Rerack (rewind to start) |
 | `Up` / `Down` | Navigate cue list |
-| `Left` / `Right` | Skip back / forward 10 s |
-| `Home` / `End` | Skip to start / end |
+| `Ctrl+A` | Select every cue in the focused playlist |
+| `Left` / `Right` | Skip back/forward 10s |
+| `Home` / `End` | Skip to start/end |
 | `I` | Import media files |
-| `Ctrl+I` / `Ctrl+O` | Set in / out point at playhead |
-| `Delete` / `Backspace` | Delete selected cue(s) |
-| `Ctrl+C` / `Ctrl+V` | Copy / paste cue settings |
-| `Ctrl+Shift+C` / `Ctrl+Shift+V` | Copy / paste focused warp settings |
-| `Ctrl+Z` / `Ctrl+Shift+Z` | Undo / Redo |
+| `Ctrl+I` | Set in point at playhead |
+| `Ctrl+O` | Set out point at playhead |
+| `Delete` / `Bksp` | Delete selected cue(s) |
+| `Ctrl+C` | Copy selected cue settings |
+| `Ctrl+V` | Paste cue settings to selection |
+| `Ctrl+Shift+C` | Copy focused warp settings |
+| `Ctrl+Shift+V` | Paste focused warp settings |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Shift+Z` | Redo |
 | `Ctrl+G` | GOTO cue number |
-| `Ctrl+F` | Find cue by name / number |
+| `Ctrl+F` | Find cue by name/number |
+| `Ctrl+Shift+F` | Find the next match |
+| `Ctrl+Shift+R` | Renumber cues |
 | `Ctrl+S` | Save project |
+| `Ctrl+Shift+S` | Save project as... |
 | `Ctrl+Shift+E` | Export bundled project |
-| `Ctrl+O` | Open project |
+| `O` | Open project |
 | `Ctrl+N` | New project |
 | `L` | Toggle loop |
-| `H` | Toggle hold (pause at end) |
+| `E` | Toggle hold (pause at end) |
 | `X` | Cycle end action |
-| `K` | Cycle colour tag |
-| `G` | Add as graphic overlay |
-| `Backspace` | Clear all overlays |
-| `N` | Toggle output window |
+| `K` | Cycle color tag |
+| `J` | Jump to the live cue |
+| `B` | Blackout - instant, playback continues |
+| `C` | Clear output - fade, stops playback |
+| `U` | Clear overlays |
+| `N` | Toggle NDI send |
 | `F` | Toggle fullscreen output |
-| `B` | Toggle blackout |
-| `P` | Open preferences |
-| `Ctrl+/` | Shortcut overlay |
-| `+` / `-` | Volume up / down |
+| `F11` | Fullscreen the control window |
+| `Shift+B` | Add browser cue |
+| `P` | Add pattern cue |
+| `A` / `D` | Cycle audio device / display |
+| `T` | Run timecode |
+| `Shift+O` | Toggle time overlay |
+| `[` / `]` | Shorten / lengthen fade |
+| `Esc` | Desk, then clear output, then quit |
+| `Ctrl+Q` | Quit (asks first) |
+| `Ctrl+D` | Dashboard: tiles and the master tracker |
+| `Ctrl+` / `` | This shortcut overlay |
+| `Ctrl+,` | Preferences |
+| `+` / `-` | Volume up/down |
 | `Shift+drag` | Snap warp corners to grid |
 
 ---
-
 ## 25. Command-Line Flags
 
 Deckboy runs with no arguments. These are for the times it does not do what you

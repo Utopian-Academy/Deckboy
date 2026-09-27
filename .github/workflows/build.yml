@@ -217,6 +217,13 @@ jobs:
       - name: No catalogue word mixes two alphabets
         run: python3 tools/audit_i18n.py
 
+      # The shortcut overlay is the only list of keys an operator sees, and
+      # it has drifted both ways: keys that do nothing, and -- worse -- nine
+      # working keys it never mentioned, including the only way into the
+      # dashboard and the master tracker.
+      - name: The shortcut list matches the keys that work
+        run: python3 tools/audit_shortcuts.py
+
       # Both of these are RATCHETS against a recorded baseline rather than a
       # verdict: the counts may be non-zero for good reasons, but they must not
       # grow. Tighten the baseline when the number falls.

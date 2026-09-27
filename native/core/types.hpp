@@ -69,10 +69,12 @@ enum class CueKind {
                  // lineage of Atari Video Music and Sleepy Circuits Hypno
   Master,        // fires an assigned cue on each of several decks at once.
                  // Carries no media of its own — see MasterAssignment
-  Text,
-  MidiFile,          // words on the screen, as a SOURCE rather than an overlay:
+  Text,          // words on the screen, as a SOURCE rather than an overlay:
                  // a title card, a holding slide, a scrolling notice. Animated
                  // from the cue's own transport clock -- see CueTextAnimation
+  MidiFile,      // plays a .mid file, sending it to the MIDI out port on GO.
+                 // The comment above used to sit on this line instead, so Text
+                 // read as undocumented and MidiFile described the wrong thing
   Dmx,           // sends DMX channel levels over Art-Net on GO, with a fade
                  // time. NOT a lighting console -- "house lights to 20% on cue
                  // 14" is the case this serves, at a fraction of the cost

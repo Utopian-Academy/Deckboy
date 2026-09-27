@@ -1269,8 +1269,15 @@
       {". / ,",           "Skip to next / previous cue"},
       {"PgDn / PgUp",     "Same, for a presenter remote"},
       {"S",               "Stop active cue"},
+      // EVERY DECK AT ONCE. These three are the whole point of running more
+      // than one playlist, and none of them was listed -- so the operator who
+      // needed them most had no way to find out they exist.
+      {"Ctrl+Enter",      "Take on every deck at once"},
+      {"Ctrl+Space",      "Play / Pause every deck"},
+      {"Ctrl+Shift+Space", "Stop every deck"},
       {"Ctrl+R",          "Rerack (rewind to start)"},
       {"Up / Down",       "Navigate cue list"},
+      {"Ctrl+A",          "Select every cue in the focused playlist"},
       {"Left / Right",    "Skip back/forward 10s"},
       {"Home / End",      "Skip to start/end"},
       {"I",               "Import media files"},
@@ -1285,7 +1292,10 @@
       {"Ctrl+Shift+Z",    "Redo"},
       {"Ctrl+G",          "GOTO cue number"},
       {"Ctrl+F",          "Find cue by name/number"},
+      {"Ctrl+Shift+F",    "Find the next match"},
+      {"Ctrl+Shift+R",    "Renumber cues"},
       {"Ctrl+S",          "Save project"},
+      {"Ctrl+Shift+S",    "Save project as..."},
       {"Ctrl+Shift+E",    "Export bundled project"},
       {"O",               "Open project"},
       {"Ctrl+N",          "New project"},
@@ -1307,6 +1317,13 @@
       {"Shift+O",         "Toggle time overlay"},
       {"[ / ]",           "Shorten / lengthen fade"},
       {"Esc",             "Desk, then clear output, then quit"},
+      {"Ctrl+Q",          "Quit (asks first)"},
+      // THE DASHBOARD, and with it the master tracker -- the grid that fires
+      // one cue on every playlist per step, with its own lengths and
+      // transport. It was reachable only by already knowing this key: the
+      // dashboard tells you "Ctrl+D to close" once you are inside it, and
+      // nothing anywhere told you how to get in.
+      {"Ctrl+D",          "Dashboard: tiles and the master tracker"},
       {"Ctrl+/",          "This shortcut overlay"},
       {"Ctrl+,",          "Preferences"},
       {"+/-",             "Volume up/down"},
