@@ -37,6 +37,11 @@ import os
 import re
 import sys
 
+# The console here is cp1252 and several of these strings are not. Printing
+# them must not be the thing that fails the audit.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 LANG_DIR = os.path.join(ROOT, "data", "lang")
@@ -63,6 +68,36 @@ SOURCE_DIRS = [os.path.join(ROOT, "native")]
 # A literal is prose worth translating when it is not one of these.
 TOKENISH = re.compile(r"^[a-z0-9_.:/\\-]+$")          # ids, paths, tokens
 FORMATTY = re.compile(r"%[-0-9.]*[sdfxu]|\{\}")        # format strings
+
+# NOT PROSE, and translating these would be actively wrong rather than merely
+# wasted. A unit is the same unit in every language an operator works in, and
+# the fragments are half of a string assembled at runtime -- "A: ", "W:",
+# " ms" -- whose whole sentence never exists as a literal to translate.
+#
+# The first version of this counted all of them and reported 430 strings to
+# translate, which made the coverage figure look worse than it is and would
+# have sent a translator at "dB".
+UNITS = {
+    "db", "hz", "khz", "ms", "px", "ch", "fps", "smp", "bpm",
+    "in", "out", "vu", "go", "hex", "tap", "arm", "len", "yes", "no",
+}
+NOT_PROSE = re.compile(r"^[\s\W\d]*$")     # punctuation, spacing, digits only
+
+
+def is_prose(s):
+    """Is this a phrase a translator should be given?"""
+    t = s.strip()
+    if len(t) < 3:
+        return False                       # "GO", "VU", "dB": glyphs, not prose
+    if NOT_PROSE.match(t):
+        return False
+    if t.lower().strip(":. ") in UNITS:
+        return False
+    # A fragment ending or starting with a colon is half of a runtime
+    # concatenation, so there is no whole sentence here to translate.
+    if t.endswith(":") or t.startswith(":"):
+        return False
+    return True
 
 
 def drawn_strings():
@@ -100,6 +135,8 @@ def drawn_strings():
                         if not s or len(s) < 2:
                             continue
                         if TOKENISH.match(s) or FORMATTY.search(s):
+                            continue
+                        if not is_prose(s):
                             continue
                         if s.startswith("\\"):
                             continue

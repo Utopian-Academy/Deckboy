@@ -29,6 +29,10 @@ namespace {
 // hit the disk again.
 std::map<std::string, std::unordered_map<std::string, std::string>> gCatalogues;
 const std::unordered_map<std::string, std::string>* gActive = nullptr;
+// The same catalogue keyed in lower case, so one entry covers Apply and
+// APPLY. Rebuilt whenever gActive is. See translate() for why the value
+// comes back as written rather than re-cased.
+std::unordered_map<std::string, std::string> gActiveLower;
 std::string gCode = "en";
 std::string gName = "English";
 std::string gFontFile;      // empty = the bundled face is fine
@@ -335,6 +339,7 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
 
   if (want == "en") {
     gActive = nullptr;
+    gActiveLower.clear();
     gCypher = 0;
     gCode = "en";
     gName = "English";
@@ -347,6 +352,7 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   for (int i = 0; i < kCypherCount; ++i) {
     if (want == kCyphers[i].code) {
       gActive = nullptr;
+      gActiveLower.clear();
       gCypher = i + 1;
       gCode = want;
       gName = kCyphers[i].name;
@@ -377,6 +383,14 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   }
 
   gActive = &cached->second;
+  // The case-insensitive index, rebuilt with the catalogue. A key that
+  // differs from another only in case would collide here; first wins, which
+  // is the same answer exact lookup would have given for that spelling.
+  gActiveLower.clear();
+  for (const auto& entry : cached->second) {
+    if (!entry.first.empty() && entry.first[0] == '\x01') continue;  // metadata
+    gActiveLower.emplace(lower(entry.first), entry.second);
+  }
   gCypher = 0;
   gCode = want;
   const auto nameAt = cached->second.find("\x01" "name");
@@ -447,7 +461,23 @@ std::string translate(const std::string& source) {
     return source;
   }
   const auto at = gActive->find(source);
-  return (at == gActive->end()) ? source : at->second;
+  if (at != gActive->end()) {
+    return at->second;
+  }
+  // ── THE SAME WORD, SHOUTED ────────────────────────────────────────────────
+  //
+  // The interface draws Apply and APPLY, Output and OUTPUT, Cancel and
+  // CANCEL: a button shouts and a row label does not. Exact lookup made each
+  // of those a separate line for the translator to write twice, and about
+  // half the untranslated list was a case variant of something already in it.
+  //
+  // The stored value comes back AS WRITTEN rather than re-cased to match the
+  // source. Case is not a byte operation outside ASCII -- upper-casing "ä" or
+  // "я" one byte at a time corrupts it, and for Japanese it means nothing --
+  // so a German button reading "Anwenden" under an English "APPLY" is the
+  // right answer and "ANWENDEN" with a broken umlaut is not.
+  const auto caseHit = gActiveLower.find(lower(source));
+  return (caseHit == gActiveLower.end()) ? source : caseHit->second;
 }
 
 }  // namespace i18n

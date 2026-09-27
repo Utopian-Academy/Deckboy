@@ -81,3 +81,306 @@ OFF	AUS
 Stopped	Gestoppt
 Playing	Läuft
 Paused	Pausiert
+2-UP	2 NEBENEINANDER
+DONE	FERTIG
+EDIT	BEARBEITEN
+HELD	GEHALTEN
+Mode	Modus
+PICK	WÄHLEN
+QUAD	VIERFACH
+STEP	SCHRITT
+Apply	Anwenden
+CLOSE	SCHLIESSEN
+FIXED	FEST
+Help!	Hilfe!
+ORDER	REIHENFOLGE
+READY	BEREIT
+TILES	KACHELN
+ALL ON	ALLE EIN
+ALWAYS	IMMER
+Buffer	Puffer
+Cancel	Abbrechen
+Custom	Eigene
+Device	Gerät
+Folder	Ordner
+HIDDEN	VERSTECKT
+Length	Länge
+Mascot	Maskottchen
+Mirror	Spiegeln
+NATIVE	NATIV
+PRESET	VORLAGE
+SUMMED	SUMMIERT
+TOGGLE	UMSCHALTEN
+12 HOUR	12 STUNDEN
+24 HOUR	24 STUNDEN
+ALL OFF	ALLE AUS
+ARRANGE	ANORDNEN
+Channel	Kanal
+CONVERT	UMWANDELN
+DEFAULT	STANDARD
+END CUE	CUE ENDE
+Key out	Key-Ausgang
+LTC out	LTC-Ausgang
+MISSING	FEHLT
+PRESETS	VORLAGEN
+PROJECT	PROJEKT
+RUNNING	LÄUFT
+Send to	Senden an
+SHUFFLE	ZUFALL
+VJ MODE	VJ-MODUS
+CLOCK ON	UHR EIN
+DOWNLOAD	HERUNTERLADEN
+EXAMPLES	BEISPIELE
+Mappings	Zuordnungen
+NMC sync	NMC-Sync
+PROMPTER	TELEPROMPTER
+SHOW SDP	SDP ZEIGEN
+TCP port	TCP-Port
+UI scale	UI-Skalierung
+vMix API	vMix-API
+WATCHING	ÜBERWACHT
+A/V delay	A/V-Verzögerung
+ASIO outs	ASIO-Ausgänge
+BOTH AXES	BEIDE ACHSEN
+CHECK NOW	JETZT PRÜFEN
+CLOCK OFF	UHR AUS
+Creatures	Tierchen
+CUE TOOLS	CUE-WERKZEUGE
+Direction	Richtung
+Freewheel	Freilauf
+HTTP port	HTTP-Port
+Jump mode	Sprungmodus
+Listen on	Empfangen auf
+OSC Query	OSC-Abfrage
+OUTPUT ON	AUSGANG EIN
+Panic now	Sofort-Panik
+RECORDING	AUFNAHME
+REMAINING	VERBLEIBEND
+RESET ALL	ALLES ZURÜCKSETZEN
+RUN PANIC	PANIK STARTEN
+SHOW FLOW	SHOW-ABLAUF
+TIMERS ON	TIMER EIN
+WHEN IDLE	IM LEERLAUF
+ADD OUTPUT	AUSGANG HINZUFÜGEN
+BUILT WITH	GEBAUT MIT
+CANCEL ALL	ALLE ABBRECHEN
+colour tag	Farbmarke
+copy chain	Kette kopieren
+Hover tips	Kurzhinweise
+Input gain	Eingangspegel
+Input mono	Eingang mono
+live audio	Live-Ton
+Live input	Live-Eingang
+MIDI input	MIDI-Eingang
+no picture	kein Bild
+no preview	keine Vorschau
+OPEN SAVED	GESPEICHERTE ÖFFNEN
+OUTPUT OFF	AUSGANG AUS
+Panic fade	Panik-Blende
+Tally port	Tally-Port
+TIMERS OFF	TIMER AUS
+Accept from	Annehmen von
+ASIO driver	ASIO-Treiber
+BACK TO TOP	NACH OBEN
+CANVAS MODE	CANVAS-MODUS
+CODE SOURCE	CODE-QUELLE
+Cue numbers	Cue-Nummern
+Destination	Ziel
+Mirror rate	Spiegelrate
+no duration	keine Dauer
+NO LIVE CUE	KEIN LIVE-CUE
+NO PREVIOUS	KEIN VORHERIGES
+OVERLAY BIN	OVERLAY-ABLAGE
+paste chain	Kette einfügen
+Sample rate	Abtastrate
+SENDING OUT	SENDET
+Shift: snap	Umschalt: einrasten
+THIS OUTPUT	DIESER AUSGANG
+CLIP	CLIP
+Port	Port
+Rate	Rate
+TEXT	TEXT
+MULTI	MULTI
+VIDEO	VIDEO
+ANALOG	ANALOG
+FORMAT	FORMAT
+Sender	Sender
+STEREO	STEREO
+TRACKER	TRACKER
+UPDATES	UPDATES
+DASHBOARD	DASHBOARD
+(no matches)	(keine Treffer)
+(no subtext)	(kein Untertitel)
+add a button	Schaltfläche hinzufügen
+add a window	Fenster hinzufügen
+Art-Net port	Art-Net-Port
+AUDIO OUTPUT	AUDIOAUSGANG
+Auto restore	Automatisch wiederherstellen
+DECKLINK: ON	DECKLINK: EIN
+free running	freilaufend
+KEY+FILL: ON	KEY+FILL: EIN
+LISTENING IN	EMPFÄNGT
+Miami cursor	Miami-Zeiger
+MIDI CONTROL	MIDI-STEUERUNG
+Mirror state	Status spiegeln
+NDI KEY: OFF	NDI-KEY: AUS
+NDI KEY: ON	NDI-KEY: EIN
+NO PROGRAMME	KEIN PROGRAMM
+ST 2110: OFF	ST 2110: AUS
+ST 2110: ON	ST 2110: EIN
+WATCH FOLDER	ÜBERWACHTER ORDNER
+COMPOSITE CUE	COMPOSITE-CUE
+DECKLINK: OFF	DECKLINK: AUS
+default route	Standardroute
+Every adapter	Jeder Adapter
+KEY+FILL: OFF	KEY+FILL: AUS
+LEFT TO RIGHT	LINKS NACH RECHTS
+MEDIA ENCODER	MEDIEN-ENCODER
+MSC device id	MSC-Geräte-ID
+NEW SHOW FILE	NEUE SHOW-DATEI
+No cue loaded	Kein Cue geladen
+nothing taken	nichts übernommen
+OPEN PREVIOUS	VORHERIGE ÖFFNEN
+Output device	Ausgabegerät
+Panic profile	Panik-Profil
+Quit Deckboy?	Deckboy beenden?
+REMOVE OUTPUT	AUSGANG ENTFERNEN
+Sound effects	Klangeffekte
+Tally address	Tally-Adresse
+TOP TO BOTTOM	OBEN NACH UNTEN
+127 (all-call)	127 (Sammelruf)
+ALL INTERFACES	ALLE SCHNITTSTELLEN
+LOCALHOST ONLY	NUR LOCALHOST
+Monitor device	Monitorgerät
+no audio track	keine Tonspur
+PRESENTER VIEW	REFERENTENANSICHT
+RECORD TO DISK	AUF DATENTRÄGER AUFNEHMEN
+STOP RECORDING	AUFNAHME STOPPEN
+STOP STREAMING	STREAM STOPPEN
+TALLY TRIGGERS	TALLY-AUSLÖSER
+Device channels	Gerätekanäle
+NDI SENDING: ON	NDI-SENDUNG: EIN
+NO CUE SELECTED	KEIN CUE AUSGEWÄHLT
+Output channels	Ausgangskanäle
+preview pending	Vorschau ausstehend
+START RECORDING	AUFNAHME STARTEN
+START STREAMING	STREAM STARTEN
+(system default)	(Systemstandard)
+Check at startup	Beim Start prüfen
+Global crossfade	Globale Überblendung
+Mic to recording	Mikrofon in Aufnahme
+Monitor playlist	Playlist abhören
+NDI SENDING: OFF	NDI-SENDUNG: AUS
+no still preview	keine Standbildvorschau
+Pocket 3 / touch	Pocket 3 / Touch
+SMPTE LTC OUTPUT	SMPTE-LTC-AUSGANG
+the whole screen	der ganze Bildschirm
+Check for one now	Jetzt nach Update suchen
+INSTALL & RESTART	INSTALLIEREN & NEU STARTEN
+Registry: NOT SET	Registry: NICHT GESETZT
+SAFETY / TIMECODE	SICHERHEIT / TIMECODE
+Timecode jam sync	Timecode-Jam-Sync
+esc or N to cancel	Esc oder N zum Abbrechen
+KEYBOARD SHORTCUTS	TASTENKÜRZEL
+loading preview...	Vorschau wird geladen ...
+CONVERT ALL FLAGGED	ALLE MARKIERTEN UMWANDELN
+dot-matrix cue deck	Punktmatrix-Cue-Deck
+HyperDeck emulation	HyperDeck-Emulation
+locked to the tempo	an das Tempo gekoppelt
+VJ mode (two decks)	VJ-Modus (zwei Decks)
+ADD ANOTHER PLAYLIST	WEITERE PLAYLIST HINZUFÜGEN
+Companion / OSC port	Companion-/OSC-Port
+Esc or click to skip	Esc oder Klick zum Überspringen
+PLAYLIST PREFERENCES	PLAYLIST-EINSTELLUNGEN
+press ENTER to start	ENTER drücken zum Starten
+ADD A SECOND PLAYLIST	ZWEITE PLAYLIST HINZUFÜGEN
+filmstrip unavailable	Filmstreifen nicht verfügbar
+(empty — import media)	(leer – Medien importieren)
+Ctrl+D or Esc to close	Strg+D oder Esc zum Schließen
+(no notes for this cue)	(keine Notizen für diesen Cue)
+Timebase / start / fade	Zeitbasis / Start / Blende
+No cues need conversion.	Keine Cues müssen umgewandelt werden.
+CLICK TO SAMPLE KEY COLOR	KLICKEN, UM KEY-FARBE ZU WÄHLEN
+normalize loudness (R128)	Lautheit normalisieren (R128)
+off - all channels silent	aus – alle Kanäle stumm
+no video lane for this cue	keine Videospur für diesen Cue
+HyperDeck emulation is off.	HyperDeck-Emulation ist aus.
+OWN SCRIPT  (click to edit)	EIGENES SKRIPT  (zum Bearbeiten klicken)
+Theme and operator feedback	Thema und Rückmeldungen
+Discovery and mirrored state	Erkennung und gespiegelter Status
+FOLLOWING THE LIVE CUE NOTES	FOLGT DEN NOTIZEN DES LIVE-CUES
+Listening on all interfaces.	Empfängt auf allen Schnittstellen.
+Network-facing runtime notes	Hinweise zum Netzwerkbetrieb
+Hi! Press I to import a clip.	Hallo! I drücken, um einen Clip zu importieren.
+Global jump and panic behavior	Globales Sprung- und Panikverhalten
+Roll when the show cuts to you	Starten, wenn die Show auf Sie schneidet
+Choose a cue to inspect it here	Cue wählen, um ihn hier zu prüfen
+Defaults for newly created cues	Vorgaben für neu erstellte Cues
+Device routing for cue playback	Geräte-Routing für die Cue-Wiedergabe
+Smaller buffer = lower latency.	Kleinerer Puffer = geringere Latenz.
+Emergency fade and sync behavior	Notblende und Sync-Verhalten
+mixed selection: key unavailable	Gemischte Auswahl: Key nicht verfügbar
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (EXPERIMENTELL)
+Esc=continue with current session	Esc = mit aktueller Sitzung fortfahren
+no per-cue settings for this type	keine Cue-Einstellungen für diesen Typ
+On stop: remux to an ordinary MP4	Beim Stopp: in normales MP4 umpacken
+Where RECORD writes the programme	Wohin RECORD das Programm schreibt
+dot-matrix cue deck for live events	Punktmatrix-Cue-Deck für Live-Events
+Listening on localhost (127.0.0.1).	Empfängt auf localhost (127.0.0.1).
+three expressions: red, green, blue	drei Ausdrücke: Rot, Grün, Blau
+Transport sync with another machine	Transport-Sync mit einem anderen Rechner
+Add slot sources in the cue inspector	Slot-Quellen im Cue-Inspektor hinzufügen
+Ask GitHub; never installs on its own	Fragt GitHub; installiert nie von selbst
+Import or click a cue in the playlist	Importieren oder Cue in der Playlist anklicken
+mixed selection: geometry unavailable	Gemischte Auswahl: Geometrie nicht verfügbar
+generate timecode for the rig to chase	Timecode erzeugen, dem die Anlage folgt
+Lower Third and PIP fire independently	Bauchbinde und PiP werden unabhängig ausgelöst
+Panels built for a vMix rig, unchanged	Panels für ein vMix-Setup, unverändert
+Incoming transport arrives as NMCEVENT.	Eingehender Transport kommt als NMCEVENT an.
+not in this build - saved with the show	nicht in diesem Build – mit der Show gespeichert
+Find from the playlist, not from a modal	Aus der Playlist suchen, nicht aus einem Dialog
+take or select a cue to open the timeline	Cue übernehmen oder wählen, um die Timeline zu öffnen
+Optional external transport and cue control	Optionale externe Transport- und Cue-Steuerung
+No previous show file found at startup path.	Keine vorherige Show-Datei im Startpfad gefunden.
+Use Ctrl+F or type a cue id/number to search.	Strg+F oder eine Cue-ID/Nummer eingeben zum Suchen.
+Companion / OSC ingress and HyperDeck emulation	Companion-/OSC-Eingang und HyperDeck-Emulation
+A/V delay holds audio back for lagging displays.	A/V-Verzögerung hält den Ton für träge Displays zurück.
+On stop: leave the crash-resilient file as it is	Beim Stopp: die absturzsichere Datei so belassen
+same disk as Deckboy - a separate drive is safer	gleiche Platte wie Deckboy – ein eigenes Laufwerk ist sicherer
+A step fires one cue on each playlist, all at once.	Ein Schritt löst einen Cue je Playlist aus, alle zugleich.
+one expression: the same value in red, green and blue	ein Ausdruck: derselbe Wert in Rot, Grün und Blau
+NDI transport is configured per output in Video Outputs.	NDI-Transport wird je Ausgang unter Videoausgänge eingestellt.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Sendet PLAY / PAUSE / STOP / LOCATE, wenn der Transport läuft.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC-Abo: /deckboy/subscribe vom Controller senden.
+NMC mode / host / port are runtime-configurable for sync work.	NMC-Modus / Host / Port sind zur Laufzeit für Sync-Arbeit einstellbar.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Auf Sendung gehen übernimmt den Cue. Deckboy sendet dem Mischer nie einen Befehl.
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+FPS: ON	FPS: EIN
+FPS: OFF	FPS: AUS
+NMOS: ON	NMOS: EIN
+NMOS: OFF	NMOS: AUS
+SPOUT: ON	SPOUT: EIN
+SPOUT: OFF	SPOUT: AUS
+CANVAS: ON	CANVAS: EIN
+CANVAS: OFF	CANVAS: AUS
+10-BIT: ON	10 BIT: EIN
+10-BIT: OFF	10 BIT: AUS
+EDIT...	BEARBEITEN ...
+FOLDER...	ORDNER ...
+ARRANGE...	ANORDNEN ...
+ADD FILE...	DATEI HINZUFÜGEN ...
+RENUMBER...	NEU NUMMERIEREN ...
+set a port...	Port festlegen ...
+no script	kein Skript
++ OUTPUT	+ AUSGANG
+Eddie's Clock	Eddies Uhr
+Ctrl+/ to close	Strg+/ zum Schließen
+(step lives here)	(Schritt liegt hier)
+4:2:2  8-BIT	4:2:2  8 BIT
+4:2:2  10-BIT	4:2:2  10 BIT
+No outputs — click + OUTPUT to add one.	Keine Ausgänge – auf + AUSGANG klicken, um einen anzulegen.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI-Trigger, NMC, MTC, LTC, Art-Net und Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Cues, die Deckboy nicht (oder schlecht) abspielt, in H.264 umwandeln
+a button can run any command the network protocol understands	Eine Schaltfläche kann jeden Befehl ausführen, den das Netzwerkprotokoll versteht
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	REFERENTENANSICHT ANORDNEN  -  Panel ziehen zum Verschieben, Ecke zum Skalieren
