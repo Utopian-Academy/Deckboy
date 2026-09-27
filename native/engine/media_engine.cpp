@@ -11365,7 +11365,22 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
   // like nothing had happened and the last third with nothing left to open.
   {
     const double s = smooth(0.0, 1.0, p);
-    const double r = reach * 1.04 * std::pow(s, 1.35);
+    // FAR ENOUGH PAST THE CORNER THAT THE ALPHA RAMP FINISHES TOO.
+    //
+    // 1.04 * reach put the corners only about fifteen pixels inside the hole at
+    // progress 1, while the shading takes `spaceW` -- nearer forty at 1080p --
+    // to bring alpha down to nothing. So the four corners still held a little
+    // of the outgoing picture on the last frame: --transition-dump measured
+    // maxAlpha 85 of 255 there, against the promise three paragraphs up that
+    // this ends on the incoming picture and never on an island of the old one.
+    //
+    // The overshoot is now DERIVED from the ramp that has to complete inside
+    // it, plus a couple of pixels, rather than being a constant that happened
+    // to look right. spaceW is computed further down from rimW; both come from
+    // `unit`, so this repeats the arithmetic rather than reordering the file.
+    const double rampInside = unit * 0.0065 * 16.0;
+    const double overshoot = reach + rampInside + 2.0;
+    const double r = overshoot * std::pow(s, 1.35);
     if (r >= 0.75) {
       live.push_back({static_cast<float>(cx), static_cast<float>(cy), static_cast<float>(r)});
     }
@@ -11597,6 +11612,456 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
           px[2] = static_cast<std::uint8_t>(std::min(255.0f, (rimB * light + navyB * under) * inv));
           px[3] = static_cast<std::uint8_t>(std::clamp(alpha * 255.0f, 0.0f, 255.0f));
         }
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// THREE MORE WAYS OUT OF A CUE, all built the way the Portal is: one pass over
+// the OUTGOING frame, producing an RGBA picture whose alpha says how much of
+// the old cue still shows. The incoming cue is already live on the output
+// underneath, so nothing here has to know about it.
+//
+// Every one of them obeys the same three rules, and each rule is there because
+// breaking it is a fault an operator sees in front of an audience:
+//
+//   1. AT p=1 NOTHING OF THE OUTGOING PICTURE IS LEFT. Not a shard, not a
+//      wisp, not one stubborn pixel. A transition that ends on an island of
+//      the old cue is a transition that has to be cut out of the show.
+//   2. DETERMINISTIC in (progress, elapsed, seed). Two outputs showing one
+//      deck must draw the same frame, or the same transition runs twice in
+//      front of two screens and they disagree.
+//   3. NV12 IS CONVERTED, NOT TURNED AWAY. A video cue's held frame is very
+//      often NV12, so refusing it would make each of these a plain dissolve on
+//      exactly the cues they are most likely to be used on.
+//
+// tools/check_transitions.py holds all three rules to every style.
+// ---------------------------------------------------------------------------
+
+namespace {
+
+// The outgoing frame as something that can be read a pixel at a time in RGBA,
+// whichever way it arrived. Portal grew its own copy of this before there was
+// more than one caller; this is the shared one, and Portal is deliberately left
+// alone rather than rewritten under a shipped transition.
+struct OutgoingPicture {
+  const std::uint8_t* rgba = nullptr;
+  const std::uint8_t* luma = nullptr;
+  const std::uint8_t* chroma = nullptr;
+  int w = 0;
+  int h = 0;
+  bool ok = false;
+
+  // FULL-RANGE BT.601, matching what SDL draws an NV12 texture as
+  // (SDL_COLORSPACE_JPEG, its default for YUV) -- so the first frame of the
+  // transition is the same colour as the last frame of the cue.
+  void fetch(int x, int y, std::uint8_t* o) const {
+    x = x < 0 ? 0 : (x >= w ? w - 1 : x);
+    y = y < 0 ? 0 : (y >= h ? h - 1 : y);
+    if (rgba) {
+      std::memcpy(o, rgba + (static_cast<std::size_t>(y) * w + x) * 4u, 4);
+      return;
+    }
+    const float Y = luma[static_cast<std::size_t>(y) * w + x];
+    const std::uint8_t* uv = chroma + static_cast<std::size_t>(y / 2) * w + (x & ~1);
+    const float U = static_cast<float>(uv[0]) - 128.0f;
+    const float V = static_cast<float>(uv[1]) - 128.0f;
+    o[0] = static_cast<std::uint8_t>(std::clamp(Y + 1.402f * V, 0.0f, 255.0f));
+    o[1] = static_cast<std::uint8_t>(
+      std::clamp(Y - 0.344136f * U - 0.714136f * V, 0.0f, 255.0f));
+    o[2] = static_cast<std::uint8_t>(std::clamp(Y + 1.772f * U, 0.0f, 255.0f));
+    o[3] = 255;
+  }
+};
+
+OutgoingPicture openOutgoing(const DecodedFrame& f) {
+  OutgoingPicture p;
+  p.w = f.width;
+  p.h = f.height;
+  const std::size_t n = static_cast<std::size_t>(std::max(0, p.w)) *
+                        static_cast<std::size_t>(std::max(0, p.h));
+  if (p.w <= 0 || p.h <= 0) return p;
+  if (f.format == FramePixelFormat::RGBA32 && f.pixels.size() >= n * 4u) {
+    p.rgba = f.pixels.data();
+    p.ok = true;
+  } else if (f.format == FramePixelFormat::NV12 && (p.w % 2) == 0 && (p.h % 2) == 0 &&
+             f.pixels.size() >= n + n / 2) {
+    p.luma = f.pixels.data();
+    p.chroma = f.pixels.data() + n;
+    p.ok = true;
+  }
+  return p;
+}
+
+// Smoothstep between two edges.
+inline double tSmooth(double a, double b, double x) {
+  const double k = std::clamp((x - a) / (b - a), 0.0, 1.0);
+  return k * k * (3.0 - 2.0 * k);
+}
+
+// Value noise on a lattice, bilinear, and its two-octave sum. Cheap, smooth,
+// and stable in the seed -- which is what rule 2 needs.
+inline float tLattice(std::uint64_t seed, int xi, int yi) {
+  std::uint64_t h = seed ^ (static_cast<std::uint64_t>(xi) * 0x9E3779B97F4A7C15ull) ^
+                    (static_cast<std::uint64_t>(yi) * 0xC2B2AE3D27D4EB4Full);
+  h ^= h >> 33; h *= 0xFF51AFD7ED558CCDull;
+  h ^= h >> 33; h *= 0xC4CEB9FE1A85EC53ull;
+  h ^= h >> 33;
+  return static_cast<float>((h >> 11) & 0x1FFFFF) / 2097151.0f;
+}
+
+inline float tNoise(std::uint64_t seed, float x, float y) {
+  const int xi = static_cast<int>(std::floor(x));
+  const int yi = static_cast<int>(std::floor(y));
+  const float fx = x - xi;
+  const float fy = y - yi;
+  const float ux = fx * fx * (3.0f - 2.0f * fx);
+  const float uy = fy * fy * (3.0f - 2.0f * fy);
+  const float a = tLattice(seed, xi, yi);
+  const float b = tLattice(seed, xi + 1, yi);
+  const float c = tLattice(seed, xi, yi + 1);
+  const float d = tLattice(seed, xi + 1, yi + 1);
+  return (a + (b - a) * ux) + ((c + (d - c) * ux) - (a + (b - a) * ux)) * uy;
+}
+
+inline float tFbm(std::uint64_t seed, float x, float y) {
+  return 0.62f * tNoise(seed, x, y) +
+         0.26f * tNoise(seed ^ 0xA5A5ull, x * 2.03f, y * 2.11f) +
+         0.12f * tNoise(seed ^ 0x5A5Aull, x * 4.07f, y * 4.13f);
+}
+
+}  // namespace
+
+// ---------------------------------------------------------------------------
+// buildShatterTransition - the outgoing picture as a dropped pane.
+//
+// The SHATTER effect breaks a picture up and keeps every pixel: shards slide
+// and turn and sample from where they used to be, and the frame stays opaque
+// because an effect has nowhere to go. A transition does: the shards have to
+// LEAVE, so each one flies off on its own line, turning as it goes, and takes
+// its alpha down with it.
+//
+// Shards go in waves rather than all at once -- a pane does not leave the frame
+// as one sheet -- and the wave a shard belongs to comes from its own hash, so
+// the same shard leaves at the same moment every time the transition runs.
+//
+// The last wave finishes at p=0.92 rather than 1.0. Rule 1 is not "arrive at
+// zero", it is "be at zero before the end": the alpha curve of the slowest
+// shard has to have bottomed out with frames to spare, or the final frame of a
+// short transition still has glass in it.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
+                                         std::vector<std::uint8_t>& dst,
+                                         double progress, double elapsedSeconds,
+                                         std::uint64_t seed) {
+  const OutgoingPicture pic = openOutgoing(outgoing);
+  if (!pic.ok) { dst.clear(); return; }
+  const int W = pic.w;
+  const int H = pic.h;
+  dst.resize(static_cast<std::size_t>(W) * H * 4u);
+
+  const double p = std::clamp(progress, 0.0, 1.0);
+  const double t = std::max(0.0, elapsedSeconds);
+  const double unit = static_cast<double>(std::min(W, H));
+
+  // SHARDS SIZED TO THE PICTURE, not to a pixel count: the same break at
+  // 720p and at 4K. Around fourteen across the short side reads as broken
+  // glass; far more looks like sand and far fewer like a sliding puzzle.
+  const int shard = std::max(8, static_cast<int>(unit / 14.0));
+  const double fly = unit * 0.85;
+  const std::uint64_t salt = portalHash(seed ^ 0x5A17E12ull);
+
+  deckboy::effects::detail::parallelRows(H, W * 6, [&](int y0, int y1) {
+    for (int y = y0; y < y1; ++y) {
+      std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
+      for (int x = 0; x < W; ++x) {
+        std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+        const int gx = x / shard;
+        const int gy = y / shard;
+        const std::uint64_t h = portalHash(salt +
+          static_cast<std::uint64_t>(gx) * 73856093ull +
+          static_cast<std::uint64_t>(gy) * 19349663ull);
+        // WHEN THIS SHARD GOES. Waves, not a single sheet: the start is spread
+        // over the first two thirds and every shard is gone by 0.92.
+        const double start = 0.58 * portalRand(h, 1);
+        const double gone = tSmooth(start, std::min(0.92, start + 0.40), p);
+        if (gone >= 1.0) {
+          px[0] = px[1] = px[2] = px[3] = 0;
+          continue;
+        }
+        // Its own line out of the frame, biased away from the centre so the
+        // pane opens outward instead of milling about.
+        const double ang = portalRand(h, 2) * 6.283185307179586;
+        const double awayX = (gx * shard + shard * 0.5) - W * 0.5;
+        const double awayY = (gy * shard + shard * 0.5) - H * 0.5;
+        const double awayLen = std::sqrt(awayX * awayX + awayY * awayY) + 1e-6;
+        const double dirX = 0.45 * std::cos(ang) + 0.55 * (awayX / awayLen);
+        const double dirY = 0.45 * std::sin(ang) + 0.55 * (awayY / awayLen);
+        // Gravity, because a dropped pane falls. Quadratic in the shard's own
+        // travel rather than in p, so late shards fall from where they broke.
+        const double travel = gone * gone;
+        const double ox = dirX * fly * travel;
+        const double oy = dirY * fly * travel + unit * 0.35 * travel * travel;
+        // BOTH TERMS SCALE WITH `gone`, including the wobble. The wobble used
+        // to be added ungated, so at progress 0 every shard was already turned
+        // a little: --transition-dump measured meanAlpha 0.9998 and 42 pixels
+        // already gone on the first frame, which on an output is the picture
+        // twitching the instant the take lands. The first frame of a transition
+        // has to be the last frame of the cue, exactly.
+        const double spin = gone * ((portalRand(h, 3) - 0.5) * 2.2 +
+                                   0.05 * std::sin(t * 1.7 + portalRand(h, 4) * 6.283));
+        const double ccx = gx * shard + shard * 0.5;
+        const double ccy = gy * shard + shard * 0.5;
+        const double rx = x - ccx;
+        const double ry = y - ccy;
+        const double ca = std::cos(spin);
+        const double sa = std::sin(spin);
+        // Sample from where this pixel WOULD have been before the shard moved,
+        // which is what makes the seams show a piece of somewhere else.
+        const int sx = static_cast<int>(std::lround(ccx + rx * ca - ry * sa - ox));
+        const int sy = static_cast<int>(std::lround(ccy + rx * sa + ry * ca - oy));
+        if (sx < 0 || sx >= W || sy < 0 || sy >= H) {
+          px[0] = px[1] = px[2] = px[3] = 0;
+          continue;
+        }
+        std::uint8_t s[4];
+        pic.fetch(sx, sy, s);
+        // A glint along the break: the leading edge of a turning shard catches
+        // the light, which is what makes glass look like glass rather than
+        // like a grid of moving squares.
+        const double edge = std::min({static_cast<double>(x - gx * shard),
+                                      static_cast<double>(y - gy * shard),
+                                      static_cast<double>((gx + 1) * shard - 1 - x),
+                                      static_cast<double>((gy + 1) * shard - 1 - y)});
+        const double glint = gone > 0.0
+          ? std::clamp(1.0 - edge / std::max(1.0, unit * 0.010), 0.0, 1.0) *
+            (0.55 * gone)
+          : 0.0;
+        const double keep = 1.0 - gone;
+        px[0] = static_cast<std::uint8_t>(std::min(255.0, s[0] + (255.0 - s[0]) * glint));
+        px[1] = static_cast<std::uint8_t>(std::min(255.0, s[1] + (255.0 - s[1]) * glint));
+        px[2] = static_cast<std::uint8_t>(std::min(255.0, s[2] + (255.0 - s[2]) * glint));
+        px[3] = static_cast<std::uint8_t>(std::clamp(keep * 255.0, 0.0, 255.0));
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// buildCloudsTransition - the cue goes behind weather.
+//
+// A two-octave noise field rises through the frame and eats the outgoing
+// picture where it is thickest. The threshold falls with progress, so the holes
+// open where the cloud is densest and spread from there: nothing about it is a
+// circle or an edge, which is the entire point of having it next to the iris
+// and the wipes.
+//
+// The field DRIFTS with elapsed time as well as opening with progress, so a
+// long transition billows instead of sitting still while a threshold slides
+// over it. Both terms are in the signature, so it stays deterministic.
+//
+// Where the cloud is thinning the picture behind it is lifted towards white
+// before it goes -- the bright fringe of a cloud edge with light behind it.
+// Without that the effect reads as a dissolve through a noise mask.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildCloudsTransition(const DecodedFrame& outgoing,
+                                        std::vector<std::uint8_t>& dst,
+                                        double progress, double elapsedSeconds,
+                                        std::uint64_t seed) {
+  const OutgoingPicture pic = openOutgoing(outgoing);
+  if (!pic.ok) { dst.clear(); return; }
+  const int W = pic.w;
+  const int H = pic.h;
+  dst.resize(static_cast<std::size_t>(W) * H * 4u);
+
+  const double p = std::clamp(progress, 0.0, 1.0);
+  const float t = static_cast<float>(std::max(0.0, elapsedSeconds));
+  const double unit = static_cast<double>(std::min(W, H));
+
+  // THE FIELD IS COMPUTED SMALL and read back bilinearly, the way the grain
+  // and wavefront effects do it: cloud is a smear, and a smear does not need
+  // to be evaluated per pixel at 4K. A quarter-scale lattice is visually
+  // identical here and a quarter of the arithmetic.
+  const int step = unit >= 1400.0 ? 4 : (unit >= 480.0 ? 2 : 1);
+  const int gw = W / step + 2;
+  const int gh = H / step + 2;
+  const float scale = static_cast<float>(3.4 / unit) * static_cast<float>(step);
+  const std::uint64_t salt = portalHash(seed ^ 0xC10D5ull);
+  std::vector<float> field(static_cast<std::size_t>(gw) * gh, 0.0f);
+  deckboy::effects::detail::parallelRows(gh, gw * 4, [&](int y0, int y1) {
+    for (int gy = y0; gy < y1; ++gy) {
+      for (int gx = 0; gx < gw; ++gx) {
+        const float nx = gx * scale;
+        const float ny = gy * scale - t * 0.22f;     // the weather comes up
+        field[static_cast<std::size_t>(gy) * gw + gx] =
+          tFbm(salt, nx + 0.13f * t, ny);
+      }
+    }
+  });
+
+  // The threshold sweeps past the whole range of the field with a margin at
+  // each end, so p=0 opens nothing and p=1 opens everything -- rule 1 by
+  // construction rather than by hoping the noise never peaks.
+  const float cut = static_cast<float>(-0.12 + 1.24 * p);
+  const float band = 0.16f;                 // how soft the cloud edge is
+  const float invStep = 1.0f / static_cast<float>(step);
+
+  deckboy::effects::detail::parallelRows(H, W * 4, [&](int y0, int y1) {
+    for (int y = y0; y < y1; ++y) {
+      const float fy = y * invStep;
+      const int gy = static_cast<int>(fy);
+      const float wy = fy - gy;
+      std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
+      for (int x = 0; x < W; ++x) {
+        const float fx = x * invStep;
+        const int gx = static_cast<int>(fx);
+        const float wx = fx - gx;
+        const std::size_t at = static_cast<std::size_t>(gy) * gw + gx;
+        const float a = field[at];
+        const float b = field[at + 1];
+        const float c = field[at + gw];
+        const float d = field[at + gw + 1];
+        const float top = a + (b - a) * wx;
+        const float bot = c + (d - c) * wx;
+        const float density = top + (bot - top) * wy;
+
+        // How much of the old picture is still here. 1 outside the cloud,
+        // 0 well inside it, soft across `band`.
+        const float open = std::clamp((cut - density) / band + 0.5f, 0.0f, 1.0f);
+        const float keep = 1.0f - open;
+        std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+        if (keep <= 0.0f) {
+          px[0] = px[1] = px[2] = px[3] = 0;
+          continue;
+        }
+        std::uint8_t s[4];
+        pic.fetch(x, y, s);
+        // The bright fringe: strongest where the cloud is halfway through this
+        // pixel, gone where it has not arrived and where it has finished.
+        const float fringe = 4.0f * open * (1.0f - open) * 0.55f;
+        px[0] = static_cast<std::uint8_t>(std::min(255.0f, s[0] + (255.0f - s[0]) * fringe));
+        px[1] = static_cast<std::uint8_t>(std::min(255.0f, s[1] + (255.0f - s[1]) * fringe));
+        px[2] = static_cast<std::uint8_t>(std::min(255.0f, s[2] + (255.0f - s[2]) * fringe));
+        px[3] = static_cast<std::uint8_t>(std::clamp(keep * 255.0f, 0.0f, 255.0f));
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// buildGhastlyTransition - the cue gives up the ghost.
+//
+// Three things happen at once, and none of them is a fade:
+//
+//   * the colour drains out, towards a cold blue-grey rather than towards
+//     grey, because a ghost is not a black-and-white photograph;
+//   * the picture SMEARS UPWARD, each pixel sampling from further below itself
+//     as the transition runs, so the image stretches away instead of thinning;
+//   * wisps -- narrow vertical noise columns -- eat it from the bottom, rising
+//     faster than the smear, and carry a pale edge where they bite.
+//
+// The smear samples from below, so the bottom rows run out of picture. They are
+// the first to go transparent, which is what puts the ghost's feet in the fog
+// and stops it looking like the frame is being scrolled.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildGhastlyTransition(const DecodedFrame& outgoing,
+                                         std::vector<std::uint8_t>& dst,
+                                         double progress, double elapsedSeconds,
+                                         std::uint64_t seed) {
+  const OutgoingPicture pic = openOutgoing(outgoing);
+  if (!pic.ok) { dst.clear(); return; }
+  const int W = pic.w;
+  const int H = pic.h;
+  dst.resize(static_cast<std::size_t>(W) * H * 4u);
+
+  const double p = std::clamp(progress, 0.0, 1.0);
+  const float t = static_cast<float>(std::max(0.0, elapsedSeconds));
+  const double unit = static_cast<double>(std::min(W, H));
+  const std::uint64_t salt = portalHash(seed ^ 0x6405Full);
+
+  const float drain = static_cast<float>(tSmooth(0.0, 0.72, p));   // colour out
+  const float lift = static_cast<float>(unit * 0.55 * p * p);      // smear up
+  // The wisp line rises past the top with margin, so by p=1 every row is
+  // inside it -- rule 1 without relying on the noise.
+  // WHERE THE WISP LINE STARTS AND ENDS, IN PIXELS, DERIVED.
+  //
+  // It has to begin far enough below the frame that no column's wobble and no
+  // part of the soft edge reaches the bottom row, and end far enough above it
+  // that none of either is left on the top row. Written as fractions of H
+  // (1.22 down to -0.12) it was neither: check_transitions measured
+  // fromOutgoing=0.0031 at progress 0, which is the bottom row already
+  // slightly see-through before the transition had begun. Deriving both ends
+  // from the two widths that actually intrude also keeps it right when the
+  // frame is portrait, where `unit` is the WIDTH and a fraction of H means
+  // something different.
+  const float wispSoft = static_cast<float>(unit * 0.16);
+  const float wispWob = static_cast<float>(unit * 0.34);
+  const float lineAtStart = static_cast<float>(H) + wispSoft + wispWob;
+  const float lineAtEnd = -(wispSoft + wispWob);
+  const float wispLine = lineAtStart + (lineAtEnd - lineAtStart) * static_cast<float>(p);
+  // TWO FREQUENCIES, or it is not a wisp.
+  //
+  // At one low frequency this was a single smooth wave rolling up the frame --
+  // fog, not a ghost. The slow term still does the big shape; the fast one, at
+  // roughly forty cycles across the picture, is what makes neighbouring columns
+  // reach different heights and read as separate tendrils.
+  const float wispSlow = static_cast<float>(7.0 / unit);
+  const float wispFast = static_cast<float>(41.0 / unit);
+
+  deckboy::effects::detail::parallelRows(H, W * 5, [&](int y0, int y1) {
+    for (int y = y0; y < y1; ++y) {
+      std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
+      for (int x = 0; x < W; ++x) {
+        std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+        // A per-column wobble so the wisps are columns of different heights
+        // rather than one ragged line.
+        const float slow = tFbm(salt, x * wispSlow, t * 0.6f) - 0.5f;
+        const float fast = tFbm(salt ^ 0x77ull, x * wispFast, t * 1.9f) - 0.5f;
+        const float wob = slow * 0.62f + fast * 0.38f;
+        const float line = wispLine + wob * wispWob;
+        // HOW FAR THIS ROW IS ABOVE THE WISP LINE. y grows downward, so a row
+        // above the line has (line - y) positive, and keep runs 0 at the line
+        // to 1 a soft distance above it.
+        //
+        // This was written as a clamp and then inverted, which produced exactly
+        // the opposite: keep was 0 wherever the picture should have been whole.
+        // --transition-dump caught it in one line -- meanAlpha 0 at progress 0,
+        // so the cue vanished the instant the take landed, and 0.20 at progress
+        // 1, so it never finished either. Neither is visible in a screenshot of
+        // a running transition.
+        float keep = std::clamp((line - static_cast<float>(y)) / wispSoft, 0.0f, 1.0f);
+        // Anything at or below the line has gone.
+        if (keep <= 0.0f) {
+          px[0] = px[1] = px[2] = px[3] = 0;
+          continue;
+        }
+        const int sy = static_cast<int>(std::lround(y + lift));
+        if (sy >= H) {
+          px[0] = px[1] = px[2] = px[3] = 0;
+          continue;
+        }
+        std::uint8_t s[4];
+        pic.fetch(x, sy, s);
+        // Drain towards a cold blue-grey, not towards grey.
+        const float luma = 0.299f * s[0] + 0.587f * s[1] + 0.114f * s[2];
+        const float cr = luma * 0.82f;
+        const float cg = luma * 0.90f;
+        const float cb = std::min(255.0f, luma * 1.12f + 10.0f);
+        float r = s[0] + (cr - s[0]) * drain;
+        float g = s[1] + (cg - s[1]) * drain;
+        float b = s[2] + (cb - s[2]) * drain;
+        // The pale bite at the wisp edge.
+        const float bite = 4.0f * keep * (1.0f - keep) * 0.5f;
+        r += (235.0f - r) * bite;
+        g += (240.0f - g) * bite;
+        b += (255.0f - b) * bite;
+        px[0] = static_cast<std::uint8_t>(std::clamp(r, 0.0f, 255.0f));
+        px[1] = static_cast<std::uint8_t>(std::clamp(g, 0.0f, 255.0f));
+        px[2] = static_cast<std::uint8_t>(std::clamp(b, 0.0f, 255.0f));
+        // The ghost thins overall as well as being eaten from below.
+        const float thin = static_cast<float>(1.0 - tSmooth(0.35, 1.0, p) * 0.55);
+        px[3] = static_cast<std::uint8_t>(std::clamp(keep * thin * 255.0f, 0.0f, 255.0f));
       }
     }
   });

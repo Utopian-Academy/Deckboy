@@ -414,6 +414,16 @@ jobs:
           python3 tools/check_effects_offline.py --exe ./build/Deckboy --params
           python3 tools/check_effects_offline.py --exe ./build/Deckboy --animation
 
+      # A transition gets half a second in front of an audience and nobody
+      # sees it twice. The two ways it fails are both invisible in a
+      # screenshot: it twitches on the first frame, or it finishes still
+      # holding a piece of the old cue. Both were real -- one new style was
+      # inverted end to end, and the Portal that had already shipped kept its
+      # corners at a third opacity on the very last frame.
+      - name: Every transition starts clean, finishes clean and repeats
+        if: matrix.features == 'all'
+        run: python3 tools/check_transitions.py --exe ./build/Deckboy
+
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4

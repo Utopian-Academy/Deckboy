@@ -2908,21 +2908,49 @@
     // trick cannot draw a rim -- then drawn over the incoming cue like any
     // other held frame. A held frame that is not CPU RGBA dissolves instead,
     // rather than drawing nothing.
-    if (style == TransitionStyle::Portal) {
-      std::vector<std::uint8_t>& pixels = outputRuntime->portalTransitionPixels;
-      MediaEngine::buildPortalTransition(*out, pixels, progress, progress * seconds,
-                                         static_cast<std::uint64_t>(out->index));
-      if (!pixels.empty()) {
-        const std::string key = "portal:" + std::to_string(sourceDeckIndex);
-        SDL_Texture* tex = ensureOverlayBridgeTexture(
-          *outputRuntime, key, out->width, out->height, SDL_PIXELFORMAT_RGBA32);
-        if (tex) {
-          SDL_UpdateTexture(tex, nullptr, pixels.data(), out->width * 4);
-          SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
-          SDL_SetTextureAlphaMod(tex, 255);
-          const SDL_Rect dst = target;
-          SDL_RenderTexture(outputRuntime->outputRenderer, tex, nullptr, &dst);
-          return;
+    // FOUR STYLES, ONE PATH. Portal, Shatter, Clouds and Ghastly all build the
+    // outgoing layer on the CPU as RGBA with alpha in it, and all four are
+    // drawn the same way: upload once, blend over the incoming cue that is
+    // already on the output. Only the builder differs, so only the builder is
+    // chosen here -- and an empty result falls through to the dissolve below
+    // rather than drawing nothing, which is what a held frame that is neither
+    // RGBA nor NV12 gets.
+    {
+      using Builder = void (*)(const DecodedFrame&, std::vector<std::uint8_t>&,
+                               double, double, std::uint64_t);
+      Builder build = nullptr;
+      const char* cacheKey = nullptr;
+      switch (style) {
+        case TransitionStyle::Portal:
+          build = &MediaEngine::buildPortalTransition;  cacheKey = "portal"; break;
+        case TransitionStyle::Shatter:
+          build = &MediaEngine::buildShatterTransition; cacheKey = "shatter"; break;
+        case TransitionStyle::Clouds:
+          build = &MediaEngine::buildCloudsTransition;  cacheKey = "clouds"; break;
+        case TransitionStyle::Ghastly:
+          build = &MediaEngine::buildGhastlyTransition; cacheKey = "ghastly"; break;
+        default: break;
+      }
+      if (build) {
+        std::vector<std::uint8_t>& pixels = outputRuntime->portalTransitionPixels;
+        build(*out, pixels, progress, progress * seconds,
+              static_cast<std::uint64_t>(out->index));
+        if (!pixels.empty()) {
+          // The style is in the cache key: two styles on two decks must not
+          // share one bridge texture, and a style change mid-show must not
+          // reuse the other one's.
+          const std::string key =
+            std::string(cacheKey) + ":" + std::to_string(sourceDeckIndex);
+          SDL_Texture* tex = ensureOverlayBridgeTexture(
+            *outputRuntime, key, out->width, out->height, SDL_PIXELFORMAT_RGBA32);
+          if (tex) {
+            SDL_UpdateTexture(tex, nullptr, pixels.data(), out->width * 4);
+            SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureAlphaMod(tex, 255);
+            const SDL_Rect dst = target;
+            SDL_RenderTexture(outputRuntime->outputRenderer, tex, nullptr, &dst);
+            return;
+          }
         }
       }
     }

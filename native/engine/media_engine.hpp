@@ -632,6 +632,33 @@ class MediaEngine {
                                     double progress, double elapsedSeconds,
                                     std::uint64_t seed);
 
+  // Three more of the same shape, and the same contract: one pass over the
+  // OUTGOING frame into RGBA whose alpha says how much of the old cue still
+  // shows, empty `dst` meaning "dissolve instead". All three are deterministic
+  // in (progress, elapsedSeconds, seed) so two outputs on one deck agree, and
+  // all three are fully transparent by the end so a transition can never
+  // finish on an island of the outgoing picture. tools/check_transitions.py
+  // holds them to both.
+  //
+  //   Shatter  the picture as a dropped pane: shards fly off and take their
+  //            alpha with them, in waves rather than as one sheet
+  //   Clouds   a noise field rises through the frame and eats the picture
+  //            where it is thickest, with a bright fringe at the edge
+  //   Ghastly  the colour drains, the picture smears upward, and wisps eat it
+  //            from the bottom
+  static void buildShatterTransition(const DecodedFrame& outgoing,
+                                     std::vector<std::uint8_t>& dst,
+                                     double progress, double elapsedSeconds,
+                                     std::uint64_t seed);
+  static void buildCloudsTransition(const DecodedFrame& outgoing,
+                                    std::vector<std::uint8_t>& dst,
+                                    double progress, double elapsedSeconds,
+                                    std::uint64_t seed);
+  static void buildGhastlyTransition(const DecodedFrame& outgoing,
+                                     std::vector<std::uint8_t>& dst,
+                                     double progress, double elapsedSeconds,
+                                     std::uint64_t seed);
+
   const DecodedFrame* outgoingFrame() const {
     return heldFrame_.has_value() ? &(*heldFrame_) : nullptr;
   }

@@ -411,6 +411,9 @@ std::string transitionStyleToken(TransitionStyle style) {
     case TransitionStyle::WipeDown:  return "wipedown";
     case TransitionStyle::Iris:      return "iris";
     case TransitionStyle::Portal:    return "portal";
+    case TransitionStyle::Shatter:   return "shatter";
+    case TransitionStyle::Clouds:    return "clouds";
+    case TransitionStyle::Ghastly:   return "ghastly";
     case TransitionStyle::Crossfade:
     default:
       return "crossfade";
@@ -436,6 +439,9 @@ std::string transitionStyleLabel(TransitionStyle style) {
     case TransitionStyle::WipeDown:  return "Wipe down";
     case TransitionStyle::Iris:      return "Iris";
     case TransitionStyle::Portal:    return "Portal";
+    case TransitionStyle::Shatter:   return "Shatter";
+    case TransitionStyle::Clouds:    return "Clouds";
+    case TransitionStyle::Ghastly:   return "Ghastly";
     default:                         return "Dissolve";
   }
 }
@@ -474,6 +480,14 @@ TransitionStyle parseTransitionStyleToken(std::string token, bool* recognised) {
   if (key == "WIPEDOWN")                         return TransitionStyle::WipeDown;
   if (key == "IRIS" || key == "CIRCLE")          return TransitionStyle::Iris;
   if (key == "PORTAL" || key == "BLOBS")         return TransitionStyle::Portal;
+  // GEMS and GLASS for shatter: the operator who asked for this called the
+  // shards gems, and glass is what a dropped pane is made of.
+  if (key == "SHATTER" || key == "GLASS" ||
+      key == "GEMS")                             return TransitionStyle::Shatter;
+  if (key == "CLOUDS" || key == "CLOUD" ||
+      key == "SMOKE")                            return TransitionStyle::Clouds;
+  if (key == "GHASTLY" || key == "GHOST" ||
+      key == "GHOSTLY")                          return TransitionStyle::Ghastly;
   // The label the interface shows for a crossfade, so the word on the button
   // works on the wire as well.
   if (key == "CROSSFADE" || key == "DISSOLVE" ||

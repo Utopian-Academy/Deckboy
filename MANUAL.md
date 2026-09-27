@@ -558,7 +558,7 @@ then Deckboy stops and says so rather than looping forever.
 ## 10. Transitions
 
 Cue-to-cue transitions are set at the deck level and can be overridden per
-cue. There are **thirteen** styles:
+cue. There are **sixteen** styles:
 
 | Style | Token | What happens |
 |-------|-------|--------------|
@@ -570,9 +570,20 @@ cue. There are **thirteen** styles:
 | Wipe left / right / up / down | `wipeleft` … | A hard edge travels across, revealing the incoming cue |
 | Iris | `iris` | The incoming cue opens from the centre |
 | Portal | `portal` | The Portal's blobs melt open through the old picture, with the neon rim on every edge, until the new cue is all that is left |
+| Shatter | `shatter`, `gems`, `glass` | The old picture as a dropped pane: shards fly off in waves, turning and catching the light, and take their corner of the picture with them |
+| Clouds | `clouds`, `smoke` | Weather rises through the frame and eats the old picture where it is thickest, with a bright fringe at the edge. Nothing about it is a circle or a straight line |
+| Ghastly | `ghastly`, `ghost` | The colour drains towards a cold blue-grey, the picture smears upward, and wisps rise and eat it from below |
 
 A **push** moves both pictures; a **wipe** moves only the boundary. They look
-alike in a still and nothing alike in motion.
+alike in a still and nothing alike in motion.
+
+The last four are built a frame at a time on the CPU rather than drawn with
+rectangles, so they cost more than a wipe does — and they are the ones that
+read as something rather than as a shape moving. All four start on the last
+frame of the outgoing cue and end on the incoming one exactly;
+`tools/check_transitions.py` holds them to that on every build, because a
+transition that finishes still holding a shard of the old cue is one that has
+to be cut out of a show.
 
 Set the deck default in the playlist settings; override on a cue in its
 PLAYBACK section. Over the wire, `TRANSITIONSTYLE <token>` sets the style and

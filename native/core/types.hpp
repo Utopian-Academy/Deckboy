@@ -931,6 +931,9 @@ enum class TransitionStyle {
   WipeDown,
   Iris,        // a circle opens from the centre of the frame
   Portal,      // the Portal's melting blobs open through the old picture, neon rim
+  Shatter,     // the old picture as a dropped pane: shards fly off in waves
+  Clouds,      // weather rises through the frame and eats the old picture
+  Ghastly,     // the colour drains, the picture smears upward, wisps eat it
   Count
 };
 

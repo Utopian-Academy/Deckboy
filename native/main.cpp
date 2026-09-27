@@ -11249,6 +11249,8 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--font-check", "open every UI face and render with it; names the step that fails"},
   {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
      "apply one effect to one picture, no window"},
+  {"--transition-dump <style> <out.ppm> <in.ppm> <dst.ppm> [p] [secs]",
+     "one frame of one transition, composited, no window"},
     {"--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]",
      "time one effect per frame at a raster"},
     {"--pdf-probe <file> [outdir] [width]",
@@ -11274,7 +11276,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
-  "--effect-dump", "--effect-bench", "--image-check",
+  "--effect-dump", "--effect-bench", "--image-check", "--transition-dump",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
@@ -11646,6 +11648,14 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       if (n > 0) bframes = n;
     }
     return App::runEffectBench(ops[0], bw, bh, bframes);
+  }
+  if (mode == "--transition-dump") {
+    if (ops.size() < 4) {
+      return missing("<style> <outgoing.ppm> <incoming.ppm> <dst.ppm> [progress] [seconds]");
+    }
+    const double p = ops.size() > 4 ? std::atof(ops[4].c_str()) : 0.5;
+    const double secs = ops.size() > 5 ? std::atof(ops[5].c_str()) : 1.0;
+    return App::runTransitionDump(ops[0], ops[1], ops[2], ops[3], p, secs);
   }
   if (mode == "--effect-dump") {
     if (ops.size() < 3) {

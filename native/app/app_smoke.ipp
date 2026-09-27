@@ -3729,6 +3729,183 @@
   }
 
   // ---------------------------------------------------------------------------
+  // runTransitionDump — `--transition-dump <style> <out.ppm> <in.ppm> <dst.ppm>
+  //                      [progress] [seconds]`
+  //
+  // One frame of one transition, composited, with no window and no decoder.
+  //
+  // The CPU-built transitions (portal, shatter, clouds, ghastly) produce the
+  // OUTGOING layer as RGBA with alpha in it, and the incoming cue is already on
+  // the output underneath. So a dump of the layer on its own is not what
+  // anybody needs to look at: the interesting picture is the composite, and the
+  // one property that matters most is only checkable on the composite --
+  //
+  //   AT progress=1 THE RESULT MUST BE THE INCOMING PICTURE, EXACTLY.
+  //
+  // A transition that ends holding a shard, a wisp or one stubborn pixel of the
+  // old cue is a transition that has to be cut out of a show, and it is
+  // invisible in a screenshot of the running app because the capture lands on
+  // whatever frame the seek reached. Here it is arithmetic: composite at
+  // progress=1 and compare to the incoming file.
+  //
+  // So this writes the composite, and prints the numbers a script needs to
+  // judge it: how much of the outgoing layer is still opaque, and how far the
+  // composite is from each of the two inputs.
+  // ---------------------------------------------------------------------------
+  static int runTransitionDump(const std::string& styleToken,
+                              const std::string& outgoingPath,
+                              const std::string& incomingPath,
+                              const std::string& dstPath,
+                              double progress, double seconds) {
+    bool recognised = false;
+    const TransitionStyle style =
+      deckboy::core::utils::parseTransitionStyleToken(styleToken, &recognised);
+    if (!recognised) {
+      std::cerr << "transition-dump: unknown style '" << styleToken << "'. Known: ";
+      for (int i = 0; i < static_cast<int>(TransitionStyle::Count); ++i) {
+        if (i) std::cerr << ", ";
+        std::cerr << deckboy::core::utils::transitionStyleToken(
+          static_cast<TransitionStyle>(i));
+      }
+      std::cerr << '\n';
+      return 2;
+    }
+
+    auto readPpm = [](const std::string& path, int& w, int& h,
+                      std::vector<std::uint8_t>& rgb) -> bool {
+      std::ifstream in(path, std::ios::binary);
+      if (!in) {
+        std::cerr << "transition-dump: cannot read " << path << '\n';
+        return false;
+      }
+      std::string magic;
+      int maxval = 0;
+      in >> magic >> w >> h >> maxval;
+      if (magic != "P6" || w <= 0 || h <= 0 || maxval != 255) {
+        std::cerr << "transition-dump: " << path
+                  << " is not a binary 8-bit PPM\n";
+        return false;
+      }
+      in.get();
+      rgb.resize(static_cast<std::size_t>(w) * h * 3u);
+      in.read(reinterpret_cast<char*>(rgb.data()),
+              static_cast<std::streamsize>(rgb.size()));
+      if (in.gcount() != static_cast<std::streamsize>(rgb.size())) {
+        std::cerr << "transition-dump: " << path << " is short\n";
+        return false;
+      }
+      return true;
+    };
+
+    int ow = 0, oh = 0, iw = 0, ih = 0;
+    std::vector<std::uint8_t> outRgb, inRgb;
+    if (!readPpm(outgoingPath, ow, oh, outRgb)) return 1;
+    if (!readPpm(incomingPath, iw, ih, inRgb)) return 1;
+    if (ow != iw || oh != ih) {
+      std::cerr << "transition-dump: the two pictures are different sizes ("
+                << ow << "x" << oh << " and " << iw << "x" << ih << ")\n";
+      return 1;
+    }
+
+    const std::size_t count = static_cast<std::size_t>(ow) * oh;
+    DecodedFrame outgoing;
+    outgoing.width = ow;
+    outgoing.height = oh;
+    outgoing.format = FramePixelFormat::RGBA32;
+    outgoing.index = 0;
+    outgoing.pixels.assign(count * 4u, 255);
+    for (std::size_t i = 0; i < count; ++i) {
+      outgoing.pixels[i * 4 + 0] = outRgb[i * 3 + 0];
+      outgoing.pixels[i * 4 + 1] = outRgb[i * 3 + 1];
+      outgoing.pixels[i * 4 + 2] = outRgb[i * 3 + 2];
+    }
+
+    std::vector<std::uint8_t> layer;
+    const std::uint64_t seed = 0;         // fixed: a dump has to repeat exactly
+    const double elapsed = progress * seconds;
+    switch (style) {
+      case TransitionStyle::Portal:
+        MediaEngine::buildPortalTransition(outgoing, layer, progress, elapsed, seed);
+        break;
+      case TransitionStyle::Shatter:
+        MediaEngine::buildShatterTransition(outgoing, layer, progress, elapsed, seed);
+        break;
+      case TransitionStyle::Clouds:
+        MediaEngine::buildCloudsTransition(outgoing, layer, progress, elapsed, seed);
+        break;
+      case TransitionStyle::Ghastly:
+        MediaEngine::buildGhastlyTransition(outgoing, layer, progress, elapsed, seed);
+        break;
+      default:
+        std::cerr << "transition-dump: "
+                  << deckboy::core::utils::transitionStyleToken(style)
+                  << " is drawn by the renderer rather than built on the CPU, so"
+                     " there is nothing to dump. Dumpable: portal, shatter,"
+                     " clouds, ghastly\n";
+        return 2;
+    }
+    if (layer.size() < count * 4u) {
+      std::cerr << "transition-dump: the builder produced nothing (the frame"
+                   " would have dissolved instead)\n";
+      return 1;
+    }
+
+    // SOURCE-OVER, the same blend SDL_BLENDMODE_BLEND does on the output.
+    std::vector<std::uint8_t> composite(count * 3u);
+    double alphaSum = 0.0;
+    std::size_t opaque = 0;
+    std::size_t clear = 0;
+    // THE WORST PIXEL, not just the average. A handful of stubborn pixels at
+    // full alpha is an island of the old cue and averages away to nothing; the
+    // maximum is what says whether anything is actually left.
+    int maxAlpha = 0;
+    for (std::size_t i = 0; i < count; ++i) {
+      const double a = layer[i * 4 + 3] / 255.0;
+      alphaSum += a;
+      if (layer[i * 4 + 3] == 255) ++opaque;
+      if (layer[i * 4 + 3] == 0) ++clear;
+      if (layer[i * 4 + 3] > maxAlpha) maxAlpha = layer[i * 4 + 3];
+      for (int c = 0; c < 3; ++c) {
+        const double over = layer[i * 4 + c];
+        const double under = inRgb[i * 3 + c];
+        composite[i * 3 + c] = static_cast<std::uint8_t>(
+          std::clamp(over * a + under * (1.0 - a) + 0.5, 0.0, 255.0));
+      }
+    }
+
+    std::ofstream dst(dstPath, std::ios::binary | std::ios::trunc);
+    if (!dst) {
+      std::cerr << "transition-dump: cannot write " << dstPath << '\n';
+      return 1;
+    }
+    dst << "P6\n" << ow << ' ' << oh << "\n255\n";
+    dst.write(reinterpret_cast<const char*>(composite.data()),
+              static_cast<std::streamsize>(composite.size()));
+
+    // How far the composite is from each input, as a mean absolute difference
+    // per channel. At progress=0 it should be on the outgoing picture; at
+    // progress=1, on the incoming one.
+    auto meanDiff = [&](const std::vector<std::uint8_t>& other) {
+      double sum = 0.0;
+      for (std::size_t i = 0; i < composite.size(); ++i) {
+        sum += std::abs(static_cast<int>(composite[i]) - static_cast<int>(other[i]));
+      }
+      return sum / static_cast<double>(composite.size());
+    };
+
+    std::cout << "transition-dump: " << deckboy::core::utils::transitionStyleToken(style)
+              << " p=" << progress
+              << " on " << ow << "x" << oh
+              << "  meanAlpha=" << (alphaSum / static_cast<double>(count))
+              << " maxAlpha=" << maxAlpha
+              << " opaque=" << opaque << " clear=" << clear
+              << " fromOutgoing=" << meanDiff(outRgb)
+              << " fromIncoming=" << meanDiff(inRgb)
+              << " -> " << dstPath << '\n';
+    return 0;
+  }
+
+  // ---------------------------------------------------------------------------
   // runAudioFxCheck — `--audio-fx-check [token]`
   //
   // The audio equivalent of --effect-dump, and it exists for the same reason:
