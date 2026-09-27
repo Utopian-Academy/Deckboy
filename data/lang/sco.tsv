@@ -80,3 +80,295 @@ OFF	AFF
 Stopped	Haudit
 Playing	Playin
 Paused	Waitin
+2-UP	2 ASIDE
+DONE	DUNE
+EDIT	EIDIT
+HELD	HAUDEN
+PICK	WALE
+QUAD	FOWER
+STEP	STAP
+Apply	Pit on
+CLOSE	STEEK
+FIXED	FEEXED
+READY	REDD
+ALL ON	AW ON
+ALWAYS	AYWAYS
+Custom	Ain
+HIDDEN	HIDDLINS
+Length	Lenth
+Mirror	Keekin-gless
+TOGGLE	SWITCH
+12 HOUR	12 OOR
+24 HOUR	24 OOR
+ALL OFF	AW AFF
+Key out	Key oot
+LTC out	LTC oot
+MISSING	MISSIN
+RUNNING	RINNIN
+Send to	Send tae
+DOWNLOAD	DOONLOAD
+Mappings	Mappins
+SHOW SDP	SHAW SDP
+WATCHING	WATCHIN
+ASIO outs	ASIO oots
+BOTH AXES	BAITH AXES
+CHECK NOW	CHECK NOO
+CLOCK OFF	CLOCK AFF
+Creatures	Craiturs
+CUE TOOLS	CUE TUILS
+Direction	Airt
+Jump mode	Loup mode
+Listen on	Hearken on
+OSC Query	OSC Speirin
+OUTPUT ON	OOTPIT ON
+Panic now	Panic noo
+RECORDING	RECORDIN
+REMAINING	LEFT
+RESET ALL	RESET AW
+RUN PANIC	RIN PANIC
+SHOW FLOW	SHAW FLOW
+WHEN IDLE	WHAN IDLE
+ADD OUTPUT	EIK OOTPIT
+BUILT WITH	BIGGIT WI
+CANCEL ALL	CANCEL AW
+Input gain	Inpit gain
+Input mono	Inpit mono
+Live input	Live inpit
+MIDI input	MIDI inpit
+no picture	nae pictur
+no preview	nae preview
+OUTPUT OFF	OOTPIT AFF
+TIMERS OFF	TIMERS AFF
+Accept from	Tak frae
+BACK TO TOP	BACK TAE TAP
+Cue numbers	Cue nummers
+Destination	Whaur tae
+Mirror rate	Keekin rate
+no duration	nae lenth
+NO LIVE CUE	NAE LIVE CUE
+NO PREVIOUS	NANE AFORE
+SENDING OUT	SENDIN OOT
+THIS OUTPUT	THIS OOTPIT
+(no matches)	(nae matches)
+(no subtext)	(nae subtext)
+add a button	eik a button
+add a window	eik a windae
+AUDIO OUTPUT	AUDIO OOTPIT
+free running	free rinnin
+LISTENING IN	HEARKENIN IN
+NDI KEY: OFF	NDI KEY: AFF
+NO PROGRAMME	NAE PROGRAMME
+ST 2110: OFF	ST 2110: AFF
+DECKLINK: OFF	DECKLINK: AFF
+Every adapter	Ilka adapter
+KEY+FILL: OFF	KEY+FILL: AFF
+LEFT TO RIGHT	LEFT TAE RICHT
+NEW SHOW FILE	NEW SHAW FILE
+No cue loaded	Nae cue laidit
+nothing taken	naethin taen
+OPEN PREVIOUS	OPEN THE LAST
+Output device	Ootpit device
+REMOVE OUTPUT	TAK AWA OOTPIT
+Sound effects	Soond effects
+TOP TO BOTTOM	TAP TAE FUIT
+127 (all-call)	127 (aw-call)
+ALL INTERFACES	AW INTERFACES
+LOCALHOST ONLY	LOCALHOST ANERLY
+no audio track	nae audio track
+RECORD TO DISK	RECORD TAE DISK
+STOP RECORDING	STAP RECORDIN
+STOP STREAMING	STAP STREAMIN
+NDI SENDING: ON	NDI SENDIN: ON
+NO CUE SELECTED	NAE CUE WALED
+Output channels	Ootpit channels
+preview pending	preview pendin
+START RECORDING	STERT RECORDIN
+START STREAMING	STERT STREAMIN
+Check at startup	Check at stertup
+Mic to recording	Mic tae recordin
+NDI SENDING: OFF	NDI SENDIN: AFF
+no still preview	nae still preview
+SMPTE LTC OUTPUT	SMPTE LTC OOTPIT
+the whole screen	the hale screen
+Check for one now	Check for ane noo
+INSTALL & RESTART	INSTAW & RESTERT
+Registry: NOT SET	Registry: NO SET
+SAFETY / TIMECODE	SAUFTY / TIMECODE
+esc or N to cancel	esc or N tae cancel
+KEYBOARD SHORTCUTS	KEYBUIRD SHORTCUTS
+loading preview...	laidin preview...
+CONVERT ALL FLAGGED	CONVERT AW FLAGGED
+locked to the tempo	lockit tae the tempo
+VJ mode (two decks)	VJ mode (twa decks)
+ADD ANOTHER PLAYLIST	EIK ANITHER PLAYLIST
+Esc or click to skip	Esc or click tae skip
+press ENTER to start	press ENTER tae stert
+ADD A SECOND PLAYLIST	EIK A SECOND PLAYLIST
+filmstrip unavailable	filmstrip no available
+(empty — import media)	(tuim – import media)
+Ctrl+D or Esc to close	Ctrl+D or Esc tae steek
+(no notes for this cue)	(nae notes for this cue)
+Timebase / start / fade	Timebase / stert / fade
+No cues need conversion.	Nae cues need convertin.
+CLICK TO SAMPLE KEY COLOR	CLICK TAE SAMPLE KEY COLOUR
+normalize loudness (R128)	normalise lootness (R128)
+off - all channels silent	aff – aw channels seelent
+no video lane for this cue	nae video lane for this cue
+HyperDeck emulation is off.	HyperDeck emulation is aff.
+OWN SCRIPT  (click to edit)	AIN SCRIPT  (click tae eidit)
+Theme and operator feedback	Theme an operator feedback
+Discovery and mirrored state	Discovery an mirrored state
+FOLLOWING THE LIVE CUE NOTES	FOLLAEIN THE LIVE CUE NOTES
+Listening on all interfaces.	Hearkenin on aw interfaces.
+Network-facing runtime notes	Network-facin runtime notes
+Hi! Press I to import a clip.	Hullo! Press I tae import a clip.
+Global jump and panic behavior	Global loup an panic behaviour
+Roll when the show cuts to you	Roll whan the shaw cuts tae ye
+Choose a cue to inspect it here	Wale a cue tae inspect it here
+Defaults for newly created cues	Defaults for new-made cues
+Device routing for cue playback	Device routin for cue playback
+Smaller buffer = lower latency.	Wee-er buffer = lower latency.
+Emergency fade and sync behavior	Emergency fade an sync behaviour
+mixed selection: key unavailable	mixed selection: key no available
+Esc=continue with current session	Esc = cairry on wi this session
+no per-cue settings for this type	nae per-cue settins for this type
+On stop: remux to an ordinary MP4	On stap: remux tae an ordinar MP4
+Where RECORD writes the programme	Whaur RECORD writes the programme
+Listening on localhost (127.0.0.1).	Hearkenin on localhost (127.0.0.1).
+three expressions: red, green, blue	three expressions: reid, green, blue
+Transport sync with another machine	Transport sync wi anither machine
+Add slot sources in the cue inspector	Eik slot sources in the cue inspector
+Ask GitHub; never installs on its own	Speirs at GitHub; never instaws itsel
+mixed selection: geometry unavailable	mixed selection: geometry no available
+generate timecode for the rig to chase	mak timecode for the rig tae chase
+Lower Third and PIP fire independently	Lower Third an PIP fire on their ain
+Panels built for a vMix rig, unchanged	Panels biggit for a vMix rig, unchynged
+Incoming transport arrives as NMCEVENT.	Incomin transport comes in as NMCEVENT.
+not in this build - saved with the show	no in this build – saved wi the shaw
+Find from the playlist, not from a modal	Find frae the playlist, no frae a modal
+take or select a cue to open the timeline	tak or wale a cue tae open the timeline
+Optional external transport and cue control	Optional ootside transport an cue control
+No previous show file found at startup path.	Nae earlier shaw file fund at stertup path.
+Use Ctrl+F or type a cue id/number to search.	Use Ctrl+F or type a cue id/nummer tae seek.
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC ingress an HyperDeck emulation
+A/V delay holds audio back for lagging displays.	A/V delay hauds audio back for laggin displays.
+On stop: leave the crash-resilient file as it is	On stap: lea the crash-resilient file as it is
+same disk as Deckboy - a separate drive is safer	same disk as Deckboy – a separate drive is saufer
+A step fires one cue on each playlist, all at once.	A stap fires ae cue on ilka playlist, aw at aince.
+one expression: the same value in red, green and blue	ae expression: the same value in reid, green an blue
+NDI transport is configured per output in Video Outputs.	NDI transport is set per ootpit in Video Ootpits.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Sends PLAY / PAUSE / STOP / LOCATE as the transport muives.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC subscribe: send /deckboy/subscribe frae yer controller.
+NMC mode / host / port are runtime-configurable for sync work.	NMC mode / host / port can be set while rinnin for sync wark.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Gaun on air taks the cue. Deckboy never sends the switcher a command.
+FPS: OFF	FPS: AFF
+NMOS: OFF	NMOS: AFF
+SPOUT: OFF	SPOUT: AFF
+CANVAS: OFF	CANVAS: AFF
+10-BIT: OFF	10-BIT: AFF
+EDIT...	EIDIT...
+ADD FILE...	EIK FILE...
+RENUMBER...	RENUMMER...
+no script	nae script
++ OUTPUT	+ OOTPIT
+Ctrl+/ to close	Ctrl+/ tae steek
+(step lives here)	(the stap bides here)
+No outputs — click + OUTPUT to add one.	Nae ootpits – click + OOTPIT tae eik ane.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI trigger, NMC, MTC, LTC, Art-Net an Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Convert tae H.264 the cues Deckboy canna play weel
+a button can run any command the network protocol understands	a button can rin ony command the network protocol kens
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ARRANGE PRESENTER  -  draw a panel tae muive it, a corner tae size it
+Mode	Mode
+Rate	Rate
+Help!	Help!
+ORDER	ORDER
+TILES	TILES
+ANALOG	ANALOG
+Buffer	Buffer
+Cancel	Cancel
+Device	Device
+Folder	Folder
+Mascot	Mascot
+NATIVE	NATIVE
+PRESET	PRESET
+Sender	Sender
+SUMMED	SUMMED
+ARRANGE	ARRANGE
+Channel	Channel
+CONVERT	CONVERT
+DEFAULT	DEFAULT
+END CUE	END CUE
+PRESETS	PRESETS
+PROJECT	PROJECT
+SHUFFLE	SHUFFLE
+UPDATES	UPDATES
+VJ MODE	VJ MODE
+CLOCK ON	CLOCK ON
+EXAMPLES	EXAMPLES
+NMC sync	NMC sync
+PROMPTER	PROMPTER
+TCP port	TCP port
+UI scale	UI scale
+vMix API	vMix API
+A/V delay	A/V delay
+Freewheel	Freewheel
+HTTP port	HTTP port
+TIMERS ON	TIMERS ON
+colour tag	colour tag
+copy chain	copy chain
+Hover tips	Hover tips
+live audio	live audio
+OPEN SAVED	OPEN SAVED
+Panic fade	Panic fade
+Tally port	Tally port
+ASIO driver	ASIO driver
+CANVAS MODE	CANVAS MODE
+CODE SOURCE	CODE SOURCE
+OVERLAY BIN	OVERLAY BIN
+paste chain	paste chain
+Sample rate	Sample rate
+Shift: snap	Shift: snap
+Art-Net port	Art-Net port
+Auto restore	Auto restore
+DECKLINK: ON	DECKLINK: ON
+KEY+FILL: ON	KEY+FILL: ON
+Miami cursor	Miami cursor
+MIDI CONTROL	MIDI CONTROL
+Mirror state	Mirror state
+NDI KEY: ON	NDI KEY: ON
+ST 2110: ON	ST 2110: ON
+WATCH FOLDER	WATCH FOLDER
+COMPOSITE CUE	COMPOSITE CUE
+default route	default route
+MEDIA ENCODER	MEDIA ENCODER
+MSC device id	MSC device id
+Panic profile	Panic profile
+Quit Deckboy?	Quit Deckboy?
+Tally address	Tally address
+Monitor device	Monitor device
+PRESENTER VIEW	PRESENTER VIEW
+TALLY TRIGGERS	TALLY TRIGGERS
+Device channels	Device channels
+(system default)	(system default)
+Global crossfade	Global crossfade
+Monitor playlist	Monitor playlist
+Pocket 3 / touch	Pocket 3 / touch
+Timecode jam sync	Timecode jam sync
+dot-matrix cue deck	dot-matrix cue deck
+HyperDeck emulation	HyperDeck emulation
+Companion / OSC port	Companion / OSC port
+PLAYLIST PREFERENCES	PLAYLIST PREFERENCES
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (EXPERIMENTAL)
+dot-matrix cue deck for live events	dot-matrix cue deck for live events
+Import or click a cue in the playlist	Import or click a cue in the playlist
+FPS: ON	FPS: ON
+NMOS: ON	NMOS: ON
+SPOUT: ON	SPOUT: ON
+CANVAS: ON	CANVAS: ON
+10-BIT: ON	10-BIT: ON
+FOLDER...	FOLDER...
+ARRANGE...	ARRANGE...
+set a port...	set a port...
+Eddie's Clock	Eddie's Clock
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT

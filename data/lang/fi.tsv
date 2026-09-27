@@ -80,3 +80,297 @@ OFF	POIS
 Stopped	Pysäytetty
 Playing	Toistaa
 Paused	Tauolla
+2-UP	2 RINNAKKAIN
+DONE	VALMIS
+EDIT	MUOKKAA
+HELD	PIDOSSA
+Mode	Tila
+PICK	VALITSE
+QUAD	NELJÄ
+Rate	Taajuus
+STEP	ASKEL
+Apply	Käytä
+CLOSE	SULJE
+FIXED	KIINTEÄ
+Help!	Apua!
+ORDER	JÄRJESTYS
+READY	VALMIS
+TILES	RUUDUT
+ALL ON	KAIKKI PÄÄLLE
+ALWAYS	AINA
+ANALOG	ANALOGINEN
+Buffer	Puskuri
+Cancel	Peruuta
+Custom	Oma
+Device	Laite
+Folder	Kansio
+FORMAT	MUOTO
+HIDDEN	PIILOSSA
+Length	Pituus
+Mascot	Maskotti
+Mirror	Peili
+NATIVE	NATIIVI
+PRESET	ESIASETUS
+Sender	Lähetin
+SUMMED	SUMMATTU
+TOGGLE	VAIHDA
+12 HOUR	12 TUNTIA
+24 HOUR	24 TUNTIA
+ALL OFF	KAIKKI POIS
+ARRANGE	ASETTELE
+Channel	Kanava
+CONVERT	MUUNNA
+DEFAULT	OLETUS
+END CUE	CUEN LOPPU
+Key out	Key-ulostulo
+LTC out	LTC-ulostulo
+MISSING	PUUTTUU
+PRESETS	ESIASETUKSET
+PROJECT	PROJEKTI
+RUNNING	KÄYNNISSÄ
+Send to	Lähetä
+SHUFFLE	SEKOITA
+UPDATES	PÄIVITYKSET
+VJ MODE	VJ-TILA
+CLOCK ON	KELLO PÄÄLLE
+DOWNLOAD	LATAA
+EXAMPLES	ESIMERKIT
+Mappings	Määritykset
+NMC sync	NMC-tahdistus
+PROMPTER	PROMPTERI
+SHOW SDP	NÄYTÄ SDP
+TCP port	TCP-portti
+UI scale	Käyttöliittymän koko
+vMix API	vMix-API
+WATCHING	VALVOTAAN
+A/V delay	A/V-viive
+ASIO outs	ASIO-ulostulot
+BOTH AXES	MOLEMMAT AKSELIT
+CHECK NOW	TARKISTA NYT
+CLOCK OFF	KELLO POIS
+Creatures	Olennot
+CUE TOOLS	CUE-TYÖKALUT
+Direction	Suunta
+Freewheel	Vapaakäynti
+HTTP port	HTTP-portti
+Jump mode	Hyppytila
+Listen on	Kuuntele
+OSC Query	OSC-kysely
+OUTPUT ON	ULOSTULO PÄÄLLE
+Panic now	Paniikki nyt
+RECORDING	TALLENNUS
+REMAINING	JÄLJELLÄ
+RESET ALL	NOLLAA KAIKKI
+RUN PANIC	AJA PANIIKKI
+SHOW FLOW	SHOWN KULKU
+TIMERS ON	AJASTIMET PÄÄLLE
+WHEN IDLE	JOUTOKÄYNNILLÄ
+ADD OUTPUT	LISÄÄ ULOSTULO
+BUILT WITH	RAKENNETTU
+CANCEL ALL	PERUUTA KAIKKI
+colour tag	värimerkki
+copy chain	kopioi ketju
+Hover tips	Vinkit
+Input gain	Tulon vahvistus
+Input mono	Tulo mono
+live audio	suora ääni
+Live input	Suora tulo
+MIDI input	MIDI-tulo
+no picture	ei kuvaa
+no preview	ei esikatselua
+OPEN SAVED	AVAA TALLENNETTU
+OUTPUT OFF	ULOSTULO POIS
+Panic fade	Paniikkihäivytys
+Tally port	Tally-portti
+TIMERS OFF	AJASTIMET POIS
+Accept from	Hyväksy
+ASIO driver	ASIO-ajuri
+BACK TO TOP	YLÖS
+CANVAS MODE	KANGASTILA
+CODE SOURCE	KOODILÄHDE
+Cue numbers	Cue-numerot
+Destination	Kohde
+Mirror rate	Peilaustaajuus
+no duration	ei kestoa
+NO LIVE CUE	EI SUORAA CUETA
+NO PREVIOUS	EI EDELLISTÄ
+OVERLAY BIN	PÄÄLLYSKORI
+paste chain	liitä ketju
+Sample rate	Näytteenottotaajuus
+SENDING OUT	LÄHETTÄÄ
+Shift: snap	Shift: nappaa
+THIS OUTPUT	TÄMÄ ULOSTULO
+(no matches)	(ei osumia)
+(no subtext)	(ei alatekstiä)
+add a button	lisää painike
+add a window	lisää ikkuna
+Art-Net port	Art-Net-portti
+AUDIO OUTPUT	ÄÄNIULOSTULO
+Auto restore	Palauta itse
+DECKLINK: ON	DECKLINK: PÄÄLLÄ
+free running	vapaasti käyvä
+KEY+FILL: ON	KEY+FILL: PÄÄLLÄ
+LISTENING IN	KUUNTELEE
+Miami cursor	Miami-osoitin
+MIDI CONTROL	MIDI-OHJAUS
+Mirror state	Peilaa tila
+NDI KEY: OFF	NDI KEY: POIS
+NDI KEY: ON	NDI KEY: PÄÄLLÄ
+NO PROGRAMME	EI PROGRAMIA
+ST 2110: OFF	ST 2110: POIS
+ST 2110: ON	ST 2110: PÄÄLLÄ
+WATCH FOLDER	VALVOTTU KANSIO
+COMPOSITE CUE	YHDISTELMÄCUE
+DECKLINK: OFF	DECKLINK: POIS
+default route	oletusreitti
+Every adapter	Kaikki sovittimet
+KEY+FILL: OFF	KEY+FILL: POIS
+LEFT TO RIGHT	VASEMMALTA OIKEALLE
+MEDIA ENCODER	MEDIAKOODAIN
+MSC device id	MSC-laitetunnus
+NEW SHOW FILE	UUSI SHOW-TIEDOSTO
+No cue loaded	Ei ladattua cueta
+nothing taken	ei otettu mitään
+OPEN PREVIOUS	AVAA EDELLINEN
+Output device	Ulostulolaite
+Panic profile	Paniikkiprofiili
+Quit Deckboy?	Lopetetaanko Deckboy?
+REMOVE OUTPUT	POISTA ULOSTULO
+Sound effects	Äänitehosteet
+Tally address	Tally-osoite
+TOP TO BOTTOM	YLHÄÄLTÄ ALAS
+127 (all-call)	127 (yleiskutsu)
+ALL INTERFACES	KAIKKI LIITÄNNÄT
+LOCALHOST ONLY	VAIN LOCALHOST
+Monitor device	Kuuntelulaite
+no audio track	ei ääniraitaa
+PRESENTER VIEW	ESITTÄJÄN NÄKYMÄ
+RECORD TO DISK	TALLENNA LEVYLLE
+STOP RECORDING	LOPETA TALLENNUS
+STOP STREAMING	LOPETA LÄHETYS
+TALLY TRIGGERS	TALLY-LIIPAISIMET
+Device channels	Laitteen kanavat
+NDI SENDING: ON	NDI-LÄHETYS: PÄÄLLÄ
+NO CUE SELECTED	EI VALITTUA CUETA
+Output channels	Ulostulokanavat
+preview pending	esikatselu kesken
+START RECORDING	ALOITA TALLENNUS
+START STREAMING	ALOITA LÄHETYS
+(system default)	(järjestelmän oletus)
+Check at startup	Tarkista käynnistyksessä
+Global crossfade	Yleinen ristihäivytys
+Mic to recording	Mikrofoni tallenteeseen
+Monitor playlist	Kuuntele soittolistaa
+NDI SENDING: OFF	NDI-LÄHETYS: POIS
+no still preview	ei kuvan esikatselua
+Pocket 3 / touch	Pocket 3 / kosketus
+SMPTE LTC OUTPUT	SMPTE LTC -ULOSTULO
+the whole screen	koko näyttö
+Check for one now	Tarkista nyt
+INSTALL & RESTART	ASENNA JA KÄYNNISTÄ
+Registry: NOT SET	Rekisteri: EI ASETETTU
+SAFETY / TIMECODE	TURVA / AIKAKOODI
+Timecode jam sync	Aikakoodin jam sync
+esc or N to cancel	Esc tai N peruuttaa
+KEYBOARD SHORTCUTS	NÄPPÄINOIKOTIET
+loading preview...	ladataan esikatselua...
+CONVERT ALL FLAGGED	MUUNNA KAIKKI MERKITYT
+dot-matrix cue deck	matriisi-cuepöytä
+HyperDeck emulation	HyperDeck-emulointi
+locked to the tempo	lukittu tempoon
+VJ mode (two decks)	VJ-tila (kaksi deckiä)
+ADD ANOTHER PLAYLIST	LISÄÄ SOITTOLISTA
+Companion / OSC port	Companion- / OSC-portti
+Esc or click to skip	Esc tai napsauta ohittaaksesi
+PLAYLIST PREFERENCES	SOITTOLISTAN ASETUKSET
+press ENTER to start	paina ENTER aloittaaksesi
+ADD A SECOND PLAYLIST	LISÄÄ TOINEN SOITTOLISTA
+filmstrip unavailable	filmiliuska ei saatavilla
+(empty — import media)	(tyhjä – tuo mediaa)
+Ctrl+D or Esc to close	Ctrl+D tai Esc sulkee
+(no notes for this cue)	(ei muistiinpanoja tälle cuelle)
+Timebase / start / fade	Aikaperusta / aloitus / häivytys
+No cues need conversion.	Mikään cue ei vaadi muunnosta.
+CLICK TO SAMPLE KEY COLOR	NAPSAUTA POIMIAKSESI KEY-VÄRIN
+normalize loudness (R128)	normalisoi äänenvoimakkuus (R128)
+off - all channels silent	pois – kaikki kanavat hiljaa
+no video lane for this cue	ei videoraitaa tälle cuelle
+HyperDeck emulation is off.	HyperDeck-emulointi on pois.
+OWN SCRIPT  (click to edit)	OMA KÄSIKIRJOITUS  (napsauta muokataksesi)
+Theme and operator feedback	Teema ja käyttäjän palaute
+Discovery and mirrored state	Löytäminen ja peilattu tila
+FOLLOWING THE LIVE CUE NOTES	SEURAA SUORAN CUEN MUISTIINPANOJA
+Listening on all interfaces.	Kuuntelee kaikkia liitäntöjä.
+Network-facing runtime notes	Verkkoon näkyvät ajonaikaiset tiedot
+Hi! Press I to import a clip.	Hei! Paina I tuodaksesi klipin.
+Global jump and panic behavior	Yleinen hyppy- ja paniikkitoiminta
+Roll when the show cuts to you	Käynnisty kun lähetys leikkaa sinuun
+Choose a cue to inspect it here	Valitse cue tarkastellaksesi sitä
+Defaults for newly created cues	Oletukset uusille cueille
+Device routing for cue playback	Laitereititys cuen toistoon
+Smaller buffer = lower latency.	Pienempi puskuri = pienempi viive.
+Emergency fade and sync behavior	Hätähäivytys ja tahdistus
+mixed selection: key unavailable	sekavalinta: key ei saatavilla
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (KOKEELLINEN)
+Esc=continue with current session	Esc = jatka nykyistä istuntoa
+no per-cue settings for this type	ei cue-asetuksia tälle tyypille
+On stop: remux to an ordinary MP4	Pysäytyksessä: remuxaa tavalliseksi MP4:ksi
+Where RECORD writes the programme	Minne RECORD kirjoittaa programin
+dot-matrix cue deck for live events	matriisi-cuepöytä live-tapahtumiin
+Listening on localhost (127.0.0.1).	Kuuntelee localhostia (127.0.0.1).
+three expressions: red, green, blue	kolme lauseketta: punainen, vihreä, sininen
+Transport sync with another machine	Kuljetuksen tahdistus toiseen koneeseen
+Add slot sources in the cue inspector	Lisää lähteet cue-tarkastelijassa
+Ask GitHub; never installs on its own	Kysyy GitHubilta; ei asenna itse
+Import or click a cue in the playlist	Tuo tai napsauta cueta soittolistalla
+mixed selection: geometry unavailable	sekavalinta: geometria ei saatavilla
+generate timecode for the rig to chase	tuota aikakoodi jota kalusto seuraa
+Lower Third and PIP fire independently	Alapalkki ja PiP laukeavat erikseen
+Panels built for a vMix rig, unchanged	vMix-kalustoon tehdyt paneelit, ennallaan
+Incoming transport arrives as NMCEVENT.	Saapuva kuljetus tulee NMCEVENT-muodossa.
+not in this build - saved with the show	ei tässä versiossa – tallennettu shown mukana
+Find from the playlist, not from a modal	Etsi soittolistalta, ei ikkunasta
+take or select a cue to open the timeline	ota tai valitse cue avataksesi aikajanan
+Optional external transport and cue control	Valinnainen ulkoinen kuljetus ja cue-ohjaus
+No previous show file found at startup path.	Edellistä show-tiedostoa ei löytynyt.
+Use Ctrl+F or type a cue id/number to search.	Käytä Ctrl+F tai kirjoita cuen tunnus/numero.
+Companion / OSC ingress and HyperDeck emulation	Companion- / OSC-tulo ja HyperDeck-emulointi
+A/V delay holds audio back for lagging displays.	A/V-viive hidastaa ääntä viiveisille näytöille.
+On stop: leave the crash-resilient file as it is	Pysäytyksessä: jätä kaatumisvarma tiedosto sellaisenaan
+same disk as Deckboy - a separate drive is safer	sama levy kuin Deckboy – erillinen on turvallisempi
+A step fires one cue on each playlist, all at once.	Askel laukaisee yhden cuen jokaisella soittolistalla yhtä aikaa.
+one expression: the same value in red, green and blue	yksi lauseke: sama arvo punaisessa, vihreässä ja sinisessä
+NDI transport is configured per output in Video Outputs.	NDI-kuljetus asetetaan ulostulokohtaisesti Videoulostuloissa.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Lähettää PLAY / PAUSE / STOP / LOCATE kuljetuksen liikkuessa.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC-tilaus: lähetä /deckboy/subscribe ohjaimeltasi.
+NMC mode / host / port are runtime-configurable for sync work.	NMC-tila / isäntä / portti ovat säädettävissä ajon aikana.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Lähetykseen meno ottaa cuen. Deckboy ei koskaan lähetä mikserille käskyä.
+FPS: ON	FPS: PÄÄLLÄ
+FPS: OFF	FPS: POIS
+NMOS: ON	NMOS: PÄÄLLÄ
+NMOS: OFF	NMOS: POIS
+SPOUT: ON	SPOUT: PÄÄLLÄ
+SPOUT: OFF	SPOUT: POIS
+CANVAS: ON	KANGAS: PÄÄLLÄ
+CANVAS: OFF	KANGAS: POIS
+10-BIT: ON	10-BITTIÄ: PÄÄLLÄ
+10-BIT: OFF	10-BITTIÄ: POIS
+EDIT...	MUOKKAA...
+FOLDER...	KANSIO...
+ARRANGE...	ASETTELE...
+ADD FILE...	LISÄÄ TIEDOSTO...
+RENUMBER...	NUMEROI UUDELLEEN...
+set a port...	aseta portti...
+no script	ei käsikirjoitusta
++ OUTPUT	+ ULOSTULO
+Eddie's Clock	Eddien kello
+Ctrl+/ to close	Ctrl+/ sulkee
+(step lives here)	(askel on täällä)
+4:2:2  8-BIT	4:2:2  8 BITTIÄ
+4:2:2  10-BIT	4:2:2  10 BITTIÄ
+No outputs — click + OUTPUT to add one.	Ei ulostuloja – napsauta + ULOSTULO.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI-liipaisin, NMC, MTC, LTC, Art-Net ja Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Muunna H.264:ksi ne cuet joita Deckboy ei toista hyvin
+a button can run any command the network protocol understands	painike voi ajaa mitä tahansa protokollan ymmärtämää käskyä
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ASETTELE ESITTÄJÄN NÄKYMÄ  -  raahaa paneelia siirtääksesi, kulmaa muuttaaksesi kokoa
+VIDEO	VIDEO

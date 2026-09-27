@@ -80,3 +80,297 @@ OFF	AF
 Stopped	Stöðvað
 Playing	Spilar
 Paused	Í bið
+2-UP	2 SAMSÍÐA
+DONE	LOKIÐ
+EDIT	BREYTA
+HELD	HALDIÐ
+Mode	Hamur
+PICK	VELJA
+QUAD	FJÖGUR
+Rate	Tíðni
+STEP	SKREF
+Apply	Nota
+CLOSE	LOKA
+FIXED	FAST
+Help!	Hjálp!
+ORDER	RÖÐ
+READY	TILBÚIÐ
+TILES	FLÍSAR
+VIDEO	VÍDEÓ
+ALL ON	ALLT Á
+ALWAYS	ALLTAF
+ANALOG	HLIÐRÆNT
+Buffer	Biðminni
+Cancel	Hætta
+Custom	Eigið
+Device	Tæki
+Folder	Mappa
+FORMAT	SNIÐ
+HIDDEN	FALIÐ
+Length	Lengd
+Mascot	Lukkudýr
+Mirror	Spegill
+NATIVE	INNBYGGT
+PRESET	FORSTILLING
+Sender	Sendandi
+SUMMED	SAMLAGT
+TOGGLE	SKIPTA
+12 HOUR	12 KLST
+24 HOUR	24 KLST
+ALL OFF	ALLT AF
+ARRANGE	RAÐA
+Channel	Rás
+CONVERT	UMBREYTA
+DEFAULT	SJÁLFGEFIÐ
+END CUE	LOK CUE
+Key out	Key-úttak
+LTC out	LTC-úttak
+MISSING	VANTAR
+PRESETS	FORSTILLINGAR
+PROJECT	VERKEFNI
+RUNNING	Í GANGI
+Send to	Senda til
+SHUFFLE	HANDAHÓFI
+UPDATES	UPPFÆRSLUR
+VJ MODE	VJ-HAMUR
+CLOCK ON	KLUKKA Á
+DOWNLOAD	HALA NIÐUR
+EXAMPLES	DÆMI
+Mappings	Vörpun
+NMC sync	NMC-samstilling
+PROMPTER	SKJÁTEXTI
+SHOW SDP	SÝNA SDP
+TCP port	TCP-gátt
+UI scale	Viðmótsstærð
+vMix API	vMix-API
+WATCHING	VAKTAR
+A/V delay	A/V-seinkun
+ASIO outs	ASIO-úttök
+BOTH AXES	BÁÐIR ÁSAR
+CHECK NOW	ATHUGA NÚNA
+CLOCK OFF	KLUKKA AF
+Creatures	Kvikindi
+CUE TOOLS	CUE-VERKFÆRI
+Direction	Átt
+Freewheel	Frírúll
+HTTP port	HTTP-gátt
+Jump mode	Hopphamur
+Listen on	Hlusta á
+OSC Query	OSC-fyrirspurn
+OUTPUT ON	ÚTTAK Á
+Panic now	Neyðarstopp núna
+RECORDING	UPPTAKA
+REMAINING	EFTIR
+RESET ALL	ENDURSTILLA ALLT
+RUN PANIC	KEYRA NEYÐARSTOPP
+SHOW FLOW	SÝNINGARFLÆÐI
+TIMERS ON	TÍMAMÆLAR Á
+WHEN IDLE	Í HVÍLD
+ADD OUTPUT	BÆTA VIÐ ÚTTAKI
+BUILT WITH	BYGGT MEÐ
+CANCEL ALL	HÆTTA VIÐ ALLT
+colour tag	litamerki
+copy chain	afrita keðju
+Hover tips	Svifvísbendingar
+Input gain	Inntaksstyrkur
+Input mono	Inntak mónó
+live audio	beint hljóð
+Live input	Beint inntak
+MIDI input	MIDI-inntak
+no picture	engin mynd
+no preview	engin forsýn
+OPEN SAVED	OPNA VISTAÐ
+OUTPUT OFF	ÚTTAK AF
+Panic fade	Neyðardeyfing
+Tally port	Tally-gátt
+TIMERS OFF	TÍMAMÆLAR AF
+Accept from	Taka við frá
+ASIO driver	ASIO-stýring
+BACK TO TOP	AFTUR Á TOPPINN
+CANVAS MODE	MYNDFLATARHAMUR
+CODE SOURCE	KÓÐAGJAFI
+Cue numbers	Cue-númer
+Destination	Áfangastaður
+Mirror rate	Speglunartíðni
+no duration	engin lengd
+NO LIVE CUE	ENGIN BEIN CUE
+NO PREVIOUS	EKKERT FYRRA
+OVERLAY BIN	YFIRLAGSHIRSLA
+paste chain	líma keðju
+Sample rate	Söfnunartíðni
+SENDING OUT	SENDIR ÚT
+Shift: snap	Shift: hrökkva
+THIS OUTPUT	ÞETTA ÚTTAK
+(no matches)	(engar samsvaranir)
+(no subtext)	(enginn undirtexti)
+add a button	bæta við hnappi
+add a window	bæta við glugga
+Art-Net port	Art-Net-gátt
+AUDIO OUTPUT	HLJÓÐÚTTAK
+Auto restore	Endurheimta sjálfkrafa
+DECKLINK: ON	DECKLINK: Á
+free running	frírúllandi
+KEY+FILL: ON	KEY+FILL: Á
+LISTENING IN	HLUSTAR
+Miami cursor	Miami-bendill
+MIDI CONTROL	MIDI-STÝRING
+Mirror state	Spegla stöðu
+NDI KEY: OFF	NDI KEY: AF
+NDI KEY: ON	NDI KEY: Á
+NO PROGRAMME	ENGIN ÚTSENDING
+ST 2110: OFF	ST 2110: AF
+ST 2110: ON	ST 2110: Á
+WATCH FOLDER	VÖKTUÐ MAPPA
+COMPOSITE CUE	SAMSETT CUE
+DECKLINK: OFF	DECKLINK: AF
+default route	sjálfgefin leið
+Every adapter	Hvert netkort
+KEY+FILL: OFF	KEY+FILL: AF
+LEFT TO RIGHT	FRÁ VINSTRI TIL HÆGRI
+MEDIA ENCODER	MIÐLUNARKÓÐARI
+MSC device id	MSC-tækisnúmer
+NEW SHOW FILE	NÝ SÝNINGARSKRÁ
+No cue loaded	Engin cue hlaðin
+nothing taken	ekkert tekið
+OPEN PREVIOUS	OPNA FYRRA
+Output device	Úttakstæki
+Panic profile	Neyðarstoppsnið
+Quit Deckboy?	Loka Deckboy?
+REMOVE OUTPUT	FJARLÆGJA ÚTTAK
+Sound effects	Hljóðbrellur
+Tally address	Tally-vistfang
+TOP TO BOTTOM	FRÁ TOPPI TIL BOTNS
+127 (all-call)	127 (allsherjarkall)
+ALL INTERFACES	ÖLL NETKORT
+LOCALHOST ONLY	AÐEINS LOCALHOST
+Monitor device	Eftirlitstæki
+no audio track	ekkert hljóðspor
+PRESENTER VIEW	SÝN FLYTJANDA
+RECORD TO DISK	TAKA UPP Á DISK
+STOP RECORDING	STOPPA UPPTÖKU
+STOP STREAMING	STOPPA STREYMI
+TALLY TRIGGERS	TALLY-KVEIKJUR
+Device channels	Rásir tækis
+NDI SENDING: ON	NDI-SENDING: Á
+NO CUE SELECTED	ENGIN CUE VALIN
+Output channels	Úttaksrásir
+preview pending	forsýn í bið
+START RECORDING	BYRJA UPPTÖKU
+START STREAMING	BYRJA STREYMI
+(system default)	(sjálfgefið í stýrikerfi)
+Check at startup	Athuga við upphaf
+Global crossfade	Almenn krossdeyfing
+Mic to recording	Hljóðnemi í upptöku
+Monitor playlist	Eftirlit með spilunarlista
+NDI SENDING: OFF	NDI-SENDING: AF
+no still preview	engin stillumyndaforsýn
+Pocket 3 / touch	Pocket 3 / snerting
+SMPTE LTC OUTPUT	SMPTE LTC-ÚTTAK
+the whole screen	allur skjárinn
+Check for one now	Athuga núna
+INSTALL & RESTART	SETJA UPP OG ENDURRÆSA
+Registry: NOT SET	Skrásetning: EKKI STILLT
+SAFETY / TIMECODE	ÖRYGGI / TÍMAKÓÐI
+Timecode jam sync	Jam sync tímakóða
+esc or N to cancel	Esc eða N til að hætta
+KEYBOARD SHORTCUTS	FLÝTILYKLAR
+loading preview...	hleð forsýn...
+CONVERT ALL FLAGGED	UMBREYTA ÖLLU MERKTU
+dot-matrix cue deck	punktafylkis cue-borð
+HyperDeck emulation	HyperDeck-eftirlíking
+locked to the tempo	fest við taktinn
+VJ mode (two decks)	VJ-hamur (tvö borð)
+ADD ANOTHER PLAYLIST	BÆTA VIÐ SPILUNARLISTA
+Companion / OSC port	Companion- / OSC-gátt
+Esc or click to skip	Esc eða klikk til að sleppa
+PLAYLIST PREFERENCES	KJÖRSTILLINGAR SPILUNARLISTA
+press ENTER to start	ýttu á ENTER til að byrja
+ADD A SECOND PLAYLIST	BÆTA VIÐ ÖÐRUM SPILUNARLISTA
+filmstrip unavailable	filmustrimill ófáanlegur
+(empty — import media)	(tómt – flyttu inn efni)
+Ctrl+D or Esc to close	Ctrl+D eða Esc til að loka
+(no notes for this cue)	(engar athugasemdir við þessa cue)
+Timebase / start / fade	Tímagrunnur / upphaf / deyfing
+No cues need conversion.	Engin cue þarf umbreytingu.
+CLICK TO SAMPLE KEY COLOR	KLIKKAÐU TIL AÐ TAKA KEY-LIT
+normalize loudness (R128)	jafna hljóðstyrk (R128)
+off - all channels silent	af – allar rásir þögular
+no video lane for this cue	engin vídeórás fyrir þessa cue
+HyperDeck emulation is off.	HyperDeck-eftirlíking er af.
+OWN SCRIPT  (click to edit)	EIGIÐ HANDRIT  (klikkaðu til að breyta)
+Theme and operator feedback	Þema og svörun við stjórnanda
+Discovery and mirrored state	Uppgötvun og spegluð staða
+FOLLOWING THE LIVE CUE NOTES	FYLGIR ATHUGASEMDUM BEINU CUE
+Listening on all interfaces.	Hlustar á öll netkort.
+Network-facing runtime notes	Keyrsluupplýsingar sem netið sér
+Hi! Press I to import a clip.	Hæ! Ýttu á I til að flytja inn klippu.
+Global jump and panic behavior	Almenn hopp- og neyðarhegðun
+Roll when the show cuts to you	Rúllaðu þegar útsendingin fer á þig
+Choose a cue to inspect it here	Veldu cue til að skoða hana hér
+Defaults for newly created cues	Sjálfgefið fyrir nýjar cue
+Device routing for cue playback	Tækjaleiðing fyrir cue-spilun
+Smaller buffer = lower latency.	Minna biðminni = minni seinkun.
+Emergency fade and sync behavior	Neyðardeyfing og samstilling
+mixed selection: key unavailable	blandað val: key ófáanlegt
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (Á TILRAUNASTIGI)
+Esc=continue with current session	Esc = halda áfram með núverandi setu
+no per-cue settings for this type	engar cue-stillingar fyrir þessa gerð
+On stop: remux to an ordinary MP4	Við stopp: endurpakka í venjulegt MP4
+Where RECORD writes the programme	Hvar RECORD skrifar útsendinguna
+dot-matrix cue deck for live events	punktafylkis cue-borð fyrir beinar sýningar
+Listening on localhost (127.0.0.1).	Hlustar á localhost (127.0.0.1).
+three expressions: red, green, blue	þrjár segðir: rautt, grænt, blátt
+Transport sync with another machine	Samstilling við aðra vél
+Add slot sources in the cue inspector	Bættu við gjöfum í cue-skoðaranum
+Ask GitHub; never installs on its own	Spyr GitHub; setur aldrei upp sjálft
+Import or click a cue in the playlist	Flyttu inn eða klikkaðu á cue í listanum
+mixed selection: geometry unavailable	blandað val: rúmfræði ófáanleg
+generate timecode for the rig to chase	búðu til tímakóða sem búnaðurinn fylgir
+Lower Third and PIP fire independently	Neðri þriðjungur og PiP kveikja sjálfstætt
+Panels built for a vMix rig, unchanged	Spjöld gerð fyrir vMix-búnað, óbreytt
+Incoming transport arrives as NMCEVENT.	Aðkomandi flutningur kemur sem NMCEVENT.
+not in this build - saved with the show	ekki í þessari útgáfu – vistað með sýningunni
+Find from the playlist, not from a modal	Leitaðu úr listanum, ekki úr glugga
+take or select a cue to open the timeline	taktu eða veldu cue til að opna tímalínuna
+Optional external transport and cue control	Valfrjáls utanáliggjandi flutnings- og cue-stýring
+No previous show file found at startup path.	Engin fyrri sýningarskrá fannst við upphaf.
+Use Ctrl+F or type a cue id/number to search.	Notaðu Ctrl+F eða skrifaðu cue-númer til að leita.
+Companion / OSC ingress and HyperDeck emulation	Companion- / OSC-inntak og HyperDeck-eftirlíking
+A/V delay holds audio back for lagging displays.	A/V-seinkun heldur hljóði aftur fyrir hæga skjái.
+On stop: leave the crash-resilient file as it is	Við stopp: láttu hrunþolnu skrána vera
+same disk as Deckboy - a separate drive is safer	sami diskur og Deckboy – sérdiskur er öruggari
+A step fires one cue on each playlist, all at once.	Skref kveikir eina cue á hverjum lista, allt í einu.
+one expression: the same value in red, green and blue	ein segð: sama gildi í rauðu, grænu og bláu
+NDI transport is configured per output in Video Outputs.	NDI-flutningur er stilltur per úttak í Vídeóúttökum.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Sendir PLAY / PAUSE / STOP / LOCATE þegar flutningur hreyfist.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC-áskrift: sendu /deckboy/subscribe frá stýringunni.
+NMC mode / host / port are runtime-configurable for sync work.	NMC-hamur / hýsill / gátt eru stillanleg á keyrslutíma.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Að fara í loftið tekur cue. Deckboy sendir aldrei skipun á blöndunartækið.
+FPS: ON	FPS: Á
+FPS: OFF	FPS: AF
+NMOS: ON	NMOS: Á
+NMOS: OFF	NMOS: AF
+SPOUT: ON	SPOUT: Á
+SPOUT: OFF	SPOUT: AF
+CANVAS: ON	MYNDFLÖTUR: Á
+CANVAS: OFF	MYNDFLÖTUR: AF
+10-BIT: ON	10-BITA: Á
+10-BIT: OFF	10-BITA: AF
+EDIT...	BREYTA...
+FOLDER...	MAPPA...
+ARRANGE...	RAÐA...
+ADD FILE...	BÆTA VIÐ SKRÁ...
+RENUMBER...	ENDURNÚMERA...
+set a port...	stilltu gátt...
+no script	ekkert handrit
++ OUTPUT	+ ÚTTAK
+Eddie's Clock	Klukka Eddies
+Ctrl+/ to close	Ctrl+/ til að loka
+(step lives here)	(skrefið er hér)
+4:2:2  8-BIT	4:2:2  8 BITA
+4:2:2  10-BIT	4:2:2  10 BITA
+No outputs — click + OUTPUT to add one.	Engin úttök – klikkaðu á + ÚTTAK.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI-kveikja, NMC, MTC, LTC, Art-Net og Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Umbreyttu í H.264 þeim cue sem Deckboy spilar illa
+a button can run any command the network protocol understands	hnappur getur keyrt hverja skipun sem samskiptareglan skilur
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	RAÐA SÝN FLYTJANDA  -  dragðu spjald til að færa, horn til að stækka

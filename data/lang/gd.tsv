@@ -80,3 +80,297 @@ OFF	DHETH
 Stopped	Stad
 Playing	A' cluich
 Paused	Na thàmh
+2-UP	2 RI TAOBH
+DONE	DEISEIL
+EDIT	DEASAICH
+HELD	AIR CHUMAIL
+Mode	Modh
+PICK	TAGH
+QUAD	CEITHIR
+Rate	Reat
+STEP	CEUM
+Apply	Cuir an sàs
+CLOSE	DÙIN
+FIXED	SOCRAICHTE
+Help!	Cuidich!
+ORDER	ÒRDUGH
+READY	DEISEIL
+TILES	LEACAN
+VIDEO	BHIDEO
+ALL ON	A H-UILE AIR
+ALWAYS	A-RIAMH
+ANALOG	ANALOGACH
+Buffer	Bufair
+Cancel	Sguir dheth
+Custom	Gnàthaichte
+Device	Uidheam
+Folder	Pasgan
+FORMAT	FÒRMAT
+HIDDEN	FALAICHTE
+Length	Faid
+Mascot	Suaicheantas
+Mirror	Sgàthan
+NATIVE	DÙTHCHASACH
+PRESET	RO-SHUIDHEACHADH
+Sender	Cuiriche
+SUMMED	SUIMICHTE
+TOGGLE	TOGAIL
+12 HOUR	12 UAIR
+24 HOUR	24 UAIR
+ALL OFF	A H-UILE DHETH
+ARRANGE	SUIDHICH
+Channel	Seanail
+CONVERT	IOMPAICH
+DEFAULT	BUN-ROGHAINN
+END CUE	DEIREADH A' CHUE
+Key out	Key a-mach
+LTC out	LTC a-mach
+MISSING	A DHÌTH
+PRESETS	RO-SHUIDHICHIDHEAN
+PROJECT	PRÒISEACT
+RUNNING	A' RUITH
+Send to	Cuir gu
+SHUFFLE	MEASGAICH
+UPDATES	ÙRACHAIDHEAN
+VJ MODE	MODH VJ
+CLOCK ON	GLEOC AIR
+DOWNLOAD	LUCHDAICH A-NUAS
+EXAMPLES	EISIMPLEIREAN
+Mappings	Mapaidhean
+NMC sync	Sioncrones NMC
+PROMPTER	BROSNAICHEAR
+SHOW SDP	SEALL SDP
+TCP port	Port TCP
+UI scale	Sgèile na h-eadar-aghaidh
+vMix API	API vMix
+WATCHING	A' CUMAIL SÙIL
+A/V delay	Dàil A/V
+ASIO outs	Às-chuir ASIO
+BOTH AXES	AN DÀ AISEAL
+CHECK NOW	THOIR SÙIL A-NIS
+CLOCK OFF	GLEOC DHETH
+Creatures	Creutairean
+CUE TOOLS	INNEALAN CUE
+Direction	Comhair
+Freewheel	Cuibhle shaor
+HTTP port	Port HTTP
+Jump mode	Modh leum
+Listen on	Èist air
+OSC Query	Ceist OSC
+OUTPUT ON	ÀS-CHUR AIR
+Panic now	Clisgeadh an-dràsta
+RECORDING	A' CLÀRADH
+REMAINING	AIR FHÀGAIL
+RESET ALL	ATH-SHUIDHICH NA H-UILE
+RUN PANIC	RUITH CLISGEADH
+SHOW FLOW	SRUTH AN TAISBEANAIDH
+TIMERS ON	TÌMEARAN AIR
+WHEN IDLE	NUAIR A BHIOS NA TÀMH
+ADD OUTPUT	CUIR ÀS-CHUR RIS
+BUILT WITH	TOGTE LE
+CANCEL ALL	SGUIR DE NA H-UILE
+colour tag	taga dhath
+copy chain	dèan lethbhreac dhen t-sreath
+Hover tips	Gliocasan
+Input gain	Buannachd a-steach
+Input mono	Ion-chur mono
+live audio	fuaim beò
+Live input	Ion-chur beò
+MIDI input	Ion-chur MIDI
+no picture	gun dealbh
+no preview	gun ro-shealladh
+OPEN SAVED	FOSGAIL FEAR SÀBHAILTE
+OUTPUT OFF	ÀS-CHUR DHETH
+Panic fade	Crìonadh clisgidh
+Tally port	Port tally
+TIMERS OFF	TÌMEARAN DHETH
+Accept from	Gabh bho
+ASIO driver	Draibhear ASIO
+BACK TO TOP	AIR AIS GUN MHULLACH
+CANVAS MODE	MODH CANABHAIS
+CODE SOURCE	TÙS CÒID
+Cue numbers	Àireamhan cue
+Destination	Ceann-uidhe
+Mirror rate	Reat an sgàthain
+no duration	gun fhaid
+NO LIVE CUE	GUN CUE BEÒ
+NO PREVIOUS	GUN FHEAR ROIMHE
+OVERLAY BIN	BIONA TAR-CHÒMHDACH
+paste chain	cuir an t-sreath ann
+Sample rate	Reat samplachaidh
+SENDING OUT	A' CUR A-MACH
+Shift: snap	Shift: greimich
+THIS OUTPUT	AN ÀS-CHUR SEO
+(no matches)	(gun maidse)
+(no subtext)	(gun fho-theacsa)
+add a button	cuir putan ris
+add a window	cuir uinneag ris
+Art-Net port	Port Art-Net
+AUDIO OUTPUT	ÀS-CHUR FUAIME
+Auto restore	Aisig gu fèin-obrachail
+DECKLINK: ON	DECKLINK: AIR
+free running	a' ruith saor
+KEY+FILL: ON	KEY+FILL: AIR
+LISTENING IN	AG ÈISTEACHD
+Miami cursor	Cùrsair Miami
+MIDI CONTROL	SMACHD MIDI
+Mirror state	Sgàthanaich an staid
+NDI KEY: OFF	NDI KEY: DHETH
+NDI KEY: ON	NDI KEY: AIR
+NO PROGRAMME	GUN PHRÒGRAM
+ST 2110: OFF	ST 2110: DHETH
+ST 2110: ON	ST 2110: AIR
+WATCH FOLDER	PASGAN FAIRE
+COMPOSITE CUE	CUE CO-DHÈANTA
+DECKLINK: OFF	DECKLINK: DHETH
+default route	slighe bhunaiteach
+Every adapter	Gach adaptair
+KEY+FILL: OFF	KEY+FILL: DHETH
+LEFT TO RIGHT	BHON CHLÌ GUN DEIS
+MEDIA ENCODER	CÒDAICHEAR MEADHANAN
+MSC device id	ID uidheim MSC
+NEW SHOW FILE	FAIDHLE TAISBEANAIDH ÙR
+No cue loaded	Gun cue air a luchdadh
+nothing taken	cha deach dad a ghabhail
+OPEN PREVIOUS	FOSGAIL AM FEAR ROIMHE
+Output device	Uidheam às-chuir
+Panic profile	Pròifil clisgidh
+Quit Deckboy?	Fàg Deckboy?
+REMOVE OUTPUT	THOIR ÀS-CHUR AIR FALBH
+Sound effects	Èifeachdan fuaime
+Tally address	Seòladh tally
+TOP TO BOTTOM	BHON MHULLACH GUN BHONN
+127 (all-call)	127 (gairm-uile)
+ALL INTERFACES	NA H-UILE EADAR-AGHAIDH
+LOCALHOST ONLY	LOCALHOST A-MHÀIN
+Monitor device	Uidheam sgrùdaidh
+no audio track	gun trac fuaime
+PRESENTER VIEW	SEALLADH AN TAISBEANAICHE
+RECORD TO DISK	CLÀRAICH GUN DIOSG
+STOP RECORDING	SGUIR DEN CHLÀRADH
+STOP STREAMING	SGUIR DEN SRUTHADH
+TALLY TRIGGERS	BRIOSGAIDEAN TALLY
+Device channels	Seanailean an uidheim
+NDI SENDING: ON	CUR NDI: AIR
+NO CUE SELECTED	GUN CUE AIR A THAGHADH
+Output channels	Seanailean às-chuir
+preview pending	ro-shealladh ri thighinn
+START RECORDING	TÒISICH A' CLÀRADH
+START STREAMING	TÒISICH A' SRUTHADH
+(system default)	(bun-roghainn an t-siostaim)
+Check at startup	Thoir sùil aig an toiseach
+Global crossfade	Tar-chrìonadh coitcheann
+Mic to recording	Micreofon gun chlàradh
+Monitor playlist	Sgrùdaich an liosta-chluich
+NDI SENDING: OFF	CUR NDI: DHETH
+no still preview	gun ro-shealladh dealbh
+Pocket 3 / touch	Pocket 3 / suathadh
+SMPTE LTC OUTPUT	ÀS-CHUR SMPTE LTC
+the whole screen	an sgrìn gu lèir
+Check for one now	Thoir sùil a-nis
+INSTALL & RESTART	STÀLAICH IS ATH-THÒISICH
+Registry: NOT SET	Clàr: GUN SUIDHEACHADH
+SAFETY / TIMECODE	SÀBHAILTEACHD / TIMECODE
+Timecode jam sync	Jam sync timecode
+esc or N to cancel	Esc no N airson sgur dheth
+KEYBOARD SHORTCUTS	ATH-GHOIRIDEAN MEUR-CHLÀIR
+loading preview...	a' luchdadh an ro-sheallaidh...
+CONVERT ALL FLAGGED	IOMPAICH NA H-UILE COMHARRAICHTE
+dot-matrix cue deck	deic cue dot-matrix
+HyperDeck emulation	Aithris HyperDeck
+locked to the tempo	glaiste ris an luaths
+VJ mode (two decks)	Modh VJ (dà dheic)
+ADD ANOTHER PLAYLIST	CUIR LIOSTA-CHLUICH EILE RIS
+Companion / OSC port	Port Companion / OSC
+Esc or click to skip	Esc no briog airson leum thairis
+PLAYLIST PREFERENCES	ROGHAINNEAN NA LIOSTA-CHLUICH
+press ENTER to start	brùth ENTER airson tòiseachadh
+ADD A SECOND PLAYLIST	CUIR DARA LIOSTA-CHLUICH RIS
+filmstrip unavailable	stiall film ri fhaotainn
+(empty — import media)	(falamh – ion-phortaich meadhanan)
+Ctrl+D or Esc to close	Ctrl+D no Esc airson dùnadh
+(no notes for this cue)	(gun nòtaichean dhan chue seo)
+Timebase / start / fade	Bunait-ùine / toiseach / crìonadh
+No cues need conversion.	Chan eil cue sam bith ag iarraidh iompachadh.
+CLICK TO SAMPLE KEY COLOR	BRIOG AIRSON DATH KEY A THOGAIL
+normalize loudness (R128)	cunbhalaich an àirde (R128)
+off - all channels silent	dheth – gach seanail sàmhach
+no video lane for this cue	gun lòd bhidio dhan chue seo
+HyperDeck emulation is off.	Tha aithris HyperDeck dheth.
+OWN SCRIPT  (click to edit)	SGRIOBT AGAD FHÈIN  (briog airson deasachadh)
+Theme and operator feedback	Ùrlar is fios-air-ais dhan obraiche
+Discovery and mirrored state	Lorg is staid sgàthanaichte
+FOLLOWING THE LIVE CUE NOTES	A' LEANTAINN NÒTAICHEAN A' CHUE BHEÒ
+Listening on all interfaces.	Ag èisteachd air a h-uile eadar-aghaidh.
+Network-facing runtime notes	Nòtaichean ruith a chì an lìonra
+Hi! Press I to import a clip.	Halò! Brùth I airson clip a thoirt a-steach.
+Global jump and panic behavior	Giùlan leum is clisgidh coitcheann
+Roll when the show cuts to you	Ruith nuair a thig an taisbeanadh thugad
+Choose a cue to inspect it here	Tagh cue airson sùil a thoirt air an seo
+Defaults for newly created cues	Bun-roghainnean do chue ùra
+Device routing for cue playback	Rùtadh uidheam airson cluich cue
+Smaller buffer = lower latency.	Bufair nas lugha = dàil nas lugha.
+Emergency fade and sync behavior	Crìonadh èiginn is giùlan sioncronaidh
+mixed selection: key unavailable	taghadh measgaichte: key ri fhaotainn
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (DEUCHAINNEIL)
+Esc=continue with current session	Esc = lean air an t-seisean seo
+no per-cue settings for this type	gun roghainnean cue dhan t-seòrsa seo
+On stop: remux to an ordinary MP4	Nuair a sguireas: ath-mheasgaich gu MP4 àbhaisteach
+Where RECORD writes the programme	Càite a sgrìobhas RECORD am prògram
+dot-matrix cue deck for live events	deic cue dot-matrix do thachartasan beò
+Listening on localhost (127.0.0.1).	Ag èisteachd air localhost (127.0.0.1).
+three expressions: red, green, blue	trì abairtean: dearg, uaine, gorm
+Transport sync with another machine	Sioncronachadh giùlain le inneal eile
+Add slot sources in the cue inspector	Cuir tùsan ris ann an sgrùdair a' chue
+Ask GitHub; never installs on its own	Faighnich do GitHub; cha stàlaich e leis fhèin
+Import or click a cue in the playlist	Thoir a-steach no briog air cue san liosta
+mixed selection: geometry unavailable	taghadh measgaichte: geomatras ri fhaotainn
+generate timecode for the rig to chase	gin timecode a leanas an t-uidheam
+Lower Third and PIP fire independently	Bidh an Treas Ìochdarach is PiP a' losgadh leotha fhèin
+Panels built for a vMix rig, unchanged	Panailean airson uidheam vMix, gun atharrachadh
+Incoming transport arrives as NMCEVENT.	Thig an giùlan a-steach mar NMCEVENT.
+not in this build - saved with the show	chan eil san togail seo – air a shàbhaladh leis an taisbeanadh
+Find from the playlist, not from a modal	Lorg on liosta-chluich, chan ann bho uinneag
+take or select a cue to open the timeline	gabh no tagh cue airson an loidhne-ama a fhosgladh
+Optional external transport and cue control	Giùlan is smachd cue bhon taobh a-muigh, ma thogras tu
+No previous show file found at startup path.	Cha deach faidhle taisbeanaidh roimhe a lorg.
+Use Ctrl+F or type a cue id/number to search.	Cleachd Ctrl+F no sgrìobh id/àireamh cue airson sireadh.
+Companion / OSC ingress and HyperDeck emulation	Ion-chur Companion / OSC is aithris HyperDeck
+A/V delay holds audio back for lagging displays.	Cumaidh dàil A/V am fuaim air ais do sgrìnean slaodach.
+On stop: leave the crash-resilient file as it is	Nuair a sguireas: fàg am faidhle tuisleach-dhìonach mar a tha e
+same disk as Deckboy - a separate drive is safer	an aon diosg ri Deckboy – tha draibh eile nas sàbhailte
+A step fires one cue on each playlist, all at once.	Losgaidh ceum aon cue air gach liosta-chluich aig an aon àm.
+one expression: the same value in red, green and blue	aon abairt: an aon luach ann an dearg, uaine is gorm
+NDI transport is configured per output in Video Outputs.	Tha giùlan NDI air a shuidheachadh mu gach às-chur ann an Às-chuir Bhidio.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Cuiridh e PLAY / PAUSE / STOP / LOCATE mar a ghluaiseas an giùlan.
+OSC subscribe: send /deckboy/subscribe from your controller.	Fo-sgrìobh OSC: cuir /deckboy/subscribe bhon smachdair agad.
+NMC mode / host / port are runtime-configurable for sync work.	Gabhas modh / òstair / port NMC atharrachadh fhad 's a tha e a' ruith.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Bheir dol air an èadhar an cue. Cha chuir Deckboy àithne dhan t-suidsear idir.
+FPS: ON	FPS: AIR
+FPS: OFF	FPS: DHETH
+NMOS: ON	NMOS: AIR
+NMOS: OFF	NMOS: DHETH
+SPOUT: ON	SPOUT: AIR
+SPOUT: OFF	SPOUT: DHETH
+CANVAS: ON	CANABHAS: AIR
+CANVAS: OFF	CANABHAS: DHETH
+10-BIT: ON	10-BIT: AIR
+10-BIT: OFF	10-BIT: DHETH
+EDIT...	DEASAICH...
+FOLDER...	PASGAN...
+ARRANGE...	SUIDHICH...
+ADD FILE...	CUIR FAIDHLE RIS...
+RENUMBER...	ATH-ÀIREAMHAICH...
+set a port...	suidhich port...
+no script	gun sgriobt
++ OUTPUT	+ ÀS-CHUR
+Eddie's Clock	Gleoc Eddie
+Ctrl+/ to close	Ctrl+/ airson dùnadh
+(step lives here)	(tha an ceum an seo)
+No outputs — click + OUTPUT to add one.	Gun às-chur – briog + ÀS-CHUR airson fear a chur ris.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, briosgaid NDI, NMC, MTC, LTC, Art-Net is Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Iompaich gu H.264 na cue nach cluich Deckboy gu math
+a button can run any command the network protocol understands	faodaidh putan àithne sam bith a tha am protacal a' tuigsinn a ruith
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	SUIDHICH AN TAISBEANAICHE  -  slaod panail airson a ghluasad, oisean airson a mheudachadh
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT
