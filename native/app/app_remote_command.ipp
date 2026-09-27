@@ -2121,27 +2121,63 @@
         const std::string v = toUpper(parts[2]);
         return v == "ON" || v == "1" || v == "TRUE";
       };
-      if (sub.empty() || sub == "STATUS") {
+      // WHERE THE SEQUENCE STANDS, as one line. Shared with the transport
+      // verbs below, because the answer a caller wants after GO or PLAY is the
+      // same answer STATUS gives -- and without it the reply is a bare
+      // "OK TRACKER" that says nothing about what happened.
+      //
+      // It matters most when the sequence stops on purpose. A step with no
+      // length HOLDS: the tracker fires it and waits for the next GO, which is
+      // what a manual step is for. On the desk a toast says so; over the wire
+      // the caller used to get "OK TRACKER", see "stopped" on the next poll,
+      // and have no way to tell that from a failure.
+      auto trackerStatusLine = [&]() {
         const int head = trackerPlayheadRow();
         std::ostringstream out;
-        out << rows.size() << " steps";
+        out << masterTrackerRows().size() << " steps";
         if (head >= 0) out << " | step " << (head + 1);
         out << (trackerPlaying_ ? " | playing" : " | stopped");
         const double remaining = trackerRemainingSeconds();
-        if (remaining >= 0.0) out << " | next in " << std::fixed << std::setprecision(1) << remaining << "s";
+        if (remaining >= 0.0) {
+          out << " | next in " << std::fixed << std::setprecision(1)
+              << remaining << "s";
+        } else if (!trackerPlaying_ && head >= 0) {
+          out << " | holding, GO to continue";
+        }
         out << (project_.trackerLoop ? " | loop" : "")
             << (project_.clickerDrivesTracker ? " | clicker" : "");
-        remoteCommandDetail_ = out.str();
+        return out.str();
+      };
+      if (sub.empty() || sub == "STATUS") {
+        remoteCommandDetail_ = trackerStatusLine();
         return;
       }
       if (rows.empty() && sub != "LOOP" && sub != "CLICKER") {
         failRemoteCommand("TRACKER: there are no steps (MASTER NEW makes one)");
         return;
       }
-      if (sub == "GO" || sub == "NEXT") { trackerGo(); return; }
-      if (sub == "BACK" || sub == "PREV" || sub == "PREVIOUS") { trackerBack(); return; }
-      if (sub == "PLAY") { trackerPlay(); return; }
-      if (sub == "STOP" || sub == "HALT") { trackerStop(); return; }
+      // Each of these answers with where the sequence ended up, so a Stream
+      // Deck button driving the show flow can show it without a second call.
+      if (sub == "GO" || sub == "NEXT") {
+        trackerGo();
+        remoteCommandDetail_ = trackerStatusLine();
+        return;
+      }
+      if (sub == "BACK" || sub == "PREV" || sub == "PREVIOUS") {
+        trackerBack();
+        remoteCommandDetail_ = trackerStatusLine();
+        return;
+      }
+      if (sub == "PLAY") {
+        trackerPlay();
+        remoteCommandDetail_ = trackerStatusLine();
+        return;
+      }
+      if (sub == "STOP" || sub == "HALT") {
+        trackerStop();
+        remoteCommandDetail_ = trackerStatusLine();
+        return;
+      }
       if (sub == "STEP" && parts.size() >= 3) {
         const int step = std::atoi(parts[2].c_str());
         if (step < 1 || step > static_cast<int>(rows.size())) {
@@ -2150,6 +2186,7 @@
           return;
         }
         fireTrackerRow(step - 1);
+        remoteCommandDetail_ = trackerStatusLine();
         return;
       }
       if (sub == "LOOP") {
