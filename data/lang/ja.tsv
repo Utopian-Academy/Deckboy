@@ -81,3 +81,297 @@ OFF	オフ
 Stopped	停止中
 Playing	再生中
 Paused	一時停止
+2-UP	2画面
+DONE	完了
+EDIT	編集
+HELD	保持中
+Mode	モード
+PICK	選択
+QUAD	4画面
+Rate	レート
+STEP	ステップ
+Apply	適用
+CLOSE	閉じる
+FIXED	固定
+Help!	ヘルプ！
+ORDER	順序
+READY	準備完了
+TILES	タイル
+VIDEO	ビデオ
+ALL ON	すべてオン
+ALWAYS	常に
+ANALOG	アナログ
+Buffer	バッファ
+Cancel	キャンセル
+Custom	カスタム
+Device	デバイス
+Folder	フォルダー
+FORMAT	形式
+HIDDEN	非表示
+Length	長さ
+Mascot	マスコット
+Mirror	ミラー
+NATIVE	ネイティブ
+PRESET	プリセット
+Sender	送信元
+SUMMED	合算
+TOGGLE	切り替え
+12 HOUR	12時間
+24 HOUR	24時間
+ALL OFF	すべてオフ
+ARRANGE	配置
+Channel	チャンネル
+CONVERT	変換
+DEFAULT	既定
+END CUE	キュー終了
+Key out	キー出力
+LTC out	LTC出力
+MISSING	見つかりません
+PRESETS	プリセット
+PROJECT	プロジェクト
+RUNNING	実行中
+Send to	送信先
+SHUFFLE	シャッフル
+UPDATES	更新
+VJ MODE	VJモード
+CLOCK ON	時計オン
+DOWNLOAD	ダウンロード
+EXAMPLES	サンプル
+Mappings	割り当て
+NMC sync	NMC同期
+PROMPTER	プロンプター
+SHOW SDP	SDPを表示
+TCP port	TCPポート
+UI scale	UIの倍率
+WATCHING	監視中
+A/V delay	A/V遅延
+ASIO outs	ASIO出力
+BOTH AXES	両軸
+CHECK NOW	今すぐ確認
+CLOCK OFF	時計オフ
+Creatures	生き物
+CUE TOOLS	キューツール
+Direction	方向
+Freewheel	フリーラン
+HTTP port	HTTPポート
+Jump mode	ジャンプモード
+Listen on	待ち受け
+OSC Query	OSCクエリ
+OUTPUT ON	出力オン
+Panic now	今すぐパニック
+RECORDING	録画中
+REMAINING	残り
+RESET ALL	すべてリセット
+RUN PANIC	パニック実行
+SHOW FLOW	ショーの流れ
+TIMERS ON	タイマーオン
+WHEN IDLE	待機中のとき
+ADD OUTPUT	出力を追加
+BUILT WITH	使用技術
+CANCEL ALL	すべてキャンセル
+colour tag	カラータグ
+copy chain	チェーンをコピー
+Hover tips	ヒント表示
+Input gain	入力ゲイン
+Input mono	入力モノラル
+live audio	ライブ音声
+Live input	ライブ入力
+MIDI input	MIDI入力
+no picture	映像なし
+no preview	プレビューなし
+OPEN SAVED	保存済みを開く
+OUTPUT OFF	出力オフ
+Panic fade	パニックフェード
+Tally port	タリーポート
+TIMERS OFF	タイマーオフ
+Accept from	受け付け元
+ASIO driver	ASIOドライバー
+BACK TO TOP	先頭へ戻る
+CANVAS MODE	キャンバスモード
+CODE SOURCE	コードソース
+Cue numbers	キュー番号
+Destination	送信先
+Mirror rate	ミラーレート
+no duration	長さなし
+NO LIVE CUE	ライブキューなし
+NO PREVIOUS	前のものなし
+OVERLAY BIN	オーバーレイ置き場
+paste chain	チェーンを貼り付け
+Sample rate	サンプルレート
+SENDING OUT	送信中
+Shift: snap	Shift: スナップ
+THIS OUTPUT	この出力
+(no matches)	(一致なし)
+(no subtext)	(サブテキストなし)
+add a button	ボタンを追加
+add a window	ウィンドウを追加
+Art-Net port	Art-Netポート
+AUDIO OUTPUT	音声出力
+Auto restore	自動復元
+DECKLINK: ON	DECKLINK: オン
+free running	フリーラン
+KEY+FILL: ON	KEY+FILL: オン
+LISTENING IN	受信中
+Miami cursor	Miamiカーソル
+MIDI CONTROL	MIDI制御
+Mirror state	状態をミラー
+NDI KEY: OFF	NDI KEY: オフ
+NDI KEY: ON	NDI KEY: オン
+NO PROGRAMME	プログラムなし
+ST 2110: OFF	ST 2110: オフ
+ST 2110: ON	ST 2110: オン
+WATCH FOLDER	監視フォルダー
+COMPOSITE CUE	合成キュー
+DECKLINK: OFF	DECKLINK: オフ
+default route	既定の経路
+Every adapter	すべてのアダプター
+KEY+FILL: OFF	KEY+FILL: オフ
+LEFT TO RIGHT	左から右へ
+MEDIA ENCODER	メディアエンコーダー
+MSC device id	MSCデバイスID
+NEW SHOW FILE	新規ショーファイル
+No cue loaded	キューが読み込まれていません
+nothing taken	何も送出していません
+OPEN PREVIOUS	前回のものを開く
+Output device	出力デバイス
+Panic profile	パニックプロファイル
+Quit Deckboy?	Deckboyを終了しますか？
+REMOVE OUTPUT	出力を削除
+Sound effects	効果音
+Tally address	タリーアドレス
+TOP TO BOTTOM	上から下へ
+127 (all-call)	127 (全体呼び出し)
+ALL INTERFACES	すべてのインターフェース
+LOCALHOST ONLY	localhostのみ
+Monitor device	モニターデバイス
+no audio track	音声トラックなし
+PRESENTER VIEW	発表者ビュー
+RECORD TO DISK	ディスクに録画
+STOP RECORDING	録画を停止
+STOP STREAMING	配信を停止
+TALLY TRIGGERS	タリートリガー
+Device channels	デバイスのチャンネル
+NDI SENDING: ON	NDI送信: オン
+NO CUE SELECTED	キューが選択されていません
+Output channels	出力チャンネル
+preview pending	プレビュー準備中
+START RECORDING	録画を開始
+START STREAMING	配信を開始
+(system default)	(システムの既定)
+Check at startup	起動時に確認
+Global crossfade	全体のクロスフェード
+Mic to recording	マイクを録音へ
+Monitor playlist	プレイリストを試聴
+NDI SENDING: OFF	NDI送信: オフ
+no still preview	静止画プレビューなし
+Pocket 3 / touch	Pocket 3 / タッチ
+SMPTE LTC OUTPUT	SMPTE LTC出力
+the whole screen	画面全体
+Check for one now	今すぐ確認
+INSTALL & RESTART	インストールして再起動
+Registry: NOT SET	レジストリ: 未設定
+SAFETY / TIMECODE	安全 / タイムコード
+Timecode jam sync	タイムコードのジャムシンク
+esc or N to cancel	EscまたはNでキャンセル
+KEYBOARD SHORTCUTS	キーボードショートカット
+loading preview...	プレビューを読み込み中...
+CONVERT ALL FLAGGED	印の付いたものをすべて変換
+dot-matrix cue deck	ドットマトリクス式キューデッキ
+HyperDeck emulation	HyperDeckエミュレーション
+locked to the tempo	テンポに同期
+VJ mode (two decks)	VJモード (デッキ2台)
+ADD ANOTHER PLAYLIST	プレイリストを追加
+Companion / OSC port	Companion / OSCポート
+Esc or click to skip	Escまたはクリックでスキップ
+PLAYLIST PREFERENCES	プレイリスト設定
+press ENTER to start	ENTERキーで開始
+ADD A SECOND PLAYLIST	2つ目のプレイリストを追加
+filmstrip unavailable	フィルムストリップは利用できません
+(empty — import media)	(空 – メディアを読み込んでください)
+Ctrl+D or Esc to close	Ctrl+DまたはEscで閉じる
+(no notes for this cue)	(このキューにメモはありません)
+Timebase / start / fade	タイムベース / 開始 / フェード
+No cues need conversion.	変換が必要なキューはありません。
+CLICK TO SAMPLE KEY COLOR	クリックしてキー色を取得
+normalize loudness (R128)	ラウドネスを正規化 (R128)
+off - all channels silent	オフ – すべてのチャンネルが無音
+no video lane for this cue	このキューに映像レーンはありません
+HyperDeck emulation is off.	HyperDeckエミュレーションはオフです。
+OWN SCRIPT  (click to edit)	自分の台本  (クリックで編集)
+Theme and operator feedback	テーマとオペレーターへの表示
+Discovery and mirrored state	発見とミラーされた状態
+FOLLOWING THE LIVE CUE NOTES	ライブキューのメモに追従中
+Listening on all interfaces.	すべてのインターフェースで待ち受けています。
+Network-facing runtime notes	ネットワーク側の動作メモ
+Hi! Press I to import a clip.	こんにちは！Iキーでクリップを読み込めます。
+Global jump and panic behavior	全体のジャンプとパニックの動作
+Roll when the show cuts to you	番組が切り替わったら再生する
+Choose a cue to inspect it here	キューを選ぶとここに表示されます
+Defaults for newly created cues	新しいキューの既定値
+Device routing for cue playback	キュー再生のデバイス経路
+Smaller buffer = lower latency.	バッファが小さいほど遅延が減ります。
+Emergency fade and sync behavior	緊急フェードと同期の動作
+mixed selection: key unavailable	複数選択: キーは使えません
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (実験的)
+Esc=continue with current session	Esc = 現在のセッションを続ける
+no per-cue settings for this type	この種類にキュー設定はありません
+On stop: remux to an ordinary MP4	停止時: 通常のMP4に再多重化する
+Where RECORD writes the programme	RECORDがプログラムを書き込む場所
+dot-matrix cue deck for live events	ライブイベント用ドットマトリクス式キューデッキ
+Listening on localhost (127.0.0.1).	localhost (127.0.0.1) で待ち受けています。
+three expressions: red, green, blue	3つの式: 赤、緑、青
+Transport sync with another machine	別のマシンとトランスポートを同期
+Add slot sources in the cue inspector	キューインスペクターでソースを追加
+Ask GitHub; never installs on its own	GitHubに問い合わせます。自動では入りません
+Import or click a cue in the playlist	読み込むか、プレイリストのキューをクリック
+mixed selection: geometry unavailable	複数選択: ジオメトリは使えません
+generate timecode for the rig to chase	機材が追従するタイムコードを生成
+Lower Third and PIP fire independently	下部テロップとPiPは別々に動きます
+Panels built for a vMix rig, unchanged	vMix機材向けのパネル、そのまま
+Incoming transport arrives as NMCEVENT.	受信したトランスポートはNMCEVENTとして届きます。
+not in this build - saved with the show	このビルドにはありません – ショーと一緒に保存されます
+Find from the playlist, not from a modal	検索はプレイリストから。別窓は使いません
+take or select a cue to open the timeline	キューを送出または選択するとタイムラインが開きます
+Optional external transport and cue control	外部トランスポートとキュー制御 (任意)
+No previous show file found at startup path.	起動時に前回のショーファイルが見つかりませんでした。
+Use Ctrl+F or type a cue id/number to search.	Ctrl+F、またはキューID/番号を入力して検索します。
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC受信とHyperDeckエミュレーション
+A/V delay holds audio back for lagging displays.	A/V遅延は表示の遅いモニター向けに音声を遅らせます。
+On stop: leave the crash-resilient file as it is	停止時: 障害耐性のあるファイルをそのまま残す
+same disk as Deckboy - a separate drive is safer	Deckboyと同じディスク – 別ドライブの方が安全です
+A step fires one cue on each playlist, all at once.	1ステップで各プレイリストのキューを同時に送出します。
+one expression: the same value in red, green and blue	1つの式: 赤、緑、青に同じ値
+NDI transport is configured per output in Video Outputs.	NDIトランスポートはビデオ出力で出力ごとに設定します。
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	トランスポートの動きに合わせてPLAY / PAUSE / STOP / LOCATEを送ります。
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC購読: コントローラーから /deckboy/subscribe を送信します。
+NMC mode / host / port are runtime-configurable for sync work.	NMCのモード / ホスト / ポートは動作中に変更できます。
+Going on air takes the cue. Deckboy never sends the switcher a command.	オンエアになるとキューが送出されます。Deckboyがスイッチャーに命令を送ることはありません。
+FPS: ON	FPS: オン
+FPS: OFF	FPS: オフ
+NMOS: ON	NMOS: オン
+NMOS: OFF	NMOS: オフ
+SPOUT: ON	SPOUT: オン
+SPOUT: OFF	SPOUT: オフ
+CANVAS: ON	キャンバス: オン
+CANVAS: OFF	キャンバス: オフ
+10-BIT: ON	10ビット: オン
+10-BIT: OFF	10ビット: オフ
+EDIT...	編集...
+FOLDER...	フォルダー...
+ARRANGE...	配置...
+ADD FILE...	ファイルを追加...
+RENUMBER...	番号を振り直す...
+set a port...	ポートを設定...
+no script	台本なし
++ OUTPUT	+ 出力
+Eddie's Clock	エディの時計
+Ctrl+/ to close	Ctrl+/ で閉じる
+(step lives here)	(ステップはここにあります)
+4:2:2  8-BIT	4:2:2  8ビット
+4:2:2  10-BIT	4:2:2  10ビット
+No outputs — click + OUTPUT to add one.	出力がありません – + 出力 で追加します。
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM、NDIトリガー、NMC、MTC、LTC、Art-Net、Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Deckboyがうまく再生できないキューをH.264に変換します
+a button can run any command the network protocol understands	ボタンはプロトコルが解釈できるあらゆるコマンドを実行できます
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	発表者ビューの配置  -  パネルをドラッグで移動、角で大きさを変更
+vMix API	vMix API

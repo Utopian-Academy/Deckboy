@@ -81,3 +81,296 @@ OFF	KAPALI
 Stopped	Durdu
 Playing	Oynuyor
 Paused	Durakladi
+2-UP	2 YAN YANA
+DONE	TAMAM
+EDIT	DÜZENLE
+HELD	TUTULDU
+Mode	Mod
+PICK	SEÇ
+QUAD	DÖRT
+Rate	Oran
+STEP	ADIM
+Apply	Uygula
+CLOSE	KAPAT
+FIXED	SABİT
+Help!	Yardım!
+ORDER	SIRA
+READY	HAZIR
+TILES	KARELER
+ALL ON	HEPSİ AÇIK
+ALWAYS	HER ZAMAN
+Buffer	Arabellek
+Cancel	İptal
+Custom	Özel
+Device	Aygıt
+Folder	Klasör
+FORMAT	BİÇİM
+HIDDEN	GİZLİ
+Length	Uzunluk
+Mascot	Maskot
+Mirror	Ayna
+NATIVE	YERLİ
+PRESET	ÖNAYAR
+Sender	Gönderen
+SUMMED	TOPLANMIŞ
+TOGGLE	DEĞİŞTİR
+12 HOUR	12 SAAT
+24 HOUR	24 SAAT
+ALL OFF	HEPSİ KAPALI
+ARRANGE	YERLEŞTİR
+Channel	Kanal
+CONVERT	DÖNÜŞTÜR
+DEFAULT	VARSAYILAN
+END CUE	CUE SONU
+Key out	Key çıkışı
+LTC out	LTC çıkışı
+MISSING	EKSİK
+PRESETS	ÖNAYARLAR
+PROJECT	PROJE
+RUNNING	ÇALIŞIYOR
+Send to	Şuraya gönder
+SHUFFLE	KARIŞTIR
+UPDATES	GÜNCELLEMELER
+VJ MODE	VJ MODU
+CLOCK ON	SAAT AÇIK
+DOWNLOAD	İNDİR
+EXAMPLES	ÖRNEKLER
+Mappings	Eşlemeler
+NMC sync	NMC eşitleme
+SHOW SDP	SDP GÖSTER
+TCP port	TCP portu
+UI scale	Arayüz ölçeği
+WATCHING	İZLİYOR
+A/V delay	A/V gecikmesi
+ASIO outs	ASIO çıkışları
+BOTH AXES	HER İKİ EKSEN
+CHECK NOW	ŞİMDİ DENETLE
+CLOCK OFF	SAAT KAPALI
+Creatures	Yaratıklar
+CUE TOOLS	CUE ARAÇLARI
+Direction	Yön
+Freewheel	Serbest dönüş
+HTTP port	HTTP portu
+Jump mode	Atlama modu
+Listen on	Şurada dinle
+OSC Query	OSC sorgusu
+OUTPUT ON	ÇIKIŞ AÇIK
+Panic now	Şimdi panik
+RECORDING	KAYIT
+REMAINING	KALAN
+RESET ALL	HEPSİNİ SIFIRLA
+RUN PANIC	PANİĞİ ÇALIŞTIR
+SHOW FLOW	GÖSTERİ AKIŞI
+TIMERS ON	SAYAÇLAR AÇIK
+WHEN IDLE	BOŞTAYKEN
+ADD OUTPUT	ÇIKIŞ EKLE
+BUILT WITH	ŞUNUNLA YAPILDI
+CANCEL ALL	HEPSİNİ İPTAL ET
+colour tag	renk etiketi
+copy chain	zinciri kopyala
+Hover tips	İpuçları
+Input gain	Giriş kazancı
+Input mono	Giriş mono
+live audio	canlı ses
+Live input	Canlı giriş
+MIDI input	MIDI girişi
+no picture	görüntü yok
+no preview	önizleme yok
+OPEN SAVED	KAYITLIYI AÇ
+OUTPUT OFF	ÇIKIŞ KAPALI
+Panic fade	Panik kararması
+Tally port	Tally portu
+TIMERS OFF	SAYAÇLAR KAPALI
+Accept from	Şuradan kabul et
+ASIO driver	ASIO sürücüsü
+BACK TO TOP	BAŞA DÖN
+CANVAS MODE	TUVAL MODU
+CODE SOURCE	KOD KAYNAĞI
+Cue numbers	Cue numaraları
+Destination	Hedef
+Mirror rate	Ayna oranı
+no duration	süre yok
+NO LIVE CUE	CANLI CUE YOK
+NO PREVIOUS	ÖNCEKİ YOK
+OVERLAY BIN	KAPLAMA KUTUSU
+paste chain	zinciri yapıştır
+Sample rate	Örnekleme oranı
+SENDING OUT	GÖNDERİYOR
+Shift: snap	Shift: yakala
+THIS OUTPUT	BU ÇIKIŞ
+(no matches)	(eşleşme yok)
+(no subtext)	(alt metin yok)
+add a button	düğme ekle
+add a window	pencere ekle
+Art-Net port	Art-Net portu
+AUDIO OUTPUT	SES ÇIKIŞI
+Auto restore	Kendiliğinden geri yükle
+DECKLINK: ON	DECKLINK: AÇIK
+free running	serbest çalışıyor
+KEY+FILL: ON	KEY+FILL: AÇIK
+LISTENING IN	DİNLİYOR
+Miami cursor	Miami imleci
+MIDI CONTROL	MIDI DENETİMİ
+Mirror state	Durumu aynala
+NDI KEY: OFF	NDI KEY: KAPALI
+NDI KEY: ON	NDI KEY: AÇIK
+NO PROGRAMME	PROGRAM YOK
+ST 2110: OFF	ST 2110: KAPALI
+ST 2110: ON	ST 2110: AÇIK
+WATCH FOLDER	İZLENEN KLASÖR
+COMPOSITE CUE	BİRLEŞİK CUE
+DECKLINK: OFF	DECKLINK: KAPALI
+default route	varsayılan yol
+Every adapter	Her bağdaştırıcı
+KEY+FILL: OFF	KEY+FILL: KAPALI
+LEFT TO RIGHT	SOLDAN SAĞA
+MEDIA ENCODER	ORTAM KODLAYICI
+MSC device id	MSC aygıt kimliği
+NEW SHOW FILE	YENİ GÖSTERİ DOSYASI
+No cue loaded	Yüklü cue yok
+nothing taken	hiçbir şey alınmadı
+OPEN PREVIOUS	ÖNCEKİNİ AÇ
+Output device	Çıkış aygıtı
+Panic profile	Panik profili
+Quit Deckboy?	Deckboy'dan çıkılsın mı?
+REMOVE OUTPUT	ÇIKIŞI KALDIR
+Sound effects	Ses efektleri
+Tally address	Tally adresi
+TOP TO BOTTOM	YUKARIDAN AŞAĞIYA
+127 (all-call)	127 (genel çağrı)
+ALL INTERFACES	TÜM ARAYÜZLER
+LOCALHOST ONLY	YALNIZCA LOCALHOST
+Monitor device	Dinleme aygıtı
+no audio track	ses izi yok
+PRESENTER VIEW	SUNUCU GÖRÜNÜMÜ
+RECORD TO DISK	DİSKE KAYDET
+STOP RECORDING	KAYDI DURDUR
+STOP STREAMING	YAYINI DURDUR
+TALLY TRIGGERS	TALLY TETİKLERİ
+Device channels	Aygıt kanalları
+NDI SENDING: ON	NDI GÖNDERİM: AÇIK
+NO CUE SELECTED	CUE SEÇİLMEDİ
+Output channels	Çıkış kanalları
+preview pending	önizleme bekliyor
+START RECORDING	KAYDI BAŞLAT
+START STREAMING	YAYINI BAŞLAT
+(system default)	(sistem varsayılanı)
+Check at startup	Açılışta denetle
+Global crossfade	Genel çapraz geçiş
+Mic to recording	Mikrofon kayda
+Monitor playlist	Çalma listesini dinle
+NDI SENDING: OFF	NDI GÖNDERİM: KAPALI
+no still preview	durağan önizleme yok
+Pocket 3 / touch	Pocket 3 / dokunma
+SMPTE LTC OUTPUT	SMPTE LTC ÇIKIŞI
+the whole screen	tüm ekran
+Check for one now	Şimdi denetle
+INSTALL & RESTART	KUR VE YENİDEN BAŞLAT
+Registry: NOT SET	Kayıt defteri: AYARLANMADI
+SAFETY / TIMECODE	GÜVENLİK / TIMECODE
+esc or N to cancel	İptal için Esc veya N
+KEYBOARD SHORTCUTS	KLAVYE KISAYOLLARI
+loading preview...	önizleme yükleniyor...
+CONVERT ALL FLAGGED	İŞARETLİ OLANLARI DÖNÜŞTÜR
+dot-matrix cue deck	noktalı cue masası
+HyperDeck emulation	HyperDeck benzetimi
+locked to the tempo	tempoya kilitli
+VJ mode (two decks)	VJ modu (iki masa)
+ADD ANOTHER PLAYLIST	BAŞKA ÇALMA LİSTESİ EKLE
+Companion / OSC port	Companion / OSC portu
+Esc or click to skip	Atlamak için Esc veya tıkla
+PLAYLIST PREFERENCES	ÇALMA LİSTESİ TERCİHLERİ
+press ENTER to start	başlamak için ENTER'a bas
+ADD A SECOND PLAYLIST	İKİNCİ ÇALMA LİSTESİ EKLE
+filmstrip unavailable	film şeridi yok
+(empty — import media)	(boş – ortam içe aktar)
+Ctrl+D or Esc to close	Kapatmak için Ctrl+D veya Esc
+(no notes for this cue)	(bu cue için not yok)
+Timebase / start / fade	Zaman tabanı / başlangıç / geçiş
+No cues need conversion.	Hiçbir cue dönüştürme gerektirmiyor.
+CLICK TO SAMPLE KEY COLOR	KEY RENGİNİ ALMAK İÇİN TIKLA
+normalize loudness (R128)	gürlüğü normalleştir (R128)
+off - all channels silent	kapalı – tüm kanallar sessiz
+no video lane for this cue	bu cue için video şeridi yok
+HyperDeck emulation is off.	HyperDeck benzetimi kapalı.
+OWN SCRIPT  (click to edit)	KENDİ BETİĞİN  (düzenlemek için tıkla)
+Theme and operator feedback	Tema ve operatör geri bildirimi
+Discovery and mirrored state	Keşif ve aynalanmış durum
+FOLLOWING THE LIVE CUE NOTES	CANLI CUE NOTLARINI İZLİYOR
+Listening on all interfaces.	Tüm arayüzlerde dinliyor.
+Network-facing runtime notes	Ağa dönük çalışma notları
+Hi! Press I to import a clip.	Merhaba! Klip eklemek için I'ya bas.
+Global jump and panic behavior	Genel atlama ve panik davranışı
+Roll when the show cuts to you	Gösteri sana geçtiğinde başla
+Choose a cue to inspect it here	Burada incelemek için bir cue seç
+Defaults for newly created cues	Yeni cue'lar için varsayılanlar
+Device routing for cue playback	Cue oynatımı için aygıt yönlendirme
+Smaller buffer = lower latency.	Küçük arabellek = az gecikme.
+Emergency fade and sync behavior	Acil kararma ve eşitleme davranışı
+mixed selection: key unavailable	karışık seçim: key yok
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (DENEYSEL)
+Esc=continue with current session	Esc = bu oturumla devam et
+no per-cue settings for this type	bu tür için cue ayarı yok
+On stop: remux to an ordinary MP4	Durunca: sıradan bir MP4'e yeniden paketle
+Where RECORD writes the programme	RECORD programı nereye yazar
+dot-matrix cue deck for live events	canlı etkinlikler için noktalı cue masası
+Listening on localhost (127.0.0.1).	localhost (127.0.0.1) dinleniyor.
+three expressions: red, green, blue	üç ifade: kırmızı, yeşil, mavi
+Transport sync with another machine	Başka bir makineyle transport eşitleme
+Add slot sources in the cue inspector	Kaynakları cue denetçisinde ekle
+Ask GitHub; never installs on its own	GitHub'a sorar; kendi başına kurmaz
+Import or click a cue in the playlist	İçe aktar ya da listede bir cue'ya tıkla
+mixed selection: geometry unavailable	karışık seçim: geometri yok
+generate timecode for the rig to chase	donanımın izleyeceği timecode üret
+Lower Third and PIP fire independently	Alt bant ve PiP ayrı ayrı tetiklenir
+Panels built for a vMix rig, unchanged	vMix donanımı için yapılmış paneller, değişmedi
+Incoming transport arrives as NMCEVENT.	Gelen transport NMCEVENT olarak ulaşır.
+not in this build - saved with the show	bu yapıda yok – gösteriyle kaydedilir
+Find from the playlist, not from a modal	Listeden ara, pencereden değil
+take or select a cue to open the timeline	zaman çizgisini açmak için bir cue al ya da seç
+Optional external transport and cue control	İsteğe bağlı dış transport ve cue denetimi
+No previous show file found at startup path.	Açılışta önceki gösteri dosyası bulunamadı.
+Use Ctrl+F or type a cue id/number to search.	Aramak için Ctrl+F ya da cue kimliği/numarası yaz.
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC girişi ve HyperDeck benzetimi
+A/V delay holds audio back for lagging displays.	A/V gecikmesi yavaş ekranlar için sesi bekletir.
+On stop: leave the crash-resilient file as it is	Durunca: çökmeye dayanıklı dosyayı olduğu gibi bırak
+same disk as Deckboy - a separate drive is safer	Deckboy ile aynı disk – ayrı bir sürücü daha güvenli
+A step fires one cue on each playlist, all at once.	Bir adım her listede birer cue'yu aynı anda tetikler.
+one expression: the same value in red, green and blue	tek ifade: kırmızı, yeşil ve mavide aynı değer
+NDI transport is configured per output in Video Outputs.	NDI transport'u her çıkış için Video Çıkışları'nda ayarlanır.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Transport hareket ettikçe PLAY / PAUSE / STOP / LOCATE gönderir.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC aboneliği: denetleyicinden /deckboy/subscribe gönder.
+NMC mode / host / port are runtime-configurable for sync work.	NMC modu / konağı / portu çalışırken ayarlanabilir.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Yayına girmek cue'yu alır. Deckboy mikser'e hiçbir zaman komut göndermez.
+FPS: ON	FPS: AÇIK
+FPS: OFF	FPS: KAPALI
+NMOS: ON	NMOS: AÇIK
+NMOS: OFF	NMOS: KAPALI
+SPOUT: ON	SPOUT: AÇIK
+SPOUT: OFF	SPOUT: KAPALI
+CANVAS: ON	TUVAL: AÇIK
+CANVAS: OFF	TUVAL: KAPALI
+10-BIT: ON	10 BİT: AÇIK
+10-BIT: OFF	10 BİT: KAPALI
+EDIT...	DÜZENLE...
+FOLDER...	KLASÖR...
+ARRANGE...	YERLEŞTİR...
+ADD FILE...	DOSYA EKLE...
+RENUMBER...	YENİDEN NUMARALA...
+set a port...	bir port ayarla...
+no script	betik yok
++ OUTPUT	+ ÇIKIŞ
+Eddie's Clock	Eddie'nin Saati
+Ctrl+/ to close	Kapatmak için Ctrl+/
+(step lives here)	(adım burada durur)
+4:2:2  8-BIT	4:2:2  8 BİT
+4:2:2  10-BIT	4:2:2  10 BİT
+No outputs — click + OUTPUT to add one.	Çıkış yok – eklemek için + ÇIKIŞ'a tıkla.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI tetiği, NMC, MTC, LTC, Art-Net ve Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Deckboy'un iyi oynatamadığı cue'ları H.264'e dönüştür
+a button can run any command the network protocol understands	bir düğme protokolün anladığı her komutu çalıştırabilir
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	SUNUCU GÖRÜNÜMÜNÜ YERLEŞTİR  -  taşımak için paneli, boyutlamak için köşeyi sürükle
+ANALOG	ANALOG
+PROMPTER	PROMPTER
+vMix API	vMix API
+Timecode jam sync	Timecode jam sync
