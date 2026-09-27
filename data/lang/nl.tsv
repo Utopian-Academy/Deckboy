@@ -81,3 +81,296 @@ OFF	UIT
 Stopped	Gestopt
 Playing	Speelt
 Paused	Gepauzeerd
+2-UP	2 NAAST ELKAAR
+DONE	KLAAR
+EDIT	BEWERKEN
+HELD	VASTGEHOUDEN
+Mode	Modus
+PICK	KIEZEN
+QUAD	VIER
+Rate	Snelheid
+STEP	STAP
+Apply	Toepassen
+CLOSE	SLUITEN
+FIXED	VAST
+ORDER	VOLGORDE
+READY	GEREED
+TILES	TEGELS
+ALL ON	ALLES AAN
+ALWAYS	ALTIJD
+ANALOG	ANALOOG
+Cancel	Annuleren
+Custom	Eigen
+Device	Apparaat
+Folder	Map
+FORMAT	FORMAAT
+HIDDEN	VERBORGEN
+Length	Lengte
+Mascot	Mascotte
+Mirror	Spiegelen
+NATIVE	NATIEF
+PRESET	VOORINSTELLING
+Sender	Zender
+SUMMED	GESOMMEERD
+TOGGLE	SCHAKELEN
+12 HOUR	12 UUR
+24 HOUR	24 UUR
+ALL OFF	ALLES UIT
+ARRANGE	SCHIKKEN
+Channel	Kanaal
+CONVERT	OMZETTEN
+DEFAULT	STANDAARD
+END CUE	EINDE CUE
+Key out	Key-uitgang
+LTC out	LTC-uitgang
+MISSING	ONTBREEKT
+PRESETS	VOORINSTELLINGEN
+RUNNING	LOOPT
+Send to	Sturen naar
+SHUFFLE	WILLEKEURIG
+VJ MODE	VJ-MODUS
+CLOCK ON	KLOK AAN
+DOWNLOAD	DOWNLOADEN
+EXAMPLES	VOORBEELDEN
+Mappings	Toewijzingen
+NMC sync	NMC-sync
+PROMPTER	AUTOCUE
+SHOW SDP	SDP TONEN
+TCP port	TCP-poort
+UI scale	Interfaceschaal
+vMix API	vMix-API
+WATCHING	BEWAAKT
+A/V delay	A/V-vertraging
+ASIO outs	ASIO-uitgangen
+BOTH AXES	BEIDE ASSEN
+CHECK NOW	NU CONTROLEREN
+CLOCK OFF	KLOK UIT
+Creatures	Beestjes
+CUE TOOLS	CUE-GEREEDSCHAP
+Direction	Richting
+Freewheel	Vrijloop
+HTTP port	HTTP-poort
+Jump mode	Sprongmodus
+Listen on	Luisteren op
+OSC Query	OSC-query
+OUTPUT ON	UITGANG AAN
+Panic now	Nu paniek
+RECORDING	OPNAME
+REMAINING	RESTEREND
+RESET ALL	ALLES RESETTEN
+RUN PANIC	PANIEK STARTEN
+SHOW FLOW	SHOWVERLOOP
+TIMERS ON	TIMERS AAN
+WHEN IDLE	BIJ RUST
+ADD OUTPUT	UITGANG TOEVOEGEN
+BUILT WITH	GEBOUWD MET
+CANCEL ALL	ALLES ANNULEREN
+colour tag	kleurlabel
+copy chain	keten kopiëren
+Hover tips	Zweeftips
+Input gain	Ingangsversterking
+Input mono	Ingang mono
+live audio	live geluid
+Live input	Live-ingang
+MIDI input	MIDI-ingang
+no picture	geen beeld
+no preview	geen voorbeeld
+OPEN SAVED	OPGESLAGEN OPENEN
+OUTPUT OFF	UITGANG UIT
+Panic fade	Paniekvervaging
+Tally port	Tally-poort
+TIMERS OFF	TIMERS UIT
+Accept from	Aannemen van
+ASIO driver	ASIO-stuurprogramma
+BACK TO TOP	TERUG NAAR BOVEN
+CANVAS MODE	CANVASMODUS
+CODE SOURCE	CODEBRON
+Cue numbers	Cue-nummers
+Destination	Bestemming
+Mirror rate	Spiegelfrequentie
+no duration	geen duur
+NO LIVE CUE	GEEN LIVE CUE
+NO PREVIOUS	GEEN VORIGE
+OVERLAY BIN	OVERLAYBAK
+paste chain	keten plakken
+Sample rate	Samplefrequentie
+SENDING OUT	VERZENDT
+Shift: snap	Shift: uitlijnen
+THIS OUTPUT	DEZE UITGANG
+(no matches)	(geen treffers)
+(no subtext)	(geen ondertitel)
+add a button	een knop toevoegen
+add a window	een venster toevoegen
+Art-Net port	Art-Net-poort
+AUDIO OUTPUT	AUDIO-UITGANG
+Auto restore	Automatisch herstellen
+DECKLINK: ON	DECKLINK: AAN
+free running	vrijlopend
+KEY+FILL: ON	KEY+FILL: AAN
+LISTENING IN	LUISTERT MEE
+Miami cursor	Miami-aanwijzer
+MIDI CONTROL	MIDI-BEDIENING
+Mirror state	Status spiegelen
+NDI KEY: OFF	NDI KEY: UIT
+NDI KEY: ON	NDI KEY: AAN
+NO PROGRAMME	GEEN PROGRAMMA
+ST 2110: OFF	ST 2110: UIT
+ST 2110: ON	ST 2110: AAN
+WATCH FOLDER	BEWAAKTE MAP
+COMPOSITE CUE	SAMENGESTELDE CUE
+DECKLINK: OFF	DECKLINK: UIT
+default route	standaardroute
+Every adapter	Elke adapter
+KEY+FILL: OFF	KEY+FILL: UIT
+LEFT TO RIGHT	VAN LINKS NAAR RECHTS
+MEDIA ENCODER	MEDIA-ENCODER
+MSC device id	MSC-apparaat-id
+NEW SHOW FILE	NIEUW SHOWBESTAND
+No cue loaded	Geen cue geladen
+nothing taken	niets gestart
+OPEN PREVIOUS	VORIGE OPENEN
+Output device	Uitvoerapparaat
+Panic profile	Paniekprofiel
+Quit Deckboy?	Deckboy afsluiten?
+REMOVE OUTPUT	UITGANG VERWIJDEREN
+Sound effects	Geluidseffecten
+Tally address	Tally-adres
+TOP TO BOTTOM	VAN BOVEN NAAR BENEDEN
+127 (all-call)	127 (algemene oproep)
+ALL INTERFACES	ALLE INTERFACES
+LOCALHOST ONLY	ALLEEN LOCALHOST
+Monitor device	Meeluisterapparaat
+no audio track	geen audiospoor
+PRESENTER VIEW	PRESENTATORWEERGAVE
+RECORD TO DISK	OPNEMEN NAAR SCHIJF
+STOP RECORDING	OPNAME STOPPEN
+STOP STREAMING	STREAM STOPPEN
+TALLY TRIGGERS	TALLY-TRIGGERS
+Device channels	Apparaatkanalen
+NDI SENDING: ON	NDI-VERZENDING: AAN
+NO CUE SELECTED	GEEN CUE GESELECTEERD
+Output channels	Uitgangskanalen
+preview pending	voorbeeld volgt
+START RECORDING	OPNAME STARTEN
+START STREAMING	STREAM STARTEN
+(system default)	(systeemstandaard)
+Check at startup	Bij opstarten controleren
+Global crossfade	Globale crossfade
+Mic to recording	Microfoon naar opname
+Monitor playlist	Afspeellijst meeluisteren
+NDI SENDING: OFF	NDI-VERZENDING: UIT
+no still preview	geen stilstaand voorbeeld
+Pocket 3 / touch	Pocket 3 / aanraking
+SMPTE LTC OUTPUT	SMPTE LTC-UITGANG
+the whole screen	het hele scherm
+Check for one now	Nu controleren
+INSTALL & RESTART	INSTALLEREN EN HERSTARTEN
+Registry: NOT SET	Register: NIET INGESTELD
+SAFETY / TIMECODE	VEILIGHEID / TIMECODE
+Timecode jam sync	Timecode-jamsync
+esc or N to cancel	Esc of N om te annuleren
+KEYBOARD SHORTCUTS	SNELTOETSEN
+loading preview...	voorbeeld laden...
+CONVERT ALL FLAGGED	ALLE GEMARKEERDE OMZETTEN
+dot-matrix cue deck	dotmatrix-cuedeck
+HyperDeck emulation	HyperDeck-emulatie
+locked to the tempo	vast aan het tempo
+VJ mode (two decks)	VJ-modus (twee decks)
+ADD ANOTHER PLAYLIST	NOG EEN AFSPEELLIJST TOEVOEGEN
+Companion / OSC port	Companion-/OSC-poort
+Esc or click to skip	Esc of klik om over te slaan
+PLAYLIST PREFERENCES	AFSPEELLIJSTVOORKEUREN
+press ENTER to start	druk op ENTER om te starten
+ADD A SECOND PLAYLIST	EEN TWEEDE AFSPEELLIJST TOEVOEGEN
+filmstrip unavailable	filmstrip niet beschikbaar
+(empty — import media)	(leeg – media importeren)
+Ctrl+D or Esc to close	Ctrl+D of Esc om te sluiten
+(no notes for this cue)	(geen notities bij deze cue)
+Timebase / start / fade	Tijdbasis / start / vervaging
+No cues need conversion.	Geen cues hoeven omgezet te worden.
+CLICK TO SAMPLE KEY COLOR	KLIK OM DE KEY-KLEUR TE NEMEN
+normalize loudness (R128)	luidheid normaliseren (R128)
+off - all channels silent	uit – alle kanalen stil
+no video lane for this cue	geen videospoor voor deze cue
+HyperDeck emulation is off.	HyperDeck-emulatie staat uit.
+OWN SCRIPT  (click to edit)	EIGEN SCRIPT  (klik om te bewerken)
+Theme and operator feedback	Thema en terugkoppeling
+Discovery and mirrored state	Detectie en gespiegelde status
+FOLLOWING THE LIVE CUE NOTES	VOLGT DE NOTITIES VAN DE LIVE CUE
+Listening on all interfaces.	Luistert op alle interfaces.
+Network-facing runtime notes	Netwerkgerichte uitvoeringsnotities
+Hi! Press I to import a clip.	Hoi! Druk op I om een clip te importeren.
+Global jump and panic behavior	Globaal sprong- en paniekgedrag
+Roll when the show cuts to you	Starten wanneer de show naar u snijdt
+Choose a cue to inspect it here	Kies een cue om die hier te bekijken
+Defaults for newly created cues	Standaarden voor nieuwe cues
+Device routing for cue playback	Apparaatroutering voor cue-weergave
+Smaller buffer = lower latency.	Kleinere buffer = lagere latentie.
+Emergency fade and sync behavior	Noodvervaging en syncgedrag
+mixed selection: key unavailable	gemengde selectie: key niet beschikbaar
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (EXPERIMENTEEL)
+Esc=continue with current session	Esc = doorgaan met huidige sessie
+no per-cue settings for this type	geen cue-instellingen voor dit type
+On stop: remux to an ordinary MP4	Bij stoppen: hermuxen naar gewone MP4
+Where RECORD writes the programme	Waar RECORD het programma schrijft
+dot-matrix cue deck for live events	dotmatrix-cuedeck voor live-evenementen
+Listening on localhost (127.0.0.1).	Luistert op localhost (127.0.0.1).
+three expressions: red, green, blue	drie uitdrukkingen: rood, groen, blauw
+Transport sync with another machine	Transportsync met een andere machine
+Add slot sources in the cue inspector	Voeg bronnen toe in de cue-inspecteur
+Ask GitHub; never installs on its own	Vraagt GitHub; installeert nooit zelf
+Import or click a cue in the playlist	Importeer of klik een cue in de lijst
+mixed selection: geometry unavailable	gemengde selectie: geometrie niet beschikbaar
+generate timecode for the rig to chase	timecode maken die de installatie volgt
+Lower Third and PIP fire independently	Naambalk en PiP starten los van elkaar
+Panels built for a vMix rig, unchanged	Panelen voor een vMix-opstelling, ongewijzigd
+Incoming transport arrives as NMCEVENT.	Binnenkomend transport komt als NMCEVENT.
+not in this build - saved with the show	niet in deze build – opgeslagen bij de show
+Find from the playlist, not from a modal	Zoeken vanuit de lijst, niet uit een venster
+take or select a cue to open the timeline	start of kies een cue om de tijdlijn te openen
+Optional external transport and cue control	Optioneel extern transport en cue-bediening
+No previous show file found at startup path.	Geen vorig showbestand gevonden bij opstarten.
+Use Ctrl+F or type a cue id/number to search.	Gebruik Ctrl+F of typ een cue-id/nummer om te zoeken.
+Companion / OSC ingress and HyperDeck emulation	Companion-/OSC-ingang en HyperDeck-emulatie
+A/V delay holds audio back for lagging displays.	A/V-vertraging houdt geluid tegen voor trage schermen.
+On stop: leave the crash-resilient file as it is	Bij stoppen: het crashbestendige bestand zo laten
+same disk as Deckboy - a separate drive is safer	zelfde schijf als Deckboy – een aparte schijf is veiliger
+A step fires one cue on each playlist, all at once.	Een stap start één cue per afspeellijst, allemaal tegelijk.
+one expression: the same value in red, green and blue	één uitdrukking: dezelfde waarde in rood, groen en blauw
+NDI transport is configured per output in Video Outputs.	NDI-transport stelt u per uitgang in bij Video-uitgangen.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Stuurt PLAY / PAUSE / STOP / LOCATE als het transport beweegt.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC-abonnement: stuur /deckboy/subscribe vanaf uw controller.
+NMC mode / host / port are runtime-configurable for sync work.	NMC-modus / host / poort zijn tijdens gebruik instelbaar.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Op zender gaan start de cue. Deckboy stuurt de mixer nooit een opdracht.
+FPS: ON	FPS: AAN
+FPS: OFF	FPS: UIT
+NMOS: ON	NMOS: AAN
+NMOS: OFF	NMOS: UIT
+SPOUT: ON	SPOUT: AAN
+SPOUT: OFF	SPOUT: UIT
+CANVAS: ON	CANVAS: AAN
+CANVAS: OFF	CANVAS: UIT
+10-BIT: ON	10 BIT: AAN
+10-BIT: OFF	10 BIT: UIT
+EDIT...	BEWERKEN...
+FOLDER...	MAP...
+ARRANGE...	SCHIKKEN...
+ADD FILE...	BESTAND TOEVOEGEN...
+RENUMBER...	HERNUMMEREN...
+set a port...	poort instellen...
+no script	geen script
++ OUTPUT	+ UITGANG
+Eddie's Clock	Eddies klok
+Ctrl+/ to close	Ctrl+/ om te sluiten
+(step lives here)	(de stap staat hier)
+4:2:2  8-BIT	4:2:2  8 BIT
+4:2:2  10-BIT	4:2:2  10 BIT
+No outputs — click + OUTPUT to add one.	Geen uitgangen – klik + UITGANG om er een toe te voegen.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI-trigger, NMC, MTC, LTC, Art-Net en Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Zet cues die Deckboy slecht of niet speelt om naar H.264
+a button can run any command the network protocol understands	een knop kan elke opdracht uitvoeren die het protocol begrijpt
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	PRESENTATORWEERGAVE SCHIKKEN  -  sleep een paneel om te verplaatsen, een hoek om te schalen
+Help!	Help!
+Buffer	Buffer
+PROJECT	PROJECT
+UPDATES	UPDATES

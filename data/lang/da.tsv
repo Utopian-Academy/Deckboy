@@ -80,3 +80,294 @@ OFF	FRA
 Stopped	Stoppet
 Playing	Afspiller
 Paused	Pauset
+2-UP	2 VED SIDEN AF
+DONE	FÆRDIG
+EDIT	REDIGER
+HELD	HOLDT
+Mode	Tilstand
+PICK	VÆLG
+QUAD	FIRE
+Rate	Hastighed
+STEP	TRIN
+Apply	Anvend
+CLOSE	LUK
+FIXED	FAST
+Help!	Hjælp!
+ORDER	RÆKKEFØLGE
+READY	KLAR
+TILES	FLISER
+ALL ON	ALT TIL
+ALWAYS	ALTID
+Cancel	Annuller
+Custom	Egen
+Device	Enhed
+Folder	Mappe
+HIDDEN	SKJULT
+Length	Længde
+Mascot	Maskot
+Mirror	Spejl
+NATIVE	NATIV
+PRESET	FORVALG
+Sender	Afsender
+SUMMED	SUMMERET
+TOGGLE	SKIFT
+12 HOUR	12 TIMER
+24 HOUR	24 TIMER
+ALL OFF	ALT FRA
+ARRANGE	ARRANGER
+Channel	Kanal
+CONVERT	KONVERTER
+DEFAULT	STANDARD
+END CUE	SLUT PÅ CUE
+Key out	Key-udgang
+LTC out	LTC-udgang
+MISSING	MANGLER
+PRESETS	FORVALG
+PROJECT	PROJEKT
+RUNNING	KØRER
+Send to	Send til
+SHUFFLE	TILFÆLDIG
+UPDATES	OPDATERINGER
+VJ MODE	VJ-TILSTAND
+CLOCK ON	UR TIL
+DOWNLOAD	HENT
+EXAMPLES	EKSEMPLER
+Mappings	Tildelinger
+NMC sync	NMC-sync
+SHOW SDP	VIS SDP
+TCP port	TCP-port
+UI scale	Skalering
+vMix API	vMix-API
+WATCHING	OVERVÅGER
+A/V delay	A/V-forsinkelse
+ASIO outs	ASIO-udgange
+BOTH AXES	BEGGE AKSER
+CHECK NOW	TJEK NU
+CLOCK OFF	UR FRA
+Creatures	Væsener
+CUE TOOLS	CUE-VÆRKTØJER
+Direction	Retning
+Freewheel	Frihjul
+HTTP port	HTTP-port
+Jump mode	Sprangtilstand
+Listen on	Lyt på
+OSC Query	OSC-forespørgsel
+OUTPUT ON	UDGANG TIL
+Panic now	Panik nu
+RECORDING	OPTAGELSE
+REMAINING	TILBAGE
+RESET ALL	NULSTIL ALT
+RUN PANIC	KØR PANIK
+SHOW FLOW	SHOWFORLØB
+TIMERS ON	TIMERE TIL
+WHEN IDLE	I HVILE
+ADD OUTPUT	TILFØJ UDGANG
+BUILT WITH	BYGGET MED
+CANCEL ALL	ANNULLER ALT
+colour tag	farvemærke
+copy chain	kopier kæde
+Hover tips	Svævetips
+Input gain	Indgangsforstærkning
+Input mono	Indgang mono
+live audio	live lyd
+Live input	Live-indgang
+MIDI input	MIDI-indgang
+no picture	intet billede
+no preview	ingen forhåndsvisning
+OPEN SAVED	ÅBN GEMT
+OUTPUT OFF	UDGANG FRA
+Panic fade	Panikfade
+Tally port	Tally-port
+TIMERS OFF	TIMERE FRA
+Accept from	Modtag fra
+ASIO driver	ASIO-driver
+BACK TO TOP	TILBAGE TIL TOPPEN
+CANVAS MODE	LÆRREDSTILSTAND
+CODE SOURCE	KODEKILDE
+Cue numbers	Cue-numre
+Mirror rate	Spejlfrekvens
+no duration	ingen varighed
+NO LIVE CUE	INTET LIVE-CUE
+NO PREVIOUS	INTET FORRIGE
+OVERLAY BIN	OVERLAY-BAKKE
+paste chain	indsæt kæde
+Sample rate	Samplefrekvens
+SENDING OUT	SENDER
+Shift: snap	Skift: fastgør
+THIS OUTPUT	DENNE UDGANG
+(no matches)	(ingen træffere)
+(no subtext)	(ingen undertekst)
+add a button	tilføj en knap
+add a window	tilføj et vindue
+Art-Net port	Art-Net-port
+AUDIO OUTPUT	LYDUDGANG
+Auto restore	Gendan automatisk
+DECKLINK: ON	DECKLINK: TIL
+free running	frit løbende
+KEY+FILL: ON	KEY+FILL: TIL
+LISTENING IN	LYTTER MED
+Miami cursor	Miami-markør
+MIDI CONTROL	MIDI-STYRING
+Mirror state	Spejl tilstand
+NDI KEY: OFF	NDI KEY: FRA
+NDI KEY: ON	NDI KEY: TIL
+NO PROGRAMME	INTET PROGRAM
+ST 2110: OFF	ST 2110: FRA
+ST 2110: ON	ST 2110: TIL
+WATCH FOLDER	OVERVÅGET MAPPE
+COMPOSITE CUE	SAMMENSAT CUE
+DECKLINK: OFF	DECKLINK: FRA
+default route	standardrute
+Every adapter	Hver adapter
+KEY+FILL: OFF	KEY+FILL: FRA
+LEFT TO RIGHT	VENSTRE MOD HØJRE
+MEDIA ENCODER	MEDIEENCODER
+MSC device id	MSC-enheds-id
+NEW SHOW FILE	NY SHOWFIL
+No cue loaded	Intet cue indlæst
+nothing taken	intet taget
+OPEN PREVIOUS	ÅBN FORRIGE
+Output device	Udgangsenhed
+Panic profile	Panikprofil
+Quit Deckboy?	Afslut Deckboy?
+REMOVE OUTPUT	FJERN UDGANG
+Sound effects	Lydeffekter
+Tally address	Tally-adresse
+TOP TO BOTTOM	TOP MOD BUND
+127 (all-call)	127 (fællesopkald)
+ALL INTERFACES	ALLE GRÆNSEFLADER
+LOCALHOST ONLY	KUN LOCALHOST
+Monitor device	Medhørsenhed
+no audio track	intet lydspor
+PRESENTER VIEW	OPLÆGSHOLDERVISNING
+RECORD TO DISK	OPTAG TIL DISK
+STOP RECORDING	STOP OPTAGELSEN
+STOP STREAMING	STOP STREAMINGEN
+TALLY TRIGGERS	TALLY-UDLØSERE
+Device channels	Enhedskanaler
+NDI SENDING: ON	NDI-AFSENDELSE: TIL
+NO CUE SELECTED	INTET CUE VALGT
+Output channels	Udgangskanaler
+preview pending	forhåndsvisning afventer
+START RECORDING	START OPTAGELSEN
+START STREAMING	START STREAMINGEN
+(system default)	(systemets standard)
+Check at startup	Tjek ved opstart
+Mic to recording	Mikrofon til optagelsen
+Monitor playlist	Medhør på playlisten
+NDI SENDING: OFF	NDI-AFSENDELSE: FRA
+no still preview	ingen stillbilledvisning
+Pocket 3 / touch	Pocket 3 / berøring
+SMPTE LTC OUTPUT	SMPTE LTC-UDGANG
+the whole screen	hele skærmen
+Check for one now	Tjek nu
+INSTALL & RESTART	INSTALLER OG GENSTART
+Registry: NOT SET	Registret: IKKE SAT
+SAFETY / TIMECODE	SIKKERHED / TIMECODE
+esc or N to cancel	Esc eller N for at annullere
+KEYBOARD SHORTCUTS	TASTATURGENVEJE
+loading preview...	indlæser forhåndsvisning...
+CONVERT ALL FLAGGED	KONVERTER ALLE MARKEREDE
+dot-matrix cue deck	matrix-cuepult
+HyperDeck emulation	HyperDeck-emulering
+locked to the tempo	låst til tempoet
+VJ mode (two decks)	VJ-tilstand (to decks)
+ADD ANOTHER PLAYLIST	TILFØJ ENDNU EN PLAYLISTE
+Companion / OSC port	Companion-/OSC-port
+Esc or click to skip	Esc eller klik for at springe over
+PLAYLIST PREFERENCES	PLAYLISTEINDSTILLINGER
+press ENTER to start	tryk ENTER for at starte
+ADD A SECOND PLAYLIST	TILFØJ EN ANDEN PLAYLISTE
+filmstrip unavailable	filmstrimmel utilgængelig
+(empty — import media)	(tom – importer medier)
+Ctrl+D or Esc to close	Ctrl+D eller Esc for at lukke
+(no notes for this cue)	(ingen noter til dette cue)
+Timebase / start / fade	Tidsbase / start / fade
+No cues need conversion.	Ingen cues skal konverteres.
+CLICK TO SAMPLE KEY COLOR	KLIK FOR AT TAGE KEY-FARVEN
+normalize loudness (R128)	normaliser lydstyrke (R128)
+off - all channels silent	fra – alle kanaler tavse
+no video lane for this cue	intet videospor til dette cue
+HyperDeck emulation is off.	HyperDeck-emulering er slået fra.
+OWN SCRIPT  (click to edit)	EGET MANUSKRIPT  (klik for at redigere)
+Theme and operator feedback	Tema og tilbagemelding
+Discovery and mirrored state	Opdagelse og spejlet tilstand
+FOLLOWING THE LIVE CUE NOTES	FØLGER NOTERNE TIL LIVE-CUET
+Listening on all interfaces.	Lytter på alle grænseflader.
+Network-facing runtime notes	Netværksrettede driftsnoter
+Hi! Press I to import a clip.	Hej! Tryk I for at importere et klip.
+Global jump and panic behavior	Global spring- og panikadfærd
+Roll when the show cuts to you	Kør når udsendelsen klipper til dig
+Choose a cue to inspect it here	Vælg et cue for at se det her
+Defaults for newly created cues	Standarder for nye cues
+Device routing for cue playback	Enhedsrouting for cue-afspilning
+Smaller buffer = lower latency.	Mindre buffer = lavere latens.
+Emergency fade and sync behavior	Nødfade og sync-adfærd
+mixed selection: key unavailable	blandet valg: key utilgængelig
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (EKSPERIMENTEL)
+Esc=continue with current session	Esc = fortsæt med nuværende session
+no per-cue settings for this type	ingen cue-indstillinger for denne type
+On stop: remux to an ordinary MP4	Ved stop: remux til en almindelig MP4
+Where RECORD writes the programme	Hvor RECORD skriver programmet
+dot-matrix cue deck for live events	matrix-cuepult til live-events
+Listening on localhost (127.0.0.1).	Lytter på localhost (127.0.0.1).
+three expressions: red, green, blue	tre udtryk: rød, grøn, blå
+Transport sync with another machine	Transportsync med en anden maskine
+Add slot sources in the cue inspector	Tilføj kilder i cue-inspektøren
+Ask GitHub; never installs on its own	Spørger GitHub; installerer aldrig selv
+Import or click a cue in the playlist	Importer eller klik et cue i playlisten
+mixed selection: geometry unavailable	blandet valg: geometri utilgængelig
+generate timecode for the rig to chase	generer timecode som riggen følger
+Lower Third and PIP fire independently	Bundtekst og PiP udløses hver for sig
+Panels built for a vMix rig, unchanged	Paneler bygget til vMix, uændret
+Incoming transport arrives as NMCEVENT.	Indgående transport ankommer som NMCEVENT.
+not in this build - saved with the show	ikke i denne build – gemt med showet
+Find from the playlist, not from a modal	Find fra playlisten, ikke fra et vindue
+take or select a cue to open the timeline	tag eller vælg et cue for at åbne tidslinjen
+Optional external transport and cue control	Valgfri ekstern transport og cue-styring
+No previous show file found at startup path.	Ingen tidligere showfil fundet ved opstart.
+Use Ctrl+F or type a cue id/number to search.	Brug Ctrl+F eller skriv et cue-id/nummer for at søge.
+Companion / OSC ingress and HyperDeck emulation	Companion-/OSC-indgang og HyperDeck-emulering
+A/V delay holds audio back for lagging displays.	A/V-forsinkelse holder lyden tilbage til langsomme skærme.
+On stop: leave the crash-resilient file as it is	Ved stop: lad den nedbrudssikre fil være
+same disk as Deckboy - a separate drive is safer	samme disk som Deckboy – et separat drev er sikrere
+A step fires one cue on each playlist, all at once.	Et trin udløser ét cue på hver playliste på én gang.
+one expression: the same value in red, green and blue	ét udtryk: den samme værdi i rød, grøn og blå
+NDI transport is configured per output in Video Outputs.	NDI-transport sættes pr. udgang under Videoudgange.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Sender PLAY / PAUSE / STOP / LOCATE når transporten bevæger sig.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC-abonnement: send /deckboy/subscribe fra din controller.
+NMC mode / host / port are runtime-configurable for sync work.	NMC-tilstand / vært / port kan ændres under drift.
+Going on air takes the cue. Deckboy never sends the switcher a command.	At gå i luften tager cuet. Deckboy sender aldrig mikseren en kommando.
+FPS: ON	FPS: TIL
+FPS: OFF	FPS: FRA
+NMOS: ON	NMOS: TIL
+NMOS: OFF	NMOS: FRA
+SPOUT: ON	SPOUT: TIL
+SPOUT: OFF	SPOUT: FRA
+CANVAS: ON	LÆRRED: TIL
+CANVAS: OFF	LÆRRED: FRA
+10-BIT: ON	10 BIT: TIL
+10-BIT: OFF	10 BIT: FRA
+EDIT...	REDIGER...
+FOLDER...	MAPPE...
+ARRANGE...	ARRANGER...
+ADD FILE...	TILFØJ FIL...
+RENUMBER...	OMNUMMERER...
+set a port...	sæt en port...
+no script	intet manuskript
++ OUTPUT	+ UDGANG
+Eddie's Clock	Eddies ur
+Ctrl+/ to close	Ctrl+/ for at lukke
+(step lives here)	(trinnet bor her)
+4:2:2  8-BIT	4:2:2  8 BIT
+4:2:2  10-BIT	4:2:2  10 BIT
+No outputs — click + OUTPUT to add one.	Ingen udgange – klik + UDGANG for at tilføje en.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI-udløser, NMC, MTC, LTC, Art-Net og Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Konverter cues som Deckboy ikke afspiller godt, til H.264
+a button can run any command the network protocol understands	en knap kan køre enhver kommando som protokollen forstår
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ARRANGER OPLÆGSHOLDERVISNING  -  træk et panel for at flytte, et hjørne for at ændre størrelse
+Buffer	Buffer
+PROMPTER	PROMPTER
+Destination	Destination
+Global crossfade	Global crossfade
+Timecode jam sync	Timecode jam sync
