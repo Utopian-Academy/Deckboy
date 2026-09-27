@@ -18,7 +18,7 @@ IMPORT	ІМПОРТ
 SOURCE	ДЖЕРЕЛО
 PATTERN	ТАБЛИЦЯ
 SETTINGS	НАЛАШТУВАННЯ
-TAKE	
+TAKE	TAKE
 STOP	СТОП
 REBOOT	ПЕРЕЗАПУСК
 BLACKOUT	ЧОРНЕ
@@ -29,11 +29,11 @@ TIMELINE	ТАЙМЛАЙН
 MEDIA	МЕДІА
 TRANSPORT	ТРАНСПОРТ
 OUTPUT	ВИХІД
-PROGRAM	
-WARP	
+PROGRAM	PROGRAM
+WARP	СПОТВОРИТИ
 LIVE	В ЕФІРІ
 DECODE	ДЕКОД.
-STREAM	
+STREAM	ТРАНСЛЮВАТИ
 System	Система
 Audio	Звук
 Network	Мережа
@@ -54,8 +54,8 @@ EDGE FEATHERING	ПОМ'ЯКШЕННЯ КРАЇВ
 MATTE & OVERLAY	МАСКА І НАКЛАДКА
 AREA OF INTEREST	ОБЛАСТЬ ІНТЕРЕСУ
 DEFAULT TRANSITION	ПЕРЕХІД ЗА ЗАМОВЧУВАННЯМ
-NMC IN & OUT	
-OSC QUERY / FEEDBACK	
+NMC IN & OUT	NMC ВХІД І ВИХІД
+OSC QUERY / FEEDBACK	ЗАПИТ OSC / ВІДГУК
 CUE INSPECTOR	ІНСПЕКТОР CUE
 SELECTED CUE	ОБРАНИЙ CUE
 PLAYBACK	ВІДТВОРЕННЯ

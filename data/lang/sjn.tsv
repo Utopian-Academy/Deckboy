@@ -12,7 +12,7 @@ NEW	VEIN
 OPEN	EDRO
 SAVE	HEBO
 SAVE AS	HEBO SEV
-BUNDLE	
+BUNDLE	GOVANNO
 IMPORT	TOGO
 SOURCE	CELU
 PATTERN	CENNAD
@@ -28,11 +28,11 @@ TIMELINE	LÛ-RÂD
 MEDIA	NAITH
 TRANSPORT	COLLO
 OUTPUT	ETHIR
-PROGRAM	
-WARP	
+PROGRAM	PROGRAM
+WARP	PRESTAD
 LIVE	CUIN
-DECODE	
-STREAM	
+DECODE	THIW-EDRO
+STREAM	SÎR
 System	Gwaith
 Audio	Lamm
 Network	Raew
@@ -45,18 +45,18 @@ Devices	Gwaedhail
 Streaming	Sirio
 APPEARANCE	THÎW
 REMOTE CONTROL	TÛR HAER
-INTEGRATION ADAPTERS	
-DISCOVERY / NOTES	
-DISPLAY & RASTER	
+INTEGRATION ADAPTERS	GWEDHIR GOVANNEN
+DISCOVERY / NOTES	TÛ / THIWATH
+DISPLAY & RASTER	ESGAL A GIL
 CONNECTED DISPLAYS	CENEDRIL GOVANNEN
-EDGE FEATHERING	
-MATTE & OVERLAY	
-AREA OF INTEREST	
-DEFAULT TRANSITION	
-NMC IN & OUT	
-OSC QUERY / FEEDBACK	
-CUE INSPECTOR	
-SELECTED CUE	
+EDGE FEATHERING	RÎN MAETHAD
+MATTE & OVERLAY	DÛR A ESGAL
+AREA OF INTEREST	SEREG TIRIN
+DEFAULT TRANSITION	PRESTAD IAUR
+NMC IN & OUT	NMC MINNAS A MENTHO
+OSC QUERY / FEEDBACK	OSC GWEST / JANGOL
+CUE INSPECTOR	TÊL TÎR
+SELECTED CUE	TÊL CÍLIN
 PLAYBACK	ADLEITHIAN
 COPY	OSTIRIO
 PASTE	PANNO
@@ -66,9 +66,9 @@ Language	Lam
 Resolution	Nimp
 Orientation	Râd
 Toggle Fullscreen	Cenedril bant
-IDENTIFY	
-REGION SIZE	
-POSITION	
+IDENTIFY	ISTO
+REGION SIZE	SEREG ANDAD
+POSITION	SAD
 CENTRE	ENEDH
 FULL	PANT
 duration	lû
@@ -80,3 +80,297 @@ OFF	AVO
 Stopped	DARTHA
 Playing	CUINA
 Paused	HAR
+2-UP	TAD ESGAL
+DONE	TELIN
+EDIT	CEVO
+HELD	HEBIN
+Mode	Lû
+PICK	CÎL
+QUAD	CANAD ESGAL
+Rate	Lint
+STEP	TAL
+Apply	CARO
+CLOSE	HOLO
+FIXED	TAUR
+Help!	Natho!
+ORDER	TÊL
+READY	BAUR
+TILES	SARNATH
+VIDEO	CENED
+ALL ON	PÂN NAUR
+ALWAYS	UIAL
+ANALOG	LAM RÎN
+Buffer	HEBEG
+Cancel	AVO
+Custom	VEIN
+Device	CURU
+Folder	COL
+FORMAT	CANAD
+HIDDEN	DOLEN
+Length	ANDAD
+Mascot	AEW
+Mirror	CENNAS
+NATIVE	GWEDH
+PRESET	TÊL HEBIN
+Sender	MENTHOR
+SUMMED	GOVANNEN
+TOGGLE	PRESTO
+12 HOUR	12 LÛ
+24 HOUR	24 LÛ
+ALL OFF	PÂN DÛ
+ARRANGE	PANNO
+Channel	LANTHIR
+CONVERT	PRESTO
+DEFAULT	IAUR
+END CUE	TÊL METH
+Key out	KEY MENTHO
+LTC out	LTC MENTHO
+MISSING	PENIN
+PRESETS	TELATH HEBIN
+PROJECT	NAUGLAD
+RUNNING	NORO
+Send to	MENTHO NA
+SHUFFLE	PRESTANNEN
+UPDATES	GWEINATH
+VJ MODE	VJ LÛ
+CLOCK ON	LÛ NAUR
+DOWNLOAD	TOGO
+EXAMPLES	THIWATH
+Mappings	GWEDHATH
+NMC sync	NMC GOVANNEN
+PROMPTER	PETHTHIR
+SHOW SDP	SDP THIO
+TCP port	TCP FEN
+UI scale	ESGAL ANDAD
+vMix API	vMix FEN
+WATCHING	TIRIN
+A/V delay	LAM CENED DARTHA
+ASIO outs	ASIO MENTHATH
+BOTH AXES	TAD TÎR
+CHECK NOW	SÍ TIRO
+CLOCK OFF	LÛ DÛ
+Creatures	LEVAIN
+CUE TOOLS	TÊL CURUATH
+Direction	MEN
+Freewheel	NORO LERN
+HTTP port	HTTP FEN
+Jump mode	CABED LÛ
+Listen on	LASTO NA
+OSC Query	OSC GWEST
+OUTPUT ON	MENTHO NAUR
+Panic now	SÍ DARO
+RECORDING	TEITHIN
+REMAINING	DARTHA
+RESET ALL	PÂN GWEINO
+RUN PANIC	DARO BRONIN
+SHOW FLOW	NAUGLAD MEN
+TIMERS ON	LUATH NAUR
+WHEN IDLE	IR LERN
+ADD OUTPUT	MENTHO ELENO
+BUILT WITH	CARNEN NA
+CANCEL ALL	PÂN AVO
+colour tag	gwaith pethel
+copy chain	angol elo
+Hover tips	NATHATH
+Input gain	MINNAS HOS
+Input mono	MINNAS ER
+live audio	lam cuin
+Live input	MINNAS CUIN
+MIDI input	MIDI MINNAS
+no picture	û-cened
+no preview	û-thiad
+OPEN SAVED	EDRO HEBIN
+OUTPUT OFF	MENTHO DÛ
+Panic fade	DARO FIRIEL
+Tally port	tally FEN
+TIMERS OFF	LUATH DÛ
+Accept from	CAMMO O
+ASIO driver	ASIO CURU
+BACK TO TOP	DAN NA AMON
+CANVAS MODE	PARF LÛ
+CODE SOURCE	THIW TOL
+Cue numbers	TÊL GWEDHATH
+Destination	MEN METH
+Mirror rate	CENNAS LINT
+no duration	û-lû
+NO LIVE CUE	Û-TÊL CUIN
+NO PREVIOUS	Û-IAUR
+OVERLAY BIN	CAEL ESGAL
+paste chain	panno elo
+Sample rate	LAM LINT
+SENDING OUT	MENTHIN
+Shift: snap	Shift: gwedh
+THIS OUTPUT	MENTHO HEN
+(no matches)	(û-gwedh)
+(no subtext)	(û-beth dad)
+add a button	eleno nod
+add a window	eleno henneth
+Art-Net port	Art-Net FEN
+AUDIO OUTPUT	LAM MENTHO
+Auto restore	GWEINO ERÍN
+DECKLINK: ON	DECKLINK: NAUR
+free running	noro lern
+KEY+FILL: ON	KEY+FILL: NAUR
+LISTENING IN	LASTAN
+Miami cursor	Miami TÎR
+MIDI CONTROL	MIDI TUR
+Mirror state	CENNAS DÔL
+NDI KEY: OFF	NDI KEY: DÛ
+NDI KEY: ON	NDI KEY: NAUR
+NO PROGRAMME	Û-NAUGLAD
+ST 2110: OFF	ST 2110: DÛ
+ST 2110: ON	ST 2110: NAUR
+WATCH FOLDER	COL TIRIN
+COMPOSITE CUE	TÊL GOVANNEN
+DECKLINK: OFF	DECKLINK: DÛ
+default route	men iaur
+Every adapter	PÂN GWEDHIR
+KEY+FILL: OFF	KEY+FILL: DÛ
+LEFT TO RIGHT	O HARN NA FORN
+MEDIA ENCODER	CENED TEITHOR
+MSC device id	MSC CURU ESS
+NEW SHOW FILE	PARF NAUGLAD GWAIN
+No cue loaded	Û-TÊL TOGIN
+nothing taken	û-nad mathin
+OPEN PREVIOUS	EDRO IAUR
+Output device	MENTHO CURU
+Panic profile	DARO TÊL
+Quit Deckboy?	Gwanno Deckboy?
+REMOVE OUTPUT	MENTHO GWANNO
+Sound effects	LAM CARATH
+Tally address	tally MEN
+TOP TO BOTTOM	O AMON NA NAN
+127 (all-call)	127 (pân goston)
+ALL INTERFACES	PÂN FENNAS
+LOCALHOST ONLY	LOCALHOST ER
+Monitor device	TÎR CURU
+no audio track	û-lam men
+PRESENTER VIEW	PETHOR CENED
+RECORD TO DISK	TEITHO NA CORF
+STOP RECORDING	DARO TEITHO
+STOP STREAMING	DARO SÎR
+TALLY TRIGGERS	tally NODATH
+Device channels	CURU LANTHIRATH
+NDI SENDING: ON	NDI MENTHO: NAUR
+NO CUE SELECTED	Û-TÊL CÍLIN
+Output channels	MENTHO LANTHIRATH
+preview pending	thiad dartha
+START RECORDING	HERIO TEITHO
+START STREAMING	HERIO SÎR
+(system default)	(gûd iaur)
+Check at startup	TIRO IR HERIN
+Global crossfade	PÂN FIRIEL
+Mic to recording	LAMMEN NA TEITHO
+Monitor playlist	TIRO TELATH
+NDI SENDING: OFF	NDI MENTHO: DÛ
+no still preview	û-thiad dôl
+Pocket 3 / touch	Pocket 3 / MATH
+SMPTE LTC OUTPUT	SMPTE LTC MENTHO
+the whole screen	esgal bân
+Check for one now	SÍ TIRO
+INSTALL & RESTART	PANNO A HERIO DAN
+Registry: NOT SET	Gûd thiw: Û-GWEDHIN
+SAFETY / TIMECODE	BRONIEL / LÛ THIW
+Timecode jam sync	LÛ THIW GOVANNEN
+esc or N to cancel	Esc egor N an avo
+KEYBOARD SHORTCUTS	THIW MENATH
+loading preview...	togin thiad...
+CONVERT ALL FLAGGED	PÂN PETHEL PRESTO
+dot-matrix cue deck	têl parf gilgalad
+HyperDeck emulation	HyperDeck ruin
+locked to the tempo	gwedhin na lint
+VJ mode (two decks)	VJ lû (tad parf)
+ADD ANOTHER PLAYLIST	TELATH ELENO
+Companion / OSC port	Companion / OSC FEN
+Esc or click to skip	Esc egor math an juso
+PLAYLIST PREFERENCES	TELATH IESTATH
+press ENTER to start	matho ENTER an herio
+ADD A SECOND PLAYLIST	TAD TELATH ELENO
+filmstrip unavailable	cened rîn penin
+(empty — import media)	(lost – togo cenedath)
+Ctrl+D or Esc to close	Ctrl+D egor Esc an holo
+(no notes for this cue)	(û-thiw an têl hen)
+Timebase / start / fade	Lû thond / herio / firiel
+No cues need conversion.	Û-têl baur prestad.
+CLICK TO SAMPLE KEY COLOR	MATHO AN KEY GWAITH
+normalize loudness (R128)	lam hos gwedho (R128)
+off - all channels silent	dû – pân lanthirath dínen
+no video lane for this cue	û-cened men an têl hen
+HyperDeck emulation is off.	HyperDeck ruin dû.
+OWN SCRIPT  (click to edit)	PETH VEIN  (matho an cevo)
+Theme and operator feedback	Gwaith a thoren jangol
+Discovery and mirrored state	Tû a dôl cennas
+FOLLOWING THE LIVE CUE NOTES	TLA TÊL CUIN THIWATH
+Listening on all interfaces.	Lastan na pân fennas.
+Network-facing runtime notes	Rem thiwath noro
+Hi! Press I to import a clip.	Mae govannen! Matho I an togo cened.
+Global jump and panic behavior	Pân cabed a daro lû
+Roll when the show cuts to you	Noro ir naugled tôl na chen
+Choose a cue to inspect it here	Cîl têl an tiro sí
+Defaults for newly created cues	Iaur an telath gwain
+Device routing for cue playback	Curu men an têl cened
+Smaller buffer = lower latency.	Hebeg tithen = dartha tithen.
+Emergency fade and sync behavior	Broniel firiel a govannen
+mixed selection: key unavailable	cîl prestannen: key penin
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (GWEST)
+Esc=continue with current session	Esc = bado na lû hen
+no per-cue settings for this type	û-têl telath an nos hen
+On stop: remux to an ordinary MP4	Ir daro: govanno na MP4 iaur
+Where RECORD writes the programme	Mas RECORD teitha naugled
+dot-matrix cue deck for live events	têl parf gilgalad an wanath cuin
+Listening on localhost (127.0.0.1).	Lastan na localhost (127.0.0.1).
+three expressions: red, green, blue	neledh peth: caran, calen, luin
+Transport sync with another machine	Togad govannen na curu athan
+Add slot sources in the cue inspector	Eleno tolath mi têl tîr
+Ask GitHub; never installs on its own	Gwesto GitHub; ú-panna erín
+Import or click a cue in the playlist	Togo egor matho têl mi telath
+mixed selection: geometry unavailable	cîl prestannen: andad penin
+generate timecode for the rig to chase	caro lû thiw an curuath tla
+Lower Third and PIP fire independently	Peth dad a PIP bertha erín
+Panels built for a vMix rig, unchanged	Sarnath carnen an vMix, û-prestannen
+Incoming transport arrives as NMCEVENT.	Togad minnas tôl sui NMCEVENT.
+not in this build - saved with the show	penin mi carad hen – hebin na naugled
+Find from the playlist, not from a modal	Tiro o telath, lau o henneth
+take or select a cue to open the timeline	matho egor cîl têl an edro lû men
+Optional external transport and cue control	Togad a têl tur o thaur, ir iesta
+No previous show file found at startup path.	Û-parf naugled iaur tûn ir herin.
+Use Ctrl+F or type a cue id/number to search.	Iuitho Ctrl+F egor teitho têl gwedh an tiro.
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC minnas a HyperDeck ruin
+A/V delay holds audio back for lagging displays.	Lam cened dartha hebo lam an esgail lern.
+On stop: leave the crash-resilient file as it is	Ir daro: awartho parf bronadui sui nan
+same disk as Deckboy - a separate drive is safer	corf sui Deckboy – corf athan bronadui
+A step fires one cue on each playlist, all at once.	Tal bertha er têl mi pân telath, mi er lû.
+one expression: the same value in red, green and blue	er peth: i gwaith sui mi caran, calen a luin
+NDI transport is configured per output in Video Outputs.	NDI togad gwedhin an pân mentho mi Cened Menthath.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Mentha PLAY / PAUSE / STOP / LOCATE ir togad nora.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC lasto: mentho /deckboy/subscribe o thûr lín.
+NMC mode / host / port are runtime-configurable for sync work.	NMC lû / bar / fen prestathon ir noro.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Baded na gwilith matha i thêl. Deckboy ú-mentha canad na phrestor.
+FPS: ON	FPS: NAUR
+FPS: OFF	FPS: DÛ
+NMOS: ON	NMOS: NAUR
+NMOS: OFF	NMOS: DÛ
+SPOUT: ON	SPOUT: NAUR
+SPOUT: OFF	SPOUT: DÛ
+CANVAS: ON	PARF: NAUR
+CANVAS: OFF	PARF: DÛ
+10-BIT: ON	10-BIT: NAUR
+10-BIT: OFF	10-BIT: DÛ
+EDIT...	CEVO...
+FOLDER...	COL...
+ARRANGE...	PANNO...
+ADD FILE...	PARF ELENO...
+RENUMBER...	GWEDHATH GWEINO...
+set a port...	fen gwedho...
+no script	û-beth
++ OUTPUT	+ MENTHO
+Eddie's Clock	Lû Eddie
+Ctrl+/ to close	Ctrl+/ an holo
+(step lives here)	(tal cuina sí)
+No outputs — click + OUTPUT to add one.	Û-menthath – matho + MENTHO an eleno er.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI nod, NMC, MTC, LTC, Art-Net, a Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Presto na H.264 i thelath i ú-gena Deckboy vae
+a button can run any command the network protocol understands	nod pola noro pân canad i hen rem
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	PANNO PETHOR CENED  -  togo sarn an rimmo, nef an andado
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT

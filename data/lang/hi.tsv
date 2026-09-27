@@ -13,12 +13,12 @@ NEW	नया
 OPEN	खोलें
 SAVE	सहेजें
 SAVE AS	इस रूप में सहेजें
-BUNDLE	
+BUNDLE	एक साथ बाँधें
 IMPORT	आयात
 SOURCE	स्रोत
-PATTERN	
+PATTERN	नमूना
 SETTINGS	सेटिंग्स
-TAKE	
+TAKE	TAKE
 STOP	रोकें
 REBOOT	पुनःप्रारंभ
 BLACKOUT	काला
@@ -27,13 +27,13 @@ RECORD	रिकॉर्ड
 PLAYLIST	सूची
 TIMELINE	समयरेखा
 MEDIA	मीडिया
-TRANSPORT	
+TRANSPORT	चालन
 OUTPUT	आउटपुट
-PROGRAM	
-WARP	
+PROGRAM	PROGRAM
+WARP	विकृत करें
 LIVE	लाइव
-DECODE	
-STREAM	
+DECODE	विसंकेतन
+STREAM	प्रसारित करें
 System	सिस्टम
 Audio	ऑडियो
 Network	नेटवर्क
@@ -41,23 +41,23 @@ Video Outputs	वीडियो आउटपुट
 About	बारे में
 Encoder	एनकोडर
 Screen	स्क्रीन
-Geometry	
+Geometry	ज्यामिति
 Devices	उपकरण
 Streaming	स्ट्रीमिंग
 APPEARANCE	दिखावट
-REMOTE CONTROL	
-INTEGRATION ADAPTERS	
-DISCOVERY / NOTES	
-DISPLAY & RASTER	
-CONNECTED DISPLAYS	
-EDGE FEATHERING	
-MATTE & OVERLAY	
-AREA OF INTEREST	
-DEFAULT TRANSITION	
-NMC IN & OUT	
-OSC QUERY / FEEDBACK	
-CUE INSPECTOR	
-SELECTED CUE	
+REMOTE CONTROL	दूरस्थ नियंत्रण
+INTEGRATION ADAPTERS	एकीकरण अडैप्टर
+DISCOVERY / NOTES	खोज / टिप्पणियाँ
+DISPLAY & RASTER	प्रदर्शन और रैस्टर
+CONNECTED DISPLAYS	जुड़े प्रदर्शन
+EDGE FEATHERING	किनारा मुलायम करना
+MATTE & OVERLAY	मैट और ओवरले
+AREA OF INTEREST	रुचि का क्षेत्र
+DEFAULT TRANSITION	डिफ़ॉल्ट संक्रमण
+NMC IN & OUT	NMC अंदर और बाहर
+OSC QUERY / FEEDBACK	OSC क्वेरी / प्रतिक्रिया
+CUE INSPECTOR	क्यू निरीक्षक
+SELECTED CUE	चुना गया क्यू
 PLAYBACK	प्लेबैक
 COPY	प्रतिलिपि
 PASTE	चिपकाएँ
@@ -65,17 +65,17 @@ RESET	रीसेट
 Theme	थीम
 Language	भाषा
 Resolution	रिज़ॉल्यूशन
-Orientation	
+Orientation	दिशा
 Toggle Fullscreen	पूर्ण स्क्रीन
-IDENTIFY	
-REGION SIZE	
-POSITION	
+IDENTIFY	पहचानें
+REGION SIZE	क्षेत्र का आकार
+POSITION	स्थिति
 CENTRE	केंद्र
 FULL	पूर्ण
 duration	अवधि
 transition	संक्रमण
-fade in	
-fade out	
+fade in	धीरे उभरना
+fade out	धीरे मिटना
 ON	चालू
 OFF	बंद
 Stopped	रुका

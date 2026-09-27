@@ -13,12 +13,12 @@ NEW	ΝΕΟ
 OPEN	ΑΝΟΙΓΜΑ
 SAVE	ΑΠΟΘ.
 SAVE AS	ΑΠΟΘΗΚΕΥΣΗ ΩΣ
-BUNDLE	
+BUNDLE	ΣΥΣΚΕΥΑΣΙΑ
 IMPORT	ΕΙΣΑΓΩΓΗ
 SOURCE	ΠΗΓΗ
 PATTERN	ΜΟΤΙΒΟ
 SETTINGS	ΡΥΘΜΙΣΕΙΣ
-TAKE	
+TAKE	TAKE
 STOP	ΣΤΟΠ
 REBOOT	ΕΠΑΝΕΚΚ.
 BLACKOUT	ΜΑΥΡΟ
@@ -29,11 +29,11 @@ TIMELINE	ΧΡΟΝΟΓΡΑΜΜΗ
 MEDIA	ΜΕΣΑ
 TRANSPORT	ΜΕΤΑΦΟΡΑ
 OUTPUT	ΕΞΟΔΟΣ
-PROGRAM	
-WARP	
+PROGRAM	PROGRAM
+WARP	ΠΑΡΑΜΟΡΦΩΣΗ
 LIVE	ΖΩΝΤΑΝΑ
-DECODE	
-STREAM	
+DECODE	ΑΠΟΚΩΔΙΚΟΠΟΙΗΣΗ
+STREAM	ΜΕΤΑΔΟΣΗ
 System	Σύστημα
 Audio	Ήχος
 Network	Δίκτυο
@@ -46,18 +46,18 @@ Devices	Συσκευές
 Streaming	Μετάδοση
 APPEARANCE	ΕΜΦΑΝΙΣΗ
 REMOTE CONTROL	ΑΠΟΜΑΚΡΥΣΜΕΝΟΣ ΕΛΕΓΧΟΣ
-INTEGRATION ADAPTERS	
-DISCOVERY / NOTES	
-DISPLAY & RASTER	
+INTEGRATION ADAPTERS	ΠΡΟΣΑΡΜΟΓΕΙΣ ΔΙΑΣΥΝΔΕΣΗΣ
+DISCOVERY / NOTES	ΑΝΑΚΑΛΥΨΗ / ΣΗΜΕΙΩΣΕΙΣ
+DISPLAY & RASTER	ΟΘΟΝΗ ΚΑΙ ΡΑΣΤΕΡ
 CONNECTED DISPLAYS	ΣΥΝΔΕΔΕΜΕΝΕΣ ΟΘΟΝΕΣ
-EDGE FEATHERING	
-MATTE & OVERLAY	
-AREA OF INTEREST	
-DEFAULT TRANSITION	
-NMC IN & OUT	
-OSC QUERY / FEEDBACK	
-CUE INSPECTOR	
-SELECTED CUE	
+EDGE FEATHERING	ΑΠΑΛΥΝΣΗ ΑΚΜΩΝ
+MATTE & OVERLAY	ΜΑΣΚΑ ΚΑΙ ΕΠΙΚΑΛΥΨΗ
+AREA OF INTEREST	ΠΕΡΙΟΧΗ ΕΝΔΙΑΦΕΡΟΝΤΟΣ
+DEFAULT TRANSITION	ΠΡΟΕΠΙΛΕΓΜΕΝΗ ΜΕΤΑΒΑΣΗ
+NMC IN & OUT	NMC ΕΙΣΟΔΟΣ ΚΑΙ ΕΞΟΔΟΣ
+OSC QUERY / FEEDBACK	ΕΡΩΤΗΜΑ OSC / ΑΠΟΚΡΙΣΗ
+CUE INSPECTOR	ΕΠΙΘΕΩΡΗΤΗΣ CUE
+SELECTED CUE	ΕΠΙΛΕΓΜΕΝΟ CUE
 PLAYBACK	ΑΝΑΠΑΡΑΓΩΓΗ
 COPY	ΑΝΤΙΓΡ.
 PASTE	ΕΠΙΚΟΛΛ.
@@ -67,15 +67,15 @@ Language	Γλώσσα
 Resolution	Ανάλυση
 Orientation	Προσανατολισμός
 Toggle Fullscreen	Πλήρης οθόνη
-IDENTIFY	
-REGION SIZE	
-POSITION	
+IDENTIFY	ΑΝΑΓΝΩΡΙΣΗ
+REGION SIZE	ΜΕΓΕΘΟΣ ΠΕΡΙΟΧΗΣ
+POSITION	ΘΕΣΗ
 CENTRE	ΚΕΝΤΡΟ
 FULL	ΠΛΗΡΗΣ
 duration	διάρκεια
 transition	μετάβαση
-fade in	
-fade out	
+fade in	σταδιακή εμφάνιση
+fade out	σταδιακή απόσβεση
 ON	ΝΑΙ
 OFF	ΟΧΙ
 Stopped	Σταματημένο

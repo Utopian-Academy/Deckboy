@@ -146,6 +146,20 @@ def drawn_strings():
 
 
 def catalogue_keys(path):
+    """The keys this catalogue actually TRANSLATES.
+
+    A key with an empty value is not one of them. i18n.cpp skips those when it
+    loads the file -- deliberately, so an unfinished line reads as English
+    rather than as an empty button -- and counting them here credited every
+    catalogue for work nobody had done. Twenty to forty lines per language were
+    being reported as translated while the app drew the English.
+
+    A string the trade leaves in English in every language (TAKE, PROGRAM, NDI)
+    is a real decision and should count, so it is written with the English AS
+    its value rather than left blank. That is what --allow-same in
+    add_translations.py is for: stated once, on purpose, instead of looking
+    identical to an unfinished line.
+    """
     keys = set()
     for line in open(path, encoding="utf-8", errors="replace"):
         line = line.rstrip("\r\n")
@@ -153,7 +167,10 @@ def catalogue_keys(path):
             continue
         if "\t" not in line:
             continue
-        keys.add(line.split("\t", 1)[0])
+        key, _, value = line.partition("\t")
+        if not value.strip():
+            continue
+        keys.add(key)
     return keys
 
 

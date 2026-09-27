@@ -8,7 +8,7 @@ NEW	chu'
 OPEN	poSmoH
 SAVE	choqmoH
 SAVE AS	choqmoH pong
-BUNDLE	
+BUNDLE	Hoch yIchel
 IMPORT	'el
 SOURCE	mung
 PATTERN	mIllogh
@@ -25,10 +25,10 @@ MEDIA	De'
 TRANSPORT	lupwI'
 OUTPUT	mej
 PROGRAM	nuq bej
-WARP	
+WARP	yIrurmoH
 LIVE	DaH
-DECODE	
-STREAM	
+DECODE	yImugh
+STREAM	jabbI'ID
 System	pat
 Audio	wab
 Network	jIH
@@ -41,18 +41,18 @@ Devices	jan
 Streaming	vIH
 APPEARANCE	nguv
 REMOTE CONTROL	Hop SeH
-INTEGRATION ADAPTERS	
-DISCOVERY / NOTES	
-DISPLAY & RASTER	
+INTEGRATION ADAPTERS	rar janmey
+DISCOVERY / NOTES	tu' / ghItlhmey
+DISPLAY & RASTER	HaSta 'ej tlhegh
 CONNECTED DISPLAYS	jIb rar
-EDGE FEATHERING	
-MATTE & OVERLAY	
-AREA OF INTEREST	
-DEFAULT TRANSITION	
-NMC IN & OUT	
-OSC QUERY / FEEDBACK	
-CUE INSPECTOR	
-SELECTED CUE	
+EDGE FEATHERING	veH Hurghmoh
+MATTE & OVERLAY	So'wI' 'ej Dung mIllogh
+AREA OF INTEREST	Daq 'e' qelbogh
+DEFAULT TRANSITION	motlh choH
+NMC IN & OUT	NMC 'el 'ej ngeH
+OSC QUERY / FEEDBACK	OSC ghel / jang
+CUE INSPECTOR	mIw 'olwI'
+SELECTED CUE	mIw wIvlu'bogh
 PLAYBACK	qaS
 COPY	velqa'
 PASTE	lan
@@ -76,3 +76,297 @@ OFF	ghobe'
 Stopped	mev
 Playing	qaS
 Paused	loS
+2-UP	cha' HaSta
+DONE	rIn
+EDIT	choH
+HELD	Danmagh
+Mode	mIw
+PICK	wIv
+QUAD	loS HaSta
+Rate	Do
+STEP	mIw
+Apply	yIlo'
+CLOSE	yISoQmoH
+FIXED	motlh
+Help!	yIQaH!
+ORDER	mIw
+READY	yarlaH
+TILES	'ay'mey
+VIDEO	HaSta
+ALL ON	Hoch chu'lu'
+ALWAYS	reH
+ANALOG	wab 'och
+Buffer	polwI'
+Cancel	yIqIl
+Custom	le'
+Device	jan
+Folder	ngaSwI'
+FORMAT	nab
+HIDDEN	So'lu'
+Length	'ab
+Mascot	Ha'DIbaH
+Mirror	'ang'a'
+NATIVE	motlh
+PRESET	nab pollu'
+Sender	ngeHwI'
+SUMMED	muvlu'
+TOGGLE	yIchoH
+12 HOUR	12 rep
+24 HOUR	24 rep
+ALL OFF	Hoch chu'Ha'lu'
+ARRANGE	yIQor
+Channel	'och
+CONVERT	yIchoHmoH
+DEFAULT	motlh
+END CUE	mIw Dor
+Key out	key ngeH
+LTC out	LTC ngeH
+MISSING	Hutlh
+PRESETS	nabmey pollu'
+PROJECT	Qu'
+RUNNING	qet
+Send to	yIngeH
+SHUFFLE	Sar
+UPDATES	chu'mey
+VJ MODE	VJ mIw
+CLOCK ON	poH jan chu'lu'
+DOWNLOAD	yISuq
+EXAMPLES	De'mey
+Mappings	nabmey
+NMC sync	NMC rapmoH
+PROMPTER	laDmeH jan
+SHOW SDP	SDP yI'ang
+TCP port	TCP 'och
+UI scale	HaSta 'ab
+vMix API	vMix 'och
+WATCHING	bej
+A/V delay	wab HaSta paSmoH
+ASIO outs	ASIO ngeHmey
+BOTH AXES	cha' Hal
+CHECK NOW	DaH yI'ol
+CLOCK OFF	poH jan chu'Ha'lu'
+Creatures	Ha'DIbaHmey
+CUE TOOLS	mIw janmey
+Direction	He
+Freewheel	nIteb qet
+HTTP port	HTTP 'och
+Jump mode	Sup mIw
+Listen on	yI'Ij
+OSC Query	OSC ghel
+OUTPUT ON	ngeHwI' chu'lu'
+Panic now	DaH yImev
+RECORDING	ghItlh
+REMAINING	ratlh
+RESET ALL	Hoch yIchu'qa'
+RUN PANIC	yImevqu'
+SHOW FLOW	Qu' He
+TIMERS ON	poH janmey chu'lu'
+WHEN IDLE	Qong
+ADD OUTPUT	ngeHwI' yIchel
+BUILT WITH	chenmoHlu'pu'
+CANCEL ALL	Hoch yIqIl
+colour tag	rItlh per
+copy chain	'och yIvel
+Hover tips	QaHmey
+Input gain	'el HoS
+Input mono	wa' 'el
+live audio	yInbogh wab
+Live input	yInbogh 'el
+MIDI input	MIDI 'el
+no picture	mIllogh pagh
+no preview	'ang pagh
+OPEN SAVED	pollu'bogh yIpoSmoH
+OUTPUT OFF	ngeHwI' chu'Ha'lu'
+Panic fade	mev HurghmH
+Tally port	tally 'och
+TIMERS OFF	poH janmey chu'Ha'lu'
+Accept from	yIlaj
+ASIO driver	ASIO jan De'
+BACK TO TOP	Dung yIchegh
+CANVAS MODE	yIn HaSta mIw
+CODE SOURCE	ghItlh mung
+Cue numbers	mIw mI'mey
+Destination	Daq
+Mirror rate	'ang'a' Do
+no duration	poH pagh
+NO LIVE CUE	yInbogh mIw pagh
+NO PREVIOUS	wa'Hu' pagh
+OVERLAY BIN	Dung mIllogh ngaSwI'
+paste chain	'och yIlan
+Sample rate	wab Do
+SENDING OUT	ngeH
+Shift: snap	Shift: yImuv
+THIS OUTPUT	ngeHwI'vam
+(no matches)	(rap pagh)
+(no subtext)	(bIng mu' pagh)
+add a button	'ap yIchel
+add a window	Qorwagh yIchel
+Art-Net port	Art-Net 'och
+AUDIO OUTPUT	wab ngeHwI'
+Auto restore	nIteb chu'qa'
+DECKLINK: ON	DECKLINK: chu'lu'
+free running	nIteb qet
+KEY+FILL: ON	KEY+FILL: chu'lu'
+LISTENING IN	'Ij
+Miami cursor	Miami ghob
+MIDI CONTROL	MIDI ra'
+Mirror state	Dotlh 'ang'a'
+NDI KEY: OFF	NDI KEY: chu'Ha'lu'
+NDI KEY: ON	NDI KEY: chu'lu'
+NO PROGRAMME	Qu' pagh
+ST 2110: OFF	ST 2110: chu'Ha'lu'
+ST 2110: ON	ST 2110: chu'lu'
+WATCH FOLDER	bejlu'bogh ngaSwI'
+COMPOSITE CUE	muvlu'bogh mIw
+DECKLINK: OFF	DECKLINK: chu'Ha'lu'
+default route	motlh He
+Every adapter	Hoch rar jan
+KEY+FILL: OFF	KEY+FILL: chu'Ha'lu'
+LEFT TO RIGHT	poSvo' nIHDaq
+MEDIA ENCODER	HaSta ghItlhwI'
+MSC device id	MSC jan mI'
+NEW SHOW FILE	Qu' teywI' chu'
+No cue loaded	mIw pagh
+nothing taken	pagh ngeHlu'
+OPEN PREVIOUS	wa'Hu' yIpoSmoH
+Output device	ngeH jan
+Panic profile	mev nab
+Quit Deckboy?	Deckboy yImej'a'?
+REMOVE OUTPUT	ngeHwI' yIteq
+Sound effects	wab chenmoHwI'mey
+Tally address	tally Daq
+TOP TO BOTTOM	Dungvo' 'aqroSDaq
+127 (all-call)	127 (Hoch rI')
+ALL INTERFACES	Hoch 'och
+LOCALHOST ONLY	localhost neH
+Monitor device	bej jan
+no audio track	wab He pagh
+PRESENTER VIEW	jatlhwI' legh
+RECORD TO DISK	nagh beQDaq yIghItlh
+STOP RECORDING	ghItlh yImev
+STOP STREAMING	jabbI'ID yImev
+TALLY TRIGGERS	tally chu'wI'mey
+Device channels	jan 'ochmey
+NDI SENDING: ON	NDI ngeH: chu'lu'
+NO CUE SELECTED	mIw wIvlu'be'
+Output channels	ngeH 'ochmey
+preview pending	'ang loS
+START RECORDING	ghItlh yItagh
+START STREAMING	jabbI'ID yItagh
+(system default)	(pat motlh)
+Check at startup	taghDI' yI'ol
+Global crossfade	Hoch Hurghmey
+Mic to recording	ghogh jan ghItlhDaq
+Monitor playlist	tetlh yIbej
+NDI SENDING: OFF	NDI ngeH: chu'Ha'lu'
+no still preview	mIllogh 'ang pagh
+Pocket 3 / touch	Pocket 3 / Hot
+SMPTE LTC OUTPUT	SMPTE LTC NGEHWI'
+the whole screen	HaSta naQ
+Check for one now	DaH yInej
+INSTALL & RESTART	yIlan 'ej yItaghqa'
+Registry: NOT SET	pat De': ghItlhlu'be'
+SAFETY / TIMECODE	Qan / poH ghItlh
+Timecode jam sync	poH ghItlh rapmoH
+esc or N to cancel	qIlmeH Esc pagh N
+KEYBOARD SHORTCUTS	'ap mIw tIQmey
+loading preview...	'ang ghoS...
+CONVERT ALL FLAGGED	per Hoch yIchoHmoH
+dot-matrix cue deck	wov mI' mIw jan
+HyperDeck emulation	HyperDeck rur
+locked to the tempo	Do muvlu'
+VJ mode (two decks)	VJ mIw (cha' jan)
+ADD ANOTHER PLAYLIST	latlh tetlh yIchel
+Companion / OSC port	Companion / OSC 'och
+Esc or click to skip	juSmeH Esc pagh yIqIp
+PLAYLIST PREFERENCES	tetlh maSmeH
+press ENTER to start	taghmeH ENTER yIqIp
+ADD A SECOND PLAYLIST	cha'DIch tetlh yIchel
+filmstrip unavailable	mIllogh tetlh Hutlh
+(empty — import media)	(chIm – HaSta yI'el)
+Ctrl+D or Esc to close	SoQmoHmeH Ctrl+D pagh Esc
+(no notes for this cue)	(mIwvam ghItlh pagh)
+Timebase / start / fade	poH Hal / tagh / Hurghmoh
+No cues need conversion.	choHmeH mIw pagh.
+CLICK TO SAMPLE KEY COLOR	key rItlh SuqmeH yIqIp
+normalize loudness (R128)	wab HoS rapmoH (R128)
+off - all channels silent	chu'Ha'lu' – Hoch 'och tam
+no video lane for this cue	mIwvam HaSta He Hutlh
+HyperDeck emulation is off.	HyperDeck rur chu'Ha'lu'.
+OWN SCRIPT  (click to edit)	ghItlhlIj  (choHmeH yIqIp)
+Theme and operator feedback	rItlh 'ej lo'wI' jang
+Discovery and mirrored state	tu' 'ej Dotlh 'ang'a'
+FOLLOWING THE LIVE CUE NOTES	yInbogh mIw ghItlh tlha'
+Listening on all interfaces.	Hoch 'och 'Ij.
+Network-facing runtime notes	Sem ghItlhmey
+Hi! Press I to import a clip.	nuqneH! HaSta 'elmeH I yIqIp.
+Global jump and panic behavior	Hoch Sup 'ej mev Do'
+Roll when the show cuts to you	Qu' SoHDaq ghoSDI' yItagh
+Choose a cue to inspect it here	naDev leghmeH mIw yIwIv
+Defaults for newly created cues	mIw chu'mey motlh
+Device routing for cue playback	mIw cha'meH jan He
+Smaller buffer = lower latency.	polwI' machqu' = paS puS.
+Emergency fade and sync behavior	mev Hurghmoh 'ej rapmoH
+mixed selection: key unavailable	Sar wIv: key Hutlh
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  ('ol)
+Esc=continue with current session	Esc = DaHjaj Qu' yItaH
+no per-cue settings for this type	Segh vam mIw nab pagh
+On stop: remux to an ordinary MP4	mevDI': motlh MP4 yIchenmoHqa'
+Where RECORD writes the programme	nuqDaq Qu' ghItlh RECORD
+dot-matrix cue deck for live events	yInbogh wanI'meHvaD wov mI' mIw jan
+Listening on localhost (127.0.0.1).	localhost (127.0.0.1) 'Ij.
+three expressions: red, green, blue	wej mu'tlhegh: Doq, SuD, chuq SuD
+Transport sync with another machine	latlh jan rapmoH
+Add slot sources in the cue inspector	mIw 'olwI'Daq mungmey yIchel
+Ask GitHub; never installs on its own	GitHub yIghel; not nIteb lan
+Import or click a cue in the playlist	yI'el pagh tetlhDaq mIw yIqIp
+mixed selection: geometry unavailable	Sar wIv: 'ab Hutlh
+generate timecode for the rig to chase	janmey tlha'meH poH ghItlh yIchenmoH
+Lower Third and PIP fire independently	bIng mu' 'ej PIP nIteb baH
+Panels built for a vMix rig, unchanged	vMix janvaD chenmoHlu'pu'bogh 'ay'mey
+Incoming transport arrives as NMCEVENT.	NMCEVENT rur 'elbogh ra'.
+not in this build - saved with the show	chenmoHlu'bogh vamDaq Hutlh – Qu' tlhej pollu'
+Find from the playlist, not from a modal	tetlhvo' yInej, Qorwaghvo' ghobe'
+take or select a cue to open the timeline	poH He poSmoHmeH mIw yIngeH pagh yIwIv
+Optional external transport and cue control	Hurgh ra' 'ej mIw ra', DuHbe'chugh
+No previous show file found at startup path.	taghDI' wa'Hu' Qu' teywI' tu'lu'be'.
+Use Ctrl+F or type a cue id/number to search.	nejmeH Ctrl+F yIlo' pagh mIw mI' yIghItlh.
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC 'el 'ej HyperDeck rur
+A/V delay holds audio back for lagging displays.	HaSta QIttaHvIS wab paSmoH.
+On stop: leave the crash-resilient file as it is	mevDI': Qan teywI' yImej
+same disk as Deckboy - a separate drive is safer	Deckboy nagh beQ rap – latlh nagh beQ Qan
+A step fires one cue on each playlist, all at once.	wa' mIw Hoch tetlhDaq wa' mIw baH, wa' poHDaq.
+one expression: the same value in red, green and blue	wa' mu'tlhegh: Doq, SuD, chuq SuD rap
+NDI transport is configured per output in Video Outputs.	HaSta ngeHwI'meyDaq Hoch ngeHwI'vaD NDI nablu'.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	vIHDI' PLAY / PAUSE / STOP / LOCATE ngeH.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC 'Ij: ra'wI'lIjvo' /deckboy/subscribe yIngeH.
+NMC mode / host / port are runtime-configurable for sync work.	qettaHvIS NMC mIw / yaH / 'och choHlaH.
+Going on air takes the cue. Deckboy never sends the switcher a command.	muDDaq ghoSDI' mIw ngeHlu'. not choHwI'vaD ra' ngeH Deckboy.
+FPS: ON	FPS: chu'lu'
+FPS: OFF	FPS: chu'Ha'lu'
+NMOS: ON	NMOS: chu'lu'
+NMOS: OFF	NMOS: chu'Ha'lu'
+SPOUT: ON	SPOUT: chu'lu'
+SPOUT: OFF	SPOUT: chu'Ha'lu'
+CANVAS: ON	yIn HaSta: chu'lu'
+CANVAS: OFF	yIn HaSta: chu'Ha'lu'
+10-BIT: ON	10-BIT: chu'lu'
+10-BIT: OFF	10-BIT: chu'Ha'lu'
+EDIT...	choH...
+FOLDER...	ngaSwI'...
+ARRANGE...	yIQor...
+ADD FILE...	teywI' yIchel...
+RENUMBER...	mI'mey yIchoH...
+set a port...	'och yIwIv...
+no script	ghItlh pagh
++ OUTPUT	+ NGEHWI'
+Eddie's Clock	Eddie poH jan
+Ctrl+/ to close	SoQmoHmeH Ctrl+/
+(step lives here)	(naDev mIw yIn)
+No outputs — click + OUTPUT to add one.	ngeHwI' pagh – chelmeH + NGEHWI' yIqIp.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI chu'wI', NMC, MTC, LTC, Art-Net, 'ej Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Deckboy cha'laHbe'bogh mIwmey H.264Daq yIchoHmoH
+a button can run any command the network protocol understands	Sem yajbogh ra' Hoch qenlaH 'ap
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	JATLHWI' LEGH YIQOR  -  vIHmoHmeH 'ay' yItlhoq, 'abmoHmeH qoj
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT

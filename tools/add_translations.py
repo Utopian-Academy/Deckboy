@@ -38,8 +38,16 @@ ROOT = os.path.dirname(HERE)
 LANG_DIR = os.path.join(ROOT, "data", "lang")
 
 
-def add_one(code, entries, allow_same):
-    """entries is a list of (english, translation). Returns (added, refused)."""
+def add_one(code, entries, allow_same, fill_empty=False):
+    """entries is a list of (english, translation). Returns (added, refused).
+
+    With fill_empty, a key already present but with an EMPTY value is filled in
+    place instead of refused. Those lines are the unfinished ones -- i18n.cpp
+    skips them so they draw as English -- and they cannot be appended past,
+    because the first occurrence of a key wins and an appended duplicate would
+    sit there being shadowed by the blank above it. It only ever writes over
+    nothing; a key that already has a translation is still refused.
+    """
     path = os.path.join(LANG_DIR, code + ".tsv")
     if not os.path.isfile(path):
         return [], [("(catalogue)", "no file at " + path)]
@@ -53,7 +61,7 @@ def add_one(code, entries, allow_same):
         k, _, v = line.partition("\t")
         existing[k] = v
 
-    added, refused = [], []
+    added, refused, filled = [], [], {}
     for key, value in entries:
         key, value = key.strip(), value.strip()
         if not key:
@@ -65,20 +73,37 @@ def add_one(code, entries, allow_same):
                                  "if that is the translation)"))
         elif "\t" in value or "\n" in value:
             refused.append((key, "translation contains a tab or newline"))
-        elif key in existing:
+        elif key in existing and existing[key].strip():
             refused.append((key, "already in the catalogue"))
+        elif key in existing:
+            if not fill_empty:
+                refused.append((key, "present but blank (use --fill-empty)"))
+                continue
+            filled[key] = value
+            existing[key] = value
+            added.append((key, value))
         else:
             existing[key] = value
             added.append((key, value))
 
     if added:
-        body = text.rstrip(nl).rstrip("\n")
-        body += nl + nl.join("%s\t%s" % (k, v) for k, v in added) + nl
-        io.open(path, "w", encoding="utf-8", newline="").write(body)
+        lines = text.rstrip(nl).rstrip("\n").split(nl)
+        if filled:
+            for i, line in enumerate(lines):
+                if not line or line.startswith("#") or "\t" not in line:
+                    continue
+                k, _, v = line.partition("\t")
+                if not v.strip() and k in filled:
+                    lines[i] = k + "\t" + filled[k]
+        appended = [(k, v) for k, v in added if k not in filled]
+        body = nl.join(lines)
+        if appended:
+            body += nl + nl.join("%s\t%s" % (k, v) for k, v in appended)
+        io.open(path, "w", encoding="utf-8", newline="").write(body + nl)
     return added, refused
 
 
-def add_multi(allow_same):
+def add_multi(allow_same, fill_empty=False):
     """One file, `code<TAB>english<TAB>translation`, many languages."""
     raw = io.open(sys.stdin.fileno(), encoding="utf-8", errors="replace").read()
     byLang = {}
@@ -99,7 +124,7 @@ def add_multi(allow_same):
 
     worst = 0
     for code in sorted(byLang):
-        added, refused = add_one(code, byLang[code], allow_same)
+        added, refused = add_one(code, byLang[code], allow_same, fill_empty)
         print("%-10s added %3d  refused %3d" % (code, len(added), len(refused)))
         for key, why in refused[:6]:
             print("    %-38s %s" % (key[:38], why))
@@ -114,11 +139,12 @@ def add_multi(allow_same):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     allow_same = "--allow-same" in sys.argv
+    fill_empty = "--fill-empty" in sys.argv
     # MANY LANGUAGES IN ONE FILE. With thirty of them to fill, a file per
     # language is a lot of round trips for no benefit; `--multi` reads
     # `code<TAB>english<TAB>translation` and sorts them out here.
     if "--multi" in sys.argv:
-        return add_multi(allow_same)
+        return add_multi(allow_same, fill_empty)
     if not args:
         sys.exit("usage: add_translations.py <language code> [--allow-same]  < entries.tsv\n"
                  "       add_translations.py --multi [--allow-same]  < code_english_translation.tsv")

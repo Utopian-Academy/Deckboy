@@ -13,12 +13,12 @@ NEW	새로 만들기
 OPEN	열기
 SAVE	저장
 SAVE AS	다른 이름으로 저장
-BUNDLE	
+BUNDLE	묶어 저장
 IMPORT	가져오기
 SOURCE	소스
 PATTERN	테스트 패턴
 SETTINGS	설정
-TAKE	
+TAKE	TAKE
 STOP	정지
 REBOOT	재시작
 BLACKOUT	블랙
@@ -29,11 +29,11 @@ TIMELINE	타임라인
 MEDIA	미디어
 TRANSPORT	트랜스포트
 OUTPUT	출력
-PROGRAM	
-WARP	
+PROGRAM	PROGRAM
+WARP	변형
 LIVE	라이브
 DECODE	디코딩
-STREAM	
+STREAM	스트리밍
 System	시스템
 Audio	오디오
 Network	네트워크
@@ -46,18 +46,18 @@ Devices	장치
 Streaming	스트리밍
 APPEARANCE	모양
 REMOTE CONTROL	원격 제어
-INTEGRATION ADAPTERS	
-DISCOVERY / NOTES	
-DISPLAY & RASTER	
+INTEGRATION ADAPTERS	연동 어댑터
+DISCOVERY / NOTES	탐색 / 메모
+DISPLAY & RASTER	디스플레이와 래스터
 CONNECTED DISPLAYS	연결된 디스플레이
-EDGE FEATHERING	
-MATTE & OVERLAY	
-AREA OF INTEREST	
-DEFAULT TRANSITION	
-NMC IN & OUT	
-OSC QUERY / FEEDBACK	
-CUE INSPECTOR	
-SELECTED CUE	
+EDGE FEATHERING	가장자리 부드럽게
+MATTE & OVERLAY	매트와 오버레이
+AREA OF INTEREST	관심 영역
+DEFAULT TRANSITION	기본 전환
+NMC IN & OUT	NMC 입력과 출력
+OSC QUERY / FEEDBACK	OSC 질의 / 응답
+CUE INSPECTOR	큐 인스펙터
+SELECTED CUE	선택된 큐
 PLAYBACK	재생
 COPY	복사
 PASTE	붙여넣기
@@ -67,15 +67,15 @@ Language	언어
 Resolution	해상도
 Orientation	방향
 Toggle Fullscreen	전체 화면
-IDENTIFY	
-REGION SIZE	
-POSITION	
+IDENTIFY	식별
+REGION SIZE	영역 크기
+POSITION	위치
 CENTRE	가운데
 FULL	전체
 duration	길이
 transition	전환
-fade in	
-fade out	
+fade in	페이드 인
+fade out	페이드 아웃
 ON	켜짐
 OFF	꺼짐
 Stopped	정지됨

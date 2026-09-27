@@ -18,7 +18,7 @@ IMPORT	ИМПОРТ
 SOURCE	ИСТОЧНИК
 PATTERN	ТАБЛИЦА
 SETTINGS	НАСТРОЙКИ
-TAKE	
+TAKE	TAKE
 STOP	СТОП
 REBOOT	ПЕРЕЗАПУСК
 BLACKOUT	ЧЁРНОЕ
@@ -29,11 +29,11 @@ TIMELINE	ТАЙМЛАЙН
 MEDIA	МЕДИА
 TRANSPORT	ТРАНСПОРТ
 OUTPUT	ВЫХОД
-PROGRAM	
-WARP	
+PROGRAM	PROGRAM
+WARP	ИСКАЗИТЬ
 LIVE	В ЭФИРЕ
 DECODE	ДЕКОД.
-STREAM	
+STREAM	ТРАНСЛИРОВАТЬ
 System	Система
 Audio	Звук
 Network	Сеть
@@ -54,8 +54,8 @@ EDGE FEATHERING	СМЯГЧЕНИЕ КРАЁВ
 MATTE & OVERLAY	МАСКА И НАКЛАДКА
 AREA OF INTEREST	ОБЛАСТЬ ИНТЕРЕСА
 DEFAULT TRANSITION	ПЕРЕХОД ПО УМОЛЧАНИЮ
-NMC IN & OUT	
-OSC QUERY / FEEDBACK	
+NMC IN & OUT	NMC ВХОД И ВЫХОД
+OSC QUERY / FEEDBACK	ЗАПРОС OSC / ОТКЛИК
 CUE INSPECTOR	ИНСПЕКТОР CUE
 SELECTED CUE	ВЫБРАННЫЙ CUE
 PLAYBACK	ВОСПРОИЗВЕДЕНИЕ
