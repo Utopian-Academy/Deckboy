@@ -81,3 +81,297 @@ OFF	ВЫКЛ
 Stopped	Остановлено
 Playing	Играет
 Paused	Пауза
+2-UP	2 РЯДОМ
+DONE	ГОТОВО
+EDIT	ПРАВКА
+HELD	УДЕРЖАНО
+Mode	Режим
+PICK	ВЫБРАТЬ
+QUAD	ЧЕТЫРЕ
+Rate	Частота
+STEP	ШАГ
+Apply	Применить
+CLOSE	ЗАКРЫТЬ
+FIXED	ФИКСИРОВАННО
+Help!	Помощь!
+ORDER	ПОРЯДОК
+READY	ГОТОВ
+TILES	ПЛИТКИ
+VIDEO	ВИДЕО
+ALL ON	ВСЁ ВКЛ.
+ALWAYS	ВСЕГДА
+ANALOG	АНАЛОГ
+Buffer	Буфер
+Cancel	Отмена
+Custom	Своё
+Device	Устройство
+Folder	Папка
+FORMAT	ФОРМАТ
+HIDDEN	СКРЫТО
+Length	Длина
+Mascot	Талисман
+Mirror	Зеркало
+NATIVE	РОДНОЙ
+PRESET	ПРЕСЕТ
+Sender	Источник
+SUMMED	СУММИРОВАНО
+TOGGLE	ПЕРЕКЛЮЧИТЬ
+12 HOUR	12 ЧАСОВ
+24 HOUR	24 ЧАСА
+ALL OFF	ВСЁ ВЫКЛ.
+ARRANGE	РАЗМЕСТИТЬ
+Channel	Канал
+CONVERT	ПРЕОБРАЗОВАТЬ
+DEFAULT	ПО УМОЛЧАНИЮ
+END CUE	КОНЕЦ CUE
+Key out	Выход key
+LTC out	Выход LTC
+MISSING	ОТСУТСТВУЕТ
+PRESETS	ПРЕСЕТЫ
+PROJECT	ПРОЕКТ
+RUNNING	РАБОТАЕТ
+Send to	Отправить
+SHUFFLE	СЛУЧАЙНО
+UPDATES	ОБНОВЛЕНИЯ
+VJ MODE	РЕЖИМ VJ
+CLOCK ON	ЧАСЫ ВКЛ.
+DOWNLOAD	СКАЧАТЬ
+EXAMPLES	ПРИМЕРЫ
+Mappings	Назначения
+NMC sync	Синхрон NMC
+PROMPTER	ТЕЛЕСУФЛЁР
+SHOW SDP	ПОКАЗАТЬ SDP
+TCP port	Порт TCP
+UI scale	Масштаб интерфейса
+vMix API	API vMix
+WATCHING	НАБЛЮДАЕТ
+A/V delay	Задержка A/V
+ASIO outs	Выходы ASIO
+BOTH AXES	ОБЕ ОСИ
+CHECK NOW	ПРОВЕРИТЬ СЕЙЧАС
+CLOCK OFF	ЧАСЫ ВЫКЛ.
+Creatures	Существа
+CUE TOOLS	ИНСТРУМЕНТЫ CUE
+Direction	Направление
+Freewheel	Свободный ход
+HTTP port	Порт HTTP
+Jump mode	Режим перехода
+Listen on	Слушать на
+OSC Query	Запрос OSC
+OUTPUT ON	ВЫХОД ВКЛ.
+Panic now	Паника сейчас
+RECORDING	ЗАПИСЬ
+REMAINING	ОСТАЛОСЬ
+RESET ALL	СБРОСИТЬ ВСЁ
+RUN PANIC	ЗАПУСТИТЬ ПАНИКУ
+SHOW FLOW	ХОД ШОУ
+TIMERS ON	ТАЙМЕРЫ ВКЛ.
+WHEN IDLE	В ПРОСТОЕ
+ADD OUTPUT	ДОБАВИТЬ ВЫХОД
+BUILT WITH	СОБРАНО НА
+CANCEL ALL	ОТМЕНИТЬ ВСЁ
+colour tag	цветная метка
+copy chain	копировать цепочку
+Hover tips	Подсказки
+Input gain	Усиление входа
+Input mono	Вход моно
+live audio	живой звук
+Live input	Живой вход
+MIDI input	Вход MIDI
+no picture	нет картинки
+no preview	нет превью
+OPEN SAVED	ОТКРЫТЬ СОХРАНЁННЫЙ
+OUTPUT OFF	ВЫХОД ВЫКЛ.
+Panic fade	Затухание паники
+Tally port	Порт tally
+TIMERS OFF	ТАЙМЕРЫ ВЫКЛ.
+Accept from	Принимать от
+ASIO driver	Драйвер ASIO
+BACK TO TOP	НАВЕРХ
+CANVAS MODE	РЕЖИМ ХОЛСТА
+CODE SOURCE	КОДОВЫЙ ИСТОЧНИК
+Cue numbers	Номера cue
+Destination	Назначение
+Mirror rate	Частота зеркала
+no duration	нет длительности
+NO LIVE CUE	НЕТ ЖИВОГО CUE
+NO PREVIOUS	НЕТ ПРЕДЫДУЩЕГО
+OVERLAY BIN	КОРЗИНА НАКЛАДОК
+paste chain	вставить цепочку
+Sample rate	Частота дискретизации
+SENDING OUT	ОТПРАВЛЯЕТ
+Shift: snap	Shift: привязка
+THIS OUTPUT	ЭТОТ ВЫХОД
+(no matches)	(нет совпадений)
+(no subtext)	(нет подписи)
+add a button	добавить кнопку
+add a window	добавить окно
+Art-Net port	Порт Art-Net
+AUDIO OUTPUT	АУДИОВЫХОД
+Auto restore	Автовосстановление
+DECKLINK: ON	DECKLINK: ВКЛ.
+free running	свободный ход
+KEY+FILL: ON	KEY+FILL: ВКЛ.
+LISTENING IN	СЛУШАЕТ
+Miami cursor	Курсор Miami
+MIDI CONTROL	УПРАВЛЕНИЕ MIDI
+Mirror state	Зеркалить состояние
+NDI KEY: OFF	NDI KEY: ВЫКЛ.
+NDI KEY: ON	NDI KEY: ВКЛ.
+NO PROGRAMME	НЕТ ПРОГРАММЫ
+ST 2110: OFF	ST 2110: ВЫКЛ.
+ST 2110: ON	ST 2110: ВКЛ.
+WATCH FOLDER	НАБЛЮДАЕМАЯ ПАПКА
+COMPOSITE CUE	СОСТАВНОЕ CUE
+DECKLINK: OFF	DECKLINK: ВЫКЛ.
+default route	маршрут по умолчанию
+Every adapter	Каждый адаптер
+KEY+FILL: OFF	KEY+FILL: ВЫКЛ.
+LEFT TO RIGHT	СЛЕВА НАПРАВО
+MEDIA ENCODER	МЕДИАКОДЕР
+MSC device id	Номер устройства MSC
+NEW SHOW FILE	НОВЫЙ ФАЙЛ ШОУ
+No cue loaded	Cue не загружено
+nothing taken	ничего не взято
+OPEN PREVIOUS	ОТКРЫТЬ ПРЕДЫДУЩИЙ
+Output device	Устройство вывода
+Panic profile	Профиль паники
+Quit Deckboy?	Выйти из Deckboy?
+REMOVE OUTPUT	УДАЛИТЬ ВЫХОД
+Sound effects	Звуковые эффекты
+Tally address	Адрес tally
+TOP TO BOTTOM	СВЕРХУ ВНИЗ
+127 (all-call)	127 (общий вызов)
+ALL INTERFACES	ВСЕ ИНТЕРФЕЙСЫ
+LOCALHOST ONLY	ТОЛЬКО LOCALHOST
+Monitor device	Устройство контроля
+no audio track	нет звуковой дорожки
+PRESENTER VIEW	ВИД ВЕДУЩЕГО
+RECORD TO DISK	ЗАПИСЬ НА ДИСК
+STOP RECORDING	ОСТАНОВИТЬ ЗАПИСЬ
+STOP STREAMING	ОСТАНОВИТЬ ТРАНСЛЯЦИЮ
+TALLY TRIGGERS	ТРИГГЕРЫ TALLY
+Device channels	Каналы устройства
+NDI SENDING: ON	ОТПРАВКА NDI: ВКЛ.
+NO CUE SELECTED	CUE НЕ ВЫБРАНО
+Output channels	Выходные каналы
+preview pending	превью готовится
+START RECORDING	НАЧАТЬ ЗАПИСЬ
+START STREAMING	НАЧАТЬ ТРАНСЛЯЦИЮ
+(system default)	(по умолчанию в системе)
+Check at startup	Проверять при запуске
+Global crossfade	Общее перекрёстное затухание
+Mic to recording	Микрофон в запись
+Monitor playlist	Контроль плейлиста
+NDI SENDING: OFF	ОТПРАВКА NDI: ВЫКЛ.
+no still preview	нет превью кадра
+Pocket 3 / touch	Pocket 3 / касание
+SMPTE LTC OUTPUT	ВЫХОД SMPTE LTC
+the whole screen	весь экран
+Check for one now	Проверить сейчас
+INSTALL & RESTART	УСТАНОВИТЬ И ПЕРЕЗАПУСТИТЬ
+Registry: NOT SET	Реестр: НЕ ЗАДАН
+SAFETY / TIMECODE	БЕЗОПАСНОСТЬ / TIMECODE
+Timecode jam sync	Jam sync таймкода
+esc or N to cancel	Esc или N для отмены
+KEYBOARD SHORTCUTS	ГОРЯЧИЕ КЛАВИШИ
+loading preview...	загрузка превью...
+CONVERT ALL FLAGGED	ПРЕОБРАЗОВАТЬ ВСЕ ОТМЕЧЕННЫЕ
+dot-matrix cue deck	матричный пульт cue
+HyperDeck emulation	Эмуляция HyperDeck
+locked to the tempo	привязано к темпу
+VJ mode (two decks)	Режим VJ (два пульта)
+ADD ANOTHER PLAYLIST	ДОБАВИТЬ ЕЩЁ ПЛЕЙЛИСТ
+Companion / OSC port	Порт Companion / OSC
+Esc or click to skip	Esc или щелчок чтобы пропустить
+PLAYLIST PREFERENCES	НАСТРОЙКИ ПЛЕЙЛИСТА
+press ENTER to start	нажмите ENTER для начала
+ADD A SECOND PLAYLIST	ДОБАВИТЬ ВТОРОЙ ПЛЕЙЛИСТ
+filmstrip unavailable	лента кадров недоступна
+(empty — import media)	(пусто – импортируйте медиа)
+Ctrl+D or Esc to close	Ctrl+D или Esc чтобы закрыть
+(no notes for this cue)	(нет заметок для этого cue)
+Timebase / start / fade	Шкала времени / начало / затухание
+No cues need conversion.	Ни одно cue не требует преобразования.
+CLICK TO SAMPLE KEY COLOR	ЩЁЛКНИТЕ ЧТОБЫ ВЗЯТЬ ЦВЕТ KEY
+normalize loudness (R128)	нормализовать громкость (R128)
+off - all channels silent	выкл. – все каналы молчат
+no video lane for this cue	нет видеодорожки для этого cue
+HyperDeck emulation is off.	Эмуляция HyperDeck отключена.
+OWN SCRIPT  (click to edit)	СВОЙ СЦЕНАРИЙ  (щёлкните для правки)
+Theme and operator feedback	Тема и отклик оператору
+Discovery and mirrored state	Обнаружение и зеркальное состояние
+FOLLOWING THE LIVE CUE NOTES	СЛЕДУЕТ ЗАМЕТКАМ ЖИВОГО CUE
+Listening on all interfaces.	Слушает все интерфейсы.
+Network-facing runtime notes	Рабочие заметки со стороны сети
+Hi! Press I to import a clip.	Привет! Нажмите I чтобы импортировать клип.
+Global jump and panic behavior	Общее поведение перехода и паники
+Roll when the show cuts to you	Пуск когда шоу переходит к вам
+Choose a cue to inspect it here	Выберите cue чтобы рассмотреть его здесь
+Defaults for newly created cues	Значения по умолчанию для новых cue
+Device routing for cue playback	Маршрутизация устройств для cue
+Smaller buffer = lower latency.	Меньше буфер = меньше задержка.
+Emergency fade and sync behavior	Аварийное затухание и синхронизация
+mixed selection: key unavailable	смешанный выбор: key недоступен
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (ЭКСПЕРИМЕНТАЛЬНО)
+Esc=continue with current session	Esc = продолжить текущую сессию
+no per-cue settings for this type	нет настроек cue для этого типа
+On stop: remux to an ordinary MP4	При остановке: переупаковать в обычный MP4
+Where RECORD writes the programme	Куда RECORD пишет программу
+dot-matrix cue deck for live events	матричный пульт cue для живых событий
+Listening on localhost (127.0.0.1).	Слушает localhost (127.0.0.1).
+three expressions: red, green, blue	три выражения: красный, зелёный, синий
+Transport sync with another machine	Синхрон транспорта с другой машиной
+Add slot sources in the cue inspector	Добавьте источники в инспекторе cue
+Ask GitHub; never installs on its own	Спрашивает GitHub; сам не устанавливает
+Import or click a cue in the playlist	Импортируйте или щёлкните cue в плейлисте
+mixed selection: geometry unavailable	смешанный выбор: геометрия недоступна
+generate timecode for the rig to chase	генерировать таймкод для слежения оборудованием
+Lower Third and PIP fire independently	Титр и PiP срабатывают независимо
+Panels built for a vMix rig, unchanged	Панели для оборудования vMix, без изменений
+Incoming transport arrives as NMCEVENT.	Входящий транспорт приходит как NMCEVENT.
+not in this build - saved with the show	нет в этой сборке – сохранено вместе с шоу
+Find from the playlist, not from a modal	Ищите из плейлиста, не из окна
+take or select a cue to open the timeline	возьмите или выберите cue чтобы открыть таймлайн
+Optional external transport and cue control	Необязательное внешнее управление транспортом и cue
+No previous show file found at startup path.	Предыдущий файл шоу не найден при запуске.
+Use Ctrl+F or type a cue id/number to search.	Нажмите Ctrl+F или введите номер cue для поиска.
+Companion / OSC ingress and HyperDeck emulation	Вход Companion / OSC и эмуляция HyperDeck
+A/V delay holds audio back for lagging displays.	Задержка A/V придерживает звук для медленных экранов.
+On stop: leave the crash-resilient file as it is	При остановке: оставить отказоустойчивый файл как есть
+same disk as Deckboy - a separate drive is safer	тот же диск что Deckboy – отдельный надёжнее
+A step fires one cue on each playlist, all at once.	Шаг запускает по одному cue на каждом плейлисте сразу.
+one expression: the same value in red, green and blue	одно выражение: то же значение в красном, зелёном и синем
+NDI transport is configured per output in Video Outputs.	Транспорт NDI настраивается для каждого выхода в Видеовыходах.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Отправляет PLAY / PAUSE / STOP / LOCATE по мере движения транспорта.
+OSC subscribe: send /deckboy/subscribe from your controller.	Подписка OSC: отправьте /deckboy/subscribe с контроллера.
+NMC mode / host / port are runtime-configurable for sync work.	Режим / хост / порт NMC настраиваются во время работы.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Выход в эфир берёт cue. Deckboy никогда не отправляет команду микшеру.
+FPS: ON	FPS: ВКЛ.
+FPS: OFF	FPS: ВЫКЛ.
+NMOS: ON	NMOS: ВКЛ.
+NMOS: OFF	NMOS: ВЫКЛ.
+SPOUT: ON	SPOUT: ВКЛ.
+SPOUT: OFF	SPOUT: ВЫКЛ.
+CANVAS: ON	ХОЛСТ: ВКЛ.
+CANVAS: OFF	ХОЛСТ: ВЫКЛ.
+10-BIT: ON	10 БИТ: ВКЛ.
+10-BIT: OFF	10 БИТ: ВЫКЛ.
+EDIT...	ПРАВКА...
+FOLDER...	ПАПКА...
+ARRANGE...	РАЗМЕСТИТЬ...
+ADD FILE...	ДОБАВИТЬ ФАЙЛ...
+RENUMBER...	ПЕРЕНУМЕРОВАТЬ...
+set a port...	задайте порт...
+no script	нет сценария
++ OUTPUT	+ ВЫХОД
+Eddie's Clock	Часы Эдди
+Ctrl+/ to close	Ctrl+/ чтобы закрыть
+(step lives here)	(шаг находится здесь)
+4:2:2  8-BIT	4:2:2  8 БИТ
+4:2:2  10-BIT	4:2:2  10 БИТ
+No outputs — click + OUTPUT to add one.	Нет выходов – щёлкните + ВЫХОД.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, триггер NDI, NMC, MTC, LTC, Art-Net и Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Преобразуйте в H.264 те cue, которые Deckboy играет плохо
+a button can run any command the network protocol understands	кнопка может выполнить любую команду, понятную протоколу
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	РАЗМЕСТИТЬ ВИД ВЕДУЩЕГО  -  тяните панель чтобы переместить, угол чтобы изменить размер

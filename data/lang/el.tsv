@@ -81,3 +81,297 @@ OFF	ΟΧΙ
 Stopped	Σταματημένο
 Playing	Παίζει
 Paused	Παύση
+2-UP	2 ΔΙΠΛΑ
+DONE	ΕΤΟΙΜΟ
+EDIT	ΕΠΕΞΕΡΓΑΣΙΑ
+HELD	ΣΕ ΑΝΑΜΟΝΗ
+Mode	Λειτουργία
+PICK	ΕΠΙΛΟΓΗ
+QUAD	ΤΕΣΣΕΡΑ
+Rate	Ρυθμός
+STEP	ΒΗΜΑ
+Apply	Εφαρμογή
+CLOSE	ΚΛΕΙΣΙΜΟ
+FIXED	ΣΤΑΘΕΡΟ
+Help!	Βοήθεια!
+ORDER	ΣΕΙΡΑ
+READY	ΕΤΟΙΜΟ
+TILES	ΠΛΑΚΙΔΙΑ
+VIDEO	ΒΙΝΤΕΟ
+ALL ON	ΟΛΑ ΕΝΤΟΣ
+ALWAYS	ΠΑΝΤΑ
+ANALOG	ΑΝΑΛΟΓΙΚΟ
+Buffer	Ενδιάμεση μνήμη
+Cancel	Άκυρο
+Custom	Προσαρμοσμένο
+Device	Συσκευή
+Folder	Φάκελος
+FORMAT	ΜΟΡΦΗ
+HIDDEN	ΚΡΥΦΟ
+Length	Διάρκεια
+Mascot	Μασκότ
+Mirror	Καθρέφτης
+NATIVE	ΕΓΓΕΝΕΣ
+PRESET	ΠΡΟΕΠΙΛΟΓΗ
+Sender	Αποστολέας
+SUMMED	ΑΘΡΟΙΣΜΕΝΟ
+TOGGLE	ΕΝΑΛΛΑΓΗ
+12 HOUR	12 ΩΡΕΣ
+24 HOUR	24 ΩΡΕΣ
+ALL OFF	ΟΛΑ ΕΚΤΟΣ
+ARRANGE	ΔΙΑΤΑΞΗ
+Channel	Κανάλι
+CONVERT	ΜΕΤΑΤΡΟΠΗ
+DEFAULT	ΠΡΟΕΠΙΛΟΓΗ
+END CUE	ΤΕΛΟΣ CUE
+Key out	Έξοδος key
+LTC out	Έξοδος LTC
+MISSING	ΛΕΙΠΕΙ
+PRESETS	ΠΡΟΕΠΙΛΟΓΕΣ
+PROJECT	ΕΡΓΟ
+RUNNING	ΤΡΕΧΕΙ
+Send to	Αποστολή σε
+SHUFFLE	ΤΥΧΑΙΑ
+UPDATES	ΕΝΗΜΕΡΩΣΕΙΣ
+VJ MODE	ΛΕΙΤΟΥΡΓΙΑ VJ
+CLOCK ON	ΡΟΛΟΙ ΕΝΤΟΣ
+DOWNLOAD	ΛΗΨΗ
+EXAMPLES	ΠΑΡΑΔΕΙΓΜΑΤΑ
+Mappings	Αντιστοιχίσεις
+NMC sync	Συγχρονισμός NMC
+PROMPTER	ΤΗΛΕΠΡΟΜΠΤΕΡ
+SHOW SDP	ΕΜΦΑΝΙΣΗ SDP
+TCP port	Θύρα TCP
+UI scale	Κλίμακα διεπαφής
+vMix API	API vMix
+WATCHING	ΠΑΡΑΚΟΛΟΥΘΕΙ
+A/V delay	Καθυστέρηση A/V
+ASIO outs	Έξοδοι ASIO
+BOTH AXES	ΚΑΙ ΟΙ ΔΥΟ ΑΞΟΝΕΣ
+CHECK NOW	ΕΛΕΓΞΕ ΤΩΡΑ
+CLOCK OFF	ΡΟΛΟΙ ΕΚΤΟΣ
+Creatures	Πλάσματα
+CUE TOOLS	ΕΡΓΑΛΕΙΑ CUE
+Direction	Κατεύθυνση
+Freewheel	Ελεύθερη κίνηση
+HTTP port	Θύρα HTTP
+Jump mode	Λειτουργία άλματος
+Listen on	Ακρόαση σε
+OSC Query	Ερώτημα OSC
+OUTPUT ON	ΕΞΟΔΟΣ ΕΝΤΟΣ
+Panic now	Πανικός τώρα
+RECORDING	ΕΓΓΡΑΦΗ
+REMAINING	ΑΠΟΜΕΝΟΥΝ
+RESET ALL	ΕΠΑΝΑΦΟΡΑ ΟΛΩΝ
+RUN PANIC	ΕΚΤΕΛΕΣΗ ΠΑΝΙΚΟΥ
+SHOW FLOW	ΡΟΗ ΠΑΡΑΣΤΑΣΗΣ
+TIMERS ON	ΧΡΟΝΟΜΕΤΡΑ ΕΝΤΟΣ
+WHEN IDLE	ΣΕ ΑΔΡΑΝΕΙΑ
+ADD OUTPUT	ΠΡΟΣΘΗΚΗ ΕΞΟΔΟΥ
+BUILT WITH	ΦΤΙΑΓΜΕΝΟ ΜΕ
+CANCEL ALL	ΑΚΥΡΩΣΗ ΟΛΩΝ
+colour tag	ετικέτα χρώματος
+copy chain	αντιγραφή αλυσίδας
+Hover tips	Υποδείξεις
+Input gain	Ενίσχυση εισόδου
+Input mono	Είσοδος μονοφωνική
+live audio	ζωντανός ήχος
+Live input	Ζωντανή είσοδος
+MIDI input	Είσοδος MIDI
+no picture	χωρίς εικόνα
+no preview	χωρίς προεπισκόπηση
+OPEN SAVED	ΑΝΟΙΓΜΑ ΑΠΟΘΗΚΕΥΜΕΝΟΥ
+OUTPUT OFF	ΕΞΟΔΟΣ ΕΚΤΟΣ
+Panic fade	Σβήσιμο πανικού
+Tally port	Θύρα tally
+TIMERS OFF	ΧΡΟΝΟΜΕΤΡΑ ΕΚΤΟΣ
+Accept from	Αποδοχή από
+ASIO driver	Πρόγραμμα ASIO
+BACK TO TOP	ΠΙΣΩ ΣΤΗΝ ΚΟΡΥΦΗ
+CANVAS MODE	ΛΕΙΤΟΥΡΓΙΑ ΚΑΜΒΑ
+CODE SOURCE	ΠΗΓΗ ΚΩΔΙΚΑ
+Cue numbers	Αριθμοί cue
+Destination	Προορισμός
+Mirror rate	Ρυθμός καθρεφτισμού
+no duration	χωρίς διάρκεια
+NO LIVE CUE	ΚΑΝΕΝΑ ΖΩΝΤΑΝΟ CUE
+NO PREVIOUS	ΚΑΝΕΝΑ ΠΡΟΗΓΟΥΜΕΝΟ
+OVERLAY BIN	ΚΑΔΟΣ ΕΠΙΚΑΛΥΨΕΩΝ
+paste chain	επικόλληση αλυσίδας
+Sample rate	Συχνότητα δειγματοληψίας
+SENDING OUT	ΑΠΟΣΤΕΛΛΕΙ
+Shift: snap	Shift: κούμπωμα
+THIS OUTPUT	ΑΥΤΗ Η ΕΞΟΔΟΣ
+(no matches)	(κανένα αποτέλεσμα)
+(no subtext)	(χωρίς υπότιτλο)
+add a button	προσθήκη κουμπιού
+add a window	προσθήκη παραθύρου
+Art-Net port	Θύρα Art-Net
+AUDIO OUTPUT	ΕΞΟΔΟΣ ΗΧΟΥ
+Auto restore	Αυτόματη επαναφορά
+DECKLINK: ON	DECKLINK: ΕΝΤΟΣ
+free running	ελεύθερη λειτουργία
+KEY+FILL: ON	KEY+FILL: ΕΝΤΟΣ
+LISTENING IN	ΑΚΟΥΕΙ
+Miami cursor	Δείκτης Miami
+MIDI CONTROL	ΕΛΕΓΧΟΣ MIDI
+Mirror state	Καθρεφτισμός κατάστασης
+NDI KEY: OFF	NDI KEY: ΕΚΤΟΣ
+NDI KEY: ON	NDI KEY: ΕΝΤΟΣ
+NO PROGRAMME	ΚΑΝΕΝΑ ΠΡΟΓΡΑΜΜΑ
+ST 2110: OFF	ST 2110: ΕΚΤΟΣ
+ST 2110: ON	ST 2110: ΕΝΤΟΣ
+WATCH FOLDER	ΠΑΡΑΚΟΛΟΥΘΟΥΜΕΝΟΣ ΦΑΚΕΛΟΣ
+COMPOSITE CUE	ΣΥΝΘΕΤΟ CUE
+DECKLINK: OFF	DECKLINK: ΕΚΤΟΣ
+default route	προεπιλεγμένη διαδρομή
+Every adapter	Κάθε προσαρμογέας
+KEY+FILL: OFF	KEY+FILL: ΕΚΤΟΣ
+LEFT TO RIGHT	ΑΠΟ ΑΡΙΣΤΕΡΑ ΠΡΟΣ ΔΕΞΙΑ
+MEDIA ENCODER	ΚΩΔΙΚΟΠΟΙΗΤΗΣ
+MSC device id	Κωδικός συσκευής MSC
+NEW SHOW FILE	ΝΕΟ ΑΡΧΕΙΟ ΠΑΡΑΣΤΑΣΗΣ
+No cue loaded	Κανένα cue φορτωμένο
+nothing taken	δεν πάρθηκε τίποτα
+OPEN PREVIOUS	ΑΝΟΙΓΜΑ ΠΡΟΗΓΟΥΜΕΝΟΥ
+Output device	Συσκευή εξόδου
+Panic profile	Προφίλ πανικού
+Quit Deckboy?	Έξοδος από το Deckboy;
+REMOVE OUTPUT	ΑΦΑΙΡΕΣΗ ΕΞΟΔΟΥ
+Sound effects	Ηχητικά εφέ
+Tally address	Διεύθυνση tally
+TOP TO BOTTOM	ΑΠΟ ΠΑΝΩ ΠΡΟΣ ΚΑΤΩ
+127 (all-call)	127 (γενική κλήση)
+ALL INTERFACES	ΟΛΕΣ ΟΙ ΔΙΕΠΑΦΕΣ
+LOCALHOST ONLY	ΜΟΝΟ LOCALHOST
+Monitor device	Συσκευή ακρόασης
+no audio track	χωρίς κανάλι ήχου
+PRESENTER VIEW	ΠΡΟΒΟΛΗ ΠΑΡΟΥΣΙΑΣΤΗ
+RECORD TO DISK	ΕΓΓΡΑΦΗ ΣΤΟ ΔΙΣΚΟ
+STOP RECORDING	ΤΕΡΜΑΤΙΣΜΟΣ ΕΓΓΡΑΦΗΣ
+STOP STREAMING	ΤΕΡΜΑΤΙΣΜΟΣ ΜΕΤΑΔΟΣΗΣ
+TALLY TRIGGERS	ΕΝΕΡΓΟΠΟΙΗΣΕΙΣ TALLY
+Device channels	Κανάλια συσκευής
+NDI SENDING: ON	ΑΠΟΣΤΟΛΗ NDI: ΕΝΤΟΣ
+NO CUE SELECTED	ΚΑΝΕΝΑ CUE ΕΠΙΛΕΓΜΕΝΟ
+Output channels	Κανάλια εξόδου
+preview pending	προεπισκόπηση σε εξέλιξη
+START RECORDING	ΕΝΑΡΞΗ ΕΓΓΡΑΦΗΣ
+START STREAMING	ΕΝΑΡΞΗ ΜΕΤΑΔΟΣΗΣ
+(system default)	(προεπιλογή συστήματος)
+Check at startup	Έλεγχος στην εκκίνηση
+Global crossfade	Γενική διασταύρωση
+Mic to recording	Μικρόφωνο στην εγγραφή
+Monitor playlist	Ακρόαση λίστας
+NDI SENDING: OFF	ΑΠΟΣΤΟΛΗ NDI: ΕΚΤΟΣ
+no still preview	χωρίς προεπισκόπηση εικόνας
+Pocket 3 / touch	Pocket 3 / αφή
+SMPTE LTC OUTPUT	ΕΞΟΔΟΣ SMPTE LTC
+the whole screen	όλη η οθόνη
+Check for one now	Έλεγχος τώρα
+INSTALL & RESTART	ΕΓΚΑΤΑΣΤΑΣΗ ΚΑΙ ΕΠΑΝΕΚΚΙΝΗΣΗ
+Registry: NOT SET	Μητρώο: ΔΕΝ ΟΡΙΣΤΗΚΕ
+SAFETY / TIMECODE	ΑΣΦΑΛΕΙΑ / TIMECODE
+Timecode jam sync	Jam sync timecode
+esc or N to cancel	Esc ή N για άκυρο
+KEYBOARD SHORTCUTS	ΣΥΝΤΟΜΕΥΣΕΙΣ ΠΛΗΚΤΡΟΛΟΓΙΟΥ
+loading preview...	φόρτωση προεπισκόπησης...
+CONVERT ALL FLAGGED	ΜΕΤΑΤΡΟΠΗ ΟΛΩΝ ΤΩΝ ΣΗΜΕΙΩΜΕΝΩΝ
+dot-matrix cue deck	κονσόλα cue με κουκκίδες
+HyperDeck emulation	Εξομοίωση HyperDeck
+locked to the tempo	κλειδωμένο στο τέμπο
+VJ mode (two decks)	Λειτουργία VJ (δύο κονσόλες)
+ADD ANOTHER PLAYLIST	ΠΡΟΣΘΗΚΗ ΑΛΛΗΣ ΛΙΣΤΑΣ
+Companion / OSC port	Θύρα Companion / OSC
+Esc or click to skip	Esc ή κλικ για παράλειψη
+PLAYLIST PREFERENCES	ΠΡΟΤΙΜΗΣΕΙΣ ΛΙΣΤΑΣ
+press ENTER to start	πατήστε ENTER για έναρξη
+ADD A SECOND PLAYLIST	ΠΡΟΣΘΗΚΗ ΔΕΥΤΕΡΗΣ ΛΙΣΤΑΣ
+filmstrip unavailable	η λωρίδα δεν είναι διαθέσιμη
+(empty — import media)	(κενό – εισάγετε πολυμέσα)
+Ctrl+D or Esc to close	Ctrl+D ή Esc για κλείσιμο
+(no notes for this cue)	(χωρίς σημειώσεις για αυτό το cue)
+Timebase / start / fade	Χρονική βάση / έναρξη / σβήσιμο
+No cues need conversion.	Κανένα cue δεν χρειάζεται μετατροπή.
+CLICK TO SAMPLE KEY COLOR	ΚΛΙΚ ΓΙΑ ΔΕΙΓΜΑ ΧΡΩΜΑΤΟΣ KEY
+normalize loudness (R128)	κανονικοποίηση έντασης (R128)
+off - all channels silent	εκτός – όλα τα κανάλια σιωπηλά
+no video lane for this cue	χωρίς κανάλι βίντεο για αυτό το cue
+HyperDeck emulation is off.	Η εξομοίωση HyperDeck είναι εκτός.
+OWN SCRIPT  (click to edit)	ΔΙΚΟ ΣΕΝΑΡΙΟ  (κλικ για επεξεργασία)
+Theme and operator feedback	Θέμα και ενδείξεις χειριστή
+Discovery and mirrored state	Ανακάλυψη και καθρεφτισμένη κατάσταση
+FOLLOWING THE LIVE CUE NOTES	ΑΚΟΛΟΥΘΕΙ ΤΙΣ ΣΗΜΕΙΩΣΕΙΣ ΤΟΥ ΖΩΝΤΑΝΟΥ CUE
+Listening on all interfaces.	Ακρόαση σε όλες τις διεπαφές.
+Network-facing runtime notes	Σημειώσεις εκτέλεσης προς το δίκτυο
+Hi! Press I to import a clip.	Γεια! Πατήστε I για εισαγωγή κλιπ.
+Global jump and panic behavior	Γενική συμπεριφορά άλματος και πανικού
+Roll when the show cuts to you	Ξεκίνα όταν η παράσταση περάσει σε εσένα
+Choose a cue to inspect it here	Επιλέξτε ένα cue για να το δείτε εδώ
+Defaults for newly created cues	Προεπιλογές για νέα cue
+Device routing for cue playback	Δρομολόγηση συσκευών για αναπαραγωγή
+Smaller buffer = lower latency.	Μικρότερη μνήμη = λιγότερη καθυστέρηση.
+Emergency fade and sync behavior	Σβήσιμο ανάγκης και συγχρονισμός
+mixed selection: key unavailable	μεικτή επιλογή: key μη διαθέσιμο
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (ΠΕΙΡΑΜΑΤΙΚΟ)
+Esc=continue with current session	Esc = συνέχεια με την τρέχουσα συνεδρία
+no per-cue settings for this type	χωρίς ρυθμίσεις cue για αυτόν τον τύπο
+On stop: remux to an ordinary MP4	Στο τέλος: επανασυσκευασία σε κανονικό MP4
+Where RECORD writes the programme	Πού γράφει το RECORD το πρόγραμμα
+dot-matrix cue deck for live events	κονσόλα cue με κουκκίδες για ζωντανές εκδηλώσεις
+Listening on localhost (127.0.0.1).	Ακρόαση σε localhost (127.0.0.1).
+three expressions: red, green, blue	τρεις παραστάσεις: κόκκινο, πράσινο, μπλε
+Transport sync with another machine	Συγχρονισμός με άλλο μηχάνημα
+Add slot sources in the cue inspector	Προσθέστε πηγές στον επιθεωρητή cue
+Ask GitHub; never installs on its own	Ρωτά το GitHub· δεν εγκαθιστά μόνο του
+Import or click a cue in the playlist	Εισάγετε ή κάντε κλικ σε ένα cue
+mixed selection: geometry unavailable	μεικτή επιλογή: γεωμετρία μη διαθέσιμη
+generate timecode for the rig to chase	παράγετε timecode για να ακολουθεί ο εξοπλισμός
+Lower Third and PIP fire independently	Το κάτω τρίτο και το PiP ενεργοποιούνται ξεχωριστά
+Panels built for a vMix rig, unchanged	Πάνελ για εξοπλισμό vMix, αμετάβλητα
+Incoming transport arrives as NMCEVENT.	Η εισερχόμενη μεταφορά φτάνει ως NMCEVENT.
+not in this build - saved with the show	δεν υπάρχει σε αυτή την έκδοση – αποθηκεύεται με την παράσταση
+Find from the playlist, not from a modal	Αναζήτηση από τη λίστα, όχι από παράθυρο
+take or select a cue to open the timeline	πάρτε ή επιλέξτε ένα cue για να ανοίξει η γραμμή χρόνου
+Optional external transport and cue control	Προαιρετικός εξωτερικός έλεγχος μεταφοράς και cue
+No previous show file found at startup path.	Δεν βρέθηκε προηγούμενο αρχείο παράστασης.
+Use Ctrl+F or type a cue id/number to search.	Χρησιμοποιήστε Ctrl+F ή γράψτε κωδικό/αριθμό cue.
+Companion / OSC ingress and HyperDeck emulation	Είσοδος Companion / OSC και εξομοίωση HyperDeck
+A/V delay holds audio back for lagging displays.	Η καθυστέρηση A/V κρατά τον ήχο για αργές οθόνες.
+On stop: leave the crash-resilient file as it is	Στο τέλος: αφήστε το ανθεκτικό αρχείο ως είναι
+same disk as Deckboy - a separate drive is safer	ίδιος δίσκος με το Deckboy – ξεχωριστός είναι ασφαλέστερος
+A step fires one cue on each playlist, all at once.	Ένα βήμα ενεργοποιεί ένα cue σε κάθε λίστα ταυτόχρονα.
+one expression: the same value in red, green and blue	μία παράσταση: η ίδια τιμή σε κόκκινο, πράσινο και μπλε
+NDI transport is configured per output in Video Outputs.	Η μεταφορά NDI ρυθμίζεται ανά έξοδο στις Εξόδους βίντεο.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Στέλνει PLAY / PAUSE / STOP / LOCATE όσο κινείται η μεταφορά.
+OSC subscribe: send /deckboy/subscribe from your controller.	Συνδρομή OSC: στείλτε /deckboy/subscribe από τον ελεγκτή σας.
+NMC mode / host / port are runtime-configurable for sync work.	Η λειτουργία / ο κόμβος / η θύρα NMC ρυθμίζονται κατά την εκτέλεση.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Η μετάβαση στον αέρα παίρνει το cue. Το Deckboy δεν στέλνει ποτέ εντολή στον μίκτη.
+FPS: ON	FPS: ΕΝΤΟΣ
+FPS: OFF	FPS: ΕΚΤΟΣ
+NMOS: ON	NMOS: ΕΝΤΟΣ
+NMOS: OFF	NMOS: ΕΚΤΟΣ
+SPOUT: ON	SPOUT: ΕΝΤΟΣ
+SPOUT: OFF	SPOUT: ΕΚΤΟΣ
+CANVAS: ON	ΚΑΜΒΑΣ: ΕΝΤΟΣ
+CANVAS: OFF	ΚΑΜΒΑΣ: ΕΚΤΟΣ
+10-BIT: ON	10-BIT: ΕΝΤΟΣ
+10-BIT: OFF	10-BIT: ΕΚΤΟΣ
+EDIT...	ΕΠΕΞΕΡΓΑΣΙΑ...
+FOLDER...	ΦΑΚΕΛΟΣ...
+ARRANGE...	ΔΙΑΤΑΞΗ...
+ADD FILE...	ΠΡΟΣΘΗΚΗ ΑΡΧΕΙΟΥ...
+RENUMBER...	ΕΠΑΝΑΡΙΘΜΗΣΗ...
+set a port...	ορίστε θύρα...
+no script	χωρίς σενάριο
++ OUTPUT	+ ΕΞΟΔΟΣ
+Eddie's Clock	Το ρολόι του Eddie
+Ctrl+/ to close	Ctrl+/ για κλείσιμο
+(step lives here)	(το βήμα βρίσκεται εδώ)
+No outputs — click + OUTPUT to add one.	Καμία έξοδος – κλικ + ΕΞΟΔΟΣ για προσθήκη.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, ενεργοποίηση NDI, NMC, MTC, LTC, Art-Net και Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Μετατρέψτε σε H.264 τα cue που το Deckboy δεν παίζει καλά
+a button can run any command the network protocol understands	ένα κουμπί μπορεί να εκτελέσει κάθε εντολή που καταλαβαίνει το πρωτόκολλο
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ΔΙΑΤΑΞΗ ΠΑΡΟΥΣΙΑΣΤΗ  -  σύρετε ένα πάνελ για μετακίνηση, μια γωνία για μέγεθος
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT
