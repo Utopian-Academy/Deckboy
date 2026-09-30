@@ -3523,6 +3523,17 @@
                  + std::to_string(project_.oscQueryPort));
       aboutRow(leftAbout, leftRowY, "Theme",
                currentThemeName_.empty() ? "gameboy" : currentThemeName_);
+      leftRowY += 8;
+      {
+        SDL_Rect reportBtn {leftAbout.x + 12, leftRowY, leftAbout.w - 24, aboutLineH + 10};
+        if (reportBtn.y + reportBtn.h <= leftAbout.y + leftAbout.h - 6) {
+          drawSettingsStateFill(reportBtn, false);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, reportBtn, "REPORT A PROBLEM",
+                               settingsStateInk(false));
+          settingsBtns_.push_back({reportBtn, kSettingsActionReportProblem, "report_problem"});
+          leftRowY += reportBtn.h;
+        }
+      }
 
       drawSettingsCard(rightAbout, "BUILT WITH");
       int rightRowY = rightAbout.y + settingsHeaderHeight(fontBase_) + 2;
@@ -6108,5 +6119,56 @@
         // the last one lands somewhere arbitrary in this one.
         settingsVideoScroll_ = 0;
         settingsVideoScrollMax_ = 0;
+      } else if (sb.action == kSettingsActionReportProblem) {
+        // GitHub's own "new issue" page IS the consent screen: this only
+        // ever opens a browser tab. Nothing leaves the machine until the
+        // operator reviews the pre-filled report -- free to edit or delete
+        // any of it -- and presses Submit there themselves.
+        const auto urlEncode = [](const std::string& s) {
+          static const char* hex = "0123456789ABCDEF";
+          std::string out;
+          out.reserve(s.size() * 3);
+          for (unsigned char c : s) {
+            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == '~') {
+              out += static_cast<char>(c);
+            } else {
+              out += '%';
+              out += hex[(c >> 4) & 0xF];
+              out += hex[c & 0xF];
+            }
+          }
+          return out;
+        };
+        const std::string platformName =
+#if defined(_WIN32)
+            "Windows x64";
+#elif defined(__APPLE__)
+            "macOS";
+#else
+            "Linux";
+#endif
+        std::error_code ec;
+        const std::string body =
+            "### What happened\n\n\n"
+            "### Steps to reproduce\n\n\n"
+            "### Expected behaviour\n\n\n"
+            "---\n"
+            "Diagnostics (filled in automatically -- edit or remove anything "
+            "you don't want to share):\n"
+            "- Deckboy: " + std::string(kAppVersionTag) + " (" + std::string(__DATE__) + " build)\n"
+            "- Platform: " + platformName + "\n"
+            "- Renderer: " + deckboyLastRendererDriver() + "\n"
+            "- Log folder: " + Paths::stateDir().string() + "\n"
+            "  (attach deckboy-render.log / deckboy-show.log here if asked)\n";
+        const std::string url =
+            "https://github.com/Utopian-Academy/Deckboy/issues/new?body=" + urlEncode(body);
+        if (deckboy::platform::openExternalUrl(url)) {
+          triggerToast("opened github.com in your browser -- nothing is sent "
+                       "until you submit the report there");
+        } else {
+          triggerToast("couldn't open a browser -- please report at "
+                       "github.com/Utopian-Academy/Deckboy/issues");
+        }
       }
   }
