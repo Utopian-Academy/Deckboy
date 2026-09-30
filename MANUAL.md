@@ -1147,6 +1147,44 @@ Lower thirds carry two text lines and a background-bar opacity; PiP insets
 another cue/camera/NDI source. `G` adds the selected cue as a graphic overlay;
 `Backspace` clears all overlays.
 
+### Lower thirds
+
+**SOURCE → Lower third** makes a name strap: a text cue whose first line is
+the name and second the role, drawn over a transparent frame so it sits on a
+layer over another playlist. Its inspector section sets how it looks and moves.
+
+| Look | What it is |
+|------|------------|
+| Bar | One solid bar, an accent down its leading edge |
+| Boxes | The name in a box, the role in a smaller one under it |
+| Line | No box: the words over a thick accent rule |
+| Tag | An accent tab for the name, the role beside it |
+| Glass | A translucent band across the frame, a thin accent line on top |
+| Arcade | The name in the pixel face over the role in mono, in a bordered box with a hard drop shadow. Once it is in, it keeps a slow bob and tilt, so it looks alive for as long as it is up |
+
+Colours come from a fixed list that reads over a picture: ink, paper, red,
+orange, yellow, green, blue, violet, deckboy and forest. **Forest behind a
+yellow accent** is the arcade look's own pair. It comes in and goes out by
+cut, fade, a slide from either side, rise, wipe, grow, typewriter or pop, and
+its size runs from half to double.
+
+Over the control port, with the lower third selected:
+
+```
+LOWERTHIRD
+TEXTCUE TITLE Bob Cobb
+TEXTCUE SUB Can Man
+TEXTCUE LOOK arcade
+TEXTCUE BAR forest
+TEXTCUE ACCENT yellow
+TEXTCUE SCALE 1.6
+TEXTCUE IN pop
+TAKE
+```
+
+`TEXTCUE OUT` plays the way out on whichever lower third is on air.
+`LOWERTEXT` and `LOWERSUB` set the two lines as well.
+
 ---
 
 ## 17. Audio

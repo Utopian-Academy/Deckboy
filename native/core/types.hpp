@@ -345,6 +345,8 @@ enum class LowerThirdLook : int {
   Line,    // no box: the words over a thick accent rule
   Tag,     // an accent tab for the title, the subtitle beside it
   Glass,   // a translucent band across the frame, a thin accent line on top
+  Arcade,  // a pixel-font title in a bordered box with a hard drop shadow, and
+           // once it is in, a slow bob and tilt so it looks alive
   Count
 };
 
@@ -368,6 +370,7 @@ inline const char* lowerThirdLookLabel(LowerThirdLook look) {
     case LowerThirdLook::Line:  return "line";
     case LowerThirdLook::Tag:   return "tag";
     case LowerThirdLook::Glass: return "glass";
+    case LowerThirdLook::Arcade: return "arcade";
     default: break;
   }
   return "bar";
@@ -418,7 +421,7 @@ inline LowerThirdMove lowerThirdMoveFromToken(const std::string& token) {
 // The colours a lower third can be made of. A short fixed list rather than a
 // picker: these are the ones that read over a picture, and a list is a thing
 // an operator can step through with one button on a desk.
-inline constexpr int kLowerThirdColourCount = 9;
+inline constexpr int kLowerThirdColourCount = 10;
 inline SDL_Color lowerThirdColour(int index) {
   static const SDL_Color kColours[kLowerThirdColourCount] = {
     {18, 22, 30, 255},     // ink
@@ -430,6 +433,7 @@ inline SDL_Color lowerThirdColour(int index) {
     {38, 110, 228, 255},   // blue
     {138, 78, 218, 255},   // violet
     {155, 188, 15, 255},   // deckboy
+    {20, 63, 20, 255},     // forest: behind yellow, the arcade look's own pair
   };
   const int i = ((index % kLowerThirdColourCount) + kLowerThirdColourCount) %
                 kLowerThirdColourCount;
@@ -439,6 +443,7 @@ inline SDL_Color lowerThirdColour(int index) {
 inline const char* lowerThirdColourName(int index) {
   static const char* const kNames[kLowerThirdColourCount] = {
     "ink", "paper", "red", "orange", "yellow", "green", "blue", "violet", "deckboy",
+    "forest",
   };
   const int i = ((index % kLowerThirdColourCount) + kLowerThirdColourCount) %
                 kLowerThirdColourCount;

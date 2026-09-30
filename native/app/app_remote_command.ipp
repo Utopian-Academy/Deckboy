@@ -1139,7 +1139,37 @@
             return;
           }
         }
-        failRemoteCommand("TEXTCUE LOOK: bar, boxes, line, tag or glass");
+        failRemoteCommand("TEXTCUE LOOK: bar, boxes, line, tag, glass or arcade");
+        return;
+      }
+      // Its colours, by name from the fixed list, and its size -- the three
+      // things the inspector could change and the network could not.
+      if ((sub == "BAR" || sub == "ACCENT") && parts.size() >= 3) {
+        const std::string want = toLower(parts[2]);
+        for (int i = 0; i < kLowerThirdColourCount; ++i) {
+          if (want == lowerThirdColourName(i)) {
+            (sub == "BAR" ? cue.lowerThird.bar : cue.lowerThird.accent) = i;
+            markProjectDirty();
+            remoteCommandDetail_ = want;
+            return;
+          }
+        }
+        std::string names;
+        for (int i = 0; i < kLowerThirdColourCount; ++i) {
+          names += (i ? ", " : "") + std::string(lowerThirdColourName(i));
+        }
+        failRemoteCommand("TEXTCUE " + sub + ": one of " + names);
+        return;
+      }
+      if (sub == "SCALE" && parts.size() >= 3) {
+        auto parsed = parseNumber(2);
+        if (!parsed || *parsed < 0.5 || *parsed > 2.0) {
+          failRemoteCommand("TEXTCUE SCALE: expected 0.5-2");
+          return;
+        }
+        cue.lowerThird.size = *parsed;
+        markProjectDirty();
+        remoteCommandDetail_ = parts[2];
         return;
       }
       if ((sub == "IN" || sub == "OUTMOVE") && parts.size() >= 3) {
@@ -1156,7 +1186,8 @@
         return;
       }
       failRemoteCommand("TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, "
-                        "CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, IN, OUTMOVE or OUT");
+                        "CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, "
+                        "IN, OUTMOVE or OUT");
       return;
     }
     if (command == "DMXCUE") {

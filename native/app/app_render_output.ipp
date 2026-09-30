@@ -1855,7 +1855,9 @@
     // ── MEASURE ─────────────────────────────────────────────────────────
     const double unit = static_cast<double>(target.h);
     const double titleH = unit * 0.058 * std::clamp(d.size, 0.5, 2.0);
-    const double subH = titleH * 0.62;
+    // The pixel face reads larger than the sans at one height, so ARCADE's
+    // mono subtitle sits nearer the title's size or it looks like a footnote.
+    const double subH = titleH * (d.look == LowerThirdLook::Arcade ? 0.78 : 0.62);
     const double pad = titleH * 0.45;
     const SDL_Color barColour = lowerThirdColour(d.bar);
     const SDL_Color accent = lowerThirdColour(d.accent);
@@ -1864,10 +1866,17 @@
       return lum > 150 ? SDL_Color {18, 22, 30, 255} : SDL_Color {250, 250, 250, 255};
     };
     const bool boxless = d.look == LowerThirdLook::Line;
+    const bool arcade = d.look == LowerThirdLook::Arcade;
+    // ARCADE writes the title in the accent -- the border's colour -- the way a
+    // game writes its headings, and the subtitle in whichever ink reads on the box.
     const SDL_Color titleInk = boxless ? SDL_Color {250, 250, 250, 255}
+                             : arcade ? accent
                              : inkOn(d.look == LowerThirdLook::Tag ? accent : barColour);
     const SDL_Color subInk = boxless ? SDL_Color {225, 228, 235, 255}
                            : inkOn(d.look == LowerThirdLook::Boxes ? accent : barColour);
+    // And its faces are the desk's own: the pixel face for the title, mono under it.
+    TTF_Font* titleFont = arcade && fontPixelTitle_ ? fontPixelTitle_ : fontLarge_;
+    TTF_Font* subFont = arcade && fontMono_ ? fontMono_ : fontLarge_;
 
     // TYPEWRITER shows the title a letter at a time once the bar is in.
     std::string shownTitle = title;
@@ -1877,12 +1886,12 @@
         std::lround(letters * static_cast<double>(title.size()))));
     }
     const TextTextureEntry* titleTex = title.empty() ? nullptr
-      : cachedTextTexture(renderer, fontLarge_, title, titleInk);
+      : cachedTextTexture(renderer, titleFont, title, titleInk);
     const TextTextureEntry* shownTex = shownTitle.empty() ? nullptr
       : (shownTitle == title ? titleTex
-                             : cachedTextTexture(renderer, fontLarge_, shownTitle, titleInk));
+                             : cachedTextTexture(renderer, titleFont, shownTitle, titleInk));
     const TextTextureEntry* subTex = subtitle.empty() ? nullptr
-      : cachedTextTexture(renderer, fontLarge_, subtitle, subInk);
+      : cachedTextTexture(renderer, subFont, subtitle, subInk);
     auto widthAt = [](const TextTextureEntry* t, double h) {
       return (t && t->h > 0) ? t->w * h / static_cast<double>(t->h) : 0.0;
     };
@@ -1954,6 +1963,28 @@
              : rightSide ? blockW - margin - subW : tx;
         titleY = pad * 0.7;
         subY = titleY + titleH + pad * 0.25;
+        break;
+      }
+      case LowerThirdLook::Arcade: {
+        // Three boxes, back to front: a hard shadow down and right in a dark
+        // shade of the accent, the accent as a thick border, the colour inside.
+        const double border = std::max(2.0, titleH * 0.10);
+        const double drop = titleH * 0.22;
+        const double gap = subTex ? pad * 0.45 : 0.0;
+        const double innerW = std::max(titleW, subW) + pad * 2.0;
+        const double innerH = pad * 1.1 + titleH + (subTex ? gap + subH : 0.0) + pad * 0.9;
+        blockW = innerW + border * 2.0;
+        blockH = innerH + border * 2.0;
+        const SDL_Color shade {static_cast<Uint8>(accent.r * 0.42), static_cast<Uint8>(accent.g * 0.42),
+                               static_cast<Uint8>(accent.b * 0.42), 255};
+        boxes.push_back({drop, drop, blockW, blockH, shade, 255});
+        boxes.push_back({0.0, 0.0, blockW, blockH, accent, 255});
+        boxes.push_back({border, border, innerW, innerH, barColour, 255});
+        const double inX = border + pad;
+        titleX = rightSide ? blockW - border - pad - titleW : inX;
+        subX = rightSide ? blockW - border - pad - subW : inX;
+        titleY = border + pad * 1.1;
+        subY = titleY + titleH + gap;
         break;
       }
       case LowerThirdLook::Bar:
@@ -2028,6 +2059,18 @@
       default:
         break;
     }
+    // ARCADE BREATHES. Once it is fully in and until it starts to leave, a slow
+    // bob and a small tilt, on the cue's own clock -- so it scrubs, and two
+    // outputs showing it tilt together. Measured from the end of the move in,
+    // so the move itself is untouched.
+    double angle = 0.0;
+    if (arcade && !leaving && p >= 1.0) {
+      const double idle = std::max(0.0, seconds - std::max(0.0, d.inSeconds));
+      const double w = 2.0 * 3.14159265358979 * idle / 1.2;
+      const double ramp = std::clamp(idle / 0.3, 0.0, 1.0);   // eases into the wobble
+      angle = ramp * (-1.5 + 1.0 * std::sin(w));
+      dy += ramp * -titleH * 0.08 * (0.5 - 0.5 * std::cos(w));
+    }
     const double cx = blockX + blockW / 2.0;
     const double cy = blockY + blockH / 2.0;
     auto place = [&](double x, double y, double w, double h) {
@@ -2055,13 +2098,35 @@
     SDL_SetRenderClipRect(renderer, &clip);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
+    // Where the block's centre lands after the move: everything tilts about it.
+    const float pivotX = static_cast<float>(cx + dx);
+    const float pivotY = static_cast<float>(cy + dy);
+    const double rad = angle * 3.14159265358979 / 180.0;
+    const float cosA = static_cast<float>(std::cos(rad));
+    const float sinA = static_cast<float>(std::sin(rad));
     for (const Box& b : boxes) {
       double w = b.w * barFrac;
       double x = rightSide ? b.x + (b.w - w) : b.x;
       SDL_FRect r = place(x, b.y, w, b.h);
-      SDL_SetRenderDrawColor(renderer, b.fill.r, b.fill.g, b.fill.b,
-                             static_cast<Uint8>(std::clamp(b.alpha * alpha, 0.0, 255.0)));
-      SDL_RenderFillRect(renderer, &r);
+      const Uint8 a8 = static_cast<Uint8>(std::clamp(b.alpha * alpha, 0.0, 255.0));
+      if (angle == 0.0) {
+        SDL_SetRenderDrawColor(renderer, b.fill.r, b.fill.g, b.fill.b, a8);
+        SDL_RenderFillRect(renderer, &r);
+        continue;
+      }
+      // A tilted box is two triangles; FillRect can only draw it square.
+      const SDL_FColor col {b.fill.r / 255.0f, b.fill.g / 255.0f, b.fill.b / 255.0f, a8 / 255.0f};
+      const float xs[4] = {r.x, r.x + r.w, r.x + r.w, r.x};
+      const float ys[4] = {r.y, r.y, r.y + r.h, r.y + r.h};
+      SDL_Vertex v[4];
+      for (int k = 0; k < 4; ++k) {
+        const float ox = xs[k] - pivotX, oy = ys[k] - pivotY;
+        v[k].position = SDL_FPoint {pivotX + ox * cosA - oy * sinA, pivotY + ox * sinA + oy * cosA};
+        v[k].color = col;
+        v[k].tex_coord = SDL_FPoint {0.0f, 0.0f};
+      }
+      const int idx[6] = {0, 1, 2, 0, 2, 3};
+      SDL_RenderGeometry(renderer, nullptr, v, 4, idx, 6);
     }
 
     auto drawWords = [&](const TextTextureEntry* tex, double x, double y, double h,
@@ -2081,7 +2146,12 @@
       }
       SDL_FRect dst = place(x, y, w, h);
       SDL_SetTextureAlphaMod(tex->texture, static_cast<Uint8>(std::clamp(255.0 * a, 0.0, 255.0)));
-      SDL_RenderTexture(renderer, tex->texture, nullptr, &dst);
+      if (angle == 0.0) {
+        SDL_RenderTexture(renderer, tex->texture, nullptr, &dst);
+      } else {
+        const SDL_FPoint about {pivotX - dst.x, pivotY - dst.y};
+        SDL_RenderTextureRotated(renderer, tex->texture, nullptr, &dst, angle, &about, SDL_FLIP_NONE);
+      }
       SDL_SetTextureAlphaMod(tex->texture, 255);
     };
     const bool travels = move == LowerThirdMove::SlideLeft || move == LowerThirdMove::SlideRight ||
