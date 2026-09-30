@@ -1836,7 +1836,11 @@
         break;
       case SDLK_P:
         if (shift) {
-          triggerParkedCueCreationToast("pip");
+          // Not "parked for cleanup" like G/M beside it -- that says "not
+          // built yet", and PIP was built, reachable via the ADD A CUE menu,
+          // and retired on purpose 2026-09-30 (scale a second deck over the
+          // first instead). Different message for a different reason.
+          triggerToast("pip: retired -- scale a second deck over this one instead");
         } else {
           addKawaiiPatternCue();
         }
