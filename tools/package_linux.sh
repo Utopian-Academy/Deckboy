@@ -116,7 +116,7 @@ if [ -d "$REPO_ROOT/data" ]; then
   # absolute path per show opened on this machine. Same class as the rest.
   for stale in last_project.txt recent_projects.txt default.deckboy \
                deckboy-first-run deckboy-crash.log deckboy-soak.log \
-               deckboy-show.log; do
+               deckboy-render.log deckboy-show.log; do
     if [ -e "$STAGE_DIR/data/$stale" ]; then
       rm -f "$STAGE_DIR/data/$stale"
       echo "  - stripped data/$stale (build-machine state)"

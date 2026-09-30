@@ -171,7 +171,7 @@ if (Test-Path $DataSrc) {
     foreach ($StaleName in @("last_project.txt", "recent_projects.txt",
                              "default.deckboy", "deckboy-first-run",
                              "deckboy-crash.log", "deckboy-soak.log",
-                             "deckboy-show.log")) {
+                             "deckboy-render.log", "deckboy-show.log")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Force
