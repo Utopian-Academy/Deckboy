@@ -5524,6 +5524,21 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   texture_ = nullptr;
   textureWidth_ = 0;
   textureHeight_ = 0;
+  // THE OUTGOING CUE'S GEOMETRY, captured here and nowhere else it could be.
+  // loadCue() (the caller of beginTransition) overwrites scaleMode_ /
+  // outputScaleX_ / crop*_ with the INCOMING cue's values in the very next
+  // lines after this call returns, so this is the last point at which those
+  // live fields still describe the cue whose frame we just snapshotted.
+  transitionScaleX_ = outputScaleX_;
+  transitionScaleY_ = outputScaleY_;
+  transitionScaleMode_ = scaleMode_;
+  transitionOffsetX_ = outputOffsetX_;
+  transitionOffsetY_ = outputOffsetY_;
+  transitionRotationDegrees_ = outputRotationDegrees_;
+  transitionCropLeft_ = cropLeft_;
+  transitionCropRight_ = cropRight_;
+  transitionCropTop_ = cropTop_;
+  transitionCropBottom_ = cropBottom_;
   transitionDurationSeconds_ = std::clamp(seconds, 0.0, 10.0);
   transitionStyle_ = style;
   transitionSourceGain_ = std::clamp(sourceGain, 0.0f, 1.0f);
@@ -5546,6 +5561,16 @@ void MediaEngine::clearTransitionTexture() {
   transitionDurationSeconds_ = 0.0;
   transitionStyle_ = TransitionStyle::Cut;
   transitionSourceGain_ = 1.0f;
+  transitionScaleX_ = 1.0f;
+  transitionScaleY_ = 1.0f;
+  transitionScaleMode_ = ScaleMode::Fit;
+  transitionOffsetX_ = 0.0f;
+  transitionOffsetY_ = 0.0f;
+  transitionRotationDegrees_ = 0.0f;
+  transitionCropLeft_ = 0.0f;
+  transitionCropRight_ = 0.0f;
+  transitionCropTop_ = 0.0f;
+  transitionCropBottom_ = 0.0f;
 }
 
 // ---------------------------------------------------------------------------
@@ -5562,34 +5587,52 @@ void MediaEngine::clearTransitionTexture() {
 //
 // Returns true if the texture was drawn, false if inputs were invalid.
 // ---------------------------------------------------------------------------
-bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue) {
+bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue, bool useOutgoingGeometry) {
   if (!texture || width <= 0 || height <= 0) {
     return false;
   }
+  // WHICH GEOMETRY: the live cue's fields, or the transitionX_ snapshot taken
+  // in beginTransition() for whichever cue's frame this texture actually is.
+  // Reading the live fields unconditionally was the bug (see the comment on
+  // the transition* members in media_engine.hpp) — loadCue() overwrites them
+  // with the INCOMING cue's values before drawTransitionOverlay ever runs, so
+  // the outgoing snapshot rendered with the wrong cue's scale/crop/offset for
+  // the whole transition, not just after it.
+  const float cropLeft = useOutgoingGeometry ? transitionCropLeft_ : cropLeft_;
+  const float cropRight = useOutgoingGeometry ? transitionCropRight_ : cropRight_;
+  const float cropTop = useOutgoingGeometry ? transitionCropTop_ : cropTop_;
+  const float cropBottom = useOutgoingGeometry ? transitionCropBottom_ : cropBottom_;
+  const ScaleMode scaleMode = useOutgoingGeometry ? transitionScaleMode_ : scaleMode_;
+  const float outputScaleX = useOutgoingGeometry ? transitionScaleX_ : outputScaleX_;
+  const float outputScaleY = useOutgoingGeometry ? transitionScaleY_ : outputScaleY_;
+  const float outputOffsetX = useOutgoingGeometry ? transitionOffsetX_ : outputOffsetX_;
+  const float outputOffsetY = useOutgoingGeometry ? transitionOffsetY_ : outputOffsetY_;
+  const float outputRotationDegrees = useOutgoingGeometry ? transitionRotationDegrees_ : outputRotationDegrees_;
+
   // Step 1: Compute the source rect after cropping (fractions → pixel offsets)
-  int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropLeft_)), 0, width - 1);
-  int cropR = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropRight_)), 0, width - 1);
-  int cropT = std::clamp(static_cast<int>(std::lround(static_cast<double>(height) * cropTop_)), 0, height - 1);
-  int cropB = std::clamp(static_cast<int>(std::lround(static_cast<double>(height) * cropBottom_)), 0, height - 1);
+  int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropLeft)), 0, width - 1);
+  int cropR = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropRight)), 0, width - 1);
+  int cropT = std::clamp(static_cast<int>(std::lround(static_cast<double>(height) * cropTop)), 0, height - 1);
+  int cropB = std::clamp(static_cast<int>(std::lround(static_cast<double>(height) * cropBottom)), 0, height - 1);
   int srcW = std::max(1, width - cropL - cropR);
   int srcH = std::max(1, height - cropT - cropB);
   SDL_Rect source {cropL, cropT, srcW, srcH};
 
   // Step 2: Compute the scale factor based on the chosen scale mode
   double scale;
-  if (scaleMode_ == ScaleMode::Fit) {
+  if (scaleMode == ScaleMode::Fit) {
     // Letterbox: scale to fit within target, preserving aspect ratio
     scale = std::min(
       static_cast<double>(target.w) / static_cast<double>(srcW),
       static_cast<double>(target.h) / static_cast<double>(srcH)
     );
-  } else if (scaleMode_ == ScaleMode::Fill) {
+  } else if (scaleMode == ScaleMode::Fill) {
     // Fill: scale to cover target entirely, cropping overflow
     scale = std::max(
       static_cast<double>(target.w) / static_cast<double>(srcW),
       static_cast<double>(target.h) / static_cast<double>(srcH)
     );
-  } else if (scaleMode_ == ScaleMode::Stretch) {
+  } else if (scaleMode == ScaleMode::Stretch) {
     scale = 1.0;  // stretch handles dimensions separately below
   } else {
     scale = 1.0;  // Unscaled: 1:1 pixel mapping
@@ -5597,10 +5640,10 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
 
   // Step 3: Compute draw dimensions based on scale mode
   int drawW, drawH;
-  if (scaleMode_ == ScaleMode::Stretch) {
+  if (scaleMode == ScaleMode::Stretch) {
     drawW = target.w;  // fill target exactly, ignoring aspect ratio
     drawH = target.h;
-  } else if (scaleMode_ == ScaleMode::Unscaled) {
+  } else if (scaleMode == ScaleMode::Unscaled) {
     drawW = srcW;  // native pixel size, may be smaller or larger than target
     drawH = srcH;
   } else {
@@ -5609,11 +5652,11 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   }
 
   // Step 4: Apply per-cue output scale (additional zoom) and center with offset
-  int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX_));
-  int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY_));
+  int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX));
+  int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY));
   SDL_Rect destination {
-    target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX_),
-    target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY_),
+    target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX),
+    target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY),
     scaledW,
     scaledH
   };
@@ -5622,7 +5665,7 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetTextureAlphaMod(texture, alphaValue);
   SDL_Point center {destination.w / 2, destination.h / 2};
-  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees_, &center, SDL_FLIP_NONE);
+  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees, &center, SDL_FLIP_NONE);
   SDL_SetTextureAlphaMod(texture, 255);  // reset alpha mod to avoid leaking to other draws
   return true;
 }
@@ -5661,7 +5704,7 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
     } else {
       // Still waiting — show the outgoing frame at its captured fade level
       Uint8 waitAlpha = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
-      drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, waitAlpha);
+      drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, waitAlpha, true);
       if (waitAlpha < 255) {
         // If outgoing was partially faded, fill the rest with black
         SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
@@ -5686,7 +5729,7 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
     if (progress < 0.5) {
       // First half: outgoing fades to black (0→100% black overlay)
       Uint8 srcA = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
-      drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, srcA);
+      drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, srcA, true);
       SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
       double blackAlpha = std::clamp(progress * 2.0, 0.0, 1.0);
       if (transitionSourceGain_ < 1.0f) blackAlpha = std::max(blackAlpha, 1.0 - transitionSourceGain_);
@@ -5708,7 +5751,7 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
 
   // Crossfade: outgoing fades out linearly over the transition duration
   Uint8 alphaValue = static_cast<Uint8>(transitionSourceGain_ * std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
-  drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue);
+  drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue, true);
 }
 
 // ---------------------------------------------------------------------------

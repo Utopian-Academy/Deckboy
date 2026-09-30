@@ -791,7 +791,7 @@ class MediaEngine {
   void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
   void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
-  bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue); // draw texture with scale mode
+  bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue, bool useOutgoingGeometry = false); // draw texture with scale mode; outgoing=true reads the transition* snapshot instead of the live cue's
   void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent); // render the transition blend
   void handlePlaybackEnd();                                // called when playback naturally reaches the end
   void clearTexture();                                     // release the main frame texture
@@ -1114,6 +1114,25 @@ class MediaEngine {
   double transitionDurationSeconds_ = 0.0;
   TransitionStyle transitionStyle_ = TransitionStyle::Cut;
   float transitionSourceGain_ = 1.0f;       // outgoing cue's opacity at transition start
+
+  // The OUTGOING cue's geometry, captured in beginTransition() alongside
+  // transitionTexture_. loadCue() overwrites scaleMode_/outputScaleX_/etc.
+  // (below) with the INCOMING cue's values immediately after beginTransition()
+  // returns, so drawTransitionOverlay must not read those live fields for the
+  // snapshot it is fading out — that was the bug: an outgoing cue letterboxed
+  // to fit would snap to the incoming cue's scale/crop the instant the
+  // transition started, not when it finished. drawTextureFitted's
+  // useOutgoingGeometry flag selects this block instead.
+  float transitionScaleX_ = 1.0f;
+  float transitionScaleY_ = 1.0f;
+  ScaleMode transitionScaleMode_ = ScaleMode::Fit;
+  float transitionOffsetX_ = 0.0f;
+  float transitionOffsetY_ = 0.0f;
+  float transitionRotationDegrees_ = 0.0f;
+  float transitionCropLeft_ = 0.0f;
+  float transitionCropRight_ = 0.0f;
+  float transitionCropTop_ = 0.0f;
+  float transitionCropBottom_ = 0.0f;
 
   // -- State: per-cue geometry (copied from Cue on load) -----------------------
   float outputScaleX_ = 1.0f;
