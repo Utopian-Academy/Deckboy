@@ -12201,10 +12201,19 @@ void MediaEngine::buildFiresideWindow(DecodedFrame& frame, double t, int view) {
                          static_cast<Uint8>(base), 255};
           // Each column falls at its own rate. That is the whole of why rain
           // has depth instead of being one sliding texture.
+          //
+          // v RUNS 0 AT THE TOP OF THE WINDOW TO 1 AT THE BOTTOM, and the
+          // fall position has to DECREASE t's contribution for a tracked drop
+          // to move from low v to high v as t grows -- i.e. the clock term is
+          // SUBTRACTED. Added, as this was, a drop's v decreases as t grows:
+          // rain climbing the glass. floor-based mod, not std::fmod: the
+          // subtraction drives the argument negative once t grows past v,
+          // and std::fmod keeps a negative dividend's sign in C++, which
+          // would latch every cell past that point as a permanent drop.
           const double speed = 5.5 + static_cast<double>(wrap(gx * 37, 11)) * 0.65;
-          const double drop = std::fmod(v + t * speed * 0.1 +
-                                        static_cast<double>(wrap(gx * 53, 17)) * 0.11,
-                                        1.0);
+          const double dropRaw = v - t * speed * 0.1 +
+                                 static_cast<double>(wrap(gx * 53, 17)) * 0.11;
+          const double drop = dropRaw - std::floor(dropRaw);
           if (drop < 0.07 && wrap(gx * 29, 5) == 0) {
             c = SDL_Color {150, 168, 190, 255};
           }
@@ -12226,9 +12235,14 @@ void MediaEngine::buildFiresideWindow(DecodedFrame& frame, double t, int view) {
           // snowstorm does not show.
           const double drift = std::sin(t * 0.5 + v * 6.28) * 2.2;
           const int src = gx - static_cast<int>(std::lround(drift));
-          const double fall = std::fmod(v + t * 0.16 +
-                                        static_cast<double>(wrap(src * 41, 13)) * 0.08,
-                                        1.0);
+          // Same fix, same reason as RAIN just above: the clock term must be
+          // SUBTRACTED for v (0 top, 1 bottom) to increase with t, and
+          // floor-based mod rather than std::fmod because that subtraction
+          // goes negative once t outgrows v. Reported as snow falling up,
+          // which is exactly what the added form draws.
+          const double fallRaw = v - t * 0.16 +
+                                 static_cast<double>(wrap(src * 41, 13)) * 0.08;
+          const double fall = fallRaw - std::floor(fallRaw);
           if (fall < 0.06 && wrap(src * 31, 7) == 0) {
             c = SDL_Color {224, 232, 240, 255};
           }
