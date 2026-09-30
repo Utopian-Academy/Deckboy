@@ -630,6 +630,22 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
     ++nextPausePointIdx_;
   }
 
+  // HOLD THE PICTURE ACROSS THE RESTART, the same way loadCue() does for an
+  // ordinary take (see heldFrame_ there). stopDecoderThreads() below clears
+  // frameQueue_ and startDecoderThreads() has to re-buffer before the first
+  // new frame is ready -- without a held frame, currentFrame() goes null for
+  // that whole span and the layer drew nothing, which is what an effect
+  // toggle (adding or clearing the first/last effect flips the decode format
+  // between RGBA and NV12, see startDecoderThreads) looked like on the
+  // output: the picture dropped out for the restart instead of just holding.
+  // outgoingSeconds_ is left at 0, so this is a plain hold with no transition
+  // drawn over it -- the 1-second floor in currentFrame()'s hold window is
+  // already enough to cover a decoder restart on its own.
+  if (displayFrame_.has_value()) {
+    heldFrame_ = std::move(displayFrame_);
+    heldFrameSince_ = std::chrono::steady_clock::now();
+  }
+
   stopDecoderThreads();
   clearAudio();
   startDecoderThreads(*activeCue_, cueInPointSeconds_ + nextPosition, nextPosition);
