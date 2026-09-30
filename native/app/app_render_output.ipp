@@ -2261,6 +2261,22 @@
           widths.push_back(g->w * scale);
           lineW += widths.back();
         }
+        // Same fit-both-ways correction as the non-wobble loop above, and
+        // the same reason: lineW so far is sized from lineH alone and can
+        // run past target.w on a long line. Rescale the glyph widths (and
+        // the shared per-glyph scale the draw loop below reads) together so
+        // the whole line — and the wobble amplitude, in step — shrinks
+        // rather than spilling off the frame.
+        double lineAmp = amp;
+        if (lineW > target.w && lineW > 0.0) {
+          const double corr = target.w / lineW;
+          scale *= corr;
+          lineW *= corr;
+          lineAmp *= corr;
+          for (double& wd : widths) {
+            wd *= corr;
+          }
+        }
         double x = target.x + (target.w - lineW) / 2.0;
         if (cue.textAlign == 0) {
           x = target.x + target.w / 24.0;
@@ -2276,8 +2292,8 @@
             const int w = std::max(1, static_cast<int>(std::lround(g->w * scale)));
             const int h = std::max(1, static_cast<int>(std::lround(g->h * scale)));
             SDL_FRect dst {
-              static_cast<float>(x + std::cos(phase * 0.8) * amp * 0.5),
-              static_cast<float>(baseY + std::sin(phase) * amp),
+              static_cast<float>(x + std::cos(phase * 0.8) * lineAmp * 0.5),
+              static_cast<float>(baseY + std::sin(phase) * lineAmp),
               static_cast<float>(w), static_cast<float>(h)};
             SDL_SetTextureAlphaMod(g->texture, 255);
             SDL_RenderTexture(renderer, g->texture, nullptr, &dst);
@@ -2298,7 +2314,19 @@
       if (!entry || !entry->texture || entry->h <= 0) {
         continue;
       }
-      const double scale = lineH / static_cast<double>(entry->h);
+      // FIT BOTH WAYS, not just the line height. Scaling purely to lineH
+      // (a fraction of target.h) sizes the text correctly top-to-bottom but
+      // leaves its width wherever a long line naturally lands -- nothing
+      // clamped that to target.w, so a long enough line ran off both edges
+      // of whatever was drawing it, preview and output alike. Reported as
+      // the text preview escaping the preview window at a smaller UI scale,
+      // which is exactly when a line that used to just barely fit stops
+      // fitting.
+      double scale = lineH / static_cast<double>(entry->h);
+      const double maxW = std::max(1.0, static_cast<double>(target.w));
+      if (entry->w * scale > maxW) {
+        scale = maxW / static_cast<double>(entry->w);
+      }
       const int w = std::max(1, static_cast<int>(std::lround(entry->w * scale)));
       const int h = std::max(1, static_cast<int>(std::lround(entry->h * scale)));
       int x = target.x + (target.w - w) / 2;              // centre
