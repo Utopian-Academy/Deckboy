@@ -5513,10 +5513,12 @@
       return;
     }
     if (command == "PIP") {
-      // Same again: addPipCue was complete, with its own overlay decoder
-      // runtime, and nothing could call it.
-      addPipCue();
-      remoteCommandDetail_ = "pip added to " + focusedDeckLabel();
+      // Retired 2026-09-30: scaling a second deck over the first already
+      // does this, with a whole playlist behind it instead of one fixed
+      // box. A show that already has a PIP cue still loads and plays it —
+      // this verb just no longer makes new ones, the same call as the UI
+      // menu made (app_cue_mgmt.ipp).
+      failRemoteCommand("PIP: retired -- scale a second deck over this one instead");
       return;
     }
     // MULTIVIEW WAS AN ALIAS HERE, on a PARKED cue kind that answers "not

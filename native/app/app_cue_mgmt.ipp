@@ -2828,11 +2828,18 @@
     // loads, draws and animates for any show that has one; it is just not
     // the one a new show is steered to, and two entries both called "lower
     // third" was a question nobody should have to answer at the menu.
-    contextItems_.push_back({"OVERLAYS", {0, 0, 0, 0}, nullptr});
-    contextItems_.push_back({
-      "  Picture in Picture (a second clip in a box)",
-      {0, 0, 0, 0},
-      [this]() { addPipCue(); }});
+    //
+    // PIP IS RETIRED THE SAME WAY, as of 2026-09-30: scaling a second deck
+    // over the first already does what this did, with a whole playlist
+    // behind it instead of one fixed box. addPipCue() stays defined
+    // (uncalled, same as addLowerThirdCue() above) so a show that already
+    // has a PIP cue keeps loading, rendering and saving it exactly as
+    // before -- there is just no menu item steering a new show toward
+    // making another one.
+    //
+    // Which leaves no OVERLAYS entry at all -- that header stood over PIP
+    // alone, so it went with it rather than being left standing over
+    // nothing.
 
     contextItems_.push_back({
       "  Master Cue (fires other decks)",
