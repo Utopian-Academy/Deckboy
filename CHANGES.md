@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## Next release
+
+**Arcade: a lower third that looks like it came out of a game.** The name in
+Deckboy's pixel face over the role in mono, in a bordered box with a hard drop
+shadow -- and once it is in, a slow bob and a small tilt that keeps it looking
+alive for as long as it is up. It runs on the cue's own clock, so it scrubs,
+and two outputs showing it move together. A new colour, **forest**, joins the
+list; forest behind a yellow accent is the arcade look's own pair.
+
+**A lower third's colours and size over the network.** `TEXTCUE BAR <colour>`,
+`TEXTCUE ACCENT <colour>` and `TEXTCUE SCALE <0.5-2>`, so a Companion button can
+restyle a strap as well as fire it. `LOWERTEXT` and `LOWERSUB` now set the two
+lines of the lower third that `LOWERTHIRD` makes.
+
 ## 2026-09-30 - v0.99.396 (text survives a second Mac, and a transition keeps its shape)
 
 **Issue #7, and issue #6 before it: no text anywhere in the interface on
