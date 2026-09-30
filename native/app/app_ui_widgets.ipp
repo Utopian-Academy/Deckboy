@@ -603,6 +603,65 @@
       }
     });
 
+    // ── MOVE TO DECK ───────────────────────────────────────────────────────
+    //
+    // There was no way to do this at all -- a cue built on the wrong playlist
+    // had to be re-imported on the right one from scratch. Offered only when
+    // there IS another deck to send it to, and refused (with a reason, not
+    // silently) on the deck's own active cue: the engine holds its own
+    // snapshot rather than a pointer into Deck::cues, so the picture would
+    // keep playing regardless, but the source deck's activeIndex would be
+    // left pointing at whatever slid into the gap -- confusing for no reason
+    // a TAKE first doesn't solve.
+    if (project_.decks.size() > 1) {
+      contextItems_.push_back({
+        "  move to deck...",
+        {0, 0, 0, 0},
+        [this, deckIdx, cueIdx, mx, my]() {
+          if (deckIdx < 0 || deckIdx >= static_cast<int>(project_.decks.size())) return;
+          if (cueIdx < 0 || cueIdx >= static_cast<int>(project_.decks[deckIdx].cues.size())) return;
+          if (project_.decks[deckIdx].activeIndex == cueIdx) {
+            triggerToast("can't move the active cue -- take another cue on this deck first");
+            return;
+          }
+          std::vector<std::pair<std::string, std::string>> choices;
+          for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+            if (d == deckIdx) continue;
+            choices.emplace_back(std::to_string(d), deckLabel(d));
+          }
+          SDL_Rect anchor {mx, my, 1, 1};
+          openDropdown("cue.movetodeck", anchor, choices, "",
+                       [this, deckIdx, cueIdx](const std::string& chosen) {
+            const int targetDeck = std::atoi(chosen.c_str());
+            if (deckIdx >= static_cast<int>(project_.decks.size()) ||
+                cueIdx >= static_cast<int>(project_.decks[deckIdx].cues.size()) ||
+                targetDeck < 0 || targetDeck >= static_cast<int>(project_.decks.size())) {
+              return;
+            }
+            Deck& source = project_.decks[deckIdx];
+            if (source.activeIndex == cueIdx) {
+              triggerToast("can't move the active cue -- take another cue on this deck first");
+              return;
+            }
+            pushUndoSnapshot();
+            Cue moved = source.cues[cueIdx];
+            source.cues.erase(source.cues.begin() + cueIdx);
+            // Same reindexing shape as swapCuesInDeck / the drag reorder: a
+            // removal below the active row shifts it up by one.
+            if (source.activeIndex > cueIdx) source.activeIndex -= 1;
+            if (source.selectedIndex >= cueIdx) source.selectedIndex -= 1;
+            for (int& idx : source.selectedIndices) {
+              if (idx > cueIdx) idx -= 1;
+            }
+            Deck& target = project_.decks[targetDeck];
+            target.cues.push_back(std::move(moved));
+            target.selectedIndex = static_cast<int>(target.cues.size()) - 1;
+            markProjectDirty();
+            triggerToast("moved to " + deckLabel(targetDeck));
+          });
+        }
+      });
+    }
     // Color tag items
     static const std::vector<std::pair<std::string, SDL_Color>> kTagOpts = {
       {"no color",  {48,  98,  48,  255}},
