@@ -18,7 +18,7 @@
 //   Import/export:
 //     importWithPicker()        — open file picker to import media
 //     addBrowserCueFromPrompt() — create a Browser cue from URL input
-//     addKawaiiPatternCue()     — create a Pattern cue with random type
+//     addKawaiiPatternCue()     — create a Pattern cue, always Pocket Test
 //     openSourceTypeMenu()      — open the source type selection menu
 //
 //   Multi-selection:
@@ -4286,8 +4286,15 @@
     addPatternCue(patternDefaultTypeId_);
   }
 
+  // The PATTERN button/key's quick-add: always Pocket Test, not whatever
+  // pattern type was last touched anywhere in the app. It used to pass
+  // patternDefaultTypeId_, which addPatternCue() and applyPatternTypeToSelectedCue()
+  // also write to every time ANY pattern cue's type changes -- so editing one
+  // cue into e.g. Fireside silently changed what this button inserts next,
+  // with no indication why. This is the one-key "give me a test pattern"
+  // action; it should be predictable every time, which is also what was asked.
   void addKawaiiPatternCue() {
-    addPatternCue(patternDefaultTypeId_);
+    addPatternCue("pocket-test");
   }
 
   // ── Slide decks ─────────────────────────────────────────────────────────
