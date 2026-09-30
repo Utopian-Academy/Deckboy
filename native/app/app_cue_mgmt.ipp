@@ -415,6 +415,19 @@
       choices.push_back({std::to_string(i),
                          std::string(presets[i].group) + " - " + presets[i].label});
     }
+    // TAKE/STOP A SPECIFIC DECK, not just the focused one. "Take Deck 1" was
+    // reported as missing from this list -- it always had to be typed by
+    // hand as "DECK 1 TAKE" through the free-text editor below, which meant
+    // knowing the wire protocol rather than picking a button. The protocol
+    // side already existed (DECK <n> <verb> re-focuses then runs the verb --
+    // see the DECK command in app_remote_command.ipp); what was missing was
+    // a way to reach it without typing it. Not expanded into a static "Take
+    // Deck 1".."Take Deck 16" block (kMaxDecks) -- most shows use two or
+    // three, and sixteen rows of that in a list this size would bury
+    // everything else in it. A second picker, opened only when asked for,
+    // scales with the decks the show actually has.
+    choices.push_back({"deck-take", "decks - Take deck..."});
+    choices.push_back({"deck-stop", "decks - Stop deck..."});
     // PRESETS, so a tile can be one: a new one captured from what is on now,
     // or any that already exist.
     choices.push_back({"preset:new", "preset - a new preset from what is on now"});
@@ -443,6 +456,31 @@
       }
       if (chosen == "custom") {
         editDashboardSlotAsText(at);
+        return;
+      }
+      if (chosen == "deck-take" || chosen == "deck-stop") {
+        const bool take = chosen == "deck-take";
+        std::vector<std::pair<std::string, std::string>> deckChoices;
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          deckChoices.emplace_back(std::to_string(d), deckLabel(d));
+        }
+        openDropdown("dashboard.slot" + std::to_string(at) + ".deck",
+                     dashboardSlotAnchor(at), deckChoices, "",
+                     [this, at, take](const std::string& deckChosen) {
+          if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+            return;
+          }
+          const int d = std::atoi(deckChosen.c_str());
+          if (d < 0 || d >= static_cast<int>(project_.decks.size())) {
+            return;
+          }
+          DashboardSlot& target = project_.dashboard[at];
+          target.label = (take ? "Take " : "Stop ") + deckLabel(d);
+          target.command = "DECK " + std::to_string(d + 1) + (take ? " TAKE" : " STOP");
+          target.glyph = take ? ">" : "#";
+          markProjectDirty();
+          triggerToast("button set to " + target.command);
+        });
         return;
       }
       if (chosen.rfind("preset:", 0) == 0) {
