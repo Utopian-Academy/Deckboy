@@ -1601,30 +1601,20 @@
       int colGap = uiScaled(12);
       int leftW = std::max(uiScaled(320), (content.w - uiScaled(12) - colGap) / 2);
       int rightW = std::max(uiScaled(320), content.w - uiScaled(12) - colGap - leftW);
-      SDL_Rect leftCol {cx, cy, leftW, content.h - uiScaled(20)};
-      SDL_Rect rightCol {cx + leftW + colGap, cy, rightW, content.h - uiScaled(20)};
+      int colH = content.h - uiScaled(20);
       const int kCardGap = uiScaled(10);
 
-      int leftY = leftCol.y;
+      // Heights, computed before any rect so the scroll range below can see
+      // all of them. Same shape and same comments as they had inline.
       // Three rows and two status lines, in the order they are drawn.
       int remoteH = stackH({sRowH, sRowH, sRowH, sLineH, sLineH});
-      SDL_Rect remoteRect {leftCol.x, leftY, leftCol.w, remoteH};
-      leftY += remoteRect.h + kCardGap;
       int oscH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH});
-      SDL_Rect oscRect {leftCol.x, leftY, leftCol.w, oscH};
-      leftY += oscRect.h + kCardGap;
       // NMC IN & OUT. Four rows and one line saying what the chosen
       // direction actually does.
       // vMix-compatible surface: a status line and three rows.
       int vmixH = stackH({sLineH, sRowH, sRowH, sRowH});
-      SDL_Rect vmixRect {leftCol.x, leftY, leftCol.w, vmixH};
-      leftY += vmixRect.h + kCardGap;
       int nmcH = stackH({sRowH, sRowH, sRowH, sRowH, sLineH});
-      SDL_Rect nmcRect {leftCol.x, leftY, leftCol.w, nmcH};
-      leftY += nmcRect.h + kCardGap;
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
-      SDL_Rect notesRect {leftCol.x, leftY, leftCol.w,
-                          std::max(notesH, leftCol.y + leftCol.h - leftY)};
       // The adapter grid no longer carries the tally controls, so it needs
       // only the rows it actually has; the rest of the column goes to the
       // tally card below it.
@@ -1636,10 +1626,55 @@
                                        sRowH, sRowH, sRowH, sRowH,
                                        sRowH, sRowH, sRowH, sRowH,
                                        sRowH, sRowH, sRowH, sRowH});
+
+      // THE SCROLL THIS TAB NEVER HAD. System and Video Outputs both learned
+      // this lesson (see settingsSystemScroll_ above); Network never got it,
+      // so NMC IN & OUT (bottom of the left column) and the TALLY card
+      // (bottom of the right, with no fallback height at all -- it was
+      // simply positioned past wherever INTEGRATION ADAPTERS ended) ran off
+      // the bottom of the modal with nothing able to reach them. Reported as
+      // both, by name, in the same sentence.
+      //
+      // No "near miss closes the gaps" refinement and no measured-height
+      // fallback here (see settingsSystemDrawnH_) -- neither has a known
+      // drift case on this tab the way APPEARANCE did on System. The
+      // predicted sum is what protects this tab; add the refinement if a
+      // card here is ever found to drift the way that one did.
+      const int leftNeeded = remoteH + oscH + vmixH + nmcH + notesH + 4 * kCardGap;
+      const int rightNeeded = integrationH + tallyCardH + kCardGap;
+      settingsNetworkScrollMax_ = std::max(0, std::max(leftNeeded, rightNeeded) - colH);
+      settingsNetworkScroll_ = std::clamp(settingsNetworkScroll_, 0, settingsNetworkScrollMax_);
+      settingsNetworkViewport_ = content;
+      bool networkScrolls = settingsNetworkScrollMax_ > 0;
+      int colTop = cy - settingsNetworkScroll_;
+
+      SDL_Rect leftCol {cx, colTop, leftW, colH};
+      SDL_Rect rightCol {cx + leftW + colGap, colTop, rightW, colH};
+
+      SDL_Rect previousSettingsClip {};
+      bool hadSettingsClip = SDL_RenderClipEnabled(controlRenderer_) == true;
+      if (hadSettingsClip) {
+        SDL_GetRenderClipRect(controlRenderer_, &previousSettingsClip);
+      }
+      SDL_SetRenderClipRect(controlRenderer_, &content);
+      const std::size_t networkButtonStart = settingsBtns_.size();
+
+      int leftY = leftCol.y;
+      SDL_Rect remoteRect {leftCol.x, leftY, leftCol.w, remoteH};
+      leftY += remoteRect.h + kCardGap;
+      SDL_Rect oscRect {leftCol.x, leftY, leftCol.w, oscH};
+      leftY += oscRect.h + kCardGap;
+      SDL_Rect vmixRect {leftCol.x, leftY, leftCol.w, vmixH};
+      leftY += vmixRect.h + kCardGap;
+      SDL_Rect nmcRect {leftCol.x, leftY, leftCol.w, nmcH};
+      leftY += nmcRect.h + kCardGap;
+      SDL_Rect notesRect {leftCol.x, leftY, leftCol.w,
+                          networkScrolls ? notesH
+                                         : std::max(notesH, leftCol.y + leftCol.h - leftY)};
+
       SDL_Rect integrationRect {rightCol.x, rightCol.y, rightCol.w, integrationH};
       SDL_Rect tallyRect {rightCol.x, rightCol.y + integrationH + kCardGap,
                           rightCol.w, tallyCardH};
-      (void)tallyCardH;
 
       const int netLineH = sLineH;
 
@@ -1967,6 +2002,24 @@
                      SDL_Rect{tX, tY, tW, sLineH},
                      "Going on air takes the cue. Deckboy never sends the switcher a command.",
                      soft);
+      }
+
+      SDL_SetRenderClipRect(controlRenderer_, hadSettingsClip ? &previousSettingsClip : nullptr);
+      // Same reason as the System tab's identical block: a control clipped
+      // out of view by the scroll must also stop taking clicks meant for
+      // whatever is actually on screen over it.
+      if (networkScrolls) {
+        settingsBtns_.erase(
+          std::remove_if(settingsBtns_.begin() + static_cast<std::ptrdiff_t>(networkButtonStart),
+                         settingsBtns_.end(),
+                         [&](const SettingsButton& b) {
+                           SDL_Rect clipped {};
+                           return !SDL_GetRectIntersection(&b.rect, &content, &clipped);
+                         }),
+          settingsBtns_.end());
+      }
+      if (settingsNetworkScrollMax_ > 0) {
+        drawSettingsScrollHint(content, settingsNetworkScroll_, settingsNetworkScrollMax_);
       }
 
     } else if (settingsTab_ == 3) {
@@ -3983,6 +4036,8 @@
         settingsVideoScrollMax_ = 0;
         settingsSystemScroll_ = 0;
         settingsSystemScrollMax_ = 0;
+        settingsNetworkScroll_ = 0;
+        settingsNetworkScrollMax_ = 0;
       } else if (sb.action == 200) {
         openDropdown(
           "settings.audio_device",

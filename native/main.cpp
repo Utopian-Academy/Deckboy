@@ -9472,6 +9472,12 @@ class App {
   int settingsSystemDrawnH_ = 0;
   int settingsSystemScrollMax_ = 0;
   SDL_Rect settingsSystemViewport_ {0, 0, 0, 0};
+  // Network tab scroll: same reason as System's above -- NMC IN & OUT and
+  // the TALLY card ran off the bottom of the modal with no way to reach
+  // them, reported by name.
+  int settingsNetworkScroll_ = 0;
+  int settingsNetworkScrollMax_ = 0;
+  SDL_Rect settingsNetworkViewport_ {0, 0, 0, 0};
   int settingsVideoScrollMax_ = 0;
   bool cueSectionPlaybackOpen_ = true;
   bool cueSectionMetadataOpen_ = true;
