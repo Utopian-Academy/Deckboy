@@ -2844,7 +2844,21 @@
     contextItems_.push_back({
       "  Master Cue (fires other decks)",
       {0, 0, 0, 0},
-      [this]() { addMasterCue(); }
+      [this]() {
+        addMasterCue();
+        // James: master cues should be "dash focused" -- the row this just
+        // added means nothing sitting in an ordinary cue list, and the
+        // Dashboard's Tracker view is the only place its per-deck
+        // assignments are actually reachable. Only here, not inside
+        // addMasterCue() itself: that function is also what
+        // QuickAction::TrackerAddStep calls (already IN the dashboard, so
+        // this would be a harmless no-op there) and what the MASTER NEW
+        // remote command calls (where popping an overlay open on an
+        // operator's screen mid-show from a Companion button would be the
+        // opposite of welcome).
+        dashboardOverlayOpen_ = true;
+        project_.dashboardMode = 1;  // TRACKER, not TILES
+      }
     });
     contextItems_.push_back({
       "  Target Cue (acts on another cue)",
