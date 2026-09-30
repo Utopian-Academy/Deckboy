@@ -3888,6 +3888,7 @@ class App {
       std::cerr << "Renderer creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    const std::string controlRendererDriver = deckboyLastRendererDriver();
     // vsync is a per-renderer runtime property in SDL3 (was a creation flag).
     SDL_SetRenderVSync(controlRenderer_, 1);
     // NOTE: do NOT set SDL_RenderSetLogicalSize here. The control UI reflows to
@@ -3921,6 +3922,15 @@ class App {
         monitorsWindow_ = nullptr;
       }
     }
+    // UNCONDITIONAL, unlike uiProfileLog below -- this is the fact issue #6
+    // needed and never had: which backend a machine that shows the bug
+    // actually landed on. A packaged .app launched from Finder or the Dock
+    // has no terminal for std::cerr to reach, so this is the only copy of it
+    // an affected operator can ever hand back to us.
+    renderDiagnosticLog("startup " + std::string(deckboy::core::version::kVersionTag) +
+                         " control=" + controlRendererDriver +
+                         " monitors=" + (monitorsRenderer_ ? deckboyLastRendererDriver()
+                                                            : std::string("(none)")));
 
     // Fonts are loaded through loadFonts() so the same code path runs at
     // boot AND when the operator changes the UI scale at runtime.
@@ -4236,6 +4246,17 @@ class App {
           textTextureHits_ = 0;
           textTextureMisses_ = 0;
         }
+      }
+      // UNCONDITIONAL, unlike the block above -- an operator watching a blank
+      // interface has DECKBOY_UI_PROFILE set approximately never. Logged once
+      // per session, the first time it happens, so a live show is not paying
+      // per-frame std::string work for the rest of the run.
+      static bool textFailureLogged = false;
+      if (!textFailureLogged && deckboyTextureFailureCount() > 0) {
+        textFailureLogged = true;
+        renderDiagnosticLog("text texture failures=" + std::to_string(deckboyTextureFailureCount()) +
+                             " reason=" + deckboyTextureFailureReason() +
+                             " control-backend=" + deckboyLastRendererDriver());
       }
       // Prevent CPU spin when vsync isn't gating (hidden window, browser cue, etc.)
       // The control window present is vsync-locked, so on a normal display this
@@ -4659,6 +4680,27 @@ class App {
     if (soakLogFile_.is_open()) {
       soakLogFile_ << full << '\n';
       soakLogFile_.flush();
+    }
+  }
+
+  // Same shape as soakLog, but unconditional -- not behind --soak-test or
+  // DECKBOY_UI_PROFILE. issue #6 shipped two fixes that both said, in so many
+  // words, "most likely explanation rather than a proven one", because
+  // nobody who could reproduce it had a way to tell us which backend their
+  // machine picked or whether a text texture actually failed to create. This
+  // is that data, written where a real report can find it regardless of
+  // whether any flag was set. Called at most a handful of times a session
+  // (once at startup, once if a text failure is ever seen), so there is no
+  // reason to hold the file open the way soakLogFile_ does.
+  void renderDiagnosticLog(const std::string& line) {
+    std::time_t t = std::time(nullptr);
+    char stamp[32] = "";
+    if (std::tm* local = std::localtime(&t)) {
+      std::strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M:%S", local);
+    }
+    std::ofstream log(Paths::stateDir() / "deckboy-render.log", std::ios::app);
+    if (log) {
+      log << stamp << "  " << line << '\n';
     }
   }
 

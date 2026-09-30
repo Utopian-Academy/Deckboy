@@ -109,6 +109,18 @@ inline bool SDL_RenderTextureRotated(SDL_Renderer* renderer, SDL_Texture* textur
 //
 // So the order is named. Every entry is a backend this app is tested on, and
 // D3D9 is not among them. Software is the last resort and always works.
+
+// Which backend the most recent deckboyCreateRenderer call landed on. Was
+// previously only visible via the std::cerr line below, which a packaged
+// .app launched from Finder or the Dock has no way to show anyone — so a
+// report like issue #6 could describe the symptom but never the backend that
+// produced it. Queryable so main.cpp can put it in a file that survives past
+// the terminal nobody was watching.
+inline std::string& deckboyLastRendererDriver() {
+  static std::string name;
+  return name;
+}
+
 inline SDL_Renderer* deckboyCreateRenderer(SDL_Window* window) {
   if (!window) {
     return nullptr;
@@ -162,11 +174,13 @@ inline SDL_Renderer* deckboyCreateRenderer(SDL_Window* window) {
       // behaves, and until issue #6 there was no way to find out short of
       // reading this function and guessing. One line, once per window.
       std::cerr << "renderer: " << driver << std::endl;
+      deckboyLastRendererDriver() = driver;
       return renderer;
     }
   }
   SDL_Renderer* fallback = SDL_CreateRenderer(window, SDL_SOFTWARE_RENDERER);
   std::cerr << "renderer: software (every hardware backend refused)" << std::endl;
+  deckboyLastRendererDriver() = "software (every hardware backend refused)";
   return fallback;
 }
 
@@ -220,9 +234,66 @@ inline void deckboyNoteTextureFailure(const char* what) {
   }
 }
 
+// STREAMING FIRST, not a static texture-from-surface.
+//
+// Issue #6 came back on a second Tahoe machine (26.6.1, M1 Pro) with both
+// prior fixes in place: Metal ordered ahead of OpenGL (v0.99.361), and the
+// label cache that stopped text being the one path in the app allocating a
+// texture every frame (v0.99.363). Neither is wrong to have done, and
+// neither explains a machine that still loses every glyph the first time
+// each one is drawn -- the cache does not paper over a failure, it just
+// means we now retry every frame instead of once.
+//
+// What every fix so far left alone: SDL_CreateTextureFromSurface (used here,
+// on an SDL_ttf ARGB8888 surface) creates a STATIC-access texture. Every
+// image and video frame in this app is built with SDL_CreateTexture(...,
+// SDL_TEXTUREACCESS_STREAMING, ...) + SDL_UpdateTexture, and nobody has ever
+// reported one of those blank -- on this machine or any other. The v0.99.363
+// retry asked the same static call again in a forced pixel format; it never
+// asked for the OTHER kind of texture, the kind that already works on every
+// machine this bug has been reported from.
+//
+// So: build it the way a video frame is built, upload with SDL_UpdateTexture,
+// and only fall back to the old static path (kept below) if a backend ever
+// refuses streaming access instead. Cheap to keep, since it only runs when
+// the new path has already failed.
 inline SDL_Texture* deckboyCreateTextureFromSurface(SDL_Renderer* renderer, SDL_Surface* surface) {
+  if (!surface) {
+    deckboyNoteTextureFailure("text/surface");
+    return nullptr;
+  }
+
+  SDL_Surface* owned = nullptr;  // non-null only when we had to convert format; ours to free
+  SDL_Surface* rgba = surface;
+  if (surface->format != SDL_PIXELFORMAT_RGBA32) {
+    owned = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
+    if (owned) {
+      rgba = owned;
+    }
+  }
+  if (rgba->format == SDL_PIXELFORMAT_RGBA32) {
+    if (SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+                                                 SDL_TEXTUREACCESS_STREAMING,
+                                                 rgba->w, rgba->h)) {
+      SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+      // Streaming textures default to BLENDMODE_NONE (opaque); SDL_ttf's
+      // Blended surfaces carry real alpha at every glyph edge, and
+      // SDL_CreateTextureFromSurface would have picked BLEND up from the
+      // surface automatically. A manually built texture has to be told.
+      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+      if (SDL_UpdateTexture(texture, nullptr, rgba->pixels, rgba->pitch)) {
+        if (owned) SDL_DestroySurface(owned);
+        return texture;
+      }
+      SDL_DestroyTexture(texture);  // created, but the pixel upload itself failed
+    }
+  }
+  if (owned) SDL_DestroySurface(owned);
+
+  // FALLBACK: the static path this function used before v0.99.394, for a
+  // backend that refuses streaming access instead of static.
   SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-  if (!texture && surface && surface->format != SDL_PIXELFORMAT_RGBA32) {
+  if (!texture && surface->format != SDL_PIXELFORMAT_RGBA32) {
     if (SDL_Surface* converted = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32)) {
       texture = SDL_CreateTextureFromSurface(renderer, converted);
       SDL_DestroySurface(converted);
