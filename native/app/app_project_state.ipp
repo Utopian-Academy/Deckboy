@@ -1775,14 +1775,26 @@
   // gap from OPEN, which is what an operator reaches for at the top of a show.
   // Same 2.5s shape as the live-cue delete guard, for the same reason.
   bool requestNewShow(bool withToast = true) {
-    if (showIsLive()) {
+    // showIsLive() alone missed the ordinary accident: a show built and
+    // edited but never armed live still has everything in it to lose, and
+    // NEW wiped it with no guard at all -- reported as no warning prompt
+    // appearing before a session opened over whatever was there. Unsaved
+    // changes now trip the same guard, worded for which one is actually
+    // true: a prompt claiming outputs go dark when nothing was live is its
+    // own kind of wrong.
+    const bool live = showIsLive();
+    const bool unsaved = projectDirty_;
+    if (live || unsaved) {
       Uint64 now = SDL_GetTicks();
       bool confirmed = !pendingNewShowConfirmMessage_.empty() &&
                        now <= pendingNewShowConfirmUntilMs_;
       if (!confirmed) {
-        pendingNewShowConfirmMessage_ = "NEW SHOW? OUTPUTS GO DARK  -  PRESS NEW AGAIN";
+        pendingNewShowConfirmMessage_ = live
+          ? "NEW SHOW? OUTPUTS GO DARK  -  PRESS NEW AGAIN"
+          : "NEW SHOW? UNSAVED CHANGES ARE LOST  -  PRESS NEW AGAIN";
         pendingNewShowConfirmUntilMs_ = now + 2500;
-        triggerToast("new show disarms all outputs: press new again");
+        triggerToast(live ? "new show disarms all outputs: press new again"
+                          : "unsaved changes will be lost: press new again");
         return false;
       }
     }
