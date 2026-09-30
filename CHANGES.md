@@ -1,5 +1,35 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-30 - v0.99.394 (text survives a second Mac, and a transition keeps its shape)
+
+**Issue #7, and issue #6 before it: no text anywhere in the interface on
+macOS.** Two earlier fixes were real improvements and neither one closed it —
+Metal ordered ahead of a deprecated OpenGL path, then a label cache that
+stopped text being the only thing in the app allocating a texture every
+frame. The bug came back on a second Mac (Tahoe 26.6.1, Apple Silicon) with
+both in place, which meant the fault was somewhere neither fix had touched:
+`SDL_CreateTextureFromSurface`, the one remaining STATIC-access texture in
+the whole app. Every image and video frame is built STREAMING, and none of
+those have ever come back blank on any machine. Text is now built the same
+way they are.
+
+If a machine ever loses its text again, it no longer has to be described
+rather than measured: which GPU backend a window landed on, and whether a
+text texture ever failed to build, are now written unconditionally to
+`deckboy-render.log` in the state directory — no flag to set, no terminal
+required to see it.
+
+**A transitioning cue keeps its own scale, crop and offset for the whole
+transition**, instead of snapping to the incoming cue's geometry the instant
+the transition starts. A cue letterboxed to fit the output no longer flashes
+to full-frame (or whatever the next cue asks for) before it has actually
+finished being replaced.
+
+**Nine themes got a legibility pass.** `screen_ink_soft` and `screen_fg_soft`
+sat too close to the tile colour to read comfortably on Virtual Boy,
+Famicom, Metroid, Ganon, Midna, GameCube, Super Famicom, Star Fox and Switch
+Neon. All nine are brighter now.
+
 ## 2026-09-27 - v0.99.393 (thirty-one languages, three new transitions, and the tracker you already owned)
 
 A large release: new sources and effects, a second control surface, and two
