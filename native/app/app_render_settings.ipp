@@ -580,6 +580,18 @@
         Primitives::fillRect(controlRenderer_, joint, pal.dark);
       }
       settingsBtns_.push_back({tab, 100 + t, tabs[t]});
+      // The update download's busy critter (the UPDATES card, System tab)
+      // only marks busy while that card is the one actually being drawn --
+      // which stops the instant the operator switches to a different tab to
+      // keep working while a download that can take minutes runs, which is
+      // the ordinary way anyone would use it. Same id as the card's own
+      // markBusy call below, so this is the SAME critter relocating to the
+      // System tab itself rather than a second one: whichever call runs
+      // last in a frame wins, so viewing the card places it there, and
+      // viewing any other tab leaves it here instead of letting it vanish.
+      if (t == 0 && updateCheckRunning_.load()) {
+        markBusy("update", "eel", tab);
+      }
       tabX += tabW + kTabGap;
     }
 
