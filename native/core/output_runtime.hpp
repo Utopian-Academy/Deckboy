@@ -261,6 +261,14 @@ struct OutputRuntime {
   std::map<int, Uint32> layerBridgeTextureFormats;
   std::map<int, std::uint64_t> layerBridgeFrameIndices;
   std::map<int, std::string> layerBridgeCueKeys;
+  // DIAGNOSTIC ONLY -- not read by any draw path. Which deck-layers on this
+  // output were actually drawn last frame, so renderDeckLayerIntoOutput's
+  // early-return guards can log once on a TRANSITION to/from "nothing drawn"
+  // instead of every frame it stays that way. Added chasing a live report
+  // that SEEK/TAKE on one layer deck blanks the others on the same output;
+  // absent from the map means "assume visible", so silence at startup
+  // (nothing has drawn yet either way) does not log a false drop.
+  std::map<int, bool> layerWasVisibleForDiagnostics;
   // Per-overlay bridge texture (same rationale, keyed by overlay identity).
   std::map<std::string, SDL_Texture*> overlayBridgeTextures;
   std::map<std::string, int> overlayBridgeTextureWidths;

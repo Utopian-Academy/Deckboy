@@ -2468,6 +2468,25 @@
     return nullptr;
   }
 
+  // DIAGNOSTIC ONLY, added chasing a live report that SEEK/TAKE on one layer
+  // deck blanks the OTHER decks sharing its output. Logs once on a
+  // TRANSITION to or from "this layer drew nothing this frame" rather than
+  // every frame it stays that way, so it stays quiet in normal operation and
+  // only speaks when a layer actually drops. See
+  // OutputRuntime::layerWasVisibleForDiagnostics.
+  void noteLayerVisibility(OutputRuntime& rt, int outputIndex, int deckIndex,
+                           bool visible, const char* reason) {
+    auto it = rt.layerWasVisibleForDiagnostics.find(deckIndex);
+    const bool was = it == rt.layerWasVisibleForDiagnostics.end() ? true : it->second;
+    if (was != visible) {
+      renderDiagnosticLog("output " + std::to_string(outputIndex + 1) + " deck " +
+                          std::to_string(deckIndex + 1) +
+                          (visible ? " resumed drawing"
+                                   : (std::string(" stopped drawing: ") + reason)));
+    }
+    rt.layerWasVisibleForDiagnostics[deckIndex] = visible;
+  }
+
   // `layerSourceOutputIndex` is the output whose LAYER LIST this draw belongs
   // to, which is not always the output being drawn. A mirroring destination --
   // a recording, a stream, an NDI sender, a second screen showing the
@@ -2487,6 +2506,7 @@
     }
     const Cue* sourceCue = activeCuePtr(sourceDeckIndex);
     if (!sourceCue) {
+      noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, false, "no active cue");
       return;
     }
     // Resolved once and passed to whichever of the three draw paths this
@@ -2503,6 +2523,8 @@
     const int stackIndex = stackPositionFor(stackOutputIndex, sourceDeckIndex);
     DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
     if (!sourceRuntime || !sourceRuntime->mediaEngine) {
+      noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, false,
+                          "no deck runtime or engine");
       return;
     }
     // A TEXT CUE HAS NO DECODED FRAME, so it must be drawn before the frame
@@ -2513,8 +2535,11 @@
       // which went unnoticed only because a text cue's engine never left
       // Stopped at all until it was given a clock (see loadCue).
       if (sourceRuntime->mediaEngine->state() == TransportState::Stopped) {
+        noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, false,
+                            "text cue stopped");
         return;
       }
+      noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, true, "");
       renderTextCueIntoOutput(outputRuntime->outputRenderer, *sourceCue, target,
                               sourceRuntime->mediaEngine->position(),
                               lowerThirdOutAtFor(sourceDeckIndex));
@@ -2523,8 +2548,12 @@
     const DecodedFrame* sourceFrame = sourceRuntime->mediaEngine->currentFrame();
     if (!sourceFrame || sourceFrame->width <= 0 || sourceFrame->height <= 0 ||
         (sourceFrame->pixels.empty() && !sourceFrame->isGpu())) {
+      noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, false,
+                          !sourceFrame ? "currentFrame() null"
+                                       : "currentFrame() has no pixels");
       return;
     }
+    noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, true, "");
 #if DECKBOY_INPROC_DECODE
     if (sourceFrame->isGpu()) {
       // ── macOS: THE FRAME IS THE TEXTURE ─────────────────────────────

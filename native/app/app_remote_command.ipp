@@ -4625,6 +4625,11 @@
         if (!engine) {
           return;
         }
+        // Logged for the same reason TAKE is: so a render-side drop on
+        // another deck's layer (see noteLayerVisibility in
+        // app_render_output.ipp) can be lined up against what caused it.
+        showLog("SEEK", "deck " + std::to_string(project_.focusedDeckIndex + 1) +
+                        " -> " + formatSeconds(*value));
         engine->seek(*value);
         triggerToast("jump to " + formatSeconds(*value));
       }
