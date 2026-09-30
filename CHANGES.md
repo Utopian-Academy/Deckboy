@@ -1,13 +1,13 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-30 - v0.99.395 (text survives a second Mac, and a transition keeps its shape)
+## 2026-09-30 - v0.99.396 (text survives a second Mac, and a transition keeps its shape)
 
 **Issue #7, and issue #6 before it: no text anywhere in the interface on
 macOS.** Two earlier fixes were real improvements and neither one closed it —
 Metal ordered ahead of a deprecated OpenGL path, then a label cache that
 stopped text being the only thing in the app allocating a texture every
-frame. The bug came back on a second Mac (Tahoe 26.6.1, Apple Silicon) with
-both in place, which meant the fault was somewhere neither fix had touched:
+frame. It came back on a second Mac (Tahoe 26.6.1, Apple Silicon) with both
+in place, which meant the fault was somewhere neither fix had touched:
 `SDL_CreateTextureFromSurface`, the one remaining STATIC-access texture in
 the whole app. Every image and video frame is built STREAMING, and none of
 those have ever come back blank on any machine. Text is now built the same
@@ -29,10 +29,6 @@ finished being replaced.
 sat too close to the tile colour to read comfortably on Virtual Boy,
 Famicom, Metroid, Ganon, Midna, GameCube, Super Famicom, Star Fox and Switch
 Neon. All nine are brighter now.
-
-(v0.99.394 was tagged and never released — its build caught its own new log
-file shipping unstripped in a packaged build, one packager script short of
-the fix. Folded in here rather than left dangling.)
 
 ## 2026-09-27 - v0.99.393 (thirty-one languages, three new transitions, and the tracker you already owned)
 
