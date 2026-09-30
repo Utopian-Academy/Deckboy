@@ -5543,26 +5543,36 @@
       triggerParkedCueCreationToast("scene");
       return;
     }
-    if (command == "LOWERTEXT") {
+    if (command == "LOWERTEXT" || command == "LOWERSUB") {
+      // DESIGNED OR LEGACY, the same split LOWERSTYLE and LOWERANIM use below.
+      // This used to check only CueKind::LowerThird -- the retired standalone
+      // overlay kind -- so it answered OK and touched nothing on the lower
+      // third the LOWERTHIRD verb and the SOURCE menu actually make, which is
+      // a CueKind::Text cue with lowerThird.on set. TEXTCUE TITLE / SUB write
+      // the same two textBody lines; this is the Companion-button shortcut
+      // for them, so it has to land in the same place.
       std::string txt = joinParts(parts, 1);
-      if (Cue* cue = selectedCueMutable()) {
-        if (cue->kind == CueKind::LowerThird) {
-          cue->lowerThirdText = txt;
-          triggerToast("lower text set");
-          markProjectDirty();
-        }
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand(command + ": select a cue first");
+        return;
       }
-      return;
-    }
-    if (command == "LOWERSUB") {
-      std::string txt = joinParts(parts, 1);
-      if (Cue* cue = selectedCueMutable()) {
-        if (cue->kind == CueKind::LowerThird) {
-          cue->lowerThirdSubtext = txt;
-          triggerToast("lower sub set");
-          markProjectDirty();
-        }
+      const bool designed = cue->lowerThird.on;
+      const bool legacy = cue->kind == CueKind::LowerThird;
+      if (!designed && !legacy) {
+        failRemoteCommand(command + ": this cue is not a lower third");
+        return;
       }
+      const int line = command == "LOWERTEXT" ? 0 : 1;
+      if (designed) {
+        setTextBodyLine(cue->textBody, line, txt);
+      } else if (command == "LOWERTEXT") {
+        cue->lowerThirdText = txt;
+      } else {
+        cue->lowerThirdSubtext = txt;
+      }
+      triggerToast(command == "LOWERTEXT" ? "lower text set" : "lower sub set");
+      markProjectDirty();
       return;
     }
     if (command == "LOWERSTYLE") {
