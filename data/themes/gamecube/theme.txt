@@ -11,9 +11,9 @@ screen_light	9B7BFFFF
 screen_mid	5E44B8FF
 screen_dark	32246AFF
 screen_deep	0E0A1EFF
-screen_ink_soft	B4A4E0FF
+screen_ink_soft	C3B6EEFF
 screen_fg	BFA8FFFF
-screen_fg_soft	8A7CCAFF
+screen_fg_soft	B9B0FFFF
 screen_tile	1A1630FF
 button_bezel	54469EFF
 delete_bezel	C0503AFF

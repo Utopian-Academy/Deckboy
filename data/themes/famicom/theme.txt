@@ -10,9 +10,9 @@ screen_light	F04040FF
 screen_mid	A82424FF
 screen_dark	6E1616FF
 screen_deep	100505FF
-screen_ink_soft	D07068FF
+screen_ink_soft	E07878FF
 screen_fg	FF6058FF
-screen_fg_soft	C03832FF
+screen_fg_soft	FF8877FF
 screen_tile	150A08FF
 button_bezel	7A2A24FF
 delete_bezel	E89830FF
