@@ -3755,6 +3755,16 @@
 
       SDL_Rect nameRect {summaryRect.x + kSummaryPad, summaryY, labelAvailW, summaryNameH};
       drawTextSafe(controlRenderer_, fontBase_, nameRect, selectedCue->name, pal.deep);
+      // A long name ellipsizes here same as any other drawTextSafe call, and
+      // there was no way to read the rest of it — reported as not being able
+      // to see the full name of the selected cue. Only worth a tip when it
+      // actually doesn't fit; measuring first keeps this silent for every
+      // name that already reads in full.
+      if (measuredTextWidth(fontBase_, selectedCue->name) > nameRect.w &&
+          pointInRect(mouseX_, mouseY_, nameRect)) {
+        drawHoverTip(selectedCue->name, nameRect.x + nameRect.w / 2,
+                    nameRect.y + nameRect.h, true);
+      }
       summaryY += summaryNameH + uiScaled(2);
 
       // Each line is drawn only if it has something to say, and each one that
