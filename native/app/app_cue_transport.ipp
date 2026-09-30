@@ -6787,8 +6787,24 @@
       || isSourceCueKind(cue->kind));
   }
 
+  // NOT the same list as keying, on purpose. VideoSynth has real pixels --
+  // MediaEngine::rebuildVideoSynthFrame writes into displayFrame_, the same
+  // held-CPU-buffer path Pattern uses, which uploadFrame() already grades
+  // through applyCueVisualEffectsToPixels with zero awareness of what kind
+  // of cue produced the frame. So this was a UI gate away from working, not
+  // an engine feature away from it. Chroma KEY stays off VideoSynth (keying
+  // a generated picture against a colour makes little sense; color grading
+  // it does), which is why this isn't just cueSupportsKeying() with one more
+  // kind folded in.
+  //
+  // Composite and LowerThird were also asked for and are NOT here: Composite
+  // composites its slots as textures in the output renderer rather than
+  // producing a CPU frame, so it never reaches uploadFrame() at all -- adding
+  // the row would be a control that visibly does nothing until that path is
+  // given its own grading step. Didn't add a control ahead of the plumbing
+  // for it.
   bool cueSupportsColorControls(const Cue* cue) const {
-    return cueSupportsKeying(cue);
+    return cueSupportsKeying(cue) || (cue && cue->kind == CueKind::VideoSynth);
   }
 
   bool setSelectedKeyColor(SDL_Color color) {
