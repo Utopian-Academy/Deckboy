@@ -1801,7 +1801,7 @@
     }
     if (command == "FADE" || command == "FADECUE") {
       // FADE NEW                -> add a fade cue to this deck
-      // FADE WHAT opacity|volume|dimmer
+      // FADE WHAT opacity|volume|dimmer|brightness|contrast|saturation|hue
       // FADE TO <0-100>         -> where the ramp ends
       // FADE OVER <seconds>
       // FADE CURVE linear|ease-in|ease-out|s-curve
@@ -1875,8 +1875,11 @@
       }
       if (sub == "WHAT" && parts.size() >= 3) {
         const std::string token = toLower(parts[2]);
-        if (token != "opacity" && token != "volume" && token != "dimmer") {
-          failRemoteCommand("FADE WHAT: expected opacity, volume or dimmer");
+        if (token != "opacity" && token != "volume" && token != "dimmer" &&
+            token != "brightness" && token != "contrast" &&
+            token != "saturation" && token != "hue") {
+          failRemoteCommand("FADE WHAT: expected opacity, volume, dimmer, "
+                            "brightness, contrast, saturation or hue");
           return;
         }
         cue.fadeWhat = cueFadeWhatFromToken(token);

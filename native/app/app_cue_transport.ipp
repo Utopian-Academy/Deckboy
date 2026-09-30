@@ -1364,9 +1364,19 @@
     if (!cue) {
       return;
     }
-    cue->fadeWhat = cue->fadeWhat == CueFadeWhat::DeckOpacity  ? CueFadeWhat::DeckVolume
-                  : cue->fadeWhat == CueFadeWhat::DeckVolume   ? CueFadeWhat::MasterDimmer
-                                                               : CueFadeWhat::DeckOpacity;
+    // The original three, then the four per-cue color targets added
+    // alongside CueFadeWhat::CueHue -- same cycle shape as cycleFadeCurve
+    // just below, extended rather than replaced with a picker, so a fade
+    // cue's row still behaves like every other cycled row in this file.
+    switch (cue->fadeWhat) {
+      case CueFadeWhat::DeckOpacity:   cue->fadeWhat = CueFadeWhat::DeckVolume; break;
+      case CueFadeWhat::DeckVolume:    cue->fadeWhat = CueFadeWhat::MasterDimmer; break;
+      case CueFadeWhat::MasterDimmer:  cue->fadeWhat = CueFadeWhat::CueBrightness; break;
+      case CueFadeWhat::CueBrightness: cue->fadeWhat = CueFadeWhat::CueContrast; break;
+      case CueFadeWhat::CueContrast:   cue->fadeWhat = CueFadeWhat::CueSaturation; break;
+      case CueFadeWhat::CueSaturation: cue->fadeWhat = CueFadeWhat::CueHue; break;
+      case CueFadeWhat::CueHue:        cue->fadeWhat = CueFadeWhat::DeckOpacity; break;
+    }
     markProjectDirty();
     triggerToast(cueFadeWhatLabel(cue->fadeWhat));
   }
@@ -3509,6 +3519,58 @@
   };
   std::vector<FadeRun> fadeRuns_;
 
+  // The real-world span a per-cue color fade target moves across. Shared by
+  // both directions below (normalize on read, denormalize on write) so they
+  // cannot drift into disagreeing about what "0.5" means.
+  static std::pair<double, double> cueFadeColorRange(CueFadeWhat what) {
+    if (what == CueFadeWhat::CueHue) {
+      return {-180.0, 180.0};
+    }
+    return {0.0, 2.0};  // brightness, contrast, saturation all share this one
+  }
+
+  // The deck's ACTIVE cue's color field a fade target writes -- there is no
+  // live engine setter for these the way DeckVolume has engine->setVolume();
+  // syncPixelEffectsFromCue() re-reads the cue every tick and pushes it into
+  // the engine, the same path the inspector's own +/- buttons ride, so
+  // writing here is enough. Null when the deck has no active cue (nothing to
+  // fade) or isn't a valid index. Const/non-const pair rather than one
+  // const_cast: each body is three lines, which is not worth the idiom.
+  const float* activeCueColorField(int deckIndex, CueFadeWhat what) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return nullptr;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return nullptr;
+    }
+    const Cue& cue = deck.cues[deck.activeIndex];
+    switch (what) {
+      case CueFadeWhat::CueBrightness: return &cue.brightness;
+      case CueFadeWhat::CueContrast:   return &cue.contrast;
+      case CueFadeWhat::CueSaturation: return &cue.saturation;
+      case CueFadeWhat::CueHue:        return &cue.hueShift;
+      default: return nullptr;
+    }
+  }
+  float* activeCueColorField(int deckIndex, CueFadeWhat what) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return nullptr;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return nullptr;
+    }
+    Cue& cue = deck.cues[deck.activeIndex];
+    switch (what) {
+      case CueFadeWhat::CueBrightness: return &cue.brightness;
+      case CueFadeWhat::CueContrast:   return &cue.contrast;
+      case CueFadeWhat::CueSaturation: return &cue.saturation;
+      case CueFadeWhat::CueHue:        return &cue.hueShift;
+      default: return nullptr;
+    }
+  }
+
   // Where a fade would start from RIGHT NOW. Read at fire time rather than
   // stored on the cue: a fade that always started from 100% would jump the
   // level up before taking it down, which is the single most visible way to
@@ -3520,6 +3582,19 @@
       case CueFadeWhat::DeckVolume: {
         const MediaEngine* engine = mediaEngineForDeck(deckIndex);
         return engine ? std::clamp(static_cast<double>(engine->volume()), 0.0, 1.0) : 0.0;
+      }
+      case CueFadeWhat::CueBrightness:
+      case CueFadeWhat::CueContrast:
+      case CueFadeWhat::CueSaturation:
+      case CueFadeWhat::CueHue: {
+        const auto [lo, hi] = cueFadeColorRange(what);
+        const float* field = activeCueColorField(deckIndex, what);
+        // No active cue to read from: the default every one of these fields
+        // already arrives at (1.0 for the first three, 0.0 for hue), not 0 —
+        // a fade with nothing to act on should not report black/no-grade.
+        const double v = field ? static_cast<double>(*field)
+                               : (what == CueFadeWhat::CueHue ? 0.0 : 1.0);
+        return std::clamp((v - lo) / (hi - lo), 0.0, 1.0);
       }
       case CueFadeWhat::DeckOpacity:
         break;
@@ -3541,6 +3616,17 @@
           engine->setVolume(static_cast<float>(value));
         }
         return;
+      case CueFadeWhat::CueBrightness:
+      case CueFadeWhat::CueContrast:
+      case CueFadeWhat::CueSaturation:
+      case CueFadeWhat::CueHue: {
+        const auto [lo, hi] = cueFadeColorRange(what);
+        if (float* field = activeCueColorField(deckIndex, what)) {
+          *field = static_cast<float>(lo + value * (hi - lo));
+          markProjectDirty();
+        }
+        return;
+      }
       case CueFadeWhat::DeckOpacity:
         break;
     }

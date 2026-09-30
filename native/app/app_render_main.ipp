@@ -6490,7 +6490,8 @@
       if (cueSectionFadeOpen_) {
         drawChoiceRow(fdY, "fades", cueFadeWhatLabel(selectedCue->fadeWhat),
                       QuickAction::FadeWhatCycle,
-                      "Deck opacity, deck volume, or the master dimmer");
+                      "Deck opacity, deck volume, the master dimmer, or the "
+                      "active cue's own brightness / contrast / saturation / hue");
         fdY += kInspectorRowStep;
 
         // The deck row is hidden for the master dimmer, which belongs to no
@@ -6512,9 +6513,23 @@
           fdY += kInspectorRowStep;
         }
 
-        char pct[8];
-        std::snprintf(pct, sizeof(pct), "%d%%",
-                      static_cast<int>(std::lround(selectedCue->fadeToValue * 100.0)));
+        // The stored value is always 0-1, normalized the same way for every
+        // target (see cueFadeColorRange) -- but "71%" means nothing next to
+        // a hue control, and "1.4x" means nothing next to deck opacity. Show
+        // whichever unit the selected target actually is.
+        char pct[16];
+        if (cueFadeWhatIsColorField(selectedCue->fadeWhat)) {
+          const auto [lo, hi] = cueFadeColorRange(selectedCue->fadeWhat);
+          const double real = lo + selectedCue->fadeToValue * (hi - lo);
+          if (selectedCue->fadeWhat == CueFadeWhat::CueHue) {
+            std::snprintf(pct, sizeof(pct), "%d deg", static_cast<int>(std::lround(real)));
+          } else {
+            std::snprintf(pct, sizeof(pct), "%.2fx", real);
+          }
+        } else {
+          std::snprintf(pct, sizeof(pct), "%d%%",
+                        static_cast<int>(std::lround(selectedCue->fadeToValue * 100.0)));
+        }
         drawQuickRow(fdY, "to", QuickAction::FadeToDec, std::string(pct),
                      QuickAction::FadeToInc, QuickAction::ToggleLoop, false, false,
                      "Where the ramp ends");

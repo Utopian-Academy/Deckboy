@@ -161,7 +161,7 @@ to other equipment, when they are taken (*v0.99.373 and later.*; see §9b):
 | Type | What it does on GO |
 |------|--------------------|
 | **Target** | Starts, stops, pauses, resumes, loads, arms or disarms another cue |
-| **Fade** | Ramps a deck's picture, a deck's volume or the master dimmer to a level over time |
+| **Fade** | Ramps a deck's picture, a deck's volume, the master dimmer, or the active cue's brightness/contrast/saturation/hue, to a level over time |
 | **Master** | Fires an assigned cue on each of several decks at once |
 | **MIDI** | Sends a note, control change, program change, MIDI Show Control GO / STOP / RESUME, or raw bytes |
 | **Network** | Sends an OSC message, a UDP datagram or a line of TCP |
@@ -504,11 +504,12 @@ air, so a target cannot stop something else by mistake.
 
 ### Fade cue
 
-Ramps a level over time: a deck's **opacity**, a deck's **volume**, or the
-**master dimmer**. Set where it ends (**to**), how long it takes (**over**;
-zero is a snap), and the **curve**: linear, ease in, ease out or S-curve. Turn
-on **then stop** to stop the deck when the ramp lands, which is the usual
-"take it down and stop it".
+Ramps a level over time: a deck's **opacity**, a deck's **volume**, the
+**master dimmer**, or the active cue's own **brightness**, **contrast**,
+**saturation** or **hue**. Set where it ends (**to**), how long it takes
+(**over**; zero is a snap), and the **curve**: linear, ease in, ease out or
+S-curve. Turn on **then stop** to stop the deck when the ramp lands, which is
+the usual "take it down and stop it".
 
 ### Master cue
 
@@ -575,14 +576,14 @@ cue. There are **sixteen** styles:
 | Ghastly | `ghastly`, `ghost` | The colour drains towards a cold blue-grey, the picture smears upward, and wisps rise and eat it from below |
 
 A **push** moves both pictures; a **wipe** moves only the boundary. They look
-alike in a still and nothing alike in motion.
-
-The last four are built a frame at a time on the CPU rather than drawn with
-rectangles, so they cost more than a wipe does — and they are the ones that
-read as something rather than as a shape moving. All four start on the last
-frame of the outgoing cue and end on the incoming one exactly;
-`tools/check_transitions.py` holds them to that on every build, because a
-transition that finishes still holding a shard of the old cue is one that has
+alike in a still and nothing alike in motion.
+
+The last four are built a frame at a time on the CPU rather than drawn with
+rectangles, so they cost more than a wipe does — and they are the ones that
+read as something rather than as a shape moving. All four start on the last
+frame of the outgoing cue and end on the incoming one exactly;
+`tools/check_transitions.py` holds them to that on every build, because a
+transition that finishes still holding a shard of the old cue is one that has
 to be cut out of a show.
 
 Set the deck default in the playlist settings; override on a cue in its

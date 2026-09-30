@@ -130,22 +130,42 @@ enum class CueFadeWhat {
   DeckOpacity,   // Deck::playlistOpacity -- how much of that deck reaches the output
   DeckVolume,    // the deck engine's runtime volume, not any cue's saved gain
   MasterDimmer,  // Project::masterDimmer -- everything, at once
+  // The four below ramp the DECK'S ACTIVE CUE's own color fields
+  // (Cue::brightness/contrast/saturation/hueShift), not an engine setter --
+  // there isn't one. syncPixelEffectsFromCue() already re-reads those every
+  // tick and pushes them into the engine, the same path the inspector's own
+  // +/- buttons ride, so writing the cue field each tick is enough to drive
+  // a live fade. See FadeRun's from/to: those are normalized 0-1 like every
+  // other fade target, mapped to each field's real range (0-2 for the first
+  // three, -180..180 for hue) at the one point that needs to know it.
+  CueBrightness,
+  CueContrast,
+  CueSaturation,
+  CueHue,
 };
 
 inline const char* cueFadeWhatToken(CueFadeWhat w) {
   switch (w) {
-    case CueFadeWhat::DeckVolume:   return "volume";
-    case CueFadeWhat::MasterDimmer: return "dimmer";
-    case CueFadeWhat::DeckOpacity:  break;
+    case CueFadeWhat::DeckVolume:    return "volume";
+    case CueFadeWhat::MasterDimmer:  return "dimmer";
+    case CueFadeWhat::CueBrightness: return "brightness";
+    case CueFadeWhat::CueContrast:   return "contrast";
+    case CueFadeWhat::CueSaturation: return "saturation";
+    case CueFadeWhat::CueHue:        return "hue";
+    case CueFadeWhat::DeckOpacity:   break;
   }
   return "opacity";
 }
 
 inline const char* cueFadeWhatLabel(CueFadeWhat w) {
   switch (w) {
-    case CueFadeWhat::DeckVolume:   return "Deck volume";
-    case CueFadeWhat::MasterDimmer: return "Master dimmer";
-    case CueFadeWhat::DeckOpacity:  break;
+    case CueFadeWhat::DeckVolume:    return "Deck volume";
+    case CueFadeWhat::MasterDimmer:  return "Master dimmer";
+    case CueFadeWhat::CueBrightness: return "Cue brightness";
+    case CueFadeWhat::CueContrast:   return "Cue contrast";
+    case CueFadeWhat::CueSaturation: return "Cue saturation";
+    case CueFadeWhat::CueHue:        return "Cue hue";
+    case CueFadeWhat::DeckOpacity:   break;
   }
   return "Deck opacity";
 }
@@ -153,7 +173,20 @@ inline const char* cueFadeWhatLabel(CueFadeWhat w) {
 inline CueFadeWhat cueFadeWhatFromToken(const std::string& token) {
   if (token == "volume") return CueFadeWhat::DeckVolume;
   if (token == "dimmer") return CueFadeWhat::MasterDimmer;
+  if (token == "brightness") return CueFadeWhat::CueBrightness;
+  if (token == "contrast") return CueFadeWhat::CueContrast;
+  if (token == "saturation") return CueFadeWhat::CueSaturation;
+  if (token == "hue") return CueFadeWhat::CueHue;
   return CueFadeWhat::DeckOpacity;
+}
+
+// Whether a CueFadeWhat ramps a per-cue color field (rather than the deck/
+// master levels the original three ramp). Shared between the range mapping
+// in applyFadeValue/currentFadeValue and the UI, so both agree on the split
+// without either hand-listing the four kinds twice.
+inline bool cueFadeWhatIsColorField(CueFadeWhat w) {
+  return w == CueFadeWhat::CueBrightness || w == CueFadeWhat::CueContrast ||
+         w == CueFadeWhat::CueSaturation || w == CueFadeWhat::CueHue;
 }
 
 // The shape of the ramp. Linear is the default because it is what every
