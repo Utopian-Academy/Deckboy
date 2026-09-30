@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-30 - v0.99.394 (text survives a second Mac, and a transition keeps its shape)
+## 2026-09-30 - v0.99.395 (text survives a second Mac, and a transition keeps its shape)
 
 **Issue #7, and issue #6 before it: no text anywhere in the interface on
 macOS.** Two earlier fixes were real improvements and neither one closed it —
@@ -29,6 +29,10 @@ finished being replaced.
 sat too close to the tile colour to read comfortably on Virtual Boy,
 Famicom, Metroid, Ganon, Midna, GameCube, Super Famicom, Star Fox and Switch
 Neon. All nine are brighter now.
+
+(v0.99.394 was tagged and never released — its build caught its own new log
+file shipping unstripped in a packaged build, one packager script short of
+the fix. Folded in here rather than left dangling.)
 
 ## 2026-09-27 - v0.99.393 (thirty-one languages, three new transitions, and the tracker you already owned)
 
