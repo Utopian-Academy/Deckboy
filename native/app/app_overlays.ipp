@@ -598,10 +598,16 @@
                      SDL_Rect {row.x + uiScaled(8), row.y, tw / 2, rowH},
                      std::to_string(i + 1) + ".  " + name, rowInk);
         if (!folder.empty()) {
+          // "in <folder>", not a bare folder name floating in the row's other
+          // half with nothing to say what it is. Reported as the recent-shows
+          // list being hard to parse; two names side by side with no stated
+          // relationship between them is exactly that. ASCII only -- ink
+          // colour is left alone rather than guessed at a "softer" role that
+          // was never contrast-checked against THIS row's hot/cold fill.
           drawTextSafe(controlRenderer_, fontSmall_,
                        SDL_Rect {row.x + tw / 2, row.y,
                                  tw / 2 - uiScaled(8), rowH},
-                       folder, rowInk);
+                       "in " + folder, rowInk);
         }
         startupRecentBtns_.push_back(row);
         y += rowH + uiScaled(4);
