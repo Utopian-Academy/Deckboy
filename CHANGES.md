@@ -2,6 +2,16 @@
 
 ## Next release
 
+**Map a layer in perspective, from the programme monitor.** A layer's corner
+pin now has its own handles: focus a playlist that is a layer on the output,
+press **WARP**, and drag its four corners onto the surface -- the handles sit on
+the picture wherever the cue's size and offset put it, and **EDIT** switches
+them between the layer and the output's own warp. **Perspective** is the new
+way a pin fills its quad: a flat board's straight lines stay straight and its
+far end is properly smaller, instead of folding along the diagonal. New pins
+start in perspective; shows saved before keep drawing linear. Over the network,
+`VIDEO OUTPUT LAYERWARP MODE linear|perspective`.
+
 **Arcade: a lower third that looks like it came out of a game.** The name in
 Deckboy's pixel face over the role in mono, in a bordered box with a hard drop
 shadow -- and once it is in, a slow bob and a small tilt that keeps it looking

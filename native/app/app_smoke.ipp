@@ -1334,6 +1334,31 @@
           }
           expect(inert, "a show saved before the spine opens with no waits and no continue");
         }
+    // ── A LAYER'S PIN, SAVED AND READ BACK ─────────────────────────────────
+    //
+    // The mode is appended to the pin's token, so the two things to hold are:
+    // it comes back as it was saved, and a pin written before it existed opens
+    // LINEAR -- what that show drew -- not the new perspective default.
+    {
+      OutputLayer pinned;
+      pinned.deckIndex = 1;
+      pinned.warpEnabled = true;
+      pinned.warpTopLeftX = 0.08f;
+      pinned.warpBottomLeftY = -0.3f;
+      pinned.warpPerspective = true;
+      const std::vector<OutputLayer> back = parseLayerList(joinLayerList({pinned}));
+      expect(back.size() == 1 && back[0].warpEnabled && back[0].warpPerspective &&
+             std::abs(back[0].warpTopLeftX - 0.08f) < 1e-4f &&
+             std::abs(back[0].warpBottomLeftY + 0.3f) < 1e-4f,
+             "a perspective layer pin survives save and reload");
+      pinned.warpPerspective = false;
+      expect(!parseLayerList(joinLayerList({pinned}))[0].warpPerspective,
+             "a linear layer pin survives save and reload");
+      const std::vector<OutputLayer> older =
+        parseLayerList("1:0:0:1:1:dissolve:1:0.08:0.3:-0.04:0.04:-0.04:-0.04:0.08:-0.3");
+      expect(older.size() == 1 && older[0].warpEnabled && !older[0].warpPerspective,
+             "a layer pin saved before the mode existed opens linear");
+    }
     // ── MIDI OUT: THE BYTES ────────────────────────────────────────────────
     //
     // The encoder is a pure function precisely so it can be checked here, with

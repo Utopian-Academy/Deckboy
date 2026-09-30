@@ -2774,7 +2774,8 @@
       // asking the deck meant it never lit however armed the warp was.
       const OutputTarget& warpDeck = focusedOutput();
       int warpBtnW = 76;
-      bool warpActive = warpEditMode_ && warpDeck.warpEnabled;
+      bool warpActive = warpEditorVisible();
+      (void)warpDeck;
       warpEditBtnRect_ = {programMonitorRect.x + programMonitorRect.w - warpBtnW - 8,
                            programMonitorRect.y + 3, warpBtnW, 26};
       SDL_Color warpFill = paletteToggleFill(warpActive);
@@ -3166,29 +3167,18 @@
     // THE OUTPUT'S WARP. The handles have to be drawn from the same struct
     // the drag writes and the compositor reads, or they sit where the warp
     // is not.
-    if (!presenterLayoutEditMode_ && warpEditMode_ && focusedOutput().warpEnabled &&
+    warpTargetBtnRect_ = {};
+    if (!presenterLayoutEditMode_ && warpEditorVisible() &&
         warpMonitorInner_.w > 0 && warpMonitorInner_.h > 0) {
-      const OutputTarget& wd = focusedOutput();
       SDL_Rect mi = warpMonitorInner_;
-      float fw = static_cast<float>(mi.w);
-      float fh = static_cast<float>(mi.h);
-      // Map warp corner offsets (in output pixels) to monitor-space positions.
-      // Warp offsets are relative to output resolution corners; scale to monitor rect.
-      int focOutIdx = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
-      auto [outW, outH] = outputRenderSizeForOutput(focOutIdx);
-      float sx = fw / std::max(1.0f, static_cast<float>(outW));
-      float sy = fh / std::max(1.0f, static_cast<float>(outH));
-      // Corner positions in monitor space
-      SDL_FPoint corners[4] = {
-        {static_cast<float>(mi.x) + wd.warpTopLeftX * sx,
-         static_cast<float>(mi.y) + wd.warpTopLeftY * sy},
-        {static_cast<float>(mi.x + mi.w) + wd.warpTopRightX * sx,
-         static_cast<float>(mi.y) + wd.warpTopRightY * sy},
-        {static_cast<float>(mi.x + mi.w) + wd.warpBottomRightX * sx,
-         static_cast<float>(mi.y + mi.h) + wd.warpBottomRightY * sy},
-        {static_cast<float>(mi.x) + wd.warpBottomLeftX * sx,
-         static_cast<float>(mi.y + mi.h) + wd.warpBottomLeftY * sy},
-      };
+      // THE TARGET'S corners -- the output's warp, or the focused layer's pin
+      // -- from the same function the drag writes through.
+      const WarpEditTarget wt = warpEditTarget(mi);
+      SDL_FPoint corners[4];
+      for (int i = 0; i < 4; ++i) {
+        corners[i] = SDL_FPoint {wt.baseX[i] + *wt.x[i] * wt.unitX,
+                                 wt.baseY[i] + *wt.y[i] * wt.unitY};
+      }
       // Draw wireframe quad
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 0, 200);
@@ -3231,8 +3221,24 @@
         SDL_Color warpBtnInk {255, 220, 0, 255};
         SDL_Color warpBtnDim {160, 150, 96, 255};
 
-        std::string modeLabel = focusedOutput().warpMode == "perspective" ? "PERSP" : "LINEAR";
         int bx = mi.x + 4;
+        // WHAT THE HANDLES MOVE. Only offered when there is a choice: the
+        // focused deck has to be a layer on this output to have a pin.
+        if (focusedLayerPin()) {
+          const std::string targetLabel = wt.pin
+            ? "EDIT: " + deckLabel(project_.focusedDeckIndex) : std::string("EDIT: OUTPUT");
+          int labelW = 0;
+          TTF_GetStringSize(fontSmall_, targetLabel.c_str(), 0, &labelW, nullptr);
+          warpTargetBtnRect_ = {bx, toolY, labelW + uiScaled(16), toolH};
+          Primitives::fillRect(controlRenderer_, warpTargetBtnRect_, SDL_Color{255, 220, 0, 200});
+          Primitives::strokeRect(controlRenderer_, warpTargetBtnRect_, warpBtnEdge);
+          drawCenteredText(controlRenderer_, fontSmall_, targetLabel, SDL_Color{15, 15, 15, 255},
+                           warpTargetBtnRect_);
+          bx += warpTargetBtnRect_.w + 4;
+        }
+        const bool perspective = wt.pin ? wt.pin->warpPerspective
+                                        : focusedOutput().warpMode == "perspective";
+        std::string modeLabel = perspective ? "PERSP" : "LINEAR";
         warpModeBtnRect_ = {bx, toolY, 64, toolH};
         Primitives::fillRect(controlRenderer_, warpModeBtnRect_, warpBtnFill);
         Primitives::strokeRect(controlRenderer_, warpModeBtnRect_, warpBtnEdge);
@@ -3245,6 +3251,7 @@
         drawCenteredText(controlRenderer_, fontSmall_, "RESET", warpBtnInk, warpResetBtnRect_);
         bx += 60;
 
+        if (!wt.pin) {
         warpSaveBtnRect_ = {bx, toolY, 50, toolH};
         Primitives::fillRect(controlRenderer_, warpSaveBtnRect_, warpBtnFill);
         Primitives::strokeRect(controlRenderer_, warpSaveBtnRect_, warpBtnEdge);
@@ -3272,6 +3279,11 @@
           drawCenteredText(controlRenderer_, fontSmall_, recallLabel, warpBtnInk, warpRecallBtnRect_);
         } else {
           warpRecallBtnRect_ = {};
+        }
+        } else {
+          // Presets, copy and paste hold the OUTPUT's warp; while a pin is
+          // the target they would act on something the handles are not showing.
+          warpSaveBtnRect_ = warpCopyBtnRect_ = warpPasteBtnRect_ = warpRecallBtnRect_ = {};
         }
 
         // Shift hint on the right side

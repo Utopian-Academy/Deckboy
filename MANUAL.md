@@ -1134,6 +1134,40 @@ Applied per output (not per cue):
   to a grid). Copy/paste warp with `Ctrl+Shift+C` / `Ctrl+Shift+V`.
 - **Edge blend** — feather each edge for projector soft-edge blending.
 
+### Mapping a layer onto a surface
+
+The output's warp lines a projector up with its screen. A **layer's pin** puts
+one playlist onto a surface *within* that screen — a flat, a box, a tilted
+board — which is what mapping several objects from one projector means. The two
+compose: the layer is pinned first, then the output's correction goes over the
+whole picture.
+
+Focus a playlist that is a layer on the output and press **WARP** on the
+programme monitor: the four handles are that layer's corners, sitting on its
+picture wherever the cue's own size and offset put it. Drag them onto the
+surface; the first drag switches the pin on. The toolbar's **EDIT** button
+switches the handles between that layer and the output's own warp, and
+**RESET** takes the pin off.
+
+**PERSP / LINEAR** sets how the picture fills the quad. **Perspective** keeps
+a flat surface's straight lines straight and its far end properly smaller,
+which is what a real board looks like from the projector. **Linear** fills it
+as two flat triangles, which folds along the diagonal on a steep surface. A new
+pin starts in perspective; a show saved before the choice existed opens in
+linear, which is what it drew.
+
+Over the control port, with the layer's playlist focused:
+
+```
+VIDEO OUTPUT LAYERWARP 0.08 0.30 -0.04 0.04 -0.04 -0.04 0.08 -0.30
+VIDEO OUTPUT LAYERWARP MODE perspective
+VIDEO OUTPUT LAYERWARP OFF
+```
+
+The eight numbers are offsets from each corner, clockwise from the top left, as
+fractions of the layer's picture — so a pin still fits after the layer is moved
+or resized.
+
 Per-*cue* geometry (scale/crop/rotation/offset/keying/colour) lives in the cue
 inspector instead (§7).
 

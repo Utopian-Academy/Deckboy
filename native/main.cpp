@@ -10105,6 +10105,10 @@ class App {
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
+  // What the warp editor's handles move: the OUTPUT's warp, or -- when the
+  // focused deck is a layer on the focused output -- that layer's corner pin.
+  bool warpEditLayer_ = false;
+  SDL_Rect warpTargetBtnRect_ {};
   // Where the program monitor's chrome ends at the top and begins again at
   // the bottom, measured from the badge and the caption as they are laid
   // out. The picture goes between them. Members rather than locals because

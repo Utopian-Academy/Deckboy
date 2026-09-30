@@ -356,28 +356,17 @@
     return deckboy::effects::lfoApply(lfo, base, lfoSeconds_, lfoBeats_, reactiveAudioLevel_);
   }
 
-  void renderTextureWithCueGeometry(SDL_Renderer* renderer,
-                                    SDL_Texture* texture,
-                                    int textureWidth,
-                                    int textureHeight,
-                                    const Cue* cue,
-                                    const SDL_Rect& target,
-                                    // The caller's blend mode. Defaulted, so
-                                    // every existing call site is unchanged --
-                                    // but no longer forced, because this
-                                    // function used to overwrite whatever the
-                                    // caller had just set and that silently
-                                    // discarded the VJ mixer's add and
-                                    // multiply while dissolve appeared to work.
-                                    SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND,
-                                    // The LAYER's own corner pin, when it has
-                                    // one. Null for every caller that is not
-                                    // compositing a mapped layer, which is
-                                    // all of them but one.
-                                    const OutputLayer* layerWarp = nullptr) {
-    if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
-      return;
-    }
+  // WHERE A CUE'S PICTURE LANDS inside a target: the crop, the scale mode, the
+  // cue's size, offset and rotation, and the geometry oscillators. One function,
+  // because the compositor draws with it and the corner-pin editor puts its
+  // handles with it -- two copies would put the handles where the picture is not.
+  struct CuePlacement {
+    SDL_Rect source {};
+    SDL_Rect destination {};
+    float rotationDegrees = 0.0f;
+  };
+  CuePlacement cuePlacementFor(const Cue* cue, int textureWidth, int textureHeight,
+                               const SDL_Rect& target) const {
     float cropLeft = cue ? cue->cropLeft : 0.0f;
     float cropRight = cue ? cue->cropRight : 0.0f;
     float cropTop = cue ? cue->cropTop : 0.0f;
@@ -400,7 +389,7 @@
     int cropB = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureHeight) * cropBottom)), 0, textureHeight - 1);
     int srcW = std::max(1, textureWidth - cropL - cropR);
     int srcH = std::max(1, textureHeight - cropT - cropB);
-    SDL_Rect source {cropL, cropT, srcW, srcH};
+    const SDL_Rect source {cropL, cropT, srcW, srcH};
     ScaleMode scaleMode = cue ? cue->scaleMode : ScaleMode::Fit;
     double baseScaleX = 1.0;
     double baseScaleY = 1.0;
@@ -451,6 +440,35 @@
       drawW,
       drawH
     };
+    return CuePlacement {source, destination, rotationDegrees};
+  }
+
+  void renderTextureWithCueGeometry(SDL_Renderer* renderer,
+                                    SDL_Texture* texture,
+                                    int textureWidth,
+                                    int textureHeight,
+                                    const Cue* cue,
+                                    const SDL_Rect& target,
+                                    // The caller's blend mode. Defaulted, so
+                                    // every existing call site is unchanged --
+                                    // but no longer forced, because this
+                                    // function used to overwrite whatever the
+                                    // caller had just set and that silently
+                                    // discarded the VJ mixer's add and
+                                    // multiply while dissolve appeared to work.
+                                    SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND,
+                                    // The LAYER's own corner pin, when it has
+                                    // one. Null for every caller that is not
+                                    // compositing a mapped layer, which is
+                                    // all of them but one.
+                                    const OutputLayer* layerWarp = nullptr) {
+    if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
+      return;
+    }
+    const CuePlacement placed = cuePlacementFor(cue, textureWidth, textureHeight, target);
+    const SDL_Rect& source = placed.source;
+    const SDL_Rect& destination = placed.destination;
+    const float rotationDegrees = placed.rotationDegrees;
     SDL_SetTextureBlendMode(texture, blendMode);
     // Clip to target so Fill/Unscaled modes don't overflow into other UI elements
     SDL_Rect prevClip;
@@ -519,6 +537,19 @@
         {p2, kOpaque, SDL_FPoint {u1, v1}},
         {p3, kOpaque, SDL_FPoint {u0, v1}},
       };
+      // PERSPECTIVE: the output warp's projective mesh, fed this layer's quad.
+      // No edge blend on a layer, so the deck it would read blends from is
+      // never looked at.
+      if (layerWarp->warpPerspective) {
+        static const Deck kNoBlend {};
+        if (renderPerspectiveWarp(renderer, texture, kNoBlend,
+                                  SDL_FPoint {u0, v0}, SDL_FPoint {u1, v0},
+                                  SDL_FPoint {u1, v1}, SDL_FPoint {u0, v1},
+                                  p0, p1, p2, p3, false)) {
+          SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);
+          return;
+        }
+      }
       const int indices[6] {0, 1, 2, 0, 2, 3};
       if (SDL_RenderGeometry(renderer, texture, verts, 4, indices, 6)) {
         SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);

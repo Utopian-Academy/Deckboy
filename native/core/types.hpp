@@ -1205,6 +1205,13 @@ struct OutputLayer {
   float warpBottomRightY = 0.0f;
   float warpBottomLeftX = 0.0f;
   float warpBottomLeftY = 0.0f;
+  // PERSPECTIVE keeps a flat surface's straight lines straight: the picture is
+  // drawn through the projective mesh the output's warp uses. LINEAR is two
+  // flat triangles, which folds along the diagonal on a steep surface. A NEW
+  // pin arrives perspective, because a flat board is what people pin to; a show
+  // saved before the choice existed loads linear (see parseLayerList), which
+  // is what it drew.
+  bool warpPerspective = true;
 };
 
 struct AudioCrosspoint {

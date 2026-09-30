@@ -783,8 +783,13 @@
       // THE OUTPUT, not the deck. Warp belongs to the screen the picture
       // lands on; Deck still carries the old fields for migration and
       // nothing renders them.
-      const OutputTarget& wd = focusedOutput();
-      if (!wd.warpEnabled) {
+      // A LAYER opens onto its own pin: that is what someone mapping a layer
+      // is reaching for, and arming the whole output's warp would not be.
+      if (!warpEditMode_ && focusedLayerPin()) {
+        warpEditLayer_ = true;
+        warpEditMode_ = true;
+      } else if (!warpEditMode_ && !focusedOutput().warpEnabled) {
+        warpEditLayer_ = false;
         setFocusedDeckWarpEnabled(true);
         warpEditMode_ = true;
       } else {
@@ -793,20 +798,38 @@
       playUiSound(UiSoundEffect::Toggle);
       return;
     }
+    if (warpTargetBtnRect_.w > 0 && pointInRect(x, y, warpTargetBtnRect_)) {
+      warpEditLayer_ = !warpEditLayer_;
+      if (!warpEditLayer_ && !focusedOutput().warpEnabled) {
+        setFocusedDeckWarpEnabled(true);   // the output's handles need its warp armed
+      }
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
     if (warpModeBtnRect_.w > 0 && pointInRect(x, y, warpModeBtnRect_)) {
-      cycleFocusedDeckWarpMode(1);
+      if (OutputLayer* pin = warpEditLayer_ ? focusedLayerPin() : nullptr) {
+        pushUndoSnapshot();
+        pin->warpPerspective = !pin->warpPerspective;
+        markProjectDirty();
+        triggerToast(std::string("pin: ") + (pin->warpPerspective ? "perspective" : "linear"));
+      } else {
+        cycleFocusedDeckWarpMode(1);
+      }
       playUiSound(UiSoundEffect::Toggle);
       return;
     }
     if (warpResetBtnRect_.w > 0 && pointInRect(x, y, warpResetBtnRect_)) {
       pushUndoSnapshot();
-      OutputTarget& wd = focusedOutputMutable();
-      wd.warpTopLeftX = wd.warpTopLeftY = 0.0f;
-      wd.warpTopRightX = wd.warpTopRightY = 0.0f;
-      wd.warpBottomRightX = wd.warpBottomRightY = 0.0f;
-      wd.warpBottomLeftX = wd.warpBottomLeftY = 0.0f;
+      const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
+      for (int i = 0; i < 4; ++i) {
+        *wt.x[i] = 0.0f;
+        *wt.y[i] = 0.0f;
+      }
+      if (wt.pin) {
+        wt.pin->warpEnabled = false;
+      }
       markProjectDirty();
-      triggerToast("warp reset");
+      triggerToast(wt.pin ? "pin reset" : "warp reset");
       playUiSound(UiSoundEffect::Clear);
       return;
     }
@@ -858,30 +881,13 @@
       return;
     }
     // Warp corner drag start
-    if (warpEditMode_ && focusedOutput().warpEnabled && warpMonitorInner_.w > 0) {
-      const OutputTarget& wd = focusedOutput();
-      SDL_Rect mi = warpMonitorInner_;
-      int focOutIdx = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
-      auto [outW, outH] = outputRenderSizeForOutput(focOutIdx);
-      float sx = static_cast<float>(mi.w) / std::max(1.0f, static_cast<float>(outW));
-      float sy = static_cast<float>(mi.h) / std::max(1.0f, static_cast<float>(outH));
-      float cornersX[4] = {
-        static_cast<float>(mi.x) + wd.warpTopLeftX * sx,
-        static_cast<float>(mi.x + mi.w) + wd.warpTopRightX * sx,
-        static_cast<float>(mi.x + mi.w) + wd.warpBottomRightX * sx,
-        static_cast<float>(mi.x) + wd.warpBottomLeftX * sx,
-      };
-      float cornersY[4] = {
-        static_cast<float>(mi.y) + wd.warpTopLeftY * sy,
-        static_cast<float>(mi.y) + wd.warpTopRightY * sy,
-        static_cast<float>(mi.y + mi.h) + wd.warpBottomRightY * sy,
-        static_cast<float>(mi.y + mi.h) + wd.warpBottomLeftY * sy,
-      };
-      constexpr int kGrabR = 14;
+    if (warpEditorVisible() && warpMonitorInner_.w > 0) {
+      const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
+      const int grabR = uiScaled(14);
       for (int i = 0; i < 4; ++i) {
-        int dx = x - static_cast<int>(cornersX[i]);
-        int dy = y - static_cast<int>(cornersY[i]);
-        if (dx * dx + dy * dy <= kGrabR * kGrabR) {
+        int dx = x - static_cast<int>(wt.baseX[i] + *wt.x[i] * wt.unitX);
+        int dy = y - static_cast<int>(wt.baseY[i] + *wt.y[i] * wt.unitY);
+        if (dx * dx + dy * dy <= grabR * grabR) {
           warpDragCorner_ = i;
           return;
         }
@@ -1315,38 +1321,27 @@
       return;
     }
     // Warp corner dragging — convert mouse delta in monitor-space to output-pixel warp offsets
-    if (warpDragCorner_ >= 0 && warpEditMode_ && warpMonitorInner_.w > 0) {
-      OutputTarget& wd = focusedOutputMutable();
-      SDL_Rect mi = warpMonitorInner_;
-      int focOutIdx = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
-      auto [outW, outH] = outputRenderSizeForOutput(focOutIdx);
-      float sx = static_cast<float>(mi.w) / std::max(1.0f, static_cast<float>(outW));
-      float sy = static_cast<float>(mi.h) / std::max(1.0f, static_cast<float>(outH));
-      // Compute where the corner *should* be (its base position in monitor-space)
-      float baseX = 0.0f, baseY = 0.0f;
-      float* warpX = nullptr;
-      float* warpY = nullptr;
-      switch (warpDragCorner_) {
-        case 0: baseX = static_cast<float>(mi.x);        baseY = static_cast<float>(mi.y);        warpX = &wd.warpTopLeftX;     warpY = &wd.warpTopLeftY;     break;
-        case 1: baseX = static_cast<float>(mi.x + mi.w); baseY = static_cast<float>(mi.y);        warpX = &wd.warpTopRightX;    warpY = &wd.warpTopRightY;    break;
-        case 2: baseX = static_cast<float>(mi.x + mi.w); baseY = static_cast<float>(mi.y + mi.h); warpX = &wd.warpBottomRightX; warpY = &wd.warpBottomRightY; break;
-        case 3: baseX = static_cast<float>(mi.x);        baseY = static_cast<float>(mi.y + mi.h); warpX = &wd.warpBottomLeftX;  warpY = &wd.warpBottomLeftY;  break;
-        default: break;
+    if (warpDragCorner_ >= 0 && warpDragCorner_ < 4 && warpEditMode_ && warpMonitorInner_.w > 0) {
+      // Monitor position back to the target's own units: output pixels for
+      // the output's warp, fractions of the picture for a layer's pin.
+      const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
+      const int c = warpDragCorner_;
+      float newX = (static_cast<float>(x) - wt.baseX[c]) / std::max(1.0e-3f, wt.unitX);
+      float newY = (static_cast<float>(y) - wt.baseY[c]) / std::max(1.0e-3f, wt.unitY);
+      if (SDL_GetModState() & SDL_KMOD_SHIFT) {   // snap: 10 px, or 1% of a layer
+        newX = std::round(newX / wt.snap) * wt.snap;
+        newY = std::round(newY / wt.snap) * wt.snap;
       }
-      if (warpX && warpY) {
-        float newX = (static_cast<float>(x) - baseX) / sx;
-        float newY = (static_cast<float>(y) - baseY) / sy;
-        // Snap to grid when Shift is held (10px grid in output space)
-        SDL_Keymod mod = SDL_GetModState();
-        if (mod & SDL_KMOD_SHIFT) {
-          constexpr float kSnapGrid = 10.0f;
-          newX = std::round(newX / kSnapGrid) * kSnapGrid;
-          newY = std::round(newY / kSnapGrid) * kSnapGrid;
-        }
-        *warpX = newX;
-        *warpY = newY;
-        markProjectDirty();
+      if (wt.pin) {
+        // The same bound the network verb keeps: past it the quad turns
+        // inside out or leaves the raster.
+        newX = std::clamp(newX, -2.0f, 2.0f);
+        newY = std::clamp(newY, -2.0f, 2.0f);
+        wt.pin->warpEnabled = true;             // the first drag arms the pin
       }
+      *wt.x[c] = newX;
+      *wt.y[c] = newY;
+      markProjectDirty();
       return;
     }
     // Trim handle dragging

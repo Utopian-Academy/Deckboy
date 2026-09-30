@@ -6758,6 +6758,97 @@
     markProjectDirty();
   }
 
+  // ── THE WARP EDITOR'S TARGET ──────────────────────────────────────────
+  //
+  // The editor draws four handles and moves four corners; this says WHICH
+  // four, and how a stored value turns into a place on the monitor. The
+  // output's warp is in output pixels from the raster's own corners. A
+  // layer's pin is in fractions of where that layer's picture lands, which
+  // is cuePlacementFor -- the function the compositor draws it with, so the
+  // handles sit on the picture, not on where it would be if it filled the frame.
+  OutputLayer* focusedLayerPin() {
+    if (project_.outputs.empty()) {
+      return nullptr;
+    }
+    for (OutputLayer& layer : focusedOutputMutable().layerDecks) {
+      if (layer.deckIndex == project_.focusedDeckIndex) {
+        return &layer;
+      }
+    }
+    return nullptr;
+  }
+
+  struct WarpEditTarget {
+    OutputLayer* pin = nullptr;       // null: the output's own warp
+    float* x[4] {};
+    float* y[4] {};
+    float baseX[4] {};                // monitor-space corners of the unwarped rect
+    float baseY[4] {};
+    float unitX = 1.0f;               // monitor pixels per stored unit
+    float unitY = 1.0f;
+    float snap = 10.0f;               // Shift-drag grid, in stored units
+  };
+
+  WarpEditTarget warpEditTarget(const SDL_Rect& mi) {
+    WarpEditTarget t;
+    const int focOutIdx = std::clamp(project_.focusedOutputIndex, 0,
+                                     std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+    auto [outW, outH] = outputRenderSizeForOutput(focOutIdx);
+    const float sx = static_cast<float>(mi.w) / std::max(1.0f, static_cast<float>(outW));
+    const float sy = static_cast<float>(mi.h) / std::max(1.0f, static_cast<float>(outH));
+    OutputLayer* pin = warpEditLayer_ ? focusedLayerPin() : nullptr;
+    SDL_FRect rect {static_cast<float>(mi.x), static_cast<float>(mi.y),
+                    static_cast<float>(mi.w), static_cast<float>(mi.h)};
+    if (pin) {
+      t.pin = pin;
+      const Cue* cue = activeCuePtr(pin->deckIndex);
+      int frameW = outW, frameH = outH;
+      if (DeckRuntime* rt = runtimeForDeck(pin->deckIndex); rt && rt->mediaEngine) {
+        if (const DecodedFrame* f = rt->mediaEngine->currentFrame(); f && f->width > 0 && f->height > 0) {
+          frameW = f->width;
+          frameH = f->height;
+        }
+      }
+      const SDL_Rect dest = cuePlacementFor(cue, frameW, frameH, SDL_Rect {0, 0, outW, outH}).destination;
+      rect = SDL_FRect {mi.x + dest.x * sx, mi.y + dest.y * sy, dest.w * sx, dest.h * sy};
+      t.unitX = rect.w;
+      t.unitY = rect.h;
+      t.snap = 0.01f;
+      t.x[0] = &pin->warpTopLeftX;     t.y[0] = &pin->warpTopLeftY;
+      t.x[1] = &pin->warpTopRightX;    t.y[1] = &pin->warpTopRightY;
+      t.x[2] = &pin->warpBottomRightX; t.y[2] = &pin->warpBottomRightY;
+      t.x[3] = &pin->warpBottomLeftX;  t.y[3] = &pin->warpBottomLeftY;
+    } else {
+      OutputTarget& out = focusedOutputMutable();
+      t.unitX = sx;
+      t.unitY = sy;
+      t.x[0] = &out.warpTopLeftX;     t.y[0] = &out.warpTopLeftY;
+      t.x[1] = &out.warpTopRightX;    t.y[1] = &out.warpTopRightY;
+      t.x[2] = &out.warpBottomRightX; t.y[2] = &out.warpBottomRightY;
+      t.x[3] = &out.warpBottomLeftX;  t.y[3] = &out.warpBottomLeftY;
+    }
+    const float xs[4] = {rect.x, rect.x + rect.w, rect.x + rect.w, rect.x};
+    const float ys[4] = {rect.y, rect.y, rect.y + rect.h, rect.y + rect.h};
+    for (int i = 0; i < 4; ++i) {
+      t.baseX[i] = xs[i];
+      t.baseY[i] = ys[i];
+    }
+    return t;
+  }
+
+  // Whether the editor has anything to show: an armed output warp, or a pin
+  // target that exists (a pin with no warp yet is still editable -- the first
+  // drag arms it).
+  bool warpEditorVisible() {
+    if (!warpEditMode_) {
+      return false;
+    }
+    if (warpEditLayer_ && focusedLayerPin()) {
+      return true;
+    }
+    return !project_.outputs.empty() && focusedOutput().warpEnabled;
+  }
+
   void setFocusedDeckEdgeBlend(const std::string& edgeToken, float value) {
     OutputTarget& deck = focusedOutputMutable();
     float v = std::clamp(value, 0.0f, 0.49f);

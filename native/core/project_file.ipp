@@ -46,7 +46,8 @@ inline std::string joinLayerList(const std::vector<OutputLayer>& layers) {
           << ':' << l.warpTopLeftX     << ':' << l.warpTopLeftY
           << ':' << l.warpTopRightX    << ':' << l.warpTopRightY
           << ':' << l.warpBottomRightX << ':' << l.warpBottomRightY
-          << ':' << l.warpBottomLeftX  << ':' << l.warpBottomLeftY;
+          << ':' << l.warpBottomLeftX  << ':' << l.warpBottomLeftY
+          << ':' << (l.warpPerspective ? 1 : 0);
     }
   }
   return out.str();
@@ -103,6 +104,8 @@ inline std::vector<OutputLayer> parseLayerList(const std::string& text) {
     layer.warpBottomRightY = readF(12, 0.0f);
     layer.warpBottomLeftX  = readF(13, 0.0f);
     layer.warpBottomLeftY  = readF(14, 0.0f);
+    // Missing in every pin saved before the choice: those drew linear.
+    layer.warpPerspective = readF(15, 0.0f) != 0.0f;
     out.push_back(layer);
   }
   return out;

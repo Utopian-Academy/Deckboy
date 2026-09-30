@@ -6178,7 +6178,8 @@
               report << " " << layer->warpTopLeftX << "," << layer->warpTopLeftY
                      << " " << layer->warpTopRightX << "," << layer->warpTopRightY
                      << " " << layer->warpBottomRightX << "," << layer->warpBottomRightY
-                     << " " << layer->warpBottomLeftX << "," << layer->warpBottomLeftY;
+                     << " " << layer->warpBottomLeftX << "," << layer->warpBottomLeftY
+                     << (layer->warpPerspective ? " perspective" : " linear");
             }
             remoteCommandDetail_ = report.str();
             return;
@@ -6194,8 +6195,28 @@
             remoteCommandDetail_ = "off";
             return;
           }
+          // VIDEO OUTPUT LAYERWARP MODE linear|perspective -- how the pinned
+          // picture is drawn between its corners. Kept when the pin is off,
+          // so it is already right the next time the pin goes on.
+          if (mode == "MODE") {
+            const std::string how = parts.size() > 4 ? toUpper(parts[4]) : std::string();
+            if (how == "PERSPECTIVE" || how == "PERSP" || how == "PROJECTIVE") {
+              layer->warpPerspective = true;
+            } else if (how == "LINEAR") {
+              layer->warpPerspective = false;
+            } else if (how.empty()) {
+              remoteCommandDetail_ = layer->warpPerspective ? "perspective" : "linear";
+              return;
+            } else {
+              failRemoteCommand("VIDEO OUTPUT LAYERWARP MODE: linear or perspective");
+              return;
+            }
+            markProjectDirty();
+            remoteCommandDetail_ = layer->warpPerspective ? "perspective" : "linear";
+            return;
+          }
           if (parts.size() < 11) {
-            failRemoteCommand("VIDEO OUTPUT LAYERWARP: expected OFF, or eight "
+            failRemoteCommand("VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight "
                               "numbers clockwise from the top left");
             return;
           }
