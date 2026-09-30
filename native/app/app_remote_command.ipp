@@ -2220,18 +2220,28 @@
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
 
       if (sub == "NEW") {
-        Cue cue;
-        cue.kind = CueKind::Master;
-        // No id set here: normalizeProject assigns one to any cue that lacks
-        // it and dedupes the result, which is how every other cue-creating
-        // path does it.
-        cue.name = "Master " + std::to_string(deck.cues.size() + 1);
-        deck.cues.push_back(cue);
-        deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
-        deck.isMasterDeck = true;   // a deck that holds masters IS the master deck
-        onSelectionChanged();
-        markProjectDirty();
-        remoteCommandDetail_ = "master cue " + std::to_string(deck.cues.size());
+        // THIS USED TO DUPLICATE addMasterCue()'s BODY INLINE, unconditionally
+        // onto project_.focusedDeckIndex -- the exact two-definitions-of-one-
+        // function trap this codebase keeps getting caught by (see CLAUDE.md,
+        // "Two definitions of one function"). QuickAction::TrackerAddStep
+        // (app_quick_action.ipp) already knows better: once a sequence
+        // exists, "add a step" means extending THAT sequence, on whichever
+        // deck it already lives on, not wherever focus happens to be sitting.
+        // A Companion button or script sending MASTER NEW while focus was on
+        // a different deck scattered the tracker across two decks instead of
+        // adding to it -- reported as a stray master cue appearing in a deck
+        // that was not the one holding the sequence. Same retarget, same
+        // real function, now.
+        const auto rows = masterTrackerRows();
+        if (rows.empty()) {
+          addMasterCue();
+        } else {
+          const int savedFocus = project_.focusedDeckIndex;
+          project_.focusedDeckIndex = rows.back().first;
+          addMasterCue();
+          project_.focusedDeckIndex = savedFocus;
+        }
+        remoteCommandDetail_ = "master cue " + std::to_string(masterTrackerRows().size());
         return;
       }
 
