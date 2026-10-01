@@ -1598,6 +1598,25 @@
   // show sending GOs to the wrong desk.
   bool ensureMidiOutPort(const std::string& requested, std::string& reasonOut) {
     const std::string want = trim(requested);
+    // A PORT THAT WILL NOT OPEN IS NOT RETRIED EVERY FRAME. A MIDI file cue
+    // asks for its port on every tick, and a port that exists but refuses to
+    // open (another program holding it) fails slowly -- so the interface
+    // stalled for as long as the cue ran. One retry every two seconds still
+    // picks the port up as soon as it is free.
+    const Uint64 nowMs = SDL_GetTicks();
+    if (!midiOut_.isOpen() && midiOutHasFailed_ && midiOutFailedKey_ == want &&
+        nowMs - midiOutFailedAtMs_ < 2000) {
+      reasonOut = midiOutFailedReason_;
+      return false;
+    }
+    auto failed = [&](const std::string& reason) {
+      midiOutHasFailed_ = true;
+      midiOutFailedKey_ = want;
+      midiOutFailedAtMs_ = nowMs;
+      midiOutFailedReason_ = reason;
+      reasonOut = reason;
+      return false;
+    };
     if (want.empty()) {
       // No port named: use the first one there is, which is what a rig with a
       // single interface wants and never has to configure.
@@ -1611,19 +1630,19 @@
       }
       midiOutPortRequested_.clear();
       if (!midiOut_.open(ports.front().id)) {
-        reasonOut = "could not open " + ports.front().name;
-        return false;
+        return failed("could not open " + ports.front().name);
       }
+      midiOutHasFailed_ = false;
       return true;
     }
     if (midiOut_.isOpen() && midiOutPortRequested_ == want) {
       return true;
     }
     if (!midiOut_.openByName(want)) {
-      reasonOut = "MIDI port not found: " + want;
       midiOutPortRequested_.clear();
-      return false;
+      return failed("MIDI port not found: " + want);
     }
+    midiOutHasFailed_ = false;
     midiOutPortRequested_ = want;
     return true;
   }

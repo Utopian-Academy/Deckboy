@@ -11,6 +11,10 @@ from an .m3u playlist carry their sound too.
 continue "from end" now takes the next cue when it finishes, whether or not it
 holds its picture -- holding is the default, so this is most cues.
 
+**A MIDI file cue keeps the desk smooth when its port is busy.** If another
+program is holding the MIDI port, Deckboy tries it again every couple of
+seconds instead of continuously, and picks it up as soon as it is free.
+
 **NDI sources by their full name, quoted or not.** `NDICUE "WINDY (Graphics PC)"`
 and `NDICUE WINDY (Graphics PC)` both find the sender, and the same goes for
 every source verb that takes a name.

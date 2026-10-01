@@ -9026,6 +9026,11 @@ class App {
   // milliseconds and can fail; doing it once per GO would put that on the show
   // rather than on the first cue.
   deckboy::platform::midi::MidiOutput midiOut_;
+  // The last port that would not open, and when -- see ensureMidiOutPort.
+  bool midiOutHasFailed_ = false;
+  std::string midiOutFailedKey_;
+  Uint64 midiOutFailedAtMs_ = 0;
+  std::string midiOutFailedReason_;
   std::string midiOutPortRequested_;
   // Results from TCP network cues, which run off the main thread. Drained once
   // a tick in the update loop -- the same shape as sdlDialogActions_, and for
