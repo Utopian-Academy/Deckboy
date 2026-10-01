@@ -367,6 +367,155 @@
     return true;
   }
 
+  // ---------------------------------------------------------------------------
+  // GRID WARP -- the corner pin, refined.
+  //
+  // The corners place the picture; a grid of points across it each carries a
+  // nudge (output pixels) from where the corner pin alone would put it. The
+  // nudge between points is interpolated -- Catmull-Rom when smooth, which
+  // passes exactly THROUGH every point dragged, so the curve goes where it was
+  // put; bilinear when straight, for hard folds over an edge.
+  // ---------------------------------------------------------------------------
+  static bool warpGridActive(const OutputTarget& out) {
+    return out.warpGridCols >= 2 && out.warpGridRows >= 2 &&
+           out.warpGridOffsets.size() ==
+             static_cast<std::size_t>(out.warpGridCols * out.warpGridRows * 2);
+  }
+
+  static SDL_FPoint warpGridPoint(const OutputTarget& out, int col, int row) {
+    col = std::clamp(col, 0, out.warpGridCols - 1);
+    row = std::clamp(row, 0, out.warpGridRows - 1);
+    const std::size_t i = static_cast<std::size_t>(row * out.warpGridCols + col) * 2;
+    return SDL_FPoint {out.warpGridOffsets[i], out.warpGridOffsets[i + 1]};
+  }
+
+  // The nudge at (s, t), each 0..1 across the corner-pinned quad.
+  static SDL_FPoint warpGridOffsetAt(const OutputTarget& out, float s, float t) {
+    if (!warpGridActive(out)) {
+      return SDL_FPoint {0.0f, 0.0f};
+    }
+    const float gx = std::clamp(s, 0.0f, 1.0f) * static_cast<float>(out.warpGridCols - 1);
+    const float gy = std::clamp(t, 0.0f, 1.0f) * static_cast<float>(out.warpGridRows - 1);
+    const int c = std::min(static_cast<int>(gx), out.warpGridCols - 2);
+    const int r = std::min(static_cast<int>(gy), out.warpGridRows - 2);
+    const float fx = gx - static_cast<float>(c);
+    const float fy = gy - static_cast<float>(r);
+    if (!out.warpGridSmooth) {
+      const SDL_FPoint a = warpGridPoint(out, c, r), b = warpGridPoint(out, c + 1, r);
+      const SDL_FPoint d = warpGridPoint(out, c, r + 1), e = warpGridPoint(out, c + 1, r + 1);
+      return SDL_FPoint {
+        (a.x * (1 - fx) + b.x * fx) * (1 - fy) + (d.x * (1 - fx) + e.x * fx) * fy,
+        (a.y * (1 - fx) + b.y * fx) * (1 - fy) + (d.y * (1 - fx) + e.y * fx) * fy};
+    }
+    // Catmull-Rom weights; indices outside the grid clamp to its edge.
+    auto weights = [](float f, float w[4]) {
+      const float f2 = f * f, f3 = f2 * f;
+      w[0] = 0.5f * (-f3 + 2.0f * f2 - f);
+      w[1] = 0.5f * (3.0f * f3 - 5.0f * f2 + 2.0f);
+      w[2] = 0.5f * (-3.0f * f3 + 4.0f * f2 + f);
+      w[3] = 0.5f * (f3 - f2);
+    };
+    float wx[4], wy[4];
+    weights(fx, wx);
+    weights(fy, wy);
+    SDL_FPoint sum {0.0f, 0.0f};
+    for (int j = 0; j < 4; ++j) {
+      for (int i = 0; i < 4; ++i) {
+        const SDL_FPoint p = warpGridPoint(out, c - 1 + i, r - 1 + j);
+        sum.x += wx[i] * wy[j] * p.x;
+        sum.y += wx[i] * wy[j] * p.y;
+      }
+    }
+    return sum;
+  }
+
+  // Change the grid's density, keeping its shape: each new point takes the
+  // nudge the old grid had at that spot. Going 3x3 -> 5x5 must not throw an
+  // alignment away. 0 (or anything under 2) turns the grid off.
+  static void resizeWarpGrid(OutputTarget& out, int cols, int rows) {
+    std::vector<float> next;
+    if (cols >= 2 && rows >= 2) {
+      next.resize(static_cast<std::size_t>(cols * rows * 2), 0.0f);
+      for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+          const SDL_FPoint o = warpGridOffsetAt(
+            out, static_cast<float>(c) / static_cast<float>(cols - 1),
+            static_cast<float>(r) / static_cast<float>(rows - 1));
+          const std::size_t i = static_cast<std::size_t>(r * cols + c) * 2;
+          const bool corner = (c == 0 || c == cols - 1) && (r == 0 || r == rows - 1);
+          next[i] = corner ? 0.0f : o.x;
+          next[i + 1] = corner ? 0.0f : o.y;
+        }
+      }
+    } else {
+      cols = rows = 0;
+    }
+    out.warpGridCols = cols;
+    out.warpGridRows = rows;
+    out.warpGridOffsets = std::move(next);
+  }
+
+  // The corner pin's mesh with every vertex nudged by the grid. The texture
+  // coordinate comes from the UN-nudged point, so a perspective pin keeps its
+  // projective correction and the grid bends the result rather than fighting it.
+  static bool renderGridWarp(SDL_Renderer* renderer, SDL_Texture* texture, const Deck& deck,
+                             const OutputTarget& out, bool perspective,
+                             const SDL_FPoint& uvTL, const SDL_FPoint& uvTR,
+                             const SDL_FPoint& uvBR, const SDL_FPoint& uvBL,
+                             const SDL_FPoint& p0, const SDL_FPoint& p1,
+                             const SDL_FPoint& p2, const SDL_FPoint& p3, bool hasBlend) {
+    if (!renderer || !texture || !warpGridActive(out)) {
+      return false;
+    }
+    std::array<double, 8> coeffs {};
+    const bool projective = perspective &&
+      computeProjectiveUvCoefficients(p0, p1, p2, p3, uvTL, uvTR, uvBR, uvBL, coeffs);
+    // Fine enough that a 9x9 smooth grid still reads as a curve.
+    const int cols = std::max(24, (out.warpGridCols - 1) * 8);
+    const int rows = std::max(24, (out.warpGridRows - 1) * 8);
+    const float minU = std::min(std::min(uvTL.x, uvTR.x), std::min(uvBR.x, uvBL.x));
+    const float maxU = std::max(std::max(uvTL.x, uvTR.x), std::max(uvBR.x, uvBL.x));
+    const float minV = std::min(std::min(uvTL.y, uvTR.y), std::min(uvBR.y, uvBL.y));
+    const float maxV = std::max(std::max(uvTL.y, uvTR.y), std::max(uvBR.y, uvBL.y));
+    std::vector<SDL_Vertex> vertices(static_cast<std::size_t>((cols + 1) * (rows + 1)));
+    std::vector<int> indices;
+    indices.reserve(static_cast<std::size_t>(cols * rows * 6));
+    std::size_t v = 0;
+    for (int row = 0; row <= rows; ++row) {
+      const float t = static_cast<float>(row) / static_cast<float>(rows);
+      for (int col = 0; col <= cols; ++col) {
+        const float s = static_cast<float>(col) / static_cast<float>(cols);
+        const SDL_FPoint base = bilerpPoint(p0, p1, p2, p3, s, t);
+        SDL_FPoint uv = bilerpPoint(uvTL, uvTR, uvBR, uvBL, s, t);
+        if (projective) {
+          const double x = base.x, y = base.y;
+          const double denom = coeffs[6] * x + coeffs[7] * y + 1.0;
+          if (std::abs(denom) > 1.0e-6) {
+            uv.x = static_cast<float>((coeffs[0] * x + coeffs[1] * y + coeffs[2]) / denom);
+            uv.y = static_cast<float>((coeffs[3] * x + coeffs[4] * y + coeffs[5]) / denom);
+          }
+          uv.x = std::clamp(uv.x, minU, maxU);
+          uv.y = std::clamp(uv.y, minV, maxV);
+        }
+        const SDL_FPoint nudge = warpGridOffsetAt(out, s, t);
+        const float alpha = hasBlend
+          ? static_cast<float>(edgeBlendAlphaForUv(deck, s, t)) / 255.0f : 1.0f;
+        vertices[v++] = SDL_Vertex {SDL_FPoint {base.x + nudge.x, base.y + nudge.y},
+                                    SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, uv};
+      }
+    }
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        const int tl = row * (cols + 1) + col, tr = tl + 1;
+        const int bl = tl + cols + 1, br = bl + 1;
+        indices.insert(indices.end(), {tl, tr, br, tl, br, bl});
+      }
+    }
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    return SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
+                              indices.data(), static_cast<int>(indices.size()));
+  }
+
   static bool renderPerspectiveWarp(SDL_Renderer* renderer,
                                     SDL_Texture* texture,
                                     const Deck& deck,

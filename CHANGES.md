@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## Next release
+
+**Grid warp: bend the picture onto a surface that is not flat.** The warp
+toolbar has a **GRID** button -- 3x3 up to 9x9 points across the output. Drag a
+point and the picture bends through it, smoothly for a curved wall or with
+straight lines for a fold over an edge. It sits on top of the corner pin, so an
+alignment you already have carries straight over. Over the network: `WARP GRID
+<n>`, `WARP GRID SMOOTH|STRAIGHT`, `WARP POINT <col> <row> <dx> <dy>`.
+
+**Warp is easy to find.** **WARP** on the programme monitor is a proper button
+at every interface size, **Settings > Video Outputs > Geometry** has a WARP
+section that takes you straight to it, and the editor says what it is moving:
+the whole programme on an output, or one layer's pin.
+
 ## 2026-10-01 - v0.99.397 (perspective layer mapping, levels and curves, and an arcade lower third)
 
 **A way to send a problem report, with nothing hidden.** Settings > About

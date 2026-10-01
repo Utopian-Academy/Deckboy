@@ -6729,6 +6729,84 @@
           setFocusedDeckWarpMode(warpArg);
           return;
         }
+        // WARP GRID                     -> the grid, as "5x5 smooth" or "off"
+        // WARP GRID <n> | <cols> <rows> -> set its size (2-9), keeping its shape
+        // WARP GRID OFF                 -> back to the corner pin alone
+        // WARP GRID SMOOTH | STRAIGHT   -> curve through the points, or not
+        if (warpArg == "GRID") {
+          OutputTarget& out = focusedOutputMutable();
+          auto report = [&]() {
+            remoteCommandDetail_ = warpGridActive(out)
+              ? std::to_string(out.warpGridCols) + "x" + std::to_string(out.warpGridRows) +
+                  (out.warpGridSmooth ? " smooth" : " straight")
+              : std::string("off");
+          };
+          if (parts.size() <= 3) {
+            report();
+            return;
+          }
+          const std::string g = toUpper(parts[3]);
+          if (g == "OFF" || g == "NONE" || g == "0") {
+            resizeWarpGrid(out, 0, 0);
+          } else if (g == "SMOOTH" || g == "STRAIGHT") {
+            out.warpGridSmooth = g == "SMOOTH";
+          } else {
+            int cols = 0, rows = 0;
+            try {
+              cols = std::stoi(parts[3]);
+              rows = parts.size() > 4 ? std::stoi(parts[4]) : cols;
+            } catch (...) {
+              failRemoteCommand("warp grid: expected <n>, <cols> <rows>, off, smooth or straight");
+              return;
+            }
+            if (cols < 2 || cols > 9 || rows < 2 || rows > 9) {
+              failRemoteCommand("warp grid: 2 to 9 points each way");
+              return;
+            }
+            resizeWarpGrid(out, cols, rows);
+            if (!out.warpEnabled) {
+              setFocusedDeckWarpEnabled(true);   // a grid that is not drawn edits nothing
+            }
+          }
+          markProjectDirty();
+          report();
+          return;
+        }
+        // WARP POINT <col> <row> <dx> <dy> -- one grid point's nudge, in output
+        // pixels, counted from 1 at the top left. Corners are the corner pins.
+        if (warpArg == "POINT") {
+          OutputTarget& out = focusedOutputMutable();
+          if (!warpGridActive(out)) {
+            failRemoteCommand("warp point: no grid -- WARP GRID <n> first");
+            return;
+          }
+          if (parts.size() < 7) {
+            failRemoteCommand("warp point: expected <col> <row> <dx> <dy>");
+            return;
+          }
+          try {
+            const int col = std::stoi(parts[3]) - 1;
+            const int row = std::stoi(parts[4]) - 1;
+            const float dx = std::stof(parts[5]);
+            const float dy = std::stof(parts[6]);
+            if (col < 0 || col >= out.warpGridCols || row < 0 || row >= out.warpGridRows) {
+              failRemoteCommand("warp point: no point " + parts[3] + "," + parts[4]);
+              return;
+            }
+            if ((col == 0 || col == out.warpGridCols - 1) && (row == 0 || row == out.warpGridRows - 1)) {
+              failRemoteCommand("warp point: that is a corner -- move it with WARP <corner> dx dy");
+              return;
+            }
+            const std::size_t i = static_cast<std::size_t>(row * out.warpGridCols + col) * 2;
+            out.warpGridOffsets[i] = dx;
+            out.warpGridOffsets[i + 1] = dy;
+          } catch (...) {
+            failRemoteCommand("warp point: expected numbers");
+            return;
+          }
+          markProjectDirty();
+          return;
+        }
         std::string corner = warpArg;
         size_t deltaIndex = 3;
         if ((warpArg == "MOVE" || warpArg == "ADJUST" || warpArg == "SET") && parts.size() > 3) {

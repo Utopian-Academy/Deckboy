@@ -516,6 +516,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       // that has ever been saved.
       << '\t' << (outputTarget.deckLinkKeyFill ? 1 : 0)
       << '\t' << outputTarget.deckLinkKeyDeviceId
+      // Grid warp (field 98), appended at the END: empty for no grid, which
+      // is what every output saved before it reads back as.
+      << '\t' << serializeWarpGrid(outputTarget)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1524,6 +1527,9 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                                   safeBool(fields, 96, false);
                                 outputTarget.deckLinkKeyDeviceId =
                                   safeInt(fields, 97, -1);
+                              }
+                              if (fields.size() >= 99) {
+                                parseWarpGrid(outputTarget, safeString(fields, 98));
                               }
                             }
                           }

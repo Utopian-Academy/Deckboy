@@ -1136,6 +1136,37 @@ Applied per output (not per cue):
   to a grid). Copy/paste warp with `Ctrl+Shift+C` / `Ctrl+Shift+V`.
 - **Edge blend** — feather each edge for projector soft-edge blending.
 
+Press **WARP** on the programme monitor's header to edit, or open **Settings >
+Video Outputs > Geometry > WARP**. A banner across the picture says what the
+handles are moving: the whole programme on this output, or one layer's pin.
+
+### Bending the picture: grid warp
+
+Four corners line a projector up with a flat screen. For a surface that is not
+flat — a curved wall, a column, a cyclorama — press **GRID** in the warp
+toolbar. Each press steps the grid: **3x3**, **4x4**, **5x5**, **7x7**, **9x9**,
+then off. Small square handles appear between the corners; drag any of them and
+the picture bends through that point. The corners are still the corner pins, so
+an alignment you already have carries straight over, and changing the grid's
+size keeps the shape you have made.
+
+**SMOOTH** curves the picture through the points, which is right for a curved
+surface. **STRAIGHT** joins them with straight lines, for a fold over a corner
+or an edge. **RESET** flattens the grid without changing its size. Copy/paste
+and saved warp presets carry the grid with them.
+
+Over the control port, with the output focused:
+
+```
+WARP GRID 5               (or WARP GRID 5 3 for 5 across, 3 down)
+WARP GRID SMOOTH          (or STRAIGHT)
+WARP POINT 3 2 40 -20     (column 3, row 2: 40px right, 20px up)
+WARP GRID OFF
+```
+
+Points are counted from 1 at the top left, and the nudge is in output pixels
+from where the corner pin alone would put that point.
+
 ### Mapping a layer onto a surface
 
 The output's warp lines a projector up with its screen. A **layer's pin** puts

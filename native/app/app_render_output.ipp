@@ -117,6 +117,11 @@
         p3.x += output.warpBottomLeftX;   p3.y += output.warpBottomLeftY;
       }
 
+      if (hasWarp && warpGridActive(output) &&
+          renderGridWarp(runtime->outputRenderer, runtime->compositorTexture, deck, output,
+                         usePerspectiveWarp, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {
+        return;
+      }
       if (usePerspectiveWarp) {
         if (renderPerspectiveWarp(runtime->outputRenderer, runtime->compositorTexture, deck,
                                   uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {

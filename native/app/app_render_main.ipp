@@ -3213,6 +3213,53 @@
           static_cast<int>(corners[i].x), static_cast<int>(corners[i].y),
           static_cast<int>(corners[j].x), static_cast<int>(corners[j].y));
       }
+      // The grid: its lines drawn THROUGH the interpolated bend (several
+      // samples per span, so a smooth grid reads as the curve it is), then a
+      // small handle per point. Corners are the pin handles below.
+      const OutputTarget& gridOut = focusedOutput();
+      if (!wt.pin && warpGridActive(gridOut)) {
+        SDL_FPoint c4[4];
+        for (int i = 0; i < 4; ++i) c4[i] = corners[i];
+        auto at = [&](float s, float t) {
+          SDL_FPoint p = bilerpPoint(c4[0], c4[1], c4[2], c4[3], s, t);
+          const SDL_FPoint n = warpGridOffsetAt(gridOut, s, t);
+          return SDL_FPoint {p.x + n.x * wt.unitX, p.y + n.y * wt.unitY};
+        };
+        SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 0, 110);
+        const int steps = 48;
+        for (int r = 0; r < gridOut.warpGridRows; ++r) {
+          const float t = static_cast<float>(r) / static_cast<float>(gridOut.warpGridRows - 1);
+          SDL_FPoint prev = at(0.0f, t);
+          for (int k = 1; k <= steps; ++k) {
+            const SDL_FPoint p = at(static_cast<float>(k) / steps, t);
+            SDL_RenderLine(controlRenderer_, prev.x, prev.y, p.x, p.y);
+            prev = p;
+          }
+        }
+        for (int c = 0; c < gridOut.warpGridCols; ++c) {
+          const float s = static_cast<float>(c) / static_cast<float>(gridOut.warpGridCols - 1);
+          SDL_FPoint prev = at(s, 0.0f);
+          for (int k = 1; k <= steps; ++k) {
+            const SDL_FPoint p = at(s, static_cast<float>(k) / steps);
+            SDL_RenderLine(controlRenderer_, prev.x, prev.y, p.x, p.y);
+            prev = p;
+          }
+        }
+        const int gh = uiScaled(5);
+        for (int r = 0; r < gridOut.warpGridRows; ++r) {
+          for (int c = 0; c < gridOut.warpGridCols; ++c) {
+            const bool corner = (c == 0 || c == gridOut.warpGridCols - 1) &&
+                                (r == 0 || r == gridOut.warpGridRows - 1);
+            if (corner) continue;
+            const SDL_FPoint p = warpGridPointOnMonitor(wt, gridOut, c, r);
+            const bool dragging = warpDragGridPoint_ == r * gridOut.warpGridCols + c;
+            SDL_Rect h {static_cast<int>(p.x) - gh, static_cast<int>(p.y) - gh, gh * 2, gh * 2};
+            Primitives::fillRect(controlRenderer_, h,
+                                 dragging ? SDL_Color{255, 255, 255, 255} : SDL_Color{255, 220, 0, 230});
+            Primitives::strokeRect(controlRenderer_, h, SDL_Color{0, 0, 0, 200});
+          }
+        }
+      }
       // Draw corner handles
       const int kWarpHandleR = uiScaled(9);   // the grab radius (app_input) is uiScaled(14)
       const char* cornerLabels[] = {"TL", "TR", "BR", "BL"};
@@ -3281,6 +3328,33 @@
         Primitives::strokeRect(controlRenderer_, warpResetBtnRect_, warpBtnEdge);
         drawCenteredText(controlRenderer_, fontSmall_, "RESET", warpBtnInk, warpResetBtnRect_);
         bx += warpResetBtnRect_.w + toolGap;
+
+        // GRID and its curve, for the output's warp. A layer pin is four
+        // corners only for now.
+        warpGridBtnRect_ = {};
+        warpGridSmoothBtnRect_ = {};
+        if (!wt.pin) {
+          const OutputTarget& go = focusedOutput();
+          const bool gridOn = warpGridActive(go);
+          const std::string gridLabel = gridOn
+            ? "GRID " + std::to_string(go.warpGridCols) + "x" + std::to_string(go.warpGridRows)
+            : std::string("GRID OFF");
+          warpGridBtnRect_ = {bx, toolY, toolBtnW("GRID 9x9"), toolH};
+          Primitives::fillRect(controlRenderer_, warpGridBtnRect_,
+                               gridOn ? SDL_Color{255, 220, 0, 200} : warpBtnFill);
+          Primitives::strokeRect(controlRenderer_, warpGridBtnRect_, warpBtnEdge);
+          drawCenteredText(controlRenderer_, fontSmall_, gridLabel,
+                           gridOn ? SDL_Color{15, 15, 15, 255} : warpBtnInk, warpGridBtnRect_);
+          bx += warpGridBtnRect_.w + toolGap;
+          if (gridOn) {
+            warpGridSmoothBtnRect_ = {bx, toolY, std::max(toolBtnW("SMOOTH"), toolBtnW("STRAIGHT")), toolH};
+            Primitives::fillRect(controlRenderer_, warpGridSmoothBtnRect_, warpBtnFill);
+            Primitives::strokeRect(controlRenderer_, warpGridSmoothBtnRect_, warpBtnEdge);
+            drawCenteredText(controlRenderer_, fontSmall_, go.warpGridSmooth ? "SMOOTH" : "STRAIGHT",
+                             warpBtnInk, warpGridSmoothBtnRect_);
+            bx += warpGridSmoothBtnRect_.w + toolGap;
+          }
+        }
 
         if (!wt.pin) {
         warpSaveBtnRect_ = {bx, toolY, toolBtnW("SAVE"), toolH};

@@ -6729,6 +6729,8 @@
     deck.edgeBlendRight = 0.0f;
     deck.edgeBlendTop = 0.0f;
     deck.edgeBlendBottom = 0.0f;
+    // The grid keeps its size -- the operator chose that -- and goes flat.
+    std::fill(deck.warpGridOffsets.begin(), deck.warpGridOffsets.end(), 0.0f);
     triggerToast("warp/blend reset");
     markProjectDirty();
   }
@@ -6788,6 +6790,25 @@
     float unitY = 1.0f;
     float snap = 10.0f;               // Shift-drag grid, in stored units
   };
+
+  // A grid point on the monitor: where the corner pin puts (s, t), plus its
+  // nudge. `withNudge = false` is the spot a drag measures from.
+  SDL_FPoint warpGridPointOnMonitor(const WarpEditTarget& wt, const OutputTarget& out,
+                                    int col, int row, bool withNudge = true) const {
+    SDL_FPoint c[4];
+    for (int i = 0; i < 4; ++i) {
+      c[i] = SDL_FPoint {wt.baseX[i] + *wt.x[i] * wt.unitX, wt.baseY[i] + *wt.y[i] * wt.unitY};
+    }
+    const float s = static_cast<float>(col) / static_cast<float>(std::max(1, out.warpGridCols - 1));
+    const float t = static_cast<float>(row) / static_cast<float>(std::max(1, out.warpGridRows - 1));
+    SDL_FPoint p = bilerpPoint(c[0], c[1], c[2], c[3], s, t);
+    if (withNudge) {
+      const SDL_FPoint n = warpGridPoint(out, col, row);
+      p.x += n.x * wt.unitX;
+      p.y += n.y * wt.unitY;
+    }
+    return p;
+  }
 
   WarpEditTarget warpEditTarget(const SDL_Rect& mi) {
     WarpEditTarget t;

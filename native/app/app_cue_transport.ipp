@@ -5110,6 +5110,10 @@
     target.edgeBlendRight = source.edgeBlendRight;
     target.edgeBlendTop = source.edgeBlendTop;
     target.edgeBlendBottom = source.edgeBlendBottom;
+    target.warpGridCols = source.warpGridCols;
+    target.warpGridRows = source.warpGridRows;
+    target.warpGridSmooth = source.warpGridSmooth;
+    target.warpGridOffsets = source.warpGridOffsets;
     // No normalize call: OutputTarget's own normalisation runs from
     // normalizeProject, and the values copied here are already valid.
   }

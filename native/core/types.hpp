@@ -2031,6 +2031,16 @@ struct OutputTarget {
   float edgeBlendRight = 0.0f;
   float edgeBlendTop = 0.0f;
   float edgeBlendBottom = 0.0f;
+  // GRID WARP: a refinement ON TOP of the corner pin, for a screen that is
+  // not flat -- a curve, a column, a dome's segment. The corners still place
+  // the picture; each grid point adds a nudge, in output pixels, to where the
+  // corner pin alone would put that point. 0 x 0 is no grid, which is every
+  // output saved before this existed. The four corner points are the corner
+  // pins and their nudges stay at zero.
+  int warpGridCols = 0;                    // points across (2..9), 0 = off
+  int warpGridRows = 0;                    // points down
+  bool warpGridSmooth = true;              // curve through the points, or straight between them
+  std::vector<float> warpGridOffsets;      // dx,dy per point, row-major
 };
 
 

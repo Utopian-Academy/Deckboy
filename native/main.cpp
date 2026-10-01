@@ -2720,6 +2720,61 @@ std::string normalizeWarpMode(std::string mode) {
   return "linear";
 }
 
+// An output's grid warp as one field: "cols,rows,smooth,dx,dy,dx,dy,..." --
+// commas only, so it cannot collide with the record's tabs. Empty is no grid.
+std::string serializeWarpGrid(const OutputTarget& out) {
+  if (out.warpGridCols < 2 || out.warpGridRows < 2 ||
+      out.warpGridOffsets.size() != static_cast<std::size_t>(out.warpGridCols * out.warpGridRows * 2)) {
+    return std::string();
+  }
+  std::ostringstream s;
+  // Every bit of each float: at the stream's default six digits a nudge
+  // drifted a little on every save, and an alignment should not erode.
+  s << std::setprecision(std::numeric_limits<float>::max_digits10);
+  s << out.warpGridCols << ',' << out.warpGridRows << ',' << (out.warpGridSmooth ? 1 : 0);
+  for (float v : out.warpGridOffsets) {
+    s << ',' << v;
+  }
+  return s.str();
+}
+
+// The reverse. Anything that does not add up -- a size out of range, a point
+// count that does not match it -- leaves the output with no grid rather than
+// a half-loaded one that bends the picture somewhere nobody put it.
+void parseWarpGrid(OutputTarget& out, const std::string& text) {
+  out.warpGridCols = out.warpGridRows = 0;
+  out.warpGridOffsets.clear();
+  if (text.empty()) {
+    return;
+  }
+  std::vector<double> v;
+  std::stringstream ss(text);
+  std::string part;
+  while (std::getline(ss, part, ',')) {
+    try {
+      v.push_back(std::stod(part));
+    } catch (...) {
+      return;
+    }
+  }
+  if (v.size() < 3) {
+    return;
+  }
+  const int cols = static_cast<int>(v[0]);
+  const int rows = static_cast<int>(v[1]);
+  if (cols < 2 || cols > 9 || rows < 2 || rows > 9 ||
+      v.size() != 3 + static_cast<std::size_t>(cols * rows * 2)) {
+    return;
+  }
+  out.warpGridCols = cols;
+  out.warpGridRows = rows;
+  out.warpGridSmooth = v[2] != 0.0;
+  out.warpGridOffsets.reserve(static_cast<std::size_t>(cols * rows * 2));
+  for (std::size_t i = 3; i < v.size(); ++i) {
+    out.warpGridOffsets.push_back(static_cast<float>(v[i]));
+  }
+}
+
 std::string warpModeLabel(std::string mode) {
   std::string normalized = normalizeWarpMode(std::move(mode));
   if (normalized == "perspective") {
@@ -9240,6 +9295,9 @@ class App {
     std::string name;
     float tlx, tly, trx, try_, brx, bry, blx, bly;
     std::string mode;
+    int gridCols = 0, gridRows = 0;
+    bool gridSmooth = true;
+    std::vector<float> gridOffsets;
   };
   std::vector<WarpPreset> warpPresets_;
   // Put the control window up, once, after the first frame has been presented.
@@ -10125,6 +10183,9 @@ class App {
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
+  int warpDragGridPoint_ = -1;   // grid point being dragged (row * cols + col), -1 = none
+  SDL_Rect warpGridBtnRect_ {};
+  SDL_Rect warpGridSmoothBtnRect_ {};
   // What the warp editor's handles move: the OUTPUT's warp, or -- when the
   // focused deck is a layer on the focused output -- that layer's corner pin.
   bool warpEditLayer_ = false;

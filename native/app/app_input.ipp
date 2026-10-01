@@ -818,6 +818,34 @@
       playUiSound(UiSoundEffect::Toggle);
       return;
     }
+    // GRID: off -> 3x3 -> 4x4 -> 5x5 -> 7x7 -> 9x9 -> off. Each step keeps
+    // the shape the grid already has.
+    if (warpGridBtnRect_.w > 0 && pointInRect(x, y, warpGridBtnRect_)) {
+      pushUndoSnapshot();
+      OutputTarget& out = focusedOutputMutable();
+      static constexpr int kSizes[] = {0, 3, 4, 5, 7, 9};
+      int next = 3;
+      if (warpGridActive(out)) {
+        next = 0;
+        for (std::size_t i = 0; i + 1 < std::size(kSizes); ++i) {
+          if (kSizes[i] == out.warpGridCols) { next = kSizes[i + 1]; break; }
+        }
+      }
+      resizeWarpGrid(out, next, next);
+      markProjectDirty();
+      triggerToast(next ? "warp grid " + std::to_string(next) + "x" + std::to_string(next)
+                        : std::string("warp grid off"));
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
+    if (warpGridSmoothBtnRect_.w > 0 && pointInRect(x, y, warpGridSmoothBtnRect_)) {
+      OutputTarget& out = focusedOutputMutable();
+      out.warpGridSmooth = !out.warpGridSmooth;
+      markProjectDirty();
+      triggerToast(out.warpGridSmooth ? "grid: smooth" : "grid: straight");
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
     if (warpResetBtnRect_.w > 0 && pointInRect(x, y, warpResetBtnRect_)) {
       pushUndoSnapshot();
       const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
@@ -827,6 +855,9 @@
       }
       if (wt.pin) {
         wt.pin->warpEnabled = false;
+      } else {
+        OutputTarget& flat = focusedOutputMutable();
+        std::fill(flat.warpGridOffsets.begin(), flat.warpGridOffsets.end(), 0.0f);
       }
       markProjectDirty();
       triggerToast(wt.pin ? "pin reset" : "warp reset");
@@ -850,6 +881,10 @@
         p.brx = wd.warpBottomRightX; p.bry = wd.warpBottomRightY;
         p.blx = wd.warpBottomLeftX; p.bly = wd.warpBottomLeftY;
         p.mode = wd.warpMode;
+        p.gridCols = wd.warpGridCols;
+        p.gridRows = wd.warpGridRows;
+        p.gridSmooth = wd.warpGridSmooth;
+        p.gridOffsets = wd.warpGridOffsets;
         warpPresets_.push_back(p);
         triggerToast("warp preset saved");
       });
@@ -874,6 +909,10 @@
         wd.warpBottomRightX = p.brx; wd.warpBottomRightY = p.bry;
         wd.warpBottomLeftX = p.blx; wd.warpBottomLeftY = p.bly;
         wd.warpMode = p.mode;
+        wd.warpGridCols = p.gridCols;
+        wd.warpGridRows = p.gridRows;
+        wd.warpGridSmooth = p.gridSmooth;
+        wd.warpGridOffsets = p.gridOffsets;
         markProjectDirty();
         triggerToast("recalled: " + p.name);
         playUiSound(UiSoundEffect::Navigate);
@@ -890,6 +929,27 @@
         if (dx * dx + dy * dy <= grabR * grabR) {
           warpDragCorner_ = i;
           return;
+        }
+      }
+      // Then the grid's own points. Corners are the pins above and are never
+      // grid handles, so an overlap always grabs the pin.
+      const OutputTarget& gridOut = focusedOutput();
+      if (!wt.pin && warpGridActive(gridOut)) {
+        const int gridGrab = uiScaled(10);
+        for (int r = 0; r < gridOut.warpGridRows; ++r) {
+          for (int c = 0; c < gridOut.warpGridCols; ++c) {
+            const bool corner = (c == 0 || c == gridOut.warpGridCols - 1) &&
+                                (r == 0 || r == gridOut.warpGridRows - 1);
+            if (corner) continue;
+            const SDL_FPoint p = warpGridPointOnMonitor(wt, gridOut, c, r);
+            const float dx = static_cast<float>(x) - p.x;
+            const float dy = static_cast<float>(y) - p.y;
+            if (dx * dx + dy * dy <= static_cast<float>(gridGrab * gridGrab)) {
+              pushUndoSnapshot();
+              warpDragGridPoint_ = r * gridOut.warpGridCols + c;
+              return;
+            }
+          }
         }
       }
     }
@@ -1341,6 +1401,31 @@
       }
       *wt.x[c] = newX;
       *wt.y[c] = newY;
+      markProjectDirty();
+      return;
+    }
+    // Grid point dragging: the nudge is the distance from where the corner
+    // pin alone would put the point, in output pixels.
+    if (warpDragGridPoint_ >= 0 && warpEditMode_ && warpMonitorInner_.w > 0) {
+      OutputTarget& out = focusedOutputMutable();
+      if (!warpGridActive(out) ||
+          warpDragGridPoint_ >= out.warpGridCols * out.warpGridRows) {
+        warpDragGridPoint_ = -1;
+        return;
+      }
+      const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
+      const int col = warpDragGridPoint_ % out.warpGridCols;
+      const int row = warpDragGridPoint_ / out.warpGridCols;
+      const SDL_FPoint base = warpGridPointOnMonitor(wt, out, col, row, false);
+      float nx = (static_cast<float>(x) - base.x) / std::max(1.0e-3f, wt.unitX);
+      float ny = (static_cast<float>(y) - base.y) / std::max(1.0e-3f, wt.unitY);
+      if (SDL_GetModState() & SDL_KMOD_SHIFT) {
+        nx = std::round(nx / wt.snap) * wt.snap;
+        ny = std::round(ny / wt.snap) * wt.snap;
+      }
+      const std::size_t i = static_cast<std::size_t>(warpDragGridPoint_) * 2;
+      out.warpGridOffsets[i] = nx;
+      out.warpGridOffsets[i + 1] = ny;
       markProjectDirty();
       return;
     }

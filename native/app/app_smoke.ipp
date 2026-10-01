@@ -2582,6 +2582,95 @@
       expect(fill[0] == 255, "key+fill: a null source leaves the buffers alone");
     }
 
+    // ── GRID WARP ─────────────────────────────────────────────────────────
+    //
+    // The renderer cannot be checked here (it needs an output window), so the
+    // parts that go wrong silently are: does the bend go where it was put, does
+    // changing the density keep the shape, and does a show bring it back.
+    {
+      OutputTarget g;
+      resizeWarpGrid(g, 3, 3);
+      expect(warpGridActive(g) && g.warpGridOffsets.size() == 18,
+             "grid warp: a 3x3 grid has nine points");
+      g.warpGridOffsets[(1 * 3 + 1) * 2] = 40.0f;      // centre point, 40px right
+      g.warpGridOffsets[(1 * 3 + 1) * 2 + 1] = -20.0f;
+      for (bool smooth : {true, false}) {
+        g.warpGridSmooth = smooth;
+        const SDL_FPoint at = warpGridOffsetAt(g, 0.5f, 0.5f);
+        const SDL_FPoint corner = warpGridOffsetAt(g, 0.0f, 0.0f);
+        expect(std::abs(at.x - 40.0f) < 0.01f && std::abs(at.y + 20.0f) < 0.01f,
+               std::string("grid warp: the bend passes THROUGH the dragged point (") +
+                 (smooth ? "smooth" : "straight") + ")");
+        expect(std::abs(corner.x) < 0.01f && std::abs(corner.y) < 0.01f,
+               std::string("grid warp: the corners stay the corner pin's (") +
+                 (smooth ? "smooth" : "straight") + ")");
+      }
+      g.warpGridSmooth = true;
+      const SDL_FPoint before = warpGridOffsetAt(g, 0.5f, 0.5f);
+      resizeWarpGrid(g, 5, 5);
+      const SDL_FPoint after = warpGridOffsetAt(g, 0.5f, 0.5f);
+      expect(g.warpGridOffsets.size() == 50 && std::abs(before.x - after.x) < 0.5f &&
+               std::abs(before.y - after.y) < 0.5f,
+             "grid warp: 3x3 -> 5x5 keeps the shape");
+      OutputTarget back;
+      parseWarpGrid(back, serializeWarpGrid(g));
+      expect(back.warpGridCols == 5 && back.warpGridRows == 5 && back.warpGridSmooth &&
+               back.warpGridOffsets == g.warpGridOffsets,
+             "grid warp: a saved grid comes back exactly");
+      OutputTarget junk;
+      parseWarpGrid(junk, "5,5,1,3.0,4.0");
+      expect(!warpGridActive(junk) && junk.warpGridOffsets.empty(),
+             "grid warp: a grid with the wrong point count loads as no grid");
+      OutputTarget none;
+      parseWarpGrid(none, "");
+      expect(!warpGridActive(none), "grid warp: an old show (empty field) has no grid");
+
+      // AND THE RENDERER BENDS THE PICTURE. Off-screen, on SDL's software
+      // renderer: white left half, black right half, a 3x3 grid with only the
+      // centre point nudged 16px right. The boundary must move 16px at
+      // mid-height and not at all along the top edge.
+      constexpr int kN = 64;
+      SDL_Surface* target = SDL_CreateSurface(kN, kN, SDL_PIXELFORMAT_RGBA32);
+      SDL_Renderer* soft = target ? SDL_CreateSoftwareRenderer(target) : nullptr;
+      SDL_Texture* split = soft ? SDL_CreateTexture(soft, SDL_PIXELFORMAT_RGBA32,
+                                                    SDL_TEXTUREACCESS_STATIC, kN, kN) : nullptr;
+      bool rendered = false;
+      int boundaryMid = -1, boundaryTop = -1;
+      if (split) {
+        std::vector<std::uint8_t> px(static_cast<std::size_t>(kN * kN * 4), 255);
+        for (int y = 0; y < kN; ++y)
+          for (int x = kN / 2; x < kN; ++x)
+            for (int c = 0; c < 3; ++c) px[static_cast<std::size_t>((y * kN + x) * 4 + c)] = 0;
+        SDL_UpdateTexture(split, nullptr, px.data(), kN * 4);
+        SDL_SetTextureScaleMode(split, SDL_SCALEMODE_NEAREST);
+        OutputTarget w;
+        resizeWarpGrid(w, 3, 3);
+        w.warpGridOffsets[(1 * 3 + 1) * 2] = 16.0f;
+        Deck noBlend;
+        const float n = static_cast<float>(kN);
+        rendered = renderGridWarp(soft, split, noBlend, w, false,
+                                  {0, 0}, {1, 0}, {1, 1}, {0, 1},
+                                  {0, 0}, {n, 0}, {n, n}, {0, n}, false);
+        SDL_RenderPresent(soft);
+        auto boundary = [&](int y) {
+          const auto* row = static_cast<const std::uint8_t*>(target->pixels) + y * target->pitch;
+          for (int x = 0; x < kN; ++x) if (row[x * 4] < 128) return x;
+          return -1;
+        };
+        boundaryMid = boundary(kN / 2);
+        boundaryTop = boundary(0);
+      }
+      expect(rendered, "grid warp: the mesh renders");
+      expect(std::abs(boundaryMid - (kN / 2 + 16)) <= 2,
+             "grid warp: the centre point moves the picture 16px (boundary at " +
+               std::to_string(boundaryMid) + ")");
+      expect(std::abs(boundaryTop - kN / 2) <= 2,
+             "grid warp: the top edge stays put (boundary at " + std::to_string(boundaryTop) + ")");
+      if (split) SDL_DestroyTexture(split);
+      if (soft) SDL_DestroyRenderer(soft);
+      if (target) SDL_DestroySurface(target);
+    }
+
 
     // ── EVERY LANGUAGE IS READABLE IN THE PICKER ──────────────────────────
     //
