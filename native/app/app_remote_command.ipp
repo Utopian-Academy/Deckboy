@@ -2566,6 +2566,32 @@
         remoteCommandDetail_ = cue->timer.fontPath.empty()
                                  ? "the app's own face"
                                  : cue->timer.fontPath;
+      } else if (sub == "BACKDROP" || sub == "BG" || sub == "BACKGROUND") {
+        // TIMER BACKDROP transparent | default | #rrggbb. Transparent leaves
+        // the clock alone on the frame, to be layered over another playlist.
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->kind != CueKind::Timer) {
+          failRemoteCommand("timer backdrop: select a timer cue first");
+          return;
+        }
+        if (parts.size() < 3) {
+          remoteCommandDetail_ = timerColorLabel(cue->timer.colorBackground);
+          return;
+        }
+        const std::string want = toLower(parts[2]);
+        if (want == "transparent" || want == "none" || want == "clear") {
+          cue->timer.colorBackground = kTimerBackdropTransparent;
+        } else if (want == "default") {
+          cue->timer.colorBackground = -1;
+        } else if (auto c = tryParseColor(parts[2])) {
+          cue->timer.colorBackground = (c->r << 16) | (c->g << 8) | c->b;
+        } else {
+          failRemoteCommand("timer backdrop: expected transparent | default | #rrggbb, got " +
+                            parts[2]);
+          return;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = timerColorLabel(cue->timer.colorBackground);
       } else if (sub == "ADD" || sub == "PLUS") {
         timerNudge(parts.size() > 2 ? std::atof(parts[2].c_str()) : 60.0);
       } else if (sub == "SUB" || sub == "MINUS") {
@@ -2577,7 +2603,8 @@
           failRemoteCommand("timer set: needs seconds remaining");
         }
       } else {
-        failRemoteCommand("timer: start | pause | reset | add <s> | sub <s> | set <s>");
+        failRemoteCommand("timer: start | pause | reset | add <s> | sub <s> | set <s> | "
+                          "face <f> | font [path] | backdrop <transparent|default|#rrggbb>");
       }
       return;
     }

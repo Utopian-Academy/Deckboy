@@ -2606,6 +2606,17 @@ void drawFrameTextCached(DecodedFrame& frame, const std::string& text,
         const int a = srcRow[static_cast<std::size_t>(gx) * 4 + 3];
         if (a == 0) continue;
         std::uint8_t* dp = dstRow + static_cast<std::size_t>(dx) * 4;
+        // ON NOTHING, THE INK IS THE INK. Mixing an edge pixel with whatever
+        // colour sits under alpha 0 darkens it, and the compositor then draws
+        // that darkened colour at the edge's alpha: a black fringe round every
+        // letter on a transparent frame.
+        if (dp[3] == 0) {
+          dp[0] = color.r;
+          dp[1] = color.g;
+          dp[2] = color.b;
+          dp[3] = static_cast<std::uint8_t>(a);
+          continue;
+        }
         dp[0] = static_cast<std::uint8_t>((color.r * a + dp[0] * (255 - a)) / 255);
         dp[1] = static_cast<std::uint8_t>((color.g * a + dp[1] * (255 - a)) / 255);
         dp[2] = static_cast<std::uint8_t>((color.b * a + dp[2] * (255 - a)) / 255);
@@ -10843,6 +10854,7 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
     ink = pick(cfg.colorAmber, SDL_Color {255, 190, 40, 255});
   }
   const SDL_Color bg = pick(cfg.colorBackground, SDL_Color {0, 0, 0, 255});
+  const bool clearBackdrop = cfg.colorBackground == kTimerBackdropTransparent;
 
   // Blink keyed to wall-clock elapsed, so an overtime clock keeps flashing even
   // while the ticker is held. The source app is explicit that a stopped
@@ -10861,7 +10873,7 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
     frame.pixels[i + 0] = bg.r;
     frame.pixels[i + 1] = bg.g;
     frame.pixels[i + 2] = bg.b;
-    frame.pixels[i + 3] = 255;
+    frame.pixels[i + 3] = clearBackdrop ? 0 : 255;
   }
   if (blankThisFrame) {
     return;
@@ -11099,6 +11111,15 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
           const int a = logo->rgba[s + 3];
           if (a == 0) continue;
           const std::size_t o = (static_cast<std::size_t>(dy) * W + dx) * 4;
+          // On a transparent backdrop the logo brings its own alpha, or it
+          // would be painted into pixels nobody draws.
+          if (frame.pixels[o + 3] == 0) {
+            frame.pixels[o + 0] = logo->rgba[s + 2];
+            frame.pixels[o + 1] = logo->rgba[s + 1];
+            frame.pixels[o + 2] = logo->rgba[s + 0];
+            frame.pixels[o + 3] = static_cast<std::uint8_t>(a);
+            continue;
+          }
           // Frame is BGRA; the decoded logo is RGBA.
           frame.pixels[o + 0] = static_cast<std::uint8_t>(
             (logo->rgba[s + 2] * a + frame.pixels[o + 0] * (255 - a)) / 255);

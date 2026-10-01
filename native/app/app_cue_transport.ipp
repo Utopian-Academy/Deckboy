@@ -6863,6 +6863,10 @@
       || cue->kind == CueKind::Pattern
       || cue->kind == CueKind::Browser
       || cue->kind == CueKind::Pip
+      // A stage clock is placed like any picture (cuePlacementFor does not
+      // ask the kind), and with a transparent backdrop it is a layer that
+      // wants putting in a corner -- it only lacked the controls.
+      || cue->kind == CueKind::Timer
       || isSourceCueKind(cue->kind));
   }
 
@@ -7573,6 +7577,7 @@
   }
 
   std::string timerColorLabel(int packed) const {
+    if (packed == kTimerBackdropTransparent) return "transparent";
     for (const auto& s : timerColorSwatches()) {
       if (s.first == packed) return s.second;
     }
@@ -7584,7 +7589,13 @@
   void cycleTimerColor(int TimerSettings::*field, const char* label) {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Timer) return;
-    const auto& sw = timerColorSwatches();
+    // The BACKDROP alone can also be nothing, so the clock can be layered over
+    // the programme. Last in its cycle, after black.
+    std::vector<std::pair<int, const char*>> sw(timerColorSwatches().begin(),
+                                                timerColorSwatches().end());
+    if (field == &TimerSettings::colorBackground) {
+      sw.push_back({kTimerBackdropTransparent, "transparent"});
+    }
     int idx = 0;
     for (std::size_t i = 0; i < sw.size(); ++i) {
       if (sw[i].first == cue->timer.*field) { idx = static_cast<int>(i); break; }

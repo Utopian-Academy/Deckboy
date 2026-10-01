@@ -850,6 +850,12 @@ enum class TimerFace {
   Typeface,      // a real font -- the app's own, or any face the operator picks
 };
 
+// A timer backdrop of NOTHING: the clock alone on a transparent frame, so it
+// can sit as a layer over the programme. Stored in colorBackground rather than
+// a new field -- a show file that carries it opens in an older build as the
+// default black, which is the right fallback for a stage screen.
+constexpr int kTimerBackdropTransparent = -2;
+
 struct TimerSettings {
   int durationSeconds = 300;    // 5:00
   int amberSeconds = 60;        // <= this many left: amber
@@ -878,7 +884,7 @@ struct TimerSettings {
   int colorNormal = -1;         // default white
   int colorAmber = -1;          // default amber
   int colorRed = -1;            // default red
-  int colorBackground = -1;     // default black
+  int colorBackground = -1;     // default black; kTimerBackdropTransparent = none
 
   // Audible cues. A speaker looking at the audience is not looking at the
   // clock, which is the whole reason stage timers chime.

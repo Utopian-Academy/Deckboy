@@ -5552,6 +5552,18 @@
       }
       finishInspectorSection(timerSection, timerY);
 
+      // Size and position, so a clock on a transparent backdrop can sit in a
+      // corner of the programme instead of filling it.
+      auto timerGeometry = beginInspectorSection(timerY + kInspectorSectionGap, "GEOMETRY",
+                                                 cueSectionGeometryOpen_,
+                                                 QuickAction::CueSectionGeometryToggle,
+                                                 "Size and position of the clock on the output");
+      int timerGeoY = timerGeometry.bodyStartY;
+      if (cueSectionGeometryOpen_) {
+        timerGeoY = inspDrawGeometryRows(ix, timerGeoY, *selectedCue, true);
+      }
+      finishInspectorSection(timerGeometry, timerGeoY);
+
     } else if (selectedCue && selectedCue->kind == CueKind::Tone) {
       // Generated-audio cues need their own branch for the same reason Timer
       // does: this inspector dispatches BY CUE KIND, and anything without a
