@@ -94,6 +94,30 @@
 #include "platform/ndi_api.hpp"
 #include "platform/ndi_trigger_api.hpp"
 #include "platform/network.hpp"
+// JPEG for the web monitor. Vendored (public domain, v1.16) so every platform
+// has the same encoder and nothing depends on a library being installed. Its
+// own warnings are not ours to fix, and the warnings audit fails the build on
+// them, so they are silenced for this header alone.
+#if defined(_MSC_VER)
+#pragma warning(push, 0)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+#define STB_IMAGE_WRITE_STATIC
+#define STBI_WRITE_NO_STDIO
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "third_party/stb_image_write.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 #include "platform/nmc_sync.hpp"
 #include "platform/artnet_bridge.hpp"
 #include "platform/atem.hpp"
@@ -4105,6 +4129,9 @@ class App {
     if (project_.oscQueryEnabled) {
       startOscQueryServer();
     }
+    if (project_.webMonitorEnabled) {
+      startWebMonitor();
+    }
     // A show saved with the vMix surface on comes back with it on. It binds
     // the same way the other listeners do, and reports if it cannot.
     if (project_.vmixApiEnabled) {
@@ -4134,6 +4161,7 @@ class App {
     stopAtemSwitcherClient();
     stopMidiInput();
     stopOscQueryServer();
+    stopWebMonitor();
     stopVmixServer();
     // Before the output runtimes go away: this releases any IS-05 caller parked
     // in the patch handler, then joins the node's threads.
@@ -8713,6 +8741,11 @@ class App {
   static constexpr int kSettingsActionOutputAoiCentre = 657;
   // Opens the warp editor on the programme monitor for the focused output.
   static constexpr int kSettingsActionOutputWarpEdit = 699;
+  // The web monitor card (Network tab).
+  static constexpr int kSettingsActionWebMonitorToggle = 700;
+  static constexpr int kSettingsActionWebMonitorShareToggle = 701;
+  static constexpr int kSettingsActionWebMonitorPortPrompt = 707;
+  static constexpr int kSettingsActionWebMonitorPinPrompt = 708;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -10189,6 +10222,38 @@ class App {
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
   int warpDragGridPoint_ = -1;   // grid point being dragged (row * cols + col), -1 = none
+  // -- Web monitor (app_network.ipp) -------------------------------------------
+  static constexpr int kWebMonitorMaxOutputs = 16;
+  struct WebMonitorSlot {
+    std::mutex mutex;                          // guards jpeg + serial
+    std::condition_variable cv;
+    std::shared_ptr<const std::string> jpeg;   // latest picture
+    std::uint64_t serial = 0;
+    std::atomic<int> viewers {0};              // browsers streaming this output
+    Uint64 lastFedMs = 0;                      // main thread only
+    // Encoder hand-off, guarded by webMonitorEncodeMutex_.
+    std::vector<std::uint8_t> pendingRgb;
+    int pendingW = 0, pendingH = 0;
+    bool pending = false;
+  };
+  std::array<WebMonitorSlot, kWebMonitorMaxOutputs> webMonitorSlots_;
+  std::mutex webMonitorEncodeMutex_;
+  std::condition_variable webMonitorEncodeCv_;
+  std::thread webMonitorEncoder_;
+  std::thread webMonitorThread_;
+  struct WebMonitorClient {
+    std::thread thread;
+    std::shared_ptr<std::atomic<bool>> done;
+  };
+  std::vector<WebMonitorClient> webMonitorClients_;   // accept thread + stop only
+  std::atomic<bool> webMonitorStop_ {true};
+  SocketHandle webMonitorListen_ = kInvalidSocket;
+  bool webMonitorReady_ = false;
+  // What the browser threads may read -- never project_ itself.
+  std::mutex webMonitorDirMutex_;
+  std::vector<std::string> webMonitorOutputNames_;
+  std::string webMonitorPinSnapshot_;
+  Uint64 webMonitorDirSyncedMs_ = 0;
   SDL_Rect warpGridBtnRect_ {};
   SDL_Rect warpGridSmoothBtnRect_ {};
   // What the warp editor's handles move: the OUTPUT's warp, or -- when the

@@ -4032,6 +4032,39 @@
       triggerToast(remoteCommandDetail_);
       return;
     }
+    // WEBMONITOR [STATUS] | ON | OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF
+    if (command == "WEBMONITOR") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
+      auto report = [&]() {
+        remoteCommandDetail_ = !project_.webMonitorEnabled ? std::string("off")
+          : webMonitorReady_ ? webMonitorUrl() + (project_.webMonitorPin.empty() ? "" : " (PIN)")
+                             : "on, but port " + std::to_string(project_.webMonitorPort) + " is busy";
+      };
+      if (sub == "STATUS") {
+        report();
+      } else if (sub == "ON" || sub == "OFF") {
+        setWebMonitorEnabled(sub == "ON");
+        report();
+      } else if (sub == "SHARE" && parts.size() > 2) {
+        setWebMonitorShare(toUpper(parts[2]) == "ON");
+        report();
+      } else if (sub == "PORT" && parts.size() > 2) {
+        try {
+          const int port = std::stoi(parts[2]);
+          if (port < 1 || port > 65535) throw std::out_of_range("port");
+          setWebMonitorPort(port);
+          report();
+        } catch (...) {
+          failRemoteCommand("WEBMONITOR PORT: 1-65535");
+        }
+      } else if (sub == "PIN" && parts.size() > 2) {
+        setWebMonitorPin(toUpper(parts[2]) == "OFF" ? std::string() : parts[2]);
+        report();
+      } else {
+        failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF");
+      }
+      return;
+    }
     if (command == "VMIX") {
       // VMIX                -- report
       // VMIX ON|OFF|TOGGLE  -- the surface

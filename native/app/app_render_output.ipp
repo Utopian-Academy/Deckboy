@@ -3774,9 +3774,13 @@
     // ST 2110 needs no SDK, so it has no "supported" gate — the socket either
     // opens or it reports why.
     bool st2110RouteActive = output.st2110Enabled;
+    // A browser watching this output on the web monitor needs the picture
+    // too -- but only while one is: an idle monitor costs nothing.
+    const bool webMonitorRouteActive = webMonitorWatching(outputIndex);
     bool needsEgressCapture =
       streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive ||
-      st2110RouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+      st2110RouteActive || webMonitorRouteActive ||
+      std::clamp(output.outputDelayMs, 0, 5000) > 0;
     double fpsHint = 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
       const Cue* layerCue = activeCuePtr(it->second);
@@ -3816,6 +3820,9 @@
       captureOutputPreviewTap(*runtime, egressRect);
     } else if (runtime->previewTapSerial != 0) {
       releaseOutputPreviewTap(*runtime);
+    }
+    if (webMonitorRouteActive) {
+      feedWebMonitor(outputIndex, *runtime);
     }
     if (ndiRouteActive) {
       sendOutputNdiFrame(outputIndex, *runtime, width, height, fpsHint);

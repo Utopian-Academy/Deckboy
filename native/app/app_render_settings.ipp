@@ -1619,6 +1619,8 @@
       // direction actually does.
       // vMix-compatible surface: a status line and three rows.
       int vmixH = stackH({sLineH, sRowH, sRowH, sRowH});
+      // Web monitor: the address line, then four rows.
+      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH});
       int nmcH = stackH({sRowH, sRowH, sRowH, sRowH, sLineH});
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
       // The adapter grid no longer carries the tally controls, so it needs
@@ -1646,7 +1648,7 @@
       // drift case on this tab the way APPEARANCE did on System. The
       // predicted sum is what protects this tab; add the refinement if a
       // card here is ever found to drift the way that one did.
-      const int leftNeeded = remoteH + oscH + vmixH + nmcH + notesH + 4 * kCardGap;
+      const int leftNeeded = remoteH + oscH + vmixH + webMonH + nmcH + notesH + 5 * kCardGap;
       const int rightNeeded = integrationH + tallyCardH + kCardGap;
       settingsNetworkScrollMax_ = std::max(0, std::max(leftNeeded, rightNeeded) - colH);
       settingsNetworkScroll_ = std::clamp(settingsNetworkScroll_, 0, settingsNetworkScrollMax_);
@@ -1672,6 +1674,8 @@
       leftY += oscRect.h + kCardGap;
       SDL_Rect vmixRect {leftCol.x, leftY, leftCol.w, vmixH};
       leftY += vmixRect.h + kCardGap;
+      SDL_Rect webMonRect {leftCol.x, leftY, leftCol.w, webMonH};
+      leftY += webMonRect.h + kCardGap;
       SDL_Rect nmcRect {leftCol.x, leftY, leftCol.w, nmcH};
       leftY += nmcRect.h + kCardGap;
       SDL_Rect notesRect {leftCol.x, leftY, leftCol.w,
@@ -1786,6 +1790,36 @@
         drawUIValueControl(vmixTcpBtn, std::to_string(project_.vmixTcpPort));
         settingsBtns_.push_back({vmixTcpBtn, kSettingsActionVmixTcpPortPrompt,
                                  "vmix_tcp_port"});
+      }
+
+      // ── WEB MONITOR ─────────────────────────────────────────────────────
+      //
+      // Every output, live, in a browser. The address is printed here, in
+      // full, because "it is on" is no use to someone standing at a phone.
+      drawCard(webMonRect, "WEB MONITOR", "Outputs in any browser");
+      {
+        const int wmX = cardBodyX(webMonRect);
+        const int wmW = cardBodyW(webMonRect);
+        int wmY = cardBodyY(webMonRect);
+        const std::string wmStatus =
+          !project_.webMonitorEnabled ? std::string("off")
+          : webMonitorReady_ ? webMonitorUrl()
+                             : "port " + std::to_string(project_.webMonitorPort) + " is busy";
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{wmX, wmY, wmW, sLineH},
+                     "open: " + wmStatus, soft);
+        wmY += sLineH + sGap;
+        SDL_Rect wmToggle = settingsRow(wmX, wmW, wmY, sRowH, "Web monitor", sGap);
+        drawPill(wmToggle, project_.webMonitorEnabled, "ON", "OFF", kSettingsActionWebMonitorToggle);
+        SDL_Rect wmShare = settingsRow(wmX, wmW, wmY, sRowH, "Who can see it", sGap);
+        drawPill(wmShare, project_.webMonitorShareLan, "THE NETWORK", "THIS COMPUTER",
+                 kSettingsActionWebMonitorShareToggle);
+        SDL_Rect wmPort = settingsRow(wmX, wmW, wmY, sRowH, "Port", sGap);
+        drawUIValueControl(wmPort, std::to_string(project_.webMonitorPort));
+        settingsBtns_.push_back({wmPort, kSettingsActionWebMonitorPortPrompt, "web_monitor_port"});
+        SDL_Rect wmPin = settingsRow(wmX, wmW, wmY, sRowH, "PIN", sGap);
+        drawUIValueControl(wmPin, project_.webMonitorPin.empty() ? std::string("none")
+                                                                  : std::string("set"));
+        settingsBtns_.push_back({wmPin, kSettingsActionWebMonitorPinPrompt, "web_monitor_pin"});
       }
 
       // ── NMC IN & OUT ────────────────────────────────────────────────────
@@ -4292,6 +4326,28 @@
       } else if (sb.action == kSettingsActionVmixTcpPortPrompt) {
         settingsOpen_ = false;
         openInlineVmixPortEditor(false);
+      } else if (sb.action == kSettingsActionWebMonitorToggle) {
+        setWebMonitorEnabled(!project_.webMonitorEnabled);
+      } else if (sb.action == kSettingsActionWebMonitorShareToggle) {
+        setWebMonitorShare(!project_.webMonitorShareLan);
+      } else if (sb.action == kSettingsActionWebMonitorPortPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("settings.web_monitor_port", "Web Monitor Port",
+                             "port number (default 8090)", std::to_string(project_.webMonitorPort),
+                             [this](const std::string& value) {
+                               try {
+                                 const int p = std::stoi(trim(value));
+                                 if (p > 0 && p < 65536) { setWebMonitorPort(p); return; }
+                               } catch (...) {
+                               }
+                               triggerToast("web monitor port: invalid");
+                             });
+      } else if (sb.action == kSettingsActionWebMonitorPinPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("settings.web_monitor_pin", "Web Monitor PIN",
+                             "a PIN every viewer must type (leave empty for none)",
+                             project_.webMonitorPin,
+                             [this](const std::string& value) { setWebMonitorPin(value); });
       } else if (sb.action == kSettingsActionOscQueryPortPrompt) {
         settingsOpen_ = false;
         openInlineOscQueryPortEditor();

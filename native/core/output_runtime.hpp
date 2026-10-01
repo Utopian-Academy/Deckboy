@@ -182,7 +182,7 @@ struct OutputRuntime {
     int width = 0;
     int height = 0;
     Uint64 capturedAtMs = 0;
-    std::vector<std::uint8_t> pixels;    // RGBA pixel data
+    std::vector<std::uint8_t> pixels;    // BGRA (read back as SDL_PIXELFORMAT_BGRA32)
   };
 
   // SDL output window and renderer (one per output destination)

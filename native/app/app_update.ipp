@@ -277,6 +277,7 @@
 
   void update() {
     serviceWindowFitScale();
+    syncWebMonitorDirectory();
     serviceAutoScroll(1.0 / 60.0);
     serviceBusyCritters(1.0 / 60.0);
     refreshNormalizingIds();

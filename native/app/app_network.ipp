@@ -1039,6 +1039,524 @@
     return true;
   }
 
+  // ---------------------------------------------------------------------------
+  // WEB MONITOR -- every output, live, in any browser.
+  //
+  // http://<machine>:<port>/          every output, as live thumbnails
+  // http://<machine>:<port>/view/N    output N, full window
+  // http://<machine>:<port>/out/N     output N as MJPEG (an <img> plays it)
+  // http://<machine>:<port>/snap/N.jpg  one still
+  //
+  // MJPEG because every browser shows it in a plain <img> -- phones included --
+  // with no player, no plugin and no codec licence. Picture only; sound is the
+  // WebRTC stage that comes after this.
+  //
+  // THE MAIN THREAD DOES ALMOST NOTHING. An output is only captured while a
+  // browser is watching it; then, at most every 50ms, the frame is sampled
+  // down to <=960 wide straight into an RGB buffer and handed to the encoder
+  // thread, which makes the JPEG and wakes the viewers. The browser threads
+  // never touch project_: they read a snapshot the main thread refreshes.
+  // ---------------------------------------------------------------------------
+  bool webMonitorWatching(int outputIndex) const {
+    return outputIndex >= 0 && outputIndex < kWebMonitorMaxOutputs &&
+           webMonitorSlots_[static_cast<std::size_t>(outputIndex)].viewers.load() > 0;
+  }
+
+  // The address someone else on the network would type. "Connecting" a UDP
+  // socket sends nothing; it only makes the OS pick the interface it would
+  // route through, which is the one worth printing.
+  std::string webMonitorLanAddress() const {
+    SocketHandle probe = createDatagramSocket(false);
+    if (probe == kInvalidSocket) {
+      return "127.0.0.1";
+    }
+    sockaddr_in remote {};
+    remote.sin_family = AF_INET;
+    remote.sin_port = htons(9);
+    inet_pton(AF_INET, "192.0.2.1", &remote.sin_addr);   // TEST-NET-1: never routed
+    std::string address = "127.0.0.1";
+    if (connect(probe, reinterpret_cast<const sockaddr*>(&remote), sizeof(remote)) == 0) {
+      sockaddr_in local {};
+      socklen_t length = sizeof(local);
+      if (getsockname(probe, reinterpret_cast<sockaddr*>(&local), &length) == 0) {
+        const std::string found = socketAddressToString(local);
+        if (!found.empty() && found != "0.0.0.0") {
+          address = found;
+        }
+      }
+    }
+    closeSocket(probe);
+    return address;
+  }
+
+  std::string webMonitorUrl() const {
+    return "http://" + (project_.webMonitorShareLan ? webMonitorLanAddress() : std::string("localhost")) +
+           ":" + std::to_string(project_.webMonitorPort) + "/";
+  }
+
+  // Refreshed from the main thread about once a second: the names of the
+  // outputs and the PIN, which is all the browser threads ever need to know.
+  void syncWebMonitorDirectory() {
+    if (webMonitorStop_.load()) {
+      return;
+    }
+    const Uint64 now = SDL_GetTicks();
+    if (now - webMonitorDirSyncedMs_ < 1000) {
+      return;
+    }
+    webMonitorDirSyncedMs_ = now;
+    std::vector<std::string> names;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()) && i < kWebMonitorMaxOutputs; ++i) {
+      names.push_back(outputLabel(i));
+    }
+    std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+    webMonitorOutputNames_ = std::move(names);
+    webMonitorPinSnapshot_ = project_.webMonitorPin;
+  }
+
+  // Main thread, from the output's render pass, only while someone watches.
+  void feedWebMonitor(int outputIndex, OutputRuntime& runtime) {
+    if (outputIndex < 0 || outputIndex >= kWebMonitorMaxOutputs) {
+      return;
+    }
+    WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+    const Uint64 now = SDL_GetTicks();
+    if (now - slot.lastFedMs < 50) {
+      return;   // 20 pictures a second is plenty for a monitor
+    }
+    const OutputRuntime::CapturedFrame* frame = outputFrameForEgress(outputIndex, runtime);
+    if (!frame || frame->width <= 0 || frame->height <= 0 ||
+        frame->pixels.size() < static_cast<std::size_t>(frame->width) * frame->height * 4u) {
+      return;
+    }
+    slot.lastFedMs = now;
+    const int step = std::max(1, (frame->width + 959) / 960);
+    const int w = frame->width / step;
+    const int h = frame->height / step;
+    std::vector<std::uint8_t> rgb(static_cast<std::size_t>(w) * h * 3u);
+    for (int y = 0; y < h; ++y) {
+      const std::uint8_t* src = frame->pixels.data() +
+        static_cast<std::size_t>(y * step) * frame->width * 4u;
+      std::uint8_t* dst = rgb.data() + static_cast<std::size_t>(y) * w * 3u;
+      // The egress capture is BGRA (SDL_PIXELFORMAT_BGRA32, the order the
+      // stream encoder is told too); a JPEG wants RGB.
+      for (int x = 0; x < w; ++x, src += step * 4, dst += 3) {
+        dst[0] = src[2];
+        dst[1] = src[1];
+        dst[2] = src[0];
+      }
+    }
+    {
+      std::lock_guard<std::mutex> lock(webMonitorEncodeMutex_);
+      slot.pendingRgb = std::move(rgb);
+      slot.pendingW = w;
+      slot.pendingH = h;
+      slot.pending = true;
+    }
+    webMonitorEncodeCv_.notify_one();
+  }
+
+  static void webMonitorJpegSink(void* context, void* data, int size) {
+    static_cast<std::string*>(context)->append(static_cast<const char*>(data),
+                                               static_cast<std::size_t>(size));
+  }
+
+  void publishWebMonitorJpeg(int outputIndex, std::string jpeg) {
+    WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+    {
+      std::lock_guard<std::mutex> lock(slot.mutex);
+      slot.jpeg = std::make_shared<const std::string>(std::move(jpeg));
+      ++slot.serial;
+    }
+    slot.cv.notify_all();
+  }
+
+  void webMonitorEncodeLoop() {
+    while (!webMonitorStop_.load()) {
+      int index = -1;
+      std::vector<std::uint8_t> rgb;
+      int w = 0, h = 0;
+      {
+        std::unique_lock<std::mutex> lock(webMonitorEncodeMutex_);
+        webMonitorEncodeCv_.wait_for(lock, std::chrono::milliseconds(250), [&]() {
+          if (webMonitorStop_.load()) return true;
+          for (const auto& slot : webMonitorSlots_) {
+            if (slot.pending) return true;
+          }
+          return false;
+        });
+        for (int i = 0; i < kWebMonitorMaxOutputs; ++i) {
+          WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(i)];
+          if (slot.pending) {
+            index = i;
+            rgb = std::move(slot.pendingRgb);
+            w = slot.pendingW;
+            h = slot.pendingH;
+            slot.pending = false;
+            break;
+          }
+        }
+      }
+      if (index < 0 || w <= 0 || h <= 0) {
+        continue;
+      }
+      std::string jpeg;
+      jpeg.reserve(rgb.size() / 8);
+      if (stbi_write_jpg_to_func(&App::webMonitorJpegSink, &jpeg, w, h, 3, rgb.data(), 75) && !jpeg.empty()) {
+        publishWebMonitorJpeg(index, std::move(jpeg));
+      }
+    }
+  }
+
+  // A still for an output that is not drawing anything yet: the house green,
+  // so a viewer sees "connected, nothing on" rather than a broken image.
+  std::shared_ptr<const std::string> webMonitorPlaceholder() {
+    static std::shared_ptr<const std::string> cached;
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> lock(mutex);
+    if (!cached) {
+      constexpr int w = 160, h = 90;
+      std::vector<std::uint8_t> rgb(static_cast<std::size_t>(w) * h * 3u);
+      for (std::size_t i = 0; i < rgb.size(); i += 3) {
+        rgb[i] = 15; rgb[i + 1] = 56; rgb[i + 2] = 15;
+      }
+      std::string jpeg;
+      stbi_write_jpg_to_func(&App::webMonitorJpegSink, &jpeg, w, h, 3, rgb.data(), 80);
+      cached = std::make_shared<const std::string>(std::move(jpeg));
+    }
+    return cached;
+  }
+
+  static bool webMonitorSendAll(SocketHandle client, const char* data, std::size_t size) {
+    while (size > 0) {
+      const int chunk = static_cast<int>(std::min<std::size_t>(size, 1 << 20));
+      const int sent = send(client, data, chunk, kSocketSendFlags);
+      if (sent <= 0) {
+        return false;
+      }
+      data += sent;
+      size -= static_cast<std::size_t>(sent);
+    }
+    return true;
+  }
+
+  void webMonitorSendPage(SocketHandle client, const std::string& status,
+                          const std::string& type, const std::string& body) {
+    std::ostringstream header;
+    header << "HTTP/1.1 " << status << "\r\n"
+           << "Content-Type: " << type << "\r\n"
+           << "Content-Length: " << body.size() << "\r\n"
+           << "Cache-Control: no-cache\r\nConnection: close\r\n\r\n";
+    const std::string head = header.str();
+    webMonitorSendAll(client, head.data(), head.size()) &&
+      webMonitorSendAll(client, body.data(), body.size());
+  }
+
+  static std::string webMonitorPageShell(const std::string& title, const std::string& body) {
+    return "<!doctype html><html><head><meta charset='utf-8'>"
+           "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+           "<title>" + escapeHtml(title) + "</title><style>"
+           "body{margin:0;background:#0f380f;color:#9bbc0f;font-family:system-ui,sans-serif}"
+           "header{padding:12px 16px;font-weight:700;letter-spacing:.06em}"
+           ".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));"
+           "gap:12px;padding:0 16px 16px}"
+           ".card{background:#071a07;border:1px solid #306230;border-radius:6px;overflow:hidden}"
+           ".card img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#000}"
+           ".card a{display:block;color:#c9d7a3;text-decoration:none;padding:8px 10px}"
+           ".full{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center}"
+           ".full img{max-width:100%;max-height:100%}"
+           "form{padding:16px}input,button{font:inherit;padding:6px 10px}"
+           "</style></head><body>" + body + "</body></html>";
+  }
+
+  void handleWebMonitorClient(SocketHandle client) {
+    std::string request;
+    std::array<char, 2048> buffer {};
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    while (request.find("\r\n\r\n") == std::string::npos && request.size() < 16384) {
+      const auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(
+        deadline - std::chrono::steady_clock::now());
+      if (remaining.count() <= 0) break;
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      watchFd(client, &readFds);
+      timeval tv {};
+      tv.tv_sec = static_cast<long>(remaining.count() / 1000000);
+      tv.tv_usec = static_cast<long>(remaining.count() % 1000000);
+      if (select(selectNfds(client), &readFds, nullptr, nullptr, &tv) <= 0) break;
+      const int bytes = recv(client, buffer.data(), static_cast<int>(buffer.size()), 0);
+      if (bytes <= 0) break;
+      request.append(buffer.data(), static_cast<std::size_t>(bytes));
+    }
+    const std::size_t lineEnd = request.find("\r\n");
+    const auto parts = splitWhitespace(lineEnd == std::string::npos ? request : request.substr(0, lineEnd));
+    if (parts.size() < 2 || parts[0] != "GET") {
+      webMonitorSendPage(client, "405 Method Not Allowed", "text/plain; charset=utf-8", "GET only\n");
+      return;
+    }
+    std::string path = parts[1];
+    std::string query;
+    if (const auto q = path.find('?'); q != std::string::npos) {
+      query = path.substr(q + 1);
+      path = path.substr(0, q);
+    }
+    std::vector<std::string> names;
+    std::string pin;
+    {
+      std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+      names = webMonitorOutputNames_;
+      pin = webMonitorPinSnapshot_;
+    }
+    // THE PIN, when there is one, gates every page and every stream.
+    std::string given;
+    for (std::size_t at = 0; at <= query.size();) {
+      const std::size_t end = std::min(query.find('&', at), query.size());
+      const std::string pair = query.substr(at, end - at);
+      if (pair.rfind("pin=", 0) == 0) given = pair.substr(4);
+      at = end + 1;
+    }
+    if (!pin.empty() && given != pin) {
+      webMonitorSendPage(client, "401 Unauthorized", "text/html; charset=utf-8",
+        webMonitorPageShell("Deckboy", "<header>DECKBOY WEB MONITOR</header>"
+          "<form method='get'><p>This monitor needs its PIN.</p>"
+          "<input name='pin' type='password' autofocus> <button>Open</button></form>"));
+      return;
+    }
+    const std::string pinQuery = pin.empty() ? std::string() : "?pin=" + pin;
+    auto outputFromPath = [&](const std::string& prefix) {
+      if (path.rfind(prefix, 0) != 0) return -1;
+      try {
+        const int n = std::stoi(path.substr(prefix.size())) - 1;
+        return (n >= 0 && n < kWebMonitorMaxOutputs) ? n : -1;
+      } catch (...) {
+        return -1;
+      }
+    };
+    if (path == "/" || path == "/index.html") {
+      std::ostringstream body;
+      body << "<header>DECKBOY WEB MONITOR</header><div class='grid'>";
+      for (std::size_t i = 0; i < names.size(); ++i) {
+        const std::string n = std::to_string(i + 1);
+        body << "<div class='card'><img src='/out/" << n << pinQuery << "' alt=''>"
+             << "<a href='/view/" << n << pinQuery << "'>" << escapeHtml(names[i]) << "</a></div>";
+      }
+      if (names.empty()) body << "<p style='padding:16px'>No outputs.</p>";
+      body << "</div>";
+      webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
+                         webMonitorPageShell("Deckboy monitor", body.str()));
+      return;
+    }
+    if (int out = outputFromPath("/view/"); out >= 0) {
+      const std::string n = std::to_string(out + 1);
+      const std::string title = out < static_cast<int>(names.size()) ? names[static_cast<std::size_t>(out)] : "Output " + n;
+      webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
+        webMonitorPageShell(title, "<div class='full'><img src='/out/" + n + pinQuery + "' alt=''></div>"));
+      return;
+    }
+    if (int out = outputFromPath("/snap/"); out >= 0) {
+      WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(out)];
+      std::shared_ptr<const std::string> jpeg;
+      {
+        std::lock_guard<std::mutex> lock(slot.mutex);
+        jpeg = slot.jpeg;
+      }
+      if (!jpeg) jpeg = webMonitorPlaceholder();
+      webMonitorSendPage(client, "200 OK", "image/jpeg", *jpeg);
+      return;
+    }
+    if (int out = outputFromPath("/out/"); out >= 0) {
+      streamWebMonitor(client, out);
+      return;
+    }
+    webMonitorSendPage(client, "404 Not Found", "text/plain; charset=utf-8", "not found\n");
+  }
+
+  // One MJPEG stream: a part per new picture, for as long as the browser
+  // keeps the connection. Counting the viewer is what switches the output's
+  // capture on; the count drops when the browser goes.
+  void streamWebMonitor(SocketHandle client, int outputIndex) {
+    WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+    slot.viewers.fetch_add(1);
+    struct Leave {
+      std::atomic<int>& viewers;
+      ~Leave() { viewers.fetch_sub(1); }
+    } leave {slot.viewers};
+    static const std::string kHead =
+      "HTTP/1.1 200 OK\r\nContent-Type: multipart/x-mixed-replace; boundary=deckboyframe\r\n"
+      "Cache-Control: no-cache\r\nConnection: close\r\n\r\n";
+    if (!webMonitorSendAll(client, kHead.data(), kHead.size())) {
+      return;
+    }
+    std::uint64_t seen = 0;
+    while (!webMonitorStop_.load()) {
+      std::shared_ptr<const std::string> jpeg;
+      {
+        std::unique_lock<std::mutex> lock(slot.mutex);
+        slot.cv.wait_for(lock, std::chrono::seconds(1), [&]() {
+          return webMonitorStop_.load() || slot.serial != seen;
+        });
+        if (webMonitorStop_.load()) break;
+        if (slot.serial != seen) {
+          seen = slot.serial;
+          jpeg = slot.jpeg;
+        }
+      }
+      // Nothing new for a second: say so with the placeholder until the
+      // output draws, and otherwise repeat the last picture so the browser
+      // can tell a held frame from a dead connection.
+      if (!jpeg) {
+        std::lock_guard<std::mutex> lock(slot.mutex);
+        jpeg = slot.jpeg;
+      }
+      // An output that is not drawing still gets the placeholder once a
+      // second: a stream that goes silent reads as a dead connection.
+      if (!jpeg) jpeg = webMonitorPlaceholder();
+      std::ostringstream part;
+      part << "--deckboyframe\r\nContent-Type: image/jpeg\r\nContent-Length: "
+           << jpeg->size() << "\r\n\r\n";
+      const std::string head = part.str();
+      if (!webMonitorSendAll(client, head.data(), head.size()) ||
+          !webMonitorSendAll(client, jpeg->data(), jpeg->size()) ||
+          !webMonitorSendAll(client, "\r\n", 2)) {
+        break;
+      }
+    }
+  }
+
+  void webMonitorLoop() {
+    while (!webMonitorStop_.load()) {
+      // Finished viewers are joined as they go, so a long show with phones
+      // dropping in and out does not pile up threads.
+      for (auto it = webMonitorClients_.begin(); it != webMonitorClients_.end();) {
+        if (it->done->load()) {
+          if (it->thread.joinable()) it->thread.join();
+          it = webMonitorClients_.erase(it);
+        } else {
+          ++it;
+        }
+      }
+      if (webMonitorListen_ == kInvalidSocket) break;
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      watchFd(webMonitorListen_, &readFds);
+      timeval tv {};
+      tv.tv_usec = 250000;
+      if (select(selectNfds(webMonitorListen_), &readFds, nullptr, nullptr, &tv) <= 0) {
+        continue;
+      }
+      sockaddr_in clientAddress {};
+      socklen_t clientLength = sizeof(clientAddress);
+      SocketHandle client = accept(webMonitorListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
+      if (client == kInvalidSocket) continue;
+      setCloseOnExec(client);
+      // A viewer that stops reading must not hold its thread forever.
+#ifdef _WIN32
+      DWORD sendTimeoutMs = 5000;
+      setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char*>(&sendTimeoutMs), sizeof(sendTimeoutMs));
+#else
+      timeval sendTimeout {5, 0};
+      setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &sendTimeout, sizeof(sendTimeout));
+#ifdef SO_NOSIGPIPE
+      int noSigPipe = 1;
+      setsockopt(client, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));
+#endif
+#endif
+      auto done = std::make_shared<std::atomic<bool>>(false);
+      webMonitorClients_.push_back({std::thread([this, client, done]() {
+        handleWebMonitorClient(client);
+        closeSocket(client);
+        done->store(true);
+      }), done});
+    }
+  }
+
+  bool startWebMonitor() {
+    if (!project_.webMonitorEnabled) {
+      webMonitorReady_ = false;
+      return false;
+    }
+    if (webMonitorListen_ != kInvalidSocket) {
+      return true;
+    }
+    webMonitorListen_ = createBoundSocket(SOCK_STREAM, project_.webMonitorPort, true,
+                                          !project_.webMonitorShareLan);
+    if (webMonitorListen_ == kInvalidSocket) {
+      webMonitorReady_ = false;
+      return false;
+    }
+    webMonitorStop_.store(false);
+    webMonitorDirSyncedMs_ = 0;
+    syncWebMonitorDirectory();
+    webMonitorEncoder_ = std::thread([this]() { webMonitorEncodeLoop(); });
+    webMonitorThread_ = std::thread([this]() { webMonitorLoop(); });
+    webMonitorReady_ = true;
+    return true;
+  }
+
+  void stopWebMonitor() {
+    webMonitorStop_.store(true);
+    if (webMonitorListen_ != kInvalidSocket) {
+      closeSocket(webMonitorListen_);
+      webMonitorListen_ = kInvalidSocket;
+    }
+    for (auto& slot : webMonitorSlots_) {
+      slot.cv.notify_all();
+    }
+    webMonitorEncodeCv_.notify_all();
+    if (webMonitorThread_.joinable()) webMonitorThread_.join();
+    for (auto& viewer : webMonitorClients_) {
+      if (viewer.thread.joinable()) viewer.thread.join();
+    }
+    webMonitorClients_.clear();
+    if (webMonitorEncoder_.joinable()) webMonitorEncoder_.join();
+    webMonitorReady_ = false;
+  }
+
+  void restartWebMonitorIfRunning() {
+    if (webMonitorListen_ != kInvalidSocket) {
+      stopWebMonitor();
+      startWebMonitor();
+    }
+  }
+
+  void setWebMonitorEnabled(bool enabled) {
+    project_.webMonitorEnabled = enabled;
+    if (enabled) {
+      if (!startWebMonitor()) {
+        triggerToast("web monitor: port " + std::to_string(project_.webMonitorPort) + " is busy");
+      } else {
+        triggerToast("web monitor: " + webMonitorUrl());
+      }
+    } else {
+      stopWebMonitor();
+      triggerToast("web monitor: off");
+    }
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setWebMonitorShare(bool share) {
+    project_.webMonitorShareLan = share;
+    restartWebMonitorIfRunning();
+    triggerToast(share ? "web monitor: shared on the network" : "web monitor: this computer only");
+    markProjectDirty();
+  }
+
+  void setWebMonitorPort(int port) {
+    project_.webMonitorPort = std::clamp(port, 1, 65535);
+    restartWebMonitorIfRunning();
+    triggerToast("web monitor port: " + std::to_string(project_.webMonitorPort));
+    markProjectDirty();
+  }
+
+  void setWebMonitorPin(const std::string& pin) {
+    project_.webMonitorPin = trim(pin);
+    webMonitorDirSyncedMs_ = 0;
+    syncWebMonitorDirectory();
+    triggerToast(project_.webMonitorPin.empty() ? "web monitor: no PIN" : "web monitor: PIN set");
+    markProjectDirty();
+  }
+
   void stopOscQueryServer() {
     oscQueryStop_.store(true);
     if (oscQueryTcpListen_ != kInvalidSocket) {
@@ -1215,7 +1733,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (327)\n"
+        "DECKBOY_0.01 every verb (328)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -1259,7 +1777,7 @@
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
         "TRACKER SEQUENCE GEOLFO\n"
-        "UPDATE VIDEO VIEW VJ VMIX VOLUME WARP WATCH WIDTH WINDOWSOURCE XFADE\n"
+        "UPDATE VIDEO VIEW VJ VMIX VOLUME WARP WATCH WEBMONITOR WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
       return true;
@@ -1357,6 +1875,8 @@
         "decklink: DECKLINK ON|OFF|TOGGLE | DEVICE <n> | MODE <mode> | 10BIT on|off\n"
         "          DECKLINK KEYFILL ON|OFF|TOGGLE [key device] | KEYDEVICE <n>\n"
         "          (key+fill sends the picture and its matte down two cards)\n"
+        "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF\n"
+        "      (every output, live, in any browser at the address STATUS gives)\n"
         "vmix: VMIX | VMIX ON|OFF|TOGGLE | VMIX PORTS <http> <tcp>\n"
         "      (answers the vMix HTTP and TCP APIs, so a Stream Deck plugin or\n"
         "       panel built for a vMix rig drives this desk unchanged)\n"

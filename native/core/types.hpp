@@ -2478,6 +2478,14 @@ struct Project {
   bool allowRemoteNetwork = false;       // false = listeners bind to localhost only; true = all interfaces
   bool oscQueryEnabled = false;          // OSC query server (Companion, TouchOSC, etc.)
   int oscQueryPort = 5511;               // TCP/UDP port for OSC
+  // WEB MONITOR: every output as a live picture in any browser, at
+  // http://<this machine>:<port>/. Off by default, and this machine only
+  // until it is shared -- a programme on a venue's Wi-Fi is not something to
+  // switch on by accident. An optional PIN gates every page.
+  bool webMonitorEnabled = false;
+  int webMonitorPort = 8090;
+  bool webMonitorShareLan = false;
+  std::string webMonitorPin;
   // vMix-compatible control surface. OFF by default: it is a second way into
   // the show, and a second way in is a decision the operator makes rather than
   // one that arrives switched on. The ports are vMix's own, so a panel

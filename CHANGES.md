@@ -1,5 +1,14 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## Next release
+
+**Watch any output in a browser.** Settings > Network > Web Monitor puts every
+output, live, on a page any browser can open -- a laptop, a tablet, a phone --
+with nothing to install. It starts on this computer only; one switch shares it
+on the network, and an optional PIN keeps it to the people who should see it.
+An output costs nothing until someone is watching. Over the network:
+`WEBMONITOR`, `WEBMONITOR ON|OFF`, `SHARE ON|OFF`, `PORT <n>`, `PIN <pin>|OFF`.
+
 ## 2026-10-01 - v0.99.398 (SRT feeds with their sound, grid warp, and warp you can find)
 
 **SRT feeds come in with their sound.** An SRT cue now takes its feed over a

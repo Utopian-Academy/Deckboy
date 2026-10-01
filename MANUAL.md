@@ -1650,6 +1650,27 @@ value is an error, because a clamp is what makes a units mistake invisible.
 
 Toggle adapters in `Settings → Network`.
 
+### Watching outputs in a browser
+
+**Settings → Network → Web Monitor** shows every output live in any
+browser — a laptop, a tablet, a phone — with nothing to install. Turn it on
+and the card prints the address to open, such as `http://192.168.1.20:8090/`.
+That page shows every output as a live thumbnail; click one for it alone,
+full window.
+
+- **Who can see it** starts at **THIS COMPUTER**. Switch it to **THE NETWORK**
+  for other devices on the same network to open it.
+- **PIN** asks every viewer for a code before showing anything.
+- An output costs nothing until somebody is watching it.
+- It is picture only, at up to 20 frames a second and about 960 pixels wide:
+  a monitor for the director, a client or the stage manager's tablet, not a
+  programme feed. For that, use an NDI, SRT or SDI output.
+- An output shows its picture while it is drawing. One that is off shows a
+  plain green frame until it is switched on.
+
+Over the network: `WEBMONITOR` (the address), `WEBMONITOR ON|OFF`,
+`WEBMONITOR SHARE ON|OFF`, `WEBMONITOR PORT <n>`, `WEBMONITOR PIN <pin>|OFF`.
+
 ---
 
 ## 23. Reliability & Soak Testing
