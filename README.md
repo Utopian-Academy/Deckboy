@@ -7,11 +7,19 @@
 [![Stars](https://img.shields.io/github/stars/Utopian-Academy/Deckboy?style=social)](https://github.com/Utopian-Academy/Deckboy/stargazers)
 [![Mentioned in Awesome NDI](https://awesome.re/mentioned-badge.svg)](https://github.com/florisporro/awesome-ndi)
 
-**Free, open-source cue-based media playback and show control for live video —
-theatre, live events, worship and broadcast.**
+## One cue list for your whole video show.
 
-If Deckboy runs part of your show, a ⭐ on this page is how the next operator
-finds it.
+**In:** video · slides · web pages · windows · cameras · NDI · SRT · SDI<br>
+**Out, while it records:** screens · NDI · SRT and RTMP · SDI · SMPTE ST 2110<br>
+**On:** Windows · macOS · Linux — free and open source. No account, no licence server, no telemetry.
+
+**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ Watch the one-minute trailer](https://utopian-academy.github.io/Deckboy/trailer.html)**
+
+[![The Deckboy trailer: a film clip, a web page, a slide deck, an arcade lower third, perspective projection mapping and live effects, all from one cue list](docs/video/trailer-poster-397.jpg)](https://utopian-academy.github.io/Deckboy/trailer.html)
+
+Cue-based media playback and show control for live video — theatre, live
+events, worship and broadcast. If Deckboy runs part of your show, a ⭐ on this
+page is how the next operator finds it.
 
 ### Everything is a cue
 
