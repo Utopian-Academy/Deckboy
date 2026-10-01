@@ -57,7 +57,7 @@
     </header>
 
     <div class="prose">
-        <p class="asof">As of Deckboy 0.99.379. For which format to choose, see
+        <p class="asof">As of Deckboy 0.99.397. For which format to choose, see
         <a href="faq.html#formats">the FAQ</a>.</p>
 
         <h2 id="video">Video and codecs</h2>
@@ -71,7 +71,7 @@
             <tr><th>Slides</th><td>PDF, one cue per page, rendered once at import by the operating system's own PDF engine; PowerPoint (.pptx, .ppt, .pps, .ppsx), Keynote (.key) and OpenDocument (.odp) decks the same way, converted by PowerPoint, Keynote or LibreOffice on the machine</td></tr>
             <tr><th>Live sources</th><td>Cameras, application windows and screens, web pages, NDI, SRT, RTMP, RTSP, UDP, Blackmagic DeckLink capture, Spout (Windows)</td></tr>
             <tr><th>Generated</th><td>Test patterns, a video synth, live-coded pictures, timers, lower thirds and tone</td></tr>
-            <tr><th>Effects</th><td>39 video effects on the live picture, every parameter drivable by an oscillator; 13 cue-to-cue transitions</td></tr>
+            <tr><th>Effects</th><td>42 video effects on the live picture, levels and curves among them, every parameter drivable by an oscillator; 13 cue-to-cue transitions</td></tr>
         </table></div>
 
         <h2 id="output">Output</h2>
@@ -81,7 +81,7 @@
             <tr><th>Bit depth</th><td>8-bit or 10-bit</td></tr>
             <tr><th>SMPTE ST 2110</th><td>ST&nbsp;2110-20 uncompressed video and ST&nbsp;2110-30 (AES67) audio, with AMWA NMOS IS-04 registration and IS-05 connection management</td></tr>
             <tr><th>Decks and outputs</th><td>Up to 16 playlists, each output showing whichever one you choose, or several composited as layers; a multiview you arrange yourself</td></tr>
-            <tr><th>Mapping</th><td>Per-output warp and edge blending; a corner pin per layer</td></tr>
+            <tr><th>Mapping</th><td>Per-output warp and edge blending; a corner pin per layer, dragged on the programme monitor, in perspective or linear</td></tr>
             <tr><th>Operator screens</th><td>Presenter view and a mirrored prompter, each an output of its own</td></tr>
         </table></div>
 
@@ -96,11 +96,11 @@
 
         <h2 id="audio">Audio</h2>
         <div class="table-wrap"><table class="spec">
-            <tr><th>Sample rate</th><td>48 kHz</td></tr>
+            <tr><th>Sample rate</th><td>44.1, 48, 88.2, 96 or 192 kHz, chosen in Settings</td></tr>
             <tr><th>Audio files</th><td>.mp3, .wav, .flac, .aac, .ogg, .oga, .m4a, .opus, .wma, .aiff</td></tr>
             <tr><th>Output channels</th><td>2, 4, 6, 8, 16, 32 or 64 per deck device &mdash; enough for a Dante Virtual Soundcard</td></tr>
             <tr><th>Routing</th><td>A stereo pair per cue, or a per-cue crosspoint matrix to any channel, stepped off, full, &minus;3, &minus;6 and &minus;12&nbsp;dB</td></tr>
-            <tr><th>Processing</th><td>22 audio effects per cue, and your own VST3 effects and instruments in the same chain</td></tr>
+            <tr><th>Processing</th><td>23 audio effects per cue, and your own VST3 effects and instruments in the same chain</td></tr>
             <tr><th>Input</th><td>A microphone or line input, by device</td></tr>
         </table></div>
 
@@ -110,7 +110,7 @@
             <tr><th>Controllers</th><td>A Bitfocus Companion module and an Elgato Stream Deck plugin</td></tr>
             <tr><th>MIDI</th><td>Notes, control changes and program changes in and out, MIDI Show Control, and MIDI files played out as cues</td></tr>
             <tr><th>Network</th><td>OSC in, with OSC Query discovery, and out; Art-Net DMX in (a lighting desk fires cues) and out (DMX cues); Blackmagic ATEM switcher tally and triggers</td></tr>
-            <tr><th>Timecode</th><td>An LTC generator and LTC chase in the macOS and Linux downloads</td></tr>
+            <tr><th>Timecode</th><td>An LTC generator and LTC chase, in every download</td></tr>
             <tr><th>Running order</th><td>Standby and GO, pre-wait, post-wait and continue, arm and disarm, audition, preload, and a pre-show CHECK</td></tr>
             <tr><th>Show-control cues</th><td>Target, fade, master, MIDI, network (OSC, UDP, TCP), timecode, DMX and script cues</td></tr>
         </table></div>

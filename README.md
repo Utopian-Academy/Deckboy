@@ -149,8 +149,7 @@ show.
 | **Window** &middot; **Screen** &middot; **Camera** | captured live, at the window's own full resolution |
 | **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | somebody else's signal, taken in as a cue |
 | **Pattern** &middot; **Test card** &middot; **Tone** | generated on the spot, no file needed |
-| **Timer** &middot; **Lower third** | a stage countdown and a name strap, as cues |
-| **PiP** &middot; **Composite** | one cue built out of other cues — quad split, side by side |
+| **Timer** &middot; **Lower third** | a stage countdown, full screen or over the programme, and a name strap in six looks |
 | **Video synth** &middot; **Code** | an oscillator with feedback, or an expression you type live |
 
 Every row takes the same fades, the same transitions, the same effect rack, the
@@ -234,8 +233,14 @@ all one object with one set of controls, not fifty separate things to learn.
   named and grouped from the list
 - Test patterns, a built-in test card, and generated line-up tone
 - Timer cues — a stage or speaker countdown with its own clock, thresholds and
-  chimes — and lower thirds, both cued like anything else
-- PiP and composite cues: one cue built out of other cues, 2-up, quad or 70/30
+  chimes. Its backdrop can go transparent and it has its own size and position,
+  so the clock can sit over the programme instead of replacing it
+- Lower thirds, cued like anything else, in six looks — bar, boxes, line, tag,
+  glass and **arcade**, a pixel-font strap with a hard shadow and a slow wobble —
+  with their colours and size settable from a Companion button
+- Picture in picture, side by side or a quad: lay a second playlist over the
+  first as a layer and scale and place it, with a whole playlist behind each
+  window instead of one fixed box
 - A **video synth** — oscillators with feedback, a glitch stack, text mode and
   sprite sets — and a **code source**, a live-coded expression evaluated per
   pixel and edited while it runs, with a compile error that never blacks the
@@ -250,6 +255,10 @@ all one object with one set of controls, not fifty separate things to learn.
   than one output at once
 - Display-native and fixed raster modes
 - Area of interest, edge feathering, warp / keystone correction
+- **Projection mapping per layer**: drag a layer's four corners onto a surface
+  on the programme monitor, in **perspective**, so a flat board stays flat with
+  its far end properly smaller, or linear. The programme, the recording and the
+  stream all carry it
 - Per-output matte and still overlay, composited into the output's own picture
 - NDI output, in every download
 - DeckLink (SDI) output, wherever the Blackmagic SDK is present
@@ -340,6 +349,10 @@ A conformant packetiser a broadcast controller can discover and route. See
 
 - A per-cue effect stack on every kind of cue, ordered, with copy/paste of a
   whole chain between cues
+- **Levels and curves** first in the list: black and white point, midtones and
+  lift; an S-curve per channel with shadow lift and highlight roll-off. Both
+  arrive neutral and cost under a millisecond a frame at 1080p
+- Effects go on and off a live cue without interrupting it
 - Forty-two effects, each with named parameters. Timed one at a time at 1080p
   on a laptop processor, the heaviest measured takes three-quarters of a 60fps
   frame — `--effect-bench` prints what each one costs on yours
