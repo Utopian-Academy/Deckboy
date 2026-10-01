@@ -68,6 +68,11 @@ EFFECTS = [
     ("grain_flow",      "0.95:0.5:0.0:0.4"),
     ("databend",        "0.9:0.55:0.6:0.5:0.55"),
     ("time_cube",       "1.0:0.35:0.5:0.4:0.2"),
+    # Off neutral on every slot, so the dump shows each one doing something.
+    ("levels",          "1.0:0.7:0.2:0.15:0.1"),
+    # The S-curve alone: lift and roll-off pull the other way and would
+    # mostly cancel it in a single dump.
+    ("curves",          "1.0:0.9:0.0:0.0:0.0"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -142,6 +147,8 @@ PARAM_SLOTS = {
     "caustics":        ["chop", "swell speed", "focus"],
     "feedback":        ["zoom", "spin", "drift", "colour bleed"],
     "feedback_bloom":  ["hue turn", "melt", "zoom", "swirl"],
+    "levels":          ["midtones", "black point", "white point", "lift"],
+    "curves":          ["s-curve", "channel", "shadow lift", "highlight roll"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],
@@ -167,6 +174,10 @@ NEUTRAL = [0.5, 0.0, 0.0, 0.0]
 # Testing it from neutral asks whether a night-vision tint works in daylight,
 # gets "no", and calls a working control dead.
 PARAM_BASE = {
+    # Curves' channel picks WHICH channel the curve bends, so on a straight
+    # curve every channel is the same nothing. Start from a bent (flattened)
+    # curve -- not an S, which is where the s-curve slot is moved TO.
+    "curves": [0.2, 0.0, 0.0, 0.0],
     "scotopic": [0.5, 0.85, 0.0, 0.0],
     # Databend's smear is a DELAY TIME, and the delayed signal is only mixed
     # back in through the feedback. At neutral feedback nothing is fed back, so

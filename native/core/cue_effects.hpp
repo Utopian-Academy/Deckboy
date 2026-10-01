@@ -108,6 +108,12 @@ enum class CueEffectKind : int {
   // four parameters are all spoken for and re-meaning one would restage every
   // show that uses it.
   FeedbackBloom,
+  // Added 2026-09-30. The grading basics, asked for as "we have effects
+  // totally unheard of, but not the basics like levels and curves". Both
+  // ARRIVE NEUTRAL (A=0.5, B=C=D=0 is the identity), so adding one changes
+  // nothing until a slider moves -- which is what a grading tool should do.
+  Levels,
+  Curves,
   Count,
 };
 
@@ -153,6 +159,8 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Databend:       return "databend";
     case CueEffectKind::Audioprint:     return "audioprint";
     case CueEffectKind::TimeCube:       return "time cube";
+    case CueEffectKind::Levels:         return "levels";
+    case CueEffectKind::Curves:         return "curves";
     default:                            return "none";
   }
 }
@@ -201,6 +209,8 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Databend:       return "databend";
     case CueEffectKind::Audioprint:     return "audioprint";
     case CueEffectKind::TimeCube:       return "time_cube";
+    case CueEffectKind::Levels:         return "levels";
+    case CueEffectKind::Curves:         return "curves";
     default:                            return "none";
   }
 }
@@ -324,6 +334,12 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::FeedbackBloom:
       return which == 0 ? "hue turn" : which == 1 ? "melt"
            : which == 2 ? "zoom" : which == 3 ? "swirl" : nullptr;
+    case CueEffectKind::Levels:
+      return which == 0 ? "midtones" : which == 1 ? "black point"
+           : which == 2 ? "white point" : which == 3 ? "lift" : nullptr;
+    case CueEffectKind::Curves:
+      return which == 0 ? "s-curve" : which == 1 ? "channel"
+           : which == 2 ? "shadow lift" : which == 3 ? "highlight roll" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -570,6 +586,29 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "Zero leaves the colour alone and it reads as a lens instead."
         : "Moves the direction of travel off the centre of frame, so the "
           "picture rushes past rather than straight at you.";
+    case CueEffectKind::Levels:
+      return which == 0
+        ? "Gamma. Centre leaves the picture alone; up opens the midtones, down "
+          "sinks them. Black and white stay where they are."
+        : which == 1
+        ? "Everything this dark or darker becomes black. Up crushes the "
+          "shadows and adds punch."
+        : which == 2
+        ? "Everything this bright or brighter becomes white. Up clips the "
+          "highlights and brightens the whole picture."
+        : "Raises black to grey: the faded, matte look. Applied last.";
+    case CueEffectKind::Curves:
+      return which == 0
+        ? "Centre is a straight line. Up bends it into an S -- darker shadows, "
+          "brighter highlights, more contrast. Down flattens it."
+        : which == 1
+        ? "Which channel the curve acts on: all three, then red, green or blue "
+          "on its own -- the way a colourist warms or cools one end of the "
+          "picture."
+        : which == 2
+        ? "Lifts the dark tones without moving pure black."
+        : "Pulls the bright tones down without moving pure white, so a hot "
+          "highlight rolls off instead of clipping.";
     case CueEffectKind::FeedbackBloom:
       return which == 0
         ? "How far the colour turns on each trip round the loop. This is the "
@@ -1401,6 +1440,57 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               lut[c][v] = detail::clamp8(
                 std::pow(std::clamp(banded / 255.0, 0.0, 1.0), 1.0 / curve) * 255.0);
             }
+          }
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              p[0] = lut[0][p[0]];
+              p[1] = lut[1][p[1]];
+              p[2] = lut[2][p[2]];
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Levels: {
+        // Input black/white, then gamma, then the lift: the order every
+        // levels tool uses, so the controls behave the way an operator who
+        // has used one expects.
+        const double inBlack = pB * 128.0;
+        const double inWhite = 255.0 - pC * 128.0;
+        const double span = std::max(1.0, inWhite - inBlack);
+        const double gamma = std::pow(3.0, (0.5 - pA) * 2.0);   // 0.5 -> 1.0
+        const double outBlack = pD * 128.0;
+        std::uint8_t lut[256];
+        detail::buildChannelLut(lut, [&](int v) {
+          const double x = std::clamp((v - inBlack) / span, 0.0, 1.0);
+          const double y = outBlack + std::pow(x, gamma) * (255.0 - outBlack);
+          return detail::clamp8(v * (1.0 - amt) + y * amt);
+        });
+        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
+        break;
+      }
+      case CueEffectKind::Curves: {
+        const double s = (pA - 0.5) * 2.0;   // -1 flat .. 0 straight .. +1 full S
+        std::uint8_t curve[256];
+        detail::buildChannelLut(curve, [&](int v) {
+          const double x = v / 255.0;
+          const double smooth = x * x * (3.0 - 2.0 * x);
+          double y = x + s * (smooth - x);
+          // Bumps that are zero at both ends, so black and white never move.
+          y += pC * 0.25 * 6.75 * x * (1.0 - x) * (1.0 - x);
+          y -= pD * 0.25 * 6.75 * x * x * (1.0 - x);
+          return detail::clamp8(v * (1.0 - amt) + std::clamp(y, 0.0, 1.0) * 255.0 * amt);
+        });
+        // 0 = all three, then R, G, B in quarters of the slider.
+        const int channel = pB < 0.125 ? -1 : pB < 0.375 ? 0 : pB < 0.625 ? 1 : 2;
+        std::uint8_t lut[3][256];
+        for (int c = 0; c < 3; ++c) {
+          for (int v = 0; v < 256; ++v) {
+            lut[c][v] = (channel < 0 || channel == c) ? curve[v]
+                                                      : static_cast<std::uint8_t>(v);
           }
         }
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {

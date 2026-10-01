@@ -29,6 +29,19 @@ grade or key to a cue that is on air -- or clearing the last one -- now changes
 the picture on the very next frame, and the clip keeps moving. Paused cues pick
 the look up straight away too.
 
+**Levels and curves.** The two grading tools every operator reaches for are
+now the first two entries in the effect list. **Levels** has midtones (shown as
+gamma), black point, white point and lift; **curves** bends the picture into an
+S for contrast -- or flattens it -- on all channels or on red, green or blue
+alone, with a shadow lift and a highlight roll-off. Both arrive doing nothing
+until a slider moves, and both take an LFO like every other effect.
+
+**The stage timer can sit over the programme.** Its **backdrop** now goes to
+**transparent**, and the timer has its own **GEOMETRY** section, so the clock
+can be sized and parked in a corner of a playlist layered over the show. Over
+the network: `TIMER BACKDROP transparent | default | #rrggbb`. Text on any
+transparent frame -- lower thirds included -- now keeps clean edges.
+
 **A layer stays where you put it when you select its playlist.** Selecting a
 playlist that is layered on an output keeps the focus, and the programme
 monitor, on that output -- even with a recording or a stream running.

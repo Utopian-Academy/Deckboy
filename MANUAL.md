@@ -151,7 +151,7 @@ down to give the height back.
 | **Composite** | A multi-slot scene (2-up, quad, 70/30, etc.) |
 | **Audio** | An audio-only file with a waveform lane |
 | **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
-| **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages |
+| **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages. Set its **backdrop** to **transparent** and use **GEOMETRY** to put the clock in a corner of the programme as a layer |
 | **Video Synth** | Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets |
 | **Code** | A live-coded picture: an expression evaluated per pixel, edited while it runs (see §14a). It is a Pattern cue underneath, so anything true of patterns is true of it |
 
@@ -782,6 +782,8 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 
 | Effect | What it does |
 |--------|--------------|
+| levels | The levels tool: midtones (gamma), black point, white point and lift. First in the effect list, and it arrives doing nothing until you move a slider |
+| curves | An S-curve for contrast (or flatten it), on all channels or red, green or blue alone, with a shadow lift and a highlight roll-off that never move pure black or white |
 | invert, posterise, solarise, threshold | Level shaping, each with a pivot and a channel skew |
 | vignette, scanlines, grain | The classic framing and texture set |
 | RGB split | Channel offset with an angle |

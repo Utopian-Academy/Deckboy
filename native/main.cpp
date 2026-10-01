@@ -5814,7 +5814,7 @@ class App {
                      timerColorLabel(cue.timer.colorBackground),
                      QuickAction::TimerCycleColorBackground,
                      QuickAction::ToggleLoop, false, false,
-                     "Screen behind the clock");
+                     "Screen behind the clock -- or transparent, to layer the clock over another playlist");
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "prog bar", QuickAction::TimerProgressToggle,
@@ -6161,6 +6161,24 @@ class App {
                                   ? held : ::textModeCharSetForParam(raw));
         }
         case 3: return vsInkLabel(::textModeInkForParam(raw));
+        default: break;
+      }
+    }
+    // The grading basics read in the units a levels tool uses, and curves'
+    // channel says WHICH channel -- "30%" of a channel is not a channel.
+    if (fx.kind == deckboy::effects::CueEffectKind::Curves && which == 1) {
+      return raw < 0.125f ? "all" : raw < 0.375f ? "red" : raw < 0.625f ? "green" : "blue";
+    }
+    if (fx.kind == deckboy::effects::CueEffectKind::Levels) {
+      char lv[24];
+      switch (which) {
+        case 0:   // shown as a levels tool shows gamma: above 1 is brighter
+          std::snprintf(lv, sizeof(lv), "gamma %.2f",
+                        1.0 / std::pow(3.0, (0.5 - static_cast<double>(raw)) * 2.0));
+          return lv;
+        case 1: std::snprintf(lv, sizeof(lv), "%d", static_cast<int>(std::lround(raw * 128.0f))); return lv;
+        case 2: std::snprintf(lv, sizeof(lv), "%d", 255 - static_cast<int>(std::lround(raw * 128.0f))); return lv;
+        case 3: std::snprintf(lv, sizeof(lv), "%d", static_cast<int>(std::lround(raw * 128.0f))); return lv;
         default: break;
       }
     }

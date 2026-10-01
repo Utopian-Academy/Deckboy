@@ -472,8 +472,20 @@ std::vector<deckboy::effects::CueEffect>* selectedEffectStack() {
 // from a visible list and never cycles blind through options they cannot see.
 std::vector<std::pair<std::string, std::string>> cueEffectChoices() {
   std::vector<std::pair<std::string, std::string>> choices;
-  for (int i = 1; i < static_cast<int>(deckboy::effects::CueEffectKind::Count); ++i) {
-    const auto kind = static_cast<deckboy::effects::CueEffectKind>(i);
+  // THE BASICS FIRST. The list is otherwise in the order effects were added,
+  // which put levels and curves -- what an operator reaches for most -- under
+  // forty-odd effects nobody has heard of.
+  using deckboy::effects::CueEffectKind;
+  const CueEffectKind basics[] = {CueEffectKind::Levels, CueEffectKind::Curves};
+  for (CueEffectKind kind : basics) {
+    choices.push_back({deckboy::effects::cueEffectToken(kind),
+                       deckboy::effects::cueEffectLabel(kind)});
+  }
+  for (int i = 1; i < static_cast<int>(CueEffectKind::Count); ++i) {
+    const auto kind = static_cast<CueEffectKind>(i);
+    if (std::find(std::begin(basics), std::end(basics), kind) != std::end(basics)) {
+      continue;
+    }
     choices.push_back({deckboy::effects::cueEffectToken(kind),
                        deckboy::effects::cueEffectLabel(kind)});
   }
