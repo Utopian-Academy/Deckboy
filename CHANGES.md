@@ -7,6 +7,14 @@ single connection -- the way a vision mixer does -- and plays the picture and
 the sound together, at whatever size the feed arrives in. Channels imported
 from an .m3u playlist carry their sound too.
 
+**CONTINUE FOLLOW runs on a cue that holds its last frame.** A cue set to
+continue "from end" now takes the next cue when it finishes, whether or not it
+holds its picture -- holding is the default, so this is most cues.
+
+**NDI sources by their full name, quoted or not.** `NDICUE "WINDY (Graphics PC)"`
+and `NDICUE WINDY (Graphics PC)` both find the sender, and the same goes for
+every source verb that takes a name.
+
 **The deck's sound level over the network.** `STATUS` reports `audio_level=`
 (0-100, the VU scale) for each deck, so a controller -- or anyone checking a
 feed -- can see that sound is arriving without listening for it.

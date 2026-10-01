@@ -5946,6 +5946,14 @@ void MediaEngine::handlePlaybackEnd() {
     if (audioStream_) {
       deckboySetAudioPaused(audioStream_, true);
     }
+    // A HOLDING CUE SET TO CONTINUE FOLLOW STILL ENDS. The transport only
+    // advances on reachedEnd(), and a hold never raised it -- so FOLLOW, whose
+    // whole meaning is "when this one finishes", never fired on any cue that
+    // holds its last frame, which is the default. Raised for FOLLOW only, so
+    // every other holding cue behaves exactly as it did.
+    if (activeCue_->continueMode == CueContinueMode::AutoFollow) {
+      reachedEnd_ = true;
+    }
     return;
   }
   // Default: stop and signal end-of-playback (the transport handler decides

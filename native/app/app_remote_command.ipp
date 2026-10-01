@@ -5493,6 +5493,14 @@
         }
       }
       std::string sourceRef = parts.size() > refStartIndex ? joinParts(parts, refStartIndex) : "";
+      // A name with spaces is naturally typed in quotes -- NDICUE "WINDY
+      // (Graphics PC)" -- and the quotes are not part of it: kept, they made a
+      // source called "WINDY (Graphics PC)" WITH the quote marks, which no
+      // sender is named.
+      sourceRef = trim(sourceRef);
+      if (sourceRef.size() >= 2 && sourceRef.front() == '"' && sourceRef.back() == '"') {
+        sourceRef = sourceRef.substr(1, sourceRef.size() - 2);
+      }
 
       // A SOURCE WITH NO REFERENCE OPENS A PICKER, AND A PICKER CANNOT BE
       // ANSWERED OVER A SOCKET. addSourceCue asks which window or which camera
