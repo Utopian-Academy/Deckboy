@@ -1083,7 +1083,7 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
   } else if (fields[0] == "asio_driver") {
     project.asioDriverName = safeString(fields, 1);
   } else if (fields[0] == "asio_channels") {
-    project.asioChannels = std::clamp(safeInt(fields, 1, 2), 2, 64);
+    project.asioChannels = std::clamp(safeInt(fields, 1, 2), 2, kMaxAudioOutputs);
   } else if (fields[0] == "recording_dir") {
     project.recordingDir = safeString(fields, 1);
   } else if (fields[0] == "recording_width") {
@@ -1787,7 +1787,10 @@ Project loadProject(const fs::path& projectFile,
       deck.playlistDefaultPauseAtBeginning = safeBool(fields, 52 + warpFieldOffset, false);
       deck.playlistDefaultPauseAtEnd = safeBool(fields, 53 + warpFieldOffset, true);
       deck.playlistDefaultTransitionToNext = safeBool(fields, 54 + warpFieldOffset, true);
-      deck.audioOutputChannels = std::clamp(safeInt(fields, 55 + warpFieldOffset, 2), 2, 8);
+      // Clamped to what the app can open. This said 8 after the selector went
+      // to 16, 32 and 64, so a wide deck came back from a save as 8 outputs.
+      deck.audioOutputChannels = std::clamp(safeInt(fields, 55 + warpFieldOffset, 2), 2,
+                                            kMaxAudioOutputs);
       // Neutral default -1: a show written before the standby pointer existed
       // opens with no standby and behaves exactly as it did.
       deck.standbyIndex = safeInt(fields, 56 + warpFieldOffset, -1);

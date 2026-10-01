@@ -36,6 +36,12 @@
 // kColWidth/kRowHeight: cue list column and row sizing.
 // kPadding:             general inner padding for UI elements.
 // ---------------------------------------------------------------------------
+// THE WIDEST AUDIO DEVICE A DECK CAN OPEN, and so the widest the crosspoint
+// matrix can route to. 128 because that is what a large Dante or MADI rig
+// presents, and what the show-control tools Deckboy is compared with offer.
+// Everything that clamps an output count or a matrix destination reads this.
+constexpr int kMaxAudioOutputs = 128;
+
 constexpr int kControlWidth = 1760;    // control window default width (pixels)
 constexpr int kControlHeight = 1020;   // control window default height (pixels)
 constexpr int kOutputWidth = 1280;     // inline output preview width (pixels)

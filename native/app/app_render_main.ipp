@@ -5895,7 +5895,7 @@
     // audio chain, because it answers "where does it go" after "what does it
     // sound like".
     if (selectedCue && cueCarriesAudio(*selectedCue)) {
-      const int outs = std::clamp(focusedDeck().audioOutputChannels, 2, 64);
+      const int outs = std::clamp(focusedDeck().audioOutputChannels, 2, kMaxAudioOutputs);
       const bool on = !selectedCue->audioMatrix.empty();
 
       int mxY = inspectorSectionBottomMax_ + kInspectorSectionGap;

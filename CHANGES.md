@@ -2,6 +2,11 @@
 
 ## Next release
 
+**128 audio outputs.** A deck can open an audio device up to 128 channels wide, the
+crosspoint matrix routes to any of them, and an ASIO interface can be armed at 32, 64
+or 128 outputs. A deck set wider than eight outputs also keeps that width when the
+show is saved and opened again.
+
 **Watch any output in a browser.** Settings > Network > Web Monitor puts every
 output, live, on a page any browser can open -- a laptop, a tablet, a phone --
 with nothing to install. It starts on this computer only; one switch shares it

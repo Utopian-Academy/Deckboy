@@ -1106,11 +1106,16 @@
     }
     webMonitorDirSyncedMs_ = now;
     std::vector<std::string> names;
+    std::vector<bool> sound;
     for (int i = 0; i < static_cast<int>(project_.outputs.size()) && i < kWebMonitorMaxOutputs; ++i) {
+      const OutputTarget& out = project_.outputs[static_cast<std::size_t>(i)];
       names.push_back(outputLabel(i));
+      sound.push_back(out.enabled && out.streamEnabled &&
+                      outputStreamProtocolIsWeb(normalizeOutputStreamProtocol(out.streamProtocol)));
     }
     std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
     webMonitorOutputNames_ = std::move(names);
+    webMonitorOutputSound_ = std::move(sound);
     webMonitorPinSnapshot_ = project_.webMonitorPin;
   }
 
@@ -1301,12 +1306,17 @@
       path = path.substr(0, q);
     }
     std::vector<std::string> names;
+    std::vector<bool> sound;
     std::string pin;
     {
       std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
       names = webMonitorOutputNames_;
+      sound = webMonitorOutputSound_;
       pin = webMonitorPinSnapshot_;
     }
+    auto hasSound = [&](int out) {
+      return out >= 0 && out < static_cast<int>(sound.size()) && sound[static_cast<std::size_t>(out)];
+    };
     // THE PIN, when there is one, gates every page and every stream.
     std::string given;
     for (std::size_t at = 0; at <= query.size();) {
@@ -1338,7 +1348,8 @@
       for (std::size_t i = 0; i < names.size(); ++i) {
         const std::string n = std::to_string(i + 1);
         body << "<div class='card'><img src='/out/" << n << pinQuery << "' alt=''>"
-             << "<a href='/view/" << n << pinQuery << "'>" << escapeHtml(names[i]) << "</a></div>";
+             << "<a href='/view/" << n << pinQuery << "'>" << escapeHtml(names[i])
+             << (hasSound(static_cast<int>(i)) ? " &middot; with sound" : "") << "</a></div>";
       }
       if (names.empty()) body << "<p style='padding:16px'>No outputs.</p>";
       body << "</div>";
@@ -1350,7 +1361,13 @@
       const std::string n = std::to_string(out + 1);
       const std::string title = out < static_cast<int>(names.size()) ? names[static_cast<std::size_t>(out)] : "Output " + n;
       webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
-        webMonitorPageShell(title, "<div class='full'><img src='/out/" + n + pinQuery + "' alt=''></div>"));
+        hasSound(out)
+          ? webMonitorPlayerPage(title, "/av/" + n + pinQuery)
+          : webMonitorPageShell(title, "<div class='full'><img src='/out/" + n + pinQuery + "' alt=''></div>"));
+      return;
+    }
+    if (int out = outputFromPath("/av/"); out >= 0) {
+      streamWebAv(client, out);
       return;
     }
     if (int out = outputFromPath("/snap/"); out >= 0) {
@@ -1468,6 +1485,238 @@
         done->store(true);
       }), done});
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // WEB INGEST -- an output routed to WEB, with its sound.
+  //
+  // The output's encoder (the same ffmpeg every stream output runs, told
+  // -f mp4 +frag_keyframe) connects to a socket here that only this machine
+  // can reach. Its fragmented MP4 is cut into boxes: ftyp + moov are the init
+  // segment every new viewer needs first; each moof + mdat is a fragment that
+  // starts on a keyframe, so a viewer can join at any of them. The last few
+  // are kept, and every viewer is sent every fragment in order -- a video
+  // player cannot skip one the way an MJPEG viewer skips a picture.
+  // ---------------------------------------------------------------------------
+  void ensureWebIngest(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= kWebMonitorMaxOutputs) return;
+    WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+    if (slot.ingestListen != kInvalidSocket) return;
+    SocketHandle listenSocket = createBoundSocket(SOCK_STREAM, 0, true, true);
+    if (listenSocket == kInvalidSocket) return;
+    sockaddr_in bound {};
+    socklen_t length = sizeof(bound);
+    if (getsockname(listenSocket, reinterpret_cast<sockaddr*>(&bound), &length) != 0) {
+      closeSocket(listenSocket);
+      return;
+    }
+    slot.ingestListen = listenSocket;
+    slot.ingestPort = ntohs(bound.sin_port);
+    slot.ingestStop.store(false);
+    slot.ingestThread = std::thread([this, outputIndex]() { webIngestLoop(outputIndex); });
+  }
+
+  void stopWebIngests() {
+    for (auto& slot : webMonitorSlots_) {
+      slot.ingestStop.store(true);
+      if (slot.ingestListen != kInvalidSocket) {
+        closeSocket(slot.ingestListen);
+        slot.ingestListen = kInvalidSocket;
+      }
+      slot.cv.notify_all();
+      if (slot.ingestThread.joinable()) slot.ingestThread.join();
+      slot.ingestPort = 0;
+    }
+  }
+
+  static std::uint64_t webBoxSize(const std::string& b) {
+    auto be32 = [&](std::size_t at) {
+      return (static_cast<std::uint64_t>(static_cast<unsigned char>(b[at])) << 24) |
+             (static_cast<std::uint64_t>(static_cast<unsigned char>(b[at + 1])) << 16) |
+             (static_cast<std::uint64_t>(static_cast<unsigned char>(b[at + 2])) << 8) |
+             static_cast<std::uint64_t>(static_cast<unsigned char>(b[at + 3]));
+    };
+    const std::uint64_t size = be32(0);
+    if (size == 1 && b.size() >= 16) {
+      return (be32(8) << 32) | be32(12);
+    }
+    return size;
+  }
+
+  void webIngestLoop(int outputIndex) {
+    WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+    while (!slot.ingestStop.load()) {
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      if (slot.ingestListen == kInvalidSocket) break;
+      watchFd(slot.ingestListen, &readFds);
+      timeval tv {};
+      tv.tv_usec = 250000;
+      if (select(selectNfds(slot.ingestListen), &readFds, nullptr, nullptr, &tv) <= 0) continue;
+      SocketHandle encoder = accept(slot.ingestListen, nullptr, nullptr);
+      if (encoder == kInvalidSocket) continue;
+      setCloseOnExec(encoder);
+      std::string buffer;
+      std::string pending;   // a moof waiting for its mdat
+      std::array<char, 65536> chunk {};
+      while (!slot.ingestStop.load()) {
+        fd_set encFds;
+        FD_ZERO(&encFds);
+        watchFd(encoder, &encFds);
+        timeval wait {};
+        wait.tv_usec = 250000;
+        const int ready = select(selectNfds(encoder), &encFds, nullptr, nullptr, &wait);
+        if (ready < 0) break;
+        if (ready == 0) continue;
+        const int got = recv(encoder, chunk.data(), static_cast<int>(chunk.size()), 0);
+        if (got <= 0) break;
+        buffer.append(chunk.data(), static_cast<std::size_t>(got));
+        while (buffer.size() >= 8) {
+          const std::uint64_t size = webBoxSize(buffer);
+          if (size < 8 || size > (256u << 20)) {   // not a box we can follow: resync on the next encoder
+            buffer.clear();
+            break;
+          }
+          if (buffer.size() < size) break;
+          const std::string type = buffer.substr(4, 4);
+          std::string box = buffer.substr(0, static_cast<std::size_t>(size));
+          buffer.erase(0, static_cast<std::size_t>(size));
+          if (type == "ftyp" || type == "moov") {
+            std::lock_guard<std::mutex> lock(slot.mutex);
+            if (type == "ftyp") {
+              slot.avInit.clear();
+              slot.avFragments.clear();
+              ++slot.avGeneration;   // a new encoder: viewers start again
+            }
+            slot.avInit += box;
+          } else if (type == "moof") {
+            pending = std::move(box);
+          } else if (type == "mdat" && !pending.empty()) {
+            pending += box;
+            {
+              std::lock_guard<std::mutex> lock(slot.mutex);
+              ++slot.avFragmentSeq;
+              slot.avFragments.emplace_back(slot.avFragmentSeq,
+                                            std::make_shared<const std::string>(std::move(pending)));
+              while (slot.avFragments.size() > 40) slot.avFragments.pop_front();
+            }
+            pending.clear();
+            slot.cv.notify_all();
+          } else if (!pending.empty()) {
+            pending += box;
+          }
+        }
+      }
+      closeSocket(encoder);
+    }
+  }
+
+  // /av/N: the init segment, then every fragment as it arrives, from the
+  // newest one (a keyframe) on. Ends when the encoder restarts; the page
+  // reconnects by itself.
+  void streamWebAv(SocketHandle client, int outputIndex) {
+    WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+    std::string init;
+    std::uint64_t generation = 0;
+    std::uint64_t next = 0;
+    {
+      std::lock_guard<std::mutex> lock(slot.mutex);
+      init = slot.avInit;
+      generation = slot.avGeneration;
+      next = slot.avFragments.empty() ? slot.avFragmentSeq + 1 : slot.avFragments.back().first;
+    }
+    if (init.empty()) {
+      webMonitorSendPage(client, "503 Service Unavailable", "text/plain; charset=utf-8",
+                         "this output is not routed to WEB, or its encoder has not started\n");
+      return;
+    }
+    static const std::string kHead =
+      "HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n";
+    if (!webMonitorSendAll(client, kHead.data(), kHead.size()) ||
+        !webMonitorSendAll(client, init.data(), init.size())) {
+      return;
+    }
+    while (!webMonitorStop_.load()) {
+      std::vector<std::shared_ptr<const std::string>> due;
+      {
+        std::unique_lock<std::mutex> lock(slot.mutex);
+        slot.cv.wait_for(lock, std::chrono::seconds(1), [&]() {
+          return webMonitorStop_.load() || slot.avGeneration != generation ||
+                 (!slot.avFragments.empty() && slot.avFragments.back().first >= next);
+        });
+        if (webMonitorStop_.load() || slot.avGeneration != generation) break;
+        if (!slot.avFragments.empty() && next < slot.avFragments.front().first) {
+          next = slot.avFragments.back().first;   // fell behind: rejoin at the newest
+        }
+        for (const auto& fragment : slot.avFragments) {
+          if (fragment.first >= next) {
+            due.push_back(fragment.second);
+            next = fragment.first + 1;
+          }
+        }
+      }
+      for (const auto& fragment : due) {
+        if (!webMonitorSendAll(client, fragment->data(), fragment->size())) return;
+      }
+    }
+  }
+
+  // The player for an output with sound: MediaSource fed from /av/N, starting
+  // muted (browsers refuse sound before a click) with a SOUND ON button, held
+  // near the live edge, and reconnecting when the stream ends.
+  static std::string webMonitorPlayerPage(const std::string& title, const std::string& avUrl) {
+    return webMonitorPageShell(title,
+      "<div class='full'><video id='v' autoplay muted playsinline></video>"
+      "<button id='s' style='position:fixed;bottom:16px;right:16px'>SOUND ON</button></div>"
+      "<script>"
+      "const v=document.getElementById('v'),b=document.getElementById('s');"
+      "b.onclick=()=>{v.muted=false;v.play();b.remove();};"
+      "const MS=window.ManagedMediaSource||window.MediaSource;"
+      "const mime='video/mp4; codecs=\"avc1.4D4029,mp4a.40.2\"';"
+      "if(!MS||!MS.isTypeSupported(mime)){document.body.insertAdjacentHTML('beforeend',"
+      "'<p style=\"position:fixed;top:8px;left:8px\">This browser cannot play the web stream.</p>');}"
+      "else{const ms=new MS();if(window.ManagedMediaSource)v.disableRemotePlayback=true;"
+      "v.src=URL.createObjectURL(ms);"
+      "ms.addEventListener('sourceopen',async()=>{const sb=ms.addSourceBuffer(mime);const q=[];"
+      "const pump=()=>{if(!sb.updating&&q.length){try{sb.appendBuffer(q.shift());}catch(e){}}};"
+      "sb.addEventListener('updateend',()=>{if(v.buffered.length){"
+      "const end=v.buffered.end(v.buffered.length-1),start=v.buffered.start(0);"
+      "if(end-v.currentTime>1.2)v.currentTime=end-0.25;"
+      "if(v.currentTime-start>20&&!sb.updating&&!q.length){sb.remove(start,v.currentTime-10);return;}}"
+      "pump();});"
+      "try{const r=await fetch('" + avUrl + "');const rd=r.body.getReader();"
+      "for(;;){const {done,value}=await rd.read();if(done)break;q.push(value);pump();"
+      "if(v.paused)v.play().catch(()=>{});}}catch(e){}"
+      "setTimeout(()=>location.reload(),1000);});}"
+      "</script>");
+  }
+
+  void setWebMonitorProgrammeSound(bool on) {
+    int idx = findStreamOutputForProtocol("web");
+    if (on && idx < 0) {
+      idx = ensureStreamOutputForProtocol("web");
+    }
+    if (idx < 0 || idx >= static_cast<int>(project_.outputs.size())) {
+      if (on) triggerToast("web: could not create the output");
+      return;
+    }
+    OutputTarget& out = project_.outputs[static_cast<std::size_t>(idx)];
+    out.enabled = on;
+    out.streamEnabled = on;
+    if (on && !project_.webMonitorEnabled) {
+      setWebMonitorEnabled(true);
+    }
+    webMonitorDirSyncedMs_ = 0;
+    triggerToast(on ? "web: programme with sound on " + outputLabel(idx) : "web: programme sound off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  bool webMonitorProgrammeSoundOn() const {
+    const int idx = findStreamOutputForProtocol("web");
+    return idx >= 0 && idx < static_cast<int>(project_.outputs.size()) &&
+           project_.outputs[static_cast<std::size_t>(idx)].enabled &&
+           project_.outputs[static_cast<std::size_t>(idx)].streamEnabled;
   }
 
   bool startWebMonitor() {
@@ -1803,7 +2052,7 @@
         "timecode:  TCCUE NEW|ACTION start/stop/jam|JAM <hh:mm:ss:ff or seconds>|FIRE - drives the LTC generator from the cue list\n"
         "script:    SCRIPTCUE NEW|ADD <line>|CLEAR|RUN - a cue that runs Deckboy protocol lines; # is a comment\n"
         "dmx out:   DMXCUE NEW|SET <1=255,10-14=64>|FADE <s>|UNIVERSE <n>|HOST <ipv4>|PORT <n>|FIRE|BLACKOUT - Art-Net levels on GO\n"
-        "matrix:    MATRIX [SET <src 1-2> <dest 1-64> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
+        "matrix:    MATRIX [SET <src 1-2> <dest 1-128> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
         "midi file: MIDIFILE [PORT <name>] - drop a .mid in the playlist and it plays out\n"
         "text:      TEXTCUE NEW|BODY <words>|ANIM none/fade/typewriter/scroll/crawl/pulse/wobble|SIZE <1-100>|SPEED <n>|ALIGN <side>|CARD <0-255>\n"
         "lower 3rd: TEXTCUE LOWERNEW | LOWER on/off | TITLE <words> | SUB <words> | LOOK bar/boxes/line/tag/glass/arcade\n"
@@ -1875,7 +2124,7 @@
         "decklink: DECKLINK ON|OFF|TOGGLE | DEVICE <n> | MODE <mode> | 10BIT on|off\n"
         "          DECKLINK KEYFILL ON|OFF|TOGGLE [key device] | KEYDEVICE <n>\n"
         "          (key+fill sends the picture and its matte down two cards)\n"
-        "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF\n"
+        "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF | SOUND ON|OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF\n"
         "      (every output, live, in any browser at the address STATUS gives)\n"
         "vmix: VMIX | VMIX ON|OFF|TOGGLE | VMIX PORTS <http> <tcp>\n"
         "      (answers the vMix HTTP and TCP APIs, so a Stream Deck plugin or\n"

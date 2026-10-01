@@ -229,7 +229,7 @@ class MediaEngine {
   void setAudioDelayMs(int ms) { audioDelayMs_.store(std::clamp(ms, 0, 1000)); }
   // Channel count the deck's SDL stream was opened with (2/4/6/8). Must match
   // the open spec or every byte↔frame conversion in the engine goes wrong.
-  // UP TO 64 NOW, not 8. A Dante Virtual Soundcard or an ASIO interface
+  // UP TO kMaxAudioOutputs (128) NOW, not 8. A Dante Virtual Soundcard or an ASIO interface
   // offers far more than eight, and the crosspoint matrix only means anything
   // if the device can be opened wide enough to reach them.
   void setAudioDeviceChannels(int channels) {
@@ -243,7 +243,7 @@ class MediaEngine {
   // a flat array of atomic gains that the mixer reads relaxed, and the "is
   // there a matrix at all" question is one more atomic so the common case
   // (no matrix, use the pair) costs a single load.
-  static constexpr int kMaxAudioMatrixOuts = 64;
+  static constexpr int kMaxAudioMatrixOuts = kMaxAudioOutputs;
   static constexpr int kAudioMatrixSources = 2;
 
   // Install the extra destinations. Called ONLY with the decoder threads

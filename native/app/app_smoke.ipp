@@ -777,7 +777,7 @@
       cue.audioFadeInSeconds = 0.5f;
       cue.audioFadeOutSeconds = 0.0f;
       cue.audioOutputPair = 2;  // outs 5-6
-      deck.audioOutputChannels = 8;
+      deck.audioOutputChannels = kMaxAudioOutputs;   // the widest: a save used to clamp it to 8
       Cue imgCue;
       imgCue.path = (fs::temp_directory_path() / "test.jpg").string();
       imgCue.name = "Smoke Still";
@@ -1359,6 +1359,16 @@
       expect(older.size() == 1 && older[0].warpEnabled && !older[0].warpPerspective,
              "a layer pin saved before the mode existed opens linear");
     }
+    // ── THE WIDEST ROUTE: the matrix reaches the last of the 128 outputs ──
+    {
+      std::vector<AudioCrosspoint> wide;
+      wide.push_back(AudioCrosspoint {1, kMaxAudioOutputs - 1, 0.5f});
+      const auto back = parseAudioMatrix(serializeAudioMatrix(wide));
+      expect(back.size() == 1 && back[0].source == 1 && back[0].dest == kMaxAudioOutputs - 1,
+             "a crosspoint to output 128 survives save and reload");
+      expect(parseAudioMatrix("0:" + std::to_string(kMaxAudioOutputs) + ":1.0").empty(),
+             "a crosspoint past the last output is refused on load");
+    }
     // ── MIDI OUT: THE BYTES ────────────────────────────────────────────────
     //
     // The encoder is a pure function precisely so it can be checked here, with
@@ -1785,7 +1795,7 @@
                loadedCue.audioMono, "cue audio trim/pan/mono persisted");
         expect(std::abs(loadedCue.audioFadeInSeconds - 0.5f) < 0.01f &&
                std::abs(loadedCue.audioFadeOutSeconds) < 0.01f, "cue audio fades persisted");
-        expect(loadedCue.audioOutputPair == 2 && loadedDeck.audioOutputChannels == 8,
+        expect(loadedCue.audioOutputPair == 2 && loadedDeck.audioOutputChannels == kMaxAudioOutputs,
                "audio output routing persisted");
         if (loadedDeck.cues.size() > 1) {
           const Cue& img = loadedDeck.cues[1];

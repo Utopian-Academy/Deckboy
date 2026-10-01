@@ -1620,7 +1620,7 @@
       // vMix-compatible surface: a status line and three rows.
       int vmixH = stackH({sLineH, sRowH, sRowH, sRowH});
       // Web monitor: the address line, then four rows.
-      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH});
+      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int nmcH = stackH({sRowH, sRowH, sRowH, sRowH, sLineH});
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
       // The adapter grid no longer carries the tally controls, so it needs
@@ -1810,6 +1810,8 @@
         wmY += sLineH + sGap;
         SDL_Rect wmToggle = settingsRow(wmX, wmW, wmY, sRowH, "Web monitor", sGap);
         drawPill(wmToggle, project_.webMonitorEnabled, "ON", "OFF", kSettingsActionWebMonitorToggle);
+        SDL_Rect wmSound = settingsRow(wmX, wmW, wmY, sRowH, "Programme with sound", sGap);
+        drawPill(wmSound, webMonitorProgrammeSoundOn(), "ON", "OFF", kSettingsActionWebMonitorSoundToggle);
         SDL_Rect wmShare = settingsRow(wmX, wmW, wmY, sRowH, "Who can see it", sGap);
         drawPill(wmShare, project_.webMonitorShareLan, "THE NETWORK", "THIS COMPUTER",
                  kSettingsActionWebMonitorShareToggle);
@@ -3998,12 +4000,13 @@
       if (sb.action == kSettingsActionAsioChannels) {
         // Cycles the counts an interface actually offers rather than stepping
         // one at a time: stereo, quad, then the two common multi-out widths.
-        static const int kCounts[] = {2, 4, 8, 16};
+        static const int kCounts[] = {2, 4, 8, 16, 32, 64, kMaxAudioOutputs};
+        constexpr int kCountN = static_cast<int>(sizeof(kCounts) / sizeof(kCounts[0]));
         int at = 0;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < kCountN; ++i) {
           if (kCounts[i] == project_.asioChannels) { at = i; break; }
         }
-        project_.asioChannels = kCounts[(at + 1) % 4];
+        project_.asioChannels = kCounts[(at + 1) % kCountN];
         triggerToast("ASIO outputs: " + std::to_string(project_.asioChannels)
                      + " (takes effect when the driver is re-armed)");
         markProjectDirty();
@@ -4260,7 +4263,7 @@
         int cur = deck.audioOutputChannels;
         deck.audioOutputChannels = (cur <= 2) ? 4 : (cur <= 4) ? 6 : (cur <= 6) ? 8
                                  : (cur <= 8) ? 16 : (cur <= 16) ? 32
-                                 : (cur <= 32) ? 64 : 2;
+                                 : (cur <= 32) ? 64 : (cur <= 64) ? kMaxAudioOutputs : 2;
         reopenDeckAudioOutput(project_.focusedDeckIndex, deck.audioOutputDeviceName);
         triggerToast("audio outs: " + std::to_string(deck.audioOutputChannels)
                      + " ch (" + std::to_string(deck.audioOutputChannels / 2) + " pairs)");
@@ -4328,6 +4331,8 @@
         openInlineVmixPortEditor(false);
       } else if (sb.action == kSettingsActionWebMonitorToggle) {
         setWebMonitorEnabled(!project_.webMonitorEnabled);
+      } else if (sb.action == kSettingsActionWebMonitorSoundToggle) {
+        setWebMonitorProgrammeSound(!webMonitorProgrammeSoundOn());
       } else if (sb.action == kSettingsActionWebMonitorShareToggle) {
         setWebMonitorShare(!project_.webMonitorShareLan);
       } else if (sb.action == kSettingsActionWebMonitorPortPrompt) {

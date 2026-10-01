@@ -2066,7 +2066,7 @@ std::vector<AudioCrosspoint> parseAudioMatrix(const std::string& text) {
     }
     // Clamped on the way IN, so a hand-edited or corrupted show cannot put a
     // gain of 900 on the audio thread.
-    if (p.source < 0 || p.source > 1 || p.dest < 0 || p.dest >= 64) continue;
+    if (p.source < 0 || p.source > 1 || p.dest < 0 || p.dest >= kMaxAudioOutputs) continue;
     p.gain = p.gain < 0.0f ? 0.0f : (p.gain > 4.0f ? 4.0f : p.gain);
     if (p.gain <= 0.0f) continue;
     out.push_back(p);
@@ -2658,7 +2658,17 @@ std::string normalizeOutputStreamProtocol(std::string protocol) {
   if (protocol == "file") {
     return "file";
   }
+  // "web" sends the output, picture AND sound, to the browsers watching the
+  // web monitor: fragmented MP4 into a private local socket the monitor's
+  // server relays (see app_network.ipp, web ingest).
+  if (protocol == "web") {
+    return "web";
+  }
   return "srt";
+}
+
+inline bool outputStreamProtocolIsWeb(const std::string& normalizedProtocol) {
+  return normalizedProtocol == "web";
 }
 
 // True when the egress target is a file on disk rather than a network sink.
@@ -4162,6 +4172,7 @@ class App {
     stopMidiInput();
     stopOscQueryServer();
     stopWebMonitor();
+    stopWebIngests();
     stopVmixServer();
     // Before the output runtimes go away: this releases any IS-05 caller parked
     // in the patch handler, then joins the node's threads.
@@ -8746,6 +8757,7 @@ class App {
   static constexpr int kSettingsActionWebMonitorShareToggle = 701;
   static constexpr int kSettingsActionWebMonitorPortPrompt = 707;
   static constexpr int kSettingsActionWebMonitorPinPrompt = 708;
+  static constexpr int kSettingsActionWebMonitorSoundToggle = 709;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -10235,6 +10247,16 @@ class App {
     std::vector<std::uint8_t> pendingRgb;
     int pendingW = 0, pendingH = 0;
     bool pending = false;
+    // WEB route (picture AND sound): the encoder's fragmented MP4 arrives on a
+    // private local socket and is relayed to every browser playing /av/N.
+    SocketHandle ingestListen = kInvalidSocket;
+    int ingestPort = 0;
+    std::thread ingestThread;
+    std::atomic<bool> ingestStop {false};
+    std::string avInit;                 // ftyp + moov; guarded by mutex
+    std::deque<std::pair<std::uint64_t, std::shared_ptr<const std::string>>> avFragments;
+    std::uint64_t avFragmentSeq = 0;    // guarded by mutex
+    std::uint64_t avGeneration = 0;     // bumps when the encoder restarts
   };
   std::array<WebMonitorSlot, kWebMonitorMaxOutputs> webMonitorSlots_;
   std::mutex webMonitorEncodeMutex_;
@@ -10252,6 +10274,7 @@ class App {
   // What the browser threads may read -- never project_ itself.
   std::mutex webMonitorDirMutex_;
   std::vector<std::string> webMonitorOutputNames_;
+  std::vector<bool> webMonitorOutputSound_;   // routed to WEB: has a player with sound
   std::string webMonitorPinSnapshot_;
   Uint64 webMonitorDirSyncedMs_ = 0;
   SDL_Rect warpGridBtnRect_ {};
