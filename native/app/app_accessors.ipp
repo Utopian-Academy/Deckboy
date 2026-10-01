@@ -526,8 +526,32 @@
     //
     // Falls back to 0 when no output claims this deck, which is what every
     // single-deck show is and keeps their behaviour identical.
-    const int owned = outputIndexForHostDeck(deckIndex);
-    return owned >= 0 ? owned : 0;
+    //
+    // A MIRROR IS NOT WHERE A DECK IS SHOWN. The programme recording (and any
+    // stream) is an output that mirrors another, and it is created hosting
+    // whichever deck had focus -- a host it never draws. Counting it made a
+    // LAYER deck's primary output the recorder: focusing that deck moved the
+    // focused output there, and the program monitor, which taps the focused
+    // deck's primary output, fell back to that deck alone -- every other deck
+    // sharing the real output vanished from the monitor. So skip mirrors, and
+    // a deck that is a layer somewhere is shown there, not on output 1.
+    auto mirrors = [this](int i) {
+      const int source = project_.outputs[static_cast<std::size_t>(i)].mirrorSourceOutputIndex;
+      return source >= 0 && source != i &&
+             source < static_cast<int>(project_.outputs.size());
+    };
+    const int outputCount = static_cast<int>(project_.outputs.size());
+    for (int i = 0; i < outputCount; ++i) {
+      if (!mirrors(i) && project_.outputs[static_cast<std::size_t>(i)].hostDeckIndex == deckIndex) {
+        return i;
+      }
+    }
+    for (int i = 0; i < outputCount; ++i) {
+      if (!mirrors(i) && assignmentIndexForDeckOutput(deckIndex, i)) {
+        return i;
+      }
+    }
+    return 0;
   }
 
   int resolveDeckOutputHostIndex(int deckIndex) const {
