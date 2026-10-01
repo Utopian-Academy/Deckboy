@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## Next release
+## 2026-10-01 - v0.99.398 (SRT feeds with their sound, grid warp, and warp you can find)
 
 **SRT feeds come in with their sound.** An SRT cue now takes its feed over a
 single connection -- the way a vision mixer does -- and plays the picture and
