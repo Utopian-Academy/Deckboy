@@ -38,7 +38,7 @@ stay on the GPU and are composited there.
 14. [Per-Cue Effects](#14-per-cue-effects)
 14a. [The Code Source](#14a-the-code-source)
 15. [Output Geometry: AOI, Warp, Edge Blend](#15-output-geometry-aoi-warp-edge-blend)
-16. [Overlays: PiP & Lower Thirds](#16-overlays-pip--lower-thirds)
+16. [Lower Thirds & Picture in Picture](#16-lower-thirds--picture-in-picture)
 17. [Audio](#17-audio)
 18. [Test Patterns](#18-test-patterns)
 19. [Timecode & Chase](#19-timecode--chase)
@@ -146,9 +146,7 @@ down to give the height back.
 | **Stream (SRT)** | A live network input — `cue.path` is the full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`) |
 | **NDI Source** | An NDI receive input — `ndi://SOURCE_NAME` |
 | **DeckLink Source** | A Blackmagic card's SDI or HDMI input, captured through the DeckLink SDK rather than through FFmpeg |
-| **PiP** | Picture-in-picture overlay of another cue/source |
-| **Lower Third** | Text overlay bar |
-| **Composite** | A multi-slot scene (2-up, quad, 70/30, etc.) |
+| **Lower Third** | A name strap over another playlist, in six looks (§16) |
 | **Audio** | An audio-only file with a waveform lane |
 | **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages. Set its **backdrop** to **transparent** and use **GEOMETRY** to put the clock in a corner of the programme as a layer |
@@ -178,7 +176,7 @@ All of them are on the `SOURCE` menu.
 - **Import media:** press `I` or `Import`, or drag files onto the window.
   Metadata is probed asynchronously (`probing…` shows on the row until done).
 - **Add a source cue:** the SOURCE menu adds stream, NDI, camera, window,
-  browser, PiP, lower-third, and composite cues.
+  browser and lower-third cues.
 - **Add a pattern:** press `P` or use the pattern menu.
 
 New cues inherit the deck's playlist defaults (fade lengths, loop, pause
@@ -1206,13 +1204,17 @@ inspector instead (§7).
 
 ---
 
-## 16. Overlays: PiP & Lower Thirds
+## 16. Lower Thirds & Picture in Picture
 
-Lower-third and PiP cues fire into an overlay slot independently of the main
-program cue, so you can bring a name strap or inset up over whatever is live.
-Lower thirds carry two text lines and a background-bar opacity; PiP insets
-another cue/camera/NDI source. `G` adds the selected cue as a graphic overlay;
-`Backspace` clears all overlays.
+A name strap, an inset, a second picture beside the first: all of these are a
+**second playlist layered over the first** on the same output (§11, §12). Each
+layer has its own size, position and corner pin, so an inset is a playlist
+scaled down and placed, and a side-by-side is two of them.
+
+Shows made before 0.99.397 may contain older **PiP** or **composite** cues.
+They still load, play and save exactly as before; new ones are no longer made,
+because a layered playlist does the same job with a whole running order behind
+it instead of one fixed box. Overlays from those older cues clear with `U`.
 
 ### Lower thirds
 
