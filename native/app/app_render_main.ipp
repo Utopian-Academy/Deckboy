@@ -2592,6 +2592,17 @@
     // badge and sliced the "Output 1 3840x2160" caption in half lengthwise,
     // which is what shipped in the README screenshot.
     monitorChromeTop_ = liveBadge.y + liveBadge.h;
+    // EVERY BUTTON IN THIS ROW IS THE LIVE BADGE'S HEIGHT, and scales with it.
+    // WARP, MULTI, ARRANGE and the telemetry pills were raw 76x26 pixels on a
+    // row that grows with the interface -- so at 150% they shrank relative to
+    // everything round them, and WARP, the only way into the whole warp
+    // editor, read as a dim status label. James: "where is all of this warp
+    // ui?"
+    const int hdrBtnY = liveBadge.y;
+    const int hdrBtnH = liveBadge.h;
+    const int hdrPad = uiScaled(8);
+    const int hdrWarpW = std::max(uiScaled(76), measuredTextWidth(fontSmall_, "WARP") + uiScaled(28));
+    const int hdrWarpX = programMonitorRect.x + programMonitorRect.w - hdrWarpW - hdrPad;
     // Live sparkle — gentle pulsing star when output is active
     if (hasLiveVideo) {
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
@@ -2640,16 +2651,14 @@
         }
         return std::pair<SDL_Color, SDL_Color> {fill, ink};
       };
-      constexpr int kTelemetryBadgePreferredW = 180;
-      constexpr int kTelemetryBadgeMinW = 116;
-      constexpr int kTelemetryBadgeH = 26;
-      constexpr int kTelemetryGap = 3;
-      constexpr int kWarpBtnW = 76;
-      constexpr int kHeaderRightPad = 8;
-      constexpr int kProgramLabelMinW = 110;
-      int badgeX = liveBadge.x + liveBadge.w + 4;
-      int warpBtnLeft = programMonitorRect.x + programMonitorRect.w - kWarpBtnW - kHeaderRightPad;
-      int telemetryRightLimit = std::max(badgeX, warpBtnLeft - kProgramLabelMinW - 8);
+      const int kTelemetryBadgePreferredW = uiScaled(180);
+      const int kTelemetryBadgeMinW = uiScaled(116);
+      const int kTelemetryBadgeH = hdrBtnH;
+      const int kTelemetryGap = uiScaled(3);
+      const int kProgramLabelMinW = uiScaled(110);
+      int badgeX = liveBadge.x + liveBadge.w + uiScaled(4);
+      int warpBtnLeft = hdrWarpX;
+      int telemetryRightLimit = std::max(badgeX, warpBtnLeft - kProgramLabelMinW - hdrPad);
       int availableTelemetryW = std::max(0, telemetryRightLimit - badgeX);
       int telemetryCount = 0;
       if (availableTelemetryW >= kTelemetryBadgeMinW) {
@@ -2663,7 +2672,7 @@
                                 kTelemetryBadgeMinW, kTelemetryBadgePreferredW);
         for (int ti = 0; ti < telemetryCount; ++ti) {
           const std::string& telemetryLabel = telemetryLabels[static_cast<size_t>(ti)];
-          SDL_Rect badge {badgeX, programMonitorRect.y + 3, badgeW, kTelemetryBadgeH};
+          SDL_Rect badge {badgeX, hdrBtnY, badgeW, kTelemetryBadgeH};
           auto [fill, ink] = telemetryColors(telemetryLabel);
           drawUIPanel(badge, fill, pal.deep, pal.mid);
           auto [labelText, valueText] = splitTelemetryLabel(telemetryLabel);
@@ -2734,18 +2743,15 @@
       const bool isPresenter =
         normalizeOutputType(focusedOutput().outputType) == "presenter";
       if (isPresenter) {
-        // Flush against WARP, from WARP's own constants. Mixing uiScaled()
-        // with its unscaled 76/8 left a widening gap between the two buttons
-        // as the interface scaled up.
-        const int btnW = 84;
-        presenterLayoutBtnRect_ = {
-          programMonitorRect.x + programMonitorRect.w - 76 - 8 - btnW - 6,
-          programMonitorRect.y + 3, btnW, 26};
+        // Flush against WARP, from WARP's own geometry, so the gap between
+        // the two stays the same at every scale.
+        const int btnW = std::max(uiScaled(84), measuredTextWidth(fontSmall_, "ARRANGE") + uiScaled(20));
+        presenterLayoutBtnRect_ = {hdrWarpX - btnW - uiScaled(6), hdrBtnY, btnW, hdrBtnH};
         const bool on = presenterLayoutEditMode_;
         drawUIPanel(presenterLayoutBtnRect_, paletteToggleFill(on), pal.deep,
                     pal.light);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, presenterLayoutBtnRect_,
-                             "ARRANGE", on ? pal.deep : pal.fg);
+                             "ARRANGE", paletteToggleInk(on));
       } else {
         presenterLayoutBtnRect_ = {};
         presenterLayoutEditMode_ = false;
@@ -2760,8 +2766,7 @@
     multiviewBtnRect_ = SDL_Rect {};
     if (project_.decks.size() > 1) {
       const int mvW = uiScaled(66);
-      multiviewBtnRect_ = {programMonitorRect.x + programMonitorRect.w - 76 - 8 - mvW - 4,
-                           programMonitorRect.y + 3, mvW, 26};
+      multiviewBtnRect_ = {hdrWarpX - mvW - uiScaled(4), hdrBtnY, mvW, hdrBtnH};
       const bool on = project_.multiviewMode != 0;
       drawUIPanel(multiviewBtnRect_, paletteToggleFill(on), pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, multiviewBtnRect_,
@@ -2773,13 +2778,13 @@
       // Lit from the OUTPUT, which is what the button actually arms --
       // asking the deck meant it never lit however armed the warp was.
       const OutputTarget& warpDeck = focusedOutput();
-      int warpBtnW = 76;
       bool warpActive = warpEditorVisible();
       (void)warpDeck;
-      warpEditBtnRect_ = {programMonitorRect.x + programMonitorRect.w - warpBtnW - 8,
-                           programMonitorRect.y + 3, warpBtnW, 26};
+      warpEditBtnRect_ = {hdrWarpX, hdrBtnY, hdrWarpW, hdrBtnH};
       SDL_Color warpFill = paletteToggleFill(warpActive);
-      SDL_Color warpInk2 = warpActive ? pal.deep : pal.fg;
+      // The ink the theme says contrasts with the fill. pal.fg here was the
+      // dim chrome ink, which is what made the button read as a label.
+      SDL_Color warpInk2 = paletteToggleInk(warpActive);
       drawUIPanel(warpEditBtnRect_, warpFill, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, warpEditBtnRect_,
                            "WARP", warpInk2);
@@ -2789,7 +2794,7 @@
         warpResetBtnRect_ = {};
       }
     }
-    int monitorLabelX = monitorTelemetryEndX + 8;
+    int monitorLabelX = monitorTelemetryEndX + uiScaled(8);
     {
       int monitorLabelAvailW = std::max(0, warpEditBtnRect_.x - monitorLabelX - 4);
       TTF_Font* monitorLabelFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
@@ -2811,7 +2816,7 @@
         }
       }
       if (monitorLabel && monitorLabelAvailW > 0) {
-        SDL_Rect monitorLabelRect {monitorLabelX, programMonitorRect.y + 4, monitorLabelAvailW, 22};
+        SDL_Rect monitorLabelRect {monitorLabelX, hdrBtnY, monitorLabelAvailW, hdrBtnH};
         drawTextSafe(controlRenderer_, monitorLabelFont, monitorLabelRect,
                      monitorLabel, hasLiveVideo ? pal.dark : (showMascot ? pal.inkSoft : pal.deep));
       }
@@ -3179,6 +3184,26 @@
         corners[i] = SDL_FPoint {wt.baseX[i] + *wt.x[i] * wt.unitX,
                                  wt.baseY[i] + *wt.y[i] * wt.unitY};
       }
+      // WHAT IS BEING WARPED, said in words at the top of the picture. The
+      // same handles edit two different things -- the whole programme on this
+      // output, or one layer's pin -- and nothing on screen said which. James:
+      // "where can I assign things at the deck level and globally on the
+      // programme output?"
+      {
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        const std::string what = wt.pin
+          ? "WARPING: " + deckLabel(project_.focusedDeckIndex) + " -- its layer on " +
+              outputLabel(project_.focusedOutputIndex) + " only"
+          : "WARPING: " + outputLabel(project_.focusedOutputIndex) +
+              " -- the whole programme on this output";
+        const int bannerH = textLineHeight(fontSmall_) + uiScaled(8);
+        SDL_Rect banner {mi.x, mi.y, mi.w, bannerH};
+        Primitives::fillRect(controlRenderer_, banner, SDL_Color{15, 15, 15, 190});
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, banner, what,
+                             SDL_Color{255, 220, 0, 255});
+      }
+      // Drawn BEFORE the wireframe and handles, so a corner pinned up here
+      // stays visible and grabbable over it.
       // Draw wireframe quad
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 0, 200);
@@ -3189,7 +3214,7 @@
           static_cast<int>(corners[j].x), static_cast<int>(corners[j].y));
       }
       // Draw corner handles
-      constexpr int kWarpHandleR = 8;
+      const int kWarpHandleR = uiScaled(9);   // the grab radius (app_input) is uiScaled(14)
       const char* cornerLabels[] = {"TL", "TR", "BR", "BL"};
       for (int i = 0; i < 4; ++i) {
         int cx = static_cast<int>(corners[i].x);
@@ -3210,8 +3235,13 @@
       // Warp toolbar — horizontal strip below the monitor content
       {
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-        int toolY = mi.y + mi.h - 30;
-        int toolH = 26;
+        const int toolH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(8));
+        const int toolY = mi.y + mi.h - toolH - uiScaled(4);
+        const int toolGap = uiScaled(4);
+        // Each button is its label plus padding, so nothing clips at any scale.
+        auto toolBtnW = [&](const char* label) {
+          return measuredTextWidth(fontSmall_, label) + uiScaled(16);
+        };
         // Dark backdrop for the toolbar
         SDL_Rect toolbarBg {mi.x, toolY - 2, mi.w, toolH + 4};
         Primitives::fillRect(controlRenderer_, toolbarBg, SDL_Color{15, 15, 15, 180});
@@ -3234,45 +3264,46 @@
           Primitives::strokeRect(controlRenderer_, warpTargetBtnRect_, warpBtnEdge);
           drawCenteredText(controlRenderer_, fontSmall_, targetLabel, SDL_Color{15, 15, 15, 255},
                            warpTargetBtnRect_);
-          bx += warpTargetBtnRect_.w + 4;
+          bx += warpTargetBtnRect_.w + toolGap;
         }
         const bool perspective = wt.pin ? wt.pin->warpPerspective
                                         : focusedOutput().warpMode == "perspective";
         std::string modeLabel = perspective ? "PERSP" : "LINEAR";
-        warpModeBtnRect_ = {bx, toolY, 64, toolH};
+        // Sized for the LONGER label, so it does not jump when toggled.
+        warpModeBtnRect_ = {bx, toolY, std::max(toolBtnW("PERSP"), toolBtnW("LINEAR")), toolH};
         Primitives::fillRect(controlRenderer_, warpModeBtnRect_, warpBtnFill);
         Primitives::strokeRect(controlRenderer_, warpModeBtnRect_, warpBtnEdge);
         drawCenteredText(controlRenderer_, fontSmall_, modeLabel, warpBtnInk, warpModeBtnRect_);
-        bx += 68;
+        bx += warpModeBtnRect_.w + toolGap;
 
-        warpResetBtnRect_ = {bx, toolY, 56, toolH};
+        warpResetBtnRect_ = {bx, toolY, toolBtnW("RESET"), toolH};
         Primitives::fillRect(controlRenderer_, warpResetBtnRect_, warpBtnFill);
         Primitives::strokeRect(controlRenderer_, warpResetBtnRect_, warpBtnEdge);
         drawCenteredText(controlRenderer_, fontSmall_, "RESET", warpBtnInk, warpResetBtnRect_);
-        bx += 60;
+        bx += warpResetBtnRect_.w + toolGap;
 
         if (!wt.pin) {
-        warpSaveBtnRect_ = {bx, toolY, 50, toolH};
+        warpSaveBtnRect_ = {bx, toolY, toolBtnW("SAVE"), toolH};
         Primitives::fillRect(controlRenderer_, warpSaveBtnRect_, warpBtnFill);
         Primitives::strokeRect(controlRenderer_, warpSaveBtnRect_, warpBtnEdge);
         drawCenteredText(controlRenderer_, fontSmall_, "SAVE", warpBtnInk, warpSaveBtnRect_);
-        bx += 54;
+        bx += warpSaveBtnRect_.w + toolGap;
 
-        warpCopyBtnRect_ = {bx, toolY, 50, toolH};
+        warpCopyBtnRect_ = {bx, toolY, toolBtnW("COPY"), toolH};
         Primitives::fillRect(controlRenderer_, warpCopyBtnRect_, warpBtnFill);
         Primitives::strokeRect(controlRenderer_, warpCopyBtnRect_, warpBtnEdge);
         drawCenteredText(controlRenderer_, fontSmall_, "COPY", warpBtnInk, warpCopyBtnRect_);
-        bx += 54;
+        bx += warpCopyBtnRect_.w + toolGap;
 
         SDL_Color pasteInk = warpSettingsClipboard_ ? warpBtnInk : warpBtnDim;
-        warpPasteBtnRect_ = {bx, toolY, 56, toolH};
+        warpPasteBtnRect_ = {bx, toolY, toolBtnW("PASTE"), toolH};
         Primitives::fillRect(controlRenderer_, warpPasteBtnRect_, warpBtnFill);
         Primitives::strokeRect(controlRenderer_, warpPasteBtnRect_, warpBtnEdge);
         drawCenteredText(controlRenderer_, fontSmall_, "PASTE", pasteInk, warpPasteBtnRect_);
-        bx += 60;
+        bx += warpPasteBtnRect_.w + toolGap;
 
         if (!warpPresets_.empty()) {
-          warpRecallBtnRect_ = {bx, toolY, 56, toolH};
+          warpRecallBtnRect_ = {bx, toolY, toolBtnW("P99"), toolH};
           Primitives::fillRect(controlRenderer_, warpRecallBtnRect_, warpBtnFill);
           Primitives::strokeRect(controlRenderer_, warpRecallBtnRect_, warpBtnEdge);
           std::string recallLabel = "P" + std::to_string(warpPresets_.size());
@@ -3287,9 +3318,10 @@
         }
 
         // Shift hint on the right side
-        drawText(controlRenderer_, fontSmall_, "Shift: snap",
-                 SDL_Color{255, 220, 0, 100},
-                 mi.x + mi.w - 100, toolY + 4);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {mi.x + mi.w - toolBtnW("Shift: snap"), toolY,
+                               toolBtnW("Shift: snap"), toolH},
+                     "Shift: snap", SDL_Color{255, 220, 0, 100});
 
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
       }

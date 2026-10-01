@@ -2793,6 +2793,30 @@
           sy += aoiH + kSectionGap;
         }
 
+        // ── WARP ─────────────────────────────────────────────────────────
+        //
+        // The warp is this output's, and its editor lives on the programme
+        // monitor (the handles have to sit on the picture). It had no entry
+        // here at all, so the one way in was a small button in the monitor's
+        // header -- James: "where is all of this warp ui?" This row says what
+        // the warp is doing and takes you to it.
+        {
+          const OutputTarget& wo = focusedOutput();
+          int warpH = sectionH({sRowH});
+          SDL_Rect warpSection {cx, sy, subContentW, warpH};
+          SDL_Rect warpBody = drawSectionFrame(warpSection, "WARP");
+          VerticalLayout warpLayout(warpBody, kRowGap);
+          SDL_Rect warpBtn = settingsRowIn(warpLayout.takeFixed(sRowH), "Corner pin");
+          const std::string warpState = wo.warpEnabled
+            ? "on (" + toLower(warpModeLabel(wo.warpMode)) + ") -- edit on monitor"
+            : "off -- edit on monitor";
+          drawSettingsStateFill(warpBtn, wo.warpEnabled);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, warpBtn, warpState,
+                               settingsStateInk(wo.warpEnabled));
+          settingsBtns_.push_back({warpBtn, kSettingsActionOutputWarpEdit, "warp_edit"});
+          sy += warpH + kSectionGap;
+        }
+
         // Default Transition — and, once Super Deckboy lands, Canvas Mode
         // beside it. Canvas is a MULTI-OUTPUT SPANNING feature, so it is parked
         // and hidden until that mode exists (see kSuperDeckboySpanningUi).
@@ -4899,6 +4923,21 @@
   // Third part of the settings-click handler, split off to keep the
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart3(const SettingsButton& sb) {
+    // Out of the modal and onto the monitor, where the warp's handles are --
+    // the same hand-off ARRANGE makes for the presenter screen.
+    if (sb.action == kSettingsActionOutputWarpEdit) {
+      if (!focusedOutput().warpEnabled) {
+        setFocusedDeckWarpEnabled(true);
+      }
+      warpEditLayer_ = false;
+      warpEditMode_ = true;
+      presenterLayoutEditMode_ = false;
+      settingsOpen_ = false;
+      uiWatchdogPopupEvent("settings_modal", false);
+      triggerToast("drag the corners on the programme monitor");
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
     // ── OUTPUTS: WHICH DECK, AND HOW MANY ─────────────────────────────────
     if (sb.action == kSettingsActionOutputHostDeckCycle) {
       // ── A LIST, NOT A LAP OF THE LIST ────────────────────────────────

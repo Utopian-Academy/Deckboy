@@ -8656,6 +8656,8 @@ class App {
   // AOI as a raster, not four edges: pick a standard size, then place it.
   static constexpr int kSettingsActionOutputAoiSizeDropdown = 656;
   static constexpr int kSettingsActionOutputAoiCentre = 657;
+  // Opens the warp editor on the programme monitor for the focused output.
+  static constexpr int kSettingsActionOutputWarpEdit = 699;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
