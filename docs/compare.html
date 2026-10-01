@@ -37,6 +37,15 @@
         .callout { border-left: 3px solid var(--ink-soft); padding: 1rem 1.2rem; background: var(--panel);
                     margin: 2rem 0; }
         .callout p:last-child { margin-bottom: 0; }
+        tr.us td { background: rgba(252,254,31,.08); color: var(--ink); font-weight: 600; }
+        td.y { color: var(--ink); } td.n { opacity: .45; }
+        .cmp td:nth-child(2), .cmp td:nth-child(3), .cmp td:nth-child(4),
+        .cmp th:nth-child(2), .cmp th:nth-child(3), .cmp th:nth-child(4) { text-align: center; white-space: nowrap; }
+        .box { border: 2px solid var(--rule); padding: 1.2rem 1.4rem; margin: 2rem 0; }
+        .box h2 { margin-top: 0; }
+        .box ul { columns: 2 260px; column-gap: 2rem; }
+        .box li { break-inside: avoid; }
+        .small { font-size: .8rem; color: var(--ink-soft); }
     </style>
 </head>
 <body>
@@ -58,58 +67,65 @@
     <header class="hero" style="min-height:auto;padding-top:4rem;padding-bottom:1rem">
         <div class="hero-content">
             <h1>How Deckboy compares</h1>
-            <p class="hero-subtitle">The free one, against nine you pay for &mdash; feature by feature.</p>
+            <p class="hero-subtitle">The free one, against nine others &mdash; price, platform and what you get.</p>
         </div>
     </header>
 
     <div class="prose">
-        <p>Deckboy is a cue-based video playback deck: a playlist of clips that go to air
-        when the operator says so, out of a machine, into a screen. These are the nine tools
-        it sits beside on a show. Here is how they line up.</p>
+        <p>Deckboy is a cue-based video playback deck: a playlist of clips, slides, pages,
+        cameras and feeds that go to air when the operator says so, out to screens, NDI, SDI and
+        streams, while it records. These are the nine tools it sits beside on a show, asked the
+        same five questions.</p>
 
         <div class="table-wrap">
-        <table>
+        <table class="cmp">
             <thead>
-                <tr><th>Tool</th><th>Platforms</th><th>Cost</th><th>Shaped for</th></tr>
+                <tr><th>Tool</th><th>Windows</th><th>macOS</th><th>Linux</th><th>To own it</th><th>To rent it</th></tr>
             </thead>
             <tbody>
-                <tr><td><b>Deckboy</b></td><td><b>Windows, macOS, Linux</b></td><td>Free, GPL-3.0</td>
-                    <td>Cue-based playback with broad IP output</td></tr>
-                <tr><td>Mitti</td><td>macOS only</td><td>Paid</td>
-                    <td>Cue-based video playback. The closest comparison of the lot</td></tr>
-                <tr><td>PlaybackPro Plus</td><td>macOS only</td><td>Paid</td>
-                    <td>Cue playback for corporate and live events</td></tr>
-                <tr><td>QLab</td><td>macOS only</td><td>Free tier, paid licences</td>
-                    <td>Theatre show control: audio, video and lighting cues together</td></tr>
-                <tr><td>Millumin</td><td>macOS only</td><td>Paid</td>
-                    <td>Media server for projection and live visuals</td></tr>
-                <tr><td>vMix</td><td>Windows only</td><td>Paid</td>
-                    <td>Live production switcher, with playback built in</td></tr>
-                <tr><td>SimplePlay Pro X</td><td>macOS only, Apple Silicon and macOS&nbsp;15 or later</td><td>$399, one-time; the demo stops after 15 minutes</td>
-                    <td>Show playback and live compositing to several screens</td></tr>
-                <tr><td>PlayDeck</td><td>Windows only</td><td>Rental or perpetual licence; free trial</td>
-                    <td>Video playout and playback for events, broadcast and installations</td></tr>
-                <tr><td>ProVideoPlayer</td><td>macOS only</td><td>$999 a licence, or $199 for two weeks</td>
-                    <td>Multi-screen media server</td></tr>
-                <tr><td>Resolume Avenue / Arena</td><td>Windows and macOS</td><td>&euro;299 / &euro;799, with 12 months of updates</td>
-                    <td>VJ software and media server; Arena adds projection mapping and blending</td></tr>
+                <tr class="us"><td><b>Deckboy</b></td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="y">&#10003;</td><td>Free &mdash; every feature, every machine</td><td>Never needed</td></tr>
+                <tr><td><b>vMix</b></td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="n">&mdash;</td><td>$60&ndash;$1,200 by edition</td><td>$50 a month (MAX)</td></tr>
+                <tr><td><b>PlayDeck</b></td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="n">&mdash;</td><td>Annual licence, &euro;190.80&ndash;&euro;994.80 a year</td><td>&euro;26.90&ndash;&euro;139.90 a month</td></tr>
+                <tr><td><b>Resolume Avenue / Arena</b></td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>&euro;299 / &euro;799, then renew for updates</td><td>&mdash;</td></tr>
+                <tr><td><b>Mitti</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>From $399</td><td>From $79.80</td></tr>
+                <tr><td><b>SimplePlay Pro X</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>$399; Apple Silicon only</td><td>&mdash;</td></tr>
+                <tr><td><b>Millumin</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>From &euro;399</td><td>&euro;29 a week, &euro;199 a year</td></tr>
+                <tr><td><b>ProVideoPlayer</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>$999</td><td>$199 for two weeks, $399 a month</td></tr>
+                <tr><td><b>QLab</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>Free tier; paid licences for the advanced features</td><td>By the day</td></tr>
+                <tr><td><b>PlaybackPro Plus</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>Not published</td><td>Through rental houses</td></tr>
             </tbody>
         </table>
+        <p class="small">Prices for one machine, without tax, from each vendor's own site on
+        1&nbsp;October 2026. QLab and PlaybackPro Plus do not publish theirs.</p>
+        </div>
+
+        <div class="box">
+        <h2>What the free download has in it</h2>
+        <ul>
+            <li><b>One cue list for every source</b>: clips, stills, PDF, PowerPoint and Keynote slides, web pages, any window, cameras, NDI, SRT, RTMP and SDI input</li>
+            <li><b>Every output at once, while it records</b>: screens, NDI, Blackmagic SDI with key and fill, SMPTE ST&nbsp;2110 with NMOS and PTP, SRT and RTMP</li>
+            <li><b>A real running order</b>: standby and GO, pre-waits, continues, arm and disarm, audition, preload and a pre-show CHECK</li>
+            <li><b>42 video effects and 23 audio effects</b> on any cue, every dial on an oscillator, plus your own VST3 plugins</li>
+            <li><b>Projection mapping per layer</b>, in perspective, dragged on the programme monitor</li>
+            <li><b>Lower thirds, stage timers, presenter and prompter views</b>, each an output of its own</li>
+            <li><b>Driven from anything</b>: Stream Deck, Companion, MIDI Show Control, OSC, Art-Net, LTC, HyperDeck, the vMix API</li>
+            <li><b>Windows, macOS and Linux</b>, from one show file</li>
+        </ul>
         </div>
 
         <h2>The thing the table is really saying</h2>
-        <p>Six of the nine are <b>macOS only</b> and two are <b>Windows only</b>. Mitti,
-        PlaybackPro, QLab, Millumin, SimplePlay and ProVideoPlayer do not run on a PC at all;
-        vMix and PlayDeck do not run on a Mac. Resolume runs on both and none of them runs on
-        Linux. If the machine going to the venue is not the machine the software wants, that is
-        the end of the conversation before features are even discussed.</p>
+        <p>Deckboy is the only one that runs on all three systems, and the only one that costs
+        nothing. Six of the others are <b>macOS only</b> and two are <b>Windows only</b>; Resolume
+        runs on both, and none of them runs on Linux. If the machine going to the venue is not
+        the machine the software wants, that is the end of the conversation before features are
+        even discussed.</p>
 
-        <p>The other column is <b>money</b>. Everything else in the table is paid software,
-        per machine, and a second playback machine means a second licence &mdash; which is the
-        moment most people discover what their redundancy plan costs. Some of it is rented by
-        the fortnight, and Resolume's licence buys a year of updates, then asks again. QLab is the fair
-        exception: it has a genuinely free tier that includes video cues, and charges for the
-        advanced features on top.</p>
+        <p>Then there is the second machine. Most of the others are licensed by the computer,
+        so a bigger rig means more licences, and several are rented by the week or the month, or
+        buy a year of updates and then ask again. Deckboy goes on the main machine, the backup
+        and the laptop in the flight case for the same price: nothing. QLab has a free
+        tier, but it only runs on a Mac, and the features a real show reaches for are licensed or
+        rented by the day on top.</p>
 
         <p>Deckboy is free. Not a trial, not a watermark, not a feature-limited tier with the
         useful half behind a licence server: the whole application, on all three operating
