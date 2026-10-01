@@ -717,8 +717,14 @@
       // show, so the tab scrolls rather than silently cropping the bottom card.
       // At 1x nothing overflows and the scroll is inert.
       int leftNeeded = appearanceH + kCardGap + safetyH + kCardGap + flowH;
+      // WATCH FOLDER is the fifth card in this column (cueTools, prefs,
+      // update, record, watch) but was missing from this sum -- the scroll
+      // range stopped exactly watchH short, so the card drew (watchRect was
+      // computed correctly) but nothing could ever scroll far enough to
+      // reach it. Reported as "watch folders ... cut off and unable to
+      // scroll".
       int rightNeeded = cueToolsH + kCardGap + prefsH + kCardGap + updateH +
-                        kCardGap + recordH;
+                        kCardGap + recordH + kCardGap + watchH;
       // A NEAR MISS IS TAKEN OUT OF THE GAPS, not given a scrollbar. A page
       // that scrolls by four pixels reads as broken: the whole tab moves a
       // hair and nothing new comes into view. When closing the gaps between
