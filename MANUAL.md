@@ -1438,6 +1438,9 @@ smooth, and diagonal; full-frame solid colours have no motion option.
   than a test card: an arched stone fireplace with a mantel, sconces, andirons
   and embers riding the draught. The fire is simulated rather than looped, so
   it never repeats and adds nothing to the download. It is always animated.
+- **Swirl** — a slow spiral of melting pixel greens with a yellow crest, the
+  look of Deckboy's own trailer. Set dressing for a holding screen or a backdrop
+  behind a lower third; it is always animated and never repeats.
 - **Pocket Test** — a PM5544-style test card with a bouncing scene-porthole
   ball, a sync beacon, and an audio sync pop at the top of each second (use it
   to dial the A/V delay offset).

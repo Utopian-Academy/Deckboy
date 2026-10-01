@@ -138,6 +138,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          // frame. Both were reported as "editing the code doesn't do
          // anything", which is exactly what it looked like.
          normalized == "code" ||
+         normalized == "swirl" ||                      // turning, melting greens
          normalized == "portal" ||                     // born, drifting, melting
          // FIRESIDE WAS NOT HERE, the same omission as `code` above: the
          // builder animates from the clock, every comment about it calls it

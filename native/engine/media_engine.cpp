@@ -11298,6 +11298,91 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
 }
 
 // ---------------------------------------------------------------------------
+// buildSwirl - a slow spiral of melting pixel greens.
+//
+// The trailer's background, which James asked to have as a pattern: a field
+// twisted into a spiral, domain-warped five times, cut into four bands of
+// green with a yellow crest and a dark outline where the bands meet. Ported
+// from the trailer's GLSL (james-04's, original code) to the CPU: the field is
+// evaluated ONCE per cell on a fixed 480-cell-wide grid and the outline taken
+// by comparing neighbouring cells -- what the shader did with two extra field
+// evaluations per pixel -- then each cell is drawn as a square block, so the
+// pixels are as chunky at 4K as at 1080p.
+// ---------------------------------------------------------------------------
+namespace {
+double swirlField(double px, double py, double cw, double ch, double t) {
+  const double s = std::min(cw, ch);
+  double ux = (px - 0.5 * cw) / s * 2.4;
+  double uy = (py - 0.5 * ch) / s * 2.4;
+  const double r = std::sqrt(ux * ux + uy * uy);
+  double a = std::atan2(uy, ux) + t * 0.40 - r * 1.35;
+  ux = std::cos(a) * r;
+  uy = std::sin(a) * r;
+  for (int i = 0; i < 5; ++i) {
+    const double fi = static_cast<double>(i);
+    const double nx = ux + 0.40 * std::sin(uy * 1.30 + t * 0.85 + fi);
+    const double ny = uy + 0.40 * std::cos(ux * 1.10 - t * 0.65 + fi * 1.7);
+    ux = nx;
+    uy = ny;
+  }
+  return std::sin(ux * 1.15 + uy * 0.9 + t * 0.3) * 0.62 +
+         std::sin(std::sqrt(ux * ux + uy * uy) * 1.7 - t * 0.5) * 0.38;
+}
+}  // namespace
+
+void buildSwirl(DecodedFrame& frame, double seconds) {
+  const int W = frame.width, H = frame.height;
+  if (W <= 0 || H <= 0) return;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4u);
+  const int cell = std::max(1, W / 480);
+  const int cw = (W + cell - 1) / cell;
+  const int ch = (H + cell - 1) / cell;
+  // A little slower than real time, and well into the motion from the start.
+  const double t = seconds * 0.9 + 40.0;
+  // One field value per cell, plus a column and a row more for the outline.
+  std::vector<double> field(static_cast<std::size_t>((cw + 1) * (ch + 1)));
+  deckboy::effects::detail::parallelRows(ch + 1, cw + 1, [&](int r0, int r1) {
+    for (int y = r0; y < r1; ++y) {
+      for (int x = 0; x <= cw; ++x) {
+        // The shader's y runs up the screen; ours runs down.
+        field[static_cast<std::size_t>(y * (cw + 1) + x)] =
+          swirlField(x + 0.5, (ch - 1 - y) + 0.5, cw, ch, t);
+      }
+    }
+  });
+  auto band = [](double v) {
+    return std::clamp(static_cast<int>(std::floor((v * 0.5 + 0.5) * 4.0)), 0, 3);
+  };
+  static constexpr std::uint8_t kGreens[4][3] = {
+    {12, 41, 12}, {23, 74, 23}, {51, 117, 42}, {84, 143, 38}};
+  static constexpr std::uint8_t kCrest[3] = {252, 254, 31};
+  static constexpr std::uint8_t kOutline[3] = {7, 26, 7};
+  deckboy::effects::detail::parallelRows(ch, cw, [&](int r0, int r1) {
+    for (int cy = r0; cy < r1; ++cy) {
+      for (int cx = 0; cx < cw; ++cx) {
+        const double v = field[static_cast<std::size_t>(cy * (cw + 1) + cx)];
+        const int b = band(v);
+        const bool edge =
+          band(field[static_cast<std::size_t>(cy * (cw + 1) + cx + 1)]) != b ||
+          band(field[static_cast<std::size_t>((cy + 1) * (cw + 1) + cx)]) != b;
+        const std::uint8_t* c = edge ? kOutline : (v > 0.965 ? kCrest : kGreens[b]);
+        for (int py = cy * cell; py < std::min(H, (cy + 1) * cell); ++py) {
+          std::uint8_t* row = frame.pixels.data() + (static_cast<std::size_t>(py) * W) * 4u;
+          for (int px = cx * cell; px < std::min(W, (cx + 1) * cell); ++px) {
+            std::uint8_t* p = row + static_cast<std::size_t>(px) * 4u;
+            p[0] = c[0];
+            p[1] = c[1];
+            p[2] = c[2];
+            p[3] = 255;
+          }
+        }
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // buildPortal - a swarm of particles melted into metaballs, each blob a window
 // into deep space with a neon rim.
 //
@@ -13595,6 +13680,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "frame-count") {
     // Drop/duplicate + latency card -- always animated.
     buildFrameCount(frame, animTime, false);
+  } else if (basePatternType == "swirl") {
+    // Always animated: the spiral turns and the bands melt.
+    buildSwirl(frame, animTime);
   } else if (basePatternType == "portal") {
     // Always animated: the blobs are born, drift, melt and fade.
     buildPortal(frame, animTime, cue.portal);

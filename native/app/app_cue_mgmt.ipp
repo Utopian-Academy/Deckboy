@@ -3036,6 +3036,7 @@
     static const std::vector<std::pair<std::string, std::string>> types {
       {"fireside",     "Fireside (a hearth that burns)"},
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
+      {"swirl",        "Swirl (melting pixel greens)"},
       {"test-bars",    "Test Bars (motion diagnostics)"},
       {"test-clock",   "Test Clock (sync + latency)"},
       {"frame-count",  "Frame Count (drops + latency)"},
