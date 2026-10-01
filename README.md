@@ -453,6 +453,25 @@ importantly, what each feature deliberately does not do.
 
 ## Roadmap
 
+**Audio, next:**
+
+- 128 output channels on one device
+- Multichannel audio files, up to 24 channels each, every channel routable
+- Effects on a device's outputs as well as on each cue
+- Fades that ramp effect settings and playback speed, not only level
+- Microphone cues: a live input as a cue, with its own effects, fades and routing
+- Object audio: place a cue in your speaker layout and move it across the room
+- Named outputs and an output patch editor
+
+**Show control:**
+
+- Group, devamp and memo cues
+- Triggers on each cue: a hotkey, a MIDI note, an OSC address or a time of day
+- Cue carts, templates for new shows, and a phone or tablet remote
+- Fixture patching and a lighting dashboard, beyond Art-Net levels
+
+**Platform:**
+
 - NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
 - Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
