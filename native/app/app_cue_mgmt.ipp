@@ -4486,6 +4486,11 @@
       }
       cue.width = rasterW;
       cue.height = rasterH;
+      // A stream carries its sound unless it turns out not to -- the same as a
+      // stream cue made from the menu. Without this, normalisation read "no
+      // audio track" and switched the channel's sound off before it ever played.
+      cue.hasAudio = true;
+      cue.audioCodec = "stream";
       applyDeckDefaultsToCue(cue, deck);
       deck.cues.push_back(std::move(cue));
     }

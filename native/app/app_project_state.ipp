@@ -429,6 +429,9 @@
                << " dur=" << formatSeconds(engine->duration())
                << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f))
                << " decode_fps=" << decodeFps
+             // What this deck is sounding, 0-100 on the VU scale -- so "is the
+             // sound arriving?" can be asked over the wire, not only by ear.
+             << " audio_level=" << static_cast<int>(std::lround(engine->programAudioLevel01() * 100.0))
                // Frames this deck put NOTHING on the output -- see the note on
                // the other status builder. A run of these between two cues is
                // the black flash, measured rather than filmed.
@@ -606,6 +609,9 @@
              << " dur=" << formatSeconds(engine->duration())
              << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f))
              << " decode_fps=" << decodeFps
+             // What this deck is sounding, 0-100 on the VU scale -- so "is the
+             // sound arriving?" can be asked over the wire, not only by ear.
+             << " audio_level=" << static_cast<int>(std::lround(engine->programAudioLevel01() * 100.0))
              // Frames this deck put NOTHING on the output. A cut that drops the
              // outgoing picture before the incoming one decodes shows up here as
              // a run, which on a slide deck is the black flash between pages.

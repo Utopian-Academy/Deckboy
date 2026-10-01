@@ -14,6 +14,7 @@
 #include "engine/hap_decoder.hpp"
 
 #include "core/constants.hpp"
+#include "core/io_utils.hpp"          // readSome, for PipeDemuxer
 
 #include <algorithm>
 #include <atomic>
@@ -1497,6 +1498,87 @@ bool probeHapFile(const std::string& path, HapProbeResult& out, std::string& err
     return false;
   }
   return ok;
+}
+
+// ---------------------------------------------------------------------------
+// PipeDemuxer -- see the header. Reads the child's stdout through a custom
+// AVIOContext; NUT carries the rawvideo and pcm packets exactly as ffmpeg
+// wrote them, so there is nothing to decode here, only to sort.
+// ---------------------------------------------------------------------------
+struct PipeDemuxer::Impl {
+  int fd = -1;
+  AVFormatContext* fmt = nullptr;
+  AVIOContext* avio = nullptr;
+  int videoIndex = -1;
+  int audioIndex = -1;
+  AVPacket* packet = nullptr;
+
+  static int readPacket(void* opaque, std::uint8_t* buf, int size) {
+    auto* self = static_cast<Impl*>(opaque);
+    const int n = readSome(self->fd, buf, static_cast<std::size_t>(size));
+    return n > 0 ? n : AVERROR_EOF;
+  }
+
+  ~Impl() {
+    if (packet) av_packet_free(&packet);
+    if (fmt) avformat_close_input(&fmt);   // does not free a custom pb
+    if (avio) {
+      av_freep(&avio->buffer);
+      avio_context_free(&avio);
+    }
+  }
+};
+
+PipeDemuxer::PipeDemuxer() : impl_(std::make_unique<Impl>()) {}
+PipeDemuxer::~PipeDemuxer() = default;
+
+bool PipeDemuxer::open(int fd) {
+  constexpr int kBuffer = 1 << 16;
+  impl_->fd = fd;
+  auto* buffer = static_cast<std::uint8_t*>(av_malloc(kBuffer));
+  if (!buffer) return false;
+  impl_->avio = avio_alloc_context(buffer, kBuffer, 0, impl_.get(), &Impl::readPacket,
+                                   nullptr, nullptr);
+  if (!impl_->avio) {
+    av_free(buffer);
+    return false;
+  }
+  impl_->fmt = avformat_alloc_context();
+  if (!impl_->fmt) return false;
+  impl_->fmt->pb = impl_->avio;
+  impl_->fmt->flags |= AVFMT_FLAG_CUSTOM_IO;
+  const AVInputFormat* nut = av_find_input_format("nut");
+  if (avformat_open_input(&impl_->fmt, nullptr, nut, nullptr) < 0) {
+    impl_->fmt = nullptr;   // freed by the failed open
+    return false;
+  }
+  for (unsigned i = 0; i < impl_->fmt->nb_streams; ++i) {
+    const AVCodecParameters* par = impl_->fmt->streams[i]->codecpar;
+    if (par->codec_type == AVMEDIA_TYPE_VIDEO && impl_->videoIndex < 0) {
+      impl_->videoIndex = static_cast<int>(i);
+    } else if (par->codec_type == AVMEDIA_TYPE_AUDIO && impl_->audioIndex < 0) {
+      impl_->audioIndex = static_cast<int>(i);
+    }
+  }
+  impl_->packet = av_packet_alloc();
+  return impl_->videoIndex >= 0 && impl_->packet != nullptr;
+}
+
+bool PipeDemuxer::hasAudio() const { return impl_->audioIndex >= 0; }
+
+PipeDemuxer::Kind PipeDemuxer::next(std::vector<std::uint8_t>& data) {
+  while (impl_->fmt && av_read_frame(impl_->fmt, impl_->packet) >= 0) {
+    const int stream = impl_->packet->stream_index;
+    const bool video = stream == impl_->videoIndex;
+    const bool audio = stream == impl_->audioIndex;
+    if (video || audio) {
+      data.assign(impl_->packet->data, impl_->packet->data + impl_->packet->size);
+    }
+    av_packet_unref(impl_->packet);
+    if (video) return Kind::Video;
+    if (audio) return Kind::Audio;
+  }
+  return Kind::End;
 }
 
 } // namespace deckboy::libav

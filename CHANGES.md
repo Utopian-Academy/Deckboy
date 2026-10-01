@@ -2,6 +2,15 @@
 
 ## Next release
 
+**SRT feeds come in with their sound.** An SRT cue now takes its feed over a
+single connection -- the way a vision mixer does -- and plays the picture and
+the sound together, at whatever size the feed arrives in. Channels imported
+from an .m3u playlist carry their sound too.
+
+**The deck's sound level over the network.** `STATUS` reports `audio_level=`
+(0-100, the VU scale) for each deck, so a controller -- or anyone checking a
+feed -- can see that sound is arriving without listening for it.
+
 **Grid warp: bend the picture onto a surface that is not flat.** The warp
 toolbar has a **GRID** button -- 3x3 up to 9x9 points across the output. Drag a
 point and the picture bends through it, smoothly for a curved wall or with

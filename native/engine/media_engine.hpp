@@ -827,6 +827,12 @@ class MediaEngine {
   // In-process decode path. Returns false when this cue must use the CLI
   // pipe path instead (rotated file, no decodable frame, pipeline failure) —
   // startDecoderThreads falls through to the subprocess code.
+  // An SRT feed: ONE ffmpeg, one connection, picture and sound together as
+  // NUT on its stdout, split again in-process. False = not available (the
+  // caller falls back to picture only).
+  bool startSrtDecoder(const Cue& cue, const std::string& mediaPath, int decodeW,
+                       int decodeH, FramePixelFormat decodeFormat, const char* pixFmt,
+                       const std::string& scaleFilter);
   bool startInprocDecoders(const Cue& cue, const std::string& mediaPath,
                            double mediaStartSeconds, double cueStartSeconds,
                            int decodeW, int decodeH, FramePixelFormat decodeFormat,
@@ -1459,6 +1465,7 @@ class MediaEngine {
   // because a live look edit needs CPU pixels the decode was not opened for.
   // Both are reset at every decode start.
   bool activeDecodeDatamosh_ = false;
+  bool liveSourceNoEnd_ = false;             // SRT/NDI: the cue never reaches an end
   std::atomic<bool> liveRgbaBridge_ {false};
   static void bridgeFrameToRgba(DecodedFrame& frame);
   void* activeDecodeDevice_ = nullptr;       // device zero-copy frames live on (null = CPU)

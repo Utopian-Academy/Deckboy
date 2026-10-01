@@ -522,6 +522,18 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   cueOutPointSeconds_ = cue->outPointSeconds > 0.0 ? cue->outPointSeconds : cue->duration;
   cueOutPointSeconds_ = std::clamp(cueOutPointSeconds_, cueInPointSeconds_, std::max(cueInPointSeconds_, cue->duration));
   duration_ = std::max(0.01, cueOutPointSeconds_ - cueInPointSeconds_);
+  // A LIVE STREAM HAS NO END. It carries duration 0, which the floor above
+  // turns into 0.01s -- so an SRT cue finished a hundredth of a second after
+  // TAKE and the end handling parked it Paused at 0:00, with the feed
+  // connected and never read. Its clock runs; only the operator ends it.
+  liveSourceNoEnd_ = cue->kind == CueKind::SrtStream || cue->kind == CueKind::NdiSource;
+  // And no length: position() clamps the clock to duration_ when it is above
+  // zero, so at 0.01s the clock froze and no frame after the first was ever
+  // due -- Playing, and black. Zero is "unbounded" to position() and to
+  // every end check.
+  if (liveSourceNoEnd_) {
+    duration_ = 0.0;
+  }
 
   // A DeckLink input is captured natively rather than decoded, so it takes its
   // own path and never reaches the ffmpeg pipeline: the bundled ffmpeg has no
@@ -1258,9 +1270,14 @@ void MediaEngine::update() {
   // DeckLink has had this since it was written; there is no card here to have
   // noticed. NDI inherited it by following the same pattern, which is how it
   // came to light.
-  if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_ &&
-      !isSourceCapturing_ && !deckLinkCapturing_ && !ndiCapturing_ &&
-      !spoutCapturing_) {
+  //
+  // SRT had the same fault, a third time: its frames arrive through the
+  // ordinary decoder queue, but the kind is not Video, so it returned here,
+  // the queue filled, ffmpeg blocked on a full pipe and the feed stopped
+  // being read -- Playing, and black.
+  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::SrtStream &&
+      !isBrowserCapturing_ && !isSourceCapturing_ && !deckLinkCapturing_ &&
+      !ndiCapturing_ && !spoutCapturing_) {
     // Pocket-test A/V sync pop: the test card's buoy lamp flashes on each
     // wall-clock second; synthesize the matching 1 kHz pop into the deck's
     // audio stream so flash and pop leave Deckboy together. Keyed to the
@@ -1280,7 +1297,7 @@ void MediaEngine::update() {
         pause();
         return;
       }
-      if (currentPosition_ >= duration_ - 0.01) {
+      if (!liveSourceNoEnd_ && currentPosition_ >= duration_ - 0.01) {
         handlePlaybackEnd();
       }
     } else {
@@ -1488,11 +1505,15 @@ void MediaEngine::update() {
     }
   }
 
-  if (state_ == TransportState::Playing && duration_ > 0.0 && currentPosition_ >= duration_ - 0.01) {
+  // A live source never reaches an end: a dropped feed is the stall
+  // watchdog's business, not a cue finishing.
+  if (!liveSourceNoEnd_ && state_ == TransportState::Playing && duration_ > 0.0 &&
+      currentPosition_ >= duration_ - 0.01) {
     handlePlaybackEnd();
   }
 
-  if (state_ == TransportState::Playing && decoderEof_ && queuedFrames() == 0 && currentPosition_ >= duration_ - 0.02) {
+  if (!liveSourceNoEnd_ && state_ == TransportState::Playing && decoderEof_ &&
+      queuedFrames() == 0 && currentPosition_ >= duration_ - 0.02) {
     handlePlaybackEnd();
   }
 }
@@ -6745,8 +6766,23 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   // The scale filter is a no-op for normal video cues (decode size == probed
   // cue size) — skip it and save a per-frame CPU pass; keep it whenever the
   // sizes differ or a speed change needs setpts.
+  //
+  // A LIVE STREAM IS NEVER PROBED, so its cue's width/height are not the
+  // stream's -- an SRT cue carries the output raster it was created with. The
+  // test above then read "3840x2160 == 3840x2160, no scale", ffmpeg sent the
+  // feed at its own 1920x1080, and the reader waited for 4x the bytes of a
+  // frame that never came: the cue sat Paused at 0:00 forever, while the
+  // sender reported Deckboy connected and reading nothing. Always scale a
+  // stream to the size the reader expects.
   const bool needsVideoFilter =
+    isLiveStream ||
     decodeW != cue.width || decodeH != cue.height || std::abs(speed - 1.0) > 0.01;
+#if DECKBOY_INPROC_DECODE
+  if (cue.kind == CueKind::SrtStream &&
+      startSrtDecoder(cue, mediaPath, decodeW, decodeH, decodeFormat, ffmpegPixFmt, scaleFilter)) {
+    return;
+  }
+#endif
 
   // Build ffmpeg video args. Live streams skip seek and hwaccel (avoids latency/compat issues).
   // NDI IS NOT DECODED HERE AT ALL any more, so the isNdiSource arms below
@@ -6849,7 +6885,16 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   } else if (cue.hasAudio && cue.audioEnabled && audioStream_ == nullptr) {
     latchAudioStartFailure("no audio device open on this deck");
   }
-  if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
+  // AN SRT FEED IS OPENED ONCE. The audio below is a SECOND ffmpeg on the
+  // same URL, and an SRT sender in listener mode takes one caller: the two
+  // raced, and whichever lost never connected. startSrtDecoder carries both
+  // over one connection; reaching here means it is unavailable (a build
+  // without in-process libav), so the cue is picture only, and says so.
+  const bool srtSingleConnection = cue.kind == CueKind::SrtStream;
+  if (srtSingleConnection && cue.hasAudio && cue.audioEnabled) {
+    std::cerr << "SRT cue: picture only -- one connection per feed" << std::endl;
+  }
+  if (!srtSingleConnection && audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
     syncAudioFadeParams();  // publish before the audio thread spawns
     audioFramesQueued_.store(0, std::memory_order_relaxed);
     // The tap's accounting is measured against that counter, so it restarts
@@ -7574,6 +7619,108 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
 // Returns false → caller falls through to the CLI pipe path (rotated files,
 // undecodable first frame, open failure).
 // ---------------------------------------------------------------------------
+#if DECKBOY_INPROC_DECODE
+// ---------------------------------------------------------------------------
+// startSrtDecoder -- an SRT feed with its sound, over ONE connection.
+//
+// This is how a switcher like vMix takes SRT: open the feed once and split it.
+// The CLI ffmpeg has the SRT protocol, so it takes the connection and writes
+// decoded picture (rawvideo, already scaled) and sound (s16 stereo) muxed as
+// NUT; PipeDemuxer sorts the packets. Sound is mapped optionally (0:a:0?), so a
+// feed without it plays picture only rather than failing.
+//
+// Live, so nothing here may BLOCK the read: a full frame queue drops its oldest
+// frame and a full audio queue drops the chunk, or the pipe backs up, ffmpeg
+// stops reading the socket and the sender starts discarding packets.
+// ---------------------------------------------------------------------------
+bool MediaEngine::startSrtDecoder(const Cue& cue, const std::string& mediaPath, int decodeW,
+                                  int decodeH, FramePixelFormat decodeFormat,
+                                  const char* pixFmt, const std::string& scaleFilter) {
+  // Never probed, so whether the feed carries sound is unknown until it
+  // connects: ask for it whenever this deck can play it.
+  // A cue that says it has NO audio track was never probed (playlist imports
+  // before 0.99.398 said so of every channel), so that is not a mute -- a muted
+  // stream still has its track. Only an explicit mute keeps the sound out.
+  const bool wantAudio = audioStream_ != nullptr && (cue.audioEnabled || !cue.hasAudio);
+  const int threads = std::clamp(SDL_GetNumLogicalCPUCores() / 2, 1, 4);
+  std::vector<std::string> args = {
+    "ffmpeg", "-hide_banner", "-loglevel", "error", "-threads", std::to_string(threads),
+    "-i", mediaPath, "-map", "0:v:0"};
+  if (wantAudio) {
+    args.insert(args.end(), {"-map", "0:a:0?"});
+  }
+  args.insert(args.end(), {"-vf", scaleFilter, "-c:v", "rawvideo", "-pix_fmt", pixFmt});
+  if (wantAudio) {
+    args.insert(args.end(), {"-c:a", "pcm_s16le", "-ac", "2", "-ar", std::to_string(audioRate_)});
+  } else {
+    args.push_back("-an");
+  }
+  args.insert(args.end(), {"-f", "nut", "pipe:1"});
+  const std::size_t frameBytes = frameBufferSize(decodeFormat, decodeW, decodeH);
+  if (frameBytes == 0 || !spawnPipeProcess(videoProcess_, std::move(args))) {
+    return false;
+  }
+  if (wantAudio) {
+    syncAudioFadeParams();   // publish before the thread can queue sound
+    audioFramesQueued_.store(0, std::memory_order_relaxed);
+  }
+  const int fd = videoProcess_.readFd;
+  decodersRunning_ = true;
+  videoThread_ = std::thread([this, fd, decodeW, decodeH, decodeFormat, frameBytes]() {
+    deckboy::libav::PipeDemuxer demux;
+    if (!demux.open(fd)) {
+      decoderEof_ = true;
+      return;
+    }
+    std::vector<std::uint8_t> data;
+    std::uint64_t frameIndex = 0;
+    double audioTime = 0.0;
+    while (!decoderStop_.load()) {
+      const auto kind = demux.next(data);
+      if (kind == deckboy::libav::PipeDemuxer::Kind::End) {
+        break;
+      }
+      if (kind == deckboy::libav::PipeDemuxer::Kind::Audio) {
+        // Half a second of headroom. A feed delivers its sound in bursts, and
+        // the file path's 120ms cap threw away a third of the packets here --
+        // dropouts. Past this the device has stopped draining, and a live
+        // feed must lose the chunk rather than stall the picture behind it.
+        const int liveCap = (audioRate_ / 2) * audioStreamBytesPerFrame();
+        if (queuedAudioBytes() > liveCap) {
+          continue;
+        }
+        std::vector<std::int16_t> samples(data.size() / sizeof(std::int16_t));
+        std::memcpy(samples.data(), data.data(), samples.size() * sizeof(std::int16_t));
+        applyGainAndQueueAudio(samples, audioTime);
+        continue;
+      }
+      if (data.size() < frameBytes) {
+        continue;
+      }
+      DecodedFrame frame;
+      frame.width = decodeW;
+      frame.height = decodeH;
+      frame.index = frameIndex++;
+      frame.format = decodeFormat;
+      data.resize(frameBytes);
+      frame.pixels = std::move(data);
+      data = {};
+      if (liveRgbaBridge_.load()) {
+        bridgeFrameToRgba(frame);
+      }
+      lastFramePushMs_.store(SDL_GetTicks());
+      std::lock_guard<std::mutex> lock(frameMutex_);
+      if (frameQueue_.size() >= kMaxVideoFrames) {
+        frameQueue_.pop_front();   // live: the newest picture wins
+      }
+      frameQueue_.push_back(std::move(frame));
+    }
+    decoderEof_ = true;
+  });
+  return true;
+}
+#endif
+
 bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPath,
                                       double mediaStartSeconds, double cueStartSeconds,
                                       int decodeW, int decodeH, FramePixelFormat decodeFormat,

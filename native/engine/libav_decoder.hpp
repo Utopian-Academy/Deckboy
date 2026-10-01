@@ -69,6 +69,32 @@
 
 namespace deckboy::libav {
 
+// ONE PIPE, PICTURE AND SOUND. A live feed (SRT) can be opened only once --
+// an SRT sender in listener mode takes a single caller -- so an ffmpeg CLI
+// process takes the one connection and muxes the decoded picture (rawvideo)
+// and sound (pcm_s16le) into NUT on its stdout, and this splits them again.
+// Sound is optional: a feed without it simply yields no Audio packets.
+class PipeDemuxer {
+ public:
+  PipeDemuxer();
+  ~PipeDemuxer();
+  PipeDemuxer(const PipeDemuxer&) = delete;
+  PipeDemuxer& operator=(const PipeDemuxer&) = delete;
+
+  // Read the NUT header from `fd`. Blocks until ffmpeg has connected and
+  // written it; false if the pipe closes first.
+  bool open(int fd);
+  enum class Kind { Video, Audio, End };
+  // The next packet's payload: one raw video frame, or a run of interleaved
+  // s16 stereo samples. End when the pipe closes.
+  Kind next(std::vector<std::uint8_t>& data);
+  bool hasAudio() const;
+
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
+};
+
 // Parameters for VideoPipeline::open(). targetWidth/Height and format apply
 // to CPU-output mode only (mirrors the old scale filter + -pix_fmt choice);
 // zero-copy frames are always source-sized NV12 — the compositor scales on
