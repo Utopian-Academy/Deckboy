@@ -1,6 +1,64 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## Next release
+## 2026-10-01 - v0.99.397 (perspective layer mapping, levels and curves, and an arcade lower third)
+
+**A way to send a problem report, with nothing hidden.** Settings > About
+has a REPORT A PROBLEM button that opens a prefilled issue on Deckboy's
+GitHub, with the version, platform and renderer backend already filled in --
+reviewable and editable before anything is sent, and nothing leaves the
+machine until the operator presses Submit there themselves.
+
+**The Network and System settings tabs scroll to reach every card.** NMC
+IN & OUT and the TALLY card on Network, and WATCH FOLDER on System, could
+run off the bottom of the window with nothing able to bring them back into
+view -- both tabs scroll now, the way Video Outputs already did.
+
+**VideoSynth cues get colour controls.** Brightness, contrast, saturation
+and hue -- already on Video, Image, Pattern, Browser, Pip and source cues --
+now reach VideoSynth too, through the same grading path.
+
+**A fade cue can ramp brightness, contrast, saturation or hue**, the same
+way it already ramps opacity, volume or the master dimmer -- a slow grade
+change over the course of a show rather than a cut.
+
+**Adding a master cue from the ADD A CUE menu opens the Dashboard's Tracker
+view**, where the new cue's targets get assigned -- the step that used to be
+a second trip to the dashboard by hand.
+
+**A cue can move to another deck from its right-click menu** -- MOVE TO
+DECK..., alongside the existing reorder-within-a-deck drag.
+
+**The preset picker can take or stop a whole deck**, not just a cue -- TAKE
+DECK... and STOP DECK... open a picker of the show's own playlists.
+
+**Picture-in-picture is retired as a cue you can create new.** Scaling a
+second deck's layer over the first already does the job, with a whole
+playlist behind it instead of one fixed box. A show that already has a PIP
+cue keeps loading and playing it; ADD A CUE and the PIP network command no
+longer offer to make new ones.
+
+**A master cue added over the network lands in the tracker sequence that was
+already running**, the same place the dashboard's own ADD STEP puts it,
+rather than always the focused deck.
+
+**A long line of text fits the width it is given**, on every output and the
+control window's main preview alike -- previously only the height was
+guaranteed.
+
+**Fireside's rain and snow fall down.**
+
+**The update-download indicator stays visible on every Settings tab**, not
+only System -- it used to disappear the moment the operator switched tabs
+while a download was still running.
+
+**File > New warns before it discards unsaved changes**, not only a live
+show.
+
+**A recent show's row says which folder it's in** -- "in &lt;folder&gt;",
+instead of a bare folder name with nothing saying what it was relative to.
+
+**Two new splash scenes**: a beach bonfire and a rooftop party, in the
+cycling rotation.
 
 **Map a layer in perspective, from the programme monitor.** A layer's corner
 pin now has its own handles: focus a playlist that is a layer on the output,
