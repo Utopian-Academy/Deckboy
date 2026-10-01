@@ -35,6 +35,18 @@
         .callout p:last-child { margin-bottom: 0; }
         .figure { color: var(--ink); font-family: var(--mono); white-space: nowrap; }
         .win { color: var(--ink); font-weight: 600; }
+
+        /* ── phones: each row becomes a card, the column names as labels ── */
+        @media (max-width: 640px) {
+            .table-wrap { overflow: visible; }
+            .table-wrap table { min-width: 0; }
+            .table-wrap thead { display: none; }
+            .table-wrap tr:has(th) { display: none; }
+            .table-wrap tr { display: block; border: 2px solid var(--rule); padding: .6rem .8rem; margin-bottom: .6rem; }
+            .table-wrap td { display: block; border: 0; padding: .15rem 0; }
+            .table-wrap td:first-child { color: var(--ink); font-weight: 600; }
+            .table-wrap td[data-label]:not(:first-child)::before { content: attr(data-label) ": "; color: var(--ink); font-weight: 600; }
+        }
     </style>
 
     <script type="application/ld+json">
@@ -96,19 +108,19 @@
                 <tr><th>Effect</th><th>First working</th><th>Shipped</th><th>What it actually was</th></tr>
             </thead>
             <tbody>
-                <tr><td>Grain flow</td><td>119 ms</td><td class="win">13 ms</td>
-                    <td>a luma conversion inside a 3&times;3 window &mdash; every pixel converting
+                <tr><td data-label="Effect">Grain flow</td><td data-label="First working">119 ms</td><td class="win" data-label="Shipped">13 ms</td>
+                    <td data-label="What it actually was">a luma conversion inside a 3&times;3 window &mdash; every pixel converting
                         thirty-six neighbours its neighbours had already done &mdash; plus trig and
                         a <code>pow</code> on frame constants in the pixel loop</td></tr>
-                <tr><td>Chladni</td><td>24 ms</td><td class="win">7 ms</td>
-                    <td>twenty sines per pixel. The plate equation is separable, so two tables the
+                <tr><td data-label="Effect">Chladni</td><td data-label="First working">24 ms</td><td class="win" data-label="Shipped">7 ms</td>
+                    <td data-label="What it actually was">twenty sines per pixel. The plate equation is separable, so two tables the
                         width of the frame replace all of them and the inner loop does no
                         trigonometry at all</td></tr>
-                <tr><td>Crystallise</td><td>18 ms</td><td class="win">16 ms</td>
-                    <td>nine square roots per pixel to rank nine seeds. Ranking by the square gives
+                <tr><td data-label="Effect">Crystallise</td><td data-label="First working">18 ms</td><td class="win" data-label="Shipped">16 ms</td>
+                    <td data-label="What it actually was">nine square roots per pixel to rank nine seeds. Ranking by the square gives
                         the identical order; only the grain boundary needs a real distance</td></tr>
-                <tr><td>Any channel-wise effect</td><td>&mdash;</td><td class="win">10&ndash;66&times;</td>
-                    <td>if the output channel depends only on the input channel, it is a 256-entry
+                <tr><td data-label="Effect">Any channel-wise effect</td><td data-label="First working">&mdash;</td><td class="win" data-label="Shipped">10&ndash;66&times;</td>
+                    <td data-label="What it actually was">if the output channel depends only on the input channel, it is a 256-entry
                         lookup table, built from the same expression, byte-identical</td></tr>
             </tbody>
         </table>
@@ -156,10 +168,10 @@
                 <tr><th>Stage</th><th>Cost</th><th>Whose</th></tr>
             </thead>
             <tbody>
-                <tr><td>Capture</td><td>1 frame, always &mdash; the sensor has to finish reading out</td><td>physics</td></tr>
-                <tr><td>Encode</td><td>1 frame intra-only; 2&ndash;8 for long-GOP H.264/HEVC</td><td><b>your choice</b></td></tr>
-                <tr><td>Transport</td><td>SDI effectively nil; ST&nbsp;2110 on PTP under 1 ms; SRT whatever you set</td><td>the network</td></tr>
-                <tr><td>Display</td><td>1&ndash;3 frames of scaler nobody publishes</td><td>the venue's</td></tr>
+                <tr><td data-label="Stage">Capture</td><td data-label="Cost">1 frame, always &mdash; the sensor has to finish reading out</td><td data-label="Whose">physics</td></tr>
+                <tr><td data-label="Stage">Encode</td><td data-label="Cost">1 frame intra-only; 2&ndash;8 for long-GOP H.264/HEVC</td><td data-label="Whose"><b>your choice</b></td></tr>
+                <tr><td data-label="Stage">Transport</td><td data-label="Cost">SDI effectively nil; ST&nbsp;2110 on PTP under 1 ms; SRT whatever you set</td><td data-label="Whose">the network</td></tr>
+                <tr><td data-label="Stage">Display</td><td data-label="Cost">1&ndash;3 frames of scaler nobody publishes</td><td data-label="Whose">the venue's</td></tr>
             </tbody>
         </table>
         </div>

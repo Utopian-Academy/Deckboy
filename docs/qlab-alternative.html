@@ -33,6 +33,18 @@
             border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-soft); }
         .prose th { color: var(--ink); }
         .note { border-left: 3px solid var(--ink-soft); padding: .2rem 0 .2rem 1rem; }
+
+        /* ── phones: each row becomes a card, the column names as labels ── */
+        @media (max-width: 640px) {
+            .table-wrap { overflow: visible; }
+            .table-wrap table { min-width: 0; }
+            .table-wrap thead { display: none; }
+            .table-wrap tr:has(th) { display: none; }
+            .table-wrap tr { display: block; border: 2px solid var(--rule); padding: .6rem .8rem; margin-bottom: .6rem; }
+            .table-wrap td { display: block; border: 0; padding: .15rem 0; }
+            .table-wrap td:first-child { color: var(--ink); font-weight: 600; }
+            .table-wrap td[data-label]:not(:first-child)::before { content: attr(data-label) ": "; color: var(--ink); font-weight: 600; }
+        }
     </style>
 
     <script type="application/ld+json">
@@ -100,35 +112,35 @@
         <div class="table-wrap">
         <table>
             <tr><th>In QLab</th><th>In Deckboy</th></tr>
-            <tr><td>Cue list, GO, standby</td><td>A cue list with a GO button. A standby pointer
+            <tr><td data-label="In QLab">Cue list, GO, standby</td><td data-label="In Deckboy">A cue list with a GO button. A standby pointer
                 separate from the selection</td></tr>
-            <tr><td>Pre-wait, post-wait, auto-continue, auto-follow</td><td>Pre-wait, post-wait and
+            <tr><td data-label="In QLab">Pre-wait, post-wait, auto-continue, auto-follow</td><td data-label="In Deckboy">Pre-wait, post-wait and
                 a continue mode on every cue</td></tr>
-            <tr><td>Video and camera cues</td><td>Clips, stills, cameras, capture cards, NDI, SRT,
+            <tr><td data-label="In QLab">Video and camera cues</td><td data-label="In Deckboy">Clips, stills, cameras, capture cards, NDI, SRT,
                 windows and web pages, with trim, fades, loops and a held last frame</td></tr>
-            <tr><td>Audio cues</td><td>Audio cues with fades and loudness normalising, and 22
+            <tr><td data-label="In QLab">Audio cues</td><td data-label="In Deckboy">Audio cues with fades and loudness normalising, and 23
                 per-cue audio effects plus VST3 plugins. A crosspoint matrix routes each cue to up
                 to 64 device channels</td></tr>
-            <tr><td>Fade cues</td><td>Fade a deck's picture, its volume or the master to a level
+            <tr><td data-label="In QLab">Fade cues</td><td data-label="In Deckboy">Fade a deck's picture, its volume or the master to a level
                 on a linear, eased or S curve</td></tr>
-            <tr><td>Start, Stop, Pause, Load, Arm, Disarm, Target</td><td>Target cues start, stop,
+            <tr><td data-label="In QLab">Start, Stop, Pause, Load, Arm, Disarm, Target</td><td data-label="In Deckboy">Target cues start, stop,
                 pause, resume, load, arm or disarm another cue</td></tr>
-            <tr><td>MIDI cues</td><td>Send notes, control and program changes, MSC GO/STOP/RESUME
+            <tr><td data-label="In QLab">MIDI cues</td><td data-label="In Deckboy">Send notes, control and program changes, MSC GO/STOP/RESUME
                 or raw bytes</td></tr>
-            <tr><td>Network cues</td><td>Send OSC, a UDP datagram or a line of TCP</td></tr>
-            <tr><td>Timecode cues</td><td>Start, stop or jam the LTC generator from the cue list</td></tr>
-            <tr><td>Light cues</td><td>Art-Net channel levels with a fade time. Not a lighting
+            <tr><td data-label="In QLab">Network cues</td><td data-label="In Deckboy">Send OSC, a UDP datagram or a line of TCP</td></tr>
+            <tr><td data-label="In QLab">Timecode cues</td><td data-label="In Deckboy">Start, stop or jam the LTC generator from the cue list</td></tr>
+            <tr><td data-label="In QLab">Light cues</td><td data-label="In Deckboy">Art-Net channel levels with a fade time. Not a lighting
                 system: no fixtures, no patch</td></tr>
-            <tr><td>Script cues (AppleScript)</td><td>Script cues run lines of Deckboy's own control
+            <tr><td data-label="In QLab">Script cues (AppleScript)</td><td data-label="In Deckboy">Script cues run lines of Deckboy's own control
                 protocol, so one cue can fire several things</td></tr>
-            <tr><td>Text cues</td><td>Lower thirds and timers</td></tr>
-            <tr><td>Multiple cue lists</td><td>Up to 16 decks, each with its own list and transport.
+            <tr><td data-label="In QLab">Text cues</td><td data-label="In Deckboy">Lower thirds and timers</td></tr>
+            <tr><td data-label="In QLab">Multiple cue lists</td><td data-label="In Deckboy">Up to 16 decks, each with its own list and transport.
                 Each output can show a different deck</td></tr>
-            <tr><td>Load to time, preview</td><td>Audition plays a cue to the control window only.
+            <tr><td data-label="In QLab">Load to time, preview</td><td data-label="In Deckboy">Audition plays a cue to the control window only.
                 Preload racks it paused with decoding already running</td></tr>
-            <tr><td>Checking the workspace</td><td>CHECK lists missing media, broken targets and
+            <tr><td data-label="In QLab">Checking the workspace</td><td data-label="In Deckboy">CHECK lists missing media, broken targets and
                 cues that cannot build their message, before doors</td></tr>
-            <tr><td>macOS</td><td>Windows, macOS and Linux</td></tr>
+            <tr><td data-label="In QLab">macOS</td><td data-label="In Deckboy">Windows, macOS and Linux</td></tr>
         </table>
         </div>
 

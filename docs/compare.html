@@ -46,6 +46,23 @@
         .box ul { columns: 2 260px; column-gap: 2rem; }
         .box li { break-inside: avoid; }
         .small { font-size: .8rem; color: var(--ink-soft); }
+        .cmp .runs { display: none; }
+        /* ── phones: each tool becomes a card, the price under its name ── */
+        @media (max-width: 640px) {
+            .table-wrap { overflow: visible; }
+            table.cmp { min-width: 0; }
+            .cmp thead { display: none; }
+            .cmp tr { display: block; border: 2px solid var(--rule); padding: .7rem .9rem; margin-bottom: .7rem; }
+            .cmp tr.us { border-color: var(--ink); }
+            .cmp td { display: block; border: 0; padding: .15rem 0; background: none !important; }
+            .cmp td:nth-child(2), .cmp td:nth-child(3), .cmp td:nth-child(4) { display: none; }
+            .cmp td:first-child { font-size: 1rem; }
+            .cmp td.runs { display: block; text-align: left !important; color: var(--ink); font-size: .8rem; margin-bottom: .35rem; }
+            .cmp td[data-label]::before { content: attr(data-label) ": "; color: var(--ink-soft); font-weight: 400; }
+            .cmp tr.us td[data-label] { color: var(--ink); }
+            .box { padding: 1rem; }
+            .box h2 { font-size: 1rem; line-height: 1.5; }
+        }
     </style>
 </head>
 <body>
@@ -80,19 +97,19 @@
         <div class="table-wrap">
         <table class="cmp">
             <thead>
-                <tr><th>Tool</th><th>Windows</th><th>macOS</th><th>Linux</th><th>To own it</th><th>To rent it</th></tr>
+                <tr><th>Tool</th><th>Windows</th><th>macOS</th><th>Linux</th><th class="runs"></th><th>To own it</th><th>To rent it</th></tr>
             </thead>
             <tbody>
-                <tr class="us"><td><b>Deckboy</b></td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="y">&#10003;</td><td>Free &mdash; every feature, every machine</td><td>Never needed</td></tr>
-                <tr><td><b>vMix</b></td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="n">&mdash;</td><td>$60&ndash;$1,200 by edition</td><td>$50 a month (MAX)</td></tr>
-                <tr><td><b>PlayDeck</b></td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="n">&mdash;</td><td>Annual licence, &euro;190.80&ndash;&euro;994.80 a year</td><td>&euro;26.90&ndash;&euro;139.90 a month</td></tr>
-                <tr><td><b>Resolume Avenue / Arena</b></td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>&euro;299 / &euro;799, then renew for updates</td><td>&mdash;</td></tr>
-                <tr><td><b>Mitti</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>From $399</td><td>From $79.80</td></tr>
-                <tr><td><b>SimplePlay Pro X</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>$399; Apple Silicon only</td><td>&mdash;</td></tr>
-                <tr><td><b>Millumin</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>From &euro;399</td><td>&euro;29 a week, &euro;199 a year</td></tr>
-                <tr><td><b>ProVideoPlayer</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>$999</td><td>$199 for two weeks, $399 a month</td></tr>
-                <tr><td><b>QLab</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>Free tier; paid licences for the advanced features</td><td>By the day</td></tr>
-                <tr><td><b>PlaybackPro Plus</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td>Not published</td><td>Through rental houses</td></tr>
+                <tr class="us"><td><b>Deckboy</b></td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="runs">Windows &middot; macOS &middot; Linux</td><td data-label="To own it">Free &mdash; every feature, every machine</td><td data-label="To rent it">Never needed</td></tr>
+                <tr><td><b>vMix</b></td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="n">&mdash;</td><td class="runs">Windows</td><td data-label="To own it">$60&ndash;$1,200 by edition</td><td data-label="To rent it">$50 a month (MAX)</td></tr>
+                <tr><td><b>PlayDeck</b></td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="n">&mdash;</td><td class="runs">Windows</td><td data-label="To own it">Annual licence, &euro;190.80&ndash;&euro;994.80 a year</td><td data-label="To rent it">&euro;26.90&ndash;&euro;139.90 a month</td></tr>
+                <tr><td><b>Resolume Avenue / Arena</b></td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="runs">Windows &middot; macOS</td><td data-label="To own it">&euro;299 / &euro;799, then renew for updates</td><td data-label="To rent it">&mdash;</td></tr>
+                <tr><td><b>Mitti</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="runs">macOS</td><td data-label="To own it">From $399</td><td data-label="To rent it">From $79.80</td></tr>
+                <tr><td><b>SimplePlay Pro X</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="runs">macOS</td><td data-label="To own it">$399; Apple Silicon only</td><td data-label="To rent it">&mdash;</td></tr>
+                <tr><td><b>Millumin</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="runs">macOS</td><td data-label="To own it">From &euro;399</td><td data-label="To rent it">&euro;29 a week, &euro;199 a year</td></tr>
+                <tr><td><b>ProVideoPlayer</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="runs">macOS</td><td data-label="To own it">$999</td><td data-label="To rent it">$199 for two weeks, $399 a month</td></tr>
+                <tr><td><b>QLab</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="runs">macOS</td><td data-label="To own it">Free tier; paid licences for the advanced features</td><td data-label="To rent it">By the day</td></tr>
+                <tr><td><b>PlaybackPro Plus</b></td><td class="n">&mdash;</td><td class="y">&#10003;</td><td class="n">&mdash;</td><td class="runs">macOS</td><td data-label="To own it">Not published</td><td data-label="To rent it">Through rental houses</td></tr>
             </tbody>
         </table>
         <p class="small">Prices for one machine, without tax, from each vendor's own site on
