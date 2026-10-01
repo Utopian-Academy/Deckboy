@@ -24,6 +24,15 @@ list; forest behind a yellow accent is the arcade look's own pair.
 restyle a strap as well as fire it. `LOWERTEXT` and `LOWERSUB` now set the two
 lines of the lower third that `LOWERTHIRD` makes.
 
+**Effects go on and off a live cue without a hitch.** Adding the first effect,
+grade or key to a cue that is on air -- or clearing the last one -- now changes
+the picture on the very next frame, and the clip keeps moving. Paused cues pick
+the look up straight away too.
+
+**A layer stays where you put it when you select its playlist.** Selecting a
+playlist that is layered on an output keeps the focus, and the programme
+monitor, on that output -- even with a recording or a stream running.
+
 ## 2026-09-30 - v0.99.396 (text survives a second Mac, and a transition keeps its shape)
 
 **Issue #7, and issue #6 before it: no text anywhere in the interface on

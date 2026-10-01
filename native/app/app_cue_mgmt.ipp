@@ -6956,6 +6956,29 @@
     }
   }
 
+  // A look edit on the cue on air that changed whether it needs CPU pixels.
+  // Taken without reopening the decoder when the engine can (it converts
+  // frames until the next take), because a reopen froze the picture on every
+  // such edit; the reopen stays as the fallback for what only it can change.
+  void adoptFocusedLiveCueLook() {
+    if (project_.focusedDeckIndex < 0 || project_.focusedDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = focusedDeck();
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    if (!cueIndexSelected(deck, deck.activeIndex)) {
+      return;
+    }
+    if (MediaEngine* engine = focusedMediaEngine()) {
+      const Cue& cue = deck.cues[deck.activeIndex];
+      if (!engine->adoptLookWithoutRestart(cue)) {
+        engine->refreshActiveCueRuntime(&cue);
+      }
+    }
+  }
+
   // Push the app's current active cue into each deck engine's owned snapshot.
   // The engine never keeps pointers into Deck::cues (import reallocates,
   // delete shifts), so after any project edit the snapshot must be refreshed

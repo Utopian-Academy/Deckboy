@@ -166,6 +166,15 @@ class MediaEngine {
   // so live-editable fields (fade in/out, etc.) stay current. No-op when
   // nothing is loaded.
   void syncActiveCueSnapshot(const Cue& cue);
+  // A look edit on the cue ON AIR (an effect, a grade, a key) that may change
+  // whether it needs CPU pixels. Takes the new look WITHOUT reopening the
+  // decoder when the running decode can serve it, converting frames on the
+  // decode thread until the next take picks the right format up front.
+  // Returns false when only a restart will do (datamosh, a non-file cue);
+  // the caller then falls back to refreshActiveCueRuntime.
+  bool adoptLookWithoutRestart(const Cue& cue);
+  // Whether a cue's look needs RGBA frames rather than the NV12 fast path.
+  bool cueDecodesAsRgba(const Cue& cue) const;
 
   // The operator moved an in/out point on a cue that is ON AIR.
   //
@@ -1445,6 +1454,13 @@ class MediaEngine {
   bool inprocDecodeActive_ = false;          // active cue decodes in-process
   const char* activeDecodeName_ = "software";  // d3d11va / videotoolbox / vaapi
   bool activeDecodeZeroCopy_ = false;        // frames never touched the CPU
+  // Whether the running decode withholds keyframes (fixed at its start), and
+  // whether its frames are being converted to RGBA on the way into the queue
+  // because a live look edit needs CPU pixels the decode was not opened for.
+  // Both are reset at every decode start.
+  bool activeDecodeDatamosh_ = false;
+  std::atomic<bool> liveRgbaBridge_ {false};
+  static void bridgeFrameToRgba(DecodedFrame& frame);
   void* activeDecodeDevice_ = nullptr;       // device zero-copy frames live on (null = CPU)
   std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)

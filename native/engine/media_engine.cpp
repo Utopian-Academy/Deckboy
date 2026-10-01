@@ -584,6 +584,108 @@ void MediaEngine::syncActiveCueSnapshot(const Cue& cue) {
   syncAudioFadeParams();
 }
 
+// Pixel format is per-cue. Cues with chroma key or color controls need RGBA
+// because the effects path mutates interleaved RGBA bytes; everything else
+// takes the NV12 fast path (~62% less pipe bandwidth).
+// The effect stack counts too. Without it here a cue carrying effects still
+// took the NV12 fast path and the whole stack was silently skipped -- the
+// pixels never reached a CPU buffer for it to run on. Same trap the chroma
+// key would have hit if this predicate had not existed.
+// forcePixelFrames_ is VJ mode asking for frames it can SEE. A zero-copy
+// NV12 surface has no pixels on the CPU side, so the control window cannot
+// make an A or B preview out of it -- and a mixer whose preview monitors are
+// blank is a mixer you are fading blind. The cost is the zero-copy path, and
+// only while VJ mode is on, which is exactly when both decks need looking at.
+bool MediaEngine::cueDecodesAsRgba(const Cue& cue) const {
+  return cue.chromaKeyEnabled ||
+         colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
+         deckboy::effects::cueEffectStackActive(cue.effects) ||
+         // The audio chain can need the picture too -- see audioChainNeedsPicture.
+         deckboy::audiofx::audioChainNeedsPicture(cue.audioEffects) ||
+         forcePixelFrames_;
+}
+
+// A LOOK EDIT ON AIR MUST NOT STOP THE PICTURE.
+//
+// Adding the first effect (or clearing the last) changes whether the cue needs
+// RGBA, and the decode format is chosen when the decode opens. This used to
+// reopen the decoder to change it -- and a reopen has to re-seek and re-buffer
+// before its first frame, so every such edit froze the programme for a few
+// hundred milliseconds. Holding the last frame across the gap made it a still
+// instead of a hole; measured in a recording it was still 7-20 identical
+// frames per edit, after every edit.
+//
+// The decode does not need reopening to serve the new look:
+//   * no longer needs RGBA: RGBA frames upload as they are, and the effects
+//     simply stop being applied -- nothing to do;
+//   * newly needs RGBA: convert each frame to RGBA on the decode thread, the
+//     same thread the reopened decoder would have done it on. A zero-copy GPU
+//     frame is downloaded first. The next take opens in the right format and
+//     the bridge switches off.
+// Datamosh is the exception: it is a decode behaviour (keyframes withheld),
+// not a pixel one, so changing it still needs the reopen.
+bool MediaEngine::adoptLookWithoutRestart(const Cue& cue) {
+  if (!activeCue_ || activeCue_->kind != CueKind::Video) {
+    return false;
+  }
+  if (datamoshActiveForCue(cue) != activeDecodeDatamosh_) {
+    return false;
+  }
+  syncActiveCueSnapshot(cue);
+  const bool bridge = cueDecodesAsRgba(cue);
+  liveRgbaBridge_.store(bridge);
+  if (bridge) {
+    // What is already decoded predates the edit: convert it too, or the effect
+    // would arrive a queue-length late -- and on a PAUSED cue, whose decoder
+    // pushes nothing new, not at all.
+    if (displayFrame_) bridgeFrameToRgba(*displayFrame_);
+    if (heldFrame_) bridgeFrameToRgba(*heldFrame_);
+    std::lock_guard<std::mutex> lock(frameMutex_);
+    for (DecodedFrame& queued : frameQueue_) {
+      bridgeFrameToRgba(queued);
+    }
+  }
+  lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);   // re-upload with the new look
+  return true;
+}
+
+// NV12 (or a zero-copy GPU surface) to packed RGBA, in place. SDL's own
+// converter, so the colour matrix is the one SDL uses to draw an NV12 texture
+// -- the picture must not shift the moment an effect is added. An RGBA frame
+// is left alone, so calling this on any frame is safe.
+void MediaEngine::bridgeFrameToRgba(DecodedFrame& frame) {
+#if DECKBOY_INPROC_DECODE
+  if (frame.isGpu()) {
+    DecodedFrame cpu;
+    if (!deckboy::libav::downloadGpuFrameNV12(frame, cpu)) {
+      return;   // left as it was: drawn without the look, never dropped
+    }
+    frame.pixels = std::move(cpu.pixels);
+    frame.format = cpu.format;
+    frame.width = cpu.width;
+    frame.height = cpu.height;
+    frame.gpuFrameRef.reset();
+    frame.gpuTexture = nullptr;
+    frame.gpuDevice = nullptr;
+    frame.gpuSubresource = 0;
+    frame.gpuKind = DecodedFrame::GpuKind::None;
+  }
+#endif
+  if (frame.format != FramePixelFormat::NV12 || frame.width <= 0 || frame.height <= 0 ||
+      frame.pixels.size() < frameBufferSize(FramePixelFormat::NV12, frame.width, frame.height)) {
+    return;
+  }
+  std::vector<std::uint8_t> rgba(static_cast<std::size_t>(frame.width) *
+                                 static_cast<std::size_t>(frame.height) * 4u);
+  if (!SDL_ConvertPixels(frame.width, frame.height, SDL_PIXELFORMAT_NV12,
+                         frame.pixels.data(), frame.width,
+                         SDL_PIXELFORMAT_RGBA32, rgba.data(), frame.width * 4)) {
+    return;
+  }
+  frame.pixels = std::move(rgba);
+  frame.format = FramePixelFormat::RGBA32;
+}
+
 // Hot-update runtime parameters from the active cue without restarting decode.
 // Called when the operator adjusts speed, in/out points, or pause points
 // while a cue is playing. Recalculates the position to maintain continuity.
@@ -6600,31 +6702,17 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     pts << std::fixed << std::setprecision(4) << (1.0 / speed);
     scaleFilter += ",setpts=" + pts.str() + "*PTS";
   }
-  // Pixel format is per-cue. Cues with chroma key or color controls need RGBA
-  // because the effects path mutates interleaved RGBA bytes; everything else
-  // takes the NV12 fast path (~62% less pipe bandwidth). The decision is
-  // frozen at decode start — toggling effects mid-playback on an NV12 cue
-  // will not take visual effect until the next TAKE. Documented in
-  // DEVNOTES.md (`GPU Hardware Decode Note`).
-  // The effect stack counts too. Without it here a cue carrying effects still
-  // took the NV12 fast path and the whole stack was silently skipped -- the
-  // pixels never reached a CPU buffer for it to run on. Same trap the chroma
-  // key would have hit if this predicate had not existed.
-  // forcePixelFrames_ is VJ mode asking for frames it can SEE. A zero-copy
-  // NV12 surface has no pixels on the CPU side, so the control window cannot
-  // make an A or B preview out of it -- and a mixer whose preview monitors are
-  // blank is a mixer you are fading blind. The cost is the zero-copy path, and
-  // only while VJ mode is on, which is exactly when both decks need looking at.
-  const bool needsRgbaForEffects =
-    cue.chromaKeyEnabled ||
-    colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
-    deckboy::effects::cueEffectStackActive(cue.effects) ||
-    // The audio chain can need the picture too -- see audioChainNeedsPicture.
-    deckboy::audiofx::audioChainNeedsPicture(cue.audioEffects) ||
-    forcePixelFrames_;
+  // Pixel format is per-cue (see cueDecodesAsRgba) and fixed for the life of
+  // this decode. A live look edit that changes the answer no longer reopens
+  // it -- see adoptLookWithoutRestart. Documented in DEVNOTES.md
+  // (`GPU Hardware Decode Note`).
+  const bool needsRgbaForEffects = cueDecodesAsRgba(cue);
   const FramePixelFormat decodeFormat =
     needsRgbaForEffects ? FramePixelFormat::RGBA32 : FramePixelFormat::NV12;
   const char* ffmpegPixFmt = needsRgbaForEffects ? "rgba" : "nv12";
+  // A fresh decode is opened in the right format, so no bridge is needed.
+  activeDecodeDatamosh_ = datamoshActiveForCue(cue);
+  liveRgbaBridge_.store(false);
 
 #if DECKBOY_INPROC_DECODE
   // In-process libav decode for file-backed cues (GPU_DECODE_PLAN §11
@@ -6722,6 +6810,9 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
       if (!readExact(videoFd, frame.pixels.data(), frameBytes)) {
         decoderEof_ = true;
         break;
+      }
+      if (liveRgbaBridge_.load()) {
+        bridgeFrameToRgba(frame);   // see adoptLookWithoutRestart
       }
 
       std::lock_guard<std::mutex> lock(frameMutex_);
@@ -7582,6 +7673,9 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
           }
         } else {
           frame.index = frameIndex++;
+        }
+        if (liveRgbaBridge_.load()) {
+          bridgeFrameToRgba(frame);   // see adoptLookWithoutRestart
         }
         lastFramePushMs_.store(SDL_GetTicks());
         std::lock_guard<std::mutex> lock(frameMutex_);

@@ -448,16 +448,17 @@ bool cueAudioChainNeedsPicture(const Cue& cue) {
   return deckboy::audiofx::audioChainNeedsPicture(cue.audioEffects);
 }
 
-// Re-take the live cue when that answer CHANGES, so the decoder is reopened in
-// a format the effects can act on. Only on a change: doing it on every amount
-// nudge would restart playback under the operator's hand mid-scrub.
+// Hand the live cue its new look when that answer CHANGES, so the effects get
+// pixels they can act on. Only on a change: nothing needs doing on every amount
+// nudge. This used to re-take the cue, which froze the picture for the length
+// of a decoder reopen on every such edit -- see adoptLookWithoutRestart.
 void refreshLiveCueIfPixelPathChanged(bool wasNeeded) {
   const Cue* cue = selectedCueMutable();
   if (!cue) {
     return;
   }
   if (cueNeedsCpuPixelPath(*cue) != wasNeeded) {
-    refreshFocusedLiveCueRuntimeIfSelected();
+    adoptFocusedLiveCueLook();
   }
 }
 

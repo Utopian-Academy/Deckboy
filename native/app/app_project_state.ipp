@@ -3123,7 +3123,12 @@
         << quantizeFloat(cue.brightness) << '|'
         << quantizeFloat(cue.contrast) << '|'
         << quantizeFloat(cue.saturation) << '|'
-        << quantizeFloat(cue.hueShift);
+        << quantizeFloat(cue.hueShift) << '|'
+        // THE EFFECT STACK IS PART OF THE LOOK. Without it a PAUSED cue -- whose
+        // frame index never moves -- kept its old texture through any effect
+        // edit: clearing the stack left the effect on screen, and an amount
+        // change did nothing until the cue played again.
+        << serializeCueEffects(cue.effects);
     return key.str();
   }
 

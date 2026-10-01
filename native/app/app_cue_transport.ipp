@@ -2573,7 +2573,9 @@
           // this codebase keeps meeting.
           if (target == deck.activeIndex && cueNeedsCpuPixelPath(cue) != neededCpu) {
             if (MediaEngine* engine = mediaEngineForDeck(d)) {
-              engine->refreshActiveCueRuntime(&cue);
+              if (!engine->adoptLookWithoutRestart(cue)) {
+                engine->refreshActiveCueRuntime(&cue);
+              }
             }
           }
         }
