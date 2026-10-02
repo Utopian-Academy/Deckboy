@@ -181,6 +181,9 @@ endif()
 # ffmpeg subprocess pipes. OFF (or libs missing) keeps the CLI pipe path —
 # the break-glass fallback build.
 option(DECKBOY_INPROC_DECODE "Decode media in-process via libav (GPU zero-copy)" ON)
+# A release build sets this: a missing libav is then a failed build, not a
+# warning nobody reads and a download without GPU decode or SRT sound.
+option(DECKBOY_REQUIRE_INPROC_DECODE "Fail the configure if libav is not found" OFF)
 set(DECKBOY_INPROC_DECODE_ACTIVE OFF)
 if(DECKBOY_INPROC_DECODE)
   find_path(DECKBOY_AVCODEC_INCLUDE_DIR NAMES libavcodec/avcodec.h)
@@ -197,6 +200,10 @@ if(DECKBOY_INPROC_DECODE)
     set(DECKBOY_INPROC_DECODE_ACTIVE ON)
     message(STATUS "In-process libav decode enabled: ${DECKBOY_AVCODEC_LIBRARY}")
   else()
+    if(DECKBOY_REQUIRE_INPROC_DECODE)
+      message(FATAL_ERROR "DECKBOY_REQUIRE_INPROC_DECODE=ON but the FFmpeg dev libraries "
+                          "(avcodec avformat avutil avfilter swscale swresample) were not found")
+    endif()
     message(WARNING "DECKBOY_INPROC_DECODE=ON but FFmpeg dev libraries were not found; building with the ffmpeg CLI decode path only")
   endif()
 endif()

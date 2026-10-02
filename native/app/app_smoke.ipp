@@ -100,6 +100,15 @@
     std::cout << "font-mono: " << (fs::exists(Paths::fontPath(Paths::FontName::Mono)) ? "ok" : "missing") << '\n';
     std::cout << "font-pixel: " << (fs::exists(Paths::fontPath(Paths::FontName::Pixel)) ? "ok" : "missing") << '\n';
     std::cout << "ffmpeg: " << (readAllText({"ffmpeg", "-version"}).has_value() ? "ok" : "missing") << '\n';
+    // Whether this BINARY decodes in-process (libav): GPU zero-copy video, and
+    // an SRT feed's sound over its one connection. A build without the FFmpeg
+    // dev libraries falls back to the CLI quietly -- every Windows release up
+    // to 0.99.398 did -- so the packager asks this line rather than assume.
+#if DECKBOY_INPROC_DECODE
+    std::cout << "inproc-decode: yes\n";
+#else
+    std::cout << "inproc-decode: no (ffmpeg CLI only)\n";
+#endif
     std::cout << "ffprobe: " << (readAllText({"ffprobe", "-version"}).has_value() ? "ok" : "missing") << '\n';
 #ifdef _WIN32
     // A window cue captured through Windows.Graphics.Capture comes through at

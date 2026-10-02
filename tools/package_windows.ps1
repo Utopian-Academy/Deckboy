@@ -35,6 +35,7 @@ param(
     [string]$Configuration = "Release",
     [string]$BuildDir      = "",
     [string]$FfmpegDir     = "C:\ffmpeg\bin",
+    [switch]$AllowCliDecode,
     [string]$OutputDir     = ""
 )
 
@@ -335,6 +336,35 @@ if ($LtcLine -notmatch "ltc-runtime:\s*ok") {
            "package again.")
 }
 Write-Host '  libltc loads'
+
+# --- In-process decode (libav) has to be IN the binary -----------------------
+#
+# Every Windows release up to v0.99.398 was built without the FFmpeg dev
+# libraries -- CI skipped them to save time -- and CMake fell back to the
+# ffmpeg-CLI decode path with a warning nobody reads. The zip had no GPU
+# zero-copy decode and no SRT sound while macOS and Linux had both. Asked of
+# the staged binary, like libltc above; -AllowCliDecode is the escape hatch
+# for a deliberate CLI-only package.
+if (-not $AllowCliDecode) {
+    Write-Host "Checking the staged build decodes in-process"
+    $DecOut = Join-Path $env:TEMP ("deckboy-dec-" + [guid]::NewGuid() + ".txt")
+    $DecProc = Start-Process -FilePath $StagedExe -ArgumentList "--self-check" `
+                             -Wait -NoNewWindow -PassThru `
+                             -RedirectStandardOutput $DecOut
+    $DecLine = ""
+    if (Test-Path $DecOut) {
+        $DecLine = (Select-String -Path $DecOut -Pattern "^inproc-decode:" |
+                    Select-Object -First 1).Line
+        Remove-Item $DecOut -Force -ErrorAction SilentlyContinue
+    }
+    if ($DecLine -notmatch "inproc-decode:\s*yes") {
+        throw ("The staged build does not decode in-process: '$DecLine' " +
+               "(--self-check exit $($DecProc.ExitCode)). It would ship without " +
+               "GPU decode and without SRT sound. Build with the FFmpeg dev " +
+               "libraries (vcpkg ffmpeg) or pass -AllowCliDecode on purpose.")
+    }
+    Write-Host '  in-process decode is built in'
+}
 
 
 # --- The bundled ffmpeg has to encode what Deckboy offers --------------------
