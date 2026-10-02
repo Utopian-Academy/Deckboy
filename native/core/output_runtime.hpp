@@ -295,6 +295,10 @@ struct OutputRuntime {
   // recording taken while a window output was live showed black for the whole
   // transition.
   std::map<std::string, std::uintptr_t> transitionUploadStamps;
+  // A zero-copy (GPU) frame has no CPU pixels, so a transition drawn from one
+  // drew nothing at all. Each is downloaded ONCE, keyed by deck and role
+  // ("out"/"in"), and reused until the frame changes.
+  std::map<std::string, std::pair<std::uintptr_t, DecodedFrame>> transitionCpuFrames;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
   // The Portal transition's picture: the outgoing frame with the holes melted
   // through it, rebuilt every frame the transition runs.

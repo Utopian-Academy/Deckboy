@@ -2930,7 +2930,8 @@
 
     const double seconds = engine.outgoingSeconds();
     if (seconds <= 0.0001) return;                  // a cut has nothing to draw
-    const DecodedFrame* out = engine.outgoingFrame();
+    const DecodedFrame* out = cpuFrameForTransition(*outputRuntime, engine.outgoingFrame(),
+                                                    sourceDeckIndex, "out");
     if (!out || out->width <= 0 || out->height <= 0 || out->pixels.empty()) return;
 
     const double progress = engine.outgoingProgress01();
@@ -2960,7 +2961,8 @@
       }
       // The incoming picture, shifted in from the opposite side. Drawn from the
       // engine's CURRENT frame so it is the real thing rather than a guess.
-      if (const DecodedFrame* in = engine.currentFrame()) {
+      if (const DecodedFrame* in = cpuFrameForTransition(*outputRuntime, engine.currentFrame(),
+                                                          sourceDeckIndex, "in")) {
         if (in->width > 0 && !in->pixels.empty()) {
           SDL_Rect inRect = target;
           inRect.x += dx + (dx ? (dx > 0 ? -target.w : target.w) : 0);
@@ -3159,7 +3161,68 @@
     const Uint8 alpha = static_cast<Uint8>(
       std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
     if (alpha == 0) return;
+    // ITS BARS FADE WITH IT. On the deck that owns the output, a letterboxed
+    // picture's bars are black, and they are part of what is fading out --
+    // without this the incoming cue appeared in them at once. A layer's bars
+    // are transparent, so only the base gets them.
+    if (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
+        project_.outputs[static_cast<std::size_t>(outputIndex)].hostDeckIndex == sourceDeckIndex) {
+      // Only WHERE THE BARS ARE: the target outside the outgoing picture's
+      // placed rectangle. Filling under the picture too darkened the middle
+      // of every dissolve.
+      const Cue geometry = engine.outgoingGeometryCue();
+      const SDL_Rect pic = cuePlacementFor(&geometry, out->width, out->height, target).destination;
+      if (std::abs(geometry.outputRotationDegrees) < 0.01f) {
+        SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0, alpha);
+        const int picL = std::clamp(pic.x, target.x, target.x + target.w);
+        const int picR = std::clamp(pic.x + pic.w, target.x, target.x + target.w);
+        const int picT = std::clamp(pic.y, target.y, target.y + target.h);
+        const int picB = std::clamp(pic.y + pic.h, target.y, target.y + target.h);
+        const SDL_Rect bars[4] = {
+          {target.x, target.y, target.w, picT - target.y},                  // above
+          {target.x, picB, target.w, target.y + target.h - picB},           // below
+          {target.x, picT, picL - target.x, picB - picT},                   // left
+          {picR, picT, target.x + target.w - picR, picB - picT},            // right
+        };
+        for (const SDL_Rect& bar : bars) {
+          if (bar.w > 0 && bar.h > 0) SDL_RenderFillRect(outputRuntime->outputRenderer, &bar);
+        }
+        SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_NONE);
+      }
+    }
     renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, alpha);
+  }
+
+  // The frame a transition draws, as CPU pixels. A zero-copy decode hands out
+  // GPU surfaces with no pixels, and a transition from one drew NOTHING -- so
+  // every transition was silently a cut wherever GPU decode was on. Downloaded
+  // once per frame and kept: a held outgoing frame does not change.
+  const DecodedFrame* cpuFrameForTransition(OutputRuntime& runtime, const DecodedFrame* frame,
+                                            int deckIndex, const char* role) {
+    if (!frame || !frame->isGpu()) {
+      return frame;
+    }
+#if DECKBOY_INPROC_DECODE
+    const std::string key = std::string(role) + ":" + std::to_string(deckIndex);
+    auto& cached = runtime.transitionCpuFrames[key];
+    const std::uintptr_t stamp = reinterpret_cast<std::uintptr_t>(frame->gpuTexture) ^
+                                 (static_cast<std::uintptr_t>(frame->index) << 1) ^
+                                 (static_cast<std::uintptr_t>(frame->gpuSubresource) << 20);
+    if (cached.first != stamp) {
+      DecodedFrame cpu;
+      if (deckboy::libav::downloadGpuFrameNV12(*frame, cpu)) {
+        cpu.index = frame->index;
+        cached = {stamp, std::move(cpu)};
+      } else {
+        cached = {stamp, DecodedFrame{}};
+      }
+    }
+    return cached.second.pixels.empty() ? nullptr : &cached.second;
+#else
+    (void)runtime; (void)deckIndex; (void)role;
+    return nullptr;
+#endif
   }
 
   // Blit one held frame at a given alpha, through its own bridge texture so it
@@ -3199,12 +3262,26 @@
       (static_cast<std::uintptr_t>(frame.index) << 1);
     const bool needUpload = stamp != nowStamp;
     stamp = nowStamp;
-    if (!needUpload) {
-      SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+    // WITH THE CUE'S GEOMETRY. The outgoing picture takes the geometry its own
+    // cue had (the engine kept it at beginTransition); the incoming picture of
+    // a push takes the live cue's. Drawn stretched to the raster, a letterboxed
+    // cue snapped to full frame as the transition began.
+    Cue outgoingGeometry;
+    const Cue* geometry = nullptr;
+    if (std::string(key) == "push-in") {
+      geometry = activeCuePtr(deckIndex);
+    } else if (DeckRuntime* rt = runtimeForDeck(deckIndex); rt && rt->mediaEngine) {
+      outgoingGeometry = rt->mediaEngine->outgoingGeometryCue();
+      geometry = &outgoingGeometry;
+    }
+    auto drawPlaced = [&]() {
       SDL_SetTextureAlphaMod(tex, alpha);
-      const SDL_Rect dstCached = target;
-      SDL_RenderTexture(outputRuntime.outputRenderer, tex, nullptr, &dstCached);
+      renderTextureWithCueGeometry(outputRuntime.outputRenderer, tex, frame.width, frame.height,
+                                   geometry, target, SDL_BLENDMODE_BLEND);
       SDL_SetTextureAlphaMod(tex, 255);
+    };
+    if (!needUpload) {
+      drawPlaced();
       return;
     }
     // THE HELD FRAME IS WHATEVER THE DECODER MADE, and a video cue that needs
@@ -3227,11 +3304,7 @@
     } else {
       SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
     }
-    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureAlphaMod(tex, alpha);
-    const SDL_Rect dst = target;
-    SDL_RenderTexture(outputRuntime.outputRenderer, tex, nullptr, &dst);
-    SDL_SetTextureAlphaMod(tex, 255);
+    drawPlaced();
   }
 
   void renderOverlayFrameIntoOutput(OutputRuntime& outputRuntime,

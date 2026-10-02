@@ -13,6 +13,12 @@ until they do -- automatically, before the window appears. What it found is
 written to deckboy-render.log, and `DECKBOY_RENDERER=software` forces the
 simplest drawing path from a terminal.
 
+**Transitions keep a cue's shape, and run with GPU decode.** A cue fitted with
+letterbox bars now crossfades as itself -- its bars fade too -- instead of
+snapping to full frame as the transition starts. And every transition on an
+output now draws when the video is decoded on the GPU; before, those quietly
+became cuts.
+
 **A presenter clicker runs the show.** Page Down and Page Up take the next and
 previous cue the way TAKE does, with the deck's transition, and they keep
 working when a full-screen output opens on the same screen and takes the focus.

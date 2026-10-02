@@ -668,6 +668,24 @@ class MediaEngine {
                                      double progress, double elapsedSeconds,
                                      std::uint64_t seed);
 
+  // The outgoing cue's geometry (captured at beginTransition), as a Cue the
+  // output's placement code can read. The OUTPUT draws transitions itself, and
+  // drew the outgoing picture stretched to the whole raster -- so a cue fitted
+  // with letterbox bars snapped to full frame the moment a transition began.
+  Cue outgoingGeometryCue() const {
+    Cue c;
+    c.scaleMode = transitionScaleMode_;
+    c.outputScaleX = transitionScaleX_;
+    c.outputScaleY = transitionScaleY_;
+    c.outputOffsetX = transitionOffsetX_;
+    c.outputOffsetY = transitionOffsetY_;
+    c.outputRotationDegrees = transitionRotationDegrees_;
+    c.cropLeft = transitionCropLeft_;
+    c.cropRight = transitionCropRight_;
+    c.cropTop = transitionCropTop_;
+    c.cropBottom = transitionCropBottom_;
+    return c;
+  }
   const DecodedFrame* outgoingFrame() const {
     return heldFrame_.has_value() ? &(*heldFrame_) : nullptr;
   }
