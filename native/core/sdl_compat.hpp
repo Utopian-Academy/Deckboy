@@ -21,6 +21,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <cstdlib>
 #include <string>
 
 // ── Draw-call overloads: int SDL_Rect → SDL_FRect at the boundary ──────────
@@ -168,6 +169,18 @@ inline SDL_Renderer* deckboyCreateRenderer(SDL_Window* window) {
     "opengl", "vulkan", "gpu",
   };
 #endif
+  // DECKBOY_RENDERER=software|opengl|metal|... tries that backend first. The
+  // A/B an affected machine can run from a terminal without a new build:
+  // if the interface draws its text under "software", the fault is in the
+  // GPU path; if it does not, it is in the fonts.
+  if (const char* forced = std::getenv("DECKBOY_RENDERER"); forced && forced[0] != '\0') {
+    if (SDL_Renderer* renderer = SDL_CreateRenderer(window, forced)) {
+      std::cerr << "renderer: " << forced << " (DECKBOY_RENDERER)" << std::endl;
+      deckboyLastRendererDriver() = std::string(forced) + " (forced)";
+      return renderer;
+    }
+    std::cerr << "renderer: DECKBOY_RENDERER=" << forced << " would not open; using the list" << std::endl;
+  }
   for (const char* driver : kDrivers) {
     if (SDL_Renderer* renderer = SDL_CreateRenderer(window, driver)) {
       // SAY WHICH ONE. Which backend a window ended up on decides how it

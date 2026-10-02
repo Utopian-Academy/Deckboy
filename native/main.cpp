@@ -3987,14 +3987,7 @@ class App {
     // controls off-screen. Reflow handles resize/fullscreen on its own.
 
     // Scanline overlay texture (1x4 pattern: 2 clear rows + 2 tinted rows)
-    scanlineOverlay_ = deckboyCreateTexture(controlRenderer_,
-        SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 1, 4);
-    if (scanlineOverlay_) {
-      Uint8 a = pal.scanlineAlpha;
-      uint32_t pixels[4] = {0, 0, (uint32_t(a) << 24), (uint32_t(a) << 24)};
-      SDL_UpdateTexture(scanlineOverlay_, nullptr, pixels, sizeof(uint32_t));
-      SDL_SetTextureBlendMode(scanlineOverlay_, SDL_BLENDMODE_BLEND);
-    }
+    createScanlineOverlay();
 
     monitorsWindow_ = SDL_CreateWindow(
       "Deckboy Monitors",
@@ -4027,6 +4020,7 @@ class App {
       std::cerr << "Font load failed: " << SDL_GetError() << '\n';
       return false;
     }
+    healTextBackendIfNeeded();
 
     Paths::ensureDataDir();
     loadThemeFromEnv();
@@ -4786,6 +4780,141 @@ class App {
   // whether any flag was set. Called at most a handful of times a session
   // (once at startup, once if a text failure is ever seen), so there is no
   // reason to hold the file open the way soakLogFile_ does.
+  // THE TEXT PATH, MEASURED AT STARTUP, one line in deckboy-render.log.
+  // Issue #6/#7: on some Macs every letter is missing while images draw. Three
+  // fixes were each a theory. This records the three facts that decide it:
+  // how much ink the font rasterised on the CPU, whether that became a
+  // texture, and how much ink actually lands when the GPU draws it -- read
+  // back from a render target. Whichever number is zero is the broken step.
+  // True unless the probe PROVED the GPU draws no text (ink on the CPU,
+  // none on the screen). Anything inconclusive counts as working.
+  bool probeTextPath() {
+    std::ostringstream line;
+    line << "text probe: font=" << (fontSmall_ ? "open" : "NULL");
+    if (!fontSmall_ || !controlRenderer_) {
+      renderDiagnosticLog(line.str());
+      return true;
+    }
+    SDL_Surface* glyphs = TTF_RenderText_Blended(fontSmall_, "Deckboy Ag", 0, SDL_Color{255, 255, 255, 255});
+    long cpuInk = 0;
+    int sw = 0, sh = 0;
+    if (glyphs) {
+      sw = glyphs->w;
+      sh = glyphs->h;
+      if (SDL_Surface* rgba = SDL_ConvertSurface(glyphs, SDL_PIXELFORMAT_RGBA32)) {
+        for (int y = 0; y < rgba->h; ++y) {
+          const auto* row = static_cast<const std::uint8_t*>(rgba->pixels) + y * rgba->pitch;
+          for (int x = 0; x < rgba->w; ++x) cpuInk += row[x * 4 + 3] > 64 ? 1 : 0;
+        }
+        SDL_DestroySurface(rgba);
+      }
+    }
+    line << " surface=" << sw << "x" << sh << " cpu-ink=" << cpuInk;
+    SDL_Texture* text = glyphs ? deckboyCreateTextureFromSurface(controlRenderer_, glyphs) : nullptr;
+    line << " texture=" << (text ? "ok" : "FAILED");
+    long gpuInk = -1;
+    if (text && sw > 0 && sh > 0) {
+      SDL_Texture* target = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                              SDL_TEXTUREACCESS_TARGET, sw, sh);
+      if (target) {
+        SDL_Texture* previous = SDL_GetRenderTarget(controlRenderer_);
+        SDL_SetRenderTarget(controlRenderer_, target);
+        SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 255);
+        SDL_RenderClear(controlRenderer_);
+        SDL_SetTextureBlendMode(text, SDL_BLENDMODE_BLEND);
+        SDL_FRect dst {0.0f, 0.0f, static_cast<float>(sw), static_cast<float>(sh)};
+        const bool drew = SDL_RenderTexture(controlRenderer_, text, nullptr, &dst);
+        if (SDL_Surface* back = SDL_RenderReadPixels(controlRenderer_, nullptr)) {
+          if (SDL_Surface* rgba = SDL_ConvertSurface(back, SDL_PIXELFORMAT_RGBA32)) {
+            gpuInk = 0;
+            for (int y = 0; y < rgba->h; ++y) {
+              const auto* row = static_cast<const std::uint8_t*>(rgba->pixels) + y * rgba->pitch;
+              for (int x = 0; x < rgba->w; ++x) gpuInk += row[x * 4] > 64 ? 1 : 0;
+            }
+            SDL_DestroySurface(rgba);
+          }
+          SDL_DestroySurface(back);
+        }
+        SDL_SetRenderTarget(controlRenderer_, previous);
+        SDL_DestroyTexture(target);
+        line << " draw=" << (drew ? "ok" : std::string("FAILED(") + SDL_GetError() + ")");
+      } else {
+        line << " target=FAILED(" << SDL_GetError() << ")";
+      }
+    }
+    // Test hook: the first probe reports a backend that draws no text, so the
+    // fallback in healTextBackendIfNeeded can be exercised on a healthy machine.
+    static bool simulatedOnce = false;
+    if (!simulatedOnce && std::getenv("DECKBOY_TEXT_PROBE_SIMULATE_FAIL")) {
+      simulatedOnce = true;
+      gpuInk = 0;
+      line << " (simulated failure)";
+    }
+    line << " gpu-ink=" << gpuInk << " backend=" << deckboyLastRendererDriver()
+         << " ui-scale=" << effectiveUiScale();
+    if (text) SDL_DestroyTexture(text);
+    if (glyphs) SDL_DestroySurface(glyphs);
+    renderDiagnosticLog(line.str());
+    std::cerr << line.str() << std::endl;
+    // Ink on the CPU and none on the screen -- or a texture that would not
+    // even be made from good ink -- is a backend that cannot draw text.
+    return !(cpuInk > 0 && (!text || gpuInk == 0));
+  }
+
+  void createScanlineOverlay() {
+    scanlineOverlay_ = deckboyCreateTexture(controlRenderer_,
+        SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 1, 4);
+    if (scanlineOverlay_) {
+      Uint8 a = pal.scanlineAlpha;
+      uint32_t pixels[4] = {0, 0, (uint32_t(a) << 24), (uint32_t(a) << 24)};
+      SDL_UpdateTexture(scanlineOverlay_, nullptr, pixels, sizeof(uint32_t));
+      SDL_SetTextureBlendMode(scanlineOverlay_, SDL_BLENDMODE_BLEND);
+    }
+  }
+
+  // A BACKEND THAT CANNOT DRAW TEXT IS REPLACED BEFORE ANYTHING DEPENDS ON IT.
+  // Runs straight after the fonts load, when the only texture on the control
+  // renderer is the scanline overlay: so the renderer can be swapped for the
+  // next one in the list and probed again, and the operator gets an interface
+  // with letters in it instead of a report to file.
+  void healTextBackendIfNeeded() {
+    if (probeTextPath()) {
+      return;
+    }
+    // The same two on every platform: the other GPU backend, then the CPU.
+    static const char* const kFallbacks[] = {"opengl", "software"};
+    const std::string failed = deckboyLastRendererDriver();
+    for (const char* next : kFallbacks) {
+      if (failed.rfind(next, 0) == 0) {
+        continue;
+      }
+      // A window takes ONE renderer: the old one has to go before SDL will
+      // make another for it.
+      if (scanlineOverlay_) {
+        SDL_DestroyTexture(scanlineOverlay_);
+        scanlineOverlay_ = nullptr;
+      }
+      SDL_DestroyRenderer(controlRenderer_);
+      controlRenderer_ = SDL_CreateRenderer(controlWindow_, next);
+      if (!controlRenderer_) {
+        renderDiagnosticLog(std::string("text fallback: ") + next + " would not open (" + SDL_GetError() + ")");
+        // Never leave the window without a renderer: back to the normal list.
+        controlRenderer_ = deckboyCreateRenderer(controlWindow_);
+        SDL_SetRenderVSync(controlRenderer_, 1);
+        createScanlineOverlay();
+        continue;
+      }
+      deckboyLastRendererDriver() = next;
+      SDL_SetRenderVSync(controlRenderer_, 1);
+      createScanlineOverlay();
+      renderDiagnosticLog("text could not be drawn on " + failed + "; control window moved to " + next);
+      std::cerr << "text could not be drawn on " << failed << "; using " << next << std::endl;
+      if (probeTextPath()) {
+        return;
+      }
+    }
+  }
+
   void renderDiagnosticLog(const std::string& line) {
     std::time_t t = std::time(nullptr);
     char stamp[32] = "";
