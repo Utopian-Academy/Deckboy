@@ -1703,7 +1703,7 @@ This table is generated from the list the app itself draws on **Ctrl+/**, and
 | `Enter` | Take selected cue live |
 | `Space` | Play / Pause |
 | `.` / `,` | Skip to next / previous cue |
-| `PgDn` / `PgUp` | Take the next / previous cue with the deck's transition, for a presenter remote. Works even while a full-screen output has the focus |
+| `PgDn` / `PgUp` | Take next / previous with the transition, even from an output |
 | `S` | Stop active cue |
 | `Ctrl+Enter` | Take on every deck at once |
 | `Ctrl+Space` | Play / Pause every deck |

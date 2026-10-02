@@ -1273,7 +1273,7 @@
       {"Enter",           "Take selected cue live"},
       {"Space",           "Play / Pause"},
       {". / ,",           "Skip to next / previous cue"},
-      {"PgDn / PgUp",     "Same, for a presenter remote"},
+      {"PgDn / PgUp",     "Take next / previous with the transition, even from an output"},
       {"S",               "Stop active cue"},
       // EVERY DECK AT ONCE. These three are the whole point of running more
       // than one playlist, and none of them was listed -- so the operator who
