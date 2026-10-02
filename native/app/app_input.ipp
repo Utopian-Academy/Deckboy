@@ -1962,7 +1962,7 @@
         if (clickerDrivesTrackerNow()) {
           trackerGo();
         } else {
-          skipToNextCue();
+          skipToNextCue(/*asTake=*/true);
         }
         break;
       case SDLK_PERIOD:
@@ -1972,7 +1972,7 @@
         if (clickerDrivesTrackerNow()) {
           trackerBack();
         } else {
-          skipToPrevCue();
+          skipToPrevCue(/*asTake=*/true);
         }
         break;
       case SDLK_COMMA:

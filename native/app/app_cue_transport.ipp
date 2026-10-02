@@ -125,7 +125,10 @@
   // next (honors goto targets, shuffle, playlist loop, and the missing-media
   // walk) without waiting for the current cue to end. "." key / SKIP button /
   // remote SKIP.
-  void skipToNextCue() {
+  // asTake: the presenter clicker's Page Down. It takes the next cue the way
+  // TAKE does, WITH the deck's transition -- a clicker is how a presenter runs
+  // the show, not a quick skip. "." and the remote SKIP keep the cut.
+  void skipToNextCue(bool asTake = false) {
     int deckIndex = project_.focusedDeckIndex;
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return;
@@ -149,7 +152,7 @@
     if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
       const Cue& activeCue = deck.cues[deck.activeIndex];
       nextIndex = resolveAutoAdvanceIndex(deck, activeCue, true);
-      useTransition = activeCue.transitionToNext;
+      useTransition = asTake || activeCue.transitionToNext;
     } else {
       // Nothing live: skip just takes whatever is queued next.
       nextIndex = nextCueIndexForDeck(deckIndex);
@@ -163,15 +166,15 @@
       onSelectionChanged();
     }
     markProjectDirty();
-    takeSelected(true, useTransition, false);
-    triggerToast("skip: " + deck.cues[nextIndex].name);
+    takeSelected(true, asTake || useTransition, false);
+    triggerToast((asTake ? "take: " : "skip: ") + deck.cues[nextIndex].name);
   }
 
   // Manual SKIP BACK: take the previous playable cue (playlist-loop aware,
   // walks past missing media). Deliberately ignores goto/shuffle — "back"
   // means the cue physically above this one. "," key / <| button / remote
   // SKIPBACK.
-  void skipToPrevCue() {
+  void skipToPrevCue(bool asTake = false) {
     int deckIndex = project_.focusedDeckIndex;
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return;
@@ -207,15 +210,15 @@
     }
     bool useTransition = false;
     if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
-      useTransition = deck.cues[deck.activeIndex].transitionToNext;
+      useTransition = asTake || deck.cues[deck.activeIndex].transitionToNext;
     }
     if (deck.selectedIndex != prevIndex) {
       deck.selectedIndex = prevIndex;
       onSelectionChanged();
     }
     markProjectDirty();
-    takeSelected(true, useTransition, false);
-    triggerToast("skip back: " + deck.cues[prevIndex].name);
+    takeSelected(true, asTake || useTransition, false);
+    triggerToast((asTake ? "take: " : "skip back: ") + deck.cues[prevIndex].name);
   }
 
   std::string transportStatusLabel(int deckIndex) const {

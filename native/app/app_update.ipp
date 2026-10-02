@@ -213,7 +213,15 @@
             Uint32 controlWindowId = controlWindow_ ? SDL_GetWindowID(controlWindow_) : 0;
             bool fromControlWindow = controlWindowId != 0 && event.key.windowID == controlWindowId;
             bool fromOutputWindow = outputIndexForWindowId(event.key.windowID).has_value();
-            bool allowFromOutputWindow = fromOutputWindow && event.key.key == SDLK_ESCAPE;
+            // A PRESENTER CLICKER STILL WORKS WHEN AN OUTPUT HAS FOCUS. Opening a
+            // full-screen output on the control window's monitor hands it the
+            // keyboard, and keys from an output were dropped -- so the clicker
+            // went dead the moment the show started. Its two keys are let
+            // through; everything else stays control-window only, so a stray
+            // key on the projector still cannot fire anything else.
+            bool allowFromOutputWindow = fromOutputWindow &&
+              (event.key.key == SDLK_ESCAPE || event.key.key == SDLK_PAGEDOWN ||
+               event.key.key == SDLK_PAGEUP);
             if (fromControlWindow || allowFromOutputWindow) {
               handleKeyDown(event.key.key, event.key.mod, event.key.windowID, event.key.repeat != 0);
             }
