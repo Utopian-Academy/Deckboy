@@ -328,6 +328,8 @@ A conformant packetiser a broadcast controller can discover and route. See
 - Independent audio fades, separate from video fades
 - Content-authoritative stereo waveform display
 - Audio-only cues, and per-cue mute
+- Up to 128 output channels per deck, with a crosspoint matrix routing each cue
+  onto any of them: enough for a full Dante or MADI rig
 - **Your own VST3 effects and instruments, in the cue's chain.** The reverb you
   already own or the channel strip your mix is built around, sitting beside
   Deckboy's own effects in whatever order you put them, with its settings saved
@@ -455,7 +457,6 @@ importantly, what each feature deliberately does not do.
 
 **Audio, next:**
 
-- 128 output channels on one device
 - Multichannel audio files, up to 24 channels each, every channel routable
 - Effects on a device's outputs as well as on each cue
 - Fades that ramp effect settings and playback speed, not only level

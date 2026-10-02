@@ -1391,8 +1391,9 @@ the undelayed timeline so the offset is a real skew at the output.
 ### Multichannel output routing
 
 `Settings → AUDIO OUTPUT → Outs` opens the deck device with 2, 4, 6 or 8
-channels, and from v0.99.373 with 16, 32 or 64, which is what makes a Dante
-Virtual Soundcard or a large ASIO interface worth having.
+channels, and from v0.99.373 with 16, 32 or 64, and from v0.99.399 with 128, which is
+what makes a Dante Virtual Soundcard, a MADI card or a large ASIO interface
+worth having.
 Each cue routes its processed stereo onto a pair of those outs via the
 inspector's **outs** row (1-2, 3-4, 5-6, 7-8) — e.g. programme to the PA on
 1-2, click to monitors on 3-4. The pipeline stays stereo end to end; expansion
