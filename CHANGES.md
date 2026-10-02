@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## Next release
+## 2026-10-02 - v0.99.399 (text on every Mac, Windows decodes in-process, the web monitor, and a clicker that takes)
 
 **128 audio outputs.** A deck can open an audio device up to 128 channels wide, the
 crosspoint matrix routes to any of them, and an ASIO interface can be armed at 32, 64
@@ -12,6 +12,10 @@ letters actually reach the screen, and if they do not, it changes how it draws
 until they do -- automatically, before the window appears. What it found is
 written to deckboy-render.log, and `DECKBOY_RENDERER=software` forces the
 simplest drawing path from a terminal.
+
+**A presenter clicker runs the show.** Page Down and Page Up take the next and
+previous cue the way TAKE does, with the deck's transition, and they keep
+working when a full-screen output opens on the same screen and takes the focus.
 
 **Watch any output in a browser.** Settings > Network > Web Monitor puts every
 output, live, on a page any browser can open -- a laptop, a tablet, a phone --
