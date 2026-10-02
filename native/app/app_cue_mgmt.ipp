@@ -7209,6 +7209,17 @@
     return found == textTextureCache_.end() ? nullptr : &found->second;
   }
 
+  // Every cached label texture, destroyed. MUST run before the renderer that
+  // made them is destroyed: SDL frees a renderer's textures with it, so
+  // destroying them afterwards would free them twice.
+  void clearTextTextureCache() {
+    for (auto& entry : textTextureCache_) {
+      if (entry.second.texture) SDL_DestroyTexture(entry.second.texture);
+    }
+    textTextureCache_.clear();
+    textTextureBytes_ = 0;
+  }
+
   void drawTextRaw(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
     if (!font || text.empty()) {
       return;
@@ -7555,13 +7566,16 @@
     std::string clipped = (measuredWidthIn(font, text) <= safe.w)
                             ? text
                             : ellipsizeToPixelWidth(font, text, safe.w);
+    // NEVER NOTHING. An empty ellipsis means the measuring went wrong, not that
+    // the label has no room: draw it whole and let the clip trim it. Issue #7
+    // is a machine where every label vanished while every image drew.
     if (clipped.empty()) {
-      return;
+      clipped = text;
     }
     const int textW = measuredWidthIn(font, clipped);
     int textH = TTF_GetFontHeight(font);
     if (textH <= 0) {
-      return;
+      textH = std::max(1, rect.h);   // a font with no height still has letters
     }
     // Always vertically center on the rect's midline. When the text is
     // taller than the rect (tight h<=18 rects drawn with fontBase_, or
@@ -7583,7 +7597,7 @@
       }
       textClip = intersect;
     }
-    SDL_SetRenderClipRect(renderer, &textClip);
+    if (!textClipDisabled_) SDL_SetRenderClipRect(renderer, &textClip);
     // RIGHT TO LEFT STARTS AT THE RIGHT. A label left-aligned in a box is
     // aligned to the side the reader finishes on, which puts every label in
     // the interface at the wrong end of its own control.
@@ -7593,7 +7607,7 @@
         ? safe.x + std::max(0, safe.w - textW)
         : safe.x;
     drawTextRaw(renderer, font, clipped, color, startX, textY);
-    SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
+    if (!textClipDisabled_) SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
   void drawCenteredTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
@@ -7624,13 +7638,16 @@
     std::string clipped = (measuredWidthIn(font, text) <= safe.w)
                             ? text
                             : ellipsizeToPixelWidth(font, text, safe.w);
+    // NEVER NOTHING. An empty ellipsis means the measuring went wrong, not that
+    // the label has no room: draw it whole and let the clip trim it. Issue #7
+    // is a machine where every label vanished while every image drew.
     if (clipped.empty()) {
-      return;
+      clipped = text;
     }
     const int textW = measuredWidthIn(font, clipped);
-    const int textH = TTF_GetFontHeight(font);
+    int textH = TTF_GetFontHeight(font);
     if (textH <= 0) {
-      return;
+      textH = std::max(1, rect.h);   // a font with no height still has letters
     }
     // Center X within the safe (inset) width; center Y on the original
     // rect's midline (not the snapped rect) so text with textH > rect.h
@@ -7652,9 +7669,9 @@
       }
       textClip = intersect;
     }
-    SDL_SetRenderClipRect(renderer, &textClip);
+    if (!textClipDisabled_) SDL_SetRenderClipRect(renderer, &textClip);
     drawTextRaw(renderer, font, clipped, color, textX, textY);
-    SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
+    if (!textClipDisabled_) SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
   // Centre a label in its container. Kept as a distinct name because ~60 call

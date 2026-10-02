@@ -7,6 +7,12 @@ crosspoint matrix routes to any of them, and an ASIO interface can be armed at 3
 or 128 outputs. A deck set wider than eight outputs also keeps that width when the
 show is saved and opened again.
 
+**Text on every Mac.** Deckboy now checks at startup that the interface's
+letters actually reach the screen, and if they do not, it changes how it draws
+until they do -- automatically, before the window appears. What it found is
+written to deckboy-render.log, and `DECKBOY_RENDERER=software` forces the
+simplest drawing path from a terminal.
+
 **Watch any output in a browser.** Settings > Network > Web Monitor puts every
 output, live, on a page any browser can open -- a laptop, a tablet, a phone --
 with nothing to install. It starts on this computer only; one switch shares it

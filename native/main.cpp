@@ -4861,6 +4861,56 @@ class App {
     return !(cpuInk > 0 && (!text || gpuInk == 0));
   }
 
+  // PROBE B: the function every label in the interface goes through
+  // (drawTextSafe -- localisation, fit, ellipsis, clip, label cache), drawn
+  // into an off-screen target and read back. Probe A proves the font and the
+  // GPU; this proves the path between them. Returns the ink it found.
+  long probeRealTextPath(const char* tag) {
+    if (!fontSmall_ || !controlRenderer_) return -1;
+    const int w = 420, h = 64;
+    SDL_Texture* target = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                            SDL_TEXTUREACCESS_TARGET, w, h);
+    if (!target) {
+      renderDiagnosticLog(std::string("text probe B (") + tag + "): no target (" + SDL_GetError() + ")");
+      return -1;
+    }
+    SDL_Texture* previous = SDL_GetRenderTarget(controlRenderer_);
+    SDL_SetRenderTarget(controlRenderer_, target);
+    SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 255);
+    SDL_RenderClear(controlRenderer_);
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{4, 4, w - 8, h - 8}, "Deckboy Ag",
+                 SDL_Color{255, 255, 255, 255});
+    long ink = -1;
+    if (SDL_Surface* back = SDL_RenderReadPixels(controlRenderer_, nullptr)) {
+      if (SDL_Surface* rgba = SDL_ConvertSurface(back, SDL_PIXELFORMAT_RGBA32)) {
+        ink = 0;
+        for (int y = 0; y < rgba->h; ++y) {
+          const auto* row = static_cast<const std::uint8_t*>(rgba->pixels) + y * rgba->pitch;
+          for (int x = 0; x < rgba->w; ++x) ink += row[x * 4] > 64 ? 1 : 0;
+        }
+        SDL_DestroySurface(rgba);
+      }
+      SDL_DestroySurface(back);
+    }
+    SDL_SetRenderTarget(controlRenderer_, previous);
+    SDL_DestroyTexture(target);
+    // Test hook, as for probe A: the first label probe reports nothing.
+    static bool simulatedB = false;
+    if (!simulatedB && std::getenv("DECKBOY_TEXT_PROBE_B_SIMULATE_FAIL")) {
+      simulatedB = true;
+      ink = 0;
+    }
+    std::ostringstream line;
+    line << "text probe B (" << tag << "): label-ink=" << ink
+         << " font-height=" << TTF_GetFontHeight(fontSmall_)
+         << " measured-w=" << measuredWidthIn(fontSmall_, "Deckboy Ag")
+         << " clip=" << (textClipDisabled_ ? "off" : "on")
+         << " backend=" << deckboyLastRendererDriver();
+    renderDiagnosticLog(line.str());
+    std::cerr << line.str() << std::endl;
+    return ink;
+  }
+
   void createScanlineOverlay() {
     scanlineOverlay_ = deckboyCreateTexture(controlRenderer_,
         SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 1, 4);
@@ -4878,41 +4928,57 @@ class App {
   // next one in the list and probed again, and the operator gets an interface
   // with letters in it instead of a report to file.
   void healTextBackendIfNeeded() {
-    if (probeTextPath()) {
-      return;
-    }
-    // The same two on every platform: the other GPU backend, then the CPU.
-    static const char* const kFallbacks[] = {"opengl", "software"};
-    const std::string failed = deckboyLastRendererDriver();
-    for (const char* next : kFallbacks) {
-      if (failed.rfind(next, 0) == 0) {
-        continue;
-      }
-      // A window takes ONE renderer: the old one has to go before SDL will
-      // make another for it.
-      if (scanlineOverlay_) {
-        SDL_DestroyTexture(scanlineOverlay_);
-        scanlineOverlay_ = nullptr;
-      }
-      SDL_DestroyRenderer(controlRenderer_);
-      controlRenderer_ = SDL_CreateRenderer(controlWindow_, next);
-      if (!controlRenderer_) {
-        renderDiagnosticLog(std::string("text fallback: ") + next + " would not open (" + SDL_GetError() + ")");
-        // Never leave the window without a renderer: back to the normal list.
-        controlRenderer_ = deckboyCreateRenderer(controlWindow_);
+    // Stage 1: the raw path (font -> texture -> GPU). If it draws no ink, the
+    // backend cannot draw text: move to the next one and probe again.
+    if (!probeTextPath()) {
+      // The same two on every platform: the other GPU backend, then the CPU.
+      static const char* const kFallbacks[] = {"opengl", "software"};
+      const std::string failed = deckboyLastRendererDriver();
+      for (const char* next : kFallbacks) {
+        if (failed.rfind(next, 0) == 0) {
+          continue;
+        }
+        // A window takes ONE renderer: the old one has to go before SDL will
+        // make another for it -- and its cached label textures before it.
+        clearTextTextureCache();
+        if (scanlineOverlay_) {
+          SDL_DestroyTexture(scanlineOverlay_);
+          scanlineOverlay_ = nullptr;
+        }
+        SDL_DestroyRenderer(controlRenderer_);
+        controlRenderer_ = SDL_CreateRenderer(controlWindow_, next);
+        if (!controlRenderer_) {
+          renderDiagnosticLog(std::string("text fallback: ") + next + " would not open (" + SDL_GetError() + ")");
+          // Never leave the window without a renderer: back to the normal list.
+          controlRenderer_ = deckboyCreateRenderer(controlWindow_);
+          SDL_SetRenderVSync(controlRenderer_, 1);
+          createScanlineOverlay();
+          continue;
+        }
+        deckboyLastRendererDriver() = next;
         SDL_SetRenderVSync(controlRenderer_, 1);
         createScanlineOverlay();
-        continue;
-      }
-      deckboyLastRendererDriver() = next;
-      SDL_SetRenderVSync(controlRenderer_, 1);
-      createScanlineOverlay();
-      renderDiagnosticLog("text could not be drawn on " + failed + "; control window moved to " + next);
-      std::cerr << "text could not be drawn on " << failed << "; using " << next << std::endl;
-      if (probeTextPath()) {
-        return;
+        renderDiagnosticLog("text could not be drawn on " + failed + "; control window moved to " + next);
+        std::cerr << "text could not be drawn on " << failed << "; using " << next << std::endl;
+        if (probeTextPath()) {
+          break;
+        }
       }
     }
+    // Stage 2: the real label path. If the raw path draws and labels do not,
+    // the difference is the label path's own steps; the clip rectangle is the
+    // only one with a GPU in it, so drop it and look again.
+    if (probeRealTextPath("as built") == 0) {
+      textClipDisabled_ = true;
+      clearTextTextureCache();
+      if (probeRealTextPath("clip off") > 0) {
+        renderDiagnosticLog("labels drew nothing with a clip rectangle; text clipping is off");
+      } else {
+        textClipDisabled_ = false;
+        renderDiagnosticLog("labels draw nothing with or without the clip; see the metrics above");
+      }
+    }
+    clearTextTextureCache();   // nothing the probes made outlives startup
   }
 
   void renderDiagnosticLog(const std::string& line) {
@@ -9201,6 +9267,9 @@ class App {
   // rather than on the first cue.
   deckboy::platform::midi::MidiOutput midiOut_;
   // The last port that would not open, and when -- see ensureMidiOutPort.
+  // Text drawn without its clip rectangle: set only by healTextBackendIfNeeded
+  // when the real label path draws nothing and the raw one does.
+  bool textClipDisabled_ = false;
   bool midiOutHasFailed_ = false;
   std::string midiOutFailedKey_;
   Uint64 midiOutFailedAtMs_ = 0;
