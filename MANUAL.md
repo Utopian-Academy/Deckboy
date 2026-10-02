@@ -1661,6 +1661,10 @@ full window.
 - **Who can see it** starts at **THIS COMPUTER**. Switch it to **THE NETWORK**
   for other devices on the same network to open it.
 - **PIN** asks every viewer for a code before showing anything.
+- **Programme with sound** puts the programme on the page with its sound — a
+  real video player, about a second behind the show. Any output can carry
+  sound the same way: set its stream destination to **WEB** (Video Outputs →
+  Streaming). Browsers start muted; press **SOUND ON**.
 - An output costs nothing until somebody is watching it.
 - It is picture only, at up to 20 frames a second and about 960 pixels wide:
   a monitor for the director, a client or the stage manager's tablet, not a

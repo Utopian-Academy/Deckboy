@@ -11,8 +11,10 @@ show is saved and opened again.
 output, live, on a page any browser can open -- a laptop, a tablet, a phone --
 with nothing to install. It starts on this computer only; one switch shares it
 on the network, and an optional PIN keeps it to the people who should see it.
-An output costs nothing until someone is watching. Over the network:
-`WEBMONITOR`, `WEBMONITOR ON|OFF`, `SHARE ON|OFF`, `PORT <n>`, `PIN <pin>|OFF`.
+**Programme with sound** puts the picture and the sound on the page together,
+about a second behind the show; any output can be routed to **WEB** as a
+stream destination to do the same. An output costs nothing until someone is watching. Over the network:
+`WEBMONITOR`, `WEBMONITOR ON|OFF`, `SOUND ON|OFF`, `SHARE ON|OFF`, `PORT <n>`, `PIN <pin>|OFF`.
 
 ## 2026-10-01 - v0.99.398 (SRT feeds with their sound, grid warp, and warp you can find)
 

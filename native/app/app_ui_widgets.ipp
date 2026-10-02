@@ -1146,6 +1146,7 @@
       {"rtmp", "RTMP"},
       {"rtmps", "RTMPS"},
       {"file", "RECORD TO FILE"},
+      {"web", "WEB (browser, with sound)"},
     };
   }
 

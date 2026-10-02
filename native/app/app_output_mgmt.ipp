@@ -1921,6 +1921,7 @@
     out.streamProtocol = wanted;
     out.name = (wanted == "srt")  ? "SRT Stream"
              : (wanted == "file") ? "Program Recording"
+             : (wanted == "web")  ? "Web (with sound)"
                                   : "RTMP Stream";
     out.streamUrl = defaultOutputStreamUrl(wanted, index);
     out.streamEnabled = false;   // configured, not yet live
@@ -2133,8 +2134,18 @@
     // Recording resolves to a real path with a timestamp stamped on so a
     // second take can never overwrite the first.
     const bool toFile = outputStreamProtocolIsFile(protocol);
+    const bool toWeb = outputStreamProtocolIsWeb(protocol);
     if (toFile) {
       url = resolveRecordingPath(url);
+    }
+    if (toWeb) {
+      // The private ingest socket for this output, opened before the spawn.
+      const int port = (outputIndex >= 0 && outputIndex < kWebMonitorMaxOutputs)
+        ? webMonitorSlots_[static_cast<std::size_t>(outputIndex)].ingestPort : 0;
+      if (port <= 0) {
+        return {};
+      }
+      url = "tcp://127.0.0.1:" + std::to_string(port);
     }
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
@@ -2146,11 +2157,17 @@
     // require <= 4s. Now the operator's setting.
     int gop = std::max(1, static_cast<int>(std::lround(
       fps * std::clamp(output.streamKeyframeSeconds, 1, 10))));
+    // A browser joins on a keyframe, so a web viewer waits up to one GOP for
+    // its first picture: half a second, not the stream's usual two.
+    if (toWeb) {
+      gop = std::max(1, static_cast<int>(std::lround(fps * 0.5)));
+    }
     // RTMPS is RTMP over TLS — same FLV muxer. It used to normalize to "srt"
     // and land here as mpegts, which no RTMP server would accept.
     // A recording follows its own EXTENSION -- an .mp4 written as mpegts is a
     // file most editors will not open.
-    std::string mux = outputStreamProtocolIsRtmp(protocol) ? "flv" : "mpegts";
+    std::string mux = outputStreamProtocolIsRtmp(protocol) ? "flv"
+                    : toWeb ? "mp4" : "mpegts";
     if (toFile) {
       const std::string ext = toLower(fs::path(url).extension().string());
       mux = (ext == ".mov")  ? "mov"
@@ -2243,6 +2260,15 @@
     } else {
       args.insert(args.end(),
                   {"-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p"});
+      if (toWeb) {
+        // A fixed profile and level, so the page can name the codec to the
+        // browser's MediaSource without parsing the stream: avc1.4D4029.
+        // And no wider than 1280: it is watched on phones and tablets over
+        // Wi-Fi, and a 4K output raster is three times the pixels for a
+        // picture nobody there can see.
+        args.insert(args.end(), {"-profile:v", "main", "-level:v", "4.1",
+                                 "-vf", "scale='min(1280,iw)':-2:flags=bicubic"});
+      }
     }
     if (!toFile) {
       // zerolatency exists to cut STREAM delay: it disables lookahead and
@@ -2355,6 +2381,11 @@
       });
       if (mux == "mpegts") {
         args.insert(args.end(), {"-mpegts_flags", "+resend_headers"});
+      }
+      if (toWeb) {
+        // A fragment per keyframe, each self-contained: what MediaSource
+        // appends, and what lets a late viewer start on any fragment.
+        args.insert(args.end(), {"-movflags", "+frag_keyframe+empty_moov+default_base_moof"});
       }
     }
     args.insert(args.end(), {"-f", mux, url});
@@ -3188,6 +3219,14 @@
     stopOutputStreamRuntime(*runtime);
     runtime->recordTakeFrames = takeFramesSoFar;
     setOutputHealthState(outputIndex, OutputHealthState::Recovering, "starting stream");
+    if (outputStreamProtocolIsWeb(normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol))) {
+      // Its viewers are on the web monitor, so routing an output to WEB
+      // switches the monitor on; and the encoder needs its socket to exist.
+      if (!project_.webMonitorEnabled) {
+        setWebMonitorEnabled(true);
+      }
+      ensureWebIngest(outputIndex);
+    }
 #ifdef _WIN32
     // Windows: video over stdin (pipe:0), audio over a named pipe. The pipe
     // must EXIST before ffmpeg starts, or its open fails and the encoder dies
