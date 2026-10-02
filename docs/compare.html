@@ -46,6 +46,11 @@
         .box ul { columns: 2 260px; column-gap: 2rem; }
         .box li { break-inside: avoid; }
         .small { font-size: .8rem; color: var(--ink-soft); }
+        .feat td:nth-child(2), .feat th:nth-child(2) { text-align: center; width: 6rem; }
+        .feat td.dk { color: var(--ink); font-weight: 700; background: rgba(252,254,31,.08); }
+        .feat td:first-child { color: var(--ink); }
+        .feat td .n { opacity: .55; }
+        .feat { min-width: 0; }
         .cmp .runs { display: none; }
         /* ── phones: each tool becomes a card, the price under its name ── */
         @media (max-width: 640px) {
@@ -60,6 +65,13 @@
             .cmp td.runs { display: block; text-align: left !important; color: var(--ink); font-size: .8rem; margin-bottom: .35rem; }
             .cmp td[data-label]::before { content: attr(data-label) ": "; color: var(--ink-soft); font-weight: 400; }
             .cmp tr.us td[data-label] { color: var(--ink); }
+            .feat thead { display: none; }
+            .feat tr { display: block; border-bottom: 1px solid var(--rule); padding: .55rem 0; }
+            .feat td { display: block; border: 0; padding: .1rem 0; width: auto; }
+            .feat td:first-child { font-weight: 600; }
+            .feat td.dk { display: inline; background: none; text-align: left; }
+            .feat td.dk::before { content: "Deckboy "; }
+            .feat td[data-label="Also listed by"]::before { content: "Also: "; color: var(--ink-soft); }
             .box { padding: 1rem; }
             .box h2 { font-size: 1rem; line-height: 1.5; }
         }
@@ -91,8 +103,8 @@
     <div class="prose">
         <p>Deckboy is a cue-based video playback deck: a playlist of clips, slides, pages,
         cameras and feeds that go to air when the operator says so, out to screens, NDI, SDI and
-        streams, while it records. These are the nine tools it sits beside on a show, asked the
-        same five questions.</p>
+        streams, while it records. These are the nine tools it sits beside on a show: first
+        what they cost and where they run, then what they do.</p>
 
         <div class="table-wrap">
         <table class="cmp">
@@ -114,6 +126,41 @@
         </table>
         <p class="small">Prices for one machine, without tax, from each vendor's own site on
         1&nbsp;October 2026.</p>
+        </div>
+
+        <h2>Feature by feature</h2>
+        <p>Sixteen things a show reaches for. Deckboy does every one of them, in the free
+        download, on all three systems. Beside each is which of the other nine list it on
+        their own website.</p>
+
+        <div class="table-wrap">
+        <table class="feat">
+            <thead>
+                <tr><th>What the show needs</th><th>Deckboy</th><th>Others that list it</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>A cue list with standby and GO</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">Mitti, SimplePlay Pro X, QLab, PlaybackPro Plus</td></tr>
+                <tr><td>PDF, PowerPoint and Keynote slides as cues</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">Mitti (PDF only)</td></tr>
+                <tr><td>A live web page as a cue</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">vMix, Mitti, Millumin</td></tr>
+                <tr><td>NDI in and out</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">vMix, PlayDeck, Resolume, Mitti, SimplePlay Pro X, ProVideoPlayer, QLab</td></tr>
+                <tr><td>Blackmagic SDI out</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">vMix, PlayDeck, Mitti, SimplePlay Pro X, ProVideoPlayer</td></tr>
+                <tr><td>SMPTE ST&nbsp;2110 out, with NMOS and PTP</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">PlayDeck</td></tr>
+                <tr><td>SRT and RTMP streams out</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">vMix, PlayDeck</td></tr>
+                <tr><td>Records the programme while it plays</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">vMix, PlayDeck</td></tr>
+                <tr><td>Projection mapping</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">Resolume, Mitti, SimplePlay Pro X, Millumin, ProVideoPlayer, QLab</td></tr>
+                <tr><td>MIDI Show Control</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">Mitti, QLab</td></tr>
+                <tr><td>Timecode</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">Resolume, Mitti, SimplePlay Pro X, Millumin, ProVideoPlayer, QLab</td></tr>
+                <tr><td>Stream Deck or Bitfocus Companion</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">PlayDeck, Mitti, SimplePlay Pro X, Millumin, QLab</td></tr>
+                <tr><td>OSC</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">Resolume, Mitti, SimplePlay Pro X, Millumin, QLab</td></tr>
+                <tr><td>Your own VST3 audio plugins</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by">vMix</td></tr>
+                <tr><td>Runs on Linux</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by"><span class="n">None of them</span></td></tr>
+                <tr><td>Open source: read it, fix it, keep it forever</td><td class="dk" data-label="Deckboy">&#10003;</td><td data-label="Also listed by"><span class="n">None of them</span></td></tr>
+            </tbody>
+        </table>
+        <p class="small">Read from each vendor's own product and help pages on 2&nbsp;October 2026.
+        A tool missing from a row may still do it without saying so on its site; tell us and we
+        will correct the row. Deckboy is GPL-3.0: the
+        <a href="https://github.com/Utopian-Academy/Deckboy">source</a> is all there.</p>
         </div>
 
         <div class="box">
