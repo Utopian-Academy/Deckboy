@@ -436,8 +436,23 @@ if command -v hdiutil >/dev/null; then
   DMG_PATH="$OUTPUT_DIR/$STAGE_NAME.dmg"
   rm -f "$DMG_PATH"
   # UDZO = zlib-compressed read-only image, the standard for distribution.
-  if hdiutil create -volname "Deckboy $VERSION" -srcfolder "$DMG_STAGE" \
-       -ov -format UDZO "$DMG_PATH" >/dev/null 2>&1; then
+  #
+  # RETRIED. hdiutil fails intermittently on CI runners ("Resource busy" while
+  # something else still holds the stage or a previous image), and a single
+  # miss left a release job without its .dmg. Three tries, a pause between,
+  # and what it said on the last one is printed rather than thrown away.
+  DMG_OK=0
+  for attempt in 1 2 3; do
+    if HDI_OUT=$(hdiutil create -volname "Deckboy $VERSION" -srcfolder "$DMG_STAGE" \
+         -ov -format UDZO "$DMG_PATH" 2>&1); then
+      DMG_OK=1
+      break
+    fi
+    echo "  ! hdiutil attempt $attempt failed: $HDI_OUT" >&2
+    rm -f "$DMG_PATH"
+    sleep $((attempt * 5))
+  done
+  if [ "$DMG_OK" = 1 ]; then
     echo "Wrote $DMG_PATH"
     du -h "$DMG_PATH" | awk '{print "  size: " $1}'
   else
