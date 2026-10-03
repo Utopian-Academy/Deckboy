@@ -20,6 +20,7 @@ import sys
 import tempfile
 import time
 from types import SimpleNamespace
+from urllib.error import HTTPError
 from urllib.request import urlopen
 
 from deckboy_harness import Deckboy, default_exe, find_ffmpeg
@@ -97,7 +98,22 @@ def check_web_player(db, port, ffprobe, work):
     # a box header or fragment, which is not a valid file for ffprobe.
     target = work / 'web-programme.mp4'
     captured = bytearray()
-    with urlopen('http://127.0.0.1:%d%s' % (port, match.group(1)), timeout=15) as stream:
+    stream_url = 'http://127.0.0.1:%d%s' % (port, match.group(1))
+    # The programme encoder starts asynchronously after Web Monitor is turned
+    # on. A viewer that arrives before its first complete fragment receives a
+    # deliberate 503 and should reconnect; wait here for the same ready state
+    # instead of making runner timing a test failure.
+    ready_deadline = time.monotonic() + 10
+    while True:
+        try:
+            stream = urlopen(stream_url, timeout=15)
+            break
+        except HTTPError as error:
+            if error.code != 503 or time.monotonic() >= ready_deadline:
+                raise
+            error.close()
+            time.sleep(0.1)
+    with stream:
         deadline = time.monotonic() + 3
         while time.monotonic() < deadline:
             chunk = stream.read(8192)
