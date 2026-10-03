@@ -4049,8 +4049,12 @@
         setWebMonitorShare(toUpper(parts[2]) == "ON");
         report();
       } else if (sub == "SOUND" && parts.size() > 2) {
-        setWebMonitorProgrammeSound(toUpper(parts[2]) == "ON");
-        report();
+        if (toUpper(parts[2]) == "ON") {
+          setWebMonitorEnabled(true); // compatibility with older controllers
+          report();
+        } else {
+          failRemoteCommand("programme sound is always included; use WEBMONITOR OFF to stop the monitor");
+        }
       } else if (sub == "PORT" && parts.size() > 2) {
         try {
           const int port = std::stoi(parts[2]);
@@ -4064,7 +4068,7 @@
         setWebMonitorPin(toUpper(parts[2]) == "OFF" ? std::string() : parts[2]);
         report();
       } else {
-        failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | SOUND ON|OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF");
+        failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF (programme sound is included)");
       }
       return;
     }

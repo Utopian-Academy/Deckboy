@@ -1796,7 +1796,7 @@
       //
       // Every output, live, in a browser. The address is printed here, in
       // full, because "it is on" is no use to someone standing at a phone.
-      drawCard(webMonRect, "WEB MONITOR", "Outputs in any browser");
+      drawCard(webMonRect, "WEB MONITOR", "Programme with sound in any browser");
       {
         const int wmX = cardBodyX(webMonRect);
         const int wmW = cardBodyW(webMonRect);
@@ -1810,8 +1810,6 @@
         wmY += sLineH + sGap;
         SDL_Rect wmToggle = settingsRow(wmX, wmW, wmY, sRowH, "Web monitor", sGap);
         drawPill(wmToggle, project_.webMonitorEnabled, "ON", "OFF", kSettingsActionWebMonitorToggle);
-        SDL_Rect wmSound = settingsRow(wmX, wmW, wmY, sRowH, "Programme with sound", sGap);
-        drawPill(wmSound, webMonitorProgrammeSoundOn(), "ON", "OFF", kSettingsActionWebMonitorSoundToggle);
         SDL_Rect wmShare = settingsRow(wmX, wmW, wmY, sRowH, "Who can see it", sGap);
         drawPill(wmShare, project_.webMonitorShareLan, "THE NETWORK", "THIS COMPUTER",
                  kSettingsActionWebMonitorShareToggle);
@@ -4331,8 +4329,6 @@
         openInlineVmixPortEditor(false);
       } else if (sb.action == kSettingsActionWebMonitorToggle) {
         setWebMonitorEnabled(!project_.webMonitorEnabled);
-      } else if (sb.action == kSettingsActionWebMonitorSoundToggle) {
-        setWebMonitorProgrammeSound(!webMonitorProgrammeSoundOn());
       } else if (sb.action == kSettingsActionWebMonitorShareToggle) {
         setWebMonitorShare(!project_.webMonitorShareLan);
       } else if (sb.action == kSettingsActionWebMonitorPortPrompt) {

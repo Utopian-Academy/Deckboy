@@ -1699,25 +1699,21 @@ Toggle adapters in `Settings → Network`.
 
 ### Watching outputs in a browser
 
-**Settings → Network → Web Monitor** shows every output live in any
-browser — a laptop, a tablet, a phone — with nothing to install. Turn it on
+**Settings → Network → Web Monitor** shows programme picture and stereo sound
+in any browser — a laptop, a tablet, a phone — with nothing to install. Turn it on
 and the card prints the address to open, such as `http://192.168.1.20:8090/`.
-That page shows every output as a live thumbnail; click one for it alone,
-full window.
+That page opens the programme player directly, about a second behind the
+show. It follows the programme output, including its layer stack.
 
 - **Who can see it** starts at **THIS COMPUTER**. Switch it to **THE NETWORK**
   for other devices on the same network to open it.
 - **PIN** asks every viewer for a code before showing anything.
-- **Programme with sound** puts the programme on the page with its sound — a
-  real video player, about a second behind the show. Any output can carry
-  sound the same way: set its stream destination to **WEB** (Video Outputs →
-  Streaming). Browsers start muted; press **SOUND ON**.
-- An output costs nothing until somebody is watching it.
-- It is picture only, at up to 20 frames a second and about 960 pixels wide:
-  a monitor for the director, a client or the stage manager's tablet, not a
-  programme feed. For that, use an NDI, SRT or SDI output.
-- An output shows its picture while it is drawing. One that is off shows a
-  plain green frame until it is switched on.
+- Sound is always included in the programme stream. Browsers start muted;
+  press **SOUND ON** to listen. Turn Web Monitor off to stop its encoder.
+- `/outputs` opens the individual output thumbnails. Click one for a full
+  window view. Picture-only thumbnails run at up to 20 frames a second and
+  about 960 pixels wide; they are captured only while somebody watches.
+- For a production feed, use an NDI, SRT or SDI output.
 
 Over the network: `WEBMONITOR` (the address), `WEBMONITOR ON|OFF`,
 `WEBMONITOR SHARE ON|OFF`, `WEBMONITOR PORT <n>`, `WEBMONITOR PIN <pin>|OFF`.

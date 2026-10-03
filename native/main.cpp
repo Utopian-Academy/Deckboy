@@ -8976,7 +8976,6 @@ class App {
   static constexpr int kSettingsActionWebMonitorShareToggle = 701;
   static constexpr int kSettingsActionWebMonitorPortPrompt = 707;
   static constexpr int kSettingsActionWebMonitorPinPrompt = 708;
-  static constexpr int kSettingsActionWebMonitorSoundToggle = 709;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -10497,6 +10496,7 @@ class App {
   std::mutex webMonitorDirMutex_;
   std::vector<std::string> webMonitorOutputNames_;
   std::vector<bool> webMonitorOutputSound_;   // routed to WEB: has a player with sound
+  int webMonitorProgrammeOutput_ = -1;       // programme player on the home page
   std::string webMonitorPinSnapshot_;
   Uint64 webMonitorDirSyncedMs_ = 0;
   SDL_Rect warpGridBtnRect_ {};

@@ -1116,6 +1116,7 @@
     std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
     webMonitorOutputNames_ = std::move(names);
     webMonitorOutputSound_ = std::move(sound);
+    webMonitorProgrammeOutput_ = findStreamOutputForProtocol("web");
     webMonitorPinSnapshot_ = project_.webMonitorPin;
   }
 
@@ -1308,10 +1309,12 @@
     std::vector<std::string> names;
     std::vector<bool> sound;
     std::string pin;
+    int programmeOutput = -1;
     {
       std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
       names = webMonitorOutputNames_;
       sound = webMonitorOutputSound_;
+      programmeOutput = webMonitorProgrammeOutput_;
       pin = webMonitorPinSnapshot_;
     }
     auto hasSound = [&](int out) {
@@ -1343,6 +1346,17 @@
       }
     };
     if (path == "/" || path == "/index.html") {
+      if (programmeOutput >= 0) {
+        webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
+          webMonitorPlayerPage("Deckboy programme",
+            "/av/" + std::to_string(programmeOutput + 1) + pinQuery));
+      } else {
+        webMonitorSendPage(client, "503 Service Unavailable", "text/plain; charset=utf-8",
+                           "Programme monitor unavailable\n");
+      }
+      return;
+    }
+    if (path == "/outputs") {
       std::ostringstream body;
       body << "<header>DECKBOY WEB MONITOR</header><div class='grid'>";
       for (std::size_t i = 0; i < names.size(); ++i) {
@@ -1691,32 +1705,19 @@
       "</script>");
   }
 
-  void setWebMonitorProgrammeSound(bool on) {
-    int idx = findStreamOutputForProtocol("web");
-    if (on && idx < 0) {
-      idx = ensureStreamOutputForProtocol("web");
-    }
+  bool ensureWebMonitorProgrammeOutput() {
+    const int idx = ensureStreamOutputForProtocol("web");
     if (idx < 0 || idx >= static_cast<int>(project_.outputs.size())) {
-      if (on) triggerToast("web: could not create the output");
-      return;
+      return false;
     }
     OutputTarget& out = project_.outputs[static_cast<std::size_t>(idx)];
-    out.enabled = on;
-    out.streamEnabled = on;
-    if (on && !project_.webMonitorEnabled) {
-      setWebMonitorEnabled(true);
-    }
+    out.enabled = true;
+    out.streamEnabled = true;
+    // Repair saved WEB routes too: the monitor always follows programme,
+    // regardless of the deck or output that was focused when it was enabled.
+    out.mirrorSourceOutputIndex = primaryProgrammeOutputIndex(idx);
     webMonitorDirSyncedMs_ = 0;
-    triggerToast(on ? "web: programme with sound on " + outputLabel(idx) : "web: programme sound off");
-    playUiSound(UiSoundEffect::Toggle);
-    markProjectDirty();
-  }
-
-  bool webMonitorProgrammeSoundOn() const {
-    const int idx = findStreamOutputForProtocol("web");
-    return idx >= 0 && idx < static_cast<int>(project_.outputs.size()) &&
-           project_.outputs[static_cast<std::size_t>(idx)].enabled &&
-           project_.outputs[static_cast<std::size_t>(idx)].streamEnabled;
+    return true;
   }
 
   bool startWebMonitor() {
@@ -1725,11 +1726,17 @@
       return false;
     }
     if (webMonitorListen_ != kInvalidSocket) {
-      return true;
+      return ensureWebMonitorProgrammeOutput();
     }
     webMonitorListen_ = createBoundSocket(SOCK_STREAM, project_.webMonitorPort, true,
                                           !project_.webMonitorShareLan);
     if (webMonitorListen_ == kInvalidSocket) {
+      webMonitorReady_ = false;
+      return false;
+    }
+    if (!ensureWebMonitorProgrammeOutput()) {
+      closeSocket(webMonitorListen_);
+      webMonitorListen_ = kInvalidSocket;
       webMonitorReady_ = false;
       return false;
     }
@@ -1777,6 +1784,12 @@
         triggerToast("web monitor: " + webMonitorUrl());
       }
     } else {
+      const int webOutput = findStreamOutputForProtocol("web");
+      if (webOutput >= 0) {
+        auto& out = project_.outputs[static_cast<std::size_t>(webOutput)];
+        out.enabled = false;
+        out.streamEnabled = false;
+      }
       stopWebMonitor();
       triggerToast("web monitor: off");
     }
@@ -2125,8 +2138,8 @@
         "decklink: DECKLINK ON|OFF|TOGGLE | DEVICE <n> | MODE <mode> | 10BIT on|off\n"
         "          DECKLINK KEYFILL ON|OFF|TOGGLE [key device] | KEYDEVICE <n>\n"
         "          (key+fill sends the picture and its matte down two cards)\n"
-        "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF | SOUND ON|OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF\n"
-        "      (every output, live, in any browser at the address STATUS gives)\n"
+        "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF (programme with sound) | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF\n"
+        "      (programme with sound in any browser; /outputs shows individual outputs)\n"
         "vmix: VMIX | VMIX ON|OFF|TOGGLE | VMIX PORTS <http> <tcp>\n"
         "      (answers the vMix HTTP and TCP APIs, so a Stream Deck plugin or\n"
         "       panel built for a vMix rig drives this desk unchanged)\n"

@@ -296,6 +296,10 @@ all one object with one set of controls, not fifty separate things to learn.
 - SRT and RTMP streaming, each output with its own destination, running while
   the programme is recorded
 - Recording that keeps its sound, continuous for the whole take
+- Web Monitor opens programme picture with stereo sound in any browser;
+  press SOUND ON to listen
+- Eight- and ten-bit BT.709 SDR video retains its source range on programme
+  output. PQ/HLG media needs conversion to SDR before playout
 
 </details>
 

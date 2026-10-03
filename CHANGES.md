@@ -1,5 +1,25 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-03 - v0.99.401 (SDR colour and programme monitoring)
+
+**SDR colour.** Eight- and ten-bit SDR video uses its source colour metadata
+on Windows programme output. Main 10 SDR takes the cached NV12 bridge on
+D3D11, retaining its SDR transfer instead of applying an HDR transfer.
+Playing and paused pictures preserve their colour and video range.
+
+**Programme in a browser.** Turning on Web Monitor includes programme picture
+and stereo sound. Its main address opens the programme player directly;
+press SOUND ON when the browser requires a click to enable audio. Turning
+the monitor off also disarms its programme encoder. Individual output views
+remain available at `/outputs`.
+
+**Colour checks.** Programme pixels are compared with independently decoded
+references for eight- and ten-bit BT.709 SDR, in limited and full range,
+while playing and paused. The check reads the primary compositor itself,
+and also verifies video and stereo 48 kHz audio in the web programme stream.
+The compositor remains SDR; PQ/HLG sources require conversion to SDR before
+playout.
+
 ## 2026-10-02 - v0.99.400 (live looks, steady transitions, and a Swirl you can shape)
 
 **Live looks.** Keying, grading and picture effects apply to the playing or

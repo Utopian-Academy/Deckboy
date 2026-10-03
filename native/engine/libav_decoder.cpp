@@ -1264,6 +1264,13 @@ SDL_Texture* createWrappedVideoTexture(SDL_Renderer* renderer, int w, int h,
   if (!renderer || !outTexture2D || w <= 0 || h <= 0) {
     return nullptr;
   }
+  // SDL's D3D11 P010 shader always applies the PQ/HDR10 transfer, even when
+  // the texture carries SDR metadata. Ten-bit SDR must use the cached NV12
+  // download bridge instead; bit depth is not a transfer characteristic.
+  if (format == FramePixelFormat::P010 &&
+      SDL_COLORSPACETRANSFER(colorspace) != SDL_TRANSFER_CHARACTERISTICS_PQ) {
+    return nullptr;
+  }
   // The wrap has to be created in the SAME layout as the decoded surface, or
   // CopySubresourceRegion is copying between mismatched DXGI formats and the
   // picture comes out wrong rather than failing loudly.

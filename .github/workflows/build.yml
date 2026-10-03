@@ -991,6 +991,9 @@ jobs:
           $env:PATH = "$($real.DirectoryName);$env:PATH"
           $env:DECKBOY_FFMPEG = $real.FullName
           $env:DECKBOY_FFPROBE = Join-Path $real.DirectoryName 'ffprobe.exe'
+          python tools/check_programme_colour.py --exe build\Release\Deckboy.exe `
+            --ffmpeg $real.FullName --renderer direct3d11 --web-player
+          if ($LASTEXITCODE -ne 0) { throw "primary programme colour or web audio failed" }
           python tools/record_rate_check.py --exe build\Release\Deckboy.exe `
             --fixture main10 --renderer software --readback sync `
             --standard 640x360@25 --seconds 8
