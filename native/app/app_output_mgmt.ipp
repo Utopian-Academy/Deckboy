@@ -2281,7 +2281,7 @@
         const std::string level = maxHeight >= 2160 ? "5.2"
                                 : maxHeight >= 1440 ? "5.1" : "4.2";
         args.insert(args.end(), {"-profile:v", "main", "-level:v", level,
-                                 "-vf", "scale=-2:min(" + std::to_string(maxHeight) + ",ih):flags=bicubic"});
+                                 "-vf", "scale=-2:min(" + std::to_string(maxHeight) + "\\,ih):flags=bicubic"});
       }
     }
     if (!toFile) {
