@@ -103,6 +103,8 @@ It then reopens the last show. To open a different one instead, pass it on the
 command line or set `DECKBOY_PROJECT`; `DECKBOY_THEME` forces a colourway.
 Either of those skips the startup card as well.
 
+Longer show opens display an animated critter alongside the measured progress.
+
 Deckboy refuses to start twice, so a stray double-click cannot take a second
 copy of the show live. `--allow-multi-instance` lifts that, for debugging.
 
@@ -124,6 +126,11 @@ The control window is split into:
 - **Cue Inspector** (right): every setting for the selected cue, in collapsible
   sections.
 - **Monitors window** (separate): per-output preview and routing.
+
+Animated critters indicate activity while timeline video and audio, previews,
+imports, file conversions, slides and updates load. Each job keeps its own
+critter; the cast varies between jobs. Loading labels and measured progress
+remain visible, and the animation stops when the work finishes.
 
 Two dividers rebalance the layout. The vertical splitter sits between the
 program area and the inspector. The horizontal grip sits in the gap under the
@@ -258,7 +265,7 @@ engines measure a page in three different units, so the same "2x" would produce
 a different raster on each platform, and an operator may change the output after
 importing anyway. The same deck therefore imports identically on every machine.
 
-While a deck converts and renders, a busy cat animates beside the page-progress
+While a deck converts and renders, a busy critter animates beside the page-progress
 display. The caption reports conversion first, then the slide count as pages
 finish rendering.
 

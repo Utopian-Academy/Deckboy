@@ -384,23 +384,36 @@
     return static_cast<double>(h % 10000u) / 10000.0;
   }
 
+  static const char* busyCritterSpecies(const std::string& seed) {
+    static constexpr const char* species[] = {
+      "cat", "clownfish", "crab", "dolphin", "eel", "frog",
+      "hedgehog", "lizard", "moth", "mouse", "rat", "snail"
+    };
+    constexpr std::size_t count = sizeof(species) / sizeof(species[0]);
+    return species[static_cast<std::size_t>(busyCritterHash(seed) * count)];
+  }
+
   // Called EVERY FRAME by whatever is working, with the rect it is working in.
   // Anything that stops calling fades and is dropped, so no operation has to
   // remember to announce that it finished -- forgetting exactly that is the
   // class of bug this whole feature is about.
-  void markBusy(const std::string& id, const char* species, const SDL_Rect& where) {
+  void markBusy(const std::string& id, const char* species, const SDL_Rect& where,
+                bool foreground = true) {
     if (where.w <= 0 || where.h <= 0) {
       return;
     }
     BusyCritter& b = busyCritters_[id];
     if (b.species.empty()) {
-      b.species = species;
+      // Pick once per job, so the cast varies without changing mid-animation.
+      b.species = species ? species : busyCritterSpecies(
+        id + ":" + std::to_string(SDL_GetTicks()));
       // Started somewhere arbitrary along the rect, so two rows busy at once are
       // not in lockstep -- that reads as one animation rather than two animals.
       b.x = 0.15 + 0.7 * busyCritterHash(id);
       b.dir = (busyCritterHash(id + "d") < 0.5) ? -1.0 : 1.0;
     }
     b.home = where;
+    b.foreground = foreground;
     b.seenAtMs = SDL_GetTicks();
   }
 
@@ -422,30 +435,47 @@
     }
   }
 
-  void renderBusyCritters() {
-    if (busyCritters_.empty()) {
+  void drawBusyCritter(const BusyCritter& b) {
+    if (b.home.w <= 0 || b.home.h <= 0) {
       return;
     }
-    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-    for (const auto& [id, b] : busyCritters_) {
-      SDL_Texture* tex = busyCritterFrame(b.species, static_cast<int>(b.phase));
-      if (!tex) {
-        continue;
-      }
-      // Sized from the rect it lives in, so one on a cue row and one on a
-      // toolbar button are each right for their own furniture.
-      const int size = std::clamp(b.home.h - uiScaled(6), uiScaled(12), uiScaled(28));
-      const int x = b.home.x + static_cast<int>(b.x * (b.home.w - size));
-      const int y = b.home.y + (b.home.h - size) / 2;
-      const int bob = static_cast<int>(std::lround(std::sin(b.phase * 1.6)));
-      SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(
-        std::clamp(b.fade, 0.0, 1.0) * 255.0));
-      SDL_FRect dst {static_cast<float>(x), static_cast<float>(y + bob),
-                     static_cast<float>(size), static_cast<float>(size)};
-      // Faced by flipping, so one set of art walks both ways.
-      SDL_RenderTextureRotated(controlRenderer_, tex, nullptr, &dst, 0.0, nullptr,
-                               b.dir < 0.0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
-      SDL_SetTextureAlphaMod(tex, 255);
+    SDL_Texture* tex = busyCritterFrame(b.species, static_cast<int>(b.phase));
+    if (!tex) {
+      return;
     }
-    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    const int size = std::min({b.home.w, b.home.h,
+      std::clamp(b.home.h - uiScaled(6), uiScaled(12), uiScaled(28))});
+    const int x = b.home.x + static_cast<int>(
+      std::clamp(b.x, 0.0, 1.0) * (b.home.w - size));
+    const int bob = static_cast<int>(std::lround(std::sin(b.phase * 1.6)));
+    const int y = std::clamp(b.home.y + (b.home.h - size) / 2 + bob,
+                             b.home.y, b.home.y + b.home.h - size);
+    const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
+    SDL_Rect previousClip {};
+    SDL_GetRenderClipRect(controlRenderer_, &previousClip);
+    SDL_Rect clip = b.home;
+    if (hadClip && !SDL_GetRectIntersection(&previousClip, &b.home, &clip)) {
+      return;
+    }
+    SDL_BlendMode previousBlend = SDL_BLENDMODE_NONE;
+    SDL_GetRenderDrawBlendMode(controlRenderer_, &previousBlend);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderClipRect(controlRenderer_, &clip);
+    SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(
+      std::clamp(b.fade, 0.0, 1.0) * 255.0));
+    SDL_FRect dst {static_cast<float>(x), static_cast<float>(y),
+                   static_cast<float>(size), static_cast<float>(size)};
+    SDL_RenderTextureRotated(controlRenderer_, tex, nullptr, &dst, 0.0, nullptr,
+                             b.dir < 0.0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    SDL_SetTextureAlphaMod(tex, 255);
+    SDL_SetRenderClipRect(controlRenderer_, hadClip ? &previousClip : nullptr);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, previousBlend);
+  }
+
+  void renderBusyCritters(bool foreground = true) {
+    for (const auto& entry : busyCritters_) {
+      if (entry.second.foreground == foreground) {
+        drawBusyCritter(entry.second);
+      }
+    }
   }

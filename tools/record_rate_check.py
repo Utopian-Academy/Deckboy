@@ -144,6 +144,7 @@ def run_case(args, standard):
 
     env = dict(os.environ)
     env["DECKBOY_ROOT"] = root
+    env["DECKBOY_PROJECT"] = os.path.join(root, "data", "default.deckboy")
     env["DECKBOY_COMPANION_PORT"] = str(args.port)
     if args.renderer:
         env["DECKBOY_OUTPUT_RENDERER"] = args.renderer
@@ -154,6 +155,12 @@ def run_case(args, standard):
 
     log_path = os.path.join(root, "case.log")
     log = open(log_path, "w")
+    replies = []
+
+    def command(text):
+        reply = send(args.port, text)
+        replies.append("%s -> %s" % (text, reply))
+        return reply
     # Media arrives as an argument -- there is no IMPORT verb on the control
     # port, and the usage line takes media paths directly.
     proc = subprocess.Popen([args.exe, "--import", args.media], env=env,
@@ -163,11 +170,11 @@ def run_case(args, standard):
         if not wait_for_control(args.port):
             return {"standard": standard, "error": "control port never came up"}
         # Silence first: this drives a real show application.
-        send(args.port, "MASTERVOL 0")
-        send(args.port, "OUTPUT on")
-        send(args.port, "RECFORMAT %dx%d %s" % (width, height, rate))
-        send(args.port, "SELECT 1")
-        send(args.port, "TAKE")
+        command("MASTERVOL 0")
+        command("OUTPUT on")
+        command("RECFORMAT %dx%d %s" % (width, height, rate))
+        command("SELECT 1")
+        command("TAKE")
         # WAIT for the deck to actually be playing before recording. A fixed
         # sleep records whatever is on screen at the time, and on a slow boot
         # that is the empty monitor -- which then reports as a frozen recording
@@ -180,13 +187,15 @@ def run_case(args, standard):
             time.sleep(0.25)
         else:
             print("warning: deck never reported Playing; recording anyway")
+            command("STATUS")
         time.sleep(args.settle)
-        send(args.port, "RECORD on")
+        command("RECORD on")
         started = time.time()
         time.sleep(args.seconds)
-        send(args.port, "RECORD off")
+        command("RECORD off")
         elapsed = time.time() - started
         time.sleep(3.0)   # let the muxer finalise
+        command("OUTPUT STATUS")
     finally:
         proc.terminate()
         try:
@@ -207,6 +216,11 @@ def run_case(args, standard):
         alarms += open(show_log, errors="replace").read().count("RECORD DROP")
     files = sorted(glob.glob(os.path.join(recordings, "*.*")), key=os.path.getmtime)
     if not files:
+        print("capture diagnostics:", flush=True)
+        for reply in replies:
+            print("  " + reply, flush=True)
+        for line in text.splitlines()[-40:]:
+            print("  log: " + line, flush=True)
         return {"standard": standard, "error": "no file written", "alarms": alarms}
 
     info = probe(files[-1])
@@ -264,7 +278,7 @@ def main():
         sys.exit("ffprobe is not on PATH; it is what counts the frames")
 
     temporary = not args.root
-    args.root = args.root or tempfile.mkdtemp(prefix="deckboy-ratecheck-")
+    args.root = os.path.abspath(args.root) if args.root else tempfile.mkdtemp(prefix="deckboy-ratecheck-")
     os.makedirs(os.path.join(args.root, "data"), exist_ok=True)
     deckboy_testroot.populate(args.root, verbose=True)
     print("project root: %s" % args.root)

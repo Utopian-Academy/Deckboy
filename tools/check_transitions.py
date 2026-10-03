@@ -327,6 +327,9 @@ def main():
     args = ap.parse_args()
     if not args.exe or not os.path.isfile(args.exe):
         sys.exit("check_transitions: no Deckboy binary; pass --exe")
+    # The playout harness launches from the binary's directory, so resolve
+    # --exe against the invocation directory before that working-dir change.
+    args.exe = os.path.abspath(args.exe)
 
     work = tempfile.mkdtemp(prefix="deckboy_transitions_")
     W, H = 320, 180

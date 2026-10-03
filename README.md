@@ -305,8 +305,9 @@ all one object with one set of controls, not fifty separate things to learn.
 - Import a PDF, PowerPoint or Keynote deck as one cue per slide, rendered once
   at import by the platform's own engine -- nothing during the show depends on
   a document renderer
-- An animated busy critter accompanies conversion and rendering, with page
-  progress as the slides arrive
+- Varied animated critters accompany conversion and rendering, with page
+  progress as the slides arrive; timeline video and audio, previews, imports,
+  show opening and updates have their own loading critters too
 - Speaker notes come with the deck, so a team working a master deck elsewhere
   keeps its fonts *and* its notes
 - **Presenter view** as an output type, so it takes its own display: the live

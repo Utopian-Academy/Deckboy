@@ -837,6 +837,7 @@ jobs:
           .\vcpkg\bootstrap-vcpkg.bat
 
       - name: Cache vcpkg binaries
+        id: vcpkg-cache
         uses: actions/cache@v4
         with:
           path: ~/AppData/Local/vcpkg/archives
@@ -879,6 +880,15 @@ jobs:
       - name: Install feature dependencies
         if: matrix.features == 'all'
         run: .\vcpkg\vcpkg install rtmidi:x64-windows spout2:x64-windows webview2:x64-windows "ffmpeg[avcodec,avformat,avfilter,swscale,swresample]:x64-windows"
+
+      # Save completed SDK packages before app checks, so a later failure
+      # does not make the next build compile every dependency again.
+      - name: Save completed vcpkg packages
+        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/AppData/Local/vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       # FFMPEG IS INSTALLED ON THE FEATURE BUILD, and REQUIRED there
       # (-DDECKBOY_REQUIRE_INPROC_DECODE=ON in the matrix). It used to be left
@@ -968,6 +978,15 @@ jobs:
         if: matrix.features == 'all'
         shell: pwsh
         run: |
+          # CreateProcess must launch the real tools, not Chocolatey's shims.
+          $real = Get-ChildItem -Path 'C:\ProgramData\chocolatey\lib\ffmpeg-full' -Recurse `
+                    -Filter ffmpeg.exe -ErrorAction Stop |
+                  Where-Object { Test-Path (Join-Path $_.DirectoryName 'ffprobe.exe') } |
+                  Select-Object -First 1
+          if (-not $real) { throw 'no ffmpeg-full binary pair found for capture checks' }
+          $env:PATH = "$($real.DirectoryName);$env:PATH"
+          $env:DECKBOY_FFMPEG = $real.FullName
+          $env:DECKBOY_FFPROBE = Join-Path $real.DirectoryName 'ffprobe.exe'
           python tools/record_rate_check.py --exe build\Release\Deckboy.exe `
             --fixture main10 --renderer software --readback sync `
             --standard 640x360@25 --seconds 8

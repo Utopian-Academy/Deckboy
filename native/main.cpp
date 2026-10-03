@@ -5072,6 +5072,7 @@ class App {
 #include "app/app_smoke.ipp"
 
  private:
+  struct BusyCritter;
   // Declared here so ipp-file helper functions can use it as a parameter type.
   struct SettingsButton { SDL_Rect rect; int action; std::string label; };
 
@@ -9491,6 +9492,7 @@ class App {
     double phase = 0.0;
     double fade = 0.0;
     Uint64 seenAtMs = 0;
+    bool foreground = true; // modal jobs draw after popups; timeline jobs before
   };
   std::map<std::string, BusyCritter> busyCritters_;
   std::map<std::string, UiImageAsset> busyCritterArt_;

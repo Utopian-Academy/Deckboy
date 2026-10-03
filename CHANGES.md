@@ -17,7 +17,9 @@ of the output raster, and hold the last good picture during an incomplete edit.
 **A clearer desk.** Narrow cue rows give the name and timer more room. Decks
 use a full-width focused list when several comfortable columns cannot fit.
 CLEAR immediately stops every deck and disarms output, including queued takes.
-Slide conversion and rendering use the animated busy critter with page progress.
+Varied animated critters accompany timeline video and audio loading, previews,
+show opening, file conversion, imports, slide rendering and update work.
+Labels, page counts and measured progress remain visible.
 Pushes move each picture once; wipes and iris reveal the next cue throughout
 their duration.
 

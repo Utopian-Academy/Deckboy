@@ -354,52 +354,67 @@
                            pal.shellOuter.b, 255);
     SDL_RenderClear(controlRenderer_);
 
-    const int panelW = std::min(560, std::max(320, winW - 120));
-    const int panelH = 190;
+    const int pad = uiScaled(16);
+    const int gap = uiScaled(8);
+    TTF_Font* titleFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+    const int titleH = snapUpToGrid(std::max(uiScaled(20), textLineHeight(titleFont)));
+    const int lineH = snapUpToGrid(std::max(uiScaled(18), textLineHeight(fontSmall_)));
+    const int critterH = snapUpToGrid(uiScaled(32));
+    const int barH = snapUpToGrid(uiScaled(20));
+    const int panelW = std::min(uiScaled(560), std::max(1, winW - pad * 2));
+    const int panelH = std::min(titleH + critterH + barH + lineH * 3 + gap * 5 + pad * 2,
+                               std::max(1, winH - pad * 2));
     SDL_Rect panel {(winW - panelW) / 2, (winH - panelH) / 2, panelW, panelH};
     Primitives::drawFramedPanel(controlRenderer_, panel, pal.shellInner, pal.deep, pal.light);
-
-    drawCenteredTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
-                         SDL_Rect{panel.x, panel.y + 16, panel.w, 20},
+    VerticalLayout rows(insetRect(panel, pad), gap);
+    drawCenteredTextSafe(controlRenderer_, titleFont, rows.takeFixed(titleH),
                          loadingTitle_, pal.fg);
 
-    // The cartridge: a row of blocks that fill left to right, with the leading
-    // block pulsing. Reads as "something is happening" even when the percentage
-    // is stuck on a slow drive.
+    // The render loop is stopped during show opening. Drive this same critter
+    // from elapsed time so its animation does not depend on update().
+    BusyCritter opening;
+    opening.species = busyCritterSpecies(loadingTitle_ + ":" + std::to_string(loadingStartMs_));
+    opening.home = rows.takeFixed(critterH);
+    opening.phase = static_cast<double>(nowMs - loadingStartMs_) * 0.009;
+    const double walk = std::fmod(opening.phase * 0.05, 2.0);
+    opening.dir = walk < 1.0 ? 1.0 : -1.0;
+    opening.x = 0.06 + 0.88 * (walk < 1.0 ? walk : 2.0 - walk);
+    opening.fade = 1.0;
+    drawBusyCritter(opening);
+
+    // The bar and percentage still report measured work; the critter only
+    // indicates activity and never invents a percentage.
+    const SDL_Rect bar = rows.takeFixed(barH);
     constexpr int kBlocks = 12;
-    const int barW = panel.w - 64;
-    const int blockW = barW / kBlocks;
-    const int barX = panel.x + (panel.w - blockW * kBlocks) / 2;
-    const int barY = panel.y + 62;
     const int filled = static_cast<int>(std::lround(loadingFrac_ * kBlocks));
     for (int i = 0; i < kBlocks; ++i) {
-      SDL_Rect b {barX + i * blockW + 2, barY, blockW - 4, 22};
+      const int left = bar.x + bar.w * i / kBlocks;
+      const int right = bar.x + bar.w * (i + 1) / kBlocks;
+      SDL_Rect block {left + uiScaled(2), bar.y,
+                      std::max(0, right - left - uiScaled(4)), bar.h};
+      if (block.w <= 0 || block.h <= 0) {
+        continue;
+      }
       if (i < filled) {
-        Primitives::fillRect(controlRenderer_, b, pal.light);
+        Primitives::fillRect(controlRenderer_, block, pal.light);
       } else if (i == filled) {
         const float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(nowMs) * 0.010f);
         SDL_Color c {
           static_cast<Uint8>(pal.mid.r + (pal.light.r - pal.mid.r) * pulse),
           static_cast<Uint8>(pal.mid.g + (pal.light.g - pal.mid.g) * pulse),
-          static_cast<Uint8>(pal.mid.b + (pal.light.b - pal.mid.b) * pulse),
-          255};
-        Primitives::fillRect(controlRenderer_, b, c);
+          static_cast<Uint8>(pal.mid.b + (pal.light.b - pal.mid.b) * pulse), 255};
+        Primitives::fillRect(controlRenderer_, block, c);
       } else {
-        Primitives::fillRect(controlRenderer_, b, pal.deep);
+        Primitives::fillRect(controlRenderer_, block, pal.deep);
       }
-      Primitives::strokeRect(controlRenderer_, b, pal.mid);
+      Primitives::strokeRect(controlRenderer_, block, pal.mid);
     }
-
     char pct[16];
     std::snprintf(pct, sizeof(pct), "%d%%", static_cast<int>(std::lround(loadingFrac_ * 100.0)));
-    drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{panel.x, barY + 30, panel.w, 18}, pct, pal.fgSoft);
-
-    if (!loadingDetail_.empty()) {
-      drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                           SDL_Rect{panel.x + 16, barY + 52, panel.w - 32, 18},
-                           loadingDetail_, pal.inkSoft);
-    }
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, rows.takeFixed(lineH), pct, pal.fgSoft);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, rows.takeFixed(lineH),
+                         loadingDetail_, pal.inkSoft);
+    const SDL_Rect quipRow = rows.takeFixed(lineH);
 
     // Same playful register as the boot console — a slow open should feel like
     // the machine is doing something charming, not like it has died.
@@ -416,7 +431,7 @@
     constexpr int kQuipCount = static_cast<int>(sizeof(kQuips) / sizeof(kQuips[0]));
     const int quip = static_cast<int>(((nowMs / 1400) + loadingQuipSeed_) % kQuipCount);
     drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{panel.x + 16, panel.y + panel.h - 34, panel.w - 32, 18},
+                         quipRow,
                          kQuips[quip], pal.mid);
 
     SDL_RenderPresent(controlRenderer_);

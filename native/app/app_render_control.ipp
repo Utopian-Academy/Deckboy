@@ -1354,9 +1354,9 @@
       ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
-    // THE BUSY CRITTERS ARE NOT DRAWN HERE. See below, above the popups: the
-    // update one lives inside the settings modal and was painted over by it
-    // every frame, so nobody ever saw one.
+    // Timeline and preview jobs belong beneath popups. Modal jobs draw later,
+    // after the controls that own them, so neither hides the other.
+    renderBusyCritters(false);
     renderSlideRenderCard(width, height);
     renderImportProgress(width, height);
     if (confirmQuit_) {
@@ -1729,7 +1729,7 @@
       // stops as soon as the cue stops being marked.
       if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size()) &&
           cueIsNormalizing(deck.cues[cueIndex].id)) {
-        markBusy("norm:" + deck.cues[cueIndex].id, "mouse", row);
+        markBusy("norm:" + deck.cues[cueIndex].id, nullptr, row, false);
       }
       y += kRowHeight + 8;
     }
@@ -3122,7 +3122,7 @@
     Primitives::fillRect(controlRenderer_, track, pal.deep);
     // This one already had an honest bar; the critter is company, not the
     // information. It swims the length of the strip while the walk runs.
-    markBusy("import", "clownfish", strip);
+    markBusy("import", nullptr, strip);
 
     std::string label;
     if (scanning) {
@@ -3174,7 +3174,7 @@
     // progress, including the conversion stage where no count is known yet.
     const SDL_Rect critterLane {card.x + uiScaled(12), card.y + uiScaled(8),
                                card.w - uiScaled(24), uiScaled(34)};
-    markBusy("slide-render", "cat", critterLane);
+    markBusy("slide-render", nullptr, critterLane);
     // Counting pages only once the renderer has reported one: before that the
     // honest thing to say is that the converter is still running, because it
     // is, and a "0 of 0" would look stuck.

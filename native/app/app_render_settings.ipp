@@ -77,15 +77,11 @@
     drawUIPanel(area, pal.dark, pal.deep, pal.mid);
     const int pad = uiScaled(6);
     const int lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
-    // The whimsy line runs the full width along the bottom, NOT inside the
-    // face column: squeezed into the narrow column it ellipsized to nonsense
-    // ("this one has opi..."). The mascot also refuses to draw its face below
-    // 150x120 and silently falls back to a text line, so the column has to
-    // clear that or you get the truncated text and no friend.
+    // Each running job gets a critter beside its own label and measured bar.
+    // Keep the footer full-width so it remains readable at narrow sizes.
     SDL_Rect face {area.x + pad, area.y + pad,
-                   std::max(uiScaled(164), area.w / 5),
+                   std::min(uiScaled(64), std::max(uiScaled(24), area.w / 6)),
                    area.h - pad * 2 - lineH};
-    drawStartupMascot(face, nowMs, "");
     drawCenteredTextSafe(controlRenderer_, fontSmall_,
                          SDL_Rect{area.x + pad, area.y + area.h - lineH - pad / 2,
                                   area.w - pad * 2, lineH},
@@ -94,7 +90,7 @@
     int rx = face.x + face.w + uiScaled(10);
     int rw = area.x + area.w - rx - uiScaled(10);
     int ry = area.y + pad;
-    const int rowH = 30;
+    const int rowH = lineH + uiScaled(14);
     int shown = 0;
     const int xW = uiScaled(18);
     for (std::size_t jobIndex = 0; jobIndex < conversionJobs_.size(); ++jobIndex) {
@@ -104,6 +100,10 @@
       }
       double pct = job.progress ? job.progress->load() : -1.0;
       bool running = job.state == ConversionState::Running;
+      if (running) {
+        markBusy("encode:" + job.label, nullptr,
+                 SDL_Rect {face.x, ry, face.w, rowH});
+      }
       std::string head = (running ? "" : (job.held ? "held    " : "queued  ")) + job.label;
       const int pctW = uiScaled(42);
       const int textW = rw - pctW - xW * 3 - uiScaled(12);
@@ -590,7 +590,7 @@
       // last in a frame wins, so viewing the card places it there, and
       // viewing any other tab leaves it here instead of letting it vanish.
       if (t == 0 && updateCheckRunning_.load()) {
-        markBusy("update", "eel", tab);
+        markBusy("update", nullptr, tab);
       }
       tabX += tabW + kTabGap;
     }
@@ -1111,7 +1111,7 @@
       // is true for exactly the span of a check or a download and for nothing
       // else.
       if (updateCheckRunning_.load()) {
-        markBusy("update", "eel", updActionRow);
+        markBusy("update", nullptr, updActionRow);
       }
       drawSettingsStateFill(updCheckBtn, false);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, updCheckBtn, "CHECK NOW",

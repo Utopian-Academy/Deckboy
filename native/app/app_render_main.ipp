@@ -2064,179 +2064,37 @@
              audioLaneOuter.x + 8, audioLaneOuter.y + 2);
 
     auto drawTimelineLoadingAnimation = [&](const SDL_Rect& laneRect,
-                                           const char* label = "LOADING",
                                            bool audioMode = false) {
+      if (laneRect.w <= 0 || laneRect.h <= 0 || !timelineCue) {
+        return;
+      }
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-      Primitives::fillRect(controlRenderer_, laneRect, SDL_Color {7, 12, 7, 148});
+      SDL_Color shade = pal.shellOuter;
+      shade.a = 148;
+      Primitives::fillRect(controlRenderer_, laneRect, shade);
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-
-      int widgetW = std::min(188, std::max(124, laneRect.w - 28));
-      int widgetH = std::min(46, std::max(34, laneRect.h - 16));
-      SDL_Rect widget {
-        laneRect.x + (laneRect.w - widgetW) / 2,
-        laneRect.y + (laneRect.h - widgetH) / 2,
-        widgetW,
-        widgetH
-      };
+      const int lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
+      const int widgetW = std::min(uiScaled(188), laneRect.w);
+      const int widgetH = std::min(uiScaled(34) + lineH, laneRect.h);
+      SDL_Rect widget {laneRect.x + (laneRect.w - widgetW) / 2,
+                       laneRect.y + (laneRect.h - widgetH) / 2,
+                       widgetW, widgetH};
       drawUIPanel(widget, pal.light, pal.deep, pal.mid);
-
-      constexpr int kCellCount = 5;
-      constexpr int kCellW = 20;
-      constexpr int kCellH = 16;
-      constexpr int kCellGap = 6;
-      int stripW = kCellCount * kCellW + (kCellCount - 1) * kCellGap;
-      int stripX = widget.x + (widget.w - stripW) / 2;
-      int stripY = widget.y + 6;
-      int activeCell = static_cast<int>((animationNow_ / 140) % kCellCount);
-      int accentCell = static_cast<int>((animationNow_ / 220) % kCellCount);
-
-      for (int i = 0; i < kCellCount; ++i) {
-        int bob = (i == activeCell) ? 2 : ((i + accentCell) % kCellCount == 0 ? 1 : 0);
-        SDL_Rect cell {stripX + i * (kCellW + kCellGap), stripY - bob, kCellW, kCellH};
-        SDL_Color fill = (i == activeCell) ? pal.dark : pal.mid;
-        SDL_Color ink = (i == activeCell) ? pal.light : pal.deep;
-        drawUIPanel(cell, fill, pal.deep, pal.light);
-
-        if (audioMode) {
-          int barCount = 3;
-          int barGap = 2;
-          int barW = 3;
-          int barsTotalW = barCount * barW + (barCount - 1) * barGap;
-          int barsX = cell.x + (cell.w - barsTotalW) / 2;
-          int baseY = cell.y + cell.h - 4;
-          for (int bar = 0; bar < barCount; ++bar) {
-            double phase = static_cast<double>(animationNow_) * 0.012 + i * 0.9 + bar * 0.6;
-            int barH = 3 + static_cast<int>(std::lround((std::sin(phase) * 0.5 + 0.5) * 6.0));
-            SDL_Rect meter {barsX + bar * (barW + barGap), baseY - barH, barW, barH};
-            Primitives::fillRect(controlRenderer_, meter, ink);
-          }
-        } else {
-          SDL_Rect frameInner {cell.x + 4, cell.y + 3, cell.w - 8, cell.h - 6};
-          SDL_Color innerFill = (i == activeCell) ? pal.light : pal.dark;
-          Primitives::fillRect(controlRenderer_, frameInner, innerFill);
-
-          SDL_Rect sprocketTopL {cell.x + 1, cell.y + 2, 2, 2};
-          SDL_Rect sprocketBottomL {cell.x + 1, cell.y + cell.h - 4, 2, 2};
-          SDL_Rect sprocketTopR {cell.x + cell.w - 3, cell.y + 2, 2, 2};
-          SDL_Rect sprocketBottomR {cell.x + cell.w - 3, cell.y + cell.h - 4, 2, 2};
-          Primitives::fillRect(controlRenderer_, sprocketTopL, ink);
-          Primitives::fillRect(controlRenderer_, sprocketBottomL, ink);
-          Primitives::fillRect(controlRenderer_, sprocketTopR, ink);
-          Primitives::fillRect(controlRenderer_, sprocketBottomR, ink);
-        }
-      }
-
-      int dotCount = static_cast<int>((animationNow_ / 180) % 4);
-      std::string loadingLabel = label;
-      for (int i = 0; i < dotCount; ++i) {
-        loadingLabel += '.';
-      }
-      SDL_Rect loadingRect {widget.x + 4, widget.y + widget.h - 20, widget.w - 8, 18};
-      TTF_Font* loadingFont = fontPixel_ ? fontPixel_ : fontSmall_;
-      int loadingTextW = 0;
-      int loadingTextH = 0;
-      if (!loadingFont ||
-          !TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
-          loadingTextW > loadingRect.w) {
-        loadingFont = fontSmall_ ? fontSmall_ : loadingFont;
-      }
-      if (loadingFont &&
-          TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
-          loadingTextW > loadingRect.w &&
-          fontMono_) {
-        loadingFont = fontMono_;
-      }
-      double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 160.0);
-      SDL_Color inkA = pal.deep;
-      SDL_Color inkB = pal.dark;
-      SDL_Color loadingInk {
-        static_cast<Uint8>(std::lround(inkA.r + (inkB.r - inkA.r) * pulse)),
-        static_cast<Uint8>(std::lround(inkA.g + (inkB.g - inkA.g) * pulse)),
-        static_cast<Uint8>(std::lround(inkA.b + (inkB.b - inkA.b) * pulse)),
-        255
-      };
-      drawCenteredTextSafe(controlRenderer_, loadingFont, loadingRect,
-                           loadingLabel, loadingInk);
+      const int pad = std::min(uiScaled(4), widget.h / 4);
+      SDL_Rect labelRect {widget.x + pad, widget.y + widget.h - pad - lineH,
+                          std::max(0, widget.w - pad * 2),
+                          std::min(lineH, std::max(0, widget.h - pad * 2))};
+      labelRect.y = std::max(widget.y + pad, labelRect.y);
+      SDL_Rect critterLane {widget.x + pad, widget.y + pad,
+                            std::max(0, widget.w - pad * 2),
+                            std::max(0, labelRect.y - widget.y - pad * 2)};
+      markBusy(std::string(audioMode ? "waveform:" : "filmstrip:") + timelineCue->id,
+               nullptr, critterLane, false);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, labelRect,
+                           audioMode ? "LOADING AUDIO" : "LOADING VIDEO", pal.deep);
     };
-
-    // Audio-lane companion to drawTimelineLoadingAnimation. Uses the same
-    // widget frame and pulsing LOADING label so the two feel like siblings,
-    // but the iconography is an animated EQ meter (rising/falling bars) to
-    // clearly distinguish audio-loading from video-filmstrip-loading.
     auto drawAudioTimelineLoadingAnimation = [&](const SDL_Rect& laneRect) {
-      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-      Primitives::fillRect(controlRenderer_, laneRect, SDL_Color {7, 12, 7, 148});
-      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-
-      int widgetW = std::min(188, std::max(124, laneRect.w - 28));
-      int widgetH = std::min(46, std::max(34, laneRect.h - 16));
-      SDL_Rect widget {
-        laneRect.x + (laneRect.w - widgetW) / 2,
-        laneRect.y + (laneRect.h - widgetH) / 2,
-        widgetW,
-        widgetH
-      };
-      drawUIPanel(widget, pal.light, pal.deep, pal.mid);
-
-      constexpr int kBarCount = 9;
-      constexpr int kBarW = 8;
-      constexpr int kBarGap = 4;
-      int metersW = kBarCount * kBarW + (kBarCount - 1) * kBarGap;
-      int metersX = widget.x + (widget.w - metersW) / 2;
-      int metersTop = widget.y + 5;
-      int metersBot = widget.y + widget.h - 22;
-      int metersH = std::max(6, metersBot - metersTop);
-
-      SDL_Rect baseline {metersX - 2, metersBot, metersW + 4, 1};
-      Primitives::fillRect(controlRenderer_, baseline, pal.deep);
-
-      for (int i = 0; i < kBarCount; ++i) {
-        double phase = static_cast<double>(animationNow_) / 160.0
-                     + static_cast<double>(i) * 0.62;
-        double s = 0.5 + 0.5 * std::sin(phase);
-        double env = 0.18 + 0.82 * (s * s);
-        int barH = std::max(2, static_cast<int>(std::round(env * metersH)));
-        SDL_Rect bar {metersX + i * (kBarW + kBarGap),
-                      metersBot - barH,
-                      kBarW,
-                      barH};
-        SDL_Color barFill = (env > 0.75) ? pal.dark : pal.mid;
-        drawUIPanel(bar, barFill, pal.deep, pal.light);
-        SDL_Rect cap {bar.x + 1, bar.y, bar.w - 2, 2};
-        Primitives::fillRect(controlRenderer_, cap, pal.light);
-      }
-
-      int dotCount = static_cast<int>((animationNow_ / 180) % 4);
-      std::string loadingLabel = "LOADING";
-      for (int i = 0; i < dotCount; ++i) {
-        loadingLabel += '.';
-      }
-      SDL_Rect loadingRect {widget.x + 4, widget.y + widget.h - 20, widget.w - 8, 18};
-      TTF_Font* loadingFont = fontPixel_ ? fontPixel_ : fontSmall_;
-      int loadingTextW = 0;
-      int loadingTextH = 0;
-      if (!loadingFont ||
-          !TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
-          loadingTextW > loadingRect.w) {
-        loadingFont = fontSmall_ ? fontSmall_ : loadingFont;
-      }
-      if (loadingFont &&
-          TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
-          loadingTextW > loadingRect.w &&
-          fontMono_) {
-        loadingFont = fontMono_;
-      }
-      double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 160.0);
-      SDL_Color inkA = pal.deep;
-      SDL_Color inkB = pal.dark;
-      SDL_Color loadingInk {
-        static_cast<Uint8>(std::lround(inkA.r + (inkB.r - inkA.r) * pulse)),
-        static_cast<Uint8>(std::lround(inkA.g + (inkB.g - inkA.g) * pulse)),
-        static_cast<Uint8>(std::lround(inkA.b + (inkB.b - inkA.b) * pulse)),
-        255
-      };
-      drawCenteredTextSafe(controlRenderer_, loadingFont, loadingRect,
-                           loadingLabel, loadingInk);
+      drawTimelineLoadingAnimation(laneRect, true);
     };
 
     auto drawTimelineMarkerLine = [&](float frac, SDL_Color color) {
@@ -3613,6 +3471,13 @@
                              thumbArea.w - uiScaled(12), thumbLineH},
                    loading ? "loading preview..." : "no still preview",
                    pal.mid);
+      if (loading) {
+        const int critterTop = thumbArea.y + uiScaled(12) + thumbLineH * 2;
+        SDL_Rect critterLane {thumbArea.x + uiScaled(6), critterTop,
+                              std::max(0, thumbArea.w - uiScaled(12)),
+                              std::max(0, thumbArea.y + thumbArea.h - critterTop - uiScaled(6))};
+        markBusy("preview:" + selectedCue->id, nullptr, critterLane, false);
+      }
     } else {
       // Three lines centred on the middle one, spaced by the line height
       // rather than a fixed 20px -- at 1.5x they overlapped each other.
