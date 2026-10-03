@@ -113,10 +113,9 @@ brew install --cask utopian-academy/deckboy/deckboy
 <details>
 <summary><b>"Unknown developer" warnings — what to do</b></summary>
 
-Deckboy is not code-signed. Signing is a paid developer account with Apple and
-with Microsoft, and the project has not bought one -- so the builds are fine and
-the OS simply does not recognise the publisher. It is on the roadmap below for
-the macOS releases, where the warning is most in the way.
+Deckboy's Windows builds are unsigned and macOS builds are ad-hoc signed.
+Neither carries a verified publisher signature, so the OS may warn when you
+first open a download.
 
 - **macOS** — if it says the app is damaged, clear the quarantine flag once:
 
@@ -499,12 +498,17 @@ importantly, what each feature deliberately does not do.
 - Cue carts, templates for new shows, and a phone or tablet remote
 - Fixture patching and a lighting dashboard, beyond Art-Net levels
 
+**Picture:**
+
+- GPU colour conversion for eight- and ten-bit SDR, preserving limited/full
+  range and avoiding a CPU download during ordinary playback
+- PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings
+
 **Platform:**
 
 - NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
 - Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
-- Developer ID signing and notarization for macOS releases
 
 ---
 
