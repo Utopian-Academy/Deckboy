@@ -103,14 +103,18 @@ def check_web_player(db, port, ffprobe, work):
     # on. A viewer that arrives before its first complete fragment receives a
     # deliberate 503 and should reconnect; wait here for the same ready state
     # instead of making runner timing a test failure.
-    ready_deadline = time.monotonic() + 10
+    ready_deadline = time.monotonic() + 30
     while True:
         try:
             stream = urlopen(stream_url, timeout=15)
             break
         except HTTPError as error:
+            body = error.read().decode('utf-8', errors='replace').strip()
             if error.code != 503 or time.monotonic() >= ready_deadline:
-                raise
+                error.close()
+                raise RuntimeError(
+                    'web programme stream did not become ready: HTTP %d %s\n%s\n%s' %
+                    (error.code, error.reason, body, db.send('STATUS')))
             error.close()
             time.sleep(0.1)
     with stream:
