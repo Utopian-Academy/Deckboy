@@ -1,0 +1,52 @@
+DECKBOY — PRODUCT COPY
+Updated 2026-10-03
+
+ONE LINE
+Deckboy is a free, open-source video cue deck for Windows, macOS and Linux: clips, slides and live sources in one running order.
+
+ONE PARAGRAPH
+Deckboy puts video clips, stills, slide decks and live sources in one cue list. An operator selects the next cue and takes it to a separate programme output, with fades, loops and hold-last-frame. Send the programme to a screen, over NDI, or to an SRT or RTMP stream, and record it while it runs. A Stream Deck, Bitfocus Companion, OSC, MIDI or timecode can drive the show. Deckboy runs on Windows, macOS and Linux and is free under GPL-3.0-or-later, with no account, subscription or telemetry.
+
+SHORT SOCIAL POST
+Clips, slides and live sources. One cue list. Deckboy is a free, open-source video cue deck for Windows, macOS and Linux. Take the next cue to a separate screen, send it over NDI, or stream and record it. https://utopian-academy.github.io/Deckboy/
+
+LIVE EVENTS AND THEATRE
+Keep the walk-in loop, presentation slides and video clips in one running order. Select the next cue on the control screen and take it to the audience output. Deckboy is free and open source, with Windows, macOS and Linux downloads.
+https://utopian-academy.github.io/Deckboy/for-events.html
+https://utopian-academy.github.io/Deckboy/for-theatre.html
+
+NDI
+Send Deckboy's programme to an NDI receiver, or take an incoming NDI source as a cue. NDI input and output are included in the published builds; using them requires the NDI runtime supplied with NDI Tools.
+https://utopian-academy.github.io/Deckboy/ndi.html
+
+STREAMING AND RECORDING
+Run clips, slides and live sources from a cue list, send the programme to an SRT or RTMP destination, and keep a local recording while it plays. Deckboy supplies the playout application; configure your own receiving destination.
+https://utopian-academy.github.io/Deckboy/manual.html#outputs-routing
+https://utopian-academy.github.io/Deckboy/manual.html#recording
+
+FACTS
+Name: Deckboy
+Made by: Utopian Academy
+Category: Cue-based media playback and show control for live video
+Price: Free, no subscription or paid tier
+Application licence: GPL-3.0-or-later
+Platforms: Windows x64; macOS Apple Silicon and Intel; Linux x86_64
+Technology: Native C++, SDL3, FFmpeg
+Account required: No
+Application telemetry: None
+
+LINKS
+Website: https://utopian-academy.github.io/Deckboy/
+Download: https://github.com/Utopian-Academy/Deckboy/releases/latest
+Source: https://github.com/Utopian-Academy/Deckboy
+Press kit and screenshots: https://utopian-academy.github.io/Deckboy/press.html
+Manual: https://utopian-academy.github.io/Deckboy/manual.html
+Trailer: https://utopian-academy.github.io/Deckboy/trailer.html
+Feedback: https://github.com/Utopian-Academy/Deckboy/issues
+
+BEFORE YOU DESCRIBE A DEMO
+Identify the version actually filmed. The release link always points to the latest published version; existing screenshots and videos may show earlier releases.
+NDI needs the NDI runtime. Blackmagic SDI needs compatible hardware and its driver. Spout is Windows only. Consult the manual for feature and platform requirements.
+Imported slides are rendered at import; do not describe them as preserving PowerPoint animations and transitions.
+The builds are unsigned; first-run instructions are on the release page.
+Video music and third-party footage carry their own credits and terms. See the individual video's credits before reuse.
