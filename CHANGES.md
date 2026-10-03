@@ -1,5 +1,20 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-03 - v0.99.402 (Web Monitor network access and quality)
+
+**Network access.** Web Monitor now selects an active private Ethernet or
+Wi-Fi address instead of guessing from the default route, which could point
+at a VPN. It binds only to that address and reports when no eligible LAN
+address is available. Network sharing requires at least eight passphrase characters;
+letters and symbols are allowed. The service limits concurrent browser
+connections. The computer's firewall must still allow the selected port on
+the private network. Web Monitor uses unencrypted HTTP, so use a trusted LAN
+and do not forward the port to the public internet.
+
+**Picture quality.** Choose a Web Monitor maximum of 720p, 1080p, 1440p or
+2160p. It defaults to 1080p and scales the stream without upscaling smaller
+programme pictures.
+
 ## 2026-10-03 - v0.99.401 (SDR colour and programme monitoring)
 
 **SDR colour.** Eight- and ten-bit SDR video uses its source colour metadata
