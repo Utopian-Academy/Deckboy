@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Press kit — screenshots, trailer, and copy you can paste | Deckboy</title>
-    <meta name="description" content="Everything needed to write about Deckboy or list it: screenshots at full resolution, the trailer, animated GIFs, the logo, a one-line and a one-paragraph description, the feature list, and the facts — free, GPL-3.0, Windows, macOS and Linux. All of it reusable, no permission needed, no sign-up.">
+    <meta name="description" content="Write about Deckboy: download product copy and screenshots, watch the trailer, and find the facts about its free, open-source video cue playback for Windows, macOS and Linux.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/press.html">
 
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Deckboy">
     <meta property="og:title" content="Deckboy press kit">
-    <meta property="og:description" content="Screenshots, the trailer, GIFs and paste-ready copy. Free to reuse, no permission needed.">
+    <meta property="og:description" content="Screenshots, the trailer and downloadable product copy for Deckboy, the free video cue deck for Windows, macOS and Linux.">
     <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/press.html">
     <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
 
@@ -64,9 +64,12 @@
     <header class="hero" style="padding-bottom:1rem">
         <div class="hero-content">
             <h1>Press kit<br><span class="gradient-text">take what you need</span></h1>
-            <p class="hero-subtitle">Screenshots, the trailer, GIFs and copy written to be
-            pasted. All of it is GPL-3.0 like the application, so you do not need to ask, and
-            there is nobody here to ask anyway.</p>
+            <p class="hero-subtitle">Screenshots, the trailer and copy for articles, listings
+            and video descriptions. Start with a workflow your audience knows.</p>
+            <div class="cta-group">
+                <a href="press-copy.txt" download class="btn-large">Download product copy</a>
+                <a href="#images" class="btn-large btn-outline">Get screenshots</a>
+            </div>
         </div>
     </header>
 
@@ -77,7 +80,7 @@
             <tr><th>What it is</th><td>Cue-based media playback and show control for live video</td></tr>
             <tr><th>Price</th><td>Free. No paid tier, no account, no licence server, no telemetry</td></tr>
             <tr><th>Licence</th><td>GPL-3.0-or-later</td></tr>
-            <tr><th>Platforms</th><td>Windows, macOS and Linux, from one show file. Spout is Windows only, and MIDI is in the Windows and Linux downloads but not the current macOS one</td></tr>
+            <tr><th>Platforms</th><td>Windows, macOS and Linux, from one show file. Spout is Windows only. See the <a href="manual.html">manual</a> for platform and hardware requirements</td></tr>
             <tr><th>Built with</th><td>Native C++ on SDL3, decoding through FFmpeg in process</td></tr>
             <tr><th>Made by</th><td>Utopian Academy</td></tr>
             <tr><th>Download</th><td><a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">github.com/Utopian-Academy/Deckboy/releases/latest</a></td></tr>
@@ -87,26 +90,42 @@
         <h2>Copy, ready to paste</h2>
 
         <h3>One line</h3>
-        <div class="paste"><p>Deckboy is free, open-source cue-based media playback and show
-        control for live video &mdash; clips, slides and live sources on one cue list, out to a
-        screen, NDI, SRT or Blackmagic SDI, driven from a Stream Deck, Bitfocus Companion, OSC,
-        MIDI or timecode.</p></div>
+        <div class="paste"><p>Deckboy is a free, open-source video cue deck for Windows,
+        macOS and Linux: clips, slides and live sources in one running order.</p></div>
 
         <h3>One paragraph</h3>
         <div class="paste">
-            <p>Deckboy is a cue deck for live events: a playlist of clips, stills, slide decks
-            and live sources that an operator takes to air one at a time, with fades, loops and a
-            last frame that holds instead of revealing a desktop. The programme goes to a
-            fullscreen output and out over NDI, SRT, RTMP, Blackmagic SDI or SMPTE ST&nbsp;2110 at
-            the same time, while it records. Any window on the machine or any web page can be a
-            cue. Slide decks import as one cue per slide, with presenter view as an output of its
-            own. It is native C++ on SDL3 for Windows, macOS and Linux, free under the GPL, with
-            no account and nothing that phones home.</p>
+            <p>Deckboy puts video clips, stills, slide decks and live sources in one cue list.
+            An operator selects the next cue and takes it to a separate programme output, with
+            fades, loops and hold-last-frame. Send the programme to a screen, over NDI, or to an
+            SRT or RTMP stream, and record it while it runs. A Stream Deck, Bitfocus Companion,
+            OSC, MIDI or timecode can drive the show. Deckboy runs on Windows, macOS and Linux
+            and is free under GPL-3.0-or-later, with no account, subscription or telemetry.</p>
         </div>
 
-        <h3>What makes it unusual</h3>
+        <h3>A short social post</h3>
+        <div class="paste"><p>Clips, slides and live sources. One cue list. Deckboy is a free,
+        open-source video cue deck for Windows, macOS and Linux. Take the next cue to a separate
+        screen, send it over NDI, or stream and record it. https://utopian-academy.github.io/Deckboy/</p></div>
+
+        <h2>Choose the workflow</h2>
+        <ul>
+            <li><b>For event and theatre operators:</b> select the next clip or slide while the
+                audience sees the programme output. Start with <a href="for-events.html">live
+                events</a> or <a href="for-theatre.html">theatre</a>.</li>
+            <li><b>For video engineers:</b> send a cue list to an NDI receiver, or bring an NDI
+                source into the list. Start with <a href="ndi.html">NDI input and output</a>.</li>
+            <li><b>For streaming crews:</b> take cues to an SRT or RTMP output and keep a local
+                programme recording. See <a href="manual.html#outputs-routing">outputs</a>
+                and <a href="manual.html#recording">recording</a>.</li>
+        </ul>
+        <p>NDI needs the NDI runtime supplied with NDI Tools. SDI needs compatible Blackmagic
+        hardware and its driver. The <a href="manual.html">manual</a> describes source,
+        output and platform requirements.</p>
+
+        <h3>More to explore</h3>
         <div class="paste">
-            <p>Four things no other free player has. It <b>hosts your own VST3 effects and
+            <p>Deckboy <b>hosts your own VST3 effects and
             instruments</b> inside a cue's audio chain, so the reverb or channel strip an engineer
             already owns works on a cue beside Deckboy's own effects, and an instrument plays from
             a MIDI keyboard or the computer's. A <b>window cue</b> takes any application
@@ -119,7 +138,7 @@
             picture.</p>
         </div>
 
-        <h2>Images</h2>
+        <h2 id="images">Images</h2>
         <p>Right-click to save, or link them directly. Full resolution behind each one.</p>
         <div class="assets">
             <figure>
@@ -161,11 +180,10 @@
                 is Deckboy 0.99.397's own recorded output, driven over its control port. Music by
                 YMCK, used with permission; footage &copy; Blender Foundation (CC BY 3.0) and NASA.
                 Share or embed it as it is, but please don't re-cut it.</li>
-            <li><a href="video/deckboy-trailer-374.mp4">The first trailer</a> &mdash; 40 seconds,
-                1280&times;738, the control window at work.</li>
-            <li><a href="video/deckboy-theme.mp3">The theme</a> &mdash; the music from the first
-                trailer, played on Deckboy's own chip voice and run through its own audio rack.</li>
         </ul>
+        <p>The application is GPL-3.0-or-later. Video music and third-party footage have their
+        own credits and terms; see <a href="trailer.html">the trailer credits</a> before reusing
+        those assets.</p>
 
         <h2>Things people get wrong</h2>
         <ul>
@@ -175,8 +193,9 @@
                 blend per output.</li>
             <li>There is <b>no</b> paid version, no "pro" tier and no upgrade path. This is the
                 whole application.</li>
-            <li>The builds are <b>not code-signed</b>, so Windows and macOS show an
-                unknown-developer notice on first run &mdash; one click, once.</li>
+            <li>The builds are <b>not code-signed</b>. Windows and macOS may show a notice
+                on first run; follow the platform-specific instructions on the
+                <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest">release page</a>.</li>
         </ul>
 
         <h2>Try it without installing anything</h2>
