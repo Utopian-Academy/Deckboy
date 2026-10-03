@@ -88,10 +88,14 @@ class PtpClient {
   std::string lastError() const;
 
  private:
+  friend struct BroadcastChecks;
   void listenLoop();
   void handleEventPacket(const std::uint8_t* data, std::size_t size, std::uint64_t arrivalNanos);
   void handleGeneralPacket(const std::uint8_t* data, std::size_t size);
   void sendDelayRequest();
+  void resetExchange();
+  void expireExchanges(std::uint64_t steadyNanos);
+  void publishOffset(std::int64_t localMinusPtp);
   void setLastError(const std::string& message);
 
   PtpConfig config_;
@@ -122,6 +126,12 @@ class PtpClient {
   int consecutiveGoodOffsets_ = 0;
   std::int64_t smoothedOffsetNanos_ = 0;
   bool haveOffset_ = false;
+  bool haveSource_ = false;
+  std::uint8_t sourcePortIdentity_[10] {};
+  std::int64_t syncCorrectionNanos_ = 0;
+  std::uint64_t lastSyncSteadyNanos_ = 0;
+  std::uint64_t lastAnnounceSteadyNanos_ = 0;
+  std::uint64_t delayRequestSteadyNanos_ = 0;
 };
 
 }  // namespace video

@@ -472,6 +472,13 @@ struct LowerThirdDesign {
 //
 // Every control is 0-1 or a count, and the defaults are the look it arrives
 // with -- a show that never touched them gets exactly that.
+struct SwirlSettings {
+  double speed = 1.0;     // 0 holds the field; 3 runs at triple speed
+  double twist = 1.35;    // spiral turns per radius, 0-4
+  int cells = 480;        // horizontal field cells, 64-960
+  double hue = 0.0;       // one turn of the palette, 0-1
+};
+
 struct PortalSettings {
   int blobs = 18;        // how many are alive at once, 3-48
   double size = 0.5;     // how big a blob grows, 0-1
@@ -1566,6 +1573,7 @@ struct Cue {
   std::array<deckboy::effects::ParamLfo, 9> geometryLfo {};
   // A Portal source's controls. Only meaningful on a "portal" pattern cue.
   PortalSettings portal;
+  SwirlSettings swirl;
   // A text cue laid out as a lower third. Off on every other cue.
   LowerThirdDesign lowerThird;
   // Clip whose MOTION drives the motion-puppet effect. Its pictures are never
@@ -1977,6 +1985,15 @@ struct OutputTarget {
   std::string st2110Interface;             // local NIC to send from ("" = default route)
   int st2110Port = 20000;                  // destination UDP port
   bool st2110TenBit = true;                // YCbCr-4:2:2 10-bit (vs 8-bit)
+  bool st2110VideoMasterEnabled = true;
+  bool st2110AudioMasterEnabled = true;
+  bool st2110VideoRtpEnabled = true;
+  bool st2110AudioRtpEnabled = true;
+  int st2110VideoSourcePort = 0;
+  int st2110AudioSourcePort = 0;
+  std::string st2110AudioAddress;          // empty inherits the video destination
+  int st2110AudioPort = 0;                // zero inherits video port + 2
+  std::string st2110AudioInterface;        // empty inherits the video interface
 
   // -- Area of Interest: per-output crop (fraction from each edge, 0–1) --------
   // Allows cropping the rendered output to show only a subregion.
@@ -2253,6 +2270,7 @@ struct Project {
   //   dnxhr_lb | dnxhr_sq | dnxhr_hq | dnxhr_hqx
   // The container follows the codec (see recordingContainerExtension).
   std::string recordingCodec = "h264";
+  double normalizeTargetLufs = -16.0; // existing shows retain their playback target
 
   // Timecode written into the recording. A deliverable that cannot be conformed
   // against a running order is not a deliverable.
@@ -2631,6 +2649,7 @@ struct DecodedFrame {
                                        // telecined / variable-rate video schedules by its
                                        // real timestamps instead of a constant-fps counter
   FramePixelFormat format = FramePixelFormat::RGBA32;  // pixel layout for `pixels`
+  SDL_Colorspace colorspace = SDL_COLORSPACE_UNKNOWN; // source colour interpretation
   std::vector<std::uint8_t> pixels;    // packed pixel data, layout per `format`
 
   // ── GPU-RESIDENT PAYLOAD (in-process zero-copy decode) ────────────────
@@ -2661,6 +2680,12 @@ struct DecodedFrame {
   GpuKind gpuKind = GpuKind::None;
   bool isGpu() const { return gpuTexture != nullptr; }
 };
+
+inline SDL_Colorspace frameColorspace(const DecodedFrame& frame) {
+  if (frame.colorspace != SDL_COLORSPACE_UNKNOWN) return frame.colorspace;
+  if (frame.format == FramePixelFormat::RGBA32) return SDL_COLORSPACE_SRGB;
+  return frame.height <= 576 ? SDL_COLORSPACE_BT601_LIMITED : SDL_COLORSPACE_BT709_LIMITED;
+}
 
 // Byte count for a frame's pixel buffer at the given width/height/format.
 // NV12 is rounded to even width/height because the chroma plane is at half
@@ -3132,7 +3157,9 @@ enum class QuickAction {
   TrimReset,            // clear in/out points back to defaults
   // -- Browser options -----
   ToggleRefreshOnTake,  // toggle browser cue page reload on every take
-  ToggleBrowserInteract // show/hide the real browser window for hands-on use
+  ToggleBrowserInteract, // show/hide the real browser window for hands-on use
+  CycleNormalizeTarget,
+  CueSectionSwirlToggle
 };
 
 // ---------------------------------------------------------------------------

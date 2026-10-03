@@ -967,15 +967,13 @@
     audioInputPeak_ = 0.0;
     // Drop anything captured but not yet muxed, or the next recording would
     // open with audio from the previous session.
-    std::lock_guard<std::mutex> lock(audioInputMixMutex_);
-    audioInputMixBuffer_.clear();
+    inputAudioRing_.clear(1);
   }
 
   bool audioInputRunning() const { return audioInputStream_ != nullptr; }
 
-  // Drain whatever the device has and reduce it to a level. Called every tick;
-  // the data is DISCARDED after metering because nothing routes it yet -- if it
-  // were left in the stream it would back up until the device stalled.
+  // Drain the device each tick, meter it, and retain programme input in a
+  // bounded ring that every active egress can read independently.
   void pumpAudioInput() {
     if (!audioInputStream_) return;
     const int avail = SDL_GetAudioStreamAvailable(audioInputStream_);
@@ -1012,19 +1010,8 @@
       }
     }
     if (project_.audioInputToProgram) {
-      std::lock_guard<std::mutex> lock(audioInputMixMutex_);
-      audioInputMixBuffer_.insert(audioInputMixBuffer_.end(),
-                                  audioInputScratch_.begin(),
-                                  audioInputScratch_.begin() + static_cast<std::ptrdiff_t>(n));
-      // Bounded like the deck buffers. An input nobody is consuming -- no
-      // stream armed -- must not grow without limit for the length of a show.
-      constexpr std::size_t kMaxInputSamples = 48000 * 2 * 4;   // ~4s stereo
-      if (audioInputMixBuffer_.size() > kMaxInputSamples) {
-        audioInputMixBuffer_.erase(
-          audioInputMixBuffer_.begin(),
-          audioInputMixBuffer_.begin() +
-            static_cast<std::ptrdiff_t>(audioInputMixBuffer_.size() - kMaxInputSamples));
-      }
+      audioInputScratch_.resize(n);
+      inputAudioRing_.push(0, audioInputScratch_);
     }
     // Fast attack, slow release. A meter that falls as fast as it rises is
     // unreadable, and a visualiser driven by one twitches instead of moving.
@@ -2787,6 +2774,9 @@
     // Per TAKE, not per segment: a roll is the same take continuing.
     if (!rollingSegment) {
       runtime.recordTakeFrames = 0;
+      runtime.programAudioStates.erase(&runtime.streamAudioReadSamplesByDeck);
+      if (runtime.meteredAudioSink == &runtime.streamAudioReadSamplesByDeck)
+        runtime.meteredAudioSink = nullptr;
     }
     runtime.lastSegmentSizeCheckMs = 0;
     runtime.lastDropWarnMs = 0;
@@ -2982,14 +2972,8 @@
 
   void primeOutputStreamAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
     runtime.streamAudioReadSamplesByDeck.clear();
-    // Discard captured input that predates this stream. Without it a recording
-    // starts by muxing up to four seconds of STALE microphone -- the buffer
-    // fills while nothing is armed -- and the mic stays that far out of sync
-    // for the whole take.
-    {
-      std::lock_guard<std::mutex> lock(audioInputMixMutex_);
-      audioInputMixBuffer_.clear();
-    }
+    inputAudioRing_.primeEndPositions({0},
+      runtime.inputAudioReadSamplesBySink[&runtime.streamAudioReadSamplesByDeck]);
     runtime.streamAudioDecks = streamAudioDecksForOutput(outputIndex);
     deckAudioRing_.primeEndPositions(runtime.streamAudioDecks,
                                      runtime.streamAudioReadSamplesByDeck);
@@ -3027,10 +3011,7 @@
     deckAudioRing_.mixDecks(runtime.streamAudioDecks,
                             runtime.streamAudioReadSamplesByDeck, mixed,
                             static_cast<std::size_t>(take), project_.decks.size());
-    std::vector<std::int16_t> out(static_cast<std::size_t>(take), 0);
-    for (std::size_t i = 0; i < out.size(); ++i) {
-      out[i] = static_cast<std::int16_t>(std::clamp(mixed[i], -32768, 32767));
-    }
+    auto out = runtime.programAudioStates[&runtime.streamAudioReadSamplesByDeck].process(mixed);
     runtime.streamAudioOwedSamples -= take;
     pushOutputStreamAudio(runtime.streamWriter, out);
   }
@@ -3039,6 +3020,9 @@
   // and potentially DeckLink audio). Moved out of #ifndef _WIN32 so NDI audio
   // works on Windows.
   void primeOutputNdiAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
+    runtime.programAudioStates.erase(&runtime.ndiAudioReadSamplesByDeck);
+    inputAudioRing_.primeEndPositions({0},
+      runtime.inputAudioReadSamplesBySink[&runtime.ndiAudioReadSamplesByDeck]);
     runtime.ndiAudioReadSamplesByDeck.clear();
     deckAudioRing_.primeEndPositions(streamAudioDecksForOutput(outputIndex),
                                      runtime.ndiAudioReadSamplesByDeck);
@@ -3129,19 +3113,21 @@
     // RECORDING but never the speakers, which is deliberate -- see
     // Project::audioInputToProgram.
     if (project_.audioInputToProgram) {
-      std::lock_guard<std::mutex> lock(audioInputMixMutex_);
-      const std::size_t take =
-        std::min(audioInputMixBuffer_.size(), static_cast<std::size_t>(interleavedSamples));
-      for (std::size_t i = 0; i < take; ++i) {
-        mixed[i] += static_cast<std::int32_t>(audioInputMixBuffer_[i]);
+      if (OutputRuntime* runtime = runtimeForOutput(outputIndex)) {
+        auto& inputRead = runtime->inputAudioReadSamplesBySink[&readSamplesByDeck];
+        if (inputRead.empty()) inputAudioRing_.primeEndPositions({0}, inputRead);
+        inputAudioRing_.mixDecks({0}, inputRead, mixed,
+          static_cast<std::size_t>(interleavedSamples), 1);
       }
-      // Consume what was mixed. Leaving it would replay the same audio on the
-      // next frame and the microphone would stutter.
-      audioInputMixBuffer_.erase(audioInputMixBuffer_.begin(),
-                                 audioInputMixBuffer_.begin() +
-                                   static_cast<std::ptrdiff_t>(take));
     }
 
+    if (OutputRuntime* runtime = runtimeForOutput(outputIndex)) {
+      const void* sink = &readSamplesByDeck;
+      // Prefer the recorded/streamed mix for the monitor when it is present.
+      if (!runtime->meteredAudioSink || sink == &runtime->streamAudioReadSamplesByDeck)
+        runtime->meteredAudioSink = sink;
+      return runtime->programAudioStates[sink].process(mixed);
+    }
     std::vector<std::int16_t> out(interleavedSamples, 0);
     for (int i = 0; i < interleavedSamples; ++i) {
       out[i] = static_cast<std::int16_t>(std::clamp(mixed[i], -32768, 32767));
@@ -4434,6 +4420,7 @@
     runtime.layerBridgeTextureHeights.clear();
     runtime.layerBridgeTextureFormats.clear();
     runtime.layerBridgeFrameIndices.clear();
+    runtime.layerBridgePixelPointers.clear();
     runtime.layerBridgeCueKeys.clear();
     for (auto& [overlayKey, texture] : runtime.overlayBridgeTextures) {
       (void) overlayKey;
@@ -4458,6 +4445,9 @@
     }
     runtime.overlayBridgeTargets.clear();
     runtime.transitionUploadStamps.clear();
+    runtime.transitionCpuFrames.clear();
+    runtime.layerLookFrames.clear();
+    runtime.heldLookFrames.clear();
     runtime.layerBridgeScratchPixels.clear();
 #if DECKBOY_INPROC_DECODE
     // The pixel-buffer wraps go too. They hold a Metal view of an IOSurface
@@ -4900,10 +4890,7 @@
         [this, deckIndex](const std::vector<std::int16_t>& samples) {
           pushDeckStreamAudioSamples(deckIndex, samples);
           // Capture samples for VU meter (only from focused deck)
-          if (deckIndex == project_.focusedDeckIndex) {
-            // Streaming carries the programme, so 2110 audio comes from the
-            // focused deck's final mix — same rule as the video essence.
-            pushSt2110AudioSamples(samples);
+          if (deckIndex == vuFocusedDeck_.load(std::memory_order_relaxed)) {
             std::lock_guard<std::mutex> lock(vuSamplesMutex_);
             vuSamples_ = samples;
             vuSamplesUpdatedAtMs_ = SDL_GetTicks();
@@ -5665,6 +5652,13 @@
       if (!outputRuntime.deckLinkOutput->init(output.deckLinkDeviceId, mode, output.deckLink10Bit)) {
         return;
       }
+      outputRuntime.deckLinkAudioReadSamplesByDeck.clear();
+      outputRuntime.programAudioStates.erase(&outputRuntime.deckLinkAudioReadSamplesByDeck);
+      inputAudioRing_.primeEndPositions({0},
+        outputRuntime.inputAudioReadSamplesBySink[&outputRuntime.deckLinkAudioReadSamplesByDeck]);
+      outputRuntime.deckLinkAudioSampleRemainder = 0.0;
+      deckAudioRing_.primeEndPositions(streamAudioDecksForOutput(outputIndex),
+                                       outputRuntime.deckLinkAudioReadSamplesByDeck);
     }
     const OutputRuntime::CapturedFrame* frameCapture = outputFrameForEgress(outputIndex, outputRuntime);
     if (!frameCapture || frameCapture->width <= 0 || frameCapture->height <= 0 || frameCapture->pixels.empty()) {
@@ -5677,8 +5671,16 @@
     int fh = frameCapture->height;
     int stride = fw * 4;
 
+    const auto audio = collectOutputAudioFrameSamples(outputIndex,
+      outputRuntime.deckLinkAudioReadSamplesByDeck,
+      outputRuntime.deckLinkAudioSampleRemainder, fpsHint);
+    if (!audio.empty() && !outputRuntime.deckLinkOutput->sendAudio(
+        audio.data(), static_cast<int>(audio.size() / 2), 48000, 2))
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "SDI audio scheduling failed");
+
     if (!output.deckLinkKeyFill) {
-      outputRuntime.deckLinkOutput->sendFrame(frameCapture->pixels.data(), fw, fh, stride);
+      if (!outputRuntime.deckLinkOutput->sendFrame(frameCapture->pixels.data(), fw, fh, stride))
+        setOutputHealthState(outputIndex, OutputHealthState::Recovering, "SDI video scheduling failed");
       return;
     }
 
@@ -5709,7 +5711,8 @@
     std::uint8_t* fill = outputRuntime.deckLinkFillBuffer.data();
     std::uint8_t* key = outputRuntime.deckLinkKeyBuffer.data();
     splitKeyAndFill(frameCapture->pixels.data(), pixels, fill, key);
-    outputRuntime.deckLinkOutput->sendFrame(fill, fw, fh, stride);
+    if (!outputRuntime.deckLinkOutput->sendFrame(fill, fw, fh, stride))
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "SDI fill scheduling failed");
 
     // The key goes out of a SECOND device. Without one there is nothing to
     // send it down, and sending only the fill would be worse than not
@@ -5725,11 +5728,12 @@
     if (!outputRuntime.deckLinkKeyOutput->isInitialized()) {
       auto mode = deckboy::platform::video::parseDeckLinkMode(output.deckLinkMode);
       if (!outputRuntime.deckLinkKeyOutput->init(output.deckLinkKeyDeviceId, mode,
-                                                 output.deckLink10Bit)) {
+                                                 output.deckLink10Bit, false)) {
         return;
       }
     }
-    outputRuntime.deckLinkKeyOutput->sendFrame(key, fw, fh, stride);
+    if (!outputRuntime.deckLinkKeyOutput->sendFrame(key, fw, fh, stride))
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "SDI key scheduling failed");
 #else
     (void) outputIndex;
     (void) outputRuntime;
@@ -5915,13 +5919,18 @@
       ? std::string("239.20.10.1") : trim(output.st2110Address);
     wanted.interfaceAddress = trim(output.st2110Interface);
     wanted.destinationPort = std::clamp(output.st2110Port, 1, 65535);
+    wanted.sourcePort = output.st2110VideoSourcePort;
     wanted.width = sendW;
     wanted.height = frameCapture.height;
     wanted.frameRate = fpsHint > 1.0 ? fpsHint : 60000.0 / 1001.0;
     wanted.sampling = output.st2110TenBit ? St2110Sampling::YCbCr422_10bit
                                           : St2110Sampling::YCbCr422_8bit;
 
-    const bool needsReopen =
+    const bool videoWanted = output.st2110VideoMasterEnabled && output.st2110VideoRtpEnabled;
+    const bool audioWanted = output.st2110AudioMasterEnabled && output.st2110AudioRtpEnabled;
+    if (videoWanted || audioWanted) ensurePtpClientStarted();
+    if (!videoWanted) outputRuntime.st2110Sender.reset();
+    const bool needsReopen = videoWanted && (
       !outputRuntime.st2110Sender ||
       !outputRuntime.st2110Sender->isOpen() ||
       outputRuntime.st2110Sender->config().width != wanted.width ||
@@ -5929,29 +5938,28 @@
       outputRuntime.st2110Sender->config().destinationAddress != wanted.destinationAddress ||
       outputRuntime.st2110Sender->config().interfaceAddress != wanted.interfaceAddress ||
       outputRuntime.st2110Sender->config().destinationPort != wanted.destinationPort ||
-      outputRuntime.st2110Sender->config().sampling != wanted.sampling;
+      outputRuntime.st2110Sender->config().sourcePort != wanted.sourcePort ||
+      outputRuntime.st2110Sender->config().frameRate != wanted.frameRate ||
+      outputRuntime.st2110Sender->config().sampling != wanted.sampling);
 
     if (needsReopen) {
-      // Bring PTP up the first time 2110 is actually armed. Failing to bind
-      // 319/320 is common (a system PTP service usually holds them) and is NOT
-      // fatal — the stream falls back to the local clock and keeps saying so in
-      // the SDP, which is exactly the honest behaviour.
-      ensurePtpClientStarted();
       outputRuntime.st2110Sender =
         std::make_unique<deckboy::platform::video::St2110Output>();
       outputRuntime.st2110Sender->setPtpClient(&ptpClient_);
       if (!outputRuntime.st2110Sender->open(wanted)) {
         triggerToast("st 2110: " + outputRuntime.st2110Sender->lastError());
         outputRuntime.st2110Sender.reset();
-        return;
       }
-      // ST 2110-30 audio rides alongside, two ports up by convention. Video
-      // without audio is half a feed, and audio is 0.2% of the bitrate.
-      deckboy::platform::video::St2110AudioConfig audioCfg;
-      audioCfg.destinationAddress = wanted.destinationAddress;
-      audioCfg.interfaceAddress = wanted.interfaceAddress;
-      audioCfg.destinationPort = wanted.destinationPort + 2;
-      audioCfg.channels = 2;
+    }
+    // Each advertised essence has an independent transport and enable state.
+    const auto audioCfg = st2110AudioConfigForOutput(outputIndex);
+    if (!audioWanted) outputRuntime.st2110AudioSender.reset();
+    if (audioWanted && (!outputRuntime.st2110AudioSender ||
+        !outputRuntime.st2110AudioSender->isOpen() ||
+        outputRuntime.st2110AudioSender->config().destinationAddress != audioCfg.destinationAddress ||
+        outputRuntime.st2110AudioSender->config().destinationPort != audioCfg.destinationPort ||
+        outputRuntime.st2110AudioSender->config().interfaceAddress != audioCfg.interfaceAddress ||
+        outputRuntime.st2110AudioSender->config().sourcePort != audioCfg.sourcePort)) {
       auto audioSender = std::make_unique<deckboy::platform::video::St2110AudioOutput>();
       audioSender->setPtpClient(&ptpClient_);
       if (audioSender->open(audioCfg)) {
@@ -5961,11 +5969,23 @@
         triggerToast("st 2110 audio: " + audioSender->lastError());
         outputRuntime.st2110AudioSender.reset();
       }
-      republishSt2110AudioSenders();
+      outputRuntime.st2110AudioReadSamplesByDeck.clear();
+      outputRuntime.programAudioStates.erase(&outputRuntime.st2110AudioReadSamplesByDeck);
+      inputAudioRing_.primeEndPositions({0},
+        outputRuntime.inputAudioReadSamplesBySink[&outputRuntime.st2110AudioReadSamplesByDeck]);
+      outputRuntime.st2110AudioSampleRemainder = 0.0;
+      deckAudioRing_.primeEndPositions(streamAudioDecksForOutput(outputIndex),
+                                       outputRuntime.st2110AudioReadSamplesByDeck);
     }
 
     const int stride = frameCapture.width * 4;
-    if (!outputRuntime.st2110Sender->sendFrame(frameCapture.pixels.data(), stride)) {
+    if (outputRuntime.st2110AudioSender) {
+      const auto audio = collectOutputAudioFrameSamples(outputIndex,
+        outputRuntime.st2110AudioReadSamplesByDeck,
+        outputRuntime.st2110AudioSampleRemainder, fpsHint);
+      if (!audio.empty()) outputRuntime.st2110AudioSender->pushSamples(audio.data(), audio.size() / 2);
+    }
+    if (outputRuntime.st2110Sender && !outputRuntime.st2110Sender->sendFrame(frameCapture.pixels.data(), stride)) {
       triggerToast("st 2110: " + outputRuntime.st2110Sender->lastError());
       outputRuntime.st2110Sender.reset();
     }
@@ -6005,10 +6025,9 @@
   }
 
   void shutdownOutputSt2110(OutputRuntime& outputRuntime) {
-    const bool hadAudio = outputRuntime.st2110AudioSender != nullptr;
     if (outputRuntime.st2110AudioSender) {
-      // Unpublish BEFORE destroying, or the audio thread can hold a dangling
-      // pointer for the length of one callback.
+      // Sender ownership and input now stay on the main thread. close joins
+      // the owned packet thread before the socket or buffers are destroyed.
       outputRuntime.st2110AudioSender->close();
       outputRuntime.st2110AudioSender.reset();
     }
@@ -6016,37 +6035,8 @@
       outputRuntime.st2110Sender->close();
       outputRuntime.st2110Sender.reset();
     }
-    if (hadAudio) {
-      republishSt2110AudioSenders();
-    }
-  }
-
-  // Rebuild the audio thread's view of live ST 2110-30 senders. Main thread only.
-  void republishSt2110AudioSenders() {
-    std::vector<deckboy::platform::video::St2110AudioOutput*> live;
-    for (auto& rt : outputRuntimes_) {
-      if (rt.st2110AudioSender && rt.st2110AudioSender->isOpen()) {
-        live.push_back(rt.st2110AudioSender.get());
-      }
-    }
-    std::lock_guard<std::mutex> lock(st2110AudioMutex_);
-    st2110AudioSenders_.swap(live);
-  }
-
-  // Called from the AUDIO THREAD with the final post-delay stereo the room
-  // hears, so the 2110 flow carries exactly what the PA does.
-  void pushSt2110AudioSamples(const std::vector<std::int16_t>& interleavedStereo) {
-    if (interleavedStereo.size() < 2) {
-      return;
-    }
-    std::lock_guard<std::mutex> lock(st2110AudioMutex_);
-    if (st2110AudioSenders_.empty()) {
-      return;
-    }
-    const std::size_t frames = interleavedStereo.size() / 2;
-    for (auto* sender : st2110AudioSenders_) {
-      sender->pushSamples(interleavedStereo.data(), frames);
-    }
+    outputRuntime.st2110AudioReadSamplesByDeck.clear();
+    outputRuntime.st2110AudioSampleRemainder = 0.0;
   }
 
   // The ST 2110-20 config for one output, exactly as the sender would open it.
@@ -6066,11 +6056,26 @@
       ? std::string("239.20.10.1") : trim(output.st2110Address);
     cfg.interfaceAddress = trim(output.st2110Interface);
     cfg.destinationPort = std::clamp(output.st2110Port, 1, 65535);
+    cfg.sourcePort = output.st2110VideoSourcePort;
     cfg.width = std::max(2, rasterW & ~1);
     cfg.height = std::max(1, rasterH);
     cfg.frameRate = outputStreamFps(0.0);
     cfg.sampling = output.st2110TenBit ? St2110Sampling::YCbCr422_10bit
                                        : St2110Sampling::YCbCr422_8bit;
+    return cfg;
+  }
+
+  deckboy::platform::video::St2110AudioConfig st2110AudioConfigForOutput(int outputIndex) const {
+    const OutputTarget& output = project_.outputs[outputIndex];
+    const auto video = st2110ConfigForOutput(outputIndex);
+    deckboy::platform::video::St2110AudioConfig cfg;
+    cfg.destinationAddress = output.st2110AudioAddress.empty()
+      ? video.destinationAddress : output.st2110AudioAddress;
+    cfg.destinationPort = output.st2110AudioPort > 0
+      ? output.st2110AudioPort : std::min(65535, video.destinationPort + 2);
+    cfg.interfaceAddress = output.st2110AudioInterface.empty()
+      ? video.interfaceAddress : output.st2110AudioInterface;
+    cfg.sourcePort = output.st2110AudioSourcePort;
     return cfg;
   }
 
@@ -6116,6 +6121,10 @@
       video.destinationAddress = cfg.destinationAddress;
       video.destinationPort = cfg.destinationPort;
       video.sourceAddress = cfg.interfaceAddress;
+      video.sourcePort = runtime && runtime->st2110Sender
+        ? runtime->st2110Sender->boundSourcePort() : cfg.sourcePort;
+      video.masterEnabled = output.st2110Enabled && output.st2110VideoMasterEnabled;
+      video.rtpEnabled = output.st2110VideoRtpEnabled;
       video.active = runtime && runtime->st2110Sender && runtime->st2110Sender->isOpen();
       video.width = cfg.width;
       video.height = cfg.height;
@@ -6124,11 +6133,7 @@
       video.sdp = outputSt2110Sdp(i);
       senders.push_back(std::move(video));
 
-      deckboy::platform::video::St2110AudioConfig audioCfg;
-      audioCfg.destinationAddress = cfg.destinationAddress;
-      audioCfg.interfaceAddress = cfg.interfaceAddress;
-      audioCfg.destinationPort = cfg.destinationPort + 2;
-      audioCfg.channels = 2;
+      const auto audioCfg = st2110AudioConfigForOutput(i);
 
       NmosSenderInfo audio;
       audio.key = "output-" + std::to_string(i) + "-audio";
@@ -6137,7 +6142,11 @@
       audio.format = NmosFormat::Audio;
       audio.destinationAddress = audioCfg.destinationAddress;
       audio.destinationPort = audioCfg.destinationPort;
-      audio.sourceAddress = cfg.interfaceAddress;
+      audio.sourceAddress = audioCfg.interfaceAddress;
+      audio.sourcePort = runtime && runtime->st2110AudioSender
+        ? runtime->st2110AudioSender->boundSourcePort() : audioCfg.sourcePort;
+      audio.masterEnabled = output.st2110Enabled && output.st2110AudioMasterEnabled;
+      audio.rtpEnabled = output.st2110AudioRtpEnabled;
       audio.active = runtime && runtime->st2110AudioSender && runtime->st2110AudioSender->isOpen();
       audio.channels = 2;
       audio.sampleRate = 48000;
@@ -6183,27 +6192,73 @@
       bool applied = false;
       if (index >= 0) {
         OutputTarget& output = project_.outputs[index];
+        const OutputTarget previous = output;
+        const auto previousAudio = st2110AudioConfigForOutput(index);
         const bool isAudioLeg = patch.senderKey.find("-audio") != std::string::npos;
         if (patch.destinationChanged) {
-          // The audio leg lives at video port + 2 by convention, so a
-          // controller retuning audio moves the video base port with it rather
-          // than silently splitting the pair.
-          output.st2110Address = patch.destinationAddress;
-          output.st2110Port = isAudioLeg ? std::max(1, patch.destinationPort - 2)
-                                         : patch.destinationPort;
+          if (isAudioLeg) {
+            output.st2110AudioAddress = patch.destinationAddress;
+            output.st2110AudioPort = patch.destinationPort;
+          } else {
+            output.st2110AudioAddress = previousAudio.destinationAddress;
+            output.st2110AudioPort = previousAudio.destinationPort;
+            output.st2110Address = patch.destinationAddress;
+            output.st2110Port = patch.destinationPort;
+          }
         }
         if (patch.masterEnableChanged) {
-          output.st2110Enabled = patch.masterEnable;
-        }
-        if (patch.destinationChanged || patch.masterEnableChanged) {
-          // Tear the sender down; the render loop reopens it on the next frame
-          // with the new config. This is the same path a settings edit takes.
-          if (OutputRuntime* runtime = runtimeForOutput(index)) {
-            shutdownOutputSt2110(*runtime);
+          (isAudioLeg ? output.st2110AudioMasterEnabled : output.st2110VideoMasterEnabled) = patch.masterEnable;
+          if (patch.masterEnable) {
+            output.st2110Enabled = true;
+            output.enabled = true;
           }
-          markProjectDirty();
         }
-        applied = true;
+        if (patch.rtpEnabledChanged)
+          (isAudioLeg ? output.st2110AudioRtpEnabled : output.st2110VideoRtpEnabled) = patch.rtpEnabled;
+        if (patch.sourceChanged) {
+          if (!isAudioLeg && output.st2110AudioInterface.empty())
+            output.st2110AudioInterface = previousAudio.interfaceAddress.empty()
+              ? "0.0.0.0" : previousAudio.interfaceAddress;
+          (isAudioLeg ? output.st2110AudioInterface : output.st2110Interface) = patch.sourceAddress;
+          (isAudioLeg ? output.st2110AudioSourcePort : output.st2110VideoSourcePort) = patch.sourcePort;
+        }
+        if (patch.destinationChanged || patch.masterEnableChanged || patch.sourceChanged || patch.rtpEnabledChanged) {
+          // Bind the requested transport before acknowledging activation.
+          // Audio and video retain independent sockets and enable states.
+          applied = false;
+          if (OutputRuntime* runtime = runtimeForOutput(index)) {
+            if (isAudioLeg) {
+              runtime->st2110AudioSender.reset();
+              applied = true;
+              if (output.st2110Enabled && output.st2110AudioMasterEnabled && output.st2110AudioRtpEnabled) {
+                auto candidate = std::make_unique<deckboy::platform::video::St2110AudioOutput>();
+                candidate->setPtpClient(&ptpClient_);
+                applied = candidate->open(st2110AudioConfigForOutput(index));
+                if (applied) {
+                  runtime->st2110AudioSender = std::move(candidate);
+                  runtime->st2110AudioSampleRemainder = 0.0;
+                  deckAudioRing_.primeEndPositions(streamAudioDecksForOutput(index),
+                    runtime->st2110AudioReadSamplesByDeck);
+                }
+              }
+            } else {
+              runtime->st2110Sender.reset();
+              applied = true;
+              if (output.st2110Enabled && output.st2110VideoMasterEnabled && output.st2110VideoRtpEnabled) {
+                auto candidate = std::make_unique<deckboy::platform::video::St2110Output>();
+                candidate->setPtpClient(&ptpClient_);
+                applied = candidate->open(st2110ConfigForOutput(index));
+                if (applied) runtime->st2110Sender = std::move(candidate);
+              }
+            }
+          }
+          if (applied) {
+            if (previous.enabled != output.enabled) applyOutputDisplaySelection(index);
+            markProjectDirty();
+          } else output = previous;
+        } else {
+          applied = true;
+        }
       }
       {
         std::lock_guard<std::mutex> lock(nmosPatchMutex_);

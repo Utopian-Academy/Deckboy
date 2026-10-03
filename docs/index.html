@@ -50,9 +50,11 @@
       "featureList": [
         "One cue list for every kind of source: video, stills, slides, browser pages, captured windows and screens, cameras, NDI, SRT/RTMP/RTSP/UDP, DeckLink SDI, Spout, test patterns, tone, timers, lower thirds, composites and a video synth",
         "Cue-based video playlist playback with trim, fades, loops and hold-last-frame",
-        "Thirteen cue-to-cue transition styles: cut, crossfade, dip to black or white, four pushes, four wipes and an iris",
+        "Seventeen cue-to-cue transition styles preserving each cue's geometry and processed look",
         "SRT, RTMP, DeckLink SDI and SMPTE ST 2110 output, with the programme recorded as it plays",
-        "Per-cue pixel effect rack with oscillator-driven parameters",
+        "Live keying, grading and per-cue pixel effects on playing or paused cues, with oscillator-driven parameters",
+        "Swirl with live speed, twist, pixel density and colour controls; code sources with their own render raster",
+        "Programme LUFS and true-peak metering; selectable -16, -23 and -24 LUFS normalization targets",
         "VST3 effect and instrument hosting inside a cue's audio chain",
         "NDI send and receive in every download",
         "Window and browser cues: any window or web page as a cue, at full resolution",
@@ -130,7 +132,7 @@
             a video synth, and an expression you type while it is on the screen &mdash; in Deckboy every
             one of those is <b>the same kind of object</b>, on <b>the same list</b>, under
             <b>the same spacebar</b>.</p>
-            <p>Same transport. Same trim and fades. Same thirteen transitions. Same effect rack. Same
+            <p>Same transport. Same trim and fades. Same seventeen transitions. Same effect rack. Same
             Stream&nbsp;Deck button, the same OSC verb, the same line of Companion. Recorded the same way
             on the way out. So a show can run</p>
             <p style="text-align:center;"><b>VIDEO &rarr; SLIDE &rarr; LIVE CAMERA &rarr; WEB PAGE &rarr;
@@ -147,17 +149,22 @@
             <p><b>Anything that can make a picture or a sound becomes a cue. Anything that needs to
             receive the show becomes an output.</b>
             <a href="manual.html#cue-types">The full table of cue types &rarr;</a></p>
+            <p>This page describes the current source. Packaged builds and their changes are on the
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases">releases page</a>.</p>
         </div>
         <div class="feature-card glass">
             <div class="icon">🎬</div>
             <h3>Video, cued</h3>
             <p>A playlist of clips that go to air when you say so. Drag media in, trim it, fade it,
-            loop it, hold the last frame rather than reveal a desktop. Thirteen ways to get from
+            loop it, hold the last frame rather than reveal a desktop. Seventeen ways to get from
             one cue to the next &mdash; cut, crossfade, dip through black or white, pushes, wipes,
-            an iris &mdash; set for the deck and overridden on any cue that wants its own. Hardware
+            an iris and four procedural styles &mdash; set for the deck and overridden on any cue that wants its own. Hardware
             decoding, frame-accurate transport, and a cue that knows how long it has left. Then a
             rack of pixel effects on the live picture, every parameter drivable from an oscillator,
             because sometimes the brief is &ldquo;can it look a bit broken, but on purpose&rdquo;.</p>
+            <p>Transitions keep each cue's fit, crop, geometry and processed look. On a crowded desk,
+            compact rows keep names and timers readable; tabs give the focused deck the full width
+            when several comfortable columns cannot fit.</p>
         </div>
         <div class="feature-card glass">
             <div class="icon">📡</div>
@@ -178,6 +185,8 @@
             <p>A multiview you lay out yourself &mdash; any window showing the programme or any
             playlist, with safe areas and its own meter &mdash; and a monitor of your own: one
             playlist on your headphones while the room hears the show.</p>
+            <p>Programme meters show momentary, short-term and integrated LUFS and true peak.
+            Choose &minus;16, &minus;23 or &minus;24&nbsp;LUFS when normalising files before playout.</p>
         </div>
         <div class="feature-card glass">
             <div class="icon">🎛️</div>
@@ -215,6 +224,9 @@
             before, the one after, the notes, the clock &mdash; and so is a mirrored teleprompter that
             scrolls at a pace you set. Most cue players do not do slides. At all. The usual
             alternative is somebody&rsquo;s laptop, a long cable and a prayer.</p>
+            <p>An animated busy critter accompanies conversion and rendering, with page progress
+            as the slides arrive. Once imported, a slide keeps its chosen fit and crop through
+            the same transitions as any other cue.</p>
             <p><a href="slides.html">How a deck becomes a show &rarr;</a></p>
         </div>
         <div class="feature-card glass" style="grid-column: 1 / -1;">
@@ -233,6 +245,8 @@
             across it. <b>Presets</b> store the whole desk and bring back all of it or only the parts you
             name. And one button, <b>CHECK</b>, lists everything wrong with the show before doors
             rather than at the take.</p>
+            <p><b>CLEAR</b> immediately stops every deck, cancels queued takes, drops held pictures
+            and overlays, and disarms output.</p>
             <p><a href="qlab-alternative.html">Coming from QLab &rarr;</a></p>
         </div>
         <div class="feature-card glass">
@@ -254,6 +268,10 @@
             &mdash; with every parameter drivable from an oscillator, and the picture's size,
             position, rotation and crop too. Timed one at a time at 1080p on a laptop processor, the heaviest we have
             measured takes just under nine-tenths of a 60fps frame, and most take under half.</p>
+            <p>Keying, grading and picture effects apply as soon as you change them, on a playing
+            or paused cue, without another TAKE. The generated <b>Swirl</b> has live speed, twist,
+            pixel density and colour controls; a code source has its own render width and height
+            independently of its placement on the output.</p>
             <p>Then the five only Deckboy has, because they need the picture and the sound in one
             object and a plug-in only ever gets samples: <b>Picture</b> (the video drives the filter),
             <b>Placement</b> (where the shot sits on the raster is where it sits in the room),

@@ -1145,19 +1145,7 @@
       //
       // The tabs are the answer that works at every width. They appear only
       // with more than one playlist, so a single-deck show is untouched.
-      // THE SAME RULE the columns below use, stated once each rather than
-      // twice differently -- if these two disagree the tabs appear when every
-      // playlist is already on screen, or vanish when one is not.
       const int deckCountForTabs = static_cast<int>(project_.decks.size());
-      const int comfortableForTabs = uiScaled(200);
-      int columnsThatFit = std::min(deckCountForTabs, 2);
-      if (playlistCol.w >= comfortableForTabs * 3 + kLayoutPanelGap * 2) {
-        columnsThatFit = std::min(deckCountForTabs,
-          (playlistCol.w + kLayoutPanelGap) / (comfortableForTabs + kLayoutPanelGap));
-      }
-      if (playlistCol.w < uiScaled(220)) {
-        columnsThatFit = 1;
-      }
       // ── ALWAYS, AND WITH A + ON THE END ────────────────────────────────
       //
       // This used to appear only when the playlists did not all fit, on the
@@ -1257,31 +1245,12 @@
       // TOGETHER, and a tab strip would mean looking away from one to touch
       // the other. Below a readable width the focused one takes the column on
       // its own -- a row of 90px columns is not two playlists, it is neither.
-      // THE SAME SPLIT VJ MODE ALREADY MAKES. The first version of this
-      // demanded 210 scaled pixels a column before it would split, so at the
-      // playlist's default width it never did -- and adding a playlist still
-      // showed one column. James, looking at it: "it split nicely in vj mode
-      // already." VJ mode halves the column with no minimum at all, and it
-      // reads perfectly well, so this uses the same figure: whatever a half
-      // is, that is wide enough.
-      // TWO BY DEFAULT, which is the split VJ mode makes and the one James
-      // called nice. A THIRD only when the panel has been widened enough that
-      // every column is still readable -- at the default width, three columns
-      // is 110px each: the header loses its title, the routing chip collides
-      // with it and the cue rows say "Harv...". Two playlists side by side is
-      // a working pair; three squeezed is none.
-      //
-      // The rest are reached by the tabs, which is what they are for.
+      // Reserve room for cue names and duration before adding another column.
+      // The tabs keep every deck reachable when the panel is narrow.
       const int deckCount = static_cast<int>(project_.decks.size());
-      const int comfortable = uiScaled(200);
-      int columns = std::min(deckCount, 2);
-      if (playlistCol.w >= comfortable * 3 + kLayoutPanelGap * 2) {
-        columns = std::min(deckCount,
-                           (playlistCol.w + kLayoutPanelGap) / (comfortable + kLayoutPanelGap));
-      }
-      if (playlistCol.w < uiScaled(220)) {
-        columns = 1;   // too narrow even to halve
-      }
+      const int comfortable = uiScaled(280);
+      const int columns = std::max(1, std::min(deckCount,
+        (playlistCol.w + kLayoutPanelGap) / (comfortable + kLayoutPanelGap)));
       if (columns <= 1) {
         renderPlaylistColumn(playlistCol, std::clamp(project_.focusedDeckIndex,
                                                      0, deckCount - 1));
@@ -2164,16 +2133,14 @@
     const int kNameXWithThumb = uiScaled(124);   // clear of the still
     const int kNameXNoThumb = uiScaled(56);      // clear of the state indicator
 
-    // Try to keep BOTH first, letting the buttons come down a few pixels, and
-    // only give the picture up when even the smallest usable strip will not fit
-    // beside it. Dropping the still the moment the row was one pixel under the
-    // comfortable width took it away at the DEFAULT column width, which traded
-    // one complaint for another.
+    // Narrow decks reserve the lower lines for the name and duration. Cue
+    // actions remain available in the inspector and through the shortcuts.
+    const bool compactRow = row.w < uiScaled(420);
     auto stripFits = [&](int nameOffset, int bw) {
       return row.w - nameOffset - kCueMinNameW - 8 - kCueStripMargin
                >= cueStripWidthFor(bw);
     };
-    const bool showRowThumb = stripFits(kNameXWithThumb, kCueActionBtnMinW);
+    const bool showRowThumb = !compactRow && stripFits(kNameXWithThumb, kCueActionBtnMinW);
     const int nameXOffset = showRowThumb ? kNameXWithThumb : kNameXNoThumb;
 
     int cueActionBtnW = kCueActionBtnW;
@@ -2184,9 +2151,7 @@
         kCueActionBtnMinW, kCueActionBtnW);
     }
     const int actionStripW = cueStripWidthFor(cueActionBtnW);
-    // Only a row with no room for the buttons at their smallest loses them, and
-    // at that width there is no row left to speak of.
-    const bool showActionStrip = row.w >= actionStripW + kCueStripMargin + 24;
+    const bool showActionStrip = !compactRow && row.w >= actionStripW + kCueStripMargin + 24;
     const int actionStripX = row.x + row.w - actionStripW - kCueStripMargin;
 
     // The still keeps its 16:9 shape and grows with the row. It was a fixed
@@ -3062,154 +3027,8 @@
     }
   }
 
-  // The wait while a slide deck converts and renders.
-  //
-  // A hundred-slide deck is half a minute of nothing, and a toast that says
-  // "rendering..." and then fades is indistinguishable from an app that
-  // ignored you. This is the same friend from the empty program monitor,
-  // told what it is doing -- so the wait has a face on it and a bar that
-  // visibly moves, and the operator can see the machine is working.
-  // THE SLIDE RENDERER HAS ITS OWN ANIMATION.
-  //
-  // It used to borrow the startup mascot and just change the line of text
-  // underneath, so the face that greets an empty programme monitor also stood
-  // in for "a converter is running" -- two unrelated things wearing one
-  // costume, and the only thing telling them apart was a caption.
-  //
-  // This one is about the work rather than about a character: sheets are drawn
-  // out of a hopper, swept by a scan bar on the way across, and land on a
-  // stack that grows as the pages actually land. It is driven by the real
-  // counts, so when it looks nearly done it IS nearly done.
-  void drawSlideRenderAnimation(const SDL_Rect& area, Uint64 nowMs,
-                                const char* tip, int done, int total) {
-    if (area.w < uiScaled(60) || area.h < uiScaled(40)) {
-      return;
-    }
-    const double t = static_cast<double>(nowMs) * 0.001;
-
-    // Ink on a shell panel, and paper as a small raised fill -- the chrome
-    // contract: light/deep for small raised things, fg/fgSoft for ink.
-    const SDL_Color paper = pal.light;
-    const SDL_Color edge = pal.deep;
-    const SDL_Color ink = pal.fg;
-    const SDL_Color soft = pal.fgSoft;
-
-    // Reserve the bottom strip for the caption so the art never runs into it.
-    const int capH = uiScaled(18);
-    SDL_Rect stage {area.x, area.y, area.w, std::max(uiScaled(24), area.h - capH - uiScaled(4))};
-
-    const int sheetW = std::max(uiScaled(14), stage.w / 7);
-    const int sheetH = std::max(uiScaled(10), sheetW * 3 / 4);
-    const int baseY = stage.y + stage.h - sheetH - uiScaled(2);
-
-    // ── The hopper, left: the pages still to go ─────────────────────────────
-    const int hopperX = stage.x + uiScaled(2);
-    const int remaining = (total > 0) ? std::max(0, total - done) : 3;
-    const int hopperLeaves = std::min(4, std::max(0, remaining));
-    for (int i = 0; i < hopperLeaves; ++i) {
-      SDL_Rect leaf {hopperX + i, baseY - i * uiScaled(2), sheetW, sheetH};
-      Primitives::fillRect(controlRenderer_, leaf, paper);
-      Primitives::strokeRect(controlRenderer_, leaf, edge);
-    }
-
-    // ── The out-tray, right: the pages that have landed ─────────────────────
-    const int trayX = stage.x + stage.w - sheetW - uiScaled(2);
-    const int landed = (total > 0) ? std::min(done, total) : 0;
-    const int trayLeaves = std::min(5, landed);
-    for (int i = 0; i < trayLeaves; ++i) {
-      SDL_Rect leaf {trayX - i, baseY - i * uiScaled(2), sheetW, sheetH};
-      Primitives::fillRect(controlRenderer_, leaf, paper);
-      Primitives::strokeRect(controlRenderer_, leaf, edge);
-    }
-
-    // ── The sheets in flight ────────────────────────────────────────────────
-    //
-    // Three of them, evenly out of phase, so there is always one crossing
-    // rather than a gap and a rush. The arc is a half sine: it lifts off the
-    // hopper, peaks in the middle and settles onto the stack.
-    const int travelFrom = hopperX + sheetW;
-    const int travelTo = trayX - sheetW / 2;
-    const int travel = std::max(uiScaled(8), travelTo - travelFrom);
-    const double lift = static_cast<double>(stage.h) * 0.45;
-    for (int s = 0; s < 3; ++s) {
-      const double phase = std::fmod(t * 0.55 + s / 3.0, 1.0);
-      const int x = travelFrom + static_cast<int>(phase * travel);
-      const int y = baseY - static_cast<int>(std::sin(phase * 3.14159265358979323846) * lift);
-      // Squashed horizontally at the ends, so it reads as turning rather than
-      // sliding flat across.
-      const int w = std::max(uiScaled(4),
-                             static_cast<int>(sheetW * (0.45 + 0.55 * std::sin(phase * 3.14159265358979323846))));
-      SDL_Rect fly {x, y, w, sheetH};
-      Primitives::fillRect(controlRenderer_, fly, paper);
-      Primitives::strokeRect(controlRenderer_, fly, edge);
-      // Two ruled lines, so a sheet looks like a slide and not a blank card.
-      if (w > uiScaled(8)) {
-        Primitives::fillRect(controlRenderer_,
-                             SDL_Rect{fly.x + 2, fly.y + sheetH / 3, w - 4, 1}, soft);
-        Primitives::fillRect(controlRenderer_,
-                             SDL_Rect{fly.x + 2, fly.y + (sheetH * 2) / 3, w - 4, 1}, soft);
-      }
-    }
-
-    // ── The scan bar ────────────────────────────────────────────────────────
-    // Sweeps the full stage on its own slower clock, the one part that says
-    // "something is being rendered" rather than "something is being moved".
-    //
-    // A SWEEP, NOT A SLAB. This drew its bar in `ink` -- pal.fg, the ON-BODY
-    // INK role, which on every light theme IS the darkest colour in the
-    // palette. Full stage height, so what an operator saw while a deck
-    // imported was a black vertical bar sliding across the card, which is
-    // exactly what it got reported as.
-    //
-    // The progress row below already carries a comment about the same mistake
-    // -- "a dark track with a bright fill, which on a light theme was a black
-    // slab bolted under the artwork" -- so this is the other half of a fault
-    // that was half fixed. Ink is for glyphs; a moving highlight is a FILL and
-    // takes a fill role.
-    //
-    // pal.mid is the accent/hover role and is a mid tone by construction on
-    // every theme, so it reads against a pale panel and a dark one without
-    // ever being the darkest thing on screen. Feathered either side so it
-    // passes as a sweep rather than an edge, and clipped to the stage so the
-    // feather cannot bleed onto the card's frame.
-    const double sweep = std::fmod(t * 0.8, 1.0);
-    const int sx = stage.x + static_cast<int>(sweep * std::max(1, stage.w - 2));
-    const int coreW = std::max(1, uiScaled(2));
-    const int stageRight = stage.x + stage.w;
-    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-    auto sweepBand = [&](int bx, Uint8 alpha) {
-      const int clampedX = std::clamp(bx, stage.x, stageRight);
-      const int clampedW = std::clamp(bx + coreW, stage.x, stageRight) - clampedX;
-      if (clampedW <= 0) {
-        return;
-      }
-      Primitives::fillRect(controlRenderer_,
-                           SDL_Rect{clampedX, stage.y, clampedW, stage.h},
-                           SDL_Color{pal.mid.r, pal.mid.g, pal.mid.b, alpha});
-    };
-    sweepBand(sx - coreW, 45);
-    sweepBand(sx, 110);
-    sweepBand(sx + coreW, 45);
-    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-
-    // ── The caption ─────────────────────────────────────────────────────────
-    if (tip && tip[0] && fontSmall_) {
-      SDL_Rect capRect {area.x, area.y + area.h - capH, area.w, capH};
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, capRect, tip, ink);
-    }
-  }
-
-  // ── THE PROGRESS ROW ───────────────────────────────────────
-  //
-  // The deck being built, a card at a time, rather than a bar filling up. The
-  // sheets in the animation above fly from the hopper to the tray; this is
-  // that tray seen from the front, so the thing being counted and the thing
-  // doing the counting are the same object.
-  //
-  // It replaced a dark track with a bright fill, which on a light theme was a
-  // black slab bolted under the artwork. There is no dark fill here at all:
-  // the card underneath is already the panel, a landed slide is paper on it,
-  // and one still to come is an empty outline.
+  // Page shares stay readable on a long deck without one-pixel slivers.
+  // Paper fills and outlines use the panel's palette on every theme.
   //
   // A FIXED NUMBER OF CARDS, not one per slide -- a hundred-page deck would
   // give a row of one-pixel slivers. Each card is a SHARE of the deck and the
@@ -3347,13 +3166,15 @@
     const int total = slideRenderTotal_.load(std::memory_order_relaxed);
 
     const int cardW = std::min(uiScaled(360), std::max(uiScaled(220), windowWidth - uiScaled(80)));
-    const int cardH = uiScaled(250);
+    const int cardH = uiScaled(112);
     SDL_Rect card {(windowWidth - cardW) / 2, (windowHeight - cardH) / 2, cardW, cardH};
     Primitives::drawFramedPanel(controlRenderer_, card, pal.shellInner, pal.shellShadow, pal.mid);
 
-    // The face gets the top of the card; the bar and the words sit under it.
-    SDL_Rect face {card.x + uiScaled(12), card.y + uiScaled(10),
-                   card.w - uiScaled(24), cardH - uiScaled(76)};
+    // Use the same busy critter as other jobs; page counts remain measured
+    // progress, including the conversion stage where no count is known yet.
+    const SDL_Rect critterLane {card.x + uiScaled(12), card.y + uiScaled(8),
+                               card.w - uiScaled(24), uiScaled(34)};
+    markBusy("slide-render", "cat", critterLane);
     // Counting pages only once the renderer has reported one: before that the
     // honest thing to say is that the converter is still running, because it
     // is, and a "0 of 0" would look stuck.
@@ -3368,10 +3189,12 @@
     if (slideRenderJobs_ > 1) {
       tip += "  (" + std::to_string(slideRenderJobs_) + " decks)";
     }
-    drawSlideRenderAnimation(face, animationNow_, tip.c_str(), done, total);
+    const SDL_Rect caption {card.x + uiScaled(12), card.y + uiScaled(44),
+                            card.w - uiScaled(24), uiScaled(20)};
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, caption, tip, pal.fg);
 
     // Taller than the old bar by the hop room the landing card needs.
-    const SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(50),
+    const SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(34),
                         card.w - uiScaled(40), uiScaled(18)};
     drawSlideProgressRow(bar, animationNow_, done, total);
   }
@@ -3434,6 +3257,3 @@
   }
 
   // Character-art rendering has been intentionally removed from operational UI paths.
-
-
-

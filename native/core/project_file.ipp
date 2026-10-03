@@ -250,6 +250,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "recording_height\t" << project.recordingHeight << '\n';
   output << "recording_fps\t" << project.recordingFps << '\n';
   output << "recording_codec\t" << escapeField(project.recordingCodec) << '\n';
+  output << "normalize_target_lufs\t" << project.normalizeTargetLufs << '\n';
   output << "recording_tc_mode\t" << escapeField(project.recordingTimecodeMode) << '\n';
   output << "recording_tc_start\t" << escapeField(project.recordingTimecodeStart) << '\n';
   output << "recording_tc_df\t" << escapeField(project.recordingTimecodeDropFrame) << '\n';
@@ -523,6 +524,16 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       // Grid warp (field 98), appended at the END: empty for no grid, which
       // is what every output saved before it reads back as.
       << '\t' << serializeWarpGrid(outputTarget)
+      // Independent RTP essences (fields 99-107); older shows keep the pair.
+      << '\t' << (outputTarget.st2110VideoMasterEnabled ? 1 : 0)
+      << '\t' << (outputTarget.st2110AudioMasterEnabled ? 1 : 0)
+      << '\t' << (outputTarget.st2110VideoRtpEnabled ? 1 : 0)
+      << '\t' << (outputTarget.st2110AudioRtpEnabled ? 1 : 0)
+      << '\t' << outputTarget.st2110VideoSourcePort
+      << '\t' << outputTarget.st2110AudioSourcePort
+      << '\t' << escapeField(outputTarget.st2110AudioAddress)
+      << '\t' << outputTarget.st2110AudioPort
+      << '\t' << escapeField(outputTarget.st2110AudioInterface)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -919,6 +930,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.lowerThird.size
         << '\t' << cue.lowerThird.bar
         << '\t' << cue.lowerThird.accent
+        << '\t' << cue.swirl.speed
+        << '\t' << cue.swirl.twist
+        << '\t' << cue.swirl.cells
+        << '\t' << cue.swirl.hue
         << '\n';
     }
   }
@@ -1094,6 +1109,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.recordingFps = safeDouble(fields, 1, 0.0);
   } else if (fields[0] == "recording_codec") {
     project.recordingCodec = safeString(fields, 1);
+  } else if (fields[0] == "normalize_target_lufs") {
+    project.normalizeTargetLufs = std::clamp(safeDouble(fields, 1, -16.0), -40.0, -5.0);
   } else if (fields[0] == "recording_tc_mode") {
     project.recordingTimecodeMode = safeString(fields, 1);
   } else if (fields[0] == "recording_tc_start") {
@@ -1542,6 +1559,17 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                               }
                               if (fields.size() >= 99) {
                                 parseWarpGrid(outputTarget, safeString(fields, 98));
+                              }
+                              if (fields.size() >= 108) {
+                                outputTarget.st2110VideoMasterEnabled = safeBool(fields, 99, true);
+                                outputTarget.st2110AudioMasterEnabled = safeBool(fields, 100, true);
+                                outputTarget.st2110VideoRtpEnabled = safeBool(fields, 101, true);
+                                outputTarget.st2110AudioRtpEnabled = safeBool(fields, 102, true);
+                                outputTarget.st2110VideoSourcePort = std::clamp(safeInt(fields, 103, 0), 0, 65535);
+                                outputTarget.st2110AudioSourcePort = std::clamp(safeInt(fields, 104, 0), 0, 65535);
+                                outputTarget.st2110AudioAddress = safeString(fields, 105);
+                                outputTarget.st2110AudioPort = std::clamp(safeInt(fields, 106, 0), 0, 65535);
+                                outputTarget.st2110AudioInterface = safeString(fields, 107);
                               }
                             }
                           }
@@ -2340,6 +2368,13 @@ Project loadProject(const fs::path& projectFile,
           l.bar = std::clamp(safeInt(fields, vs + 126, fresh.bar), 0, kLowerThirdColourCount - 1);
           l.accent = std::clamp(safeInt(fields, vs + 127, fresh.accent), 0,
                                 kLowerThirdColourCount - 1);
+        }
+        {
+          const SwirlSettings fresh;
+          cue.swirl.speed = std::clamp(safeDouble(fields, vs + 128, fresh.speed), 0.0, 3.0);
+          cue.swirl.twist = std::clamp(safeDouble(fields, vs + 129, fresh.twist), 0.0, 4.0);
+          cue.swirl.cells = std::clamp(safeInt(fields, vs + 130, fresh.cells), 64, 960);
+          cue.swirl.hue = std::clamp(safeDouble(fields, vs + 131, fresh.hue), 0.0, 1.0);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

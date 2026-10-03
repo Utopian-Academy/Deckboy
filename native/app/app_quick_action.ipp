@@ -510,6 +510,7 @@
       case QuickAction::AudioPanInc:     adjustSelectedAudioPan( 0.05); break;
       case QuickAction::ToggleCueMono:   toggleSelectedCueMono(); break;
       case QuickAction::NormalizeCueAudio: normalizeSelectedCueAudio(); break;
+      case QuickAction::CycleNormalizeTarget: cycleNormalizeTarget(); break;
       case QuickAction::AudioFadeInDec:  adjustSelectedAudioFade(true,  -0.25); break;
       case QuickAction::AudioFadeInInc:  adjustSelectedAudioFade(true,   0.25); break;
       case QuickAction::AudioFadeOutDec: adjustSelectedAudioFade(false, -0.25); break;
@@ -1139,6 +1140,9 @@
         break;
       case QuickAction::CueSectionPortalToggle:
         cueSectionPortalOpen_ = !cueSectionPortalOpen_;
+        return;
+      case QuickAction::CueSectionSwirlToggle:
+        cueSectionSwirlOpen_ = !cueSectionSwirlOpen_;
         return;
       case QuickAction::CueSectionFiresideToggle:
         cueSectionFiresideOpen_ = !cueSectionFiresideOpen_;

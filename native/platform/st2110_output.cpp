@@ -49,6 +49,7 @@ static constexpr socket_t kInvalidSocket = INVALID_SOCKET;
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <fcntl.h>
 using socket_t = int;
 static constexpr socket_t kInvalidSocket = -1;
 #endif
@@ -58,6 +59,28 @@ namespace platform {
 namespace video {
 
 namespace {
+
+bool bindRtpSource(socket_t sock, const std::string& address, int port, int& boundPort) {
+  if (port < 0 || port > 65535) return false;
+  sockaddr_in local {};
+  local.sin_family = AF_INET;
+  local.sin_port = htons(static_cast<std::uint16_t>(port));
+  local.sin_addr.s_addr = htonl(INADDR_ANY);
+  if (!address.empty() && inet_pton(AF_INET, address.c_str(), &local.sin_addr) != 1) return false;
+  if (::bind(sock, reinterpret_cast<sockaddr*>(&local), sizeof(local)) != 0) return false;
+#ifdef _WIN32
+  int length = sizeof(local);
+  u_long nonblocking = 1;
+  if (ioctlsocket(sock, FIONBIO, &nonblocking) != 0) return false;
+#else
+  socklen_t length = sizeof(local);
+  const int flags = fcntl(sock, F_GETFL, 0);
+  if (flags < 0 || fcntl(sock, F_SETFL, flags | O_NONBLOCK) != 0) return false;
+#endif
+  if (getsockname(sock, reinterpret_cast<sockaddr*>(&local), &length) != 0) return false;
+  boundPort = ntohs(local.sin_port);
+  return true;
+}
 
 // The SDP origin address when no interface is explicitly configured.
 //
@@ -268,7 +291,11 @@ bool St2110Output::open(const St2110Config& config) {
   config_ = config;
   lastError_.clear();
 
-  if (config_.width <= 0 || config_.height <= 0) {
+  in_addr destination {};
+  if (config_.width <= 0 || config_.height <= 0 || config_.width % 2 != 0 ||
+      config_.destinationPort < 1 || config_.destinationPort > 65535 ||
+      config_.frameRate <= 0.0 || !std::isfinite(config_.frameRate) ||
+      ::inet_pton(AF_INET, config_.destinationAddress.c_str(), &destination) != 1) {
     setLastError("invalid raster");
     return false;
   }
@@ -314,6 +341,11 @@ bool St2110Output::open(const St2110Config& config) {
                reinterpret_cast<const char*>(&sendBuf), sizeof(sendBuf));
 
   socket_ = static_cast<long long>(sock);
+  if (!bindRtpSource(sock, config_.interfaceAddress, config_.sourcePort, boundSourcePort_)) {
+    setLastError("could not bind RTP source address/port");
+    close();
+    return false;
+  }
   packet_.assign(kRtpHeaderBytes + kPayloadHeaderBytes +
                      static_cast<std::size_t>(std::max(256, config_.maxPayloadBytes)),
                  0);
@@ -721,6 +753,12 @@ bool St2110AudioOutput::open(const St2110AudioConfig& config) {
   close();
   config_ = config;
   config_.channels = std::clamp(config_.channels, 1, 8);
+  in_addr destination {};
+  if (config_.channels != 2 || config_.destinationPort < 1 || config_.destinationPort > 65535 ||
+      inet_pton(AF_INET, config_.destinationAddress.c_str(), &destination) != 1) {
+    setLastError("audio requires stereo and a valid IPv4 destination/port");
+    return false;
+  }
 
 #ifdef _WIN32
   if (!winsockStarted_) {
@@ -749,16 +787,26 @@ bool St2110AudioOutput::open(const St2110AudioConfig& config) {
     }
   }
   socket_ = static_cast<long long>(sock);
+  if (!bindRtpSource(sock, config_.interfaceAddress, config_.sourcePort, boundSourcePort_)) {
+    setLastError("could not bind audio RTP source address/port");
+    close();
+    return false;
+  }
   packet_.assign(kRtpHeaderBytes +
                    static_cast<std::size_t>(kAudioFramesPerPacket) *
                    static_cast<std::size_t>(config_.channels) * kAudioBytesPerSample, 0);
   pending_.clear();
   timestampPrimed_ = false;
   packetsSent_.store(0, std::memory_order_relaxed);
+  senderStop_.store(false);
+  senderThread_ = std::thread([this] { senderLoop(); });
   return true;
 }
 
 void St2110AudioOutput::close() {
+  senderStop_.store(true);
+  samplesCv_.notify_all();
+  if (senderThread_.joinable()) senderThread_.join();
   if (socket_ != static_cast<long long>(kInvalidSocket)) {
 #ifdef _WIN32
     ::closesocket(static_cast<socket_t>(socket_));
@@ -800,10 +848,47 @@ void St2110AudioOutput::pushSamples(const std::int16_t* interleaved, std::size_t
     return;
   }
 
-  // Prime the RTP timestamp from the media clock once, then advance it by
-  // exactly 48 per packet. Re-deriving it per packet from wall time would
-  // introduce jitter into a stream whose whole job is to be evenly clocked.
-  if (!timestampPrimed_) {
+  constexpr std::size_t kMaxQueuedFrames = 4800;  // 100 ms, bounded latency
+  if (frameCount > kMaxQueuedFrames) {
+    interleaved += (frameCount - kMaxQueuedFrames) * 2;
+    frameCount = kMaxQueuedFrames;
+  }
+  {
+    std::lock_guard<std::mutex> lock(samplesMutex_);
+    const std::size_t incoming = frameCount * 2;
+    if (pending_.size() + incoming > kMaxQueuedFrames * 2) {
+      const std::size_t drop = pending_.size() + incoming - kMaxQueuedFrames * 2;
+      pending_.erase(pending_.begin(), pending_.begin() + static_cast<std::ptrdiff_t>(drop));
+    }
+    pending_.insert(pending_.end(), interleaved, interleaved + incoming);
+  }
+  samplesCv_.notify_one();
+}
+
+void St2110AudioOutput::senderLoop() {
+  const std::size_t samplesPerPacket = kAudioFramesPerPacket * 2;
+  std::vector<std::int16_t> samples(samplesPerPacket, 0);
+  {
+    std::unique_lock<std::mutex> lock(samplesMutex_);
+    samplesCv_.wait(lock, [&] { return senderStop_.load() || !pending_.empty(); });
+  }
+  auto nextPacketAt = std::chrono::steady_clock::now();
+  while (!senderStop_.load()) {
+    {
+      std::lock_guard<std::mutex> lock(samplesMutex_);
+      std::fill(samples.begin(), samples.end(), 0);
+      const std::size_t count = std::min(samplesPerPacket, pending_.size());
+      std::copy_n(pending_.begin(), count, samples.begin());
+      pending_.erase(pending_.begin(), pending_.begin() + static_cast<std::ptrdiff_t>(count));
+    }
+
+  // Advance by exactly 48 samples between clock acquisitions. Reseed when
+  // the reference changes so audio and video share the same clock origin.
+  const bool ptpLocked = ptp_ && ptp_->locked();
+  const std::string grandmaster = ptpLocked ? ptp_->grandmasterIdentity() : std::string();
+  const bool clockChanged = !timestampPrimed_ || ptpLocked != timestampPtpLocked_ ||
+                            grandmaster != timestampGrandmaster_;
+  if (clockChanged) {
     std::uint64_t clockNanos = 0;
     if (ptp_ != nullptr && ptp_->locked()) {
       clockNanos = ptp_->ptpNanosNow();
@@ -817,19 +902,13 @@ void St2110AudioOutput::pushSamples(const std::int16_t* interleaved, std::size_t
     rtpTimestamp_ = static_cast<std::uint32_t>(
       (seconds * kAudioClockRateHz + (rem * kAudioClockRateHz) / 1'000'000'000ull) & 0xFFFFFFFFull);
     timestampPrimed_ = true;
+    timestampPtpLocked_ = ptpLocked;
+    timestampGrandmaster_ = grandmaster;
   }
-
-  pending_.insert(pending_.end(), interleaved,
-                  interleaved + frameCount * static_cast<std::size_t>(channels));
-
-  const std::size_t samplesPerPacket =
-    static_cast<std::size_t>(kAudioFramesPerPacket) * static_cast<std::size_t>(channels);
-  std::size_t offset = 0;
-  while (pending_.size() - offset >= samplesPerPacket) {
     std::uint8_t* p = packet_.data();
     p[0] = 0x80;
-    // No marker on audio; the RTP timestamp carries the timing.
-    p[1] = static_cast<std::uint8_t>(config_.payloadType & 0x7F);
+    // Mark the first packet after acquiring a new clock reference.
+    p[1] = static_cast<std::uint8_t>((config_.payloadType & 0x7F) | (clockChanged ? 0x80 : 0));
     writeBe16(p + 2, sequenceNumber_);
     writeBe32(p + 4, rtpTimestamp_);
     writeBe32(p + 8, ssrc_);
@@ -838,22 +917,29 @@ void St2110AudioOutput::pushSamples(const std::int16_t* interleaved, std::size_t
     for (std::size_t i = 0; i < samplesPerPacket; ++i) {
       // int16 -> L24 big-endian. Shifting left by 8 is the correct widening:
       // it preserves full scale, where a plain cast would drop 8 bits of range.
-      const std::int32_t wide = static_cast<std::int32_t>(pending_[offset + i]) << 8;
+      const std::int32_t wide = static_cast<std::int32_t>(samples[i]) * 256;
       payload[i * 3 + 0] = static_cast<std::uint8_t>((wide >> 16) & 0xFF);
       payload[i * 3 + 1] = static_cast<std::uint8_t>((wide >> 8) & 0xFF);
       payload[i * 3 + 2] = static_cast<std::uint8_t>(wide & 0xFF);
     }
     if (!sendPacket(packet_.data(),
                     kRtpHeaderBytes + samplesPerPacket * kAudioBytesPerSample)) {
+      setLastError("audio RTP send failed");
+      senderStop_.store(true);
       break;
     }
     ++sequenceNumber_;
     rtpTimestamp_ += kAudioFramesPerPacket;
     packetsSent_.fetch_add(1, std::memory_order_relaxed);
-    offset += samplesPerPacket;
-  }
-  if (offset > 0) {
-    pending_.erase(pending_.begin(), pending_.begin() + static_cast<std::ptrdiff_t>(offset));
+    nextPacketAt += std::chrono::milliseconds(1);
+    // Do not burst stale packets after an OS scheduling stall.
+    const auto now = std::chrono::steady_clock::now();
+    if (now > nextPacketAt + std::chrono::milliseconds(2)) {
+      nextPacketAt = now + std::chrono::milliseconds(1);
+      timestampPrimed_ = false;
+    }
+    std::unique_lock<std::mutex> lock(samplesMutex_);
+    samplesCv_.wait_until(lock, nextPacketAt, [&] { return senderStop_.load(); });
   }
 }
 

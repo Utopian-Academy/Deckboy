@@ -1534,13 +1534,13 @@ std::string NmosNode::routeRequest(const std::string& method, const std::string&
 // has PATCHed but not yet activated. Caller holds mutex_.
 std::string NmosNode::renderConnectionState(const NmosSenderInfo& target, bool activeEndpoint,
                                             const std::string& host) {
-  const std::string sourceIp = target.sourceAddress.empty() ? host : target.sourceAddress;
+  std::string sourceIp = target.sourceAddress.empty() ? host : target.sourceAddress;
 
-  bool masterEnable = target.active;
+  bool masterEnable = target.masterEnabled;
   std::string destinationIp = target.destinationAddress;
   int destinationPort = target.destinationPort;
   int sourcePort = target.sourcePort > 0 ? target.sourcePort : target.destinationPort;
-  bool rtpEnabled = true;
+  bool rtpEnabled = target.rtpEnabled;
   std::string receiverId;
   bool haveReceiverId = false;
 
@@ -1548,6 +1548,7 @@ std::string NmosNode::renderConnectionState(const NmosSenderInfo& target, bool a
     auto it = staged_.find(target.key);
     if (it != staged_.end()) {
       const NmosStagedState& s = it->second;
+      if (s.sourceAddressSet) sourceIp = s.sourceAddress.empty() ? host : s.sourceAddress;
       if (s.masterEnableSet) masterEnable = s.masterEnable;
       if (s.destinationAddressSet) destinationIp = s.destinationAddress;
       if (s.destinationPortSet) destinationPort = s.destinationPort;
@@ -1670,6 +1671,19 @@ int NmosNode::applyStagedPatch(const NmosSenderInfo& target, const std::string& 
       errorOut = "transport_params entries must be objects";
       return 400;
     }
+    if (const JsonValue* ip = leg.find("source_ip")) {
+      if (ip->type != JsonValue::Type::String) {
+        errorOut = "source_ip must be a string";
+        return 400;
+      }
+      next.sourceAddress = ip->stringValue == "auto" ? target.sourceAddress : ip->stringValue;
+      in_addr parsedIp {};
+      if (!next.sourceAddress.empty() && inet_pton(AF_INET, next.sourceAddress.c_str(), &parsedIp) != 1) {
+        errorOut = "source_ip must be an IPv4 address";
+        return 400;
+      }
+      next.sourceAddressSet = true;
+    }
     if (const JsonValue* ip = leg.find("destination_ip")) {
       if (ip->type == JsonValue::Type::String) {
         // "auto" is the spec's "you pick" sentinel; resolve it to what we will
@@ -1693,6 +1707,11 @@ int NmosNode::applyStagedPatch(const NmosSenderInfo& target, const std::string& 
       }
       if (value->type != JsonValue::Type::Number) {
         errorOut = std::string(name) + " must be a number";
+        return false;
+      }
+      if (!std::isfinite(value->numberValue) || value->numberValue < 1 ||
+          value->numberValue > 65535 || std::floor(value->numberValue) != value->numberValue) {
+        errorOut = std::string(name) + " must be an integer port";
         return false;
       }
       const int port = static_cast<int>(value->numberValue);
@@ -1780,8 +1799,13 @@ int NmosNode::applyStagedPatch(const NmosSenderInfo& target, const std::string& 
                                                   : target.destinationPort;
   patch.destinationChanged = (patch.destinationAddress != target.destinationAddress) ||
                              (patch.destinationPort != target.destinationPort);
+  patch.sourceAddress = next.sourceAddressSet ? next.sourceAddress : target.sourceAddress;
+  patch.sourcePort = next.sourcePortSet ? next.sourcePort : target.sourcePort;
+  patch.sourceChanged = patch.sourceAddress != target.sourceAddress || patch.sourcePort != target.sourcePort;
+  patch.rtpEnabled = next.rtpEnabledSet ? next.rtpEnabled : target.rtpEnabled;
+  patch.rtpEnabledChanged = patch.rtpEnabled != target.rtpEnabled;
   if (next.masterEnableSet) {
-    patch.masterEnableChanged = next.masterEnable != target.active;
+    patch.masterEnableChanged = next.masterEnable != target.masterEnabled;
     patch.masterEnable = next.masterEnable;
   }
   patch.activateImmediate = true;

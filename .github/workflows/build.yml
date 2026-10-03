@@ -279,7 +279,7 @@ jobs:
             libegl1-mesa-dev libgl1-mesa-dev \
             libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev \
             libxss-dev libxfixes-dev libxinerama-dev libxtst-dev \
-            libdbus-1-dev libibus-1.0-dev libgles2-mesa-dev libdecor-0-dev
+            libdbus-1-dev libibus-1.0-dev libgles2-mesa-dev libdecor-0-dev xvfb
 
       # 22.04 defaults to gcc-11, which is short of C++20. gcc-12 is in the
       # distro's own archive, so the C++ runtime stays the one 22.04 ships --
@@ -362,7 +362,7 @@ jobs:
           sudo ldconfig
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DDECKBOY_SANITIZE_BROADCAST_CHECK=ON ${{ matrix.cmake_args }}
 
       - name: Build
         run: |
@@ -402,6 +402,9 @@ jobs:
       - name: Smoke tests
         run: ./build/Deckboy --smoke
 
+      - name: Broadcast transport and audio regressions
+        run: ctest --test-dir build --output-on-failure
+
       # A named parameter that moves nothing is a knob the operator turns for
       # no reason. Shatter shipped with its drift and rotation hanging off
       # parameters that arrive at zero, so ADDING the effect did nothing at
@@ -423,6 +426,15 @@ jobs:
       - name: Every transition starts clean, finishes clean and repeats
         if: matrix.features == 'all'
         run: python3 tools/check_transitions.py --exe ./build/Deckboy
+
+      - name: Programme capture cadence and Main 10 picture
+        if: matrix.features == 'all'
+        run: |
+          xvfb-run -a python3 tools/record_rate_check.py --exe ./build/Deckboy \
+            --fixture main10 --renderer software --readback sync \
+            --standard 640x360@25 --seconds 8
+          DECKBOY_OUTPUT_RENDERER=software DECKBOY_EGRESS_READBACK=sync \
+            xvfb-run -a python3 tools/check_transitions.py --exe ./build/Deckboy --playout
 
       - name: Upload artifact
         if: matrix.features == 'none'
@@ -559,6 +571,9 @@ jobs:
 
       - name: Smoke tests
         run: ./build/Deckboy --smoke
+
+      - name: Broadcast transport and audio regressions
+        run: ctest --test-dir build --output-on-failure
 
       # The settings menus, photographed on a real Mac.
       #
@@ -927,6 +942,10 @@ jobs:
                  -ArgumentList "--smoke" -Wait -NoNewWindow -PassThru
           if ($p.ExitCode -ne 0) { throw "smoke tests failed ($($p.ExitCode))" }
 
+      - name: Broadcast transport and audio regressions
+        shell: pwsh
+        run: ctest --test-dir build -C Release --output-on-failure
+
       # The shippable Windows artefacts. The installer script stages the
       # portable payload itself, so one call produces BOTH the zip and the
       # setup.exe — they cannot drift apart because they are the same staging
@@ -944,6 +963,19 @@ jobs:
       - name: Install ffmpeg and Inno Setup
         if: matrix.features == 'all'
         run: choco install ffmpeg-full innosetup -y --no-progress
+
+      - name: Programme capture cadence and Main 10 picture
+        if: matrix.features == 'all'
+        shell: pwsh
+        run: |
+          python tools/record_rate_check.py --exe build\Release\Deckboy.exe `
+            --fixture main10 --renderer software --readback sync `
+            --standard 640x360@25 --seconds 8
+          if ($LASTEXITCODE -ne 0) { throw "programme capture failed" }
+          $env:DECKBOY_OUTPUT_RENDERER = 'software'
+          $env:DECKBOY_EGRESS_READBACK = 'sync'
+          python tools/check_transitions.py --exe build\Release\Deckboy.exe --playout
+          if ($LASTEXITCODE -ne 0) { throw "transition placement failed" }
 
       # What only exists when playlists meet an output. Each harness launches
       # the real app in an isolated root and MEASURES -- fields in the saved

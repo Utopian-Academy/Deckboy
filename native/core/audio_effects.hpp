@@ -32,12 +32,137 @@
 // a show is worse than no effect at all.
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <string>
 #include <vector>
 
 namespace deckboy::audiofx {
+
+// ITU-R BS.1770-5 Annex 2, four-phase interpolation at 48 kHz. State is
+// continuous across chunks so peaks between two callbacks are measured too.
+struct TruePeak4x {
+  std::array<std::array<double, 12>, 2> history {};
+  int cursor = 0;
+  double push(double left, double right) {
+    static constexpr double coefficients[4][12] {
+      {0.001708984375,0.010986328125,-0.0196533203125,0.033203125,-0.0594482421875,0.1373291015625,
+       0.97216796875,-0.102294921875,0.047607421875,-0.026611328125,0.014892578125,-0.00830078125},
+      {-0.0291748046875,0.029296875,-0.0517578125,0.089111328125,-0.16650390625,0.465087890625,
+       0.77978515625,-0.2003173828125,0.1015625,-0.0582275390625,0.0330810546875,-0.0189208984375},
+      {-0.0189208984375,0.0330810546875,-0.0582275390625,0.1015625,-0.2003173828125,0.77978515625,
+       0.465087890625,-0.16650390625,0.089111328125,-0.0517578125,0.029296875,-0.0291748046875},
+      {-0.00830078125,0.014892578125,-0.026611328125,0.047607421875,-0.102294921875,0.97216796875,
+       0.1373291015625,-0.0594482421875,0.033203125,-0.0196533203125,0.010986328125,0.001708984375}
+    };
+    history[0][cursor] = left;
+    history[1][cursor] = right;
+    double peak = std::max(std::fabs(left), std::fabs(right));
+    for (const auto& channel : history) {
+      for (const auto& phase : coefficients) {
+        double sample = 0.0;
+        for (int tap = 0; tap < 12; ++tap)
+          sample += channel[(cursor + 12 - tap) % 12] * phase[tap];
+        peak = std::max(peak, std::fabs(sample));
+      }
+    }
+    cursor = (cursor + 1) % 12;
+    return peak;
+  }
+};
+
+// Stereo programme meter, fixed 48 kHz egress rate. 100 ms energy hops form
+// 400 ms overlapping blocks and a 3 s short-term window. A 0.01 LU histogram
+// bounds memory for indefinite playout while retaining both integrated gates.
+struct ProgramLoudnessMeter {
+  struct Filter {
+    double z1 = 0.0, z2 = 0.0;
+    double push(double x, double b0, double b1, double b2, double a1, double a2) {
+      const double y = b0 * x + z1;
+      z1 = b1 * x - a1 * y + z2;
+      z2 = b2 * x - a2 * y;
+      return y;
+    }
+  };
+  std::array<Filter, 2> shelf {}, highpass {};
+  std::array<double, 30> hops {};
+  std::array<double, 16001> gatedEnergy {};
+  std::array<std::uint64_t, 16001> gatedCount {};
+  TruePeak4x truePeak;
+  double hopEnergy = 0.0, peak = 0.0;
+  double momentary = -120.0, shortTerm = -120.0, integrated = -120.0;
+  int hopFrames = 0, hopCursor = 0, hopCount = 0;
+  static double lufs(double energy) {
+    return energy > 0.0 ? -0.691 + 10.0 * std::log10(energy) : -120.0;
+  }
+  double peakDb() const { return peak > 0.0 ? 20.0 * std::log10(peak) : -120.0; }
+  void push(const std::vector<std::int16_t>& samples) {
+    for (std::size_t i = 0; i + 1 < samples.size(); i += 2) {
+      const double left = samples[i] / 32768.0, right = samples[i + 1] / 32768.0;
+      peak = std::max(peak, truePeak.push(left, right));
+      for (int ch = 0; ch < 2; ++ch) {
+        const double x = ch == 0 ? left : right;
+        const double shaped = shelf[ch].push(x, 1.53512485958697, -2.69169618940638,
+          1.19839281085285, -1.69065929318241, 0.73248077421585);
+        const double weighted = highpass[ch].push(shaped, 1, -2, 1,
+          -1.99004745483398, 0.99007225036621);
+        hopEnergy += weighted * weighted;
+      }
+      if (++hopFrames < 4800) continue;
+      hops[hopCursor] = hopEnergy / 4800.0;
+      hopCursor = (hopCursor + 1) % 30;
+      hopCount = std::min(30, hopCount + 1);
+      hopEnergy = 0.0;
+      hopFrames = 0;
+      auto window = [&](int count) {
+        double sum = 0.0;
+        for (int h = 0; h < count; ++h) sum += hops[(hopCursor + 29 - h) % 30];
+        return sum / count;
+      };
+      if (hopCount >= 30) shortTerm = lufs(window(30));
+      if (hopCount < 4) continue;
+      const double block = window(4);
+      momentary = lufs(block);
+      if (momentary < -70.0) continue;
+      const int bin = std::clamp(static_cast<int>(std::floor((momentary + 80.0) * 100)), 0, 16000);
+      gatedEnergy[bin] += block;
+      ++gatedCount[bin];
+      double energy = 0.0;
+      std::uint64_t count = 0;
+      for (int b = 1000; b <= 16000; ++b) { energy += gatedEnergy[b]; count += gatedCount[b]; }
+      if (count == 0) continue;
+      const double threshold = std::max(-70.0, lufs(energy / count) - 10.0);
+      const int start = std::clamp(static_cast<int>(std::ceil((threshold + 80.0) * 100)), 1000, 16000);
+      energy = 0.0; count = 0;
+      for (int b = start; b <= 16000; ++b) { energy += gatedEnergy[b]; count += gatedCount[b]; }
+      integrated = count ? lufs(energy / count) : -120.0;
+    }
+  }
+};
+
+// Each egress owns this state: a recording, NDI, SDI and RTP must not advance
+// each other's meter or gain envelope when they read the same programme mix.
+struct ProgramAudioState {
+  TruePeak4x inputPeak;
+  ProgramLoudnessMeter meter;
+  double gain = 1.0;
+  std::vector<std::int16_t> process(const std::vector<std::int32_t>& mixed) {
+    double peak = 0.0;
+    for (std::size_t i = 0; i + 1 < mixed.size(); i += 2)
+      peak = std::max(peak, inputPeak.push(mixed[i], mixed[i + 1]));
+    constexpr double ceiling = 32768.0 * 0.881048873008014; // -1.1 dBTP, quantisation margin
+    const double required = peak > ceiling ? ceiling / peak : 1.0;
+    const double released = gain + (1.0 - gain) *
+      (1.0 - std::exp(-static_cast<double>(mixed.size()) / 14400.0));
+    gain = std::min(required, released);
+    std::vector<std::int16_t> out(mixed.size());
+    for (std::size_t i = 0; i < mixed.size(); ++i)
+      out[i] = static_cast<std::int16_t>(std::clamp(std::lround(mixed[i] * gain), -32768l, 32767l));
+    meter.push(out);
+    return out;
+  }
+};
 
 // NO GLOBAL SAMPLE RATE. It used to live here and forty three things read
 // it, which is why every effect was silently tuned for 48k and only 48k. The

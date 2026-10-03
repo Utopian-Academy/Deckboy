@@ -260,6 +260,7 @@ struct OutputRuntime {
   std::map<int, int> layerBridgeTextureHeights;
   std::map<int, Uint32> layerBridgeTextureFormats;
   std::map<int, std::uint64_t> layerBridgeFrameIndices;
+  std::map<int, std::uintptr_t> layerBridgePixelPointers;
   std::map<int, std::string> layerBridgeCueKeys;
   // DIAGNOSTIC ONLY -- not read by any draw path. Which deck-layers on this
   // output were actually drawn last frame, so renderDeckLayerIntoOutput's
@@ -299,6 +300,10 @@ struct OutputRuntime {
   // drew nothing at all. Each is downloaded ONCE, keyed by deck and role
   // ("out"/"in"), and reused until the frame changes.
   std::map<std::string, std::pair<std::uintptr_t, DecodedFrame>> transitionCpuFrames;
+  // Keep the last processed picture without running feedback a second time.
+  // At a cue change it becomes the outgoing look; storage is bounded per deck.
+  std::map<int, std::pair<std::string, DecodedFrame>> layerLookFrames;
+  std::map<int, std::pair<std::string, DecodedFrame>> heldLookFrames;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
   // The Portal transition's picture: the outgoing frame with the holes melted
   // through it, rebuilt every frame the transition runs.
@@ -338,6 +343,9 @@ struct OutputRuntime {
   std::string streamVideoPipePath;
 #endif
   std::map<int, std::uint64_t> streamAudioReadSamplesByDeck;
+  std::map<const void*, deckboy::audiofx::ProgramAudioState> programAudioStates;
+  std::map<const void*, std::map<int, std::uint64_t>> inputAudioReadSamplesBySink;
+  const void* meteredAudioSink = nullptr;
   double streamAudioSampleRemainder = 0.0;
   // Samples this sink is owed but could not take yet, because the decks had not
   // produced them at the moment the frame was written. Carried rather than
@@ -353,6 +361,10 @@ struct OutputRuntime {
   std::vector<int> streamAudioDecks;
   std::map<int, std::uint64_t> ndiAudioReadSamplesByDeck;
   double ndiAudioSampleRemainder = 0.0;
+  std::map<int, std::uint64_t> deckLinkAudioReadSamplesByDeck;
+  double deckLinkAudioSampleRemainder = 0.0;
+  std::map<int, std::uint64_t> st2110AudioReadSamplesByDeck;
+  double st2110AudioSampleRemainder = 0.0;
   std::string streamSpec;
   // The frame rate a LIVE NETWORK stream was opened with, held for the life of
   // the connection. See ensureOutputStreamRunning: the rate is declared to the

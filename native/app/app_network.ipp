@@ -1926,7 +1926,7 @@
       if (!payload.empty()) {
         // Winsock's send takes an int length; a reply is never near that, but
         // saying so beats a silent narrowing.
-        send(client, payload.c_str(), static_cast<int>(payload.size()), kSocketSendFlags);
+        queueCompanionReplyLocked(client, payload);
       }
     };
 
@@ -1982,7 +1982,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (328)\n"
+        "DECKBOY_0.01 every verb (329)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -2020,7 +2020,7 @@
         "SCHEDULE SECTION SEEK SEEKPOS SELECT SELECTALL SELECTID SFX SHORTID SHUFFLE\n"
         "SHORTCUTS SKIP SKIPBACK SKIPEND SOURCE SPEED SPOUTCUE SRC ST2110\n"
         "STANDBY STARTUP STILLDUR STING SYNTH KEYS NOTESTEP PRESENTER SPLITNOTES PROMPTER\n"
-        "STOP SUB SUBTITLE SUBTITLES SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
+        "STOP SUB SUBTITLE SUBTITLES SWIRL SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
         "SYNTHNOTEON SYPHONCUE TAKE TAKEID TALLYEVENT TC TCMARK TIMECODE TONECUE\n"
         "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
@@ -2121,6 +2121,7 @@
         "         FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [v]\n"
         "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
+        "swirl: SWIRL [STATUS] | SPEED <0-3> | TWIST <0-4> | PIXELS <64-960> | COLOUR <0-1>\n"
         "decklink: DECKLINK ON|OFF|TOGGLE | DEVICE <n> | MODE <mode> | 10BIT on|off\n"
         "          DECKLINK KEYFILL ON|OFF|TOGGLE [key device] | KEYDEVICE <n>\n"
         "          (key+fill sends the picture and its matte down two cards)\n"
@@ -2268,6 +2269,10 @@
       }
       companionClients_.clear();
       companionClientBuffers_.clear();
+      companionClientReplies_.clear();
+      companionClientGenerations_.clear();
+      companionClientFirstLine_.clear();
+      companionReplyStartedAt_.clear();
       companionDrainingClients_.clear();  // sockets already closed by the loop above
     }
     oscSubscribers_.clear();
@@ -2891,8 +2896,7 @@
     if (cmd.empty()) {
       return;
     }
-    std::lock_guard<std::mutex> lk(remoteCommandMutex_);
-    remoteCommands_.push_back(PendingRemoteCommand {std::move(cmd), kInvalidSocket});
+    enqueueRemoteCommand(std::move(cmd));
   }
 
   void onMidiNoteOn(int note, int velocity) {
@@ -4032,8 +4036,7 @@
       }
 
       if (!cmd.empty()) {
-        std::lock_guard<std::mutex> lk(remoteCommandMutex_);
-        remoteCommands_.push_back(PendingRemoteCommand {std::move(cmd), kInvalidSocket});
+        enqueueRemoteCommand(std::move(cmd));
       }
       snd_seq_free_event(ev);
     }
@@ -4254,6 +4257,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
     while (!companionStop_.load()) {
       fd_set readFds;
       FD_ZERO(&readFds);
+      fd_set writeFds;
+      FD_ZERO(&writeFds);
       SocketHandle maxFd = 0;
 
       watchFd(companionTcpListen_, &readFds, maxFd);
@@ -4264,6 +4269,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       {
         std::lock_guard<std::mutex> lk(companionClientsMutex_);
         for (SocketHandle client : companionClients_) {
+          if (!companionClientReplies_[client].empty()) watchFd(client, &writeFds, maxFd);
           // A half-closed client reads EOF forever. Selecting on it would spin
           // this loop and keep pushing its deadline back; it is only waiting
           // for its reply now, not for us to read from it.
@@ -4286,7 +4292,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       timeout.tv_sec = 0;
       timeout.tv_usec = 100000;  // 100ms (was 200ms)
 
-      int ready = select(selectNfds(maxFd), &readFds, nullptr, nullptr, &timeout);
+      int ready = select(selectNfds(maxFd), &readFds, &writeFds, nullptr, &timeout);
       if (ready < 0) {
 #ifndef _WIN32
         if (errno == EINTR) {
@@ -4308,12 +4314,24 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         SocketHandle client = accept(companionTcpListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
         if (client != kInvalidSocket) {
           setCloseOnExec(client);
+#ifdef _WIN32
+          u_long nonblocking = 1;
+          if (ioctlsocket(client, FIONBIO, &nonblocking) != 0) { closeSocket(client); continue; }
+#else
+          const int flags = fcntl(client, F_GETFL, 0);
+          if (flags < 0 || fcntl(client, F_SETFL, flags | O_NONBLOCK) != 0) { closeSocket(client); continue; }
+#ifdef SO_NOSIGPIPE
+          const int noPipe = 1;
+          setsockopt(client, SOL_SOCKET, SO_NOSIGPIPE, &noPipe, sizeof(noPipe));
+#endif
+#endif
           std::lock_guard<std::mutex> lk(companionClientsMutex_);
           constexpr size_t kMaxCompanionClients = 32;
           if (companionClients_.size() >= kMaxCompanionClients) {
             closeSocket(client);  // reject — too many connections
           } else {
             companionClients_.push_back(client);
+            companionClientGenerations_[client] = companionNextGeneration_++;
             companionClientBuffers_[client] = "";
           }
         }
@@ -4348,8 +4366,10 @@ bool looksLikeHttpRequestLine(const std::string& line) {
               }
               auto mapped = mapOscToRemoteCommand(osc);
               if (mapped && !mapped->empty()) {
-                enqueueRemoteCommand(*mapped);
-                sendOscStringTo(sender, "/deckboy/ack", *mapped);
+                if (enqueueRemoteCommand(*mapped))
+                  sendOscStringTo(sender, "/deckboy/ack", *mapped);
+                else
+                  sendOscStringTo(sender, "/deckboy/error", "busy: command queue full");
               }
             }
           } else if (payload.find('\0') != std::string::npos) {
@@ -4364,6 +4384,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       std::vector<SocketHandle> closedClients;
       {
         std::lock_guard<std::mutex> lk(companionClientsMutex_);
+        flushCompanionRepliesLocked(writeFds);
         for (auto client : companionClients_) {
           if (!readyFd(client, &readFds) || companionDrainingClients_.count(client)) {
             continue;
@@ -4372,6 +4393,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           std::array<char, 2048> buffer {};
           int bytes = recv(client, buffer.data(), static_cast<int>(buffer.size()), 0);
           if (bytes <= 0) {
+            if (bytes < 0 && companionSocketWouldBlock()) continue;
             closedClients.push_back(client);
             continue;
           }
@@ -4402,7 +4424,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
               if (!maybeRespondToCompanionQuery(client, line)) {
                 // The client gets an OK/ERR line once the main thread has run
                 // this command.
-                enqueueRemoteCommand(line, client);
+                if (!enqueueRemoteCommand(line, client, companionClientGenerations_[client]))
+                  queueCompanionReplyLocked(client, "ERR busy: command queue full\n");
               }
             }
           }
@@ -4424,7 +4447,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
             std::string leftover = trim(pendingIt->second);
             if (!leftover.empty()) {
               if (!maybeRespondToCompanionQuery(client, leftover)) {
-                enqueueRemoteCommand(leftover, client);
+                if (!enqueueRemoteCommand(leftover, client, companionClientGenerations_[client]))
+                  queueCompanionReplyLocked(client, "ERR busy: command queue full\n");
               }
             }
             companionClientBuffers_.erase(pendingIt);
@@ -4540,6 +4564,11 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       SocketHandle client = it->first;
       it = companionDrainingClients_.erase(it);
       closeSocket(client);
+      companionClientReplies_.erase(client);
+      companionClientGenerations_.erase(client);
+      companionReplyStartedAt_.erase(client);
+      companionClientBuffers_.erase(client);
+      companionClientFirstLine_.erase(client);
       companionClients_.erase(
         std::remove(companionClients_.begin(), companionClients_.end(), client),
         companionClients_.end()
@@ -4557,27 +4586,67 @@ bool looksLikeHttpRequestLine(const std::string& line) {
   // Write one line to a Companion client, from any thread. Takes the same lock
   // the network thread holds while it reads and answers queries, so the two
   // can't interleave mid-line, and skips a client that has since disconnected.
-  void sendCompanionLine(SocketHandle client, const std::string& line) {
+  void sendCompanionLine(SocketHandle client, const std::string& line, std::uint64_t generation = 0) {
     if (client == kInvalidSocket) {
       return;
     }
     const std::string payload = line + "\n";
     std::lock_guard<std::mutex> lk(companionClientsMutex_);
+    const auto current = companionClientGenerations_.find(client);
+    if (generation && (current == companionClientGenerations_.end() || current->second != generation)) return;
     if (std::find(companionClients_.begin(), companionClients_.end(), client)
         == companionClients_.end()) {
       return;
     }
-    send(client, payload.c_str(), static_cast<int>(payload.size()), kSocketSendFlags);
+    queueCompanionReplyLocked(client, payload);
+  }
+
+  static bool companionSocketWouldBlock() {
+#ifdef _WIN32
+    return WSAGetLastError() == WSAEWOULDBLOCK;
+#else
+    return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR;
+#endif
+  }
+
+  // Caller owns the clients mutex; only the network thread touches sockets.
+  void queueCompanionReplyLocked(SocketHandle client, const std::string& payload) {
+    auto& pending = companionClientReplies_[client];
+    if (pending.size() + payload.size() > 1024u * 1024u) {
+      pending.clear();
+      companionDrainingClients_[client] = 0;
+      return;
+    }
+    if (pending.empty()) companionReplyStartedAt_[client] = SDL_GetTicks();
+    pending += payload;
+  }
+
+  void flushCompanionRepliesLocked(fd_set& writable) {
+    for (SocketHandle client : companionClients_) {
+      auto& pending = companionClientReplies_[client];
+      if (pending.empty()) continue;
+      if (SDL_GetTicks() - companionReplyStartedAt_[client] > 5000) {
+        companionDrainingClients_[client] = 0;
+        continue;
+      }
+      if (!readyFd(client, &writable)) continue;
+      const int bytes = send(client, pending.data(),
+        static_cast<int>(std::min<std::size_t>(pending.size(), 16384)), kSocketSendFlags);
+      if (bytes > 0) pending.erase(0, static_cast<std::size_t>(bytes));
+      else if (bytes == 0 || !companionSocketWouldBlock()) companionDrainingClients_[client] = 0;
+    }
   }
 
   void processRemoteCommands() {
-    std::deque<PendingRemoteCommand> pending;
-    {
-      std::lock_guard<std::mutex> lock(remoteCommandMutex_);
-      pending.swap(remoteCommands_);
-    }
-
-    for (const auto& command : pending) {
+    const Uint64 started = SDL_GetTicks();
+    for (int processed = 0; processed < 32 && SDL_GetTicks() - started < 2; ++processed) {
+      PendingRemoteCommand command;
+      {
+        std::lock_guard<std::mutex> lock(remoteCommandMutex_);
+        if (remoteCommands_.empty()) break;
+        command = std::move(remoteCommands_.front());
+        remoteCommands_.pop_front();
+      }
       remoteCommandRecognized_ = true;
       remoteCommandDetail_.clear();
       handleRemoteCommand(command.text);
@@ -4604,6 +4673,6 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       } else {
         reply = "OK " + verb;
       }
-      sendCompanionLine(command.replyTo, reply);
+      sendCompanionLine(command.replyTo, reply, command.replyGeneration);
     }
   }

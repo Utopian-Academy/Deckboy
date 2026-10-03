@@ -232,7 +232,7 @@ void* rendererD3D11Device(SDL_Renderer* renderer);
 // SDL_Texture is destroyed. Dimensions are rounded down to even.
 SDL_Texture* createWrappedVideoTexture(SDL_Renderer* renderer, int w, int h,
                                        FramePixelFormat format,
-                                       void** outTexture2D);
+                                       void** outTexture2D, SDL_Colorspace colorspace);
 void releaseD3D11Texture(void* texture2D);
 
 // GPU→GPU copy of a zero-copy frame's texture-array slice into a texture

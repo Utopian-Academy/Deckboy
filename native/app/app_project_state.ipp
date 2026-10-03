@@ -1169,7 +1169,7 @@
     markProjectDirty();
   }
 
-  bool runPanicOutputsOff(bool requireSafetyContext, Uint32 sourceWindowId) {
+  bool runPanicOutputsOff(bool requireSafetyContext, Uint32 sourceWindowId, bool feedback = true) {
     // Panic is THE event you want in a show log: it means something went wrong
     // enough that the operator hit the big button.
     showLog("PANIC", "outputs off, engines stopped");
@@ -1204,6 +1204,11 @@
     // the video outputs, so leaving the engines playing after a panic keeps
     // sound running against a dark program — the operator hit panic to kill
     // everything AV.
+    cancelAllPendingTakes();
+    vjTakePending_ = false;
+    fadeRuns_.clear();
+    clearPreload();
+    endAudition(false);
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       stopBrowserCue(deckIndex);
       if (auto* engine = mediaEngineForDeck(deckIndex)) {
@@ -1215,8 +1220,10 @@
     pendingPanicProfileToken_.clear();
     panicProfileRequestedAt_ = 0;
     SDL_RaiseWindow(controlWindow_);
-    triggerToast(anyEnabled ? "panic: outputs off" : "panic: outputs already off");
-    playUiSound(UiSoundEffect::Panic);
+    if (feedback) {
+      triggerToast(anyEnabled ? "panic: outputs off" : "panic: outputs already off");
+      playUiSound(UiSoundEffect::Panic);
+    }
     if (anyEnabled) {
       markProjectDirty();
     }
@@ -3111,6 +3118,20 @@
         << quantizeMillis(cue.outPointSeconds) << '|'
         << quantizeMillis(cue.duration) << '|'
         << quantizeMillis(cue.stillDurationSeconds);
+    if (cue.kind == CueKind::Pattern) {
+      const std::string type = stripPatternMotionSuffix(normalizePatternTypeId(cue.path));
+      if (type == "swirl") {
+        key << '|' << cue.swirl.speed << '|' << cue.swirl.twist << '|'
+            << cue.swirl.cells << '|' << cue.swirl.hue;
+      } else if (type == "code") {
+        key << '|' << cue.width << '|' << cue.height << '|' << cue.codeExpression;
+      } else if (type == "portal") {
+        key << '|' << cue.portal.blobs << '|' << cue.portal.size << '|' << cue.portal.blend
+            << '|' << cue.portal.outline << '|' << cue.portal.speed << '|' << cue.portal.hue;
+      } else if (type == "fireside") {
+        key << '|' << cue.firesideIntensity << '|' << cue.firesideSparks << '|' << cue.firesideView;
+      }
+    }
     return key.str();
   }
 
@@ -3958,9 +3979,12 @@
     triggerToast(reason);
   }
 
-  void enqueueRemoteCommand(std::string command, SocketHandle replyTo = kInvalidSocket) {
+  bool enqueueRemoteCommand(std::string command, SocketHandle replyTo = kInvalidSocket,
+                            std::uint64_t replyGeneration = 0) {
     std::lock_guard<std::mutex> lock(remoteCommandMutex_);
-    remoteCommands_.push_back(PendingRemoteCommand {std::move(command), replyTo});
+    if (remoteCommands_.size() >= 512 || command.size() > 65536) return false;
+    remoteCommands_.push_back(PendingRemoteCommand {std::move(command), replyTo, replyGeneration});
+    return true;
   }
 
   void enqueueRemoteCommandBatch(const std::string& payload, char separatorHint = '\n') {

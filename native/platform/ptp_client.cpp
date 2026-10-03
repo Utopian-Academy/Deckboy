@@ -28,6 +28,8 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <limits>
+#include <optional>
 #include <random>
 #include <vector>
 
@@ -72,8 +74,9 @@ constexpr int kMsgAnnounce = 0xB;
 // Delay requests are rate-limited; once a second is ample for a media clock and
 // keeps us from adding traffic to a plant network.
 constexpr std::uint64_t kDelayReqIntervalNanos = 1'000'000'000ull;
-// An offset this large means we are not really following anything sensible.
-constexpr std::int64_t kSaneOffsetNanos = 5'000'000'000ll;   // 5 s
+constexpr std::int64_t kSaneOffsetStepNanos = 5'000'000'000ll;
+constexpr std::uint64_t kExchangeTimeoutNanos = 3'000'000'000ull;
+constexpr std::uint64_t kAnnounceTimeoutNanos = 6'000'000'000ull;
 // Consecutive consistent measurements before we admit to being locked.
 constexpr int kLockThreshold = 4;
 
@@ -81,6 +84,11 @@ std::uint64_t nowSystemNanos() {
   return static_cast<std::uint64_t>(
     std::chrono::duration_cast<std::chrono::nanoseconds>(
       std::chrono::system_clock::now().time_since_epoch()).count());
+}
+
+std::uint64_t nowSteadyNanos() {
+  return static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::steady_clock::now().time_since_epoch()).count());
 }
 
 std::uint16_t readBe16(const std::uint8_t* p) {
@@ -93,7 +101,7 @@ void writeBe16(std::uint8_t* p, std::uint16_t v) {
 }
 
 // PTP timestamp -> nanoseconds since the PTP epoch.
-std::uint64_t readTimestamp(const std::uint8_t* p) {
+std::optional<std::int64_t> readTimestamp(const std::uint8_t* p, std::int64_t correction) {
   std::uint64_t seconds = 0;
   for (int i = 0; i < 6; ++i) {
     seconds = (seconds << 8) | p[i];
@@ -101,7 +109,24 @@ std::uint64_t readTimestamp(const std::uint8_t* p) {
   const std::uint32_t nanos =
     (static_cast<std::uint32_t>(p[6]) << 24) | (static_cast<std::uint32_t>(p[7]) << 16) |
     (static_cast<std::uint32_t>(p[8]) << 8) | static_cast<std::uint32_t>(p[9]);
-  return seconds * 1'000'000'000ull + nanos;
+  const auto maximum = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
+  if (nanos >= 1'000'000'000u || seconds > (maximum - nanos) / 1'000'000'000ull)
+    return std::nullopt;
+  const auto value = static_cast<std::int64_t>(seconds * 1'000'000'000ull + nanos);
+  if ((correction > 0 && value > std::numeric_limits<std::int64_t>::max() - correction) ||
+      (correction < 0 && value < -correction)) return std::nullopt;
+  return value + correction;
+}
+
+std::optional<std::int64_t> timestampDelta(std::uint64_t local, std::int64_t remote) {
+  if (local > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
+    return std::nullopt;
+  const auto delta = static_cast<std::int64_t>(local) - remote;
+  // Accept UTC/TAI and wall-clock acquisition offsets, while rejecting wire
+  // timestamps too far apart to describe an exchange on this running node.
+  constexpr std::int64_t maximumOffset = 86'400'000'000'000ll;
+  if (delta < -maximumOffset || delta > maximumOffset) return std::nullopt;
+  return delta;
 }
 
 void writeTimestamp(std::uint8_t* p, std::uint64_t nanos) {
@@ -118,10 +143,12 @@ void writeTimestamp(std::uint8_t* p, std::uint64_t nanos) {
 
 // correctionField is a 64-bit signed value scaled by 2^16 nanoseconds.
 std::int64_t readCorrectionNanos(const std::uint8_t* p) {
-  std::int64_t raw = 0;
+  std::uint64_t bits = 0;
   for (int i = 0; i < 8; ++i) {
-    raw = (raw << 8) | p[i];
+    bits = (bits << 8) | p[i];
   }
+  std::int64_t raw;
+  std::memcpy(&raw, &bits, sizeof(raw));
   return raw >> 16;
 }
 
@@ -259,8 +286,9 @@ bool PtpClient::start(const PtpConfig& config) {
   generalSocket_ = static_cast<long long>(gen);
   stop_.store(false);
   locked_.store(false);
-  haveOffset_ = false;
-  consecutiveGoodOffsets_ = 0;
+  resetExchange();
+  haveSource_ = false;
+  lastSyncSteadyNanos_ = lastAnnounceSteadyNanos_ = 0;
   running_.store(true);
   thread_ = std::thread([this] { listenLoop(); });
   return true;
@@ -333,6 +361,7 @@ void PtpClient::listenLoop() {
       }
     }
 
+    expireExchanges(nowSteadyNanos());
     // Keep the path-delay estimate fresh.
     const std::uint64_t now = nowSystemNanos();
     if (haveOffset_ && !awaitingDelayResp_ &&
@@ -340,6 +369,49 @@ void PtpClient::listenLoop() {
       sendDelayRequest();
     }
   }
+}
+
+void PtpClient::resetExchange() {
+  locked_.store(false);
+  haveOffset_ = false;
+  consecutiveGoodOffsets_ = 0;
+  smoothedOffsetNanos_ = 0;
+  offsetNanos_.store(0);
+  pathDelayNanos_.store(0);
+  awaitingFollowUp_ = awaitingDelayResp_ = false;
+  lastDelayReqAtNanos_ = delayRequestSteadyNanos_ = 0;
+}
+
+void PtpClient::expireExchanges(std::uint64_t now) {
+  if (awaitingDelayResp_ && now - delayRequestSteadyNanos_ >= kExchangeTimeoutNanos)
+    awaitingDelayResp_ = false;
+  if (awaitingFollowUp_ && lastSyncSteadyNanos_ &&
+      now - lastSyncSteadyNanos_ >= kExchangeTimeoutNanos) awaitingFollowUp_ = false;
+  if ((lastSyncSteadyNanos_ && now - lastSyncSteadyNanos_ >= kExchangeTimeoutNanos) ||
+      (lastAnnounceSteadyNanos_ && now - lastAnnounceSteadyNanos_ >= kAnnounceTimeoutNanos)) {
+    resetExchange();
+    haveSource_ = false;
+    lastSyncSteadyNanos_ = lastAnnounceSteadyNanos_ = 0;
+    std::lock_guard<std::mutex> lock(stateMutex_);
+    grandmasterIdentity_.clear();
+  }
+}
+
+void PtpClient::publishOffset(std::int64_t localMinusPtp) {
+  const std::int64_t publish = -localMinusPtp;
+  // UTC and TAI normally differ by tens of seconds. Check a CHANGE in the
+  // acquired offset, never its absolute value relative to the local epoch.
+  if (haveOffset_ && std::llabs(publish - smoothedOffsetNanos_) > kSaneOffsetStepNanos)
+    resetExchange();
+  if (haveOffset_ && std::llabs(publish - smoothedOffsetNanos_) > 1'000'000) {
+    consecutiveGoodOffsets_ = 0;
+    locked_.store(false);
+  }
+  smoothedOffsetNanos_ = haveOffset_
+    ? smoothedOffsetNanos_ + (publish - smoothedOffsetNanos_) / 8 : publish;
+  haveOffset_ = true;
+  offsetNanos_.store(smoothedOffsetNanos_, std::memory_order_relaxed);
+  if (++consecutiveGoodOffsets_ >= kLockThreshold) locked_.store(true);
 }
 
 void PtpClient::handleEventPacket(const std::uint8_t* data, std::size_t size,
@@ -354,7 +426,11 @@ void PtpClient::handleEventPacket(const std::uint8_t* data, std::size_t size,
   if (messageType != kMsgSync) {
     return;
   }
+  if (readBe16(data + 2) < kHeaderBytes + 10 || readBe16(data + 2) > size ||
+      !haveSource_ || std::memcmp(data + 20, sourcePortIdentity_, 10) != 0) return;
+  lastSyncSteadyNanos_ = nowSteadyNanos();
   const bool twoStep = (data[6] & 0x02) != 0;
+  syncCorrectionNanos_ = readCorrectionNanos(data + 8);
   syncArrivalNanos_ = arrivalNanos;                 // T2
   pendingSyncSequence_ = readBe16(data + 30);
   if (twoStep) {
@@ -362,24 +438,13 @@ void PtpClient::handleEventPacket(const std::uint8_t* data, std::size_t size,
     return;
   }
   // One-step: the origin timestamp is in the Sync itself.
-  const std::uint64_t t1 = readTimestamp(data + kHeaderBytes) + readCorrectionNanos(data + 8);
-  const std::int64_t rawOffset =
-    static_cast<std::int64_t>(syncArrivalNanos_) - static_cast<std::int64_t>(t1);
+  const auto t1 = readTimestamp(data + kHeaderBytes, syncCorrectionNanos_);
+  const auto rawOffset = t1 ? timestampDelta(syncArrivalNanos_, *t1) : std::nullopt;
+  if (!rawOffset) return;
   const std::int64_t pathDelay = pathDelayNanos_.load(std::memory_order_relaxed);
-  const std::int64_t offset = rawOffset - pathDelay;
-  if (std::llabs(offset) > kSaneOffsetNanos && locked_.load()) {
-    return;
-  }
-  // The offset we publish is PTP-minus-local, i.e. what to ADD to local time.
-  const std::int64_t publish = -offset;
-  smoothedOffsetNanos_ = haveOffset_
-    ? static_cast<std::int64_t>(smoothedOffsetNanos_ * 0.875 + publish * 0.125)
-    : publish;
-  haveOffset_ = true;
-  offsetNanos_.store(smoothedOffsetNanos_, std::memory_order_relaxed);
-  if (++consecutiveGoodOffsets_ >= kLockThreshold) {
-    locked_.store(true, std::memory_order_relaxed);
-  }
+  const std::int64_t offset = *rawOffset - pathDelay;
+  awaitingFollowUp_ = false;
+  publishOffset(offset);
 }
 
 void PtpClient::handleGeneralPacket(const std::uint8_t* data, std::size_t size) {
@@ -390,64 +455,59 @@ void PtpClient::handleGeneralPacket(const std::uint8_t* data, std::size_t size) 
     return;
   }
   const int messageType = data[0] & 0x0F;
+  if (readBe16(data + 2) < kHeaderBytes || readBe16(data + 2) > size) return;
 
-  if (messageType == kMsgAnnounce && size >= 61) {
+  if (messageType == kMsgAnnounce && size >= 64 && readBe16(data + 2) >= 64) {
+    if (haveSource_ && std::memcmp(data + 20, sourcePortIdentity_, 10) != 0) return;
     const std::string gm = formatClockIdentity(data + 53);
     std::lock_guard<std::mutex> lock(stateMutex_);
-    if (grandmasterIdentity_ != gm) {
+    if (!haveSource_ || grandmasterIdentity_ != gm) {
+      resetExchange();
+      std::memcpy(sourcePortIdentity_, data + 20, 10);
+      haveSource_ = true;
       grandmasterIdentity_ = gm;
     }
+    lastAnnounceSteadyNanos_ = nowSteadyNanos();
     return;
   }
+  if (!haveSource_ || std::memcmp(data + 20, sourcePortIdentity_, 10) != 0) return;
 
-  if (messageType == kMsgFollowUp && size >= kHeaderBytes + 10) {
+  if (messageType == kMsgFollowUp && size >= kHeaderBytes + 10 &&
+      readBe16(data + 2) >= kHeaderBytes + 10) {
     if (!awaitingFollowUp_ || readBe16(data + 30) != pendingSyncSequence_) {
       return;  // not the Follow_Up for the Sync we are holding
     }
     awaitingFollowUp_ = false;
-    const std::uint64_t t1 =
-      readTimestamp(data + kHeaderBytes) + readCorrectionNanos(data + 8);
-    const std::int64_t rawOffset =
-      static_cast<std::int64_t>(syncArrivalNanos_) - static_cast<std::int64_t>(t1);
+    const auto t1 = readTimestamp(data + kHeaderBytes,
+      syncCorrectionNanos_ + readCorrectionNanos(data + 8));
+    const auto rawOffset = t1 ? timestampDelta(syncArrivalNanos_, *t1) : std::nullopt;
+    if (!rawOffset) return;
     const std::int64_t pathDelay = pathDelayNanos_.load(std::memory_order_relaxed);
-    const std::int64_t offset = rawOffset - pathDelay;
-    if (std::llabs(offset) > kSaneOffsetNanos && locked_.load()) {
-      consecutiveGoodOffsets_ = 0;
-      locked_.store(false, std::memory_order_relaxed);
-      return;
-    }
-    const std::int64_t publish = -offset;
-    // Gentle IIR: a media clock wants to be steady, and a single jittery
-    // user-space timestamp should not yank it.
-    smoothedOffsetNanos_ = haveOffset_
-      ? static_cast<std::int64_t>(smoothedOffsetNanos_ * 0.875 + publish * 0.125)
-      : publish;
-    haveOffset_ = true;
-    offsetNanos_.store(smoothedOffsetNanos_, std::memory_order_relaxed);
-    if (++consecutiveGoodOffsets_ >= kLockThreshold) {
-      locked_.store(true, std::memory_order_relaxed);
-    }
+    const std::int64_t offset = *rawOffset - pathDelay;
+    publishOffset(offset);
     return;
   }
 
-  if (messageType == kMsgDelayResp && size >= kHeaderBytes + 20) {
+  if (messageType == kMsgDelayResp && size >= kHeaderBytes + 20 &&
+      readBe16(data + 2) >= kHeaderBytes + 20) {
     if (!awaitingDelayResp_ || readBe16(data + 30) != delayReqSequence_) {
       return;
     }
     // Only ours: the requesting port identity must match our clock identity.
-    if (std::memcmp(data + kHeaderBytes + 10, localClockIdentity_, 8) != 0) {
+    if (std::memcmp(data + kHeaderBytes + 10, localClockIdentity_, 8) != 0 ||
+        readBe16(data + kHeaderBytes + 18) != 1) {
       return;
     }
     awaitingDelayResp_ = false;
-    const std::uint64_t t4 =
-      readTimestamp(data + kHeaderBytes) - readCorrectionNanos(data + 8);
-    const std::int64_t reverse =
-      static_cast<std::int64_t>(t4) - static_cast<std::int64_t>(delayReqSentNanos_);
+    const auto t4 = readTimestamp(data + kHeaderBytes, -readCorrectionNanos(data + 8));
+    const auto reverse = t4 ? timestampDelta(delayReqSentNanos_, *t4) : std::nullopt;
+    if (!reverse) return;
     // meanPathDelay = ((T2-T1) + (T4-T3)) / 2. (T2-T1) is the current raw
     // forward measurement, recoverable from the published offset.
     const std::int64_t forward = -offsetNanos_.load(std::memory_order_relaxed)
                                + pathDelayNanos_.load(std::memory_order_relaxed);
-    std::int64_t delay = (forward + reverse) / 2;
+    std::int64_t delay = (forward - *reverse) / 2;
+    if (delay > 1'000'000'000ll) return;
     if (delay < 0) {
       delay = 0;  // asymmetric or jittered measurement; never go negative
     }
@@ -485,6 +545,7 @@ void PtpClient::sendDelayRequest() {
                             reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
   if (sent > 0) {
     awaitingDelayResp_ = true;
+    delayRequestSteadyNanos_ = nowSteadyNanos();
     lastDelayReqAtNanos_ = delayReqSentNanos_;
   }
 }

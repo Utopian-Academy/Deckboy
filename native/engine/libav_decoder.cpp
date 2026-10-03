@@ -601,6 +601,19 @@ struct VideoPipeline::Impl {
     }
   }
 
+  SDL_Colorspace sourceColorspace() const {
+    const bool sd = frame->height <= 576;
+    const int matrix = frame->colorspace == AVCOL_SPC_UNSPECIFIED
+      ? (sd ? AVCOL_SPC_SMPTE170M : AVCOL_SPC_BT709) : frame->colorspace;
+    const int primaries = frame->color_primaries == AVCOL_PRI_UNSPECIFIED
+      ? (sd ? AVCOL_PRI_SMPTE170M : AVCOL_PRI_BT709) : frame->color_primaries;
+    const int transfer = frame->color_trc == AVCOL_TRC_UNSPECIFIED
+      ? AVCOL_TRC_BT709 : frame->color_trc;
+    return static_cast<SDL_Colorspace>(SDL_DEFINE_COLORSPACE(SDL_COLOR_TYPE_YCBCR,
+      frame->color_range == AVCOL_RANGE_JPEG ? SDL_COLOR_RANGE_FULL : SDL_COLOR_RANGE_LIMITED,
+      primaries, transfer, matrix, frame->chroma_location));
+  }
+
   // Fill `out` from the decoded `frame`. Returns false when the frame is
   // dropped (pre-seek-target) — the caller keeps pumping.
   bool convertFrame(DecodedFrame& out) {
@@ -658,6 +671,7 @@ struct VideoPipeline::Impl {
                        ? FramePixelFormat::P010
                        : FramePixelFormat::NV12;
         out.presentationSeconds = ptsSeconds;
+        out.colorspace = sourceColorspace();
         out.gpuFrameRef = std::shared_ptr<void>(ref, SharedAvFrameDeleter{});
         out.gpuTexture = ref->data[0];
         out.gpuSubresource = static_cast<int>(reinterpret_cast<intptr_t>(ref->data[1]));
@@ -701,6 +715,7 @@ struct VideoPipeline::Impl {
         out.width = frame->width & ~1;
         out.height = frame->height & ~1;
         out.format = FramePixelFormat::NV12;
+        out.colorspace = sourceColorspace();
         out.presentationSeconds = ptsSeconds;
         // The AVFrame ref owns the pixel buffer; holding it is what keeps the
         // IOSurface alive while a texture is wrapped around it.
@@ -720,6 +735,7 @@ struct VideoPipeline::Impl {
       if (av_hwframe_transfer_data(swFrame, frame, 0) < 0) {
         return false;
       }
+      av_frame_copy_props(swFrame, frame);
       src = swFrame;
     }
     int dstW = params.targetWidth > 0 ? params.targetWidth : src->width;
@@ -734,6 +750,7 @@ struct VideoPipeline::Impl {
     out.width = dstW;
     out.height = dstH;
     out.format = params.format;
+    out.colorspace = params.format == FramePixelFormat::NV12 ? sourceColorspace() : SDL_COLORSPACE_SRGB;
     out.presentationSeconds = ptsSeconds;
     out.pixels.resize(bytes);
 
@@ -762,6 +779,13 @@ struct VideoPipeline::Impl {
     if (!swsCtx) {
       return false;
     }
+    const int matrix = frame->colorspace == AVCOL_SPC_UNSPECIFIED
+      ? (frame->height <= 576 ? SWS_CS_ITU601 : SWS_CS_ITU709) : frame->colorspace;
+    const int* coefficients = sws_getCoefficients(matrix);
+    const int fullRange = frame->color_range == AVCOL_RANGE_JPEG ? 1 : 0;
+    if (sws_setColorspaceDetails(swsCtx, coefficients, fullRange, coefficients,
+        params.format == FramePixelFormat::NV12 ? fullRange : 1, 0, 1 << 16, 1 << 16) < 0)
+      return false;
     std::uint8_t* dstData[4] = {out.pixels.data(), nullptr, nullptr, nullptr};
     int dstLinesize[4] = {0, 0, 0, 0};
     if (params.format == FramePixelFormat::NV12) {
@@ -1230,7 +1254,7 @@ void* rendererD3D11Device(SDL_Renderer* renderer) {
 
 SDL_Texture* createWrappedVideoTexture(SDL_Renderer* renderer, int w, int h,
                                        FramePixelFormat format,
-                                       void** outTexture2D) {
+                                       void** outTexture2D, SDL_Colorspace colorspace) {
 #ifdef _WIN32
   if (outTexture2D) {
     *outTexture2D = nullptr;
@@ -1251,7 +1275,7 @@ SDL_Texture* createWrappedVideoTexture(SDL_Renderer* renderer, int w, int h,
   // the compositor can GPU-copy decoded slices into it. STATIC access maps to
   // D3D11_USAGE_DEFAULT — a valid CopySubresourceRegion destination.
   SDL_Texture* texture = deckboyCreateTexture(renderer, sdlFormat,
-                                              SDL_TEXTUREACCESS_STATIC, w, h);
+                                              SDL_TEXTUREACCESS_STATIC, w, h, colorspace);
   if (!texture) {
     return nullptr;
   }
@@ -1267,7 +1291,7 @@ SDL_Texture* createWrappedVideoTexture(SDL_Renderer* renderer, int w, int h,
   *outTexture2D = texture2D;
   return texture;
 #else
-  (void) renderer; (void) w; (void) h; (void) format; (void) outTexture2D;
+  (void) renderer; (void) w; (void) h; (void) format; (void) outTexture2D; (void) colorspace;
   return nullptr;
 #endif
 }
@@ -1304,6 +1328,7 @@ SDL_Texture* wrapPixelBufferTexture(SDL_Renderer* renderer,
                          frame.gpuTexture);
   SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_ACCESS_NUMBER,
                         SDL_TEXTUREACCESS_STATIC);
+  SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_COLORSPACE_NUMBER, frameColorspace(frame));
   SDL_Texture* texture = SDL_CreateTextureWithProperties(renderer, props);
   SDL_DestroyProperties(props);
   if (texture) {
@@ -1359,6 +1384,11 @@ bool downloadGpuFrameNV12(const DecodedFrame& frame, DecodedFrame& out) {
   const bool transferred = av_hwframe_transfer_data(cpu, src, 0) >= 0;
   const bool isP010 = transferred && cpu->format == AV_PIX_FMT_P010;
   bool ok = transferred && (cpu->format == AV_PIX_FMT_NV12 || isP010);
+  if (ok) {
+    out = DecodedFrame{};
+    out.colorspace = frameColorspace(frame);
+    out.presentationSeconds = frame.presentationSeconds;
+  }
   if (ok && isP010) {
     // P010 carries 16-bit samples with the meaningful bits at the TOP, so the
     // high byte of each sample IS the 8-bit value. Taking it costs one pass

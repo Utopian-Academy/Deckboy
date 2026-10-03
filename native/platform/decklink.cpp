@@ -35,6 +35,7 @@
 #include <mutex>
 #include <cstring>
 #include <iostream>
+#include <cmath>
 
 #if defined(DECKBOY_HAS_DECKLINK)
 
@@ -276,9 +277,11 @@ void deckLinkModeFrameRate(DeckLinkMode mode, int& numerator, int& denominator) 
       numerator = 25000; denominator = 1000; break;
     case DeckLinkMode::HD1080p2997:
     case DeckLinkMode::UHD2160p2997:
+    case DeckLinkMode::HD1080i5994:
       numerator = 30000; denominator = 1001; break;
     case DeckLinkMode::HD1080p30:
     case DeckLinkMode::UHD2160p30:
+    case DeckLinkMode::HD1080i60:
       numerator = 30000; denominator = 1000; break;
     case DeckLinkMode::HD720p50:
     case DeckLinkMode::HD1080p50:
@@ -286,12 +289,10 @@ void deckLinkModeFrameRate(DeckLinkMode mode, int& numerator, int& denominator) 
       numerator = 50000; denominator = 1000; break;
     case DeckLinkMode::HD720p5994:
     case DeckLinkMode::HD1080p5994:
-    case DeckLinkMode::HD1080i5994:
     case DeckLinkMode::UHD2160p5994:
       numerator = 60000; denominator = 1001; break;
     case DeckLinkMode::HD720p60:
     case DeckLinkMode::HD1080p60:
-    case DeckLinkMode::HD1080i60:
     case DeckLinkMode::UHD2160p60:
     default:
       numerator = 60000; denominator = 1000; break;
@@ -299,13 +300,70 @@ void deckLinkModeFrameRate(DeckLinkMode mode, int& numerator, int& denominator) 
 }
 
 // ── DeckLinkOutput implementation (SDK 16.0) ────────────────────────────────
+bool deckLinkConvertBgra(const std::uint8_t* pixels, int width, int height, int stride,
+                        std::uint8_t* output, int outputWidth, int outputHeight,
+                        int outputStride, bool tenBit) {
+  if (!pixels || !output || width <= 0 || height <= 0 || outputWidth <= 0 ||
+      outputHeight <= 0 || (outputWidth & 1) || stride < width * 4 ||
+      outputStride < (tenBit ? (outputWidth + 47) / 48 * 128 : outputWidth * 2)) return false;
+  const double gain = tenBit ? 4.0 : 1.0;
+  auto pair = [&](const std::uint8_t* row, int x, std::uint16_t* samples) {
+    if (x >= outputWidth) {
+      samples[0] = samples[2] = static_cast<std::uint16_t>(128 * gain);
+      samples[1] = samples[3] = static_cast<std::uint16_t>(16 * gain);
+      return;
+    }
+    const auto* a = row + (static_cast<std::int64_t>(x) * width / outputWidth) * 4;
+    const auto* b = row + (static_cast<std::int64_t>(x + 1) * width / outputWidth) * 4;
+    const double lumaA = (0.2126 * a[2] + 0.7152 * a[1] + 0.0722 * a[0]) / 255.0;
+    const double lumaB = (0.2126 * b[2] + 0.7152 * b[1] + 0.0722 * b[0]) / 255.0;
+    const double luma = (lumaA + lumaB) * 0.5;
+    const double red = (a[2] + b[2]) / 510.0;
+    const double blue = (a[0] + b[0]) / 510.0;
+    samples[0] = static_cast<std::uint16_t>(std::clamp(std::lround(gain *
+      (128.0 + 112.0 * (blue - luma) / (1.0 - 0.0722))),
+      static_cast<long>(16 * gain), static_cast<long>(240 * gain)));
+    samples[1] = static_cast<std::uint16_t>(std::lround(gain * (16.0 + 219.0 * lumaA)));
+    samples[2] = static_cast<std::uint16_t>(std::clamp(std::lround(gain *
+      (128.0 + 112.0 * (red - luma) / (1.0 - 0.2126))),
+      static_cast<long>(16 * gain), static_cast<long>(240 * gain)));
+    samples[3] = static_cast<std::uint16_t>(std::lround(gain * (16.0 + 219.0 * lumaB)));
+  };
+  for (int y = 0; y < outputHeight; ++y) {
+    const auto* row = pixels + (static_cast<std::int64_t>(y) * height / outputHeight) * stride;
+    auto* dst = output + static_cast<std::size_t>(y) * outputStride;
+    std::memset(dst, 0, static_cast<std::size_t>(outputStride));
+    if (!tenBit) {
+      for (int x = 0; x < outputWidth; x += 2) {
+        std::uint16_t samples[4];
+        pair(row, x, samples);
+        for (int i = 0; i < 4; ++i) dst[x * 2 + i] = static_cast<std::uint8_t>(samples[i]);
+      }
+    } else {
+      for (int x = 0; x < outputWidth; x += 6) {
+        std::uint16_t s[12];
+        for (int i = 0; i < 3; ++i) pair(row, x + i * 2, s + i * 4);
+        const std::uint32_t words[4] = {
+          s[0] | (std::uint32_t(s[1]) << 10) | (std::uint32_t(s[2]) << 20),
+          s[3] | (std::uint32_t(s[4]) << 10) | (std::uint32_t(s[5]) << 20),
+          s[6] | (std::uint32_t(s[7]) << 10) | (std::uint32_t(s[8]) << 20),
+          s[9] | (std::uint32_t(s[10]) << 10) | (std::uint32_t(s[11]) << 20)};
+        for (int i = 0; i < 4; ++i)
+          for (int byte = 0; byte < 4; ++byte)
+            dst[(x / 6) * 16 + i * 4 + byte] = static_cast<std::uint8_t>(words[i] >> (byte * 8));
+      }
+    }
+  }
+  return true;
+}
+
 // Cross-platform implementation using the Blackmagic DeckLink SDK 16.x COM
 // interface. Platform differences are isolated in the helpers above; the Impl
 // class and public methods below are platform-neutral.
 
 #if defined(DECKBOY_HAS_DECKLINK)
 
-class DeckLinkOutput::Impl {
+class DeckLinkOutput::Impl final : public IDeckLinkVideoOutputCallback {
  public:
   IDeckLink* deckLink_ = nullptr;              // COM device handle
   IDeckLinkOutput* deckLinkOutput_ = nullptr;  // COM output interface
@@ -320,6 +378,33 @@ class DeckLinkOutput::Impl {
   // Scheduled playback: frame counter drives the time base for ScheduleVideoFrame
   bool playbackStarted_ = false;
   std::uint64_t frameCount_ = 0;
+  std::uint64_t audioFrameCount_ = 0;
+  bool audioEnabled_ = false;
+  std::atomic<ULONG> refCount_ {1};
+  std::atomic<std::uint64_t> lateFrames_ {0};
+
+  HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID* ppv) override {
+    if (!ppv) return E_POINTER;
+    *ppv = nullptr;
+#if defined(_WIN32)
+    if (iid == IID_IUnknown || iid == IID_IDeckLinkVideoOutputCallback) {
+      *ppv = static_cast<IDeckLinkVideoOutputCallback*>(this);
+      AddRef();
+      return S_OK;
+    }
+#else
+    (void)iid;
+#endif
+    return E_NOINTERFACE;
+  }
+  ULONG STDMETHODCALLTYPE AddRef() override { return ++refCount_; }
+  ULONG STDMETHODCALLTYPE Release() override { return --refCount_; }
+  HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*,
+      BMDOutputFrameCompletionResult result) override {
+    if (result != bmdOutputFrameCompleted) ++lateFrames_;
+    return S_OK;
+  }
+  HRESULT STDMETHODCALLTYPE ScheduledPlaybackHasStopped() override { return S_OK; }
 
   // Converts our DeckLinkMode enum to the SDK's BMDDisplayMode constants.
   BMDDisplayMode toBmdMode(DeckLinkMode m) const { return deckLinkModeToBmd(m); }
@@ -512,7 +597,7 @@ std::vector<DeckLinkDeviceInfo> DeckLinkOutput::listDevices() {
 // Initialize the DeckLink output: open the device, validate the requested mode
 // and pixel format, then enable video output on the card.
 // Tries 10-bit first; falls back to 8-bit if the device doesn't support it.
-bool DeckLinkOutput::init(int deviceId, DeckLinkMode mode, bool enable10Bit) {
+bool DeckLinkOutput::init(int deviceId, DeckLinkMode mode, bool enable10Bit, bool enableAudio) {
   if (impl_->isInitialized_) shutdown();
 
   impl_->ensureCOMInitialized();
@@ -595,6 +680,16 @@ bool DeckLinkOutput::init(int deviceId, DeckLinkMode mode, bool enable10Bit) {
   impl_->isInitialized_ = true;
   impl_->playbackStarted_ = false;
   impl_->frameCount_ = 0;
+  impl_->audioFrameCount_ = 0;
+  impl_->audioEnabled_ = enableAudio;
+  impl_->lateFrames_.store(0);
+  if (output->SetScheduledFrameCompletionCallback(impl_.get()) != S_OK ||
+      (enableAudio && (output->EnableAudioOutput(bmdAudioSampleRate48kHz,
+        bmdAudioSampleType16bitInteger, 2, bmdAudioOutputStreamTimestamped) != S_OK ||
+        output->BeginAudioPreroll() != S_OK))) {
+    shutdown();
+    return false;
+  }
   return true;
 }
 
@@ -612,6 +707,8 @@ void DeckLinkOutput::shutdown() {
     if (impl_->playbackStarted_) {
       impl_->deckLinkOutput_->StopScheduledPlayback(0, nullptr, 0);
     }
+    impl_->deckLinkOutput_->SetScheduledFrameCompletionCallback(nullptr);
+    if (impl_->audioEnabled_) impl_->deckLinkOutput_->DisableAudioOutput();
     impl_->deckLinkOutput_->DisableVideoOutput();
     impl_->deckLinkOutput_->Release();
     impl_->deckLinkOutput_ = nullptr;
@@ -631,7 +728,11 @@ void DeckLinkOutput::shutdown() {
 //   3. Convert BGRA → UYVY using BT.709 RGB→YCbCr coefficients
 //   4. Display synchronously (first frame) or schedule for playback
 bool DeckLinkOutput::sendFrame(const std::uint8_t* pixels, int width, int height, int stride) {
-  if (!impl_->isInitialized_ || !impl_->deckLinkOutput_ || !pixels) return false;
+  if (!impl_->isInitialized_ || !impl_->deckLinkOutput_ || !pixels ||
+      width <= 0 || height <= 0 || stride < width * 4) return false;
+  unsigned int buffered = 0;
+  if (impl_->deckLinkOutput_->GetBufferedVideoFrameCount(&buffered) != S_OK) return false;
+  if (buffered >= 4) return true;
 
   int modeW = deckLinkModeWidth(impl_->mode_);
   int modeH = deckLinkModeHeight(impl_->mode_);
@@ -673,64 +774,32 @@ bool DeckLinkOutput::sendFrame(const std::uint8_t* pixels, int width, int height
   // Nearest-neighbor scaling: for each output pixel, sample the closest
   // input pixel. Processes pixel pairs since UYVY shares chroma between
   // two adjacent luma samples.
-  auto* dst = static_cast<std::uint8_t*>(frameData);
-  for (int y = 0; y < modeH; ++y) {
-    // Map output row → nearest input row
-    int srcY = (height > 0) ? std::min(y * height / modeH, height - 1) : 0;
-    const std::uint8_t* srcRow = pixels + srcY * stride;
-
-    for (int x = 0; x < modeW; x += 2) {
-      // Map each pixel in the output pair to the nearest input column
-      int srcX0 = (width > 0) ? std::min(x * width / modeW, width - 1) : 0;
-      int srcX1 = (width > 0) ? std::min((x + 1) * width / modeW, width - 1) : 0;
-
-      // Read BGRA components from the input buffer
-      int b0 = srcRow[srcX0 * 4 + 0], g0 = srcRow[srcX0 * 4 + 1], r0 = srcRow[srcX0 * 4 + 2];
-      int b1 = srcRow[srcX1 * 4 + 0], g1 = srcRow[srcX1 * 4 + 1], r1 = srcRow[srcX1 * 4 + 2];
-
-      // BT.709 RGB→YCbCr conversion (integer approximation)
-      // Y  = (( 66*R + 129*G +  25*B + 128) >> 8) + 16    (luma, range 16–235)
-      // Cb = ((-38*R -  74*G + 112*B + 128) >> 8) + 128   (blue chroma, range 16–240)
-      // Cr = ((112*R -  94*G -  18*B + 128) >> 8) + 128   (red chroma, range 16–240)
-      int y0 = ((66 * r0 + 129 * g0 + 25 * b0 + 128) >> 8) + 16;
-      int y1 = ((66 * r1 + 129 * g1 + 25 * b1 + 128) >> 8) + 16;
-      // Average the RGB of the pixel pair for shared chroma samples
-      int avgR = (r0 + r1) / 2, avgG = (g0 + g1) / 2, avgB = (b0 + b1) / 2;
-      int cb = ((-38 * avgR - 74 * avgG + 112 * avgB + 128) >> 8) + 128;
-      int cr = ((112 * avgR - 94 * avgG - 18 * avgB + 128) >> 8) + 128;
-
-      if (!impl_->enable10Bit_) {
-        // UYVY byte order: Cb Y0 Cr Y1 (4 bytes per 2 pixels)
-        int dstOff = y * outStride + x * 2;
-        dst[dstOff + 0] = static_cast<std::uint8_t>(std::clamp(cb, 0, 255));
-        dst[dstOff + 1] = static_cast<std::uint8_t>(std::clamp(y0, 0, 255));
-        dst[dstOff + 2] = static_cast<std::uint8_t>(std::clamp(cr, 0, 255));
-        dst[dstOff + 3] = static_cast<std::uint8_t>(std::clamp(y1, 0, 255));
-      }
-      // 10-bit path: v210 packing is complex — omitted for now, falls back to 8-bit
-    }
-  }
+  const bool converted = deckLinkConvertBgra(pixels, width, height, stride,
+    static_cast<std::uint8_t*>(frameData), modeW, modeH, outStride, impl_->enable10Bit_);
 
   // Release buffer access before submitting the frame for display
   videoBuffer->EndAccess(bmdBufferAccessWrite);
   videoBuffer->Release();
 
-  // Display the frame: sync for the first frame, scheduled for subsequent ones
-  if (!impl_->playbackStarted_) {
-    impl_->deckLinkOutput_->DisplayVideoFrameSync(frame);
-  } else {
-    // Use the mode's frame rate to calculate the time base for scheduling
-    int frN = 0, frD = 0;
-    deckLinkModeFrameRate(impl_->mode_, frN, frD);
-    BMDTimeValue duration = frD;
-    BMDTimeScale scale = frN;
-    impl_->deckLinkOutput_->ScheduleVideoFrame(
-      frame, impl_->frameCount_ * duration, duration, scale);
-    impl_->frameCount_++;
+  int frN = 0, frD = 0;
+  deckLinkModeFrameRate(impl_->mode_, frN, frD);
+  if (impl_->playbackStarted_) {
+    BMDTimeValue streamTime = 0;
+    double speed = 1.0;
+    if (impl_->deckLinkOutput_->GetScheduledStreamTime(frN, &streamTime, &speed) == S_OK)
+      impl_->frameCount_ = std::max(impl_->frameCount_,
+        static_cast<std::uint64_t>(std::max<BMDTimeValue>(0, streamTime) / frD + 2));
   }
-
+  bool scheduled = converted && impl_->deckLinkOutput_->ScheduleVideoFrame(
+    frame, static_cast<BMDTimeValue>(impl_->frameCount_) * frD, frD, frN) == S_OK;
+  if (scheduled) ++impl_->frameCount_;
+  if (scheduled && !impl_->playbackStarted_ && impl_->frameCount_ >= 3) {
+    scheduled = (!impl_->audioEnabled_ || impl_->deckLinkOutput_->EndAudioPreroll() == S_OK) &&
+                impl_->deckLinkOutput_->StartScheduledPlayback(0, frN, 1.0) == S_OK;
+    impl_->playbackStarted_ = scheduled;
+  }
   frame->Release();
-  return true;
+  return scheduled;
 }
 
 // Schedule interleaved 16-bit PCM audio samples for DeckLink audio output.
@@ -738,15 +807,30 @@ bool DeckLinkOutput::sendFrame(const std::uint8_t* pixels, int width, int height
 // them for playout synchronized with video frames.
 bool DeckLinkOutput::sendAudio(const std::int16_t* samples, int sampleCount,
                                 int sampleRate, int channels) {
-  if (!impl_->isInitialized_ || !impl_->deckLinkOutput_ || !samples || sampleCount <= 0) {
+  if (!impl_->isInitialized_ || !impl_->deckLinkOutput_ || !impl_->audioEnabled_ ||
+      !samples || sampleCount <= 0 || sampleRate != 48000 || channels != 2) {
     return false;
   }
   std::uint32_t written = 0;
-  impl_->deckLinkOutput_->ScheduleAudioSamples(
-    const_cast<std::int16_t*>(samples),
-    static_cast<std::uint32_t>(sampleCount),
-    0, 0, &written);
-  return written > 0;
+  if (impl_->playbackStarted_) {
+    BMDTimeValue streamTime = 0;
+    double speed = 1.0;
+    if (impl_->deckLinkOutput_->GetScheduledStreamTime(48000, &streamTime, &speed) == S_OK &&
+        streamTime > static_cast<BMDTimeValue>(impl_->audioFrameCount_)) {
+      int scale = 0, duration = 0;
+      deckLinkModeFrameRate(impl_->mode_, scale, duration);
+      const std::uint64_t videoPosition = scale > 0
+        ? impl_->frameCount_ * static_cast<std::uint64_t>(duration) * 48000 /
+          static_cast<std::uint64_t>(scale) : 0;
+      impl_->audioFrameCount_ = std::max(videoPosition,
+        static_cast<std::uint64_t>(streamTime) + 48000 / 50);
+    }
+  }
+  const HRESULT result = impl_->deckLinkOutput_->ScheduleAudioSamples(
+    const_cast<std::int16_t*>(samples), static_cast<std::uint32_t>(sampleCount),
+    static_cast<BMDTimeValue>(impl_->audioFrameCount_), 48000, &written);
+  impl_->audioFrameCount_ += written;
+  return result == S_OK && written == static_cast<std::uint32_t>(sampleCount);
 }
 
 // ── Stub implementation (DeckLink SDK not available) ────────────────────────
@@ -1052,7 +1136,7 @@ DeckLinkOutput::~DeckLinkOutput() { shutdown(); }
 
 std::vector<DeckLinkDeviceInfo> DeckLinkOutput::listDevices() { return {}; }
 
-bool DeckLinkOutput::init(int, DeckLinkMode, bool) {
+bool DeckLinkOutput::init(int, DeckLinkMode, bool, bool) {
   std::cerr << "[DeckLink] Not available (built without ENABLE_DECKLINK)\n";
   return false;
 }

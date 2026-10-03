@@ -168,7 +168,7 @@
                                         int sourceDeckIndex,
                                         int width,
                                         int height,
-                                        Uint32 format) {
+                                        Uint32 format, SDL_Colorspace colorspace = SDL_COLORSPACE_SRGB) {
     if (width <= 0 || height <= 0) {
       return nullptr;
     }
@@ -178,7 +178,8 @@
       int prevW = outputRuntime.layerBridgeTextureWidths[sourceDeckIndex];
       int prevH = outputRuntime.layerBridgeTextureHeights[sourceDeckIndex];
       Uint32 prevFmt = outputRuntime.layerBridgeTextureFormats[sourceDeckIndex];
-      needsRecreate = prevW != width || prevH != height || prevFmt != format;
+      needsRecreate = prevW != width || prevH != height || prevFmt != format ||
+                      deckboyTextureColorspace(texIt->second) != colorspace;
     }
     if (needsRecreate) {
       if (texIt != outputRuntime.layerBridgeTextures.end() && texIt->second) {
@@ -189,7 +190,7 @@
         format,
         SDL_TEXTUREACCESS_STREAMING,
         width,
-        height
+        height, colorspace
       );
       if (!texture) {
         outputRuntime.layerBridgeTextures.erase(sourceDeckIndex);
@@ -206,6 +207,7 @@
       outputRuntime.layerBridgeTextureHeights[sourceDeckIndex] = height;
       outputRuntime.layerBridgeTextureFormats[sourceDeckIndex] = format;
       outputRuntime.layerBridgeFrameIndices.erase(sourceDeckIndex);
+      outputRuntime.layerBridgePixelPointers.erase(sourceDeckIndex);
       outputRuntime.layerBridgeCueKeys.erase(sourceDeckIndex);
       return texture;
     }
@@ -223,7 +225,7 @@
                                      int sourceDeckIndex,
                                      int width,
                                      int height,
-                                     FramePixelFormat format) {
+                                     FramePixelFormat format, SDL_Colorspace colorspace) {
     width &= ~1;
     height &= ~1;
     if (width <= 0 || height <= 0) {
@@ -236,7 +238,7 @@
       if (sizeIt != outputRuntime.layerGpuTextureSizes.end() &&
           sizeIt->second == std::make_pair(width, height) &&
           fmtIt != outputRuntime.layerGpuTextureFormats.end() &&
-          fmtIt->second == format) {
+          fmtIt->second == format && deckboyTextureColorspace(texIt->second) == colorspace) {
         return texIt->second;
       }
       if (texIt->second) {
@@ -254,7 +256,7 @@
     }
     void* texture2D = nullptr;
     SDL_Texture* wrapped = deckboy::libav::createWrappedVideoTexture(
-      outputRuntime.outputRenderer, width, height, format, &texture2D);
+      outputRuntime.outputRenderer, width, height, format, &texture2D, colorspace);
     if (!wrapped) {
       return nullptr;
     }
@@ -298,7 +300,7 @@
                                           const std::string& overlayKey,
                                           int width,
                                           int height,
-                                          Uint32 format) {
+                                          Uint32 format, SDL_Colorspace colorspace = SDL_COLORSPACE_SRGB) {
     if (width <= 0 || height <= 0) {
       return nullptr;
     }
@@ -308,7 +310,8 @@
       int prevW = outputRuntime.overlayBridgeTextureWidths[overlayKey];
       int prevH = outputRuntime.overlayBridgeTextureHeights[overlayKey];
       Uint32 prevFmt = outputRuntime.overlayBridgeTextureFormats[overlayKey];
-      needsRecreate = prevW != width || prevH != height || prevFmt != format;
+      needsRecreate = prevW != width || prevH != height || prevFmt != format ||
+                      deckboyTextureColorspace(texIt->second) != colorspace;
     }
     if (needsRecreate) {
       if (texIt != outputRuntime.overlayBridgeTextures.end() && texIt->second) {
@@ -319,7 +322,7 @@
         format,
         SDL_TEXTUREACCESS_STREAMING,
         width,
-        height
+        height, colorspace
       );
       if (!texture) {
         outputRuntime.overlayBridgeTextures.erase(overlayKey);
@@ -337,6 +340,7 @@
       outputRuntime.overlayBridgeTextureFormats[overlayKey] = format;
       outputRuntime.overlayBridgeFrameIndices.erase(overlayKey);
       outputRuntime.overlayBridgeCueKeys.erase(overlayKey);
+      outputRuntime.transitionUploadStamps.erase(overlayKey);
       return texture;
     }
     return texIt->second;
@@ -479,7 +483,11 @@
     SDL_Rect prevClip;
     bool hadClip = SDL_RenderClipEnabled(renderer);
     if (hadClip) SDL_GetRenderClipRect(renderer, &prevClip);
-    SDL_SetRenderClipRect(renderer, &target);
+    // Keep the caller's reveal mask. Replacing it with target made wipes and
+    // iris draw the whole outgoing picture until the last frame, then snap.
+    SDL_Rect drawClip = target;
+    if (hadClip && !SDL_GetRectIntersection(&prevClip, &target, &drawClip)) return;
+    SDL_SetRenderClipRect(renderer, &drawClip);
     // THE ONE PLACE THIS IS NOT A FLAT QUAD.
     //
     // A cue with the mesh armed is drawn as a displaced grid instead of a
@@ -1539,8 +1547,7 @@
                             std::max(1, picture.w - 4), std::max(1, picture.h - 4)};
       presenterRounded(ren, inner, std::max(1, radius - 1),
                        SDL_Color {0, 0, 0, 255});
-      renderDeckLayerIntoOutput(outputIndex, deckIndex, inner);
-      renderDeckTransitionIntoOutput(outputIndex, deckIndex, inner);
+      renderDeckWithTransitionIntoOutput(outputIndex, deckIndex, inner);
     }
     presenterSlot(*runtime, prevBox, "PREVIOUS", prevCue, deckIndex, prevIndex,
                   screen, labelFont, "presenter_prev", "nothing before this");
@@ -2622,6 +2629,11 @@
     const int stackOutputIndex =
       layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex;
     const OutputLayer* layerWarp = layerRecordFor(stackOutputIndex, sourceDeckIndex);
+    if (auto old = outputRuntime->layerLookFrames.find(sourceDeckIndex);
+        old != outputRuntime->layerLookFrames.end() && old->second.first != cuePreviewCacheKey(*sourceCue)) {
+      outputRuntime->heldLookFrames[sourceDeckIndex] = std::move(old->second);
+      outputRuntime->layerLookFrames.erase(old);
+    }
     // WHERE THIS DECK SITS IN THAT OUTPUT'S STACK, which is what the
     // crossfader works on. Taken from the COMPOSITION output for the same
     // reason the corner pin is: a mirroring destination draws the source
@@ -2652,6 +2664,12 @@
       return;
     }
     const DecodedFrame* sourceFrame = sourceRuntime->mediaEngine->currentFrame();
+    // Until the incoming cue has a frame, currentFrame returns the outgoing
+    // hold. The transition draws that hold once; blending it as both pictures
+    // raises the opacity and briefly restores the wrong cue's look/geometry.
+    if (sourceRuntime->mediaEngine->outgoingSeconds() > 0.0001 &&
+        sourceFrame == sourceRuntime->mediaEngine->outgoingFrame()) return;
+    DecodedFrame cachedGpuDescriptor;
     if (!sourceFrame || sourceFrame->width <= 0 || sourceFrame->height <= 0 ||
         (sourceFrame->pixels.empty() && !sourceFrame->isGpu())) {
       noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, false,
@@ -2712,11 +2730,13 @@
         // NV12 texture on frame advance, then composite it like any texture.
         SDL_Texture* gpuTexture = ensureLayerGpuTexture(
           *outputRuntime, sourceDeckIndex, sourceFrame->width, sourceFrame->height,
-          sourceFrame->format);
+          sourceFrame->format, frameColorspace(*sourceFrame));
         if (gpuTexture) {
           auto gpuFrameIt = outputRuntime->layerGpuFrameIndices.find(sourceDeckIndex);
           if (gpuFrameIt == outputRuntime->layerGpuFrameIndices.end() ||
               gpuFrameIt->second != sourceFrame->index) {
+            // External D3D writes must retire SDL's queued reads of this texture.
+            SDL_FlushRenderer(outputRuntime->outputRenderer);
             if (deckboy::libav::copyGpuFrameToTexture(
                   *sourceFrame, outputRuntime->layerGpuTexture2Ds[sourceDeckIndex])) {
               outputRuntime->layerGpuFrameIndices[sourceDeckIndex] = sourceFrame->index;
@@ -2756,7 +2776,10 @@
         gpuUpIt == outputRuntime->layerBridgeFrameIndices.end() ||
         gpuKeyIt == outputRuntime->layerBridgeCueKeys.end() ||
         gpuUpIt->second != sourceFrame->index ||
-        gpuKeyIt->second != gpuCueKey;
+        gpuKeyIt->second != gpuCueKey ||
+        outputRuntime->layerBridgeTextureWidths[sourceDeckIndex] != sourceFrame->width ||
+        outputRuntime->layerBridgeTextureHeights[sourceDeckIndex] != sourceFrame->height ||
+        deckboyTextureColorspace(outputRuntime->layerBridgeTextures[sourceDeckIndex]) != frameColorspace(*sourceFrame);
       if (gpuWillUpload) {
         bool scratchCurrent =
           outputRuntime->gpuDownloadScratchDeck == sourceDeckIndex &&
@@ -2769,19 +2792,35 @@
           outputRuntime->gpuDownloadScratchDeck = sourceDeckIndex;
         }
         sourceFrame = &outputRuntime->gpuDownloadScratch;
+      } else {
+        // The cached CPU bridge is NV12 even when its GPU source is P010.
+        // Keep that layout on repeated draws; there are no GPU CPU bytes to
+        // upload and recreating a P010 bridge would discard the valid picture.
+        cachedGpuDescriptor.width = sourceFrame->width;
+        cachedGpuDescriptor.height = sourceFrame->height;
+        cachedGpuDescriptor.index = sourceFrame->index;
+        cachedGpuDescriptor.format = FramePixelFormat::NV12;
+        cachedGpuDescriptor.colorspace = frameColorspace(*sourceFrame);
+        sourceFrame = &cachedGpuDescriptor;
       }
     }
 #endif
     const Uint32 sourceFormat = sdlPixelFormat(sourceFrame->format);
     SDL_Texture* bridgeTexture = ensureLayerBridgeTexture(
       *outputRuntime, sourceDeckIndex,
-      sourceFrame->width, sourceFrame->height, sourceFormat);
+      sourceFrame->width, sourceFrame->height, sourceFormat, frameColorspace(*sourceFrame));
     if (!bridgeTexture) {
       return;
     }
     std::string cueKey = cuePreviewCacheKey(*sourceCue);
     auto frameIt = outputRuntime->layerBridgeFrameIndices.find(sourceDeckIndex);
     auto cueIt = outputRuntime->layerBridgeCueKeys.find(sourceDeckIndex);
+    const auto pixelsAddress = reinterpret_cast<std::uintptr_t>(sourceFrame->pixels.data());
+    const auto pixelsIt = outputRuntime->layerBridgePixelPointers.find(sourceDeckIndex);
+    // A held outgoing still and the newly decoded incoming still can both
+    // have index zero under the incoming cue's key. Arrival must refresh it.
+    const bool newPixels = !sourceFrame->pixels.empty() &&
+      (pixelsIt == outputRuntime->layerBridgePixelPointers.end() || pixelsIt->second != pixelsAddress);
     // A STILL CUE DECODES ONE FRAME, and this gate then never fires again --
     // so an effect that advances with time ran exactly once and froze. Grain
     // that does not move, a ripple standing still, and caustics and feedback,
@@ -2799,6 +2838,7 @@
       cueIt == outputRuntime->layerBridgeCueKeys.end() ||
       frameIt->second != sourceFrame->index ||
       cueIt->second != cueKey ||
+      newPixels ||
       stackAnimates;
     if (needsUpload) {
       if (sourceFrame->format == FramePixelFormat::NV12) {
@@ -2887,8 +2927,21 @@
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }
         SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
+        if (cueHasPixelEffects(*sourceCue) || wantsStack) {
+          auto& saved = outputRuntime->layerLookFrames[sourceDeckIndex];
+          saved.first = cuePreviewCacheKey(*sourceCue);
+          saved.second.width = sourceFrame->width;
+          saved.second.height = sourceFrame->height;
+          saved.second.index = sourceFrame->index;
+          saved.second.colorspace = SDL_COLORSPACE_SRGB;
+          saved.second.format = FramePixelFormat::RGBA32;
+          saved.second.pixels.swap(outputRuntime->layerBridgeScratchPixels);
+        } else {
+          outputRuntime->layerLookFrames.erase(sourceDeckIndex);
+        }
       }
       outputRuntime->layerBridgeFrameIndices[sourceDeckIndex] = sourceFrame->index;
+      outputRuntime->layerBridgePixelPointers[sourceDeckIndex] = pixelsAddress;
       outputRuntime->layerBridgeCueKeys[sourceDeckIndex] = std::move(cueKey);
     }
     float deckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
@@ -2917,7 +2970,7 @@
   // changed and blends it, so a pattern crossfades into a camera into a slide
   // without any of them being special-cased.
   void renderDeckTransitionIntoOutput(int outputIndex, int sourceDeckIndex,
-                                      const SDL_Rect& target) {
+                                      const SDL_Rect& target, int layerSourceOutputIndex = -1) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) return;
     if (sourceDeckIndex < 0 ||
@@ -2927,6 +2980,21 @@
     DeckRuntime* deckRuntime = runtimeForDeck(sourceDeckIndex);
     if (!deckRuntime || !deckRuntime->mediaEngine) return;
     MediaEngine& engine = *deckRuntime->mediaEngine;
+    const int compositionIndex = layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex;
+    SDL_BlendMode transitionBlend = SDL_BLENDMODE_BLEND;
+    const float deckGain = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f) *
+      static_cast<float>(outputCrossfadeGain(compositionIndex,
+        stackPositionFor(compositionIndex, sourceDeckIndex), transitionBlend));
+    if (deckGain <= 0.0f) return;
+    const float heldGain = deckGain * engine.outgoingSourceGain();
+    const OutputLayer* layerWarp = layerRecordFor(
+      layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex, sourceDeckIndex);
+    auto drawHeld = [&](const DecodedFrame& frame, const SDL_Rect& rect, Uint8 alpha,
+                        const char* key = "transition") {
+      alpha = static_cast<Uint8>(std::lround(alpha * heldGain));
+      renderTransitionFrame(*outputRuntime, frame, sourceDeckIndex, rect, alpha, key, layerWarp,
+                            transitionBlend);
+    };
 
     const double seconds = engine.outgoingSeconds();
     if (seconds <= 0.0001) return;                  // a cut has nothing to draw
@@ -2945,36 +3013,21 @@
     // ── PUSH ────────────────────────────────────────────────────────────
     //
     // The outgoing picture slides off and the incoming one follows it in. The
-    // incoming picture has already been drawn by the layer above at rest, so
-    // the honest way to move it is to draw the outgoing one over the top,
-    // travelling -- and to move the still-visible part of the incoming picture
-    // with it. Deckboy composites into a single target, so "move the layer
-    // below" means redrawing it offset, which is exactly what this does.
+    // incoming layer has already been drawn translated by the composition
+    // wrapper. Only the outgoing hold remains to draw here.
     if (isPushStyle(style)) {
-      const double eased = progress * progress * (3.0 - 2.0 * progress);
-      int dx = 0, dy = 0;
-      switch (style) {
-        case TransitionStyle::PushLeft:  dx = -static_cast<int>(eased * target.w); break;
-        case TransitionStyle::PushRight: dx =  static_cast<int>(eased * target.w); break;
-        case TransitionStyle::PushUp:    dy = -static_cast<int>(eased * target.h); break;
-        default:                         dy =  static_cast<int>(eased * target.h); break;
-      }
-      // The incoming picture, shifted in from the opposite side. Drawn from the
-      // engine's CURRENT frame so it is the real thing rather than a guess.
-      if (const DecodedFrame* in = cpuFrameForTransition(*outputRuntime, engine.currentFrame(),
-                                                          sourceDeckIndex, "in")) {
-        if (in->width > 0 && !in->pixels.empty()) {
-          SDL_Rect inRect = target;
-          inRect.x += dx + (dx ? (dx > 0 ? -target.w : target.w) : 0);
-          inRect.y += dy + (dy ? (dy > 0 ? -target.h : target.h) : 0);
-          renderTransitionFrame(*outputRuntime, *in, sourceDeckIndex, inRect, 255,
-                                "push-in");
-        }
-      }
+      const SDL_Point shift = pushTransitionOffset(style, progress, target);
       SDL_Rect outRect = target;
-      outRect.x += dx;
-      outRect.y += dy;
-      renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, outRect, 255);
+      outRect.x += shift.x;
+      outRect.y += shift.y;
+      SDL_Rect previousClip {};
+      const bool hadClip = SDL_RenderClipEnabled(outputRuntime->outputRenderer);
+      if (hadClip) SDL_GetRenderClipRect(outputRuntime->outputRenderer, &previousClip);
+      SDL_Rect clip = target;
+      if (hadClip && !SDL_GetRectIntersection(&previousClip, &target, &clip)) return;
+      SDL_SetRenderClipRect(outputRuntime->outputRenderer, &clip);
+      drawHeld(*out, outRect, 255);
+      SDL_SetRenderClipRect(outputRuntime->outputRenderer, hadClip ? &previousClip : nullptr);
       return;
     }
 
@@ -3002,7 +3055,7 @@
       const bool hadClip = SDL_RenderClipEnabled(outputRuntime->outputRenderer);
       if (hadClip) SDL_GetRenderClipRect(outputRuntime->outputRenderer, &previousClip);
       SDL_SetRenderClipRect(outputRuntime->outputRenderer, &keep);
-      renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, 255);
+      drawHeld(*out, target, 255);
       SDL_SetRenderClipRect(outputRuntime->outputRenderer,
                             hadClip ? &previousClip : nullptr);
       return;
@@ -3048,7 +3101,7 @@
         if (half < 0) {
           SDL_Rect band {target.x, y, target.w, kBand};
           SDL_SetRenderClipRect(outputRuntime->outputRenderer, &band);
-          renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, 255);
+          drawHeld(*out, target, 255);
           continue;
         }
         const SDL_Rect left {target.x, y, std::max(0, cx - half - target.x), kBand};
@@ -3057,7 +3110,7 @@
         for (const SDL_Rect& part : {left, right}) {
           if (part.w <= 0) continue;
           SDL_SetRenderClipRect(outputRuntime->outputRenderer, &part);
-          renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, 255);
+          drawHeld(*out, target, 255);
         }
       }
       SDL_SetRenderClipRect(outputRuntime->outputRenderer,
@@ -3111,9 +3164,16 @@
           if (tex) {
             SDL_UpdateTexture(tex, nullptr, pixels.data(), out->width * 4);
             SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
-            SDL_SetTextureAlphaMod(tex, 255);
-            const SDL_Rect dst = target;
-            SDL_RenderTexture(outputRuntime->outputRenderer, tex, nullptr, &dst);
+            SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(std::lround(255 * heldGain)));
+            Cue outgoingGeometry;
+            const Cue* geometry = nullptr;
+            if (DeckRuntime* rt = runtimeForDeck(sourceDeckIndex); rt && rt->mediaEngine) {
+              outgoingGeometry = rt->mediaEngine->outgoingGeometryCue();
+              geometry = &outgoingGeometry;
+            }
+            renderTextureWithCueGeometry(outputRuntime->outputRenderer, tex,
+                                         out->width, out->height, geometry,
+                                          target, transitionBlend, layerWarp);
             return;
           }
         }
@@ -3125,7 +3185,7 @@
       // blink, and the one an operator reaches for on a camera cut.
       SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
       if (progress < 0.5) {
-        renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, 255);
+        drawHeld(*out, target, 255);
         SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 255, 255, 255,
           static_cast<Uint8>(std::clamp(progress * 2.0, 0.0, 1.0) * 255.0));
       } else {
@@ -3143,7 +3203,7 @@
       // half -- it has already gone.
       SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
       if (progress < 0.5) {
-        renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, 255);
+        drawHeld(*out, target, 255);
         const Uint8 black = static_cast<Uint8>(
           std::clamp(progress * 2.0, 0.0, 1.0) * 255.0);
         SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0, black);
@@ -3174,7 +3234,8 @@
       const SDL_Rect pic = cuePlacementFor(&geometry, out->width, out->height, target).destination;
       if (std::abs(geometry.outputRotationDegrees) < 0.01f) {
         SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0, alpha);
+        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0,
+          static_cast<Uint8>(std::lround(alpha * heldGain)));
         const int picL = std::clamp(pic.x, target.x, target.x + target.w);
         const int picR = std::clamp(pic.x + pic.w, target.x, target.x + target.w);
         const int picT = std::clamp(pic.y, target.y, target.y + target.h);
@@ -3191,7 +3252,7 @@
         SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_NONE);
       }
     }
-    renderTransitionFrame(*outputRuntime, *out, sourceDeckIndex, target, alpha);
+    drawHeld(*out, target, alpha);
   }
 
   // The frame a transition draws, as CPU pixels. A zero-copy decode hands out
@@ -3200,6 +3261,29 @@
   // once per frame and kept: a held outgoing frame does not change.
   const DecodedFrame* cpuFrameForTransition(OutputRuntime& runtime, const DecodedFrame* frame,
                                             int deckIndex, const char* role) {
+    if (frame) {
+      const bool outgoing = std::string(role) == "out";
+      const Cue* look = activeCuePtr(deckIndex);
+      Cue held;
+      if (outgoing) {
+        if (DeckRuntime* rt = runtimeForDeck(deckIndex); rt && rt->mediaEngine) {
+          held = rt->mediaEngine->outgoingGeometryCue();
+          look = &held;
+        }
+      }
+      auto matchingLook = [&](const auto& frames) -> const DecodedFrame* {
+        const auto saved = frames.find(deckIndex);
+        if (look && saved != frames.end() && saved->second.first == cuePreviewCacheKey(*look) &&
+            saved->second.second.index == frame->index &&
+            saved->second.second.width == frame->width && saved->second.second.height == frame->height)
+          return &saved->second.second;
+        return nullptr;
+      };
+      if (outgoing) {
+        if (const auto* saved = matchingLook(runtime.heldLookFrames)) return saved;
+      }
+      if (const auto* saved = matchingLook(runtime.layerLookFrames)) return saved;
+    }
     if (!frame || !frame->isGpu()) {
       return frame;
     }
@@ -3236,9 +3320,52 @@
            s == TransitionStyle::WipeUp   || s == TransitionStyle::WipeDown;
   }
 
-  // `key` distinguishes the two pictures a push needs to hold at once: the
-  // outgoing one travelling out and the incoming one travelling in. One shared
-  // bridge texture would have each overwriting the other every frame.
+  static SDL_Point pushTransitionOffset(TransitionStyle style, double progress,
+                                        const SDL_Rect& target) {
+    const double eased = progress * progress * (3.0 - 2.0 * progress);
+    switch (style) {
+      case TransitionStyle::PushLeft:  return {-static_cast<int>(eased * target.w), 0};
+      case TransitionStyle::PushRight: return { static_cast<int>(eased * target.w), 0};
+      case TransitionStyle::PushUp:    return {0, -static_cast<int>(eased * target.h)};
+      default:                        return {0,  static_cast<int>(eased * target.h)};
+    }
+  }
+
+  void renderDeckWithTransitionIntoOutput(int outputIndex, int deckIndex,
+                                          const SDL_Rect& target,
+                                          int compositionIndex = -1) {
+    OutputRuntime* output = runtimeForOutput(outputIndex);
+    DeckRuntime* deck = runtimeForDeck(deckIndex);
+    if (!output || !output->outputRenderer || !deck || !deck->mediaEngine) return;
+    MediaEngine& engine = *deck->mediaEngine;
+    SDL_Rect incoming = target;
+    // Pushes draw the incoming layer once, through its ordinary processed
+    // path, translated into place. Drawing it at rest as well exposed a
+    // second copy and made a differently shaped cue appear to resize.
+    if (engine.outgoingSeconds() > 0.0001 && engine.outgoingFrame() &&
+        isPushStyle(engine.outgoingStyle()) && engine.outgoingProgress01() < 1.0) {
+      const TransitionStyle style = engine.outgoingStyle();
+      const SDL_Point shift = pushTransitionOffset(style, engine.outgoingProgress01(), target);
+      incoming.x += shift.x;
+      incoming.y += shift.y;
+      switch (style) {
+        case TransitionStyle::PushLeft:  incoming.x += target.w; break;
+        case TransitionStyle::PushRight: incoming.x -= target.w; break;
+        case TransitionStyle::PushUp:    incoming.y += target.h; break;
+        default:                        incoming.y -= target.h; break;
+      }
+    }
+    SDL_Rect previousClip {};
+    const bool hadClip = SDL_RenderClipEnabled(output->outputRenderer);
+    if (hadClip) SDL_GetRenderClipRect(output->outputRenderer, &previousClip);
+    SDL_Rect clip = target;
+    if (hadClip && !SDL_GetRectIntersection(&previousClip, &target, &clip)) return;
+    SDL_SetRenderClipRect(output->outputRenderer, &clip);
+    renderDeckLayerIntoOutput(outputIndex, deckIndex, incoming, compositionIndex);
+    renderDeckTransitionIntoOutput(outputIndex, deckIndex, target, compositionIndex);
+    SDL_SetRenderClipRect(output->outputRenderer, hadClip ? &previousClip : nullptr);
+  }
+
   // UPLOAD ONCE PER FRAME, not once per draw.
   //
   // Iris draws the outgoing picture sixty times behind different clips, and
@@ -3248,11 +3375,12 @@
   // the frame is the one already sitting in the texture.
   void renderTransitionFrame(OutputRuntime& outputRuntime, const DecodedFrame& frame,
                              int deckIndex, const SDL_Rect& target, Uint8 alpha,
-                             const char* key = "transition") {
+                              const char* key = "transition", const OutputLayer* layerWarp = nullptr,
+                              SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND) {
     const Uint32 format = sdlPixelFormat(frame.format);
     const std::string bridgeKey = std::string(key) + ":" + std::to_string(deckIndex);
     SDL_Texture* tex = ensureOverlayBridgeTexture(
-      outputRuntime, bridgeKey, frame.width, frame.height, format);
+      outputRuntime, bridgeKey, frame.width, frame.height, format, frameColorspace(frame));
     if (!tex) return;
     // Keyed on the frame's own address and index: a held frame does not move
     // while it is being drawn, and the index changes when it is replaced.
@@ -3263,21 +3391,18 @@
     const bool needUpload = stamp != nowStamp;
     stamp = nowStamp;
     // WITH THE CUE'S GEOMETRY. The outgoing picture takes the geometry its own
-    // cue had (the engine kept it at beginTransition); the incoming picture of
-    // a push takes the live cue's. Drawn stretched to the raster, a letterboxed
-    // cue snapped to full frame as the transition began.
+    // cue had (the engine kept it at beginTransition). Drawn stretched to the
+    // raster, a letterboxed cue snapped to full frame as the transition began.
     Cue outgoingGeometry;
     const Cue* geometry = nullptr;
-    if (std::string(key) == "push-in") {
-      geometry = activeCuePtr(deckIndex);
-    } else if (DeckRuntime* rt = runtimeForDeck(deckIndex); rt && rt->mediaEngine) {
+    if (DeckRuntime* rt = runtimeForDeck(deckIndex); rt && rt->mediaEngine) {
       outgoingGeometry = rt->mediaEngine->outgoingGeometryCue();
       geometry = &outgoingGeometry;
     }
     auto drawPlaced = [&]() {
       SDL_SetTextureAlphaMod(tex, alpha);
       renderTextureWithCueGeometry(outputRuntime.outputRenderer, tex, frame.width, frame.height,
-                                   geometry, target, SDL_BLENDMODE_BLEND);
+                                   geometry, target, blendMode, layerWarp);
       SDL_SetTextureAlphaMod(tex, 255);
     };
     if (!needUpload) {
@@ -3318,7 +3443,8 @@
     }
     const Uint32 sourceFormat = sdlPixelFormat(sourceFrame.format);
     SDL_Texture* bridgeTexture = ensureOverlayBridgeTexture(
-      outputRuntime, overlayKey, sourceFrame.width, sourceFrame.height, sourceFormat);
+      outputRuntime, overlayKey, sourceFrame.width, sourceFrame.height, sourceFormat,
+      frameColorspace(sourceFrame));
     if (!bridgeTexture) {
       return;
     }
@@ -3607,8 +3733,6 @@
         if (deckIsHeldOffOutput(entry.second)) {
           continue;
         }
-        renderDeckLayerIntoOutput(outputIndex, entry.second, bounds,
-                                  compositionOutputIndex);
         // ── THE TRANSITION, ON TOP OF THE INCOMING PICTURE ────────────────
         //
         // Here, in the compositor, because this is where every cue kind meets:
@@ -3619,7 +3743,8 @@
         // It used to live in MediaEngine::render(), which nothing calls, so
         // every transition in the program was silently a cut no matter what
         // the operator chose.
-        renderDeckTransitionIntoOutput(outputIndex, entry.second, bounds);
+        renderDeckWithTransitionIntoOutput(outputIndex, entry.second, bounds,
+                                          compositionOutputIndex);
       }
 
       // Output window is always clean black — no status overlays or decorations.

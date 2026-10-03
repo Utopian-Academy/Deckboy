@@ -135,7 +135,7 @@
           "name": "A client sent a file that will not play. What now?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Deckboy converts media in place without leaving the application, using GPU encoding where the machine has it, and can normalise loudness to EBU R128 for a clip mastered too quietly. Importing any file also reports its codec, raster, frame rate, channel count and duration."
+            "text": "Deckboy converts media in place without leaving the application, using GPU encoding where the machine has it, and can normalise loudness to a chosen -16, -23 (EBU R128) or -24 LUFS target before playout. Importing any file also reports its codec, raster, frame rate, channel count and duration."
           }
         },
         {
@@ -151,7 +151,15 @@
           "name": "Is there a Mitti, PlaybackPro or QLab alternative for Windows?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Mitti, PlaybackPro Plus, QLab and Millumin are all macOS only, and vMix is Windows only. Deckboy runs natively on Windows, macOS and Linux from the same show file. Mitti remains the most refined cue player on a Mac, QLab owns audio-led theatre cueing, Millumin is a projection-mapping suite, and vMix is a switcher, which Deckboy is not."
+            "text": "Deckboy runs natively on Windows, macOS and Linux from the same show file. It combines media cues, slide decks, live sources, show control, projection mapping and multiple output destinations in one application. The comparison page lists features and platform support side by side."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does Deckboy keep interface text readable?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "At startup Deckboy checks that interface labels reach the screen and automatically tries another rendering path if they do not. The result is written to deckboy-render.log. DECKBOY_RENDERER=software selects the software renderer when launching from a terminal."
           }
         },
         {
@@ -327,18 +335,26 @@
         <p>Convert it in place, without leaving the application, with GPU encoding where the machine
         has it. Importing any file also reports codec, raster, frame rate, channel count and
         duration, so you can see what you were actually sent. If a clip was mastered too quietly it
-        can be normalised to EBU R128.</p>
+        can be normalised to a chosen &minus;16, &minus;23 (EBU R128) or
+        &minus;24&nbsp;LUFS target before playout.</p>
 
         <h2>Is there a Mitti, PlaybackPro or QLab alternative for Windows?</h2>
         <p>That is most of the reason Deckboy exists. Mitti, PlaybackPro Plus, QLab and Millumin
         are all <b>macOS only</b>, and vMix is <b>Windows only</b>, so the first question on a show
         is usually whether the software runs on the machine you brought at all. Deckboy runs
         natively on Windows, macOS and Linux from the same show file.</p>
-        <p>Where the others still win: Mitti is the most refined cue player on a Mac, PlaybackPro
-        has years of corporate rooms behind it, QLab owns audio-led theatre cueing, Millumin is a
-        real projection-mapping suite, and vMix is a switcher, which Deckboy is not. There is a
-        fuller <a href="compare.html">comparison here</a>, including where each of them beats it,
+        <p>Deckboy combines media cues, slide decks, live sources, show control, projection
+        mapping and multiple output destinations in one application. There is a
+        <a href="compare.html">feature and platform comparison here</a>,
         and a page for anyone <a href="qlab-alternative.html">coming from QLab</a>.</p>
+
+        <h2 id="interface-text">How does Deckboy keep interface text readable?</h2>
+        <p>At startup Deckboy checks that interface labels actually reach the screen and
+        automatically tries another rendering path if they do not. The result is written
+        to <code>deckboy-render.log</code>.</p>
+        <p>To select software rendering on a Mac, launch from Terminal with
+        <code>DECKBOY_RENDERER=software /Applications/Deckboy.app/Contents/MacOS/Deckboy</code>.
+        The same environment variable is available on Windows and Linux.</p>
 
         <h2>Is it really free, or is there a paid tier later?</h2>
         <p>Free, GPL-3.0, no paid tier and no plan for one. No account, no licence server, no

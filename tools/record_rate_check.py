@@ -114,10 +114,32 @@ def distinct_pictures(path):
     return len(seen)
 
 
+def magenta_frames(path):
+    """Inspect every decoded frame for an uninitialised YUV texture.
+
+    Motion and cadence can both look healthy while alternating with a flat
+    magenta frame. The generated test pattern never contains a flat magenta
+    picture, so that colour is an unambiguous output failure for this fixture.
+    """
+    decoded = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", path, "-vf", "scale=32:18,format=rgb24",
+         "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
+    size = 32 * 18 * 3
+    bad = 0
+    for offset in range(0, len(decoded) - size + 1, size):
+        frame = decoded[offset:offset + size]
+        pink = sum(r > 180 and g < 100 and b > 180
+                   for r, g, b in zip(frame[0::3], frame[1::3], frame[2::3]))
+        bad += pink > 32 * 18 * 0.95
+    return bad
+
+
 def run_case(args, standard):
     width, height, rate = parse_standard(standard)
     root = args.root
     recordings = os.path.join(root, "data", "recordings")
+    if os.path.commonpath([os.path.abspath(root), os.path.abspath(recordings)]) != os.path.abspath(root):
+        raise ValueError("recordings must stay inside the isolated project root")
     shutil.rmtree(recordings, ignore_errors=True)
 
     env = dict(os.environ)
@@ -142,7 +164,7 @@ def run_case(args, standard):
             return {"standard": standard, "error": "control port never came up"}
         # Silence first: this drives a real show application.
         send(args.port, "MASTERVOL 0")
-        send(args.port, "OUT on")
+        send(args.port, "OUTPUT on")
         send(args.port, "RECFORMAT %dx%d %s" % (width, height, rate))
         send(args.port, "SELECT 1")
         send(args.port, "TAKE")
@@ -209,7 +231,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--exe", required=True, help="path to the Deckboy binary")
-    parser.add_argument("--media", required=True, help="clip to record (use a 4K one for 4K tests)")
+    parser.add_argument("--media", default="", help="clip to record (use a 4K one for 4K tests)")
+    parser.add_argument("--fixture", choices=["main10"], help="generate a Main 10 BT.709 SDR motion clip")
+    parser.add_argument("--reject-magenta", action="store_true", help="reject flat magenta frames")
     parser.add_argument("--standard", action="append", default=[],
                         help="WxH@fps, repeatable (default: a 4K/HD sweep)")
     parser.add_argument("--seconds", type=float, default=20.0, help="take length")
@@ -227,11 +251,14 @@ def main():
         args.standard = ["3840x2160@60", "3840x2160@50", "3840x2160@30",
                          "1920x1080@60", "1920x1080@59.94"]
     args.exe = os.path.abspath(args.exe)
-    args.media = os.path.abspath(args.media)
     if not os.path.exists(args.exe):
         sys.exit("no binary at %s" % args.exe)
     deckboy_testroot.warn_if_stale(args.exe)
-    if not os.path.exists(args.media):
+    if bool(args.media) == bool(args.fixture):
+        parser.error("choose either --media or --fixture")
+    if args.media:
+        args.media = os.path.abspath(args.media)
+    if args.media and not os.path.exists(args.media):
         sys.exit("no media at %s" % args.media)
     if not shutil.which("ffprobe"):
         sys.exit("ffprobe is not on PATH; it is what counts the frames")
@@ -242,10 +269,24 @@ def main():
     deckboy_testroot.populate(args.root, verbose=True)
     print("project root: %s" % args.root)
 
+    if args.fixture:
+        args.media = os.path.join(args.root, "data", "main10-sdr.mkv")
+        subprocess.run([
+            "ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=size=640x360:rate=25",
+            "-f", "lavfi", "-i", "sine=frequency=1000:sample_rate=48000",
+            "-t", str(args.seconds + args.settle + 20), "-c:v", "libx265", "-preset", "ultrafast",
+            "-pix_fmt", "yuv420p10le", "-x265-params", "pools=2:frame-threads=2:log-level=error",
+            "-color_range", "tv", "-colorspace", "bt709", "-color_trc", "bt709",
+            "-color_primaries", "bt709", "-c:a", "pcm_s16le", args.media], check=True)
+        args.reject_magenta = True
+
     results = []
     try:
         for standard in args.standard:
             result = run_case(args, standard)
+            if args.reject_magenta and "error" not in result:
+                files = glob.glob(os.path.join(args.root, "data", "recordings", "*"))
+                result["magenta_frames"] = magenta_frames(max(files, key=os.path.getmtime))
             results.append(result)
             print(json.dumps(result), flush=True)
     finally:
@@ -277,7 +318,8 @@ def main():
         #                frame repeated; that is not a hypothetical failure
         #                mode, it is what a broken readback actually produced.
         frozen = r.get("distinct", 99) < 3
-        bad = frozen or r["alarms"] > 0 or               r["shortfall"] > max(8, 0.05 * r["owed"])
+        bad = (frozen or r["alarms"] > 0 or r.get("magenta_frames", 0) > 0 or
+               r["shortfall"] > max(8, 0.05 * r["owed"]))
         failures += bad
         print("%-16s %-12s %8d %8d %9d %7d %9d  %s" %
               (r["standard"], r["raster"], r["frames"], r["owed"],

@@ -88,6 +88,11 @@ int deckLinkModeHeight(DeckLinkMode mode);
 // Frame rate numerator/denominator for a given mode
 void deckLinkModeFrameRate(DeckLinkMode mode, int& numerator, int& denominator);
 
+// BT.709 studio-range UYVY/v210 conversion, available without the card SDK.
+bool deckLinkConvertBgra(const std::uint8_t* pixels, int width, int height, int stride,
+                        std::uint8_t* output, int outputWidth, int outputHeight,
+                        int outputStride, bool tenBit);
+
 // Live capture from a DeckLink / UltraStudio input.
 //
 // The counterpart of DeckLinkOutput, on the same devices and the same modes.
@@ -154,7 +159,7 @@ class DeckLinkOutput {
 
   static std::vector<DeckLinkDeviceInfo> listDevices();
 
-  bool init(int deviceId, DeckLinkMode mode, bool enable10Bit = true);
+  bool init(int deviceId, DeckLinkMode mode, bool enable10Bit = true, bool enableAudio = true);
   bool isInitialized() const;
   void shutdown();
 

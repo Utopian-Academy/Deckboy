@@ -3046,6 +3046,27 @@
 
     {
       VuReading vu = computeVuReading();
+      const deckboy::audiofx::ProgramLoudnessMeter* programMeter = nullptr;
+      const int meterOutput = primaryOutputIndexForDeck(project_.focusedDeckIndex)
+        .value_or(project_.focusedOutputIndex);
+      if (OutputRuntime* runtime = runtimeForOutput(meterOutput)) {
+        auto state = runtime->programAudioStates.find(runtime->meteredAudioSink);
+        if (state != runtime->programAudioStates.end()) programMeter = &state->second.meter;
+      }
+      // A recording is a separate output mirroring the programme window.
+      // Prefer its final mix when the window itself has no audio egress.
+      for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+        const auto& output = project_.outputs[i];
+        if (!output.enabled || output.hostDeckIndex != project_.focusedDeckIndex) continue;
+        const bool recording = output.streamEnabled && outputStreamProtocolIsFile(
+          normalizeOutputStreamProtocol(output.streamProtocol));
+        if (programMeter && !recording) continue;
+        if (OutputRuntime* runtime = runtimeForOutput(i)) {
+          auto state = runtime->programAudioStates.find(runtime->meteredAudioSink);
+          if (state != runtime->programAudioStates.end()) programMeter = &state->second.meter;
+        }
+        if (programMeter && recording) break;
+      }
       drawUIPanel(vuMeterRect, pal.light, pal.deep, pal.mid);
 
       // ── THE METER, SIZED BY ITS OWN TYPE ────────────────────────────────
@@ -3062,7 +3083,8 @@
       const int kVuFooterLabelH = vuLineH;
       const int kVuFooterUnitH = vuLineH;
       const int kVuBottomPad = uiScaled(4);
-      const int kVuFooterTotal = kVuFooterLabelH + kVuFooterUnitH + uiScaled(2) + kVuBottomPad;
+      const int kVuFooterTotal = kVuFooterLabelH + kVuFooterUnitH + uiScaled(2) + kVuBottomPad +
+        (programMeter ? vuLineH * 2 : 0);
 
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
                            SDL_Rect {vuMeterRect.x, vuMeterRect.y + uiScaled(2),
@@ -3158,6 +3180,15 @@
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
                            SDL_Rect {labelsRect.x, dbY, labelsRect.w, kVuFooterUnitH},
                            "dB", pal.deep);
+      if (programMeter) {
+        const int y = dbY + kVuFooterUnitH;
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+          SDL_Rect {vuMeterRect.x, y, vuMeterRect.w, vuLineH},
+          "I " + fmtFloat(programMeter->integrated, 1), pal.deep);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+          SDL_Rect {vuMeterRect.x, y + vuLineH, vuMeterRect.w, vuLineH},
+          "TP " + fmtFloat(programMeter->peakDb(), 1), pal.deep);
+      }
     }
 
     warpSaveBtnRect_ = {};
@@ -4087,12 +4118,19 @@
                        "Audio fade-out: follow visual fade, none, or explicit seconds");
           ay += kInspectorRowStep;
           if (cueUsesFilesystemMedia(*selectedCue)) {
-            SDL_Rect normBtn {ctrl.x + 10, ay, kCtrlW - 20, 26};
+            SDL_Rect targetBtn {ctrl.x + uiScaled(10), ay, kCtrlW - uiScaled(20), uiScaled(26)};
+            Primitives::drawFramedPanel(controlRenderer_, targetBtn, pal.dark, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, targetBtn,
+              "target " + fmtFloat(project_.normalizeTargetLufs, 0) + " LUFS", pal.light);
+            quickButtons_.push_back({targetBtn, QuickAction::CycleNormalizeTarget,
+              "Choose -16, EBU -23, or ATSC -24 LUFS before normalizing"});
+            ay += kInspectorRowStep;
+            SDL_Rect normBtn {ctrl.x + uiScaled(10), ay, kCtrlW - uiScaled(20), uiScaled(26)};
             Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
                                  "normalize loudness (R128)", pal.light);
             quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
-                                     "Measure loudness and set gain for -16 LUFS playback"});
+                                     "Measure file loudness and set gain for the selected target"});
             ay += kInspectorRowStep;
           }
         }
@@ -5040,6 +5078,34 @@
         }
         finishInspectorSection(codeSection, codeY);
         ry = codeY + kInspectorSectionGap;
+      }
+      if (selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "swirl") {
+        auto swSection = beginInspectorSection(ry, "SWIRL", cueSectionSwirlOpen_,
+          QuickAction::CueSectionSwirlToggle, "Collapse/expand the swirl's controls");
+        int swY = swSection.bodyStartY;
+        if (cueSectionSwirlOpen_) {
+          const SwirlSettings& s = selectedCue->swirl;
+          struct SwirlRow { const char* label; NumericParam id; double value; const char* tip; };
+          const SwirlRow rows[] = {
+            {"speed", NumericParam::SwirlSpeed, s.speed, "0 holds the field; 1 normal; 3 triple speed"},
+            {"twist", NumericParam::SwirlTwist, s.twist, "Spiral strength, from a flowing field to tight turns"},
+            {"pixels", NumericParam::SwirlCells, static_cast<double>(s.cells), "Horizontal cells. More detail uses more CPU"},
+            {"colour", NumericParam::SwirlHue, s.hue, "Turn the palette through all colours; 0 restores green and yellow"}
+          };
+          for (const auto& row : rows) {
+            char text[24];
+            if (row.id == NumericParam::SwirlCells) std::snprintf(text, sizeof(text), "%.0f", row.value);
+            else if (row.id == NumericParam::SwirlHue) std::snprintf(text, sizeof(text), "%.0f%%", row.value * 100);
+            else std::snprintf(text, sizeof(text), "%.2f", row.value);
+            inspDrawQuickRow(ix, swY, row.label, QuickAction::NumericParamDec, text,
+              QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+              row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
+            swY += kInspectorRowStep;
+          }
+        }
+        finishInspectorSection(swSection, swY);
+        ry = swY + kInspectorSectionGap;
       }
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,

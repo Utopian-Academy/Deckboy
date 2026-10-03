@@ -57,21 +57,24 @@
     </header>
 
     <div class="prose">
-        <p class="asof">As of Deckboy 0.99.397. For which format to choose, see
+        <p class="asof">Current source: Deckboy 0.99.400. Packaged builds and their changes are on the
+        <a href="https://github.com/Utopian-Academy/Deckboy/releases">releases page</a>. For which format to choose, see
         <a href="faq.html#formats">the FAQ</a>.</p>
 
         <h2 id="video">Video and codecs</h2>
         <div class="table-wrap"><table class="spec">
             <tr><th>Video files</th><td>.mp4, .mov, .mkv, .avi, .webm, .m4v, .mpg, .mpeg, .wmv, .flv, .ogv, .ts, .m2ts, .mxf</td></tr>
             <tr><th>Hardware decode</th><td>Direct3D&nbsp;11 (D3D11VA) on Windows, VideoToolbox on macOS, VA-API on Linux &mdash; for whichever codecs the machine's GPU decodes, typically H.264 and HEVC, and VP9 or AV1 on newer GPUs. On Windows and macOS the decoded picture stays on the GPU.</td></tr>
-            <tr><th>10-bit</th><td>HEVC Main&nbsp;10, VP9 Profile&nbsp;2 and 10-bit AV1 stay 10-bit on the Windows GPU path</td></tr>
+            <tr><th>10-bit input</th><td>HEVC Main&nbsp;10, VP9 Profile&nbsp;2 and 10-bit AV1 on the Windows GPU path, with an SDR conversion fallback where the renderer needs it</td></tr>
             <tr><th>HAP</th><td>HAP in .mov is read straight to the GPU with no decoder, and every frame is a keyframe</td></tr>
             <tr><th>Everything else</th><td>Decoded on the processor by FFmpeg, which comes with every download &mdash; ProRes, DNxHR and the rest play, at a higher CPU cost</td></tr>
             <tr><th>Stills</th><td>.png, .jpg, .jpeg, .webp, .bmp, .gif, .tif, .tiff, .avif, .heic, .heif</td></tr>
             <tr><th>Slides</th><td>PDF, one cue per page, rendered once at import by the operating system's own PDF engine; PowerPoint (.pptx, .ppt, .pps, .ppsx), Keynote (.key) and OpenDocument (.odp) decks the same way, converted by PowerPoint, Keynote or LibreOffice on the machine</td></tr>
             <tr><th>Live sources</th><td>Cameras, application windows and screens, web pages, NDI, SRT, RTMP, RTSP, UDP, Blackmagic DeckLink capture, Spout (Windows)</td></tr>
-            <tr><th>Generated</th><td>Test patterns, a video synth, live-coded pictures, timers, lower thirds and tone</td></tr>
-            <tr><th>Effects</th><td>42 video effects on the live picture, levels and curves among them, every parameter drivable by an oscillator; 13 cue-to-cue transitions</td></tr>
+            <tr><th>Generated</th><td>Test patterns, Swirl with live speed, twist, density and colour, a video synth, live-coded pictures, timers, lower thirds and tone</td></tr>
+            <tr><th>Code sources</th><td>Editable render width and height independent of output geometry; incomplete expressions hold the last good picture</td></tr>
+            <tr><th>Effects</th><td>42 video effects, levels and curves among them, with oscillator-driven parameters; keying, grading and effects apply immediately on playing or paused cues</td></tr>
+            <tr><th>Transitions</th><td>17 cue-to-cue styles; each picture retains its fit, crop, scale, rotation, opacity, effect look and layer corner pins</td></tr>
         </table></div>
 
         <h2 id="output">Output</h2>
@@ -79,10 +82,12 @@
             <tr><th>Destinations</th><td>Displays (windowed or fullscreen), NDI, SRT, RTMP, RTSP and UDP streams, Blackmagic DeckLink SDI where the Blackmagic driver is installed, Spout (Windows), SMPTE ST&nbsp;2110</td></tr>
             <tr><th>Formats</th><td>720p at 50, 59.94 and 60; 1080i at 50, 59.94 and 60; 1080p and 2160p at 23.98, 24, 25, 29.97, 30, 50, 59.94 and 60</td></tr>
             <tr><th>Bit depth</th><td>8-bit or 10-bit</td></tr>
-            <tr><th>SMPTE ST 2110</th><td>ST&nbsp;2110-20 uncompressed video and ST&nbsp;2110-30 (AES67) audio, with AMWA NMOS IS-04 registration and IS-05 connection management</td></tr>
+            <tr><th>Colour and SDI</th><td>SDR compositor; scheduled DeckLink video and audio, with limited-range BT.709 UYVY (8-bit) or v210 (10-bit) packing</td></tr>
+            <tr><th>SMPTE ST 2110</th><td>ST&nbsp;2110-20 uncompressed video and ST&nbsp;2110-30 (AES67) 48&nbsp;kHz stereo audio, with independent video/audio transport controls, AMWA NMOS IS-04 registration and IS-05 connection management, and PTP media clock acquisition and reacquisition</td></tr>
             <tr><th>Decks and outputs</th><td>Up to 16 playlists, each output showing whichever one you choose, or several composited as layers; a multiview you arrange yourself</td></tr>
             <tr><th>Mapping</th><td>Per-output warp and edge blending; a corner pin per layer, dragged on the programme monitor, in perspective or linear</td></tr>
             <tr><th>Operator screens</th><td>Presenter view and a mirrored prompter, each an output of its own</td></tr>
+            <tr><th>Control desk</th><td>Compact cue rows and full-width focused deck tabs when columns cannot fit; CLEAR immediately stops all decks, cancels queued takes and disarms output</td></tr>
         </table></div>
 
         <h2 id="recording">Recording</h2>
@@ -101,6 +106,8 @@
             <tr><th>Output channels</th><td>2, 4, 6, 8, 16, 32, 64 or 128 per deck device &mdash; a full Dante or MADI rig</td></tr>
             <tr><th>Routing</th><td>A stereo pair per cue, or a per-cue crosspoint matrix to any channel, stepped off, full, &minus;3, &minus;6 and &minus;12&nbsp;dB</td></tr>
             <tr><th>Processing</th><td>23 audio effects per cue, and your own VST3 effects and instruments in the same chain</td></tr>
+            <tr><th>Loudness normalization</th><td>Selectable &minus;16, &minus;23 (EBU R128) and &minus;24&nbsp;LUFS targets</td></tr>
+            <tr><th>Programme metering</th><td>Momentary, short-term and integrated LUFS; true peak and a true-peak guard on the mixed output</td></tr>
             <tr><th>Input</th><td>A microphone or line input, by device</td></tr>
         </table></div>
 

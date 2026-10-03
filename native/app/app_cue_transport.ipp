@@ -468,28 +468,23 @@
   }
 
   void clearOutput() {
-    // Fade to black via dimmer, then clear after fade completes
-    focusedDeckMutable().overlayActiveIndices.clear();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
-    masterDimmerTarget_ = 0.0;
-    pendingClearAfterFade_ = true;
-    triggerToast("fading out");
+    finishClearOutput();
+    triggerToast("cleared: all decks stopped, outputs off");
     playUiSound(UiSoundEffect::Clear);
   }
 
   void finishClearOutput() {
-    MediaEngine* engine = focusedMediaEngine();
-    stopBrowserCue();
-    focusedDeckMutable().overlayActiveIndices.clear();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
-    focusedDeckMutable().activeIndex = -1;
-    if (engine) {
-      engine->clear();
+    runPanicOutputsOff(false, 0, false);
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      Deck& deck = project_.decks[deckIndex];
+      deck.overlayActiveIndices.clear();
+      syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks());
+      deck.activeIndex = -1;
+      if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) engine->clear();
     }
-    // Restore dimmer for next cue
+    // All sources have gone; the next deliberately armed cue can start normally.
     masterDimmerTarget_ = 1.0;
     project_.masterDimmer = 1.0;
-    pendingClearAfterFade_ = false;
     notifyTallyStateChange();
     markProjectDirty();
   }

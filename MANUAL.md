@@ -258,6 +258,10 @@ engines measure a page in three different units, so the same "2x" would produce
 a different raster on each platform, and an operator may change the output after
 importing anyway. The same deck therefore imports identically on every machine.
 
+While a deck converts and renders, a busy cat animates beside the page-progress
+display. The caption reports conversion first, then the slide count as pages
+finish rendering.
+
 ### PowerPoint, Keynote and OpenDocument
 
 `.pptx`, `.ppt`, `.key` and `.odp` are not rasterised directly. Deckboy asks
@@ -605,6 +609,11 @@ that deck plays on.
 Two decks cover the great majority of shows: a programme, and something held
 ready behind it.
 
+The cue area shows several columns when each has enough width. In a smaller
+window it shows the focused deck at full width, with tabs to switch decks.
+Compact rows reserve space for the cue name and timer; use the inspector or
+shortcuts for the actions hidden from those narrower rows.
+
 ### VJ mode
 
 A toggle. Off, Deckboy is a cue deck and every show behaves exactly as it always
@@ -702,6 +711,18 @@ Before that, every output carried the first deck. Each output is one of:
 Per output you can set alpha, delay, colour space, orientation (0/90/180/270),
 a test card, and a time overlay. `Blackout` (`B`) dims all outputs; panic
 profiles give a one-key safe state.
+
+**CLEAR** immediately stops every deck, cancels queued takes and fades, clears
+held pictures and overlays, and disarms every output. Use it when the desk
+must go dark and silent immediately.
+
+SDI output uses scheduled video and stereo 48 kHz audio. Eight-bit UYVY and
+ten-bit v210 use limited-range BT.709 code values. The picture compositor is
+an SDR pipeline; HDR sources requiring PQ/HLG tone mapping need conversion to
+SDR before playout. Ten-bit packing does not by itself provide HDR delivery.
+Physical SDI timing and colour still need validation on the intended card and
+receiver. The ST 2110 sender uses software packet pacing and software PTP;
+facility timing and interoperability need measurement on the intended network.
 
 ---
 
@@ -967,9 +988,14 @@ last five (**gem**, **gem cluster**, **flash**, **cloud**, **ghast**) are
 shapes with alpha, meant to sit over a picture — and a friend in the corner
 tells you what the name under your pointer does.
 
-**A compile error never blacks the output.** The cue keeps drawing the last
-expression that worked and the error appears in the editor. Someone editing
+**A compile error holds the last good picture.** The error appears in the editor
+while that picture stays on air. Someone editing
 live is mid-keystroke most of the time.
+
+The CODE inspector's **render width** and **render height** set the source's
+own pixel count. Click either value to type an exact size, or use its −/+ controls.
+For example, a 1920×1080 source evaluates at 1080p even on a 4K output; geometry
+sets its placement on that output separately.
 
 Division by zero, mod by zero and the square root of a negative are all bounded
 rather than producing infinities, because an operator typing at speed will
@@ -1270,13 +1296,20 @@ they never touch the programme bus.
 | Pan | full L … full R | Constant-power balance; snaps to centre |
 | Mono | on/off | Downmix for mono sources / mono PA |
 | Audio fade in / out | follow / none / seconds | `follow` tracks the visual fade; set a length to duck audio independently |
-| Normalize (R128) | button | Measures EBU R128 loudness and sets gain for −16 LUFS. Target is always reached; peaks are handled by the deck limiter, not by backing the gain off |
+| Normalize (R128) | button | Measures file loudness and sets gain for the selected −16, −23 or −24 LUFS target; subsequent mixing and limiting can change delivered loudness |
 | Outs | pair 1-2 … 7-8 | Output pair on a multichannel device (below) |
 
 The **deck fader** is a deck-level level on top of each cue's gain (the master
 fader in the header rides on top of everything). The effective audio-fade ramp
 is drawn over every waveform view — the timeline audio lane, the program strip,
 and both inspector thumbs — so what you see is what plays.
+
+Choose the normalization **target** before measuring the selected files. The
+programme footer reports integrated loudness (**I**, LUFS) and reconstructed
+true peak (**TP**, dBTP) for the active output audio path. Output audio has a
+true-peak guard after mixing, with a −1.1 dBTP ceiling setting. These meters
+support delivery checks; verify the final recording with a calibrated loudness
+analyser before claiming compliance with a broadcast specification.
 
 ### Per-cue audio effects (inspector → AUDIO FX)
 
@@ -1443,7 +1476,13 @@ smooth, and diagonal; full-frame solid colours have no motion option.
   it never repeats and adds nothing to the download. It is always animated.
 - **Swirl** — a slow spiral of melting pixel greens with a yellow crest, the
   look of Deckboy's own trailer. Set dressing for a holding screen or a backdrop
-  behind a lower third; it is always animated and never repeats.
+  behind a lower third, generated live without a video loop. Its inspector
+  controls speed (0–3, with 0 holding the field), twist (0–4), pixel density
+  (64–960 horizontal cells), and colour (one turn around the hue wheel).
+  Changes apply while it plays and are saved with the cue. Colour 0 or 100%
+  restores the original green/yellow palette. Over the wire: `SWIRL [STATUS]`,
+  `SWIRL SPEED <0-3>`, `SWIRL TWIST <0-4>`, `SWIRL PIXELS <64-960>`,
+  `SWIRL COLOUR <0-1>` (`COLOR` is also accepted).
 - **Pocket Test** — a PM5544-style test card with a bouncing scene-porthole
   ball, a sync beacon, and an audio sync pop at the top of each second (use it
   to dial the A/V delay offset).
@@ -1739,7 +1778,7 @@ This table is generated from the list the app itself draws on **Ctrl+/**, and
 | `K` | Cycle color tag |
 | `J` | Jump to the live cue |
 | `B` | Blackout - instant, playback continues |
-| `C` | Clear output - fade, stops playback |
+| `C` | Clear instantly - stop all decks, disarm output |
 | `U` | Clear overlays |
 | `N` | Toggle NDI send |
 | `F` | Toggle fullscreen output |

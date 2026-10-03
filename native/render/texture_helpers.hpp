@@ -92,13 +92,16 @@ inline bool syncFrameTexture(SDL_Renderer* renderer,
                              const DecodedFrame& frame) {
   if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) return false;
   const Uint32 wantFmt = sdlPixelFormat(frame.format);
-  if (tex && (cachedW != frame.width || cachedH != frame.height || cachedFmt != wantFmt)) {
+  const SDL_Colorspace colorspace = frameColorspace(frame);
+  if (frame.pixels.size() < frameBufferSize(frame.format, frame.width, frame.height)) return false;
+  if (tex && (cachedW != frame.width || cachedH != frame.height || cachedFmt != wantFmt ||
+              deckboyTextureColorspace(tex) != colorspace)) {
     SDL_DestroyTexture(tex);
     tex = nullptr;
   }
   if (!tex) {
     tex = deckboyCreateTexture(renderer, wantFmt, SDL_TEXTUREACCESS_STREAMING,
-                            frame.width, frame.height);
+                            frame.width, frame.height, colorspace);
     if (!tex) return false;
     cachedW = frame.width;
     cachedH = frame.height;
@@ -108,9 +111,12 @@ inline bool syncFrameTexture(SDL_Renderer* renderer,
   if (frame.format == FramePixelFormat::NV12) {
     const Uint8* y = frame.pixels.data();
     const Uint8* uv = y + static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height);
-    SDL_UpdateNVTexture(tex, nullptr, y, frame.width, uv, frame.width);
+    return SDL_UpdateNVTexture(tex, nullptr, y, frame.width, uv, frame.width);
+  } else if (frame.format == FramePixelFormat::P010) {
+    const Uint8* y = frame.pixels.data();
+    const Uint8* uv = y + static_cast<std::size_t>(frame.width) * frame.height * 2;
+    return SDL_UpdateNVTexture(tex, nullptr, y, frame.width * 2, uv, frame.width * 2);
   } else {
-    SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
+    return SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
   }
-  return true;
 }

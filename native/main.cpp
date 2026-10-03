@@ -4900,6 +4900,10 @@ class App {
       simulatedB = true;
       ink = 0;
     }
+    if (std::getenv("DECKBOY_TEXT_PROBE_LABEL_GPU_FAIL") &&
+        std::string(SDL_GetRendererName(controlRenderer_)) != "software") {
+      ink = 0;
+    }
     std::ostringstream line;
     line << "text probe B (" << tag << "): label-ink=" << ink
          << " font-height=" << TTF_GetFontHeight(fontSmall_)
@@ -4928,9 +4932,25 @@ class App {
   // next one in the list and probed again, and the operator gets an interface
   // with letters in it instead of a report to file.
   void healTextBackendIfNeeded() {
-    // Stage 1: the raw path (font -> texture -> GPU). If it draws no ink, the
-    // backend cannot draw text: move to the next one and probe again.
-    if (!probeTextPath()) {
+    // A renderer must pass the path used by real labels as well as raw glyphs.
+    // If dropping the label clip does not recover ink, try another renderer.
+    auto labelsWork = [&]() {
+      textClipDisabled_ = false;
+      clearTextTextureCache();
+      if (!probeTextPath()) return false;
+      if (probeRealTextPath("as built") != 0) return true;
+      textClipDisabled_ = true;
+      clearTextTextureCache();
+      if (probeRealTextPath("clip off") > 0) {
+        renderDiagnosticLog("labels recovered with text clipping off");
+        return true;
+      }
+      textClipDisabled_ = false;
+      renderDiagnosticLog("label path failed with and without clipping; trying another renderer");
+      return false;
+    };
+    bool working = labelsWork();
+    if (!working) {
       // The same two on every platform: the other GPU backend, then the CPU.
       static const char* const kFallbacks[] = {"opengl", "software"};
       const std::string failed = deckboyLastRendererDriver();
@@ -4960,23 +4980,16 @@ class App {
         createScanlineOverlay();
         renderDiagnosticLog("text could not be drawn on " + failed + "; control window moved to " + next);
         std::cerr << "text could not be drawn on " << failed << "; using " << next << std::endl;
-        if (probeTextPath()) {
+        working = labelsWork();
+        if (working) {
           break;
         }
       }
     }
-    // Stage 2: the real label path. If the raw path draws and labels do not,
-    // the difference is the label path's own steps; the clip rectangle is the
-    // only one with a GPU in it, so drop it and look again.
-    if (probeRealTextPath("as built") == 0) {
-      textClipDisabled_ = true;
-      clearTextTextureCache();
-      if (probeRealTextPath("clip off") > 0) {
-        renderDiagnosticLog("labels drew nothing with a clip rectangle; text clipping is off");
-      } else {
-        textClipDisabled_ = false;
-        renderDiagnosticLog("labels draw nothing with or without the clip; see the metrics above");
-      }
+    if (!working) {
+      SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Deckboy text rendering",
+        "The interface text could not be rendered. See deckboy-render.log in the state folder.",
+        controlWindow_);
     }
     clearTextTextureCache();   // nothing the probes made outlives startup
   }
@@ -7267,6 +7280,16 @@ class App {
 
   int inspDrawCodeRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
+    inspDrawQuickRow(ix, rowY, "render width", QuickAction::NumericParamDec,
+      std::to_string(cue.width), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+      "Source pixels, independent of output placement", true, QuickAction::EditNumericParam,
+      static_cast<int>(NumericParam::CodeWidth));
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "render height", QuickAction::NumericParamDec,
+      std::to_string(cue.height), QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+      "Source pixels, independent of output placement", true, QuickAction::EditNumericParam,
+      static_cast<int>(NumericParam::CodeHeight));
+    rowY += ix.rowStep;
     // The expression, on its own row and wide, because it is the cue.
     rowY = inspDrawActionRow(ix, rowY, cue.codeExpression.empty()
                                ? std::string("(tap to write an expression)")
@@ -7276,8 +7299,8 @@ class App {
                              "red, green and blue. Variables: x y (0-1), cx cy "
                              "(-1..1), r (radius), a (angle), t (seconds).",
                              pal.tile, pal.fg);
-    // A compile error is shown HERE and the picture keeps running on the last
-    // good expression -- someone editing live is mid-keystroke most of the
+    // A compile error is shown HERE and the last good picture stays visible.
+    // Someone editing live is mid-keystroke most of the
     // time, and a source that blacks out on every half-typed function is
     // unusable on a stage.
     const std::string problem = codeSourceProblem(cue.codeExpression);
@@ -9220,6 +9243,7 @@ class App {
   bool cueSectionMidiFileOpen_ = true;
   bool cueSectionFiresideOpen_ = true;
   bool cueSectionPortalOpen_ = true;
+  bool cueSectionSwirlOpen_ = true;
   // Which dashboard tile is one press away from being deleted, and when it
   // was armed. A button that runs a command is easy to hit by accident.
   int dashDeleteArmedSlot_ = -1;
@@ -10113,10 +10137,8 @@ class App {
   std::string audioInputActiveDevice_;   // what actually opened, not what was asked for
   double audioInputPeak_ = 0.0;          // 0..1, decays; drives the meter
   std::vector<std::int16_t> audioInputScratch_;
-  // Captured audio waiting to be muxed. Guarded because the capture pump runs
-  // on the main thread while the encoder collection runs from the output path.
-  std::mutex audioInputMixMutex_;
-  std::vector<std::int16_t> audioInputMixBuffer_;
+  // Each egress reads captured input independently, just as it reads a deck.
+  deckboy::core::DeckAudioRing inputAudioRing_;
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {
@@ -10573,8 +10595,6 @@ class App {
   // project_.outputs/outputRuntimes_ from there would race the main thread
   // creating and destroying outputs. Main thread publishes raw pointers here
   // under the mutex; the audio thread only ever reads this list.
-  std::mutex st2110AudioMutex_;
-  std::vector<deckboy::platform::video::St2110AudioOutput*> st2110AudioSenders_;
 
   // Loading overlay (see app_overlays.ipp). Only used while the main render
   // loop is stopped, so it owns its own present.
@@ -10612,6 +10632,7 @@ class App {
   struct PendingRemoteCommand {
     std::string text;
     SocketHandle replyTo = kInvalidSocket;
+    std::uint64_t replyGeneration = 0;
   };
   std::deque<PendingRemoteCommand> remoteCommands_;
   // Set true at the top of handleRemoteCommand and cleared only by falling off
@@ -10660,6 +10681,7 @@ class App {
   std::vector<SDL_Rect> deckOpacityFaderRects_;
   std::vector<std::int16_t> vuSamples_;
   std::mutex vuSamplesMutex_;
+  std::atomic<int> vuFocusedDeck_ {0};
   Uint64 vuSamplesUpdatedAtMs_ = 0;
   Uint64 vuDisplayUpdatedAtMs_ = 0;
   float vuDisplayRmsLeft_ = 0.0f;
@@ -11013,6 +11035,7 @@ class App {
   struct QueuedNormalize {
     std::string cueId;
     std::string path;
+    double targetLufs = -16.0;
   };
   // Which decks were drawn as playlist columns on the last frame. An edit is
   // allowed to reach a deck other than the focused one only if the operator
@@ -11134,7 +11157,6 @@ class App {
   SDL_Rect deckShuffleBtnRect_ {};
   SDL_Rect fullscreenBtnRect_ {};
   double masterDimmerTarget_ = 1.0;  // target for animated masterDimmer (0=black, 1=full)
-  bool pendingClearAfterFade_ = false; // clear output after dimmer fades to black
   bool panicProfilePending_ = false;
   std::string pendingPanicProfileToken_;
   Uint64 panicProfileRequestedAt_ = 0;
@@ -11209,6 +11231,10 @@ class App {
   std::mutex companionClientsMutex_;  // protects companionClients_ + companionClientBuffers_
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;
+  std::map<SocketHandle, std::string> companionClientReplies_;
+  std::map<SocketHandle, std::uint64_t> companionClientGenerations_;
+  std::uint64_t companionNextGeneration_ = 1;
+  std::map<SocketHandle, Uint64> companionReplyStartedAt_;
   // Which connections have already had their first line inspected (see the
   // HTTP guard in app_network.ipp).
   std::set<SocketHandle> companionClientFirstLine_;

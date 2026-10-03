@@ -1218,6 +1218,13 @@
       // that quietly grew a continue would run a show by itself.
       {
         Cue& seq = project.decks[0].cues[0];
+        project.normalizeTargetLufs = -23.0;
+        project.outputs[0].st2110AudioAddress = "239.20.10.9";
+        project.outputs[0].st2110AudioPort = 22002;
+        project.outputs[0].st2110VideoSourcePort = 21000;
+        project.outputs[0].st2110AudioSourcePort = 21002;
+        project.outputs[0].st2110AudioRtpEnabled = false;
+        project.outputs[0].st2110VideoMasterEnabled = false;
         seq.preWaitSeconds = 2.5;
         seq.postWaitSeconds = 1.25;
         seq.continueMode = CueContinueMode::AutoFollow;
@@ -1231,6 +1238,10 @@
         seq.lowerThird.accent = 4;
         seq.portal.blobs = 31;
         seq.portal.hue = 0.25;
+        seq.swirl.speed = 0.4;
+        seq.swirl.twist = 2.2;
+        seq.swirl.cells = 192;
+        seq.swirl.hue = 0.6;
         // A preset, with a playlist and an output in it.
         ShowPreset preset;
         preset.id = "preset-smoke";
@@ -1257,6 +1268,11 @@
       fs::path smokePath = fs::path("/tmp") / "deckboy-smoke.deckboy";
       expect(saveProject(smokePath, project), "project save");
       Project loaded = loadProject(smokePath);
+      expect(loaded.normalizeTargetLufs == -23.0, "loudness target persists");
+      expect(!loaded.outputs.empty() && loaded.outputs[0].st2110AudioAddress == "239.20.10.9" &&
+        loaded.outputs[0].st2110AudioPort == 22002 && loaded.outputs[0].st2110VideoSourcePort == 21000 &&
+        loaded.outputs[0].st2110AudioSourcePort == 21002 && !loaded.outputs[0].st2110AudioRtpEnabled &&
+        !loaded.outputs[0].st2110VideoMasterEnabled, "independent NMOS transport states persist");
       expect(!loaded.decks.empty(), "project load");
       if (!loaded.decks.empty() && !loaded.decks[0].cues.empty()) {
         const Deck& loadedDeck = loaded.decks[0];
@@ -1272,6 +1288,9 @@
                "a lower third's layout persists");
         expect(loadedCue.portal.blobs == 31 && std::fabs(loadedCue.portal.hue - 0.25) < 1e-6,
                "a portal's controls persist");
+        expect(std::fabs(loadedCue.swirl.speed - 0.4) < 1e-6 &&
+               std::fabs(loadedCue.swirl.twist - 2.2) < 1e-6 && loadedCue.swirl.cells == 192 &&
+               std::fabs(loadedCue.swirl.hue - 0.6) < 1e-6, "a swirl's controls persist");
         expect(loaded.presets.size() == 1 && loaded.presets[0].name == "Smoke preset" &&
                  loaded.presets[0].scope == (kPresetPosition | kPresetLevels) &&
                  std::fabs(loaded.presets[0].masterVolume - 0.8) < 1e-6,
@@ -1301,13 +1320,13 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 71;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 75;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
                                               // style and time, geometry LFOs, the
                                               // six portal controls, the twelve
-                                              // text lower-third fields
+                                              // text lower-third fields, four swirl controls
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -1338,7 +1357,8 @@
                       // And armed, which is the one whose missing-field default
                       // is NOT the zero value: a show trimmed of this field must
                       // come back with every cue live, not every cue inert.
-                      c.armed;
+                      c.armed && c.swirl.speed == 1.0 && c.swirl.twist == 1.35 &&
+                      c.swirl.cells == 480 && c.swirl.hue == 0.0;
             }
           }
           expect(inert, "a show saved before the spine opens with no waits and no continue");
@@ -2149,6 +2169,69 @@
         expect(!deckboy::hap::decompressToRgba(f, 64, 64, ignored, e3),
                "hap refuses to expand undersized block data");
       }
+    }
+
+    {
+      Cue codeCue;
+      codeCue.kind = CueKind::Pattern;
+      codeCue.path = "code";
+      codeCue.width = 320;
+      codeCue.height = 180;
+      codeCue.codeExpression = "0.25,0.5,0.75";
+      DecodedFrame codeFrame;
+      MediaEngine::buildPatternFrameInto(codeFrame, codeCue, 0.0, 640, 360);
+      expect(codeFrame.width == 320 && codeFrame.height == 180 &&
+             codeFrame.pixels.size() == 320u * 180u * 4u,
+             "code source honours its render raster on a larger output");
+      const auto goodPixels = codeFrame.pixels;
+      codeCue.codeExpression = "sin(";
+      MediaEngine::buildPatternFrameInto(codeFrame, codeCue, 1.0, 640, 360);
+      expect(codeFrame.width == 320 && codeFrame.height == 180 &&
+             codeFrame.pixels == goodPixels,
+              "an incomplete live code edit preserves the previous picture");
+      codeCue.codeExpression = "0.25,0.5,0.75";
+      codeCue.width = codeCue.height = 64;
+      codeFrame.colorspace = SDL_COLORSPACE_BT709_LIMITED;
+      MediaEngine::buildPatternFrameInto(codeFrame, codeCue, 2.0, 3840, 2160);
+      expect(codeFrame.width == 64 && codeFrame.height == 64 &&
+             codeFrame.colorspace == SDL_COLORSPACE_SRGB,
+             "small code raster remains exact and clears reused video colour metadata");
+    }
+
+    {
+      Cue swirl;
+      swirl.kind = CueKind::Pattern;
+      swirl.path = "swirl";
+      DecodedFrame frame;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 0.0, 320, 180);
+      const auto original = frame.pixels;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 1.0, 320, 180);
+      expect(frame.pixels != original, "swirl animates at its default speed");
+      swirl.swirl.speed = 0.0;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 0.0, 320, 180);
+      const auto frozen = frame.pixels;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 5.0, 320, 180);
+      expect(frame.pixels == frozen, "zero swirl speed holds the field");
+      swirl.swirl.hue = 0.5;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 0.0, 320, 180);
+      bool colourOnly = frame.pixels != frozen && frame.pixels.size() == frozen.size();
+      for (std::size_t i = 0; colourOnly && i + 3 < frozen.size(); i += 4) {
+        colourOnly = frame.pixels[i+3] == 255 &&
+          std::max({frame.pixels[i], frame.pixels[i+1], frame.pixels[i+2]}) ==
+          std::max({frozen[i], frozen[i+1], frozen[i+2]});
+      }
+      expect(colourOnly, "swirl colour changes hue while preserving palette brightness and opacity");
+      swirl.swirl.hue = 1.0;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 0.0, 320, 180);
+      expect(frame.pixels == frozen, "one full swirl colour turn restores the original palette");
+      swirl.swirl.hue = 0.0;
+      swirl.swirl.twist = 0.0;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 0.0, 320, 180);
+      expect(frame.pixels != frozen, "swirl twist changes the spiral field");
+      swirl.swirl.twist = 1.35;
+      swirl.swirl.cells = 96;
+      MediaEngine::buildPatternFrameInto(frame, swirl, 0.0, 320, 180);
+      expect(frame.pixels != frozen, "swirl pixel density changes its cell size");
     }
 
     // ---- Timer ------------------------------------------------------------
@@ -4800,8 +4883,8 @@
       std::cout << "pdf-probe: unavailable -- " << whyNot << std::endl;
       return 1;
     }
-    const fs::path out = outDir.empty()
-      ? (fs::temp_directory_path() / "deckboy-pdf-probe") : fs::path(outDir);
+    const fs::path out = fs::absolute(outDir.empty()
+      ? (fs::temp_directory_path() / "deckboy-pdf-probe") : fs::path(outDir));
 
     // A PRESENTATION GOES THROUGH ITS CONVERTER FIRST, and the probe reports
     // which one -- because "it did not import" has three different causes
@@ -5121,7 +5204,8 @@
             deckboy::libav::releaseD3D11Texture(gpuBridgeTex2D);
             gpuBridgeTex2D = nullptr;
             gpuBridge = deckboy::libav::createWrappedVideoTexture(
-              renderer, frame->width, frame->height, frame->format, &gpuBridgeTex2D);
+              renderer, frame->width, frame->height, frame->format, &gpuBridgeTex2D,
+              frameColorspace(*frame));
             gpuBridgeW = frame->width;
             gpuBridgeH = frame->height;
           }

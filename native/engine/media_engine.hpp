@@ -673,6 +673,9 @@ class MediaEngine {
   // drew the outgoing picture stretched to the whole raster -- so a cue fitted
   // with letterbox bars snapped to full frame the moment a transition began.
   Cue outgoingGeometryCue() const {
+    // Live edits update the owned cue even when the legacy texture-render
+    // geometry fields have not been used. The compositor must hold that look.
+    if (outgoingCueSnapshot_) return *outgoingCueSnapshot_;
     Cue c;
     c.scaleMode = transitionScaleMode_;
     c.outputScaleX = transitionScaleX_;
@@ -689,6 +692,7 @@ class MediaEngine {
   const DecodedFrame* outgoingFrame() const {
     return heldFrame_.has_value() ? &(*heldFrame_) : nullptr;
   }
+  float outgoingSourceGain() const { return transitionSourceGain_; }
 
   // 0 at the take, 1 when the transition is over. Returns 1 when nothing is
   // running, so a caller can treat "finished" and "never started" alike.
@@ -1109,6 +1113,7 @@ class MediaEngine {
   // render path are still reading. The app refreshes the snapshot via
   // syncActiveCueSnapshot() / refreshActiveCueRuntime() after edits.
   std::optional<Cue> activeCueSnapshot_;
+  std::optional<Cue> outgoingCueSnapshot_;
   const Cue* activeCue_ = nullptr;           // points at activeCueSnapshot_, or nullptr
 
   // -- State: video frame texture ----------------------------------------------
@@ -1364,6 +1369,7 @@ class MediaEngine {
   // persists across chunks to keep the release continuous; reset on load/stop
   // so a new cue never starts ducked by the previous one's transient.
   double limiterGain_ = 1.0;                 // current gain reduction, 1.0 = open
+  deckboy::audiofx::TruePeak4x limiterTruePeak_;
   std::vector<double> limiterScratch_;       // gained interleaved stereo, pre-quantise
   std::vector<double> limiterFramePeak_;     // max(|L|,|R|) per frame
   std::deque<std::size_t> limiterWindow_;    // monotonic deque → look-ahead window min

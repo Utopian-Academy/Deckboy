@@ -5284,6 +5284,39 @@
       }
       return;
     }
+    if (command == "SWIRL") {
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::Pattern || normalizePatternTypeId(cue->path) != "swirl") {
+        failRemoteCommand("SWIRL: select a swirl cue first");
+        return;
+      }
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "STATUS";
+      if (sub == "STATUS" && parts.size() <= 2) {
+        std::ostringstream status;
+        status << "swirl speed=" << cue->swirl.speed << " twist=" << cue->swirl.twist
+               << " pixels=" << cue->swirl.cells << " colour=" << cue->swirl.hue;
+        remoteCommandDetail_ = status.str();
+        return;
+      }
+      const NumericParam id = sub == "SPEED" ? NumericParam::SwirlSpeed
+        : sub == "TWIST" ? NumericParam::SwirlTwist
+        : sub == "PIXELS" ? NumericParam::SwirlCells
+        : sub == "COLOUR" || sub == "COLOR" ? NumericParam::SwirlHue : NumericParam::None;
+      const NumericParamSpec* spec = numericParamSpec(id);
+      const auto value = parseNumber(2);
+      if (parts.size() != 3 || !spec || !value || !std::isfinite(*value) ||
+          *value < spec->lo || *value > spec->hi ||
+          (spec->integral && std::floor(*value) != *value)) {
+        failRemoteCommand("SWIRL: STATUS | SPEED <0-3> | TWIST <0-4> | PIXELS <64-960> | COLOUR <0-1>");
+        return;
+      }
+      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+        double ignored = 0.0;
+        if (readNumericParam(each, id, ignored)) writeNumericParam(each, id, *value);
+      });
+      markProjectDirty();
+      return;
+    }
     if (command == "TRANSITION" || command == "XFADE") {
       if (parts.size() < 2) {
         return;

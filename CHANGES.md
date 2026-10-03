@@ -1,4 +1,36 @@
-# CHANGES - Incremental Updates (March-September 2026)
+# CHANGES - Incremental Updates (March-October 2026)
+
+## 2026-10-02 - v0.99.400 (live looks, steady transitions, and a Swirl you can shape)
+
+**Live looks.** Keying, grading and picture effects apply to the playing or
+paused cue as soon as their controls change. Every transition keeps the
+outgoing cue's processed look, opacity, fit, crop, scale, rotation and layer
+corner pins. Main 10 SDR
+video holds a steady picture between decoded frames.
+
+**Swirl controls.** Shape its speed, twist, pixel density and colour in the
+inspector while it plays. The show remembers all four settings. `SWIRL`
+reports them; `SWIRL SPEED`, `TWIST`, `PIXELS` and `COLOUR` set them remotely.
+Code sources honour their own editable render width and height, independently
+of the output raster, and hold the last good picture during an incomplete edit.
+
+**A clearer desk.** Narrow cue rows give the name and timer more room. Decks
+use a full-width focused list when several comfortable columns cannot fit.
+CLEAR immediately stops every deck and disarms output, including queued takes.
+Slide conversion and rendering use the animated busy critter with page progress.
+Pushes move each picture once; wipes and iris reveal the next cue throughout
+their duration.
+
+**Programme delivery.** Recordings and network outputs receive independently
+routed live-input audio. Programme metering shows integrated LUFS and true
+peak; normalization offers −16, −23 and −24 LUFS targets. SDI sends scheduled
+video and audio with BT.709 colour conversion and eight- or ten-bit packing.
+ST 2110 sender controls apply independent video and audio transport settings,
+with bounded audio queues, source binding and clock reacquisition. Companion
+traffic remains bounded so a stalled controller cannot hold up playout.
+
+**Release checks.** Required checks exercise programme recording, all transition
+types, Main 10 SDR playback, transport lifecycle and malformed clock packets.
 
 ## 2026-10-02 - v0.99.399 (text on every Mac, Windows decodes in-process, the web monitor, and a clicker that takes)
 
@@ -6656,4 +6688,3 @@ companion-control: tcp/udp port 5510 by default
 Optional features are switched on at configure time —
 `-DENABLE_MIDI=ON`, `-DENABLE_SIPHON=ON`, `-DENABLE_SPOUT=ON`, and
 `-DENABLE_DECKLINK=ON -DDECKLINK_SDK=/path/to/sdk`.
-

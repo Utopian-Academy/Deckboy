@@ -99,6 +99,8 @@ struct NmosSenderInfo {
   std::string sourceAddress;    // local NIC address ("" = default route)
   int sourcePort = 0;           // 0 = ephemeral / auto
   bool active = false;          // is the sender currently emitting?
+  bool masterEnabled = false;
+  bool rtpEnabled = true;
 
   // The SDP served as the IS-05 transportfile. Supplied by the app so it is
   // byte-identical to what the settings modal shows.
@@ -126,6 +128,11 @@ struct NmosSenderPatch {
   bool destinationChanged = false;
   std::string destinationAddress;
   int destinationPort = 0;
+  bool sourceChanged = false;
+  std::string sourceAddress;
+  int sourcePort = 0;
+  bool rtpEnabledChanged = false;
+  bool rtpEnabled = true;
   bool activateImmediate = false;    // false = staged only, do not apply yet
 };
 
@@ -145,6 +152,8 @@ using NmosPatchHandler = std::function<bool(const NmosSenderPatch&)>;
 // Every field is paired with a `*Set` flag so a PATCH that touches only
 // master_enable does not blank the destination a previous PATCH staged.
 struct NmosStagedState {
+  std::string sourceAddress;
+  bool sourceAddressSet = false;
   bool masterEnable = false;
   bool masterEnableSet = false;
   std::string destinationAddress;
@@ -212,6 +221,7 @@ class NmosNode {
   std::string nodeApiUrl() const;
 
  private:
+  friend struct BroadcastChecks;
   struct Resource {
     std::string id;
     std::string json;

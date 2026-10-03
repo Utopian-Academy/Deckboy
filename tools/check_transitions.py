@@ -40,6 +40,8 @@ import re
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -48,6 +50,9 @@ ROOT = os.path.dirname(HERE)
 # wipes are drawn by the renderer with SDL calls and have no frame to dump;
 # --transition-dump says so rather than pretending.
 STYLES = ["portal", "shatter", "clouds", "ghastly"]
+PLAYOUT_STYLES = ["cut", "crossfade", "dip", "dipwhite", "pushleft", "pushright",
+                 "pushup", "pushdown", "wipeleft", "wiperight", "wipeup", "wipedown",
+                 "iris"] + STYLES
 
 # Portal's corners are the reason this number is not 0: they are the last thing
 # it opens, and they have to clear the alpha ramp as well as the geometry.
@@ -94,9 +99,231 @@ def dump(exe, style, outgoing, incoming, dst, progress):
     return numbers, result.stdout.strip()
 
 
+def check_playout(args):
+    """Measure placement in the complete output, which frame dumps cannot see."""
+    from deckboy_harness import Deckboy
+    args.keep = False
+    args.ffmpeg = ""
+    failures = []
+    with tempfile.TemporaryDirectory(prefix="deckboy-transition-media-") as media:
+        white, black, portrait = [os.path.join(media, name + ".ppm")
+                                  for name in ("white", "black", "portrait")]
+        write_ppm(white, 300, 100, lambda x, y: (255, 255, 255))
+        write_ppm(black, 300, 100, lambda x, y: (0, 0, 0))
+        write_ppm(portrait, 100, 300, lambda x, y: (0, 255, 0))
+        with Deckboy(args, "deckboy-transition-playout-",
+                     extra_args=["--import", white, "--import", black, "--import", portrait]) as db:
+            db.send("OUTPUT ON")
+            db.send("RECFORMAT 640x360 25")
+            for style in PLAYOUT_STYLES:
+                db.send("TRANSITION 0")
+                db.send("SELECT 1")
+                db.send("SCALEMODE FIT")
+                db.send("TAKE")
+                time.sleep(0.5)
+                db.send("TRANSITION 1.2")
+                db.send("TRANSITIONSTYLE " + style)
+                def take_black():
+                    time.sleep(1.0)
+                    db.send("SELECT 2")
+                    db.send("TAKE")
+                take = threading.Thread(target=take_black)
+                take.start()
+                path = db.record(seconds=3.0)
+                take.join()
+                if not path:
+                    failures.append(style + ": no programme recording")
+                    continue
+                pixels = subprocess.run([
+                    "ffmpeg", "-v", "error", "-i", path, "-vf", "scale=96:54,format=gray",
+                    "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
+                frames = [pixels[i:i + 96 * 54] for i in range(0, len(pixels), 96 * 54)]
+                frames = [f for f in frames if len(f) == 96 * 54]
+                # A 3:1 source fitted to 16:9 leaves bars above and below.
+                # They must remain black for EVERY frame of the transition.
+                bars = [max(f[:96*8] + f[96*46:]) for f in frames]
+                centres = [sum(f[96*20:96*34]) / (96 * 14) for f in frames]
+                litRows = [sum(max(f[y*96:(y+1)*96]) > 15 for y in range(54)) for f in frames]
+                litPixels = [sum(v > 40 for v in f) for f in frames]
+                # Pushes move the picture into a bar but preserve its height.
+                # Dip to white deliberately flashes the complete output.
+                if style == "dipwhite":
+                    geometry_ok = True
+                elif style.startswith("push"):
+                    geometry_ok = max(litRows, default=54) <= 34
+                else:
+                    geometry_ok = max(bars, default=255) < 8
+                # A wipe/iris must expose part of the incoming picture before
+                # it finishes. Correct endpoints alone also pass a silent cut.
+                reveal_ok = True
+                if style.startswith("wipe") or style == "iris":
+                    full = max(litPixels[:15], default=0)
+                    reveal_ok = full > 0 and any(full * 0.1 < n < full * 0.9 for n in litPixels)
+                ok = (len(frames) > 40 and geometry_ok and
+                      reveal_ok and
+                      max(centres[:15], default=0) > 230 and
+                      max(centres[-10:], default=255) < 8)
+                print("playout %s: frames=%d bar-maximum=%d first=%.1f last=%.1f %s" %
+                      (style, len(frames), max(bars, default=255),
+                       max(centres[:15], default=0), max(centres[-10:], default=255),
+                       "ok" if ok else "FAIL"))
+                if not ok:
+                    failures.append(style + ": fitted placement or intermediate reveal failed")
+            # The outgoing frame must hold its processed look. Inverting white
+            # makes this a black-to-black take: raw-frame leakage turns it white.
+            for style in ["crossfade"] + STYLES:
+                db.send("TRANSITION 0")
+                db.send("SELECT 1")
+                db.send("FX CLEAR")
+                db.send("FX ADD invert")
+                db.send("FX AMOUNT 1 1")
+                db.send("TAKE")
+                time.sleep(0.5)
+                db.send("TRANSITION 1.2")
+                db.send("TRANSITIONSTYLE " + style)
+                take = threading.Thread(target=take_black)
+                take.start()
+                path = db.record(seconds=3.0)
+                take.join()
+                if not path:
+                    failures.append(style + ": no look recording")
+                    continue
+                pixels = subprocess.run([
+                    "ffmpeg", "-v", "error", "-i", path, "-vf", "scale=96:54,format=gray",
+                    "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
+                frames = [pixels[i:i+5184] for i in range(0, len(pixels), 5184)]
+                frames = [f for f in frames if len(f) == 5184]
+                peak = max((sum(f) / len(f) for f in frames), default=255)
+                # Portal adds a coloured rim; it must not restore raw white.
+                ok = len(frames) > 40 and peak < 40
+                print("playout look %s: frames=%d peak-mean=%.1f %s" %
+                      (style, len(frames), peak, "ok" if ok else "FAIL"))
+                if not ok:
+                    failures.append(style + ": outgoing processed look was lost")
+            # The layer fader must apply to both held and incoming pictures.
+            # This also repeats a white cue after its inversion was removed,
+            # exposing a stale processed-look cache from an earlier take.
+            for style, opacity in [("crossfade", 50), ("portal", 50), ("dipwhite", 0)]:
+                db.send("TRANSITION 0")
+                db.send("SELECT 1")
+                db.send("FX CLEAR")
+                db.send("DECKOPACITY " + str(opacity))
+                db.send("TAKE")
+                time.sleep(0.5)
+                db.send("TRANSITION 1.2")
+                db.send("TRANSITIONSTYLE " + style)
+                take = threading.Thread(target=take_black)
+                take.start()
+                path = db.record(seconds=3.0)
+                take.join()
+                pixels = subprocess.run([
+                    "ffmpeg", "-v", "error", "-i", path, "-vf", "scale=96:54,format=gray",
+                    "-f", "rawvideo", "-"], capture_output=True, check=True).stdout if path else b""
+                frames = [pixels[i:i+5184] for i in range(0, len(pixels), 5184)]
+                frames = [f for f in frames if len(f) == 5184]
+                peak = max((max(f) for f in frames), default=255)
+                centres = [sum(f[96*20:96*34]) / (96*14) for f in frames]
+                expected = 255 * opacity / 100
+                initial = max(centres[:15], default=255)
+                # Lossy YUV recording can ring a few levels above a sharp mask
+                # edge. Eight levels permits that; the doubled hold reached 195.
+                ok = len(frames) > 40 and peak <= expected + 8 and abs(initial-expected) < 5
+                print("playout opacity %s: opacity=%d peak=%d initial=%.1f %s" %
+                      (style, opacity, peak, initial, "ok" if ok else "FAIL"))
+                if not ok:
+                    failures.append(style + ": layer opacity changed during transition")
+            db.send("DECKOPACITY 100")
+            # Change geometry AFTER taking the outgoing cue, then take again.
+            # This catches a snapshot that reads legacy engine geometry rather
+            # than the live cue used by the actual compositor.
+            for style in ["crossfade"] + STYLES:
+                db.send("TRANSITION 0")
+                db.send("SELECT 1")
+                db.send("FX CLEAR")
+                db.send("SCALEX 1")
+                db.send("SCALEY 1")
+                db.send("TAKE")
+                db.send("SCALEX 0.5")
+                db.send("SCALEY 0.5")
+                time.sleep(0.5)
+                db.send("TRANSITION 1.2")
+                db.send("TRANSITIONSTYLE " + style)
+                take = threading.Thread(target=take_black)
+                take.start()
+                path = db.record(seconds=3.0)
+                take.join()
+                pixels = subprocess.run([
+                    "ffmpeg", "-v", "error", "-i", path, "-vf", "scale=96:54,format=gray",
+                    "-f", "rawvideo", "-"], capture_output=True, check=True).stdout if path else b""
+                frames = [pixels[i:i+5184] for i in range(0, len(pixels), 5184)]
+                frames = [f for f in frames if len(f) == 5184]
+                rows = [sum(max(f[y*96:(y+1)*96]) > 15 for y in range(54)) for f in frames]
+                peak = max(rows, default=54)
+                initial = max(rows[:15], default=0)
+                ok = len(frames) > 40 and 15 <= initial <= 18 and peak <= 18
+                print("playout live geometry %s: initial-rows=%d peak-rows=%d %s" %
+                      (style, initial, peak, "ok" if ok else "FAIL"))
+                if not ok:
+                    failures.append(style + ": live geometry edit was lost during transition")
+            # A portrait cue pushed in after a wide one must enter from the
+            # edge, retaining its own shape. An extra draw at rest exposes it
+            # early in the wide cue's bars and can resemble a size jump.
+            for style in ["pushleft", "pushright", "pushup", "pushdown"]:
+                db.send("TRANSITION 0")
+                db.send("SELECT 1")
+                db.send("SCALE 1")
+                db.send("TAKE")
+                time.sleep(0.5)
+                db.send("TRANSITION 1.2")
+                db.send("TRANSITIONSTYLE " + style)
+                def take_portrait():
+                    time.sleep(1.0)
+                    reply = db.send("TAKE 3")
+                    if reply.startswith("ERR"):
+                        failures.append(style + ": " + reply)
+                take = threading.Thread(target=take_portrait)
+                take.start()
+                path = db.record(seconds=3.0)
+                take.join()
+                pixels = subprocess.run([
+                    "ffmpeg", "-v", "error", "-i", path, "-vf", "scale=96:54,format=rgb24",
+                    "-f", "rawvideo", "-"], capture_output=True, check=True).stdout if path else b""
+                frames = [pixels[i:i+15552] for i in range(0, len(pixels), 15552)
+                          if len(pixels[i:i+15552]) == 15552]
+                violations = coexist = 0
+                for f in frames:
+                    white_points, green_points = [], []
+                    for pos in range(0, len(f), 3):
+                        r, g, b = f[pos:pos+3]
+                        xy = (pos // 3 % 96, pos // 3 // 96)
+                        if min(r, g, b) > 200: white_points.append(xy)
+                        if g > 100 and r < 50 and b < 50: green_points.append(xy)
+                    if not white_points or not green_points: continue
+                    coexist += 1
+                    if style == "pushleft":
+                        bad = min(p[0] for p in green_points) < max(p[0] for p in white_points) + 37
+                    elif style == "pushright":
+                        bad = max(p[0] for p in green_points) > min(p[0] for p in white_points) - 37
+                    elif style == "pushup":
+                        bad = min(p[1] for p in green_points) < max(p[1] for p in white_points) + 9
+                    else:
+                        bad = max(p[1] for p in green_points) > min(p[1] for p in white_points) - 9
+                    violations += bad
+                ok = len(frames) > 40 and coexist > 2 and violations == 0
+                print("playout mixed shapes %s: coexist=%d misplaced=%d %s" %
+                      (style, coexist, violations, "ok" if ok else "FAIL"))
+                if not ok:
+                    failures.append(style + ": portrait incoming cue appeared at rest or changed shape")
+    for failure in failures:
+        print("FAIL: " + failure)
+    return 1 if failures else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exe", default=default_exe())
+    ap.add_argument("--playout", action="store_true", help="also measure geometry in programme recordings")
+    ap.add_argument("--port", type=int, default=5631, help="isolated playout control port")
     args = ap.parse_args()
     if not args.exe or not os.path.isfile(args.exe):
         sys.exit("check_transitions: no Deckboy binary; pass --exe")
@@ -190,7 +417,7 @@ def main():
         return 1
     print("check_transitions: ok -- %d styles start clean, finish clean, "
           "reveal steadily and repeat exactly." % len(STYLES))
-    return 0
+    return check_playout(args) if args.playout else 0
 
 
 if __name__ == "__main__":

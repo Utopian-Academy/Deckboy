@@ -198,12 +198,28 @@ inline SDL_Renderer* deckboyCreateRenderer(SDL_Window* window) {
 }
 
 inline SDL_Texture* deckboyCreateTexture(SDL_Renderer* renderer, Uint32 format,
-                                         SDL_TextureAccess access, int w, int h) {
-  SDL_Texture* texture = SDL_CreateTexture(renderer, static_cast<SDL_PixelFormat>(format), access, w, h);
+                                         SDL_TextureAccess access, int w, int h,
+                                         SDL_Colorspace colorspace = SDL_COLORSPACE_UNKNOWN) {
+  SDL_PropertiesID props = SDL_CreateProperties();
+  if (!props) return nullptr;
+  SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_FORMAT_NUMBER, format);
+  SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_ACCESS_NUMBER, access);
+  SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_WIDTH_NUMBER, w);
+  SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_HEIGHT_NUMBER, h);
+  if (colorspace != SDL_COLORSPACE_UNKNOWN)
+    SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_COLORSPACE_NUMBER, colorspace);
+  SDL_Texture* texture = SDL_CreateTextureWithProperties(renderer, props);
+  SDL_DestroyProperties(props);
   if (texture) {
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
   }
   return texture;
+}
+
+inline SDL_Colorspace deckboyTextureColorspace(SDL_Texture* texture) {
+  return texture ? static_cast<SDL_Colorspace>(SDL_GetNumberProperty(
+    SDL_GetTextureProperties(texture), SDL_PROP_TEXTURE_COLORSPACE_NUMBER,
+    SDL_COLORSPACE_UNKNOWN)) : SDL_COLORSPACE_UNKNOWN;
 }
 
 // WHY THERE IS A SECOND ATTEMPT.

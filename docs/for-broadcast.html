@@ -60,13 +60,22 @@
         <h2>Out</h2>
         <ul>
             <li><b>NDI</b>, in every download, with key and fill.</li>
-            <li><b>Blackmagic DeckLink SDI</b>, including key and fill down two outputs for a downstream keyer.</li>
-            <li><b>SMPTE ST 2110</b>-20 video and -30 audio, with <b>AMWA NMOS</b> IS-04 and IS-05 so a broadcast controller can find and route it, and <b>PTP</b> (SMPTE ST 2059) for the media clock.</li>
+            <li><b>Blackmagic DeckLink SDI</b>, including key and fill down two outputs for a downstream keyer, scheduled video and audio, and limited-range BT.709 eight- or ten-bit packing.</li>
+            <li><b>SMPTE ST 2110</b>-20 video and -30 48&nbsp;kHz stereo audio, with independent video and audio transport controls, <b>AMWA NMOS</b> IS-04 and IS-05 so a broadcast controller can find and route it, and <b>PTP</b> (SMPTE ST 2059) media clock acquisition and reacquisition.</li>
             <li><b>SRT and RTMP</b> streams, each output with its own destination, while the programme records.</li>
         </ul>
 
         <h2>In</h2>
         <p>NDI sources, SRT, RTMP, RTSP and UDP feeds, and DeckLink capture are cues like a clip: same transport, same transitions, same effects, same remote control.</p>
+
+        <h2>Live picture and programme levels</h2>
+        <p>Keying, grading and picture effects apply immediately on playing or paused cues,
+        without another TAKE. Seventeen transition styles keep each cue's geometry and
+        processed look, including its layer corner pins.</p>
+        <p>Programme metering shows momentary, short-term and integrated LUFS and true peak,
+        with a true-peak guard on the mixed output. File normalization offers &minus;16,
+        &minus;23 (EBU R128) and &minus;24&nbsp;LUFS targets before playout. Live-input audio
+        follows each output's routing into recordings and network delivery.</p>
 
         <h2>Controlled the way the gallery already works</h2>
         <ul>

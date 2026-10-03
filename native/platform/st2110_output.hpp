@@ -58,6 +58,7 @@ struct St2110Config {
   std::string destinationAddress = "239.20.10.1";  // SSM/ASM multicast group
   std::string interfaceAddress;                    // local NIC to send from ("" = default route)
   int destinationPort = 20000;
+  int sourcePort = 0;
   int payloadType = 96;                            // dynamic RTP PT
   int width = 1920;
   int height = 1080;
@@ -134,6 +135,7 @@ class St2110Output {
   bool sendFrame(const std::uint8_t* srcBgra, int srcStrideBytes);
 
   const St2110Config& config() const { return config_; }
+  int boundSourcePort() const { return boundSourcePort_; }
   std::string lastError() const;
   std::uint64_t framesSent() const { return framesSent_.load(std::memory_order_relaxed); }
   std::uint64_t framesDropped() const { return framesDropped_.load(std::memory_order_relaxed); }
@@ -155,6 +157,7 @@ class St2110Output {
   void setLastError(const std::string& message);
 
   St2110Config config_;
+  int boundSourcePort_ = 0;
   const PtpClient* ptp_ = nullptr;    // not owned; null = free-running local clock
   long long socket_ = -1;              // SOCKET on Windows, int fd elsewhere
   std::uint16_t sequenceNumber_ = 0;
@@ -202,6 +205,7 @@ struct St2110AudioConfig {
   std::string interfaceAddress;
   // Convention: audio sits two ports above the video essence of the same flow.
   int destinationPort = 20002;
+  int sourcePort = 0;
   int payloadType = 97;
   int channels = 2;
   int timeToLive = 8;
@@ -217,33 +221,40 @@ class St2110AudioOutput {
 
   bool open(const St2110AudioConfig& config);
   void close();
-  bool isOpen() const { return socket_ >= 0; }
+  bool isOpen() const { return socket_ >= 0 && !senderStop_.load(); }
   void setPtpClient(const PtpClient* ptp) { ptp_ = ptp; }
 
-  // Interleaved stereo int16 at 48 kHz — exactly what the engine's audio tap
-  // hands out. Called from the AUDIO THREAD: it must not block, so this only
-  // buffers whole 1 ms packets and sends them straight out (they are ~150 bytes
-  // each; pacing them further would cost more than it saves).
+  // Interleaved stereo int16 at 48 kHz. Copies into a bounded queue; the owned
+  // sender thread emits 1 ms packets independently of the caller's cadence.
   void pushSamples(const std::int16_t* interleaved, std::size_t frameCount);
 
   std::uint64_t packetsSent() const { return packetsSent_.load(std::memory_order_relaxed); }
   const St2110AudioConfig& config() const { return config_; }
+  int boundSourcePort() const { return boundSourcePort_; }
   std::string lastError() const;
 
  private:
   bool sendPacket(const std::uint8_t* data, std::size_t size);
+  void senderLoop();
   void setLastError(const std::string& message);
 
   St2110AudioConfig config_;
+  int boundSourcePort_ = 0;
   const PtpClient* ptp_ = nullptr;
   long long socket_ = -1;
   std::uint16_t sequenceNumber_ = 0;
   std::uint32_t ssrc_ = 0;
   std::uint32_t rtpTimestamp_ = 0;
   bool timestampPrimed_ = false;
+  bool timestampPtpLocked_ = false;
+  std::string timestampGrandmaster_;
   std::atomic<std::uint64_t> packetsSent_ {0};
   std::vector<std::int16_t> pending_;   // partial packet carried between calls
   std::vector<std::uint8_t> packet_;
+  std::thread senderThread_;
+  std::atomic<bool> senderStop_ {false};
+  std::mutex samplesMutex_;
+  std::condition_variable samplesCv_;
   mutable std::mutex errorMutex_;
   std::string lastError_;
   bool winsockStarted_ = false;

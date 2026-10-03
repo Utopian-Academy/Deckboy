@@ -1311,7 +1311,7 @@
       {"K",               "Cycle color tag"},
       {"J",               "Jump to the live cue"},
       {"B",               "Blackout - instant, playback continues"},
-      {"C",               "Clear output - fade, stops playback"},
+      {"C",               "Clear instantly - stop all decks, disarm output"},
       {"U",               "Clear overlays"},
       {"N",               "Toggle NDI send"},
       {"F",               "Toggle fullscreen output"},

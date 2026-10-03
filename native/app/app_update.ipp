@@ -284,6 +284,7 @@
   }
 
   void update() {
+    vuFocusedDeck_.store(project_.focusedDeckIndex, std::memory_order_relaxed);
     serviceWindowFitScale();
     syncWebMonitorDirectory();
     serviceAutoScroll(1.0 / 60.0);
@@ -622,10 +623,6 @@
       project_.masterDimmer = std::clamp(
         project_.masterDimmer + std::copysign(std::min(step, std::abs(masterDimmerTarget_ - project_.masterDimmer)), masterDimmerTarget_ - project_.masterDimmer),
         0.0, 1.0);
-    }
-    // Complete pending clear-with-fade once dimmer reaches black
-    if (pendingClearAfterFade_ && project_.masterDimmer <= 0.02) {
-      finishClearOutput();
     }
     if (panicProfilePending_) {
       bool faded = project_.masterDimmer <= 0.05;

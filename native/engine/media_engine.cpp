@@ -252,6 +252,7 @@ void MediaEngine::stopAll() {
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
   float outgoingGain = transitionSourceGainForLoadCue(activeCue_, state_, visualFadeGainAt(position()));
+  outgoingCueSnapshot_ = activeCueSnapshot_;
   stopDecoderThreads();
   beginTransition(transitionSeconds, transitionStyle, outgoingGain);
   clearTexture();
@@ -594,6 +595,17 @@ void MediaEngine::syncActiveCueSnapshot(const Cue& cue) {
   }
   *activeCueSnapshot_ = cue;
   syncAudioFadeParams();
+  // Every editor reaches this path, including remote and batch edits. A new
+  // CPU effect must reach queued and paused frames without another TAKE.
+  const bool bridge = cueDecodesAsRgba(cue);
+  const bool wasBridge = liveRgbaBridge_.exchange(bridge);
+  if (bridge && !wasBridge) {
+    if (displayFrame_) bridgeFrameToRgba(*displayFrame_);
+    if (heldFrame_) bridgeFrameToRgba(*heldFrame_);
+    std::lock_guard<std::mutex> lock(frameMutex_);
+    for (DecodedFrame& queued : frameQueue_) bridgeFrameToRgba(queued);
+  }
+  lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
 }
 
 // Pixel format is per-cue. Cues with chroma key or color controls need RGBA
@@ -644,20 +656,6 @@ bool MediaEngine::adoptLookWithoutRestart(const Cue& cue) {
     return false;
   }
   syncActiveCueSnapshot(cue);
-  const bool bridge = cueDecodesAsRgba(cue);
-  liveRgbaBridge_.store(bridge);
-  if (bridge) {
-    // What is already decoded predates the edit: convert it too, or the effect
-    // would arrive a queue-length late -- and on a PAUSED cue, whose decoder
-    // pushes nothing new, not at all.
-    if (displayFrame_) bridgeFrameToRgba(*displayFrame_);
-    if (heldFrame_) bridgeFrameToRgba(*heldFrame_);
-    std::lock_guard<std::mutex> lock(frameMutex_);
-    for (DecodedFrame& queued : frameQueue_) {
-      bridgeFrameToRgba(queued);
-    }
-  }
-  lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);   // re-upload with the new look
   return true;
 }
 
@@ -674,6 +672,7 @@ void MediaEngine::bridgeFrameToRgba(DecodedFrame& frame) {
     }
     frame.pixels = std::move(cpu.pixels);
     frame.format = cpu.format;
+    frame.colorspace = cpu.colorspace;
     frame.width = cpu.width;
     frame.height = cpu.height;
     frame.gpuFrameRef.reset();
@@ -689,13 +688,15 @@ void MediaEngine::bridgeFrameToRgba(DecodedFrame& frame) {
   }
   std::vector<std::uint8_t> rgba(static_cast<std::size_t>(frame.width) *
                                  static_cast<std::size_t>(frame.height) * 4u);
-  if (!SDL_ConvertPixels(frame.width, frame.height, SDL_PIXELFORMAT_NV12,
-                         frame.pixels.data(), frame.width,
-                         SDL_PIXELFORMAT_RGBA32, rgba.data(), frame.width * 4)) {
+  if (!SDL_ConvertPixelsAndColorspace(frame.width, frame.height, SDL_PIXELFORMAT_NV12,
+                         frameColorspace(frame), 0, frame.pixels.data(), frame.width,
+                         SDL_PIXELFORMAT_RGBA32, SDL_COLORSPACE_SRGB, 0,
+                         rgba.data(), frame.width * 4)) {
     return;
   }
   frame.pixels = std::move(rgba);
   frame.format = FramePixelFormat::RGBA32;
+  frame.colorspace = SDL_COLORSPACE_SRGB;
 }
 
 // Hot-update runtime parameters from the active cue without restarting decode.
@@ -6010,7 +6011,8 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   }
   const Uint32 wantFormat = sdlPixelFormat(frame.format);
   const bool sizeChanged = textureWidth_ != frame.width || textureHeight_ != frame.height;
-  const bool formatChanged = textureFormat_ != wantFormat;
+  const bool formatChanged = textureFormat_ != wantFormat ||
+                            deckboyTextureColorspace(texture_) != frameColorspace(frame);
   if (!texture_ || sizeChanged || formatChanged) {
     clearTexture();
     texture_ = deckboyCreateTexture(
@@ -6018,7 +6020,7 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
       wantFormat,
       SDL_TEXTUREACCESS_STREAMING,
       frame.width,
-      frame.height
+      frame.height, frameColorspace(frame)
     );
     if (!texture_) {
       return;
@@ -6408,6 +6410,7 @@ void MediaEngine::clearAudio() {
   // Open the limiter back up: a new cue must not start ducked by whatever
   // transient the previous one ended on.
   limiterGain_ = 1.0;
+  limiterTruePeak_ = {};
   // And empty the effect tails for the same reason -- the previous cue's delay
   // repeats arriving over the top of the next one is worse than no delay.
   audioEffectState_.clear();
@@ -7196,6 +7199,14 @@ void MediaEngine::applyPeakLimiter() {
   if (frames == 0) {
     return;
   }
+  // The FIR peak is delayed by six input samples. Assign it to the samples
+  // that contributed to it so the existing lookahead sees inter-sample peaks.
+  for (std::size_t f = 0; f < frames; ++f) {
+    const double peak = limiterTruePeak_.push(limiterScratch_[f * 2], limiterScratch_[f * 2 + 1]);
+    const std::size_t first = f > 11 ? f - 11 : 0;
+    for (std::size_t at = first; at <= f; ++at)
+      limiterFramePeak_[at] = std::max(limiterFramePeak_[at], peak);
+  }
   const double attackCoef = 1.0 - std::exp(-1.0 / kAttackFrames);
   const double releaseCoef = 1.0 - std::exp(-1.0 / kReleaseFrames);
 
@@ -7225,6 +7236,7 @@ void MediaEngine::applyPeakLimiter() {
     const double target = limiterWindow_.empty() ? 1.0 : required(limiterWindow_.front());
     const double coef = target < limiterGain_ ? attackCoef : releaseCoef;
     limiterGain_ += (target - limiterGain_) * coef;
+    limiterGain_ = std::min(limiterGain_, target);
     limiterScratch_[f * 2] *= limiterGain_;
     limiterScratch_[f * 2 + 1] *= limiterGain_;
   }
@@ -11310,12 +11322,12 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
 // pixels are as chunky at 4K as at 1080p.
 // ---------------------------------------------------------------------------
 namespace {
-double swirlField(double px, double py, double cw, double ch, double t) {
+double swirlField(double px, double py, double cw, double ch, double t, double twist) {
   const double s = std::min(cw, ch);
   double ux = (px - 0.5 * cw) / s * 2.4;
   double uy = (py - 0.5 * ch) / s * 2.4;
   const double r = std::sqrt(ux * ux + uy * uy);
-  double a = std::atan2(uy, ux) + t * 0.40 - r * 1.35;
+  double a = std::atan2(uy, ux) + t * 0.40 - r * twist;
   ux = std::cos(a) * r;
   uy = std::sin(a) * r;
   for (int i = 0; i < 5; ++i) {
@@ -11330,16 +11342,18 @@ double swirlField(double px, double py, double cw, double ch, double t) {
 }
 }  // namespace
 
-void buildSwirl(DecodedFrame& frame, double seconds) {
+void buildSwirl(DecodedFrame& frame, double seconds, const SwirlSettings& settings) {
   const int W = frame.width, H = frame.height;
   if (W <= 0 || H <= 0) return;
   frame.format = FramePixelFormat::RGBA32;
   frame.pixels.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4u);
-  const int cell = std::max(1, W / 480);
-  const int cw = (W + cell - 1) / cell;
-  const int ch = (H + cell - 1) / cell;
+  // A fixed field grid keeps both the look and the work independent of the
+  // output raster, including widths that are not multiples of the cell count.
+  const int cw = std::min(W, std::clamp(settings.cells, 64, 960));
+  const int ch = std::clamp((H * cw + W / 2) / W, 1, H);
   // A little slower than real time, and well into the motion from the start.
-  const double t = seconds * 0.9 + 40.0;
+  const double t = seconds * 0.9 * std::clamp(settings.speed, 0.0, 3.0) + 40.0;
+  const double twist = std::clamp(settings.twist, 0.0, 4.0);
   // One field value per cell, plus a column and a row more for the outline.
   std::vector<double> field(static_cast<std::size_t>((cw + 1) * (ch + 1)));
   deckboy::effects::detail::parallelRows(ch + 1, cw + 1, [&](int r0, int r1) {
@@ -11347,17 +11361,33 @@ void buildSwirl(DecodedFrame& frame, double seconds) {
       for (int x = 0; x <= cw; ++x) {
         // The shader's y runs up the screen; ours runs down.
         field[static_cast<std::size_t>(y * (cw + 1) + x)] =
-          swirlField(x + 0.5, (ch - 1 - y) + 0.5, cw, ch, t);
+          swirlField(x + 0.5, (ch - 1 - y) + 0.5, cw, ch, t, twist);
       }
     }
   });
   auto band = [](double v) {
     return std::clamp(static_cast<int>(std::floor((v * 0.5 + 0.5) * 4.0)), 0, 3);
   };
-  static constexpr std::uint8_t kGreens[4][3] = {
-    {12, 41, 12}, {23, 74, 23}, {51, 117, 42}, {84, 143, 38}};
-  static constexpr std::uint8_t kCrest[3] = {252, 254, 31};
-  static constexpr std::uint8_t kOutline[3] = {7, 26, 7};
+  std::array<std::array<std::uint8_t, 3>, 6> palette {{
+    {12, 41, 12}, {23, 74, 23}, {51, 117, 42}, {84, 143, 38},
+    {252, 254, 31}, {7, 26, 7}}};
+  const double hue = std::clamp(settings.hue, 0.0, 1.0);
+  // Turn six palette entries once, retaining their brightness and saturation.
+  // Doing colour work per output pixel would multiply the cost at 4K.
+  if (hue > 0.0 && hue < 1.0) {
+    for (auto& colour : palette) {
+      const double r = colour[0] / 255.0, g = colour[1] / 255.0, b = colour[2] / 255.0;
+      const double hi = std::max({r, g, b}), lo = std::min({r, g, b}), delta = hi - lo;
+      if (delta <= 0.0) continue;
+      double h = hi == r ? (g - b) / delta : hi == g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+      h = std::fmod(h + hue * 6 + 6, 6);
+      const double f = h - std::floor(h), p = lo;
+      const double q = hi - delta * f, u = lo + delta * f;
+      const double sectors[6][3] {{hi,u,p},{q,hi,p},{p,hi,u},{p,q,hi},{u,p,hi},{hi,p,q}};
+      for (int c = 0; c < 3; ++c)
+        colour[c] = static_cast<std::uint8_t>(std::lround(sectors[static_cast<int>(h)][c] * 255));
+    }
+  }
   deckboy::effects::detail::parallelRows(ch, cw, [&](int r0, int r1) {
     for (int cy = r0; cy < r1; ++cy) {
       for (int cx = 0; cx < cw; ++cx) {
@@ -11366,10 +11396,10 @@ void buildSwirl(DecodedFrame& frame, double seconds) {
         const bool edge =
           band(field[static_cast<std::size_t>(cy * (cw + 1) + cx + 1)]) != b ||
           band(field[static_cast<std::size_t>((cy + 1) * (cw + 1) + cx)]) != b;
-        const std::uint8_t* c = edge ? kOutline : (v > 0.965 ? kCrest : kGreens[b]);
-        for (int py = cy * cell; py < std::min(H, (cy + 1) * cell); ++py) {
+        const auto& c = palette[edge ? 5 : (v > 0.965 ? 4 : b)];
+        for (int py = cy * H / ch; py < (cy + 1) * H / ch; ++py) {
           std::uint8_t* row = frame.pixels.data() + (static_cast<std::size_t>(py) * W) * 4u;
-          for (int px = cx * cell; px < std::min(W, (cx + 1) * cell); ++px) {
+          for (int px = cx * W / cw; px < (cx + 1) * W / cw; ++px) {
             std::uint8_t* p = row + static_cast<std::size_t>(px) * 4u;
             p[0] = c[0];
             p[1] = c[1];
@@ -11737,26 +11767,19 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
   }
   dst.resize(bytes);
   const std::uint8_t* src = outgoing.pixels.data();
-  const std::uint8_t* uvPlane = src + pixelsN;
-  // One pixel of the OUTGOING picture into o[0..3]. NV12 is converted as
-  // FULL-RANGE BT.601, because that is what SDL draws an NV12 texture as
-  // (SDL_COLORSPACE_JPEG, its default for YUV) -- so the first frame of the
-  // transition is the same colour as the last frame of the cue, not a shade
-  // off it.
-  auto fetch = [&](int x, int y, std::uint8_t* o) {
-    if (rgba) {
-      std::memcpy(o, src + (static_cast<std::size_t>(y) * W + x) * 4u, 4);
+  std::vector<std::uint8_t> converted;
+  if (nv12) {
+    converted.resize(bytes);
+    if (!SDL_ConvertPixelsAndColorspace(W, H, SDL_PIXELFORMAT_NV12,
+        frameColorspace(outgoing), 0, src, W, SDL_PIXELFORMAT_RGBA32,
+        SDL_COLORSPACE_SRGB, 0, converted.data(), W * 4)) {
+      dst.clear();
       return;
     }
-    const float Y = src[static_cast<std::size_t>(y) * W + x];
-    const std::uint8_t* uv = uvPlane + static_cast<std::size_t>(y / 2) * W + (x & ~1);
-    const float U = static_cast<float>(uv[0]) - 128.0f;
-    const float V = static_cast<float>(uv[1]) - 128.0f;
-    o[0] = static_cast<std::uint8_t>(std::clamp(Y + 1.402f * V, 0.0f, 255.0f));
-    o[1] = static_cast<std::uint8_t>(
-      std::clamp(Y - 0.344136f * U - 0.714136f * V, 0.0f, 255.0f));
-    o[2] = static_cast<std::uint8_t>(std::clamp(Y + 1.772f * U, 0.0f, 255.0f));
-    o[3] = 255;
+    src = converted.data();
+  }
+  auto fetch = [&](int x, int y, std::uint8_t* o) {
+    std::memcpy(o, src + (static_cast<std::size_t>(y) * W + x) * 4u, 4);
   };
 
   const double p = std::clamp(progress, 0.0, 1.0);
@@ -12060,32 +12083,16 @@ namespace {
 // more than one caller; this is the shared one, and Portal is deliberately left
 // alone rather than rewritten under a shipped transition.
 struct OutgoingPicture {
+  std::vector<std::uint8_t> converted;
   const std::uint8_t* rgba = nullptr;
-  const std::uint8_t* luma = nullptr;
-  const std::uint8_t* chroma = nullptr;
   int w = 0;
   int h = 0;
   bool ok = false;
 
-  // FULL-RANGE BT.601, matching what SDL draws an NV12 texture as
-  // (SDL_COLORSPACE_JPEG, its default for YUV) -- so the first frame of the
-  // transition is the same colour as the last frame of the cue.
   void fetch(int x, int y, std::uint8_t* o) const {
     x = x < 0 ? 0 : (x >= w ? w - 1 : x);
     y = y < 0 ? 0 : (y >= h ? h - 1 : y);
-    if (rgba) {
-      std::memcpy(o, rgba + (static_cast<std::size_t>(y) * w + x) * 4u, 4);
-      return;
-    }
-    const float Y = luma[static_cast<std::size_t>(y) * w + x];
-    const std::uint8_t* uv = chroma + static_cast<std::size_t>(y / 2) * w + (x & ~1);
-    const float U = static_cast<float>(uv[0]) - 128.0f;
-    const float V = static_cast<float>(uv[1]) - 128.0f;
-    o[0] = static_cast<std::uint8_t>(std::clamp(Y + 1.402f * V, 0.0f, 255.0f));
-    o[1] = static_cast<std::uint8_t>(
-      std::clamp(Y - 0.344136f * U - 0.714136f * V, 0.0f, 255.0f));
-    o[2] = static_cast<std::uint8_t>(std::clamp(Y + 1.772f * U, 0.0f, 255.0f));
-    o[3] = 255;
+    std::memcpy(o, rgba + (static_cast<std::size_t>(y) * w + x) * 4u, 4);
   }
 };
 
@@ -12101,9 +12108,11 @@ OutgoingPicture openOutgoing(const DecodedFrame& f) {
     p.ok = true;
   } else if (f.format == FramePixelFormat::NV12 && (p.w % 2) == 0 && (p.h % 2) == 0 &&
              f.pixels.size() >= n + n / 2) {
-    p.luma = f.pixels.data();
-    p.chroma = f.pixels.data() + n;
-    p.ok = true;
+    p.converted.resize(n * 4u);
+    p.ok = SDL_ConvertPixelsAndColorspace(p.w, p.h, SDL_PIXELFORMAT_NV12,
+      frameColorspace(f), 0, f.pixels.data(), p.w, SDL_PIXELFORMAT_RGBA32,
+      SDL_COLORSPACE_SRGB, 0, p.converted.data(), p.w * 4);
+    if (p.ok) p.rgba = p.converted.data();
   }
   return p;
 }
@@ -13461,13 +13470,27 @@ void MediaEngine::buildFrameCount(DecodedFrame& frame, double t,
 // so once the raster settles this allocates nothing at all.
 void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, double animTime,
                                         int fallbackWidth, int fallbackHeight) {
-  // Patterns ALWAYS build at the live output raster (the fallback hint —
-  // rebuildPatternFrame feeds it the current program-output size). A test
-  // pattern that isn't pixel-mapped to the selected display is lying, and
-  // backgrounds want native resolution too. The cue's stored size is only
-  // a last resort when no hint exists.
-  int sourceW = fallbackWidth > 0 ? fallbackWidth : cue.width;
-  int sourceH = fallbackHeight > 0 ? fallbackHeight : cue.height;
+  const std::string patternType = normalizePatternTypeId(cue.path);
+  const std::string basePatternType = stripPatternMotionSuffix(patternType);
+  const deckboy::code::CompiledSource* codeProgram = nullptr;
+  if (basePatternType == "code") {
+    static thread_local std::map<std::string, deckboy::code::CompiledSource> cache;
+    auto found = cache.find(cue.codeExpression);
+    if (found == cache.end()) {
+      if (cache.size() > 8) cache.clear();
+      found = cache.emplace(cue.codeExpression,
+                            deckboy::code::compile(cue.codeExpression)).first;
+    }
+    // Validate before touching the previous successful frame.
+    if (!found->second.ok()) return;
+    codeProgram = &found->second;
+  }
+  // Diagnostic patterns remain pixel-mapped. Code sources honour their own
+  // raster so a 1080p source does not evaluate four times the pixels at 4K.
+  const int sourceW = codeProgram && cue.width > 0 ? cue.width :
+                      (fallbackWidth > 0 ? fallbackWidth : cue.width);
+  const int sourceH = codeProgram && cue.height > 0 ? cue.height :
+                      (fallbackHeight > 0 ? fallbackHeight : cue.height);
 
   // ── Reset EVERY non-pixel field before reuse ──────────────────────────────
   // The caller's frame may be the one that previously held a hardware-decoded
@@ -13485,20 +13508,17 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   frame.gpuSubresource = 0;
   frame.gpuDevice = nullptr;
   frame.format = FramePixelFormat::RGBA32;
+  frame.colorspace = SDL_COLORSPACE_SRGB;
   frame.presentationSeconds = -1.0;
   frame.index = 0;
 
   // Size + clear. Every pattern is drawn over an opaque white ground, so this
   // also guarantees no stale pixels survive from the previous frame when the
   // buffer is reused.
-  frame.width  = std::max(320, sourceW);
-  frame.height = std::max(180, sourceH);
+  frame.width  = codeProgram ? std::clamp(sourceW, 64, 3840) : std::max(320, sourceW);
+  frame.height = codeProgram ? std::clamp(sourceH, 64, 2160) : std::max(180, sourceH);
   frame.index  = 0;
   frame.pixels.assign(static_cast<size_t>(frame.width) * static_cast<size_t>(frame.height) * 4u, 255);
-
-  // Normalize pattern type and detect -motion variant
-  std::string patternType = normalizePatternTypeId(cue.path);
-  std::string basePatternType = stripPatternMotionSuffix(patternType);
 
   // ── CODE SOURCE ─────────────────────────────────────────────────────────
   //
@@ -13506,33 +13526,12 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   // frame costs only the evaluation. Recompiling per frame would be the
   // dominant cost and typing would stutter the picture.
   //
-  // A compile error does NOT go black: the last good program keeps running
+  // A compile error holds the last good picture
   // and the error is reported to the inspector. Someone editing live is
   // mid-keystroke most of the time, and a source that blacks out on every
   // half-typed function is unusable on a stage.
   if (basePatternType == "code") {
-    // Cached in a THREAD-LOCAL map keyed by the expression itself, not in a
-    // member: this builder is static on purpose so a pattern can be rendered
-    // with no engine at all (that is what --pattern-dump uses). A map rather
-    // than one slot, so two code cues running at once do not recompile each
-    // other away every frame.
-    static thread_local std::map<std::string, deckboy::code::CompiledSource> cache;
-    auto found = cache.find(cue.codeExpression);
-    if (found == cache.end()) {
-      if (cache.size() > 8) {
-        cache.clear();      // an editing session, not a leak
-      }
-      found = cache.emplace(cue.codeExpression,
-                            deckboy::code::compile(cue.codeExpression)).first;
-    }
-    const deckboy::code::CompiledSource& program = found->second;
-    if (!program.ok()) {
-      // A compile error does not blank the output: the cue keeps whatever it
-      // last drew. Someone editing live is mid-keystroke most of the time, and
-      // a source that goes black on every half-typed function is unusable on a
-      // stage. The message reaches the operator through the inspector.
-      return;
-    }
+    const deckboy::code::CompiledSource& program = *codeProgram;
     const int w = frame.width, h = frame.height;
     const double t = animTime;
     const bool usesR = program.usesR;
@@ -13682,7 +13681,7 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     buildFrameCount(frame, animTime, false);
   } else if (basePatternType == "swirl") {
     // Always animated: the spiral turns and the bands melt.
-    buildSwirl(frame, animTime);
+    buildSwirl(frame, animTime, cue.swirl);
   } else if (basePatternType == "portal") {
     // Always animated: the blobs are born, drift, melt and fade.
     buildPortal(frame, animTime, cue.portal);

@@ -28,7 +28,7 @@ An NDI source, an SRT feed, an SDI input. A test card, a countdown, a lower
 third, an audio file, a line-up tone. A line of code you type while it is on
 the screen. In Deckboy every one of those is the same kind of object, sitting
 on the same cue list, and it behaves the same way: same transport, same fades,
-same thirteen transitions, same effect rack, same remote control, recorded the
+same seventeen transitions, same effect rack, same remote control, recorded the
 same way on the way out.
 
 So a show can run
@@ -73,6 +73,9 @@ which is not true of anything it gets compared to.
 ---
 
 ## Download
+
+The features below describe the current source. Packaged builds and their
+version-specific changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
 
 Every release ships an installer **and** a portable build for each platform.
 Both bundle everything they need — binary, ffmpeg, runtime libraries. Nothing
@@ -131,6 +134,10 @@ the macOS releases, where the warning is most in the way.
 
 </details>
 
+Deckboy checks interface labels at startup and automatically tries another
+rendering path when needed. The [FAQ](https://utopian-academy.github.io/Deckboy/faq.html#interface-text)
+explains the renderer log and how to select software rendering on a Mac.
+
 ---
 
 ## What it is
@@ -182,7 +189,7 @@ the other five problems on the day as well.
 - **Capture** a camera, a window or a screen and treat it as a cue
 - **Bridge formats** — bring a camera, capture card or stream in and send the
   programme out as SDI, ST 2110 or a stream, and record it
-- **Normalize loudness** to EBU R128 when a client sends a clip mastered too quiet
+- **Normalize loudness** to a chosen −16, −23 or −24 LUFS target before playout
 - **Generate LTC timecode** on its own routable output
 
 ### Where it gets used
@@ -207,12 +214,18 @@ all one object with one set of controls, not fifty separate things to learn.
 
 - Cue-based video playback with playlist management
 - Drag-and-drop media import
-- Play, pause, stop, seek and clear
+- Play, pause, stop and seek; CLEAR immediately stops every deck, cancels queued
+  takes, drops held pictures and overlays, and disarms output
 - Looping and hold-last-frame behaviour
 - Fade in/out, per cue and per deck
 - Cue trimming, and per-cue transition overrides
-- Thirteen transitions: cut, crossfade, dip to black or white, four pushes,
-  four wipes and an iris — set per deck, overridden per cue, timed in seconds
+- Seventeen transitions: cut, crossfade, dip to black or white, four pushes,
+  four wipes, an iris and four procedural styles — set per deck, overridden
+  per cue, timed in seconds, keeping each cue's fit, crop, geometry and look
+- Compact cue rows and a full-width focused deck with tabs when several
+  comfortable columns cannot fit
+- Keying, grading and picture effects apply immediately to a playing or paused
+  cue, without another TAKE
 
 </details>
 
@@ -240,6 +253,8 @@ all one object with one set of controls, not fifty separate things to learn.
 - **IPTV channel lists**: import an `.m3u` and every channel becomes a cue,
   named and grouped from the list
 - Test patterns, a built-in test card, and generated line-up tone
+- **Swirl**, a generated pixel spiral with live speed, twist, density and colour
+  controls, saved with the cue and available over the control protocol
 - Timer cues — a stage or speaker countdown with its own clock, thresholds and
   chimes. Its backdrop can go transparent and it has its own size and position,
   so the clock can sit over the programme instead of replacing it
@@ -254,8 +269,9 @@ all one object with one set of controls, not fifty separate things to learn.
 
 - A **video synth** — oscillators with feedback, a glitch stack, text mode and
   sprite sets — and a **code source**, a live-coded expression evaluated per
-  pixel and edited while it runs, with a compile error that never blacks the
-  output
+  pixel and edited while it runs. Its own render width and height set the work
+  it does independently of its placement on the output; an incomplete edit
+  holds the last good picture
 
 </details>
 
@@ -275,7 +291,8 @@ all one object with one set of controls, not fifty separate things to learn.
 
 - Per-output matte and still overlay, composited into the output's own picture
 - NDI output, in every download
-- DeckLink (SDI) output, wherever the Blackmagic SDK is present
+- DeckLink (SDI) output, wherever the Blackmagic SDK is present, with scheduled
+  video and audio, limited-range BT.709 conversion and eight- or ten-bit packing
 - SRT and RTMP streaming, each output with its own destination, running while
   the programme is recorded
 - Recording that keeps its sound, continuous for the whole take
@@ -288,6 +305,8 @@ all one object with one set of controls, not fifty separate things to learn.
 - Import a PDF, PowerPoint or Keynote deck as one cue per slide, rendered once
   at import by the platform's own engine -- nothing during the show depends on
   a document renderer
+- An animated busy critter accompanies conversion and rendering, with page
+  progress as the slides arrive
 - Speaker notes come with the deck, so a team working a master deck elsewhere
   keeps its fonts *and* its notes
 - **Presenter view** as an output type, so it takes its own display: the live
@@ -315,7 +334,9 @@ all one object with one set of controls, not fifty separate things to learn.
 - AMWA NMOS IS-05 connection management, so a broadcast controller can
   discover and route Deckboy's senders
 
-A conformant packetiser a broadcast controller can discover and route. See
+Video and 48 kHz stereo audio have independent sender controls for activation,
+source and destination addresses, ports and interface binding. PTP acquisition
+and reacquisition update the media clock. See
 [docs/ST2110_FEASIBILITY.md](docs/ST2110_FEASIBILITY.md).
 
 </details>
@@ -324,7 +345,9 @@ A conformant packetiser a broadcast controller can discover and route. See
 <summary><b>Audio</b></summary>
 
 - Per-cue gain trim, pan and mono fold-down
-- EBU R128 loudness normalization
+- Loudness normalization with selectable −16, −23 (EBU R128) and −24 LUFS targets
+- Programme metering with momentary, short-term and integrated LUFS, true peak,
+  and a true-peak guard on the mixed output
 - Independent audio fades, separate from video fades
 - Content-authoritative stereo waveform display
 - Audio-only cues, and per-cue mute

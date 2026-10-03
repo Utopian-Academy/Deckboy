@@ -844,7 +844,12 @@
   // MediaEngine::applyPeakLimiter) rather than something to back the gain off
   // for. True peak is still measured, and the toast reports where the boost
   // lands so the operator knows when the limiter will be working.
-  static constexpr double kNormalizeTargetLufs = kNormalizeTargetLufsDefault;
+  void cycleNormalizeTarget() {
+    const double current = project_.normalizeTargetLufs;
+    project_.normalizeTargetLufs = current == -16.0 ? -23.0 : current == -23.0 ? -24.0 : -16.0;
+    markProjectDirty();
+    triggerToast("loudness target: " + fmtFloat(project_.normalizeTargetLufs, 0) + " LUFS");
+  }
 
   // NORMALIZE IS QUEUED, like probing, and for the same reason: it used to
   // launch one detached thread and one ffmpeg PER CUE the instant it was
@@ -859,7 +864,7 @@
     if (path.empty()) {
       return false;
     }
-    normalizeQueue_.push_back(QueuedNormalize{cue.id, path});
+    normalizeQueue_.push_back(QueuedNormalize{cue.id, path, project_.normalizeTargetLufs});
     normalizeBatchTotal_ += 1;
     return true;
   }
@@ -880,7 +885,7 @@
         std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
         normalizeInFlight_.insert(job.cueId);
       }
-      std::thread([this, path = job.path, cueId = job.cueId]() {
+      std::thread([this, path = job.path, cueId = job.cueId, targetLufs = job.targetLufs]() {
         NormalizeResult result;
         result.cueId = cueId;
         // peak=true adds a "True peak: / Peak: -x.x dBFS" block to the summary,
@@ -898,7 +903,7 @@
             double lufs = std::strtod(out->c_str() + pos + 2, nullptr);
             if (std::isfinite(lufs) && lufs < 0.0 && lufs > -70.0) {
               result.measuredLufs = lufs;
-              double gain = std::clamp(kNormalizeTargetLufs - lufs,
+              double gain = std::clamp(targetLufs - lufs,
                                        static_cast<double>(kCueAudioGainMinDb),
                                        static_cast<double>(kCueAudioGainMaxDb));
 
@@ -6640,7 +6645,7 @@
     // tells an operator nothing at the moment they most need to read it.
     // Every desk in the trade says BLACK on that button anyway.
     push("BLACK",      pal.mid, "B — picture off instantly, playback keeps running (reversible)");
-    push("CLEAR",      pal.mid, "C — fade out, drop overlays, stop playback");
+    push("CLEAR",      pal.mid, "C — clear instantly, stop all decks and queued takes, disarm output");
     // RECORD belongs on the bar, not buried in Settings → Streaming. Arming a
     // capture is a SHOW action taken at the top of a take: an operator should
     // not have to open a modal to start one, and — worse — could not tell from

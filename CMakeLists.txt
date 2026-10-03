@@ -1095,3 +1095,28 @@ endif()
 if(WIN32)
   target_link_libraries(deckboy-native PRIVATE ws2_32 shell32)
 endif()
+
+include(CTest)
+option(DECKBOY_SANITIZE_BROADCAST_CHECK "Instrument the transport regression target with ASan and UBSan" OFF)
+if(BUILD_TESTING)
+  find_package(Threads REQUIRED)
+  add_executable(deckboy-broadcast-check
+    tools/broadcast_check.cpp
+    native/platform/ptp_client.cpp
+    native/platform/st2110_output.cpp
+    native/platform/nmos_node.cpp
+    native/platform/decklink.cpp)
+  target_include_directories(deckboy-broadcast-check PRIVATE native)
+  target_link_libraries(deckboy-broadcast-check PRIVATE Threads::Threads)
+  if(DECKBOY_SANITIZE_BROADCAST_CHECK AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(deckboy-broadcast-check PRIVATE -fsanitize=address,undefined
+      -fno-sanitize-recover=undefined -fno-omit-frame-pointer)
+    target_link_options(deckboy-broadcast-check PRIVATE -fsanitize=address,undefined)
+  endif()
+  if(WIN32)
+    target_compile_definitions(deckboy-broadcast-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+    target_link_libraries(deckboy-broadcast-check PRIVATE ws2_32)
+  endif()
+  add_test(NAME broadcast COMMAND deckboy-broadcast-check)
+  set_tests_properties(broadcast PROPERTIES TIMEOUT 30)
+endif()

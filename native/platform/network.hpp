@@ -27,6 +27,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cerrno>
 #include <string>
 
 #ifndef _WIN32

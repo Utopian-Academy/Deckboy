@@ -58,6 +58,12 @@ enum class NumericParam : int {
   L3InSeconds,
   L3OutSeconds,
   L3HoldSeconds,
+  CodeWidth,
+  CodeHeight,
+  SwirlSpeed,
+  SwirlTwist,
+  SwirlCells,
+  SwirlHue,
 };
 
 struct NumericParamSpec {
@@ -75,6 +81,28 @@ struct NumericParamSpec {
 
 const NumericParamSpec* numericParamSpec(NumericParam id) {
   switch (id) {
+    case NumericParam::SwirlSpeed: {
+      static const NumericParamSpec s {"swirl.speed", "Speed", "0 holds, 1 normal, 3 triple speed", 0, 3, 2, false, 0.1};
+      return &s;
+    }
+    case NumericParam::SwirlTwist: {
+      static const NumericParamSpec s {"swirl.twist", "Twist", "Spiral strength, 0-4", 0, 4, 2, false, 0.1};
+      return &s;
+    }
+    case NumericParam::SwirlCells: {
+      static const NumericParamSpec s {"swirl.cells", "Pixel density", "Horizontal cells, 64-960", 64, 960, 0, true, 16};
+      return &s;
+    }
+    case NumericParam::SwirlHue: {
+      static const NumericParamSpec s {"swirl.hue", "Colour", "Palette turn, 0-1", 0, 1, 2, false, 0.02};
+      return &s;
+    }
+    case NumericParam::CodeWidth:
+    case NumericParam::CodeHeight: {
+      static const NumericParamSpec w {"code.width", "Render width", "Pixels, 64-3840", 64, 3840, 0, true, 64};
+      static const NumericParamSpec h {"code.height", "Render height", "Pixels, 64-2160", 64, 2160, 0, true, 36};
+      return id == NumericParam::CodeWidth ? &w : &h;
+    }
     case NumericParam::VsSpeed: {
       static const NumericParamSpec s {"vs.speed", "Speed",
                                        "Master oscillator rate, 0.01-8", 0.01, 8.0, 2, false};
@@ -249,6 +277,20 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
 bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
   const VideoSynthSettings& v = cue.videoSynth;
   switch (id) {
+    case NumericParam::SwirlSpeed:
+    case NumericParam::SwirlTwist:
+    case NumericParam::SwirlCells:
+    case NumericParam::SwirlHue:
+      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "swirl") return false;
+      out = id == NumericParam::SwirlSpeed ? cue.swirl.speed
+          : id == NumericParam::SwirlTwist ? cue.swirl.twist
+          : id == NumericParam::SwirlCells ? cue.swirl.cells : cue.swirl.hue;
+      return true;
+    case NumericParam::CodeWidth:
+    case NumericParam::CodeHeight:
+      if (!cueIsCodeSource(cue)) return false;
+      out = id == NumericParam::CodeWidth ? cue.width : cue.height;
+      return true;
     case NumericParam::VsSpeed:      out = v.speed; return true;
     case NumericParam::VsScale:      out = v.scale; return true;
     case NumericParam::VsFeedback:   out = v.feedbackAmount; return true;
@@ -311,6 +353,12 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
 void writeNumericParam(Cue& cue, NumericParam id, double value) {
   VideoSynthSettings& v = cue.videoSynth;
   switch (id) {
+    case NumericParam::SwirlSpeed: cue.swirl.speed = value; break;
+    case NumericParam::SwirlTwist: cue.swirl.twist = value; break;
+    case NumericParam::SwirlCells: cue.swirl.cells = static_cast<int>(std::lround(value)); break;
+    case NumericParam::SwirlHue: cue.swirl.hue = value; break;
+    case NumericParam::CodeWidth: cue.width = static_cast<int>(std::lround(value)); break;
+    case NumericParam::CodeHeight: cue.height = static_cast<int>(std::lround(value)); break;
     case NumericParam::VsSpeed:      v.speed = value; break;
     case NumericParam::VsScale:      v.scale = value; break;
     case NumericParam::VsFeedback:   v.feedbackAmount = value; break;
