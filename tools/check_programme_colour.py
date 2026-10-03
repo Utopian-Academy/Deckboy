@@ -93,15 +93,41 @@ def check_web_player(db, port, ffprobe, work):
     match = re.search(r"fetch\('(/av/\d+)'\)", page)
     if '<video ' not in page or not match or 'SOUND ON' not in page:
         raise RuntimeError('web home page is not the programme player with sound')
-    # Capture init + complete fragments from the real browser A/V endpoint.
+    # Stop at a complete mdat: a timed network read can end halfway through
+    # a box header or fragment, which is not a valid file for ffprobe.
     target = work / 'web-programme.mp4'
+    captured = bytearray()
     with urlopen('http://127.0.0.1:%d%s' % (port, match.group(1)), timeout=15) as stream:
-        with target.open('wb') as out:
-            deadline = time.monotonic() + 3
-            while time.monotonic() < deadline:
-                out.write(stream.read(8192))
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            chunk = stream.read(8192)
+            if not chunk:
+                break
+            captured.extend(chunk)
+    offset = complete_end = 0
+    fragments = 0
+    while len(captured) - offset >= 8:
+        size = int.from_bytes(captured[offset:offset + 4], 'big')
+        header_size = 8
+        if size == 1:
+            if len(captured) - offset < 16:
+                break
+            size = int.from_bytes(captured[offset + 8:offset + 16], 'big')
+            header_size = 16
+        if size < header_size or size > len(captured) - offset:
+            break
+        if captured[offset + 4:offset + 8] == b'mdat':
+            complete_end = offset + size
+            fragments += 1
+        offset += size
+    if not fragments:
+        raise RuntimeError('web programme stream delivered no complete media fragment')
+    target.write_bytes(captured[:complete_end])
     probe = subprocess.run([ffprobe, '-v', 'error', '-show_streams', '-of', 'json', str(target)],
-                           capture_output=True, text=True, check=True)
+                           capture_output=True, text=True)
+    if probe.returncode:
+        db.log_excerpt('web|stream|ffmpeg|error', lines=25)
+        raise RuntimeError('web programme probe failed: ' + probe.stderr.strip())
     streams = json.loads(probe.stdout)['streams']
     if not any(s.get('codec_type') == 'video' for s in streams):
         raise RuntimeError('web programme stream has no video track')
