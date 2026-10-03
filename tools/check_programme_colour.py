@@ -112,6 +112,7 @@ def check_web_player(db, port, ffprobe, work):
             body = error.read().decode('utf-8', errors='replace').strip()
             if error.code != 503 or time.monotonic() >= ready_deadline:
                 error.close()
+                db.log_excerpt(r'web|stream|ffmpeg|error|failed', lines=40)
                 raise RuntimeError(
                     'web programme stream did not become ready: HTTP %d %s\n%s\n%s' %
                     (error.code, error.reason, body, db.send('STATUS')))
