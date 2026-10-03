@@ -2504,6 +2504,7 @@ struct Project {
   int webMonitorPort = 8090;
   bool webMonitorShareLan = false;
   std::string webMonitorPin;
+  int webMonitorMaxHeight = 1080;       // encoded maximum picture height; 2160 is available
   // vMix-compatible control surface. OFF by default: it is a second way into
   // the show, and a second way in is a decision the operator makes rather than
   // one that arrives switched on. The ports are vMix's own, so a panel

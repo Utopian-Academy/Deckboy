@@ -292,6 +292,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "web_monitor_port\t" << project.webMonitorPort << '\n';
   output << "web_monitor_share\t" << (project.webMonitorShareLan ? 1 : 0) << '\n';
   output << "web_monitor_pin\t" << escapeField(project.webMonitorPin) << '\n';
+  output << "web_monitor_max_height\t" << project.webMonitorMaxHeight << '\n';
   output << "browse_folder\t" << escapeField(project.browseFolder) << '\n';
   output << "audio_sample_rate\t" << project.audioSampleRate << '\n';
   output << "vmix_api_enabled\t" << (project.vmixApiEnabled ? 1 : 0) << '\n';
@@ -1302,6 +1303,9 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.webMonitorShareLan = safeBool(fields, 1, false);
   } else if (fields[0] == "web_monitor_pin") {
     project.webMonitorPin = safeString(fields, 1);
+  } else if (fields[0] == "web_monitor_max_height") {
+    const int height = safeInt(fields, 1, 1080);
+    project.webMonitorMaxHeight = (height == 720 || height == 1440 || height == 2160) ? height : 1080;
   } else if (fields[0] == "browse_folder") {
     project.browseFolder = safeString(fields, 1);
   } else if (fields[0] == "audio_sample_rate") {

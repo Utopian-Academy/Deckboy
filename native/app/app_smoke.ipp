@@ -608,6 +608,99 @@
     }
 
     {
+      // The Web Monitor must advertise an address on an actual RFC1918
+      // Ethernet/Wi-Fi interface and must be able to bind that exact address.
+      // No eligible LAN is a supported state; it must never fall back to the
+      // VPN's default route or to an address that the listener cannot bind.
+      const std::string address = privateLanIPv4Address();
+      bool validPrivate = address.empty();
+      bool bindable = address.empty();
+      bool eligibleLanFound = false;
+#ifdef _WIN32
+      WSADATA wsaData {};
+      const bool socketRuntimeReady = WSAStartup(MAKEWORD(2, 2), &wsaData) == 0;
+#else
+      const bool socketRuntimeReady = true;
+#endif
+      if (!address.empty()) {
+        sockaddr_in parsed {};
+        parsed.sin_family = AF_INET;
+        const bool parsedOk = inet_pton(AF_INET, address.c_str(), &parsed.sin_addr) == 1;
+        const std::uint32_t host = parsedOk ? ntohl(parsed.sin_addr.s_addr) : 0;
+        validPrivate = parsedOk && ((host >> 24) == 10 || (host >> 20) == 0xAC1 ||
+                                    (host >> 16) == 0xC0A8);
+        if (validPrivate && socketRuntimeReady) {
+          const SocketHandle test = createBoundSocket(SOCK_STREAM, 0, true, false, address);
+          bindable = test != kInvalidSocket;
+          closeSocket(test);
+        }
+      }
+#ifdef _WIN32
+      ULONG bytes = 16 * 1024;
+      std::vector<unsigned char> adaptersStorage(bytes);
+      auto* adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(adaptersStorage.data());
+      constexpr ULONG flags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST |
+                              GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_INCLUDE_GATEWAYS;
+      ULONG result = GetAdaptersAddresses(AF_INET, flags, nullptr, adapters, &bytes);
+      if (result == ERROR_BUFFER_OVERFLOW) {
+        adaptersStorage.resize(bytes);
+        adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(adaptersStorage.data());
+        result = GetAdaptersAddresses(AF_INET, flags, nullptr, adapters, &bytes);
+      }
+      if (result == NO_ERROR) {
+        for (auto* adapter = adapters; adapter && !eligibleLanFound; adapter = adapter->Next) {
+          if (adapter->OperStatus != IfOperStatusUp ||
+              (adapter->IfType != IF_TYPE_ETHERNET_CSMACD &&
+               adapter->IfType != IF_TYPE_IEEE80211)) continue;
+          bool gateway = false;
+          for (auto* item = adapter->FirstGatewayAddress; item; item = item->Next) {
+            if (item->Address.lpSockaddr && item->Address.lpSockaddr->sa_family == AF_INET &&
+                reinterpret_cast<const sockaddr_in*>(item->Address.lpSockaddr)->sin_addr.s_addr != htonl(INADDR_ANY)) {
+              gateway = true;
+              break;
+            }
+          }
+          if (!gateway) continue;
+          for (auto* item = adapter->FirstUnicastAddress; item; item = item->Next) {
+            if (!item->Address.lpSockaddr || item->Address.lpSockaddr->sa_family != AF_INET) continue;
+            const std::uint32_t host = ntohl(reinterpret_cast<const sockaddr_in*>(item->Address.lpSockaddr)->sin_addr.s_addr);
+            if ((host >> 24) == 10 || (host >> 20) == 0xAC1 || (host >> 16) == 0xC0A8) {
+              eligibleLanFound = true;
+              break;
+            }
+          }
+        }
+      }
+#else
+      ifaddrs* interfaces = nullptr;
+      if (getifaddrs(&interfaces) == 0 && interfaces) {
+        for (const ifaddrs* item = interfaces; item; item = item->ifa_next) {
+          if (!item->ifa_name || !item->ifa_addr || item->ifa_addr->sa_family != AF_INET ||
+              (item->ifa_flags & IFF_UP) == 0 ||
+              (item->ifa_flags & (IFF_LOOPBACK | IFF_POINTOPOINT)) != 0) continue;
+          const std::string name(item->ifa_name);
+          if (!(name.rfind("en", 0) == 0 || name.rfind("eth", 0) == 0 ||
+                name.rfind("em", 0) == 0 || name.rfind("igb", 0) == 0 ||
+                name.rfind("ix", 0) == 0 || name.rfind("re", 0) == 0 ||
+                name.rfind("wl", 0) == 0 || name.rfind("wlan", 0) == 0 ||
+                name.rfind("wifi", 0) == 0)) continue;
+          const std::uint32_t host = ntohl(reinterpret_cast<const sockaddr_in*>(item->ifa_addr)->sin_addr.s_addr);
+          if ((host >> 24) == 10 || (host >> 20) == 0xAC1 || (host >> 16) == 0xC0A8) {
+            eligibleLanFound = true;
+            break;
+          }
+        }
+        freeifaddrs(interfaces);
+      }
+#endif
+      expect(!eligibleLanFound || (validPrivate && bindable),
+             "web monitor selects a bindable private LAN address when one exists");
+#ifdef _WIN32
+      if (socketRuntimeReady) WSACleanup();
+#endif
+    }
+
+    {
       deckboy::platform::SourceCaptureRequest request;
       request.kind = deckboy::platform::SourceCaptureKind::Window;
       request.sourceRef = "active-window";
@@ -1218,6 +1311,7 @@
       // that quietly grew a continue would run a show by itself.
       {
         Cue& seq = project.decks[0].cues[0];
+        project.webMonitorMaxHeight = 2160;
         project.normalizeTargetLufs = -23.0;
         project.outputs[0].st2110AudioAddress = "239.20.10.9";
         project.outputs[0].st2110AudioPort = 22002;
@@ -1265,10 +1359,12 @@
         project.presets = {preset};
       }
 
-      fs::path smokePath = fs::path("/tmp") / "deckboy-smoke.deckboy";
+      const fs::path smokeDir = fs::temp_directory_path();
+      fs::path smokePath = smokeDir / "deckboy-smoke.deckboy";
       expect(saveProject(smokePath, project), "project save");
       Project loaded = loadProject(smokePath);
       expect(loaded.normalizeTargetLufs == -23.0, "loudness target persists");
+      expect(loaded.webMonitorMaxHeight == 2160, "web monitor quality persists");
       expect(!loaded.outputs.empty() && loaded.outputs[0].st2110AudioAddress == "239.20.10.9" &&
         loaded.outputs[0].st2110AudioPort == 22002 && loaded.outputs[0].st2110VideoSourcePort == 21000 &&
         loaded.outputs[0].st2110AudioSourcePort == 21002 && !loaded.outputs[0].st2110AudioRtpEnabled &&
@@ -1345,7 +1441,7 @@
             older << line << '\n';
           }
           in.close();
-          const fs::path olderPath = fs::path("/tmp") / "deckboy-smoke-older.deckboy";
+          const fs::path olderPath = smokeDir / "deckboy-smoke-older.deckboy";
           { std::ofstream out(olderPath); out << older.str(); }
           expect(trimmed > 0, "the older-show simulation found cue records to trim");
           const Project revived = loadProject(olderPath);

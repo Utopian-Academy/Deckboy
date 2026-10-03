@@ -1940,6 +1940,7 @@
     }
     const OutputTarget& output = project_.outputs[outputIndex];
     std::string protocol = normalizeOutputStreamProtocol(output.streamProtocol);
+    const bool toWeb = outputStreamProtocolIsWeb(protocol);
     std::string url = trim(output.streamUrl);
     if (url.empty()) {
       url = defaultOutputStreamUrl(protocol, outputIndex);
@@ -1951,6 +1952,16 @@
     }
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
+    if (toWeb) {
+      const int maxHeight = (project_.webMonitorMaxHeight == 720 ||
+                             project_.webMonitorMaxHeight == 1440 ||
+                             project_.webMonitorMaxHeight == 2160)
+        ? project_.webMonitorMaxHeight : 1080;
+      const int qualityFloorKbps = maxHeight >= 2160 ? 30000
+                                  : maxHeight >= 1440 ? 16000
+                                  : maxHeight >= 1080 ? 8000 : 4000;
+      bitrateKbps = std::max(bitrateKbps, qualityFloorKbps);
+    }
     double fps = outputStreamProtocolIsFile(protocol)
       ? recordingFps(fpsHint) : outputStreamFps(fpsHint);
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
@@ -1960,6 +1971,7 @@
          << width << 'x' << height << '|'
          << std::fixed << std::setprecision(2) << fps << '|'
          << bitrateKbps << '|'
+         << (toWeb ? project_.webMonitorMaxHeight : 0) << '|'
          << colorSpace;
     return spec.str();
   }
@@ -2136,6 +2148,16 @@
     }
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
+    if (toWeb) {
+      const int maxHeight = (project_.webMonitorMaxHeight == 720 ||
+                             project_.webMonitorMaxHeight == 1440 ||
+                             project_.webMonitorMaxHeight == 2160)
+        ? project_.webMonitorMaxHeight : 1080;
+      const int qualityFloorKbps = maxHeight >= 2160 ? 30000
+                                  : maxHeight >= 1440 ? 16000
+                                  : maxHeight >= 1080 ? 8000 : 4000;
+      bitrateKbps = std::max(bitrateKbps, qualityFloorKbps);
+    }
     int bufferKbps = std::clamp(bitrateKbps * 2, 1000, 100000);
     double fps = outputStreamProtocolIsFile(protocol)
       ? recordingFps(fpsHint) : outputStreamFps(fpsHint);
@@ -2250,11 +2272,16 @@
       if (toWeb) {
         // A fixed profile and level, so the page can name the codec to the
         // browser's MediaSource without parsing the stream: avc1.4D4029.
-        // And no wider than 1280: it is watched on phones and tablets over
-        // Wi-Fi, and a 4K output raster is three times the pixels for a
-        // picture nobody there can see.
-        args.insert(args.end(), {"-profile:v", "main", "-level:v", "4.1",
-                                 "-vf", "scale='min(1280,iw)':-2:flags=bicubic"});
+        // Respect the operator's Web Monitor maximum picture height. Keep the
+        // source aspect ratio and never upscale a smaller programme raster.
+        const int maxHeight = (project_.webMonitorMaxHeight == 720 ||
+                               project_.webMonitorMaxHeight == 1440 ||
+                               project_.webMonitorMaxHeight == 2160)
+          ? project_.webMonitorMaxHeight : 1080;
+        const std::string level = maxHeight >= 2160 ? "5.2"
+                                : maxHeight >= 1440 ? "5.1" : "4.2";
+        args.insert(args.end(), {"-profile:v", "main", "-level:v", level,
+                                 "-vf", "scale=-2:min(" + std::to_string(maxHeight) + ",ih):flags=bicubic"});
       }
     }
     if (!toFile) {

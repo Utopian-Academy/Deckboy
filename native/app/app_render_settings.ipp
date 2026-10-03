@@ -1804,7 +1804,11 @@
         const std::string wmStatus =
           !project_.webMonitorEnabled ? std::string("off")
           : webMonitorReady_ ? webMonitorUrl()
-                             : "port " + std::to_string(project_.webMonitorPort) + " is busy";
+          : project_.webMonitorShareLan && project_.webMonitorPin.size() < 8
+              ? "network sharing needs an 8+ character passphrase"
+          : project_.webMonitorShareLan && webMonitorLanAddress().empty()
+              ? "no active private Ethernet/Wi-Fi address"
+              : "port " + std::to_string(project_.webMonitorPort) + " is busy";
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{wmX, wmY, wmW, sLineH},
                      "open: " + wmStatus, soft);
         wmY += sLineH + sGap;
@@ -1813,10 +1817,15 @@
         SDL_Rect wmShare = settingsRow(wmX, wmW, wmY, sRowH, "Who can see it", sGap);
         drawPill(wmShare, project_.webMonitorShareLan, "THE NETWORK", "THIS COMPUTER",
                  kSettingsActionWebMonitorShareToggle);
+        SDL_Rect wmQuality = settingsRow(wmX, wmW, wmY, sRowH, "Maximum quality",
+                                        sGap);
+        drawUIValueControl(wmQuality, std::to_string(project_.webMonitorMaxHeight) + "p");
+        settingsBtns_.push_back({wmQuality, kSettingsActionWebMonitorQualityDropdown,
+                                 "web_monitor_quality"});
         SDL_Rect wmPort = settingsRow(wmX, wmW, wmY, sRowH, "Port", sGap);
         drawUIValueControl(wmPort, std::to_string(project_.webMonitorPort));
         settingsBtns_.push_back({wmPort, kSettingsActionWebMonitorPortPrompt, "web_monitor_port"});
-        SDL_Rect wmPin = settingsRow(wmX, wmW, wmY, sRowH, "PIN", sGap);
+        SDL_Rect wmPin = settingsRow(wmX, wmW, wmY, sRowH, "Passphrase", sGap);
         drawUIValueControl(wmPin, project_.webMonitorPin.empty() ? std::string("none")
                                                                   : std::string("set"));
         settingsBtns_.push_back({wmPin, kSettingsActionWebMonitorPinPrompt, "web_monitor_pin"});
@@ -4331,6 +4340,19 @@
         setWebMonitorEnabled(!project_.webMonitorEnabled);
       } else if (sb.action == kSettingsActionWebMonitorShareToggle) {
         setWebMonitorShare(!project_.webMonitorShareLan);
+      } else if (sb.action == kSettingsActionWebMonitorQualityDropdown) {
+        std::vector<std::pair<std::string, std::string>> choices {
+          {"720", "720p (lower bandwidth)"},
+          {"1080", "1080p (default)"},
+          {"1440", "1440p"},
+          {"2160", "2160p (highest bandwidth)"},
+        };
+        openDropdown("settings.web_monitor_quality", sb.rect, choices,
+                     std::to_string(project_.webMonitorMaxHeight),
+                     [this](const std::string& value) {
+                       setWebMonitorMaxHeight(std::atoi(value.c_str()));
+                     });
+        return;
       } else if (sb.action == kSettingsActionWebMonitorPortPrompt) {
         settingsOpen_ = false;
         openInlineTextEditor("settings.web_monitor_port", "Web Monitor Port",
@@ -4346,7 +4368,7 @@
       } else if (sb.action == kSettingsActionWebMonitorPinPrompt) {
         settingsOpen_ = false;
         openInlineTextEditor("settings.web_monitor_pin", "Web Monitor PIN",
-                             "a PIN every viewer must type (leave empty for none)",
+                             "8+ characters; letters and symbols are allowed",
                              project_.webMonitorPin,
                              [this](const std::string& value) { setWebMonitorPin(value); });
       } else if (sb.action == kSettingsActionOscQueryPortPrompt) {

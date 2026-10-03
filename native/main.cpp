@@ -917,6 +917,7 @@ using deckboy::platform::setCloseOnExec;
 using deckboy::platform::createBoundSocket;
 using deckboy::platform::createDatagramSocket;
 using deckboy::platform::socketAddressToString;
+using deckboy::platform::privateLanIPv4Address;
 using deckboy::platform::selectNfds;
 using deckboy::platform::watchFd;
 using deckboy::platform::readyFd;
@@ -8976,6 +8977,7 @@ class App {
   static constexpr int kSettingsActionWebMonitorShareToggle = 701;
   static constexpr int kSettingsActionWebMonitorPortPrompt = 707;
   static constexpr int kSettingsActionWebMonitorPinPrompt = 708;
+  static constexpr int kSettingsActionWebMonitorQualityDropdown = 709;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -10498,6 +10500,7 @@ class App {
   std::vector<bool> webMonitorOutputSound_;   // routed to WEB: has a player with sound
   int webMonitorProgrammeOutput_ = -1;       // programme player on the home page
   std::string webMonitorPinSnapshot_;
+  int webMonitorHeightSnapshot_ = 1080;
   Uint64 webMonitorDirSyncedMs_ = 0;
   SDL_Rect warpGridBtnRect_ {};
   SDL_Rect warpGridSmoothBtnRect_ {};

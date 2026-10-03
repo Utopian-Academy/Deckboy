@@ -1062,35 +1062,16 @@
            webMonitorSlots_[static_cast<std::size_t>(outputIndex)].viewers.load() > 0;
   }
 
-  // The address someone else on the network would type. "Connecting" a UDP
-  // socket sends nothing; it only makes the OS pick the interface it would
-  // route through, which is the one worth printing.
+  // The address on an active private Ethernet/Wi-Fi interface. In particular,
+  // do not derive this from the default route, which may belong to a VPN.
   std::string webMonitorLanAddress() const {
-    SocketHandle probe = createDatagramSocket(false);
-    if (probe == kInvalidSocket) {
-      return "127.0.0.1";
-    }
-    sockaddr_in remote {};
-    remote.sin_family = AF_INET;
-    remote.sin_port = htons(9);
-    inet_pton(AF_INET, "192.0.2.1", &remote.sin_addr);   // TEST-NET-1: never routed
-    std::string address = "127.0.0.1";
-    if (connect(probe, reinterpret_cast<const sockaddr*>(&remote), sizeof(remote)) == 0) {
-      sockaddr_in local {};
-      socklen_t length = sizeof(local);
-      if (getsockname(probe, reinterpret_cast<sockaddr*>(&local), &length) == 0) {
-        const std::string found = socketAddressToString(local);
-        if (!found.empty() && found != "0.0.0.0") {
-          address = found;
-        }
-      }
-    }
-    closeSocket(probe);
-    return address;
+    return privateLanIPv4Address();
   }
 
   std::string webMonitorUrl() const {
-    return "http://" + (project_.webMonitorShareLan ? webMonitorLanAddress() : std::string("localhost")) +
+    const std::string host = project_.webMonitorShareLan ? webMonitorLanAddress() : std::string("localhost");
+    if (host.empty()) return "LAN unavailable (no active private Ethernet/Wi-Fi address)";
+    return "http://" + host +
            ":" + std::to_string(project_.webMonitorPort) + "/";
   }
 
@@ -1118,6 +1099,7 @@
     webMonitorOutputSound_ = std::move(sound);
     webMonitorProgrammeOutput_ = findStreamOutputForProtocol("web");
     webMonitorPinSnapshot_ = project_.webMonitorPin;
+    webMonitorHeightSnapshot_ = project_.webMonitorMaxHeight;
   }
 
   // Main thread, from the output's render pass, only while someone watches.
@@ -1252,7 +1234,12 @@
     header << "HTTP/1.1 " << status << "\r\n"
            << "Content-Type: " << type << "\r\n"
            << "Content-Length: " << body.size() << "\r\n"
-           << "Cache-Control: no-cache\r\nConnection: close\r\n\r\n";
+           << "Cache-Control: no-store\r\n"
+           << "X-Content-Type-Options: nosniff\r\n"
+           << "Referrer-Policy: no-referrer\r\n"
+           << "Content-Security-Policy: default-src 'self'; img-src 'self'; media-src 'self' blob:; "
+              "style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'\r\n"
+           << "Connection: close\r\n\r\n";
     const std::string head = header.str();
     webMonitorSendAll(client, head.data(), head.size()) &&
       webMonitorSendAll(client, body.data(), body.size());
@@ -1309,6 +1296,7 @@
     std::vector<std::string> names;
     std::vector<bool> sound;
     std::string pin;
+    int maxHeight = 1080;
     int programmeOutput = -1;
     {
       std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
@@ -1316,10 +1304,13 @@
       sound = webMonitorOutputSound_;
       programmeOutput = webMonitorProgrammeOutput_;
       pin = webMonitorPinSnapshot_;
+      maxHeight = webMonitorHeightSnapshot_;
     }
     auto hasSound = [&](int out) {
       return out >= 0 && out < static_cast<int>(sound.size()) && sound[static_cast<std::size_t>(out)];
     };
+    const std::string h264Codec = maxHeight >= 2160 ? "avc1.4D4034"
+                                  : maxHeight >= 1440 ? "avc1.4D4033" : "avc1.4D402A";
     // THE PIN, when there is one, gates every page and every stream.
     std::string given;
     for (std::size_t at = 0; at <= query.size();) {
@@ -1349,7 +1340,8 @@
       if (programmeOutput >= 0) {
         webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
           webMonitorPlayerPage("Deckboy programme",
-            "/av/" + std::to_string(programmeOutput + 1) + pinQuery));
+            "/av/" + std::to_string(programmeOutput + 1) + pinQuery,
+            h264Codec));
       } else {
         webMonitorSendPage(client, "503 Service Unavailable", "text/plain; charset=utf-8",
                            "Programme monitor unavailable\n");
@@ -1376,7 +1368,7 @@
       const std::string title = out < static_cast<int>(names.size()) ? names[static_cast<std::size_t>(out)] : "Output " + n;
       webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
         hasSound(out)
-          ? webMonitorPlayerPage(title, "/av/" + n + pinQuery)
+          ? webMonitorPlayerPage(title, "/av/" + n + pinQuery, h264Codec)
           : webMonitorPageShell(title, "<div class='full'><img src='/out/" + n + pinQuery + "' alt=''></div>"));
       return;
     }
@@ -1479,6 +1471,14 @@
       socklen_t clientLength = sizeof(clientAddress);
       SocketHandle client = accept(webMonitorListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
       if (client == kInvalidSocket) continue;
+      constexpr std::size_t kMaxWebMonitorClients = 8;
+      if (webMonitorClients_.size() >= kMaxWebMonitorClients) {
+        static constexpr char kBusy[] =
+          "HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+        webMonitorSendAll(client, kBusy, sizeof(kBusy) - 1);
+        closeSocket(client);
+        continue;
+      }
       setCloseOnExec(client);
       // A viewer that stops reading must not hold its thread forever.
 #ifdef _WIN32
@@ -1678,7 +1678,8 @@
   // The player for an output with sound: MediaSource fed from /av/N, starting
   // muted (browsers refuse sound before a click) with a SOUND ON button, held
   // near the live edge, and reconnecting when the stream ends.
-  static std::string webMonitorPlayerPage(const std::string& title, const std::string& avUrl) {
+  static std::string webMonitorPlayerPage(const std::string& title, const std::string& avUrl,
+                                          const std::string& h264Codec) {
     return webMonitorPageShell(title,
       "<div class='full'><video id='v' autoplay muted playsinline></video>"
       "<button id='s' style='position:fixed;bottom:16px;right:16px'>SOUND ON</button></div>"
@@ -1686,7 +1687,7 @@
       "const v=document.getElementById('v'),b=document.getElementById('s');"
       "b.onclick=()=>{v.muted=false;v.play();b.remove();};"
       "const MS=window.ManagedMediaSource||window.MediaSource;"
-      "const mime='video/mp4; codecs=\"avc1.4D4029,mp4a.40.2\"';"
+      "const mime='video/mp4; codecs=\"" + h264Codec + ",mp4a.40.2\"';"
       "if(!MS||!MS.isTypeSupported(mime)){document.body.insertAdjacentHTML('beforeend',"
       "'<p style=\"position:fixed;top:8px;left:8px\">This browser cannot play the web stream.</p>');}"
       "else{const ms=new MS();if(window.ManagedMediaSource)v.disableRemotePlayback=true;"
@@ -1725,11 +1726,20 @@
       webMonitorReady_ = false;
       return false;
     }
+    if (project_.webMonitorShareLan && project_.webMonitorPin.size() < 8) {
+      webMonitorReady_ = false;
+      return false;
+    }
     if (webMonitorListen_ != kInvalidSocket) {
       return ensureWebMonitorProgrammeOutput();
     }
+    const std::string lanAddress = project_.webMonitorShareLan ? webMonitorLanAddress() : std::string();
+    if (project_.webMonitorShareLan && lanAddress.empty()) {
+      webMonitorReady_ = false;
+      return false;
+    }
     webMonitorListen_ = createBoundSocket(SOCK_STREAM, project_.webMonitorPort, true,
-                                          !project_.webMonitorShareLan);
+                                          !project_.webMonitorShareLan, lanAddress);
     if (webMonitorListen_ == kInvalidSocket) {
       webMonitorReady_ = false;
       return false;
@@ -1779,7 +1789,11 @@
     project_.webMonitorEnabled = enabled;
     if (enabled) {
       if (!startWebMonitor()) {
-        triggerToast("web monitor: port " + std::to_string(project_.webMonitorPort) + " is busy");
+        triggerToast(project_.webMonitorShareLan && project_.webMonitorPin.size() < 8
+          ? "web monitor: network sharing requires an 8+ character passphrase"
+          : project_.webMonitorShareLan && webMonitorLanAddress().empty()
+              ? "web monitor: no active private Ethernet/Wi-Fi address"
+              : "web monitor: could not bind port " + std::to_string(project_.webMonitorPort));
       } else {
         triggerToast("web monitor: " + webMonitorUrl());
       }
@@ -1798,6 +1812,10 @@
   }
 
   void setWebMonitorShare(bool share) {
+    if (share && project_.webMonitorPin.size() < 8) {
+      triggerToast("set an 8+ character Web Monitor passphrase first");
+      return;
+    }
     project_.webMonitorShareLan = share;
     restartWebMonitorIfRunning();
     triggerToast(share ? "web monitor: shared on the network" : "web monitor: this computer only");
@@ -1811,8 +1829,23 @@
     markProjectDirty();
   }
 
+  void setWebMonitorMaxHeight(int height) {
+    if (height != 720 && height != 1080 && height != 1440 && height != 2160) return;
+    if (project_.webMonitorMaxHeight == height) return;
+    project_.webMonitorMaxHeight = height;
+    const int webOutput = findStreamOutputForProtocol("web");
+    if (webOutput >= 0) stopOutputStream(webOutput);
+    triggerToast("web monitor quality: " + std::to_string(height) + "p");
+    markProjectDirty();
+  }
+
   void setWebMonitorPin(const std::string& pin) {
-    project_.webMonitorPin = trim(pin);
+    const std::string cleaned = trim(pin);
+    if (project_.webMonitorShareLan && cleaned.size() < 8) {
+      triggerToast("network sharing requires an 8+ character passphrase");
+      return;
+    }
+    project_.webMonitorPin = cleaned;
     webMonitorDirSyncedMs_ = 0;
     syncWebMonitorDirectory();
     triggerToast(project_.webMonitorPin.empty() ? "web monitor: no PIN" : "web monitor: PIN set");

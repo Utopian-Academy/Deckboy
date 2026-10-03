@@ -1093,7 +1093,7 @@ else()
 endif()
 
 if(WIN32)
-  target_link_libraries(deckboy-native PRIVATE ws2_32 shell32)
+  target_link_libraries(deckboy-native PRIVATE ws2_32 shell32 iphlpapi)
 endif()
 
 include(CTest)

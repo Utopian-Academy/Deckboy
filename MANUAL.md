@@ -1707,9 +1707,18 @@ show. It follows the programme output, including its layer stack.
 
 - **Who can see it** starts at **THIS COMPUTER**. Switch it to **THE NETWORK**
   for other devices on the same network to open it.
-- **PIN** asks every viewer for a code before showing anything.
+- **Passphrase** asks every viewer to authenticate before showing anything.
+  Network sharing requires at least 8 characters; letters and symbols are
+  allowed, so it does not need to be a numeric PIN.
+- **Maximum quality** sets the shared programme stream to 720p, 1080p
+  (default), 1440p, or 2160p. Higher settings need more encoder capacity and
+  network bandwidth; choose 720p on a busy or slow Wi-Fi network.
 - Sound is always included in the programme stream. Browsers start muted;
   press **SOUND ON** to listen. Turn Web Monitor off to stop its encoder.
+- Network mode listens only on the selected private Ethernet/Wi-Fi address,
+  and serves at most eight concurrent browser connections. HTTP is unencrypted;
+  use a trusted LAN or a VPN you control, and do not forward this port to the
+  public internet.
 - `/outputs` opens the individual output thumbnails. Click one for a full
   window view. Picture-only thumbnails run at up to 20 frames a second and
   about 960 pixels wide; they are captured only while somebody watches.

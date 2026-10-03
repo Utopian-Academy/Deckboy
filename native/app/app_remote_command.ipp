@@ -4038,7 +4038,11 @@
       auto report = [&]() {
         remoteCommandDetail_ = !project_.webMonitorEnabled ? std::string("off")
           : webMonitorReady_ ? webMonitorUrl() + (project_.webMonitorPin.empty() ? "" : " (PIN)")
-                             : "on, but port " + std::to_string(project_.webMonitorPort) + " is busy";
+          : project_.webMonitorShareLan && project_.webMonitorPin.size() < 8
+              ? "on, but network sharing requires an 8+ character passphrase"
+          : project_.webMonitorShareLan && webMonitorLanAddress().empty()
+              ? "on, but no active private Ethernet/Wi-Fi address"
+              : "on, but port " + std::to_string(project_.webMonitorPort) + " is busy";
       };
       if (sub == "STATUS") {
         report();
@@ -4065,8 +4069,13 @@
           failRemoteCommand("WEBMONITOR PORT: 1-65535");
         }
       } else if (sub == "PIN" && parts.size() > 2) {
-        setWebMonitorPin(toUpper(parts[2]) == "OFF" ? std::string() : parts[2]);
-        report();
+        const std::string requestedPin = toUpper(parts[2]) == "OFF" ? std::string() : parts[2];
+        if (project_.webMonitorShareLan && requestedPin.size() < 8) {
+          failRemoteCommand("WEBMONITOR PIN: network sharing requires 8 or more characters");
+        } else {
+          setWebMonitorPin(requestedPin);
+          report();
+        }
       } else {
         failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF (programme sound is included)");
       }

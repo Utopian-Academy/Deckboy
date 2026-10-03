@@ -28,7 +28,12 @@
 
 #include <cstdint>
 #include <cerrno>
+#include <cstdio>
+#include <algorithm>
+#include <cctype>
+#include <cwctype>
 #include <string>
+#include <vector>
 
 #ifndef _WIN32
 #include <arpa/inet.h>
@@ -38,6 +43,8 @@
 // which is how the NMC bridge broke Linux and nothing else.
 #include <netdb.h>
 #include <netinet/in.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #else
@@ -46,9 +53,126 @@
 #endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <iphlpapi.h>
+#include <ipifcons.h>
 #endif
 
 namespace deckboy::platform {
+inline std::string socketAddressToString(const sockaddr_in& address);
+inline std::string ipv4AddressToString(const sockaddr_in& address) {
+  const auto* octets = reinterpret_cast<const unsigned char*>(&address.sin_addr.s_addr);
+  char buffer[16] {};
+  const int written = std::snprintf(buffer, sizeof(buffer), "%u.%u.%u.%u",
+      static_cast<unsigned>(octets[0]), static_cast<unsigned>(octets[1]),
+      static_cast<unsigned>(octets[2]), static_cast<unsigned>(octets[3]));
+  return written > 0 && static_cast<std::size_t>(written) < sizeof(buffer)
+      ? std::string(buffer) : std::string();
+}
+}
+
+// Return an IPv4 address that a peer on the private LAN can use to reach this
+// host. Do not infer it from the default route: VPNs commonly install a lower
+// metric default route and that route's source address is unreachable to a
+// phone on the Wi-Fi LAN. Only return an address on an active private
+// interface; callers can bind the monitor to that address instead of exposing
+// it on every VPN, tunnel, and virtual adapter.
+namespace deckboy::platform {
+inline std::string privateLanIPv4Address() {
+#ifdef _WIN32
+  ULONG bytes = 16 * 1024;
+  std::vector<unsigned char> storage(bytes);
+  auto* adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(storage.data());
+  constexpr ULONG kAdapterFlags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST |
+                                  GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_INCLUDE_GATEWAYS;
+  ULONG result = GetAdaptersAddresses(AF_INET, kAdapterFlags,
+      nullptr, adapters, &bytes);
+  if (result == ERROR_BUFFER_OVERFLOW) {
+    storage.resize(bytes);
+    adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(storage.data());
+    result = GetAdaptersAddresses(AF_INET, kAdapterFlags, nullptr, adapters, &bytes);
+  }
+  if (result != NO_ERROR) return {};
+
+  std::string ethernet;
+  std::string wifi;
+  for (auto* adapter = adapters; adapter; adapter = adapter->Next) {
+    if (adapter->OperStatus != IfOperStatusUp ||
+        (adapter->IfType != IF_TYPE_ETHERNET_CSMACD &&
+         adapter->IfType != IF_TYPE_IEEE80211)) continue;
+    const wchar_t* adapterLabel = adapter->FriendlyName ? adapter->FriendlyName : adapter->Description;
+    std::wstring label = adapterLabel ? adapterLabel : L"";
+    std::transform(label.begin(), label.end(), label.begin(),
+        [](wchar_t c) { return static_cast<wchar_t>(std::towlower(c)); });
+    constexpr const wchar_t* kVirtualOrVpnLabels[] = {
+      L"vpn", L"wireguard", L"wintun", L"tailscale", L"zerotier", L"zero tier",
+      L"proton", L"openvpn", L"tap-windows", L"tunnel", L"virtualbox", L"hyper-v"
+    };
+    bool virtualOrVpn = false;
+    for (const wchar_t* token : kVirtualOrVpnLabels) {
+      if (label.find(token) != std::wstring::npos) { virtualOrVpn = true; break; }
+    }
+    if (virtualOrVpn) continue;
+    bool hasGateway = false;
+    for (auto* gateway = adapter->FirstGatewayAddress; gateway; gateway = gateway->Next) {
+      if (!gateway->Address.lpSockaddr || gateway->Address.lpSockaddr->sa_family != AF_INET) continue;
+      const auto* address = reinterpret_cast<const sockaddr_in*>(gateway->Address.lpSockaddr);
+      if (address->sin_addr.s_addr != htonl(INADDR_ANY)) { hasGateway = true; break; }
+    }
+    if (!hasGateway) continue;
+    for (auto* unicast = adapter->FirstUnicastAddress; unicast; unicast = unicast->Next) {
+      if (!unicast->Address.lpSockaddr || unicast->Address.lpSockaddr->sa_family != AF_INET) continue;
+      const auto* address = reinterpret_cast<const sockaddr_in*>(unicast->Address.lpSockaddr);
+      const std::uint32_t host = ntohl(address->sin_addr.s_addr);
+      const bool privateAddress = (host >> 24) == 10 ||
+          (host >> 20) == 0xAC1 || (host >> 16) == 0xC0A8;
+      if (!privateAddress) continue;
+      const std::string found = deckboy::platform::ipv4AddressToString(*address);
+      std::string& preferred = adapter->IfType == IF_TYPE_ETHERNET_CSMACD ? ethernet : wifi;
+      if (preferred.empty()) preferred = found;
+    }
+  }
+  return ethernet.empty() ? wifi : ethernet;
+#else
+  ifaddrs* interfaces = nullptr;
+  if (getifaddrs(&interfaces) != 0 || !interfaces) return {};
+  std::string ethernet;
+  std::string wifi;
+  for (const ifaddrs* entry = interfaces; entry; entry = entry->ifa_next) {
+    if (!entry->ifa_name || !entry->ifa_addr || entry->ifa_addr->sa_family != AF_INET ||
+        (entry->ifa_flags & IFF_UP) == 0 ||
+        (entry->ifa_flags & (IFF_LOOPBACK | IFF_POINTOPOINT)) != 0) continue;
+    const std::string name(entry->ifa_name);
+    const std::string lower = [&]() {
+      std::string value = name;
+      std::transform(value.begin(), value.end(), value.begin(),
+          [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+      return value;
+    }();
+    if (lower.rfind("lo", 0) == 0 || lower.rfind("utun", 0) == 0 ||
+        lower.rfind("tun", 0) == 0 || lower.rfind("tap", 0) == 0 ||
+        lower.rfind("wg", 0) == 0 || lower.rfind("tailscale", 0) == 0 ||
+        lower.rfind("zt", 0) == 0 || lower.rfind("ppp", 0) == 0 ||
+        lower.rfind("docker", 0) == 0 || lower.rfind("veth", 0) == 0 ||
+        lower.rfind("virbr", 0) == 0 || lower.rfind("vmnet", 0) == 0) continue;
+    const auto* address = reinterpret_cast<const sockaddr_in*>(entry->ifa_addr);
+    const std::uint32_t host = ntohl(address->sin_addr.s_addr);
+    const bool privateAddress = (host >> 24) == 10 ||
+        (host >> 20) == 0xAC1 || (host >> 16) == 0xC0A8;
+    if (!privateAddress) continue;
+    const std::string found = deckboy::platform::ipv4AddressToString(*address);
+    const bool wiFi = lower.rfind("wl", 0) == 0 || lower.rfind("wlan", 0) == 0 ||
+                      lower.rfind("wifi", 0) == 0 || lower.rfind("wi-fi", 0) == 0;
+    const bool wired = lower.rfind("en", 0) == 0 || lower.rfind("eth", 0) == 0 ||
+                       lower.rfind("em", 0) == 0 || lower.rfind("igb", 0) == 0 ||
+                       lower.rfind("ix", 0) == 0 || lower.rfind("re", 0) == 0;
+    if (!wiFi && !wired) continue;
+    std::string& preferred = wiFi ? wifi : ethernet;
+    if (preferred.empty()) preferred = found;
+  }
+  freeifaddrs(interfaces);
+  return ethernet.empty() ? wifi : ethernet;
+#endif
+}
 
 // ── POSIX implementation ────────────────────────────────────────────────────
 #ifndef _WIN32
@@ -86,7 +210,8 @@ inline void setCloseOnExec(SocketHandle socketHandle) {
 // type = SOCK_STREAM for TCP (OSC, Companion), SOCK_DGRAM for UDP (Art-Net).
 // localOnly = true binds to 127.0.0.1 (localhost only), false binds to all interfaces.
 // SO_REUSEADDR allows quick rebind after restart without TIME_WAIT delay.
-inline SocketHandle createBoundSocket(int type, int port, bool shouldListen, bool localOnly = true) {
+inline SocketHandle createBoundSocket(int type, int port, bool shouldListen, bool localOnly = true,
+                                      const std::string& bindAddress = {}) {
   SocketHandle socketHandle = socket(AF_INET, type, 0);
   if (socketHandle < 0) {
     return kInvalidSocket;
@@ -98,7 +223,12 @@ inline SocketHandle createBoundSocket(int type, int port, bool shouldListen, boo
 
   sockaddr_in address {};
   address.sin_family = AF_INET;
-  address.sin_addr.s_addr = htonl(localOnly ? INADDR_LOOPBACK : INADDR_ANY);
+  if (localOnly) address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  else if (bindAddress.empty()) address.sin_addr.s_addr = htonl(INADDR_ANY);
+  else if (inet_pton(AF_INET, bindAddress.c_str(), &address.sin_addr) != 1) {
+    closeSocket(socketHandle);
+    return kInvalidSocket;
+  }
   address.sin_port = htons(static_cast<uint16_t>(port));
 
   if (bind(socketHandle, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
@@ -160,7 +290,8 @@ inline void setCloseOnExec(SocketHandle /*socketHandle*/) {
 
 // Create a socket, bind to a port, optionally listen (Windows Winsock2).
 // localOnly = true binds to 127.0.0.1 (localhost only), false binds to all interfaces.
-inline SocketHandle createBoundSocket(int type, int port, bool shouldListen, bool localOnly = true) {
+inline SocketHandle createBoundSocket(int type, int port, bool shouldListen, bool localOnly = true,
+                                      const std::string& bindAddress = {}) {
   SOCKET s = ::socket(AF_INET, type, 0);
   if (s == INVALID_SOCKET) {
     return kInvalidSocket;
@@ -174,7 +305,12 @@ inline SocketHandle createBoundSocket(int type, int port, bool shouldListen, boo
 
   sockaddr_in address {};
   address.sin_family = AF_INET;
-  address.sin_addr.s_addr = htonl(localOnly ? INADDR_LOOPBACK : INADDR_ANY);
+  if (localOnly) address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  else if (bindAddress.empty()) address.sin_addr.s_addr = htonl(INADDR_ANY);
+  else if (inet_pton(AF_INET, bindAddress.c_str(), &address.sin_addr) != 1) {
+    closesocket(s);
+    return kInvalidSocket;
+  }
   address.sin_port = htons(static_cast<uint16_t>(port));
 
   if (::bind(s, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
