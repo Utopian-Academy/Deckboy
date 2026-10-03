@@ -113,6 +113,12 @@ def check_playout(args):
         write_ppm(portrait, 100, 300, lambda x, y: (0, 255, 0))
         with Deckboy(args, "deckboy-transition-playout-",
                      extra_args=["--import", white, "--import", black, "--import", portrait]) as db:
+            # Placement expectations below are for a 16:9 programme. Recording
+            # size alone does not change the programme's display-native raster
+            # (Xvfb defaults to 1280x1024, unlike a typical desktop monitor).
+            reply = db.send("VIDEO 640x360@25")
+            if reply.startswith("ERR"):
+                raise RuntimeError("cannot set transition fixture raster: " + reply)
             db.send("OUTPUT ON")
             db.send("RECFORMAT 640x360 25")
             for style in PLAYOUT_STYLES:
@@ -223,7 +229,8 @@ def check_playout(args):
                 frames = [f for f in frames if len(f) == 5184]
                 peak = max((max(f) for f in frames), default=255)
                 centres = [sum(f[96*20:96*34]) / (96*14) for f in frames]
-                expected = 255 * opacity / 100
+                # The compositor quantizes layer alpha to an eight-bit value.
+                expected = round(255 * opacity / 100)
                 initial = max(centres[:15], default=255)
                 # Lossy YUV recording can ring a few levels above a sharp mask
                 # edge. Eight levels permits that; the doubled hold reached 195.
