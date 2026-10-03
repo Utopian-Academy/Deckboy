@@ -101,7 +101,7 @@
       double pct = job.progress ? job.progress->load() : -1.0;
       bool running = job.state == ConversionState::Running;
       if (running) {
-        markBusy("encode:" + job.label, nullptr,
+        markBusy("encode:" + job.sourcePath, nullptr,
                  SDL_Rect {face.x, ry, face.w, rowH});
       }
       std::string head = (running ? "" : (job.held ? "held    " : "queued  ")) + job.label;
