@@ -840,7 +840,7 @@ jobs:
 
       - name: Cache vcpkg binaries
         id: vcpkg-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ~/AppData/Local/vcpkg/archives
           key: vcpkg-${{ runner.os }}-${{ matrix.features }}-${{ steps.vcpkg-setup.outputs.revision }}-sdl3-webview2-ffmpeg

@@ -113,13 +113,25 @@ def check_playout(args):
         write_ppm(portrait, 100, 300, lambda x, y: (0, 255, 0))
         with Deckboy(args, "deckboy-transition-playout-",
                      extra_args=["--import", white, "--import", black, "--import", portrait]) as db:
+            db.send("OUTPUT ON")
             # Placement expectations below are for a 16:9 programme. Recording
             # size alone does not change the programme's display-native raster
             # (Xvfb defaults to 1280x1024, unlike a typical desktop monitor).
-            reply = db.send("VIDEO 640x360@25")
+            # Arming a window selects display-native mode, so set this AFTER
+            # arming. Leave physical refresh alone on virtual CI displays.
+            reply = db.send("VIDEO 640x360")
             if reply.startswith("ERR"):
                 raise RuntimeError("cannot set transition fixture raster: " + reply)
-            db.send("OUTPUT ON")
+            # STATUS is the previous loop's snapshot, even after a setter's
+            # reply. Wait for the next snapshot to report the requested raster.
+            deadline = time.monotonic() + 5.0
+            while time.monotonic() < deadline:
+                status = db.send("STATUS")
+                if "video_mode=fixed" in status and "raster=640x360" in status:
+                    break
+                time.sleep(0.1)
+            else:
+                raise RuntimeError("transition fixture raster did not apply: " + status)
             db.send("RECFORMAT 640x360 25")
             for style in PLAYOUT_STYLES:
                 db.send("TRANSITION 0")
@@ -222,8 +234,11 @@ def check_playout(args):
                 take.start()
                 path = db.record(seconds=3.0)
                 take.join()
+                # Area averaging preserves brightness bounds. Bicubic
+                # downscaling itself overshoots sharp edges, which would
+                # mistake a measurement artefact for excessive layer alpha.
                 pixels = subprocess.run([
-                    "ffmpeg", "-v", "error", "-i", path, "-vf", "scale=96:54,format=gray",
+                    "ffmpeg", "-v", "error", "-i", path, "-vf", "scale=96:54:flags=area,format=gray",
                     "-f", "rawvideo", "-"], capture_output=True, check=True).stdout if path else b""
                 frames = [pixels[i:i+5184] for i in range(0, len(pixels), 5184)]
                 frames = [f for f in frames if len(f) == 5184]
