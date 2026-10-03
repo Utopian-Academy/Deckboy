@@ -832,17 +832,21 @@ jobs:
       # builds when the hosted image moved on ("could not find any instance of
       # Visual Studio").
       - name: Install vcpkg
+        id: vcpkg-setup
         run: |
           git clone --depth 1 https://github.com/microsoft/vcpkg.git
           .\vcpkg\bootstrap-vcpkg.bat
+          git -C vcpkg rev-parse HEAD | ForEach-Object { "revision=$_" >> $env:GITHUB_OUTPUT }
 
       - name: Cache vcpkg binaries
         id: vcpkg-cache
         uses: actions/cache@v4
         with:
           path: ~/AppData/Local/vcpkg/archives
-          key: vcpkg-${{ runner.os }}-${{ matrix.features }}-sdl3-webview2-ffmpeg
-          restore-keys: vcpkg-${{ runner.os }}-
+          key: vcpkg-${{ runner.os }}-${{ matrix.features }}-${{ steps.vcpkg-setup.outputs.revision }}-sdl3-webview2-ffmpeg
+          restore-keys: |
+            vcpkg-${{ runner.os }}-${{ matrix.features }}-
+            vcpkg-${{ runner.os }}-
 
       - name: Install dependencies
         run: .\vcpkg\vcpkg install sdl3:x64-windows sdl3-ttf:x64-windows
