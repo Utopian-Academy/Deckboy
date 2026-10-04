@@ -242,6 +242,11 @@
       return;
     }
     std::string normalizedReason = trim(reason);
+    // A stream that failed to start says WHY while it waits to retry; the
+    // retry message used to overwrite the reason before anyone saw it.
+    if (state == OutputHealthState::Error && !normalizedReason.empty()) {
+      runtime->streamFailureReason = normalizedReason;
+    }
     bool changed = runtime->healthState != state || runtime->healthReason != normalizedReason;
     runtime->healthState = state;
     runtime->healthReason = normalizedReason;

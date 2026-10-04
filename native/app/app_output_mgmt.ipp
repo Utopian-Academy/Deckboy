@@ -3278,7 +3278,9 @@
     Uint64 nowMs = SDL_GetTicks();
     if (runtime->streamStartFailed &&
         runtime->streamRestartBlockedUntilMs > nowMs) {
-      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "stream retrying");
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering,
+        runtime->streamFailureReason.empty() ? std::string("stream retrying")
+                                             : "stream retrying: " + runtime->streamFailureReason);
       return false;
     }
     width = std::max(1, width);

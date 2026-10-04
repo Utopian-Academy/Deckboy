@@ -394,6 +394,7 @@ struct OutputRuntime {
   int streamFrameWidth = 0;
   int streamFrameHeight = 0;
   bool streamStartFailed = false;
+  std::string streamFailureReason;   // why the last start failed, shown while retrying
   // A file sink has to FINALIZE — flush the muxer and write its trailer. A
   // network sink has nothing to finalize, so the two get different shutdown
   // budgets; see stopOutputStreamRuntime.
