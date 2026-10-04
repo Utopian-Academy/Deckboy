@@ -31,6 +31,11 @@ const audioDevice = option('--audio-device', '');
 // --share-lan serves on the private LAN address too, and writes the playlist
 // URL to lan-url.txt so a second machine can watch over a real network.
 const shareLan = process.argv.includes('--share-lan');
+// The programme raster, and the fixture's. CI's machines have no GPU and
+// render 1080p at about 13 fps, where one frame is 75 ms -- too coarse to
+// time lip sync against a 150 ms limit -- so CI tests at 720p. The limits
+// stay where they are; the load comes down.
+const raster = option('--raster', '1920x1080');
 // firefox: the bundled HLS.js path. chrome: the installed Google Chrome as an
 // Android phone (Playwright's own Chromium has no H.264/AAC). Phones in the
 // field run Chrome, so a Firefox-only pass does not cover them.
@@ -183,7 +188,7 @@ for (const name of fs.readdirSync(path.join(repo, 'data'))) {
 const suppliedFixture = option('--fixture', '');
 const clip = suppliedFixture ? path.resolve(suppliedFixture) : path.join(root, 'sync.mp4');
 console.log('Building flash/beep fixture; evidence:', root);
-if (!suppliedFixture) run(['-v','error','-y','-f','lavfi','-i',`testsrc2=s=1920x1080:r=30:d=${seconds+30}`,
+if (!suppliedFixture) run(['-v','error','-y','-f','lavfi','-i',`testsrc2=s=${raster}:r=30:d=${seconds+30}`,
   '-f','lavfi','-i',`sine=frequency=1000:sample_rate=48000:duration=${seconds+30}`,
   '-filter_complex',"[0:v]drawbox=x=0:y=0:w=iw:h=ih:c=white:t=fill:enable='lt(mod(t,1),0.1)'[v];[1:a]volume=0:enable='gte(mod(t,1),0.1)'[a]",
   '-map','[v]','-map','[a]','-c:v','libx264','-preset','ultrafast','-crf','18','-pix_fmt','yuv420p',
@@ -202,7 +207,7 @@ try {
     try { await command('HELP'); ready=true; break; } catch { await sleep(500); }
   }
   if (!ready) throw new Error('Deckboy did not start');
-  const startup = ['OUTPUT ON','VIDEO 1920x1080',`WEBMONITOR PORT ${webPort}`,`WEBMONITOR PIN ${passphrase}`,
+  const startup = ['OUTPUT ON',`VIDEO ${raster}`,`WEBMONITOR PORT ${webPort}`,`WEBMONITOR PIN ${passphrase}`,
     ...(shareLan ? ['WEBMONITOR SHARE ON'] : []),
     ...(realAudio && audioDevice ? [`AUDIO ${audioDevice}`] : []),
     'SELECT 1','TAKE','MASTERVOL 100','WEBMONITOR ON'];
@@ -229,7 +234,16 @@ try {
     fs.writeFileSync(path.join(root, 'lan-url.txt'), lanUrl);
     console.log('LAN playlist:', lanUrl.replace(/pin=[^&]*/, 'pin=...'), '->', path.join(root, 'lan-url.txt'));
   }
-  const playlist = await (await get(playlistUrl)).text();
+  // READY WHEN IT SAYS SO. The encoder's first fragment can take well over
+  // five seconds on a slow machine; the playlist answers 503 until then.
+  let playlist = '';
+  for (const until = Date.now() + 30000; Date.now() < until;) {
+    const response = await fetch(playlistUrl, {signal: AbortSignal.timeout(5000)}).catch(() => null);
+    if (response && response.ok) { playlist = await response.text(); break; }
+    if (response) await response.arrayBuffer();
+    await sleep(500);
+  }
+  if (!playlist) throw new Error('HLS playlist not ready after 30 s');
   fs.writeFileSync(path.join(root, 'index.m3u8'), playlist);
   const resources = [base + '/', base + '/web/player.js', base + '/web/hls.light.min.js',
     playlistUrl.split('?')[0], base + '/av/' + match[1]];
