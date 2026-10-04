@@ -291,7 +291,13 @@ try {
   const beeps=audioEvents.filter((event,i)=>event[1]==='end' && audioEvents[i+1]?.[1]==='start' &&
     Number(audioEvents[i+1][2])-Number(event[2])>=0.03).map(event=>Number(event[2]));
   const offsets=beeps.map(beep=>flashes.reduce((best,flash)=>Math.abs(flash-beep)<Math.abs(best)?flash-beep:best,Infinity)).filter(x=>Math.abs(x)<0.5);
-  if (offsets.length<Math.max(5,seconds/2)) throw new Error('Too few matched flash/beep markers: '+offsets.length);
+  if (offsets.length<Math.max(5,seconds/2)) {
+    // Say WHICH half is missing, and keep what was found: "0 markers" alone
+    // could be no picture, no sound or no pairing, and CI keeps no screen.
+    fs.writeFileSync(path.join(root,'metrics.json'),JSON.stringify({flashes,beeps},null,2));
+    throw new Error('Too few matched flash/beep markers: '+offsets.length+' (flashes '+flashes.length+
+      ', beeps '+beeps.length+', first flash '+flashes[0]+', first beep '+beeps[0]+')');
+  }
   const median=items=>[...items].sort((a,b)=>a-b)[Math.floor(items.length/2)];
   const early=median(offsets.slice(0,5)), late=median(offsets.slice(-5));
   const probe=spawnSync(ffprobe,['-v','error','-show_streams','-of','json',recording],{encoding:'utf8',windowsHide:true});

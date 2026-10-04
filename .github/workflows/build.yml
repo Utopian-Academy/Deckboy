@@ -452,6 +452,21 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60
 
+      # The evidence a failed timing run leaves, minus the large source clip:
+      # CI keeps no screen, so these files are the only way to see why.
+      - name: Upload Web Monitor evidence
+        if: failure() && matrix.features == 'all'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-monitor-evidence-${{ runner.os }}
+          path: |
+            ${{ runner.temp }}/deckboy-web-av-*/metrics.json
+            ${{ runner.temp }}/deckboy-web-av-*/telemetry.json
+            ${{ runner.temp }}/deckboy-web-av-*/app.log
+            ${{ runner.temp }}/deckboy-web-av-*/index.m3u8
+            ${{ runner.temp }}/deckboy-web-av-*/web.mp4
+          if-no-files-found: ignore
+
       # The shippable Linux artefacts. Both packagers default to build/, which
       # is where this job already built, so they need nothing but ffmpeg —
       # which they BUNDLE, so the tarball runs on a machine that has none.
@@ -594,6 +609,21 @@ jobs:
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
         run: node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60
+
+      # The evidence a failed timing run leaves, minus the large source clip:
+      # CI keeps no screen, so these files are the only way to see why.
+      - name: Upload Web Monitor evidence
+        if: failure() && matrix.features == 'all'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-monitor-evidence-${{ runner.os }}
+          path: |
+            ${{ runner.temp }}/deckboy-web-av-*/metrics.json
+            ${{ runner.temp }}/deckboy-web-av-*/telemetry.json
+            ${{ runner.temp }}/deckboy-web-av-*/app.log
+            ${{ runner.temp }}/deckboy-web-av-*/index.m3u8
+            ${{ runner.temp }}/deckboy-web-av-*/web.mp4
+          if-no-files-found: ignore
       #
       # macOS is the one platform whose UI cannot be checked by hand from here:
       # a GUI app will not render from an ssh session, `screencapture` over ssh
@@ -1036,6 +1066,21 @@ jobs:
           $env:PATH = "$($real.DirectoryName);$env:PATH"
           node tools/check_web_monitor_av.mjs --exe build\Release\Deckboy.exe --seconds 60
           if ($LASTEXITCODE -ne 0) { throw 'Web Monitor timing or HLS failed' }
+
+      # The evidence a failed timing run leaves, minus the large source clip:
+      # CI keeps no screen, so these files are the only way to see why.
+      - name: Upload Web Monitor evidence
+        if: failure() && matrix.features == 'all'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-monitor-evidence-${{ runner.os }}
+          path: |
+            ${{ runner.temp }}/deckboy-web-av-*/metrics.json
+            ${{ runner.temp }}/deckboy-web-av-*/telemetry.json
+            ${{ runner.temp }}/deckboy-web-av-*/app.log
+            ${{ runner.temp }}/deckboy-web-av-*/index.m3u8
+            ${{ runner.temp }}/deckboy-web-av-*/web.mp4
+          if-no-files-found: ignore
 
       # What only exists when playlists meet an output. Each harness launches
       # the real app in an isolated root and MEASURES -- fields in the saved
