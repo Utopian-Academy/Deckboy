@@ -2661,11 +2661,11 @@
     bool anythingLive = false;
     for (int d = 0; d < static_cast<int>(project_.decks.size()) && !anythingLive; ++d) {
       const Cue* cue = activeCuePtr(d);
-      const MediaEngine* engine = mediaEngineForDeck(d);
-      if (!cue || !engine) continue;
+      const MediaEngine* deckEngine = mediaEngineForDeck(d);
+      if (!cue || !deckEngine) continue;
       anythingLive = cue->kind == CueKind::Text
-        ? engine->state() != TransportState::Stopped
-        : engine->hasPictureToShow();
+        ? deckEngine->state() != TransportState::Stopped
+        : deckEngine->hasPictureToShow();
     }
     bool hasLiveVideo = anythingLive &&
                         controlPreviewTex_ && controlPreviewTexW_ > 0 && controlPreviewTexH_ > 0;
