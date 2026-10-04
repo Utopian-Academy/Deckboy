@@ -42,6 +42,8 @@ the decks' sound on macOS and Linux, as they do on Windows.
 Monitor in time, it steps to a lighter encoder, then 720p, then 540p, and
 says so, so the monitor keeps playing.
 
+**New splash art.** Eight new scenes join the start-up rotation, shown in their own colours on every theme.
+
 **Swirl controls.** The Swirl pattern gains palettes (classic, fire, ice,
 neon, mono), colour bands, zoom, flow, a movable centre and reverse speed, in
 the inspector and over the wire. Existing Swirl cues look exactly as before.

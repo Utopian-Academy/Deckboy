@@ -252,8 +252,9 @@ all one object with one set of controls, not fifty separate things to learn.
 - **IPTV channel lists**: import an `.m3u` and every channel becomes a cue,
   named and grouped from the list
 - Test patterns, a built-in test card, and generated line-up tone
-- **Swirl**, a generated pixel spiral with live speed, twist, density and colour
-  controls, saved with the cue and available over the control protocol
+- **Swirl**, a generated pixel spiral with palettes, colour bands, speed (forward
+  or reverse), twist, flow, zoom, a movable centre and density, all live, saved
+  with the cue and available over the control protocol
 - Timer cues — a stage or speaker countdown with its own clock, thresholds and
   chimes. Its backdrop can go transparent and it has its own size and position,
   so the clock can sit over the programme instead of replacing it
@@ -295,8 +296,12 @@ all one object with one set of controls, not fifty separate things to learn.
 - SRT and RTMP streaming, each output with its own destination, running while
   the programme is recorded
 - Recording that keeps its sound, continuous for the whole take
-- Web Monitor opens programme picture with stereo sound in any browser;
-  press SOUND ON to listen
+- Web Monitor shows programme -- or the multiview, a presenter view, any
+  output -- with stereo sound in any browser. Screens watching together stay
+  in step, a low-latency mode sends the picture alone, and a QR code opens it on
+  a phone
+- Picture and sound stay in sync through a long show, following the sound
+  card's own clock
 - Eight- and ten-bit BT.709 SDR video retains its source range on programme
   output. PQ/HLG media needs conversion to SDR before playout
 
@@ -499,6 +504,8 @@ importantly, what each feature deliberately does not do.
 
 **Picture:**
 
+- Lip sync held within a few milliseconds across a whole day of playback, on
+  every platform
 - GPU colour conversion for eight- and ten-bit SDR, preserving limited/full
   range and avoiding a CPU download during ordinary playback
 - PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings

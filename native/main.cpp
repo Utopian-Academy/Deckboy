@@ -8569,7 +8569,8 @@ class App {
     // Two pools, differing only in how much theme tint they can take:
     //   splash/cycle/       grayscale masters  -> full accent tint
     //   splash/cycle_color/ finished colour art -> light tint only
-    std::vector<fs::path> gray, colour;
+    //   splash/cycle_true/  art shown exactly as made -> no tint at all
+    std::vector<fs::path> gray, colour, trueColour;
     // JPEG AS WELL AS PNG, because these are PHOTOGRAPHS as far as a codec is
     // concerned. A dense painted scene re-encoded as PNG at the pool's own
     // size came out LARGER than the source and about three times the size of
@@ -8593,6 +8594,7 @@ class App {
     };
     gather(uiPackRoot_ / "splash" / "cycle", gray);
     gather(uiPackRoot_ / "splash" / "cycle_color", colour);
+    gather(uiPackRoot_ / "splash" / "cycle_true", trueColour);
 
     // The branded wordmark splash joins the rotation rather than being a
     // special case that suppressed it. This is also what keeps the Mascot
@@ -8615,6 +8617,7 @@ class App {
     } else {
       pool = gray;
       pool.insert(pool.end(), colour.begin(), colour.end());
+      pool.insert(pool.end(), trueColour.begin(), trueColour.end());
       pool.insert(pool.end(), branded.begin(), branded.end());
     }
     if (!pool.empty()) {
@@ -8634,7 +8637,8 @@ class App {
       // Grayscale masters take the accent fully; finished colour art takes a
       // little; the branded wordmark takes none, since it is already drawn in
       // the house colours and tinting it would fight its own artwork.
-      if (std::find(branded.begin(), branded.end(), chosen) != branded.end()) {
+      if (std::find(branded.begin(), branded.end(), chosen) != branded.end() ||
+          std::find(trueColour.begin(), trueColour.end(), chosen) != trueColour.end()) {
         splashTintStrength_ = 0.0f;
       } else if (std::find(colour.begin(), colour.end(), chosen) != colour.end()) {
         splashTintStrength_ = 0.35f;
