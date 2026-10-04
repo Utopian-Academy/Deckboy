@@ -465,6 +465,7 @@ jobs:
             ${{ runner.temp }}/deckboy-web-av-*/app.log
             ${{ runner.temp }}/deckboy-web-av-*/index.m3u8
             ${{ runner.temp }}/deckboy-web-av-*/web.mp4
+            ${{ runner.temp }}/deckboy-web-av-*/ffreport-*.log
           if-no-files-found: ignore
 
       # The shippable Linux artefacts. Both packagers default to build/, which
@@ -623,6 +624,7 @@ jobs:
             ${{ runner.temp }}/deckboy-web-av-*/app.log
             ${{ runner.temp }}/deckboy-web-av-*/index.m3u8
             ${{ runner.temp }}/deckboy-web-av-*/web.mp4
+            ${{ runner.temp }}/deckboy-web-av-*/ffreport-*.log
           if-no-files-found: ignore
       #
       # macOS is the one platform whose UI cannot be checked by hand from here:
@@ -1080,6 +1082,7 @@ jobs:
             ${{ runner.temp }}/deckboy-web-av-*/app.log
             ${{ runner.temp }}/deckboy-web-av-*/index.m3u8
             ${{ runner.temp }}/deckboy-web-av-*/web.mp4
+            ${{ runner.temp }}/deckboy-web-av-*/ffreport-*.log
           if-no-files-found: ignore
 
       # What only exists when playlists meet an output. Each harness launches

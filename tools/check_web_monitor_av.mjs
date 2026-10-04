@@ -196,7 +196,11 @@ if (!suppliedFixture) run(['-v','error','-y','-f','lavfi','-i',`testsrc2=s=${ras
 const log = fs.openSync(path.join(root,'app.log'),'w');
 const show = path.join(root,'data','default.deckboy');
 const app = spawn(exe, ['--allow-multi-instance',show,'--import',clip], {cwd:path.dirname(exe), windowsHide:true,
-  env:{...process.env, ...(realAudio ? {} : {SDL_AUDIODRIVER:'dummy'}), DECKBOY_ROOT:root, DECKBOY_PROJECT:show, DECKBOY_COMPANION_PORT:String(port)},
+  // FFREPORT is inherited by every ffmpeg the app starts, so an encoder that
+  // dies leaves its own reason beside the other evidence. (The app discards
+  // ffmpeg's stderr, and CI keeps no screen.) Colons in the path need escaping.
+  env:{...process.env, FFREPORT:'file='+path.join(root,'ffreport-%p.log').split(path.sep).join('/').split(':').join('\\:')+':level=24',
+    ...(realAudio ? {} : {SDL_AUDIODRIVER:'dummy'}), DECKBOY_ROOT:root, DECKBOY_PROJECT:show, DECKBOY_COMPANION_PORT:String(port)},
   stdio:['ignore',log,log]});
 let startupError;
 app.on('error', error => { startupError = error; });
