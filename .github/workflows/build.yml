@@ -450,6 +450,7 @@ jobs:
 
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
+        timeout-minutes: 10
         run: xvfb-run -a node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 960x540
 
       # The evidence a failed timing run leaves, minus the large source clip:
@@ -609,6 +610,7 @@ jobs:
 
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
+        timeout-minutes: 10
         run: node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 960x540
 
       # The evidence a failed timing run leaves, minus the large source clip:
@@ -1060,6 +1062,7 @@ jobs:
 
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
+        timeout-minutes: 10
         shell: pwsh
         run: |
           $real = Get-ChildItem -Path 'C:\ProgramData\chocolatey\lib\ffmpeg-full' -Recurse -Filter ffmpeg.exe |

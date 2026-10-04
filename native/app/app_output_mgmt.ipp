@@ -2811,12 +2811,13 @@
         close(audioFd);
       }
     }
-    if (writer && writer->thread.joinable()) {
-      writer->thread.join();
-    }
-    if (writer && writer->audioThread.joinable()) {
-      writer->audioThread.join();
-    }
+    // THE ENCODER GOES FIRST, THEN THE WRITERS. A writer can be blocked inside
+    // write() on a full FIFO, and on macOS and Linux closing that fd from this
+    // thread does not wake it. ffmpeg stops reading once it has SIGTERM, so
+    // joining first waited for a write that could never finish, while the
+    // SIGKILL that would have ended it sat after the join: Deckboy hung on
+    // quit with ffmpeg still alive (caught in CI on macOS). Once ffmpeg has
+    // gone the blocked write fails with EPIPE and the thread returns.
     if (streamPid > 0) {
       int status = 0;
       // Same asymmetry as the Windows branch: a file has a trailer to write,
@@ -2829,6 +2830,12 @@
         kill(streamPid, SIGKILL);
         waitpid(streamPid, &status, 0);
       }
+    }
+    if (writer && writer->thread.joinable()) {
+      writer->thread.join();
+    }
+    if (writer && writer->audioThread.joinable()) {
+      writer->audioThread.join();
     }
     if (!runtime.streamAudioPipePath.empty()) {
       unlink(runtime.streamAudioPipePath.c_str());

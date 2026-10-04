@@ -361,6 +361,16 @@ try {
   }
 } finally {
   try { await command('WEBMONITOR OFF'); } catch {}
-  app.kill(); fs.closeSync(log);
+  // QUITTING IS PART OF THE TEST. A Deckboy that will not exit once asked
+  // left this script waiting forever and a CI job hung for 40 minutes; now
+  // it gets fifteen seconds, then is killed and the run fails saying so.
+  const exited = new Promise(resolve => app.once('exit', () => resolve(true)));
+  app.kill();
+  if (!(await Promise.race([exited, sleep(15000).then(() => false)]))) {
+    console.log('Deckboy did not exit within 15 s of being told to quit');
+    app.kill('SIGKILL');
+    process.exitCode = 1;
+  }
+  fs.closeSync(log);
   console.log('Evidence retained:',root);
 }
