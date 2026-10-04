@@ -1069,6 +1069,12 @@ jobs:
             Where-Object { Test-Path (Join-Path $_.DirectoryName 'ffprobe.exe') } | Select-Object -First 1
           if (-not $real) { throw 'ffmpeg pair missing' }
           $env:PATH = "$($real.DirectoryName);$env:PATH"
+          # Deckboy does not search PATH for its media tools on Windows (it
+          # looks beside itself, where installs bundle them, and at the
+          # DECKBOY_FFMPEG pins), so without these it could not start the
+          # encoder at all: "stream process failed".
+          $env:DECKBOY_FFMPEG = $real.FullName
+          $env:DECKBOY_FFPROBE = Join-Path $real.DirectoryName 'ffprobe.exe'
           node tools/check_web_monitor_av.mjs --exe build\Release\Deckboy.exe --seconds 60 --raster 960x540
           if ($LASTEXITCODE -ne 0) { throw 'Web Monitor timing or HLS failed' }
 

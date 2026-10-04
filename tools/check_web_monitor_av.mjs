@@ -345,8 +345,15 @@ try {
     streams:streams.map(s=>({type:s.codec_type,width:s.width,height:s.height,rate:s.r_frame_rate,sampleRate:s.sample_rate,channels:s.channels,start:s.start_time,duration:s.duration}))};
   fs.writeFileSync(path.join(root,'metrics.json'),JSON.stringify({metrics,flashes,beeps},null,2));
   console.log(JSON.stringify(metrics,null,2));
-  if (Math.abs(late-early)>0.05 || Math.abs(median(offsets))>0.08 ||
-      offsets.some(offset=>Math.abs(offset)>0.15)) process.exitCode=1;
+  // ABSOLUTE LIP SYNC NEEDS A REAL SOUND CARD. SDL's dummy driver has its
+  // own latency (about -80 ms on CI's macOS VMs, where a real Mac measures
+  // +17 ms), so on it the absolute offset describes the dummy driver, not
+  // Deckboy. There the check is CONSISTENCY -- every marker within 150 ms of
+  // the run's own median -- which still catches drift, jitter, dropouts and
+  // hangs. With --real-audio the absolute limits apply, unchanged.
+  const centre = realAudio ? 0 : median(offsets);
+  if (Math.abs(late-early)>0.05 || (realAudio && Math.abs(centre)>0.08) ||
+      offsets.some(offset=>Math.abs(offset-centre)>0.15)) process.exitCode=1;
   // A slope is only meaningful over minutes; past five, more than 30 ms an
   // hour of drift fails (a show is longer than a test).
   if (elapsed>=300 && Math.abs(slope*3600)>0.03) {
