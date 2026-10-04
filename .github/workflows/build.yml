@@ -450,7 +450,7 @@ jobs:
 
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
-        run: xvfb-run -a node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 1280x720
+        run: xvfb-run -a node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 960x540
 
       # The evidence a failed timing run leaves, minus the large source clip:
       # CI keeps no screen, so these files are the only way to see why.
@@ -608,7 +608,7 @@ jobs:
 
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
-        run: node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 1280x720
+        run: node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 960x540
 
       # The evidence a failed timing run leaves, minus the large source clip:
       # CI keeps no screen, so these files are the only way to see why.
@@ -1064,7 +1064,7 @@ jobs:
             Where-Object { Test-Path (Join-Path $_.DirectoryName 'ffprobe.exe') } | Select-Object -First 1
           if (-not $real) { throw 'ffmpeg pair missing' }
           $env:PATH = "$($real.DirectoryName);$env:PATH"
-          node tools/check_web_monitor_av.mjs --exe build\Release\Deckboy.exe --seconds 60 --raster 1280x720
+          node tools/check_web_monitor_av.mjs --exe build\Release\Deckboy.exe --seconds 60 --raster 960x540
           if ($LASTEXITCODE -ne 0) { throw 'Web Monitor timing or HLS failed' }
 
       # The evidence a failed timing run leaves, minus the large source clip:

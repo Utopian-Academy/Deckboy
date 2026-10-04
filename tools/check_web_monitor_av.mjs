@@ -243,7 +243,13 @@ try {
     if (response) await response.arrayBuffer();
     await sleep(500);
   }
-  if (!playlist) throw new Error('HLS playlist not ready after 30 s');
+  if (!playlist) {
+    // What the app thinks of its own outputs is the only clue CI leaves.
+    const status = await command('STATUS').catch(error => String(error));
+    const outputs = status.split('\n').filter(line => line.startsWith('OUTPUT '))
+      .map(line => line.replace(/(?:url|key|path)="[^"]*"/g, '').replace(/ ndi[^ ]*="[^"]*"/g, ''));
+    throw new Error('HLS playlist not ready after 30 s\n' + outputs.join('\n'));
+  }
   fs.writeFileSync(path.join(root, 'index.m3u8'), playlist);
   const resources = [base + '/', base + '/web/player.js', base + '/web/hls.light.min.js',
     playlistUrl.split('?')[0], base + '/av/' + match[1]];
