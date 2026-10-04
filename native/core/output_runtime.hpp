@@ -342,6 +342,7 @@ struct OutputRuntime {
   int streamPipeFd = -1;
   int streamAudioPipeFd = -1;
   std::string streamVideoPipePath;
+  std::string streamAudioPipePath;   // macOS/Linux: the FIFO ffmpeg reads sound from
 #endif
   std::map<int, std::uint64_t> streamAudioReadSamplesByDeck;
   std::map<const void*, deckboy::audiofx::ProgramAudioState> programAudioStates;

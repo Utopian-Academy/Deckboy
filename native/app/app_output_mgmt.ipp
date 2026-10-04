@@ -2802,6 +2802,15 @@
       close(runtime.streamAudioPipeFd);
       runtime.streamAudioPipeFd = -1;
     }
+    // The connector publishes into the writer, so the writer holds the fd.
+    // Closed BEFORE the joins: a write blocked on a wedged encoder fails at
+    // once instead of hanging the main thread (see the Windows branch).
+    if (writer) {
+      const int audioFd = writer->audioPipeFd.exchange(-1, std::memory_order_acq_rel);
+      if (audioFd >= 0) {
+        close(audioFd);
+      }
+    }
     if (writer && writer->thread.joinable()) {
       writer->thread.join();
     }
@@ -2820,6 +2829,10 @@
         kill(streamPid, SIGKILL);
         waitpid(streamPid, &status, 0);
       }
+    }
+    if (!runtime.streamAudioPipePath.empty()) {
+      unlink(runtime.streamAudioPipePath.c_str());
+      runtime.streamAudioPipePath.clear();
     }
     if (!runtime.streamVideoPipePath.empty()) {
       unlink(runtime.streamVideoPipePath.c_str());
@@ -2975,6 +2988,41 @@
     return runtime.streamProcess.writeFd >= 0;
   }
 #else
+  // ffmpeg opens its inputs in order and reads the video one before it opens
+  // this, so waiting for it here would deadlock against the video writer that
+  // has not started yet. Detached, polling the FIFO until ffmpeg's end is open
+  // (ENXIO until then), and publishing to a live writer only -- the same
+  // contract as the Windows named-pipe connector.
+  void connectOutputAudioPipeAsync(OutputRuntime& runtime) {
+    const std::string path = runtime.streamAudioPipePath;
+    auto writer = runtime.streamWriter;
+    if (path.empty() || !writer) return;
+    std::thread([path, writer]() {
+      const Uint64 deadline = SDL_GetTicks() + 15000;
+      int fd = -1;
+      while (fd < 0 && SDL_GetTicks() < deadline) {
+        {
+          std::lock_guard<std::mutex> lock(writer->mutex);
+          if (writer->stop) return;
+        }
+        fd = open(path.c_str(), O_WRONLY | O_NONBLOCK);
+        if (fd >= 0) break;
+        if (errno != ENXIO && errno != EINTR && errno != ENOENT) return;
+        SDL_Delay(10);
+      }
+      if (fd < 0) return;
+      setCloseOnExec(fd);
+      setFdBlockingMode(fd, true);
+      {
+        std::lock_guard<std::mutex> audioLock(writer->audioMutex);
+        std::lock_guard<std::mutex> lock(writer->mutex);
+        if (writer->stop) { close(fd); return; }
+        writer->audioPipeFd.store(fd, std::memory_order_release);
+      }
+      writer->audioCv.notify_one();
+    }).detach();
+  }
+
   bool spawnOutputStreamProcess(OutputRuntime& runtime,
                                 const std::vector<std::string>& args,
                                 const std::string& videoInputPath) {
@@ -3307,8 +3355,21 @@
 #else
     std::string videoInputPath = (fs::temp_directory_path() /
       ("deckboy_stream_video_" + std::to_string(outputIndex) + "_" + std::to_string(SDL_GetTicks()) + ".fifo")).string();
+    // SOUND ON macOS AND LINUX. Only Windows had an audio pipe: here ffmpeg was
+    // given no audio input at all and filled the track with anullsrc, so every
+    // stream, recording and Web Monitor on these platforms carried SILENCE --
+    // and the Web Monitor, which will not drop a sample, waited forever for a
+    // pipe that never came and restarted its encoder in a loop. A FIFO beside
+    // the video one, connected in the background as the Windows pipe is.
+    std::string audioInputPath = (fs::temp_directory_path() /
+      ("deckboy_stream_audio_" + std::to_string(outputIndex) + "_" + std::to_string(SDL_GetTicks()) + ".fifo")).string();
+    unlink(audioInputPath.c_str());
+    if (mkfifo(audioInputPath.c_str(), 0600) != 0) {
+      audioInputPath.clear();   // silence, as before, rather than no stream
+    }
+    runtime->streamAudioPipePath = audioInputPath;
     std::vector<std::string> args = buildOutputStreamArgs(
-      outputIndex, width, height, fpsHint, videoInputPath, {}, takeFramesSoFar);
+      outputIndex, width, height, fpsHint, videoInputPath, audioInputPath, takeFramesSoFar);
 #endif
     if (args.empty()) {
       runtime->streamStartFailed = true;
@@ -3366,11 +3427,9 @@
     runtime->streamRestartBlockedUntilMs = 0;
     startOutputStreamWriter(*runtime, outputStreamProtocolIsWeb(
       normalizeOutputStreamProtocol(output.streamProtocol)));
-#ifdef _WIN32
     // Must come AFTER the writer exists: the connect thread publishes the fd
     // into it once ffmpeg opens the pipe.
     connectOutputAudioPipeAsync(*runtime);
-#endif
     setOutputHealthState(outputIndex, OutputHealthState::Live);
     return true;
   }
@@ -4313,14 +4372,10 @@
     // encoder muxed silence. Gated on the writer actually having somewhere to
     // put it, which on Windows arrives once ffmpeg connects to the named pipe.
     {
-      bool haveAudioSink = false;
-#ifdef _WIN32
-      haveAudioSink = runtime->streamWriter &&
-                      runtime->streamWriter->audioPipeFd.load(
-                        std::memory_order_acquire) >= 0;
-#else
-      haveAudioSink = runtime->streamAudioPipeFd >= 0;
-#endif
+      // The connector publishes the fd into the writer on every platform.
+      const bool haveAudioSink = runtime->streamWriter &&
+                                 runtime->streamWriter->audioPipeFd.load(
+                                   std::memory_order_acquire) >= 0;
       // Collect WEB PCM from frame zero even while the Windows named pipe is
       // connecting. Its writer waits for the fd without dropping the head.
       if (haveAudioSink || toWebSink) {
