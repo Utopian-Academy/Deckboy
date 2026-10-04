@@ -88,6 +88,11 @@
       showSplashOverlay_ = false;
       return;
     }
+    // The QR overlay covers the window; any click puts it away.
+    if (webMonitorQrOpen_) {
+      webMonitorQrOpen_ = false;
+      return;
+    }
     // The code editor is modal over everything but the splash: it covers the
     // window, so a click that reached the controls underneath would act on
     // something the operator cannot see.
@@ -212,7 +217,7 @@
     // poke, and having to actually hit the thing is most of the fun. It does
     // not return: the click still does whatever it would have done, because an
     // easter egg must not take anything away.
-    if (!firstClipLoadedThisSession_ && !warpEditMode_ && mascotFaceRadius_ > 0 &&
+    if (!mascotHidden_ && !warpEditMode_ && mascotFaceRadius_ > 0 &&
         mascotFleeStartedMs_ == 0) {
       const double dx = static_cast<double>(x - mascotFaceCx_);
       const double dy = static_cast<double>(y - mascotFaceCy_);
@@ -1641,6 +1646,10 @@
 
     if (dashboardOverlayOpen_ && key == SDLK_ESCAPE) {
       dashboardOverlayOpen_ = false;
+      return;
+    }
+    if (webMonitorQrOpen_ && key == SDLK_ESCAPE) {
+      webMonitorQrOpen_ = false;
       return;
     }
     if (shortcutsOverlayOpen_) {

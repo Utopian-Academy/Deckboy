@@ -615,6 +615,7 @@ add_executable(deckboy-native
   # definitions land at global scope and fail to link. See
   # native/extras/upstream/UPSTREAM.md.
   native/extras/terrarium_vendor.cpp
+  native/extras/upstream/qrcodegen/qrcodegen.cpp
   native/render/primitives.cpp
   native/render/text_renderer.cpp
   native/render/waveform_renderer.cpp

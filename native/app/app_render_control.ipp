@@ -476,6 +476,7 @@
     SDL_SetRenderDrawColor(controlRenderer_,
       red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
     SDL_RenderClear(controlRenderer_);
+    Primitives::beginSurfaceFrame(controlRenderer_, paletteColorFromRgba(kShellShadowColor));
 
     SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
                     std::max(0, W - kLayoutSpacingUnit * 2),
@@ -587,6 +588,7 @@
 
     SDL_SetRenderDrawColor(controlRenderer_, red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
     SDL_RenderClear(controlRenderer_);
+    Primitives::beginSurfaceFrame(controlRenderer_, paletteColorFromRgba(kShellShadowColor));
 
     SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
                     std::max(0, width - kLayoutSpacingUnit * 2),
@@ -1354,9 +1356,9 @@
       ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
-    // Timeline and preview jobs belong beneath popups. Modal jobs draw later,
-    // after the controls that own them, so neither hides the other.
-    renderBusyCritters(false);
+    // THE BUSY CRITTERS ARE NOT DRAWN HERE. See below, above the popups: the
+    // update one lives inside the settings modal and was painted over by it
+    // every frame, so nobody ever saw one.
     renderSlideRenderCard(width, height);
     renderImportProgress(width, height);
     if (confirmQuit_) {
@@ -1411,6 +1413,7 @@
     // open has to be drawn after EVERY overlay, not in the middle of them.
     renderDropdownPopover();
     renderInlineTextEditor();
+    renderWebMonitorQr(width, height);
     // The toolbar's tip opens downwards; requested here so it beats the
     // controls underneath it when both are under the pointer.
     if (!toolbarHoverTip_.empty() && toolbarHoverAt_.w > 0) {
@@ -1530,7 +1533,9 @@
     }
     int routingChipW = 0;
     {
-      TTF_Font* rcFont = fontSmall_;
+      // The header's own face: the body face is taller than the header strip,
+      // so the label stood out of the top and bottom of its chip.
+      TTF_Font* rcFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
       const std::string routing = playlistRoutingChipLabel(deckIndex);
       int txtW = 0;
       if (rcFont) {
@@ -1542,11 +1547,21 @@
                      colHeader.h - uiScaled(6)};
       // UNROUTED IS A WARNING COLOUR. A playlist nobody can see is a fault
       // that otherwise announces itself only as "the output is black".
-      const bool routed = routing != "--";
-      drawUIPanel(chip, routed ? pal.light : SDL_Color {150, 80, 30, 255},
-                  pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, rcFont, chip, routing,
-                           routed ? pal.deep : pal.light);
+      // Asked of the routing, not read off the label: this compared the label
+      // with "--" after the label had become "no output", so the warning
+      // never showed.
+      bool routed = false;
+      for (int o = 0; o < static_cast<int>(project_.outputs.size()) && !routed; ++o) {
+        routed = assignmentIndexForDeckOutput(deckIndex, o).has_value();
+      }
+      if (routed) {
+        drawUIPanel(chip, pal.light, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, rcFont, chip, routing, paletteInkOnFill(pal.light));
+      } else {
+        const PaletteNotice look = paletteNotice(true);
+        drawUIPanel(chip, look.fill, look.border, look.border);
+        drawCenteredTextSafe(controlRenderer_, rcFont, chip, routing, look.ink);
+      }
       deckRoutingChipRects_[deckIndex] = chip;
       playlistHeaderLeftEdge_ = chip.x;
     }
@@ -1729,7 +1744,7 @@
       // stops as soon as the cue stops being marked.
       if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size()) &&
           cueIsNormalizing(deck.cues[cueIndex].id)) {
-        markBusy("norm:" + deck.cues[cueIndex].id, nullptr, row, false);
+        markBusy("norm:" + deck.cues[cueIndex].id, "mouse", row);
       }
       y += kRowHeight + 8;
     }
@@ -2117,8 +2132,14 @@
     // Scaled, like everything else in the row. At 1.5x these stayed 1x-sized
     // beside 1.5x text, so the icons crowded the name they were meant to sit
     // clear of.
+    // NARROW DECKS GIVE THE TOGGLES THEIR OWN LINE. Below this width the
+    // heading folds onto one line (state, ID, kind, duration), the name gets
+    // the middle, and the five toggles take the whole bottom line -- growing as
+    // the deck narrows rather than shrinking, because they are what a narrow
+    // deck is still FOR.
+    const bool compactRow = row.w < uiScaled(420);
     const int kCueActionBtnW = uiScaled(24);
-    const int kCueActionBtnH = uiScaled(16);
+    const int kCueActionBtnH = uiScaled(compactRow ? 22 : 16);
     const int kCueActionBtnGap = uiScaled(4);
     constexpr int kCueActionCount = 5;
     const int kCueActionBtnMinW = uiScaled(18);  // below this icons stop being icons
@@ -2133,25 +2154,30 @@
     const int kNameXWithThumb = uiScaled(124);   // clear of the still
     const int kNameXNoThumb = uiScaled(56);      // clear of the state indicator
 
-    // Narrow decks reserve the lower lines for the name and duration. Cue
-    // actions remain available in the inspector and through the shortcuts.
-    const bool compactRow = row.w < uiScaled(420);
     auto stripFits = [&](int nameOffset, int bw) {
       return row.w - nameOffset - kCueMinNameW - 8 - kCueStripMargin
                >= cueStripWidthFor(bw);
     };
     const bool showRowThumb = !compactRow && stripFits(kNameXWithThumb, kCueActionBtnMinW);
-    const int nameXOffset = showRowThumb ? kNameXWithThumb : kNameXNoThumb;
+    const int nameXOffset = compactRow ? uiScaled(14)
+                            : (showRowThumb ? kNameXWithThumb : kNameXNoThumb);
 
     int cueActionBtnW = kCueActionBtnW;
-    if (!stripFits(nameXOffset, cueActionBtnW)) {
+    if (compactRow) {
+      // Shared out across the row, up to a size that still reads as a button
+      // rather than a bar.
+      const int forStrip = row.w - kCueStripMargin * 2 - uiScaled(8);
+      cueActionBtnW = std::clamp(
+        (forStrip - (kCueActionCount - 1) * kCueActionBtnGap) / kCueActionCount,
+        kCueActionBtnMinW, uiScaled(44));
+    } else if (!stripFits(nameXOffset, cueActionBtnW)) {
       const int forStrip = row.w - nameXOffset - kCueMinNameW - 8 - kCueStripMargin;
       cueActionBtnW = std::clamp(
         (forStrip - (kCueActionCount - 1) * kCueActionBtnGap) / kCueActionCount,
         kCueActionBtnMinW, kCueActionBtnW);
     }
     const int actionStripW = cueStripWidthFor(cueActionBtnW);
-    const bool showActionStrip = !compactRow && row.w >= actionStripW + kCueStripMargin + 24;
+    const bool showActionStrip = row.w >= actionStripW + kCueStripMargin * 2;
     const int actionStripX = row.x + row.w - actionStripW - kCueStripMargin;
 
     // The still keeps its 16:9 shape and grows with the row. It was a fixed
@@ -2267,6 +2293,10 @@
     int indSize = uiScaled(36);
     SDL_Rect indicatorRect {row.x + uiScaled(10), row.y + (row.h - indSize) / 2,
                             indSize, indSize};
+    if (compactRow) {
+      indSize = uiScaled(18);
+      indicatorRect = {row.x + uiScaled(10), row.y + uiScaled(4), indSize, indSize};
+    }
     if (isLive) {
       drawUIPanel(indicatorRect, pal.dark, pal.light, pal.mid);
       if (uiBtnPlay_.texture) {
@@ -2343,21 +2373,32 @@
     // grew with the UI scale, so at 1.5x "Pattern" was ellipsized to "PA..."
     // inside a box still sized for 1x text, and the three lines ran together.
     const int lineH = std::max(uiScaled(18), textLineHeight(fontSmall_));
-    SDL_Rect tokenRect {nameX, row.y + uiScaled(4), uiScaled(50), lineH};
+    const int headingX = compactRow ? indicatorRect.x + indicatorRect.w + uiScaled(4) : nameX;
+    const int compactMetaW = std::min(nameW / 2,
+      std::max(uiScaled(80), measuredTextWidth(fontMono_, dc.meta) + uiScaled(12)));
+    SDL_Rect tokenRect {headingX, row.y + uiScaled(4), uiScaled(50), lineH};
     drawTextSafe(controlRenderer_, fontMono_, tokenRect, dc.token, subInk);
 
     {
       UiImageAsset* cueIcon = cueIconAssetForKind(cue.kind);
       const int iconSide = uiScaled(22);
-      SDL_Rect iconRect {nameX + uiScaled(54), row.y + uiScaled(3), iconSide, iconSide};
+      SDL_Rect iconRect {headingX + uiScaled(54), row.y + uiScaled(3), iconSide, iconSide};
       // The kind label runs to the right edge of the name column rather than a
       // fixed width: "Window Source" and "Lower Third" are longer than the 72px
       // this used to budget, and what it does with the overflow is ellipsize.
-      const int typeX = (cueIcon && drawUiImageContainTinted(*cueIcon, iconRect))
-                          ? nameX + uiScaled(78) : nameX + uiScaled(54);
+      const int typeRight = nameX + nameW - (compactRow ? compactMetaW + uiScaled(6) : 0);
+      const bool iconDrawn = cueIcon && iconRect.x + iconRect.w <= typeRight &&
+                             drawUiImageContainTinted(*cueIcon, iconRect);
+      const int typeX = headingX + uiScaled(iconDrawn ? 78 : 54);
       SDL_Rect typeRect {typeX, row.y + uiScaled(5),
-                         std::max(uiScaled(40), nameX + nameW - typeX), lineH};
-      drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
+                         std::max(0, typeRight - typeX), lineH};
+      // A folded heading has no room to spare, and a kind cut to "P..." says
+      // nothing the icon beside it does not -- so there the word is drawn
+      // only when it fits whole, and the icon speaks for it otherwise.
+      if (!compactRow || !iconDrawn ||
+          measuredTextWidth(fontSmall_, dc.kindUpper) <= typeRect.w) {
+        drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
+      }
     }
 
     // Name — line 2 (middle of row, prominent)
@@ -2371,8 +2412,9 @@
     // Metadata — line 3 (bottom of row, within bounds)
     // Metadata shares the bottom line with the action strip, so it stops short
     // of it instead of running underneath.
-    const int metaW = showActionStrip ? std::max(40, actionStripX - nameX - 8) : nameW;
+    const int metaW = showActionStrip ? std::max(0, actionStripX - nameX - uiScaled(8)) : nameW;
     SDL_Rect metaRect {nameX, row.y + uiScaled(50), metaW, lineH};
+    if (compactRow) metaRect = {nameX + nameW - compactMetaW, row.y + uiScaled(4), compactMetaW, lineH};
     drawTextSafe(controlRenderer_, fontSmall_, metaRect, dc.meta, isProbing ? pal.inkSoft : subInk);
 
     // Missing-media badge — right end of the name column, drawn live (not
@@ -2491,14 +2533,15 @@
       // ON THE METADATA LINE, which moves with the scale like everything
       // else in the row. A raw 48 put the strip on the NAME line the moment
       // the row grew, so the icons sat on top of the cue's own name.
-      SDL_Rect btn {buttonX, row.y + uiScaled(48), cueActionBtnW, kCueActionBtnH};
+      // A folded row anchors its toggle line to the row's own bottom edge.
+      const int btnY = compactRow ? row.y + row.h - kCueActionBtnH - uiScaled(5)
+                                  : row.y + uiScaled(48);
+      SDL_Rect btn {buttonX, btnY, cueActionBtnW, kCueActionBtnH};
       SDL_Color btnFill = !enabled
         ? pal.mid
         : (paletteToggleFill(on));
       SDL_Color btnAccent = enabled && on ? pal.mid : pal.mid;
-      SDL_Color iconInk = !enabled
-        ? pal.inkSoft
-        : (on ? pal.deep : pal.fg);
+      SDL_Color iconInk = !enabled ? paletteInkOnFill(btnFill) : paletteToggleInk(on);
       drawUIPanel(btn, btnFill, pal.deep, btnAccent);
       // The icon must use the SAME rect the button was painted with. This used
       // to pass snapRectToGrid(btn) while drawUIPanel painted btn unsnapped, so
@@ -2507,10 +2550,16 @@
       // Same class as the v0.81.0 text-placement fix: when drawUIPanel stopped
       // grid-snapping, this call was missed.
       drawCueRowActionIcon(btn, action, iconInk, on);
-      if (enabled) {
-        cueRowActionHits_.push_back({btn, deckIndex, index, action, true, tip});
+      SDL_Rect visibleButton = btn;
+      SDL_Rect listClip {};
+      if (SDL_RenderClipEnabled(controlRenderer_)) {
+        SDL_GetRenderClipRect(controlRenderer_, &listClip);
+        if (!SDL_GetRectIntersection(&btn, &listClip, &visibleButton)) visibleButton = {};
       }
-      if (pointInRect(mouseX_, mouseY_, btn)) {
+      if (enabled && visibleButton.w > 0 && visibleButton.h > 0) {
+        cueRowActionHits_.push_back({visibleButton, deckIndex, index, action, true, tip});
+      }
+      if (pointInRect(mouseX_, mouseY_, visibleButton)) {
         drawHoverTip(tip, btn.x + btn.w / 2, btn.y);
         toggleHover = true;
       }
@@ -3122,7 +3171,7 @@
     Primitives::fillRect(controlRenderer_, track, pal.deep);
     // This one already had an honest bar; the critter is company, not the
     // information. It swims the length of the strip while the walk runs.
-    markBusy("import", nullptr, strip);
+    markBusy("import", "clownfish", strip);
 
     std::string label;
     if (scanning) {
@@ -3174,7 +3223,7 @@
     // progress, including the conversion stage where no count is known yet.
     const SDL_Rect critterLane {card.x + uiScaled(12), card.y + uiScaled(8),
                                card.w - uiScaled(24), uiScaled(34)};
-    markBusy("slide-render", nullptr, critterLane);
+    markBusy("slide-render", "cat", critterLane);
     // Counting pages only once the renderer has reported one: before that the
     // honest thing to say is that the converter is still running, because it
     // is, and a "0 of 0" would look stuck.
@@ -3200,7 +3249,7 @@
   }
 
   void renderToast(int windowWidth) {
-    if (!project_.uiTransitionsEnabled || !toast_.active) {
+    if (!toast_.active) {
       return;
     }
 
@@ -3213,7 +3262,9 @@
     double progress = static_cast<double>(elapsed) / static_cast<double>(toast_.durationMs);
     double intro = easeOutCubic(std::min(progress / 0.2, 1.0));
     double outro = progress > 0.78 ? 1.0 - easeOutCubic((progress - 0.78) / 0.22) : 1.0;
-    double visibility = std::min(intro, outro);
+    // Transitions off means no slide: the toast is simply there for its time.
+    double visibility = project_.uiTransitionsEnabled ? std::min(intro, outro) : 1.0;
+    const bool warning = toast_.kind == ToastKind::Warning;
 
     // Size the panel to its message rather than a fixed 300px. Several toasts
     // are legitimately long — "normalized: -0.9 dB (was -25.7 LUFS) -
@@ -3227,17 +3278,49 @@
     if (fontBase_) {
       TTF_GetStringSize(fontBase_, toast_.message.c_str(), 0, &textW, &textH);
     }
+    // The badge column: a solid bar for help, a "!" plate for a warning --
+    // the shape says which kind it is before the colour or the words do.
+    const int accentW = warning ? uiScaled(26) : uiScaled(6);
     const int toastPadX = uiScaled(14);
     const int minToastW = uiScaled(220);
     int maxToastW = std::max(minToastW, windowWidth - uiScaled(88));
-    int panelW = std::clamp(textW + toastPadX * 2, minToastW, maxToastW);
+    int panelW = std::clamp(textW + toastPadX * 2 + accentW, minToastW, maxToastW);
     int panelH = std::max(uiScaled(58), textH + uiScaled(24));
 
     SDL_Rect panel {0, uiScaled(36) + static_cast<int>((1.0 - visibility) * -uiScaled(24)),
                     panelW, panelH};
     panel.x = windowWidth - uiScaled(44) - static_cast<int>(panelW * visibility);
-    Primitives::drawFramedPanel(controlRenderer_, panel, toast_.fill, pal.deep, pal.mid);
-    drawTextSafe(controlRenderer_, fontBase_, panel, toast_.message, toast_.ink);
+
+    const PaletteNotice look = paletteNotice(warning);
+    // A drop shadow lifts it off whatever it floats over, as the hover tip's does.
+    SDL_Color shadow = pal.shellShadow;
+    shadow.a = 150;
+    Primitives::fillRect(controlRenderer_,
+                         SDL_Rect {panel.x + uiScaled(3), panel.y + uiScaled(3), panel.w, panel.h},
+                         shadow);
+    Primitives::fillRect(controlRenderer_, panel, look.fill);
+    // Border weight scales with the UI, and a warning's pulses for its first
+    // two seconds -- it is the one that has to be noticed.
+    const int borderW = std::max(1, uiScaled(warning ? 3 : 2));
+    SDL_Color border = look.border;
+    if (warning && project_.uiTransitionsEnabled && elapsed < 2000) {
+      const double pulse = 0.5 + 0.5 * std::cos(static_cast<double>(elapsed) * 0.012566);
+      border = paletteMix(look.border, look.fill, 0.55 * (1.0 - pulse));
+    }
+    for (int i = 0; i < borderW; ++i) {
+      Primitives::strokeRect(controlRenderer_, insetRect(panel, i), border);
+    }
+
+    const SDL_Rect badge {panel.x + borderW, panel.y + borderW, accentW,
+                          std::max(0, panel.h - borderW * 2)};
+    Primitives::fillRect(controlRenderer_, badge, look.accent);
+    if (warning) {
+      TTF_Font* badgeFont = fontPixel_ ? fontPixel_ : fontBase_;
+      drawCenteredTextSafe(controlRenderer_, badgeFont, badge, "!", look.fill);
+    }
+    const SDL_Rect textRect {badge.x + badge.w, panel.y,
+                             std::max(0, panel.x + panel.w - badge.x - badge.w), panel.h};
+    drawTextSafe(controlRenderer_, fontBase_, textRect, toast_.message, look.ink);
   }
 
   // Draws a tiny 4-pointed pixel star centered at (cx, cy), arm half-length S.

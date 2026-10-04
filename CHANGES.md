@@ -1,5 +1,56 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-04 - v0.99.403 (Web Monitor playback, phone access and readable themes)
+
+**Web Monitor playback.** The browser player uses HLS with one timeline for
+picture and sound, a short network buffer and automatic reconnection. It fits
+phone screens in portrait and landscape, with full-screen controls and keyboard
+navigation. Browsers with native HLS use it; others use the player bundled with
+Deckboy, so watching never contacts a CDN.
+
+**Any picture down the Web Monitor.** The Web Monitor is a destination: its
+Source, in Video Outputs, can be the programme, the multiview, a presenter
+view or any other output, and the Web Monitor card shows what it carries.
+`WEBMONITOR SOURCE PROGRAMME|<output>` sets it from a controller. Every
+stream and recording output has the same Source choice.
+
+**Screens in step.** Every viewer of the programme stream aims at the same
+wall-clock moment, so phones, laptops and TVs watching together show the
+same frame within a few milliseconds of each other while keeping sound. A
+**Low latency** mode sends the picture alone with no buffering, for the
+quickest possible view. **Connections at once** sets how many browser
+requests are served together (eight by default, serving roughly ten to
+twenty viewers).
+
+**The multiview output** shows the multiview arranged on the desk: the same
+windows, programme tile, labels and level meters, sized for the output.
+
+**Phone access.** QR CODE in the Web Monitor settings shows the monitor's
+address as a large QR code for a phone camera; `WEBMONITOR QR` shows it from a
+controller. The code carries the address only: a phone still asks for the
+passphrase.
+
+**Readable themes.** Every label is held to a readable contrast against the
+surface actually behind it, in all thirty bundled themes. Help and warning
+notices take each theme's own colours: help notices use the theme highlight,
+and warnings use the theme's danger colour with a brief pulse, so they stand
+out without a colour from outside the theme. Notices also appear when interface
+animations are turned off. `--contrast-check` renders every bundled theme with
+both kinds of notice and reports any that fall short.
+
+**Narrow decks.** In a narrow deck, each cue row folds its heading onto one
+line and gives its five toggles the whole bottom line, growing as the deck
+narrows. The kind of cue shows as its icon when the word does not fit.
+
+**The face.** Deckboy's face returns to the programme monitor whenever
+nothing is live, not only before the first cue of the session.
+
+**Settings.** The Orientation control sits at full height in Video Outputs.
+`VIDEO OUTPUT ADD` accepts MULTIVIEW, PRESENTER and PROMPTER.
+
+**Loading.** Timeline and show-loading animations return to their earlier
+designs, with the critters in their earlier places.
+
 ## 2026-10-03 - v0.99.402 (Web Monitor network access and quality)
 
 **Network access.** Web Monitor now selects an active private Ethernet or

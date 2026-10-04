@@ -44,6 +44,16 @@ class Primitives {
   // in the deck output display area.
   static void drawSpeakerGrille(SDL_Renderer* renderer, int x, int y,
                                 int width, int bars, SDL_Color color);
+
+  // WHAT IS BEHIND A LABEL. While one renderer is being tracked, every fill
+  // it receives on the window itself (not on a texture target) is remembered
+  // for the frame, translucent ones composited over what they covered. The
+  // text path asks surfaceUnder() for the colour beneath a label so it can
+  // check the label's ink against the fill actually painted there rather than
+  // the one the call site assumed. beginSurfaceFrame() starts a frame and
+  // resets the record; nullptr stops tracking.
+  static void beginSurfaceFrame(SDL_Renderer* renderer, SDL_Color clearColor);
+  static bool surfaceUnder(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color* out);
 };
 
 }  // namespace deckboy::render

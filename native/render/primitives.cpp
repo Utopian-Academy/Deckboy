@@ -17,6 +17,7 @@
 #include "primitives.hpp"
 
 #include <algorithm>
+#include <vector>
 
 namespace deckboy::render {
 
@@ -30,10 +31,79 @@ static SDL_Rect insetRect(const SDL_Rect& rect, int inset) {
   };
 }
 
+namespace {
+
+struct Surface {
+  SDL_Rect rect;
+  SDL_Color color;
+};
+
+// One renderer at a time: the control window. Output renderers draw pictures,
+// not labels, and are never tracked.
+SDL_Renderer* gSurfaceRenderer = nullptr;
+SDL_Color gSurfaceClear {0, 0, 0, 255};
+std::vector<Surface> gSurfaces;
+
+// Fills smaller than this are bevels, meters and dots -- never what a label
+// sits on -- and leaving them out keeps the lookup short.
+constexpr int kMinSurfaceArea = 48;
+// Bounded so a frame that draws a huge number of cells cannot grow it without
+// limit; past the cap the oldest half goes, which are the furthest down.
+constexpr std::size_t kMaxSurfaces = 6000;
+
+bool containsPoint(const SDL_Rect& r, int x, int y) {
+  return x >= r.x && y >= r.y && x < r.x + r.w && y < r.y + r.h;
+}
+
+SDL_Color colorAt(int x, int y) {
+  for (auto it = gSurfaces.rbegin(); it != gSurfaces.rend(); ++it) {
+    if (containsPoint(it->rect, x, y)) return it->color;
+  }
+  return gSurfaceClear;
+}
+
+void recordSurface(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
+  if (renderer != gSurfaceRenderer || color.a == 0 ||
+      rect.w * rect.h < kMinSurfaceArea || SDL_GetRenderTarget(renderer) != nullptr) {
+    return;
+  }
+  SDL_Color effective = color;
+  if (color.a < 255) {
+    // What the eye sees is the fill over whatever it covered, so a 50% wash
+    // over a dark panel is recorded as the darkened colour, not the wash.
+    const SDL_Color under = colorAt(rect.x + rect.w / 2, rect.y + rect.h / 2);
+    const int a = color.a;
+    effective = {static_cast<Uint8>((color.r * a + under.r * (255 - a)) / 255),
+                 static_cast<Uint8>((color.g * a + under.g * (255 - a)) / 255),
+                 static_cast<Uint8>((color.b * a + under.b * (255 - a)) / 255), 255};
+  }
+  if (gSurfaces.size() >= kMaxSurfaces) {
+    gSurfaces.erase(gSurfaces.begin(), gSurfaces.begin() + kMaxSurfaces / 2);
+  }
+  gSurfaces.push_back({rect, effective});
+}
+
+}  // namespace
+
+void Primitives::beginSurfaceFrame(SDL_Renderer* renderer, SDL_Color clearColor) {
+  gSurfaceRenderer = renderer;
+  gSurfaceClear = clearColor;
+  gSurfaces.clear();
+}
+
+bool Primitives::surfaceUnder(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color* out) {
+  if (!renderer || renderer != gSurfaceRenderer || SDL_GetRenderTarget(renderer) != nullptr) {
+    return false;
+  }
+  *out = colorAt(rect.x + rect.w / 2, rect.y + rect.h / 2);
+  return true;
+}
+
 void Primitives::fillRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(renderer, &rect);
+  recordSurface(renderer, rect, color);
 }
 
 void Primitives::strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {

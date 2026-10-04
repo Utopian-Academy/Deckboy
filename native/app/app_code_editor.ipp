@@ -707,7 +707,7 @@ static const std::vector<CodeExample>& codeExamples() {
         const bool hover = pointInRect(mouseX_, mouseY_, chip);
         drawUIPanel(chip, paletteToggleFill(hover), pal.deep, pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, chip, entry.name,
-                             hover ? pal.deep : pal.fg);
+                             paletteToggleInk(hover));
         codeEditor_.chipRects.push_back(chip);
         codeEditor_.chips.push_back(entry);
         if (hover) {
@@ -752,7 +752,7 @@ static const std::vector<CodeExample>& codeExamples() {
       drawUIPanel(box, current ? pal.dark : (paletteToggleFill(hover)),
                   pal.deep, current ? pal.light : pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, box, example.name,
-                           current ? pal.light : (hover ? pal.deep : pal.fg));
+                           current ? paletteInkOnFill(pal.dark) : paletteToggleInk(hover));
       codeEditor_.exampleRects.push_back(box);
       ex += exW + 6;
     }

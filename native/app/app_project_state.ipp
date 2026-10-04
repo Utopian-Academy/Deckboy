@@ -2462,24 +2462,21 @@
   // on -- a file that cannot be converted, a tool that is missing. Those went
   // by before they could be read, which is the same as not showing them.
   //
-  // So there are two durations and two colours, and the rule is which kind of
-  // message it is, not how important it feels.
-  static constexpr SDL_Color kToastFill     = {155, 188,  15, 220};
-  static constexpr SDL_Color kToastInk      = { 15,  56,  15, 255};
-  static constexpr SDL_Color kToastWarnFill = {206, 145,  40, 235};
-  static constexpr SDL_Color kToastWarnInk  = { 32,  20,   0, 255};
-  static constexpr Uint32    kToastReadableMs = 6500;
+  // So there are two durations and two KINDS, and the rule is which kind of
+  // message it is, not how important it feels. The kind picks the look from
+  // the theme (paletteNotice); a call site never names a colour.
+  static constexpr Uint32 kToastReadableMs = 6500;
 
-  void triggerToast(std::string message, SDL_Color fill = kToastFill, SDL_Color ink = kToastInk, Uint32 durationMs = 1200) {
-    if (!project_.uiTransitionsEnabled) {
-      return;
-    }
+  void triggerToast(std::string message, ToastKind kind = ToastKind::Help,
+                    Uint32 durationMs = 1200) {
+    // Shown with UI transitions off too: that switch is about MOTION. This
+    // used to return here, so turning animations off silently discarded every
+    // warning, including the ones that say a file cannot be converted.
     toast_.active = true;
     toast_.startedAt = SDL_GetTicks();
     toast_.durationMs = durationMs;
     toast_.message = std::move(message);
-    toast_.fill = fill;
-    toast_.ink = ink;
+    toast_.kind = kind;
   }
 
   void queueUiPattern(const std::vector<std::pair<double, int>>& notes, float level = 0.13f) {
@@ -3976,7 +3973,7 @@
   // also gets ERR with the same words instead of an OK that wasn't true.
   void failRemoteCommand(const std::string& reason) {
     remoteCommandError_ = reason;
-    triggerToast(reason);
+    triggerToast(reason, ToastKind::Warning, kToastReadableMs);
   }
 
   bool enqueueRemoteCommand(std::string command, SocketHandle replyTo = kInvalidSocket,

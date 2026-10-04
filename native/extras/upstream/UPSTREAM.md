@@ -34,3 +34,21 @@ The wrapper supplies it at include time so these files need no edits.
 Only these three are vendored: they are the ones with **zero SDL dependency**.
 The glyph renderer (`terrarium_visuals/​glyphs/​render`) is written against
 `SDL_Renderer` and cannot be used from Deckboy's raw-RGBA pattern path.
+
+---
+
+# Vendored: QR Code generator (Project Nayuki)
+
+Source: https://github.com/nayuki/QR-Code-generator  (C++ edition, `cpp/`)
+
+| | |
+|---|---|
+| Upstream tag | `v1.8.0` |
+| Licence | MIT (header of each file) |
+| Copied | 2026-10-04 |
+| Files | `qrcodegen/qrcodegen.hpp`, `qrcodegen/qrcodegen.cpp` |
+| SHA-256 | `.hpp b779c3b156cf7a57ce789d6fee4fc991ccc2913774d26c909d22bb8f26b2a793` |
+| | `.cpp 1f3b3fcdac6954c32cf583ccd02ec9b5901f756a38c461acedc70be4a77d3757` |
+
+Used by the Web Monitor's QR code (Settings). Same rule as above: byte-identical
+to upstream, so a re-sync is a plain copy and the hashes above can be checked.

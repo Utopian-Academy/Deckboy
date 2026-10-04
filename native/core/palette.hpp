@@ -193,8 +193,15 @@ inline SDL_Color paletteToggleFill(bool on) {
   // guessed amount: a fixed fraction of the way from lit toward the panel's
   // own depth, which lands it clearly below lit and clearly above the
   // background on any theme, because both ends are that theme's own colours.
-  const SDL_Color away = detail::paletteLuma(litCandidate) > 128
-                           ? pal.deep : pal.light;
+  SDL_Color away = pal.deep;
+  for (SDL_Color candidate : {pal.tile, pal.shellOuter}) {
+    if (detail::paletteLuma(candidate) < detail::paletteLuma(away)) away = candidate;
+  }
+  // Saturated highlights can have a luma below 128. Mixing those toward
+  // pal.light mixed the highlight with itself, making ON and OFF identical.
+  if (detail::paletteLuma(away) >= detail::paletteLuma(litCandidate)) {
+    away = {0, 0, 0, 255};
+  }
   SDL_Color unlit = paletteMix(litCandidate, away, 0.62);
   // AND THE GAP IS GUARANTEED. A theme whose roles are already close would
   // otherwise give two states nobody can tell apart -- the fault the very
@@ -205,10 +212,143 @@ inline SDL_Color paletteToggleFill(bool on) {
   return unlit;
 }
 
+// WCAG relative luminance and contrast ratio. Luma (above) answers "which of
+// two looks brighter"; these answer "can text in one be read on the other",
+// which is a different question -- a saturated red and its own lighter tint
+// can be 40 luma apart and still under 1.3:1.
+inline double paletteRelativeLuminance(SDL_Color color) {
+  auto linear = [](Uint8 channel) {
+    const double value = channel / 255.0;
+    return value <= 0.04045 ? value / 12.92 : std::pow((value + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * linear(color.r) + 0.7152 * linear(color.g) + 0.0722 * linear(color.b);
+}
+
+inline double paletteContrastRatio(SDL_Color a, SDL_Color b) {
+  const double la = paletteRelativeLuminance(a), lb = paletteRelativeLuminance(b);
+  return (std::max(la, lb) + 0.05) / (std::min(la, lb) + 0.05);
+}
+
+inline SDL_Color paletteInkOnFill(SDL_Color fill) {
+  SDL_Color ink = pal.deep;
+  double contrast = paletteContrastRatio(ink, fill);
+  for (SDL_Color candidate : {pal.light, pal.fg, pal.fgSoft, pal.inkSoft}) {
+    const double ratio = paletteContrastRatio(candidate, fill);
+    if (ratio > contrast) { ink = candidate; contrast = ratio; }
+  }
+  if (contrast < 4.5) {
+    const SDL_Color black {0, 0, 0, 255}, white {255, 255, 255, 255};
+    ink = paletteContrastRatio(black, fill) >= paletteContrastRatio(white, fill) ? black : white;
+  }
+  return ink;
+}
+
 // The ink that belongs on that fill, kept beside it so a caller cannot pair a
 // lit fill with the ink for an unlit one. Chosen for contrast against the fill
 // rather than assumed, for the same reason the fill is.
 inline SDL_Color paletteToggleInk(bool on) {
-  const SDL_Color fill = paletteToggleFill(on);
-  return detail::paletteLuma(fill) > 128 ? pal.deep : pal.light;
+  return paletteInkOnFill(paletteToggleFill(on));
+}
+
+// A NOTICE FLOATS OVER EVERYTHING, SO IT IS BUILT FROM THE THEME'S EXTREMES.
+//
+// Toasts used to be Game Boy green (help) and amber (warning) on all thirty
+// themes -- lime on Virtual Boy's red. They are now the theme's own colours,
+// and still loud, because each picks the end of the theme that stands out
+// most from the chrome it floats over:
+//
+//   help     the theme's highlight (or its deepest ink, on a light theme where
+//            the highlight IS the chrome), with matching ink and accent.
+//   warning  a dark plate edged and lettered in the theme's DANGER colour
+//            (delete_bezel -- every theme defines one), pushed until readable.
+//            A different nature at a glance, without a colour from outside.
+struct PaletteNotice {
+  SDL_Color fill;
+  SDL_Color border;
+  SDL_Color ink;
+  SDL_Color accent;
+};
+
+namespace detail {
+
+// Moves `color` away from `against` (toward white or black, whichever is
+// further from it) until it clears `ratio`. Keeps the hue as long as it can.
+inline SDL_Color paletteLiftToContrast(SDL_Color color, SDL_Color against, double ratio) {
+  color.a = 255;
+  const SDL_Color white {255, 255, 255, 255}, black {0, 0, 0, 255};
+  const SDL_Color toward = paletteContrastRatio(white, against) >= paletteContrastRatio(black, against)
+                             ? white : black;
+  SDL_Color lifted = color;
+  for (int step = 1; step <= 10 && paletteContrastRatio(lifted, against) < ratio; ++step) {
+    lifted = paletteMix(color, toward, step * 0.1);
+  }
+  return lifted;
+}
+
+}  // namespace detail
+
+inline PaletteNotice paletteNotice(bool warning) {
+  PaletteNotice n {};
+  if (warning) {
+    n.fill = paletteRelativeLuminance(pal.deep) <= paletteRelativeLuminance(pal.light)
+               ? pal.deep : pal.light;
+    n.fill.a = 255;
+    n.accent = detail::paletteLiftToContrast(pal.deleteBezel, n.fill, 3.0);
+    n.border = n.accent;
+    n.ink = detail::paletteLiftToContrast(pal.deleteBezel, n.fill, 4.5);
+    return n;
+  }
+  const SDL_Color chrome = pal.tile;
+  n.fill = paletteContrastRatio(pal.light, chrome) >= paletteContrastRatio(pal.deep, chrome)
+             ? pal.light : pal.deep;
+  n.fill.a = 255;
+  n.ink = paletteInkOnFill(n.fill);
+  n.ink.a = 255;
+  n.border = n.ink;
+  n.accent = n.ink;
+  return n;
+}
+
+// The floor every label is held to: WCAG's minimum for large text and UI
+// components. Deckboy's labels are short and mostly bold pixel type, and a
+// higher floor would push saturated themes (Virtual Boy's red buttons) off
+// their own colours onto white.
+inline constexpr double kPaletteMinTextContrast = 3.0;
+
+// THE INK A CALLER ASKED FOR, UNLESS IT CANNOT BE READ.
+//
+// Every call site picks an ink for the fill it believes is behind the label,
+// and on two themes out of thirty that belief was wrong in dozens of places at
+// once: Virtual Boy and Ganon have a saturated highlight whose luma is BELOW
+// 128, so every "luma > 128 ? deep : light" put the bright ink on the bright
+// fill -- red on red. Fixing call sites one by one found the toggles and missed
+// the rest, so the text path asks this instead.
+//
+// A readable ink is returned untouched, so a theme that already works draws
+// exactly what it drew before. An unreadable one is replaced by the theme ink
+// NEAREST to it that clears the floor: a dim label stays the dimmest readable
+// ink rather than jumping to the loudest, so hierarchy survives. Only if no
+// theme ink clears it does black or white step in.
+inline SDL_Color paletteReadableInk(SDL_Color ink, SDL_Color surface) {
+  if (paletteContrastRatio(ink, surface) >= kPaletteMinTextContrast) {
+    return ink;
+  }
+  SDL_Color best = ink;
+  int bestDistance = -1;
+  for (SDL_Color candidate : {pal.deep, pal.fg, pal.fgSoft, pal.inkSoft, pal.light,
+                              pal.dark, pal.mid, pal.tile, pal.shellOuter}) {
+    if (paletteContrastRatio(candidate, surface) < kPaletteMinTextContrast) continue;
+    const int distance = paletteColorDistance(candidate, ink);
+    if (bestDistance < 0 || distance < bestDistance) {
+      best = candidate;
+      bestDistance = distance;
+    }
+  }
+  if (bestDistance < 0) {
+    const SDL_Color black {0, 0, 0, 255}, white {255, 255, 255, 255};
+    best = paletteContrastRatio(black, surface) >= paletteContrastRatio(white, surface)
+             ? black : white;
+  }
+  best.a = ink.a;
+  return best;
 }

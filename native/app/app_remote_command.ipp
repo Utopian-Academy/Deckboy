@@ -4032,7 +4032,7 @@
       triggerToast(remoteCommandDetail_);
       return;
     }
-    // WEBMONITOR [STATUS] | ON | OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF
+    // WEBMONITOR [STATUS] | ON | OFF | SHARE ON|OFF | SOURCE PROGRAMME|<n> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF
     if (command == "WEBMONITOR") {
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
       auto report = [&]() {
@@ -4051,6 +4051,59 @@
         report();
       } else if (sub == "SHARE" && parts.size() > 2) {
         setWebMonitorShare(toUpper(parts[2]) == "ON");
+        report();
+      } else if (sub == "LATENCY" && parts.size() > 2) {
+        const std::string mode = toUpper(parts[2]);
+        if (mode != "LOW" && mode != "NORMAL" && mode != "SOUND") {
+          failRemoteCommand("WEBMONITOR LATENCY: LOW (picture only) | NORMAL (with sound)");
+          return;
+        }
+        setWebMonitorLowLatency(mode == "LOW");
+        report();
+      } else if (sub == "CLIENTS" && parts.size() > 2) {
+        try {
+          const int n = std::stoi(parts[2]);
+          if (n < 1 || n > 64) throw std::out_of_range("clients");
+          setWebMonitorMaxClients(n);
+          report();
+        } catch (...) {
+          failRemoteCommand("WEBMONITOR CLIENTS: 1-64");
+        }
+      } else if (sub == "SOURCE" && parts.size() > 2) {
+        // SOURCE PROGRAMME | SOURCE <output number>: what the monitor carries.
+        if (!ensureWebMonitorProgrammeOutput()) {
+          failRemoteCommand("WEBMONITOR SOURCE: could not create the web output");
+          return;
+        }
+        const int webOut = findStreamOutputForProtocol("web");
+        int source = -1;
+        if (toUpper(parts[2]) == "PROGRAMME" || toUpper(parts[2]) == "PROGRAM") {
+          source = primaryProgrammeOutputIndex(webOut);
+        } else {
+          try { source = std::stoi(parts[2]) - 1; } catch (...) { source = -2; }
+        }
+        if (source < 0 || source >= static_cast<int>(project_.outputs.size()) || source == webOut ||
+            normalizeOutputType(project_.outputs[static_cast<std::size_t>(source)].outputType) == "stream") {
+          failRemoteCommand("WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture");
+          return;
+        }
+        const int previousFocus = project_.focusedOutputIndex;
+        project_.focusedOutputIndex = webOut;
+        setFocusedOutputMirrorSource(source);
+        project_.focusedOutputIndex = previousFocus;
+        webMonitorDirSyncedMs_ = 0;
+        remoteCommandDetail_ = outputSourceLabel(source);
+      } else if (sub == "QR") {
+        // QR [ON] shows the phone-access code on the desk, QR OFF puts it away.
+        if (parts.size() > 2 && toUpper(parts[2]) == "OFF") {
+          webMonitorQrOpen_ = false;
+        } else {
+          openWebMonitorQr();
+          if (!webMonitorQrOpen_) {
+            failRemoteCommand("WEBMONITOR QR: needs the monitor on and shared on the network");
+            return;
+          }
+        }
         report();
       } else if (sub == "SOUND" && parts.size() > 2) {
         if (toUpper(parts[2]) == "ON") {
@@ -4077,7 +4130,7 @@
           report();
         }
       } else {
-        failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF (programme sound is included)");
+        failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)");
       }
       return;
     }
@@ -6179,11 +6232,18 @@
           return;
         }
         if (outputArg == "ADD" || outputArg == "NEW" || outputArg == "CREATE") {
+          // Every output kind, and an unknown one is refused: this answered
+          // OK to "ADD MULTIVIEW" and quietly made a window.
           std::string newType = "window";
           if (parts.size() > 3) {
-            std::string typeArg = toUpper(parts[3]);
-            if (typeArg == "STREAM") {
-              newType = "stream";
+            const std::string typeArg = toUpper(parts[3]);
+            if (typeArg == "STREAM") newType = "stream";
+            else if (typeArg == "MULTIVIEW" || typeArg == "MULTI") newType = "multiview";
+            else if (typeArg == "PRESENTER" || typeArg == "NOTES") newType = "presenter";
+            else if (typeArg == "PROMPTER" || typeArg == "TELEPROMPTER") newType = "prompter";
+            else if (typeArg != "WINDOW" && typeArg != "DISPLAY") {
+              failRemoteCommand("VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER");
+              return;
             }
           }
           addOutput(project_.focusedDeckIndex, newType);
@@ -7937,7 +7997,7 @@
         if (output.deckLinkKeyFill && output.deckLinkKeyDeviceId < 0) {
           triggerToast("key+fill ON, but no key device set "
                        "(DECKLINK KEYFILL ON <device>)",
-                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                       ToastKind::Warning, kToastReadableMs);
         } else {
           triggerToast(output.deckLinkKeyFill
                          ? ("key+fill ON, key on device " +

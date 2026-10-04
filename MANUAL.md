@@ -103,7 +103,7 @@ It then reopens the last show. To open a different one instead, pass it on the
 command line or set `DECKBOY_PROJECT`; `DECKBOY_THEME` forces a colourway.
 Either of those skips the startup card as well.
 
-Longer show opens display an animated critter alongside the measured progress.
+Longer show opens display a block progress indicator and percentage.
 
 Deckboy refuses to start twice, so a stray double-click cannot take a second
 copy of the show live. `--allow-multi-instance` lifts that, for debugging.
@@ -127,10 +127,9 @@ The control window is split into:
   sections.
 - **Monitors window** (separate): per-output preview and routing.
 
-Animated critters indicate activity while timeline video and audio, previews,
-imports, file conversions, slides and updates load. Each job keeps its own
-critter; the cast varies between jobs. Loading labels and measured progress
-remain visible, and the animation stops when the work finishes.
+Timeline loading uses filmstrip and audio-meter animations. Critters accompany
+imports, slide rendering, loudness analysis and update checks; file conversion
+keeps its mascot and measured progress bars.
 
 Two dividers rebalance the layout. The vertical splitter sits between the
 program area and the inspector. The horizontal grip sits in the gap under the
@@ -690,6 +689,12 @@ empty.
 `TRACKER GO|NEXT | BACK|PREV | PLAY | STOP | STEP <n> | LOOP [on|off] |
 CLICKER [on|off] | STATUS` over the wire (`SEQUENCE` is the same verb), so the
 whole show flow can hang off one Stream Deck key.
+
+**The multiview on a screen.** **MULTI** on the programme monitor shows every
+window you have arranged: the programme, each playlist, labels and level
+meters. An output whose **Shows** is **MULTIVIEW** puts that same arrangement
+on a display, sized for the display, and a stream or the Web Monitor can carry
+it by choosing that output as its **Source**.
 
 ---
 
@@ -1700,23 +1705,51 @@ Toggle adapters in `Settings → Network`.
 ### Watching outputs in a browser
 
 **Settings → Network → Web Monitor** shows programme picture and stereo sound
-in any browser — a laptop, a tablet, a phone — with nothing to install. Turn it on
+in compatible laptop, tablet, phone and TV browsers. Turn it on
 and the card prints the address to open, such as `http://192.168.1.20:8090/`.
-That page opens the programme player directly, about a second behind the
-show. It follows the programme output, including its layer stack.
+That page opens the programme player directly. It follows the programme
+output, including its layer stack, and buffers roughly three seconds to
+absorb network jitter; encoding and the receiving device add further delay.
+This is a confidence view rather than a low-latency production return.
 
 - **Who can see it** starts at **THIS COMPUTER**. Switch it to **THE NETWORK**
   for other devices on the same network to open it.
 - **Passphrase** asks every viewer to authenticate before showing anything.
   Network sharing requires at least 8 characters; letters and symbols are
   allowed, so it does not need to be a numeric PIN.
+- **Shows** names the picture the monitor carries. Choose it on the Web
+  Monitor's own output in **Video Outputs**, under **Source**: the programme,
+  the multiview, a presenter view or any other output. Clicking **Shows**
+  goes straight there.
+- **Mode** is **WITH SOUND** (programme picture and sound, buffered about four
+  seconds) or **LOW LATENCY** (picture only, no buffer, the quickest view).
+  With sound, every viewer aims at the same wall-clock moment, so screens
+  watching together stay in step to within a few milliseconds, provided their
+  clocks are set by the network, as phones and most computers are.
+- **Connections at once** limits how many browser requests are served
+  together, 1-64 (default 8). A viewer holds a connection only while it
+  fetches the playlist or a half-second fragment, so eight serves roughly ten
+  to twenty phones. Bandwidth is the larger limit: about 6 Mbit/s per viewer
+  at 1080p, so choose 720p for a crowd on Wi-Fi.
+- **QR CODE** shows the address as a large QR code, for a phone camera to
+  open without typing. It carries the address only, never the passphrase, so a
+  photo of the screen does not open the monitor. It needs **THE NETWORK**: a
+  monitor on **THIS COMPUTER** has no address a phone can reach. Click or press
+  Esc to put it away.
 - **Maximum quality** sets the shared programme stream to 720p, 1080p
   (default), 1440p, or 2160p. Higher settings need more encoder capacity and
   network bandwidth; choose 720p on a busy or slow Wi-Fi network.
 - Sound is always included in the programme stream. Browsers start muted;
   press **SOUND ON** to listen. Turn Web Monitor off to stop its encoder.
+- **FULL SCREEN** expands the player. Controls fit portrait and landscape
+  screens and accept keyboard or TV-remote arrow navigation. **RECONNECT**
+  restarts playback without changing the sound setting.
+- The player needs H.264/AAC playback with native HLS or Media Source
+  Extensions. Its HLS player is bundled locally; no internet connection is
+  needed. **OPEN STREAM** provides the playlist for a compatible HLS player.
+  TV browser support depends on the model and firmware.
 - Network mode listens only on the selected private Ethernet/Wi-Fi address,
-  and serves at most eight concurrent browser connections. HTTP is unencrypted;
+  and serves at most the **Connections at once** limit. HTTP is unencrypted;
   use a trusted LAN or a VPN you control, and do not forward this port to the
   public internet.
 - `/outputs` opens the individual output thumbnails. Click one for a full
@@ -1725,7 +1758,10 @@ show. It follows the programme output, including its layer stack.
 - For a production feed, use an NDI, SRT or SDI output.
 
 Over the network: `WEBMONITOR` (the address), `WEBMONITOR ON|OFF`,
-`WEBMONITOR SHARE ON|OFF`, `WEBMONITOR PORT <n>`, `WEBMONITOR PIN <pin>|OFF`.
+`WEBMONITOR SHARE ON|OFF`, `WEBMONITOR SOURCE PROGRAMME|<output>`,
+`WEBMONITOR LATENCY LOW|NORMAL`, `WEBMONITOR CLIENTS <n>`,
+`WEBMONITOR QR [ON|OFF]` (the QR code on the desk),
+`WEBMONITOR PORT <n>`, `WEBMONITOR PIN <pin>|OFF`.
 
 ---
 

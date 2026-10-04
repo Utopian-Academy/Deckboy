@@ -1028,7 +1028,7 @@
       // than the operator can count in front of them.
       message += " (" + std::to_string(skipped) + " skipped, no file)";
     }
-    triggerToast(message, kToastFill, kToastInk, kToastReadableMs);
+    triggerToast(message, ToastKind::Help, kToastReadableMs);
   }
 
 
@@ -1065,11 +1065,11 @@
           std::snprintf(buf, sizeof(buf),
                         "normalized: %+.1f dB (was %.1f LUFS) - peaks %+.1f dBFS, limiter active",
                         result.gainDb, result.measuredLufs, result.projectedPeakDb);
-          triggerToast(buf, {155, 188, 15, 220}, {15, 56, 15, 255}, 3200);
+          triggerToast(buf, ToastKind::Help, 3200);
         } else {
           std::snprintf(buf, sizeof(buf), "normalized: %+.1f dB (was %.1f LUFS)",
                         result.gainDb, result.measuredLufs);
-          triggerToast(buf, {155, 188, 15, 220}, {15, 56, 15, 255}, 2600);
+          triggerToast(buf, ToastKind::Help, 2600);
         }
         markProjectDirty();
       }
@@ -2231,7 +2231,7 @@
       triggerToast("NDI source cue added");
     } else {
       triggerToast("NDI cue added, but " + ndiWhyNot,
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
     }
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
@@ -2634,7 +2634,7 @@
                      (probePlan.reasonUnavailable.empty()
                         ? "this platform cannot capture that source"
                         : probePlan.reasonUnavailable),
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
     } else {
       triggerToast("source cue added");
     }
@@ -4408,7 +4408,7 @@
     std::ifstream in(path);
     if (!in) {
       triggerToast(path.filename().string() + ": could not be read",
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       return true;   // handled: it WAS a playlist, it just could not be opened
     }
     std::vector<std::string> lines;
@@ -4511,7 +4511,7 @@
   void importSlideDeck(const fs::path& document) {
     std::string whyNot;
     if (!deckboy::platform::pdfRasterAvailable(whyNot)) {
-      triggerToast("slides: " + whyNot, kToastWarnFill, kToastWarnInk,
+      triggerToast("slides: " + whyNot, ToastKind::Warning,
                    kToastReadableMs);
       return;
     }
@@ -4523,7 +4523,7 @@
     if (needsConversion &&
         !deckboy::platform::presentationConvertAvailable(whyNot)) {
       triggerToast(document.filename().string() + ": " + whyNot,
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       return;
     }
     // PAGES LIVE WITH THE SHOW. They are not a cache -- they ARE the cues
@@ -4584,8 +4584,7 @@
           std::lock_guard<std::mutex> lock(sdlDialogMutex_);
           sdlDialogActions_.emplace_back([this, converted, title]() {
             slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
-            triggerToast(title + ": " + converted.error, kToastWarnFill,
-                         kToastWarnInk, kToastReadableMs);
+            triggerToast(title + ": " + converted.error, ToastKind::Warning, kToastReadableMs);
           });
           return;
         }
@@ -4625,7 +4624,7 @@
         if (!result.ok()) {
           triggerToast("slides: " + (result.error.empty() ? std::string("no pages")
                                                           : result.error),
-                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                       ToastKind::Warning, kToastReadableMs);
           return;
         }
         // Straight back through the ordinary import, so the pages get deck
@@ -4642,7 +4641,7 @@
             : ("  (converted by " + converter + " -- check the fonts)");
         triggerToast(title + ": " + std::to_string(result.pagePaths.size()) +
                        " slides imported" + via,
-                     kToastFill, kToastInk,
+                     ToastKind::Help,
                      via.empty() ? 1800u : kToastReadableMs);
       });
       } catch (const std::exception& e) {
@@ -4650,15 +4649,14 @@
         std::lock_guard<std::mutex> lock(sdlDialogMutex_);
         sdlDialogActions_.emplace_back([this, title, what]() {
           slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
-          triggerToast(title + ": " + what, kToastWarnFill, kToastWarnInk,
+          triggerToast(title + ": " + what, ToastKind::Warning,
                        kToastReadableMs);
         });
       } catch (...) {
         std::lock_guard<std::mutex> lock(sdlDialogMutex_);
         sdlDialogActions_.emplace_back([this, title]() {
           slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
-          triggerToast(title + ": slide import failed", kToastWarnFill,
-                       kToastWarnInk, kToastReadableMs);
+          triggerToast(title + ": slide import failed", ToastKind::Warning, kToastReadableMs);
         });
       }
     }).detach();
@@ -4694,7 +4692,7 @@
     if (parts.size() < 2) {
       triggerToast("split: this cue's notes have no parts -- separate them "
                    "with a line of ---",
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       return false;
     }
     pushUndoSnapshot();
@@ -4992,7 +4990,7 @@
     fs::path folder = fs::absolute(fs::path(folderIn), ec);
     if (ec || !fs::is_directory(folder, ec)) {
       triggerToast("browse: not a folder: " + folderIn,
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       return;
     }
 
@@ -5013,7 +5011,7 @@
       // difference between "there is nothing here" and "I could not look".
       triggerToast("browse: cannot read " + folder.filename().string() +
                      " (" + walkEc.message() + ")",
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       return;
     }
     for (; it != end; it.increment(walkEc)) {
@@ -5247,7 +5245,7 @@
         // It cost an hour to diagnose here; on a show day it is worse.
         triggerToast(fs::path(trim(raw)).filename().string() +
                        ": not found (has the drive gone away?)",
-                     kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                     ToastKind::Warning, kToastReadableMs);
         continue;
       }
       if (fs::is_directory(path, ec)) {
@@ -5261,7 +5259,7 @@
         // file dialogs use.
         if (importScanBusy_.load(std::memory_order_acquire)) {
           triggerToast("still reading the last folder -- one at a time",
-                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                       ToastKind::Warning, kToastReadableMs);
           continue;
         }
         importScanBusy_.store(true, std::memory_order_release);
@@ -5292,7 +5290,7 @@
               importScanBusy_.store(false, std::memory_order_release);
               if (asStrings.empty()) {
                 triggerToast(importScanLabel_ + ": no media in that folder",
-                             kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                             ToastKind::Warning, kToastReadableMs);
                 return;
               }
               // Plain files now, so this cannot recurse back into the walk.
@@ -7228,6 +7226,22 @@
   void drawTextRaw(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
     if (!font || text.empty()) {
       return;
+    }
+    // Held to the floor against what is ACTUALLY behind it -- see
+    // paletteReadableInk. Every label in the control window comes through
+    // here, so this is the one place a theme's contrast is enforced.
+    SDL_Color surface {};
+    if (Primitives::surfaceUnder(renderer,
+                                 SDL_Rect {x, y, measuredWidthIn(font, text), TTF_GetFontHeight(font)},
+                                 &surface)) {
+      const SDL_Color readable = paletteReadableInk(color, surface);
+      if (readable.r != color.r || readable.g != color.g || readable.b != color.b) {
+        ++textInkCorrections_;
+        if (contrastCheckActive_ && contrastCheckLabels_.size() < 64) {
+          contrastCheckLabels_.insert(text);
+        }
+        color = readable;
+      }
     }
     const TextTextureEntry* entry = cachedTextTexture(renderer, font, text, color);
     if (!entry) {

@@ -2505,6 +2505,8 @@ struct Project {
   bool webMonitorShareLan = false;
   std::string webMonitorPin;
   int webMonitorMaxHeight = 1080;       // encoded maximum picture height; 2160 is available
+  int webMonitorMaxClients = 8;         // simultaneous browser connections, 1-64
+  bool webMonitorLowLatency = false;    // picture only, no buffer: screens stay in step
   // vMix-compatible control surface. OFF by default: it is a second way into
   // the show, and a second way in is a decision the operator makes rather than
   // one that arrives switched on. The ports are vMix's own, so a panel
@@ -3194,13 +3196,19 @@ struct DragState {
 // Triggered by triggerToast() in main.cpp; rendered as a floating bar.
 // Auto-dismisses after durationMs milliseconds.
 // ---------------------------------------------------------------------------
+// What a toast IS, not what colour it is: the colours come from the theme at
+// draw time (paletteNotice), so no call site can bake one in.
+enum class ToastKind {
+  Help,     // confirms what the operator just did
+  Warning,  // tells them something they did not know and must act on
+};
+
 struct ToastState {
   bool active = false;                         // true while toast is visible
-  Uint64 startedAt = 0;                       // SDL_GetPerformanceCounter() timestamp
+  Uint64 startedAt = 0;                       // SDL_GetTicks() when shown
   Uint32 durationMs = 1200;                   // how long to show (milliseconds)
   std::string message;                         // text content
-  SDL_Color fill {155, 188, 15, 220};          // background bar color (DMG green)
-  SDL_Color ink {15, 56, 15, 255};             // text color (DMG dark)
+  ToastKind kind = ToastKind::Help;
 };
 
 // ---------------------------------------------------------------------------

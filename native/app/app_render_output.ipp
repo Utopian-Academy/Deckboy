@@ -2479,36 +2479,66 @@
   // an output itself is a question with no good answer (which programme? this
   // one?), and a switcher's wall shows SOURCES. The programme has its own
   // screen.
+  // THE SAME WALL AS THE DESK'S. The tiles are the operator's multiview
+  // plan -- the windows arranged in the preview's MULTI view, programme tile,
+  // labels and meters included -- not a second, fixed grid of its own. A
+  // multiview sent to a screen or down the Web Monitor shows what was
+  // arranged, which is the only reason to send it anywhere.
   void renderMultiviewIntoOutput(int outputIndex, const SDL_Rect& bounds) {
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer) {
       return;
     }
-    const int deckCount = static_cast<int>(project_.decks.size());
-    if (deckCount <= 0 || bounds.w <= 0 || bounds.h <= 0) {
+    const std::vector<MultiviewTile> plan = multiviewTilePlan();
+    const int tileCount = static_cast<int>(plan.size());
+    if (tileCount <= 0 || bounds.w <= 0 || bounds.h <= 0) {
       return;
     }
     int cols = 1;
-    while (cols * cols < deckCount) {
+    while (cols * cols < tileCount) {
       ++cols;
     }
-    const int rows = (deckCount + cols - 1) / cols;
+    const int rows = (tileCount + cols - 1) / cols;
     const int gap = std::max(2, bounds.w / 240);
     const int tileW = (bounds.w - gap * (cols - 1)) / cols;
     const int tileH = (bounds.h - gap * (rows - 1)) / rows;
     if (tileW <= 8 || tileH <= 8) {
       return;
     }
-    for (int d = 0; d < deckCount; ++d) {
-      const int col = d % cols;
-      const int row = d / cols;
+    // The programme tile is the programme output's own stack, base first.
+    const int programmeOutput = primaryProgrammeOutputIndex(outputIndex);
+    for (int i = 0; i < tileCount; ++i) {
+      const MultiviewTile& spec = plan[static_cast<std::size_t>(i)];
+      const int col = i % cols;
+      const int row = i / cols;
       SDL_Rect tile {bounds.x + col * (tileW + gap), bounds.y + row * (tileH + gap),
                      tileW, tileH};
+      const int d = multiviewTileDeck(spec);   // -1 programme, -2 empty
       // AUDITION AND PRELOAD STILL HOLD A DECK OFF, the same rule the
       // compositor follows -- a deck being looked at privately must not
       // appear on a wall in the room.
-      if (!deckIsHeldOffOutput(d)) {
-        renderDeckLayerIntoOutput(outputIndex, d, tile);
+      if (d >= 0) {
+        if (!deckIsHeldOffOutput(d)) {
+          renderDeckLayerIntoOutput(outputIndex, d, tile);
+        }
+      } else if (d == -1 && programmeOutput >= 0 &&
+                 programmeOutput < static_cast<int>(project_.outputs.size())) {
+        const OutputTarget& prog = project_.outputs[static_cast<std::size_t>(programmeOutput)];
+        const int host = std::clamp(prog.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+        if (!deckIsHeldOffOutput(host)) {
+          renderDeckLayerIntoOutput(outputIndex, host, tile);
+        }
+        for (const OutputLayer& layer : prog.layerDecks) {
+          if (layer.deckIndex >= 0 && layer.deckIndex < static_cast<int>(project_.decks.size()) &&
+              !deckIsHeldOffOutput(layer.deckIndex)) {
+            const SDL_Rect placed {
+              tile.x + static_cast<int>(std::lround(layer.x * tile.w)),
+              tile.y + static_cast<int>(std::lround(layer.y * tile.h)),
+              std::max(1, static_cast<int>(std::lround(layer.w * tile.w))),
+              std::max(1, static_cast<int>(std::lround(layer.h * tile.h)))};
+            renderDeckLayerIntoOutput(outputIndex, layer.deckIndex, placed);
+          }
+        }
       }
       // A border, and the name, so the wall says which is which.
       SDL_SetRenderDrawColor(runtime->outputRenderer, 40, 40, 48, 255);
@@ -2531,7 +2561,7 @@
       // tile than of a 2160p one. Proportional to the tile is the only
       // measure that means the same thing on every screen.
       const int stripH = std::clamp(tileH / 8, 12, 40);
-      if (fontSmall_ && tileH > stripH + 10) {
+      if (spec.label && fontSmall_ && tileH > stripH + 10) {
         SDL_Rect strip {tile.x, tile.y + tile.h - stripH, tile.w, stripH};
         SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 170);
@@ -2541,7 +2571,22 @@
         SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
         drawTextSafe(runtime->outputRenderer, fontSmall_,
                      SDL_Rect {strip.x + 4, strip.y + 1, strip.w - 8, strip.h - 2},
-                     deckLabel(d), pal.light);
+                     d >= 0 ? deckLabel(d) : multiviewTileSourceLabel(spec), pal.light);
+      }
+      // THE METER, where the desk's tile has one: a bar up the right edge,
+      // proportional to the tile like the label, in the desk's colours.
+      if (spec.vuMeter && tileW > 20 && tileH > 20) {
+        const int meterW = std::max(3, tileW / 60);
+        const SDL_Rect meter {tile.x + tile.w - meterW - 2, tile.y + 2, meterW, tile.h - 4};
+        Primitives::fillRect(runtime->outputRenderer, meter, SDL_Color {0, 0, 0, 200});
+        const double level = std::clamp(multiviewTileLevel01(spec), 0.0, 1.0);
+        const int litH = static_cast<int>(std::lround(meter.h * level));
+        if (litH > 0) {
+          Primitives::fillRect(runtime->outputRenderer,
+            SDL_Rect {meter.x, meter.y + meter.h - litH, meter.w, litH},
+            level > 0.92 ? SDL_Color {220, 60, 50, 255}
+            : level > 0.75 ? SDL_Color {230, 180, 60, 255} : SDL_Color {70, 200, 110, 255});
+        }
       }
     }
   }

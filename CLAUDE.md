@@ -268,13 +268,14 @@ rendered frames byte for byte -- `--effect-dump` exists for that.
 
 ## Settings Action Constants
 
-Settings button actions are integer constants defined at the top of `main.cpp`. The 600s range runs to **655** (`kSettingsActionOutputAoiHEdit`; 652–655 are the AOI typed-entry chips). 656–662 and 670 are taken, and **663–680 are the presenter-view block** (layout, six panel switches, builds, note-size ±, notes-share ±, three colours, reset, arrange) and **681–689 the prompter block** (run, top, pace ±, size ±, mirror, script, reading line), so 690–701 are what is left of that gap. A 700s block is also in use: **702–706** LTC generator, **710–714** NMOS, **715–721** encoder, **722** VJ mode. The 700s are NOT contiguous — "next after NMOS" is 715, which is already the encoder block, and that exact mistake was made and caught by the audit. Allocate next from the **691–701 gap**, or from **801+**. NOT "723+" — that
+Settings button actions are integer constants defined at the top of `main.cpp`. The 600s range runs to **655** (`kSettingsActionOutputAoiHEdit`; 652–655 are the AOI typed-entry chips). 656–662 and 670 are taken, and **663–680 are the presenter-view block** (layout, six panel switches, builds, note-size ±, notes-share ±, three colours, reset, arrange) and **681–689 the prompter block** (run, top, pace ±, size ±, mirror, script, reading line), so 690–701 are what is left of that gap. A 700s block is also in use: **702–706** LTC generator, **710–714** NMOS, **715–721** encoder, **722** VJ mode. The 700s are NOT contiguous — "next after NMOS" is 715, which is already the encoder block, and that exact mistake was made and caught by the audit. Allocate from a run that is actually free (see below); **691–699 are taken and 800–831 are display select**. NOT "723+" — that
 was written here and is wrong: 723/724 are the update-check pair, and
 following this line double-allocated them (caught by `audit_actions.py`, which
 is what it is for). **Run `python tools/audit_actions.py` after allocating**;
-it is the only thing that tells you, and the free runs today are 638–639,
-643–646, 691–701, 707–709, 720, 735, 737–739, 753–759, 768–769, 773–774,
-796–799 and 801+. WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
+it is the only thing that tells you, and the free runs (2026-10-04, after 754
+went to the Web Monitor QR code) are 720, 735, 737–739, 755–759, 768–769,
+773–774, 796–799 and 832+. Re-derive before trusting this line: it has been
+wrong twice. WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
 
 Pattern: define constants → add UI in `app_render_settings.ipp` → handle in settings action handler.
 
@@ -350,7 +351,18 @@ Current field counts:
 - **Inline text editing**: always `openInlineTextEditor(token, ...)` — never modal dialogs
 - **Dropdown**: `drawUIDropdown()` + `openDropdown()` — share with existing selectors
 - **Panels**: `drawOperationalPanel()` chrome; panel visibility in `UiWorkspaceState`
-- **Toast**: `triggerToast("message")` for operator feedback
+- **Toast**: `triggerToast("message")` confirms something the operator did;
+  `triggerToast(msg, ToastKind::Warning, kToastReadableMs)` tells them
+  something they must act on. A toast has a KIND, never a colour: the look
+  comes from the theme (`paletteNotice`). Warnings use the theme's danger
+  colour (`delete_bezel`) and pulse briefly.
+- **Label contrast is enforced at draw time.** `Primitives::fillRect` records
+  what it paints on the control window each frame; `drawTextRaw` checks every
+  label's ink against the surface actually behind it and swaps an unreadable
+  one for the nearest theme ink that reads (`paletteReadableInk`, 3:1 floor).
+  Pick a sensible ink anyway: `--contrast-check [dir]` renders every bundled
+  theme and lists the labels it had to correct, and each is a call site worth
+  fixing.
 - **Layout**: `VerticalLayout`, `HorizontalLayout`, `GridLayout`, `UITable`; grid unit = `kLayoutSpacingUnit`
 
 ---

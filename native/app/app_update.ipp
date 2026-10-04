@@ -806,8 +806,11 @@
       // Animate pattern cues: rebuild frame every tick using wall-clock time.
       const Cue* activeCue = activeCuePtr(deckIndex);
       if (activeCue && activeCue->kind == CueKind::Pattern) {
-        // Only animated patterns need continuous rebuilds.
-        if (patternTypeIsAnimated(activeCue->path)) {
+        // Only animated patterns need continuous rebuilds -- and only while
+        // the deck has a picture up. STOP darkens a deck and leaves its cue
+        // racked; rebuilding here regardless relit a stopped pattern on the
+        // very next tick, so STOP on an animated pattern did nothing visible.
+        if (patternTypeIsAnimated(activeCue->path) && engine->hasPictureToShow()) {
           engine->rebuildPatternFrame(*activeCue, static_cast<double>(now) / 1000.0);
         }
       }

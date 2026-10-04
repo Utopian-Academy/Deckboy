@@ -196,14 +196,13 @@
     }
     OutputTarget& output = focusedOutputMutable();
     if (output.mirrorSourceOutputIndex == normalized) {
-      std::string label = normalized >= 0 ? ("out " + std::to_string(normalized + 1)) : "off";
-      triggerToast("mirror: " + label);
+      triggerToast("source: " + outputSourceLabel(normalized));
       return false;
     }
     output.mirrorSourceOutputIndex = normalized;
     stopOutputStream(project_.focusedOutputIndex);
-    std::string label = normalized >= 0 ? ("out " + std::to_string(normalized + 1)) : "off";
-    triggerToast("mirror: " + label);
+    webMonitorDirSyncedMs_ = 0;
+    triggerToast("source: " + outputSourceLabel(normalized));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
     return true;
@@ -2281,6 +2280,7 @@
         const std::string level = maxHeight >= 2160 ? "5.2"
                                 : maxHeight >= 1440 ? "5.1" : "4.2";
         args.insert(args.end(), {"-profile:v", "main", "-level:v", level,
+                                 "-sc_threshold", "0",
                                  "-vf", "scale=-2:min(" + std::to_string(maxHeight) + "\\,ih):flags=bicubic"});
       }
     }
@@ -2553,6 +2553,18 @@
       writer->pendingAudio.insert(writer->pendingAudio.end(),
                                   samples.begin(), samples.end());
       if (writer->pendingAudio.size() > kMaxPendingSamples) {
+        if (writer->preserveAudioTimeline) {
+          // Dropping PCM shortens the audio timeline permanently. Restart
+          // this live encoder instead, with a matching picture/sound epoch.
+          std::lock_guard<std::mutex> stateLock(writer->mutex);
+          writer->failed = true;
+          writer->failureReason = "web audio encoder cannot keep up";
+          writer->stop = true;
+          writer->pendingAudio.clear();
+          writer->cv.notify_one();
+          writer->audioCv.notify_one();
+          return;
+        }
         writer->pendingAudio.erase(
           writer->pendingAudio.begin(),
           writer->pendingAudio.begin() +
@@ -2563,7 +2575,7 @@
     writer->audioCv.notify_one();
   }
 
-  void startOutputStreamWriter(OutputRuntime& runtime) {
+  void startOutputStreamWriter(OutputRuntime& runtime, bool preserveAudioTimeline) {
 #ifdef _WIN32
     int videoPipeFd = runtime.streamProcess.writeFd;
     int audioPipeFd = -1;  // audio muxed via ffmpeg stdin on Windows
@@ -2578,6 +2590,7 @@
     int audioPipeFd = runtime.streamAudioPipeFd;
 #endif
     auto writer = std::make_shared<OutputStreamWriterState>();
+    writer->preserveAudioTimeline = preserveAudioTimeline;
     writer->videoPipeFd = videoPipeFd;
     writer->audioPipeFd.store(audioPipeFd, std::memory_order_release);
     writer->thread = std::thread([writer]() {
@@ -2621,6 +2634,7 @@
       }
       // Nothing more will be queued, so release anyone waiting on audio.
       {
+        std::lock_guard<std::mutex> audioLock(writer->audioMutex);
         std::lock_guard<std::mutex> lock(writer->mutex);
         writer->stop = true;
       }
@@ -2632,11 +2646,9 @@
         {
           std::unique_lock<std::mutex> lock(writer->audioMutex);
           writer->audioCv.wait(lock, [&]() {
-            if (!writer->pendingAudio.empty()) {
-              return true;
-            }
             std::lock_guard<std::mutex> stopLock(writer->mutex);
-            return writer->stop;
+            return writer->stop || (!writer->pendingAudio.empty() &&
+              (!writer->preserveAudioTimeline || writer->audioPipeFd.load(std::memory_order_acquire) >= 0));
           });
           if (writer->pendingAudio.empty()) {
             break;   // stopping, and nothing left to flush
@@ -2653,9 +2665,12 @@
         const std::uint8_t* audioBytes =
           reinterpret_cast<const std::uint8_t*>(chunk.data());
         const std::size_t audioByteCount = chunk.size() * sizeof(std::int16_t);
-        if (!writeOutputStreamBytesBestEffort(
-              writer, audioFd, audioBytes, audioByteCount,
-              "stream audio stopped", /*fatal=*/false)) {
+        const bool audioWritten = writer->preserveAudioTimeline
+          ? writeOutputStreamBytesBlocking(writer, audioFd, audioBytes, audioByteCount,
+                                          "web audio stopped")
+          : writeOutputStreamBytesBestEffort(writer, audioFd, audioBytes, audioByteCount,
+                                            "stream audio stopped", /*fatal=*/false);
+        if (!audioWritten) {
           break;
         }
         {
@@ -2682,6 +2697,12 @@
   void stopOutputStreamRuntime(OutputRuntime& runtime, bool rollingSegment = false) {
     flushOutputStreamAudioTail(runtime);
     runtime.streamLockedFps = 0.0;
+    runtime.webFramesQueued = 0;
+    runtime.webClockSeconds = 0.0;
+    runtime.webAudioClockSeconds = 0.0;
+    runtime.webClockUpdatedMs = 0;
+    runtime.webClockDeck = -1;
+    runtime.webClockSamples = 0;
     runtime.streamStartedAtMs = 0;
     runtime.streamMeasuredKbps = 0.0;
     // Captured BEFORE the platform split and acted on after it: the remux is
@@ -2705,6 +2726,7 @@
     runtime.streamWriter.reset();
     if (writer) {
       {
+        std::lock_guard<std::mutex> audioLock(writer->audioMutex);
         std::lock_guard<std::mutex> lock(writer->mutex);
         writer->stop = true;
         writer->queue.clear();
@@ -2910,7 +2932,17 @@
         return;
       }
       if (writer) {
-        writer->audioPipeFd.store(fd, std::memory_order_release);
+        // Teardown can win the race with ConnectNamedPipe. Publish only to a
+        // live writer; otherwise this detached connector would leak its fd.
+        {
+          std::lock_guard<std::mutex> audioLock(writer->audioMutex);
+          std::lock_guard<std::mutex> lock(writer->mutex);
+          if (writer->stop) { _close(fd); return; }
+          writer->audioPipeFd.store(fd, std::memory_order_release);
+        }
+        writer->audioCv.notify_one();
+      } else {
+        _close(fd);
       }
     }).detach();
   }
@@ -3239,6 +3271,12 @@
         setWebMonitorEnabled(true);
       }
       ensureWebIngest(outputIndex);
+      {
+        auto& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+        std::lock_guard<std::mutex> lock(slot.mutex);
+        const double rate = outputStreamFps(fpsHint);
+        slot.avFragmentSeconds = std::max(1, static_cast<int>(std::lround(rate * 0.5))) / rate;
+      }
     }
 #ifdef _WIN32
     // Windows: video over stdin (pipe:0), audio over a named pipe. The pipe
@@ -3310,7 +3348,8 @@
     runtime->streamFrameBuffer.clear();
     runtime->streamStartFailed = false;
     runtime->streamRestartBlockedUntilMs = 0;
-    startOutputStreamWriter(*runtime);
+    startOutputStreamWriter(*runtime, outputStreamProtocolIsWeb(
+      normalizeOutputStreamProtocol(output.streamProtocol)));
 #ifdef _WIN32
     // Must come AFTER the writer exists: the connect thread publishes the fd
     // into it once ffmpeg opens the pipe.
@@ -3661,17 +3700,23 @@
       egressOutput.deckLinkEnabled || egressOutput.spoutEnabled ||
       egressOutput.st2110Enabled ||
       std::clamp(egressOutput.outputDelayMs, 0, 5000) > 0;
+    const bool webEgress = outputStreamProtocolIsWeb(
+      normalizeOutputStreamProtocol(egressOutput.streamProtocol));
     const bool scaledEgress =
-      outputStreamProtocolIsFile(
-        normalizeOutputStreamProtocol(egressOutput.streamProtocol)) &&
+      (outputStreamProtocolIsFile(
+        normalizeOutputStreamProtocol(egressOutput.streamProtocol)) || webEgress) &&
       !sharedWithOtherEgress &&
       runtime.compositorTexture;
     const int readbackMode = egressReadbackMode();
     if (scaledEgress) {
       // 0 means "follow the input", which is the default and the sane one: a
       // recording should look like what went in unless someone says otherwise.
-      const int targetW = project_.recordingWidth  > 0 ? project_.recordingWidth  : captureW;
-      const int targetH = project_.recordingHeight > 0 ? project_.recordingHeight : captureH;
+      const int webHeight = std::min(captureH, project_.webMonitorMaxHeight);
+      const int targetW = webEgress
+        ? std::max(2, static_cast<int>(std::lround(static_cast<double>(captureW) * webHeight / captureH / 2.0)) * 2)
+        : project_.recordingWidth > 0 ? project_.recordingWidth : captureW;
+      const int targetH = webEgress ? std::max(2, webHeight / 2 * 2)
+        : project_.recordingHeight > 0 ? project_.recordingHeight : captureH;
       if (runtime.egressScaleTexture &&
           (runtime.egressScaleW != targetW || runtime.egressScaleH != targetH)) {
         SDL_DestroyTexture(runtime.egressScaleTexture);
@@ -3750,7 +3795,10 @@
     // ── Asynchronous path ──────────────────────────────────────────────────
     // Only for the scaled recording target, which is a plain RGBA render target
     // we own. Everything else keeps the synchronous readback below.
-    if (scaledEgress && readbackMode == kEgressReadbackAuto &&
+    // The staging ring does not yet carry the original composition timestamp.
+    // Web audio is current, so use the already-scaled synchronous readback
+    // for this live sink rather than adding unmeasured picture latency.
+    if (scaledEgress && !webEgress && readbackMode == kEgressReadbackAuto &&
         readbackTarget == runtime.egressScaleTexture) {
       if (runtime.egressReadback &&
           (runtime.egressReadbackW != captureW || runtime.egressReadbackH != captureH)) {
@@ -4005,6 +4053,8 @@
     // construction instead of dependent on the capture keeping up.
     const bool toFileSink = outputStreamProtocolIsFile(
       normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol));
+    const bool toWebSink = outputStreamProtocolIsWeb(
+      normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol));
     // Roll onto a new file at the operator's cap or the filesystem's. The take
     // keeps running; only the file changes, and the next frame opens the next
     // segment with a fresh timestamped name.
@@ -4167,6 +4217,45 @@
       const std::uint64_t behindNow = owed - runtime->recordFramesWritten;
       pacerRepeats = static_cast<int>(std::min<std::uint64_t>(behindNow, 4u));
 
+    } else if (toWebSink) {
+      // Raw video has no timestamps. Its frame count must follow the same
+      // clock as PCM, including when rendering supplies a repeated picture.
+      const Uint64 nowMs = SDL_GetTicks();
+      const double elapsed = runtime->webClockUpdatedMs == 0 ? 0.0
+        : static_cast<double>(nowMs - runtime->webClockUpdatedMs) / 1000.0;
+      runtime->webClockUpdatedMs = nowMs;
+      runtime->webClockSeconds += elapsed;
+      const auto clock = deckAudioRing_.clockSample(streamAudioDecksForOutput(outputIndex), runtime->webClockDeck);
+      if (clock.deckIndex >= 0) {
+        if (clock.deckIndex != runtime->webClockDeck || clock.samples < runtime->webClockSamples) {
+          // A different deck, a cleared ring, or audio returning after silence:
+          // keep the mux timeline continuous and establish a new sample origin.
+          runtime->webAudioClockSeconds = runtime->webClockSeconds - clock.ageSeconds;
+        } else {
+          runtime->webAudioClockSeconds += static_cast<double>(clock.samples - runtime->webClockSamples) / 96000.0;
+        }
+        runtime->webClockSamples = clock.samples;
+        runtime->webClockSeconds = runtime->webAudioClockSeconds + clock.ageSeconds;
+      }
+      runtime->webClockDeck = clock.deckIndex;
+      const double rate = outputStreamFps(fpsHint);
+      const std::uint64_t owed = static_cast<std::uint64_t>(
+        std::max(0.0, runtime->webClockSeconds) * rate) + 1;
+      if (runtime->webFramesQueued >= owed) return;
+      if (owed - runtime->webFramesQueued > static_cast<std::uint64_t>(rate * 2.0)) {
+        // A sustained overload cannot be repaired by sending old audio with
+        // a current picture. Rejoin at a new, synchronized encoder epoch.
+        stopOutputStreamRuntime(*runtime);
+        setOutputHealthState(outputIndex, OutputHealthState::Recovering, "web encoder cannot keep up");
+        return;
+      }
+      pacerRepeats = static_cast<int>(std::min<std::uint64_t>(owed - runtime->webFramesQueued, 4));
+      // Only the main thread adds packets. Reserving capacity before pulling
+      // PCM prevents audio advancing when the corresponding video is refused.
+      std::lock_guard<std::mutex> lock(runtime->streamWriter->mutex);
+      pacerRepeats = std::min(pacerRepeats, static_cast<int>(
+        OutputStreamWriterState::kMaxQueuedPackets - runtime->streamWriter->queue.size()));
+      if (pacerRepeats == 0) return;
     } else if (runtime->lastStreamCaptureSentAtMs == frame->capturedAtMs) {
       return;
     }
@@ -4213,7 +4302,9 @@
 #else
       haveAudioSink = runtime->streamAudioPipeFd >= 0;
 #endif
-      if (haveAudioSink) {
+      // Collect WEB PCM from frame zero even while the Windows named pipe is
+      // connecting. Its writer waits for the fd without dropping the head.
+      if (haveAudioSink || toWebSink) {
         // ── ONE FRESH CHUNK PER FRAME WRITTEN, NOT PER FRAME CAPTURED ──────
         //
         // The pacer repeats a picture when the capture loop falls behind the
@@ -4284,7 +4375,9 @@
                 outputIndex,
                 runtime->streamAudioReadSamplesByDeck,
                 runtime->streamAudioSampleRemainder,
-                fpsHint));
+                fpsHint,
+                toWebSink ? &runtime->streamAudioOwedSamples : nullptr,
+                toWebSink ? &runtime->streamAudioDecksQuiet : nullptr));
           }
         }
       }
@@ -4399,6 +4492,7 @@
     }
     writer->cv.notify_one();
     runtime->lastStreamCaptureSentAtMs = frame->capturedAtMs;
+    if (toWebSink) runtime->webFramesQueued += static_cast<std::uint64_t>(accepted);
     if (toFileSink) {
       runtime->recordFramesWritten += static_cast<std::uint64_t>(accepted);
       runtime->recordTakeFrames += static_cast<std::uint64_t>(accepted);
@@ -4713,7 +4807,7 @@
         "44100, 48000, 88200, 96000, 192000";
       if (why) *why = reason;
       triggerToast("sample rate: " + reason,
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       return false;
     }
     if (project_.audioSampleRate == rate) {
@@ -4726,7 +4820,7 @@
         const std::string reason = "not while a cue is playing";
         if (why) *why = reason;
         triggerToast("sample rate: " + reason,
-                     kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                     ToastKind::Warning, kToastReadableMs);
         return false;
       }
     }
@@ -5496,7 +5590,7 @@
       decodeProcess, path, 0, 0, 0.0);
     if (!frame || frame->width <= 0 || frame->height <= 0 || frame->pixels.empty()) {
       triggerToast("overlay: could not read " + fs::path(path).filename().string(),
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       return nullptr;
     }
     SDL_Texture* tex = deckboyCreateTexture(runtime.outputRenderer, SDL_PIXELFORMAT_RGBA32,
@@ -7438,7 +7532,7 @@
     int currentIndex = current == choices.end() ? 0 : static_cast<int>(std::distance(choices.begin(), current));
     int nextIndex = (currentIndex + direction + static_cast<int>(choices.size())) % static_cast<int>(choices.size());
     if (!reopenDeckAudioOutput(project_.focusedDeckIndex, choices[nextIndex])) {
-      triggerToast("audio switch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
+      triggerToast("audio switch failed", ToastKind::Warning, kToastReadableMs);
       return;
     }
     triggerToast("audio: " + currentAudioOutputLabel());
@@ -8139,7 +8233,7 @@
 
   bool setAudioOutputDevice(const std::string& deviceName) {
     if (!reopenDeckAudioOutput(project_.focusedDeckIndex, deviceName)) {
-      triggerToast("audio switch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
+      triggerToast("audio switch failed", ToastKind::Warning, kToastReadableMs);
       return false;
     }
     triggerToast("audio: " + currentAudioOutputLabel());
@@ -8435,8 +8529,7 @@
       std::string lastError = runtime->browserRenderer->lastError();
       if (!lastError.empty()) {
         triggerToast("browser: " + lastError,
-                     {79, 98, 48, 230},
-                     {223, 248, 185, 255});
+                     ToastKind::Warning, kToastReadableMs);
       }
       return false;
     }
@@ -8481,8 +8574,7 @@
     if (!nowError.empty()) {
       if (prevError.empty()) {
         triggerToast("browser: " + nowError,
-                     {79, 98, 48, 230},
-                     {223, 248, 185, 255});
+                     ToastKind::Warning, kToastReadableMs);
       }
       return;
     }

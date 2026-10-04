@@ -94,6 +94,7 @@ struct OutputStreamWriterState {
   // Atomic: on Windows this is assigned by the named-pipe connect thread
   // AFTER the writer starts, because ffmpeg only opens its end once running.
   std::atomic<int> audioPipeFd {-1};   // Pipe fd to ffmpeg audio input
+  bool preserveAudioTimeline = false; // Web playout must never discard PCM bytes
   bool stop = false;                // Signal the writer thread to exit
   bool failed = false;              // Writer encountered a fatal error
   std::string failureReason;
@@ -370,6 +371,12 @@ struct OutputRuntime {
   // the connection. See ensureOutputStreamRunning: the rate is declared to the
   // encoder when it starts, and a stream that re-declares it has to reconnect.
   double streamLockedFps = 0.0;
+  std::uint64_t webFramesQueued = 0;
+  double webClockSeconds = 0.0;
+  double webAudioClockSeconds = 0.0;
+  Uint64 webClockUpdatedMs = 0;
+  int webClockDeck = -1;
+  std::uint64_t webClockSamples = 0;
   // Is the encoder actually SWALLOWING what it is handed? packetsWritten only
   // climbs when a write to it returns, so a frozen count with a full queue is
   // a stalled sink -- which is the state that used to be reported as "live".

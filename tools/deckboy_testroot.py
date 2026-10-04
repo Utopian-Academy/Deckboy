@@ -17,7 +17,7 @@ import shutil
 
 # Directories worth having. Everything else under data/ is either the
 # operator's material or generated at runtime.
-ASSET_DIRS = ("themes", "ui", "sprites", "demos", "fonts")
+ASSET_DIRS = ("themes", "ui", "sprites", "demos", "fonts", "web", "lang")
 ASSET_FILE_SUFFIXES = (".ttf", ".otf")
 
 

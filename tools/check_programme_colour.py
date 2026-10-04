@@ -91,14 +91,14 @@ def command(db, text):
 
 def check_web_player(db, port, ffprobe, work):
     page = urlopen('http://127.0.0.1:%d/' % port, timeout=10).read().decode()
-    match = re.search(r"fetch\('(/av/\d+)'\)", page)
+    match = re.search(r"data-source='/hls/(\d+)/index.m3u8", page)
     if '<video ' not in page or not match or 'SOUND ON' not in page:
         raise RuntimeError('web home page is not the programme player with sound')
     # Stop at a complete mdat: a timed network read can end halfway through
     # a box header or fragment, which is not a valid file for ffprobe.
     target = work / 'web-programme.mp4'
     captured = bytearray()
-    stream_url = 'http://127.0.0.1:%d%s' % (port, match.group(1))
+    stream_url = 'http://127.0.0.1:%d/av/%s' % (port, match.group(1))
     # The programme encoder starts asynchronously after Web Monitor is turned
     # on. A viewer that arrives before its first complete fragment receives a
     # deliberate 503 and should reconnect; wait here for the same ready state

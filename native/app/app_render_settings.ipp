@@ -77,11 +77,11 @@
     drawUIPanel(area, pal.dark, pal.deep, pal.mid);
     const int pad = uiScaled(6);
     const int lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
-    // Each running job gets a critter beside its own label and measured bar.
-    // Keep the footer full-width so it remains readable at narrow sizes.
+    // The mascot fronts the queue; job labels and progress stay alongside it.
     SDL_Rect face {area.x + pad, area.y + pad,
-                   std::min(uiScaled(64), std::max(uiScaled(24), area.w / 6)),
+                   std::max(uiScaled(164), area.w / 5),
                    area.h - pad * 2 - lineH};
+    drawStartupMascot(face, nowMs, "");
     drawCenteredTextSafe(controlRenderer_, fontSmall_,
                          SDL_Rect{area.x + pad, area.y + area.h - lineH - pad / 2,
                                   area.w - pad * 2, lineH},
@@ -100,10 +100,6 @@
       }
       double pct = job.progress ? job.progress->load() : -1.0;
       bool running = job.state == ConversionState::Running;
-      if (running) {
-        markBusy("encode:" + job.sourcePath, nullptr,
-                 SDL_Rect {face.x, ry, face.w, rowH});
-      }
       std::string head = (running ? "" : (job.held ? "held    " : "queued  ")) + job.label;
       const int pctW = uiScaled(42);
       const int textW = rw - pctW - xW * 3 - uiScaled(12);
@@ -458,7 +454,7 @@
                                 pal.deep, on ? pal.mid : pal.light);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, rect,
                          on ? onLabel : offLabel,
-                         on ? pal.deep : pal.fg);
+                         paletteToggleInk(on));
   }
 
   // The same decision for a control that is SELECTED rather than switched on --
@@ -471,7 +467,7 @@
 
   // The ink that goes on drawSettingsStateFill, so a caller cannot pair a lit
   // fill with the ink for a flat one.
-  SDL_Color settingsStateInk(bool on) const { return on ? pal.deep : pal.fg; }
+  SDL_Color settingsStateInk(bool on) const { return paletteToggleInk(on); }
 
   // A NUMBER YOU NUDGE, laid out inside ONE ROW'S control rect.
   //
@@ -590,7 +586,7 @@
       // last in a frame wins, so viewing the card places it there, and
       // viewing any other tab leaves it here instead of letting it vanish.
       if (t == 0 && updateCheckRunning_.load()) {
-        markBusy("update", nullptr, tab);
+        markBusy("update", "eel", tab);
       }
       tabX += tabW + kTabGap;
     }
@@ -1111,7 +1107,7 @@
       // is true for exactly the span of a check or a download and for nothing
       // else.
       if (updateCheckRunning_.load()) {
-        markBusy("update", nullptr, updActionRow);
+        markBusy("update", "eel", updActionRow);
       }
       drawSettingsStateFill(updCheckBtn, false);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, updCheckBtn, "CHECK NOW",
@@ -1620,7 +1616,7 @@
       // vMix-compatible surface: a status line and three rows.
       int vmixH = stackH({sLineH, sRowH, sRowH, sRowH});
       // Web monitor: the address line, then four rows.
-      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH});
+      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int nmcH = stackH({sRowH, sRowH, sRowH, sRowH, sLineH});
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
       // The adapter grid no longer carries the tally controls, so it needs
@@ -1814,6 +1810,18 @@
         wmY += sLineH + sGap;
         SDL_Rect wmToggle = settingsRow(wmX, wmW, wmY, sRowH, "Web monitor", sGap);
         drawPill(wmToggle, project_.webMonitorEnabled, "ON", "OFF", kSettingsActionWebMonitorToggle);
+        // What it carries is chosen where every destination's picture is: on
+        // its output, in Video Outputs. This says what it is and goes there.
+        SDL_Rect wmSource = settingsRow(wmX, wmW, wmY, sRowH, "Shows", sGap);
+        {
+          const int webOut = findStreamOutputForProtocol("web");
+          drawUIValueControl(wmSource, webOut < 0 ? std::string("programme")
+            : outputSourceLabel(project_.outputs[static_cast<std::size_t>(webOut)].mirrorSourceOutputIndex));
+          settingsBtns_.push_back({wmSource, kSettingsActionWebMonitorSource, "web_monitor_source"});
+        }
+        SDL_Rect wmMode = settingsRow(wmX, wmW, wmY, sRowH, "Mode", sGap);
+        drawPill(wmMode, project_.webMonitorLowLatency, "LOW LATENCY", "WITH SOUND",
+                 kSettingsActionWebMonitorLowLatency);
         SDL_Rect wmShare = settingsRow(wmX, wmW, wmY, sRowH, "Who can see it", sGap);
         drawPill(wmShare, project_.webMonitorShareLan, "THE NETWORK", "THIS COMPUTER",
                  kSettingsActionWebMonitorShareToggle);
@@ -1822,6 +1830,11 @@
         drawUIValueControl(wmQuality, std::to_string(project_.webMonitorMaxHeight) + "p");
         settingsBtns_.push_back({wmQuality, kSettingsActionWebMonitorQualityDropdown,
                                  "web_monitor_quality"});
+        SDL_Rect wmClients = settingsRow(wmX, wmW, wmY, sRowH, "Connections at once", sGap);
+        drawUIValueControl(wmClients, std::to_string(project_.webMonitorMaxClients));
+        settingsBtns_.push_back({wmClients, kSettingsActionWebMonitorClientsPrompt,
+                                 "How many browser requests are served at once. Each phone holds one "
+                                 "only briefly, so 8 serves roughly 10-20 viewers"});
         SDL_Rect wmPort = settingsRow(wmX, wmW, wmY, sRowH, "Port", sGap);
         drawUIValueControl(wmPort, std::to_string(project_.webMonitorPort));
         settingsBtns_.push_back({wmPort, kSettingsActionWebMonitorPortPrompt, "web_monitor_port"});
@@ -1829,6 +1842,11 @@
         drawUIValueControl(wmPin, project_.webMonitorPin.empty() ? std::string("none")
                                                                   : std::string("set"));
         settingsBtns_.push_back({wmPin, kSettingsActionWebMonitorPinPrompt, "web_monitor_pin"});
+        // A phone in the booth should not have to be typed into.
+        SDL_Rect wmQr = settingsRow(wmX, wmW, wmY, sRowH, "Phone access", sGap);
+        drawSettingsStateFill(wmQr, false);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, wmQr, "QR CODE", settingsStateInk(false));
+        settingsBtns_.push_back({wmQr, kSettingsActionWebMonitorQr, "web_monitor_qr"});
       }
 
       // ── NMC IN & OUT ────────────────────────────────────────────────────
@@ -2136,7 +2154,7 @@
       // costs 32, so DECKLINK's four rows needed 143px inside a body of 140
       // and the fourth -- the 10-BIT toggle -- was clamped to a squashed
       // sliver on every platform. Reserve what the layout will actually take.
-      auto sectionH = [&](std::initializer_list<int> rows) {
+      auto sectionH = [&](const std::vector<int>& rows) {
         int h = settingsHeaderHeight(fontSmall_) + sPad + kLayoutSpacingUnit;
         bool first = true;
         for (int r : rows) {
@@ -2232,11 +2250,19 @@
         // does not draw leaves a hole, and one that draws rows it did not
         // reserve clips the last control. That exact fault squashed the
         // DECKLINK card's 10-BIT toggle on every platform.
-        int dispSectionH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH,
-                                     kRowH, kRowH, kRowH, kRowH, kRowH});
-        if (project_.decks.size() <= 1) {
-          dispSectionH -= snapUpToGrid(kRowH) + kRowGap;
-        }
+        // ONE ENTRY PER ROW DRAWN BELOW, in order, so the section is exactly as
+        // tall as its contents. This was a hand count of ten while eleven rows
+        // were drawn -- Raster mode, Refresh and Bit depth arrived after the
+        // count -- and the last row, Orientation, was squeezed to a sliver
+        // with its label spilling out of it.
+        std::vector<int> dispRows;
+        if (project_.decks.size() > 1) dispRows.push_back(kRowH);   // Source deck
+        dispRows.push_back(kRowH);                                  // add a playlist
+        dispRows.push_back(kRowH);                                  // add / remove output
+        dispRows.push_back(kRowH);                                  // Shows
+        if (outputTypeLabel == "stream") dispRows.push_back(kRowH); // Source
+        for (int i = 0; i < 7; ++i) dispRows.push_back(kRowH);      // display .. orientation
+        int dispSectionH = sectionH(dispRows);
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
         VerticalLayout dLayout(dBody, kRowGap);
@@ -2334,6 +2360,16 @@
         settingsBtns_.push_back({typeBtn, kSettingsActionOutputTypeCycle,
                                  "Programme picture, a presenter view for the "
                                  "operator, a prompter for the talent, or a stream"});
+        // WHAT A STREAM CARRIES. A stream, a recording or the Web Monitor is a
+        // destination; this is the picture it is given -- programme, the
+        // multiview, a presenter view, any other output.
+        if (outputTypeLabel == "stream") {
+          SDL_Rect srcBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Source");
+          drawUIDropdownValue(srcBtn, outputSourceLabel(outputTarget.mirrorSourceOutputIndex),
+                              "settings.output_mirror");
+          settingsBtns_.push_back({srcBtn, kSettingsActionOutputMirrorDropdown,
+                                   "The picture this stream carries"});
+        }
 
         SDL_Rect dBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Hardware display");
         drawUIDropdownValue(dBtn, displayLabel, "settings.output_display");
@@ -4338,6 +4374,16 @@
         openInlineVmixPortEditor(false);
       } else if (sb.action == kSettingsActionWebMonitorToggle) {
         setWebMonitorEnabled(!project_.webMonitorEnabled);
+      } else if (sb.action == kSettingsActionWebMonitorLowLatency) {
+        setWebMonitorLowLatency(!project_.webMonitorLowLatency);
+      } else if (sb.action == kSettingsActionWebMonitorQr) {
+        openWebMonitorQr();
+      } else if (sb.action == kSettingsActionWebMonitorSource) {
+        // To the web output's own page, where its Source is chosen.
+        if (ensureWebMonitorProgrammeOutput()) {
+          project_.focusedOutputIndex = findStreamOutputForProtocol("web");
+          settingsTab_ = 3;
+        }
       } else if (sb.action == kSettingsActionWebMonitorShareToggle) {
         setWebMonitorShare(!project_.webMonitorShareLan);
       } else if (sb.action == kSettingsActionWebMonitorQualityDropdown) {
@@ -4353,6 +4399,20 @@
                        setWebMonitorMaxHeight(std::atoi(value.c_str()));
                      });
         return;
+      } else if (sb.action == kSettingsActionWebMonitorClientsPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("settings.web_monitor_clients", "Web Monitor Connections",
+                             "browser connections at once, 1-64 (default 8)",
+                             std::to_string(project_.webMonitorMaxClients),
+                             [this](const std::string& value) {
+                               try {
+                                 const int n = std::stoi(trim(value));
+                                 if (n >= 1 && n <= 64) { setWebMonitorMaxClients(n); return; }
+                               } catch (...) {
+                               }
+                               triggerToast("web monitor connections: 1-64", ToastKind::Warning,
+                                            kToastReadableMs);
+                             });
       } else if (sb.action == kSettingsActionWebMonitorPortPrompt) {
         settingsOpen_ = false;
         openInlineTextEditor("settings.web_monitor_port", "Web Monitor Port",
@@ -4456,7 +4516,7 @@
         mo.overlayEnabled = !mo.overlayEnabled;
         markProjectDirty();
         if (mo.overlayEnabled && mo.overlayImagePath.empty()) {
-          triggerToast("overlay on -- choose an image", kToastWarnFill, kToastWarnInk,
+          triggerToast("overlay on -- choose an image", ToastKind::Warning,
                        kToastReadableMs);
         } else {
           triggerToast(mo.overlayEnabled ? "overlay on" : "overlay off");
@@ -4910,7 +4970,7 @@
           [this](const std::string& value) {
             std::string error;
             if (!deckboy::core::i18n::setLanguage(value, Paths::dataDir(), error)) {
-              triggerToast("language: " + error, kToastWarnFill, kToastWarnInk,
+              triggerToast("language: " + error, ToastKind::Warning,
                            kToastReadableMs);
               return;
             }
@@ -4922,7 +4982,7 @@
             if (deckboy::core::i18n::activeFontMissing()) {
               triggerToast(deckboy::core::i18n::activeName() +
                              ": no font on this machine can draw it",
-                           kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                           ToastKind::Warning, kToastReadableMs);
             } else {
               triggerToast("language: " + deckboy::core::i18n::activeName());
             }
@@ -5363,7 +5423,7 @@
         // almost right and is not what the operator asked for.
         if (output.deckLinkKeyFill && output.deckLinkKeyDeviceId < 0) {
           triggerToast("key+fill on - now pick a Key out device",
-                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                       ToastKind::Warning, kToastReadableMs);
         } else {
           triggerToast(std::string("key+fill: ") +
                        (output.deckLinkKeyFill ? "on" : "off"));
@@ -5675,8 +5735,7 @@
         } else {
           // Say the caveat at the moment of arming, not only in the section
           // header — this is when it matters.
-          triggerToast("st 2110: on (experimental, no PTP lock)", {155, 188, 15, 220},
-                       {15, 56, 15, 255}, 2600);
+          triggerToast("st 2110: on (experimental, no PTP lock)", ToastKind::Help, 2600);
         }
         markProjectDirty();
       } else if (sb.action == kSettingsActionSt2110AddressPrompt) {
@@ -5716,8 +5775,7 @@
         // beats a file dialog for something an operator pastes into a device.
         std::string sdp = focusedOutputSt2110Sdp();
         if (SDL_SetClipboardText(sdp.c_str())) {
-          triggerToast("st 2110 SDP copied to clipboard", {155, 188, 15, 220},
-                       {15, 56, 15, 255}, 2600);
+          triggerToast("st 2110 SDP copied to clipboard", ToastKind::Help, 2600);
         } else {
           triggerToast("st 2110: clipboard unavailable");
         }
@@ -5729,15 +5787,13 @@
         } else if (!project_.allowRemoteNetwork && !trim(project_.nmosRegistryUrl).empty()) {
           // Say it here, not only in the status line: this is the moment the
           // operator expects the plant to see them.
-          triggerToast("nmos: network is LOCAL ONLY - not registering", {155, 188, 15, 220},
-                       {15, 56, 15, 255}, 3200);
+          triggerToast("nmos: network is LOCAL ONLY - not registering", ToastKind::Help, 3200);
         } else if (trim(project_.nmosRegistryUrl).empty()) {
           // Arming with no registry is legitimate but it is NOT discovery, and
           // an operator who thinks it is will not find the node in a plant.
-          triggerToast("nmos: on - node API only, no registry set", {155, 188, 15, 220},
-                       {15, 56, 15, 255}, 2800);
+          triggerToast("nmos: on - node API only, no registry set", ToastKind::Help, 2800);
         } else {
-          triggerToast("nmos: on", {155, 188, 15, 220}, {15, 56, 15, 255}, 2200);
+          triggerToast("nmos: on", ToastKind::Help, 2200);
         }
         markProjectDirty();
         syncNmosNode();   // apply now rather than waiting for the next tick
@@ -5789,8 +5845,7 @@
         if (url.empty()) {
           triggerToast("nmos: node not running");
         } else if (SDL_SetClipboardText(url.c_str())) {
-          triggerToast("nmos node URL copied: " + url, {155, 188, 15, 220},
-                       {15, 56, 15, 255}, 2800);
+          triggerToast("nmos node URL copied: " + url, ToastKind::Help, 2800);
         } else {
           triggerToast("nmos: clipboard unavailable");
         }

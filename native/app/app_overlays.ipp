@@ -353,16 +353,16 @@
     SDL_SetRenderDrawColor(controlRenderer_, pal.shellOuter.r, pal.shellOuter.g,
                            pal.shellOuter.b, 255);
     SDL_RenderClear(controlRenderer_);
+    Primitives::beginSurfaceFrame(controlRenderer_, pal.shellOuter);
 
     const int pad = uiScaled(16);
     const int gap = uiScaled(8);
     TTF_Font* titleFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
     const int titleH = snapUpToGrid(std::max(uiScaled(20), textLineHeight(titleFont)));
     const int lineH = snapUpToGrid(std::max(uiScaled(18), textLineHeight(fontSmall_)));
-    const int critterH = snapUpToGrid(uiScaled(32));
     const int barH = snapUpToGrid(uiScaled(20));
     const int panelW = std::min(uiScaled(560), std::max(1, winW - pad * 2));
-    const int panelH = std::min(titleH + critterH + barH + lineH * 3 + gap * 5 + pad * 2,
+    const int panelH = std::min(titleH + barH + lineH * 3 + gap * 4 + pad * 2,
                                std::max(1, winH - pad * 2));
     SDL_Rect panel {(winW - panelW) / 2, (winH - panelH) / 2, panelW, panelH};
     Primitives::drawFramedPanel(controlRenderer_, panel, pal.shellInner, pal.deep, pal.light);
@@ -370,20 +370,7 @@
     drawCenteredTextSafe(controlRenderer_, titleFont, rows.takeFixed(titleH),
                          loadingTitle_, pal.fg);
 
-    // The render loop is stopped during show opening. Drive this same critter
-    // from elapsed time so its animation does not depend on update().
-    BusyCritter opening;
-    opening.species = busyCritterSpecies(loadingTitle_ + ":" + std::to_string(loadingStartMs_));
-    opening.home = rows.takeFixed(critterH);
-    opening.phase = static_cast<double>(nowMs - loadingStartMs_) * 0.009;
-    const double walk = std::fmod(opening.phase * 0.05, 2.0);
-    opening.dir = walk < 1.0 ? 1.0 : -1.0;
-    opening.x = 0.06 + 0.88 * (walk < 1.0 ? walk : 2.0 - walk);
-    opening.fade = 1.0;
-    drawBusyCritter(opening);
-
-    // The bar and percentage still report measured work; the critter only
-    // indicates activity and never invents a percentage.
+    // The cartridge blocks and percentage report measured work.
     const SDL_Rect bar = rows.takeFixed(barH);
     constexpr int kBlocks = 12;
     const int filled = static_cast<int>(std::lround(loadingFrac_ * kBlocks));

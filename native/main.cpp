@@ -133,6 +133,7 @@
 #include "core/i18n.hpp"
 #include "platform/nmos_node.hpp"
 #include "render/primitives.hpp"
+#include "extras/upstream/qrcodegen/qrcodegen.hpp"
 #include "render/layout.hpp"
 #include "render/texture_helpers.hpp"
 
@@ -4298,6 +4299,7 @@ class App {
       auto afterUpdate = std::chrono::steady_clock::now();
       render();
       tickUiDump();
+      tickContrastCheck();
       auto afterRender = std::chrono::steady_clock::now();
       if (uiProfileEnabled_) {
         double frameMs = ms(afterRender - frameStart);
@@ -4422,7 +4424,7 @@ class App {
     std::string error;
     const std::string want = project_.language.empty() ? std::string("en") : project_.language;
     if (!deckboy::core::i18n::setLanguage(want, Paths::dataDir(), error)) {
-      triggerToast("language: " + error, kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      triggerToast("language: " + error, ToastKind::Warning, kToastReadableMs);
     }
   }
 
@@ -4662,6 +4664,106 @@ class App {
     uiDumpPath_.clear();
     gShouldQuit.store(true);
   }
+
+  // --contrast-check [dir]: EVERY BUNDLED THEME, ON THE REAL DESK.
+  //
+  // "All 30 themes pass" was once written after measuring the toggles alone,
+  // while Virtual Boy and Ganon still drew red on red across the rest of the
+  // desk. So this renders the whole control window in each theme, twice --
+  // under a help toast and under a warning toast -- and reports:
+  //
+  //   corrected  labels whose call site picked an unreadable ink, caught by
+  //              paletteReadableInk. Not a failure (the label is readable), but
+  //              each one is a call site worth fixing at source.
+  //   notices    the toast colours: ink >= 4.5:1 and edge >= 3:1 on the fill,
+  //              and warning visibly different from help. THESE fail the run.
+  //
+  // With a dir, each frame is also written as <theme>-<help|warning>.bmp, so a
+  // person can look -- a number alone has been wrong before.
+  void enableContrastCheck(const std::string& dir) {
+    contrastCheckDir_ = dir;
+    std::error_code ec;
+    for (const auto& entry : fs::directory_iterator(Paths::dataDir() / "themes", ec)) {
+      if (entry.is_directory() && fs::exists(entry.path() / "theme.txt")) {
+        contrastCheckThemes_.push_back(entry.path().filename().string());
+      }
+    }
+    std::sort(contrastCheckThemes_.begin(), contrastCheckThemes_.end());
+    contrastCheckActive_ = !contrastCheckThemes_.empty();
+    contrastCheckStep_ = 0;
+    contrastCheckFrames_ = 90;  // the first theme also waits out the boot
+    if (!contrastCheckActive_) {
+      std::fprintf(stderr, "contrast-check: no themes under %s\n",
+                   (Paths::dataDir() / "themes").string().c_str());
+      contrastCheckFailed_ = true;
+      gShouldQuit.store(true);
+    }
+  }
+
+  void tickContrastCheck() {
+    if (!contrastCheckActive_) {
+      return;
+    }
+    const std::size_t themeIndex = contrastCheckStep_ / 2;
+    const bool warning = (contrastCheckStep_ % 2) == 1;
+    const std::string& theme = contrastCheckThemes_[themeIndex];
+    if (contrastCheckFrames_ == 12) {
+      // Apply this step's theme and toast, then let a few frames settle.
+      loadTheme(theme);
+      triggerToast(warning ? "contrast check: something needs attention"
+                           : "contrast check: saved",
+                   warning ? ToastKind::Warning : ToastKind::Help, 10000);
+      toast_.startedAt = SDL_GetTicks() - 2500;  // settled: past the slide-in and the pulse
+    }
+    if (contrastCheckFrames_ == 2) {
+      // Count the corrections made while drawing exactly one frame.
+      contrastCheckBaseline_ = textInkCorrections_;
+      contrastCheckLabels_.clear();
+    }
+    if (--contrastCheckFrames_ > 0) {
+      return;
+    }
+    const std::uint64_t corrected = textInkCorrections_ - contrastCheckBaseline_;
+    const PaletteNotice look = paletteNotice(warning);
+    const double inkRatio = paletteContrastRatio(look.ink, look.fill);
+    const double edgeRatio = paletteContrastRatio(look.border, look.fill);
+    bool ok = inkRatio >= 4.5 && edgeRatio >= 3.0;
+    if (warning) {
+      const PaletteNotice help = paletteNotice(false);
+      ok = ok && paletteColorDistance(help.fill, look.fill) + paletteColorDistance(help.ink, look.ink) >= 120;
+    }
+    std::printf("contrast-check: %-16s %-7s corrected %3llu  notice ink %5.2f edge %5.2f  %s\n",
+                theme.c_str(), warning ? "warning" : "help",
+                static_cast<unsigned long long>(corrected), inkRatio, edgeRatio,
+                ok ? "ok" : "FAIL");
+    std::fflush(stdout);
+    contrastCheckFailed_ = contrastCheckFailed_ || !ok;
+    if (!warning && corrected > 0) {
+      std::string names;
+      for (const std::string& label : contrastCheckLabels_) {
+        names += (names.empty() ? "" : " | ") + label;
+      }
+      std::printf("contrast-check:   corrected labels: %s\n", names.c_str());
+    }
+    if (!contrastCheckDir_.empty()) {
+      if (SDL_Surface* shot = SDL_RenderReadPixels(controlRenderer_, nullptr)) {
+        const fs::path file = fs::path(contrastCheckDir_) /
+                              (theme + (warning ? "-warning.bmp" : "-help.bmp"));
+        SDL_SaveBMP(shot, file.string().c_str());
+        SDL_DestroySurface(shot);
+      }
+    }
+    if (++contrastCheckStep_ >= contrastCheckThemes_.size() * 2) {
+      std::printf("contrast-check: %s\n", contrastCheckFailed_ ? "FAILED" : "all themes ok");
+      std::fflush(stdout);
+      contrastCheckActive_ = false;
+      gShouldQuit.store(true);
+      return;
+    }
+    contrastCheckFrames_ = 12;
+  }
+
+  bool contrastCheckFailed() const { return contrastCheckFailed_; }
 
   // A POPUP MENU, OPENED FROM THE COMMAND LINE.
   //
@@ -5296,7 +5398,7 @@ class App {
       drawUIPanel(btn, paletteToggleFill(a.lit), pal.deep,
                   a.lit ? pal.mid : pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, a.label,
-                           a.lit ? pal.deep : pal.fg);
+                           paletteToggleInk(a.lit));
       quickButtons_.push_back({btn, a.action, a.tip});
       bx += btnW + gap;
     }
@@ -5449,7 +5551,7 @@ class App {
         drawUIPanel(trailBtn, paletteToggleFill(trailOn), pal.deep,
                     trailOn ? pal.mid : pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, trailBtn, trailLabel,
-                             trailOn ? pal.deep : pal.inkSoft);
+                             paletteToggleInk(trailOn));
         quickButtons_.push_back({trailBtn, trailAction, trailTip, trailParam});
       }
 
@@ -7800,7 +7902,7 @@ class App {
                            const std::string& owner) {
     const bool active = dropdown_.open && dropdown_.owner == owner;
     const SDL_Color fill = paletteToggleFill(active);
-    const SDL_Color dropInk = active ? pal.deep : pal.fg;
+    const SDL_Color dropInk = paletteToggleInk(active);
     drawUIPanel(rect, fill, pal.deep, active ? pal.mid : pal.light);
     const int chevW = std::min(uiScaled(18), std::max(8, rect.w / 6));
     SDL_Rect labelRect {rect.x + 4, rect.y, std::max(4, rect.w - chevW - 6), rect.h};
@@ -8978,6 +9080,10 @@ class App {
   static constexpr int kSettingsActionWebMonitorPortPrompt = 707;
   static constexpr int kSettingsActionWebMonitorPinPrompt = 708;
   static constexpr int kSettingsActionWebMonitorQualityDropdown = 709;
+  static constexpr int kSettingsActionWebMonitorQr = 754;
+  static constexpr int kSettingsActionWebMonitorSource = 755;
+  static constexpr int kSettingsActionWebMonitorClientsPrompt = 756;
+  static constexpr int kSettingsActionWebMonitorLowLatency = 757;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -9813,6 +9919,15 @@ class App {
   int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
   std::string uiDumpPath_;            // --ui-dump <file>, written once then quit
   int uiDumpFramesLeft_ = 0;
+  // --contrast-check state (see enableContrastCheck).
+  std::vector<std::string> contrastCheckThemes_;
+  std::string contrastCheckDir_;
+  std::size_t contrastCheckStep_ = 0;
+  int contrastCheckFrames_ = 0;
+  std::uint64_t contrastCheckBaseline_ = 0;
+  bool contrastCheckActive_ = false;
+  bool contrastCheckFailed_ = false;
+  std::set<std::string> contrastCheckLabels_;  // which labels were corrected
   int lastInspectorScrollMax_ = -1;   // to tell "still growing" from "at the end"
   int cueSettingsScrollMax_ = 0;
   SDL_Rect settingsVideoViewport_ {};
@@ -10387,7 +10502,7 @@ class App {
   // name is the state, so nothing here is saved and nothing needs cleaning up.
   std::map<std::string, Uint64> flightTakeoffMs_;
 
-  bool firstClipLoadedThisSession_ = false;
+  bool mascotHidden_ = false;   // something is live, so the face is not on the monitor
 
   // ── The mascot notices you ──────────────────────────────────────────────
   //
@@ -10480,6 +10595,14 @@ class App {
     std::deque<std::pair<std::uint64_t, std::shared_ptr<const std::string>>> avFragments;
     std::uint64_t avFragmentSeq = 0;    // guarded by mutex
     std::uint64_t avGeneration = 0;     // bumps when the encoder restarts
+    double avFragmentSeconds = 0.5;    // fixed GOP duration; guarded by mutex
+    // WALL CLOCK for the HLS PROGRAM-DATE-TIME: the first fragment of an
+    // encoder run is stamped with when it arrived, and every later one by
+    // whole fragment durations from there, so the timeline stays exactly as
+    // steady as the stream itself. Every viewer gets the same stamps, which
+    // is all that keeping screens in step needs. Guarded by mutex.
+    std::int64_t avPdtBaseMs = 0;
+    std::uint64_t avPdtBaseSeq = 0;
   };
   std::array<WebMonitorSlot, kWebMonitorMaxOutputs> webMonitorSlots_;
   std::mutex webMonitorEncodeMutex_;
@@ -10494,11 +10617,21 @@ class App {
   std::atomic<bool> webMonitorStop_ {true};
   SocketHandle webMonitorListen_ = kInvalidSocket;
   bool webMonitorReady_ = false;
+  // The phone-access QR overlay (openWebMonitorQr). The modules are encoded
+  // once per address, not per frame.
+  bool webMonitorQrOpen_ = false;
+  std::string webMonitorQrText_;
+  std::vector<bool> webMonitorQrModules_;
+  int webMonitorQrSize_ = 0;
   // What the browser threads may read -- never project_ itself.
   std::mutex webMonitorDirMutex_;
   std::vector<std::string> webMonitorOutputNames_;
   std::vector<bool> webMonitorOutputSound_;   // routed to WEB: has a player with sound
   int webMonitorProgrammeOutput_ = -1;       // programme player on the home page
+  std::string webMonitorSourceLabel_ = "Programme";  // what it carries, for the page title
+  std::atomic<int> webMonitorMaxClients_ {8};        // accept thread reads; main thread sets
+  bool webMonitorLowLatencySnapshot_ = false;        // guarded by webMonitorDirMutex_
+  int webMonitorSourceSnapshot_ = -1;                // what the web output mirrors
   std::string webMonitorPinSnapshot_;
   int webMonitorHeightSnapshot_ = 1080;
   Uint64 webMonitorDirSyncedMs_ = 0;
@@ -11011,6 +11144,9 @@ class App {
   mutable std::uint64_t textTextureHits_ = 0;
   mutable std::uint64_t textTextureMisses_ = 0;
   mutable std::uint64_t textTextureFailures_ = 0;
+  // Labels whose ink paletteReadableInk had to replace. Zero on a theme whose
+  // call sites all pick readable inks; --contrast-check reports it per theme.
+  std::uint64_t textInkCorrections_ = 0;
   // Only visible labels are drawn, so the live set is bounded by the screen.
   // A large UI scale makes each one bigger, hence a byte ceiling as well as a
   // count: whichever is hit first trims the least recently used quarter.
@@ -11701,6 +11837,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--code-check", "assert the expression language against expected values"},
   {"--image-check", "can this machine decode the interface's icons and splash art"},
   {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
+  {"--contrast-check [dir]", "render every bundled theme with help and warning toasts; fail on an unreadable notice"},
   {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
   {"--font-check", "open every UI face and render with it; names the step that fails"},
   {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
@@ -12396,6 +12533,8 @@ int runDeckboyMain(int argc, char** argv) {
   int slideCardTotalArg = 0;
   std::string uiDumpArg;
   int uiDumpFramesArg = 90;   // ~1.5s at 60fps: fonts, theme and splash settled
+  bool contrastCheckArg = false;
+  std::string contrastCheckDirArg;
   bool openCodeEditorArg = false;
   std::string browseFolderArg;
   int openSettingsSubTab = 0;
@@ -12464,6 +12603,14 @@ int runDeckboyMain(int argc, char** argv) {
       } else {
         slideCardDoneArg = 0;
         slideCardTotalArg = 0;
+      }
+      continue;
+    }
+    if (arg == "--contrast-check") {
+      contrastCheckArg = true;
+      // Optional directory for one screenshot per theme and toast kind.
+      if (i + 1 < rest.size() && !rest[i + 1].empty() && rest[i + 1][0] != '-') {
+        contrastCheckDirArg = rest[++i];
       }
       continue;
     }
@@ -12590,9 +12737,13 @@ int runDeckboyMain(int argc, char** argv) {
   if (!uiDumpArg.empty()) {
     app.enableUiDump(uiDumpArg, uiDumpFramesArg);
   }
+  if (contrastCheckArg) {
+    app.enableContrastCheck(contrastCheckDirArg);
+  }
   app.run();
+  const bool contrastFailed = contrastCheckArg && app.contrastCheckFailed();
   app.shutdown();
-  return 0;
+  return contrastFailed ? 1 : 0;
 }
 
 int main(int argc, char** argv) {

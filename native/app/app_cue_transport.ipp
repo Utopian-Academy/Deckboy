@@ -1341,7 +1341,8 @@
     const int deckIndex = project_.focusedDeckIndex;
     if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size()) &&
         project_.decks[deckIndex].activeIndex == project_.decks[deckIndex].selectedIndex) {
-      if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+      MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (engine && engine->hasPictureToShow()) {   // editing must not relight a STOPped deck
         engine->rebuildPatternFrame(*cue, static_cast<double>(SDL_GetTicks()) / 1000.0);
       }
     }
@@ -5896,7 +5897,8 @@
       }
 
       runtime.mediaEngine->update();
-      if (runtime.resolvedCue.kind == CueKind::Pattern && patternTypeIsAnimated(runtime.resolvedCue.path)) {
+      if (runtime.resolvedCue.kind == CueKind::Pattern && patternTypeIsAnimated(runtime.resolvedCue.path) &&
+          runtime.mediaEngine->hasPictureToShow()) {   // a STOPped deck stays dark
         runtime.mediaEngine->rebuildPatternFrame(runtime.resolvedCue, static_cast<double>(now) / 1000.0);
       }
       if (runtime.mediaEngine->reachedEnd()) {

@@ -146,6 +146,31 @@ class DeckAudioRing {
   // Returned by mixableSamples when no deck limits the pull.
   static constexpr std::size_t kUnlimited = static_cast<std::size_t>(-1);
 
+  struct ClockSample {
+    int deckIndex = -1;
+    std::uint64_t samples = 0;
+    double ageSeconds = 0.0;
+  };
+
+  // The tap counts audio the device has played. A live muxer can follow that
+  // clock instead of letting the sound-card crystal drift against wall time.
+  ClockSample clockSample(const std::vector<int>& deckIndices, int preferredDeck) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    const auto now = Clock::now();
+    ClockSample first;
+    for (int deckIndex : deckIndices) {
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(decks_.size())) continue;
+      const Buffer& buffer = decks_[static_cast<std::size_t>(deckIndex)];
+      if (buffer.lastPushAt.time_since_epoch().count() == 0) continue;
+      const double age = std::chrono::duration<double>(now - buffer.lastPushAt).count();
+      if (age > 0.4) continue;
+      ClockSample sample {deckIndex, endPositionLocked(deckIndex), age};
+      if (deckIndex == preferredDeck) return sample;
+      if (first.deckIndex < 0) first = sample;
+    }
+    return first;
+  }
+
   // Sum `want` samples per deck into `mixed`, advancing each deck's read
   // position. A consumer seeing a deck for the first time is placed at the end
   // and contributes nothing this frame -- the same rule primeEndPositions

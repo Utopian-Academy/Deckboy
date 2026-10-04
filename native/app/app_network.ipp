@@ -629,19 +629,19 @@
       triggerToast("vMix API: neither port could be opened (" +
                      std::to_string(project_.vmixHttpPort) + ", " +
                      std::to_string(project_.vmixTcpPort) + ")",
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
       vmixReady_ = false;
       return false;
     }
     if (vmixHttpListen_ == kInvalidSocket) {
       triggerToast("vMix API: port " + std::to_string(project_.vmixHttpPort) +
                      " is taken; the TCP surface is up",
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
     }
     if (vmixTcpListen_ == kInvalidSocket) {
       triggerToast("vMix API: port " + std::to_string(project_.vmixTcpPort) +
                      " is taken; the HTTP surface is up",
-                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                   ToastKind::Warning, kToastReadableMs);
     }
     vmixStop_.store(false);
     vmixThread_ = std::thread([this]() { vmixLoop(); });
@@ -1040,22 +1040,12 @@
   }
 
   // ---------------------------------------------------------------------------
-  // WEB MONITOR -- every output, live, in any browser.
+  // WEB MONITOR -- programme H.264/AAC with a shared audio/video timeline.
   //
-  // http://<machine>:<port>/          every output, as live thumbnails
-  // http://<machine>:<port>/view/N    output N, full window
-  // http://<machine>:<port>/out/N     output N as MJPEG (an <img> plays it)
-  // http://<machine>:<port>/snap/N.jpg  one still
-  //
-  // MJPEG because every browser shows it in a plain <img> -- phones included --
-  // with no player, no plugin and no codec licence. Picture only; sound is the
-  // WebRTC stage that comes after this.
-  //
-  // THE MAIN THREAD DOES ALMOST NOTHING. An output is only captured while a
-  // browser is watching it; then, at most every 50ms, the frame is sampled
-  // down to <=960 wide straight into an RGB buffer and handed to the encoder
-  // thread, which makes the JPEG and wakes the viewers. The browser threads
-  // never touch project_: they read a snapshot the main thread refreshes.
+  // / and /view/N host the player; /hls/N/index.m3u8 exposes the same encoder
+  // fragments to native HLS and HLS.js. /av/N is the raw fragmented MP4 tap.
+  // Legacy /out/N MJPEG and /snap/N.jpg remain picture-only diagnostics.
+  // Browser threads never touch project_: they read a main-thread snapshot.
   // ---------------------------------------------------------------------------
   bool webMonitorWatching(int outputIndex) const {
     return outputIndex >= 0 && outputIndex < kWebMonitorMaxOutputs &&
@@ -1098,8 +1088,15 @@
     webMonitorOutputNames_ = std::move(names);
     webMonitorOutputSound_ = std::move(sound);
     webMonitorProgrammeOutput_ = findStreamOutputForProtocol("web");
+    webMonitorLowLatencySnapshot_ = project_.webMonitorLowLatency;
+    webMonitorSourceSnapshot_ = webMonitorProgrammeOutput_ < 0 ? -1
+      : project_.outputs[static_cast<std::size_t>(webMonitorProgrammeOutput_)].mirrorSourceOutputIndex;
+    webMonitorSourceLabel_ = webMonitorProgrammeOutput_ < 0 ? std::string("Programme")
+      : outputSourceLabel(project_.outputs[static_cast<std::size_t>(webMonitorProgrammeOutput_)]
+                            .mirrorSourceOutputIndex);
     webMonitorPinSnapshot_ = project_.webMonitorPin;
     webMonitorHeightSnapshot_ = project_.webMonitorMaxHeight;
+    webMonitorMaxClients_.store(std::clamp(project_.webMonitorMaxClients, 1, 64));
   }
 
   // Main thread, from the output's render pass, only while someone watches.
@@ -1238,7 +1235,8 @@
            << "X-Content-Type-Options: nosniff\r\n"
            << "Referrer-Policy: no-referrer\r\n"
            << "Content-Security-Policy: default-src 'self'; img-src 'self'; media-src 'self' blob:; "
-              "style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'\r\n"
+              "style-src 'self' 'unsafe-inline'; script-src 'self'; "
+              "base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'\r\n"
            << "Connection: close\r\n\r\n";
     const std::string head = header.str();
     webMonitorSendAll(client, head.data(), head.size()) &&
@@ -1260,6 +1258,107 @@
            ".full img{max-width:100%;max-height:100%}"
            "form{padding:16px}input,button{font:inherit;padding:6px 10px}"
            "</style></head><body>" + body + "</body></html>";
+  }
+
+  static std::string webMonitorEncodeQuery(const std::string& value) {
+    static constexpr char hex[] = "0123456789ABCDEF";
+    std::string encoded;
+    for (unsigned char c : value) {
+      if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+          (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == '~') {
+        encoded += static_cast<char>(c);
+      } else {
+        encoded += '%';
+        encoded += hex[c >> 4];
+        encoded += hex[c & 15];
+      }
+    }
+    return encoded;
+  }
+
+  static std::string webMonitorDecodeQuery(const std::string& value) {
+    const auto hex = [](char c) {
+      if (c >= '0' && c <= '9') return c - '0';
+      if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+      if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+      return -1;
+    };
+    std::string decoded;
+    for (std::size_t i = 0; i < value.size(); ++i) {
+      if (value[i] == '%') {
+        if (i + 2 >= value.size()) return {};
+        const int high = hex(value[i + 1]), low = hex(value[i + 2]);
+        if (high < 0 || low < 0) return {};
+        decoded += static_cast<char>((high << 4) | low);
+        i += 2;
+      } else {
+        decoded += value[i] == '+' ? ' ' : value[i];
+      }
+    }
+    return decoded;
+  }
+
+  void serveWebHls(SocketHandle client, int outputIndex, const std::string& resource,
+                   const std::string& pinQuery) {
+    WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
+    std::string body;
+    std::string type = "video/mp4";
+    {
+      std::lock_guard<std::mutex> lock(slot.mutex);
+      const std::string generation = std::to_string(slot.avGeneration);
+      if (resource == "index.m3u8" && !slot.avInit.empty() && !slot.avFragments.empty()) {
+        // Keep a sliding window for native HLS players and HLS.js. Every
+        // fragment starts on a keyframe and carries both audio and video.
+        const std::size_t first = slot.avFragments.size() > 12 ? slot.avFragments.size() - 12 : 0;
+        std::ostringstream playlist;
+        playlist.imbue(std::locale::classic());
+        playlist << "#EXTM3U\n#EXT-X-VERSION:7\n#EXT-X-TARGETDURATION:1\n"
+                 << "#EXT-X-INDEPENDENT-SEGMENTS\n#EXT-X-MEDIA-SEQUENCE:"
+                 << slot.avFragments[first].first << "\n#EXT-X-DISCONTINUITY-SEQUENCE:"
+                 << slot.avGeneration << "\n#EXT-X-MAP:URI=\"init-" << generation
+                 << ".mp4" << pinQuery << "\"\n";
+        for (std::size_t i = first; i < slot.avFragments.size(); ++i) {
+          if (i == first && slot.avPdtBaseMs > 0) {
+            // One stamp at the head of the window; players count forward by
+            // EXTINF, which is exact here because every fragment is one GOP.
+            const std::int64_t pdtMs = slot.avPdtBaseMs + static_cast<std::int64_t>(std::llround(
+              static_cast<double>(slot.avFragments[i].first - slot.avPdtBaseSeq) *
+              slot.avFragmentSeconds * 1000.0));
+            const std::time_t seconds = static_cast<std::time_t>(pdtMs / 1000);
+            std::tm utc {};
+#ifdef _WIN32
+            gmtime_s(&utc, &seconds);
+#else
+            gmtime_r(&seconds, &utc);
+#endif
+            char stamp[40];
+            std::strftime(stamp, sizeof(stamp), "%Y-%m-%dT%H:%M:%S", &utc);
+            playlist << "#EXT-X-PROGRAM-DATE-TIME:" << stamp << "." << std::setw(3)
+                     << std::setfill('0') << (pdtMs % 1000) << std::setfill(' ') << "Z\n";
+          }
+          playlist << "#EXTINF:" << std::fixed << std::setprecision(6)
+                   << slot.avFragmentSeconds << ",\n" << generation << "-"
+                   << slot.avFragments[i].first << ".m4s" << pinQuery << "\n";
+        }
+        body = playlist.str();
+        type = "application/vnd.apple.mpegurl";
+      } else if (resource == "init-" + generation + ".mp4" && !slot.avFragments.empty()) {
+        body = slot.avInit;
+      } else {
+        for (const auto& fragment : slot.avFragments) {
+          if (resource == generation + "-" + std::to_string(fragment.first) + ".m4s") {
+            body = *fragment.second;
+            break;
+          }
+        }
+      }
+    }
+    if (body.empty()) {
+      webMonitorSendPage(client, resource == "index.m3u8" ? "503 Service Unavailable" : "404 Not Found",
+                         "text/plain; charset=utf-8", "Programme fragment unavailable\n");
+      return;
+    }
+    webMonitorSendPage(client, "200 OK", type, body);
   }
 
   void handleWebMonitorClient(SocketHandle client) {
@@ -1298,11 +1397,17 @@
     std::string pin;
     int maxHeight = 1080;
     int programmeOutput = -1;
+    std::string sourceLabel;
+    bool lowLatency = false;
+    int sourceOutput = -1;
     {
       std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
       names = webMonitorOutputNames_;
       sound = webMonitorOutputSound_;
       programmeOutput = webMonitorProgrammeOutput_;
+      sourceLabel = webMonitorSourceLabel_;
+      lowLatency = webMonitorLowLatencySnapshot_;
+      sourceOutput = webMonitorSourceSnapshot_;
       pin = webMonitorPinSnapshot_;
       maxHeight = webMonitorHeightSnapshot_;
     }
@@ -1316,17 +1421,18 @@
     for (std::size_t at = 0; at <= query.size();) {
       const std::size_t end = std::min(query.find('&', at), query.size());
       const std::string pair = query.substr(at, end - at);
-      if (pair.rfind("pin=", 0) == 0) given = pair.substr(4);
+      if (pair.rfind("pin=", 0) == 0) given = webMonitorDecodeQuery(pair.substr(4));
       at = end + 1;
     }
     if (!pin.empty() && given != pin) {
       webMonitorSendPage(client, "401 Unauthorized", "text/html; charset=utf-8",
         webMonitorPageShell("Deckboy", "<header>DECKBOY WEB MONITOR</header>"
-          "<form method='get'><p>This monitor needs its PIN.</p>"
-          "<input name='pin' type='password' autofocus> <button>Open</button></form>"));
+          "<form method='get'><p>Enter the Web Monitor passphrase.</p>"
+          "<input aria-label='Passphrase' name='pin' type='password' autocomplete='current-password' autofocus>"
+          " <button>Open</button></form>"));
       return;
     }
-    const std::string pinQuery = pin.empty() ? std::string() : "?pin=" + pin;
+    const std::string pinQuery = pin.empty() ? std::string() : "?pin=" + webMonitorEncodeQuery(pin);
     auto outputFromPath = [&](const std::string& prefix) {
       if (path.rfind(prefix, 0) != 0) return -1;
       try {
@@ -1336,10 +1442,38 @@
         return -1;
       }
     };
+    if (path == "/web/hls.light.min.js" || path == "/web/player.js") {
+      const fs::path asset = Paths::dataDir() / "web" /
+        (path == "/web/player.js" ? "player.js" : "hls.light.min.js");
+      std::ifstream file(asset, std::ios::binary);
+      if (!file) {
+        webMonitorSendPage(client, "404 Not Found", "text/plain", "Player asset unavailable\n");
+      } else {
+        const std::string script((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        webMonitorSendPage(client, "200 OK", "application/javascript; charset=utf-8", script);
+      }
+      return;
+    }
+    if (int out = outputFromPath("/hls/"); out >= 0) {
+      const std::string prefix = "/hls/" + std::to_string(out + 1) + "/";
+      if (path.rfind(prefix, 0) == 0) {
+        serveWebHls(client, out, path.substr(prefix.size()), pinQuery);
+        return;
+      }
+    }
     if (path == "/" || path == "/index.html") {
+      // LOW LATENCY: the source's own live frames, no buffer and no sound, so
+      // every screen shows the same moment to within a frame or two.
+      if (lowLatency && sourceOutput >= 0 && sourceOutput < static_cast<int>(names.size())) {
+        webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
+          webMonitorPageShell("Deckboy - " + sourceLabel + " (low latency)",
+            "<div class='full'><img src='/out/" + std::to_string(sourceOutput + 1) + pinQuery +
+            "' alt='" + escapeHtml(sourceLabel) + "'></div>"));
+        return;
+      }
       if (programmeOutput >= 0) {
         webMonitorSendPage(client, "200 OK", "text/html; charset=utf-8",
-          webMonitorPlayerPage("Deckboy programme",
+          webMonitorPlayerPage("Deckboy - " + sourceLabel,
             "/av/" + std::to_string(programmeOutput + 1) + pinQuery,
             h264Codec));
       } else {
@@ -1471,8 +1605,10 @@
       socklen_t clientLength = sizeof(clientAddress);
       SocketHandle client = accept(webMonitorListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
       if (client == kInvalidSocket) continue;
-      constexpr std::size_t kMaxWebMonitorClients = 8;
-      if (webMonitorClients_.size() >= kMaxWebMonitorClients) {
+      // The operator's limit (Settings > Network > Web Monitor). Each viewer
+      // holds a connection only for a playlist poll or a fragment, so this
+      // is concurrent REQUESTS, and it serves several times as many phones.
+      if (webMonitorClients_.size() >= static_cast<std::size_t>(std::max(1, webMonitorMaxClients_.load()))) {
         static constexpr char kBusy[] =
           "HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
         webMonitorSendAll(client, kBusy, sizeof(kBusy) - 1);
@@ -1610,6 +1746,13 @@
             {
               std::lock_guard<std::mutex> lock(slot.mutex);
               ++slot.avFragmentSeq;
+              if (slot.avFragments.empty()) {
+                // The first of this encoder run: it began one fragment ago.
+                slot.avPdtBaseMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  std::chrono::system_clock::now().time_since_epoch()).count() -
+                  static_cast<std::int64_t>(std::lround(slot.avFragmentSeconds * 1000.0));
+                slot.avPdtBaseSeq = slot.avFragmentSeq;
+              }
               slot.avFragments.emplace_back(slot.avFragmentSeq,
                                             std::make_shared<const std::string>(std::move(pending)));
               while (slot.avFragments.size() > 40) slot.avFragments.pop_front();
@@ -1675,35 +1818,143 @@
     }
   }
 
-  // The player for an output with sound: MediaSource fed from /av/N, starting
-  // muted (browsers refuse sound before a click) with a SOUND ON button, held
-  // near the live edge, and reconnecting when the stream ends.
+  // The programme HLS player starts muted until the browser permits sound.
+  // Its bundled controller maintains a playback buffer and reconnects.
   static std::string webMonitorPlayerPage(const std::string& title, const std::string& avUrl,
                                           const std::string& h264Codec) {
-    return webMonitorPageShell(title,
-      "<div class='full'><video id='v' autoplay muted playsinline></video>"
-      "<button id='s' style='position:fixed;bottom:16px;right:16px'>SOUND ON</button></div>"
-      "<script>"
-      "const v=document.getElementById('v'),b=document.getElementById('s');"
-      "b.onclick=()=>{v.muted=false;v.play();b.remove();};"
-      "const MS=window.ManagedMediaSource||window.MediaSource;"
-      "const mime='video/mp4; codecs=\"" + h264Codec + ",mp4a.40.2\"';"
-      "if(!MS||!MS.isTypeSupported(mime)){document.body.insertAdjacentHTML('beforeend',"
-      "'<p style=\"position:fixed;top:8px;left:8px\">This browser cannot play the web stream.</p>');}"
-      "else{const ms=new MS();if(window.ManagedMediaSource)v.disableRemotePlayback=true;"
-      "v.src=URL.createObjectURL(ms);"
-      "ms.addEventListener('sourceopen',async()=>{const sb=ms.addSourceBuffer(mime);const q=[];"
-      "const pump=()=>{if(!sb.updating&&q.length){try{sb.appendBuffer(q.shift());}catch(e){}}};"
-      "sb.addEventListener('updateend',()=>{if(v.buffered.length){"
-      "const end=v.buffered.end(v.buffered.length-1),start=v.buffered.start(0);"
-      "if(end-v.currentTime>1.2)v.currentTime=end-0.25;"
-      "if(v.currentTime-start>20&&!sb.updating&&!q.length){sb.remove(start,v.currentTime-10);return;}}"
-      "pump();});"
-      "try{const r=await fetch('" + avUrl + "');const rd=r.body.getReader();"
-      "for(;;){const {done,value}=await rd.read();if(done)break;q.push(value);pump();"
-      "if(v.paused)v.play().catch(()=>{});}}catch(e){}"
-      "setTimeout(()=>location.reload(),1000);});}"
-      "</script>");
+    const auto queryAt = avUrl.find('?');
+    const std::string suffix = queryAt == std::string::npos ? std::string() : avUrl.substr(queryAt);
+    const std::string output = avUrl.substr(4, queryAt == std::string::npos ? queryAt : queryAt - 4);
+    const std::string playlist = "/hls/" + output + "/index.m3u8" + suffix;
+    return webMonitorPageShell(title, std::string(R"DBPLAYER(
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+#monitor{position:fixed;inset:0;display:flex;flex-direction:column;background:#000;
+ width:100%;height:100%;height:100dvh;color:#f1f6e5}
+.picture{position:relative;flex:1;min-width:0;min-height:0;overflow:hidden}
+#v{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#status{position:absolute;left:12px;right:12px;top:12px;margin:0;text-align:center;
+ padding:10px;background:rgba(0,0,0,.8);font-size:16px}
+.monitor-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;
+ padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));background:#122312}
+.monitor-controls button,.monitor-controls a{font:600 14px system-ui,sans-serif;
+ display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;
+ color:#f1f6e5;background:#213d21;border:1px solid #78934e;border-radius:6px;text-decoration:none}
+.monitor-controls :focus{outline:3px solid #d7f26b;outline-offset:2px}
+@media(min-width:1400px){.monitor-controls button,.monitor-controls a{font-size:20px;min-height:60px}}
+</style>
+)DBPLAYER") + "<div id='monitor' data-source='" + escapeHtml(playlist) +
+      "' data-codec='" + escapeHtml(h264Codec) + "'><div class='picture'>"
+      "<video id='v' autoplay muted playsinline aria-label='Programme monitor'></video>"
+      "<p id='status' role='status'>Connecting to programme…</p></div>"
+      "<nav class='monitor-controls' aria-label='Monitor controls'>"
+      "<button id='sound' aria-pressed='false'>SOUND ON</button>"
+      "<button id='fullscreen'>FULL SCREEN</button><button id='reconnect'>RECONNECT</button>"
+      "<a id='stream-link' href='" + escapeHtml(playlist) + "'>OPEN STREAM</a></nav></div>"
+      "<script src='/web/hls.light.min.js" + escapeHtml(suffix) + "'></script>"
+      "<script src='/web/player.js" + escapeHtml(suffix) + "'></script>");
+  }
+
+  // PHONE ACCESS: the monitor's address as a QR code, big enough to scan from
+  // across a booth.
+  //
+  // Only the address is encoded, never the passphrase: a QR code on a screen
+  // is readable by every camera in the room, so it may take a phone to the
+  // door but not through it. A "this computer" monitor has no address a phone
+  // can reach, so that case explains itself instead of drawing a useless code.
+  void openWebMonitorQr() {
+    if (!project_.webMonitorEnabled || !webMonitorReady_) {
+      triggerToast("web monitor: turn it on first", ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    if (!project_.webMonitorShareLan) {
+      triggerToast("phones need THE NETWORK: set 'Who can see it' first",
+                   ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    const std::string url = webMonitorUrl();
+    if (url.rfind("http://", 0) != 0) {
+      triggerToast("web monitor: " + url, ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    if (url != webMonitorQrText_) {
+      const qrcodegen::QrCode qr = qrcodegen::QrCode::encodeText(url.c_str(), qrcodegen::QrCode::Ecc::MEDIUM);
+      webMonitorQrSize_ = qr.getSize();
+      webMonitorQrModules_.assign(static_cast<std::size_t>(webMonitorQrSize_ * webMonitorQrSize_), false);
+      for (int y = 0; y < webMonitorQrSize_; ++y) {
+        for (int x = 0; x < webMonitorQrSize_; ++x) {
+          webMonitorQrModules_[static_cast<std::size_t>(y * webMonitorQrSize_ + x)] = qr.getModule(x, y);
+        }
+      }
+      webMonitorQrText_ = url;
+    }
+    webMonitorQrOpen_ = true;
+  }
+
+  void renderWebMonitorQr(int width, int height) {
+    if (!webMonitorQrOpen_ || webMonitorQrSize_ <= 0) {
+      return;
+    }
+    SDL_Color scrim = pal.shellShadow;
+    scrim.a = 215;
+    Primitives::fillRect(controlRenderer_, SDL_Rect {0, 0, width, height}, scrim);
+
+    // Dark modules on a light ground, in the theme's own extremes when they
+    // are far enough apart for a camera, plain black on white when not.
+    // Scanners are less forgiving than eyes, and some refuse inverted codes.
+    SDL_Color ground = pal.light, ink = pal.deep;
+    for (SDL_Color c : {pal.tile, pal.fg, pal.fgSoft, pal.light}) {
+      if (paletteRelativeLuminance(c) > paletteRelativeLuminance(ground)) ground = c;
+    }
+    for (SDL_Color c : {pal.deep, pal.dark, pal.shellShadow}) {
+      if (paletteRelativeLuminance(c) < paletteRelativeLuminance(ink)) ink = c;
+    }
+    if (paletteContrastRatio(ground, ink) < 7.0) {
+      ground = {255, 255, 255, 255};
+      ink = {0, 0, 0, 255};
+    }
+    ground.a = 255;
+    ink.a = 255;
+
+    const int lineH = textLineHeight(fontBase_);
+    const int pad = uiScaled(20);
+    const int captionH = lineH * 3 + uiScaled(12);
+    // A four-module quiet zone on every side, as the standard asks.
+    const int modulesAcross = webMonitorQrSize_ + 8;
+    const int room = std::min(width - pad * 4, height - pad * 4 - captionH);
+    const int modulePx = std::max(2, room / modulesAcross);
+    const int codeSide = modulesAcross * modulePx;
+    const int panelW = std::max(codeSide, std::min(width - pad * 2, uiScaled(520))) + pad * 2;
+    const int panelH = codeSide + captionH + pad * 3;
+    const SDL_Rect panel {(width - panelW) / 2, (height - panelH) / 2, panelW, panelH};
+    Primitives::drawFramedPanel(controlRenderer_, panel, pal.shellInner, pal.deep, pal.light);
+
+    const SDL_Rect code {panel.x + (panel.w - codeSide) / 2, panel.y + pad, codeSide, codeSide};
+    Primitives::fillRect(controlRenderer_, code, ground);
+    for (int y = 0; y < webMonitorQrSize_; ++y) {
+      for (int x = 0; x < webMonitorQrSize_; ++x) {
+        if (webMonitorQrModules_[static_cast<std::size_t>(y * webMonitorQrSize_ + x)]) {
+          Primitives::fillRect(controlRenderer_,
+                               SDL_Rect {code.x + (x + 4) * modulePx, code.y + (y + 4) * modulePx,
+                                         modulePx, modulePx}, ink);
+        }
+      }
+    }
+
+    int textY = code.y + code.h + pad;
+    const int textW = panel.w - pad * 2;
+    drawCenteredTextSafe(controlRenderer_, fontBase_, SDL_Rect {panel.x + pad, textY, textW, lineH},
+                         webMonitorQrText_, pal.fg);
+    textY += lineH + uiScaled(6);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {panel.x + pad, textY, textW, lineH},
+                         project_.webMonitorPin.empty()
+                           ? "Point a phone camera at the code"
+                           : "Point a phone camera at the code; it will ask for the passphrase",
+                         pal.fgSoft);
+    textY += lineH;
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {panel.x + pad, textY, textW, lineH},
+                         "click or Esc to close", pal.inkSoft);
   }
 
   bool ensureWebMonitorProgrammeOutput() {
@@ -1713,10 +1964,22 @@
     }
     OutputTarget& out = project_.outputs[static_cast<std::size_t>(idx)];
     out.enabled = true;
-    out.streamEnabled = true;
-    // Repair saved WEB routes too: the monitor always follows programme,
-    // regardless of the deck or output that was focused when it was enabled.
-    out.mirrorSourceOutputIndex = primaryProgrammeOutputIndex(idx);
+    // The encoder runs only when the page plays it: low latency is the
+    // picture straight from the source, and an HLS encode nobody is
+    // watching would cost a core for nothing.
+    out.streamEnabled = !project_.webMonitorLowLatency;
+    // WHAT IT CARRIES IS THE OPERATOR'S CHOICE (its Source, in Video Outputs):
+    // programme, the multiview, a presenter view. Only a source that cannot
+    // give a picture -- none, itself, a missing output, another stream -- is
+    // replaced, and then by programme, never by whichever deck had focus when
+    // the monitor was switched on.
+    const int source = out.mirrorSourceOutputIndex;
+    const bool usable = source >= 0 && source != idx &&
+      source < static_cast<int>(project_.outputs.size()) &&
+      normalizeOutputType(project_.outputs[static_cast<std::size_t>(source)].outputType) != "stream";
+    if (!usable) {
+      out.mirrorSourceOutputIndex = primaryProgrammeOutputIndex(idx);
+    }
     webMonitorDirSyncedMs_ = 0;
     return true;
   }
@@ -1826,6 +2089,30 @@
     project_.webMonitorPort = std::clamp(port, 1, 65535);
     restartWebMonitorIfRunning();
     triggerToast("web monitor port: " + std::to_string(project_.webMonitorPort));
+    markProjectDirty();
+  }
+
+  void setWebMonitorLowLatency(bool low) {
+    if (project_.webMonitorLowLatency == low) return;
+    project_.webMonitorLowLatency = low;
+    const int webOutput = findStreamOutputForProtocol("web");
+    if (webOutput >= 0) {
+      project_.outputs[static_cast<std::size_t>(webOutput)].streamEnabled =
+        project_.webMonitorEnabled && !low;
+      if (low) stopOutputStream(webOutput);
+    }
+    webMonitorDirSyncedMs_ = 0;
+    syncWebMonitorDirectory();
+    triggerToast(low ? "web monitor: low latency (picture only, screens in step)"
+                     : "web monitor: programme with sound");
+    markProjectDirty();
+  }
+
+  void setWebMonitorMaxClients(int clients) {
+    project_.webMonitorMaxClients = std::clamp(clients, 1, 64);
+    webMonitorMaxClients_.store(project_.webMonitorMaxClients);
+    triggerToast("web monitor: up to " + std::to_string(project_.webMonitorMaxClients) +
+                 " connections at once");
     markProjectDirty();
   }
 
@@ -2171,7 +2458,7 @@
         "decklink: DECKLINK ON|OFF|TOGGLE | DEVICE <n> | MODE <mode> | 10BIT on|off\n"
         "          DECKLINK KEYFILL ON|OFF|TOGGLE [key device] | KEYDEVICE <n>\n"
         "          (key+fill sends the picture and its matte down two cards)\n"
-        "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF (programme with sound) | SHARE ON|OFF | PORT <n> | PIN <pin>|OFF\n"
+        "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF (programme with sound) | SHARE ON|OFF | SOURCE PROGRAMME|<n> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF\n"
         "      (programme with sound in any browser; /outputs shows individual outputs)\n"
         "vmix: VMIX | VMIX ON|OFF|TOGGLE | VMIX PORTS <http> <tcp>\n"
         "      (answers the vMix HTTP and TCP APIs, so a Stream Deck plugin or\n"
@@ -3475,7 +3762,7 @@
         std::ostringstream why;
         why << "update: the installer exited immediately (code " << code
             << ") - not restarting";
-        triggerToast(why.str(), kToastWarnFill, kToastWarnInk, kToastReadableMs);
+        triggerToast(why.str(), ToastKind::Warning, kToastReadableMs);
         showLog("UPDATE-FAIL", "installer exited " + std::to_string(code));
         std::cerr << "update: installer " << installer << " exited with "
                   << code << " straight after launch\n";

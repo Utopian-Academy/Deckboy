@@ -311,6 +311,47 @@
     };
 
     {
+      // Exercise the derived toggle colours from every bundled theme.
+      rebuildPalette();
+      const Palette original = pal;
+      int themesChecked = 0;
+      for (const auto& entry : fs::directory_iterator(Paths::dataDir() / "themes")) {
+        std::ifstream file(entry.path() / "theme.txt");
+        if (!file) continue;
+        std::map<std::string, SDL_Color> colors;
+        std::string line;
+        while (std::getline(file, line)) {
+          const auto tab = line.find('\t');
+          if (tab == std::string::npos) continue;
+          try {
+            colors[line.substr(0, tab)] = paletteColorFromRgba(
+              static_cast<std::uint32_t>(std::stoul(line.substr(tab + 1), nullptr, 16)));
+          } catch (...) {}
+        }
+        pal = original;
+        for (auto role : {std::make_pair("screen_light", &pal.light),
+                          std::make_pair("screen_deep", &pal.deep),
+                          std::make_pair("screen_dark", &pal.dark),
+                          std::make_pair("shell_outer", &pal.shellOuter),
+                          std::make_pair("screen_ink_soft", &pal.inkSoft)}) {
+          if (colors.count(role.first)) *role.second = colors.at(role.first);
+        }
+        pal.tile = colors.count("screen_tile") ? colors.at("screen_tile") : pal.light;
+        pal.fg = colors.count("screen_fg") ? colors.at("screen_fg") : pal.deep;
+        pal.fgSoft = colors.count("screen_fg_soft") ? colors.at("screen_fg_soft") : pal.dark;
+        const bool readable = paletteContrastRatio(paletteToggleInk(true), paletteToggleFill(true)) >= 4.5 &&
+                              paletteContrastRatio(paletteToggleInk(false), paletteToggleFill(false)) >= 4.5;
+        const bool distinct = detail::paletteLuma(paletteToggleFill(true)) >
+                              detail::paletteLuma(paletteToggleFill(false)) &&
+                              paletteColorDistance(paletteToggleFill(true), paletteToggleFill(false)) >= 90;
+        expect(readable && distinct, "readable, distinct toggles: " + entry.path().filename().string());
+        ++themesChecked;
+      }
+      pal = original;
+      expect(themesChecked > 0, "bundled themes checked");
+    }
+
+    {
       Cue cue;
       float pausedGain = transitionSourceGainForLoadCue(&cue, TransportState::Paused, 0.0);
       float stoppedGain = transitionSourceGainForLoadCue(&cue, TransportState::Stopped, 0.0);

@@ -254,7 +254,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF"
+            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF -DENABLE_ASIO=OFF -DDECKBOY_INPROC_DECODE=OFF"
           # ENABLE_DECKLINK is ON by default now that the SDK headers are
           # vendored in native/extras/decklink-sdk, so the `all` leg compiles
           # the real capture and playout code on every push. The `none` leg
@@ -443,6 +443,15 @@ jobs:
           name: Deckboy-linux-${{ needs.version-check.outputs.version }}
           path: build/Deckboy
 
+      - uses: actions/setup-node@v4
+        if: matrix.features == 'all'
+        with:
+          node-version: '22'
+
+      - name: Web Monitor HLS and audio/video timing
+        if: matrix.features == 'all'
+        run: xvfb-run -a node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60
+
       # The shippable Linux artefacts. Both packagers default to build/, which
       # is where this job already built, so they need nothing but ffmpeg —
       # which they BUNDLE, so the tarball runs on a machine that has none.
@@ -524,7 +533,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF"
+            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF -DENABLE_ASIO=OFF -DDECKBOY_INPROC_DECODE=OFF"
           - features: all
             cmake_args: "-DENABLE_MIDI=ON"
     steps:
@@ -576,6 +585,15 @@ jobs:
         run: ctest --test-dir build --output-on-failure
 
       # The settings menus, photographed on a real Mac.
+
+      - uses: actions/setup-node@v4
+        if: matrix.features == 'all'
+        with:
+          node-version: '22'
+
+      - name: Web Monitor HLS and audio/video timing
+        if: matrix.features == 'all'
+        run: node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60
       #
       # macOS is the one platform whose UI cannot be checked by hand from here:
       # a GUI app will not render from an ssh session, `screencapture` over ssh
@@ -821,7 +839,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF"
+            cmake_args: "-DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF -DENABLE_ASIO=OFF -DDECKBOY_INPROC_DECODE=OFF"
           - features: all
             cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON -DENABLE_WEBVIEW=ON -DDECKBOY_REQUIRE_INPROC_DECODE=ON"
     steps:
@@ -1002,6 +1020,22 @@ jobs:
           $env:DECKBOY_EGRESS_READBACK = 'sync'
           python tools/check_transitions.py --exe build\Release\Deckboy.exe --playout
           if ($LASTEXITCODE -ne 0) { throw "transition placement failed" }
+
+      - uses: actions/setup-node@v4
+        if: matrix.features == 'all'
+        with:
+          node-version: '22'
+
+      - name: Web Monitor HLS and audio/video timing
+        if: matrix.features == 'all'
+        shell: pwsh
+        run: |
+          $real = Get-ChildItem -Path 'C:\ProgramData\chocolatey\lib\ffmpeg-full' -Recurse -Filter ffmpeg.exe |
+            Where-Object { Test-Path (Join-Path $_.DirectoryName 'ffprobe.exe') } | Select-Object -First 1
+          if (-not $real) { throw 'ffmpeg pair missing' }
+          $env:PATH = "$($real.DirectoryName);$env:PATH"
+          node tools/check_web_monitor_av.mjs --exe build\Release\Deckboy.exe --seconds 60
+          if ($LASTEXITCODE -ne 0) { throw 'Web Monitor timing or HLS failed' }
 
       # What only exists when playlists meet an output. Each harness launches
       # the real app in an isolated root and MEASURES -- fields in the saved

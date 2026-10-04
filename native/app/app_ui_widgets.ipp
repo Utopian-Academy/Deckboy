@@ -1086,17 +1086,39 @@
     return choices;
   }
 
+  // WHAT AN OUTPUT SHOWS, in the words an operator would use for it:
+  // "Programme", "Multiview", "Presenter view", with the output it lives on.
+  std::string outputSourceLabel(int sourceOutputIndex) const {
+    if (sourceOutputIndex < 0 || sourceOutputIndex >= static_cast<int>(project_.outputs.size())) {
+      return "own playlist";
+    }
+    const std::string type = normalizeOutputType(
+      project_.outputs[static_cast<std::size_t>(sourceOutputIndex)].outputType);
+    const std::string where = "Output " + std::to_string(sourceOutputIndex + 1);
+    if (type == "multiview") return "Multiview (" + where + ")";
+    if (type == "presenter") return "Presenter view (" + where + ")";
+    if (type == "prompter") return "Prompter (" + where + ")";
+    if (sourceOutputIndex == primaryProgrammeOutputIndex(-1)) return "Programme (" + where + ")";
+    return where + "  " + outputLabel(sourceOutputIndex);
+  }
+
   std::vector<std::pair<std::string, std::string>> outputMirrorSourceDropdownChoices() const {
     std::vector<std::pair<std::string, std::string>> choices;
-    choices.push_back({"-1", "Off (render own assignments)"});
+    const OutputTarget& focused = project_.outputs[static_cast<std::size_t>(
+      std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1))];
+    // The Web Monitor always carries SOMETHING it was given; "its own
+    // playlist" is the focused-deck accident it was made to avoid.
+    const bool web = outputStreamProtocolIsWeb(normalizeOutputStreamProtocol(focused.streamProtocol));
+    if (!web) {
+      choices.push_back({"-1", "Own playlist (render own assignments)"});
+    }
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
-      if (outputIndex == project_.focusedOutputIndex) {
+      // Another stream has no picture of its own to give.
+      if (outputIndex == project_.focusedOutputIndex ||
+          normalizeOutputType(project_.outputs[static_cast<std::size_t>(outputIndex)].outputType) == "stream") {
         continue;
       }
-      choices.push_back({
-        std::to_string(outputIndex),
-        "Output " + std::to_string(outputIndex + 1) + "  " + outputLabel(outputIndex)
-      });
+      choices.push_back({std::to_string(outputIndex), outputSourceLabel(outputIndex)});
     }
     return choices;
   }
