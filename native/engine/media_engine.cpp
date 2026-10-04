@@ -1110,7 +1110,10 @@ double MediaEngine::position() const {
   }
   if (state_ == TransportState::Playing) {
     auto now = std::chrono::steady_clock::now();
-    double elapsed = std::chrono::duration<double>(now - playbackClockStart_).count() * playbackSpeed_;
+    // clockTrim_ is the audio-master steering (update()): the wall clock, run
+    // a hair fast or slow so the picture stays on the sound card's clock.
+    double elapsed = std::chrono::duration<double>(now - playbackClockStart_).count() *
+                     playbackSpeed_ * clockTrim_;
     return std::clamp(playbackStartPosition_ + elapsed, 0.0,
                       duration_ > 0.0 ? duration_ : elapsed);
   }
@@ -1368,12 +1371,55 @@ void MediaEngine::update() {
                             (nowMs - lastAudioClockAdvanceMs_) < 400;
       double drift = currentPosition_ - audioClock;
       bool nearEnd = duration_ > 0.0 && audioClock >= duration_ - 0.25;
-      if (clockAdvancing && std::abs(drift) > 0.06 && audioClock >= 0.0 && !nearEnd) {
-        playbackClockStart_ = std::chrono::steady_clock::now();
-        playbackStartPosition_ = audioClock;
-        currentPosition_ = audioClock;
+      // STEERED, NOT SNAPPED. This used to leave the picture on the wall
+      // clock and re-anchor only past 60 ms of drift. A sound card's crystal
+      // and the system clock differ by tens of parts per million, so the
+      // picture slid against the sound all the time -- 67 ms an hour on a
+      // real card, 174 on SDL's dummy driver -- and either never reached the
+      // line (a growing lip-sync error nobody corrected) or reached it and
+      // jumped. Measured with tools/check_web_monitor_av.mjs over 15 minutes.
+      //
+      // Now the error is smoothed over about a second (the device takes audio
+      // in chunks, so the raw reading jumps by 10-20 ms) and steered out by
+      // running the picture clock up to 0.5% fast or slow: invisible, and it
+      // leaves well under a millisecond at the rates real cards differ by.
+      // A snap remains for a real break -- a device glitch, a dropout -- where
+      // easing would take seconds to catch up.
+      const auto tick = std::chrono::steady_clock::now();
+      if (clockAdvancing && audioClock >= 0.0 && !nearEnd) {
+        if (std::abs(drift) > 0.15) {
+          playbackClockStart_ = tick;
+          playbackStartPosition_ = audioClock;
+          currentPosition_ = audioClock;
+          clockTrim_ = 1.0;
+          clockDriftPrimed_ = false;
+        } else {
+          const double dt = clockDriftPrimed_
+            ? std::clamp(std::chrono::duration<double>(tick - clockDriftLastTick_).count(), 0.0, 0.25)
+            : 0.0;
+          clockDriftFiltered_ = clockDriftPrimed_
+            ? clockDriftFiltered_ + (drift - clockDriftFiltered_) * (1.0 - std::exp(-dt / 1.0))
+            : drift;
+          clockDriftPrimed_ = true;
+          // Picture ahead (drift > 0) runs the clock slow, behind runs it fast.
+          const double trim = 1.0 - std::clamp(clockDriftFiltered_ * 0.3, -0.005, 0.005);
+          // Re-anchored at the current position on every change, so a new
+          // trim bends the clock from here rather than rescaling the past.
+          playbackStartPosition_ = currentPosition_;
+          playbackClockStart_ = tick;
+          clockTrim_ = trim;
+        }
+        clockDriftLastTick_ = tick;
       }
     }
+  } else if (state_ != TransportState::Playing || !audioClockValid_ || !audioReachesDevice) {
+    // No sound to follow: the wall clock, untrimmed, as before.
+    if (clockTrim_ != 1.0 && state_ == TransportState::Playing) {
+      playbackStartPosition_ = currentPosition_;
+      playbackClockStart_ = std::chrono::steady_clock::now();
+    }
+    clockTrim_ = 1.0;
+    clockDriftPrimed_ = false;
   }
 
   // ── DID THE PLAYHEAD JUMP? ───────────────────────────────────────────────
@@ -11322,18 +11368,20 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
 // pixels are as chunky at 4K as at 1080p.
 // ---------------------------------------------------------------------------
 namespace {
-double swirlField(double px, double py, double cw, double ch, double t, double twist) {
+double swirlField(double px, double py, double cw, double ch, double t, double twist,
+                  double zoom, double flow, double centreX, double centreY) {
   const double s = std::min(cw, ch);
-  double ux = (px - 0.5 * cw) / s * 2.4;
-  double uy = (py - 0.5 * ch) / s * 2.4;
+  // The field's own y runs up the screen, so the centre's does too.
+  double ux = (px - centreX * cw) / s * 2.4 / zoom;
+  double uy = (py - (1.0 - centreY) * ch) / s * 2.4 / zoom;
   const double r = std::sqrt(ux * ux + uy * uy);
   double a = std::atan2(uy, ux) + t * 0.40 - r * twist;
   ux = std::cos(a) * r;
   uy = std::sin(a) * r;
   for (int i = 0; i < 5; ++i) {
     const double fi = static_cast<double>(i);
-    const double nx = ux + 0.40 * std::sin(uy * 1.30 + t * 0.85 + fi);
-    const double ny = uy + 0.40 * std::cos(ux * 1.10 - t * 0.65 + fi * 1.7);
+    const double nx = ux + 0.40 * flow * std::sin(uy * 1.30 + t * 0.85 + fi);
+    const double ny = uy + 0.40 * flow * std::cos(ux * 1.10 - t * 0.65 + fi * 1.7);
     ux = nx;
     uy = ny;
   }
@@ -11352,8 +11400,14 @@ void buildSwirl(DecodedFrame& frame, double seconds, const SwirlSettings& settin
   const int cw = std::min(W, std::clamp(settings.cells, 64, 960));
   const int ch = std::clamp((H * cw + W / 2) / W, 1, H);
   // A little slower than real time, and well into the motion from the start.
-  const double t = seconds * 0.9 * std::clamp(settings.speed, 0.0, 3.0) + 40.0;
+  // Negative speed runs the field backwards from the same starting point.
+  const double t = seconds * 0.9 * std::clamp(settings.speed, -3.0, 3.0) + 40.0;
   const double twist = std::clamp(settings.twist, 0.0, 4.0);
+  const double zoom = std::clamp(settings.zoom, 0.25, 4.0);
+  const double flow = std::clamp(settings.flow, 0.0, 3.0);
+  const double centreX = std::clamp(settings.centreX, 0.0, 1.0);
+  const double centreY = std::clamp(settings.centreY, 0.0, 1.0);
+  const int bands = std::clamp(settings.bands, 2, 8);
   // One field value per cell, plus a column and a row more for the outline.
   std::vector<double> field(static_cast<std::size_t>((cw + 1) * (ch + 1)));
   deckboy::effects::detail::parallelRows(ch + 1, cw + 1, [&](int r0, int r1) {
@@ -11361,16 +11415,39 @@ void buildSwirl(DecodedFrame& frame, double seconds, const SwirlSettings& settin
       for (int x = 0; x <= cw; ++x) {
         // The shader's y runs up the screen; ours runs down.
         field[static_cast<std::size_t>(y * (cw + 1) + x)] =
-          swirlField(x + 0.5, (ch - 1 - y) + 0.5, cw, ch, t, twist);
+          swirlField(x + 0.5, (ch - 1 - y) + 0.5, cw, ch, t, twist, zoom, flow, centreX, centreY);
       }
     }
   });
-  auto band = [](double v) {
-    return std::clamp(static_cast<int>(std::floor((v * 0.5 + 0.5) * 4.0)), 0, 3);
+  auto band = [bands](double v) {
+    return std::clamp(static_cast<int>(std::floor((v * 0.5 + 0.5) * bands)), 0, bands - 1);
   };
-  std::array<std::array<std::uint8_t, 3>, 6> palette {{
-    {12, 41, 12}, {23, 74, 23}, {51, 117, 42}, {84, 143, 38},
-    {252, 254, 31}, {7, 26, 7}}};
+  // Four stops dark to light, then the crest and the outline. Classic is the
+  // original green, and the bands are spread evenly along the four stops, so
+  // four bands of Classic are exactly the original four greens.
+  static constexpr std::uint8_t kStops[kSwirlPaletteCount][6][3] = {
+    {{12, 41, 12}, {23, 74, 23}, {51, 117, 42}, {84, 143, 38}, {252, 254, 31}, {7, 26, 7}},
+    {{24, 4, 0}, {120, 22, 0}, {220, 92, 12}, {255, 196, 48}, {255, 250, 210}, {10, 0, 0}},
+    {{2, 10, 30}, {10, 50, 110}, {40, 130, 200}, {150, 220, 255}, {240, 255, 255}, {0, 4, 15}},
+    {{20, 0, 40}, {120, 0, 160}, {240, 30, 170}, {40, 240, 255}, {255, 255, 255}, {5, 0, 15}},
+    {{16, 16, 16}, {72, 72, 72}, {150, 150, 150}, {230, 230, 230}, {255, 255, 255}, {0, 0, 0}},
+  };
+  const auto& stops = kStops[std::clamp(settings.palette, 0, kSwirlPaletteCount - 1)];
+  // The band colours, then the crest at [bands] and the outline at [bands + 1].
+  std::array<std::array<std::uint8_t, 3>, 10> palette {};
+  for (int k = 0; k < bands; ++k) {
+    const double at = static_cast<double>(k) / (bands - 1) * 3.0;
+    const int lo = std::min(2, static_cast<int>(at));
+    const double f = at - lo;
+    for (int c = 0; c < 3; ++c) {
+      palette[static_cast<std::size_t>(k)][static_cast<std::size_t>(c)] = static_cast<std::uint8_t>(
+        std::lround(stops[lo][c] + (stops[lo + 1][c] - stops[lo][c]) * f));
+    }
+  }
+  for (int c = 0; c < 3; ++c) {
+    palette[static_cast<std::size_t>(bands)][static_cast<std::size_t>(c)] = stops[4][c];
+    palette[static_cast<std::size_t>(bands + 1)][static_cast<std::size_t>(c)] = stops[5][c];
+  }
   const double hue = std::clamp(settings.hue, 0.0, 1.0);
   // Turn six palette entries once, retaining their brightness and saturation.
   // Doing colour work per output pixel would multiply the cost at 4K.
@@ -11396,7 +11473,7 @@ void buildSwirl(DecodedFrame& frame, double seconds, const SwirlSettings& settin
         const bool edge =
           band(field[static_cast<std::size_t>(cy * (cw + 1) + cx + 1)]) != b ||
           band(field[static_cast<std::size_t>((cy + 1) * (cw + 1) + cx)]) != b;
-        const auto& c = palette[edge ? 5 : (v > 0.965 ? 4 : b)];
+        const auto& c = palette[static_cast<std::size_t>(edge ? bands + 1 : (v > 0.965 ? bands : b))];
         for (int py = cy * H / ch; py < (cy + 1) * H / ch; ++py) {
           std::uint8_t* row = frame.pixels.data() + (static_cast<std::size_t>(py) * W) * 4u;
           for (int px = cx * W / cw; px < (cx + 1) * W / cw; ++px) {

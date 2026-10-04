@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-04 - v0.99.403 (Web Monitor playback, phone access and readable themes)
+## 2026-10-04 - v0.99.403 (lip sync for long shows, Web Monitor sources, readable themes)
 
 **Web Monitor playback.** The browser player uses HLS with one timeline for
 picture and sound, a short network buffer and automatic reconnection. It fits
@@ -29,6 +29,15 @@ windows, programme tile, labels and level meters, sized for the output.
 address as a large QR code for a phone camera; `WEBMONITOR QR` shows it from a
 controller. The code carries the address only: a phone still asks for the
 passphrase.
+
+**Lip sync over long shows.** Playing video now follows the sound card's
+clock continuously, steering out any difference smoothly, so picture and sound
+stay together for the whole of a long show rather than drifting slowly apart
+and catching up in a jump.
+
+**Swirl controls.** The Swirl pattern gains palettes (classic, fire, ice,
+neon, mono), colour bands, zoom, flow, a movable centre and reverse speed, in
+the inspector and over the wire. Existing Swirl cues look exactly as before.
 
 **Readable themes.** Every label is held to a readable contrast against the
 surface actually behind it, in all thirty bundled themes. Help and warning

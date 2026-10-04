@@ -472,12 +472,25 @@ struct LowerThirdDesign {
 //
 // Every control is 0-1 or a count, and the defaults are the look it arrives
 // with -- a show that never touched them gets exactly that.
+// Every default reproduces the Swirl as it looked before the control existed,
+// so a show saved earlier plays exactly as it did.
 struct SwirlSettings {
-  double speed = 1.0;     // 0 holds the field; 3 runs at triple speed
+  double speed = 1.0;     // -3..3: 0 holds the field, negative runs it backwards
   double twist = 1.35;    // spiral turns per radius, 0-4
   int cells = 480;        // horizontal field cells, 64-960
   double hue = 0.0;       // one turn of the palette, 0-1
+  double zoom = 1.0;      // 0.25-4: above 1 the spirals are bigger
+  double flow = 1.0;      // 0-3: turbulence, from still ripples to boiling
+  double centreX = 0.5;   // where the eye of the swirl sits, 0-1 across
+  double centreY = 0.5;   // and 0-1 down
+  int bands = 4;          // 2-8 colour steps
+  int palette = 0;        // 0 classic, 1 fire, 2 ice, 3 neon, 4 mono
 };
+inline constexpr int kSwirlPaletteCount = 5;
+inline const char* swirlPaletteName(int palette) {
+  static const char* kNames[kSwirlPaletteCount] = {"classic", "fire", "ice", "neon", "mono"};
+  return kNames[palette >= 0 && palette < kSwirlPaletteCount ? palette : 0];
+}
 
 struct PortalSettings {
   int blobs = 18;        // how many are alive at once, 3-48

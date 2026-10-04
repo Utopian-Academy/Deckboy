@@ -1259,6 +1259,12 @@ class MediaEngine {
   double audioClockStartSeconds_ = 0.0;               // cue position where the audio pipe started
   bool audioClockValid_ = false;                      // audio pipe live for this cue (not a live stream)
   double lastAudioClockSeconds_ = -1.0;               // last observed audio clock (stall detection)
+  // The picture clock's rate trim and the smoothed picture-minus-sound error
+  // it steers by (see the audio-master correction in update()). Main thread.
+  double clockTrim_ = 1.0;
+  double clockDriftFiltered_ = 0.0;
+  bool clockDriftPrimed_ = false;
+  std::chrono::steady_clock::time_point clockDriftLastTick_ {};
   // Frames sitting in the operator's audio delay line: counted by
   // audioFramesQueued_ but not yet handed to the device, so the video clock
   // has to subtract them as well as the device's own queue. An atomic mirror

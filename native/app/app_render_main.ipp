@@ -5165,15 +5165,26 @@
           const SwirlSettings& s = selectedCue->swirl;
           struct SwirlRow { const char* label; NumericParam id; double value; const char* tip; };
           const SwirlRow rows[] = {
-            {"speed", NumericParam::SwirlSpeed, s.speed, "0 holds the field; 1 normal; 3 triple speed"},
+            {"palette", NumericParam::SwirlPalette, static_cast<double>(s.palette), "Classic green, fire, ice, neon or mono"},
+            {"colour", NumericParam::SwirlHue, s.hue, "Turn the palette through all colours; 0 restores it"},
+            {"bands", NumericParam::SwirlBands, static_cast<double>(s.bands), "Colour steps: 2 is stark, 8 is smooth"},
+            {"speed", NumericParam::SwirlSpeed, s.speed, "0 holds the field; negative runs it backwards"},
             {"twist", NumericParam::SwirlTwist, s.twist, "Spiral strength, from a flowing field to tight turns"},
-            {"pixels", NumericParam::SwirlCells, static_cast<double>(s.cells), "Horizontal cells. More detail uses more CPU"},
-            {"colour", NumericParam::SwirlHue, s.hue, "Turn the palette through all colours; 0 restores green and yellow"}
+            {"flow", NumericParam::SwirlFlow, s.flow, "Turbulence: 0 is still ripples, 3 boils"},
+            {"zoom", NumericParam::SwirlZoom, s.zoom, "Spiral size: above 1 is bigger"},
+            {"centre x", NumericParam::SwirlCentreX, s.centreX, "Where the eye of the swirl sits, left to right"},
+            {"centre y", NumericParam::SwirlCentreY, s.centreY, "Where the eye of the swirl sits, top to bottom"},
+            {"pixels", NumericParam::SwirlCells, static_cast<double>(s.cells), "Horizontal cells. More detail uses more CPU"}
           };
           for (const auto& row : rows) {
             char text[24];
-            if (row.id == NumericParam::SwirlCells) std::snprintf(text, sizeof(text), "%.0f", row.value);
-            else if (row.id == NumericParam::SwirlHue) std::snprintf(text, sizeof(text), "%.0f%%", row.value * 100);
+            if (row.id == NumericParam::SwirlPalette)
+              std::snprintf(text, sizeof(text), "%s", swirlPaletteName(static_cast<int>(row.value)));
+            else if (row.id == NumericParam::SwirlCells || row.id == NumericParam::SwirlBands)
+              std::snprintf(text, sizeof(text), "%.0f", row.value);
+            else if (row.id == NumericParam::SwirlHue || row.id == NumericParam::SwirlCentreX ||
+                     row.id == NumericParam::SwirlCentreY)
+              std::snprintf(text, sizeof(text), "%.0f%%", row.value * 100);
             else std::snprintf(text, sizeof(text), "%.2f", row.value);
             inspDrawQuickRow(ix, swY, row.label, QuickAction::NumericParamDec, text,
               QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,

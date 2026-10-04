@@ -64,6 +64,12 @@ enum class NumericParam : int {
   SwirlTwist,
   SwirlCells,
   SwirlHue,
+  SwirlZoom,
+  SwirlFlow,
+  SwirlCentreX,
+  SwirlCentreY,
+  SwirlBands,
+  SwirlPalette,
 };
 
 struct NumericParamSpec {
@@ -82,7 +88,7 @@ struct NumericParamSpec {
 const NumericParamSpec* numericParamSpec(NumericParam id) {
   switch (id) {
     case NumericParam::SwirlSpeed: {
-      static const NumericParamSpec s {"swirl.speed", "Speed", "0 holds, 1 normal, 3 triple speed", 0, 3, 2, false, 0.1};
+      static const NumericParamSpec s {"swirl.speed", "Speed", "-3 to 3: 0 holds, negative runs backwards", -3, 3, 2, false, 0.1};
       return &s;
     }
     case NumericParam::SwirlTwist: {
@@ -95,6 +101,30 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
     }
     case NumericParam::SwirlHue: {
       static const NumericParamSpec s {"swirl.hue", "Colour", "Palette turn, 0-1", 0, 1, 2, false, 0.02};
+      return &s;
+    }
+    case NumericParam::SwirlZoom: {
+      static const NumericParamSpec s {"swirl.zoom", "Zoom", "Spiral size, 0.25-4", 0.25, 4, 2, false, 0.05};
+      return &s;
+    }
+    case NumericParam::SwirlFlow: {
+      static const NumericParamSpec s {"swirl.flow", "Flow", "Turbulence, 0 still to 3 boiling", 0, 3, 2, false, 0.1};
+      return &s;
+    }
+    case NumericParam::SwirlCentreX: {
+      static const NumericParamSpec s {"swirl.cx", "Centre X", "Where the eye sits, 0 left to 1 right", 0, 1, 2, false, 0.02};
+      return &s;
+    }
+    case NumericParam::SwirlCentreY: {
+      static const NumericParamSpec s {"swirl.cy", "Centre Y", "Where the eye sits, 0 top to 1 bottom", 0, 1, 2, false, 0.02};
+      return &s;
+    }
+    case NumericParam::SwirlBands: {
+      static const NumericParamSpec s {"swirl.bands", "Bands", "Colour steps, 2-8", 2, 8, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::SwirlPalette: {
+      static const NumericParamSpec s {"swirl.palette", "Palette", "0 classic, 1 fire, 2 ice, 3 neon, 4 mono", 0, 4, 0, true, 1};
       return &s;
     }
     case NumericParam::CodeWidth:
@@ -281,10 +311,22 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
     case NumericParam::SwirlTwist:
     case NumericParam::SwirlCells:
     case NumericParam::SwirlHue:
+    case NumericParam::SwirlZoom:
+    case NumericParam::SwirlFlow:
+    case NumericParam::SwirlCentreX:
+    case NumericParam::SwirlCentreY:
+    case NumericParam::SwirlBands:
+    case NumericParam::SwirlPalette:
       if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "swirl") return false;
       out = id == NumericParam::SwirlSpeed ? cue.swirl.speed
           : id == NumericParam::SwirlTwist ? cue.swirl.twist
-          : id == NumericParam::SwirlCells ? cue.swirl.cells : cue.swirl.hue;
+          : id == NumericParam::SwirlCells ? cue.swirl.cells
+          : id == NumericParam::SwirlHue ? cue.swirl.hue
+          : id == NumericParam::SwirlZoom ? cue.swirl.zoom
+          : id == NumericParam::SwirlFlow ? cue.swirl.flow
+          : id == NumericParam::SwirlCentreX ? cue.swirl.centreX
+          : id == NumericParam::SwirlCentreY ? cue.swirl.centreY
+          : id == NumericParam::SwirlBands ? cue.swirl.bands : cue.swirl.palette;
       return true;
     case NumericParam::CodeWidth:
     case NumericParam::CodeHeight:
@@ -357,6 +399,12 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::SwirlTwist: cue.swirl.twist = value; break;
     case NumericParam::SwirlCells: cue.swirl.cells = static_cast<int>(std::lround(value)); break;
     case NumericParam::SwirlHue: cue.swirl.hue = value; break;
+    case NumericParam::SwirlZoom: cue.swirl.zoom = value; break;
+    case NumericParam::SwirlFlow: cue.swirl.flow = value; break;
+    case NumericParam::SwirlCentreX: cue.swirl.centreX = value; break;
+    case NumericParam::SwirlCentreY: cue.swirl.centreY = value; break;
+    case NumericParam::SwirlBands: cue.swirl.bands = static_cast<int>(std::lround(value)); break;
+    case NumericParam::SwirlPalette: cue.swirl.palette = static_cast<int>(std::lround(value)); break;
     case NumericParam::CodeWidth: cue.width = static_cast<int>(std::lround(value)); break;
     case NumericParam::CodeHeight: cue.height = static_cast<int>(std::lround(value)); break;
     case NumericParam::VsSpeed:      v.speed = value; break;

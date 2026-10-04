@@ -5360,20 +5360,31 @@
       if (sub == "STATUS" && parts.size() <= 2) {
         std::ostringstream status;
         status << "swirl speed=" << cue->swirl.speed << " twist=" << cue->swirl.twist
-               << " pixels=" << cue->swirl.cells << " colour=" << cue->swirl.hue;
+               << " pixels=" << cue->swirl.cells << " colour=" << cue->swirl.hue
+               << " zoom=" << cue->swirl.zoom << " flow=" << cue->swirl.flow
+               << " centre=" << cue->swirl.centreX << "," << cue->swirl.centreY
+               << " bands=" << cue->swirl.bands << " palette=" << swirlPaletteName(cue->swirl.palette);
         remoteCommandDetail_ = status.str();
         return;
       }
       const NumericParam id = sub == "SPEED" ? NumericParam::SwirlSpeed
         : sub == "TWIST" ? NumericParam::SwirlTwist
         : sub == "PIXELS" ? NumericParam::SwirlCells
-        : sub == "COLOUR" || sub == "COLOR" ? NumericParam::SwirlHue : NumericParam::None;
+        : sub == "COLOUR" || sub == "COLOR" ? NumericParam::SwirlHue
+        : sub == "ZOOM" ? NumericParam::SwirlZoom
+        : sub == "FLOW" ? NumericParam::SwirlFlow
+        : sub == "CENTREX" || sub == "CENTERX" ? NumericParam::SwirlCentreX
+        : sub == "CENTREY" || sub == "CENTERY" ? NumericParam::SwirlCentreY
+        : sub == "BANDS" ? NumericParam::SwirlBands
+        : sub == "PALETTE" ? NumericParam::SwirlPalette : NumericParam::None;
       const NumericParamSpec* spec = numericParamSpec(id);
       const auto value = parseNumber(2);
       if (parts.size() != 3 || !spec || !value || !std::isfinite(*value) ||
           *value < spec->lo || *value > spec->hi ||
           (spec->integral && std::floor(*value) != *value)) {
-        failRemoteCommand("SWIRL: STATUS | SPEED <0-3> | TWIST <0-4> | PIXELS <64-960> | COLOUR <0-1>");
+        failRemoteCommand("SWIRL: STATUS | SPEED <-3-3> | TWIST <0-4> | PIXELS <64-960> | COLOUR <0-1> | "
+                          "ZOOM <0.25-4> | FLOW <0-3> | CENTREX <0-1> | CENTREY <0-1> | BANDS <2-8> | "
+                          "PALETTE <0-4>");
         return;
       }
       forEachFocusedSelectedCueMutable([&](Cue& each, int) {

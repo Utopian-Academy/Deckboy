@@ -1489,12 +1489,22 @@ smooth, and diagonal; full-frame solid colours have no motion option.
 - **Swirl** — a slow spiral of melting pixel greens with a yellow crest, the
   look of Deckboy's own trailer. Set dressing for a holding screen or a backdrop
   behind a lower third, generated live without a video loop. Its inspector
-  controls speed (0–3, with 0 holding the field), twist (0–4), pixel density
-  (64–960 horizontal cells), and colour (one turn around the hue wheel).
-  Changes apply while it plays and are saved with the cue. Colour 0 or 100%
-  restores the original green/yellow palette. Over the wire: `SWIRL [STATUS]`,
-  `SWIRL SPEED <0-3>`, `SWIRL TWIST <0-4>`, `SWIRL PIXELS <64-960>`,
-  `SWIRL COLOUR <0-1>` (`COLOR` is also accepted).
+  controls:
+  - **palette** — classic green, fire, ice, neon or mono, and **colour**, one
+    turn around the hue wheel (0 or 100% leaves the palette as it is);
+  - **bands** — 2 to 8 colour steps, from stark to smooth;
+  - **speed** — −3 to 3: 0 holds the field, negative runs it backwards;
+  - **twist** — 0–4, from a flowing field to tight spirals;
+  - **flow** — 0–3, from still ripples to boiling;
+  - **zoom** — 0.25–4, the size of the spirals;
+  - **centre x / centre y** — where the eye of the swirl sits;
+  - **pixels** — 64–960 horizontal cells.
+
+  Changes apply while it plays and are saved with the cue; a Swirl made before
+  these controls looks exactly as it did. Over the wire: `SWIRL [STATUS]` and
+  `SWIRL SPEED|TWIST|PIXELS|COLOUR|ZOOM|FLOW|CENTREX|CENTREY|BANDS|PALETTE <n>`
+  (`COLOR` and `CENTERX`/`CENTERY` are also accepted; PALETTE is 0 classic,
+  1 fire, 2 ice, 3 neon, 4 mono).
 - **Pocket Test** — a PM5544-style test card with a bouncing scene-porthole
   ball, a sync beacon, and an audio sync pop at the top of each second (use it
   to dial the A/V delay offset).

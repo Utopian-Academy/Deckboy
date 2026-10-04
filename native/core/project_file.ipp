@@ -937,6 +937,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.swirl.twist
         << '\t' << cue.swirl.cells
         << '\t' << cue.swirl.hue
+        << '\t' << cue.swirl.zoom
+        << '\t' << cue.swirl.flow
+        << '\t' << cue.swirl.centreX
+        << '\t' << cue.swirl.centreY
+        << '\t' << cue.swirl.bands
+        << '\t' << cue.swirl.palette
         << '\n';
     }
   }
@@ -2381,10 +2387,17 @@ Project loadProject(const fs::path& projectFile,
         }
         {
           const SwirlSettings fresh;
-          cue.swirl.speed = std::clamp(safeDouble(fields, vs + 128, fresh.speed), 0.0, 3.0);
+          cue.swirl.speed = std::clamp(safeDouble(fields, vs + 128, fresh.speed), -3.0, 3.0);
           cue.swirl.twist = std::clamp(safeDouble(fields, vs + 129, fresh.twist), 0.0, 4.0);
           cue.swirl.cells = std::clamp(safeInt(fields, vs + 130, fresh.cells), 64, 960);
           cue.swirl.hue = std::clamp(safeDouble(fields, vs + 131, fresh.hue), 0.0, 1.0);
+          cue.swirl.zoom = std::clamp(safeDouble(fields, vs + 132, fresh.zoom), 0.25, 4.0);
+          cue.swirl.flow = std::clamp(safeDouble(fields, vs + 133, fresh.flow), 0.0, 3.0);
+          cue.swirl.centreX = std::clamp(safeDouble(fields, vs + 134, fresh.centreX), 0.0, 1.0);
+          cue.swirl.centreY = std::clamp(safeDouble(fields, vs + 135, fresh.centreY), 0.0, 1.0);
+          cue.swirl.bands = std::clamp(safeInt(fields, vs + 136, fresh.bands), 2, 8);
+          cue.swirl.palette = std::clamp(safeInt(fields, vs + 137, fresh.palette), 0,
+                                         kSwirlPaletteCount - 1);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
