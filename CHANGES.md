@@ -35,6 +35,13 @@ clock continuously, steering out any difference smoothly, so picture and sound
 stay together for the whole of a long show rather than drifting slowly apart
 and catching up in a jump.
 
+**Sound on every stream.** Streams, recordings and the Web Monitor carry
+the decks' sound on macOS and Linux, as they do on Windows.
+
+**Web Monitor on modest computers.** When a computer cannot encode the Web
+Monitor in time, it steps to a lighter encoder, then 720p, then 540p, and
+says so, so the monitor keeps playing.
+
 **Swirl controls.** The Swirl pattern gains palettes (classic, fire, ice,
 neon, mono), colour bands, zoom, flow, a movable centre and reverse speed, in
 the inspector and over the wire. Existing Swirl cues look exactly as before.
