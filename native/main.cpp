@@ -10632,6 +10632,7 @@ class App {
   std::atomic<int> webMonitorMaxClients_ {8};        // accept thread reads; main thread sets
   bool webMonitorLowLatencySnapshot_ = false;        // guarded by webMonitorDirMutex_
   int webMonitorSourceSnapshot_ = -1;                // what the web output mirrors
+  int webEncodeEase_ = 0;                            // 0 as chosen; 1-3 lighter steps
   std::string webMonitorPinSnapshot_;
   int webMonitorHeightSnapshot_ = 1080;
   Uint64 webMonitorDirSyncedMs_ = 0;

@@ -2051,6 +2051,7 @@ html,body{width:100%;height:100%;overflow:hidden}
   void setWebMonitorEnabled(bool enabled) {
     project_.webMonitorEnabled = enabled;
     if (enabled) {
+      webEncodeEase_ = 0;
       if (!startWebMonitor()) {
         triggerToast(project_.webMonitorShareLan && project_.webMonitorPin.size() < 8
           ? "web monitor: network sharing requires an 8+ character passphrase"
@@ -2120,6 +2121,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     if (height != 720 && height != 1080 && height != 1440 && height != 2160) return;
     if (project_.webMonitorMaxHeight == height) return;
     project_.webMonitorMaxHeight = height;
+    webEncodeEase_ = 0;   // the operator's choice gets a fresh chance
     const int webOutput = findStreamOutputForProtocol("web");
     if (webOutput >= 0) stopOutputStream(webOutput);
     triggerToast("web monitor quality: " + std::to_string(height) + "p");

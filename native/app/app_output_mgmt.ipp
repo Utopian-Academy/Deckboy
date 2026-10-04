@@ -1750,6 +1750,30 @@
     return buf;
   }
 
+  // THE PICTURE THE WEB MONITOR ENCODES: the operator's maximum, eased down
+  // when this computer has shown it cannot keep up (stepDownWebEncode).
+  int webEncodeHeight() const {
+    int h = (project_.webMonitorMaxHeight == 720 || project_.webMonitorMaxHeight == 1440 ||
+             project_.webMonitorMaxHeight == 2160) ? project_.webMonitorMaxHeight : 1080;
+    if (webEncodeEase_ >= 3) h = std::min(h, 540);
+    else if (webEncodeEase_ >= 2) h = std::min(h, 720);
+    return h;
+  }
+
+  // One step lighter: the fastest encoder preset first (a slightly softer
+  // picture), then 720p, then 540p. Each step says so. Reset when the
+  // operator changes the quality or turns the monitor on.
+  void stepDownWebEncode() {
+    if (webEncodeEase_ >= 3) return;
+    ++webEncodeEase_;
+    triggerToast(webEncodeEase_ == 1
+                   ? "web monitor: this computer is behind - using a lighter encoder"
+                   : "web monitor: this computer is behind - sending " +
+                       std::to_string(webEncodeHeight()) + "p",
+                 ToastKind::Warning, kToastReadableMs);
+    webMonitorDirSyncedMs_ = 0;
+  }
+
   double outputStreamFps(double fpsHint) const {
     if (std::isfinite(project_.outputRefreshRateHz) && project_.outputRefreshRateHz > 1.0) {
       return std::clamp(project_.outputRefreshRateHz, 1.0, 120.0);
@@ -1952,10 +1976,7 @@
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     if (toWeb) {
-      const int maxHeight = (project_.webMonitorMaxHeight == 720 ||
-                             project_.webMonitorMaxHeight == 1440 ||
-                             project_.webMonitorMaxHeight == 2160)
-        ? project_.webMonitorMaxHeight : 1080;
+      const int maxHeight = webEncodeHeight();
       const int qualityFloorKbps = maxHeight >= 2160 ? 30000
                                   : maxHeight >= 1440 ? 16000
                                   : maxHeight >= 1080 ? 8000 : 4000;
@@ -1970,7 +1991,7 @@
          << width << 'x' << height << '|'
          << std::fixed << std::setprecision(2) << fps << '|'
          << bitrateKbps << '|'
-         << (toWeb ? project_.webMonitorMaxHeight : 0) << '|'
+         << (toWeb ? webEncodeHeight() * 10 + webEncodeEase_ : 0) << '|'
          << colorSpace;
     return spec.str();
   }
@@ -2148,10 +2169,7 @@
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     if (toWeb) {
-      const int maxHeight = (project_.webMonitorMaxHeight == 720 ||
-                             project_.webMonitorMaxHeight == 1440 ||
-                             project_.webMonitorMaxHeight == 2160)
-        ? project_.webMonitorMaxHeight : 1080;
+      const int maxHeight = webEncodeHeight();
       const int qualityFloorKbps = maxHeight >= 2160 ? 30000
                                   : maxHeight >= 1440 ? 16000
                                   : maxHeight >= 1080 ? 8000 : 4000;
@@ -2267,16 +2285,14 @@
       args.insert(args.end(), codecArgs.begin(), codecArgs.end());
     } else {
       args.insert(args.end(),
-                  {"-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p"});
+                  {"-c:v", "libx264", "-preset",
+                   toWeb && webEncodeEase_ >= 1 ? "ultrafast" : "veryfast", "-pix_fmt", "yuv420p"});
       if (toWeb) {
         // A fixed profile and level, so the page can name the codec to the
         // browser's MediaSource without parsing the stream: avc1.4D4029.
         // Respect the operator's Web Monitor maximum picture height. Keep the
         // source aspect ratio and never upscale a smaller programme raster.
-        const int maxHeight = (project_.webMonitorMaxHeight == 720 ||
-                               project_.webMonitorMaxHeight == 1440 ||
-                               project_.webMonitorMaxHeight == 2160)
-          ? project_.webMonitorMaxHeight : 1080;
+        const int maxHeight = webEncodeHeight();
         const std::string level = maxHeight >= 2160 ? "5.2"
                                 : maxHeight >= 1440 ? "5.1" : "4.2";
         args.insert(args.end(), {"-profile:v", "main", "-level:v", level,
@@ -3711,7 +3727,7 @@
     if (scaledEgress) {
       // 0 means "follow the input", which is the default and the sane one: a
       // recording should look like what went in unless someone says otherwise.
-      const int webHeight = std::min(captureH, project_.webMonitorMaxHeight);
+      const int webHeight = std::min(captureH, webEncodeHeight());
       const int targetW = webEgress
         ? std::max(2, static_cast<int>(std::lround(static_cast<double>(captureW) * webHeight / captureH / 2.0)) * 2)
         : project_.recordingWidth > 0 ? project_.recordingWidth : captureW;
@@ -4244,7 +4260,10 @@
       if (runtime->webFramesQueued >= owed) return;
       if (owed - runtime->webFramesQueued > static_cast<std::uint64_t>(rate * 2.0)) {
         // A sustained overload cannot be repaired by sending old audio with
-        // a current picture. Rejoin at a new, synchronized encoder epoch.
+        // a current picture. Rejoin at a new, synchronized encoder epoch --
+        // and LIGHTER, a step at a time, or a machine that cannot encode this
+        // picture in time restarts forever and nobody ever sees a monitor.
+        stepDownWebEncode();
         stopOutputStreamRuntime(*runtime);
         setOutputHealthState(outputIndex, OutputHealthState::Recovering, "web encoder cannot keep up");
         return;
