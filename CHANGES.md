@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-05 - v0.99.404 (remote takes name a real cue, first save asks where)
+
+**Remote takes name a real cue.** `TAKE <cue>` and `SELECT <cue>` from
+Companion, OSC, MIDI or an Art-Net channel act only on a cue the deck has. Ask
+for one it does not have and Deckboy answers `ERR`, names the deck and how many
+cues it holds, and leaves the deck exactly as it was.
+
+**The first SAVE asks where.** A new show's first `SAVE` (or `Ctrl+S`) opens
+the save dialog so the show gets a file of its own; every `SAVE` after that
+writes straight back to it. `NEW` asks twice before replacing a show that has
+cues but has never been saved.
+
 ## 2026-10-04 - v0.99.403 (lip sync for long shows, Web Monitor sources, readable themes)
 
 **Web Monitor playback.** The browser player uses HLS with one timeline for

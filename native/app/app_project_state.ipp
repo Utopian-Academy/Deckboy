@@ -176,6 +176,36 @@
     return Paths::normalizeProjectPath(path);
   }
 
+  // True while the show lives only in the scratch file: a new show, or the
+  // one that opens on a first launch. Every edit is autosaved there, so the
+  // show is never "dirty" for long -- but it has no home of its own, and the
+  // next NEW reuses the same file. DECKBOY_PROJECT names a real file on
+  // purpose, so it is not scratch.
+  bool projectIsInScratchFile() const {
+    return isScratchProjectFile(currentProjectFile_);
+  }
+
+  static bool isScratchProjectFile(const fs::path& file) {
+    if (file.empty()) {
+      return true;
+    }
+    const fs::path scratch = Paths::defaultProjectFile();
+    std::error_code ec;
+    if (fs::equivalent(file, scratch, ec) && !ec) {
+      return true;
+    }
+    return file.lexically_normal() == scratch.lexically_normal();
+  }
+
+  bool projectHasCues() const {
+    for (const auto& deck : project_.decks) {
+      if (!deck.cues.empty()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   std::string currentProjectLabel() const {
     if (currentProjectFile_.empty()) {
       return "default.deckboy";
@@ -1796,7 +1826,10 @@
     // true: a prompt claiming outputs go dark when nothing was live is its
     // own kind of wrong.
     const bool live = showIsLive();
-    const bool unsaved = projectDirty_;
+    // Autosave clears projectDirty_ within 300ms, so on its own this almost
+    // never tripped. A show that only exists in the scratch file is unsaved
+    // however clean it looks: NEW is about to reuse that file.
+    const bool unsaved = projectDirty_ || (projectIsInScratchFile() && projectHasCues());
     if (live || unsaved) {
       Uint64 now = SDL_GetTicks();
       bool confirmed = !pendingNewShowConfirmMessage_.empty() &&
@@ -3974,6 +4007,14 @@
   void failRemoteCommand(const std::string& reason) {
     remoteCommandError_ = reason;
     triggerToast(reason, ToastKind::Warning, kToastReadableMs);
+  }
+
+  // "TAKE: no cue 99 on deck 1 (10 cues)" -- names the deck and its size, so a
+  // caller counting from the wrong end can see why.
+  std::string noSuchCueReason(const std::string& verb, const std::string& token) const {
+    const int cueCount = static_cast<int>(focusedDeck().cues.size());
+    return verb + ": no cue " + token + " on deck " + std::to_string(project_.focusedDeckIndex + 1) +
+           " (" + std::to_string(cueCount) + (cueCount == 1 ? " cue)" : " cues)");
   }
 
   bool enqueueRemoteCommand(std::string command, SocketHandle replyTo = kInvalidSocket,

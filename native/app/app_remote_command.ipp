@@ -4603,6 +4603,12 @@
       if (!index && parts.size() > 1) {
         index = cueIndexByToken(focusedDeck(), joinParts(parts, 1));
       }
+      // A cue that is not there is an error, not a quiet no-op: the caller
+      // usually TAKEs next, and an OK here sends whatever WAS selected to air.
+      if (!index && parts.size() > 1) {
+        failRemoteCommand(noSuchCueReason("SELECT", joinParts(parts, 1)));
+        return;
+      }
       if (index) {
         Deck& deck = focusedDeckMutable();
         if (deck.selectedIndex != *index || !cueIndexSelected(deck, *index)) {
@@ -4691,9 +4697,20 @@
       return;
     }
     if (command == "TAKE") {
+      // TAKE, TAKE <cue>, TAKE <cue> AUTO. A bare "TAKE AUTO" has always meant
+      // a plain take of the selected cue, and still does.
+      const bool namesCue = parts.size() > 1 && !(parts.size() == 2 && toUpper(parts[1]) == "AUTO");
       auto index = parseCueIndex(1);
-      if (!index && parts.size() > 1) {
+      if (!index && namesCue) {
         index = cueIndexByToken(focusedDeck(), joinParts(parts, 1));
+      }
+      // NAMED A CUE THAT IS NOT THERE: refuse, take nothing. This used to fall
+      // through and take whatever was selected -- TAKE 99 on a ten-cue deck, a
+      // typo, an Art-Net channel past the end of the list all put the wrong
+      // cue on air and answered OK.
+      if (!index && namesCue) {
+        failRemoteCommand(noSuchCueReason("TAKE", parts[1]));
+        return;
       }
       if (index) {
         selectCueInDeck(project_.focusedDeckIndex, *index, false, false);

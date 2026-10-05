@@ -1576,12 +1576,19 @@ Shows are `.deckboy` files (plain text, tab-delimited).
 into a portable folder. Deckboy also autosaves with dirty tracking. The default
 show is `data/default.deckboy`; override with `DECKBOY_PROJECT`.
 
-**NEW asks twice while you are live.** Starting an empty show empties both decks
-and disarms every output, so if an output is armed or a deck is running, the
-first `NEW` (or `Ctrl+N`) only arms the warning banner — press it again within
-2.5 seconds to go through. With nothing on air it goes straight through. The
-show you were on is left on disk either way, and `Ctrl+Z` brings it back (with
-outputs left disarmed, so you re-arm them yourself).
+**The first SAVE asks where.** A new show autosaves to the default show file
+until you give it a name of its own: the first `SAVE` (or `Ctrl+S`) opens the
+save dialog, and every `SAVE` after that writes straight back to the file you
+chose. `SAVE AS` (`Ctrl+Shift+S`) always asks.
+
+**NEW asks twice while you are live, or before a show has been saved.**
+Starting an empty show empties both decks and disarms every output, so if an
+output is armed, a deck is running, or the show has cues but has never been
+saved under its own name, the first `NEW` (or `Ctrl+N`) only arms the warning
+banner — press it again within 2.5 seconds to go through. Otherwise it goes
+straight through. A show you have saved stays on disk, and `Ctrl+Z` brings back
+whichever show you were on (with outputs left disarmed, so you re-arm them
+yourself).
 
 ### Missing media & relink
 

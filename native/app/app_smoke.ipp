@@ -1403,6 +1403,14 @@
       const fs::path smokeDir = fs::temp_directory_path();
       fs::path smokePath = smokeDir / "deckboy-smoke.deckboy";
       expect(saveProject(smokePath, project), "project save");
+      {
+        // SAVE asks where to put a show that only lives in the scratch file;
+        // writing the scratch file and saying "saved" let the next NEW eat it.
+        expect(isScratchProjectFile(Paths::defaultProjectFile()),
+               "a new show in the scratch file counts as never saved");
+        expect(isScratchProjectFile(fs::path()), "a show with no file counts as never saved");
+        expect(!isScratchProjectFile(smokePath), "a show saved under its own name is not scratch");
+      }
       Project loaded = loadProject(smokePath);
       expect(loaded.normalizeTargetLufs == -23.0, "loudness target persists");
       expect(loaded.webMonitorMaxHeight == 2160, "web monitor quality persists");

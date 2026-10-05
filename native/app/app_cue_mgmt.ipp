@@ -1893,8 +1893,13 @@
   // Now SAVE writes to the file that is open, and SAVE AS is the separate,
   // deliberate act of making a new one. A show that has never been written
   // anywhere has no file to write back to, so the first save still asks.
+  //
+  // "Never written anywhere" includes the scratch file. A new show is
+  // autosaved into default.deckboy in the state folder, so the path was never
+  // empty and this check never fired: SAVE wrote the scratch file, said
+  // "saved", and the next NEW overwrote it.
   void saveProjectInPlace() {
-    if (currentProjectFile_.empty()) {
+    if (projectIsInScratchFile()) {
       saveProjectAsFromPicker();
       return;
     }
