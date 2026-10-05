@@ -154,6 +154,9 @@ modules:
       - cp -R data /app/lib/deckboy/data
       - rm -rf /app/lib/deckboy/data/_converted /app/lib/deckboy/data/recordings /app/lib/deckboy/data/*.deckboy
       - mkdir -p /app/bin && ln -sf ../lib/deckboy/bin/Deckboy /app/bin/deckboy
+      # Deckboy Mini: flatpak run --command=deckboy-mini io.github.utopian_academy.Deckboy <clips>
+      - install -Dm755 "$(find /run/build/deckboy -name deckboy-mini -type f -perm -u+x | head -1)" /app/lib/deckboy/bin/deckboy-mini
+      - ln -sf ../lib/deckboy/bin/deckboy-mini /app/bin/deckboy-mini
       - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml
           /app/share/metainfo/io.github.utopian_academy.Deckboy.metainfo.xml
       - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.desktop

@@ -201,6 +201,11 @@ cat > "$APPDIR/AppRun" <<'APPRUN'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "$0")")"
 export DECKBOY_ROOT="$HERE/usr/share/deckboy"
+# `Deckboy.AppImage mini <clips>` runs Deckboy Mini, which travels inside.
+if [ "${1:-}" = "mini" ]; then
+  shift
+  exec "$HERE/usr/bin/deckboy-mini" "$@"
+fi
 exec "$HERE/usr/bin/Deckboy" "$@"
 APPRUN
 chmod +x "$APPDIR/AppRun"

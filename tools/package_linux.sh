@@ -81,6 +81,16 @@ mkdir -p "$STAGE_DIR/bin" "$STAGE_DIR/lib" "$OUTPUT_DIR"
 cp "$BINARY" "$STAGE_DIR/bin/Deckboy"
 chmod +x "$STAGE_DIR/bin/Deckboy"
 
+# Deckboy Mini, the single-deck command-line player. REQUIRED: a tarball that
+# quietly lacked it would look exactly like one where it was left out on purpose.
+if [ ! -f "$BUILD_DIR/deckboy-mini" ]; then
+  echo "error: $BUILD_DIR/deckboy-mini not found - it builds with Deckboy unless DECKBOY_BUILD_MINI is OFF" >&2
+  exit 1
+fi
+cp "$BUILD_DIR/deckboy-mini" "$STAGE_DIR/bin/deckboy-mini"
+chmod +x "$STAGE_DIR/bin/deckboy-mini"
+echo "  + bin/deckboy-mini"
+
 for tool in ffmpeg ffprobe; do
   if src="$(command -v "$tool" 2>/dev/null)"; then
     cp "$src" "$STAGE_DIR/bin/$tool"
@@ -168,7 +178,7 @@ is_excluded() {
 
 echo "Bundling libraries"
 WORKLIST=()
-for f in "$STAGE_DIR/bin/Deckboy" "$STAGE_DIR/bin/ffmpeg" "$STAGE_DIR/bin/ffprobe"; do
+for f in "$STAGE_DIR/bin/Deckboy" "$STAGE_DIR/bin/deckboy-mini" "$STAGE_DIR/bin/ffmpeg" "$STAGE_DIR/bin/ffprobe"; do
   [ -f "$f" ] && WORKLIST+=("$f")
 done
 
@@ -230,12 +240,21 @@ exec "$HERE/bin/Deckboy" "$@"
 LAUNCH
 chmod +x "$STAGE_DIR/deckboy"
 
+# The same launcher for Mini: the deckboy one with the last line changed.
+sed 's#/bin/Deckboy" "\$@"#/bin/deckboy-mini" "$@"#' "$STAGE_DIR/deckboy" > "$STAGE_DIR/deckboy-mini"
+grep -q 'bin/deckboy-mini' "$STAGE_DIR/deckboy-mini" || { echo "error: the deckboy-mini launcher did not come out right" >&2; exit 1; }
+chmod +x "$STAGE_DIR/deckboy-mini"
+
 cat > "$STAGE_DIR/README-linux.txt" <<NOTE
 Deckboy ${VERSION} (Linux ${ARCH})
 
 Run it
 ------
     ./deckboy
+
+Deckboy Mini, the one-deck player for a screen that only needs to play:
+
+    ./deckboy-mini <clips or a folder> [--loop] [--display N]
 
 Nothing to install. SDL3, the FFmpeg libraries and ffmpeg/ffprobe travel with
 the app.

@@ -1963,7 +1963,10 @@ deckboy-mini loop.mp4 --display 2 --hold      # second display, hold the last fr
 ```
 
 On Windows it is `deckboy-mini.exe` beside `Deckboy.exe`; on macOS it is inside
-the app, at `Deckboy.app/Contents/MacOS/deckboy-mini`.
+the app, at `Deckboy.app/Contents/MacOS/deckboy-mini`. On Linux the portable
+download has `./deckboy-mini` beside `./deckboy`, the AppImage runs it as
+`Deckboy.AppImage mini <clips>`, and the Flatpak as
+`flatpak run --command=deckboy-mini io.github.utopian_academy.Deckboy <clips>`.
 
 | Option | Effect |
 |--------|--------|
