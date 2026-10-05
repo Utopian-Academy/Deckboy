@@ -48,17 +48,17 @@ constexpr const char* kHorizontal = "\xE2\x94\x80";   // U+2500 box horizontal
 constexpr const char* kVertical = "\xE2\x94\x82";     // U+2502 box vertical
 constexpr const char* kFull = "\xE2\x96\x93";         // U+2593 dark shade
 constexpr const char* kEmpty = "\xE2\x96\x91";        // U+2591 light shade
-constexpr const char* kPip = "\xE2\x96\xAE";          // U+25AE black vertical rectangle
-constexpr const char* kPipOff = "\xE2\x96\xAF";       // U+25AF white vertical rectangle
-constexpr const char* kPlay = "\xE2\x96\xB6";         // U+25B6 play triangle
-constexpr const char* kPause = "\xE2\x9D\x9A";        // U+275A heavy vertical bar
+constexpr const char* kPip = "\xE2\x96\xA0";          // U+25A0 black square
+constexpr const char* kPipOff = "\xE2\x96\xA1";       // U+25A1 white square
+constexpr const char* kPlay = "\xE2\x96\xBA";         // U+25BA black right-pointing pointer
+constexpr const char* kPause = "\xE2\x80\x96";        // U+2016 double vertical line
 constexpr const char* kStop = "\xE2\x96\xA0";         // U+25A0 black square
-constexpr const char* kNext = "\xE2\x96\xB8";         // U+25B8 small right triangle
+constexpr const char* kNext = "\xE2\x80\xBA";         // U+203A single right angle quotation mark
 constexpr const char* kLog = "\xC2\xBB";              // U+00BB right guillemet
 constexpr const char* kSpark = "\xE2\x9C\xA6";        // U+2726 four-pointed star
 constexpr const char* kDot = "\xC2\xB7";              // U+00B7 middle dot
 constexpr const char* kRing = "\xCB\x9A";             // U+02DA ring above
-constexpr const char* kLogo = "\xE2\x96\x97\xE2\x96\x84\xE2\x96\x96";  // U+2597 U+2584 U+2596 tiny cartridge
+constexpr const char* kLogo = "\xE2\x96\x90\xE2\x96\x80\xE2\x96\x8C";  // U+2590 U+2580 U+258C tiny cartridge
 }  // namespace glyph
 
 // Game Boy LCD greens, darkest to lightest.

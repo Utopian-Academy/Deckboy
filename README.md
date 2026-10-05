@@ -213,7 +213,7 @@ and the whole show runs from the keyboard in its terminal, over SSH too.
 deckboy-mini "Friday keynote" --display 2 --loop
 ```
 
-![Deckboy Mini in a terminal: a boot sequence, then an LCD-green status panel playing cue 3 of 4 with a progress bar, the next cue, volume and remote link, a strip of text that shimmers with the sound, and a log of takes sent over the remote](art/readme/mini-terminal.gif)
+![Deckboy Mini driven from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with a cue list; arrow keys pick cue 3 and take it, a typed 2 takes cue 2, the command line sets the volume, Tab completes a file path to add a fifth cue, the key reference opens, and a double Q quits](art/readme/mini-terminal.gif)
 
 ---
 

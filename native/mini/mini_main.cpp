@@ -38,6 +38,7 @@
 #include <csignal>
 #include <cstdio>
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -170,7 +171,12 @@ Options parseArgs(int argc, char** argv) {
 // name, which is how a kiosk folder of 01_, 02_, 03_ plays in order. Each is
 // probed the way the desk's import probes it -- size, rate, length, sound --
 // because the engine plays from those, not from the file name.
-std::vector<Cue> cuesFor(const std::vector<fs::path>& inputs, double stillSeconds, std::size_t firstId) {
+using Report = std::function<void(const std::string&)>;
+
+void toStderr(const std::string& text) { std::cerr << "deckboy-mini: " << text << "\n"; }
+
+std::vector<Cue> cuesFor(const std::vector<fs::path>& inputs, double stillSeconds, std::size_t firstId,
+                         const Report& report = toStderr) {
   std::vector<fs::path> files;
   for (const fs::path& in : inputs) {
     std::error_code ec;
@@ -183,16 +189,16 @@ std::vector<Cue> cuesFor(const std::vector<fs::path>& inputs, double stillSecond
       files.insert(files.end(), found.begin(), found.end());
     } else if (fs::is_regular_file(in, ec)) {
       if (playable(in)) files.push_back(in);
-      else std::cerr << "deckboy-mini: skipping " << in.string() << " (not a media file)\n";
+      else report("skipping " + in.string() + " (not a media file)");
     } else {
-      std::cerr << "deckboy-mini: " << in.string() << " not found\n";
+      report(in.string() + " not found");
     }
   }
   std::vector<Cue> cues;
   for (const fs::path& f : files) {
     std::optional<Cue> probed = deckboy::core::media::probeCue(fs::absolute(f));
     if (!probed) {
-      std::cerr << "deckboy-mini: skipping " << f.string() << " (could not read it)\n";
+      report("skipping " + f.string() + " (could not read it)");
       continue;
     }
     Cue cue = std::move(*probed);
@@ -505,7 +511,7 @@ class Mini {
         commandText_.clear();
         if (line.find_first_not_of(' ') == std::string::npos) return;
         if (history_.empty() || history_.back() != line) history_.push_back(line);
-        std::string reply = handle(line);
+        std::string reply = handle(line, false);
         // STATUS answers with the whole report; the panel already shows it.
         if (reply.rfind("DECKBOY", 0) == 0) reply = "OK STATUS (see the panel)";
         while (!reply.empty() && (reply.back() == '\n' || reply.back() == '\r')) reply.pop_back();
@@ -613,7 +619,9 @@ class Mini {
 
   // Same shape as the desk's replies: OK <VERB>, ERR <VERB>: <why>, and STATUS
   // as the report itself, so a client written for the desk reads Mini too.
-  std::string handle(const std::string& raw) {
+  // fromNetwork: a command from the remote port is logged as "remote ..."; one
+  // typed on Mini's own command line is logged with its reply by the caller.
+  std::string handle(const std::string& raw, bool fromNetwork = true) {
     std::istringstream in(raw);
     std::vector<std::string> parts;
     for (std::string w; in >> w;) parts.push_back(w);
@@ -650,7 +658,7 @@ class Mini {
     if (verb == "STATUS" || verb == "STATE") return status();
     if (verb == "HELP") return kRemoteHelp;
     if (verb == "PING") return ok();
-    hud_.log("remote " + raw);
+    if (fromNetwork) hud_.log("remote " + raw);
     if (verb == "GO") { go(); return ok(); }
     if (verb == "TAKE") {
       if (arg.empty()) { take(selected_); return ok(); }
@@ -748,7 +756,7 @@ class Mini {
   // New cues go on the end of the list; nothing already playing is touched.
   // Shared by a file dropped on the output and the remote ADD.
   int addInputs(const std::vector<fs::path>& inputs, const char* how) {
-    std::vector<Cue> more = cuesFor(inputs, opt_.stillSeconds, nextId_);
+    std::vector<Cue> more = cuesFor(inputs, opt_.stillSeconds, nextId_, [this](const std::string& t) { hud_.log(t); });
     nextId_ += more.size();
     for (Cue& c : more) cues_.push_back(std::move(c));
     if (!more.empty()) {
