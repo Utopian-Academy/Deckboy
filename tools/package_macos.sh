@@ -95,6 +95,18 @@ for tool in ffmpeg ffprobe; do
   fi
 done
 
+# --- deckboy-mini (single-deck command-line player) ------------------------
+# REQUIRED, not optional: a bundle that quietly lacked it would look exactly
+# like one where it was left out on purpose. Run it as
+#   Deckboy.app/Contents/MacOS/deckboy-mini <files>
+if [ ! -f "$BUILD_DIR/deckboy-mini" ]; then
+  echo "error: $BUILD_DIR/deckboy-mini not found - it builds with Deckboy unless DECKBOY_BUILD_MINI is OFF" >&2
+  exit 1
+fi
+cp "$BUILD_DIR/deckboy-mini" "$MACOS_DIR/deckboy-mini"
+chmod +x "$MACOS_DIR/deckboy-mini"
+echo "  + deckboy-mini"
+
 # --- deckboy-sckcapture (ScreenCaptureKit screen-capture helper) ------------
 # Window/screen cues spawn this next to the app. Built by the same cmake build.
 if [ -f "$BUILD_DIR/deckboy-sckcapture" ]; then
@@ -262,7 +274,7 @@ is_system_lib() {
 }
 
 WORKLIST=()
-for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
+for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/deckboy-mini" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
   [ -f "$f" ] && WORKLIST+=("$f")
 done
 
@@ -324,7 +336,7 @@ for lib in "$FRAMEWORKS_DIR"/*.dylib; do
   install_name_tool -add_rpath "@loader_path" "$lib" 2>/dev/null || true
 done
 
-for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
+for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/deckboy-mini" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
   [ -f "$exe" ] || continue
   retarget "$exe"
   install_name_tool -add_rpath "@executable_path/../Frameworks" "$exe" 2>/dev/null || true
@@ -374,6 +386,8 @@ if [ -f "$MACOS_DIR/deckboy-webview" ]; then
   codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.webview \
     "$MACOS_DIR/deckboy-webview" >/dev/null 2>&1 || true
 fi
+# Mini too: a stable identifier rather than one minted from the content hash.
+codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.mini   "$MACOS_DIR/deckboy-mini" >/dev/null 2>&1 || true
 # Seal the bundle over the already-signed nested code, inside-out. NOT --deep:
 # that would re-sign the helper and re-mint the identifier we just pinned.
 codesign "${SIGN_ARGS[@]}" "$APP" >/dev/null 2>&1 || true

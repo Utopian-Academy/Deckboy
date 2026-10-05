@@ -244,10 +244,19 @@ class Mini {
 
     SDL_PropertiesID props = SDL_CreateProperties();
     SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, "Deckboy Mini");
-    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, SDL_WINDOWPOS_CENTERED_DISPLAY(display));
-    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, SDL_WINDOWPOS_CENTERED_DISPLAY(display));
-    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, 1280);
-    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, 720);
+    // A fullscreen output is CREATED at the display's own size and position.
+    // Made at 1280x720 and switched afterwards, it went fullscreen at 1920x1080
+    // on a second display while the renderer kept drawing 1280x720 in the
+    // corner: SDL changes fullscreen asynchronously.
+    SDL_Rect bounds {0, 0, 1280, 720};
+    const bool startFullscreen = !opt_.windowed && display != 0 && SDL_GetDisplayBounds(display, &bounds);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER,
+                          startFullscreen ? bounds.x : SDL_WINDOWPOS_CENTERED_DISPLAY(display));
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER,
+                          startFullscreen ? bounds.y : SDL_WINDOWPOS_CENTERED_DISPLAY(display));
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, startFullscreen ? bounds.w : 1280);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, startFullscreen ? bounds.h : 720);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, startFullscreen);
     SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
     window_ = SDL_CreateWindowWithProperties(props);
     SDL_DestroyProperties(props);
@@ -295,6 +304,7 @@ class Mini {
   void setFullscreen(bool on) {
     fullscreen_ = on;
     SDL_SetWindowFullscreen(window_, on);
+    SDL_SyncWindow(window_);  // wait for the change, so the next frame is drawn at the new size
     if (on) SDL_HideCursor(); else SDL_ShowCursor();
   }
 
