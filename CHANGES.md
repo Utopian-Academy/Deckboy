@@ -1,6 +1,14 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-05 - v0.99.404 (remote takes name a real cue, first save asks where)
+## 2026-10-05 - v0.99.404 (Deckboy Mini, remote takes name a real cue, first save asks where)
+
+**Deckboy Mini.** A one-deck player that ships beside the desk, for a screen
+that only needs to play. `deckboy-mini` plays clips, stills and folders
+fullscreen through the same engine as Deckboy, in name order, holding stills,
+looping when asked. It answers the desk's remote commands on the desk's port,
+so Companion drives it as deck 1, and in a terminal it shows a Game Boy-green
+status panel with a strip of text that moves with the sound. See the manual,
+§25.
 
 **Remote takes name a real cue.** `TAKE <cue>` and `SELECT <cue>` from
 Companion, OSC, MIDI or an Art-Net channel act only on a cue the deck has. Ask

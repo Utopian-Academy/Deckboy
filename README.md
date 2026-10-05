@@ -201,6 +201,20 @@ cable or converter with a real test card, getting a camera or a stream onto
 SDI, restreaming to SRT or RTMP, or making a client's unplayable file
 playable on site, minutes before doors.
 
+### Deckboy Mini
+
+For a screen that only needs to play. `deckboy-mini` ships beside Deckboy: point
+it at clips or a folder and it plays them fullscreen through the same engine as
+the desk, in name order, holding stills, looping if you ask. It answers the
+desk's remote commands on the desk's port, so Companion drives it as deck 1,
+and it shows what it is doing right in the terminal.
+
+```
+deckboy-mini "Friday keynote" --display 2 --loop
+```
+
+![Deckboy Mini in a terminal: a boot sequence, then an LCD-green status panel playing cue 3 of 4 with a progress bar, the next cue, volume and remote link, a strip of text that shimmers with the sound, and a log of takes sent over the remote](art/readme/mini-terminal.gif)
+
 ---
 
 ## Features

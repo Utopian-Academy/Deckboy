@@ -111,7 +111,7 @@
           "name": "How do I loop a video on a screen all day?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Import the clip, set the cue to loop, and send the deck to a fullscreen output on the display you want. Deckboy holds the last frame rather than dropping to a desktop when a cue ends, and a soak-test mode exists to prove a machine will run unattended."
+            "text": "Import the clip, set the cue to loop, and send the deck to a fullscreen output on the display you want. Deckboy holds the last frame rather than dropping to a desktop when a cue ends, and a soak-test mode exists to prove a machine will run unattended. For a screen that only ever plays, Deckboy Mini does the same job from one command: deckboy-mini clip.mp4 --loop."
           }
         },
         {
@@ -294,7 +294,10 @@
         desktop, which is the failure everybody has seen in a foyer. There is also a soak mode
         (<code>--soak</code>) that logs memory and stalls, so a machine can be proven before it is
         left unattended for a week.</p>
-        <p class="more"><a href="manual.html#playlists-loop-shuffle-cue-endings">Manual: Playlists, Loop, Shuffle &amp; Cue Endings</a></p>
+        <p>For a screen that only ever plays, <b>Deckboy Mini</b> does the same job from one
+        command, with no desk on screen: <code>deckboy-mini clip.mp4 --loop</code>. It ships
+        beside Deckboy and starts happily from a login script.</p>
+        <p class="more"><a href="manual.html#playlists-loop-shuffle-cue-endings">Manual: Playlists, Loop, Shuffle &amp; Cue Endings</a> &middot; <a href="manual.html#deckboy-mini">Manual: Deckboy Mini</a></p>
 
         <h2>Can I trigger playback from a Stream Deck?</h2>
         <p>Yes — there is a Stream Deck plugin and a Bitfocus Companion module. Both poll Deckboy's

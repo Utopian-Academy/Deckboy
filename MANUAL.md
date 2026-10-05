@@ -1948,3 +1948,49 @@ Deckboy.exe --help                  # the list this section is drawn from
 `DECKBOY_ROOT` and `DECKBOY_STATE_DIR` together give a completely isolated
 instance, which is how to try something out without touching the show on the
 machine.
+
+### Deckboy Mini
+
+`deckboy-mini` is a one-deck player that ships beside Deckboy, for a screen that
+only needs to play: a foyer loop, a backstage machine, a kiosk that starts when
+the computer does. It plays through the same engine as the desk, so anything the
+desk plays from a file, Mini plays the same way.
+
+```
+deckboy-mini "Friday keynote"                 # a folder plays in name order
+deckboy-mini walk-in.mp4 sponsors.png --loop  # files play in the order given
+deckboy-mini loop.mp4 --display 2 --hold      # second display, hold the last frame
+```
+
+On Windows it is `deckboy-mini.exe` beside `Deckboy.exe`; on macOS it is inside
+the app, at `Deckboy.app/Contents/MacOS/deckboy-mini`.
+
+| Option | Effect |
+|--------|--------|
+| `--display N` | Output on display N (1 is the first). Default 1 |
+| `--window` | A window instead of fullscreen |
+| `--loop` | Start again after the last cue |
+| `--hold` | Hold the last frame after the last cue (otherwise black) |
+| `--paused` | Load the first cue without playing it |
+| `--still S` | Seconds each still stays up. Default 5 |
+| `--volume P` | Volume, 0-100 |
+| `--port N` | Remote control port. Default 5510, the desk's |
+| `--remote` | Accept remote control from the network, not only this machine |
+| `--plain` | Plain log lines instead of the status panel |
+
+**Keys**, in the output window: Space play/pause, Right and Left the next and
+previous cue, S stop, B blackout, F fullscreen, Q quit.
+
+**Remote control** speaks the desk's protocol (§22) on the desk's port, and
+Mini is deck 1: `GO`, `TAKE [n]`, `SELECT n`, `NEXT`, `PREV`, `PLAY`,
+`PAUSE`, `STOP`, `SEEK`, `VOLUME`, `LOOP`, `BLACKOUT`, `STATUS` and `QUIT`,
+each answered `OK` or `ERR` with the reason. `STATUS` comes back in the desk's
+format, so the Companion module drives Mini like a one-deck Deckboy. Send
+`HELP` for the list.
+
+**In a terminal** Mini shows a status panel in Game Boy greens: what is
+playing, how far through, what is next, the volume, the link, and a strip of
+text that moves with the sound, with the last few events beneath it. Run as a
+service or with its output sent to a file, it writes one plain line per event
+instead, which is what a log wants; `--plain` and the `NO_COLOR` convention
+choose the same.
