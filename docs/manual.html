@@ -80,11 +80,32 @@
         .mini-booklet .mini-page td:first-child { white-space: nowrap; overflow-wrap: normal; }
         .mini-cover { background: #0f380f; border-color: #0f380f; text-align: center; padding-top: 22px; }
         .mini-booklet .mini-cover p, .mini-cover .mini-folio { color: #9bbc0f; }
-        .mini-cart { display: block; width: 46px; height: 54px; margin: 0 auto 14px; background: #8bac0f;
-                     border: 2px solid #9bbc0f; box-shadow: inset 0 -12px 0 #306230, inset 6px 8px 0 -2px #306230; }
+        .mini-cart { position: relative; display: block; width: 44px; height: 52px; margin: 0 auto 14px;
+                     background: #8bac0f; clip-path: polygon(0 0, 76% 0, 100% 13%, 100% 100%, 0 100%); }
+        .mini-cart::before { content: ""; position: absolute; left: 5px; right: 14px; top: 4px; height: 5px;
+                     background: repeating-linear-gradient(90deg, #306230 0 2px, transparent 2px 4px); }
+        .mini-cart::after { content: ""; position: absolute; left: 6px; right: 6px; top: 14px; bottom: 11px;
+                     background: #9bbc0f; border: 2px solid #306230; }
         .mini-booklet .mini-cover .mini-name { font-size: 11px; line-height: 1.5; margin-bottom: 10px; }
         .mini-booklet .mini-cover .mini-sub { font-size: 4.8px; margin-bottom: 18px; }
         .mini-booklet .mini-cover .mini-tag { font-size: 4.4px; color: #8bac0f; }
+        .mini-stage { height: 214px; margin: .4rem 0 0; transition: height .3s ease; }
+        .mini-stage.zoomed { height: 492px; }
+        .mini-booklet.is-flipbook { display: block; position: relative; width: 150px; height: 210px; margin: 0;
+                     perspective: 900px; transform-origin: top left; transition: transform .3s ease; }
+        .mini-stage.zoomed .mini-booklet { transform: scale(2.3); }
+        .is-flipbook:focus { outline: 2px dashed #306230; outline-offset: 6px; }
+        .is-flipbook .mini-page { position: absolute; inset: 0; margin: 0; cursor: pointer;
+                     transform-origin: left center; backface-visibility: hidden;
+                     transition: transform .55s ease; }
+        .is-flipbook .mini-page:hover, .is-flipbook .mini-page:focus { transform: none; overflow: hidden;
+                     box-shadow: 4px 4px 0 #306230; }
+        .is-flipbook .mini-page.turned { transform: rotateY(-178deg); pointer-events: none; }
+        .mini-controls { display: flex; gap: .6rem; align-items: center; margin: .5rem 0 2rem;
+                     font-family: 'Deckboy Pixel', monospace; font-size: 9px; color: var(--ink-soft); }
+        .mini-controls button { font: inherit; background: #0f380f; color: #9bbc0f; border: 2px solid #306230;
+                     padding: 5px 8px; cursor: pointer; }
+        .mini-controls button:hover { background: #306230; }
     </style>
 
     <script type="application/ld+json">
@@ -622,5 +643,61 @@ deckboy-mini loop.mp4 --display 2 --hold      # second display, hold the last fr
         <p class="footer-note">Built as an open-source project by Utopian-Academy.
         Free under the GPL-3.0.</p>
     </footer>
+    <script>
+    // The Deckboy Mini booklet as a flipbook: the pages stack, a click turns one
+    // (the left third turns back), the arrow keys work once it has focus, and
+    // ZOOM makes the miniature readable. Without this, the pages are a grid.
+    document.querySelectorAll('.mini-booklet').forEach(function (book) {
+      var pages = Array.prototype.slice.call(book.querySelectorAll('.mini-page'));
+      if (!pages.length) return;
+      var stage = document.createElement('div');
+      stage.className = 'mini-stage';
+      book.parentNode.insertBefore(stage, book);
+      stage.appendChild(book);
+      book.classList.add('is-flipbook');
+      book.tabIndex = 0;
+      book.setAttribute('role', 'group');
+      book.setAttribute('aria-label', 'Deckboy Mini instruction booklet');
+      pages.forEach(function (page, i) { page.style.zIndex = pages.length - i; page.removeAttribute('tabindex'); });
+      var bar = document.createElement('div');
+      bar.className = 'mini-controls';
+      bar.innerHTML = '<button type="button" data-go="-1">&lt; PREV</button><span class="mini-count"></span>' +
+                      '<button type="button" data-go="1">NEXT &gt;</button><button type="button" data-zoom>ZOOM</button>';
+      stage.parentNode.insertBefore(bar, stage.nextSibling);
+      var count = bar.querySelector('.mini-count');
+      var at = 0;
+      function show() {
+        pages.forEach(function (page, i) {
+          page.classList.toggle('turned', i < at);
+          page.setAttribute('aria-hidden', i === at ? 'false' : 'true');
+        });
+        count.textContent = (at + 1) + ' / ' + pages.length;
+      }
+      function go(step) { at = Math.max(0, Math.min(pages.length - 1, at + step)); show(); }
+      bar.addEventListener('click', function (e) {
+        var button = e.target.closest('button');
+        if (!button) return;
+        if (button.hasAttribute('data-zoom')) {
+          stage.classList.toggle('zoomed');
+          button.textContent = stage.classList.contains('zoomed') ? 'SHRINK' : 'ZOOM';
+        } else {
+          go(parseInt(button.getAttribute('data-go'), 10));
+        }
+      });
+      book.addEventListener('click', function (e) {
+        var box = book.getBoundingClientRect();
+        go(e.clientX - box.left < box.width / 3 ? -1 : 1);
+      });
+      book.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { go(1); e.preventDefault(); }
+        if (e.key === 'ArrowLeft') { go(-1); e.preventDefault(); }
+      });
+      var hint = stage.previousElementSibling;
+      if (hint && hint.classList.contains('mini-hint')) {
+        hint.textContent = 'A miniature manual for a miniature player. Click a page to turn it, or ZOOM to read it.';
+      }
+      show();
+    });
+    </script>
 </body>
 </html>
