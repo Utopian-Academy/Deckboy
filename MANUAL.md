@@ -1982,9 +1982,26 @@ download has `./deckboy-mini` beside `./deckboy`, the AppImage runs it as
 | `--plain` | Plain log lines instead of the status panel |
 | `--overlay` | Start with the status bar shown on the output |
 
-**Keys**, in the output window: Space play/pause, Right and Left the next and
-previous cue, S stop, B blackout, F fullscreen, H the status bar, Q quit.
-Drop files or a folder on the output to add them to the end of the list.
+**Keys** work in the terminal Mini runs in, so the whole show can be run from
+the keyboard there, over SSH included; the same keys work in the output window.
+
+| Key | Does |
+|-----|------|
+| Space | Go: play or pause, or take the selected cue |
+| Up / Down | Pick a cue in the list |
+| Enter | Take the picked cue, or the number just typed |
+| 0-9 then Enter | Take that cue by number |
+| Right / Left | Take the next / previous cue |
+| `[` / `]` | Seek back / forward 10 seconds |
+| `-` / `+` | Volume down / up |
+| S, B, L | Stop, blackout, loop |
+| H, F | The status bar on the output, fullscreen |
+| A | Add files: Tab completes the path |
+| `:` | The command line: any remote command, Up recalls the last |
+| `?` | The keys, in the panel |
+| Q Q | Quit (twice, so one stray key cannot end a show) |
+
+Files or a folder dropped on the output are added to the end of the list too.
 
 **The status bar** is for a screen with nobody at a terminal: H (or Tab)
 shows a slim bar across the bottom of the output, in the same greens, with

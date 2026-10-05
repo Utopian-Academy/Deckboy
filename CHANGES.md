@@ -9,7 +9,10 @@ looping when asked. It answers the desk's remote commands on the desk's port,
 so Companion drives it as deck 1, and in a terminal it shows a Game Boy-green
 status panel with a strip of text that moves with the sound. Drop files on its
 output, or send `ADD` over the remote, to extend the list while it plays, and
-press H for a status bar on the output itself. See the manual, §25.
+press H for a status bar on the output itself. The whole show runs from the
+keyboard in its terminal, over SSH too: pick cues from the list, type a cue
+number, seek, change the volume, add files with Tab completing the path, or
+type any remote command on its command line. See the manual, §25.
 
 **Remote takes name a real cue.** `TAKE <cue>` and `SELECT <cue>` from
 Companion, OSC, MIDI or an Art-Net channel act only on a cue the deck has. Ask

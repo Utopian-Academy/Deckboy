@@ -26,10 +26,12 @@
 #include "core/media_probe.hpp"
 #include "engine/media_engine.hpp"
 #include "mini/mini_hud.hpp"
+#include "mini/mini_keys.hpp"
 #include "platform/network.hpp"
 #include "platform/pdf_import.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <atomic>
 #include <cctype>
 #include <cmath>
@@ -72,8 +74,12 @@ const char* kUsage =
   "  --overlay      start with the status bar shown on the output (H toggles it)\n"
   "  --version      print the version and exit\n"
   "\n"
-  "Keys: Space play/pause, Right next, Left previous, S stop, B blackout,\n"
-  "      F fullscreen, H status bar, Q quit. Drop files on the output to add them.\n"
+  "Keys, in this terminal or the output window:\n"
+  "  Space go (play/pause, or take)   Enter take the selected or typed cue\n"
+  "  Up/Down pick a cue   Left/Right take previous/next   0-9 type a cue number\n"
+  "  [ ] seek 10s   - + volume   S stop   B blackout   L loop   F fullscreen\n"
+  "  H status bar on the output   A add files   : command line   ? help   Q Q quit\n"
+  "Drop files on the output to add them.\n"
   "Remote: send HELP for the commands.\n";
 
 const char* kRemoteHelp =
@@ -211,15 +217,18 @@ class Mini {
     nextId_ = cues_.size() + 1;
     hud_.begin(opt_.plain);
     hud_.boot(bootFacts());
+    if (keys_.begin()) hud_.log("keys live in this terminal  (? for help)");
     take(0, !opt_.paused);
     while (!gQuit.load()) {
       pumpEvents();
+      while (auto key = keys_.poll()) onKey(*key, true);
       pollRemote();
       engine_->update();
       if (engine_->reachedEnd()) cueEnded();
       draw();
       hud_.frame(hudState());
     }
+    keys_.end();
     hud_.log("goodbye");
     hud_.frame(hudState());
     hud_.end();
@@ -368,17 +377,185 @@ class Mini {
       if (e.type == SDL_EVENT_QUIT) gQuit = true;
       if (e.type == SDL_EVENT_DROP_FILE && e.drop.data) addInputs({fs::path(e.drop.data)}, "dropped");
       if (e.type != SDL_EVENT_KEY_DOWN || e.key.repeat) continue;
-      switch (e.key.key) {
-        case SDLK_SPACE: go(); break;
-        case SDLK_RIGHT: take(std::min(active_ + 1, static_cast<int>(cues_.size()) - 1)); break;
-        case SDLK_LEFT: take(std::max(active_ - 1, 0)); break;
-        case SDLK_S: stop(); break;
-        case SDLK_B: blackout_ = !blackout_; break;
-        case SDLK_F: setFullscreen(!fullscreen_); break;
-        case SDLK_H: case SDLK_TAB: overlay_ = !overlay_; break;
-        case SDLK_Q: case SDLK_ESCAPE: gQuit = true; break;
-        default: break;
+      if (auto key = windowKey(e.key.key)) onKey(*key, false);
+    }
+  }
+
+  // ── Keys ──
+  //
+  // ONE SET OF HANDLERS for the terminal and the output window. The terminal
+  // is the whole workflow -- typing a cue number, the command line, adding
+  // files -- because it is the one place Mini can always be reached from: a
+  // second display, or an SSH session on a box with no keyboard of its own.
+
+  static std::optional<mini::Key> windowKey(SDL_Keycode k) {
+    using mini::Key;
+    switch (k) {
+      case SDLK_UP: return Key {Key::Up};
+      case SDLK_DOWN: return Key {Key::Down};
+      case SDLK_LEFT: return Key {Key::Left};
+      case SDLK_RIGHT: return Key {Key::Right};
+      case SDLK_RETURN: case SDLK_KP_ENTER: return Key {Key::Enter};
+      case SDLK_ESCAPE: return Key {Key::Escape};
+      case SDLK_BACKSPACE: return Key {Key::Backspace};
+      case SDLK_TAB: return Key {Key::Char, 'h'};  // the output bar, as before
+      case SDLK_SLASH: return Key {Key::Char, '?'};
+      default: break;
+    }
+    if (k >= 32 && k < 127) return Key {Key::Char, static_cast<char>(k)};
+    return std::nullopt;
+  }
+
+  void onKey(const mini::Key& key, bool fromTerminal) {
+    using mini::Key;
+    if (command_) { commandKey(key); return; }
+    const bool quitWasPending = quitPending();
+    quitArmedAt_ = {};
+    if (key.kind == Key::Char && key.ch >= '0' && key.ch <= '9') {
+      if (number_.size() < 5) number_ += key.ch;
+      return;
+    }
+    switch (key.kind) {
+      case Key::Enter:
+        if (!number_.empty()) {
+          const int n = std::atoi(number_.c_str());
+          number_.clear();
+          if (validIndex(n - 1)) take(n - 1);
+          else hud_.log("no cue " + std::to_string(n) + " (" + std::to_string(cues_.size()) + " cues)");
+        } else {
+          take(selected_);
+        }
+        return;
+      case Key::Escape: number_.clear(); help_ = false; return;
+      case Key::Backspace: if (!number_.empty()) number_.pop_back(); return;
+      case Key::Up: selected_ = std::max(0, selected_ - 1); return;
+      case Key::Down: selected_ = std::min(static_cast<int>(cues_.size()) - 1, selected_ + 1); return;
+      case Key::Right: take(std::min(active_ + 1, static_cast<int>(cues_.size()) - 1)); return;
+      case Key::Left: take(std::max(active_ - 1, 0)); return;
+      case Key::Tab: overlay_ = !overlay_; return;
+      case Key::Char: break;
+    }
+    number_.clear();
+    switch (std::tolower(static_cast<unsigned char>(key.ch))) {
+      case ' ': go(); break;
+      case 's': stop(); hud_.log("stop"); break;
+      case 'b': blackout_ = !blackout_; hud_.log(blackout_ ? "blackout on" : "blackout off"); break;
+      case 'l': opt_.loop = !opt_.loop; hud_.log(opt_.loop ? "loop on" : "loop off"); break;
+      case 'f': setFullscreen(!fullscreen_); break;
+      case 'h': overlay_ = !overlay_; hud_.log(overlay_ ? "status bar on the output" : "status bar off"); break;
+      case '+': case '=': setVolume(opt_.volume + 10); break;
+      case '-': case '_': setVolume(opt_.volume - 10); break;
+      case ']': seekBy(10.0); break;
+      case '[': seekBy(-10.0); break;
+      case '?': help_ = !help_; break;
+      case ':': if (fromTerminal) openCommand(""); break;
+      case 'a': if (fromTerminal) openCommand("ADD "); else hud_.log("A works in the terminal; drop files here instead"); break;
+      case 'q':
+        // TWICE, because the output is live: one stray Q in the middle of a
+        // show would take the picture off the wall.
+        if (quitWasPending) gQuit = true;
+        else { quitArmedAt_ = std::chrono::steady_clock::now(); hud_.log("press Q again to quit"); }
+        break;
+      default: break;
+    }
+  }
+
+  bool quitPending() const {
+    return quitArmedAt_ != std::chrono::steady_clock::time_point {} &&
+           std::chrono::steady_clock::now() - quitArmedAt_ < std::chrono::seconds(3);
+  }
+
+  void setVolume(int v) {
+    opt_.volume = std::clamp(v, 0, 100);
+    engine_->setVolume(static_cast<float>(opt_.volume) / 100.0f);
+    hud_.log("volume " + std::to_string(opt_.volume));
+  }
+
+  void seekBy(double seconds) {
+    if (active_ < 0) return;
+    engine_->seek(std::max(0.0, engine_->position() + seconds));
+    hud_.log(std::string("seek ") + (seconds > 0 ? "+" : "") + std::to_string(static_cast<int>(seconds)) + "s");
+  }
+
+  // ── The command line: any remote command, typed ──
+
+  void openCommand(const std::string& start) {
+    command_ = true;
+    commandText_ = start;
+    historyAt_ = static_cast<int>(history_.size());
+    if (!hud_.fancy()) hud_.log("command: type it, Enter runs, Esc cancels");
+  }
+
+  void commandKey(const mini::Key& key) {
+    using mini::Key;
+    switch (key.kind) {
+      case Key::Escape: command_ = false; commandText_.clear(); return;
+      case Key::Backspace: if (!commandText_.empty()) commandText_.pop_back(); return;
+      case Key::Tab: completePath(); return;
+      case Key::Up:
+        if (historyAt_ > 0) commandText_ = history_[static_cast<std::size_t>(--historyAt_)];
+        return;
+      case Key::Down:
+        if (historyAt_ + 1 < static_cast<int>(history_.size())) commandText_ = history_[static_cast<std::size_t>(++historyAt_)];
+        else { historyAt_ = static_cast<int>(history_.size()); commandText_.clear(); }
+        return;
+      case Key::Enter: {
+        const std::string line = commandText_;
+        command_ = false;
+        commandText_.clear();
+        if (line.find_first_not_of(' ') == std::string::npos) return;
+        if (history_.empty() || history_.back() != line) history_.push_back(line);
+        std::string reply = handle(line);
+        // STATUS answers with the whole report; the panel already shows it.
+        if (reply.rfind("DECKBOY", 0) == 0) reply = "OK STATUS (see the panel)";
+        while (!reply.empty() && (reply.back() == '\n' || reply.back() == '\r')) reply.pop_back();
+        hud_.log("> " + line + "   " + reply.substr(0, reply.find('\n')));
+        return;
       }
+      case Key::Char: commandText_ += key.ch; return;
+      default: return;
+    }
+  }
+
+  // Tab after ADD: complete the file or folder name from what is on disk. One
+  // match is filled in; several are filled to what they share, and listed.
+  void completePath() {
+    const std::string upperText = upper(commandText_);
+    if (upperText.rfind("ADD ", 0) != 0) return;
+    std::string typed = commandText_.substr(4);
+    if (!typed.empty() && typed.front() == '"') typed.erase(0, 1);
+    const fs::path partial(typed.empty() ? std::string(".") + static_cast<char>(fs::path::preferred_separator) : typed);
+    const bool endsInSeparator = !typed.empty() && (typed.back() == '/' || typed.back() == '\\');
+    const fs::path dir = endsInSeparator ? partial : (partial.has_parent_path() ? partial.parent_path() : fs::path("."));
+    const std::string prefix = endsInSeparator ? std::string() : partial.filename().string();
+    auto lower = [](std::string t) {
+      for (char& c : t) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      return t;
+    };
+    std::vector<std::string> matches;
+    std::error_code ec;
+    for (const auto& entry : fs::directory_iterator(dir, ec)) {
+      std::string name = entry.path().filename().string();
+      if (lower(name).rfind(lower(prefix), 0) != 0) continue;
+      if (entry.is_directory(ec)) name += static_cast<char>(fs::path::preferred_separator);
+      matches.push_back(name);
+    }
+    if (matches.empty()) { hud_.log("nothing matches " + (typed.empty() ? std::string("here") : typed)); return; }
+    std::sort(matches.begin(), matches.end());
+    std::string common = matches.front();
+    for (const std::string& m : matches) {
+      std::size_t n = 0;
+      while (n < common.size() && n < m.size() && std::tolower(static_cast<unsigned char>(common[n])) ==
+                                                     std::tolower(static_cast<unsigned char>(m[n]))) ++n;
+      common.resize(n);
+    }
+    const std::string base = (endsInSeparator || partial.has_parent_path()) ? (dir / "").string() : std::string();
+    commandText_ = commandText_.substr(0, 4) + base + common;
+    if (matches.size() > 1) {
+      std::string list;
+      for (std::size_t i = 0; i < matches.size() && i < 4; ++i) list += (i ? "  " : "") + matches[i];
+      if (matches.size() > 4) list += "  +" + std::to_string(matches.size() - 4) + " more";
+      hud_.log(list);
     }
   }
 
@@ -702,6 +879,19 @@ class Mini {
     s.network = opt_.remote;
     s.controllers = static_cast<int>(clients_.size());
     s.audioLevel = engine_->programAudioLevel01();
+    // The list around the selection, so a cue can be picked by eye.
+    const int rows = 6;
+    const int count = static_cast<int>(cues_.size());
+    int first = std::clamp(selected_ - rows / 2, 0, std::max(0, count - rows));
+    for (int i = first; i < std::min(count, first + rows); ++i) {
+      s.rows.push_back({i + 1, cues_[static_cast<std::size_t>(i)].name, cues_[static_cast<std::size_t>(i)].duration,
+                        i == active_, i == selected_});
+    }
+    s.keysLive = keys_.active();
+    s.help = help_;
+    if (command_) s.prompt = ": " + commandText_;
+    else if (!number_.empty()) s.prompt = "go to cue " + number_ + "   Enter takes it, Esc clears";
+    else if (quitPending()) s.prompt = "press Q again to quit";
     return s;
   }
 
@@ -720,6 +910,14 @@ class Mini {
   bool blackout_ = false;
   bool fullscreen_ = false;
   bool overlay_ = false;
+  mini::TerminalKeys keys_;
+  std::string number_;                 // a cue number being typed
+  bool command_ = false;               // the : command line is open
+  std::string commandText_;
+  std::vector<std::string> history_;
+  int historyAt_ = 0;
+  bool help_ = false;
+  std::chrono::steady_clock::time_point quitArmedAt_ {};
   std::size_t nextId_ = 1;
 };
 

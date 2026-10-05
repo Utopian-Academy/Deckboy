@@ -94,6 +94,17 @@ struct HudState {
   bool network = false;
   int controllers = 0;
   double audioLevel = 0.0;  // 0..1
+  struct Row {
+    int number = 0;
+    std::string name;
+    double duration = 0.0;
+    bool live = false;
+    bool selected = false;
+  };
+  std::vector<Row> rows;    // the list around the selection
+  bool keysLive = false;    // the terminal is taking keys
+  bool help = false;        // show the key reference instead of the list
+  std::string prompt;       // the command line, a cue number being typed, a quit to confirm
 };
 
 class Hud {
@@ -143,6 +154,8 @@ class Hud {
   void frame(const HudState& s) {
     if (!fancy_) return;
     const auto now = std::chrono::steady_clock::now();
+    if (s.prompt != lastPrompt_) dirty_ = true;
+    lastPrompt_ = s.prompt;
     if (!dirty_ && now - lastDraw_ < std::chrono::milliseconds(100)) return;
     lastDraw_ = now;
     dirty_ = false;
@@ -159,6 +172,7 @@ class Hud {
   // gives bold text, which on one operator's theme was magenta.
   static constexpr const char* kTitleInk = "\x1b[1;38;2;155;188;15m";
   static constexpr std::size_t kLogLines = 4;
+  static constexpr int kListRows = 6;
   static constexpr int kInner = 58;  // characters between the box sides
 
   static void line(const std::string& text) {
@@ -281,11 +295,34 @@ class Hud {
     row(b, barWidth + 2 + columns(times));
     ++lines;
 
-    // Next
-    std::string next = s.next > 0 ? std::to_string(s.next) + "  " + fit(s.nextName, kInner - 14) : std::string(s.loop ? "back to 1" : "end of list");
-    std::string c = std::string(ink::kDim) + "NEXT " + glyph::kNext + ink::kReset + " " + next;
-    row(c, 7 + columns(next));
-    ++lines;
+    // The cue list around the selection, or the key reference. Always six
+    // rows, so the panel never changes height under the operator's eyes.
+    static const char* kHelp[] = {
+      "SPACE go/pause   ENTER take selected or typed no.",
+      "UP/DOWN pick   LEFT/RIGHT prev/next   0-9 cue no.",
+      "[ ] seek 10s   - + volume   S stop   B blackout",
+      "L loop   H output bar   F fullscreen   A add files",
+      ": command line (Tab completes paths, UP recalls)",
+      "Q Q quit   ? closes this",
+    };
+    for (int i = 0; i < kListRows; ++i) {
+      if (s.help) {
+        const std::string text = kHelp[i];
+        row(std::string(ink::kMid) + text + ink::kReset, columns(text));
+      } else if (i < static_cast<int>(s.rows.size())) {
+        const HudState::Row& r = s.rows[static_cast<std::size_t>(i)];
+        const std::string mark = r.live ? glyph::kPlay : r.selected ? glyph::kNext : " ";
+        const std::string num = fit(std::to_string(r.number), 3);
+        const std::string len = r.duration > 0.0 ? clock(r.duration).substr(0, 5) : std::string("     ");
+        const std::string rowName = fit(r.name, kInner - 2 - 2 - 3 - 1 - 6);
+        const char* rowTone = r.live ? ink::kBright : r.selected ? kTitleInk : ink::kDim;
+        const std::string text = std::string(rowTone) + mark + " " + num + " " + rowName + ink::kDim + " " + len + ink::kReset;
+        row(text, 2 + 3 + 1 + columns(rowName) + 1 + 5);
+      } else {
+        row("", 0);
+      }
+      ++lines;
+    }
 
     // Volume, loop, output
     const int pips = static_cast<int>(std::round(s.volume / 10.0));
@@ -310,11 +347,16 @@ class Hud {
                 glyph::kBottomRight, ink::kReset);
     ++lines;
 
-    // The keys, under the panel: they work in the OUTPUT window, which is the
-    // one place nothing can be printed. S (stop) works too; it is in --help.
-    std::printf("\x1b[2K   %sSPACE%s play  %s<- ->%s cue  %sB%s black  %sF%s full  %sH%s bar  %sQ%s quit%s\n",
-                ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim,
-                ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kReset);
+    // Under the panel: whatever is being typed, or the keys. They work in this
+    // terminal and in the output window alike.
+    if (!s.prompt.empty()) {
+      std::printf("\x1b[2K   %s%s%s%s\n", kTitleInk, fit(s.prompt, kInner).c_str(),
+                  (static_cast<int>(t * 2) % 2) ? "_" : " ", ink::kReset);
+    } else {
+      std::printf("\x1b[2K   %sSPC%s go  %s^v%s pick  %sENT%s take  %s<>%s skip  %s:%s cmd  %s?%s keys  %sQQ%s quit%s\n",
+                  ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim,
+                  ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kReset);
+    }
     ++lines;
 
     // The shimmer: a ribbon of symbols whose height follows the sound, with a
@@ -354,6 +396,7 @@ class Hud {
   bool dirty_ = true;
   int drawnLines_ = 0;
   std::deque<std::string> log_;
+  std::string lastPrompt_;
   std::chrono::steady_clock::time_point start_;
   std::chrono::steady_clock::time_point lastDraw_;
 };

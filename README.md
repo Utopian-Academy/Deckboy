@@ -207,7 +207,7 @@ For a screen that only needs to play. `deckboy-mini` ships beside Deckboy: point
 it at clips or a folder and it plays them fullscreen through the same engine as
 the desk, in name order, holding stills, looping if you ask. It answers the
 desk's remote commands on the desk's port, so Companion drives it as deck 1,
-and it shows what it is doing right in the terminal.
+and the whole show runs from the keyboard in its terminal, over SSH too.
 
 ```
 deckboy-mini "Friday keynote" --display 2 --loop
