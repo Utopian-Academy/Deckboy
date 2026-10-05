@@ -226,6 +226,40 @@ HEAD = """<!DOCTYPE html>
         .toc li { margin: 0; }
         .toc a { color: var(--ink-soft); text-decoration: none; font-size: .92rem; }
         .toc a:hover { color: var(--ink); }
+        /* The Mini booklet: see booklet() in tools/build_manual_page.py. */
+        .mini-hint { font-size: .85rem; }
+        .mini-booklet { display: flex; flex-wrap: wrap; gap: 1.1rem; margin: .4rem 0 2rem; }
+        .mini-page { position: relative; flex: 0 0 150px; height: 210px; box-sizing: border-box;
+                     padding: 10px 9px 16px; overflow: hidden; cursor: zoom-in;
+                     background: #9bbc0f; color: #0f380f; border: 3px solid #0f380f;
+                     box-shadow: 4px 4px 0 #306230; font-family: 'Deckboy Pixel', monospace;
+                     font-size: 4.4px; line-height: 1.6; transition: transform .18s ease, box-shadow .18s ease; }
+        .mini-page:hover, .mini-page:focus { transform: scale(2.3); z-index: 5; outline: none;
+                     box-shadow: 2px 2px 0 #306230; overflow: auto; }
+        .mini-booklet .mini-page p, .mini-booklet .mini-page li, .mini-booklet .mini-page td,
+        .mini-booklet .mini-page th { color: #0f380f; margin: 0 0 4px; font-size: 1em; line-height: 1.6; }
+        .mini-booklet .mini-page code, .mini-booklet .mini-page pre { background: none; padding: 0;
+                     font-family: inherit; font-size: 1em; color: #0f380f; }
+        .mini-booklet .mini-page pre { white-space: pre-wrap; margin: 0 0 4px; }
+        .mini-booklet .mini-page pre code { font-size: 1em; line-height: 1.7; }
+        .mini-booklet .mini-page .table-scroll { margin: 0; overflow: visible; }
+        .mini-booklet .mini-page table { font-size: 1em; }
+        .mini-booklet .mini-page th, .mini-booklet .mini-page td { padding: 1px 2px; border-bottom: 1px solid #8bac0f; }
+        .mini-booklet .mini-page a { color: #0f380f; }
+        .mini-title { font-size: 5.6px !important; text-transform: uppercase; border-bottom: 1px solid #0f380f;
+                      padding-bottom: 3px; margin-bottom: 6px !important; }
+        .mini-folio { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-size: 4.4px;
+                      padding: 3px 0 4px; background: #9bbc0f; }
+        .mini-cover .mini-folio { background: #0f380f; }
+        .mini-page { overflow-wrap: anywhere; }
+        .mini-booklet .mini-page td:first-child { white-space: nowrap; overflow-wrap: normal; }
+        .mini-cover { background: #0f380f; border-color: #0f380f; text-align: center; padding-top: 22px; }
+        .mini-booklet .mini-cover p, .mini-cover .mini-folio { color: #9bbc0f; }
+        .mini-cart { display: block; width: 46px; height: 54px; margin: 0 auto 14px; background: #8bac0f;
+                     border: 2px solid #9bbc0f; box-shadow: inset 0 -12px 0 #306230, inset 6px 8px 0 -2px #306230; }
+        .mini-booklet .mini-cover .mini-name { font-size: 11px; line-height: 1.5; margin-bottom: 10px; }
+        .mini-booklet .mini-cover .mini-sub { font-size: 4.8px; margin-bottom: 18px; }
+        .mini-booklet .mini-cover .mini-tag { font-size: 4.4px; color: #8bac0f; }
     </style>
 
     <script type="application/ld+json">
@@ -328,6 +362,49 @@ BODY
 """
 
 
+# THE MINI BOOKLET. Deckboy Mini's section of the manual is drawn as what it
+# is: a tiny cartridge instruction booklet, a strip of pocket-sized pages in
+# LCD greens. The text really is miniature; hovering, focusing or tapping a
+# page magnifies it to a readable size. MANUAL.md is still the only source --
+# this only changes how that one section is laid out on the page.
+MINI_SECTION = "deckboy-mini"
+
+
+def booklet(blocks):
+    marker = '<h3 id="{0}">'.format(MINI_SECTION)
+    start = next((i for i, b in enumerate(blocks) if b.startswith(marker)), None)
+    if start is None:
+        return blocks
+    end = start + 1
+    while end < len(blocks) and not blocks[end].startswith(("<h2", "<h3")):
+        end += 1
+    pages = []
+    for number, block in enumerate(blocks[start + 1:end], start=2):
+        lead = re.match(r"<p><strong>(.*?)</strong>", block)
+        if lead:
+            title = re.sub(r"<[^>]+>", "", lead.group(1)).rstrip(".,: ")
+        elif block.startswith("<pre"):
+            title = "Inserting the cartridge"
+        elif "<table" in block:
+            title = "Options"
+        elif number == 2:
+            title = "About this cartridge"
+        else:
+            title = "Notes"
+        pages.append('<section class="mini-page" tabindex="0" aria-label="Page {0}: {1}">'
+                     '<p class="mini-title">{1}</p>{2}<span class="mini-folio">{0}</span></section>'
+                     .format(number, html.escape(title), block))
+    cover = ('<section class="mini-page mini-cover" tabindex="0" aria-label="Cover">'
+             '<span class="mini-cart" aria-hidden="true"></span>'
+             '<p class="mini-name">DECKBOY<br>MINI</p>'
+             '<p class="mini-sub">INSTRUCTION BOOKLET</p>'
+             '<p class="mini-tag">ONE DECK &middot; ONE OUTPUT</p>'
+             '<span class="mini-folio">1</span></section>')
+    hint = '<p class="mini-hint">A miniature manual for a miniature player. Hover or tap a page to read it.</p>'
+    return (blocks[:start + 1] + [hint, '<div class="mini-booklet">' + cover + "".join(pages) + "</div>"]
+            + blocks[end:])
+
+
 def main():
     lines = SOURCE.read_text(encoding="utf-8").splitlines()
 
@@ -343,6 +420,7 @@ def main():
         return 1
 
     body, chapters = convert(lines[start:])
+    body = booklet(body)
     toc = "\n".join('            <li><a href="#{0}">{1}</a></li>'
                     .format(a, html.escape(t)) for a, t in chapters)
     page = (HEAD.replace("SITE", SITE)
