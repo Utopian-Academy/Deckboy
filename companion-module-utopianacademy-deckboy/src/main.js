@@ -12,11 +12,12 @@
 
 import { InstanceBase, InstanceStatus, Regex, TCPHelper } from '@companion-module/base'
 
-import { buildActions } from './src/actions.js'
-import { buildFeedbacks } from './src/feedbacks.js'
-import { buildPresetSections, buildPresets } from './src/presets.js'
-import { buildVariableDefinitions, buildVariableValues } from './src/variables.js'
-import { parseStatus } from './src/protocol.js'
+import { buildActions } from './actions.js'
+import { buildFeedbacks } from './feedbacks.js'
+import { buildPresetSections, buildPresets } from './presets.js'
+import { buildVariableDefinitions, buildVariableValues } from './variables.js'
+import { expectedReportLines, parseStatus } from './protocol.js'
+import { StringDecoder } from 'node:string_decoder'
 
 class DeckboyInstance extends InstanceBase {
 	constructor(internal) {
@@ -27,6 +28,11 @@ class DeckboyInstance extends InstanceBase {
 		this.statusPending = false
 		this.statusSentAt = 0
 		this.pendingReport = undefined
+		this.decoder = undefined
+		this.stallCount = 0
+		this.lastErrorMessage = undefined
+		this.publishedValues = undefined
+		this.publishedSignature = undefined
 		// Shared with feedbacks.js and variables.js — the last parsed STATUS.
 		this.state = { connected: false, global: {}, decks: new Map(), outputs: new Map() }
 	}
@@ -101,11 +107,17 @@ class DeckboyInstance extends InstanceBase {
 		}
 
 		this.updateStatus(InstanceStatus.Connecting)
+		this.decoder = new StringDecoder('utf8')
+		this.receiveBuffer = ''
+		this.pendingReport = undefined
 		this.socket = new TCPHelper(this.config.host, this.config.port || 5510)
 
 		this.socket.on('status_change', (status, message) => this.updateStatus(status, message))
 
 		this.socket.on('error', (err) => {
+			// TCPHelper reconnects on its own. Polling stops until it does, or a
+			// closed Deckboy fills the log with one dropped STATUS per poll.
+			this.stopPolling()
 			this.setConnected(false)
 			// Deckboy binds localhost-only by default, which is the single most
 			// common reason a remote Companion sees nothing — say so instead of
@@ -115,13 +127,30 @@ class DeckboyInstance extends InstanceBase {
 					? ' — check Settings → Network → REMOTE is ON in Deckboy, and that the port is open in the firewall'
 					: ''
 			this.updateStatus(InstanceStatus.ConnectionFailure, `${err.message}${hint}`)
-			this.log('error', `Deckboy connection error: ${err.message}${hint}`)
+			// Once per distinct failure, not once per two-second retry.
+			if (err.message !== this.lastErrorMessage) {
+				this.lastErrorMessage = err.message
+				this.log('error', `Deckboy connection error: ${err.message}${hint}`)
+			}
+		})
+
+		// A clean close (Deckboy quit) raises no error, only an end.
+		this.socket.on('end', () => {
+			this.stopPolling()
+			this.setConnected(false)
+			this.updateStatus(InstanceStatus.Disconnected, 'Deckboy closed the connection')
+			if (this.lastErrorMessage !== 'end') {
+				this.lastErrorMessage = 'end'
+				this.log('info', 'Deckboy closed the connection — reconnecting')
+			}
 		})
 
 		this.socket.on('connect', () => {
+			this.lastErrorMessage = undefined
+			this.stallCount = 0
+			this.statusPending = false
 			this.setConnected(true)
 			this.updateStatus(InstanceStatus.Ok)
-			this.receiveBuffer = ''
 			this.requestStatus()
 			this.startPolling()
 		})
@@ -151,19 +180,27 @@ class DeckboyInstance extends InstanceBase {
 	}
 
 	requestStatus() {
+		if (!this.socket || !this.socket.isConnected) return
+
 		// One outstanding STATUS at a time: if Deckboy is busy (a big show
 		// loading, a slow drive) piling on more requests only makes it worse.
 		//
-		// BUT NOT FOREVER. This flag used to be cleared in exactly one place --
-		// flushReport, after a reply that carried a DECKBOY line. A reply that
-		// never arrived, or arrived without one, left it true for the life of the
-		// connection and the surface quietly stopped updating: no error, because
-		// nothing had failed. A stalled request is abandoned after a few poll
-		// intervals so the next one goes out.
+		// But not forever. A request that is never answered is abandoned after
+		// a few poll intervals so the next one goes out -- and if that keeps
+		// happening, the link is dead even though TCP has not noticed yet (a
+		// pulled cable can take minutes to error). Say so on the surface rather
+		// than leave the last tally and countdown frozen on the buttons.
 		const now = Date.now()
 		if (this.statusPending) {
 			const waited = now - (this.statusSentAt || 0)
 			if (waited < this.statusStallMs()) return
+			this.stallCount = (this.stallCount || 0) + 1
+			if (this.stallCount >= STALLS_BEFORE_RECONNECT) {
+				this.log('warn', `Deckboy has not answered STATUS ${this.stallCount} times — reconnecting`)
+				this.openConnection()
+				this.updateStatus(InstanceStatus.ConnectionFailure, 'No STATUS reply from Deckboy — reconnecting')
+				return
+			}
 			this.log('debug', `STATUS did not answer in ${waited}ms — asking again`)
 		}
 		this.statusPending = true
@@ -214,14 +251,20 @@ class DeckboyInstance extends InstanceBase {
 	// ── Incoming data ────────────────────────────────────────────────────────
 
 	handleData(chunk) {
-		this.receiveBuffer += chunk.toString('utf8')
+		// A StringDecoder keeps a multi-byte character that straddles two TCP
+		// chunks whole; decoding each chunk on its own split a non-ASCII cue
+		// name in two.
+		this.decoder ??= new StringDecoder('utf8')
+		this.receiveBuffer += this.decoder.write(chunk)
 
-		// A STATUS reply is several lines with no terminator of its own. Treat a
-		// DECKBOY header line as the start of a report and flush the previous
-		// one when the next header (or a quiet gap) arrives.
 		const lines = this.receiveBuffer.split(/\r?\n/)
 		this.receiveBuffer = lines.pop() ?? ''
-		if (lines.length === 0) return
+		// A peer that never sends a newline -- the wrong port, something that is
+		// not Deckboy -- would otherwise grow this for the life of the socket.
+		if (this.receiveBuffer.length > MAX_LINE_LENGTH) {
+			this.log('warn', `Discarded ${this.receiveBuffer.length} characters with no line break — is this Deckboy's port?`)
+			this.receiveBuffer = ''
+		}
 
 		for (const line of lines) {
 			// Command acknowledgements are not part of a report and may land in
@@ -233,33 +276,42 @@ class DeckboyInstance extends InstanceBase {
 				continue
 			}
 			if (line.startsWith('DECKBOY')) {
-				this.flushReport()
-				this.pendingReport = [line]
+				if (this.pendingReport) {
+					this.log('debug', 'A STATUS reply was cut short by the next one — discarded')
+				}
+				this.pendingReport = { lines: [line], expected: expectedReportLines(line) }
 			} else if (this.pendingReport) {
-				this.pendingReport.push(line)
+				this.pendingReport.lines.push(line)
+			} else {
+				continue
 			}
+			// A REPORT IS COMPLETE WHEN IT SAYS IT IS. The header carries
+			// decks=N outputs=M and every deck and output gets exactly one line,
+			// so the report is done at 1 + N + M lines -- however TCP chunked it.
+			// Flushing at the end of each chunk instead published the first half
+			// of a split reply and dropped the rest.
+			const report = this.pendingReport
+			if (report.expected !== null && report.lines.length >= report.expected) this.flushReport()
+			else if (report.lines.length > MAX_REPORT_LINES) this.flushReport()
 		}
-		// Deckboy sends the whole report in one burst; flush on the same tick so
-		// feedbacks update immediately rather than one poll late.
-		this.flushReport()
+
+		// A header without both counts (an older Deckboy, or its "nothing loaded
+		// yet" placeholder) cannot say where it ends; take what the burst held.
+		if (this.pendingReport && this.pendingReport.expected === null) this.flushReport()
 	}
 
+	// Only a real report ends a STATUS request. An acknowledgement-only chunk
+	// (the OK for a button press) used to clear the flag too, and a second
+	// STATUS went out while the first was still on its way.
 	flushReport() {
-		if (!this.pendingReport || this.pendingReport.length === 0) {
-			// A REPLY WITH NOTHING IN IT STILL ENDS THE REQUEST. This returned
-			// without clearing the flag, which is the other half of the stall:
-			// Deckboy answered, the answer had no DECKBOY line, and polling
-			// stopped for the rest of the session.
-			this.pendingReport = undefined
-			this.statusPending = false
-			return
-		}
-		const payload = this.pendingReport.join('\n')
+		const report = this.pendingReport
 		this.pendingReport = undefined
+		if (!report || report.lines.length === 0) return
 		this.statusPending = false
+		this.stallCount = 0
 
 		try {
-			const parsed = parseStatus(payload)
+			const parsed = parseStatus(report.lines.join('\n'))
 			this.state.global = parsed.global
 			this.state.decks = parsed.decks
 			this.state.outputs = parsed.outputs
@@ -274,23 +326,47 @@ class DeckboyInstance extends InstanceBase {
 		this.state.connected = connected
 		if (!connected) {
 			this.statusPending = false
+			this.pendingReport = undefined
 			this.state.decks = new Map()
 			this.state.outputs = new Map()
 		}
 		this.publishState()
 	}
 
+	// Four reports a second mostly say what the last one said. Send Companion
+	// only the variables that changed, and re-check feedbacks only when the
+	// state behind them did -- every feedback here reads the same polled STATUS.
 	publishState() {
-		this.setVariableValues(buildVariableValues(this.state))
-		// Every feedback this module has reads the same polled STATUS, so a
-		// report refreshes all of them. base 2.x split the no-argument form of
-		// checkFeedbacks() out into its own method and made the type argument
-		// mandatory -- calling checkFeedbacks() with nothing now checks nothing.
+		const values = buildVariableValues(this.state)
+		const last = this.publishedValues ?? {}
+		const changed = {}
+		for (const [id, value] of Object.entries(values)) {
+			if (last[id] !== value) changed[id] = value
+		}
+		this.publishedValues = values
+		if (Object.keys(changed).length > 0) this.setVariableValues(changed)
+
+		const signature = stateSignature(this.state)
+		if (signature === this.publishedSignature) return
+		this.publishedSignature = signature
+		// base 2.x split the no-argument form of checkFeedbacks() out into its
+		// own method -- calling checkFeedbacks() with nothing now checks nothing.
 		this.checkAllFeedbacks()
 	}
 }
 
-// base 2.x loads the module from the default export instead of runEntrypoint().
-// Upgrade scripts, which used to be runEntrypoint's second argument, are not
-// needed here: this module has never changed an option id or shape.
+// Three abandoned STATUS requests in a row is a dead link, not a busy app.
+const STALLS_BEFORE_RECONNECT = 3
+// No Deckboy line comes near this; a buffer that does is not talking to Deckboy.
+const MAX_LINE_LENGTH = 64 * 1024
+// One header plus sixteen decks and sixteen outputs, with room to spare.
+const MAX_REPORT_LINES = 256
+
+function stateSignature(state) {
+	return JSON.stringify([state.connected, state.global, [...state.decks], [...state.outputs]])
+}
+
+// base 2.x loads the module from the default export instead of runEntrypoint(),
+// and upgrade scripts from the UpgradeScripts named export.
+export { UpgradeScripts } from './upgrades.js'
 export default DeckboyInstance

@@ -6,11 +6,11 @@ countdown**, because the module polls Deckboy's status rather than only sending 
 
 ### Connect
 
-| Field | Default | Notes |
-|-------|---------|-------|
-| Deckboy IP address | `127.0.0.1` | The machine running Deckboy |
-| Port | `5510` | Must match Deckboy's **Settings → Network → Companion port** |
-| Status poll interval | `250 ms` | Lower = smoother countdowns |
+| Field                | Default     | Notes                                                        |
+| -------------------- | ----------- | ------------------------------------------------------------ |
+| Deckboy IP address   | `127.0.0.1` | The machine running Deckboy                                  |
+| Port                 | `5510`      | Must match Deckboy's **Settings → Network → Companion port** |
+| Status poll interval | `250 ms`    | Lower = smoother countdowns                                  |
 
 Deckboy accepts connections from its own machine only until you turn on **Settings → Network →
 REMOTE**. To control it from Companion on another computer, switch REMOTE on.
@@ -27,21 +27,21 @@ REMOTE**. To control it from Companion on another computer, switch REMOTE on.
   [Remote Control](https://utopian-academy.github.io/Deckboy/manual.html#remote-control).
 
 Deck actions take a **Deck** number. `0` means whichever deck has focus; a button that names its
-deck always acts on that deck.
+deck always acts on that deck, and leaves focus where it was.
 
 ### Feedbacks
 
-| Feedback | Use |
-|----------|-----|
-| Deck transport state | Green while playing, amber while paused |
-| Deck has a cue live | Red on the Take button while something is on air |
-| Specific cue is live | Per-cue tally: red on the button that is on air |
-| Specific cue is selected | Green on the next cue |
-| Deck remaining below threshold | The "wrap it up" warning |
-| Output armed | Green while the output is on |
-| Output health | Shows an output that lost its display or left fullscreen |
-| Blackout active | Red while blacked out |
-| Deckboy unreachable | Shows the connection is down |
+| Feedback                       | Use                                                      |
+| ------------------------------ | -------------------------------------------------------- |
+| Deck transport state           | Green while playing, amber while paused                  |
+| Deck has a cue live            | Red on the Take button while something is on air         |
+| Specific cue is live           | Per-cue tally: red on the button that is on air          |
+| Specific cue is selected       | Green on the next cue                                    |
+| Deck remaining below threshold | The "wrap it up" warning                                 |
+| Output armed                   | Green while the output is on                             |
+| Output health                  | Shows an output that lost its display or left fullscreen |
+| Blackout active                | Red while blacked out                                    |
+| Deckboy unreachable            | Shows the connection is down                             |
 
 ### Variables
 

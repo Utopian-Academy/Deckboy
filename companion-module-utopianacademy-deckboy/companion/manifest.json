@@ -1,17 +1,17 @@
 {
+	"$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
 	"type": "connection",
 	"id": "utopianacademy-deckboy",
 	"name": "utopianacademy-deckboy",
 	"shortname": "Deckboy",
 	"description": "Cue deck for live events — transport, cue tally, output health and countdowns",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"license": "MIT",
-	"repository": "https://github.com/Utopian-Academy/Deckboy",
-	"bugs": "https://github.com/Utopian-Academy/Deckboy/issues",
+	"repository": "git+https://github.com/bitfocus/companion-module-utopianacademy-deckboy.git",
+	"bugs": "https://github.com/bitfocus/companion-module-utopianacademy-deckboy/issues",
 	"maintainers": [
 		{
-			"name": "Deckboy Contributors",
-			"email": "",
+			"name": "Utopian Academy",
 			"github": "Utopian-Academy"
 		}
 	],
@@ -19,17 +19,10 @@
 	"runtime": {
 		"type": "node22",
 		"api": "nodejs-ipc",
-		"apiVersion": "2.1.3",
-		"entrypoint": "../main.js"
+		"apiVersion": "0.0.0",
+		"entrypoint": "../src/main.js"
 	},
 	"manufacturer": "Utopian Academy",
-	"products": [
-		"Deckboy"
-	],
-	"keywords": [
-		"Playback",
-		"Media",
-		"Video",
-		"Cue"
-	]
+	"products": ["Deckboy"],
+	"keywords": ["Playback", "Media", "Video", "Cue"]
 }

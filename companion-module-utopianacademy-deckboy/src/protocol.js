@@ -20,7 +20,13 @@
 export function parseKeyValues(text) {
 	const out = {}
 	// key = ( "quoted, possibly spaced" | bare-token )
-	const re = /([A-Za-z_][A-Za-z0-9_]*)=("([^"]*)"|[^\s]*)/g
+	//
+	// Deckboy writes names into quotes as they are, without escaping, so a cue
+	// called `The "Big" Reveal` arrives with quotes inside the quotes. A quoted
+	// value therefore ends at the quote that is followed by the next key=, or
+	// by the end of the line -- not at the first quote it meets, which cut the
+	// name short and shifted every field after it.
+	const re = /([A-Za-z_][A-Za-z0-9_]*)=("(.*?)"(?=\s+[A-Za-z_][A-Za-z0-9_]*=|\s*$)|[^\s]*)/g
 	let match
 	while ((match = re.exec(text)) !== null) {
 		const key = match[1]
@@ -57,6 +63,19 @@ export function parseStatus(payload) {
 		}
 	}
 	return result
+}
+
+/**
+ * How many lines the STATUS reply that starts with this header will have:
+ * the header, then exactly one line per deck and one per output. Null when
+ * the header does not carry both counts.
+ */
+export function expectedReportLines(header) {
+	const fields = parseKeyValues(header)
+	const decks = Number.parseInt(fields.decks, 10)
+	const outputs = Number.parseInt(fields.outputs, 10)
+	if (!Number.isFinite(decks) || !Number.isFinite(outputs)) return null
+	return 1 + decks + outputs
 }
 
 /** `00:12.4`, `01:02:03.4` and `--:--` → seconds (null when not a time). */

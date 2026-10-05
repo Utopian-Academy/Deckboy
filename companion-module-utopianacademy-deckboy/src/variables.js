@@ -52,7 +52,7 @@ export function buildVariableDefinitions() {
 			{ variableId: `deck${d}_volume`, name: `Deck ${d}: fader (%)` },
 			{ variableId: `deck${d}_raster`, name: `Deck ${d}: raster` },
 			{ variableId: `deck${d}_audio_device`, name: `Deck ${d}: audio device` },
-			{ variableId: `deck${d}_timecode`, name: `Deck ${d}: timecode` }
+			{ variableId: `deck${d}_timecode`, name: `Deck ${d}: timecode` },
 		)
 	}
 
@@ -63,7 +63,7 @@ export function buildVariableDefinitions() {
 			{ variableId: `output${o}_health`, name: `Output ${o}: health` },
 			{ variableId: `output${o}_type`, name: `Output ${o}: type` },
 			{ variableId: `output${o}_display`, name: `Output ${o}: display number` },
-			{ variableId: `output${o}_fps`, name: `Output ${o}: output fps` }
+			{ variableId: `output${o}_fps`, name: `Output ${o}: output fps` },
 		)
 	}
 

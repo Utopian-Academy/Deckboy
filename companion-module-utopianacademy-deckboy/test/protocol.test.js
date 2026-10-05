@@ -7,7 +7,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { parseStatus, parseKeyValues, remainingSeconds, secondsToClock, timecodeToSeconds } from '../src/protocol.js'
+import {
+	expectedReportLines,
+	parseStatus,
+	parseKeyValues,
+	remainingSeconds,
+	secondsToClock,
+	timecodeToSeconds,
+} from '../src/protocol.js'
 
 const SAMPLE = [
 	'DECKBOY_0.01 focus=1 decks=1 focused_output=1 outputs=1 panic_profile=outputs_off panic_fade_s=0.9 panic_restore=off find="" find_matches=0 find_cursor=0 find_deck=0 video_mode=native video_hz=auto video_depth=auto canvas=off integrations="atem[off,ok],ndi-trigger[off,ok]" master_dimmer=100 blackout=off master_vol=0',
@@ -66,4 +73,18 @@ test('derives remaining time', () => {
 test('remaining is null when the deck has no duration', () => {
 	assert.equal(remainingSeconds({ pos: '--:--', dur: '--:--' }), null)
 	assert.equal(secondsToClock(null), '')
+})
+
+test('a quoted value may contain quotes of its own', () => {
+	// Deckboy writes names into quotes without escaping them.
+	const fields = parseKeyValues('name="Deck 1" cue="The "Big" Reveal" pos=00:01.0 audio="system default"')
+	assert.equal(fields.cue, 'The "Big" Reveal')
+	assert.equal(fields.pos, '00:01.0')
+	assert.equal(fields.audio, 'system default')
+	assert.equal(parseKeyValues('find="" find_matches=0').find, '')
+})
+
+test('the header says how long the report is', () => {
+	assert.equal(expectedReportLines('DECKBOY_0.01 focus=1 decks=2 outputs=3'), 6)
+	assert.equal(expectedReportLines('DECKBOY_0.01 decks=0'), null)
 })

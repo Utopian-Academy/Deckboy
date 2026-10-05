@@ -1,26 +1,30 @@
 {
 	"name": "companion-module-utopianacademy-deckboy",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"type": "module",
-	"main": "main.js",
+	"main": "src/main.js",
 	"description": "Bitfocus Companion module for Deckboy, a cue deck for live events",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Utopian-Academy/Deckboy.git",
-		"directory": "companion-module-utopianacademy-deckboy"
+		"url": "git+https://github.com/bitfocus/companion-module-utopianacademy-deckboy.git"
 	},
 	"scripts": {
 		"test": "node --test test/*.test.js",
+		"format": "prettier -w .",
 		"package": "companion-module-build"
 	},
+	"engines": {
+		"node": "^22.20",
+		"yarn": "^4"
+	},
 	"dependencies": {
-		"@companion-module/base": "^2.1.3"
+		"@companion-module/base": "~2.1.3"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^3.1.0"
+		"@companion-module/tools": "^3.1.0",
+		"prettier": "^3.8.3"
 	},
-	"engines": {
-		"node": ">=22"
-	}
+	"prettier": "@companion-module/tools/.prettierrc.json",
+	"packageManager": "yarn@4.17.0"
 }

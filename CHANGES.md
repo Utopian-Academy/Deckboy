@@ -12,6 +12,11 @@ the save dialog so the show gets a file of its own; every `SAVE` after that
 writes straight back to it. `NEW` asks twice before replacing a show that has
 cues but has never been saved.
 
+**Companion module 1.0.3.** Buttons follow Deckboy smoothly on any network,
+show at a glance when the link to Deckboy drops, and reconnect by themselves.
+A button that names its deck leaves the focused deck where it was, and cue
+names with quotes in them read correctly.
+
 ## 2026-10-04 - v0.99.403 (lip sync for long shows, Web Monitor sources, readable themes)
 
 **Web Monitor playback.** The browser player uses HLS with one timeline for

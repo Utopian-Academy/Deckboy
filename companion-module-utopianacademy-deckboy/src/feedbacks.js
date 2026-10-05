@@ -24,6 +24,7 @@ export function buildFeedbacks(self) {
 		default: 0,
 		min: 0,
 		max: MAX_DECKS,
+		asInteger: true,
 	}
 	const deckFields = (options) => {
 		const requested = Number(options?.deck ?? 0)
@@ -70,10 +71,7 @@ export function buildFeedbacks(self) {
 			name: 'Specific cue is live (tally)',
 			description: 'Turns a cue button red while that exact cue is the one on air.',
 			defaultStyle: { bgcolor: RED, color: WHITE },
-			options: [
-				deckOption,
-				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
-			],
+			options: [deckOption, { type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true }],
 			// base 2.x hands the callback option values that already have their
 			// variables and expressions resolved; parseVariablesInString is gone.
 			callback: ({ options }) => String(deckFields(options)?.active ?? '') === String(options.cue ?? '').trim(),
@@ -83,12 +81,8 @@ export function buildFeedbacks(self) {
 			type: 'boolean',
 			name: 'Specific cue is selected (preview)',
 			defaultStyle: { bgcolor: GREEN, color: WHITE },
-			options: [
-				deckOption,
-				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
-			],
-			callback: ({ options }) =>
-				String(deckFields(options)?.selected ?? '') === String(options.cue ?? '').trim(),
+			options: [deckOption, { type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true }],
+			callback: ({ options }) => String(deckFields(options)?.selected ?? '') === String(options.cue ?? '').trim(),
 		},
 
 		deck_remaining_below: {
@@ -96,10 +90,7 @@ export function buildFeedbacks(self) {
 			name: 'Deck time remaining below threshold',
 			description: 'The "wrap it up" warning — colour a button when a cue is nearly out.',
 			defaultStyle: { bgcolor: AMBER, color: BLACK },
-			options: [
-				deckOption,
-				{ type: 'number', label: 'Seconds', id: 'seconds', default: 20, min: 1, max: 3600 },
-			],
+			options: [deckOption, { type: 'number', label: 'Seconds', id: 'seconds', default: 20, min: 1, max: 3600 }],
 			callback: ({ options }) => {
 				const fields = deckFields(options)
 				if (fields?.status !== 'Playing') return false
@@ -112,7 +103,17 @@ export function buildFeedbacks(self) {
 			type: 'boolean',
 			name: 'Output armed',
 			defaultStyle: { bgcolor: GREEN, color: WHITE },
-			options: [{ type: 'number', label: 'Output (1-based)', id: 'output', default: 1, min: 1, max: MAX_OUTPUTS }],
+			options: [
+				{
+					type: 'number',
+					label: 'Output (1-based)',
+					id: 'output',
+					default: 1,
+					min: 1,
+					max: MAX_OUTPUTS,
+					asInteger: true,
+				},
+			],
 			callback: ({ options }) => isOn(self.state.outputs.get(Number(options.output))?.enabled),
 		},
 
@@ -122,7 +123,15 @@ export function buildFeedbacks(self) {
 			description: 'Catch an output that has dropped out of fullscreen or lost its display.',
 			defaultStyle: { bgcolor: RED, color: WHITE },
 			options: [
-				{ type: 'number', label: 'Output (1-based)', id: 'output', default: 1, min: 1, max: MAX_OUTPUTS },
+				{
+					type: 'number',
+					label: 'Output (1-based)',
+					id: 'output',
+					default: 1,
+					min: 1,
+					max: MAX_OUTPUTS,
+					asInteger: true,
+				},
 				{
 					type: 'dropdown',
 					label: 'Health',
@@ -138,8 +147,7 @@ export function buildFeedbacks(self) {
 				},
 			],
 			callback: ({ options }) =>
-				String(self.state.outputs.get(Number(options.output))?.health ?? '').toLowerCase() ===
-				options.health,
+				String(self.state.outputs.get(Number(options.output))?.health ?? '').toLowerCase() === options.health,
 		},
 
 		blackout_active: {

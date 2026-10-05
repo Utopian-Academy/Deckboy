@@ -68,7 +68,7 @@ test('presets only reference actions that exist', () => {
 			for (const action of [...(step.down ?? []), ...(step.up ?? [])]) {
 				assert.ok(
 					Object.hasOwn(actions, action.actionId),
-					`preset "${presetId}" references unknown action "${action.actionId}"`
+					`preset "${presetId}" references unknown action "${action.actionId}"`,
 				)
 			}
 		}
@@ -80,7 +80,7 @@ test('presets only reference feedbacks that exist', () => {
 		for (const feedback of preset.feedbacks ?? []) {
 			assert.ok(
 				Object.hasOwn(feedbacks, feedback.feedbackId),
-				`preset "${presetId}" references unknown feedback "${feedback.feedbackId}"`
+				`preset "${presetId}" references unknown feedback "${feedback.feedbackId}"`,
 			)
 		}
 	}
@@ -93,7 +93,7 @@ test('variable definitions are keyed by id, as base 2.x expects', () => {
 		assert.ok(definition?.name, `variable "${variableId}" needs a name`)
 		assert.ok(
 			!Object.hasOwn(definition, 'variableId'),
-			`variable "${variableId}" still carries the 1.x variableId field`
+			`variable "${variableId}" still carries the 1.x variableId field`,
 		)
 	}
 })
@@ -103,7 +103,7 @@ test('presets use the 2.x simple type and carry no category', () => {
 		assert.equal(preset.type, 'simple', `preset "${presetId}" must be type simple`)
 		assert.ok(
 			!Object.hasOwn(preset, 'category'),
-			`preset "${presetId}" still carries a 1.x category; sections replace it`
+			`preset "${presetId}" still carries a 1.x category; sections replace it`,
 		)
 	}
 })
@@ -150,10 +150,7 @@ test('every $(deckboy:...) in preset text is a declared variable', () => {
 	for (const [presetId, preset] of Object.entries(presets)) {
 		const text = preset.style?.text ?? ''
 		for (const match of text.matchAll(/\$\(deckboy:([a-zA-Z0-9_]+)\)/g)) {
-			assert.ok(
-				variableIds.has(match[1]),
-				`preset "${presetId}" uses undeclared variable "${match[1]}"`
-			)
+			assert.ok(variableIds.has(match[1]), `preset "${presetId}" uses undeclared variable "${match[1]}"`)
 		}
 	}
 })
@@ -166,11 +163,15 @@ test('actions emit the expected Deckboy commands', async () => {
 
 	self.sent.length = 0
 	await built.take.callback({ options: { deck: 2 } })
-	assert.deepEqual(self.sent, ['DECK 2', 'TAKE'], 'an explicit deck must be selected first')
+	assert.deepEqual(self.sent, ['DECK 2 TAKE', 'DECK 1'], 'a named deck acts there, then focus goes back')
+
+	self.sent.length = 0
+	await built.take.callback({ options: { deck: 1 } })
+	assert.deepEqual(self.sent, ['DECK 1 TAKE'], 'no restore needed when the deck already has focus')
 
 	self.sent.length = 0
 	await built.take_cue.callback({ options: { deck: 0, cue: '7' } })
-	assert.deepEqual(self.sent, ['SELECT 7', 'TAKE'])
+	assert.deepEqual(self.sent, ['TAKE 7'])
 
 	self.sent.length = 0
 	await built.seek.callback({ options: { deck: 0, mode: 'abs', seconds: '30' } })
@@ -213,7 +214,7 @@ test('VJ actions emit the expected commands', async () => {
 	await built.vj_bpm.callback({ options: { value: 124 } })
 	await built.vj_quantise.callback({ options: { state: 'on' } })
 	await built.vj_decks.callback({ options: { a: 1, b: 3 } })
-	assert.deepEqual(self.sent, ['VJ TAP', 'VJ BPM 124', 'VJ QUANTISE on', 'VJ DECKS 1 3'])
+	assert.deepEqual(self.sent, ['VJ TAP', 'VJ BPM 124', 'VJ QUANTISE ON', 'VJ DECKS 1 3'])
 })
 
 test('audio effect actions emit the expected commands', async () => {
@@ -228,7 +229,7 @@ test('audio effect actions emit the expected commands', async () => {
 	assert.deepEqual(self.sent, ['AUDIOFX 2 45'], 'the slot is 1-based, as the read-back prints it')
 
 	self.sent.length = 0
-	await built.audiofx_bypass.callback({ options: { index: 3, state: 'ON' } })
+	await built.audiofx_bypass.callback({ options: { index: 3, state: 'on' } })
 	assert.deepEqual(self.sent, ['AUDIOFX 3 BYPASS ON'])
 
 	self.sent.length = 0
@@ -333,7 +334,7 @@ test('a newline in an option cannot smuggle a second command', async () => {
 	// The protocol is newline-delimited, and option values have their variables
 	// resolved before the callback sees them. A value carrying a newline used to
 	// become two commands in one send -- the second of which could be anything.
-	const { default: DeckboyInstance } = await import('../main.js')
+	const { default: DeckboyInstance } = await import('../src/main.js')
 	const sends = []
 	const instance = Object.create(DeckboyInstance.prototype)
 	instance.socket = { isConnected: true, send: (s) => sends.push(s) }
@@ -354,7 +355,7 @@ test('a STATUS that never answers does not stop polling', async () => {
 	// statusPending was cleared in exactly one place, after a reply carrying a
 	// DECKBOY line. A reply that never arrived left it true for the life of the
 	// connection and the surface quietly stopped updating.
-	const { default: DeckboyInstance } = await import('../main.js')
+	const { default: DeckboyInstance } = await import('../src/main.js')
 	const sends = []
 	const instance = Object.create(DeckboyInstance.prototype)
 	instance.socket = { isConnected: true, send: (s) => sends.push(s) }
@@ -374,18 +375,161 @@ test('a STATUS that never answers does not stop polling', async () => {
 	assert.equal(sends.length, 2, 'a stalled request is abandoned and polling resumes')
 })
 
-test('a reply with no DECKBOY line still ends the request', async () => {
-	// The other half of the stall, and the likelier one: Deckboy DID answer, the
-	// answer carried nothing parseable, and flushReport's empty path returned
-	// without clearing the flag. Polling then stopped for the rest of the
-	// session with no error, because nothing had failed.
-	const { default: DeckboyInstance } = await import('../main.js')
+test('an acknowledgement does not end an outstanding STATUS', async () => {
+	// The OK for a button press used to clear statusPending, so a second STATUS
+	// went out while the first was still on its way. Only a real report -- or
+	// the stall timeout -- ends the request.
+	const instance = await bareInstance()
+	instance.statusPending = true
+	instance.handleData(Buffer.from('OK TAKE\n'))
+	assert.equal(instance.statusPending, true)
+})
+
+async function bareInstance() {
+	const { default: DeckboyInstance } = await import('../src/main.js')
 	const instance = Object.create(DeckboyInstance.prototype)
 	instance.log = () => {}
-	instance.pendingReport = []
-	instance.statusPending = true
+	instance.receiveBuffer = ''
+	instance.state = { connected: true, global: {}, decks: new Map(), outputs: new Map() }
+	instance.published = []
+	instance.setVariableValues = (values) => instance.published.push(values)
+	instance.checkAllFeedbacks = () => {}
+	return instance
+}
 
-	instance.flushReport()
-	assert.equal(instance.statusPending, false, 'an empty reply must end the request')
-	assert.equal(instance.pendingReport, undefined)
+const REPORT =
+	'DECKBOY_0.01 focus=1 decks=2 outputs=1 master_vol=100\n' +
+	'DECK 1 name="Deck 1" status=Playing active=3 cue="Opener" pos=00:01.0 dur=00:10.0\n' +
+	'DECK 2 name="Deck 2" status=Stopped active=0 cue="" pos=00:00.0 dur=00:00.0\n' +
+	'OUTPUT 1 name="Output 1" enabled=on health=live\n'
+
+test('a STATUS reply split across TCP chunks is published whole', async () => {
+	// Flushing at the end of every chunk published the first half of a split
+	// reply and dropped the rest. The header says how many lines follow.
+	const instance = await bareInstance()
+	const bytes = Buffer.from(REPORT)
+	for (let cut = 1; cut < bytes.length; cut += 7) {
+		instance.state.decks = new Map()
+		instance.state.outputs = new Map()
+		instance.statusPending = true
+		instance.handleData(bytes.subarray(0, cut))
+		instance.handleData(bytes.subarray(cut))
+		assert.equal(instance.state.decks.size, 2, `cut at ${cut}: both decks`)
+		assert.equal(instance.state.outputs.size, 1, `cut at ${cut}: the output`)
+		assert.equal(instance.statusPending, false, `cut at ${cut}: request ended`)
+	}
+})
+
+test('a non-ASCII cue name split mid-character survives', async () => {
+	const instance = await bareInstance()
+	const bytes = Buffer.from(REPORT.replace('Opener', 'Ouverture é'))
+	const at = bytes.indexOf(Buffer.from('é')) + 1
+	instance.handleData(bytes.subarray(0, at))
+	instance.handleData(bytes.subarray(at))
+	assert.equal(instance.state.decks.get(1).cue, 'Ouverture é')
+})
+
+test('a peer that never sends a newline cannot grow the buffer without limit', async () => {
+	const instance = await bareInstance()
+	instance.handleData(Buffer.alloc(70 * 1024, 0x41))
+	assert.equal(instance.receiveBuffer, '')
+})
+
+test('a link that stops answering is marked failed and reconnected', async () => {
+	// A pulled cable raises no error for minutes; the buttons kept showing the
+	// last tally as if all was well.
+	const instance = await bareInstance()
+	instance.config = { pollInterval: 250 }
+	instance.socket = { isConnected: true, send: () => {} }
+	let reconnects = 0
+	const statuses = []
+	instance.openConnection = () => reconnects++
+	instance.updateStatus = (status) => statuses.push(status)
+	instance.statusPending = false
+	instance.requestStatus()
+	for (let i = 0; i < 3; i++) {
+		instance.statusSentAt = Date.now() - (instance.statusStallMs() + 50)
+		instance.requestStatus()
+	}
+	assert.equal(reconnects, 1)
+	assert.equal(statuses.at(-1), 'connection_failure')
+})
+
+test('polling sends nothing while disconnected', async () => {
+	const instance = await bareInstance()
+	const sends = []
+	instance.config = { pollInterval: 250 }
+	const logs = []
+	instance.log = (level, text) => logs.push(`${level} ${text}`)
+	instance.socket = { isConnected: false, send: (s) => sends.push(s) }
+	for (let i = 0; i < 5; i++) instance.requestStatus()
+	assert.deepEqual(sends, [])
+	assert.deepEqual(logs, [], 'a closed Deckboy must not fill the log, one line per poll')
+})
+
+test('only changed variables are republished', async () => {
+	const instance = await bareInstance()
+	instance.handleData(Buffer.from(REPORT))
+	const first = Object.keys(instance.published.at(-1)).length
+	instance.handleData(Buffer.from(REPORT.replace('pos=00:01.0', 'pos=00:02.0')))
+	const second = instance.published.at(-1)
+	assert.ok(first > 10)
+	assert.ok(Object.keys(second).length < 5, 'a moving playhead changes a handful of values')
+	const count = instance.published.length
+	instance.handleData(Buffer.from(REPORT.replace('pos=00:01.0', 'pos=00:02.0')))
+	assert.equal(instance.published.length, count, 'an identical report publishes nothing')
+})
+
+test('a cue number that is empty or not a position sends nothing', async () => {
+	// SELECT with nothing after it was refused, and the TAKE that followed put
+	// whatever was selected on air.
+	const self = stubInstance()
+	const built = buildActions(self)
+	for (const cue of ['', '  ', 'abc', '0', '-2', '1.5', undefined]) {
+		await built.take_cue.callback({ options: { deck: 0, cue } })
+		await built.select_cue.callback({ options: { deck: 0, cue } })
+	}
+	assert.deepEqual(self.sent, [])
+})
+
+test('number options that are not numbers send nothing', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+	await built.master_volume.callback({ options: { value: undefined } })
+	await built.master_dimmer.callback({ options: { value: 'abc' } })
+	await built.audiofx_remove.callback({ options: { index: '' } })
+	await built.take.callback({ options: { deck: 'x' } })
+	assert.deepEqual(self.sent, [])
+	await built.audiofx_remove.callback({ options: { index: 2.6 } })
+	assert.deepEqual(self.sent, ['AUDIOFX 3 OFF'], 'an index is sent as a whole number')
+})
+
+test('an option saved before it existed does not throw', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+	await built.vj_mode.callback({ options: {} })
+	await built.fx_copy_paste.callback({ options: {} })
+	assert.deepEqual(self.sent, ['VJ TOGGLE', 'FX COPY'])
+})
+
+test('every index-style number option is integer-only', () => {
+	for (const defs of [actions, feedbacks]) {
+		for (const [id, def] of Object.entries(defs)) {
+			for (const opt of def.options ?? []) {
+				if (opt.type !== 'number') continue
+				if (['deck', 'output', 'display', 'index', 'a', 'b'].includes(opt.id)) {
+					assert.equal(opt.asInteger, true, `${id}.${opt.id} needs asInteger`)
+				}
+			}
+		}
+	}
+})
+
+test('fixed-choice dropdown ids are lower case', () => {
+	for (const [id, def] of Object.entries(actions)) {
+		for (const opt of def.options ?? []) {
+			if (opt.type !== 'dropdown' || opt.id === 'slot') continue
+			for (const c of opt.choices) assert.equal(c.id, String(c.id).toLowerCase(), `${id}.${opt.id} ${c.id}`)
+		}
+	}
 })

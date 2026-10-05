@@ -12,8 +12,6 @@ import { MAX_DECKS, MAX_OUTPUTS } from './variables.js'
 export function buildActions(self) {
 	const send = (cmd) => self.sendCommand(cmd)
 
-	// Deck-targeted commands are prefixed with `DECK n` so a button always acts
-	// on the deck it names, regardless of which deck currently has focus.
 	const deckOption = {
 		type: 'number',
 		label: 'Deck (0 = focused deck)',
@@ -21,16 +19,57 @@ export function buildActions(self) {
 		default: 0,
 		min: 0,
 		max: MAX_DECKS,
+		asInteger: true,
 	}
+
+	// A number option can be switched to an expression, and an expression can
+	// come out empty, NaN or 2.5. Any of those used to go out as literal text --
+	// MASTERVOL undefined, AUDIOFX 2.5 OFF. Returns the number, or null after
+	// saying why the press did nothing.
+	const number = (value, what, { integer = false } = {}) => {
+		const n = Number(value)
+		if (value === '' || value === null || value === undefined || !Number.isFinite(n)) {
+			self.log('warn', `${what} is not a number (${JSON.stringify(value)}) — nothing sent`)
+			return null
+		}
+		return integer ? Math.round(n) : n
+	}
+
+	// Fixed choices are stored lower case and sent the way Deckboy spells them.
+	// String(...) because an action saved before its option existed hands the
+	// callback undefined, and undefined.toUpperCase() throws.
+	const choice = (value, fallback) => String(value ?? fallback).toUpperCase()
+
+	// A button that names its deck acts on that deck and leaves focus where it
+	// was. `DECK n <command>` runs the command on deck n -- but DECK also moves
+	// Deckboy's focus there, which then silently retargeted every "focused deck"
+	// button on the surface. So focus is put back afterwards.
+	//
 	// base 2.x resolves variables and expressions in option values BEFORE the
 	// callback runs, and removed parseVariablesInString from both the class and
 	// the callback context. Option values are read directly from here on.
-	const withDeck = async (options, command) => {
-		const deck = Number(options.deck ?? 0)
-		if (Number.isFinite(deck) && deck > 0) {
-			send(`DECK ${deck}`)
+	const withDeck = async (options, ...commands) => {
+		const deck = number(options.deck ?? 0, 'Deck', { integer: true })
+		if (deck === null) return
+		if (deck <= 0) {
+			for (const command of commands) send(command)
+			return
 		}
-		send(command)
+		for (const command of commands) send(`DECK ${deck} ${command}`)
+		const focus = Number.parseInt(self.state.global?.focus, 10)
+		if (Number.isFinite(focus) && focus > 0 && focus !== deck) send(`DECK ${focus}`)
+	}
+
+	// Cue numbers are 1-based positions. An empty one -- a cleared field, a
+	// variable with nothing in it -- used to send a bare SELECT, which Deckboy
+	// refused, and then TAKE anyway: whatever was selected went on air.
+	const cueNumber = (value) => {
+		const text = String(value ?? '').trim()
+		if (!/^[1-9]\d*$/.test(text)) {
+			self.log('warn', `Cue number ${JSON.stringify(text)} is not a cue position — nothing sent`)
+			return null
+		}
+		return text
 	}
 
 	const simple = (name, command, description) => ({
@@ -55,27 +94,21 @@ export function buildActions(self) {
 		select_cue: {
 			name: 'Select cue by number',
 			description: 'Selects without taking it live. Cue numbers are 1-based.',
-			options: [
-				deckOption,
-				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
-			],
+			options: [deckOption, { type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true }],
 			callback: async ({ options }) => {
-				const cue = String(options.cue ?? '')
-				await withDeck(options, `SELECT ${cue}`)
+				const cue = cueNumber(options.cue)
+				if (cue !== null) await withDeck(options, `SELECT ${cue}`)
 			},
 		},
 
 		take_cue: {
 			name: 'Take cue by number',
 			description: 'Selects the cue and takes it live in one press.',
-			options: [
-				deckOption,
-				{ type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true },
-			],
+			options: [deckOption, { type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true }],
+			// One command, so the select and the take land on the same deck.
 			callback: async ({ options }) => {
-				const cue = String(options.cue ?? '')
-				await withDeck(options, `SELECT ${cue}`)
-				send('TAKE')
+				const cue = cueNumber(options.cue)
+				if (cue !== null) await withDeck(options, `TAKE ${cue}`)
 			},
 		},
 
@@ -130,23 +163,32 @@ export function buildActions(self) {
 					],
 				},
 			],
-			callback: ({ options }) => send(`BLACKOUT ${String(options.state).toUpperCase()}`),
+			callback: ({ options }) => send(`BLACKOUT ${choice(options.state, 'toggle')}`),
 		},
 
 		master_volume: {
 			name: 'Master volume',
 			options: [{ type: 'number', label: 'Percent', id: 'value', default: 100, min: 0, max: 200 }],
-			callback: ({ options }) => send(`MASTERVOL ${options.value}`),
+			callback: ({ options }) => {
+				const value = number(options.value, 'Master volume')
+				if (value !== null) send(`MASTERVOL ${value}`)
+			},
 		},
 		master_dimmer: {
 			name: 'Master dimmer',
 			options: [{ type: 'number', label: 'Percent', id: 'value', default: 100, min: 0, max: 100 }],
-			callback: ({ options }) => send(`DIMMER ${options.value}`),
+			callback: ({ options }) => {
+				const value = number(options.value, 'Master dimmer')
+				if (value !== null) send(`DIMMER ${value}`)
+			},
 		},
 		deck_fader: {
 			name: 'Deck fader',
 			options: [deckOption, { type: 'number', label: 'Percent', id: 'value', default: 100, min: 0, max: 100 }],
-			callback: async ({ options }) => withDeck(options, `VOLUME ${options.value}`),
+			callback: async ({ options }) => {
+				const value = number(options.value, 'Deck fader')
+				if (value !== null) await withDeck(options, `VOLUME ${value}`)
+			},
 		},
 
 		loop: {
@@ -162,8 +204,11 @@ export function buildActions(self) {
 
 		focus_deck: {
 			name: 'Focus deck',
-			options: [{ type: 'number', label: 'Deck', id: 'deck', default: 1, min: 1, max: MAX_DECKS }],
-			callback: ({ options }) => send(`DECK ${options.deck}`),
+			options: [{ type: 'number', label: 'Deck', id: 'deck', default: 1, min: 1, max: MAX_DECKS, asInteger: true }],
+			callback: ({ options }) => {
+				const deck = number(options.deck, 'Deck', { integer: true })
+				if (deck !== null) send(`DECK ${deck}`)
+			},
 		},
 
 		output_enable: {
@@ -181,7 +226,7 @@ export function buildActions(self) {
 					],
 				},
 			],
-			callback: ({ options }) => send(`VIDEO OUTPUT ${String(options.state).toUpperCase()}`),
+			callback: ({ options }) => send(`VIDEO OUTPUT ${choice(options.state, 'toggle')}`),
 		},
 		output_fullscreen: {
 			name: 'Toggle output fullscreen',
@@ -190,8 +235,13 @@ export function buildActions(self) {
 		},
 		output_display: {
 			name: 'Send focused output to display',
-			options: [{ type: 'number', label: 'Display (1-based)', id: 'display', default: 1, min: 1, max: 16 }],
-			callback: ({ options }) => send(`DISPLAY ${options.display}`),
+			options: [
+				{ type: 'number', label: 'Display (1-based)', id: 'display', default: 1, min: 1, max: 16, asInteger: true },
+			],
+			callback: ({ options }) => {
+				const display = number(options.display, 'Display', { integer: true })
+				if (display !== null) send(`DISPLAY ${display}`)
+			},
 		},
 
 		find: {
@@ -226,15 +276,16 @@ export function buildActions(self) {
 					],
 				},
 			],
-			callback: ({ options }) => send(`VJ ${options.state.toUpperCase()}`),
+			callback: ({ options }) => send(`VJ ${choice(options.state, 'toggle')}`),
 		},
 		vj_mix: {
 			name: 'VJ crossfader',
 			description: 'Where the fader sits: 0 is all deck A, 1 is all deck B.',
-			options: [
-				{ type: 'number', label: 'Position', id: 'value', default: 0.5, min: 0, max: 1, step: 0.01 },
-			],
-			callback: ({ options }) => send(`VJ MIX ${options.value}`),
+			options: [{ type: 'number', label: 'Position', id: 'value', default: 0.5, min: 0, max: 1, step: 0.01 }],
+			callback: ({ options }) => {
+				const value = number(options.value, 'Crossfader position')
+				if (value !== null) send(`VJ MIX ${value}`)
+			},
 		},
 		vj_blend: {
 			name: 'VJ blend mode',
@@ -251,7 +302,7 @@ export function buildActions(self) {
 					],
 				},
 			],
-			callback: ({ options }) => send(`VJ BLEND ${options.blend}`),
+			callback: ({ options }) => send(`VJ BLEND ${options.blend ?? 'dissolve'}`),
 		},
 		vj_tap: {
 			name: 'VJ tap tempo',
@@ -262,7 +313,10 @@ export function buildActions(self) {
 		vj_bpm: {
 			name: 'VJ tempo (BPM)',
 			options: [{ type: 'number', label: 'BPM', id: 'value', default: 120, min: 20, max: 300 }],
-			callback: ({ options }) => send(`VJ BPM ${options.value}`),
+			callback: ({ options }) => {
+				const value = number(options.value, 'BPM')
+				if (value !== null) send(`VJ BPM ${value}`)
+			},
 		},
 		vj_quantise: {
 			name: 'VJ quantised takes',
@@ -279,16 +333,20 @@ export function buildActions(self) {
 					],
 				},
 			],
-			callback: ({ options }) => send(`VJ QUANTISE ${options.state}`),
+			callback: ({ options }) => send(`VJ QUANTISE ${choice(options.state, 'on')}`),
 		},
 		vj_decks: {
 			name: 'VJ deck assignment',
 			description: 'Which decks sit on the A and B sides of the crossfader.',
 			options: [
-				{ type: 'number', label: 'Deck A', id: 'a', default: 1, min: 1, max: 8 },
-				{ type: 'number', label: 'Deck B', id: 'b', default: 2, min: 1, max: 8 },
+				{ type: 'number', label: 'Deck A', id: 'a', default: 1, min: 1, max: MAX_DECKS, asInteger: true },
+				{ type: 'number', label: 'Deck B', id: 'b', default: 2, min: 1, max: MAX_DECKS, asInteger: true },
 			],
-			callback: ({ options }) => send(`VJ DECKS ${options.a} ${options.b}`),
+			callback: ({ options }) => {
+				const a = number(options.a, 'Deck A', { integer: true })
+				const b = number(options.b, 'Deck B', { integer: true })
+				if (a !== null && b !== null) send(`VJ DECKS ${a} ${b}`)
+			},
 		},
 
 		// ── Effects ─────────────────────────────────────────────────────────
@@ -301,22 +359,27 @@ export function buildActions(self) {
 			],
 			callback: async ({ options }) => {
 				const effect = String(options.effect ?? '').trim()
-				if (effect.length > 0) send(`FX ADD ${effect} ${options.amount}`)
+				const amount = number(options.amount, 'Amount')
+				if (effect.length > 0 && amount !== null) send(`FX ADD ${effect} ${amount}`)
 			},
 		},
 		fx_amount: {
 			name: 'Effect amount',
 			options: [
-				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32 },
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{ type: 'number', label: 'Amount', id: 'value', default: 1, min: 0, max: 1, step: 0.01 },
 			],
-			callback: ({ options }) => send(`FX AMOUNT ${options.index} ${options.value}`),
+			callback: ({ options }) => {
+				const index = number(options.index, 'Effect number', { integer: true })
+				const value = number(options.value, 'Amount')
+				if (index !== null && value !== null) send(`FX AMOUNT ${index} ${value}`)
+			},
 		},
 		fx_param: {
 			name: 'Effect parameter',
 			description: "The effect's own shaping controls, A to D.",
 			options: [
-				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32 },
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{
 					type: 'dropdown',
 					label: 'Parameter',
@@ -326,13 +389,17 @@ export function buildActions(self) {
 				},
 				{ type: 'number', label: 'Value', id: 'value', default: 0.5, min: 0, max: 1, step: 0.01 },
 			],
-			callback: ({ options }) => send(`FX PARAM ${options.index} ${options.slot} ${options.value}`),
+			callback: ({ options }) => {
+				const index = number(options.index, 'Effect number', { integer: true })
+				const value = number(options.value, 'Value')
+				if (index !== null && value !== null) send(`FX PARAM ${index} ${choice(options.slot, 'A')} ${value}`)
+			},
 		},
 		fx_lfo: {
 			name: 'Effect parameter LFO',
 			description: 'Hand a parameter to an oscillator. E is the effect amount.',
 			options: [
-				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32 },
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{
 					type: 'dropdown',
 					label: 'Parameter',
@@ -365,8 +432,10 @@ export function buildActions(self) {
 				},
 			],
 			callback: async ({ options }) => {
+				const index = number(options.index, 'Effect number', { integer: true })
+				if (index === null) return
 				const value = String(options.value ?? '').trim()
-				send(`FX LFO ${options.index} ${options.slot} ${options.what}${value ? ' ' + value : ''}`)
+				send(`FX LFO ${index} ${choice(options.slot, 'A')} ${options.what ?? 'on'}${value ? ' ' + value : ''}`)
 			},
 		},
 		fx_clear: {
@@ -414,38 +483,51 @@ export function buildActions(self) {
 				},
 				{ type: 'number', label: 'Amount %', id: 'amount', default: 100, min: 0, max: 100 },
 			],
-			callback: ({ options }) => send(`AUDIOFX ADD ${options.effect} ${options.amount}`),
+			callback: ({ options }) => {
+				const amount = number(options.amount, 'Amount')
+				if (amount !== null) send(`AUDIOFX ADD ${options.effect ?? 'comp'} ${amount}`)
+			},
 		},
 		audiofx_amount: {
 			name: 'Audio effect amount',
 			options: [
-				{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8 },
+				{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8, asInteger: true },
 				{ type: 'number', label: 'Amount %', id: 'value', default: 100, min: 0, max: 100 },
 			],
-			callback: ({ options }) => send(`AUDIOFX ${options.index} ${options.value}`),
+			callback: ({ options }) => {
+				const index = number(options.index, 'Slot', { integer: true })
+				const value = number(options.value, 'Amount')
+				if (index !== null && value !== null) send(`AUDIOFX ${index} ${value}`)
+			},
 		},
 		audiofx_bypass: {
 			name: 'Bypass an audio effect',
 			description: 'Takes it out of the chain but keeps its settings.',
 			options: [
-				{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8 },
+				{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8, asInteger: true },
 				{
 					type: 'dropdown',
 					label: 'State',
 					id: 'state',
-					default: 'ON',
+					default: 'on',
 					choices: [
-						{ id: 'ON', label: 'Bypassed' },
-						{ id: 'OFF', label: 'Active' },
+						{ id: 'on', label: 'Bypassed' },
+						{ id: 'off', label: 'Active' },
 					],
 				},
 			],
-			callback: ({ options }) => send(`AUDIOFX ${options.index} BYPASS ${options.state}`),
+			callback: ({ options }) => {
+				const index = number(options.index, 'Slot', { integer: true })
+				if (index !== null) send(`AUDIOFX ${index} BYPASS ${choice(options.state, 'on')}`)
+			},
 		},
 		audiofx_remove: {
 			name: 'Remove an audio effect',
-			options: [{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8 }],
-			callback: ({ options }) => send(`AUDIOFX ${options.index} OFF`),
+			options: [{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8, asInteger: true }],
+			callback: ({ options }) => {
+				const index = number(options.index, 'Slot', { integer: true })
+				if (index !== null) send(`AUDIOFX ${index} OFF`)
+			},
 		},
 		audiofx_clear: {
 			name: 'Clear the audio chain',
@@ -467,15 +549,13 @@ export function buildActions(self) {
 					],
 				},
 			],
-			callback: ({ options }) => send(`FX ${options.action.toUpperCase()}`),
+			callback: ({ options }) => send(`FX ${choice(options.action, 'copy')}`),
 		},
 		code_set: {
 			name: 'Set the code source expression',
 			description:
 				'One expression, or three separated by commas for red, green and blue. Refused if it does not compile.',
-			options: [
-				{ type: 'textinput', label: 'Expression', id: 'expression', default: '', useVariables: true },
-			],
+			options: [{ type: 'textinput', label: 'Expression', id: 'expression', default: '', useVariables: true }],
 			callback: async ({ options }) => {
 				const expression = String(options.expression ?? '').trim()
 				if (expression.length > 0) send(`CODE SET ${expression}`)
@@ -490,24 +570,21 @@ export function buildActions(self) {
 					type: 'dropdown',
 					label: 'State',
 					id: 'state',
-					default: 'TOGGLE',
+					default: 'toggle',
 					choices: [
-						{ id: 'ON', label: 'On' },
-						{ id: 'OFF', label: 'Off' },
-						{ id: 'TOGGLE', label: 'Toggle' },
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+						{ id: 'toggle', label: 'Toggle' },
 					],
 				},
 			],
-			callback: ({ options }) => send(`ASCII ${options.state}`),
+			callback: ({ options }) => send(`ASCII ${choice(options.state, 'toggle')}`),
 		},
 
 		text_glyphs: {
 			name: 'Video synth: custom glyphs',
-			description:
-				'Characters the picture is built from, darkest first. Empty restores the chosen glyph set.',
-			options: [
-				{ type: 'textinput', label: 'Characters', id: 'glyphs', default: '', useVariables: true },
-			],
+			description: 'Characters the picture is built from, darkest first. Empty restores the chosen glyph set.',
+			options: [{ type: 'textinput', label: 'Characters', id: 'glyphs', default: '', useVariables: true }],
 			callback: async ({ options }) => {
 				const glyphs = String(options.glyphs ?? '').trim()
 				send(glyphs.length > 0 ? `ASCII GLYPHS ${glyphs}` : 'ASCII GLYPHS')
@@ -524,14 +601,14 @@ export function buildActions(self) {
 			callback: async ({ options }) => {
 				const phrases = String(options.phrases ?? '').trim()
 				send(phrases.length > 0 ? `ASCII PHRASES ${phrases}` : 'ASCII PHRASES')
-				send(`ASCII HOLD ${options.hold}`)
+				const hold = number(options.hold, 'Hold')
+				if (hold !== null) send(`ASCII HOLD ${hold}`)
 			},
 		},
 
 		custom: {
 			name: 'Custom command',
-			description:
-				'Any Deckboy remote command, sent verbatim. See MANUAL.md section 22 for the full vocabulary.',
+			description: 'Any Deckboy remote command, sent verbatim. See MANUAL.md section 22 for the full vocabulary.',
 			options: [{ type: 'textinput', label: 'Command', id: 'command', default: '', useVariables: true }],
 			callback: async ({ options }) => {
 				const command = String(options.command ?? '')
