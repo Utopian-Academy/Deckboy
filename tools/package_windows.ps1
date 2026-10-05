@@ -95,6 +95,14 @@ Copy-Item $Exe -Destination $StageDir
 Get-ChildItem $BuildDir -Filter *.dll | ForEach-Object {
     Copy-Item $_.FullName -Destination $StageDir
 }
+# Deckboy Mini, the single-deck command-line player. Required: a zip that
+# quietly lacked it would look exactly like one where it was left out on
+# purpose, and nobody would find out until a kiosk script failed.
+$MiniExe = Join-Path $BuildDir "deckboy-mini.exe"
+if (-not (Test-Path $MiniExe)) {
+    throw "deckboy-mini.exe not found at $MiniExe. It builds with Deckboy unless DECKBOY_BUILD_MINI is OFF."
+}
+Copy-Item $MiniExe -Destination $StageDir
 # Bundled companion apps (terrarium easter egg)
 $TerrariumExe = Join-Path $BuildDir "terrarium.exe"
 if (Test-Path $TerrariumExe) {
@@ -295,6 +303,23 @@ if ($StagedVersion -ne $Version) {
     throw "The staged build reports '$StagedVersion', not $Version."
 }
 Write-Host "  staged build reports v$StagedVersion"
+
+# Mini is a console program, so its own --version is checked the same way: the
+# staged copy runs, and it is the version the zip is named after.
+$StagedMini = Join-Path $StageDir "deckboy-mini.exe"
+$MiniOut = Join-Path $env:TEMP ("deckboy-mini-staged-" + [guid]::NewGuid() + ".txt")
+$MiniProc = Start-Process -FilePath $StagedMini -ArgumentList "--version" `
+                          -Wait -NoNewWindow -PassThru -RedirectStandardOutput $MiniOut
+$MiniVersion = ""
+if (Test-Path $MiniOut) {
+    $MiniVersion = (Get-Content $MiniOut -TotalCount 1)
+    Remove-Item $MiniOut -Force -ErrorAction SilentlyContinue
+}
+$MiniVersion = ($MiniVersion -replace '^deckboy-mini\s+v?', '').Trim()
+if ($MiniProc.ExitCode -ne 0 -or $MiniVersion -ne $Version) {
+    throw "The staged deckboy-mini.exe would not run or reports '$MiniVersion' (exit $($MiniProc.ExitCode)), not $Version."
+}
+Write-Host "  staged deckboy-mini reports v$MiniVersion"
 
 # --- The staged copy has to have libltc, and it has to WORK -----------------
 #
