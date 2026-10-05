@@ -579,6 +579,7 @@ add_executable(deckboy-native
   native/core/i18n.cpp
   native/core/utils.cpp
   native/core/subprocess.cpp
+  native/core/media_probe.cpp
   native/engine/media_engine.cpp
   native/platform/browser.cpp
   native/platform/pdf_import.cpp
@@ -1095,6 +1096,38 @@ endif()
 
 if(WIN32)
   target_link_libraries(deckboy-native PRIVATE ws2_32 shell32 iphlpapi)
+endif()
+
+# ── Deckboy Mini ─────────────────────────────────────────────────────────────
+# One deck, one output, no desk: native/mini/mini_main.cpp around the same
+# MediaEngine. It takes the desk target's FINISHED configuration -- every
+# source except the desk's own main.cpp and its resources, and every define,
+# include path and library the feature options above added -- so a feature
+# switched on or off for the desk is switched the same way for Mini, and this
+# block never needs to repeat that logic. A console program on Windows, so it
+# can be run and stopped from a terminal.
+option(DECKBOY_BUILD_MINI "Build deckboy-mini, the single-deck command-line player" ON)
+if(DECKBOY_BUILD_MINI)
+  get_target_property(_desk_sources deckboy-native SOURCES)
+  set(_mini_sources native/mini/mini_main.cpp)
+  foreach(_src IN LISTS _desk_sources)
+    if(NOT _src MATCHES "native/main\\.cpp$" AND NOT _src MATCHES "\\.(rc|plist|icns|manifest)$")
+      list(APPEND _mini_sources "${_src}")
+    endif()
+  endforeach()
+  add_executable(deckboy-mini ${_mini_sources})
+  foreach(_prop COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FEATURES INCLUDE_DIRECTORIES
+                LINK_LIBRARIES LINK_OPTIONS LINK_DIRECTORIES CXX_STANDARD CXX_STANDARD_REQUIRED
+                MSVC_RUNTIME_LIBRARY ENABLE_EXPORTS)
+    get_target_property(_value deckboy-native ${_prop})
+    if(_value)
+      set_property(TARGET deckboy-mini PROPERTY ${_prop} "${_value}")
+    endif()
+  endforeach()
+  # Beside Deckboy, so it finds the same bundled ffmpeg and libraries.
+  set_target_properties(deckboy-mini PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:deckboy-native>")
+  add_dependencies(deckboy-mini deckboy-native)
 endif()
 
 include(CTest)
