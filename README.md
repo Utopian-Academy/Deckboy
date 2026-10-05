@@ -524,8 +524,19 @@ importantly, what each feature deliberately does not do.
   range and avoiding a CPU download during ordinary playback
 - PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings
 
+**Deckboy Mini:**
+
+- A media browser in the terminal: walk folders, filter by typing and add clips
+  without leaving the keyboard, shared with the desk's own browser
+- Build a playlist there too: reorder, remove, set each cue's loop and still
+  time, save it and open it again next time
+- Choose the display and the audio device from the keyboard
+- Help in the terminal that matches the miniature manual
+
 **Platform:**
 
+- Raspberry Pi: Deckboy Mini on Raspberry Pi 4 and 5 (64-bit), as a
+  ready-to-run download
 - NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
 - Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
