@@ -310,6 +310,13 @@ class Hud {
                 glyph::kBottomRight, ink::kReset);
     ++lines;
 
+    // The keys, under the panel: they work in the OUTPUT window, which is the
+    // one place nothing can be printed.
+    std::printf("\x1b[2K   %sSPACE%s play  %s<- ->%s cue  %sS%s stop  %sB%s black  %sF%s full  %sQ%s quit%s\n",
+                ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim,
+                ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kReset);
+    ++lines;
+
     // The shimmer: a ribbon of symbols whose height follows the sound, with a
     // slow idle drift so a silent picture still looks alive.
     static const char kRamp[] = " .:-=+*#%@";
