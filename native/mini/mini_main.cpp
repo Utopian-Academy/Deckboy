@@ -69,16 +69,17 @@ const char* kUsage =
   "  --port N       remote control port. Default 5510 (the desk's).\n"
   "  --remote       accept remote control from the network, not only this machine\n"
   "  --plain        plain log lines instead of the status panel\n"
+  "  --overlay      start with the status bar shown on the output (H toggles it)\n"
   "  --version      print the version and exit\n"
   "\n"
   "Keys: Space play/pause, Right next, Left previous, S stop, B blackout,\n"
-  "      F fullscreen, Q quit.\n"
+  "      F fullscreen, H status bar, Q quit. Drop files on the output to add them.\n"
   "Remote: send HELP for the commands.\n";
 
 const char* kRemoteHelp =
   "GO | TAKE [n] | SELECT n | NEXT | PREV | SKIP | SKIPBACK | PLAY | PAUSE | STOP | CLEAR | PANIC | "
   "SEEK +-s | SEEKPOS s | VOLUME 0-100 | LOOP ON|OFF|TOGGLE | BLACKOUT ON|OFF|TOGGLE | "
-  "DECK 1 <command> | STATUS | PING | QUIT\n";
+  "OVERLAY ON|OFF|TOGGLE | ADD <file or folder> | DECK 1 <command> | STATUS | PING | QUIT\n";
 
 std::string upper(std::string s) {
   for (char& c : s) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
@@ -110,6 +111,7 @@ struct Options {
   int port = 5510;
   bool remote = false;
   bool plain = false;
+  bool overlay = false;
   std::vector<fs::path> inputs;
 };
 
@@ -147,6 +149,7 @@ Options parseArgs(int argc, char** argv) {
     else if (a == "--port") o.port = static_cast<int>(number(need(i, "--port"), "--port"));
     else if (a == "--remote") o.remote = true;
     else if (a == "--plain") o.plain = true;
+    else if (a == "--overlay") o.overlay = true;
     else if (a.rfind("--", 0) == 0) { std::cerr << "deckboy-mini: unknown option " << a << "\n\n" << kUsage; std::exit(2); }
     else o.inputs.emplace_back(a);
   }
@@ -161,9 +164,9 @@ Options parseArgs(int argc, char** argv) {
 // name, which is how a kiosk folder of 01_, 02_, 03_ plays in order. Each is
 // probed the way the desk's import probes it -- size, rate, length, sound --
 // because the engine plays from those, not from the file name.
-std::vector<Cue> buildPlaylist(const Options& o) {
+std::vector<Cue> cuesFor(const std::vector<fs::path>& inputs, double stillSeconds, std::size_t firstId) {
   std::vector<fs::path> files;
-  for (const fs::path& in : o.inputs) {
+  for (const fs::path& in : inputs) {
     std::error_code ec;
     if (fs::is_directory(in, ec)) {
       std::vector<fs::path> found;
@@ -187,12 +190,14 @@ std::vector<Cue> buildPlaylist(const Options& o) {
       continue;
     }
     Cue cue = std::move(*probed);
-    cue.id = "mini-" + std::to_string(cues.size() + 1);
-    if (cue.kind == CueKind::Image) cue.stillDurationSeconds = o.stillSeconds;
+    cue.id = "mini-" + std::to_string(firstId + cues.size());
+    if (cue.kind == CueKind::Image) cue.stillDurationSeconds = stillSeconds;
     cues.push_back(std::move(cue));
   }
   return cues;
 }
+
+std::vector<Cue> buildPlaylist(const Options& o) { return cuesFor(o.inputs, o.stillSeconds, 1); }
 
 // ── The player ──────────────────────────────────────────────────────────────
 
@@ -202,6 +207,8 @@ class Mini {
 
   int run() {
     if (!open()) return 1;
+    overlay_ = opt_.overlay;
+    nextId_ = cues_.size() + 1;
     hud_.begin(opt_.plain);
     hud_.boot(bootFacts());
     take(0, !opt_.paused);
@@ -351,6 +358,7 @@ class Mini {
       SDL_GetRenderOutputSize(renderer_, &w, &h);
       engine_->render(SDL_Rect {0, 0, w, h});
     }
+    if (overlay_) drawOverlay();
     SDL_RenderPresent(renderer_);
   }
 
@@ -358,6 +366,7 @@ class Mini {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_EVENT_QUIT) gQuit = true;
+      if (e.type == SDL_EVENT_DROP_FILE && e.drop.data) addInputs({fs::path(e.drop.data)}, "dropped");
       if (e.type != SDL_EVENT_KEY_DOWN || e.key.repeat) continue;
       switch (e.key.key) {
         case SDLK_SPACE: go(); break;
@@ -366,6 +375,7 @@ class Mini {
         case SDLK_S: stop(); break;
         case SDLK_B: blackout_ = !blackout_; break;
         case SDLK_F: setFullscreen(!fullscreen_); break;
+        case SDLK_H: case SDLK_TAB: overlay_ = !overlay_; break;
         case SDLK_Q: case SDLK_ESCAPE: gQuit = true; break;
         default: break;
       }
@@ -512,6 +522,24 @@ class Mini {
       blackout_ = *v;
       return ok();
     }
+    if (verb == "OVERLAY") {
+      auto v = onOff(overlay_);
+      if (!v) return err("ON, OFF or TOGGLE");
+      overlay_ = *v;
+      return ok();
+    }
+    if (verb == "ADD") {
+      // The rest of the line is the path, spaces and all; quotes are optional.
+      const std::size_t at = upper(raw).find("ADD");
+      std::string path = at == std::string::npos ? std::string() : raw.substr(at + 3);
+      const std::size_t first = path.find_first_not_of(" \t\"");
+      path = first == std::string::npos ? std::string() : path.substr(first);
+      while (!path.empty() && (path.back() == ' ' || path.back() == '\t' || path.back() == '"')) path.pop_back();
+      if (path.empty()) return err("expected a file or folder");
+      const int added = addInputs({fs::path(path)}, "added");
+      if (added == 0) return err("nothing playable at " + path);
+      return ok();
+    }
     if (verb == "QUIT") { gQuit = true; return ok(); }
     return "ERR " + verb + ": unknown command (send HELP)\n";
   }
@@ -538,6 +566,86 @@ class Mini {
       << " health=live display=" << opt_.display << " raster=" << w << "x" << h
       << " fullscreen=" << (fullscreen_ ? "on" : "off") << "\n";
     return s.str();
+  }
+
+  // New cues go on the end of the list; nothing already playing is touched.
+  // Shared by a file dropped on the output and the remote ADD.
+  int addInputs(const std::vector<fs::path>& inputs, const char* how) {
+    std::vector<Cue> more = cuesFor(inputs, opt_.stillSeconds, nextId_);
+    nextId_ += more.size();
+    for (Cue& c : more) cues_.push_back(std::move(c));
+    if (!more.empty()) {
+      hud_.log(std::string(how) + " " + std::to_string(more.size()) + (more.size() == 1 ? " cue" : " cues") +
+               ", " + std::to_string(cues_.size()) + " in the list");
+    }
+    return static_cast<int>(more.size());
+  }
+
+  // The status bar on the OUTPUT, for a screen with no terminal beside it.
+  // Off unless asked for, because the output is what the room sees. SDL's
+  // built-in 8x8 font, scaled to the raster: pixel text, no font files.
+  void drawOverlay() {
+    int w = 0, h = 0;
+    SDL_GetRenderOutputSize(renderer_, &w, &h);
+    if (w <= 0 || h <= 0) return;
+    const float scale = std::max(1.0f, std::floor(static_cast<float>(h) / 360.0f));
+    const float vw = w / scale, vh = h / scale;   // the canvas in font pixels
+    const float pad = 6.0f, line = 8.0f, gap = 5.0f;
+    const float barH = pad * 2 + line * 2 + gap * 2 + 2.0f;
+    const float top = vh - barH;
+    const mini::HudState st = hudState();
+    auto ascii = [](std::string text) {
+      for (char& c : text) if (static_cast<unsigned char>(c) > 126 || static_cast<unsigned char>(c) < 32) c = '?';
+      return text;
+    };
+    auto clip = [&](std::string text, float room) {
+      const std::size_t fits = static_cast<std::size_t>(std::max(0.0f, room / 8.0f));
+      if (text.size() > fits) text = fits > 1 ? text.substr(0, fits - 1) + "~" : std::string();
+      return text;
+    };
+
+    SDL_SetRenderScale(renderer_, scale, scale);
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer_, 15, 56, 15, 238);              // deep LCD green
+    SDL_FRect bar {0.0f, top, vw, barH};
+    SDL_RenderFillRect(renderer_, &bar);
+    SDL_SetRenderDrawColor(renderer_, 48, 98, 48, 255);
+    SDL_FRect rule {0.0f, top, vw, 1.0f};
+    SDL_RenderFillRect(renderer_, &rule);
+
+    const std::string state = st.blackout ? "BLACKOUT" : st.status == "Playing" ? "> PLAYING" : st.status == "Paused" ? "|| PAUSED" : "# STOPPED";
+    const std::string times = st.cue > 0 ? clock(st.position) + " / " + (st.duration > 0.0 ? clock(st.duration) : std::string("--:--.-")) : std::string();
+    const std::string cue = st.cue > 0 ? std::to_string(st.cue) + "/" + std::to_string(st.cueCount) + "  " + ascii(st.cueName)
+                                       : "-/" + std::to_string(st.cueCount);
+    const float y1 = top + pad, y2 = y1 + line + gap * 2 + 2.0f;
+    const float timesX = vw - pad - times.size() * 8.0f;
+
+    SDL_SetRenderDrawColor(renderer_, 155, 188, 15, 255);              // bright LCD
+    SDL_RenderDebugText(renderer_, pad, y1, state.c_str());
+    SDL_RenderDebugText(renderer_, pad + 11 * 8.0f, y1, clip(cue, timesX - (pad + 11 * 8.0f) - 16.0f).c_str());
+    SDL_SetRenderDrawColor(renderer_, 139, 172, 15, 255);
+    SDL_RenderDebugText(renderer_, timesX, y1, times.c_str());
+
+    // Progress, a two-pixel line between the rows.
+    const float py = y1 + line + gap - 1.0f;
+    SDL_SetRenderDrawColor(renderer_, 48, 98, 48, 255);
+    SDL_FRect track {pad, py, vw - pad * 2, 2.0f};
+    SDL_RenderFillRect(renderer_, &track);
+    if (st.cue > 0 && st.duration > 0.0) {
+      SDL_SetRenderDrawColor(renderer_, 155, 188, 15, 255);
+      SDL_FRect done {pad, py, static_cast<float>((vw - pad * 2) * std::clamp(st.position / st.duration, 0.0, 1.0)), 2.0f};
+      SDL_RenderFillRect(renderer_, &done);
+    }
+
+    const std::string next = st.next > 0 ? "NEXT " + std::to_string(st.next) + "  " + ascii(st.nextName)
+                                         : std::string(st.loop ? "NEXT back to 1" : "NEXT end of list");
+    std::string right = std::string(st.loop ? "LOOP  " : "") + "VOL " + std::to_string(st.volume);
+    if (st.listening) right += "  :" + std::to_string(st.port);
+    const float rightX = vw - pad - right.size() * 8.0f;
+    SDL_SetRenderDrawColor(renderer_, 139, 172, 15, 255);
+    SDL_RenderDebugText(renderer_, pad, y2, clip(next, rightX - pad - 16.0f).c_str());
+    SDL_RenderDebugText(renderer_, rightX, y2, right.c_str());
+    SDL_SetRenderScale(renderer_, 1.0f, 1.0f);
   }
 
   // What the boot sequence reports: the real state of this run.
@@ -611,6 +719,8 @@ class Mini {
   bool stopped_ = true;
   bool blackout_ = false;
   bool fullscreen_ = false;
+  bool overlay_ = false;
+  std::size_t nextId_ = 1;
 };
 
 }  // namespace

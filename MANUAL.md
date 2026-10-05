@@ -1977,13 +1977,21 @@ the app, at `Deckboy.app/Contents/MacOS/deckboy-mini`.
 | `--port N` | Remote control port. Default 5510, the desk's |
 | `--remote` | Accept remote control from the network, not only this machine |
 | `--plain` | Plain log lines instead of the status panel |
+| `--overlay` | Start with the status bar shown on the output |
 
 **Keys**, in the output window: Space play/pause, Right and Left the next and
-previous cue, S stop, B blackout, F fullscreen, Q quit.
+previous cue, S stop, B blackout, F fullscreen, H the status bar, Q quit.
+Drop files or a folder on the output to add them to the end of the list.
+
+**The status bar** is for a screen with nobody at a terminal: H (or Tab)
+shows a slim bar across the bottom of the output, in the same greens, with
+what is playing, the time, a progress line and what is next. It is off until
+you ask for it, because the output is what the room sees.
 
 **Remote control** speaks the desk's protocol (§22) on the desk's port, and
 Mini is deck 1: `GO`, `TAKE [n]`, `SELECT n`, `NEXT`, `PREV`, `PLAY`,
-`PAUSE`, `STOP`, `SEEK`, `VOLUME`, `LOOP`, `BLACKOUT`, `STATUS` and `QUIT`,
+`PAUSE`, `STOP`, `SEEK`, `VOLUME`, `LOOP`, `BLACKOUT`, `OVERLAY`, `STATUS`
+and `QUIT`, plus `ADD <file or folder>` to put more on the end of the list,
 each answered `OK` or `ERR` with the reason. `STATUS` comes back in the desk's
 format, so the Companion module drives Mini like a one-deck Deckboy. Send
 `HELP` for the list.
