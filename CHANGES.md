@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-05 - v0.99.405 (the monitor shows the show, loading at every scale)
+
+**The program monitor shows the show.** The moment a cue has a picture up, the
+program monitor shows it, whichever decoder is playing it, and the idle face
+returns only when nothing is live.
+
+**Loading animations at every UI scale.** The timeline's filmstrip and
+waveform loading animations size themselves with the interface, so the film
+cells, the meter bars and the LOADING label each keep their own place at 150%,
+200% and beyond.
+
+**Geometry scrolls to the end.** Video Outputs > Geometry scrolls all the way
+down to Default Transition.
+
 ## 2026-10-05 - v0.99.404 (Deckboy Mini, remote takes name a real cue, first save asks where)
 
 **Deckboy Mini.** A one-deck player that ships beside the desk, for a screen
