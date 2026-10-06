@@ -2957,6 +2957,9 @@
                                      : td.transitionStyle));
             settingsBtns_.push_back({tStyleBtn, kSettingsActionTransitionStyleCycle, "trans_style"});
           }
+          // The scroll range is measured from where sy finishes, so a section
+          // that does not advance it cannot be scrolled to.
+          sy += pairH + kSectionGap;
         }
 
       // ═══════════════════════════════════════════════════════════════
