@@ -724,8 +724,14 @@ class MediaEngine {
   TransitionStyle outgoingStyle() const { return outgoingStyle_; }
   double outgoingSeconds() const { return outgoingSeconds_; }
 
+  // A HARDWARE-DECODED FRAME NEVER BECOMES texture_: uploadFrame returns early
+  // for zero-copy frames, which the output composites from their D3D11 surface.
+  // Asking texture_ alone said "nothing live" for every d3d11va H.264/HEVC cue,
+  // and the idle face stayed up over a playing show. displayFrame_ is what the
+  // output reads, and STOP clears it alongside texture_.
   bool hasPictureToShow() const {
-    return texture_ != nullptr || (transitionActive_ && transitionTexture_ != nullptr);
+    return texture_ != nullptr || displayFrame_.has_value() ||
+           (transitionActive_ && transitionTexture_ != nullptr);
   }
 
   // HOW MANY TIMES THIS DECK HAD NOTHING TO SHOW.
