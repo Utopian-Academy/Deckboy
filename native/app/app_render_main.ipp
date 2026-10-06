@@ -2153,8 +2153,14 @@
       Primitives::fillRect(controlRenderer_, laneRect, SDL_Color {7, 12, 7, 148});
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-      int widgetW = std::min(188, std::max(124, laneRect.w - 28));
-      int widgetH = std::min(46, std::max(34, laneRect.h - 16));
+      int widgetW = std::min(uiScaled(188), std::max(uiScaled(124), laneRect.w - uiScaled(28)));
+      // The label slot is the pixel font's own line height (18px at 1x), and
+      // the widget is built around it: a fixed slot clipped the word once the
+      // font grew with the UI scale.
+      const int labelH = std::max(uiScaled(18),
+                                  textLineHeight(fontPixel_ ? fontPixel_ : fontSmall_));
+      int widgetH = std::min(uiScaled(28) + labelH,
+                             std::max(uiScaled(16) + labelH, laneRect.h - uiScaled(16)));
       SDL_Rect widget {
         laneRect.x + (laneRect.w - widgetW) / 2,
         laneRect.y + (laneRect.h - widgetH) / 2,
@@ -2163,18 +2169,21 @@
       };
       drawUIPanel(widget, pal.light, pal.deep, pal.mid);
 
+      // Every size goes through uiScaled: written as raw pixels, the label
+      // grew with the font at 1.5x and the box around it did not, so
+      // "LOADING" sat on top of the cells.
       constexpr int kCellCount = 5;
-      constexpr int kCellW = 20;
-      constexpr int kCellH = 16;
-      constexpr int kCellGap = 6;
+      const int kCellW = uiScaled(20);
+      const int kCellH = uiScaled(16);
+      const int kCellGap = uiScaled(6);
       int stripW = kCellCount * kCellW + (kCellCount - 1) * kCellGap;
       int stripX = widget.x + (widget.w - stripW) / 2;
-      int stripY = widget.y + 6;
+      int stripY = widget.y + uiScaled(6);
       int activeCell = static_cast<int>((animationNow_ / 140) % kCellCount);
       int accentCell = static_cast<int>((animationNow_ / 220) % kCellCount);
 
       for (int i = 0; i < kCellCount; ++i) {
-        int bob = (i == activeCell) ? 2 : ((i + accentCell) % kCellCount == 0 ? 1 : 0);
+        int bob = (i == activeCell) ? uiScaled(2) : ((i + accentCell) % kCellCount == 0 ? uiScaled(1) : 0);
         SDL_Rect cell {stripX + i * (kCellW + kCellGap), stripY - bob, kCellW, kCellH};
         SDL_Color fill = (i == activeCell) ? pal.dark : pal.mid;
         SDL_Color ink = (i == activeCell) ? pal.light : pal.deep;
@@ -2182,26 +2191,29 @@
 
         if (audioMode) {
           int barCount = 3;
-          int barGap = 2;
-          int barW = 3;
+          int barGap = uiScaled(2);
+          int barW = uiScaled(3);
           int barsTotalW = barCount * barW + (barCount - 1) * barGap;
           int barsX = cell.x + (cell.w - barsTotalW) / 2;
-          int baseY = cell.y + cell.h - 4;
+          int baseY = cell.y + cell.h - uiScaled(4);
           for (int bar = 0; bar < barCount; ++bar) {
             double phase = static_cast<double>(animationNow_) * 0.012 + i * 0.9 + bar * 0.6;
-            int barH = 3 + static_cast<int>(std::lround((std::sin(phase) * 0.5 + 0.5) * 6.0));
+            int barH = uiScaled(3) + static_cast<int>(std::lround((std::sin(phase) * 0.5 + 0.5) * uiScaled(6)));
             SDL_Rect meter {barsX + bar * (barW + barGap), baseY - barH, barW, barH};
             Primitives::fillRect(controlRenderer_, meter, ink);
           }
         } else {
-          SDL_Rect frameInner {cell.x + 4, cell.y + 3, cell.w - 8, cell.h - 6};
+          SDL_Rect frameInner {cell.x + uiScaled(4), cell.y + uiScaled(3),
+                                cell.w - uiScaled(8), cell.h - uiScaled(6)};
           SDL_Color innerFill = (i == activeCell) ? pal.light : pal.dark;
           Primitives::fillRect(controlRenderer_, frameInner, innerFill);
 
-          SDL_Rect sprocketTopL {cell.x + 1, cell.y + 2, 2, 2};
-          SDL_Rect sprocketBottomL {cell.x + 1, cell.y + cell.h - 4, 2, 2};
-          SDL_Rect sprocketTopR {cell.x + cell.w - 3, cell.y + 2, 2, 2};
-          SDL_Rect sprocketBottomR {cell.x + cell.w - 3, cell.y + cell.h - 4, 2, 2};
+          const int hole = uiScaled(2);
+          const int inset = uiScaled(1);
+          SDL_Rect sprocketTopL {cell.x + inset, cell.y + hole, hole, hole};
+          SDL_Rect sprocketBottomL {cell.x + inset, cell.y + cell.h - hole * 2, hole, hole};
+          SDL_Rect sprocketTopR {cell.x + cell.w - inset - hole, cell.y + hole, hole, hole};
+          SDL_Rect sprocketBottomR {cell.x + cell.w - inset - hole, cell.y + cell.h - hole * 2, hole, hole};
           Primitives::fillRect(controlRenderer_, sprocketTopL, ink);
           Primitives::fillRect(controlRenderer_, sprocketBottomL, ink);
           Primitives::fillRect(controlRenderer_, sprocketTopR, ink);
@@ -2214,7 +2226,8 @@
       for (int i = 0; i < dotCount; ++i) {
         loadingLabel += '.';
       }
-      SDL_Rect loadingRect {widget.x + 4, widget.y + widget.h - 20, widget.w - 8, 18};
+      SDL_Rect loadingRect {widget.x + uiScaled(4), widget.y + widget.h - labelH - uiScaled(2),
+                            widget.w - uiScaled(8), labelH};
       TTF_Font* loadingFont = fontPixel_ ? fontPixel_ : fontSmall_;
       int loadingTextW = 0;
       int loadingTextH = 0;
@@ -2251,8 +2264,14 @@
       Primitives::fillRect(controlRenderer_, laneRect, SDL_Color {7, 12, 7, 148});
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-      int widgetW = std::min(188, std::max(124, laneRect.w - 28));
-      int widgetH = std::min(46, std::max(34, laneRect.h - 16));
+      int widgetW = std::min(uiScaled(188), std::max(uiScaled(124), laneRect.w - uiScaled(28)));
+      // The label slot is the pixel font's own line height (18px at 1x), and
+      // the widget is built around it: a fixed slot clipped the word once the
+      // font grew with the UI scale.
+      const int labelH = std::max(uiScaled(18),
+                                  textLineHeight(fontPixel_ ? fontPixel_ : fontSmall_));
+      int widgetH = std::min(uiScaled(28) + labelH,
+                             std::max(uiScaled(16) + labelH, laneRect.h - uiScaled(16)));
       SDL_Rect widget {
         laneRect.x + (laneRect.w - widgetW) / 2,
         laneRect.y + (laneRect.h - widgetH) / 2,
@@ -2262,15 +2281,15 @@
       drawUIPanel(widget, pal.light, pal.deep, pal.mid);
 
       constexpr int kBarCount = 9;
-      constexpr int kBarW = 8;
-      constexpr int kBarGap = 4;
+      const int kBarW = uiScaled(8);
+      const int kBarGap = uiScaled(4);
       int metersW = kBarCount * kBarW + (kBarCount - 1) * kBarGap;
       int metersX = widget.x + (widget.w - metersW) / 2;
-      int metersTop = widget.y + 5;
-      int metersBot = widget.y + widget.h - 22;
-      int metersH = std::max(6, metersBot - metersTop);
+      int metersTop = widget.y + uiScaled(5);
+      int metersBot = widget.y + widget.h - labelH - uiScaled(4);
+      int metersH = std::max(uiScaled(6), metersBot - metersTop);
 
-      SDL_Rect baseline {metersX - 2, metersBot, metersW + 4, 1};
+      SDL_Rect baseline {metersX - uiScaled(2), metersBot, metersW + uiScaled(4), uiScaled(1)};
       Primitives::fillRect(controlRenderer_, baseline, pal.deep);
 
       for (int i = 0; i < kBarCount; ++i) {
@@ -2278,14 +2297,14 @@
                      + static_cast<double>(i) * 0.62;
         double s = 0.5 + 0.5 * std::sin(phase);
         double env = 0.18 + 0.82 * (s * s);
-        int barH = std::max(2, static_cast<int>(std::round(env * metersH)));
+        int barH = std::max(uiScaled(2), static_cast<int>(std::round(env * metersH)));
         SDL_Rect bar {metersX + i * (kBarW + kBarGap),
                       metersBot - barH,
                       kBarW,
                       barH};
         SDL_Color barFill = (env > 0.75) ? pal.dark : pal.mid;
         drawUIPanel(bar, barFill, pal.deep, pal.light);
-        SDL_Rect cap {bar.x + 1, bar.y, bar.w - 2, 2};
+        SDL_Rect cap {bar.x + uiScaled(1), bar.y, bar.w - uiScaled(2), uiScaled(2)};
         Primitives::fillRect(controlRenderer_, cap, pal.light);
       }
 
@@ -2294,7 +2313,8 @@
       for (int i = 0; i < dotCount; ++i) {
         loadingLabel += '.';
       }
-      SDL_Rect loadingRect {widget.x + 4, widget.y + widget.h - 20, widget.w - 8, 18};
+      SDL_Rect loadingRect {widget.x + uiScaled(4), widget.y + widget.h - labelH - uiScaled(2),
+                            widget.w - uiScaled(8), labelH};
       TTF_Font* loadingFont = fontPixel_ ? fontPixel_ : fontSmall_;
       int loadingTextW = 0;
       int loadingTextH = 0;
