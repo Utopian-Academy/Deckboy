@@ -69,18 +69,22 @@ async function get(url) {
   if (!response.ok) throw new Error('HTTP ' + response.status + ' for ' + new URL(url).pathname);
   return response;
 }
-function capture(url) {
+// STRAIGHT TO DISK. An hour of 1080p stream is ~3.6 GB; held in memory it
+// starved the machine and the run was killed (2026-10-08). The file is
+// trimmed to its last complete fragment afterwards.
+function capture(url, file) {
   return new Promise((resolve, reject) => {
-    const chunks = []; let timer; let finished = false;
+    const out = fs.createWriteStream(file); let timer; let finished = false;
     const began = Date.now();
     function finish(error) {
       if (finished) return;
       finished = true; clearTimeout(timer);
-      resolve({bytes:Buffer.concat(chunks),error,elapsed:(Date.now()-began)/1000});
+      const elapsed = (Date.now()-began)/1000;
+      out.end(() => resolve({error, elapsed}));
     }
     const request = http.get(url, response => {
       if (response.statusCode !== 200) { response.resume(); reject(new Error('stream HTTP ' + response.statusCode)); return; }
-      response.on('data', bytes => chunks.push(bytes));
+      response.on('data', bytes => { if (!out.write(bytes)) { response.pause(); out.once('drain', () => response.resume()); } });
       response.on('error', finish);
       response.on('end', () => finish(new Error('Stream ended before capture completed')));
       timer = setTimeout(() => { finish(); request.destroy(); }, seconds * 1000);
@@ -292,26 +296,28 @@ try {
       await sleep(2000);
     }
   })();
-  const [captureResult, browserResult] = await Promise.allSettled([capture(base+'/av/'+match[1]+authQuery),checkBrowser(base)]);
+  const [captureResult, browserResult] = await Promise.allSettled([capture(base+'/av/'+match[1]+authQuery, path.join(root,'web.mp4')),checkBrowser(base)]);
   polling=false; await poll;
   fs.writeFileSync(path.join(root,'telemetry.json'),JSON.stringify(telemetry,null,2));
   if (captureResult.status === 'rejected') throw captureResult.reason;
-  const {bytes,error:captureError,elapsed} = captureResult.value;
-  let offset=0, end=0;
-  while (offset+8<=bytes.length) {
-    const n=bytes.readUInt32BE(offset);
-    if (n<8 || offset+n>bytes.length) break;
-    if (bytes.toString('ascii',offset+4,offset+8)==='mdat') end=offset+n;
-    offset+=n;
-  }
-  if (!end) throw new Error('No complete fragments');
-  // IN PIECES. One write is capped at 2 GB, and an hour of 1080p stream is
-  // ~3.6 GB: the first 60-minute run captured the whole hour and then lost it
-  // here, at the last step.
+  const {error:captureError,elapsed} = captureResult.value;
+  // The last COMPLETE fragment, found from the box headers alone (8 bytes
+  // each), then the file is cut there: a fragment the timer stopped half way
+  // through would end the recording in garbage.
   const recording=path.join(root,'web.mp4');
-  { const fd=fs.openSync(recording,'w');
-    for (let at=0; at<end; at+=1<<30) fs.writeSync(fd,bytes,at,Math.min(1<<30,end-at));
+  const size=fs.statSync(recording).size;
+  let offset=0, end=0;
+  { const fd=fs.openSync(recording,'r'); const head=Buffer.alloc(8);
+    while (offset+8<=size) {
+      fs.readSync(fd,head,0,8,offset);
+      const n=head.readUInt32BE(0);
+      if (n<8 || offset+n>size) break;
+      if (head.toString('ascii',4,8)==='mdat') end=offset+n;
+      offset+=n;
+    }
     fs.closeSync(fd); }
+  if (!end) throw new Error('No complete fragments');
+  fs.truncateSync(recording,end);
   const status=await command('STATUS');
   console.log(status.split('\n').filter(x=>x.startsWith('OUTPUT ')).map(x=>x.replace(/(?:url|key|path)="[^"]*"/g,'')).join('\n'));
   const flashes=[...run(['-v','info','-i',recording,'-vf','negate,blackdetect=d=0.02:pic_th=0.85','-an','-f','null','-']).stderr.matchAll(/black_start:(\d+\.?\d*)/g)].map(x=>Number(x[1]));

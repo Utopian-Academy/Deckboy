@@ -483,7 +483,12 @@
                // Whether the engine thinks a transition is running. The output
                // composites from currentFrame() and does its own thing, so this
                // is the only way to see whether the two agree.
-               << " transition_running=" << (engine->transitionRunning() ? 1 : 0);
+               << " transition_running=" << (engine->transitionRunning() ? 1 : 0)
+               // The engine's own lip-sync view, as in the other builder. It
+               // was first added there only, and the drift tool reads THIS
+               // one, so a whole hour of drift telemetry came back without it.
+               << " av_err_ms=" << std::lround(engine->avSyncErrorSeconds() * 10000.0) / 10.0
+               << " clock_trim_ppm=" << std::lround((engine->clockTrimRatio() - 1.0) * 1e7) / 10.0;
       }
       output << '\n';
     }
