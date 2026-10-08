@@ -6582,7 +6582,29 @@
     return captioningInstalled_ == 1;
   }
 
-  void generateCaptionsForSelected(const std::string& model = deckboy::captioning::kDefaultModel) {
+  // The next speech model in the CAPTIONS section's list, saved with the show.
+  void cycleCaptionsModel() {
+    const auto& choices = deckboy::captioning::kModelChoices;
+    const std::size_t n = sizeof(choices) / sizeof(choices[0]);
+    std::size_t at = 0;
+    for (std::size_t i = 0; i < n; ++i) {
+      if (project_.captionsModel == choices[i].token) at = (i + 1) % n;
+    }
+    project_.captionsModel = choices[at].token;
+    captionDownloadArmedAtMs_ = 0;   // a new model asks again before downloading
+    markProjectDirty();
+    triggerToast(std::string("captions: ") + choices[at].label +
+                 (deckboy::captioning::modelPresent(choices[at].token)
+                    ? std::string(" (downloaded)")
+                    : " (" + std::to_string(choices[at].megabytes) + " MB the first time)"));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void generateCaptionsForSelected(std::string model = std::string()) {
+    if (model.empty()) {
+      model = project_.captionsModel.empty() ? std::string(deckboy::captioning::kDefaultModel)
+                                             : project_.captionsModel;
+    }
     const Cue* cue = selectedCuePtr();
     if (!cue || !cue->hasAudio || !cueUsesFilesystemMedia(*cue)) {
       failRemoteCommand("captions: select a cue with sound from a file");
@@ -6603,7 +6625,9 @@
       const Uint64 now = SDL_GetTicks();
       if (captionDownloadArmedAtMs_ == 0 || now - captionDownloadArmedAtMs_ > 8000) {
         captionDownloadArmedAtMs_ = now;
-        triggerToast("captions need a one-time 142 MB download (stays on this computer) - press again to fetch it",
+        triggerToast("captions need a one-time " +
+                       std::to_string(deckboy::captioning::modelChoice(model).megabytes) +
+                       " MB download (stays on this computer) - press again to fetch it",
                      ToastKind::Help, kToastReadableMs);
         remoteCommandDetail_ = "needs the model: ask again to download it";
         return;

@@ -197,11 +197,22 @@ if (Test-Path $DataSrc) {
     foreach ($StaleName in @("last_project.txt", "recent_projects.txt",
                              "default.deckboy", "deckboy-first-run",
                              "deckboy-crash.log", "deckboy-soak.log",
-                             "deckboy-render.log", "deckboy-show.log")) {
+                             "deckboy-render.log", "deckboy-show.log",
+                             "deckboy-live-frame.bmp")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Force
             Write-Host "  - stripped data\$StaleName (build-machine state)"
+        }
+    }
+    # Captions made on THIS machine: the downloaded speech model (~140 MB), the
+    # captions written for media it had no folder for, the scratch audio, and a
+    # whisper-cli someone placed by hand. None of it is the package's.
+    foreach ($StaleDir in @("models", "captions", "captions-work", "whisper")) {
+        $StaleState = Join-Path (Join-Path $StageDir "data") $StaleDir
+        if (Test-Path $StaleState) {
+            Remove-Item $StaleState -Recurse -Force
+            Write-Host "  - stripped data\$StaleDir\ (build-machine state)"
         }
     }
 

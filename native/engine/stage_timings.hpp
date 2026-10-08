@@ -7,7 +7,9 @@
 // drawing (which includes the upload to the GPU). Added when a Pi 3 showed
 // 19.8 new frames a second from a 24 fps film with hardware decode on, and
 // nothing said which stage was short. Mini's STATUS prints them and
-// tools/check_mini_smoothness.py turns them into milliseconds per frame.
+// tools/check_mini_smoothness.py turns them into milliseconds per frame. The
+// desk prints the same totals on its STATUS header line, for every deck
+// together, so any machine can be asked which stage its frame time goes to.
 //
 // Its own header so that only the files that count or print these depend on
 // it: on a 1 GB Pi a header the whole engine includes costs a full rebuild.
@@ -23,6 +25,8 @@ struct StageTimings {
   std::atomic<std::uint64_t> decoded {0};
   std::atomic<std::uint64_t> drawNs {0};     // engine update (uploads) + render (draws)
   std::atomic<std::uint64_t> draws {0};
+  std::atomic<std::uint64_t> uploadNs {0};   // a frame's pixels into its GPU texture
+  std::atomic<std::uint64_t> uploads {0};
 };
 
 inline StageTimings& stageTimings() {

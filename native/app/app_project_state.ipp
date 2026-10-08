@@ -324,6 +324,19 @@
     return project_.outputs[*outputIndex];
   }
 
+  // WHERE THIS MACHINE'S FRAME TIME GOES, every deck together (running
+  // totals, microseconds): diff two STATUS readings and divide by the counts.
+  // decode includes convert. On a Pi 3 this split showed in one run that
+  // reading the decoder's buffers, not decoding, was what could not keep up.
+  static std::string stageTimingStatusFields() {
+    const deckboy::libav::StageTimings& t = deckboy::libav::stageTimings();
+    std::ostringstream out;
+    out << " decode_us=" << t.decodeNs.load() / 1000 << " convert_us=" << t.convertNs.load() / 1000
+        << " decoded=" << t.decoded.load() << " upload_us=" << t.uploadNs.load() / 1000
+        << " uploads=" << t.uploads.load();
+    return out.str();
+  }
+
   std::string buildCueProgrammingSnapshot() const {
     std::ostringstream output;
     output << "DECKBOY_0.01 cues"
@@ -386,6 +399,7 @@
            << " master_dimmer=" << static_cast<int>(std::round(std::clamp(masterDimmerTarget_, 0.0, 1.0) * 100.0))
            << " blackout=" << (masterDimmerTarget_ <= 0.001 ? "on" : "off")
            << " master_vol=" << static_cast<int>(std::round(std::clamp(project_.masterVolume, 0.0, 2.0) * 100.0))
+           << stageTimingStatusFields()
            << '\n';
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
@@ -587,6 +601,7 @@
                 ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
                 : "off")
            << " integrations=\"" << integrationBackendRouteSummary() << "\""
+           << stageTimingStatusFields()
            << '\n';
     output << "DECK " << (deckIndex + 1)
            << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""

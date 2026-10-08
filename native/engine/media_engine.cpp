@@ -34,6 +34,7 @@
 // ============================================================================
 
 #include "engine/media_engine.hpp"
+#include "engine/stage_timings.hpp"
 #if defined(__linux__) && DECKBOY_INPROC_DECODE
 #include "engine/drm_prime_import.hpp"
 void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* importer) const {
@@ -6057,6 +6058,14 @@ void MediaEngine::clearTexture() {
   lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1);
 }
 
+// One frame's upload, into the process-wide stage totals (stage_timings.hpp).
+void MediaEngine::countUpload(std::chrono::steady_clock::time_point started) {
+  deckboy::libav::StageTimings& t = deckboy::libav::stageTimings();
+  t.uploadNs += static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::steady_clock::now() - started).count());
+  t.uploads += 1;
+}
+
 // A decoder's DRM-PRIME frame, shown from its own buffer (see
 // engine/drm_prime_import.hpp). texture_ then points into the importer's cache
 // rather than at a texture this engine owns, which textureImported_ records.
@@ -6143,7 +6152,9 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (frame.format == FramePixelFormat::NV12) {
     const std::uint8_t* y = frame.pixels.data();
     const std::uint8_t* uv = y + static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height);
+    const auto uploadStarted = std::chrono::steady_clock::now();
     SDL_UpdateNVTexture(texture_, nullptr, y, frame.width, uv, frame.width);
+    countUpload(uploadStarted);
     return;
   }
   // RGBA path: apply per-pixel effects (chroma key + color controls) if any
@@ -6176,7 +6187,9 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   // storage and discards the previous contents, so there is nothing to
   // accumulate. SDL_UpdateTexture stays as the fallback for the case where a
   // lock is refused, which is rare but must not black the picture out.
+  const auto uploadStarted = std::chrono::steady_clock::now();
   writeStreamingTexture(texture_, uploadPixels, frame.width, frame.height);
+  countUpload(uploadStarted);
 
   // RETIRE THE UPLOAD.
   //

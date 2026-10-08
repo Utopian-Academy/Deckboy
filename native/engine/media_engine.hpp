@@ -857,6 +857,7 @@ class MediaEngine {
   void clearTexture();                                     // release the main frame texture
   // Linux: show a decoder's DRM-PRIME frame by importing its buffer.
   void showImportedFrame(const DecodedFrame& frame);
+  void countUpload(std::chrono::steady_clock::time_point started);
   void uploadFrame(const DecodedFrame& frame);             // push decoded frame pixels to GPU texture
   void stopImageThread();                                  // join and clean up the still-image decode thread
   std::pair<int, int> currentOutputSizeHint() const;       // get output dimensions for ffmpeg -s flag

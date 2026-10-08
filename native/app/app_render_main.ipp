@@ -6162,15 +6162,20 @@
           cpY, "captions",
           has ? what + (selectedCue->subtitleEnabled ? "  (on)" : "  (off)") : what,
           QuickAction::CaptionsToggle, "Click to show or hide this cue's captions");
+        const auto& model = deckboy::captioning::modelChoice(project_.captionsModel);
+        drawChoiceRow(cpY, "language", model.label, QuickAction::CaptionsModelCycle,
+                      "Which speech model makes the captions: English, any language, or the "
+                      "slower, more accurate pair. Each is a one-time download");
+        cpY += kInspectorRowStep;
         const bool mine = captionJobRunning() && captionJobCueId_ == selectedCue->id;
         cpY = drawInspectorActionRow(
           cpY,
           mine ? std::string("listening...")
                : !captioningInstalled()
                    ? std::string("make captions here: engine not installed")
-                   : (deckboy::captioning::modelPresent(deckboy::captioning::kDefaultModel)
+                   : (deckboy::captioning::modelPresent(model.token)
                         ? std::string("make captions here")
-                        : std::string("make captions here (one-time download)")),
+                        : "make captions here (" + std::to_string(model.megabytes) + " MB, once)"),
           QuickAction::CaptionsGenerate,
           "Listens to the cue on this computer and writes captions beside the file. Nothing is sent anywhere");
       }

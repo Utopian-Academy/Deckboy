@@ -85,6 +85,7 @@
 #include "core/captioning.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
+#include "engine/stage_timings.hpp"
 #include "engine/hap_decoder.hpp"
 #include "engine/gpu_readback.hpp"
 #include "engine/motion_field.hpp"
@@ -4981,19 +4982,24 @@ class App {
     }
   }
 
-  // At the start of a control-window frame: collect this frame's labels if a
-  // probe is due -- 3 s after the first frame, then 60 s.
+  // At the start of a control-window frame: collect this frame's labels if
+  // the probe is due -- once, 3 s after the first frame.
+  //
+  // ONCE, AND AT STARTUP. Reading the window back makes the CPU wait for the
+  // GPU, and on Metal that wait stalled the outputs: a second probe at 60 s
+  // landed inside CI's A/V timing run and put one marker ~450 ms late, twice.
+  // At 3 s nothing is on air yet, and startup is where the missing-text
+  // fault shows.
   void beginLiveTextFrame() {
     liveTextCollecting_ = false;
-    if (liveTextProbesDone_ >= 2 || !controlRenderer_) {
+    if (liveTextProbesDone_ >= 1 || !controlRenderer_) {
       return;
     }
     const Uint64 now = SDL_GetTicks();
     if (liveTextFirstFrameMs_ == 0) {
       liveTextFirstFrameMs_ = now;
     }
-    const Uint64 dueAfter = liveTextProbesDone_ == 0 ? 3000 : 60000;
-    if (now - liveTextFirstFrameMs_ < dueAfter) {
+    if (now - liveTextFirstFrameMs_ < 3000) {
       return;
     }
     liveTextCollecting_ = true;
@@ -5025,28 +5031,30 @@ class App {
     if (!liveTextSamples_.empty()) {
       pick = {0, liveTextSamples_.size() / 2, liveTextSamples_.size() - 1};
     }
+    // ONE READBACK, the whole frame: each read waits on the GPU, so the labels
+    // are measured from this one copy, which is also what gets saved.
+    SDL_Surface* back = SDL_RenderReadPixels(controlRenderer_, nullptr);
+    SDL_Surface* frame = back ? SDL_ConvertSurface(back, SDL_PIXELFORMAT_RGBA32) : nullptr;
     int inkless = 0;
     for (std::size_t i = 0; i < pick.size(); ++i) {
       if (i > 0 && pick[i] == pick[i - 1]) continue;
       const LiveTextSample& s = liveTextSamples_[pick[i]];
       long ink = -1;
-      if (SDL_Surface* back = SDL_RenderReadPixels(controlRenderer_, &s.rect)) {
-        if (SDL_Surface* rgba = SDL_ConvertSurface(back, SDL_PIXELFORMAT_RGBA32)) {
-          ink = 0;
-          for (int y = 0; y < rgba->h; ++y) {
-            const auto* row = static_cast<const std::uint8_t*>(rgba->pixels) + y * rgba->pitch;
-            for (int x = 0; x < rgba->w; ++x) {
-              const std::uint8_t* p = row + x * 4;
-              // Closer to the label's ink than to what is behind it.
-              const SDL_Color bg = s.haveUnder ? s.under : SDL_Color {0, 0, 0, 255};
-              const int toInk = std::abs(p[0] - s.ink.r) + std::abs(p[1] - s.ink.g) + std::abs(p[2] - s.ink.b);
-              const int toBg = std::abs(p[0] - bg.r) + std::abs(p[1] - bg.g) + std::abs(p[2] - bg.b);
-              ink += toInk < toBg ? 1 : 0;
-            }
+      if (frame) {
+        ink = 0;
+        const SDL_Color bg = s.haveUnder ? s.under : SDL_Color {0, 0, 0, 255};
+        const int x0 = std::max(0, s.rect.x), y0 = std::max(0, s.rect.y);
+        const int x1 = std::min(frame->w, s.rect.x + s.rect.w), y1 = std::min(frame->h, s.rect.y + s.rect.h);
+        for (int y = y0; y < y1; ++y) {
+          const auto* row = static_cast<const std::uint8_t*>(frame->pixels) + y * frame->pitch;
+          for (int x = x0; x < x1; ++x) {
+            const std::uint8_t* p = row + x * 4;
+            // Closer to the label's ink than to what is behind it.
+            const int toInk = std::abs(p[0] - s.ink.r) + std::abs(p[1] - s.ink.g) + std::abs(p[2] - s.ink.b);
+            const int toBg = std::abs(p[0] - bg.r) + std::abs(p[1] - bg.g) + std::abs(p[2] - bg.b);
+            ink += toInk < toBg ? 1 : 0;
           }
-          SDL_DestroySurface(rgba);
         }
-        SDL_DestroySurface(back);
       }
       inkless += ink == 0 ? 1 : 0;
       line << " | #" << pick[i] + 1 << " \"" << s.text << "\" at " << s.rect.x << "," << s.rect.y
@@ -5056,12 +5064,13 @@ class App {
       line << "  <- LABELS WITH NO INK IN THE FRAME";
     }
     // The whole frame as Deckboy drew it, for comparing with what the screen shows.
-    if (liveTextProbesDone_ == 1) {
-      if (SDL_Surface* frame = SDL_RenderReadPixels(controlRenderer_, nullptr)) {
-        const fs::path file = Paths::stateDir() / "deckboy-live-frame.bmp";
-        line << (SDL_SaveBMP(frame, file.string().c_str()) ? " frame=saved" : " frame=save-failed");
-        SDL_DestroySurface(frame);
-      }
+    if (frame) {
+      const fs::path file = Paths::stateDir() / "deckboy-live-frame.bmp";
+      line << (SDL_SaveBMP(frame, file.string().c_str()) ? " frame=saved" : " frame=save-failed");
+      SDL_DestroySurface(frame);
+    }
+    if (back) {
+      SDL_DestroySurface(back);
     }
     renderDiagnosticLog(line.str());
     liveTextSamples_.clear();

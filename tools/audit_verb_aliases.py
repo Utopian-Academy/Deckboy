@@ -117,6 +117,8 @@ CONFIRMED = {
     ("RECORD", "REC"),
     ("COLOR", "COLORTAG"),
     ("SUBTITLE", "SUBTITLES", "SUB", "CC"),
+    # Both add a memo cue carrying the note after the selected cue.
+    ("MEMOCUE", "MEMO"),
     ("DECKREMOVE", "DECKDEL"),
     ("MULTIVIEW", "MULTI"),
     ("TCCUE", "TIMECODECUE"),

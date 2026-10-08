@@ -617,7 +617,7 @@
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
       Cue* cue = selectedCueMutable();
       if (sub == "GENERATE" || sub == "MAKE") {
-        generateCaptionsForSelected(parts.size() > 2 ? parts[2] : std::string(deckboy::captioning::kDefaultModel));
+        generateCaptionsForSelected(parts.size() > 2 ? parts[2] : std::string());
         return;
       }
       if (!cue) {

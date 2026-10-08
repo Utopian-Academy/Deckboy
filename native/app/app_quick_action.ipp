@@ -1298,6 +1298,7 @@
         break;
       case QuickAction::CaptionsGenerate: generateCaptionsForSelected(); break;
       case QuickAction::AudioTrackCycle: cycleSelectedAudioTrack(); break;
+      case QuickAction::CaptionsModelCycle: cycleCaptionsModel(); break;
       case QuickAction::TargetDeckPrev:  stepTargetDeck(-1); break;
       case QuickAction::TargetDeckNext:  stepTargetDeck(+1); break;
       case QuickAction::TargetCuePrev:   stepTargetCue(-1); break;

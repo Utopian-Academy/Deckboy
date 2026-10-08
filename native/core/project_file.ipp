@@ -201,6 +201,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
   output << "mediamtx_host\t" << escapeField(project.mediamtxHost) << '\n';
+  output << "captions_model\t" << escapeField(project.captionsModel) << '\n';
   output << "clock_mode\t"
          << (project.clockMode.empty() ? std::string("off") : project.clockMode)
          << '\n';
@@ -1170,6 +1171,9 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     tile.safeAreas = safeBool(fields, 3, false);
     tile.label = safeBool(fields, 4, true);
     project.multiviewTiles.push_back(tile);
+  } else if (fields[0] == "captions_model") {
+    const std::string token = safeString(fields, 1);
+    project.captionsModel = token.empty() ? std::string("base.en") : token;
   } else if (fields[0] == "mediamtx_host") {
     project.mediamtxHost = safeString(fields, 1);
   } else if (fields[0] == "update_check") {

@@ -179,10 +179,19 @@ if [ -d "$REPO_ROOT/data" ]; then
   # identical to the Windows and Linux lists, which had drifted apart.
   for stale in last_project.txt recent_projects.txt default.deckboy \
                deckboy-first-run deckboy-crash.log deckboy-soak.log \
-               deckboy-render.log deckboy-show.log; do
+               deckboy-render.log deckboy-show.log deckboy-live-frame.bmp; do
     if [ -e "$RESOURCES_DIR/data/$stale" ]; then
       rm -f "$RESOURCES_DIR/data/$stale"
       echo "  - stripped data/$stale (build-machine state)"
+    fi
+  done
+  # Captions made on THIS machine: the downloaded speech model (~140 MB), the
+  # captions written for media it had no folder for, the scratch audio, and a
+  # whisper-cli someone placed by hand. None of it is the package's.
+  for stale_dir in models captions captions-work whisper; do
+    if [ -d "$RESOURCES_DIR/data/$stale_dir" ]; then
+      rm -rf "$RESOURCES_DIR/data/$stale_dir"
+      echo "  - stripped data/$stale_dir/ (build-machine state)"
     fi
   done
 

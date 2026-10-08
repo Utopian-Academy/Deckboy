@@ -6,8 +6,9 @@
 without anything leaving the machine. In the inspector's new CAPTIONS section,
 **make captions here** listens to the cue and writes the words beside the
 media as `<name>.auto.srt`, attached and switched on. The captioning engine
-(whisper.cpp) now comes with Deckboy on Windows, macOS and Linux; the first
-time, it asks before fetching its speech model, and after that it works
+(whisper.cpp) now comes with Deckboy on Windows, macOS and Linux. Choose
+English or any language, quick or more accurate; the first time, it says how
+big that speech model is and asks before fetching it, and after that it works
 offline. Captions on the output are sized to the output and sit on a box
 fitted to the line.
 

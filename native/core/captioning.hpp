@@ -43,6 +43,27 @@ namespace fs = std::filesystem;
 // 99 languages; "small" / "small.en" (466 MB) are slower and better.
 inline const char* kDefaultModel = "base.en";
 
+// What the CAPTIONS section offers, in the order it cycles. The size is said
+// before the one-time download, so nobody fetches half a gigabyte unawares.
+struct ModelChoice {
+  const char* token;   // the ggml-<token>.bin file
+  const char* label;   // on the inspector row
+  int megabytes;
+};
+inline constexpr ModelChoice kModelChoices[] = {
+  {"base.en", "English", 142},
+  {"base", "any language", 142},
+  {"small.en", "English, more accurate", 466},
+  {"small", "any language, more accurate", 466},
+};
+
+inline const ModelChoice& modelChoice(const std::string& token) {
+  for (const ModelChoice& c : kModelChoices) {
+    if (token == c.token) return c;
+  }
+  return kModelChoices[0];
+}
+
 inline std::string exeName(const std::string& stem) {
 #ifdef _WIN32
   return stem + ".exe";

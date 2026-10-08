@@ -1211,6 +1211,10 @@ Select a video or audio cue with sound and open **CAPTIONS** in the inspector:
 
 - **captions** shows what the cue has (a file beside the media, a track inside
   it, or none) and whether they are on. Click it to show or hide them.
+- **language** chooses the speech model: **English**, **any language** (it
+  works out which), or the slower, more accurate version of either. Each is a
+  one-time download (142 MB, or 466 MB for the accurate pair), saved with the
+  show.
 - **make captions here** listens to the cue and writes the words out as
   `<name>.auto.srt` beside the media, then attaches them to the cue, switched
   on. A file you made by hand is never overwritten. If the media's folder
@@ -1219,9 +1223,9 @@ Select a video or audio cue with sound and open **CAPTIONS** in the inspector:
 The listening is done by whisper.cpp, which comes with Deckboy and runs on
 this computer. (A build without it says **engine not installed** on the row;
 putting `whisper-cli` beside Deckboy is all it needs.) The first time, it
-needs a speech model (about 140 MB). The row says **one-time download**,
-and the first press only asks; press again to fetch it. After that, nothing
-is downloaded and nothing is sent anywhere. Captions are drawn on the output
+needs the chosen speech model. The row says how big it is, and the first
+press only asks; press again to fetch it. After that, nothing is downloaded
+and nothing is sent anywhere. Captions are drawn on the output
 at a size that suits the output's height, on a dark box fitted to the line.
 
 `CAPTIONS [STATUS | ON | OFF | GENERATE]` does the same over the control port.

@@ -2423,6 +2423,9 @@ struct Project {
   // of viewers. Where it runs; empty means this computer. Its own default
   // ports (API 9997, SRT 8890, WebRTC 8889, HLS 8888) are assumed.
   std::string mediamtxHost;
+  // CAPTIONS: which speech model "make captions here" uses (a ggml token from
+  // captioning.hpp's kModelChoices). English by default.
+  std::string captionsModel = "base.en";
 
   // ── THE WALL CLOCK ──────────────────────────────────────────────────────
   //
@@ -3255,7 +3258,8 @@ enum class QuickAction {
   CueSectionCaptionsToggle,
   CaptionsToggle,        // show / hide the cue's captions
   CaptionsGenerate,      // make captions on this machine
-  AudioTrackCycle        // which of the file's sound tracks plays
+  AudioTrackCycle,       // which of the file's sound tracks plays
+  CaptionsModelCycle     // which speech model (language, accuracy) makes captions
 };
 
 // ---------------------------------------------------------------------------
