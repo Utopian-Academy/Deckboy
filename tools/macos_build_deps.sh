@@ -46,7 +46,10 @@ export PKG_CONFIG_LIBDIR="$PREFIX/lib/pkgconfig"
 CMAKE_COMMON=(-G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PREFIX"
               -DCMAKE_OSX_DEPLOYMENT_TARGET="$TARGET" -DCMAKE_OSX_ARCHITECTURES="$ARCH"
               -DCMAKE_PREFIX_PATH="$PREFIX" -DCMAKE_INSTALL_NAME_DIR="$PREFIX/lib"
-              -DBUILD_SHARED_LIBS=ON)
+              -DBUILD_SHARED_LIBS=ON
+              # CMake 4 refuses projects declaring a minimum below 3.5, which
+              # x265 4.1, snappy 1.2.1 and libsrt 1.5.4 all do.
+              -DCMAKE_POLICY_VERSION_MINIMUM=3.5)
 
 step() { echo; echo "=== $* ($(date +%H:%M:%S))"; }
 
@@ -72,6 +75,12 @@ clone x264 https://code.videolan.org/videolan/x264.git stable
 
 step "x265"
 fetch x265 https://bitbucket.org/multicoreware/x265_git/downloads/x265_4.1.tar.gz
+# 4.1 also forces CMP0025 and CMP0054 to OLD, which CMake 4 no longer allows at
+# all. CMP0025 OLD was there to make Apple's compiler report itself as plain
+# "Clang", so with it gone the Clang test has to accept "AppleClang" too, or
+# x265 builds without its Clang flags.
+sed -i '' -E '/cmake_policy\(SET CMP00(25|54) OLD\)/d' "$SRC/x265/source/CMakeLists.txt"
+sed -i '' 's/if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")/if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")/'   "$SRC/x265/source/CMakeLists.txt"
 cmake -S "$SRC/x265/source" -B "$SRC/x265/build" "${CMAKE_COMMON[@]}" -DENABLE_CLI=OFF \
   -DENABLE_SHARED=ON $( [ "$ARCH" = arm64 ] && echo "-DENABLE_ASSEMBLY=OFF" )
 cmake --build "$SRC/x265/build" && cmake --install "$SRC/x265/build"

@@ -452,6 +452,16 @@ class Mini {
       std::cerr << "deckboy-mini: no window: " << SDL_GetError() << "\n";
       return false;
     }
+#if defined(__linux__)
+    // ZERO-COPY NEEDS OpenGL ES. On a Raspberry Pi's KMS display SDL picks its
+    // desktop OpenGL renderer, which cannot sample a decoder's YUV buffer as an
+    // external image; the ES renderer can. Asked for first when zero-copy is
+    // wanted, with SDL's own choice as the fallback.
+    if (zeroCopyRequested()) {
+      renderer_ = SDL_CreateRenderer(window_, "opengles2");
+    }
+    if (!renderer_)
+#endif
     renderer_ = SDL_CreateRenderer(window_, nullptr);
     if (!renderer_) {
       std::cerr << "deckboy-mini: no renderer: " << SDL_GetError() << "\n";
