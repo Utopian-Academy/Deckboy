@@ -45,7 +45,8 @@ def main():
     os.environ["PATH"] = broken + os.pathsep + saved_path
     os.environ["DECKBOY_FFMPEG"] = os.path.join(broken, "ffmpeg.exe" if os.name == "nt" else "ffmpeg")
     os.environ["DECKBOY_FFPROBE"] = os.path.join(broken, "ffprobe.exe" if os.name == "nt" else "ffprobe")
-    os.environ["DECKBOY_TEST_NO_ALERTS"] = "1"
+    # NO DECKBOY_TEST_NO_ALERTS: the warning must be up while the desk keeps
+    # answering. A modal system dialog here once froze the whole app.
     print("check: media tools present but unable to run")
     print()
     try:
@@ -67,7 +68,7 @@ def main():
                     break
                 time.sleep(0.1)
             status = db.send("STATUS")
-            note("the desk is up and answering", status.startswith("DECKBOY"), status[:80])
+            note("the desk answers with the warning up", status.startswith("DECKBOY"), status[:80])
             # The artwork: the in-process decoder logs nothing, so ask the app
             # how many of its UI images loaded (the --self-check style count).
             reply = db.send("UIASSETS")
@@ -75,7 +76,7 @@ def main():
             note("the desk's artwork loaded without ffmpeg", loaded > 0, reply[:120])
     finally:
         os.environ["PATH"] = saved_path
-        for var in ("DECKBOY_FFMPEG", "DECKBOY_FFPROBE", "DECKBOY_TEST_NO_ALERTS"):
+        for var in ("DECKBOY_FFMPEG", "DECKBOY_FFPROBE"):
             os.environ.pop(var, None)
     print()
     print("%d FAILED" % len(fails) if fails else "all ok")

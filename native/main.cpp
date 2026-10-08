@@ -4904,16 +4904,19 @@ class App {
     }
     renderDiagnosticLog("media tools: CANNOT RUN -- " + problem);
     std::cerr << "media tools cannot run: " << problem << std::endl;
-    const std::string message =
-      "Deckboy could not run its media tools (ffmpeg / ffprobe) on this computer, so importing, "
-      "thumbnails, some images and playback will not work.\n\n" + problem +
-      "\n\nPlease report this, with deckboy-render.log from Deckboy's settings folder.";
-    // A test that runs without the tools on purpose must not hang on a modal
-    // dialog nobody will click; it reads the render log line above instead.
-    if (!std::getenv("DECKBOY_TEST_NO_ALERTS")) {
-      SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Deckboy: media tools cannot run",
-                               message.c_str(), controlWindow_);
-    }
+    // Drawn INSIDE the desk, never a system message box: that one is modal,
+    // stops the main loop until somebody clicks it, and an app in that state
+    // answers no remote command and draws no output.
+    if (std::getenv("DECKBOY_TEST_NO_ALERTS") || depPrompt_.active) return;
+    showDependencyPrompt(
+      "Deckboy cannot run its media tools",
+      "Deckboy imports, makes thumbnails and plays video with ffmpeg and "
+      "ffprobe, which ship with it, and this computer would not start them, "
+      "so media will not play.\n\n" + problem +
+      "\n\nPlease report this, with deckboy-render.log from Deckboy's "
+      "settings folder.",
+      "https://github.com/Utopian-Academy/Deckboy/issues",
+      "Report it");
   }
 
   void healTextBackendIfNeeded() {

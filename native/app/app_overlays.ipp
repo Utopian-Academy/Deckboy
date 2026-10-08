@@ -438,27 +438,79 @@
     SDL_RenderFillRect(controlRenderer_, &overlay);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    // Dialog panel sized for the body text — wider than the quit dialog
-    // because the body is a short sentence rather than a single label.
-    SDL_Rect dialog {(width - 540) / 2, (height - 280) / 2, 540, 280};
+    // SIZED FROM THE TEXT, WRAPPED. This was a fixed 540x280 at 1x with the
+    // body on ONE ellipsized line, so every prompt it carries -- NDI,
+    // DeckLink, WebView2, the macOS quarantine fix, the HAP offer -- showed
+    // its first half-sentence and never the instruction. Wrap to a little
+    // less than the rect handed to drawTextSafe, which insets before it
+    // ellipsizes (see the friend's speech bubble in app_render_main.ipp).
+    const int pad = uiScaled(28);
+    const int dialogW = std::min(width - uiScaled(32), uiScaled(640));
+    const int innerW = dialogW - pad * 2;
+    const int wrapW = innerW - uiScaled(16);
+    const int titleLineH = textLineHeight(fontLarge_) + uiScaled(4);
+    const int bodyLineH = textLineHeight(fontSmall_) + uiScaled(3);
+    const int buttonH = uiScaled(44);
+    const int gap = uiScaled(12);
+
+    const std::vector<std::string> titleLines = codeWrapText(fontLarge_, depPrompt_.title, wrapW);
+    std::vector<std::string> bodyLines;   // "" = paragraph break, half a line
+    std::size_t start = 0;
+    while (start <= depPrompt_.body.size()) {
+      const std::size_t nl = depPrompt_.body.find('\n', start);
+      const std::string para = depPrompt_.body.substr(
+        start, nl == std::string::npos ? std::string::npos : nl - start);
+      if (para.empty()) {
+        if (!bodyLines.empty() && !bodyLines.back().empty()) bodyLines.push_back("");
+      } else {
+        for (auto& l : codeWrapText(fontSmall_, para, wrapW)) bodyLines.push_back(l);
+      }
+      if (nl == std::string::npos) break;
+      start = nl + 1;
+    }
+    int bodyH = 0;
+    for (const auto& l : bodyLines) bodyH += l.empty() ? bodyLineH / 2 : bodyLineH;
+
+    int dialogH = pad + static_cast<int>(titleLines.size()) * titleLineH + gap + bodyH;
+    if (!depPrompt_.url.empty()) dialogH += gap + bodyLineH;
+    dialogH += gap * 2 + buttonH + pad;
+    SDL_Rect dialog {(width - dialogW) / 2, std::max(uiScaled(8), (height - dialogH) / 2),
+                     dialogW, dialogH};
     Primitives::drawFramedPanel(controlRenderer_, dialog, pal.light, pal.deep, pal.mid);
 
-    drawTextSafe(controlRenderer_, fontLarge_,
-                 SDL_Rect {dialog.x + 28, dialog.y + 28, dialog.w - 56, 32},
-                 depPrompt_.title, pal.deep);
-    drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {dialog.x + 28, dialog.y + 74, dialog.w - 56, 56},
-                 depPrompt_.body, pal.deep);
-    drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {dialog.x + 28, dialog.y + 144, dialog.w - 56, 18},
-                 depPrompt_.url, pal.inkSoft);
+    int y = dialog.y + pad;
+    for (const auto& l : titleLines) {
+      drawTextSafe(controlRenderer_, fontLarge_, SDL_Rect {dialog.x + pad, y, innerW, titleLineH},
+                   l, pal.deep);
+      y += titleLineH;
+    }
+    y += gap;
+    for (const auto& l : bodyLines) {
+      if (l.empty()) { y += bodyLineH / 2; continue; }
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {dialog.x + pad, y, innerW, bodyLineH},
+                   l, pal.deep);
+      y += bodyLineH;
+    }
+    if (!depPrompt_.url.empty()) {
+      y += gap;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {dialog.x + pad, y, innerW, bodyLineH},
+                   depPrompt_.url, pal.inkSoft);
+      y += bodyLineH;
+    }
+    y += gap * 2;
 
-    // Two buttons: CTA (open page) is wider, CLOSE is narrow on the right.
-    depPrompt_.ctaRect   = {dialog.x + 28,  dialog.y + 200, dialog.w - 180, 44};
-    depPrompt_.closeRect = {dialog.x + dialog.w - 140, dialog.y + 200, 112, 44};
-    Primitives::drawFramedPanel(controlRenderer_, depPrompt_.ctaRect, pal.dark, pal.deep, pal.mid);
+    // Two buttons: CTA (open page) is wider, CLOSE is narrow on the right. A
+    // prompt with no CTA (HAP with no room on disk) gets no dead button.
+    const int closeW = uiScaled(112);
+    depPrompt_.closeRect = {dialog.x + dialog.w - pad - closeW, y, closeW, buttonH};
+    depPrompt_.ctaRect = depPrompt_.ctaLabel.empty()
+      ? SDL_Rect {}
+      : SDL_Rect {dialog.x + pad, y, dialog.w - pad * 2 - closeW - uiScaled(12), buttonH};
+    if (!depPrompt_.ctaLabel.empty()) {
+      Primitives::drawFramedPanel(controlRenderer_, depPrompt_.ctaRect, pal.dark, pal.deep, pal.mid);
+      drawCenteredText(controlRenderer_, fontBase_, depPrompt_.ctaLabel.c_str(), pal.light, depPrompt_.ctaRect);
+    }
     Primitives::drawFramedPanel(controlRenderer_, depPrompt_.closeRect, pal.mid, pal.deep, pal.light);
-    drawCenteredText(controlRenderer_, fontBase_, depPrompt_.ctaLabel.c_str(), pal.light, depPrompt_.ctaRect);
     drawCenteredText(controlRenderer_, fontBase_, "CLOSE", pal.deep, depPrompt_.closeRect);
   }
 
