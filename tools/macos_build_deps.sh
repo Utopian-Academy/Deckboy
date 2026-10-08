@@ -87,7 +87,10 @@ cmake --build "$SRC/x265/build" && cmake --install "$SRC/x265/build"
 
 step "libvpx"
 clone libvpx https://github.com/webmproject/libvpx.git v1.15.0
-( cd "$SRC/libvpx" && ./configure --prefix="$PREFIX" --enable-shared --disable-static \
+# Named, not guessed: 1.15 knows darwin20-23, and on a darwin24 runner (macOS
+# 15) it fell back to a generic target and linked with GNU ld's options.
+# darwin21 is macOS 12, the floor this bundle claims.
+( cd "$SRC/libvpx" && ./configure --target="$ARCH-darwin21-gcc" --prefix="$PREFIX" --enable-shared --disable-static \
     --disable-examples --disable-tools --disable-docs --disable-unit-tests \
     --enable-vp9-highbitdepth --extra-cflags="$CFLAGS" && make -j"$JOBS" && make install )
 

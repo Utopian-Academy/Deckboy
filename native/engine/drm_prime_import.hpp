@@ -15,8 +15,14 @@
 // draws it, with the same colour maths as every other NV12 frame. A 3-plane
 // 4:2:0 frame becomes an IYUV texture the same way.
 //
-// The decoder recycles a small pool of buffers, so imports are cached per
-// buffer and reused. The cache owns the EGLImages, the GL textures and the SDL
+// EVERY FRAME IS IMPORTED AFRESH. This used to cache one import per decoder
+// buffer and reuse it when the decoder recycled that buffer -- and on the Pi 3
+// the picture froze on the film's first frames while the counters reported a
+// perfect 24 fps. vc4 cannot sample a linear buffer, so the driver samples a
+// copy made at import, and a reused import never sees the decoder's new
+// contents. Kodi and mpv import per frame for the same reason. The few kept
+// here are the frame on screen and the ones just before it, still owned until
+// replaced: the importer owns the EGLImages, the GL textures and the SDL
 // textures (SDL never deletes a GL texture it was handed). clear() must run
 // while the renderer still exists.
 
@@ -48,12 +54,6 @@ class DrmPrimeImporter {
     }
     renderer_ = renderer;
     const Key key = keyFor(desc, width, height);
-    for (Entry& e : cache_) {
-      if (e.key == key) {
-        e.lastUsed = ++tick_;
-        return e.texture;
-      }
-    }
     Entry fresh;
     fresh.key = key;
     fresh.lastUsed = ++tick_;
@@ -119,7 +119,7 @@ class DrmPrimeImporter {
   }
 
  private:
-  static constexpr std::size_t kMaxCached = 32;
+  static constexpr std::size_t kMaxCached = 3;
 
   struct Key {
     int fd = -1;

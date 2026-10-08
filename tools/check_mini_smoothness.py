@@ -21,6 +21,7 @@ import re
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -88,12 +89,14 @@ def main():
             send("SEEKPOS %g" % args.start)
         time.sleep(6.0)   # past the first decode and any seek
         before = send("STATUS")
+        snap0 = snap(send, "a")
         cpu0 = cpu_seconds(proc.pid)
         t0 = time.time()
         time.sleep(args.seconds)
         after = send("STATUS")
         cpu1 = cpu_seconds(proc.pid)
         wall = time.time() - t0
+        snap1 = snap(send, "b")
     finally:
         try:
             send("QUIT")
@@ -140,9 +143,47 @@ def main():
                  "%.1f" % budget if budget else "?"))
     if cpu0 is not None and cpu1 is not None:
         print("cpu       %.1f%% of one core" % (100.0 * (cpu1 - cpu0) / wall))
-    ok = owed > 0 and pct <= args.max_skipped_pct
-    print("ok" if ok else "FAIL: missing more than %.2f%% of the frames owed" % args.max_skipped_pct)
+    # THE PICTURE HAS TO MOVE. Every count above is about frames PRESENTED,
+    # and on the Pi's zero-copy path those were one stale import shown over
+    # and over: 24.08 fps, nothing missing, and the film frozen on its title
+    # card. Two snapshots args.seconds apart must differ.
+    changed = picture_change(snap0, snap1)
+    print("picture   %s" % ("no snapshot" if changed is None else "%.1f%% of the frame changed" % changed))
+    moving = changed is not None and changed >= 2.0
+    ok = owed > 0 and pct <= args.max_skipped_pct and moving
+    if not moving:
+        print("FAIL: the picture did not change -- frames were counted but not seen")
+    else:
+        print("ok" if ok else "FAIL: missing more than %.2f%% of the frames owed" % args.max_skipped_pct)
     return 0 if ok else 1
+
+
+def snap(send, tag):
+    """The output frame as it leaves, via OUTSNAP; the BMP's bytes or None."""
+    path = os.path.join(tempfile.gettempdir(), "mini-smooth-%d-%s.bmp" % (os.getpid(), tag))
+    if os.path.exists(path):
+        os.remove(path)
+    send("OUTSNAP " + path)
+    for _ in range(50):
+        if os.path.exists(path) and os.path.getsize(path) > 1000:
+            time.sleep(0.2)
+            data = open(path, "rb").read()
+            os.remove(path)
+            return data
+        time.sleep(0.1)
+    return None
+
+
+def picture_change(a, b):
+    """Percent of pixel bytes that differ by more than a little noise."""
+    if not a or not b or len(a) != len(b):
+        return None
+    off = int.from_bytes(a[10:14], "little")   # BMP pixel-data offset
+    pa, pb = a[off:], b[off:]
+    step = max(1, len(pa) // 200000)            # a sample is plenty
+    idx = range(0, len(pa), step)
+    differ = sum(1 for i in idx if abs(pa[i] - pb[i]) > 8)
+    return 100.0 * differ / len(idx)
 
 
 def cpu_seconds(pid):
