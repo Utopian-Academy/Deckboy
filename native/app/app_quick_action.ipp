@@ -36,23 +36,12 @@
         break;
 
       case QuickAction::TrackerAddStep: {
-        // A step is a MASTER CUE, which is what it has always been -- the
-        // tracker is a view of them, not a second kind of thing.
-        //
-        // The FIRST one lands on the focused playlist, so it is somewhere the
-        // operator can find it in the ordinary cue list too. Every one after
-        // goes beside the LAST step, wherever the focus has wandered: the
-        // steps of a sequence belong together, and "+ step" on a page that
-        // shows one sequence should not scatter it across playlists.
-        const auto rows = masterTrackerRows();
-        if (rows.empty()) {
-          addMasterCue();
-        } else {
-          const int savedFocus = project_.focusedDeckIndex;
-          project_.focusedDeckIndex = rows.back().first;
-          addMasterCue();
-          project_.focusedDeckIndex = savedFocus;
-        }
+        // A step lives IN THE TRACKER. It used to be a master cue added to
+        // a playlist, so every "+ step" grew a cue list the operator had not
+        // touched, and that playlist was the one deck the step could never
+        // fire. James: "the tracker IS the master cue."
+        pushUndoSnapshot();
+        addTrackerStep();
         trackerSquishRow_ = static_cast<int>(masterTrackerRows().size()) - 1;
         trackerSquishAtMs_ = SDL_GetTicks();
         break;
@@ -1288,6 +1277,27 @@
       case QuickAction::CueSectionTargetToggle:
         cueSectionTargetOpen_ = !cueSectionTargetOpen_;
         break;
+      case QuickAction::CueSectionTriggersToggle:
+        cueSectionTriggersOpen_ = !cueSectionTriggersOpen_;
+        break;
+      case QuickAction::TriggerEditTime:     editSelectedTriggerTime(); break;
+      case QuickAction::TriggerEditTimecode: editSelectedTriggerTimecode(); break;
+      case QuickAction::TriggerLearnKey:     beginTriggerKeyLearn(); break;
+      case QuickAction::TriggerEditMidi:     editSelectedTriggerMidi(); break;
+      case QuickAction::TriggerEditOsc:      editSelectedTriggerOsc(); break;
+      case QuickAction::MemoEditText:        editSelectedMemoText(); break;
+      case QuickAction::CueSectionCaptionsToggle:
+        cueSectionCaptionsOpen_ = !cueSectionCaptionsOpen_;
+        break;
+      case QuickAction::CaptionsToggle:
+        if (Cue* cue = selectedCueMutable()) {
+          cue->subtitleEnabled = !cue->subtitleEnabled;
+          markProjectDirty();
+          triggerToast(cue->subtitleEnabled ? "captions on" : "captions off");
+        }
+        break;
+      case QuickAction::CaptionsGenerate: generateCaptionsForSelected(); break;
+      case QuickAction::AudioTrackCycle: cycleSelectedAudioTrack(); break;
       case QuickAction::TargetDeckPrev:  stepTargetDeck(-1); break;
       case QuickAction::TargetDeckNext:  stepTargetDeck(+1); break;
       case QuickAction::TargetCuePrev:   stepTargetCue(-1); break;

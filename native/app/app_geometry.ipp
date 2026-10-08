@@ -107,9 +107,16 @@
   // blending never actually produced an edge blend on an ordinary output.
   // Same mesh idea as renderPerspectiveWarp, minus the projective correction —
   // an unwarped quad is affine, so plain bilerp is exact here.
+  //
+  // THE EDGES COME FROM WHAT THE CALLER PASSES, and the output path must pass
+  // the OUTPUT. Blend moved from Deck to OutputTarget and these three kept
+  // taking the host deck, whose blend fields nothing writes any more -- so
+  // every edge blend set from the desk or the network fed nothing at all.
+  // Found by tools/check_geometry_sweep.py, which reads the presented frame.
+  template <typename WithEdges>
   static bool renderFeatheredQuad(SDL_Renderer* renderer,
                                   SDL_Texture* texture,
-                                  const Deck& deck,
+                                  const WithEdges& deck,
                                   const SDL_FPoint& uvTL,
                                   const SDL_FPoint& uvTR,
                                   const SDL_FPoint& uvBR,
@@ -458,7 +465,8 @@
   // The corner pin's mesh with every vertex nudged by the grid. The texture
   // coordinate comes from the UN-nudged point, so a perspective pin keeps its
   // projective correction and the grid bends the result rather than fighting it.
-  static bool renderGridWarp(SDL_Renderer* renderer, SDL_Texture* texture, const Deck& deck,
+  template <typename WithEdges>
+  static bool renderGridWarp(SDL_Renderer* renderer, SDL_Texture* texture, const WithEdges& deck,
                              const OutputTarget& out, bool perspective,
                              const SDL_FPoint& uvTL, const SDL_FPoint& uvTR,
                              const SDL_FPoint& uvBR, const SDL_FPoint& uvBL,
@@ -516,9 +524,10 @@
                               indices.data(), static_cast<int>(indices.size()));
   }
 
+  template <typename WithEdges>
   static bool renderPerspectiveWarp(SDL_Renderer* renderer,
                                     SDL_Texture* texture,
-                                    const Deck& deck,
+                                    const WithEdges& deck,
                                     const SDL_FPoint& uvTL,
                                     const SDL_FPoint& uvTR,
                                     const SDL_FPoint& uvBR,

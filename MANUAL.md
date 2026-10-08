@@ -478,10 +478,43 @@ the list shows it. Disarm a cue to skip it tonight without deleting it.
 - **preload** racks the selected cue on its deck, paused and held off the
   outputs, with decoding already running, so taking it starts with no spin-up.
 
+### Triggers: what fires a cue besides GO
+
+Every cue has a **TRIGGERS** section in the inspector. Each row is another way
+to fire that cue, and every one of them goes through the same take as GO, on
+the cue's own deck, without moving the operator's focus. A cue that is not
+armed ignores all of them.
+
+- **key** — click the row, then press **F1–F10**, **F12** or a **number-pad**
+  key. That key fires the cue from anywhere on the desk. Click the row again
+  to clear it. The other keys already drive the desk, so they cannot be
+  claimed.
+- **MIDI note** — type a note number, or type `LEARN` and play the note. A
+  note that no cue claims keeps its old meaning: note *N* goes to cue *N+1*
+  on the focused deck.
+- **OSC** — an address sent to Deckboy's OSC port, for example `/intro`.
+  Upper or lower case, with or without the leading slash.
+- **time of day** — fires at that time on this computer's clock, every day.
+- **timecode** — fires when incoming timecode passes that point.
+
+One key, note or address can belong to several cues, on several decks, and
+fires them all together.
+
+Over the control port, with the cue selected:
+
+```
+TRIGGER KEY F5
+TRIGGER MIDI 60
+TRIGGER OSC /intro
+TRIGGER AT 19:30
+TRIGGER KEY OFF
+```
+
 ### CHECK: everything wrong, before doors
 
 When a show has problems, a **CHECK** button beside `RELINK` shows how many.
-Click it to walk to each one in turn. It finds:
+Click it for the whole list; pick a line to go straight to that cue (or to
+the dashboard, for a tracker step). It finds:
 
 - media that is missing
 - a goto that points at a cue that no longer exists
@@ -491,6 +524,13 @@ Click it to walk to each one in turn. It finds:
   channel list that cannot be read, and a script cue with no lines
 - a network cue with no host, a host that is not an IPv4 address, or an OSC
   address that does not start with `/`
+- a tracker step that fires nothing, or names a deck or cue that has gone
+- a playlist set to a sound device that is not connected to this computer
+- a plugin a cue uses that is not installed on this computer
+
+The last two are about the machine rather than the show, which is what a
+touring show meets in a new room. Over the control port, `CHECK` lists the
+problems and `CHECK <n>` goes to one.
 
 ---
 
@@ -509,6 +549,21 @@ Acts on another cue: **Start**, **Stop**, **Pause**, **Resume**, **Load**
 (stand it by without firing it), **Arm** or **Disarm**. Pick the **deck** and
 the **cue**. Stop, pause and resume act only when the named cue is the one on
 air, so a target cannot stop something else by mistake.
+
+### Memo cue
+
+A note in the running order: "cue the band", "wait for the house lights". GO
+reaching a memo shows its note to the operator and changes nothing else. The
+picture and sound on air carry on. Write the note on the **says** row, or
+`MEMOCUE <text>` over the control port.
+
+### Devamp
+
+A cue on loop plays round and round until something stops it. **Devamp** lets
+it finish the pass it is on and then end as if it had never looped, so its
+end action and any continue happen on the beat instead of being cut. A target
+cue can do it to another cue (**does → Devamp**), or `DEVAMP [<deck>]` over the
+control port.
 
 ### Fade cue
 
@@ -727,6 +782,24 @@ profiles give a one-key safe state.
 **CLEAR** immediately stops every deck, cancels queued takes and fades, clears
 held pictures and overlays, and disarms every output. Use it when the desk
 must go dark and silent immediately.
+
+### MediaMTX: one router for the room
+
+[MediaMTX](https://github.com/bluenviron/mediamtx) is a free media router.
+Phones, cameras, OBS and other computers publish streams into it, and anyone
+can watch any of them: in a browser, in vMix, in a recorder. Deckboy works
+with it in both directions. It needs MediaMTX running with its API switched
+on (`api: true` in `mediamtx.yml`), on this computer or another one
+(`MEDIAMTX HOST <address>`).
+
+- **In** — `SOURCE → MediaMTX Stream` lists what the router is carrying, live
+  ones marked. Pick one and it becomes a stream cue that reads it over SRT.
+- **Out** — `MEDIAMTX PUBLISH [name]` sends the focused output's programme to
+  the router, which then serves it to any number of viewers without Deckboy
+  encoding once per viewer. Deckboy says where to watch it:
+  `http://<host>:8888/<name>` in any browser.
+
+`MEDIAMTX` on its own lists the streams. `MEDIAMTX ADD <name>` makes the cue.
 
 SDI output uses scheduled video and stereo 48 kHz audio. Eight-bit UYVY and
 ten-bit v210 use limited-range BT.709 code values. The picture compositor is
@@ -1131,6 +1204,28 @@ Deckboy decodes it, including the distinction between drop-frame and non-drop
 `SUBTITLE CONVERT <path>` writes the cue's captions out again as `.srt` or
 `.vtt`, so moving between formats needs nothing else installed.
 
+### Captions made on this computer
+
+A clip with no captions can get some without anything leaving the machine.
+Select a video or audio cue with sound and open **CAPTIONS** in the inspector:
+
+- **captions** shows what the cue has (a file beside the media, a track inside
+  it, or none) and whether they are on. Click it to show or hide them.
+- **make captions here** listens to the cue and writes the words out as
+  `<name>.auto.srt` beside the media, then attaches them to the cue, switched
+  on. A file you made by hand is never overwritten. If the media's folder
+  cannot be written to, the file goes in Deckboy's own captions folder instead.
+
+The listening is done by whisper.cpp, which comes with Deckboy and runs on
+this computer. (A build without it says **engine not installed** on the row;
+putting `whisper-cli` beside Deckboy is all it needs.) The first time, it
+needs a speech model (about 140 MB). The row says **one-time download**,
+and the first press only asks; press again to fetch it. After that, nothing
+is downloaded and nothing is sent anywhere. Captions are drawn on the output
+at a size that suits the output's height, on a dark box fitted to the line.
+
+`CAPTIONS [STATUS | ON | OFF | GENERATE]` does the same over the control port.
+
 ### Text mode
 
 Available two ways: as the video synth's own mode, and as the **TEXT MODE**
@@ -1166,8 +1261,14 @@ clear them.
 
 Applied per output (not per cue):
 
-- **Area of Interest (AOI)** — crop the rendered output to a sub-region
-  (fractions from each edge) for multi-display slicing.
+- **Area of Interest (AOI)** — send just part of the picture: a region for
+  each display in a multi-display slice, or one LED tile. In **Settings >
+  Video Outputs > Geometry** type its width, height and position in pixels
+  (for example 256 x 256). **FILL** stretches the region to the output's
+  full size. **PIXEL FOR PIXEL, TOP-LEFT** puts it at the output's top-left
+  corner at its real size, which is what an LED processor mapping a tile
+  expects. Over the control port, `OUTPUT AOI 256x256 0 0` and
+  `OUTPUT AOI MODE PIXEL`.
 - **Warp** — corner-pin the output (drag the four corners; `Shift+drag` snaps
   to a grid). Copy/paste warp with `Ctrl+Shift+C` / `Ctrl+Shift+V`.
 - **Edge blend** — feather each edge for projector soft-edge blending.
@@ -1190,6 +1291,11 @@ size keeps the shape you have made.
 surface. **STRAIGHT** joins them with straight lines, for a fold over a corner
 or an edge. **RESET** flattens the grid without changing its size. Copy/paste
 and saved warp presets carry the grid with them.
+
+Dragging is not the only way. **Click a handle** to select it, and its X and
+Y appear in the warp toolbar: click either to type an exact value, or use the
+**arrow keys** to move it one pixel at a time (**Shift** for ten). Each move
+can be undone.
 
 Over the control port, with the output focused:
 
@@ -1268,6 +1374,15 @@ layer over another playlist. Its inspector section sets how it looks and moves.
 | Tag | An accent tab for the name, the role beside it |
 | Glass | A translucent band across the frame, a thin accent line on top |
 | Arcade | The name in the pixel face over the role in mono, in a bordered box with a hard drop shadow. Once it is in, it keeps a slow bob and tilt, so it looks alive for as long as it is up |
+| Split | A news strap: the name on an accent block, the role on a strip under it |
+| Card | A pale card with soft corners and a shadow, an accent dot at the name |
+| Hairline | No box: a fine accent rule over the words, with a square at its start |
+| Sparkle | The bar, with stars that twinkle round it for as long as it is up |
+| Neon | A dark sign with a glowing accent tube that flickers on |
+| Comic | Tilted, with a heavy black outline and a halftone shadow |
+| Scroll | Parchment with rolled ends, in ink |
+
+The picker lists the clean looks first and the playful ones after.
 
 Colours come from a fixed list that reads over a picture: ink, paper, red,
 orange, yellow, green, blue, violet, deckboy and forest. **Forest behind a
@@ -1307,6 +1422,7 @@ they never touch the programme bus.
 | Gain | −40 … +40 dB | Live trim in the audio thread |
 | Pan | full L … full R | Constant-power balance; snaps to centre |
 | Mono | on/off | Downmix for mono sources / mono PA |
+| Track | 1 … n | Shown when the file has more than one sound track: a second language, a commentary, a clean feed. Changing it on the live cue switches straight away, from where it is (`AUDIOTRACK [NEXT\|<n>]`) |
 | Audio fade in / out | follow / none / seconds | `follow` tracks the visual fade; set a length to duck audio independently |
 | Normalize (R128) | button | Measures file loudness and sets gain for the selected −16, −23 or −24 LUFS target; subsequent mixing and limiting can change delivered loudness |
 | Outs | pair 1-2 … 7-8 | Output pair on a multichannel device (below) |
@@ -1960,6 +2076,7 @@ desk plays from a file, Mini plays the same way.
 deckboy-mini "Friday keynote"                 # a folder plays in name order
 deckboy-mini walk-in.mp4 sponsors.png --loop  # files play in the order given
 deckboy-mini loop.mp4 --display 2 --hold      # second display, hold the last frame
+deckboy-mini "Friday keynote.m3u8"            # a playlist saved from Mini (W)
 ```
 
 **Where it is.** On Windows it is `deckboy-mini.exe` beside `Deckboy.exe`; on macOS it is inside
@@ -1998,7 +2115,54 @@ the keyboard there, over SSH included; the same keys work in the output window.
 | H, F | The status bar on the output, fullscreen |
 | A | Add files: Tab completes the path |
 | `:` | The command line: any remote command, Up recalls the last |
-| `?` | The keys, in the panel |
+| `?` | The keys, in the panel: three pages (show, editing, output), `?` steps on |
+
+**Editing the list**, in the terminal:
+
+| Key | Does |
+|-----|------|
+| `<` / `>` | Move the picked cue up / down. The cue on air stays on air |
+| X X | Remove the picked cue (twice, like Q) |
+| R | Rename it |
+| T | How long a still stays up |
+| Shift+L | Loop this cue on its own (L loops the whole list) |
+| W | Save the list as a playlist |
+| O | Open a playlist, a file or a folder in place of the list |
+
+**Output and sound:**
+
+| Key | Does |
+|-----|------|
+| D | Move the output to the next display |
+| V | Output on / off. The sound carries on, so a screen can go dark under music |
+| P | Next sound device. What is playing carries on from where it was |
+
+**Playing a file**, the things a media player does, with mpv's keys where
+they do not clash with the show's:
+
+| Key | Does |
+|-----|------|
+| `,` / `.` | One frame back / on (pauses) |
+| `{` / `}` | One second back / on (`[` / `]` are ten) |
+| `(` / `)` | Slower / faster, 0.25x to 4x, for every cue until changed |
+| M | Mute (the volume is kept) |
+| K | A-B loop: first press sets A, second sets B and loops, third clears |
+| J | Subtitles: cycles the tracks, then off |
+| `#` | The file's next sound track |
+
+**Subtitles** are found the way a media player finds them: any caption file
+beside the clip with the same name (`talk.srt`, `talk.en.vtt`; SRT, WebVTT,
+SCC and TTML all read), and subtitle tracks inside the file itself, which are
+read in the background so the picture never waits for them. They are drawn
+low and centred, white with a black edge.
+
+**Playlists** are extended M3U8 files, so any player that reads a playlist reads
+Mini's, and a person can read them too. Mini's own settings (a cue's loop, a
+still's time) ride in `#DECKBOY:` lines other players skip, and paths are
+written relative to the playlist when the media sits under its folder, so a
+show folder copies to another machine whole. The panel's title shows the
+playlist's name, with `*` while there are unsaved changes, and Q Q says so
+before quitting.
 | Q Q | Quit (twice, so one stray key cannot end a show) |
 
 Files or a folder dropped on the output are added to the end of the list too.
@@ -2012,7 +2176,11 @@ you ask for it, because the output is what the room sees.
 Mini is deck 1: `GO`, `TAKE [n]`, `SELECT n`, `NEXT`, `PREV`, `PLAY`,
 `PAUSE`, `STOP`, `SEEK`, `VOLUME`, `LOOP`, `BLACKOUT`, `OVERLAY`, `STATUS`
 and `QUIT`, plus `ADD <file or folder>` to put more on the end of the list,
-each answered `OK` or `ERR` with the reason. `STATUS` comes back in the desk's
+each answered `OK` or `ERR` with the reason. The keys above are commands too:
+`MOVE n to`, `REMOVE n`, `RENAME n name`, `STILL n seconds`, `CUELOOP n`,
+`SAVE [file]`, `OPEN file`, `DISPLAYS`, `DISPLAY n|NEXT`, `OUTPUT ON|OFF`,
+`AUDIO LIST|NEXT|DEFAULT|<name>`, `SPEED 0.25-4`, `MUTE`, `FRAME [BACK]`,
+`ABLOOP [a b|OFF]`, `SUBS [ON|OFF]` and `AUDIOTRACK n|NEXT`. `STATUS` comes back in the desk's
 format, so the Companion module drives Mini like a one-deck Deckboy. Send
 `HELP` for the list.
 

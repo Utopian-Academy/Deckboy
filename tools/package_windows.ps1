@@ -35,6 +35,7 @@ param(
     [string]$Configuration = "Release",
     [string]$BuildDir      = "",
     [string]$FfmpegDir     = "C:\ffmpeg\bin",
+    [string]$WhisperCli    = "",
     [switch]$AllowCliDecode,
     [string]$OutputDir     = ""
 )
@@ -112,6 +113,22 @@ if (Test-Path $TerrariumExe) {
 # --- Copy ffmpeg / ffprobe --------------------------------------------------
 Copy-Item (Join-Path $FfmpegDir "ffmpeg.exe")  -Destination $StageDir
 Copy-Item (Join-Path $FfmpegDir "ffprobe.exe") -Destination $StageDir
+
+# --- whisper-cli (captions made on this computer) ---------------------------
+# A static whisper.cpp build: one exe, beside Deckboy, where captioning.hpp
+# looks first. The speech model is fetched on first use, never bundled. CI sets
+# DECKBOY_REQUIRE_WHISPER=1 so a zip without it fails instead of shipping a
+# captions button that cannot run.
+if (-not $WhisperCli) { $WhisperCli = $env:DECKBOY_WHISPER_CLI }
+if (-not $WhisperCli) { $WhisperCli = Join-Path $BuildDir "whisper-cli.exe" }
+if (Test-Path $WhisperCli) {
+    Copy-Item $WhisperCli -Destination (Join-Path $StageDir "whisper-cli.exe")
+    Write-Host "  + whisper-cli.exe"
+} elseif ($env:DECKBOY_REQUIRE_WHISPER -eq "1") {
+    throw "whisper-cli.exe not found at $WhisperCli and DECKBOY_REQUIRE_WHISPER=1"
+} else {
+    Write-Warning "whisper-cli.exe not found - captions made on this computer will be unavailable"
+}
 
 # --- Copy MSVC C++ runtime DLLs (app-local) ---------------------------------
 # Microsoft permits app-local deployment of the MSVC runtime DLLs, which is

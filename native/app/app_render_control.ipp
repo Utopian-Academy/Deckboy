@@ -568,6 +568,7 @@
 
   void renderControlWindow() {
     auto uiFrameStart = std::chrono::steady_clock::now();
+    beginLiveTextFrame();
     int numDecks = static_cast<int>(project_.decks.size());
     deckScrolls_.resize(numDecks, 0);
     deckOverlayScrolls_.resize(numDecks, 0);
@@ -1187,7 +1188,14 @@
             tab.w = playlistCol.x + tabsW - tab.x;
           }
           const bool focused = d == project_.focusedDeckIndex;
-          drawUIPanel(tab, focused ? pal.light : pal.dark, pal.deep, pal.mid);
+          // The tab the armed - would take goes red with it, so the operator
+          // sees WHICH playlist the second press removes, not just that one
+          // will go.
+          const bool doomed = d == deckRemoveArmedIndex_ &&
+                              animationNow_ - deckRemoveArmedAtMs_ <= 4000;
+          drawUIPanel(tab, doomed ? SDL_Color {170, 40, 40, 255}
+                                  : (focused ? pal.light : pal.dark),
+                      pal.deep, pal.mid);
           // The NAME, ellipsized, because a playlist that has been named
           // "Lower thirds" is worth far more than "2" -- and the number is
           // still there in front of it.
@@ -1467,6 +1475,7 @@
     // evolution draws over everything while it is playing.
     refreshSuperDeckboyTitle();
     renderSuperDeckboyEvolution();
+    finishLiveTextFrame();   // reads the window back, so before present
     SDL_RenderPresent(controlRenderer_);
     revealControlWindow();  // the main control-window frame
     auto uiFrameEnd = std::chrono::steady_clock::now();

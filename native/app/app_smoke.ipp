@@ -1402,6 +1402,45 @@
 
       const fs::path smokeDir = fs::temp_directory_path();
       fs::path smokePath = smokeDir / "deckboy-smoke.deckboy";
+      // A MASTER CUE IN A PLAYLIST MOVES TO THE TRACKER, and the playlist's
+      // indices move with it: the cue on air after it is still the one on air.
+      {
+        Project legacy;
+        legacy.decks.resize(1);
+        Cue a;
+        a.kind = CueKind::Pattern;
+        a.path = "pattern://smpte-bars";
+        a.name = "bars";
+        Cue m;
+        m.kind = CueKind::Master;
+        m.name = "old master";
+        Cue b = a;
+        b.name = "after";
+        legacy.decks[0].cues = {a, m, b};
+        legacy.decks[0].activeIndex = 2;
+        legacy.decks[0].selectedIndex = 1;
+        normalizeProject(legacy);
+        const Deck& d0 = legacy.decks[0];
+        expect(d0.cues.size() == 2 && legacy.trackerSteps.size() == 1 &&
+               legacy.trackerSteps[0].name == "old master",
+               "a master cue in a playlist moves into the tracker");
+        expect(d0.activeIndex == 1 && d0.cues[1].name == "after",
+               "...and the cue on air keeps its identity");
+      }
+      // A TRACKER STEP LIVES IN THE TRACKER. It goes out as a cue record with
+      // deck -1 and must come back into trackerSteps, not into a playlist.
+      const std::size_t deckZeroCuesBeforeStep = project.decks[0].cues.size();
+      {
+        Cue step;
+        step.kind = CueKind::Master;
+        step.name = "smoke step";
+        MasterAssignment fires;
+        fires.deckIndex = 0;
+        fires.cueId = project.decks[0].cues.empty() ? std::string() : project.decks[0].cues[0].id;
+        step.masterAssignments.push_back(fires);
+        project.trackerSteps.push_back(step);
+        normalizeProject(project);
+      }
       expect(saveProject(smokePath, project), "project save");
       {
         // SAVE asks where to put a show that only lives in the scratch file;
@@ -1419,6 +1458,14 @@
         loaded.outputs[0].st2110AudioSourcePort == 21002 && !loaded.outputs[0].st2110AudioRtpEnabled &&
         !loaded.outputs[0].st2110VideoMasterEnabled, "independent NMOS transport states persist");
       expect(!loaded.decks.empty(), "project load");
+      expect(loaded.trackerSteps.size() == 1 && loaded.trackerSteps[0].name == "smoke step" &&
+             loaded.trackerSteps[0].kind == CueKind::Master &&
+             !loaded.trackerSteps[0].id.empty() &&
+             loaded.trackerSteps[0].masterAssignments.size() == 1 &&
+             loaded.trackerSteps[0].masterAssignments[0].deckIndex == 0,
+             "a tracker step round-trips in the tracker, with what it fires");
+      expect(!loaded.decks.empty() && loaded.decks[0].cues.size() == deckZeroCuesBeforeStep,
+             "a tracker step adds no cue to any playlist");
       if (!loaded.decks.empty() && !loaded.decks[0].cues.empty()) {
         const Deck& loadedDeck = loaded.decks[0];
         const Cue& loadedCue = loadedDeck.cues[0];
@@ -1465,13 +1512,15 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 81;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 86;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
                                               // style and time, geometry LFOs, the
                                               // six portal controls, the twelve
-                                              // text lower-third fields, ten swirl controls
+                                              // text lower-third fields, ten swirl controls,
+                                              // three triggers (hotkey, MIDI note, OSC),
+                                              // audio track and track count
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

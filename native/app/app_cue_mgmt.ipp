@@ -153,6 +153,30 @@
     markProjectDirty();
   }
 
+  // Which of the file's sound tracks plays -- a second language, a commentary,
+  // a clean feed. On the cue that is live it changes now, from where it is:
+  // the decode restarts at the current position with the picture held.
+  void cycleSelectedAudioTrack() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->audioTrackCount < 2) {
+      triggerToast("this file has one sound track");
+      return;
+    }
+    pushUndoSnapshot();
+    cue->audioTrack = (cue->audioTrack + 1) % cue->audioTrackCount;
+    markProjectDirty();
+    const Deck& deck = focusedDeck();
+    if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size()) &&
+        deck.cues[deck.activeIndex].id == cue->id) {
+      if (MediaEngine* engine = focusedMediaEngine()) {
+        engine->refreshActiveCueRuntime(cue);
+      }
+    }
+    triggerToast("sound track " + std::to_string(cue->audioTrack + 1) + " of " +
+                 std::to_string(cue->audioTrackCount));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
   void setSelectedAudioEnabled(bool enabled) {
     Cue* cue = firstFocusedSelectedCueMutable([&](const Cue& each) {
       return each.hasAudio;
@@ -202,12 +226,38 @@
       : std::string();
   }
 
-  void adjustSelectedAudioGain(double deltaDb) {
-    const Cue* cue = selectedCuePtr();
-    if (!cue || !cue->hasAudio) {
-      return;
+  // RELATIVE, PER CUE. This took the primary cue's gain, added the step and
+  // wrote that one number to every selected cue -- so selecting forty cues
+  // with forty different trims and pressing - flattened them all to a single
+  // level. "Bring their gain down together" means each one moves by the same
+  // dB from where it was. A typed value is still an absolute set.
+  bool adjustSelectedAudioGain(double deltaDb) {
+    lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& each, int) {
+      if (each.hasAudio) {
+        each.audioGainDb = static_cast<float>(std::clamp(
+          static_cast<double>(each.audioGainDb) + deltaDb,
+          static_cast<double>(kCueAudioGainMinDb),
+          static_cast<double>(kCueAudioGainMaxDb)));
+      }
+    });
+    const bool any = lastAudioEditDeckCount_ > 0;
+    if (any) {
+      markProjectDirty();
     }
-    setSelectedAudioGainDb(cue->audioGainDb + deltaDb);
+    return any;
+  }
+
+  // How many selected cues an AUDIO edit would reach, so the inspector can
+  // say so: it draws the primary cue, and a row reading one cue's value
+  // gave no hint that a press would change forty.
+  int selectedAudioCueCount() {
+    int count = 0;
+    forEachSelectedCueEverywhere([&](Cue& each, int) {
+      if (each.hasAudio) {
+        ++count;
+      }
+    });
+    return count;
   }
 
   bool setSelectedAudioPan(double pan) {
@@ -607,7 +657,7 @@
     const int c = rows[row].second;
     if (deckOut) *deckOut = d;
     if (cueOut) *cueOut = c;
-    return &project_.decks[d].cues[c];
+    return masterTrackerCueMutable(d, c);
   }
 
   // A step's length IS its continue: see the tracker's transport.
@@ -639,15 +689,10 @@
     // long as the operator likes, and steps can be added underneath it.
     const std::string stepId = step->id;
     auto apply = [this, stepId](CueContinueMode mode, double seconds) {
-      for (Deck& deck : project_.decks) {
-        for (Cue& cue : deck.cues) {
-          if (cue.kind == CueKind::Master && cue.id == stepId) {
-            cue.continueMode = mode;
-            cue.postWaitSeconds = std::max(0.0, seconds);
-            markProjectDirty();
-            return;
-          }
-        }
+      if (Cue* cue = masterStepById(stepId)) {
+        cue->continueMode = mode;
+        cue->postWaitSeconds = std::max(0.0, seconds);
+        markProjectDirty();
       }
     };
     openDropdown("tracker.length" + stepId, anchor, kLengths, current,
@@ -677,20 +722,67 @@
     });
   }
 
+  // EVERY POINTER INTO A PLAYLIST, MOVED BY ONE RULE.
+  //
+  // A deck points into its own list from six places: the selection, the
+  // multi-selection, the cue on air, the STANDBY (what GO fires next), the
+  // overlays on air, and a take waiting on a pre-wait or a continue. Each edit
+  // that moved cues used to carry its own subset of those, and standby and the
+  // waiting take were in none of them -- so dragging a cue above the armed one
+  // left GO firing a different cue from the one shown armed, and a reorder
+  // during a continue's countdown fired the wrong cue when it ran out.
+  //
+  // `map` takes an old index and gives the new one, or -1 for a cue that has
+  // gone. A pointer to a cue that has gone is cleared; a waiting take for one
+  // is cancelled rather than retargeted.
+  void remapDeckCueIndices(int deckIndex, const std::function<int(int)>& map) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    auto one = [&](int& index) {
+      if (index >= 0) index = map(index);
+    };
+    auto many = [&](std::vector<int>& list) {
+      std::vector<int> kept;
+      for (int index : list) {
+        const int moved = index >= 0 ? map(index) : -1;
+        if (moved >= 0) kept.push_back(moved);
+      }
+      list.swap(kept);
+    };
+    one(deck.selectedIndex);
+    one(deck.activeIndex);
+    one(deck.standbyIndex);
+    many(deck.selectedIndices);
+    many(deck.overlayActiveIndices);
+    if (deckIndex < static_cast<int>(deckPendingTakes_.size()) &&
+        deckPendingTakes_[deckIndex].armed) {
+      const int moved = map(deckPendingTakes_[deckIndex].cueIndex);
+      if (moved < 0) {
+        cancelPendingTake(deckIndex, "its cue was removed");
+      } else {
+        deckPendingTakes_[deckIndex].cueIndex = moved;
+      }
+    }
+  }
+
+  // One cue from `from` to `to`, everything between shuffled one place.
+  static int movedCueIndex(int index, int from, int to) {
+    if (index == from) return to;
+    if (from < to && index > from && index <= to) return index - 1;
+    if (from > to && index >= to && index < from) return index + 1;
+    return index;
+  }
+
   // Swap two cues in one playlist, carrying the selection and the live
   // pointer with them so nothing on air changes identity.
   void swapCuesInDeck(int deckIndex, int a, int b) {
     Deck& deck = project_.decks[deckIndex];
     std::swap(deck.cues[a], deck.cues[b]);
-    auto remap = [a, b](int& index) {
-      if (index == a) index = b;
-      else if (index == b) index = a;
-    };
-    remap(deck.selectedIndex);
-    remap(deck.activeIndex);
-    for (int& index : deck.selectedIndices) {
-      remap(index);
-    }
+    remapDeckCueIndices(deckIndex, [a, b](int index) {
+      return index == a ? b : index == b ? a : index;
+    });
     markProjectDirty();
   }
 
@@ -724,18 +816,41 @@
         openInlineTextEditor("tracker.rename", "Step " + std::to_string(row + 1),
                              "a name for this step", live->name,
                              [this, stepId](const std::string& value) {
-          for (Deck& deck : project_.decks) {
-            for (Cue& cue : deck.cues) {
-              if (cue.id == stepId) {
-                cue.name = trim(value);
-                markProjectDirty();
-                return;
-              }
-            }
+          if (Cue* cue = masterStepById(stepId)) {
+            cue->name = trim(value);
+            markProjectDirty();
           }
         });
       } else if (chosen == "length") {
         openTrackerLengthMenu(row, anchor);
+      } else if (d == kTrackerStepsDeck) {
+        // A STEP THE TRACKER OWNS: its list is the sequence, so these are
+        // plain moves within it.
+        std::vector<Cue>& steps = project_.trackerSteps;
+        if (chosen == "up" || chosen == "down") {
+          const int other = c + (chosen == "up" ? -1 : 1);
+          if (other < 0 || other >= static_cast<int>(steps.size())) {
+            triggerToast(chosen == "up" ? "already the first tracker step"
+                                        : "already the last step");
+            return;
+          }
+          pushUndoSnapshot();
+          std::swap(steps[c], steps[other]);
+          markProjectDirty();
+        } else if (chosen == "duplicate") {
+          pushUndoSnapshot();
+          Cue copy = *live;
+          copy.id.clear();   // normalizeProject gives it its own
+          copy.name = live->name.empty() ? std::string("step") : live->name + " copy";
+          steps.insert(steps.begin() + c + 1, copy);
+          normalizeProject(project_);
+          markProjectDirty();
+        } else if (chosen == "delete") {
+          pushUndoSnapshot();
+          steps.erase(steps.begin() + c);
+          markProjectDirty();
+          triggerToast("step deleted - ctrl+z brings it back");
+        }
       } else if (chosen == "up" || chosen == "down") {
         // Within its own playlist, to the neighbouring MASTER: a master deck
         // may hold other cues, and hopping over one of those would not move
@@ -1508,15 +1623,20 @@
     for (auto it = indices.rbegin(); it != indices.rend(); ++it) {
       deck.cues.erase(deck.cues.begin() + *it);
     }
-    std::vector<int> remappedOverlay;
-    remappedOverlay.reserve(deck.overlayActiveIndices.size());
-    for (int overlayIndex : deck.overlayActiveIndices) {
-      int remapped = remapCueIndexAfterDeletion(overlayIndex, indices);
-      if (remapped >= 0) {
-        remappedOverlay.push_back(remapped);
-      }
+    // Standby, overlays and a waiting take, by the shared rule. The selection
+    // and the live cue get their own treatment just below, which wants the
+    // pre-delete values, so they are put back first.
+    {
+      const int keepSelected = deck.selectedIndex;
+      const int keepActive = deck.activeIndex;
+      const std::vector<int> keepSelection = deck.selectedIndices;
+      remapDeckCueIndices(deckIndex, [&](int index) {
+        return remapCueIndexAfterDeletion(index, indices);
+      });
+      deck.selectedIndex = keepSelected;
+      deck.activeIndex = keepActive;
+      deck.selectedIndices = keepSelection;
     }
-    deck.overlayActiveIndices = std::move(remappedOverlay);
 
     if (deck.cues.empty()) {
       deck.selectedIndex = -1;
@@ -1874,10 +1994,18 @@
     return filters;
   }
 
+  // OPEN HAD NONE OF NEW'S GUARDS: one press and a file pick replaced a live
+  // show and disarmed every output, with nothing to undo. Now, while live, the
+  // first press says so and the second opens the picker; and the show being
+  // replaced goes on the undo stack, outputs disarmed, the way NEW's does.
   void openProjectFromPicker() {
+    if (!confirmLiveKey(SDLK_O, "OPEN replaces the live show and outputs go dark - press OPEN again")) {
+      return;
+    }
     showOpenFileDialog(deckboyProjectFilters(), /*allowMany=*/false,
                        [this](std::vector<std::string> files) {
                          if (!files.empty()) {
+                           pushUndoSnapshotForShowReplace();
                            openProjectFromPath(normalizeProjectPath(fs::path(files[0])));
                          }
                        });
@@ -2181,6 +2309,84 @@
     triggerToast("stream cue added");
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
+  }
+
+  // ── MEDIAMTX ──────────────────────────────────────────────────────────
+  std::string mediamtxHost() const {
+    const std::string h = trim(project_.mediamtxHost);
+    return h.empty() ? std::string("127.0.0.1") : h;
+  }
+
+  // What MediaMTX is carrying right now, by asking its API (curl, two-second
+  // cap -- a router that is not there must not stall the desk). Each entry is
+  // a path name and whether it has a live publisher.
+  std::vector<std::pair<std::string, bool>> mediamtxStreams(std::string* why = nullptr) {
+    std::vector<std::pair<std::string, bool>> out;
+    const auto got = ::runCaptured({"curl", "-s", "-m", "2", "--fail",
+                                    "http://" + mediamtxHost() + ":9997/v3/paths/list"});
+    if (!got.ok()) {
+      if (why) *why = "MediaMTX is not answering at " + mediamtxHost() + " (is its api on?)";
+      return out;
+    }
+    // A flat scan, not a JSON library: each item is {"name":"...", ... "ready":true|false, ...}.
+    const std::string& j = got.output;
+    std::size_t at = 0;
+    while ((at = j.find("\"name\":\"", at)) != std::string::npos) {
+      at += 8;
+      const std::size_t end = j.find('"', at);
+      if (end == std::string::npos) break;
+      const std::string name = j.substr(at, end - at);
+      const std::size_t next = j.find("\"name\":\"", end);
+      const std::size_t ready = j.find("\"ready\":true", end);
+      out.emplace_back(name, ready != std::string::npos && (next == std::string::npos || ready < next));
+      at = end;
+    }
+    if (out.empty() && why) *why = "MediaMTX at " + mediamtxHost() + " has no streams yet";
+    return out;
+  }
+
+  // Read one of its streams as a cue, over SRT (the lowest-latency of its
+  // outputs that Deckboy's stream cue already plays).
+  void addMediamtxStreamCue(const std::string& name) {
+    addSrtStreamCue("srt://" + mediamtxHost() + ":8890?streamid=read:" + name);
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      deck.cues.back().name = name + " (MediaMTX)";
+    }
+  }
+
+  void openMediamtxStreamMenu() {
+    std::string why;
+    const auto streams = mediamtxStreams(&why);
+    if (streams.empty()) {
+      triggerToast(why, ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    std::vector<std::pair<std::string, std::string>> choices;
+    for (const auto& [name, ready] : streams) {
+      choices.emplace_back(name, name + (ready ? "  (live)" : "  (waiting for a publisher)"));
+    }
+    SDL_Rect anchor {};
+    for (const auto& button : buttons_) {
+      if (button.label == "SOURCE") anchor = button.rect;
+    }
+    openDropdown("mediamtx.streams", anchor, choices, choices.front().first,
+                 [this](const std::string& name) { addMediamtxStreamCue(name); });
+  }
+
+  // The programme out through MediaMTX: the focused output streams to it over
+  // SRT, and it serves the room -- browsers (WebRTC, HLS), RTSP for vMix and
+  // recorders -- without Deckboy encoding once per viewer.
+  bool sendProgrammeToMediamtx(const std::string& path = "deckboy") {
+    OutputTarget& out = focusedOutputMutable();
+    out.streamProtocol = "srt";
+    out.streamUrl = "srt://" + mediamtxHost() + ":8890?streamid=publish:" + path + "&pkt_size=1316";
+    out.streamEnabled = false;   // so the setter below sees a change and starts it
+    markProjectDirty();
+    setFocusedOutputStreamEnabled(true);
+    triggerToast("programme to MediaMTX: watch at http://" + mediamtxHost() + ":8888/" + path,
+                 ToastKind::Help, kToastReadableMs);
+    return true;
   }
 
   void addSrtStreamCueFromPrompt() {
@@ -2735,6 +2941,11 @@
       [this]() { addSrtStreamCueFromPrompt(); }
     });
     contextItems_.push_back({
+      "  MediaMTX Stream (from the router's list)",
+      {0, 0, 0, 0},
+      [this]() { openMediamtxStreamMenu(); }
+    });
+    contextItems_.push_back({
       "  NDI",
       {0, 0, 0, 0},
       [this]() { addNdiSourceCueFromPrompt(); }
@@ -2852,23 +3063,26 @@
     // nothing.
 
     contextItems_.push_back({
-      "  Master Cue (fires other decks)",
+      "  Tracker Step (fires decks together)",
       {0, 0, 0, 0},
       [this]() {
-        addMasterCue();
-        // James: master cues should be "dash focused" -- the row this just
-        // added means nothing sitting in an ordinary cue list, and the
-        // Dashboard's Tracker view is the only place its per-deck
-        // assignments are actually reachable. Only here, not inside
-        // addMasterCue() itself: that function is also what
-        // QuickAction::TrackerAddStep calls (already IN the dashboard, so
-        // this would be a harmless no-op there) and what the MASTER NEW
-        // remote command calls (where popping an overlay open on an
-        // operator's screen mid-show from a Companion button would be the
-        // opposite of welcome).
+        // A STEP IN THE TRACKER, not a cue in this playlist: master cues no
+        // longer live in decks at all (normalizeProject moves any it finds).
+        pushUndoSnapshot();
+        addTrackerStep();
+        // James: master cues should be "dash focused" -- the Tracker view is
+        // where a step's per-deck cells are edited, so it opens there. Only
+        // here, not in addTrackerStep(): MASTER NEW / TRACKER ADD call that
+        // too, and an overlay popping open on the operator's screen from a
+        // Companion button mid-show would be the opposite of welcome.
         dashboardOverlayOpen_ = true;
         project_.dashboardMode = 1;  // TRACKER, not TILES
       }
+    });
+    contextItems_.push_back({
+      "  Memo Cue (a note in the running order)",
+      {0, 0, 0, 0},
+      [this]() { pushUndoSnapshot(); addMemoCue(); }
     });
     contextItems_.push_back({
       "  Target Cue (acts on another cue)",
@@ -3918,24 +4132,6 @@
   // A master cue and a target cue are both "a cue that does something to other
   // cues", so they arrive the same way: no path, no media, a colour that reads
   // as control rather than content, and no end action to speak of.
-  void addMasterCue() {
-    Cue cue;
-    cue.kind = CueKind::Master;
-    Deck& deck = focusedDeckMutable();
-    cue.name = "Master " + std::to_string(deck.cues.size() + 1);
-    cue.color = {120, 80, 30, 255};
-    cue.formatName = "control";
-    deck.cues.push_back(cue);
-    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
-    // A deck that holds masters IS the master deck, which is what lets the
-    // rest of the app tell one apart from a playlist.
-    deck.isMasterDeck = true;
-    onSelectionChanged();
-    markProjectDirty();
-    triggerToast("master cue added");
-    playUiSound(UiSoundEffect::Import);
-  }
-
   // A Portal arrives named for what it is. It is drawn transparent outside its
   // blobs, to sit on a layer over another playlist.
   void addPortalCue() {
@@ -4092,6 +4288,50 @@
     markProjectDirty();
     triggerToast("fade cue added");
     playUiSound(UiSoundEffect::Import);
+  }
+
+  // A memo arrives with its note open for typing: a memo with nothing in it
+  // is the one cue that is certainly useless.
+  void addMemoCue(const std::string& text = std::string()) {
+    Cue cue;
+    cue.kind = CueKind::Memo;
+    Deck& deck = focusedDeckMutable();
+    cue.name = text.empty() ? "Memo" : text.substr(0, 48);
+    cue.notes = text;
+    cue.color = {150, 130, 60, 255};
+    cue.formatName = "memo";
+    const int at = deck.selectedIndex >= 0 ? deck.selectedIndex + 1
+                                           : static_cast<int>(deck.cues.size());
+    deck.cues.insert(deck.cues.begin() + at, cue);
+    remapDeckCueIndices(project_.focusedDeckIndex, [at](int index) {
+      return index >= at ? index + 1 : index;
+    });
+    deck.selectedIndex = at;
+    deck.selectedIndices.clear();
+    normalizeProject(project_);
+    onSelectionChanged();
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Import);
+    if (text.empty()) {
+      editSelectedMemoText();
+    }
+  }
+
+  void editSelectedMemoText() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || cue->kind != CueKind::Memo) {
+      return;
+    }
+    openInlineTextEditor("memo.text", "Memo", "what the operator should be told when GO reaches here",
+                         cue->notes, [this](const std::string& value) {
+      Cue* now = selectedCueMutable();
+      if (!now || now->kind != CueKind::Memo) return;
+      now->notes = trim(value);
+      if (!now->notes.empty()) {
+        now->name = now->notes.substr(0, 48);
+      }
+      markProjectDirty();
+    });
   }
 
   void addTargetCue() {
@@ -4734,17 +4974,9 @@
     // live cue silently becomes a different slide. The split cue itself keeps
     // its index, which is the first part -- where the speaker was.
     const int added = count - 1;
-    auto shift = [&](int& index) {
-      if (index > cueIndex) index += added;
-    };
-    shift(deck.activeIndex);
-    shift(deck.selectedIndex);
-    for (int& selected : deck.selectedIndices) {
-      shift(selected);
-    }
-    for (int& overlay : deck.overlayActiveIndices) {
-      shift(overlay);
-    }
+    remapDeckCueIndices(deckIndex, [cueIndex, added](int index) {
+      return index > cueIndex ? index + added : index;
+    });
 
     normalizeProject(project_);
     markProjectDirty();
@@ -6538,6 +6770,16 @@
       if (!fullscreen) {
         return false;
       }
+      // ONLY AN OUTPUT THAT IS IN THE OPERATOR'S WAY. Esc from the desk is
+      // "give me my screen back"; an output fullscreen on ANOTHER display is not
+      // in the way, it is the room's picture. Un-fullscreening it put window
+      // chrome on the projector -- and Esc is what everyone presses to close a
+      // menu, so the second press of a dismissal did it. Esc pressed IN an
+      // output window still means that output.
+      if (!sourceOutputIndex && controlWindow_ &&
+          SDL_GetDisplayForWindow(runtime->outputWindow) != SDL_GetDisplayForWindow(controlWindow_)) {
+        return false;
+      }
       SDL_SetWindowFullscreen(runtime->outputWindow, false);
       setOutputRecoveryPausedByEscape(outputIndex, true);
       runtime->fullscreenIntended = false;
@@ -6632,7 +6874,7 @@
     push("PATTERN",    pal.mid, "Add a pattern cue and refine it in the cue inspector");
     push("TAKE",       pal.light, "Enter — take selected cue live");
     push("STOP",       pal.mid, "S — stop active cue");
-    push("RERACK",     pal.mid, "R — rewind to start");
+    push("RERACK",     pal.mid, "Ctrl+R — back to the start, held ready");
     // BLACKOUT sits with CLEAR because they are the two "kill the picture"
     // actions and an operator is choosing between them under pressure. It had
     // no button at all before — reachable only from Companion — which is
@@ -6648,7 +6890,7 @@
     // tells an operator nothing at the moment they most need to read it.
     // Every desk in the trade says BLACK on that button anyway.
     push("BLACK",      pal.mid, "B — picture off instantly, playback keeps running (reversible)");
-    push("CLEAR",      pal.mid, "C — clear instantly, stop all decks and queued takes, disarm output");
+    push("CLEAR",      pal.mid, "C — stop all decks and queued takes, disarm output (twice while live)");
     // RECORD belongs on the bar, not buried in Settings → Streaming. Arming a
     // capture is a SHOW action taken at the top of a take: an operator should
     // not have to open a modal to start one, and — worse — could not tell from
@@ -7236,9 +7478,9 @@
     // paletteReadableInk. Every label in the control window comes through
     // here, so this is the one place a theme's contrast is enforced.
     SDL_Color surface {};
-    if (Primitives::surfaceUnder(renderer,
-                                 SDL_Rect {x, y, measuredWidthIn(font, text), TTF_GetFontHeight(font)},
-                                 &surface)) {
+    const bool haveSurface = Primitives::surfaceUnder(
+      renderer, SDL_Rect {x, y, measuredWidthIn(font, text), TTF_GetFontHeight(font)}, &surface);
+    if (haveSurface) {
       const SDL_Color readable = paletteReadableInk(color, surface);
       if (readable.r != color.r || readable.g != color.g || readable.b != color.b) {
         ++textInkCorrections_;
@@ -7254,6 +7496,7 @@
     }
     SDL_Rect dst {x, y, entry->w, entry->h};
     SDL_RenderTexture(renderer, entry->texture, nullptr, &dst);
+    noteLiveTextLabel(renderer, dst, text, color, haveSurface ? &surface : nullptr);
   }
 
   // The translating entry point, for the ~45 sites that draw a source string

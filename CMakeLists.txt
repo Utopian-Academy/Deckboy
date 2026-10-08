@@ -1127,7 +1127,14 @@ if(DECKBOY_BUILD_MINI)
   # Beside Deckboy, so it finds the same bundled ffmpeg and libraries.
   set_target_properties(deckboy-mini PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:deckboy-native>")
-  add_dependencies(deckboy-mini deckboy-native)
+  # Only what Mini's own sources need generated first -- NOT the desk itself.
+  # Depending on deckboy-native made `--target deckboy-mini` compile main.cpp,
+  # which a 1 GB Raspberry Pi 3 cannot do (the compiler is killed for memory),
+  # so Mini could not be built on the very machines it is for.
+  add_dependencies(deckboy-mini deckboy_generate_version)
+  if(TARGET deckboy_decklink_idl)
+    add_dependencies(deckboy-mini deckboy_decklink_idl)
+  endif()
 endif()
 
 include(CTest)

@@ -100,10 +100,16 @@ struct HudState {
     double duration = 0.0;
     bool live = false;
     bool selected = false;
+    bool loop = false;      // this cue loops on its own
   };
   std::vector<Row> rows;    // the list around the selection
   bool keysLive = false;    // the terminal is taking keys
   bool help = false;        // show the key reference instead of the list
+  int helpPage = 0;         // which page of it: 0 show, 1 editing, 2 output, 3 playing
+  std::string listName;     // the playlist file, or empty for an unsaved list
+  bool listDirty = false;   // the list has changed since it was saved/opened
+  bool outputOn = true;     // the output window is showing
+  std::string soundName;    // the sound device in use
   std::string prompt;       // the command line, a cue number being typed, a quit to confirm
 };
 
@@ -262,7 +268,8 @@ class Hud {
 
     // Header
     std::string title = std::string("DECKBOY MINI ");
-    std::string tail = " v" + s.version;
+    std::string tail = " " + (s.listName.empty() ? std::string("(unsaved list)") : fit(s.listName, 24)) +
+                       (s.listDirty ? "*" : "") + "  v" + s.version;
     int dots = kInner + 2 - columns(title) - columns(tail) - 4;
     std::printf("\x1b[2K  %s%s%s %s%s%s%s%s%s%s%s\n", ink::kBright, glyph::kLogo, ink::kReset, kTitleInk,
                 title.c_str(), ink::kReset, ink::kDeep, repeat(glyph::kDot, std::max(3, dots)).c_str(), ink::kReset,
@@ -297,27 +304,49 @@ class Hud {
 
     // The cue list around the selection, or the key reference. Always six
     // rows, so the panel never changes height under the operator's eyes.
-    static const char* kHelp[] = {
-      "SPACE go/pause   ENTER take selected or typed no.",
-      "UP/DOWN pick   LEFT/RIGHT prev/next   0-9 cue no.",
-      "[ ] seek 10s   - + volume   S stop   B blackout",
-      "L loop   H output bar   F fullscreen   A add files",
-      ": command line (Tab completes paths, UP recalls)",
-      "Q Q quit   ? closes this",
+    // Four pages, because the keys no longer fit on one: ? steps through
+    // them and closes after the last.
+    static const char* kHelp[4][6] = {
+      {"SHOW  1/4                              ? next page",
+       "SPACE go/pause   ENTER take selected or typed no.",
+       "UP/DOWN pick   LEFT/RIGHT prev/next   0-9 cue no.",
+       "[ ] seek 10s   - + volume   S stop   B blackout",
+       "L loop the list   H output bar   : command line",
+       "Q Q quit   Esc closes this"},
+      {"EDITING THE LIST  2/4                  ? next page",
+       "A add files   O open a list   W save the list",
+       "< > move the selected cue up / down",
+       "X X remove it   R rename it   T its still time",
+       "Shift+L loop this cue on its own",
+       "Tab completes paths after A, O and W"},
+      {"OUTPUT AND SOUND  3/4                  ? next page",
+       "D next display   F fullscreen / window",
+       "V output on / off (the sound carries on)",
+       "P next sound device",
+       ":displays and :audio list what there is",
+       ":display 2   :audio <name>   pick by number/name"},
+      {"PLAYING A FILE  4/4                    ? closes",
+       ", . one frame back / on (pauses)",
+       "{ } one second back / on   [ ] ten seconds",
+       "( ) slower / faster   M mute   # sound track",
+       "K A-B loop: A, then B, then off",
+       "J subtitles beside the file: cycle, then off"},
     };
     for (int i = 0; i < kListRows; ++i) {
       if (s.help) {
-        const std::string text = kHelp[i];
+        const std::string text = kHelp[std::clamp(s.helpPage, 0, 3)][i];
         row(std::string(ink::kMid) + text + ink::kReset, columns(text));
       } else if (i < static_cast<int>(s.rows.size())) {
         const HudState::Row& r = s.rows[static_cast<std::size_t>(i)];
         const std::string mark = r.live ? glyph::kPlay : r.selected ? glyph::kNext : " ";
         const std::string num = fit(std::to_string(r.number), 3);
         const std::string len = r.duration > 0.0 ? clock(r.duration).substr(0, 5) : std::string("     ");
-        const std::string rowName = fit(r.name, kInner - 2 - 2 - 3 - 1 - 6);
+        const std::string looped = r.loop ? std::string("L") : std::string(" ");
+        const std::string rowName = fit(r.name, kInner - 2 - 2 - 3 - 1 - 6 - 2);
         const char* rowTone = r.live ? ink::kBright : r.selected ? kTitleInk : ink::kDim;
-        const std::string text = std::string(rowTone) + mark + " " + num + " " + rowName + ink::kDim + " " + len + ink::kReset;
-        row(text, 2 + 3 + 1 + columns(rowName) + 1 + 5);
+        const std::string text = std::string(rowTone) + mark + " " + num + " " + rowName + ink::kDim + " " + looped +
+                                 " " + len + ink::kReset;
+        row(text, 2 + 3 + 1 + columns(rowName) + 1 + 1 + 1 + 5);
       } else {
         row("", 0);
       }
@@ -327,7 +356,7 @@ class Hud {
     // Volume, loop, output
     const int pips = static_cast<int>(std::round(s.volume / 10.0));
     std::string out = "OUT " + std::to_string(s.display) + (s.width > 0 ? " " + std::to_string(s.width) + "x" + std::to_string(s.height) : std::string()) +
-                      (s.fullscreen ? "" : " window");
+                      (s.fullscreen ? "" : " window") + (s.outputOn ? "" : " OFF");
     std::string volText = " " + std::to_string(s.volume);
     std::string d = std::string(ink::kDim) + "VOL " + ink::kMid + repeat(glyph::kPip, pips) + ink::kDeep + repeat(glyph::kPipOff, 10 - pips) +
                     ink::kReset + fit(volText, 5) + ink::kDim + "LOOP " + ink::kReset + (s.loop ? "on " : "off") + "  " + ink::kDim + out + ink::kReset;
@@ -339,8 +368,11 @@ class Hud {
       ? ":" + std::to_string(s.port) + (s.network ? " network" : " this machine") + " " + glyph::kDot + " " +
         std::to_string(s.controllers) + (s.controllers == 1 ? " controller" : " controllers")
       : std::string("off (port ") + std::to_string(s.port) + " busy)";
-    std::string e = std::string(ink::kDim) + "LINK " + ink::kReset + link;
-    row(e, 5 + columns(link));
+    // In whatever room the link leaves, so the box edge never moves.
+    const int soundRoom = std::max(4, kInner - 2 - 5 - columns(link) - 2 - 4);
+    const std::string sound = fit(s.soundName.empty() ? std::string("none") : s.soundName, soundRoom);
+    std::string e = std::string(ink::kDim) + "LINK " + ink::kReset + link + "  " + ink::kDim + "SND " + ink::kReset + sound;
+    row(e, 5 + columns(link) + 2 + 4 + columns(sound));
     ++lines;
 
     std::printf("\x1b[2K  %s%s%s%s%s\n", ink::kDim, glyph::kBottomLeft, repeat(glyph::kHorizontal, kInner).c_str(),

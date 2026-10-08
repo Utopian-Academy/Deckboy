@@ -12,12 +12,14 @@
 
 #include "engine/libav_decoder.hpp"
 #include "engine/hap_decoder.hpp"
+#include "engine/stage_timings.hpp"
 
 #include "core/constants.hpp"
 #include "core/io_utils.hpp"          // readSome, for PipeDemuxer
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -224,6 +226,57 @@ const char* hwDeviceName() {
   const char* name = av_hwdevice_get_type_name(type);
   return name ? name : "hardware";
 }
+
+#if defined(__linux__)
+// ── THE OTHER KIND OF LINUX HARDWARE DECODER ─────────────────────────────────
+//
+// VAAPI is a hwaccel: the ordinary decoder with the heavy lifting handed to a
+// device. A Raspberry Pi (and most other ARM boards) has none of that; its
+// decoder is a V4L2 memory-to-memory device, which ffmpeg exposes as a
+// SEPARATE decoder -- "h264_v4l2m2m" -- rather than as a device to attach.
+// Measured on a Pi 3, Totoro 1080p24: software decode showed 18.5 fps and
+// skipped 10% of frames on 2.2 cores; mpv with v4l2m2m dropped none.
+//
+// Used only when VAAPI is not there, so a desktop Linux box keeps the path it
+// had. Its frames arrive in ordinary memory, so everything after the decoder
+// is the software path unchanged.
+bool vaapiAvailable() {
+  static const bool available = [] {
+    AVBufferRef* probe = nullptr;
+    if (av_hwdevice_ctx_create(&probe, AV_HWDEVICE_TYPE_VAAPI, nullptr, nullptr, 0) < 0) {
+      return false;
+    }
+    av_buffer_unref(&probe);
+    return true;
+  }();
+  return available;
+}
+
+// Offered DRM_PRIME (the decoder's own buffers) and the format the frame
+// would otherwise be read out into; take DRM_PRIME when it is there.
+AVPixelFormat pickDrmPrimeFormat(AVCodecContext* ctx, const AVPixelFormat* formats) {
+  for (const AVPixelFormat* p = formats; *p != AV_PIX_FMT_NONE; ++p) {
+    if (*p == AV_PIX_FMT_DRM_PRIME) {
+      return *p;
+    }
+  }
+  return avcodec_default_get_format(ctx, formats);
+}
+
+const AVCodec* v4l2m2mDecoderFor(AVCodecID id) {
+  const char* name = nullptr;
+  switch (id) {
+    case AV_CODEC_ID_H264:       name = "h264_v4l2m2m"; break;
+    case AV_CODEC_ID_HEVC:       name = "hevc_v4l2m2m"; break;
+    case AV_CODEC_ID_MPEG2VIDEO: name = "mpeg2_v4l2m2m"; break;
+    case AV_CODEC_ID_MPEG4:      name = "mpeg4_v4l2m2m"; break;
+    case AV_CODEC_ID_VP8:        name = "vp8_v4l2m2m"; break;
+    case AV_CODEC_ID_VP9:        name = "vp9_v4l2m2m"; break;
+    default: return nullptr;
+  }
+  return avcodec_find_decoder_by_name(name);
+}
+#endif
 
 bool codecSupportsHw(const AVCodec* codec) {
   const AVHWDeviceType want = preferredHwDeviceType();
@@ -432,6 +485,36 @@ struct VideoPipeline::Impl {
       return true;
     }
 
+#if defined(__linux__)
+    // A V4L2 decoder (the Pi's) when there is no VAAPI. A device that will
+    // not take this stream fails at avcodec_open2, and the ordinary decoder
+    // below runs as before. Never for datamosh, for the reason given there.
+    if (tryHw && !datamosh.load() && preferredHwDeviceType() != AV_HWDEVICE_TYPE_NONE &&
+        !vaapiAvailable()) {
+      if (const AVCodec* m2m = v4l2m2mDecoderFor(stream->codecpar->codec_id)) {
+        codecCtx = avcodec_alloc_context3(m2m);
+        if (codecCtx && avcodec_parameters_to_context(codecCtx, stream->codecpar) >= 0) {
+          // Ask for NV12, which the copy below moves with two memcpys; a
+          // device that cannot give it hands over what it can and swscale
+          // converts, as for any software frame.
+          if (params.format == FramePixelFormat::NV12) {
+            codecCtx->pix_fmt = AV_PIX_FMT_NV12;
+          }
+          codecCtx->opaque = nullptr;
+          codecCtx->get_format = params.drmPrime ? &pickDrmPrimeFormat : &pickDecodeFormat;
+          if (avcodec_open2(codecCtx, m2m, nullptr) >= 0) {
+            hwDecode = true;
+            // Confirmed per frame in convertFrame: a decoder that does not
+            // offer DRM_PRIME hands over ordinary frames, read out as before.
+            zeroCopy = params.drmPrime;
+            return finishOpen();
+          }
+        }
+        avcodec_free_context(&codecCtx);
+      }
+    }
+#endif
+
     codecCtx = avcodec_alloc_context3(codec);
     if (!codecCtx ||
         avcodec_parameters_to_context(codecCtx, stream->codecpar) < 0) {
@@ -492,7 +575,12 @@ struct VideoPipeline::Impl {
     if (avcodec_open2(codecCtx, codec, nullptr) < 0) {
       return false;
     }
+    return finishOpen();
+  }
 
+  // Everything after the decoder is open, whichever decoder it is: buffers,
+  // the seek to the cue's start, and one frame primed to prove it all works.
+  bool finishOpen() {
     packet = av_packet_alloc();
     frame = av_frame_alloc();
     swFrame = av_frame_alloc();
@@ -534,7 +622,12 @@ struct VideoPipeline::Impl {
     int recv = avcodec_receive_frame(codecCtx, frame);
     if (recv == 0) {
       consecutiveErrors = 0;
+      const auto convertStarted = std::chrono::steady_clock::now();
       bool converted = convertFrame(out);
+      // Counted inside decodeNs as well; the reader subtracts.
+      stageTimings().convertNs += static_cast<std::uint64_t>(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(
+          std::chrono::steady_clock::now() - convertStarted).count());
       av_frame_unref(frame);
       return converted ? 1 : 0;  // dropped pre-seek frames keep pumping
     }
@@ -729,6 +822,28 @@ struct VideoPipeline::Impl {
 
     // CPU output. Hardware frames transfer down first; then swscale (or a
     // straight plane copy) into the packed layout the engine expects.
+#if defined(__linux__)
+    // The decoder's own buffer, passed on unread: the renderer imports it
+    // (engine/drm_prime_import.hpp). Reading it here is what a Pi 3 cannot
+    // do in time.
+    if (frame->format == AV_PIX_FMT_DRM_PRIME && zeroCopy && frame->data[0]) {
+      AVFrame* ref = av_frame_clone(frame);
+      if (!ref) {
+        return false;
+      }
+      out = DecodedFrame{};
+      out.width = frame->width & ~1;
+      out.height = frame->height & ~1;
+      out.format = FramePixelFormat::NV12;
+      out.colorspace = sourceColorspace();
+      out.presentationSeconds = ptsSeconds;
+      out.gpuFrameRef = std::shared_ptr<void>(ref, SharedAvFrameDeleter{});
+      out.gpuTexture = ref->data[0];   // AVDRMFrameDescriptor*
+      out.gpuKind = DecodedFrame::GpuKind::DrmPrime;
+      return out.width > 0 && out.height > 0;
+    }
+#endif
+
     AVFrame* src = frame;
     if (frame->hw_frames_ctx) {
       av_frame_unref(swFrame);
@@ -767,6 +882,32 @@ struct VideoPipeline::Impl {
       for (int y = 0; y < dstH / 2; ++y) {
         std::memcpy(dstUV + static_cast<std::size_t>(y) * dstW,
                     src->data[1] + static_cast<std::size_t>(y) * src->linesize[1], dstW);
+      }
+      return true;
+    }
+
+    // PLANAR 4:2:0 TO NV12 IS AN INTERLEAVE, not a conversion: the same
+    // samples, with the two chroma planes woven into one. Software H.264 and
+    // a Raspberry Pi's V4L2 decoder both hand over planar frames, and the
+    // general scaler took that path at full cost on every frame.
+    if (params.format == FramePixelFormat::NV12 &&
+        (srcFormat == AV_PIX_FMT_YUV420P || srcFormat == AV_PIX_FMT_YUVJ420P) &&
+        src->width == dstW && src->height == dstH) {
+      std::uint8_t* dstY = out.pixels.data();
+      std::uint8_t* dstUV = dstY + static_cast<std::size_t>(dstW) * dstH;
+      for (int y = 0; y < dstH; ++y) {
+        std::memcpy(dstY + static_cast<std::size_t>(y) * dstW,
+                    src->data[0] + static_cast<std::size_t>(y) * src->linesize[0], dstW);
+      }
+      const int chromaW = dstW / 2;
+      for (int y = 0; y < dstH / 2; ++y) {
+        const std::uint8_t* u = src->data[1] + static_cast<std::size_t>(y) * src->linesize[1];
+        const std::uint8_t* v = src->data[2] + static_cast<std::size_t>(y) * src->linesize[2];
+        std::uint8_t* uv = dstUV + static_cast<std::size_t>(y) * dstW;
+        for (int x = 0; x < chromaW; ++x) {
+          uv[2 * x] = u[x];
+          uv[2 * x + 1] = v[x];
+        }
       }
       return true;
     }
@@ -827,9 +968,14 @@ bool VideoPipeline::nextFrame(DecodedFrame& out) {
     // No decoder to pump: one packet in, one frame out.
     return !impl_->finished && impl_->readHapFrame(out);
   }
+  const auto started = std::chrono::steady_clock::now();
   while (!impl_->interrupt.load()) {
     int produced = impl_->pumpOnce(out);
     if (produced > 0) {
+      StageTimings& t = stageTimings();
+      t.decodeNs += static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now() - started).count());
+      t.decoded += 1;
       return true;
     }
     if (produced < 0) {
@@ -929,7 +1075,21 @@ struct AudioPipeline::Impl {
       return false;
     }
     const AVCodec* codec = nullptr;
-    streamIndex = av_find_best_stream(fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
+    // THE TRACK ASKED FOR, counted among the sound tracks only (0 = first).
+    // Not found -- a file with fewer tracks than the cue remembers -- falls
+    // back to the best one, so a wrong number never means silence.
+    int wanted = -1;
+    if (params.audioTrack > 0) {
+      int seen = 0;
+      for (unsigned i = 0; i < fmtCtx->nb_streams; ++i) {
+        if (fmtCtx->streams[i]->codecpar->codec_type != AVMEDIA_TYPE_AUDIO) continue;
+        if (seen++ == params.audioTrack) {
+          wanted = static_cast<int>(i);
+          break;
+        }
+      }
+    }
+    streamIndex = av_find_best_stream(fmtCtx, AVMEDIA_TYPE_AUDIO, wanted, -1, &codec, 0);
     if (streamIndex < 0 || !codec) {
       return false;
     }

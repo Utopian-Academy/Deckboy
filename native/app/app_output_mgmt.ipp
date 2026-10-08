@@ -3524,16 +3524,34 @@
     int tapW = std::max(2, static_cast<int>(std::lround(srcW * scale)) & ~1);
     int tapH = std::max(2, static_cast<int>(std::lround(srcH * scale)) & ~1);
 
+    // WITHOUT WAITING ON THE GPU, where the renderer allows it.
+    //
+    // SDL_RenderReadPixels makes the output pass wait for the GPU to finish
+    // the frame. Measured with every core busy: that wait was 15-57ms of a
+    // 16.7ms frame and every hitch the output showed was inside it -- the
+    // control window's monitor was what made the programme stutter while a
+    // game ran beside it. The staging ring copies and maps a frame from two
+    // ticks back instead, which a monitor thumbnail can easily afford. The
+    // ring is BGRA (it is shared with recording), so the tap target is too.
+    const bool tapAsync = !runtime.previewTapReadbackUnavailable &&
+                          egressReadbackMode() == kEgressReadbackAuto;
+    const SDL_PixelFormat tapFormat = tapAsync ? SDL_PIXELFORMAT_BGRA32
+                                               : SDL_PIXELFORMAT_RGBA32;
     if (runtime.previewTapTexture &&
-        (runtime.previewTapTextureW != tapW || runtime.previewTapTextureH != tapH)) {
+        (runtime.previewTapTextureW != tapW || runtime.previewTapTextureH != tapH ||
+         runtime.previewTapTexture->format != tapFormat)) {
       SDL_DestroyTexture(runtime.previewTapTexture);
       runtime.previewTapTexture = nullptr;
       runtime.previewTapTextureW = 0;
       runtime.previewTapTextureH = 0;
+      if (runtime.previewTapReadback) {
+        deckboy::gpu::destroyStagingReadback(runtime.previewTapReadback);
+        runtime.previewTapReadback = nullptr;
+      }
     }
     if (!runtime.previewTapTexture) {
       runtime.previewTapTexture = deckboyCreateTexture(runtime.outputRenderer,
-                                                       SDL_PIXELFORMAT_RGBA32,
+                                                       tapFormat,
                                                        SDL_TEXTUREACCESS_TARGET,
                                                        tapW, tapH);
       if (!runtime.previewTapTexture) {
@@ -3558,7 +3576,47 @@
     SDL_RenderTexture(runtime.outputRenderer, runtime.compositorTexture, &src, nullptr);
 
     bool ok = false;
-    if (SDL_Surface* captured = SDL_RenderReadPixels(runtime.outputRenderer, nullptr)) {
+    bool tapDone = false;
+    if (tapAsync) {
+      if (!runtime.previewTapReadback) {
+        runtime.previewTapReadback =
+          deckboy::gpu::createStagingReadback(runtime.outputRenderer, tapW, tapH);
+        runtime.previewTapReadbackUnavailable = runtime.previewTapReadback == nullptr;
+        runtime.previewTapReadbackMisses = 0;
+      }
+      if (runtime.previewTapReadback) {
+        tapDone = true;   // a miss holds the last picture; never block for one
+        const std::size_t bytes = static_cast<std::size_t>(tapW) *
+                                  static_cast<std::size_t>(tapH) * 4u;
+        runtime.previewTapScratch.resize(bytes);
+        const bool got = deckboy::gpu::stagingReadbackFrame(
+          runtime.previewTapReadback, runtime.previewTapTexture,
+          runtime.previewTapScratch.data(), bytes, tapW, tapH);
+        if (got) {
+          runtime.previewTapReadbackMisses = 0;
+          runtime.previewTapPixels.resize(bytes);
+          ok = SDL_ConvertPixels(tapW, tapH, SDL_PIXELFORMAT_BGRA32,
+                                 runtime.previewTapScratch.data(), tapW * 4,
+                                 SDL_PIXELFORMAT_RGBA32,
+                                 runtime.previewTapPixels.data(), tapW * 4);
+          if (ok) {
+            runtime.previewTapW = tapW;
+            runtime.previewTapH = tapH;
+            ++runtime.previewTapSerial;
+          }
+        } else if (++runtime.previewTapReadbackMisses >= 60) {
+          // A second of nothing: the same retirement recording does, so the
+          // monitor can never freeze on one picture while the output runs.
+          deckboy::gpu::destroyStagingReadback(runtime.previewTapReadback);
+          runtime.previewTapReadback = nullptr;
+          runtime.previewTapReadbackUnavailable = true;
+          tapDone = false;
+        }
+      }
+    }
+    if (tapDone) {
+      // nothing more to read this frame
+    } else if (SDL_Surface* captured = SDL_RenderReadPixels(runtime.outputRenderer, nullptr)) {
       std::size_t stride = static_cast<std::size_t>(captured->w) * 4u;
       std::size_t bytes = stride * static_cast<std::size_t>(captured->h);
       if (runtime.previewTapPixels.size() != bytes) {
@@ -3584,6 +3642,12 @@
   }
 
   void releaseOutputPreviewTap(OutputRuntime& runtime) {
+    if (runtime.previewTapReadback) {
+      deckboy::gpu::destroyStagingReadback(runtime.previewTapReadback);
+      runtime.previewTapReadback = nullptr;
+    }
+    runtime.previewTapReadbackMisses = 0;
+    runtime.previewTapScratch.clear();
     if (runtime.previewTapTexture) {
       SDL_DestroyTexture(runtime.previewTapTexture);
       runtime.previewTapTexture = nullptr;
@@ -4751,6 +4815,10 @@
     runtime.fpsSampleStartedAtMs = 0;
     runtime.fpsFrameCount = 0;
     runtime.fpsMeasured = 0.0;
+    runtime.lastPresentNs = 0;
+    runtime.presentsCounted = 0;
+    runtime.presentHitches = 0;
+    runtime.worstPresentGapMs = 0.0;
   }
 
 #if DECKBOY_INPROC_DECODE
@@ -7153,6 +7221,79 @@
       t.baseY[i] = ys[i];
     }
     return t;
+  }
+
+  // THE SELECTED POINT, IN THE UNITS AN OPERATOR TYPES. For the output's warp
+  // that is where the point sits on the raster, in output pixels -- a corner
+  // at 1907,4, not "an offset of -13,4" -- because that is the number a pixel
+  // map or a projector's test pattern gives you. A layer's pin is stored as a
+  // fraction of its picture, so it reads and types as a percent offset.
+  bool warpSelectedPointValue(float& vx, float& vy, std::string* name = nullptr,
+                              bool* percent = nullptr) {
+    if (warpSelPoint_ < 0 || !warpEditMode_ || warpMonitorInner_.w <= 0) {
+      return false;
+    }
+    const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
+    const SDL_Rect& mi = warpMonitorInner_;
+    if (percent) *percent = wt.pin != nullptr;
+    if (warpSelPoint_ < 4) {
+      const int c = warpSelPoint_;
+      static const char* kNames[] = {"TL", "TR", "BR", "BL"};
+      if (name) *name = kNames[c];
+      if (wt.pin) {
+        vx = *wt.x[c] * 100.0f;
+        vy = *wt.y[c] * 100.0f;
+      } else {
+        vx = (wt.baseX[c] - static_cast<float>(mi.x)) / std::max(1.0e-3f, wt.unitX) + *wt.x[c];
+        vy = (wt.baseY[c] - static_cast<float>(mi.y)) / std::max(1.0e-3f, wt.unitY) + *wt.y[c];
+      }
+      return true;
+    }
+    const OutputTarget& out = focusedOutput();
+    const int idx = warpSelPoint_ - 100;
+    if (wt.pin || !warpGridActive(out) || idx < 0 ||
+        idx >= out.warpGridCols * out.warpGridRows) {
+      return false;
+    }
+    const int col = idx % out.warpGridCols;
+    const int row = idx / out.warpGridCols;
+    if (name) *name = "point " + std::to_string(col + 1) + "," + std::to_string(row + 1);
+    const SDL_FPoint p = warpGridPointOnMonitor(wt, out, col, row);
+    vx = (p.x - static_cast<float>(mi.x)) / std::max(1.0e-3f, wt.unitX);
+    vy = (p.y - static_cast<float>(mi.y)) / std::max(1.0e-3f, wt.unitY);
+    return true;
+  }
+
+  // Put the selected point at (vx, vy) in those same units. Applied as a
+  // change from where it is, so one path serves corners, grid nudges and pins.
+  bool setWarpSelectedPointValue(float vx, float vy) {
+    float cx = 0.0f;
+    float cy = 0.0f;
+    if (!warpSelectedPointValue(cx, cy)) {
+      return false;
+    }
+    const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
+    if (warpSelPoint_ < 4) {
+      const int c = warpSelPoint_;
+      if (wt.pin) {
+        *wt.x[c] = std::clamp(*wt.x[c] + (vx - cx) / 100.0f, -2.0f, 2.0f);
+        *wt.y[c] = std::clamp(*wt.y[c] + (vy - cy) / 100.0f, -2.0f, 2.0f);
+        wt.pin->warpEnabled = true;
+      } else {
+        *wt.x[c] += vx - cx;
+        *wt.y[c] += vy - cy;
+      }
+    } else {
+      OutputTarget& out = focusedOutputMutable();
+      const std::size_t i = static_cast<std::size_t>(warpSelPoint_ - 100) * 2;
+      if (i + 1 >= out.warpGridOffsets.size()) {
+        return false;
+      }
+      out.warpGridOffsets[i] += vx - cx;
+      out.warpGridOffsets[i + 1] += vy - cy;
+    }
+    markProjectDirty();
+    return true;
   }
 
   // Whether the editor has anything to show: an armed output warp, or a pin

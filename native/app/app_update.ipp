@@ -134,6 +134,12 @@
           // window, whose events are otherwise ignored here. Getting the
           // cursor back must not depend on which window it is over.
           notePointerActivity(event.button.windowID);
+          // THE SIDE BUTTONS ARE NOT CLICKS. A mouse's back/forward buttons
+          // (X1/X2) fell through to the left-button paths, so resting a thumb on
+          // one pressed whatever was under the pointer.
+          if (event.button.button == SDL_BUTTON_X1 || event.button.button == SDL_BUTTON_X2) {
+            break;
+          }
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
             if (handleInlineTextEditorMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y))) {
               break;
@@ -378,6 +384,8 @@
                 cue.hasAudio = probed->hasAudio;
                 cue.audioChannels = probed->audioChannels;
                 cue.audioSampleRate = probed->audioSampleRate;
+                cue.audioTrackCount = probed->audioTrackCount;
+                cue.subtitleTrackCount = probed->subtitleTrackCount;
                 cue.sizeBytes = probed->sizeBytes;
                 cue.kind = probed->kind;
                 if (cue.hasAudio && !cue.audioEnabled) {
@@ -695,6 +703,7 @@
 #endif
     // Apply any finished loudness-normalize analyses.
     drainNormalizeResults();
+    collectCaptionJob();
     // Keep the LTC carrier topped up. Cheap when disabled (one bool test), and
     // it must run every tick so the emitted code never develops a gap.
     pumpLtcOutput();
@@ -1030,8 +1039,15 @@
       // composite at preview resolution, it arrives once per presented output
       // frame, and it costs no hwframe download — which is what kept the old
       // decoder-frame preview pinned at ~10fps and visibly behind the output.
+      //
+      // NOT GATED ON THE FOCUSED DECK HAVING A FRAME. The programme is the
+      // output's composite, shared by every deck routed into it; it does not
+      // stop existing because the deck you clicked is idle, or is a layer of
+      // text cues with no decoded picture. Gating it that way made focusing a
+      // second deck layered over the first read "NO PROGRAMME" in the
+      // multiview while that very output was on air.
       const OutputRuntime* tapRuntime = nullptr;
-      if (haveLiveFrame) {
+      {
         if (auto tapIndex = previewTapOutputIndex()) {
           if (*tapIndex >= 0 && *tapIndex < static_cast<int>(outputRuntimes_.size())) {
             const OutputRuntime& candidate = outputRuntimes_[*tapIndex];

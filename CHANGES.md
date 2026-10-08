@@ -1,5 +1,73 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-08 - v0.99.406 (captions made here, triggers, MediaMTX, CHECK as one list, Mini runs a show from the keyboard)
+
+**Captions made on this computer.** A clip with no captions can get some
+without anything leaving the machine. In the inspector's new CAPTIONS section,
+**make captions here** listens to the cue and writes the words beside the
+media as `<name>.auto.srt`, attached and switched on. The captioning engine
+(whisper.cpp) now comes with Deckboy on Windows, macOS and Linux; the first
+time, it asks before fetching its speech model, and after that it works
+offline. Captions on the output are sized to the output and sit on a box
+fitted to the line.
+
+**Triggers.** Every cue has a TRIGGERS section: a hotkey (F1-F10, F12 or the
+number pad), a MIDI note, an OSC address, a time of day or a timecode point
+fires it through the same take as GO, without moving the operator's focus.
+Learn a key or a note by pressing it.
+
+**Memo cues and devamp.** A memo is a note in the running order: GO shows it
+and nothing else changes. Devamp lets a looping cue finish the pass it is on
+and then end as if it had never looped, from a target cue or `DEVAMP`.
+
+**MediaMTX.** Deckboy works with the MediaMTX media router both ways: its
+streams appear in the SOURCE menu as one-click stream cues, and
+`MEDIAMTX PUBLISH` sends the programme to it for any number of viewers in a
+browser, vMix or a recorder.
+
+**CHECK is one list.** The CHECK button opens everything wrong with the show
+at once; pick a line to go straight to it. It now also names a sound device a
+playlist is set to that is not connected, a plugin a cue uses that is not
+installed, and a tracker step that fires nothing.
+
+**An area of interest the size of an LED tile.** Type the area of interest's
+width, height and position in pixels, and choose **pixel for pixel,
+top-left** to send it at its real size to the corner an LED processor maps.
+
+**Warp points by number.** Click a grid-warp handle to select it, then type
+its position or move it a pixel at a time with the arrow keys.
+
+**Seven new lower-third looks.** Split, Card and Hairline join the clean
+looks; Sparkle, Neon, Comic and Scroll are the playful ones. The picker
+groups them.
+
+**Choose the sound track.** A file with more than one sound track (a second
+language, a commentary) shows a **track** row under AUDIO, and `AUDIOTRACK`
+over the remote. Changing it on the cue that is on air switches straight away.
+
+**Several cues at once.** With many cues selected, gain moves each cue by the
+same amount from where it is, and normalize measures each one.
+
+**Steadier hands on the desk.** A cue only starts to drag once the pointer
+has moved, so a click is always a click. Faders move from where they are
+grabbed rather than jumping to the pointer (Alt still jumps). While the show
+is live, keys that change the room (audio device, display, NDI, timecode,
+clear, fullscreen) ask for a second press. Undo and redo keep what is on air
+on air.
+
+**Deckboy Mini runs a show from the keyboard.** Load and save playlists
+(M3U8), move, remove and rename cues, choose and switch outputs and the sound
+device, all from the keys, with four pages of help on `?`. It also gains the
+player keys people expect: speed, mute, A-B loop, frame step, audio track and
+subtitles, including subtitles inside the file. Mini builds on its own, which
+is what lets it build on a Raspberry Pi, and there it decodes with the board's
+own video decoder, taking about 40% less of the processor.
+
+**A self-check of the text on screen.** A few seconds into a session, Deckboy
+reads back real labels from its own window and notes in its render log
+whether they reached the frame, with the window's size and density, so a
+report about missing text arrives with the evidence.
+
 ## 2026-10-05 - v0.99.405 (the monitor shows the show, loading at every scale)
 
 **The program monitor shows the show.** The moment a cue has a picture up, the

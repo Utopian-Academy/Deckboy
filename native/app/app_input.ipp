@@ -160,6 +160,21 @@
     if (handleKeyColorPickerMouseDown(x, y)) {
       return;
     }
+    // THE SHORTCUTS SHEET IS A PAGE OVER THE DESK: a click puts it away and
+    // goes no further. It did not block the mouse at all, so a click on the
+    // sheet fired TAKE, BLACK or a cue row hidden underneath.
+    if (shortcutsOverlayOpen_) {
+      shortcutsOverlayOpen_ = false;
+      return;
+    }
+    // THE SETTINGS MODAL TAKES EVERY CLICK, and is tested above everything
+    // that lives under it. It sat below the live-browser click-forward, the
+    // splitters and the shuffle button, so a click on a setting over the
+    // monitor clicked the on-air web page instead.
+    if (settingsOpen_) {
+      handleSettingsClick(x, y);
+      return;
+    }
 
     // THE DASHBOARD IS MODAL. Tested before anything underneath it, and a
     // click anywhere inside its panel is consumed either way -- a modal that
@@ -279,11 +294,6 @@
       return;
     }
 
-    // Settings modal intercepts all clicks when open
-    if (settingsOpen_) {
-      handleSettingsClick(x, y);
-      return;
-    }
 
     // The cue-inspector dropdown triggers live inside the inspector's SCROLLING
     // region, and their rects are recorded in unclipped screen coordinates. Once
@@ -378,124 +388,11 @@
         });
       return;
     }
-    for (const auto& outputBtn : outputMenuButtons_) {
-      if (!pointInRect(x, y, outputBtn.rect)) {
-        continue;
-      }
-      if (outputBtn.action == kOutputMenuActionAddOutput) {
-        addOutput(project_.focusedDeckIndex);
-        return;
-      }
-      if (outputBtn.action == kOutputMenuActionToggleFps) {
-        outputFpsCounterEnabled_ = !outputFpsCounterEnabled_;
-        triggerToast(std::string("output fps ") + (outputFpsCounterEnabled_ ? "on" : "off"));
-        return;
-      }
-      if (outputBtn.action == kOutputMenuActionFocus) {
-        if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
-          setFocusedOutputIndex(outputBtn.outputIndex);
-        }
-        return;
-      }
-      if (outputBtn.action == kOutputMenuActionRecover) {
-        if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
-          setFocusedOutputIndex(outputBtn.outputIndex);
-          setFocusedOutputEnabled(true);
-        }
-        return;
-      }
-      if (outputBtn.action == kOutputMenuActionDisarm) {
-        if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
-          setFocusedOutputIndex(outputBtn.outputIndex);
-          setFocusedOutputEnabled(false, false);
-        }
-        return;
-      }
-      if (outputBtn.action == kOutputMenuActionSelectDisplay) {
-        if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
-          setFocusedOutputIndex(outputBtn.outputIndex);
-          openDropdown(
-            "output.display",
-            outputBtn.rect,
-            outputDisplayDropdownChoices(),
-            std::to_string(outputDisplayIndex(outputBtn.outputIndex)),
-            [this](const std::string& value) {
-              try {
-                int displayIndex = std::stoi(trim(value));
-                if (displayIndex >= 0) setOutputDisplayIndex(displayIndex);
-              } catch (...) {}
-            });
-        }
-        return;
-      }
-      if (outputBtn.action == kOutputMenuActionRouteFocusDeck ||
-          outputBtn.action == kOutputMenuActionRouteAssignToggle ||
-          outputBtn.action == kOutputMenuActionRouteLayerDec ||
-          outputBtn.action == kOutputMenuActionRouteLayerInc ||
-          outputBtn.action == kOutputMenuActionRouteOutputPrev ||
-          outputBtn.action == kOutputMenuActionRouteOutputNext) {
-        if (project_.decks.empty() || project_.outputs.empty()) {
-          return;
-        }
-        int deckIndex = std::clamp(outputBtn.deckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
-        setFocusedDeckIndex(deckIndex);
-
-        int outputCount = static_cast<int>(project_.outputs.size());
-        int routeOutput = outputBtn.outputIndex;
-        if (routeOutput < 0 || routeOutput >= outputCount) {
-          routeOutput = std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
-        }
-
-        if (outputBtn.action == kOutputMenuActionRouteOutputPrev ||
-            outputBtn.action == kOutputMenuActionRouteOutputNext) {
-          int delta = outputBtn.action == kOutputMenuActionRouteOutputPrev ? -1 : 1;
-          int nextOutput = (routeOutput + delta + outputCount) % outputCount;
-          moveDeckToOutput(deckIndex, nextOutput);
-          setFocusedOutputIndex(nextOutput);
-          return;
-        }
-
-        setFocusedOutputIndex(routeOutput);
-        auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
-        if (outputBtn.action == kOutputMenuActionRouteFocusDeck) {
-          return;
-        }
-        if (outputBtn.action == kOutputMenuActionRouteAssignToggle) {
-          if (assignmentIndex) {
-            unassignDeckFromOutput(deckIndex, routeOutput);
-          } else {
-            assignDeckToOutput(deckIndex, routeOutput);
-          }
-          return;
-        }
-        if (!assignmentIndex) {
-          assignDeckToOutput(deckIndex, routeOutput);
-          assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
-          if (!assignmentIndex) {
-            return;
-          }
-        }
-        int currentLayer = 0; // Single-deck: always layer 0
-        int delta = outputBtn.action == kOutputMenuActionRouteLayerDec ? -1 : 1;
-        setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + delta);
-        return;
-      }
-      if (outputBtn.action == kOutputMenuActionRouteLayerCycle) {
-        // Crosspoint matrix cell: cycle OFF -> BG(0) -> L1(1) -> L2(2) -> L3(3) -> L4(4) -> OFF
-        if (project_.decks.empty() || project_.outputs.empty()) return;
-        int deckIdx  = std::clamp(outputBtn.deckIndex,  0, static_cast<int>(project_.decks.size())   - 1);
-        int outIdx   = std::clamp(outputBtn.outputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
-        // Single-deck: just toggle assignment.
-        auto ai = assignmentIndexForDeckOutput(deckIdx, outIdx);
-        if (!ai) {
-          assignDeckToOutput(deckIdx, outIdx);
-        } else {
-          unassignDeckFromOutput(deckIdx, outIdx);
-        }
-        return;
-      }
-      return;
-    }
+    // THE MONITORS WINDOW'S BUTTONS ARE NOT TESTED HERE. outputMenuButtons_ is
+    // filled only by the Monitors window, in ITS coordinates, and is handled by
+    // handleMonitorsMouseDown. Testing it in the control window made a click on
+    // a cue row or TAKE land on whichever monitor tile shared its x,y -- it was
+    // swallowed, or disarmed an output if it fell on that tile's OFF.
     for (const auto& hit : cueRowActionHits_) {
       if (!hit.enabled || !pointInRect(x, y, hit.rect)) {
         continue;
@@ -541,7 +438,14 @@
       setFocusedDeckIndex(deckIndex);
       deckOpacityDragIndex_ = deckIndex;
       deckOpacityDragRail_ = rail;
-      setDeckPlaylistOpacity(deckIndex, value, true);
+      deckOpacityGrabX_ = x;
+      deckOpacityGrabValue_ = project_.decks[deckIndex].playlistOpacity;
+      // Alt snaps to off/full, deliberately; a plain press takes hold of the
+      // fader and moves nothing until it is dragged.
+      if (altHeld) {
+        setDeckPlaylistOpacity(deckIndex, value, true);
+        deckOpacityGrabValue_ = value;
+      }
       return;
     }
     for (std::size_t i = 0; i < multiviewTileRects_.size(); ++i) {
@@ -600,10 +504,18 @@
         deckRemoveArmedIndex_ = -1;
         removeDeck(victim);
       } else {
+        // THE WARNING NAMES THE DECK AND WHAT IS IN IT, and its tab turns red
+        // with the button. With two playlists side by side the focused one is
+        // whichever was last touched, not whichever the operator is looking
+        // at -- so "press - again" alone let a 2000-cue deck go when the
+        // nearly empty one beside it was meant.
         deckRemoveArmedIndex_ = victim;
         deckRemoveArmedAtMs_ = animationNow_;
         playUiSound(UiSoundEffect::Navigate);
-        triggerToast("press - again to remove " + deckLabel(victim));
+        const std::size_t cues = project_.decks[victim].cues.size();
+        triggerToast("press - again to remove " + std::to_string(victim + 1) + " " +
+                     deckLabel(victim) + " (" + std::to_string(cues) +
+                     (cues == 1 ? " cue)" : " cues)"));
       }
       return;
     }
@@ -655,6 +567,16 @@
       }
     }
 
+    // >LIVE, ABOVE THE COLUMN LOOP for the same reason as the scrollbar: it
+    // sits in the playlist header, which is inside the column, and that loop
+    // returns on every press it sees. Tested below it, the button selected
+    // nothing and scrolled nowhere -- "hitting the live button does not
+    // select the active cue and navigate to it".
+    if (playlistJumpBtnRect_.w > 0 && pointInRect(x, y, playlistJumpBtnRect_)) {
+      jumpToCurrentCue();
+      return;
+    }
+
     for (int deckIndex = 0; deckIndex < static_cast<int>(deckColumnRects_.size()); ++deckIndex) {
       if (!pointInRect(x, y, deckColumnRects_[deckIndex])) {
         continue;
@@ -674,7 +596,15 @@
         // again, with no way to slide up to the value you wanted.
         deckOpacityDragIndex_ = deckIndex;
         deckOpacityDragRail_ = rail;
-        setDeckPlaylistOpacity(deckIndex, value, true);
+        deckOpacityGrabX_ = x;
+        deckOpacityGrabValue_ = project_.decks[deckIndex].playlistOpacity;
+        // GRABBED, NOT JUMPED TO: a click on a layer's fader used to set it to
+        // wherever the pointer landed, so a click near the left end made the
+        // whole layer vanish. Alt still snaps to off/full on purpose.
+        if (altHeld) {
+          setDeckPlaylistOpacity(deckIndex, value, true);
+          deckOpacityGrabValue_ = value;
+        }
         return;
       }
       Deck& deck = project_.decks[deckIndex];
@@ -710,6 +640,9 @@
           drag_.active = true;
           drag_.deckIndex = deckIndex;
           drag_.cueIndex = cueIndex;
+          drag_.pressX = x;
+          drag_.pressY = y;
+          drag_.moving = false;
           return;
         }
         listY += kRowHeight + 8;
@@ -732,12 +665,8 @@
       exportProjectBundleFromPicker();
       return;
     }
-    if (playlistJumpBtnRect_.w > 0 && pointInRect(x, y, playlistJumpBtnRect_)) {
-      jumpToCurrentCue();
-      return;
-    }
     if (fileCheckBtnRect_.w > 0 && pointInRect(x, y, fileCheckBtnRect_)) {
-      jumpToNextShowProblem();
+      openShowProblemList();
       return;
     }
     if (fileRelinkBtnRect_.w > 0 && pointInRect(x, y, fileRelinkBtnRect_)) {
@@ -924,6 +853,41 @@
       }
       return;
     }
+    // THE SELECTED POINT'S X AND Y, typed. Tested before the handles: the
+    // readout sits over the monitor, and a press on it must not grab a point.
+    if (warpEditMode_ && (pointInRect(x, y, warpSelXRect_) || pointInRect(x, y, warpSelYRect_))) {
+      float vx = 0.0f;
+      float vy = 0.0f;
+      std::string name;
+      bool percent = false;
+      if (warpSelectedPointValue(vx, vy, &name, &percent)) {
+        const bool editX = pointInRect(x, y, warpSelXRect_);
+        char now[32];
+        std::snprintf(now, sizeof(now), percent ? "%.2f" : "%.1f", editX ? vx : vy);
+        const int selected = warpSelPoint_;
+        openInlineTextEditor(
+          "warp.point", name + (editX ? "  X" : "  Y"),
+          percent ? "offset in percent of the picture"
+                  : "position on the output raster, in pixels",
+          now,
+          [this, editX, selected](const std::string& value) {
+            if (warpSelPoint_ != selected) {
+              return;   // the selection moved while the editor was open
+            }
+            float cx = 0.0f;
+            float cy = 0.0f;
+            char* end = nullptr;
+            const float typed = std::strtof(value.c_str(), &end);
+            if (end == value.c_str() || !warpSelectedPointValue(cx, cy)) {
+              triggerToast("warp: type a number");
+              return;
+            }
+            pushUndoSnapshot();
+            setWarpSelectedPointValue(editX ? typed : cx, editX ? cy : typed);
+          });
+      }
+      return;
+    }
     // Warp corner drag start
     if (warpEditorVisible() && warpMonitorInner_.w > 0) {
       const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
@@ -933,6 +897,7 @@
         int dy = y - static_cast<int>(wt.baseY[i] + *wt.y[i] * wt.unitY);
         if (dx * dx + dy * dy <= grabR * grabR) {
           warpDragCorner_ = i;
+          warpSelPoint_ = i;
           return;
         }
       }
@@ -952,6 +917,7 @@
             if (dx * dx + dy * dy <= static_cast<float>(gridGrab * gridGrab)) {
               pushUndoSnapshot();
               warpDragGridPoint_ = r * gridOut.warpGridCols + c;
+              warpSelPoint_ = 100 + warpDragGridPoint_;
               return;
             }
           }
@@ -1054,19 +1020,24 @@
       vjCrossfaderDragActive_ = true;   // a fader, not a button
       return;
     }
+    // GRABBED, NOT JUMPED TO. A press used to set the level wherever it
+    // landed, so a click near the right end sent the programme to 200%. Now the
+    // press takes hold of the fader and the drag moves it from where it was.
     if (pointInRect(x, y, masterFaderRect_) && masterFaderRect_.w > 0) {
-      double frac = static_cast<double>(x - masterFaderRect_.x) / static_cast<double>(masterFaderRect_.w);
-      project_.masterVolume = std::clamp(frac * 2.0, 0.0, 2.0);
+      masterFaderGrabX_ = x;
+      masterFaderGrabValue_ = project_.masterVolume;
       masterFaderDragActive_ = true;  // keep tracking until release — it's a fader, not a button
-      markProjectDirty();
       return;
     }
     // Check trim handles before progress bar seek
+    // A trim drag is an edit to the live cue: it can be taken back.
     if (trimInHandleRect_.w > 0 && pointInRect(x, y, trimInHandleRect_)) {
+      pushUndoSnapshot(/*force=*/true);
       trimDragMode_ = TrimDragMode::In;
       return;
     }
     if (trimOutHandleRect_.w > 0 && pointInRect(x, y, trimOutHandleRect_)) {
+      pushUndoSnapshot(/*force=*/true);
       trimDragMode_ = TrimDragMode::Out;
       return;
     }
@@ -1309,8 +1280,9 @@
         deckOpacityDragIndex_ < static_cast<int>(project_.decks.size())) {
       const SDL_Rect& rail = deckOpacityDragRail_;
       if (rail.w > 0) {
+        const double moved = static_cast<double>(x - deckOpacityGrabX_) / static_cast<double>(rail.w);
         setDeckPlaylistOpacity(deckOpacityDragIndex_,
-                               static_cast<float>(faderValueFromX(x, rail)), true);
+                               static_cast<float>(std::clamp(deckOpacityGrabValue_ + moved, 0.0, 1.0)), true);
       }
       return;
     }
@@ -1323,8 +1295,8 @@
       return;
     }
     if (masterFaderDragActive_ && masterFaderRect_.w > 0) {
-      double frac = static_cast<double>(x - masterFaderRect_.x) / static_cast<double>(masterFaderRect_.w);
-      project_.masterVolume = std::clamp(frac * 2.0, 0.0, 2.0);
+      const double moved = static_cast<double>(x - masterFaderGrabX_) / static_cast<double>(masterFaderRect_.w);
+      project_.masterVolume = std::clamp(masterFaderGrabValue_ + moved * 2.0, 0.0, 2.0);
       markProjectDirty();
       return;
     }
@@ -1475,6 +1447,22 @@
     }
     const SDL_Rect& clipFrame = deckListClipRects_[di];
     SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 30, clipFrame.w - 16, clipFrame.h - 38};
+    // A CLICK IS NOT A DRAG until the pointer has really moved: a press that
+    // wobbled across a row boundary used to reorder the list mid-show.
+    if (!drag_.moving) {
+      const int dx = x - drag_.pressX;
+      const int dy = y - drag_.pressY;
+      if (dx * dx + dy * dy < uiScaled(6) * uiScaled(6)) {
+        return;
+      }
+      drag_.moving = true;
+    }
+    // And only onto rows the operator can SEE: the row rects run on past the
+    // list, so dragging above or below it dropped the cue somewhere scrolled
+    // out of view.
+    if (!pointInRect(x, y, clipRect)) {
+      return;
+    }
     Deck& deck = project_.decks[di];
     int listY = clipRect.y - deckScrolls_[di];
     for (int index : cueIndicesForOverlayRole(deck, false)) {
@@ -1484,18 +1472,11 @@
         auto cue = deck.cues[drag_.cueIndex];
         deck.cues.erase(deck.cues.begin() + drag_.cueIndex);
         deck.cues.insert(deck.cues.begin() + index, cue);
+        const int from = drag_.cueIndex;
+        remapDeckCueIndices(di, [from, index](int i) { return movedCueIndex(i, from, index); });
         deck.selectedIndex = index;
         deck.selectedIndices.clear();
         deck.selectedIndices.push_back(index);
-        if (deck.activeIndex == drag_.cueIndex) {
-          deck.activeIndex = index;
-        } else if (deck.activeIndex >= 0) {
-          if (drag_.cueIndex < deck.activeIndex && index >= deck.activeIndex) {
-            deck.activeIndex -= 1;
-          } else if (drag_.cueIndex > deck.activeIndex && index <= deck.activeIndex) {
-            deck.activeIndex += 1;
-          }
-        }
         drag_.cueIndex = index;
         triggerToast("cue reordered");
         markProjectDirty();
@@ -1512,7 +1493,8 @@
     if (!project_.synthKeyboardEnabled) return false;
     // Octave shift. Z and X because that is where every tracker and DAW put
     // them, so it needs no learning.
-    if (down && !keyRepeat && (key == SDLK_Z || key == SDLK_X)) {
+    // Only with a synth cue live to play: otherwise Z and X are the desk's.
+    if (down && !keyRepeat && (key == SDLK_Z || key == SDLK_X) && liveSynthCue()) {
       project_.synthKeyboardOctave = std::clamp(
         project_.synthKeyboardOctave + (key == SDLK_X ? 1 : -1), 0, 8);
       triggerToast("octave " + std::to_string(project_.synthKeyboardOctave));
@@ -1540,6 +1522,24 @@
     handleSynthKey(key, /*keyRepeat=*/false, /*down=*/false);
   }
 
+  // True when the key may act now: always when nothing is live, and while a
+  // show is live only on the second press of the same key within 2.5s.
+  bool confirmLiveKey(SDL_Keycode key, const std::string& warning) {
+    if (!showIsLive()) {
+      liveKeyArmed_ = 0;
+      return true;
+    }
+    const Uint64 now = SDL_GetTicks();
+    if (liveKeyArmed_ == key && now - liveKeyArmedAtMs_ <= 2500) {
+      liveKeyArmed_ = 0;
+      return true;
+    }
+    liveKeyArmed_ = key;
+    liveKeyArmedAtMs_ = now;
+    triggerToast(warning, ToastKind::Warning, kToastReadableMs);
+    return false;
+  }
+
   void handleKeyDown(SDL_Keycode key, Uint16 mod, Uint32 sourceWindowId = 0, bool keyRepeat = false) {
     bool ctrl = deckboyShortcutHeld(mod);
     bool shift = (mod & SDL_KMOD_SHIFT) != 0;
@@ -1551,9 +1551,39 @@
       return;
     }
 
+    // A CUE'S HOTKEY, and hotkey learning, before anything else claims the
+    // key -- but only keys the desk does not use (F1-F10, F12, number pad),
+    // so a trigger can never take a shortcut away.
+    if (!inlineEditor_.open && !settingsOpen_ && !codeEditor_.open &&
+        handleTriggerKey(key, keyRepeat)) {
+      return;
+    }
+
     // Before shortcuts: while the musical keyboard is armed, letter keys make
     // notes. It is off by default precisely because this steals them.
-    if (handleSynthKey(key, keyRepeat, /*down=*/true)) {
+    // THE CLICKER ALWAYS REACHES THE SHOW. A presentation remote sends Page
+    // Down / Page Up, and every modal -- settings, the shortcuts sheet, a text
+    // field -- used to swallow them, so a dialog left open on the desk froze
+    // the presenter's slides. Nothing in those modals uses the two keys.
+    if ((key == SDLK_PAGEDOWN || key == SDLK_PAGEUP) && !keyRepeat &&
+        (settingsOpen_ || shortcutsOverlayOpen_ || inlineEditor_.open)) {
+      const bool forward = key == SDLK_PAGEDOWN;
+      if (clickerDrivesTrackerNow()) {
+        if (forward) trackerGo(); else trackerBack();
+      } else if (forward) {
+        skipToNextCue(/*asTake=*/true);
+      } else {
+        skipToPrevCue(/*asTake=*/true);
+      }
+      return;
+    }
+
+    // NOT while typing, and never with Ctrl or Alt held: the synth used to run
+    // ahead of the text editor and every shortcut, so renaming a cue played
+    // notes on the programme and Ctrl+Z / Ctrl+X became octave shifts.
+    if (!inlineEditor_.open && !settingsOpen_ && !codeEditor_.open &&
+        (mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) == 0 &&
+        handleSynthKey(key, keyRepeat, /*down=*/true)) {
       return;
     }
 
@@ -1567,6 +1597,25 @@
       SDL_SetWindowFullscreen(controlWindow_, !isFullscreen);
       triggerToast(isFullscreen ? "windowed" : "fullscreen");
       return;
+    }
+
+    // ARROWS NUDGE THE SELECTED WARP POINT while the editor is up: a pixel a
+    // press, ten with Shift (a tenth / one percent on a layer's pin).
+    if (warpEditMode_ && warpSelPoint_ >= 0 && !settingsOpen_ && !inlineEditor_.open &&
+        (key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN)) {
+      float vx = 0.0f;
+      float vy = 0.0f;
+      bool percent = false;
+      if (warpSelectedPointValue(vx, vy, nullptr, &percent)) {
+        const float step = (percent ? 0.1f : 1.0f) * (shift ? 10.0f : 1.0f);
+        if (!keyRepeat) {
+          pushUndoSnapshot();
+        }
+        setWarpSelectedPointValue(
+          vx + (key == SDLK_LEFT ? -step : key == SDLK_RIGHT ? step : 0.0f),
+          vy + (key == SDLK_UP ? -step : key == SDLK_DOWN ? step : 0.0f));
+        return;
+      }
     }
 
     if (showStartupDialog_) {
@@ -1808,6 +1857,15 @@
       return;
     }
 
+    // A CUE NUMBER BEING TYPED KEEPS EVERY DIGIT. 1, 2, 4, 5 and 6 are toggles
+    // and only the other digits start a search, so typing "31" picked cue 3
+    // and then toggled UI sounds -- and Enter took the wrong cue. Once a number
+    // has started (within the search's own 1.2s window) the rest are its.
+    if (key >= SDLK_0 && key <= SDLK_9 && !typedCueSearchBuffer_.empty() &&
+        SDL_GetTicks() <= typedCueSearchLastKeyAtMs_ + 1200 &&
+        handleCueTypeAheadKey(key, mod)) {
+      return;
+    }
     switch (key) {
       // ── Escape: a three-stage escalation, never a shortcut to quitting ──
       //
@@ -1895,10 +1953,16 @@
         stopTransport();
         break;
       case SDLK_C:
-        clearOutput();
+        if (confirmLiveKey(key, "press C again to stop everything and clear the output")) {
+          clearOutput();
+        }
         break;
       case SDLK_F:
-        toggleOutputFullscreen();
+        // Un-fullscreening the projector mid-show puts window chrome on it, and
+        // re-fullscreening raises the output and takes the keyboard with it.
+        if (confirmLiveKey(key, "press F again to switch the output's fullscreen")) {
+          toggleOutputFullscreen();
+        }
         break;
       case SDLK_I:
         importWithPicker();
@@ -1993,16 +2057,25 @@
       case SDLK_RIGHTBRACKET:
         adjustSelectedFade(!shift, 0.25);
         break;
+      // ROUTING ON ONE LETTER IS ONE STRAY KEY FROM THE WRONG SCREEN. While a
+      // show is live, A (sound device), D (output display) and N (NDI) need a
+      // second press, the way NEW does; the first says what the second will do.
       case SDLK_A:
-        cycleAudioOutputDevice(1);
+        if (confirmLiveKey(key, "press A again to move this deck's sound to the next device")) {
+          cycleAudioOutputDevice(1);
+        }
         break;
       case SDLK_D:
-        cycleOutputDisplay(1);
+        if (confirmLiveKey(key, "press D again to move the output to the next display")) {
+          cycleOutputDisplay(1);
+        }
         break;
       case SDLK_N:
         // toggleFocusedOutputNdi → setFocusedOutputNdiEnabled, which gates on
         // ndiRuntimeAvailable() and shows the prompt internally.
-        toggleFocusedOutputNdi();
+        if (confirmLiveKey(key, "press N again to switch this output's NDI")) {
+          toggleFocusedOutputNdi();
+        }
         break;
       case SDLK_O:
         if (shift) {
@@ -2012,10 +2085,14 @@
         }
         break;
       case SDLK_T:
-        setTimecodeRunEnabled(!focusedDeck().timecodeRunEnabled);
+        if (confirmLiveKey(key, "press T again to switch the timecode clock")) {
+          setTimecodeRunEnabled(!focusedDeck().timecodeRunEnabled);
+        }
         break;
       case SDLK_5:
-        setTimecodeChaseEnabled(!focusedDeck().timecodeChaseEnabled);
+        if (confirmLiveKey(key, "press 5 again to switch timecode chase")) {
+          setTimecodeChaseEnabled(!focusedDeck().timecodeChaseEnabled);
+        }
         break;
       case SDLK_DELETE:
         deleteSelected();

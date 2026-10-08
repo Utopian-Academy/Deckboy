@@ -24,7 +24,11 @@
 #include "core/types.hpp"
 #include "deckboy_version.hpp"
 #include "core/media_probe.hpp"
+#include "core/caption_formats.hpp"
+#include "core/paths.hpp"
+#include "core/subtitle_parser.hpp"
 #include "engine/media_engine.hpp"
+#include "engine/stage_timings.hpp"
 #include "mini/mini_hud.hpp"
 #include "mini/mini_keys.hpp"
 #include "platform/network.hpp"
@@ -37,7 +41,11 @@
 #include <cmath>
 #include <csignal>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <filesystem>
+#include <fstream>
+#include <future>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -59,7 +67,7 @@ constexpr SDL_AudioFormat kAudioFormat = SDL_AUDIO_S16;
 const char* kUsage =
   "Deckboy Mini - one deck, one output, no desk.\n"
   "\n"
-  "  deckboy-mini [options] <file|folder>...\n"
+  "  deckboy-mini [options] <file|folder|playlist.m3u8>...\n"
   "\n"
   "Options:\n"
   "  --display N    output on display N (1 = first). Default 1.\n"
@@ -80,13 +88,25 @@ const char* kUsage =
   "  Up/Down pick a cue   Left/Right take previous/next   0-9 type a cue number\n"
   "  [ ] seek 10s   - + volume   S stop   B blackout   L loop   F fullscreen\n"
   "  H status bar on the output   A add files   : command line   ? help   Q Q quit\n"
+  "Editing the list, in this terminal:\n"
+  "  < > move the selected cue   X X remove it   R rename   T still time\n"
+  "  Shift+L loop this cue   W save the list   O open a list\n"
+  "Output and sound:\n"
+  "  D next display   V output on/off   P next sound device\n"
+  "Playing a file (as in mpv):\n"
+  "  , . a frame back / on   { } a second back / on   ( ) slower / faster\n"
+  "  M mute   K A-B loop (A, B, off)   J subtitles beside the file (cycle, off)\n"
+  "  # next sound track of the file\n"
   "Drop files on the output to add them.\n"
   "Remote: send HELP for the commands.\n";
 
 const char* kRemoteHelp =
   "GO | TAKE [n] | SELECT n | NEXT | PREV | SKIP | SKIPBACK | PLAY | PAUSE | STOP | CLEAR | PANIC | "
   "SEEK +-s | SEEKPOS s | VOLUME 0-100 | LOOP ON|OFF|TOGGLE | BLACKOUT ON|OFF|TOGGLE | "
-  "OVERLAY ON|OFF|TOGGLE | ADD <file or folder> | DECK 1 <command> | STATUS | PING | QUIT\n";
+  "OVERLAY ON|OFF|TOGGLE | ADD <file or folder> | DECK 1 <command> | STATUS | PING | QUIT | "
+  "MOVE n to | REMOVE n | RENAME n name | STILL n s | CUELOOP n ON|OFF|TOGGLE | SAVE [file] | OPEN file | "
+  "DISPLAYS | DISPLAY n|NEXT | OUTPUT ON|OFF|TOGGLE | AUDIO LIST|NEXT|DEFAULT|<name> | "
+  "SPEED 0.25-4 | MUTE ON|OFF|TOGGLE | FRAME [BACK] | ABLOOP [a b|OFF] | SUBS [ON|OFF] | AUDIOTRACK n|NEXT\n";
 
 std::string upper(std::string s) {
   for (char& c : s) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
@@ -209,7 +229,138 @@ std::vector<Cue> cuesFor(const std::vector<fs::path>& inputs, double stillSecond
   return cues;
 }
 
-std::vector<Cue> buildPlaylist(const Options& o) { return cuesFor(o.inputs, o.stillSeconds, 1); }
+// ── PLAYLIST FILES ──
+//
+// An extended M3U8, so any player that reads a playlist reads this one, and a
+// person can read it too. Deckboy's own settings ride in a comment line other
+// players skip:
+//
+//   #EXTM3U
+//   #EXTINF:12.5,Opening titles
+//   #DECKBOY:loop=1;still=8
+//   media/opening.mp4
+//
+// Paths are written relative to the playlist when the file sits under its
+// folder, so a show folder can be copied to another machine whole.
+// UTF-8 both ways, explicitly: a playlist is UTF-8 on every platform, and
+// C++20's u8string is char8_t, which a stream will not take as text.
+std::string utf8Of(const fs::path& p) {
+  const std::u8string u = p.generic_u8string();
+  return std::string(u.begin(), u.end());
+}
+
+fs::path pathFromUtf8(const std::string& s) { return fs::path(std::u8string(s.begin(), s.end())); }
+
+bool isPlaylistPath(const fs::path& p) {
+  std::string ext = p.extension().string();
+  for (char& c : ext) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+  return ext == ".m3u8" || ext == ".m3u";
+}
+
+struct PlaylistEntry {
+  fs::path path;
+  std::string name;
+  bool loop = false;
+  double still = -1.0;
+};
+
+std::vector<PlaylistEntry> readPlaylist(const fs::path& file, const Report& report) {
+  std::vector<PlaylistEntry> out;
+  std::ifstream in(file, std::ios::binary);
+  if (!in) {
+    report("cannot open " + file.string());
+    return out;
+  }
+  PlaylistEntry pending;
+  std::string line;
+  bool first = true;
+  while (std::getline(in, line)) {
+    if (!line.empty() && line.back() == '\r') line.pop_back();
+    if (first && line.size() >= 3 && static_cast<unsigned char>(line[0]) == 0xEF) line.erase(0, 3);  // BOM
+    first = false;
+    if (line.empty()) continue;
+    if (line.rfind("#EXTINF:", 0) == 0) {
+      const std::size_t comma = line.find(',');
+      if (comma != std::string::npos) pending.name = line.substr(comma + 1);
+      continue;
+    }
+    if (line.rfind("#DECKBOY:", 0) == 0) {
+      std::istringstream fields(line.substr(9));
+      for (std::string kv; std::getline(fields, kv, ';');) {
+        const std::size_t eq = kv.find('=');
+        if (eq == std::string::npos) continue;
+        const std::string key = kv.substr(0, eq), value = kv.substr(eq + 1);
+        if (key == "loop") pending.loop = value == "1";
+        else if (key == "still") pending.still = std::atof(value.c_str());
+      }
+      continue;
+    }
+    if (line[0] == '#') continue;
+    fs::path p = pathFromUtf8(line);
+    if (p.is_relative()) p = file.parent_path() / p;
+    pending.path = p.lexically_normal();
+    out.push_back(pending);
+    pending = PlaylistEntry {};
+  }
+  return out;
+}
+
+bool writePlaylist(const fs::path& file, const std::vector<Cue>& cues) {
+  const fs::path dir = fs::absolute(file).parent_path();
+  const fs::path temp = file.string() + ".tmp";
+  {
+    std::ofstream out(temp, std::ios::binary | std::ios::trunc);
+    if (!out) return false;
+    out << "#EXTM3U\n";
+    for (const Cue& c : cues) {
+      out << "#EXTINF:" << (c.duration > 0.0 ? c.duration : -1.0) << "," << c.name << "\n";
+      if (c.loop || c.kind == CueKind::Image) {
+        out << "#DECKBOY:loop=" << (c.loop ? 1 : 0);
+        if (c.kind == CueKind::Image) out << ";still=" << c.stillDurationSeconds;
+        out << "\n";
+      }
+      fs::path p = fs::path(c.path);
+      const fs::path rel = p.lexically_relative(dir);
+      const bool inside = !rel.empty() && rel.native().find(fs::path("..").native()) != 0;
+      out << utf8Of(inside ? rel : p) << "\n";
+    }
+    out.close();
+    if (!out) return false;
+  }
+  std::error_code ec;
+  fs::rename(temp, file, ec);
+  if (ec) {
+    fs::remove(file, ec);
+    fs::rename(temp, file, ec);
+  }
+  return !ec;
+}
+
+// Inputs with any playlists opened up into their entries, and the playlist
+// settings kept with each, so cuesFor treats the lot alike.
+std::vector<Cue> cuesForWithPlaylists(const std::vector<fs::path>& inputs, double stillSeconds,
+                                      std::size_t firstId, const Report& report = toStderr) {
+  std::vector<Cue> all;
+  for (const fs::path& in : inputs) {
+    if (isPlaylistPath(in)) {
+      for (const PlaylistEntry& e : readPlaylist(in, report)) {
+        std::vector<Cue> one = cuesFor({e.path}, e.still > 0.0 ? e.still : stillSeconds,
+                                       firstId + all.size(), report);
+        for (Cue& c : one) {
+          if (!e.name.empty()) c.name = e.name;
+          c.loop = e.loop;
+          all.push_back(std::move(c));
+        }
+      }
+    } else {
+      std::vector<Cue> more = cuesFor({in}, stillSeconds, firstId + all.size(), report);
+      for (Cue& c : more) all.push_back(std::move(c));
+    }
+  }
+  return all;
+}
+
+std::vector<Cue> buildPlaylist(const Options& o) { return cuesForWithPlaylists(o.inputs, o.stillSeconds, 1); }
 
 // ── The player ──────────────────────────────────────────────────────────────
 
@@ -229,8 +380,23 @@ class Mini {
       pumpEvents();
       while (auto key = keys_.poll()) onKey(*key, true);
       pollRemote();
-      engine_->update();
-      if (engine_->reachedEnd()) cueEnded();
+      {
+        // update() is where a new frame is uploaded to the GPU, so it is
+        // counted with drawing as the cost of putting a frame on screen.
+        const auto updateStarted = std::chrono::steady_clock::now();
+        engine_->update();
+        deckboy::libav::stageTimings().drawNs += static_cast<std::uint64_t>(
+          std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now() - updateStarted).count());
+      }
+      collectEmbeddedSubtitles();
+      // A-B LOOP: at B, back to A. Checked before the end, so a B at the very
+      // end of the clip still loops rather than advancing.
+      if (abA_ >= 0.0 && abB_ > abA_ && active_ >= 0 && engine_->position() >= abB_) {
+        engine_->seek(abA_);
+      } else if (engine_->reachedEnd()) {
+        cueEnded();
+      }
       draw();
       hud_.frame(hudState());
     }
@@ -300,8 +466,15 @@ class Mini {
     spec.channels = kAudioChannels;
     audio_ = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
     if (!audio_) std::cerr << "deckboy-mini: no audio device (" << SDL_GetError() << "); picture only\n";
+    soundName_ = audio_ ? "default" : "";
 
     engine_ = std::make_unique<MediaEngine>(renderer_, audio_);
+    // Mini draws only what its engine renders, so it can show a decoder's
+    // frames straight from the decoder's buffers where the platform allows --
+    // the difference between keeping up and not on a Raspberry Pi. OPT-IN
+    // (DECKBOY_ZERO_COPY=1) until proven on a real display: the first real-
+    // display run on a Pi 3 coincided with the Pi locking up, cause not yet known.
+    engine_->setZeroCopyImport(zeroCopyRequested());
     engine_->setVolume(static_cast<float>(opt_.volume) / 100.0f);
 
     listen_ = createBoundSocket(SOCK_STREAM, opt_.port, true, !opt_.remote);
@@ -313,6 +486,8 @@ class Mini {
   }
 
   void shutdown() {
+    if (subTex_) SDL_DestroyTexture(subTex_);
+    if (subFont_) TTF_CloseFont(subFont_);
     for (Client& c : clients_) closeSocket(c.socket);
     if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
@@ -334,10 +509,19 @@ class Mini {
 
   bool validIndex(int i) const { return i >= 0 && i < static_cast<int>(cues_.size()); }
 
-  void take(int index, bool autoplay = true) {
+  // followSelection false is for the list running itself (auto-advance): the
+  // selection stays where the operator put it unless they were sitting on the
+  // cue that just ended -- picking cue 7 to edit must not jump to cue 4 under
+  // the next keypress because cue 3 finished.
+  void take(int index, bool autoplay = true, bool followSelection = true) {
     if (!validIndex(index)) return;
-    selected_ = active_ = index;
+    if (followSelection || selected_ == active_ || active_ < 0) selected_ = index;
+    active_ = index;
+    atEnd_ = false;
     stopped_ = false;
+    abA_ = abB_ = -1.0;                // A-B belongs to the cue it was set on
+    cues_[static_cast<std::size_t>(index)].playbackSpeed = speed_;
+    loadSubtitlesFor(cues_[static_cast<std::size_t>(index)]);
     engine_->loadCue(&cues_[index], autoplay);
     hud_.log("take " + std::to_string(index + 1) + "/" + std::to_string(cues_.size()) + "  " + cues_[index].name);
   }
@@ -350,17 +534,399 @@ class Mini {
 
   void cueEnded() {
     const int next = active_ + 1;
-    if (validIndex(next)) { take(next); return; }
-    if (opt_.loop && !cues_.empty()) { take(0); return; }
+    if (validIndex(next)) { take(next, true, false); return; }
+    if (opt_.loop && !cues_.empty()) { take(0, true, false); return; }
     // End of the list: hold the frame or go to black, and stay put.
     engine_->finalizeReachedEnd(opt_.hold);
+    atEnd_ = opt_.hold;
     if (!opt_.hold) stop();
     hud_.log(opt_.hold ? "end of list, holding the last frame" : "end of list");
   }
 
   void go() {
-    if (active_ < 0) { take(selected_); return; }
+    // At the end of a held list the cue on screen has finished: GO takes the
+    // picked cue rather than "playing" one with nothing left to play.
+    if (active_ < 0 || atEnd_) { take(selected_); return; }
     if ((engine_->state() == TransportState::Playing)) engine_->pause(); else engine_->play();
+  }
+
+  // ── Editing the list ──
+  //
+  // Every edit keeps the cue on air on air: indices move with the cues, and
+  // the engine plays its own copy of the cue, so nothing reloads.
+
+  void markDirty() { listDirty_ = true; }
+
+  bool moveCue(int from, int to) {
+    if (!validIndex(from) || !validIndex(to) || from == to) return false;
+    Cue moving = std::move(cues_[static_cast<std::size_t>(from)]);
+    cues_.erase(cues_.begin() + from);
+    cues_.insert(cues_.begin() + to, std::move(moving));
+    auto follow = [&](int& i) {
+      if (i == from) i = to;
+      else if (from < to && i > from && i <= to) --i;
+      else if (from > to && i >= to && i < from) ++i;
+    };
+    follow(active_);
+    follow(selected_);
+    markDirty();
+    return true;
+  }
+
+  bool removeCue(int i) {
+    if (!validIndex(i)) return false;
+    const std::string name = cues_[static_cast<std::size_t>(i)].name;
+    if (i == active_) stop();
+    cues_.erase(cues_.begin() + i);
+    if (active_ > i) --active_;
+    if (selected_ >= static_cast<int>(cues_.size())) selected_ = std::max(0, static_cast<int>(cues_.size()) - 1);
+    hud_.log("removed " + name);
+    markDirty();
+    return true;
+  }
+
+  void setCueLoop(int i, bool on) {
+    if (!validIndex(i)) return;
+    cues_[static_cast<std::size_t>(i)].loop = on;
+    // The cue on air plays a copy; give it the change now, not at the next take.
+    if (i == active_) engine_->syncActiveCueSnapshot(cues_[static_cast<std::size_t>(i)]);
+    hud_.log(std::string("cue ") + std::to_string(i + 1) + (on ? " loops" : " plays once"));
+    markDirty();
+  }
+
+  // Where a first save goes: beside the media, which is where a show folder
+  // is -- not Mini's working folder, which for an installed copy is the
+  // program's own and not writable.
+  fs::path defaultSavePath() const {
+    if (!listFile_.empty()) return listFile_;
+    if (!cues_.empty()) return fs::path(cues_.front().path).parent_path() / "show.m3u8";
+    return fs::current_path() / "show.m3u8";
+  }
+
+  bool savePlaylist(fs::path file) {
+    if (file.extension().empty()) file += ".m3u8";
+    if (!writePlaylist(file, cues_)) {
+      hud_.log("could not save " + file.string());
+      return false;
+    }
+    listFile_ = fs::absolute(file);
+    listDirty_ = false;
+    hud_.log("saved " + std::to_string(cues_.size()) + " cues to " + file.filename().string());
+    return true;
+  }
+
+  bool openPlaylist(const fs::path& file) {
+    std::vector<Cue> fresh = cuesForWithPlaylists({file}, opt_.stillSeconds, nextId_,
+                                                  [this](const std::string& t) { hud_.log(t); });
+    if (fresh.empty()) {
+      hud_.log("nothing playable in " + file.string());
+      return false;
+    }
+    stop();
+    nextId_ += fresh.size();
+    cues_ = std::move(fresh);
+    selected_ = 0;
+    listFile_ = isPlaylistPath(file) ? fs::absolute(file) : fs::path();
+    listDirty_ = !isPlaylistPath(file);
+    hud_.log("opened " + file.filename().string() + ", " + std::to_string(cues_.size()) + " cues");
+    return true;
+  }
+
+  // ── The things mpv does to a playing file ──
+
+  void applyVolume() { engine_->setVolume(muted_ ? 0.0f : static_cast<float>(opt_.volume) / 100.0f); }
+
+  void setMuted(bool on) {
+    muted_ = on;
+    applyVolume();
+    hud_.log(on ? "muted" : "sound on");
+  }
+
+  // Speed carries to every cue, as in mpv. The engine sets a cue's speed when
+  // it loads it, so a change reloads the live cue where it stands.
+  void setSpeed(double v) {
+    speed_ = std::clamp(std::round(v * 100.0) / 100.0, 0.25, 4.0);
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "speed x%.2f", speed_);
+    hud_.log(buf);
+    if (active_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(active_)];
+    if (std::abs(c.playbackSpeed - speed_) < 1e-6) return;
+    const double at = engine_->position();
+    const bool playing = engine_->state() == TransportState::Playing;
+    c.playbackSpeed = speed_;
+    engine_->loadCue(&c, playing);
+    if (at > 0.0) engine_->seek(at);
+  }
+
+  // One frame, paused -- the way mpv's , and . step.
+  void frameStep(int direction) {
+    if (active_ < 0) return;
+    engine_->pause();
+    const Cue& c = cues_[static_cast<std::size_t>(active_)];
+    const double fps = c.fps > 1.0 ? c.fps : 25.0;
+    engine_->seek(std::max(0.0, engine_->position() + direction / fps));
+  }
+
+  // K: A, then B, then off -- mpv's l.
+  void abStep() {
+    if (active_ < 0) return;
+    const double now = engine_->position();
+    if (abA_ < 0.0) {
+      abA_ = now;
+      hud_.log("A-B: A at " + clock(abA_) + "  (K again sets B)");
+    } else if (abB_ < 0.0 && now > abA_) {
+      abB_ = now;
+      hud_.log("A-B loop " + clock(abA_) + " - " + clock(abB_) + "  (K clears)");
+      engine_->seek(abA_);
+    } else {
+      abA_ = abB_ = -1.0;
+      hud_.log("A-B loop off");
+    }
+  }
+
+  // Subtitles beside the file: same name, any caption format Deckboy reads
+  // (and name.en.srt style language suffixes), the way mpv finds them.
+  void loadSubtitlesFor(const Cue& cue) {
+    subTracks_.clear();
+    subIndex_ = -1;
+    const fs::path media(cue.path);
+    std::error_code ec;
+    if (cue.path.empty() || !fs::exists(media, ec)) return;
+    const std::string stem = media.stem().string();
+    std::vector<fs::path> found;
+    for (const auto& entry : fs::directory_iterator(media.parent_path(), ec)) {
+      if (!entry.is_regular_file(ec)) continue;
+      const fs::path p = entry.path();
+      if (p == media) continue;
+      const std::string name = p.filename().string();
+      if (name.rfind(stem + ".", 0) != 0) continue;
+      if (deckboy::captions::formatForPath(p.string()) == deckboy::captions::Format::Unknown) continue;
+      found.push_back(p);
+    }
+    std::sort(found.begin(), found.end());
+    for (const fs::path& p : found) {
+      deckboy::core::SubtitleTrack track;
+      const auto format = deckboy::captions::formatForPath(p.string());
+      if (format == deckboy::captions::Format::Srt) {
+        track = deckboy::core::parseSrtFile(p.string());
+      } else {
+        std::ifstream in(p, std::ios::binary);
+        std::ostringstream text;
+        text << in.rdbuf();
+        track = deckboy::captions::parseText(text.str(), format);
+      }
+      if (!track.entries.empty()) subTracks_.emplace_back(p.filename().string(), std::move(track));
+    }
+    // And the ones inside the file, in the background.
+    embeddedFor_ = cue.id;
+    if (embeddedSubs_.valid()) parkedSubJobs_.push_back(std::move(embeddedSubs_));
+    if (cue.subtitleTrackCount > 0) {
+      const std::string path = cue.path;
+      const int count = cue.subtitleTrackCount;
+      embeddedSubs_ = std::async(std::launch::async, [path, count]() {
+        std::vector<std::pair<std::string, deckboy::core::SubtitleTrack>> out;
+        for (int i = 0; i < count; ++i) {
+          const std::string srt = deckboy::core::media::extractEmbeddedSubtitleSrt(path, "0:s:" + std::to_string(i));
+          auto track = deckboy::core::parseSrtText(srt);
+          if (!track.entries.empty()) out.emplace_back("track " + std::to_string(i + 1) + " (in the file)", std::move(track));
+        }
+        return out;
+      });
+    }
+    if (!subTracks_.empty() && subsWanted_) subIndex_ = 0;
+    if (!subTracks_.empty()) {
+      hud_.log("subtitles: " + subTracks_.front().first +
+               (subTracks_.size() > 1 ? " (+" + std::to_string(subTracks_.size() - 1) + " more, J cycles)" : ""));
+    }
+  }
+
+  // #: the next sound track of the live file -- mpv's #. Reloaded where it
+  // stands, playing or paused as it was.
+  void cycleAudioTrack() {
+    if (active_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(active_)];
+    if (c.audioTrackCount <= 1) {
+      hud_.log(c.audioTrackCount == 1 ? "this file has one sound track" : "this file has no sound track");
+      return;
+    }
+    setAudioTrack((c.audioTrack + 1) % c.audioTrackCount);
+  }
+
+  void setAudioTrack(int track) {
+    if (active_ < 0) return;
+    Cue& c = cues_[static_cast<std::size_t>(active_)];
+    const double at = engine_->position();
+    const bool playing = engine_->state() == TransportState::Playing;
+    c.audioTrack = track;
+    engine_->loadCue(&c, playing);
+    if (at > 0.0) engine_->seek(at);
+    hud_.log("sound track " + std::to_string(track + 1) + " of " + std::to_string(std::max(1, c.audioTrackCount)));
+  }
+
+  void collectEmbeddedSubtitles() {
+    parkedSubJobs_.erase(std::remove_if(parkedSubJobs_.begin(), parkedSubJobs_.end(), [](auto& f) {
+      return !f.valid() || f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+    }), parkedSubJobs_.end());
+    if (!embeddedSubs_.valid() ||
+        embeddedSubs_.wait_for(std::chrono::seconds(0)) != std::future_status::ready) return;
+    auto found = embeddedSubs_.get();
+    // Only for the cue they were read from: a take since then has its own.
+    if (active_ < 0 || cues_[static_cast<std::size_t>(active_)].id != embeddedFor_ || found.empty()) return;
+    const bool hadNone = subTracks_.empty();
+    for (auto& t : found) subTracks_.push_back(std::move(t));
+    if (hadNone && subsWanted_) subIndex_ = 0;
+    hud_.log(std::to_string(found.size()) + " subtitle track(s) in the file" + (subTracks_.size() > 1 ? ", J cycles" : ""));
+  }
+
+  // J: through the tracks, then off -- mpv's j and v in one key.
+  void cycleSubtitles() {
+    if (subTracks_.empty()) { hud_.log("no subtitles beside this file"); return; }
+    subIndex_ = subIndex_ + 1 >= static_cast<int>(subTracks_.size()) ? -1 : subIndex_ + 1;
+    subsWanted_ = subIndex_ >= 0;
+    hud_.log(subIndex_ < 0 ? "subtitles off" : "subtitles: " + subTracks_[static_cast<std::size_t>(subIndex_)].first);
+  }
+
+  // Drawn over the picture, low and centred, white with a black edge so it
+  // reads over anything. The font is the bundled Liberation Sans, sized to
+  // the output.
+  void drawSubtitles() {
+    if (subIndex_ < 0 || active_ < 0 || subIndex_ >= static_cast<int>(subTracks_.size())) return;
+    const auto* entry = subTracks_[static_cast<std::size_t>(subIndex_)].second.entryAtTime(engine_->position());
+    if (!entry) return;
+    int w = 0, h = 0;
+    SDL_GetRenderOutputSize(renderer_, &w, &h);
+    const int px = std::max(14, h / 20);
+    if (!subFont_ || subFontPx_ != px) {
+      if (subFont_) TTF_CloseFont(subFont_);
+      const fs::path font = deckboy::core::Paths::dataDir() / "fonts" / "LiberationSans-Regular.ttf";
+      subFont_ = TTF_OpenFont(font.string().c_str(), static_cast<float>(px));
+      subFontPx_ = px;
+      subTexText_.clear();
+      if (!subFont_) return;
+      TTF_SetFontWrapAlignment(subFont_, TTF_HORIZONTAL_ALIGN_CENTER);   // subtitles centre each line
+    }
+    if (entry->text != subTexText_ || !subTex_) {
+      if (subTex_) SDL_DestroyTexture(subTex_);
+      subTex_ = nullptr;
+      subTexText_ = entry->text;
+      const SDL_Color white {255, 255, 255, 255};
+      const SDL_Color black {0, 0, 0, 255};
+      const int wrap = w * 9 / 10;
+      TTF_SetFontOutline(subFont_, std::max(1, px / 12));
+      SDL_Surface* edge = TTF_RenderText_Blended_Wrapped(subFont_, entry->text.c_str(), 0, black, wrap);
+      TTF_SetFontOutline(subFont_, 0);
+      SDL_Surface* face = TTF_RenderText_Blended_Wrapped(subFont_, entry->text.c_str(), 0, white, wrap);
+      if (edge && face) {
+        const int o = std::max(1, px / 12);
+        SDL_Rect at {o, o, face->w, face->h};
+        SDL_SetSurfaceBlendMode(face, SDL_BLENDMODE_BLEND);
+        SDL_BlitSurface(face, nullptr, edge, &at);
+        subTex_ = SDL_CreateTextureFromSurface(renderer_, edge);
+      }
+      if (edge) SDL_DestroySurface(edge);
+      if (face) SDL_DestroySurface(face);
+    }
+    if (!subTex_) return;
+    float tw = 0, th = 0;
+    SDL_GetTextureSize(subTex_, &tw, &th);
+    SDL_FRect dst {(w - tw) / 2.0f, h - th - h / 14.0f, tw, th};
+    SDL_RenderTexture(renderer_, subTex_, nullptr, &dst);
+  }
+
+  // ── Displays and sound ──
+
+  std::vector<SDL_DisplayID> displayList() const {
+    int count = 0;
+    std::vector<SDL_DisplayID> out;
+    if (SDL_DisplayID* ids = SDL_GetDisplays(&count)) {
+      out.assign(ids, ids + count);
+      SDL_free(ids);
+    }
+    return out;
+  }
+
+  std::string displayLine(int n, SDL_DisplayID id) const {
+    SDL_Rect b {};
+    SDL_GetDisplayBounds(id, &b);
+    const char* name = SDL_GetDisplayName(id);
+    return std::to_string(n) + " " + (name ? name : "display") + " " + std::to_string(b.w) + "x" + std::to_string(b.h);
+  }
+
+  // Move the output to display n (1-based), keeping fullscreen or window.
+  bool moveToDisplay(int n) {
+    const std::vector<SDL_DisplayID> ids = displayList();
+    if (n < 1 || n > static_cast<int>(ids.size())) return false;
+    const SDL_DisplayID id = ids[static_cast<std::size_t>(n - 1)];
+    const bool wasFullscreen = fullscreen_;
+    if (wasFullscreen) {
+      SDL_SetWindowFullscreen(window_, false);
+      SDL_SyncWindow(window_);
+    }
+    SDL_SetWindowPosition(window_, SDL_WINDOWPOS_CENTERED_DISPLAY(id), SDL_WINDOWPOS_CENTERED_DISPLAY(id));
+    SDL_SyncWindow(window_);
+    if (wasFullscreen) setFullscreen(true);
+    opt_.display = n;
+    hud_.log("output on display " + displayLine(n, id));
+    return true;
+  }
+
+  void setOutputOn(bool on) {
+    outputOn_ = on;
+    if (on) SDL_ShowWindow(window_); else SDL_HideWindow(window_);
+    hud_.log(on ? "output on" : "output off (sound carries on)");
+  }
+
+  std::vector<std::pair<SDL_AudioDeviceID, std::string>> soundDevices() const {
+    std::vector<std::pair<SDL_AudioDeviceID, std::string>> out;
+    int count = 0;
+    if (SDL_AudioDeviceID* ids = SDL_GetAudioPlaybackDevices(&count)) {
+      for (int i = 0; i < count; ++i) {
+        const char* name = SDL_GetAudioDeviceName(ids[i]);
+        out.emplace_back(ids[i], name ? name : "device");
+      }
+      SDL_free(ids);
+    }
+    return out;
+  }
+
+  // A new sound device means a new engine: the stream is the engine's from
+  // birth. The cue on air is reloaded where it was, playing or paused as it was.
+  bool useSoundDevice(SDL_AudioDeviceID id, const std::string& name) {
+    SDL_AudioSpec spec {};
+    spec.freq = kAudioRate;
+    spec.format = kAudioFormat;
+    spec.channels = kAudioChannels;
+    SDL_AudioStream* fresh = SDL_OpenAudioDeviceStream(id, &spec, nullptr, nullptr);
+    if (!fresh) {
+      hud_.log("cannot open " + name + ": " + SDL_GetError());
+      return false;
+    }
+    const double at = active_ >= 0 ? engine_->position() : 0.0;
+    const bool playing = active_ >= 0 && engine_->state() == TransportState::Playing;
+    engine_.reset();
+    if (audio_) SDL_DestroyAudioStream(audio_);
+    audio_ = fresh;
+    engine_ = std::make_unique<MediaEngine>(renderer_, audio_);
+    engine_->setZeroCopyImport(zeroCopyRequested());
+    applyVolume();
+    if (active_ >= 0) {
+      engine_->loadCue(&cues_[static_cast<std::size_t>(active_)], playing);
+      if (at > 0.0) engine_->seek(at);
+    }
+    soundName_ = name;
+    hud_.log("sound to " + name);
+    return true;
+  }
+
+  void nextSoundDevice() {
+    const auto devices = soundDevices();
+    if (devices.empty()) { hud_.log("no sound devices"); return; }
+    std::size_t at = 0;
+    for (std::size_t i = 0; i < devices.size(); ++i) {
+      if (devices[i].second == soundName_) at = (i + 1) % devices.size();
+    }
+    useSoundDevice(devices[at].first, devices[at].second);
   }
 
   // ── Output ──
@@ -371,9 +937,32 @@ class Mini {
     if (!blackout_ && active_ >= 0) {
       int w = 0, h = 0;
       SDL_GetRenderOutputSize(renderer_, &w, &h);
+      const auto drawStarted = std::chrono::steady_clock::now();
       engine_->render(SDL_Rect {0, 0, w, h});
+      deckboy::libav::StageTimings& timing = deckboy::libav::stageTimings();
+      timing.drawNs += static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now() - drawStarted).count());
+      timing.draws += 1;
+      if (const DecodedFrame* f = engine_->currentFrame(); f && f->index != lastShownIndex_) {
+        // A jump of more than a dozen is a seek or a loop, not a stutter.
+        if (lastShownIndex_ != static_cast<std::uint64_t>(-1) && f->index > lastShownIndex_ &&
+            f->index - lastShownIndex_ <= 12) {
+          framesSkipped_ += f->index - lastShownIndex_ - 1;
+        }
+        lastShownIndex_ = f->index;
+        ++framesShown_;
+      }
     }
+    if (!blackout_) drawSubtitles();
     if (overlay_) drawOverlay();
+    // OUTSNAP (a test verb, as on the desk): this frame as it leaves.
+    if (!snapPath_.empty()) {
+      if (SDL_Surface* shot = SDL_RenderReadPixels(renderer_, nullptr)) {
+        SDL_SaveBMP(shot, snapPath_.c_str());
+        SDL_DestroySurface(shot);
+      }
+      snapPath_.clear();
+    }
     SDL_RenderPresent(renderer_);
   }
 
@@ -383,7 +972,7 @@ class Mini {
       if (e.type == SDL_EVENT_QUIT) gQuit = true;
       if (e.type == SDL_EVENT_DROP_FILE && e.drop.data) addInputs({fs::path(e.drop.data)}, "dropped");
       if (e.type != SDL_EVENT_KEY_DOWN || e.key.repeat) continue;
-      if (auto key = windowKey(e.key.key)) onKey(*key, false);
+      if (auto key = windowKey(e.key.key, e.key.mod)) onKey(*key, false);
     }
   }
 
@@ -394,7 +983,7 @@ class Mini {
   // files -- because it is the one place Mini can always be reached from: a
   // second display, or an SSH session on a box with no keyboard of its own.
 
-  static std::optional<mini::Key> windowKey(SDL_Keycode k) {
+  static std::optional<mini::Key> windowKey(SDL_Keycode k, SDL_Keymod mod = SDL_KMOD_NONE) {
     using mini::Key;
     switch (k) {
       case SDLK_UP: return Key {Key::Up};
@@ -408,6 +997,9 @@ class Mini {
       case SDLK_SLASH: return Key {Key::Char, '?'};
       default: break;
     }
+    // SDL reports the unshifted key. Shift+L (loop this cue) has to arrive as
+    // L, or the window's Shift+L looped the whole list instead.
+    if (k >= 'a' && k <= 'z' && (mod & SDL_KMOD_SHIFT)) return Key {Key::Char, static_cast<char>(k - 'a' + 'A')};
     if (k >= 32 && k < 127) return Key {Key::Char, static_cast<char>(k)};
     return std::nullopt;
   }
@@ -417,6 +1009,9 @@ class Mini {
     if (command_) { commandKey(key); return; }
     const bool quitWasPending = quitPending();
     quitArmedAt_ = {};
+    const bool removeWasPending = removePending() && key.kind == Key::Char &&
+                                  std::tolower(static_cast<unsigned char>(key.ch)) == 'x';
+    removeArmedAt_ = {};
     if (key.kind == Key::Char && key.ch >= '0' && key.ch <= '9') {
       if (number_.size() < 5) number_ += key.ch;
       return;
@@ -432,17 +1027,88 @@ class Mini {
           take(selected_);
         }
         return;
-      case Key::Escape: number_.clear(); help_ = false; return;
+      case Key::Escape: number_.clear(); help_ = false; helpPage_ = 0; return;
       case Key::Backspace: if (!number_.empty()) number_.pop_back(); return;
       case Key::Up: selected_ = std::max(0, selected_ - 1); return;
       case Key::Down: selected_ = std::min(static_cast<int>(cues_.size()) - 1, selected_ + 1); return;
-      case Key::Right: take(std::min(active_ + 1, static_cast<int>(cues_.size()) - 1)); return;
-      case Key::Left: take(std::max(active_ - 1, 0)); return;
+      // From where the show IS: the live cue, or after a stop the cue that was
+      // picked. At either end it says so -- it used to re-take the last cue,
+      // restarting what was on air.
+      case Key::Right: case Key::Left: {
+        const int from = active_ >= 0 ? active_ : selected_;
+        const int to = from + (key.kind == Key::Right ? 1 : -1);
+        if (validIndex(to)) take(to);
+        else hud_.log(key.kind == Key::Right ? "already the last cue" : "already the first cue");
+        return;
+      }
       case Key::Tab: overlay_ = !overlay_; return;
       case Key::Char: break;
     }
     number_.clear();
+    // KEYS THAT NEED TYPING say so in the output window instead of doing
+    // nothing: rename, still time, save, open and the command line all open
+    // a prompt, and the prompt lives in the terminal.
+    if (!fromTerminal && key.ch != 0 && std::strchr("rtwoa:", std::tolower(static_cast<unsigned char>(key.ch)))) {
+      hud_.log("that key opens a prompt: use the terminal Mini runs in");
+      return;
+    }
+    // CASE MATTERS FOR ONE KEY: Shift+L loops the selected cue, l the list.
+    if (key.ch == 'L') {
+      if (validIndex(selected_)) setCueLoop(selected_, !cues_[static_cast<std::size_t>(selected_)].loop);
+      return;
+    }
     switch (std::tolower(static_cast<unsigned char>(key.ch))) {
+      // -- editing the list (the terminal: it needs typing) --
+      case '<':
+        if (moveCue(selected_, selected_ - 1)) hud_.log("moved up to " + std::to_string(selected_ + 1));
+        break;
+      case '>':
+        if (moveCue(selected_, selected_ + 1)) hud_.log("moved down to " + std::to_string(selected_ + 1));
+        break;
+      // -- what mpv does --
+      case ',': frameStep(-1); break;   // a frame back, paused (mpv's ,)
+      case '.': frameStep(1); break;    // a frame on, paused (mpv's .)
+      case '{': seekBy(-1.0); break;    // a second back
+      case '}': seekBy(1.0); break;     // a second on
+      case '(': setSpeed(speed_ / 1.1); break;
+      case ')': setSpeed(speed_ * 1.1); break;
+      case 'm': setMuted(!muted_); break;
+      case 'k': abStep(); break;
+      case 'j': cycleSubtitles(); break;
+      case '#': cycleAudioTrack(); break;
+      case 'x':
+        // TWICE, like Q: one stray X must not take a cue out of the show.
+        if (removeWasPending && removeArmedIndex_ == selected_) removeCue(selected_);
+        else if (validIndex(selected_)) {
+          removeArmedAt_ = std::chrono::steady_clock::now();
+          removeArmedIndex_ = selected_;
+        }
+        break;
+      case 'r':
+        if (fromTerminal && validIndex(selected_))
+          openCommand("RENAME " + std::to_string(selected_ + 1) + " " + cues_[static_cast<std::size_t>(selected_)].name);
+        break;
+      case 't':
+        if (fromTerminal && validIndex(selected_)) {
+          char still[32];
+          std::snprintf(still, sizeof(still), "%g", cues_[static_cast<std::size_t>(selected_)].stillDurationSeconds);
+          openCommand("STILL " + std::to_string(selected_ + 1) + " " + still);
+        }
+        break;
+      case 'w':
+        if (fromTerminal) openCommand("SAVE " + defaultSavePath().string());
+        break;
+      case 'o':
+        if (fromTerminal) openCommand("OPEN ");
+        break;
+      // -- output and sound --
+      case 'd': {
+        const int count = static_cast<int>(displayList().size());
+        if (count > 0) moveToDisplay(opt_.display % count + 1);
+        break;
+      }
+      case 'v': setOutputOn(!outputOn_); break;
+      case 'p': nextSoundDevice(); break;
       case ' ': go(); break;
       case 's': stop(); hud_.log("stop"); break;
       case 'b': blackout_ = !blackout_; hud_.log(blackout_ ? "blackout on" : "blackout off"); break;
@@ -453,7 +1119,12 @@ class Mini {
       case '-': case '_': setVolume(opt_.volume - 10); break;
       case ']': seekBy(10.0); break;
       case '[': seekBy(-10.0); break;
-      case '?': help_ = !help_; break;
+      case '?':
+        // Pages: show, editing, output -- then closed.
+        if (!help_) { help_ = true; helpPage_ = 0; }
+        else if (helpPage_ < 3) ++helpPage_;
+        else { help_ = false; helpPage_ = 0; }
+        break;
       case ':': if (fromTerminal) openCommand(""); break;
       case 'a': if (fromTerminal) openCommand("ADD "); else hud_.log("A works in the terminal; drop files here instead"); break;
       case 'q':
@@ -466,6 +1137,11 @@ class Mini {
     }
   }
 
+  bool removePending() const {
+    return removeArmedAt_ != std::chrono::steady_clock::time_point {} &&
+           std::chrono::steady_clock::now() - removeArmedAt_ < std::chrono::seconds(3);
+  }
+
   bool quitPending() const {
     return quitArmedAt_ != std::chrono::steady_clock::time_point {} &&
            std::chrono::steady_clock::now() - quitArmedAt_ < std::chrono::seconds(3);
@@ -473,7 +1149,7 @@ class Mini {
 
   void setVolume(int v) {
     opt_.volume = std::clamp(v, 0, 100);
-    engine_->setVolume(static_cast<float>(opt_.volume) / 100.0f);
+    applyVolume();
     hud_.log("volume " + std::to_string(opt_.volume));
   }
 
@@ -498,6 +1174,13 @@ class Mini {
       case Key::Escape: command_ = false; commandText_.clear(); return;
       case Key::Backspace: if (!commandText_.empty()) commandText_.pop_back(); return;
       case Key::Tab: completePath(); return;
+      case Key::DeleteWord: {
+        // Ctrl+W, as in every shell: renaming no longer means backspacing the
+        // old name a letter at a time.
+        while (!commandText_.empty() && commandText_.back() == ' ') commandText_.pop_back();
+        while (!commandText_.empty() && commandText_.back() != ' ') commandText_.pop_back();
+        return;
+      }
       case Key::Up:
         if (historyAt_ > 0) commandText_ = history_[static_cast<std::size_t>(--historyAt_)];
         return;
@@ -527,8 +1210,12 @@ class Mini {
   // match is filled in; several are filled to what they share, and listed.
   void completePath() {
     const std::string upperText = upper(commandText_);
-    if (upperText.rfind("ADD ", 0) != 0) return;
-    std::string typed = commandText_.substr(4);
+    std::size_t verbLen = 0;
+    for (const char* v : {"ADD ", "OPEN ", "SAVE "}) {
+      if (upperText.rfind(v, 0) == 0) verbLen = std::strlen(v);
+    }
+    if (verbLen == 0) return;
+    std::string typed = commandText_.substr(verbLen);
     if (!typed.empty() && typed.front() == '"') typed.erase(0, 1);
     const fs::path partial(typed.empty() ? std::string(".") + static_cast<char>(fs::path::preferred_separator) : typed);
     const bool endsInSeparator = !typed.empty() && (typed.back() == '/' || typed.back() == '\\');
@@ -556,7 +1243,7 @@ class Mini {
       common.resize(n);
     }
     const std::string base = (endsInSeparator || partial.has_parent_path()) ? (dir / "").string() : std::string();
-    commandText_ = commandText_.substr(0, 4) + base + common;
+    commandText_ = commandText_.substr(0, verbLen) + base + common;
     if (matches.size() > 1) {
       std::string list;
       for (std::size_t i = 0; i < matches.size() && i < 4; ++i) list += (i ? "  " : "") + matches[i];
@@ -725,11 +1412,212 @@ class Mini {
       if (added == 0) return err("nothing playable at " + path);
       return ok();
     }
+    // The rest of the line after the verb (and an optional cue number): names
+    // and paths keep their spaces.
+    auto restAfter = [&](int words) {
+      std::istringstream rest(raw);
+      std::string skip;
+      for (int i = 0; i < words && rest >> skip; ++i) {}
+      std::string tail;
+      std::getline(rest, tail);
+      const std::size_t a = tail.find_first_not_of(" \t\"");
+      tail = a == std::string::npos ? std::string() : tail.substr(a);
+      while (!tail.empty() && (tail.back() == ' ' || tail.back() == '\t' || tail.back() == '"')) tail.pop_back();
+      return tail;
+    };
+    // DECK 1 X arrives with the DECK words already stripped from parts, but
+    // raw still carries them.
+    const int deckWords = upper(raw).rfind("DECK", 0) == 0 ? 2 : 0;
+
+    if (verb == "OUTSNAP") {
+      snapPath_ = restAfter(deckWords + 1);
+      return snapPath_.empty() ? err("OUTSNAP <file.bmp>") : ok();
+    }
+    if (verb == "SPEED") {
+      double v = 0.0;
+      try { v = std::stod(arg); } catch (...) { return err("SPEED 0.25-4"); }
+      if (v < 0.25 || v > 4.0) return err("SPEED 0.25-4");
+      setSpeed(v);
+      return ok();
+    }
+    if (verb == "MUTE") {
+      auto v = onOff(muted_);
+      if (!v) return err("ON, OFF or TOGGLE");
+      setMuted(*v);
+      return ok();
+    }
+    if (verb == "FRAME") {
+      if (active_ < 0) return err("nothing is playing");
+      frameStep(upper(arg) == "BACK" || arg == "-1" ? -1 : 1);
+      return ok();
+    }
+    if (verb == "ABLOOP") {
+      if (active_ < 0) return err("nothing is playing");
+      const std::string a = upper(arg);
+      if (a == "OFF") { abA_ = abB_ = -1.0; return ok(); }
+      if (parts.size() >= 3) {
+        try { abA_ = std::stod(parts[1]); abB_ = std::stod(parts[2]); } catch (...) { return err("ABLOOP <a> <b> | OFF"); }
+        if (abB_ <= abA_) { abA_ = abB_ = -1.0; return err("B must come after A"); }
+        engine_->seek(abA_);
+        return ok();
+      }
+      abStep();
+      return ok();
+    }
+    if (verb == "AUDIOTRACK") {
+      if (active_ < 0) return err("nothing is playing");
+      const Cue& c = cues_[static_cast<std::size_t>(active_)];
+      if (arg.empty() || upper(arg) == "NEXT") { cycleAudioTrack(); return ok(); }
+      int n = 0;
+      try { n = std::stoi(arg); } catch (...) { return err("AUDIOTRACK <n>|NEXT"); }
+      if (n < 1 || n > std::max(1, c.audioTrackCount)) {
+        return err("this file has " + std::to_string(c.audioTrackCount) + " sound track(s)");
+      }
+      setAudioTrack(n - 1);
+      return ok();
+    }
+    if (verb == "SUBS" || verb == "SUBTITLES") {
+      const std::string a = upper(arg);
+      if (a == "OFF") { subIndex_ = -1; subsWanted_ = false; return ok(); }
+      if (a == "ON") {
+        if (subTracks_.empty()) return err("no subtitles beside this file");
+        subIndex_ = std::max(0, subIndex_); subsWanted_ = true; return ok();
+      }
+      cycleSubtitles();
+      return "OK SUBS: " + std::string(subIndex_ < 0 ? "off" : subTracks_[static_cast<std::size_t>(subIndex_)].first) + "\n";
+    }
+    if (verb == "MOVE") {
+      auto from = cueArg();
+      if (!from || parts.size() < 3) return err("MOVE <cue> <to>");
+      int to = 0;
+      try { to = std::stoi(parts[2]) - 1; } catch (...) { return err("MOVE <cue> <to>"); }
+      if (!validIndex(to)) return err("no position " + parts[2]);
+      moveCue(*from, to);
+      return ok();
+    }
+    if (verb == "REMOVE" || verb == "DELETE") {
+      auto n = cueArg();
+      if (!n) return noCue();
+      removeCue(*n);
+      return ok();
+    }
+    if (verb == "RENAME") {
+      auto n = cueArg();
+      if (!n) return noCue();
+      const std::string name = restAfter(deckWords + 2);
+      if (name.empty()) return err("RENAME <cue> <name>");
+      cues_[static_cast<std::size_t>(*n)].name = name;
+      markDirty();
+      return ok();
+    }
+    if (verb == "STILL") {
+      auto n = cueArg();
+      if (!n || parts.size() < 3) return err("STILL <cue> <seconds>");
+      double secs = 0.0;
+      try { secs = std::stod(parts[2]); } catch (...) { return err("STILL <cue> <seconds>"); }
+      if (secs <= 0.0) return err("seconds must be more than 0");
+      Cue& c = cues_[static_cast<std::size_t>(*n)];
+      if (c.kind != CueKind::Image) return err("cue " + arg + " is not a still");
+      c.stillDurationSeconds = secs;
+      if (*n == active_) engine_->syncActiveCueSnapshot(c);
+      markDirty();
+      return ok();
+    }
+    if (verb == "CUELOOP") {
+      auto n = cueArg();
+      if (!n) return noCue();
+      const std::string mode = parts.size() > 2 ? upper(parts[2]) : std::string("TOGGLE");
+      const bool now = cues_[static_cast<std::size_t>(*n)].loop;
+      if (mode != "ON" && mode != "OFF" && mode != "TOGGLE") return err("ON, OFF or TOGGLE");
+      setCueLoop(*n, mode == "ON" ? true : mode == "OFF" ? false : !now);
+      return ok();
+    }
+    if (verb == "SAVE") {
+      std::string path = restAfter(deckWords + 1);
+      if (path.empty()) {
+        if (listFile_.empty()) return err("SAVE <file> (this list has not been saved yet)");
+        path = listFile_.string();
+      }
+      return savePlaylist(fs::path(path)) ? ok() : err("could not write " + path);
+    }
+    if (verb == "OPEN") {
+      const std::string path = restAfter(deckWords + 1);
+      if (path.empty()) return err("OPEN <playlist, file or folder>");
+      // UNSAVED EDITS ARE NOT THROWN AWAY ON ONE COMMAND: the same OPEN again
+      // within ten seconds means it, and W saves first.
+      const auto now = std::chrono::steady_clock::now();
+      if (listDirty_ && !(openArmedPath_ == path && now - openArmedAt_ < std::chrono::seconds(10))) {
+        openArmedPath_ = path;
+        openArmedAt_ = now;
+        return err("the list has unsaved changes: SAVE first, or OPEN the same file again to drop them");
+      }
+      openArmedPath_.clear();
+      return openPlaylist(fs::path(path)) ? ok() : err("nothing playable at " + path);
+    }
+    if (verb == "DISPLAYS") {
+      std::string out;
+      int n = 1;
+      for (SDL_DisplayID id : displayList()) {
+        out += (n == opt_.display ? "* " : "  ") + displayLine(n, id) + "\n";
+        ++n;
+      }
+      if (!fromNetwork) {
+        std::istringstream lines(out);
+        for (std::string l; std::getline(lines, l);) hud_.log(l);
+      }
+      return "OK DISPLAYS\n" + out;
+    }
+    if (verb == "DISPLAY") {
+      const int count = static_cast<int>(displayList().size());
+      int n = 0;
+      if (upper(arg) == "NEXT") n = count > 0 ? opt_.display % count + 1 : 0;
+      else { try { n = std::stoi(arg); } catch (...) { return err("DISPLAY <n> or NEXT"); } }
+      if (!moveToDisplay(n)) return err("no display " + arg + " (" + std::to_string(count) + " found)");
+      return ok();
+    }
+    if (verb == "OUTPUT") {
+      auto v = onOff(outputOn_);
+      if (!v) return err("ON, OFF or TOGGLE");
+      setOutputOn(*v);
+      return ok();
+    }
+    if (verb == "AUDIO" || verb == "SOUND") {
+      const std::string a = upper(arg);
+      const auto devices = soundDevices();
+      if (a.empty() || a == "LIST") {
+        std::string out;
+        for (const auto& d : devices) out += (d.second == soundName_ ? "* " : "  ") + d.second + "\n";
+        if (!fromNetwork) {
+          std::istringstream lines(out);
+          for (std::string l; std::getline(lines, l);) hud_.log(l);
+        }
+        return "OK AUDIO\n" + out;
+      }
+      if (a == "NEXT") { nextSoundDevice(); return ok(); }
+      if (a == "DEFAULT") {
+        return useSoundDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, "default") ? ok() : err("no default device");
+      }
+      // By name: exact first, then the first that contains what was typed.
+      const std::string want = restAfter(deckWords + 1);
+      for (int pass = 0; pass < 2; ++pass) {
+        for (const auto& d : devices) {
+          const bool hit = pass == 0 ? upper(d.second) == upper(want)
+                                     : upper(d.second).find(upper(want)) != std::string::npos;
+          if (hit) return useSoundDevice(d.first, d.second) ? ok() : err("could not open " + d.second);
+        }
+      }
+      return err("no sound device called " + want + " (AUDIO LIST shows them)");
+    }
     if (verb == "QUIT") { gQuit = true; return ok(); }
     return "ERR " + verb + ": unknown command (send HELP)\n";
   }
 
   // The desk's STATUS shape, trimmed to what one deck has.
+  static bool zeroCopyRequested() {
+    const char* env = std::getenv("DECKBOY_ZERO_COPY");
+    return env && env[0] == '1';
+  }
+
   std::string status() const {
     const std::string status = active_ < 0 ? "Stopped" : ((engine_->state() == TransportState::Playing) ? "Playing" : "Paused");
     const Cue* live = active_ >= 0 ? &cues_[active_] : nullptr;
@@ -746,18 +1634,43 @@ class Mini {
       << " cue=\"" << (live ? live->name : std::string()) << "\""
       << " pos=" << (live ? clock(engine_->position()) : std::string("--:--"))
       << " dur=" << (live && engine_->duration() > 0.0 ? clock(engine_->duration()) : std::string("--:--"))
-      << " vol=" << opt_.volume << "\n";
+      << " vol=" << opt_.volume << " speed=" << speed_ << " mute=" << (muted_ ? "on" : "off")
+      << " level=" << static_cast<int>(std::lround(engine_->programAudioLevel01() * 100.0))
+      << " track=" << (live ? live->audioTrack + 1 : 0) << "/" << (live ? live->audioTrackCount : 0)
+      << " ab=" << (abA_ >= 0.0 && abB_ > abA_ ? clock(abA_) + "-" + clock(abB_) : std::string("off"))
+      << " subs=\"" << (subIndex_ < 0 ? std::string("off") : subTracks_[static_cast<std::size_t>(subIndex_)].first) << "\"\n";
     s << "OUTPUT 1 name=\"Output 1\" enabled=" << (blackout_ ? "off" : "on")
       << " health=live display=" << opt_.display << " raster=" << w << "x" << h
-      << " fullscreen=" << (fullscreen_ ? "on" : "off") << "\n";
+      << " fullscreen=" << (fullscreen_ ? "on" : "off") << " window=" << (outputOn_ ? "shown" : "hidden")
+      << " frames_shown=" << framesShown_ << " frames_skipped=" << framesSkipped_
+      // The file's own rate. frames_skipped only sees frames the engine threw
+      // away; a decoder that delivers too few is visible only against this.
+      << " media_fps=" << (live && live->fps > 0.0 ? std::lround(live->fps * 1000.0) / 1000.0 : 0.0)
+      // Running totals, in microseconds: diff two readings to see which stage
+      // a frame's time goes to (decode_us includes convert_us; draw_us is the
+      // engine's render, which uploads the frame).
+      << " decode_us=" << deckboy::libav::stageTimings().decodeNs.load() / 1000
+      << " convert_us=" << deckboy::libav::stageTimings().convertNs.load() / 1000
+      << " decoded=" << deckboy::libav::stageTimings().decoded.load()
+      << " draw_us=" << deckboy::libav::stageTimings().drawNs.load() / 1000
+      << " draws=" << deckboy::libav::stageTimings().draws.load()
+      << " decode_fps=" << std::lround(engine_->mediaFpsMeasured() * 10.0) / 10.0
+      << " sound=\"" << soundName_ << "\"\n";
+    s << "LIST file=\"" << listFile_.string() << "\" dirty=" << (listDirty_ ? "yes" : "no") << " cues=" << cues_.size();
+    for (std::size_t i = 0; i < cues_.size(); ++i) {
+      s << (i == 0 ? " order=" : "|") << cues_[i].name << (cues_[i].loop ? "(loop)" : "");
+    }
+    s << "\n";
     return s.str();
   }
 
   // New cues go on the end of the list; nothing already playing is touched.
   // Shared by a file dropped on the output and the remote ADD.
   int addInputs(const std::vector<fs::path>& inputs, const char* how) {
-    std::vector<Cue> more = cuesFor(inputs, opt_.stillSeconds, nextId_, [this](const std::string& t) { hud_.log(t); });
+    std::vector<Cue> more = cuesForWithPlaylists(inputs, opt_.stillSeconds, nextId_,
+                                                 [this](const std::string& t) { hud_.log(t); });
     nextId_ += more.size();
+    if (!more.empty()) listDirty_ = true;
     for (Cue& c : more) cues_.push_back(std::move(c));
     if (!more.empty()) {
       hud_.log(std::string(how) + " " + std::to_string(more.size()) + (more.size() == 1 ? " cue" : " cues") +
@@ -893,13 +1806,20 @@ class Mini {
     int first = std::clamp(selected_ - rows / 2, 0, std::max(0, count - rows));
     for (int i = first; i < std::min(count, first + rows); ++i) {
       s.rows.push_back({i + 1, cues_[static_cast<std::size_t>(i)].name, cues_[static_cast<std::size_t>(i)].duration,
-                        i == active_, i == selected_});
+                        i == active_, i == selected_, cues_[static_cast<std::size_t>(i)].loop});
     }
     s.keysLive = keys_.active();
     s.help = help_;
+    s.helpPage = helpPage_;
+    s.listName = listFile_.empty() ? std::string() : listFile_.filename().string();
+    s.listDirty = listDirty_;
+    s.outputOn = outputOn_;
+    s.soundName = soundName_;
     if (command_) s.prompt = ": " + commandText_;
     else if (!number_.empty()) s.prompt = "go to cue " + number_ + "   Enter takes it, Esc clears";
-    else if (quitPending()) s.prompt = "press Q again to quit";
+    else if (quitPending()) s.prompt = listDirty_ ? "press Q again to quit (the list has unsaved changes: W saves)"
+                                                  : "press Q again to quit";
+    else if (removePending()) s.prompt = "press X again to remove cue " + std::to_string(removeArmedIndex_ + 1);
     return s;
   }
 
@@ -927,6 +1847,45 @@ class Mini {
   bool help_ = false;
   std::chrono::steady_clock::time_point quitArmedAt_ {};
   std::size_t nextId_ = 1;
+  int helpPage_ = 0;
+  std::string snapPath_;
+  // -- what mpv does that a show player should too --
+  bool muted_ = false;
+  // Smoothness, as the output saw it: new frames put on screen, and frames the
+  // clip had that never reached it (a gap in the display-order index). mpv's
+  // frame-drop-count is the number to compare with on weak hardware.
+  std::uint64_t framesShown_ = 0;
+  std::uint64_t framesSkipped_ = 0;
+  std::uint64_t lastShownIndex_ = static_cast<std::uint64_t>(-1);
+  double speed_ = 1.0;               // for every cue, the way mpv's carries over
+  double abA_ = -1.0;                  // A-B loop points on the live cue, seconds
+  double abB_ = -1.0;
+  // Subtitles: every sidecar found beside the live cue's file, and which one
+  // is shown (-1 none). Found again at each take, the way mpv looks.
+  std::vector<std::pair<std::string, deckboy::core::SubtitleTrack>> subTracks_;
+  int subIndex_ = -1;
+  bool subsWanted_ = true;             // the operator has not switched them off
+  TTF_Font* subFont_ = nullptr;
+  int subFontPx_ = 0;
+  SDL_Texture* subTex_ = nullptr;
+  std::string subTexText_;
+  // Subtitles INSIDE the file are pulled out in the background: ffmpeg has to
+  // read the whole file for them, which on a film takes seconds the picture
+  // must not wait for. They join the list when they arrive.
+  std::future<std::vector<std::pair<std::string, deckboy::core::SubtitleTrack>>> embeddedSubs_;
+  std::string embeddedFor_;
+  // A job still running when the next cue is taken is parked here, not waited
+  // for: assigning over a std::async future blocks until it finishes.
+  std::vector<std::future<std::vector<std::pair<std::string, deckboy::core::SubtitleTrack>>>> parkedSubJobs_;
+  std::string openArmedPath_;
+  std::chrono::steady_clock::time_point openArmedAt_ {};
+  bool atEnd_ = false;                 // a held list has played its last cue
+  fs::path listFile_;                  // where the list was opened from / saved to
+  bool listDirty_ = false;
+  bool outputOn_ = true;
+  std::string soundName_;
+  std::chrono::steady_clock::time_point removeArmedAt_ {};
+  int removeArmedIndex_ = -1;
 };
 
 }  // namespace

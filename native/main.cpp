@@ -82,6 +82,7 @@
 #include "core/io_utils.hpp"
 #include "core/subtitle_parser.hpp"
 #include "core/caption_formats.hpp"
+#include "core/captioning.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "engine/hap_decoder.hpp"
@@ -3088,10 +3089,10 @@ void normalizeProjectOutputsAndLayers(Project& project) {
     output.streamBitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     output.outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
     output.outputDelayMs = std::clamp(output.outputDelayMs, 0, 5000);
-    output.aoiLeft   = std::clamp(output.aoiLeft,   0.0f, 0.95f);
-    output.aoiRight  = std::clamp(output.aoiRight,  0.0f, 0.95f);
-    output.aoiTop    = std::clamp(output.aoiTop,    0.0f, 0.95f);
-    output.aoiBottom = std::clamp(output.aoiBottom, 0.0f, 0.95f);
+    output.aoiLeft   = std::clamp(output.aoiLeft,   0.0f, kAoiMaxEdge);
+    output.aoiRight  = std::clamp(output.aoiRight,  0.0f, kAoiMaxEdge);
+    output.aoiTop    = std::clamp(output.aoiTop,    0.0f, kAoiMaxEdge);
+    output.aoiBottom = std::clamp(output.aoiBottom, 0.0f, kAoiMaxEdge);
     output.outputColorSpace = normalizeOutputColorSpace(output.outputColorSpace);
     output.outputLayoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
     output.outputOrientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
@@ -3193,6 +3194,52 @@ void migrateLegacyDeckNdiToOutputs(Project& project) {
 
 
 void normalizeProject(Project& project) {
+  // A MASTER CUE BELONGS TO THE TRACKER, NEVER TO A PLAYLIST. James,
+  // 2026-10-07: "as of now, I don't think master cues should exist as cues in
+  // a deck." Any found in one -- a show from before the tracker kept its own
+  // steps, a paste, an undo -- moves into the tracker here, in deck then cue
+  // order and ahead of the tracker's own steps, which is the order the
+  // tracker already showed them in. Every index into the playlist is moved
+  // with it, so the cue on air keeps its identity.
+  {
+    std::vector<Cue> migrated;
+    for (Deck& deck : project.decks) {
+      std::vector<Cue> fromDeck;
+      for (int c = static_cast<int>(deck.cues.size()) - 1; c >= 0; --c) {
+        if (deck.cues[c].kind != CueKind::Master) {
+          continue;
+        }
+        auto shiftIndex = [c](int& index) {
+          if (index == c) index = -1;
+          else if (index > c) index -= 1;
+        };
+        shiftIndex(deck.activeIndex);
+        shiftIndex(deck.standbyIndex);
+        const bool wasSelected = deck.selectedIndex == c;
+        shiftIndex(deck.selectedIndex);
+        if (wasSelected && !deck.cues.empty()) {
+          deck.selectedIndex = std::max(0, c - 1);
+        }
+        std::vector<int> kept;
+        for (int index : deck.selectedIndices) {
+          shiftIndex(index);
+          if (index >= 0) kept.push_back(index);
+        }
+        deck.selectedIndices.swap(kept);
+        fromDeck.insert(fromDeck.begin(), std::move(deck.cues[c]));
+        deck.cues.erase(deck.cues.begin() + c);
+      }
+      deck.isMasterDeck = false;
+      for (Cue& cue : fromDeck) {
+        migrated.push_back(std::move(cue));
+      }
+    }
+    if (!migrated.empty()) {
+      project.trackerSteps.insert(project.trackerSteps.begin(),
+                                  std::make_move_iterator(migrated.begin()),
+                                  std::make_move_iterator(migrated.end()));
+    }
+  }
   if (project.decks.empty()) {
     project.decks.push_back(Deck {});
   }
@@ -3220,6 +3267,24 @@ void normalizeProject(Project& project) {
     if (deck.outputRouteDeckIndex < 0 ||
         deck.outputRouteDeckIndex >= static_cast<int>(project.decks.size())) {
       deck.outputRouteDeckIndex = static_cast<int>(index);
+    }
+  }
+  // The tracker's own steps: always masters, each with an id of its own --
+  // the playhead and every open menu find a step by id.
+  {
+    std::unordered_set<std::string> usedStepIds;
+    for (int s = 0; s < static_cast<int>(project.trackerSteps.size()); ++s) {
+      Cue& step = project.trackerSteps[s];
+      step.kind = CueKind::Master;
+      if (step.id.empty()) {
+        step.id = makeCueId(step, -1, s);
+      }
+      const std::string baseId = step.id;
+      int dedupe = 2;
+      while (usedStepIds.find(step.id) != usedStepIds.end()) {
+        step.id = baseId + "-" + std::to_string(dedupe++);
+      }
+      usedStepIds.insert(step.id);
     }
   }
   normalizeProjectOutputsAndLayers(project);
@@ -3407,13 +3472,9 @@ struct WaveformPeaks {
 };
 
 // Extract embedded subtitles from a media file using ffmpeg, returning SRT text.
+// ONE DEFINITION, in core, so Mini reads a file's subtitles the same way.
 static std::string extractEmbeddedSubtitles(const std::string& mediaPath, const std::string& streamId) {
-  std::string mapArg = streamId.empty() ? "0:s:0" : streamId;
-  auto result = readAllText({
-    "ffmpeg", "-v", "error", "-i", mediaPath,
-    "-map", mapArg, "-f", "srt", "pipe:1"
-  });
-  return result.value_or("");
+  return deckboy::core::media::extractEmbeddedSubtitleSrt(mediaPath, streamId);
 }
 
 // Load subtitle track for a cue: external .srt file or embedded stream.
@@ -3635,6 +3696,12 @@ class App {
     if (const char* env = std::getenv("DECKBOY_UI_PROFILE"); env && *env) {
       std::string token = toLower(trim(env));
       uiProfileEnabled_ = !(token == "0" || token == "false" || token == "off" || token == "no");
+      // A NUMBER IS THE THRESHOLD in ms. 50 catches a frozen interface; a
+      // 60Hz output that stutters misses by 17-35ms and never got logged.
+      const double asMs = std::atof(token.c_str());
+      if (asMs >= 2.0) {
+        uiProfileSlowFrameMs_ = asMs;
+      }
     }
     if (uiProfileEnabled_) {
       uiProfileLog("ui profiling enabled (DECKBOY_UI_PROFILE)");
@@ -4057,14 +4124,15 @@ class App {
       auto afterRender = std::chrono::steady_clock::now();
       if (uiProfileEnabled_) {
         double frameMs = ms(afterRender - frameStart);
-        if (frameMs > 50.0) {
+        if (frameMs > uiProfileSlowFrameMs_) {
           std::ostringstream line;
           line << std::fixed << std::setprecision(2)
                << "frame dt=" << frameMs << "ms"
                << " events=" << ms(afterEvents - frameStart) << "ms"
                << " update=" << ms(afterUpdate - afterPickers) << "ms"
                << " layout=" << lastUiLayoutMs_ << "ms"
-               << " render=" << lastUiRenderMs_ << "ms";
+               << " render=" << lastUiRenderMs_ << "ms"
+               << " render+outputs=" << ms(afterRender - afterUpdate) << "ms";
           uiProfileLog(line.str());
         }
         // WHAT THE LABEL CACHE IS DOING, once every five seconds. Before it
@@ -4416,7 +4484,10 @@ class App {
     }
     SDL_DestroySurface(shot);
     uiDumpPath_.clear();
-    gShouldQuit.store(true);
+    if (uiDumpThenQuit_) {
+      gShouldQuit.store(true);
+    }
+    uiDumpThenQuit_ = true;
   }
 
   // --contrast-check [dir]: EVERY BUNDLED THEME, ON THE REAL DESK.
@@ -4861,6 +4932,139 @@ class App {
     if (log) {
       log << stamp << "  " << line << '\n';
     }
+  }
+
+  // ── THE TEXT PATH, MEASURED ON THE REAL WINDOW ──────────────────────────
+  //
+  // Issue #6/#7, 2026-10-08: on a Mac mini (M2, Ventura, two 1080p screens)
+  // the startup probes all passed -- 440 pixels of ink on the CPU, the GPU and
+  // the label path -- while the operator saw "NEW" and almost nothing else.
+  // Those probes draw once, off screen, before the first frame; the fault is
+  // in real frames. So this samples a real one: every label the control
+  // window draws is noted (first, middle and last are kept), and just BEFORE
+  // the frame is presented the window itself is read back where each one
+  // went, and the whole frame is saved beside the log. Ink in the saved frame
+  // but not on the screen means the loss is after Deckboy hands the frame
+  // over; no ink means Deckboy's own drawing loses it, and first-vs-last says
+  // whether a frame is being cut off part way.
+  struct LiveTextSample {
+    SDL_Rect rect {};
+    std::string text;
+    SDL_Color ink {};
+    SDL_Color under {};
+    bool haveUnder = false;
+  };
+  bool liveTextCollecting_ = false;
+  int liveTextProbesDone_ = 0;
+  Uint64 liveTextFirstFrameMs_ = 0;
+  int liveTextLabels_ = 0;
+  std::vector<LiveTextSample> liveTextSamples_;
+
+  // From drawTextRaw: one label, as drawn into the control window.
+  void noteLiveTextLabel(SDL_Renderer* renderer, const SDL_Rect& rect, const std::string& text,
+                         SDL_Color ink, const SDL_Color* under) {
+    if (!liveTextCollecting_ || renderer != controlRenderer_ ||
+        SDL_GetRenderTarget(renderer) != nullptr) {
+      return;
+    }
+    ++liveTextLabels_;
+    if (liveTextSamples_.size() < 4096) {
+      LiveTextSample s;
+      s.rect = rect;
+      s.text = text.substr(0, 24);
+      s.ink = ink;
+      if (under) {
+        s.under = *under;
+        s.haveUnder = true;
+      }
+      liveTextSamples_.push_back(std::move(s));
+    }
+  }
+
+  // At the start of a control-window frame: collect this frame's labels if a
+  // probe is due -- 3 s after the first frame, then 60 s.
+  void beginLiveTextFrame() {
+    liveTextCollecting_ = false;
+    if (liveTextProbesDone_ >= 2 || !controlRenderer_) {
+      return;
+    }
+    const Uint64 now = SDL_GetTicks();
+    if (liveTextFirstFrameMs_ == 0) {
+      liveTextFirstFrameMs_ = now;
+    }
+    const Uint64 dueAfter = liveTextProbesDone_ == 0 ? 3000 : 60000;
+    if (now - liveTextFirstFrameMs_ < dueAfter) {
+      return;
+    }
+    liveTextCollecting_ = true;
+    liveTextLabels_ = 0;
+    liveTextSamples_.clear();
+  }
+
+  // Just before SDL_RenderPresent on the control window.
+  void finishLiveTextFrame() {
+    if (!liveTextCollecting_) {
+      return;
+    }
+    liveTextCollecting_ = false;
+    ++liveTextProbesDone_;
+    int ww = 0, wh = 0, pw = 0, ph = 0;
+    SDL_GetWindowSize(controlWindow_, &ww, &wh);
+    SDL_GetWindowSizeInPixels(controlWindow_, &pw, &ph);
+    int displays = 0;
+    if (SDL_DisplayID* ids = SDL_GetDisplays(&displays)) SDL_free(ids);
+    std::ostringstream line;
+    line << "live text probe " << liveTextProbesDone_ << " at "
+         << (SDL_GetTicks() - liveTextFirstFrameMs_) / 1000 << "s: labels=" << liveTextLabels_
+         << " window=" << ww << "x" << wh << " pixels=" << pw << "x" << ph
+         << " density=" << SDL_GetWindowPixelDensity(controlWindow_)
+         << " display-scale=" << SDL_GetWindowDisplayScale(controlWindow_)
+         << " displays=" << displays << " backend=" << deckboyLastRendererDriver();
+    // First, middle, last: a frame cut off part way shows ink early and none late.
+    std::vector<std::size_t> pick;
+    if (!liveTextSamples_.empty()) {
+      pick = {0, liveTextSamples_.size() / 2, liveTextSamples_.size() - 1};
+    }
+    int inkless = 0;
+    for (std::size_t i = 0; i < pick.size(); ++i) {
+      if (i > 0 && pick[i] == pick[i - 1]) continue;
+      const LiveTextSample& s = liveTextSamples_[pick[i]];
+      long ink = -1;
+      if (SDL_Surface* back = SDL_RenderReadPixels(controlRenderer_, &s.rect)) {
+        if (SDL_Surface* rgba = SDL_ConvertSurface(back, SDL_PIXELFORMAT_RGBA32)) {
+          ink = 0;
+          for (int y = 0; y < rgba->h; ++y) {
+            const auto* row = static_cast<const std::uint8_t*>(rgba->pixels) + y * rgba->pitch;
+            for (int x = 0; x < rgba->w; ++x) {
+              const std::uint8_t* p = row + x * 4;
+              // Closer to the label's ink than to what is behind it.
+              const SDL_Color bg = s.haveUnder ? s.under : SDL_Color {0, 0, 0, 255};
+              const int toInk = std::abs(p[0] - s.ink.r) + std::abs(p[1] - s.ink.g) + std::abs(p[2] - s.ink.b);
+              const int toBg = std::abs(p[0] - bg.r) + std::abs(p[1] - bg.g) + std::abs(p[2] - bg.b);
+              ink += toInk < toBg ? 1 : 0;
+            }
+          }
+          SDL_DestroySurface(rgba);
+        }
+        SDL_DestroySurface(back);
+      }
+      inkless += ink == 0 ? 1 : 0;
+      line << " | #" << pick[i] + 1 << " \"" << s.text << "\" at " << s.rect.x << "," << s.rect.y
+           << " " << s.rect.w << "x" << s.rect.h << " ink=" << ink;
+    }
+    if (inkless > 0) {
+      line << "  <- LABELS WITH NO INK IN THE FRAME";
+    }
+    // The whole frame as Deckboy drew it, for comparing with what the screen shows.
+    if (liveTextProbesDone_ == 1) {
+      if (SDL_Surface* frame = SDL_RenderReadPixels(controlRenderer_, nullptr)) {
+        const fs::path file = Paths::stateDir() / "deckboy-live-frame.bmp";
+        line << (SDL_SaveBMP(frame, file.string().c_str()) ? " frame=saved" : " frame=save-failed");
+        SDL_DestroySurface(frame);
+      }
+    }
+    renderDiagnosticLog(line.str());
+    liveTextSamples_.clear();
   }
 
   void tickSoak() {
@@ -8830,6 +9034,8 @@ class App {
   // AOI as a raster, not four edges: pick a standard size, then place it.
   static constexpr int kSettingsActionOutputAoiSizeDropdown = 656;
   static constexpr int kSettingsActionOutputAoiCentre = 657;
+  // Scaled to fill, or pixel for pixel at the top-left (an LED tile's feed).
+  static constexpr int kSettingsActionOutputAoiPixelMode = 758;
   // Opens the warp editor on the programme monitor for the focused output.
   static constexpr int kSettingsActionOutputWarpEdit = 699;
   // The web monitor card (Network tab).
@@ -9098,6 +9304,20 @@ class App {
   bool cueSectionSequenceOpen_ = true;
   bool cueSectionMasterOpen_ = true;
   bool cueSectionTargetOpen_ = true;
+  bool cueSectionTriggersOpen_ = true;
+  bool cueSectionCaptionsOpen_ = true;
+  // One captioning job at a time, off the main thread: listening to a film
+  // takes minutes. Keyed by cue id, so a reorder or a deck change while it
+  // runs still lands the captions on the right cue.
+  std::future<deckboy::captioning::Result> captionJob_;
+  std::string captionJobCueId_;
+  bool captionJobDownloading_ = false;
+  Uint64 captionDownloadArmedAtMs_ = 0;
+  int captioningInstalled_ = -1;       // -1 not asked yet; see captioningInstalled()
+  // Learn mode: the cue (by id) whose hotkey / MIDI note the next key or
+  // note becomes. Cleared by Escape, by learning, or by selecting elsewhere.
+  std::string triggerLearnKeyCueId_;
+  std::string triggerLearnMidiCueId_;
   bool cueSectionFadeOpen_ = true;
   bool cueSectionMidiOpen_ = true;
   bool cueSectionNetworkOpen_ = true;
@@ -9118,6 +9338,8 @@ class App {
   // anywhere, held by id; trackerNextDueSeconds_ is when PLAY fires the next
   // step (nowSeconds() clock), -1 while nothing is counting down.
   int trackerPlayheadDeck_ = -1;
+  // The step MASTER DECK / BYPASS / CLEAR act on: last made or fired, by id.
+  std::string trackerCurrentStepId_;
   std::string trackerPlayheadCueId_;
   bool trackerPlaying_ = false;
   double trackerNextDueSeconds_ = -1.0;
@@ -9186,7 +9408,6 @@ class App {
   std::vector<std::string> networkResults_;
   SDL_Rect fileCheckBtnRect_ {};
   int showProblemCount_ = 0;        // rescanned on a cadence, not per frame
-  int showProblemCursor_ = 0;       // which one the next click walks to
   Uint64 lastShowCheckMs_ = 0;
   std::vector<NormalizeResult> normalizeResults_;
 
@@ -9288,6 +9509,7 @@ class App {
     std::string title;
     std::string prompt;
     std::string value;
+    std::string initialValue;   // what it opened with: a click away keeps an edit
     SDL_Rect anchorRect {};
     SDL_Rect panelRect {};
     SDL_Rect inputRect {};
@@ -9641,6 +9863,11 @@ class App {
   DecodedFrame controlPreviewLookFrame_;
   std::uint64_t controlPreviewTapSerial_ = 0;
   std::vector<QuickButton> quickButtons_;
+  // OUTSNAP: the next presented frame of one output, saved as it leaves --
+  // after AOI, warp, blend and orientation, which a recording (taken from the
+  // composite) and the monitor tap (taken before warp) both miss.
+  std::string outputSnapPath_;
+  int outputSnapIndex_ = 0;
   // Value scrubbing: click-hold-drag horizontally on an inspector value cell
   // steps the row's dec/inc actions (like number scrubbing in AE/Resolve);
   // a plain click (released before the drag threshold) opens the exact-entry
@@ -9677,6 +9904,7 @@ class App {
   int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
   std::string uiDumpPath_;            // --ui-dump <file>, written once then quit
   int uiDumpFramesLeft_ = 0;
+  bool uiDumpThenQuit_ = true;        // false for UISNAP: one picture, keep running
   // --contrast-check state (see enableContrastCheck).
   std::vector<std::string> contrastCheckThemes_;
   std::string contrastCheckDir_;
@@ -10329,6 +10557,19 @@ class App {
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
+  // The point the typed X / Y and the arrow keys act on: 0-3 a corner, 100+i
+  // grid point i, -1 none. Set by pressing a handle and kept after release --
+  // "warp points need to be assignable per pixel, not just dragged around".
+  // The routing key armed by its first press while live (see confirmLiveKey).
+  int deckOpacityGrabX_ = 0;           // where a layer fader was taken hold of
+  double deckOpacityGrabValue_ = 1.0;
+  int masterFaderGrabX_ = 0;           // where the master fader was taken hold of
+  double masterFaderGrabValue_ = 1.0;  // and its level then
+  SDL_Keycode liveKeyArmed_ = 0;
+  Uint64 liveKeyArmedAtMs_ = 0;
+  int warpSelPoint_ = -1;
+  SDL_Rect warpSelXRect_ {};
+  SDL_Rect warpSelYRect_ {};
   int warpDragGridPoint_ = -1;   // grid point being dragged (row * cols + col), -1 = none
   // -- Web monitor (app_network.ipp) -------------------------------------------
   static constexpr int kWebMonitorMaxOutputs = 16;
@@ -10432,6 +10673,7 @@ class App {
   Uint64 lastControlDrawMs_ = 0;
   Uint64 selectionChangedAt_ = 0;
   bool uiProfileEnabled_ = false;
+  double uiProfileSlowFrameMs_ = 50.0;   // DECKBOY_UI_PROFILE=<ms> lowers it
   double lastUiLayoutMs_ = 0.0;
   double lastUiRenderMs_ = 0.0;
   Uint64 lastUpdateTickMs_ = 0;

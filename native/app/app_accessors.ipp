@@ -360,6 +360,19 @@
       runtime->fpsMeasured = 0.0;
     }
     runtime->fpsFrameCount += 1;
+    // Hitches against the measured rate, so it means the same thing on a 50,
+    // 60 or 144Hz screen. Nothing is judged until there is a rate to judge by.
+    const Uint64 nowNs = SDL_GetTicksNS();
+    if (runtime->lastPresentNs != 0 && runtime->fpsMeasured > 1.0) {
+      const double gapMs = static_cast<double>(nowNs - runtime->lastPresentNs) / 1.0e6;
+      const double frameMs = 1000.0 / runtime->fpsMeasured;
+      runtime->presentsCounted += 1;
+      if (gapMs > frameMs * 1.5) {
+        runtime->presentHitches += 1;
+      }
+      runtime->worstPresentGapMs = std::max(runtime->worstPresentGapMs, gapMs);
+    }
+    runtime->lastPresentNs = nowNs;
     Uint64 elapsedMs = now - runtime->fpsSampleStartedAtMs;
     if (elapsedMs >= 750) {
       runtime->fpsMeasured = elapsedMs > 0
@@ -646,9 +659,11 @@
 
   // -- THE MASTER TRACKER ------------------------------------------------
   //
-  // Every master cue in the show, in deck then cue order: the rows. A master
-  // already holds one assignment per destination deck, so a row already has
-  // its cells -- this only finds them.
+  // The rows: master cues still sitting in playlists (shows built before the
+  // tracker kept its own steps), in deck then cue order, and then the
+  // tracker's own steps. Playlist masters first so "+ step" -- which always
+  // appends to the tracker -- lands at the end of an older sequence too.
+  // A tracker step's row names kTrackerStepsDeck.
   std::vector<std::pair<int, int>> masterTrackerRows() const {
     std::vector<std::pair<int, int>> rows;
     for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
@@ -659,10 +674,19 @@
         }
       }
     }
+    for (int s = 0; s < static_cast<int>(project_.trackerSteps.size()); ++s) {
+      rows.emplace_back(kTrackerStepsDeck, s);
+    }
     return rows;
   }
 
   const Cue* masterTrackerCue(int masterDeck, int masterCue) const {
+    if (masterDeck == kTrackerStepsDeck) {
+      if (masterCue < 0 || masterCue >= static_cast<int>(project_.trackerSteps.size())) {
+        return nullptr;
+      }
+      return &project_.trackerSteps[masterCue];
+    }
     if (masterDeck < 0 || masterDeck >= static_cast<int>(project_.decks.size())) {
       return nullptr;
     }
@@ -671,6 +695,42 @@
       return nullptr;
     }
     return &deck.cues[masterCue];
+  }
+
+  Cue* masterTrackerCueMutable(int masterDeck, int masterCue) {
+    return const_cast<Cue*>(std::as_const(*this).masterTrackerCue(masterDeck, masterCue));
+  }
+
+  // A step by id, wherever it lives. Menus outlive the frame that opened
+  // them, so they hold the id and resolve it again when the choice lands.
+  Cue* masterStepById(const std::string& id) {
+    for (Cue& step : project_.trackerSteps) {
+      if (step.id == id) {
+        return &step;
+      }
+    }
+    for (Deck& deck : project_.decks) {
+      for (Cue& cue : deck.cues) {
+        if (cue.kind == CueKind::Master && cue.id == id) {
+          return &cue;
+        }
+      }
+    }
+    return nullptr;
+  }
+
+  // A new step, in the tracker. Never in a playlist.
+  void addTrackerStep() {
+    Cue step;
+    step.kind = CueKind::Master;
+    step.name = "Step " + std::to_string(masterTrackerRows().size() + 1);
+    step.color = {120, 80, 30, 255};
+    step.formatName = "control";
+    project_.trackerSteps.push_back(step);
+    normalizeProject(project_);   // gives it an id
+    trackerCurrentStepId_ = project_.trackerSteps.back().id;
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Import);
   }
 
   // What one cell says. Empty means this step does nothing on this playlist,
@@ -709,15 +769,14 @@
   // a grid where every row is visible at once cannot use.
   bool setMasterTrackerCell(int masterDeck, int masterCue, int targetDeck,
                             int targetCueIndex) {
-    if (masterDeck < 0 || masterDeck >= static_cast<int>(project_.decks.size()) ||
-        targetDeck < 0 || targetDeck >= static_cast<int>(project_.decks.size())) {
+    if (targetDeck < 0 || targetDeck >= static_cast<int>(project_.decks.size())) {
       return false;
     }
-    Deck& deck = project_.decks[masterDeck];
-    if (masterCue < 0 || masterCue >= static_cast<int>(deck.cues.size())) {
+    Cue* masterPtr = masterTrackerCueMutable(masterDeck, masterCue);
+    if (!masterPtr) {
       return false;
     }
-    Cue& master = deck.cues[masterCue];
+    Cue& master = *masterPtr;
     if (master.kind != CueKind::Master) {
       return false;
     }

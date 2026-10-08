@@ -472,6 +472,24 @@ jobs:
       # The shippable Linux artefacts. Both packagers default to build/, which
       # is where this job already built, so they need nothing but ffmpeg —
       # which they BUNDLE, so the tarball runs on a machine that has none.
+      # CAPTIONS MADE ON THIS COMPUTER need whisper-cli in the package. A
+      # STATIC build (one executable, no libraries of its own) of a pinned
+      # whisper.cpp, GGML_NATIVE=OFF so it runs on any CPU of the platform and
+      # GGML_OPENMP=OFF so it needs no OpenMP runtime (vcomp140, libgomp) --
+      # ggml's own thread pool instead. DECKBOY_REQUIRE_WHISPER makes
+      # the packager FAIL without it: a captions button that cannot run must
+      # not ship looking like one that can.
+      - name: Build whisper-cli (captions)
+        if: matrix.features == 'all'
+        run: |
+          git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
+          cmake -S "$RUNNER_TEMP/whisper.cpp" -B "$RUNNER_TEMP/whisper-build" -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
+          cmake --build "$RUNNER_TEMP/whisper-build" --target whisper-cli -j"$(nproc)"
+          "$RUNNER_TEMP/whisper-build/bin/whisper-cli" --help > /dev/null
+          echo "DECKBOY_WHISPER_CLI=$RUNNER_TEMP/whisper-build/bin/whisper-cli" >> "$GITHUB_ENV"
+          echo "DECKBOY_REQUIRE_WHISPER=1" >> "$GITHUB_ENV"
+
       - name: Package portable tarball and AppImage
         if: matrix.features == 'all'
         run: |
@@ -674,6 +692,79 @@ jobs:
           path: ui-shots/
           if-no-files-found: warn
 
+  # EVERY macOS GITHUB OFFERS, not just the newest. A Mac bug can belong to
+  # one release (a deprecated API, a changed default) and nobody owns a Mac on
+  # each. This builds once per image and asks each one the questions a user's
+  # Mac would: does it start, do the smoke tests pass, does the text path draw
+  # (deckboy-render.log), and what does the window look like. Runners have no
+  # real GPU or displays, so this catches OS-version faults, not hardware
+  # ones. NOT a dependency of any release job: a new macOS going red is news,
+  # not a reason to hold a release that runs on every other one.
+  macos-versions:
+    name: macOS ${{ matrix.os }}
+    needs: version-check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15, macos-26]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg libltc
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF -DENABLE_ASIO=OFF
+
+      - name: Build
+        run: cmake --build build -j"$(sysctl -n hw.ncpu)"
+
+      - name: macOS version
+        run: sw_vers; sysctl -n machdep.cpu.brand_string
+
+      - name: Smoke tests
+        run: ./build/Deckboy --smoke
+
+      # The main window as this macOS draws it, and the render log with the
+      # startup text probes in it -- the two things a Mac text report needs.
+      - name: Window screenshot and render log
+        if: always()
+        continue-on-error: true
+        run: |
+          set +e
+          mkdir -p evidence
+          export DECKBOY_ROOT="$RUNNER_TEMP/deckboy-root"
+          mkdir -p "$DECKBOY_ROOT/data"
+          for d in themes ui sprites fonts; do
+            [ -d "data/$d" ] && cp -R "data/$d" "$DECKBOY_ROOT/data/$d"
+          done
+          cp data/*.ttf "$DECKBOY_ROOT/data/" 2>/dev/null
+          printf 'ui_scale\t1.0\n' > "$RUNNER_TEMP/show.deckboy"
+          ./build/Deckboy "$RUNNER_TEMP/show.deckboy" --ui-dump "evidence/${{ matrix.os }}_main.bmp" 300
+          echo "main window -> rc=$?"
+          find "$DECKBOY_ROOT" "$HOME/Library/Application Support/Deckboy" -name 'deckboy-render.log' \
+            -exec cp {} "evidence/${{ matrix.os }}_deckboy-render.log" \; 2>/dev/null
+          cat evidence/*_deckboy-render.log 2>/dev/null
+          ls -la evidence
+
+      # Text in REAL frames, not only the startup probes, which passed on the
+      # Mac that showed no labels (issue #6/#7). Evidence, not a gate: a runner
+      # has no real display.
+      - name: Live text probe
+        if: always()
+        continue-on-error: true
+        run: python3 tools/check_live_text_probe.py --exe ./build/Deckboy
+
+      - name: Upload evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: deckboy-${{ matrix.os }}-evidence
+          path: evidence/
+          if-no-files-found: warn
+
   macos-package:
     name: macOS Portable Bundle
     needs: macos-build
@@ -717,6 +808,24 @@ jobs:
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_MIDI=ON
           cmake --build build -j"$(sysctl -n hw.ncpu)"
+
+      # CAPTIONS MADE ON THIS COMPUTER need whisper-cli in the package. A
+      # STATIC build (one executable, no libraries of its own) of a pinned
+      # whisper.cpp, GGML_NATIVE=OFF so it runs on any CPU of the platform and
+      # GGML_OPENMP=OFF so it needs no OpenMP runtime (vcomp140, libgomp) --
+      # ggml's own thread pool instead. DECKBOY_REQUIRE_WHISPER makes
+      # the packager FAIL without it: a captions button that cannot run must
+      # not ship looking like one that can.
+      - name: Build whisper-cli (captions)
+        run: |
+          git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
+          cmake -S "$RUNNER_TEMP/whisper.cpp" -B "$RUNNER_TEMP/whisper-build" -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
+          cmake --build "$RUNNER_TEMP/whisper-build" --target whisper-cli -j"$(sysctl -n hw.ncpu)"
+          "$RUNNER_TEMP/whisper-build/bin/whisper-cli" --help > /dev/null
+          otool -L "$RUNNER_TEMP/whisper-build/bin/whisper-cli"
+          echo "DECKBOY_WHISPER_CLI=$RUNNER_TEMP/whisper-build/bin/whisper-cli" >> "$GITHUB_ENV"
+          echo "DECKBOY_REQUIRE_WHISPER=1" >> "$GITHUB_ENV"
 
       - name: Package
         # The signing/notarisation env is passed through from repo secrets. When
@@ -1139,6 +1248,25 @@ jobs:
             if ($LASTEXITCODE -ne 0) { $failed += $t }
           }
           if ($failed) { throw "failed: $($failed -join ', ')" }
+
+      # CAPTIONS MADE ON THIS COMPUTER need whisper-cli in the package: a
+      # STATIC build of a pinned whisper.cpp, GGML_NATIVE=OFF so it runs on any
+      # x64 CPU, GGML_OPENMP=OFF so it needs no vcomp140.dll (which the package
+      # does not carry), and DECKBOY_REQUIRE_WHISPER so the packager fails
+      # without it.
+      - name: Build whisper-cli (captions)
+        if: matrix.features == 'all'
+        shell: pwsh
+        run: |
+          git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$env:RUNNER_TEMP\whisper.cpp"
+          cmake -S "$env:RUNNER_TEMP\whisper.cpp" -B "$env:RUNNER_TEMP\whisper-build" -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
+          if ($LASTEXITCODE -ne 0) { throw "whisper.cpp configure failed" }
+          cmake --build "$env:RUNNER_TEMP\whisper-build" --config Release --target whisper-cli -j 4
+          if ($LASTEXITCODE -ne 0) { throw "whisper-cli build failed" }
+          $cli = "$env:RUNNER_TEMP\whisper-build\bin\Release\whisper-cli.exe"
+          if (-not (Test-Path $cli)) { throw "whisper-cli.exe was not built" }
+          "DECKBOY_WHISPER_CLI=$cli" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "DECKBOY_REQUIRE_WHISPER=1" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Package portable zip and installer
         if: matrix.features == 'all'

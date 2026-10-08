@@ -31,4 +31,9 @@ std::optional<double> parseFps(const std::string& rate);
 // when the file cannot be read or has no picture size.
 std::optional<Cue> probeCue(const std::filesystem::path& mediaPath);
 
+// One subtitle stream of a media file, as SRT text (empty when there is none or
+// ffmpeg cannot convert it -- image subtitles such as PGS cannot be). streamId
+// is ffmpeg's map form, "0:s:0" for the first. Shared by the desk and Mini.
+std::string extractEmbeddedSubtitleSrt(const std::string& mediaPath, const std::string& streamId);
+
 }  // namespace deckboy::core::media

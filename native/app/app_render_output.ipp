@@ -45,10 +45,10 @@
 
     // Area of Interest: if any AOI crop is set, use that region of the compositor
     // (scaled to fill the full output window). Otherwise use canvas/span offset.
-    float aoiL = std::clamp(output.aoiLeft,   0.0f, 0.95f);
-    float aoiR = std::clamp(output.aoiRight,  0.0f, 0.95f);
-    float aoiT = std::clamp(output.aoiTop,    0.0f, 0.95f);
-    float aoiB = std::clamp(output.aoiBottom, 0.0f, 0.95f);
+    float aoiL = std::clamp(output.aoiLeft,   0.0f, kAoiMaxEdge);
+    float aoiR = std::clamp(output.aoiRight,  0.0f, kAoiMaxEdge);
+    float aoiT = std::clamp(output.aoiTop,    0.0f, kAoiMaxEdge);
+    float aoiB = std::clamp(output.aoiBottom, 0.0f, kAoiMaxEdge);
     bool hasAoi = aoiL > 0.001f || aoiR > 0.001f || aoiT > 0.001f || aoiB > 0.001f;
 
     SDL_Rect src;
@@ -67,6 +67,14 @@
       }
     }
 
+    // PIXEL FOR PIXEL: the region goes out at its own size at the window's
+    // top-left, one raster pixel to one output pixel, instead of being scaled
+    // to fill. Warp and orientation still apply, to that smaller quad.
+    const bool pixelForPixel = hasAoi && output.aoiPixelForPixel;
+    const float destW = pixelForPixel ? static_cast<float>(std::min(src.w, windowW))
+                                      : static_cast<float>(windowW);
+    const float destH = pixelForPixel ? static_cast<float>(std::min(src.h, windowH))
+                                      : static_cast<float>(windowH);
     // FROM THE OUTPUT, not from its host deck. Warp and edge blend correct
     // for the screen this destination lands on, so one deck feeding a warped
     // projector and a clean stream no longer warps both.
@@ -107,9 +115,9 @@
       }
 
       SDL_FPoint p0 {0.0f, 0.0f};
-      SDL_FPoint p1 {static_cast<float>(windowW), 0.0f};
-      SDL_FPoint p2 {static_cast<float>(windowW), static_cast<float>(windowH)};
-      SDL_FPoint p3 {0.0f, static_cast<float>(windowH)};
+      SDL_FPoint p1 {destW, 0.0f};
+      SDL_FPoint p2 {destW, destH};
+      SDL_FPoint p3 {0.0f, destH};
       if (hasWarp) {
         p0.x += output.warpTopLeftX;      p0.y += output.warpTopLeftY;
         p1.x += output.warpTopRightX;     p1.y += output.warpTopRightY;
@@ -118,12 +126,12 @@
       }
 
       if (hasWarp && warpGridActive(output) &&
-          renderGridWarp(runtime->outputRenderer, runtime->compositorTexture, deck, output,
+          renderGridWarp(runtime->outputRenderer, runtime->compositorTexture, output, output,
                          usePerspectiveWarp, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {
         return;
       }
       if (usePerspectiveWarp) {
-        if (renderPerspectiveWarp(runtime->outputRenderer, runtime->compositorTexture, deck,
+        if (renderPerspectiveWarp(runtime->outputRenderer, runtime->compositorTexture, output,
                                   uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {
           return;
         }
@@ -132,7 +140,7 @@
       // Feathering must be evaluated ACROSS the quad, not at its corners: four
       // vertices let SDL stretch a narrow edge ramp into a full-image fade.
       if (hasBlend && renderFeatheredQuad(runtime->outputRenderer, runtime->compositorTexture,
-                                          deck, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3)) {
+                                          output, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3)) {
         return;
       }
       // No feather (warp and/or orientation only): a plain opaque quad is exact.
@@ -152,11 +160,15 @@
     }
 #endif
 
+    const SDL_FRect destRect {0.0f, 0.0f, destW, destH};
+    const SDL_FRect* dest = pixelForPixel ? &destRect : nullptr;
+    const SDL_FRect srcF {static_cast<float>(src.x), static_cast<float>(src.y),
+                          static_cast<float>(src.w), static_cast<float>(src.h)};
     if (hasOrientation) {
-      SDL_RenderTextureRotated(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr,
+      SDL_RenderTextureRotated(runtime->outputRenderer, runtime->compositorTexture, &srcF, dest,
                        static_cast<double>(orientationDegrees), nullptr, SDL_FLIP_NONE);
     } else {
-      SDL_RenderTexture(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
+      SDL_RenderTexture(runtime->outputRenderer, runtime->compositorTexture, &srcF, dest);
     }
   }
 
@@ -1908,15 +1920,37 @@
       const int lum = (fill.r * 299 + fill.g * 587 + fill.b * 114) / 1000;
       return lum > 150 ? SDL_Color {18, 22, 30, 255} : SDL_Color {250, 250, 250, 255};
     };
-    const bool boxless = d.look == LowerThirdLook::Line;
+    const bool boxless = d.look == LowerThirdLook::Line || d.look == LowerThirdLook::Hairline;
     const bool arcade = d.look == LowerThirdLook::Arcade;
+    // The materials some looks bring with them rather than take from the
+    // palette: a scroll is parchment whatever colour the bar is set to, and a
+    // neon sign is dark so the tube can glow.
+    const SDL_Color parchment {238, 224, 184, 255};
+    const SDL_Color parchmentDark {196, 170, 112, 255};
+    const SDL_Color sepia {74, 46, 20, 255};
+    const SDL_Color neonBody {static_cast<Uint8>(barColour.r * 0.22 + 8),
+                              static_cast<Uint8>(barColour.g * 0.22 + 8),
+                              static_cast<Uint8>(barColour.b * 0.22 + 12), 255};
+    const SDL_Color neonInk {static_cast<Uint8>(accent.r + (255 - accent.r) * 0.55),
+                             static_cast<Uint8>(accent.g + (255 - accent.g) * 0.55),
+                             static_cast<Uint8>(accent.b + (255 - accent.b) * 0.55), 255};
     // ARCADE writes the title in the accent -- the border's colour -- the way a
     // game writes its headings, and the subtitle in whichever ink reads on the box.
-    const SDL_Color titleInk = boxless ? SDL_Color {250, 250, 250, 255}
-                             : arcade ? accent
-                             : inkOn(d.look == LowerThirdLook::Tag ? accent : barColour);
-    const SDL_Color subInk = boxless ? SDL_Color {225, 228, 235, 255}
-                           : inkOn(d.look == LowerThirdLook::Boxes ? accent : barColour);
+    SDL_Color titleInk = boxless ? SDL_Color {250, 250, 250, 255}
+                       : arcade ? accent
+                       : inkOn(d.look == LowerThirdLook::Tag ? accent : barColour);
+    SDL_Color subInk = boxless ? SDL_Color {225, 228, 235, 255}
+                     : inkOn(d.look == LowerThirdLook::Boxes ? accent : barColour);
+    switch (d.look) {
+      case LowerThirdLook::Split:  titleInk = inkOn(accent); break;
+      case LowerThirdLook::Scroll: titleInk = sepia;
+                                   subInk = SDL_Color {112, 78, 40, 255}; break;
+      case LowerThirdLook::Neon:   titleInk = neonInk;
+                                   subInk = SDL_Color {220, 224, 232, 255}; break;
+      case LowerThirdLook::Comic:  titleInk = inkOn(barColour);
+                                   subInk = inkOn(barColour); break;
+      default: break;
+    }
     // And its faces are the desk's own: the pixel face for the title, mono under it.
     TTF_Font* titleFont = arcade && fontPixelTitle_ ? fontPixelTitle_ : fontLarge_;
     TTF_Font* subFont = arcade && fontMono_ ? fontMono_ : fontLarge_;
@@ -2030,6 +2064,182 @@
         subY = titleY + titleH + gap;
         break;
       }
+      // ── CLEAN ─────────────────────────────────────────────────────────
+      case LowerThirdLook::Split: {
+        // A news strap: the name on a solid accent block, the role on a
+        // strip of the bar colour under it, square and flush.
+        const double tw = titleW + pad * 2.0;
+        const double th = titleH + pad;
+        const double sw = subTex ? std::max(tw, subW + pad * 2.0) : 0.0;
+        const double sh = subTex ? subH + pad * 0.8 : 0.0;
+        blockW = std::max(tw, sw);
+        blockH = th + sh;
+        const double tx = rightSide ? blockW - tw : 0.0;
+        boxes.push_back({tx, 0.0, tw, th, accent, 255});
+        if (subTex) boxes.push_back({rightSide ? blockW - sw : 0.0, th, sw, sh, barColour, 245});
+        titleX = tx + pad; titleY = pad * 0.5;
+        subX = rightSide ? blockW - pad - subW : pad;
+        subY = th + pad * 0.4;
+        break;
+      }
+      case LowerThirdLook::Card: {
+        // A card with its corners taken off, a soft shadow under it, and a
+        // small accent dot at the name. Picked from the desk it arrives on
+        // paper, which is the look; the bar colour still decides it.
+        const double dot = titleH * 0.34;
+        const double textW = std::max(titleW, subW);
+        blockW = pad * 2.6 + dot + textW;
+        blockH = pad * 1.6 + titleH + (subTex ? subH + pad * 0.2 : 0.0);
+        const double cut = std::min(pad * 0.5, blockH * 0.2);
+        const double off = titleH * 0.10;
+        const SDL_Color shadow {0, 0, 0, 255};
+        boxes.push_back({off + cut, off, blockW - cut * 2.0, blockH, shadow, 60});
+        boxes.push_back({off, off + cut, blockW, blockH - cut * 2.0, shadow, 60});
+        boxes.push_back({cut, 0.0, blockW - cut * 2.0, blockH, barColour, 250});
+        boxes.push_back({0.0, cut, cut, blockH - cut * 2.0, barColour, 250});
+        boxes.push_back({blockW - cut, cut, cut, blockH - cut * 2.0, barColour, 250});
+        const double dotX = rightSide ? blockW - pad - dot : pad;
+        titleY = pad * 0.8;
+        boxes.push_back({dotX, titleY + (titleH - dot) / 2.0, dot, dot, accent, 255});
+        const double tx = rightSide ? pad : pad * 1.6 + dot;
+        titleX = rightSide ? blockW - pad * 1.6 - dot - titleW : tx;
+        subX = rightSide ? blockW - pad * 1.6 - dot - subW : tx;
+        subY = titleY + titleH + pad * 0.2;
+        break;
+      }
+      case LowerThirdLook::Hairline: {
+        // No box: a fine rule above the words in the accent, a square at its
+        // start, and room to breathe.
+        const double rule = std::max(1.0, titleH * 0.035);
+        const double sq = titleH * 0.22;
+        blockW = std::max(titleW, subW) + sq * 1.6;
+        blockH = sq + pad * 0.5 + titleH + (subTex ? pad * 0.2 + subH : 0.0);
+        boxes.push_back({rightSide ? blockW - sq : 0.0, 0.0, sq, sq, accent, 255});
+        boxes.push_back({0.0, (sq - rule) / 2.0, blockW, rule, accent, 230});
+        titleY = sq + pad * 0.5;
+        titleX = rightSide ? blockW - titleW : 0.0;
+        subX = rightSide ? blockW - subW : 0.0;
+        subY = titleY + titleH + pad * 0.2;
+        break;
+      }
+      // ── MAGICAL ───────────────────────────────────────────────────────
+      case LowerThirdLook::Sparkle: {
+        // The bar, and stars round it that twinkle on the cue's clock -- so
+        // they scrub, and two outputs twinkle together.
+        const double textW = std::max(titleW, subW);
+        blockW = textW + pad * 2.0 + accentW;
+        blockH = pad * 1.4 + titleH + (subTex ? subH + pad * 0.25 : 0.0);
+        boxes.push_back({0.0, 0.0, blockW, blockH, barColour, 240});
+        boxes.push_back({rightSide ? blockW - accentW : 0.0, 0.0, accentW, blockH, accent, 255});
+        const double tx = rightSide ? pad : accentW + pad;
+        titleX = rightSide ? blockW - accentW - pad - titleW : tx;
+        subX = rightSide ? blockW - accentW - pad - subW : tx;
+        titleY = pad * 0.7;
+        subY = titleY + titleH + pad * 0.25;
+        // Places round the edge, fixed so a star does not wander; only its
+        // size and brightness move.
+        static const double kSpots[][2] = {
+          {0.06, -0.30}, {0.30, -0.18}, {0.55, -0.34}, {0.82, -0.22}, {1.04, 0.10},
+          {0.96, 1.16}, {0.70, 1.28}, {0.42, 1.14}, {0.16, 1.24}, {-0.05, 0.62},
+        };
+        int k = 0;
+        for (const auto& spot : kSpots) {
+          const double phase = seconds * 1.4 + k * 0.37;
+          const double tw = 0.5 + 0.5 * std::sin(phase * 2.0 * 3.14159265358979);
+          const double r = titleH * (0.14 + 0.24 * tw);
+          const double sx = spot[0] * blockW;
+          const double sy = spot[1] * blockH;
+          const SDL_Color star = (k % 3 == 0) ? accent : SDL_Color {255, 250, 225, 255};
+          const int a = static_cast<int>(110 + 145 * tw);
+          const double thin = std::max(1.5, r * 0.26);
+          boxes.push_back({sx - r, sy - thin / 2.0, r * 2.0, thin, star, a});
+          boxes.push_back({sx - thin / 2.0, sy - r, thin, r * 2.0, star, a});
+          const double d2 = r * 0.45;
+          boxes.push_back({sx - d2 / 2.0, sy - d2 / 2.0, d2, d2, star, a});
+          ++k;
+        }
+        break;
+      }
+      case LowerThirdLook::Neon: {
+        // A dark sign, an accent tube round it drawn as layers of glow.
+        const double tube = std::max(2.0, titleH * 0.07);
+        const double textW = std::max(titleW, subW);
+        blockW = textW + pad * 2.4;
+        blockH = pad * 1.6 + titleH + (subTex ? subH + pad * 0.3 : 0.0);
+        boxes.push_back({0.0, 0.0, blockW, blockH, neonBody, 225});
+        for (int layer = 4; layer >= 0; --layer) {
+          const double o = tube * (layer * 1.1);
+          const int a = layer == 0 ? 255 : static_cast<int>(150 / layer);
+          const SDL_Color c = layer == 0 ? neonInk : accent;
+          const double t = tube + o * 0.5;
+          boxes.push_back({-o, -o, blockW + o * 2.0, t, c, a});
+          boxes.push_back({-o, blockH + o - t, blockW + o * 2.0, t, c, a});
+          boxes.push_back({-o, -o, t, blockH + o * 2.0, c, a});
+          boxes.push_back({blockW + o - t, -o, t, blockH + o * 2.0, c, a});
+        }
+        titleX = rightSide ? blockW - pad * 1.2 - titleW : pad * 1.2;
+        subX = rightSide ? blockW - pad * 1.2 - subW : pad * 1.2;
+        titleY = pad * 0.8;
+        subY = titleY + titleH + pad * 0.3;
+        break;
+      }
+      case LowerThirdLook::Comic: {
+        // A heavy black outline, a halftone shadow down and right, and the
+        // whole panel tilted (below, with the move).
+        const double line = std::max(3.0, titleH * 0.12);
+        const double textW = std::max(titleW, subW);
+        const double innerW = textW + pad * 2.2;
+        const double innerH = pad * 1.4 + titleH + (subTex ? subH + pad * 0.2 : 0.0);
+        blockW = innerW + line * 2.0;
+        blockH = innerH + line * 2.0;
+        const double drop = titleH * 0.30;
+        const double step = std::max(4.0, titleH * 0.17);
+        int row = 0;
+        for (double y = drop; y < blockH + drop; y += step, ++row) {
+          for (double x = drop + ((row & 1) ? step / 2.0 : 0.0); x < blockW + drop; x += step) {
+            if (x < blockW - line && y < blockH - line) continue;   // hidden behind the panel
+            const double dotR = step * 0.32;
+            boxes.push_back({x - dotR, y - dotR, dotR * 2.0, dotR * 2.0,
+                             SDL_Color {12, 12, 12, 255}, 200});
+          }
+        }
+        boxes.push_back({0.0, 0.0, blockW, blockH, SDL_Color {12, 12, 12, 255}, 255});
+        boxes.push_back({line, line, innerW, innerH, barColour, 255});
+        boxes.push_back({line, line + innerH - line * 0.8, innerW, line * 0.8, accent, 255});
+        titleX = rightSide ? blockW - line - pad * 1.1 - titleW : line + pad * 1.1;
+        subX = rightSide ? blockW - line - pad * 1.1 - subW : line + pad * 1.1;
+        titleY = line + pad * 0.6;
+        subY = titleY + titleH + pad * 0.2;
+        break;
+      }
+      case LowerThirdLook::Scroll: {
+        // Parchment, with a rolled end each side standing proud of it and a
+        // ribbon of the accent under the name.
+        const double roll = titleH * 0.42;
+        const double textW = std::max(titleW, subW);
+        const double bodyW = textW + pad * 3.0;
+        const double bodyH = pad * 1.6 + titleH + (subTex ? subH + pad * 0.3 : 0.0);
+        const double over = titleH * 0.22;
+        blockW = bodyW + roll * 2.0;
+        blockH = bodyH + over * 2.0;
+        boxes.push_back({roll, over, bodyW, bodyH, parchment, 250});
+        boxes.push_back({roll, over, bodyW, std::max(1.0, titleH * 0.04), parchmentDark, 255});
+        boxes.push_back({roll, over + bodyH - std::max(1.0, titleH * 0.04), bodyW,
+                         std::max(1.0, titleH * 0.04), parchmentDark, 255});
+        for (int side = 0; side < 2; ++side) {
+          const double rx = side == 0 ? 0.0 : blockW - roll;
+          boxes.push_back({rx, 0.0, roll, blockH, parchmentDark, 255});
+          boxes.push_back({rx + roll * 0.18, 0.0, roll * 0.28, blockH, parchment, 200});
+          boxes.push_back({rx + roll * 0.70, 0.0, roll * 0.12, blockH, sepia, 90});
+        }
+        titleX = roll + (bodyW - titleW) / 2.0;
+        titleY = over + pad * 0.7;
+        boxes.push_back({roll + (bodyW - titleW) / 2.0, titleY + titleH + pad * 0.05,
+                         titleW, std::max(1.5, titleH * 0.06), accent, 220});
+        subX = roll + (bodyW - subW) / 2.0;
+        subY = titleY + titleH + pad * 0.3;
+        break;
+      }
       case LowerThirdLook::Bar:
       default: {
         const double textW = std::max(titleW, subW);
@@ -2113,6 +2323,23 @@
       const double ramp = std::clamp(idle / 0.3, 0.0, 1.0);   // eases into the wobble
       angle = ramp * (-1.5 + 1.0 * std::sin(w));
       dy += ramp * -titleH * 0.08 * (0.5 - 0.5 * std::cos(w));
+    }
+    // COMIC sits at a jaunty angle from the start, through every move.
+    if (d.look == LowerThirdLook::Comic) {
+      angle = -3.0;
+    }
+    // NEON STRIKES. For half a second after it arrives the sign stutters on
+    // and off the way a tube does catching, then holds -- on the cue clock,
+    // so it scrubs.
+    if (d.look == LowerThirdLook::Neon && !leaving) {
+      const double since = seconds - std::max(0.0, d.inSeconds) * 0.6;
+      if (since > 0.0 && since < 0.55) {
+        static const bool kPattern[] = {true, false, true, true, false, true, false, true, true, true, false};
+        const int slot = static_cast<int>(since / 0.05);
+        if (!kPattern[std::min(slot, 10)]) {
+          alpha *= 0.25;
+        }
+      }
     }
     const double cx = blockX + blockW / 2.0;
     const double cy = blockY + blockH / 2.0;
@@ -3660,6 +3887,7 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
     }
+    const Uint64 outputPassStartNs = SDL_GetTicksNS();
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer) {
       return;
@@ -3923,28 +4151,48 @@
           if (entry) {
             std::string cleanText = deckboy::core::stripSubtitleTags(entry->text);
             auto lines = splitLines(cleanText);
-            int lineH = 28;
-                    int padY = 8;
-            int totalTextH = static_cast<int>(lines.size()) * lineH;
-            int bgH = totalTextH + padY * 2;
-            int bgY = renderH - bgH - 40;
-            SDL_Rect bgRect {0, bgY, renderW, bgH};
-            SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 160);
-            SDL_RenderFillRect(runtime->outputRenderer, &bgRect);
-            SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
-            for (int li = 0; li < static_cast<int>(lines.size()); ++li) {
-              if (lines[li].empty()) continue;
-              int tw = 0, th = 0;
-              TTF_GetStringSize(fontBase_, lines[li].c_str(), 0, &tw, &th);
-              int tx = (renderW - tw) / 2;
-              int ty = bgY + padY + li * lineH;
-              // Shadow
-              drawText(runtime->outputRenderer, fontBase_, lines[li],
-                       {0, 0, 0, 255}, tx + 2, ty + 2);
-              // Text
-              drawText(runtime->outputRenderer, fontBase_, lines[li],
-                       {255, 255, 255, 255}, tx, ty);
+            // SIZED TO THE PICTURE, not to the desk. This drew with the UI
+            // font at its UI size and a fixed 28px line -- on a 2160-line
+            // output, captions one percent of the frame high that nobody in
+            // the room could read. Now a line is 4.5% of the frame, drawn
+            // from the cached text texture scaled up, on a box that fits the
+            // words rather than a band across the whole picture.
+            const float lineH = std::max(18.0f, static_cast<float>(renderH) * 0.045f);
+            const float padX = lineH * 0.45f;
+            const float padY = lineH * 0.2f;
+            std::vector<std::pair<const TextTextureEntry*, const TextTextureEntry*>> rows;
+            float widest = 0.0f;
+            for (const std::string& line : lines) {
+              if (line.empty()) continue;
+              const TextTextureEntry* ink = cachedTextTexture(runtime->outputRenderer, fontBase_, line,
+                                                              SDL_Color {255, 255, 255, 255});
+              const TextTextureEntry* shade = cachedTextTexture(runtime->outputRenderer, fontBase_, line,
+                                                                SDL_Color {0, 0, 0, 255});
+              if (!ink || !ink->texture || ink->h <= 0) continue;
+              rows.emplace_back(ink, shade);
+              widest = std::max(widest, ink->w * lineH / static_cast<float>(ink->h));
+            }
+            if (!rows.empty()) {
+              const float boxW = std::min(static_cast<float>(renderW), widest + padX * 2.0f);
+              const float boxH = rows.size() * lineH + padY * 2.0f;
+              const float boxY = static_cast<float>(renderH) - boxH - static_cast<float>(renderH) * 0.06f;
+              SDL_FRect box {(renderW - boxW) / 2.0f, boxY, boxW, boxH};
+              SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+              SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 160);
+              SDL_RenderFillRect(runtime->outputRenderer, &box);
+              const float shadowOff = std::max(1.0f, lineH * 0.05f);
+              for (std::size_t li = 0; li < rows.size(); ++li) {
+                const auto* ink = rows[li].first;
+                const auto* shade = rows[li].second;
+                const float w = ink->w * lineH / static_cast<float>(ink->h);
+                SDL_FRect dst {(renderW - w) / 2.0f, boxY + padY + li * lineH, w, lineH};
+                if (shade && shade->texture) {
+                  SDL_FRect drop {dst.x + shadowOff, dst.y + shadowOff, dst.w, dst.h};
+                  SDL_RenderTexture(runtime->outputRenderer, shade->texture, nullptr, &drop);
+                }
+                SDL_RenderTexture(runtime->outputRenderer, ink->texture, nullptr, &dst);
+              }
+              SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
             }
           }
         }
@@ -4059,6 +4307,7 @@
     // composite this pass is about to present so the preview stays locked to
     // the output (see captureOutputPreviewTap).
     std::optional<int> tapOutput = previewTapOutputIndex();
+    const Uint64 beforeTapNs = SDL_GetTicksNS();
     if (usingCompositor && tapOutput && *tapOutput == outputIndex) {
       captureOutputPreviewTap(*runtime, egressRect);
     } else if (runtime->previewTapSerial != 0) {
@@ -4095,8 +4344,31 @@
     } else {
       shutdownOutputSt2110(*runtime);
     }
+    const Uint64 afterTapNs = SDL_GetTicksNS();
+    if (!outputSnapPath_.empty() && outputIndex == outputSnapIndex_ && !streamType) {
+      if (SDL_Surface* shot = SDL_RenderReadPixels(runtime->outputRenderer, nullptr)) {
+        SDL_SaveBMP(shot, outputSnapPath_.c_str());
+        SDL_DestroySurface(shot);
+      }
+      outputSnapPath_.clear();
+    }
     if (!streamType) {
       SDL_RenderPresent(runtime->outputRenderer);
     }
     recordOutputFramePresented(outputIndex);
+    // WHERE AN OUTPUT FRAME'S TIME GOES, under DECKBOY_UI_PROFILE: composite,
+    // the control monitor's tap, the sends, the present.
+    if (uiProfileEnabled_) {
+      const Uint64 endNs = SDL_GetTicksNS();
+      const double totalMs = static_cast<double>(endNs - outputPassStartNs) / 1.0e6;
+      if (totalMs > uiProfileSlowFrameMs_ * 0.6) {
+        std::ostringstream line;
+        line << std::fixed << std::setprecision(2) << "output " << (outputIndex + 1)
+             << " pass=" << totalMs << "ms composite+egress="
+             << static_cast<double>(beforeTapNs - outputPassStartNs) / 1.0e6
+             << "ms tap+sends=" << static_cast<double>(afterTapNs - beforeTapNs) / 1.0e6
+             << "ms present=" << static_cast<double>(endNs - afterTapNs) / 1.0e6 << "ms";
+        uiProfileLog(line.str());
+      }
+    }
   }

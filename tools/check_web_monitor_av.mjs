@@ -305,7 +305,13 @@ try {
     offset+=n;
   }
   if (!end) throw new Error('No complete fragments');
-  const recording=path.join(root,'web.mp4'); fs.writeFileSync(recording,bytes.subarray(0,end));
+  // IN PIECES. One write is capped at 2 GB, and an hour of 1080p stream is
+  // ~3.6 GB: the first 60-minute run captured the whole hour and then lost it
+  // here, at the last step.
+  const recording=path.join(root,'web.mp4');
+  { const fd=fs.openSync(recording,'w');
+    for (let at=0; at<end; at+=1<<30) fs.writeSync(fd,bytes,at,Math.min(1<<30,end-at));
+    fs.closeSync(fd); }
   const status=await command('STATUS');
   console.log(status.split('\n').filter(x=>x.startsWith('OUTPUT ')).map(x=>x.replace(/(?:url|key|path)="[^"]*"/g,'')).join('\n'));
   const flashes=[...run(['-v','info','-i',recording,'-vf','negate,blackdetect=d=0.02:pic_th=0.85','-an','-f','null','-']).stderr.matchAll(/black_start:(\d+\.?\d*)/g)].map(x=>Number(x[1]));
@@ -343,6 +349,35 @@ try {
     driftMs:(late-early)*1000,driftMsPerHour:slope*3600*1000,perMinuteMedianMs:perMinute,
     minMs:Math.min(...offsets)*1000,maxMs:Math.max(...offsets)*1000,audioDriver:realAudio?'device':'dummy',
     streams:streams.map(s=>({type:s.codec_type,width:s.width,height:s.height,rate:s.r_frame_rate,sampleRate:s.sample_rate,channels:s.channels,start:s.start_time,duration:s.duration}))};
+  // WHICH SIDE MOVES. The offset slope says the two drift apart; it cannot
+  // say whether the pictures or the sounds are the ones off pace. Fitting each
+  // marker train's own period does: the fixture puts both exactly 1 s apart,
+  // so a period of 1.0000186 s is that side running 18.6 ppm slow.
+  // Each marker is numbered by rounding its time, not by its place in the
+  // list, so one missed detection does not shift every marker after it.
+  const period=list=>{
+    if (list.length<3) return null;
+    const idx=list.map(t=>Math.round(t-list[0]));
+    const n=list.length, mi=idx.reduce((a,b)=>a+b,0)/n, mt=list.reduce((a,b)=>a+b,0)/n;
+    return list.reduce((s,t,i)=>s+(idx[i]-mi)*(t-mt),0)/Math.max(1e-9,idx.reduce((s,i)=>s+(i-mi)**2,0));
+  };
+  const flashPeriod=period(flashes), beepPeriod=period(beeps);
+  metrics.flashPeriodPpm=flashPeriod==null?null:Math.round((flashPeriod-1)*1e7)/10;
+  metrics.beepPeriodPpm=beepPeriod==null?null:Math.round((beepPeriod-1)*1e7)/10;
+  // THE ENGINE'S OWN VIEW, from STATUS during the run: its smoothed
+  // picture-minus-sound error and the trim correcting it. If the engine holds
+  // its error flat while the stream above drifts, the drift is in the path
+  // between the engine and this measurement, not in the engine's clock.
+  const engine=telemetry.flatMap(t=>(t.outputs||[]).filter(x=>x.startsWith('DECK 1 ')).map(x=>({at:t.at,
+    err:Number(x.match(/ av_err_ms=(-?[\d.]+)/)?.[1]), trim:Number(x.match(/ clock_trim_ppm=(-?[\d.]+)/)?.[1])})))
+    .filter(e=>Number.isFinite(e.err));
+  if (engine.length>=3) {
+    const t0=engine[0].at, xs=engine.map(e=>(e.at-t0)/1000), ys=engine.map(e=>e.err);
+    const mx=xs.reduce((a,b)=>a+b,0)/xs.length, my=ys.reduce((a,b)=>a+b,0)/ys.length;
+    const k=xs.reduce((s,x,i)=>s+(x-mx)*(ys[i]-my),0)/Math.max(1e-9,xs.reduce((s,x)=>s+(x-mx)**2,0));
+    metrics.engine={samples:engine.length, meanErrMs:Math.round(my*100)/100, errSlopeMsPerHour:Math.round(k*3600*100)/100,
+      meanTrimPpm:Math.round(engine.reduce((s,e)=>s+(e.trim||0),0)/engine.length*10)/10};
+  }
   fs.writeFileSync(path.join(root,'metrics.json'),JSON.stringify({metrics,flashes,beeps},null,2));
   console.log(JSON.stringify(metrics,null,2));
   // ABSOLUTE LIP SYNC NEEDS A REAL SOUND CARD. SDL's dummy driver has its

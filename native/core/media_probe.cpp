@@ -176,6 +176,11 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
         pendingApplied = false;
       }
       lastCodecType = value;
+      if (value == "audio") {
+        ++cue.audioTrackCount;   // every sound track, so a player can offer the others
+      } else if (value == "subtitle") {
+        ++cue.subtitleTrackCount;
+      }
       tryApplyCodec();
     } else if (key == "codec_name") {
       // Symmetric: if the previous stream was paired, this codec_name is a
@@ -270,6 +275,12 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     cue.duration = 0.0;
   }
   return cue;
+}
+
+std::string extractEmbeddedSubtitleSrt(const std::string& mediaPath, const std::string& streamId) {
+  const std::string mapArg = streamId.empty() ? "0:s:0" : streamId;
+  auto result = readAllText({"ffmpeg", "-v", "error", "-i", mediaPath, "-map", mapArg, "-f", "srt", "pipe:1"});
+  return result.value_or("");
 }
 
 }  // namespace deckboy::core::media

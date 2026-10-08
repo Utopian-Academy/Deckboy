@@ -227,8 +227,8 @@
     AoiRectPx rect;
     rect.rasterW = std::max(16, rasterW);
     rect.rasterH = std::max(16, rasterH);
-    rect.x = static_cast<int>(std::lround(std::clamp(ot.aoiLeft, 0.0f, 0.95f) * rect.rasterW));
-    rect.y = static_cast<int>(std::lround(std::clamp(ot.aoiTop, 0.0f, 0.95f) * rect.rasterH));
+    rect.x = static_cast<int>(std::lround(std::clamp(ot.aoiLeft, 0.0f, kAoiMaxEdge) * rect.rasterW));
+    rect.y = static_cast<int>(std::lround(std::clamp(ot.aoiTop, 0.0f, kAoiMaxEdge) * rect.rasterH));
     rect.w = std::max(1, static_cast<int>(std::lround(
       std::clamp(1.0f - ot.aoiLeft - ot.aoiRight, 0.0f, 1.0f) * rect.rasterW)));
     rect.h = std::max(1, static_cast<int>(std::lround(
@@ -256,7 +256,37 @@
       std::string token = std::to_string(w) + "x" + std::to_string(h);
       choices.push_back({token, token});
     }
+    // LED TILES AND CABINETS. Square and small, which none of the video
+    // rasters above are -- and feeding one tile is exactly what an area of
+    // interest is for.
+    static const std::array<int, 6> kTiles {{128, 160, 192, 256, 384, 512}};
+    for (int side : kTiles) {
+      if (side > cur.rasterW || side > cur.rasterH) {
+        continue;
+      }
+      const std::string token = std::to_string(side) + "x" + std::to_string(side);
+      choices.push_back({token, token + "  LED tile"});
+    }
+    // And any size at all. The list cannot hold every panel ever made, and
+    // the comment above this control promised a typed size that never existed.
+    choices.push_back({"custom", "custom size..."});
     return choices;
+  }
+
+  // "256x256", "256*256", "256 256" -- however it is typed. False when it is
+  // not two positive numbers.
+  static bool parseAoiSizeText(const std::string& text, int& w, int& h) {
+    std::string t = text;
+    for (char& c : t) {
+      if (c == 'x' || c == 'X' || c == '*' || c == ',' || c == '/') {
+        c = ' ';
+      }
+    }
+    std::istringstream in(t);
+    if (!(in >> w >> h)) {
+      return false;
+    }
+    return w > 0 && h > 0;
   }
 
   // Resize the AOI about its own centre so picking a smaller raster keeps the
@@ -266,6 +296,23 @@
     if (token == "full") {
       applyFocusedOutputAoiRectPx(0, 0, cur.rasterW, cur.rasterH);
       triggerToast("area of interest: full raster");
+      return;
+    }
+    if (token == "custom") {
+      openInlineTextEditor(
+        "settings.aoi_custom", "Region size",
+        "width x height in pixels, e.g. 256x256 (of " + std::to_string(cur.rasterW) +
+          "x" + std::to_string(cur.rasterH) + ")",
+        std::to_string(cur.w) + "x" + std::to_string(cur.h),
+        [this](const std::string& value) {
+          int w = 0;
+          int h = 0;
+          if (!parseAoiSizeText(value, w, h)) {
+            triggerToast("area of interest: type a size like 256x256");
+            return;
+          }
+          applyFocusedOutputAoiSizeToken(std::to_string(w) + "x" + std::to_string(h));
+        });
       return;
     }
     size_t xPos = token.find('x');
@@ -278,7 +325,15 @@
       int cxCentre = cur.x + cur.w / 2;
       int cyCentre = cur.y + cur.h / 2;
       applyFocusedOutputAoiRectPx(cxCentre - w / 2, cyCentre - h / 2, w, h);
-      triggerToast("area of interest: " + token);
+      // What it BECAME: a size larger than the raster is clamped, and saying
+      // the asked-for number would be a toast that lies.
+      const AoiRectPx now = focusedOutputAoiRectPx();
+      const std::string got = std::to_string(now.w) + "x" + std::to_string(now.h);
+      triggerToast("area of interest: " + got +
+                   (got == token ? std::string()
+                                 : " (asked " + token + ", the raster is " +
+                                     std::to_string(now.rasterW) + "x" +
+                                     std::to_string(now.rasterH) + ")"));
     } catch (...) {
     }
   }
@@ -293,14 +348,18 @@
   void applyFocusedOutputAoiRectPx(int x, int y, int w, int h) {
     OutputTarget& ot = focusedOutputMutable();
     AoiRectPx cur = focusedOutputAoiRectPx();
-    // Keep the region at least 5% of the raster in both dimensions so each
-    // stored edge fraction stays within the serializer's 0–0.95 clamp.
-    int minW = std::max(1, (cur.rasterW + 19) / 20);
-    int minH = std::max(1, (cur.rasterH + 19) / 20);
-    w = std::clamp(w, minW, cur.rasterW);
-    h = std::clamp(h, minH, cur.rasterH);
-    x = std::clamp(x, 0, cur.rasterW - w);
-    y = std::clamp(y, 0, cur.rasterH - h);
+    // SIXTEEN PIXELS, not 5% of the raster. The 5% floor existed to keep each
+    // stored edge inside the edge clamp, and on a 4K output it refused a
+    // 128x128 LED tile outright. The edge limit is kept by clamping the
+    // POSITION instead, which only bites at the far corners of a huge raster.
+    w = std::clamp(w, std::min(16, cur.rasterW), cur.rasterW);
+    h = std::clamp(h, std::min(16, cur.rasterH), cur.rasterH);
+    const int maxEdgeX = static_cast<int>(kAoiMaxEdge * static_cast<float>(cur.rasterW));
+    const int maxEdgeY = static_cast<int>(kAoiMaxEdge * static_cast<float>(cur.rasterH));
+    x = std::clamp(x, std::max(0, cur.rasterW - w - maxEdgeX),
+                   std::max(0, std::min(cur.rasterW - w, maxEdgeX)));
+    y = std::clamp(y, std::max(0, cur.rasterH - h - maxEdgeY),
+                   std::max(0, std::min(cur.rasterH - h, maxEdgeY)));
     ot.aoiLeft   = static_cast<float>(x) / static_cast<float>(cur.rasterW);
     ot.aoiRight  = static_cast<float>(cur.rasterW - x - w) / static_cast<float>(cur.rasterW);
     ot.aoiTop    = static_cast<float>(y) / static_cast<float>(cur.rasterH);
@@ -2236,6 +2295,7 @@
       SDL_Rect videoViewport {content.x, subContentTop, content.w,
                               std::max(0, content.y + content.h - subContentTop)};
       SDL_SetRenderClipRect(controlRenderer_, &videoViewport);
+      const std::size_t videoButtonStart = settingsBtns_.size();
 
       // ═══════════════════════════════════════════════════════════════
       if (settingsVideoSubTab_ == 0) {
@@ -2804,7 +2864,7 @@
           // sits in every other section on this tab.
           const int aoiHdrH = settingsHeaderHeight(fontSmall_);
           const int aoiCtrlH = sRowH;
-          int aoiH = sectionH({aoiCtrlH, aoiCtrlH, aoiCtrlH, aoiCtrlH});
+          int aoiH = sectionH({aoiCtrlH, aoiCtrlH, aoiCtrlH, aoiCtrlH, aoiCtrlH});
           SDL_Rect aoiSection {cx, sy, subContentW, aoiH};
           SDL_Color aoiFill = aoiActive ? pal.light : pal.shellInner;
           SDL_Color aoiInk2 = aoiActive ? pal.deep : ink;
@@ -2852,6 +2912,17 @@
           drawCenteredTextSafe(controlRenderer_, fontSmall_, aoiCentreBtn, "CENTRE",
                                settingsStateInk(false));
           settingsBtns_.push_back({aoiCentreBtn, kSettingsActionOutputAoiCentre, "aoi_centre"});
+
+          // HOW IT GOES OUT. Scaled to fill the output, or one raster pixel to
+          // one output pixel at the top-left -- the second is what an LED
+          // processor mapping a single tile from its input corner needs.
+          SDL_Rect aoiModeBtn = settingsRowIn(aoiLayout.takeFixed(aoiCtrlH), "Placement");
+          drawSettingsStateFill(aoiModeBtn, ot.aoiPixelForPixel);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, aoiModeBtn,
+                               ot.aoiPixelForPixel ? "PIXEL FOR PIXEL, TOP-LEFT"
+                                                   : "SCALED TO FILL",
+                               settingsStateInk(ot.aoiPixelForPixel));
+          settingsBtns_.push_back({aoiModeBtn, kSettingsActionOutputAoiPixelMode, "aoi_mode"});
 
           auto drawAoiPosCtrl = [&](const char* label, int px,
                                     int decAct, int incAct, int editAct) {
@@ -3545,6 +3616,17 @@
       } else {
         SDL_SetRenderClipRect(controlRenderer_, nullptr);
       }
+      // SCROLLED-AWAY CONTROLS STOP TAKING CLICKS, as on the System and Network
+      // tabs. This tab kept every rect, so a press on the backdrop to close
+      // settings fired whichever hidden button lay under it.
+      settingsBtns_.erase(
+        std::remove_if(settingsBtns_.begin() + static_cast<std::ptrdiff_t>(videoButtonStart),
+                       settingsBtns_.end(),
+                       [&](const SettingsButton& b) {
+                         SDL_Rect clipped {};
+                         return !SDL_GetRectIntersection(&b.rect, &videoViewport, &clipped);
+                       }),
+        settingsBtns_.end());
       const int videoDrawnH = (sy + settingsVideoScroll_) - subContentTop;
       settingsVideoViewport_ = videoViewport;
       settingsVideoScrollMax_ = std::max(0, videoDrawnH - videoViewport.h);
@@ -4880,6 +4962,12 @@
           });
       } else if (sb.action == kSettingsActionOutputAoiCentre) {
         centreFocusedOutputAoi();
+      } else if (sb.action == kSettingsActionOutputAoiPixelMode) {
+        OutputTarget& ot = focusedOutputMutable();
+        ot.aoiPixelForPixel = !ot.aoiPixelForPixel;
+        markProjectDirty();
+        triggerToast(ot.aoiPixelForPixel ? "area of interest: pixel for pixel, top-left"
+                                         : "area of interest: scaled to fill");
       } else if (sb.action >= kSettingsActionOutputAoiXInc && sb.action <= kSettingsActionOutputAoiReset) {
         AoiRectPx aoi = focusedOutputAoiRectPx();
         // Nudge step: 16px snaps to common raster grids; Shift is not

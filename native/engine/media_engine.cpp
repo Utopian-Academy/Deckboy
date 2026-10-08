@@ -34,6 +34,12 @@
 // ============================================================================
 
 #include "engine/media_engine.hpp"
+#if defined(__linux__) && DECKBOY_INPROC_DECODE
+#include "engine/drm_prime_import.hpp"
+void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* importer) const {
+  delete importer;
+}
+#endif
 
 #include "core/sdl_compat.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
@@ -195,6 +201,13 @@ bool MediaEngine::sdlTornDown() {
 // Destructor ensures all decode threads are joined and subprocesses killed.
 MediaEngine::~MediaEngine() {
   stopAll();
+#if defined(__linux__) && DECKBOY_INPROC_DECODE
+  // The importer frees SDL and GL objects; after SDL_Quit there is nothing
+  // left to free them into, so they are let go with the process.
+  if (drmImporter_ && sdlTornDown()) {
+    (void)drmImporter_.release();
+  }
+#endif
 }
 
 // Full reset: kill all subprocesses, join all threads, release all textures,
@@ -251,6 +264,7 @@ void MediaEngine::stopAll() {
 // ---------------------------------------------------------------------------
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
+  devampRequested_ = false;   // a devamp belonged to the cue it was aimed at
   float outgoingGain = transitionSourceGainForLoadCue(activeCue_, state_, visualFadeGainAt(position()));
   outgoingCueSnapshot_ = activeCueSnapshot_;
   stopDecoderThreads();
@@ -5969,6 +5983,13 @@ void MediaEngine::handlePlaybackEnd() {
     return;
   }
   CueEndAction act = resolvedCueEndAction(*activeCue_);
+  // DEVAMPED: this loop point is the end. What the cue does next is what it
+  // would have done with no loop -- hold its last frame, or end and let the
+  // transport's continue/advance logic take over.
+  if (act == CueEndAction::Loop && devampRequested_) {
+    devampRequested_ = false;
+    act = activeCue_->pauseOnLastFrame ? CueEndAction::PauseOnLast : CueEndAction::AutoNext;
+  }
 
   if (act == CueEndAction::Loop) {
     // Seamless loop: suppress fades to avoid a flash at the loop point
@@ -6018,14 +6039,52 @@ void MediaEngine::handlePlaybackEnd() {
 // Release the main frame GPU texture. Called when clearing the deck,
 // loading a new cue, or during stopAll cleanup.
 void MediaEngine::clearTexture() {
-  if (texture_ && !sdlTornDown()) {
+  // An imported texture is the importer's, not ours: drop the pointer and let
+  // the importer free what it made, since the decoder's buffers are changing.
+  if (texture_ && !sdlTornDown() && !textureImported_) {
     SDL_DestroyTexture(texture_);
   }
+  textureImported_ = false;
+#if defined(__linux__) && DECKBOY_INPROC_DECODE
+  if (drmImporter_ && !sdlTornDown()) {
+    drmImporter_->clear();
+  }
+#endif
   texture_ = nullptr;
   textureWidth_ = 0;
   textureHeight_ = 0;
   textureFormat_ = 0;
   lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1);
+}
+
+// A decoder's DRM-PRIME frame, shown from its own buffer (see
+// engine/drm_prime_import.hpp). texture_ then points into the importer's cache
+// rather than at a texture this engine owns, which textureImported_ records.
+void MediaEngine::showImportedFrame(const DecodedFrame& frame) {
+#if defined(__linux__) && DECKBOY_INPROC_DECODE
+  if (!outputRenderer_ || !frame.gpuTexture) {
+    return;
+  }
+  if (!drmImporter_) {
+    drmImporter_.reset(new deckboy::engine::DrmPrimeImporter());
+  }
+  SDL_Texture* imported = drmImporter_->textureFor(
+    outputRenderer_, static_cast<const AVDRMFrameDescriptor*>(frame.gpuTexture),
+    frame.width, frame.height, frameColorspace(frame));
+  if (!imported) {
+    return;   // the last picture stays up rather than a wrong one
+  }
+  if (texture_ && !textureImported_) {
+    SDL_DestroyTexture(texture_);
+  }
+  texture_ = imported;
+  textureImported_ = true;
+  textureWidth_ = frame.width;
+  textureHeight_ = frame.height;
+  textureFormat_ = SDL_PIXELFORMAT_NV12;
+#else
+  (void)frame;
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -6047,6 +6106,12 @@ void MediaEngine::clearTexture() {
 // the source frame stays intact for re-processing on parameter changes.
 // ---------------------------------------------------------------------------
 void MediaEngine::uploadFrame(const DecodedFrame& frame) {
+#if defined(__linux__) && DECKBOY_INPROC_DECODE
+  if (frame.gpuKind == DecodedFrame::GpuKind::DrmPrime) {
+    showImportedFrame(frame);
+    return;
+  }
+#endif
   if (frame.isGpu()) {
     // Zero-copy frame: composited from its wrapped D3D11 texture at the
     // output bridge — nothing to upload on the deck's hidden renderer.
@@ -6975,6 +7040,9 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
       audioArgs.insert(audioArgs.end(), {"-f", "libndi_newtek", "-i", ndiName, "-vn"});
     } else {
       audioArgs.insert(audioArgs.end(), {"-i", mediaPath, "-vn"});
+      if (activeCue_ && activeCue_->audioTrack > 0) {
+        audioArgs.insert(audioArgs.end(), {"-map", "0:a:" + std::to_string(activeCue_->audioTrack) + "?"});
+      }
     }
     if (std::abs(speed - 1.0) > 0.01) {
       std::string atempoChain;
@@ -7713,7 +7781,8 @@ bool MediaEngine::startSrtDecoder(const Cue& cue, const std::string& mediaPath, 
     "ffmpeg", "-hide_banner", "-loglevel", "error", "-threads", std::to_string(threads),
     "-i", mediaPath, "-map", "0:v:0"};
   if (wantAudio) {
-    args.insert(args.end(), {"-map", "0:a:0?"});
+    // The cue's sound track; optional (?) so a file without it still plays.
+    args.insert(args.end(), {"-map", "0:a:" + std::to_string(std::max(0, cue.audioTrack)) + "?"});
   }
   args.insert(args.end(), {"-vf", scaleFilter, "-c:v", "rawvideo", "-pix_fmt", pixFmt});
   if (wantAudio) {
@@ -7805,6 +7874,19 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
     if (decodeFormat == FramePixelFormat::NV12 && decodeDeviceProvider_ && !videoParams.datamosh) {
       videoParams.d3dDevice = decodeDeviceProvider_();
     }
+#if defined(__linux__)
+    // Zero-copy display, when the owner asked for it and this renderer can
+    // import a decoder's buffers. Asked once: it queries the GL context.
+    if (zeroCopyImport_ && decodeFormat == FramePixelFormat::NV12 && !videoParams.datamosh) {
+      if (zeroCopyImportCapable_ < 0) {
+        const char* why = "";
+        zeroCopyImportCapable_ =
+          deckboy::engine::DrmPrimeImporter::rendererCanImport(outputRenderer_, &why) ? 1 : 0;
+        SDL_Log("zero-copy display: %s (%s)", zeroCopyImportCapable_ == 1 ? "on" : "off", why);
+      }
+      videoParams.drmPrime = zeroCopyImportCapable_ == 1;
+    }
+#endif
     videoPipeline_ = std::make_unique<deckboy::libav::VideoPipeline>();
     if (!videoPipeline_->open(videoParams)) {
       videoPipeline_.reset();
@@ -7932,6 +8014,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
     audioParams.path = mediaPath;
     audioParams.startSeconds = mediaStartSeconds;
     audioParams.speed = speed;
+    audioParams.audioTrack = std::max(0, cue.audioTrack);
     audioPipeline_ = std::make_unique<deckboy::libav::AudioPipeline>();
     if (!audioPipeline_->open(audioParams)) {
       audioPipeline_.reset();

@@ -453,6 +453,14 @@ struct OutputRuntime {
   int previewTapW = 0;
   int previewTapH = 0;
   std::uint64_t previewTapSerial = 0;  // bumped per successful tap; 0 = nothing captured
+  // The tap through the asynchronous staging ring where the renderer has one,
+  // so the output pass never waits on the GPU for the control window's
+  // monitor. Unavailable is latched, as for egress, so a renderer with no
+  // async path is asked once rather than every frame.
+  void* previewTapReadback = nullptr;
+  bool previewTapReadbackUnavailable = false;
+  int previewTapReadbackMisses = 0;
+  std::vector<std::uint8_t> previewTapScratch;  // BGRA32 as the ring hands it over
   bool recoveryPausedByEscape = false;
   bool fullscreenIntended = false;  // user explicitly wants fullscreen — re-assert if dropped
   // The display this output is pinned to (by name) is not currently attached.
@@ -479,6 +487,14 @@ struct OutputRuntime {
   Uint64 fpsSampleStartedAtMs = 0;
   Uint32 fpsFrameCount = 0;
   double fpsMeasured = 0.0;
+  // STUTTER, which an average hides: a 60fps output that drops one frame in
+  // twenty still averages 57. A hitch is a present more than 1.5 frames after
+  // the one before. Counted from the output's start; a measurement diffs two
+  // readings. The worst gap is reset only with the output.
+  Uint64 lastPresentNs = 0;
+  std::uint64_t presentsCounted = 0;
+  std::uint64_t presentHitches = 0;
+  double worstPresentGapMs = 0.0;
   Uint64 streamFpsSampleStartedAtMs = 0;
   std::uint64_t streamFpsPacketsAtSampleStart = 0;
   double streamFpsMeasured = 0.0;

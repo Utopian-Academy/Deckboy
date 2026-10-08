@@ -101,6 +101,22 @@ for tool in ffmpeg ffprobe; do
   fi
 done
 
+# whisper-cli: captions made on this computer. A static whisper.cpp build; the
+# library walk below still sees it, for the OpenMP runtime it may link. The
+# speech model is fetched on first use, never bundled. CI sets
+# DECKBOY_REQUIRE_WHISPER=1 so a package without it fails.
+WHISPER_SRC="${DECKBOY_WHISPER_CLI:-$BUILD_DIR/whisper-cli}"
+if [ -f "$WHISPER_SRC" ]; then
+  cp "$WHISPER_SRC" "$STAGE_DIR/bin/whisper-cli"
+  chmod +x "$STAGE_DIR/bin/whisper-cli"
+  echo "  + bin/whisper-cli"
+elif [ "${DECKBOY_REQUIRE_WHISPER:-0}" = "1" ]; then
+  echo "  ! whisper-cli not found at $WHISPER_SRC and DECKBOY_REQUIRE_WHISPER=1" >&2
+  exit 1
+else
+  echo "  ! whisper-cli not found - captions made on this computer will be unavailable" >&2
+fi
+
 # libltc (LTC timecode) is dlopen()d at runtime, never linked, so the ldd walk
 # below cannot see it. Copy it into lib/ explicitly; ltc_api.hpp looks in
 # ../lib relative to the executable. Without this the bundle claimed LTC but it
@@ -178,7 +194,7 @@ is_excluded() {
 
 echo "Bundling libraries"
 WORKLIST=()
-for f in "$STAGE_DIR/bin/Deckboy" "$STAGE_DIR/bin/deckboy-mini" "$STAGE_DIR/bin/ffmpeg" "$STAGE_DIR/bin/ffprobe"; do
+for f in "$STAGE_DIR/bin/Deckboy" "$STAGE_DIR/bin/deckboy-mini" "$STAGE_DIR/bin/ffmpeg" "$STAGE_DIR/bin/ffprobe" "$STAGE_DIR/bin/whisper-cli"; do
   [ -f "$f" ] && WORKLIST+=("$f")
 done
 

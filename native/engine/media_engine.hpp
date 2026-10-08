@@ -88,6 +88,15 @@ inline float transitionSourceGainForLoadCue(const Cue* activeCue, TransportState
 //   4. render() to blit the current frame to the output
 //   5. Destructor stops all decode threads and frees textures
 // ============================================================================
+#if defined(__linux__) && DECKBOY_INPROC_DECODE
+namespace deckboy::engine {
+class DrmPrimeImporter;
+// Defined beside the importer (media_engine.cpp), so this header -- and every
+// file that includes it -- never needs the importer's full definition.
+struct DrmPrimeImporterDeleter { void operator()(DrmPrimeImporter* importer) const; };
+}
+#endif
+
 class MediaEngine {
  public:
   void setForcePixelFrames(bool on) { forcePixelFrames_ = on; }
@@ -128,6 +137,10 @@ class MediaEngine {
       outputSizeProvider_(std::move(outputSizeProvider)) {}
 
   ~MediaEngine();  // calls stopAll() to clean up threads and processes
+  // Let decoded frames be shown straight from the decoder's buffers where the
+  // platform allows (today: Linux V4L2 decoders into an OpenGL ES renderer).
+  // Mini turns it on; the desk composites differently and does not.
+  void setZeroCopyImport(bool on) { zeroCopyImport_ = on; }
 
   MediaEngine(const MediaEngine&) = delete;
   MediaEngine& operator=(const MediaEngine&) = delete;
@@ -524,7 +537,17 @@ class MediaEngine {
     avJumpExpected_ = true;
   }                // current playback position in seconds
   double mediaFpsMeasured() const { return mediaFpsMeasured_; } // actual decode fps
+  // The audio-master steering, as the engine sees it: the smoothed error
+  // between picture and sound (seconds, + = picture ahead) and the rate trim
+  // it is applying. Read beside an external A/V measurement, they say whether
+  // a residual drift is the engine's or the measuring path's.
+  double avSyncErrorSeconds() const { return clockDriftFiltered_; }
+  double clockTrimRatio() const { return clockTrim_; }
   bool reachedEnd();                      // true once playback reached the end
+  // Let a looping cue out: it finishes the pass it is on and then ends as if
+  // it had not looped. Cleared by the next cue load.
+  void devamp() { devampRequested_ = true; }
+  bool devampPending() const { return devampRequested_; }
   bool shouldClearVisualOnReachedEnd() const { return clearVisualOnReachedEnd_; }
   bool isBrowserCapturing() const { return isBrowserCapturing_; }
   bool isSourceCapturing() const { return isSourceCapturing_; }
@@ -832,6 +855,8 @@ class MediaEngine {
   void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent); // render the transition blend
   void handlePlaybackEnd();                                // called when playback naturally reaches the end
   void clearTexture();                                     // release the main frame texture
+  // Linux: show a decoder's DRM-PRIME frame by importing its buffer.
+  void showImportedFrame(const DecodedFrame& frame);
   void uploadFrame(const DecodedFrame& frame);             // push decoded frame pixels to GPU texture
   void stopImageThread();                                  // join and clean up the still-image decode thread
   std::pair<int, int> currentOutputSizeHint() const;       // get output dimensions for ffmpeg -s flag
@@ -1267,6 +1292,16 @@ class MediaEngine {
   double lastAudioClockSeconds_ = -1.0;               // last observed audio clock (stall detection)
   // The picture clock's rate trim and the smoothed picture-minus-sound error
   // it steers by (see the audio-master correction in update()). Main thread.
+  // ZERO-COPY DISPLAY ON LINUX (Deckboy Mini on a Raspberry Pi): the decoder
+  // hands over its own buffers and the renderer imports them instead of the
+  // frame being read out. Off unless the owner turns it on AND the renderer
+  // can import (asked once, on the thread that owns the GL context).
+  bool zeroCopyImport_ = false;
+  int zeroCopyImportCapable_ = -1;     // -1 not asked yet
+  bool textureImported_ = false;       // texture_ belongs to the importer
+#if defined(__linux__) && DECKBOY_INPROC_DECODE
+  std::unique_ptr<deckboy::engine::DrmPrimeImporter, deckboy::engine::DrmPrimeImporterDeleter> drmImporter_;
+#endif
   double clockTrim_ = 1.0;
   double clockDriftFiltered_ = 0.0;
   bool clockDriftPrimed_ = false;
@@ -1484,6 +1519,7 @@ class MediaEngine {
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit
   std::atomic<bool> decoderEof_ {false};     // decode threads have reached EOF
   bool reachedEnd_ = false;                  // cue playback has finished
+  bool devampRequested_ = false;             // next loop point ends instead
   bool decodersRunning_ = false;             // decode running for the active cue (main thread)
 
   // -- State: in-process decode (libav) ----------------------------------------

@@ -106,6 +106,11 @@ struct VideoOpenParams {
   int targetHeight = 0;
   FramePixelFormat format = FramePixelFormat::NV12;
   void* d3dDevice = nullptr;           // ID3D11Device* → zero-copy; null → CPU output
+  // Linux: let a V4L2 hardware decoder (a Raspberry Pi's) hand over its frames
+  // as DRM-PRIME buffers for the renderer to import, instead of being read out
+  // -- reading them is slower than the frame lasts on a Pi 3. Set only when
+  // the renderer has said it can import them (DrmPrimeImporter).
+  bool drmPrime = false;
   // Datamosh: drop every keyframe after the first so P-frames apply their
   // motion onto a stale reference and the picture smears. Forces SOFTWARE
   // decode regardless of d3dDevice - hardware decoders fed P-frames with no
@@ -192,6 +197,7 @@ struct AudioOpenParams {
   // pipeline; a deck running at another rate got audio at the wrong speed,
   // which is the one fault in this file that would be obvious instantly.
   int sampleRate = 48000;
+  int audioTrack = 0;                  // the Nth sound track in the file (0 = first)
 };
 
 class AudioPipeline {

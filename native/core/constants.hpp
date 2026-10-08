@@ -94,6 +94,16 @@ constexpr size_t kMaxVideoFrames = 6;
 // Sixteen is far above any real show -- VJ mode wants two -- and small enough
 // that the worst case is merely slow.
 constexpr int kMaxDecks = 16;
+// The "deck" a tracker row names when the step lives in the tracker itself
+// (Project::trackerSteps) rather than in a playlist. Far outside any deck
+// index, so a path that forgets about it fails every bounds check closed
+// instead of indexing a real playlist.
+constexpr int kTrackerStepsDeck = 1 << 16;
+// How far one edge of an output's area of interest may be cropped in, as a
+// fraction of the raster. It was 0.95, which with the 5%-of-raster minimum
+// size that guarded it put a 128x128 LED tile out of reach on a 4K output.
+// One shared number so the editor, the loader and the renderer agree.
+constexpr float kAoiMaxEdge = 0.995f;
 // Windows in the multiview. More than the playlists, because a window can
 // also carry the programme and a show may want the same playlist twice --
 // once with safe areas for the screen it feeds, once clean.

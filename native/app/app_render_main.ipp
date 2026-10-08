@@ -3410,10 +3410,16 @@
             if (corner) continue;
             const SDL_FPoint p = warpGridPointOnMonitor(wt, gridOut, c, r);
             const bool dragging = warpDragGridPoint_ == r * gridOut.warpGridCols + c;
+            const bool chosen = warpSelPoint_ == 100 + r * gridOut.warpGridCols + c;
             SDL_Rect h {static_cast<int>(p.x) - gh, static_cast<int>(p.y) - gh, gh * 2, gh * 2};
             Primitives::fillRect(controlRenderer_, h,
                                  dragging ? SDL_Color{255, 255, 255, 255} : SDL_Color{255, 220, 0, 230});
-            Primitives::strokeRect(controlRenderer_, h, SDL_Color{0, 0, 0, 200});
+            Primitives::strokeRect(controlRenderer_, h,
+                                   chosen ? SDL_Color{255, 255, 255, 255} : SDL_Color{0, 0, 0, 200});
+            if (chosen) {
+              SDL_Rect ring {h.x - 2, h.y - 2, h.w + 4, h.h + 4};
+              Primitives::strokeRect(controlRenderer_, ring, SDL_Color{255, 255, 255, 255});
+            }
           }
         }
       }
@@ -3427,7 +3433,13 @@
         bool dragging = warpDragCorner_ == i;
         SDL_Color hFill = dragging ? SDL_Color{255, 220, 0, 255} : SDL_Color{255, 220, 0, 180};
         Primitives::fillRect(controlRenderer_, handle, hFill);
-        Primitives::strokeRect(controlRenderer_, handle, SDL_Color{0, 0, 0, 200});
+        Primitives::strokeRect(controlRenderer_, handle,
+                               warpSelPoint_ == i ? SDL_Color{255, 255, 255, 255}
+                                                  : SDL_Color{0, 0, 0, 200});
+        if (warpSelPoint_ == i) {
+          SDL_Rect ring {handle.x - 2, handle.y - 2, handle.w + 4, handle.h + 4};
+          Primitives::strokeRect(controlRenderer_, ring, SDL_Color{255, 255, 255, 255});
+        }
         drawCenteredText(controlRenderer_, fontSmall_, cornerLabels[i], SDL_Color{0, 0, 0, 255}, handle);
       }
       // Draw crosshair at center
@@ -3454,6 +3466,51 @@
         SDL_Color warpBtnEdge {255, 220, 0, 200};
         SDL_Color warpBtnInk {255, 220, 0, 255};
         SDL_Color warpBtnDim {160, 150, 96, 255};
+
+        // THE SELECTED POINT, AS NUMBERS: a strip above the toolbar naming
+        // the point and its X and Y, each a box that opens typed entry.
+        // Press a handle to choose it; arrows nudge it a pixel (Shift: ten).
+        warpSelXRect_ = {};
+        warpSelYRect_ = {};
+        {
+          float vx = 0.0f;
+          float vy = 0.0f;
+          std::string pointName;
+          bool percent = false;
+          if (warpSelectedPointValue(vx, vy, &pointName, &percent)) {
+            const int barY = toolY - toolH - uiScaled(6);
+            char xs[32];
+            char ys[32];
+            std::snprintf(xs, sizeof(xs), percent ? "X %+.2f %%" : "X %.0f px", vx);
+            std::snprintf(ys, sizeof(ys), percent ? "Y %+.2f %%" : "Y %.0f px", vy);
+            const int nameW = std::max(toolBtnW("point 9,9"), toolBtnW(pointName.c_str()));
+            const int valW = std::max(toolBtnW("X -99999 px"), toolBtnW("X +200.00 %"));
+            const std::string hint = "arrows nudge, shift x10";
+            const int hintW = measuredTextWidth(fontSmall_, hint) + uiScaled(12);
+            int px = mi.x + 4;
+            SDL_Rect barBg {mi.x, barY - 2, std::min(mi.w, nameW + valW * 2 + hintW + toolGap * 4 + 8),
+                            toolH + 4};
+            Primitives::fillRect(controlRenderer_, barBg, SDL_Color{15, 15, 15, 180});
+            SDL_Rect nameRect {px, barY, nameW, toolH};
+            Primitives::fillRect(controlRenderer_, nameRect, SDL_Color{255, 220, 0, 200});
+            drawCenteredText(controlRenderer_, fontSmall_, pointName, SDL_Color{15, 15, 15, 255}, nameRect);
+            px += nameW + toolGap;
+            warpSelXRect_ = {px, barY, valW, toolH};
+            px += valW + toolGap;
+            warpSelYRect_ = {px, barY, valW, toolH};
+            px += valW + toolGap;
+            for (const auto& [rect, text] : {std::pair<SDL_Rect, const char*>{warpSelXRect_, xs},
+                                             std::pair<SDL_Rect, const char*>{warpSelYRect_, ys}}) {
+              Primitives::fillRect(controlRenderer_, rect, warpBtnFill);
+              Primitives::strokeRect(controlRenderer_, rect, warpBtnEdge);
+              drawCenteredText(controlRenderer_, fontSmall_, text, warpBtnInk, rect);
+            }
+            if (px + hintW <= mi.x + mi.w) {
+              drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {px, barY, hintW, toolH},
+                           hint, warpBtnDim);
+            }
+          }
+        }
 
         int bx = mi.x + 4;
         // WHAT THE HANDLES MOVE. Only offered when there is a choice: the
@@ -4161,11 +4218,32 @@
                        QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
                        selectedCue->audioEnabled, "Toggle cue audio track for this cue");
           ay += kInspectorRowStep;
+          if (selectedCue->audioTrackCount > 1) {
+            drawChoiceRow(ay, "track",
+                          std::to_string(selectedCue->audioTrack + 1) + " of " +
+                            std::to_string(selectedCue->audioTrackCount),
+                          QuickAction::AudioTrackCycle,
+                          "Which of the file's sound tracks plays: a second language, a commentary");
+            ay += kInspectorRowStep;
+          }
+          // A SELECTION OF MANY SAYS SO. The rows draw the primary cue, and
+          // every AUDIO control reaches the whole selection -- which nothing
+          // on screen admitted, so editing forty cues at once looked like
+          // something the app could not do.
+          const int audioSelCount = selectedAudioCueCount();
+          if (audioSelCount > 1) {
+            ay = drawInspectorMessageRow(
+              ay, "editing " + std::to_string(audioSelCount) +
+                  " cues: - / + move each one's gain", pal.light, pal.deep);
+          }
           char gainBuf[24];
           std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", selectedCue->audioGainDb);
-          drawQuickRow(ay, "gain", QuickAction::AudioGainDec, gainBuf, QuickAction::AudioGainInc,
+          drawQuickRow(ay, audioSelCount > 1 ? "gain (each)" : "gain",
+                       QuickAction::AudioGainDec, gainBuf, QuickAction::AudioGainInc,
                        QuickAction::ToggleLoop, false, false,
-                       "Per-cue audio trim: -40 to +40 dB, applied live");
+                       audioSelCount > 1
+                         ? "Moves every selected cue's trim by the same dB; typing a value sets them all to it"
+                         : "Per-cue audio trim: -40 to +40 dB, applied live");
           ay += kInspectorRowStep;
           std::string panLabel = "center";
           if (selectedCue->audioPan < -0.024f) {
@@ -4225,7 +4303,10 @@
             SDL_Rect normBtn {ctrl.x + uiScaled(10), ay, kCtrlW - uiScaled(20), uiScaled(26)};
             Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
-                                 "normalize loudness (R128)", pal.light);
+                                 audioSelCount > 1
+                                   ? "normalize " + std::to_string(audioSelCount) + " cues (R128)"
+                                   : std::string("normalize loudness (R128)"),
+                                 pal.light);
             quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
                                      "Measure file loudness and set gain for the selected target"});
             ay += kInspectorRowStep;
@@ -4590,6 +4671,49 @@
                        !audioState.first && audioState.second,
                        "Toggle audio enable for selected cues");
           ry += kRowStep;
+        }
+
+        // GAIN AND NORMALIZE FOR THE WHOLE SELECTION. This branch had the
+        // audio on/off row and nothing else, so selecting thirty cues to bring
+        // them down together took the gain control off the screen -- the
+        // single-cue AUDIO section is not drawn for a selection. Shown when
+        // ANY selected cue has audio; the edits skip the ones that do not.
+        {
+          double lowDb = 0.0;
+          double highDb = 0.0;
+          int withAudio = 0;
+          bool anyFileAudio = false;
+          for (const Cue* each : panelSelectedCues) {
+            const Cue& cue = *each;
+            if (!cue.hasAudio) {
+              continue;
+            }
+            lowDb = withAudio == 0 ? cue.audioGainDb : std::min(lowDb, static_cast<double>(cue.audioGainDb));
+            highDb = withAudio == 0 ? cue.audioGainDb : std::max(highDb, static_cast<double>(cue.audioGainDb));
+            anyFileAudio = anyFileAudio || cueUsesFilesystemMedia(cue);
+            ++withAudio;
+          }
+          if (withAudio > 0) {
+            char gainBuf[48];
+            if (highDb - lowDb < 0.05) {
+              std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", lowDb);
+            } else {
+              std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f .. %+.1f dB", lowDb, highDb);
+            }
+            drawQuickRow(ry, "gain (each)", QuickAction::AudioGainDec, gainBuf,
+                         QuickAction::AudioGainInc, QuickAction::ToggleLoop, false, false,
+                         "Moves every selected cue's trim by the same dB, keeping the "
+                         "differences between them; typing a value sets them all to it");
+            ry += kRowStep;
+            if (anyFileAudio) {
+              ry = drawInspectorActionRow(
+                ry, "normalize " + std::to_string(withAudio) + " cues to " +
+                      fmtFloat(project_.normalizeTargetLufs, 0) + " LUFS",
+                QuickAction::NormalizeCueAudio,
+                "Measure each selected cue's loudness and set its gain to the target "
+                "(the target is chosen in a single cue's AUDIO section)");
+            }
+          }
         }
 
         auto nextTransState = boolMixedState([&](const Cue& cue) { return cue.transitionToNext; });
@@ -5890,7 +6014,8 @@
                selectedCue->kind != CueKind::MidiFile && selectedCue->kind != CueKind::Dmx &&
                selectedCue->kind != CueKind::Fade && selectedCue->kind != CueKind::Midi &&
                selectedCue->kind != CueKind::Network && selectedCue->kind != CueKind::Script &&
-               selectedCue->kind != CueKind::Target && selectedCue->kind != CueKind::Timecode) {
+               selectedCue->kind != CueKind::Target && selectedCue->kind != CueKind::Timecode &&
+               selectedCue->kind != CueKind::Memo) {
       // NOT FOR A KIND WITH A SECTION OF ITS OWN FURTHER DOWN. Those are drawn
       // after this chain, so saying "no per-cue settings" was false for every
       // one of them -- and it is drawn at a fixed place, not in the scrolled
@@ -6004,6 +6129,99 @@
       finishInspectorSection(mSection, mY);
     }
 
+    // MEMO: its note, and what it does (nothing) said plainly.
+    if (selectedCue && selectedCue->kind == CueKind::Memo) {
+      int meY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto meSection = beginInspectorSection(meY, "MEMO", cueSectionTargetOpen_,
+                                             QuickAction::CueSectionTargetToggle,
+                                             "A note in the running order");
+      meY = meSection.bodyStartY;
+      if (cueSectionTargetOpen_) {
+        meY = drawInspectorEditableRow(
+          meY, "says", trim(selectedCue->notes).empty() ? std::string("(nothing yet)") : selectedCue->notes,
+          QuickAction::MemoEditText, "Shown to the operator when GO reaches this cue");
+        meY = drawInspectorMessageRow(meY, "GO shows the note; picture and sound carry on");
+      }
+      finishInspectorSection(meSection, meY);
+    }
+
+    // CAPTIONS: what this cue has, on or off, and making them here.
+    if (selectedCue && selectedCue->hasAudio &&
+        (selectedCue->kind == CueKind::Video || selectedCue->kind == CueKind::Audio)) {
+      int cpY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto cpSection = beginInspectorSection(cpY, "CAPTIONS", cueSectionCaptionsOpen_,
+                                             QuickAction::CueSectionCaptionsToggle,
+                                             "Subtitles for this cue, from a file or made here");
+      cpY = cpSection.bodyStartY;
+      if (cueSectionCaptionsOpen_) {
+        const bool has = !selectedCue->subtitlePath.empty() || !selectedCue->subtitleStreamId.empty();
+        const std::string what = !selectedCue->subtitlePath.empty()
+          ? fs::path(selectedCue->subtitlePath).filename().string()
+          : (!selectedCue->subtitleStreamId.empty() ? std::string("in the file") : std::string("none"));
+        cpY = drawInspectorEditableRow(
+          cpY, "captions",
+          has ? what + (selectedCue->subtitleEnabled ? "  (on)" : "  (off)") : what,
+          QuickAction::CaptionsToggle, "Click to show or hide this cue's captions");
+        const bool mine = captionJobRunning() && captionJobCueId_ == selectedCue->id;
+        cpY = drawInspectorActionRow(
+          cpY,
+          mine ? std::string("listening...")
+               : !captioningInstalled()
+                   ? std::string("make captions here: engine not installed")
+                   : (deckboy::captioning::modelPresent(deckboy::captioning::kDefaultModel)
+                        ? std::string("make captions here")
+                        : std::string("make captions here (one-time download)")),
+          QuickAction::CaptionsGenerate,
+          "Listens to the cue on this computer and writes captions beside the file. Nothing is sent anywhere");
+      }
+      finishInspectorSection(cpSection, cpY);
+    }
+
+    // TRIGGERS: what fires this cue besides GO. Every kind, because any cue
+    // can want a hotkey. The time-of-day and timecode triggers existed with no
+    // control on the desk at all -- reachable only by the network verbs.
+    if (selectedCue) {
+      int trY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto trSection = beginInspectorSection(trY, "TRIGGERS", cueSectionTriggersOpen_,
+                                             QuickAction::CueSectionTriggersToggle,
+                                             "What fires this cue besides GO");
+      trY = trSection.bodyStartY;
+      if (cueSectionTriggersOpen_) {
+        const bool learningKey = triggerLearnKeyCueId_ == selectedCue->id;
+        const bool learningMidi = triggerLearnMidiCueId_ == selectedCue->id;
+        trY = drawInspectorEditableRow(
+          trY, "key",
+          learningKey ? std::string("press a key...")
+                      : (selectedCue->triggerHotkey.empty() ? std::string("none - click to learn")
+                                                             : selectedCue->triggerHotkey + "  (click to clear)"),
+          QuickAction::TriggerLearnKey,
+          "F1-F10, F12 or the number pad fires this cue from anywhere");
+        trY = drawInspectorEditableRow(
+          trY, "MIDI note",
+          learningMidi ? std::string("play a note...")
+                       : (selectedCue->triggerMidiNote < 0 ? std::string("none")
+                                                           : std::to_string(selectedCue->triggerMidiNote)),
+          QuickAction::TriggerEditMidi,
+          "A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1");
+        trY = drawInspectorEditableRow(
+          trY, "OSC", selectedCue->triggerOscAddress.empty() ? std::string("none")
+                                                             : selectedCue->triggerOscAddress,
+          QuickAction::TriggerEditOsc, "An address sent to Deckboy's OSC port fires this cue");
+        trY = drawInspectorEditableRow(
+          trY, "time of day",
+          selectedCue->scheduledStartSeconds < 0.0 ? std::string("none")
+                                                   : formatTimeOfDay(selectedCue->scheduledStartSeconds),
+          QuickAction::TriggerEditTime, "Fires at this time on this computer's clock, every day");
+        trY = drawInspectorEditableRow(
+          trY, "timecode",
+          selectedCue->triggerTimecodeSeconds < 0.0
+            ? std::string("none")
+            : formatTimecode(selectedCue->triggerTimecodeSeconds, focusedDeck().timecodeFps),
+          QuickAction::TriggerEditTimecode, "Fires when incoming timecode passes this point");
+      }
+      finishInspectorSection(trSection, trY);
+    }
+
     // TARGET: the one cue this cue acts on, and what it does to it.
     //
     // Three stepped rows and no typing. A target that points at a cue by a
@@ -6049,7 +6267,8 @@
         drawChoiceRow(tgY, "does", cueTargetVerbLabel(selectedCue->targetVerb),
                       QuickAction::TargetVerbCycle,
                       "Start, Stop, Pause, Resume, Load (stand it by without "
-                     "firing), Arm or Disarm it");
+                     "firing), Arm, Disarm, or Devamp it (a loop plays out its "
+                     "pass and ends)");
         tgY += kInspectorRowStep;
 
         drawChoiceRow(tgY, "fire", std::string("now"),
@@ -6313,7 +6532,7 @@
         };
         const L3Choice choices[] = {
           {"look", lowerThirdLookLabel(l.look), 0,
-           "Bar, boxes, line, tag or glass"},
+           "Pick from the list: clean looks for a conference, magical ones for a party"},
           {"side", l.side == 0 ? "left" : l.side == 2 ? "right" : "centre", 1,
            "Which side of the frame it sits on"},
           {"bar", lowerThirdColourName(l.bar), 2, "The colour behind the words"},

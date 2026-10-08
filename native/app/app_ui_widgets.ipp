@@ -131,6 +131,7 @@
     // Right-click on trim handles to clear them
     if (trimInHandleRect_.w > 0 && pointInRect(x, y, trimInHandleRect_)) {
       if (Cue* cue = activeCueMutable()) {
+        pushUndoSnapshot(/*force=*/true);   // a right-click is easy to make by mistake
         cue->inPointSeconds = 0.0;
         triggerToast("in point cleared");
         markProjectDirty();
@@ -139,6 +140,7 @@
     }
     if (trimOutHandleRect_.w > 0 && pointInRect(x, y, trimOutHandleRect_)) {
       if (Cue* cue = activeCueMutable()) {
+        pushUndoSnapshot(/*force=*/true);
         cue->outPointSeconds = 0.0;
         triggerToast("out point cleared");
         markProjectDirty();
@@ -646,12 +648,13 @@
             pushUndoSnapshot();
             Cue moved = source.cues[cueIdx];
             source.cues.erase(source.cues.begin() + cueIdx);
-            // Same reindexing shape as swapCuesInDeck / the drag reorder: a
-            // removal below the active row shifts it up by one.
-            if (source.activeIndex > cueIdx) source.activeIndex -= 1;
-            if (source.selectedIndex >= cueIdx) source.selectedIndex -= 1;
-            for (int& idx : source.selectedIndices) {
-              if (idx > cueIdx) idx -= 1;
+            // The shared rule: standby and a waiting take move too, and a
+            // pointer at the moved cue itself is cleared on this deck.
+            remapDeckCueIndices(deckIdx, [cueIdx](int index) {
+              return index == cueIdx ? -1 : index > cueIdx ? index - 1 : index;
+            });
+            if (source.selectedIndex < 0 && !source.cues.empty()) {
+              source.selectedIndex = std::min(cueIdx, static_cast<int>(source.cues.size()) - 1);
             }
             Deck& target = project_.decks[targetDeck];
             target.cues.push_back(std::move(moved));
@@ -1503,6 +1506,7 @@
     inlineEditor_.title = title;
     inlineEditor_.prompt = prompt;
     inlineEditor_.value = initialValue;
+    inlineEditor_.initialValue = initialValue;
     inlineEditor_.caret = initialValue.size();
     inlineEditor_.freshEntry = true;  // old value acts selected: first keystroke replaces it
     inlineEditor_.anchorRect = lastInlineEditorAnchorRect_;
@@ -1548,9 +1552,13 @@
       closeInlineTextEditor(false);
       return true;
     }
+    // A CLICK AWAY KEEPS WHAT WAS TYPED, and then does what it was aimed at.
+    // It used to throw the edit away AND swallow the click: the editor docks
+    // in the inspector and dims nothing else, so it looks like the rest of the
+    // desk is live -- and a press on TAKE lost both the value and the take.
     if (!pointInRect(x, y, inlineEditor_.panelRect)) {
-      closeInlineTextEditor(false);
-      return true;
+      closeInlineTextEditor(inlineEditor_.value != inlineEditor_.initialValue);
+      return false;
     }
     return true;
   }

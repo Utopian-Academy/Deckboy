@@ -531,6 +531,12 @@
              << " orientation=" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees)
              << " test_card=" << (out.outputTestCardEnabled ? "on" : "off")
              << " output_fps=" << outputFps
+             << " presents=" << (runtimeForOutput(outputIndex)
+                                   ? runtimeForOutput(outputIndex)->presentsCounted : 0)
+             << " hitches=" << (runtimeForOutput(outputIndex)
+                                  ? runtimeForOutput(outputIndex)->presentHitches : 0)
+             << " worst_gap_ms=" << static_cast<int>(std::lround(runtimeForOutput(outputIndex)
+                                  ? runtimeForOutput(outputIndex)->worstPresentGapMs : 0.0))
              << " stream_fps=" << streamFps
              << " stream_q=" << streamQueued
              << " stream_sent=" << streamWritten
@@ -645,7 +651,11 @@
              // Frames this deck put NOTHING on the output. A cut that drops the
              // outgoing picture before the incoming one decodes shows up here as
              // a run, which on a slide deck is the black flash between pages.
-             << " blank_frames=" << engine->blankFrameCount();
+             << " blank_frames=" << engine->blankFrameCount()
+             // The engine's own lip-sync view: smoothed picture-minus-sound
+             // error and the clock trim correcting it (ppm, + = running fast).
+             << " av_err_ms=" << std::lround(engine->avSyncErrorSeconds() * 10000.0) / 10.0
+             << " clock_trim_ppm=" << std::lround((engine->clockTrimRatio() - 1.0) * 1e7) / 10.0;
     }
     output << '\n';
     return output.str();
@@ -1890,7 +1900,10 @@
     projectDirty_ = false;
   }
 
-  void pushUndoSnapshot() {
+  // force: push even when the stack top looks the same. The comparison below
+  // looks only at cue counts and selection, so an edit that changes a field
+  // and nothing else -- clearing a trim point -- is invisible to it.
+  void pushUndoSnapshot(bool force = false) {
     // Debounce: don't push if the stack top already matches the current state.
     //
     // EVERY DECK, NOT DECK 0. This compared deck 0's cue count and selection
@@ -1899,9 +1912,10 @@
     // identical, the snapshot was skipped, and the edit became unundoable.
     // Harmless while a show effectively had one deck; with Super Deckboy it is
     // silent loss of an operator's last action on any playlist but the first.
-    if (!undoStack_.empty()) {
+    if (!force && !undoStack_.empty()) {
       const auto& top = undoStack_.back();
       bool identical = top.decks.size() == project_.decks.size() &&
+                       top.trackerSteps.size() == project_.trackerSteps.size() &&
                        !top.decks.empty() && !project_.decks.empty();
       for (std::size_t d = 0; identical && d < project_.decks.size(); ++d) {
         identical = top.decks[d].cues.size() == project_.decks[d].cues.size() &&
@@ -1918,6 +1932,49 @@
     redoStack_.clear();
   }
 
+  // A snapshot can hold a different number of playlists than the live show
+  // (removing a deck is undoable), and every per-deck runtime is indexed by
+  // deck. Same count: nothing to do, so an ordinary undo never touches
+  // playback. Different count: grow in place, or rebuild on a shrink.
+  //
+  // AND UNDO NEVER TOUCHES WHAT IS LIVE. A snapshot is the whole Project, so
+  // restoring it also restored which outputs were armed and which cue each
+  // deck had on air AT THE TIME OF THE SNAPSHOT -- Ctrl+Z after a tweak
+  // mid-show turned the projector off and moved the LIVE marker to a stale
+  // cue. `live` is the project as it stood before the restore: outputs keep
+  // their armed state by id, and each deck keeps its on-air cue by id,
+  // wherever that cue now sits (or none, if the undo removed it).
+  void keepLiveStateAcrossRestore(const Project& live) {
+    for (OutputTarget& out : project_.outputs) {
+      for (const OutputTarget& was : live.outputs) {
+        if (!out.outputId.empty() && out.outputId == was.outputId) {
+          out.enabled = was.enabled;
+        }
+      }
+    }
+    for (std::size_t d = 0; d < project_.decks.size() && d < live.decks.size(); ++d) {
+      Deck& deck = project_.decks[d];
+      const Deck& before = live.decks[d];
+      deck.activeIndex = -1;
+      if (before.activeIndex >= 0 && before.activeIndex < static_cast<int>(before.cues.size())) {
+        const std::string& onAir = before.cues[static_cast<std::size_t>(before.activeIndex)].id;
+        for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+          if (deck.cues[static_cast<std::size_t>(c)].id == onAir) {
+            deck.activeIndex = c;
+          }
+        }
+      }
+    }
+  }
+
+  void syncRuntimesAfterSnapshotRestore() {
+    cueRowDisplayCache_.clear();
+    if (deckRuntimes_.size() != project_.decks.size()) {
+      growDeckRuntimes();
+      refreshSuperDeckboyTitle();
+    }
+  }
+
   void undo() {
     if (undoStack_.empty()) {
       triggerToast("nothing to undo");
@@ -1925,8 +1982,11 @@
     }
     resetTransientPreviewState();
     redoStack_.push_back(project_);
+    const Project live = project_;
     project_ = undoStack_.back();
     undoStack_.pop_back();
+    keepLiveStateAcrossRestore(live);
+    syncRuntimesAfterSnapshotRestore();
     markProjectDirty();
     triggerToast("undo");
     playUiSound(UiSoundEffect::Navigate);
@@ -1939,8 +1999,11 @@
     }
     resetTransientPreviewState();
     undoStack_.push_back(project_);
+    const Project live = project_;
     project_ = redoStack_.back();
     redoStack_.pop_back();
+    keepLiveStateAcrossRestore(live);
+    syncRuntimesAfterSnapshotRestore();
     markProjectDirty();
     triggerToast("redo");
     playUiSound(UiSoundEffect::Navigate);

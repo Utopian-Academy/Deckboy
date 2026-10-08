@@ -200,6 +200,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ltc_out_device\t" << escapeField(project.ltcOutputDeviceName) << '\n';
   output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
+  output << "mediamtx_host\t" << escapeField(project.mediamtxHost) << '\n';
   output << "clock_mode\t"
          << (project.clockMode.empty() ? std::string("off") : project.clockMode)
          << '\n';
@@ -537,80 +538,17 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.st2110AudioAddress)
       << '\t' << outputTarget.st2110AudioPort
       << '\t' << escapeField(outputTarget.st2110AudioInterface)
+      // Area of interest sent pixel for pixel (field 108).
+      << '\t' << (outputTarget.aoiPixelForPixel ? 1 : 0)
       << '\n';
   }
-  for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
-    const auto& deck = project.decks[deckIndex];
-    output
-      << "deck\t"
-      << deckIndex << '\t'
-      << escapeField(deck.name) << '\t'
-      << deck.selectedIndex << '\t'
-      << deck.activeIndex << '\t'
-      << 0 << '\t' // legacy auto-advance placeholder: cue endings are now per-cue
-      << (deck.playlistLoop ? 1 : 0) << '\t'
-      << escapeField(deck.audioOutputDeviceName) << '\t'
-      << deck.outputDisplayIndex << '\t'
-      << (deck.ndiEnabled ? 1 : 0) << '\t'
-      << escapeField(deck.ndiSourceName) << '\t'
-      << (deck.timeOverlayEnabled ? 1 : 0) << '\t'
-      << deck.transitionSeconds << '\t'
-      << escapeField(deck.transitionStyle) << '\t'
-      << (deck.timecodeChaseEnabled ? 1 : 0) << '\t'
-      << (deck.timecodeRunEnabled ? 1 : 0) << '\t'
-      << (deck.timecodeTriggerEnabled ? 1 : 0) << '\t'
-      << deck.timecodeFps << '\t'
-      << deck.timecodeCurrentSeconds << '\t'
-      << (deck.shuffle ? 1 : 0) << '\t'
-      << (deck.ndiKeyEnabled ? 1 : 0) << '\t'
-      << escapeField(deck.ndiKeySourceName) << '\t'
-      << deck.canvasViewX << '\t'
-      << deck.canvasViewY << '\t'
-      << (deck.warpEnabled ? 1 : 0) << '\t'
-      << escapeField(deck.warpMode) << '\t'
-      << deck.warpTopLeftX << '\t'
-      << deck.warpTopLeftY << '\t'
-      << deck.warpTopRightX << '\t'
-      << deck.warpTopRightY << '\t'
-      << deck.warpBottomRightX << '\t'
-      << deck.warpBottomRightY << '\t'
-      << deck.warpBottomLeftX << '\t'
-      << deck.warpBottomLeftY << '\t'
-      << deck.edgeBlendLeft << '\t'
-      << deck.edgeBlendRight << '\t'
-      << deck.edgeBlendTop << '\t'
-      << deck.edgeBlendBottom << '\t'
-      << deck.outputRouteDeckIndex << '\t'
-      << 0 << '\t'
-      << deck.timecodeFreewheelSeconds << '\t'
-      << (deck.timecodeJamSyncEnabled ? 1 : 0) << '\t'
-      << deck.playlistOpacity << '\t'
-      << (deck.playlistAutoFade ? 1 : 0) << '\t'
-      << deck.playlistFadeSeconds << '\t'
-      << deck.playlistTimebaseFps << '\t'
-      << deck.playlistStartOffsetSeconds << '\t'
-      << deck.playlistDefaultCueFadeSeconds << '\t'
-      << deck.playlistDefaultStillDurationSeconds << '\t'
-      << (deck.playlistDefaultLoop ? 1 : 0) << '\t'
-      << (deck.playlistDefaultFadeInEnabled ? 1 : 0) << '\t'
-      << (deck.playlistDefaultFadeOutEnabled ? 1 : 0) << '\t'
-      << (deck.playlistDefaultAudioEnabled ? 1 : 0) << '\t'
-      << (deck.playlistDefaultPauseAtBeginning ? 1 : 0) << '\t'
-      << (deck.playlistDefaultPauseAtEnd ? 1 : 0) << '\t'
-      << (deck.playlistDefaultTransitionToNext ? 1 : 0) << '\t'
-      << deck.audioOutputChannels
-      << '	' << deck.standbyIndex
-      // Extra audio destinations, appended: one field, semicolon
-      // separated, because a device name may contain a comma.
-      << '	' << escapeField(joinStringList(deck.extraAudioDeviceNames, ';'))
-      << '	' << (deck.audioToProgram ? 1 : 0)
-      << '	' << escapeField(deck.watchFolder)
-      << '\n';
-
-    for (const auto& cue : deck.cues) {
+  // ONE CUE RECORD, shared by the playlists and the tracker's own steps
+  // (deck field -1), so a step can never be saved with fewer fields than a
+  // cue and drift out of step with the loader.
+  auto writeCueRecord = [&output](long long deckField, const Cue& cue) {
       output
         << "cue\t"
-        << deckIndex << '\t'
+        << deckField << '\t'
         << escapeField(cue.path) << '\t'
         << escapeField(cue.name) << '\t'
         << cueKindToken(cue.kind) << '\t'
@@ -943,8 +881,90 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.swirl.centreY
         << '\t' << cue.swirl.bands
         << '\t' << cue.swirl.palette
+        // Triggers (fields vs+138..140), appended after everything else.
+        << '\t' << escapeField(cue.triggerHotkey)
+        << '\t' << cue.triggerMidiNote
+        << '\t' << escapeField(cue.triggerOscAddress)
+        // Which sound track plays (vs+141) and how many the file has (vs+142),
+        // so the picker still knows there is a choice after a reload.
+        << '\t' << cue.audioTrack
+        << '\t' << cue.audioTrackCount
         << '\n';
+  };
+  for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
+    const auto& deck = project.decks[deckIndex];
+    output
+      << "deck\t"
+      << deckIndex << '\t'
+      << escapeField(deck.name) << '\t'
+      << deck.selectedIndex << '\t'
+      << deck.activeIndex << '\t'
+      << 0 << '\t' // legacy auto-advance placeholder: cue endings are now per-cue
+      << (deck.playlistLoop ? 1 : 0) << '\t'
+      << escapeField(deck.audioOutputDeviceName) << '\t'
+      << deck.outputDisplayIndex << '\t'
+      << (deck.ndiEnabled ? 1 : 0) << '\t'
+      << escapeField(deck.ndiSourceName) << '\t'
+      << (deck.timeOverlayEnabled ? 1 : 0) << '\t'
+      << deck.transitionSeconds << '\t'
+      << escapeField(deck.transitionStyle) << '\t'
+      << (deck.timecodeChaseEnabled ? 1 : 0) << '\t'
+      << (deck.timecodeRunEnabled ? 1 : 0) << '\t'
+      << (deck.timecodeTriggerEnabled ? 1 : 0) << '\t'
+      << deck.timecodeFps << '\t'
+      << deck.timecodeCurrentSeconds << '\t'
+      << (deck.shuffle ? 1 : 0) << '\t'
+      << (deck.ndiKeyEnabled ? 1 : 0) << '\t'
+      << escapeField(deck.ndiKeySourceName) << '\t'
+      << deck.canvasViewX << '\t'
+      << deck.canvasViewY << '\t'
+      << (deck.warpEnabled ? 1 : 0) << '\t'
+      << escapeField(deck.warpMode) << '\t'
+      << deck.warpTopLeftX << '\t'
+      << deck.warpTopLeftY << '\t'
+      << deck.warpTopRightX << '\t'
+      << deck.warpTopRightY << '\t'
+      << deck.warpBottomRightX << '\t'
+      << deck.warpBottomRightY << '\t'
+      << deck.warpBottomLeftX << '\t'
+      << deck.warpBottomLeftY << '\t'
+      << deck.edgeBlendLeft << '\t'
+      << deck.edgeBlendRight << '\t'
+      << deck.edgeBlendTop << '\t'
+      << deck.edgeBlendBottom << '\t'
+      << deck.outputRouteDeckIndex << '\t'
+      << 0 << '\t'
+      << deck.timecodeFreewheelSeconds << '\t'
+      << (deck.timecodeJamSyncEnabled ? 1 : 0) << '\t'
+      << deck.playlistOpacity << '\t'
+      << (deck.playlistAutoFade ? 1 : 0) << '\t'
+      << deck.playlistFadeSeconds << '\t'
+      << deck.playlistTimebaseFps << '\t'
+      << deck.playlistStartOffsetSeconds << '\t'
+      << deck.playlistDefaultCueFadeSeconds << '\t'
+      << deck.playlistDefaultStillDurationSeconds << '\t'
+      << (deck.playlistDefaultLoop ? 1 : 0) << '\t'
+      << (deck.playlistDefaultFadeInEnabled ? 1 : 0) << '\t'
+      << (deck.playlistDefaultFadeOutEnabled ? 1 : 0) << '\t'
+      << (deck.playlistDefaultAudioEnabled ? 1 : 0) << '\t'
+      << (deck.playlistDefaultPauseAtBeginning ? 1 : 0) << '\t'
+      << (deck.playlistDefaultPauseAtEnd ? 1 : 0) << '\t'
+      << (deck.playlistDefaultTransitionToNext ? 1 : 0) << '\t'
+      << deck.audioOutputChannels
+      << '	' << deck.standbyIndex
+      // Extra audio destinations, appended: one field, semicolon
+      // separated, because a device name may contain a comma.
+      << '	' << escapeField(joinStringList(deck.extraAudioDeviceNames, ';'))
+      << '	' << (deck.audioToProgram ? 1 : 0)
+      << '	' << escapeField(deck.watchFolder)
+      << '\n';
+
+    for (const auto& cue : deck.cues) {
+      writeCueRecord(static_cast<long long>(deckIndex), cue);
     }
+  }
+  for (const Cue& step : project.trackerSteps) {
+    writeCueRecord(-1, step);
   }
 
   // Everything above is buffered. Close BEFORE the rename and check the
@@ -1150,6 +1170,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     tile.safeAreas = safeBool(fields, 3, false);
     tile.label = safeBool(fields, 4, true);
     project.multiviewTiles.push_back(tile);
+  } else if (fields[0] == "mediamtx_host") {
+    project.mediamtxHost = safeString(fields, 1);
   } else if (fields[0] == "update_check") {
     project.updateCheckEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "clock_mode") {
@@ -1587,6 +1609,9 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                                 outputTarget.st2110AudioPort = std::clamp(safeInt(fields, 106, 0), 0, 65535);
                                 outputTarget.st2110AudioInterface = safeString(fields, 107);
                               }
+                              if (fields.size() >= 109) {
+                                outputTarget.aoiPixelForPixel = safeBool(fields, 108, false);
+                              }
                             }
                           }
                         }
@@ -1897,6 +1922,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "master" ? CueKind::Master :
         kind == "target" ? CueKind::Target :
         kind == "fade" ? CueKind::Fade :
+        kind == "memo" ? CueKind::Memo :
         kind == "midi" ? CueKind::Midi :
         kind == "network" ? CueKind::Network :
         kind == "timecode" ? CueKind::Timecode :
@@ -2399,6 +2425,11 @@ Project loadProject(const fs::path& projectFile,
           cue.swirl.palette = std::clamp(safeInt(fields, vs + 137, fresh.palette), 0,
                                          kSwirlPaletteCount - 1);
         }
+        cue.triggerHotkey = safeString(fields, vs + 138);
+        cue.triggerMidiNote = std::clamp(safeInt(fields, vs + 139, -1), -1, 127);
+        cue.triggerOscAddress = safeString(fields, vs + 140);
+        cue.audioTrack = std::clamp(safeInt(fields, vs + 141, 0), 0, 63);
+        cue.audioTrackCount = std::clamp(safeInt(fields, vs + 142, 0), 0, 64);
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
       // without a word -- the show would come back one cue shorter every time
@@ -2407,6 +2438,7 @@ Project loadProject(const fs::path& projectFile,
       // now.
       if (!cue.path.empty() || cue.kind == CueKind::Master ||
           cue.kind == CueKind::Target || cue.kind == CueKind::Fade ||
+          cue.kind == CueKind::Memo ||
           cue.kind == CueKind::Midi || cue.kind == CueKind::Network ||
           cue.kind == CueKind::Timecode || cue.kind == CueKind::Script ||
           cue.kind == CueKind::Dmx || cue.kind == CueKind::Text) {
@@ -2415,7 +2447,11 @@ Project loadProject(const fs::path& projectFile,
             ? std::string("Master")
             : fs::path(cue.path).stem().string();
         }
-        ensureDeck(deckIndex).cues.push_back(cue);
+        if (deckIndex == -1 && cue.kind == CueKind::Master) {
+          project.trackerSteps.push_back(cue);   // the tracker's own step
+        } else {
+          ensureDeck(deckIndex).cues.push_back(cue);
+        }
       }
     } else {
       // A LINE WE DO NOT UNDERSTAND.

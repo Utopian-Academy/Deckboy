@@ -107,6 +107,24 @@ cp "$BUILD_DIR/deckboy-mini" "$MACOS_DIR/deckboy-mini"
 chmod +x "$MACOS_DIR/deckboy-mini"
 echo "  + deckboy-mini"
 
+# --- whisper-cli (captions made on this computer) ---------------------------
+# A static build of whisper.cpp: one executable, no libraries of its own. The
+# speech model is NOT bundled -- it is fetched once, on first use, into the
+# state folder. DECKBOY_WHISPER_CLI names the binary; CI sets
+# DECKBOY_REQUIRE_WHISPER=1 so a package without it fails instead of shipping a
+# captions button that cannot run.
+WHISPER_SRC="${DECKBOY_WHISPER_CLI:-$BUILD_DIR/whisper-cli}"
+if [ -f "$WHISPER_SRC" ]; then
+  cp "$WHISPER_SRC" "$MACOS_DIR/whisper-cli"
+  chmod +x "$MACOS_DIR/whisper-cli"
+  echo "  + whisper-cli"
+elif [ "${DECKBOY_REQUIRE_WHISPER:-0}" = "1" ]; then
+  echo "  ! whisper-cli not found at $WHISPER_SRC and DECKBOY_REQUIRE_WHISPER=1" >&2
+  exit 1
+else
+  echo "  ! whisper-cli not found - captions made on this computer will be unavailable" >&2
+fi
+
 # --- deckboy-sckcapture (ScreenCaptureKit screen-capture helper) ------------
 # Window/screen cues spawn this next to the app. Built by the same cmake build.
 if [ -f "$BUILD_DIR/deckboy-sckcapture" ]; then
@@ -274,7 +292,7 @@ is_system_lib() {
 }
 
 WORKLIST=()
-for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/deckboy-mini" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
+for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/deckboy-mini" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview" "$MACOS_DIR/whisper-cli"; do
   [ -f "$f" ] && WORKLIST+=("$f")
 done
 
@@ -336,7 +354,7 @@ for lib in "$FRAMEWORKS_DIR"/*.dylib; do
   install_name_tool -add_rpath "@loader_path" "$lib" 2>/dev/null || true
 done
 
-for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/deckboy-mini" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
+for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/deckboy-mini" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview" "$MACOS_DIR/whisper-cli"; do
   [ -f "$exe" ] || continue
   retarget "$exe"
   install_name_tool -add_rpath "@executable_path/../Frameworks" "$exe" 2>/dev/null || true
@@ -385,6 +403,9 @@ fi
 if [ -f "$MACOS_DIR/deckboy-webview" ]; then
   codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.webview \
     "$MACOS_DIR/deckboy-webview" >/dev/null 2>&1 || true
+fi
+if [ -f "$MACOS_DIR/whisper-cli" ]; then
+  codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.whisper     "$MACOS_DIR/whisper-cli" >/dev/null 2>&1 || true
 fi
 # Mini too: a stable identifier rather than one minted from the content hash.
 codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.mini   "$MACOS_DIR/deckboy-mini" >/dev/null 2>&1 || true

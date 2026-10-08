@@ -92,9 +92,12 @@ enum class CueKind {
                  // spoken a word of it -- see platform/midi.hpp
   Fade,          // ramps something over time: a deck's opacity, its audio, or
                  // the master dimmer. Carries no media either -- see CueFadeWhat
-  Target         // acts ON another cue rather than playing anything: start it,
+  Target,        // acts ON another cue rather than playing anything: start it,
                  // stop it, pause it, arm it. Carries no media either — see
                  // CueTargetVerb and Cue::targetCueId
+  Memo           // does NOTHING when GO reaches it but put its notes in front of
+                 // the operator: "stand by sound", "wait for the speech to end".
+                 // A note that lives in the running order rather than beside it
 };
 
 // ---------------------------------------------------------------------------
@@ -114,6 +117,9 @@ enum class CueTargetVerb {
   Load,      // select it without taking it -- next GO on that deck fires it
   Arm,       // make it live-able again
   Disarm,    // leave it in the list, inert: GO passes straight over it
+  Devamp,    // a LOOPING cue finishes the pass it is on, then ends as if it
+             // had never looped -- holds its last frame, or lets its continue
+             // fire. The vamp under a speech that ends when the speech does
 };
 
 // ---------------------------------------------------------------------------
@@ -247,6 +253,7 @@ inline const char* cueTargetVerbToken(CueTargetVerb v) {
     case CueTargetVerb::Load:   return "load";
     case CueTargetVerb::Arm:    return "arm";
     case CueTargetVerb::Disarm: return "disarm";
+    case CueTargetVerb::Devamp: return "devamp";
     case CueTargetVerb::Start:  break;
   }
   return "start";
@@ -260,6 +267,7 @@ inline const char* cueTargetVerbLabel(CueTargetVerb v) {
     case CueTargetVerb::Load:   return "Load";
     case CueTargetVerb::Arm:    return "Arm";
     case CueTargetVerb::Disarm: return "Disarm";
+    case CueTargetVerb::Devamp: return "Devamp";
     case CueTargetVerb::Start:  break;
   }
   return "Start";
@@ -272,6 +280,7 @@ inline CueTargetVerb cueTargetVerbFromToken(const std::string& token) {
   if (token == "load")   return CueTargetVerb::Load;
   if (token == "arm")    return CueTargetVerb::Arm;
   if (token == "disarm") return CueTargetVerb::Disarm;
+  if (token == "devamp") return CueTargetVerb::Devamp;
   return CueTargetVerb::Start;
 }
 
@@ -347,8 +356,25 @@ enum class LowerThirdLook : int {
   Glass,   // a translucent band across the frame, a thin accent line on top
   Arcade,  // a pixel-font title in a bordered box with a hard drop shadow, and
            // once it is in, a slow bob and tilt so it looks alive
+  // Appended, never inserted: the show file stores the number, and an older
+  // build clamps anything past its own list to its last look.
+  // -- clean --
+  Split,     // a news strap: the title on an accent block, the role on a strip under it
+  Card,      // a pale card with soft corners and a shadow, an accent dot at the name
+  Hairline,  // no box: a fine accent rule over the words, with a square at its start
+  // -- magical --
+  Sparkle,   // the bar, with stars that twinkle round it for as long as it is up
+  Neon,      // a dark sign with a glowing accent tube that flickers on
+  Comic,     // tilted, a heavy black outline and a halftone shadow
+  Scroll,    // parchment with rolled ends, in ink
   Count
 };
+
+// Which group a look belongs to, for the picker: the look list is long enough
+// now that a flat list hides the two kinds of thing it offers.
+inline bool lowerThirdLookIsPlayful(LowerThirdLook look) {
+  return look == LowerThirdLook::Arcade || look >= LowerThirdLook::Sparkle;
+}
 
 enum class LowerThirdMove : int {
   None,
@@ -371,6 +397,13 @@ inline const char* lowerThirdLookLabel(LowerThirdLook look) {
     case LowerThirdLook::Tag:   return "tag";
     case LowerThirdLook::Glass: return "glass";
     case LowerThirdLook::Arcade: return "arcade";
+    case LowerThirdLook::Split:    return "split";
+    case LowerThirdLook::Card:     return "card";
+    case LowerThirdLook::Hairline: return "hairline";
+    case LowerThirdLook::Sparkle:  return "sparkle";
+    case LowerThirdLook::Neon:     return "neon";
+    case LowerThirdLook::Comic:    return "comic";
+    case LowerThirdLook::Scroll:   return "scroll";
     default: break;
   }
   return "bar";
@@ -1395,6 +1428,14 @@ struct Cue {
   // timecode -- this one needs no external source, which is what makes
   // unattended playback possible.
   double scheduledStartSeconds = -1.0;
+  // ── TRIGGERS: what fires this cue besides GO ─────────────────────────
+  // A key on the desk keyboard (F1-F10, F12, the number pad), a MIDI note,
+  // an OSC address. Each fires the cue on its own deck from anywhere, the
+  // way a QLab hotkey does -- the deck's list does not have to be standing
+  // on it. Empty / -1 is none, which is every cue saved before these.
+  std::string triggerHotkey;
+  int triggerMidiNote = -1;
+  std::string triggerOscAddress;
   // Runtime only: set once the schedule has fired so it cannot re-fire every
   // tick for the rest of that second, and cleared at midnight rollover.
   bool scheduledStartFired = false;
@@ -1421,6 +1462,12 @@ struct Cue {
   double stillDurationSeconds = 0.0;      // display time for Image/Pattern/Browser cues
   double cueTransitionSeconds = -1.0;     // per-cue transition duration override (-1 = inherit)
   double playbackSpeed = 1.0;             // speed multiplier (0.25–4.0; 1.0 = normal)
+  // Which of the file's sound tracks plays: 0 the first (what every cue did
+  // before this), 1 the second -- a film with a commentary or a second
+  // language. Out of range falls back to the first rather than going silent.
+  int audioTrack = 0;
+  int audioTrackCount = 0;                 // sound tracks in the file (from ffprobe; 0 = not probed)
+  int subtitleTrackCount = 0;              // subtitle tracks inside the file
   std::uintmax_t sizeBytes = 0;           // file size in bytes (from ffprobe, for display)
 
   // -- 4-byte aligned: floats -------------------------------------------------
@@ -2071,6 +2118,11 @@ struct OutputTarget {
   int warpGridRows = 0;                    // points down
   bool warpGridSmooth = true;              // curve through the points, or straight between them
   std::vector<float> warpGridOffsets;      // dx,dy per point, row-major
+  // HOW THE AREA OF INTEREST IS SENT. False: scaled to fill the output, as it
+  // always was. True: pixel for pixel at the output's top-left, black around
+  // it -- what an LED processor expects, mapping a 256x256 tile from the
+  // corner of its input. Appended last (field 108) so old shows read false.
+  bool aoiPixelForPixel = false;
 };
 
 
@@ -2366,6 +2418,11 @@ struct Project {
   // nobody asked it to. Checking never installs anything -- see
   // checkForUpdateAsync.
   bool updateCheckEnabled = false;
+  // MEDIAMTX: the media router a show can share -- phones, cameras and OBS
+  // publish into it, and Deckboy's programme goes out through it to any number
+  // of viewers. Where it runs; empty means this computer. Its own default
+  // ports (API 9997, SRT 8890, WebRTC 8889, HLS 8888) are assumed.
+  std::string mediamtxHost;
 
   // ── THE WALL CLOCK ──────────────────────────────────────────────────────
   //
@@ -2432,6 +2489,15 @@ struct Project {
   // which is what it did.
   bool trackerLoop = false;
   bool clickerDrivesTracker = false;
+  // THE TRACKER'S OWN STEPS. Each is a Master cue that lives here and in no
+  // playlist: "the tracker IS the master cue. It can fire all decks (or not,
+  // maybe just some)." A step kept in a playlist could not fire that
+  // playlist, and every "+ step" put a cue in a list the operator had not
+  // asked to change. Saved as cue records with deck index -1, which a build
+  // from before this clamps to deck 1 -- the old behaviour, nothing lost.
+  // Master cues already in playlists are still steps too (see
+  // masterTrackerRows), so older shows run as they did.
+  std::vector<Cue> trackerSteps;
   // -- THE MONITOR ------------------------------------------------------
   //
   // The device you listen on, and which playlist you hear on it. Empty
@@ -2688,7 +2754,9 @@ struct DecodedFrame {
   //                 IOSurface can be wrapped by ANY Metal device, so there is
   //                 nothing to compare and nothing to copy -- the consumer
   //                 wraps this very buffer as a texture.
-  enum class GpuKind { None, D3D11Texture, CVPixelBuffer };
+  //   DrmPrime      Linux. An AVDRMFrameDescriptor*: the decoder's own dmabuf
+  //                 planes, imported by the renderer (engine/drm_prime_import.hpp).
+  enum class GpuKind { None, D3D11Texture, CVPixelBuffer, DrmPrime };
   std::shared_ptr<void> gpuFrameRef;   // opaque AVFrame ref (owns the surface)
   void* gpuTexture = nullptr;          // ID3D11Texture2D* / CVPixelBufferRef
   int gpuSubresource = 0;              // D3D11 only: array slice within gpuTexture
@@ -3175,7 +3243,19 @@ enum class QuickAction {
   ToggleRefreshOnTake,  // toggle browser cue page reload on every take
   ToggleBrowserInteract, // show/hide the real browser window for hands-on use
   CycleNormalizeTarget,
-  CueSectionSwirlToggle
+  CueSectionSwirlToggle,
+  // -- Triggers --------------
+  CueSectionTriggersToggle,
+  TriggerEditTime,       // time of day (the existing schedule)
+  TriggerEditTimecode,   // incoming timecode (the existing tc trigger)
+  TriggerLearnKey,       // the next key pressed becomes the hotkey
+  TriggerEditMidi,       // a MIDI note number, or learn from the next note
+  TriggerEditOsc,        // an OSC address
+  MemoEditText,          // a memo cue's note
+  CueSectionCaptionsToggle,
+  CaptionsToggle,        // show / hide the cue's captions
+  CaptionsGenerate,      // make captions on this machine
+  AudioTrackCycle        // which of the file's sound tracks plays
 };
 
 // ---------------------------------------------------------------------------
@@ -3202,6 +3282,9 @@ struct DragState {
   bool active = false;    // true while a drag is in progress
   int cueIndex = -1;      // index of the cue being dragged
   int deckIndex = 0;      // which deck the cue belongs to
+  int pressX = 0;         // where the press landed, for the movement threshold
+  int pressY = 0;
+  bool moving = false;    // past the threshold: this is a drag, not a click
 };
 
 // ---------------------------------------------------------------------------

@@ -2317,12 +2317,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (329)\n"
+        "DECKBOY_0.01 every verb (344)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "CLICK HOVER MIDICLOCK\n"
+        "CLICK HOVER MIDICLOCK OUTSNAP UISNAP QUICK QUICKLIST\n"
         "MESH MESH3D\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT\n"
         "BLEND BROKEN BROWSE BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
@@ -2360,7 +2360,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
-        "TRACKER SEQUENCE GEOLFO\n"
+        "TRACKER SEQUENCE GEOLFO UNDO REDO TRIGGER MIDINOTE OSCTRIGGER MEMOCUE MEMO DEVAMP CAPTIONS MEDIAMTX AUDIOTRACK\n"
         "UPDATE VIDEO VIEW VJ VMIX VOLUME WARP WATCH WEBMONITOR WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
@@ -2399,6 +2399,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "           PRESET SCOPE <n> [ALL | ONLY <groups> | <group> on|off ...] - what a recall puts back:\n"
         "           cues position look effects levels routing master (a preset always captures all of it)\n"
         "tracker:   TRACKER [GO|BACK|PLAY|STOP|STEP <n>|LOOP [on|off]|CLICKER [on|off]] - the master cues as a sequence\n"
+        "           TRACKER ADD | TRACKER SET <step> <deck> <cue|none> - make a step, choose what it fires on a playlist\n"
         "presenter: NOTESTEP [NEXT|PREV|FIRST|LAST|SCROLL <rows>|<n>|STATUS]   (a cue's note builds, split on a line of ---)\n"
         "           PRESENTER LAYOUT wide|filmstrip|notes|custom | LIVE|PREV|NEXT|NOTES|CLOCK|TIMERS|BUILDS [on|off]\n"
         "           PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h>   (percent; CAPTURE makes the current layout editable)\n"
@@ -2408,7 +2409,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "          PROMPTER SIZE <0.5-8> | LINE <0.05-0.95> | MIRROR off|h|v|both | SCRIPT [text]\n"
         "navigation: SELECT <n> SELECTALL GOTO <n> FIND <text> FINDNEXT FINDTAKE DECK <n> [command] DECKNEXT DECKPREV\n"
         "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
-        "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN [dB] AUDIONORM [ALL] SPEED <0.25-4>\n"
+        "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN [dB | BY <dB>] AUDIONORM [ALL] SPEED <0.25-4>\n"
         "audio fx: AUDIOFX | AUDIOFX ADD <effect> [amount%]  (hpf lpf tilt comp gate delay reverb width binaural\n"
         "                                               picture placement seam framelock suspend\n"
         "                                               crush word skip rail resolution scrub short ouroboros plugin)\n"
@@ -2425,7 +2426,15 @@ html,body{width:100%;height:100%;overflow:hidden}
         "         BROWSER TYPE <text> | BROWSER KEY <Enter|Tab|Backspace|Escape>\n"
         "output: OUTPUT [STATUS|LIST|ON|OFF|TOGGLE|SPOUT ...|<n>]\n"
         "        OUTPUT ADD [<deck>] | SELECT <n> | DECK [<n>] - a second screen, and which deck it shows\n"
-        "super deckboy: DECKADD - another playlist | DECKREMOVE [<n>] - take one away\n"
+        "        OUTPUT AOI [<WxH>|FULL [<x> <y>]] | OUTPUT AOI MODE PIXEL|FILL - send just this region, e.g. one 256x256 LED tile\n"
+        "super deckboy: DECKADD - another playlist | DECKREMOVE [<n>] - take one away (UNDO brings it back)\n"
+        "edit: UNDO | REDO - the same as ctrl+z / ctrl+y on the desk\n"
+        "mediamtx: MEDIAMTX [HOST <host> | ADD <stream> | PUBLISH [name]] - the media router: its streams as cues, the programme out through it\n"
+        "captions: CAPTIONS [STATUS|ON|OFF|GENERATE [model]] - make captions on this computer (first time: a one-off model download)\n"
+        "devamp: DEVAMP [<deck>] - the looping cue plays out this pass, then ends as if it had not looped\n"
+        "audio track: AUDIOTRACK [NEXT|<n>] - which of the selected cue's sound tracks plays (a second language, a commentary)\n"
+        "memo: MEMOCUE <text> - a note in the running order; GO shows it and changes nothing\n"
+        "triggers: TRIGGER [KEY F1-F10|F12|NUM0-9 | MIDI <note> | OSC /addr | AT HH:MM[:SS]] [OFF] - what fires the selected cue\n"
         "        MULTIVIEW [ON|OFF] - the programme and every playlist, in a grid\n"
         "audio fan-out: AUDIOALSO [ADD <device>|REMOVE <device>|CLEAR] - the same sound to more devices at once\n"
         "monitor: MONITOR - what you hear, and who is in the room\n"
@@ -2439,6 +2448,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "        entries of the focused output's stack (1 is the base)\n"
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"
         "        VIDEO OUTPUT LAYERWARP [OFF | <8 corner OFFSETS> | MODE linear/perspective] - map a layer onto a surface\n"
+        "        WARP EDIT [ON|OFF] | WARP SELECT TL|TR|BR|BL|<col> <row> | WARP AT <x> <y> - place a warp point to the pixel\n"
         "        offsets from each corner, as fractions of the layer; 0 0 0 0 0 0 0 0 is no pin\n"
         "        - which playlists composite onto the focused output, and in what order\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
@@ -3248,7 +3258,9 @@ html,body{width:100%;height:100%;overflow:hidden}
       return;
     }
     if (velocity > 0) {
-      queueMidiCommand("GOTO " + std::to_string(note + 1));
+      // MIDINOTE resolves on the main thread: a cue that claims this note
+      // fires; otherwise it is the old "note N goes to cue N+1".
+      queueMidiCommand("MIDINOTE " + std::to_string(note));
     }
   }
 
@@ -4700,6 +4712,11 @@ bool looksLikeHttpRequestLine(const std::string& line) {
                 continue;
               }
               auto mapped = mapOscToRemoteCommand(osc);
+              if (!mapped || mapped->empty()) {
+                // No built-in verb answers it: it may be a cue's own address.
+                // Resolved on the main thread, which owns the show.
+                mapped = "OSCTRIGGER " + trim(osc.address);
+              }
               if (mapped && !mapped->empty()) {
                 if (enqueueRemoteCommand(*mapped))
                   sendOscStringTo(sender, "/deckboy/ack", *mapped);

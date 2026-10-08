@@ -43,7 +43,11 @@
     } else if (label == "STOP") {
       stopTransport();
     } else if (label == "CLEAR") {
-      clearOutput();
+      // Stops every deck and disarms the outputs, and sits beside BLACK: while
+      // live it takes a second press, the same as the C key.
+      if (confirmLiveKey(SDLK_C, "press CLEAR again to stop everything and clear the output")) {
+        clearOutput();
+      }
     } else if (label == "BLACK" || label == "BLACKOUT") {   // old label still accepted
       // Instant and reversible: kills the picture without touching playback,
       // so the show keeps running underneath and one press brings it back.
@@ -963,17 +967,18 @@
   }
 
   void fireMasterCue(int masterDeckIndex, int masterCueIndex) {
-    if (masterDeckIndex < 0 || masterDeckIndex >= static_cast<int>(project_.decks.size())) {
+    // A tracker step or a master cue in a playlist; both are the same thing
+    // to fire. Only the playlist one has a deck whose pointer moves.
+    const Cue* masterCue = masterTrackerCue(masterDeckIndex, masterCueIndex);
+    if (!masterCue) {
       return;
     }
-    Deck& masterDeck = project_.decks[masterDeckIndex];
-    if (masterCueIndex < 0 || masterCueIndex >= static_cast<int>(masterDeck.cues.size())) {
-      return;
-    }
+    const bool inPlaylist = masterDeckIndex != kTrackerStepsDeck;
     // Copied, not referenced: taking on the target decks can reallocate any
     // deck's cue vector, and a reference into it would dangle mid-loop.
-    const std::vector<MasterAssignment> plan = masterDeck.cues[masterCueIndex].masterAssignments;
-    const std::string masterName = masterDeck.cues[masterCueIndex].name;
+    const std::vector<MasterAssignment> plan = masterCue->masterAssignments;
+    const std::string masterName = masterCue->name;
+    const std::string masterId = masterCue->id;
 
     const int savedFocus = project_.focusedDeckIndex;
     int fired = 0;
@@ -1010,12 +1015,15 @@
 
     // The master deck's own pointer, so the list shows which master was last
     // fired. This is the master deck's state, not a copy of the targets'.
-    masterDeck.activeIndex = masterCueIndex;
+    if (inPlaylist) {
+      project_.decks[masterDeckIndex].activeIndex = masterCueIndex;
+    }
     // And the tracker's playhead, however this master was fired -- the
     // tracker, its playlist, a dashboard tile, Companion. By id, so a step
     // moved or inserted above it does not move the playhead with it.
     trackerPlayheadDeck_ = masterDeckIndex;
-    trackerPlayheadCueId_ = masterDeck.cues[masterCueIndex].id;
+    trackerPlayheadCueId_ = masterId;
+    trackerCurrentStepId_ = masterId;
 
     std::string msg = "master: " + masterName + " — " + std::to_string(fired) +
                       (fired == 1 ? " deck" : " decks");
@@ -1157,7 +1165,9 @@
     const int masterDeck = rows[row].first;
     // A continue armed on the master deck by an earlier GO from its playlist
     // would fire a step of its own on top of the tracker's clock.
-    cancelPendingTake(masterDeck);
+    if (masterDeck != kTrackerStepsDeck) {
+      cancelPendingTake(masterDeck);
+    }
     fireMasterCue(masterDeck, rows[row].second);
     trackerSquishRow_ = row;
     trackerSquishAtMs_ = SDL_GetTicks();
@@ -2848,11 +2858,65 @@
     LowerThirdDesign& d = cue->lowerThird;
     auto step = [](int value, int count) { return (value + 1) % count; };
     switch (which) {
-      case 0:
-        d.look = static_cast<LowerThirdLook>(
-          step(static_cast<int>(d.look), static_cast<int>(LowerThirdLook::Count)));
-        triggerToast(std::string("look: ") + lowerThirdLookLabel(d.look));
-        break;
+      case 0: {
+        // A LIST, not a cycle: thirteen looks is twelve presses to reach the
+        // one before where you are. Grouped, so "clean" and "magical" read as
+        // the two kinds of thing on offer.
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (int pass = 0; pass < 2; ++pass) {
+          for (int i = 0; i < static_cast<int>(LowerThirdLook::Count); ++i) {
+            const auto look = static_cast<LowerThirdLook>(i);
+            if (lowerThirdLookIsPlayful(look) != (pass == 1)) {
+              continue;
+            }
+            choices.emplace_back(lowerThirdLookLabel(look),
+                                 std::string(pass == 0 ? "clean    " : "magical  ") +
+                                   lowerThirdLookLabel(look));
+          }
+        }
+        SDL_Rect anchor {};
+        for (const auto& button : quickButtons_) {
+          if (button.action == QuickAction::LowerThirdCycle && button.param == 0) {
+            anchor = button.rect;
+          }
+        }
+        const std::string cueId = cue->id;
+        openDropdown("l3.look", anchor, choices, lowerThirdLookLabel(d.look),
+                     [this, cueId](const std::string& chosen) {
+          Cue* now = selectedTextCue();
+          if (!now || now->id != cueId) {
+            return;
+          }
+          for (int i = 0; i < static_cast<int>(LowerThirdLook::Count); ++i) {
+            if (chosen == lowerThirdLookLabel(static_cast<LowerThirdLook>(i))) {
+              pushUndoSnapshot();
+              now->lowerThird.look = static_cast<LowerThirdLook>(i);
+              // EACH ARRIVES IN ITS OWN COLOURS, from the desk: a comic panel
+              // on the default ink is a black box with black words in it, and
+              // a card is not a card until it is pale. Indices into the fixed
+              // list (ink, paper, red, orange, yellow, green, blue, violet,
+              // deckboy, forest). Both stay one press away from changing.
+              struct Pair { LowerThirdLook look; int bar; int accent; };
+              static const Pair kPairs[] = {
+                {LowerThirdLook::Split, 0, 2},   {LowerThirdLook::Card, 1, 6},
+                {LowerThirdLook::Comic, 4, 2},   {LowerThirdLook::Neon, 0, 7},
+                {LowerThirdLook::Sparkle, 7, 4}, {LowerThirdLook::Scroll, 1, 2},
+                {LowerThirdLook::Arcade, 9, 4},
+              };
+              for (const Pair& pair : kPairs) {
+                if (pair.look == now->lowerThird.look) {
+                  now->lowerThird.bar = pair.bar;
+                  now->lowerThird.accent = pair.accent;
+                }
+              }
+              markProjectDirty();
+              triggerToast("look: " + chosen);
+              return;
+            }
+          }
+        });
+        return;
+      }
       case 1:
         d.side = step(d.side, 3);
         triggerToast(d.side == 0 ? "left" : d.side == 2 ? "right" : "centre");
@@ -3485,7 +3549,7 @@
     static const CueTargetVerb kOrder[] = {
       CueTargetVerb::Start, CueTargetVerb::Stop, CueTargetVerb::Pause,
       CueTargetVerb::Resume, CueTargetVerb::Load, CueTargetVerb::Arm,
-      CueTargetVerb::Disarm,
+      CueTargetVerb::Disarm, CueTargetVerb::Devamp,
     };
     const int count = static_cast<int>(sizeof(kOrder) / sizeof(kOrder[0]));
     int at = 0;
@@ -3884,6 +3948,13 @@
       case CueTargetVerb::Resume:
         playTransport();
         break;
+      case CueTargetVerb::Devamp:
+        // Only the cue that is playing can be let out of its loop; devamping
+        // one that is merely in the list would arm a surprise for later.
+        if (project_.decks[victimDeck].activeIndex == victimIndex) {
+          devampDeck(victimDeck);
+        }
+        break;
       case CueTargetVerb::Arm:
       case CueTargetVerb::Disarm:
         break;                                // handled above
@@ -3989,6 +4060,17 @@
     // media, and it must not disturb whatever picture the deck is carrying.
     if (deck.cues[deck.selectedIndex].kind == CueKind::Midi) {
       (void)fireMidiCue(deckIndex, deck.selectedIndex);
+      scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
+      return;
+    }
+    // A MEMO DOES NOTHING TO THE SHOW. It says its piece -- the notes, or its
+    // name when there are none -- and lets a continue carry on past it. The
+    // picture and sound stay exactly as they were.
+    if (deck.cues[deck.selectedIndex].kind == CueKind::Memo) {
+      const Cue& memo = deck.cues[deck.selectedIndex];
+      const std::string said = trim(memo.notes).empty() ? memo.name : trim(memo.notes);
+      triggerToast("MEMO: " + said, ToastKind::Help, kToastReadableMs);
+      showLog("MEMO", showLogCueRef(deckIndex, deck.selectedIndex) + " " + said);
       scheduleContinueAfterStart(deckIndex, deck.selectedIndex);
       return;
     }
@@ -4252,12 +4334,15 @@
       return;
     }
     if (reorder && nextIndex != deck.selectedIndex) {
-      std::swap(deck.cues[deck.selectedIndex], deck.cues[nextIndex]);
-      if (deck.activeIndex == deck.selectedIndex) {
-        deck.activeIndex = nextIndex;
-      } else if (deck.activeIndex == nextIndex) {
-        deck.activeIndex = deck.selectedIndex;
-      }
+      // Through the shared rule, so standby and a waiting take move too; the
+      // selection is set just below.
+      const int a = deck.selectedIndex;
+      std::swap(deck.cues[a], deck.cues[nextIndex]);
+      const int keepSelected = deck.selectedIndex;
+      remapDeckCueIndices(project_.focusedDeckIndex, [a, nextIndex](int index) {
+        return index == a ? nextIndex : index == nextIndex ? a : index;
+      });
+      deck.selectedIndex = keepSelected;
       triggerToast("cue reordered");
       playUiSound(UiSoundEffect::Toggle);
     }
@@ -4452,6 +4537,23 @@
 
   std::vector<ShowProblem> scanShowForProblems() {
     std::vector<ShowProblem> out;
+    // A master (a playlist master, or one of the tracker's own steps) firing
+    // nothing, naming a deck that has gone, or naming a cue that has.
+    auto checkMaster = [&](const Cue& cue, int d, int c) {
+      if (cue.masterAssignments.empty()) {
+        out.push_back({d, c, "master fires nothing"});
+      }
+      for (const auto& a : cue.masterAssignments) {
+        if (a.deckIndex < 0 || a.deckIndex >= static_cast<int>(project_.decks.size())) {
+          out.push_back({d, c, "master names deck " +
+                               std::to_string(a.deckIndex + 1) +
+                               ", which does not exist"});
+        } else if (findCueIndexById(a.deckIndex, a.cueId) < 0) {
+          out.push_back({d, c, "master target on deck " +
+                               std::to_string(a.deckIndex + 1) + " is gone"});
+        }
+      }
+    };
     for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
       Deck& deck = project_.decks[d];
       for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
@@ -4479,19 +4581,7 @@
         // deck. This class of fault did not exist until master cues did, and
         // it is invisible until the master is fired.
         if (cue.kind == CueKind::Master) {
-          if (cue.masterAssignments.empty()) {
-            out.push_back({d, c, "master fires nothing"});
-          }
-          for (const auto& a : cue.masterAssignments) {
-            if (a.deckIndex < 0 || a.deckIndex >= static_cast<int>(project_.decks.size())) {
-              out.push_back({d, c, "master names deck " +
-                                   std::to_string(a.deckIndex + 1) +
-                                   ", which does not exist"});
-            } else if (findCueIndexById(a.deckIndex, a.cueId) < 0) {
-              out.push_back({d, c, "master target on deck " +
-                                   std::to_string(a.deckIndex + 1) + " is gone"});
-            }
-          }
+          checkMaster(cue, d, c);
         }
 
         // A DMX cue whose channel list cannot be read. The whole point of
@@ -4569,29 +4659,107 @@
         out.push_back({d, 0, "every cue on this deck is disarmed"});
       }
     }
+    // THE MACHINE, not the show: a sound device a playlist is set to that is
+    // not plugged in, and a plugin a cue uses that is not installed here. Both
+    // play on (the default device; a silent slot) and both are what a touring
+    // show meets in a strange room -- better on this list than at the cue.
+    {
+      std::vector<std::string> present;
+      int count = 0;
+      if (SDL_AudioDeviceID* ids = SDL_GetAudioPlaybackDevices(&count)) {
+        for (int i = 0; i < count; ++i) {
+          if (const char* name = SDL_GetAudioDeviceName(ids[i])) present.emplace_back(name);
+        }
+        SDL_free(ids);
+      }
+      // An empty list is a driver mid-restart as often as no devices at all.
+      for (int d = 0; !present.empty() && d < static_cast<int>(project_.decks.size()); ++d) {
+        const std::string& wanted = project_.decks[d].audioOutputDeviceName;
+        if (!wanted.empty() && std::find(present.begin(), present.end(), wanted) == present.end()) {
+          out.push_back({d, -1, "sound device \"" + wanted + "\" is not connected"});
+        }
+      }
+    }
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[d];
+      for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+        for (const auto& fx : deck.cues[c].audioEffects) {
+          if (fx.pluginId.empty()) continue;
+          // Scanned once, then read as cached: this runs every few seconds,
+          // and the accessor rescans whenever the catalogue is empty.
+          if (!audioPluginCatalogScanned_) audioPluginCatalog();
+          const bool installed = std::any_of(
+            audioPluginCatalog_.begin(), audioPluginCatalog_.end(),
+            [&](const auto& p) { return p.id == fx.pluginId; });
+          if (!installed) {
+            const std::size_t slash = fx.pluginId.find_last_of("/\\");
+            out.push_back({d, c, "plugin " +
+                                 (slash == std::string::npos ? fx.pluginId : fx.pluginId.substr(slash + 1)) +
+                                 " is not installed here"});
+          }
+        }
+      }
+    }
+    // THE TRACKER'S OWN STEPS. Masters moved out of the playlists into these,
+    // and a scan that only walked playlists stopped seeing every one of them.
+    for (int s = 0; s < static_cast<int>(project_.trackerSteps.size()); ++s) {
+      checkMaster(project_.trackerSteps[s], kTrackerStepsDeck, s);
+    }
     return out;
   }
 
-  // One click, one problem, then the next one. Cycles rather than stopping at
-  // the end so the button never becomes inert while faults remain.
-  void jumpToNextShowProblem() {
+  // Where a problem lives, for the operator: "deck 2 cue 5" or "tracker step 3".
+  static std::string showProblemPlace(const ShowProblem& p) {
+    if (p.deckIndex == kTrackerStepsDeck) {
+      return "tracker step " + std::to_string(p.cueIndex + 1);
+    }
+    if (p.cueIndex < 0) {
+      return "deck " + std::to_string(p.deckIndex + 1);   // the playlist itself
+    }
+    return "deck " + std::to_string(p.deckIndex + 1) + " cue " + std::to_string(p.cueIndex + 1);
+  }
+
+  // Take the operator to it: the cue in its playlist, or the dashboard for a
+  // tracker step (which lives in no playlist).
+  void revealShowProblem(const ShowProblem& p) {
+    if (p.deckIndex == kTrackerStepsDeck) {
+      dashboardOverlayOpen_ = true;
+      return;
+    }
+    setFocusedDeckIndex(p.deckIndex);
+    if (p.cueIndex < 0) {
+      return;
+    }
+    selectCueInDeck(p.deckIndex, p.cueIndex, false, false);
+    scrollDeckToCueIndex(p.deckIndex, p.cueIndex, false);
+  }
+
+  // EVERYTHING WRONG, AS ONE LIST. The button used to walk the problems one
+  // toast at a time, so "how much is left to fix before doors" meant clicking
+  // until the count came round again. The list shows the lot; picking a line
+  // takes the operator to that cue (or the tracker, for a step).
+  void openShowProblemList() {
     const std::vector<ShowProblem> problems = scanShowForProblems();
+    showProblemCount_ = static_cast<int>(problems.size());
     if (problems.empty()) {
       triggerToast("nothing broken");
       return;
     }
-    if (showProblemCursor_ < 0 ||
-        showProblemCursor_ >= static_cast<int>(problems.size())) {
-      showProblemCursor_ = 0;
+    std::vector<std::pair<std::string, std::string>> choices;
+    for (std::size_t i = 0; i < problems.size(); ++i) {
+      choices.emplace_back(std::to_string(i), showProblemPlace(problems[i]) + ": " + problems[i].what);
     }
-    const ShowProblem& p = problems[showProblemCursor_];
-    showProblemCursor_ = (showProblemCursor_ + 1) % static_cast<int>(problems.size());
-    setFocusedDeckIndex(p.deckIndex);
-    selectCueInDeck(p.deckIndex, p.cueIndex, false, false);
-    scrollDeckToCueIndex(p.deckIndex, p.cueIndex, false);
-    triggerToast(std::to_string(problems.size()) + " to fix — deck " +
-                 std::to_string(p.deckIndex + 1) + " cue " +
-                 std::to_string(p.cueIndex + 1) + ": " + p.what);
+    openDropdown("show.problems", fileCheckBtnRect_, choices, std::string(),
+                 [this](const std::string& id) {
+                   // Scanned again on the pick: a fix made with the list open
+                   // must not send the operator to the wrong cue.
+                   const std::vector<ShowProblem> now = scanShowForProblems();
+                   const std::size_t i = static_cast<std::size_t>(std::atoi(id.c_str()));
+                   if (i < now.size()) {
+                     revealShowProblem(now[i]);
+                     triggerToast(showProblemPlace(now[i]) + ": " + now[i].what);
+                   }
+                 });
   }
 
   // ADD A DECK. The app has always carried up to kMaxDecks and only VJ mode
@@ -4687,6 +4855,19 @@
       output.layerDecks.swap(layers);
     }
 
+    // The tracker's own steps name playlists exactly as a master cue does.
+    for (Cue& step : project_.trackerSteps) {
+      std::vector<MasterAssignment> kept;
+      for (const MasterAssignment& a : step.masterAssignments) {
+        MasterAssignment moved = a;
+        moved.deckIndex = shift(a.deckIndex);
+        if (moved.deckIndex >= 0 && moved.deckIndex < deckCount) {
+          kept.push_back(moved);
+        }
+      }
+      step.masterAssignments.swap(kept);
+    }
+
     for (int d = 0; d < deckCount; ++d) {
       Deck& deck = project_.decks[d];
       const int route = shift(deck.outputRouteDeckIndex);
@@ -4759,6 +4940,17 @@
       return false;
     }
     const std::string name = deckLabel(deckIndex);
+    const std::size_t cueCount = project_.decks[deckIndex].cues.size();
+    // UNDOABLE. This took a playlist and every cue in it with no way back --
+    // and it once took a 2000-cue deck when the one beside it was meant.
+    // undo() resizes the engines when the deck count changes.
+    pushUndoSnapshot();
+    // The inspector's thumbnail and the row caches are keyed by deck index,
+    // so after an erase they describe a playlist that is gone (or a
+    // different one now at that index) -- the removed deck's picture stayed
+    // in the inspector preview.
+    resetTransientPreviewState();
+    cueRowDisplayCache_.clear();
     project_.decks.erase(project_.decks.begin() + deckIndex);
     remapDeckReferencesAfterRemoval(deckIndex);
     normalizeProject(project_);
@@ -4769,7 +4961,9 @@
     markProjectDirty();
     if (announce) {
       playUiSound(UiSoundEffect::DeckRemoved);
-      triggerToast("removed " + name + " (playback stopped)");
+      triggerToast("removed " + name + " (" + std::to_string(cueCount) +
+                   (cueCount == 1 ? " cue" : " cues") +
+                   ", playback stopped) - ctrl+z brings it back");
     }
     return true;
   }
@@ -5623,6 +5817,9 @@
     cue.sizeBytes = probed->sizeBytes;
     cue.audioChannels = probed->audioChannels;
     cue.audioSampleRate = probed->audioSampleRate;
+    cue.audioTrack = 0;   // a new file: its own first track
+    cue.audioTrackCount = probed->audioTrackCount;
+    cue.subtitleTrackCount = probed->subtitleTrackCount;
     cue.pipTargetCue.clear();
     refreshAutoName("media");
     return true;
@@ -6366,6 +6563,385 @@
     triggerToast("style " + deck.transitionStyle);
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
+  }
+
+  // ── CAPTIONS MADE HERE ────────────────────────────────────────────────
+  //
+  // Opt-in twice over: nothing is fetched until asked, and the first time it
+  // is asked it says what it is about to download and waits for a second
+  // press. Then one background job: download the model if needed, listen,
+  // write <name>.auto.srt beside the media, and attach it to the cue.
+  // Is the captioning engine here at all? Asked once and remembered: finding
+  // it can mean starting a process (a PATH lookup), which the inspector must
+  // not do every frame. Asked again whenever the operator presses the row, so
+  // whisper-cli put in place while Deckboy runs is found without a restart.
+  bool captioningInstalled(bool recheck = false) {
+    if (captioningInstalled_ < 0 || recheck) {
+      captioningInstalled_ = deckboy::captioning::whisperCliPath().empty() ? 0 : 1;
+    }
+    return captioningInstalled_ == 1;
+  }
+
+  void generateCaptionsForSelected(const std::string& model = deckboy::captioning::kDefaultModel) {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || !cue->hasAudio || !cueUsesFilesystemMedia(*cue)) {
+      failRemoteCommand("captions: select a cue with sound from a file");
+      return;
+    }
+    if (captionJob_.valid()) {
+      failRemoteCommand(captionJobDownloading_ ? "captions: still downloading the model"
+                                                : "captions: already listening to a cue");
+      return;
+    }
+    if (!captioningInstalled(true)) {
+      failRemoteCommand("captions: the captioning engine (whisper-cli) is not beside Deckboy - "
+                        "see the manual, Captions made on this computer");
+      return;
+    }
+    const bool needDownload = !deckboy::captioning::modelPresent(model);
+    if (needDownload) {
+      const Uint64 now = SDL_GetTicks();
+      if (captionDownloadArmedAtMs_ == 0 || now - captionDownloadArmedAtMs_ > 8000) {
+        captionDownloadArmedAtMs_ = now;
+        triggerToast("captions need a one-time 142 MB download (stays on this computer) - press again to fetch it",
+                     ToastKind::Help, kToastReadableMs);
+        remoteCommandDetail_ = "needs the model: ask again to download it";
+        return;
+      }
+      captionDownloadArmedAtMs_ = 0;
+    }
+    const auto resolved = resolveCueFilesystemPath(*cue, currentProjectFile_);
+    if (!resolved || resolved->empty()) {
+      failRemoteCommand("captions: the cue's file is missing");
+      return;
+    }
+    const fs::path media = *resolved;
+    captionJobCueId_ = cue->id;
+    captionJobDownloading_ = needDownload;
+    captionJob_ = std::async(std::launch::async, [media, model, needDownload]() {
+      if (needDownload) {
+        auto got = deckboy::captioning::downloadModel(model);
+        if (!got.ok) return got;
+      }
+      return deckboy::captioning::transcribe(media, model);
+    });
+    triggerToast(needDownload ? "downloading the caption model, then listening..." : "listening for captions...");
+    remoteCommandDetail_ = "started";
+  }
+
+  // From update(): when the job is done, attach what it made.
+  void collectCaptionJob() {
+    if (!captionJob_.valid() ||
+        captionJob_.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+      return;
+    }
+    const deckboy::captioning::Result result = captionJob_.get();
+    captionJobDownloading_ = false;
+    if (!result.ok) {
+      triggerToast(result.message, ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    for (Deck& deck : project_.decks) {
+      for (Cue& cue : deck.cues) {
+        if (cue.id != captionJobCueId_) continue;
+        cue.subtitlePath = result.srt.string();
+        cue.subtitleEnabled = true;
+        subtitleCache_.erase(cue.subtitlePath);
+        markProjectDirty();
+      }
+    }
+    triggerToast(result.message);
+  }
+
+  bool captionJobRunning() const { return captionJob_.valid(); }
+
+  // DEVAMP: the looping cue on this deck plays out the pass it is on and then
+  // ends as if it had never looped. False when nothing is playing there.
+  bool devampDeck(int deckIndex) {
+    MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (!engine || deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size()) ||
+        project_.decks[deckIndex].activeIndex < 0) {
+      return false;
+    }
+    engine->devamp();
+    triggerToast("devamp: " + deckLabel(deckIndex) + " ends after this pass");
+    return true;
+  }
+
+  // ── TRIGGERS ────────────────────────────────────────────────────────────
+  //
+  // A cue fired by a key, a MIDI note or an OSC address goes through the
+  // same take every GO does, on its own deck, with focus borrowed and given
+  // back -- the fireMasterCue pattern -- so a trigger can never be a second,
+  // drifting way of starting a cue.
+  void fireCueFromTrigger(int deckIndex, int cueIndex, const std::string& why) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size()) ||
+        cueIndex < 0 || cueIndex >= static_cast<int>(project_.decks[deckIndex].cues.size())) {
+      return;
+    }
+    if (!project_.decks[deckIndex].cues[cueIndex].armed) {
+      return;   // a disarmed cue does nothing however it is reached
+    }
+    const int savedFocus = project_.focusedDeckIndex;
+    project_.focusedDeckIndex = deckIndex;
+    selectCueInDeck(deckIndex, cueIndex, false, false);
+    takeSelected(true);
+    project_.focusedDeckIndex = savedFocus;
+    triggerToast(why + ": " + project_.decks[deckIndex].cues[cueIndex].name);
+  }
+
+  // Every cue the predicate claims, on every deck. Returns how many fired.
+  template <typename Pred>
+  int fireCuesWhere(Pred&& pred, const std::string& why) {
+    std::vector<std::pair<int, int>> hits;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[d];
+      for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+        if (pred(deck.cues[c])) {
+          hits.emplace_back(d, c);
+        }
+      }
+    }
+    for (const auto& [d, c] : hits) {
+      fireCueFromTrigger(d, c, why);
+    }
+    return static_cast<int>(hits.size());
+  }
+
+  // The keys a cue may claim: the ones the desk does not already use. F11 is
+  // fullscreen; letters, digits, arrows and Space all drive the playlist.
+  static std::string triggerKeyName(SDL_Keycode key) {
+    if (key >= SDLK_F1 && key <= SDLK_F10) return "F" + std::to_string(key - SDLK_F1 + 1);
+    if (key == SDLK_F12) return "F12";
+    if (key >= SDLK_KP_1 && key <= SDLK_KP_9) return "NUM" + std::to_string(key - SDLK_KP_1 + 1);
+    if (key == SDLK_KP_0) return "NUM0";
+    return std::string();
+  }
+
+  void beginTriggerKeyLearn() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue) {
+      return;
+    }
+    if (!cue->triggerHotkey.empty() && triggerLearnKeyCueId_.empty()) {
+      // A second press on a set hotkey clears it: learn and clear are one
+      // control, so "how do I take the key off" has an answer on the row.
+      Cue* mutableCue = selectedCueMutable();
+      mutableCue->triggerHotkey.clear();
+      markProjectDirty();
+      triggerToast("hotkey cleared");
+      return;
+    }
+    triggerLearnKeyCueId_ = cue->id;
+    triggerToast("press F1-F10, F12 or a number-pad key for this cue (Esc cancels)",
+                 ToastKind::Help, kToastReadableMs);
+  }
+
+  // From handleKeyDown, first thing. True when the key was a trigger's.
+  bool handleTriggerKey(SDL_Keycode key, bool keyRepeat) {
+    if (!triggerLearnKeyCueId_.empty()) {
+      const std::string learning = triggerLearnKeyCueId_;
+      if (key == SDLK_ESCAPE) {
+        triggerLearnKeyCueId_.clear();
+        triggerToast("hotkey: cancelled");
+        return true;
+      }
+      const std::string name = triggerKeyName(key);
+      if (name.empty()) {
+        triggerToast("that key drives the desk - use F1-F10, F12 or the number pad");
+        return true;
+      }
+      triggerLearnKeyCueId_.clear();
+      for (Deck& deck : project_.decks) {
+        for (Cue& cue : deck.cues) {
+          if (cue.id == learning) {
+            pushUndoSnapshot();
+            cue.triggerHotkey = name;
+            markProjectDirty();
+            triggerToast("hotkey " + name + ": " + cue.name);
+            return true;
+          }
+        }
+      }
+      return true;
+    }
+    if (keyRepeat) {
+      return false;
+    }
+    const std::string name = triggerKeyName(key);
+    if (name.empty()) {
+      return false;
+    }
+    return fireCuesWhere([&](const Cue& cue) { return cue.triggerHotkey == name; },
+                         "key " + name) > 0;
+  }
+
+  // MIDI: a note any cue claims fires those cues; a note none claims keeps
+  // the old meaning, "note N goes to cue N+1" on the focused deck.
+  void handleMidiTriggerNote(int note) {
+    if (!triggerLearnMidiCueId_.empty()) {
+      const std::string learning = triggerLearnMidiCueId_;
+      triggerLearnMidiCueId_.clear();
+      for (Deck& deck : project_.decks) {
+        for (Cue& cue : deck.cues) {
+          if (cue.id == learning) {
+            pushUndoSnapshot();
+            cue.triggerMidiNote = std::clamp(note, 0, 127);
+            markProjectDirty();
+            triggerToast("MIDI note " + std::to_string(note) + ": " + cue.name);
+            return;
+          }
+        }
+      }
+      return;
+    }
+    const int fired = fireCuesWhere(
+      [&](const Cue& cue) { return cue.triggerMidiNote == note; },
+      "MIDI " + std::to_string(note));
+    if (fired == 0) {
+      handleRemoteCommand("GOTO " + std::to_string(note + 1));
+    }
+  }
+
+  // OSC: an address no built-in verb answers, matched against every cue's.
+  // Case-insensitive and with or without the leading slash, because the
+  // controller sending it was set up by a different person on a different day.
+  static std::string normalizedOscAddress(std::string address) {
+    address = toUpper(trim(address));
+    if (!address.empty() && address[0] != '/') {
+      address.insert(address.begin(), '/');
+    }
+    return address;
+  }
+
+  int handleOscTrigger(const std::string& address) {
+    const std::string wanted = normalizedOscAddress(address);
+    if (wanted.size() <= 1) {
+      return 0;
+    }
+    return fireCuesWhere(
+      [&](const Cue& cue) {
+        return !cue.triggerOscAddress.empty() &&
+               normalizedOscAddress(cue.triggerOscAddress) == wanted;
+      },
+      "OSC " + address);
+  }
+
+  static std::string formatTimeOfDay(double seconds) {
+    const int whole = static_cast<int>(std::lround(std::max(0.0, seconds)));
+    char out[16];
+    std::snprintf(out, sizeof(out), "%02d:%02d:%02d", whole / 3600, (whole / 60) % 60, whole % 60);
+    return out;
+  }
+
+  void editSelectedTriggerTime() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue) return;
+    openInlineTextEditor(
+      "trigger.time", "Fire at a time of day",
+      "HH:MM or HH:MM:SS on this computer's clock; empty for none",
+      cue->scheduledStartSeconds >= 0.0 ? formatTimeOfDay(cue->scheduledStartSeconds) : "",
+      [this](const std::string& value) {
+        const std::string v = trim(value);
+        pushUndoSnapshot();
+        if (v.empty() || toUpper(v) == "OFF") {
+          forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+            each.scheduledStartSeconds = -1.0;
+            each.scheduledStartFired = false;
+          });
+          markProjectDirty();
+          triggerToast("time trigger cleared");
+          return;
+        }
+        int hh = 0, mm = 0, ss = 0;
+        if (std::sscanf(v.c_str(), "%d:%d:%d", &hh, &mm, &ss) < 2 ||
+            hh < 0 || hh > 23 || mm < 0 || mm > 59 || ss < 0 || ss > 59) {
+          triggerToast("time: type it as HH:MM or HH:MM:SS");
+          return;
+        }
+        const double at = hh * 3600.0 + mm * 60.0 + ss;
+        forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+          each.scheduledStartSeconds = at;
+          each.scheduledStartFired = false;
+        });
+        markProjectDirty();
+        triggerToast("fires at " + formatTimeOfDay(at));
+      });
+  }
+
+  void editSelectedTriggerTimecode() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue) return;
+    const double fps = focusedDeck().timecodeFps;
+    openInlineTextEditor(
+      "trigger.tc", "Fire at incoming timecode",
+      "HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none",
+      cue->triggerTimecodeSeconds >= 0.0 ? formatTimecode(cue->triggerTimecodeSeconds, fps) : "",
+      [this, fps](const std::string& value) {
+        const std::string v = trim(value);
+        if (v.empty() || toUpper(v) == "OFF") {
+          pushUndoSnapshot();
+          clearSelectedCueTimecodeTrigger();
+          return;
+        }
+        auto seconds = parseTimecodeSeconds(v, fps);
+        if (!seconds) {
+          triggerToast("timecode: type it as HH:MM:SS:FF");
+          return;
+        }
+        pushUndoSnapshot();
+        setSelectedCueTimecodeTrigger(*seconds);
+      });
+  }
+
+  void editSelectedTriggerMidi() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue) return;
+    openInlineTextEditor(
+      "trigger.midi", "Fire on a MIDI note",
+      "a note number 0-127, LEARN to take the next note played, or empty for none",
+      cue->triggerMidiNote >= 0 ? std::to_string(cue->triggerMidiNote) : "",
+      [this](const std::string& value) {
+        const std::string v = toUpper(trim(value));
+        const Cue* now = selectedCuePtr();
+        if (!now) return;
+        if (v == "LEARN") {
+          triggerLearnMidiCueId_ = now->id;
+          triggerToast("play the note that should fire this cue", ToastKind::Help, kToastReadableMs);
+          return;
+        }
+        int note = -1;
+        if (!v.empty() && v != "OFF") {
+          char* end = nullptr;
+          note = static_cast<int>(std::strtol(v.c_str(), &end, 10));
+          if (end == v.c_str() || note < 0 || note > 127) {
+            triggerToast("MIDI: a note number 0-127, or LEARN");
+            return;
+          }
+        }
+        pushUndoSnapshot();
+        selectedCueMutable()->triggerMidiNote = note;
+        markProjectDirty();
+        triggerToast(note < 0 ? std::string("MIDI trigger cleared")
+                              : "fires on MIDI note " + std::to_string(note));
+      });
+  }
+
+  void editSelectedTriggerOsc() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue) return;
+    openInlineTextEditor(
+      "trigger.osc", "Fire on an OSC address",
+      "e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none",
+      cue->triggerOscAddress,
+      [this](const std::string& value) {
+        pushUndoSnapshot();
+        std::string v = trim(value);
+        if (!v.empty() && v[0] != '/') v.insert(v.begin(), '/');
+        selectedCueMutable()->triggerOscAddress = v;
+        markProjectDirty();
+        triggerToast(v.empty() ? std::string("OSC trigger cleared") : "fires on OSC " + v);
+      });
   }
 
   bool setSelectedCueTimecodeTrigger(double seconds) {

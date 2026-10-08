@@ -34,7 +34,7 @@
 namespace mini {
 
 struct Key {
-  enum Kind { Char, Up, Down, Left, Right, Enter, Escape, Backspace, Tab } kind = Char;
+  enum Kind { Char, Up, Down, Left, Right, Enter, Escape, Backspace, Tab, DeleteWord } kind = Char;
   char ch = 0;  // the character, for Kind::Char (printable ASCII)
 };
 
@@ -104,6 +104,7 @@ class TerminalKeys {
         default: break;
       }
       const wchar_t c = k.uChar.UnicodeChar;
+      if (c == 0x17) return Key {Key::DeleteWord};   // Ctrl+W
       if (c >= 32 && c < 127) return Key {Key::Char, static_cast<char>(c)};
     }
     return std::nullopt;
@@ -128,6 +129,7 @@ class TerminalKeys {
     if (c == '\r' || c == '\n') return Key {Key::Enter};
     if (c == 127 || c == 8) return Key {Key::Backspace};
     if (c == '\t') return Key {Key::Tab};
+    if (c == 0x17) return Key {Key::DeleteWord};   // Ctrl+W
     if (c >= 32 && c < 127) return Key {Key::Char, static_cast<char>(c)};
     return std::nullopt;
 #endif

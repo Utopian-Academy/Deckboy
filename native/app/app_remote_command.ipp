@@ -283,6 +283,11 @@
         remoteCommandDetail_ = "nothing broken";
         return;
       }
+      if (parts.size() > 1 && toUpper(parts[1]) == "LIST") {
+        openShowProblemList();     // what the CHECK button opens
+        remoteCommandDetail_ = std::to_string(problems.size()) + " listed";
+        return;
+      }
       if (parts.size() > 1) {
         int which = 0;
         try {
@@ -297,12 +302,8 @@
           return;
         }
         const ShowProblem& p = problems[which];
-        setFocusedDeckIndex(p.deckIndex);
-        selectCueInDeck(p.deckIndex, p.cueIndex, false, false);
-        scrollDeckToCueIndex(p.deckIndex, p.cueIndex, false);
-        remoteCommandDetail_ = "deck " + std::to_string(p.deckIndex + 1) +
-                               " cue " + std::to_string(p.cueIndex + 1) +
-                               ": " + p.what;
+        revealShowProblem(p);
+        remoteCommandDetail_ = showProblemPlace(p) + ": " + p.what;
         return;
       }
       std::ostringstream out;
@@ -313,8 +314,7 @@
           out << " | ...";
           break;
         }
-        out << " | " << (shown) << ") deck " << (p.deckIndex + 1)
-            << " cue " << (p.cueIndex + 1) << ": " << p.what;
+        out << " | " << (shown) << ") " << showProblemPlace(p) << ": " << p.what;
       }
       remoteCommandDetail_ = out.str();
       return;
@@ -460,6 +460,212 @@
         return;
       }
       failRemoteCommand("MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR");
+      return;
+    }
+    // MIDINOTE <n> and OSCTRIGGER <address> are the network threads handing a
+    // note or an address to the main thread; TRIGGER sets a cue's own.
+    if (command == "MIDINOTE" && parts.size() >= 2) {
+      handleMidiTriggerNote(std::atoi(parts[1].c_str()));
+      return;
+    }
+    if (command == "OSCTRIGGER" && parts.size() >= 2) {
+      // Quiet when nothing answers: a controller sends plenty an operator
+      // never meant for a cue, and every one of those used to vanish silently.
+      const int fired = handleOscTrigger(parts[1]);
+      remoteCommandDetail_ = std::to_string(fired) + (fired == 1 ? " cue" : " cues");
+      return;
+    }
+    // TRIGGER                       -> the selected cue's triggers
+    // TRIGGER KEY F5|NUM3|OFF       -> its hotkey
+    // TRIGGER MIDI <0-127>|OFF      -> its MIDI note
+    // TRIGGER OSC /addr|OFF         -> its OSC address
+    // TRIGGER AT HH:MM[:SS]|OFF     -> its time of day (the same as SCHEDULE)
+    if (command == "TRIGGER") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("TRIGGER: select a cue");
+        return;
+      }
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      const std::string arg = parts.size() > 2 ? trim(joinParts(parts, 2)) : std::string();
+      const bool off = toUpper(arg) == "OFF" || toUpper(arg) == "NONE";
+      if (sub == "KEY" && !arg.empty()) {
+        const std::string k = toUpper(arg);
+        const bool ok = off || (k.size() >= 2 && k[0] == 'F' &&
+                                ((std::atoi(k.c_str() + 1) >= 1 && std::atoi(k.c_str() + 1) <= 10) ||
+                                 k == "F12")) ||
+                        (k.size() == 4 && k.rfind("NUM", 0) == 0 && std::isdigit(static_cast<unsigned char>(k[3])));
+        if (!ok) {
+          failRemoteCommand("TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF");
+          return;
+        }
+        cue->triggerHotkey = off ? std::string() : k;
+      } else if (sub == "MIDI" && !arg.empty()) {
+        const int note = off ? -1 : std::atoi(arg.c_str());
+        if (note < -1 || note > 127) {
+          failRemoteCommand("TRIGGER MIDI: a note 0-127 or OFF");
+          return;
+        }
+        cue->triggerMidiNote = note;
+      } else if (sub == "OSC" && !arg.empty()) {
+        std::string a = off ? std::string() : arg;
+        if (!a.empty() && a[0] != '/') a.insert(a.begin(), '/');
+        cue->triggerOscAddress = a;
+      } else if (sub == "AT" && !arg.empty()) {
+        if (off) {
+          cue->scheduledStartSeconds = -1.0;
+        } else {
+          int hh = 0, mm = 0, ss = 0;
+          if (std::sscanf(arg.c_str(), "%d:%d:%d", &hh, &mm, &ss) < 2 ||
+              hh < 0 || hh > 23 || mm < 0 || mm > 59 || ss < 0 || ss > 59) {
+            failRemoteCommand("TRIGGER AT: HH:MM[:SS] or OFF");
+            return;
+          }
+          cue->scheduledStartSeconds = hh * 3600.0 + mm * 60.0 + ss;
+        }
+        cue->scheduledStartFired = false;
+      } else if (!sub.empty()) {
+        failRemoteCommand("TRIGGER: KEY, MIDI, OSC or AT");
+        return;
+      }
+      if (!sub.empty()) {
+        markProjectDirty();
+      }
+      std::ostringstream out;
+      out << "key " << (cue->triggerHotkey.empty() ? "-" : cue->triggerHotkey)
+          << " | midi " << (cue->triggerMidiNote < 0 ? std::string("-") : std::to_string(cue->triggerMidiNote))
+          << " | osc " << (cue->triggerOscAddress.empty() ? "-" : cue->triggerOscAddress)
+          << " | at " << (cue->scheduledStartSeconds < 0.0 ? std::string("-")
+                                                         : formatTimeOfDay(cue->scheduledStartSeconds));
+      remoteCommandDetail_ = out.str();
+      return;
+    }
+    // DEVAMP [<deck>]: the looping cue on that deck (or the focused one) plays
+    // out its pass and ends.
+    if (command == "DEVAMP") {
+      int deckIndex = project_.focusedDeckIndex;
+      if (parts.size() > 1) {
+        deckIndex = std::atoi(parts[1].c_str()) - 1;
+      }
+      if (!devampDeck(deckIndex)) {
+        failRemoteCommand("DEVAMP: nothing is playing on that deck");
+        return;
+      }
+      remoteCommandDetail_ = "ends after this pass";
+      return;
+    }
+    // AUDIOTRACK [NEXT|<n>]: which of the selected cue's sound tracks plays.
+    if (command == "AUDIOTRACK") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("AUDIOTRACK: no cue selected");
+        return;
+      }
+      if (parts.size() > 1) {
+        const std::string arg = toUpper(parts[1]);
+        const int count = std::max(1, cue->audioTrackCount);
+        const int want = arg == "NEXT" ? (cue->audioTrack + 1) % count : std::atoi(arg.c_str()) - 1;
+        if (want < 0 || want >= count) {
+          failRemoteCommand("AUDIOTRACK: this file has " + std::to_string(count) + " sound track" +
+                            (count == 1 ? "" : "s"));
+          return;
+        }
+        if (want != cue->audioTrack) {
+          cue->audioTrack = (want + count - 1) % count;   // cycle lands on want
+          cycleSelectedAudioTrack();
+        }
+      }
+      remoteCommandDetail_ = std::to_string(cue->audioTrack + 1) + " of " +
+                             std::to_string(std::max(1, cue->audioTrackCount));
+      return;
+    }
+    // MEDIAMTX                -> where it is and what it carries
+    // MEDIAMTX HOST <host>     -> where it runs (empty: this computer)
+    // MEDIAMTX ADD <name>      -> one of its streams as a stream cue
+    // MEDIAMTX PUBLISH [name]  -> the focused output's programme to it
+    if (command == "MEDIAMTX") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub == "HOST") {
+        project_.mediamtxHost = parts.size() > 2 ? trim(parts[2]) : std::string();
+        markProjectDirty();
+        remoteCommandDetail_ = mediamtxHost();
+        return;
+      }
+      if (sub == "ADD" && parts.size() > 2) {
+        addMediamtxStreamCue(parts[2]);
+        remoteCommandDetail_ = "added " + parts[2];
+        return;
+      }
+      if (sub == "PUBLISH") {
+        sendProgrammeToMediamtx(parts.size() > 2 ? parts[2] : std::string("deckboy"));
+        remoteCommandDetail_ = "http://" + mediamtxHost() + ":8888/" + (parts.size() > 2 ? parts[2] : std::string("deckboy"));
+        return;
+      }
+      std::string why;
+      const auto streams = mediamtxStreams(&why);
+      if (streams.empty()) {
+        failRemoteCommand(why);
+        return;
+      }
+      std::string list = mediamtxHost() + ":";
+      for (const auto& [name, ready] : streams) list += " " + name + (ready ? "(live)" : "(waiting)");
+      remoteCommandDetail_ = list;
+      return;
+    }
+    // CAPTIONS GENERATE [model] | ON | OFF | STATUS: captions for the selected cue.
+    if (command == "CAPTIONS") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
+      Cue* cue = selectedCueMutable();
+      if (sub == "GENERATE" || sub == "MAKE") {
+        generateCaptionsForSelected(parts.size() > 2 ? parts[2] : std::string(deckboy::captioning::kDefaultModel));
+        return;
+      }
+      if (!cue) {
+        failRemoteCommand("CAPTIONS: select a cue");
+        return;
+      }
+      if (sub == "ON" || sub == "OFF") {
+        cue->subtitleEnabled = sub == "ON";
+        markProjectDirty();
+      }
+      remoteCommandDetail_ = std::string(captionJobRunning() ? "working | " : "idle | ") +
+        (cue->subtitlePath.empty() ? std::string("none") : fs::path(cue->subtitlePath).filename().string()) +
+        (cue->subtitleEnabled ? " on" : " off");
+      return;
+    }
+    // MEMOCUE <text>: a memo after the selected cue.
+    if (command == "MEMOCUE" || command == "MEMO") {
+      const std::string text = parts.size() > 1 ? trim(joinParts(parts, 1)) : std::string();
+      if (text.empty()) {
+        failRemoteCommand("MEMOCUE: expected the note");
+        return;
+      }
+      pushUndoSnapshot();
+      addMemoCue(text);
+      remoteCommandDetail_ = "memo at " + std::to_string(focusedDeck().selectedIndex + 1);
+      return;
+    }
+    if (command == "UNDO" || command == "REDO") {
+      // The desk's ctrl+z / ctrl+y, so a surface can take back what it did --
+      // a playlist removed by mistake above all.
+      const bool isUndo = command == "UNDO";
+      if (isUndo ? undoStack_.empty() : redoStack_.empty()) {
+        failRemoteCommand(isUndo ? "nothing to undo" : "nothing to redo");
+        return;
+      }
+      if (isUndo) {
+        undo();
+      } else {
+        redo();
+      }
+      std::size_t cues = 0;
+      for (const Deck& deck : project_.decks) {
+        cues += deck.cues.size();
+      }
+      remoteCommandDetail_ = "decks: " + std::to_string(project_.decks.size()) +
+                             " | cues: " + std::to_string(cues) +
+                             " | tracker steps: " +
+                             std::to_string(project_.trackerSteps.size());
       return;
     }
     if (command == "DECKREMOVE" || command == "DECKDEL") {
@@ -1139,7 +1345,12 @@
             return;
           }
         }
-        failRemoteCommand("TEXTCUE LOOK: bar, boxes, line, tag, glass or arcade");
+        // From the enum, so the list in the error can never fall behind it.
+        std::string looks;
+        for (int i = 0; i < static_cast<int>(LowerThirdLook::Count); ++i) {
+          looks += (i ? ", " : "") + std::string(lowerThirdLookLabel(static_cast<LowerThirdLook>(i)));
+        }
+        failRemoteCommand("TEXTCUE LOOK: one of " + looks);
         return;
       }
       // Its colours, by name from the fixed list, and its size -- the three
@@ -2186,8 +2397,14 @@
         remoteCommandDetail_ = trackerStatusLine();
         return;
       }
+      if (sub == "ADD" || sub == "NEW") {
+        pushUndoSnapshot();
+        addTrackerStep();
+        remoteCommandDetail_ = trackerStatusLine();
+        return;
+      }
       if (rows.empty() && sub != "LOOP" && sub != "CLICKER") {
-        failRemoteCommand("TRACKER: there are no steps (MASTER NEW makes one)");
+        failRemoteCommand("TRACKER: there are no steps (TRACKER ADD makes one)");
         return;
       }
       // Each of these answers with where the sequence ended up, so a Stream
@@ -2223,6 +2440,36 @@
         remoteCommandDetail_ = trackerStatusLine();
         return;
       }
+      // TRACKER SET <step> <deck> <cue|none>: one cell of the grid, the same
+      // write the desk's cell dropdown makes. Cue is 1-based in that deck.
+      if (sub == "SET" && parts.size() >= 5) {
+        const int step = std::atoi(parts[2].c_str());
+        const int deck = std::atoi(parts[3].c_str()) - 1;
+        if (step < 1 || step > static_cast<int>(rows.size())) {
+          failRemoteCommand("TRACKER SET: no step " + parts[2]);
+          return;
+        }
+        if (deck < 0 || deck >= static_cast<int>(project_.decks.size())) {
+          failRemoteCommand("TRACKER SET: no deck " + parts[3]);
+          return;
+        }
+        const bool none = toUpper(parts[4]) == "NONE" || parts[4] == "-";
+        const int cue = none ? -1 : std::atoi(parts[4].c_str()) - 1;
+        if (!none && (cue < 0 ||
+                      cue >= static_cast<int>(project_.decks[deck].cues.size()))) {
+          failRemoteCommand("TRACKER SET: deck " + parts[3] + " has no cue " + parts[4]);
+          return;
+        }
+        const auto& row = rows[static_cast<std::size_t>(step - 1)];
+        if (!setMasterTrackerCell(row.first, row.second, deck, cue)) {
+          failRemoteCommand("TRACKER SET: that cue cannot be fired by a step");
+          return;
+        }
+        remoteCommandDetail_ = "step " + parts[2] + " " + deckLabel(deck) + ": " +
+          (none ? std::string("nothing")
+                : masterTrackerCellLabel(row.first, row.second, deck));
+        return;
+      }
       if (sub == "LOOP") {
         project_.trackerLoop = onOff(project_.trackerLoop);
         markProjectDirty();
@@ -2235,22 +2482,21 @@
         remoteCommandDetail_ = project_.clickerDrivesTracker ? "clicker on" : "clicker off";
         return;
       }
-      failRemoteCommand("TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, LOOP or CLICKER");
+      failRemoteCommand("TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue>, LOOP or CLICKER");
       return;
     }
     if (command == "MASTER" || command == "MASTERCUE") {
-      // MASTER NEW                     -> add a master cue to this deck
+      // MASTER NEW                     -> add a step to the tracker
       // MASTER DECK <n> <cue>          -> assign: deck n plays cue <cue>
-      // MASTER BYPASS <n> ON|OFF       -> skip deck n when this master fires
+      // MASTER BYPASS <n> ON|OFF       -> skip deck n when this step fires
       // MASTER CLEAR                   -> drop every assignment
-      // MASTER FIRE                    -> take it now
+      // MASTER FIRE [<name>]           -> take it now
       // MASTER                         -> report what it holds
-      const int deckIndex = project_.focusedDeckIndex;
-      if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-        failRemoteCommand("MASTER: no deck");
-        return;
-      }
-      Deck& deck = project_.decks[deckIndex];
+      //
+      // "This step" is the tracker's CURRENT step: the one last made or
+      // fired, else the last one. It used to be the master cue selected in
+      // the focused playlist, and master cues no longer live in playlists --
+      // so MASTER NEW then MASTER DECK 2 5 still builds a step, in order.
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
 
       if (sub == "NEW") {
@@ -2266,28 +2512,32 @@
         // adding to it -- reported as a stray master cue appearing in a deck
         // that was not the one holding the sequence. Same retarget, same
         // real function, now.
-        const auto rows = masterTrackerRows();
-        if (rows.empty()) {
-          addMasterCue();
-        } else {
-          const int savedFocus = project_.focusedDeckIndex;
-          project_.focusedDeckIndex = rows.back().first;
-          addMasterCue();
-          project_.focusedDeckIndex = savedFocus;
-        }
+        // And now the same place the tracker's "+ step" puts one: the
+        // tracker's own list, never a playlist.
+        addTrackerStep();
         remoteCommandDetail_ = "master cue " + std::to_string(masterTrackerRows().size());
         return;
       }
 
-      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
-        failRemoteCommand("MASTER: select a cue first");
+      const auto rows = masterTrackerRows();
+      int currentRow = -1;
+      for (int r = 0; r < static_cast<int>(rows.size()); ++r) {
+        const Cue* step = masterTrackerCue(rows[r].first, rows[r].second);
+        if (step && step->id == trackerCurrentStepId_) {
+          currentRow = r;
+        }
+      }
+      if (currentRow < 0) {
+        currentRow = static_cast<int>(rows.size()) - 1;
+      }
+      Cue* stepPtr = currentRow >= 0
+        ? masterTrackerCueMutable(rows[currentRow].first, rows[currentRow].second) : nullptr;
+      if (!stepPtr && !(sub == "FIRE" || sub == "GO" || sub == "TAKE")) {
+        failRemoteCommand("MASTER: the tracker has no steps (MASTER NEW makes one)");
         return;
       }
-      Cue& cue = deck.cues[deck.selectedIndex];
-      if (cue.kind != CueKind::Master) {
-        failRemoteCommand("MASTER: the selected cue is not a master");
-        return;
-      }
+      Cue dummy;
+      Cue& cue = stepPtr ? *stepPtr : dummy;
 
       if (sub.empty()) {
         std::ostringstream out;
@@ -2311,24 +2561,23 @@
         // every button on a dashboard of masters do the same thing.
         if (parts.size() >= 3) {
           const std::string wanted = trim(joinParts(parts, 2));
-          for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
-            const Deck& searched = project_.decks[d];
-            for (int c = 0; c < static_cast<int>(searched.cues.size()); ++c) {
-              const Cue& candidate = searched.cues[c];
-              if (candidate.kind != CueKind::Master) {
-                continue;
-              }
-              if (candidate.id == wanted || candidate.name == wanted) {
-                fireMasterCue(d, c);
-                remoteCommandDetail_ = candidate.name;
-                return;
-              }
+          for (int r = 0; r < static_cast<int>(rows.size()); ++r) {
+            const Cue* candidate = masterTrackerCue(rows[r].first, rows[r].second);
+            if (candidate && (candidate->id == wanted || candidate->name == wanted)) {
+              const std::string name = candidate->name;
+              fireTrackerRow(r);
+              remoteCommandDetail_ = name;
+              return;
             }
           }
-          failRemoteCommand("MASTER FIRE: no master cue called '" + wanted + "'");
+          failRemoteCommand("MASTER FIRE: no step called '" + wanted + "'");
           return;
         }
-        fireMasterCue(deckIndex, deck.selectedIndex);
+        if (currentRow < 0) {
+          failRemoteCommand("MASTER: the tracker has no steps (MASTER NEW makes one)");
+          return;
+        }
+        fireTrackerRow(currentRow);
         return;
       }
       if (sub == "CLEAR") {
@@ -4873,6 +5122,53 @@
     // rounds of chasing one that was not there. This enters at
     // handleMouseDown, so everything that decides WHICH control was hit is
     // exercised, which is the layer those bugs live in.
+    // DEV VERBS for sweeping controls without a mouse (scripted input does not
+    // reach SDL3). OUTSNAP <file.bmp> [output]: the next frame that output
+    // presents, as presented. QUICKLIST: the inspector controls drawn this
+    // frame, "action param tip" a line. QUICK <action> [param]: press one.
+    if (command == "OUTSNAP") {
+      if (parts.size() < 2) {
+        failRemoteCommand("OUTSNAP: expected a .bmp path");
+        return;
+      }
+      outputSnapPath_ = joinParts(parts, 1);
+      outputSnapIndex_ = std::max(0, project_.focusedOutputIndex);
+      if (parts.size() >= 3 && std::isdigit(static_cast<unsigned char>(parts.back()[0])) &&
+          parts.back().find('.') == std::string::npos) {
+        outputSnapIndex_ = std::max(0, std::atoi(parts.back().c_str()) - 1);
+        outputSnapPath_ = joinParts(std::vector<std::string>(parts.begin(), parts.end() - 1), 1);
+      }
+      remoteCommandDetail_ = "next frame of output " + std::to_string(outputSnapIndex_ + 1);
+      return;
+    }
+    // UISNAP <bmp>: the CONTROL window as drawn, for a test to look at -- the
+    // way OUTSNAP is the output. Unlike --ui-dump it keeps the app running.
+    if (command == "UISNAP") {
+      if (parts.size() < 2) {
+        failRemoteCommand("UISNAP: expected a .bmp path");
+        return;
+      }
+      uiDumpPath_ = joinParts(parts, 1);
+      uiDumpFramesLeft_ = 2;
+      uiDumpThenQuit_ = false;
+      remoteCommandDetail_ = "next frame of the control window";
+      return;
+    }
+    if (command == "QUICKLIST") {
+      std::ostringstream out;
+      for (const QuickButton& b : quickButtons_) {
+        out << static_cast<int>(b.action) << ' ' << b.param << ' ' << b.tip << '\n';
+      }
+      remoteCommandDetail_ = out.str();
+      return;
+    }
+    if (command == "QUICK" && parts.size() >= 2) {
+      const int action = std::atoi(parts[1].c_str());
+      const int param = parts.size() >= 3 ? std::atoi(parts[2].c_str()) : -1;
+      dispatchQuickAction(static_cast<QuickAction>(action), param);
+      remoteCommandDetail_ = "pressed " + parts[1];
+      return;
+    }
     if (command == "CLICK") {
       if (parts.size() < 3) {
         failRemoteCommand("CLICK: expected x y");
@@ -6874,6 +7170,65 @@
           setFocusedDeckWarpEnabled(true);
           return;
         }
+        // WARP EDIT [ON|OFF]          -> the editor on the programme monitor
+        // WARP SELECT TL|TR|BR|BL     -> the point typed values and arrows act on
+        // WARP SELECT <col> <row>     -> a grid point (1-based)
+        // WARP AT <x> <y>             -> put the selected point there, in output
+        //                                pixels (percent on a layer's pin)
+        if (warpArg == "EDIT") {
+          const bool on = parts.size() <= 3 || toUpper(parts[3]) != "OFF";
+          if (on && !focusedOutput().warpEnabled && !focusedLayerPin()) {
+            setFocusedDeckWarpEnabled(true);
+          }
+          warpEditMode_ = on;
+          remoteCommandDetail_ = on ? "warp editor open" : "warp editor closed";
+          return;
+        }
+        if (warpArg == "SELECT" && parts.size() >= 4) {
+          const std::string which = toUpper(parts[3]);
+          static const char* kCorners[] = {"TL", "TR", "BR", "BL"};
+          int chosen = -1;
+          for (int i = 0; i < 4; ++i) {
+            if (which == kCorners[i]) chosen = i;
+          }
+          if (chosen < 0 && parts.size() >= 5) {
+            const OutputTarget& out = focusedOutput();
+            const int col = std::atoi(parts[3].c_str()) - 1;
+            const int row = std::atoi(parts[4].c_str()) - 1;
+            if (warpGridActive(out) && col >= 0 && col < out.warpGridCols &&
+                row >= 0 && row < out.warpGridRows) {
+              chosen = 100 + row * out.warpGridCols + col;
+            }
+          }
+          if (chosen < 0) {
+            failRemoteCommand("WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>");
+            return;
+          }
+          warpSelPoint_ = chosen;
+          remoteCommandDetail_ = "selected";
+          return;
+        }
+        if (warpArg == "AT" && parts.size() >= 5) {
+          char* endX = nullptr;
+          char* endY = nullptr;
+          const float vx = std::strtof(parts[3].c_str(), &endX);
+          const float vy = std::strtof(parts[4].c_str(), &endY);
+          if (endX == parts[3].c_str() || endY == parts[4].c_str()) {
+            failRemoteCommand("WARP AT: expected two numbers");
+            return;
+          }
+          if (!setWarpSelectedPointValue(vx, vy)) {
+            failRemoteCommand("WARP AT: open the editor (WARP EDIT) and select a point first");
+            return;
+          }
+          float gx = 0.0f;
+          float gy = 0.0f;
+          warpSelectedPointValue(gx, gy);
+          char buf[64];
+          std::snprintf(buf, sizeof(buf), "%.1f %.1f", gx, gy);
+          remoteCommandDetail_ = buf;
+          return;
+        }
         if (warpArg == "OFF") {
           setFocusedDeckWarpEnabled(false);
           return;
@@ -7785,6 +8140,49 @@
                                " hosting deck " + std::to_string(host + 1);
         return;
       }
+      // OUTPUT AOI                      -> the focused output's area of interest
+      // OUTPUT AOI <WxH>|FULL [<x> <y>]  -> set its size (centred where it is,
+      //                                     or at x,y in raster pixels)
+      if (sub == "AOI") {
+        if (project_.outputs.empty()) {
+          failRemoteCommand("OUTPUT AOI: no outputs");
+          return;
+        }
+        if (parts.size() >= 4 && toUpper(parts[2]) == "MODE") {
+          const std::string mode = toUpper(parts[3]);
+          if (mode != "PIXEL" && mode != "FILL") {
+            failRemoteCommand("OUTPUT AOI MODE: expected PIXEL or FILL");
+            return;
+          }
+          focusedOutputMutable().aoiPixelForPixel = mode == "PIXEL";
+          markProjectDirty();
+        } else if (parts.size() >= 3) {
+          const std::string size = parts[2];
+          if (toUpper(size) == "FULL") {
+            applyFocusedOutputAoiSizeToken("full");
+          } else {
+            int w = 0;
+            int h = 0;
+            if (!parseAoiSizeText(size, w, h)) {
+              failRemoteCommand("OUTPUT AOI: expected a size like 256x256, or FULL");
+              return;
+            }
+            if (parts.size() >= 5) {
+              applyFocusedOutputAoiRectPx(std::atoi(parts[3].c_str()),
+                                          std::atoi(parts[4].c_str()), w, h);
+            } else {
+              applyFocusedOutputAoiSizeToken(std::to_string(w) + "x" + std::to_string(h));
+            }
+          }
+        }
+        const AoiRectPx aoi = focusedOutputAoiRectPx();
+        remoteCommandDetail_ = std::to_string(aoi.w) + "x" + std::to_string(aoi.h) +
+                               " @ " + std::to_string(aoi.x) + "," + std::to_string(aoi.y) +
+                               " of " + std::to_string(aoi.rasterW) + "x" +
+                               std::to_string(aoi.rasterH) +
+                               (focusedOutput().aoiPixelForPixel ? " | pixel" : " | fill");
+        return;
+      }
       if (sub == "SELECT" && parts.size() >= 3) {
         int which = 0;
         try {
@@ -8406,6 +8804,28 @@
         char buf[48];
         std::snprintf(buf, sizeof(buf), "%+.1f dB", cue->audioGainDb);
         remoteCommandDetail_ = buf;
+        return;
+      }
+      // AUDIOGAIN BY <dB>: every selected cue moves by that much from where it
+      // is -- the desk's - / + -- where AUDIOGAIN <dB> sets them all to one value.
+      if (toUpper(parts[1]) == "BY") {
+        auto delta = parseNumber(2);
+        if (!delta) {
+          failRemoteCommand("AUDIOGAIN BY: expected a number of dB");
+          return;
+        }
+        if (!adjustSelectedAudioGain(*delta)) {
+          failRemoteCommand("AUDIOGAIN BY: no selected cue has audio");
+          return;
+        }
+        int moved = 0;
+        forEachSelectedCueEverywhere([&](Cue& each, int) {
+          if (each.hasAudio) ++moved;
+        });
+        char buf[64];
+        std::snprintf(buf, sizeof(buf), "%d cues moved %+.1f dB", moved, *delta);
+        remoteCommandDetail_ = buf;
+        triggerToast(std::string(buf) + audioEditScopeSuffix());
         return;
       }
       auto value = parseNumber(1);
