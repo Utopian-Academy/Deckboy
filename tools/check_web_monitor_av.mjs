@@ -301,8 +301,12 @@ try {
       await sleep(2000);
     }
   })();
-  const [captureResult, browserResult] = await Promise.allSettled([capture(base+'/av/'+match[1]+authQuery, path.join(root,'web.mp4')),checkBrowser(base)]);
-  polling=false; await poll;
+  // ONE THING AT A TIME. The browser check (headless Firefox or Chrome
+  // decoding the same stream) used to run DURING the timed capture, on the
+  // same machine -- load the timing then measured as if it were Deckboy's.
+  const [captureResult] = await Promise.allSettled([capture(base+'/av/'+match[1]+authQuery, path.join(root,'web.mp4'))]);
+  polling=false; await poll;   // telemetry covers the timed window only
+  const [browserResult] = await Promise.allSettled([checkBrowser(base)]);
   fs.writeFileSync(path.join(root,'telemetry.json'),JSON.stringify(telemetry,null,2));
   if (captureResult.status === 'rejected') throw captureResult.reason;
   const {error:captureError,elapsed} = captureResult.value;
