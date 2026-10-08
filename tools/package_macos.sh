@@ -85,8 +85,18 @@ chmod +x "$MACOS_DIR/Deckboy"
 # --- ffmpeg / ffprobe -------------------------------------------------------
 # Deckboy shells out to these for probing and for the fallback decode path, so a
 # bundle without them plays nothing on a machine that has no Homebrew.
+# DECKBOY_DEPS_PREFIX: the libraries tools/macos_build_deps.sh built for the
+# macOS this bundle claims. When it is set, its ffmpeg is the one bundled --
+# Homebrew's is built for the build machine's macOS and cannot start on older
+# ones (v0.99.405 on Ventura: no icons, no imports).
+DEPS_PREFIX="${DECKBOY_DEPS_PREFIX:-}"
 for tool in ffmpeg ffprobe; do
-  if src="$(command -v "$tool" 2>/dev/null)"; then
+  if [ -n "$DEPS_PREFIX" ] && [ -x "$DEPS_PREFIX/bin/$tool" ]; then
+    src="$DEPS_PREFIX/bin/$tool"
+  else
+    src="$(command -v "$tool" 2>/dev/null || true)"
+  fi
+  if [ -n "$src" ]; then
     cp "$src" "$MACOS_DIR/$tool"
     chmod +x "$MACOS_DIR/$tool"
     echo "  + $tool"
@@ -153,7 +163,7 @@ fi
 # walk below cannot find it. Copy it in explicitly (ltc_api.hpp looks in
 # Frameworks relative to the executable). Without this the bundle advertised LTC
 # in/out but it only worked on a Mac that already had `brew install libltc`.
-for ltccand in /opt/homebrew/lib/libltc.dylib /usr/local/lib/libltc.dylib; do
+for ltccand in ${DEPS_PREFIX:+"$DEPS_PREFIX/lib/libltc.dylib"} /opt/homebrew/lib/libltc.dylib /usr/local/lib/libltc.dylib; do
   if [ -f "$ltccand" ]; then
     cp -L "$ltccand" "$FRAMEWORKS_DIR/libltc.dylib"
     chmod u+w "$FRAMEWORKS_DIR/libltc.dylib"
@@ -269,7 +279,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>${VERSION}</string>
   <key>CFBundleVersion</key><string>${VERSION}</string>
-  <key>LSMinimumSystemVersion</key><string>11.0</string>
+  <key>LSMinimumSystemVersion</key><string>${DECKBOY_MACOS_MIN:-12.0}</string>
   <key>NSHighResolutionCapable</key><true/>
   <!-- App Nap MUST be off. macOS throttles a backgrounded app's timers and
        drawing, and a cue deck spends most of a show not being the frontmost

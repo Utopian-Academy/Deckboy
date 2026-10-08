@@ -804,16 +804,42 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # THE LIBRARIES ARE BUILT HERE, FOR THE macOS THE BUNDLE CLAIMS. Homebrew's
+      # are built for the runner's macOS: v0.99.405 claimed 11 and carried 32
+      # libraries built for 14 (15 on Intel), and on Ventura its ffmpeg could
+      # not even start. tools/macos_build_deps.sh builds SDL, the text stack,
+      # ffmpeg and its codecs (plus snappy for HAP and libsrt for SRT, which
+      # Homebrew's ffmpeg lacked), libltc and RtMidi for MACOS_MIN, cached on
+      # the script itself so it costs its ~30 minutes once per change.
+      # Homebrew provides BUILD TOOLS only; none of it reaches the bundle.
+      - name: Build tools
+        run: brew install cmake pkg-config nasm meson ninja
+
+      - name: Cached libraries for the claimed macOS
+        id: deps-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/deckboy-deps
+          key: macos-deps-${{ matrix.image }}-${{ hashFiles('tools/macos_build_deps.sh') }}
+
+      - name: Build libraries for the claimed macOS
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: |
+          chmod +x tools/macos_build_deps.sh
+          DEPS_SRC_DIR="$RUNNER_TEMP/deps-src" ./tools/macos_build_deps.sh "$HOME/deckboy-deps" 12.0
+
       # rtmidi is what the RELEASE needs for MIDI, MIDI Show Control and MIDI
       # cues. Through v0.99.372 only the macos-build test leg installed it, so
       # every published Mac app had no MIDI while CI stayed green.
-      - name: Install dependencies
-        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg libltc rtmidi
-
       - name: Configure and build
         run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_MIDI=ON
+          export PKG_CONFIG_PATH="$HOME/deckboy-deps/lib/pkgconfig"
+          export PKG_CONFIG_LIBDIR="$HOME/deckboy-deps/lib/pkgconfig"
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_MIDI=ON \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 -DCMAKE_PREFIX_PATH="$HOME/deckboy-deps"
           cmake --build build -j"$(sysctl -n hw.ncpu)"
+          echo "DECKBOY_DEPS_PREFIX=$HOME/deckboy-deps" >> "$GITHUB_ENV"
+          echo "DECKBOY_MACOS_MIN=12.0" >> "$GITHUB_ENV"
 
       # CAPTIONS MADE ON THIS COMPUTER need whisper-cli in the package. A
       # STATIC build (one executable, no libraries of its own) of a pinned
@@ -826,7 +852,8 @@ jobs:
         run: |
           git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
           cmake -S "$RUNNER_TEMP/whisper.cpp" -B "$RUNNER_TEMP/whisper-build" -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
+            -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
           cmake --build "$RUNNER_TEMP/whisper-build" --target whisper-cli -j"$(sysctl -n hw.ncpu)"
           "$RUNNER_TEMP/whisper-build/bin/whisper-cli" --help > /dev/null
           otool -L "$RUNNER_TEMP/whisper-build/bin/whisper-cli"
@@ -898,6 +925,28 @@ jobs:
       # install_name_tool invalidates signatures, and an unsigned/broken-signed
       # binary is killed on sight by Apple Silicon. This proves the re-sign step
       # actually took.
+      # EVERY FILE RUNS ON THE macOS THE BUNDLE CLAIMS -- read from each file's
+      # own minimum, not assumed from how it was built.
+      - name: Every file runs on the claimed macOS
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          python3 tools/audit_macos_minos.py "$APP"
+
+      # And the Mac ffmpeg can do what the Windows one is checked for: HAP and
+      # the codecs Deckboy records with, and SRT for stream cues.
+      - name: Bundled ffmpeg encodes and streams what Deckboy offers
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          FF="$APP/Contents/MacOS/ffmpeg"
+          enc=$("$FF" -hide_banner -encoders 2>&1)
+          missing=""
+          for e in hap libx264 libx265 libvpx-vp9 libmp3lame libopus prores_ks aac; do
+            echo "$enc" | grep -qE "^\s*\S+\s+$e\s" || missing="$missing $e"
+          done
+          "$FF" -hide_banner -protocols 2>&1 | grep -qE '^[[:space:]]+srt$' || missing="$missing srt-protocol"
+          if [ -n "$missing" ]; then echo "::error::bundled ffmpeg lacks:$missing"; exit 1; fi
+          echo "ffmpeg has every encoder Deckboy offers, and SRT"
+
       - name: Verify code signature
         run: |
           APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)

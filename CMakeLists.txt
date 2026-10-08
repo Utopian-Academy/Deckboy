@@ -24,12 +24,16 @@ set(DECKBOY_VERSION_TAG "v${DECKBOY_VERSION_STRING}")
 # macOS that image happened to be -- and would not open on Sonoma, which is
 # exactly what was reported from the field.
 #
-# This floor is only half of it. The bundle also carries Homebrew's dylibs,
-# and a Homebrew bottle is built for the runner's own OS, so the REAL floor is
-# the runner image. That is why the packaging job is pinned rather than left on
-# macos-latest; see .github/workflows/build.yml.
+# This floor is only half of it. The bundle also carries its libraries, and a
+# Homebrew bottle is built for the runner's own OS -- v0.99.405 claimed macOS
+# 11, was built for 13, and carried 32 libraries built for 14 (15 on Intel),
+# so on Ventura its ffmpeg could not start. Release bundles are now built
+# against tools/macos_build_deps.sh, which builds every library for THIS floor,
+# and tools/audit_macos_minos.py fails the package if any file needs newer.
+# Keep this, the deps build and LSMinimumSystemVersion (package_macos.sh,
+# DECKBOY_MACOS_MIN) the same number.
 if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING
       "Oldest macOS this build will run on" FORCE)
 endif()
 
