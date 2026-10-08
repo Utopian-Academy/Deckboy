@@ -84,7 +84,12 @@ function capture(url, file) {
     }
     const request = http.get(url, response => {
       if (response.statusCode !== 200) { response.resume(); reject(new Error('stream HTTP ' + response.statusCode)); return; }
-      response.on('data', bytes => { if (!out.write(bytes)) { response.pause(); out.once('drain', () => response.resume()); } });
+      // NO BACK-PRESSURE ON THE STREAM. Pausing the response whenever the file
+      // buffer filled (16 KB -- most chunks) pushed back through the socket on
+      // Deckboy's web server, and the timing check measured its own
+      // interference: the first markers ~55 ms early on Windows and macOS
+      // alike. A disk outruns a 6 Mbit/s stream; the write buffer stays small.
+      response.on('data', bytes => out.write(bytes));
       response.on('error', finish);
       response.on('end', () => finish(new Error('Stream ended before capture completed')));
       timer = setTimeout(() => { finish(); request.destroy(); }, seconds * 1000);
