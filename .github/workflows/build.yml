@@ -622,7 +622,7 @@ jobs:
       # The evidence a failed timing run leaves, minus the large source clip:
       # CI keeps no screen, so these files are the only way to see why.
       - name: Upload Web Monitor evidence
-        if: failure() && matrix.features == 'all'
+        if: always() && matrix.features == 'all'
         uses: actions/upload-artifact@v4
         with:
           name: web-monitor-evidence-${{ runner.os }}
