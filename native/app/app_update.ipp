@@ -292,6 +292,7 @@
   void update() {
     vuFocusedDeck_.store(project_.focusedDeckIndex, std::memory_order_relaxed);
     serviceWindowFitScale();
+    serviceMediaToolsCheck();
     syncWebMonitorDirectory();
     serviceAutoScroll(1.0 / 60.0);
     serviceBusyCritters(1.0 / 60.0);

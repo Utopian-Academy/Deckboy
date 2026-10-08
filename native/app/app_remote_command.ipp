@@ -5154,6 +5154,13 @@
       remoteCommandDetail_ = "next frame of the control window";
       return;
     }
+    // UIASSETS: how much of the desk's own artwork decoded -- the icons that
+    // came up blank on a Mac whose bundled ffmpeg could not run.
+    if (command == "UIASSETS") {
+      remoteCommandDetail_ = "loaded=" + std::to_string(uiAssetsLoaded_) +
+                             " failed=" + std::to_string(uiAssetsFailed_);
+      return;
+    }
     if (command == "QUICKLIST") {
       std::ostringstream out;
       for (const QuickButton& b : quickButtons_) {

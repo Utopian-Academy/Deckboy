@@ -31,6 +31,15 @@ _converted/
 # install stateDir() IS data/, which is why they land there.
 *.log
 data/deckboy-*.log
+# The live text check's snapshot of the control window: a picture of whatever
+# show was on the desk, so the same privacy rule as the show log.
+data/deckboy-live-frame.bmp
+# Captions made on this machine: the downloaded speech model, captions for
+# media with no writable folder, scratch audio, a hand-placed whisper-cli.
+data/models/
+data/captions/
+data/captions-work/
+data/whisper/
 
 # Python bytecode from tools/
 __pycache__/

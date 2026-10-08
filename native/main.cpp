@@ -3845,6 +3845,7 @@ class App {
       return false;
     }
     healTextBackendIfNeeded();
+    startMediaToolsCheck();
 
     Paths::ensureDataDir();
     loadThemeFromEnv();
@@ -4860,6 +4861,61 @@ class App {
   // renderer is the scanline overlay: so the renderer can be swapped for the
   // next one in the list and probed again, and the operator gets an interface
   // with letters in it instead of a report to file.
+  // ── CAN THE MEDIA TOOLS ACTUALLY RUN? ────────────────────────────────────
+  //
+  // Present is not the same as able to run. A Mac release bundled ffmpeg and
+  // ffprobe built for macOS 14, and on Ventura neither could start ("Symbol
+  // not found") -- while the desk opened normally, with its icons blank and
+  // imports failing, and nothing anywhere said why. Both are run once at
+  // startup, off the main thread; if either cannot, the operator is told in a
+  // NATIVE alert (which does not depend on Deckboy's own drawing) and the
+  // render log keeps the tool's own words.
+  void startMediaToolsCheck() {
+    mediaToolsCheck_ = std::async(std::launch::async, []() {
+      std::string problem;
+      for (const char* tool : {"ffmpeg", "ffprobe"}) {
+        const auto run = ::runCaptured({tool, "-version"});
+        if (run.ok()) continue;
+        std::string why = run.ran ? run.output : std::string("it could not be started");
+        // The first lines are the useful ones ("dyld: Symbol not found: ...").
+        int lines = 0;
+        for (std::size_t i = 0; i < why.size(); ++i) {
+          if (why[i] == '\n' && ++lines == 3) {
+            why.resize(i);
+            break;
+          }
+        }
+        problem += std::string(problem.empty() ? "" : "\n\n") + tool + ": " + why;
+      }
+      return problem;
+    });
+  }
+
+  // From update(): report the startup check once it has an answer.
+  void serviceMediaToolsCheck() {
+    if (!mediaToolsCheck_.valid() ||
+        mediaToolsCheck_.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+      return;
+    }
+    const std::string problem = mediaToolsCheck_.get();
+    if (problem.empty()) {
+      renderDiagnosticLog("media tools: ffmpeg and ffprobe run");
+      return;
+    }
+    renderDiagnosticLog("media tools: CANNOT RUN -- " + problem);
+    std::cerr << "media tools cannot run: " << problem << std::endl;
+    const std::string message =
+      "Deckboy could not run its media tools (ffmpeg / ffprobe) on this computer, so importing, "
+      "thumbnails, some images and playback will not work.\n\n" + problem +
+      "\n\nPlease report this, with deckboy-render.log from Deckboy's settings folder.";
+    // A test that runs without the tools on purpose must not hang on a modal
+    // dialog nobody will click; it reads the render log line above instead.
+    if (!std::getenv("DECKBOY_TEST_NO_ALERTS")) {
+      SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Deckboy: media tools cannot run",
+                               message.c_str(), controlWindow_);
+    }
+  }
+
   void healTextBackendIfNeeded() {
     // A renderer must pass the path used by real labels as well as raw glyphs.
     // If dropping the label clip does not recover ink, try another renderer.
@@ -7963,14 +8019,45 @@ class App {
     if (asset.path.empty() || !fs::exists(asset.path)) {
       return false;
     }
-    auto size = probeStillImageSize(asset.path);
-    if (!size) {
-      return false;
-    }
+    // IN THIS PROCESS FIRST. The desk's artwork went through the ffprobe and
+    // ffmpeg programs, and on a Mac where they cannot start (built for a newer
+    // macOS) every icon came up blank while the text drew -- the "no symbols,
+    // no buttons" a Ventura machine showed. The old way stays as the fallback.
+    std::optional<std::pair<int, int>> size;
     std::vector<std::uint8_t> rgba;
-    if (!decodeStillImageRgba(asset.path, size->first, size->second, rgba)) {
-      return false;
+    // SDL's own PNG loader (SDL 3.4): every piece of the desk's artwork is a
+    // PNG, and this needs neither the ffmpeg programs nor a PNG decoder in
+    // the linked libav, which the Windows build does not carry.
+    if (SDL_Surface* loaded = SDL_LoadSurface(asset.path.string().c_str())) {
+      if (SDL_Surface* converted = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32)) {
+        rgba.resize(static_cast<std::size_t>(converted->w) * converted->h * 4);
+        for (int y = 0; y < converted->h; ++y) {
+          std::memcpy(rgba.data() + static_cast<std::size_t>(y) * converted->w * 4,
+                      static_cast<const std::uint8_t*>(converted->pixels) + y * converted->pitch,
+                      static_cast<std::size_t>(converted->w) * 4);
+        }
+        size = std::make_pair(converted->w, converted->h);
+        SDL_DestroySurface(converted);
+      }
+      SDL_DestroySurface(loaded);
     }
+#if DECKBOY_INPROC_DECODE
+    if (!size) {
+      int w = 0;
+      int h = 0;
+      if (deckboy::libav::decodeImageRgba(asset.path.string(), w, h, rgba)) {
+        size = std::make_pair(w, h);
+      }
+    }
+#endif
+    if (!size) {
+      size = probeStillImageSize(asset.path);
+      if (!size || !decodeStillImageRgba(asset.path, size->first, size->second, rgba)) {
+        ++uiAssetsFailed_;
+        return false;
+      }
+    }
+    ++uiAssetsLoaded_;
     SDL_Texture* texture = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
                                              SDL_TEXTUREACCESS_STATIC, size->first, size->second);
     if (!texture) {
@@ -9319,6 +9406,9 @@ class App {
   // takes minutes. Keyed by cue id, so a reorder or a deck change while it
   // runs still lands the captions on the right cue.
   std::future<deckboy::captioning::Result> captionJob_;
+  std::future<std::string> mediaToolsCheck_;   // "" when ffmpeg and ffprobe both run
+  int uiAssetsLoaded_ = 0;   // the desk's artwork that decoded (UIASSETS)
+  int uiAssetsFailed_ = 0;   // ...and that did not
   std::string captionJobCueId_;
   bool captionJobDownloading_ = false;
   Uint64 captionDownloadArmedAtMs_ = 0;

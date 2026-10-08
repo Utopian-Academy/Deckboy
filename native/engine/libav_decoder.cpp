@@ -1621,6 +1621,63 @@ bool downloadGpuFrameNV12(const DecodedFrame& frame, DecodedFrame& out) {
   return ok;
 }
 
+bool decodeImageRgba(const std::string& path, int& width, int& height,
+                     std::vector<std::uint8_t>& rgba, int maxBytes) {
+  AVFormatContext* fmt = nullptr;
+  if (avformat_open_input(&fmt, path.c_str(), nullptr, nullptr) < 0) {
+    return false;
+  }
+  bool ok = false;
+  AVCodecContext* ctx = nullptr;
+  AVPacket* packet = av_packet_alloc();
+  AVFrame* frame = av_frame_alloc();
+  SwsContext* sws = nullptr;
+  do {
+    if (avformat_find_stream_info(fmt, nullptr) < 0 || !packet || !frame) break;
+    const AVCodec* codec = nullptr;
+    const int stream = av_find_best_stream(fmt, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+    if (stream < 0 || !codec) break;
+    ctx = avcodec_alloc_context3(codec);
+    if (!ctx || avcodec_parameters_to_context(ctx, fmt->streams[stream]->codecpar) < 0 ||
+        avcodec_open2(ctx, codec, nullptr) < 0) {
+      break;
+    }
+    // Pull packets until one frame comes out (a still is one packet, but a
+    // decoder may want the drain call before it hands the frame over).
+    bool got = false;
+    while (!got && av_read_frame(fmt, packet) >= 0) {
+      if (packet->stream_index == stream && avcodec_send_packet(ctx, packet) >= 0) {
+        got = avcodec_receive_frame(ctx, frame) == 0;
+      }
+      av_packet_unref(packet);
+    }
+    if (!got) {
+      avcodec_send_packet(ctx, nullptr);
+      got = avcodec_receive_frame(ctx, frame) == 0;
+    }
+    if (!got || frame->width <= 0 || frame->height <= 0) break;
+    const long long bytes = static_cast<long long>(frame->width) * frame->height * 4;
+    if (bytes > maxBytes) break;
+    sws = sws_getContext(frame->width, frame->height, static_cast<AVPixelFormat>(frame->format),
+                         frame->width, frame->height, AV_PIX_FMT_RGBA, SWS_POINT,
+                         nullptr, nullptr, nullptr);
+    if (!sws) break;
+    rgba.assign(static_cast<std::size_t>(bytes), 0);
+    std::uint8_t* dst[4] = {rgba.data(), nullptr, nullptr, nullptr};
+    const int dstStride[4] = {frame->width * 4, 0, 0, 0};
+    if (sws_scale(sws, frame->data, frame->linesize, 0, frame->height, dst, dstStride) != frame->height) break;
+    width = frame->width;
+    height = frame->height;
+    ok = true;
+  } while (false);
+  if (sws) sws_freeContext(sws);
+  av_frame_free(&frame);
+  av_packet_free(&packet);
+  avcodec_free_context(&ctx);
+  avformat_close_input(&fmt);
+  return ok;
+}
+
 // ---------------------------------------------------------------------------
 // probeHapFile - demux HAP packets and decode them to blocks.
 //

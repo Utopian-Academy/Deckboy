@@ -189,6 +189,14 @@ struct HapProbeResult {
 // prove the demux+decode path without needing a window.
 bool probeHapFile(const std::string& path, HapProbeResult& out, std::string& error);
 
+// One still image (PNG, JPEG, ...) decoded IN THIS PROCESS to RGBA, for the
+// desk's own artwork. It used to go through the ffprobe and ffmpeg programs,
+// and on a Mac where those cannot start (bundled for a newer macOS than the
+// machine) every icon on the desk came up blank while the text drew. False
+// when the file cannot be read; the caller then tries the old way.
+bool decodeImageRgba(const std::string& path, int& width, int& height,
+                     std::vector<std::uint8_t>& rgba, int maxBytes = 64 * 1024 * 1024);
+
 struct AudioOpenParams {
   std::string path;
   double startSeconds = 0.0;
