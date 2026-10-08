@@ -611,6 +611,12 @@ jobs:
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
         timeout-minutes: 10
+        # Any frame slower than 200 ms is logged with where its time went
+        # (events / update / layout / render), into the app.log the failure
+        # evidence keeps -- a stall that throws one marker out is otherwise
+        # just a number.
+        env:
+          DECKBOY_UI_PROFILE: "200"
         run: node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 960x540
 
       # The evidence a failed timing run leaves, minus the large source clip:
