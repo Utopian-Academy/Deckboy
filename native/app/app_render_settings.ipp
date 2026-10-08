@@ -2747,6 +2747,8 @@
           deckboyGetDisplayBounds(di, &dispBounds);
           std::string dispInfo = std::to_string(di + 1) + ": " + dNameStr
             + "  " + std::to_string(dispBounds.w) + "x" + std::to_string(dispBounds.h);
+          std::string arrangement = displayArrangementLabel(di);
+          if (!arrangement.empty() && arrangement != "extended") dispInfo += "  " + arrangement;
           if (selected) dispInfo += "  [ASSIGNED]";
           drawTextSafe(controlRenderer_, fontSmall_,
                        SDL_Rect{dispRow.x + 6, dispRow.y + 7, dispRow.w - 12, 16},
@@ -4786,7 +4788,8 @@
                              "Hz or AUTO (e.g. 60 or 59.94)", outputRefreshRateLabel(),
                              [this](const std::string& rawValue) {
                                std::string token = toUpper(trim(rawValue));
-                               if (token == "AUTO") {
+                               // Prefix match: the field opens holding "auto (59.94 Hz)".
+                               if (token.rfind("AUTO", 0) == 0) {
                                  setOutputRefreshRate(0.0);
                                  return;
                                }

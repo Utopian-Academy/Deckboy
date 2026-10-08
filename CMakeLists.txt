@@ -592,6 +592,9 @@ add_executable(deckboy-native
   native/platform/audio_plugin.cpp
   native/platform/integration_backend.cpp
   native/platform/output_backend.cpp
+  # Mirrored-vs-extended detection: OS display APIs only (DisplayConfig,
+  # CoreGraphics, XRandR loaded at runtime), so no new dependency anywhere.
+  native/platform/display_topology.cpp
   # ST 2110-20 sender: plain sockets only, no SDK, so it compiles unconditionally
   # on every platform (same reasoning as decklink.cpp above — a feature-guarded
   # translation unit whose symbols are referenced unguarded breaks the link).

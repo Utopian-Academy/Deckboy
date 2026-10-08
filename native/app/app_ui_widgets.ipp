@@ -1074,6 +1074,9 @@
       label += ": ";
       label += displayName;
     }
+    if (displayIsMirrored(displayIndex)) {
+      label += " (mirrored)";
+    }
     return label;
   }
 

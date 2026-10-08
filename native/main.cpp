@@ -90,6 +90,7 @@
 #include "engine/gpu_readback.hpp"
 #include "engine/motion_field.hpp"
 #include "platform/capture_backend.hpp"
+#include "platform/display_topology.hpp"
 #include "platform/audio_plugin.hpp"
 #include "platform/dynamic_library.hpp"
 #include "platform/ltc_api.hpp"
@@ -10943,6 +10944,10 @@ class App {
   // display actually moved, changed size, or was swapped for another panel —
   // count alone misses same-count swaps and resolution changes.
   std::vector<std::string> displaySignatureEntries_;
+  // What the OS says is behind each SDL display -- one screen or a mirror set.
+  // Filled lazily, cleared by every topology scan (mirror <-> extend always
+  // changes the display list, so the scan always sees it).
+  mutable std::vector<deckboy::platform::DisplayMirrorInfo> displayMirrorInfo_;
   Uint64 displayTopologyRecheckAtMs_ = 0;  // debounce deadline for the display-event burst
   Uint64 audioDeviceRecheckAtMs_ = 0;      // and for the audio-device-event burst
   Uint64 lastAudioDevicePollMs_ = 0;       // backstop for drivers that emit neither

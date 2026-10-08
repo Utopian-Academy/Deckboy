@@ -6788,7 +6788,21 @@
     return text + " Hz";
   }
 
+  // AUTO follows the display, so say what the display is actually running:
+  // "auto" alone left 59.94 and 60 indistinguishable from the control screen.
   std::string outputRefreshRateLabel() const {
+    if (project_.outputRefreshRateHz <= 0.0) {
+      int displayCount = deckboyGetNumVideoDisplays();
+      if (displayCount > 0) {
+        int displayIndex = std::clamp(outputDisplayIndex(project_.focusedOutputIndex), 0, displayCount - 1);
+        if (const SDL_DisplayMode* mode =
+              SDL_GetCurrentDisplayMode(deckboyDisplayIdFromIndex(displayIndex))) {
+          if (mode->refresh_rate > 0.0f) {
+            return "auto (" + formatRefreshRateLabel(mode->refresh_rate) + ")";
+          }
+        }
+      }
+    }
     return formatRefreshRateLabel(project_.outputRefreshRateHz);
   }
 
@@ -7329,8 +7343,16 @@
     markProjectDirty();
   }
 
-  std::vector<int> refreshChoicesForOutput(int outputIndex) const {
-    std::vector<int> refreshes;
+  // Refresh rates as the display reports them, to the hundredth. They used to
+  // be rounded to whole numbers, which folded 59.94 into 60 (and 29.97 into
+  // 30, 23.976 into 24): the broadcast rates could not be chosen at all, and
+  // which one "60" landed on was up to the mode list's order.
+  static double refreshChoiceKey(float hz) {
+    return std::round(static_cast<double>(hz) * 100.0) / 100.0;
+  }
+
+  std::vector<double> refreshChoicesForOutput(int outputIndex) const {
+    std::vector<double> refreshes;
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return refreshes;
     }
@@ -7350,7 +7372,7 @@
           continue;
         }
         if (mode.refresh_rate > 0.0f) {
-          refreshes.push_back(static_cast<int>(std::lround(mode.refresh_rate)));
+          refreshes.push_back(refreshChoiceKey(mode.refresh_rate));
         }
       }
       SDL_free(modes);
@@ -8151,13 +8173,11 @@
       return;
     }
 
-    int current = project_.outputRefreshRateHz > 0.0
-      ? static_cast<int>(std::lround(project_.outputRefreshRateHz))
-      : 0;
+    double current = project_.outputRefreshRateHz > 0.0 ? project_.outputRefreshRateHz : 0.0;
 
     int currentIndex = -1;
     for (int i = 0; i < static_cast<int>(choices.size()); ++i) {
-      if (choices[i] == current) {
+      if (std::abs(choices[i] - current) < 0.005) {
         currentIndex = i;
         break;
       }
@@ -8166,11 +8186,11 @@
     int nextIndex = 0;
     if (currentIndex >= 0) {
       nextIndex = (currentIndex + direction + static_cast<int>(choices.size())) % static_cast<int>(choices.size());
-    } else if (current > 0) {
+    } else if (current > 0.0) {
       int nearest = 0;
-      int bestDelta = std::abs(choices[0] - current);
+      double bestDelta = std::abs(choices[0] - current);
       for (int i = 1; i < static_cast<int>(choices.size()); ++i) {
-        int delta = std::abs(choices[i] - current);
+        double delta = std::abs(choices[i] - current);
         if (delta < bestDelta) {
           bestDelta = delta;
           nearest = i;
@@ -8181,7 +8201,7 @@
       nextIndex = direction >= 0 ? 0 : static_cast<int>(choices.size()) - 1;
     }
 
-    setOutputRefreshRate(static_cast<double>(choices[nextIndex]));
+    setOutputRefreshRate(choices[nextIndex]);
   }
 
   void cycleOutputDisplay(int direction) {
@@ -8257,6 +8277,7 @@
     triggerToast("display: " + currentDisplayLabel() + "  "
       + outputResolutionLabelForOutput(project_.focusedOutputIndex)
       + (autoSwitchedToNative ? "  auto native" : ""));
+    warnIfOutputMirrorsControl(project_.focusedOutputIndex);
     markProjectDirty();
     return true;
   }
@@ -8285,6 +8306,89 @@
     return entries;
   }
 
+  // ── Mirrored vs extended ──────────────────────────────────────────────
+  // SDL sees desktops, not screens: two mirrored screens are ONE display, and
+  // the one SDL does not name simply vanishes from the list. These ask the OS
+  // what is really behind each display, so the operator is told "mirrored"
+  // instead of "disconnected", and is warned when the program feed lands on
+  // the screen they are working on.
+  const deckboy::platform::DisplayMirrorInfo* displayMirrorInfo(int displayIndex) const {
+    int displayCount = deckboyGetNumVideoDisplays();
+    if (displayIndex < 0 || displayIndex >= displayCount) {
+      return nullptr;
+    }
+    if (static_cast<int>(displayMirrorInfo_.size()) != displayCount) {
+      displayMirrorInfo_.assign(static_cast<std::size_t>(displayCount), {});
+      for (int index = 0; index < displayCount; ++index) {
+        SDL_Rect bounds {};
+        if (deckboyGetDisplayBounds(index, &bounds)) {
+          displayMirrorInfo_[static_cast<std::size_t>(index)] =
+            deckboy::platform::queryDisplayMirrorInfo(bounds.x, bounds.y, bounds.w, bounds.h,
+                                                      deckboyGetDisplayName(index));
+        }
+      }
+    }
+    return &displayMirrorInfo_[static_cast<std::size_t>(displayIndex)];
+  }
+
+  bool displayIsMirrored(int displayIndex) const {
+    const auto* info = displayMirrorInfo(displayIndex);
+    return info && info->known && info->panelCount > 1;
+  }
+
+  // "mirrored with DELL U2720Q", "extended", or "" when the OS cannot say
+  // (Wayland). Short enough for a picker row.
+  std::string displayArrangementLabel(int displayIndex) const {
+    const auto* info = displayMirrorInfo(displayIndex);
+    if (!info || !info->known) {
+      return {};
+    }
+    if (info->panelCount <= 1) {
+      return "extended";
+    }
+    std::string label = "mirrored with ";
+    for (std::size_t i = 0; i < info->otherPanels.size(); ++i) {
+      label += (i ? ", " : "") + info->otherPanels[i];
+    }
+    return label;
+  }
+
+  // The SDL display a vanished panel is now mirroring, or -1 if it really is
+  // gone. Matched by name, the same identity outputs are pinned by.
+  int displayHostingMirroredPanel(const std::string& panelName) const {
+    if (panelName.empty()) {
+      return -1;
+    }
+    int displayCount = deckboyGetNumVideoDisplays();
+    for (int index = 0; index < displayCount; ++index) {
+      const auto* info = displayMirrorInfo(index);
+      if (info && std::find(info->otherPanels.begin(), info->otherPanels.end(), panelName) !=
+                    info->otherPanels.end()) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  // A fullscreen output on a mirrored display that also carries the control
+  // window covers the operator's own screen. Allowed (a one-screen rig does it
+  // on purpose) but never silent.
+  void warnIfOutputMirrorsControl(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
+        !controlWindow_) {
+      return;
+    }
+    int displayIndex = outputDisplayIndex(outputIndex);
+    if (!displayIsMirrored(displayIndex) ||
+        deckboyGetWindowDisplayIndex(controlWindow_) != displayIndex) {
+      return;
+    }
+    triggerToast("output " + std::to_string(outputIndex + 1) + " is on a MIRRORED display ("
+                 + displayArrangementLabel(displayIndex)
+                 + ") - it covers the control screen. Set displays to Extend.",
+                 ToastKind::Warning, kToastReadableMs);
+  }
+
   static std::string displayEntryName(const std::string& entry) {
     std::size_t at = entry.rfind('@');
     return at == std::string::npos ? entry : entry.substr(0, at);
@@ -8308,6 +8412,7 @@
     std::vector<std::string> entries = currentDisplaySignatureEntries();
     bool firstScan = previousEntries.empty();
     displaySignatureEntries_ = entries;
+    displayMirrorInfo_.clear();
     observedDisplayCount_ = displayCount;
 
     // Re-home only the outputs whose target display actually changed: either
@@ -8376,10 +8481,24 @@
           SDL_SetWindowFullscreen(runtime->outputWindow, false);
         }
         SDL_HideWindow(runtime->outputWindow);
-        setOutputHealthState(outputIndex, OutputHealthState::Error,
-                             "display missing: " + output.displayName);
-        triggerToast("output " + std::to_string(outputIndex + 1) + " parked - "
-                     + output.displayName + " disconnected");
+        // Mirroring removes a screen from SDL's list exactly as unplugging
+        // does. Say which one happened: the fix is a display setting, not a
+        // cable.
+        int mirrorHost = displayHostingMirroredPanel(output.displayName);
+        if (mirrorHost >= 0) {
+          const char* hostName = deckboyGetDisplayName(mirrorHost);
+          std::string host = hostName && *hostName ? hostName : ("display " + std::to_string(mirrorHost + 1));
+          setOutputHealthState(outputIndex, OutputHealthState::Error,
+                               "display mirrored: " + output.displayName + " is mirroring " + host);
+          triggerToast("output " + std::to_string(outputIndex + 1) + " parked - "
+                       + output.displayName + " is MIRRORING " + host + ". Set displays to Extend.",
+                       ToastKind::Warning, kToastReadableMs);
+        } else {
+          setOutputHealthState(outputIndex, OutputHealthState::Error,
+                               "display missing: " + output.displayName);
+          triggerToast("output " + std::to_string(outputIndex + 1) + " parked - "
+                       + output.displayName + " disconnected");
+        }
         continue;
       }
       if (runtime->awaitingDisplayReturn) {
@@ -8398,6 +8517,7 @@
       if (controlHadFocus) {
         SDL_RaiseWindow(controlWindow_);
       }
+      warnIfOutputMirrorsControl(outputIndex);
     }
 
     // Heal everything else via the recovery path, which honors

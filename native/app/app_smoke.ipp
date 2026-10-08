@@ -3764,7 +3764,23 @@
           // a 144 Hz monitor are both ordinary and neither is 60.
           std::cout << "  " << dm->w << "x" << dm->h << " @ " << dm->refresh_rate << " Hz";
         }
-        std::cout << "  scale " << SDL_GetDisplayContentScale(displays[i]) << '\n';
+        std::cout << "  scale " << SDL_GetDisplayContentScale(displays[i]);
+        // Mirrored screens are ONE display to SDL; only the OS can say so.
+        SDL_Rect bounds {};
+        if (SDL_GetDisplayBounds(displays[i], &bounds)) {
+          auto mirror = deckboy::platform::queryDisplayMirrorInfo(bounds.x, bounds.y, bounds.w,
+                                                                  bounds.h, name);
+          std::cout << "  at " << bounds.x << "," << bounds.y << "  ";
+          if (!mirror.known) {
+            std::cout << "arrangement unknown";
+          } else if (mirror.panelCount <= 1) {
+            std::cout << "extended";
+          } else {
+            std::cout << "MIRRORED with";
+            for (const auto& panel : mirror.otherPanels) std::cout << " [" << panel << "]";
+          }
+        }
+        std::cout << '\n';
       }
       SDL_free(displays);
     }
