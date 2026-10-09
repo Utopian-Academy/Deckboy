@@ -7438,6 +7438,15 @@
     runtime->recoveryPausedByEscape = false;
     runtime->fullscreenIntended = true;
     runtime->lastFullscreenRequestMs = SDL_GetTicks();
+#ifdef __APPLE__
+    // LET macOS FINISH ANY FULLSCREEN SWITCH ALREADY UNDER WAY. It animates
+    // into and out of fullscreen, and until that ends SDL can report the window
+    // as not fullscreen -- so the display-move retry asked again mid-animation,
+    // SDL rewrote the style mask, and AppKit killed the app ("NSWindowStyleMask-
+    // FullScreen cleared on a window outside of a full screen transition"; seen
+    // in CI, 2026-10-09). Returns at once when nothing is in flight.
+    SDL_SyncWindow(runtime->outputWindow);
+#endif
 
     // Exclusive fullscreen (real display-mode switch) only when the operator
     // explicitly asked for it: a fixed raster or a specific refresh rate.
