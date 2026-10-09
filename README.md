@@ -163,7 +163,7 @@ show.
 | **Window** &middot; **Screen** &middot; **Camera** | captured live, at the window's own full resolution |
 | **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | somebody else's signal, taken in as a cue |
 | **Pattern** &middot; **Test card** &middot; **Tone** | generated on the spot, no file needed |
-| **Timer** &middot; **Lower third** | a stage countdown, full screen or over the programme, and a name strap in six looks |
+| **Timer** &middot; **Lower third** | a stage countdown, full screen or over the programme, and a name strap in thirteen looks |
 | **Video synth** &middot; **Code** | an oscillator with feedback, or an expression you type live |
 
 Every row takes the same fades, the same transitions, the same effect rack, the
@@ -207,10 +207,16 @@ For a screen that only needs to play. `deckboy-mini` ships beside Deckboy: point
 it at clips or a folder and it plays them fullscreen through the same engine as
 the desk, in name order, holding stills, looping if you ask. It answers the
 desk's remote commands on the desk's port, so Companion drives it as deck 1,
-and the whole show runs from the keyboard in its terminal, over SSH too.
+and the whole show runs from the keyboard in its terminal, over SSH too:
+reorder, rename and remove cues, save and open playlists (M3U8), pick the
+display and the sound device, and the keys a media player has — frame step,
+speed, A-B loop, mute, sound track and subtitles. On a Raspberry Pi it plays
+through the board's own video decoder; `cmake --build build --target deckboy-mini` builds it
+there. Its own [miniature manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
+has every key and command.
 
 ```
-deckboy-mini "Friday keynote" --display 2 --loop
+deckboy-mini ~/Videos --display 2 --loop
 ```
 
 ![Deckboy Mini driven from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with a cue list; arrow keys pick cue 3 and take it, a typed 2 takes cue 2, the command line sets the volume, Tab completes a file path to add a fifth cue, the key reference opens, and a double Q quits](art/readme/mini-terminal.gif)
@@ -230,6 +236,12 @@ all one object with one set of controls, not fifty separate things to learn.
 - Play, pause, stop and seek; CLEAR immediately stops every deck, cancels queued
   takes, drops held pictures and overlays, and disarms output
 - Looping and hold-last-frame behaviour
+- **Captions made on this computer**: a clip with none gets them from its own
+  sound, written beside it as a subtitle file and switched on, with nothing
+  leaving the machine. English or any language; the speech engine comes with
+  Deckboy on all three platforms
+- Memo cues (a note in the running order) and devamp (a looping cue finishes
+  its pass, then ends)
 - Fade in/out, per cue and per deck
 - Cue trimming, and per-cue transition overrides
 - Seventeen transitions: cut, crossfade, dip to black or white, four pushes,
@@ -272,9 +284,10 @@ all one object with one set of controls, not fifty separate things to learn.
 - Timer cues — a stage or speaker countdown with its own clock, thresholds and
   chimes. Its backdrop can go transparent and it has its own size and position,
   so the clock can sit over the programme instead of replacing it
-- Lower thirds, cued like anything else, in six looks — bar, boxes, line, tag,
-  glass and **arcade**, a pixel-font strap with a hard shadow and a slow wobble —
-  with their colours and size settable from a Companion button
+- Lower thirds, cued like anything else, in thirteen looks — clean ones (bar,
+  boxes, line, tag, glass, split, card, hairline), playful ones (sparkle, neon,
+  comic, scroll) and **arcade**, a pixel-font strap with a hard shadow and a
+  slow wobble — with their colours and size settable from a Companion button
 - Picture in picture, side by side or a quad: lay a second playlist over the
   first as a layer and scale and place it, with a whole playlist behind each
   window instead of one fixed box
@@ -355,6 +368,8 @@ all one object with one set of controls, not fifty separate things to learn.
 - AMWA NMOS IS-04 registration and Node API
 - AMWA NMOS IS-05 connection management, so a broadcast controller can
   discover and route Deckboy's senders
+- MediaMTX both ways: its streams appear as one-click stream cues, and the
+  programme publishes to it for any number of viewers
 
 Video and 48 kHz stereo audio have independent sender controls for activation,
 source and destination addresses, ports and interface binding. PTP acquisition
@@ -373,6 +388,8 @@ and reacquisition update the media clock. See
 - Independent audio fades, separate from video fades
 - Content-authoritative stereo waveform display
 - Audio-only cues, and per-cue mute
+- A file with more than one sound track (a second language, a commentary)
+  lets you choose which one plays, even on the cue that is on air
 - Up to 128 output channels per deck, with a crosspoint matrix routing each cue
   onto any of them: enough for a full Dante or MADI rig
 - **Your own VST3 effects and instruments, in the cue's chain.** The reverb you
@@ -398,6 +415,11 @@ and reacquisition update the media clock. See
 - Bitfocus Companion integration (module included)
 - OSC input and OSC Query
 - TCP command control — every verb answers `OK` or `ERR`
+- **Triggers on every cue**: a hotkey, a MIDI note, an OSC address, a time of
+  day or a timecode point fires it through the same take as GO
+- **CHECK**: everything wrong with the show in one list (missing media, a
+  device that is not connected, a plugin that is not installed); pick a line to
+  go straight to it
 - HyperDeck protocol emulation, so a deck controller can drive it
 - Tally-driven playback: roll when an ATEM or an NDI receiver puts you on air
 - LTC timecode in, and an LTC generator routable to its own device and channel
@@ -511,8 +533,7 @@ importantly, what each feature deliberately does not do.
 
 **Show control:**
 
-- Group, devamp and memo cues
-- Triggers on each cue: a hotkey, a MIDI note, an OSC address or a time of day
+- Group cues
 - Cue carts, templates for new shows, and a phone or tablet remote
 - Fixture patching and a lighting dashboard, beyond Art-Net levels
 
@@ -520,18 +541,14 @@ importantly, what each feature deliberately does not do.
 
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
-- GPU colour conversion for eight- and ten-bit SDR, preserving limited/full
-  range and avoiding a CPU download during ordinary playback
+- GPU colour conversion for eight- and ten-bit SDR on macOS and Linux, as on
+  Windows: limited/full range preserved, no CPU download during playback
 - PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings
 
 **Deckboy Mini:**
 
 - A media browser in the terminal: walk folders, filter by typing and add clips
   without leaving the keyboard, shared with the desk's own browser
-- Build a playlist there too: reorder, remove, set each cue's loop and still
-  time, save it and open it again next time
-- Choose the display and the audio device from the keyboard
-- Help in the terminal that matches the miniature manual
 
 **Platform:**
 

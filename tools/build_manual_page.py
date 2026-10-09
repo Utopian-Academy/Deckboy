@@ -323,6 +323,7 @@ HEAD = """<!DOCTYPE html>
         <div class="hero-content">
             <h1>Manual</h1>
             <p class="hero-subtitle">Everything Deckboy does, and how to make it do it.</p>
+            <p class="hero-subtitle"><a href="#deckboy-mini">Deckboy Mini has its own little booklet &rarr;</a></p>
         </div>
     </header>
 
@@ -447,6 +448,39 @@ BODY
 MINI_SECTION = "deckboy-mini"
 
 
+# A booklet page is a fixed 150x210 and hides what does not fit, so a block too
+# long for one page is cut over several instead. The keys table had grown to
+# thirteen rows and lost its last ones off the bottom of the page.
+BOOKLET_ROWS = 5          # table rows on one page (about 31px each, wrapped)
+BOOKLET_CHARS = 520       # characters of a paragraph on one page
+
+
+def _booklet_pieces(blocks):
+    pieces = []
+    for block in blocks:
+        rows = re.findall(r"<tr>.*?</tr>", block, flags=re.S)
+        if "<tbody>" in block and len(rows) - 1 > BOOKLET_ROWS:
+            head, body = rows[0], rows[1:]
+            for i in range(0, len(body), BOOKLET_ROWS):
+                chunk = "".join(body[i:i + BOOKLET_ROWS])
+                pieces.append('<div class="table-scroll"><table><thead>{0}</thead><tbody>{1}'
+                              '</tbody></table></div>'.format(head, chunk))
+            continue
+        text = re.sub(r"<[^>]+>", "", block)
+        if block.startswith("<p>") and len(text) > BOOKLET_CHARS:
+            # At a sentence end near the middle; the second half carries on
+            # in a paragraph of its own, untitled, as a book's next page does.
+            inner = block[3:-4]
+            cuts = [m.end() for m in re.finditer(r"\. ", inner)]
+            if cuts:
+                cut = min(cuts, key=lambda c: abs(c - len(inner) / 2))
+                pieces.append("<p>" + inner[:cut].rstrip() + "</p>")
+                pieces.append('<p class="mini-cont">' + inner[cut:].lstrip() + "</p>")
+                continue
+        pieces.append(block)
+    return pieces
+
+
 def booklet(blocks):
     marker = '<h3 id="{0}">'.format(MINI_SECTION)
     start = next((i for i, b in enumerate(blocks) if b.startswith(marker)), None)
@@ -456,14 +490,20 @@ def booklet(blocks):
     while end < len(blocks) and not blocks[end].startswith(("<h2", "<h3")):
         end += 1
     pages = []
-    for number, block in enumerate(blocks[start + 1:end], start=2):
+    title, seen_table = "", False
+    for number, block in enumerate(_booklet_pieces(blocks[start + 1:end]), start=2):
         lead = re.match(r"<p><strong>(.*?)</strong>", block)
-        if lead:
+        if block.startswith('<p class="mini-cont">'):
+            pass                      # the page before's title carries on
+        elif lead:
             title = re.sub(r"<[^>]+>", "", lead.group(1)).rstrip(".,: ")
         elif block.startswith("<pre"):
             title = "Inserting the cartridge"
         elif "<table" in block:
-            title = "Options"
+            # The first table is the command-line options; every later one is
+            # the keys of the section it sits under, so it keeps that title.
+            title = title if seen_table else "Options"
+            seen_table = True
         elif number == 2:
             title = "About this cartridge"
         else:

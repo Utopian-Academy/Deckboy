@@ -152,7 +152,7 @@ down to give the height back.
 | **Stream (SRT)** | A live network input — `cue.path` is the full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`) |
 | **NDI Source** | An NDI receive input — `ndi://SOURCE_NAME` |
 | **DeckLink Source** | A Blackmagic card's SDI or HDMI input, captured through the DeckLink SDK rather than through FFmpeg |
-| **Lower Third** | A name strap over another playlist, in six looks (§16) |
+| **Lower Third** | A name strap over another playlist, in thirteen looks (§16) |
 | **Audio** | An audio-only file with a waveform lane |
 | **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages. Set its **backdrop** to **transparent** and use **GEOMETRY** to put the clock in a corner of the programme as a layer |
@@ -2077,10 +2077,10 @@ the computer does. It plays through the same engine as the desk, so anything the
 desk plays from a file, Mini plays the same way.
 
 ```
-deckboy-mini "Friday keynote"                 # a folder plays in name order
+deckboy-mini ~/Videos                         # a folder plays in name order
 deckboy-mini walk-in.mp4 sponsors.png --loop  # files play in the order given
 deckboy-mini loop.mp4 --display 2 --hold      # second display, hold the last frame
-deckboy-mini "Friday keynote.m3u8"            # a playlist saved from Mini (W)
+deckboy-mini show.m3u8                        # a playlist saved from Mini (W)
 ```
 
 **Where it is.** On Windows it is `deckboy-mini.exe` beside `Deckboy.exe`; on macOS it is inside
@@ -2088,6 +2088,12 @@ the app, at `Deckboy.app/Contents/MacOS/deckboy-mini`. On Linux the portable
 download has `./deckboy-mini` beside `./deckboy`, the AppImage runs it as
 `Deckboy.AppImage mini <clips>`, and the Flatpak as
 `flatpak run --command=deckboy-mini io.github.utopian_academy.Deckboy <clips>`.
+
+**On a Raspberry Pi**, Mini plays through the board's own video decoder, so a
+1080p H.264 film plays at its full frame rate on a Raspberry Pi 3. There is
+no Pi download yet: build Mini on the Pi itself
+with `cmake --build build --target deckboy-mini -j2`, which builds Mini alone
+and fits in a Pi 3's memory where the whole desk does not.
 
 | Option | Effect |
 |--------|--------|
@@ -2119,7 +2125,8 @@ the keyboard there, over SSH included; the same keys work in the output window.
 | H, F | The status bar on the output, fullscreen |
 | A | Add files: Tab completes the path |
 | `:` | The command line: any remote command, Up recalls the last |
-| `?` | The keys, in the panel: three pages (show, editing, output), `?` steps on |
+| `?` | The keys, in the panel: four pages (show, editing, output and sound, playing a file), `?` steps on |
+| Q Q | Quit (twice, so one stray key cannot end a show) |
 
 **Editing the list**, in the terminal:
 
@@ -2167,7 +2174,6 @@ written relative to the playlist when the media sits under its folder, so a
 show folder copies to another machine whole. The panel's title shows the
 playlist's name, with `*` while there are unsaved changes, and Q Q says so
 before quitting.
-| Q Q | Quit (twice, so one stray key cannot end a show) |
 
 Files or a folder dropped on the output are added to the end of the list too.
 
