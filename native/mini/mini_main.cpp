@@ -1620,7 +1620,9 @@ class Mini {
     if (verb == "STATUS" || verb == "STATE") return status();
     if (verb == "HELP") return kRemoteHelp;
     if (verb == "PING") return ok();
-    if (fromNetwork) hud_.log("remote " + raw);
+    // PRESS is the keyboard arriving another way: the keys log what they do
+    // themselves, and a "remote PRESS" line per key would bury that.
+    if (fromNetwork && verb != "PRESS") hud_.log("remote " + raw);
     if (verb == "GO") { go(); return ok(); }
     if (verb == "TAKE") {
       if (arg.empty()) { take(selected_); return ok(); }
