@@ -5,7 +5,8 @@
 # encoder, every external library, libavcodec alone 83 MB -- made "Mini" a
 # 166 MB folder. This builds the same release (n8.1, the one the desk's build
 # and Mini were compiled against, so the libraries are drop-in) with only what
-# Mini uses: ffmpeg's own decoders and demuxers, the Linux hardware decoders
+# Mini uses: ffmpeg's own decoders, demuxers, filters and bitstream helpers
+# (all built-in code, so they cost little; trimming them broke playback), the Linux hardware decoders
 # (V4L2 memory-to-memory on a Raspberry Pi, VAAPI on a PC when present), and
 # the one encoder and muxer Mini's subtitle extraction asks for (SRT), and
 # raw video and audio out, for what Mini plays through the ffmpeg program
@@ -22,11 +23,9 @@ git clone --depth 1 --branch n8.1 https://github.com/FFmpeg/FFmpeg.git "$SRC"
 cd "$SRC"
 ./configure --prefix="$PREFIX" --enable-shared --disable-static \
   --disable-doc --disable-debug --disable-ffplay \
-  --disable-encoders --enable-encoder=srt,subrip,text,rawvideo,pcm_s16le \
-  --disable-muxers --enable-muxer=srt,null,rawvideo,s16le \
+  --disable-encoders --enable-encoder=srt,subrip,text,rawvideo,pcm_s16le,wrapped_avframe \
+  --disable-muxers --enable-muxer=srt,null,rawvideo,s16le,nut \
   --disable-devices --disable-indevs --disable-outdevs \
-  --disable-filters --enable-filter=buffer,buffersink,abuffer,abuffersink,scale,format,null,anull,aresample,aformat,copy,acopy,yadif,bwdif,hflip,vflip,transpose,rotate,setpts,asetpts,atempo,volume,pan \
-  --disable-bsfs --enable-bsf=h264_mp4toannexb,hevc_mp4toannexb,vp9_superframe_split,extract_extradata,null \
   --disable-lzma --disable-bzlib --disable-iconv --disable-xlib --disable-libxcb \
   --disable-sdl2 --disable-vulkan --enable-libdrm
 make -j"$(nproc)"
