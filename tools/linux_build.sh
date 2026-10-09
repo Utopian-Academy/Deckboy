@@ -9,6 +9,7 @@
 #   ./tools/linux_build.sh              # deps if needed, then build
 #   ./tools/linux_build.sh --deps-only  # just the dependencies
 #   ./tools/linux_build.sh --skip-deps  # I already have them
+#   ./tools/linux_build.sh --mini       # Deckboy Mini only (a Raspberry Pi)
 #
 # The dependency list is SDL's own documented set. It is not the minimum that
 # happens to work: 3.4 hard-fails on each missing X11 dev package where 3.2
@@ -20,15 +21,25 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${REPO_ROOT}/build/linux"
 SKIP_DEPS=0
 DEPS_ONLY=0
+MINI=0
 
 for arg in "$@"; do
   case "$arg" in
     --skip-deps) SKIP_DEPS=1 ;;
     --deps-only) DEPS_ONLY=1 ;;
-    -h|--help) sed -n '2,18p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'; exit 0 ;;
+    --mini) MINI=1 ;;
+    -h|--help) sed -n '2,17p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 2 ;;
   esac
 done
+
+# As many compiles at once as there is MEMORY for, not one per core. A 1 GB
+# Raspberry Pi 3 has four cores and room for one of the big files at a time;
+# -j4 there ran the machine out of memory. About 700 MB a job.
+avail_mb=$(awk '/MemAvailable/ {print int($2 / 1024)}' /proc/meminfo 2>/dev/null || echo 0)
+JOBS=$(( avail_mb / 700 ))
+[ "$JOBS" -lt 1 ] && JOBS=1
+[ "$JOBS" -gt "$(nproc)" ] && JOBS=$(nproc)
 
 install_deps() {
   echo "== dependencies =="
@@ -62,14 +73,19 @@ install_deps() {
   # with it. Matches the Mac build (tools/macos_build_deps.sh).
   git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git /tmp/SDL
   cmake -S /tmp/SDL -B /tmp/SDL/build -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=OFF
-  cmake --build /tmp/SDL/build -j"$(nproc)"
+  cmake --build /tmp/SDL/build -j"$JOBS"
   sudo cmake --install /tmp/SDL/build
   # SDL_ttf has no 3.4 line; 3.2 builds against SDL 3.4 unchanged. A release,
   # not the branch, for the same reason as SDL above.
   git clone --depth 1 --branch release-3.2.2 --recurse-submodules \
     https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
-  cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON
-  cmake --build /tmp/SDL_ttf/build -j"$(nproc)"
+  # --mini: the system FreeType and HarfBuzz installed above, rather than
+  # compiling SDL_ttf's own copies -- HarfBuzz's is one enormous file that a
+  # Pi 3 cannot hold in memory to compile.
+  local vendored=ON
+  [ "$MINI" -eq 1 ] && vendored=OFF
+  cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED="$vendored"
+  cmake --build /tmp/SDL_ttf/build -j"$JOBS"
   sudo cmake --install /tmp/SDL_ttf/build
   sudo ldconfig
 }
@@ -85,9 +101,17 @@ if [ "$SKIP_DEPS" -eq 0 ] && { [ "$DEPS_ONLY" -eq 1 ] || need_deps; }; then
 fi
 [ "$DEPS_ONLY" -eq 1 ] && exit 0
 
-echo "== build =="
+echo "== build ($JOBS at a time) =="
 cmake -S "$REPO_ROOT" -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Release
-cmake --build "$BUILD_DIR" -j"$(nproc)"
+if [ "$MINI" -eq 1 ]; then
+  # Mini needs nothing of the desk's, so this never compiles the desk.
+  cmake --build "$BUILD_DIR" --target deckboy-mini -j"$JOBS"
+  echo
+  echo "built: ${BUILD_DIR}/deckboy-mini"
+  echo "play:  ${BUILD_DIR}/deckboy-mini <clips or a folder>"
+  exit 0
+fi
+cmake --build "$BUILD_DIR" -j"$JOBS"
 
 echo
 echo "built: ${BUILD_DIR}/Deckboy"
