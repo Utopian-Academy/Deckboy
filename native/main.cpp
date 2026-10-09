@@ -8340,18 +8340,49 @@ class App {
     //
     // So these three stay SANS. Chrome sites use fontPixel_/fontPixelSmall_.
     // Do not "unify" them back to one face; the split is the whole point.
-    fontLarge_      = TTF_OpenFont(sans.c_str(),  pt(32));
-    fontBase_       = TTF_OpenFont(sans.c_str(),  pt(21));
-    fontSmall_      = TTF_OpenFont(sans.c_str(),  pt(17));
-    fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
-    fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
-    fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
+    // Keep the working faces until their replacements open. A font path can
+    // disappear, or a language can select an existing but unreadable file.
+    // Retrying that file at 1x does not repair it, and releasing first leaves
+    // the running desk without labels after both attempts fail.
+    auto open = [&](const std::string& path, int size) {
+      TTF_Font* font = TTF_OpenFont(path.c_str(), static_cast<float>(size));
+      if (!font) {
+        renderDiagnosticLog("font load failed: " + path + " size=" +
+                            std::to_string(size) + " (" + SDL_GetError() + ")");
+      }
+      return font;
+    };
+    std::array<TTF_Font*, 7> nextFonts {
+      open(sans, pt(32)), open(sans, pt(21)), open(sans, pt(17)),
+      open(mono, pt(18)), open(pixel, pt(24)), open(pixel, pt(12)),
+      open(pixel, pt(42))
+    };
+    // The chrome is drawn in the pixel face. If that one will not open, draw
+    // the chrome in the sans rather than in nothing: every header and button
+    // label would otherwise be blank while the rest of the desk reads.
+    const int pixelSizes[3] = {pt(24), pt(12), pt(42)};
+    for (int i = 0; i < 3; ++i) {
+      if (!nextFonts[4 + i]) nextFonts[4 + i] = open(sans, pixelSizes[i]);
+    }
+    if (!nextFonts[0] || !nextFonts[1] || !nextFonts[2] || !nextFonts[3]) {
+      for (TTF_Font* font : nextFonts) {
+        if (font) TTF_CloseFont(font);
+      }
+      return false;
+    }
+    releaseFonts();  // also invalidates textures and measurements of the old faces
+    fontLarge_      = nextFonts[0];
+    fontBase_       = nextFonts[1];
+    fontSmall_      = nextFonts[2];
+    fontMono_       = nextFonts[3];
+    fontPixel_      = nextFonts[4];
+    fontPixelSmall_ = nextFonts[5];
     // OPENED HERE, not after the direction block below. It used to be opened
     // last, which put it in the right-to-left loop while it still held the
     // PREVIOUS load's pointer -- freed by releaseFonts on any UI-scale change.
     // Harmless in a left-to-right interface, which is the only reason it was
     // never seen.
-    fontPixelTitle_ = TTF_OpenFont(pixel.c_str(), pt(42));  // splash/startup headline
+    fontPixelTitle_ = nextFonts[6];  // splash/startup headline
 
     // What each face is and how big, so a label that overflows can be given a
     // smaller sibling instead of resizing the one everything else is using.
@@ -8557,17 +8588,17 @@ class App {
   }
 
   void applyUiScale() {
-    const double scale = windowFitUiScale(chosenUiScale());
-    releaseFonts();
+    double scale = windowFitUiScale(chosenUiScale());
+    // Before the first project is loaded, init() opened the fonts at 1x.
+    if (appliedUiScale_ <= 0.0) appliedUiScale_ = 1.0;
     if (!loadFonts(scale)) {
-      // Fall back to 1.0× so the UI isn't fontless. The new value is still
-      // persisted; the operator can try again or pick a smaller scale.
-      releaseFonts();
-      loadFonts(1.0);
-      appliedUiScale_ = 1.0;
-      rebuildLayoutMetrics(1.0);
-      refreshMiamiCursor();
-      return;
+      // A size-specific failure can recover at 1x. Otherwise keep both the
+      // old fonts and their layout metrics; changing just one misplaces text.
+      if (!loadFonts(1.0)) {
+        renderDiagnosticLog("font reload failed; keeping working fonts and UI scale");
+        return;
+      }
+      scale = 1.0;
     }
     appliedUiScale_ = scale;
     rebuildLayoutMetrics(scale);
@@ -10602,6 +10633,10 @@ class App {
   std::map<std::string, Uint64> flightTakeoffMs_;
 
   bool mascotHidden_ = false;   // something is live, so the face is not on the monitor
+  // When the programme last had a picture up; 0 = not yet this session.
+  Uint64 programmeLastLiveMs_ = 0;
+  // When the face last came back onto the monitor, for its fade in; 0 = off.
+  Uint64 mascotShownSinceMs_ = 0;
 
   // ── The mascot notices you ──────────────────────────────────────────────
   //

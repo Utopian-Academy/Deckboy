@@ -1978,6 +1978,8 @@
     // ── LAY IT OUT, at rest ─────────────────────────────────────────────
     struct Box { double x, y, w, h; SDL_Color fill; int alpha; };
     std::vector<Box> boxes;
+    std::vector<std::size_t> scrollRolls;   // the rolled ends, which travel as it unrolls
+    double scrollRollW = 0.0;
     double titleX = 0.0, titleY = 0.0, subX = 0.0, subY = 0.0;
     double blockW = 0.0, blockH = 0.0;
     const double accentW = titleH * 0.16;
@@ -2226,11 +2228,15 @@
         boxes.push_back({roll, over, bodyW, std::max(1.0, titleH * 0.04), parchmentDark, 255});
         boxes.push_back({roll, over + bodyH - std::max(1.0, titleH * 0.04), bodyW,
                          std::max(1.0, titleH * 0.04), parchmentDark, 255});
+        scrollRollW = roll;
         for (int side = 0; side < 2; ++side) {
           const double rx = side == 0 ? 0.0 : blockW - roll;
-          boxes.push_back({rx, 0.0, roll, blockH, parchmentDark, 255});
-          boxes.push_back({rx + roll * 0.18, 0.0, roll * 0.28, blockH, parchment, 200});
-          boxes.push_back({rx + roll * 0.70, 0.0, roll * 0.12, blockH, sepia, 90});
+          for (const Box& part : {Box {rx, 0.0, roll, blockH, parchmentDark, 255},
+                                  Box {rx + roll * 0.18, 0.0, roll * 0.28, blockH, parchment, 200},
+                                  Box {rx + roll * 0.70, 0.0, roll * 0.12, blockH, sepia, 90}}) {
+            scrollRolls.push_back(boxes.size());
+            boxes.push_back(part);
+          }
         }
         titleX = roll + (bodyW - titleW) / 2.0;
         titleY = over + pad * 0.7;
@@ -2368,13 +2374,39 @@
     SDL_SetRenderClipRect(renderer, &clip);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
+    // THE SCROLL UNROLLS. Its two rolled ends start together in the middle and
+    // travel out to the edges as it comes in, the parchment and the words
+    // showing only between them, and roll back up on the way out -- the same
+    // progress the move runs on, so it scrubs. Fully open it is drawn exactly
+    // as it always was.
+    double unroll = 1.0;
+    if (!scrollRolls.empty() && p < 1.0) {
+      unroll = p * p * (3.0 - 2.0 * p);
+    }
+    const bool unrolling = unroll < 1.0;
+    const double openHalf = (blockW / 2.0 - scrollRollW) * unroll;
+    if (unrolling) {
+      const SDL_FRect span = place(blockW / 2.0 - openHalf, 0.0, openHalf * 2.0, blockH);
+      SDL_Rect open {static_cast<int>(std::floor(span.x)), clip.y,
+                     static_cast<int>(std::ceil(span.w)), clip.h};
+      SDL_GetRectIntersection(&open, &clip, &open);
+      SDL_SetRenderClipRect(renderer, &open);
+    }
+    auto isRoll = [&](std::size_t i) {
+      return std::find(scrollRolls.begin(), scrollRolls.end(), i) != scrollRolls.end();
+    };
+
     // Where the block's centre lands after the move: everything tilts about it.
     const float pivotX = static_cast<float>(cx + dx);
     const float pivotY = static_cast<float>(cy + dy);
     const double rad = angle * 3.14159265358979 / 180.0;
     const float cosA = static_cast<float>(std::cos(rad));
     const float sinA = static_cast<float>(std::sin(rad));
-    for (const Box& b : boxes) {
+    for (std::size_t bi = 0; bi < boxes.size(); ++bi) {
+      const Box& b = boxes[bi];
+      if (unrolling && isRoll(bi)) {
+        continue;   // drawn last, over the words, where they have travelled to
+      }
       double w = b.w * barFrac;
       double x = rightSide ? b.x + (b.w - w) : b.x;
       SDL_FRect r = place(x, b.y, w, b.h);
@@ -2450,6 +2482,22 @@
       drawWords(subTex, subX, subY, subH,
                 alpha * (move == LowerThirdMove::Typewriter
                            ? std::clamp((p - 0.85) / 0.15, 0.0, 1.0) : textAlpha));
+    }
+
+    if (unrolling) {
+      SDL_SetRenderClipRect(renderer, &clip);
+      const double mid = blockW / 2.0;
+      for (std::size_t i : scrollRolls) {
+        const Box& b = boxes[i];
+        // The left end's inner edge sits at mid - openHalf, the right end's at
+        // mid + openHalf.
+        const double shift = b.x < mid ? (mid - openHalf - scrollRollW)
+                                       : (mid + openHalf) - (blockW - scrollRollW);
+        SDL_FRect rr = place(b.x + shift, b.y, b.w, b.h);
+        SDL_SetRenderDrawColor(renderer, b.fill.r, b.fill.g, b.fill.b,
+                               static_cast<Uint8>(std::clamp(b.alpha * alpha, 0.0, 255.0)));
+        SDL_RenderFillRect(renderer, &rr);
+      }
     }
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);

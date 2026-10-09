@@ -2693,11 +2693,26 @@
     }
     bool hasLiveVideo = anythingLive &&
                         controlPreviewTex_ && controlPreviewTexW_ > 0 && controlPreviewTexH_ > 0;
-    bool showMascot = !anythingLive;
+    // NOT STRAIGHT BACK AFTER A QUICK CUE. A lower third or a sting is up for
+    // seconds, and the face popping in the moment it ends read as the desk
+    // interrupting the show (James, 2026-10-09). It returns once the monitor
+    // has been empty for kMascotReturnMs; until then the monitor stays dark
+    // rather than flashing to the bright idle fill. Before anything has been
+    // live this session it is there from the start, as it always was.
+    constexpr Uint64 kMascotReturnMs = 10000;
+    if (anythingLive) programmeLastLiveMs_ = animationNow_;
+    const bool mascotWaiting = !anythingLive && programmeLastLiveMs_ != 0 &&
+                               animationNow_ - programmeLastLiveMs_ < kMascotReturnMs;
+    bool showMascot = !anythingLive && !mascotWaiting;
+    if (!showMascot) {
+      mascotShownSinceMs_ = 0;
+    } else if (mascotShownSinceMs_ == 0) {
+      mascotShownSinceMs_ = animationNow_;
+    }
     mascotHidden_ = !showMascot;
     // The mascot needs a dark backdrop for its bright LCD face to read, so the
     // empty monitor goes deep while it's up (instead of the bright idle fill).
-    bool darkMonitorBg = hasLiveVideo || showMascot;
+    bool darkMonitorBg = hasLiveVideo || showMascot || mascotWaiting;
     SDL_Color programBg = darkMonitorBg ? pal.deep : pal.light;
     SDL_Color programBorder = darkMonitorBg ? pal.dark : pal.mid;
 
@@ -3084,7 +3099,7 @@
         controlPreviewTexH_,
         controlPreviewIsComposite_ ? nullptr : activeCue,
         inner);
-    } else if (!showMascot && activeCue && activeCue->kind == CueKind::Text) {
+    } else if (!showMascot && !mascotWaiting && activeCue && activeCue->kind == CueKind::Text) {
       // A TEXT CUE HAS NO DECODED FRAME, so there is nothing for the
       // preview's fallback to show and the monitor sat empty. The output
       // path has renderTextCueIntoOutput for exactly this reason; the
@@ -3099,10 +3114,10 @@
       const MediaEngine* textEngine = focusedMediaEngine();
       renderTextCueIntoOutput(controlRenderer_, *activeCue, inner,
                               textEngine ? textEngine->position() : 0.0);
-    } else if (!showMascot && activeCue && activeCue->kind == CueKind::Composite) {
+    } else if (!showMascot && !mascotWaiting && activeCue && activeCue->kind == CueKind::Composite) {
       SDL_Rect inner = warpMonitorInner_;
       renderCompositeCuePlaceholder(controlRenderer_, inner, *activeCue, true);
-    } else if (!activeCue || showMascot) {
+    } else if (!activeCue || showMascot || mascotWaiting) {
       // IN VJ MODE THE MIDDLE PANE GETS ITS OWN CHARACTER.
       //
       // The startup mascot is drawn to fill the monitor, and in the three-up VJ
@@ -3124,7 +3139,7 @@
         midPane.w = std::max(0, std::min(midPane.x + midPane.w, rightEdge) - midPane.x);
         midPane.h = std::max(0, midPane.h - 24);
       }
-      if (vjEmpty && drawVjHeckler(midPane, animationNow_, 1)) {
+      if (vjEmpty && !mascotWaiting && drawVjHeckler(midPane, animationNow_, 1)) {
         // he covered it
       } else if (showMascot && !vjEmpty) {
         // READS OVER YOUR SHOULDER. While the pointer is resting on something
@@ -3133,6 +3148,21 @@
         const char* advice = hoverTipLast_.empty()
           ? nullptr : mascotAdviceForTip(hoverTipLast_);
         drawStartupMascot(warpMonitorInner_, animationNow_, advice);
+        // IT DRIFTS BACK IN, never a cut (James, 2026-10-09): over a second
+        // the dark monitor lifts off it like a ghost surfacing, with a faint
+        // flicker that dies away as it settles.
+        if (mascotShownSinceMs_ != 0 && animationNow_ - mascotShownSinceMs_ < 1200) {
+          const double t = (animationNow_ - mascotShownSinceMs_) / 1200.0;
+          const double eased = t * t * (3.0 - 2.0 * t);
+          const double flicker = 0.18 * (1.0 - t) * std::sin(t * 38.0);
+          const double veil = std::clamp(1.0 - eased + flicker, 0.0, 1.0);
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+          SDL_SetRenderDrawColor(controlRenderer_, pal.deep.r, pal.deep.g, pal.deep.b,
+                                 static_cast<Uint8>(std::lround(veil * 255.0)));
+          SDL_FRect veilRect {static_cast<float>(warpMonitorInner_.x), static_cast<float>(warpMonitorInner_.y),
+                              static_cast<float>(warpMonitorInner_.w), static_cast<float>(warpMonitorInner_.h)};
+          SDL_RenderFillRect(controlRenderer_, &veilRect);
+        }
         // SOMEWHERE FOR THE ANIMALS TO BE. The two original habitats are the
         // empty part of the playlist and the empty part of the inspector --
         // and in a real show neither exists: James's playlist has 964 cues
@@ -3148,7 +3178,7 @@
           warpMonitorInner_.y + warpMonitorInner_.h * 2 / 3,
           warpMonitorInner_.w - uiScaled(16),
           warpMonitorInner_.h / 3 - uiScaled(8)};
-      } else {
+      } else if (!mascotWaiting) {
         SDL_Rect emptyRect {programMonitorRect.x + 12, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 24, 20};
         drawCenteredTextSafe(controlRenderer_, fontSmall_, emptyRect,
                      "NO LIVE CUE",
