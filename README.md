@@ -305,7 +305,7 @@ all one object with one set of controls, not fifty separate things to learn.
 ![A lower third reading Lower Third, Arcade look pops onto a generated pixel beach scene in a pixel font with a hard drop shadow, keeps a slow bob and tilt, then goes](docs/images/arcade-lower-third.gif)
 
 - A **video synth** — oscillators with feedback, a glitch stack, text mode and
-  sprite sets — and a **code source**, a live-coded expression evaluated per
+  sprite sets, among them the pickle set by Garrick Folderouy — and a **code source**, a live-coded expression evaluated per
   pixel and edited while it runs. Its own render width and height set the work
   it does independently of its placement on the output; an incomplete edit
   holds the last good picture
