@@ -965,6 +965,17 @@ jobs:
           APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
           python3 tools/audit_macos_minos.py "$APP"
 
+      # THE FULLSCREEN FIX IS IN THE BINARY THAT SHIPS. 0.99.407 put the
+      # no-Spaces hint inside a Windows-only block, so the Mac app went out
+      # without it while every check passed. Ask the artifact.
+      - name: The Mac app carries its fullscreen setting
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          if ! grep -a -q SDL_VIDEO_MAC_FULLSCREEN_SPACES "$APP/Contents/MacOS/Deckboy"; then
+            echo "::error::Deckboy.app does not set SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES"; exit 1
+          fi
+          echo "fullscreen without Spaces: set in the shipped binary"
+
       # And the Mac ffmpeg can do what the Windows one is checked for: HAP and
       # the codecs Deckboy records with, and SRT for stream cues.
       - name: Bundled ffmpeg encodes and streams what Deckboy offers
