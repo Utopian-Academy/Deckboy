@@ -26,7 +26,10 @@ ap.add_argument("--port", type=int, default=5851)
 args = ap.parse_args()
 
 work = tempfile.mkdtemp(prefix="mini-package-")
-if args.archive.endswith(".zip"):
+if args.archive.endswith(".zip") and shutil.which("ditto"):
+    # As a Mac unzips: permissions and links kept, which zipfile drops.
+    subprocess.run(["ditto", "-x", "-k", args.archive, work], check=True)
+elif args.archive.endswith(".zip"):
     zipfile.ZipFile(args.archive).extractall(work)
 else:
     tarfile.open(args.archive).extractall(work)
@@ -50,7 +53,11 @@ subprocess.run([args.ffmpeg, "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2
                 "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000", "-t", "8",
                 "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", clip], check=True)
 
-env = dict(os.environ, SDL_VIDEO_DRIVER=os.environ.get("SDL_VIDEO_DRIVER", "offscreen"), SDL_AUDIO_DRIVER="dummy")
+# Off-screen only where there is no display at all (a Linux build machine);
+# macOS needs its own driver for the Metal renderer, and Mini exited there.
+env = dict(os.environ, SDL_AUDIO_DRIVER="dummy")
+if sys.platform.startswith("linux") and "SDL_VIDEO_DRIVER" not in os.environ:
+    env["SDL_VIDEO_DRIVER"] = "offscreen"
 log = open(os.path.join(work, "mini.log"), "w")
 proc = subprocess.Popen([exe, "--plain", "--window", "--volume", "0", "--port", str(args.port), clip],
                         env=env, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT)
@@ -79,12 +86,20 @@ def send(cmd, wait=6.0):
 
 ok = False
 try:
+    answered = False
     for _ in range(120):
         try:
             send("PING", 2.0)
+            answered = True
             break
         except OSError:
+            if proc.poll() is not None:
+                break
             time.sleep(0.5)
+    if not answered:
+        log.flush()
+        print(open(os.path.join(work, "mini.log"), errors="replace").read()[-2000:])
+        sys.exit("FAIL: the Mini download never answered (exit %s)" % proc.poll())
     send("TAKE 1")
     time.sleep(2.0)
     status = send("STATUS")
