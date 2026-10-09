@@ -1,5 +1,25 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-09 - v0.99.409 (Deckboy Mini runs the order your way)
+
+**Find a cue by name.** In Deckboy Mini, `/` and a few words narrow the list
+as you type, best match first; Enter takes it.
+
+**Play this next.** N queues the picked cue to play after the one on air,
+ahead of the list, and E stops when the cue on air ends. The panel's new NEXT
+line always says what will happen next.
+
+**Shuffle, crossfade and a countdown.** Z plays every cue once before any
+repeats, G crossfades between cues (half a second to two), and C turns the
+clock into time left. Each has a remote command too.
+
+**PLS playlists.** Mini opens `.pls` lists from other players and saves them
+beside the original as `.m3u8`. A playlist opened at launch now saves back to
+itself with W.
+
+**A miniature manual that fits.** Every page of the Mini booklet holds its
+whole text, and the new keys have their own pages.
+
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, immediate)
 
 **Fullscreen on macOS is immediate.** Output windows (and the desk, when you

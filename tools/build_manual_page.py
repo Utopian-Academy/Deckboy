@@ -453,18 +453,32 @@ MINI_SECTION = "deckboy-mini"
 # thirteen rows and lost its last ones off the bottom of the page.
 BOOKLET_ROWS = 5          # table rows on one page (about 31px each, wrapped)
 BOOKLET_CHARS = 520       # characters of a paragraph on one page
+BOOKLET_TABLE_CHARS = 330 # characters of table text on one page
 
 
 def _booklet_pieces(blocks):
     pieces = []
     for block in blocks:
         rows = re.findall(r"<tr>.*?</tr>", block, flags=re.S)
-        if "<tbody>" in block and len(rows) - 1 > BOOKLET_ROWS:
+        def text_len(row):
+            return len(re.sub(r"<[^>]+>", "", row))
+        if "<tbody>" in block and (len(rows) - 1 > BOOKLET_ROWS or
+                                   sum(text_len(row) for row in rows[1:]) > BOOKLET_TABLE_CHARS):
+            # A page holds so many rows AND so much text: long descriptions wrap
+            # onto several lines each, so five of them can overflow a page that
+            # five short ones fit.
             head, body = rows[0], rows[1:]
-            for i in range(0, len(body), BOOKLET_ROWS):
-                chunk = "".join(body[i:i + BOOKLET_ROWS])
+            chunk, size = [], 0
+            for row in body:
+                if chunk and (len(chunk) >= BOOKLET_ROWS or size + text_len(row) > BOOKLET_TABLE_CHARS):
+                    pieces.append('<div class="table-scroll"><table><thead>{0}</thead><tbody>{1}'
+                                  '</tbody></table></div>'.format(head, "".join(chunk)))
+                    chunk, size = [], 0
+                chunk.append(row)
+                size += text_len(row)
+            if chunk:
                 pieces.append('<div class="table-scroll"><table><thead>{0}</thead><tbody>{1}'
-                              '</tbody></table></div>'.format(head, chunk))
+                              '</tbody></table></div>'.format(head, "".join(chunk)))
             continue
         text = re.sub(r"<[^>]+>", "", block)
         if block.startswith("<p>") and len(text) > BOOKLET_CHARS:

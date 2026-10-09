@@ -2125,7 +2125,7 @@ the keyboard there, over SSH included; the same keys work in the output window.
 | H, F | The status bar on the output, fullscreen |
 | A | Add files: Tab completes the path |
 | `:` | The command line: any remote command, Up recalls the last |
-| `?` | The keys, in the panel: four pages (show, editing, output and sound, playing a file), `?` steps on |
+| `?` | The keys, in the panel: five pages (show, editing, output and sound, playing a file, running order), `?` steps on |
 | Q Q | Quit (twice, so one stray key cannot end a show) |
 
 **Editing the list**, in the terminal:
@@ -2161,6 +2161,21 @@ they do not clash with the show's:
 | J | Subtitles: cycles the tracks, then off |
 | `#` | The file's next sound track |
 
+**The running order:**
+
+| Key | Does |
+|-----|------|
+| `/` | Find a cue by name: type any words from it and the list narrows to the matches, best first. Enter takes the picked one, Esc leaves the list as it was |
+| N | Play the picked cue next, ahead of the list. Press it on more cues to queue them in order; N again takes one off |
+| E | Stop when the cue on air ends, instead of going on. It clears itself once it has |
+| C | The clock counts down (time left) or up (time gone) |
+| Z | Shuffle: every cue plays once before any plays again |
+| G | Crossfade between cues: off, half a second, one or two seconds |
+
+**The NEXT line** in the panel always says what will happen when the cue on air ends:
+the next cue, a queued one, "a shuffled cue", or that Mini will stop. While
+they are on, SHUF, LAST (E) and XF (G) show beside LOOP.
+
 **Subtitles** are found the way a media player finds them: any caption file
 beside the clip with the same name (`talk.srt`, `talk.en.vtt`; SRT, WebVTT,
 SCC and TTML all read), and subtitle tracks inside the file itself, which are
@@ -2168,7 +2183,9 @@ read in the background so the picture never waits for them. They are drawn
 low and centred, white with a black edge.
 
 **Playlists** are extended M3U8 files, so any player that reads a playlist reads
-Mini's, and a person can read them too. Mini's own settings (a cue's loop, a
+Mini's, and a person can read them too. Mini also opens plain M3U and PLS
+playlists from other players; a list opened from a `.pls` is saved beside it as
+`.m3u8`, never over it. Mini's own settings (a cue's loop, a
 still's time) ride in `#DECKBOY:` lines other players skip, and paths are
 written relative to the playlist when the media sits under its folder, so a
 show folder copies to another machine whole. The panel's title shows the
@@ -2190,7 +2207,9 @@ each answered `OK` or `ERR` with the reason. The keys above are commands too:
 `MOVE n to`, `REMOVE n`, `RENAME n name`, `STILL n seconds`, `CUELOOP n`,
 `SAVE [file]`, `OPEN file`, `DISPLAYS`, `DISPLAY n|NEXT`, `OUTPUT ON|OFF`,
 `AUDIO LIST|NEXT|DEFAULT|<name>`, `SPEED 0.25-4`, `MUTE`, `FRAME [BACK]`,
-`ABLOOP [a b|OFF]`, `SUBS [ON|OFF]` and `AUDIOTRACK n|NEXT`. `STATUS` comes back in the desk's
+`ABLOOP [a b|OFF]`, `SUBS [ON|OFF]`, `AUDIOTRACK n|NEXT`, and for the running
+order `FIND words`, `QUEUE [n|CLEAR]`, `ENDAFTER ON|OFF`, `SHUFFLE ON|OFF`,
+`CLOCK REMAINING|ELAPSED` and `CROSSFADE seconds`. `STATUS` comes back in the desk's
 format, so the Companion module drives Mini like a one-deck Deckboy. Send
 `HELP` for the list.
 
