@@ -90,5 +90,42 @@ finally:
     log.close()
 if not ok:
     print(open(os.path.join(work, "mini.log"), errors="replace").read()[-2000:])
+    # WHICH HALF FAILED: the download's own ffmpeg decoding the clip says
+    # whether the libraries can decode at all; a second run with hardware
+    # decoding off says whether Mini's fall-back from a missing hardware
+    # decoder is what broke.
+    bundled = [os.path.join(r, f) for r, _d, fs in os.walk(top) for f in fs if f in ("ffmpeg", "ffmpeg.exe")]
+    if bundled:
+        dec = subprocess.run([bundled[0], "-v", "error", "-i", clip, "-f", "null", "-"],
+                             capture_output=True, text=True)
+        print("the download's ffmpeg decoding the clip: exit %d %s" % (dec.returncode, dec.stderr[-600:]))
+    env2 = dict(env, DECKBOY_NO_HW_DECODE="1")
+    log2 = open(os.path.join(work, "mini-nohw.log"), "w")
+    proc2 = subprocess.Popen([exe, "--plain", "--window", "--volume", "0", "--port", str(args.port + 1), clip],
+                             env=env2, stdin=subprocess.DEVNULL, stdout=log2, stderr=subprocess.STDOUT)
+    args.port += 1
+    try:
+        for _ in range(60):
+            try:
+                send("PING")
+                break
+            except OSError:
+                time.sleep(0.25)
+        send("TAKE 1")
+        time.sleep(2.5)
+        st2 = send("STATUS")
+        print("with hardware decoding off: %s, %s frames shown" %
+              ("playing" if "status=Playing" in st2 else "NOT playing",
+               (re.search(r"frames_shown=(\d+)", st2) or [0, "0"])[1]))
+        send("QUIT")
+    except OSError as e:
+        print("with hardware decoding off: no answer (%s)" % e)
+    finally:
+        try:
+            proc2.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc2.kill()
+        log2.close()
+    print(open(os.path.join(work, "mini-nohw.log"), errors="replace").read()[-1200:])
     sys.exit("FAIL: the Mini download did not play a clip")
 print("ok")
