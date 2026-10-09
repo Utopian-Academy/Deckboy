@@ -213,7 +213,9 @@ display and the sound device, and the keys a media player has — frame step,
 speed, A-B loop, mute, sound track and subtitles. On a Raspberry Pi it plays
 through the board's own video decoder; `tools/linux_build.sh --mini` builds it
 there. Its own [miniature manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
-has every key and command.
+has every key and command. Mini comes inside every download, and on its own as
+a small download for Windows, macOS, Linux and the Raspberry Pi (64-bit) on the
+[releases page](https://github.com/Utopian-Academy/Deckboy/releases/latest).
 
 ```
 deckboy-mini ~/Videos --display 2 --loop

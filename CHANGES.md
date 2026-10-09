@@ -13,9 +13,17 @@ line always says what will happen next.
 repeats, G crossfades between cues (half a second to two), and C turns the
 clock into time left. Each has a remote command too.
 
+**Deckboy Mini on its own.** Mini now has small downloads of its own for
+Windows, macOS (Apple Silicon and Intel), Linux and the Raspberry Pi (64-bit),
+for a screen that only needs to play. It still comes inside every full
+download too.
+
 **PLS playlists.** Mini opens `.pls` lists from other players and saves them
 beside the original as `.m3u8`. A playlist opened at launch now saves back to
 itself with W.
+
+**"Deck 1", not "1 Deck 1".** A playlist still called by its default name
+shows that name alone on its tab; a named playlist keeps its number in front.
 
 **A miniature manual that fits.** Every page of the Mini booklet holds its
 whole text, and the new keys have their own pages.
