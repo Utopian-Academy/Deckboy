@@ -91,7 +91,11 @@ try:
     shown = int((re.search(r"frames_shown=(\d+)", status) or [0, "0"])[1])
     playing = "status=Playing" in status
     print("Mini from %s: %s, %d frames shown" % (os.path.basename(args.archive), "playing" if playing else "NOT playing", shown))
-    ok = playing and shown > 5
+    # PROOF IT PLAYS, not a speed test: a build machine with no GPU ran this
+    # at half a frame a second. Playing, frames decoded and at least one on
+    # screen says the download's libraries work; speed is measured elsewhere.
+    decoded = int((re.search(r"decoded=(\d+)", status) or [0, "0"])[1])
+    ok = playing and decoded >= 5 and shown >= 1
     if not ok:
         # dur says whether the probe found the clip, decoded whether the
         # decoder produced anything, frames_shown whether any reached the screen.
