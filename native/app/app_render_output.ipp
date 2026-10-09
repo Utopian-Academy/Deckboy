@@ -1029,8 +1029,12 @@
                          const std::string& text, TTF_Font* font,
                          SDL_Color fill, SDL_Color ink) {
     const int padX = std::max(4, at.h / 3);
-    const int width = std::min(at.w,
-                               measuredTextWidth(font, text) + padX * 2);
+    // The label helper insets the rect it is given before it measures, so the
+    // pill is grown by that inset as well -- sized to the text alone, the
+    // longest caption ("PREVIOUS") came out as "PREVIO...".
+    const SDL_Rect probe {at.x, at.y, measuredTextWidth(font, text) + padX * 2, at.h};
+    const int inset = std::max(0, probe.w - safeTextRect(probe).w);
+    const int width = std::min(at.w, probe.w + inset);
     const SDL_Rect pill {at.x, at.y, std::max(8, width), at.h};
     presenterRounded(ren, pill, at.h / 2, fill);
     drawCenteredTextSafe(ren, font, pill, text, ink);

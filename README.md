@@ -361,7 +361,7 @@ all one object with one set of controls, not fifty separate things to learn.
 - The clicker walks long notes a part at a time, at the speaker's pace — and
   Page Down and Page Up just work, because that is what every clicker sends
 
-![The presenter view: previous, live and next slides across the top, the speaker's notes below](art/readme/presenter.png)
+![The presenter view mid-build: the live slide large on the left, the previous and next slides stacked on the right, and the speaker's notes below, the part already spoken greyed out](art/readme/presenter.png)
 
 - **Teleprompter view**, also an output of its own: the script large, scrolling
   through a fixed reading line, mirrored for a beamsplitter, and driven from a
