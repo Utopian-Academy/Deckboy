@@ -491,7 +491,8 @@ $MiniZip   = Join-Path $OutputDir "$MiniName.zip"
 if (Test-Path $MiniStage) { Remove-Item $MiniStage -Recurse -Force }
 New-Item -ItemType Directory -Path (Join-Path $MiniStage "data\fonts") -Force | Out-Null
 Copy-Item (Join-Path $StageDir "deckboy-mini.exe") -Destination $MiniStage
-$DeskOnlyDlls = @("SpoutLibrary.dll", "WebView2Loader.dll", "ltc.dll")
+# deckboy-mini.exe imports SpoutLibrary.dll (without it Windows refuses to start it), so only these two stay out.
+$DeskOnlyDlls = @("WebView2Loader.dll", "ltc.dll")
 Get-ChildItem -Path $StageDir -Filter *.dll |
     Where-Object { $DeskOnlyDlls -notcontains $_.Name } |
     Copy-Item -Destination $MiniStage
@@ -521,7 +522,8 @@ $MiniAlone = Start-Process -FilePath (Join-Path $MiniStage "deckboy-mini.exe") -
                           -Wait -NoNewWindow -PassThru -RedirectStandardOutput $MiniAloneOut
 $MiniAloneVersion = ""
 if (Test-Path $MiniAloneOut) {
-    $MiniAloneVersion = (Get-Content $MiniAloneOut -TotalCount 1)
+    # One line, as a string, whatever Get-Content hands back (it gave a list here).
+    $MiniAloneVersion = [string](@(Get-Content $MiniAloneOut) | Where-Object { $_ -match '\S' } | Select-Object -First 1)
     Remove-Item $MiniAloneOut -Force -ErrorAction SilentlyContinue
 }
 $MiniAloneVersion = ($MiniAloneVersion -replace '^deckboy-mini\s+v?', '').Trim()
