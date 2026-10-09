@@ -938,7 +938,11 @@ jobs:
         run: |
           APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
           FF="$APP/Contents/MacOS/ffmpeg"
-          enc=$("$FF" -hide_banner -encoders 2>&1)
+          # Say WHY when it cannot even start: a bare `enc=$(...)` under -e
+          # failed with nothing but "exit code 134" (a dyld abort).
+          if ! enc=$("$FF" -hide_banner -encoders 2>&1); then
+            echo "::error::the bundled ffmpeg does not start"; echo "$enc" | head -20; exit 1
+          fi
           missing=""
           for e in hap libx264 libx265 libvpx-vp9 libmp3lame libopus prores_ks aac; do
             echo "$enc" | grep -qE "^\s*\S+\s+$e\s" || missing="$missing $e"

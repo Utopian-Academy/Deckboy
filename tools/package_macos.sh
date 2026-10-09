@@ -332,17 +332,30 @@ while [ "$idx" -lt "${#WORKLIST[@]}" ]; do
     is_system_lib "$dep" && continue
     base="$(basename "$dep")"
     if [ ! -f "$FRAMEWORKS_DIR/$base" ]; then
-      if [ -f "$dep" ]; then
-        cp "$dep" "$FRAMEWORKS_DIR/$base"
+      # A library that names itself without a path (libvpx does) is looked
+      # up where the bundle's libraries were built.
+      src="$dep"
+      if [ ! -f "$src" ] && [ -n "$DEPS_PREFIX" ] && [ -f "$DEPS_PREFIX/lib/$base" ]; then
+        src="$DEPS_PREFIX/lib/$base"
+      fi
+      if [ -f "$src" ]; then
+        cp "$src" "$FRAMEWORKS_DIR/$base"
         chmod u+w "$FRAMEWORKS_DIR/$base"
         WORKLIST+=("$FRAMEWORKS_DIR/$base")
         echo "  + Frameworks/$base"
       else
         echo "  ! missing dependency: $dep (referenced by $(basename "$current"))" >&2
+        MISSING_DEPS="${MISSING_DEPS:-} $base"
       fi
     fi
   done
 done
+# FATAL. This was a warning, and a bundle whose ffmpeg could not load libvpx
+# got all the way to the end of packaging; dyld would abort it on every Mac.
+if [ -n "${MISSING_DEPS:-}" ]; then
+  echo "error: libraries the bundle needs but could not find:$MISSING_DEPS" >&2
+  exit 1
+fi
 
 # --- Rewrite install names --------------------------------------------------
 # Every bundled dylib gets an @rpath id, every reference to it is repointed, and

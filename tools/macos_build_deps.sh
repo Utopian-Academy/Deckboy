@@ -93,6 +93,14 @@ clone libvpx https://github.com/webmproject/libvpx.git v1.15.0
 ( cd "$SRC/libvpx" && ./configure --target="$ARCH-darwin21-gcc" --prefix="$PREFIX" --enable-shared --disable-static \
     --disable-examples --disable-tools --disable-docs --disable-unit-tests \
     --enable-vp9-highbitdepth --extra-cflags="$CFLAGS" && make -j"$JOBS" && make install )
+# libvpx names itself "libvpx.9.dylib" with no path, so everything linked to it
+# (ffmpeg, ffprobe, four of the libav libraries) looked for a file of that name
+# and the packager could not find it to bundle. Give it the full path the
+# others use, before ffmpeg links against it.
+for vpx in "$PREFIX"/lib/libvpx.*.dylib; do
+  [ -L "$vpx" ] && continue
+  install_name_tool -id "$PREFIX/lib/$(basename "$vpx")" "$vpx"
+done
 
 step "dav1d"
 clone dav1d https://code.videolan.org/videolan/dav1d.git 1.5.1
