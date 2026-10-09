@@ -155,7 +155,11 @@ clone ffmpeg https://git.ffmpeg.org/ffmpeg.git n8.1
 
 # ── SDL and the desk's text ─────────────────────────────────────────────────
 step "SDL3"
-clone SDL https://github.com/libsdl-org/SDL.git release-3.4.0
+# The newest 3.4, as the Homebrew build that shipped before was. 3.4.0 lacks
+# the cocoa fullscreen fixes after it, and the desk crashed in
+# Cocoa_SetWindowFullscreen ("NSWindowStyleMaskFullScreen cleared on a window
+# outside of a full screen transition") arming an output in CI.
+clone SDL https://github.com/libsdl-org/SDL.git release-3.4.18
 cmake -S "$SRC/SDL" -B "$SRC/SDL/build" "${CMAKE_COMMON[@]}" -DSDL_STATIC=OFF -DSDL_TESTS=OFF \
   -DSDL_EXAMPLES=OFF
 cmake --build "$SRC/SDL/build" && cmake --install "$SRC/SDL/build"
