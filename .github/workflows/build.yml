@@ -511,8 +511,12 @@ jobs:
           sudo apt-get install -y file desktop-file-utils
           ./tools/package_linux.sh
           ./tools/package_linux_appimage.sh
-          # Deckboy Mini on its own: Mini, ffmpeg for subtitles, its font.
-          ./tools/package_mini_linux.sh build dist
+          # Deckboy Mini on its own, SMALL: a decode-only ffmpeg built for it
+          # (tools/build_mini_ffmpeg.sh), then a clip played from the download.
+          chmod +x tools/build_mini_ffmpeg.sh tools/package_mini_linux.sh
+          ./tools/build_mini_ffmpeg.sh /opt/ffmpeg-mini
+          LD_LIBRARY_PATH=/opt/ffmpeg-mini/lib DECKBOY_FFMPEG=/opt/ffmpeg-mini/bin/ffmpeg DECKBOY_FFPROBE=/opt/ffmpeg-mini/bin/ffprobe ./tools/package_mini_linux.sh build dist
+          python3 tools/check_mini_package.py dist/Deckboy-Mini-*-linux-x86_64.tar.gz
 
       # PROVE the floor rather than trusting the runner label. An AppImage
       # will not start on an older glibc than the highest version anything
@@ -634,8 +638,12 @@ jobs:
             -DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF -DENABLE_ASIO=OFF
           cmake --build build --target deckboy-mini -j"$(nproc)"
 
-      - name: Package Deckboy Mini
-        run: ./tools/package_mini_linux.sh build dist
+      - name: Package Deckboy Mini (small) and play a clip from it
+        run: |
+          chmod +x tools/build_mini_ffmpeg.sh tools/package_mini_linux.sh
+          ./tools/build_mini_ffmpeg.sh /opt/ffmpeg-mini
+          LD_LIBRARY_PATH=/opt/ffmpeg-mini/lib DECKBOY_FFMPEG=/opt/ffmpeg-mini/bin/ffmpeg DECKBOY_FFPROBE=/opt/ffmpeg-mini/bin/ffprobe ./tools/package_mini_linux.sh build dist
+          python3 tools/check_mini_package.py dist/Deckboy-Mini-*-linux-arm64.tar.gz
 
       - name: Upload Deckboy Mini (ARM64)
         uses: actions/upload-artifact@v4
@@ -982,6 +990,8 @@ jobs:
           fi
           ./tools/package_macos.sh
           rm -f "$RUNNER_TEMP/notary.p8"
+          # Deckboy Mini on its own has to PLAY, not only start.
+          python3 tools/check_mini_package.py dist/Deckboy-Mini-*-macos-*.zip --ffmpeg "$DECKBOY_DEPS_PREFIX/bin/ffmpeg"
 
       # The whole point of the bundle is that it runs on a machine with no
       # Homebrew. A leftover /opt/homebrew or /usr/local reference in ANY
@@ -1481,6 +1491,10 @@ jobs:
           # -BuildDir because CI builds to build\Release, while the script's
           # default is the build\windows\Release a local build uses.
           .\tools\package_windows_installer.ps1 -FfmpegDir $ffmpeg -BuildDir "build\Release"
+          # Deckboy Mini on its own has to PLAY, not only start.
+          $mini = Get-ChildItem dist\Deckboy-Mini-*-windows-x64.zip | Select-Object -First 1
+          python tools/check_mini_package.py $mini.FullName --ffmpeg (Join-Path $ffmpeg "ffmpeg.exe")
+          if ($LASTEXITCODE -ne 0) { throw "the Mini download did not play a clip" }
 
       # An installer nobody has run is a guess. This unpacks the portable zip
       # and starts the binary out of it, which is the same payload the setup.exe
