@@ -431,6 +431,17 @@ jobs:
         if: matrix.features == 'all'
         run: python3 tools/check_transitions.py --exe ./build/Deckboy
 
+      # The programme's colours against independently decoded references, on
+      # the renderers a Linux desktop uses: Mesa's OpenGL and SDL's software
+      # one. Windows CI checked only Direct3D 11, so 8/10-bit and limited/full
+      # range were proven on one platform of three.
+      - name: Programme colour on OpenGL and software
+        if: matrix.features == 'all'
+        run: |
+          for r in opengl software; do
+            xvfb-run -a python3 tools/check_programme_colour.py --exe ./build/Deckboy --renderer "$r"
+          done
+
       - name: Programme capture cadence and Main 10 picture
         if: matrix.features == 'all'
         run: |
@@ -629,6 +640,23 @@ jobs:
         if: matrix.features == 'all'
         with:
           node-version: '22'
+
+      # The programme's colours on Metal, against independently decoded
+      # references: 8/10-bit, limited and full range.
+      - name: Programme colour on Metal
+        if: matrix.features == 'all'
+        timeout-minutes: 10
+        run: python3 tools/check_programme_colour.py --exe ./build/Deckboy --renderer metal
+
+      # Fullscreen switches fast and mid-animation, which is when AppKit
+      # ended the app (0.99.406, about one CI run in six). After every
+      # switch Deckboy must still be running and answering.
+      - name: Fullscreen switching under stress
+        if: matrix.features == 'all'
+        timeout-minutes: 10
+        env:
+          DECKBOY_STRESS_ROUNDS: "60"
+        run: python3 tools/check_fullscreen_stress.py --exe ./build/Deckboy
 
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
