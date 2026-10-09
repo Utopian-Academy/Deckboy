@@ -35,6 +35,8 @@
 #include "platform/pdf_import.hpp"
 
 #include <algorithm>
+#include <map>
+#include <random>
 #include <chrono>
 #include <atomic>
 #include <cctype>
@@ -106,7 +108,9 @@ const char* kRemoteHelp =
   "OVERLAY ON|OFF|TOGGLE | ADD <file or folder> | DECK 1 <command> | STATUS | PING | QUIT | "
   "MOVE n to | REMOVE n | RENAME n name | STILL n s | CUELOOP n ON|OFF|TOGGLE | SAVE [file] | OPEN file | "
   "DISPLAYS | DISPLAY n|NEXT | OUTPUT ON|OFF|TOGGLE | AUDIO LIST|NEXT|DEFAULT|<name> | "
-  "SPEED 0.25-4 | MUTE ON|OFF|TOGGLE | FRAME [BACK] | ABLOOP [a b|OFF] | SUBS [ON|OFF] | AUDIOTRACK n|NEXT\n";
+  "SPEED 0.25-4 | MUTE ON|OFF|TOGGLE | FRAME [BACK] | ABLOOP [a b|OFF] | SUBS [ON|OFF] | AUDIOTRACK n|NEXT | "
+  "FIND words | QUEUE [n|CLEAR] | ENDAFTER ON|OFF|TOGGLE | SHUFFLE ON|OFF|TOGGLE | "
+  "CLOCK REMAINING|ELAPSED|TOGGLE | CROSSFADE seconds|NEXT\n";
 
 std::string upper(std::string s) {
   for (char& c : s) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
@@ -251,10 +255,20 @@ std::string utf8Of(const fs::path& p) {
 
 fs::path pathFromUtf8(const std::string& s) { return fs::path(std::u8string(s.begin(), s.end())); }
 
-bool isPlaylistPath(const fs::path& p) {
+std::string lowerExtension(const fs::path& p) {
   std::string ext = p.extension().string();
   for (char& c : ext) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-  return ext == ".m3u8" || ext == ".m3u";
+  return ext;
+}
+
+// .pls is read as well (Winamp's own format, and what many players still
+// export) but never written: Mini saves M3U8, so a list opened from a .pls is
+// saved beside it as .m3u8 rather than over it in another format.
+bool isPlsPath(const fs::path& p) { return lowerExtension(p) == ".pls"; }
+
+bool isPlaylistPath(const fs::path& p) {
+  const std::string ext = lowerExtension(p);
+  return ext == ".m3u8" || ext == ".m3u" || ext == ".pls";
 }
 
 struct PlaylistEntry {
@@ -264,6 +278,41 @@ struct PlaylistEntry {
   double still = -1.0;
 };
 
+// PLS: an INI-style list of FileN= and TitleN= lines, numbered from 1, in
+// any order. Entries play in number order.
+std::vector<PlaylistEntry> readPls(std::ifstream& in, const fs::path& file) {
+  std::map<int, PlaylistEntry> byNumber;
+  std::string line;
+  bool first = true;
+  while (std::getline(in, line)) {
+    if (!line.empty() && line.back() == '\r') line.pop_back();
+    if (first && line.size() >= 3 && static_cast<unsigned char>(line[0]) == 0xEF) line.erase(0, 3);  // BOM
+    first = false;
+    const std::size_t eq = line.find('=');
+    if (eq == std::string::npos) continue;
+    std::string key = line.substr(0, eq);
+    for (char& c : key) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    const std::string value = line.substr(eq + 1);
+    const bool isFile = key.rfind("file", 0) == 0, isTitle = key.rfind("title", 0) == 0;
+    if (!isFile && !isTitle) continue;
+    const std::string digits = key.substr(isFile ? 4 : 5);
+    if (digits.empty() || digits.find_first_not_of("0123456789") != std::string::npos) continue;
+    PlaylistEntry& e = byNumber[std::atoi(digits.c_str())];
+    if (isTitle) {
+      e.name = value;
+    } else {
+      fs::path path = pathFromUtf8(value);
+      if (path.is_relative()) path = file.parent_path() / path;
+      e.path = path.lexically_normal();
+    }
+  }
+  std::vector<PlaylistEntry> out;
+  for (auto& [number, e] : byNumber) {
+    if (!e.path.empty()) out.push_back(std::move(e));
+  }
+  return out;
+}
+
 std::vector<PlaylistEntry> readPlaylist(const fs::path& file, const Report& report) {
   std::vector<PlaylistEntry> out;
   std::ifstream in(file, std::ios::binary);
@@ -271,6 +320,7 @@ std::vector<PlaylistEntry> readPlaylist(const fs::path& file, const Report& repo
     report("cannot open " + file.string());
     return out;
   }
+  if (isPlsPath(file)) return readPls(in, file);
   PlaylistEntry pending;
   std::string line;
   bool first = true;
@@ -372,6 +422,16 @@ class Mini {
     if (!open()) return 1;
     overlay_ = opt_.overlay;
     nextId_ = cues_.size() + 1;
+    // ONE PLAYLIST AT LAUNCH IS THE LIST'S FILE, exactly as if O had opened
+    // it: W saves back to it. Without this W wrote a new show.m3u8 in the
+    // current folder and the playlist that was opened never changed.
+    if (opt_.inputs.size() == 1 && isPlaylistPath(opt_.inputs.front())) {
+      listFile_ = fs::absolute(opt_.inputs.front());
+      if (isPlsPath(listFile_)) {
+        listFile_.replace_extension(".m3u8");   // beside the .pls, never over it
+        listDirty_ = true;
+      }
+    }
     hud_.begin(opt_.plain);
     hud_.boot(bootFacts());
     if (keys_.begin()) hud_.log("keys live in this terminal  (? for help)");
@@ -532,7 +592,12 @@ class Mini {
     abA_ = abB_ = -1.0;                // A-B belongs to the cue it was set on
     cues_[static_cast<std::size_t>(index)].playbackSpeed = speed_;
     loadSubtitlesFor(cues_[static_cast<std::size_t>(index)]);
-    engine_->loadCue(&cues_[index], autoplay);
+    // A cue that has played is out of the shuffle until the bag refills,
+    // however it was taken.
+    shuffleBag_.erase(std::remove(shuffleBag_.begin(), shuffleBag_.end(), index), shuffleBag_.end());
+    // G: the engine's own crossfade, the same one the desk uses.
+    engine_->loadCue(&cues_[index], autoplay, glideSeconds_,
+                     glideSeconds_ > 0.0 ? TransitionStyle::Crossfade : TransitionStyle::Cut);
     hud_.log("take " + std::to_string(index + 1) + "/" + std::to_string(cues_.size()) + "  " + cues_[index].name);
   }
 
@@ -542,15 +607,112 @@ class Mini {
     stopped_ = true;
   }
 
+  // What plays when the cue on air ends, or -1 for the end of the list:
+  // anything queued first, then the shuffle, then simply the next cue. Read
+  // by cueEnded and by the panel's NEXT line, so the two cannot disagree.
+  int upcoming() const {
+    for (int q : queue_) {
+      if (validIndex(q)) return q;
+    }
+    if (shuffle_) {
+      if (!shuffleBag_.empty()) return -2;            // drawn at the moment it is needed
+      return opt_.loop && cues_.size() > 1 ? -2 : -1;
+    }
+    const int next = (active_ < 0 ? selected_ - 1 : active_) + 1;
+    if (validIndex(next)) return next;
+    return opt_.loop && !cues_.empty() ? 0 : -1;
+  }
+
+  void refillShuffle() {
+    shuffleBag_.clear();
+    for (int i = 0; i < static_cast<int>(cues_.size()); ++i) {
+      if (i != active_) shuffleBag_.push_back(i);
+    }
+  }
+
   void cueEnded() {
-    const int next = active_ + 1;
-    if (validIndex(next)) { take(next, true, false); return; }
-    if (opt_.loop && !cues_.empty()) { take(0, true, false); return; }
+    // E: this was the last one, as asked.
+    if (endAfter_) {
+      endAfter_ = false;
+      engine_->finalizeReachedEnd(opt_.hold);
+      atEnd_ = opt_.hold;
+      if (!opt_.hold) stop();
+      hud_.log(opt_.hold ? "ended after that cue, as asked: holding the last frame"
+                         : "ended after that cue, as asked");
+      return;
+    }
+    // N: the queue, in the order it was made.
+    while (!queue_.empty()) {
+      const int q = queue_.front();
+      queue_.erase(queue_.begin());
+      if (validIndex(q)) { take(q, true, false); return; }
+    }
+    // Z: the next one out of the bag; an empty bag refills only on a loop.
+    if (shuffle_) {
+      if (shuffleBag_.empty() && opt_.loop) refillShuffle();
+      if (!shuffleBag_.empty()) {
+        std::uniform_int_distribution<std::size_t> pick(0, shuffleBag_.size() - 1);
+        take(shuffleBag_[pick(rng_)], true, false);
+        return;
+      }
+    } else {
+      const int next = active_ + 1;
+      if (validIndex(next)) { take(next, true, false); return; }
+      if (opt_.loop && !cues_.empty()) { take(0, true, false); return; }
+    }
     // End of the list: hold the frame or go to black, and stay put.
     engine_->finalizeReachedEnd(opt_.hold);
     atEnd_ = opt_.hold;
     if (!opt_.hold) stop();
     hud_.log(opt_.hold ? "end of list, holding the last frame" : "end of list");
+  }
+
+  // Indices into the list held anywhere else follow the cues when the list
+  // changes, the way the selection does.
+  void followIndex(std::vector<int>& list, int from, int to) {
+    for (int& i : list) {
+      if (i == from) i = to;
+      else if (from < to && i > from && i <= to) --i;
+      else if (from > to && i >= to && i < from) ++i;
+    }
+  }
+  void dropIndex(std::vector<int>& list, int removed) {
+    list.erase(std::remove(list.begin(), list.end(), removed), list.end());
+    for (int& i : list) if (i > removed) --i;
+  }
+
+  void toggleQueued(int i) {
+    if (!validIndex(i)) return;
+    auto at = std::find(queue_.begin(), queue_.end(), i);
+    if (at != queue_.end()) {
+      queue_.erase(at);
+      hud_.log("cue " + std::to_string(i + 1) + " off the queue");
+    } else {
+      queue_.push_back(i);
+      hud_.log("cue " + std::to_string(i + 1) + " plays next" +
+               (queue_.size() > 1 ? " (" + std::to_string(queue_.size()) + " queued)" : std::string()));
+    }
+  }
+
+  void setShuffle(bool on) {
+    shuffle_ = on;
+    if (on) refillShuffle(); else shuffleBag_.clear();
+    hud_.log(on ? "shuffle on: every cue once before any repeats" : "shuffle off");
+  }
+
+  void setEndAfter(bool on) {
+    endAfter_ = on;
+    hud_.log(on ? "stops when this cue ends" : "carries on after this cue");
+  }
+
+  void cycleGlide() {
+    static const double kSteps[] = {0.0, 0.5, 1.0, 2.0};
+    std::size_t i = 0;
+    while (i < 4 && kSteps[i] <= glideSeconds_ + 1e-6) ++i;
+    glideSeconds_ = kSteps[i % 4];
+    char secs[16];
+    std::snprintf(secs, sizeof(secs), "%.1f s", glideSeconds_);
+    hud_.log(glideSeconds_ > 0.0 ? std::string("crossfade ") + secs + " between cues" : "cut between cues");
   }
 
   void go() {
@@ -579,6 +741,8 @@ class Mini {
     };
     follow(active_);
     follow(selected_);
+    followIndex(queue_, from, to);
+    followIndex(shuffleBag_, from, to);
     markDirty();
     return true;
   }
@@ -589,6 +753,8 @@ class Mini {
     if (i == active_) stop();
     cues_.erase(cues_.begin() + i);
     if (active_ > i) --active_;
+    dropIndex(queue_, i);
+    dropIndex(shuffleBag_, i);
     if (selected_ >= static_cast<int>(cues_.size())) selected_ = std::max(0, static_cast<int>(cues_.size()) - 1);
     hud_.log("removed " + name);
     markDirty();
@@ -615,6 +781,7 @@ class Mini {
 
   bool savePlaylist(fs::path file) {
     if (file.extension().empty()) file += ".m3u8";
+    if (isPlsPath(file)) file.replace_extension(".m3u8");   // never M3U content in a .pls
     if (!writePlaylist(file, cues_)) {
       hud_.log("could not save " + file.string());
       return false;
@@ -636,8 +803,14 @@ class Mini {
     nextId_ += fresh.size();
     cues_ = std::move(fresh);
     selected_ = 0;
+    queue_.clear();                    // a new list: nothing from the old one is queued
+    if (shuffle_) refillShuffle();
     listFile_ = isPlaylistPath(file) ? fs::absolute(file) : fs::path();
     listDirty_ = !isPlaylistPath(file);
+    if (isPlsPath(file)) {
+      listFile_.replace_extension(".m3u8");   // W saves beside the .pls, never over it
+      listDirty_ = true;
+    }
     hud_.log("opened " + file.filename().string() + ", " + std::to_string(cues_.size()) + " cues");
     return true;
   }
@@ -1014,9 +1187,91 @@ class Mini {
     return std::nullopt;
   }
 
+  // ── Jump to a cue by name (Winamp's J) ──
+  //
+  // Every word typed has to appear in the cue's name, in any order and any
+  // case, so "intro 2" finds "02 Intro" and "Intro part 2" alike. The
+  // list shows only what matches while typing; Enter takes the picked one.
+  // BEST MATCH FIRST. A typed word that is a whole word of the name counts
+  // most, the start of one less, and letters inside another word least -- so
+  // "clip c" puts clip-c ahead of clip-a, whose "clip" also contains a c.
+  // Equal scores keep the list's own order.
+  std::vector<int> jumpMatches() const {
+    auto lowered = [](std::string t) {
+      for (char& c : t) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      return t;
+    };
+    auto split = [](const std::string& t, bool onAnySeparator) {
+      std::vector<std::string> out;
+      std::string word;
+      for (char c : t + " ") {
+        const bool sep = onAnySeparator ? !std::isalnum(static_cast<unsigned char>(c)) : c == ' ';
+        if (sep) { if (!word.empty()) out.push_back(word); word.clear(); }
+        else word += c;
+      }
+      return out;
+    };
+    const std::vector<std::string> words = split(lowered(jumpText_), false);
+    std::vector<std::pair<int, int>> scored;   // (score, cue)
+    for (int i = 0; i < static_cast<int>(cues_.size()); ++i) {
+      const std::string name = lowered(cues_[static_cast<std::size_t>(i)].name);
+      const std::vector<std::string> tokens = split(name, true);
+      int score = 0;
+      bool all = true;
+      for (const std::string& w : words) {
+        int best = name.find(w) != std::string::npos ? 1 : 0;
+        for (const std::string& t : tokens) {
+          if (t == w) best = std::max(best, 3);
+          else if (t.rfind(w, 0) == 0) best = std::max(best, 2);
+        }
+        if (best == 0) { all = false; break; }
+        score += best;
+      }
+      if (all) scored.push_back({score, i});
+    }
+    std::stable_sort(scored.begin(), scored.end(),
+                     [](const auto& a, const auto& b) { return a.first > b.first; });
+    std::vector<int> out;
+    for (const auto& sc : scored) out.push_back(sc.second);
+    return out;
+  }
+
+  void openJump() {
+    jump_ = true;
+    jumpText_.clear();
+    jumpPick_ = 0;
+    help_ = false;
+  }
+
+  void jumpKey(const mini::Key& key) {
+    using mini::Key;
+    const std::vector<int> matches = jumpMatches();
+    switch (key.kind) {
+      case Key::Escape: jump_ = false; return;
+      case Key::Enter:
+        jump_ = false;
+        if (!matches.empty()) {
+          const int i = matches[static_cast<std::size_t>(std::clamp(jumpPick_, 0, static_cast<int>(matches.size()) - 1))];
+          selected_ = i;
+          take(i);
+        } else {
+          hud_.log("no cue matches \"" + jumpText_ + "\"");
+        }
+        return;
+      case Key::Up: jumpPick_ = std::max(0, jumpPick_ - 1); return;
+      case Key::Down: jumpPick_ = std::min(static_cast<int>(matches.size()) - 1, jumpPick_ + 1); return;
+      case Key::Backspace: if (!jumpText_.empty()) jumpText_.pop_back(); jumpPick_ = 0; return;
+      case Key::Char:
+        if (key.ch >= 32 && key.ch < 127) { jumpText_ += key.ch; jumpPick_ = 0; }
+        return;
+      default: return;
+    }
+  }
+
   void onKey(const mini::Key& key, bool fromTerminal) {
     using mini::Key;
     if (command_) { commandKey(key); return; }
+    if (jump_) { jumpKey(key); return; }
     const bool quitWasPending = quitPending();
     quitArmedAt_ = {};
     const bool removeWasPending = removePending() && key.kind == Key::Char &&
@@ -1058,7 +1313,7 @@ class Mini {
     // KEYS THAT NEED TYPING say so in the output window instead of doing
     // nothing: rename, still time, save, open and the command line all open
     // a prompt, and the prompt lives in the terminal.
-    if (!fromTerminal && key.ch != 0 && std::strchr("rtwoa:", std::tolower(static_cast<unsigned char>(key.ch)))) {
+    if (!fromTerminal && key.ch != 0 && std::strchr("rtwoa:/", std::tolower(static_cast<unsigned char>(key.ch)))) {
       hud_.log("that key opens a prompt: use the terminal Mini runs in");
       return;
     }
@@ -1130,12 +1385,22 @@ class Mini {
       case ']': seekBy(10.0); break;
       case '[': seekBy(-10.0); break;
       case '?':
-        // Pages: show, editing, output -- then closed.
+        // Pages: show, editing, output, playing, running order -- then closed.
         if (!help_) { help_ = true; helpPage_ = 0; }
-        else if (helpPage_ < 3) ++helpPage_;
+        else if (helpPage_ < 4) ++helpPage_;
         else { help_ = false; helpPage_ = 0; }
         break;
       case ':': if (fromTerminal) openCommand(""); break;
+      // -- the running order, after Winamp's habits --
+      case '/': if (fromTerminal) openJump(); break;          // Winamp's J: find a cue by name
+      case 'n': toggleQueued(selected_); break;               // Winamp's Q: this one next
+      case 'e': setEndAfter(!endAfter_); break;               // stop when this cue ends
+      case 'c':                                               // the clock: time left / time gone
+        showRemaining_ = !showRemaining_;
+        hud_.log(showRemaining_ ? "clock shows the time left" : "clock shows the time gone");
+        break;
+      case 'z': setShuffle(!shuffle_); break;
+      case 'g': cycleGlide(); break;                          // crossfade between cues
       case 'a': if (fromTerminal) openCommand("ADD "); else hud_.log("A works in the terminal; drop files here instead"); break;
       case 'q':
         // TWICE, because the output is live: one stray Q in the middle of a
@@ -1392,6 +1657,65 @@ class Mini {
       engine_->setVolume(static_cast<float>(v) / 100.0f);
       return ok();
     }
+    // The running order's habits (keys / N E C Z G).
+    if (verb == "FIND" || verb == "JUMP") {
+      // Takes the first cue whose name has every word given, as / does.
+      const std::size_t v = upper(raw).find(verb);
+      const std::size_t sp = raw.find_first_of(" \t", v);
+      jumpText_ = sp == std::string::npos ? std::string() : raw.substr(sp + 1);
+      if (jumpText_.find_first_not_of(" \t") == std::string::npos) return err("FIND <words in the cue's name>");
+      const std::vector<int> matches = jumpMatches();
+      if (matches.empty()) return err("no cue matches \"" + jumpText_ + "\"");
+      selected_ = matches.front();
+      take(matches.front());
+      return ok();
+    }
+    if (verb == "QUEUE") {
+      // QUEUE n adds (or, again, removes) cue n; QUEUE CLEAR empties it; QUEUE
+      // alone reports it.
+      if (upper(arg) == "CLEAR") { queue_.clear(); return ok(); }
+      if (arg.empty()) {
+        std::string list;
+        for (int q : queue_) list += (list.empty() ? "" : " ") + std::to_string(q + 1);
+        return "OK QUEUE: " + (list.empty() ? std::string("empty") : list) + "\n";
+      }
+      auto n = cueArg();
+      if (!n) return noCue();
+      toggleQueued(*n);
+      return ok();
+    }
+    if (verb == "ENDAFTER") {
+      auto v = onOff(endAfter_);
+      if (!v) return err("ON, OFF or TOGGLE");
+      setEndAfter(*v);
+      return ok();
+    }
+    if (verb == "SHUFFLE") {
+      auto v = onOff(shuffle_);
+      if (!v) return err("ON, OFF or TOGGLE");
+      setShuffle(*v);
+      return ok();
+    }
+    if (verb == "CLOCK") {
+      const std::string a = upper(arg);
+      if (a == "REMAINING" || a == "LEFT") showRemaining_ = true;
+      else if (a == "ELAPSED" || a == "GONE") showRemaining_ = false;
+      else if (a.empty() || a == "TOGGLE") showRemaining_ = !showRemaining_;
+      else return err("REMAINING, ELAPSED or TOGGLE");
+      return ok();
+    }
+    if (verb == "CROSSFADE" || verb == "GLIDE") {
+      if (arg.empty() || upper(arg) == "NEXT") { cycleGlide(); return ok(); }
+      try {
+        size_t used = 0;
+        const double sec = std::stod(arg, &used);
+        if (used != arg.size() || !(sec >= 0.0 && sec <= 10.0)) return err("seconds, 0-10 (0 is a cut)");
+        glideSeconds_ = sec;
+        return ok();
+      } catch (...) {
+        return err("seconds, 0-10 (0 is a cut)");
+      }
+    }
     if (verb == "LOOP") {
       auto v = onOff(opt_.loop);
       if (!v) return err("ON, OFF or TOGGLE");
@@ -1442,6 +1766,30 @@ class Mini {
     if (verb == "OUTSNAP") {
       snapPath_ = restAfter(deckWords + 1);
       return snapPath_.empty() ? err("OUTSNAP <file.bmp>") : ok();
+    }
+    // PRESS (a test verb, like OUTSNAP): keys as if typed in Mini's terminal,
+    // so the operator's own path -- prompts, the panel, the help -- can be
+    // driven and recorded without a console. Words are single characters or
+    // ENTER ESC UP DOWN LEFT RIGHT BACKSPACE TAB SPACE.
+    if (verb == "PRESS") {
+      if (parts.size() < 2) return err("PRESS <keys>");
+      for (std::size_t i = 1; i < parts.size(); ++i) {   // parts has already lost any "DECK 1"
+        const std::string w = upper(parts[i]);
+        mini::Key k;
+        if (w == "ENTER") k.kind = mini::Key::Enter;
+        else if (w == "ESC") k.kind = mini::Key::Escape;
+        else if (w == "UP") k.kind = mini::Key::Up;
+        else if (w == "DOWN") k.kind = mini::Key::Down;
+        else if (w == "LEFT") k.kind = mini::Key::Left;
+        else if (w == "RIGHT") k.kind = mini::Key::Right;
+        else if (w == "BACKSPACE") k.kind = mini::Key::Backspace;
+        else if (w == "TAB") k.kind = mini::Key::Tab;
+        else if (w == "SPACE") { k.kind = mini::Key::Char; k.ch = ' '; }
+        else if (parts[i].size() == 1) { k.kind = mini::Key::Char; k.ch = parts[i][0]; }
+        else return err("unknown key '" + parts[i] + "'");
+        onKey(k, true);
+      }
+      return ok();
     }
     if (verb == "SPEED") {
       double v = 0.0;
@@ -1635,7 +1983,9 @@ class Mini {
     SDL_GetWindowSizeInPixels(window_, &w, &h);
     std::ostringstream s;
     s << "DECKBOY_0.01 app=mini focus=1 decks=1 outputs=1 master_vol=" << opt_.volume
-      << " blackout=" << (blackout_ ? "on" : "off") << " loop=" << (opt_.loop ? "on" : "off") << "\n";
+      << " blackout=" << (blackout_ ? "on" : "off") << " loop=" << (opt_.loop ? "on" : "off")
+      << " shuffle=" << (shuffle_ ? "on" : "off") << " endafter=" << (endAfter_ ? "on" : "off")
+      << " crossfade=" << glideSeconds_ << " queued=" << queue_.size() << "\n";
     s << "DECK 1 name=\"Deck 1\" status=" << status
       << " selected=" << (cues_.empty() ? 0 : selected_ + 1) << " active=" << active_ + 1
       << " selected_num=\"" << (cues_.empty() ? 0 : selected_ + 1) << "\""
@@ -1681,7 +2031,10 @@ class Mini {
                                                  [this](const std::string& t) { hud_.log(t); });
     nextId_ += more.size();
     if (!more.empty()) listDirty_ = true;
-    for (Cue& c : more) cues_.push_back(std::move(c));
+    for (Cue& c : more) {
+      cues_.push_back(std::move(c));
+      if (shuffle_) shuffleBag_.push_back(static_cast<int>(cues_.size()) - 1);   // new cues join the draw
+    }
     if (!more.empty()) {
       hud_.log(std::string(how) + " " + std::to_string(more.size()) + (more.size() == 1 ? " cue" : " cues") +
                ", " + std::to_string(cues_.size()) + " in the list");
@@ -1745,8 +2098,11 @@ class Mini {
       SDL_RenderFillRect(renderer_, &done);
     }
 
+    // The same answer as the terminal's NEXT line: a numbered cue, or what the
+    // running order will do instead (a shuffled cue, a stop after this one).
     const std::string next = st.next > 0 ? "NEXT " + std::to_string(st.next) + "  " + ascii(st.nextName)
-                                         : std::string(st.loop ? "NEXT back to 1" : "NEXT end of list");
+                           : !st.nextName.empty() ? "NEXT " + ascii(st.nextName)
+                                                  : std::string("NEXT end of list");
     std::string right = std::string(st.loop ? "LOOP  " : "") + "VOL " + std::to_string(st.volume);
     if (st.listening) right += "  :" + std::to_string(st.port);
     const float rightX = vw - pad - right.size() * 8.0f;
@@ -1791,11 +2147,16 @@ class Mini {
     s.cue = active_ + 1;
     s.cueCount = static_cast<int>(cues_.size());
     if (active_ >= 0) s.cueName = cues_[active_].name;
-    int nextIndex = active_ < 0 ? selected_ : active_ + 1;
-    if (!validIndex(nextIndex) && opt_.loop) nextIndex = 0;
-    if (validIndex(nextIndex)) {
-      s.next = nextIndex + 1;
-      s.nextName = cues_[nextIndex].name;
+    // NEXT is what the list will actually do: E ends it, a queued cue goes
+    // first, and a shuffle draws at the moment it is needed.
+    if (active_ >= 0 && endAfter_) {
+      s.nextName = "nothing: stops after this cue";
+    } else if (active_ < 0) {
+      if (validIndex(selected_)) { s.next = selected_ + 1; s.nextName = cues_[static_cast<std::size_t>(selected_)].name; }
+    } else {
+      const int nextIndex = upcoming();
+      if (nextIndex == -2) s.nextName = "a shuffled cue";
+      else if (validIndex(nextIndex)) { s.next = nextIndex + 1; s.nextName = cues_[static_cast<std::size_t>(nextIndex)].name; }
     }
     s.position = active_ >= 0 ? engine_->position() : 0.0;
     s.duration = active_ >= 0 ? engine_->duration() : 0.0;
@@ -1810,14 +2171,29 @@ class Mini {
     s.network = opt_.remote;
     s.controllers = static_cast<int>(clients_.size());
     s.audioLevel = engine_->programAudioLevel01();
-    // The list around the selection, so a cue can be picked by eye.
+    // The list around the selection, so a cue can be picked by eye -- or,
+    // while a name is being typed after /, only the cues that match it.
     const int rows = 6;
-    const int count = static_cast<int>(cues_.size());
-    int first = std::clamp(selected_ - rows / 2, 0, std::max(0, count - rows));
-    for (int i = first; i < std::min(count, first + rows); ++i) {
-      s.rows.push_back({i + 1, cues_[static_cast<std::size_t>(i)].name, cues_[static_cast<std::size_t>(i)].duration,
-                        i == active_, i == selected_, cues_[static_cast<std::size_t>(i)].loop});
+    auto rowFor = [&](int i, bool picked) {
+      const Cue& c = cues_[static_cast<std::size_t>(i)];
+      const bool queued = std::find(queue_.begin(), queue_.end(), i) != queue_.end();
+      s.rows.push_back({i + 1, c.name, c.duration, i == active_, picked, c.loop, queued});
+    };
+    if (jump_) {
+      const std::vector<int> matches = jumpMatches();
+      const int count = static_cast<int>(matches.size());
+      const int pick = std::clamp(jumpPick_, 0, std::max(0, count - 1));
+      const int first = std::clamp(pick - rows / 2, 0, std::max(0, count - rows));
+      for (int k = first; k < std::min(count, first + rows); ++k) rowFor(matches[static_cast<std::size_t>(k)], k == pick);
+    } else {
+      const int count = static_cast<int>(cues_.size());
+      const int first = std::clamp(selected_ - rows / 2, 0, std::max(0, count - rows));
+      for (int i = first; i < std::min(count, first + rows); ++i) rowFor(i, i == selected_);
     }
+    s.remaining = showRemaining_;
+    s.shuffle = shuffle_;
+    s.endAfter = endAfter_;
+    s.glide = glideSeconds_;
     s.keysLive = keys_.active();
     s.help = help_;
     s.helpPage = helpPage_;
@@ -1826,6 +2202,11 @@ class Mini {
     s.outputOn = outputOn_;
     s.soundName = soundName_;
     if (command_) s.prompt = ": " + commandText_;
+    else if (jump_) {
+      const std::size_t n = jumpMatches().size();
+      s.prompt = "/ " + jumpText_ + "   " + std::to_string(n) + (n == 1 ? " match" : " matches") +
+                 "   ENTER takes it, Esc not";
+    }
     else if (!number_.empty()) s.prompt = "go to cue " + number_ + "   Enter takes it, Esc clears";
     else if (quitPending()) s.prompt = listDirty_ ? "press Q again to quit (the list has unsaved changes: W saves)"
                                                   : "press Q again to quit";
@@ -1896,6 +2277,18 @@ class Mini {
   std::string soundName_;
   std::chrono::steady_clock::time_point removeArmedAt_ {};
   int removeArmedIndex_ = -1;
+
+  // ── The running order's habits, after Winamp's ──
+  std::vector<int> queue_;             // N: cues to play next, in order, ahead of the list
+  bool endAfter_ = false;              // E: stop when the cue on air finishes
+  bool shuffle_ = false;               // Z: the list in a random order...
+  std::vector<int> shuffleBag_;        // ...none twice until every cue has played
+  std::mt19937 rng_ {std::random_device {}()};
+  bool showRemaining_ = false;         // C: the clock counts down instead of up
+  double glideSeconds_ = 0.0;          // G: crossfade between cues; 0 is a cut
+  bool jump_ = false;                  // /: typing narrows the list
+  std::string jumpText_;
+  int jumpPick_ = 0;                   // which of the matches Enter takes
 };
 
 }  // namespace

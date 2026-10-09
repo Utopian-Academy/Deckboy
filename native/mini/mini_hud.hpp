@@ -101,16 +101,21 @@ struct HudState {
     bool live = false;
     bool selected = false;
     bool loop = false;      // this cue loops on its own
+    bool queued = false;    // N: queued to play next
   };
   std::vector<Row> rows;    // the list around the selection
   bool keysLive = false;    // the terminal is taking keys
   bool help = false;        // show the key reference instead of the list
-  int helpPage = 0;         // which page of it: 0 show, 1 editing, 2 output, 3 playing
+  int helpPage = 0;         // which page of it: 0 show, 1 editing, 2 output, 3 playing, 4 running order
   std::string listName;     // the playlist file, or empty for an unsaved list
   bool listDirty = false;   // the list has changed since it was saved/opened
   bool outputOn = true;     // the output window is showing
   std::string soundName;    // the sound device in use
   std::string prompt;       // the command line, a cue number being typed, a quit to confirm
+  bool remaining = false;   // C: the clock counts down
+  bool shuffle = false;     // Z
+  bool endAfter = false;    // E: stops when this cue ends
+  double glide = 0.0;       // G: crossfade seconds; 0 is a cut
 };
 
 class Hud {
@@ -201,6 +206,10 @@ class Hud {
   }
 
   static bool wantsPanel() {
+    // DECKBOY_MINI_PANEL=1 draws the panel even into a pipe or a file, as if
+    // to an 80-column terminal: the way to see, test and record exactly what
+    // an operator sees without a console attached.
+    if (const char* force = std::getenv("DECKBOY_MINI_PANEL"); force && std::string(force) == "1") return true;
     if (std::getenv("NO_COLOR")) return false;
     if (const char* term = std::getenv("TERM"); term && std::string(term) == "dumb") return false;
 #ifdef _WIN32
@@ -296,52 +305,75 @@ class Hud {
     const int barWidth = 26;
     const double frac = s.duration > 0.0 ? std::clamp(s.position / s.duration, 0.0, 1.0) : 0.0;
     const int filled = s.cue > 0 ? static_cast<int>(std::round(frac * barWidth)) : 0;
-    std::string times = clock(s.cue > 0 ? s.position : -1) + " / " + (s.duration > 0.0 ? clock(s.duration) : std::string("--:--.-"));
+    // C: counting down, marked with a minus, the way Winamp's click did it.
+    const bool down = s.remaining && s.cue > 0 && s.duration > 0.0;
+    std::string times = (down ? "-" + clock(std::max(0.0, s.duration - s.position))
+                              : clock(s.cue > 0 ? s.position : -1)) +
+                        " / " + (s.duration > 0.0 ? clock(s.duration) : std::string("--:--.-"));
     std::string b = std::string(ink::kMid) + repeat(glyph::kFull, filled) + ink::kDeep + repeat(glyph::kEmpty, barWidth - filled) +
                     ink::kReset + "  " + times;
     row(b, barWidth + 2 + columns(times));
     ++lines;
 
+    // WHAT PLAYS NEXT, always on its own line: the queue, the shuffle and E
+    // all change it, and an operator has to see that before the cue ends, not
+    // after. A numbered cue, or what the running order will do instead.
+    {
+      const std::string what = s.next > 0 ? std::to_string(s.next) + "  " + s.nextName
+                               : !s.nextName.empty() ? s.nextName : std::string("end of the list");
+      const std::string shown = fit(what, kInner - 2 - 5);
+      row(std::string(ink::kDim) + "NEXT " + ink::kReset + shown, 5 + columns(shown));
+      ++lines;
+    }
+
     // The cue list around the selection, or the key reference. Always six
     // rows, so the panel never changes height under the operator's eyes.
-    // Four pages, because the keys no longer fit on one: ? steps through
+    // Five pages, because the keys no longer fit on one: ? steps through
     // them and closes after the last.
-    static const char* kHelp[4][6] = {
-      {"SHOW  1/4                              ? next page",
+    static const char* kHelp[5][6] = {
+      {"SHOW  1/5                              ? next page",
        "SPACE go/pause   ENTER take selected or typed no.",
        "UP/DOWN pick   LEFT/RIGHT prev/next   0-9 cue no.",
        "[ ] seek 10s   - + volume   S stop   B blackout",
        "L loop the list   H output bar   : command line",
        "Q Q quit   Esc closes this"},
-      {"EDITING THE LIST  2/4                  ? next page",
+      {"EDITING THE LIST  2/5                  ? next page",
        "A add files   O open a list   W save the list",
        "< > move the selected cue up / down",
        "X X remove it   R rename it   T its still time",
        "Shift+L loop this cue on its own",
        "Tab completes paths after A, O and W"},
-      {"OUTPUT AND SOUND  3/4                  ? next page",
+      {"OUTPUT AND SOUND  3/5                  ? next page",
        "D next display   F fullscreen / window",
        "V output on / off (the sound carries on)",
        "P next sound device",
        ":displays and :audio list what there is",
        ":display 2   :audio <name>   pick by number/name"},
-      {"PLAYING A FILE  4/4                    ? closes",
+      {"PLAYING A FILE  4/5                    ? next page",
        ", . one frame back / on (pauses)",
        "{ } one second back / on   [ ] ten seconds",
        "( ) slower / faster   M mute   # sound track",
        "K A-B loop: A, then B, then off",
        "J subtitles beside the file: cycle, then off"},
+      {"RUNNING ORDER  5/5                     ? closes",
+       "/ find a cue by name: ENTER takes it, Esc not",
+       "N play the picked cue next (again: unqueue)",
+       "E stop when this cue ends   C time left/gone",
+       "Z shuffle: every cue once before a repeat",
+       "G crossfade between cues: off .5 1 2 seconds"},
     };
     for (int i = 0; i < kListRows; ++i) {
       if (s.help) {
-        const std::string text = kHelp[std::clamp(s.helpPage, 0, 3)][i];
+        const std::string text = kHelp[std::clamp(s.helpPage, 0, 4)][i];
         row(std::string(ink::kMid) + text + ink::kReset, columns(text));
       } else if (i < static_cast<int>(s.rows.size())) {
         const HudState::Row& r = s.rows[static_cast<std::size_t>(i)];
         const std::string mark = r.live ? glyph::kPlay : r.selected ? glyph::kNext : " ";
         const std::string num = fit(std::to_string(r.number), 3);
         const std::string len = r.duration > 0.0 ? clock(r.duration).substr(0, 5) : std::string("     ");
-        const std::string looped = r.loop ? std::string("L") : std::string(" ");
+        // One column says the most important thing about the cue's future:
+        // queued to play next, else looping on its own.
+        const std::string looped = r.queued ? std::string("N") : r.loop ? std::string("L") : std::string(" ");
         const std::string rowName = fit(r.name, kInner - 2 - 2 - 3 - 1 - 6 - 2);
         const char* rowTone = r.live ? ink::kBright : r.selected ? kTitleInk : ink::kDim;
         const std::string text = std::string(rowTone) + mark + " " + num + " " + rowName + ink::kDim + " " + looped +
@@ -358,9 +390,15 @@ class Hud {
     std::string out = "OUT " + std::to_string(s.display) + (s.width > 0 ? " " + std::to_string(s.width) + "x" + std::to_string(s.height) : std::string()) +
                       (s.fullscreen ? "" : " window") + (s.outputOn ? "" : " OFF");
     std::string volText = " " + std::to_string(s.volume);
+    // The running order's switches, only when they are on: SHUF (Z), LAST
+    // (E, this is the last cue) and XF (G, crossfading between cues).
+    const std::string flags = std::string(s.shuffle ? " SHUF" : "") + (s.endAfter ? " LAST" : "") +
+                              (s.glide > 0.0 ? " XF" : "");
+    out = fit(out, std::max(8, kInner - 2 - (4 + 10 + 5 + 5 + 3 + columns(flags) + 2)));
     std::string d = std::string(ink::kDim) + "VOL " + ink::kMid + repeat(glyph::kPip, pips) + ink::kDeep + repeat(glyph::kPipOff, 10 - pips) +
-                    ink::kReset + fit(volText, 5) + ink::kDim + "LOOP " + ink::kReset + (s.loop ? "on " : "off") + "  " + ink::kDim + out + ink::kReset;
-    row(d, 4 + 10 + 5 + 5 + 3 + 2 + columns(out));
+                    ink::kReset + fit(volText, 5) + ink::kDim + "LOOP " + ink::kReset + (s.loop ? "on " : "off") +
+                    kTitleInk + flags + ink::kReset + "  " + ink::kDim + out + ink::kReset;
+    row(d, 4 + 10 + 5 + 5 + 3 + columns(flags) + 2 + columns(out));
     ++lines;
 
     // Link
