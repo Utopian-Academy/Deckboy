@@ -2078,7 +2078,7 @@ desk plays from a file, Mini plays the same way.
 
 ```
 deckboy-mini ~/Videos                         # a folder plays in name order
-deckboy-mini walk-in.mp4 sponsors.png --loop  # files play in the order given
+deckboy-mini clip.mp4 logo.png --loop        # files play in the order given
 deckboy-mini loop.mp4 --display 2 --hold      # second display, hold the last frame
 deckboy-mini show.m3u8                        # a playlist saved from Mini (W)
 ```
