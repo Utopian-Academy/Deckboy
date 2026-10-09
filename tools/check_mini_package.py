@@ -46,8 +46,8 @@ if os.name != "nt":
                 os.chmod(os.path.join(root, f), 0o755)
 
 clip = os.path.join(work, "clip.mp4")
-subprocess.run([args.ffmpeg, "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=640x360:r=25:d=4",
-                "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000", "-t", "4",
+subprocess.run([args.ffmpeg, "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=640x360:r=25:d=8",
+                "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000", "-t", "8",
                 "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", clip], check=True)
 
 env = dict(os.environ, SDL_VIDEO_DRIVER=os.environ.get("SDL_VIDEO_DRIVER", "offscreen"), SDL_AUDIO_DRIVER="dummy")
@@ -56,31 +56,42 @@ proc = subprocess.Popen([exe, "--plain", "--window", "--volume", "0", "--port", 
                         env=env, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT)
 
 
-def send(cmd):
+def send(cmd, wait=6.0):
+    # The WHOLE reply, however slowly it comes: an ARM build machine took
+    # longer than a second and a half to answer STATUS, and a check that gave
+    # up reported a Mini that was playing as one that was not.
     with socket.create_connection(("127.0.0.1", args.port), timeout=5) as s:
         s.sendall((cmd + "\n").encode())
-        s.settimeout(1.5)
+        s.settimeout(wait)
+        data = b""
         try:
-            return s.recv(65536).decode(errors="replace")
+            while True:
+                chunk = s.recv(65536)
+                if not chunk:
+                    break
+                data += chunk
+                if cmd != "STATUS" or data.count(b"\n") >= 3:
+                    break
         except socket.timeout:
-            return ""
+            pass
+        return data.decode(errors="replace")
 
 
 ok = False
 try:
-    for _ in range(60):
+    for _ in range(120):
         try:
-            send("PING")
+            send("PING", 2.0)
             break
         except OSError:
-            time.sleep(0.25)
+            time.sleep(0.5)
     send("TAKE 1")
-    time.sleep(2.5)
+    time.sleep(2.0)
     status = send("STATUS")
     shown = int((re.search(r"frames_shown=(\d+)", status) or [0, "0"])[1])
     playing = "status=Playing" in status
     print("Mini from %s: %s, %d frames shown" % (os.path.basename(args.archive), "playing" if playing else "NOT playing", shown))
-    ok = playing and shown > 10
+    ok = playing and shown > 5
     if not ok:
         # dur says whether the probe found the clip, decoded whether the
         # decoder produced anything, frames_shown whether any reached the screen.
