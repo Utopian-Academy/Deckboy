@@ -64,6 +64,22 @@ subtitles, including subtitles inside the file. Mini builds on its own, which
 is what lets it build on a Raspberry Pi, and there it decodes with the board's
 own video decoder, taking about 40% less of the processor.
 
+**macOS 12 Monterey and later.** Every library inside the Mac app is now
+built for macOS 12, and each release is checked file by file against that.
+The Mac app's own ffmpeg also gains HAP and SRT, matching Windows.
+
+**The desk keeps its artwork, and tells you what is wrong.** Deckboy's own
+icons and buttons no longer depend on its media tools. If ffmpeg or ffprobe
+cannot start on a computer, a notice inside the desk says which and why,
+while everything else keeps running.
+
+**Notices you can read to the end.** Prompts (NDI, Blackmagic, WebView2, the
+macOS first-run step, the HAP suggestion) size themselves to what they say
+and wrap it, so the whole instruction is on screen.
+
+**A more expressive face.** The face on an idle monitor keeps its smirk in one
+piece as the hours go by.
+
 **A self-check of the text on screen.** A few seconds into a session, Deckboy
 reads back real labels from its own window and notes in its render log
 whether they reached the frame, with the window's size and density, so a
