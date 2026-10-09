@@ -57,12 +57,16 @@ install_deps() {
 
   echo "== SDL3 >= 3.4 not packaged here, building from source =="
   rm -rf /tmp/SDL /tmp/SDL_ttf
-  git clone --depth 1 --branch release-3.4.x https://github.com/libsdl-org/SDL.git /tmp/SDL
+  # A RELEASE, not the release-3.4.x branch: on 2026-10-09 a commit to that
+  # branch stopped it compiling and took both Linux builds of a release tag
+  # with it. Matches the Mac build (tools/macos_build_deps.sh).
+  git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git /tmp/SDL
   cmake -S /tmp/SDL -B /tmp/SDL/build -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=OFF
   cmake --build /tmp/SDL/build -j"$(nproc)"
   sudo cmake --install /tmp/SDL/build
-  # SDL_ttf has no 3.4 branch; 3.2 builds against SDL 3.4 unchanged.
-  git clone --depth 1 --branch release-3.2.x --recurse-submodules \
+  # SDL_ttf has no 3.4 line; 3.2 builds against SDL 3.4 unchanged. A release,
+  # not the branch, for the same reason as SDL above.
+  git clone --depth 1 --branch release-3.2.2 --recurse-submodules \
     https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
   cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON
   cmake --build /tmp/SDL_ttf/build -j"$(nproc)"
