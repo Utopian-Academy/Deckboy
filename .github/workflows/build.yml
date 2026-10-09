@@ -511,6 +511,8 @@ jobs:
           sudo apt-get install -y file desktop-file-utils
           ./tools/package_linux.sh
           ./tools/package_linux_appimage.sh
+          # Deckboy Mini on its own: Mini, ffmpeg for subtitles, its font.
+          ./tools/package_mini_linux.sh build dist
 
       # PROVE the floor rather than trusting the runner label. An AppImage
       # will not start on an older glibc than the highest version anything
@@ -572,6 +574,74 @@ jobs:
           path: |
             dist/Deckboy-*.tar.gz
             dist/Deckboy-*.AppImage
+          if-no-files-found: error
+
+  # DECKBOY MINI FOR A RASPBERRY PI (and any 64-bit ARM Linux). Mini only: it
+  # needs nothing of the desk, so this builds one target. Ubuntu 22.04 for the
+  # same glibc floor as the x86_64 build, so it runs on the older Raspberry Pi
+  # OS as well as the current one. The setup mirrors linux-build.
+  mini-linux-arm64:
+    name: Deckboy Mini (Linux ARM64, Raspberry Pi)
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install base dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake pkg-config git patchelf gcc-12 g++-12 \
+            libfreetype-dev libharfbuzz-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxkbcommon-dev libwayland-dev wayland-protocols \
+            libegl1-mesa-dev libgl1-mesa-dev \
+            libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev \
+            libxss-dev libxfixes-dev libxinerama-dev libxtst-dev \
+            libdbus-1-dev libibus-1.0-dev libgles2-mesa-dev libdecor-0-dev
+          echo "CC=gcc-12"  >> "$GITHUB_ENV"
+          echo "CXX=g++-12" >> "$GITHUB_ENV"
+
+      - name: Install a current FFmpeg (arm64)
+        run: |
+          set -e
+          url=https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-linuxarm64-gpl-shared-8.1.tar.xz
+          curl -fsSL "$url" -o /tmp/ffmpeg.tar.xz
+          mkdir -p /tmp/ffmpeg && tar -xJf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
+          sudo cp -a /tmp/ffmpeg/bin/. /usr/local/bin/
+          sudo cp -a /tmp/ffmpeg/lib/. /usr/local/lib/
+          sudo cp -a /tmp/ffmpeg/include/. /usr/local/include/
+          sudo ldconfig
+          echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
+          ffmpeg -version | head -1
+
+      - name: Install SDL3 and SDL_ttf (releases, from source)
+        run: |
+          set -e
+          git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git /tmp/SDL
+          cmake -S /tmp/SDL -B /tmp/SDL/build -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=OFF
+          cmake --build /tmp/SDL/build -j"$(nproc)"
+          sudo cmake --install /tmp/SDL/build
+          git clone --depth 1 --branch release-3.2.2 --recurse-submodules \
+            https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
+          cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON -DSDLTTF_HARFBUZZ=ON
+          cmake --build /tmp/SDL_ttf/build -j"$(nproc)"
+          sudo cmake --install /tmp/SDL_ttf/build
+          sudo ldconfig
+
+      - name: Build Deckboy Mini
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+            -DENABLE_DECKLINK=OFF -DDECKBOY_ENABLE_NDI=OFF -DENABLE_ASIO=OFF
+          cmake --build build --target deckboy-mini -j"$(nproc)"
+
+      - name: Package Deckboy Mini
+        run: ./tools/package_mini_linux.sh build dist
+
+      - name: Upload Deckboy Mini (ARM64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: deckboy-mini-linux-arm64
+          path: dist/Deckboy-Mini-*.tar.gz
           if-no-files-found: error
 
   macos-build:
@@ -1501,7 +1571,7 @@ jobs:
   release:
     name: Publish Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [version-check, companion-module, linux-build, macos-package, windows-build]
+    needs: [version-check, companion-module, linux-build, macos-package, windows-build, mini-linux-arm64]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -1540,14 +1610,17 @@ jobs:
           for pattern in '*-windows-x64.zip' '*-windows-x64-setup.exe' \
                          '*-macos-*.zip' '*.dmg' '*.tar.gz' '*.AppImage' \
                          '*.streamDeckPlugin' \
-                         'Deckboy-companion-module-*.zip'; do
+                         'Deckboy-companion-module-*.zip' \
+                         'Deckboy-Mini-*-windows-x64.zip' 'Deckboy-Mini-*-macos-arm64.zip' \
+                         'Deckboy-Mini-*-macos-x86_64.zip' 'Deckboy-Mini-*-linux-x86_64.tar.gz' \
+                         'Deckboy-Mini-*-linux-arm64.tar.gz'; do
             count=$(ls $pattern 2>/dev/null | wc -l)
             if [ "$count" -eq 0 ]; then
               echo "MISSING: nothing matched $pattern" >&2
               exit 1
             fi
           done
-          echo "all eight artefacts present"
+          echo "every artefact present, Deckboy Mini's five included"
 
       # A CHANGELOG ENTRY IS NOT A RELEASE PAGE.
       #
@@ -1640,6 +1713,18 @@ jobs:
           page.append("")
           page.append("Every build carries what it needs — the binary, ffmpeg and "
                       "its runtime libraries. Nothing else to install.")
+          page.append("")
+          page.append("### Deckboy Mini on its own")
+          page.append("")
+          page.append("Mini also comes inside every download above. On its own, for a "
+                      "screen that only needs to play:")
+          page.append("")
+          page.append("| Platform | File |")
+          page.append("|---|---|")
+          for label, frag in (("Windows", "Mini-%s-windows-x64.zip"), ("macOS (Apple Silicon)", "Mini-%s-macos-arm64.zip"),
+                              ("macOS (Intel)", "Mini-%s-macos-x86_64.zip"), ("Linux (x86_64)", "Mini-%s-linux-x86_64.tar.gz"),
+                              ("Raspberry Pi (64-bit) and ARM64 Linux", "Mini-%s-linux-arm64.tar.gz")):
+              page.append("| **%s** | %s |" % (label, find(frag % version)))
           page.append("")
           page.append("### Control surfaces")
           page.append("")

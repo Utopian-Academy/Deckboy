@@ -477,3 +477,51 @@ $SizeMb = "{0:N1}" -f ((Get-Item $ZipPath).Length / 1MB)
 Write-Host ""
 Write-Host "Packaged: $ZipPath  ($SizeMb MB)"
 Write-Host "Staging dir kept at: $StageDir"
+
+# --- Deckboy Mini on its own -------------------------------------------------
+# For a screen that only needs to play: Mini, the libraries it loads, ffmpeg
+# and ffprobe (subtitles inside a file are read with them), its one font and
+# the licence. Every DLL the staged build carries goes in -- Mini needs most
+# of them, and a missing one is a program that will not start.
+$MiniName  = "Deckboy-Mini-$Version-windows-x64"
+$MiniStage = Join-Path $OutputDir "staging\$MiniName"
+$MiniZip   = Join-Path $OutputDir "$MiniName.zip"
+if (Test-Path $MiniStage) { Remove-Item $MiniStage -Recurse -Force }
+New-Item -ItemType Directory -Path (Join-Path $MiniStage "data\fonts") -Force | Out-Null
+Copy-Item (Join-Path $StageDir "deckboy-mini.exe") -Destination $MiniStage
+Copy-Item (Join-Path $StageDir "ffmpeg.exe")  -Destination $MiniStage
+Copy-Item (Join-Path $StageDir "ffprobe.exe") -Destination $MiniStage
+Get-ChildItem -Path $StageDir -Filter *.dll | Copy-Item -Destination $MiniStage
+Copy-Item (Join-Path $RepoRoot "data\fonts\LiberationSans-Regular.ttf") -Destination (Join-Path $MiniStage "data\fonts")
+Copy-Item (Join-Path $RepoRoot "LICENSE") -Destination $MiniStage
+@"
+Deckboy Mini $Version for Windows
+
+One deck, one output, run from the keyboard. Unzip anywhere, then in a
+terminal in this folder:
+
+  deckboy-mini "C:\Videos"            a folder plays in name order
+  deckboy-mini clip.mp4 logo.png      files in the order given
+  deckboy-mini --help                 every option
+
+Press ? in the terminal for the keys. The manual has a miniature one:
+https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini
+"@ | Set-Content -Path (Join-Path $MiniStage "README.txt") -Encoding UTF8
+
+# The copy in the Mini folder has to run on its own and be this version.
+$MiniAloneOut = Join-Path $env:TEMP ("deckboy-mini-alone-" + [guid]::NewGuid() + ".txt")
+$MiniAlone = Start-Process -FilePath (Join-Path $MiniStage "deckboy-mini.exe") -ArgumentList "--version" `
+                          -Wait -NoNewWindow -PassThru -RedirectStandardOutput $MiniAloneOut
+$MiniAloneVersion = ""
+if (Test-Path $MiniAloneOut) {
+    $MiniAloneVersion = (Get-Content $MiniAloneOut -TotalCount 1)
+    Remove-Item $MiniAloneOut -Force -ErrorAction SilentlyContinue
+}
+$MiniAloneVersion = ($MiniAloneVersion -replace '^deckboy-mini\s+v?', '').Trim()
+if ($MiniAlone.ExitCode -ne 0 -or $MiniAloneVersion -ne $Version) {
+    throw "Deckboy Mini on its own would not run or reports '$MiniAloneVersion' (exit $($MiniAlone.ExitCode)), not $Version."
+}
+if (Test-Path $MiniZip) { Remove-Item $MiniZip -Force }
+Compress-Archive -Path $MiniStage -DestinationPath $MiniZip -CompressionLevel Optimal
+$MiniMb = "{0:N1}" -f ((Get-Item $MiniZip).Length / 1MB)
+Write-Host "Packaged: $MiniZip  ($MiniMb MB), runs on its own as v$MiniAloneVersion"

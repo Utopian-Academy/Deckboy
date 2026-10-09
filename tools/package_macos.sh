@@ -484,6 +484,55 @@ echo
 echo "Wrote $ZIP_PATH"
 du -h "$ZIP_PATH" | awk '{print "  size: " $1}'
 
+# --- Deckboy Mini on its own ----------------------------------------------
+# For a screen that only needs to play: Mini, ffmpeg and ffprobe, the bundle's
+# libraries, its one font. Laid out as bin/ and Frameworks/ side by side, so
+# the rpath every executable already carries (@executable_path/../Frameworks)
+# finds the libraries exactly as it does inside the app, and the files are the
+# signed copies from the bundle, unchanged.
+MINI_NAME="Deckboy-Mini-${VERSION}-macos-${ARCH}"
+MINI_STAGE="$OUTPUT_DIR/staging/$MINI_NAME"
+rm -rf "$MINI_STAGE"
+mkdir -p "$MINI_STAGE/bin" "$MINI_STAGE/Frameworks" "$MINI_STAGE/data/fonts"
+ditto "$MACOS_DIR/deckboy-mini" "$MINI_STAGE/bin/deckboy-mini"
+ditto "$MACOS_DIR/ffmpeg" "$MINI_STAGE/bin/ffmpeg"
+ditto "$MACOS_DIR/ffprobe" "$MINI_STAGE/bin/ffprobe"
+ditto "$FRAMEWORKS_DIR" "$MINI_STAGE/Frameworks"
+cp "$REPO_ROOT/data/fonts/LiberationSans-Regular.ttf" "$MINI_STAGE/data/fonts/"
+cp "$REPO_ROOT/LICENSE" "$MINI_STAGE/"
+cat > "$MINI_STAGE/deckboy-mini" <<'LAUNCH'
+#!/bin/sh
+here="$(cd "$(dirname "$0")" && pwd)"
+PATH="$here/bin:$PATH" exec "$here/bin/deckboy-mini" "$@"
+LAUNCH
+chmod +x "$MINI_STAGE/deckboy-mini"
+cat > "$MINI_STAGE/README.txt" <<README
+Deckboy Mini ${VERSION} for macOS (${ARCH})
+
+One deck, one output, run from the keyboard. Unzip anywhere. The first time,
+clear the download quarantine so macOS lets it run (one time only):
+
+  xattr -dr com.apple.quarantine "$MINI_NAME"
+
+Then, in Terminal, in this folder:
+
+  ./deckboy-mini ~/Movies            a folder plays in name order
+  ./deckboy-mini clip.mp4 logo.png   files in the order given
+  ./deckboy-mini --help              every option
+
+Press ? in the terminal for the keys. The manual has a miniature one:
+https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini
+README
+mini_got="$("$MINI_STAGE/deckboy-mini" --version 2>/dev/null | head -1 | sed 's/^deckboy-mini[[:space:]]*v\{0,1\}//')"
+if [ "$mini_got" != "$VERSION" ]; then
+  echo "error: Deckboy Mini on its own reports '$mini_got', not $VERSION" >&2
+  exit 1
+fi
+MINI_ZIP="$OUTPUT_DIR/$MINI_NAME.zip"
+rm -f "$MINI_ZIP"
+( cd "$OUTPUT_DIR/staging" && ditto -c -k --sequesterRsrc --keepParent "$MINI_NAME" "$MINI_ZIP" )
+echo "Wrote $MINI_ZIP (runs on its own as v$mini_got)"
+
 # --- Disk image (drag-to-Applications installer) ----------------------------
 # The .dmg is the "proper installer" a Mac user expects: open it, drag Deckboy
 # onto the Applications shortcut, done. It also moves the app OUT of Downloads,
