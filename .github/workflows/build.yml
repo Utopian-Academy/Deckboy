@@ -655,6 +655,7 @@ jobs:
         if: matrix.features == 'all'
         timeout-minutes: 10
         env:
+          DECKBOY_STRESS_LAUNCHES: "25"
           DECKBOY_STRESS_ROUNDS: "60"
         run: python3 tools/check_fullscreen_stress.py --exe ./build/Deckboy
 
