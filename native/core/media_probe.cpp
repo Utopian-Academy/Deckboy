@@ -19,6 +19,14 @@
 #include "core/utils.hpp"
 #include "platform/pdf_import.hpp"
 
+#if DECKBOY_INPROC_DECODE
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavutil/display.h>
+}
+#include <cmath>
+#endif
+
 namespace deckboy::core::media {
 
 namespace fs = std::filesystem;
@@ -109,6 +117,76 @@ std::optional<double> parseFps(const std::string& rate) {
   }
 }
 
+#if DECKBOY_INPROC_DECODE
+namespace {
+
+// THE SAME ANSWER WITHOUT FFPROBE. Deckboy Mini's own download carries the
+// ffmpeg libraries it decodes with but not the ffprobe program (a full one is
+// bigger than the rest of Mini put together), so it asks the libraries
+// directly. The answer is written in ffprobe's own key=value lines, so the one
+// parser below reads both and a clip comes out the same Cue either way.
+struct InProcessProbe {
+  std::string text;
+  int rotation = 0;
+};
+
+std::optional<InProcessProbe> probeInProcess(const fs::path& mediaPath) {
+  const auto u8 = mediaPath.u8string();
+  const std::string name(u8.begin(), u8.end());  // libav takes UTF-8 on every platform
+  AVFormatContext* fmt = nullptr;
+  if (avformat_open_input(&fmt, name.c_str(), nullptr, nullptr) < 0) {
+    return std::nullopt;
+  }
+  if (avformat_find_stream_info(fmt, nullptr) < 0) {
+    avformat_close_input(&fmt);
+    return std::nullopt;
+  }
+  InProcessProbe probe;
+  std::string& out = probe.text;
+  bool rotationTaken = false;
+  for (unsigned i = 0; i < fmt->nb_streams; ++i) {
+    const AVStream* st = fmt->streams[i];
+    const AVCodecParameters* par = st->codecpar;
+    const char* type = av_get_media_type_string(par->codec_type);
+    out += std::string("codec_type=") + (type ? type : "unknown") + "\n";
+    out += std::string("codec_name=") + avcodec_get_name(par->codec_id) + "\n";
+    if (par->codec_type == AVMEDIA_TYPE_VIDEO) {
+      out += "width=" + std::to_string(par->width) + "\n";
+      out += "height=" + std::to_string(par->height) + "\n";
+      out += "r_frame_rate=" + std::to_string(st->r_frame_rate.num) + "/" +
+             std::to_string(st->r_frame_rate.den) + "\n";
+      out += "nb_frames=" + std::to_string(st->nb_frames) + "\n";
+      if (!rotationTaken) {
+        rotationTaken = true;
+        const AVPacketSideData* sd = av_packet_side_data_get(
+          par->coded_side_data, par->nb_coded_side_data, AV_PKT_DATA_DISPLAYMATRIX);
+        if (sd && sd->size >= 9 * sizeof(int32_t)) {
+          const double rot = av_display_rotation_get(reinterpret_cast<const int32_t*>(sd->data));
+          if (std::isfinite(rot)) probe.rotation = static_cast<int>(std::lround(rot));
+        }
+      }
+    } else if (par->codec_type == AVMEDIA_TYPE_AUDIO) {
+      out += "channels=" + std::to_string(par->ch_layout.nb_channels) + "\n";
+      out += "sample_rate=" + std::to_string(par->sample_rate) + "\n";
+    }
+  }
+  if (fmt->duration != AV_NOPTS_VALUE && fmt->duration > 0) {
+    out += "duration=" + std::to_string(static_cast<double>(fmt->duration) / AV_TIME_BASE) + "\n";
+  }
+  if (fmt->iformat && fmt->iformat->name) {
+    out += std::string("format_name=") + fmt->iformat->name + "\n";
+  }
+  if (fmt->pb) {
+    const int64_t size = avio_size(fmt->pb);
+    if (size > 0) out += "size=" + std::to_string(size) + "\n";
+  }
+  avformat_close_input(&fmt);
+  return probe;
+}
+
+}  // namespace
+#endif
+
 std::optional<Cue> probeCue(const fs::path& mediaPath) {
   auto output = readAllText({
     "ffprobe",
@@ -125,6 +203,15 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     mediaPath.string()
   });
 
+  std::optional<int> inProcessRotation;
+#if DECKBOY_INPROC_DECODE
+  if (!output) {
+    if (auto probe = probeInProcess(mediaPath)) {
+      output = std::move(probe->text);
+      inProcessRotation = probe->rotation;
+    }
+  }
+#endif
   if (!output) {
     return std::nullopt;
   }
@@ -224,7 +311,12 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
   }
 
   // Detect rotation from side_data (phone videos) and swap width/height if needed
-  if (cue.width > 0 && cue.height > 0 && !cue.videoCodec.empty()) {
+  if (inProcessRotation) {
+    const int rot = std::abs(*inProcessRotation);
+    if (rot == 90 || rot == 270) {
+      std::swap(cue.width, cue.height);
+    }
+  } else if (cue.width > 0 && cue.height > 0 && !cue.videoCodec.empty()) {
     auto sideData = readAllText({
       "ffprobe", "-v", "error", "-select_streams", "v:0",
       "-show_entries", "stream_side_data=rotation",
