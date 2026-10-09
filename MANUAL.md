@@ -1398,8 +1398,8 @@ Over the control port, with the lower third selected:
 
 ```
 LOWERTHIRD
-TEXTCUE TITLE Bob Cobb
-TEXTCUE SUB Can Man
+TEXTCUE TITLE Name Surname
+TEXTCUE SUB Title or role
 TEXTCUE LOOK arcade
 TEXTCUE BAR forest
 TEXTCUE ACCENT yellow

@@ -66,7 +66,7 @@ which is not true of anything it gets compared to.
      never a real show file. A client's deck in a public README is a client's
      deck on the internet. -->
 
-![Deckboy taking generated cues to air, then stacking scanlines, ripple and a kaleidoscope onto the live picture, then the built-in video synth in Game Boy green](art/readme/demo.gif)
+![The Deckboy desk taking generated cues to air, then stacking scanlines, ripple and a kaleidoscope onto the live picture, then the melting pixel greens of the swirl pattern](art/readme/demo.gif)
 
 <sub>Shown with the test patterns Deckboy generates itself, so nothing here is anyone’s show file.</sub>
 
@@ -86,7 +86,12 @@ else to install.
 | **Windows** | `…-windows-x64-setup.exe` — Start Menu, uninstaller, `.deckboy` file association | `…-windows-x64.zip` |
 | **macOS** (Apple Silicon) | `…-macos-arm64.dmg` — drag to Applications | `…-macos-arm64.zip` |
 | **macOS** (Intel) | `…-macos-x86_64.dmg` | `…-macos-x86_64.zip` |
-| **Linux** | `…-x86_64.AppImage` — one file, `chmod +x` and run | `…-linux-x86_64.tar.gz` |
+| **Linux** | `…-x86_64.AppImage` — one file, `chmod +x` and run; or `…-x86_64.flatpak` | `…-linux-x86_64.tar.gz` |
+
+**Deckboy Mini** comes inside all of those, and on its own as a small download
+of about 12 to 18 MB: `Deckboy-Mini-…-windows-x64.zip`, `…-macos-arm64.zip`,
+`…-macos-x86_64.zip`, `…-linux-x86_64.tar.gz`, and `…-linux-arm64.tar.gz` for a
+Raspberry Pi (64-bit) or any ARM64 Linux.
 
 Both control surfaces ship with every release, so neither needs a build:
 **Stream Deck** (`…streamDeckPlugin` — double-click it) and **Bitfocus
@@ -210,7 +215,10 @@ desk's remote commands on the desk's port, so Companion drives it as deck 1,
 and the whole show runs from the keyboard in its terminal, over SSH too:
 reorder, rename and remove cues, save and open playlists (M3U8), pick the
 display and the sound device, and the keys a media player has — frame step,
-speed, A-B loop, mute, sound track and subtitles. On a Raspberry Pi it plays
+speed, A-B loop, mute, sound track and subtitles. It keeps a media player's
+running-order habits too: find a cue by name, queue the one to play next, stop
+after this cue, shuffle, a clock that counts down, and a crossfade between
+cues. It opens `.pls` lists as well as M3U8. On a Raspberry Pi it plays
 through the board's own video decoder; `tools/linux_build.sh --mini` builds it
 there. Its own [miniature manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
 has every key and command. Mini comes inside every download, and on its own as
@@ -221,7 +229,7 @@ a small download for Windows, macOS, Linux and the Raspberry Pi (64-bit) on the
 deckboy-mini ~/Videos --display 2 --loop
 ```
 
-![Deckboy Mini driven from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with a cue list; arrow keys pick cue 3 and take it, a typed 2 takes cue 2, the command line sets the volume, Tab completes a file path to add a fifth cue, the key reference opens, and a double Q quits](art/readme/mini-terminal.gif)
+![Deckboy Mini run from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with five cues and the NEXT line; cue 3 is queued to play next, a search for logo takes cue 5, the clock switches to time left, shuffle, crossfade and stop-after-this-cue switch on, and the help pages end on the running order](art/readme/mini-terminal.gif)
 
 ---
 
@@ -294,7 +302,7 @@ all one object with one set of controls, not fifty separate things to learn.
   first as a layer and scale and place it, with a whole playlist behind each
   window instead of one fixed box
 
-![A name strap reading Bob Cobb, Can Man pops onto a film scene in Deckboy's arcade look: a pixel font, a hard shadow, a slow wobble](docs/images/arcade-lower-third.gif)
+![A lower third reading Lower Third, Arcade look pops onto a generated pixel beach scene in a pixel font with a hard drop shadow, keeps a slow bob and tilt, then goes](docs/images/arcade-lower-third.gif)
 
 - A **video synth** — oscillators with feedback, a glitch stack, text mode and
   sprite sets — and a **code source**, a live-coded expression evaluated per
@@ -541,6 +549,8 @@ importantly, what each feature deliberately does not do.
 
 **Picture:**
 
+- More lower-third looks, each with a material and a movement of its own, and
+  the arcade look's wiggle available on any of them
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
 - PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings
@@ -552,8 +562,6 @@ importantly, what each feature deliberately does not do.
 
 **Platform:**
 
-- Raspberry Pi: Deckboy Mini on Raspberry Pi 4 and 5 (64-bit), as a
-  ready-to-run download
 - NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
 - Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
