@@ -145,6 +145,11 @@ clone ffmpeg https://git.ffmpeg.org/ffmpeg.git n8.1
     --enable-libmp3lame --enable-libopus --enable-libsnappy --enable-libsrt \
     --disable-openssl --disable-gnutls --disable-libxml2 --disable-sdl2 \
     --disable-lzma --disable-bzlib --disable-iconv \
+    `# X11 is a Linux desktop; a Mac captures through ScreenCaptureKit. ffmpeg` \
+    `# looks for Xlib by compiling against it, and an Intel Mac's compiler` \
+    `# searches /usr/local -- Homebrew's -- by default, so it bundled four X11` \
+    `# libraries built for macOS 14.` \
+    --disable-xlib --disable-libxcb \
     --extra-cflags="$CFLAGS" --extra-ldflags="$LDFLAGS" \
   && make -j"$JOBS" && make install )
 
