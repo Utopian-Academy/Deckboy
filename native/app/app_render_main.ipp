@@ -923,8 +923,12 @@
       double fx = static_cast<double>(i) / N * 2.0 - 1.0;
       double ox = fx * mouthW / 2 + mdx;
       double oy = unit * 3.0 / 2.0 + depth * (1.0 - fx * fx) + mdy;
-      // One corner up: a smirk, which a symmetric smile can never be.
-      oy -= cheek * (1.0 - stress) * unit * 0.6 * (fx + 1.0) * 0.5 * (fx > 0.0 ? 1.0 : 0.2);
+      // One corner up: a smirk, which a symmetric smile can never be. A
+      // smooth rise toward the right corner -- the lift used to switch from
+      // a fifth to full strength at the middle, so as the cheek grew over
+      // the hours the mouth broke into two halves a step apart.
+      const double towardRight = (fx + 1.0) * 0.5;
+      oy -= cheek * (1.0 - stress) * unit * 0.6 * towardRight * towardRight;
       // Gritted: a small fast wobble along a stressed mouth.
       oy += stress * std::sin(fx * 9.0 + t * 6.0) * unit * 0.06;
       int X, Y;
