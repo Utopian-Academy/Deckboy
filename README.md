@@ -211,7 +211,7 @@ and the whole show runs from the keyboard in its terminal, over SSH too:
 reorder, rename and remove cues, save and open playlists (M3U8), pick the
 display and the sound device, and the keys a media player has — frame step,
 speed, A-B loop, mute, sound track and subtitles. On a Raspberry Pi it plays
-through the board's own video decoder; `cmake --build build --target deckboy-mini` builds it
+through the board's own video decoder; `tools/linux_build.sh --mini` builds it
 there. Its own [miniature manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
 has every key and command.
 
@@ -541,8 +541,6 @@ importantly, what each feature deliberately does not do.
 
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
-- GPU colour conversion for eight- and ten-bit SDR on macOS and Linux, as on
-  Windows: limited/full range preserved, no CPU download during playback
 - PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings
 
 **Deckboy Mini:**

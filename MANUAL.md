@@ -2091,9 +2091,9 @@ download has `./deckboy-mini` beside `./deckboy`, the AppImage runs it as
 
 **On a Raspberry Pi**, Mini plays through the board's own video decoder, so a
 1080p H.264 film plays at its full frame rate on a Raspberry Pi 3. There is
-no Pi download yet: build Mini on the Pi itself
-with `cmake --build build --target deckboy-mini -j2`, which builds Mini alone
-and fits in a Pi 3's memory where the whole desk does not.
+no Pi download yet: build Mini on the Pi itself with
+`./tools/linux_build.sh --mini`, which builds Mini alone, as many compiles at
+once as the memory allows, and fits in a Pi 3 where the whole desk does not.
 
 | Option | Effect |
 |--------|--------|

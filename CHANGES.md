@@ -1,5 +1,22 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-09 - v0.99.407 (steadier fullscreen on macOS, colour checked on every platform)
+
+**Fullscreen on macOS is immediate.** Output windows (and the desk, when you
+make it fullscreen) now fill the screen at once instead of sliding into a
+Space of their own, and switching an output between following the display
+and a fixed raster or refresh rate is safe at any moment, including straight
+after it goes fullscreen.
+
+**Colour, checked on all three.** The programme picture is compared against
+independently decoded references for eight- and ten-bit SDR, in limited and
+full range, on Metal (macOS), OpenGL (Linux) and Direct3D 11 (Windows), on
+every build.
+
+**Deckboy Mini on a Raspberry Pi in one command.** `tools/linux_build.sh --mini`
+builds Mini on its own, as many compiles at once as the memory allows, so it
+builds on a Raspberry Pi 3 beside whatever else the Pi is running.
+
 ## 2026-10-08 - v0.99.406 (captions made here, triggers, MediaMTX, CHECK as one list, Mini runs a show from the keyboard)
 
 **Captions made on this computer.** A clip with no captions can get some
