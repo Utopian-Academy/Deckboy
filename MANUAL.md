@@ -1384,7 +1384,7 @@ layer over another playlist. Its inspector section sets how it looks and moves.
 | Sparkle | The bar, with stars that twinkle round it for as long as it is up |
 | Neon | A dark sign with a glowing accent tube that flickers on |
 | Comic | Tilted, with a heavy black outline and a halftone shadow |
-| Scroll | Parchment with rolled ends, in ink |
+| Scroll | Parchment with rolled ends, in ink. It unrolls as it comes in and rolls up as it goes |
 
 The picker lists the clean looks first and the playful ones after.
 

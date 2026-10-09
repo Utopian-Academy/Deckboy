@@ -2,6 +2,18 @@
 
 ## 2026-10-09 - v0.99.407 (steadier fullscreen on macOS, colour checked on every platform)
 
+**The desk keeps its words.** If a font cannot be opened when the interface
+is resized or the language changes, Deckboy keeps the lettering it already
+has, and draws headers and buttons in its plain face rather than in nothing.
+The render log names the font that would not open.
+
+**The scroll unrolls.** The Scroll lower third opens from its two rolled ends
+as it comes in and rolls back up as it goes, on the same timing as its move.
+
+**A face that waits its turn.** After a short cue such as a lower third, the
+face on the empty monitor waits ten seconds before coming back, then drifts
+in gently instead of appearing all at once.
+
 **Fullscreen on macOS is immediate.** Output windows (and the desk, when you
 make it fullscreen) now fill the screen at once instead of sliding into a
 Space of their own, and switching an output between following the display
