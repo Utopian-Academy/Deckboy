@@ -463,8 +463,15 @@ jobs:
         with:
           node-version: '22'
 
+      # REPORTS, DOES NOT BLOCK (James, 2026-10-09). On these virtual machines
+      # the audio clock is a dummy driver running about 0.4% off true time, so
+      # the A/V figure measures the VM more than Deckboy; it failed on its own
+      # about one run in two. The real measurement is the hour-long drift run
+      # on a real sound card (check_web_monitor_av.mjs --real-audio). Its
+      # numbers still print here, and a step failure still shows in the run.
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
+        continue-on-error: true
         timeout-minutes: 10
         run: xvfb-run -a node tools/check_web_monitor_av.mjs --exe ./build/Deckboy --seconds 60 --raster 960x540
 
@@ -738,8 +745,15 @@ jobs:
           DECKBOY_STRESS_ROUNDS: "60"
         run: python3 tools/check_fullscreen_stress.py --exe ./build/Deckboy
 
+      # REPORTS, DOES NOT BLOCK (James, 2026-10-09). On these virtual machines
+      # the audio clock is a dummy driver running about 0.4% off true time, so
+      # the A/V figure measures the VM more than Deckboy; it failed on its own
+      # about one run in two. The real measurement is the hour-long drift run
+      # on a real sound card (check_web_monitor_av.mjs --real-audio). Its
+      # numbers still print here, and a step failure still shows in the run.
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
+        continue-on-error: true
         timeout-minutes: 10
         # Any frame slower than 200 ms is logged with where its time went
         # (events / update / layout / render), into the app.log the failure
@@ -1353,8 +1367,15 @@ jobs:
         with:
           node-version: '22'
 
+      # REPORTS, DOES NOT BLOCK (James, 2026-10-09). On these virtual machines
+      # the audio clock is a dummy driver running about 0.4% off true time, so
+      # the A/V figure measures the VM more than Deckboy; it failed on its own
+      # about one run in two. The real measurement is the hour-long drift run
+      # on a real sound card (check_web_monitor_av.mjs --real-audio). Its
+      # numbers still print here, and a step failure still shows in the run.
       - name: Web Monitor HLS and audio/video timing
         if: matrix.features == 'all'
+        continue-on-error: true
         timeout-minutes: 10
         shell: pwsh
         run: |
