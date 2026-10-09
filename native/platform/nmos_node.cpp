@@ -7,6 +7,7 @@
 // deliberately does NOT implement.
 
 #include "nmos_node.hpp"
+#include "nmos_mdns.hpp"
 
 // network.hpp pulls in <winsock2.h>. Without these two, windows.h defines
 // min/max as macros and every std::max in this file becomes a syntax error.
@@ -490,37 +491,82 @@ std::string versionStampNow() {
 }
 
 
-// ── Tiny blocking HTTP/1.1 client, used only for registration ───────────────
+// ── Tiny cancellable HTTP/1.1 client, used only for registration ─────────────
 // Returns the numeric status code, or 0 when the request never completed.
 int httpRequest(const std::string& host, int port, const std::string& method,
                 const std::string& path, const std::string& contentType,
-                const std::string& body, std::string* responseBody, int timeoutSeconds) {
+                const std::string& body, std::string* responseBody, int timeoutSeconds,
+                const std::atomic<bool>& stop, const std::string& numericAddress) {
   SocketHandle sock = ::socket(AF_INET, SOCK_STREAM, 0);
   if (sock == kInvalidSocket) {
     return 0;
   }
   setCloseOnExec(sock);
 
+  struct Close { SocketHandle socket; ~Close() { closeSocket(socket); } } close {sock};
+  auto retryIo = []() {
+#ifdef _WIN32
+    const int error = WSAGetLastError();
+    return error == WSAEWOULDBLOCK || error == WSAEINTR;
+#else
+    return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR;
+#endif
+  };
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(timeoutSeconds);
+  auto waitReady = [&](bool writing) {
+    while (!stop.load(std::memory_order_relaxed) && std::chrono::steady_clock::now() < deadline) {
+      fd_set fds, errors;
+      FD_ZERO(&fds); FD_ZERO(&errors);
+      if (!deckboy::platform::watchFd(sock, &fds) || !deckboy::platform::watchFd(sock, &errors)) return false;
+      timeval timeout {}; timeout.tv_usec = 50000;
+      const int ready = ::select(selectNfds(sock), writing ? nullptr : &fds,
+                                  writing ? &fds : nullptr, &errors, &timeout);
+      if (ready < 0 && retryIo()) continue;
+      if (ready < 0 || deckboy::platform::readyFd(sock, &errors)) return false;
+      if (ready > 0) return true;
+    }
+    return false;
+  };
+#ifdef _WIN32
+  u_long nonblocking = 1;
+  if (ioctlsocket(sock, FIONBIO, &nonblocking) != 0) return 0;
+#else
+  const int flags = fcntl(sock, F_GETFL, 0);
+  if (flags < 0 || fcntl(sock, F_SETFL, flags | O_NONBLOCK) != 0) return 0;
+#ifdef SO_NOSIGPIPE
+  const int noSignal = 1;
+  setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, &noSignal, sizeof(noSignal));
+#endif
+#endif
+
   sockaddr_in address {};
   address.sin_family = AF_INET;
   address.sin_port = htons(static_cast<std::uint16_t>(port));
-  if (inet_pton(AF_INET, host.c_str(), &address.sin_addr) != 1) {
+  const std::string& connectHost = numericAddress.empty() ? host : numericAddress;
+  if (inet_pton(AF_INET, connectHost.c_str(), &address.sin_addr) != 1) {
     // Not a literal address — resolve it.
     addrinfo hints {};
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     addrinfo* resolved = nullptr;
-    if (::getaddrinfo(host.c_str(), nullptr, &hints, &resolved) != 0 || !resolved) {
-      closeSocket(sock);
+    if (::getaddrinfo(connectHost.c_str(), nullptr, &hints, &resolved) != 0 || !resolved) {
       return 0;
     }
     address.sin_addr = reinterpret_cast<sockaddr_in*>(resolved->ai_addr)->sin_addr;
     ::freeaddrinfo(resolved);
   }
 
+  if (stop.load()) return 0;
   if (::connect(sock, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
-    closeSocket(sock);
-    return 0;
+#ifdef _WIN32
+    if (WSAGetLastError() != WSAEWOULDBLOCK) return 0;
+#else
+    if (errno != EINPROGRESS && errno != EINTR) return 0;
+#endif
+    if (!waitReady(true)) return 0;
+    int error = 0;
+    socklen_t length = sizeof(error);
+    if (getsockopt(sock, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&error), &length) != 0 || error) return 0;
   }
 
   std::ostringstream request;
@@ -537,41 +583,32 @@ int httpRequest(const std::string& host, int port, const std::string& method,
   request << "\r\n" << body;
   const std::string payload = request.str();
 
-  if (::send(sock, payload.c_str(), static_cast<int>(payload.size()), kSocketSendFlags) < 0) {
-    closeSocket(sock);
-    return 0;
+  for (std::size_t sent = 0; sent < payload.size();) {
+    if (!waitReady(true)) return 0;
+    const int bytes = ::send(sock, payload.data() + sent, static_cast<int>(payload.size() - sent), kSocketSendFlags);
+    if (bytes < 0 && retryIo()) continue;
+    if (bytes <= 0) return 0;
+    sent += static_cast<std::size_t>(bytes);
   }
 
   std::string response;
   std::array<char, 2048> buffer {};
-  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(timeoutSeconds);
   for (;;) {
-    const auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(
-      deadline - std::chrono::steady_clock::now());
-    if (remaining.count() <= 0) {
-      break;
-    }
-    fd_set readFds;
-    FD_ZERO(&readFds);
-    FD_SET(sock, &readFds);
-    timeval tv {};
-    tv.tv_sec = static_cast<long>(remaining.count() / 1000000);
-    tv.tv_usec = static_cast<long>(remaining.count() % 1000000);
-    if (::select(selectNfds(sock), &readFds, nullptr, nullptr, &tv) <= 0) {
-      break;
-    }
+    if (!waitReady(false)) return 0;
     const int bytes = ::recv(sock, buffer.data(), static_cast<int>(buffer.size()), 0);
+    if (bytes < 0 && retryIo()) continue;
     if (bytes <= 0) {
       break;
     }
     response.append(buffer.data(), static_cast<std::size_t>(bytes));
+    // Registration only needs the status. Do not wait for connection close
+    // from a server that keeps HTTP alive despite our Connection: close.
+    if (response.find("\r\n\r\n") != std::string::npos) break;
     if (response.size() > 262144) {
       break;
     }
   }
-  closeSocket(sock);
-
-  if (response.rfind("HTTP/", 0) != 0) {
+  if (response.rfind("HTTP/", 0) != 0 || response.find("\r\n\r\n") == std::string::npos) {
     return 0;
   }
   const std::size_t firstSpace = response.find(' ');
@@ -712,6 +749,16 @@ std::string NmosNode::nodeId() const {
   return nodeId_;
 }
 
+std::string NmosNode::registryUrl() const {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return registryUrl_;
+}
+
+std::string NmosNode::discoveredRegistry() const {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return discoveredRegistry_;
+}
+
 std::string NmosNode::nodeApiUrl() const {
   std::lock_guard<std::mutex> lock(mutex_);
   if (!running_.load(std::memory_order_relaxed) || resolvedHost_.empty()) {
@@ -756,10 +803,14 @@ bool NmosNode::start(const NmosConfig& config) {
   {
     std::lock_guard<std::mutex> lock(mutex_);
     config_ = config;
+    registryUrl_ = trimCopy(config.registryUrl);
+    registryAddress_.clear();
+    discoveredRegistry_.clear();
     if (config_.nodePort <= 0 || config_.nodePort > 65535) {
       config_.nodePort = 3210;
     }
-    resolvedHost_ = trimCopy(config_.hostAddress);
+    resolvedHost_ = !config_.allowRemote && registryUrl_.empty()
+      ? "127.0.0.1" : trimCopy(config_.hostAddress);
     if (resolvedHost_.empty()) {
       std::string registryHost;
       int registryPort = 0;
@@ -798,6 +849,7 @@ bool NmosNode::start(const NmosConfig& config) {
   httpReady_.store(true);
   registered_.store(false);
   heartbeats_.store(0);
+  setLastError({});
 
   httpThread_ = std::thread([this]() { httpLoop(); });
   registrationThread_ = std::thread([this]() { registrationLoop(); });
@@ -806,27 +858,36 @@ bool NmosNode::start(const NmosConfig& config) {
 
 void NmosNode::stop() {
   if (!running_.load(std::memory_order_relaxed) && !httpThread_.joinable() &&
-      !registrationThread_.joinable()) {
+      !registrationThread_.joinable() && !winsockStarted_) {
     return;
   }
   stop_.store(true);
   wake_.notify_all();
 
-  if (listenValid_) {
-    closeSocket(static_cast<SocketHandle>(listenSocket_));
-    listenValid_ = false;
-    listenSocket_ = 0;
-  }
+  // httpLoop polls stop every 200ms. Leave its descriptor alive until it exits
+  // so a settings restart cannot close/reuse a descriptor it is still polling.
   if (httpThread_.joinable()) {
     httpThread_.join();
   }
   if (registrationThread_.joinable()) {
     registrationThread_.join();
   }
+  if (listenValid_) {
+    closeSocket(static_cast<SocketHandle>(listenSocket_));
+    listenValid_ = false;
+    listenSocket_ = 0;
+  }
 
   running_.store(false);
   httpReady_.store(false);
   registered_.store(false);
+
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    registryUrl_.clear();
+    registryAddress_.clear();
+    discoveredRegistry_.clear();
+  }
 
 #ifdef _WIN32
   if (winsockStarted_) {
@@ -1078,20 +1139,22 @@ void NmosNode::rebuildResources() {
 
 bool NmosNode::postResource(const Resource& resource) {
   std::string host;
+  std::string address;
   int port = 0;
   std::string basePath;
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!nmosParseUrl(config_.registryUrl, host, port, basePath)) {
+    if (!nmosParseUrl(registryUrl_, host, port, basePath)) {
       return false;
     }
+    address = registryAddress_;
   }
   const std::string body =
     std::string("{\"type\":\"") + resource.type + "\",\"data\":" + resource.json + "}";
   std::string response;
   const int status = httpRequest(host, port, "POST",
                                  basePath + "/x-nmos/registration/v1.3/resource",
-                                 "application/json", body, &response, 5);
+                                 "application/json", body, &response, 5, stop_, address);
   // 201 = created, 200 = updated. Both are success.
   if (status == 200 || status == 201) {
     return true;
@@ -1121,46 +1184,47 @@ bool NmosNode::registerAll() {
   return true;
 }
 
-bool NmosNode::sendHeartbeat() {
+int NmosNode::sendHeartbeat() {
   std::string host;
+  std::string address;
   int port = 0;
   std::string basePath;
   std::string node;
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!nmosParseUrl(config_.registryUrl, host, port, basePath)) {
-      return false;
+    if (!nmosParseUrl(registryUrl_, host, port, basePath)) {
+      return 0;
     }
+    address = registryAddress_;
     node = nodeId_;
   }
   const int status = httpRequest(host, port, "POST",
                                  basePath + "/x-nmos/registration/v1.3/health/nodes/" + node,
-                                 "application/json", std::string(), nullptr, 5);
+                                 "application/json", std::string(), nullptr, 5, stop_, address);
   if (status == 200 || status == 201) {
     heartbeats_.fetch_add(1, std::memory_order_relaxed);
-    return true;
+    return status;
   }
   // 404 means the registry has forgotten us — usually because it restarted.
   // Re-registering is the specified recovery, not an error to sit in.
   if (status == 404) {
     registered_.store(false, std::memory_order_relaxed);
     setLastError("NMOS: registry dropped the node; re-registering");
-    return false;
+    return status;
   }
   setLastError("NMOS: heartbeat failed (HTTP " + std::to_string(status) + ")");
-  return false;
+  return status;
 }
 
 void NmosNode::registrationLoop() {
-  bool hasRegistry = false;
+  bool automatic = false;
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    hasRegistry = !trimCopy(config_.registryUrl).empty();
-  }
-  if (!hasRegistry) {
-    // Node API only. Legitimate for bench testing; not discoverable in a plant.
-    setLastError("NMOS: no registry configured — Node API served locally only");
-    return;
+    automatic = trimCopy(config_.registryUrl).empty();
+    if (automatic && !config_.allowRemote) {
+      setLastError("NMOS: discovery needs the remote network allowed");
+      return;
+    }
   }
 
   auto sleepFor = [this](int milliseconds) {
@@ -1170,14 +1234,60 @@ void NmosNode::registrationLoop() {
   };
 
   int backoffMs = 1000;
+  std::map<std::string, nmos_mdns::Clock::time_point> failed;
+  auto releaseRegistry = [this, &failed, automatic]() {
+    registered_.store(false, std::memory_order_relaxed);
+    if (!automatic) return;
+    std::lock_guard<std::mutex> lock(mutex_);
+    // An unresponsive high-priority advertisement must not starve a healthy
+    // backup. Retry it after a cooldown, using a fresh DNS browse each time.
+    failed[registryUrl_ + "|" + registryAddress_] = nmos_mdns::Clock::now() + std::chrono::seconds(30);
+    registryUrl_.clear();
+    registryAddress_.clear();
+    discoveredRegistry_.clear();
+  };
   while (!stop_.load(std::memory_order_relaxed)) {
+    if (automatic && registryUrl().empty()) {
+      setLastError("NMOS: searching for a registry (mDNS)");
+      std::string error;
+      const auto candidates = nmos_mdns::discover(stop_, error);
+      if (stop_.load()) break;
+      const auto now = nmos_mdns::Clock::now();
+      for (auto it = failed.begin(); it != failed.end();) {
+        if (it->second <= now) it = failed.erase(it); else ++it;
+      }
+      for (const auto& candidate : candidates) {
+        if (failed.count(candidate.url() + "|" + candidate.address)) continue;
+        std::lock_guard<std::mutex> lock(mutex_);
+        registryUrl_ = candidate.url();
+        registryAddress_ = candidate.address;
+        discoveredRegistry_ = candidate.host + ':' + std::to_string(candidate.port);
+        // Registration must advertise the interface that reaches this registry.
+        // Keep resource IDs stable across failover; only the href/version move.
+        if (trimCopy(config_.hostAddress).empty()) {
+          const auto local = localAddressTowards(candidate.address);
+          if (!local.empty() && local != resolvedHost_) {
+            resolvedHost_ = local;
+            rebuildResources();
+          }
+        }
+        break;
+      }
+      if (registryUrl().empty()) {
+        setLastError(error.empty() ? "NMOS: discovered registries unavailable; retrying mDNS" : error);
+        sleepFor(backoffMs);
+        backoffMs = std::min(backoffMs * 2, 30000);
+        continue;
+      }
+    }
     if (!registered_.load(std::memory_order_relaxed)) {
+      resourcesDirty_.store(false, std::memory_order_relaxed);
       if (registerAll()) {
         registered_.store(true, std::memory_order_relaxed);
-        resourcesDirty_.store(false, std::memory_order_relaxed);
         setLastError({});
         backoffMs = 1000;
       } else {
+        releaseRegistry();
         // Back off so a missing registry does not hammer the network.
         sleepFor(backoffMs);
         backoffMs = std::min(backoffMs * 2, 30000);
@@ -1187,7 +1297,7 @@ void NmosNode::registrationLoop() {
 
     if (resourcesDirty_.exchange(false, std::memory_order_relaxed)) {
       if (!registerAll()) {
-        registered_.store(false, std::memory_order_relaxed);
+        releaseRegistry();
         continue;
       }
     }
@@ -1198,7 +1308,10 @@ void NmosNode::registrationLoop() {
     if (stop_.load(std::memory_order_relaxed)) {
       break;
     }
-    sendHeartbeat();
+    const int status = sendHeartbeat();
+    // A 404 is a live registry that forgot this node: re-register there. Other
+    // failures release the discovered endpoint and trigger a fresh browse.
+    if (automatic && status != 200 && status != 201 && status != 404) releaseRegistry();
   }
 
   registered_.store(false, std::memory_order_relaxed);

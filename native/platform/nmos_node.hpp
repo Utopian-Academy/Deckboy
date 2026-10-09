@@ -21,7 +21,8 @@
 //   * IS-04 v1.3 Node API, served over HTTP: node, devices, sources, flows,
 //     senders. Receivers are advertised as an empty list — Deckboy is a source
 //     device, it does not accept 2110 in.
-//   * IS-04 registration: POSTs the resource tree to a configured registry in
+//   * IS-04 registration: discovers an HTTP v1.3 registry over IPv4 mDNS when
+//     no URL is configured. POSTs the resource tree to the chosen registry in
 //     dependency order, then heartbeats. A registry that forgets us (404 on
 //     heartbeat, e.g. it restarted) triggers automatic re-registration.
 //   * IS-05 v1.1 Connection API: constraints / staged / active / transportfile
@@ -35,11 +36,7 @@
 //
 // WHAT IS NOT IMPLEMENTED — do not claim it
 // -----------------------------------------
-//   * NO DNS-SD / mDNS. The registry is configured by URL. Real plants usually
-//     advertise the RDS over unicast DNS-SD or mDNS (`_nmos-register._tcp`);
-//     without it Deckboy cannot FIND a registry on its own, and cannot be found
-//     in peer-to-peer mode. Manual registry URL is a legitimate and common
-//     deployment, but it is a smaller claim.
+//   * NO unicast DNS-SD, IPv6 transport, or peer-to-peer Node advertisement.
 //   * NO scheduled activation. `activate_scheduled_absolute` and
 //     `activate_scheduled_relative` are rejected with 501, because honouring
 //     them needs the PTP clock to gate the switch and pretending otherwise
@@ -170,9 +167,8 @@ struct NmosStagedState {
 
 struct NmosConfig {
   bool enabled = false;
-  // Registry base URL, e.g. "http://registry.local:8010". Empty = serve the Node
-  // API and IS-05 locally but do not register anywhere (useful for testing, and
-  // the closest thing to peer-to-peer mode we can offer without mDNS).
+  // Registry base URL, e.g. "http://registry.local:8010". Empty = discover by
+  // mDNS when allowRemote=true. Typed URLs register regardless of allowRemote.
   std::string registryUrl;
   int nodePort = 3210;            // port the Node + Connection API listen on
   std::string hostAddress;        // IP advertised to the registry ("" = auto-detect)
@@ -215,6 +211,8 @@ class NmosNode {
   std::uint64_t heartbeatCount() const { return heartbeats_.load(std::memory_order_relaxed); }
   std::string nodeId() const;
   std::string lastError() const;
+  std::string registryUrl() const;           // effective URL, including discovery
+  std::string discoveredRegistry() const;    // SRV host:port, empty for manual
 
   // The Node API base URL an operator can paste into a browser to see what the
   // plant sees. Empty when not running.
@@ -250,7 +248,7 @@ class NmosNode {
 
   void rebuildResources();               // caller holds mutex_
   bool postResource(const Resource& resource);
-  bool sendHeartbeat();
+  int sendHeartbeat();
   bool registerAll();
 
   void setLastError(const std::string& message);
@@ -268,6 +266,10 @@ class NmosNode {
   std::string deviceId_;
   std::string versionStamp_;             // "<sec>:<nsec>", bumped on change
   std::string resolvedHost_;
+  // Runtime state only: never copy discovery into the operator's saved URL.
+  std::string registryUrl_;
+  std::string registryAddress_;
+  std::string discoveredRegistry_;
 
   NmosPatchHandler patchHandler_;
   std::mutex handlerMutex_;

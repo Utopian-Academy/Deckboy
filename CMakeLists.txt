@@ -620,6 +620,7 @@ add_executable(deckboy-native
   # compiles unconditionally.
   native/platform/nmc_sync.cpp
   native/platform/nmos_node.cpp
+  native/platform/nmos_mdns.cpp
   # Vendored Terrarium sim. This shim compiles upstream/terrarium_core.cpp
   # INSIDE `namespace terra` — do not add that .cpp here directly, or its
   # definitions land at global scope and fail to link. See
@@ -1163,6 +1164,7 @@ if(BUILD_TESTING)
     native/platform/ptp_client.cpp
     native/platform/st2110_output.cpp
     native/platform/nmos_node.cpp
+    native/platform/nmos_mdns.cpp
     native/platform/decklink.cpp)
   target_include_directories(deckboy-broadcast-check PRIVATE native)
   target_link_libraries(deckboy-broadcast-check PRIVATE Threads::Threads)
@@ -1173,8 +1175,26 @@ if(BUILD_TESTING)
   endif()
   if(WIN32)
     target_compile_definitions(deckboy-broadcast-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
-    target_link_libraries(deckboy-broadcast-check PRIVATE ws2_32)
+    target_link_libraries(deckboy-broadcast-check PRIVATE ws2_32 iphlpapi)
   endif()
   add_test(NAME broadcast COMMAND deckboy-broadcast-check)
   set_tests_properties(broadcast PROPERTIES TIMEOUT 30)
+  add_executable(deckboy-nmos-mdns-check tools/nmos_mdns_check.cpp
+    native/platform/nmos_mdns.cpp native/platform/nmos_node.cpp)
+  target_include_directories(deckboy-nmos-mdns-check PRIVATE native)
+  target_link_libraries(deckboy-nmos-mdns-check PRIVATE Threads::Threads)
+  if(WIN32)
+    target_compile_definitions(deckboy-nmos-mdns-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+    target_link_libraries(deckboy-nmos-mdns-check PRIVATE ws2_32 iphlpapi)
+  endif()
+  if(DECKBOY_SANITIZE_BROADCAST_CHECK AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(deckboy-nmos-mdns-check PRIVATE -fsanitize=address,undefined
+      -fno-sanitize-recover=undefined -fno-omit-frame-pointer)
+    target_link_options(deckboy-nmos-mdns-check PRIVATE -fsanitize=address,undefined)
+  endif()
+  add_test(NAME nmos-mdns-packets COMMAND deckboy-nmos-mdns-check)
+  add_test(NAME nmos-mdns-loopback COMMAND deckboy-nmos-mdns-check --loopback)
+  set_tests_properties(nmos-mdns-packets nmos-mdns-loopback PROPERTIES TIMEOUT 15)
+  add_test(NAME nmos-registration-loopback COMMAND deckboy-nmos-mdns-check --registration)
+  set_tests_properties(nmos-registration-loopback PROPERTIES TIMEOUT 30)
 endif()
