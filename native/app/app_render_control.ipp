@@ -1205,7 +1205,11 @@
           // worse than no label at all because it looks like information.
           const std::string name =
             project_.decks[d].name.empty() ? deckDefaultName(d) : project_.decks[d].name;
-          const std::string full = std::to_string(d + 1) + " " + name;
+          // NOT "1 Deck 1". A playlist still called by its default name
+          // already says its number, so it is shown alone; a named one keeps
+          // the number in front ("2 Lower thirds").
+          const bool defaultName = name == deckDefaultName(d);
+          const std::string full = defaultName ? name : std::to_string(d + 1) + " " + name;
           const bool nameFits =
             measuredTextWidth(fontSmall_, full) <= tab.w - uiScaled(8);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, tab,
