@@ -6575,21 +6575,15 @@
 
     const bool wantRunning = project_.nmosEnabled;
     const int wantPort = std::clamp(project_.nmosPort, 1, 65535);
-    // NMOS only means anything if the node is reachable. With LOCAL ONLY the
-    // listener binds 127.0.0.1, so registering would publish an href to the
-    // machine's LAN address that nothing on the network can open — a
-    // controller would find the sender, try to fetch its transport file, and
-    // fail. Refusing to register is the honest behaviour; the operator sees
-    // why in the status line and flips REMOTE ON in the Network tab.
-    nmosLocalOnlyBlocked_ = wantRunning && !project_.allowRemoteNetwork &&
-                            !trim(project_.nmosRegistryUrl).empty();
-    const std::string wantRegistry =
-      nmosLocalOnlyBlocked_ ? std::string() : trim(project_.nmosRegistryUrl);
+    // A typed registry retains the existing registration behavior, including
+    // LOCAL ONLY setups. Only automatic discovery needs a reachable listener.
+    const std::string wantRegistry = trim(project_.nmosRegistryUrl);
 
     // A port or registry change needs a genuine restart — the listen socket is
     // already bound and the registry client caches the parsed URL.
     const bool settingsMoved =
-      nmosStarted_ && (wantPort != nmosLastPort_ || wantRegistry != nmosLastRegistry_);
+      nmosStarted_ && (wantPort != nmosLastPort_ || wantRegistry != nmosLastRegistry_ ||
+                      project_.allowRemoteNetwork != nmosLastAllowRemote_);
 
     if ((!wantRunning && nmosStarted_) || settingsMoved) {
       shutdownNmosNode();
@@ -6629,6 +6623,7 @@
       nmosStarted_ = true;
       nmosLastPort_ = wantPort;
       nmosLastRegistry_ = wantRegistry;
+      nmosLastAllowRemote_ = project_.allowRemoteNetwork;
     }
 
     if (!nmosStarted_) {
@@ -6646,15 +6641,12 @@
     if (!nmosStarted_ || !nmosNode_.httpReady()) {
       return "NMOS: not running";
     }
-    if (nmosLocalOnlyBlocked_) {
-      return "NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)";
+    if (!project_.allowRemoteNetwork && trim(project_.nmosRegistryUrl).empty()) {
+      return "NMOS: discovery needs the remote network allowed";
     }
     const int senders = nmosNode_.senderCount();
-    if (trim(project_.nmosRegistryUrl).empty()) {
-      char buf[160];
-      std::snprintf(buf, sizeof(buf), "NMOS: node API on :%d, %d sender%s - no registry set",
-                    project_.nmosPort, senders, senders == 1 ? "" : "s");
-      return buf;
+    if (trim(project_.nmosRegistryUrl).empty() && nmosNode_.registryUrl().empty()) {
+      return nmosNode_.lastError().empty() ? "NMOS: searching for a registry (mDNS)" : nmosNode_.lastError();
     }
     if (!nmosNode_.registered()) {
       return "NMOS: registering... " + nmosNode_.lastError();

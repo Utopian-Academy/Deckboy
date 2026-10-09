@@ -2274,9 +2274,8 @@ struct Project {
   // to hand-carry an SDP. Machine-wide for the same reason as ptpDomain: one
   // node, advertising every armed 2110 sender on the box.
   //
-  // NOTE: there is no mDNS/DNS-SD here, so the registry cannot be discovered
-  // automatically — it is configured by URL. Leaving the URL empty still serves
-  // the Node API and IS-05 locally (useful on the bench) but registers nowhere.
+  // Empty registry URL enables IPv4 mDNS discovery; a typed URL always wins.
+  // LOCAL ONLY suppresses discovery; typed registries still register.
   bool nmosEnabled = false;
   std::string nmosRegistryUrl;             // e.g. "http://192.168.1.50:8010"
   int nmosPort = 3210;                     // port the Node + Connection API serve on

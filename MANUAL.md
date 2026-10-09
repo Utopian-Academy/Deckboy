@@ -810,6 +810,43 @@ Physical SDI timing and colour still need validation on the intended card and
 receiver. The ST 2110 sender uses software packet pacing and software PTP;
 facility timing and interoperability need measurement on the intended network.
 
+### NMOS: finding a registry
+
+In `Settings → Video Outputs → Devices`, turn **NMOS** on to publish the
+ST 2110 senders through AMWA IS-04 and control them through IS-05. Enable
+**REMOTE ON** in the Network settings so the registry can reach the node.
+**LOCAL ONLY** binds the Node and Connection APIs to loopback. It disables
+automatic discovery, with the status **NMOS: discovery needs the remote network
+allowed**. A typed registry URL still registers, regardless of this setting,
+as before; remote controllers need **REMOTE ON** to reach the Node API.
+
+Leave **Registry** blank for automatic discovery on the local IPv4 network.
+Deckboy queries `_nmos-register._tcp.local` and the older
+`_nmos-registration._tcp.local` over mDNS (UDP 5353). It accepts registries
+advertising IS-04 **v1.3**, **HTTP**, and `api_auth=false`. The lowest TXT
+`pri` wins; equal priorities are chosen randomly. Priorities 100 and above
+are for development and are used only when no compatible lower-priority
+registry is available.
+
+The registry control shows **typed: URL** or **found: host:port (mDNS)**.
+The status line separately confirms registration and heartbeats. If a
+discovered registry stops responding, Deckboy discovers again and tries another, avoiding
+the failed endpoint for 30 seconds. A registry that forgets the node is
+registered with again. With no compatible registry, discovery keeps retrying
+and the Node API remains available.
+
+A typed URL, such as `http://192.168.1.50:8010`, always takes precedence;
+clear it to return to discovery. Discovered addresses are runtime information
+and are not saved into the show. `NMOS STATUS` replies with the effective
+`registry=` URL and `registry_source=typed|mdns|searching|none`; `none` means
+discovery is inactive and no registry is selected. `NMOS REGISTRY`
+with no URL clears the manual setting. Click the status line to copy the Node
+API URL (default port 3210).
+
+Discovery requires mDNS traffic to be allowed on the local link. It does not
+cross routed subnets; use a manual URL there. Unicast DNS-SD, IPv6, HTTPS,
+authorization and peer-to-peer Node advertisements are not supported.
+
 ---
 
 ## 13. Recording

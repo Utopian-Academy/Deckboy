@@ -8615,12 +8615,14 @@
       if (sub == "STATUS") {
         // stdout as well as a toast: this is the one command a test harness
         // needs to read back, and a toast is not capturable.
-        std::cout << nmosStatusLabel()
-                  << "  node=" << (nmosNode_.nodeApiUrl().empty()
-                                     ? std::string("-") : nmosNode_.nodeApiUrl())
-                  << "  registry=" << (trim(project_.nmosRegistryUrl).empty()
-                                         ? std::string("-") : trim(project_.nmosRegistryUrl))
-                  << std::endl;
+        const std::string node = nmosNode_.nodeApiUrl();
+        const std::string configured = trim(project_.nmosRegistryUrl);
+        const std::string registry = configured.empty() ? nmosNode_.registryUrl() : configured;
+        remoteCommandDetail_ = nmosStatusLabel() + "  node=" + (node.empty() ? "-" : node) +
+          "  registry=" + (registry.empty() ? "-" : registry) + "  registry_source=" +
+          (!configured.empty() ? "typed" : !registry.empty() ? "mdns" :
+           nmosStarted_ && project_.allowRemoteNetwork ? "searching" : "none");
+        std::cout << remoteCommandDetail_ << std::endl;
         triggerToast(nmosStatusLabel());
         return;
       }
@@ -8633,7 +8635,7 @@
         triggerToast(std::string("nmos: ") + (project_.nmosEnabled ? "on" : "off"));
       } else if (sub == "REGISTRY") {
         // Bare "NMOS REGISTRY" clears it — that is how you deliberately go back
-        // to serving the node API with no registration.
+        // to automatic mDNS registry discovery.
         const std::string url = parts.size() > 2 ? trim(parts[2]) : std::string();
         if (!url.empty()) {
           std::string host, path;

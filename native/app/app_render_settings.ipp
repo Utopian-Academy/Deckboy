@@ -3326,7 +3326,7 @@
 
           {
             SDL_Rect row = nmLayout.takeFixed(kRowH);
-            int halfNm = (row.w - 4) / 2;
+            int halfNm = (row.w - kCtlGap) / 2;
             SDL_Rect toggleBtn {row.x, row.y, halfNm, kRowH};
             drawActionBtn(toggleBtn, project_.nmosEnabled ? "NMOS: ON" : "NMOS: OFF",
                           kSettingsActionNmosToggle, project_.nmosEnabled);
@@ -3336,16 +3336,14 @@
           }
           {
             SDL_Rect row = nmLayout.takeFixed(kRowH);
-            int regW = (row.w - 4) * 2 / 3;
+            int regW = (row.w - kCtlGap) * 2 / 3;
             SDL_Rect regBtn {row.x, row.y, regW, kRowH};
             std::string registry = trim(project_.nmosRegistryUrl);
-            // No mDNS, so there is nothing to auto-discover. Label the empty
-            // state as a decision the operator still has to make, not as a
-            // default that is quietly fine.
-            drawActionBtn(regBtn,
-                          registry.empty() ? std::string("Registry: NOT SET")
-                                           : "Registry: " + registry,
-                          kSettingsActionNmosRegistryPrompt);
+            const std::string discovered = nmosNode_.discoveredRegistry();
+            const std::string registryLabel = !registry.empty() ? "typed: " + registry
+              : !discovered.empty() ? "found: " + discovered + " (mDNS)"
+              : "Registry: auto (mDNS)";
+            drawActionBtn(regBtn, registryLabel, kSettingsActionNmosRegistryPrompt);
             SDL_Rect ifBtn {row.x + regW + kCtlGap, row.y, row.w - regW - kCtlGap, kRowH};
             std::string ifName = trim(project_.nmosInterfaceName);
             if (ifName.empty()) ifName = "eth0";
@@ -3353,8 +3351,7 @@
           }
           {
             SDL_Rect statusRect = nmLayout.takeFixed(kLabelH);
-            const bool good = project_.nmosEnabled && nmosStarted_ &&
-                              (nmosNode_.registered() || trim(project_.nmosRegistryUrl).empty());
+            const bool good = project_.nmosEnabled && nmosStarted_ && nmosNode_.registered();
             drawTextSafe(controlRenderer_, fontSmall_,
                          SDL_Rect{nmBody.x, statusRect.y, nmBody.w, kLabelH},
                          nmosStatusLabel(), good ? pal.fg : soft);
@@ -5865,14 +5862,12 @@
         if (!project_.nmosEnabled) {
           shutdownNmosNode();
           triggerToast("nmos: off");
-        } else if (!project_.allowRemoteNetwork && !trim(project_.nmosRegistryUrl).empty()) {
+        } else if (!project_.allowRemoteNetwork && trim(project_.nmosRegistryUrl).empty()) {
           // Say it here, not only in the status line: this is the moment the
           // operator expects the plant to see them.
-          triggerToast("nmos: network is LOCAL ONLY - not registering", ToastKind::Help, 3200);
+          triggerToast("NMOS: discovery needs the remote network allowed", ToastKind::Help, 3200);
         } else if (trim(project_.nmosRegistryUrl).empty()) {
-          // Arming with no registry is legitimate but it is NOT discovery, and
-          // an operator who thinks it is will not find the node in a plant.
-          triggerToast("nmos: on - node API only, no registry set", ToastKind::Help, 2800);
+          triggerToast("nmos: on - searching for a registry (mDNS)", ToastKind::Help, 2800);
         } else {
           triggerToast("nmos: on", ToastKind::Help, 2200);
         }
@@ -5880,7 +5875,7 @@
         syncNmosNode();   // apply now rather than waiting for the next tick
       } else if (sb.action == kSettingsActionNmosRegistryPrompt) {
         openInlineTextEditor("settings.nmos_registry", "NMOS Registry",
-                             "Registry URL (e.g. http://192.168.1.50:8010) - blank for none",
+                             "Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS",
                              trim(project_.nmosRegistryUrl),
                              [this](const std::string& value) {
                                const std::string url = trim(value);
