@@ -479,19 +479,22 @@ Write-Host "Packaged: $ZipPath  ($SizeMb MB)"
 Write-Host "Staging dir kept at: $StageDir"
 
 # --- Deckboy Mini on its own -------------------------------------------------
-# For a screen that only needs to play: Mini, the libraries it loads, ffmpeg
-# and ffprobe (subtitles inside a file are read with them), its one font and
-# the licence. Every DLL the staged build carries goes in -- Mini needs most
-# of them, and a missing one is a program that will not start.
+# For a screen that only needs to play, and SMALL: Mini, the libraries it
+# loads, its one font and the licence. Not ffmpeg.exe and ffprobe.exe: on
+# Windows they are self-contained builds of 138 MB each, and Mini needs them
+# for one thing, subtitles stored inside a file -- it uses an ffmpeg on PATH
+# for that, and subtitle files beside a clip need nothing. Not the desk's own
+# DLLs (Spout, WebView2, timecode) either.
 $MiniName  = "Deckboy-Mini-$Version-windows-x64"
 $MiniStage = Join-Path $OutputDir "staging\$MiniName"
 $MiniZip   = Join-Path $OutputDir "$MiniName.zip"
 if (Test-Path $MiniStage) { Remove-Item $MiniStage -Recurse -Force }
 New-Item -ItemType Directory -Path (Join-Path $MiniStage "data\fonts") -Force | Out-Null
 Copy-Item (Join-Path $StageDir "deckboy-mini.exe") -Destination $MiniStage
-Copy-Item (Join-Path $StageDir "ffmpeg.exe")  -Destination $MiniStage
-Copy-Item (Join-Path $StageDir "ffprobe.exe") -Destination $MiniStage
-Get-ChildItem -Path $StageDir -Filter *.dll | Copy-Item -Destination $MiniStage
+$DeskOnlyDlls = @("SpoutLibrary.dll", "WebView2Loader.dll", "ltc.dll")
+Get-ChildItem -Path $StageDir -Filter *.dll |
+    Where-Object { $DeskOnlyDlls -notcontains $_.Name } |
+    Copy-Item -Destination $MiniStage
 Copy-Item (Join-Path $RepoRoot "data\fonts\LiberationSans-Regular.ttf") -Destination (Join-Path $MiniStage "data\fonts")
 Copy-Item (Join-Path $RepoRoot "LICENSE") -Destination $MiniStage
 @"
@@ -506,6 +509,10 @@ terminal in this folder:
 
 Press ? in the terminal for the keys. The manual has a miniature one:
 https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini
+
+Subtitle files beside a clip (clip.srt, clip.en.vtt) just work. Subtitles
+stored INSIDE a video file are read with ffmpeg: install it (for example
+winget install ffmpeg) or use the full Deckboy download, which includes it.
 "@ | Set-Content -Path (Join-Path $MiniStage "README.txt") -Encoding UTF8
 
 # The copy in the Mini folder has to run on its own and be this version.
