@@ -558,7 +558,7 @@ jobs:
         run: |
           set -e
           mkdir -p /tmp/unpack
-          tar -xzf dist/Deckboy-*.tar.gz -C /tmp/unpack
+          tar -xzf dist/Deckboy-[0-9]*.tar.gz -C /tmp/unpack
           BIN="$(find /tmp/unpack -name Deckboy -type f | head -1)"
           "$BIN" --self-check
           "$BIN" --smoke
@@ -1504,7 +1504,7 @@ jobs:
         if: matrix.features == 'all'
         shell: pwsh
         run: |
-          $zip = Get-ChildItem dist\Deckboy-*.zip | Select-Object -First 1
+          $zip = Get-ChildItem dist\Deckboy-[0-9]*.zip | Select-Object -First 1
           Expand-Archive -Path $zip.FullName -DestinationPath dist\unpack -Force
           $exe = Get-ChildItem dist\unpack -Recurse -Filter Deckboy.exe | Select-Object -First 1
           # Start-Process for the same reason as the gates above: the call
