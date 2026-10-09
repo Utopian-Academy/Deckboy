@@ -3631,6 +3631,17 @@ class App {
     // steals keyboard focus → repeat. A playout output must stay on the
     // program screen no matter where the operator's focus is.
     SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+#ifdef __APPLE__
+    // NO SPACES FULLSCREEN ON macOS. A Space is entered and left through an
+    // animated transition, and Deckboy also uses a mode-changing fullscreen
+    // (a fixed raster, or a chosen refresh rate). Going from one to the other
+    // while the animation ran made AppKit end the app: "NSWindowStyleMask-
+    // FullScreen cleared on a window outside of a full screen transition"
+    // (0.99.406 CI, OUTPUT ON then VIDEO 960x540). Without Spaces every
+    // fullscreen switch is immediate and the mixed path cannot happen -- and a
+    // show output has no business sliding into a Space of its own anyway.
+    SDL_SetHint(SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES, "0");
+#endif
 #if DECKBOY_INPROC_DECODE
     // Create D3D11 renderer devices WITHOUT D3D11_CREATE_DEVICE_SINGLETHREADED
     // (SDL's default). The in-process d3d11va decoder shares the program
