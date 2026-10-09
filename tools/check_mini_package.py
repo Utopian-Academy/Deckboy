@@ -81,6 +81,11 @@ try:
     playing = "status=Playing" in status
     print("Mini from %s: %s, %d frames shown" % (os.path.basename(args.archive), "playing" if playing else "NOT playing", shown))
     ok = playing and shown > 10
+    if not ok:
+        # dur says whether the probe found the clip, decoded whether the
+        # decoder produced anything, frames_shown whether any reached the screen.
+        print("STATUS:", " ".join(f for f in status.split() if f.split("=")[0] in
+              ("status", "pos", "dur", "decoded", "decode_fps", "frames_shown", "media_fps", "raster", "window")))
     send("QUIT")
 finally:
     try:

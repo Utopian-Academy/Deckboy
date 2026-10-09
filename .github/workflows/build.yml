@@ -646,6 +646,7 @@ jobs:
           python3 tools/check_mini_package.py dist/Deckboy-Mini-*-linux-arm64.tar.gz
 
       - name: Upload Deckboy Mini (ARM64)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: deckboy-mini-linux-arm64
