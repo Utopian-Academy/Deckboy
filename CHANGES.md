@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-09 - v0.99.409 (Deckboy Mini runs the order your way)
+## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 
 **Find a cue by name.** In Deckboy Mini, `/` and a few words narrow the list
 as you type, best match first; Enter takes it.
@@ -19,8 +19,6 @@ itself with W.
 
 **A miniature manual that fits.** Every page of the Mini booklet holds its
 whole text, and the new keys have their own pages.
-
-## 2026-10-09 - v0.99.408 (fullscreen on macOS, immediate)
 
 **Fullscreen on macOS is immediate.** Output windows (and the desk, when you
 make it fullscreen) now fill the screen at once instead of sliding into a
