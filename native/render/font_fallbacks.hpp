@@ -11,8 +11,11 @@
 // from here: two small faces Deckboy ships (Noto Sans Arabic and Noto Sans
 // Tifinagh, so the North African scripts look the same everywhere) and the
 // fonts every desktop already has (Yu Gothic and Microsoft YaHei on Windows,
-// Hiragino and PingFang on macOS, Noto on Linux), listed by path because each of
-// them is at a fixed place on its platform.
+// Hiragino and PingFang on macOS), listed by path because each of them is at a
+// fixed place on its platform. Linux has no fixed place: every distribution
+// files fonts differently, so there fontconfig is asked which installed face
+// draws each script, and the Debian paths are only what is left when
+// fontconfig itself is missing (a bare Raspberry Pi OS Lite).
 //
 // Han characters are shared between Chinese and Japanese but drawn differently
 // in each, so the CJK faces are ordered by the interface language first and the
@@ -32,5 +35,10 @@ namespace deckboy::render {
 // "en", "ja", "zh-Hans", "fa"), only fonts that exist on this machine, best
 // first.
 std::vector<shaping::FallbackFont> scriptFallbacks(const std::string& uiLanguage);
+
+// How the last scriptFallbacks() found the system's faces: "fontconfig", or
+// "fixed list" (always on Windows and macOS; on Linux when fontconfig is not
+// installed). `--self-check` prints it, so a machine on the fallback shows.
+const char* fontDiscoveryRoute();
 
 }  // namespace deckboy::render

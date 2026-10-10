@@ -308,6 +308,7 @@
       } else {
         shaping::setFallbackChain(deckboy::render::scriptFallbacks(deckboy::core::i18n::activeCode()));
         shaping::registerFace(face, sans, 16.0f);
+        std::cout << "font-discovery: " << deckboy::render::fontDiscoveryRoute() << '\n';
         std::cout << "fallback-fonts:";
         for (const auto& f : shaping::fallbackChain()) {
           std::cout << " " << fs::path(f.path).filename().string();
