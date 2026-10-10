@@ -399,7 +399,7 @@ type a command myself...	فرمان را خودم می‌نویسم...
 type a length in seconds...	مدت را به ثانیه بنویسید...
 wait for GO	منتظر GO بمان
 what it recalls...	آنچه فرا می‌خواند...
-when its cues end	وقتی cueهایش تمام شوند
+when its cues end	وقتی کیوهایش تمام شوند
 AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL کل فهرست پخش را یک‌جا هم‌تراز می‌کند
 back to the in point, not to zero	بازگشت به نقطهٔ ورود، نه به صفر
 drag to scrub. the audio follows	برای جابه‌جایی بکشید. صدا همراه می‌آید
@@ -430,4 +430,4 @@ FFmpeg Stream Output	خروجی جریان FFmpeg
 NDI Output	خروجی NDI
 SDL Window Output	خروجی پنجرهٔ SDL
 Spout Output	خروجی Spout
-DESK	میز فرمان
+DESK	اپراتور

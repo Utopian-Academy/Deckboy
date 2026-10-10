@@ -390,10 +390,10 @@ type a command myself...	我自己输入命令...
 type a length in seconds...	输入时长(秒)...
 wait for GO	等待 GO
 what it recalls...	它调用的内容...
-when its cues end	当它的 cue 结束时
+when its cues end	当它的 CUE 结束时
 AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL 一次性统一整个播放列表
 back to the in point, not to zero	回到入点,而不是零点
-drag to scrub. the audio follows	拖动以搓擦。声音随之移动
+drag to scrub. the audio follows	拖动以快速浏览。声音随之播放
 loops between the in and out points, not the file	在入点和出点之间循环,而不是整个文件
 (not set)	(未设置)
 1.00x  (default 1080p)	1.00x  (默认 1080p)
