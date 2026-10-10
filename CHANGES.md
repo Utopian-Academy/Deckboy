@@ -18,6 +18,11 @@ are welcome.
 **Turkish with all its letters.** Every Turkish label is now written with ç,
 ğ, ı, İ, ö, ş and ü wherever they belong.
 
+**Arabic, Chinese, Korean and Portuguese, read through.** Each of these desks
+was reviewed line by line: Brazilian Portuguese gets all its accents back,
+and the words for transport, cue and the emergency stop now read the same way
+everywhere in each language.
+
 **Every script on any desk.** Japanese, Chinese, Korean, Hindi, Arabic,
 Thai, Amharic, Tifinagh and more now read on an English desk, in cue
 names, file names, lower thirds and subtitles, sitting on the same line as the
