@@ -192,6 +192,9 @@ std::vector<FallbackFont> scriptFallbacks(const std::string& uiLanguage) {
   // every machine rather than in whatever each one happens to have.
   wanted.push_back({(bundled / "NotoSansArabic-Regular.ttf").string(), 0});
   wanted.push_back({(bundled / "NotoSansTifinagh-Regular.ttf").string(), 0});
+  // The Alienese II cypher's symbols, in the private use area -- ahead of the
+  // system's faces, any of which may put something of its own there.
+  wanted.push_back({(bundled / "Alienese.ttf").string(), 0});
   for (Cjk c : cjkOrder(uiLanguage)) {
     for (const FallbackFont& f : cjkFaces(c)) wanted.push_back(f);
   }

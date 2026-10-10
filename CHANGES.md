@@ -24,6 +24,11 @@ follow the same rules.
 **Change the language from a controller.** `LANGUAGE <code>` changes the
 desk's language and `LANGUAGE` on its own answers the current one.
 
+**Alienese II in its own alphabet.** The Alienese II cypher now draws the
+whole desk, buttons and headers included, in the symbols of the second alien
+alphabet, from a font that ships with Deckboy. Numbers stay as they are, so
+timecodes and ports still read, and text on air is never touched.
+
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 
 **Find a cue by name.** In Deckboy Mini, `/` and a few words narrow the list

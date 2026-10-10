@@ -344,6 +344,23 @@
           if (!ok && s.shipped) ++scriptFailures;
         }
         std::cout << '\n';
+        // The cyphers' own faces ship with Deckboy too, so a package without
+        // one fails here like one without a script's face.
+        std::cout << "cypher-fonts:";
+        for (const std::string& name : deckboy::core::i18n::cypherFonts()) {
+          const std::string file = (Paths::dataDir() / "fonts" / name).string();
+          TTF_Font* cf = TTF_OpenFont(file.c_str(), 16.0f);
+          bool ok = cf != nullptr;
+          // Alienese II's is the only one, and it must have all 26 symbols.
+          for (char32_t cp = deckboy::core::i18n::kAlieneseFirst;
+               ok && cp < deckboy::core::i18n::kAlieneseFirst + 26; ++cp) {
+            ok = TTF_FontHasGlyph(cf, static_cast<Uint32>(cp));
+          }
+          if (cf) TTF_CloseFont(cf);
+          std::cout << " " << name << "=" << (ok ? "ok" : "MISSING");
+          if (!ok) ++scriptFailures;
+        }
+        std::cout << '\n';
         shaping::forgetFace(face);
         TTF_CloseFont(face);
       }
@@ -3128,6 +3145,40 @@
       }
       expect(!bidi::needsBidi("PLAYLIST 3 / cue 12 (hold)"),
              "bidi: plain English takes the fast path");
+    }
+
+    // ── ALIENESE II IN ITS OWN SYMBOLS ─────────────────────────────────────
+    //
+    // With its face found, the cypher writes the symbols themselves, which no
+    // face but its own has; without it, the Latin letters checked above. The
+    // symbols must then reach the desk's faces through the fallback chain --
+    // the pixel face has no idea what U+EE0D is -- and digits stay as they
+    // are, so a timecode in a cypher label still reads.
+    {
+      namespace i18n = deckboy::core::i18n;
+      namespace shaping = deckboy::render::shaping;
+      std::string err;
+      const std::filesystem::path noData;
+      i18n::setLanguage("cy-alienese2", noData, err);
+      i18n::noteFontResolved(true);
+      const std::string symbols = i18n::translate("NEW 1");
+      expect(symbols == reinterpret_cast<const char*>(u8"\uEE0D\uEE11\uEE0D 1"),
+             "cypher: alienese II writes its own symbols when its face is there");
+      i18n::noteFontResolved(false);
+      expect(i18n::translate("NEW 1") == "NRN 1", "cypher: ...and the letters standing for them when not");
+      const auto chainBefore = shaping::fallbackChain();
+      shaping::setFallbackChain(deckboy::render::scriptFallbacks("cy-alienese2"));
+      const std::string pixel = Paths::fontPath(Paths::FontName::Pixel).string();
+      TTF_Font* face = (TTF_WasInit() > 0 || TTF_Init()) ? TTF_OpenFont(pixel.c_str(), 24.0f) : nullptr;
+      expect(face && [&] {
+        shaping::registerFace(face, pixel, 24.0f);
+        const bool drawn = shaping::covers(face, symbols);
+        shaping::forgetFace(face);
+        return drawn;
+      }(), "cypher: the desk's pixel face draws the symbols from the bundled face");
+      if (face) TTF_CloseFont(face);
+      shaping::setFallbackChain(chainBefore);
+      i18n::setLanguage("en", noData, err);
     }
 
     std::cout << "smoke failures: " << failures << '\n';

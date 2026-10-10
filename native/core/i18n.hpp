@@ -126,6 +126,24 @@ std::vector<std::string> activeFontCandidates();
 // draw as empty boxes, which callers that can warn, should.
 bool activeFontMissing();
 
+// Whether the active language is a cypher. A cypher's face draws its own
+// symbols and nothing else, so it is never made the sans the way a
+// catalogue's #font is; the loader only reports whether it was found.
+bool activeIsCypher();
+
+// The face files the cyphers name, for --self-check: shipped with Deckboy, so
+// one missing from a package is a fault, not a machine without a font.
+std::vector<std::string> cypherFonts();
+
+// WHERE ALIENESE II'S SYMBOLS LIVE. They are in no Unicode block and no
+// registry of invented scripts has them, so they sit in the private use area,
+// one per value, U+EE00 for 0 to U+EE19 for 25 -- a range the ConScript
+// registries leave free -- and data/fonts/Alienese.ttf draws them there.
+// The cypher writes them only once the loader has found that face (see
+// noteFontResolved); without it, it writes the Latin letter with the same
+// value, which reads.
+constexpr char32_t kAlieneseFirst = 0xEE00;
+
 // IS THIS LANGUAGE WRITTEN RIGHT TO LEFT? Declared by the catalogue with an
 // `#rtl 1` line.
 //

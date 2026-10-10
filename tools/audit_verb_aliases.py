@@ -136,6 +136,9 @@ CONFIRMED = {
     # AUDIORATE is what somebody reaches for when the setting they have in
     # mind is "the audio rate".
     ("SAMPLERATE", "AUDIORATE"),
+    # 2026-10-10: the desk's interface language, and the abbreviation
+    # everybody types for it.
+    ("LANGUAGE", "LANG"),
     ("BLACK", "BLACKOUT"),
     ("MENU", "SETTINGS", "SETUP"),
 }

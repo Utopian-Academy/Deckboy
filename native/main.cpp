@@ -8340,6 +8340,11 @@ class App {
     // fallback faces, matched to its size. Replacing it put Arabic and Persian
     // chrome in a regular face at the pixel face's point size, which reads a
     // third smaller -- the tiny labels on the first Arabic desk.
+    //
+    // A CYPHER'S FACE IS NEVER THE SANS. It draws the cypher's symbols and
+    // nothing else, and the sans also draws lower thirds on air. Finding it is
+    // what tells the cypher it may write those symbols; the fallback chain
+    // then draws them in every face, the chrome's included.
     {
       const auto candidates = deckboy::core::i18n::activeFontCandidates();
       std::string found;
@@ -8351,7 +8356,7 @@ class App {
         if (fs::exists(system, fec)) { found = system.string(); break; }
       }
       deckboy::core::i18n::noteFontResolved(!found.empty());
-      if (!found.empty()) {
+      if (!found.empty() && !deckboy::core::i18n::activeIsCypher()) {
         sans = found;
       }
     }

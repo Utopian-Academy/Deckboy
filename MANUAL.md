@@ -1788,6 +1788,12 @@ a few constructed languages and six cyphers. The **Help!** button beside the
 picker is always in English and always brings English back, so a language you
 cannot read never leaves you stuck.
 
+The cyphers rewrite the desk rather than translate it, and only the desk:
+lower thirds, text cues and everything else on air stay as you wrote them.
+**Alienese II** draws the desk in the symbols of the second alien alphabet,
+from a font Deckboy carries, and leaves numbers as they are so a timecode
+still reads.
+
 A language marked **(unreviewed)** in the picker has not yet been read by a
 native speaker. Corrections are very welcome: each language is one plain-text
 file in `data/lang`.

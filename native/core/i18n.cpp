@@ -37,6 +37,7 @@ std::string gCode = "en";
 std::string gName = "English";
 std::string gFontFile;      // empty = the bundled face is fine
 bool gFontMissing = false;  // asked for a face that is not installed
+bool gSymbols = false;      // a cypher's face was found: write its own symbols
 bool gRtl = false;          // catalogue said #rtl 1
 bool gRtlOk = false;        // the renderer accepted that direction
 bool gShaping = false;      // this build can shape/reorder at all
@@ -59,9 +60,10 @@ std::string trim(const std::string& s) {
 //
 // ASCII in, ASCII out, every one of them. That is not a limitation, it is the
 // selection rule: the bundled fonts have no Braille block and no runes, so a
-// cypher that reached for those would draw a wall of empty boxes -- which is
-// also why Alienese II is written in Latin letters rather than its own glyphs.
-// These five render on any build, on any platform, in any theme.
+// cypher that reached for those would draw a wall of empty boxes. Alienese II
+// steps outside it only when it can: its symbols come from a face Deckboy
+// ships, and until the loader has found that face it writes Latin letters,
+// which read. These six render on any build, on any platform, in any theme.
 //
 // They also transform whatever they are given, including cue names and file
 // paths. That is intended -- "the whole desk is in runes" is the joke, and a
@@ -82,9 +84,10 @@ const Cypher kCyphers[] = {
   {"cy-morse", "Morse", ""},
   // ALIEN LANGUAGE II IS A SCRIPT, not a way of spelling English. The cipher
   // below is right either way -- it is the running-sum one from the show -- but
-  // drawn in Latin letters it is a puzzle answer rather than the alphabet. Put
-  // Alienese.ttf in data/fonts and it is drawn properly; without it the maths
-  // still works and the result is readable, which is the honest fallback.
+  // drawn in Latin letters it is a puzzle answer rather than the alphabet.
+  // data/fonts/Alienese.ttf (tools/gen_alienese_font.py) draws the symbols,
+  // so with it found the cypher writes them; without it the maths still works
+  // and the result is readable, which is the honest fallback.
   {"cy-alienese2", "Alienese II", "Alienese.ttf"},
   // Backwards. Every label reversed, which is readable with a little effort
   // and completely disorienting for the first ten seconds, and unlike the
@@ -167,22 +170,36 @@ std::string applyMorse(const std::string& in) {
 // Futurama's second alien language is not a letter-for-letter substitution
 // like its first: each symbol carries the RUNNING TOTAL of everything before
 // it, so the same letter encodes differently depending on what it follows.
-// That is the interesting part and it survives being written in Latin letters,
-// which is what this does -- the real glyphs are not in Unicode and no bundled
-// font has them, so drawing those would mean a wall of empty boxes.
+// That is the interesting part, and it survives being written in Latin
+// letters -- A for 0 up to Z for 25 -- which is what this writes when the
+// symbols themselves cannot be drawn.
 //
 // The sum runs per word: the show's own puzzles reset it at spaces, and a sum
 // carried across a whole interface would make every label depend on the one
 // before it, which is nonsense in a menu.
-std::string applyAlienese2(const std::string& in) {
+//
+// With `symbols`, each value is written as its own symbol rather than as the
+// letter standing in for it: kAlieneseFirst onwards, in the private use area,
+// which only Alienese.ttf draws. The symbols are in the TEXT, not the face, so
+// they appear wherever a cypher label is drawn and nowhere else -- a lower
+// third on air shares the desk's faces but is never put through a cypher.
+std::string applyAlienese2(const std::string& in, bool symbols) {
   std::string out;
-  out.reserve(in.size());
+  out.reserve(symbols ? in.size() * 3 : in.size());
   int running = 0;
   for (char c : in) {
     const char u = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
     if (u >= 'A' && u <= 'Z') {
       const int v = u - 'A';
       running = (running + v) % 26;
+      if (symbols) {
+        // The alphabet has no case, so both cases come out as the symbol.
+        const char32_t cp = kAlieneseFirst + static_cast<char32_t>(running);
+        out += static_cast<char>(0xE0 | (cp >> 12));
+        out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+        out += static_cast<char>(0x80 | (cp & 0x3F));
+        continue;
+      }
       const char enc = static_cast<char>('A' + running);
       out += (c >= 'a' && c <= 'z') ? static_cast<char>(enc - 'A' + 'a') : enc;
     } else {
@@ -222,7 +239,7 @@ std::string applyCypher(int which, const std::string& in) {
     case 2: return applyAtbash(in);
     case 3: return applyLeet(in);
     case 4: return applyMorse(in);
-    case 5: return applyAlienese2(in);
+    case 5: return applyAlienese2(in, gSymbols);
     case 6: return applyMirror(in);
     default: return in;
   }
@@ -346,6 +363,7 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   auto adoptFont = [&](const std::string& file) {
     gFontFile = file;
     gFontMissing = false;
+    gSymbols = false;  // until the loader says it found the face
   };
   (void)dataDir;
 
@@ -436,6 +454,15 @@ std::vector<std::string> activeFontCandidates() {
 }
 
 bool activeFontMissing() { return gFontMissing; }
+bool activeIsCypher() { return gCypher != 0; }
+
+std::vector<std::string> cypherFonts() {
+  std::vector<std::string> out;
+  for (const Cypher& c : kCyphers) {
+    if (c.font[0] != '\0') out.push_back(c.font);
+  }
+  return out;
+}
 bool activeIsRtl() { return gRtl; }
 void noteRtlSupported(bool supported) { gRtlOk = supported; }
 bool rtlSupported() { return gRtlOk; }
@@ -461,7 +488,10 @@ std::vector<std::string> languagesAwaitingShaping(const fs::path& dataDir) {
   }
   return out;
 }
-void noteFontResolved(bool found) { gFontMissing = !gFontFile.empty() && !found; }
+void noteFontResolved(bool found) {
+  gFontMissing = !gFontFile.empty() && !found;
+  gSymbols = gCypher != 0 && !gFontFile.empty() && found;
+}
 
 bool passthrough() { return gActive == nullptr && gCypher == 0; }
 
