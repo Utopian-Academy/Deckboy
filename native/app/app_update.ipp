@@ -16,7 +16,7 @@
 //     SDL_EVENT_QUIT / WINDOWEVENT_CLOSE — sets gShouldQuit or closes a secondary
 //       window (monitors window, output window). Closing the control window
 //       always exits the app immediately with no confirmation trap.
-//     SDL_EVENT_DROP_FILE       — forwards to handleDropFile() for cue import.
+//     SDL_EVENT_DROP_FILE       — gathered per drop; flushDropBatch() imports them.
 //     SDL_EVENT_MOUSE_WHEEL     — dropdown scroll, cue inspector scroll, overlay
 //                          list scroll, or primary cue list scroll (in that
 //                          priority order, based on mouse position hit-test).
@@ -103,8 +103,13 @@
           break;
         }
         case SDL_EVENT_DROP_BEGIN:
+          dropPositionKnown_ = false;
+          dropBatchOpen_ = true;
+          break;
         case SDL_EVENT_DROP_COMPLETE:
           dropPositionKnown_ = false;
+          dropBatchOpen_ = false;
+          flushDropBatch();
           break;
         case SDL_EVENT_DROP_POSITION:
           dropPositionKnown_ = true;
@@ -117,11 +122,18 @@
           // selected one wherever it landed, so dropping onto the second
           // playlist put the file in the first unless you had clicked the
           // second beforehand.
-          std::optional<SDL_Point> at;
-          if (event.drop.windowID == SDL_GetWindowID(controlWindow_)) {
-            at = dropPointInControlWindow(event.drop.x, event.drop.y);
+          //
+          // Gathered, not imported: the rest of this drop's files follow as
+          // events of their own, and the whole drop is imported at COMPLETE.
+          if (!event.drop.data) {
+            break;
           }
-          handleDropFile(event.drop.data, at);
+          if (dropBatch_.empty() &&
+              event.drop.windowID == SDL_GetWindowID(controlWindow_)) {
+            dropBatchAt_ = dropPointInControlWindow(event.drop.x, event.drop.y);
+          }
+          dropBatch_.emplace_back(event.drop.data);
+          dropBatchLastMs_ = SDL_GetTicks();
           break;
         }
         case SDL_EVENT_MOUSE_WHEEL:
@@ -287,6 +299,13 @@
           break;
       }
     }
+    // A backend that sends files without BEGIN/COMPLETE still gets its drop
+    // imported, and one whose COMPLETE never arrives is not held forever.
+    if (!dropBatch_.empty() &&
+        (!dropBatchOpen_ || SDL_GetTicks() - dropBatchLastMs_ > 2000)) {
+      dropBatchOpen_ = false;
+      flushDropBatch();
+    }
   }
 
   void update() {
@@ -398,7 +417,12 @@
                 }
                 markProjectDirty();
                 if (auto convReason = cueConvertReason(cue)) {
-                  triggerToast("\"" + cue.name + "\" may play poorly (" + *convReason + ") - CONVERT in inspector");
+                  // One file says so now; a batch says so once, at the end.
+                  if (probeBatchTotal_ > 1) {
+                    if (probeBatchPoorCount_++ == 0) probeBatchFirstPoor_ = cue.name;
+                  } else {
+                    triggerToast("\"" + cue.name + "\" may play poorly (" + *convReason + ") - CONVERT in inspector");
+                  }
                 }
                 break;
               }
@@ -419,10 +443,18 @@
           }
           if (!probed) {
             unreadablePaths_.insert(it->path);
-            triggerToast("can't read media - CONVERT in inspector");
+            if (probeBatchTotal_ > 1) {
+              ++probeBatchUnreadableCount_;
+            } else {
+              triggerToast("can't read media - CONVERT in inspector");
+            }
           }
         } catch (...) {
-          triggerToast("media probe failed");
+          if (probeBatchTotal_ > 1) {
+            ++probeBatchUnreadableCount_;
+          } else {
+            triggerToast("media probe failed");
+          }
         }
         it = probeFutures_.erase(it);
       } else {

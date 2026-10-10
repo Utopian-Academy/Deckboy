@@ -5141,6 +5141,56 @@
       remoteCommandDetail_ = "next frame of output " + std::to_string(outputSnapIndex_ + 1);
       return;
     }
+    // DROPTEST <listfile> [x y]: a drop of every path in the file (one per
+    // line), delivered as the OS delivers one -- BEGIN, a FILE event each,
+    // COMPLETE -- into SDL's own queue, so it takes exactly the path a mouse
+    // drop does. Scripted drags do not reach SDL3; this is how a test drops
+    // two thousand files. Bare DROPTEST reports where an import has got to.
+    if (command == "DROPTEST") {
+      int cueTotal = 0;
+      for (const Deck& d : project_.decks) cueTotal += static_cast<int>(d.cues.size());
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = "cues=" + std::to_string(cueTotal) +
+                               " pending=" + std::to_string(importPendingCount()) +
+                               " probes=" + std::to_string(probesOutstanding()) +
+                               " toasts=" + std::to_string(toastsRaised_);
+        return;
+      }
+      std::ifstream list(fs::u8path(parts[1]));
+      if (!list) {
+        failRemoteCommand("DROPTEST: cannot read " + parts[1]);
+        return;
+      }
+      // SDL does not copy a pushed event's string; these must outlive the
+      // queue, so they live for the session. A test aid, not an operator path.
+      static std::deque<std::string> held;
+      const SDL_WindowID window = SDL_GetWindowID(controlWindow_);
+      const float x = parts.size() >= 4 ? static_cast<float>(std::atof(parts[2].c_str())) : 0.0f;
+      const float y = parts.size() >= 4 ? static_cast<float>(std::atof(parts[3].c_str())) : 0.0f;
+      auto push = [&](SDL_EventType type, const char* data) {
+        SDL_Event e {};
+        e.type = type;
+        e.drop.windowID = window;
+        e.drop.x = x;
+        e.drop.y = y;
+        e.drop.data = data;
+        SDL_PushEvent(&e);
+      };
+      push(SDL_EVENT_DROP_BEGIN, nullptr);
+      push(SDL_EVENT_DROP_POSITION, nullptr);
+      int pushed = 0;
+      for (std::string line; std::getline(list, line);) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (line.empty()) continue;
+        held.push_back(line);
+        push(SDL_EVENT_DROP_FILE, held.back().c_str());
+        ++pushed;
+      }
+      push(SDL_EVENT_DROP_COMPLETE, nullptr);
+      remoteCommandDetail_ = "dropped " + std::to_string(pushed) + " (cues before " +
+                             std::to_string(cueTotal) + ")";
+      return;
+    }
     // UISNAP <bmp>: the CONTROL window as drawn, for a test to look at -- the
     // way OUTSNAP is the output. Unlike --ui-dump it keeps the app running.
     if (command == "UISNAP") {

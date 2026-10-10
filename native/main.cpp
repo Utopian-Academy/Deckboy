@@ -4389,7 +4389,7 @@ class App {
     // No point: a scripted import is not aimed at a column, so it goes
     // to the focused playlist the way it always has. -1 lands outside
     // every rect, which is exactly that.
-    handleDropFile(path.c_str());
+    handleDroppedFiles({path});
   }
 
   // A show named on the command line — what the .deckboy file association and
@@ -9614,6 +9614,13 @@ class App {
   // True once this drag has sent SDL_EVENT_DROP_POSITION, so the drop event's
   // x/y is where the file landed rather than an unset 0,0.
   bool dropPositionKnown_ = false;
+  // A drop arrives as one SDL event per file. They are gathered here and
+  // imported as ONE batch when the drop completes: importing each on its own
+  // raised a toast and a sound per file -- 2,117 of each for one drop.
+  std::vector<std::string> dropBatch_;
+  std::optional<SDL_Point> dropBatchAt_;
+  bool dropBatchOpen_ = false;
+  Uint64 dropBatchLastMs_ = 0;
   SDL_Rect progressBarRect_ {};
   SDL_Rect audioProgressBarRect_ {};  // audio lane, also click-to-seek like the video lane
 
@@ -10850,6 +10857,8 @@ class App {
   SDL_Rect previewMonitorInner_ {};
   bool keyColorPickerArmed_ = false;
   ToastState toast_;
+  // Every toast ever raised this session, for a test to count blips.
+  std::uint64_t toastsRaised_ = 0;
   Uint64 animationNow_ = 0;
   // UI vsync is dropped while anything is being recorded or streamed, so the
   // programme output alone paces the loop (see App::render).
@@ -11401,6 +11410,11 @@ class App {
   // Denominator for the progress readout: how many were asked for in the run
   // that is currently draining. Reset to 0 when the queue empties.
   int probeBatchTotal_ = 0;
+  // What a many-file probe run found wrong, said ONCE when the run ends
+  // rather than as a toast per cue -- which blipped once for every heavy file.
+  int probeBatchPoorCount_ = 0;
+  int probeBatchUnreadableCount_ = 0;
+  std::string probeBatchFirstPoor_;
   // Set while a folder drop is being walked on a worker thread. The count is
   // what the walk has found so far, so the card counts up as it goes.
   std::atomic<bool> importScanBusy_ {false};

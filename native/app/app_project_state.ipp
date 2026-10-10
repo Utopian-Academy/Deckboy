@@ -2588,6 +2588,7 @@
     // Shown with UI transitions off too: that switch is about MOTION. This
     // used to return here, so turning animations off silently discarded every
     // warning, including the ones that say a file cannot be converted.
+    ++toastsRaised_;
     toast_.active = true;
     toast_.startedAt = SDL_GetTicks();
     toast_.durationMs = durationMs;

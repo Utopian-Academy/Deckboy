@@ -1700,8 +1700,29 @@
       probeFutures_.push_back(std::move(pp));
     }
     if (probeQueue_.empty() && probeFutures_.empty()) {
+      if (probeBatchPoorCount_ > 0 || probeBatchUnreadableCount_ > 0) {
+        std::string say;
+        if (probeBatchPoorCount_ > 0) {
+          say = probeBatchPoorCount_ == 1
+            ? "\"" + probeBatchFirstPoor_ + "\" may play poorly"
+            : std::to_string(probeBatchPoorCount_) + " cues may play poorly";
+        }
+        if (probeBatchUnreadableCount_ > 0) {
+          say += (say.empty() ? "" : ", ") + std::to_string(probeBatchUnreadableCount_) +
+                 (probeBatchUnreadableCount_ == 1 ? " file can't be read" : " files can't be read");
+        }
+        triggerToast(say + " - CONVERT in inspector", ToastKind::Warning, kToastReadableMs);
+      }
       probeBatchTotal_ = 0;   // nothing outstanding; the readout goes away
+      probeBatchPoorCount_ = 0;
+      probeBatchUnreadableCount_ = 0;
+      probeBatchFirstPoor_.clear();
     }
+  }
+
+  // Dropped files not yet turned into cues.
+  int importPendingCount() const {
+    return static_cast<int>(dropBatch_.size());
   }
 
   // How many probes are still owed, for the progress readout.
@@ -1750,8 +1771,20 @@
     return -1;
   }
 
-  void handleDropFile(const char* rawPath, std::optional<SDL_Point> at = std::nullopt) {
-    if (!rawPath) {
+  // Import everything one drop delivered, in the order it was dropped.
+  void flushDropBatch() {
+    if (dropBatch_.empty()) {
+      return;
+    }
+    std::vector<std::string> paths;
+    paths.swap(dropBatch_);
+    handleDroppedFiles(paths, dropBatchAt_);
+    dropBatchAt_.reset();
+  }
+
+  void handleDroppedFiles(const std::vector<std::string>& paths,
+                          std::optional<SDL_Point> at = std::nullopt) {
+    if (paths.empty()) {
       return;
     }
     // Dropped onto a playlist: select it, and the import below follows the
@@ -1763,7 +1796,7 @@
         setFocusedDeckIndex(target);
       }
     }
-    importPaths({rawPath});
+    importPaths(paths);
   }
 
   // ── Native file dialogs (SDL3) ──────────────────────────────────────────
