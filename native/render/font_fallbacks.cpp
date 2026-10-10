@@ -222,7 +222,7 @@ class Fontconfig {
   // The best installed face that has every one of `chars`, for `lang` when
   // given (it picks the regional style of a Han character). Empty when none.
   FallbackFont bestFor(const char* lang, std::initializer_list<char32_t> chars) const {
-    FallbackFont found;
+    FallbackFont found, serif;
     void* charset = charSetCreate_();
     for (char32_t c : chars) charSetAddChar_(charset, static_cast<unsigned>(c));
     void* pattern = patternCreate_();
@@ -239,6 +239,7 @@ class Fontconfig {
       for (int i = 0; i < set->nfont && found.path.empty(); ++i) {
         void* font = set->fonts[i];
         unsigned char* file = nullptr;
+        unsigned char* family = nullptr;
         void* has = nullptr;
         int index = 0;
         if (patternGetString_(font, "file", 0, &file) != 0 || !file) continue;
@@ -247,13 +248,23 @@ class Fontconfig {
         if (!openable(reinterpret_cast<const char*>(file))) continue;
         patternGetInteger_(font, "index", 0, &index);
         // The high bits name a variable font's instance; the face is the low 16.
-        found = {reinterpret_cast<const char*>(file), index & 0xFFFF};
+        const FallbackFont face {reinterpret_cast<const char*>(file), index & 0xFFFF};
+        // A script with no face in the sans-serif alias ranks its serif and sans
+        // faces level (Noto Serif Gujarati beside Noto Sans Gujarati), and the
+        // tie falls either way. fontconfig keeps no serif flag, so the family
+        // name decides; a serif face is used only when no sans one has it.
+        patternGetString_(font, "family", 0, &family);
+        const std::string name = family ? reinterpret_cast<const char*>(family) : "";
+        const bool isSerif = name.find("Serif") != std::string::npos &&
+                             name.find("Sans") == std::string::npos;
+        if (!isSerif) found = face;
+        else if (serif.path.empty()) serif = face;
       }
       fontSetDestroy_(set);
     }
     patternDestroy_(pattern);
     charSetDestroy_(charset);
-    return found;
+    return found.path.empty() ? serif : found;
   }
 
  private:
