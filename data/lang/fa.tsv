@@ -384,3 +384,50 @@ ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM، محرک NDI، N
 Convert cues Deckboy can't play (or plays poorly) to H.264	کیوهایی را که Deckboy پخش نمی‌کند (یا بد پخش می‌کند) به H.264 تبدیل کنید
 a button can run any command the network protocol understands	هر دکمه می‌تواند هر فرمانی را که پروتکل شبکه می‌فهمد اجرا کند
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	چیدمان نمای ارائه‌دهنده  -  پنل را برای جابه‌جایی و گوشه را برای تغییر اندازه بکشید
+capture again - what is on now	ضبط دوباره - آنچه روی آنتن است
+change what it does...	تغییر کارش...
+decks - Stop deck...	میزها - توقف میز...
+decks - Take deck...	میزها - TAKE روی میز...
+delete step	حذف گام
+delete this button	حذف این دکمه
+label, command and glyph as text...	برچسب، فرمان و نماد به صورت متن...
+move down	پایین بردن
+move up	بالا بردن
+next colour	رنگ بعدی
+preset - a new preset from what is on now	پیش‌تنظیم - پیش‌تنظیم تازه از آنچه روی آنتن است
+type a command myself...	فرمان را خودم می‌نویسم...
+type a length in seconds...	مدت را به ثانیه بنویسید...
+wait for GO	منتظر GO بمان
+what it recalls...	آنچه فرا می‌خواند...
+when its cues end	وقتی cueهایش تمام شوند
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL کل فهرست پخش را یک‌جا هم‌تراز می‌کند
+back to the in point, not to zero	بازگشت به نقطهٔ ورود، نه به صفر
+drag to scrub. the audio follows	برای جابه‌جایی بکشید. صدا همراه می‌آید
+loops between the in and out points, not the file	بین نقطه‌های ورود و خروج تکرار می‌کند، نه کل فایل
+(not set)	(تنظیم نشده)
+1.00x  (default 1080p)	1.00x  (پیش‌فرض 1080p)
+1.25x  (large desktop)	1.25x  (میزکار بزرگ)
+1.50x  (4K desktop)	1.50x  (میزکار 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K کوچک)
+highest bandwidth	بیشترین پهنای باند
+lower bandwidth	پهنای باند کمتر
+film	سینما
+CD, music rigs	CD، تجهیزات موسیقی
+video standard	استاندارد ویدیو
+every playlist	هر فهرست پخش
+None  (no character art)	هیچ  (بدون شخصیت)
+custom size...	اندازهٔ دلخواه...
+Browser URL	نشانی مرورگر
+Camera	دوربین
+Media File / Still	فایل رسانه / تصویر ثابت
+RECORD TO FILE	ضبط در فایل
+browser, with sound	مرورگر، با صدا
+Window	پنجره
+Desktop	میزکار
+full screen	تمام‌صفحه
+DeckLink Output	خروجی DeckLink
+FFmpeg Stream Output	خروجی جریان FFmpeg
+NDI Output	خروجی NDI
+SDL Window Output	خروجی پنجرهٔ SDL
+Spout Output	خروجی Spout
+DESK	میز فرمان

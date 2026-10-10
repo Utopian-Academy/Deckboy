@@ -374,3 +374,50 @@ Convert cues Deckboy can't play (or plays poorly) to H.264	Muunna H.264:ksi ne c
 a button can run any command the network protocol understands	painike voi ajaa mitä tahansa protokollan ymmärtämää käskyä
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ASETTELE ESITTÄJÄN NÄKYMÄ  -  raahaa paneelia siirtääksesi, kulmaa muuttaaksesi kokoa
 VIDEO	VIDEO
+capture again - what is on now	kaappaa uudelleen - se mitä nyt näkyy
+change what it does...	muuta toimintoa...
+decks - Stop deck...	deckit - pysäytä deck...
+decks - Take deck...	deckit - TAKE deckille...
+delete step	poista vaihe
+delete this button	poista tämä painike
+label, command and glyph as text...	nimi, komento ja symboli tekstinä...
+move down	siirrä alas
+move up	siirrä ylös
+next colour	seuraava väri
+preset - a new preset from what is on now	esiasetus - uusi esiasetus siitä mitä nyt näkyy
+type a command myself...	kirjoitan komennon itse...
+type a length in seconds...	kirjoita kesto sekunteina...
+wait for GO	odota GO
+what it recalls...	mitä se palauttaa...
+when its cues end	kun sen cuet päättyvät
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL tasaa koko soittolistan kerralla
+back to the in point, not to zero	takaisin alkupisteeseen, ei nollaan
+drag to scrub. the audio follows	vedä selataksesi. ääni seuraa
+loops between the in and out points, not the file	toistaa alku- ja loppupisteen välillä, ei koko tiedostoa
+(not set)	(ei asetettu)
+1.00x  (default 1080p)	1.00x  (oletus 1080p)
+1.25x  (large desktop)	1.25x  (suuri työpöytä)
+1.50x  (4K desktop)	1.50x  (4K-työpöytä)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / pieni 4K)
+highest bandwidth	suurin kaistanleveys
+lower bandwidth	pienempi kaistanleveys
+film	elokuva
+CD, music rigs	CD, musiikkilaitteistot
+video standard	videostandardi
+every playlist	jokainen soittolista
+None  (no character art)	Ei mitään  (ei hahmoa)
+custom size...	oma koko...
+Browser URL	Selaimen URL
+Camera	Kamera
+Media File / Still	Mediatiedosto / still-kuva
+RECORD TO FILE	TALLENNA TIEDOSTOON
+browser, with sound	selain, äänen kanssa
+Window	Ikkuna
+Desktop	Työpöytä
+full screen	koko näyttö
+DeckLink Output	DeckLink-lähtö
+FFmpeg Stream Output	FFmpeg-striimilähtö
+NDI Output	NDI-lähtö
+SDL Window Output	SDL-ikkunalähtö
+Spout Output	Spout-lähtö
+DESK	PÖYTÄ

@@ -375,3 +375,50 @@ a button can run any command the network protocol understands	ένα κουμπ�
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ΔΙΑΤΑΞΗ ΠΑΡΟΥΣΙΑΣΤΗ  -  σύρετε ένα πάνελ για μετακίνηση, μια γωνία για μέγεθος
 4:2:2  8-BIT	4:2:2  8-BIT
 4:2:2  10-BIT	4:2:2  10-BIT
+capture again - what is on now	λήψη ξανά - ό,τι είναι στον αέρα
+change what it does...	αλλαγή λειτουργίας...
+decks - Stop deck...	κονσόλες - διακοπή κονσόλας...
+decks - Take deck...	κονσόλες - TAKE στην κονσόλα...
+delete step	διαγραφή βήματος
+delete this button	διαγραφή αυτού του κουμπιού
+label, command and glyph as text...	ετικέτα, εντολή και σύμβολο ως κείμενο...
+move down	μετακίνηση κάτω
+move up	μετακίνηση πάνω
+next colour	επόμενο χρώμα
+preset - a new preset from what is on now	preset - νέο preset από ό,τι είναι στον αέρα
+type a command myself...	θα πληκτρολογήσω εντολή...
+type a length in seconds...	πληκτρολογήστε διάρκεια σε δευτερόλεπτα...
+wait for GO	αναμονή για GO
+what it recalls...	τι ανακαλεί...
+when its cues end	όταν τελειώσουν τα cue του
+AUDIONORM ALL matches the whole playlist at once	Το AUDIONORM ALL εξισώνει όλη τη λίστα μαζί
+back to the in point, not to zero	πίσω στο σημείο εισόδου, όχι στο μηδέν
+drag to scrub. the audio follows	σύρετε για κύλιση. ο ήχος ακολουθεί
+loops between the in and out points, not the file	επαναλαμβάνει μεταξύ σημείων εισόδου και εξόδου, όχι όλο το αρχείο
+(not set)	(δεν έχει οριστεί)
+1.00x  (default 1080p)	1.00x  (προεπιλογή 1080p)
+1.25x  (large desktop)	1.25x  (μεγάλη επιφάνεια εργασίας)
+1.50x  (4K desktop)	1.50x  (επιφάνεια 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / μικρή 4K)
+highest bandwidth	μέγιστο εύρος ζώνης
+lower bandwidth	μικρότερο εύρος ζώνης
+film	κινηματογράφος
+CD, music rigs	CD, μουσικά συστήματα
+video standard	πρότυπο βίντεο
+every playlist	κάθε λίστα
+None  (no character art)	Κανένας  (χωρίς χαρακτήρα)
+custom size...	προσαρμοσμένο μέγεθος...
+Browser URL	URL προγράμματος περιήγησης
+Camera	Κάμερα
+Media File / Still	Αρχείο πολυμέσων / εικόνα
+RECORD TO FILE	ΕΓΓΡΑΦΗ ΣΕ ΑΡΧΕΙΟ
+browser, with sound	πρόγραμμα περιήγησης, με ήχο
+Window	Παράθυρο
+Desktop	Επιφάνεια εργασίας
+full screen	πλήρης οθόνη
+DeckLink Output	Έξοδος DeckLink
+FFmpeg Stream Output	Έξοδος ροής FFmpeg
+NDI Output	Έξοδος NDI
+SDL Window Output	Έξοδος παραθύρου SDL
+Spout Output	Έξοδος Spout
+DESK	ΚΟΝΣΟΛΑ

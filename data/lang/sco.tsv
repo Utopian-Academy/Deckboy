@@ -372,3 +372,50 @@ set a port...	set a port...
 Eddie's Clock	Eddie's Clock
 4:2:2  8-BIT	4:2:2  8-BIT
 4:2:2  10-BIT	4:2:2  10-BIT
+delete step	delete step
+delete this button	delete this button
+wait for GO	wait for GO
+film	film
+CD, music rigs	CD, music rigs
+Camera	Camera
+Media File / Still	Media File / Still
+DESK	DESK
+capture again - what is on now	catch it again - whit's on the nou
+change what it does...	chynge whit it does...
+decks - Stop deck...	decks - stap deck...
+decks - Take deck...	decks - TAKE deck...
+label, command and glyph as text...	label, command an glyph as text...
+move down	shift doun
+move up	shift up
+next colour	neist colour
+preset - a new preset from what is on now	preset - a new preset frae whit's on the nou
+type a command myself...	type a command masel...
+type a length in seconds...	type a lenth in seconds...
+what it recalls...	whit it brings back...
+when its cues end	whan its cues end
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL matches the hale playlist at aince
+back to the in point, not to zero	back tae the in pynt, no tae zero
+drag to scrub. the audio follows	drag tae scrub. the soond follaes
+loops between the in and out points, not the file	loops atween the in an oot pynts, no the file
+(not set)	(no set)
+1.00x  (default 1080p)	1.00x  (staundart 1080p)
+1.25x  (large desktop)	1.25x  (muckle desktap)
+1.50x  (4K desktop)	1.50x  (4K desktap)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / wee 4K)
+highest bandwidth	maist bandwidth
+lower bandwidth	less bandwidth
+video standard	video staundart
+every playlist	ilka playlist
+None  (no character art)	Nane  (nae character art)
+custom size...	ain size...
+Browser URL	Brouser URL
+RECORD TO FILE	RECORD TAE FILE
+browser, with sound	brouser, wi soond
+Window	Windae
+Desktop	Desktap
+full screen	fu screen
+DeckLink Output	DeckLink Ootput
+FFmpeg Stream Output	FFmpeg Stream Ootput
+NDI Output	NDI Ootput
+SDL Window Output	SDL Windae Ootput
+Spout Output	Spout Ootput

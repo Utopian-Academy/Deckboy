@@ -374,3 +374,50 @@ ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI-kveikja, NMC,
 Convert cues Deckboy can't play (or plays poorly) to H.264	Umbreyttu í H.264 þeim cue sem Deckboy spilar illa
 a button can run any command the network protocol understands	hnappur getur keyrt hverja skipun sem samskiptareglan skilur
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	RAÐA SÝN FLYTJANDA  -  dragðu spjald til að færa, horn til að stækka
+capture again - what is on now	taka upp aftur - það sem er í gangi
+change what it does...	breyta því sem hann gerir...
+decks - Stop deck...	dekk - stöðva dekk...
+decks - Take deck...	dekk - TAKE á dekk...
+delete step	eyða skrefi
+delete this button	eyða þessum hnappi
+label, command and glyph as text...	merki, skipun og tákn sem texti...
+move down	færa niður
+move up	færa upp
+next colour	næsti litur
+preset - a new preset from what is on now	forstilling - ný forstilling úr því sem er í gangi
+type a command myself...	slá sjálf(ur) inn skipun...
+type a length in seconds...	slá inn lengd í sekúndum...
+wait for GO	bíða eftir GO
+what it recalls...	það sem hann sækir...
+when its cues end	þegar vísbendingar hans klárast
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL jafnar allan spilunarlistann í einu
+back to the in point, not to zero	aftur að upphafspunkti, ekki á núll
+drag to scrub. the audio follows	dragðu til að skruna. hljóðið fylgir
+loops between the in and out points, not the file	endurtekur milli upphafs- og lokapunkts, ekki skrána
+(not set)	(ekki stillt)
+1.00x  (default 1080p)	1.00x  (sjálfgefið 1080p)
+1.25x  (large desktop)	1.25x  (stórt skjáborð)
+1.50x  (4K desktop)	1.50x  (4K skjáborð)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / lítið 4K)
+highest bandwidth	mesta bandbreidd
+lower bandwidth	minni bandbreidd
+film	kvikmynd
+CD, music rigs	geisladiskur, tónlistarbúnaður
+video standard	myndbandsstaðall
+every playlist	hver spilunarlisti
+None  (no character art)	Ekkert  (engin persóna)
+custom size...	sérsniðin stærð...
+Browser URL	Vefslóð vafra
+Camera	Myndavél
+Media File / Still	Margmiðlunarskrá / kyrrmynd
+RECORD TO FILE	TAKA UPP Í SKRÁ
+browser, with sound	vafri, með hljóði
+Window	Gluggi
+Desktop	Skjáborð
+full screen	allur skjárinn
+DeckLink Output	DeckLink-úttak
+FFmpeg Stream Output	FFmpeg-streymisúttak
+NDI Output	NDI-úttak
+SDL Window Output	SDL-gluggaúttak
+Spout Output	Spout-úttak
+DESK	STJÓRNBORÐ

@@ -374,3 +374,50 @@ a button can run any command the network protocol understands	faodaidh putan ài
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	SUIDHICH AN TAISBEANAICHE  -  slaod panail airson a ghluasad, oisean airson a mheudachadh
 4:2:2  8-BIT	4:2:2  8-BIT
 4:2:2  10-BIT	4:2:2  10-BIT
+film	film
+capture again - what is on now	glac a-rithist - na tha a' dol a-nis
+change what it does...	atharraich na nì e...
+decks - Stop deck...	decks - stad an deck...
+decks - Take deck...	decks - TAKE an deck...
+delete step	sguab às an ceum
+delete this button	sguab às am putan seo
+label, command and glyph as text...	leubail, àithne is samhla mar theacsa...
+move down	gluais sìos
+move up	gluais suas
+next colour	an ath dhath
+preset - a new preset from what is on now	preset - preset ùr bho na tha a' dol a-nis
+type a command myself...	sgrìobhaidh mi àithne mi-fhìn...
+type a length in seconds...	sgrìobh fad ann an diogan...
+wait for GO	fuirich ri GO
+what it recalls...	na bheir e air ais...
+when its cues end	nuair a thig na cue aige gu crìch
+AUDIONORM ALL matches the whole playlist at once	Nì AUDIONORM ALL an liosta-cluiche air fad co-ionann aig an aon àm
+back to the in point, not to zero	air ais chun a' phuing a-steach, chan ann gu neoni
+drag to scrub. the audio follows	slaod gus sgrùbadh. leanaidh an fhuaim
+loops between the in and out points, not the file	lùbaidh e eadar na puingean a-steach is a-mach, chan e am faidhle
+(not set)	(gun suidheachadh)
+1.00x  (default 1080p)	1.00x  (bunaiteach 1080p)
+1.25x  (large desktop)	1.25x  (deasg mòr)
+1.50x  (4K desktop)	1.50x  (deasg 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K beag)
+highest bandwidth	an leud-banda as motha
+lower bandwidth	leud-banda nas lugha
+CD, music rigs	CD, uidheam ciùil
+video standard	inbhe bhidio
+every playlist	gach liosta-cluiche
+None  (no character art)	Chan eil gin  (gun charactar)
+custom size...	meud gnàthaichte...
+Browser URL	URL a' bhrabhsair
+Camera	Camara
+Media File / Still	Faidhle meadhain / dealbh
+RECORD TO FILE	CLÀR GU FAIDHLE
+browser, with sound	brabhsair, le fuaim
+Window	Uinneag
+Desktop	Deasg
+full screen	làn-sgrìn
+DeckLink Output	Às-chur DeckLink
+FFmpeg Stream Output	Às-chur sruth FFmpeg
+NDI Output	Às-chur NDI
+SDL Window Output	Às-chur uinneig SDL
+Spout Output	Às-chur Spout
+DESK	DEASG

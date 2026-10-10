@@ -374,3 +374,50 @@ Convert cues Deckboy can't play (or plays poorly) to H.264	Converter para H.264 
 a button can run any command the network protocol understands	um botão pode rodar qualquer comando que o protocolo entenda
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ORGANIZAR A VISTA DO APRESENTADOR  -  arraste um painel para mover, um canto para redimensionar
 SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (EXPERIMENTAL)
+capture again - what is on now	capturar de novo - o que está no ar
+change what it does...	mudar o que ele faz...
+decks - Stop deck...	decks - parar deck...
+decks - Take deck...	decks - TAKE no deck...
+delete step	apagar passo
+delete this button	apagar este botão
+label, command and glyph as text...	rótulo, comando e símbolo como texto...
+move down	mover para baixo
+move up	mover para cima
+next colour	próxima cor
+preset - a new preset from what is on now	preset - um preset novo com o que está no ar
+type a command myself...	digitar um comando eu mesmo...
+type a length in seconds...	digitar uma duração em segundos...
+wait for GO	esperar o GO
+what it recalls...	o que ele chama...
+when its cues end	quando os cues dele terminarem
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL iguala a playlist inteira de uma vez
+back to the in point, not to zero	volta ao ponto de entrada, não ao zero
+drag to scrub. the audio follows	arraste para percorrer. o áudio acompanha
+loops between the in and out points, not the file	repete entre os pontos de entrada e saída, não o arquivo
+(not set)	(não definido)
+1.00x  (default 1080p)	1.00x  (padrão 1080p)
+1.25x  (large desktop)	1.25x  (desktop grande)
+1.50x  (4K desktop)	1.50x  (desktop 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K pequeno)
+highest bandwidth	maior largura de banda
+lower bandwidth	menor largura de banda
+film	cinema
+CD, music rigs	CD, equipamentos de música
+video standard	padrão de vídeo
+every playlist	cada playlist
+None  (no character art)	Nenhum  (sem personagem)
+custom size...	tamanho personalizado...
+Browser URL	URL do navegador
+Camera	Câmera
+Media File / Still	Arquivo de mídia / imagem fixa
+RECORD TO FILE	GRAVAR EM ARQUIVO
+browser, with sound	navegador, com som
+Window	Janela
+Desktop	Área de trabalho
+full screen	tela cheia
+DeckLink Output	Saída DeckLink
+FFmpeg Stream Output	Saída de stream FFmpeg
+NDI Output	Saída NDI
+SDL Window Output	Saída de janela SDL
+Spout Output	Saída Spout
+DESK	MESA

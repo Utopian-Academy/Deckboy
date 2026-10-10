@@ -371,3 +371,50 @@ PROMPTER	PROMPTER
 Destination	Destination
 Global crossfade	Global crossfade
 Timecode jam sync	Timecode jam sync
+film	film
+capture again - what is on now	optag igen - det der kører nu
+change what it does...	skift hvad den gør...
+decks - Stop deck...	decks - stop deck...
+decks - Take deck...	decks - TAKE på deck...
+delete step	slet trin
+delete this button	slet denne knap
+label, command and glyph as text...	etiket, kommando og symbol som tekst...
+move down	flyt ned
+move up	flyt op
+next colour	næste farve
+preset - a new preset from what is on now	preset - et nyt preset ud fra det der kører nu
+type a command myself...	skriv selv en kommando...
+type a length in seconds...	skriv en længde i sekunder...
+wait for GO	vent på GO
+what it recalls...	hvad den henter...
+when its cues end	når dens cues slutter
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL udligner hele playlisten på én gang
+back to the in point, not to zero	tilbage til ind-punktet, ikke til nul
+drag to scrub. the audio follows	træk for at scrubbe. lyden følger med
+loops between the in and out points, not the file	looper mellem ind- og ud-punkt, ikke hele filen
+(not set)	(ikke valgt)
+1.00x  (default 1080p)	1.00x  (standard 1080p)
+1.25x  (large desktop)	1.25x  (stort skrivebord)
+1.50x  (4K desktop)	1.50x  (4K-skrivebord)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / lille 4K)
+highest bandwidth	højeste båndbredde
+lower bandwidth	lavere båndbredde
+CD, music rigs	CD, musikopsætninger
+video standard	videostandard
+every playlist	hver playliste
+None  (no character art)	Ingen  (ingen figur)
+custom size...	egen størrelse...
+Browser URL	Browser-URL
+Camera	Kamera
+Media File / Still	Mediefil / stillbillede
+RECORD TO FILE	OPTAG TIL FIL
+browser, with sound	browser, med lyd
+Window	Vindue
+Desktop	Skrivebord
+full screen	fuld skærm
+DeckLink Output	DeckLink-udgang
+FFmpeg Stream Output	FFmpeg-stream-udgang
+NDI Output	NDI-udgang
+SDL Window Output	SDL-vindue-udgang
+Spout Output	Spout-udgang
+DESK	PULT

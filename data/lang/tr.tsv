@@ -374,3 +374,50 @@ ANALOG	ANALOG
 PROMPTER	PROMPTER
 vMix API	vMix API
 Timecode jam sync	Timecode jam sync
+capture again - what is on now	yeniden yakala - şu an yayında olan
+change what it does...	ne yaptığını değiştir...
+decks - Stop deck...	masalar - masayı durdur...
+decks - Take deck...	masalar - masaya TAKE...
+delete step	adımı sil
+delete this button	bu düğmeyi sil
+label, command and glyph as text...	etiket, komut ve simge metin olarak...
+move down	aşağı taşı
+move up	yukarı taşı
+next colour	sonraki renk
+preset - a new preset from what is on now	preset - şu an yayında olandan yeni preset
+type a command myself...	komutu kendim yazayım...
+type a length in seconds...	saniye cinsinden süre yaz...
+wait for GO	GO bekle
+what it recalls...	neyi geri çağırır...
+when its cues end	cue'ları bittiğinde
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL tüm çalma listesini tek seferde eşitler
+back to the in point, not to zero	giriş noktasına döner, sıfıra değil
+drag to scrub. the audio follows	kaydırmak için sürükleyin. ses takip eder
+loops between the in and out points, not the file	dosyayı değil, giriş ve çıkış noktaları arasını döngüler
+(not set)	(ayarlanmadı)
+1.00x  (default 1080p)	1.00x  (varsayılan 1080p)
+1.25x  (large desktop)	1.25x  (büyük masaüstü)
+1.50x  (4K desktop)	1.50x  (4K masaüstü)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / küçük 4K)
+highest bandwidth	en yüksek bant genişliği
+lower bandwidth	daha düşük bant genişliği
+film	sinema
+CD, music rigs	CD, müzik düzenekleri
+video standard	video standardı
+every playlist	her çalma listesi
+None  (no character art)	Yok  (karakter yok)
+custom size...	özel boyut...
+Browser URL	Tarayıcı URL'si
+Camera	Kamera
+Media File / Still	Medya dosyası / durağan görüntü
+RECORD TO FILE	DOSYAYA KAYDET
+browser, with sound	tarayıcı, sesli
+Window	Pencere
+Desktop	Masaüstü
+full screen	tam ekran
+DeckLink Output	DeckLink çıkışı
+FFmpeg Stream Output	FFmpeg yayın çıkışı
+NDI Output	NDI çıkışı
+SDL Window Output	SDL pencere çıkışı
+Spout Output	Spout çıkışı
+DESK	MASA

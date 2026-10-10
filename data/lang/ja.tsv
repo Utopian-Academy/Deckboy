@@ -375,3 +375,50 @@ Convert cues Deckboy can't play (or plays poorly) to H.264	Deckboyがうまく�
 a button can run any command the network protocol understands	ボタンはプロトコルが解釈できるあらゆるコマンドを実行できます
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	発表者ビューの配置  -  パネルをドラッグで移動、角で大きさを変更
 vMix API	vMix API
+capture again - what is on now	再キャプチャ - いま出ているもの
+change what it does...	動作を変更...
+decks - Stop deck...	デッキ - デッキを停止...
+decks - Take deck...	デッキ - デッキを TAKE...
+delete step	ステップを削除
+delete this button	このボタンを削除
+label, command and glyph as text...	ラベル・コマンド・記号をテキストで...
+move down	下へ移動
+move up	上へ移動
+next colour	次の色
+preset - a new preset from what is on now	プリセット - いま出ているものから新しいプリセット
+type a command myself...	コマンドを自分で入力...
+type a length in seconds...	長さを秒で入力...
+wait for GO	GO を待つ
+what it recalls...	呼び出す内容...
+when its cues end	キューが終わったとき
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL はプレイリスト全体を一度にそろえます
+back to the in point, not to zero	ゼロではなくインポイントに戻る
+drag to scrub. the audio follows	ドラッグでスクラブ。音声も追従します
+loops between the in and out points, not the file	ファイル全体ではなくイン点とアウト点の間をループ
+(not set)	(未設定)
+1.00x  (default 1080p)	1.00x  (標準 1080p)
+1.25x  (large desktop)	1.25x  (大きいデスクトップ)
+1.50x  (4K desktop)	1.50x  (4K デスクトップ)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 小さい 4K)
+highest bandwidth	最大帯域
+lower bandwidth	低帯域
+film	映画
+CD, music rigs	CD、音楽機材
+video standard	映像標準
+every playlist	すべてのプレイリスト
+None  (no character art)	なし  (キャラクターなし)
+custom size...	サイズを指定...
+Browser URL	ブラウザの URL
+Camera	カメラ
+Media File / Still	メディアファイル / 静止画
+RECORD TO FILE	ファイルに録画
+browser, with sound	ブラウザ (音声あり)
+Window	ウィンドウ
+Desktop	デスクトップ
+full screen	全画面
+DeckLink Output	DeckLink 出力
+FFmpeg Stream Output	FFmpeg ストリーム出力
+NDI Output	NDI 出力
+SDL Window Output	SDL ウィンドウ出力
+Spout Output	Spout 出力
+DESK	操作卓
