@@ -1,66 +1,134 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-10 - v0.99.409 (Arabic, Persian, Kurdish, Amazigh: every script on every desk)
+## 2026-10-10 - v0.99.409 (right-to-left languages, script fonts everywhere, Mini watch folder, NMOS discovery)
 
-**Persian, and Arabic in full.** The desk now speaks Persian as well as
-Arabic, both right to left with their letters joined and shaped. Every label
-is laid out with the Unicode bidirectional algorithm, checked against Unicode's
-own conformance tests on every build, so a number, a port or an English word
-inside a label keeps its own direction, and a label that starts with a product
-name still reads from the right.
+Deckboy now reads right to left, borrows a font for any script on any Linux, keeps your outputs exactly where you put them, and Mini learns to watch a folder.
 
-**Kurdish, Kabyle and Tamazight.** Kurdish (Sorani and Kurmanji), Kabyle and
-Standard Moroccan Tamazight in Tifinagh begin with their most-used words, and
-Kabyle and Tamazight fall through to French rather than English for the rest. Each is
-marked unreviewed in the picker until a speaker has read it, and corrections
-are welcome.
+### Interface and localisation
+- New languages: Persian (right to left). New, marked unreviewed in the
+  picker: Kurdish (Sorani, Kurmanji), Kabyle, Standard Moroccan Tamazight
+  (Tifinagh). Kabyle and Tamazight fall back to French for untranslated
+  strings, not English.
+- Right-to-left text (Arabic, Persian, Sorani) is laid out with the Unicode
+  Bidirectional Algorithm (UAX #9), checked against Unicode's conformance
+  test data on every CI build. Numbers, ports and Latin words inside a label
+  keep their own direction.
+- Labels in Arabic script are shaped (joined letter forms).
+- Reviewed line by line: Arabic, Chinese (Simplified, Traditional), Korean,
+  Brazilian Portuguese. Turkish now uses ç, ğ, ı, İ, ö, ş, ü throughout.
+- Dropdown and picker items are now translated: the stream deck button
+  menu, tracker step actions, output and source names, the UI scale list.
+  46 strings added in 26 languages.
+- A label of the form "Name (qualifier)" with no catalogue entry of its own
+  is translated as two parts, e.g. "Window (full screen)".
+- Alienese II cypher: the whole desk, buttons and headers included, draws in
+  the cypher's own symbols from a bundled font. Digits are unchanged; output
+  text is never altered.
+- Presenter notes and the prompter script are always shown as written,
+  whatever the desk language or cypher.
+- Remote: `LANGUAGE <code>` sets the desk language; `LANGUAGE` alone replies
+  with the current one.
+- `tools/audit_i18n.py` counts dropdown and picker labels; coverage figures
+  are lower than before because these were previously not counted.
 
-**Turkish with all its letters.** Every Turkish label is now written with ç,
-ğ, ı, İ, ö, ş and ü wherever they belong.
+### Fonts
+- Text in scripts the bundled fonts lack (Japanese, Chinese, Korean, Hindi
+  and other Indic scripts, Arabic, Thai, Amharic, Tifinagh) draws on a desk
+  in any language: cue names, file names, lower thirds, subtitles. Missing
+  characters come from the computer's installed fonts, ordered by interface
+  language for Han characters (Japanese vs Chinese forms).
+- Bundled: Noto Sans Arabic, Noto Sans Tifinagh.
+- Linux: fallback fonts are found through fontconfig (loaded at run time;
+  no new build dependency), so these scripts draw on Fedora, Arch, openSUSE
+  and others, not only Debian, Ubuntu and Raspberry Pi OS. Without
+  fontconfig, the Debian font paths are used.
+- `--self-check` prints `font-discovery: fontconfig` or `fixed list`, the
+  fallback font chain, and which scripts this computer can draw.
 
-**Arabic, Chinese, Korean and Portuguese, read through.** Each of these desks
-was reviewed line by line: Brazilian Portuguese gets all its accents back,
-and the words for transport, cue and the emergency stop now read the same way
-everywhere in each language.
+### Output (lower thirds, text, subtitles)
+- Arabic and Persian lower thirds are laid out from the right of the strap;
+  the Typewriter move reveals from the right; Wobble keeps joined letters
+  joined. Deckboy Mini's subtitles follow the same rules.
 
-**Every script on any desk.** Japanese, Chinese, Korean, Hindi, Arabic,
-Thai, Amharic, Tifinagh and more now read on an English desk, in cue
-names, file names, lower thirds and subtitles, sitting on the same line as the
-text around them. Deckboy borrows the characters its own fonts lack from fonts
-the computer already has, chosen for the interface language, and carries Noto
-Sans Arabic and Noto Sans Tifinagh itself. `--self-check` lists the scripts
-this computer can draw.
+### Sources and patterns
+- SOURCE > MADE BY DECKBOY: Fireside, Portal, Swirl, Terrarium and Terrarium
+  Pico (once unlocked), Video Synth, Code, Text, Lower Third, Stage Timer,
+  2A03 Synth, FDS Synth.
+- New SOURCE > TEST SIGNALS: Test Pattern (cards and charts), Test Tone
+  (line-up, pink noise, channel walk).
+- PATTERN (P) lists test cards and charts only; Fireside and Swirl moved to
+  SOURCE.
+- Generated cues are named Fireside, Portal, Swirl, Code, Terrarium or
+  Terrarium Pico. The inspector's source line reads "<name>  made by
+  Deckboy", and the PLAYBACK pattern picker is hidden for these cues. The
+  motion row appears only for patterns that have a motion variant.
+- Bottom bar: DASH and MENU moved from OUTPUT into a new DESK group.
 
-**On air in the text's own direction.** An Arabic or Persian lower third is
-laid out from the right inside its strap, the typewriter reveal types from the
-right, and a wobble keeps joined letters joined. Deckboy Mini's subtitles
-follow the same rules.
+### Outputs
+- Changed: Undo (Ctrl+Z) no longer reverts output settings: display, NDI,
+  stream, DeckLink, Spout and ST 2110 senders, follow display, fixed raster,
+  refresh, bit depth, canvas, recording size. Cue and warp edits remain
+  undoable.
+- Changed: inspector pixel values refer to the output the selected cue's
+  playlist plays on, not the focused output.
+- Changed: the toast after choosing a display reports the new display's
+  raster.
+- Fixed an issue where an output's display assignment reverted to an
+  earlier display after Undo, while its window stayed on the chosen screen.
+- Fixed an issue where the inspector's width/height (px), fit/fill, and the
+  size of new Text, Browser and PiP cues used the assigned display's
+  resolution instead of the resolution the output window draws at (e.g.
+  3840x2160 shown for a 1280x720 output).
+- Fixed an issue where undoing OPEN or NEW wrote the previous show into the
+  newly opened show's file.
+- Fixed an issue where the program monitor placed Unscaled cues and
+  position offsets differently from the output.
 
-**Change the language from a controller.** `LANGUAGE <code>` changes the
-desk's language and `LANGUAGE` on its own answers the current one.
+### Desk
+- The watch folder (Settings > WATCH FOLDER, remote `WATCH`) now also
+  requires the modification time, not only the size, to hold still between
+  scans before a file is taken.
+- Fixed an issue where files with no extension (README, LICENSE) in a
+  dropped or watched folder were imported as image cues that could not be
+  read.
 
-**Alienese II in its own alphabet.** The Alienese II cypher now draws the
-whole desk, buttons and headers included, in the symbols of the second alien
-alphabet, from a font that ships with Deckboy. Numbers stay as they are, so
-timecodes and ports still read, and text on air is never touched.
+### Deckboy Mini
+- New: watch folder. `--watch <dir>`, Shift+W (toggle; asks for a folder the
+  first time) and remote `WATCH [<dir>|ON|OFF|TOGGLE]` (the desk's
+  `WATCH 1 <dir>` form is accepted). New files are appended in name order;
+  a file is taken once its size and modification time are unchanged across
+  two scans (2.5 s apart). Not recursive. Files already in the list are
+  skipped.
+- `--watch` with no files starts Mini with an empty list; the first arrival
+  plays unless `--paused` is set.
+- `WATCH` with no argument replies with the folder and the counters
+  `scans=`, `seen=` and `taken=`.
 
-**Notes and scripts as written.** A presenter's notes and the prompter's
-script are shown exactly as written, whatever language or cypher the desk is
-in.
+### NMOS (IS-04 / IS-05)
+- New: registry discovery over IPv4 mDNS (`_nmos-register._tcp` and
+  `_nmos-registration._tcp`) when the registry URL is blank and REMOTE ON is
+  set. Accepts HTTP, IS-04 v1.3, `api_auth=false`; lowest TXT `pri` first,
+  ties chosen at random. A registry that stops answering is avoided for 30 s
+  and discovery runs again.
+- Settings shows the registry in use as `typed: <url>` or
+  `found: <host:port> (mDNS)`. `NMOS STATUS` adds `registry=` and
+  `registry_source=typed|mdns|searching|none`.
+- With LOCAL ONLY set, neither discovery nor registration to a typed
+  registry takes place.
+- Not supported: unicast DNS-SD, IPv6, HTTPS, authorization, peer-to-peer.
 
-**Everything Deckboy makes, in one place.** The SOURCE menu gathers what
-Deckboy makes itself under MADE BY DECKBOY: Fireside, Portal, Swirl, Video
-Synth, Code, Text, Lower Third, Stage Timer and the two synths. The test
-pattern and test tone sit under TEST SIGNALS, and PATTERN is the test-card
-picker. A generated cue is named for what it is, and its inspector says it is
-made by Deckboy. On the bottom bar, DASH and MENU have a DESK group of their
-own.
-
-**Outputs stay where you put them.** Undo takes back cue and warp edits and
-leaves every output on the screen you gave it, with its senders and its raster.
-Undoing OPEN or NEW brings the earlier show back with its own file. The
-inspector's pixels are the pixels the output draws, and the desk's monitors
-place a 1:1 cue and its offset exactly where the output does.
+### Known issues
+- Some of the interface is still English in every language: the main
+  catalogues cover about three quarters of the drawn labels, and the PATTERN
+  (test card) picker is not translated yet.
+- On a desk in another language, a cue named exactly like an interface label
+  (e.g. "Camera", "STOP") is shown translated, and so is the name part of a
+  cue named "Name (qualifier)". The cue's real name is unchanged; the English
+  desk always shows it as typed.
+- NMOS registry discovery has been tested against a local test registry, not
+  yet against vendor registries. IPv4 only.
+- On a Linux machine with no display (offscreen video driver), Deckboy Mini
+  can keep running for some seconds after `QUIT`.
 
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 
