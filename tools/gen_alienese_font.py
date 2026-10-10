@@ -11,20 +11,25 @@ font through its fallback chain, at the size of whichever face it stands in.
 
 Every symbol is a few strokes of one width -- the alphabet is drawn that way --
 written here as centre lines in units of the capital height and stroked to
-outlines with Skia. Edit a glyph by editing its strokes and run this again:
+outlines here, with nothing but fontTools (Debian packages it as
+python3-fonttools). Edit a glyph by editing its strokes and run this again:
 
-    python -m pip install fonttools skia-pathops
+    python -m pip install fonttools
     python tools/gen_alienese_font.py
+
+Each stroke becomes its own closed outline and the outlines of one glyph are
+left overlapping, wound the same way round so the overlaps add rather than
+cancel. TrueType fills by the non-zero rule, so that draws the same as merging
+them; the glyphs carry the OVERLAP_SIMPLE flag that says so.
 
 The output is the same file for the same script: the timestamps are fixed.
 """
 import math
 import os
 
-import pathops
 from fontTools.fontBuilder import FontBuilder
-from fontTools.pens.cu2quPen import Cu2QuPen
 from fontTools.pens.ttGlyphPen import TTGlyphPen
+from fontTools.ttLib.tables._g_l_y_f import flagOverlapSimple
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "data", "fonts", "Alienese.ttf")
@@ -134,99 +139,163 @@ GLYPHS = {
 }
 
 
+# ── Stroking ───────────────────────────────────────────────────────────────
+#
+# Curves are flattened into short straight runs and every run is stroked as a
+# polygon: square ends, mitred corners, and a corner sharper than about 60
+# degrees bevelled rather than left as a spike reaching below the baseline (a
+# miter limit of 2, as SVG and Skia measure it).
+
+MITER_LIMIT = 2.0
+FLAT_STEP = 6.0  # the longest straight run a curve is cut into, in font units
+
+
+def _bezier(p0, controls, p3, t):
+    pts = [p0] + list(controls) + [p3]
+    while len(pts) > 1:
+        pts = [(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t) for a, b in zip(pts, pts[1:])]
+    return pts[0]
+
+
+def flatten(stroke):
+    """A stroke's centre line as points, condensed, and whether it is closed."""
+    pts = []
+    closed_path = False
+    for cmd in stroke:
+        if cmd == "Z":
+            closed_path = True
+            continue
+        op, *xy = cmd
+        given = [(xy[i] * CONDENSE, xy[i + 1]) for i in range(0, len(xy), 2)]
+        if op in ("M", "L"):
+            pts.append(given[0])
+            continue
+        start, controls, end = pts[-1], given[:-1], given[-1]
+        hull = [start] + given
+        length = sum(math.dist(a, b) for a, b in zip(hull, hull[1:]))
+        steps = max(4, math.ceil(length / FLAT_STEP))
+        pts += [_bezier(start, controls, end, i / steps) for i in range(1, steps + 1)]
+    out = [pts[0]]
+    for p in pts[1:]:
+        if math.dist(p, out[-1]) > 1e-6:
+            out.append(p)
+    if closed_path and math.dist(out[0], out[-1]) < 1e-6:
+        out.pop()
+    return out, closed_path
+
+
+def _offset_side(pts, closed_path, side):
+    """One side of a stroke: the centre line moved half a stroke to the left
+    (side +1) or right (side -1), joined at every corner."""
+    hw = STROKE / 2.0 * side
+    n = len(pts)
+    segs = range(n) if closed_path else range(n - 1)
+    normals = []
+    for i in segs:
+        (x0, y0), (x1, y1) = pts[i], pts[(i + 1) % n]
+        d = math.hypot(x1 - x0, y1 - y0)
+        normals.append((-(y1 - y0) / d, (x1 - x0) / d))
+    out = []
+    if not closed_path:
+        out.append((pts[0][0] + hw * normals[0][0], pts[0][1] + hw * normals[0][1]))
+    corners = range(n) if closed_path else range(1, n - 1)
+    for j in corners:
+        na, nb = normals[j - 1], normals[j % len(normals)]
+        px, py = pts[j]
+        dot_ab = na[0] * nb[0] + na[1] * nb[1]
+        # Turning away from this side makes it the outside of the corner.
+        turn = na[0] * nb[1] - na[1] * nb[0]
+        outside = turn * side < 0
+        cos_half = math.sqrt(max(0.0, (1.0 + dot_ab) / 2.0))
+        if outside and (cos_half < 1e-9 or 1.0 / cos_half > MITER_LIMIT):
+            out.append((px + hw * na[0], py + hw * na[1]))
+            out.append((px + hw * nb[0], py + hw * nb[1]))
+        else:
+            k = hw / (1.0 + dot_ab)
+            out.append((px + k * (na[0] + nb[0]), py + k * (na[1] + nb[1])))
+    if not closed_path:
+        out.append((pts[-1][0] + hw * normals[-1][0], pts[-1][1] + hw * normals[-1][1]))
+    return out
+
+
+def _area(poly):
+    return sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(poly, poly[1:] + poly[:1])) / 2.0
+
+
+def _clockwise(poly, want=True):
+    """TrueType fills clockwise outlines; a counter-clockwise one is a hole."""
+    return poly if (_area(poly) < 0) == want else poly[::-1]
+
+
+def stroke_outlines(stroke):
+    pts, closed_path = flatten(stroke)
+    left = _offset_side(pts, closed_path, +1)
+    right = _offset_side(pts, closed_path, -1)
+    if not closed_path:
+        return [("poly", _clockwise(left + right[::-1]))]
+    # A closed stroke is a ring: the bigger side is the outline, the smaller
+    # the hole through it.
+    outer, inner = (left, right) if abs(_area(left)) > abs(_area(right)) else (right, left)
+    return [("poly", _clockwise(outer)), ("poly", _clockwise(inner, want=False))]
+
+
 def disc(x, y, r):
-    """A circle, as eight quadratic arcs."""
-    p = pathops.Path()
+    """A circle, as eight quadratic arcs, clockwise: (on, off, on, off, ...)."""
     k = r / math.cos(math.pi / 8)
-    p.moveTo(x + r, y)
-    for i in range(1, 9):
-        a = i * math.pi / 4
+    pts = []
+    for i in range(8):
+        a = -i * math.pi / 4
         c = a - math.pi / 8
-        p.quadTo(x + k * math.cos(c), y + k * math.sin(c), x + r * math.cos(a), y + r * math.sin(a))
-    p.close()
-    return p
+        pts.append((x + r * math.cos(a), y + r * math.sin(a)))
+        pts.append((x + k * math.cos(c), y + k * math.sin(c)))
+    return ("disc", pts)
 
 
 def outline(strokes):
-    """Every stroke of a glyph, stroked, condensed and merged into one outline."""
+    """Every stroke of a glyph as its own outlines, overlapping where they cross."""
     parts = []
     for s in strokes:
         if isinstance(s, tuple) and s[0] == "dot":
             _, x, y, r = s
             parts.append(disc(x * CONDENSE, y, r))
-            continue
-        p = pathops.Path()
-        for cmd in s:
-            if cmd == "Z":
-                p.close()
-                continue
-            op, *xy = cmd
-            pts = [(xy[i] * CONDENSE, xy[i + 1]) for i in range(0, len(xy), 2)]
-            if op == "M":
-                p.moveTo(*pts[0])
-            elif op == "L":
-                p.lineTo(*pts[0])
-            elif op == "Q":
-                p.quadTo(*pts[0], *pts[1])
-            elif op == "C":
-                p.cubicTo(*pts[0], *pts[1], *pts[2])
-        # Square ends and mitred corners, as the alphabet is drawn; a corner
-        # sharper than about 60 degrees is bevelled rather than left as a spike
-        # reaching below the baseline.
-        p.stroke(STROKE, pathops.LineCap.BUTT_CAP, pathops.LineJoin.MITER_JOIN, 2.0)
-        parts.append(p)
-    # Each part turned the same way round first: two overlapping outlines wound
-    # in opposite directions cancel where they cross, and the crossing of two
-    # strokes would come out as a hole.
-    merged = pathops.Path()
-    pen = merged.getPen()
-    for p in parts:
-        pathops.simplify(p, fix_winding=True, keep_starting_points=False, clockwise=True).draw(pen)
-    return pathops.simplify(merged, fix_winding=True, keep_starting_points=False, clockwise=True)
+        else:
+            parts += stroke_outlines(s)
+    return parts
 
 
-def glyph_from(path):
-    """The outline as a TrueType glyph, moved to sit BEARING from the origin."""
-    xmin, _, xmax, _ = path.bounds
-    shifted = path.transform(1, 0, 0, 1, BEARING - xmin, 0)
-    rounded = pathops.Path()
-    pen = rounded.getPen()
-    # Integer points, as the glyf table stores them, then merged again so the
-    # rounding cannot leave a sliver of overlap.
-    shifted.draw(_RoundPen(pen))
-    clean = pathops.simplify(rounded, fix_winding=True, keep_starting_points=False, clockwise=True)
-    tt = TTGlyphPen(glyphSet=None)
-    clean.draw(Cu2QuPen(tt, max_err=1.0, reverse_direction=False))
-    glyph = tt.glyph()
+def glyph_from(parts):
+    """The outlines as a TrueType glyph, moved to sit BEARING from the origin."""
+    xs = []
+    for kind, pts in parts:
+        if kind == "poly":
+            xs += [p[0] for p in pts]
+        else:  # a disc reaches exactly its radius either side of its centre
+            cx = (pts[0][0] + pts[8][0]) / 2.0
+            r = (pts[0][0] - pts[8][0]) / 2.0
+            xs += [cx - r, cx + r]
+    xmin, xmax = min(xs), max(xs)
+    dx = BEARING - xmin
+
+    def at(p):
+        return (round(p[0] + dx), round(p[1]))
+
+    pen = TTGlyphPen(glyphSet=None)
+    for kind, pts in parts:
+        pen.moveTo(at(pts[0]))
+        if kind == "poly":
+            for p in pts[1:]:
+                pen.lineTo(at(p))
+        else:
+            for i in range(1, len(pts), 2):
+                pen.qCurveTo(at(pts[i]), at(pts[(i + 1) % len(pts)]))
+        pen.closePath()
+    glyph = pen.glyph()
     glyph.recalcBounds(None)
+    # The outlines overlap on purpose. The flag tells a renderer that merges
+    # nothing (Apple's) to fill them by the non-zero rule, which everything
+    # else does anyway.
+    glyph.flags[0] |= flagOverlapSimple
     return glyph, int(round(xmax - xmin)) + 2 * BEARING
-
-
-class _RoundPen:
-    def __init__(self, out):
-        self.out = out
-
-    @staticmethod
-    def _r(pt):
-        return (round(pt[0]), round(pt[1]))
-
-    def moveTo(self, pt):
-        self.out.moveTo(self._r(pt))
-
-    def lineTo(self, pt):
-        self.out.lineTo(self._r(pt))
-
-    def qCurveTo(self, *pts):
-        self.out.qCurveTo(*[self._r(p) if p is not None else None for p in pts])
-
-    def curveTo(self, *pts):
-        self.out.curveTo(*[self._r(p) for p in pts])
-
-    def closePath(self):
-        self.out.closePath()
-
-    def endPath(self):
-        self.out.endPath()
 
 
 def notdef():
