@@ -6727,22 +6727,26 @@
     return std::max(0, project_.outputs[outputIndex].displayIndex);
   }
 
-  // THE RASTER AN OUTPUT DRAWS AT. A window output composites at its
-  // window's size every frame (renderOutputWindow sizes the compositor from
-  // SDL_GetWindowSize), so once that window is up its size is the truth,
-  // whatever display the show remembers. Everything that converts to or from
-  // output pixels asks this one: the inspector's px, fit and fill, text,
-  // browser and PiP cues, the decoders. They asked the remembered display, so
-  // when that went stale -- still naming the 4K desk monitor while the output
-  // was fullscreen on a 1280x720 screen -- a cue had to be "3840x2160" to
-  // fill it, and every frame was decoded at 4K to be shrunk by three.
+  // THE RASTER AN OUTPUT DRAWS AT. Following the display means following the
+  // screen the output is FULLSCREEN on, and that window's size is the screen's
+  // own -- whatever display the show remembers. Everything that converts to or
+  // from output pixels asks this one: the inspector's px, fit and fill, text,
+  // browser and PiP cues, the decoders, the egress. They asked the remembered
+  // display, so when that went stale -- still naming the 4K desk monitor while
+  // the output was fullscreen on a 1280x720 screen -- a cue had to be
+  // "3840x2160" to fill it, and every frame was decoded at 4K to be shrunk.
+  //
+  // ONLY then. A fixed raster (VIDEO 640x360) is delivered at that size
+  // whatever the window is, and an output escaped to a window keeps its
+  // screen's raster rather than changing resolution under its receivers.
   std::pair<int, int> outputRenderSizeForOutput(int outputIndex) const {
-    if (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
-        !project_.outputCanvasEnabled &&
+    if (project_.outputFollowDisplay && !project_.outputCanvasEnabled &&
+        outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
         normalizeOutputType(project_.outputs[outputIndex].outputType) != "stream") {
       if (const OutputRuntime* runtime = runtimeForOutput(outputIndex);
           runtime && runtime->outputWindow &&
-          (SDL_GetWindowFlags(runtime->outputWindow) & SDL_WINDOW_HIDDEN) == 0) {
+          (SDL_GetWindowFlags(runtime->outputWindow) & (SDL_WINDOW_HIDDEN | SDL_WINDOW_FULLSCREEN)) ==
+            SDL_WINDOW_FULLSCREEN) {
         int w = 0;
         int h = 0;
         if (SDL_GetWindowSize(runtime->outputWindow, &w, &h) && w > 0 && h > 0) {
