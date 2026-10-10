@@ -1174,9 +1174,11 @@
       // different facts and an empty black box reports them identically.
       drawCenteredTextSafe(ren, font, picture, "preview pending", screen.soft);
     }
+    // The cue's name is the show's, not the desk's: never through the cypher.
     drawTextSafe(ren, font,
                  SDL_Rect {box.x + labelH / 2, picture.y + picture.h, box.w, labelH},
-                 cueDisplayToken(*cue, cueIndex) + "  " + cue->name, screen.ink);
+                 cueDisplayToken(*cue, cueIndex) + "  " + cue->name, screen.ink,
+                 /*localise=*/false);
   }
 
   // The notes panel: a SCROLLING DOCUMENT, including builds.
@@ -1441,12 +1443,14 @@
                      clock, screen.soft);
         titleW = header.w - clockW - pad;
       }
+      // A live cue's name is the show's and is drawn as typed; the
+      // placeholder is the desk's and is translated like any label.
       const std::string title =
         liveCue ? (cueDisplayToken(*liveCue, deck.activeIndex) + "   " + liveCue->name)
                 : std::string("- nothing live -");
       drawTextSafe(ren, titleFont,
                    SDL_Rect {header.x, header.y, std::max(1, titleW), header.h},
-                   title, screen.ink);
+                   title, screen.ink, /*localise=*/liveCue == nullptr);
     }
 
     // ── body: where each panel goes, per layout ──────────────────────────
