@@ -136,358 +136,407 @@ Deckboy now reads right to left, borrows a font for any script on any Linux, kee
 
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 
-**Find a cue by name.** In Deckboy Mini, `/` and a few words narrow the list
-as you type, best match first; Enter takes it.
+### Deckboy Mini
 
-**Play this next.** N queues the picked cue to play after the one on air,
-ahead of the list, and E stops when the cue on air ends. The panel's new NEXT
-line always says what will happen next.
+- New: cue search. Press `/` and type to filter the list, best match first;
+  `Enter` takes the selected cue.
+- New: `N` queues the selected cue after the cue on air, ahead of the list.
+  `E` stops at the end of the cue on air. The panel's NEXT line shows what
+  will happen next.
+- New: `Z` shuffles, playing every cue once before repeating; `G` enables
+  crossfades from 0.5 to 2 seconds; `C` shows time remaining. Each also has
+  a remote command.
+- New: opens `.pls` playlists and saves them beside the original as `.m3u8`.
+- Changed: `W` saves a playlist opened at launch back to that playlist.
+- Fixed an issue where text did not fit on pages of the Mini booklet. Added
+  pages for the new keys.
 
-**Shuffle, crossfade and a countdown.** Z plays every cue once before any
-repeats, G crossfades between cues (half a second to two), and C turns the
-clock into time left. Each has a remote command too.
+### Desk
 
-**Deckboy Mini on its own.** Mini now has small downloads of its own for
-Windows, macOS (Apple Silicon and Intel), Linux and the Raspberry Pi (64-bit),
-for a screen that only needs to play. It still comes inside every full
-download too.
+- Changed: playlist tabs show default names without a number prefix
+  (`Deck 1`, rather than `1 Deck 1`). Renamed playlists retain the prefix.
 
-**PLS playlists.** Mini opens `.pls` lists from other players and saves them
-beside the original as `.m3u8`. A playlist opened at launch now saves back to
-itself with W.
+### macOS
 
-**"Deck 1", not "1 Deck 1".** A playlist still called by its default name
-shows that name alone on its tab; a named playlist keeps its number in front.
+- Changed: fullscreen output and desk windows fill the screen immediately
+  without moving into a separate Space.
+- Switching an output between following the display and a fixed raster or
+  refresh rate is safe, including immediately after entering fullscreen.
 
-**A miniature manual that fits.** Every page of the Mini booklet holds its
-whole text, and the new keys have their own pages.
+### Packaging
 
-**Fullscreen on macOS is immediate.** Output windows (and the desk, when you
-make it fullscreen) now fill the screen at once instead of sliding into a
-Space of their own, and switching an output between following the display
-and a fixed raster or refresh rate is safe at any moment, including straight
-after it goes fullscreen.
+- New: separate Mini downloads for Windows, macOS (Apple Silicon and Intel),
+  Linux and Raspberry Pi (64-bit). Mini remains included in every full download.
 
 ## 2026-10-09 - v0.99.407 (colour checked on every platform, the desk keeps its words)
 
-**The desk keeps its words.** If a font cannot be opened when the interface
-is resized or the language changes, Deckboy keeps the lettering it already
-has, and draws headers and buttons in its plain face rather than in nothing.
-The render log names the font that would not open.
+### Fonts
 
-**The scroll unrolls.** The Scroll lower third opens from its two rolled ends
-as it comes in and rolls back up as it goes, on the same timing as its move.
+- Fixed an issue where interface text disappeared when a font could not be
+  opened during a resize or language change. Existing lettering is retained;
+  headers and buttons fall back to the plain face. The render log names the
+  font that could not be opened.
 
-**A face that waits its turn.** After a short cue such as a lower third, the
-face on the empty monitor waits ten seconds before coming back, then drifts
-in gently instead of appearing all at once.
+### Lower thirds
 
-**Colour, checked on all three.** The programme picture is compared against
-independently decoded references for eight- and ten-bit SDR, in limited and
-full range, on Metal (macOS), OpenGL (Linux) and Direct3D 11 (Windows), on
-every build.
+- Changed: Scroll unrolls from both ends on entry and rolls up on exit, timed
+  to its move.
 
-**Deckboy Mini on a Raspberry Pi in one command.** `tools/linux_build.sh --mini`
-builds Mini on its own, as many compiles at once as the memory allows, so it
-builds on a Raspberry Pi 3 beside whatever else the Pi is running.
+### Desk
+
+- Changed: after a short cue such as a lower third, the idle monitor face
+  waits 10 seconds before returning gradually.
+
+### Outputs
+
+- Every build compares programme colour against independently decoded
+  references for 8- and 10-bit SDR, in limited and full range, on Metal
+  (macOS), OpenGL (Linux) and Direct3D 11 (Windows).
+
+### Linux
+
+- `tools/linux_build.sh --mini` builds Mini alone and limits parallel
+  compilation to available memory, including on Raspberry Pi 3 while other
+  software is running.
 
 ## 2026-10-08 - v0.99.406 (captions made here, triggers, MediaMTX, CHECK as one list, Mini runs a show from the keyboard)
 
-**Captions made on this computer.** A clip with no captions can get some
-without anything leaving the machine. In the inspector's new CAPTIONS section,
-**make captions here** listens to the cue and writes the words beside the
-media as `<name>.auto.srt`, attached and switched on. The captioning engine
-(whisper.cpp) now comes with Deckboy on Windows, macOS and Linux. Choose
-English or any language, quick or more accurate; the first time, it says how
-big that speech model is and asks before fetching it, and after that it works
-offline. Captions on the output are sized to the output and sit on a box
-fitted to the line.
+### Captions
 
-**Triggers.** Every cue has a TRIGGERS section: a hotkey (F1-F10, F12 or the
-number pad), a MIDI note, an OSC address, a time of day or a timecode point
-fires it through the same take as GO, without moving the operator's focus.
-Learn a key or a note by pressing it.
+- New: inspector > CAPTIONS > make captions here generates captions locally,
+  writes `<name>.auto.srt` beside the media, attaches it and enables it.
+- Choose English or any language, with quick or more accurate recognition.
+  The first use shows the speech model's download size and asks before
+  fetching it; subsequent use works offline.
+- whisper.cpp is bundled on Windows, macOS and Linux.
+- Output captions scale to the output and use a box fitted to the line.
 
-**Memo cues and devamp.** A memo is a note in the running order: GO shows it
-and nothing else changes. Devamp lets a looping cue finish the pass it is on
-and then end as if it had never looped, from a target cue or `DEVAMP`.
+### Cues
 
-**MediaMTX.** Deckboy works with the MediaMTX media router both ways: its
-streams appear in the SOURCE menu as one-click stream cues, and
-`MEDIAMTX PUBLISH` sends the programme to it for any number of viewers in a
-browser, vMix or a recorder.
+- New: TRIGGERS on every cue. A hotkey (`F1`-`F10`, `F12` or number pad),
+  MIDI note, OSC address, time of day or timecode point takes the cue through
+  the same action as GO without moving focus. Press a key or note to learn it.
+- New: memo cues show a running-order note on GO without changing playback.
+- New: devamp ends a looping cue after its current pass, as if looping were
+  disabled. Available from a target cue or remote `DEVAMP`.
+- Changed: with multiple cues selected, gain applies the same relative change
+  to each cue; normalize measures each cue separately.
 
-**CHECK is one list.** The CHECK button opens everything wrong with the show
-at once; pick a line to go straight to it. It now also names a sound device a
-playlist is set to that is not connected, a plugin a cue uses that is not
-installed, and a tracker step that fires nothing.
+### MediaMTX
 
-**An area of interest the size of an LED tile.** Type the area of interest's
-width, height and position in pixels, and choose **pixel for pixel,
-top-left** to send it at its real size to the corner an LED processor maps.
+- New: MediaMTX streams appear in SOURCE as one-click stream cues.
+- `MEDIAMTX PUBLISH` sends the programme to MediaMTX for any number of viewers
+  in browsers, vMix or recorders.
 
-**Warp points by number.** Click a grid-warp handle to select it, then type
-its position or move it a pixel at a time with the arrow keys.
+### Desk
 
-**Seven new lower-third looks.** Split, Card and Hairline join the clean
-looks; Sparkle, Neon, Comic and Scroll are the playful ones. The picker
-groups them.
+- Changed: CHECK opens one list of show issues; selecting a line goes to the
+  affected item. Added checks for disconnected playlist audio devices,
+  missing cue plugins and tracker steps that fire nothing.
+- Fixed an issue where clicking a cue could start a drag before the pointer
+  moved.
+- Changed: faders move relative to where they are grabbed; `Alt` jumps to
+  the pointer.
+- Changed: while the show is live, keys for audio device, display, NDI,
+  timecode, clear and fullscreen require a second press.
+- Undo and redo preserve playback on air.
+- Fixed an issue where the idle monitor face's smirk separated over time.
 
-**Choose the sound track.** A file with more than one sound track (a second
-language, a commentary) shows a **track** row under AUDIO, and `AUDIOTRACK`
-over the remote. Changing it on the cue that is on air switches straight away.
+### Outputs
 
-**Several cues at once.** With many cues selected, gain moves each cue by the
-same amount from where it is, and normalize measures each one.
+- Area of interest width, height and position accept pixel values.
+  `pixel for pixel, top-left` sends the area at its native size to the
+  corner mapped by an LED processor.
+- Click a grid-warp handle to select it, then type its position or move it
+  one pixel at a time with the arrow keys.
 
-**Steadier hands on the desk.** A cue only starts to drag once the pointer
-has moved, so a click is always a click. Faders move from where they are
-grabbed rather than jumping to the pointer (Alt still jumps). While the show
-is live, keys that change the room (audio device, display, NDI, timecode,
-clear, fullscreen) ask for a second press. Undo and redo keep what is on air
-on air.
+### Lower thirds
 
-**Deckboy Mini runs a show from the keyboard.** Load and save playlists
-(M3U8), move, remove and rename cues, choose and switch outputs and the sound
-device, all from the keys, with four pages of help on `?`. It also gains the
-player keys people expect: speed, mute, A-B loop, frame step, audio track and
-subtitles, including subtitles inside the file. Mini builds on its own, which
-is what lets it build on a Raspberry Pi, and there it decodes with the board's
-own video decoder, taking about 40% less of the processor.
+- New: Split, Card, Hairline, Sparkle, Neon, Comic and Scroll. The picker
+  groups clean and playful looks.
 
-**macOS 12 Monterey and later.** Every library inside the Mac app is now
-built for macOS 12, and each release is checked file by file against that.
-The Mac app's own ffmpeg also gains HAP and SRT, matching Windows.
+### Audio
 
-**The desk keeps its artwork, and tells you what is wrong.** Deckboy's own
-icons and buttons no longer depend on its media tools. If ffmpeg or ffprobe
-cannot start on a computer, a notice inside the desk says which and why,
-while everything else keeps running.
+- New: AUDIO > track selects among a file's audio tracks, including alternate
+  languages and commentary. Remote: `AUDIOTRACK`. Changes to the cue on air
+  take effect immediately.
 
-**Notices you can read to the end.** Prompts (NDI, Blackmagic, WebView2, the
-macOS first-run step, the HAP suggestion) size themselves to what they say
-and wrap it, so the whole instruction is on screen.
+### Deckboy Mini
 
-**A more expressive face.** The face on an idle monitor keeps its smirk in one
-piece as the hours go by.
+- New: keyboard controls to load and save M3U8 playlists, move, remove and
+  rename cues, select and switch outputs, and select the audio device.
+  `?` shows four help pages.
+- New: speed, mute, A-B loop, frame step, audio track and subtitle controls,
+  including embedded subtitles.
+- Mini builds independently on Raspberry Pi and uses the board's hardware
+  video decoder, reducing processor use by about 40%.
 
-**A self-check of the text on screen.** A few seconds into a session, Deckboy
-reads back real labels from its own window and notes in its render log
-whether they reached the frame, with the window's size and density, so a
-report about missing text arrives with the evidence.
+### macOS
+
+- Every bundled library targets macOS 12 Monterey or later; releases check
+  compatibility file by file.
+- Bundled ffmpeg gains HAP and SRT support, matching Windows.
+
+### Interface
+
+- Icons and buttons no longer depend on the media tools. If ffmpeg or ffprobe
+  cannot start, an in-app notice names the tool and reason; the desk keeps
+  running.
+- Fixed an issue where prompts could cut off instructions. NDI, Blackmagic,
+  WebView2, macOS first-run and HAP suggestion prompts wrap and size to fit
+  their text.
+- A few seconds after startup, Deckboy reads back labels from its window and
+  records whether they reached the frame, plus window size and density, in
+  the render log.
 
 ## 2026-10-05 - v0.99.405 (the monitor shows the show, loading at every scale)
 
-**The program monitor shows the show.** The moment a cue has a picture up, the
-program monitor shows it, whichever decoder is playing it, and the idle face
-returns only when nothing is live.
+### Desk
 
-**Loading animations at every UI scale.** The timeline's filmstrip and
-waveform loading animations size themselves with the interface, so the film
-cells, the meter bars and the LOADING label each keep their own place at 150%,
-200% and beyond.
+- Fixed an issue where the program monitor did not show a live picture with
+  some decoders. It shows the picture as soon as it is available; the idle
+  face returns only when nothing is live.
+- Fixed an issue where timeline filmstrip and waveform loading animations
+  overlapped at 150%, 200% and larger UI scales. Film cells, meter bars and
+  the LOADING label now scale with the interface.
 
-**Geometry scrolls to the end.** Video Outputs > Geometry scrolls all the way
-down to Default Transition.
+### Outputs
+
+- Fixed an issue where Video Outputs > Geometry could not scroll down to
+  Default Transition.
 
 ## 2026-10-05 - v0.99.404 (Deckboy Mini, remote takes name a real cue, first save asks where)
 
-**Deckboy Mini.** A one-deck player that ships beside the desk, for a screen
-that only needs to play. `deckboy-mini` plays clips, stills and folders
-fullscreen through the same engine as Deckboy, in name order, holding stills,
-looping when asked. It answers the desk's remote commands on the desk's port,
-so Companion drives it as deck 1, and in a terminal it shows a Game Boy-green
-status panel with a strip of text that moves with the sound. Drop files on its
-output, or send `ADD` over the remote, to extend the list while it plays, and
-press H for a status bar on the output itself. The whole show runs from the
-keyboard in its terminal, over SSH too: pick cues from the list, type a cue
-number, seek, change the volume, add files with Tab completing the path, or
-type any remote command on its command line. See the manual, §25.
+### Deckboy Mini
 
-**Remote takes name a real cue.** `TAKE <cue>` and `SELECT <cue>` from
-Companion, OSC, MIDI or an Art-Net channel act only on a cue the deck has. Ask
-for one it does not have and Deckboy answers `ERR`, names the deck and how many
-cues it holds, and leaves the deck exactly as it was.
+- New: `deckboy-mini`, a one-deck player bundled with the desk. Plays clips,
+  stills and folders fullscreen through the same playback engine, in name
+  order, with still holds and optional looping.
+- Accepts the desk's remote commands on the desk's port; Companion controls
+  it as deck 1.
+- The terminal shows a Game Boy-green status panel with audio-reactive text.
+  `H` shows a status bar on the output.
+- Drop files on the output or send `ADD` remotely to append cues during play.
+- Terminal keyboard controls work over SSH: select cues, type cue numbers,
+  seek, change volume, add files with `Tab` path completion, or enter remote
+  commands. Manual section 25.
 
-**The first SAVE asks where.** A new show's first `SAVE` (or `Ctrl+S`) opens
-the save dialog so the show gets a file of its own; every `SAVE` after that
-writes straight back to it. `NEW` asks twice before replacing a show that has
-cues but has never been saved.
+### Remote protocol
 
-**Companion module 1.0.3.** Buttons follow Deckboy smoothly on any network,
-show at a glance when the link to Deckboy drops, and reconnect by themselves.
-A button that names its deck leaves the focused deck where it was, and cue
-names with quotes in them read correctly.
+- Changed: `TAKE <cue>` and `SELECT <cue>` from Companion, OSC, MIDI or
+  Art-Net act only on existing cues. An invalid cue returns `ERR` with the
+  deck and cue count, leaving the deck unchanged.
+
+### Show files
+
+- Changed: the first `SAVE` or `Ctrl+S` on a new show opens the save dialog;
+  subsequent saves write to that file.
+- Changed: `NEW` asks twice before replacing a never-saved show with cues.
+
+### Companion
+
+- Module 1.0.3: buttons follow Deckboy smoothly across networks, indicate a
+  lost connection and reconnect automatically.
+- Fixed an issue where a button naming its deck changed the focused deck.
+- Fixed an issue where cue names containing quotes were displayed incorrectly.
 
 ## 2026-10-04 - v0.99.403 (lip sync for long shows, Web Monitor sources, readable themes)
 
-**Web Monitor playback.** The browser player uses HLS with one timeline for
-picture and sound, a short network buffer and automatic reconnection. It fits
-phone screens in portrait and landscape, with full-screen controls and keyboard
-navigation. Browsers with native HLS use it; others use the player bundled with
-Deckboy, so watching never contacts a CDN.
+### Web Monitor
 
-**Any picture down the Web Monitor.** The Web Monitor is a destination: its
-Source, in Video Outputs, can be the programme, the multiview, a presenter
-view or any other output, and the Web Monitor card shows what it carries.
-`WEBMONITOR SOURCE PROGRAMME|<output>` sets it from a controller. Every
-stream and recording output has the same Source choice.
+- Changed: the browser player uses HLS with a shared picture/audio timeline,
+  a short network buffer and automatic reconnection. Supports portrait and
+  landscape phones, fullscreen controls and keyboard navigation.
+- Uses native browser HLS where available, otherwise the bundled player;
+  playback makes no CDN requests.
+- New: Video Outputs > Source routes the programme, multiview, presenter view
+  or another output to Web Monitor. Its card shows the current source.
+  Remote: `WEBMONITOR SOURCE PROGRAMME|<output>`.
+- Programme viewers target the same wall-clock moment, keeping phones,
+  laptops and TVs within a few milliseconds while retaining sound.
+- New: Low latency sends picture only, without buffering.
+- New: Connections at once limits simultaneous browser requests. Default: 8,
+  serving roughly 10-20 viewers.
+- New: QR CODE in Web Monitor settings shows the address as a large QR code.
+  Remote: `WEBMONITOR QR`. The code contains only the address; the phone
+  still asks for the passphrase.
+- When encoding cannot keep up, Web Monitor switches to a lighter encoder,
+  then 720p, then 540p, and reports the change.
 
-**Screens in step.** Every viewer of the programme stream aims at the same
-wall-clock moment, so phones, laptops and TVs watching together show the
-same frame within a few milliseconds of each other while keeping sound. A
-**Low latency** mode sends the picture alone with no buffering, for the
-quickest possible view. **Connections at once** sets how many browser
-requests are served together (eight by default, serving roughly ten to
-twenty viewers).
+### Outputs
 
-**The multiview output** shows the multiview arranged on the desk: the same
-windows, programme tile, labels and level meters, sized for the output.
+- Every stream and recording output gains the same Source choice.
+- The multiview output follows the desk's arrangement, including windows,
+  programme tile, labels and level meters, scaled to the output.
+- Fixed an issue where streams, recordings and Web Monitor lacked deck audio
+  on macOS and Linux. They now carry it as on Windows.
+- Changed: Orientation uses a full-height control in Video Outputs.
+- `VIDEO OUTPUT ADD` accepts `MULTIVIEW`, `PRESENTER` and `PROMPTER`.
 
-**Phone access.** QR CODE in the Web Monitor settings shows the monitor's
-address as a large QR code for a phone camera; `WEBMONITOR QR` shows it from a
-controller. The code carries the address only: a phone still asks for the
-passphrase.
+### Playback
 
-**Lip sync over long shows.** Playing video now follows the sound card's
-clock continuously, steering out any difference smoothly, so picture and sound
-stay together for the whole of a long show rather than drifting slowly apart
-and catching up in a jump.
+- Fixed an issue where picture and sound drifted apart during long shows,
+  then caught up in a jump. Video now follows the sound card clock
+  continuously, correcting differences smoothly.
 
-**Sound on every stream.** Streams, recordings and the Web Monitor carry
-the decks' sound on macOS and Linux, as they do on Windows.
+### Patterns
 
-**Web Monitor on modest computers.** When a computer cannot encode the Web
-Monitor in time, it steps to a lighter encoder, then 720p, then 540p, and
-says so, so the monitor keeps playing.
+- Swirl gains palettes (`classic`, `fire`, `ice`, `neon`, `mono`), colour
+  bands, zoom, flow, a movable centre and reverse speed, in the inspector and
+  remotely. Existing Swirl cues retain their appearance.
 
-**New splash art.** Eight new scenes join the start-up rotation, shown in their own colours on every theme.
+### Interface
 
-**Swirl controls.** The Swirl pattern gains palettes (classic, fire, ice,
-neon, mono), colour bands, zoom, flow, a movable centre and reverse speed, in
-the inspector and over the wire. Existing Swirl cues look exactly as before.
-
-**Readable themes.** Every label is held to a readable contrast against the
-surface actually behind it, in all thirty bundled themes. Help and warning
-notices take each theme's own colours: help notices use the theme highlight,
-and warnings use the theme's danger colour with a brief pulse, so they stand
-out without a colour from outside the theme. Notices also appear when interface
-animations are turned off. `--contrast-check` renders every bundled theme with
-both kinds of notice and reports any that fall short.
-
-**Narrow decks.** In a narrow deck, each cue row folds its heading onto one
-line and gives its five toggles the whole bottom line, growing as the deck
-narrows. The kind of cue shows as its icon when the word does not fit.
-
-**The face.** Deckboy's face returns to the programme monitor whenever
-nothing is live, not only before the first cue of the session.
-
-**Settings.** The Orientation control sits at full height in Video Outputs.
-`VIDEO OUTPUT ADD` accepts MULTIVIEW, PRESENTER and PROMPTER.
-
-**Loading.** Timeline and show-loading animations return to their earlier
-designs, with the critters in their earlier places.
+- New: 8 splash scenes, shown in their own colours in every theme.
+- Labels enforce readable contrast against the surface behind them in all
+  30 bundled themes.
+- Help notices use the theme highlight; warnings use its danger colour with
+  a brief pulse. Notices also appear with interface animations disabled.
+- `--contrast-check` renders every bundled theme with both notice kinds and
+  reports insufficient contrast.
+- Changed: narrow cue rows use one heading line and a full bottom line for
+  their 5 toggles, growing taller as needed. Cue kind uses its icon when the
+  word does not fit.
+- Fixed an issue where the idle face returned only before the session's first
+  cue. It now returns whenever nothing is live.
+- Changed: timeline and show-loading animations use their earlier designs
+  and critter positions.
 
 ## 2026-10-03 - v0.99.402 (Web Monitor network access and quality)
 
-**Network access.** Web Monitor now selects an active private Ethernet or
-Wi-Fi address instead of guessing from the default route, which could point
-at a VPN. It binds only to that address and reports when no eligible LAN
-address is available. Network sharing requires at least eight passphrase characters;
-letters and symbols are allowed. The service limits concurrent browser
-connections. The computer's firewall must still allow the selected port on
-the private network. Web Monitor uses unencrypted HTTP, so use a trusted LAN
-and do not forward the port to the public internet.
+### Web Monitor
 
-**Picture quality.** Choose a Web Monitor maximum of 720p, 1080p, 1440p or
-2160p. It defaults to 1080p and scales the stream without upscaling smaller
-programme pictures.
+- Changed: network sharing selects an active private Ethernet or Wi-Fi
+  address, binds only to it and reports when none is available. It no longer
+  relies on the default route, which could select a VPN.
+- Network sharing requires a passphrase of at least 8 characters; letters
+  and symbols are accepted. Concurrent browser connections are limited.
+- The firewall must allow the selected port on the private network.
+  Web Monitor uses unencrypted HTTP: use a trusted LAN and do not forward
+  the port to the public internet.
+- New: maximum resolution of 720p, 1080p, 1440p or 2160p. Default: 1080p.
+  Smaller programme pictures are not upscaled.
 
 ## 2026-10-03 - v0.99.401 (SDR colour and programme monitoring)
 
-**SDR colour.** Eight- and ten-bit SDR video uses its source colour metadata
-on Windows programme output. Main 10 SDR takes the cached NV12 bridge on
-D3D11, retaining its SDR transfer instead of applying an HDR transfer.
-Playing and paused pictures preserve their colour and video range.
+### Windows
 
-**Programme in a browser.** Turning on Web Monitor includes programme picture
-and stereo sound. Its main address opens the programme player directly;
-press SOUND ON when the browser requires a click to enable audio. Turning
-the monitor off also disarms its programme encoder. Individual output views
-remain available at `/outputs`.
+- Fixed an issue where SDR colour or video range was not preserved on
+  programme output. 8- and 10-bit SDR use source colour metadata while
+  playing and paused; Main 10 SDR uses the cached NV12 path on D3D11 with
+  its SDR transfer instead of an HDR transfer.
 
-**Colour checks.** Programme pixels are compared with independently decoded
-references for eight- and ten-bit BT.709 SDR, in limited and full range,
-while playing and paused. The check reads the primary compositor itself,
-and also verifies video and stereo 48 kHz audio in the web programme stream.
-The compositor remains SDR; PQ/HLG sources require conversion to SDR before
-playout.
+### Web Monitor
+
+- Enabling Web Monitor includes programme picture and stereo sound. The
+  main address opens the programme player; SOUND ON enables audio when a
+  browser requires a click.
+- Disabling Web Monitor also disarms the programme encoder.
+- Individual output views remain at `/outputs`.
+
+### Outputs
+
+- Colour checks compare primary programme pixels against independently
+  decoded 8- and 10-bit BT.709 SDR references, in limited and full range,
+  while playing and paused.
+- Checks also verify video and stereo 48 kHz audio in the web programme
+  stream.
+- The compositor remains SDR. Convert PQ/HLG sources to SDR before playout.
 
 ## 2026-10-02 - v0.99.400 (live looks, steady transitions, and a Swirl you can shape)
 
-**Live looks.** Keying, grading and picture effects apply to the playing or
-paused cue as soon as their controls change. Every transition keeps the
-outgoing cue's processed look, opacity, fit, crop, scale, rotation and layer
-corner pins. Main 10 SDR
-video holds a steady picture between decoded frames.
+### Effects and transitions
 
-**Swirl controls.** Shape its speed, twist, pixel density and colour in the
-inspector while it plays. The show remembers all four settings. `SWIRL`
-reports them; `SWIRL SPEED`, `TWIST`, `PIXELS` and `COLOUR` set them remotely.
-Code sources honour their own editable render width and height, independently
-of the output raster, and hold the last good picture during an incomplete edit.
+- Changed: keying, grading and picture effects update the playing or paused
+  cue immediately.
+- Every transition preserves the outgoing cue's processed look, opacity,
+  fit, crop, scale, rotation and layer corner pins.
+- Push transitions move each picture once; wipes and iris reveal the next
+  cue throughout the transition.
 
-**A clearer desk.** Narrow cue rows give the name and timer more room. Decks
-use a full-width focused list when several comfortable columns cannot fit.
-CLEAR immediately stops every deck and disarms output, including queued takes.
-Varied animated critters accompany timeline video and audio loading, previews,
-show opening, file conversion, imports, slide rendering and update work.
-Labels, page counts and measured progress remain visible.
-Pushes move each picture once; wipes and iris reveal the next cue throughout
-their duration.
+### Playback
 
-**Programme delivery.** Recordings and network outputs receive independently
-routed live-input audio. Programme metering shows integrated LUFS and true
-peak; normalization offers −16, −23 and −24 LUFS targets. SDI sends scheduled
-video and audio with BT.709 colour conversion and eight- or ten-bit packing.
-ST 2110 sender controls apply independent video and audio transport settings,
-with bounded audio queues, source binding and clock reacquisition. Companion
-traffic remains bounded so a stalled controller cannot hold up playout.
+- Main 10 SDR holds a steady picture between decoded frames.
 
-**Release checks.** Required checks exercise programme recording, all transition
-types, Main 10 SDR playback, transport lifecycle and malformed clock packets.
+### Sources and patterns
+
+- Swirl gains live inspector controls for speed, twist, pixel density and
+  colour. All 4 are saved with the show.
+- Remote: `SWIRL` reports the settings; `SWIRL SPEED`, `TWIST`, `PIXELS`
+  and `COLOUR` set them.
+- Code sources use their editable render width and height independently of
+  output resolution, and retain the last good picture during incomplete edits.
+
+### Desk
+
+- Changed: narrow cue rows give names and timers more room. When several
+  usable columns cannot fit, decks use a full-width focused list.
+- Changed: CLEAR immediately stops every deck, cancels queued takes and
+  disarms output.
+- Animated critters accompany timeline video/audio loading, previews, show
+  opening, file conversion, imports, slide rendering and updates. Labels,
+  page counts and measured progress remain visible.
+
+### Audio and outputs
+
+- Recordings and network outputs receive independently routed live-input
+  audio.
+- Programme metering shows integrated LUFS and true peak. Normalization
+  offers -16, -23 and -24 LUFS targets.
+- SDI sends scheduled video and audio with BT.709 conversion and 8- or
+  10-bit packing.
+- ST 2110 senders apply independent video and audio transport settings,
+  bounded audio queues, source binding and clock reacquisition.
+
+### Companion
+
+- Traffic is bounded so a stalled controller cannot hold up playout.
+
+### Release checks
+
+- Required checks cover programme recording, every transition type, Main 10
+  SDR playback, transport lifecycle and malformed clock packets.
 
 ## 2026-10-02 - v0.99.399 (text on every Mac, Windows decodes in-process, the web monitor, and a clicker that takes)
 
-**128 audio outputs.** A deck can open an audio device up to 128 channels wide, the
-crosspoint matrix routes to any of them, and an ASIO interface can be armed at 32, 64
-or 128 outputs. A deck set wider than eight outputs also keeps that width when the
-show is saved and opened again.
+### Audio
 
-**Text on every Mac.** Deckboy now checks at startup that the interface's
-letters actually reach the screen, and if they do not, it changes how it draws
-until they do -- automatically, before the window appears. What it found is
-written to deckboy-render.log, and `DECKBOY_RENDERER=software` forces the
-simplest drawing path from a terminal.
+- New: audio devices up to 128 channels per deck, with crosspoint routing
+  to every channel. ASIO interfaces can be armed at 32, 64 or 128 outputs.
+- Fixed an issue where deck output widths above 8 channels were not retained
+  after saving and reopening a show.
 
-**Transitions keep a cue's shape, and run with GPU decode.** A cue fitted with
-letterbox bars now crossfades as itself -- its bars fade too -- instead of
-snapping to full frame as the transition starts. And every transition on an
-output now draws when the video is decoded on the GPU; before, those quietly
-became cuts.
+### macOS
 
-**A presenter clicker runs the show.** Page Down and Page Up take the next and
-previous cue the way TAKE does, with the deck's transition, and they keep
-working when a full-screen output opens on the same screen and takes the focus.
+- Startup checks whether interface text reaches the screen and changes the
+  drawing path automatically before showing the window if needed.
+- Results are written to `deckboy-render.log`.
+  `DECKBOY_RENDERER=software` forces software rendering from a terminal.
 
-**Watch any output in a browser.** Settings > Network > Web Monitor puts every
-output, live, on a page any browser can open -- a laptop, a tablet, a phone --
-with nothing to install. It starts on this computer only; one switch shares it
-on the network, and an optional PIN keeps it to the people who should see it.
-**Programme with sound** puts the picture and the sound on the page together,
-about a second behind the show; any output can be routed to **WEB** as a
-stream destination to do the same. An output costs nothing until someone is watching. Over the network:
-`WEBMONITOR`, `WEBMONITOR ON|OFF`, `SOUND ON|OFF`, `SHARE ON|OFF`, `PORT <n>`, `PIN <pin>|OFF`.
+### Transitions
+
+- Fixed an issue where a letterboxed cue snapped to full frame when a
+  crossfade started. Letterbox bars now fade with the cue.
+- Fixed an issue where transitions became cuts when output video used GPU
+  decoding. All transition types now draw on that path.
+
+### Desk
+
+- Changed: `Page Down` and `Page Up` take the next and previous cues with the
+  deck's transition, as TAKE does. They also work when a fullscreen output
+  takes focus on the same screen.
+
+### Web Monitor
+
+- New: Settings > Network > Web Monitor shows any output live in a browser
+  on a laptop, tablet or phone, with nothing to install.
+- Starts locally; a switch enables network sharing and an optional PIN
+  restricts access.
+- Programme with sound provides picture and sound about 1 second behind
+  the show. Any output can also stream to the `WEB` destination.
+- Outputs consume no monitoring resources until someone watches.
+- Remote: `WEBMONITOR`, `WEBMONITOR ON|OFF`, `SOUND ON|OFF`, `SHARE ON|OFF`,
+  `PORT <n>`, `PIN <pin>|OFF`.
 
 ## 2026-10-01 - v0.99.398 (SRT feeds with their sound, grid warp, and warp you can find)
 
