@@ -540,506 +540,470 @@ Deckboy now reads right to left, borrows a font for any script on any Linux, kee
 
 ## 2026-10-01 - v0.99.398 (SRT feeds with their sound, grid warp, and warp you can find)
 
-**SRT feeds come in with their sound.** An SRT cue now takes its feed over a
-single connection -- the way a vision mixer does -- and plays the picture and
-the sound together, at whatever size the feed arrives in. Channels imported
-from an .m3u playlist carry their sound too.
+### Sources
 
-**CONTINUE FOLLOW runs on a cue that holds its last frame.** A cue set to
-continue "from end" now takes the next cue when it finishes, whether or not it
-holds its picture -- holding is the default, so this is most cues.
+- Fixed an issue where SRT cues played without sound. Picture and audio now
+  use one connection and play together at the feed's incoming size. Channels
+  imported from `.m3u` playlists also carry audio.
+- New: Swirl pattern, after Pocket Test in the pattern picker. A slow spiral
+  of melting pixel greens with a yellow crest, matching Deckboy's trailer,
+  for holding screens or backgrounds behind lower thirds.
+- Source commands accept full names with or without quotes:
+  `NDICUE "WINDY (Graphics PC)"` and `NDICUE WINDY (Graphics PC)` both find
+  the sender. This applies to every source verb that takes a name.
 
-**Swirl, a new pattern.** A slow spiral of melting pixel greens with a yellow
-crest -- the look of Deckboy's own trailer -- for a holding screen or a
-backdrop behind a lower third. It is in the pattern picker after Pocket Test.
+### Cues
 
-**A MIDI file cue keeps the desk smooth when its port is busy.** If another
-program is holding the MIDI port, Deckboy tries it again every couple of
-seconds instead of continuously, and picks it up as soon as it is free.
+- Fixed an issue where `CONTINUE FOLLOW` set to `from end` did not take
+  the next cue when the current cue held its last frame. Hold remains the
+  default.
+- Fixed an issue where the desk stuttered when a MIDI file cue's
+  port was held by another program. Deckboy retries every couple of seconds
+  and opens the port when it becomes free.
 
-**NDI sources by their full name, quoted or not.** `NDICUE "WINDY (Graphics PC)"`
-and `NDICUE WINDY (Graphics PC)` both find the sender, and the same goes for
-every source verb that takes a name.
+### Remote protocol
 
-**The deck's sound level over the network.** `STATUS` reports `audio_level=`
-(0-100, the VU scale) for each deck, so a controller -- or anyone checking a
-feed -- can see that sound is arriving without listening for it.
+- `STATUS` adds `audio_level=` for each deck: `0-100` on the VU scale.
 
-**Grid warp: bend the picture onto a surface that is not flat.** The warp
-toolbar has a **GRID** button -- 3x3 up to 9x9 points across the output. Drag a
-point and the picture bends through it, smoothly for a curved wall or with
-straight lines for a fold over an edge. It sits on top of the corner pin, so an
-alignment you already have carries straight over. Over the network: `WARP GRID
-<n>`, `WARP GRID SMOOTH|STRAIGHT`, `WARP POINT <col> <row> <dx> <dy>`.
+### Outputs
 
-**Warp is easy to find.** **WARP** on the programme monitor is a proper button
-at every interface size, **Settings > Video Outputs > Geometry** has a WARP
-section that takes you straight to it, and the editor says what it is moving:
-the whole programme on an output, or one layer's pin.
+- New: `GRID` in the warp toolbar, with `3x3` to `9x9` points. Drag points
+  to map curved surfaces with smooth interpolation or folded surfaces with
+  straight lines. Grid warp applies on top of the existing corner pin.
+- Remote: `WARP GRID <n>`, `WARP GRID SMOOTH|STRAIGHT`,
+  `WARP POINT <col> <row> <dx> <dy>`.
+- The programme monitor's `WARP` button is sized for every interface scale.
+  Settings > Video Outputs > Geometry adds a WARP section that opens the
+  editor.
+- The warp editor identifies whether it is editing the whole programme on
+  an output or one layer's corner pin.
 
 ## 2026-10-01 - v0.99.397 (perspective layer mapping, levels and curves, and an arcade lower third)
 
-**A way to send a problem report, with nothing hidden.** Settings > About
-has a REPORT A PROBLEM button that opens a prefilled issue on Deckboy's
-GitHub, with the version, platform and renderer backend already filled in --
-reviewable and editable before anything is sent, and nothing leaves the
-machine until the operator presses Submit there themselves.
+### Desk
 
-**The Network and System settings tabs scroll to reach every card.** NMC
-IN & OUT and the TALLY card on Network, and WATCH FOLDER on System, could
-run off the bottom of the window with nothing able to bring them back into
-view -- both tabs scroll now, the way Video Outputs already did.
+- New: Settings > About > REPORT A PROBLEM opens a GitHub issue prefilled
+  with the version, platform and renderer backend. The operator can review
+  and edit it; nothing is sent until they press Submit on GitHub.
+- Fixed an issue where NMC IN & OUT and TALLY on Settings > Network, and
+  WATCH FOLDER on Settings > System, could fall below the window with no way
+  to reach them. Both tabs now scroll, as Video Outputs already did.
+- Fixed an issue where the update-download indicator disappeared when
+  switching away from Settings > System. It remains visible on every tab.
+- Changed: File > New warns before discarding unsaved changes, including
+  when the show is not live.
+- Recent-show rows identify the containing folder as `in <folder>`.
+- New splash scenes: beach bonfire and rooftop party, in the cycling rotation.
 
-**VideoSynth cues get colour controls.** Brightness, contrast, saturation
-and hue -- already on Video, Image, Pattern, Browser, Pip and source cues --
-now reach VideoSynth too, through the same grading path.
+### Cues
 
-**A fade cue can ramp brightness, contrast, saturation or hue**, the same
-way it already ramps opacity, volume or the master dimmer -- a slow grade
-change over the course of a show rather than a cut.
+- VideoSynth cues now have brightness, contrast, saturation and hue controls,
+  matching Video, Image, Pattern, Browser, PiP and source cues.
+- Fade cues can ramp brightness, contrast, saturation and hue, in addition
+  to opacity, volume and the master dimmer.
+- Adding a master cue from ADD A CUE opens the Dashboard's Tracker view
+  to assign its targets.
+- New: MOVE TO DECK... in a cue's right-click menu. Dragging still reorders
+  cues within a deck.
+- The preset picker adds TAKE DECK... and STOP DECK..., each with a picker
+  of the show's playlists.
+- Changed: ADD A CUE and the `PIP` remote command no longer create
+  picture-in-picture cues. Existing PiP cues still load and play. A scaled
+  layer from a second deck provides picture-in-picture with a full playlist.
+- Fixed an issue where a master cue added remotely went to the focused deck
+  when a tracker sequence was running. It now joins that sequence, as
+  ADD STEP does.
+- Fixed an issue where long text exceeded its available width on outputs
+  and the main control-window preview. Text now fits both width and height.
+- Fixed an issue where Fireside rain and snow did not fall downwards.
 
-**Adding a master cue from the ADD A CUE menu opens the Dashboard's Tracker
-view**, where the new cue's targets get assigned -- the step that used to be
-a second trip to the dashboard by hand.
+### Outputs
 
-**A cue can move to another deck from its right-click menu** -- MOVE TO
-DECK..., alongside the existing reorder-within-a-deck drag.
+- New: layer corner-pin handles in the programme monitor. Focus a playlist
+  layered on the output, press `WARP` and drag its four corners. Handles
+  follow the cue's size and offset; `EDIT` switches between layer and output
+  warp.
+- New: Perspective layer mapping keeps straight lines straight and applies
+  foreshortening without folding along the diagonal. New pins use
+  Perspective; previously saved shows retain Linear mapping.
+- Remote: `VIDEO OUTPUT LAYERWARP MODE linear|perspective`.
+- Fixed an issue where selecting a layered playlist changed the focused
+  output and programme monitor. Both remain on the layer's output, including
+  while recording or streaming.
 
-**The preset picker can take or stop a whole deck**, not just a cue -- TAKE
-DECK... and STOP DECK... open a picker of the show's own playlists.
+### Lower thirds and text
 
-**Picture-in-picture is retired as a cue you can create new.** Scaling a
-second deck's layer over the first already does the job, with a whole
-playlist behind it instead of one fixed box. A show that already has a PIP
-cue keeps loading and playing it; ADD A CUE and the PIP network command no
-longer offer to make new ones.
+- New: Arcade lower third, with a pixel-font name, monospaced role, bordered
+  box and hard drop shadow. A slow bob and slight tilt continue while it is
+  visible, follow the cue's clock, support scrubbing and stay synchronised
+  across outputs.
+- New colour: `forest`, paired with a yellow accent for the Arcade look.
+- Remote: `TEXTCUE BAR <colour>`, `TEXTCUE ACCENT <colour>`,
+  `TEXTCUE SCALE <0.5-2>`. `LOWERTEXT` and `LOWERSUB` set the two lines
+  of the lower third created by `LOWERTHIRD`.
+- Fixed an issue where text edges were not clean on transparent frames,
+  including lower thirds.
 
-**A master cue added over the network lands in the tracker sequence that was
-already running**, the same place the dashboard's own ADD STEP puts it,
-rather than always the focused deck.
+### Effects
 
-**A long line of text fits the width it is given**, on every output and the
-control window's main preview alike -- previously only the height was
-guaranteed.
+- Fixed an issue where adding the first effect, grade or key to a live cue,
+  or removing the last one, interrupted playback or delayed the change.
+  The look now changes on the next frame; paused cues update immediately.
+- New: Levels and Curves, the first two entries in the effect list. Levels
+  provides midtones displayed as gamma, black point, white point and lift.
+  Curves provides an S-curve or flattening on all channels or red, green or
+  blue individually, with shadow lift and highlight roll-off.
+- Both effects start neutral and support LFO modulation.
 
-**Fireside's rain and snow fall down.**
+### Stage timer
 
-**The update-download indicator stays visible on every Settings tab**, not
-only System -- it used to disappear the moment the operator switched tabs
-while a download was still running.
-
-**File > New warns before it discards unsaved changes**, not only a live
-show.
-
-**A recent show's row says which folder it's in** -- "in &lt;folder&gt;",
-instead of a bare folder name with nothing saying what it was relative to.
-
-**Two new splash scenes**: a beach bonfire and a rooftop party, in the
-cycling rotation.
-
-**Map a layer in perspective, from the programme monitor.** A layer's corner
-pin now has its own handles: focus a playlist that is a layer on the output,
-press **WARP**, and drag its four corners onto the surface -- the handles sit on
-the picture wherever the cue's size and offset put it, and **EDIT** switches
-them between the layer and the output's own warp. **Perspective** is the new
-way a pin fills its quad: a flat board's straight lines stay straight and its
-far end is properly smaller, instead of folding along the diagonal. New pins
-start in perspective; shows saved before keep drawing linear. Over the network,
-`VIDEO OUTPUT LAYERWARP MODE linear|perspective`.
-
-**Arcade: a lower third that looks like it came out of a game.** The name in
-Deckboy's pixel face over the role in mono, in a bordered box with a hard drop
-shadow -- and once it is in, a slow bob and a small tilt that keeps it looking
-alive for as long as it is up. It runs on the cue's own clock, so it scrubs,
-and two outputs showing it move together. A new colour, **forest**, joins the
-list; forest behind a yellow accent is the arcade look's own pair.
-
-**A lower third's colours and size over the network.** `TEXTCUE BAR <colour>`,
-`TEXTCUE ACCENT <colour>` and `TEXTCUE SCALE <0.5-2>`, so a Companion button can
-restyle a strap as well as fire it. `LOWERTEXT` and `LOWERSUB` now set the two
-lines of the lower third that `LOWERTHIRD` makes.
-
-**Effects go on and off a live cue without a hitch.** Adding the first effect,
-grade or key to a cue that is on air -- or clearing the last one -- now changes
-the picture on the very next frame, and the clip keeps moving. Paused cues pick
-the look up straight away too.
-
-**Levels and curves.** The two grading tools every operator reaches for are
-now the first two entries in the effect list. **Levels** has midtones (shown as
-gamma), black point, white point and lift; **curves** bends the picture into an
-S for contrast -- or flattens it -- on all channels or on red, green or blue
-alone, with a shadow lift and a highlight roll-off. Both arrive doing nothing
-until a slider moves, and both take an LFO like every other effect.
-
-**The stage timer can sit over the programme.** Its **backdrop** now goes to
-**transparent**, and the timer has its own **GEOMETRY** section, so the clock
-can be sized and parked in a corner of a playlist layered over the show. Over
-the network: `TIMER BACKDROP transparent | default | #rrggbb`. Text on any
-transparent frame -- lower thirds included -- now keeps clean edges.
-
-**A layer stays where you put it when you select its playlist.** Selecting a
-playlist that is layered on an output keeps the focus, and the programme
-monitor, on that output -- even with a recording or a stream running.
+- New: transparent backdrop and a GEOMETRY section to size and position
+  the timer over another playlist's programme.
+- Remote: `TIMER BACKDROP transparent | default | #rrggbb`.
 
 ## 2026-09-30 - v0.99.396 (text survives a second Mac, and a transition keeps its shape)
 
-**Issue #7, and issue #6 before it: no text anywhere in the interface on
-macOS.** Two earlier fixes were real improvements and neither one closed it —
-Metal ordered ahead of a deprecated OpenGL path, then a label cache that
-stopped text being the only thing in the app allocating a texture every
-frame. It came back on a second Mac (Tahoe 26.6.1, Apple Silicon) with both
-in place, which meant the fault was somewhere neither fix had touched:
-`SDL_CreateTextureFromSurface`, the one remaining STATIC-access texture in
-the whole app. Every image and video frame is built STREAMING, and none of
-those have ever come back blank on any machine. Text is now built the same
-way they are.
+### macOS
 
-If a machine ever loses its text again, it no longer has to be described
-rather than measured: which GPU backend a window landed on, and whether a
-text texture ever failed to build, are now written unconditionally to
-`deckboy-render.log` in the state directory — no flag to set, no terminal
-required to see it.
+- Fixed an issue where the entire interface could have no text on macOS,
+  including Tahoe 26.6.1 on Apple Silicon (issues #7 and #6). Text now uses
+  streaming textures, as image and video frames do. The issue persisted on
+  a second Mac after the earlier Metal preference and label-cache changes.
 
-**A transitioning cue keeps its own scale, crop and offset for the whole
-transition**, instead of snapping to the incoming cue's geometry the instant
-the transition starts. A cue letterboxed to fit the output no longer flashes
-to full-frame (or whatever the next cue asks for) before it has actually
-finished being replaced.
+### Diagnostics
 
-**Nine themes got a legibility pass.** `screen_ink_soft` and `screen_fg_soft`
-sat too close to the tile colour to read comfortably on Virtual Boy,
-Famicom, Metroid, Ganon, Midna, GameCube, Super Famicom, Star Fox and Switch
-Neon. All nine are brighter now.
+- The GPU backend used by each window and any text-texture creation failure
+  are always logged to `deckboy-render.log` in the state directory.
+  No diagnostic flag or terminal is required.
+
+### Transitions
+
+- Fixed an issue where an outgoing cue adopted the incoming cue's scale,
+  crop and offset as soon as a transition started. Each cue keeps its own
+  geometry throughout; letterboxed cues no longer flash to full frame or
+  the incoming cue's geometry.
+
+### Interface
+
+- Increased the brightness of soft text colours on nine themes: Virtual
+  Boy, Famicom, Metroid, Ganon, Midna, GameCube, Super Famicom, Star Fox and
+  Switch Neon. Soft labels now have greater contrast against panel tiles.
 
 ## 2026-09-27 - v0.99.393 (thirty-one languages, three new transitions, and the tracker you already owned)
 
-A large release: new sources and effects, a second control surface, and two
-features that now work on Windows for the first time.
+### Sources
 
-### Sources and looks
+- Live-coded sources accept a fourth expression for alpha after red, green
+  and blue, allowing transparent shapes over another picture.
+- New editable presets: gem, gem cluster, flash, cloud and ghast.
+  New expression: `noise(x, y)`.
 
-**Shapes.** The live-coded source can draw with **alpha** -- a fourth
-expression after red, green and blue -- so it sits *over* the picture instead
-of replacing it. Five to start from, one click each in the editor: **gem**,
-**gem cluster**, **flash**, **cloud** and **ghast**. They are ordinary
-expressions; open one and change it. `noise(x, y)` comes with them, for the
-shapes arithmetic cannot reach.
+### Effects and transitions
 
-**Feedback Bloom.** Video feedback whose echo turns colour and warps on every
-pass, so both compound -- iridescent trails that melt into the picture rather
-than fading. Four controls: hue turn, melt, zoom and swirl. Best over
-something dark.
+- New: Feedback Bloom, with hue turn, melt, zoom and swirl controls.
+  Colour shifts and warping accumulate on each feedback pass, producing
+  iridescent trails; best used over dark images.
+- New transitions, selectable per deck or per cue: Shatter, Clouds and
+  Ghastly. Shatter sends rotating shards out in waves with lit edges;
+  `gems` and `glass` are aliases. Clouds rises through the frame, replacing
+  the picture in its densest areas with a bright fringe. Ghastly desaturates
+  to cold blue-grey, smears upwards and replaces the picture with rising wisps.
 
-**Three transitions that are not a shape moving.** **Shatter** breaks the
-outgoing picture into shards that fly off in waves, turning and catching the
-light along the break -- `gems` and `glass` also select it. **Clouds** sends
-weather up through the frame, eating the picture where it is thickest, with the
-bright fringe of a cloud edge with light behind it. **Ghastly** drains the
-colour to a cold blue-grey, smears the picture upward and lets wisps rise and
-take it from below. Set them like any other style, per deck or per cue.
+### Media
 
-**An EQ band, per cue.** Frequency, gain, width, and a shape that makes it a
-bell or either shelf. It arrives flat, the way a new band does on any desk, so
-adding one changes nothing until you move it. Stack three or four for a full
-strip.
+- New: SOURCE > Browse media... lists folders first, then playable files.
+  Selecting a file adds it to the focused playlist and keeps the browser in
+  the same folder. Type to filter.
+- New: Settings > System > WATCH FOLDER. Each playlist can watch its own
+  folder and import arriving files while the show runs. Imports wait for
+  copying to finish; files are taken only once, and deleted cues stay deleted.
 
-### Getting media in
+### Audio
 
-**Browse for media without leaving the window.** **SOURCE → Browse media...**
-lists the current folder: directories, then anything Deckboy can play. Choose
-a file and it joins the focused playlist and stays open on the same folder, so
-adding six clips is six clicks. **Type to filter**, which on a folder of two
-hundred episodes is the whole feature.
+- New: per-cue EQ band with frequency, gain, width and bell or either shelf shape.
+  New bands start flat; stack three or four for a full EQ strip.
+- Settings > Audio offers `44100`, `48000`, `88200`, `96000` and
+  `192000 Hz`. The device, decoder, cue-chain filters and delays, and
+  video clock all follow the selected rate.
 
-**Watch folders.** Point a playlist at a folder in **Settings → System →
-WATCH FOLDER** and anything dropped in there becomes a cue by itself, while
-the show runs. Each playlist can watch its own. It waits for a copy to finish
-before taking a file, never takes the same file twice, and deleting a cue is
-final.
+### Remote protocol
 
-### Control and output
+- New: Settings > Network > vMix API serves the vMix HTTP API on port
+  `8088` and text protocol on port `8099`, for existing Stream Deck
+  plugins, Companion modules and touch panels.
+- Each vMix input maps to a Deckboy cue, numbered across all playlists,
+  including per-cue tally.
+- New: `AVJUMP` on the control port counts stalls and playhead jumps.
 
-**Deckboy answers the vMix APIs.** **Settings → Network → vMix API** makes it
-speak vMix's HTTP API on 8088 and vMix's text protocol on 8099 -- their ports,
-their commands -- so a Stream Deck plugin, Companion module or touch panel
-already set up for a vMix rig drives this desk with nothing written. A vMix
-*input* is a Deckboy *cue*, numbered through every playlist, so per-cue tally
-works as a panel expects.
+### Outputs
 
-**Key and fill on SDI.** **Settings → Video Outputs → Devices → KEY+FILL**
-with a second DeckLink card as **Key out** sends the picture on one card and a
-greyscale matte of its alpha on the other, so a vision mixer can lay a graphic
-over its programme with real soft edges. The output composites over
-transparency in this mode and the fill is premultiplied, which is what
-hardware keyers expect. New in this release and not yet tried on a card --
-tell us how it goes.
+- New: Settings > Video Outputs > Devices > KEY+FILL sends picture on one
+  DeckLink card and a greyscale alpha matte on a second card selected as
+  Key out. The output composites over transparency with premultiplied fill
+  for hardware keyers.
 
-**Any sample rate**, not only 48k: **44100, 48000, 88200, 96000 or 192000 Hz**
-in **Settings → Audio**. Everything follows it -- the device, the decoder,
-every filter and delay in the cue audio chain, and the video clock.
+### Windows
 
-### Working on Windows for the first time
+- LTC generation, LTC chase and timecode cues are now available; the required
+  library is bundled.
+- The encoder now offers HAP, HAP Alpha and HAP Q, with an ffmpeg build
+  that supports encoding them.
 
-**Timecode.** LTC generation, LTC chase and timecode cues now work in the
-Windows build; the library they need travels with it.
+### Playback
 
-**HAP encoding.** HAP, HAP Alpha and HAP Q are available in the encoder, with
-an ffmpeg that can write them.
+- Fixed an issue where heavy media held briefly and then rushed at the start
+  of a cue. The playback clock now waits for a few decoded frames of headroom;
+  the picture itself is not delayed.
+- The pointer hides after `3` seconds without movement over the program
+  monitor or an output window. Moving it makes it visible again.
 
-### Playback and interface
+### Interface and localisation
 
-**Cues start with frames in hand.** A cue used to start its clock the instant
-it was taken, while the decoder was still opening the file -- so on heavy
-media the picture could hold for a moment and then rush. It now waits for a
-few frames of headroom first. The picture is not delayed; only the clock.
+- Expanded the catalogues in the 31-language release to cover around 90% of
+  drawn text: German, French, Spanish, Cuban Spanish, Italian, Dutch,
+  Brazilian Portuguese, Polish, Danish, Finnish, Icelandic, Scots, Gaelic,
+  Greek, Bulgarian, Russian, Ukrainian, Turkish, Japanese, Simplified and
+  Traditional Chinese, Korean, Arabic, Hindi, Zulu, Lumeni, Klingon and
+  Sindarin.
+- Missing scripts use fonts installed on the machine.
+  `--font-check <language>` reports whether a suitable font was found.
+- Broadcast terms `TAKE`, `PROGRAM`, `NDI`, `SRT` and `OSC` remain
+  English in every language.
+- Navajo, Mohawk and Muscogee are marked `(unreviewed)` in the picker.
+  No speaker has reviewed them; untranslated text remains English.
+  Contributors can edit the plain-text language catalogues.
+- Fixed an issue where language names were unreadable when the current
+  language's font lacked their script. Entries now include an English name,
+  for example `Japanese - 日本語`.
+- Fixed an issue where the transition-style button showed garbled
+  characters instead of its arrow.
+- Fixed an issue where the activity indicator was hidden underneath its
+  panel.
 
-**`AVJUMP`** over the control port counts stalls and playhead jumps, so a
-machine that stutters can say what it is doing rather than being watched for.
+### Dashboard and documentation
 
-**The pointer gets out of the way.** Left still for three seconds over the
-program monitor or an output window it hides, and any movement brings it back.
+- Documented the existing master tracker in manual section 11a:
+  `Ctrl+D` opens the dashboard and TILES / TRACKER switches views.
+  Steps run down the grid and playlists across it; each step can fire a cue
+  on every playlist, with its own length, countdown and LOOP.
+  `Page Up` / `Page Down` support a presenter's clicker.
+- Added nine existing shortcuts to the `Ctrl+/` overlay, including
+  `Ctrl+Enter` (take all decks), `Ctrl+Space` (play/pause all decks),
+  `Ctrl+Shift+Space` (stop all decks) and `Ctrl+A` (select the playlist).
+  The manual's key table is generated from the same list.
 
-**Thirty-one languages, filled in.** Every catalogue that shipped as a stub now
-covers around nine tenths of the text Deckboy draws -- German, French, Spanish,
-Cuban Spanish, Italian, Dutch, Brazilian Portuguese, Polish, Danish, Finnish,
-Icelandic, Scots, Gaelic, Greek, Bulgarian, Russian, Ukrainian, Turkish,
-Japanese, Chinese in both scripts, Korean, Arabic, Hindi, Zulu, and Lumeni,
-Klingon and Sindarin for the fun of it. Where a language needs a face the
-bundled fonts do not have, Deckboy finds one on the machine; **--font-check
-<language>** says whether it did.
+### Known issues
 
-The broadcast words the trade leaves in English -- TAKE, PROGRAM, NDI, SRT,
-OSC -- stay in English in every one of them, so an operator who learned the
-desk in one country can work it in another.
-
-**Navajo, Mohawk and Muscogee are marked "(unreviewed)" in the picker.** No
-speaker of those languages has read those files yet, and the rest of each is
-deliberately left in English rather than filled with invented technical
-vocabulary. If you speak one and want to fix it, the files are plain text in
-`data/lang/`.
-
-**A readable language picker.** Entries read "Japanese - 日本語". Each was
-shown only in its own script, in the font of the language you were leaving, so
-several were unreadable until after you chose one.
-
-**The master tracker, written down at last.** **Ctrl+D** opens the dashboard,
-and its **TILES / TRACKER** switch turns it into a grid of steps by playlists:
-one step fires a cue on every playlist at once, each with its own length, a
-countdown, LOOP, and Page Up / Page Down from a presenter's clicker. It has
-been in Deckboy for a while and nothing told you how to reach it. Manual
-section 11a.
-
-**Nine keys that worked and were never listed** are now on the **Ctrl+/**
-overlay, including take, play/pause and stop on *every* deck at once
-(**Ctrl+Enter**, **Ctrl+Space**, **Ctrl+Shift+Space**) and **Ctrl+A** to select
-a whole playlist. The manual's key table is generated from that same list, so
-the two cannot drift apart again.
-
-**The transition style button shows its arrow** rather than a scramble of
-characters.
-
-**The little critter that says a thing is working** now actually appears --
-it was being drawn underneath the panel it lives in.
+- DeckLink key-and-fill output has not yet been tested on hardware.
 
 ## 2026-09-25 - v0.99.379 (Companion module 1.0.2, and the animals stay off the picture)
 
-**Companion module 1.0.2**, with the changes asked for in review:
+### Companion
 
-- Every playlist and output a button can address now has variables behind it.
-  The options offered sixteen while the variables stopped at four, so a button
-  on playlist 7 worked and everything it reported was blank.
-- A status request that goes unanswered no longer stops the polling. A surface
-  keeps its tally and countdowns instead of quietly freezing.
-- Text typed into an action, or arriving from another module's variable, is
-  sent as exactly one command.
+- Updated the module to `1.0.2`.
+- Fixed an issue where variables were blank for playlists and outputs above
+  `4`, although actions could address `16`. Every addressable playlist
+  and output now has variables.
+- Fixed an issue where tally and countdowns froze after a status request
+  went unanswered. Polling now continues.
+- Action text, including text from another module's variable, is sent as
+  exactly one command.
+- Added an in-module help page with connection troubleshooting.
 
-It also carries its own help page inside Companion, including what to check
-when it will not connect.
+### Interface
 
-**The animals stay off the picture.** A theme's creatures may live in the idle
-program monitor, and they now leave it the moment a cue goes live rather than
-keeping the spot they were given when the app opened.
+- Fixed an issue where theme creatures remained over the program monitor
+  when a cue went live. They leave the idle monitor as soon as it is in use.
 
 ## 2026-09-25 - v0.99.378 (Presets, portals, and a lower third you can watch yourself make)
 
-**Presets: a moment of the whole show, recalled as much or as little as asked.**
-Store the desk as it stands and bring it back -- everything, or only the parts
-you name.
+### Presets
 
-**Portal, a source and a transition.** Blobs of deep space with a neon rim,
-transparent between them so it sits on a layer over another playlist. As a
-transition the blobs melt open through the outgoing picture.
+- New: save the desk's current state and recall the whole show or selected
+  parts.
 
-**Time cube.** The last frames of a clip stacked as a block and turned in
-space: the front face is now and the sides are streaks through time. See-
-through renders the whole volume.
+### Sources and effects
 
-**Oscillators on the geometry.** Every geometry row -- width, height, offset X
-and Y, rotation and the four crops -- carries the same control effect
-parameters have: shape, rate or beats, depth, tempo lock and a curve you can
-draw. The number you set stays the number you set; the swing is applied as the
-picture is drawn.
+- New: Portal source and transition. Neon-rimmed space blobs have transparent
+  gaps for layering over another playlist; the transition opens them through
+  the outgoing picture.
+- New: Time cube stacks recent clip frames into a rotating volume. The front
+  shows the current frame and the sides show time streaks. See-through
+  renders the whole volume.
+- New: geometry oscillators on width, height, X/Y offsets, rotation and all
+  four crops. Controls match effect modulation: shape, rate or beats, depth,
+  tempo lock and a drawable curve. Stored values stay unchanged; modulation
+  applies when drawing.
 
-**Lower thirds, properly.** A name and a role on a transparent frame, fired
-from its own playlist over another. Five looks, nine colours that read over a
-picture, and eight ways in and out. They now draw in the program monitor and
-in the multiview while you build them, with no output armed -- so you can see
-what you are making.
+### Lower thirds
 
-**A crossfader that belongs to an output.** Between any two entries of that
-output's stack, taking its blend from the layer. Dissolve fades the outgoing
-side; every other blend brings the incoming one in over it.
+- Name and role on a transparent frame, played from a separate playlist over
+  another. Includes five looks, nine colours and eight entrance/exit styles.
+- Fixed an issue where lower thirds were not visible in the program monitor
+  or multiview when no output was armed. Both now preview them while editing.
 
-**A monitor of your own.** Hear one playlist by itself on a device you choose,
-while the room hears the show -- and keep a playlist out of the room entirely
-without losing it on the monitor.
+### Outputs and audio
 
-**The master tracker plays.** Steps down the page, playlists across it, and
-dashboard buttons you can edit.
+- New: per-output crossfader between any two entries in that output's stack.
+  It uses the layer's blend mode: Dissolve fades out the outgoing side;
+  other blends bring the incoming side over it.
+- New: monitor one playlist on a chosen device while the room hears the
+  show. A playlist can be excluded from the room and remain on the monitor.
 
-**Steadier:** toggling NMC sync no longer freezes the app, a typo in a live-code
-cue no longer closes it, and reading the encoder's state over the network no
-longer races the encode queue. A small window is a smaller desk rather than a
-squashed one, and a Linux build in `build/linux` finds its data folder.
+### Dashboard
+
+- The master tracker plays steps down the page across playlists, with
+  editable dashboard buttons.
+
+### Desk
+
+- Fixed an issue where toggling NMC sync froze the app.
+- Fixed an issue where a typo in a live-code cue closed the app.
+- Fixed an issue where reading encoder status remotely conflicted with
+  updates to the encode queue.
+- Small windows now reduce the interface scale to fit.
+
+### Linux
+
+- Fixed an issue where builds in `build/linux` could not find their data
+  folder.
 
 ## 2026-09-24 - v0.99.377 (Master cues as a tracker, and every button says what it is)
 
-**`VIDEO OUTPUT LAYERWARP` sets a layer's corner pin** over the network: eight
-fractions clockwise from the top left, or `OFF`. Fractions of the layer's own
-rect, so a pin still means the same thing after the layer is moved or resized.
+### Outputs
 
-**A layer's mapping applies wherever that picture goes** -- the programme, a
-recording, a stream, an NDI sender, or a second screen showing the programme.
-A destination that mirrors another composites the same mapped layers it does.
+- New: `VIDEO OUTPUT LAYERWARP` sets a layer's corner pin with eight
+  fractions clockwise from the top left, or disables it with `OFF`.
+  Coordinates are relative to the layer's own rectangle and remain valid
+  when it moves or resizes.
+- Layer mapping applies to programme output, recordings, streams, NDI
+  senders and secondary programme screens. Mirrored destinations composite
+  the same mapped layers as their source.
+- Added a programme-recording check that compares corner patches to verify
+  the rendered pin.
 
-**`tools/check_layer_warp.py`** records the programme and compares corner
-patches, so the pin is checked by what it puts on screen rather than by what
-it stores.
-**Master cues, as a tracker.** The dashboard has a second view: steps down the
-page, playlists across it, and every cell a cue that step fires. A master cue
-has always held one instruction per playlist -- this is the first time you can
-see the whole sequence at once, read down it for time and across it for
-destinations, and pick a cell from a list. Switch between TILES and TRACKER in
-the dashboard's header (Ctrl+D).
+### Dashboard
 
-**Every button says what it is.** A button whose whole face is an icon now
-falls back to a short word when its picture is unavailable, so the playlist's
-LOOP and ONCE are always readable.
+- New: Tracker view shows master-cue steps down the page and playlists
+  across it. Each cell selects the cue that step fires from a list, exposing
+  the sequence's existing per-playlist instructions.
+- Open with `Ctrl+D`; switch TILES / TRACKER in the dashboard header.
 
-**`--image-check`** answers "can this machine draw the interface's pictures",
-and names the step that fails if it cannot -- the companion to `--font-check`.
-Deckboy decodes its icons and splash art with ffprobe and ffmpeg, and this
-reports whether they are reachable and whether a picture actually comes back.
+### Interface and diagnostics
+
+- Icon-only buttons fall back to a short label when their image is
+  unavailable, including playlist `LOOP` and `ONCE`.
+- New: `--image-check` checks whether the machine can draw interface icons
+  and splash art. It verifies ffprobe and ffmpeg are reachable, checks that
+  decoding returns a picture, and identifies the failing step.
+  Complements `--font-check`.
 
 ## 2026-09-24 - v0.99.376 (Projection mapping end to end, and a monitor of your own)
 
-**Mapping belongs to the layer as well as the output.** The output's warp lines
-a projector up with the screen it is pointed at; a layer's own corner pin puts
-that playlist onto a surface within it. Together they map several objects from
-one projector. A layer's corners are held relative to the layer, so a pin
-survives the layer being moved or resized.
+### Outputs
 
-**The mapping controls, end to end.** Warp corner dragging, RESET, presets,
-copy and paste, the edge-blend controls, the WARP button's own lit state, the
-WARP and BLEND replies over the network, and what Deckboy tells a control
-surface about mapping all act on the output the picture lands on -- the same
-place the compositor reads, so what you adjust is what you see.
+- New: per-layer corner pins in addition to output warp, allowing several
+  surfaces to be mapped from one projector. Layer corners are relative to
+  the layer and retain their alignment when it moves or resizes.
+- Fixed an issue where mapping controls could address a different output
+  from the one showing the picture. Corner dragging, RESET, presets,
+  copy/paste, edge blend, the WARP button's lit state, remote `WARP` and
+  `BLEND` replies, and control-surface mapping status now use the
+  destination output.
 
-**A monitor of your own.** Choose a device and hear one playlist on it, by
-itself, while the room hears the show. It follows the playlist you are working
-on, or pin it to one. Switching is instant: nothing is reopened, so it never
-clicks. A named monitor device that is not present stays silent and says so
-rather than falling back to the room.
+### Audio
 
-**And a playlist can stay out of the room.** A playlist feeding a second screen
-can be taken out of the PA while remaining on your monitor. Both switches are
-in the playlist's routing menu, with the monitor device in Settings > Audio.
-
-**For scripting:** `MONITOR` reads and sets all of it, and reports what the
-audio engines are actually doing rather than what was asked for.
+- New: listen to one playlist on a separate monitor device while the room
+  hears the show. Monitoring can follow the focused playlist or stay pinned
+  to one. Switching is immediate without reopening audio devices or clicks.
+- A missing named monitor device stays silent and reports its absence;
+  it does not fall back to the room's device.
+- Playlists can be excluded from the PA while remaining audible on the
+  monitor, including playlists feeding a second screen.
+- Both playlist switches are in the routing menu; choose the monitor device
+  in Settings > Audio.
+- Remote: `MONITOR` reads and sets monitoring and reports the audio engines'
+  actual state.
 
 ## 2026-09-24 - v0.99.375 (A multiview you arrange yourself, and a window by the hearth)
 
-**The multiview is a set of windows you lay out.** It used to be one window
-per playlist, in order, always -- which is a lot of windows once a show has
-several playlists, and a playlist that only exists as a layer over another one
-is already visible in the window of the output it feeds. Now each window is
-yours to assign: right-click one to say what it shows -- the programme, any
-playlist, or nothing -- and to give it safe areas (action 90%, title 80%) and
-its own audio meter. Add windows, remove them, or reset to one per playlist
-whenever you like. A show that never touches this looks exactly as it did.
+### Multiview
 
-**Pick a playlist from a list.** The output's source-deck row opens the menu it
-has always looked like, so choosing the eighth playlist takes one press.
+- Changed: multiview windows can be assigned individually. Right-click a
+  window to show the programme, any playlist or nothing, and to add safe
+  areas (action `90%`, title `80%`) and an audio meter.
+- Add or remove windows, or reset to one per playlist. Existing shows keep
+  their layout until it is changed.
+- Remote: `MULTIVIEW WINDOW` reads and arranges windows.
 
-**A window on the hearth wall.** The fireside pattern can look out onto a
-garden, rain, snow or the sea, each drawn on the same coarse grid as the fire
-so the room is one picture. Pick one on the cue's FIRESIDE row. The fire keeps
-burning exactly as it did.
+### Outputs
 
-**Taking a playlist away.** The `-` beside the playlist tabs arms in red on the
-first press and removes on the second, so it cannot be caught by a mis-tap next
-to the `+`.
+- The source-deck row now opens a playlist menu for direct selection.
 
-**Clearer playlist footers.** The play mode and the layer level each get their
-own space, so both stay readable however narrow the column gets.
+### Sources
 
-**For scripting and checking:** `MULTIVIEW WINDOW` reads and arranges the
-windows over the network, and `--pattern-dump fireside:snow` renders any of the
-hearth's views to a file without opening a window.
+- Fireside adds garden, rain, snow and sea views through a window on the
+  hearth wall. Choose one in the cue's FIRESIDE row; it uses the fire's
+  coarse grid and leaves the fire unchanged.
+- `--pattern-dump fireside:snow` renders a hearth view to a file without
+  opening a window; the other views can also be dumped.
+
+### Desk
+
+- Changed: the `-` beside the playlist tabs arms in red on the first press
+  and removes the playlist on the second.
+- Fixed an issue where playlist play mode and layer level became hard to
+  read in narrow columns. Each now has its own footer space.
 
 ## 2026-09-23 - v0.99.374 (Super Deckboy properly: every playlist on its own output, a walk-up sting)
 
-Everything 0.99.373 previewed, finished -- plus the features that came out of
-working through it on a real desk.
+### Show files
 
-**Two show-file changes, both of which migrate on load.** Projection mapping
-now belongs to the OUTPUT rather than the deck, and a layer carries a position
-and a blend mode. An existing show opens with the alignment and the layers it
-already had. Worth knowing before you roll back: an older Deckboy opening a
-show saved by this one will not see either.
+- Changed: projection mapping is stored per output, and each layer stores
+  its position and blend mode. Existing shows migrate on load and retain
+  their alignment and layers.
+- Older Deckboy versions cannot read either change from shows saved by
+  this version.
 
-**Super Deckboy: a playlist goes to an output, and to a layer within it.**
-Each output carries its own stack, so one playlist can run a camera while
-another puts lower thirds over it -- and a second output can show the same
-camera clean. The routing menu draws each output's whole stack with an
-insertion point between every pair, so choosing a layer is choosing a row, and
-you can see what an output is made of. Playlists can be added and removed from
-the playlist strip, each with its own sound.
+### Outputs
 
-**A multiview**, in the control window and as an output type of its own. Every
-playlist's picture at once, each tile showing where that playlist is routed and
-carrying its layer fader -- which is the control that decides how much of a
-layer you see. Put it on a second screen and work from it.
+- Each output has its own playlist layer stack. A camera and lower thirds
+  can share one output while another shows the camera clean.
+- The routing menu shows each output's full stack, with an insertion point
+  between each pair of layers.
+- Warp and edge blend apply per output, so a playlist can feed a keystoned
+  projector and a clean stream simultaneously.
+- New: multiview in the control window and as a separate output type for
+  another screen. Each playlist tile shows its routing and layer fader.
+- Fixed an issue where recordings did not capture the programme.
 
-**Projection mapping per output.** Warp and edge blend correct for the screen a
-picture lands on, so one playlist can feed a keystoned projector and a clean
-stream at the same time.
+### Audio and MIDI
 
-**One cue's audio to several devices at once.** The crosspoint matrix routes a
-cue across the channels of one interface; this is the other axis -- the same
-sound to the PA and the encoder, or to the house and a wedge on another box.
+- A cue can send the same audio to several devices simultaneously, in
+  addition to the crosspoint matrix's channel routing within one interface.
+- New: MIDI file source. Drop a `.mid` file into a playlist and select an
+  output port. Playback follows the cue transport, including scrubbing,
+  pause and loop.
+- New: generated walk-up sting with pitch, length, sweep and body sliders.
+  It ends automatically and can run in a cue sequence like a clip.
 
-**A MIDI file is a source.** Drop a .mid in the playlist and it plays out, on
-the cue's own transport, to whichever port you pick -- so it scrubs, pauses and
-loops like everything else.
+### Sources
 
-**A built-in walk-up sting**, generated rather than a file, with sliders for
-pitch, length, sweep and body. The one generated signal here that ends by
-itself, so it sits in a running order like a clip.
+- New: Text source for title cards, scrolls, crawls and wobble, animated
+  from the cue transport.
+- Added thirteen engineering test patterns and a free downloadable kit.
 
-**The dashboard** has a button on the bar, its tiles can be deleted, and a
-master cue can be put on one in a single press.
+### Desk
 
-**Text on screen** as a source of its own: a title card, a scroll, a crawl, or
-a wobble, animated from the cue's transport.
-
-**Thirteen engineering test patterns**, and a free downloadable kit of them.
-
-**Smaller things:** every inspector row is pressable across its whole width;
-"show in explorer" selects the file; recordings capture the programme; a cold
-file starts cleanly on its first play; the spacebar is play/pause and GO walks
-the standby; and the playlist has animals in it again.
+- Playlists can be added and removed from the playlist strip, each with
+  independent audio.
+- The dashboard has a bar button; tiles can be deleted, and a master cue
+  can be assigned to a tile in one press.
+- Inspector rows accept presses across their full width.
+- `show in explorer` selects the media file.
+- Fixed an issue where a cold file did not start cleanly on its first play.
+- `Space` controls play/pause; GO advances through standby cues.
+- Restored animals in the playlist.
 
 ## 2026-09-22 - v0.99.373 (EXPERIMENTAL - a cue list that is a program, and a deck that speaks)
 
