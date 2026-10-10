@@ -815,10 +815,11 @@ facility timing and interoperability need measurement on the intended network.
 In `Settings → Video Outputs → Devices`, turn **NMOS** on to publish the
 ST 2110 senders through AMWA IS-04 and control them through IS-05. Enable
 **REMOTE ON** in the Network settings so the registry can reach the node.
-**LOCAL ONLY** binds the Node and Connection APIs to loopback. It disables
-automatic discovery, with the status **NMOS: discovery needs the remote network
-allowed**. A typed registry URL still registers, regardless of this setting,
-as before; remote controllers need **REMOTE ON** to reach the Node API.
+**LOCAL ONLY** binds the Node and Connection APIs to loopback, so nothing on
+the network could open what Deckboy would publish. It turns off automatic
+discovery, with the status **NMOS: discovery needs the remote network
+allowed**, and it holds back a typed registry too, with the status **NMOS: NOT
+registering - network is LOCAL ONLY**.
 
 Leave **Registry** blank for automatic discovery on the local IPv4 network.
 Deckboy queries `_nmos-register._tcp.local` and the older
