@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <array>
+#include <iterator>
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
@@ -37,7 +38,11 @@ bool isImagePath(const fs::path& path) {
   std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
     return static_cast<char>(std::tolower(ch));
   });
-  static const std::array<std::string, 12> kImageExts {
+  // Sized by its contents, not by hand. Written as std::array<std::string, 12>
+  // with eleven entries, the twelfth was an EMPTY string -- so every file with
+  // no extension (a README, a LICENSE) counted as a still, and a dropped folder
+  // or a watch folder imported it as a cue that could not be read.
+  static const std::string kImageExts[] = {
     ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".tif", ".tiff", ".avif",
     // Apple stills. An iPhone photo is HEIC (a single-frame "Main Still
     // Picture" HEVC in a HEIF container); without these it was classified as a
@@ -48,7 +53,7 @@ bool isImagePath(const fs::path& path) {
     // everywhere, not just macOS.
     ".heic", ".heif"
   };
-  return std::find(kImageExts.begin(), kImageExts.end(), ext) != kImageExts.end();
+  return std::find(std::begin(kImageExts), std::end(kImageExts), ext) != std::end(kImageExts);
 }
 
 // A MIDI FILE IS NOT AUDIO, whatever the folder it lives in says. It carries
