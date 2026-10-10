@@ -4,8 +4,10 @@
 // See LICENSE for details.
 
 // font_fallbacks.cpp -- see font_fallbacks.hpp. Every path below was checked on
-// the platform it names; `Deckboy --self-check` prints the ones it found, and CI
-// runs that on every platform, so a font that moves shows up there.
+// the platform it names -- the Linux ones against the file lists of the Debian
+// packages that install them, which is what Ubuntu, Mint and Raspberry Pi OS
+// ship -- and `Deckboy --self-check` prints the ones it found. CI runs that on
+// every platform, so a font that moves shows up there.
 
 #include "render/font_fallbacks.hpp"
 
@@ -40,6 +42,7 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 2},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 2},
         {"/usr/share/fonts/truetype/wqy/wqy-microhei.ttc", 0},
+        {"/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc", 0},
         {"/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf", 0},
 #endif
       };
@@ -54,6 +57,9 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
 #else
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 3},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 3},
+        {"/usr/share/fonts/truetype/arphic/uming.ttc", 0},
+        {"/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc", 0},
+        {"/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf", 0},
 #endif
       };
     case Cjk::Japanese:
@@ -69,6 +75,9 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
 #else
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 0},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 0},
+        {"/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf", 0},
+        {"/usr/share/fonts/truetype/takao-gothic/TakaoPGothic.ttf", 0},
+        {"/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf", 0},
 #endif
       };
     case Cjk::Korean:
@@ -81,6 +90,7 @@ std::vector<FallbackFont> cjkFaces(Cjk which) {
         {"/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 1},
         {"/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 1},
         {"/usr/share/fonts/truetype/nanum/NanumGothic.ttf", 0},
+        {"/usr/share/fonts/truetype/unfonts-core/UnDotum.ttf", 0},
 #endif
       };
   }
