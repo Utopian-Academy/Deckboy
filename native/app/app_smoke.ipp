@@ -552,6 +552,17 @@
       expect(deckboy::core::i18n::translate(deckboy::core::i18n::translate("NEW")) != "-. . .--",
              "cypher: morse twice is not morse once");
 
+      // A NAME AND ITS QUALIFIER. Menus write "Full White (motion)"; with no
+      // line for the whole, each half is translated on its own. Against the
+      // German catalogue, whose OUTPUT is AUSGANG and which has no line for
+      // "spare": the half it knows changes and the half it does not stays.
+      if (deckboy::core::i18n::setLanguage("de", Paths::dataDir(), err)) {
+        expect(deckboy::core::i18n::translate("OUTPUT (spare)") == "AUSGANG (spare)",
+               "i18n: a bracketed qualifier does not hide the name from the catalogue");
+        expect(deckboy::core::i18n::translate("spare (also spare)") == "spare (also spare)",
+               "i18n: a name and qualifier nobody translated stay as written");
+      }
+
       deckboy::core::i18n::setLanguage("en", noData, err);
       expect(deckboy::core::i18n::passthrough(), "cypher: english is a pass-through");
       expect(deckboy::core::i18n::translate("TAKE") == "TAKE", "cypher: english changes nothing");
