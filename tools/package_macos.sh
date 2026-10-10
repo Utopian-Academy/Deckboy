@@ -498,7 +498,12 @@ ditto "$MACOS_DIR/deckboy-mini" "$MINI_STAGE/bin/deckboy-mini"
 ditto "$MACOS_DIR/ffmpeg" "$MINI_STAGE/bin/ffmpeg"
 ditto "$MACOS_DIR/ffprobe" "$MINI_STAGE/bin/ffprobe"
 ditto "$FRAMEWORKS_DIR" "$MINI_STAGE/Frameworks"
-cp "$REPO_ROOT/data/fonts/LiberationSans-Regular.ttf" "$MINI_STAGE/data/fonts/"
+# The subtitle face, and the two faces that draw Arabic, Persian and Tamazight
+# on a machine without them, each with the licence that has to travel with it.
+for f in LiberationSans-Regular.ttf LICENSE-Liberation.txt NotoSansArabic-Regular.ttf \
+         NotoSansTifinagh-Regular.ttf LICENSE-Noto.txt; do
+  cp "$REPO_ROOT/data/fonts/$f" "$MINI_STAGE/data/fonts/"
+done
 cp "$REPO_ROOT/LICENSE" "$MINI_STAGE/"
 cat > "$MINI_STAGE/deckboy-mini" <<'LAUNCH'
 #!/bin/sh

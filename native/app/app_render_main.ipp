@@ -133,7 +133,7 @@
           pos, space == std::string::npos ? std::string::npos : space - pos);
         const std::string trial = line.empty() ? word : line + " " + word;
         int tw = 0;
-        TTF_GetStringSize(font, trial.c_str(), 0, &tw, nullptr);
+        textSizeShown(font, trial.c_str(), 0, &tw, nullptr);
         if (tw > wrapW && !line.empty()) {
           wrapped.push_back(line);
           line = word;
@@ -1631,7 +1631,7 @@
         const int lbl   = floored(kLblNat, 34);
         int blendNeedEarly = 0;
         if (fontSmall_) {
-          TTF_GetStringSize(fontSmall_, project_.vjBlendMode.c_str(), 0,
+          textSizeShown(fontSmall_, project_.vjBlendMode.c_str(), 0,
                             &blendNeedEarly, nullptr);
         }
         const int blendCost = std::max(floored(kBlendNat, 52), blendNeedEarly + 16);
@@ -1665,7 +1665,7 @@
       // afford that, it is one of the controls that drops.
       int blendNeed = 0;
       if (fontSmall_) {
-        TTF_GetStringSize(fontSmall_, project_.vjBlendMode.c_str(), 0,
+        textSizeShown(fontSmall_, project_.vjBlendMode.c_str(), 0,
                           &blendNeed, nullptr);
       }
       const int blendW = std::max(squeezed(kBlendNat, 52), blendNeed + 16);
@@ -1748,7 +1748,7 @@
         pos << std::fixed << std::setprecision(2) << mix;
         int posW = 0;
         if (fontSmall_) {
-          TTF_GetStringSize(fontSmall_, pos.str().c_str(), 0, &posW, nullptr);
+          textSizeShown(fontSmall_, pos.str().c_str(), 0, &posW, nullptr);
         }
         posW = std::min(vjCrossfaderRect_.w - 6, posW + 10);
         if (posW > 12) {
@@ -2116,11 +2116,11 @@
     int countdownTextW = 0;
     int countdownTextH = 0;
     if (countdownFont &&
-        TTF_GetStringSize(countdownFont, countdownText.c_str(), 0, &countdownTextW, &countdownTextH) &&
+        textSizeShown(countdownFont, countdownText.c_str(), 0, &countdownTextW, &countdownTextH) &&
         (countdownTextW > countdownRect.w - 20 || countdownTextH > countdownRect.h - 24)) {
       countdownFont = fontBase_ ? fontBase_ : countdownFont;
       if (countdownFont &&
-          TTF_GetStringSize(countdownFont, countdownText.c_str(), 0, &countdownTextW, &countdownTextH) &&
+          textSizeShown(countdownFont, countdownText.c_str(), 0, &countdownTextW, &countdownTextH) &&
           (countdownTextW > countdownRect.w - 20 || countdownTextH > countdownRect.h - 24) &&
           fontSmall_) {
         countdownFont = fontSmall_;
@@ -2236,12 +2236,12 @@
       int loadingTextW = 0;
       int loadingTextH = 0;
       if (!loadingFont ||
-          !TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
+          !textSizeShown(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
           loadingTextW > loadingRect.w) {
         loadingFont = fontSmall_ ? fontSmall_ : loadingFont;
       }
       if (loadingFont &&
-          TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
+          textSizeShown(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
           loadingTextW > loadingRect.w &&
           fontMono_) {
         loadingFont = fontMono_;
@@ -2323,12 +2323,12 @@
       int loadingTextW = 0;
       int loadingTextH = 0;
       if (!loadingFont ||
-          !TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
+          !textSizeShown(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
           loadingTextW > loadingRect.w) {
         loadingFont = fontSmall_ ? fontSmall_ : loadingFont;
       }
       if (loadingFont &&
-          TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
+          textSizeShown(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
           loadingTextW > loadingRect.w &&
           fontMono_) {
         loadingFont = fontMono_;
@@ -2532,7 +2532,7 @@
             "TRIM " + formatSeconds(timelineCueIn) + " - " +
             formatSeconds(timelineCueOut);
           int tw = 0, th = 0;
-          TTF_GetStringSize(trimFont, range.c_str(), 0, &tw, &th);
+          textSizeShown(trimFont, range.c_str(), 0, &tw, &th);
           // Centred in the bar when it fits, and simply left out when it does
           // not -- a truncated readout of a time range is worse than none.
           // drawText, NOT drawTextSafe. drawTextSafe insets by 12px before it
@@ -2653,17 +2653,17 @@
       // it marks anyway; nothing about the reading changes.
       int laneNameW = 0, laneNameH = 0;
       if (fontSmall_) {
-        TTF_GetStringSize(fontSmall_, "VIDEO", 0, &laneNameW, &laneNameH);
+        textSizeShown(fontSmall_, "VIDEO", 0, &laneNameW, &laneNameH);
       }
       drawText(controlRenderer_, fontSmall_, leftStr, pal.dark,
                progressBarRect_.x + 4 + laneNameW + uiScaled(8), rulerY);
       int midW = 0, midH = 0;
-      if (fontSmall_ && TTF_GetStringSize(fontSmall_, midStr.c_str(), 0, &midW, &midH)) {
+      if (fontSmall_ && textSizeShown(fontSmall_, midStr.c_str(), 0, &midW, &midH)) {
         drawText(controlRenderer_, fontSmall_, midStr, pal.dark,
                  progressBarRect_.x + progressBarRect_.w / 2 - midW / 2, rulerY);
       }
       int rightW = 0, rightH = 0;
-      if (fontSmall_ && TTF_GetStringSize(fontSmall_, rightStr.c_str(), 0, &rightW, &rightH)) {
+      if (fontSmall_ && textSizeShown(fontSmall_, rightStr.c_str(), 0, &rightW, &rightH)) {
         drawText(controlRenderer_, fontSmall_, rightStr, pal.dark,
                  progressBarRect_.x + progressBarRect_.w - rightW - 4, rulerY);
       }
@@ -2833,7 +2833,7 @@
           // gets a reserved minimum and the label takes what is left.
           constexpr int kBadgeValueMinW = 44;
           int measuredLabelW = 0, measuredLabelH = 0;
-          TTF_GetStringSize(fontSmall_, labelText.c_str(), labelText.size(),
+          textSizeShown(fontSmall_, labelText.c_str(), labelText.size(),
                             &measuredLabelW, &measuredLabelH);
           const int labelWCap = std::max(40, badge.w - kBadgeValueMinW - 16);
           // +12, not +4: drawTextSafe insets the rect before laying out, so a
@@ -2850,7 +2850,9 @@
           // "OUT" reads as a deliberate label. Falls through to the ellipsizer
           // for anything not in this table, so nothing can overflow.
           std::string shownLabel = labelText;
-          if (measuredLabelW + 12 > labelWCap) {
+          // The abbreviations are ENGLISH ones, so only an English desk uses
+          // them; a translated label is fitted by drawTextSafe instead.
+          if (measuredLabelW + 12 > labelWCap && deckboy::core::i18n::passthrough()) {
             static const std::pair<const char*, const char*> kShortLabels[] = {
               {"OUTPUT", "OUT"}, {"DECODE", "DEC"}, {"STREAM", "STR"},
               {"PROGRAM", "PGM"}, {"PREVIEW", "PVW"},
@@ -2864,16 +2866,23 @@
           }
           drawTextSafe(controlRenderer_, fontSmall_, badgeLabelRect,
                        ellipsizeToPixelWidth(fontSmall_, shownLabel, badgeLabelRect.w), ink);
-          TTF_Font* valueFont = valueText.size() > 4 ? fontSmall_ : fontMono_;
+          // TRANSLATED BEFORE IT IS FITTED, then drawn as is: fitting "OFF"
+          // and drawing its translation is how the Arabic one lost its first
+          // letter off the edge of the badge.
           std::string shownValue = valueText.empty() ? "--.-" : valueText;
+          if (!deckboy::core::i18n::passthrough()) {
+            shownValue = deckboy::core::i18n::translate(shownValue);
+          }
+          TTF_Font* valueFont = shownValue.size() > 4 ? fontSmall_ : fontMono_;
           shownValue = ellipsizeToPixelWidth(valueFont, shownValue, badgeValueRect.w);
           int valueTextW = 0, valueTextH = 0;
-          TTF_GetStringSize(valueFont, shownValue.c_str(), 0, &valueTextW, &valueTextH);
+          deckboy::render::shaping::textSize(valueFont, shownValue.c_str(), 0, &valueTextW,
+                                             &valueTextH);
           SDL_Rect badgeClip = snapRectToGrid(badge);
           SDL_SetRenderClipRect(controlRenderer_, &badgeClip);
-          drawText(controlRenderer_, valueFont, shownValue, ink,
-                   badgeValueRect.x + std::max(0, badgeValueRect.w - valueTextW),
-                   badgeValueRect.y + (badgeValueRect.h - valueTextH) / 2);
+          drawTextRaw(controlRenderer_, valueFont, shownValue, ink,
+                      badgeValueRect.x + std::max(0, badgeValueRect.w - valueTextW),
+                      badgeValueRect.y + (badgeValueRect.h - valueTextH) / 2);
           SDL_SetRenderClipRect(controlRenderer_, nullptr);
           badgeX += badgeW + kTelemetryGap;
           monitorTelemetryEndX = badge.x + badge.w;
@@ -2948,12 +2957,12 @@
       const char* monitorLabel = nullptr;
       if (monitorLabelFont) {
         int fullW = 0;
-        TTF_GetStringSize(monitorLabelFont, "PROGRAM MONITOR", 0, &fullW, nullptr);
+        textSizeShown(monitorLabelFont, "PROGRAM MONITOR", 0, &fullW, nullptr);
         if (fullW <= monitorLabelAvailW) {
           monitorLabel = "PROGRAM MONITOR";
         } else {
           int shortW = 0;
-          TTF_GetStringSize(monitorLabelFont, "PROGRAM", 0, &shortW, nullptr);
+          textSizeShown(monitorLabelFont, "PROGRAM", 0, &shortW, nullptr);
           if (shortW <= monitorLabelAvailW) {
             monitorLabel = "PROGRAM";
           }
@@ -3553,7 +3562,7 @@
           const std::string targetLabel = wt.pin
             ? "EDIT: " + deckLabel(project_.focusedDeckIndex) : std::string("EDIT: OUTPUT");
           int labelW = 0;
-          TTF_GetStringSize(fontSmall_, targetLabel.c_str(), 0, &labelW, nullptr);
+          textSizeShown(fontSmall_, targetLabel.c_str(), 0, &labelW, nullptr);
           warpTargetBtnRect_ = {bx, toolY, labelW + uiScaled(16), toolH};
           Primitives::fillRect(controlRenderer_, warpTargetBtnRect_, SDL_Color{255, 220, 0, 200});
           Primitives::strokeRect(controlRenderer_, warpTargetBtnRect_, warpBtnEdge);

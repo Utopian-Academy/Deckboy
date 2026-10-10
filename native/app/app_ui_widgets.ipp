@@ -1315,7 +1315,7 @@
       item.searchLabel = toLower(label + " " + id);
       if (fontSmall_) {
         int textW = 0;
-        TTF_GetStringSize(fontSmall_, label.c_str(), 0, &textW, nullptr);
+        textSizeShown(fontSmall_, label.c_str(), 0, &textW, nullptr);
         item.textWidth = textW;
       }
       next.options.push_back(std::move(item));
@@ -1680,15 +1680,42 @@
     }
 
     // ---- Moving ----------------------------------------------------------
-    if (key == SDLK_LEFT) {
-      inlineEditor_.caret = ctrl ? wordLeft(value, inlineEditor_.caret)
-                                 : utf8Prev(value, inlineEditor_.caret);
-      inlineEditor_.freshEntry = false;
-      return true;
-    }
-    if (key == SDLK_RIGHT) {
-      inlineEditor_.caret = ctrl ? wordRight(value, inlineEditor_.caret)
-                                 : utf8Next(value, inlineEditor_.caret);
+    //
+    // LEFT MOVES LEFT ON SCREEN. In left-to-right text that is one character
+    // back; in Arabic or Persian it is one character ON, and in text that mixes
+    // the two it is wherever the next caret position actually is -- which is
+    // what a reader of a right-to-left language expects the arrow to do. Plain
+    // left-to-right text keeps the simple step.
+    if (key == SDLK_LEFT || key == SDLK_RIGHT) {
+      const bool left = key == SDLK_LEFT;
+      TTF_Font* editFont = fontMono_ ? fontMono_ : fontSmall_;
+      const bool bidiText = editFont && deckboy::core::bidi::needsBidi(value);
+      if (ctrl) {
+        // Words: in a right-to-left paragraph the word to the left is the next
+        // one.
+        const bool rtl = bidiText && deckboy::render::shaping::resolvesRightToLeft(value);
+        const bool back = left != rtl;
+        inlineEditor_.caret = back ? wordLeft(value, inlineEditor_.caret)
+                                   : wordRight(value, inlineEditor_.caret);
+      } else if (!bidiText) {
+        inlineEditor_.caret = left ? utf8Prev(value, inlineEditor_.caret)
+                                   : utf8Next(value, inlineEditor_.caret);
+      } else {
+        namespace shaping = deckboy::render::shaping;
+        const int from = shaping::caretX(editFont, value, inlineEditor_.caret);
+        std::size_t best = inlineEditor_.caret;
+        int bestX = left ? -1 : 1 << 30;
+        for (std::size_t at = 0;; at = utf8Next(value, at)) {
+          const int x = shaping::caretX(editFont, value, at);
+          const bool wanted = left ? (x < from && x > bestX) : (x > from && x < bestX);
+          if (wanted) {
+            best = at;
+            bestX = x;
+          }
+          if (at >= value.size()) break;
+        }
+        inlineEditor_.caret = best;
+      }
       inlineEditor_.freshEntry = false;
       return true;
     }
@@ -1826,11 +1853,15 @@
       auto widthOf = [&](const std::string& s) {
         int w = 0;
         if (editFont && !s.empty()) {
-          TTF_GetStringSize(editFont, s.c_str(), 0, &w, nullptr);
+          deckboy::render::shaping::textSize(editFont, s.c_str(), 0, &w, nullptr);
         }
         return w;
       };
-      const int caretPx = widthOf(text.substr(0, caret));
+      // WHERE THE CARET IS DRAWN, not how wide the text before it is: in a
+      // right-to-left value -- an Arabic name, a Persian title -- the
+      // characters before the caret are on its RIGHT, and measuring them put
+      // the caret at the wrong end of the word.
+      const int caretPx = editFont ? deckboy::render::shaping::caretX(editFont, text, caret) : 0;
       const int fullPx = widthOf(text);
       // Scroll only as far as needed to keep the caret inside, and never past
       // the end of the string.
@@ -1857,9 +1888,11 @@
         // Selected: a filled band behind the text, dark ink on it.
         SDL_Rect sel {textX - 1, inputRect.y + 5, fullPx + 2, inputRect.h - 10};
         Primitives::fillRect(controlRenderer_, sel, pal.light);
-        drawText(controlRenderer_, editFont, text, pal.deep, textX, textY);
+        drawTextRaw(controlRenderer_, editFont, text, pal.deep, textX, textY);
       } else {
-        drawText(controlRenderer_, editFont, text, pal.light, textX, textY);
+        // RAW: the operator's own words, never looked up in the catalogue --
+        // a cue being renamed "SAVE" on a German desk must not read SPEICHERN.
+        drawTextRaw(controlRenderer_, editFont, text, pal.light, textX, textY);
         // A bar, not a trailing underscore: it has to be able to sit BETWEEN
         // two characters.
         if ((animationNow_ / 450) % 2 == 0) {

@@ -2317,7 +2317,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (345)\n"
+        "DECKBOY_0.01 every verb (347)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -2337,7 +2337,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "FINDPREV FINDPREVIOUS FINDRESET FINDSTATUS FINDTAKE FULLSCREEN FX\n"
         "GO GOEND GOTO GOTOTARGET GRAPHIC GROUP GROUPPRESET HEIGHT HOLD\n"
         "HOLDLAST IN INTEGRATION INTEGRATIONS JUMPMODE JUMPTRANS\n"
-        "JUMPTRANSITION JUMP_MODE JUMP_XFADE LAYER LAYERNAME LOOP LOOPCOUNT\n"
+        "JUMPTRANSITION JUMP_MODE JUMP_XFADE LANG LANGUAGE LAYER LAYERNAME LOOP LOOPCOUNT\n"
         "LOWERALPHA LOWERANIM LOWERSTYLE LOWERSUB LOWERTEXT LOWERTHIRD LTC LTCEXT LTCINGEST\n"
         "LTCOUT LTC_INGEST MARK MARKER MASTER MASTERCUE MASTERVOL\n"
         "MASTERVOLUME MIDI MIDIINPUT MIDI_INPUT MOSH MOSHLOOK MTC MTCEXT\n"
@@ -2429,6 +2429,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "        OUTPUT AOI [<WxH>|FULL [<x> <y>]] | OUTPUT AOI MODE PIXEL|FILL - send just this region, e.g. one 256x256 LED tile\n"
         "super deckboy: DECKADD - another playlist | DECKREMOVE [<n>] - take one away (UNDO brings it back)\n"
         "edit: UNDO | REDO - the same as ctrl+z / ctrl+y on the desk\n"
+        "interface: LANGUAGE [<code>] - the desk's language (en, ar, fa, ja, zh-Hans ...); no code answers the current one\n"
         "mediamtx: MEDIAMTX [HOST <host> | ADD <stream> | PUBLISH [name]] - the media router: its streams as cues, the programme out through it\n"
         "captions: CAPTIONS [STATUS|ON|OFF|GENERATE [model]] - make captions on this computer (first time: a one-off model download)\n"
         "devamp: DEVAMP [<deck>] - the looping cue plays out this pass, then ends as if it had not looped\n"

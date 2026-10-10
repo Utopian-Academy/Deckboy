@@ -7302,27 +7302,6 @@
   //
   // Hence two entry points: drawText for callers with a source string,
   // drawTextRaw for callers holding a string that has already been through.
-  // Does this string actually contain right-to-left script?
-  //
-  // Direction is a property of the FONT in SDL_ttf, not of the call, so a
-  // right-to-left language sets it once and then reverses everything -- which
-  // turned "VOLUME 95%" into "%59 EMULOV" on the Arabic toolbar. Real bidi is
-  // FriBidi's job and SDL_ttf does not do it; this is the ninety per cent of
-  // it that matters in an interface, where a label is almost always wholly one
-  // script or wholly the other.
-  static bool textIsRtlScript(const std::string& s) {
-    for (std::size_t i = 0; i + 1 < s.size(); ++i) {
-      const unsigned char a = static_cast<unsigned char>(s[i]);
-      const unsigned char b = static_cast<unsigned char>(s[i + 1]);
-      // Arabic U+0600-U+06FF and Hebrew U+0590-U+05FF in UTF-8 both begin
-      // 0xD6/0xD7/0xD8-0xDB; that range is enough to tell the scripts apart
-      // from Latin, Cyrillic and Greek, which is all this has to do.
-      if (a >= 0xD8 && a <= 0xDB) return true;
-      if (a == 0xD6 || a == 0xD7) { (void)b; return true; }
-    }
-    return false;
-  }
-
   // ── THE LABEL CACHE'S TYPES ─────────────────────────────────────────────
   // Defined here rather than beside the cache itself because the functions
   // below name them in their return types, and a nested type must already be
@@ -7353,6 +7332,16 @@
     SDL_Texture* texture = nullptr;
     int w = 0;
     int h = 0;
+    // Rows the shaper added ABOVE the font's line box, for a glyph from a
+    // taller fallback face. Drawn that much higher so the baseline stays where
+    // every other label's is.
+    int top = 0;
+    // The font's own line height when it was made. Anything that SCALES a
+    // label (lower thirds, text cues, captions) scales by this, not by the
+    // texture's height: a label that borrowed a taller fallback face would
+    // otherwise be drawn smaller than its Latin neighbours, and off their
+    // baseline.
+    int lineH = 0;
     std::size_t bytes = 0;
     std::uint64_t lastUsed = 0;
   };
@@ -7420,13 +7409,11 @@
       return &found->second;
     }
     ++textTextureMisses_;
-    // Per string, not per language: a Latin label inside an Arabic interface
-    // still reads left to right.
-    if (deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::rtlSupported()) {
-      TTF_SetFontDirection(font, textIsRtlScript(text) ? TTF_DIRECTION_RTL
-                                                       : TTF_DIRECTION_LTR);
-    }
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
+    // Through the shaper: bidi order, fallback faces, one baseline. A plain
+    // left-to-right label the font covers is still one SDL_ttf call.
+    int baseline = TTF_GetFontAscent(font);
+    SDL_Surface* surface = deckboy::render::shaping::renderText(font, text.c_str(), text.size(),
+                                                                color, &baseline);
     if (!surface) {
       ++textTextureFailures_;
       return nullptr;
@@ -7446,6 +7433,8 @@
     entry.texture = texture;
     entry.w = w;
     entry.h = h;
+    entry.top = std::max(0, baseline - TTF_GetFontAscent(font));
+    entry.lineH = std::max(1, TTF_GetFontHeight(font));
     entry.bytes = static_cast<std::size_t>(w) * static_cast<std::size_t>(h) * 4u;
     entry.lastUsed = tick;
     textTextureBytes_ += entry.bytes;
@@ -7457,6 +7446,21 @@
     trimTextTextureCache();
     found = textTextureCache_.find(key);
     return found == textTextureCache_.end() ? nullptr : &found->second;
+  }
+
+  // Where a cached label lands when its font's line is drawn `lineH` tall with
+  // its top at (x, y): taller than lineH, and nudged up, by whatever a taller
+  // fallback face added -- so a Persian title and a Latin one at the same size
+  // are the same size, on the same baseline.
+  static SDL_FRect scaledLabelRect(const TextTextureEntry& t, double x, double y, double lineH) {
+    const double ref = t.lineH > 0 ? t.lineH : std::max(1, t.h);
+    const double k = lineH / ref;
+    return SDL_FRect {static_cast<float>(x), static_cast<float>(y - t.top * k),
+                      static_cast<float>(t.w * k), static_cast<float>(t.h * k)};
+  }
+  static double scaledLabelWidth(const TextTextureEntry& t, double lineH) {
+    const double ref = t.lineH > 0 ? t.lineH : std::max(1, t.h);
+    return t.w * lineH / ref;
   }
 
   // Every cached label texture, destroyed. MUST run before the renderer that
@@ -7494,7 +7498,7 @@
     if (!entry) {
       return;
     }
-    SDL_Rect dst {x, y, entry->w, entry->h};
+    SDL_Rect dst {x, y - entry->top, entry->w, entry->h};
     SDL_RenderTexture(renderer, entry->texture, nullptr, &dst);
     noteLiveTextLabel(renderer, dst, text, color, haveSurface ? &surface : nullptr);
   }
@@ -7545,7 +7549,7 @@
       return at->second;
     }
     int w = 0;
-    if (!TTF_GetStringSize(font, text.c_str(), 0, &w, nullptr)) {
+    if (!deckboy::render::shaping::textSize(font, text.c_str(), text.size(), &w, nullptr)) {
       w = 0;
     }
     // Bounded. Timecodes and counters mint a new string every frame, so an
@@ -7570,6 +7574,12 @@
       return have->second;
     }
     TTF_Font* alt = TTF_OpenFont(ladder.path.c_str(), static_cast<float>(size));
+    if (alt) {
+      // A smaller label must draw like its full-size sibling: same kerning
+      // off, same fallback faces for what the face cannot draw.
+      TTF_SetFontKerning(alt, false);
+      deckboy::render::shaping::registerFace(alt, ladder.path, static_cast<float>(size));
+    }
     ladder.bySize.emplace(size, alt);
     return alt;
   }
@@ -7792,6 +7802,27 @@
     miamiCursorScale_ = scale;
   }
 
+  // THE INTERFACE LANGUAGE, set the one way: from the settings list and from
+  // LANGUAGE on the control port alike, so the two cannot drift apart.
+  bool applyInterfaceLanguage(const std::string& code, std::string& error) {
+    if (!deckboy::core::i18n::setLanguage(code, Paths::dataDir(), error)) {
+      return false;
+    }
+    project_.language = (code == "en") ? std::string() : code;
+    // The new language may need a face the old one did not, and orders the
+    // CJK fallback faces differently, so the fonts are reloaded rather than
+    // left pointing at the old ones.
+    applyUiScale();
+    markProjectDirty();
+    if (deckboy::core::i18n::activeFontMissing()) {
+      triggerToast(deckboy::core::i18n::activeName() + ": no font on this machine can draw it",
+                   ToastKind::Warning, kToastReadableMs);
+    } else {
+      triggerToast("language: " + deckboy::core::i18n::activeName());
+    }
+    return true;
+  }
+
   // HOW WIDE THAT LABEL WILL ACTUALLY BE.
   //
   // Anything that sizes a box to its own text has to measure the string that
@@ -7799,6 +7830,25 @@
   // longer the literal in the source. A menu measured in English and drawn in
   // German is a menu with its own items cut off -- which reads as a layout
   // bug and is really a measurement taken in the wrong language.
+  // TTF_GetStringSize's contract for a string AS THE DESK WILL SHOW IT: the
+  // drawing calls translate what they are given, so a box sized to the
+  // English word overflows in every other language -- OFF fitted, its Arabic
+  // did not. Measures through the shaper, so fallback faces and direction
+  // are counted too.
+  bool textSizeShown(TTF_Font* font, const char* text, std::size_t length, int* w,
+                     int* h) const {
+    if (!font || !text) {
+      if (w) *w = 0;
+      if (h) *h = 0;
+      return false;
+    }
+    const std::string source = length ? std::string(text, length) : std::string(text);
+    const std::string shown = deckboy::core::i18n::passthrough()
+                                ? source
+                                : deckboy::core::i18n::translate(source);
+    return deckboy::render::shaping::textSize(font, shown.c_str(), shown.size(), w, h);
+  }
+
   int measuredTextWidth(TTF_Font* font, const std::string& text) const {
     if (!font || text.empty()) return 0;
     const std::string shown = deckboy::core::i18n::passthrough()
@@ -7839,7 +7889,6 @@
     if (clipped.empty()) {
       clipped = text;
     }
-    const int textW = measuredWidthIn(font, clipped);
     int textH = TTF_GetFontHeight(font);
     if (textH <= 0) {
       textH = std::max(1, rect.h);   // a font with no height still has letters
@@ -7865,14 +7914,13 @@
       textClip = intersect;
     }
     if (!textClipDisabled_) SDL_SetRenderClipRect(renderer, &textClip);
-    // RIGHT TO LEFT STARTS AT THE RIGHT. A label left-aligned in a box is
-    // aligned to the side the reader finishes on, which puts every label in
-    // the interface at the wrong end of its own control.
-    const int startX =
-      (deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::rtlSupported() &&
-       textIsRtlScript(clipped))
-        ? safe.x + std::max(0, safe.w - textW)
-        : safe.x;
+    // ALIGNMENT FOLLOWS THE LAYOUT. Right-aligning every label in a
+    // right-to-left language sounds right and is not, while the layout itself
+    // is still left to right: a row with a name at its left and a value at its
+    // right put both against the right edge, one on top of the other (the
+    // timeline's OUTPUT and OFF on the first Arabic desk). The ORDER inside each
+    // label is the bidi algorithm's, and that is what makes it read correctly.
+    const int startX = safe.x;
     drawTextRaw(renderer, font, clipped, color, startX, textY);
     if (!textClipDisabled_) SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
@@ -7964,9 +8012,10 @@
     if (!entry) {
       return;
     }
+    const int lineH = entry->lineH > 0 ? entry->lineH : entry->h;
     SDL_Rect dst {
       rect.x + (rect.w - entry->w) / 2,
-      rect.y + (rect.h - entry->h) / 2,
+      rect.y + (rect.h - lineH) / 2 - entry->top,
       entry->w,
       entry->h
     };

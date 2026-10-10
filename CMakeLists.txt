@@ -584,6 +584,7 @@ add_executable(deckboy-native
   native/core/utils.cpp
   native/core/subprocess.cpp
   native/core/media_probe.cpp
+  native/core/bidi.cpp
   native/engine/media_engine.cpp
   native/platform/browser.cpp
   native/platform/pdf_import.cpp
@@ -623,6 +624,8 @@ add_executable(deckboy-native
   native/extras/upstream/qrcodegen/qrcodegen.cpp
   native/render/primitives.cpp
   native/render/text_renderer.cpp
+  native/render/text_shaper.cpp
+  native/render/font_fallbacks.cpp
   native/render/waveform_renderer.cpp
   native/render/output_renderer.cpp
 )
@@ -1145,6 +1148,12 @@ include(CTest)
 option(DECKBOY_SANITIZE_BROADCAST_CHECK "Instrument the transport regression target with ASan and UBSan" OFF)
 if(BUILD_TESTING)
   find_package(Threads REQUIRED)
+  # Unicode's bidi conformance files against native/core/bidi.cpp. CI fetches
+  # BidiTest.txt and BidiCharacterTest.txt for the Unicode version the tables
+  # were generated from and runs this; see tools/bidi_check.cpp.
+  add_executable(deckboy-bidi-check tools/bidi_check.cpp native/core/bidi.cpp)
+  target_include_directories(deckboy-bidi-check PRIVATE native)
+
   add_executable(deckboy-broadcast-check
     tools/broadcast_check.cpp
     native/platform/ptp_client.cpp

@@ -7925,7 +7925,7 @@
     auto blitText = [](SDL_Renderer* ren, TTF_Font* font, const std::string& text,
                        SDL_Color color, int centerX, int centerY, double maxScale, int maxW) {
       if (!font || text.empty()) return;
-      SDL_Surface* surf = TTF_RenderText_Blended(font, text.c_str(), 0, color);
+      SDL_Surface* surf = deckboy::render::shaping::renderText(font, text.c_str(), 0, color);
       if (!surf) return;
       if (SDL_Texture* tex = deckboyCreateTextureFromSurface(ren, surf)) {
         double scale = std::min(maxScale, static_cast<double>(maxW) / std::max(1, surf->w));

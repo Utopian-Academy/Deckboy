@@ -35,7 +35,12 @@ mkdir -p "$STAGE/bin" "$STAGE/lib" "$STAGE/data/fonts"
 cp "$BUILD_DIR/deckboy-mini" "$STAGE/bin/deckboy-mini"
 cp -L "$FFMPEG" "$STAGE/bin/ffmpeg"
 cp -L "$FFPROBE" "$STAGE/bin/ffprobe"
-cp "$REPO_ROOT/data/fonts/LiberationSans-Regular.ttf" "$STAGE/data/fonts/"
+# The subtitle face, and the two faces that draw Arabic, Persian and Tamazight
+# on a machine without them, each with the licence that has to travel with it.
+for f in LiberationSans-Regular.ttf LICENSE-Liberation.txt NotoSansArabic-Regular.ttf \
+         NotoSansTifinagh-Regular.ttf LICENSE-Noto.txt; do
+  cp "$REPO_ROOT/data/fonts/$f" "$STAGE/data/fonts/"
+done
 cp "$REPO_ROOT/LICENSE" "$STAGE/"
 chmod u+w "$STAGE/bin/"*
 

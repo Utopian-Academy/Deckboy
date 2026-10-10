@@ -5856,6 +5856,23 @@
     // Worth having over the wire and not only in the menu: a show that builds
     // its playlist from a controller wants to label what it just made, and
     // until now nothing outside the app could name anything.
+    // LANGUAGE [code]: the desk's interface language, as the settings list
+    // sets it (ar, fa, ja, zh-Hans, en ...). No code answers the current one.
+    if (command == "LANGUAGE" || command == "LANG") {
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = deckboy::core::i18n::activeCode() + " " +
+                               deckboy::core::i18n::activeName();
+        return;
+      }
+      std::string error;
+      if (!applyInterfaceLanguage(trim(parts[1]), error)) {
+        failRemoteCommand("LANGUAGE: " + error);
+        return;
+      }
+      remoteCommandDetail_ = deckboy::core::i18n::activeCode() + " " +
+                             deckboy::core::i18n::activeName();
+      return;
+    }
     if (command == "RENAME") {
       Deck& deck = focusedDeckMutable();
       const int idx = deck.selectedIndex;

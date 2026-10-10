@@ -2,16 +2,23 @@
 #english Arabic
 #font arial.ttf, segoeui.ttf, tahoma.ttf, ArabicTypesetting.ttf, GeezaPro.ttc, NotoSansArabic-Regular.ttf, truetype/noto/NotoSansArabic-Regular.ttf
 #rtl 1
-# Arabic needs two things the bundled faces cannot give it.
+# Arabic needs three things Latin does not.
 #
-# The first is glyphs, and the line above names faces that have them; every one
-# of those ships with a stock install of the platform it belongs to.
+# GLYPHS. The line above names faces that have them, most of which ship with
+# the platform; Noto Sans Arabic ships with Deckboy, so it reads everywhere.
 #
-# The second is SHAPING. An Arabic letter has a different form at the start,
-# middle and end of a word, and joining them is HarfBuzz's job -- which SDL_ttf
-# only does when it was built against it. This build reports whether it could
-# honour the direction at all, and the settings page says so plainly rather
-# than drawing unjoined letters backwards and calling it Arabic.
+# SHAPING. An Arabic letter has a different form at the start, middle and end
+# of a word, and joining them is HarfBuzz's job -- which SDL_ttf only does when
+# it was built against it. This build reports whether it could honour the
+# direction at all, and the settings page says so plainly rather than drawing
+# unjoined letters backwards and calling it Arabic.
+#
+# ORDER. A label is laid out with the Unicode bidi algorithm, so a number, a
+# port or a Latin word inside it keeps its own direction: 95% reads %95, as
+# Arabic writes it, and never 59.
+#
+# TAKE and PROGRAM stay in English, as in every catalogue: the trade says them
+# that way in every country.
 NEW	جديد
 OPEN	فتح
 SAVE	حفظ
@@ -21,7 +28,7 @@ IMPORT	استيراد
 SOURCE	مصدر
 PATTERN	نمط اختبار
 SETTINGS	الإعدادات
-TAKE
+TAKE	TAKE
 STOP	إيقاف
 REBOOT	إعادة تشغيل
 BLACKOUT	تعتيم
@@ -32,11 +39,11 @@ TIMELINE	الخط الزمني
 MEDIA	الوسائط
 TRANSPORT	النقل
 OUTPUT	الخرج
-PROGRAM
-WARP
+PROGRAM	PROGRAM
+WARP	تشويه
 LIVE	مباشر
 DECODE	فك الترميز
-STREAM
+STREAM	بث
 System	النظام
 Audio	الصوت
 Network	الشبكة
@@ -57,8 +64,8 @@ EDGE FEATHERING	تنعيم الحواف
 MATTE & OVERLAY	القناع والتراكب
 AREA OF INTEREST	منطقة الاهتمام
 DEFAULT TRANSITION	الانتقال الافتراضي
-NMC IN & OUT
-OSC QUERY / FEEDBACK
+NMC IN & OUT	دخل وخرج NMC
+OSC QUERY / FEEDBACK	استعلام OSC / التغذية الراجعة
 CUE INSPECTOR	مفتش الإشارات
 SELECTED CUE	الإشارة المحددة
 PLAYBACK	التشغيل
@@ -186,7 +193,7 @@ no preview	لا معاينة
 OPEN SAVED	فتح المحفوظ
 OUTPUT OFF	الخرج متوقف
 Panic fade	تلاشي الطوارئ
-Tally port	منفذ التالي
+Tally port	منفذ Tally
 TIMERS OFF	المؤقتات متوقفة
 Accept from	القبول من
 ASIO driver	مشغّل ASIO
@@ -242,7 +249,7 @@ Panic profile	ملف الإيقاف الطارئ
 Quit Deckboy?	إنهاء Deckboy؟
 REMOVE OUTPUT	إزالة الخرج
 Sound effects	مؤثرات صوتية
-Tally address	عنوان التالي
+Tally address	عنوان Tally
 TOP TO BOTTOM	من الأعلى إلى الأسفل
 127 (all-call)	127 (نداء عام)
 ALL INTERFACES	كل الواجهات
@@ -253,7 +260,7 @@ PRESENTER VIEW	عرض المُقدّم
 RECORD TO DISK	التسجيل على القرص
 STOP RECORDING	إيقاف التسجيل
 STOP STREAMING	إيقاف البث
-TALLY TRIGGERS	مُشغّلات التالي
+TALLY TRIGGERS	مُشغّلات Tally
 Device channels	قنوات الجهاز
 NDI SENDING: ON	إرسال NDI: يعمل
 NO CUE SELECTED	لم يُحدد أي كيو

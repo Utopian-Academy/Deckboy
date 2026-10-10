@@ -7,7 +7,7 @@
 // text_renderer.cpp — text rendering implementation.
 //
 // All methods follow the same pattern: render UTF-8 text to an SDL_Surface
-// via TTF_RenderText_Blended(anti-aliased, alpha-blended, 0), convert to an
+// via deckboy::render::shaping::renderText(anti-aliased, alpha-blended, 0), convert to an
 // SDL_Texture, blit to the renderer, then clean up the temporary surface.
 //
 // Note: drawText() and drawCenteredText() create and destroy a texture per
@@ -18,6 +18,7 @@
 // ============================================================================
 
 #include "render/text_renderer.hpp"
+#include "render/text_shaper.hpp"
 #include "core/sdl_compat.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 
@@ -32,7 +33,7 @@ void TextRenderer::drawText(SDL_Renderer* renderer, TTF_Font* font,
     return;
   }
 
-  SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
+  SDL_Surface* surface = deckboy::render::shaping::renderText(font, text.c_str(), 0, color);
   if (!surface) {
     return;
   }
@@ -59,7 +60,7 @@ void TextRenderer::drawCenteredText(SDL_Renderer* renderer, TTF_Font* font,
     return;
   }
 
-  SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
+  SDL_Surface* surface = deckboy::render::shaping::renderText(font, text.c_str(), 0, color);
   if (!surface) {
     return;
   }
@@ -93,7 +94,7 @@ void TextRenderer::getTextDimensions(TTF_Font* font, const std::string& text,
     return;
   }
 
-  TTF_GetStringSize(font, text.c_str(), 0, &outWidth, &outHeight);
+  deckboy::render::shaping::textSize(font, text.c_str(), 0, &outWidth, &outHeight);
 }
 
 // Create a persistent SDL_Texture from text for caching. The caller owns
@@ -106,7 +107,7 @@ SDL_Texture* TextRenderer::textToTexture(SDL_Renderer* renderer, TTF_Font* font,
     return nullptr;
   }
 
-  SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
+  SDL_Surface* surface = deckboy::render::shaping::renderText(font, text.c_str(), 0, color);
   if (!surface) {
     return nullptr;
   }

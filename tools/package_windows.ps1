@@ -496,7 +496,12 @@ $DeskOnlyDlls = @("WebView2Loader.dll", "ltc.dll")
 Get-ChildItem -Path $StageDir -Filter *.dll |
     Where-Object { $DeskOnlyDlls -notcontains $_.Name } |
     Copy-Item -Destination $MiniStage
-Copy-Item (Join-Path $RepoRoot "data\fonts\LiberationSans-Regular.ttf") -Destination (Join-Path $MiniStage "data\fonts")
+# The subtitle face, and the two faces that draw Arabic, Persian and Tamazight
+# on a machine without them, each with the licence that has to travel with it.
+foreach ($Font in @("LiberationSans-Regular.ttf", "LICENSE-Liberation.txt", "NotoSansArabic-Regular.ttf",
+                    "NotoSansTifinagh-Regular.ttf", "LICENSE-Noto.txt")) {
+    Copy-Item (Join-Path $RepoRoot "data\fonts\$Font") -Destination (Join-Path $MiniStage "data\fonts")
+}
 Copy-Item (Join-Path $RepoRoot "LICENSE") -Destination $MiniStage
 @"
 Deckboy Mini $Version for Windows

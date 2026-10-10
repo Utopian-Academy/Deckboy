@@ -1,0 +1,386 @@
+#name فارسی
+#english Persian
+#font segoeui.ttf, tahoma.ttf, arial.ttf, GeezaPro.ttc, NotoSansArabic-Regular.ttf, truetype/noto/NotoSansArabic-Regular.ttf
+#rtl 1
+#unverified
+# Persian (Farsi) interface catalogue. english<TAB>translation; a line left
+# out, or left empty, falls through to the English.
+#
+# Written right to left and joined, like Arabic: the faces above draw it (each
+# ships with its platform; Noto Sans Arabic also ships with Deckboy) and the
+# shaper lays it out with the Unicode bidi algorithm, so a Latin word or a
+# number inside a label keeps its own direction.
+#
+# Words use the half-space (U+200C, ZWNJ) where Persian writes one --
+# پاک‌کردن, تمام‌صفحه, می‌شود -- and the shaper keeps it inside the word it
+# belongs to. Clock-face counts use Persian digits (۱۲ ساعته); ports, ids,
+# formats and other values an operator types stay in the digits they type.
+#
+# NOT YET REVIEWED BY A PERSIAN SPEAKER: written without one, so the picker
+# says so. Corrections are very welcome.
+NEW	جدید
+OPEN	باز کردن
+SAVE	ذخیره
+SAVE AS	ذخیره با نام
+BUNDLE	بسته‌بندی
+IMPORT	وارد کردن
+SOURCE	منبع
+PATTERN	الگوی آزمایشی
+SETTINGS	تنظیمات
+TAKE	TAKE
+STOP	توقف
+REBOOT	راه‌اندازی دوباره
+BLACKOUT	سیاه‌کردن تصویر
+CLEAR	پاک‌کردن
+RECORD	ضبط
+PLAYLIST	فهرست پخش
+TIMELINE	خط زمانی
+MEDIA	رسانه
+TRANSPORT	کنترل پخش
+OUTPUT	خروجی
+PROGRAM	PROGRAM
+WARP	تصحیح هندسی
+LIVE	زنده
+DECODE	رمزگشایی
+STREAM	استریم
+System	سیستم
+Audio	صدا
+Network	شبکه
+Video Outputs	خروجی‌های ویدیو
+About	درباره
+Encoder	رمزگذار
+Screen	صفحه‌نمایش
+Geometry	هندسه
+Devices	دستگاه‌ها
+Streaming	استریم
+APPEARANCE	ظاهر
+REMOTE CONTROL	کنترل از راه دور
+INTEGRATION ADAPTERS	آداپتورهای یکپارچه‌سازی
+DISCOVERY / NOTES	کشف / یادداشت‌ها
+DISPLAY & RASTER	نمایشگر و رستر
+CONNECTED DISPLAYS	نمایشگرهای متصل
+EDGE FEATHERING	نرم‌کردن لبه‌ها
+MATTE & OVERLAY	مات و لایهٔ رویی
+AREA OF INTEREST	ناحیهٔ مورد نظر
+DEFAULT TRANSITION	گذار پیش‌فرض
+NMC IN & OUT	ورودی و خروجی NMC
+OSC QUERY / FEEDBACK	پرس‌وجو / بازخورد OSC
+CUE INSPECTOR	بازرس کیو
+SELECTED CUE	کیوی انتخاب‌شده
+PLAYBACK	پخش
+COPY	کپی
+PASTE	چسباندن
+RESET	بازنشانی
+Theme	پوسته
+Language	زبان
+Resolution	وضوح
+Orientation	جهت تصویر
+Toggle Fullscreen	تمام‌صفحه
+IDENTIFY	شناسایی
+REGION SIZE	اندازهٔ ناحیه
+POSITION	موقعیت
+CENTRE	مرکز
+FULL	کامل
+duration	مدت
+transition	گذار
+fade in	ظاهرشدن تدریجی
+fade out	محوشدن تدریجی
+ON	روشن
+OFF	خاموش
+Stopped	متوقف
+Playing	در حال پخش
+Paused	مکث
+2-UP	دوتایی
+DONE	انجام شد
+EDIT	ویرایش
+HELD	نگه‌داشته
+Mode	حالت
+PICK	انتخاب
+QUAD	چهارتایی
+Rate	نرخ
+STEP	گام
+Apply	اعمال
+CLOSE	بستن
+FIXED	ثابت
+Help!	کمک!
+ORDER	ترتیب
+READY	آماده
+TILES	کاشی‌ها
+VIDEO	ویدیو
+ALL ON	همه روشن
+ALWAYS	همیشه
+ANALOG	آنالوگ
+Buffer	بافر
+Cancel	لغو
+Custom	سفارشی
+Device	دستگاه
+Folder	پوشه
+FORMAT	قالب
+HIDDEN	پنهان
+Length	طول
+Mascot	نماد
+Mirror	آینه
+NATIVE	بومی
+PRESET	پیش‌تنظیم
+Sender	فرستنده
+SUMMED	جمع‌شده
+TOGGLE	تغییر وضعیت
+12 HOUR	۱۲ ساعته
+24 HOUR	۲۴ ساعته
+ALL OFF	همه خاموش
+ARRANGE	چیدمان
+Channel	کانال
+CONVERT	تبدیل
+DEFAULT	پیش‌فرض
+END CUE	کیوی پایانی
+Key out	خروجی کلید
+LTC out	خروجی LTC
+MISSING	ناموجود
+PRESETS	پیش‌تنظیم‌ها
+PROJECT	پروژه
+RUNNING	در حال اجرا
+Send to	ارسال به
+SHUFFLE	تصادفی
+UPDATES	به‌روزرسانی‌ها
+VJ MODE	حالت VJ
+CLOCK ON	ساعت روشن
+DOWNLOAD	دانلود
+EXAMPLES	نمونه‌ها
+Mappings	نگاشت‌ها
+NMC sync	همگام‌سازی NMC
+PROMPTER	تله‌پرامپتر
+SHOW SDP	نمایش SDP
+TCP port	درگاه TCP
+UI scale	اندازهٔ رابط
+vMix API	رابط vMix
+WATCHING	در حال پایش
+A/V delay	تأخیر صدا و تصویر
+ASIO outs	خروجی‌های ASIO
+BOTH AXES	هر دو محور
+CHECK NOW	اکنون بررسی کن
+CLOCK OFF	ساعت خاموش
+Creatures	جانوران
+CUE TOOLS	ابزارهای کیو
+Direction	جهت حرکت
+Freewheel	چرخش آزاد
+HTTP port	درگاه HTTP
+Jump mode	حالت پرش
+Listen on	گوش دادن روی
+OSC Query	پرس‌وجوی OSC
+OUTPUT ON	خروجی روشن
+Panic now	توقف اضطراری، اکنون
+RECORDING	در حال ضبط
+REMAINING	باقی‌مانده
+RESET ALL	بازنشانی همه
+RUN PANIC	اجرای توقف اضطراری
+SHOW FLOW	روند اجرا
+TIMERS ON	زمان‌سنج‌ها روشن
+WHEN IDLE	هنگام بیکاری
+ADD OUTPUT	افزودن خروجی
+BUILT WITH	ساخته‌شده با
+CANCEL ALL	لغو همه
+colour tag	برچسب رنگی
+copy chain	کپی زنجیره
+Hover tips	راهنمای شناور
+Input gain	بهرهٔ ورودی
+Input mono	ورودی تک‌کاناله
+live audio	صدای زنده
+Live input	ورودی زنده
+MIDI input	ورودی MIDI
+no picture	بدون تصویر
+no preview	بدون پیش‌نمایش
+OPEN SAVED	باز کردن ذخیره‌شده
+OUTPUT OFF	خروجی خاموش
+Panic fade	محو اضطراری
+Tally port	درگاه Tally
+TIMERS OFF	زمان‌سنج‌ها خاموش
+Accept from	پذیرش از
+ASIO driver	درایور ASIO
+BACK TO TOP	بازگشت به بالا
+CANVAS MODE	حالت بوم
+CODE SOURCE	منبع کد
+Cue numbers	شمارهٔ کیوها
+Destination	مقصد
+Mirror rate	نرخ بازتاب
+no duration	بدون مدت
+NO LIVE CUE	کیوی زنده‌ای نیست
+NO PREVIOUS	قبلی وجود ندارد
+OVERLAY BIN	سبد لایه‌ها
+paste chain	چسباندن زنجیره
+Sample rate	نرخ نمونه‌برداری
+SENDING OUT	در حال ارسال
+Shift: snap	Shift: چسبیدن
+THIS OUTPUT	این خروجی
+(no matches)	(موردی یافت نشد)
+(no subtext)	(بدون زیرعنوان)
+add a button	افزودن دکمه
+add a window	افزودن پنجره
+Art-Net port	درگاه Art-Net
+AUDIO OUTPUT	خروجی صدا
+Auto restore	بازیابی خودکار
+DECKLINK: ON	DECKLINK: روشن
+free running	اجرای آزاد
+KEY+FILL: ON	KEY+FILL: روشن
+LISTENING IN	در حال گوش دادن
+Miami cursor	نشانگر میامی
+MIDI CONTROL	کنترل MIDI
+Mirror state	بازتاب وضعیت
+NDI KEY: OFF	NDI KEY: خاموش
+NDI KEY: ON	NDI KEY: روشن
+NO PROGRAMME	بدون برنامه
+ST 2110: OFF	ST 2110: خاموش
+ST 2110: ON	ST 2110: روشن
+WATCH FOLDER	پوشهٔ پایش
+COMPOSITE CUE	کیوی ترکیبی
+DECKLINK: OFF	DECKLINK: خاموش
+default route	مسیر پیش‌فرض
+Every adapter	همهٔ آداپتورها
+KEY+FILL: OFF	KEY+FILL: خاموش
+LEFT TO RIGHT	چپ به راست
+MEDIA ENCODER	رمزگذار رسانه
+MSC device id	شناسهٔ دستگاه MSC
+NEW SHOW FILE	فایل اجرای جدید
+No cue loaded	هیچ کیویی بارگذاری نشده
+nothing taken	چیزی روی آنتن نرفته
+OPEN PREVIOUS	باز کردن قبلی
+Output device	دستگاه خروجی
+Panic profile	نمایهٔ توقف اضطراری
+Quit Deckboy?	از Deckboy خارج شوید؟
+REMOVE OUTPUT	حذف خروجی
+Sound effects	جلوه‌های صوتی
+Tally address	نشانی Tally
+TOP TO BOTTOM	بالا به پایین
+127 (all-call)	127 (فراخوان همگانی)
+ALL INTERFACES	همهٔ رابط‌ها
+LOCALHOST ONLY	فقط localhost
+Monitor device	دستگاه مانیتور
+no audio track	بدون ترک صدا
+PRESENTER VIEW	نمای ارائه‌دهنده
+RECORD TO DISK	ضبط روی دیسک
+STOP RECORDING	توقف ضبط
+STOP STREAMING	توقف استریم
+TALLY TRIGGERS	محرک‌های Tally
+Device channels	کانال‌های دستگاه
+NDI SENDING: ON	ارسال NDI: روشن
+NO CUE SELECTED	هیچ کیویی انتخاب نشده
+Output channels	کانال‌های خروجی
+preview pending	پیش‌نمایش در راه است
+START RECORDING	شروع ضبط
+START STREAMING	شروع استریم
+(system default)	(پیش‌فرض سیستم)
+Check at startup	بررسی هنگام شروع
+Global crossfade	محو متقاطع سراسری
+Mic to recording	میکروفون در ضبط
+Monitor playlist	فهرست پخش مانیتور
+NDI SENDING: OFF	ارسال NDI: خاموش
+no still preview	بدون پیش‌نمایش ثابت
+Pocket 3 / touch	Pocket 3 / لمسی
+SMPTE LTC OUTPUT	خروجی SMPTE LTC
+the whole screen	کل صفحه
+Check for one now	اکنون بررسی کن
+INSTALL & RESTART	نصب و راه‌اندازی دوباره
+Registry: NOT SET	رجیستری: تنظیم نشده
+SAFETY / TIMECODE	ایمنی / تایم‌کد
+Timecode jam sync	همگام‌سازی jam تایم‌کد
+esc or N to cancel	Esc یا N برای لغو
+KEYBOARD SHORTCUTS	میان‌برهای صفحه‌کلید
+loading preview...	در حال بارگذاری پیش‌نمایش...
+CONVERT ALL FLAGGED	تبدیل همهٔ علامت‌خورده‌ها
+dot-matrix cue deck	میز کیوی ماتریس نقطه‌ای
+HyperDeck emulation	شبیه‌سازی HyperDeck
+locked to the tempo	قفل‌شده روی ضرب‌آهنگ
+VJ mode (two decks)	حالت VJ (دو میز)
+ADD ANOTHER PLAYLIST	افزودن فهرست پخش دیگر
+Companion / OSC port	درگاه Companion / OSC
+Esc or click to skip	Esc یا کلیک برای رد شدن
+PLAYLIST PREFERENCES	ترجیحات فهرست پخش
+press ENTER to start	برای شروع ENTER را بزنید
+ADD A SECOND PLAYLIST	افزودن فهرست پخش دوم
+filmstrip unavailable	نوار فیلم در دسترس نیست
+(empty — import media)	(خالی — رسانه وارد کنید)
+Ctrl+D or Esc to close	Ctrl+D یا Esc برای بستن
+(no notes for this cue)	(این کیو یادداشتی ندارد)
+Timebase / start / fade	مبنای زمانی / شروع / محو
+No cues need conversion.	هیچ کیویی نیاز به تبدیل ندارد.
+CLICK TO SAMPLE KEY COLOR	برای نمونه‌برداری رنگ کلید کلیک کنید
+normalize loudness (R128)	یکسان‌سازی بلندی صدا (R128)
+off - all channels silent	خاموش - همهٔ کانال‌ها بی‌صدا
+no video lane for this cue	این کیو مسیر ویدیویی ندارد
+HyperDeck emulation is off.	شبیه‌سازی HyperDeck خاموش است.
+OWN SCRIPT  (click to edit)	متن خودتان  (برای ویرایش کلیک کنید)
+Theme and operator feedback	پوسته و بازخورد اپراتور
+Discovery and mirrored state	کشف و بازتاب وضعیت
+FOLLOWING THE LIVE CUE NOTES	دنبال‌کردن یادداشت‌های کیوی زنده
+Listening on all interfaces.	گوش دادن روی همهٔ رابط‌ها.
+Network-facing runtime notes	یادداشت‌های اجرای شبکه
+Hi! Press I to import a clip.	سلام! برای وارد کردن کلیپ I را بزنید.
+Global jump and panic behavior	رفتار سراسری پرش و توقف اضطراری
+Roll when the show cuts to you	وقتی برنامه به شما می‌رسد پخش شود
+Choose a cue to inspect it here	کیویی را برای بررسی در اینجا انتخاب کنید
+Defaults for newly created cues	پیش‌فرض‌های کیوهای تازه
+Device routing for cue playback	مسیریابی دستگاه برای پخش کیو
+Smaller buffer = lower latency.	بافر کوچک‌تر = تأخیر کمتر.
+Emergency fade and sync behavior	محو اضطراری و رفتار همگام‌سازی
+mixed selection: key unavailable	انتخاب ترکیبی: کلید در دسترس نیست
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (آزمایشی)
+Esc=continue with current session	Esc = ادامه با نشست فعلی
+no per-cue settings for this type	این نوع، تنظیمات جداگانه برای هر کیو ندارد
+On stop: remux to an ordinary MP4	هنگام توقف: بازبسته‌بندی به MP4 معمولی
+Where RECORD writes the programme	جایی که RECORD برنامه را می‌نویسد
+dot-matrix cue deck for live events	میز کیوی ماتریس نقطه‌ای برای رویدادهای زنده
+Listening on localhost (127.0.0.1).	گوش دادن روی localhost ‏(127.0.0.1).
+three expressions: red, green, blue	سه عبارت: قرمز، سبز، آبی
+Transport sync with another machine	همگام‌سازی کنترل پخش با دستگاهی دیگر
+Add slot sources in the cue inspector	منابع جایگاه‌ها را در بازرس کیو اضافه کنید
+Ask GitHub; never installs on its own	از GitHub می‌پرسد؛ هرگز خودش نصب نمی‌کند
+Import or click a cue in the playlist	وارد کنید یا روی کیویی در فهرست پخش کلیک کنید
+mixed selection: geometry unavailable	انتخاب ترکیبی: هندسه در دسترس نیست
+generate timecode for the rig to chase	تولید تایم‌کد برای دنبال‌کردن تجهیزات
+Lower Third and PIP fire independently	نوار نام و تصویر در تصویر جداگانه اجرا می‌شوند
+Panels built for a vMix rig, unchanged	پنل‌های ساخته‌شده برای vMix، بدون تغییر
+Incoming transport arrives as NMCEVENT.	کنترل پخش ورودی به‌صورت NMCEVENT می‌رسد.
+not in this build - saved with the show	در این نسخه نیست - همراه اجرا ذخیره می‌شود
+Find from the playlist, not from a modal	از فهرست پخش جست‌وجو کنید، نه از پنجره
+take or select a cue to open the timeline	برای باز کردن خط زمانی، کیویی را روی آنتن ببرید یا انتخاب کنید
+Optional external transport and cue control	کنترل بیرونی اختیاری پخش و کیو
+No previous show file found at startup path.	هیچ فایل اجرای قبلی در مسیر شروع یافت نشد.
+Use Ctrl+F or type a cue id/number to search.	برای جست‌وجو Ctrl+F را بزنید یا شناسه/شمارهٔ کیو را تایپ کنید.
+Companion / OSC ingress and HyperDeck emulation	ورودی Companion / OSC و شبیه‌سازی HyperDeck
+A/V delay holds audio back for lagging displays.	تأخیر صدا و تصویر، صدا را برای نمایشگرهای کند عقب نگه می‌دارد.
+On stop: leave the crash-resilient file as it is	هنگام توقف: فایل مقاوم در برابر خرابی همان‌طور بماند
+same disk as Deckboy - a separate drive is safer	همان دیسک Deckboy - دیسکی جداگانه امن‌تر است
+A step fires one cue on each playlist, all at once.	هر گام، یک کیو را در هر فهرست پخش، همه با هم، اجرا می‌کند.
+one expression: the same value in red, green and blue	یک عبارت: همان مقدار در قرمز، سبز و آبی
+NDI transport is configured per output in Video Outputs.	انتقال NDI برای هر خروجی در خروجی‌های ویدیو تنظیم می‌شود.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	با حرکت کنترل پخش، PLAY / PAUSE / STOP / LOCATE را می‌فرستد.
+OSC subscribe: send /deckboy/subscribe from your controller.	اشتراک OSC: از کنترلر خود ‎/deckboy/subscribe‏ را بفرستید.
+NMC mode / host / port are runtime-configurable for sync work.	حالت، میزبان و درگاه NMC در حین اجرا برای همگام‌سازی قابل تنظیم‌اند.
+Going on air takes the cue. Deckboy never sends the switcher a command.	رفتن روی آنتن، کیو را پخش می‌کند. Deckboy هرگز به سوییچر فرمان نمی‌فرستد.
+FPS: ON	FPS: روشن
+FPS: OFF	FPS: خاموش
+NMOS: ON	NMOS: روشن
+NMOS: OFF	NMOS: خاموش
+SPOUT: ON	SPOUT: روشن
+SPOUT: OFF	SPOUT: خاموش
+CANVAS: ON	بوم: روشن
+CANVAS: OFF	بوم: خاموش
+10-BIT: ON	10 بیت: روشن
+10-BIT: OFF	10 بیت: خاموش
+EDIT...	ویرایش...
+FOLDER...	پوشه...
+ARRANGE...	چیدمان...
+ADD FILE...	افزودن فایل...
+RENUMBER...	شماره‌گذاری دوباره...
+set a port...	تنظیم درگاه...
+no script	بدون متن
++ OUTPUT	+ خروجی
+Eddie's Clock	ساعت ادی
+Ctrl+/ to close	Ctrl+/ برای بستن
+(step lives here)	(گام اینجاست)
+4:2:2  8-BIT	4:2:2  8 بیت
+4:2:2  10-BIT	4:2:2  10 بیت
+No outputs — click + OUTPUT to add one.	خروجی‌ای نیست — برای افزودن، روی + خروجی کلیک کنید.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM، محرک NDI، NMC، MTC، LTC، Art-Net و Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	کیوهایی را که Deckboy پخش نمی‌کند (یا بد پخش می‌کند) به H.264 تبدیل کنید
+a button can run any command the network protocol understands	هر دکمه می‌تواند هر فرمانی را که پروتکل شبکه می‌فهمد اجرا کند
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	چیدمان نمای ارائه‌دهنده  -  پنل را برای جابه‌جایی و گوشه را برای تغییر اندازه بکشید

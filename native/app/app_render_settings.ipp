@@ -622,7 +622,7 @@
       int labelW = 0;
       int labelH = 0;
       if (fontSmall_) {
-        TTF_GetStringSize(fontSmall_, tabs[t].c_str(), 0, &labelW, &labelH);
+        textSizeShown(fontSmall_, tabs[t].c_str(), 0, &labelW, &labelH);
       }
       int tabW = std::max(uiScaled(88), labelW + uiScaled(24));
       SDL_Rect tab {tabX, tabY + recess, tabW, kTabH - recess};
@@ -3836,7 +3836,7 @@
       if (!conversionJobs_.empty()) {
         const char* pauseLabel = encoderQueuePaused_ ? "RESUME QUEUE" : "PAUSE QUEUE";
         int pw = 0, ph = 0;
-        TTF_GetStringSize(fontSmall_, pauseLabel, 0, &pw, &ph);
+        textSizeShown(fontSmall_, pauseLabel, 0, &pw, &ph);
         SDL_Rect pauseBtn {addBtn.x + addBtn.w + sGap, ey, pw + uiScaled(20), sTallH};
         drawSettingsStateFill(pauseBtn, encoderQueuePaused_);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, pauseBtn, pauseLabel,
@@ -3844,7 +3844,7 @@
         settingsBtns_.push_back({pauseBtn, kSettingsActionEncoderPauseToggle,
                                  "pause/resume the encode queue"});
         int cw = 0, ch = 0;
-        TTF_GetStringSize(fontSmall_, "CANCEL ALL", 0, &cw, &ch);
+        textSizeShown(fontSmall_, "CANCEL ALL", 0, &cw, &ch);
         SDL_Rect cancelBtn {pauseBtn.x + pauseBtn.w + sGap, ey, cw + uiScaled(20), sTallH};
         drawUIPanel(cancelBtn, pal.mid, pal.deep, pal.light);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, cancelBtn, "CANCEL ALL", ink);
@@ -3866,7 +3866,7 @@
         // Measure the label instead of guessing a width - uiScaled(56) clipped
         // it to "PRES..." at this font. Same trap as the >LIVE chip.
         int labelW = 0, labelH = 0;
-        TTF_GetStringSize(fontSmall_, "PRESET", 0, &labelW, &labelH);
+        textSizeShown(fontSmall_, "PRESET", 0, &labelW, &labelH);
         drawTextSafe(controlRenderer_, fontSmall_,
                      SDL_Rect{px, ey + (sChipH - sLineH) / 2, labelW + uiScaled(10), sLineH},
                      "PRESET", soft);
@@ -3874,7 +3874,7 @@
         for (const PresetChip& chip : chips) {
           const char* label = encoderPresetLabel(chip.preset);
           int tw = 0, th = 0;
-          TTF_GetStringSize(fontSmall_, label, 0, &tw, &th);
+          textSizeShown(fontSmall_, label, 0, &tw, &th);
           SDL_Rect chipRect {px, ey, tw + uiScaled(18), sChipH};
           bool on = encoderPreset_ == chip.preset;
           drawSettingsStateFill(chipRect, on);
@@ -3888,7 +3888,7 @@
         {
           std::string lookLabel = std::string("MOSH: ") + moshLookLabel();
           int lw = 0, lh = 0;
-          TTF_GetStringSize(fontSmall_, lookLabel.c_str(), 0, &lw, &lh);
+          textSizeShown(fontSmall_, lookLabel.c_str(), 0, &lw, &lh);
           SDL_Rect lookRect {px, ey, lw + uiScaled(18), sChipH};
           bool moshActive = encoderPreset_ == EncoderPreset::DatamoshFriendly;
           drawSettingsStateFill(lookRect, moshActive);
@@ -3916,7 +3916,7 @@
           const std::string chipLabel =
             haveFmt ? std::string(fmt.label) : std::string(fmt.label) + "  n/a";
           int tw = 0, th = 0;
-          TTF_GetStringSize(fontSmall_, chipLabel.c_str(), 0, &tw, &th);
+          textSizeShown(fontSmall_, chipLabel.c_str(), 0, &tw, &th);
           int chipW = tw + uiScaled(16);
           if (fx + chipW > ex + ew) {          // wrap
             fx = ex;
@@ -3948,7 +3948,7 @@
         auto chip = [&](const std::string& label, int action, const char* tip,
                         bool active) {
           int tw = 0, th = 0;
-          TTF_GetStringSize(fontSmall_, label.c_str(), 0, &tw, &th);
+          textSizeShown(fontSmall_, label.c_str(), 0, &tw, &th);
           int cw = tw + uiScaled(16);
           if (ox + cw > ex + ew) { ox = ex; ey += sChipH + sGap / 2; }
           SDL_Rect r {ox, ey, cw, sChipH};
@@ -5060,22 +5060,9 @@
                      deckboy::core::i18n::activeCode(),
           [this](const std::string& value) {
             std::string error;
-            if (!deckboy::core::i18n::setLanguage(value, Paths::dataDir(), error)) {
+            if (!applyInterfaceLanguage(value, error)) {
               triggerToast("language: " + error, ToastKind::Warning,
                            kToastReadableMs);
-              return;
-            }
-            project_.language = (value == "en") ? std::string() : value;
-            // The new language may need a face the old one did not, so the
-            // fonts are reloaded rather than left pointing at Liberation.
-            applyUiScale();
-            markProjectDirty();
-            if (deckboy::core::i18n::activeFontMissing()) {
-              triggerToast(deckboy::core::i18n::activeName() +
-                             ": no font on this machine can draw it",
-                           ToastKind::Warning, kToastReadableMs);
-            } else {
-              triggerToast("language: " + deckboy::core::i18n::activeName());
             }
           });
         return;

@@ -1,5 +1,29 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-10 - v0.99.409 (Arabic and Persian, every script on every desk)
+
+**Persian, and Arabic in full.** The desk now speaks Persian as well as
+Arabic, both right to left with their letters joined and shaped. Every label
+is laid out with the Unicode bidirectional algorithm, checked against Unicode's
+own conformance tests on every build, so a number, a port or an English word
+inside a label keeps its own direction.
+
+**Every script on any desk.** Japanese, Chinese, Korean, Hindi, Arabic,
+Hebrew, Thai, Amharic, Tifinagh and more now read on an English desk, in cue
+names, file names, lower thirds and subtitles, sitting on the same line as the
+text around them. Deckboy borrows the characters its own fonts lack from fonts
+the computer already has, chosen for the interface language, and carries Noto
+Sans Arabic and Noto Sans Tifinagh itself. `--self-check` lists the scripts
+this computer can draw.
+
+**On air in the text's own direction.** An Arabic or Persian lower third is
+laid out from the right inside its strap, the typewriter reveal types from the
+right, and a wobble keeps joined letters joined. Deckboy Mini's subtitles
+follow the same rules.
+
+**Change the language from a controller.** `LANGUAGE <code>` changes the
+desk's language and `LANGUAGE` on its own answers the current one.
+
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 
 **Find a cue by name.** In Deckboy Mini, `/` and a few words narrow the list

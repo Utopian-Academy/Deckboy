@@ -65,6 +65,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include "core/io_utils.hpp"          // readExact, readSome (pipe I/O)
 #include "core/pattern_helpers.hpp"   // normalizePatternTypeId, patternTypeIsAnimated
 #include "core/paths.hpp"             // dataDir, for the bundled face
+#include "render/text_shaper.hpp"     // frame text: bidi, fallback faces, one baseline
 #include "core/pixel_effects.hpp"     // applyChromaKeyToPixels, applyColorControlsToPixels
 #include "core/subprocess.hpp"        // spawnProcess, ChildProcess
 #include "core/utils.hpp"             // trim, splitLines, formatTimecode
@@ -2446,40 +2447,39 @@ std::size_t utf8Advance(const std::string& text, std::size_t at, std::string& ou
 // a frame that is mid-draw.
 namespace {
 
-// Every face to try, the operator's first. Per-CHARACTER fallback is what
-// rebuildFontGlyphs learned the hard way: coverage belongs to the character,
-// not to the font, so a face picked for its look does not cost you the
-// letters it happens not to have.
+// The operator's face, or the bundled one. Not a list of faces any more: what
+// the face cannot draw -- a timer message in Arabic, a teleprompter script in
+// Japanese -- the shaper draws from its fallback chain, a PIECE at a time
+// rather than a character at a time, so joined scripts stay joined and every
+// piece sits on one baseline.
 struct FrameTextFaces {
-  std::vector<TTF_Font*> faces;
+  TTF_Font* face = nullptr;
   ~FrameTextFaces() {
-    for (TTF_Font* f : faces) {
-      if (f) TTF_CloseFont(f);
+    if (face) {
+      deckboy::render::shaping::forgetFace(face);
+      TTF_CloseFont(face);
     }
   }
-  bool empty() const { return faces.empty(); }
+  bool empty() const { return face == nullptr; }
 };
 
 void openFrameTextFaces(FrameTextFaces& out, const std::string& fontPath, int pt) {
   if (pt < 4) {
     return;
   }
-  if (!fontPath.empty()) {
-    if (TTF_Font* chosen = TTF_OpenFont(fontPath.c_str(), static_cast<float>(pt))) {
-      out.faces.push_back(chosen);
-    }
+  std::string path = fontPath;
+  if (!path.empty()) {
+    out.face = TTF_OpenFont(path.c_str(), static_cast<float>(pt));
   }
-  // The bundled face first, so a show looks the same on all three platforms --
-  // the same reason Liberation is shipped rather than leaned on per-OS.
-  const std::string bundled = (deckboy::core::Paths::dataDir() /
-                               "fonts" / "LiberationSans-Regular.ttf").string();
-  if (TTF_Font* f = TTF_OpenFont(bundled.c_str(), static_cast<float>(pt))) {
-    out.faces.push_back(f);
+  // The bundled face when the operator chose none, or theirs will not open,
+  // so a show looks the same on all three platforms -- the same reason
+  // Liberation is shipped rather than leaned on per-OS.
+  if (!out.face) {
+    path = (deckboy::core::Paths::dataDir() / "fonts" / "LiberationSans-Regular.ttf").string();
+    out.face = TTF_OpenFont(path.c_str(), static_cast<float>(pt));
   }
-  for (const char* path : kFontGlyphCandidates) {
-    if (TTF_Font* f = TTF_OpenFont(path, static_cast<float>(pt))) {
-      out.faces.push_back(f);
-    }
+  if (out.face) {
+    deckboy::render::shaping::registerFace(out.face, path, static_cast<float>(pt));
   }
 }
 
@@ -2525,57 +2525,16 @@ struct FrameTextBitmap {
   int h = 0;
 };
 
-// Which face actually has this character. Coverage belongs to the CHARACTER,
-// not to the font -- the lesson rebuildFontGlyphs learned when a decorative
-// face picked for its stars cost the letters it did not have.
-TTF_Font* pickFrameTextFace(FrameTextFaces& faces, const std::string& one) {
-  if (faces.empty() || one.empty()) {
-    return nullptr;
-  }
-  const std::size_t width = one.size();
-  std::uint32_t code = static_cast<unsigned char>(one[0]);
-  if (width == 2)      code = ((code & 0x1Fu) << 6) | (one[1] & 0x3Fu);
-  else if (width == 3) code = ((code & 0x0Fu) << 12) | ((one[1] & 0x3Fu) << 6) |
-                              (one[2] & 0x3Fu);
-  else if (width == 4) code = ((code & 0x07u) << 18) | ((one[1] & 0x3Fu) << 12) |
-                              ((one[2] & 0x3Fu) << 6) | (one[3] & 0x3Fu);
-  for (TTF_Font* f : faces.faces) {
-    if (TTF_FontHasGlyph(f, code)) {
-      return f;
-    }
-  }
-  return faces.faces.front();
-}
-
 // How wide a string is in these faces, so a caller can centre or wrap it.
 int frameTextWidth(FrameTextFaces& faces, const std::string& text) {
   if (faces.empty() || text.empty()) {
     return 0;
   }
-  int total = 0;
-  std::size_t at = 0;
-  std::string one;
-  while (at < text.size()) {
-    // ADVANCE BY THE WIDTH. utf8Advance returns the character's LENGTH, not
-    // the next offset -- `at = utf8Advance(...)` pins `at` at 1 on any ASCII
-    // string and spins for ever. It did, and it wedged the main thread so
-    // completely that the app went on answering network STATUS off its own
-    // thread while nothing else in the program ran. Three performance "fixes"
-    // went by before the number refused to move and the loop got read.
-    const std::size_t width = utf8Advance(text, at, one);
-    if (width == 0 || one.empty()) break;
-    at += width;
-    TTF_Font* font = pickFrameTextFace(faces, one);
-    int w = 0;
-    if (TTF_GetStringSize(font, one.c_str(), one.size(), &w, nullptr)) {
-      total += w;
-    }
-  }
-  return total;
+  int w = 0;
+  deckboy::render::shaping::textSize(faces.face, text.c_str(), text.size(), &w, nullptr);
+  return w;
 }
 
-// Blit one string at (x, y), alpha-composited over whatever is already there.
-// Returns the width drawn.
 // One string, rasterised once and kept. Keyed by everything that changes what
 // the pixels are; the colour is NOT part of the key because the glyphs are
 // rendered white and tinted on the way out, which is what lets an amber clock
@@ -2599,62 +2558,40 @@ const FrameTextBitmap* frameTextBitmapFor(const std::string& text,
   if (!faces || faces->empty() || text.empty()) {
     return nullptr;
   }
-  FrameTextBitmap bitmap;
-  // Measured first so the buffer is the right size; the ascent gives every
-  // glyph a common baseline, without which the digits would sit at whatever
-  // height each happened to rasterise to.
-  bitmap.w = frameTextWidth(*faces, text);
-  bitmap.h = 0;
-  int ascent = 0;
-  for (TTF_Font* f : faces->faces) {
-    bitmap.h = std::max(bitmap.h, TTF_GetFontHeight(f));
-    ascent = std::max(ascent, TTF_GetFontAscent(f));
+  // The whole string through the shaper. This used to draw a CHARACTER at a
+  // time, each in whichever face had it, which can never join an Arabic word
+  // and put a right-to-left message on the clock backwards.
+  SDL_Surface* rendered = deckboy::render::shaping::renderText(
+    faces->face, text.c_str(), text.size(), SDL_Color {255, 255, 255, 255});
+  if (!rendered) {
+    return nullptr;
   }
+  SDL_Surface* rgba = rendered;
+  if (rendered->format != SDL_PIXELFORMAT_ARGB8888) {
+    rgba = SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_ARGB8888);
+    SDL_DestroySurface(rendered);
+    if (!rgba) {
+      return nullptr;
+    }
+  }
+  FrameTextBitmap bitmap;
+  bitmap.w = rgba->w;
+  bitmap.h = rgba->h;
   if (bitmap.w <= 0 || bitmap.h <= 0) {
+    SDL_DestroySurface(rgba);
     return nullptr;
   }
   bitmap.rgba.assign(static_cast<std::size_t>(bitmap.w) * bitmap.h * 4, 0);
-  int penX = 0;
-  std::size_t at = 0;
-  std::string one;
-  while (at < text.size()) {
-    // ADVANCE BY THE WIDTH. utf8Advance returns the character's LENGTH, not
-    // the next offset -- `at = utf8Advance(...)` pins `at` at 1 on any ASCII
-    // string and spins for ever. It did, and it wedged the main thread so
-    // completely that the app went on answering network STATUS off its own
-    // thread while nothing else in the program ran. Three performance "fixes"
-    // went by before the number refused to move and the loop got read.
-    const std::size_t width = utf8Advance(text, at, one);
-    if (width == 0 || one.empty()) break;
-    at += width;
-    TTF_Font* font = pickFrameTextFace(*faces, one);
-    if (!font) continue;
-    SDL_Surface* rendered = TTF_RenderText_Blended(
-      font, one.c_str(), one.size(), SDL_Color {255, 255, 255, 255});
-    if (!rendered) continue;
-    SDL_Surface* rgba = SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_ARGB8888);
-    SDL_DestroySurface(rendered);
-    if (!rgba) continue;
-    const int top = ascent - TTF_GetFontAscent(font);
-    const std::uint8_t* src = static_cast<const std::uint8_t*>(rgba->pixels);
-    for (int gy = 0; gy < rgba->h; ++gy) {
-      const int dy = top + gy;
-      if (dy < 0 || dy >= bitmap.h) continue;
-      for (int gx = 0; gx < rgba->w; ++gx) {
-        const int dx = penX + gx;
-        if (dx < 0 || dx >= bitmap.w) continue;
-        const std::uint8_t* sp =
-          src + static_cast<std::size_t>(gy) * rgba->pitch + gx * 4;
-        std::uint8_t* dp = bitmap.rgba.data() +
-          (static_cast<std::size_t>(dy) * bitmap.w + dx) * 4;
-        // ARGB8888 lands B,G,R,A little-endian. Stored as coverage: the glyph
-        // is white, so the alpha is all that matters and the tint comes later.
-        dp[3] = std::max(dp[3], sp[3]);
-      }
+  const std::uint8_t* src = static_cast<const std::uint8_t*>(rgba->pixels);
+  for (int gy = 0; gy < rgba->h; ++gy) {
+    for (int gx = 0; gx < rgba->w; ++gx) {
+      const std::uint8_t* sp = src + static_cast<std::size_t>(gy) * rgba->pitch + gx * 4;
+      // ARGB8888 lands B,G,R,A little-endian. Stored as coverage: the glyph
+      // is white, so the alpha is all that matters and the tint comes later.
+      bitmap.rgba[(static_cast<std::size_t>(gy) * bitmap.w + gx) * 4 + 3] = sp[3];
     }
-    penX += rgba->w;
-    SDL_DestroySurface(rgba);
   }
+  SDL_DestroySurface(rgba);
   auto inserted = cache.emplace(key, std::move(bitmap));
   return &inserted.first->second;
 }
@@ -2714,64 +2651,6 @@ int frameTextCachedWidth(const std::string& text, const std::string& fontPath,
                          int pt) {
   const FrameTextBitmap* bitmap = frameTextBitmapFor(text, fontPath, pt);
   return bitmap ? bitmap->w : 0;
-}
-
-int drawFrameText(DecodedFrame& frame, FrameTextFaces& faces,
-                  const std::string& text, int x, int y, SDL_Color color) {
-  if (faces.empty() || text.empty() || frame.pixels.empty()) {
-    return 0;
-  }
-  int penX = x;
-  std::size_t at = 0;
-  std::string one;
-  while (at < text.size()) {
-    // ADVANCE BY THE WIDTH. utf8Advance returns the character's LENGTH, not
-    // the next offset -- `at = utf8Advance(...)` pins `at` at 1 on any ASCII
-    // string and spins for ever. It did, and it wedged the main thread so
-    // completely that the app went on answering network STATUS off its own
-    // thread while nothing else in the program ran. Three performance "fixes"
-    // went by before the number refused to move and the loop got read.
-    const std::size_t width = utf8Advance(text, at, one);
-    if (width == 0 || one.empty()) break;
-    at += width;
-    TTF_Font* font = pickFrameTextFace(faces, one);
-    SDL_Surface* rendered =
-      TTF_RenderText_Blended(font, one.c_str(), one.size(), color);
-    if (!rendered) {
-      continue;
-    }
-    SDL_Surface* rgba = SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_ARGB8888);
-    SDL_DestroySurface(rendered);
-    if (!rgba) {
-      continue;
-    }
-    const std::uint8_t* src = static_cast<const std::uint8_t*>(rgba->pixels);
-    for (int gy = 0; gy < rgba->h; ++gy) {
-      const int dy = y + gy;
-      if (dy < 0 || dy >= frame.height) continue;
-      for (int gx = 0; gx < rgba->w; ++gx) {
-        const int dx = penX + gx;
-        if (dx < 0 || dx >= frame.width) continue;
-        const std::uint8_t* sp =
-          src + static_cast<std::size_t>(gy) * rgba->pitch + gx * 4;
-        const int a = sp[3];
-        if (a == 0) continue;
-        std::uint8_t* dp = frame.pixels.data() +
-          (static_cast<std::size_t>(dy) * frame.width + dx) * 4;
-        // ARGB8888 lands as B,G,R,A on a little-endian machine; the frame is
-        // RGBA. Composite rather than replace, so text over a logo or a bar
-        // does not punch a hole in it.
-        const int sr = sp[2], sg = sp[1], sb = sp[0];
-        dp[0] = static_cast<std::uint8_t>((sr * a + dp[0] * (255 - a)) / 255);
-        dp[1] = static_cast<std::uint8_t>((sg * a + dp[1] * (255 - a)) / 255);
-        dp[2] = static_cast<std::uint8_t>((sb * a + dp[2] * (255 - a)) / 255);
-        dp[3] = static_cast<std::uint8_t>(std::min(255, dp[3] + a));
-      }
-    }
-    penX += rgba->w;
-    SDL_DestroySurface(rgba);
-  }
-  return penX - x;
 }
 
 }  // namespace
@@ -2865,7 +2744,7 @@ void MediaEngine::rebuildFontGlyphs(const std::string& glyphs, int cellW, int ce
     }
     FontCellGlyph cell;
     cell.rgba.assign(static_cast<std::size_t>(cellW) * cellH * 4, 0);
-    SDL_Surface* rendered = TTF_RenderText_Blended(
+    SDL_Surface* rendered = deckboy::render::shaping::renderText(
       font, one.c_str(), one.size(), SDL_Color {255, 255, 255, 255});
     if (rendered) {
       SDL_Surface* rgba = SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_ARGB8888);

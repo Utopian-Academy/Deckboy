@@ -1865,6 +1865,85 @@
   // the moment it was told to go -- `outStartedAt`, on the same transport
   // clock, or its time on screen running out. So OUT with "slide from left"
   // leaves the way it came.
+  // WHERE EACH CHARACTER ENDS, in bytes: a letter with the marks and joiners
+  // riding on it. A typewriter reveals these, never bytes -- an Arabic letter
+  // is two bytes and a Japanese one three, so counting bytes cut letters in
+  // half and typed those scripts two and three times faster than English.
+  static std::vector<std::size_t> characterEnds(const std::string& s) {
+    namespace bidi = deckboy::core::bidi;
+    std::vector<std::size_t> ends;
+    for (std::size_t at = 0; at < s.size();) {
+      char32_t cp = 0;
+      at += bidi::decodeUtf8(s, at, cp);
+      while (at < s.size()) {
+        char32_t next = 0;
+        const std::size_t len = bidi::decodeUtf8(s, at, next);
+        const auto cls = bidi::classOf(next);
+        if (cls != bidi::BidiClass::NSM && cls != bidi::BidiClass::BN) break;
+        at += len;
+      }
+      ends.push_back(at);
+    }
+    return ends;
+  }
+
+  // THE PIECES A WOBBLING LINE MOVES AS, left to right as they are seen.
+  //
+  // A character with its marks, in the scripts whose letters stand alone:
+  // Latin, Greek, Cyrillic, Han, kana, Hangul. A WORD everywhere else -- in
+  // Arabic, Persian, the Indic scripts, Thai -- because letters drawn one at a
+  // time there lose their joins and conjuncts, and a wobbling name that has
+  // come apart is not the same name. Right-to-left runs are reversed so the
+  // line wobbles in place rather than backwards.
+  static std::vector<std::string> wobbleUnits(const std::string& line) {
+    namespace bidi = deckboy::core::bidi;
+    auto standsAlone = [](char32_t cp) {
+      return cp < 0x0590 ||                       // Latin, Greek, Cyrillic, IPA, marks
+             (cp >= 0x1E00 && cp <= 0x1FFF) ||    // Latin and Greek extended
+             (cp >= 0x2000 && cp <= 0x2BFF) ||    // punctuation and symbols
+             (cp >= 0x2E80 && cp <= 0x9FFF) ||    // CJK, kana
+             (cp >= 0xAC00 && cp <= 0xD7AF) ||    // Hangul
+             (cp >= 0xF900 && cp <= 0xFAFF) || (cp >= 0xFF00 && cp <= 0xFFEF) ||
+             (cp >= 0x20000 && cp <= 0x3FFFF);
+    };
+    std::vector<std::string> out;
+    for (const bidi::Run& run : bidi::visualRuns(line)) {
+      const std::string text = line.substr(run.begin, run.end - run.begin);
+      bool simple = true;
+      for (std::size_t at = 0; at < text.size();) {
+        char32_t cp = 0;
+        at += bidi::decodeUtf8(text, at, cp);
+        if (!standsAlone(cp)) simple = false;
+      }
+      std::vector<std::string> units;
+      for (std::size_t at = 0; at < text.size();) {
+        const std::size_t start = at;
+        char32_t cp = 0;
+        at += bidi::decodeUtf8(text, at, cp);
+        if (simple || cp == ' ') {
+          // The character, and any marks or joiners riding on it.
+          while (at < text.size()) {
+            char32_t next = 0;
+            const std::size_t len = bidi::decodeUtf8(text, at, next);
+            const auto cls = bidi::classOf(next);
+            if (cls != bidi::BidiClass::NSM && cls != bidi::BidiClass::BN) break;
+            at += len;
+          }
+        } else {
+          // The word.
+          while (at < text.size() && text[at] != ' ') {
+            char32_t next = 0;
+            at += bidi::decodeUtf8(text, at, next);
+          }
+        }
+        units.push_back(text.substr(start, at - start));
+      }
+      if (run.rightToLeft()) std::reverse(units.begin(), units.end());
+      out.insert(out.end(), units.begin(), units.end());
+    }
+    return out;
+  }
+
   void renderLowerThirdIntoOutput(SDL_Renderer* renderer, const Cue& cue,
                                   const SDL_Rect& target, double seconds,
                                   double outStartedAt) {
@@ -1885,6 +1964,12 @@
     if (title.empty() && subtitle.empty()) {
       return;
     }
+    // A NAME WRITTEN RIGHT TO LEFT STARTS AT THE RIGHT. An Arabic or Persian
+    // strap is laid out as the mirror of a Latin one -- words against the
+    // right edge of their box, the accent on the side the eye starts from --
+    // wherever on the frame the side setting puts it.
+    const bool rtlText =
+      deckboy::render::shaping::resolvesRightToLeft(title.empty() ? subtitle : title);
 
     // ── WHERE IT IS IN ITS LIFE ─────────────────────────────────────────
     double outAt = outStartedAt;
@@ -1959,12 +2044,17 @@
     TTF_Font* titleFont = arcade && fontPixelTitle_ ? fontPixelTitle_ : fontLarge_;
     TTF_Font* subFont = arcade && fontMono_ ? fontMono_ : fontLarge_;
 
-    // TYPEWRITER shows the title a letter at a time once the bar is in.
+    // TYPEWRITER shows the title a letter at a time once the bar is in --
+    // a LETTER, not a byte: an Arabic letter is two bytes and a Japanese one
+    // three, and cutting between them drew a broken character every frame.
+    // Marks stay with the letter they sit on.
     std::string shownTitle = title;
     if (move == LowerThirdMove::Typewriter) {
       const double letters = std::clamp((p - 0.3) / 0.7, 0.0, 1.0);
-      shownTitle = title.substr(0, static_cast<std::size_t>(
-        std::lround(letters * static_cast<double>(title.size()))));
+      const std::vector<std::size_t> ends = characterEnds(title);
+      const std::size_t keep = std::min(ends.size(), static_cast<std::size_t>(
+        std::lround(letters * static_cast<double>(ends.size()))));
+      shownTitle = title.substr(0, keep == 0 ? 0 : ends[keep - 1]);
     }
     const TextTextureEntry* titleTex = title.empty() ? nullptr
       : cachedTextTexture(renderer, titleFont, title, titleInk);
@@ -1974,7 +2064,7 @@
     const TextTextureEntry* subTex = subtitle.empty() ? nullptr
       : cachedTextTexture(renderer, subFont, subtitle, subInk);
     auto widthAt = [](const TextTextureEntry* t, double h) {
-      return (t && t->h > 0) ? t->w * h / static_cast<double>(t->h) : 0.0;
+      return (t && t->h > 0) ? scaledLabelWidth(*t, h) : 0.0;
     };
     const double titleW = widthAt(titleTex, titleH);   // the FULL title: the box
     const double subW = widthAt(subTex, subH);          // does not grow as it types
@@ -1987,7 +2077,11 @@
     double titleX = 0.0, titleY = 0.0, subX = 0.0, subY = 0.0;
     double blockW = 0.0, blockH = 0.0;
     const double accentW = titleH * 0.16;
-    const bool rightSide = d.side == 2;
+    // Two different questions with one answer each. WHERE the strap sits is
+    // the side setting's alone. Which way it is laid out INSIDE mirrors for a
+    // right-hand strap (accent on the outer edge) and for right-to-left words.
+    const bool placedRight = d.side == 2;
+    const bool rightSide = placedRight || rtlText;
     switch (d.look) {
       case LowerThirdLook::Boxes: {
         const double tw = titleW + pad * 2.0;
@@ -2040,10 +2134,13 @@
         const double tx = d.side == 0 ? margin
                         : d.side == 2 ? blockW - margin - textW
                                       : (blockW - textW) / 2.0;
+        // The full-width look places the words by the side setting itself,
+        // so right to left only decides which edge of that block the two
+        // lines share.
         titleX = d.side == 1 ? (blockW - titleW) / 2.0
-               : rightSide ? blockW - margin - titleW : tx;
+               : rightSide ? tx + textW - titleW : tx;
         subX = d.side == 1 ? (blockW - subW) / 2.0
-             : rightSide ? blockW - margin - subW : tx;
+             : rightSide ? tx + textW - subW : tx;
         titleY = pad * 0.7;
         subY = titleY + titleH + pad * 0.25;
         break;
@@ -2274,7 +2371,7 @@
       blockX = target.x;
     } else if (d.side == 1) {
       blockX = target.x + (target.w - blockW) / 2.0;
-    } else if (rightSide) {
+    } else if (placedRight) {
       blockX = target.x + target.w - marginX - blockW;
     }
     const double blockY = target.y + target.h - bottom - blockH;
@@ -2440,17 +2537,20 @@
       if (!tex || !tex->texture || tex->h <= 0 || a <= 0.0) {
         return;
       }
-      const double w = tex->w * h / static_cast<double>(tex->h);
+      const SDL_FRect scaled = scaledLabelRect(*tex, x, y, h);
+      const double w = scaled.w;
+      const double drawY = scaled.y;
+      const double drawH = scaled.h;
       if (boxless) {
         // A soft shadow, because a line of words with no box behind it has to
         // read over a white shirt as well as a dark stage.
-        SDL_FRect shadow = place(x + h * 0.05, y + h * 0.05, w, h);
+        SDL_FRect shadow = place(x + h * 0.05, drawY + h * 0.05, w, drawH);
         SDL_SetTextureColorMod(tex->texture, 0, 0, 0);
         SDL_SetTextureAlphaMod(tex->texture, static_cast<Uint8>(std::clamp(150.0 * a, 0.0, 255.0)));
         SDL_RenderTexture(renderer, tex->texture, nullptr, &shadow);
         SDL_SetTextureColorMod(tex->texture, 255, 255, 255);
       }
-      SDL_FRect dst = place(x, y, w, h);
+      SDL_FRect dst = place(x, drawY, w, drawH);
       SDL_SetTextureAlphaMod(tex->texture, static_cast<Uint8>(std::clamp(255.0 * a, 0.0, 255.0)));
       if (angle == 0.0) {
         SDL_RenderTexture(renderer, tex->texture, nullptr, &dst);
@@ -2462,7 +2562,12 @@
     };
     const bool travels = move == LowerThirdMove::SlideLeft || move == LowerThirdMove::SlideRight ||
                          move == LowerThirdMove::SlideUp;
-    drawWords(shownTex, titleX, titleY, titleH, alpha * textAlpha);
+    // A right-to-left title types from the right: the part shown so far
+    // keeps to the title's right edge rather than its left.
+    const double shownX = (rtlText && shownTex && shownTex != titleTex)
+                            ? titleX + titleW - widthAt(shownTex, titleH)
+                            : titleX;
+    drawWords(shownTex, shownX, titleY, titleH, alpha * textAlpha);
     // The subtitle trails on the moves that travel: drawn a little further
     // back along the same path.
     // Only where the subtitle has no box of its own to stay inside: on the
@@ -2564,10 +2669,11 @@
     if (cue.textAnimation == CueTextAnimation::Typewriter) {
       std::size_t budget = static_cast<std::size_t>(std::max(0.0, t * 18.0));
       for (std::string& line : lines) {
-        if (budget >= line.size()) {
-          budget -= line.size();
+        const std::vector<std::size_t> ends = characterEnds(line);
+        if (budget >= ends.size()) {
+          budget -= ends.size();
         } else {
-          line = line.substr(0, budget);
+          line = line.substr(0, budget == 0 ? 0 : ends[budget - 1]);
           budget = 0;
         }
       }
@@ -2636,20 +2742,25 @@
         if (lines[i].empty()) {
           continue;
         }
+        // The pieces that move -- see wobbleUnits -- in the order they are
+        // seen. These used to be BYTES, so every letter outside plain ASCII
+        // came out as two or three broken boxes, an accented Latin one too.
+        const std::vector<std::string> units = wobbleUnits(lines[i]);
         std::vector<const TextTextureEntry*> glyphs;
         std::vector<double> widths;
         double lineW = 0.0;
         double scale = 1.0;
-        for (char ch : lines[i]) {
+        for (const std::string& unit : units) {
+          const bool blank = unit.find_first_not_of(" \t") == std::string::npos;
           const TextTextureEntry* g =
-            cachedTextTexture(renderer, fontLarge_, std::string(1, ch), cue.textColor);
+            blank ? nullptr : cachedTextTexture(renderer, fontLarge_, unit, cue.textColor);
           glyphs.push_back(g);
           if (!g || g->h <= 0) {
-            widths.push_back(lineH * 0.3);   // a space, or a glyph with no box
+            widths.push_back(lineH * 0.3 * static_cast<double>(std::max<std::size_t>(1, unit.size())));
             lineW += widths.back();
             continue;
           }
-          scale = lineH / static_cast<double>(g->h);
+          scale = lineH / static_cast<double>(g->lineH > 0 ? g->lineH : g->h);
           widths.push_back(g->w * scale);
           lineW += widths.back();
         }
@@ -2678,14 +2789,14 @@
         const double baseY = originY + lineStep * static_cast<double>(i);
         for (std::size_t c = 0; c < glyphs.size(); ++c) {
           const TextTextureEntry* g = glyphs[c];
-          if (g && g->texture && g->h > 0 && lines[i][c] != ' ') {
+          if (g && g->texture && g->h > 0) {
             const double phase = t * 3.1 + static_cast<double>(c) * 0.7 +
                                  static_cast<double>(i) * 1.3;
             const int w = std::max(1, static_cast<int>(std::lround(g->w * scale)));
             const int h = std::max(1, static_cast<int>(std::lround(g->h * scale)));
             SDL_FRect dst {
               static_cast<float>(x + std::cos(phase * 0.8) * lineAmp * 0.5),
-              static_cast<float>(baseY + std::sin(phase) * lineAmp),
+              static_cast<float>(baseY - g->top * scale + std::sin(phase) * lineAmp),
               static_cast<float>(w), static_cast<float>(h)};
             SDL_SetTextureAlphaMod(g->texture, 255);
             SDL_RenderTexture(renderer, g->texture, nullptr, &dst);
@@ -2714,7 +2825,7 @@
       // the text preview escaping the preview window at a smaller UI scale,
       // which is exactly when a line that used to just barely fit stops
       // fitting.
-      double scale = lineH / static_cast<double>(entry->h);
+      double scale = lineH / static_cast<double>(entry->lineH > 0 ? entry->lineH : entry->h);
       const double maxW = std::max(1.0, static_cast<double>(target.w));
       if (entry->w * scale > maxW) {
         scale = maxW / static_cast<double>(entry->w);
@@ -2730,7 +2841,8 @@
       if (cue.textAnimation == CueTextAnimation::Crawl) {
         x = target.x + static_cast<int>(std::lround(crawlX));
       }
-      const int y = static_cast<int>(std::lround(originY + lineStep * static_cast<double>(i)));
+      const int y = static_cast<int>(std::lround(originY + lineStep * static_cast<double>(i) -
+                                                 entry->top * scale));
       // Off the frame entirely: nothing to draw, and nothing to pay for.
       if (y + h < target.y || y > target.y + target.h) {
         continue;
@@ -4222,7 +4334,7 @@
                                                                 SDL_Color {0, 0, 0, 255});
               if (!ink || !ink->texture || ink->h <= 0) continue;
               rows.emplace_back(ink, shade);
-              widest = std::max(widest, ink->w * lineH / static_cast<float>(ink->h));
+              widest = std::max(widest, static_cast<float>(scaledLabelWidth(*ink, lineH)));
             }
             if (!rows.empty()) {
               const float boxW = std::min(static_cast<float>(renderW), widest + padX * 2.0f);
@@ -4236,8 +4348,8 @@
               for (std::size_t li = 0; li < rows.size(); ++li) {
                 const auto* ink = rows[li].first;
                 const auto* shade = rows[li].second;
-                const float w = ink->w * lineH / static_cast<float>(ink->h);
-                SDL_FRect dst {(renderW - w) / 2.0f, boxY + padY + li * lineH, w, lineH};
+                const SDL_FRect at = scaledLabelRect(*ink, 0.0, boxY + padY + li * lineH, lineH);
+                SDL_FRect dst {(renderW - at.w) / 2.0f, at.y, at.w, at.h};
                 if (shade && shade->texture) {
                   SDL_FRect drop {dst.x + shadowOff, dst.y + shadowOff, dst.w, dst.h};
                   SDL_RenderTexture(runtime->outputRenderer, shade->texture, nullptr, &drop);

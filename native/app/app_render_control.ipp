@@ -68,7 +68,7 @@
       if (engine && engine->duration() > 0.0) {
         remStr = "-" + formatSeconds(std::max(0.0, engine->duration() - engine->position()));
         int remTextW = 0, remTextH = 0;
-        TTF_GetStringSize(fontMono_, remStr.c_str(), remStr.size(), &remTextW, &remTextH);
+        textSizeShown(fontMono_, remStr.c_str(), remStr.size(), &remTextW, &remTextH);
         // +12 for the badge fill and drawCenteredTextSafe's inset — measuring
         // exactly and padding thinly is what reproduced the truncation in the
         // timeline chips.
@@ -1009,7 +1009,7 @@
           ? "VOLUME " + std::to_string(volPct) + "%"
           : std::to_string(volPct) + "%";
         int volTextW = 0;
-        TTF_GetStringSize(fontSmall_, volText.c_str(), 0, &volTextW, nullptr);
+        textSizeShown(fontSmall_, volText.c_str(), 0, &volTextW, nullptr);
         int kVolLblW = std::min(volTextW + 24, faderAreaW - 44);
         SDL_Rect volLbl {ax, ty, kVolLblW, kTBtnH};
         drawUIPanel(volLbl, pal.mid, pal.deep, pal.light);
@@ -1552,7 +1552,7 @@
       const std::string routing = playlistRoutingChipLabel(deckIndex);
       int txtW = 0;
       if (rcFont) {
-        TTF_GetStringSize(rcFont, routing.c_str(), routing.size(), &txtW, nullptr);
+        textSizeShown(rcFont, routing.c_str(), routing.size(), &txtW, nullptr);
       }
       routingChipW = std::max(uiScaled(44), txtW + uiScaled(18));
       SDL_Rect chip {colHeader.x + colHeader.w - routingChipW - uiScaled(6),
@@ -1590,10 +1590,10 @@
     int jumpTxtW = 0;
     int titleTxtW = 0;
     if (jbFont) {
-      TTF_GetStringSize(jbFont, ">LIVE", 0, &jumpTxtW, nullptr);
+      textSizeShown(jbFont, ">LIVE", 0, &jumpTxtW, nullptr);
       // drawPanelHeaderTitle draws in this same face, inset 8 each side.
       const std::string title = playlistColumnTitle(deckIndex);
-      TTF_GetStringSize(jbFont, title.c_str(), title.size(), &titleTxtW, nullptr);
+      textSizeShown(jbFont, title.c_str(), title.size(), &titleTxtW, nullptr);
     }
     const int jumpBtnNeeds = std::max(uiScaled(56), jumpTxtW + uiScaled(16));
     const int titleNeeds = titleTxtW + 16 + uiScaled(4);
@@ -2610,7 +2610,7 @@
         double remaining = std::max(0.0, engine->duration() - engine->position());
         std::string remStr = "-" + formatSeconds(remaining);
         int remTextW = 0, remTextH = 0;
-        TTF_GetStringSize(fontMono_, remStr.c_str(), remStr.size(), &remTextW, &remTextH);
+        textSizeShown(fontMono_, remStr.c_str(), remStr.size(), &remTextW, &remTextH);
         int badgeW = std::max(uiScaled(80), remTextW + uiScaled(16));
         badgeW = std::min(badgeW, std::max(uiScaled(80), row.w - uiScaled(24)));
         SDL_Rect badge {row.x + row.w - (badgeW + uiScaled(4)), row.y + uiScaled(4),
@@ -2731,7 +2731,7 @@
     }
     int textW = 0;
     int textH = 0;
-    TTF_GetStringSize(font, tip.c_str(), 0, &textW, &textH);
+    textSizeShown(font, tip.c_str(), 0, &textW, &textH);
     const int padX = uiScaled(10);
     const int padY = uiScaled(5);
     const int w = textW + padX * 2;
@@ -2849,7 +2849,7 @@
         for (std::size_t i = 0; i < entries.size(); ++i) {
           int w = 0, h = 0;
           if (onAirFont) {
-            TTF_GetStringSize(onAirFont, entries[i].label,
+            textSizeShown(onAirFont, entries[i].label,
                               std::strlen(entries[i].label), &w, &h);
           }
           // drawTextSafe insets the rect it is given before laying out, so a
@@ -2936,7 +2936,7 @@
       TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
       int labelW = 0;
       if (btnFont) {
-        TTF_GetStringSize(btnFont, button.label.c_str(), button.label.size(),
+        textSizeShown(btnFont, button.label.c_str(), button.label.size(),
                           &labelW, nullptr);
       }
       int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
@@ -3019,7 +3019,7 @@
         {
           int titleW = 0;
           if (titleFont && fontSmall_ && titleFont != fontSmall_ &&
-              TTF_GetStringSize(titleFont, button.label.c_str(), button.label.size(),
+              textSizeShown(titleFont, button.label.c_str(), button.label.size(),
                                 &titleW, nullptr) &&
               titleW > titleRoom) {
             titleFont = fontSmall_;
@@ -3289,7 +3289,7 @@
     int textW = 0;
     int textH = 0;
     if (fontBase_) {
-      TTF_GetStringSize(fontBase_, toast_.message.c_str(), 0, &textW, &textH);
+      textSizeShown(fontBase_, toast_.message.c_str(), 0, &textW, &textH);
     }
     // The badge column: a solid bar for help, a "!" plate for a warning --
     // the shape says which kind it is before the colour or the words do.

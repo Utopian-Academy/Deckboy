@@ -136,6 +136,8 @@
 #include "core/i18n.hpp"
 #include "platform/nmos_node.hpp"
 #include "render/primitives.hpp"
+#include "render/font_fallbacks.hpp"
+#include "render/text_shaper.hpp"
 #include "extras/upstream/qrcodegen/qrcodegen.hpp"
 #include "render/layout.hpp"
 #include "render/texture_helpers.hpp"
@@ -334,15 +336,19 @@ std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int m
     return "";
   }
 
+  // Measured the way it will be drawn: through the shaper, which knows the
+  // fallback faces and the direction of each piece. TTF_GetStringSize alone
+  // measured an Arabic name as a row of the primary font's empty boxes.
+  namespace shaping = deckboy::render::shaping;
   int textW = 0;
   int textH = 0;
-  if (TTF_GetStringSize(font, text.c_str(), 0, &textW, &textH) && textW <= maxWidth) {
+  if (shaping::textSize(font, text.c_str(), text.size(), &textW, &textH) && textW <= maxWidth) {
     return text;
   }
 
   const std::string kEllipsis = "...";
   int ellipsisW = 0;
-  if (!TTF_GetStringSize(font, kEllipsis.c_str(), 0, &ellipsisW, &textH)) {
+  if (!shaping::textSize(font, kEllipsis.c_str(), kEllipsis.size(), &ellipsisW, &textH)) {
     return text;
   }
   if (ellipsisW > maxWidth) {
@@ -379,7 +385,8 @@ std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int m
   while (lo < hi) {
     const int mid = (lo + hi + 1) / 2;
     const std::string candidate = text.substr(0, stops[static_cast<std::size_t>(mid)]) + kEllipsis;
-    if (TTF_GetStringSize(font, candidate.c_str(), 0, &textW, &textH) && textW <= maxWidth) {
+    if (shaping::textSize(font, candidate.c_str(), candidate.size(), &textW, &textH) &&
+        textW <= maxWidth) {
       lo = mid;
     } else {
       hi = mid - 1;
@@ -4739,7 +4746,7 @@ class App {
       renderDiagnosticLog(line.str());
       return true;
     }
-    SDL_Surface* glyphs = TTF_RenderText_Blended(fontSmall_, "Deckboy Ag", 0, SDL_Color{255, 255, 255, 255});
+    SDL_Surface* glyphs = deckboy::render::shaping::renderText(fontSmall_, "Deckboy Ag", 0, SDL_Color{255, 255, 255, 255});
     long cpuInk = 0;
     int sw = 0, sh = 0;
     if (glyphs) {
@@ -8262,7 +8269,10 @@ class App {
     // Both have to go before the faces they describe do.
     for (auto& entry : fontLadders_) {
       for (auto& sized : entry.second.bySize) {
-        if (sized.second) TTF_CloseFont(sized.second);
+        if (sized.second) {
+          deckboy::render::shaping::forgetFace(sized.second);
+          TTF_CloseFont(sized.second);
+        }
       }
     }
     fontLadders_.clear();
@@ -8271,7 +8281,15 @@ class App {
     // recycled font pointer does not merely mis-measure, it draws the old
     // face's glyphs at the new face's call site.
     purgeTextTextureCache(nullptr);
-    auto close = [](TTF_Font*& f) { if (f) { TTF_CloseFont(f); f = nullptr; } };
+    // The shaper keys its fallback faces on the font's address, which the
+    // allocator hands to the next font opened: it forgets first.
+    auto close = [](TTF_Font*& f) {
+      if (f) {
+        deckboy::render::shaping::forgetFace(f);
+        TTF_CloseFont(f);
+        f = nullptr;
+      }
+    };
     close(fontLarge_);
     close(fontBase_);
     close(fontSmall_);
@@ -8316,9 +8334,12 @@ class App {
     // means Deckboy reads Japanese everywhere without carrying sixteen
     // megabytes of glyphs that every one of those machines already has.
     //
-    // BOTH faces are replaced, not just the sans. The chrome is drawn in the
-    // pixel face, and a pixel face that cannot draw the language is exactly the
-    // half of the interface an operator reads most.
+    // ONLY THE SANS. The pixel face used to be replaced too, because a pixel
+    // face that could not draw the language was the half of the interface an
+    // operator reads most. It can now: the shaper draws what it lacks from the
+    // fallback faces, matched to its size. Replacing it put Arabic and Persian
+    // chrome in a regular face at the pixel face's point size, which reads a
+    // third smaller -- the tiny labels on the first Arabic desk.
     {
       const auto candidates = deckboy::core::i18n::activeFontCandidates();
       std::string found;
@@ -8332,7 +8353,6 @@ class App {
       deckboy::core::i18n::noteFontResolved(!found.empty());
       if (!found.empty()) {
         sans = found;
-        pixel = found;
       }
     }
     // HYBRID (the owner, 2026-08-19): pixel face on the CHROME, readable sans for
@@ -8360,12 +8380,18 @@ class App {
       open(mono, pt(18)), open(pixel, pt(24)), open(pixel, pt(12)),
       open(pixel, pt(42))
     };
+    // Where each one actually came from and at what size, for the shaper,
+    // which opens its fallback faces to match.
+    std::array<std::string, 7> nextPaths {sans, sans, sans, mono, pixel, pixel, pixel};
+    const std::array<int, 7> nextSizes {pt(32), pt(21), pt(17), pt(18), pt(24), pt(12), pt(42)};
     // The chrome is drawn in the pixel face. If that one will not open, draw
     // the chrome in the sans rather than in nothing: every header and button
     // label would otherwise be blank while the rest of the desk reads.
-    const int pixelSizes[3] = {pt(24), pt(12), pt(42)};
     for (int i = 0; i < 3; ++i) {
-      if (!nextFonts[4 + i]) nextFonts[4 + i] = open(sans, pixelSizes[i]);
+      if (!nextFonts[4 + i]) {
+        nextFonts[4 + i] = open(sans, nextSizes[4 + i]);
+        nextPaths[4 + i] = sans;
+      }
     }
     if (!nextFonts[0] || !nextFonts[1] || !nextFonts[2] || !nextFonts[3]) {
       for (TTF_Font* font : nextFonts) {
@@ -8387,6 +8413,21 @@ class App {
     // never seen.
     fontPixelTitle_ = nextFonts[6];  // splash/startup headline
 
+    // ── WHAT THESE FACES CANNOT DRAW ────────────────────────────────────────
+    //
+    // Liberation and the pixel face draw Latin, Greek and Cyrillic. Everything
+    // else a show can contain -- a cue named in Japanese on an English desk, an
+    // Arabic lower third, a Persian file name -- comes from the fallback chain,
+    // in the faces this machine has, ordered for the interface language.
+    deckboy::render::shaping::setFallbackChain(
+      deckboy::render::scriptFallbacks(deckboy::core::i18n::activeCode()));
+    for (std::size_t i = 0; i < nextFonts.size(); ++i) {
+      if (nextFonts[i]) {
+        deckboy::render::shaping::registerFace(nextFonts[i], nextPaths[i],
+                                               static_cast<float>(nextSizes[i]));
+      }
+    }
+
     // What each face is and how big, so a label that overflows can be given a
     // smaller sibling instead of resizing the one everything else is using.
     auto ladder = [&](TTF_Font* f, const std::string& path, int size) {
@@ -8399,22 +8440,18 @@ class App {
     ladder(fontPixel_,      pixel, pt(24));
     ladder(fontPixelSmall_, pixel, pt(12));
 
-    // ── WHICH WAY THE LANGUAGE RUNS ─────────────────────────────────────────
+    // ── CAN THIS BUILD SHAPE AT ALL ─────────────────────────────────────────
     //
-    // TTF_SetFontDirection returns false when the build cannot honour it, and
-    // that answer is the whole reason this is checked rather than assumed:
-    // SDL_ttf only shapes and reorders when it was built against HarfBuzz, and
-    // a build without it reverses glyphs without joining them. For Arabic that
-    // produces something that looks like Arabic to somebody who does not read
-    // it and is wrong to everybody who does.
+    // TTF_SetFontDirection returns false when SDL_ttf was built without
+    // HarfBuzz, and such a build reverses glyphs without joining them: for
+    // Arabic that looks like Arabic to somebody who does not read it and is
+    // wrong to everybody who does. So the answer is recorded once and the
+    // language layer stops offering scripts that need shaping when it is no.
     //
-    // So the result is recorded, the language layer refuses to offer a script
-    // that needs shaping when shaping is absent, and nobody is quietly shown
-    // nonsense.
-    // ONE PROBE, ONCE. Ask any font to run right to left and see whether
-    // SDL_ttf agrees; a build without HarfBuzz refuses. Done on a font we then
-    // put straight back, so the answer costs nothing and the language picker
-    // can stop offering scripts this build would draw wrongly.
+    // DIRECTION IS NO LONGER SET HERE. It used to be set on the whole font for
+    // a right-to-left language and flipped per label, which reversed the
+    // numbers inside an Arabic label ("%59"). The shaper now runs the Unicode
+    // bidi algorithm on every string and sets the direction per piece.
     {
       static bool probed = false;
       if (!probed && fontSmall_) {
@@ -8424,17 +8461,8 @@ class App {
         deckboy::core::i18n::noteShapingAvailable(can);
       }
     }
-    if (deckboy::core::i18n::activeIsRtl()) {
-      bool ok = true;
-      for (TTF_Font* f : {fontLarge_, fontBase_, fontSmall_, fontMono_,
-                          fontPixel_, fontPixelSmall_, fontPixelTitle_}) {
-        if (!f) continue;
-        if (!TTF_SetFontDirection(f, TTF_DIRECTION_RTL)) ok = false;
-      }
-      deckboy::core::i18n::noteRtlSupported(ok);
-    } else {
-      deckboy::core::i18n::noteRtlSupported(false);
-    }
+    deckboy::core::i18n::noteRtlSupported(deckboy::core::i18n::activeIsRtl() &&
+                                          deckboy::core::i18n::shapingAvailable());
     // Kerning OFF for every UI font. At these pixel sizes a negative kern pair
     // rounds to a whole pixel or two, which tucks the second glyph under the
     // first hard enough that the word visibly splits — "Target URL" rendered as

@@ -229,7 +229,7 @@ static const std::vector<CodeExample>& codeExamples() {
                                                 ? std::string::npos : space - i);
       const std::string candidate = line.empty() ? word : line + " " + word;
       int w = 0;
-      TTF_GetStringSize(font, candidate.c_str(), 0, &w, nullptr);
+      textSizeShown(font, candidate.c_str(), 0, &w, nullptr);
       if (w > maxWidth && !line.empty()) {
         lines.push_back(line);
         line = word;
@@ -251,7 +251,7 @@ static const std::vector<CodeExample>& codeExamples() {
     int used = 0;
     for (const auto& entry : entries) {
       int textW = 0;
-      TTF_GetStringSize(fontSmall_, entry.name, 0, &textW, nullptr);
+      textSizeShown(fontSmall_, entry.name, 0, &textW, nullptr);
       const int chipW = textW + 20;
       if (used > 0 && used + chipW > width) {
         ++rows;
@@ -273,7 +273,7 @@ static const std::vector<CodeExample>& codeExamples() {
     int used = 0;
     for (const auto& entry : entries) {
       int textW = 0;
-      TTF_GetStringSize(fontSmall_, entry.name, 0, &textW, nullptr);
+      textSizeShown(fontSmall_, entry.name, 0, &textW, nullptr);
       const int chipW = textW + 18;
       if (used > 0 && used + chipW > width) {
         ++rows;
@@ -528,7 +528,7 @@ static const std::vector<CodeExample>& codeExamples() {
     TTF_Font* mono = fontMono_ ? fontMono_ : fontSmall_;
     int cellW = 0, cellH = 0;
     if (mono) {
-      TTF_GetStringSize(mono, "M", 0, &cellW, &cellH);
+      deckboy::render::shaping::textSize(mono, "M", 0, &cellW, &cellH);
     }
     cellW = std::max(1, cellW);
     cellH = std::max(1, cellH);
@@ -697,7 +697,7 @@ static const std::vector<CodeExample>& codeExamples() {
       int cx = panel.x + 16;
       for (const auto& entry : entries) {
         int textW = 0;
-        TTF_GetStringSize(fontSmall_, entry.name, 0, &textW, nullptr);
+        textSizeShown(fontSmall_, entry.name, 0, &textW, nullptr);
         const int chipW = textW + 18;
         if (cx + chipW > panel.x + bodyW - 16) {
           cx = panel.x + 16;
@@ -740,7 +740,7 @@ static const std::vector<CodeExample>& codeExamples() {
     int ex = panel.x + 16;
     for (const auto& example : codeExamples()) {
       int textW = 0;
-      TTF_GetStringSize(fontSmall_, example.name, 0, &textW, nullptr);
+      textSizeShown(fontSmall_, example.name, 0, &textW, nullptr);
       const int exW = textW + 20;
       if (ex + exW > panel.x + bodyW - 16) {
         ex = panel.x + 16;

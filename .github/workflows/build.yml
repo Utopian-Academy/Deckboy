@@ -211,6 +211,12 @@ jobs:
       - name: No double-encoded text
         run: python3 tools/audit_encoding.py
 
+      # SDL_ttf called directly draws Arabic unjoined and backwards, a Japanese
+      # cue name as boxes on an English desk, and the numbers in a right-to-left
+      # label reversed. Every measure and draw goes through the shaper.
+      - name: Every string goes through the shaper
+        run: python3 tools/audit_text_shaping.py
+
       # A word built from two alphabets -- a Cyrillic a inside a Latin
       # word -- draws correctly and matches nothing. In a catalogue KEY it
       # makes that string untranslatable forever, silently.
@@ -408,6 +414,20 @@ jobs:
 
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
+
+      # The bidi algorithm against Unicode's own conformance files, for the
+      # Unicode version its tables were generated from: about 860,000 cases,
+      # every one of which must pass. Fetched rather than kept in the repo --
+      # they are 15 MB of text that only this step reads.
+      - name: Unicode bidi conformance
+        run: |
+          set -e
+          v=$(sed -n 's/.*kUnicodeVersion = "\(.*\)";/\1/p' native/core/bidi_data.inc)
+          echo "Unicode $v"
+          for f in BidiTest.txt BidiCharacterTest.txt; do
+            curl -fsSL --retry 3 -o "/tmp/$f" "https://www.unicode.org/Public/$v/ucd/$f"
+          done
+          ./build/deckboy-bidi-check /tmp/BidiTest.txt /tmp/BidiCharacterTest.txt
 
       # A named parameter that moves nothing is a knob the operator turns for
       # no reason. Shatter shipped with its drift and rotation hanging off

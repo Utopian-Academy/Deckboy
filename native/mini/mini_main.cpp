@@ -19,6 +19,8 @@
 
 #include "core/sdl_compat.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
+#include "render/font_fallbacks.hpp"
+#include "render/text_shaper.hpp"
 
 #include "core/constants.hpp"
 #include "core/types.hpp"
@@ -480,6 +482,9 @@ class Mini {
       return false;
     }
     TTF_Init();
+    // Subtitles in any script: the faces this machine has for what Liberation
+    // cannot draw, CJK ordered by the computer's own languages.
+    deckboy::render::shaping::setFallbackChain(deckboy::render::scriptFallbacks("en"));
 
     int count = 0;
     SDL_DisplayID* displays = SDL_GetDisplays(&count);
@@ -557,7 +562,10 @@ class Mini {
 
   void shutdown() {
     if (subTex_) SDL_DestroyTexture(subTex_);
-    if (subFont_) TTF_CloseFont(subFont_);
+    if (subFont_) {
+      deckboy::render::shaping::forgetFace(subFont_);
+      TTF_CloseFont(subFont_);
+    }
     for (Client& c : clients_) closeSocket(c.socket);
     if (listen_ != kInvalidSocket) closeSocket(listen_);
     engine_.reset();
@@ -981,13 +989,16 @@ class Mini {
     SDL_GetRenderOutputSize(renderer_, &w, &h);
     const int px = std::max(14, h / 20);
     if (!subFont_ || subFontPx_ != px) {
-      if (subFont_) TTF_CloseFont(subFont_);
+      if (subFont_) {
+        deckboy::render::shaping::forgetFace(subFont_);
+        TTF_CloseFont(subFont_);
+      }
       const fs::path font = deckboy::core::Paths::dataDir() / "fonts" / "LiberationSans-Regular.ttf";
       subFont_ = TTF_OpenFont(font.string().c_str(), static_cast<float>(px));
       subFontPx_ = px;
       subTexText_.clear();
       if (!subFont_) return;
-      TTF_SetFontWrapAlignment(subFont_, TTF_HORIZONTAL_ALIGN_CENTER);   // subtitles centre each line
+      deckboy::render::shaping::registerFace(subFont_, font.string(), static_cast<float>(px));
     }
     if (entry->text != subTexText_ || !subTex_) {
       if (subTex_) SDL_DestroyTexture(subTex_);
@@ -996,18 +1007,37 @@ class Mini {
       const SDL_Color white {255, 255, 255, 255};
       const SDL_Color black {0, 0, 0, 255};
       const int wrap = w * 9 / 10;
-      TTF_SetFontOutline(subFont_, std::max(1, px / 12));
-      SDL_Surface* edge = TTF_RenderText_Blended_Wrapped(subFont_, entry->text.c_str(), 0, black, wrap);
-      TTF_SetFontOutline(subFont_, 0);
-      SDL_Surface* face = TTF_RenderText_Blended_Wrapped(subFont_, entry->text.c_str(), 0, white, wrap);
-      if (edge && face) {
+      namespace shaping = deckboy::render::shaping;
+      // Each line centred, laid out by the bidi algorithm: an Arabic or Hebrew
+      // subtitle reads right to left with its numbers and names in order.
+      SDL_Surface* ink = shaping::renderTextWrapped(subFont_, entry->text.c_str(), 0, black, wrap,
+                                                    shaping::Align::Centre);
+      SDL_Surface* face = shaping::renderTextWrapped(subFont_, entry->text.c_str(), 0, white, wrap,
+                                                     shaping::Align::Centre);
+      if (ink && face) {
+        // THE EDGE IS STAMPED, not asked of the font. TTF_SetFontOutline only
+        // reaches the font it is set on, so the words a fallback face drew --
+        // Arabic, Japanese -- came out with no edge to read against.
         const int o = std::max(1, px / 12);
-        SDL_Rect at {o, o, face->w, face->h};
-        SDL_SetSurfaceBlendMode(face, SDL_BLENDMODE_BLEND);
-        SDL_BlitSurface(face, nullptr, edge, &at);
-        subTex_ = SDL_CreateTextureFromSurface(renderer_, edge);
+        SDL_Surface* edge = SDL_CreateSurface(face->w + o * 2, face->h + o * 2,
+                                              SDL_PIXELFORMAT_ARGB8888);
+        if (edge) {
+          SDL_FillSurfaceRect(edge, nullptr, 0);
+          SDL_SetSurfaceBlendMode(ink, SDL_BLENDMODE_BLEND);
+          for (int step = 0; step < 16; ++step) {
+            const double angle = step * 3.14159265358979 / 8.0;
+            SDL_Rect at {o + static_cast<int>(std::lround(std::cos(angle) * o)),
+                         o + static_cast<int>(std::lround(std::sin(angle) * o)), ink->w, ink->h};
+            SDL_BlitSurface(ink, nullptr, edge, &at);
+          }
+          SDL_Rect at {o, o, face->w, face->h};
+          SDL_SetSurfaceBlendMode(face, SDL_BLENDMODE_BLEND);
+          SDL_BlitSurface(face, nullptr, edge, &at);
+          subTex_ = SDL_CreateTextureFromSurface(renderer_, edge);
+          SDL_DestroySurface(edge);
+        }
       }
-      if (edge) SDL_DestroySurface(edge);
+      if (ink) SDL_DestroySurface(ink);
       if (face) SDL_DestroySurface(face);
     }
     if (!subTex_) return;

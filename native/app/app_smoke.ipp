@@ -289,7 +289,67 @@
                 << '\n';
     }
 
-    return 0;
+    // WHAT THIS MACHINE CAN DRAW, script by script, and from which fonts.
+    //
+    // The scripts Deckboy SHIPS faces for -- Latin, Greek and Cyrillic in
+    // Liberation, Arabic and Persian and Tifinagh in Noto -- must draw on every
+    // machine, so a miss there fails this check: a package that lost one of its
+    // fonts would otherwise show boxes and go out green. The rest come from the
+    // computer's own fonts and are reported, not required; a build machine has
+    // no Japanese, a desk usually does.
+    int scriptFailures = 0;
+    {
+      namespace shaping = deckboy::render::shaping;
+      const std::string sans = Paths::fontPath(Paths::FontName::Sans).string();
+      TTF_Font* face = (TTF_WasInit() > 0 || TTF_Init()) ? TTF_OpenFont(sans.c_str(), 16.0f) : nullptr;
+      if (!face) {
+        std::cout << "scripts: no face opened (" << sans << ")\n";
+        ++scriptFailures;
+      } else {
+        shaping::setFallbackChain(deckboy::render::scriptFallbacks(deckboy::core::i18n::activeCode()));
+        shaping::registerFace(face, sans, 16.0f);
+        std::cout << "fallback-fonts:";
+        for (const auto& f : shaping::fallbackChain()) {
+          std::cout << " " << fs::path(f.path).filename().string();
+          if (f.faceIndex) std::cout << "#" << f.faceIndex;
+        }
+        std::cout << '\n';
+        struct Sample {
+          const char* name;
+          const char8_t* text;
+          bool shipped;
+        };
+        // Escapes, not the characters themselves: the compiler is not told the
+        // source is UTF-8, and a literal it misreads would test nothing.
+        const Sample samples[] = {
+          {"latin", u8"Deckboy \u00e0\u00e9\u00ee\u00f5\u00fc \u00df", true},
+          {"greek", u8"\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac", true},
+          {"cyrillic", u8"\u0420\u0443\u0441\u0441\u043a\u0438\u0439", true},
+          {"arabic", u8"\u0627\u0644\u0639\u0631\u0628\u064a\u0629", true},
+          {"persian", u8"\u0641\u0627\u0631\u0633\u06cc \u067e\u0698\u0648\u0647\u0634 \u06f1\u06f4\u06f0\u06f5", true},
+          {"tifinagh", u8"\u2d5c\u2d30\u2d4e\u2d30\u2d63\u2d49\u2d56\u2d5c", true},
+          {"hebrew", u8"\u05e2\u05d1\u05e8\u05d9\u05ea", false},
+          {"devanagari", u8"\u0939\u093f\u0928\u094d\u0926\u0940", false},
+          {"thai", u8"\u0e44\u0e17\u0e22", false},
+          {"japanese", u8"\u65e5\u672c\u8a9e \u3072\u3089\u304c\u306a", false},
+          {"chinese", u8"\u7b80\u4f53\u4e2d\u6587 \u7e41\u9ad4", false},
+          {"korean", u8"\ud55c\uad6d\uc5b4", false},
+          {"ethiopic", u8"\u12a0\u121b\u122d\u129b", false},
+        };
+        std::cout << "scripts:";
+        for (const Sample& s : samples) {
+          const std::string_view text(reinterpret_cast<const char*>(s.text));
+          const bool ok = shaping::covers(face, text);
+          std::cout << " " << s.name << "=" << (ok ? "ok" : (s.shipped ? "MISSING" : "no-font"));
+          if (!ok && s.shipped) ++scriptFailures;
+        }
+        std::cout << '\n';
+        shaping::forgetFace(face);
+        TTF_CloseFont(face);
+      }
+    }
+
+    return scriptFailures ? 1 : 0;
   }
 
   static int runSmoke() {
@@ -3010,6 +3070,64 @@
                (nonLatinEnglish ? (" (" + std::to_string(nonLatinEnglish) +
                                    " not, first " + firstBad + ")")
                                 : std::string()));
+    }
+
+    // ── RIGHT TO LEFT, IN THE RIGHT ORDER ─────────────────────────────────
+    //
+    // The whole algorithm is proven against Unicode's own conformance files by
+    // tools/bidi_check.cpp, in CI. These are the cases the DESK lives on, so a
+    // break shows here without fetching 15 MB of test data: a number inside an
+    // Arabic label (the "%59" that started this), a Hebrew name inside English,
+    // Persian digits and brackets, and a half-space that must stay in its word.
+    // Escapes, not the characters: the compiler is not told the source is UTF-8.
+    {
+      namespace bidi = deckboy::core::bidi;
+      auto u8s = [](const char8_t* t) { return std::string(reinterpret_cast<const char*>(t)); };
+      auto runText = [](const std::string& t, const bidi::Run& r) {
+        return t.substr(r.begin, r.end - r.begin);
+      };
+      expect(std::string(bidi::unicodeVersion()).size() >= 5, "bidi: the Unicode tables are in");
+      {
+        const std::string t = u8s(u8"\u0627\u0644\u0635\u0648\u062a 95%");  // volume 95%
+        bool rtl = false;
+        const auto runs = bidi::visualRuns(t, bidi::Direction::Auto, &rtl);
+        // After Arabic letters the digits are an Arabic-context number (W2) and
+        // the sign a neutral, so it shows as "%95" -- the sign at the left,
+        // which is how Arabic writes a percentage. What must never happen is
+        // the digits themselves reversed, "59": that was the old bug.
+        expect(rtl && runs.size() == 3 && runText(t, runs[0]) == "%" &&
+                 runText(t, runs[1]) == "95" && !runs[1].rightToLeft() && runs[2].rightToLeft(),
+               "bidi: the number in an Arabic label reads 95, with its sign as Arabic writes it");
+      }
+      {
+        const std::string t = u8s(u8"Hello \u05e9\u05dc\u05d5\u05dd world");
+        bool rtl = true;
+        const auto runs = bidi::visualRuns(t, bidi::Direction::Auto, &rtl);
+        expect(!rtl && runs.size() == 3 && runs[1].rightToLeft() &&
+                 runText(t, runs[0]) == "Hello " && runText(t, runs[2]) == " world",
+               "bidi: a Hebrew name inside English stays where it was written");
+      }
+      {
+        // Tehran 1405 (final): Persian digits are European numbers, so they
+        // run left to right at a level of their own between the words.
+        const std::string t = u8s(u8"\u062a\u0647\u0631\u0627\u0646 "
+                                  u8"\u06f1\u06f4\u06f0\u06f5 (\u0646\u0647\u0627\u06cc\u06cc)");
+        const auto runs = bidi::visualRuns(t);
+        expect(runs.size() == 3 && runs[0].rightToLeft() && runs[1].level == 2 &&
+                 runs[2].rightToLeft(),
+               "bidi: Persian digits and brackets order around the words");
+      }
+      {
+        // "mi-shavad": the half-space is a joiner control and must stay
+        // inside the one run, or the shaper never sees it.
+        const std::string t = u8s(u8"\u0645\u06cc\u200c\u0634\u0648\u062f");
+        const auto runs = bidi::visualRuns(t);
+        expect(runs.size() == 1 && runs[0].rightToLeft() && runs[0].begin == 0 &&
+                 runs[0].end == t.size(),
+               "bidi: a Persian half-space stays inside its word");
+      }
+      expect(!bidi::needsBidi("PLAYLIST 3 / cue 12 (hold)"),
+             "bidi: plain English takes the fast path");
     }
 
     std::cout << "smoke failures: " << failures << '\n';
@@ -5762,8 +5880,8 @@
     auto sameRaster = [](TTF_Font* f, const std::string& a,
                          const std::string& b) -> bool {
       SDL_Color white {255, 255, 255, 255};
-      SDL_Surface* sa = TTF_RenderText_Blended(f, a.c_str(), 0, white);
-      SDL_Surface* sb = TTF_RenderText_Blended(f, b.c_str(), 0, white);
+      SDL_Surface* sa = deckboy::render::shaping::renderText(f, a.c_str(), 0, white);
+      SDL_Surface* sb = deckboy::render::shaping::renderText(f, b.c_str(), 0, white);
       bool same = false;
       if (sa && sb && sa->w == sb->w && sa->h == sb->h && sa->w > 0) {
         same = true;
@@ -5858,7 +5976,7 @@
       // than by the call returning null.
       const char* sample = "Deckboy 1080p";
       SDL_Color white {255, 255, 255, 255};
-      SDL_Surface* surface = TTF_RenderText_Blended(font, sample, 0, white);
+      SDL_Surface* surface = deckboy::render::shaping::renderText(font, sample, 0, white);
       if (!surface) {
         std::cout << "      render: FAILED -- " << SDL_GetError() << "\n";
         ++failures;
@@ -5932,7 +6050,7 @@
       // missing font and is not one.
       int measuredW = -1, measuredH = -1;
       const bool measured =
-        TTF_GetStringSize(font, sample, 0, &measuredW, &measuredH);
+        deckboy::render::shaping::textSize(font, sample, 0, &measuredW, &measuredH);
       std::cout << "      open ok, rendered " << w << "x" << h
                 << ", ink " << (lit > 0 ? "present" : "NONE")
                 << (tofu ? ", GLYPHS NONE (every character drew the same box)" : "")

@@ -44,6 +44,7 @@ stay on the GPU and are composited there.
 19. [Timecode & Chase](#19-timecode--chase)
 20. [Show Files, Bundling & Missing Media](#20-show-files-bundling--missing-media)
 21. [Themes](#21-themes)
+21a. [Languages](#21a-languages)
 22. [Remote Control](#22-remote-control)
 23. [Reliability & Soak Testing](#23-reliability--soak-testing)
 24. [Keyboard Reference](#24-keyboard-reference)
@@ -1775,6 +1776,64 @@ The species are `moth`, `crab`, `fish`, `firefly`, `cat`, `snail`, `spider`,
 `mouse`, `frog`, `jellyfish` and `bird`, up to twelve of
 each. A species this build does not know is ignored rather than refused, so a
 theme written for a later version still loads.
+
+---
+
+## 21a. Languages
+
+`Settings → Language` puts the whole desk into another language at once, with
+no restart. Thirty-three languages ship with Deckboy, among them Arabic,
+Persian, Chinese in both scripts, Japanese, Korean, Hindi and Zulu, along with
+a few constructed languages and six cyphers. The **Help!** button beside the
+picker is always in English and always brings English back, so a language you
+cannot read never leaves you stuck.
+
+A language marked **(unreviewed)** in the picker has not yet been read by a
+native speaker. Corrections are very welcome: each language is one plain-text
+file in `data/lang`.
+
+**Right to left.** Arabic and Persian read right to left, with their letters
+joined and shaped as each script writes them. Every label is laid out with the
+Unicode bidirectional algorithm, so a number, a port or an English word inside
+it keeps its own direction. The controls stay where they are in every
+language, so an operator who learned the desk in one language can work it in
+another.
+
+**Every script, on any desk.** Text is drawn in the script it was written in,
+whatever language the desk is in: a cue named in Japanese, an Arabic lower
+third or a Persian file name all read on an English desk. Deckboy draws the
+characters its own fonts lack from fonts the computer already has, chosen for
+the interface language, so Chinese characters take a Chinese face on a
+Chinese desk and a Japanese face on a Japanese one. It carries Noto Sans
+Arabic and Noto Sans Tifinagh itself, so Arabic, Persian and Tamazight read on
+every machine. `--self-check` lists the fonts it found and the scripts this
+computer can draw.
+
+**On air.** Lower thirds, text cues and Deckboy Mini's subtitles follow the
+direction of their text. An Arabic or Persian lower third is laid out from the
+right inside its strap, the typewriter reveal types from the right, and a
+wobble moves whole words in scripts whose letters join, so they stay joined.
+
+**From a controller.** `LANGUAGE` answers the current language, and
+`LANGUAGE <code>` changes it: `en`, or the name of any file in `data/lang`
+without its `.tsv`, such as `ar`, `fa` or `zh-Hans`.
+
+**Writing a language.** A catalogue starts with a few header lines and then
+holds one `English<TAB>translation` pair per line:
+
+    #name فارسی
+    #english Persian
+    #font segoeui.ttf, tahoma.ttf, NotoSansArabic-Regular.ttf
+    #rtl 1
+    #unverified
+    SAVE	ذخیره
+
+`#name` is the language's own name and `#english` its English one. `#font`
+names the faces the language needs, first found wins, looked for in
+`data/fonts` and then among the system fonts. `#rtl 1` makes it right to left,
+and `#unverified` shows **(unreviewed)** in the picker until a speaker has
+checked it. A line left out, or left empty, falls through to the English, so a
+half-finished catalogue gives you a half-translated desk with nothing missing.
 
 ---
 
