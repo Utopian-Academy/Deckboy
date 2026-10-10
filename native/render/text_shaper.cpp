@@ -280,34 +280,34 @@ void splitRun(TTF_Font* primary, const char* text, std::size_t begin, std::size_
       ++i;
       continue;
     }
-    std::size_t end = i;
+    std::size_t wordEnd = i;
     bool wordOfAlphabet = true;
     bool mixed = false;
     TTF_Font* first = nullptr;
-    for (; end < chars.size() && !chars[end].common; ++end) {
-      const Char& c = chars[end];
+    for (; wordEnd < chars.size() && !chars[wordEnd].common; ++wordEnd) {
+      const Char& c = chars[wordEnd];
       if (c.attaches) continue;  // marks ride on their letter, below
       if (!alphabetic(c.cp)) wordOfAlphabet = false;
       if (!first) first = c.face;
       else if (c.face != first) mixed = true;
     }
     if (wordOfAlphabet && mixed) {
-      for (std::size_t k = i; k < end; ++k) {
+      for (std::size_t k = i; k < wordEnd; ++k) {
         TTF_Font* candidate = chars[k].face;
         if (chars[k].attaches || candidate == primary) continue;
         bool hasAll = true;
-        for (std::size_t m = i; m < end && hasAll; ++m) {
+        for (std::size_t m = i; m < wordEnd && hasAll; ++m) {
           if (!chars[m].attaches && !primaryHas(candidate, chars[m].cp)) hasAll = false;
         }
         if (hasAll) {
-          for (std::size_t m = i; m < end; ++m) {
+          for (std::size_t m = i; m < wordEnd; ++m) {
             if (!chars[m].attaches) chars[m].face = candidate;
           }
           break;
         }
       }
     }
-    i = end;
+    i = wordEnd;
   }
   // Then what sits between them, from its neighbours.
   for (std::size_t i = 0; i < chars.size(); ++i) {
