@@ -2111,7 +2111,7 @@ class Mini {
 
   // New cues go on the end of the list; nothing already playing is touched.
   // Shared by a file dropped on the output and the remote ADD.
-  // ── Watch folder (core/watch_folder.hpp, the desk's own) ──
+  // -- Watch folder (core/watch_folder.hpp, the desk's own) --
   // Empty stops watching but remembers the folder, so Shift+W and WATCH ON
   // can bring it back.
   void setWatch(const std::string& folder) {
