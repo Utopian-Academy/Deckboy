@@ -386,8 +386,17 @@
     SDL_Rect destination {};
     float rotationDegrees = 0.0f;
   };
+  // `raster` is the output the target stands for, when the target is a
+  // PREVIEW of it (the desk's monitors): the cue's offsets are output pixels
+  // and 1:1 is one source pixel per output pixel, so both are scaled down to
+  // the preview. Zero means the target is the output itself. Without it the
+  // monitor moved a cue four times as far as the screen did, and drew a 1:1
+  // cue at full size inside a preview a quarter as wide.
   CuePlacement cuePlacementFor(const Cue* cue, int textureWidth, int textureHeight,
-                               const SDL_Rect& target) const {
+                               const SDL_Rect& target, int rasterW = 0) const {
+    const double previewScale = rasterW > 0
+      ? static_cast<double>(target.w) / static_cast<double>(rasterW)
+      : 1.0;
     float cropLeft = cue ? cue->cropLeft : 0.0f;
     float cropRight = cue ? cue->cropRight : 0.0f;
     float cropTop = cue ? cue->cropTop : 0.0f;
@@ -431,11 +440,20 @@
     } else if (scaleMode == ScaleMode::Stretch) {
       baseScaleX = static_cast<double>(target.w) / static_cast<double>(srcW);
       baseScaleY = static_cast<double>(target.h) / static_cast<double>(srcH);
+    } else if (rasterW > 0) {
+      // 1:1 is in SOURCE pixels, and a preview's texture can be a smaller
+      // copy of the source than the one the output draws.
+      const double sourcePerTexel = cue && cue->width > 0
+        ? static_cast<double>(cue->width) / static_cast<double>(textureWidth)
+        : 1.0;
+      baseScaleX = baseScaleY = previewScale * sourcePerTexel;
     }
     float outputScaleX = cue ? cue->outputScaleX : 1.0f;
     float outputScaleY = cue ? cue->outputScaleY : 1.0f;
-    float offsetX = cue ? cue->outputOffsetX : 0.0f;
-    float offsetY = cue ? cue->outputOffsetY : 0.0f;
+    // Output pixels, so scaled to a preview. The oscillators' swing, added
+    // below, is already a share of the target.
+    float offsetX = cue ? static_cast<float>(cue->outputOffsetX * previewScale) : 0.0f;
+    float offsetY = cue ? static_cast<float>(cue->outputOffsetY * previewScale) : 0.0f;
     float rotationDegrees = cue ? cue->outputRotationDegrees : 0.0f;
     if (geoLfo) {
       const auto& L = cue->geometryLfo;
@@ -482,11 +500,14 @@
                                     // one. Null for every caller that is not
                                     // compositing a mapped layer, which is
                                     // all of them but one.
-                                    const OutputLayer* layerWarp = nullptr) {
+                                    const OutputLayer* layerWarp = nullptr,
+                                    // The output raster `target` previews, if
+                                    // it is a preview; see cuePlacementFor.
+                                    int rasterW = 0) {
     if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
       return;
     }
-    const CuePlacement placed = cuePlacementFor(cue, textureWidth, textureHeight, target);
+    const CuePlacement placed = cuePlacementFor(cue, textureWidth, textureHeight, target, rasterW);
     const SDL_Rect& source = placed.source;
     const SDL_Rect& destination = placed.destination;
     const float rotationDegrees = placed.rotationDegrees;

@@ -1836,7 +1836,7 @@
     for (auto& output : snapshot.outputs) {
       output.enabled = false;
     }
-    undoStack_.push_back(std::move(snapshot));
+    undoStack_.push_back(UndoStep {std::move(snapshot), currentProjectFile_, true});
     if (static_cast<int>(undoStack_.size()) > kMaxUndoLevels) {
       undoStack_.erase(undoStack_.begin());
     }
@@ -1933,7 +1933,7 @@
     // Harmless while a show effectively had one deck; with Super Deckboy it is
     // silent loss of an operator's last action on any playlist but the first.
     if (!force && !undoStack_.empty()) {
-      const auto& top = undoStack_.back();
+      const Project& top = undoStack_.back().project;
       bool identical = top.decks.size() == project_.decks.size() &&
                        top.trackerSteps.size() == project_.trackerSteps.size() &&
                        !top.decks.empty() && !project_.decks.empty();
@@ -1945,7 +1945,7 @@
         return;
       }
     }
-    undoStack_.push_back(project_);
+    undoStack_.push_back(UndoStep {project_, currentProjectFile_, false});
     if (static_cast<int>(undoStack_.size()) > kMaxUndoLevels) {
       undoStack_.erase(undoStack_.begin());
     }
@@ -1964,14 +1964,68 @@
   // cue. `live` is the project as it stood before the restore: outputs keep
   // their armed state by id, and each deck keeps its on-air cue by id,
   // wherever that cue now sits (or none, if the undo removed it).
+  //
+  // AND UNDO NEVER MOVES AN OUTPUT. Only `enabled` was kept, so every other
+  // output setting went back to how it stood at the snapshot -- and snapshots
+  // are taken for cue edits, never for a display pick. Pick a screen for an
+  // output, edit a cue, press Ctrl+Z: the output's display went back to the
+  // old one (the desk monitor, with its name blank) while the window stayed
+  // fullscreen on the screen the operator chose, because nothing re-applies
+  // routing after an undo. From then on the raster, the inspector's pixels and
+  // the display labels all described the wrong monitor: a cue had to be
+  // "3840x2160" to fill a 1280x720 output.
+  //
+  // So an output keeps everything it has NOW -- its screen, its senders, its
+  // look -- and takes back from the snapshot only what an undo is for on an
+  // output: the warp, the only output edits that take a snapshot. Which
+  // playlist feeds it comes from the snapshot only when the playlists
+  // themselves changed, since undoing a removal renumbers them. The raster
+  // settings are the screen's too, and stay as they are.
   void keepLiveStateAcrossRestore(const Project& live) {
+    const bool samePlaylists = live.decks.size() == project_.decks.size();
+    const bool sameOutputs = live.outputs.size() == project_.outputs.size();
     for (OutputTarget& out : project_.outputs) {
       for (const OutputTarget& was : live.outputs) {
-        if (!out.outputId.empty() && out.outputId == was.outputId) {
-          out.enabled = was.enabled;
+        if (out.outputId.empty() || out.outputId != was.outputId) {
+          continue;
         }
+        OutputTarget kept = was;
+        kept.warpEnabled = out.warpEnabled;
+        kept.warpMode = out.warpMode;
+        kept.warpTopLeftX = out.warpTopLeftX;
+        kept.warpTopLeftY = out.warpTopLeftY;
+        kept.warpTopRightX = out.warpTopRightX;
+        kept.warpTopRightY = out.warpTopRightY;
+        kept.warpBottomRightX = out.warpBottomRightX;
+        kept.warpBottomRightY = out.warpBottomRightY;
+        kept.warpBottomLeftX = out.warpBottomLeftX;
+        kept.warpBottomLeftY = out.warpBottomLeftY;
+        kept.warpGridCols = out.warpGridCols;
+        kept.warpGridRows = out.warpGridRows;
+        kept.warpGridSmooth = out.warpGridSmooth;
+        kept.warpGridOffsets = out.warpGridOffsets;
+        kept.layerDecks = out.layerDecks;  // a layer's pin is warp too
+        if (!samePlaylists) {
+          kept.hostDeckIndex = out.hostDeckIndex;
+        }
+        if (!sameOutputs) {
+          kept.mirrorSourceOutputIndex = out.mirrorSourceOutputIndex;
+        }
+        out = std::move(kept);
+        break;
       }
     }
+    project_.outputFollowDisplay = live.outputFollowDisplay;
+    project_.outputRenderWidth = live.outputRenderWidth;
+    project_.outputRenderHeight = live.outputRenderHeight;
+    project_.outputRefreshRateHz = live.outputRefreshRateHz;
+    project_.outputBitDepth = live.outputBitDepth;
+    project_.outputCanvasEnabled = live.outputCanvasEnabled;
+    project_.outputCanvasWidth = live.outputCanvasWidth;
+    project_.outputCanvasHeight = live.outputCanvasHeight;
+    project_.recordingWidth = live.recordingWidth;
+    project_.recordingHeight = live.recordingHeight;
+    project_.recordingFps = live.recordingFps;
     for (std::size_t d = 0; d < project_.decks.size() && d < live.decks.size(); ++d) {
       Deck& deck = project_.decks[d];
       const Deck& before = live.decks[d];
@@ -1995,19 +2049,42 @@
     }
   }
 
+  // Put a step back. An edit comes back into the show as it stands, which
+  // keeps what is live (keepLiveStateAcrossRestore).
+  //
+  // A SHOW SWAP COMES BACK WHOLE. NEW and OPEN put the show they replace on
+  // the stack, and undoing one is opening that show again: its file, its
+  // outputs (dark, as an open leaves them) and runtimes built for it. It used
+  // to come back as if it were an edit -- into the file of the show that
+  // replaced it, so the next autosave wrote the old show over the one just
+  // opened, and with that show's outputs still armed by id.
+  void restoreUndoStep(Project restored, const fs::path& file, bool showSwap) {
+    if (showSwap) {
+      project_ = std::move(restored);
+      currentProjectFile_ = file.empty() ? defaultProjectFile() : file;
+      rememberLastOpenedProjectFile(currentProjectFile_);
+      settleIncomingShow();
+      applyProjectNetworkSettings();
+      markProjectDirty();
+      return;
+    }
+    const Project live = project_;
+    project_ = std::move(restored);
+    keepLiveStateAcrossRestore(live);
+    syncRuntimesAfterSnapshotRestore();
+    markProjectDirty();
+  }
+
   void undo() {
     if (undoStack_.empty()) {
       triggerToast("nothing to undo");
       return;
     }
     resetTransientPreviewState();
-    redoStack_.push_back(project_);
-    const Project live = project_;
-    project_ = undoStack_.back();
+    UndoStep step = std::move(undoStack_.back());
     undoStack_.pop_back();
-    keepLiveStateAcrossRestore(live);
-    syncRuntimesAfterSnapshotRestore();
-    markProjectDirty();
+    redoStack_.push_back(UndoStep {project_, currentProjectFile_, step.showSwap});
+    restoreUndoStep(std::move(step.project), step.file, step.showSwap);
     triggerToast("undo");
     playUiSound(UiSoundEffect::Navigate);
   }
@@ -2018,13 +2095,10 @@
       return;
     }
     resetTransientPreviewState();
-    undoStack_.push_back(project_);
-    const Project live = project_;
-    project_ = redoStack_.back();
+    UndoStep step = std::move(redoStack_.back());
     redoStack_.pop_back();
-    keepLiveStateAcrossRestore(live);
-    syncRuntimesAfterSnapshotRestore();
-    markProjectDirty();
+    undoStack_.push_back(UndoStep {project_, currentProjectFile_, step.showSwap});
+    restoreUndoStep(std::move(step.project), step.file, step.showSwap);
     triggerToast("redo");
     playUiSound(UiSoundEffect::Navigate);
   }

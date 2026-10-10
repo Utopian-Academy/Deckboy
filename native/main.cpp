@@ -9835,9 +9835,16 @@ class App {
   int dashPressedSlot_ = -1;
   Uint64 dashPressedAtMs_ = 0;
 
-  // Undo/redo state snapshots
-  std::vector<Project> undoStack_;
-  std::vector<Project> redoStack_;
+  // Undo/redo state snapshots. A step carries the file its show belongs to,
+  // and whether it is a whole other show -- NEW and OPEN put the show they
+  // replace on the stack -- rather than an edit to this one.
+  struct UndoStep {
+    Project project;
+    fs::path file;
+    bool showSwap = false;
+  };
+  std::vector<UndoStep> undoStack_;
+  std::vector<UndoStep> redoStack_;
   static constexpr int kMaxUndoLevels = 40;
 
   // Warp presets (named corner configurations)

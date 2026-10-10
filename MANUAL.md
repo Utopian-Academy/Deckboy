@@ -182,9 +182,14 @@ All of them are on the `SOURCE` menu.
 
 - **Import media:** press `I` or `Import`, or drag files onto the window.
   Metadata is probed asynchronously (`probing…` shows on the row until done).
-- **Add a source cue:** the SOURCE menu adds stream, NDI, camera, window,
-  browser and lower-third cues.
-- **Add a pattern:** press `P` or use the pattern menu.
+- **Add a source cue:** the SOURCE menu has four parts. LIVE PICTURE adds a
+  window, camera, Syphon/Spout, browser, stream or NDI source. MADE BY DECKBOY
+  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Video Synth,
+  Code, Text, Lower Third, Stage Timer and the 2A03 and FDS synths. TEST
+  SIGNALS adds a test pattern or a test tone, and CUES THAT DO THINGS adds the
+  cues that act on the show rather than putting a picture up.
+- **Add a pattern:** press `P` or use the PATTERN menu for the test cards and
+  charts.
 
 New cues inherit the deck's playlist defaults (fade lengths, loop, pause
 behaviour, audio-enabled). Reorder by dragging; multi-select with Shift/Ctrl;
@@ -815,7 +820,8 @@ facility timing and interoperability need measurement on the intended network.
 ## 13. Recording
 
 The program output can be written to a file while the show runs. `RECORD` sits
-on the button bar in the OUTPUT group; it pulses while armed and shows the
+on the button bar in the OUTPUT group (DASH and MENU sit beside it, in
+DESK); it pulses while armed and shows the
 running file size. Recordings land in `Settings → Recording → Destination`,
 which is deliberately separate from the encode queue's output folder.
 
@@ -1602,6 +1608,10 @@ the material is converted rather than refused.
 Pattern cues generate their pixels live and auto-scale to the selected output
 raster and refresh rate (unless the project overrides it). All motion is slow,
 smooth, and diagonal; full-frame solid colours have no motion option.
+
+Fireside, Portal and Swirl are drawn the same way but are set dressing rather
+than test cards, so they are added from SOURCE > MADE BY DECKBOY, and their
+inspector says "made by Deckboy" in place of a pattern picker.
 
 - **Fireside** — a hearth that burns, for a fireside chat. Set dressing rather
   than a test card: an arched stone fireplace with a mantel, sconces, andirons

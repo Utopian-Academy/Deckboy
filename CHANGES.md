@@ -48,6 +48,20 @@ timecodes and ports still read, and text on air is never touched.
 script are shown exactly as written, whatever language or cypher the desk is
 in.
 
+**Everything Deckboy makes, in one place.** The SOURCE menu gathers what
+Deckboy makes itself under MADE BY DECKBOY: Fireside, Portal, Swirl, Video
+Synth, Code, Text, Lower Third, Stage Timer and the two synths. The test
+pattern and test tone sit under TEST SIGNALS, and PATTERN is the test-card
+picker. A generated cue is named for what it is, and its inspector says it is
+made by Deckboy. On the bottom bar, DASH and MENU have a DESK group of their
+own.
+
+**Outputs stay where you put them.** Undo takes back cue and warp edits and
+leaves every output on the screen you gave it, with its senders and its raster.
+Undoing OPEN or NEW brings the earlier show back with its own file. The
+inspector's pixels are the pixels the output draws, and the desk's monitors
+place a 1:1 cue and its offset exactly where the output does.
+
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 
 **Find a cue by name.** In Deckboy Mini, `/` and a few words narrow the list

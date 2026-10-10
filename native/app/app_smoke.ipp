@@ -2366,6 +2366,78 @@
              "vanished media is flagged and refused at take");
     }
 
+    {
+      // UNDO NEVER MOVES AN OUTPUT. The snapshot is taken before a cue edit;
+      // the display is picked afterwards, which takes no snapshot; Ctrl+Z
+      // must take the cue edit back and leave the screen where it was put.
+      App app;
+      Deck deck;
+      deck.cues.resize(1);
+      app.project_.decks = {deck};
+      OutputTarget& out = app.project_.outputs[0];
+      out.outputId = "smoke-out";
+      out.displayIndex = 0;
+      out.displayName.clear();
+      out.warpTopLeftX = 0.0f;
+      app.project_.outputFollowDisplay = true;
+      const Project snapshot = app.project_;
+      app.project_.decks[0].cues.resize(2);          // the edit
+      app.project_.outputs[0].warpTopLeftX = 0.1f;    // a warp edit, undoable too
+      app.project_.outputs[0].displayIndex = 1;       // the display pick
+      app.project_.outputs[0].displayName = "SMOKE-720P";
+      app.project_.outputFollowDisplay = false;       // and a raster change
+      app.project_.outputRenderWidth = 1280;
+      app.project_.outputRenderHeight = 720;
+      const Project live = app.project_;
+      app.project_ = snapshot;
+      app.keepLiveStateAcrossRestore(live);
+      const OutputTarget& after = app.project_.outputs[0];
+      expect(app.project_.decks[0].cues.size() == 1, "undo still takes back a cue edit");
+      expect(after.warpTopLeftX == 0.0f, "undo still takes back a warp edit");
+      expect(after.displayIndex == 1 && after.displayName == "SMOKE-720P",
+             "undo keeps the display an output was put on");
+      expect(!app.project_.outputFollowDisplay && app.project_.outputRenderWidth == 1280 &&
+             app.project_.outputRenderHeight == 720,
+             "undo keeps the output raster");
+
+      // A show swap remembers whose file it was, so undoing OPEN cannot write
+      // the old show into the new one's file.
+      app.currentProjectFile_ = fs::path("smoke-show-a.deckboy");
+      app.pushUndoSnapshotForShowReplace();
+      expect(!app.undoStack_.empty() && app.undoStack_.back().showSwap &&
+             app.undoStack_.back().file == fs::path("smoke-show-a.deckboy"),
+             "a replaced show goes on the undo stack with its own file");
+      app.pushUndoSnapshot(true);
+      expect(!app.undoStack_.back().showSwap, "an edit is not a show swap");
+    }
+
+    {
+      // THE DESK'S MONITOR PLACES A CUE THE WAY THE OUTPUT DOES. A 480-wide
+      // preview of a 1920 output, fed a 960-wide copy of a 1920 source: 1:1
+      // fills the output, so it fills the preview; 192 output pixels of offset
+      // is a tenth of the frame in both.
+      App app;
+      Cue cue;
+      cue.kind = CueKind::Video;
+      cue.width = 1920;
+      cue.height = 1080;
+      cue.scaleMode = ScaleMode::Unscaled;
+      cue.outputOffsetX = 192.0f;
+      const auto onOutput = app.cuePlacementFor(&cue, 1920, 1080, SDL_Rect {0, 0, 1920, 1080});
+      const auto onPreview = app.cuePlacementFor(&cue, 960, 540, SDL_Rect {0, 0, 480, 270}, 1920);
+      expect(onOutput.destination.w == 1920 && onOutput.destination.x == 192,
+             "1:1 and offset on the output are in output pixels");
+      expect(onPreview.destination.w == 480 && onPreview.destination.h == 270 &&
+             onPreview.destination.x == 48,
+             "the preview scales 1:1 and offset to its own size");
+      cue.scaleMode = ScaleMode::Fit;
+      cue.outputOffsetX = 0.0f;
+      const auto fitOutput = app.cuePlacementFor(&cue, 1920, 1080, SDL_Rect {0, 0, 1920, 1080});
+      const auto fitPreview = app.cuePlacementFor(&cue, 960, 540, SDL_Rect {0, 0, 480, 270}, 1920);
+      expect(fitOutput.destination.w == 1920 && fitPreview.destination.w == 480,
+             "fit fills both the output and its preview");
+    }
+
     // ---- HAP ---------------------------------------------------------------
     // The Snappy vectors are real streams from the reference implementation
     // (python-snappy), not something this repo produced, so passing them means

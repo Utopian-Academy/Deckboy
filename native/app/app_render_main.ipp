@@ -3015,7 +3015,9 @@
         if (tex && vjPreviewTexW_[side] > 0 && vjPreviewTexH_[side] > 0) {
           const Cue* deckCue = activeCuePtr(decks[side]);
           renderTextureWithCueGeometry(controlRenderer_, tex, vjPreviewTexW_[side],
-                                       vjPreviewTexH_[side], deckCue, inner);
+                                       vjPreviewTexH_[side], deckCue, inner,
+                                       SDL_BLENDMODE_BLEND, nullptr,
+                                       outputRenderSizeForDeck(decks[side]).first);
         } else {
           // Say WHY there is no picture rather than showing an empty box: a
           // deck with nothing taken looks identical to one that is broken.
@@ -3090,7 +3092,8 @@
                                static_cast<Uint8>(std::lround(gain * 255.0)));
         renderTextureWithCueGeometry(controlRenderer_, vjPreviewTex_[side],
                                      vjPreviewTexW_[side], vjPreviewTexH_[side],
-                                     activeCuePtr(decks[side]), inner, blend);
+                                     activeCuePtr(decks[side]), inner, blend, nullptr,
+                                     outputRenderSizeForDeck(decks[side]).first);
         SDL_SetTextureBlendMode(vjPreviewTex_[side], SDL_BLENDMODE_BLEND);
         SDL_SetTextureAlphaMod(vjPreviewTex_[side], 255);
       }
@@ -3105,7 +3108,10 @@
         controlPreviewTexW_,
         controlPreviewTexH_,
         controlPreviewIsComposite_ ? nullptr : activeCue,
-        inner);
+        inner,
+        SDL_BLENDMODE_BLEND,
+        nullptr,
+        controlPreviewIsComposite_ ? 0 : outputRenderSizeForDeck(project_.focusedDeckIndex).first);
     } else if (!showMascot && !mascotWaiting && activeCue && activeCue->kind == CueKind::Text) {
       // A TEXT CUE HAS NO DECODED FRAME, so there is nothing for the
       // preview's fallback to show and the monitor sat empty. The output

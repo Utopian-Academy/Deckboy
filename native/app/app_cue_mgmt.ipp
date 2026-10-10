@@ -1928,6 +1928,27 @@
       loadingOverlayProgress(frac * 0.8);
     });
     loadingOverlayProgress(0.82, "checking the show");
+    settleIncomingShow(true);
+    loadingOverlayProgress(1.0, "ready");
+    endLoadingOverlay();
+    triggerToast("playlist: " + currentProjectLabel());
+    // Presence scan runs async (seconds of frozen UI on big USB playlists);
+    // the RELINK toast follows when it lands.
+    startMediaPresenceScanAsync(true);
+    queueAudioMetadataRepairProbes();
+    // A SHOW CARRIES ITS OWN NETWORK. NMC's direction and port, the switcher
+    // this show watches, whether it answers as a deck -- these arrived with
+    // the file, so the runtime has to be told. It never mattered while those
+    // settings came from environment variables, because opening a show could
+    // not change them; now it can, and a show opened on a running Deckboy
+    // would otherwise keep the previous show's rig.
+    applyProjectNetworkSettings();
+  }
+
+  // WHAT A SHOW NEEDS ONCE IT IS IN project_ -- read from a file, or brought
+  // back from the undo stack. One routine for both, so undoing an OPEN cannot
+  // settle a show differently from opening it.
+  void settleIncomingShow(bool withProgress = false) {
     normalizeProject(project_);
     // Apply the show's saved color theme. Empty = leave the current theme
     // as-is (older theme-less shows don't stomp the operator's pick).
@@ -1951,28 +1972,18 @@
     cueRowDisplayCache_.clear();
     resetTimecodeFollowerState();
     selectionChangedAt_ = SDL_GetTicks();
-    loadingOverlayProgress(0.88, "building decks");
+    if (withProgress) {
+      loadingOverlayProgress(0.88, "building decks");
+    }
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
     }
-    loadingOverlayProgress(0.95, "wiring outputs");
+    if (withProgress) {
+      loadingOverlayProgress(0.95, "wiring outputs");
+    }
     if (!rebuildOutputRuntimes()) {
       std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
     }
-    loadingOverlayProgress(1.0, "ready");
-    endLoadingOverlay();
-    triggerToast("playlist: " + currentProjectLabel());
-    // Presence scan runs async (seconds of frozen UI on big USB playlists);
-    // the RELINK toast follows when it lands.
-    startMediaPresenceScanAsync(true);
-    queueAudioMetadataRepairProbes();
-    // A SHOW CARRIES ITS OWN NETWORK. NMC's direction and port, the switcher
-    // this show watches, whether it answers as a deck -- these arrived with
-    // the file, so the runtime has to be told. It never mattered while those
-    // settings came from environment variables, because opening a show could
-    // not change them; now it can, and a show opened on a running Deckboy
-    // would otherwise keep the previous show's rig.
-    applyProjectNetworkSettings();
   }
 
   // Re-point every per-show network service at what the open show asks for.

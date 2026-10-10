@@ -27,8 +27,12 @@
   // drawTextureFitted / renderTextureWithCueGeometry path uses — keep them in
   // step. Returns {0, 0} when the size can't be derived.
   std::pair<double, double> cueBaseRenderSize(const Cue& cue) {
-    int focOutIdx = std::clamp(project_.focusedOutputIndex, 0,
-                               std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+    // The output the cue PLAYS on -- its playlist's own -- not whichever
+    // output has focus in the VIDEO settings. Different rasters on two outputs
+    // made one of them report the other's pixels.
+    const int focOutIdx = std::clamp(
+      primaryOutputIndexForDeck(project_.focusedDeckIndex).value_or(project_.focusedOutputIndex),
+      0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
     auto [targetW, targetH] = outputRenderSizeForOutput(focOutIdx);
     if (targetW <= 0 || targetH <= 0) {
       return {0.0, 0.0};
