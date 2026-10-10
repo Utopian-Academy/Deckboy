@@ -129,6 +129,10 @@ Deckboy now reads right to left, borrows a font for any script on any Linux, kee
   yet against vendor registries. IPv4 only.
 - On a Linux machine with no display (offscreen video driver), Deckboy Mini
   can keep running for some seconds after `QUIT`.
+- On Windows, an autosave can occasionally fail to replace the show file, most
+  often as Deckboy closes; the newest state is then left beside the show as
+  `<show>.deckboy.saving`. If that file is newer than the show, close Deckboy
+  and rename it over the show file.
 
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 
