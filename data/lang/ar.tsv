@@ -39,7 +39,7 @@ RECORD	تسجيل
 PLAYLIST	قائمة التشغيل
 TIMELINE	الخط الزمني
 MEDIA	الوسائط
-TRANSPORT	النقل
+TRANSPORT	التحكم بالتشغيل
 OUTPUT	الخرج
 PROGRAM	PROGRAM
 WARP	تشويه
@@ -59,8 +59,8 @@ Streaming	البث
 APPEARANCE	المظهر
 REMOTE CONTROL	التحكم عن بعد
 INTEGRATION ADAPTERS	محولات التكامل
-DISCOVERY / NOTES	الاكتشاف / ملاحظات
-DISPLAY & RASTER	العرض والنقاط
+DISCOVERY / NOTES	الاكتشاف / الملاحظات
+DISPLAY & RASTER	الشاشة والشبكة النقطية
 CONNECTED DISPLAYS	الشاشات المتصلة
 EDGE FEATHERING	تنعيم الحواف
 MATTE & OVERLAY	القناع والتراكب
@@ -68,8 +68,8 @@ AREA OF INTEREST	منطقة الاهتمام
 DEFAULT TRANSITION	الانتقال الافتراضي
 NMC IN & OUT	دخل وخرج NMC
 OSC QUERY / FEEDBACK	استعلام OSC / التغذية الراجعة
-CUE INSPECTOR	مفتش الإشارات
-SELECTED CUE	الإشارة المحددة
+CUE INSPECTOR	مفتّش الكيو
+SELECTED CUE	الكيو المحدد
 PLAYBACK	التشغيل
 COPY	نسخ
 PASTE	لصق
@@ -79,24 +79,24 @@ Language	اللغة
 Resolution	الدقة
 Orientation	الاتجاه
 Toggle Fullscreen	ملء الشاشة
-IDENTIFY	تعريف
+IDENTIFY	تمييز
 REGION SIZE	حجم المنطقة
 POSITION	الموضع
 CENTRE	توسيط
 FULL	كامل
 duration	المدة
 transition	انتقال
-fade in	تلاشي داخل
-fade out	تلاشي خارج
+fade in	ظهور تدريجي
+fade out	اختفاء تدريجي
 ON	تشغيل
 OFF	إيقاف
 Stopped	متوقف
 Playing	قيد التشغيل
-Paused	مؤقت
+Paused	متوقف مؤقتاً
 2-UP	شاشتان
 DONE	تم
 EDIT	تحرير
-HELD	محفوظ
+HELD	مُثبَّت
 Mode	الوضع
 PICK	اختيار
 QUAD	أربع شاشات
@@ -136,7 +136,7 @@ Channel	القناة
 CONVERT	تحويل
 DEFAULT	افتراضي
 END CUE	نهاية الكيو
-Key out	خرج المفتاح
+Key out	خرج Key
 LTC out	خرج LTC
 MISSING	مفقود
 PRESETS	إعدادات مسبقة
@@ -149,7 +149,7 @@ VJ MODE	وضع VJ
 CLOCK ON	الساعة تعمل
 DOWNLOAD	تنزيل
 EXAMPLES	أمثلة
-Mappings	التخصيصات
+Mappings	التعيينات
 NMC sync	مزامنة NMC
 PROMPTER	شاشة التلقين
 SHOW SDP	إظهار SDP
@@ -167,7 +167,7 @@ CUE TOOLS	أدوات الكيو
 Direction	الاتجاه
 Freewheel	تشغيل حر
 HTTP port	منفذ HTTP
-Jump mode	وضع الانتقال
+Jump mode	وضع القفز
 Listen on	الاستماع على
 OSC Query	استعلام OSC
 OUTPUT ON	الخرج يعمل
@@ -194,17 +194,17 @@ no picture	لا صورة
 no preview	لا معاينة
 OPEN SAVED	فتح المحفوظ
 OUTPUT OFF	الخرج متوقف
-Panic fade	تلاشي الطوارئ
+Panic fade	تلاشٍ طارئ
 Tally port	منفذ Tally
 TIMERS OFF	المؤقتات متوقفة
 Accept from	القبول من
-ASIO driver	مشغّل ASIO
+ASIO driver	برنامج تشغيل ASIO
 BACK TO TOP	إلى الأعلى
 CANVAS MODE	وضع اللوحة
 CODE SOURCE	مصدر برمجي
 Cue numbers	أرقام الكيو
 Destination	الوجهة
-Mirror rate	معدل المرآة
+Mirror rate	معدل المزامنة
 no duration	لا مدة
 NO LIVE CUE	لا كيو على الهواء
 NO PREVIOUS	لا سابق
@@ -212,7 +212,7 @@ OVERLAY BIN	صندوق الطبقات
 paste chain	لصق السلسلة
 Sample rate	معدل العينات
 SENDING OUT	يُرسل
-Shift: snap	Shift: التقاط
+Shift: snap	Shift: محاذاة
 THIS OUTPUT	هذا الخرج
 (no matches)	(لا نتائج)
 (no subtext)	(لا نص فرعي)
@@ -225,7 +225,7 @@ DECKLINK: ON	DECKLINK: يعمل
 free running	تشغيل حر
 KEY+FILL: ON	KEY+FILL: يعمل
 LISTENING IN	يستمع
-Miami cursor	مؤشر Miami
+Miami cursor	مؤشر ميامي
 MIDI CONTROL	تحكم MIDI
 Mirror state	مزامنة الحالة
 NDI KEY: OFF	NDI KEY: متوقف
@@ -241,7 +241,7 @@ Every adapter	كل محوّل شبكة
 KEY+FILL: OFF	KEY+FILL: متوقف
 LEFT TO RIGHT	من اليسار إلى اليمين
 MEDIA ENCODER	مُرمّز الوسائط
-MSC device id	رقم جهاز MSC
+MSC device id	معرّف جهاز MSC
 NEW SHOW FILE	ملف عرض جديد
 No cue loaded	لم يُحمّل أي كيو
 nothing taken	لم يُبث أي شيء
@@ -305,26 +305,26 @@ Ctrl+D or Esc to close	Ctrl+D أو Esc للإغلاق
 (no notes for this cue)	(لا ملاحظات لهذا الكيو)
 Timebase / start / fade	الأساس الزمني / البداية / التلاشي
 No cues need conversion.	لا يوجد كيو يحتاج تحويلاً.
-CLICK TO SAMPLE KEY COLOR	انقر لأخذ لون المفتاح
+CLICK TO SAMPLE KEY COLOR	انقر لأخذ عيّنة من لون الكروما
 normalize loudness (R128)	توحيد مستوى الصوت (R128)
 off - all channels silent	متوقف – كل القنوات صامتة
 no video lane for this cue	لا مسار فيديو لهذا الكيو
 HyperDeck emulation is off.	محاكاة HyperDeck متوقفة.
 OWN SCRIPT  (click to edit)	نصك الخاص  (انقر للتحرير)
 Theme and operator feedback	المظهر وملاحظات المُشغّل
-Discovery and mirrored state	الاكتشاف والحالة المرآتية
+Discovery and mirrored state	الاكتشاف والحالة المتزامنة
 FOLLOWING THE LIVE CUE NOTES	يتبع ملاحظات الكيو على الهواء
 Listening on all interfaces.	يستمع على كل الواجهات.
 Network-facing runtime notes	ملاحظات التشغيل تجاه الشبكة
 Hi! Press I to import a clip.	مرحباً! اضغط I لاستيراد مقطع.
-Global jump and panic behavior	سلوك الانتقال والإيقاف الطارئ العام
+Global jump and panic behavior	سلوك القفز والإيقاف الطارئ العام
 Roll when the show cuts to you	ابدأ التشغيل عندما ينتقل العرض إليك
 Choose a cue to inspect it here	اختر كيو لعرضه هنا
 Defaults for newly created cues	الافتراضيات للكيو الجديد
 Device routing for cue playback	توجيه الأجهزة لتشغيل الكيو
 Smaller buffer = lower latency.	مخزن أصغر = تأخير أقل.
 Emergency fade and sync behavior	التلاشي الطارئ وسلوك المزامنة
-mixed selection: key unavailable	تحديد مختلط: المفتاح غير متاح
+mixed selection: key unavailable	تحديد مختلط: Key غير متاح
 SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (تجريبي)
 Esc=continue with current session	Esc = متابعة الجلسة الحالية
 no per-cue settings for this type	لا إعدادات كيو لهذا النوع
@@ -333,7 +333,7 @@ Where RECORD writes the programme	حيث يكتب RECORD البرنامج
 dot-matrix cue deck for live events	لوحة كيو نقطية للفعاليات الحية
 Listening on localhost (127.0.0.1).	يستمع على localhost (127.0.0.1).
 three expressions: red, green, blue	ثلاث تعبيرات: أحمر، أخضر، أزرق
-Transport sync with another machine	مزامنة النقل مع جهاز آخر
+Transport sync with another machine	مزامنة التحكم بالتشغيل مع جهاز آخر
 Add slot sources in the cue inspector	أضف المصادر في مفتّش الكيو
 Ask GitHub; never installs on its own	يسأل GitHub؛ ولا يثبّت من تلقاء نفسه
 Import or click a cue in the playlist	استورد أو انقر كيو في قائمة التشغيل
@@ -341,11 +341,11 @@ mixed selection: geometry unavailable	تحديد مختلط: الأبعاد غي
 generate timecode for the rig to chase	أنتج كوداً زمنياً تتبعه المعدات
 Lower Third and PIP fire independently	الشريط السفلي وصورة داخل صورة يعملان منفصلين
 Panels built for a vMix rig, unchanged	لوحات مصممة لمعدات vMix، دون تغيير
-Incoming transport arrives as NMCEVENT.	النقل الوارد يصل بصيغة NMCEVENT.
+Incoming transport arrives as NMCEVENT.	أوامر التشغيل الواردة تصل بصيغة NMCEVENT.
 not in this build - saved with the show	غير موجود في هذه النسخة – يُحفظ مع العرض
 Find from the playlist, not from a modal	ابحث من قائمة التشغيل، لا من نافذة
 take or select a cue to open the timeline	ابثّ أو اختر كيو لفتح الخط الزمني
-Optional external transport and cue control	تحكم خارجي اختياري بالنقل والكيو
+Optional external transport and cue control	تحكم خارجي اختياري بالتشغيل والكيو
 No previous show file found at startup path.	لم يُوجد ملف عرض سابق عند البدء.
 Use Ctrl+F or type a cue id/number to search.	استخدم Ctrl+F أو اكتب رقم الكيو للبحث.
 Companion / OSC ingress and HyperDeck emulation	دخل Companion / OSC ومحاكاة HyperDeck
@@ -355,7 +355,7 @@ same disk as Deckboy - a separate drive is safer	نفس قرص Deckboy – قر�
 A step fires one cue on each playlist, all at once.	الخطوة تُشغّل كيو واحداً في كل قائمة تشغيل في الوقت نفسه.
 one expression: the same value in red, green and blue	تعبير واحد: القيمة نفسها في الأحمر والأخضر والأزرق
 NDI transport is configured per output in Video Outputs.	يُضبط نقل NDI لكل خرج في مخارج الفيديو.
-Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	يرسل PLAY / PAUSE / STOP / LOCATE مع حركة النقل.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	يرسل PLAY / PAUSE / STOP / LOCATE مع حركة التشغيل.
 OSC subscribe: send /deckboy/subscribe from your controller.	اشتراك OSC: أرسل /deckboy/subscribe من وحدة التحكم.
 NMC mode / host / port are runtime-configurable for sync work.	وضع NMC والمضيف والمنفذ قابلة للضبط أثناء التشغيل.
 Going on air takes the cue. Deckboy never sends the switcher a command.	الظهور على الهواء يبثّ الكيو. ولا يرسل Deckboy أمراً إلى المازج أبداً.

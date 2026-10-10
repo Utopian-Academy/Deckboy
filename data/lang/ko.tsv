@@ -84,7 +84,7 @@ Paused	일시 정지
 2-UP	2분할
 DONE	완료
 EDIT	편집
-HELD	보류됨
+HELD	유지됨
 Mode	모드
 PICK	선택
 QUAD	4분할
@@ -111,7 +111,7 @@ HIDDEN	숨김
 Length	길이
 Mascot	마스코트
 Mirror	미러
-NATIVE	기본
+NATIVE	네이티브
 PRESET	프리셋
 Sender	보내는 쪽
 SUMMED	합산됨
@@ -126,7 +126,7 @@ DEFAULT	기본값
 END CUE	큐 종료
 Key out	키 출력
 LTC out	LTC 출력
-MISSING	없음
+MISSING	누락됨
 PRESETS	프리셋
 PROJECT	프로젝트
 RUNNING	실행 중
@@ -155,14 +155,14 @@ Direction	방향
 Freewheel	프리런
 HTTP port	HTTP 포트
 Jump mode	점프 모드
-Listen on	수신 대상
+Listen on	수신 주소
 OSC Query	OSC 질의
 OUTPUT ON	출력 켜기
-Panic now	지금 패닉
+Panic now	지금 긴급 정지
 RECORDING	녹화 중
 REMAINING	남음
 RESET ALL	전체 초기화
-RUN PANIC	패닉 실행
+RUN PANIC	긴급 정지 실행
 SHOW FLOW	쇼 흐름
 TIMERS ON	타이머 켜기
 WHEN IDLE	대기 중일 때
@@ -181,7 +181,7 @@ no picture	영상 없음
 no preview	미리보기 없음
 OPEN SAVED	저장된 것 열기
 OUTPUT OFF	출력 끄기
-Panic fade	패닉 페이드
+Panic fade	긴급 페이드
 Tally port	탤리 포트
 TIMERS OFF	타이머 끄기
 Accept from	수신 허용
@@ -234,7 +234,7 @@ No cue loaded	불러온 큐 없음
 nothing taken	송출된 것 없음
 OPEN PREVIOUS	이전 것 열기
 Output device	출력 장치
-Panic profile	패닉 프로필
+Panic profile	긴급 정지 프로필
 Quit Deckboy?	Deckboy를 종료할까요?
 REMOVE OUTPUT	출력 제거
 Sound effects	효과음
@@ -304,13 +304,13 @@ FOLLOWING THE LIVE CUE NOTES	라이브 큐의 메모를 따라감
 Listening on all interfaces.	모든 인터페이스에서 수신 중입니다.
 Network-facing runtime notes	네트워크 쪽 동작 메모
 Hi! Press I to import a clip.	안녕하세요! I를 눌러 클립을 가져오세요.
-Global jump and panic behavior	전역 점프와 패닉 동작
+Global jump and panic behavior	전역 점프와 긴급 정지 동작
 Roll when the show cuts to you	방송이 넘어오면 재생 시작
 Choose a cue to inspect it here	큐를 고르면 여기에 표시됩니다
 Defaults for newly created cues	새로 만든 큐의 기본값
 Device routing for cue playback	큐 재생을 위한 장치 라우팅
 Smaller buffer = lower latency.	버퍼가 작을수록 지연이 줄어듭니다.
-Emergency fade and sync behavior	비상 페이드와 동기화 동작
+Emergency fade and sync behavior	긴급 페이드와 동기화 동작
 mixed selection: key unavailable	혼합 선택: 키를 쓸 수 없음
 SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (실험적)
 Esc=continue with current session	Esc = 현재 세션을 계속

@@ -27,7 +27,7 @@ RECORD	錄製
 PLAYLIST	播放清單
 TIMELINE	時間軸
 MEDIA	媒體
-TRANSPORT	傳輸
+TRANSPORT	走帶
 OUTPUT	輸出
 PROGRAM	PROGRAM
 WARP	變形
@@ -46,7 +46,7 @@ Devices	裝置
 Streaming	串流
 APPEARANCE	外觀
 REMOTE CONTROL	遠端控制
-INTEGRATION ADAPTERS	整合介面卡
+INTEGRATION ADAPTERS	整合配接器
 DISCOVERY / NOTES	探索 / 備註
 DISPLAY & RASTER	顯示與光柵
 CONNECTED DISPLAYS	已連接螢幕
@@ -56,8 +56,8 @@ AREA OF INTEREST	關注區域
 DEFAULT TRANSITION	預設轉場
 NMC IN & OUT	NMC 輸入與輸出
 OSC QUERY / FEEDBACK	OSC 查詢 / 回饋
-CUE INSPECTOR	提示檢視器
-SELECTED CUE	選取的提示
+CUE INSPECTOR	CUE 檢視器
+SELECTED CUE	選取的 CUE
 PLAYBACK	播放
 COPY	複製
 PASTE	貼上
@@ -89,7 +89,7 @@ Mode	模式
 PICK	選取
 QUAD	四畫面
 Rate	速率
-STEP	步
+STEP	步進
 Apply	套用
 CLOSE	關閉
 FIXED	固定
@@ -99,7 +99,7 @@ READY	就緒
 TILES	平舖
 VIDEO	視訊
 ALL ON	全部開
-ALWAYS	永遠
+ALWAYS	總是
 ANALOG	類比
 Buffer	緩衝區
 Cancel	取消
@@ -139,7 +139,7 @@ DOWNLOAD	下載
 EXAMPLES	範例
 Mappings	對應
 NMC sync	NMC 同步
-PROMPTER	提示機
+PROMPTER	讀稿機
 SHOW SDP	顯示 SDP
 TCP port	TCP 通訊埠
 UI scale	介面縮放
@@ -167,7 +167,7 @@ SHOW FLOW	演出流程
 TIMERS ON	計時器開
 WHEN IDLE	閒置時
 ADD OUTPUT	新增輸出
-BUILT WITH	建置使用
+BUILT WITH	使用元件
 CANCEL ALL	全部取消
 colour tag	顏色標記
 copy chain	複製鏈
@@ -195,7 +195,7 @@ Mirror rate	鏡像速率
 no duration	無長度
 NO LIVE CUE	無播出 CUE
 NO PREVIOUS	無上一個
-OVERLAY BIN	疊加層收納
+OVERLAY BIN	疊加素材箱
 paste chain	貼上鏈
 Sample rate	取樣率
 SENDING OUT	正在傳送
@@ -249,7 +249,7 @@ PRESENTER VIEW	主講人檢視
 RECORD TO DISK	錄製到磁碟
 STOP RECORDING	停止錄製
 STOP STREAMING	停止串流
-TALLY TRIGGERS	Tally 觸發
+TALLY TRIGGERS	Tally 觸發器
 Device channels	裝置聲道
 NDI SENDING: ON	NDI 傳送: 開
 NO CUE SELECTED	未選取 CUE
@@ -321,7 +321,7 @@ dot-matrix cue deck for live events	用於現場活動的點陣式 CUE 控制台
 Listening on localhost (127.0.0.1).	正在 localhost (127.0.0.1) 上監聽。
 three expressions: red, green, blue	三個運算式: 紅、綠、藍
 Transport sync with another machine	與另一台機器同步走帶
-Add slot sources in the cue inspector	在 CUE 檢閱器中新增來源
+Add slot sources in the cue inspector	在 CUE 檢視器中新增來源
 Ask GitHub; never installs on its own	詢問 GitHub；絕不自行安裝
 Import or click a cue in the playlist	匯入，或點擊播放清單中的 CUE
 mixed selection: geometry unavailable	混合選取: 幾何無法使用
@@ -366,7 +366,7 @@ no script	無稿件
 + OUTPUT	+ 輸出
 Eddie's Clock	Eddie 的時鐘
 Ctrl+/ to close	按 Ctrl+/ 關閉
-(step lives here)	(步在此處)
+(step lives here)	(步進在此處)
 4:2:2  8-BIT	4:2:2  8 位元
 4:2:2  10-BIT	4:2:2  10 位元
 No outputs — click + OUTPUT to add one.	沒有輸出 – 點擊 + 輸出 新增一個。

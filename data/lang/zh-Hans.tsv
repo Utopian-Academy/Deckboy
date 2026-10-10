@@ -27,7 +27,7 @@ RECORD	录制
 PLAYLIST	播放列表
 TIMELINE	时间线
 MEDIA	媒体
-TRANSPORT	传输
+TRANSPORT	走带
 OUTPUT	输出
 PROGRAM	PROGRAM
 WARP	变形
@@ -56,8 +56,8 @@ AREA OF INTEREST	关注区域
 DEFAULT TRANSITION	默认转场
 NMC IN & OUT	NMC 输入与输出
 OSC QUERY / FEEDBACK	OSC 查询 / 回馈
-CUE INSPECTOR	提示检查器
-SELECTED CUE	选中的提示
+CUE INSPECTOR	CUE 检查器
+SELECTED CUE	选中的 CUE
 PLAYBACK	播放
 COPY	复制
 PASTE	粘贴
@@ -89,7 +89,7 @@ Mode	模式
 PICK	选取
 QUAD	四画面
 Rate	速率
-STEP	步
+STEP	步进
 Apply	应用
 CLOSE	关闭
 FIXED	固定
@@ -103,7 +103,7 @@ ALWAYS	始终
 ANALOG	模拟
 Buffer	缓冲区
 Cancel	取消
-Custom	自定
+Custom	自定义
 Device	设备
 Folder	文件夹
 FORMAT	格式
@@ -167,7 +167,7 @@ SHOW FLOW	演出流程
 TIMERS ON	计时器开
 WHEN IDLE	空闲时
 ADD OUTPUT	添加输出
-BUILT WITH	构建使用
+BUILT WITH	使用组件
 CANCEL ALL	全部取消
 colour tag	颜色标记
 copy chain	复制链
@@ -195,7 +195,7 @@ Mirror rate	镜像速率
 no duration	无时长
 NO LIVE CUE	无播出 CUE
 NO PREVIOUS	无上一个
-OVERLAY BIN	叠加层收纳
+OVERLAY BIN	叠加素材箱
 paste chain	粘贴链
 Sample rate	采样率
 SENDING OUT	正在发送
@@ -249,7 +249,7 @@ PRESENTER VIEW	演讲者视图
 RECORD TO DISK	录制到磁盘
 STOP RECORDING	停止录制
 STOP STREAMING	停止推流
-TALLY TRIGGERS	Tally 触发
+TALLY TRIGGERS	Tally 触发器
 Device channels	设备声道
 NDI SENDING: ON	NDI 发送: 开
 NO CUE SELECTED	未选择 CUE
@@ -366,7 +366,7 @@ no script	无稿件
 + OUTPUT	+ 输出
 Eddie's Clock	Eddie 的时钟
 Ctrl+/ to close	按 Ctrl+/ 关闭
-(step lives here)	(步在此处)
+(step lives here)	(步进在此处)
 4:2:2  8-BIT	4:2:2  8 位
 4:2:2  10-BIT	4:2:2  10 位
 No outputs — click + OUTPUT to add one.	没有输出 – 点击 + 输出 添加一个。
