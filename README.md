@@ -66,9 +66,9 @@ which is not true of anything it gets compared to.
      never a real show file. A client's deck in a public README is a client's
      deck on the internet. -->
 
-![The Deckboy desk with its face on the empty monitor, winking, then taking generated cues to air, then stacking scanlines, ripple and a kaleidoscope onto the live picture, then the melting pixel greens of the swirl pattern](art/readme/demo-wink.gif)
+![The Deckboy desk with its face on the empty monitor, winking, then taking cues to air in turn: a title typed live, colour bars, a clip from Tears of Steel with a kaleidoscope and a ripple stacked onto it, the Swirl generator and a live Code expression](art/readme/demo-desk.gif)
 
-<sub>Shown with the test patterns Deckboy generates itself, so nothing here is anyone’s show file.</sub>
+<sub>Shown with a title, bars, Swirl and Code that Deckboy makes itself and a clip from <i>Tears of Steel</i> (© Blender Foundation, CC BY 3.0), so nothing here is anyone’s show file.</sub>
 
 ---
 
