@@ -292,7 +292,7 @@
     // WHAT THIS MACHINE CAN DRAW, script by script, and from which fonts.
     //
     // The scripts Deckboy SHIPS faces for -- Latin (Kabyle's letters too),
-    // Greek, Cyrillic and Hebrew in Liberation; Arabic, Persian, Kurdish and
+    // Greek and Cyrillic in Liberation; Arabic, Persian, Kurdish and
     // Tifinagh in Noto -- must draw on every machine, so a miss there fails this check: a package that lost one of its
     // fonts would otherwise show boxes and go out green. The rest come from the
     // computer's own fonts and are reported, not required; a build machine has
@@ -330,7 +330,6 @@
           {"kurdish", u8"\u06a9\u0648\u0631\u062f\u06cc \u0695\u06b5\u06c6\u06ce\u06d5", true},
           {"tifinagh", u8"\u2d5c\u2d30\u2d4e\u2d30\u2d63\u2d49\u2d56\u2d5c", true},
           {"kabyle", u8"Taqbaylit \u025b\u0263\u010d\u01e7\u1e0d\u1e25\u1e5b\u1e63\u1e6d\u1e93", true},
-          {"hebrew", u8"\u05e2\u05d1\u05e8\u05d9\u05ea", true},
           {"devanagari", u8"\u0939\u093f\u0928\u094d\u0926\u0940", false},
           {"thai", u8"\u0e44\u0e17\u0e22", false},
           {"japanese", u8"\u65e5\u672c\u8a9e \u3072\u3089\u304c\u306a", false},
@@ -3096,7 +3095,7 @@
     // The whole algorithm is proven against Unicode's own conformance files by
     // tools/bidi_check.cpp, in CI. These are the cases the DESK lives on, so a
     // break shows here without fetching 15 MB of test data: a number inside an
-    // Arabic label (the "%59" that started this), a Hebrew name inside English,
+    // Arabic label (the "%59" that started this), an Arabic name inside English,
     // Persian digits and brackets, and a half-space that must stay in its word.
     // Escapes, not the characters: the compiler is not told the source is UTF-8.
     {
@@ -3119,12 +3118,12 @@
                "bidi: the number in an Arabic label reads 95, with its sign as Arabic writes it");
       }
       {
-        const std::string t = u8s(u8"Hello \u05e9\u05dc\u05d5\u05dd world");
+        const std::string t = u8s(u8"Hello \u0645\u0631\u064a\u0645 world");
         bool rtl = true;
         const auto runs = bidi::visualRuns(t, bidi::Direction::Auto, &rtl);
         expect(!rtl && runs.size() == 3 && runs[1].rightToLeft() &&
                  runText(t, runs[0]) == "Hello " && runText(t, runs[2]) == " world",
-               "bidi: a Hebrew name inside English stays where it was written");
+               "bidi: an Arabic name inside English stays where it was written");
       }
       {
         // Tehran 1405 (final): Persian digits are European numbers, so they

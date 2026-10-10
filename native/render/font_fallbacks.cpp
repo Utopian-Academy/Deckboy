@@ -132,7 +132,7 @@ std::vector<Cjk> cjkOrder(const std::string& uiLanguage) {
 std::vector<FallbackFont> otherScripts() {
   return {
 #if defined(_WIN32)
-    {"C:/Windows/Fonts/segoeui.ttf", 0},   // Hebrew, Armenian, Georgian
+    {"C:/Windows/Fonts/segoeui.ttf", 0},   // Armenian, Georgian
     {"C:/Windows/Fonts/Nirmala.ttc", 0},   // the Indic scripts
     {"C:/Windows/Fonts/LeelawUI.ttf", 0},  // Thai, Lao, Khmer
     {"C:/Windows/Fonts/mmrtext.ttf", 0},   // Myanmar
@@ -147,7 +147,6 @@ std::vector<FallbackFont> otherScripts() {
     {"C:/Windows/Fonts/ARIALUNI.TTF", 0},  // where Office installed it
     {"C:/Windows/Fonts/arial.ttf", 0},
 #elif defined(__APPLE__)
-    {"/System/Library/Fonts/ArialHB.ttc", 0},  // Hebrew
     {"/System/Library/Fonts/Kohinoor.ttc", 0},  // Devanagari
     {"/System/Library/Fonts/KohinoorBangla.ttc", 0},
     {"/System/Library/Fonts/KohinoorTelugu.ttc", 0},
@@ -163,7 +162,6 @@ std::vector<FallbackFont> otherScripts() {
     {"/System/Library/Fonts/Apple Color Emoji.ttc", 0},
     {"/System/Library/Fonts/Supplemental/Arial Unicode.ttf", 0},
 #else
-    {"/usr/share/fonts/truetype/noto/NotoSansHebrew-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansBengali-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansTamil-Regular.ttf", 0},

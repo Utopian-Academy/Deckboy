@@ -1782,9 +1782,9 @@ theme written for a later version still loads.
 ## 21a. Languages
 
 `Settings → Language` puts the whole desk into another language at once, with
-no restart. Thirty-eight languages ship with Deckboy, among them Arabic,
-Persian, Hebrew, Turkish, Kurdish, Kabyle and Tamazight, Chinese in both
-scripts, Japanese, Korean, Hindi and Zulu, along with a few constructed
+no restart. Thirty-seven languages ship with Deckboy, among them Arabic,
+Persian, Turkish, Kurdish, Kabyle and Tamazight, Chinese in both scripts,
+Japanese, Korean, Hindi and Zulu, along with a few constructed
 languages and six cyphers. The **Help!** button beside the
 picker is always in English and always brings English back, so a language you
 cannot read never leaves you stuck.
@@ -1802,8 +1802,7 @@ writer was sure of: the rest reads in English, or for Kabyle and Tamazight in
 French. Corrections and additions are very welcome: each language is one
 plain-text file in `data/lang`.
 
-**Right to left.** Arabic, Persian, Hebrew and Kurdish (Sorani) read right to
-left, with their letters joined and shaped as each script writes them. Every
+**Right to left.** Arabic, Persian and Kurdish (Sorani) read right to left, with their letters joined and shaped as each script writes them. Every
 label is laid out with the Unicode bidirectional algorithm, so a number, a
 port or an English word inside it keeps its own direction, and a label that
 starts with a product name still reads from the right. The controls stay where they are in every
@@ -1817,8 +1816,8 @@ characters its own fonts lack from fonts the computer already has, chosen for
 the interface language, so Chinese characters take a Chinese face on a
 Chinese desk and a Japanese face on a Japanese one. It carries Noto Sans
 Arabic and Noto Sans Tifinagh itself, so Arabic, Persian, Kurdish and
-Tamazight read on every machine, and its own Liberation faces draw Hebrew and
-the letters of Kabyle. `--self-check` lists the fonts it found and the scripts this
+Tamazight read on every machine, and its own Liberation faces draw the
+letters of Kabyle. `--self-check` lists the fonts it found and the scripts this
 computer can draw.
 
 **On air.** Lower thirds, text cues and Deckboy Mini's subtitles follow the

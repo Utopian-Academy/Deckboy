@@ -7,7 +7,7 @@
 //
 // The bundled faces are Latin, Greek and Cyrillic (Liberation) and a pixel face
 // that is barely more. Everything else -- Arabic and Persian, Han, kana and
-// Hangul, the Indic scripts, Thai, Hebrew, Ethiopic, Tifinagh, symbols -- comes
+// Hangul, the Indic scripts, Thai, Ethiopic, Tifinagh, symbols -- comes
 // from here: two small faces Deckboy ships (Noto Sans Arabic and Noto Sans
 // Tifinagh, so the North African scripts look the same everywhere) and the
 // fonts every desktop already has (Yu Gothic and Microsoft YaHei on Windows,

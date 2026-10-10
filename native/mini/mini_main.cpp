@@ -1008,7 +1008,7 @@ class Mini {
       const SDL_Color black {0, 0, 0, 255};
       const int wrap = w * 9 / 10;
       namespace shaping = deckboy::render::shaping;
-      // Each line centred, laid out by the bidi algorithm: an Arabic or Hebrew
+      // Each line centred, laid out by the bidi algorithm: an Arabic or Persian
       // subtitle reads right to left with its numbers and names in order.
       SDL_Surface* ink = shaping::renderTextWrapped(subFont_, entry->text.c_str(), 0, black, wrap,
                                                     shaping::Align::Centre);

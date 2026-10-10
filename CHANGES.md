@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-10 - v0.99.409 (Arabic, Persian, Hebrew, Kurdish, Amazigh: every script on every desk)
+## 2026-10-10 - v0.99.409 (Arabic, Persian, Kurdish, Amazigh: every script on every desk)
 
 **Persian, and Arabic in full.** The desk now speaks Persian as well as
 Arabic, both right to left with their letters joined and shaped. Every label
@@ -9,10 +9,9 @@ own conformance tests on every build, so a number, a port or an English word
 inside a label keeps its own direction, and a label that starts with a product
 name still reads from the right.
 
-**Hebrew, Kurdish, Kabyle and Tamazight.** Hebrew joins Arabic and Persian as
-a full right-to-left desk. Kurdish (Sorani and Kurmanji), Kabyle and Standard
-Moroccan Tamazight in Tifinagh begin with their most-used words, and Kabyle
-and Tamazight fall through to French rather than English for the rest. Each is
+**Kurdish, Kabyle and Tamazight.** Kurdish (Sorani and Kurmanji), Kabyle and
+Standard Moroccan Tamazight in Tifinagh begin with their most-used words, and
+Kabyle and Tamazight fall through to French rather than English for the rest. Each is
 marked unreviewed in the picker until a speaker has read it, and corrections
 are welcome.
 
@@ -20,7 +19,7 @@ are welcome.
 ğ, ı, İ, ö, ş and ü wherever they belong.
 
 **Every script on any desk.** Japanese, Chinese, Korean, Hindi, Arabic,
-Hebrew, Thai, Amharic, Tifinagh and more now read on an English desk, in cue
+Thai, Amharic, Tifinagh and more now read on an English desk, in cue
 names, file names, lower thirds and subtitles, sitting on the same line as the
 text around them. Deckboy borrows the characters its own fonts lack from fonts
 the computer already has, chosen for the interface language, and carries Noto

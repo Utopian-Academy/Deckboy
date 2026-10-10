@@ -5,7 +5,7 @@
 
 // bidi.hpp -- the Unicode Bidirectional Algorithm (UAX #9), in full.
 //
-// WHY THIS EXISTS. Arabic, Persian and Hebrew run right to left, and the text
+// WHY THIS EXISTS. Arabic, Persian and Kurdish run right to left, and the text
 // an operator types or a catalogue carries is rarely one direction only: a
 // lower third reads "MARYAM 2026", a label reads "volume 95%", a file is called
 // "promo_v2 (final)". Shaping (joining the letters) is HarfBuzz's job and SDL_ttf
