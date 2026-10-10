@@ -7514,7 +7514,7 @@
       drawTextRaw(renderer, font, textIn, color, x, y);
       return;
     }
-    drawTextRaw(renderer, font, deckboy::core::i18n::translate(textIn), color, x, y);
+    drawTextRaw(renderer, font, shownText(textIn), color, x, y);
   }
 
 
@@ -7835,6 +7835,28 @@
   // English word overflows in every other language -- OFF fitted, its Arabic
   // did not. Measures through the shaper, so fallback faces and direction
   // are counted too.
+  // WHAT THE DESK SHOWS FOR `source`: its translation, and in a right-to-left
+  // interface, a right-to-left paragraph.
+  //
+  // The bidi algorithm takes a paragraph's direction from its first letter.
+  // That is right for text that arrives on its own -- a cue name, a lower
+  // third -- and wrong for a label of a right-to-left interface that happens
+  // to begin with a Latin word: "DECKLINK: <on>" came out in English order,
+  // so an Arabic reader met the value before the name. A RIGHT-TO-LEFT MARK in
+  // front gives the paragraph its direction the way plain text does (UAX #9,
+  // P2 and P3); it has no width and draws nothing. Only a label with
+  // right-to-left letters in it gets one -- an English fallback keeps its own
+  // order, brackets and all -- and only one that would have read wrong.
+  std::string shownText(const std::string& source) const {
+    if (deckboy::core::i18n::passthrough()) return source;
+    std::string shown = deckboy::core::i18n::translate(source);
+    if (deckboy::core::i18n::activeIsRtl() && deckboy::core::bidi::needsBidi(shown) &&
+        !deckboy::core::bidi::firstStrongIsRightToLeft(shown)) {
+      shown.insert(0, "\xE2\x80\x8F");  // U+200F RIGHT-TO-LEFT MARK
+    }
+    return shown;
+  }
+
   bool textSizeShown(TTF_Font* font, const char* text, std::size_t length, int* w,
                      int* h) const {
     if (!font || !text) {
@@ -7842,23 +7864,21 @@
       if (h) *h = 0;
       return false;
     }
-    const std::string source = length ? std::string(text, length) : std::string(text);
-    const std::string shown = deckboy::core::i18n::passthrough()
-                                ? source
-                                : deckboy::core::i18n::translate(source);
+    const std::string shown = shownText(length ? std::string(text, length) : std::string(text));
     return deckboy::render::shaping::textSize(font, shown.c_str(), shown.size(), w, h);
   }
 
   int measuredTextWidth(TTF_Font* font, const std::string& text) const {
     if (!font || text.empty()) return 0;
-    const std::string shown = deckboy::core::i18n::passthrough()
-                                ? text
-                                : deckboy::core::i18n::translate(text);
-    return measuredWidthIn(font, shown);
+    return measuredWidthIn(font, shownText(text));
   }
 
+  // `localise` false draws the text as it is: for what is the SHOW's rather
+  // than the desk's -- a presenter's notes, the prompter's script -- which no
+  // catalogue may reword and no cypher may scramble on the screen somebody
+  // is reading from.
   void drawTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
-                    const std::string& textIn, SDL_Color color) {
+                    const std::string& textIn, SDL_Color color, bool localise = true) {
     if (!font || textIn.empty() || rect.w <= 0 || rect.h <= 0) {
       return;
     }
@@ -7867,8 +7887,8 @@
     // localised in two places instead of thirteen hundred. English is a
     // pass-through with an early-out, so the default costs one bool test.
     const std::string& text =
-      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
-        deckboy::core::i18n::translate(textIn));
+      (!localise || deckboy::core::i18n::passthrough()) ? textIn
+                                                        : (localisedScratch_ = shownText(textIn));
     SDL_Rect safe = safeTextRect(rect);
     if (safe.w <= 0 || safe.h <= 0) {
       return;
@@ -7940,7 +7960,7 @@
     const std::string& text =
       (!localise || deckboy::core::i18n::passthrough())
         ? textIn
-        : (localisedScratch_ = deckboy::core::i18n::translate(textIn));
+        : (localisedScratch_ = shownText(textIn));
     SDL_Rect safe = safeTextRect(rect);
     if (safe.w <= 0 || safe.h <= 0) {
       return;
@@ -8003,8 +8023,7 @@
     // Nothing calls this today, but it is a text renderer and the next thing
     // that uses it must not be the one string left in English.
     const std::string& text =
-      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
-        deckboy::core::i18n::translate(textIn));
+      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ = shownText(textIn));
     if (!font || text.empty()) {
       return;
     }

@@ -1,11 +1,13 @@
 #name العربية
 #english Arabic
-#font arial.ttf, segoeui.ttf, tahoma.ttf, ArabicTypesetting.ttf, GeezaPro.ttc, NotoSansArabic-Regular.ttf, truetype/noto/NotoSansArabic-Regular.ttf
 #rtl 1
 # Arabic needs three things Latin does not.
 #
-# GLYPHS. The line above names faces that have them, most of which ship with
-# the platform; Noto Sans Arabic ships with Deckboy, so it reads everywhere.
+# GLYPHS. Noto Sans Arabic ships with Deckboy, and the shaper draws every
+# Arabic word in it, on every machine, beside the desk's own face for anything
+# Latin. No #font line, on purpose: a face named there becomes the desk's whole
+# face, and Noto's line is nearly twice the height of the one the desk was laid
+# out for -- every row of a desk on a machine without Arial moved.
 #
 # SHAPING. An Arabic letter has a different form at the start, middle and end
 # of a word, and joining them is HarfBuzz's job -- which SDL_ttf only does when

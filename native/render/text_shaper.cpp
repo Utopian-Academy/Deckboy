@@ -244,7 +244,10 @@ void splitRun(TTF_Font* primary, const char* text, std::size_t begin, std::size_
     char32_t cp = 0;
     const std::size_t len = bidi::decodeUtf8(s, at, cp);
     const BidiClass cls = bidi::classOf(cp);
-    const bool attaches = cls == BidiClass::NSM || cls == BidiClass::BN;
+    // The direction marks are strong for the bidi algorithm and nothing for
+    // the eye: they go with their neighbours, never into a piece of their own.
+    const bool mark = cp == 0x200E || cp == 0x200F || cp == 0x061C;
+    const bool attaches = cls == BidiClass::NSM || cls == BidiClass::BN || mark;
     const bool common = !attaches && !(cls == BidiClass::L || cls == BidiClass::R ||
                                        cls == BidiClass::AL);
     chars.push_back({at, len, cp, attaches, common, nullptr});
@@ -258,6 +261,53 @@ void splitRun(TTF_Font* primary, const char* text, std::size_t begin, std::size_
   // Letters first.
   for (Char& c : chars) {
     if (!c.common && !c.attaches) c.face = byCoverage(c.cp);
+  }
+  // A WORD IN ONE FACE. The pixel face has most of the Latin alphabet but not
+  // all of it, so a Kabyle word -- aɣbalu -- took its ɣ from Liberation and
+  // every other letter from the pixel face: two faces, two styles, one word.
+  // Where a word of an alphabetic script was split between faces and one of
+  // them has every letter of it, the whole word is drawn in that one. Scripts
+  // whose words run on without spaces are left as coverage put them.
+  auto alphabetic = [](char32_t cp) {
+    return (cp >= 0x41 && cp <= 0x2AF) || (cp >= 0x370 && cp <= 0x52F) ||
+           (cp >= 0x1C80 && cp <= 0x1C8F) || (cp >= 0x1E00 && cp <= 0x1FFF) ||
+           (cp >= 0x2C60 && cp <= 0x2C7F) || (cp >= 0x2DE0 && cp <= 0x2DFF) ||
+           (cp >= 0xA640 && cp <= 0xA69F) || (cp >= 0xA720 && cp <= 0xA7FF) ||
+           (cp >= 0xAB30 && cp <= 0xAB6F);
+  };
+  for (std::size_t i = 0; i < chars.size();) {
+    if (chars[i].common) {
+      ++i;
+      continue;
+    }
+    std::size_t end = i;
+    bool wordOfAlphabet = true;
+    bool mixed = false;
+    TTF_Font* first = nullptr;
+    for (; end < chars.size() && !chars[end].common; ++end) {
+      const Char& c = chars[end];
+      if (c.attaches) continue;  // marks ride on their letter, below
+      if (!alphabetic(c.cp)) wordOfAlphabet = false;
+      if (!first) first = c.face;
+      else if (c.face != first) mixed = true;
+    }
+    if (wordOfAlphabet && mixed) {
+      for (std::size_t k = i; k < end; ++k) {
+        TTF_Font* candidate = chars[k].face;
+        if (chars[k].attaches || candidate == primary) continue;
+        bool hasAll = true;
+        for (std::size_t m = i; m < end && hasAll; ++m) {
+          if (!chars[m].attaches && !primaryHas(candidate, chars[m].cp)) hasAll = false;
+        }
+        if (hasAll) {
+          for (std::size_t m = i; m < end; ++m) {
+            if (!chars[m].attaches) chars[m].face = candidate;
+          }
+          break;
+        }
+      }
+    }
+    i = end;
   }
   // Then what sits between them, from its neighbours.
   for (std::size_t i = 0; i < chars.size(); ++i) {

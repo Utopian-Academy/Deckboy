@@ -1332,7 +1332,7 @@
       }
       const int y = text.y + static_cast<int>(std::lround(row * lineH - scroll));
       drawTextSafe(ren, bodyFont, SDL_Rect {text.x, y, text.w, lineH}, line.text,
-                   line.current ? screen.ink : screen.soft);
+                   line.current ? screen.ink : screen.soft, /*localise=*/false);
     }
     if (hadClip) {
       SDL_SetRenderClipRect(ren, &previousClip);
@@ -1790,7 +1790,7 @@
       // reader's eye finds the bright line without hunting for it.
       const bool onTheLine = y <= readingY && y + lineH > readingY;
       drawTextSafe(ren, font, SDL_Rect {column.x, y, column.w, lineH}, line,
-                   onTheLine ? screen.ink : screen.soft);
+                   onTheLine ? screen.ink : screen.soft, /*localise=*/false);
     }
     if (hadClip) SDL_SetRenderClipRect(ren, &previousClip);
     else SDL_SetRenderClipRect(ren, nullptr);

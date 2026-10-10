@@ -1,4 +1,4 @@
-#name Turkce
+#name Türkçe
 #english Turkish
 # Deckboy interface catalogue.
 #
@@ -9,47 +9,47 @@
 # Broadcast vocabulary is deliberately left in English where the trade leaves
 # it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
 # one country has to be able to work it in another.
-NEW	YENI
-OPEN	AC
+NEW	YENİ
+OPEN	AÇ
 SAVE	KAYDET
 SAVE AS	FARKLI KAYDET
 BUNDLE	PAKETLE
-IMPORT	ICE AKTAR
+IMPORT	İÇE AKTAR
 SOURCE	KAYNAK
-PATTERN	TEST DESENI
+PATTERN	TEST DESENİ
 SETTINGS	AYARLAR
 TAKE	TAKE
 STOP	DUR
-REBOOT	YENIDEN
-BLACKOUT	SIYAH
-CLEAR	TEMIZLE
+REBOOT	YENİDEN BAŞLAT
+BLACKOUT	SİYAH
+CLEAR	TEMİZLE
 RECORD	KAYIT
-PLAYLIST	CALMA LISTESI
-TIMELINE	ZAMAN CIZGISI
+PLAYLIST	ÇALMA LİSTESİ
+TIMELINE	ZAMAN ÇİZGİSİ
 MEDIA	ORTAM
-TRANSPORT	TASIMA
-OUTPUT	CIKIS
+TRANSPORT	TRANSPORT
+OUTPUT	ÇIKIŞ
 PROGRAM	PROGRAM
 WARP	BİÇİM BOZ
 LIVE	CANLI
-DECODE	COZUM
+DECODE	ÇÖZÜCÜ
 STREAM	YAYINLA
 System	Sistem
 Audio	Ses
-Network	Ag
-Video Outputs	Video cikislari
-About	Hakkinda
-Encoder	Kodlayici
+Network	Ağ
+Video Outputs	Video çıkışları
+About	Hakkında
+Encoder	Kodlayıcı
 Screen	Ekran
 Geometry	Geometri
-Devices	Aygitlar
-Streaming	Yayin
-APPEARANCE	GORUNUM
+Devices	Aygıtlar
+Streaming	Yayın
+APPEARANCE	GÖRÜNÜM
 REMOTE CONTROL	UZAKTAN KUMANDA
-INTEGRATION ADAPTERS	ADAPTORLER
+INTEGRATION ADAPTERS	ENTEGRASYON ADAPTÖRLERİ
 DISCOVERY / NOTES	KEŞİF / NOTLAR
 DISPLAY & RASTER	EKRAN VE RASTER
-CONNECTED DISPLAYS	BAGLI EKRANLAR
+CONNECTED DISPLAYS	BAĞLI EKRANLAR
 EDGE FEATHERING	KENAR YUMUŞATMA
 MATTE & OVERLAY	MAT VE KAPLAMA
 AREA OF INTEREST	İLGİ ALANI
@@ -60,27 +60,27 @@ CUE INSPECTOR	CUE DENETÇİSİ
 SELECTED CUE	SEÇİLEN CUE
 PLAYBACK	OYNATMA
 COPY	KOPYALA
-PASTE	YAPISTIR
+PASTE	YAPIŞTIR
 RESET	SIFIRLA
 Theme	Tema
 Language	Dil
-Resolution	Cozunurluk
-Orientation	Yonlendirme
+Resolution	Çözünürlük
+Orientation	Yönlendirme
 Toggle Fullscreen	Tam ekran
 IDENTIFY	TANIMLA
-REGION SIZE	BOYUT
+REGION SIZE	BÖLGE BOYUTU
 POSITION	KONUM
 CENTRE	ORTALA
 FULL	TAM
-duration	sure
-transition	gecis
-fade in	acilis
-fade out	kapanis
-ON	ACIK
+duration	süre
+transition	geçiş
+fade in	belirme
+fade out	kararma
+ON	AÇIK
 OFF	KAPALI
 Stopped	Durdu
-Playing	Oynuyor
-Paused	Durakladi
+Playing	Oynatılıyor
+Paused	Duraklatıldı
 2-UP	2 YAN YANA
 DONE	TAMAM
 EDIT	DÜZENLE

@@ -1,0 +1,102 @@
+#name Taqbaylit
+#english Kabyle
+#fallback fr
+#unverified
+# Kabyle interface catalogue, in the Berber Latin alphabet (ɛ ɣ č ǧ ḍ ḥ ṛ ṣ ṭ ẓ),
+# which Liberation Sans draws. english<TAB>translation.
+#
+# A line left out falls through to FRENCH (#fallback fr), not English: it is
+# the language Kabyle readers already work in.
+#
+# PART OF THE INTERFACE, ON PURPOSE: only the words its writer was sure of.
+# NOT YET REVIEWED BY A KABYLE SPEAKER, so the picker says so. Additions and
+# corrections are very welcome.
+NEW	AMAYNUT
+OPEN	LDI
+SAVE	SEKLES
+SAVE AS	SEKLES S YISEM
+IMPORT	KTER
+SOURCE	AƔBALU
+SETTINGS	IƔEWWAREN
+TAKE	TAKE
+STOP	SEḤBES
+CLEAR	SFEḌ
+PROGRAM	PROGRAM
+System	Anagraw
+Audio	Ameslaw
+Network	Aẓeṭṭa
+About	Ɣef
+Screen	Agdil
+Devices	Ibenkan
+COPY	NƔEL
+PASTE	SENṬEḌ
+RESET	WENNEZ
+Theme	Asentel
+Language	Tutlayt
+POSITION	IDEG
+duration	tanzagt
+ON	YERMED
+OFF	INSA
+Stopped	Yeḥbes
+Paused	Yesteɛfa
+DONE	IMMED
+EDIT	ẒREG
+Mode	Askar
+PICK	FREN
+STEP	ASURIF
+Apply	Snes
+CLOSE	MDEL
+Help!	Tallalt!
+READY	IHEGGA
+VIDEO	TAVIDYUT
+ALWAYS	DIMA
+Cancel	Sefsex
+Custom	Udmawan
+Device	Ibenk
+Folder	Akaram
+FORMAT	AMASAL
+HIDDEN	YEFFER
+Length	Teɣzi
+Sender	Amazan
+DEFAULT	AMEZWER
+MISSING	IXUṢ
+PROJECT	ASENFAR
+UPDATES	ILEQMAN
+DOWNLOAD	SADER
+EXAMPLES	IMEDYATEN
+TCP port	Tawwurt TCP
+CHECK NOW	SENQED TURA
+Direction	Tanila
+HTTP port	Tawwurt HTTP
+RESET ALL	WENNEZ AKK
+CANCEL ALL	SEFSEX AKK
+no picture	ulac tugna
+no preview	ulac taskant
+Tally port	Tawwurt Tally
+NO PREVIOUS	ULAC WIN YEZRIN
+(no matches)	(ulac igmaḍ)
+add a button	rnu taqeffalt
+add a window	rnu asfaylu
+Art-Net port	Tawwurt Art-Net
+LEFT TO RIGHT	SEG ZELMAḌ ƔER YEFFUS
+OPEN PREVIOUS	LDI WIN YEZRIN
+Quit Deckboy?	Ad teffɣeḍ seg Deckboy?
+Tally address	Tansa Tally
+TOP TO BOTTOM	SEG UFELLA ƔER WADDA
+ALL INTERFACES	AKK IGRUDMIWEN
+LOCALHOST ONLY	LOCALHOST KAN
+(system default)	(amezwer n unagraw)
+Check at startup	Senqed deg usekker
+the whole screen	agdil akk
+esc or N to cancel	Esc neɣ N i usefsex
+KEYBOARD SHORTCUTS	INEGZUMEN N UNASIW
+loading preview...	asali n teskant...
+Companion / OSC port	Tawwurt Companion / OSC
+Ctrl+D or Esc to close	Ctrl+D neɣ Esc i umdal
+Listening on all interfaces.	Ismeḥsis ɣef yigrudmiwen akk.
+Listening on localhost (127.0.0.1).	Ismeḥsis ɣef localhost (127.0.0.1).
+EDIT...	ẒREG...
+FOLDER...	AKARAM...
+ADD FILE...	RNU AFAYLU...
+set a port...	sbadu tawwurt...
+Ctrl+/ to close	Ctrl+/ i umdal

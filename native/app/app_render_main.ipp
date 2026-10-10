@@ -2870,9 +2870,7 @@
           // and drawing its translation is how the Arabic one lost its first
           // letter off the edge of the badge.
           std::string shownValue = valueText.empty() ? "--.-" : valueText;
-          if (!deckboy::core::i18n::passthrough()) {
-            shownValue = deckboy::core::i18n::translate(shownValue);
-          }
+          shownValue = shownText(shownValue);
           TTF_Font* valueFont = shownValue.size() > 4 ? fontSmall_ : fontMono_;
           shownValue = ellipsizeToPixelWidth(valueFont, shownValue, badgeValueRect.w);
           int valueTextW = 0, valueTextH = 0;

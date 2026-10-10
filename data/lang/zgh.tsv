@@ -1,0 +1,39 @@
+#name ⵜⴰⵎⴰⵣⵉⵖⵜ
+#english Tamazight (Standard Moroccan)
+#fallback fr
+#unverified
+# Standard Moroccan Tamazight interface catalogue, in Tifinagh, left to right.
+# english<TAB>translation. Noto Sans Tifinagh ships with Deckboy and draws it
+# on every machine.
+#
+# A line left out falls through to FRENCH (#fallback fr), not English: it is
+# the language of the trade in Morocco beside Arabic, and it reads the same
+# way round as Tifinagh.
+#
+# A FEW WORDS, ON PURPOSE: only those its writer was sure of.
+# NOT YET REVIEWED BY A TAMAZIGHT SPEAKER, so the picker says so. Additions and
+# corrections are very welcome.
+NEW	ⴰⵎⴰⵢⵏⵓ
+OPEN	ⵕⵥⵎ
+TAKE	TAKE
+STOP	ⵃⴱⵙ
+PROGRAM	PROGRAM
+System	ⴰⵏⴰⴳⵔⴰⵡ
+Audio	ⵉⵎⵙⵍⵉ
+Network	ⴰⵥⵟⵟⴰ
+About	ⵅⴼ
+Screen	ⴰⴳⴷⵉⵍ
+COPY	ⵙⵏⵖⵍ
+Theme	ⴰⵙⵏⵜⵍ
+Language	ⵜⵓⵜⵍⴰⵢⵜ
+EDIT	ⵙⵏⴼⵍ
+CLOSE	ⵇⵇⵏ
+Help!	ⵜⵉⵡⵉⵙⵉ!
+READY	ⵢⵓⵊⴰⴷ
+ALWAYS	ⴷⵉⵎⴰ
+Folder	ⴰⴽⴰⵔⴰⵎ
+LEFT TO RIGHT	ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+TOP TO BOTTOM	ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+the whole screen	ⴰⴳⴷⵉⵍ ⴰⴽⴽ
+FOLDER...	ⴰⴽⴰⵔⴰⵎ...
+ADD FILE...	ⵔⵏⵓ ⴰⴼⴰⵢⵍⵓ...

@@ -1,0 +1,113 @@
+#name Kurmancî
+#english Kurdish (Kurmanji)
+#unverified
+# Northern Kurdish (Kurmanji) interface catalogue, in the Latin script.
+# english<TAB>translation; a line left out falls through to English.
+#
+# PART OF THE INTERFACE, ON PURPOSE: only the words its writer was sure of.
+# NOT YET REVIEWED BY A KURDISH SPEAKER, so the picker says so. Additions and
+# corrections are very welcome.
+NEW	NÛ
+OPEN	VEKE
+SAVE	TOMAR BIKE
+SAVE AS	TOMAR BIKE WEK
+IMPORT	BÎNE HUNDIR
+SOURCE	ÇAVKANÎ
+SETTINGS	MÎHENG
+TAKE	TAKE
+STOP	RAWESTÎNE
+CLEAR	PAQIJ BIKE
+RECORD	QEYD
+PLAYLIST	LÎSTEYA LÊXISTINÊ
+TIMELINE	RÊZIKA DEMÊ
+MEDIA	MEDYA
+PROGRAM	PROGRAM
+LIVE	ZINDÎ
+System	Pergal
+Audio	Deng
+Network	Tor
+About	Derbar
+Screen	Ekran
+Devices	Amûr
+COPY	KOPÎ BIKE
+PASTE	PÊVE BIKE
+RESET	VEGERÎNE
+Theme	Rûkar
+Language	Ziman
+POSITION	CIH
+duration	dem
+ON	ÇALAK
+OFF	GIRTÎ
+Stopped	Rawestiyayî
+Playing	Tê lêxistin
+Paused	Sekinî
+DONE	TEMAM
+EDIT	BIGUHERÎNE
+Mode	Mod
+Apply	Bisepîne
+CLOSE	BIGIRE
+Help!	Alîkarî!
+READY	AMADE
+VIDEO	VÎDYO
+ALWAYS	HERGAV
+Cancel	Betal bike
+Custom	Taybet
+Device	Amûr
+Folder	Peldank
+FORMAT	FORMAT
+HIDDEN	VEŞARTÎ
+Length	Dirêjahî
+Mirror	Neynik
+NATIVE	XWECÎ
+Sender	Şandker
+12 HOUR	12 SAET
+24 HOUR	24 SAET
+Channel	Kanal
+DEFAULT	PÊŞDANASÎN
+MISSING	WINDA
+PROJECT	PROJE
+Send to	Bişîne ji bo
+SHUFFLE	TÊKEL BIKE
+UPDATES	ROJANEKIRIN
+DOWNLOAD	DAXE
+EXAMPLES	MÎNAK
+TCP port	Porta TCP
+BOTH AXES	HER DU TEWERE
+CHECK NOW	NIHA KONTROL BIKE
+Direction	Alî
+HTTP port	Porta HTTP
+REMAINING	MAYÎ
+RESET ALL	HEMÛYAN VEGERÎNE
+CANCEL ALL	HEMÛYAN BETAL BIKE
+no picture	wêne tune
+no preview	pêşdîtin tune
+Tally port	Porta Tally
+Destination	Armanc
+Sample rate	Rêjeya nimûneyê
+(no matches)	(lihevhatin tune)
+add a button	bişkokekê zêde bike
+add a window	paceyekê zêde bike
+Art-Net port	Porta Art-Net
+LEFT TO RIGHT	JI ÇEPÊ BER BI RASTÊ
+Quit Deckboy?	Ji Deckboy derkeve?
+Sound effects	Efektên dengî
+Tally address	Navnîşana Tally
+TOP TO BOTTOM	JI JOR BER BI JÊR
+LOCALHOST ONLY	TENÊ LOCALHOST
+no audio track	şopa dengî tune
+STOP RECORDING	QEYDÊ RAWESTÎNE
+START RECORDING	QEYDÊ DEST PÊ BIKE
+(system default)	(pêşdanasîna pergalê)
+Check at startup	Di destpêkê de kontrol bike
+the whole screen	tevahiya ekranê
+esc or N to cancel	ji bo betalkirinê Esc an N
+KEYBOARD SHORTCUTS	KURTEBIRÊN KLAVYEYÊ
+loading preview...	pêşdîtin tê barkirin...
+Companion / OSC port	Porta Companion / OSC
+press ENTER to start	ji bo destpêkirinê ENTER bitikîne
+(empty — import media)	(vala — medyayê bîne hundir)
+Ctrl+D or Esc to close	ji bo girtinê Ctrl+D an Esc
+EDIT...	BIGUHERÎNE...
+FOLDER...	PELDANK...
+ADD FILE...	PEL ZÊDE BIKE...
+Ctrl+/ to close	ji bo girtinê Ctrl+/

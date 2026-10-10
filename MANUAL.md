@@ -1782,26 +1782,31 @@ theme written for a later version still loads.
 ## 21a. Languages
 
 `Settings → Language` puts the whole desk into another language at once, with
-no restart. Thirty-three languages ship with Deckboy, among them Arabic,
-Persian, Chinese in both scripts, Japanese, Korean, Hindi and Zulu, along with
-a few constructed languages and six cyphers. The **Help!** button beside the
+no restart. Thirty-eight languages ship with Deckboy, among them Arabic,
+Persian, Hebrew, Turkish, Kurdish, Kabyle and Tamazight, Chinese in both
+scripts, Japanese, Korean, Hindi and Zulu, along with a few constructed
+languages and six cyphers. The **Help!** button beside the
 picker is always in English and always brings English back, so a language you
 cannot read never leaves you stuck.
 
-The cyphers rewrite the desk rather than translate it, and only the desk:
-lower thirds, text cues and everything else on air stay as you wrote them.
+The cyphers rewrite the desk rather than translate it, and what the show
+itself says stays as you wrote it: lower thirds, text cues, a presenter's
+notes and the prompter's script are never reworded or scrambled.
 **Alienese II** draws the desk in the symbols of the second alien alphabet,
 from a font Deckboy carries, and leaves numbers as they are so a timecode
 still reads.
 
 A language marked **(unreviewed)** in the picker has not yet been read by a
-native speaker. Corrections are very welcome: each language is one plain-text
-file in `data/lang`.
+native speaker. Some cover part of the desk on purpose, only the words their
+writer was sure of: the rest reads in English, or for Kabyle and Tamazight in
+French. Corrections and additions are very welcome: each language is one
+plain-text file in `data/lang`.
 
-**Right to left.** Arabic and Persian read right to left, with their letters
-joined and shaped as each script writes them. Every label is laid out with the
-Unicode bidirectional algorithm, so a number, a port or an English word inside
-it keeps its own direction. The controls stay where they are in every
+**Right to left.** Arabic, Persian, Hebrew and Kurdish (Sorani) read right to
+left, with their letters joined and shaped as each script writes them. Every
+label is laid out with the Unicode bidirectional algorithm, so a number, a
+port or an English word inside it keeps its own direction, and a label that
+starts with a product name still reads from the right. The controls stay where they are in every
 language, so an operator who learned the desk in one language can work it in
 another.
 
@@ -1811,8 +1816,9 @@ third or a Persian file name all read on an English desk. Deckboy draws the
 characters its own fonts lack from fonts the computer already has, chosen for
 the interface language, so Chinese characters take a Chinese face on a
 Chinese desk and a Japanese face on a Japanese one. It carries Noto Sans
-Arabic and Noto Sans Tifinagh itself, so Arabic, Persian and Tamazight read on
-every machine. `--self-check` lists the fonts it found and the scripts this
+Arabic and Noto Sans Tifinagh itself, so Arabic, Persian, Kurdish and
+Tamazight read on every machine, and its own Liberation faces draw Hebrew and
+the letters of Kabyle. `--self-check` lists the fonts it found and the scripts this
 computer can draw.
 
 **On air.** Lower thirds, text cues and Deckboy Mini's subtitles follow the
@@ -1829,17 +1835,18 @@ holds one `English<TAB>translation` pair per line:
 
     #name فارسی
     #english Persian
-    #font segoeui.ttf, tahoma.ttf, NotoSansArabic-Regular.ttf
     #rtl 1
     #unverified
     SAVE	ذخیره
 
-`#name` is the language's own name and `#english` its English one. `#font`
-names the faces the language needs, first found wins, looked for in
-`data/fonts` and then among the system fonts. `#rtl 1` makes it right to left,
-and `#unverified` shows **(unreviewed)** in the picker until a speaker has
-checked it. A line left out, or left empty, falls through to the English, so a
-half-finished catalogue gives you a half-translated desk with nothing missing.
+`#name` is the language's own name and `#english` its English one. `#rtl 1`
+makes it right to left, and `#unverified` shows **(unreviewed)** in the picker
+until a speaker has checked it. A line left out, or left empty, falls through
+to English, so a half-finished catalogue gives you a half-translated desk with
+nothing missing -- or, with `#fallback fr`, to French, as Kabyle and Tamazight
+do. Text in a script the bundled faces lack is drawn from the computer's own
+fonts; `#font` names a face to draw the whole desk in instead, first found
+wins, looked for in `data/fonts` and then among the system fonts.
 
 ---
 

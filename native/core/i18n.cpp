@@ -257,7 +257,8 @@ bool readCatalogue(const fs::path& file,
                    std::string* fontFile = nullptr,
                    bool* rtl = nullptr,
                    std::string* englishName = nullptr,
-                   bool* unverified = nullptr) {
+                   bool* unverified = nullptr,
+                   std::string* fallbackCode = nullptr) {
   std::ifstream in(file);
   if (!in) return false;
   std::string line;
@@ -286,6 +287,14 @@ bool readCatalogue(const fs::path& file,
       const std::string unverifiedTag = "#unverified";
       if (unverified && line.rfind(unverifiedTag, 0) == 0) {
         *unverified = true;
+      }
+      // WHERE AN UNTRANSLATED LINE GOES INSTEAD OF ENGLISH. A catalogue that
+      // covers part of the interface reads better falling through to the
+      // language its readers already work in -- Kabyle and Tamazight to
+      // French, as the trade in the Maghreb does -- than to English.
+      const std::string fallbackTag = "#fallback";
+      if (fallbackCode && line.rfind(fallbackTag, 0) == 0) {
+        *fallbackCode = trim(line.substr(fallbackTag.size()));
       }
       const std::string rtlTag = "#rtl";
       if (rtl && line.rfind(rtlTag, 0) == 0) {
@@ -399,10 +408,22 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
     std::string name = want;
     std::string font;
     bool rtl = false;
+    std::string fallback;
     const fs::path file = catalogueDir(dataDir) / (want + ".tsv");
-    if (!readCatalogue(file, loaded, name, &font, &rtl) || loaded.empty()) {
+    if (!readCatalogue(file, loaded, name, &font, &rtl, nullptr, nullptr, &fallback) ||
+        loaded.empty()) {
       error = "no language catalogue for " + want;
       return false;
+    }
+    // One level only, and never itself: its own #fallback is not followed,
+    // so two catalogues naming each other cannot loop. What it fills in is
+    // only what this one leaves out.
+    if (!fallback.empty() && fallback != want && fallback != "en") {
+      std::unordered_map<std::string, std::string> filler;
+      std::string fillerName;
+      if (readCatalogue(catalogueDir(dataDir) / (fallback + ".tsv"), filler, fillerName)) {
+        for (auto& entry : filler) loaded.try_emplace(entry.first, std::move(entry.second));
+      }
     }
     loaded.emplace("\x01" "font", font);
     loaded.emplace("\x01" "rtl", rtl ? "1" : "0");

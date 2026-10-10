@@ -1,12 +1,23 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-10 - v0.99.409 (Arabic and Persian, every script on every desk)
+## 2026-10-10 - v0.99.409 (Arabic, Persian, Hebrew, Kurdish, Amazigh: every script on every desk)
 
 **Persian, and Arabic in full.** The desk now speaks Persian as well as
 Arabic, both right to left with their letters joined and shaped. Every label
 is laid out with the Unicode bidirectional algorithm, checked against Unicode's
 own conformance tests on every build, so a number, a port or an English word
-inside a label keeps its own direction.
+inside a label keeps its own direction, and a label that starts with a product
+name still reads from the right.
+
+**Hebrew, Kurdish, Kabyle and Tamazight.** Hebrew joins Arabic and Persian as
+a full right-to-left desk. Kurdish (Sorani and Kurmanji), Kabyle and Standard
+Moroccan Tamazight in Tifinagh begin with their most-used words, and Kabyle
+and Tamazight fall through to French rather than English for the rest. Each is
+marked unreviewed in the picker until a speaker has read it, and corrections
+are welcome.
+
+**Turkish with all its letters.** Every Turkish label is now written with ç,
+ğ, ı, İ, ö, ş and ü wherever they belong.
 
 **Every script on any desk.** Japanese, Chinese, Korean, Hindi, Arabic,
 Hebrew, Thai, Amharic, Tifinagh and more now read on an English desk, in cue
@@ -28,6 +39,10 @@ desk's language and `LANGUAGE` on its own answers the current one.
 whole desk, buttons and headers included, in the symbols of the second alien
 alphabet, from a font that ships with Deckboy. Numbers stay as they are, so
 timecodes and ports still read, and text on air is never touched.
+
+**Notes and scripts as written.** A presenter's notes and the prompter's
+script are shown exactly as written, whatever language or cypher the desk is
+in.
 
 ## 2026-10-09 - v0.99.408 (fullscreen on macOS, Deckboy Mini runs the order your way)
 

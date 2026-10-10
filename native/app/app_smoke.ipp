@@ -291,9 +291,9 @@
 
     // WHAT THIS MACHINE CAN DRAW, script by script, and from which fonts.
     //
-    // The scripts Deckboy SHIPS faces for -- Latin, Greek and Cyrillic in
-    // Liberation, Arabic and Persian and Tifinagh in Noto -- must draw on every
-    // machine, so a miss there fails this check: a package that lost one of its
+    // The scripts Deckboy SHIPS faces for -- Latin (Kabyle's letters too),
+    // Greek, Cyrillic and Hebrew in Liberation; Arabic, Persian, Kurdish and
+    // Tifinagh in Noto -- must draw on every machine, so a miss there fails this check: a package that lost one of its
     // fonts would otherwise show boxes and go out green. The rest come from the
     // computer's own fonts and are reported, not required; a build machine has
     // no Japanese, a desk usually does.
@@ -327,8 +327,10 @@
           {"cyrillic", u8"\u0420\u0443\u0441\u0441\u043a\u0438\u0439", true},
           {"arabic", u8"\u0627\u0644\u0639\u0631\u0628\u064a\u0629", true},
           {"persian", u8"\u0641\u0627\u0631\u0633\u06cc \u067e\u0698\u0648\u0647\u0634 \u06f1\u06f4\u06f0\u06f5", true},
+          {"kurdish", u8"\u06a9\u0648\u0631\u062f\u06cc \u0695\u06b5\u06c6\u06ce\u06d5", true},
           {"tifinagh", u8"\u2d5c\u2d30\u2d4e\u2d30\u2d63\u2d49\u2d56\u2d5c", true},
-          {"hebrew", u8"\u05e2\u05d1\u05e8\u05d9\u05ea", false},
+          {"kabyle", u8"Taqbaylit \u025b\u0263\u010d\u01e7\u1e0d\u1e25\u1e5b\u1e63\u1e6d\u1e93", true},
+          {"hebrew", u8"\u05e2\u05d1\u05e8\u05d9\u05ea", true},
           {"devanagari", u8"\u0939\u093f\u0928\u094d\u0926\u0940", false},
           {"thai", u8"\u0e44\u0e17\u0e22", false},
           {"japanese", u8"\u65e5\u672c\u8a9e \u3072\u3089\u304c\u306a", false},
@@ -3142,6 +3144,24 @@
         expect(runs.size() == 1 && runs[0].rightToLeft() && runs[0].begin == 0 &&
                  runs[0].end == t.size(),
                "bidi: a Persian half-space stays inside its word");
+      }
+      {
+        // "DECKLINK: on" in Arabic starts with a Latin word, so on its own it
+        // is a left-to-right paragraph and an Arabic reader meets the value
+        // first. The desk puts a right-to-left mark in front of such a label
+        // in a right-to-left interface: then the value is at the LEFT.
+        const std::string t = u8s(u8"\u200fDECKLINK: \u062a\u0634\u063a\u064a\u0644");
+        bool rtl = false;
+        const auto runs = bidi::visualRuns(t, bidi::Direction::Auto, &rtl);
+        std::size_t latinAt = runs.size();
+        std::size_t arabicAt = runs.size();
+        for (std::size_t i = 0; i < runs.size(); ++i) {
+          const std::string s = runText(t, runs[i]);
+          if (s.find("DECKLINK") != std::string::npos) latinAt = i;
+          if (s.find("\xd8\xaa") != std::string::npos) arabicAt = i;  // its first letter
+        }
+        expect(rtl && arabicAt < latinAt && latinAt < runs.size(),
+               "bidi: a right-to-left mark puts a label's Arabic value before its Latin name");
       }
       expect(!bidi::needsBidi("PLAYLIST 3 / cue 12 (hold)"),
              "bidi: plain English takes the fast path");

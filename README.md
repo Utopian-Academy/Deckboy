@@ -478,8 +478,9 @@ and reacquisition update the media clock. See
   high-contrast terminal themes suited to OLED panels
 - Timeline with filmstrip thumbnails; resizable program monitor and timeline
 - UI scale that follows the desktop's own scaling
-- A language picker with 39 languages, including Arabic and Persian right to
-  left, Cubano, Klingon and a few written in cypher
+- A language picker with 44 languages, including Arabic, Persian and Hebrew
+  right to left, Kurdish, Kabyle and Tamazight, Cubano, Klingon and a few
+  written in cypher
 - Every script on any desk: a cue named in Japanese, Chinese, Hindi or Arabic
   reads on an English desk, from the fonts the computer already has
 - Missing-media detection with folder relink, so a moved drive does not cost you

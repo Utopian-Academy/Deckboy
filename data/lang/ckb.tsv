@@ -1,0 +1,117 @@
+#name کوردیی ناوەندی
+#english Kurdish (Sorani)
+#rtl 1
+#unverified
+# Central Kurdish (Sorani) interface catalogue, in the Arabic script and right
+# to left. english<TAB>translation; a line left out falls through to English.
+#
+# Noto Sans Arabic ships with Deckboy and has every Kurdish letter -- ڕ ڵ ۆ ێ
+# ە -- so every word is drawn whole in the one face and stays joined.
+#
+# PART OF THE INTERFACE, ON PURPOSE: only the words its writer was sure of.
+# NOT YET REVIEWED BY A KURDISH SPEAKER, so the picker says so. Additions and
+# corrections are very welcome.
+NEW	نوێ
+OPEN	کردنەوە
+SAVE	پاشەکەوتکردن
+SAVE AS	پاشەکەوتکردن وەک
+IMPORT	هاوردەکردن
+SOURCE	سەرچاوە
+SETTINGS	ڕێکخستنەکان
+TAKE	TAKE
+STOP	وەستاندن
+CLEAR	پاککردنەوە
+RECORD	تۆمارکردن
+PLAYLIST	لیستی لێدان
+TIMELINE	هێڵی کات
+MEDIA	میدیا
+PROGRAM	PROGRAM
+LIVE	ڕاستەوخۆ
+System	سیستەم
+Audio	دەنگ
+Network	تۆڕ
+About	دەربارە
+Screen	شاشە
+Devices	ئامێرەکان
+COPY	لەبەرگرتنەوە
+PASTE	لکاندن
+RESET	ڕێکخستنەوە
+Theme	ڕووکار
+Language	زمان
+POSITION	شوێن
+duration	ماوە
+ON	هەڵکراو
+OFF	کوژاوە
+Stopped	وەستاوە
+Playing	لێدەدرێت
+Paused	ڕاگیراوە
+DONE	تەواو
+EDIT	دەستکاری
+Mode	دۆخ
+Apply	جێبەجێکردن
+CLOSE	داخستن
+Help!	یارمەتی!
+READY	ئامادەیە
+VIDEO	ڤیدیۆ
+ALWAYS	هەمیشە
+Cancel	هەڵوەشاندنەوە
+Custom	تایبەت
+Device	ئامێر
+Folder	بوخچە
+FORMAT	فۆرمات
+HIDDEN	شاراوە
+Length	درێژی
+Mirror	ئاوێنە
+NATIVE	ڕەسەن
+Sender	نێرەر
+12 HOUR	12 کاتژمێری
+24 HOUR	24 کاتژمێری
+Channel	کەناڵ
+DEFAULT	بنەڕەت
+MISSING	ون بووە
+PROJECT	پڕۆژە
+Send to	ناردن بۆ
+SHUFFLE	تێکەڵکردن
+UPDATES	نوێکارییەکان
+DOWNLOAD	داگرتن
+EXAMPLES	نموونەکان
+TCP port	دەروازەی TCP
+BOTH AXES	هەردوو تەوەرە
+CHECK NOW	ئێستا بپشکنە
+Direction	ئاراستە
+HTTP port	دەروازەی HTTP
+REMAINING	ماوەتەوە
+RESET ALL	ڕێکخستنەوەی هەموو
+CANCEL ALL	هەڵوەشاندنەوەی هەموو
+no picture	وێنە نییە
+no preview	پێشبینین نییە
+Tally port	دەروازەی Tally
+Destination	شوێنی مەبەست
+Sample rate	ڕێژەی نموونەگرتن
+(no matches)	(هیچ هاوتایەک نییە)
+add a button	زیادکردنی دوگمە
+add a window	زیادکردنی پەنجەرە
+Art-Net port	دەروازەی Art-Net
+LEFT TO RIGHT	لە چەپەوە بۆ ڕاست
+Quit Deckboy?	دەرچوون لە Deckboy؟
+Sound effects	کاریگەرییە دەنگییەکان
+Tally address	ناونیشانی Tally
+TOP TO BOTTOM	لە سەرەوە بۆ خوارەوە
+LOCALHOST ONLY	تەنها localhost
+no audio track	تراکی دەنگ نییە
+STOP RECORDING	وەستاندنی تۆمارکردن
+START RECORDING	دەستپێکردنی تۆمارکردن
+(system default)	(بنەڕەتی سیستەم)
+Check at startup	پشکنین لە کاتی دەستپێکردن
+the whole screen	هەموو شاشەکە
+esc or N to cancel	Esc یان N بۆ هەڵوەشاندنەوە
+KEYBOARD SHORTCUTS	کورتبڕەکانی تەختەکلیل
+loading preview...	پێشبینین باردەکرێت...
+Companion / OSC port	دەروازەی Companion / OSC
+press ENTER to start	بۆ دەستپێکردن ENTER دابگرە
+(empty — import media)	(بەتاڵ — میدیا هاوردە بکە)
+Ctrl+D or Esc to close	Ctrl+D یان Esc بۆ داخستن
+EDIT...	دەستکاری...
+FOLDER...	بوخچە...
+ADD FILE...	زیادکردنی پەڕگە...
+Ctrl+/ to close	Ctrl+/ بۆ داخستن

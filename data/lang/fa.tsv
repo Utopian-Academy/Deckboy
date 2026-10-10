@@ -1,15 +1,15 @@
 #name فارسی
 #english Persian
-#font segoeui.ttf, tahoma.ttf, arial.ttf, GeezaPro.ttc, NotoSansArabic-Regular.ttf, truetype/noto/NotoSansArabic-Regular.ttf
 #rtl 1
 #unverified
 # Persian (Farsi) interface catalogue. english<TAB>translation; a line left
 # out, or left empty, falls through to the English.
 #
-# Written right to left and joined, like Arabic: the faces above draw it (each
-# ships with its platform; Noto Sans Arabic also ships with Deckboy) and the
-# shaper lays it out with the Unicode bidi algorithm, so a Latin word or a
-# number inside a label keeps its own direction.
+# Written right to left and joined, like Arabic. Noto Sans Arabic ships with
+# Deckboy and draws it on every machine, beside the desk's own face for Latin,
+# so there is no #font line; the shaper lays each label out with the Unicode
+# bidi algorithm, so a Latin word or a number inside it keeps its own
+# direction.
 #
 # Words use the half-space (U+200C, ZWNJ) where Persian writes one --
 # پاک‌کردن, تمام‌صفحه, می‌شود -- and the shaper keeps it inside the word it
