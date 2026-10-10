@@ -374,3 +374,50 @@ Help!	Help!
 Buffer	Buffer
 PROJECT	PROJECT
 UPDATES	UPDATES
+film	film
+Camera	Camera
+capture again - what is on now	opnieuw vastleggen - wat er nu op staat
+change what it does...	wijzigen wat hij doet...
+decks - Stop deck...	decks - deck stoppen...
+decks - Take deck...	decks - TAKE op deck...
+delete step	stap verwijderen
+delete this button	deze knop verwijderen
+label, command and glyph as text...	label, commando en symbool als tekst...
+move down	omlaag
+move up	omhoog
+next colour	volgende kleur
+preset - a new preset from what is on now	preset - een nieuwe preset van wat er nu op staat
+type a command myself...	zelf een commando typen...
+type a length in seconds...	een duur in seconden typen...
+wait for GO	wachten op GO
+what it recalls...	wat hij oproept...
+when its cues end	als de cues afgelopen zijn
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL stemt de hele playlist in één keer af
+back to the in point, not to zero	terug naar het in-punt, niet naar nul
+drag to scrub. the audio follows	slepen om te scrubben. het geluid volgt
+loops between the in and out points, not the file	herhaalt tussen in- en uitpunt, niet het bestand
+(not set)	(niet ingesteld)
+1.00x  (default 1080p)	1.00x  (standaard 1080p)
+1.25x  (large desktop)	1.25x  (groot bureaublad)
+1.50x  (4K desktop)	1.50x  (4K-bureaublad)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / klein 4K)
+highest bandwidth	hoogste bandbreedte
+lower bandwidth	lagere bandbreedte
+CD, music rigs	cd, muziekopstellingen
+video standard	videostandaard
+every playlist	elke playlist
+None  (no character art)	Geen  (geen figuur)
+custom size...	eigen formaat...
+Browser URL	Browser-URL
+Media File / Still	Mediabestand / still
+RECORD TO FILE	OPNEMEN NAAR BESTAND
+browser, with sound	browser, met geluid
+Window	Venster
+Desktop	Bureaublad
+full screen	volledig scherm
+DeckLink Output	DeckLink-uitgang
+FFmpeg Stream Output	FFmpeg-streamuitgang
+NDI Output	NDI-uitgang
+SDL Window Output	SDL-vensteruitgang
+Spout Output	Spout-uitgang
+DESK	REGIETAFEL

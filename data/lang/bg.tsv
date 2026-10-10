@@ -374,3 +374,50 @@ a button can run any command the network protocol understands	бутон мож�
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ПОДРЕДИ ИЗГЛЕДА НА ВОДЕЩИЯ  -  влачете панел за преместване, ъгъл за размер
 vMix API	vMix API
 Timecode jam sync	Timecode jam sync
+capture again - what is on now	заснеми отново - това, което е в ефир
+change what it does...	промени действието...
+decks - Stop deck...	пултове - спри пулт...
+decks - Take deck...	пултове - TAKE на пулт...
+delete step	изтрий стъпка
+delete this button	изтрий този бутон
+label, command and glyph as text...	надпис, команда и символ като текст...
+move down	надолу
+move up	нагоре
+next colour	следващ цвят
+preset - a new preset from what is on now	пресет - нов пресет от това, което е в ефир
+type a command myself...	ще въведа команда сам...
+type a length in seconds...	въведи продължителност в секунди...
+wait for GO	чакай GO
+what it recalls...	какво извиква...
+when its cues end	когато свършат неговите cue
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL изравнява целия плейлист наведнъж
+back to the in point, not to zero	обратно към входната точка, не към нула
+drag to scrub. the audio follows	плъзнете за превъртане. звукът следва
+loops between the in and out points, not the file	повтаря между входната и изходната точка, не целия файл
+(not set)	(не е зададено)
+1.00x  (default 1080p)	1.00x  (по подразбиране 1080p)
+1.25x  (large desktop)	1.25x  (голям екран)
+1.50x  (4K desktop)	1.50x  (4K екран)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / малък 4K)
+highest bandwidth	най-голяма честотна лента
+lower bandwidth	по-малка честотна лента
+film	кино
+CD, music rigs	CD, музикални системи
+video standard	видеостандарт
+every playlist	всеки плейлист
+None  (no character art)	Няма  (без герой)
+custom size...	собствен размер...
+Browser URL	URL на браузъра
+Camera	Камера
+Media File / Still	Медиен файл / кадър
+RECORD TO FILE	ЗАПИС ВЪВ ФАЙЛ
+browser, with sound	браузър, със звук
+Window	Прозорец
+Desktop	Работен плот
+full screen	цял екран
+DeckLink Output	Изход DeckLink
+FFmpeg Stream Output	Изход за поток FFmpeg
+NDI Output	Изход NDI
+SDL Window Output	Изход прозорец SDL
+Spout Output	Изход Spout
+DESK	ПУЛТ

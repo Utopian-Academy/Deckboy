@@ -375,3 +375,50 @@ Convert cues Deckboy can't play (or plays poorly) to H.264	Deckboy가 잘 재생
 a button can run any command the network protocol understands	버튼은 프로토콜이 이해하는 어떤 명령이든 실행할 수 있습니다
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	발표자 보기 배치  -  패널을 끌어 옮기고, 모서리를 끌어 크기를 바꿉니다
 vMix API	vMix API
+capture again - what is on now	다시 캡처 - 지금 나가는 것
+change what it does...	동작 바꾸기...
+decks - Stop deck...	데크 - 데크 정지...
+decks - Take deck...	데크 - 데크 TAKE...
+delete step	단계 삭제
+delete this button	이 버튼 삭제
+label, command and glyph as text...	라벨, 명령, 기호를 텍스트로...
+move down	아래로 이동
+move up	위로 이동
+next colour	다음 색
+preset - a new preset from what is on now	프리셋 - 지금 나가는 것으로 새 프리셋
+type a command myself...	명령을 직접 입력...
+type a length in seconds...	길이를 초 단위로 입력...
+wait for GO	GO 대기
+what it recalls...	불러오는 것...
+when its cues end	큐가 끝나면
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL은 재생 목록 전체를 한 번에 맞춥니다
+back to the in point, not to zero	0이 아니라 인 포인트로 돌아갑니다
+drag to scrub. the audio follows	드래그해서 스크럽. 소리도 따라갑니다
+loops between the in and out points, not the file	파일 전체가 아니라 인/아웃 포인트 사이를 반복
+(not set)	(설정 안 됨)
+1.00x  (default 1080p)	1.00x  (기본 1080p)
+1.25x  (large desktop)	1.25x  (큰 데스크톱)
+1.50x  (4K desktop)	1.50x  (4K 데스크톱)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 작은 4K)
+highest bandwidth	최대 대역폭
+lower bandwidth	낮은 대역폭
+film	영화
+CD, music rigs	CD, 음악 장비
+video standard	영상 표준
+every playlist	모든 재생 목록
+None  (no character art)	없음  (캐릭터 없음)
+custom size...	크기 직접 지정...
+Browser URL	브라우저 URL
+Camera	카메라
+Media File / Still	미디어 파일 / 정지 화면
+RECORD TO FILE	파일로 녹화
+browser, with sound	브라우저, 소리 포함
+Window	창
+Desktop	데스크톱
+full screen	전체 화면
+DeckLink Output	DeckLink 출력
+FFmpeg Stream Output	FFmpeg 스트림 출력
+NDI Output	NDI 출력
+SDL Window Output	SDL 창 출력
+Spout Output	Spout 출력
+DESK	콘솔

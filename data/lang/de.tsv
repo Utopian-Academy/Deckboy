@@ -384,3 +384,50 @@ ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI-Trigger, NMC,
 Convert cues Deckboy can't play (or plays poorly) to H.264	Cues, die Deckboy nicht (oder schlecht) abspielt, in H.264 umwandeln
 a button can run any command the network protocol understands	Eine Schaltfläche kann jeden Befehl ausführen, den das Netzwerkprotokoll versteht
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	REFERENTENANSICHT ANORDNEN  -  Panel ziehen zum Verschieben, Ecke zum Skalieren
+Desktop	Desktop
+capture again - what is on now	erneut erfassen - was gerade läuft
+change what it does...	Funktion ändern ...
+decks - Stop deck...	Decks - Deck stoppen ...
+decks - Take deck...	Decks - Deck übernehmen ...
+delete step	Schritt löschen
+delete this button	diese Schaltfläche löschen
+label, command and glyph as text...	Beschriftung, Befehl und Symbol als Text ...
+move down	nach unten
+move up	nach oben
+next colour	nächste Farbe
+preset - a new preset from what is on now	Vorlage - eine neue Vorlage aus dem, was gerade läuft
+type a command myself...	selbst einen Befehl eingeben ...
+type a length in seconds...	eine Länge in Sekunden eingeben ...
+wait for GO	auf GO warten
+what it recalls...	was es abruft ...
+when its cues end	wenn seine Cues enden
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL gleicht die ganze Playlist auf einmal an
+back to the in point, not to zero	zurück zum In-Punkt, nicht zum Anfang
+drag to scrub. the audio follows	ziehen zum Scrubben. Der Ton folgt
+loops between the in and out points, not the file	schleift zwischen In- und Out-Punkt, nicht über die Datei
+(not set)	(nicht gesetzt)
+1.00x  (default 1080p)	1.00x  (Standard 1080p)
+1.25x  (large desktop)	1.25x  (großer Desktop)
+1.50x  (4K desktop)	1.50x  (4K-Desktop)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K klein)
+highest bandwidth	höchste Bandbreite
+lower bandwidth	geringere Bandbreite
+film	Film
+CD, music rigs	CD, Musik-Setups
+video standard	Videostandard
+every playlist	jede Playlist
+None  (no character art)	Keine  (keine Figur)
+custom size...	eigene Größe ...
+Browser URL	Browser-URL
+Camera	Kamera
+Media File / Still	Mediendatei / Standbild
+RECORD TO FILE	IN DATEI AUFNEHMEN
+browser, with sound	Browser, mit Ton
+Window	Fenster
+full screen	Vollbild
+DeckLink Output	DeckLink-Ausgang
+FFmpeg Stream Output	FFmpeg-Stream-Ausgang
+NDI Output	NDI-Ausgang
+SDL Window Output	SDL-Fensterausgang
+Spout Output	Spout-Ausgang
+DESK	PULT

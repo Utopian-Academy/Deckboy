@@ -375,3 +375,50 @@ ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, тригер NDI,
 Convert cues Deckboy can't play (or plays poorly) to H.264	Перетворіть на H.264 ті cue, які Deckboy грає погано
 a button can run any command the network protocol understands	кнопка може виконати будь-яку команду, зрозумілу протоколу
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	РОЗМІСТИТИ ВИГЛЯД ВЕДУЧОГО  -  тягніть панель щоб перемістити, кут щоб змінити розмір
+capture again - what is on now	захопити знову - те, що в ефірі
+change what it does...	змінити дію...
+decks - Stop deck...	пульти - зупинити пульт...
+decks - Take deck...	пульти - TAKE на пульт...
+delete step	видалити крок
+delete this button	видалити цю кнопку
+label, command and glyph as text...	підпис, команда й значок текстом...
+move down	вниз
+move up	вгору
+next colour	наступний колір
+preset - a new preset from what is on now	пресет - новий пресет з того, що в ефірі
+type a command myself...	ввести команду самому...
+type a length in seconds...	ввести тривалість у секундах...
+wait for GO	чекати на GO
+what it recalls...	що викликає...
+when its cues end	коли закінчаться його cue
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL вирівнює весь плейлист одразу
+back to the in point, not to zero	назад до точки входу, а не до нуля
+drag to scrub. the audio follows	тягніть для перемотування. звук іде слідом
+loops between the in and out points, not the file	зациклює між точками входу й виходу, а не весь файл
+(not set)	(не задано)
+1.00x  (default 1080p)	1.00x  (типово 1080p)
+1.25x  (large desktop)	1.25x  (великий екран)
+1.50x  (4K desktop)	1.50x  (екран 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / малий 4K)
+highest bandwidth	найбільша смуга
+lower bandwidth	менша смуга
+film	кіно
+CD, music rigs	CD, музичні системи
+video standard	відеостандарт
+every playlist	кожен плейлист
+None  (no character art)	Немає  (без персонажа)
+custom size...	власний розмір...
+Browser URL	URL браузера
+Camera	Камера
+Media File / Still	Медіафайл / кадр
+RECORD TO FILE	ЗАПИС У ФАЙЛ
+browser, with sound	браузер, зі звуком
+Window	Вікно
+Desktop	Робочий стіл
+full screen	повний екран
+DeckLink Output	Вихід DeckLink
+FFmpeg Stream Output	Вихід потоку FFmpeg
+NDI Output	Вихід NDI
+SDL Window Output	Вихід вікна SDL
+Spout Output	Вихід Spout
+DESK	ПУЛЬТ

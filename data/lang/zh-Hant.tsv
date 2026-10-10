@@ -375,3 +375,50 @@ Convert cues Deckboy can't play (or plays poorly) to H.264	把 Deckboy 播不好
 a button can run any command the network protocol understands	一個按鈕可以執行協定能理解的任何指令
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	排列主講人檢視  -  拖曳面板移動，拖曳邊角調整大小
 vMix API	vMix API
+capture again - what is on now	重新擷取 - 目前播出的內容
+change what it does...	變更它的功能...
+decks - Stop deck...	播放器 - 停止播放器...
+decks - Take deck...	播放器 - TAKE 播放器...
+delete step	刪除步驟
+delete this button	刪除此按鈕
+label, command and glyph as text...	以文字編輯標籤、指令和圖示...
+move down	下移
+move up	上移
+next colour	下一種顏色
+preset - a new preset from what is on now	預設組 - 用目前播出的內容新增預設組
+type a command myself...	我自己輸入指令...
+type a length in seconds...	輸入時長(秒)...
+wait for GO	等待 GO
+what it recalls...	它叫用的內容...
+when its cues end	當它的 cue 結束時
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL 一次統一整個播放清單
+back to the in point, not to zero	回到入點,而不是零點
+drag to scrub. the audio follows	拖曳以搓動。聲音隨之移動
+loops between the in and out points, not the file	在入點和出點之間循環,而不是整個檔案
+(not set)	(未設定)
+1.00x  (default 1080p)	1.00x  (預設 1080p)
+1.25x  (large desktop)	1.25x  (大桌面)
+1.50x  (4K desktop)	1.50x  (4K 桌面)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 小 4K)
+highest bandwidth	最高頻寬
+lower bandwidth	較低頻寬
+film	電影
+CD, music rigs	CD、音樂設備
+video standard	視訊標準
+every playlist	每個播放清單
+None  (no character art)	無  (無角色)
+custom size...	自訂大小...
+Browser URL	瀏覽器網址
+Camera	攝影機
+Media File / Still	媒體檔案 / 靜態圖片
+RECORD TO FILE	錄製到檔案
+browser, with sound	瀏覽器,含聲音
+Window	視窗
+Desktop	桌面
+full screen	全螢幕
+DeckLink Output	DeckLink 輸出
+FFmpeg Stream Output	FFmpeg 串流輸出
+NDI Output	NDI 輸出
+SDL Window Output	SDL 視窗輸出
+Spout Output	Spout 輸出
+DESK	控制台

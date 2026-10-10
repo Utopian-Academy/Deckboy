@@ -375,3 +375,50 @@ Folder	Folder
 FORMAT	FORMAT
 PROMPTER	PROMPTER
 FOLDER...	FOLDER...
+film	film
+capture again - what is on now	przechwyć ponownie - to, co jest na wizji
+change what it does...	zmień, co robi...
+decks - Stop deck...	decki - zatrzymaj deck...
+decks - Take deck...	decki - TAKE na decku...
+delete step	usuń krok
+delete this button	usuń ten przycisk
+label, command and glyph as text...	etykieta, polecenie i symbol jako tekst...
+move down	przesuń w dół
+move up	przesuń w górę
+next colour	następny kolor
+preset - a new preset from what is on now	preset - nowy preset z tego, co jest na wizji
+type a command myself...	wpiszę polecenie sam...
+type a length in seconds...	wpisz długość w sekundach...
+wait for GO	czekaj na GO
+what it recalls...	co przywołuje...
+when its cues end	gdy skończą się jego cue
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL wyrównuje całą playlistę naraz
+back to the in point, not to zero	wraca do punktu wejścia, nie do zera
+drag to scrub. the audio follows	przeciągnij, aby przewijać. dźwięk podąża
+loops between the in and out points, not the file	zapętla między punktami wejścia i wyjścia, nie cały plik
+(not set)	(nie ustawiono)
+1.00x  (default 1080p)	1.00x  (domyślnie 1080p)
+1.25x  (large desktop)	1.25x  (duży pulpit)
+1.50x  (4K desktop)	1.50x  (pulpit 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / mały 4K)
+highest bandwidth	najwyższa przepustowość
+lower bandwidth	niższa przepustowość
+CD, music rigs	CD, zestawy muzyczne
+video standard	standard wideo
+every playlist	każda playlista
+None  (no character art)	Brak  (bez postaci)
+custom size...	własny rozmiar...
+Browser URL	Adres URL przeglądarki
+Camera	Kamera
+Media File / Still	Plik multimedialny / obraz
+RECORD TO FILE	NAGRYWAJ DO PLIKU
+browser, with sound	przeglądarka, z dźwiękiem
+Window	Okno
+Desktop	Pulpit
+full screen	pełny ekran
+DeckLink Output	Wyjście DeckLink
+FFmpeg Stream Output	Wyjście strumienia FFmpeg
+NDI Output	Wyjście NDI
+SDL Window Output	Wyjście okna SDL
+Spout Output	Wyjście Spout
+DESK	PULPIT

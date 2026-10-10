@@ -374,3 +374,50 @@ ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, déclencheur NDI,
 Convert cues Deckboy can't play (or plays poorly) to H.264	Convertir en H.264 les tops que Deckboy lit mal ou pas du tout
 a button can run any command the network protocol understands	un bouton peut lancer toute commande comprise par le protocole réseau
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	DISPOSER LA VUE PRÉSENTATEUR  -  glissez un panneau pour le déplacer, un coin pour le redimensionner
+capture again - what is on now	capturer à nouveau - ce qui passe
+change what it does...	changer son action...
+decks - Stop deck...	decks - arrêter le deck...
+decks - Take deck...	decks - TAKE sur le deck...
+delete step	supprimer l'étape
+delete this button	supprimer ce bouton
+label, command and glyph as text...	libellé, commande et glyphe en texte...
+move down	descendre
+move up	monter
+next colour	couleur suivante
+preset - a new preset from what is on now	preset - un nouveau preset à partir de ce qui passe
+type a command myself...	taper une commande moi-même...
+type a length in seconds...	taper une durée en secondes...
+wait for GO	attendre GO
+what it recalls...	ce qu'il rappelle...
+when its cues end	quand ses cues se terminent
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL égalise toute la playlist d'un coup
+back to the in point, not to zero	retour au point d'entrée, pas à zéro
+drag to scrub. the audio follows	glisser pour parcourir. le son suit
+loops between the in and out points, not the file	boucle entre les points d'entrée et de sortie, pas sur le fichier
+(not set)	(non défini)
+1.00x  (default 1080p)	1.00x  (1080p par défaut)
+1.25x  (large desktop)	1.25x  (grand bureau)
+1.50x  (4K desktop)	1.50x  (bureau 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / petit 4K)
+highest bandwidth	bande passante maximale
+lower bandwidth	bande passante réduite
+film	cinéma
+CD, music rigs	CD, installations musicales
+video standard	norme vidéo
+every playlist	chaque playlist
+None  (no character art)	Aucun  (pas de personnage)
+custom size...	taille personnalisée...
+Browser URL	URL du navigateur
+Camera	Caméra
+Media File / Still	Fichier média / image fixe
+RECORD TO FILE	ENREGISTRER DANS UN FICHIER
+browser, with sound	navigateur, avec le son
+Window	Fenêtre
+Desktop	Bureau
+full screen	plein écran
+DeckLink Output	Sortie DeckLink
+FFmpeg Stream Output	Sortie flux FFmpeg
+NDI Output	Sortie NDI
+SDL Window Output	Sortie fenêtre SDL
+Spout Output	Sortie Spout
+DESK	PUPITRE

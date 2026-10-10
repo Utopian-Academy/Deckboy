@@ -375,3 +375,50 @@ Convert cues Deckboy can't play (or plays poorly) to H.264	जिन क्य�
 a button can run any command the network protocol understands	एक बटन कोई भी आदेश चला सकता है जिसे प्रोटोकॉल समझता है
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	प्रस्तुतकर्ता दृश्य व्यवस्थित करें  -  हिलाने के लिए पैनल खींचें, आकार के लिए कोना
 vMix API	vMix API
+capture again - what is on now	फिर से कैप्चर करें - जो अभी चल रहा है
+change what it does...	यह क्या करता है, बदलें...
+decks - Stop deck...	डेक - डेक रोकें...
+decks - Take deck...	डेक - डेक पर TAKE...
+delete step	चरण हटाएँ
+delete this button	यह बटन हटाएँ
+label, command and glyph as text...	लेबल, कमांड और चिह्न टेक्स्ट के रूप में...
+move down	नीचे ले जाएँ
+move up	ऊपर ले जाएँ
+next colour	अगला रंग
+preset - a new preset from what is on now	प्रीसेट - जो अभी चल रहा है उससे नया प्रीसेट
+type a command myself...	कमांड खुद टाइप करूँगा...
+type a length in seconds...	सेकंड में अवधि टाइप करें...
+wait for GO	GO की प्रतीक्षा करें
+what it recalls...	यह क्या वापस लाता है...
+when its cues end	जब इसके cue समाप्त हों
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL पूरी प्लेलिस्ट को एक साथ बराबर करता है
+back to the in point, not to zero	शून्य पर नहीं, इन-पॉइंट पर वापस
+drag to scrub. the audio follows	स्क्रब करने के लिए खींचें। ऑडियो साथ चलता है
+loops between the in and out points, not the file	फ़ाइल नहीं, इन और आउट पॉइंट के बीच लूप करता है
+(not set)	(सेट नहीं)
+1.00x  (default 1080p)	1.00x  (डिफ़ॉल्ट 1080p)
+1.25x  (large desktop)	1.25x  (बड़ा डेस्कटॉप)
+1.50x  (4K desktop)	1.50x  (4K डेस्कटॉप)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / छोटा 4K)
+highest bandwidth	सबसे अधिक बैंडविड्थ
+lower bandwidth	कम बैंडविड्थ
+film	फ़िल्म
+CD, music rigs	CD, संगीत सेटअप
+video standard	वीडियो मानक
+every playlist	हर प्लेलिस्ट
+None  (no character art)	कोई नहीं  (कोई पात्र नहीं)
+custom size...	कस्टम आकार...
+Browser URL	ब्राउज़र URL
+Camera	कैमरा
+Media File / Still	मीडिया फ़ाइल / स्थिर चित्र
+RECORD TO FILE	फ़ाइल में रिकॉर्ड करें
+browser, with sound	ब्राउज़र, आवाज़ के साथ
+Window	विंडो
+Desktop	डेस्कटॉप
+full screen	पूर्ण स्क्रीन
+DeckLink Output	DeckLink आउटपुट
+FFmpeg Stream Output	FFmpeg स्ट्रीम आउटपुट
+NDI Output	NDI आउटपुट
+SDL Window Output	SDL विंडो आउटपुट
+Spout Output	Spout आउटपुट
+DESK	डेस्क

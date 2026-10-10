@@ -374,3 +374,50 @@ a button can run any command the network protocol understands	inkinobho ingasebe
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	HLELA UKUBUKA KOMETHULI  -  hudula iphaneli ukuyihambisa, ikhona ukushintsha ubukhulu
 4:2:2  8-BIT	4:2:2  8-BIT
 4:2:2  10-BIT	4:2:2  10-BIT
+capture again - what is on now	thwebula futhi - okudlalayo manje
+change what it does...	shintsha lokho ekwenzayo...
+decks - Stop deck...	ama-deck - misa i-deck...
+decks - Take deck...	ama-deck - TAKE ku-deck...
+delete step	susa isinyathelo
+delete this button	susa le nkinobho
+label, command and glyph as text...	ilebula, umyalo nophawu njengombhalo...
+move down	yehlisa
+move up	khuphula
+next colour	umbala olandelayo
+preset - a new preset from what is on now	i-preset - i-preset entsha kulokho okudlalayo manje
+type a command myself...	ngizothayipha umyalo ngokwami...
+type a length in seconds...	thayipha ubude ngamasekhondi...
+wait for GO	linda u-GO
+what it recalls...	lokho ekubuyisayo...
+when its cues end	lapho ama-cue ayo ephela
+AUDIONORM ALL matches the whole playlist at once	I-AUDIONORM ALL ilinganisa uhlu lonke ngesikhathi esisodwa
+back to the in point, not to zero	buyela endaweni yokungena, hhayi ku-zero
+drag to scrub. the audio follows	hudula ukuze uskrabhe. umsindo uyalandela
+loops between the in and out points, not the file	iphinda phakathi kwezindawo zokungena nokuphuma, hhayi ifayela
+(not set)	(akusethiwe)
+1.00x  (default 1080p)	1.00x  (okuzenzakalelayo 1080p)
+1.25x  (large desktop)	1.25x  (ideskithophu enkulu)
+1.50x  (4K desktop)	1.50x  (ideskithophu ye-4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / i-4K encane)
+highest bandwidth	umkhawulokudonsa ophakeme kakhulu
+lower bandwidth	umkhawulokudonsa ophansi
+film	ifilimu
+CD, music rigs	i-CD, izinto zomculo
+video standard	izinga levidiyo
+every playlist	uhlu ngalunye
+None  (no character art)	Lutho  (akukho mlingiswa)
+custom size...	usayizi wakho...
+Browser URL	I-URL yesiphequluli
+Camera	Ikhamera
+Media File / Still	Ifayela lemidiya / isithombe
+RECORD TO FILE	QOPHA EFAYELENI
+browser, with sound	isiphequluli, nomsindo
+Window	Iwindi
+Desktop	Ideskithophu
+full screen	isikrini esigcwele
+DeckLink Output	Okukhiphayo kwe-DeckLink
+FFmpeg Stream Output	Okukhiphayo kokusakaza kwe-FFmpeg
+NDI Output	Okukhiphayo kwe-NDI
+SDL Window Output	Okukhiphayo kwewindi le-SDL
+Spout Output	Okukhiphayo kwe-Spout
+DESK	IDESKI

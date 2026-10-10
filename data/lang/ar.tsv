@@ -387,3 +387,50 @@ ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM ومُشغّل NDI
 Convert cues Deckboy can't play (or plays poorly) to H.264	حوّل إلى H.264 الكيو الذي لا يشغّله Deckboy جيداً
 a button can run any command the network protocol understands	يمكن للزر تنفيذ أي أمر يفهمه البروتوكول
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ترتيب عرض المُقدّم  -  اسحب لوحة لتحريكها، وزاوية لتغيير حجمها
+capture again - what is on now	التقاط من جديد - ما يُبث الآن
+change what it does...	تغيير ما يفعله...
+decks - Stop deck...	اللوحات - إيقاف اللوحة...
+decks - Take deck...	اللوحات - TAKE على اللوحة...
+delete step	حذف الخطوة
+delete this button	حذف هذا الزر
+label, command and glyph as text...	التسمية والأمر والرمز كنص...
+move down	نقل إلى الأسفل
+move up	نقل إلى الأعلى
+next colour	اللون التالي
+preset - a new preset from what is on now	إعداد مسبق - إعداد جديد مما يُبث الآن
+type a command myself...	سأكتب أمرًا بنفسي...
+type a length in seconds...	اكتب مدة بالثواني...
+wait for GO	انتظار GO
+what it recalls...	ما يستدعيه...
+when its cues end	عندما تنتهي إشاراته
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL يوازن قائمة التشغيل كلها دفعة واحدة
+back to the in point, not to zero	العودة إلى نقطة البداية، لا إلى الصفر
+drag to scrub. the audio follows	اسحب للتنقل. الصوت يتبع
+loops between the in and out points, not the file	يكرر بين نقطتي البداية والنهاية، لا الملف كله
+(not set)	(غير محدد)
+1.00x  (default 1080p)	1.00x  (الافتراضي 1080p)
+1.25x  (large desktop)	1.25x  (سطح مكتب كبير)
+1.50x  (4K desktop)	1.50x  (سطح مكتب 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K صغير)
+highest bandwidth	أعلى عرض نطاق
+lower bandwidth	عرض نطاق أقل
+film	سينما
+CD, music rigs	CD، أنظمة موسيقية
+video standard	معيار الفيديو
+every playlist	كل قائمة تشغيل
+None  (no character art)	لا شيء  (بلا شخصية)
+custom size...	حجم مخصص...
+Browser URL	عنوان المتصفح
+Camera	كاميرا
+Media File / Still	ملف وسائط / صورة ثابتة
+RECORD TO FILE	تسجيل إلى ملف
+browser, with sound	متصفح، مع الصوت
+Window	نافذة
+Desktop	سطح المكتب
+full screen	ملء الشاشة
+DeckLink Output	مخرج DeckLink
+FFmpeg Stream Output	مخرج بث FFmpeg
+NDI Output	مخرج NDI
+SDL Window Output	مخرج نافذة SDL
+Spout Output	مخرج Spout
+DESK	طاولة التحكم

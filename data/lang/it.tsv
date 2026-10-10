@@ -374,3 +374,50 @@ ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	DISPONI LA VI
 Buffer	Buffer
 PRESET	PRESET
 Pocket 3 / touch	Pocket 3 / touch
+Desktop	Desktop
+capture again - what is on now	cattura di nuovo - ciò che è in onda
+change what it does...	cambia cosa fa...
+decks - Stop deck...	deck - ferma il deck...
+decks - Take deck...	deck - TAKE sul deck...
+delete step	elimina passo
+delete this button	elimina questo pulsante
+label, command and glyph as text...	etichetta, comando e glifo come testo...
+move down	sposta giù
+move up	sposta su
+next colour	colore successivo
+preset - a new preset from what is on now	preset - un nuovo preset da ciò che è in onda
+type a command myself...	digito io un comando...
+type a length in seconds...	digita una durata in secondi...
+wait for GO	attendi GO
+what it recalls...	cosa richiama...
+when its cues end	quando finiscono i suoi cue
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL uniforma tutta la playlist in una volta
+back to the in point, not to zero	torna al punto di ingresso, non a zero
+drag to scrub. the audio follows	trascina per scorrere. l'audio segue
+loops between the in and out points, not the file	ripete tra i punti di ingresso e uscita, non il file
+(not set)	(non impostato)
+1.00x  (default 1080p)	1.00x  (1080p predefinito)
+1.25x  (large desktop)	1.25x  (desktop grande)
+1.50x  (4K desktop)	1.50x  (desktop 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K piccolo)
+highest bandwidth	larghezza di banda massima
+lower bandwidth	larghezza di banda ridotta
+film	cinema
+CD, music rigs	CD, impianti musicali
+video standard	standard video
+every playlist	ogni playlist
+None  (no character art)	Nessuno  (nessun personaggio)
+custom size...	dimensione personalizzata...
+Browser URL	URL del browser
+Camera	Videocamera
+Media File / Still	File multimediale / immagine fissa
+RECORD TO FILE	REGISTRA SU FILE
+browser, with sound	browser, con audio
+Window	Finestra
+full screen	schermo intero
+DeckLink Output	Uscita DeckLink
+FFmpeg Stream Output	Uscita stream FFmpeg
+NDI Output	Uscita NDI
+SDL Window Output	Uscita finestra SDL
+Spout Output	Uscita Spout
+DESK	CONSOLE
