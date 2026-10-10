@@ -117,6 +117,31 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 }
 
 // Check if a pattern type is inherently animated (changes over time).
+// WHAT DECKBOY MAKES, as against what it tests with. These draw something for
+// the show -- a hearth, a swarm, a swirl, an ecosystem, a live expression --
+// and live under SOURCE > MADE BY DECKBOY with names of their own. Every other
+// pattern type is a TEST SIGNAL: a card or a chart for lining up a rig. Portal
+// sat in one menu and Swirl in the other, each labelled "Pattern" once picked,
+// which made the desk look like nobody had decided what either one was.
+inline bool patternTypeIsGenerator(const std::string& typeId) {
+  const std::string t = normalizePatternTypeId(typeId);
+  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" ||
+         t == "terrarium" || t == "terrarium-pico";
+}
+
+// A generator's own name, for its cue and wherever the desk says what kind of
+// thing it is. Empty for a test signal.
+inline std::string generatorPatternName(const std::string& typeId) {
+  const std::string t = normalizePatternTypeId(typeId);
+  if (t == "fireside") return "Fireside";
+  if (t == "portal") return "Portal";
+  if (t == "swirl") return "Swirl";
+  if (t == "code") return "Code";
+  if (t == "terrarium") return "Terrarium";
+  if (t == "terrarium-pico") return "Terrarium Pico";
+  return {};
+}
+
 // Returns true for:
 //   - All pocket-* scenes (always animated pixel art)
 //   - Any pattern with the "-motion" suffix

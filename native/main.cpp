@@ -9798,6 +9798,7 @@ class App {
   SDL_Rect mediaGroupRect_ {};
   SDL_Rect transportGroupRect_ {};
   SDL_Rect outputGroupRect_ {};
+  SDL_Rect deskGroupRect_ {};
   SDL_Rect sourceDefaultDropdownRect_ {};
   SDL_Rect patternDefaultDropdownRect_ {};
   SDL_Rect cueSourceTypeDropdownRect_ {};

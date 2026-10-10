@@ -2802,6 +2802,7 @@
     drawGroupFrame(mediaGroupRect_, "MEDIA");
     drawGroupFrame(transportGroupRect_, "TRANSPORT");
     drawGroupFrame(outputGroupRect_, "OUTPUT");
+    drawGroupFrame(deskGroupRect_, "DESK");
 
     // ── On-air row ────────────────────────────────────────────────────────
     // One transmitting badge per stream type, on the OUTPUT group header where
@@ -3041,10 +3042,19 @@
     // Ambient sparkles + state-indicating animations in the empty space
     // within the output group, after the 2 buttons
     if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && !buttons_.empty()) {
-      // After the LAST button, whichever that is. This read buttons_[9],
-      // which was MENU until DASH arrived in front of it -- and then the
-      // sparkles started after DASH and were drawn across MENU's label.
-      SDL_Rect lastOutBtn = buttons_.back().rect;
+      // After the last button IN OUTPUT. This read buttons_[9], which was
+      // MENU until DASH arrived in front of it -- and then the sparkles
+      // started after DASH and were drawn across MENU's label. Then it read
+      // the last button of all, which is DESK's now, not OUTPUT's.
+      SDL_Rect lastOutBtn {outputGroupRect_.x, outputGroupRect_.y, 0, 0};
+      for (const Button& button : buttons_) {
+        const SDL_Rect& r = button.rect;
+        const bool inOutput = r.w > 0 && r.x >= outputGroupRect_.x &&
+                              r.x + r.w <= outputGroupRect_.x + outputGroupRect_.w;
+        if (inOutput && r.x + r.w > lastOutBtn.x + lastOutBtn.w) {
+          lastOutBtn = r;
+        }
+      }
       int sparkleAreaX = lastOutBtn.x + lastOutBtn.w + 12;
       int sparkleAreaW = outputGroupRect_.x + outputGroupRect_.w - sparkleAreaX - 8;
       if (sparkleAreaW < 40) {

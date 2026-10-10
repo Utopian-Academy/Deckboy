@@ -3909,6 +3909,10 @@
         return std::string("Source  ") + sourceCueRefFriendlyLabel(cue.kind, sourceRef);
       }
       if (cue.kind == CueKind::Pattern) {
+        const std::string generator = generatorPatternName(cue.path);
+        if (!generator.empty()) {
+          return generator + "  made by Deckboy";
+        }
         return std::string("Pattern  ") + patternLabelForType(normalizePatternTypeId(cue.path));
       }
       if (cue.path.empty()) {
@@ -4123,7 +4127,7 @@
       };
 
       std::string metaLine = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex) + "  " +
-                             cueKindLabel(selectedCue->kind);
+                             cueTypeLabel(*selectedCue);
       if (selectedCue->width > 0 && selectedCue->height > 0) {
         metaLine += "  " + std::to_string(selectedCue->width) + "x" + std::to_string(selectedCue->height);
       }
@@ -4407,7 +4411,7 @@
         rowY = drawInspectorStatusRow(rowY, "source", cue.path, false);
       }
 
-      std::string mediaSummary = cueKindLabel(cue.kind);
+      std::string mediaSummary = cueTypeLabel(cue);
       if (cue.width > 0 && cue.height > 0) {
         mediaSummary += "  " + std::to_string(cue.width) + "x" + std::to_string(cue.height);
       }
@@ -4569,7 +4573,7 @@
 
       std::vector<std::string> kindLabels;
       for (const Cue* cue : panelSelectedCues) {
-        std::string label = cueKindLabel(cue->kind);
+        std::string label = cueTypeLabel(*cue);
         if (std::find(kindLabels.begin(), kindLabels.end(), label) == kindLabels.end()) {
           kindLabels.push_back(label);
         }
@@ -5380,14 +5384,106 @@
         finishInspectorSection(swSection, swY);
         ry = swY + kInspectorSectionGap;
       }
+      // FIRESIDE: how hard it burns. Only on a fireside cue -- these controls
+      // mean nothing on a colour-bars pattern and drawing them there would be
+      // two more things that cannot do anything. FIRST, like Swirl's and Code's:
+      // a generator's own controls are what define it, so they lead.
+      if (selectedCue && selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "fireside") {
+        int fiY = ry;
+        auto fiSection = beginInspectorSection(fiY, "FIRESIDE", cueSectionFiresideOpen_,
+                                               QuickAction::CueSectionFiresideToggle,
+                                               "Collapse/expand the hearth's controls");
+        fiY = fiSection.bodyStartY;
+        if (cueSectionFiresideOpen_) {
+          char amt[16];
+          std::snprintf(amt, sizeof(amt), "%.1fx", selectedCue->firesideIntensity);
+          drawQuickRow(fiY, "burns", QuickAction::FireIntensityDec, std::string(amt),
+                       QuickAction::FireIntensityInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Embers to roaring. It still surges and settles at any "
+                       "setting -- a fire that does not move reads as a photo");
+          fiY += kInspectorRowStep;
+          drawQuickRow(fiY, "sparks", QuickAction::FireSparksDec,
+                       std::to_string(selectedCue->firesideSparks),
+                       QuickAction::FireSparksInc, QuickAction::ToggleLoop,
+                       false, false, "How much it throws off; 0 is a clean burn");
+          fiY += kInspectorRowStep;
+          fiY = drawChoiceRow(fiY, "window",
+                              firesideViewLabel(selectedCue->firesideView),
+                              QuickAction::FireViewCycle,
+                              "What is through the window on the hearth wall: a "
+                              "garden, rain, snow or the sea. A room with weather "
+                              "outside reads as somewhere rather than as a wall");
+        }
+        finishInspectorSection(fiSection, fiY);
+        ry = fiY + kInspectorSectionGap;
+      }
+
+      // PORTAL: the swarm's controls. Only on a portal, for the reason FIRESIDE
+      // gives above.
+      if (selectedCue && selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "portal") {
+        int poY = ry;
+        auto poSection = beginInspectorSection(poY, "PORTAL", cueSectionPortalOpen_,
+                                               QuickAction::CueSectionPortalToggle,
+                                               "Collapse/expand the portal's controls");
+        poY = poSection.bodyStartY;
+        if (cueSectionPortalOpen_) {
+          const PortalSettings& p = selectedCue->portal;
+          struct PortalRow {
+            const char* label;
+            NumericParam id;
+            std::string value;
+            const char* tip;
+          };
+          auto pct = [](double v) {
+            return std::to_string(static_cast<int>(std::lround(v * 100.0))) + "%";
+          };
+          char speedText[16];
+          std::snprintf(speedText, sizeof(speedText), "%.1fx", p.speed);
+          const PortalRow rows[] = {
+            {"blobs", NumericParam::PortalBlobs, std::to_string(p.blobs),
+             "How many are alive at once. Each is born, drifts out, grows and fades"},
+            {"size", NumericParam::PortalSize, pct(p.size), "How big a blob grows"},
+            {"melt", NumericParam::PortalBlend, pct(p.blend),
+             "How readily neighbours merge into one shape. 0 keeps every blob round"},
+            {"rim", NumericParam::PortalOutline, pct(p.outline),
+             "Thickness of the glowing edge"},
+            {"speed", NumericParam::PortalSpeed, std::string(speedText),
+             "How fast they are born, drift and fade"},
+            {"colour", NumericParam::PortalHue, pct(p.hue),
+             "Turns the rim's colours round the wheel -- green, yellow, pink, "
+             "violet, blue"},
+          };
+          for (const PortalRow& row : rows) {
+            inspDrawQuickRow(ix, poY, row.label, QuickAction::NumericParamDec, row.value,
+                             QuickAction::NumericParamInc, QuickAction::ToggleLoop,
+                             false, false, row.tip, true, QuickAction::EditNumericParam,
+                             static_cast<int>(row.id));
+            poY += kInspectorRowStep;
+          }
+          poY = drawInspectorMessageRow(poY, "transparent outside the blobs: put it on a layer",
+                                        pal.tile, pal.fgSoft);
+        }
+        finishInspectorSection(poSection, poY);
+        ry = poY + kInspectorSectionGap;
+      }
+
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,
                                                    "Still, pattern, browser, and source playback settings");
       int playbackY = playbackSection.bodyStartY;
       if (cueSectionPlaybackOpen_) {
-        if (selectedCue->kind == CueKind::Pattern) {
+        if (selectedCue->kind == CueKind::Pattern &&
+            !patternTypeIsGenerator(selectedCue->path)) {
+          // TEST SIGNALS ONLY. A generator's controls are its own section
+          // above; offering it the list of test cards would turn a Portal
+          // into colour bars, and a motion switch on something that always
+          // moves would be a control that does nothing.
           std::string typeId = normalizePatternTypeId(selectedCue->path);
           bool motionEnabled = endsWith(typeId, "-motion");
+          const bool hasMotion = motionEnabled || isKnownPatternType(typeId + "-motion");
           std::string label = patternLabelForType(typeId);
           // SCALED, and laid out like every other row in this panel. These
           // were raw pixels -- a 92px label column and a 104px offset tuned at
@@ -5415,11 +5511,14 @@
           cuePatternTypeDropdownRect_ = patternTypeBtn;
           playbackY += kRowStep;
 
-          drawQuickRow(playbackY, "motion", QuickAction::TogglePatternMotion,
-                       motionEnabled ? "on" : "off", QuickAction::TogglePatternMotion,
-                       QuickAction::TogglePatternMotion, true, motionEnabled,
-                       "Pattern motion toggle");
-          playbackY += kRowStep;
+          // Only on the cards that have a moving version.
+          if (hasMotion) {
+            drawQuickRow(playbackY, "motion", QuickAction::TogglePatternMotion,
+                         motionEnabled ? "on" : "off", QuickAction::TogglePatternMotion,
+                         QuickAction::TogglePatternMotion, true, motionEnabled,
+                         "Pattern motion toggle");
+            playbackY += kRowStep;
+          }
 
           // The tile size, on the one pattern that is drawn to it. A wall of
           // 168px panels mapped as 128 puts every label in the wrong place,
@@ -6420,89 +6519,6 @@
         }
       }
       finishInspectorSection(mxSection, mxY);
-    }
-
-    // FIRESIDE: how hard it burns. Only on a fireside cue -- these controls
-    // mean nothing on a colour-bars pattern and drawing them there would be
-    // two more things that cannot do anything.
-    if (selectedCue && selectedCue->kind == CueKind::Pattern &&
-        normalizePatternTypeId(selectedCue->path) == "fireside") {
-      int fiY = inspectorSectionBottomMax_ + kInspectorSectionGap;
-      auto fiSection = beginInspectorSection(fiY, "FIRESIDE", cueSectionFiresideOpen_,
-                                             QuickAction::CueSectionFiresideToggle,
-                                             "Collapse/expand the hearth's controls");
-      fiY = fiSection.bodyStartY;
-      if (cueSectionFiresideOpen_) {
-        char amt[16];
-        std::snprintf(amt, sizeof(amt), "%.1fx", selectedCue->firesideIntensity);
-        drawQuickRow(fiY, "burns", QuickAction::FireIntensityDec, std::string(amt),
-                     QuickAction::FireIntensityInc, QuickAction::ToggleLoop,
-                     false, false,
-                     "Embers to roaring. It still surges and settles at any "
-                     "setting -- a fire that does not move reads as a photo");
-        fiY += kInspectorRowStep;
-        drawQuickRow(fiY, "sparks", QuickAction::FireSparksDec,
-                     std::to_string(selectedCue->firesideSparks),
-                     QuickAction::FireSparksInc, QuickAction::ToggleLoop,
-                     false, false, "How much it throws off; 0 is a clean burn");
-        fiY += kInspectorRowStep;
-        fiY = drawChoiceRow(fiY, "window",
-                            firesideViewLabel(selectedCue->firesideView),
-                            QuickAction::FireViewCycle,
-                            "What is through the window on the hearth wall: a "
-                            "garden, rain, snow or the sea. A room with weather "
-                            "outside reads as somewhere rather than as a wall");
-      }
-      finishInspectorSection(fiSection, fiY);
-    }
-
-    // PORTAL: the swarm's controls. Only on a portal, for the reason FIRESIDE
-    // gives above.
-    if (selectedCue && selectedCue->kind == CueKind::Pattern &&
-        normalizePatternTypeId(selectedCue->path) == "portal") {
-      int poY = inspectorSectionBottomMax_ + kInspectorSectionGap;
-      auto poSection = beginInspectorSection(poY, "PORTAL", cueSectionPortalOpen_,
-                                             QuickAction::CueSectionPortalToggle,
-                                             "Collapse/expand the portal's controls");
-      poY = poSection.bodyStartY;
-      if (cueSectionPortalOpen_) {
-        const PortalSettings& p = selectedCue->portal;
-        struct PortalRow {
-          const char* label;
-          NumericParam id;
-          std::string value;
-          const char* tip;
-        };
-        auto pct = [](double v) {
-          return std::to_string(static_cast<int>(std::lround(v * 100.0))) + "%";
-        };
-        char speedText[16];
-        std::snprintf(speedText, sizeof(speedText), "%.1fx", p.speed);
-        const PortalRow rows[] = {
-          {"blobs", NumericParam::PortalBlobs, std::to_string(p.blobs),
-           "How many are alive at once. Each is born, drifts out, grows and fades"},
-          {"size", NumericParam::PortalSize, pct(p.size), "How big a blob grows"},
-          {"melt", NumericParam::PortalBlend, pct(p.blend),
-           "How readily neighbours merge into one shape. 0 keeps every blob round"},
-          {"rim", NumericParam::PortalOutline, pct(p.outline),
-           "Thickness of the glowing edge"},
-          {"speed", NumericParam::PortalSpeed, std::string(speedText),
-           "How fast they are born, drift and fade"},
-          {"colour", NumericParam::PortalHue, pct(p.hue),
-           "Turns the rim's colours round the wheel -- green, yellow, pink, "
-           "violet, blue"},
-        };
-        for (const PortalRow& row : rows) {
-          inspDrawQuickRow(ix, poY, row.label, QuickAction::NumericParamDec, row.value,
-                           QuickAction::NumericParamInc, QuickAction::ToggleLoop,
-                           false, false, row.tip, true, QuickAction::EditNumericParam,
-                           static_cast<int>(row.id));
-          poY += kInspectorRowStep;
-        }
-        poY = drawInspectorMessageRow(poY, "transparent outside the blobs: put it on a layer",
-                                      pal.tile, pal.fgSoft);
-      }
-      finishInspectorSection(poSection, poY);
     }
 
     // MIDI FILE: what it will send, and where.

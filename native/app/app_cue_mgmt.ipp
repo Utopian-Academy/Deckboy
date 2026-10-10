@@ -2943,9 +2943,10 @@
     // draws those as headings and the click handler ignores them.
     contextItems_.push_back({"LIVE PICTURE", {0, 0, 0, 0}, nullptr});
     for (const auto& [token, label] : sourceCueTypeChoices()) {
-      bool isDefault = (token == sourceDefaultTypeId_);
+      // No star beside the platform's default capture type: in a menu you
+      // choose from, a mark nobody explains reads as a typo.
       contextItems_.push_back({
-        (isDefault ? "* " : "  ") + label,
+        "  " + label,
         {0, 0, 0, 0},
         [this, token, sourceButtonRect]() {
           sourceDefaultTypeId_ = token;
@@ -3003,6 +3004,11 @@
     // only from the PATTERN picker -- and nobody looking for a SOURCE called
     // "code source" thinks to open the pattern list. Where a thing lives in
     // the code is not where an operator expects to find it.
+    //
+    // ONE RULE FOR THE TWO MENUS. Everything Deckboy makes for the show is
+    // here, named as itself with a few words on what it is; the test signals a
+    // rig is lined up with are under their own heading below, and the PATTERN
+    // button is the one-press shortcut to the first of them.
     contextItems_.push_back({"MADE BY DECKBOY", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
       "  Fireside (a hearth that burns)",
@@ -3010,58 +3016,82 @@
       [this]() { addFiresideCue(); }
     });
     contextItems_.push_back({
-      "  Portal (blobs of deep space, for a layer)",
+      "  Portal (deep-space blobs, for a layer)",
       {0, 0, 0, 0},
       [this]() { addPortalCue(); }
     });
     contextItems_.push_back({
-      "  Lower third (fire it from its own playlist, over another)",
+      "  Swirl (melting pixel greens)",
       {0, 0, 0, 0},
-      [this]() { addLowerThirdTextCue(); }
+      [this]() { addGeneratorCue("swirl"); }
+    });
+    // The Konami secret, once this save has unlocked it.
+    if (project_.terrariumUnlocked) {
+      contextItems_.push_back({
+        "  Terrarium (a living ecosystem)",
+        {0, 0, 0, 0},
+        [this]() { addGeneratorCue("terrarium"); }
+      });
+      contextItems_.push_back({
+        "  Terrarium Pico (one pixel per cell)",
+        {0, 0, 0, 0},
+        [this]() { addGeneratorCue("terrarium-pico"); }
+      });
+    }
+    contextItems_.push_back({
+      "  Video Synth (oscillators, mirrors, feedback)",
+      {0, 0, 0, 0},
+      [this]() { addVideoSynthCue(); }
     });
     contextItems_.push_back({
-      "  Text (a title card, or a crawl)",
+      "  Code (a live expression)",
+      {0, 0, 0, 0},
+      [this]() { addGeneratorCue("code"); }
+    });
+    contextItems_.push_back({
+      "  Text (a title card or a crawl)",
       {0, 0, 0, 0},
       [this]() { addTextCue(); }
     });
     contextItems_.push_back({
-      "  Code (live expression)",
+      "  Lower Third (over another playlist)",
       {0, 0, 0, 0},
-      [this]() { addPatternCue("code"); }
+      [this]() { addLowerThirdTextCue(); }
     });
     // Stage timer. Without this the Timer cue was only reachable over the wire
     // (TIMERCUE), i.e. not reachable at all from inside the app.
     contextItems_.push_back({
-      "  Stage Timer",
+      "  Stage Timer (a countdown for the stage)",
       {0, 0, 0, 0},
       [this]() { addTimerCue(300); }
-    });
-    // Test tone. The audio counterpart of a test pattern: line-up tone, pink
-    // noise for ringing out a PA, and a channel walk for proving which output
-    // feeds which speaker.
-    contextItems_.push_back({
-      "  Test Tone",
-      {0, 0, 0, 0},
-      [this]() { addToneCue(); }
-    });
-    // Video synth: oscillators, mirrors and feedback, after Atari Video Music
-    // and Sleepy Circuits Hypno.
-    contextItems_.push_back({
-      "  Video Synth",
-      {0, 0, 0, 0},
-      [this]() { addVideoSynthCue(); }
     });
     // Both chips get their own entry. One menu item that then needs a second
     // control changed is the same discoverability problem one level down.
     contextItems_.push_back({
-      "  2A03 Synth (NES)",
+      "  2A03 Synth (the NES sound chip)",
       {0, 0, 0, 0},
       [this]() { addSynthCue(SynthChip::Nes); }
     });
     contextItems_.push_back({
-      "  FDS Synth",
+      "  FDS Synth (the Famicom Disk System chip)",
       {0, 0, 0, 0},
       [this]() { addSynthCue(SynthChip::Fds); }
+    });
+    // TEST SIGNALS: what a rig is lined up with, picture and sound together.
+    // The pattern arrives as Pocket Test, like the PATTERN button's; which
+    // card or chart it is, is chosen in its inspector. The tone is the audio
+    // counterpart: line-up tone, pink noise for ringing out a PA, and a
+    // channel walk for proving which output feeds which speaker.
+    contextItems_.push_back({"TEST SIGNALS", {0, 0, 0, 0}, nullptr});
+    contextItems_.push_back({
+      "  Test Pattern (cards and charts)",
+      {0, 0, 0, 0},
+      [this]() { addKawaiiPatternCue(); }
+    });
+    contextItems_.push_back({
+      "  Test Tone (line-up, pink noise, channel walk)",
+      {0, 0, 0, 0},
+      [this]() { addToneCue(); }
     });
     // The two cues that carry no picture at all. They are here because this is
     // the only ADD A CUE menu in the app -- a master cue was reachable solely
@@ -3285,15 +3315,15 @@
 
   // Named pattern types and their pretty labels.
   static const std::vector<std::pair<std::string, std::string>>& patternBaseTypes() {
-    // Operator-facing picker list. One pocket entry only — it cycles
+    // Operator-facing picker list: TEST SIGNALS ONLY, the cards and charts a
+    // rig is lined up with. What Deckboy makes for the show -- Fireside,
+    // Portal, Swirl, Terrarium, Code -- is offered from SOURCE > MADE BY
+    // DECKBOY and is never in this list, so a Portal cannot be turned into
+    // colour bars from its own inspector. One pocket entry only -- it cycles
     // day/sunset/night/storm itself; the forced-scene ids stay loadable as
     // legacy (see patternTypes). Motion belongs to the toggle, not the list.
-    // Terrarium is deliberately absent: it's the Konami secret, listed only
-    // once unlocked in the current save (see patternPickerTypes).
     static const std::vector<std::pair<std::string, std::string>> types {
-      {"fireside",     "Fireside (a hearth that burns)"},
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
-      {"swirl",        "Swirl (melting pixel greens)"},
       {"test-bars",    "Test Bars (motion diagnostics)"},
       {"test-clock",   "Test Clock (sync + latency)"},
       {"frame-count",  "Frame Count (drops + latency)"},
@@ -3326,16 +3356,11 @@
     return types;
   }
 
-  // What the operator actually sees in pickers: the base list, plus the
-  // Terrarium secret once the Konami code has unlocked it in this save.
+  // What the operator actually sees in the inspector's pattern list: the test
+  // signals. The Terrarium secret, once unlocked, appears under SOURCE with
+  // the other things Deckboy makes, not here.
   std::vector<std::pair<std::string, std::string>> patternPickerTypes() const {
-    std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
-    if (project_.terrariumUnlocked) {
-      list.insert(list.begin() + 1, {"terrarium", "Terrarium (living ecosystem)"});
-      // The Pi panel's picture: same world, one pixel per cell.
-      list.insert(list.begin() + 2, {"terrarium-pico", "Terrarium Pico (1px per cell)"});
-    }
-    return list;
+    return patternBaseTypes();
   }
 
   // Full validation list: base types + legacy ids ("-motion" variants and
@@ -3354,6 +3379,7 @@
       // exactly as it did.
       list.emplace_back("fireside",       "Fireside (a hearth that burns)");
       list.emplace_back("portal",         "Portal (blobs of deep space)");
+      list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
@@ -4597,6 +4623,12 @@
     }
     patternDefaultTypeId_ = typeId;
     std::string label = patternLabelForType(typeId);
+    // A generator is named as itself -- "Swirl", not the menu's description
+    // of it -- whether it came from SOURCE, a remote PATTERN ADD or a script.
+    const std::string generatorName = generatorPatternName(typeId);
+    if (!generatorName.empty()) {
+      label = generatorName;
+    }
     auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
     Cue cue;
     cue.kind = CueKind::Pattern;
@@ -4620,9 +4652,24 @@
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
-    triggerToast("pattern: " + label);
+    triggerToast(generatorName.empty() ? "pattern: " + label : label + " added");
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
+  }
+
+  // One of the things Deckboy makes, from SOURCE > MADE BY DECKBOY.
+  void addGeneratorCue(const std::string& typeId) {
+    addPatternCue(typeId);
+  }
+
+  // What kind of thing a cue is, as the desk names it: a generator by its own
+  // name -- a Portal is not a "Pattern" -- and everything else by its kind.
+  static std::string cueTypeLabel(const Cue& cue) {
+    if (cue.kind == CueKind::Pattern) {
+      const std::string name = generatorPatternName(cue.path);
+      if (!name.empty()) return name;
+    }
+    return cueKindLabel(cue.kind);
   }
 
   void addPatternCueFromMenu() {
@@ -6878,6 +6925,7 @@
     mediaGroupRect_ = SDL_Rect {};
     transportGroupRect_ = SDL_Rect {};
     outputGroupRect_ = SDL_Rect {};
+    deskGroupRect_ = SDL_Rect {};
     sourceDefaultDropdownRect_ = SDL_Rect {};
     patternDefaultDropdownRect_ = SDL_Rect {};
 
@@ -6969,19 +7017,31 @@
     // Still capped: on a very wide window eleven 400px buttons are banners,
     // not buttons. The width the cap leaves over is shared out between the
     // groups in proportion, and each group centres its row.
+    // DASH AND MENU ARE THE DESK'S, NOT THE OUTPUT'S. They sat at the end of
+    // OUTPUT, so the group that means "what goes to air" also held the
+    // dashboard and the settings. They are the trailing buttons, so a button
+    // added in front of them still lands in OUTPUT.
+    int deskCount = 0;
+    for (auto it = buttons_.rbegin();
+         it != buttons_.rend() && (it->label == "DASH" || it->label == "MENU"); ++it) {
+      ++deskCount;
+    }
+    deskCount = std::min(deskCount, std::max(0, static_cast<int>(buttons_.size()) - 6));
     {
       const int total = static_cast<int>(buttons_.size());
-      const int counts[3] = {
+      const int counts[4] = {
         std::min(3, total),
         std::min(3, std::max(0, total - 3)),
-        std::max(0, total - 6),
+        std::max(0, total - 6 - deskCount),
+        deskCount,
       };
+      const int groups = deskCount > 0 ? 4 : 3;
       const int pad = kLayoutSpacingUnit;
-      int fixed = 2 * kLayoutPanelGap;
+      int fixed = (groups - 1) * kLayoutPanelGap;
       int buttonsCounted = 0;
-      for (int c : counts) {
-        fixed += 2 * pad + std::max(0, c - 1) * kLayoutButtonGap;
-        buttonsCounted += c;
+      for (int g = 0; g < groups; ++g) {
+        fixed += 2 * pad + std::max(0, counts[g] - 1) * kLayoutButtonGap;
+        buttonsCounted += counts[g];
       }
       // A MINIMUM THAT DOES NOT FIT IS NOT A MINIMUM, IT IS AN OVERLAP: the
       // available width is the hard limit and the preferred size is only a
@@ -6990,12 +7050,13 @@
       buttonW = std::clamp((groupBounds.w - fixed) / std::max(1, buttonsCounted),
                            1, uiScaled(240));
       const int spare = std::max(0, groupBounds.w - fixed - buttonW * buttonsCounted);
-      SDL_Rect* rects[3] = {&mediaGroupRect_, &transportGroupRect_, &outputGroupRect_};
+      SDL_Rect* rects[4] = {&mediaGroupRect_, &transportGroupRect_, &outputGroupRect_,
+                            &deskGroupRect_};
       int x = groupBounds.x;
-      for (int g = 0; g < 3; ++g) {
+      for (int g = 0; g < groups; ++g) {
         int w = 2 * pad + counts[g] * buttonW + std::max(0, counts[g] - 1) * kLayoutButtonGap
               + spare * counts[g] / std::max(1, buttonsCounted);
-        if (g == 2) {
+        if (g == groups - 1) {
           w = groupBounds.x + groupBounds.w - x;   // rounding lands on the edge
         }
         *rects[g] = SDL_Rect {x, groupBounds.y, w, groupBounds.h};
@@ -7092,12 +7153,13 @@
     //
     // An exact count is a tripwire, not a guard. The groups are fixed sizes
     // from the front and the REST goes in OUTPUT, so a new button lands
-    // somewhere sensible instead of deleting the bar.
+    // somewhere sensible instead of deleting the bar. (DASH and MENU, at the
+    // very end, go in DESK.)
     {
       const int total = static_cast<int>(buttons_.size());
       const int mediaCount = std::min(3, total);                 // IMPORT SOURCE PATTERN
       const int transportCount = std::min(3, total - mediaCount); // TAKE STOP RERACK
-      const int outputCount = total - mediaCount - transportCount;
+      const int outputCount = total - mediaCount - transportCount - deskCount;
       if (mediaCount > 0) {
         placeGroupButtons(0, mediaCount, mediaGroupRect_);
       }
@@ -7106,6 +7168,9 @@
       }
       if (outputCount > 0) {
         placeGroupButtons(mediaCount + transportCount, outputCount, outputGroupRect_);
+      }
+      if (deskCount > 0) {
+        placeGroupButtons(mediaCount + transportCount + outputCount, deskCount, deskGroupRect_);
       }
       // AND SAY SO IF ONE WAS MISSED. A button with no rect cannot be drawn
       // and cannot be pressed; silently having none is exactly the failure
