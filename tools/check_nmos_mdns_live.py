@@ -321,7 +321,7 @@ def run_case(args, label, legacy=False, typed=False, remote=True):
                     return False
             wait_for(ready)
             target = manual if typed else discovered
-            if typed or remote:
+            if remote:
                 wait_for(lambda: target.counts() == EXPECTED and target.heartbeats >= 2)
                 status = send(control_port, "NMOS STATUS")
                 expected_url = manual.url if typed else f"http://{responder.host}:{discovered.port}"
@@ -356,9 +356,15 @@ def run_case(args, label, legacy=False, typed=False, remote=True):
                 # Longer than a complete 2.5-second browse plus initial retry.
                 time.sleep(8)
                 status = send(control_port, "NMOS STATUS")
-                require("NMOS: discovery needs the remote network allowed" in status, status)
-                require("registry=-" in status and "registry_source=none" in status, status)
-                require(not discovered.events and not manual.events, "local-only blank URL registered")
+                if typed:
+                    # LOCAL ONLY binds the node to loopback: a typed registry
+                    # would be handed an href nothing on the network can open.
+                    require("NOT registering - network is LOCAL ONLY" in status, status)
+                    require(f"registry={manual.url}" in status and "registry_source=typed" in status, status)
+                else:
+                    require("NMOS: discovery needs the remote network allowed" in status, status)
+                    require("registry=-" in status and "registry_source=none" in status, status)
+                require(not discovered.events and not manual.events, "local-only node registered")
             if args.screenshots:
                 for theme in ("dark", "virtual-boy"):
                     require(send(control_port, "SET theme " + theme).startswith("OK SET"),

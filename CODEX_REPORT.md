@@ -47,7 +47,7 @@ is standard link-local mDNS browsing; HTTP and control traffic stay local.
 | Current service name, blank URL, remote on | 45 | 1 node, 1 device, 2 sources, 2 flows, 2 senders | At least 2 |
 | Legacy service name, blank URL, remote on | 45 | Same eight resources | At least 2 |
 | Typed URL, remote on | 0 | Same eight, typed registry only | At least 2 |
-| Typed URL, remote off | 0 | Same eight, typed registry only | At least 2 |
+| Typed URL, remote off | 0 | None (LOCAL ONLY holds registration back; see below) | 0 |
 | Blank URL, remote off | 0 | None | 0 |
 
 The fixture checks parent resources arrive before their dependents, matches
@@ -124,3 +124,12 @@ contrast captures remain available.
   The latter protocols remain outside the implementation's supported scope.
 
 No push or release was made.
+
+## Correction (Claude, 2026-10-10)
+
+The brief's premise that typed registries always registered under LOCAL ONLY was
+wrong: since v0.83.0 the app withheld registration there (`nmosLocalOnlyBlocked_`),
+because the listener binds loopback while the advertised href is the LAN address.
+The guard, its status line and toast are restored; the live check's
+typed-remote-off case now requires no registration and no queries. All five live
+cases pass again (evidence: `build/claude-review/nmos-live/`).

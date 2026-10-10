@@ -6575,9 +6575,18 @@
 
     const bool wantRunning = project_.nmosEnabled;
     const int wantPort = std::clamp(project_.nmosPort, 1, 65535);
-    // A typed registry retains the existing registration behavior, including
-    // LOCAL ONLY setups. Only automatic discovery needs a reachable listener.
-    const std::string wantRegistry = trim(project_.nmosRegistryUrl);
+    // NMOS only means anything if the node is reachable. With LOCAL ONLY the
+    // listener binds 127.0.0.1, so registering would publish an href to the
+    // machine's LAN address that nothing on the network can open — a
+    // controller would find the sender, try to fetch its transport file, and
+    // fail. Refusing to register is the honest behaviour; the operator sees
+    // why in the status line and flips REMOTE ON in the Network tab. A blank
+    // registry under LOCAL ONLY reaches the node as blank, and the node does
+    // not run discovery without the remote network either.
+    nmosLocalOnlyBlocked_ = wantRunning && !project_.allowRemoteNetwork &&
+                            !trim(project_.nmosRegistryUrl).empty();
+    const std::string wantRegistry =
+      nmosLocalOnlyBlocked_ ? std::string() : trim(project_.nmosRegistryUrl);
 
     // A port or registry change needs a genuine restart — the listen socket is
     // already bound and the registry client caches the parsed URL.
@@ -6640,6 +6649,9 @@
     }
     if (!nmosStarted_ || !nmosNode_.httpReady()) {
       return "NMOS: not running";
+    }
+    if (nmosLocalOnlyBlocked_) {
+      return "NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)";
     }
     if (!project_.allowRemoteNetwork && trim(project_.nmosRegistryUrl).empty()) {
       return "NMOS: discovery needs the remote network allowed";

@@ -2275,7 +2275,8 @@ struct Project {
   // node, advertising every armed 2110 sender on the box.
   //
   // Empty registry URL enables IPv4 mDNS discovery; a typed URL always wins.
-  // LOCAL ONLY suppresses discovery; typed registries still register.
+  // LOCAL ONLY binds the node to loopback, so it neither discovers nor
+  // registers: an href nothing on the network can open helps nobody.
   bool nmosEnabled = false;
   std::string nmosRegistryUrl;             // e.g. "http://192.168.1.50:8010"
   int nmosPort = 3210;                     // port the Node + Connection API serve on

@@ -5862,7 +5862,11 @@
         if (!project_.nmosEnabled) {
           shutdownNmosNode();
           triggerToast("nmos: off");
-        } else if (!project_.allowRemoteNetwork && trim(project_.nmosRegistryUrl).empty()) {
+        } else if (!project_.allowRemoteNetwork && !trim(project_.nmosRegistryUrl).empty()) {
+          // Say it here, not only in the status line: this is the moment the
+          // operator expects the plant to see them.
+          triggerToast("nmos: network is LOCAL ONLY - not registering", ToastKind::Help, 3200);
+        } else if (!project_.allowRemoteNetwork) {
           // Say it here, not only in the status line: this is the moment the
           // operator expects the plant to see them.
           triggerToast("NMOS: discovery needs the remote network allowed", ToastKind::Help, 3200);

@@ -10907,6 +10907,10 @@ class App {
   };
   deckboy::platform::video::NmosNode nmosNode_;
   bool nmosStarted_ = false;
+  // True when NMOS is on and a registry is configured but the network is set to
+  // LOCAL ONLY, so we are deliberately withholding registration rather than
+  // publishing an href nothing can reach.
+  bool nmosLocalOnlyBlocked_ = false;
   bool nmosLastEnabled_ = false;
   bool nmosLastAllowRemote_ = false;
   int nmosLastPort_ = 0;
