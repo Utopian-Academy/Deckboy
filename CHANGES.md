@@ -1007,3397 +1007,2406 @@ Deckboy now reads right to left, borrows a font for any script on any Linux, kee
 
 ## 2026-09-22 - v0.99.373 (EXPERIMENTAL - a cue list that is a program, and a deck that speaks)
 
-**This is a pre-release.** Everything below is new and none of it has been
-through a real show yet. Run it alongside the version you trust, not instead
-of it.
+Pre-release: these additions have not been tested in a real show; run alongside your trusted version.
 
-**A cue list is a program now.** Every cue has a pre-wait, a post-wait and a
-continue mode, so a running order can carry itself: a cue can wait before it
-starts, and start the next one when it begins or when it ends. A STANDBY
-pointer sits apart from the selection -- the selection is where you are
-looking, the standby is what GO fires -- and GO advances it down the list.
+### Cues
+- New: per-cue pre-wait, post-wait and continue mode. A cue can wait before
+  starting and start the next cue when it begins or ends.
+- New: STANDBY pointer, independent of selection. `GO` fires the standby cue
+  and advances the pointer; selection determines which cue you inspect.
+- New: TARGET cues start, stop, pause, resume, load, arm or disarm another
+  cue on any deck.
+- New: FADE cues ramp a deck's picture level, deck volume or master dimmer
+  to a value over a duration. Linear, eased and S curves; optional stop at
+  the end of the fade.
+- New: MASTER cues fire an assigned cue on several decks at once.
+- New: disarm any cue without removing it or its settings. `GO` skips
+  disarmed cues; their rows are dimmed.
+- New: MIDI cues send notes, control changes, program changes, MIDI Show
+  Control `GO`/`STOP`/`RESUME`, or custom bytes. These complement the
+  existing MIDI, MSC, OSC, Art-Net and timecode inputs.
+- New: Network cues send OSC, a UDP datagram or a TCP line.
+- New: Timecode cues start, stop or jam the LTC generator.
+- New: DMX cues send Art-Net channel levels with a fade time, e.g. house
+  lights to 20% on cue 14.
+- New: Script cues run Deckboy protocol lines. One cue can fire a master,
+  send MIDI, jam timecode and send a message to a media server.
+- New: AUDITION plays a cue in the control window without changing outputs.
+- New: PRELOAD racks a cue paused with decode running and keeps it off air,
+  ready to take without decoder startup.
 
-**Cues that do things to other cues.** A TARGET cue starts, stops, pauses,
-resumes, loads, arms or disarms another cue on any deck. A FADE cue ramps a
-deck's picture level, a deck's volume or the master dimmer to a value over a
-duration, on a linear, eased or S curve, and can stop that deck when it lands.
-A MASTER cue fires an assigned cue on several decks at once.
+### Desk
+- New: CHECK, beside RELINK, counts show faults and steps through them:
+  missing media, goto destinations pointing to deleted cues, missing master
+  or target destinations, MIDI or DMX cues unable to build a message, and
+  network cues without a destination.
+- Added loading indicators for jobs that previously appeared frozen.
+- The playlist scrollbar can be dragged; the mouse wheel scrolls 3 rows.
+- The update check reports what is blocking it.
 
-**Every cue can be disarmed.** It keeps its settings, stays where it is, and
-does nothing; GO steps over it and the row is washed out so the list says so.
+### Outputs
+- Fixed an issue where every output showed deck 1 regardless of its
+  assigned deck. Outputs now show their host deck.
+- Add an output and choose its deck from the Video Outputs card.
 
-**Deckboy speaks on GO.** It has listened to MIDI, MSC, OSC, Art-Net and
-timecode for a long time and said almost nothing back. Now:
+### Audio
+- New: per-cue crosspoint matrix in the inspector. Route left and right
+  audio to up to 64 device channels, with gain at each crosspoint.
+- Sources routed to the same channel sum, allowing mono fold-down.
+  Supports routing to Dante Virtual Soundcard and large ASIO interfaces.
+- Cues without a matrix retain their existing routing.
 
-- **MIDI cues** send a note, a control change, a program change, MIDI Show
-  Control GO/STOP/RESUME, or your own bytes.
-- **Network cues** send OSC, a UDP datagram, or a line of TCP.
-- **Timecode cues** start, stop or jam the LTC generator from the cue list.
-- **DMX cues** send Art-Net channel levels with a fade time -- house lights to
-  20% on cue 14, without Deckboy pretending to be a lighting console.
-- **Script cues** run Deckboy's own protocol lines, so one cue can fire a
-  master, send MIDI, jam timecode and ping the media server.
+### Sources and patterns
+- New: TEXT source for title cards, holding slides and crawls as the deck's
+  picture, rather than an overlay. Fade-in, typewriter, upward credits,
+  ticker crawl and breathing motion follow cue transport, including scrub
+  and pause. Text size is a percentage of the raster, preserving relative
+  size between 1080 and 2160 outputs.
+- Changed: FIRESIDE moves from test cards to its own SOURCE entry.
+  Controls set fire intensity from embers to roaring and how much it throws
+  off; the fire continues to surge and settle at every setting.
+- Added 13 test patterns, also available on the LED page and in the site's
+  free kit: numbered panel map with tile pixel origins, moire 1:1, dark
+  detail, uniformity, banding ramps, safe areas, boresight, PLUGE, greyscale
+  steps, convergence, multiburst, and 10% and 50% windows.
 
-**CHECK: everything wrong with the show, before doors.** One button beside
-RELINK counts the faults and walks you to each: missing media, a goto pointing
-at a deleted cue, a master or target whose destination is gone, a MIDI or DMX
-cue that cannot build its message, a network cue with nowhere to send.
-
-**AUDITION and PRELOAD.** Audition plays a cue to the control window with the
-outputs untouched. Preload racks a cue paused, decode already running and held
-off air, so taking it starts with no spin-up.
-
-**A second deck can be seen.** Outputs now show the deck they are hosted by,
-and you can add an output and choose its deck from the Video Outputs card.
-Before this, every output carried deck 1 whatever it said.
-
-**The audio crosspoint matrix.** Per cue, how much of its left and right
-reaches each channel of the audio device, with a gain on every crosspoint --
-a grid in the inspector. Two sources onto one output sum, so a mono fold-down
-is expressible. Device channels go to 64, which is what makes a Dante Virtual
-Soundcard or a large ASIO interface worth having. A cue with no matrix routes
-exactly as it always did.
-
-**Thirteen new test patterns**, the same set the LED page generates: a panel
-map with every tile numbered and its pixel origin printed inside it, moire
-1:1, dark detail, uniformity, banding ramps, safe areas, boresight, PLUGE,
-greyscale steps, convergence, multiburst, and 10% and 50% windows. The free
-kit on the site now includes them too.
-
-**Words on the screen.** A TEXT source puts a title card, a holding slide or a
-crawl on the output as the deck's own picture rather than an overlay. It fades
-in, types itself out, scrolls up like credits, crawls like a ticker, or
-breathes so nobody mistakes a holding slide for a frozen machine -- all driven
-by the cue's own transport, so it scrubs and pauses with everything else. Size
-is a percentage of the raster, so a card that reads on a 1080 screen reads on
-a 2160 one.
-
-**FIRESIDE is a source now, not a test card.** It has its own entry in the
-SOURCE menu and two controls: how hard it burns, from embers to roaring, and
-how much it throws off. It still surges and settles at any setting.
-
-**Also:** loading indicators on the jobs that used to look
-frozen, the playlist scrollbar can be dragged and the wheel moves it three
-rows at a time, the update check tells you what is blocking it, and the
-Companion module moved to base 2.x.
+### Companion
+- Updated the module to base 2.x.
 
 ## 2026-09-20 - v0.99.372 (a second press before the show goes dark, and Companion 5)
 
-**NEW asks twice while you are live.** Starting an empty show empties both
-decks and disarms every output, and NEW sits one gap from OPEN on the toolbar.
-With an output armed or a deck running, the first press now raises a warning
-banner and the second one goes through -- the same second-press guard that
-deleting a live cue has always had. With nothing on air it is still one press,
-because a confirmation that fires when there is nothing to protect is one you
-learn to click past. `Ctrl+Z` brings the show back afterwards, with outputs
-left disarmed for you to re-arm.
+### Desk
+- Changed: NEW requires a second press when an output is armed or a deck
+  is running. The first press displays a warning banner, matching the guard
+  for deleting a live cue; with nothing on air, one press still opens an
+  empty show.
+- NEW remains beside OPEN on the toolbar and empties both decks and disarms
+  every output. `Ctrl+Z` restores the show with outputs left disarmed.
 
-**The Companion module speaks Companion 5.** It is rebuilt on
-`@companion-module/base` 2.x and Node 22 -- the current Companion line rather
-than the previous one. Presets now arrive grouped into sections in the preset
-browser; actions, feedbacks, variables and transport work as they did.
-Companion 4.2 and earlier can no longer load it, so stay on the previous
-module zip if you are not on Companion 5 yet.
+### Companion
+- Updated to `@companion-module/base` 2.x and Node 22 for Companion 5.
+- Presets are grouped into sections in the preset browser. Actions,
+  feedbacks, variables and transport retain their existing behaviour.
+- Companion 4.2 and earlier cannot load this module; use the previous
+  module zip with those versions.
 
-**A controller is told when it names a pattern that does not exist.**
-`PATTERN ADD` and `PATTERN SET` answer with an error naming the id they did
-not recognise, so a script or a surface finds out rather than carrying on as
-though the cue had been made.
+### Remote protocol
+- Changed: `PATTERN ADD` and `PATTERN SET` return an error naming an
+  unrecognised pattern ID, rather than reporting success without making
+  the cue.
 
 ## 2026-09-19 - v0.99.371 (plugins at the right level, and instruments you can play)
 
-**Plugins now receive the signal at the level they expect.** A hosted plugin
-was handed audio far hotter than full scale and its answer came back far too
-quiet, so an effect was distorted and an instrument could not be heard at all.
-Effects sound as their makers intended, and the cue chain and the plugin now
-agree about what full scale means.
+### Audio
+- Fixed an issue where hosted effects distorted and hosted instruments were
+  inaudible because plugin input was above full scale and output was too
+  quiet. Plugins and the cue chain now use matching full-scale levels.
+- New: play hosted instruments from the computer keyboard, a MIDI keyboard
+  or a network controller, using the same inputs as the built-in chip
+  synth. Add a Plugin effect to a tone cue and select an instrument.
+- Fixed an issue where effects, bends and plugin slots appeared in a tone
+  cue's inspector but did not process its generated audio.
 
-**Hosted instruments can be played.** Notes from the computer keyboard, from a
-MIDI keyboard, and from a controller over the network all reach an instrument
-loaded in a cue's chain -- the same three ways Deckboy already played its own
-chip synth. Add a Plugin effect to a tone cue, choose an instrument, and play
-it.
-
-**A tone cue's audio chain does something.** Effects, bends and plugin slots on
-a generated cue were drawn in the inspector and had no effect on the sound.
-They now process it, like every other cue.
-
-**TONECUE** makes a chip-synth cue from a controller, so a show that starts
-from a surface can create one without a mouse.
+### Remote protocol
+- New: `TONECUE` creates a chip-synth cue from a controller.
 
 ## 2026-09-19 - v0.99.370 (your own plugins, in the cue's chain)
 
-**Deckboy hosts your VST3 plugins.** A reverb you already own or the channel
-strip your mix is built around can now sit in a cue's audio chain alongside
-Deckboy's own effects, in whatever order you put them. Add a Plugin effect,
-pick from what is installed on the machine, and the rows beneath it carry that
-plugin's own controls under the plugin's names for them. Everything else the
-plugin was set to is saved with the show.
+### Audio
+- New: VST3 hosting in the per-cue audio chain. Add a Plugin effect, choose
+  an installed plugin and arrange it alongside built-in effects.
+- Plugin parameter rows use the plugin's own names. Other plugin settings
+  are saved with the show.
+- Plugins open when a cue is prepared, outside audio processing. A plugin
+  that exceeds its audio-block time budget is removed from the chain and
+  reported to the operator.
+- When a plugin is missing, its slot, name and settings are retained and
+  the missing plugin is reported.
+- New: `--plugins` lists installed plugins and search locations.
+  `--plugin-chain-check` runs a plugin in a cue chain and measures whether
+  it and its controls change the sound.
+- Fixed an issue where Deckboy could not start without an audio device.
+  Cues and video outputs now run; the missing device is reported once.
+- Tone cues carry an audio chain. Audioprint and the Audio LFO can read
+  generated cues as well as files, allowing generators to drive picture
+  effects and pass through the audio chain.
 
-Plugins open when a cue is prepared, never between two buffers, and each runs
-against a time budget: one that cannot keep up with the block it was handed is
-taken out of the chain and the operator is told, rather than clicking through
-the PA. A show that opens on a machine missing one of its plugins keeps the
-slot, the settings and the name, and says which plugin it cannot find.
+### Remote protocol
+- New: `AUDIOFX <slot> PLUGIN <name>` for Companion control.
 
-`--plugins` lists what a machine has and where it looked, so "Deckboy cannot
-see my reverb" is answerable without guessing. `--plugin-chain-check` runs one
-in a real chain and measures that it, and its controls, change the sound.
-Companion gains `AUDIOFX <slot> PLUGIN <name>`.
+### Effects
+- Optimised Kaleidoscope by reusing its fold map and Pixel Sort by computing
+  each sorting key once per pixel. Picture unchanged; more headroom at 4K.
 
-**A machine with no sound card still shows a picture.** Deckboy no longer
-requires an audio device to start. On a machine with none -- a rack PC feeding
-a video wall, a laptop with the interface unplugged -- the deck opens, cues
-play and the picture goes out, with the missing device reported once rather
-than taken as a reason to stop.
-
-**The audio rack attaches to Deckboy's own generators.** Tone cues carry the
-audio chain, and Audioprint and the Audio LFO read generated cues as well as
-files, so the deck's own sound sources can drive its picture effects and be
-bent by its own chain.
-
-**Kaleidoscope and pixel sort are quicker.** Kaleidoscope builds its fold map
-once and reuses it; pixel sort builds each key once per pixel instead of once
-per comparison. Same picture, more headroom at 4K.
-
-**Window cues: the picture arrives.** A window that had stopped being redrawn
-is nudged and, where the capture still cannot deliver, the deck falls back and
-says so rather than showing a black cue.
+### Sources
+- Fixed an issue where a window cue remained black when the source window
+  stopped redrawing. Capture requests a redraw, then falls back and reports
+  the fallback if no picture arrives.
 
 ## 2026-09-18 - v0.99.369 (a desk you can read at a glance)
 
-**Switches look switched on.** Every two-state control in the cue inspector and
-the settings menu -- loop, hold, fade, mute, and the rest -- drew its on and
-off states in the same colour on half the bundled themes, so the only way to
-tell was to read the word inside it. A lit control is now unmistakable at a
-glance, in every theme.
+### Interface
+- Fixed an issue where inspector and settings toggles used the same colour
+  for on and off in half the bundled themes. Loop, hold, fade, mute and
+  other two-state controls now show distinct states in every theme.
+- Enlarged the playlist scrollbar and its click target to follow interface
+  scale. The loop icon stays inside its button; the transition style row
+  aligns with adjacent rows.
+- Changed: the initial window size follows display scaling, including 125%
+  and 150%, keeping the bottom bar and MENU visible without resizing.
+- The MENU button retains its gear icon. The wall clock is named Eddie's
+  Clock.
+- Pattern creation errors now name the requested pattern instead of only
+  reporting `pattern: invalid`.
 
-**Straighter rows, and controls you can hit.** The playlist scrollbar is a
-proper bar with a target to match, rather than a hairline that ignored your
-interface scale. The loop icon sits inside its button. The transition style row
-lines up with the rows above and below it.
-
-**Deckboy opens to fit the screen it lands on.** On a display running at 125%
-or 150% -- which is how most 4K screens are set up -- the window now opens
-proportionally larger, so the bottom bar and the MENU button are there without
-resizing first.
-
-**The MENU button keeps its gear**, and the wall clock is Eddie's Clock.
-
-**A pattern that cannot be made says which one.** "pattern: invalid" now names
-the pattern it was asked for.
-
-**Linux: the AppImage runs on Ubuntu 22.04 again**, which is what a lot of
-venue machines run. Every library inside it is now built against that floor,
-and the build checks it on every run rather than trusting it.
+### Linux
+- Fixed an issue where the AppImage could not run on Ubuntu 22.04.
+  All bundled libraries now target that baseline, checked on every build.
 
 ## 2026-09-18 - v0.99.368 (window cues, tidied and quickened)
 
-**No stray pixels down the edges.** A window's rounded corners and a web page's
-unpainted edges used to leave a few white or grey pixels in the corners of a
-cue -- invisible on a bright picture, obvious on a dark one. Both are gone, and
-anything a page does not paint is black, like the rest of the frame.
+### Sources
+- Fixed an issue where captured windows' rounded corners and unpainted web
+  page edges left white or grey pixels around dark cues. Unpainted page
+  areas are black.
+- Changed: window capture runs at 60 fps instead of 30 fps when the window
+  is small enough to sustain the output rate, avoiding repeated frames.
+- Small windows are captured at their own size rather than enlarged before
+  reaching the deck. For a 960x540 window on a 4K output, combined capture
+  and app CPU use fell from about 225% of one core to 45%.
 
-**Window cues move at sixty frames a second.** A captured window used to
-arrive at thirty, so every frame was shown twice and anything moving in it
-juddered. A window small enough to afford it now runs at the same rate as the
-output.
+### Remote protocol
+- Fixed an issue where requesting a camera or window without a name returned
+  `OK` but added nothing while waiting for a picker. The command now returns
+  the available sources for selection from a controller or script.
 
-**A window cue costs a fifth of what it did.** A small window is no longer
-enlarged before it is handed to the deck, so the machine does a fraction of the
-work for the same picture: on a 960x540 window with a 4K output, processor use
-across the capture and the app fell from around 225% of a core to 45%.
+### Outputs
+- Windows: Spout send and receive verified end to end, both sending the
+  programme to another app and taking another app's Spout output as a cue.
+- macOS: Syphon sends only. Receive is explicitly described as unsupported,
+  rather than pending.
 
-**A camera or a window can be named from a controller.** Asking for one over
-the control port without naming it used to answer OK and add nothing, because
-the desk was waiting for someone to choose from a list. It now answers with the
-list itself, so a show can be built by script as well as by hand.
+### Linux
+- Removed host-provided libraries from the AppImage.
+- Added an application description and screenshots for software catalogues.
 
-**Spout in and out, on Windows.** Deckboy's programme can be sent to another
-application and another application's Spout output can be taken as a cue --
-both confirmed end to end. On macOS, Deckboy sends Syphon; it does not receive
-it, and now says so plainly rather than describing the receiver as pending.
-
-**The Linux AppImage travels lighter.** It no longer carries libraries that
-belong to the host machine, which is what a portable build is supposed to leave
-alone, and it now carries its own description and screenshots for software
-catalogues.
-
-**The MENU button says MENU.** On an interface scaled above 1x -- which
-includes the 150% that a 4K laptop panel uses by default -- it was drawing as
-an ellipsis.
+### Interface
+- Fixed an issue where MENU appeared as an ellipsis at interface scales
+  above 1x, including 150%.
 
 ## 2026-09-17 - v0.99.367 (cues that stay where they belong, and sound that bends the picture)
 
-Everything since v0.99.362, in one download.
+Includes the changes since v0.99.362.
 
-**Browser cues render inside the show on Windows.** A web page taken as a cue
-now draws straight into the programme output, the way a video does. Nothing
-opens on top of your desk, and the page keeps its size whatever screen you are
-on. Scroll it, click through a cookie banner, or hand it to the hands-on window
-from the inspector when it needs a login.
+### Sources
+- Windows: browser cues render directly into the programme output without
+  opening a window over the desk. Page size is independent of display
+  scaling. Use the inspector to scroll, click through a cookie banner or
+  open the hands-on window for login.
+- `SOURCE > Window` opens the window picker beside the button.
+- Windows: window capture uses the window's full-resolution picture,
+  independent of display scaling. Capture follows moves and resizes,
+  excludes overlapping windows and captures static pages.
+- Missing source windows are reported by name instead of producing a
+  dark cue.
 
-**Window cues come in cleanly.** Choose SOURCE, then Window, and the list of
-windows opens right beside the button you pressed. On Windows the picture now
-comes from the window itself: it fills the frame at full resolution whatever
-your display scaling is set to, it follows the window as it is moved or
-resized, and anything sitting in front of it stays out of shot. A window
-holding a still page is caught as readily as one that is playing. If the
-window you picked is not open, Deckboy says so by name instead of showing you
-a dark cue.
+### Effects
+- New: DATABEND processes picture data through an audio delay with feedback,
+  filter and wavefolder, then draws the result. Live controls require no
+  media preparation.
+- New: AUDIOPRINT draws the deck's waveform down the picture and displaces
+  each line horizontally with the same audio signal. Combine it with
+  DATABEND and an audio-following parameter for interacting sound and
+  picture effects.
+- Added 8 audio bends, including one driven by the picture.
+- Fixed an issue where SHATTER did not break the picture immediately after
+  being added. Shard size now has an immediate visible effect.
 
-**Two new looks that run the picture and the sound through each other.**
-DATABEND plays the frame through an audio chain -- a delay with feedback, a
-filter and a wavefolder -- and paints what comes back, so the picture comes
-apart the way a file does when it is opened in the wrong program, on a knob,
-live, with no preparation. AUDIOPRINT goes the other way and draws the deck's
-own sound through the picture: the waveform is laid down the frame and throws
-each line sideways as it goes, so the image tears on the beat because it is
-the same signal that made the sound. Put one of each on a cue, with a
-parameter set to follow the audio, and the two chase each other.
+### Outputs
+- All downloads include the NDI sender. Install the free NDI runtime to
+  send programme output over the network.
 
-**Effects chains gained eight ways to bend a cue's sound**, including one that
-listens to the picture while the picture listens back.
+### Recording
+- Fixed an issue where recorded audio did not stay aligned with its picture
+  across recording duration and frame rates.
+- Recordings retain every sample played by the decks, including audio
+  between video frames and the final audio when a take is stopped.
+- Pocket Test recordings include the sync beep with the flash, allowing
+  end-to-end sync measurement from the recording as well as live output.
 
-**SHATTER breaks the picture as soon as you add it**, and its shard size reads
-immediately rather than waiting for another control to be found.
+### Interface
+- Reduced repeated interface drawing. Idle control-window CPU use is about
+  one third of its previous level.
+- Renamed the settings button to MENU.
+- Empty playlists show shortcuts: `I` to import, `P` for a pattern, or
+  drag media into the list.
 
-**NDI output is built in.** Every download now includes Deckboy's NDI sender;
-install the free NDI runtime and your programme appears on the network.
+### Companion and remote protocol
+- Fixed an issue where Companion LFO buttons did not drive the selected
+  parameter.
+- Commands that cannot run, including requests for nonexistent decks or
+  features absent from the build, return an error and reason instead of
+  `OK`.
+- macOS and Linux: connected controllers receive command replies immediately.
 
-**Recordings keep sound and picture together.** Audio in a recording now lines
-up with its picture, and stays lined up from the first minute to the last,
-whatever the frame rate. The sound is also continuous: a recording holds every
-sample the decks played, with nothing dropped between frames, and a take that
-is stopped keeps its last moments of sound instead of ending early.
-
-**The Pocket Test card's sync pop is in the recording.** Record the card and
-the beep is on the track with the flash, so a recording of it can be used to
-measure a chain end to end -- not just the live output.
-
-**A calmer, quicker desk.** The interface redraws far less work every frame,
-so the control window uses about a third of the processor it used to while
-it sits there.
-
-**Companion and remote control say what really happened.** LFO buttons in the
-Companion module now drive the parameter you chose. A command that cannot do
-what was asked -- a deck that does not exist, a feature this build does not
-have -- now answers with an error and the reason, instead of OK. On macOS and
-Linux, commands from a connected controller are answered straight away.
-
-**Small things.** The settings button is called MENU. An empty playlist
-suggests I to import, P for a pattern, or dragging media in. `--font-check`
-can be pointed at a language (`--font-check ja`) and tells you whether this
-machine can draw it.
+### Fonts
+- `--font-check` accepts a language, e.g. `--font-check ja`, and reports
+  whether this machine can draw it.
 
 ## 2026-09-14 - v0.99.366 (the font check can tell letters from boxes)
 
-**`--font-check` passed a font that could not draw a single letter.** It asked
-whether anything had been drawn at all, and an empty box is something -- so a
-face with no characters for the language it was being asked to render came back
-clean. That is the exact complaint the check exists to diagnose: boxes are not
-text, and an operator reporting "no text" may be looking at a page of them.
-
-It now renders a second string of the same length and compares. Every character
-of a face that cannot draw a script comes out as the same box with the same
-width, so the two are identical to the pixel; a face with real letters cannot
-produce that. The report says GLYPHS NONE and the check fails.
-
-**And it can now be asked about a language other than English.**
-`--font-check ja` (or ar, hi, ko, zh-Hans, any code the app offers) sets that
-language first, so the check opens the face the interface would really open for
-it. That matters because a language the bundled faces cannot draw is given a
-system font named by its own catalogue -- a font which draws Latin perfectly
-well and may have nothing for the script in question. Until now the check
-always answered for English and could pass cleanly on a machine whose interface
-was entirely boxes.
-
-Each language names itself in its own script, so the check has a sample for
-every one of them without carrying any text of its own.
-
-Verified both ways round, which is the only way a check like this is worth
-anything. Pointed at a script the bundled fonts genuinely cannot draw: every
-face reported ink present -- what the old check called a pass -- and every one
-is now caught. Pointed at the six languages that need a system face, on a
-machine that has them: all six pass.
-
-The timecode face is deliberately exempt. It is never swapped for the
-language's font because it carries counters and readouts rather than prose, so
-testing it reported a failure on every non-Latin language for a face that was
-working exactly as intended.
+### Fonts
+- Fixed an issue where `--font-check` passed fonts that drew only missing
+  character boxes. It now compares two equal-length strings; identical
+  boxed output reports `GLYPHS NONE` and fails the check.
+- New: `--font-check <language>` selects the language and the font the
+  interface would use before testing. Accepts any offered language code,
+  including `ja`, `ar`, `hi`, `ko` and `zh-Hans`; previously only English
+  was tested.
+- The check uses each language's name in its own script as the sample.
+  Languages absent from bundled fonts use the system font named by their
+  catalogue; Latin coverage alone no longer passes a check for another script.
+- Verification caught every tested bundled face lacking the requested
+  script, despite all of them drawing boxes. All 6 languages requiring a
+  system face passed on a machine with those fonts installed.
+- The timecode face is exempt from language checks: it keeps its counter
+  and readout font instead of switching to the language's prose font.
 
 ## 2026-09-14 - v0.99.365 (a recording hears what the room hears)
 
-**Recorded sound ran ahead of its own picture by about seven frames.** Not a
-drift -- a constant lead, on every recording, whatever the source format and
-whenever recording started. A quarter of a second is well past the point where
-a face stops matching its voice.
+### Recording and streaming
+- Fixed an issue where recorded audio led the picture by the sound device's
+  queued-audio duration. The lead was constant, independent of source format
+  and recording start time, at roughly 7 frames before this change.
+- Audio supplied to recording, streams and NDI now follows samples played
+  by the device, using its reported queue depth without a fixed or
+  machine-specific delay.
+- At 25 fps, a clip with simultaneous once-per-second white flashes and
+  tone bursts measured audio offsets of -275, -307 and -275 ms before
+  (mean -286 ms), and -189, -171 and -164 ms after (mean -175 ms).
+  Negative values mean audio is early.
+- A second machine, using a different clip and measurement method, recovered
+  157 ms versus 111 ms on the first. The correction varies with the device
+  and driver queue.
+- Live output is unchanged: its picture already follows played audio.
+  During verification it measured 20 ms closer to sync than another player
+  through the same capture rig.
+- Fixed an issue where a stopped take lost its final fraction of a second
+  of audio. Pending audio is released when playback ends.
 
-The recorder, the stream writers and NDI are all fed from one tap, and the tap
-was handing them each block of audio at the moment it was passed to the sound
-card -- while the picture is timed against what the sound card has actually
-PLAYED. Those are two different instants, separated by however much audio the
-device is holding. Everything captured carried the difference.
-
-Audio now reaches the tap only once the device has played it. It releases
-against the device's own reported queue rather than any assumed figure, so
-there is no constant to get wrong and nothing to re-tune per machine.
-
-Measured against a clip carrying a white flash and a tone burst laid down at
-the same instant, once a second. Negative means sound early; 25fps, three runs
-of each on a real sound device:
-
-    before   -275, -307, -275 ms     mean -286
-    after    -189, -171, -164 ms     mean -175
-
-A second machine, different clip and different measuring method, found the same
-fault and the same direction, and recovered rather more: 157ms against 111ms
-here. That spread is expected -- the amount recovered IS whatever the sound
-device was holding, so it varies with the device and the driver, which is the
-reason nothing here is a fixed figure.
-
-**Live output was never affected and is not changed by this.** What an audience
-hears comes out of the device after that buffer, and the picture is timed
-against the same played-sound clock, so the two already agreed -- confirmed by
-measurement during this work, where Deckboy's live output ran 20ms closer to
-true than another player through the same capture rig. Only the tap read from
-the wrong end of the buffer, so only captured files were wrong.
-
-**What is left, stated plainly.** About four and a half frames of the offset
-remain -- 4.51 across nine runs on one machine and 4.4 on another, holding
-steady across frame rates from 25 to 60. That is a different thing: the
-recording reads each finished frame back from the graphics card a few frames
-after it was drawn, and the sound that goes with it is not held back to match.
-It is measured, both machines agree on the size, and it is not fixed here.
-
-**A take no longer loses the last fraction of a second of its sound.** Holding
-audio until it has played means some is always still held when playback ends;
-it is released at that point instead of being dropped.
-
+### Known issues
+- About 4.5 frames of recorded A/V offset remain: 4.51 frames across 9 runs
+  on one machine and 4.4 on another, steady from 25 to 60 fps. GPU frame
+  readback arrives several frames after drawing; recorded audio is not yet
+  delayed to match.
 
 ## 2026-09-14 - v0.99.364 (a recording keeps time with itself)
 
-**Recorded audio ran 3.3% slow against its own picture.** A minute of recording
-drifted more than two seconds, and it never settled, because there was nothing
-for it to settle to -- it was a constant rate error, not a startup offset.
+### Recording
+- Fixed an issue where recorded audio ran about 3.3% slow when late video
+  frames were repeated to maintain constant frame rate. Each repeated
+  picture also repeated its audio, causing over 2 seconds of drift per
+  minute at about 1 repeated frame in 30.
+- Each written frame now receives fresh, consecutive audio. Sample counts,
+  frame counts, durations and dropped-frame checks had appeared correct
+  despite the duplicated audio content.
+- Marker-clip timing ratios before and after, where 1.0000 is exact sync:
+  25 fps at 640x360, 1.0332 to 1.0025; 50 fps at 640x360, 1.0340 to 0.9990;
+  60 fps at 640x360, 1.0387 to 1.0015; 25 fps at 1080p with Grain Flow and
+  Caustics, 1.0331 to 1.0025. Remaining variation reflects measurement
+  quantisation to frame boundaries.
+- The effect was worse at 60 fps than at 25 or 30 fps. The label cache in
+  v0.99.363 had already reduced late frames and repeats by lowering
+  main-thread work.
 
-When the capture loop falls a frame behind the wall clock, the pacer repeats
-the picture so the file stays constant-frame-rate. That is correct, and it is
-what keeps a recording the right length on a busy machine. But each repeated
-frame was queued as a copy of the whole packet -- and the packet carries its
-audio, so a repeated picture replayed its own fraction of a second of sound.
-About one frame in thirty was being repeated, which is where the 3.3% came
-from.
-
-The counts were right the whole time, which is why this survived: sample count
-matched frame count exactly, durations matched, no frames were dropped, and
-every check either of those numbers would satisfy passed. It was the CONTENT
-that was duplicated. A repeated frame is correct output; a repeated sample is
-not.
-
-Each written frame now takes its own audio, read fresh, so consecutive frames
-carry consecutive sound. Measured against a marker clip, before and after:
-
-    25fps, 640x360                       1.0332  ->  1.0025
-    50fps, 640x360                       1.0340  ->  0.9990
-    60fps, 640x360                       1.0387  ->  1.0015
-    25fps, 1080p + grain flow + caustics 1.0331  ->  1.0025
-
-1.0000 is perfect sync. What is left is the measuring harness quantising to
-frame boundaries, not the recording.
-
-**Streams are unaffected.** A stream never repeats a picture -- only a
-recording does, to hold its frame rate -- so a stream could not have had this
-fault. Both sinks now compute audio the same way regardless, so the recording's
-bug cannot reappear on the other path.
-
-**Recordings made at 60fps were worse than at 25 or 30**, and that part was
-already fixed by the label cache in v0.99.363 without anyone knowing: less work
-on the main thread meant fewer frames arriving late, which meant fewer repeats.
-The two faults had been adding up.
-
+### Streaming
+- Streams were unaffected because they do not repeat pictures. Streaming
+  now uses the same audio calculation as recording.
 
 ## 2026-09-14 - v0.99.363 (the interface stops re-drawing what has not changed)
 
-**Every label in the interface was being rasterised from scratch, turned into
-a texture, drawn, and thrown away -- once per label, per frame.** Three hundred
-and twelve places draw text, most of them inside loops over cues and settings
-rows, sixty times a second. Text measurement had been cached for years. The
-rasterisation never was.
+### Interface
+- Cached rendered labels by window renderer, font, text and colour.
+  Unchanged labels reuse their textures; unused labels and reloaded fonts
+  release the cache.
+- Previously, 312 text-drawing sites recreated labels each frame, often in
+  cue and settings loops at 60 fps: roughly 20,000 allocations per second.
+  Text measurement was already cached; rendered text now is too.
+- `--ui-profile` reports label-cache entries, memory use, hit rate and
+  rasterisation failures every 5 seconds.
+- Fixed right-to-left splash font setup after interface-scale changes.
+  The headline font now loads with the other fonts before direction is
+  configured, avoiding use of the previous, freed font. Left-to-right
+  interfaces were unaffected.
 
-Labels are now rendered once and kept, keyed by the renderer that owns them,
-the face, the string and the ink, and dropped only when they fall out of use or
-the fonts reload. The steady state -- a screenful of labels that are all still
-there next frame -- now re-draws nothing at all.
-
-This started as an investigation into issue #6, where the interface on one Mac
-drew every panel, icon, image and colour with no text anywhere. The screenshots
-are what pointed here: images hold their textures, rectangles allocate nothing,
-and until this release text was the only thing in Deckboy churning allocations
-every frame. A path that allocates twenty thousand times a second is a path
-that fails first on whichever machine has the least room, which is the shape of
-a fault that appears on one person's computer and nobody else's.
-
-To be straight about what that does and does not settle: the machine that shows
-the fault is not one we have, so this is the most likely explanation rather than
-a proven one. v0.99.361 already moved macOS to Metal, which is the supported
-backend there and the right thing regardless. This removes the pressure that
-theory rests on.
-
-**`--ui-profile` now reports the label cache** every five seconds -- entries,
-memory, hit rate, and any rasterisation that failed. A failed label used to be
-invisible from inside the app, which is the main reason issue #6 could only be
-described and not measured.
-
-**The splash headline font was opened after the code that configures it.** In a
-right-to-left interface that meant the text-direction pass ran against the
-previous load's font -- freed on any UI-scale change. Left-to-right interfaces
-never touched it, which is why it was never seen. It is opened with the rest of
-the set now.
-
+### Known issues
+- Missing interface text on one Mac (issue #6) remains unverified on the
+  affected machine. Panels, icons, images and colours drew correctly.
+  Reduced text allocation addresses a suspected cause; it is not a confirmed
+  fix. macOS already switched to the supported Metal backend in v0.99.361.
 
 ## 2026-09-14 - v0.99.362 (an audio cue makes a sound)
 
-**An AUDIO cue played silently.** Not to the speakers, not to a recording. It
-transported perfectly while doing it -- Playing, position advancing, duration
-read off the file -- with a dead VU meter and no message of any kind. A cue
-deck that cannot play a music bed, a sting or a walk-in track, failing in the
-way that looks most like working.
+### Audio
+- Fixed an issue where AUDIO cues played silently through speakers and
+  recordings while showing Playing, advancing position and valid duration,
+  with a dead VU meter and no error. Audio-only cues with 1x1 probe
+  dimensions are no longer rejected by video dimension rounding.
+  Audio cues of every format now play and record.
+- Added a 35 Hz high-pass filter to chip-synth pulse voices for DC blocking,
+  matching the original chip's output stage. The offset previously consumed
+  about 8% of headroom and caused thumps when notes started or stopped.
+- A 12.5% duty pulse's measured mean changed from -2630 to 1.9; triangle
+  bass is unchanged.
 
-The cause is almost funny: an audio-only cue has no picture, so the probe
-stores it as 1x1, and the decoder's even-dimension rounding -- which exists for
-video and is right for video -- turned 1 into 0 and refused the cue before
-opening anything. The cue kind that needs the video path least was being
-turned away by it. Audio cues of every format now play and record.
-
-**The chip synth's pulse voices had no DC blocking.** An eighth-duty pulse is
-high for an eighth of its period and low for seven eighths, so it sat off
-centre and ate 8% of the available headroom before a note was played -- and a
-note starting or stopping was a step in that offset, which is where a thump on
-take comes from. The voice now goes through a gentle high-pass at 35Hz, as the
-real chip's output stage did. Measured: a 12.5% pulse went from a mean of
--2630 to 1.9, with the triangle bass untouched.
-
-**"RECORDING PICTURE STALLED" no longer cries wolf.** Recording a slide, a
-graphic, an audio cue or a paused clip raised the output into an error state
-and said so once a second for the whole take, because the check could not tell
-a picture that is meant to sit still from a capture that has died. It now asks
-whether the picture is supposed to be moving, waits three seconds instead of
-half of one, and says it once.
+### Recording
+- Fixed an issue where recording a slide, graphic, audio cue or paused clip
+  repeatedly reported `RECORDING PICTURE STALLED` and put the output into
+  an error state.
+- The stall check now requires a picture expected to move, waits 3 seconds
+  instead of 0.5 seconds, and reports once instead of every second.
 
 ## 2026-09-14 - v0.99.361 (the cue you took is the cue you see)
 
-**macOS: the interface had no text at all on macOS 26.** Panels, icons, theme
-colours and the splash all drew; every letter was missing. Deckboy had been
-choosing a deprecated OpenGL backend on every Mac since the renderer list was
-written -- it worked on macOS 14 and 15, so nobody noticed -- and on macOS 26 it
-keeps drawing shapes and stops drawing glyphs. Macs now use Metal, which is the
-supported backend there and has been for years. Reported by Joel Adria (#6).
+### macOS
+- Fixed an issue where interface text was missing on macOS 26 while panels,
+  icons, theme colours and the splash drew correctly. macOS now uses Metal
+  instead of deprecated OpenGL; the previous backend worked on macOS 14
+  and 15.
 
-A machine that cannot draw text can now say so: `--font-check` opens every face
-at the sizes the interface uses, renders with it, checks there is ink in the
-result and that measuring agrees with drawing, and names the step that failed.
-The app also reports which renderer each window got, and a failed text texture
-is retried and recorded instead of silently drawing nothing.
+### Fonts
+- New: `--font-check` opens every font at interface sizes, checks rendered
+  ink and agreement between measured and drawn text, and names failed steps.
+- Added per-window renderer reporting. Failed text textures are retried
+  and logged.
 
+### Playback
+- Fixed an issue where taking a still cue after another live cue left the
+  previous picture on the output and presenter view, while the cue name,
+  notes, slide dots and both timers updated. First takes, repeated takes
+  of the same cue and video playback were unaffected.
+- Fixed an issue where older AVI files with packed B-frames displayed video
+  about 170 ms behind audio because the first frame timestamp was 4 frames
+  late.
+- Fixed an issue where a bad timestamp intermittently froze the picture
+  for 1–2 seconds.
 
-**Taking a still cue left the PREVIOUS one on the output.** Not briefly -- for
-good, with the cue name, the speaker notes, the slide dots and both timers all
-correct beside the wrong picture. It needed a cue to have been live before, so
-the first take after opening a show looked right, and taking the same cue twice
-looked right, which is how it survived. Video hid it completely. Anyone running
-slides was one slide behind all the way through, and the presenter view showed
-it too.
+### Cues
+- PowerPoint `.pptx` imports retain per-slide fades, pushes, wipes, dips
+  and irises with their durations, plus timed slide advances. These were
+  previously lost during PDF conversion.
+- Keynote decks exported as `.pptx` use the same import.
 
-**Audio and picture drift apart on some older AVI files, and now they do not.**
-The DivX-era files with packed B-frames -- a lot of ripped television -- gave
-their first frame a timestamp four frames late, so the picture ran about 170ms
-behind its own sound for the whole clip. The same fix ends the other half of
-that report: a single bad timestamp could park the picture ahead of the clock
-and freeze it for a second or two, now and then, for no visible reason.
+### Interface
+- New: playlist scrollbar with draggable rail and thumb. Thumb size shows
+  the visible proportion of the list; previously navigation was by mouse
+  wheel in 36-pixel steps.
+- Changed: the output's Shows control is a dropdown, exposing presenter
+  view and prompter choices.
+- Removed the minus sign from the timeline's REMAINING readout; playlist
+  countdowns retain it to indicate counting direction.
+- Fixed an issue where the first timeline ruler timestamp overlapped VIDEO.
 
-**A slide deck brings its transitions with it.** Importing a .pptx used to
-flatten every move to a cut, because the conversion goes through PDF and a PDF
-cannot carry one. The transitions were still in the PowerPoint the whole time:
-fades, pushes, wipes, dips and irises now come across per slide, with their
-durations, and PowerPoint's "advance after N seconds" keeps a self-running deck
-self-running. Keynote comes too, exported as .pptx.
+### MIDI
+- Fixed an issue where MIDI timecode quarter-frame messages were discarded
+  on Windows and macOS and MTC was described as Linux-only. Any MIDI input
+  can now chase timecode.
 
-**The playlist has a scrollbar.** A thousand-cue deck was reachable only by
-mouse wheel, thirty-six pixels at a time, with nothing on screen saying where in
-the show you were. Grab the rail, or drag the thumb -- whose size tells you how
-long the list is.
+### Companion and Stream Deck
+- The Companion module is included in release downloads.
+- Changed: Stream Deck plugin ID from `com.deckboy.streamdeck` to
+  `com.utopian-academy.deckboy` for Elgato Marketplace requirements.
+  Published Marketplace IDs cannot change.
+- Reassign Stream Deck keys once: install the new plugin, drag its actions
+  onto the keys and remove the old plugin. Other behaviour is unchanged.
 
-**The presenter view is findable.** It was always there, on an output's "Shows"
-row, as a plain button that looked like a status line. It is a dropdown now,
-which is also how anyone discovers the prompter.
-
-**Two things in the timeline that read as broken.** The countdown said
-"-01:20.3" underneath a label reading REMAINING, and the ruler's first time was
-printed on top of the "VIDEO" lane name. The playlist row's countdown keeps its
-minus sign, because there the sign is the only thing saying which way the number
-runs.
-
-**MIDI timecode works on Windows and macOS.** A quarter-frame is an ordinary
-MIDI message and always arrived; it was being dropped one layer below, while the
-app reported MTC as needing Linux. Any MIDI input can chase timecode now.
-
-**The Companion module ships in the release** rather than being something to
-fetch from the repository, and there is a screen check you can open on a phone
-in a venue.
-
-**The Stream Deck plugin has a new id, and you will need to re-assign its keys
-once.** It was `com.deckboy.streamdeck`; it is now `com.utopian-academy.deckboy`,
-which is the form Elgato's Marketplace requires. A plugin's id can never change
-after it is published there, so this was the last release it could be done in --
-and doing it now costs one re-assignment, where doing it later would cost one
-from everybody. Install the new plugin, drag the actions back onto your keys,
-and remove the old one; nothing else about it has changed.
-
-**The manual was under-selling the transitions by ten.** It listed cut,
-crossfade and dip-to-black. Deckboy has thirteen: those plus dip to white, push
-left, right, up and down, wipe left, right, up and down, and an iris. Nothing
-changed in the program -- they were all there -- but if you have been reaching
-for a crossfade because you thought that was the choice, it was not.
-
-Under the hood: seven audits that existed and were run by hand now run in CI,
-including two ratchets that can only go down; a new check catches the class of
-bug where a saved value comes back as something else after a reload.
+### Documentation and checks
+- Added a screen check usable from a phone at a venue.
+- The manual now lists all 13 existing transitions: cut, crossfade, dip to
+  black, dip to white, push left/right/up/down, wipe left/right/up/down,
+  and iris. No transition behaviour changed.
+- Added 7 existing manual audits to CI, including 2 checks whose accepted
+  issue counts can only decrease, plus a check for saved values changing
+  after reload.
 
 ## 2026-09-13 - v0.99.359 (the rings come back)
 
-**The Rings shape stopped being rings a few seconds after it went up.** The
-whole frame settled to one flat colour -- pure white on Vapor, flat pastel on
-NES, flat orange on Fire -- which looks like the synth breaking rather than
-like a shape losing its shape. It was time-dependent, so it was right for the
-first few seconds after the take and then went, and no combination of palette
-or mirror made any difference to it. Rings hold their bands indefinitely now,
-at every palette, mirror and speed.
-
-**The brightest step of every palette is the palette's own top colour again.**
-The posteriser's top level landed fractionally out of range, so the brightest
-band clipped towards white instead of showing the colour chosen for it. Most
-visible on the hard-edged shapes -- Rings, Diamond and Grid -- where every
-pixel is at one end of the ramp or the other.
+### Video Synth
+- Fixed an issue where Rings became a flat colour a few seconds after take:
+  white on Vapor, pastel on NES and orange on Fire. Bands now persist at
+  every palette, mirror and speed setting.
+- Fixed an issue where the brightest posterised band clipped towards white
+  instead of using the palette's top colour. Most visible on Rings,
+  Diamond and Grid.
 
 ## 2026-09-13 - v0.99.358 (a synth stays a synth)
 
-**A chip synth cue now comes back as a chip synth.** Reopening a show turned
-one into the channel-walking line-up tone, keeping its name and every setting,
-so the only sign was that it would not play a note. The same reopen turned a
-video synth cue made on EGA, C64, Game Boy, CGA, NES or Vapor into Mono. Both
-are fixed, and a new source check guards the whole class -- eleven palettes
-today is fourteen next year, and the reader has to grow with the list.
+### Cues
+- Fixed an issue where reopening a show changed a chip-synth cue into the
+  channel-walking line-up tone, retaining its name and settings but leaving
+  it unable to play notes.
+- Fixed an issue where reopening a show changed Video Synth palettes EGA,
+  C64, Game Boy, CGA, NES and Vapor to Mono.
+- Added a source check to verify saved choices remain supported as option
+  lists grow; the palette list currently has 11 entries.
 
-**Notes go to the deck you are looking at.** With two decks live, playing a
-note always reached the first one, so a bass on one deck and a lead on the
-other came out as two basses. Focus the deck, play the part.
+### Audio
+- Fixed an issue where notes always reached the first live deck when two
+  decks were running. Notes now go to the focused deck.
 
-**CHIP** gives a controller the 2A03's timbre the way SYNTH gives it the video
-synth's look: `CHIP VOICE pulse|triangle|noise`, `CHIP DUTY eighth|quarter|
-half|threequarter`, `CHIP NOISE short|long`, `CHIP ENV <attack> <release>`,
-`CHIP QUANTISE on|off`. A bare `CHIP` reads the current timbre back. It applies
-under a held note, so a part can change instrument while it sounds.
+### Remote protocol
+- New: `CHIP` controls 2A03 timbre, complementing `SYNTH` for Video Synth.
+  `CHIP VOICE pulse|triangle|noise`;
+  `CHIP DUTY eighth|quarter|half|threequarter`;
+  `CHIP NOISE short|long`; `CHIP ENV <attack> <release>`;
+  `CHIP QUANTISE on|off`.
+- Bare `CHIP` returns the current timbre. Changes apply during held notes.
 
-**Four more splash images**, taking the colour rotation to twenty-seven.
+### Interface
+- Added 4 splash images, bringing the colour rotation to 27.
 
 ## 2026-09-12 - v0.99.357 (the audio chain reaches Companion)
 
-The per-cue audio chain shipped with a remote verb and no way to drive it from
-a Companion button, while the picture chain has had `FX ADD` / `FX AMOUNT` /
-`FX CLEAR` there all along. Five actions close that: add, amount, bypass,
-remove and clear.
-
-Amounts and parameters are **percentages** in these, because that is what
-`AUDIOFX` takes and what the inspector shows -- the picture actions stay 0-1
-because `FX` does. Each half matches the verb it drives rather than the module
-picking one notation and quietly converting.
+### Companion
+- New: 5 audio-chain actions: add, amount, bypass, remove and clear.
+  These expose the existing `AUDIOFX` remote control alongside picture
+  actions `FX ADD`, `FX AMOUNT` and `FX CLEAR`.
+- Audio amounts and parameters use percentages, matching `AUDIOFX` and
+  the inspector. Picture actions retain the 0–1 units used by `FX`.
 
 ## 2026-09-12 - v0.99.356 (a cue has a sound as well as a look)
 
-**Every cue now carries an audio chain, the way it already carried a picture
-chain.** It sits directly under EFFECTS in the inspector and works the same way:
-the name is the picker, amount is always "how much of this", B bypasses without
-losing what you set, and the arrows move an effect through the chain. Order is
-the sound — a gate before a compressor is a different result from a compressor
-before a gate, and both are things people want.
+### Audio
+- New: per-cue audio chain directly below EFFECTS in the inspector.
+  Click an effect name to choose its kind, set its amount, use `B` to
+  bypass while retaining settings, and use arrows to reorder. Processing
+  order changes the sound.
+- Added 14 effects: High Pass, Low Pass, Tilt EQ, Compressor, Gate, Delay,
+  Reverb, Width, Binaural, Picture, Placement, Seam, Frame Lock and Suspend.
+- Picture: brightness opens the filter and darkness closes it; movement
+  opens it further, linking the sound to the cue's picture.
+- Placement: picture position sets sound position. Shrinking the picture
+  reduces treble, width and level; the far ear receives delay, head shadow
+  and reduced level.
+- Seam: reduces treble and adds a short room over the final seconds,
+  leaving level unchanged so cue fades remain independent.
+- Frame Lock: stutters in grains of 1, 2 or 4 video frames, aligned to
+  frame boundaries rather than musical tempo. One frame at 23.976 fps is
+  41.708 ms.
+- Suspend: crossfades and repeats the last moment of audio for the duration
+  of a hold, retaining room tone, audience sound, rain or hum.
+- The 5 cue-aware effects pass audio through unchanged and explain when
+  their input is unavailable: e.g. Frame Lock on an audio cue, Seam on an
+  open-ended cue, or Picture on a cue without a picture.
+- Audio-chain edits apply to every selected cue, as gain, pan and mono
+  already do. New effects start with audible settings; Delay and Reverb
+  use sends, adding to the unchanged dry source.
+- Chains save with the cue. Older shows load unchanged with no audio chain.
+- New: `--audio-fx-check` tests every effect with a speech-shaped signal
+  and reports level, peak, low/high spectrum changes, inter-word noise
+  floor and any sound remaining after the input stops.
 
-Fourteen effects. Nine of them are the ones a live events deck actually needs:
+### Remote protocol
+- New: `AUDIOFX` reads the chain; `AUDIOFX ADD <effect> [amount%]`
+  appends; `AUDIOFX <slot> <amount%> [a% b% c% d%]` sets values.
+  Also supports `BYPASS`, `OFF` and `CLEAR`. All numbers are percentages,
+  matching the inspector.
+- `HELP ALL` lists `RENAME` and includes itself in the command count.
 
-**High pass · Low pass · Tilt EQ · Compressor · Gate · Delay · Reverb · Width ·
-Binaural** — enough to fix a room and shape a voice, and deliberately not eleven
-flavours of chorus.
+### macOS
+- Measured on an M4: 10 seconds of 4K30 video used 0.46 seconds of CPU with
+  hardware decode, versus 5.48 seconds in software, about 12 times as much.
+  The previous ffmpeg subprocess path achieved 20 fps at that raster.
+- VideoToolbox frames pass directly into Metal textures without CPU
+  download.
 
-### Five that could not exist anywhere else
+### Diagnostics
+- New: `--decode-bench <file> [seconds] download` retains hardware decode
+  but requests packed CPU frames, separating decode cost from frame
+  download cost.
 
-Every audio effect ever written receives a buffer of samples and nothing else.
-That is not a limitation somebody chose; it is what a plugin *is*. A compressor
-inside a mixing desk cannot know that the thing it is compressing is a drone
-shot, that the shot is three-quarters of the way across the screen, that it has
-four seconds left, or that the operator has just held it.
-
-Deckboy holds the picture and the sound in the same object. So:
-
-**Picture** — the cue's own video plays the filter. Brightness opens it and
-darkness closes it, so a cut to black takes the top off the sound and a bright
-frame gives it back; movement pushes it further open, so a still shot sits back
-and a fast one comes forward. The sound of a shot following the shot.
-
-**Placement** — the sound is where the picture is. A PIP three-quarters of the
-way across the output sounds three-quarters of the way across the room, and
-shrinking it moves it away from you: the top comes off, the image narrows, the
-level drops the way distance actually does. Not a pan — a pan puts a sound
-between two speakers; this puts it in a position, which is why the far ear gets
-the delay and the head shadow as well as less level.
-
-**Seam** — the cue resolves instead of being severed. A fade is a volume ramp:
-it makes the last seconds quieter, which is not the same as making them sound
-finished. Over the last few seconds this brings the top down and a short room
-up, so the sound settles into the cut. The level is left alone; the fade still
-does that job if you want it.
-
-**Frame lock** — stutter on the frame, not on the beat. Every stutter effect
-there has ever been is quantised to a tempo, because a tempo is the only clock a
-plugin has. This one is quantised to the video frame period, so a grain is
-exactly one, two or four frames and the chop lands on a frame boundary. On a
-23.976 clip that is 41.708ms, which is not a musical value and is precisely the
-point.
-
-**Suspend** — a held cue keeps its room. Holding a cue holds the picture, and
-the sound stops dead, which on anything with room tone, an audience, rain or a
-hum is an obvious hole. This keeps the last moment of it going, crossfaded into
-itself so there is no seam, for as long as the hold lasts.
-
-Each of the five says on its own row when it has nothing to follow — Frame lock
-on an audio cue, Seam on an open-ended one, Picture on a cue with no picture.
-The effect passes the signal through untouched, which is right, and the row says
-why, which is the part that matters.
-
-### Working with it
-
-Edits reach every selected cue, the way gain, pan and mono already do — levels
-and a room want to agree across a set of cues. An effect arrives set to
-something worth hearing rather than at its neutral values, so adding a
-compressor compresses and adding a delay is audible. Delay and reverb are
-**sends**: turning one up adds it on top of a source that stays where it is.
-
-Over the wire: `AUDIOFX` reads the chain back, `AUDIOFX ADD <effect> [amount%]`
-appends one, `AUDIOFX <slot> <amount%> [a% b% c% d%]` sets it, plus `BYPASS`,
-`OFF` and `CLEAR`. Every number is a percentage, the same units the inspector
-shows. The chain saves as one field at the end of the cue record, so a show
-written before this loads unchanged and simply has none.
-
-### Hardware decode on a Mac, measured
-
-On an M4, 4K30 costs **0.46 seconds of CPU for ten seconds of video**. The same
-clip in software costs 5.48 — about twelve times as much — and the old ffmpeg
-subprocess path cannot hold 30fps at that raster at all, managing 20. Not one
-frame comes down to the CPU: the VideoToolbox picture is wrapped straight into a
-Metal texture.
-
-### The cue inspector's waveform
-
-The waveform strip was drawn **on top of the preview picture** — laid out at the
-bottom of the thumbnail box after the still had already been fitted to the whole
-of it. They are neighbours now, not layers. The box also never scaled, so at
-1.5x the strip took over half of it.
-
-And the waveform itself was a solid brick. There are 512 buckets whatever the
-file and each held the loudest sample in its span, so an eleven-minute cue put
-1.3 seconds in each one — and the loudest sample in 1.3 seconds of any programme
-material is within a couple of dB of the loudest sample in the whole file. The
-analysis keeps an RMS per bucket now and the lane is drawn twice: the peak as
-the outline, the RMS as the bright body. The RMS is the part that moves, which
-is the shape you are reading when you look for a line of dialogue.
-
-### Thirteen new boot screens
-
-The splash rotation gains thirteen scenes. The pool now takes **JPEG as well as
-PNG**, because these are photographs as far as a codec is concerned: the same
-picture re-encoded as PNG at the pool's own size came out *larger* than the
-source and about three times a high-quality JPEG, for art that is drawn
-full-bleed behind a translucent card with a colour tint over it. Fifteen
-megabytes instead of forty-four, and no visible difference at 1:1.
-
-### Also
-
-- `--audio-fx-check` puts a speech-shaped signal through every effect and
-  reports what came out: level, peak, what it did to each end of the spectrum,
-  what it did to the noise floor between words, and whether anything was still
-  sounding after the input stopped.
-- `--decode-bench <file> [seconds] download` keeps the hardware decoder but asks
-  for a packed CPU format, which is the measurement that separates "hardware
-  decode is cheap" from "not downloading the frame is cheap".
-- The step buttons on every effect amount and parameter row now carry their
-  payload, so `-` and `+` work as well as scrubbing the value did.
-- `HELP ALL` lists `RENAME`, and counts itself correctly.
+### Interface
+- Fixed an issue where the cue inspector waveform overlapped the preview.
+  The preview and waveform now occupy separate areas; the thumbnail box
+  scales with the interface. At 1.5x the strip previously occupied over
+  half the box.
+- Waveforms now show peak as an outline and RMS as a bright body in each of
+  512 buckets. Peak-only waveforms appeared nearly solid on long cues:
+  an 11-minute cue placed 1.3 seconds in each bucket, whose peaks were
+  within a few dB of the whole file's maximum.
+- Fixed an issue where effect amount and parameter `-` and `+` buttons
+  did nothing while value scrubbing worked.
+- Added 13 splash scenes and JPEG support alongside PNG. The new art uses
+  15 MB instead of 44 MB, with no visible difference at 1:1. At the splash
+  size, PNG was larger than the source and about 3 times a high-quality
+  JPEG; the art fills the background behind a translucent, tinted card.
 
 ## 2026-09-12 - v0.99.353 (zero-copy decode on macOS -- written, not yet measured)
 
-**On a Mac the picture no longer comes down to the CPU at all.** A VideoToolbox
-frame is a CVPixelBuffer backed by an IOSurface, and SDL's Metal renderer can
-wrap one directly -- so the frame goes decoder to texture with no download, no
-swscale pass and no re-upload. At 4K that round trip through system memory is
-most of the cost, considerably more than the decoding.
+### macOS
+- New: VideoToolbox frames backed by IOSurface pass directly to Metal
+  textures without CPU download, pixel conversion or re-upload. This
+  removes the system-memory round trip that accounts for most of the
+  cost at 4K.
+- Metal devices can wrap the same surface directly. Unlike Windows, the
+  decoder need not share the renderer's device or copy each frame into
+  another GPU texture.
+- Unsupported surface formats, including 10-bit, retain the CPU download
+  path. This avoids assuming every hardware format can be wrapped, an
+  assumption that previously rendered 10-bit HEVC green on Windows.
+- `--decode-bench` now reports whether a frame actually avoided copying
+  on macOS as well as Windows.
+- Fixed a macOS link failure by linking CoreVideo.
+- Subsequent M4 measurements are recorded in v0.99.356.
 
-It is simpler than the Windows equivalent, which is worth knowing if you read
-the code: on Windows the decoder has to sit on the renderer's own device and
-each frame's slice is GPU-copied into a texture we own. An IOSurface can be
-wrapped by any Metal device, so there is nothing to match and nothing to copy --
-the frame *is* the texture.
+### Stage timer
+- New: typeface mode alongside the existing seven-segment and blocky
+  faces. Select a `.ttf` or `.otf` in the cue inspector, or use
+  `TIMER FACE typeface` and `TIMER FONT <path>`.
+- Clearing the font uses the bundled app face. Existing defaults remain
+  unchanged; seven-segment and blocky render identically across machines.
+- The message line uses the selected face. Typeface mode preserves mixed
+  case and accents without the built-in 5x7 face's uppercase conversion
+  and 40-character limit.
 
-Only the pixel formats known to be wrappable take this path; anything else --
-10-bit among them -- falls through to the download, which is correct for every
-format rather than fast for two. That guard exists because the same assumption
-once rendered 10-bit HEVC flat green on Windows.
-
-`--decode-bench` now asks the decoder whether the frame avoided a copy instead
-of inferring it from a Direct3D device pointer, which macOS does not have. It
-would have reported the new path as the old one.
-
-**Measured since, on an M4** -- see the entry at the top of this file. It links against CoreVideo now,
-which it did not at first: the header was included, every translation unit
-compiled and only the link failed, on the one platform that cannot be built
-here.
-
-### The stage timer can use any font
-
-**A third timer face: a real typeface.** Seven-segment and blocky stay, and stay
-the default -- they render identically on any machine whatever is installed,
-which is what a clock on a stage screen wants. But an event that has a typeface
-can now have its clock in it: pick a `.ttf` or `.otf` in the cue inspector, or
-`TIMER FACE typeface` and `TIMER FONT <path>` over the wire. Clearing the font
-goes back to the app's own bundled face, so the mode works before you have
-picked anything.
-
-The message line follows the clock's face. On a typeface timer it is your own
-text in your own font -- mixed case, accents and all -- instead of being folded
-to upper case and cut at forty characters, which is all the built-in 5x7 table
-can express.
-
-**The program monitor.** The picture was drawn over the chrome: it clipped the
-corner off the LIVE badge and sliced the "Output 1 3840x2160" caption in half
-lengthwise. The inset reserving room for them was written at 1x while the badge
-and the caption scale with the interface, so at anything above 100% the picture
-rode over both. Both are now measured from the chrome as it is actually laid
-out.
-
-And the monitor has some depth to it: a recessed bezel, corner ticks framing the
-picture, and a fine dot field in the surround -- the app does call itself a
-dot-matrix cue deck. Never over the picture, which is somebody's actual content.
+### Interface
+- Fixed an issue where the program-monitor picture overlapped the LIVE
+  badge and output caption above 100% interface scale. Picture insets now
+  follow the scaled badge and caption.
+- Added a recessed bezel, corner ticks and a fine dot field around the
+  monitor, outside the programme picture.
 
 ## 2026-09-12 - v0.99.352 (IPTV channel lists)
 
-**Import an `.m3u` and get the channels.** An IPTV provider's playlist becomes
-one stream cue per channel, named from the entry and with its group title in the
-cue's notes where it is searchable. HLS URLs already played; what was missing
-was the list.
-
-**`.m3u8` means two different things and they are told apart.** An HLS *media*
-playlist has the same extension and is one stream's segment list -- importing
-that as a hundred cues, one per segment, would be nonsense. Anything carrying an
-`#EXT-X-` tag is handed to a single stream cue and played, which is what it is
-for; everything else is read as a channel list.
+### Cues
+- New: import IPTV `.m3u` channel lists as one stream cue per channel.
+  Cue names come from entries; group titles go into searchable cue notes.
+  HLS URL playback was already supported.
+- `.m3u8` files containing any `#EXT-X-` tag are treated as one HLS
+  stream, rather than importing each segment as a cue. Other lists are
+  read as channel lists.
 
 ## 2026-09-12 - v0.99.351 (a teleprompter)
 
-**A prompter output, for the person in front of the camera.** The script, very
-large, scrolling up through a fixed reading line at a pace set in lines per
-minute -- and mirrored, because a teleprompter's glass reverses the picture on
-its way to the reader's eye. Like the presenter view it is an output type, so it
-takes its own display and is armed and disarmed with the show.
+### Outputs
+- New: prompter output with large scrolling text, a fixed reading line,
+  pace in lines per minute and mirroring for teleprompter glass.
+  Assign its display and arm or disarm it with the show.
+- With no separate script, the prompter reads live-cue notes, matching the
+  presenter view. A supplied script supports talks without slides.
+- The active line uses full brightness; other lines are dimmed.
+  Reading markers are wedges in the margins, outside the words.
+  The final line stops on the marker instead of scrolling off screen.
+- Controls are available in Settings for the prompter output.
 
-It prompts from the **live cue's notes** when it has no script of its own, so a
-deck-driven show reads from the same words the presenter view is showing the
-operator; give it a script and it reads that instead, for a talk with no slides.
+### Remote protocol
+- New: `PROMPTER RUN`, `STOP`, `TOP`, `SPEED`, `SCROLL`, `SIZE`,
+  `LINE`, `MIRROR` and `SCRIPT`. `SCROLL` jogs by whole lines.
 
-The line being read is in full ink and everything else is dimmed, so the
-reader's eye finds its place without hunting. The reading marker sits in the
-margins as wedges rather than a rule through the words. The last line comes to
-rest **on** the marker rather than sailing off the top, because an empty screen
-cannot tell a reader whether the script finished or the prompter broke.
+### Playback
+- New: in-process hardware decode on Linux through VAAPI and on macOS
+  through VideoToolbox, alongside Windows D3D11VA. Machines without a
+  supported hardware device fall back to software.
+- Frame copying is still avoided only on Windows in this version, where
+  the decoder shares the output renderer's device.
+- `--decode-bench` reports the decoder actually used. `--no-hw-decode`
+  or `DECKBOY_NO_HW_DECODE=1` forces software for comparison using the
+  same binary and footage.
+- On a 2015 Intel iGPU, VAAPI used about 10% less CPU for 1080p H.264;
+  hardware decode was slower than software at 4K on the same chip.
+  Results depend on the machine.
 
-Everything a hand controller would reach is on the wire -- `PROMPTER RUN`,
-`STOP`, `TOP`, `SPEED`, `SCROLL` to jog by whole lines, `SIZE`, `LINE`,
-`MIRROR`, `SCRIPT` -- and all of it has a page in Settings, under the output
-that is one.
+### Interface
+- Fixed an issue where the cue inspector displayed `loading preview...`
+  indefinitely for patterns, timers and tones with no still to load.
+  The message now appears only during an active load.
 
-### Hardware decode on Linux, and a README with a picture in it
-
-**Hardware decode is no longer Windows-only.** The in-process decoder now asks
-each platform for its own decoder -- D3D11VA on Windows, VAAPI on Linux,
-VideoToolbox on macOS -- instead of hard-coding D3D11VA and giving everybody
-else software. Creating the device is what asks the machine, so a box without
-the hardware falls back to software rather than failing a cue.
-
-Two separate things, and they still differ: the DECODE runs on hardware
-wherever there is a decoder, but the FRAME only avoids a copy on Windows, where
-the decoder can be put on the output renderer's own device.
-
-**Measure it yourself, because the answer depends on your machine.**
-`--decode-bench` now reports which decoder actually ran, and `--no-hw-decode`
-(or `DECKBOY_NO_HW_DECODE=1`) forces software so the two can be compared with
-the same binary on the same footage. On a 2015 Intel iGPU, 1080p h264 costs
-about a tenth less CPU on VAAPI; the same chip asked for 4K is *slower* on
-hardware than in software. That is why the switch exists and why the numbers
-are worth taking yourself rather than taking on trust.
-
-**The README has a picture in it**, shot with the built-in pattern generators,
-and a second one of the presenter view. The presenter view is described in the
-features rather than sitting on the roadmap, where it no longer belongs.
-
-**Fixes.** The cue inspector said "loading preview..." for ever on any cue with
-no still to fetch -- a pattern, a timer, a tone -- which read as a hang. It now
-only says that while something is actually loading. The README claimed signing
-"rather defeats the point" three hundred lines above a roadmap item promising
-to do it; the stance is now one stance.
+### Documentation
+- Added screenshots of the desk using built-in patterns and of presenter
+  view. Presenter view is listed as an available feature instead of a
+  roadmap item.
+- Reconciled contradictory statements about signing in the README and
+  roadmap.
 
 ## 2026-09-12 - v0.99.349 (arrange the presenter screen yourself)
 
-The panels were toggleable and the notes resizable, but the arrangement came
-from three fixed layouts. Now every panel can go anywhere.
+### Presenter view
+- New: ARRANGE in the program-monitor header for a focused presenter output,
+  in Settings, or through `PRESENTER ARRANGE`. Move any of the 4 panels
+  by dragging; resize from a corner.
+- The arrangement preview preserves the output aspect ratio and snaps
+  panel edges to its visible grid. Editing starts from the current named
+  layout; PRESETS restores a named layout.
+- Named layouts reflow when panels are disabled. Custom layouts retain
+  the positions you set.
+- New: `PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h>` positions
+  a panel in percentages.
+- Notes now scroll beyond the former `... more below` marker. Clicker
+  forward scrolls through the current build before advancing to the next
+  one, with eased motion and fades at edges hiding more text.
+  `NOTESTEP SCROLL <rows>` scrolls manually.
+- New: Notes take adjusts the share of the screen given to notes in every
+  layout. Live, previous and next pictures can each be disabled; disabling
+  all 3 gives notes the full screen at the chosen text size.
+- WIDE shows a large live picture, previous and next beside it, and notes
+  below. FILMSTRIP puts the 3 pictures above large notes. NOTES prioritises
+  text with pictures in a narrow strip.
+- Every panel can be disabled independently. Notes have their own size;
+  background, ink and accent are customisable. Intermediate shades follow
+  these colours, retaining readable secondary ink on white backgrounds.
+- Controls are in `Settings > Video Outputs > Screen`, shown only for
+  presenter outputs, and available through `PRESENTER` remote commands.
+- Notes split on a line of `---`. All parts through the current build
+  remain visible: current text at full brightness, earlier parts dimmed,
+  with scrolling to keep the current position in view.
+- When enabled, `Page Down` advances through remaining builds before the
+  slide; `Page Up` steps backwards. `NOTESTEP` provides remote control.
+- Changed: PREVIOUS shows the slide last displayed, including after jumps,
+  rather than the cue immediately above the live cue in the list.
+- Added rounded cards, pill captions, build dots and a bottom slide strip
+  highlighting the live slide.
+- Fixed an issue where long note lines lost their final word to an ellipsis.
+  Notes now wrap at their actual drawing width.
 
-**Drag them.** ARRANGE, in the program monitor header when the focused output is
-a presenter view (or from Settings, or `PRESENTER ARRANGE`), draws a miniature
-of the screen with the four panels on it. Drag one to move it, a corner to size
-it. It snaps to the grid it draws, so two edges that look aligned are aligned,
-and the miniature keeps the output's shape so a panel lands where you put it.
+### Cues
+- New: split notes into one cue per part from a cue's right-click menu or
+  `SPLITNOTES`. Each cue retains the same slide and its own note chunk;
+  only the first fades in, so NEXT advances without a picture blink.
+  Parts become individually addressable by cue number, timecode and Companion.
+- PowerPoint `.pptx` imports now read embedded speaker notes. PDFs also
+  pick up notes from an adjacent PowerPoint file, including paired PDF and
+  `.pptx` exports from Google Slides; no hand-written sidecar is required.
+- Notes were read from 80 slides in a 109-slide deck in a fraction of a
+  second, without adding a build dependency.
+- Slide-import progress now shows miniature slides filling in as pages
+  render, with the newest slide animated as it arrives.
+- Fixed an issue where multiline notes did not survive save and reload.
 
-Arranging starts from whichever named layout was up, so the first drag adjusts
-something that already works rather than leaving you with four boxes at nothing.
-PRESETS puts it back.
-
-The three named layouts still **reflow** — switch a panel off and the others
-take its room. A custom layout does not, because it is the arrangement you
-chose and moving it under you would be a bug rather than a courtesy.
-
-`PRESENTER PANEL <live|prev|next|notes> <x> <y> <w> <h>` places one by numbers,
-in percent, for anybody building a screen from a script.
-
-### Notes that scroll, and a screen that is yours
-
-**The notes pane scrolls.** It used to stop at a line boundary with a
-"... more below" marker, which named the problem rather than solving it: the
-words the speaker still had to say were three lines under the bottom of the
-panel and nothing could reach them. Forward on the clicker now means "show me
-more", whatever more happens to be -- the rest of this build if any of it is
-below the fold, and only then the next build -- so one button walks a long note
-from top to bottom. The movement is eased, so the text glides under your eye
-instead of being replaced by different text, and the edge fades softly wherever
-there is more beyond it. `NOTESTEP SCROLL <rows>` drives it by hand.
-
-**The notes can have the whole screen.** A new "Notes take" control scales how
-much of the screen the words get in every layout, and the live picture is now a
-panel that switches off like the other two -- so previous, next and live off
-gives you a full-screen script at whatever size you set.
-
-**Split a cue's notes into cues.** The other way to pace a long note: one cue
-becomes one cue per part, each carrying its own chunk, so the ordinary NEXT
-walks them. The picture does not blink -- it is the same slide, and only the
-first fades in. Right-click a cue whose notes are in parts, or `SPLITNOTES`.
-Both approaches are worth having: the scroll keeps one slide as one cue, the
-split puts the parts where cue numbers, timecode, Companion and an operator not
-looking at a presenter screen can all see them.
-
-**A presenter screen that looks like one.** Rounded cards instead of hard
-rectangles, the captions in soft pills, the builds as dots rather than
-"build 3 of 4", and along the bottom a row of little slides with the live one
-lit -- because "42 of 109" is a fact you have to do arithmetic on and a lit card
-two-thirds along the row is one you read at a glance from a lectern.
-
-### The presenter view, finished; and notes out of a PowerPoint
-
-**The presenter view draws all three of its layouts, in your colours.** WIDE
-puts the live picture large with the previous and next slides beside it and the
-notes across the bottom; FILMSTRIP runs the three pictures across the top with
-the notes large below; NOTES gives the words the screen and keeps the pictures
-on a thin strip. Every panel switches off on its own, the notes have their own
-size, and the background, ink and accent are yours -- the two shades in between
-are mixed from them, so a white presenter screen gets a darker second ink rather
-than a paler one that disappears.
-
-All of it has a page in **Settings -> Video Outputs -> Screen**, which appears
-only when that output is a presenter view, and all of it answers to
-`PRESENTER ...` over the network protocol -- because the person who wants the
-notes bigger is usually standing at the lectern rather than sitting at the rack.
-
-**Note builds run from the clicker.** A cue's notes split on a line of `---`.
-The presenter view shows every part up to the one you are on, the current one in
-full ink and the ones already spoken dimmed, and scrolls to keep your place --
-so it reads as a note SCROLL rather than a note switch, and you keep what you
-have already said in front of you. Page Down spends the remaining builds before
-it changes the slide when you ask it to, Page Up walks back through them, and
-`NOTESTEP` drives the same step from a show-control system.
-
-**PREVIOUS is the slide you actually just had up**, not the one above it in the
-list -- the two agree for a talk read top to bottom, and differ exactly when you
-have jumped about, which is when you want to know.
-
-**Speaker notes come out of a .pptx.** A PowerPoint is a ZIP with its notes as
-XML inside, so a deck imported as a `.pptx` carries its speaker notes straight
-into the cues, and a PDF with the PowerPoint sitting beside it picks them up
-too. That is the shape a Google Slides workflow already produces -- Slides
-exports both, and a team that exports a PDF to keep its fonts can drop the
-.pptx next to it and keep its notes as well, with no sidecar to write and
-nothing for anybody to remember. Notes on 80 slides of a 109-slide deck, read in
-a fraction of a second, with nothing added to the build that a show depends on.
-
-**The slide-import progress is the deck being built.** The bar under the
-converting animation is now a row of little slides that fill in as the pages
-render, with the newest one hopping as it lands.
-
-**Fixes.** A multi-line note survives a save and reload. The presenter's notes
-wrap to the width they are actually drawn at, so a long line no longer loses its
-last word to an ellipsis. The Orientation button says `0 deg (Normal)` instead
-of a mangled degree sign, and `tools/audit_encoding.py` now fails the build on
-that class of mistake rather than waiting for somebody to notice it on screen.
+### Interface
+- Fixed an issue where Orientation displayed a corrupted degree sign.
+  It now reads `0 deg (Normal)`.
+- Encoding checks now fail the build on this class of text corruption.
 
 ## 2026-09-12 - v0.99.346 (a presenter view, and notes that come with the deck)
 
-**Presenter view.** A second screen showing the operator what the audience
-cannot see: the slide that is up, the one that is next, the notes for the one
-that is up, and the time. It is an **output type**, so it goes on its own output
-with its own display — programme to the projector, presenter to the laptop —
-and it inherits the display picker, fullscreen, arming and health reporting that
-every output already has.
+### Outputs
+- New: presenter view output showing the live slide, next slide, live-cue
+  notes and time on a separate display. Uses the existing output display
+  picker, fullscreen, arming and health reporting.
+- Independently show or hide the previous slide, next slide, notes, clock
+  and timers. Includes 3 layouts and custom background, ink and accent
+  colours.
 
-It is meant to be more use than the one in a slide deck: show or hide the
-previous slide, the next slide, the notes, the clock and the timers
-independently; three layouts; and your own background, ink and accent colours,
-because a presenter screen is often somebody else's laptop in somebody else's
-room.
+### Cues
+- New: note builds split on a line of `---`, advancing notes without
+  changing the slide.
+- Optionally, NEXT advances through remaining note builds before taking
+  the next cue, supporting slide clickers.
+- PDF imports read per-slide notes from adjacent `.pdfpc` files, as used
+  by LaTeX and Beamer, or `.notes.txt` and `.notes.md` sidecars.
+  `### 1` begins slide 1's notes; `---` splits builds within them.
 
-**Note builds.** A cue's notes split on a line of `---`, and the presenter
-advances through the parts *without changing the slide* — so a long note is read
-at the speaker's pace instead of arriving all at once. Optionally the ordinary
-NEXT action spends the remaining builds before it advances the cue, which is how
-a slide clicker behaves in every other deck a presenter has used.
-
-**Notes that came with the deck.** A PDF imported beside a `.pdfpc` file — the
-open convention the LaTeX and Beamer world already uses — picks up its per-slide
-notes automatically, and `.notes.txt` / `.notes.md` work the same way. `### 1`
-starts slide one's notes; `---` inside them splits the builds.
-
-**Corrections to the platform notes.** Spout *output* works on Windows and was
-being described as a scaffold; Spout *input* and Syphon genuinely are not built.
-And macOS and Linux decode on the CPU because the in-process decoder's hardware
-path is D3D11VA, not because those platforms cannot — VideoToolbox and VAAPI are
-now on the roadmap where they belong.
+### Documentation
+- Corrected platform support: Spout output works on Windows; Spout input
+  and Syphon are not built in this version.
+- Clarified that macOS and Linux use CPU decode because the in-process
+  hardware path is D3D11VA. VideoToolbox and VAAPI support are on the
+  roadmap, rather than described as platform limitations.
 
 ## 2026-09-12 - v0.99.345 (the monitor and the preview follow the scale)
 
-The program monitor's labels — PROGRAM, the LIVE badge, the output resolution
-line and the two VJ deck captions — were fixed pixel boxes under type that
-scales, and so were the preview thumbnail's captions. At 150% the empty
-inspector's three lines ("No cue selected" / "Drop media here" / "Press A to
-take cue") were spaced 20 pixels apart while each was taller than that, so they
-overlapped. The colour-tag row and the cue id row keep the labels they were
-missing.
+### Interface
+- Fixed an issue where program-monitor and preview captions used fixed
+  boxes under scaled text. PROGRAM, LIVE, output resolution, both VJ deck
+  captions and preview-thumbnail captions now follow interface scale.
+- Fixed an issue where the empty inspector's `No cue selected`,
+  `Drop media here` and `Press A to take cue` lines overlapped at 150%.
+  Their spacing no longer stays at 20 pixels as text grows.
+- Restored missing labels on the colour-tag and cue ID rows.
 
 ## 2026-09-12 - v0.99.344 (rows that know what they are)
 
-**The inspector's last unlabelled controls have labels.** Notes, cue id and goto
-target were a value box and a button with no question anywhere — you had to know
-what they were. Loop and hold were half-width pills each carrying their own
-question ("loop: off"), so the eye read the whole pill to learn the subject and
-read it again for the answer. End action was a full-width pill reading
-"end: inherit  [X cycle]", with the keyboard hint spliced into the value. All of
-them are now the same label-left, control-right row as everything else, and the
-five hand-written copies of the editable-row shape go through the one helper.
-
-**The timeline header fits its own text.** The header grew with the UI scale while
-the cue name and the clock under it stayed at fixed offsets, so at 150% they ran
-together. Both rows are now sized from the faces that draw them.
+### Interface
+- Added labels for Notes, cue ID and goto target.
+- Changed: Loop, Hold and End action use label-left, control-right rows.
+  The end-action value is separated from the `X` cycle hint.
+- Unified the layout of 5 editable-row variants with the other inspector
+  rows.
+- Fixed an issue where the timeline header's cue name and clock overlapped
+  at 150% scale. Both rows now follow their font heights.
 
 ## 2026-09-12 - v0.99.343 (a clock, a readable meter, and a licence GitHub can read)
 
-**An optional wall clock.** Off by default — the toolbar belongs to the show —
-and cycled from one control in Settings → System → Appearance: off, 24-hour,
-12-hour, or a round analogue face with a second hand. It sits at the right-hand
-end of the toolbar and stays put, because everything else on that end comes and
-goes with the state of the show and a clock you have to find again is not doing
-its job.
+### Interface
+- New: optional wall clock at the right end of the toolbar, off by default.
+  Cycle off, 24-hour, 12-hour or analogue with a second hand in
+  `Settings > System > Appearance`. Its position stays fixed as other
+  toolbar items appear or disappear.
+- Fixed an issue where VU readings such as `-12` and `-48` were clipped
+  at 150% scale. The reading column now fits its widest value; L and R
+  are centred above their bars.
 
-**The VU meter reads.** Every measurement in it was a fixed pixel while the
-numbers in it scaled, so at 150% "-12" and "-48" ran out of their column and were
-cut off rather than fitted. And the L and R sat at a fixed inset instead of being
-centred on the bars they name. The column is now as wide as the widest reading it
-can show, and each channel letter is centred on its own bar.
-
-**GitHub can read the licence.** The LICENSE file held the nineteen-line *notice*
-you put at the top of a source file, not the licence itself — so GitHub's
-detector matched nothing and the project showed no licence at all. It is now the
-full GPL-3.0 text, with a licence section in the README naming the copyright.
-
-**Housekeeping on the public repository.** Six unreferenced splash images (about
-15 MB, including one still carrying the filename its generator gave it) are gone,
-and a Reddit keyword-scanning script that was never part of the product has moved
-out of the public tree.
-
-**The landing page said two things that were not so.** It advertised conversion
-"using NVENC" — one of three GPU encoders Deckboy tries, and absent on every AMD,
-Intel and Apple machine — and claimed "No installer", while the README offers a
-Windows installer with a Start Menu entry and an uninstaller.
+### Documentation and packaging
+- Replaced the 19-line source-file licence notice with the full GPL-3.0
+  licence text, allowing GitHub to detect the licence. Added copyright
+  information to the README licence section.
+- Removed 6 unused splash images, about 15 MB, including one still using
+  its generator-assigned filename.
+- Removed a Reddit keyword-scanning script unrelated to the product from
+  the public repository.
+- Corrected the landing page's NVENC-only conversion claim: Deckboy tries
+  3 GPU encoders, and NVENC is unavailable on AMD, Intel and Apple machines.
+- Corrected the landing page's no-installer claim. Windows has an installer
+  with a Start Menu entry and uninstaller.
 
 ## 2026-09-12 - v0.99.342 (pages that finish their own sentences)
 
-**The keyboard shortcuts page reads.** Its modal, its rows and its key column
-were all fixed pixel sizes while the type scaled with the desktop, so at 150% the
-rows nearly touched and half the descriptions were cut off — "Skip to next /
-pr...", "Blackout - insta...", "Desk, then clea...". A page of instructions that
-cannot finish its own sentences is worse than no page. It is now sized from the
-font, and the key column is as wide as the widest key measured in the face
-actually in use.
+### Interface
+- Fixed an issue where keyboard-shortcut descriptions were cut off and rows
+  nearly touched at 150% scale. The modal and rows now follow font size;
+  the key column fits the widest key label in the active font.
+- Fixed an issue where the cue name overlapped SELECTED CUE and the final
+  2 summary lines extended outside the panel at 150% scale.
+  Panel size and layout now use the same 3 measured row heights.
 
-**The cue summary panel fits its own contents.** The block under SELECTED CUE was
-laid out at fixed offsets from the top of the panel while the heading above it
-scaled, so at 150% the cue's name was drawn where the heading had grown to and
-the two collided — and the panel's own height was a constant, so the last two
-lines fell outside it. Both the size and the layout now come from the same three
-measured row heights.
-
-**A Stream Deck can put the shortcuts page on screen.** `SHORTCUTS SHOW|HIDE|
-TOGGLE`, alongside the dashboard's. It was reachable only from the keyboard,
-which is the one input an operator driving Deckboy from a control surface does
-not have their hands on.
+### Remote protocol
+- New: `SHORTCUTS SHOW|HIDE|TOGGLE` opens or closes the shortcuts page
+  from Stream Deck or another control surface, alongside dashboard
+  control. Previously the page was reachable only by keyboard.
 
 ## 2026-09-12 - v0.99.341 (a menu you cannot see through)
 
-**The SOURCE menu is opaque and follows the theme.** It filled with a hardcoded
-dark green at 96% opacity, so it ignored the colourway entirely — a dark green
-box on a light theme — and whatever sat behind it read straight through: with the
-menu open over the timeline you could read "The timeline can be scrubbed" through
-the list of source types. It now uses the same chrome roles as every other panel,
-at full opacity, and its rows and padding scale with the interface.
+### Interface
+- Fixed an issue where SOURCE ignored the theme and showed underlying text
+  through its menu. Replaced the fixed dark-green, 96%-opaque background
+  with fully opaque theme panel colours.
+- SOURCE rows and padding now follow interface scale.
 
 ## 2026-09-12 - v0.99.340 (the cue list scales with the desktop)
 
-**Cue rows follow the UI scale.** The row was a fixed 80 pixels tall while the
-fonts grew with the desktop, so at 150% three lines of larger text were being
-asked to fit in a row sized for smaller ones: the kind label came out as "PA..."
-for Pattern, the name and the metadata ran together, and the per-cue action icons
-sat on top of the cue's own name. Every offset in the row now scales, and the
-kind label runs to the edge of its column instead of a fixed width — "Window
-Source" and "Lower Third" were always longer than the space budgeted for them.
-
-**Nothing behind a modal talks over it.** Hover tips were suppressed for the
-modals that existed when that check was written, so the dashboard and the
-shortcuts page — both added later — had the timeline underneath them still
-offering "Click to seek", painted over the top by the tip layer.
-
-**The dashboard's own hint fits.** "Ctrl+D or Esc to close" was in a fixed-width
-box and came out as "Ctrl+D or Esc..." — an instruction ellipsized into one you
-cannot follow.
+### Interface
+- Fixed an issue where cue names, metadata and action icons overlapped at
+  150% scale because rows remained 80 pixels high. Row dimensions and
+  offsets now follow interface scale.
+- Cue-kind labels use their full column width. Pattern no longer truncates
+  to `PA...`; Window Source and Lower Third have room for their labels.
+- Fixed an issue where timeline hover tips such as `Click to seek`
+  appeared over the dashboard and shortcuts modals.
+- Fixed an issue where the dashboard's `Ctrl+D or Esc to close` hint
+  was truncated.
 
 ## 2026-09-12 - v0.99.339 (one question per row, everywhere)
 
-**Every settings card and every inspector row now has the same shape**: the
-question on the left, the control that answers it on the right, one per row. It
-reads as a sentence, and it puts every control on a page at the same place, which
-is most of what "consistent" means when you open a panel you have not looked at
-in a month.
+### Interface
+- Changed: every settings card and inspector row uses a label on the left
+  and one control on the right. Replaces full-width labelled pills, bare
+  buttons, reversed label/control rows and wrapping chip grids.
+- Fixed an issue where enabled controls were harder to read than disabled
+  controls. Fill brightness now indicates state while ink remains dark
+  on light in both states.
+- Applied the same contrast rule to settings toggles, inspector rows,
+  dropdowns and cue colour tags. Tag text contrast follows the swatch
+  colour rather than the theme.
 
-Before this the same page mixed four shapes — full-width pills whose own label
-carried the question ("PAUSE BEGIN OFF", "HYPERDECK ON", "tag: none [K cycle]"),
-bare buttons whose meaning came from position, controls on the *left* with a
-sentence of explanation to their right, and grids of chips that wrapped
-differently depending on the platform and the window width.
-
-**Switched-on controls are no longer the hardest to read.** A lit control used to
-invert — a dark fill with light ink — which measured worst on the page precisely
-where it mattered most. State now shows as the brightness of the fill, and the
-ink stays dark on light in both states. That rule now holds for the settings
-toggles, the inspector rows, the dropdowns and the cue's colour-tag swatch, whose
-ink is picked against the swatch rather than against the theme.
-
-**The stage timer has its own controls.** It was being drawn through the generic
-numeric row, so RESET appeared as two buttons that both reset, framing the phrase
-"back to start", and the nudges showed their own description where a value goes.
-A timer is an instrument you drive while looking at the stage, so it now has a
-large clock readout that turns amber and red at this cue's own thresholds, START
-and RESET as real buttons, and four direct nudges (−1 min, −10 s, +10 s, +1 min).
+### Stage timer
+- Added a large clock readout that turns amber and red at the cue's
+  configured thresholds.
+- START and RESET are direct buttons. Replaced duplicated RESET buttons
+  and generic numeric rows with 4 nudges: `-1 min`, `-10 s`, `+10 s`
+  and `+1 min`.
 
 ## 2026-09-12 - v0.99.338 (held cues come up, and the transitions are the ones you asked for)
 
-**A cue set to HOLD now appears.** Every pattern cue is a hold by default, and a
-hold has no timeline — it sits at position zero for as long as it is up. The
-fade-in was read against that position, so it evaluated to zero for the whole
-time the cue was on, and the cue was composited at nothing: a test pattern taken
-to a live output showed black, with the frame present and correct behind it and
-nothing anywhere to say why. A held cue's fade now runs on the clock from the
-moment it was taken — it fades in once, over the length asked for, and stays.
-The same was true of a held cue's audio fade, and is fixed with it.
+### Playback
+- Fixed an issue where held cues, including patterns held by default,
+  remained black because fade-in used a timeline position fixed at zero.
+  Visual and audio fades now run from take time, complete over the chosen
+  duration and remain at full level.
 
-**A transition reaches every armed output, not just the first.** Each output
-keeps its own copy of the outgoing picture, but they shared one note of which
-picture had been uploaded — so the second output skipped the upload into its own
-texture and drew one that had never been filled. A recording made while a window
-output was live was black for the whole transition.
+### Outputs
+- Fixed an issue where transitions reached only the first armed output.
+  A recording made alongside a live window output could remain black
+  throughout the transition. Each output now receives its own outgoing
+  picture.
 
-**"push-left" is a push.** Transition names were matched without separators, so
-the hyphen anyone would actually type — and that the interface's own labels
-suggest — matched nothing and fell through to a dissolve. Separators are now
-ignored, so `push-left`, `push_left`, `pushleft` and `Push Left` are one style,
-`dissolve` works as well as `crossfade`, and a name that really is not a style is
-reported over the wire instead of quietly becoming one.
+### Remote protocol
+- Fixed an issue where transition names with separators, including
+  `push-left`, silently selected a dissolve. `push-left`, `push_left`,
+  `pushleft` and `Push Left` now select the same style.
+- Added `dissolve` as an alias for `crossfade`.
+- Invalid transition names return an error instead of selecting a dissolve.
 
 ## 2026-09-12 - v0.99.337 (a long playlist runs at full rate again)
 
-**The frame rate no longer falls away as cues are added.** A show with sixteen
-cues had dropped to 23fps, and a real slide deck is sixty-two. The cause was in
-how a label that does not fit its box is drawn a little smaller: it resized the
-shared font and put it back afterwards, and each of those calls throws away
-every glyph that face had already rasterised -- so one label that overflowed
-made every other label in the frame render again from its outlines. The cost
-grew with the number of cues because the cue list is where the labels are.
-
-A shrunken label now picks a smaller copy of the same face, kept alongside the
-original, and nothing anybody else is drawing with is touched. Measurements are
-asked once and remembered, and a label that already fits no longer goes to the
-ellipsizer to be told so. Sixty-four cues at a 1.5x desktop now hold 60fps,
-where sixteen could not.
-
-Two things were fixed along the way. Truncating a label cut it one **byte** at
-a time, which could land in the middle of a character in any language that
-needs more than one of them -- it now cuts on character boundaries. And it
-measured after every cut, thirty times for a long name; it finds the cut by
-halving instead, in about six.
+### Interface
+- Fixed an issue where frame rate fell as cues were added. A 16-cue show
+  had fallen to 23 fps; longer slide decks, including a 62-slide deck,
+  increased the label-rendering work.
+- Labels that need smaller text now use a cached smaller font face without
+  invalidating other labels. Text measurements are cached; labels that
+  fit skip truncation.
+- Measured: 64 cues at 1.5x desktop scale hold 60 fps.
+- Fixed an issue where truncation could split a multibyte character.
+  Labels now truncate at character boundaries.
+- Long-label truncation now takes about 6 measurements instead of 30,
+  using a halving search.
 
 ## 2026-09-11 - v0.99.336 (the cyphers say what they mean)
 
-**ROT13, Atbash and Morse now read the way they should.** The four cyphers
-transform the English rather than translating it, and each label was being put
-through that transform twice on its way to the screen. Two of them are their own
-inverse, so the desk came up in plain English while the setting said otherwise;
-Morse came up as a row of slashes. The fourteen translated languages were never
-affected -- a translated word is not itself an English word, so the second pass
-did nothing to them.
+### Interface and localisation
+- Fixed an issue where cypher labels were transformed twice. ROT13 and
+  Atbash displayed plain English despite the selected setting; Morse
+  displayed rows of slashes.
+- All 4 cyphers now transform English once. The 14 translated languages
+  were unaffected.
 
 ## 2026-09-11 - v0.99.335 (slide decks in their own process, tally from the switcher, nineteen languages)
 
-**Importing a slide deck no longer borrows the show's graphics.** On Windows,
-Deckboy renders PDF pages with the same engine Edge uses, and that engine wants
-a graphics device of its own. It now gets one, in a separate process that does
-the render and then goes away — so a slide import touches nothing the show is
-using, and a deck that the renderer cannot make sense of costs an import rather
-than an evening. This is the shape the Linux side has always had, and macOS
-keeps rendering through CoreGraphics exactly as before.
+### Cues
+- Windows: PDF pages now render in a separate process with its own graphics
+  device, using the same engine as Edge. Imports no longer share the
+  show's graphics resources; renderer failures affect the import.
+- Linux retains its separate rendering process; macOS continues to use
+  CoreGraphics.
+- PDF import still produces one still cue per page at full 4K width.
+  The page counter updates as each page renders, including during long
+  imports such as a 60-page deck.
 
-The import itself is unchanged from the operator's side: drop a PDF on the
-deck, watch the page counter climb, and get one still cue per page at full 4K
-width. The counter is fed by the renderer as each page lands, so a sixty-page
-deck reports real progress the whole way through instead of arriving all at
-once at the end.
+### Triggers
+- New: direct, read-only ATEM connection to follow its programme bus.
+  Set the switcher address and select Deckboy's input from the ATEM's own
+  source names. Going on air starts playback; Deckboy sends no switcher
+  commands.
+- New: NDI receiver programme tally can start playback when a receiver
+  puts a Deckboy output on air, without a switcher.
+- Both triggers are off by default. On leaving air, choose load next cue,
+  pause, stop, clear or no action.
 
-**Going to air is the cue.** On a switched show the operator's hands are on the
-switcher, not on the playout machine -- so Deckboy can now watch the switcher
-and roll when it is put to air. Two ways, both off until asked for:
+### Remote protocol
+- HyperDeck emulation now listens on the protocol's standard port for ATEM
+  Software Control, Companion's HyperDeck module and other deck clients.
+- Settings displays the address to use, selected for the route towards
+  the switcher. HyperDeck emulation can be disabled.
+- NMC transport send/receive settings are now in a Network card and saved
+  with the project: direction, port, target and source filter.
+  Only fields used by the selected direction are shown.
+- NMC continues to synchronise play, pause, stop and locate in either
+  direction. Existing launch environment variables remain supported.
 
-Deckboy connects to an ATEM directly and watches its program bus. Set the
-switcher's address and pick which input Deckboy is -- from a dropdown of the
-switcher's own source names, read off the ATEM itself, so it says what the
-panel in the room says. It is a read-only connection: Deckboy never sends the
-switcher a command, because a playout machine that can cut the show is one that
-will eventually cut the show by accident.
+### Interface and localisation
+- Added language support: English, 14 translations and 4 cyphers, for
+  19 choices. Translation files map English to translated strings;
+  missing entries fall back to English. Established trade terms remain
+  in English where appropriate.
+- Translations include Cuban Spanish, Klingon in its written form and
+  Lumeni, a language created for Deckboy with its own grammar.
+- Cyphers transform English without word lists and cover every label:
+  ROT13, Atbash, 1337 and Morse.
+- Changed: interface scale follows desktop DPI unless overridden,
+  including Windows displays at 125% and 150%. The scale setting shows
+  the applied value. Older shows retain their saved scale.
 
-Or, with no switcher at all: an NDI receiver reports back to whatever it is
-watching, so a Deckboy output that a receiver has put on program knows it is
-live and rolls on that alone.
+### Outputs
+- New: per-output matte from 16:9 through 2.39:1, with bars that can dim
+  instead of fully masking, plus a still-image overlay for house frames
+  or station logos.
+- Mattes and overlays persist through cuts, clears and panic.
+  Recording, streams, NDI and the program monitor receive the same
+  composited picture.
 
-Either way, coming back off air does what you chose -- load the next cue,
-pause, stop, clear, or nothing.
-
-**Deckboy answers as a deck.** HyperDeck emulation now speaks on the port the
-protocol is actually spoken on, so ATEM Software Control, Companion's HyperDeck
-module and anything else that talks to a deck can find it. The settings page
-shows the address to type in, worked out towards the switcher rather than
-guessed, and the emulation can be switched off for a rig that would rather
-Deckboy stayed quiet.
-
-**NMC in and out, where you can reach them.** Deckboy has been able to sync
-transport with another machine in both directions for a long time -- receiving
-someone else's play, pause, stop and locate, or sending its own -- but the
-direction, the port, the target and the source filter were read from
-environment variables at launch. That meant a launcher script, and it meant the
-settings could not travel with the show. They are now a card on the Network
-page and part of the project file, and the page offers the field the chosen
-direction actually uses rather than both. A machine already started with the
-old environment variables keeps working exactly as it did.
-
-**Deckboy reads in nineteen languages.** English, fourteen translations, and
-four cyphers. A translation is a file of english-and-its-equivalent, and a line
-nobody has done yet falls through to the English -- so an unfinished language
-is a partly translated desk rather than one with gaps in it. The trade's own
-vocabulary stays in English where the trade keeps it there, because an operator
-who learned this desk in one country has to be able to work it in another.
-
-A cypher is not a translation but a transform of the English, so it needs no
-word list and covers every label in the program: ROT13, Atbash, 1337 and Morse.
-Among the translations are Cuban Spanish, Klingon written the way Klingon is
-actually written, and Lumeni, which was invented for this and has a grammar.
-
-**A matte and a bug belong to the screen.** A house frame is a property of the
-output, not of what is playing on it: a 2.39 letterbox or a station logo has to
-survive every cut, every clear and every panic. Each output now carries its own
-matte -- 16:9 through 2.39:1, with bars that can dim rather than mask -- and its
-own still overlay. Both are composited into the output's picture before
-anything is taken off it, so the recording, the stream, NDI and the program
-monitor show the same frame instead of four near-misses.
-
-**The desk is the size the desktop says.** Windows hands a DPI-aware program
-real physical pixels, so on a display scaled to 125% or 150% Deckboy was
-drawing at 1:1 -- not blurry, just two thirds the size of everything else on
-that screen. UI scale now follows the desktop unless you tell it otherwise, and
-the setting says what it is actually doing rather than what is stored. A show
-saved before this carries its own scale and is unchanged.
-
-**Crash reports say where.** When something does go wrong, the report Deckboy
-leaves behind now names the module and offset for every frame on the stack, and
-writes the essentials first — so the file is readable on its own, on any
-machine, without needing the one it was written on.
+### Diagnostics
+- Crash reports now include module names and offsets for every stack
+  frame and write essential information first, making the report readable
+  without access to the originating machine.
 
 ## 2026-09-10 - v0.99.334 (10-bit playback, a live coder that keeps up, motion mosh)
 
-**10-bit video plays on the GPU.** HEVC Main 10 — and VP9 Profile 2, and 10-bit
-AV1 — decode to a P010 surface, which the compositor could not read, so every
-frame was pulled off the GPU at full resolution, converted on the CPU and
-pushed back up. Those surfaces are wrapped directly now, the same way 8-bit
-already was. A 4K60 10-bit clip went from 39.6fps to the full 60, and a 720p
-10-bit x265 rip that was quietly paying a download per frame now pays nothing.
-The extra depth survives too: the old path converted 10-bit down to 8-bit on
-its way through and threw the rest away.
+### Playback
+- New: direct GPU compositing of P010 surfaces for HEVC Main 10, VP9
+  Profile 2 and 10-bit AV1, matching the existing 8-bit path.
+  Removes full-resolution CPU download, conversion and re-upload while
+  retaining 10-bit depth.
+- A 4K60 10-bit clip improved from 39.6 fps to 60 fps. A 720p 10-bit
+  x265 clip also avoids the per-frame download.
 
-**The live coder keeps up.** The code source evaluated its expression on one
-core, so a 4K raster meant 8.3 million pixels running a prelude and three
-channel programs single file. The frame splits across cores now, as the effect
-stack always has. It also stopped computing `r` and `a` for every pixel whether
-or not the expression reads them — an expression like `sin(x*12+t)` was paying
-for a square root and an arctangent it never looked at. Together: 8.8x at 4K
-and 8.3x at 1080p, 1.2fps to 10.4 and 4.8fps to 39.5, with the picture
-byte-for-byte identical.
+### Sources
+- Code sources now evaluate frames across CPU cores. At 4K, 8.3 million
+  pixels previously ran the prelude and 3 channel programs on one core.
+- `r` and `a` are calculated only when used. Expressions such as
+  `sin(x*12+t)` avoid unused square-root and arctangent calculations.
+- Measured improvements: 8.8x at 4K, from 1.2 to 10.4 fps; 8.3x at 1080p,
+  from 4.8 to 39.5 fps. Output is byte-identical.
+- Code cues are labelled as sources in the playlist and inspector,
+  matching the SOURCE menu.
 
-**Motion mosh — datamosh as an effect, live, on any cue.** The datamosh Deckboy
-already had is the codec trick: withhold the keyframe at a cut and the decoder
-drags the old picture around by the new shot's motion. It gives the real thing
-and it costs a transcode, a wait, and a file — a camera or an NDI feed cannot
-be moshed at all.
+### Effects
+- New: Motion Mosh, a live datamosh effect for any cue, including cameras
+  and NDI feeds. Estimates motion by matching blocks between frames and
+  retains the previous picture inside the effect.
+- Refresh controls picture replacement; Hold sets how long the old picture
+  persists; Block size ranges from visible square edges to smoother flow.
+  Every parameter supports an LFO.
+- Motion Mosh writes no file and needs no transcode. The existing codec
+  datamosh remains available, withholding keyframes at cuts through a
+  transcode. Motion Mosh measured 4.6 ms at 1080p.
 
-This computes the same look per frame. The vectors the codec would have
-supplied are estimated by matching blocks between one picture and the next; the
-picture that refuses to be replaced is held by the effect itself; and the
-missing keyframe becomes **refresh**, a knob, rather than an accident of the
-encode. **hold** is how long the old picture survives and **block size** runs
-from the hard square edges people picture when they say datamosh through to
-something that flows. It runs on anything a cue can be, takes an LFO on every
-parameter, and writes nothing to disk. 4.6ms at 1080p.
+### Interface
+- macOS: Command now works for shortcuts and selection, including
+  `Cmd+S`, `Cmd+O`, `Cmd+Z` and `Cmd-click`. Control remains supported.
+- New: `Ctrl+,` toggles preferences; `Cmd+,` on macOS. Bare comma remains
+  the previous-cue key.
+- Fixed an issue where menu and settings toasts appeared beneath the
+  panel, hiding messages such as update-download refusal reasons.
+- The recording folder setting is now available in System as well as
+  Video Outputs.
 
-**Command is the shortcut key on macOS.** Every shortcut tested for Control
-alone, so Cmd+S, Cmd+O, Cmd+Z and Cmd-click did nothing at all on a Mac.
-Control still works alongside it, so nothing anyone had in their fingers has
-changed.
+### Updates and packaging
+- Update refusal messages now identify the blocking condition. A paused
+  deck still counts as playing; any armed output blocks an update, while
+  disarm acts on the focused output.
+- Fixed an issue where the updater selected the Apple Silicon disk image
+  on Intel Macs. Releases have included both architectures since v0.99.307.
+- Excluded the recent-shows list and its absolute local paths from release
+  packages.
 
-**Ctrl+, opens preferences**, and closes them again — Cmd+, on macOS. The bare
-comma is still the previous-cue transport key.
-
-**A warning you cannot read is not a warning.** A message raised by a control
-inside a menu or the settings panel was drawn underneath it. The update card
-suffered worst: its download button explains every refusal by toast, and the
-card sits inside the settings panel, so from the outside the button did nothing.
-
-**The update says what is blocking it.** "Stop playback and disarm outputs
-first" named two conditions and never said which one held — and a paused deck
-counts as playing, while disarming acts on the focused output when any armed
-output blocks. It names the one in the way now.
-
-**Intel Macs get an Intel build.** The updater asked for the Apple Silicon disk
-image on every Mac, though releases have carried both since v0.99.307.
-
-**The recording folder is in System settings**, not only in Video Outputs — the
-tab about display routing, and not where anyone looks for where recordings go.
-
-**The live coder calls itself a source**, in the playlist and the inspector, as
-it already did in the SOURCE menu.
-
-**The recent-shows list stays on your machine.** It holds one absolute path per
-show opened here, and was not among the files the packagers strip, so a release
-build would have carried the packager's own show library.
-
-**SCALEMODE is listed in HELP ALL**, so a control surface asking Deckboy what it
-can do is told about it.
-
+### Remote protocol
+- Added `SCALEMODE` to `HELP ALL`.
 
 ## 2026-09-09 - v0.99.333 (bug fixes: display locking, capture cards, timer, hover tips, pocket mode)
 
-**The output window locks to the correct display on macOS.** When an output
-window was shown and put to fullscreen in the same event-loop tick, macOS had
-not committed the window to the target display yet — so fullscreen landed on the
-control monitor instead, covering it and trapping keyboard focus there. The
-fullscreen step is now deferred by one tick, giving the compositor time to
-assign the window to the right screen first.
+### macOS
+- Fixed an issue where arming a fullscreen output put it on the control
+  display and trapped keyboard focus there. Fullscreen now waits one
+  event-loop tick after showing the window so macOS can assign its display.
+- Fixed an issue where camera and capture cues opened blank on cards such
+  as Blackmagic and ATEM Mini. Capture no longer forces 1280x720 NV12,
+  which built-in cameras offered but capture cards could reject.
+- Resolution and pixel format follow the device, often 1920x1080 for
+  capture cards; scaling fits the cue. Frame-rate requests use the
+  hardware's 15 and 30 fps modes, avoiding rejection of 29.97 fps.
 
-**Capture cards work on macOS.** A camera or capture cue pinned itself to
-1280x720 in nv12 — a mode the built-in camera lists and a capture card does not.
-A Blackmagic or an ATEM Mini enumerates at whatever its input signal happens to
-be, usually 1920x1080, so the request was rejected outright and the cue opened
-to nothing. Only the frame rate is pinned now, to the 15 and 30 the hardware
-actually offers, which is what avoids the 29.97 refusal; the resolution and
-pixel format are left to the device, and the scale filter takes the picture to
-whatever size the cue reads.
+### Stage timer
+- Changed: duration arrows step by 5 minutes instead of 30 seconds,
+  avoiding 60 clicks to set a 30-minute timer. Live nudge buttons retain
+  their 1-minute steps.
 
-**Timer durations above five minutes are now reachable.** The duration +/−
-arrows were moving in 30-second steps, so setting a 30-minute timer took
-sixty clicks. Steps are now five minutes — the nudge buttons on the same panel
-still move one minute at a time for live adjustment during a running talk.
-
-**Hover tips no longer show over modal panels.** Tips from buttons behind the
-settings panel or the startup dialog were appearing on top of them.
-
-**Pocket 3 mode persists when opening a new show.** Opening a show while Pocket
-3 was active reset the interface scale and touch mode to their defaults rather
-than restoring the layout the show was saved with.
+### Interface
+- Fixed an issue where hover tips from controls behind Settings or the
+  startup dialog appeared over those panels.
+- Fixed an issue where opening a show in Pocket 3 mode reset interface
+  scale and touch mode to defaults instead of restoring the saved layout.
 
 ## 2026-09-07 - v0.99.332 (each show named once on the startup screen)
 
-**The startup screen shows your most recent show in its own place.** The show
-you were last working on has its own OPEN PREVIOUS button at the top of the
-splash screen. It was also appearing in the recent list below, taking up one of
-its five slots. The list now shows five other shows only — every slot is a
-different destination, and the show you already have a button for is never
-listed twice.
-
+### Desk
+- Fixed an issue where the most recent show appeared both in OPEN PREVIOUS
+  and in the startup screen's 5-entry recent list.
+- OPEN PREVIOUS retains the latest show; the list now shows up to 5 other
+  shows without duplicating it.
 
 ## 2026-09-07 - v0.99.331 (recent shows on the splash, settings pages that line up)
 
-**The startup screen lists your recent shows.** Up to five of them, newest
-first, each with the folder it lives in - so a house show, a rehearsal file and
-last night's gig are one click apart instead of a trip through the file picker.
-Click a row, or press its number. Deckboy remembers the last eight, and a show
-on a drive that is not plugged in right now keeps its place in the list until
-it is back.
+### Desk
+- New: startup screen list of up to 5 recent shows, newest first, with
+  their folders. Click a row or press its number to open it.
+- Deckboy remembers the last 8 shows. Shows on disconnected drives retain
+  their place until the drive returns.
 
-**The settings pages line up.** Every card and section is sized from the rows it
-actually draws: the Audio page reads as one column, the Video Outputs page
-scrolls when there is more below, and the Encoder page's format chips are
-legible on every theme with the selected one clearly marked. All of it scales
-with the UI Scale setting, and the three platforms render the same layout -
-each naming the hardware it actually has.
+### Interface
+- Settings cards and sections now size themselves to their rows and follow
+  UI Scale consistently on Windows, macOS and Linux, with each platform
+  showing its available hardware.
+- Audio uses one column. Video Outputs scrolls when content extends below
+  the view. Encoder format choices are readable in every theme with the
+  selected format clearly marked.
 
 ## 2026-09-07 - v0.99.330 (packaging release)
 
-No functional changes. v0.99.329's build is distributed across all platforms
-so the in-app updater finds a newer version on each.
-
+### Packaging
+- Redistributed the v0.99.329 build on all platforms so the in-app updater
+  finds a newer version on each. No functional changes.
 
 ## 2026-09-07 - v0.99.329 (a clean exit on Linux)
 
-**Deckboy closes cleanly on Linux.** Quitting returns straight to the desktop
-and reports a proper exit, so anything waiting on Deckboy to finish - the
-updater above all - gets the handover it expects.
+### Linux
+- Fixed an issue where quitting did not complete cleanly. Deckboy now
+  returns to the desktop and reports a successful exit to waiting
+  processes, including the updater.
 
 ## 2026-09-07 - v0.99.328 (packaging release)
 
-No functional changes. v0.99.327's build is distributed across all platforms
-so the installer-appears fix has a newer version to install.
-
+### Packaging
+- Redistributed the v0.99.327 build on all platforms so the installer
+  visibility fix has a newer version to install. No functional changes.
 
 ## 2026-09-07 - v0.99.327 (the Windows installer arrives on screen)
 
-**The update's installer opens in front of you**, with its window where you can
-read it and click it, so an update is something you watch happen rather than
-something you wait on.
-
-**An update always finds Deckboy already closed.** The helper waits for the app
-to stand down before it replaces anything, so the new build is written to a
-folder nothing is holding open.
+### Windows
+- Changed: the update installer opens with its window visible and ready
+  for interaction.
+- The updater waits for Deckboy to close before replacing the installed
+  build.
 
 ## 2026-09-07 - v0.99.326 (packaging release)
 
-No functional changes. v0.99.325's build is distributed across all platforms
-so the automatic-install path can be proven end to end.
-
+### Packaging
+- Redistributed the v0.99.325 build on all platforms for end-to-end
+  verification of automatic installation. No functional changes.
 
 ## 2026-09-07 - v0.99.325 (one-button updates on Windows, macOS and Linux)
 
-**macOS and Linux install the update themselves.** Press the button and the
-update is fetched, unpacked over the app and reopened for you - no disk image
-to drag, no AppImage to place by hand. All three platforms now do the same four
-things: download, install, relaunch, tidy up.
-
-**And they tidy up after themselves.** Once a Windows update has succeeded its
-~94MB setup file is removed, so updating regularly costs no disk. An installer
-you downloaded yourself is left alone.
+### Updates
+- New: automatic update installation on macOS and Linux. The update button
+  downloads, unpacks over the app and reopens it without manual disk-image
+  copying or AppImage placement.
+- Windows, macOS and Linux now download, install, relaunch and clean up
+  through the updater.
+- Windows: successful updates delete their downloaded setup file, about
+  94 MB. Installers downloaded manually are retained.
 
 ## 2026-09-07 - v0.99.324 (INSTALL & RESTART, start to finish)
 
-**The update restarts Deckboy for you.** The installer hands straight back to
-the new build when it finishes, with nothing to notice and nothing to tick, so
-the button does the whole job its label describes.
+### Updates
+- Changed: INSTALL & RESTART returns directly to the newly installed build
+  when installation finishes, without another prompt or checkbox.
 
 ## 2026-09-07 - v0.99.323 (packaging release)
 
-No functional changes. v0.99.322's build is distributed across all platforms
-so the update restart can be verified end to end.
-
+### Packaging
+- Redistributed the v0.99.322 build on all platforms for end-to-end
+  verification of update restart. No functional changes.
 
 ## 2026-09-07 - v0.99.322 (INSTALL & RESTART brings Deckboy back)
 
-**One button takes you from "there is a new version" to the new version
-running.** The updater stands clear of Deckboy, waits for it to close, runs the
-installer, and starts the build it just installed.
-
-**And it leaves a record.** A `relaunch.log` beside the download says what the
-update did and when, so an unattended machine can be asked afterwards.
+### Updates
+- INSTALL & RESTART runs the updater separately, waits for Deckboy to
+  close, installs the update and launches the newly installed build.
+- Added `relaunch.log` beside the download, recording update actions
+  and times for later inspection on unattended machines.
 
 ## 2026-09-07 - v0.99.321 (VJ mode fits a laptop, and geometry answers for itself)
 
-**VJ mode fits a 1470-wide desk.** Its bar spans the programme and inspector
-columns instead of squeezing into one, so VJ MODE, both deck labels, a
-crossfader worth dragging, the blend mode, TAP and the tempo all sit there in
-full. The playlists take a fifth more room, the inspector sits at the small end
-of its range while you are mixing, and the monitor row keeps enough width to
-show the A and B previews.
+### Interface
+- VJ mode now fits a 1470-pixel-wide desktop. Its bar spans the programme
+  and inspector columns, showing VJ MODE, both deck labels, crossfader,
+  blend mode, TAP and tempo in full.
+- Playlists receive 20% more space; the inspector uses the smaller end of
+  its width range while mixing. The monitor row retains room for A and B
+  previews.
+- Restored all 3 heckler faces on laptop layouts, above deck A, programme
+  and deck B, each with its own commentary.
+- Mascot tips use readable ink against the darkened programme monitor.
 
-**The hecklers turn up.** With the previews restored, all three faces are back
-on a laptop: one over deck A, one over the programme, one over deck B, each
-with its own opinion.
-
-**The mascot's tips read clearly** over the darkened programme monitor, in ink
-chosen for that backdrop.
-
-**SCALEMODE, on the wire.** `SCALEMODE fit|fill|stretch|unscaled` sets how a cue
-maps to the output from Companion, a surface or a script, and a bare
-`SCALEMODE` answers with the current one - so a mapping that was a click in the
-inspector is now something a show can be told to do.
+### Remote protocol
+- New: `SCALEMODE fit|fill|stretch|unscaled` sets cue-to-output scaling
+  from Companion, a control surface or a script.
+- Bare `SCALEMODE` returns the current mode.
 
 ## 2026-09-07 - v0.99.320 (the mascot speaks up, and the crossfader keeps its width)
 
-**The mascot's tips read clearly.** The face appears over a deliberately
-darkened programme monitor, and its line is now drawn in ink meant for that
-backdrop.
-
-**VJ mode keeps its crossfader.** In a narrower window the tempo, TAP and blend
-controls step aside until the fader has a width worth dragging - and none of
-them shortens its label to fit, because half a word reads as broken rather than
-as shorthand.
+### Interface
+- Mascot tips now use ink selected for the darkened programme-monitor
+  background.
+- VJ mode hides tempo, TAP and blend controls as the window narrows to
+  preserve usable crossfader width. Control labels remain complete.
 
 ## 2026-09-07 - v0.99.319 (INSTALL & RESTART restarts)
 
-**Installing an update brings Deckboy back.** The button waits for the
-installer to finish and starts the new build itself, so an update is one press
-from the settings page to the app running again.
-
-On macOS and Linux the same button reads **INSTALL**, because a .dmg or an
-AppImage is placed by hand there: a label should not promise what the platform
-cannot do.
+### Updates
+- Changed: INSTALL & RESTART waits for the Windows installer to finish,
+  then launches the new build from the same settings-page action.
+- macOS and Linux label the button INSTALL in this version; disk images
+  and AppImages still require manual placement.
 
 ## 2026-09-06 - v0.99.318 (browser cues on every platform, and a pointer of our own)
 
-**Browser cues are green on Windows, macOS and Linux.** A page renders, takes
-clicks, typing and keys, and goes to air like any other cue - including
-`BROWSER KEY Enter` on Linux, with the browser entry in the source menu on
-macOS. A page that cannot be reached shows a warning card naming the address
-rather than going dark, and a cue with no address of its own opens the Video
-Jockey page.
+### Sources
+- Browser cues render, accept clicks, typing and keys, and play on output
+  on Windows, macOS and Linux. Includes `BROWSER KEY Enter` on Linux
+  and the browser entry in the macOS SOURCE menu.
+- Unreachable pages show a warning card naming the address. Cues without
+  an address open the Video Jockey page.
+- Window-source identifiers now behave consistently across platforms:
+  `desktop`, `screen:N`, `window:<id>`, `title:<text>` and
+  `region:X,Y,W,H`. Every platform has a window picker; unsupported
+  capture sources report the limitation.
+- Fixed an issue where taking a browser cue on an unfocused deck did not
+  put it live on that deck.
 
-**Deckboy has its own pointer.** Hot pink at the tip running to cyan at the
-tail, with a dark outline and a light inner edge so it stays findable on a black
-desk and in a white dialog alike. It grows with the UI scale and costs nothing
-per frame. Settings > Appearance turns it off.
+### Interface
+- New: custom pointer with a hot-pink tip, cyan tail, dark outline and
+  light inner edge for visibility on dark and light backgrounds.
+  Follows UI scale without per-frame cost; disable in
+  `Settings > Appearance`.
+- Changed: button text shrinks to fit the whole label instead of
+  truncating it throughout the app.
 
-**Labels shrink to fit rather than shorten.** Where a button is narrow for its
-word, the type steps down until the whole word fits, everywhere in the app.
+### Patterns
+- New: Frame Count test pattern, including an emoji variant.
+  The whole field changes colour each tick to expose dropped or repeated
+  frames and measure end-to-end frame delay, complementing Test Clock
+  for checking feed synchronisation.
 
-**Frame Count, a new test pattern**, with an emoji variant. Test Clock answers
-"are these two feeds in sync"; Frame Count answers "did every frame arrive, and
-how far behind is the far end" - the whole field steps colour every tick, so a
-dropped or repeated frame shows from across a room.
+### Effects
+- Brightness, contrast, saturation, hue and chroma key changes reach the
+  output immediately on stills, patterns, live sources and playing video.
 
-**Window sources speak one language on all three platforms.** `desktop`,
-`screen:N`, `window:<id>`, `title:<text>` and `region:X,Y,W,H` mean the same
-thing everywhere, the window picker appears on every platform, and a source a
-machine cannot capture says so plainly.
+### Recording
+- Recording retains a live picture throughout the take.
 
-**Colour controls apply as you turn them** - brightness, contrast, saturation,
-hue and the chroma key reach the output the moment they change, on stills,
-patterns and live sources as well as playing video.
-
-**Steadier under the hood.** Recording keeps producing a live picture
-throughout, a browser cue taken on an unfocused deck goes live on that deck, and
-the control port answers control clients only.
+### Remote protocol
+- The control port responds only to control clients.
 
 ## 2026-09-06 - v0.99.317 (browser cues on macOS, and one window source everywhere)
 
-**Browser cues run on macOS.** A page renders, takes clicks and typing, and goes
-to air like any other cue - the same `BROWSER CLICK`, `TYPE`, `KEY`, `SCROLL`
-and `URL` verbs as everywhere else. A cue with no address of its own opens the
-Video Jockey page, and a page that cannot be reached shows a warning card naming
-the address.
+### Sources
+- New: browser cues on macOS, with rendering, clicks, typing and programme
+  output. Supports the same `BROWSER CLICK`, `TYPE`, `KEY`, `SCROLL`
+  and `URL` commands as other platforms.
+- Browser cues without an address open the Video Jockey page. Unreachable
+  pages display a warning card naming the address.
+- Window-source identifiers are consistent on Windows, macOS and Linux:
+  `desktop`, `screen:N`, `window:<id>`, `title:<text>` and
+  `region:X,Y,W,H`. Adding a window source opens the window picker on
+  every platform; unsupported capture sources report the limitation.
 
-**Window sources speak one language on all three platforms.** `desktop`,
-`screen:N`, `window:<id>`, `title:<text>` and `region:X,Y,W,H` mean the same
-thing on Windows, macOS and Linux, so a show carries between machines. The
-window picker appears on every platform when a window source is added, and a
-source a machine cannot capture says so plainly.
+### Patterns
+- New: Frame Count, with an emoji variant. The field changes colour each
+  tick to expose dropped and repeated frames.
+- Photographing source and output together gives frame latency from the
+  difference between their numbers. Complements Test Clock for checking
+  whether feeds are synchronised.
 
-**Frame Count, a new test pattern.** Test Clock answers "are these two feeds in
-sync"; Frame Count answers "did every frame arrive, and how far behind is the
-far end". The whole field steps colour on every tick, so a dropped or repeated
-frame is visible from across a room, and photographing the source and the output
-together makes the two numbers the latency. There is an emoji variant, because
-there should be.
-
-**Colour controls apply as you turn them.** Brightness, contrast, saturation,
-hue and the chroma key update on the output the moment they change, on stills
-and patterns and live sources as well as playing video.
+### Effects
+- Brightness, contrast, saturation, hue and chroma key changes update
+  output immediately on stills, patterns, live sources and playing video.
 
 ## 2026-09-06 - v0.99.316 (browser cues you can drive, and a desk that explains itself)
 
-**Browser cues take input.** Clicking the programme monitor clicks the page, so
-a cookie wall or a consent dialog can be dismissed from the desk, and the wheel
-scrolls it. `BROWSER SCROLL`, `TOP`, `BOTTOM`, `CLICK`, `BACK`, `FORWARD`,
-`RELOAD` and `URL` do the same from Companion or a network client. Scrollbars
-are hidden by default - a cue is a picture an audience sees, and the page moves
-by scrolling it rather than by dragging furniture down its edge.
+### Sources
+- New: interact with browser cues through the programme monitor.
+  Click to dismiss consent dialogs or use page controls; use the wheel
+  to scroll. Page scrollbars are hidden by default.
+- Remote browser control: `BROWSER SCROLL`, `TOP`, `BOTTOM`, `CLICK`,
+  `BACK`, `FORWARD`, `RELOAD` and `URL` from Companion or a network
+  client.
 
-**Text fields are text fields.** Every inline editor in the app has a caret,
-arrow keys, Home and End, word jumps with Ctrl, and clipboard paste, copy and
-cut. Long values scroll under the caret, so a URL can be pasted in and a typo
-fixed in the middle of it.
+### Interface
+- All inline text editors now support a caret, arrow keys, `Home`,
+  `End`, `Ctrl` word jumps, and clipboard paste, copy and cut.
+  Long values scroll with the caret for editing within URLs and other text.
+- Added hover tips with a short dwell for toolbar, bottom-bar, playlist
+  loop/shuffle and per-cue controls. The startup mascot adds contextual
+  tips for the hovered control. Disable in `Settings > Appearance`.
+- Dashboard buttons now offer a menu of 34 actions across transport,
+  show, audio, decks, VJ, picture and output, each with a label and glyph.
+  Free-text commands remain available.
+- Narrow playlists retain per-cue toggles by reducing thumbnail space
+  first, then button width. Default width shows both picture and controls.
+- Audio cue rows display waveforms; other cue kinds use their type icons.
+- Empty VJ A, programme and B panes each show their own commentator.
 
-**Hover a control and it tells you what it does.** Tips across the toolbar, the
-bottom bar, the playlist's loop and shuffle buttons and the per-cue toggles,
-with a short dwell so they appear when you pause rather than as you sweep past.
-The startup mascot reads along and offers the next thing worth knowing about
-whatever the pointer is resting on. Settings > Appearance turns them off.
+### Desk
+- Large imports process a few files at a time with progress reporting;
+  dropped folders are scanned in the background. The window continues
+  drawing and responding during imports of thousands of cues.
+- Changed: SAVE overwrites the open show. SAVE AS is a separate button
+  for creating a new file.
 
-**Dashboard buttons are chosen from a menu.** Thirty-four ready-made actions -
-transport, show, audio, decks, VJ, picture, output - each with its own label and
-glyph, and a free-text option for anything else.
-
-**Importing thousands of cues stays responsive.** A large import reads its media
-a few files at a time behind a progress readout, and a dropped folder is walked
-in the background, so the window keeps drawing and answering while it works.
-
-**Normalise the whole playlist at once.** `AUDIONORM ALL` measures every
-file-backed cue in the deck and matches them to the same loudness target, and
-the drawn waveform grows with the trim so the change is visible. Gain, pan, mono
-and normalise apply across both decks when the VJ split has both playlists on
-screen.
-
-**SAVE saves.** It writes back over the show that is open; SAVE AS is a separate
-button for making a new file.
-
-**The cue list keeps its commands.** Narrowing the playlist column keeps the
-per-cue toggles: the still yields first, then the buttons narrow, and the
-picture and the commands sit together at the default width. Audio cues draw
-their own waveform where the still would be, and other cue kinds show their type
-icon, so a mixed list reads as varied rather than gappy.
-
-**Three characters mind the VJ panes.** With nothing loaded, the A, programme
-and B panes each get their own commentator.
+### Audio
+- New: `AUDIONORM ALL` measures every file-backed cue in the deck and
+  matches them to one loudness target. Waveform height follows the trim.
+- Gain, pan, mono and normalise apply across both decks when both playlists
+  are visible in the VJ split.
 
 ## 2026-09-06 - v0.99.315 (Pocket and touch mode, legible at any scale)
 
-**The bottom bar and toolbar say what their buttons do at touch scale.**
-IMPORT, BLACKOUT, NEW, OPEN, SAVE and BUNDLE keep their full words at every UI
-scale, because the buttons are now sized from the same font that draws them.
-
-**Where a row genuinely will not fit, it wraps.** Ten buttons at double size do
-not fit across a small screen - the situation Pocket mode is for - so a group
-takes the second row it already had and keeps full-width labels, and a button
-left alone on a row gets the width it is owed. At 1x nothing moves.
+### Interface
+- Fixed an issue where toolbar and bottom-bar labels were truncated at
+  touch scales. IMPORT, BLACKOUT, NEW, OPEN, SAVE and BUNDLE now size
+  from their font and retain complete labels at every UI scale.
+- Button groups wrap onto a second row when needed, including Pocket
+  mode at double scale. A button alone on a row retains its full width.
+  Layout at 1x is unchanged.
 
 ## 2026-09-06 - v0.99.314 (exact at every raster width)
 
-**ST 2110 output is exact at every width**, odd rasters included, so an unusual
-picture size converts as cleanly as a standard one.
+### Outputs
+- ST 2110 picture conversion now handles every raster width, including
+  odd widths, with the same accuracy as standard sizes.
 
-This closes a read-through of the least-travelled parts of Deckboy, ranked by
-how often each had ever been touched: the PTP client, the NMOS JSON and HTTP
-parsers, the caption formats, the motion field, the code editor's cursor
-arithmetic, the socket helpers, the library loader and the worker pool. All
-cleared.
+### Validation
+- Completed a review of less frequently changed areas, prioritised by
+  change frequency: PTP, NMOS JSON and HTTP parsing, caption formats,
+  motion fields, code-editor cursor handling, sockets, library loading
+  and worker scheduling. All reviewed areas cleared.
 
 ## 2026-09-06 - v0.99.313 (files and links open through the platform itself)
 
-**"Show in explorer" and the dependency links hand the path straight to the
-system's own opener**, as an argument rather than as text to be interpreted, on
-every platform. They also report honestly: if a machine has no file manager to
-call, Deckboy says so instead of assuming it worked.
+### Interface
+- Changed: Show in explorer and dependency links pass paths as arguments
+  to the platform's native opener on every platform, without interpreting
+  them as command text.
+- Missing file-manager support is reported instead of assuming the
+  request succeeded.
 
 ## 2026-09-06 - v0.99.312 (the overlay bin on the wire, and precise MMC)
 
-**The cue overlay bin is drivable.** `OVERLAY PUSH <n>`, `POP` and `CLEAR` take
-cues in and out of the overlay bin from Companion, a surface or a script, and
-the no-argument `OVERLAY` still toggles the timecode burn-in. One verb, one
-branch, both meanings.
+### Remote protocol
+- New: `OVERLAY PUSH <n>`, `OVERLAY POP` and `OVERLAY CLEAR` control
+  the cue overlay bin from Companion, a surface or a script.
+  Bare `OVERLAY` retains its timecode burn-in toggle.
+- `STILLDUR`, `LOWERALPHA` and `OVERLAY PUSH` now explain rejected
+  requests: missing arguments, unreadable numbers, no selected cue or an
+  inapplicable cue type, instead of returning bare `OK`.
 
-**MMC LOCATE is precise.** A locate is accepted only when it carries a whole
-timecode, so a rig's transport moves to the frame it asked for and to nothing
-else.
-
-**Three commands answer with what they did.** STILLDUR, LOWERALPHA and
-`OVERLAY PUSH` each say which part of the request they could not act on -
-missing argument, unreadable number, no cue selected, or a cue the command does
-not apply to - rather than a bare OK.
+### MIDI
+- Changed: MMC LOCATE accepts only complete timecodes, preventing partial
+  requests from moving transport to an unintended frame.
 
 ## 2026-09-06 - v0.99.311 (the picture as a surface in space)
 
-**The displacement mesh.** A cue can be drawn as a landscape of itself: the quad
-becomes a grid, every vertex is pushed out of the plane by the brightness of the
-picture at that point, and the surface turns under a viewpoint. Real geometry
-through the same call the perspective warp uses - no new dependency, no shader,
-no depth buffer. `MESH ON`, then height, tilt, yaw, spin and grid; off by
-default, so a show that never arms it is unchanged.
+### Effects
+- New: displacement mesh. Cue brightness displaces a grid out of the
+  picture plane, with controls for height, tilt, yaw, spin and grid.
+  Enable with `MESH ON`.
+- Uses geometry rendering shared with perspective warp, without a new
+  dependency, shader or depth buffer. Off by default; existing shows
+  remain unchanged until enabled.
 
 ## 2026-09-06 - v0.99.310 (the dashboard responds, and clips look right)
 
-**Dashboard buttons fire from the page.** Every tile - including "add a button"
-- takes a click wherever it sits, the panel takes the click before anything
-underneath it, and a click off the panel closes the page.
-
-**Clip thumbnails are the right shape.** A 16:9 frame is drawn as a 16:9 frame,
-filling its slot with no letterboxing and no stretch.
+### Interface
+- Fixed an issue where dashboard tiles did not respond to clicks in all
+  positions, including Add a button. The dashboard receives clicks before
+  underlying controls; clicking outside closes it.
+- Clip thumbnails preserve their aspect ratio, including 16:9 frames,
+  and fill their slots without letterboxing or stretching.
 
 ## 2026-09-06 - v0.99.309 (you can see your clips)
 
-**The playlist shows each clip's own picture.** A list of filenames is a list you
-have to read; a still turns it into one you can scan, which is what it is for
-during a show. Every video and still cue draws its own frame at the head of its
-row.
-
-It never blocks: a row draws from the cache, and the first row that finds itself
-without a picture asks for one. So a thousand-cue playlist runs one decode at a
-time and fills in as you look at it, rather than launching a thousand at once.
-
-**Creatures live throughout the shell, not just under the playlist.** A theme's
-animals find every gap the layout leaves them - the empty part of the playlist
-under the last cue, and the empty part of the inspector under its last open
-section - and the cast is dealt round those gaps rather than duplicated into
-each, so a theme that asks for two moths still gets two moths. Each group is
-bounded by its own gap, which is what keeps them off the controls, and a spider
-hangs its thread from the top of its own gap.
+### Interface
+- New: video and still cues show their own picture at the start of each
+  playlist row.
+- Thumbnails load from cache without blocking. Missing pictures are
+  requested as rows appear, with one decode at a time even in a
+  thousand-cue playlist.
+- Theme creatures now occupy empty playlist and inspector areas below
+  their final cue or open section.
+- The configured creature count is distributed across available gaps,
+  rather than duplicated in each. Each group stays within its own gap
+  and off controls; spider threads attach to the top of that gap.
 
 ## 2026-09-05 - v0.99.308 (a dashboard, six new effects, and every setting reachable)
 
-**Six new effects.** *Slit scan* holds one frame and refreshes a moving band of
-it, so a single picture ends up containing many different moments - move in
-front of it and you smear across the frame. *Ferrofluid* reads brightness as a
-magnetic field and the lit parts stand up in spikes. *Shatter* breaks the
-picture into shards that slide and turn on their own centres. *Edge ignite*
-finds the outlines and sets them alight, dull red through to white at the
-hardest edges. *Relight* treats brightness as height and lights the picture from
-the side with a lamp that walks around it. *Depth split* reads brightness as
-nearness and lets the two eyes disagree about it.
+### Effects
+- New: Slit Scan holds a frame and refreshes a moving band, combining
+  different moments in one picture.
+- New: Ferrofluid turns bright areas into spikes using brightness as a
+  magnetic field.
+- New: Shatter divides the picture into independently sliding and rotating
+  shards.
+- New: Edge Ignite colours outlines from dull red to white according to
+  edge strength.
+- New: Relight treats brightness as height and illuminates it with a
+  moving side light.
+- New: Depth Split treats brightness as depth with different views for
+  each eye.
+- All 6 effects run within a 60 fps frame at 1080p and are covered by
+  offline, animation and preview checks.
 
-All six run inside a 60fps frame at 1080p and are covered by the offline sweep,
-the animation check and the preview sweep.
+### Settings
+- Added controls for the ST 2110 network interface, PTP domain, remuxing
+  recordings to ordinary MP4 at stop, number of ASIO outputs to open,
+  and MSC device ID. All show settings are now reachable in the app.
 
-**Five more settings, with controls.** The ST 2110 network interface, the PTP
-domain, whether a recording is remuxed to an ordinary MP4 when the take stops,
-how many ASIO outputs to open, and the MSC device id the rig addresses us by -
-each is now set where it belongs. Everything a show stores can be set from the
-app.
-
-**The dashboard has a page.** Ctrl+D opens a grid of your own buttons: each one
-runs any command the network protocol understands, so anything the app can do
-can go on a tile - and it is the SAME slot a Companion button fires with
-`DASH <n>`, so the desk and the screen stay one dashboard instead of two that
-drift apart.
-
-Modular: the grid flows to the window, and adding or removing a button reflows
-the rest. Customisable: a pencil on each tile sets its label, command and glyph
-on one line, and a chip cycles its colour - drawn from the theme, so a dashboard
-looks like the colourway it is sitting in. Animated: every tile drifts on its
-own phase and springs when it is fired, so the page breathes rather than sitting
-there.
-
-`DASH SHOW` puts it on screen from a surface.
+### Desk
+- New: `Ctrl+D` opens a custom dashboard. Each tile runs a remote-protocol
+  command and shares its slot with Companion's `DASH <n>`.
+- The grid reflows with window size and when buttons are added or removed.
+  Each tile's pencil edits label, command and glyph on one line; its
+  colour chip cycles theme colours.
+- Tiles drift independently and spring when fired.
+- New: `DASH SHOW` opens the dashboard from a control surface.
 
 ## 2026-09-04 - v0.99.307 (streaming, stream telemetry, and audio cues you can watch)
 
-**Streaming holds a stream.** SRT, RTMP and UDP each deliver continuously for as
-long as the far end is listening - measured after this release, thirty seconds
-of SRT arrives as thirty seconds, 900 packets at exactly 30fps, with audio and
-video within a frame of each other. Take a cue mid-stream and the connection
-carries on; pull the far end away and Deckboy reconnects on its own.
+### Streaming
+- SRT, RTMP and UDP deliver continuously while the receiver is listening.
+  Cue changes keep the connection open; receiver loss triggers automatic
+  reconnection.
+- Subsequent measurement: 30 seconds of SRT arrived as 30 seconds,
+  900 packets at exactly 30 fps, with audio and video within one frame.
+- New: live delivered frame rate, uptime, frames sent and frames dropped.
+  Streams report when the receiver stops accepting frames.
+- YouTube and Twitch destination presets set ingest URL, keyframe interval
+  and bitrate together.
 
-**You can see what a stream is doing.** A live readout of the delivered frame
-rate, uptime, frames sent and frames dropped, and a stream whose far end stops
-accepting frames says so. One-click destinations for YouTube and Twitch set the
-ingest URL, keyframe interval and bitrate together, since they are only correct
-together.
+### Audio
+- New: audio-cue pictures selectable in the inspector's AUDIO section or
+  with `AUDIOVIS <mode>`: waveform, oscilloscope, Lissajous, third-octave
+  spectrum, peak/RMS meters or name card.
+- Lissajous plots left against right to expose polarity differences.
+  The program monitor and outputs draw the same selected visualisation.
+- Cues expected to have audio now report device, file or decode reasons
+  for silence, even when transport and waveform appear normal.
 
-**Audio cues can choose what they show.** An audio cue can be a waveform, an
-oscilloscope, a Lissajous figure (left against right, so a polarity-flipped
-cable is obvious), a third-octave spectrum, big peak/RMS meters, or a plain name
-card. Set it in the cue inspector's AUDIO section, or over the network with
-`AUDIOVIS <mode>` - so it can live on a Companion button. The programme monitor
-and the outputs draw that picture through one and the same function, so what you
-check is what the audience sees.
+### Cues
+- Trimmed clips show green/red end caps and a range readout such as
+  `TRIM 00:30.0 - 01:30.0`. The ruler uses source time instead of
+  restarting at zero.
+- In and out points now apply to live cues. Changing out preserves
+  uninterrupted picture; changing in restarts decode while holding the
+  same displayed frame. Moving out behind the playhead loops immediately.
 
-**A cue that should have sound says what it is doing.** Where a device, a file
-or a decode has nothing to give, Deckboy names the reason - because silence is
-the one fault an operator cannot see: the cue racks, the clock runs, the
-waveform is drawn, and nothing on screen looks wrong.
+### Effects
+- Parameter readouts and `FX PARAM` now show meaningful quantities or
+  choices, e.g. `100 cols`, `symbols` and `green`; other parameters
+  show percentages. Values retain the 0–1 range used by LFOs.
 
-**A trimmed clip looks trimmed.** Green and red end caps and a
-"TRIM 00:30.0 - 01:30.0" readout across the bar, with the ruler underneath
-counting in the SOURCE's own time rather than restarting at zero.
+### Interface
+- Still-image timeline tiles retain their original aspect ratio, using
+  the same tiled layout as other cue kinds.
+- Added a slide-conversion animation: pages leave a hopper, pass a scan
+  bar and land on a stack that grows with completed pages.
+- Startup mascot text types with a cursor; the mascot winks one eye
+  every few seconds.
 
-**In and out points apply to a cue that is already on air.** Moving the out
-point applies with no interruption to the picture at all; moving the in point
-re-seats the decode and keeps the same frame on screen. Pull the out point
-behind the playhead and the cue loops immediately.
+### macOS
+- Published both architectures: Intel for macOS 13 and later, also
+  runnable on Apple Silicon; native Apple Silicon for macOS 14 and later.
 
-**Effect parameters say what they are setting.** Parameters that map onto a real
-quantity read as one - "100 cols", "symbols", "green" - and the rest read as a
-percentage. `FX PARAM` answers the same way. Every parameter is still stored
-0-1 underneath, which is what lets any of them be handed to an LFO.
+### Diagnostics
+- `DECKBOY_STATE_DIR` redirects all writable state, including the pointer
+  to the real show, into an isolated directory for test runs.
 
-**A still looks like itself in the timeline**, drawn in its own aspect on the
-tiled path every other cue kind already used.
-
-**The slide renderer has its own animation.** Converting a deck shows the work:
-sheets drawn from a hopper, swept by a scan bar, landing on a stack that grows
-with the pages as they land.
-
-**The startup face talks, and does something.** Its line is typed out with a
-cursor rather than swapped in whole, and it winks - one eye, on its own, every
-few seconds.
-
-**macOS builds open on Sonoma and up.** Both architectures are published: an
-Intel bundle (macOS 13 and up, which Apple Silicon also runs) and a native Apple
-Silicon one (macOS 14 and up).
-
-**An isolated test run stays isolated.** `DECKBOY_STATE_DIR` moves everything
-Deckboy writes into a scratch directory, the pointer to your real show included,
-so a test run and a real show never meet.
-
-`HELP ALL` counts itself correctly, and `tools/audit_remote_help.py` checks that
-number along with the names.
-
+### Remote protocol
+- `HELP ALL` counts itself correctly. The remote-help audit checks
+  command counts as well as names.
 
 ## 2026-09-03 - v0.99.306 (a readable About page, and a mascot you can choose)
 
-**The About page reads clearly on every theme**, dark ones included.
+### Interface
+- Improved About-page readability across all themes, including dark themes.
+- New: None mascot choice removes character art from the splash and About
+  masthead. Mascot changes apply immediately without restarting, and the
+  selected character is displayed.
 
-**The mascot can be set to None** - no character art on the splash or the About
-masthead - and the choice takes effect the moment you make it rather than at the
-next launch. Whichever character you pick is the one you get.
-
-**`SET` applies what it sets.** `SET theme`, `SET ui scale` and `SET mascot`
-change the app in front of you as well as in the show file.
-
+### Remote protocol
+- Fixed an issue where `SET theme`, `SET ui scale` and `SET mascot`
+  changed saved settings without applying them to the running interface.
 
 ## 2026-09-03 - v0.99.305 (the dashboard: your own buttons)
 
-**Build your own buttons.** A dashboard slot is a label, a glyph and any
-command Deckboy accepts — so a button can panic the show, switch the blend to
-*ember*, arm an output, rename the act, anything you can type:
+### Desk
+- New: dashboard slots containing a label, glyph and any accepted Deckboy
+  command. Examples include panic, `VJ BLEND ember`, output arming and
+  `SET title Act Two`.
+- Slots save with the show. Glyphs accept symbols and emoji Deckboy can
+  draw.
+- Commands that fire the dashboard from a dashboard slot are refused
+  to prevent loops.
 
-    DASH SET 1 Panic | PANIC | (warning sign)
-    DASH SET 2 Ember | VJ BLEND ember | (fire)
-    DASH SET 3 Act Two | SET title Act Two | (clapper)
-
-    DASH LIST       what you have built
-    DASH 2          fire slot 2
-    DASH CLEAR 3
-
-**And it is the same list from Companion.** Because a slot IS a command, a
-surface button bound to `DASH 2` does exactly what pressing it on screen will —
-there is no second mechanism to fall out of step. The glyph can be any symbol
-or emoji Deckboy can draw, which is all of them.
-
-Slots are saved with the show. A slot that tries to fire the dashboard is
-refused, because that is a loop that would run during a show rather than while
-it was being written.
-
+### Remote protocol
+- `DASH SET <n> <label> | <command> | <glyph>` defines a slot.
+  Examples: slot 1 labelled Panic runs `PANIC` with a warning glyph;
+  slot 2 labelled Ember runs `VJ BLEND ember` with a fire glyph;
+  slot 3 labelled Act Two runs `SET title Act Two` with a clapper glyph.
+- `DASH LIST` lists slots; `DASH 2` fires slot 2;
+  `DASH CLEAR 3` clears slot 3.
+- Companion's `DASH <n>` uses the same saved slots as on-screen buttons.
 
 ## 2026-09-03 - v0.99.304 (every project setting, over the wire)
 
-**`GET` and `SET`.** All 86 named project settings can be read and changed from
-a control surface or a script:
-
-    GET                     list every key
-    GET <key>               what it is
-    SET <key> <value>       change it
-
-Most of these had no command of any kind before, which put a show's finer
-settings out of reach of a surface.
-
-A value that gets clamped reports back what it actually became, not what was
-asked for: `SET ptp_domain 9999` answers `ptp_domain = 127`. A key that does
-not exist is refused rather than quietly ignored.
-
+### Remote protocol
+- New: `GET` and `SET` expose all 86 named project settings to control
+  surfaces and scripts, including settings previously without commands.
+- `GET` lists keys; `GET <key>` reads a value;
+  `SET <key> <value>` changes it.
+- Clamped values report the result, e.g. `SET ptp_domain 9999` returns
+  `ptp_domain = 127`. Unknown keys are rejected.
 
 ## 2026-09-03 - v0.99.303 (all six builds, everywhere)
 
-The v0.99.302 Spout input, published for macOS, Linux and Windows builds
-without Spout as well. No behaviour change.
-
+### Packaging
+- Published the v0.99.302 release across all 6 builds, including macOS,
+  Linux and Windows configurations without Spout. No behaviour changes.
 
 ## 2026-09-03 - v0.99.302 (Spout input works)
 
-**A Syphon/Spout source cue receives a picture.** Spout senders on this machine
-can be taken as a cue and mixed like any other source — Resolume, OBS, another
-Deckboy.
-
-`SPOUTCUE <sender name>` adds one, or leave the name off to take whatever is
-sending.
-
-**Stopping a live cue stops the capture**, on Spout, NDI and DeckLink alike, so
-a stopped cue costs nothing until it is taken again.
-
+### Sources
+- New: Syphon/Spout source cues receive Spout senders on the local machine,
+  including Resolume, OBS and another Deckboy, for mixing as ordinary cues.
+- `SPOUTCUE <sender name>` adds a source. Omit the name to receive an
+  available sender.
+- Stopping a Spout, NDI or DeckLink cue stops capture and its processing
+  cost until the cue is taken again.
 
 ## 2026-09-03 - v0.99.301 (a source says what this machine can do)
 
-Adding a **Syphon/Spout source** cue tells you straight away whether this
-platform can receive one, and the answer comes from the capture backend itself
-rather than from a placeholder that could just as easily be a signal. Spout
-receive on Windows and Syphon receive on macOS are on the way.
-
-Sources that already work — window, camera — are unaffected and say nothing
-extra.
-
+### Sources
+- Adding a Syphon/Spout cue now immediately reports whether the current
+  platform can receive it, using capture support information instead of a
+  placeholder picture.
+- Windows Spout receive and macOS Syphon receive are still planned in this
+  version.
+- Working window and camera sources are unchanged and show no additional
+  message.
 
 ## 2026-09-03 - v0.99.3 (an output can be driven from a surface)
 
-**`OUTPUT`** — arm an output, route it to Spout, name the sender, and read the
-whole thing back:
+### Remote protocol
+- New: `OUTPUT` returns the focused output's state; `OUTPUT LIST`
+  lists every output and whether it is enabled.
+- `OUTPUT ON|OFF|TOGGLE` controls output enable.
+  `OUTPUT <n>` focuses an output.
+- `OUTPUT SPOUT ON|OFF|TOGGLE` controls Spout routing;
+  `OUTPUT SPOUT NAME <sender name>` sets its sender name.
+  Spout now has remote control alongside NDI and DeckLink.
 
-    OUTPUT              what the focused output is doing
-    OUTPUT LIST         every output and whether it is on
-    OUTPUT ON|OFF|TOGGLE
-    OUTPUT SPOUT ON|OFF|TOGGLE | SPOUT NAME <sender name>
-    OUTPUT <n>          focus that output
-
-Spout now has what NDI and DeckLink beside it have always had: a command, so
-routing an output to Spout is something a surface or a script can do. The
-output's own enable is on the wire too.
-
-**Settings opens on the tab you asked for**, System included.
-
+### Interface
+- Fixed an issue where Settings did not open on the requested tab,
+  including System.
 
 ## 2026-09-03 - v0.99.2 (NDI input works)
 
-**An NDI source cue receives a picture.** It is taken straight from the NDI
-runtime, the way a DeckLink input is captured.
-
-Add one with `NDICUE <source name>`, or from the cue menu. The name is matched
-loosely, so a show can say "Test Pattern" without knowing which machine will be
-sending it on the day, and a cue whose source is not up yet keeps looking —
-the other machine is often still booting.
-
-**Stopping a live input stops the capture**, on NDI and DeckLink alike.
-
+### Sources
+- New: NDI source cues receive pictures directly through the NDI runtime,
+  as DeckLink uses native capture.
+- Add from the cue menu or with `NDICUE <source name>`.
+  Loose name matching accepts names such as `Test Pattern` without
+  requiring the sending machine's name.
+- Cues keep searching when the source is not yet available.
+- Stopping an NDI or DeckLink input cue stops capture.
 
 ## 2026-09-03 - v0.99.1 (rendered slides live with the show)
 
-Slides rendered from a PowerPoint or Keynote go in a `<show>_media` folder
-beside the show file. They are not a cache — every cue points at one — so they
-belong with the file that references them: copying the show folder copies the
-whole show, and deleting it takes the renders with it.
-
-An unsaved show has nowhere of its own yet and uses the state folder until it is
-saved. Saving leaves renders that already exist where the cues expect them.
-
+### Cues
+- PowerPoint and Keynote slide renders now live in a `<show>_media`
+  folder beside the show file. Cues reference these media files directly;
+  copying or deleting the show folder includes its rendered slides.
+- Unsaved shows render into the state folder. Saving a show leaves
+  existing renders at the locations its cues already reference.
 
 ## 2026-09-03 - v0.99.0 (text mode, at full brightness)
 
-**Coloured character art now carries tone with the density of the character and
-colour with the ink.** A cell keeps its hue exactly — the channel ratios are
-untouched — and the character is drawn at the brightness that hue can reach.
-Measured on an ordinary frame, the average lit pixel reads 195 out of 255 where
-it used to read 49: a scene rendered as type is legible as a scene.
-
-The phosphor inks — green, amber, cyan and the palette modes — are unchanged.
-
+### Effects
+- Changed: coloured Text Mode uses character density for tone and ink for
+  colour. Channel ratios preserve hue; each character uses the maximum
+  brightness that hue can reach.
+- On a test frame, average lit-pixel brightness increased from 49 to 195
+  out of 255.
+- Green, amber, cyan and palette phosphor inks are unchanged.
 
 ## 2026-09-03 - v0.98.1 (a dismissed suggestion stays dismissed)
 
-Closing the "HAP would help this show" suggestion keeps it closed, across
-launches, as it always said it would.
-
+### Interface
+- Fixed an issue where dismissing the HAP conversion suggestion did not
+  keep it dismissed across launches.
 
 ## 2026-09-03 - v0.98.0 (ten blend modes, faders you can reach the ends of)
 
-### Ten ways to mix two decks
+### VJ
+- 10 blend modes: `dissolve`, `add`, `screen`, `multiply`,
+  `lighten`, `darken`, `subtract`, `undercut`, `infiltrate` and
+  `ember`.
+- Only Dissolve fades out the outgoing deck. Other modes retain it at full
+  level while introducing the incoming deck.
+- Lighten and Darken select the brighter or darker value per channel.
+  Undercut subtracts outgoing from incoming. Infiltrate introduces the
+  incoming deck through outgoing shadows; Ember uses highlights.
+- Multiply responds across the full fader range from zero.
+- Bare `VJ BLEND` cycles modes. Unknown names are rejected instead of
+  selecting Dissolve.
 
-**dissolve, add, screen, multiply, lighten, darken, subtract, undercut,
-infiltrate** and **ember**. Only dissolve fades the outgoing deck away; the
-rest leave it at full and bring the incoming one in over it, which is what
-makes each look like itself.
-
-*lighten* and *darken* pick the brighter or darker deck channel by channel.
-*undercut* is subtract in reverse — the outgoing deck eats light out of the
-incoming one. *infiltrate* lets the new deck appear only where the old one is
-dark, so it grows out of the shadows; *ember* is its opposite and burns in
-through the highlights.
-
-`VJ BLEND` with no argument cycles, and a name it does not know is refused
-rather than quietly becoming dissolve.
-
-*multiply* rides the fader like the rest of them, all the way up from zero.
-
-### Faders you can reach the ends of
-
-The deck opacity faders can be **dragged**, not just clicked — and 0 and 100
-have a landing zone at each end instead of being one pixel wide. The crossfader
-gets the same, so full A and full B are reachable without taking aim. The middle
-of the rail is as fine as it ever was.
-
+### Interface
+- Deck-opacity faders now support dragging as well as clicking.
+- Opacity and crossfader endpoints have wider landing areas for 0/100
+  and full A/full B, replacing single-pixel targets. Precision along the
+  middle of the rail is unchanged.
 
 ## 2026-09-02 - v0.97.0 (NDI output verified, NDI input tells the truth)
 
-**NDI output is correct** — checked frame by frame against a receiver rather
-than by eye: 3840x2160, right way up, colour bars in the right order.
+### Outputs
+- Verified NDI output frame by frame against a receiver: 3840x2160,
+  correct orientation and correct colour-bar order.
 
-**An NDI source cue says what it can do** the moment you add it, rather than at
-showtime: on this build NDI input arrives through ffmpeg's `libndi_newtek`
-device, which ffmpeg no longer carries, and the cue tells you so instead of
-staying blank.
+### Sources
+- NDI cues report input availability when added. This build relies on
+  ffmpeg's `libndi_newtek` device, which ffmpeg no longer includes;
+  the cue reports this instead of remaining blank.
 
-`NDICUE <source name>` adds an NDI input from a control surface — the last live
-source kind that had no command of its own.
-
+### Remote protocol
+- New: `NDICUE <source name>` adds an NDI input, completing remote
+  creation commands for live source kinds.
 
 ## 2026-09-02 - v0.96.0 (Spout output, the right way up and the right colour)
 
-**Spout output arrives correctly in a receiver**, right way up and with red and
-blue where they belong — verified against the test card in Resolume with no
-correction of any kind on the receiving side. A Deckboy feed drops into
-Resolume, OBS or another Deckboy and is usable as it lands.
-
-**The send is considerably cheaper**, going straight from the capture buffer
-rather than through a texture of its own: about 66MB per frame of copying saved
-at 4K.
-
+### Outputs
+- Fixed an issue where Spout output arrived inverted or with red and blue
+  exchanged. Verified against the test card in Resolume with no receiver
+  correction; feeds are usable directly in Resolume, OBS and Deckboy.
+- Spout sends directly from the capture buffer without an intermediate
+  texture, avoiding about 66 MB of copying per 4K frame.
 
 ## 2026-09-02 - v0.95.2 (a converter that fails now says why)
 
-When a presentation cannot be converted, Deckboy shows what the converter itself
-said — "PowerPoint: Exception from HRESULT: 0x80CB4002" — because the tool that
-failed is the one that knows why.
-
-Importing two slide decks at once keeps the progress card up until both have
-finished, and says how many are running.
-
+### Cues
+- Presentation conversion failures now display the converter's own error,
+  e.g. `PowerPoint: Exception from HRESULT: 0x80CB4002`.
+- When importing 2 slide decks simultaneously, the progress card remains
+  visible until both finish and shows the number of active imports.
 
 ## 2026-09-02 - v0.95.1 (the video synth reaches the text mode controls)
 
-The **text mode** row in a video synth cue's settings reads the effect, so the
-character-grid rows underneath it appear and answer on the one kind of cue that
-has no other way to reach them.
-
+### Video Synth
+- Fixed an issue where the Text Mode row did not reflect the effect on a
+  Video Synth cue. Character-grid controls now appear and respond on these
+  cues, where that row is their only entry point.
 
 ## 2026-09-02 - v0.95.0 (one text mode)
 
-**Text mode is the effect, on any cue.** It used to be two switches over one
-renderer — a video synth cue had its own character grid, everything else
-carried the TEXT MODE effect — so every control had to work through both. There
-is one way in now, and every control works.
-
-**Your shows open exactly as they were.** A cue saved with the old switch gains
-the effect on loading, carrying the settings it already had, and a show saved by
-this build still opens in an older one.
-
-**Two more character sets everywhere.** **Sprite sheet** and **font (type
-anything)** were reachable only from a video synth cue; they can be chosen on
-any cue now, and every existing show keeps the set it had.
-
-**Turning text mode off and on again keeps your settings**, all of them.
-
+### Effects
+- Changed: Text Mode uses one effect on every cue, replacing the separate
+  Video Synth character-grid switch. All controls use the same effect.
+- Older shows automatically convert the former switch to an effect while
+  retaining its settings. Shows saved by this version still open in older
+  builds.
+- Sprite Sheet and Font (type anything) character sets are now available
+  on every cue, previously only Video Synth. Existing shows retain their
+  chosen character set.
+- Turning Text Mode off and on preserves all settings.
 
 ## 2026-09-02 - v0.94.1 (type your own text into TEXT MODE)
 
-**The glyphs and phrases rows keep what you type**, on an ordinary clip as
-well as on a video synth cue.
-
-**Picking a font uses that font** — for plain letters as well as for the
-characters the built-in 5x7 face cannot draw. Choose a typeface for its stars
-and you keep it for its letters too.
-
+### Effects
+- Fixed an issue where Text Mode glyph and phrase edits were not retained
+  on ordinary clips and Video Synth cues.
+- Fixed an issue where the selected Text Mode font was used only for
+  characters outside the built-in 5x7 set. It now renders ordinary letters
+  as well as extended characters.
 
 ## 2026-09-02 - v0.94.0 (import a PowerPoint or a Keynote)
 
-### Drop the deck in
+### Cues
+- New: direct import of `.pptx`, `.ppt`, `.pps`, `.key` and `.odp`.
+  Export uses PowerPoint on Windows, Keynote for `.key` on macOS, or
+  LibreOffice where installed, followed by PDF page rendering.
+- Each slide becomes a 3840-pixel-wide still cue that holds until the next
+  take. Native application export preserves fonts, layout and image
+  resolution; fine hatching remained resolved in a test-pattern deck.
+- Imports using LibreOffice report the converter on completion, since it
+  can substitute unavailable fonts.
+- A 100-slide deck takes about 30 seconds to convert and render.
+  Progress shows the startup character, slide count and a moving bar.
+- Imports report unplugged drives and renamed source folders.
 
-`.pptx`, `.ppt`, `.pps`, `.key` and `.odp` import directly now. Deckboy asks
-whatever owns the format to export a PDF — PowerPoint on Windows, Keynote for
-`.key` on macOS, LibreOffice anywhere it is installed — and then renders the
-pages the way it already renders a PDF: one still per slide, 3840 wide, each
-one holding until you take the next.
+### Interface
+- Actionable warnings remain visible longer and use distinct styling from
+  confirmation messages.
 
-**The format's own application does the export, so nothing is reinterpreted.**
-Fonts stay the fonts, every box stays where it was put, and images keep their
-resolution. Measured on a test-pattern deck, the finest hatching in the card
-comes through fully resolved rather than averaged to grey. Where LibreOffice
-is the only converter available it is named when the import finishes, because
-it substitutes fonts it does not have and that is worth a look before you go
-on air.
-
-What a PDF cannot carry, and so neither can this: builds, transitions, and
-video or audio embedded in a slide. For a deck that genuinely animates, take
-it live with a window-capture source instead.
-
-### Something to watch while it works
-
-A hundred-slide deck takes about half a minute to convert and render. Deckboy
-shows you the friend from the startup screen while it does, counting the slides
-off with a bar that moves — so the wait has a face on it.
-
-### Smaller things
-
-Messages that tell you something you need to act on stay up long enough to
-read, and stand out from the ones that just confirm what you pressed.
-
-Importing media from a drive that has been unplugged, or a folder that has been
-renamed, says so.
-
+### Known issues
+- PDF-based imports do not retain builds, transitions or embedded video
+  and audio in this version. Use a live window-capture source for
+  animated presentations.
 
 ## 2026-09-02 - v0.93.1 (the picture-following wobble follows the picture)
 
-**flow** mode follows the parts of the picture that have something to follow.
-Where the picture has an edge the flow follows it; where it has nothing, the
-characters keep to the wave — which is what makes the turn read as one surface.
-**hue** mode is weighted the same way, by how much colour a cell actually has.
-
-**Wobble modes are named over the wire**: `flow` and `hue` are the modes, `luma`
-and `colour` reach the same two, and a name that is not a mode is refused rather
-than quietly meaning `drift`.
-
-A character set typed by hand says when a preset replaces it, the way the
-character-set row already did.
-
-With a glitch running, the area around a turned character keeps the background's
-own colour.
-
+### Effects
+- Changed: Text Mode Flow wobble follows picture edges where present and
+  returns to the wave in areas without an edge. Hue wobble is weighted
+  by the amount of colour in each cell.
+- Remote wobble modes accept `flow` and `hue`, with aliases `luma`
+  and `colour`. Unknown names are rejected instead of selecting
+  `drift`.
+- Hand-entered character sets now indicate when a preset replaces them,
+  matching the character-set row.
+- Fixed an issue where glitch effects changed the background colour around
+  rotated characters.
 
 ## 2026-09-02 - v0.93.0 (text that turns, and a show that keeps a spare)
 
-### The wobble turns
+### Effects
+- Changed: Text Mode wobble rotates each character as a small card about
+  2 axes with perspective, converging edges and visible near/far sides.
+- Rotation travels across the grid as a wave. Lighting darkens characters
+  edge-on and restores brightness as they face the viewer.
+- One amount control; zero disables the effect and its processing cost.
+- The area around rotated characters retains the background at every
+  character size and angle, without exposing the source picture.
+- Added a None preset position. Selecting a built-in character set
+  replaces an active preset and reports the change; the row also
+  indicates custom sets.
+- Preset, font and custom-glyph controls now sit directly below the set
+  they override, in their application order.
 
-Text mode's wobble is a rotation now. Each character sits on its own small card
-turning about two axes at once, drawn through the same perspective a camera
-would give it: the edges converge, the near side comes forward and the far side
-falls away. Large glyphs read as objects with a front and a back rather than as
-a picture being waved.
+### Desk
+- New: a `.bak` beside the show before its first overwrite, preserving
+  the show as it was when opened. Existing all-or-nothing saves remain
+  unchanged.
 
-The turn travels across the grid as a wave, so a run of neighbouring characters
-moves as one surface and the light sweeps over it — and the light is real: a
-character turned edge-on to you goes dark and comes back to full as it faces
-you again. That is the cue that makes a turn read as a turn.
-
-There is one knob. At zero nothing happens and nothing is spent.
-
-### The picture stays behind the text
-
-The space around a turning character is the background, whatever size the
-characters are and however far they have turned, so the eye stays on the type
-rather than being pulled through to the source.
-
-### Presets are a starting point, not a mode
-
-The preset row has a **none** position, so the built-in character sets are
-always one step away. Choosing a built-in set while a preset is loaded takes you
-to that set and says so, and the row tells you when a custom set is in force.
-Whichever row you reach for is the row that answers.
-
-The controls that override one another — preset, font and custom glyphs — sit
-together directly under the set they override, in the order they apply.
-
-### A show keeps a spare
-
-Deckboy writes a `.bak` beside a show before it first overwrites it, holding
-the show as it was when Deckboy opened it. Saves were already all-or-nothing;
-this adds somewhere to go back to.
-
-### Reading the deck back
-
-`ASCII STATUS` answers with the whole TEXT MODE section on one line — ink, set,
-preset, columns, chaos, wobble and typeface — so a control surface can show
-what a cue is actually doing rather than only tell it what to do.
-
+### Remote protocol
+- New: `ASCII STATUS` returns the complete Text Mode state on one line:
+  ink, set, preset, columns, chaos, wobble and typeface.
 
 ## 2026-09-01 - v0.92.1 (the glitch takes the picture's colour)
 
-The marks that climb out of the characters are drawn in the clip's own colour,
-**picture** ink included, so a glitch reads as damage to the image rather than
-as confetti sitting on top of it.
+### Effects
+- Changed: Text Mode glitch marks use the clip's own colour, including
+  Picture ink.
+- One third of marks reduce one colour channel for fringing. Colour is
+  scaled without adding brightness, so dark source areas stay dark.
 
-A third of the marks are drawn with one colour channel pulled down, which is the
-fringing that separates real digital corruption from decoration. It scales the
-cell's own colour rather than adding brightness, so a glitch on a dark part of
-the picture stays dark.
-
-Crash reports name the thread that faulted and whether it was the one that owns
-the drawing.
-
+### Diagnostics
+- Crash reports identify the faulting thread and whether it owns drawing.
 
 ## 2026-09-01 - v0.92.0 (curated sets, a typeface of your choosing, and wobble)
 
-### Thirty-two curated sets
-
-A **preset** row in TEXT MODE, cycling through sets of symbols and emoji: dots,
-stars, sparkles, music, hearts, flowers, arrows, geometry, blocks, box drawing,
-circles, weather, zodiac, chess & cards, runes, greek, braille, currency, maths,
-dice, faces — and a dozen emoji sets from faces and nature through show,
-party, creatures, space and fruit.
-
-Picking one fills the custom glyphs field and leaves it editable, so a preset is
-a starting point rather than a mode. Each is ordered light to heavy, which is
-the order text mode maps brightness onto.
-
-### Choose the typeface
-
-A **font** row picks the face the characters are drawn with; click it again for
-automatic. A chosen font is tried first and the system fonts still cover
-anything it lacks, so picking something for its stars does not cost you the
-letters it has not got.
-
-A character no font on the machine can draw is left out of the set rather than
-drawn as an empty box.
-
-### Wobble
-
-Each character rocks as though it were a card being tilted — a squash on one
-axis, a stretch on the other, and a shear between them. Every cell has its own
-phase, so the grid breathes rather than sliding about as one sheet.
-
-**wobble by** decides what aims each tilt:
-
-- **drift** — its own position. Time only.
-- **flow** — the picture's luma gradient, so characters lean the way the image
-  does and an edge combs the grid along itself.
-- **hue** — the cell's colour, so the picture steers the tilt by what it is
-  rather than by where its edges are.
-
-It costs nothing at zero.
-
+### Effects
+- New: 32 Text Mode presets of symbols and emoji. Symbol sets include
+  dots, stars, sparkles, music, hearts, flowers, arrows, geometry,
+  blocks, box drawing, circles, weather, zodiac, chess and cards,
+  runes, Greek, braille, currency, maths, dice and faces.
+- Emoji presets span a dozen sets, including faces, nature, show, party,
+  creatures, space and fruit.
+- Presets fill the editable custom-glyph field and order symbols from
+  light to heavy for brightness mapping.
+- New: Font row selects the character typeface; click again for automatic.
+  The selected font is tried first, with system-font fallback for
+  missing characters.
+- Characters unsupported by every installed font are omitted instead of
+  drawn as empty boxes.
+- New: Wobble tilts character cards using squash, stretch and shear, with
+  an independent phase per cell.
+- Wobble by modes: Drift uses position and time; Flow follows the picture's
+  luma gradient; Hue uses cell colour. Zero amount has no processing cost.
 
 ## 2026-09-01 - v0.91.0 (it can tell you there is a new one)
 
-An **UPDATES** card in the System settings. It asks GitHub whether there is a
-newer release, tells you, and offers to fetch it — and that is all it does on
-its own.
-
-- **Off until you switch it on.** This is the only connection Deckboy opens
-  outward by itself, and a machine on a venue network should do nothing nobody
-  asked for. CHECK NOW works whether or not the startup check is on.
-- **It never installs anything by itself.** Checking is a check. Downloading is
-  a button. Installing is another button, and it restarts.
-- **It refuses while anything is live.** Not the download and not the install:
-  an update is a restart, and a restart mid-show is the worst thing this
-  program could do to you.
-- **It tidies up.** A finished installer is deleted at the next start, so a
-  90MB file does not sit in your state folder forever.
-
-The download is checked against the size the release reports, so a connection
-that drops halfway leaves nothing to run rather than a broken installer.
-
-`deckboy --check-update` prints the answer and exits, and
-`UPDATE check|download|install|status` drives it from a surface.
-
+### Updates
+- New: UPDATES card in System settings checks GitHub for newer releases
+  and offers a download.
+- Startup checks are off by default; CHECK NOW works whether they are
+  enabled or not. This is Deckboy's only automatic outgoing connection
+  in this version.
+- Checking, downloading and installing are separate actions. Installation
+  requires its own button and restarts the app.
+- Download and installation are refused while anything is live.
+- Downloads are checked against the release's reported size. Incomplete
+  downloads are not offered for installation.
+- Completed installers are deleted at the next start, avoiding retained
+  files of about 90 MB in the state folder.
+- `deckboy --check-update` prints the result and exits.
+- `UPDATE check|download|install|status` provides remote control.
 
 ## 2026-09-01 - v0.90.0 (type anything, including emoji)
 
-### Any character you can type
-
-Anything you type or paste into the custom glyphs field is drawn, rendered
-through a font on the machine: stars, notes, flowers, arrows, box drawing,
-dingbats, scripts — whatever the system has a face for. Each character is
-looked up across several fonts, so a symbol missing from one is found in
-another, and it is rasterised once per size and cached.
-
-Mixing is just typing: `A♪★b✿` is four ordinary letters and symbols in one set,
-ordered darkest to brightest like any other glyph set.
-
-### Emoji
-
-They work, in colour, wherever the platform has a colour emoji font — Windows
-and macOS have one as standard, and most Linux installs can add one. A colour
-emoji keeps its own colours and ignores the ink setting, which is the whole
-point of drawing one.
-
-### Also
-
-The glyph set list gains **font (type anything)**, which forces the font path
-even for plain letters. You rarely need it: typing a character no built-in set
-has switches to the font on its own.
-
+### Effects
+- Custom Text Mode glyphs accept typed or pasted letters, stars, notes,
+  flowers, arrows, box drawing, dingbats and scripts supported by installed
+  fonts.
+- Each character is searched across multiple fonts, rendered once per
+  size and cached. Mixed sets such as `A♪★b✿` are ordered from darkest
+  to brightest.
+- New: colour emoji where the platform has a colour emoji font.
+  Windows and macOS include one; most Linux installations can add one.
+  Emoji retain their own colours and ignore the ink setting.
+- New: Font (type anything) glyph set forces font rendering even for
+  plain letters. Entering a character absent from the built-in sets
+  selects font rendering automatically.
 
 ## 2026-09-01 - v0.89.5 (picture ink means the picture)
 
-Text mode's **picture** ink draws each cell in the clip's own colour. Measured
-on one held frame, 19.5% of the source's lit pixels are desaturated and 20.1% of
-the glyphs drawn from it are — so ordinary footage keeps the colour it came in
-with.
-
-The quantised, sixteen-colour look is what the **palette** ink is for, and that
-is unchanged.
-
+### Effects
+- Changed: Text Mode Picture ink uses each cell's source colour.
+  On one held frame, 19.5% of lit source pixels and 20.1% of resulting
+  glyphs were desaturated.
+- Palette ink retains its quantised 16-colour appearance.
 
 ## 2026-08-31 - v0.89.4 (fold the inspector down to the effects)
 
-Collapsing the inspector's sections keeps everything where it belongs: EFFECTS
-and TEXT MODE continue from wherever the sections above them finished, folded or
-not, so you can shut the top of the panel and work on the effects.
+### Interface
+- Fixed an issue where collapsing inspector sections misplaced EFFECTS
+  and TEXT MODE. They now continue directly after the preceding sections,
+  whether expanded or folded.
 
-`SECTION playback|metadata|geometry|key|effects|timer|tone|text` over the
-control protocol folds a section from a surface.
-
+### Remote protocol
+- `SECTION playback|metadata|geometry|key|effects|timer|tone|text` folds
+  the corresponding inspector section from a control surface.
 
 ## 2026-08-31 - v0.89.3 (the text mode section works on any cue, and a chaos knob)
 
-### The controls work on a clip
+### Effects
+- Text Mode controls now apply to any cue carrying the effect, including
+  clips, stills, cameras and Video Synth: columns, glyph set, shuffle,
+  ink, glitch amounts, custom glyphs and phrases.
+- New: Chaos row. At 0, glyphs follow cell brightness; at 1, cells can
+  use any glyph in the set. Intermediate values mix the two behaviours.
+- Chaos exposes the full Music & Sparkle set even in flat picture areas,
+  and selects only entered characters for custom sets. Its pattern
+  follows cell position rather than frame number, avoiding flicker.
+- Fewer columns enlarge cells, making detailed glyphs such as notes
+  easier to read.
 
-Every control in the TEXT MODE section — columns, glyph set, shuffle, ink, the
-glitch amounts, the custom glyphs and the phrases — works on any cue carrying
-the effect: a clip, a still, a camera, as well as a video synth cue.
-
-### CHAOS
-
-A new row in the TEXT MODE section. At 0 each cell draws the glyph its
-brightness asks for, so the picture reads. At 1 it draws any glyph in the set,
-so the whole alphabet appears at once and the grid becomes texture. In between
-is the interesting part.
-
-This is how you get every mark in **music & sparkle** on screen: ranked strictly
-by ink, a flat area of picture picks one mark and the rest never appear. Turn
-chaos up and they all do. It works on custom glyph sets too, picking within what
-you typed rather than the table behind it, and it is hashed from the cell
-position rather than the frame, so it is texture rather than flicker.
-
-Fewer columns means bigger cells, which is where the notes become legible rather
-than reading as dots.
-
-### Also
-
-`ASCII INK`, `ASCII SET`, `ASCII SHUFFLE`, `ASCII COLS <n>` and
-`ASCII CHAOS <0..1>` over the control protocol, so a surface can drive the
-character grid — and the same commands work on any cue carrying the effect.
-
+### Remote protocol
+- New: `ASCII INK`, `ASCII SET`, `ASCII SHUFFLE`, `ASCII COLS <n>`
+  and `ASCII CHAOS <0..1>` control Text Mode on any cue carrying
+  the effect.
 
 ## 2026-08-31 - v0.89.2 (the text mode controls drive the picture)
 
-Columns, glyph set and ink in the TEXT MODE section change what you see, on any
-cue carrying the effect — which is also how you reach **music & sparkle**: cycle
-the GLYPHS row.
-
-One mapping between the effect's four parameters and the grid, shared by the
-renderer and the inspector, so what a row says and what the frame shows are the
-same thing.
-
+### Effects
+- Fixed an issue where Text Mode Columns, glyph set and Ink controls did
+  not change the picture on cues carrying the effect.
+- Cycle GLYPHS to select Music & Sparkle.
+- The inspector and rendering now share the same mapping of the effect's
+  4 parameters to the character grid.
 
 ## 2026-08-31 - v0.89.1 (text mode fills the frame)
 
-The character grid reaches every edge of the raster. Cell edges land on
-proportional boundaries rather than a fixed cell size, so the last column and the
-last row finish exactly on the frame edge at any column count and any output
-size. The glitch marks follow the same grid, so they stay in their cells out to
-the edge.
-
+### Effects
+- Fixed an issue where Text Mode did not fill the raster at every column
+  count and output size. Proportional cell boundaries now place the last
+  row and column exactly on the frame edge.
+- Glitch marks use the same grid and remain inside their cells through
+  the final row and column.
 
 ## 2026-08-31 - v0.89.0 (marks to draw with, devices that come back)
 
-### A marks alphabet for text mode
+### Effects
+- New: Music & Sparkle glyph set with dots, rings, arc, tilde, plus signs,
+  crosses, diamonds, star, and quarter, quaver, beamed and double-beamed
+  notes. Select through GLYPHS or the Text Mode glyph-set parameter,
+  including LFO control.
+- Custom glyphs accept typed or pasted marks and recognise alternate
+  character spellings of the same symbol. Letters and marks can be mixed.
+- SHUFFLE remaps which glyph represents each brightness using its seed.
 
-A new glyph set, **music & sparkle**: dots, rings, an arc, a tilde, plusses,
-crosses, diamonds, a star, and quarter, quaver, beamed and double-beamed notes.
-Cycle to it on the GLYPHS row like any other set, or reach it from the text mode
-effect's glyph-set parameter — so an LFO can sweep the alphabet along with
-everything else.
+### Audio and MIDI
+- Decks retain the selected audio-device name when the interface is absent.
+  `not found, on default` reports fallback to the system default;
+  the deck returns to the selected interface when it appears.
+- Disconnecting an active audio interface switches to the system default.
+- The selected MIDI port saves with the show, survives restart and is
+  reported by name when absent. Disconnects are reported; reconnects are
+  automatic.
 
-The custom glyph field understands pasted characters. Type or paste a row of
-marks and they map to the ones that are drawn, with several spellings each — a
-star arrives as a different character depending where it was copied from, and
-they all land on the star. Custom sets can mix ordinary letters and marks
-freely, and the existing SHUFFLE seed re-maps which mark carries which
-brightness, so one set gives many different hands.
+### Diagnostics
+- New: `deckboy --devices` lists audio devices, displays, MIDI ports and
+  render drivers using the names required by show files. Includes device
+  rates and channel counts, and display refresh and scaling.
 
-### Devices you named, kept
+### Cues
+- Audio cues now support in and out points in the inspector and remote
+  protocol, as video clips do.
+- Streams and capture inputs expose GEOMETRY, KEY and EFFECTS.
+  DeckLink inputs have a full inspector and name the selected card.
 
-A deck remembers the audio interface you chose, even when it is not there yet.
-Start the machine before the rack is powered on and the deck says so — "not
-found, on default" — rather than quietly forgetting what you asked for. When the
-interface appears, the deck moves back to it on its own; when one is unplugged
-mid-show, the deck moves to the system default.
+### Desk
+- Shows save to a temporary file beside the destination, then rename into
+  place, preventing partial show files.
+- Opening a show leaves its file unchanged.
+- Fixed timecode readout rollover at minute boundaries.
 
-The same for a control surface. The chosen MIDI port is saved with the show, so
-it survives a restart, and a port that is not present is reported by name.
-Unplug the surface and Deckboy says so; plug it back in and it reconnects
-itself.
-
-**`deckboy --devices`** prints the audio devices, displays, MIDI ports and
-render drivers this machine offers, with each device's real rate and channel
-count and each display's real refresh and scaling — and it spells the names the
-way a show file needs them.
-
-### Audio cues can be trimmed
-
-In and out points on an audio cue, in the inspector and over the control
-protocol, the same as a clip. A music bed can start eight bars in.
-
-### Steadier
-
-- The show file is written beside itself and renamed into place, so it is never
-  half-written on disk.
-- Opening a show leaves it untouched.
-- Streams and capture inputs get GEOMETRY, KEY and EFFECTS in the inspector.
-- A DeckLink input has a full inspector, and names the card it is watching.
-- Timecode readouts roll over correctly at the minute.
-- `IN`, `OUT` and `MIDI` over the control protocol report what they actually
-  did, with the reason when they could not.
-
+### Remote protocol
+- `IN`, `OUT` and `MIDI` report their results and reasons for
+  requests they cannot complete.
 
 ## 2026-08-29 - v0.88.0 (text mode everywhere, and a language to write in)
 
-### Text mode is an effect, so it works on anything
+### Effects
+- New: TEXT MODE effect on clips, capture cards, cameras, browser cues
+  and stills, using the Video Synth character grid, glyph sets and
+  phosphor inks.
+- The inspector's TEXT MODE section exposes columns, glyph set, shuffle,
+  ink, custom glyphs, phrases and phrase hold.
+- Columns, corruption, glyph set and ink are effect parameters with
+  faders and LFO support.
+- Amount mixes with the source: 1.0 replaces the picture with the grid;
+  intermediate values retain the original between characters.
+- Custom glyphs are ordered darkest first. Sets can use 2 characters,
+  words or box-drawing marks.
+- Phrases are separated by `|`, shown one at a time at changing
+  positions. Phrase hold sets their dwell.
+- Video Synth memory use remains flat through long-running cues and
+  playback runs at full rate at 4K. Text Mode renders at 60 fps at 4K.
 
-The character grid is no longer part of the video synth. Put **TEXT MODE** on
-a clip, a capture card, a camera, a browser cue or a still, and it draws as
-characters — the same grid, the same glyph sets, the same phosphors, on
-whatever the cue happens to be.
+### Sources
+- Code sources now support named values and semicolon-separated
+  statements ending in channel expressions. Reused values are evaluated
+  once; existing expressions without semicolons retain their meaning.
+- Example: `ox = sin(t)*0.55; oy = cos(t*0.8)*0.4;`
+  `d = length(cx-ox, cy-oy); glow = smoothstep(0.45, 0.0, d);`
+  `glow, glow*0.35, 1-glow*0.6`.
+- Added `length`, `smoothstep`, `if`, `sign`, `exp`, `log`
+  and `atan`.
+- The editor accepts `Shift+Enter` for new lines, sizes to its contents,
+  highlights user-defined names and includes 6 statement-form examples.
+  The adjacent helper uses larger, brighter text and explains functions.
 
-A cue carrying the effect gets its own TEXT MODE section in the inspector with
-the full set of controls: columns, glyph set, shuffle, ink, custom glyphs,
-phrases and phrase hold. Four of them — columns, corruption, glyph set and ink
-— are also effect parameters, so the ones worth grabbing mid-set sit on faders
-and can take an LFO.
+### Interface
+- New: VJ mode switch at the top of
+  `Settings > System > SHOW FLOW`, choosing one deck and playlist or
+  two decks and a crossfader.
+- Creature visibility now offers Off, When idle and Always.
+  When idle remains the default, keeping the interface still during shows.
 
-Its amount is a **mix**, not a switch. At 1.0 the grid replaces the picture;
-part way it sits over the original like a screen door, which is where a lot of
-the best-looking settings turn out to be.
-
-### Bring your own characters and your own words
-
-Text mode takes a custom alphabet and a list of phrases:
-
-- **custom glyphs** — the characters the picture is built from, darkest first.
-  Two characters gives binary rain; a word gives that word as texture;
-  box-drawing pieces read as a schematic.
-- **phrases** — words separated by `|`, one showing at a time, landing
-  somewhere new each time it moves. **phrase hold** sets the dwell.
-
-Over the wire as `ASCII ON|OFF|TOGGLE`, `ASCII GLYPHS`, `ASCII PHRASES` and
-`ASCII HOLD`, with Companion actions for all of it.
-
-### The code source is a language now
-
-It reads like code because it is. Name values, build on them, and end with what
-the channels should be:
-
-```
-ox = sin(t)*0.55;
-oy = cos(t*0.8)*0.4;
-d  = length(cx-ox, cy-oy);
-glow = smoothstep(0.45, 0.0, d);
-glow, glow*0.35, 1-glow*0.6
-```
-
-Named values are also faster: a distance used by three channels is computed
-once rather than three times. A source with no semicolon in it is exactly the
-one-line form, so everything already written keeps working and keeps meaning
-the same thing.
-
-Seven more functions — `length`, `smoothstep`, `if`, `sign`, `exp`, `log`,
-`atan` — and the editor grew to match: **Shift+Enter** for a new line, the
-field sized to the lines in it, your own names syntax-coloured as names, and
-six worked examples that start from the statement form. The helper alongside
-it is set in a bigger, brighter face and explains each function as you reach
-for it.
-
-### VJ mode has a switch
-
-`Settings → System → SHOW FLOW`, at the top: one deck and a playlist, or two
-decks and a crossfader.
-
-### The creatures come out when you want them
-
-The switch is three-state: **off**, **when idle**, or **always**. "When idle"
-stays the default and keeps the chrome still during a show; "always" is for
-anyone who would rather have them there regardless.
-
-### Steadier through long sessions
-
-The video synth holds a flat memory footprint however long a cue stays live,
-and runs at full frame rate at 4K. Text mode renders at 60fps on a 4K raster.
-
+### Companion and remote protocol
+- `ASCII ON|OFF|TOGGLE`, `ASCII GLYPHS`, `ASCII PHRASES` and
+  `ASCII HOLD` control Text Mode, with corresponding Companion actions.
 
 ## 2026-08-29 - v0.87.0 (VJ mode, a code source, and eight effects nobody has)
 
-Two decks, a crossfader and a tempo; a source you write instead of load, with
-a real editor and a friend to explain it; an LFO on every effect parameter; and
-eight new effects, six of which come out of physics rather than out of another
-plugin.
-
-### VJ mode
-
-A toggle. Off, Deckboy is a cue deck and every existing show renders exactly as
-it did, through the same code path. On, two decks run at once and a crossfader
-decides what the audience sees.
-
-Each deck has always had its own engine, playlist and transport; what VJ mode
-adds is an output fed by both of them at once, through the layering the
-compositor already had. A deck faded down, or mid cue-fade, stays faded down.
-
-Both decks fade on a dissolve, not just the incoming one: they are drawn over
-black, so holding A at full until B covered it would be a wipe. **Add** and
-**multiply** are ways of combining two pictures, so there the base stays at
-full and only the incoming deck rides the fader. Verified by recording the
-composite with deck A solid red under deck B solid blue -- dissolve walks
-250/0/0 to 0/0/253 through 64/0/127, add gives magenta, multiply gives black.
-Colours in neither clip, which is the proof they are combined and not switched.
-
-**Tap tempo** averages the recent taps rather than taking the last interval:
-nobody taps evenly, and one interval makes the tempo jump on every beat. Taps
-more than two seconds apart start again, because that is a person restarting
-and not a 25bpm track. **Quantised takes** hold until the next beat -- the
-point of tempo in a video mixer is not that anything moves by itself, it is
-that what the operator does lands ON the music. Measured at 60bpm: unquantised
-takes fire in 0.04s, quantised ones wait between 0.16s and 0.81s depending on
-where in the beat they were asked for.
-
-**It announces itself.** A mode you can enter without noticing is a mode that
-ruins a show, so there are two signals: a band across the program column that
-exists only in VJ mode and carries the controls rather than just announcing
-itself, and the whole window edged in a colour used nowhere else -- for the
-glance across a room before anyone touches the machine. Both playlists are on
-screen side by side, each headed with which side of the crossfader it is,
-because two lists both saying PLAYLIST is how the wrong clip reaches an
-audience.
-
-The animation carries information rather than decorating. The bar drops in over
-a third of a second so the layout settles instead of jumping; the badge and the
-frame breathe on the beat, which doubles as a tempo readout you can see without
-looking at the number; and the fader handle leans the way it is travelling and
-trails a wake that fades as it settles. The crossfader's readout sits in a dark
-well, legible at every position, and the controls squeeze toward a floor so the
-fader keeps a width worth dragging on a small window.
-
-`VJ ON|OFF | MIX <0-1> | BLEND <dissolve|add|multiply> | TAP | BPM <n> |
-QUANTISE <on|off> | DECKS <a> <b> | STATUS | TOGGLE` over the wire, because a
-crossfader is a fader and a fader is the one control nobody wants to reach for
-with a mouse.
-
-### A code source you can write during a show
-
-A pattern type called **Code**: the picture is an expression, evaluated per
-pixel, edited while it runs.
-
-    sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r
-
-One expression, or three separated by commas for red, green and blue.
-Variables are `x` `y` (0-1 across the frame), `cx` `cy` (-1..1 from the
-centre), `r` (radius), `a` (angle) and `t` (seconds), with `sin cos tan abs
-floor fract sqrt min max mod pow atan2 step clamp mix` to build from.
-
-**Why not GLSL.** Deckboy draws through SDL_Renderer, whose backend is D3D11,
-D3D12, Metal or OpenGL depending on the machine, and SDL's own shader path
-wants SPIR-V, DXIL or MSL -- already compiled. Accepting GLSL at runtime on
-every platform would mean bundling a shader compiler, tens of megabytes and a
-per-backend translation step, to run arithmetic that fits in a few hundred
-lines. So it is evaluated on the CPU, which is viable for the same reason the
-effect stack is: the frame splits across cores.
-
-The expression is compiled ONCE into a flat instruction list, cached against
-its own text, and the inner loop sees only the instructions -- never a syntax
-tree, which would spend its time chasing pointers instead of drawing.
-
-**A compile error does not black the output.** The cue keeps drawing what it
-last drew and the error appears in the inspector. Someone editing live is
-mid-keystroke most of the time, and a source that goes black on every
-half-typed function is unusable on a stage. Division by zero, mod by zero and
-the square root of a negative are all bounded rather than producing infinities,
-because an operator typing at speed will produce all three. The language has its
-own test suite.
-
-### The code source gets a real editor
-
-The expression opens into a proper editor. The text is **syntax coloured** —
-functions, values, numbers, brackets, operators and the commas that split red
-from green from blue each have their own colour, and a name the compiler will
-refuse is **red while you type it**, before you find out by looking at the
-output. The caret moves with the usual keys and you can click into the text to
-place it.
-
-The colouring reads the compiler's own tables rather than keeping a copy, so it
-cannot fall out of step with the language: "shown in red" means exactly "this
-will not compile".
-
-Every variable and function is a **chip that inserts itself** — a function
-arrives with its brackets and the caret already inside them. The **examples are
-a picker**, so you can see what you are about to get and go back.
-
-And there is **a friend in the corner**, the same face that waits in an empty
-program monitor, who tells you what the name under your pointer does — and reads
-you the compile error when there is one. A syntax reference is a wall of names;
-someone telling you what the one under your finger means is the same information
-with a face on it.
-
-`CODE GET | CODE SET <expression> | CODE EDIT` over the wire, so an expression
-can come from a controller or a script and not only from typing.
-
-### The effect chain tells you what it costs
-
-A cue has always been capped at twelve effects, but a cap only bounds the
-damage — a dozen cheap ones are free and four expensive ones at 4K are not, so
-the count an operator can already see is the wrong number.
-
-The EFFECTS section shows what the chain **actually costs per frame**, measured
-on that machine at that raster while the cue is live, against the 16.7ms a 60fps
-frame allows. Over budget, it says so. That is the difference between "it is
-stuttering, why" and "this chain costs 47ms".
-
-Measured rather than predicted, and only once it has run: a figure added up
-from per-effect benchmarks would be a guess about somebody else's hardware,
-which is exactly what the number is there to avoid.
-
-Going over is not a failure, and it is worth knowing what it does. **Audio is
-the master clock**: sound continues in real time and the picture slaves to it,
-so you lose frames rather than sync.
-
-### Effects on every kind of cue
-
-The EFFECTS section is on all of them — a pattern, a still, a camera, an NDI
-feed or a stream carries an effect stack and renders it exactly as a clip does.
-Proven by adding grain, caustics and a vignette to a colour-bar pattern over the
-wire and watching all three come out.
-
-### The Companion module knows about all of it
-
-Proper actions for the crossfader, blend mode, tap tempo, BPM, quantised takes
-and deck assignment; for adding an effect, its amount, its parameters and its
-LFOs; and for setting a code-source expression.
-
-The crossfader and the tap are the point of it. Those are precisely the two
-controls nobody wants to reach for with a mouse, which is the whole argument
-for having a surface at all.
-
-### Six effects that are not in anything else
-
-Each of these comes out of something real -- an instrument, a physical
-experiment, a solid-state process, or your own retina -- rather than from
-stacking two existing filters. All six fit inside a 60fps frame at 1080p.
-
-**Schlieren** is how physicists photograph air. You cannot see a shockwave or
-the heat off a road, but light bent by a density gradient can be passed or
-blocked by a knife edge at the focus, which turns an invisible gradient into
-brightness -- it is how every photograph of a bullet's shockwave was taken. Here
-the picture is the density field, and what comes out is not the image and not
-its edges but the RATE at which it is changing, in one chosen direction, with
-everything flat left as mid-grey. Turning the knife changes which features exist
-at all, because gradients running along the edge miss it entirely. 4.7ms.
-
-**Chladni** is the shape a sound makes. Sand on a bowed metal plate runs away
-from everything that is moving and piles up along the lines standing still;
-Chladni catalogued those figures in 1787 and they are why violins are the shape
-they are. Your picture is the sand. The two mode numbers are the note: whole
-numbers give the clean classical figures, and between them the plate is being
-driven at a frequency it does not want, which is exactly what a real plate does.
-7.2ms.
-
-**Wavefront** solves the actual wave equation, seeded from the picture's own
-brightness -- so unlike every sine-based ripple in every video app, it has
-INERTIA. Waves leave their source and keep going, pass through each other and
-interfere, and reflect off the edges of the frame and come back. None of that
-can be faked with a sine, and all of it is what a real surface does. 14.9ms.
-
-**Crystallise** is grain growth, not a mosaic. A mosaic divides the frame into a
-grid; metal does not solidify on a grid. Crystals nucleate at scattered points
-and grow until they collide, so the cell a pixel lands in is the one whose seed
-reached it first -- and because the seeds grow at DIFFERENT SPEEDS, the result
-is the irregular shard structure of a polished metal section rather than a
-honeycomb. Each grain takes a facet normal from the direction back to its own
-seed, so the light catches it. 15.7ms.
-
-**Night eyes** is your own retina. Rods are fast, sensitive and completely
-colour-blind; cones see colour and are slow and need light. So the brightness
-runs at full speed and the COLOUR LAGS BEHIND IT: move something and it goes
-grey as it moves, its colour catching up a moment later. The purkinje control is
-the other half -- as the rods take over, peak sensitivity slides toward blue,
-which is the real reason night looks blue and moonlight photographs that way.
-3.8ms.
-
-**Grain flow** smears the picture along its own grain. Line integral convolution
-is how a vector field is drawn in scientific visualisation; pointed at an image's
-own structure it makes every stroke follow the direction that part of the picture
-is already running -- along a hair, around a jaw, down the length of a shadow.
-The direction comes from the structure tensor, the direction in which each
-neighbourhood changes least, which a plain gradient cannot give you: a gradient
-says which way is uphill, not which way the ridge runs. Flat areas are left
-alone. 13.0ms.
-
-**At 4K the budget is a different question**, and it always has been. Measured
-at 3840x2160: night eyes 14ms and schlieren 17ms still fit; chladni is 27ms,
-grain flow 46ms, crystallise 54ms and wavefront 57ms -- one to three frames
-each, alongside existing effects like caustics at 23ms. 1080p is the promise;
-4K is one heavy effect at a time on a fast machine, and the app tells you what
-any of them costs on YOUR machine with `--effect-bench <token> 3840x2160`.
-
-### Caustics: the light, not just the bend
-
-Every "water" effect displaces the picture. This one also computes what the
-water does to the LIGHT, which is the part the eye actually reads as water.
-
-A refracting surface bends what you see through it and, in the same motion,
-concentrates or spreads the rays doing so. Where neighbouring rays are pushed
-toward each other the brightness piles up, and those bright filaments are
-caustics -- the moving net of light on the floor of a swimming pool. The
-focusing term is the DIVERGENCE of the displacement field: one finite
-difference per cell, and it is the whole difference between this and a ripple.
-
-Four crossed waves at different angles and rates, so it never reads as a grid.
-**Chop** runs from long ocean swell to rain on a puddle, **swell speed** sets
-the rate, **focus** how hard the light gathers -- through a tanh, so a strong
-swell makes filaments instead of clipping to white. 1.9ms at 1080p.
-
-### Feedback that cannot run away
-
-A camera pointed at its own monitor, except the transform between passes is
-chosen rather than accidental -- and bounded, which is what makes it usable on
-a stage.
-
-Scale the echo slightly up and it walks toward you as a tunnel; scale it down
-and it retreats; add a turn and the tunnel becomes a spiral; slide it and it
-smears into a comet. Those are the four controls, because that is the loop:
-**zoom**, **spin**, **drift**, and **colour bleed** for a trail that changes
-colour as it fades rather than only going dim.
-
-Real feedback blows out to white the moment the loop gain passes one, and there
-is no getting it back during a show. So the echo LIGHTENS instead of adding: the
-brighter of the live pixel and the decayed echo. Adding has a fixed point
-several times the input; lightening has its fixed point at the input, so the
-picture can never come out brighter than the picture went in. Measured over 120
-passes it settles and stops moving, to within three levels out of 255.
-
-The loop is cleared at every take, so a new cue never opens with a ghost of the
-last frame of the old one. Two outputs showing the same deck step it once
-between them, not once each. 1.0ms at 1080p -- 5.4x faster than the
-straightforward version, and byte for byte the same picture.
-
-### An LFO on any effect parameter
-
-Every parameter of every effect — and the effect's **amount** — can be handed to
-an oscillator instead of a fixed number. A `~` sits at the right of each
-parameter row; switch it on and the parameter starts moving, with its shape,
-rate and depth on the line underneath.
-
-**Sine, triangle, saw, ramp, square, and sample-and-hold** — one random value per
-cycle, *held*, so it steps rather than fizzes. The held value is hashed from the
-cycle number rather than drawn from a generator, so the same moment of the show
-always gives the same value: a random that differs between the rehearsal and the
-performance is not usable.
-
-**It can follow the tempo.** VJ mode already has a tap tempo, so an LFO that
-ignored it would be a second clock in a machine that already knows what the
-music is doing. Locked, the cycle is measured in beats — a quarter of a beat up
-to thirty-two — and it steps through musical lengths rather than by a fixed
-amount, so every stop is a length someone would actually choose. Free-running,
-the rate is *multiplied* rather than added: the useful range runs from one cycle
-a minute to several a second.
-
-**The swing is centred on the value you set**, so switching an LFO on never jumps
-the picture: it starts moving from where the parameter already was, and averages
-back to it. It is clamped to the parameter's own 0–1, and near the ends the swing
-goes lopsided rather than out of bounds.
-
-The oscillators are evaluated **outside** the effects, into a modulated copy of
-the stack. The effect code stays a pure function of its inputs — which is what
-lets it be dumped headlessly, benched, and applied by the output and the preview
-independently. Both paths read one clock sampled once per frame, so the
-operator's monitor and the audience's screen are never at different moments of
-the same oscillator. A cue with no LFO does not pay for the copy.
-
-Saved on the end of each effect entry and only when armed, so every show ever
-saved still loads — and a show saved here still loads in a build that predates
-the feature.
-
-`FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [value]` over the
-wire, where E is the amount.
-
-### Motion puppetry has memory now
-
-The puppet has a spring and an accumulator: **memory** is how much each frame's
-motion adds to what is already there, **spring** how fast it returns to rest.
-Both are needed -- memory alone runs away, a return alone never builds. Measured
-on the same driver, the mean displacement went from 10.5 to 25.9 grey levels per
-pixel.
-
-memory 0 returns the raw per-frame field, which is what every show saved until
-today carries, so none of them change.
-
-### Time-based effects run on stills
-
-Grain moves, a ripple travels, and caustics and feedback -- whose entire subject
-is motion -- animate on a still cue as well as on a clip. Measured on a static
-colour-bar cue: 9.7% of the monitor changes between two shots a second apart
-with grain, 2.0% with a ripple, 2.8% with caustics.
-
-Video is untouched: the look still follows the SOURCE frame, so a given frame of
-a clip always grades the same way and a recording stays reproducible.
-
-### The same picture on every platform
-
-Pixel sort now sorts on a total order, so the same cue on the same frame renders
-identically under macOS, Windows and Linux.
-
-### Releases build and publish themselves
-
-Tagging produces all six packages and publishes them:
-`-windows-x64-setup.exe` and `-windows-x64.zip`, `-macos-arm64.dmg` and `.zip`,
-`.AppImage` and `-linux-x86_64.tar.gz` — an installer and a portable build for
-every platform, which is what the README has always promised.
-
-Nothing is built in the publish step. Every file is downloaded from the job
-that already tested it, so what reaches the release page is the same file that
-passed `--smoke` -- and both packaging jobs unpack their own output and run
-the binary from inside it before uploading, because an installer nobody has run
-is a guess. The release refuses to publish unless all six are present: a
-half-empty release page looks like a release. The notes come from this
-changelog's own section for the version being tagged, so the release page and
-CHANGES.md cannot drift apart.
-
-Packaging runs on every push to main, not only on tags. Only the publishing is
-tag-gated -- so the packaging is exercised continuously.
-
-### Smaller things
-
-- `--effect-dump` takes a pass count, so an effect whose whole subject is what
-  happens across frames can be rendered headlessly.
-- `check_effects_offline.py --animation` renders every effect at nine frame
-  indices and checks that the ones which claim to animate do.
-- The preview sweep measures edge energy as well as differing pixels, so it can
-  see an effect whose job is to smear, and runs against a held clip frame — half
-  fractal, half colour bars — so a result never depends on where a seek landed.
-- The text timeline and the cue inspector keep clear of their margins.
-
+### VJ
+- New: VJ mode combines 2 independently controlled decks on one output
+  with a crossfader and tempo. Disabling it preserves existing cue-deck
+  behaviour; deck levels and cue fades remain effective.
+- Dissolve fades both decks over black. Add and Multiply keep the base
+  deck at full level while the incoming deck follows the fader.
+- Recorded red/blue test: Dissolve moved from RGB 250/0/0 through
+  64/0/127 to 0/0/253; Add produced magenta and Multiply black.
+- Tap tempo averages recent taps and resets after a gap over 2 seconds.
+  Quantised takes wait for the next beat. At 60 BPM, measured take delay
+  was 0.04 s without quantisation and 0.16–0.81 s with it.
+- VJ mode shows a control band across the programme column, a distinct
+  window-border colour and side-by-side playlists labelled A and B.
+- The band enters over one third of a second. Badge and frame pulse to
+  the beat; the fader handle leans with movement and leaves a fading
+  trail. Its readout stays on a dark background; controls contract to
+  preserve fader width on small windows.
+
+### Sources
+- New: Code source, a per-pixel expression editable during playback.
+  Accepts one expression or 3 comma-separated RGB expressions, e.g.
+  `sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r`.
+- Variables: `x`, `y` in 0–1; `cx`, `cy` in -1–1 from the
+  centre; `r` radius; `a` angle; `t` seconds.
+- Functions: `sin`, `cos`, `tan`, `abs`, `floor`, `fract`,
+  `sqrt`, `min`, `max`, `mod`, `pow`, `atan2`, `step`,
+  `clamp`, `mix`.
+- Expressions compile once and are cached by text for CPU evaluation
+  across cores. No runtime GLSL compiler is bundled: D3D11, D3D12, Metal
+  and OpenGL use compiled SPIR-V, DXIL or MSL formats, and a compiler would
+  add tens of megabytes plus backend translation.
+- Compile errors retain the last picture and appear in the inspector.
+  Division or modulo by zero and square roots of negative values are
+  bounded instead of producing infinities. The language has a test suite.
+- The editor colours functions, values, numbers, brackets, operators and
+  RGB separators. Invalid names turn red while typing, using the same
+  accepted names as compilation.
+- Standard caret keys and click-to-place are supported. Variable/function
+  chips insert text; functions include brackets with the caret inside.
+  Examples are selectable from a picker.
+- The editor mascot explains the hovered name and displays compile errors.
+
+### Effects
+- EFFECTS is now available on every cue kind, including patterns, stills,
+  cameras, NDI and streams. Grain, Caustics and Vignette were verified on
+  a colour-bar pattern through remote commands.
+- Added live per-frame chain cost against the 16.7 ms budget at 60 fps,
+  measured on the current machine and raster after processing runs.
+  The 12-effect limit remains; over-budget chains are identified.
+- Audio remains the master clock when effects exceed the frame budget:
+  sound continues in real time and picture frames are dropped to keep sync.
+- New: Schlieren, using the picture as a density field for a directional
+  gradient, like knife-edge imaging of shockwaves or heat. Flat areas
+  remain mid-grey; knife angle selects visible gradients. 4.7 ms at 1080p.
+- New: Chladni, arranging the picture along stationary lines of a vibrating
+  plate, based on figures catalogued in 1787. Two mode numbers set the
+  shape: integers produce classical figures and intermediate values
+  simulate off-resonance drive. 7.2 ms at 1080p.
+- New: Wavefront solves a wave equation seeded by picture brightness.
+  Waves retain inertia, interfere and reflect from frame edges.
+  14.9 ms at 1080p.
+- New: Crystallise grows grains from scattered seeds at different speeds
+  until they meet. Each grain's lighting follows its direction to the
+  seed, producing irregular lit facets. 15.7 ms at 1080p.
+- New: Night Eyes keeps brightness immediate while colour catches up
+  after movement, modelling fast colour-blind rods and slower cones.
+  Purkinje shifts sensitivity towards blue. 3.8 ms at 1080p.
+- New: Grain Flow smears along local picture structure using line-integral
+  convolution and a structure tensor, following features rather than
+  crossing their edges. Flat areas are unchanged. 13.0 ms at 1080p.
+- All 6 effects fit a 60 fps frame at 1080p. At 3840x2160, measured costs
+  are Night Eyes 14 ms, Schlieren 17 ms, Chladni 27 ms, Grain Flow 46 ms,
+  Crystallise 54 ms and Wavefront 57 ms; Caustics is 23 ms.
+  Heavy 4K effects can take several frames; use one at a time on a fast
+  machine and measure with `--effect-bench <token> 3840x2160`.
+- New: Caustics combines refraction with light concentration and spreading
+  derived from the displacement field's divergence. Four crossed waves
+  use different angles and rates.
+- Caustics controls: Chop spans ocean swell to puddle ripples; Swell speed
+  sets rate; Focus sets light concentration, compressing highlights to
+  avoid clipping to white. 1.9 ms at 1080p.
+- New: Feedback with Zoom, Spin, Drift and Colour bleed.
+  Zoom makes inward/outward tunnels, Spin makes spirals, Drift offsets
+  trails, and Colour bleed shifts trail colour as it fades.
+- Feedback uses the brighter of live picture and decayed echo instead of
+  adding them, bounding brightness to the input. Over 120 passes, output
+  settled within 3 levels out of 255.
+- Feedback clears on take. Multiple outputs sharing a deck advance it
+  only once per frame. Measured at 1.0 ms at 1080p, 5.4x faster than the
+  initial version with byte-identical output.
+- New: Motion Puppet Memory accumulates motion and Spring returns it to
+  rest. On the same driver, mean displacement changed from 10.5 to
+  25.9 grey levels per pixel. Memory 0 retains the original per-frame
+  motion field and preserves older shows.
+- Time-based effects animate on stills: Grain, Ripple, Caustics and
+  Feedback. On static colour bars, monitor pixels changed by 9.7%, 2.0%
+  and 2.8% respectively for Grain, Ripple and Caustics over 1 second.
+- Video effects still follow source frame indices, preserving repeatable
+  grading and recordings.
+- Pixel Sort now produces identical output for the same cue and frame
+  on Windows, macOS and Linux.
+
+### Modulation
+- New: LFOs on every effect parameter and Amount. Toggle `~` beside
+  a parameter to expose shape, rate and depth.
+- Shapes: Sine, Triangle, Saw, Ramp, Square and Sample-and-hold.
+  Sample-and-hold selects one value per cycle, reproducible for the same
+  cycle number.
+- Tempo sync uses musical cycle lengths from one quarter to 32 beats.
+  Free-running rate changes multiplicatively, from one cycle per minute
+  to several per second.
+- Modulation centres on the existing value without a jump when enabled.
+  Values remain within 0–1; near either end, the swing becomes asymmetric.
+- Preview and output share one clock sampled per frame. Effects remain
+  independently measurable and headlessly renderable; cues without LFOs
+  avoid modulation-copy overhead.
+- Only enabled LFOs are saved. Older shows load unchanged; new shows
+  remain readable by builds predating LFOs.
+
+### Companion and remote protocol
+- New: `VJ ON|OFF`, `VJ MIX <0-1>`,
+  `VJ BLEND <dissolve|add|multiply>`, `VJ TAP`, `VJ BPM <n>`,
+  `VJ QUANTISE <on|off>`, `VJ DECKS <a> <b>`, `VJ STATUS`
+  and `VJ TOGGLE`.
+- New: `CODE GET`, `CODE SET <expression>` and `CODE EDIT`.
+- New: `FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [value]`,
+  where E controls Amount.
+- Companion adds actions for crossfader, blend, tap tempo, BPM, quantised
+  takes, deck assignment, effect creation, amount, parameters, LFOs and
+  code-source expressions.
+
+### Packaging
+- Tags build and publish 6 packages: `-windows-x64-setup.exe`,
+  `-windows-x64.zip`, `-macos-arm64.dmg`, `-macos-arm64.zip`,
+  `.AppImage` and `-linux-x86_64.tar.gz`.
+- Publishing uses artifacts from tested build jobs without rebuilding.
+  Packaging jobs unpack their output and run the contained binary;
+  published files are the same ones that passed `--smoke`.
+- Publishing requires all 6 packages and takes notes from the matching
+  version heading in this changelog.
+- Packaging runs on every push to main; only publishing requires a tag.
+
+### Diagnostics and interface
+- `--effect-dump` now accepts a pass count for effects with state.
+- Offline animation checks sample every effect at 9 frame indices and
+  verify effects declared to animate.
+- Preview checks measure edge energy as well as changed pixels using a
+  held half-fractal, half-colour-bar frame, eliminating seek variation.
+- Text in the timeline and cue inspector stays within its margins.
 
 ## 2026-08-27 - v0.86.0 (recordings that move, effects, a faster synth)
 
-### Recording captures the whole take
+### Recording
+- Fixed an issue where recordings repeated pictures instead of retaining
+  the moving output. GPU readback is flushed and drained through a bounded
+  queue; forced synchronous 4K60 readback captured 896 of 902 frames.
+  Repeats no longer copy a 33 MB frame.
+- Recording checks now count distinct pictures in the finished file,
+  rather than relying only on reported frame totals.
+- Segments carry continuous SMPTE timecode: each starts at the take's
+  start plus frames already written. Verified across a tenth-minute
+  boundary where drop-frame numbering skips no numbers.
+- Fixed an issue where normal latency in the 3-frame readback pipeline
+  triggered dropped-frame alarms. The alarm now checks for stale pictures
+  and separately verifies that the writer drains.
+- macOS and Linux gain asynchronous GPU readback. SDL 3.4 is now required.
 
-A recording is the moving picture that went to air, frame for frame. The
-readback into the staging ring is flushed and drained through a bounded queue,
-so the file carries every distinct picture the show produced: the deliberately
-starved case -- forced synchronous readback at 4K60 -- lands 896 frames of 902,
-and a repeat costs a pointer rather than a 33MB copy.
+### Video Synth
+- Reduced 4K frame time from 35–40 ms to 6.1 ms, about 6 times faster.
+  CRT processing now runs before upscaling; removed an overwritten
+  33 MB clear per frame.
+- Recording a synth cue improved from 233 of 360 frames with 12 alarms
+  to 354 frames with no alarms.
 
-`tools/record_rate_check.py` samples the finished file and counts *distinct
-pictures*, so a recording is checked on what it shows rather than on how many
-frames it claims.
+### Effects
+- New: ordered per-cue chain with Invert, Posterise, Solarise, Threshold,
+  Vignette, Grain, Scanlines, RGB Split, Temporal Dither and Motion Puppet.
+- Temporal Dither advances a reduced-palette dither each frame, allowing
+  shade integration at 60 Hz. Pausing exposes the checkerboard.
+- Motion Puppet uses a driver clip's codec motion vectors to displace
+  the cue, without showing the driver on output. A camera can therefore
+  follow motion from another clip.
+- `--motion-probe <file>` assesses drivers. A mostly static test clip
+  moved 1.7% of cells with no visible effect; a rotating clip moved 50%
+  with strong displacement.
+- Preview applies the same grade and effect chain with or without an
+  armed output. All 15 pixel effects changed a fixed, seeked-and-paused
+  frame during preview checks with no output armed.
+- Expanded from 6 to 40 named parameters across 18 effects:
+  Invert pivot and channel spread; Vignette size/falloff; Grain size
+  and shared-channel film or separate-channel video noise; Scanlines
+  darkness; RGB Split angle and green split; reverse Pixel Sort;
+  Ripple frequency/speed; Kaleidoscope rotation; Reaction Bloom seed
+  density and white-lifting glow.
+- Only parameters used by an effect appear. Parameter checks verify
+  every named control changes the picture.
+- New parameter defaults reproduce older shows. All 15 pre-existing
+  effects rendered byte-identically against the previous implementation
+  at saved-show defaults. New and old show formats remain mutually
+  readable, including the 2 added parameter slots.
+- Optimised effects with exact channel lookup tables, parallel rows
+  except for Block Glitch, reusable workers for dependent simulation
+  steps, and bulk row shifts for Block Glitch.
+- All optimised results were compared byte for byte with the previous
+  implementation and remained identical.
+- At 4K, table-based effects take 1.5–2.6 ms; Pixel Sort, warps and
+  Dye Advect take 25–70 ms, dominated by scattered reads across a
+  33 MB frame. Reducing effect detail can lower cost.
+- New: Dye Advect carries colour along the picture's own structure,
+  perpendicular to the luma gradient. Multiple short backward steps
+  follow curves and preserve edges.
+- New: Reaction Bloom uses picture-seeded Gray-Scott reaction-diffusion,
+  with hundreds of iterations per frame producing coral, veins and
+  dividing spots associated with Turing's 1952 patterns.
+  One Feed/Kill control follows active wave, labyrinth, coral, worm
+  and hole presets; a new shot seeds new growth.
+- New: Lightspeed combines relativistic aberration with Doppler colour
+  and brightness shifts. The centre opens, edges compress, forward light
+  shifts brighter/blue and side light dimmer/red. A per-frame radial
+  lookup replaces per-pixel trigonometry.
+- Fixed luma-channel selection so Luma Displace follows visible brightness.
 
-### Segmented recordings carry continuous timecode
+### Performance
+- `--effect-bench` results at 1920x1080, median of 11 frames, all within
+  a 60 fps frame budget:
+- Scanlines 0.65 ms; Solarise 0.64 ms; Posterise 0.67 ms;
+  Temporal Dither 0.74 ms; Invert 0.78 ms; Channel Offset 0.87 ms.
+- Threshold 0.93 ms; Grain 1.74 ms; Vignette 2.29 ms;
+  Block Glitch 2.70 ms; Luma Displace 5.59 ms; Polar Warp 7.50 ms.
+- Ripple 7.19 ms; Relativistic 8.05 ms; Pixel Sort 9.13 ms;
+  Kaleidoscope 10.8 ms; Dye Advect 14.9 ms; Reaction Bloom 15.6 ms.
+- `--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]` reports median
+  frame cost and the proportion of a 60 fps budget.
 
-Roll a take into four files and they lay end to end: each segment starts at the
-take's start plus every frame already written, with real SMPTE arithmetic
-underneath, because drop-frame is a renumbering and frames and timecode are not
-interchangeable. Verified across a minute boundary that correctly does not drop,
-being a tenth minute.
+### Cues
+- New: PDF import as one ordinary image cue per page, in document order
+  and named after it, e.g. `keynote 1`, `keynote 2`. Each page uses
+  HOLD until the next take; it can fade, crossfade, carry effects or be
+  reordered without a document renderer running during the show.
+- Pages render as PNG at 3840 pixels wide into the state directory,
+  leaving the source document's folder untouched.
+- Rendering uses each platform's existing engine: Windows' PDF engine
+  used by Edge, macOS CoreGraphics used by Preview, and Linux
+  `pdftoppm` from `poppler-utils`. Missing Linux support is reported;
+  no PDF library is bundled.
+- Target width accounts for Windows' 96-DPI units, macOS' 72-DPI points
+  and Linux's DPI-based renderer. Windows checks the first PNG width
+  and corrects for applied display scaling.
+- The same PDF measured 3840 pixels wide on Windows and Linux Mint
+  with Poppler 24.02; heights differed by at most one pixel from rounding.
+- Rendering runs in the background; a 100-page deck takes seconds.
+- Keynote exports with one page per build import as one cue per stage.
+  Static decks can use Deckboy's own slide transitions.
+- Dropping `.pptx`, `.ppt`, `.key`, `.odp` or `.pps` explains
+  supported import/capture routes.
+- `Page Down` and `Page Up` take the next and previous cue, supporting
+  USB keyboard clickers such as D'San Perfect Cue, Logitech and Kensington.
+- Schedules start from the running show's current time; opening at 2 pm
+  does not fire missed morning cues.
 
-### The dropped-frame alarm tells the truth
+### Interface
+- Launch now shows the first rendered splash or loading frame instead of
+  an empty window.
+- Copy chain/Paste chain at the foot of EFFECTS copies effects without
+  geometry, fades, crop or colour. Paste applies to all selected cues
+  and includes the motion driver.
+- Whole-cue COPY also includes the effect chain and motion driver.
+- Motion drivers have an inspector thumbnail, position, field count and
+  a clickable/draggable scrub bar. Preview and output share one driver
+  advancement per frame; the thumbnail reuses the decoded driver picture.
+- Removing or replacing the final Motion Puppet, clearing the chain or
+  pasting a chain without one also removes its driver. Bypassing retains
+  the driver and its settings.
+- Added typed editing for 18 Video Synth, tone and chip-synth values:
+  speed, scale, feedback, zoom, audio reactivity, detail, smear, glitch,
+  CRT, sprite spin, level, frequency, note, attack, release, mod depth,
+  mod ratio and retrigger. `Shift` while dragging gives fine adjustment.
 
-The readback is a three-deep pipeline, so a healthy 4K recording sits a constant
-few frames behind and that is not a fault. The alarm now warns when the picture
-has gone STALE, which is the thing that matters, and separately checks that the
-writer is draining.
+### Remote protocol and diagnostics
+- New: `FX COPY` and `FX PASTE` for effect chains.
+- `HELP` lists effect commands; `FX LIST` returns its list to the
+  client instead of displaying only a toast.
+- `GOEND` jumps the playing cue to its final moment.
+- New: `--effect-dump <token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]`
+  processes one picture without a window, decoder or timing dependency,
+  reporting cost. The offline sweep runs all effects in seconds and
+  can produce a contact sheet.
+- `--inspector-scroll` reaches offscreen inspector content, alongside
+  `--settings` for opening a settings tab.
+- The action audit checks missing handlers, unreachable controls and
+  duplicate settings IDs. Checked 257 actions with no orphans.
 
-### The video synth is six times faster
-
-6.1ms a frame at 4K, down from 35-40ms. The CRT stage runs on the small buffer
-where the rest of the synth lives rather than on the full raster after the
-upscale, and the per-frame 33MB clear the upscale immediately overwrote is gone.
-
-Recording a synth cue went from 233 frames of 360 with twelve alarms to 354
-with none.
-
-### Per-cue effects
-
-An ordered stack on each cue, applied in the order you arrange it: invert,
-posterise, solarise, threshold, vignette, grain, scanlines, RGB split, temporal
-dither and motion puppet.
-
-**Temporal dither** quantises hard to a tiny palette but advances the dither
-every frame, so at 60Hz the eye integrates shades that are not in the palette
-at all -- and it freezes into visible checkerboard the moment you pause.
-
-**Motion puppet** is the one to try. A cue can name a *driver* clip, which is
-decoded only for the per-macroblock motion vectors its codec already computed;
-its pictures are never shown. Those vectors displace this cue's pixels, so a
-camera feed can be puppeteered by a crowd scene. `--motion-probe <file>` tells
-you whether a clip makes a good driver before you wonder -- a mostly static
-clip moves 1.7% of its cells and does nothing visible; a rotating one moves 50%
-and is violent.
-
-**The preview shows them**, with or without an output armed: the preview's
-fallback path runs the same grade and the same effect stack the output does, so
-a look dialled in at the desk is the look that goes to air.
-
-`tools/check_preview_effects.py` sweeps all fifteen pixel effects through that
-path with no output armed, seeking and pausing so every case is the same frame
-and only the effect differs. All fifteen change the picture.
-
-### The splash is the first thing on screen
-
-The control window is created hidden and shown after the first present, from
-whichever path draws first — the main frame, or the loading overlay when a show
-is already opening. Launch opens on artwork rather than on an empty rectangle.
-
-### Slide decks import as cues
-
-Drop a PDF on Deckboy and it becomes one image cue per page, named after the
-document -- "keynote 1", "keynote 2" -- in order, each one holding until it is
-taken. Page Down on a presenter's clicker walks them.
-
-After the import a slide is an ORDINARY CUE. It fades, it carries effects, it
-crossfades to the next one, it can be reordered, and nothing during the show
-depends on a document renderer. That is not a shortcut, it is the point: a
-renderer that stalls mid-keynote is a black screen in front of an audience.
-
-**Each platform's own engine, no bundled library.** Windows renders through
-`Windows.Data.Pdf`, which is what Edge uses. macOS goes through CoreGraphics,
-which is what Preview uses. Linux uses `pdftoppm` from poppler-utils, which is
-what the desktop already renders PDFs with, and says so plainly if it is not
-installed.
-
-Pages render **3840 wide**, whatever shape the page is, because a slide is
-mostly type and type is the first thing to fall apart scaled up to a 4K output
--- and once the page is a PNG the detail cannot be recovered. They go to the
-state directory, never next to the operator's document, whose folder is
-read-only as often as not.
-
-A target width rather than a scale factor, because the three engines measure a
-page in three different units: WinRT reports device-independent pixels at
-96dpi, CoreGraphics reports points at 72dpi, pdftoppm wants a dpi. And on
-Windows the first page is rendered, its width read back from the PNG header,
-and the request corrected by whatever the machine's display scaling actually
-applied -- so a deck imports at the same resolution whichever monitor the
-operator happens to be sitting at. Verified on both: the same PDF renders 3840
-wide on Windows and on Linux (Mint, poppler 24.02), to within a pixel of height
-from each engine rounding the aspect its own way.
-
-Rendering happens on a worker thread. A hundred-page deck takes seconds, and
-doing it inline would freeze the app during load-in with no indication why.
-
-Each page is set to HOLD rather than to auto-advance, so a slide waits for the
-presenter rather than for a timer.
-
-### What a PDF cannot carry, and what to do instead
-
-**PowerPoint flattens every build to its final state on export, and drops
-transitions entirely.** No PDF-based route can recover them; the information is
-not in the file. So:
-
-- A deck of **static slides** imports perfectly, and Deckboy's own cue
-  transitions handle slide-to-slide -- which is arguably better, because they
-  match the rest of the show rather than PowerPoint's idea of a wipe.
-- **Keynote** can export one page per build stage. Those arrive as one cue per
-  stage, so clicking through reproduces the builds exactly.
-- A **PowerPoint deck that genuinely animates** should not be flattened at all.
-  Run it in PowerPoint and capture it with a window-source cue: the builds and
-  transitions are then the real ones, and the presenter's own clicker drives
-  them.
-
-Dropping a `.pptx`, `.ppt`, `.key`, `.odp` or `.pps` says which of those routes
-to take, rather than leaving the operator guessing at 10am on a show day.
-
-### Every effect has real controls now
-
-Forty named parameters across the eighteen effects, up from six. Invert has a
-pivot and a channel spread, so the negative can come back coloured and fold
-around something other than mid grey. Vignette has size and falloff. Grain has
-grain size and whether the noise is one value across all three channels (film)
-or three (video). Scanlines has darkness. RGB split has an angle and a green
-split, so a two-colour fringe becomes a prism. Pixel sort can run its runs
-backwards. Ripple has frequency and speed. Kaleidoscope rotates. Reaction bloom
-gained seed density and a glow mode that lifts the growth toward white instead
-of folding the picture through its negative.
-
-Every parameter is named by the effect itself, and an effect that does not use
-one draws no row — so the inspector never shows a control that cannot do
-anything. `tools/check_effects_offline.py --params` checks that every named
-parameter actually moves the picture.
-
-**The neutral values are load-bearing.** A show saved before an effect grew a
-parameter reproduces exactly what that effect did before it had them. That is
-checked, not asserted: the older header is compiled into a second binary, and
-all fifteen pre-existing effects render byte-identically at the settings
-existing shows carry. paramC and paramD serialise after the bypass flag, so
-every show ever saved still loads, and a show saved here still loads in a build
-that predates them.
-
-### A presenter remote works
-
-Page Down and Page Up take the next and previous cue. Every presentation
-clicker -- D'San Perfect Cue, Logitech, Kensington -- appears as a USB keyboard
-sending exactly those two keys, because that is what PowerPoint and Keynote
-listen for, so a clicker plugged into Deckboy drives the show.
-
-### Every effect fits inside a 60fps frame at 1080p
-
-Measured with `--effect-bench`, median of eleven frames, 1920x1080:
-
-| effect | per frame | effect | per frame |
-|---|---|---|---|
-| scanlines | 0.65ms | luma displace | 5.59ms |
-| solarise | 0.64ms | polar warp | 7.50ms |
-| posterise | 0.67ms | ripple | 7.19ms |
-| temporal dither | 0.74ms | relativistic | 8.05ms |
-| invert | 0.78ms | pixel sort | 9.13ms |
-| channel offset | 0.87ms | kaleidoscope | 10.8ms |
-| threshold | 0.93ms | dye advect | 14.9ms |
-| grain | 1.74ms | reaction bloom | 15.6ms |
-| vignette | 2.29ms | block glitch | 2.70ms |
-
-**Every one of these is byte-identical to what it replaced.** That is checked,
-not asserted: the pre-change header is compiled into a second binary and both
-render the same frames, compared byte for byte.
-
-Four things did it. **A table instead of the arithmetic**, for the effects that
-produce at most 256 distinct answers from two million evaluations — built with
-the *same* expression, so it is a lookup of the old answer rather than a new
-approximation of it. **The frame split across cores**, which every effect but
-block glitch can take, since each output row is written from inputs in that same
-row or in an untouched copy. **Threads created to fit the shape of the work**:
-reaction-diffusion is hundreds of small dependent steps, so its threads are
-created once and parked on a barrier between them. And **bulk moves instead of
-per-pixel ones** — block glitch's wrapped shift is a rotation, so it is two
-`memcpy`s per row.
-
-At 4K the picture is honest rather than solved: the table-driven effects are
-1.5-2.6ms, but the ones that gather from somewhere else in the frame -- pixel
-sort, the warps, dye advect -- are 25-70ms, dominated by random access across a
-33MB buffer rather than by arithmetic. Lowering an effect's detail parameter is
-the lever there.
-
-`--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]` reports the median cost
-per frame and what share of a 60fps budget it is.
-
-### Three effects that are not in anything else
-
-**Dye advect** treats the picture as dye in a fluid and carries it along the
-flow of its own structure. The velocity field is the *perpendicular* of the
-luma gradient, which is the part that matters: a gradient points across an
-edge, so its perpendicular runs along one. Advecting down the gradient smears
-the picture into mush across its own boundaries; advecting along it makes
-colour orbit the shapes instead, and edges survive as the banks of a river.
-Every pixel walks backward through the field for several short steps rather
-than one long one, because a single jump follows a straight line and the curl
-is the whole point.
-
-**Reaction bloom** is Gray-Scott reaction-diffusion, seeded by the picture and
-grown a few hundred iterations every frame. Two notional chemicals; one rule;
-the coral, veins and dividing spots Turing predicted in 1952. The pattern is
-not drawn, it *grows*, and it grows out of whatever is on screen -- so a cut to
-a new shot grows a new organism. Feed and kill are one knob rather than two,
-walking *along* the documented living presets -- waves, labyrinth, coral, worms,
-holes -- because the living region is a thin curved sliver of that plane.
-
-**Lightspeed** is what the frame looks like from something travelling into it
-at a fraction of c. Relativistic aberration folds the forward hemisphere toward
-the direction of travel, so the centre opens out and the rim smears away --
-which is why the view from a near-light ship is a bright compressed disc and
-not a zoom. Doppler is the other half: light from ahead arrives blueshifted and
-brighter, light from the sides redshifted and dimmer. Without it the warp reads
-as a lens; with it, as speed. Both halves depend only on distance from the
-centre, so they are a radial lookup built once per frame rather than an `acos`
-and two cosines per pixel.
-
-### Effect chains move between cues
-
-`copy chain` / `paste chain` at the foot of the effects section, and `FX COPY`
-/ `FX PASTE` over the wire. Separate from the whole-cue COPY on purpose: that
-one brings geometry, fades, crop and colour with it, which is not what is
-wanted when the only thing worth keeping is the look that took twenty minutes
-to dial in. Paste applies to every selected cue, and the driver travels with
-the chain -- a motion puppet pasted without its driver is an effect that does
-nothing and gives no reason why.
-
-The whole-cue COPY carries the effect stack and the motion driver too, so
-copying a graded cue gives back the look as well as the geometry.
-
-### The motion driver has a preview and a scrub bar
-
-The driver is not a cue: it never reaches the screen. So the inspector shows a
-thumbnail of it, its position and field count, and a bar that can be clicked or
-dragged to place it — and it advances in the preview as well as on the output,
-with the first ask of each frame advancing it and the rest served the same
-field. The thumbnail costs nothing: the decoder produced the picture on the way
-to the vectors.
-
-### A driver with nothing to drive is removed
-
-Remove the last motion puppet from a chain -- or change it into another effect,
-or clear the chain, or paste a chain that has no puppet in it -- and the motion
-driver goes with it, so nothing is decoded for a field nothing reads.
-
-A *bypassed* puppet still counts. Bypass is a temporary "not right now", and
-throwing away the driver the operator chose because they muted an effect for a
-moment would be losing their work to a toggle.
-
-### On the wire
-
-`HELP` covers the effects verbs, and `FX LIST` answers with the list in the
-reply where a control client can read it, rather than putting it in a toast.
-
-### Inspector
-
-Eighteen values on the video synth, tone generator and chip synth can be
-clicked and typed instead of only nudged: speed, scale, feedback, zoom, audio
-reactivity, detail, smear, glitch, CRT, sprite spin, level, frequency, note,
-attack, release, mod depth, mod ratio and retrigger. Holding shift while
-dragging a value is a fine adjust.
-
-### Elsewhere
-
-- Cue schedules fire from the moment the show is running, so opening a file at
-  2pm leaves the morning's cues where they are.
-- `GOEND` over the wire jumps the playing cue to its last moment.
-- `--effect-dump <token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]` applies
-  one effect to one picture with no window, no decoder and no timing, and
-  reports what it cost; `tools/check_effects_offline.py` runs the whole set
-  through it in seconds and can write a contact sheet.
-- `--inspector-scroll` reaches the whole inspector from the command line, the
-  same way `--settings` opens a settings tab.
-- `tools/audit_actions.py` finds dead controls: actions with no handler,
-  actions nothing can fire, and duplicate settings ids. 257 actions, no
-  orphans.
-- Luma is computed from the right channels throughout, so luma displace bends
-  the picture by the brightness you can see.
-- macOS and Linux get the asynchronous readback through SDL_GPU. SDL 3.4 is
-  now the floor.
-
+### Known issues
+- PowerPoint PDF export flattens builds to their final state and removes
+  transitions. Use a live PowerPoint window-source cue for original
+  animation and clicker control.
 
 ## 2026-08-24 - v0.85.0 (program recording, audio in, the synth sources)
 
-Deckboy can now record what it puts to air, take audio *in*, and generate its
-own pictures and sound. Three capabilities it did not have, plus the recording
-work that turns the first one from a viewing copy into something an edit suite
-will accept.
+### Recording
+- New: programme recording from RECORD in the bottom bar's OUTPUT group.
+  The button pulses while armed and displays file size. Recording has its
+  own destination setting, separate from the encoder queue.
+- Recording raster and rate are independent of programme output and
+  default to following input. `RECFORMAT 1920x1080 59.94` scales a
+  4K programme on the GPU before readback, reducing transferred bytes
+  to one quarter.
+- Broadcast rates use exact fractions: 23.976 is 24000/1001, not 23.98.
+- Constant frame rate contains `rate x elapsed` frames. Missing pictures
+  repeat the last frame; inability to keep up is reported once per second
+  in output health and the show log.
+- Timecode can start at a specified value, time of day or zero, with
+  drop-frame, non-drop and automatic rate-based selection. Drop-frame
+  supports 29.97 and 59.94; at 29.97 it skips 2 timecode numbers each
+  minute except every tenth. It never drops video frames. The file
+  carries the SMPTE flag.
+- Codecs: ProRes LT/422/HQ/4444, DNxHR LB/SQ/HQ/HQX, H.264 and HEVC,
+  with corresponding containers, pixel formats and vendor tags.
+- Segment by minutes or megabytes, with a 3.8 GB ceiling for FAT32.
+  Fragmented recordings remain playable after a power cut; clean stop
+  remuxes to ordinary MP4, as in OBS.
+- Windows uses asynchronous GPU readback and disables control-window vsync
+  while recording. Verified frame-exact from a 4K programme: 2160p25,
+  2160p30, 2160p50, 2160p59.94, 1080p50, 1080p29.97 and ProRes HQ 1080p25.
+- macOS and Linux use portable readback in this version. Measured
+  frame-exact at 1080p50, 1080p59.94 and 2160p25; behind at 4K above
+  30p, with the dropped-frame alarm active.
 
-### Program recording
+### Audio
+- New: microphone and line input with device selection, gain, clipping
+  indicator, mono folding and recording bitrate.
+- Input routes to programme, streams and recording. Streams and recordings
+  now carry live audio on Windows.
+- New: ASIO driver enumeration and direct cue-audio output through a
+  real-time buffered callback, using the bundled SDK. Mismatched device
+  sample rates are converted instead of rejected.
 
-The program output can be written to a file while the show runs. RECORD sits on
-the button bar in the OUTPUT group, pulses while armed, and shows the running
-file size; the destination is its own setting, separate from the encode queue's.
+### Sources
+- New: tone generator with diagnostic displays and a visual on/off control.
+- New: 2A03 and FDS chip voices in one SYNTH section, selectable from
+  SOURCE and controlled by parameters, MIDI or the computer keyboard.
+- New: Video Synth with oscillators, mirrors, feedback, glitch stack,
+  hardware palettes, CRT and a 95-glyph ASCII Text Mode.
+- Sprite sets load from `data/sprites`, with per-tile rotation, flip,
+  jitter and chaos. A picker imports a sprite sheet or sprite folder.
 
-Getting from "it writes a file" to "a facility would accept the file" was most
-of the work:
+### Stage timer
+- Added custom colours, 6 chimes, a silent rest, event logo and message
+  placeholders.
 
-**The recording is its own standard.** Raster and rate are set independently of
-the programme -- `RECFORMAT 1920x1080 59.94` off a 4K programme scales on the
-GPU before readback, so the recording moves a quarter of the bytes. Both default
-to *following the input*, because a recording should look like what went in
-unless somebody says otherwise. Rates are exact where broadcast says they are
-exact: 23.976 is 24000/1001, not 23.98.
+### Cues and interface
+- HAP conversion suggestions now use measured benefit figures.
+- Datamosh adds EXTREME and per-cue encoder overrides.
+- First launch shows the green Deckboy wordmark; subsequent splash
+  images rotate by theme.
+- Removed redundant Source suffixes from source-type labels.
 
-**Constant frame rate by construction.** The file contains exactly
-`rate x elapsed` frames. The pacer counts what is owed and repeats the last
-picture to cover a gap, so a take is the length it was, and if it cannot keep up
-it says so out loud, once a second, on the output health state and in the show
-log.
-
-**Timecode.** Start at a value, at time of day, or at zero, drop-frame or
-non-drop, with auto picking correctly by rate -- DF only means anything at
-29.97 and 59.94, where it skips two timecode *numbers* a minute (except every
-tenth) to keep the count against the clock. No video frame is ever dropped. The
-flag is carried in the file as SMPTE intends it.
-
-**Codecs a post house asked for.** ProRes (LT, 422, HQ, 4444) and DNxHR
-(LB, SQ, HQ, HQX) alongside H.264 and HEVC, in the right container, at the right
-pixel format, with the right vendor tag.
-
-**Segmentation and safety.** Roll to a new file every N minutes or N megabytes,
-with a 3.8 GB ceiling so a FAT32 card cannot silently truncate a take. On stop,
-a fragmented recording is remuxed into a normal MP4 -- the same trade OBS makes,
-so a power cut leaves a playable file and a clean stop leaves a tidy one.
-
-**It keeps up.** The frame leaves the GPU through an asynchronous staging ring
-rather than a synchronous read, and the control window stops taking vsync while
-an output is recording. Verified against a 4K programme: 2160p25, 2160p30,
-2160p50, 2160p59.94, 1080p50, 1080p29.97 and ProRes HQ 1080p25 all frame-exact.
-
-That fast path is Windows-only, so macOS and Linux take the portable read. It is
-measured, not assumed -- frame-exact at 1080p50, 1080p59.94 and 2160p25, and
-behind only at 4K above 30p, where the alarm fires.
-
-### Audio input
-
-Microphone and line input, with device selection, gain, a clip indicator, mono
-folding, and a settable recording bitrate. It routes to the program, so it
-reaches the stream and the recording -- both of which now carry live audio on
-Windows.
-
-### ASIO
-
-Vendored SDK, driver enumeration, and a real-time output callback with a ring
-buffer, so cue audio can reach an interface directly. A device whose sample rate
-does not match gets a conversion rather than a refusal.
-
-### The synth sources
-
-**Tone generator** -- the audio counterpart of a test pattern, with diagnostic
-displays and explicit visuals on/off.
-
-**Chip voices** -- 2A03 and FDS as one SYNTH section, playable from parameters
-rather than presets, reachable from the SOURCE menu, and playable live over MIDI
-or the computer keyboard.
-
-**Video synth** -- oscillators, mirrors and feedback, a glitch stack, hardware
-palettes, CRT, a text mode with the full 95-glyph ASCII set, and sprite sets
-loaded from `data/sprites` with rotation, flip, jitter and chaos per tile. A
-sprite sheet or a folder of sprites can be imported through a picker.
-
-### Timer
-
-Custom colours, six chimes, a rest that is actually silent, an event logo, and
-message placeholders.
-
-### Elsewhere
-
-- HAP conversion is offered where it would actually pay, with the real numbers.
-- Datamosh gains an EXTREME recipe and per-cue encoder overrides.
-- First launch always shows the green branded wordmark; splashes rotate per theme.
-- Source type labels lost the redundant "Source" suffix.
-- All three platforms build and smoke clean.
+### Validation
+- Windows, macOS and Linux builds and smoke checks passed.
 
 ## 2026-08-20 - v0.84.0 (datamosh, HAP, stage timer, show log)
 
-The largest feature release since the SDL3 migration. Four new things Deckboy
-could not do at all, plus the first three items off the competitive survey.
+### Effects
+- New: per-cue Datamosh withholds keyframes so P-frames move the previous
+  picture using their motion vectors.
+- Enabling Datamosh prepares media in the background. The cue continues
+  playing the original until the complete transcode is available, including
+  takes during preparation.
+- CLASSIC uses MPEG-4 Part 2 for persistent motion smearing.
+  SUBTLE uses H.264, whose intra-coded macroblocks refresh regions and
+  heal the smear within a few frames, especially on detailed pictures.
 
-### Datamosh
-A per-cue effect that withholds keyframes from the decoder, so P-frames drag the
-previous picture along their motion. Toggle it on and the cue prepares itself in
-the background; it keeps playing the original until the transcode lands, so
-taking the cue mid-prepare is safe and a half-written file can never go to air.
-
-**CLASSIC vs SUBTLE, and why they are named that.** H.264 barely moshes: a
-P-frame may legally carry intra-coded macroblocks, so x264 refreshes regions on
-its own and the smear heals within a few frames -- fastest on exactly the
-high-detail content you would want to mosh. MPEG-4 Part 2 has no such refresh
-and gives the real effect. The names describe measured behaviour, not an
-aesthetic choice.
-
-### HAP playback
-HAP files play, decoded by a vendored container parser and Snappy decompressor
-rather than by ffmpeg -- letting ffmpeg decode HAP unpacks DXT to RGB on the
-CPU, which is the cost the format exists to avoid. All-intra means seeking is
-direct, with no decode-forward from a keyframe.
-
-`tools/make_hap_sample.py` generates HAP test media, because ffmpeg only encodes
-HAP when built with libsnappy.
+### Playback
+- New: HAP playback through a bundled container parser and Snappy
+  decompressor, avoiding ffmpeg's CPU expansion of DXT to RGB.
+  All-intra frames allow direct seeking without decoding forward.
+- Added HAP sample generation for testing; ffmpeg requires a libsnappy
+  build to encode HAP.
 
 ### Stage timer
-A new Timer cue: countdown, count-up or time-of-day, with amber/red thresholds,
-overtime, a message line, and a progress bar. Digits are seven-segment or
-dot-matrix GEOMETRY rather than text, so a stage screen renders identically
-wherever it runs regardless of installed fonts.
+- New: Timer cue with countdown, count-up and time-of-day modes,
+  amber/red thresholds, overtime, message line and progress bar.
+- Seven-segment and dot-matrix digits use geometry, rendering identically
+  across machines without depending on installed fonts.
+- Timer run, hold, reset and nudge are independent of cue transport,
+  keeping the display on air while the clock is operated.
 
-The clock is deliberately NOT the transport. The cue stays on air while the
-operator runs, holds, resets or nudges it -- tying it to transport would mean
-pausing the clock took the display off air.
-
-### Show log
-Deckboy records what fired and when: takes, blocked takes, stops, reracks,
-panics and show opens, with wall clock and running milliseconds — so "what
-happened at 20:14?" has an answer after the show. Flushed on every write.
-
-### Scheduled start
-A cue can fire at a wall-clock time with no external timecode source, which is
-what makes unattended playback possible. Edge-triggered on crossing the time, so
-one long frame cannot skip a schedule, and daily schedules re-arm at midnight.
-
-### Cue markers
-Named jump marks inside a clip. Jumping seeks rather than takes, so the picture
-does not blink, and stepping backwards has slack so it returns to the marker you
-just passed rather than the one before it.
+### Desk and cues
+- New: show log records takes, blocked takes, stops, reracks, panics
+  and show opens with wall-clock time and elapsed milliseconds.
+  Each write is flushed.
+- New: scheduled starts at wall-clock times without external timecode.
+  Crossing a scheduled time triggers the cue even across a long frame;
+  daily schedules re-arm at midnight.
+- New: named cue markers. Jumps seek without retaking or blinking the
+  picture; backward stepping has tolerance to return to a just-passed
+  marker.
 
 ### Media encoder
-Twenty-two output formats with availability probed from your ffmpeg, per-job
-hold and reorder, and a real progress readout. The queue runs one job at a time
-by default, so encoding never outbids playback, and the format picker encodes
-the format you chose.
+- Added 22 output formats with availability checked against the installed
+  ffmpeg, per-job hold/reorder and progress reporting.
+- The queue defaults to one job at a time to preserve playback resources.
+  The format picker encodes the selected format.
 
-### Also
-Press Start 2P on the chrome with a readable face for filenames; cue-row icons
-sit inside their boxes; four new splash scenes; child processes close with the
-parent, so a transcode never outlives the app.
+### Interface and packaging
+- Interface chrome uses Press Start 2P, with a separate readable filename
+  face. Cue-row icons stay within their boxes.
+- Added 4 splash scenes.
+- Child processes close with Deckboy; transcodes cannot outlive the app.
 
 ## 2026-08-19 — v0.83.2 (media encoder: queue, presets, progress)
 
-The Encoder tab went from a single button to a real queue.
+### Media encoder
+- New: encoder queue with a concurrency limit, default 1.
+  CONVERT ALL FLAGGED on a 31-cue show queues all 31 and runs one.
+- Progress follows ffmpeg's `-progress pipe:1` and `out_time_us`
+  against media duration. It remains indeterminate until the first
+  update, normally about once per second.
+- Added 4 presets, selectable in the tab or through `ENCODEPRESET`:
+  Delivery H.264 using NVENC with libx264 fallback, Proxy 720p,
+  Match Source and Datamosh.
+- Datamosh uses libx264 with `-bf 0 -sc_threshold 0 -refs 1 -g 120`.
+  Verified B-frames changed from 1 to 0, references to 1 and GOP from
+  `IBBPBBP` to `IPPPPPP`, with regular 2.0 s keyframes.
+- Normal and Datamosh encodes both retained 1200 frames and 20.000000 s,
+  allowing replacement without shifting sync. Datamosh writes
+  `<stem>_mosh.mp4` beside the source without replacing it.
+- NVENC is excluded from Datamosh because it ignores reference/scene-cut
+  controls and inserts its own IDR frames.
+- Queue controls: pause/resume, cancel all and per-job cancel.
+  Cancelling stops ffmpeg and deletes the partial output.
+- The busy panel reuses the startup mascot, with a progress bar per job
+  and contextual text.
+- New: MOSH: SMOOTH / CHUNKY. Smooth uses H.264 deblocking for flowing
+  edges and writes `_mosh.mp4`; Chunky uses MPEG-4 Part 2 without
+  deblocking for hard edges and writes `_mosh.avi`.
+- Both recipes were verified with no B-frames, `IPPPPPP` GOPs and
+  matching frame counts, preserving source interchangeability.
+- Added 22 formats, offered only when present in `ffmpeg -encoders`.
+  Includes ProRes 422/4444, DNxHR, QuickTime RLE, VP9, AV1, FFV1,
+  MJPEG, GIF, PNG sequence, WAV/MP3 stems, HAP, HAP Alpha and HAP Q.
+- Quality controls are codec-specific. Bulk encoding 5 or more cues
+  to a mastering codec warns about disk space first.
 
-### A queue, one job at a time
-Jobs are enqueued and started at most `encoderConcurrency_` at a time, default
-**1** — encoding must never outbid playback for CPU or for the drive the media
-is streaming off during a show. CONVERT ALL FLAGGED on a 31-cue show queues 31
-and runs 1.
+### Windows
+- Child processes terminate with Deckboy. Verified by forcibly closing
+  Deckboy during an encode: the ffmpeg process count fell from 1 to 0.
 
-### Real progress, not a spinner
-Jobs stream ffmpeg's own `-progress pipe:1` output and parse `out_time_us`
-against the probed duration. Progress is indeterminate until ffmpeg first
-reports, which it does about once a second.
+### Interface
+- Encoder cards, rows and body text now follow UI Scale and theme ink
+  colours. PRESET and queue text use measured label widths.
+- Added beach, autumn rooftop, winter campfire and Brooklyn waterfront
+  splash scenes. Greyscale masters are gamma-matched to the existing
+  pool for per-theme tinting.
 
-### Presets
-Four, selectable from chips in the tab or by `ENCODEPRESET` over the wire:
-**Delivery H.264** (NVENC with libx264 fallback), **Proxy 720p**, **Match
-Source**, and **Datamosh** — `-bf 0 -sc_threshold 0 -refs 1 -g 120`, libx264
-only. Verified against the source: B-frames 1 -> 0, refs -> 1, GOP `IBBPBBP` ->
-`IPPPPPP`, keyframes regular at 2.0 s, and frame/duration parity with a normal
-encode (1200 frames / 20.000000 s both) so the moshed copy can be swapped for
-the original without shifting sync. Datamosh writes `<stem>_mosh.mp4` beside
-the original rather than replacing it. NVENC is excluded from that preset
-deliberately: it ignores the reference and scene-cut controls and injects its
-own IDR frames.
+### Documentation
+- Added implementation plans for Datamosh and HAP playback.
 
-### Queue control and the busy panel
-Pause/resume, cancel-all, and a per-row cancel that stops ffmpeg and removes the
-half-written file (a partial encode is not a usable cue). The panel fronts the
-startup mascot — reused through a new `overrideTip` parameter rather than a
-second mascot — with a bar per job and a whimsy line.
-
-### Children close with the parent
-Every spawned process joins a job object with
-`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`, so no transcode outlives the app that
-asked for it. Verified by hard-killing Deckboy mid-encode — ffmpeg went from 1
-to 0.
-
-### Encoder tab layout
-The last part of the settings modal to join the uiScale sweep: cards, rows and
-body text all follow the shared helpers and the theme's own ink roles, so the
-tab scales with everything else and reads on every colourway. `PRESET` and the
-queue whimsy line measure their labels rather than guessing a width.
-
-### Splash pool
-Four new scenes (beach, autumn rooftop, winter campfire, Brooklyn waterfront),
-desaturated to grayscale masters and gamma-matched to the existing pool. The
-cycle tints them per theme, so colour art would multiply to mud.
-
-### Datamosh look: smooth or chunky
-A `MOSH: SMOOTH / CHUNKY` toggle picks which recipe the Datamosh preset
-prepares. **Smooth** is H.264 — its in-loop deblocking filter tidies block
-edges as it decodes, so the smear reads as flowing and liquid. **Chunky** is
-MPEG-4 Part 2, which has no deblocking at all, so blocks stay hard-edged: the
-look people picture when they say "datamosh". Both verified moshable (no
-B-frames, `IPPPPPP`, identical frame counts so either stays swappable with the
-original); chunky writes `_mosh.avi`, smooth `_mosh.mp4`.
-
-### Formats you can actually reach
-Twenty-two output formats, with availability PROBED from `ffmpeg -encoders`
-rather than assumed, so what the picker offers is what this machine can run.
-Includes ProRes 422/4444, DNxHR, QuickTime RLE, VP9, AV1, FFV1, MJPEG, GIF, PNG
-sequence, WAV/MP3 stems, and HAP/HAP Alpha/HAP Q. Quality args are per-codec
-because there is no universal knob. Bulk-encoding 5+ cues to a mastering codec
-warns about disk space first.
-
-HAP is present but deliberately not advertised as fast: through the ordinary
-decode path it decompresses DXT to RGB on the CPU, which is slower than H.264
-for much larger files. See `docs/HAP_PLAYBACK_PLAN.md`.
-
-### Also
-`docs/DATAMOSH_PLAN.md` and `docs/HAP_PLAYBACK_PLAN.md` specify the two
-features still to be built.
+### Known issues
+- HAP still uses ordinary CPU DXT-to-RGB decode in this version, making
+  it slower than H.264 with much larger files. Fast HAP playback and
+  the Datamosh effect remain planned.
 
 ## 2026-08-16 — v0.83.2 (macOS: portable state, a real CLI, a protocol that answers)
 
-### Read-only assets and writable state are separate
+### Packaging and storage
+- Separated read-only bundled themes, fonts and sounds from writable state,
+  preserving macOS app signatures and supporting read-only/non-writable
+  installations.
+- State location order: `DECKBOY_STATE_DIR`; otherwise the data folder
+  if writable and outside an app bundle; otherwise per-user application
+  data. Portable Windows and Linux installations retain their behaviour.
+- Per-user paths: `%APPDATA%\Deckboy`,
+  `~/Library/Application Support/Deckboy` and
+  `$XDG_DATA_HOME/deckboy`.
+- Existing show and last-opened pointer migrate once, preserving the
+  current show during an upgrade. Soak logs and `_converted` media
+  also use the state directory.
 
-`Paths::dataDir()` is bundled assets — themes, fonts, sounds. The new
-`Paths::stateDir()` is everywhere Deckboy writes: it resolves to
-`DECKBOY_STATE_DIR`, else the data dir when that is both writable and not inside
-a bundle — so a portable Windows or Linux install is byte-for-byte unchanged —
-else per-user application data (`%APPDATA%\Deckboy`,
-`~/Library/Application Support/Deckboy`, `$XDG_DATA_HOME/deckboy`).
-
-That is what lets a macOS `.app` keep its code signature intact, and lets
-Deckboy run from a read-only volume or an install the user cannot write to. An
-existing show and last-opened pointer are copied across once, so an upgrade in
-place still opens on the show you were working on. The soak log and the
-`_converted` media dir live in the state dir too.
-
-### The command line
-
-- **`--help`**, listing every flag.
-- **Option flags are read wherever they appear**, so
+### Command line
+- Added `--help` listing every flag.
+- Option flags work in any position:
   `--decode-bench clip.mp4 --no-inproc-decode` and
-  `--no-inproc-decode --decode-bench clip.mp4` mean the same thing.
-- **`--flag=value` works** as well as `--flag value`.
-- **Unknown flags and missing operands are errors** (message + exit 2) rather
-  than a silent fall-through into the GUI.
-- **A bare path opens that show or imports that media**, which is what makes the
-  `.deckboy` file association the Windows installer registers —
-  `"Deckboy.exe" "%1"` — do what double-clicking a show should do.
+  `--no-inproc-decode --decode-bench clip.mp4` are equivalent.
+- `--flag=value` and `--flag value` are both accepted.
+- Unknown flags and missing operands print an error and exit with code
+  `2` instead of silently opening the interface.
+- A bare path opens a show or imports media. The Windows installer's
+  `.deckboy` association can use `"Deckboy.exe" "%1"`.
 
-### Remote control answers you
+### Remote protocol
+- Every command returns `OK <VERB>`,
+  `ERR unknown command: <VERB>` or `ERR <VERB>: <reason>`.
+  `HELP` lists supported commands. Companion ignores acknowledgements
+  and logs errors.
+- Changed: `MASTERVOL` uses percentages, matching `STATE`, toasts,
+  Companion, MIDI CC and OSC. `MASTERVOL 60` means 60%.
+- Explicit `150%` and `1.5x` are accepted; bare fractional values
+  at or below 2 retain multiplier interpretation for older scripts.
+  Out-of-range values are rejected instead of clamped.
+- Added `RERACK`, completing remote access to all 4 transport buttons;
+  command documentation matches the implemented verbs.
 
-Every command gets a line back — `OK <VERB>`, `ERR unknown command: <VERB>`, or
-`ERR <VERB>: <reason>` — and `HELP` lists the protocol, so a script can tell a
-command that worked from one it mistyped. The Companion module ignores the acks
-and logs the errors.
-
-- **`MASTERVOL` speaks percent**, like `STATE`, the toast, the Companion action,
-  the MIDI CC and the OSC senders: `MASTERVOL 60` is 60%. It accepts explicit
-  `150%` / `1.5x`, still reads a bare fractional value ≤ 2 as a multiplier so
-  old scripts mean what they said, and refuses out-of-range input rather than
-  clamping it out of sight.
-- **`RERACK` exists**, so all four transport buttons are on the wire. The
-  handler's own header now lists exactly what is implemented.
-
-### Steadier teardown
-
-Audio streams are handed back to SDL before their owners are destroyed, the
-audio decode thread is serialised against a device swap, and PIP overlay engines
-close inside `shutdown()` while the renderer is still up — so quitting takes the
-same ordered path every time.
-
+### Playback
+- Audio streams close before their owners, audio decode is synchronised
+  with device swaps, and PiP overlay playback closes while the renderer
+  is still available, giving shutdown a consistent order.
 
 ## 2026-08-09 — v0.83.1 (macOS in the field, and proper installers for all three)
 
-Deckboy's first run on a Mac, and its first release with a real installer for
-every platform.
+First macOS field run and first release with installers for all 3 platforms.
 
 ### macOS
-- **Native file dialogs.** Import, open, save and relink all go through SDL3's
-  in-process pickers (`SDL_ShowOpenFileDialog` and friends) — one native code
-  path on every platform, no subprocess, no thread fragility. The callback is
-  handled thread-safely and the filter lifetime is documented.
-- **iPhone photos import.** `.heic` and `.heif` load as stills, reconstructed
-  through the filtergraph HEIF actually needs. Verified on a real
-  camera-roll file.
-- **A still that cannot be decoded says so**, and says whether it failed or was
-  simply superseded by the next cue.
-- **The startup splash sizes from measured text**, so its buttons read in full in
-  the wider macOS and Linux fonts.
-- **A real app icon**, built from the master art.
+- Import, open, save and relink use native in-process file dialogs, shared
+  across platforms, with thread-safe result handling and retained filters.
+- New: `.heic` and `.heif` still imports using HEIF reconstruction.
+  Verified with an iPhone camera-roll file.
+- Still-image decode reports failures separately from requests superseded
+  by the next cue.
+- Splash controls size from measured text, retaining full labels with
+  wider macOS and Linux fonts.
+- Added a native app icon from the master artwork.
 
-### Cross-platform parity
-- **libltc is bundled** in the macOS and Linux portable builds, so LTC timecode
-  works out of the box rather than only where libltc happened to be installed.
-  The loader looks beside the executable first.
-- **Controls audit:** OSC, Companion, HyperDeck, Art-Net and TSL tally work
-  identically on all three platforms. Verified.
-- Bundled `ffmpeg` is reachable off Windows, and a POSIX crash handler writes a
-  symbolised `deckboy-crash.log` on Linux and macOS.
+### Audio and remote control
+- Bundled libltc in macOS and Linux portable builds so LTC works without
+  a separate install. Runtime discovery checks beside the executable first.
+- Verified identical OSC, Companion, HyperDeck, Art-Net and TSL tally
+  behaviour on Windows, macOS and Linux.
 
-### Proper installers (new)
-- **macOS `.dmg`** — drag-to-Applications; installing out of Downloads also
-  sidesteps App Translocation. CI mounts it and checks its contents.
-- **Windows Inno Setup `.exe`** — Start Menu, optional desktop shortcut, opt-in
-  `.deckboy` association, real uninstaller. Verified install → run → uninstall.
-- **Linux AppImage** — one self-contained file, runs on any current distro.
-  Verified running with a cleared environment (`ffmpeg` and `libltc` both found).
+### Packaging
+- Bundled ffmpeg is reachable on macOS and Linux.
+- New: macOS `.dmg` with drag-to-Applications installation. Moving out
+  of Downloads avoids App Translocation; CI mounts and checks the image.
+- New: Windows Inno Setup `.exe` with Start Menu entry, optional desktop
+  shortcut, opt-in `.deckboy` association and uninstaller.
+  Install, run and uninstall were verified.
+- New: self-contained Linux AppImage for current distributions.
+  Verified with a cleared environment, finding both ffmpeg and libltc.
+- Packaging documentation covers builds for every format.
 
-Full build instructions for every format: `docs/PACKAGING.md`.
+### Diagnostics
+- Linux and macOS write symbolised `deckboy-crash.log` reports.
 
-### Limits
-- macOS notarisation and Windows code signing need accounts we do not have yet:
-  a downloaded macOS build wants a one-time
-  `xattr -dr com.apple.quarantine`, and Windows shows an "unknown publisher"
-  prompt on first run.
-- HEIC needs ffmpeg 7.1 or newer for its HEIF demuxer, so it decodes on macOS
-  but not on a Linux build against Ubuntu 24.04's ffmpeg 6.1.
+### Known issues
+- macOS notarisation and Windows code signing are not yet available because
+  the required accounts are absent. Downloaded macOS builds need a one-time
+  quarantine removal with `xattr -dr com.apple.quarantine`; Windows
+  displays an unknown-publisher prompt on first run.
+- HEIC requires ffmpeg 7.1 or newer for HEIF demuxing. It works on macOS
+  but not in Linux builds using Ubuntu 24.04's ffmpeg 6.1.
 
 ## 2026-08-08 — v0.83.0 (portable macOS bundle)
 
