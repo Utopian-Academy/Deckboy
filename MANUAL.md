@@ -2179,6 +2179,7 @@ once as the memory allows, and fits in a Pi 3 where the whole desk does not.
 | `--remote` | Accept remote control from the network, not only this machine |
 | `--plain` | Plain log lines instead of the status panel |
 | `--overlay` | Start with the status bar shown on the output |
+| `--watch DIR` | Add new files that arrive in DIR, each once it has finished copying |
 
 **Keys** work in the terminal Mini runs in, so the whole show can be run from
 the keyboard there, over SSH included; the same keys work in the output window.
@@ -2210,6 +2211,7 @@ the keyboard there, over SSH included; the same keys work in the output window.
 | Shift+L | Loop this cue on its own (L loops the whole list) |
 | W | Save the list as a playlist |
 | O | Open a playlist, a file or a folder in place of the list |
+| Shift+W | Watch a folder, on and off. The first time, it asks which |
 
 **Output and sound:**
 
@@ -2265,6 +2267,18 @@ before quitting.
 
 Files or a folder dropped on the output are added to the end of the list too.
 
+**A watch folder** fills the list by itself, the way the desk's WATCH FOLDER
+fills a playlist, and it is the same code. Start Mini with `--watch DIR`, or
+press Shift+W and type the folder. Every new clip, still or sound that lands in
+it goes on the end of the list, several at once in name order, and the panel
+says how many arrived. A file still being copied is left alone until its size
+and time have held still for a scan, so a large clip is never taken
+half-written. The folder is looked at every two and a half seconds, and not
+inside its subfolders. Files already in the list are not added again, and if
+the list was empty, the first arrival starts playing (unless `--paused`).
+Shift+W turns the watch off and on again; `--watch` on its own, with no files,
+starts Mini empty and waiting.
+
 **The status bar** is for a screen with nobody at a terminal: H (or Tab)
 shows a slim bar across the bottom of the output, in the same greens, with
 what is playing, the time, a progress line and what is next. It is off until
@@ -2280,7 +2294,8 @@ each answered `OK` or `ERR` with the reason. The keys above are commands too:
 `AUDIO LIST|NEXT|DEFAULT|<name>`, `SPEED 0.25-4`, `MUTE`, `FRAME [BACK]`,
 `ABLOOP [a b|OFF]`, `SUBS [ON|OFF]`, `AUDIOTRACK n|NEXT`, and for the running
 order `FIND words`, `QUEUE [n|CLEAR]`, `ENDAFTER ON|OFF`, `SHUFFLE ON|OFF`,
-`CLOCK REMAINING|ELAPSED` and `CROSSFADE seconds`. `STATUS` comes back in the desk's
+`CLOCK REMAINING|ELAPSED` and `CROSSFADE seconds`, and `WATCH [folder|ON|OFF]`
+(`WATCH` alone reports the folder and what it has seen and taken). `STATUS` comes back in the desk's
 format, so the Companion module drives Mini like a one-deck Deckboy. Send
 `HELP` for the list.
 

@@ -5180,38 +5180,23 @@
   // ── WATCH FOLDERS ─────────────────────────────────────────────────────────
   //
   // A playlist that fills itself from a folder. See Deck::watchFolder for the
-  // design; this is the machinery.
+  // design; the scanning, and the rule that a file must hold still before it
+  // is taken, are core/watch_folder.hpp, shared with Deckboy Mini's --watch.
+  // One per playlist, by index, following Deck::watchFolder every tick.
+  std::vector<deckboy::core::WatchFolder> watchFolders_;
 
-  struct WatchFolderFind {
-    int deckIndex = 0;
-    std::string path;
-    std::uintmax_t size = 0;
-  };
-
-  // Posted by the worker, drained by the main thread.
-  std::mutex watchFolderMutex_;
-  std::vector<WatchFolderFind> watchFolderFinds_;
-  std::atomic<bool> watchFolderScanning_{false};
-  std::atomic<bool> watchFolderResultReady_{false};
-  double watchFolderNextScanAt_ = 0.0;
-  // Every path this session has already taken, per deck. Seeded from the
-  // playlist's own cues the first time a deck is scanned, so opening a show
-  // whose watch folder is still full does not import all of it again.
-  std::vector<std::set<std::string>> watchFolderSeen_;
-  std::vector<bool> watchFolderSeeded_;
-  // What each path measured on the PREVIOUS scan. A file still being copied
-  // grows between scans, and one that is imported half-written is a cue that
-  // fails on air; a path is only taken once its size has stopped changing.
-  std::map<std::string, std::uintmax_t> watchFolderPendingSize_;
-  // What the last scan saw, so WATCH can report whether it is alive. An
-  // operator whose files are not arriving has to be able to tell a folder
-  // nobody is looking at from a folder that is being looked at and is empty.
-  int watchFolderScanCount_ = 0;
-  int watchFolderLastSeen_ = 0;
-  int watchFolderTakenTotal_ = 0;
-
-  static std::string watchFolderKey(int deckIndex, const std::string& path) {
-    return std::to_string(deckIndex) + "\n" + path;
+  // The WATCH verb's counters, summed over the playlists: an operator whose
+  // files are not arriving has to be able to tell a folder nobody is looking
+  // at from a folder that is being looked at and is empty.
+  std::string watchFolderCounters() const {
+    int scans = 0, seen = 0, taken = 0;
+    for (const auto& folder : watchFolders_) {
+      scans += folder.scans();
+      seen += folder.lastSeen();
+      taken += folder.taken();
+    }
+    return "scans=" + std::to_string(scans) + " seen=" + std::to_string(seen) +
+           " taken=" + std::to_string(taken);
   }
 
 
@@ -5356,16 +5341,9 @@
         return;   // the playlist was deleted while the dialog was open
       }
       Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+      // The playlist's WatchFolder sees the new path on the next tick and
+      // forgets what it took from the last one.
       deck.watchFolder = chosen.front();
-      // Forget what this playlist has already taken, so a NEW folder is taken
-      // whole rather than skipping anything that shares a name with something
-      // imported from the last one.
-      if (watchFolderSeen_.size() > static_cast<std::size_t>(deckIndex)) {
-        watchFolderSeen_[static_cast<std::size_t>(deckIndex)].clear();
-      }
-      if (watchFolderSeeded_.size() > static_cast<std::size_t>(deckIndex)) {
-        watchFolderSeeded_[static_cast<std::size_t>(deckIndex)] = false;
-      }
       markProjectDirty();
       triggerToast(deck.name + " is watching " +
                    fs::path(deck.watchFolder).filename().string());
@@ -5373,120 +5351,32 @@
   }
 
   void serviceWatchFolders() {
-    // Collect the result of the last scan first, so the flag is cleared by
-    // CONSUMPTION rather than by posting.
-    if (watchFolderResultReady_.load()) {
-      std::vector<WatchFolderFind> finds;
-      {
-        std::lock_guard<std::mutex> lock(watchFolderMutex_);
-        finds.swap(watchFolderFinds_);
-      }
-      watchFolderResultReady_.store(false);
-      watchFolderScanning_.store(false);
-      ++watchFolderScanCount_;
-      watchFolderLastSeen_ = static_cast<int>(finds.size());
-      consumeWatchFolderFinds(finds);
+    if (watchFolders_.size() != project_.decks.size()) {
+      watchFolders_.resize(project_.decks.size());
     }
-
     const double now = nowSeconds();
-    if (now < watchFolderNextScanAt_) return;
-    // Two and a half seconds. Fast enough that dropping a file in feels
-    // immediate once the size settles, slow enough that a share is not being
-    // listed continuously all day.
-    watchFolderNextScanAt_ = now + 2.5;
-    if (watchFolderScanning_.load()) return;
-
-    std::vector<std::pair<int, std::string>> folders;
-    for (std::size_t i = 0; i < project_.decks.size(); ++i) {
-      const std::string& folder = project_.decks[i].watchFolder;
-      if (!folder.empty()) {
-        folders.emplace_back(static_cast<int>(i), folder);
-      }
-    }
-    if (folders.empty()) return;
-
-    watchFolderScanning_.store(true);
-    std::thread([this, folders]() {
-      std::vector<WatchFolderFind> finds;
-      for (const auto& entry : folders) {
-        std::error_code ec;
-        fs::path dir(entry.second);
-        if (!fs::is_directory(dir, ec)) continue;
-        // NOT recursive. A drop folder is a drop folder; walking a whole
-        // media tree on a share every two seconds is a different feature
-        // with a very different cost.
-        for (fs::directory_iterator it(dir, ec), end; !ec && it != end;
-             it.increment(ec)) {
-          std::error_code fileEc;
-          if (!it->is_regular_file(fileEc)) continue;
-          if (!isAcceptableMediaPath(it->path())) continue;
-          const std::uintmax_t size = fs::file_size(it->path(), fileEc);
-          if (fileEc) continue;
-          finds.push_back({entry.first, it->path().string(), size});
-        }
-      }
-      {
-        std::lock_guard<std::mutex> lock(watchFolderMutex_);
-        watchFolderFinds_ = std::move(finds);
-      }
-      watchFolderResultReady_.store(true);
-    }).detach();
-  }
-
-  void consumeWatchFolderFinds(const std::vector<WatchFolderFind>& finds) {
-    if (project_.decks.empty()) return;
-    watchFolderSeen_.resize(project_.decks.size());
-    watchFolderSeeded_.resize(project_.decks.size(), false);
-
-    // Seed from what the playlist already holds, once per deck. Without this,
-    // opening a show whose watch folder still contains yesterday's files
-    // imports every one of them a second time.
-    for (std::size_t i = 0; i < project_.decks.size(); ++i) {
-      if (watchFolderSeeded_[i]) continue;
-      if (project_.decks[i].watchFolder.empty()) continue;
-      for (const auto& cue : project_.decks[i].cues) {
-        std::error_code ec;
-        fs::path p = fs::absolute(cue.path, ec);
-        watchFolderSeen_[i].insert(ec ? cue.path : p.string());
-      }
-      watchFolderSeeded_[i] = true;
-    }
-
-    // Group by deck: importPaths works on the FOCUSED deck, so the focus is
-    // moved once per deck rather than once per file.
-    std::map<int, std::vector<std::string>> takeByDeck;
-    for (const WatchFolderFind& find : finds) {
-      if (find.deckIndex < 0 ||
-          find.deckIndex >= static_cast<int>(project_.decks.size())) {
-        continue;
-      }
-      auto& seen = watchFolderSeen_[static_cast<std::size_t>(find.deckIndex)];
-      if (seen.count(find.path)) continue;
-
-      // HOLD STILL FIRST. The size has to match what the previous scan saw
-      // before the file is taken, so a large VT part-way through a copy is
-      // left alone until it stops growing.
-      const std::string key = watchFolderKey(find.deckIndex, find.path);
-      auto pending = watchFolderPendingSize_.find(key);
-      if (pending == watchFolderPendingSize_.end() || pending->second != find.size) {
-        watchFolderPendingSize_[key] = find.size;
-        continue;
-      }
-      watchFolderPendingSize_.erase(key);
-      seen.insert(find.path);
-      takeByDeck[find.deckIndex].push_back(find.path);
-    }
-    if (takeByDeck.empty()) return;
-
+    // importPaths works on the FOCUSED playlist, so the focus moves once per
+    // playlist that has something, and goes back where it was.
     const int wasFocused = project_.focusedDeckIndex;
     int imported = 0;
-    for (auto& entry : takeByDeck) {
-      std::sort(entry.second.begin(), entry.second.end());
-      setFocusedDeckIndex(entry.first);
-      importPaths(entry.second);
-      imported += static_cast<int>(entry.second.size());
+    for (std::size_t i = 0; i < project_.decks.size(); ++i) {
+      deckboy::core::WatchFolder& watch = watchFolders_[i];
+      watch.setFolder(project_.decks[i].watchFolder);
+      if (watch.needsSeed()) {
+        // What the playlist already holds is not new: without this, opening a
+        // show whose watch folder still has yesterday's files imports every
+        // one of them a second time.
+        std::vector<std::string> held;
+        for (const auto& cue : project_.decks[i].cues) held.push_back(cue.path);
+        watch.seed(held);
+      }
+      const std::vector<std::string> arrived = watch.poll(now);
+      if (arrived.empty()) continue;
+      setFocusedDeckIndex(static_cast<int>(i));
+      importPaths(arrived);
+      imported += static_cast<int>(arrived.size());
     }
-    watchFolderTakenTotal_ += imported;
+    if (imported == 0) return;
     setFocusedDeckIndex(wasFocused);
     triggerToast(std::to_string(imported) +
                  (imported == 1 ? " file arrived in a watched playlist"
