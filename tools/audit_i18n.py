@@ -80,7 +80,10 @@ FORMATTY = re.compile(r"%[-0-9.]*[sdfxu]|\{\}")        # format strings
 UNITS = {
     "db", "hz", "khz", "ms", "px", "ch", "fps", "smp", "bpm",
     "in", "out", "vu", "go", "hex", "tap", "arm", "len", "yes", "no",
+    "s", "lufs", "kbps", "mbps", "srt", "rtmp", "rtsp", "udp",
 }
+# A number and its unit ("15 s", "48 kHz"): the same in every language.
+NUMBER_UNIT = re.compile(r"^\s*\d+(\.\d+)?\s*[A-Za-z]{1,4}\s*$")
 NOT_PROSE = re.compile(r"^[\s\W\d]*$")     # punctuation, spacing, digits only
 
 
@@ -91,7 +94,7 @@ def is_prose(s):
         return False                       # "GO", "VU", "dB": glyphs, not prose
     if NOT_PROSE.match(t):
         return False
-    if t.lower().strip(":. ") in UNITS:
+    if t.lower().strip(":. ") in UNITS or NUMBER_UNIT.match(t):
         return False
     # A fragment ending or starting with a colon is half of a runtime
     # concatenation, so there is no whole sentence here to translate.
@@ -143,6 +146,59 @@ def drawn_strings():
                         rel = os.path.relpath(path, ROOT).replace("\\", "/")
                         found.setdefault(s, rel)
     return found
+
+
+# THE MENUS. A dropdown, a picker or a SOURCE menu is built as a list of
+# (id, label) pairs and drawn later, row by row, through drawTextSafe -- so
+# its labels ARE translated at draw time, but none of them is a literal inside
+# a draw call, and this audit never saw them. That is how every submenu (the
+# test pattern picker, the SOURCE menu, the stream-deck button menu) stayed
+# English in every language without the coverage figure moving: a translator
+# working from --missing was never shown a single one of them.
+#
+# A pair is an id literal (lower case, a token) followed by a label literal,
+# as `emplace_back("smpte-bars", "SMPTE Colour Bars")` or
+# `{"tracker", "Tracker"}`.
+OPTION_PAIRS = (
+    re.compile(r'(?:emplace_back|push_back)\(\s*\{?\s*"[a-z0-9_.:/\-]+"\s*,\s*"((?:[^"\\]|\\.)*)"'),
+    re.compile(r'\{\s*"[a-z0-9_.:/\-]+"\s*,\s*"((?:[^"\\]|\\.)*)"\s*\}'),
+)
+
+
+def option_labels():
+    """Every label of an (id, label) pair: what menus and pickers draw."""
+    found = {}
+    for root in SOURCE_DIRS:
+        for dirpath, _dirs, files in os.walk(root):
+            if "extras" in dirpath.replace("\\", "/").split("/"):
+                continue
+            for name in files:
+                if not name.endswith((".cpp", ".hpp", ".ipp")):
+                    continue
+                path = os.path.join(dirpath, name)
+                text = open(path, encoding="utf-8", errors="replace").read()
+                rel = os.path.relpath(path, ROOT).replace("\\", "/")
+                for pattern in OPTION_PAIRS:
+                    for m in pattern.finditer(text):
+                        s = m.group(1)
+                        if TOKENISH.match(s) or FORMATTY.search(s) or not is_prose(s):
+                            continue
+                        found.setdefault(s, rel)
+    return found
+
+
+# What translate() in i18n.cpp will actually find: the string as written, the
+# same words in another case, or -- for "Name (qualifier)" -- each half on its
+# own. Counting only exact keys reported strings as missing that the app draws
+# translated.
+def covered(s, keys, lowered):
+    if s in keys or s.lower() in lowered:
+        return True
+    m = re.match(r"^(.+) \(([^()]+)\)$", s)
+    if m:
+        base, qualifier = m.group(1), m.group(2)
+        return covered(base, keys, lowered) or qualifier.lower() in lowered
+    return False
 
 
 def catalogue_keys(path):
@@ -260,16 +316,21 @@ def main():
     drawn = drawn_strings()
     if not drawn:
         sys.exit("audit_i18n: found no drawn strings -- did the helpers change name?")
+    options = option_labels()
+    for s, where in options.items():
+        drawn.setdefault(s, where)
 
     langs = sorted(f for f in os.listdir(LANG_DIR) if f.endswith(".tsv"))
-    print("drawn strings that could be translated: %d" % len(drawn))
+    print("drawn strings that could be translated: %d (%d of them menu and picker labels)"
+          % (len(drawn), len(options)))
     print()
     print("  %-12s %6s  %s" % ("language", "keys", "coverage of drawn strings"))
     worst = None
     for f in langs:
         code = f[:-4]
         keys = catalogue_keys(os.path.join(LANG_DIR, f))
-        hit = sum(1 for s in drawn if s in keys)
+        lowered = {k.lower() for k in keys}
+        hit = sum(1 for s in drawn if covered(s, keys, lowered))
         pct = (hit * 100.0 / len(drawn)) if drawn else 0.0
         print("  %-12s %6d  %5.1f%%  (%d of %d)" % (code, len(keys), pct, hit, len(drawn)))
         if worst is None:
@@ -281,7 +342,9 @@ def main():
         every = set()
         for f in langs:
             every |= catalogue_keys(os.path.join(LANG_DIR, f))
-        missing = sorted((s for s in drawn if s not in every), key=lambda s: (len(s), s))
+        every_lower = {k.lower() for k in every}
+        missing = sorted((s for s in drawn if not covered(s, every, every_lower)),
+                         key=lambda s: (len(s), s))
         print()
         print("untranslated drawn strings: %d" % len(missing))
         for s in missing[:args.top]:

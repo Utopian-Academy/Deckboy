@@ -540,7 +540,33 @@ std::string translate(const std::string& source) {
   // so a German button reading "Anwenden" under an English "APPLY" is the
   // right answer and "ANWENDEN" with a broken umlaut is not.
   const auto caseHit = gActiveLower.find(lower(source));
-  return (caseHit == gActiveLower.end()) ? source : caseHit->second;
+  if (caseHit != gActiveLower.end()) {
+    return caseHit->second;
+  }
+  // ── A NAME AND ITS QUALIFIER ──────────────────────────────────────────────
+  //
+  // Menus qualify a name in brackets: "Full White (motion)", "Pocket Test
+  // (night)", "Crosshatch (motion)". Each of those was a separate line to
+  // translate, so the picker stayed English until every combination had been
+  // written out. Without a line for the whole, each half is looked up on its
+  // own and the two are put back together; a half nobody translated stays
+  // English, which is what an untranslated line does anyway.
+  if (source.size() > 4 && source.back() == ')') {
+    const std::size_t open = source.rfind(" (");
+    if (open != std::string::npos && open > 0 &&
+        source.find_first_of("()", open + 2) == source.size() - 1) {
+      const std::string base = source.substr(0, open);
+      const std::string qualifier = source.substr(open + 2, source.size() - open - 3);
+      const std::string baseShown = translate(base);
+      const auto qualifierHit = gActiveLower.find(lower(qualifier));
+      const std::string qualifierShown =
+        qualifierHit == gActiveLower.end() ? qualifier : qualifierHit->second;
+      if (baseShown != base || qualifierShown != qualifier) {
+        return baseShown + " (" + qualifierShown + ")";
+      }
+    }
+  }
+  return source;
 }
 
 }  // namespace i18n
