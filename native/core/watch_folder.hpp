@@ -4,7 +4,7 @@
 // See LICENSE for details.
 
 // ============================================================================
-// watch_folder.hpp — a list that fills itself from a folder.
+// watch_folder.hpp -- a list that fills itself from a folder.
 //
 // Shared by the desk (one per playlist, Deck::watchFolder) and Deckboy Mini
 // (--watch), so a file that arrives is judged the same way by both: there is
