@@ -584,6 +584,7 @@ add_executable(deckboy-native
   native/core/utils.cpp
   native/core/subprocess.cpp
   native/core/media_probe.cpp
+  native/core/watch_folder.cpp
   native/core/bidi.cpp
   native/engine/media_engine.cpp
   native/platform/browser.cpp

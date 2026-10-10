@@ -68,6 +68,7 @@
 #include "core/mtc_decode.hpp"
 #include "core/utils.hpp"
 #include "core/media_probe.hpp"
+#include "core/watch_folder.hpp"
 #include "deckboy_version.hpp"
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"

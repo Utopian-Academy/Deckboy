@@ -29,6 +29,7 @@
 #include "core/caption_formats.hpp"
 #include "core/paths.hpp"
 #include "core/subtitle_parser.hpp"
+#include "core/watch_folder.hpp"
 #include "engine/media_engine.hpp"
 #include "engine/stage_timings.hpp"
 #include "mini/mini_hud.hpp"
@@ -85,6 +86,7 @@ const char* kUsage =
   "  --remote       accept remote control from the network, not only this machine\n"
   "  --plain        plain log lines instead of the status panel\n"
   "  --overlay      start with the status bar shown on the output (H toggles it)\n"
+  "  --watch DIR    add new files that arrive in DIR, once each has finished copying\n"
   "  --version      print the version and exit\n"
   "\n"
   "Keys, in this terminal or the output window:\n"
@@ -95,6 +97,7 @@ const char* kUsage =
   "Editing the list, in this terminal:\n"
   "  < > move the selected cue   X X remove it   R rename   T still time\n"
   "  Shift+L loop this cue   W save the list   O open a list\n"
+  "  Shift+W watch a folder: on / off\n"
   "Output and sound:\n"
   "  D next display   V output on/off   P next sound device\n"
   "Playing a file (as in mpv):\n"
@@ -112,7 +115,7 @@ const char* kRemoteHelp =
   "DISPLAYS | DISPLAY n|NEXT | OUTPUT ON|OFF|TOGGLE | AUDIO LIST|NEXT|DEFAULT|<name> | "
   "SPEED 0.25-4 | MUTE ON|OFF|TOGGLE | FRAME [BACK] | ABLOOP [a b|OFF] | SUBS [ON|OFF] | AUDIOTRACK n|NEXT | "
   "FIND words | QUEUE [n|CLEAR] | ENDAFTER ON|OFF|TOGGLE | SHUFFLE ON|OFF|TOGGLE | "
-  "CLOCK REMAINING|ELAPSED|TOGGLE | CROSSFADE seconds|NEXT\n";
+  "CLOCK REMAINING|ELAPSED|TOGGLE | CROSSFADE seconds|NEXT | WATCH [folder|ON|OFF|TOGGLE]\n";
 
 std::string upper(std::string s) {
   for (char& c : s) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
@@ -145,6 +148,7 @@ struct Options {
   bool remote = false;
   bool plain = false;
   bool overlay = false;
+  fs::path watch;                 // --watch: empty is off
   std::vector<fs::path> inputs;
 };
 
@@ -183,10 +187,20 @@ Options parseArgs(int argc, char** argv) {
     else if (a == "--remote") o.remote = true;
     else if (a == "--plain") o.plain = true;
     else if (a == "--overlay") o.overlay = true;
+    else if (a == "--watch") {
+      // Checked here, like every other option: a kiosk whose drop folder is
+      // misspelt should stop, not sit watching nothing.
+      std::error_code ec;
+      o.watch = fs::absolute(need(i, "--watch"), ec);
+      if (ec || !fs::is_directory(o.watch, ec)) {
+        std::cerr << "deckboy-mini: --watch needs a folder, got '" << argv[i] << "'\n";
+        std::exit(2);
+      }
+    }
     else if (a.rfind("--", 0) == 0) { std::cerr << "deckboy-mini: unknown option " << a << "\n\n" << kUsage; std::exit(2); }
     else o.inputs.emplace_back(a);
   }
-  if (o.inputs.empty()) { std::cerr << kUsage; std::exit(2); }
+  if (o.inputs.empty() && o.watch.empty()) { std::cerr << kUsage; std::exit(2); }
   o.volume = std::clamp(o.volume, 0, 100);
   o.stillSeconds = std::max(0.1, o.stillSeconds);
   if (o.display < 1) o.display = 1;
@@ -437,11 +451,13 @@ class Mini {
     hud_.begin(opt_.plain);
     hud_.boot(bootFacts());
     if (keys_.begin()) hud_.log("keys live in this terminal  (? for help)");
+    if (!opt_.watch.empty()) setWatch(opt_.watch.string());
     take(0, !opt_.paused);
     while (!gQuit.load()) {
       pumpEvents();
       while (auto key = keys_.poll()) onKey(*key, true);
       pollRemote();
+      serviceWatch();
       {
         // update() is where a new frame is uploaded to the GPU, so it is
         // counted with drawing as the cost of putting a frame on screen.
@@ -1343,6 +1359,14 @@ class Mini {
     // KEYS THAT NEED TYPING say so in the output window instead of doing
     // nothing: rename, still time, save, open and the command line all open
     // a prompt, and the prompt lives in the terminal.
+    // Shift+W watches a folder; w saves. Before the prompt guard below, so the
+    // output window can turn a folder it already knows on and off.
+    if (key.ch == 'W') {
+      if (!watchDir_.empty()) setWatch(watch_.watching() ? std::string() : watchDir_);
+      else if (fromTerminal) openCommand("WATCH ");
+      else hud_.log("no folder to watch yet: Shift+W in the terminal, or --watch");
+      return;
+    }
     if (!fromTerminal && key.ch != 0 && std::strchr("rtwoa:/", std::tolower(static_cast<unsigned char>(key.ch)))) {
       hud_.log("that key opens a prompt: use the terminal Mini runs in");
       return;
@@ -1516,7 +1540,7 @@ class Mini {
   void completePath() {
     const std::string upperText = upper(commandText_);
     std::size_t verbLen = 0;
-    for (const char* v : {"ADD ", "OPEN ", "SAVE "}) {
+    for (const char* v : {"ADD ", "OPEN ", "SAVE ", "WATCH "}) {
       if (upperText.rfind(v, 0) == 0) verbLen = std::strlen(v);
     }
     if (verbLen == 0) return;
@@ -1776,6 +1800,35 @@ class Mini {
       if (path.empty()) return err("expected a file or folder");
       const int added = addInputs({fs::path(path)}, "added");
       if (added == 0) return err("nothing playable at " + path);
+      return ok();
+    }
+    if (verb == "WATCH") {
+      // WATCH reports; WATCH <folder> watches it; ON / OFF / TOGGLE switch the
+      // folder Mini last watched. The desk's form, WATCH 1 <...>, works too.
+      std::string rest = raw.substr(std::min(raw.size(), upper(raw).find("WATCH") + 5));
+      const std::size_t a = rest.find_first_not_of(" \t");
+      rest = a == std::string::npos ? std::string() : rest.substr(a);
+      if (rest.size() > 2 && rest.rfind("1 ", 0) == 0) rest = rest.substr(2);
+      while (!rest.empty() && (rest.back() == ' ' || rest.back() == '\t' || rest.back() == '"')) rest.pop_back();
+      if (!rest.empty() && rest.front() == '"') rest.erase(0, 1);
+      const std::string word = upper(rest);
+      if (rest.empty()) {
+        return "OK WATCH: " + (watch_.watching() ? watch_.folder() : std::string("off")) +
+               "; scans=" + std::to_string(watch_.scans()) + " seen=" + std::to_string(watch_.lastSeen()) +
+               " taken=" + std::to_string(watch_.taken()) + "\n";
+      }
+      if (word == "OFF") { setWatch({}); return ok(); }
+      if (word == "ON" || word == "TOGGLE") {
+        if (watchDir_.empty()) return err("no folder yet: WATCH <folder>");
+        setWatch(word == "ON" || !watch_.watching() ? watchDir_ : std::string());
+        return ok();
+      }
+      std::error_code ec;
+      const fs::path folder = fs::absolute(rest, ec);
+      // REFUSED, not stored: a watch on nothing looks exactly like a watch that
+      // does not work.
+      if (ec || !fs::is_directory(folder, ec)) return err("not a folder: " + rest);
+      setWatch(folder.string());
       return ok();
     }
     // The rest of the line after the verb (and an optional cue number): names
@@ -2058,6 +2111,40 @@ class Mini {
 
   // New cues go on the end of the list; nothing already playing is touched.
   // Shared by a file dropped on the output and the remote ADD.
+  // ── Watch folder (core/watch_folder.hpp, the desk's own) ──
+  // Empty stops watching but remembers the folder, so Shift+W and WATCH ON
+  // can bring it back.
+  void setWatch(const std::string& folder) {
+    if (folder.empty()) {
+      if (watch_.watching()) hud_.log("stopped watching " + fs::path(watchDir_).filename().string());
+      watch_.setFolder({});
+      return;
+    }
+    watchDir_ = folder;
+    watch_.setFolder(folder);
+    hud_.log("watching " + folder + " for new files");
+  }
+
+  void serviceWatch() {
+    if (!watch_.watching()) return;
+    if (watch_.needsSeed()) {
+      // What the list already holds is not new, or watching the folder the
+      // list came from would add every file in it twice.
+      std::vector<std::string> held;
+      for (const Cue& c : cues_) held.push_back(c.path);
+      watch_.seed(held);
+    }
+    const double now = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    const std::vector<std::string> arrived = watch_.poll(now);
+    if (arrived.empty()) return;
+    // Nothing had ever played because there was nothing to play: the first
+    // arrival starts the show, as the first file on the command line would.
+    const bool waiting = cues_.empty() && active_ < 0;
+    std::vector<fs::path> paths(arrived.begin(), arrived.end());
+    const int added = addInputs(paths, "arrived in the watch folder:");
+    if (added > 0 && waiting && !opt_.paused) take(0);
+  }
+
   int addInputs(const std::vector<fs::path>& inputs, const char* how) {
     std::vector<Cue> more = cuesForWithPlaylists(inputs, opt_.stillSeconds, nextId_,
                                                  [this](const std::string& t) { hud_.log(t); });
@@ -2318,6 +2405,8 @@ class Mini {
   std::mt19937 rng_ {std::random_device {}()};
   bool showRemaining_ = false;         // C: the clock counts down instead of up
   double glideSeconds_ = 0.0;          // G: crossfade between cues; 0 is a cut
+  deckboy::core::WatchFolder watch_ {playable};   // Shift+W, --watch, WATCH
+  std::string watchDir_;               // the folder last watched, for Shift+W
   bool jump_ = false;                  // /: typing narrows the list
   std::string jumpText_;
   int jumpPick_ = 0;                   // which of the matches Enter takes
@@ -2328,7 +2417,8 @@ class Mini {
 int main(int argc, char** argv) {
   Options options = parseArgs(argc, argv);
   std::vector<Cue> cues = buildPlaylist(options);
-  if (cues.empty()) {
+  // A watch folder can start empty: what arrives is the list.
+  if (cues.empty() && options.watch.empty()) {
     std::cerr << "deckboy-mini: nothing to play\n";
     return 2;
   }

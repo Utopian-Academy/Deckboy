@@ -4427,9 +4427,7 @@
         // scanning and a folder being scanned that is empty look identical
         // from the playlist, and only one of them is a fault.
         report += (report.empty() ? std::string() : std::string("; ")) +
-                  "scans=" + std::to_string(watchFolderScanCount_) +
-                  " seen=" + std::to_string(watchFolderLastSeen_) +
-                  " taken=" + std::to_string(watchFolderTakenTotal_);
+                  watchFolderCounters();
         remoteCommandDetail_ = report;
         triggerToast(report);
         return;
@@ -4462,16 +4460,9 @@
         failRemoteCommand("not a folder: " + rest);
         return;
       }
+      // The playlist's WatchFolder sees the new path on the next tick and
+      // forgets what it took from the last one.
       deck.watchFolder = folder.string();
-      // Forget what this deck has already taken, so pointing it at a new
-      // folder takes that folder's contents rather than skipping whatever
-      // happens to share a name with something imported earlier.
-      if (watchFolderSeen_.size() > static_cast<std::size_t>(deckNumber - 1)) {
-        watchFolderSeen_[static_cast<std::size_t>(deckNumber - 1)].clear();
-      }
-      if (watchFolderSeeded_.size() > static_cast<std::size_t>(deckNumber - 1)) {
-        watchFolderSeeded_[static_cast<std::size_t>(deckNumber - 1)] = false;
-      }
       markProjectDirty();
       triggerToast(deck.name + " is watching " + folder.filename().string());
       return;
