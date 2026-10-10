@@ -160,9 +160,17 @@ def drawn_strings():
 # as `emplace_back("smpte-bars", "SMPTE Colour Bars")` or
 # `{"tracker", "Tracker"}`.
 OPTION_PAIRS = (
-    re.compile(r'(?:emplace_back|push_back)\(\s*\{?\s*"[a-z0-9_.:/\-]+"\s*,\s*"((?:[^"\\]|\\.)*)"'),
-    re.compile(r'\{\s*"[a-z0-9_.:/\-]+"\s*,\s*"((?:[^"\\]|\\.)*)"\s*\}'),
+    re.compile(r'(?:emplace_back|push_back)\(\s*\{?\s*"[a-z0-9_.:/][a-z0-9_.:/\-]*"\s*,\s*"((?:[^"\\]|\\.)*)"'),
+    re.compile(r'\{\s*"[a-z0-9_.:/][a-z0-9_.:/\-]*"\s*,\s*"((?:[^"\\]|\\.)*)"\s*\}'),
 )
+
+
+# Pairs that are not menu rows: a glyph set written as byte escapes, an
+# expression for the code editor, an ffmpeg flag or filter. And main.cpp's
+# command-line options, whose help goes to the console and is never drawn:
+# their id is the flag itself, and OPTION_PAIRS never takes an id starting "-".
+def not_a_label(s):
+    return ("\\x" in s or s.startswith("+") or "=" in s or "*" in s or "^" in s)
 
 
 def option_labels():
@@ -182,6 +190,8 @@ def option_labels():
                     for m in pattern.finditer(text):
                         s = m.group(1)
                         if TOKENISH.match(s) or FORMATTY.search(s) or not is_prose(s):
+                            continue
+                        if not_a_label(s):
                             continue
                         found.setdefault(s, rel)
     return found
