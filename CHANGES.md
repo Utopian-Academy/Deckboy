@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-11 - v0.99.411 (autosave that always lands)
+
+Every edit reaches the show file, even when another program is holding it, and a newer copy left
+beside a show is offered back when it opens.
+
+### Show files
+- Fixed an issue where autosaved edits could be lost when another application briefly held the
+  `.deckboy` file open. Deckboy retries saving and reports a warning if it still fails; during a
+  live show it never pauses the outputs to wait.
+- Fixed an issue where recent edits could be lost when Deckboy closed before the autosave delay
+  expired. Closing now waits for saving and keeps the desk open if saving fails.
+- Added RECOVER and KEEP SAVED when opening a show with a newer `.deckboy.saving` copy. RECOVER
+  opens the copy with outputs disarmed; Enter selects RECOVER and Escape selects KEEP SAVED.
+- Added `--autosave-check <dir>` to check saving, retry, closing and recovery without visible
+  windows. Use a new directory and set `DECKBOY_STATE_DIR=<dir>/state`.
+
 ## 2026-10-10 - v0.99.410 (Arabic, Persian and Sorani on Windows)
 
 Arabic, Persian and Sorani now appear in the language picker on Windows.
