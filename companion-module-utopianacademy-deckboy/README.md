@@ -34,9 +34,9 @@ npm install         # once, to pull @companion-module/base
 npm test            # parser and wiring tests, no Companion needed
 ```
 
-Needs **Node 22 or newer** — `@companion-module/base` 2.x declares
-`engines.node ^22.20 || ^26.5`, and `node22` is the oldest runtime the module
-manifest schema accepts.
+Needs **Node 26** — the manifest declares the `node26` runtime, as Bitfocus's
+module template v2.1 does, and `@companion-module/base` 2.x declares
+`engines.node ^22.20 || ^26.5`.
 
 Then point the developer modules path at the folder that *contains* this one.
 
