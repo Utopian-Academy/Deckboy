@@ -390,6 +390,10 @@ jobs:
         run: |
           ./build/Deckboy --self-check > self-check.txt
           cat self-check.txt
+          if grep -q 'right-to-left hidden' self-check.txt; then
+            echo "A right-to-left language is hidden: SDL_ttf was built without HarfBuzz." >&2
+            exit 1
+          fi
           if [ '${{ matrix.features }}' = 'all' ] && ! grep -q '^ndi-sdk: headers detected' self-check.txt; then
             echo "NDI is not compiled into this build." >&2
             exit 1
@@ -715,6 +719,10 @@ jobs:
         run: |
           ./build/Deckboy --self-check > self-check.txt
           cat self-check.txt
+          if grep -q 'right-to-left hidden' self-check.txt; then
+            echo "A right-to-left language is hidden: SDL_ttf was built without HarfBuzz." >&2
+            exit 1
+          fi
           if [ '${{ matrix.features }}' = 'all' ] && ! grep -q '^ndi-sdk: headers detected' self-check.txt; then
             echo "NDI is not compiled into this build." >&2
             exit 1
@@ -1120,7 +1128,11 @@ jobs:
       - name: Run self-check and smoke from the bundle
         run: |
           APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
-          "$APP/Contents/MacOS/Deckboy" --self-check
+          "$APP/Contents/MacOS/Deckboy" --self-check | tee self-check.txt
+          if grep -q 'right-to-left hidden' self-check.txt; then
+            echo "A right-to-left language is hidden: SDL_ttf was built without HarfBuzz." >&2
+            exit 1
+          fi
           "$APP/Contents/MacOS/Deckboy" --smoke
           "$APP/Contents/MacOS/ffmpeg" -version | head -1
 
@@ -1228,7 +1240,12 @@ jobs:
             vcpkg-${{ runner.os }}-
 
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install sdl3:x64-windows sdl3-ttf:x64-windows
+      # SDL_TTF WITH HARFBUZZ. The plain port cannot shape, so Deckboy hides
+      # Arabic, Persian and Sorani rather than draw them unjoined -- and
+      # 0.99.409 shipped for Windows with all three missing from the picker
+      # while every check stayed green. The self-check step below now fails
+      # the build if any right-to-left language is hidden.
+        run: .\vcpkg\vcpkg install sdl3:x64-windows sdl3-ttf[harfbuzz]:x64-windows
 
       # LIBLTC IS BUILT FROM SOURCE, because vcpkg has no port for it --
       # 2761 ports and not one of them. macOS and Linux install it from brew
@@ -1323,6 +1340,9 @@ jobs:
                  -RedirectStandardOutput self-check.txt
           Get-Content self-check.txt
           if ($p.ExitCode -ne 0) { throw "self-check failed ($($p.ExitCode))" }
+          if (Select-String -Path self-check.txt -Pattern 'right-to-left hidden' -Quiet) {
+            throw "A right-to-left language is hidden: SDL_ttf was built without HarfBuzz."
+          }
           if ('${{ matrix.features }}' -eq 'all' -and
               -not (Select-String -Path self-check.txt -Pattern '^ndi-sdk: headers detected' -Quiet)) {
             throw "NDI is not compiled into this build."

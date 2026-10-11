@@ -1,5 +1,14 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-10 - v0.99.410 (Arabic, Persian and Sorani on Windows)
+
+Arabic, Persian and Sorani now appear in the language picker on Windows.
+
+### Interface and localisation
+- Fixed an issue where Arabic, Persian and Sorani (Kurdish) were missing
+  from the language picker on Windows. `--self-check` now reports all 43
+  languages on every platform.
+
 ## 2026-10-10 - v0.99.409 (right-to-left languages, script fonts everywhere, Mini watch folder, NMOS discovery)
 
 Deckboy now reads right to left, borrows a font for any script on any Linux, keeps your outputs exactly where you put them, and Mini learns to watch a folder.
