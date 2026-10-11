@@ -23,6 +23,10 @@ REMOTE**. To control it from Companion on another computer, switch REMOTE on.
 - **Playback:** Loop, Shuffle
 - **Outputs:** on/off, fullscreen, send to display, Clear, Blackout, PANIC
 - **Find:** set token, next, previous, take match
+- **VJ:** VJ mode, crossfader, blend mode, tap tempo, tempo, quantised takes, deck assignment
+- **Effects:** add, amount, parameter, parameter LFO, clear the chain; copy or paste a chain
+- **Audio effects:** add, amount, bypass, remove, clear the chain
+- **Sources:** code source expression; video synth text mode, glyphs and phrases
 - **Custom command:** sends any Deckboy command. The full list is in the manual under
   [Remote Control](https://utopian-academy.github.io/Deckboy/manual.html#remote-control).
 
@@ -48,11 +52,11 @@ deck always acts on that deck, and leaves focus where it was.
 Global: `connected`, `version`, `focused_deck`, `deck_count`, `output_count`, `master_volume`,
 `master_dimmer`, `blackout`, `panic_profile`, `find_token`, `find_matches`.
 
-Per deck (1–4): `deckN_name`, `deckN_status`, `deckN_cue`, `deckN_cue_id`, `deckN_selected`,
+Per deck (1–16): `deckN_name`, `deckN_status`, `deckN_cue`, `deckN_cue_id`, `deckN_selected`,
 `deckN_active`, `deckN_position`, `deckN_duration`, `deckN_remaining`,
 `deckN_remaining_seconds`, `deckN_volume`, `deckN_raster`, `deckN_audio_device`, `deckN_timecode`.
 
-Per output (1–4): `outputN_name`, `outputN_enabled`, `outputN_health`, `outputN_type`,
+Per output (1–16): `outputN_name`, `outputN_enabled`, `outputN_health`, `outputN_type`,
 `outputN_display`, `outputN_fps`.
 
 A now-playing button with a countdown:
