@@ -557,6 +557,15 @@ importantly, what each feature deliberately does not do.
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
 - PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings
+- Local AI upscaling: an upscale job that turns a clip into a sharper, bigger
+  file, and real-time upscaling on the GPU where the hardware offers it
+
+**Scopes:**
+
+- Picture scopes for QC: waveform, RGB and YCbCr parades, a vectorscope with a
+  skin-tone line, gamut checks, false colour and HDR levels in nits
+- Sound scopes: loudness to EBU R 128, true peak, phase and spectrum
+- Scopes on the desk, on any output and over NDI
 
 **Deckboy Mini:**
 
@@ -565,7 +574,6 @@ importantly, what each feature deliberately does not do.
 
 **Platform:**
 
-- NMOS registry discovery over mDNS, so there is no registry address to type in
 - Hardware-paced ST 2110 output for narrow-model compliance
 - Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
 
