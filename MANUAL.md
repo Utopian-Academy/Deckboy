@@ -1750,6 +1750,21 @@ until you give it a name of its own: the first `SAVE` (or `Ctrl+S`) opens the
 save dialog, and every `SAVE` after that writes straight back to the file you
 chose. `SAVE AS` (`Ctrl+Shift+S`) always asks.
 
+**Autosave and recovery.** Edits autosave after a short delay. If the show file
+is briefly busy, Deckboy retries the replacement. If saving still fails, a
+warning appears and the show stays unsaved while Deckboy retries every two
+seconds. Closing waits for pending edits to save, even before the autosave
+delay expires. If that save fails, the desk stays open; retry `SAVE` or use
+`SAVE AS` (`Ctrl+Shift+S`) to choose another location.
+
+When a complete `.deckboy.saving` copy is newer than the saved show (or the
+saved show is missing), opening the show offers **RECOVER** and **KEEP SAVED**.
+`Enter` recovers the copy with outputs disarmed and keeps the original show
+filename for future saves. `Escape` keeps the saved show. The recovery copy
+stays on disk until your next save replaces it; saving waits for your choice.
+Shows that could not be fully read, and shows running in soak mode, remain
+excluded from automatic saving, including on quit.
+
 **NEW asks twice while you are live, or before a show has been saved.**
 Starting an empty show empties both decks and disarms every output, so if an
 output is armed, a deck is running, or the show has cues but has never been

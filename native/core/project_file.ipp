@@ -334,10 +334,58 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
 }
 
 
-bool saveProject(const fs::path& projectFile, const Project& project) {
+fs::path projectSavingFile(const fs::path& file) {
+  fs::path saving = file;
+  saving += ".saving";
+  return saving;
+}
+
+// A scanner may briefly hold either file without delete sharing on Windows.
+// Keep replacement atomic on every platform; never unlink the old show first.
+//
+// PATIENT ONLY WHEN NOBODY IS WATCHING. The retries sleep on the main loop,
+// which also draws the outputs, so a file held during a live show would
+// freeze the picture for up to 140 ms per rename. A show in progress makes
+// one attempt and leaves the rest to the app's deferred retry.
+bool renameProjectWithRetry(const fs::path& source, const fs::path& destination,
+                            bool patient = true) {
+  const int attempts = patient ? 4 : 1;
+  for (int attempt = 0; attempt < attempts; ++attempt) {
+    std::error_code ec;
+    fs::rename(source, destination, ec);
+    if (!ec) return true;
+    if (attempt + 1 < attempts) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(20 << attempt));
+    }
+  }
+  return false;
+}
+
+fs::path newerProjectRecoveryFile(const fs::path& file) {
+  const fs::path saving = projectSavingFile(file);
+  std::error_code ec;
+  if (!fs::is_regular_file(saving, ec) || ec) return {};
+  const auto savingTime = fs::last_write_time(saving, ec);
+  if (ec) return {};
+  const bool targetExists = fs::exists(file, ec);
+  if (ec) return {};
+  if (targetExists) {
+    const auto savedTime = fs::last_write_time(file, ec);
+    if (ec || savingTime <= savedTime) return {};
+  }
+  // Do not offer empty/unreadable scratch files as a recovered show.
+  std::ifstream input(saving, std::ios::binary);
+  std::string firstLine;
+  if (!std::getline(input, firstLine) || firstLine.rfind("title\t", 0) != 0) return {};
+  return saving;
+}
+
+bool saveProject(const fs::path& projectFile, const Project& project, bool patient = true) {
   fs::path resolved = projectFile.empty() ? Paths::defaultProjectFile() : projectFile;
   if (resolved.has_parent_path()) {
-    fs::create_directories(resolved.parent_path());
+    std::error_code ec;
+    fs::create_directories(resolved.parent_path(), ec);
+    if (ec) return false;
   }
 
   // WRITE BESIDE IT, THEN RENAME OVER IT.
@@ -354,9 +402,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   // old show or the whole new one, never a half-written file. The temp sits
   // beside the target rather than in the system temp dir because a rename
   // across volumes is a copy, which reopens the same window.
-  const fs::path temp = resolved.parent_path().empty()
-    ? fs::path(resolved.string() + ".saving")
-    : (resolved.parent_path() / (resolved.filename().string() + ".saving"));
+  // Stage separately so a later short write cannot truncate a complete
+  // recovery copy left by an earlier failed replacement.
+  const fs::path saving = projectSavingFile(resolved);
+  fs::path temp = saving;
+  temp += ".tmp";
   std::ofstream output(temp, std::ios::binary | std::ios::trunc);
   if (!output) {
     return false;
@@ -1011,14 +1061,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
     }
   }
 
-  std::error_code renameError;
-  fs::rename(temp, resolved, renameError);
-  if (renameError) {
-    std::error_code ignored;
-    fs::remove(temp, ignored);
+  if (!renameProjectWithRetry(temp, saving, patient)) {
     return false;
   }
-  return true;
+  // A complete .saving survives failure for recovery at the next open.
+  return renameProjectWithRetry(saving, resolved, patient);
 }
 
 // onProgress (optional) receives 0..1 as the file is consumed, so a caller can

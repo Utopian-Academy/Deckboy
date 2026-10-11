@@ -73,7 +73,7 @@
       if (candidate.empty()) {
         continue;
       }
-      if (existingOnly && !fs::exists(candidate)) {
+      if (existingOnly && !fs::exists(candidate) && newerProjectRecoveryFile(candidate).empty()) {
         continue;
       }
       bool seen = false;
@@ -102,9 +102,14 @@
   // The render, the click and the number keys all come through here. Filtering
   // in the drawing code alone would leave the click handler reading the
   // unfiltered list, and every row would open the show one place above it.
+  bool startupProjectAvailable() const {
+    return !currentProjectFile_.empty() &&
+           (fs::exists(currentProjectFile_) || !pendingProjectRecoveryFile_.empty());
+  }
+
   std::vector<fs::path> startupRecentShows() const {
     std::vector<fs::path> recents = loadRecentProjects();
-    if (!currentProjectFile_.empty() && fs::exists(currentProjectFile_)) {
+    if (startupProjectAvailable()) {
       const fs::path current = normalizeProjectPath(currentProjectFile_);
       recents.erase(std::remove(recents.begin(), recents.end(), current),
                     recents.end());
@@ -147,7 +152,7 @@
       std::string storedPath;
       std::getline(input, storedPath);
       fs::path remembered = normalizeProjectPath(trim(storedPath));
-      if (!remembered.empty() && fs::exists(remembered)) {
+      if (!remembered.empty() && (fs::exists(remembered) || !newerProjectRecoveryFile(remembered).empty())) {
         return remembered;
       }
     }
@@ -1404,21 +1409,33 @@
     }
   }
 
-  bool saveProjectNow(bool withToast = true) {
+  bool saveProjectNow(bool withToast = true, bool patient = true) {
+    if (!pendingProjectRecoveryFile_.empty()) {
+      triggerToast("choose RECOVER or KEEP SAVED before saving", ToastKind::Warning, kToastReadableMs);
+      return false;
+    }
     captureLiveAudioPluginState();
     normalizeProject(project_);
     if (currentProjectFile_.empty()) {
       currentProjectFile_ = defaultProjectFile();
     }
-    bool ok = saveProject(currentProjectFile_, project_);
+    bool ok = saveProject(currentProjectFile_, project_, patient);
     if (ok) {
       rememberLastOpenedProjectFile(currentProjectFile_);
       projectDirty_ = false;
+      projectSaveFailed_ = false;
+      projectSaveRetryAt_ = {};
       if (withToast) {
         triggerToast("saved " + currentProjectLabel());
       }
-    } else if (withToast) {
-      triggerToast("save failed");
+    } else {
+      // A failed explicit save must become dirty too (including Save As).
+      markProjectDirty();
+      projectSaveRetryAt_ = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+      if (withToast || !projectSaveFailed_) {
+        triggerToast("save failed - retrying", ToastKind::Warning, kToastReadableMs);
+      }
+      projectSaveFailed_ = true;
     }
     return ok;
   }
@@ -1879,6 +1896,9 @@
   }
 
   bool startNewShow(bool withToast = true) {
+    clearProjectRecovery();
+    projectSaveFailed_ = false;
+    projectSaveRetryAt_ = {};
     clearPendingNewShowConfirmation();
     resetTransientPreviewState();
     project_ = Project {};
@@ -1912,12 +1932,78 @@
     return true;
   }
 
-  void persistProject() {
-    captureLiveAudioPluginState();
-    normalizeProject(project_);
-    saveProject(currentProjectFile_, project_);
-    rememberLastOpenedProjectFile(currentProjectFile_);
+  // The autosave. During a live show it never waits on a held file: one
+  // attempt, and the deferred retry two seconds later does the rest.
+  bool persistProject() {
+    return saveProjectNow(false, !showIsLive());
+  }
+
+  // The save is synchronous, including its bounded rename retry. Call before
+  // tearing down engines so live plugin state is still available. A failed
+  // close stays on the desk: the operator can retry or use Save As.
+  bool saveProjectBeforeQuit() {
+    if (soakMode_ || !project_.loadedCleanly || !pendingProjectRecoveryFile_.empty() ||
+        !projectDirty_) return true;
+    if (saveProjectNow(false)) return true;
+    confirmQuit_ = false;
+    triggerToast("save failed - retrying; still open, use SAVE AS if needed",
+                 ToastKind::Warning, kToastReadableMs);
+    return false;
+  }
+
+  void clearProjectRecovery() {
+    if (projectRecoveryPromptShown_) depPrompt_ = DependencyPromptState{};
+    projectRecoveryPromptShown_ = false;
+    pendingProjectRecoveryFile_.clear();
+  }
+
+  void prepareProjectOpen(const fs::path& file) {
+    clearProjectRecovery();
     projectDirty_ = false;
+    projectSaveFailed_ = false;
+    projectSaveRetryAt_ = {};
+    pendingProjectRecoveryFile_ = newerProjectRecoveryFile(file);
+  }
+
+  bool readProjectRecovery() {
+    // Recheck at acceptance: the sidecar may have changed while the prompt
+    // was up. Keep the canonical filename for relative media and future saves.
+    const fs::path candidate = newerProjectRecoveryFile(currentProjectFile_);
+    if (candidate.empty() || candidate != pendingProjectRecoveryFile_) return false;
+    Project recovered = loadProject(candidate);
+    if (!recovered.loadedCleanly || newerProjectRecoveryFile(currentProjectFile_) != candidate) return false;
+    project_ = std::move(recovered);
+    clearProjectRecovery();
+    markProjectDirty();
+    return true;
+  }
+
+  void offerProjectRecovery() {
+    if (pendingProjectRecoveryFile_.empty() || projectRecoveryPromptShown_ ||
+        depPrompt_.active || showSplashOverlay_ || showStartupDialog_) return;
+    depPrompt_ = DependencyPromptState{};
+    showDependencyPrompt("Recover newer autosave?",
+      "A newer autosave is available for " + currentProjectLabel() +
+      ".\nRECOVER opens it with outputs disarmed. KEEP SAVED keeps the saved show; "
+      "your next save replaces the recovery copy.", "", "RECOVER");
+    depPrompt_.closeLabel = "KEEP SAVED";
+    depPrompt_.onCta = [this]() {
+      projectRecoveryPromptShown_ = false;
+      if (!readProjectRecovery()) {
+        triggerToast("recovery could not be read; copy kept", ToastKind::Warning, kToastReadableMs);
+        return;
+      }
+      settleIncomingShow();
+      applyProjectNetworkSettings();
+      startMediaPresenceScanAsync(true);
+      queueAudioMetadataRepairProbes();
+      triggerToast("recovered " + currentProjectLabel());
+    };
+    depPrompt_.onDismiss = [this]() {
+      projectRecoveryPromptShown_ = false;
+      pendingProjectRecoveryFile_.clear();
+    };
+    projectRecoveryPromptShown_ = true;
   }
 
   // force: push even when the stack top looks the same. The comparison below
@@ -2060,6 +2146,9 @@
   // opened, and with that show's outputs still armed by id.
   void restoreUndoStep(Project restored, const fs::path& file, bool showSwap) {
     if (showSwap) {
+      clearProjectRecovery();
+      projectSaveFailed_ = false;
+      projectSaveRetryAt_ = {};
       project_ = std::move(restored);
       currentProjectFile_ = file.empty() ? defaultProjectFile() : file;
       rememberLastOpenedProjectFile(currentProjectFile_);
@@ -2115,7 +2204,7 @@
   }
 
   void flushDirtyProject() {
-    if (!projectDirty_) {
+    if (!projectDirty_ || !pendingProjectRecoveryFile_.empty()) {
       return;
     }
     // Soak mode rewires end actions to force a loop; none of that may ever
@@ -2136,7 +2225,9 @@
     if (!project_.loadedCleanly) {
       return;
     }
-    auto age = std::chrono::steady_clock::now() - projectDirtyAt_;
+    const auto now = std::chrono::steady_clock::now();
+    if (now < projectSaveRetryAt_) return;
+    auto age = now - projectDirtyAt_;
     if (age >= std::chrono::milliseconds(300)) {
       persistProject();
     }

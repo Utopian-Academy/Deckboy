@@ -3889,6 +3889,7 @@ class App {
     }
 #endif
     currentProjectFile_ = startupProjectFile();
+    prepareProjectOpen(currentProjectFile_);
     // Startup is the case that matters most for the loading overlay — a big
     // show is usually opened by launching into it, not by using OPEN — and it
     // is the one path that does NOT go through openProjectFromPath. The
@@ -4131,7 +4132,11 @@ class App {
   }
 
   void run() {
-    while (!gShouldQuit.load()) {
+    for (;;) {
+      if (gShouldQuit.load()) {
+        if (saveProjectBeforeQuit()) break;
+        gShouldQuit.store(false);
+      }
       auto frameStart = std::chrono::steady_clock::now();
       auto ms = [](const auto& duration) {
         return std::chrono::duration<double, std::milli>(duration).count();
@@ -4405,7 +4410,7 @@ class App {
     if (ec) {
       resolved = projectPath;
     }
-    if (!fs::exists(resolved)) {
+    if (!fs::exists(resolved) && newerProjectRecoveryFile(resolved).empty()) {
       triggerToast("show not found: " + resolved.filename().string());
       return;
     }
@@ -10558,6 +10563,7 @@ class App {
     std::string body;        // e.g. one or two sentences of context
     std::string url;         // vendor download page (https://...)
     std::string ctaLabel;    // e.g. "Open NDI Tools download page"
+    std::string closeLabel = "CLOSE";
     // When set, the CTA RUNS this instead of opening url. Lets the same modal
     // carry an offer to act (convert these cues) as well as a download link,
     // rather than growing a second prompt system beside this one.
@@ -10963,6 +10969,10 @@ class App {
   Uint64 lastAudioDevicePollMs_ = 0;       // backstop for drivers that emit neither
   bool projectDirty_ = false;
   std::chrono::steady_clock::time_point projectDirtyAt_;
+  bool projectSaveFailed_ = false;
+  std::chrono::steady_clock::time_point projectSaveRetryAt_;
+  fs::path pendingProjectRecoveryFile_;
+  bool projectRecoveryPromptShown_ = false;
   bool engineCueSyncPending_ = false;  // refresh engine cue snapshots next tick (set by markProjectDirty)
   bool masterFaderDragActive_ = false; // header master fader is being dragged
   int konamiIndex_ = 0;                // progress through the Konami sequence (easter egg)
@@ -12039,6 +12049,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--version", "print the version and exit"},
   {"--self-check", "report ffmpeg / SDK / runtime availability and exit"},
   {"--smoke", "run the built-in smoke suite and exit"},
+  {"--autosave-check <dir>", "check retry, quit and recovery headlessly; use a new directory and set DECKBOY_STATE_DIR=<dir>/state"},
   {"--sync-pop-test", "run the A/V sync pop test and exit"},
   {"--hap-probe <file.mov>", "demux a HAP file to blocks and report, no window"},
   {"--asio-probe [name]", "list ASIO drivers; with a name, load and report its channels"},
@@ -12081,7 +12092,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 };
 
 constexpr const char* kCliModeFlags[] = {
-  "--version", "--self-check", "--smoke", "--sync-pop-test",
+  "--version", "--self-check", "--smoke", "--autosave-check", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
   "--effect-dump", "--effect-bench", "--image-check", "--transition-dump",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
@@ -12190,6 +12201,10 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
   if (mode == "--smoke") {
     return App::runSmoke();
+  }
+  if (mode == "--autosave-check") {
+    if (ops.empty()) return missing("<new-directory>");
+    return App::runAutosaveCheck(fs::path(ops[0]));
   }
   if (mode == "--timer-dump") {
     // Render one timer frame headlessly. ops: <out.ppm> [duration] [elapsed]

@@ -100,7 +100,7 @@
       return;
     }
     if (showStartupDialog_) {
-      bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
+      bool hasSavedFile = startupProjectAvailable();
       if (pointInRect(x, y, startupNewBtn_)) {
         startNewShow(false);
         showStartupDialog_ = false;
@@ -135,6 +135,12 @@
       return;
     }
     if (depPrompt_.active) {
+      // Recovery changes which copy the next autosave may replace. Require a
+      // button (or Enter/Escape), not an incidental click on the backdrop.
+      if (projectRecoveryPromptShown_ &&
+          (button != SDL_BUTTON_LEFT ||
+           (!pointInRect(x, y, depPrompt_.ctaRect) &&
+            !pointInRect(x, y, depPrompt_.closeRect)))) return;
       // CTA opens the vendor's download page. Either way, dismiss the prompt
       // so the operator can return to whatever they were doing.
       if (pointInRect(x, y, depPrompt_.ctaRect)) {
@@ -1544,6 +1550,17 @@
     bool ctrl = deckboyShortcutHeld(mod);
     bool shift = (mod & SDL_KMOD_SHIFT) != 0;
 
+    if (projectRecoveryPromptShown_) {
+      if (!keyRepeat && key == SDLK_ESCAPE) {
+        dismissDependencyPrompt();
+      } else if (!keyRepeat && (key == SDLK_RETURN || key == SDLK_KP_ENTER)) {
+        auto action = depPrompt_.onCta;
+        depPrompt_ = DependencyPromptState{};
+        if (action) action();
+      }
+      return;
+    }
+
     if (showSplashOverlay_) {
       if (key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE) {
         showSplashOverlay_ = false;
@@ -1619,7 +1636,7 @@
     }
 
     if (showStartupDialog_) {
-      bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
+      bool hasSavedFile = startupProjectAvailable();
       if (key == SDLK_N) {
         startNewShow(false);
         showStartupDialog_ = false;

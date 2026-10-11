@@ -371,6 +371,291 @@
     return scriptFailures ? 1 : 0;
   }
 
+  // Exercises the real save/quit/prompt paths with isolated files. SDL's dummy
+  // driver prevents even a recovered show with armed outputs reaching a screen.
+  static int runAutosaveCheck(const fs::path& directory) {
+    const fs::path root = fs::absolute(directory).lexically_normal();
+    std::error_code ec;
+    if (fs::exists(root, ec) || ec ||
+        fs::absolute(Paths::stateDir()).lexically_normal() != root / "state") {
+      std::cerr << "autosave-check: use a new directory and set DECKBOY_STATE_DIR="
+                << (root / "state").string() << '\n';
+      return 2;
+    }
+    fs::create_directories(root, ec);
+    if (ec) return 2;
+    int failures = 0;
+    auto expect = [&](bool condition, const std::string& label) {
+      std::cout << (condition ? "[ok] " : "[fail] ") << label << std::endl;
+      if (!condition) ++failures;
+      return condition;
+    };
+    auto bytes = [](const fs::path& file) {
+      std::ifstream in(file, std::ios::binary);
+      return std::string(std::istreambuf_iterator<char>(in), {});
+    };
+    // POSIX readers do not prevent rename. Use a directory obstruction there;
+    // on Windows this is the real scanner-style handle, denying delete share.
+    struct HeldTarget {
+      fs::path target;
+#ifdef _WIN32
+      HANDLE handle = INVALID_HANDLE_VALUE;
+      explicit HeldTarget(const fs::path& file) : target(file) {
+        handle = CreateFileW(file.c_str(), GENERIC_READ,
+                            FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+      }
+      bool ready() const { return handle != INVALID_HANDLE_VALUE; }
+      void release() {
+        if (ready()) { CloseHandle(handle); handle = INVALID_HANDLE_VALUE; }
+      }
+#else
+      fs::path parked;
+      bool held = false;
+      explicit HeldTarget(const fs::path& file) : target(file), parked(file.string() + ".held") {
+        std::error_code holdError;
+        fs::rename(target, parked, holdError);
+        if (!holdError) held = fs::create_directory(target, holdError);
+      }
+      bool ready() const { return held; }
+      void release() {
+        if (!held) return;
+        std::error_code holdError;
+        fs::remove(target, holdError);  // only the empty directory we created
+        if (!holdError) fs::rename(parked, target, holdError);
+        held = false;
+      }
+#endif
+      ~HeldTarget() { release(); }
+    };
+
+    SDL_SetHintWithPriority(SDL_HINT_VIDEO_DRIVER, "dummy", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_AUDIO_DRIVER, "dummy", SDL_HINT_OVERRIDE);
+    if (!expect(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) && TTF_Init(), "headless SDL and fonts")) return 1;
+    auto app = std::make_unique<App>();
+    app->controlWindowRevealed_ = true;
+    app->showSplashOverlay_ = false;
+    app->showStartupDialog_ = false;
+    app->project_.title = "Saved show";
+    app->project_.hyperDeckEnabled = false;
+    app->project_.updateCheckEnabled = false;
+    app->project_.uiSoundsEnabled = false;
+    app->project_.uiScale = 1.5;
+    app->project_.outputFollowDisplay = false;
+    app->project_.outputRenderWidth = 320;
+    app->project_.outputRenderHeight = 180;
+    normalizeProject(app->project_);
+    const Project original = app->project_;
+    app->currentProjectFile_ = root / "show.deckboy";
+    const fs::path file = app->currentProjectFile_;
+    const fs::path saving = projectSavingFile(file);
+    // Seed via a different path so the first save of file sees an existing
+    // show, as it does on reopen (a brand-new show has no session backup).
+    const fs::path seed = root / "seed.deckboy";
+    expect(saveProject(seed, original) && fs::copy_file(seed, file), "create initial show");
+    const std::string originalBytes = bytes(file);
+    {
+      HeldTarget held(file);
+      if (expect(held.ready(), "hold target against replacement")) {
+        std::thread releaseSoon([&]() {
+          const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+          std::error_code pollError;
+          while (!fs::exists(saving, pollError) && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+          std::this_thread::sleep_for(std::chrono::milliseconds(35));
+          held.release();
+        });
+        app->project_.title = "Brief hold edit";
+        app->markProjectDirty();
+        const auto began = std::chrono::steady_clock::now();
+        const bool saved = app->persistProject();
+        releaseSoon.join();
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::steady_clock::now() - began).count();
+        std::cout << "brief hold elapsed: " << elapsed << " ms\n";
+        expect(saved && !app->projectDirty_ && !fs::exists(saving) &&
+               loadProject(file).title == "Brief hold edit", "short backoff lands a briefly held save");
+      }
+    }
+    const std::string beforeFailure = bytes(file);
+    app->project_.title = "Pending edit";
+    app->markProjectDirty();
+    {
+      HeldTarget held(file);
+      if (expect(held.ready(), "hold target through all retries")) {
+        app->projectDirtyAt_ -= std::chrono::seconds(1);
+        app->flushDirtyProject();
+        expect(app->projectDirty_ && app->projectSaveFailed_ &&
+               app->toast_.kind == ToastKind::Warning && app->toast_.message == "save failed - retrying",
+               "failed autosave stays dirty and raises a warning");
+        expect(loadProject(saving).title == "Pending edit", "complete recovery copy survives failure");
+        const auto retryAt = app->projectSaveRetryAt_;
+        const auto sidecarTime = fs::last_write_time(saving);
+        const auto toasts = app->toastsRaised_;
+        app->flushDirtyProject();
+        expect(app->projectSaveRetryAt_ == retryAt && fs::last_write_time(saving) == sidecarTime &&
+               app->toastsRaised_ == toasts, "retry delay avoids writes and repeated warnings every frame");
+        app->confirmQuit_ = true;
+        expect(!app->saveProjectBeforeQuit() && app->projectDirty_ && !app->confirmQuit_ &&
+               app->toast_.message.find("still open") != std::string::npos,
+               "persistent failure refuses quit and offers SAVE AS");
+      }
+    }
+    expect(bytes(file) == beforeFailure, "failed replacement preserves saved show byte for byte");
+    app->projectSaveRetryAt_ = std::chrono::steady_clock::now() - std::chrono::seconds(1);
+    app->flushDirtyProject();
+    expect(!app->projectDirty_ && !app->projectSaveFailed_ &&
+           loadProject(file).title == "Pending edit", "autosave retries successfully after release");
+
+    app->project_.title = "Quit edit";
+    app->markProjectDirty();
+    app->flushDirtyProject();
+    expect(app->projectDirty_ && loadProject(file).title == "Pending edit", "autosave delay is still pending");
+    gShouldQuit.store(true);
+    app->run();  // enters the actual quit gate before any rendering/update
+    gShouldQuit.store(false);
+    expect(!app->projectDirty_ && loadProject(file).title == "Quit edit", "quit saves before the delay expires");
+    expect(bytes(fs::path(file.string() + ".bak")) == originalBytes, "session backup retains initial show");
+
+    // An unwritable staging path must preserve BOTH previous complete copies.
+    Project recovery = original;
+    recovery.title = "Recovered show";
+    recovery.outputs.front().enabled = true;
+    auto putRecovery = [&]() {
+      expect(saveProject(saving, recovery), "write recovery fixture");
+      fs::last_write_time(saving, fs::last_write_time(file) + std::chrono::seconds(2));
+    };
+    putRecovery();
+    const std::string recoveryBytes = bytes(saving);
+    fs::path staging = saving;
+    staging += ".tmp";
+    fs::create_directory(staging);
+    expect(!app->saveProjectNow(false) && app->projectDirty_ && bytes(saving) == recoveryBytes &&
+           loadProject(file).title == "Quit edit", "staging failure preserves the existing recovery and show");
+    fs::remove(staging);
+    const fs::path badParent = root / "not-a-directory";
+    { std::ofstream out(badParent); out << "occupied"; }
+    expect(!saveProject(badParent / "show.deckboy", original), "parent-directory failure returns false");
+
+    app->controlWindow_ = SDL_CreateWindow("Autosave check", app->uiScaled(1760), app->uiScaled(1020), SDL_WINDOW_HIDDEN);
+    app->controlRenderer_ = SDL_CreateRenderer(app->controlWindow_, "software");
+    if (!expect(app->controlWindow_ && app->controlRenderer_, "hidden recovery prompt renderer")) {
+      app->shutdown();
+      return 1;
+    }
+    app->applyUiScale();
+    auto openSaved = [&]() {
+      app->openProjectFromPath(file);
+      app->offerProjectRecovery();
+      expect(app->pendingProjectRecoveryFile_ == saving && app->depPrompt_.active &&
+             app->depPrompt_.ctaLabel == "RECOVER" && app->depPrompt_.closeLabel == "KEEP SAVED",
+             "open offers the newer recovery copy");
+    };
+    openSaved();
+    app->markProjectDirty();
+    app->projectDirtyAt_ -= std::chrono::seconds(1);
+    app->flushDirtyProject();
+    expect(!app->saveProjectNow(false) && bytes(saving) == recoveryBytes &&
+           loadProject(file).title == "Quit edit", "pending recovery blocks automatic and explicit saves");
+    app->showDependencyPrompt("Unrelated", "Suggestion", "", "CONTINUE");
+    expect(app->depPrompt_.ctaLabel == "RECOVER", "another prompt cannot replace recovery callbacks");
+    for (const char* theme : {"dark", "virtual-boy", "ganon"}) {
+      app->loadTheme(theme);
+      SDL_SetRenderDrawColor(app->controlRenderer_, pal.tile.r, pal.tile.g, pal.tile.b, 255);
+      SDL_RenderClear(app->controlRenderer_);
+      app->renderDependencyPrompt();
+      SDL_Surface* shot = SDL_RenderReadPixels(app->controlRenderer_, nullptr);
+      expect(shot && SDL_SaveBMP(shot, (root / (std::string(theme) + "-recovery.bmp")).string().c_str()),
+             std::string("recovery screenshot at 1.5x: ") + theme);
+      if (shot) SDL_DestroySurface(shot);
+    }
+    expect(std::abs(app->effectiveUiScale() - 1.5) < 0.001, "recovery prompt actually uses 1.5x");
+    app->handleMouseDown(0, 0, SDL_BUTTON_LEFT);
+    expect(app->projectRecoveryPromptShown_, "backdrop click does not choose a recovery option");
+    app->handleKeyDown(SDLK_S, SDL_KMOD_CTRL);
+    expect(app->projectRecoveryPromptShown_ && bytes(saving) == recoveryBytes, "save shortcut cannot bypass recovery");
+    app->handleKeyDown(SDLK_ESCAPE, 0);
+    expect(app->pendingProjectRecoveryFile_.empty() && !app->depPrompt_.active &&
+           app->project_.title == "Quit edit" && bytes(saving) == recoveryBytes,
+           "KEEP SAVED via Escape leaves recovery intact until next save");
+    expect(app->saveProjectNow(false) && !fs::exists(saving), "next save replaces the declined copy");
+
+    putRecovery();
+    openSaved();
+    app->handleKeyDown(SDLK_RETURN, 0);
+    expect(app->project_.title == "Recovered show" && app->currentProjectFile_ == file &&
+           app->projectDirty_ && app->pendingProjectRecoveryFile_.empty(),
+           "RECOVER via Enter loads edits and retains canonical filename");
+    expect(std::all_of(app->project_.outputs.begin(), app->project_.outputs.end(),
+                      [](const OutputTarget& target) { return !target.enabled; }),
+           "recovered outputs are disarmed");
+    expect(loadProject(file).title == "Quit edit" && fs::exists(saving), "recovery waits for a successful save");
+    expect(app->saveProjectBeforeQuit() && loadProject(file).title == "Recovered show" && !fs::exists(saving),
+           "quit lands the recovered show at its original filename");
+
+    putRecovery();
+    openSaved();
+    app->renderDependencyPrompt();
+    const SDL_Rect keep = app->depPrompt_.closeRect;
+    app->handleMouseDown(keep.x + keep.w / 2, keep.y + keep.h / 2, SDL_BUTTON_LEFT);
+    expect(!app->depPrompt_.active && app->pendingProjectRecoveryFile_.empty(), "KEEP SAVED button is wired");
+    openSaved();
+    app->renderDependencyPrompt();
+    const SDL_Rect accept = app->depPrompt_.ctaRect;
+    app->handleMouseDown(accept.x + accept.w / 2, accept.y + accept.h / 2, SDL_BUTTON_LEFT);
+    expect(!app->depPrompt_.active && app->pendingProjectRecoveryFile_.empty() && app->projectDirty_,
+           "RECOVER button is wired");
+
+    openSaved();
+    { std::ofstream out(saving, std::ios::binary | std::ios::trunc); out << "title\tIncomplete"; }
+    fs::last_write_time(saving, fs::last_write_time(file) + std::chrono::seconds(2));
+    app->handleKeyDown(SDLK_RETURN, 0);
+    expect(!app->pendingProjectRecoveryFile_.empty() && app->toast_.kind == ToastKind::Warning &&
+           app->project_.title == "Recovered show", "damaged recovery is refused without replacing the loaded show");
+    app->offerProjectRecovery();
+    app->handleKeyDown(SDLK_ESCAPE, 0);
+    putRecovery();
+    fs::last_write_time(saving, fs::last_write_time(file));
+    expect(newerProjectRecoveryFile(file).empty(), "equal-time recovery is not offered");
+    fs::last_write_time(saving, fs::last_write_time(file) - std::chrono::seconds(2));
+    expect(newerProjectRecoveryFile(file).empty(), "older recovery is not offered");
+    const fs::path absent = root / "missing.deckboy";
+    expect(saveProject(projectSavingFile(absent), original) &&
+           newerProjectRecoveryFile(absent) == projectSavingFile(absent), "recovery is offered when original is absent");
+    app->openProjectFromPath(absent);
+    app->showStartupDialog_ = true;
+    app->handleKeyDown(SDLK_P, 0);
+    expect(!app->showStartupDialog_ && !app->sdlDialogOpen_.load(),
+           "OPEN PREVIOUS reaches a recoverable missing show");
+    app->openProjectFromCommandLine(absent);
+    app->offerProjectRecovery();
+    expect(app->currentProjectFile_ == absent && app->projectRecoveryPromptShown_,
+           "command-line open reaches recovery when original is absent");
+    expect(app->startupProjectFile() == absent, "startup remembers a recoverable missing show");
+    expect(app->saveProjectBeforeQuit() && fs::exists(projectSavingFile(absent)),
+           "quitting an unanswered recovery prompt leaves the copy intact");
+    app->handleKeyDown(SDLK_RETURN, 0);
+    expect(app->saveProjectBeforeQuit() && loadProject(absent).title == original.title,
+           "recovered missing show saves under its original filename");
+    app->openProjectFromPath(file);
+
+    app->clearProjectRecovery();
+    app->project_.title = "Do not persist";
+    app->markProjectDirty();
+    app->projectDirtyAt_ -= std::chrono::seconds(1);
+    app->project_.loadedCleanly = false;
+    app->flushDirtyProject();
+    expect(app->saveProjectBeforeQuit() && loadProject(file).title == "Recovered show",
+           "automatic save and quit preserve an incompletely loaded show");
+    app->project_.loadedCleanly = true;
+    app->soakMode_ = true;
+    app->flushDirtyProject();
+    expect(app->saveProjectBeforeQuit() && loadProject(file).title == "Recovered show", "soak mode still suppresses writes");
+    app->shutdown();
+    std::cout << "autosave-check: " << (failures ? "FAILED" : "passed") << " (" << failures << " failures)\n";
+    return failures ? 1 : 0;
+  }
+
   static int runSmoke() {
     int failures = 0;
     auto expect = [&](bool condition, const std::string& label) {

@@ -367,6 +367,7 @@
         }
       }
     }
+    offerProjectRecovery();
     flushDirtyProject();
     // Advance every timer cue clock. Done once per tick for ALL timers, not
     // only the live one: a timer prepared on another deck keeps counting so it

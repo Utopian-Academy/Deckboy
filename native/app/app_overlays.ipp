@@ -182,6 +182,9 @@
                             const std::string& body,
                             const std::string& url,
                             const std::string& ctaLabel) {
+    // A pending recovery must not lose its callbacks to another suggestion.
+    if (projectRecoveryPromptShown_) return;
+    depPrompt_ = DependencyPromptState{};
     depPrompt_.title = title;
     depPrompt_.body = body;
     depPrompt_.url = url;
@@ -433,7 +436,7 @@
     SDL_GetWindowSize(controlWindow_, &width, &height);
 
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(controlRenderer_, 0x0F, 0x38, 0x0F, 180);
+    SDL_SetRenderDrawColor(controlRenderer_, pal.deep.r, pal.deep.g, pal.deep.b, 180);
     SDL_Rect overlay {0, 0, width, height};
     SDL_RenderFillRect(controlRenderer_, &overlay);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
@@ -501,7 +504,7 @@
 
     // Two buttons: CTA (open page) is wider, CLOSE is narrow on the right. A
     // prompt with no CTA (HAP with no room on disk) gets no dead button.
-    const int closeW = uiScaled(112);
+    const int closeW = uiScaled(depPrompt_.closeLabel == "CLOSE" ? 112 : 160);
     depPrompt_.closeRect = {dialog.x + dialog.w - pad - closeW, y, closeW, buttonH};
     depPrompt_.ctaRect = depPrompt_.ctaLabel.empty()
       ? SDL_Rect {}
@@ -511,7 +514,7 @@
       drawCenteredText(controlRenderer_, fontBase_, depPrompt_.ctaLabel.c_str(), pal.light, depPrompt_.ctaRect);
     }
     Primitives::drawFramedPanel(controlRenderer_, depPrompt_.closeRect, pal.mid, pal.deep, pal.light);
-    drawCenteredText(controlRenderer_, fontBase_, "CLOSE", pal.deep, depPrompt_.closeRect);
+    drawCenteredText(controlRenderer_, fontBase_, depPrompt_.closeLabel.c_str(), pal.deep, depPrompt_.closeRect);
   }
 
   void renderStartupDialog() {
@@ -617,7 +620,7 @@
     y += bodyH + gap;
 
     std::string fname = currentProjectFile_.empty() ? "default.deckboy" : currentProjectFile_.filename().string();
-    bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
+    bool hasSavedFile = startupProjectAvailable();
     if (hasSavedFile) {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {tx, y, tw, lineH},
