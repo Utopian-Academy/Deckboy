@@ -3410,2728 +3410,3158 @@ First macOS field run and first release with installers for all 3 platforms.
 
 ## 2026-08-08 — v0.83.0 (portable macOS bundle)
 
-`tools/package_macos.sh` builds `dist/Deckboy-<VERSION>-macos-<arch>.zip`, the
-counterpart to the Windows portable zip: a double-clickable `Deckboy.app` that
-carries everything it needs.
+### macOS
 
-Homebrew installs SDL3 and FFmpeg under `/opt/homebrew`, so a bundle that merely
-links against those paths would run on the build machine and nowhere else. Every
-non-system dylib is copied into `Contents/Frameworks` and every reference
-rewritten to `@rpath` — recursively, because dependencies have dependencies.
+- New: portable `Deckboy.app` in `Deckboy-<VERSION>-macos-<arch>.zip`,
+  equivalent to the Windows portable zip.
+- Bundles all non-system libraries, including transitive dependencies, in
+  `Contents/Frameworks`; references use `@rpath` instead of build-machine
+  Homebrew paths.
+- Re-signs binaries ad-hoc, inside-out, after rewriting library references so
+  Apple Silicon accepts their signatures.
+- Stores bundled data in `Contents/Resources`, keeping `Contents/MacOS`
+  code-only. Renaming the app does not affect resource discovery; build-tree
+  launches are unchanged.
+- Includes camera, microphone and local-network usage descriptions required by
+  macOS for camera and microphone access.
 
-Two things that break naive macOS bundles, handled explicitly:
+### Packaging
 
-- **`install_name_tool` invalidates a code signature**, and on Apple Silicon the
-  kernel refuses to run a binary whose signature is broken. Everything is
-  re-signed ad-hoc *after* rewriting, inside-out.
-- **`Contents/MacOS` is a code-only directory**, so `data/` goes in
-  `Contents/Resources` and `Paths::resolveProjectRoot()` has a small `__APPLE__`
-  branch that recognises the `…/Contents/MacOS/<exe>` structure. Detection is
-  structural rather than a `.app` suffix test, because whoever downloads the
-  bundle may rename it. A plain build-tree run on macOS is unaffected.
+- Excludes the build machine's last-opened show pointer and default show, as
+  on Windows.
+- macOS CI packages on a Mac, rejects remaining `/opt/homebrew` or
+  `/usr/local` binary references and build-machine state, and runs
+  `codesign --verify --deep --strict`.
+- CI runs `--self-check` and `--smoke` from inside the bundle to check
+  relocated libraries and bundled data.
 
-The `Info.plist` carries `NSCameraUsageDescription` /
-`NSMicrophoneUsageDescription` / `NSLocalNetworkUsageDescription`. These are
-load-bearing rather than boilerplate: macOS terminates a process that touches
-the camera or microphone with no matching usage string, so these are what make
-"add a camera cue" work.
+### Known issues
 
-Per-machine state (`last_project.txt`, `default.deckboy`) is stripped, same as
-the Windows packager.
-
-A new `macos-package` CI job runs the packager on a real Mac and then checks the
-result rather than assuming it: no `/opt/homebrew` or `/usr/local` reference
-survives in any binary, `codesign --verify --deep --strict` passes, the app runs
-`--self-check` and `--smoke` **from inside the bundle** (exercising the rewritten
-`@rpath` and the bundled `data/`), and no build-machine state shipped.
-
-Limits: no Developer ID signing or notarisation yet (a downloaded zip needs
-`xattr -dr com.apple.quarantine`, documented in the bundle's README), and no
-universal binary. Browser cues, Spout and d3d11va zero-copy decode are Windows
-features by construction.
+- No Developer ID signing, notarisation or universal binary. Downloaded zips
+  require `xattr -dr com.apple.quarantine`, as documented in the bundled
+  README.
+- Browser cues, Spout and D3D11VA zero-copy decode remain Windows-only.
 
 ## 2026-08-08 — v0.83.0 (NMOS IS-04/IS-05: the 2110 senders become discoverable)
 
-### What this adds
-An ST 2110 flow is undiscoverable on its own, and copying an SDP out of a
-settings modal by hand is not how facilities work: a node registers itself with
-a Registration & Discovery System, and a broadcast controller connects it
-through IS-05. This is the difference between "emits valid packets" and "shows
-up in the plant".
+### NMOS
 
-New `native/platform/nmos_node.{hpp,cpp}`:
+- New: IS-04 v1.3 Node API over HTTP, exposing node, devices, sources, flows
+  and senders. Receivers are an empty list; Deckboy is a source device.
+- Registers resources in dependency order: node, device, source, flow, sender.
+  Heartbeats run every `5 s` against the registry's default `12 s` health
+  timeout.
+- A heartbeat `404` triggers re-registration after a registry restart. An
+  unavailable registry retries with backoff from `1 s` to `30 s`.
+- New: IS-05 v1.1 Connection API with per-sender constraints, staged state,
+  active state and transportfile. Controllers can stage changes before
+  activating them; the transportfile matches the SDP shown in Settings.
+- IS-05 `PATCH` applies `master_enable` and `transport_params` with
+  `activate_immediate` to the sender before replying. Changing the multicast
+  group moves the stream; paired audio follows the video base port at `+2`.
+- Resource IDs use UUIDv5 with a fixed Deckboy namespace and stable per-output
+  seed. Saved controller routes survive app restarts without storing IDs on
+  disk; three seeds matched Python's UUIDv5 results byte for byte.
+- Controls are in `Settings > Video Outputs > Devices`, below ST 2110. Remote:
+  `NMOS ON|OFF|STATUS|REGISTRY|PORT|NIC`, matching the existing `ST2110`
+  command.
+- `LOCAL ONLY`, the default, withholds registration because the Node API
+  listens only on loopback. Settings and the arming toast explain why.
+- AMWA NMOS Testing Tool `IS-05-01`: `36` passed, `2` failed for unsupported
+  scheduled activation, `23` receiver tests not applicable.
+- Verified against the AMWA reference registry `nmos-cpp` on a separate Linux
+  machine: `1` device, `2` sources, `2` flows, `2` senders, `0` receivers. LAN
+  SDP retrieval through `manifest_href` and an IS-05 `PATCH` to
+  `239.77.7.7:22000` were reflected in the served SDP; registry expiry was
+  `12 s`.
 
-- **IS-04 v1.3 Node API** over HTTP — node, devices, sources, flows, senders.
-  Receivers are advertised as an empty list, because Deckboy is a source device
-  and an honest empty list is what stops a controller offering to route into it.
-- **IS-04 registration** — POSTs the resource tree in dependency order
-  (node → device → source → flow → sender; a registry rejects a flow whose
-  source it has not seen), then heartbeats every 5 s against the registry's 12 s
-  default health timeout. A 404 on heartbeat means the registry restarted and
-  forgot us, which triggers automatic re-registration. A missing registry backs
-  off 1s→30s instead of hammering the network.
-- **IS-05 v1.1 Connection API** — constraints / staged / active / transportfile
-  per sender, with a real staged scratch state so a controller's
-  stage-then-activate workflow behaves as the spec describes. The transportfile
-  is the *same* SDP the settings modal shows: `st2110ConfigForOutput()` is the
-  single source of truth, so a receiver can never be handed two different
-  descriptions of one flow.
-- **IS-05 PATCH really reconfigures the sender.** `master_enable` and
-  `transport_params` with `activate_immediate` are applied to the actual
-  `OutputTarget` — moving the multicast group over IS-05 moves the stream, and
-  the paired audio leg follows the video base port by the +2 convention. The
-  handler blocks until the main thread has genuinely applied the change; telling
-  a controller a route moved before it had is the exact lie that makes a plant
-  untrustworthy.
-- **Resource ids are UUIDv5** derived from a fixed Deckboy namespace and a
-  stable per-output seed, so a controller's saved route survives an app restart
-  with nothing persisted to disk. Verified byte-identical against Python's
-  `uuid.uuid5` on three seeds.
+### Outputs
 
-Settings: Video Outputs → Devices, directly under ST 2110 (it is meaningless
-without it). Remote command `NMOS ON|OFF|STATUS|REGISTRY|PORT|NIC`, mirroring
-the existing `ST2110` command. Actions 710–714; next free 715+.
+- Changed: the SDP origin address uses the route to the stream's destination
+  multicast group. Verified with ProtonVPN active: the LAN NIC was selected
+  instead of the tunnel or loopback.
+- Destination address lookups are cached with a `30 s` refresh.
 
-### Verified — AMWA official conformance suite
-Run against the real app with **AMWA's own NMOS Testing Tool** (`IS-05-01`,
-Connection Management API): **36 pass, 2 fail, 23 not applicable**. The 23 are
-all receiver tests — Deckboy is a source device and advertises an empty receiver
-list. The 2 failures are the deliberate scheduled-activation refusal below.
+### Known issues
 
-### Verified — reference registry interop
-`nmos-cpp` (the AMWA reference implementation) run on a separate Linux machine.
-Deckboy registered its full resource tree; the registry held 1 device, 2 sources,
-2 flows, 2 senders, 0 receivers. That machine then fetched the SDP over the LAN
-via the advertised `manifest_href` and issued an IS-05 PATCH moving the group to
-239.77.7.7:22000, which the served SDP reflected. The registry's own
-`registration_expiry_interval` is 12 s, the timeout our 5 s heartbeat was sized
-against.
-
-With the network set to LOCAL ONLY (the default) Deckboy **withholds
-registration** and says why, in the settings status line and in a toast when
-armed: publishing a LAN address while listening only on loopback would put a
-sender in the plant that nothing can reach.
-
-### The SDP names the interface the stream actually leaves by
-The origin line resolves the local address by asking the routing table which
-interface reaches **the stream's own destination group**, rather than probing a
-generic internet address and getting the default route — which on a machine
-running a VPN is the tunnel. Verified on a host with ProtonVPN up: origin
-resolves to the LAN NIC, not the tunnel and not loopback. Memoised per
-destination with a 30 s refresh, because SDPs are rebuilt every time the NMOS
-sender snapshot is taken.
-
-### Limits — do not claim it
-- **No mDNS / DNS-SD.** The registry is configured by URL. Deckboy cannot find a
-  registry on its own, and cannot be found in peer-to-peer mode. This is the
-  single biggest remaining gap.
-- **No scheduled activation.** `activate_scheduled_absolute` / `_relative`
-  return 501; honouring them needs the PTP clock to gate the switch, and taking
-  a source at the wrong instant is worse than refusing.
-- No IS-05 bulk staging (501), no receivers, no IS-07/08, no HTTPS, no IS-10 auth.
-- The underlying 2110 caveats stand: not PTP-locked, not narrow-model paced.
-- **`IS-04-01` (Node API suite) has not been run**, only `IS-05-01`. It needs
-  the tool's own registry and DNS-SD, which we do not support.
+- No mDNS or DNS-SD registry discovery, or peer-to-peer discovery. Enter the
+  registry URL manually.
+- Scheduled activation is unsupported: `activate_scheduled_absolute` and
+  `activate_scheduled_relative` return `501`; activation is not gated by the
+  PTP clock.
+- No IS-05 bulk staging (`501`), receivers, IS-07, IS-08, HTTPS or IS-10
+  authentication.
+- ST 2110 output is not PTP-locked or narrow-model paced.
+- The `IS-04-01` Node API conformance suite has not been run; it requires the
+  tool's registry and unsupported DNS-SD.
 
 ## 2026-08-07 — v0.82.1 (patterns hold a flat footprint)
 
-### Pocket-test runs like every other pattern
-The static layer of the pocket-test card is cached per raster in a small bounded
-set, so the programme output and the cue-preview runtime hit the cache rather
-than evicting each other. Animated patterns also build **in place** into the
-frame the engine already holds, and that frame's GPU zero-copy state is reset
-explicitly, so a pattern following a hardware-decoded video cue draws itself and
-not a stale decoder surface.
+### Patterns
 
-Measured, with controls, at 3840x2160:
+- Pocket Test caches its static layer for a bounded set of raster sizes,
+  allowing output and cue preview to retain their own cached sizes.
+- Animated patterns reuse their existing frame storage.
+- Fixed an issue where a pattern showed a stale video surface when played
+  after a hardware-decoded video cue.
+- Measured at `3840x2160`: private commit was `244 MB` idle, `265 MB` during
+  video, `244 MB` for static SMPTE bars, `242 MB` for animated Test Bars and
+  `245–246 MB` for Pocket Test; each had a `1 MB` swing.
+- Pocket Test output measured a steady `60.0 fps` at 4K, with byte-identical
+  rendering.
 
-| | private commit | swing |
-|---|---|---|
-| idle | 244 MB | 1 MB |
-| video playing | 265 MB | 1 MB |
-| smpte-bars (static) | 244 MB | 1 MB |
-| test-bars (animated) | 242 MB | 1 MB |
-| pocket-test | 245 → 246 MB | 1 MB |
+### Cues
 
-Live output frame rate with pocket-test at 4K is a steady 60.0. Rendering is
-byte-identical.
-
-### Deleting a cue from the right-click menu
-Deleting the **live** cue from a context menu takes one click: the item reads
-"delete LIVE cue" in a hotter red, because choosing a named item from a menu is
-already deliberate. The keyboard Delete path still asks for confirmation, where
-a repeated keypress is natural.
+- Changed: the right-click menu deletes the live cue in one click. The item
+  reads `delete LIVE cue` and uses a stronger red.
+- Keyboard `Delete` still asks for confirmation.
 
 ## 2026-08-07 — v0.82.0 (SMPTE ST 2110 output, PTP, dual streaming, safety UI)
 
-### SMPTE ST 2110
-- **ST 2110-20 uncompressed video output.** Correct pgroup packing (YCbCr-4:2:2
-  10-bit = 2px/5 octets, and 8-bit), RTP + payload headers with Sample Row Data
-  descriptors, marker-bit framing, BT.709 studio-swing conversion, multicast with
-  TTL and NIC pinning, and SDP generation with an exact rational frame rate.
-  Verified against ffmpeg: decodes as `yuv422p10le` / `uyvy422`, correct picture.
-- **ST 2110-21 pacing.** Packets are spread across the frame interval on a
-  dedicated sender thread, at a rate receivers accept, and the render loop is
-  never held to pace a stream.
-- **ST 2110-30 (AES67) audio.** 48 kHz, 1 ms packets, L24, fed from the engine's
-  existing audio tap so the stream carries exactly what the PA hears. Verified:
-  received as `pcm_s24be, 48000 Hz, stereo`.
-- **PTP (IEEE 1588 / ST 2059) slave.** Follows the grandmaster on a configurable
-  domain and disciplines the RTP media clock. **The SDP only advertises
-  `ts-refclk:ptp` when genuinely locked** — never optimistically.
-- Honest limits, stated in the UI and the code: software timestamping, wide-model
-  pacing, no NMOS discovery. See `docs/ST2110_FEASIBILITY.md`.
+### Outputs
+
+- New: SMPTE ST 2110-20 uncompressed YCbCr 4:2:2 video, in `10-bit`
+  (`2 px / 5 octets`) or `8-bit`. Supports RTP Sample Row Data descriptors,
+  marker-bit framing, BT.709 studio-swing conversion, multicast TTL, NIC
+  pinning and SDP with exact rational frame rates.
+- Verified FFmpeg reception as `yuv422p10le` and `uyvy422`, with the correct
+  picture.
+- ST 2110-21 pacing spreads packets across the frame interval on a separate
+  sender thread, without holding the render loop.
+- New: ST 2110-30 / AES67 audio at `48 kHz`, with `1 ms` L24 packets carrying
+  the same audio sent to the PA. Verified reception as
+  `pcm_s24be, 48000 Hz, stereo`.
+- New: PTP slave (IEEE 1588 / ST 2059) follows a grandmaster on a configurable
+  domain and disciplines the RTP media clock. SDP advertises `ts-refclk:ptp`
+  only when locked.
+- Fixed an issue where edge feathering faded across the picture instead of
+  forming an edge ramp. Works with and without perspective warp.
 
 ### Streaming
-- **SRT and RTMP are independent destinations that can run at the same time**,
-  each with its own complete configuration.
-- **SRT has its own controls**: caller/listener mode, latency, passphrase and
-  stream ID, merged into the URL (anything typed by hand still wins).
-- RTMPS is carried as RTMPS, and the GOP length follows the encoder settings.
+
+- SRT and RTMP can run simultaneously, with independent destination
+  configurations.
+- SRT controls include caller/listener mode, latency, passphrase and stream
+  ID. These merge into the URL; manually entered URL values take precedence.
+- RTMPS retains its secure transport; GOP length follows encoder settings.
 
 ### Timecode
-- **LTC generator.** `--ltc-generate` produces LTC that round-trips through
-  Deckboy's own decoder at 24/25/30 fps, including midnight rollover — so
-  Deckboy can generate timecode as well as chase it. Not yet wired to a live
-  audio output.
 
-### Safety and clarity
-- **BLACKOUT has a button** (and `B`), beside CLEAR — the fastest and most
-  reversible way to kill the picture, and now the one nearest to hand.
-- **Backspace deletes; `U` clears overlays.** One key, one meaning.
-- **Escape is a three-stage escalation** — control window, then clear output,
-  then quit.
-- **The shortcuts overlay matches the app**, with ten missing bindings added.
-- Animated on-air indicators per stream type in the OUTPUT group.
+- New: `--ltc-generate` generates LTC at `24`, `25` and `30 fps`, verified by
+  decoding it in Deckboy, including midnight rollover.
+
+### Desk
+
+- New: `BLACKOUT` button beside `CLEAR`, also available with `B`.
+- Changed: `Backspace` deletes cues; `U` clears overlays.
+- Changed: successive `Escape` presses return to the control window, clear
+  output, then quit.
+- Added ten missing bindings to the shortcuts overlay.
+- The `OUTPUT` group shows animated on-air indicators for each stream type.
+- Fixed an issue where `SETTINGS` could not be opened when a scrolled-away
+  inspector dropdown overlapped its button.
+- Restored refresh-rate, bit-depth and raster-mode controls. Removed
+  approximately `1,646` lines of superseded inspector implementation and `21`
+  unreachable control handlers.
 
 ### Audio
-- **Loudness normalize reaches its target.** Peaks are handled by a new
-  look-ahead peak limiter in the deck audio path, so a −26.8 LUFS cartoon that
-  wants +10.8 dB gets +10.8 dB.
-- **The waveform is drawn on a dB scale with headroom**, so gain changes are
-  visible where a linear scale pinned everything above about −6 dBFS.
-- Waveform analysis covers the first 5 minutes of a file.
 
-### Terrarium
-- Re-vendored from upstream (`4931aa0`) with recorded provenance. A new
-  `terrarium-pico` pattern renders the Raspberry Pi panel's 1px-per-cell
+- Loudness normalization uses a look-ahead peak limiter so requested gain
+  reaches the deck audio path; a `-26.8 LUFS` source requesting `+10.8 dB`
+  receives that gain.
+- Changed: waveforms use a dB scale with headroom, showing gain changes that
+  previously saturated the linear display above approximately `-6 dBFS`.
+- Waveform analysis covers the first `5 minutes` of each file.
+
+### Patterns
+
+- Updated Terrarium from upstream revision `4931aa0`, with recorded
+  provenance.
+- New: `terrarium-pico` renders the Raspberry Pi panel's one-pixel-per-cell
   picture.
-- `--pattern-dump` honours its size argument for every pattern.
+- Fixed an issue where `--pattern-dump` ignored its size argument for some
+  patterns.
 
-### Also
-- Settings opens whatever the inspector is doing: the inspector's dropdowns are
-  gated to their viewport, so a scrolled-away row keeps clear of the SETTINGS
-  button.
-- **Edge feathering works with and without perspective warp**, as a true edge
-  ramp rather than a fade across the picture.
-- Packaging ships no machine state from the build box.
-- Kerning is disabled on UI fonts, so words stay whole ("Target URL").
-- A crash logger writes a symbolised stack to `data/deckboy-crash.log`,
-  including from file-dialog threads.
-- Refresh-rate, bit-depth and raster-mode controls are back in the UI, and
-  ~1,646 lines of superseded cue-inspector code and 21 unreachable handlers are
-  gone.
+### Fonts
 
+- Disabled UI font kerning to keep words such as `Target URL` intact.
+
+### Packaging
+
+- Packages exclude build-machine state.
+- Crash reports include a symbolised stack in `data/deckboy-crash.log`,
+  including crashes on file-dialog threads.
+
+### Known issues
+
+- ST 2110 uses software timestamps and wide-model pacing; no NMOS discovery.
+  Limits are stated in the interface and feasibility documentation.
+- LTC generation is not yet connected to a live audio output.
 
 ## 2026-07-31 — v0.81.4 (MIDI input on every platform)
 
 ### MIDI
-- **MIDI input works on Windows and macOS**, through the cross-platform RtMidi
-  wrapper and into the same command queue Linux uses — so a note or a CC does
-  exactly what it does on ALSA, and every documented note/CC mapping is live on
-  all three platforms.
-- **New MIDI remote command** (`MIDI ON|OFF|TOGGLE`), so a Companion surface can
-  arm MIDI rather than requiring a trip to the Audio settings tab.
-- `--self-check` reports `midi-runtime` with the RtMidi port count.
-- MTC quarter-frame and MMC/MSC sysex are ALSA-only, since the wrapper surfaces
-  channel-voice messages only. The catalog says so by name.
+
+- Added Windows and macOS MIDI input through RtMidi. Note and CC input uses
+  the same command handling and documented mappings as Linux ALSA.
+- New remote command: `MIDI ON|OFF|TOGGLE`, allowing Companion to arm MIDI
+  without opening Audio settings.
+- `--self-check` reports `midi-runtime` and the RtMidi port count.
+- MTC quarter-frame and MMC/MSC SysEx remain ALSA-only; RtMidi input exposes
+  channel-voice messages only. The integration catalogue names these limits.
 
 ### Diagnostics
-- `--self-check` reports the NMC bridge for real on every platform: it is
-  cross-platform UDP, and on Windows it binds its port and reports `nmc[on,ok]`.
+
+- `--self-check` reports the cross-platform UDP NMC bridge on every platform.
+  On Windows, it binds its port and reports `nmc[on,ok]`.
 
 ## 2026-07-30 — v0.81.3 (OSC Query on Windows, the full DeckLink card)
 
-### Remote control
-- **OSC Query runs on Windows**, on the same cross-platform socket code
-  Companion control already uses. Verified live — `OSCQUERY ON` binds TCP 5511
-  and an HTTP GET returns the Deckboy OSC Query page, with the mirrored
-  `/deckboy/state` feedback.
+### Remote protocol
 
-### Video Outputs
-- **Every DeckLink control is on screen.** The NDI, DeckLink, Edge Blend and AOI
-  sections size from the shared header + row metrics, so DeckLink's **10-BIT**
-  toggle and NDI KEY sit fully inside their panels at any font size.
+- Added OSC Query on Windows. Verified: `OSCQUERY ON` binds TCP port `5511`;
+  an HTTP GET returns the OSC Query page with mirrored `/deckboy/state`
+  feedback.
+
+### Outputs
+
+- Fixed an issue where the DeckLink `10-BIT` toggle and NDI `KEY` control
+  extended outside their panels at some font sizes.
+- NDI, DeckLink, Edge Blend and AOI sections size their headers and rows
+  consistently.
 
 ## 2026-07-30 — v0.81.2 (genuinely dark themes)
 
 ### Themes
-- **Deckboy can have genuinely dark themes.** The structural chrome — bottom-bar
-  groups, playlist body, deck list, timeline lanes — draws from the
-  `screen_tile` / `screen_fg` pair added in v0.79.3 rather than from the bright
-  ink role. Both roles fall back to exactly what was there before
-  (`tile` → `screen_light`, `fg` → `screen_deep`), so a theme that does not
-  define them renders identically — `gameboy` is untouched — while the 15 that
-  do become properly dark.
-- The library now spans three looks: bright moulded-case, dark tinted chassis,
-  and true-black OLED terminal.
+
+- Changed: bottom-bar groups, playlist body, deck list and timeline lanes use
+  `screen_tile` and `screen_fg`, introduced in v0.79.3. The `15` themes
+  defining these roles now draw dark structural panels.
+- Themes without these roles retain their appearance: tile falls back to
+  `screen_light`, foreground to `screen_deep`. The `gameboy` theme is
+  unchanged.
+- The library supports bright moulded cases, dark tinted chassis and
+  true-black OLED terminals.
 
 ### Audio
-- **Both waveform views draw through `drawColumn`**, so the mono view carries the
-  over-scale clip tint and keeps its bars inside their lane at any gain trim.
+
+- Fixed an issue where mono waveforms lacked the over-scale clip tint or drew
+  outside their lane at higher gain trims. Both waveform views now use the
+  same drawing behaviour.
 
 ### Build
-- CI is green on all three platforms: `find_package(PkgConfig)` runs
-  unconditionally, so `-DENABLE_MIDI=ON` configures against a CONFIG-package
-  SDL3, and the display-topology code builds against the stable SDL 3.2.x
-  release as well as 3.4.
+
+- Verified CI on Windows, macOS and Linux.
+- Fixed an issue where `-DENABLE_MIDI=ON` configuration failed with a
+  CONFIG-package SDL3 installation. PkgConfig discovery now runs for every
+  configuration.
+- Display-topology support builds with both stable SDL `3.2.x` and `3.4`.
 
 ## 2026-07-30 — v0.81.1 (theme variety, honest LTC reporting, README)
 
 ### Themes
-- **The library looks varied.** The 25 themes that shared one recipe now span
-  three families: **moulded case** (muted plastic shell with a saturated LCD,
-  the structure the default Game Boy theme uses), **tinted chassis** (a
-  genuinely coloured dark body with bright ink, for booth use), and **true-black
-  OLED terminals** (kept for `dark`, `virtual-boy`, `famicom`,
-  `captain-falcon`, `game-and-watch`). `gameboy`, `pocket`, `sp`, `advance` and
-  `color` were already distinct and are untouched.
-- Case colours are deliberately low-chroma. `shell_inner` is the dominant panel
-  fill across the whole UI, so a vivid case floods the interface — the
-  character's hue belongs to the screen, which is exactly how the original
-  Game Boy theme is built.
-- All 30 pass `tools/audit_theme_contrast.ps1`.
+
+- Reworked `25` themes into three families: moulded cases with muted shells
+  and saturated LCDs, dark tinted chassis with bright text, and true-black
+  OLED terminals.
+- OLED themes: `dark`, `virtual-boy`, `famicom`, `captain-falcon`,
+  `game-and-watch`.
+- `gameboy`, `pocket`, `sp`, `advance` and `color` retain their existing
+  designs.
+- Case colours use low saturation because `shell_inner` fills most interface
+  panels; stronger character colours are reserved for the screen.
+- All `30` themes passed the theme contrast audit.
 
 ### Timecode
-- **`--self-check` reports LTC for real on every platform** — `ltc-runtime: ok`
-  with the library present, `missing (...)` without it. `LtcApi` loads `ltc.dll`
-  dynamically and the portable zip ships it, so Windows has LTC and now says so.
+
+- `--self-check` reports `ltc-runtime: ok` when the LTC library is available
+  and `missing (...)` otherwise, on every platform.
+- Windows loads `ltc.dll` at runtime; the portable zip includes it.
 
 ### Build
-- **DeckLink builds with or without it enabled.** `decklink.cpp` compiles
-  always, carrying its complete stub behind `!DECKBOY_HAS_DECKLINK`, so an
-  `ENABLE_DECKLINK=OFF` build links.
-- **CI is repaired and runs on every push and PR**, on the branch that exists,
-  with SDL3 installed on all three platforms, one configure step per platform,
-  smoke tests beside `--self-check`, and the Companion module's suite as its own
-  job.
 
-### Docs
-- **README overhauled** to describe what exists: the portable zip leads the run
-  instructions, Companion leads with the module, the theme count is one number,
-  and shipped features are listed as shipped.
+- Fixed an issue where `ENABLE_DECKLINK=OFF` builds failed to link. Both
+  enabled and disabled builds include the required DeckLink support or
+  fallback.
+- CI runs on pushes and pull requests to the current branch, installs SDL3 on
+  all three platforms, and uses one configure step per platform.
+- CI runs smoke tests alongside `--self-check`, plus a separate Companion
+  module test job.
+
+### Documentation
+
+- Updated the README to lead with the portable zip and Companion module, use a
+  consistent theme count, and identify released features as available.
 
 ## 2026-07-29 — v0.81.0 (preview locked to output, display hot-plug, Companion module)
 
 ### Program monitor
-- **The preview is locked to the program output.** The control window samples
-  the output's finished composite on the output's own render pass, scaled down
-  to preview size first (~0.5 MB read back instead of 3–12 MB), every presented
-  frame — so the monitor cannot drift from what leaves the machine, and it runs
-  at full rate rather than the ~10 fps a full-resolution hardware-frame download
-  allowed. Verified by capturing both windows in both orders against a burned-in
-  frame counter.
-- The tap is taken *before* warp/AOI/edge blend, so the warp editor still draws
-  its handles over an unwarped image. When no window output is armed the
-  decoder-frame path still runs, unchanged.
 
-### Displays
-- **Deckboy notices displays connected or disconnected while it is running.**
-  The topology scan compares a per-display fingerprint (name + desktop
-  placement) rather than the display count, so it also catches a monitor swapped
-  for another one, a rearranged desktop, and resolution changes. All SDL display
-  events are handled and debounced, since Windows emits a burst of them and
-  reports half-built topology partway through.
-- On a hot-plug an affected output is re-homed **even while fullscreen**, which
-  is what lets a monitor connected mid-show pick up its output. Unaffected
-  outputs are left alone.
-- **Unplugging a projector leaves your control screen alone.** An output whose
-  pinned display disappears parks windowed and hidden with health
-  `display missing: <name>`, and restores itself when the panel comes back.
-- Toasts name what happened — "display connected: DELL U2720Q (2 total) —
-  1 output re-homed" — and RESCAN forces a re-home even when nothing changed.
+- Changed: the control preview samples the finished program composite on every
+  presented output frame, at full output rate instead of the approximately
+  `10 fps` hardware-frame download path.
+- Downscaling before readback reduces each transfer to approximately `0.5 MB`,
+  from `3–12 MB`. Synchronization was checked by capturing both windows in
+  both orders against a burned-in frame counter.
+- The preview is taken before warp, AOI and edge blend so warp handles remain
+  over an unwarped image. With no window output armed, the existing
+  decoder-frame preview remains in use.
+
+### Outputs
+
+- Added detection of display connections, disconnections, replacements,
+  desktop rearrangements and resolution changes while Deckboy is running.
+- Display changes are debounced to allow the operating system's display
+  topology to settle.
+- Affected outputs move to their assigned displays even while fullscreen;
+  unaffected outputs remain in place.
+- When a pinned display disappears, its output becomes windowed and hidden
+  with health `display missing: <name>`. It restores when that display
+  returns, leaving the control screen available.
+- Display-change toasts name the display, total display count and number of
+  outputs moved, for example
+  `display connected: DELL U2720Q (2 total) — 1 output re-homed`. `RESCAN`
+  forces reassignment even when the topology has not changed.
 
 ### Interface
-- **One text-placement contract across the whole app.** Panels paint the rect
-  they are given and all three label helpers centre on it, so neighbouring
-  controls line up whichever helper drew them. Label padding is continuous with
-  width, and every centring helper ellipsizes and clips, so a long label
-  truncates inside its pill.
-- Settings cards and Video Outputs sections share one header-plate contract, so
-  a section title sits at the same height on every tab, and the CONNECTED
-  DISPLAYS **IDENTIFY** button sits inside its header plate.
 
-### About
-- **Rewritten as a real credits page**: masthead with wordmark, version and
-  build date; a PROJECT column (copyright, GPL-3.0-or-later and what that grants,
-  source, warranty disclaimer, live session ports and theme); and a BUILT WITH
-  column (platform, SDL3/FreeType, FFmpeg, the optional SDKs *this* binary was
-  actually compiled against, timecode, font licence, key reference). Both
-  columns share one label gutter.
+- Fixed an issue where neighbouring controls had misaligned labels. Panels and
+  labels now use the same bounds, with width-dependent padding and consistent
+  ellipsis and clipping.
+- Settings cards and Video Outputs sections use consistent header heights;
+  `CONNECTED DISPLAYS > IDENTIFY` stays inside its header.
+- Reworked About into two aligned columns beneath the wordmark, version and
+  build date.
+- `PROJECT` lists copyright, GPL-3.0-or-later rights, source, warranty
+  disclaimer, live session ports and theme.
+- `BUILT WITH` lists the platform, SDL3/FreeType, FFmpeg, SDKs enabled in this
+  build, timecode, font licence and key reference.
 
 ### Patterns
-- **New "Test Clock (sync + latency)" pattern** — colour bars, an aspect-truth
-  circle (reads as an egg the moment a stretch mode is wrong), a scrolling hue
-  band for sub-second phase, and a large seconds + frame counter with exact
-  timecode in the corner. Point two displays at it and photograph them to see
-  whether they agree. Aliases: `testsrc1`, `sync-card`, `latency-clock`.
+
+- New: `Test Clock (sync + latency)`, with colour bars, an aspect-check
+  circle, scrolling hue band, seconds and frame counter, and exact timecode.
+  Photograph two displays to compare synchronization.
+- Aliases: `testsrc1`, `sync-card`, `latency-clock`.
 
 ### Audio
-- **Loudness normalize reaches target on quiet material.** The trim range is
-  −40..+40 dB, read from one shared constant by the setter, the normalizer, the
-  waveform scaler, the engine mirror, project load and the remote command — so a
-  −34 LUFS transfer that wants +17.8 dB gets it.
-- **Normalize is peak-aware.** The same analysis pass measures true peak
-  (`ebur128=peak=true`) and holds the boost so peaks stay under −1 dBFS. When
-  the ceiling is what limited the result the toast says so — `normalized: -0.9
-  dB (was -25.7 LUFS) - peak-limited at -0.1 dBFS`.
-- **Gain changes are visible on loud material.** Over-scale columns draw in the
-  theme's danger colour, so pushing past the ceiling reads as hot and backing
-  off cools it — and doubles as a clip warning.
-- Toasts size to their message, and normalize results hold for 2.6 s — 3.2 s
-  when peak-limited.
 
-### Remote control
-- **A real Bitfocus Companion module** (`companion-module-deckboy/`) replaces the
-  Generic TCP/UDP recipe. It polls `STATUS`, so buttons carry **cue tally**,
-  transport colour, output health, a connection watchdog and a derived
-  countdown, where a Generic connection could only push commands one way. Ships
-  actions (transport, cue select/take/goto, seek, levels, output, find, plus a
-  raw-command escape hatch), nine feedbacks, ~70 variables and wired presets.
-  Parser tests run against a captured Deckboy status reply.
-- The module names the localhost-only default in its config screen and in its
-  connection error, since that is the usual reason a remote Companion sees
-  nothing.
+- Changed: cue gain trim spans `-40..+40 dB` consistently in editing,
+  normalization, waveform display, playback, saved shows and remote control. A
+  `-34 LUFS` source can receive the requested `+17.8 dB`.
+- Normalization measures true peak in the same analysis pass and limits boost
+  to keep peaks below `-1 dBFS`. The result toast identifies peak-limited
+  adjustments, for example
+  `normalized: -0.9 dB (was -25.7 LUFS) - peak-limited at -0.1 dBFS`.
+- Over-scale waveform columns use the theme's danger colour as a clip warning
+  and respond to gain changes.
+- Toasts size to their text. Normalization results remain visible for `2.6 s`,
+  or `3.2 s` when peak-limited.
+
+### Companion
+
+- New: Bitfocus Companion module replaces the Generic TCP/UDP setup. It polls
+  `STATUS` for cue tally, transport colour, output health, a connection
+  watchdog and derived countdown.
+- Includes transport, cue select/take/goto, seek, levels, output, find and
+  raw-command actions; `9` feedbacks; approximately `70` variables; and wired
+  presets.
+- Parser tests use a captured Deckboy status reply.
+- Configuration and connection errors explain that Deckboy defaults to
+  localhost-only access.
 
 ## 2026-07-22 — v0.80.2 (waveforms show gain, normalize feedback, SKIP button)
 
 ### Transport
-- **New `>|` / `<|` skip buttons** in the timeline transport strip
-  (`<| |< << ▶ >> >|`), hotkeys **`.`** / **`,`**, remote commands
-  **`SKIP`** / **`SKIPBACK`**. `>|` takes the cue the deck would naturally
-  play next — honouring goto targets, shuffle, playlist loop, and the
-  missing-media walk — without waiting for the current cue to end
-  (end-of-cue auto-advance and skip share one resolver, so they can never
-  disagree about what "next" means). `<|` takes the previous playable cue
-  (deliberately ignores goto/shuffle — back means the cue above).
+
+- New: timeline skip buttons `>|` and `<|`, keys `.` and `,`, and remote
+  commands `SKIP` and `SKIPBACK`.
+- `>|` takes the next playable cue immediately using the same order as
+  end-of-cue advance: goto targets, shuffle, playlist loop and missing-media
+  skipping.
+- `<|` takes the previous playable cue in list order, ignoring goto targets
+  and shuffle.
 
 ### Audio
-- **Waveforms grow and shrink with gain.** Every waveform view — inspector
-  thumbnail, video-cue audio strip, timeline audio lane, active-cue mini view,
-  output-monitor overlay — scales its drawn amplitude by the cue's gain trim,
-  live, so nudging gain or landing an R128 normalize visibly changes the
-  transients and you can *see* what normalize did.
-- **Normalize always answers.** A selection with no file-backed audio toasts
-  "normalize: selection has no file-backed audio".
+
+- Changed: cue gain trim scales waveform amplitude live in the inspector
+  thumbnail, video-cue audio strip, timeline audio lane, active-cue mini view
+  and output-monitor overlay. Gain edits and R128 normalization update the
+  visible transients.
+- Normalization reports `normalize: selection has no file-backed audio` when
+  no selected cue has file-backed audio.
 
 ## 2026-07-18 — v0.80.1 (fast on slow drives, a DMG sound pack, vivid Terrarium)
 
-### Performance
-- **The UI stays smooth when show media lives on a slow drive.** Cue path
-  resolution is memoised per (path, project file), so after the first touch the
-  per-frame cost is a map lookup rather than a disk stat per path component —
-  which is what large playlists (1,400+ cues) on USB and exFAT drives feel most.
-- **The splash appears immediately.** The media-presence scan behind the RELINK
-  badge runs on a background thread at boot and on project open, with the
-  "N media missing (RELINK)" toast following when it lands.
+### Desk
 
-### Terrarium
-- **Vibrant, nature-evoking colours** (exe and in-app pattern — they share the
-  core). **Foliage lives in the green band** (spring-to-forest hues, varied
-  saturation and value; sage and olive for desert; alien keeps the free wheel),
-  **blooms draw from a real meadow distribution** (mostly yellows and whites,
-  then violets, reds and oranges, blues uncommon, magenta rare) and render
-  accent-dominant so they pop, and **fauna wears earth tones** (russet, tan,
-  chestnut) with plumage accents from bird and beetle iridescence — plus a
-  1-in-8 full-colour tropical/wetland showoff. Everything runs through a
-  slightly stronger `vividify`.
-- The big-flower glyph is a round rosette with a stem. Mushrooms wear
-  forest-floor caps (cream, tan, fly-agaric red), and ambient flower glyphs take
-  poppy, marigold, orchid and thistle tones.
+- Improved responsiveness with large playlists (`1,400+` cues) on slow USB and
+  exFAT drives by caching resolved media paths per show after their first
+  lookup.
+- Changed: the missing-media scan runs in the background at startup and when
+  opening a show, allowing the splash to appear immediately. The
+  `N media missing (RELINK)` toast appears when scanning finishes.
 
-### Game Boy sound pack
-- **New DMG-style synth voice** behind the UI sounds: two pulse channels
-  locked to the hardware duty cycles, a 15-bit LFSR noise channel, 4-bit
-  quantized envelopes, and NR51-style stereo placement.
-- **Boot jingle** — a swung chiptune over Coltrane changes (B△7 → D7 →
-  G△7 → B♭7 → E♭△7, the Giant Steps major-third cycle) with an original
-  melody: YMCK-school cute jazz, golden-changes edition. Plays over the
-  startup splash, honours the "little bloops" toggle; ordinary bloops hold
-  off until the final chord rings out.
-- **New sound effects**: refused-action buzzer (take blocked on missing
-  media), a panic dive-and-whoosh for PANIC/ESC, and a dice-roll trill when
-  shuffle turns on. Existing bloops are unchanged.
+### Patterns
 
-### Cue inspector
-- **PIP cues are editable in the live inspector**: source/type editor, corner
-  presets (TL/TR/BL/BR), size presets (SM/BIG/70-30), CLEAR OVERLAY, and the
-  GEOMETRY/KEY/METADATA sections.
-- **Stream cues get an inspector.** SRT/RTMP/RTSP/UDP stream cues and NDI source
-  cues have PLAYBACK (fades, per-cue transition + style, audio toggle) and
-  METADATA (editable URL / NDI source name, tag, notes, cue id).
-- **Audio cues get the AUDIO section**: gain trim, pan, mono downmix, output
-  pair, independent a-fades and R128 normalize, the same as a video cue.
-- The scroll extent tracks section bottoms, so a section ending in a status line
-  is fully reachable; dropdown hit zones are cleared when the selection changes;
-  and the empty inspector says "NO CUE SELECTED" once.
+- Changed: Terrarium uses more vivid colours in both the standalone executable
+  and in-app pattern.
+- Foliage uses spring-to-forest greens with varied saturation and brightness;
+  desert foliage uses sage and olive. Alien foliage retains the full hue
+  range.
+- Blooms favour yellow and white, followed by violet, red and orange, with
+  uncommon blue and rare magenta; accent colours dominate the petals.
+- Fauna uses russet, tan and chestnut, with bird- and beetle-inspired
+  iridescent accents. One in eight uses a full-colour tropical or wetland
+  palette.
+- Large flowers use a round rosette and stem. Mushroom caps use cream, tan and
+  fly-agaric red; ambient flowers use poppy, marigold, orchid and thistle
+  colours.
 
+### Audio
+
+- New: DMG-style UI sound synthesis with two pulse channels at hardware duty
+  cycles, a `15-bit` LFSR noise channel, `4-bit` quantized envelopes and
+  NR51-style stereo placement.
+- New: swung startup chiptune with an original YMCK-inspired jazz melody over
+  the Giant Steps major-third cycle: `B△7 → D7 → G△7 → B♭7 → E♭△7`.
+- The startup jingle respects `little bloops`; ordinary UI sounds wait until
+  its final chord finishes.
+- New sounds: refused-action buzzer for a take blocked by missing media,
+  dive-and-whoosh for `PANIC` / `Esc`, and a dice-roll trill when shuffle is
+  enabled. Existing UI sounds are unchanged.
+
+### Cues
+
+- Added live PiP inspector controls: source/type, `TL/TR/BL/BR` corner
+  presets, `SM/BIG/70-30` size presets, `CLEAR OVERLAY`, `GEOMETRY`, `KEY` and
+  `METADATA`.
+- SRT, RTMP, RTSP, UDP and NDI source cues now expose `PLAYBACK` controls for
+  fades, transition and style, and audio; `METADATA` includes editable URL or
+  NDI source name, tag, notes and cue ID.
+- Audio cues now expose the same `AUDIO` controls as video cues: gain trim,
+  pan, mono downmix, output pair, independent audio fades and R128
+  normalization.
+- Fixed an issue where inspector sections ending in a status line could not be
+  fully reached by scrolling.
+- Fixed an issue where dropdown click areas persisted after changing the
+  selected cue.
+- The empty inspector displays `NO CUE SELECTED` once.
 
 ## 2026-07-15 — v0.80.0 (settings overhaul, stereo waveforms, panic audio, Test Bars)
 
-### Settings menu
-- **One steady dialog size** — every tab shares one envelope sized for the
-  busiest tab, so the modal holds still as you move between them.
-- **Area of Interest is a resolution, not four percentages** — the AOI card
-  edits `X / Y / WIDTH / HEIGHT` in pixels of the output raster (e.g.
-  `1920x1080 @ 960,540`), with `-`/`+` nudges (16 px), click-to-type exact
-  values, and a `FULL` reset. The card header shows the live rect. Storage is
-  still the four edge fractions, so show files are unchanged both ways.
-- **Edge blending reads in pixels** too, of the output raster.
-- **Tabs size to their labels** — "Video Outputs" reads in full.
-- **Display sub-tab tidied** — Toggle Fullscreen and Orientation share one
-  row, and the Display & Raster card uses the space it reserves.
-- The About tab prints one `v`.
+### Settings
 
-### Timeline / waveforms
-- **Stereo audio shows both channels.** The waveform analysis measures true
-  stereo-ness sample by sample (side-signal energy) and the L/R split follows
-  the *content*: really-stereo material always splits, even for cues saved by
-  older versions whose metadata lacks a channel count, while mono material in a
-  stereo container gets one full-height lane instead of two identical twins.
-  Older cues have their channel count backfilled by a background re-probe on
-  project open.
+- Changed: every tab uses one dialog size, sized for the busiest tab.
+- AOI edits `X / Y / WIDTH / HEIGHT` in output pixels, with `16 px` minus/plus
+  nudges, click-to-type values and a `FULL` reset. The header shows the
+  current rectangle, for example `1920x1080 @ 960,540`.
+- AOI storage remains four edge fractions; show files remain compatible in
+  both directions.
+- Edge-blend values also use output pixels.
+- Tabs size to their labels so `Video Outputs` reads in full.
+- `Toggle Fullscreen` and `Orientation` share a row; the Display & Raster card
+  uses its reserved space.
+- Fixed an issue where About displayed a duplicate `v` before the version.
 
-### Playback safety
-- **Panic / triple-Esc silences audio.** "Outputs off" stops every deck engine
-  and browser cue as well as disarming the video outputs.
-- **STOP works on Audio cues**, closing the decode pipe and the stream the same
-  way it does for video.
+### Audio
 
-### New
-- **Test Bars pattern** — a testsrc2-style motion-diagnostics pattern: six
-  saturated bars, a bouncing rainbow diagonal, a dissolving checker patch, a
-  sliding grey reference block, and a running clock + frame counter. In the
-  pattern picker as "Test Bars (motion diagnostics)"; `pattern://test-bars`
-  (aliases: testsrc, testsrc2).
-- **Boot console variety** — the splash deals a random hand of 8 lines from a
-  40-line pool of sci-fi subsystems each boot, woven between the real init
-  values, which always print.
-- **`>LIVE` reads in full** — the playlist-header jump button sizes to its
-  label, and the marquee dots stop short of it.
-- **Right-click a cue → "show in explorer"** — file-backed cues (video, audio,
-  image) get a context-menu entry that opens the OS file manager with the media
-  file selected (Explorer `/select` on Windows, Finder reveal on macOS,
-  containing folder on Linux).
-- **Dev flags** — `--import <file>` imports media at launch, skipping the
-  startup menu and splash; `--settings [tab[.subtab]]` opens the settings modal
-  at boot. Both are for scripted testing and screenshots.
+- Changed: waveform channel layout follows the audio content, measured sample
+  by sample from side-signal energy. Stereo content shows separate L/R lanes;
+  mono content in a stereo container uses one full-height lane.
+- Stereo detection also applies to older cues without channel-count metadata.
+  Opening a show fills missing channel counts through a background media
+  probe.
+- Fixed an issue where audio continued after `PANIC` or triple-`Esc`.
+  `Outputs off` now stops every deck engine and browser cue as well as
+  disarming video.
+- Fixed an issue where `STOP` failed to stop Audio cues. It now closes their
+  decoder and audio stream as it does for video.
+
+### Patterns
+
+- New: `Test Bars (motion diagnostics)`, a testsrc2-style pattern with six
+  saturated bars, bouncing rainbow diagonal, dissolving checker patch, sliding
+  grey reference block, clock and frame counter.
+- URI: `pattern://test-bars`; aliases: `testsrc`, `testsrc2`.
+
+### Desk
+
+- The boot console selects `8` random lines from `40` sci-fi subsystem
+  messages each startup, interleaved with initialization values that always
+  appear.
+- Fixed an issue where the playlist-header `>LIVE` label was clipped. Its
+  button sizes to the label, and marquee dots stop before it.
+- New: right-click video, audio or image cues and choose `show in explorer` to
+  reveal the media file. Uses Explorer `/select` on Windows, Finder reveal on
+  macOS and the containing folder on Linux.
+
+### Command line
+
+- New: `--import <file>` imports media at launch and skips the startup menu
+  and splash.
+- New: `--settings [tab[.subtab]]` opens Settings at startup. Both flags
+  support scripted tests and screenshots.
 
 ## 2026-07-12 — v0.79.13 (mascot tip: the trim keys)
 
-- The mascot's trim tip names the keys it means: `Ctrl+I` sets the in point and
-  `Ctrl+O` the out point; bare `I` is import.
+### Interface
+
+- Changed: the mascot's trim tip explicitly names `Ctrl+I` for the in point
+  and `Ctrl+O` for the out point. Bare `I` imports media.
 
 ## 2026-07-12 — v0.79.12 (telecined and variable-rate video stay in sync)
 
-- **Audio and video stay locked on telecined (3:2-pulldown) and variable-rate
-  material** — classic DVD MPEG-2 anime, some phone clips. Frames are indexed by
-  their actual presentation timestamp, so 23.976 fps film soft-pulldowned into a
-  29.97 container lands on the right point of the timeline and stays with the
-  audio clock. Constant-frame-rate content is unaffected (the indices are
-  identical), and a stream with no timestamps falls back to the sequential
-  counter.
+### Playback
+
+- Fixed an issue where audio and video drifted apart when playing telecined
+  `3:2` pulldown or variable-frame-rate media, including DVD MPEG-2 and some
+  phone clips.
+- Frames now use their presentation timestamps, so `23.976 fps` film with soft
+  pulldown in a `29.97 fps` container follows the correct timeline position
+  and audio clock.
+- Constant-frame-rate indexing is unchanged. Streams without timestamps retain
+  sequential frame counting.
 
 ## 2026-07-12 — v0.79.11 (cue navigation: jump to current + auto-follow)
 
-- **Jump to the current cue** — press `J` or the new `>LIVE` button in the
-  playlist header to snap a long playlist back to the cue that is playing (or
-  the selection if nothing is live) and centre it. For shows with hundreds of
-  cues, this is "where's the show right now?" in one key.
-- **Auto-follow** — when the focused deck's live cue changes (take,
-  auto-advance, and especially **shuffle**, where the next cue is
-  unpredictable), the playlist reveals it — but only if it had scrolled
-  off-screen, so the list never yanks while you are looking right at it.
+### Cues
+
+- New: `J` and the playlist-header `>LIVE` button centre the live cue in the
+  playlist, or the selected cue if nothing is live.
+- New: auto-follow reveals the focused deck's live cue after take,
+  auto-advance or shuffle, but scrolls only when that cue is off-screen.
 
 ## 2026-07-12 — v0.79.10 (10-bit H.265, and a clean slate on open)
 
-- **10-bit H.265/HEVC (Main 10) renders correctly.** The decoder reads each
-  hardware surface's own software format and zero-copies true NV12; P010 and
-  anything else takes a CPU transfer and swscale to NV12/RGBA. 8-bit content
-  keeps the fast zero-copy path, and `--decode-bench` reports per-frame gpu/cpu
-  counts so the split is visible.
-- **Opening a show lands on a neutral "nothing live" state**, like a fresh
-  launch: the timeline and the preview agree, the operator explicitly takes the
-  first cue, and the startup mascot shows. The selected cue is preserved for
-  prepping.
+### Playback
+
+- Fixed an issue where `10-bit` H.265/HEVC Main 10 video rendered incorrectly
+  when hardware decoding was used.
+- True NV12 surfaces retain zero-copy playback. P010 and other surface formats
+  transfer through the CPU and convert to NV12 or RGBA. `8-bit` content
+  retains the fast zero-copy path.
+- `--decode-bench` reports per-frame GPU and CPU counts.
+
+### Desk
+
+- Changed: opening a show starts with nothing live, matching a fresh launch.
+  Timeline and preview agree, the startup mascot appears, and the operator
+  takes the first cue explicitly.
+- The selected cue is preserved for preparation.
 
 ## 2026-07-12 — v0.79.9 (mascot tips: bigger, plainer, clearer)
 
-- Mascot tips are **bigger plain text**, drawn full-width under the face rather
-  than inside a speech box, in short jargon-free lines.
+### Interface
+
+- Changed: mascot tips use larger plain text across the full width below the
+  face, replacing the speech box with short, jargon-free lines.
 
 ## 2026-07-12 — v0.79.8 (mascot: per-element Balatro-style drift)
 
-- **The startup face has individual-element life.** On top of the overall hover,
-  the whole face gets a small oscillating tilt/rock — placed through a rotation
-  about the face centre, so the eyes swing one way as the mouth swings the other
-  — and each element, each eye and the mouth, also drifts and breathes on its
-  own phase, so they float slightly out of sync. Evokes the springy,
-  semi-independent motion of Balatro's card animations, kept subtle.
+### Interface
+
+- Added a subtle oscillating tilt around the startup face's centre, on top of
+  its overall hover.
+- Each eye and the mouth drift and breathe at separate phases, producing
+  slightly offset motion inspired by Balatro's card animations.
 
 ## 2026-07-12 — v0.79.7 (startup mascot in the empty program monitor)
 
-- **A hovering "terminal face friend" + rotating tips** fill the empty program
-  monitor at the start of a session, until the first clip is loaded into it.
-  BMO-style: glowing theme-tinted eyes and mouth drawn straight onto the dark
-  screen, so the monitor itself is the face. Everything animates smoothly and
-  continuously — a 2D floaty hover, eased squish-blinks, a slow look-around
-  drift, a smile that breathes, and twinkling stars slowly orbiting the face —
-  with no discrete state snaps. A tip line beneath cycles operator hints
-  (import, timeline grip, themes, relink, per-cue audio, shortcuts). It retires
-  the moment a clip loads and stays gone for the run.
-- While the face is up the empty-monitor backdrop is darkened, which also reads
-  better on OLED themes than the bright idle fill.
+### Program monitor
+
+- New: a hovering startup face and rotating operator tips occupy the empty
+  program monitor until the first clip loads. The face then remains hidden for
+  the rest of the session.
+- The BMO-style face uses glowing, theme-tinted eyes and mouth directly on a
+  darkened screen, including on OLED themes.
+- Continuous animation includes two-dimensional hover, eased squish-blinks,
+  slow gaze drift, a breathing smile and twinkling orbiting stars, without
+  abrupt state changes.
+- Tips cover import, the timeline grip, themes, relink, per-cue audio and
+  shortcuts.
 
 ## 2026-07-12 — v0.79.6 (denser timeline filmstrip; consistent thumbnail aspect)
 
-- **9 stills per clip** on the timeline filmstrip (was 5), so it reads as a
-  continuous strip and samples the clip densely enough for the now-enlargeable
-  timeline lane.
-- **Consistent thumbnail aspect.** Each tile is drawn into its own column with
-  an aspect-preserving centre-crop, so thumbnails stay undistorted at any lane
-  size.
+### Timeline
+
+- Changed: filmstrips show `9` stills per clip, up from `5`, for denser
+  coverage in enlarged timeline lanes.
+- Fixed an issue where thumbnails distorted when the lane size changed. Each
+  tile now uses an aspect-preserving centre crop within its own column.
 
 ## 2026-07-12 — v0.79.5 (settings on terminal themes)
 
-- **The settings modal reads on terminal themes.** The content frame uses the
-  tile fill — a dark frame on OLED themes, unchanged on light ones — and the one
-  bare card-body label ("Mappings") routes through `screen_fg`. The rest of the
-  modal was already terminal-safe: card titles render bright on dark title
-  plates, hints use the audited `screen_ink_soft`, and control buttons sit on
-  bright/`mid` fills with dark text.
+### Interface
+
+- Fixed an issue where Settings content was difficult to read on terminal
+  themes.
+- The content frame uses the theme's tile fill, dark on OLED themes and
+  unchanged on light themes. The `Mappings` label uses `screen_fg`.
+- Card titles retain bright text on dark title plates; hints use
+  `screen_ink_soft`; buttons retain dark text on bright or mid-tone fills.
 
 ## 2026-07-12 — v0.79.4 (resizable timeline; dialog readability; sharper thumbnails)
 
-- **Resizable program monitor ↔ timeline split.** A draggable grip in the gap
-  under the program monitor lets the operator take height from the preview to
-  enlarge the timeline lanes, and give it back. The monitor never shrinks below
-  a usable minimum, and the grip appears only when there is room to move.
-  Runtime-only, like the existing pane splitters.
-- **Sharper timeline filmstrip.** Lane thumbnails are 2x resolution (256×144)
-  and rendered with linear filtering, so they stay crisp when the lane is
-  enlarged.
-- **Terminal-theme dialog readability.** The startup boot splash, the
-  startup-mode menu ("New show / Open previous / Open saved"), the keyboard
-  shortcuts overlay and the Settings title draw through the on-body ink roles
-  (`screen_fg` / `screen_fg_soft` / `screen_ink_soft`), and the boot console
-  uses the tile fill — bright text on dark panels in OLED themes, unchanged on
-  light ones. The themes were already right; the dialogs simply had not been
-  routed through the new roles yet.
+### Interface
+
+- New: a draggable grip between the program monitor and timeline transfers
+  height between preview and timeline lanes. The monitor retains a usable
+  minimum height; the grip appears only when resizing is possible.
+- The split is session-only, matching the existing pane splitters.
+- Fixed an issue where startup, the `New show / Open previous / Open saved`
+  menu, keyboard shortcuts and the Settings title were difficult to read on
+  terminal themes.
+- These labels now use `screen_fg`, `screen_fg_soft` and `screen_ink_soft`;
+  the boot console uses the tile fill. OLED themes show bright text on dark
+  panels; light themes retain their appearance.
+
+### Timeline
+
+- Doubled filmstrip thumbnail resolution to `256x144` and added linear
+  filtering for enlarged lanes.
 
 ## 2026-07-12 — v0.79.3 (terminal/OLED themes; manual rewrite)
 
-- **Terminal / OLED themes.** New theme roles let dark themes render as a
-  true-black terminal — OLED-black backgrounds and tiles with bright
-  phosphor text and per-theme accents. `screen_fg` (primary on-body ink),
-  `screen_fg_soft` (secondary on-tile ink), and `screen_tile` (interactive
-  tile fill) each fall back to an existing role (`screen_deep`,
-  `screen_dark`, `screen_light`), so **every existing theme is byte-for-
-  byte unchanged** and only themes that set the new keys invert.
-  - All 25 dark-cased themes reworked as OLED terminals with hue-matched
-    accents (green `dark`, red `virtual-boy`/`famicom`/`mario`, amber
-    `metroid`, teal `n64`/`wave-race`, violet `gamecube`/`super-famicom`,
-    blue `star-fox`/`switch-neon`/`captain-falcon`, magenta `ganon`, pink
-    `kirby`/`peach`, gold `zelda`, yellow `pikachu`, lime `piranha-plant`,
-    cyan `dolphin`, ice `ice-climber`, white `r-o-b`, grey-green
-    `game-and-watch`, and more). Light-cased themes (gameboy, pocket, sp,
-    advance, color) are untouched.
-  - On-body text sites (inspector row labels, playlist/timeline/header/
-    footer chrome) and interactive tiles (cue rows, toolbar and quick-row
-    buttons, section headers) draw through the new roles.
-  - The inspector body fills with `shell_inner`, so its labels always have a
-    legible fill.
-  - `tools/audit_theme_contrast.ps1` covers the new roles; all themes pass.
-- **MANUAL.md rewritten** from scratch for the current app (SDL3, Windows-
-  first, in-process decode) covering cue types, the inspector, outputs and
-  geometry, per-cue + multichannel audio, missing-media relink, timecode,
-  themes, remote control, soak testing, and the full keyboard reference.
+### Themes
+
+- New roles: `screen_fg` for primary body text, `screen_fg_soft` for secondary
+  tile text and `screen_tile` for interactive tile fill. They support
+  true-black backgrounds with bright text and theme accents.
+- Fallbacks are `screen_deep`, `screen_dark` and `screen_light`, respectively.
+  Themes without the new keys remain byte-identical.
+- Reworked all `25` dark-cased themes as OLED terminals with matching accents:
+  green `dark`; red `virtual-boy`, `famicom`, `mario`; amber `metroid`; teal
+  `n64`, `wave-race`; violet `gamecube`, `super-famicom`; blue `star-fox`,
+  `switch-neon`, `captain-falcon`; magenta `ganon`; pink `kirby`, `peach`;
+  gold `zelda`; yellow `pikachu`; lime `piranha-plant`; cyan `dolphin`; ice
+  `ice-climber`; white `r-o-b`; and grey-green `game-and-watch`, among others.
+- Light-cased `gameboy`, `pocket`, `sp`, `advance` and `color` themes are
+  unchanged.
+- Inspector labels, playlist, timeline, header and footer text, cue rows,
+  toolbar and quick-row buttons, and section headers use the new roles.
+- The inspector body uses `shell_inner` to keep labels readable.
+- The contrast audit covers the new roles; all themes passed.
+
+### Documentation
+
+- Rewrote the manual for SDL3, Windows-first operation and in-process decode.
+- Covers cue types, inspector, outputs and geometry, per-cue and multichannel
+  audio, missing-media relink, timecode, themes, remote control, soak testing
+  and the full keyboard reference.
 
 ## 2026-07-11 — v0.79.2 (soak harness; shuffle seeding; inspector readability)
 
-- **`--soak [minutes]` long-run stability harness.** Loops the loaded show (or
-  synthesized patterns if none) through the real app loop, logging RSS /
-  decode-stall / missing-media counters once a minute to stdout and
-  `deckboy-soak.log`, then quits. Never persists the looped state into the show
-  file. For 24 h+ runs on show hardware. Default 24 h; e.g.
-  `Deckboy.exe --soak 720` for a 12 h run.
-- **Shuffle deals a different order every launch**, from a `std::mt19937` seeded
-  by `std::random_device` with a proper uniform distribution.
-- **Cue inspector text is readable on every theme.** The inspector body fills
-  with `shell_inner`, the fill the palette contract already assumes for dark
-  ink and the contrast audit verifies. Theme colours are unchanged; each console
-  keeps its case.
+### Diagnostics
+
+- New: `--soak [minutes]` loops the loaded show, or generated patterns when no
+  show is loaded, through the normal app loop and then quits.
+- Logs RSS, decode-stall and missing-media counters once per minute to stdout
+  and `deckboy-soak.log`. Does not save the test's looped state into the show.
+- Default duration is `24 h`, intended for long runs on show hardware.
+  Example: `Deckboy.exe --soak 720` runs for `12 h`.
+
+### Cues
+
+- Changed: shuffle uses a freshly seeded uniform random distribution for a
+  different order each launch.
+
+### Interface
+
+- Fixed an issue where cue-inspector text was difficult to read on some
+  themes. Its body now uses the contrast-audited `shell_inner` fill; theme
+  colours and case designs are unchanged.
 
 ## 2026-07-11 — v0.79.1 (mid-show media loss hardening)
 
-- **A vanished file cannot take a deck down mid-show.** Taking a cue whose media
-  is gone (drive pulled, share dropped) is refused with a MEDIA MISSING toast
-  before the engine sees it — the output keeps whatever it was showing.
-  Auto-advance skips missing cues, with a toast per skip, bounded so an
-  all-missing looped playlist cannot spin.
-- The take-time check is fresh from disk and updates the MISSING badges and the
-  toolbar RELINK count in both directions — a re-mounted drive clears the
-  warning on the next take, with no project reload.
-- A decode stall whose file turns out to be gone reports "MEDIA LOST (RELINK
-  when restored)".
+### Cues
+
+- Fixed an issue where taking a cue could interrupt output when its media
+  disappeared mid-show, such as after unplugging a drive or losing a network
+  share. The take is refused with `MEDIA MISSING`; the existing output stays
+  visible.
+- Auto-advance skips missing cues with a toast for each skip. The search is
+  bounded so an entirely missing, looped playlist cannot spin indefinitely.
+- Each take checks the disk and updates `MISSING` badges and the toolbar
+  `RELINK` count. Restoring a drive clears the warning on the next take
+  without reopening the show.
+- A decoder stall caused by a missing file reports
+  `MEDIA LOST (RELINK when restored)`.
 
 ## 2026-07-11 — v0.79.0 (multichannel audio output routing)
 
-- **Cues can route to any output pair of a multichannel interface.** Settings →
-  AUDIO OUTPUT has an "Outs" control (2/4/6/8 channels, per deck) that reopens
-  the deck's device with that many channels. When more than 2 are open, the cue
-  inspector's AUDIO section grows an **outs** row: route each cue's (post
-  gain/pan/mono) stereo onto outs 1-2, 3-4, 5-6, or 7-8 — VT to the PA on 1-2,
-  click to monitors on 3-4.
-- The engine pipeline stays stereo end to end (gain, fades, delay line, VU tap);
-  expansion to the device's channel count happens only at the final stream
-  write, with silence on the unused outs. All byte↔frame math (A/V master clock,
-  backpressure, sync-pop pacing) is channel-aware.
-- On a device with fewer physical outs than the opened count, SDL folds the
-  extra pairs down — prep on the laptop, route at the venue.
-- Remote: `AUDIOOUTS <pair>` (1-based) sets the selected cue's output pair.
-- Routing persists per cue and per deck; smoke covers the round trip.
+### Audio
+
+- New: `Settings > AUDIO OUTPUT > Outs` selects `2/4/6/8` device channels per
+  deck and reopens that deck's audio device.
+- With more than two channels open, the cue inspector's `AUDIO > outs` row
+  routes post-gain, pan and mono stereo audio to `1-2`, `3-4`, `5-6` or `7-8`.
+- Gain, fades, delay and VU metering remain stereo; unused device outputs
+  receive silence. A/V timing, backpressure and sync-pop pacing account for
+  the selected channel count.
+- SDL folds additional pairs down when the device has fewer physical outputs
+  than requested, allowing laptop preparation before venue routing.
+- Remote: `AUDIOOUTS <pair>` sets the selected cue's output pair, numbered
+  from `1`.
+- Per-cue routing and per-deck channel counts persist in the show; save/load
+  round trips are covered by smoke tests.
 
 ## 2026-07-11 — v0.78.16 (missing media: detection + relink)
 
-- **Deckboy notices when show media is missing.** Every project load scans
-  file-backed cues; cues whose files cannot be found get a red MISSING badge in
-  the cue list, and a red **RELINK n** button appears in the toolbar next to
-  BUNDLE while anything is missing.
-- **One-click relink.** RELINK opens a folder picker; Deckboy searches the
-  chosen folder recursively for files matching each missing cue's filename and
-  repoints the cues — exact file-size match wins when several files share a
-  name. Toast reports "relinked X, Y still missing". Clicking RELINK first
-  re-checks the disk, so a re-mounted drive clears the warning without any
-  picking.
-- Smoke test covers the scan + relink round trip.
+### Cues
+
+- New: opening a show checks all file-backed cues. Missing files receive a red
+  `MISSING` badge and a toolbar `RELINK n` button beside `BUNDLE`.
+- `RELINK` opens a folder picker and recursively searches for matching
+  filenames. An exact file-size match takes precedence when several files
+  share a name.
+- Relinking updates cue paths and reports `relinked X, Y still missing`.
+- Clicking `RELINK` first checks the disk again, clearing warnings for a
+  restored drive without requiring folder selection.
+- Smoke tests cover the missing-media scan and relink round trip.
 
 ## 2026-07-11 — v0.78.15 (audio fade envelopes on every waveform)
 
-- **The audio fade envelope is drawn over every waveform** — the timeline's
-  audio lane, the program monitor strip, and both cue-panel thumbs and strips.
-  Ramps show the EFFECTIVE audio fades (the cue's a-fades when set, otherwise
-  the visual fades), anchored to the in/out points — the same resolution the
-  audio thread applies, so what you see is what plays.
+### Audio
+
+- Added audio fade envelopes to the timeline audio lane, program-monitor
+  strip, cue-panel thumbnails and cue-panel strips.
+- Envelopes use the cue's explicit audio fades when set, otherwise its visual
+  fades, anchored to the in/out points to match playback.
 
 ## 2026-07-11 — v0.78.14 (AUDIO section; deck fader named; independent audio fades)
 
-- **The cue inspector has a collapsible AUDIO section** in both layouts: enable,
-  gain, pan, mono, the new audio fades, and normalize — one place for the cue's
-  whole audio story, collapsible like GEOMETRY and OVERLAYS.
-- **"volume" is renamed "deck fader."** It is the deck's live playback level
-  (keyboard +/-) and is not saved with the cue; per-cue trim is gain, in the
-  AUDIO section.
-- **Independent audio fades**: `a-fade in` / `a-fade out` per cue — follow the
-  visual fade (default), none, or explicit seconds. Duck audio early under a
-  long video tail, or hold it under a fast visual cut. Applied through the same
-  audio-thread fade mirrors; persisted, backward compatible, with a smoke
-  round-trip.
+### Audio
+
+- New: collapsible `AUDIO` inspector section in both layouts, containing
+  enable, gain, pan, mono, audio fades and normalization, alongside the
+  existing `GEOMETRY` and `OVERLAYS` sections.
+- Changed: `volume` is named `deck fader`. It controls the deck's live
+  playback level with `+` / `-` and is not saved per cue; per-cue gain trim
+  remains in `AUDIO`.
+- New: per-cue `a-fade in` and `a-fade out`, set to follow the visual fade by
+  default, none, or an explicit duration in seconds.
+- Audio fades can duck sound before a long video tail or retain it through a
+  fast visual cut. Settings persist, retain backward compatibility and have
+  smoke-test save/load coverage.
 
 ## 2026-07-11 — v0.78.13 (readability lives in the themes)
 
-- **Readability is a theme-data contract**, and the v0.78.12 renderer-side guard
-  is gone (the owner: fix the data, not the renderer).
-  - The 26 affected themes take a light trim tint of their own hue for
-    `shell_inner` — which is also what the real consoles look like — tuned until
-    every ink role clears its ratio.
-  - The `dark` theme is reworked: graphite chrome, light rows, near-black ink.
-  - `gamecube`'s selected-row purple and two `screen_light` tones nudged.
-- New `tools/audit_theme_contrast.ps1` encodes the exact ink/fill pairs the UI
-  draws with, at per-pair minimum ratios — run it after editing any theme; "all
-  themes pass" is the contract.
-- The startup wordmark stays headline-sized from v0.78.12; the version tag stays
-  small on the subtitle line.
+### Themes
+
+- Changed: readability is defined by theme colours; removed the renderer-side
+  contrast override introduced in v0.78.12.
+- Adjusted `shell_inner` in `26` affected themes to a light tint of each
+  theme's own hue, meeting the required ink contrast ratios while retaining
+  console styling.
+- Reworked `dark` with graphite panels, light rows and near-black text.
+- Adjusted `gamecube` selected-row purple and two `screen_light` tones.
+- Added a theme contrast audit for the interface's actual ink/fill pairs and
+  minimum ratios, to run after theme edits.
+
+### Interface
+
+- Retained the headline-sized startup wordmark from v0.78.12 and the smaller
+  version tag on the subtitle line.
 
 ## 2026-07-10 — v0.78.12 (theme readability guard; startup headline)
 
-- **Every theme renders readable text.** `rebuildPalette` ends with a
-  readability pass: WCAG-style contrast is enforced between the role pairs the
-  UI actually draws (light-on-deep 4.5:1, dark-on-light 3:1, accents and
-  secondary ink proportionally), nudging only the offending tone's lightness.
-  Hue identity survives; compliant themes are untouched.
-- The startup prompt's "Deckboy" headline is headline-sized (a new 42 pt
-  pixel-font instance, scaling with UI scale).
+### Themes
+
+- Added automatic WCAG-style contrast adjustment for the interface's ink/fill
+  pairs: `4.5:1` for light text on deep fills, `3:1` for dark text on light
+  fills, with proportional thresholds for accents and secondary text.
+- Only the lightness of a failing tone changes; hue is preserved and compliant
+  themes remain unchanged.
+
+### Interface
+
+- Changed: the startup `Deckboy` headline uses a `42 pt` pixel font that
+  follows UI scale.
 
 ## 2026-07-10 — v0.78.11 (A/V delay offset)
 
-- **Settings → Audio: "A/V delay" (0–1000 ms, ±10 steps).** Holds ALL deck audio
-  back by the set amount, for chains where the display or PA DSP lags the video.
-  Applied live in the audio threads through a delay FIFO — no restarts — and the
-  A/V master clock anchors to the undelayed timeline so the skew is real at the
-  device. VU meters follow the delayed (heard) audio. The Pocket Test sync pop
-  runs through the same delay, so the dial-in workflow is: take the Pocket Test
-  at the venue, watch the beacon, and nudge the delay until flash and pop land
-  together.
-- Persisted with the show (`audio_delay_ms`).
+### Audio
+
+- New: `Settings > Audio > A/V delay`, from `0–1000 ms` in `10 ms` steps,
+  delays all deck audio to align the display and PA chain.
+- Changes apply live without restarting playback. The A/V master clock remains
+  on the undelayed timeline; VU meters follow the delayed audio heard at the
+  device.
+- Pocket Test's sync pop uses the same delay. Adjust it until the beacon flash
+  and pop coincide at the end of the chain.
+- Saved with the show as `audio_delay_ms`.
 
 ## 2026-07-10 — v0.78.10 (per-cue loudness normalize)
 
-- **Normalize loudness, per cue**: one button in the audio section, and the
-  `AUDIONORM` remote command, measures the file's EBU R128 integrated loudness
-  on a worker thread and sets the gain trim for -16 LUFS playback — a starting
-  point you can still nudge. Toasts the measured loudness and the applied trim
-  when the analysis lands.
+### Audio
+
+- New: per-cue loudness normalization through the audio-section button or
+  remote `AUDIONORM`.
+- Measures the file's EBU R128 integrated loudness in the background and sets
+  gain trim for a `-16 LUFS` target. The resulting trim remains manually
+  adjustable.
+- A completion toast reports measured loudness and applied trim.
 
 ## 2026-07-10 — v0.78.9 (per-cue audio: gain, pan, mono)
 
-- **Every cue with audio has its own audio section:**
-  - **Gain**: -24 to +12 dB trim (dB, not multipliers), for media that arrives
-    at wildly different loudness.
-  - **Pan**: stereo balance with centre snap.
-  - **Mono**: downmix toggle for mono sources and mono venue PAs.
-- All three apply **live** in the audio thread — no decode restart, VU meters
-  follow — and they sit under the audio toggle in the inspector as scrubbable
-  quick rows. The Pocket Test sync pop honours them too.
-- New remote commands for Companion: `AUDIOGAIN <dB>`, `AUDIOPAN <-1..1>`,
-  `AUDIOMONO <0|1>` — the same single write path as the inspector.
-- Persisted per cue (appended fields, backward compatible); covered by a new
-  `--smoke` round-trip assertion.
+### Audio
+
+- New: audio controls for every cue with audio: gain trim from `-24` to
+  `+12 dB`, stereo-balance pan with centre snap, and mono downmix.
+- Scrubbable inspector rows sit below the audio toggle. Changes apply live
+  without restarting decode; VU meters and Pocket Test's sync pop follow them.
+- New remote commands: `AUDIOGAIN <dB>`, `AUDIOPAN <-1..1>`,
+  `AUDIOMONO <0|1>`, with the same behaviour as the inspector.
+- Settings persist per cue and remain compatible with older shows. `--smoke`
+  verifies the save/load round trip.
 
 ## 2026-07-10 — v0.78.8 (Pocket Test: the ball bounces; patterns run at display rate)
 
-- **Pattern rebuilds are locked to the selected display's refresh rate** — or
-  the project's explicit output refresh when set — and the card is layered: the
-  static layer (grid, bars, grayscale, ramp, PLUGE/detail patches, border,
-  crosshair) is cached per raster and memcpy'd, the island scene renders at a
-  fixed internal 640x360 (chunky pixel art — nearest sampling is on-brand), and
-  only the dynamics draw per frame.
-- **The circle is a ball.** It bounces slowly around the whole frame, DVD-logo
-  style, at constant velocity — the scene behaves as the full background behind
-  the card, and the ball is a porthole revealing whatever it floats over (sky up
-  top, beach and characters at the bottom). It doubles as the smooth-motion /
-  judder object and a burn-in rover; the A/V sync beacon rides at its 12
-  o'clock. The alignment crosshair stays fixed at frame centre.
-- Motion is smoother across the board: pattern animation steps once per display
+### Patterns
+
+- Changed: pattern updates follow the selected display's refresh rate, or the
+  project's explicit output refresh when set. Animation advances once per
+  display frame.
+- Pocket Test caches its static grid, bars, grayscale, ramp, PLUGE/detail
+  patches, border and crosshair per raster. Its island scene renders at
+  `640x360` with nearest-neighbour sampling; dynamic elements update each
   frame.
+- Changed: the centre circle is a ball moving slowly across the full frame at
+  constant velocity, bouncing like a DVD logo.
+- The ball reveals the underlying island scene, including sky, beach and
+  characters. It serves as a smooth-motion/judder reference and burn-in rover.
+- The A/V sync beacon stays at the ball's twelve o'clock position; the
+  alignment crosshair remains at frame centre.
 
 ## 2026-07-09 — v0.78.7 (Pocket Test: PM5544 edition; pattern policy pass)
 
-- **Pocket Test rebuilt as a proper broadcast test card**: full-frame crosshatch
-  grid, 75% colour bars + grayscale staircase across the top, ramp +
-  PLUGE/fine-detail/shimmer patch row across the bottom, slow diagonal sweep
-  over the grid, Emerald-style ID box (version, raster, clock, scene) — and the
-  island scene lives INSIDE the centre circle, Test Card F style, still cycling
-  day/sunset/night/storm with the crossfade. The sync beacon sits at the
-  circle's 12 o'clock, flashing in the 80 ms pop window; crosshair at dead
+### Patterns
+
+- Rebuilt Pocket Test with a full-frame crosshatch grid, `75%` colour bars and
+  grayscale staircase at the top, and ramp, PLUGE, fine-detail and shimmer
+  patches at the bottom.
+- Added a slow diagonal grid sweep and Emerald-style ID box showing version,
+  raster, clock and scene.
+- The island scene occupies the centre circle, in Test Card F style, retaining
+  crossfaded day, sunset, night and storm scenes. The beacon flashes at twelve
+  o'clock during the `80 ms` sync-pop window; the crosshair stays at frame
   centre.
-- **Motion policy: all pattern motion is slow, smooth, and diagonal.**
-  Crosshatch drifts one cell per 8 s at 45°, checkerboard one period per 10 s,
-  SMPTE bars get a 12 s diagonal sweep line instead of scan lines.
-- **Solid colour patterns are static** — a pulsing reference level is a
-  contradiction; legacy saves degrade to the static colour.
-- **Terrarium is a secret again:** hidden from the pattern pickers until it is
-  found. Saved terrarium cues load regardless.
+- Changed: pattern motion is slow, smooth and diagonal. Crosshatch moves one
+  cell per `8 s` at `45°`; checkerboard moves one period per `10 s`; SMPTE
+  bars use a `12 s` diagonal sweep instead of scan lines.
+- Changed: solid-colour patterns remain static, including when loading older
+  shows that requested motion.
+- Terrarium is omitted from pattern pickers until discovered; saved Terrarium
+  cues still load.
 
 ## 2026-07-09 — v0.78.6 (Pocket Test: audible for real, strobe defused)
 
-- **Existing Pocket Test cues become audible on load.** `normalizeProject` flips
-  legacy pocket-test cues to audible once, and new ones are created with
-  `hasAudio=true` so the audio toggle is visible; a mute made after that
-  persists. (`--sync-pop-test` verified the engine synth path end to end against
-  a real device: PASS.)
-- **The ? block shimmers rather than strobing.** A full-square 30 Hz flash is a
-  photosensitivity hazard; it is now a single-pixel checkerboard whose phase
-  inverts at 30 Hz — a soft shimmer, while dropped or doubled frames still make
-  it freeze or beat visibly.
-- New `--sync-pop-test` CLI: runs the real sync-pop path against the default
-  audio device and reports PASS/FAIL — first stop for any "test card has no
-  audio" question.
+### Patterns
+
+- Fixed an issue where existing Pocket Test cues remained silent after
+  loading. Older cues are made audible once; new cues expose the audio toggle
+  and start with audio enabled. Subsequent per-cue muting persists.
+- Changed: the `?` block uses a single-pixel checkerboard with phase inversion
+  at `30 Hz`, replacing the full-square `30 Hz` flash to reduce the
+  photosensitivity hazard. Dropped or doubled frames remain visible as
+  freezing or beating.
+
+### Diagnostics
+
+- New: `--sync-pop-test` exercises the actual sync-pop playback path against
+  the default audio device and reports `PASS` or `FAIL`.
+- Verified the synthesized sync-pop path end to end on a real device: `PASS`.
 
 ## 2026-07-09 — v0.78.5 (Pocket Test field notes: audio, scaling, Emerald)
 
-Four things from the owner's first hands-on with the test card:
+### Patterns
 
-- **The sync pop plays.** Pocket Test cues default to audio ON, and the pop
-  follows the visual rather than the transport state: if the buoy lamp is
-  flashing on the output, it pops — STOP-dark silences it.
-- **Scene transitions crossfade** (1.4 s pixel blend) instead of hard palette
-  cuts. The card chrome draws over the blend and never fades.
-- **All patterns build pixel-mapped to the LIVE program-output raster,**
-  re-checked every rebuild, so a display switch mid-show retargets patterns
-  automatically (new `OutputSizeProvider` on MediaEngine). A test pattern that
-  is not 1:1 with the selected display is lying.
-- **A skiff sails the ocean** at constant velocity (4 s per screen) as the
-  judder object, over the same 10% fence ticks.
-- **Chrome restyled as GBA Pokémon Emerald** (the game, not the colour): white
-  windows with dark-grey outline + teal beveled frame band, dark-grey text with
-  the signature light drop shadow, red name text and continue-cursor, plus an
-  Emerald battle-style status panel — the HP bar drains across each 14 s scene
-  (green→yellow→red, doubling as the scene timer) and the EXP bar fills every
-  second in step with the buoy pop.
-
+- Pocket Test defaults to audio on. Its sync pop follows the visible buoy lamp
+  even when transport state changes; `STOP` with dark output silences it.
+- Changed: scenes crossfade over `1.4 s` instead of cutting between palettes.
+  Card borders and labels remain fully visible above the blend.
+- All patterns render pixel-for-pixel at the live program-output raster,
+  checked on every rebuild. Switching displays retargets them automatically.
+- Added a skiff moving across the ocean at constant speed, `4 s` per screen,
+  over the existing `10%` fence ticks for judder checks.
+- Restyled Pocket Test after GBA Pokémon Emerald: white windows, dark-grey
+  outlines and text, teal bevels, light text shadows, red names and continue
+  cursor.
+- The battle-style status panel's HP bar drains green to yellow to red across
+  each `14 s` scene. Its EXP bar fills each second in step with the sync pop.
 
 ## 2026-07-09 — v0.78.4 (Terrarium goes native)
 
-- **Terrarium is a first-class Deckboy generator source:** `pattern://terrarium`
-  runs the full ecosystem simulation in-process — no companion exe, no window
-  capture. The sim (`native/extras/terrarium_core.hpp`) ticks at its native
-  9 TPS and renders its 200x112 glyph world to a 1600x896 frame with the same
-  8x8 font, palettes, seasons, weather, clouds and creatures as the standalone
-  app. One world per show: every deck and preview shows THE terrarium, and it
-  keeps living across cue reloads. New shows start with a warmed-up ecosystem,
-  not bare dirt.
-- "Terrarium (living ecosystem)" appears openly in the pattern picker; the
-  secret purple cue is now backed by the native pattern.
-- The standalone `terrarium.exe` still builds and ships, sharing the same
-  simulation core.
-- `--smoke` verifies the native terrarium renders a living world.
+### Patterns
+
+- New: `pattern://terrarium` runs the full ecosystem simulation inside Deckboy
+  without a companion process or window capture.
+- Runs at `9 ticks/s`, rendering a `200x112` glyph world into `1600x896` with
+  the standalone app's `8x8` font, palettes, seasons, weather, clouds and
+  creatures.
+- Each show shares one world across decks and previews, retaining simulation
+  state across cue reloads. New shows start with an established ecosystem.
+- `Terrarium (living ecosystem)` appears in the pattern picker; the purple
+  Terrarium cue uses the native pattern.
+- The standalone `terrarium.exe` remains available and shares the simulation.
+- `--smoke` checks that the native pattern renders a living world.
 
 ## 2026-07-09 — v0.78.3 (Pocket Test A/V sync pop)
 
-- **The test card checks audio/video sync.** A buoy bobs in the ocean; its lamp
-  flashes for 80 ms at the top of every second, and the deck plays a matching
-  1 kHz pop in exactly that window — the first audio a pattern cue has ever
-  produced. Watch and listen at the end of the chain: any gap between flash and
-  pop is the chain's A/V offset. The pop respects deck volume, master gain and
-  cue fades, and drives the VU meters like any decoded audio. Mute it per-cue
-  with the cue's audio toggle.
+### Patterns
+
+- New: Pocket Test A/V sync signal, the first pattern-cue audio. A bobbing
+  buoy flashes its lamp for `80 ms` at the start of each second, accompanied
+  by a `1 kHz` pop in the same window.
+- Compare the flash and pop at the end of the playback chain to measure its
+  A/V offset.
+- The pop follows deck volume, master gain and cue fades, drives the VU
+  meters, and can be muted with the cue's audio toggle.
 
 ## 2026-07-09 — v0.78.2 (Pocket Test goes diegetic)
 
-- **The test card's instruments are part of the island world** — same
-  measurements, exact values, new bodies:
-  - Colour bars → a **billboard** on the beach.
-  - Grayscale staircase → **stone steps** climbing to the right edge.
-  - Banding ramp → a **banner** strung across the sky.
-  - Black-crush check → a **cave** whose creature-eyes (2% / 4% on black)
-    vanish if the chain crushes blacks.
-  - White-clip check → a **cloud** with 98% / 96% lumps.
-  - Flicker box → a **flashing ? block** (~30 Hz).
-  - Fine-detail patch → a **beach TV playing static** (1px checker + stripes).
-  - Judder lane → a **runner** crossing the screen at constant velocity past
-    **fence posts at exact 10% spacing**.
-  - The Pokémon-style dialog box (version, raster, clock, "A WILD NIGHT
-    APPEARED!", blinking continue-cursor) stays as the game-UI layer, with
-    chunky Game Boy borders.
-- The scene and its rainbow footer are fully visible, with the border,
-  safe-area and crosshair guides unchanged.
-- Smoke verifies the diegetic values (75% red, 2% cave eyes, 96% cloud lump).
+### Patterns
+
+- Changed: Pocket Test embeds its measurement instruments in the island scene
+  without changing their values.
+- Colour bars appear on a beach billboard; the grayscale staircase becomes
+  stone steps at the right edge; the banding ramp is a sky banner.
+- Black-crush checks use cave eyes at `2%` and `4%` on black. White-clipping
+  checks use cloud patches at `98%` and `96%`.
+- The flicker reference is a `?` block at approximately `30 Hz`; a beach TV
+  shows single-pixel checkerboard and stripe detail.
+- A runner crosses at constant speed past fence posts spaced at exactly `10%`
+  of the frame width.
+- The Pokémon-style dialog retains version, raster, clock, scene messages such
+  as `A WILD NIGHT APPEARED!`, blinking continue cursor and chunky Game Boy
+  borders.
+- The scene and rainbow footer remain fully visible; border, safe-area and
+  crosshair guides are unchanged.
+- Smoke tests verify `75%` red, `2%` cave eyes and the `96%` cloud patch.
 
 ## 2026-07-09 — v0.78.1 (Pocket Test is a real test card)
 
-- **The Pocket Test pattern grew broadcast instrumentation.** The island scene
-  stays as the living backdrop; drawn over it (auto-cycling `pocket-test` only —
-  `pocket-day/sunset/night/storm` stay clean for use as backgrounds):
-  - **1px checkerboard border + corner marks** — pixel mapping and
-    crop/overscan: any scaling between Deckboy and the display greys the border
-    out instantly.
-  - **Dashed 90% / 80% safe-area guides + centre crosshair.**
-  - **Instrument strip:** 75% colour bars, 11-step grayscale staircase,
-    continuous ramp (banding check), PLUGE-style 0/2/4% black and 100/98/96%
-    white patches (black crush / white clip), single-pixel checker + 1px stripe
-    patches (fine detail / interlace), ~30 Hz flicker box (dropped/doubled
-    frames), and a full-width constant-velocity motion lane with 10% ticks
-    (judder).
-  - **Info plate** in a built-in 3x5 pixel font: build version, actual raster
-    (e.g. 1280x720), running clock, scene name.
-- New `--pattern-dump <pattern-id> <out.ppm> [WxH] [t]` CLI renders any pattern
-  frame to a PPM for inspection and docs.
-- `--smoke` asserts the card instrumentation is present and that the scene
-  variants stay clean.
+### Patterns
+
+- Added broadcast test instruments over the island backdrop of auto-cycling
+  `pocket-test`. The `pocket-day`, `pocket-sunset`, `pocket-night` and
+  `pocket-storm` variants remain plain backgrounds.
+- Added a single-pixel checkerboard border and corner marks for pixel mapping,
+  crop and overscan checks; scaling turns the border grey.
+- Added dashed `90%` and `80%` safe-area guides and a centre crosshair.
+- Instrument strip: `75%` colour bars, `11-step` grayscale, continuous banding
+  ramp, PLUGE-style `0/2/4%` black patches and `100/98/96%` white patches.
+- Fine-detail and interlace checks use single-pixel checkerboard and stripe
+  patches. A roughly `30 Hz` flicker box tests dropped/doubled frames; a
+  full-width constant-speed motion lane with `10%` ticks tests judder.
+- A built-in `3x5` pixel-font plate shows build version, actual raster,
+  running clock and scene name.
+- New: `--pattern-dump <pattern-id> <out.ppm> [WxH] [t]` renders any pattern
+  frame to PPM for inspection or documentation.
+- `--smoke` checks that instruments appear on the test card and remain absent
+  from the scene variants.
 
 ## 2026-07-09 — v0.78.0 (in-process GPU decode — zero-copy video)
 
-- **File-backed Video/Audio cues decode in-process through the FFmpeg libraries
-  (libav\*)** rather than two `ffmpeg.exe` subprocess pipes per deck. On Windows,
-  video decodes via **d3d11va directly on the program output renderer's D3D11
-  device and the frames never touch the CPU**: the output compositor GPU-copies
-  each decoded NV12 texture slice into a persistent SDL texture. That removes the
-  per-frame GPU→CPU download, the swscale pass, ~41–83 MB/s of pipe transfer and
-  the CPU→GPU re-upload — the transport cost that made the fanless Pocket 3
-  marginal.
-- **What still uses the ffmpeg CLI** (by design): live streams (SRT/NDI), source
-  capture, stills/thumbnails, waveform analysis, ffprobe ingest, and stream
-  encode-out. Files with rotation metadata also stay on the CLI, which
-  autorotates where libav does not.
-- **Automatic fallbacks:** effects cues (chroma key / colour controls) and
-  non-hw codecs decode in-process to CPU frames — still no subprocess, no pipe —
-  and if an in-process open fails for any reason the engine falls straight back
-  to the CLI pipe path. `--no-inproc-decode` forces the CLI path for a whole
-  run, and building with `-DDECKBOY_INPROC_DECODE=OFF` produces the pure-CLI
-  binary.
-- **Resilience:** the decoder validates files by priming the first frame before
-  committing, tolerates runs of corrupt packets by degrading to EOF, and a
-  watchdog reracks the deck dark with a toast if a decode wedges mid-show. A
-  corrupt-file test is part of `--smoke`.
-- **Playback semantics unchanged:** same frame queue and backpressure, same
-  audio-master A/V clock (audio decodes in-process to the same s16/48k stereo
-  stream, speed through the same atempo semantics), same seek/EOF/loop
-  behaviour.
-- **`--decode-bench <file> [seconds] [cli]`** measures decode throughput through
-  the real engine path for before/after comparison on a given machine.
-- **Cheap wins bundled:** decode threads are capped so they cannot starve the
-  render loop on 4-thread CPUs; the always-on no-op scale pass is skipped on
-  both paths; and the engine re-uploads a frame to its texture only when it
-  changes.
-- **Load-bearing hint:** `SDL_HINT_RENDER_DIRECT3D_THREADSAFE=1` is set at init
-  — SDL otherwise creates single-threaded D3D11 devices, which cannot be shared
-  with a decode thread. Never remove.
-- The zip carries the libav\* DLLs plus the FFmpeg licence notice
-  (`LICENSE-ffmpeg.txt`).
+### Playback
+
+- Changed: file-backed Video and Audio cues decode in-process through FFmpeg
+  libraries instead of two FFmpeg subprocess pipes per deck.
+- Windows D3D11VA decodes NV12 video on the program-output GPU device and
+  copies decoded textures directly into the output texture. Frames avoid CPU
+  download, colour conversion, approximately `41–83 MB/s` of pipe transfer and
+  GPU re-upload, reducing transport cost on devices such as the fanless Pocket
+  3.
+- Live SRT/NDI streams, source capture, stills, thumbnails, waveform analysis,
+  media probing and stream encoding retain the FFmpeg command-line path.
+- Files with rotation metadata retain command-line decoding for automatic
+  rotation.
+- Chroma-key and colour-control cues, and codecs without hardware decoding,
+  decode in-process to CPU frames. An in-process open failure automatically
+  falls back to command-line decoding.
+- `--no-inproc-decode` forces command-line decoding for the session. Build
+  with `-DDECKBOY_INPROC_DECODE=OFF` for a command-line-only binary.
+- The first frame is decoded before accepting a file. Runs of corrupt packets
+  end playback as EOF; a stalled decoder reracks the deck dark and reports a
+  toast. `--smoke` includes a corrupt-file test.
+- Frame buffering, backpressure, the audio-master clock, seeking, EOF and
+  looping retain their behaviour. Audio remains `16-bit / 48 kHz` stereo, with
+  the same tempo-preserving speed control.
+- Decode thread counts are capped to leave render capacity on four-thread
+  CPUs. Both decode paths skip unnecessary scaling; textures upload only when
+  the frame changes.
+- Windows enables thread-safe D3D11 device access so rendering and decode can
+  share the GPU device.
+
+### Diagnostics
+
+- New: `--decode-bench <file> [seconds] [cli]` measures throughput through the
+  actual playback engine for before/after comparisons.
+
+### Packaging
+
+- The portable zip includes FFmpeg library DLLs and `LICENSE-ffmpeg.txt`.
 
 ## 2026-07-08 — v0.77.0 (SDL3 migration)
 
-- **Whole-app migration from SDL 2.32 to SDL 3.4** (same for SDL_ttf), the
-  platform groundwork for the in-process GPU decode rewrite, which needs SDL3's
-  `SDL_CreateTextureWithProperties` D3D11 texture import for zero-copy video.
-- **Immediate wins shipped with the migration:**
-  - Per-renderer vsync (`SDL_SetRenderVSync`): program outputs stay vsynced to
-    their display; stream-only outputs and the hidden per-deck decode renderers
-    run unthrottled.
-  - SDL3's Windows DPI handling replaces the `permonitorv2` hint; mixed-DPI
-    display topologies are handled natively by SDL.
-  - Audio moved to SDL3 audio streams (`SDL_OpenAudioDeviceStream` +
-    `SDL_PutAudioStreamData`): each deck keeps its own logical device on the
-    chosen output, UI sounds keep a separate logical device on the default
-    output, and LTC ingest reads a recording stream that resamples to 48 kHz
-    mono S16 in SDL.
-- **Compatibility layer** `native/core/sdl_compat.hpp` keeps the codebase's
-  integer-rect layout math and SDL2-style display indices working on SDL3.
-- **Terrarium** companion exe migrated in the same pass — one SDL3 runtime ships
-  in the zip.
-- Validated: clean build, `--self-check` ok, `--smoke` 0 failures, live visual
-  check (control UI + program output on the HDMI dongle, video + audio playing,
-  VU meters live).
+### Build
+
+- Migrated the app and SDL_ttf from SDL `2.32` to `3.4`, providing D3D11
+  texture import for future in-process zero-copy video decoding.
+- Retained integer-based layout and existing display-index behaviour through
+  the migration.
+- Migrated the Terrarium companion executable; the zip ships one SDL3 runtime.
+- Verified a clean build, successful `--self-check`, `--smoke` with zero
+  failures, and live control/output checks using an HDMI dongle with video,
+  audio and VU meters active.
+
+### Outputs
+
+- Changed: vsync is set per renderer. Program outputs synchronize to their
+  display; stream-only outputs and offscreen deck decoding run without vsync
+  throttling.
+
+### Windows
+
+- SDL3 now handles mixed-DPI displays natively, replacing the previous
+  per-monitor DPI hint.
+
+### Audio
+
+- Migrated to SDL3 audio streams. Each deck retains its own logical device on
+  the selected output; UI sounds use a separate device on the default output.
+- LTC input uses a recording stream resampled to `48 kHz`, mono, signed
+  `16-bit` audio.
 
 ## 2026-07-05 — v0.76.31 (Media Encoder, splash system, multi-select, audio hot-swap)
 
-- **Built-in media converter + ENCODER tab.** Cues Deckboy cannot play, or would
-  play poorly — 10-bit HEVC, AV1, ProRes, >1080p — are flagged on import; a
-  contextual CONVERT button appears in the inspector, and a new **Settings →
-  Encoder** tab batch-converts them (H.264 MP4, GPU with libx264 fallback) into a
-  portable `_converted/` folder next to the show, then swaps the cue to the copy.
-  Original media is never touched.
-- **Splash system.** Grayscale scene splashes cycle at boot, tinted to the active
-  theme; the default (gameboy) theme boots the branded DECKBOY-wordmark splash.
-- **Themes.** The sci-fi colourways take Nintendo names (Luigi, Kirby, Mario,
-  Pikachu, Star Fox, Game & Watch, Peach, Ganon, R.O.B., Waluigi, Midna, …) and
-  every generated theme's background goes to a near-pure `#050505` black so
-  accents pop harder. Theme is saved per show; a New show resets to the default
-  skin.
-- **Multi-select.** Ctrl+A selects all cues; per-cue row toggles (hold, loop,
-  fade, audio) apply to the whole selection.
-- **Reset button.** RESET in the SELECTED CUE panel restores a cue's inspector
-  settings to deck defaults across the whole selection, leaving media, name and
-  metadata intact.
-- **Scrolling.** The main deck cue list clamps with a bottom-only rubber-band
-  that springs back when the wheel goes idle.
-- **Changing audio device keeps playback running** — the device is hot-swapped
-  on the running engine.
-- **The fullscreen button re-arms in one click** after New Show or a relaunch.
+### Media Encoder
+
+- New: built-in media converter and `Settings > Encoder` tab.
+- Import flags media that cannot play or may play poorly, including `10-bit`
+  HEVC, AV1, ProRes and material above `1080p`. A contextual `CONVERT` button
+  appears in the inspector.
+- Batch conversion creates H.264 MP4 copies using the GPU with a libx264
+  fallback, stores them in `_converted/` beside the show and repoints the
+  cues. Original files are preserved.
+
+### Interface
+
+- Grayscale scene splashes cycle at startup and take the active theme's tint.
+  The default `gameboy` theme uses the branded `DECKBOY` wordmark splash.
+- Changed: the main cue list uses a bottom-only rubber-band scroll limit that
+  returns when the wheel stops.
+
+### Themes
+
+- Renamed sci-fi colourways after Nintendo characters, including Luigi, Kirby,
+  Mario, Pikachu, Star Fox, Game & Watch, Peach, Ganon, R.O.B., Waluigi and
+  Midna.
+- Generated themes use near-black `#050505` backgrounds.
+- The theme is saved per show; a new show resets to the default skin.
+
+### Cues
+
+- New: `Ctrl+A` selects all cues. Hold, loop, fade and audio row toggles apply
+  to the whole selection.
+- New: `SELECTED CUE > RESET` restores inspector settings to deck defaults
+  across the selection, preserving media, names and metadata.
+
+### Audio
+
+- Changed: switching audio devices replaces the device while playback
+  continues.
+
+### Outputs
+
+- Fixed an issue where the fullscreen button required more than one click to
+  re-arm after a new show or relaunch.
 
 ## 2026-07-04 — v0.76.30 (Save/Save As, theme library, output black-on-disable)
 
-- **SAVE prompts for a location.** The toolbar SAVE button and Ctrl+S open a file
-  picker and write the project only. BUNDLE is unchanged (export with media);
-  Ctrl+Shift+S remains an explicit Save As.
-- **24 new themes** under `data/themes/` — dark, high-contrast sci-fi colourways
-  (Tritium, Cerenkov, Ion, Amber CRT, Plasma, Halon, Nebula, Infrared, Hazard,
-  Cryo, Toxic, Cobalt, Ultraviolet, Quasar, Voidsteel, Crimson Protocol) plus
-  Nintendo-flavoured ones (Virtual Boy, Famicom, Super Famicom, N64, GameCube,
-  Switch Neon, Hyrule, Metroid). The Appearance dropdown auto-discovers any
-  `data/themes/<name>/theme.txt`.
-- **Theme is saved with the show.** `Project::theme` persists the chosen
-  colourway so it survives restarts (`DECKBOY_THEME` still overrides at boot);
-  opening an older theme-less show leaves the current pick untouched.
-- **Output clears to black instead of holding a frame.** Disabling an output,
-  starting a new show, switching displays or quitting flushes a black frame, so
-  the program display — and capture dongles that latch the last signal — do not
-  keep the previous session's last picture.
-- **The cue list stops at the last cue**, in both the deck list and the overlay
+### Desk
+
+- Changed: toolbar `SAVE` and `Ctrl+S` prompt for a file location and save the
+  show only. `BUNDLE` still exports media; `Ctrl+Shift+S` remains explicit
+  Save As.
+- Dropping a folder recursively imports supported video, image and audio files
+  in name order. Audio files become Audio cues.
+- Cue-list scrolling stops at the final cue in both the deck list and overlay
   bin.
-- **Inspector fields are type-to-replace.** Opening a value field treats the
-  existing value as selected: click → type → Enter.
-- **Transport play/pause reflects state** — pause icon while playing, play icon
-  while paused.
-- **The audio timeline is click-to-seek**, matching the video lane.
-- **Dropping a folder recursively imports** every acceptable video, image and
-  audio file in name order; audio files import as Audio cues.
+
+### Themes
+
+- Added `24` themes: Tritium, Cerenkov, Ion, Amber CRT, Plasma, Halon, Nebula,
+  Infrared, Hazard, Cryo, Toxic, Cobalt, Ultraviolet, Quasar, Voidsteel,
+  Crimson Protocol, Virtual Boy, Famicom, Super Famicom, N64, GameCube, Switch
+  Neon, Hyrule and Metroid.
+- The Appearance dropdown discovers `data/themes/<name>/theme.txt`
+  automatically.
+- The chosen theme is saved with the show and restored after restart.
+  `DECKBOY_THEME` still overrides it at startup; older shows without a theme
+  retain the current selection.
+
+### Outputs
+
+- Changed: disabling an output, creating a show, switching displays or
+  quitting sends a black frame, preventing displays and capture devices from
+  retaining the previous session's final picture.
+
+### Interface
+
+- Inspector value editors select the existing value on entry: click, type,
+  then `Enter` to replace it.
+- The transport button shows pause while playing and play while paused.
+- Added click-to-seek on the audio timeline, matching the video lane.
 
 ## 2026-07-03 — v0.76.29 (Extended boot sequence)
 
-- The splash boot console runs a ~24-line scrolling sequence: real init values
-  (theme, fonts, raster/displays, audio buffer, decks/cues, Companion port, NDI
-  state, wall-clock/audio-crystal sync) interleaved with critical subsystems —
-  flux capacitor (1.21 GW nominal), heisenberg compensators (probably), dilithium
-  matrix, gremlin containment field, spline reticulation. Lines scroll
-  console-style with randomised boot timing — quick bursts, normal lines, and the
-  occasional probe that stalls for half a second — reshuffled every boot and
-  always finishing within the ~5s splash (Enter/Esc/click still skips instantly).
+### Interface
+
+- Expanded the splash console to approximately `24` scrolling lines.
+- Displays theme, fonts, raster, display count, audio buffer, decks, cues,
+  Companion port, NDI state and wall-clock/audio-crystal synchronization
+  values.
+- Interleaves fictional subsystem messages for a `1.21 GW` flux capacitor,
+  Heisenberg compensators, dilithium matrix, gremlin containment and spline
+  reticulation.
+- Order and timing vary each boot, including quick bursts and occasional
+  half-second pauses, while finishing within the approximately `5 s` splash.
+- `Enter`, `Esc` or a click skips immediately.
 
 ## 2026-07-03 — v0.76.28 (Terrarium wired in, richer boot console)
 
-- **The secret grows things.** Terrarium (v0.46, vendored at
-  `native/extras/terrarium.cpp`) ships as a bundled companion exe. Entering the
-  code launches it windowed and adds a "TERRARIUM (secret)" window-source cue to
-  the playlist — TAKE it to put the ecosystem on program.
-- **Splash boot console enriched**: the original boot tasks joined by real values
-  (version, raster + display count, decks/cues shelved, live Companion port, NDI
-  runtime state) and essential hardware checks (rubber chicken calibration),
-  revealed line by line.
-- Packaging bundles terrarium.exe.
+### Patterns
+
+- Added Terrarium `v0.46` as a bundled companion executable.
+- Its launch sequence opens a window and adds a `TERRARIUM (secret)` Window
+  Source cue to the playlist. `TAKE` sends the ecosystem to program.
+
+### Interface
+
+- Expanded the line-by-line boot console with version, raster, display count,
+  shelved decks/cues, active Companion port and NDI runtime state.
+- Retained startup tasks and added fictional checks such as rubber-chicken
+  calibration.
+
+### Packaging
+
+- Packages include `terrarium.exe`.
 
 ## 2026-07-03 — v0.76.27 (Window picker, boot log, layer fader)
 
-- **Window cues get a real picker**: adding a Window Source cue lists every
-  visible window by title, plus "Entire Desktop". Note: gdigrab matches titles
-  exactly, so apps that retitle themselves (browsers per tab) need re-picking
-  after a title change.
-- **Startup boot log**: the startup dialog plays a retro BIOS-style boot log —
-  real values (raster, displays, decks/cues, Companion port, NDI runtime)
-  interleaved with important diagnostics such as RUBBER CHICKEN ... CALIBRATED,
-  revealed line by line.
-- **Deck layer fader tidied**: the playlist-footer opacity rail is the multi-deck
-  LAYER fader (compositing weight when decks stack on one output). It hides in
-  single-deck shows and appears labelled ("LAYER n%", legible deep ink) when a
-  second deck exists.
+### Sources
+
+- New: adding a Window Source cue opens a picker listing all visible window
+  titles and `Entire Desktop`.
+
+### Interface
+
+- Added a retro BIOS-style startup log, revealing raster, displays, decks,
+  cues, Companion port and NDI runtime line by line, interleaved with
+  fictional diagnostics such as `RUBBER CHICKEN ... CALIBRATED`.
+
+### Outputs
+
+- Changed: the playlist-footer opacity control is labelled `LAYER n%` in dark
+  text. It controls the deck's compositing weight when several decks share an
+  output.
+- The fader is hidden for single-deck shows and appears when a second deck
+  exists.
+
+### Known issues
+
+- Window capture matches titles exactly through gdigrab. Re-select windows
+  after title changes, such as when a browser changes tabs.
 
 ## 2026-07-03 — v0.76.26 (transport verbs, cameras, full-speed in background)
 
-- **Full speed whether or not Deckboy has focus**: it opts out of Windows 11
-  EcoQoS and timer-resolution coalescing at startup, so the decode and audio
-  timing loops hold their 4ms cadence while you work in another window.
-- **Three distinct transport verbs**: PAUSE freezes in place (resumable); RERACK
-  returns to the top holding the first frame, ready; STOP darkens the deck AND
-  reracks — visual cleared, decode pipes and capture devices released, so a
-  stopped webcam turns its light off. PLAY after a dark STOP revives the pipes.
-- **Camera cues work on Windows** through a new DirectShow backend. Webcams,
-  HDMI capture sticks and Blackmagic WDM devices are all DirectShow video
-  devices, so one Camera/Capture cue covers them: adding a camera cue enumerates
-  devices and opens a picker, auto-selecting when there is exactly one. TAKE
-  starts capture; STOP releases the device. (DirectShow devices are
-  exclusive-open, so live preview-while-live-program of the same device needs a
-  shared-capture architecture — future work.)
-- **Audio lane honesty**: an empty waveform analysis is cached rather than
-  respawning ffmpeg, live sources show "live audio", audio-less cues show "no
-  audio track", and waveform analysis runs only for file-backed video and audio
-  cues.
-- **Test pattern cleanup**: the pattern picker lists base types only — motion is
-  the toggle's job — and the four Pocket scene variants merged into the one
-  cycling Pocket Test (legacy ids still load). The crosshatch grid is anchored to
-  the centre crosshair at every raster.
-- **Deck opacity fader labelled**: the strip under the playlist reads
-  "OPACITY n%".
-- **??? **: ↑ ↑ ↓ ↓ ← → ← → B A Start.
-- **Dead-control sweep**: automated checks for duplicate action ids, unhandled
-  quick actions, buttons without handlers, and struct fields written but never
-  consumed — all clean after this release.
+### Windows
+
+- Changed: Deckboy opts out of Windows 11 EcoQoS and timer-resolution
+  coalescing at startup. Decode and audio timing retain their `4 ms` cadence
+  while another app has focus.
+
+### Transport
+
+- `PAUSE` freezes playback in place and remains resumable.
+- `RERACK` returns to the start and holds the first frame.
+- `STOP` darkens the deck, reracks it and releases decoders and capture
+  devices, including turning off a stopped webcam's light. `PLAY` after `STOP`
+  reopens playback.
+
+### Sources
+
+- New: DirectShow camera input on Windows, including webcams, HDMI capture
+  sticks and Blackmagic WDM devices.
+- Adding a Camera/Capture cue lists devices in a picker, or selects
+  automatically when exactly one is available. `TAKE` starts capture; `STOP`
+  releases the device.
+
+### Audio
+
+- Empty waveform-analysis results are cached to prevent repeated analysis.
+- Live sources show `live audio`; cues without audio show `no audio track`.
+  Waveform analysis runs only for file-backed video and audio cues.
+
+### Patterns
+
+- Changed: the picker lists base patterns only; the motion toggle controls
+  animation.
+- Combined four Pocket scene variants into the cycling Pocket Test. Older
+  pattern IDs still load.
+- Crosshatch grids remain aligned to the centre crosshair at every raster.
+- Added the input sequence `↑ ↑ ↓ ↓ ← → ← → B A Start`.
+
+### Interface
+
+- The deck opacity strip below the playlist is labelled `OPACITY n%`.
+
+### Diagnostics
+
+- Added automated checks for duplicate action IDs, unhandled quick actions,
+  buttons without handlers and configuration fields written but never used by
+  the app. All checks were clean for this release.
+
+### Known issues
+
+- DirectShow devices allow exclusive access only. Simultaneous live preview
+  and program capture of the same device require shared capture, which is not
+  yet implemented.
 
 ## 2026-07-03 — v0.76.25 (the master volume fader drives the audio)
 
-- **The header master volume fader controls audio.** It feeds a per-engine master
-  gain applied in the audio thread on top of the per-cue volume, synced from the
-  project every tick, so every path to it — the fader, the `MASTERVOL` remote
-  command, project load, undo — takes effect on all decks.
-- **The fader is draggable** as well as clickable.
-- Saved boost levels load at the value they were saved with (range 0–2).
-- New splash art (clean cityscape, no baked-in dialog) for both mascots.
+### Audio
+
+- Fixed an issue where the header master-volume fader did not change playback
+  levels. Master gain now applies across all decks in addition to cue volume,
+  whether changed through the fader, `MASTERVOL`, show loading or undo.
+- The master fader supports dragging as well as clicking.
+- Fixed an issue where saved boost levels did not restore at their saved
+  value. The supported range is `0–2`.
+
+### Interface
+
+- Added clean cityscape splash art for both mascots, without an embedded
+  dialog.
 
 ## 2026-07-03 — v0.76.24 (settings readability pass)
 
-- **Every settings button fires.** The Video Outputs sub-tabs, the Allow Remote
-  toggle and the Stream Key prompt have action ids of their own, so Processing,
-  Mascot, UI Scale, Pocket 3 and Identify each do their own job.
-- **Settings modal readability redesign** — zero functional change, every control
-  in the same place:
-  - Pixel-face **SETTINGS** title.
-  - Cartridge-shelf tab bars: the active tab is full height and "plugged in" to
-    the content frame; inactive tabs sit recessed. Applied to the main tabs and
-    the Video Outputs sub-tabs.
-  - Every card and section has a dark **label plate** header with light text —
-    one strong, scannable anchor per group. One shared helper replaces three
-    duplicated card-drawing lambdas.
-- **New splash art**: the "cue gremlin cityscape" scene (Deckbot + Deckgirl
-  rigging a dot-matrix wall over the skyline) for both mascot choices.
+### Settings
+
+- Fixed an issue where settings controls invoked another control's action or
+  failed to respond. Video Outputs sub-tabs, Allow Remote, Stream Key,
+  Processing, Mascot, UI Scale, Pocket 3 and Identify now have distinct
+  actions.
+- Added a pixel-font `SETTINGS` title.
+- Main tabs and Video Outputs sub-tabs use cartridge-shelf styling: active
+  tabs sit at full height against the content frame; inactive tabs are
+  recessed.
+- Cards and sections use consistent dark label plates with light text. The
+  visual redesign preserves control positions and behaviour.
+
+### Interface
+
+- Added cityscape splash art for both mascot choices, showing Deckbot and
+  Deckgirl rigging a dot-matrix wall above the skyline.
 
 ## 2026-07-03 — v0.76.23 (value scrubbing, math shorthand)
 
-- **Drag any inspector value to scrub it.** Click-hold a value cell (width,
-  height, offsets, rotation, crop, fades, volume, speed, …) and drag horizontally
-  to step it — the same gesture as number scrubbing in AE and Resolve. A plain
-  click still opens the exact-entry editor. Works on every inspector quick row
-  with -/+ buttons; width/height scrubbing respects the aspect link.
-- **Math shorthand in numeric entry**: `x` multiplies and `px` units are ignored,
-  so `1920x2`, `960px * 2` and `3840/2` all evaluate. Applies to every numeric
-  entry field — they share one expression parser — covered by four new smoke
-  checks.
+### Cues
+
+- New: drag inspector value cells horizontally to scrub width, height,
+  offsets, rotation, crop, fades, volume, speed and other quick rows with
+  minus/plus controls.
+- A click still opens exact entry. Width and height scrubbing respects the
+  aspect-ratio link.
+
+### Interface
+
+- Numeric entry accepts `x` as multiplication and ignores `px` units:
+  `1920x2`, `960px * 2` and `3840/2` are valid expressions.
+- Applies to every numeric field; four new smoke checks cover the shorthand.
 
 ## 2026-07-03 — v0.76.22 (fades off by default, pixel commands)
 
-- **New clips import with fades OFF**, so a freshly imported clip cuts in and out
-  cleanly until you turn a fade on per cue (cue-row fade icons or the inspector
-  fade rows toggle 0 ↔ the deck's default fade time). Existing show files keep
-  their saved deck settings; the FADE IN / FADE OUT pills in Settings → System →
-  Show Flow set an existing deck's default for future imports.
-- **Fades are covered by the smoke harness**: three end-to-end checks drive a
-  real MediaEngine through loadCue → position clock → `currentVisualFadeGain()`
-  — the exact gain the output compositor multiplies into the frame alpha — and
-  assert the fade-in and fade-out ramps.
-- **Remote `WIDTH <px>` / `HEIGHT <px>` commands**: pixel-based cue sizing from
-  Companion or OSC, through the same code path as the inspector editors, so the
-  aspect link applies. Legacy `SCALE`/`SCALEX`/`SCALEY` factor commands are
-  unchanged.
+### Cues
+
+- Changed: new imports default to fades off. Cue-row fade icons and inspector
+  rows toggle between `0` and the deck's default fade duration.
+- Existing shows retain saved deck settings.
+  `Settings > System > Show Flow > FADE IN / FADE OUT` sets defaults for
+  future imports into an existing deck.
+- Added three end-to-end smoke checks for fade-in and fade-out ramps, using
+  the actual playback clock and visual gain applied to output opacity.
+
+### Remote protocol
+
+- New: `WIDTH <px>` and `HEIGHT <px>` size cues in pixels from Companion or
+  OSC and respect the inspector's aspect-ratio link.
+- Existing `SCALE`, `SCALEX` and `SCALEY` factor commands are unchanged.
 
 ## 2026-07-03 — v0.76.21 (pixel-based geometry editing with aspect link)
 
-- **Cue size is edited in pixels, everywhere.** The GEOMETRY rows are labelled
-  `width` / `height`, show the actual rendered output size in px, and clicking a
-  value prompts for a pixel value ("Width (px)"). The multiplier still exists
-  under the hood, per cue, derived from the cue's base rendered size, but the
-  operator never sees it.
-- **Aspect-ratio link** (new `link aspect` toggle row, on by default, persisted
-  in the show file): changing width scales height proportionally and vice versa —
-  including the `-`/`+` nudge buttons and typed exact values. Toggle it off for
-  deliberate distortion, like the chain-link in most media software.
-  Multi-select edits apply the pixel value per cue, so "make them all 960px
-  wide" works.
+### Cues
+
+- Changed: `GEOMETRY > width / height` shows and edits rendered output size in
+  pixels. Clicking a value opens an exact pixel prompt, such as `Width (px)`.
+- Show storage retains per-cue scale factors derived from each cue's base
+  rendered size.
+- New: `link aspect`, enabled by default and saved with the show. Editing or
+  nudging width scales height proportionally, and vice versa; disable it for
+  independent dimensions.
+- Multi-selection applies the requested pixel dimension to each cue, allowing
+  cues with different source sizes to share a width such as `960 px`.
 
 ## 2026-07-02 — v0.76.20 (fullscreen that stays put, display identify)
 
-- **Fullscreen outputs stay on the program screen when you click the control
-  window.** `SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0` is set at startup, so a
-  playout output holds its display no matter where focus is.
-- **Borderless fullscreen by default**: exclusive fullscreen — a real display
-  mode switch, with its screen blanking and mixed-DPI placement quirks — is used
-  only when the operator explicitly asked for a fixed raster or a specific
-  refresh rate. Display-native outputs use borderless fullscreen, which is what
-  every modern playout tool does.
-- Recovery messages name the trigger, so the log says what moved an output and
-  why.
+### Outputs
 
+- Fixed an issue where fullscreen output minimized when the control window
+  received focus.
+- Changed: display-native outputs use borderless fullscreen by default.
+  Exclusive fullscreen is reserved for explicitly selected fixed rasters or
+  refresh rates, avoiding unnecessary display-mode switches and their blanking
+  or mixed-DPI placement effects.
+- Recovery logs identify what triggered an output move.
 
 ## 2026-07-02 — v0.76.19 (engine and display robustness)
 
-- **The media engine owns its cue.** The engine keeps a private snapshot of the
-  loaded cue, so importing media or deleting cues while another cue is live
-  leaves the live cue exactly as it was. Live edits to the active cue — fade in
-  and out, and the rest — still apply immediately, because the app refreshes the
-  snapshot on every project edit.
-- **Audio fades are race-free**: the audio decode thread reads fade parameters
-  from atomic mirrors, so a gain change lands cleanly.
-- **A/V sync — audio is the master clock**: video position re-anchors to the
-  audio device clock when the two drift more than about two frames apart, which
-  holds lip-sync over long-form clips and keeps variable-frame-rate sources
-  watchable.
-- **Displays are matched by name, not number** (new `displayName` field in the
-  show file). After a hot-plug, a reboot or a driver re-enumeration shuffles
-  display numbers, an output re-attaches to the monitor it was aimed at, so
-  program output stays off the operator's screen.
-- **Display hot-plug respects the Esc safety contract**: connecting or
-  disconnecting a monitor leaves outputs the operator escaped to windowed
-  windowed, and healing goes through the per-output recovery path.
-- **HyperDeck server hardening**: transport and clips replies are served from a
-  structured main-thread snapshot, so a cue named "playing" is just a cue name.
+### Playback
 
-UI polish, from the operator's screenshot notes:
+- Fixed an issue where importing media or deleting other cues could disturb
+  the live cue. Playback retains a snapshot of the loaded cue; edits to that
+  cue, including fades, still apply immediately.
+- Audio fade and gain changes are synchronized with audio decoding to avoid
+  concurrent-access faults.
+- Changed: audio is the A/V master clock. Video re-anchors when drift exceeds
+  approximately two frames, maintaining synchronization on long clips and
+  variable-frame-rate sources.
 
-- Empty timeline lanes draw no stray grid lines under the "take or select a
-  cue..." placeholder — time graduations draw only over an actual timeline, in
-  theme ink.
-- Cue inspector rows share one label-column width, so value boxes line up down
-  the panel.
-- Playlist footer ("LOOP | ORDER") and the inspector empty-state panel derive
-  text heights from the live font, so descenders survive at scaled and HiDPI
-  font sizes.
-- Cue-row action icons are solid shapes: filled rising/falling wedges for fade
-  in and out, thicker pause bars, a filled speaker horn — legible at 20px.
+### Outputs
+
+- Changed: display assignments persist by name, allowing outputs to return to
+  the intended monitor after hot-plugging, reboot or display-number changes.
+- Connecting or disconnecting a display preserves outputs left windowed with
+  `Esc`; affected outputs recover individually.
+
+### Remote protocol
+
+- Fixed an issue where HyperDeck transport or clip replies could misinterpret
+  a cue named `playing`. Replies use a consistent transport and clip snapshot.
+
+### Interface
+
+- Empty timeline lanes no longer draw grid lines beneath
+  `take or select a cue...`. Time graduations use theme ink and appear only
+  over an actual timeline.
+- Inspector rows share one label-column width, aligning their value boxes.
+- Fixed an issue where descenders were clipped in the `LOOP | ORDER` footer
+  and empty inspector at scaled or HiDPI font sizes. Text heights now follow
+  the active font.
+- Cue-row icons use filled fade wedges, thicker pause bars and a solid speaker
+  horn for readability at `20 px`.
 
 ## 2026-06-20 — v0.76.18 (new app/taskbar icon)
 
-- **New Deckboy app icon**: a pixel-art handheld-cartridge icon with a green
-  play triangle, embedded in `Deckboy.exe` and applied to the live windows.
-  Source art at `art/windows/icons/deckboy_app.ico` (multi-resolution 16→256 px,
-  regenerable from `deckboy_app_master.png`). `art/windows/deckboy.rc.in` plus a
-  `configure_file` step generate the resource at build time, so it survives a
-  fresh CMake reconfigure and feeds both the Explorer/Alt-Tab/pinned-taskbar
-  icon and the runtime window icon.
+### Windows
+
+- Added a pixel-art handheld-cartridge app icon with a green play triangle.
+- Embedded the multi-resolution `16–256 px` icon in `Deckboy.exe` and applied
+  it to live windows, Explorer, `Alt+Tab` and pinned taskbar entries.
+- Build-time icon generation survives a fresh CMake configuration; the icon
+  can be regenerated from its master image.
 
 ## 2026-06-20 — v0.76.17 (stills hold, high-refresh loop)
 
-- **Still cues hold at the end of their duration** at full opacity — an
-  Image, Pattern, Browser or Composite cue set to pause on its last frame stays
-  on screen. Pausing mid-cue keeps its fade state where it was, too.
-- **Still-type cues default to no fade-out.** A static graphic that holds should
-  not dip to black at the end; a fade-out is still honoured if you turn it on
-  per cue.
-- **High-refresh render loop**: the main loop's floor is 240 Hz, so stills and
-  transitions render at the monitor's full native rate (144/165/240 Hz) through
-  vsync.
+### Playback
+
+- Fixed an issue where Image, Pattern, Browser or Composite cues faded away
+  when set to pause on their final frame. They now hold at full opacity after
+  their duration.
+- Pausing mid-cue preserves the current fade state.
+- Changed: still-type cues default to no fade-out. Explicit per-cue fade-outs
+  remain supported.
+
+### Outputs
+
+- Raised the main loop's timing floor to `240 Hz`, allowing stills and
+  transitions to follow native `144/165/240 Hz` display rates through vsync.
 
 ## 2026-06-17 — v0.76.16 (resizable control window, F11 fullscreen, mascot dropdown)
 
-- **The control window is resizable** (minimum 1500×900). The per-frame layout
-  reflow already adapts to the live window size, so dragging an edge or
-  maximising spreads the UI into the space.
-- **F11 toggles fullscreen** on the control window, with a
-  "fullscreen"/"windowed" toast.
-- **The mascot picker is a dropdown**, matching the Theme and UI Scale
-  selectors.
+### Interface
+
+- New: resizable control window with a minimum size of `1500x900`. Layout
+  adapts while resizing or maximizing.
+- New: `F11` toggles control-window fullscreen and reports `fullscreen` or
+  `windowed`.
+- Changed: mascot selection uses a dropdown, matching Theme and UI Scale.
 
 ## 2026-06-17 — v0.76.15 (layout chrome scales, dependency prompts, touch mode)
 
-- **Layout chrome scales with `uiScale`.** Header height, button height, panel
-  padding, gaps and the spacing unit are recomputed whenever UI scale changes,
-  so panels, buttons and the bottom bar grow alongside the fonts instead of
-  leaving them stranded in 1× chrome.
-- **The dependency prompt fires from every operator-initiated path** — UI
-  toggles, hotkeys, and the OSC/Companion `NDI` and `DECKLINK` commands all
-  prompt when a runtime is missing. Loading a project stays silent, so opening a
-  show authored elsewhere does not surprise you with prompts.
-- **Touch interaction mode**: a new `Project::interactionMode` ("mouse" default,
-  "touch"). The Pocket 3 preset flips it alongside the 2.0× scale, and in touch
-  mode the splitter and context-menu hover highlights are suppressed — a tap
-  cannot hover, and a sticky highlight after a drag-release is the worst of it.
+### Interface
+
+- Changed: header and button heights, panel padding, gaps and spacing scale
+  with the UI setting, allowing panels and the bottom bar to grow with their
+  fonts.
+- New: mouse and touch interaction modes, with mouse as the default. The
+  Pocket 3 preset selects touch mode alongside `2.0x` scale.
+- Touch mode suppresses splitter and context-menu hover highlights to avoid
+  highlights remaining after a drag or tap.
+
+### Dependencies
+
+- Missing-runtime prompts now appear for every operator-initiated path:
+  interface toggles, hotkeys and OSC/Companion `NDI` and `DECKLINK` commands.
+- Loading a show remains silent when its configured runtimes are unavailable.
 
 ## 2026-06-17 — v0.76.14 (mascot swap, dependency prompts, UI scale, portable zip)
 
-- **Swappable splash mascot**: Settings → APPEARANCE has a `MASCOT` pill that
-  flips between **Deckbot** and **Deckgirl**, saved per project. The splash
-  loader tries `.mp4` and `.gif` before `.png`, so an animated mascot is a
-  drop-in asset replacement with no code change.
-- **Runtime dependency prompt**: Deckboy detects when you enable a backend whose
-  runtime is not installed on this machine and offers a one-tap link to the
-  official vendor download page. Lazy by design — nothing fires at startup.
-  Wired for the NDI Runtime (NDI Output toggle and the `N` hotkey), Blackmagic
-  Desktop Video (DeckLink Output toggle) and the Microsoft WebView2 Runtime
-  (Browser cue creation, Windows). No auto-downloaded installers.
-- **UI scale factor**: Settings → APPEARANCE has a `UI SCALE` dropdown (1.00×
-  default, 1.25×, 1.50×, 2.00×). Every TTF face is reopened at `base × scale`
-  point size, so text stays crisp on 4K and Pocket 3 displays.
-- **Pocket 3 / Touch preset**: an APPEARANCE pill that flips UI scale to 2.0× and
-  back — a single-click ergonomic profile for 8" 1920×1200 handhelds.
-- **Portable Windows zip**: `tools\package_windows.ps1` produces
-  `dist\Deckboy-<VERSION>-windows-x64.zip` with the exe, every co-located vcpkg
-  DLL, ffmpeg + ffprobe, the MSVC C++ runtime DLLs (app-local, so no Visual C++
-  Redistributable install is needed), `data/`, `LICENSE`, and a `README.txt`
-  describing the optional NDI / DeckLink / WebView2 installs. Unzip and run.
+### Interface
+
+- New: `Settings > APPEARANCE > MASCOT` switches between Deckbot and Deckgirl
+  and saves the choice per show.
+- Mascot assets are loaded in `.mp4`, `.gif`, then `.png` order, allowing
+  animated replacements.
+- New: `Settings > APPEARANCE > UI SCALE`, with `1.00x` default, `1.25x`,
+  `1.50x` and `2.00x`. Fonts reload at the scaled point size for sharp text on
+  4K and Pocket 3 displays.
+- New: `Pocket 3 / Touch` preset toggles `2.0x` scale for `8-inch, 1920x1200`
+  handhelds.
+
+### Dependencies
+
+- Enabling a backend with a missing runtime offers a link to its official
+  vendor download page. No prompts run at startup and no installers download
+  automatically.
+- Covers NDI Output and `N`, DeckLink Output and Blackmagic Desktop Video, and
+  Browser cue creation with WebView2 on Windows.
+
+### Packaging
+
+- New: portable `Deckboy-<VERSION>-windows-x64.zip`, ready to unzip and run.
+- Includes the executable, its vcpkg DLLs, FFmpeg, ffprobe, app-local MSVC
+  runtime DLLs, `data/`, `LICENSE` and `README.txt` describing optional NDI,
+  DeckLink and WebView2 installation.
+- No separate Visual C++ Redistributable installation is required.
 
 ## 2026-06-16 — v0.76.13 (GPU video upload — NV12 fast path)
 
-- **Live video decode uses NV12 by default** — about 62% less pipe bandwidth and
-  CPU memory traffic than the RGBA path. FFmpeg writes a planar Y plus
-  interleaved UV plane straight into the frame buffer; SDL uploads it through
-  `SDL_UpdateNVTexture` and the GPU samples the YUV→RGB conversion at blit time.
-  Cues with chroma key or colour controls decode as RGBA so the CPU effects path
-  keeps working unchanged.
-- **The software scaler runs fast_bilinear** in the live video pipeline, which
-  costs a third of bicubic and is indistinguishable on moving video at deck
-  output sizes. Stills and thumbnails keep their `flags=neighbor` path.
-- `DecodedFrame` carries a `FramePixelFormat` tag, and all six upload sites
-  recreate their texture on a format or size change and pick the right upload
-  call. New helper `syncFrameTexture()` in `render/texture_helpers.hpp`.
-- **Known trade-off**: toggling chroma key or colour controls on a cue already
-  decoded as NV12 takes effect at the next TAKE. A cue that needs
-  live-toggleable effects should have at least one effect parameter enabled
-  before TAKE, so the decoder picks RGBA up front.
+### Playback
+
+- Changed: live video uses NV12 by default, reducing pipe bandwidth and CPU
+  memory traffic by approximately `62%` compared with RGBA. The GPU performs
+  YUV-to-RGB conversion during rendering.
+- Chroma-key and colour-control cues retain RGBA decoding for CPU effects.
+- Changed: live video scaling uses `fast_bilinear`, at approximately one-third
+  the cost of bicubic with no visible difference on moving video at deck
+  output sizes. Stills and thumbnails retain nearest-neighbour sampling.
+- All six frame-upload paths recreate textures when format or size changes and
+  use the corresponding upload format.
+
+### Known issues
+
+- Enabling chroma key or colour controls on a cue already decoding as NV12
+  takes effect at the next `TAKE`.
+- For effects that must be switched live, enable at least one effect parameter
+  before `TAKE` so decoding starts in RGBA.
 
 ## 2026-04-24 — v0.76.12 (full networking stack on Windows)
 
-- **Every network protocol works on Windows**, through Winsock2:
-  - **Companion control** (TCP+UDP): Bitfocus Companion integration, OSC message
-    parsing, subscriber tracking, feedback broadcasting
-  - **OSC Query server** (TCP HTTP): endpoint discovery and state queries
-  - **ATEM tally bridge** (UDP): ATEM tally packets as transport triggers
-  - **Art-Net DMX bridge** (UDP): DMX packets for lighting trigger integration
-  - **NMC sync** (UDP): Network Master Clock, both input (play/stop/seek) and
-    output (broadcasting transport state to followers)
-  - **NDI trigger bridge**: NDI metadata frames as cue triggers
-  - **HyperDeck server** (TCP): Blackmagic HyperDeck protocol emulation for
-    hardware controllers
-- **LTC ingest works on Windows**: libltc 1.3.2 built from source as `ltc.dll`,
-  found by the dynamic loader alongside the Linux and macOS candidates, with SDL
-  audio capture providing the PCM input on every platform.
-- **What remains platform-gated**: ALSA MIDI input is Linux-only, and is covered
-  elsewhere by the cross-platform RtMidi backend.
+### Windows
+
+- Added Winsock2 support across the networking stack.
+- Companion TCP/UDP control includes OSC parsing, subscriber tracking and
+  feedback broadcasts.
+- OSC Query serves HTTP endpoint discovery and state queries.
+- ATEM tally and Art-Net DMX UDP bridges accept transport and lighting
+  triggers.
+- NMC UDP accepts play, stop and seek and broadcasts transport state to
+  followers.
+- NDI metadata can trigger cues; the TCP HyperDeck server accepts
+  Blackmagic-compatible hardware controllers.
+
+### Timecode
+
+- Added Windows LTC input using libltc `1.3.2`, built as `ltc.dll` and
+  discovered alongside the existing Linux/macOS library candidates.
+- SDL audio capture provides PCM input on every platform.
+
+### MIDI
+
+- ALSA MIDI input remains Linux-only; other platforms use the cross-platform
+  RtMidi backend.
 
 ## 2026-04-24 — v0.76.11 (DeckLink UI, NDI on Windows, Spout output, RtMidi)
 
-- **DeckLink settings UI** in the Video Outputs tab: enable toggle, device
-  dropdown (connected Blackmagic devices with SDI/HDMI/4K capability labels),
-  output mode dropdown (720p through 4K at all standard frame rates), and a
-  10-bit toggle. Changing device or mode re-initialises the output with the new
+### Outputs
+
+- New: DeckLink controls in `Video Outputs`: enable, connected-device picker
+  with SDI/HDMI/4K capability labels, output modes from `720p` through 4K at
+  standard frame rates, and a `10-bit` toggle.
+- Changing the DeckLink device or mode reinitializes output with the new
   configuration.
-- **NDI output works on Windows**, audio sends included.
-- **NDI 6 SDK search paths** added to CMake for Windows and Linux.
-- **Spout2 output backend** (Windows): interprocess texture sharing through the
-  SpoutLibrary DLL, so a Deckboy sender is visible to any Spout-capable receiver
-  — OBS, Resolume, TouchDesigner. Includes the catalog entry with a
-  `DECKBOY_HAS_SPOUT` build gate, route planning, lazy sender lifecycle,
-  settings UI (enable toggle + sender name editor) and project serialisation.
-  Installed through vcpkg (`spout2:x64-windows`), auto-detected by CMake.
-- **Stream output works on Windows**: ffmpeg SRT/RTMP egress reads raw video
-  from `pipe:0`, through a new `StdioMode::Pipe` on the cross-platform
-  `ChildProcess` API.
-- **Live source capture works on Windows**: WindowSource cues capture desktop
-  regions through ffmpeg's gdigrab.
-- **RtMidi integration** (cross-platform): real hardware MIDI input through
-  RtMidi 6.0.0 — device enumeration, port open/close, and message polling that
-  dispatches CC, NoteOn, NoteOff and ProgramChange, including the
-  NoteOn-with-velocity-0 → NoteOff conversion the MIDI spec asks for.
-  Auto-detected from vcpkg; statically linked on Windows, so no extra DLL.
+- Added Windows NDI output, including audio.
+- Added Windows Spout2 output for receivers such as OBS, Resolume and
+  TouchDesigner. Includes enable and sender-name controls, output routing,
+  on-demand sender creation and saved show settings; requires the SpoutLibrary
+  DLL.
+- Added Windows SRT/RTMP output through FFmpeg, receiving raw video on
+  `pipe:0`.
+
+### Sources
+
+- Added Windows desktop-region capture for Window Source cues through FFmpeg's
+  gdigrab.
+
+### MIDI
+
+- Added cross-platform RtMidi `6.0.0` input with device enumeration, port
+  opening/closing and polling.
+- Handles CC, Note On, Note Off and Program Change. Note On with velocity `0`
+  is treated as Note Off.
+
+### Build
+
+- Added NDI 6 SDK search paths for Windows and Linux.
+- Spout2 is installed with `spout2:x64-windows`, detected by CMake and enabled
+  only in builds with Spout support.
+- RtMidi is detected from vcpkg and linked statically on Windows, requiring no
+  additional DLL.
 
 ## 2026-04-11 — v0.76.10 (audio-lane loading animation)
 
-- **The audio timeline lane has its own loading animation** while a cue's
-  waveform peaks are still being computed: the same widget frame, dimming
-  overlay and pulsing LOADING label as the video lane's filmstrip, with an
-  animated 9-bar EQ meter in place of the filmstrip cells. Each bar's height is
-  driven by an offset-per-bar sine phase with a squared envelope, so the motion
-  feels musical rather than mechanical, peak bars get a brighter fill, and each
-  bar has a 2px highlight cap.
+### Timeline
 
+- Added an audio-lane loading animation while waveform peaks are being
+  computed, matching the video filmstrip's frame, dimming overlay and pulsing
+  `LOADING` label.
+- An animated `9-bar` EQ replaces the filmstrip cells. Bars use offset sine
+  phases with squared envelopes, brighter peaks and `2 px` highlight caps.
 
 ## 2026-04-11 — v0.76.9 (settings text that fits at every font size)
 
-- **Every settings card derives its row positions from the live font.** SAFETY /
-  TIMECODE, SHOW FLOW, CUE TOOLS, PLAYLIST PREFERENCES, APPEARANCE, AUDIO
-  OUTPUT, MIDI CONTROL, REMOTE CONTROL, OSC QUERY/FEEDBACK, DISCOVERY / NOTES,
-  INTEGRATION ADAPTERS and the About tab's RUNTIME rows all reflow cleanly at
-  1×, at retina sizes and at every UI scale between.
-- The empty-deck hint in the control window ("I import / B browser / P pattern")
-  and the Edge Blending and Area of Interest sub-panels follow the same rule.
-- New helpers in `render/layout.hpp`: `textLineHeight(font)`,
-  `rowYBelowLabel(labelY, font, gap)`, `rowYBelowLines(startY, font, lines,
-  gap)`.
-- **`drawTextSafe` / `drawCenteredTextSafe` centre on the rect midline and
-  expand their clip to fit the text**, so descenders render in full even in a
-  rect shorter than the font — the modal title, the AOI RESET button and the
-  thin rects in the inspector thumbnail area all read completely.
+### Settings
+
+- Changed: card rows follow the active font height at `1x`, Retina sizes and
+  intermediate UI scales.
+- Covers `SAFETY / TIMECODE`, `SHOW FLOW`, `CUE TOOLS`,
+  `PLAYLIST PREFERENCES`, `APPEARANCE`, `AUDIO OUTPUT`, `MIDI CONTROL`,
+  `REMOTE CONTROL`, `OSC QUERY/FEEDBACK`, `DISCOVERY / NOTES`,
+  `INTEGRATION ADAPTERS` and About's `RUNTIME` rows.
+- Edge Blending, Area of Interest and the empty-deck
+  `I import / B browser / P pattern` hint use the same font-based spacing.
+
+### Interface
+
+- Fixed an issue where text descenders were clipped inside short controls,
+  including modal titles, `AOI RESET` and inspector-thumbnail labels.
+- Text centres on the control's midline and expands its clipping area to fit
+  the font.
 
 ## 2026-04-11 — v0.76.8 (correct probe of audio-first mp4s, duplicate cues allowed)
 
-- **A video clip imports as a video cue** whichever order its streams appear in,
-  so an mp4 that carries audio before video is no longer taken for an audio-only
-  file.
-- **The same media can be added to a deck twice** — the same clip as two cues
-  with different in/out points, or a playlist that returns to an asset. The
-  toast and the cue list make a duplicate obvious; library-level dedup belongs
-  in the media library, not the cue list.
+### Cues
+
+- Fixed an issue where MP4 files imported as audio-only cues when their audio
+  stream appeared before the video stream.
+- Changed: the same media can be added to a deck more than once, allowing
+  separate in/out points or repeated assets in a playlist.
+- The cue list and toast identify duplicates; deduplication remains a
+  media-library concern.
 
 ## 2026-04-11 — v0.76.7 (video cues fade in playlists)
 
-- **Video cues in a playlist honour `fadeInSeconds` / `fadeOutSeconds`**, so a
-  playlist mixing browser and video cues fades both the same way. The per-cue
-  fade-in is the visible transition on playlist advance; a looping cue still
-  suppresses the ramp on each cycle, which is what you want.
-- **Audio fade ramps apply on auto-advancing video cues too**, so a cue with a
-  fade-out ramps to silence at end-of-cue rather than stopping flat.
+### Playback
+
+- Fixed an issue where playlist video cues ignored their fade-in and fade-out
+  settings. Mixed Browser and Video playlists now apply fades consistently.
+- Cue fade-in remains the visible transition on playlist advance; looping cues
+  suppress the fade ramp on each repeat.
+
+### Audio
+
+- Fixed an issue where auto-advancing video cues stopped audio abruptly
+  despite an audio fade-out. Audio now ramps to silence at cue end.
 
 ## 2026-04-10 — v0.76.6 (audio thread hardening, camera factory per platform)
 
-- **The audio decoder thread copies whole samples**, aligning a short read from
-  the FFmpeg pipe down to an even byte count and picking the odd byte up on the
-  next read.
-- **The camera capture factory answers per platform**:
-  `createCameraCaptureBackend()` returns the v4l2 backend on Linux and the
-  correct scaffold id elsewhere (`mediafoundation` / `avfoundation`), matching
-  what the capture backend catalog advertises.
-- Linux `ChildProcess::stop` closes the read end before the kill, so a reader is
-  always unblocked, whether or not the process had already been reaped.
-- Smoke asserts `supported && backendId == "gdigrab"` on Windows, which is what
-  window capture has done since v0.76.1.
+### Audio
+
+- Fixed an issue where short FFmpeg pipe reads could split an audio sample.
+  Reads now process complete two-byte samples and retain an odd trailing byte
+  for the next read.
+
+### Sources
+
+- Camera capture selects v4l2 on Linux and the matching platform scaffold
+  elsewhere: `mediafoundation` on Windows, `avfoundation` on macOS, consistent
+  with the capture catalogue.
+- Windows smoke tests verify gdigrab window-capture support, available since
+  v0.76.1.
+
+### Linux
+
+- Fixed an issue where stopping a child process could leave a reader blocked
+  when the process had already exited. The read pipe now closes before process
+  termination.
 
 ## 2026-04-07 — v0.76.5 (rapid takes, and TAKE without a pause)
 
-- **Rapid TAKEs of video clips are safe.** Decoder shutdown kills the process
-  first, so the read end returns EOF cleanly, then joins the threads, then
-  releases the handle — the same order for the image thread and the thumbnail
-  and timeline-strip threads.
-- **TAKE is instant.** The dimensions probed at ingest are reused, so there is
-  no synchronous ffprobe on the main thread at take time.
+### Playback
+
+- Improved rapid video `TAKE` handling. Decoder shutdown terminates the
+  process before waiting for reader threads and releasing its handle, allowing
+  pipe reads to finish at EOF.
+- The same shutdown order applies to image loading, thumbnails and timeline
+  filmstrips.
+- Removed the synchronous media probe from `TAKE`; playback reuses dimensions
+  measured during import.
 
 ## 2026-04-06 — v0.76.4 (fade in/out on the output path)
 
-- **Cue fade-in and fade-out apply on every output.** `MediaEngine` exposes
-  `currentVisualFadeGain()` and the compositor multiplies it into the bridge
-  texture alpha — `alpha = deckOpacity × fadeGain × 255` — for every cue type:
-  browser, video, image, pattern and source capture.
+### Outputs
+
+- Fixed an issue where cue fade-in and fade-out did not reach every output.
+- Browser, Video, Image, Pattern and source-capture cues now combine deck
+  opacity with the cue's current visual fade. Output alpha is deck opacity
+  multiplied by fade gain and `255`.
 
 ## 2026-04-04 — v0.76.3 (GPU decode, TSL/tally, SRT/NDI input, audio buffer tuning)
 
-- **GPU hardware decode**: video decode passes `-hwaccel auto`, so DXVA2/D3D11VA
-  on Windows and NVDEC/VAAPI on Linux are used when available and fall back to
-  software automatically — no configuration.
-- **TSL/Tally protocol**: a UDP tally sender on port 5800 (TSL 3.1) sends
-  program and preview tally state to tally hardware as deck active status
-  changes. Settings → Network → Tally / TSL, with configurable port and target,
-  on every platform.
-- **SRT input**: a Video cue accepts an `srt://host:port` URL as its media path,
-  handled natively by FFmpeg (which needs `--enable-libsrt`). Probe and seek are
-  skipped for live URLs.
-- **Live stream support** (RTMP/RTSP/UDP): the same live-stream handling for
-  `rtmp://`, `rtsp://` and `udp://` — no probe delay, no injected seek.
-- **NDI input via ffmpeg**: a Video cue accepts `ndi://NDI_Source_Name`, decoded
-  by ffmpeg's `libndi_newtek` input device, with Windows NDI SDK library
-  candidates added.
-- **Audio buffer size tuning**: the SDL audio buffer reads from
-  `Project::audioBufferSamples` (256/512/1024/2048, default 1024) — smaller for
-  latency, larger for stability.
+### Playback
+
+- Added automatic GPU video decoding with `-hwaccel auto`: DXVA2/D3D11VA on
+  Windows and NVDEC/VAAPI on Linux when available, with automatic software
+  fallback.
+
+### Tally
+
+- New: TSL `3.1` UDP output sends program and preview tally when deck activity
+  changes.
+- Configure in `Settings > Network > Tally / TSL`, with target and port
+  controls. Default port: `5800`. Available on every platform.
+
+### Sources
+
+- Video cues accept `srt://host:port` media URLs through FFmpeg built with
+  `--enable-libsrt`.
+- Live `srt://`, `rtmp://`, `rtsp://` and `udp://` URLs skip media probing and
+  seeking.
+- Added NDI input through FFmpeg's `libndi_newtek` device using
+  `ndi://NDI_Source_Name`, with Windows NDI SDK library discovery.
+
+### Audio
+
+- Added buffer-size selection: `256/512/1024/2048` samples, default `1024`.
+  Smaller buffers reduce latency; larger buffers favour stability.
 
 ## 2026-04-04 — v0.76.2 (browser cue duration, Area of Interest crop)
 
-- **A browser cue keeps its still duration**, so fade-out and auto-advance work
-  for browser cues in a playlist.
-- **Area of Interest (AOI) output crop**: per-output fractional edge crop
-  (left/right/top/bottom, 0–1, 5% step) applied at the compositor→window blit,
-  controlled from Settings → Output → Area of Interest, with a reset button and
-  persistence in the show file.
+### Cues
+
+- Fixed an issue where Browser cues lost their still duration, preventing
+  playlist fade-out and auto-advance.
+
+### Outputs
+
+- New: per-output Area of Interest crop in
+  `Settings > Output > Area of Interest`.
+- Left, right, top and bottom edges use fractions from `0–1`, adjusted in `5%`
+  steps. Includes reset and saved show settings.
+- Crop is applied when drawing the composite into the output window.
 
 ## 2026-04-01 — v0.76.1 (browser cues on Windows, SOURCE menu, filmstrip)
 
-- **Browser cues work natively on Windows** with no separate Chromium download:
-  Deckboy finds the system Edge (or Chrome) installation, launches it in
-  `--app=` mode at the requested size, and pipes frames into the deck engine
-  through ffmpeg's `gdigrab` desktop-region capture — the same pipeline as the
-  Linux Xvfb approach, with Edge and GDI.
-- **"Browser / URL Cue" lives in the SOURCE dropdown**, alongside Window, Camera
-  and Syphon sources, which keeps the three-group button balance.
-- **Button labels sit centred**: the centring helpers snap the full button rect
-  before computing the vertical centre, matching the painted background.
-- **"Select or import a cue" keeps its descenders**, at an inspector
-  empty-state rect height that snaps exactly.
-- **Timeline filmstrip grid lines stay inside the filmstrip**, through per-draw
-  clip rects.
+### Windows
+
+- Added Browser cues using the installed Edge or Chrome browser, without a
+  separate Chromium download.
+- Launches the browser in `--app=` mode at the requested size and captures its
+  desktop region through FFmpeg gdigrab, corresponding to Linux's Xvfb capture
+  workflow.
+
+### Sources
+
+- Moved `Browser / URL Cue` into the `SOURCE` dropdown alongside Window,
+  Camera and Syphon, retaining the three-group button layout.
+
+### Interface
+
+- Fixed an issue where button labels were offset from their painted
+  backgrounds. Labels now centre within the same snapped bounds.
+- Fixed an issue where `Select or import a cue` clipped its descenders in the
+  empty inspector.
+- Fixed an issue where timeline grid lines extended outside the filmstrip.
+  Each draw is clipped to the filmstrip bounds.
 
 ## 2026-03-31 — v0.76.0 (audio waveform, VU meter, text overflow, version flow)
 
-- **A clip that failed to analyse retries.** Empty waveform results are not
-  cached, so a clip that could not be decoded on one run is analysed on the
-  next.
-- **The VU meter returns to zero** when the focused deck stops playing.
-- **Text stays inside its box, everywhere.** `drawTextSafe` and
-  `drawCenteredTextSafe` clip to the same snapped rect `drawUIPanel` paints, so
-  the LIVE/STREAM/DECODE/WARP badges and the dB scale labels keep to their own
-  separators.
-- **Build-time version generation**: a change to `VERSION` takes effect on the
-  next `cmake --build`, with no reconfigure.
-- **Project root detection hardened**: the walk-up skips known build
-  subdirectory names before checking for a `data/` directory, so the app anchors
-  to the real root rather than to `build/windows/Release/data/`.
+### Audio
+
+- Failed waveform analyses retry on the next run instead of retaining an empty
+  cached result.
+- Fixed an issue where the VU meter did not return to zero when the focused
+  deck stopped.
+
+### Interface
+
+- Fixed an issue where labels crossed their control boundaries, including
+  `LIVE`, `STREAM`, `DECODE`, `WARP` and the dB scale. Text clips to the same
+  bounds as the painted panel.
+
+### Build
+
+- Changes to the version file take effect on the next `cmake --build` without
+  reconfiguration.
+- Fixed an issue where the app selected a build-output data directory instead
+  of the project root. Root discovery skips known build-directory names before
+  checking for data.
 
 ## 2026-03-29 (the previous show is the one you were in)
 
-- **"Open Previous Show" opens the last project you actually used.** Deckboy
-  remembers the last opened or saved `.deckboy` path in
-  `data/last_project.txt` and offers that at startup.
-- The saved default show's cue paths were repaired, so its clips load again.
+### Desk
+
+- Fixed an issue where `Open Previous Show` did not open the last show used.
+  Startup now offers the most recently opened or saved `.deckboy` path,
+  recorded in `data/last_project.txt`.
+- Repaired media paths in the saved default show so its clips load.
 
 ## 2026-03-29 (cue inspector text stays in its box)
 
-- **Inspector text clips to its own control box while scrolling**, against the
-  real control bounds as well as the scroll viewport, so a partially scrolled
-  row keeps its text inside its row.
-- **Inspector spacing is roomier**: taller rows, more gap between rows and
-  sections, and more breathing room around label, value and edit controls.
+### Interface
+
+- Fixed an issue where inspector text escaped its row while scrolling. Text is
+  clipped to both the control bounds and the scroll viewport.
+- Increased row heights and spacing between rows, sections, labels, values and
+  edit controls.
 
 ## 2026-03-29 (timeline scrubbing, and a roomier cue list)
 
-- **The timeline supports held-drag scrubbing.** Clicking the progress bar still
-  seeks immediately; holding and dragging updates the seek target continuously
-  until you let go, which is what the tooltip always said.
-- **Cue rows and inspector controls have more vertical headroom**, with the cue
-  name in the smaller face so long names sit comfortably.
+### Timeline
+
+- New: hold and drag the progress bar to scrub continuously until release.
+  Clicking still seeks immediately, matching the existing tooltip.
+
+### Interface
+
+- Increased vertical space in cue rows and inspector controls.
+- Cue names use the smaller font to accommodate longer names.
 
 ## 2026-03-29 (the Deckboy icon on every window)
 
-- **The running Windows app applies the Deckboy icon to its SDL windows**, big
-  and small, from the embedded `IDI_DECKBOY_APP_ICON` resource — so the
-  taskbar and titlebar match the executable's branding whatever Explorer has
-  cached.
+### Windows
+
+- Applied the embedded Deckboy icon to large and small app-window icons.
+- Taskbar and title-bar icons now match the executable regardless of
+  Explorer's cached icon.
 
 ## 2026-03-29 (the program monitor owns its area)
 
-- **The program monitor fills the monitor area** at every layout width, with no
-  second preview strip appearing — and nothing is decoded for one in the
-  background either.
-- **Program header telemetry respects tight layouts**: the output, decode and
-  stream badges shrink, and drop count if they must, so header chrome never
-  collides with the `WARP` control.
+### Program monitor
+
+- Fixed an issue where a second preview strip appeared at some layout widths.
+  The program monitor fills its area, and the unused preview no longer decodes
+  in the background.
+- Output, decode and stream badges shrink in narrow layouts and omit counts
+  when necessary to keep clear of `WARP`.
 
 ## 2026-03-29 (background analysis stays in the background)
 
-- **A failed media probe is a toast**, not something that reaches the main loop;
-  the same for a waveform analysis that cannot complete.
-- Windows waveform analysis drains ffmpeg's PCM output, so it produces peaks.
+### Diagnostics
+
+- Media-probe and waveform-analysis failures now report a toast without
+  propagating into the main loop.
+
+### Windows
+
+- Fixed an issue where waveform analysis produced no peaks. Analysis now
+  drains FFmpeg's PCM output.
 
 ## 2026-03-29 (a seek holds the picture)
 
-- **A jump keeps the last visible frame until the new one is ready**, so
-  transport jumps, progress-bar seeks and `goto -20s/-30s` no longer flash
-  black. An explicit hard clear is still available through `seek(..., true)`.
+### Playback
+
+- Fixed an issue where transport jumps, progress-bar seeks and
+  `goto -20s/-30s` flashed black while waiting for the requested frame.
+- Seeking holds the last visible frame until its replacement is ready. An
+  explicit hard-clear seek remains available.
 
 ## 2026-03-29 (calmer output display switching)
 
-- **Switching an output's display is one clean move** on multi-monitor setups: a
-  single fullscreen re-entry path, no resizing while SDL still reports the
-  window fullscreen, and an enabled window output rebuilds its runtime on the
-  newly chosen display. The rebuild is queued onto the next update tick, so
-  recovery and fullscreen logic do not fight the same monitor move, and teardown
-  clears pending transition flags so a fresh output starts clean.
+### Outputs
+
+- Improved display switching on multi-monitor setups by using one fullscreen
+  re-entry sequence and delaying resize until the window has left fullscreen.
+- Enabled window outputs rebuild on the selected display at the next update,
+  preventing recovery and fullscreen transitions from competing over the move.
+- Output teardown clears pending transitions before creating the replacement
+  output.
 
 ## 2026-03-29 (Windows launches like a normal app)
 
-- **`Deckboy.exe` is a Win32 GUI executable**, so launching it opens the UI and
-  no blank terminal. `--version`, `--self-check` and `--smoke` route through the
-  same app logic behind a `WinMain` wrapper.
+### Windows
+
+- Changed: `Deckboy.exe` launches as a GUI application without a blank
+  terminal window.
+- `--version`, `--self-check` and `--smoke` retain their existing behaviour
+  through the GUI executable.
 
 ## 2026-03-29 (keyboard focus hygiene)
 
-- **Transport hotkeys belong to the main control window.** An output or
-  secondary window receiving a key event does not fire them, though output
-  windows still pass `Esc` through so fullscreen escape and emergency disarm
-  work from the big screen.
-- **Opening an inline editor raises the control window** before starting text
-  input, so `Ctrl+G` captures the cue token you type.
+### Interface
+
+- Changed: transport hotkeys respond only in the main control window.
+- Output windows still accept `Esc` for fullscreen escape and emergency
+  disarm.
+- Fixed an issue where inline editors could miss typed input. Opening an
+  editor raises the control window before text entry, including cue-token
+  entry with `Ctrl+G`.
 
 ## 2026-03-28 (the app is called Deckboy)
 
-- **The built app is `Deckboy` / `Deckboy.exe`**, and GitHub Actions artifacts
-  publish as `Deckboy-linux-*`, `Deckboy-macos-*` and `Deckboy-windows-*`. The
-  startup dialog, splash overlay and About/settings menu render `Deckboy` with
-  the live generated version.
+### Packaging
+
+- Changed: executable names are `Deckboy` and `Deckboy.exe`.
+- Build artifacts use `Deckboy-linux-*`, `Deckboy-macos-*` and
+  `Deckboy-windows-*`.
+
+### Interface
+
+- Startup, splash, About and Settings display `Deckboy` with the generated
+  build version.
 
 ## 2026-03-28 (version flow groundwork)
 
-- **One repo-wide version source of truth**: a top-level `VERSION` file, read by
-  CMake, with `deckboy_version.hpp` generated at configure time so native code
-  and build metadata stay aligned.
-- **`Deckboy --version`** prints the SemVer tag-style version, and
-  `--self-check` includes it near the top.
-- **GitHub Actions understands release tags**: CI validates that a pushed `v*`
-  tag matches the repo `VERSION`, and the Linux, macOS and Windows builds share
-  that guard.
+### Build
+
+- Added one repository-wide version value, read by CMake at configuration time
+  to keep the app and build metadata aligned.
+- CI checks that each pushed `v*` release tag matches the repository version
+  before Linux, macOS and Windows builds.
+
+### Command line
+
+- New: `Deckboy --version` prints the SemVer release-tag version.
+- `--self-check` includes the version near the top of its output.
 
 ## 2026-03-28 (playback fixes + browser backend seam)
 
-- **The timeline filmstrip's last tile samples inside the clip**, and a fully
-  built cached strip replaces the placeholder rather than leaving it on screen.
-- **Animated engineering patterns update on every output path**: a regenerated
-  frame publishes with a fresh index, so motion-enabled patterns and Pocket Test
-  variants move.
-- **Crosshatch and checkerboard motion loops wrap cleanly**, and
-  `crosshatch-motion` drifts on one axis in both preview and output.
-- **A new pattern cue defaults to `hold`**, so it is live-safe rather than
-  inheriting playlist auto-advance; static checkerboard frames are smoke-tested
-  as opaque.
-- **The audio lane shows an animated loading state** like the video filmstrip,
-  and the focused-deck VU meter decays to zero when a cue stops feeding audio.
-- **Browser cue runtime has a real backend seam**: the browser lifecycle and
-  phased startup live behind `native/platform/browser.*` rather than inside
-  `App`.
+### Timeline
 
+- Fixed an issue where the final filmstrip tile sampled beyond the clip. The
+  last sample now falls inside its duration.
+- Fixed an issue where a completed cached filmstrip left its placeholder
+  visible.
+- Added an animated loading state to the audio lane, matching the video
+  filmstrip.
+
+### Patterns
+
+- Fixed an issue where animated engineering patterns failed to update on some
+  outputs. Motion-enabled patterns and Pocket Test variants now publish each
+  regenerated frame.
+- Crosshatch and checkerboard motion loops wrap cleanly; `crosshatch-motion`
+  drifts on one axis in preview and output.
+- Changed: new Pattern cues default to `hold` instead of inheriting playlist
+  auto-advance.
+- Smoke tests verify that static checkerboard frames are opaque.
+
+### Audio
+
+- Fixed an issue where the focused-deck VU meter remained raised after a cue
+  stopped supplying audio. It now decays to zero.
+
+### Browser
+
+- Separated browser lifecycle and phased startup into a dedicated backend for
+  platform-specific implementations.
 
 ## 2026-03-26 (DeckLink SDI output + SRT subtitles)
 
-- **DeckLink SDI output, end to end** (feature-gated by `DECKBOY_HAS_DECKLINK`):
-  22 modes — 720p, 1080i, 1080p and 2160p at all standard frame rates — with
-  per-output device id, mode and 10-bit selection, saved with the show. The
-  compositor captures the egress frame and `DeckLinkOutput::sendFrame()` handles
-  the BGRA→UYVY conversion, alongside stream and NDI on the same output.
-  Companion commands: `DECKLINK ON/OFF/TOGGLE`, `DECKLINK DEVICE <id>`,
-  `DECKLINK MODE <token>`, `DECKLINK 10BIT ON/OFF/TOGGLE`. A stub fallback
-  compiles on every platform when the SDK is absent.
-- **SRT subtitle rendering**: `core/subtitle_parser.hpp` parses an external
-  `.srt`, and an embedded subtitle stream is extracted with
-  `ffmpeg -map <streamId> -f srt`. `probeCue()` auto-detects an embedded track
-  (`0:s:0`), the track is cached on take, and the output window renders the text
-  centred at the bottom with a drop shadow over a semi-transparent bar.
-  Companion commands: `SUBTITLE ON/OFF/TOGGLE`, `SUBTITLE FILE <path>`,
-  `SUBTITLE CLEAR`. The cue's subtitle path, stream id and enable flag are saved
-  with the show.
+### Outputs
+
+- Added DeckLink SDI output in SDK-enabled builds, with `22` modes covering
+  `720p`, `1080i`, `1080p` and `2160p` at standard frame rates.
+- Each output saves its device ID, mode and `10-bit` choice with the show.
+  BGRA output frames convert to UYVY for DeckLink, alongside streaming and NDI
+  on the same output.
+- Remote: `DECKLINK ON/OFF/TOGGLE`, `DECKLINK DEVICE <id>`,
+  `DECKLINK MODE <token>`, `DECKLINK 10BIT ON/OFF/TOGGLE`.
+- Builds without the DeckLink SDK retain a fallback on every platform.
+
+### Subtitles
+
+- New: external `.srt` subtitles and embedded subtitle tracks. The first
+  embedded subtitle stream, `0:s:0`, is detected automatically and cached on
+  take.
+- Embedded tracks are extracted with `ffmpeg -map <streamId> -f srt`.
+- Subtitles draw centred at the bottom of the output with a drop shadow and
+  translucent background bar.
+- Remote: `SUBTITLE ON/OFF/TOGGLE`, `SUBTITLE FILE <path>`, `SUBTITLE CLEAR`.
+- Subtitle path, stream ID and enabled state persist per cue.
 
 ## 2026-03-26 (Companion module + status snapshot)
 
-- **A Bitfocus Companion module** in `companion/companion-module-deckboy/`:
-  - `connection.js` — a TCP client polling `STATUS JSON` on a configurable
-    interval
-  - `actions.js` — 35 actions covering transport, cue navigation, deck focus,
-    seek, volume, blackout, transitions, cue properties, overlays, outputs, NDI,
-    streaming, timecode, panic, shuffle, fullscreen, and raw command passthrough
-  - `feedbacks.js` — 13 boolean feedbacks: playing/paused/stopped per deck,
-    blackout, output health, NDI enabled/receivers, stream enabled, output
-    enabled, test card, deck focused
-  - `variables.js` — 50+ variables: global state, focused deck
-    transport/cue/position/volume/timecode, per-deck (1-4) status, focused
-    output health/NDI/stream/FPS
-  - `presets.js` — 30+ drag-and-drop button presets by category (Transport, Cue
-    Navigation, Deck Selection, Master, Output, Status, Transitions)
-- **The status snapshot carries more**: `masterDimmer` (0-100), `blackout`
-  (bool) and `masterVolume` (0-200) in both the JSON and text forms, which is
-  what powers the blackout feedback and the dimmer and volume variables.
+### Companion
+
+- New: Bitfocus Companion module with a TCP connection that polls
+  `STATUS JSON` at a configurable interval.
+- Includes `35` actions for transport, cue navigation, deck focus, seek,
+  volume, blackout, transitions, cue properties, overlays, outputs, NDI,
+  streaming, timecode, panic, shuffle, fullscreen and raw commands.
+- Includes `13` boolean feedbacks covering deck playing/paused/stopped state,
+  blackout, output health, NDI enabled/receivers, streaming, output enabled,
+  test card and deck focus.
+- Includes more than `50` variables for global state; focused-deck transport,
+  cue, position, volume and timecode; decks `1–4`; and focused-output health,
+  NDI, stream and FPS.
+- Includes more than `30` drag-and-drop presets grouped under Transport, Cue
+  Navigation, Deck Selection, Master, Output, Status and Transitions.
+
+### Remote protocol
+
+- JSON and text status now include `masterDimmer` (`0–100`), `blackout`
+  (boolean) and `masterVolume` (`0–200`), supporting Companion feedback and
+  level variables.
 
 ## 2026-03-25 (splash redesign, animation, and readable settings)
 
-- **Splash screen redesign**: full-bleed background art through the new
-  `drawUiImageCover()`, with the original framed card (760×430) preserved on top
-  over a semi-transparent backing. Boot console and sparkle animations retained.
-- **Program monitor animations**: corner sparkles while playing, idle floating
-  particles, and a playhead sparkle on the timeline during playback.
-- **Bottom bar animations**: a pulsing red border glow on the blackout button
-  while it is active, and header sparkles across the full available space.
-- **Inspector animations**: an activity sparkle in the header when a cue is
-  selected, doubled while playing. Path and URL displays wrap to two lines
-  inside their clip.
-- **VIDEO and AUDIO timeline labels read in full.**
-- **All five settings tabs redesigned for readability**:
-  - Every card subtitle has clearance before the first interactive element.
-  - System tab: "FI"→"FADE IN", "FO"→"FADE OUT", "AUD"→"AUDIO",
-    "P-BEGIN"→"PAUSE BEGIN", "P-END"→"PAUSE END", "NEXT X"→"NEXT TRANSITION";
-    toggle rows go from four per row to two; "PLAYLIST PREFS"→"PLAYLIST
-    PREFERENCES".
-  - Network tab: "NDI TRIG"→"NDI TRIGGER".
-  - Video Outputs tab: a two-column rewrite — the dropdowns self-describe
-    ("Hardware Display: …", "Resolution: …"), NDI source name becomes a
-    dropdown, edge blend labels sit above their buttons, and fullscreen and
-    orientation are full-width rows.
-  - About tab: runtime info renders in full, with dynamic paths ellipsized.
-  - Audio tab: long info text ellipsizes rather than overflowing its card.
-- Industry abbreviations (TC, SFX, NDI, OSC) are kept; only truncated words were
-  expanded.
+### Interface
+
+- Reworked the splash with full-bleed background art beneath the existing
+  `760x430` framed card and translucent backing. Boot-console and sparkle
+  animations remain.
+- Added program-monitor corner sparkles during playback, floating idle
+  particles and a timeline playhead sparkle.
+- Active blackout uses a pulsing red border glow; header sparkles span the
+  available width.
+- The inspector header shows an activity sparkle when a cue is selected,
+  doubled during playback. Path and URL text wraps to two clipped lines.
+- Fixed an issue where `VIDEO` and `AUDIO` timeline labels were truncated.
+
+### Settings
+
+- Improved readability across all five tabs, with clearance between card
+  subtitles and their first controls.
+- Expanded System labels: `FI` to `FADE IN`, `FO` to `FADE OUT`, `AUD` to
+  `AUDIO`, `P-BEGIN` to `PAUSE BEGIN`, `P-END` to `PAUSE END`, `NEXT X` to
+  `NEXT TRANSITION`, and `PLAYLIST PREFS` to `PLAYLIST PREFERENCES`.
+- Changed System toggle rows from four controls per row to two.
+- Renamed Network's `NDI TRIG` to `NDI TRIGGER`.
+- Reworked Video Outputs into two columns. Dropdowns include labels such as
+  `Hardware Display:` and `Resolution:`; NDI source name uses a dropdown;
+  edge-blend labels sit above controls; fullscreen and orientation occupy
+  full-width rows.
+- About shows complete runtime information and ellipsizes dynamic paths. Audio
+  information ellipsizes instead of overflowing.
+- Retained standard abbreviations `TC`, `SFX`, `NDI` and `OSC`.
 
 ## 2026-03-16 (visual overhaul: beveled panels, scanlines, generation themes)
 
-- **The palette is built once and used everywhere**, converted from the theme
-  constants at startup and on every theme load, so all ~774 colour references
-  draw the theme's own colours.
-- **A differentiated default DMG palette**: shell colours (grey-green plastic
-  `C4CFA1`, `A5B088`, `5A6B4A`) distinct from the LCD screen colours (classic
-  `9BBC0F`/`8BAC0F`/`306230`/`0F380F`), with `inkSoft`, `buttonBezel` and
-  `deleteBezel` all their own values.
-- **Beveled panel rendering**: panels draw a highlight on the top-left and a
-  shadow on the bottom-right, detecting raised versus inset automatically — an
-  accent brighter than the fill reads as raised, darker as recessed. No
-  call-site changes.
-- **Scanline overlay**: a 1×4 procedural texture drawn before each present, for
-  a CRT / dot-matrix feel. Controlled by `pal.scanlineAlpha` (0 disables); theme
-  key `scanline_alpha`.
-- **Game Boy generation themes**: `pocket` (silver-grey LCD), `color` (vivid
-  green + indigo shell), `advance` (washed-out + indigo) and `sp` (bright
-  backlit + metallic silver).
+### Themes
+
+- Changed: approximately `774` colour references use a palette built at
+  startup and on theme changes.
+- The default DMG theme separates grey-green shell colours
+  `C4CFA1/A5B088/5A6B4A` from LCD colours `9BBC0F/8BAC0F/306230/0F380F`, with
+  distinct secondary ink, button and delete-button bezel colours.
+- Added Game Boy generation themes: `pocket` with silver-grey LCD, `color`
+  with vivid green and indigo shell, `advance` with washed-out screen and
+  indigo shell, and `sp` with a bright backlit screen and metallic silver
+  shell.
+
+### Interface
+
+- Added panel bevels with top-left highlights and bottom-right shadows.
+  Accents brighter than the fill appear raised; darker accents appear
+  recessed.
+- Added a procedural `1x4` scanline overlay for a CRT/dot-matrix appearance.
+  Theme key `scanline_alpha` controls opacity; `0` disables it.
 
 ## 2026-03-16 (responsive cue rows and imports)
 
-- **Importing a large batch of media stays responsive.** `importPaths()` creates
-  placeholder cues immediately, usable in the UI, and probes them on background
-  threads; a row shows "probing..." until its metadata lands.
-- **Cue row display strings are cached** per cue — token, kind label, ellipsized
-  name and metadata line — self-invalidating by input comparison, so the text
-  measurement loop does not run per row per frame.
-- **Formatting allocates nothing per frame**: `formatSeconds()`,
-  `formatTimecode()` and the inspector's float formatting use `snprintf`.
-- **One waveform lookup helper** (`getWaveformPeaks(path, pending)`) shared by
-  every render path.
-- The `Cue` struct is grouped by alignment, saving ~40 bytes of padding per cue;
-  serialisation is by explicit field name, so the show format is unaffected.
+### Cues
+
+- Changed: large imports create usable placeholder cues immediately and probe
+  metadata in the background. Rows display `probing...` until results arrive.
+- Cached cue tokens, kind labels, ellipsized names and metadata lines update
+  when their inputs change, reducing repeated text measurement.
+- Reduced per-cue memory padding by approximately `40 bytes` without changing
+  the saved show format.
+
+### Interface
+
+- Time, timecode and inspector-number formatting no longer allocates memory
+  each frame.
+- All waveform displays share one peak-lookup path.
 
 ## 2026-03-15 (steadier remote control, one palette, one inspector)
 
-- **Companion/OSC TCP client handling is thread-safe**: the client list is
-  snapshotted for `select()` with the lock released while it blocks, then
-  re-locked for recv/accept/close, with the timeout at 100ms for
-  responsiveness.
-- **A pre-converted colour palette** (`Palette pal` + `rebuildPalette()`) is
-  built once at startup and after each theme load, and used by every draw site.
-- **One inspector implementation.** The docked and floating panels share 15
-  helpers parameterised by an `InspectorCtx` (inset, fonts, ellipsize, gaps),
-  so a change to a row type reaches both.
-- `docs/AUDIT_ROADMAP.md` maps the remaining optimisation and cleanup work.
+### Remote protocol
+
+- Improved thread safety for Companion/OSC TCP connections. Client-list
+  updates are synchronized without holding the lock during socket waits.
+- Socket polling uses a `100 ms` timeout for responsiveness.
+
+### Interface
+
+- All drawing uses a pre-converted palette rebuilt at startup and after theme
+  changes.
+- Docked and floating inspectors share `15` layout and row operations, keeping
+  inset, fonts, ellipsis and spacing behaviour consistent.
+
+### Documentation
+
+- Added an audit roadmap for remaining optimization and cleanup work.
 
 ## 2026-03-15 (one subprocess API across platforms)
 
-- `native/core/subprocess.hpp/cpp` becomes a unified cross-platform API: a
-  `SpawnOptions` struct with a `StdioMode` enum (Inherit, Null, Pipe, Merge) and
-  a detached mode, one `spawnProcess()` entry point, and convenience presets
-  (`pipedStdout()`, `detachedSilent()`, `captureAll()`). The legacy wrappers
-  remain as thin forwards, so every existing call site works unchanged.
+### Platform support
+
+- Unified subprocess handling across platforms, with inherited, discarded,
+  piped or merged standard streams and detached execution.
+- Added common presets for piped stdout, silent detached execution and
+  combined-output capture.
+- Existing subprocess callers retain their behaviour through compatibility
+  wrappers.
 
 ## 2026-03-15 (Deckboy 0.60 audit + cleanup pass)
 
-- **Every text prompt uses the inline editor**: `Ctrl+G` cue goto, cue
-  renumbering (from settings and `Ctrl+Shift+R`), MIDI port, Companion/OSC port,
-  OSC Query port, OSC feedback rate, Art-Net port, canvas size, and browser-cue
+### Interface
+
+- Changed: every text prompt uses inline editing, including `Ctrl+G`, cue
+  renumbering from Settings or `Ctrl+Shift+R`, MIDI port, Companion/OSC port,
+  OSC Query port, OSC feedback rate, Art-Net port, canvas size and Browser cue
   creation.
-- **Deck auto-advance is gone from the model as well as the UI**, so the
-  keyboard and the interface agree about what a deck does. Old `auto_advance`
-  fields still load harmlessly.
-- **The unfinished overlay/scene authoring surfaces are parked**: `LOWER 3RD`,
-  `SCENE` and `PIP` come out of the bottom `MEDIA` group, and `G`, `M`,
-  `Shift+P` and the remote add commands say so. Existing `Lower Third`, `PIP`
-  and `Composite` cues still load, inspect, save and render.
-- Portability conclusion for this pass: cross-platform work is realistic without
-  an architecture rewrite; the remaining blockers are the Unix-only
-  subprocess/FIFO paths, the Linux-only browser and source capture backends, and
-  the Windows/macOS runtime backends.
+
+### Cues
+
+- Removed deck-level auto-advance from stored state as well as the interface,
+  keeping keyboard and interface behaviour consistent. Older `auto_advance`
+  fields remain harmless when loaded.
+- Removed unfinished `LOWER 3RD`, `SCENE` and `PIP` creation controls from the
+  bottom `MEDIA` group. `G`, `M`, `Shift+P` and remote add commands report
+  that creation is unavailable.
+- Existing Lower Third, PiP and Composite cues still load, inspect, save and
+  render.
+
+### Known issues
+
+- Portability review found no need for an architecture rewrite, but Unix-only
+  subprocess/FIFO paths, Linux-only browser and source capture, and
+  Windows/macOS runtime backends remain unfinished.
 
 ## 2026-03-15 (Deckboy 0.60 branch, first composite cue cut)
 
-- A real `Composite` cue kind in the project model and the save format, with
-  `SCENE` in the bottom `MEDIA` group and `M` to add one.
-- A composite cue stores its layout preset (`2-UP`, `70/30`, `QUAD`), a
-  per-slot source spec, a per-scene audio slot selection and a scene background
-  colour.
-- A dedicated composite inspector: `PLAYBACK` for hold, duration, fades and end
-  action; `SCENE` for layout presets, slot source entry and audio-slot cycling;
-  `OVERLAYS` for attached `Lower Third` / `PIP` bin items.
-- The first rendering pass is deliberately bounded: taking a `Composite` cue
-  shows an authored scene placeholder in Program, Preview and Output. Live slot
-  rendering from media, browser and source runtimes is the next phase.
+### Cues
+
+- New: Composite cues, saved with the show and created through `MEDIA > SCENE`
+  or `M`.
+- Stores `2-UP`, `70/30` or `QUAD` layout, per-slot sources, scene audio-slot
+  selection and background colour.
+- Inspector `PLAYBACK` controls hold, duration, fades and end action; `SCENE`
+  controls layout, sources and audio slot; `OVERLAYS` attaches Lower Third and
+  PiP bin items.
+- Taking a Composite cue displays its authored scene placeholder in Program,
+  Preview and Output.
+
+### Known issues
+
+- Live slot rendering from media, browser and source inputs is not yet
+  implemented.
 
 ## 2026-03-15 (Composite cue architecture spec)
 
-- An engineering spec for the `Composite` cue in
-  [docs/COMPOSITE_CUE_SPEC.md](docs/COMPOSITE_CUE_SPEC.md), recommending
-  `Composite` over a generic live layer system for Deckboy's
-  single-primary-cue architecture, and covering the cue data model and slot
-  model, runtime and render integration, audio and transport rules, inspector
-  and monitor-editing behaviour, and rollout phases with explicit non-goals.
+### Documentation
+
+- Added the Composite cue architecture specification.
+- Recommends Composite scenes within Deckboy's single-primary-cue model
+  instead of a generic live-layer system.
+- Covers cue and slot data, playback and rendering integration, audio and
+  transport rules, inspector and monitor editing, rollout phases and explicit
+  exclusions.
 
 ## 2026-03-13 (copy and paste cue settings, longer default fades)
 
-- **Settings copy/paste for cue work**: `Ctrl+C` copies the selected cue's
-  playback, geometry and key settings, `Ctrl+V` pastes them onto the selection
-  while each cue keeps its own media, name and identity. The inspector summary
-  card carries visible `COPY` / `PASTE` buttons.
-- **Warp copy/paste**: `Ctrl+Shift+C` copies the focused deck's warp and blend
-  state, `Ctrl+Shift+V` pastes it back, with `COPY` / `PASTE` buttons beside
-  `SAVE` in the warp editor.
-- **Naming a warp preset uses the inline editor.**
-- **New decks and cues default to a 1.5s cue fade** (up from 0.5s), so a fade
-  reads as a fade.
+### Cues
+
+- New: `Ctrl+C` copies the selected cue's playback, geometry and key settings;
+  `Ctrl+V` applies them to the selection while preserving each cue's media,
+  name and identity.
+- Added `COPY` and `PASTE` buttons to the inspector summary.
+- Changed: new decks and cues default to `1.5 s` fades, up from `0.5 s`.
+
+### Outputs
+
+- New: `Ctrl+Shift+C` copies the focused deck's warp and edge-blend settings;
+  `Ctrl+Shift+V` pastes them.
+- Added `COPY` and `PASTE` beside `SAVE` in the warp editor.
+- Warp preset naming now uses inline editing.
 
 ## 2026-03-13 (attached overlays + self-contained PIP sources)
 
-- **Overlays are reusable bin items plus per-cue attachments**: a primary cue
-  has an `OVERLAYS` inspector section and can attach one `Lower Third` and one
-  `PIP` from the `OVERLAY BIN`. Attached overlays fire on TAKE only, and stay
-  out of the main cue's next/loop sequencing.
-- **PIP carries its own source**: `Media File / Still`, `Browser URL`, `Window
-  Source`, `Camera Source` or `Syphon/Spout Source`. Legacy cue-linked PIP cues
-  still load and are shown as `Legacy Cue Link`, and a live PIP resolves from
-  the configured source.
-- **Firing an overlay by hand uses the same runtime path** as an attached one,
-  so taking a `Lower Third` or `PIP` from the bin replaces the live overlay of
-  that kind rather than stacking duplicates.
+### Overlays
+
+- New: primary cues can attach one Lower Third and one PiP from `OVERLAY BIN`
+  through the `OVERLAYS` inspector section.
+- Attachments fire on `TAKE` only and do not participate in the main cue's
+  next/loop sequencing.
+- PiP sources are self-contained: `Media File / Still`, `Browser URL`,
+  `Window Source`, `Camera Source` or `Syphon/Spout Source`.
+- Older cue-linked PiP entries still load as `Legacy Cue Link`; live PiP
+  resolves its configured source.
+- Manually taking a Lower Third or PiP from the bin replaces the active
+  overlay of the same kind, using the same playback behaviour as attachments.
 
 ## 2026-03-13 (overlay bin split, PIP presets, sequencing)
 
-- **The rundown and the overlay bin are separate columns.** `Lower Third` and
-  `PIP` cues live in the `OVERLAY BIN`, which stays hidden until an overlay cue
-  exists; each column has its own mouse-wheel scroll.
-- **Main cue sequencing skips overlay-only cues** — next badges, keyboard
-  next/prev and cue-end auto-advance all stay on the main list.
-- **PIP controls are direct**: `SET TARGET CUE` at the top of the `PLAYBACK`
-  section, with corner presets (`TL / TR / BL / BR`) and size presets
-  (`SM / BIG / 70/30`) before any manual geometry.
+### Overlays
+
+- Changed: the rundown and `OVERLAY BIN` occupy separate columns with
+  independent mouse-wheel scrolling.
+- Lower Third and PiP cues appear in the bin, which remains hidden until an
+  overlay exists.
+- Main-list next badges, keyboard next/previous and end-of-cue advance skip
+  overlay-only entries.
+- PiP `PLAYBACK` places `SET TARGET CUE` first, followed by
+  `TL / TR / BL / BR` corner presets and `SM / BIG / 70/30` size presets
+  before manual geometry.
 
 ## 2026-03-13 (cue row controls, inspector and bottom bar)
 
-- Empty states in the cue inspector render inside proper framed cards; the
-  program monitor `OUTPUT / DECODE / STREAM` pills are wide enough for their
-  numbers; and the `WARP` and `-30 / -20 / -10` transport buttons have roomier,
-  aligned labels.
-- **The bottom action bar reworked**: the floating `Source` / `Pattern`
-  selectors are gone, the section labels (`MEDIA`, `TRANSPORT`, `OUTPUT`) sit
-  inside their group panels, and a `LOWER 3RD` button joins `IMPORT`, `SOURCE`
-  and `PATTERN`.
-- **Per-cue playback state lives in the playlist row**: icon toggles for fade
-  in, fade out, loop, hold on last frame and cue audio.
-- **Source-cue type selection lives in the inspector**, so the footer needs no
-  separate source-kind selector to create window, camera or Syphon/Spout cues.
-- Loop, hold and fade toggles apply consistently across still, source, browser,
-  pattern and lower-third cues as well as video and audio.
-- Follow-up on the same pass: larger `MEDIA / TRANSPORT / OUTPUT` footer tiles;
-  telemetry pills that split label from value; `Clear` drops active Lower Third
-  overlays immediately; Lower Third cues are edited in the inspector (`title`
-  and `sub`); and the `System`, `Audio` and `Network` tabs are reorganised —
-  theme and UI feedback under `System → Appearance`, audio device selection
-  under `Audio`, and network/integration controls in larger cards.
-- **A first real `PIP` overlay cue**: `PIP` in the bottom `MEDIA` group and on
-  `Shift+P`, pushed into the overlay stack like a Lower Third but running its
-  own silent media engine, with a target cue token editor plus geometry, colour
-  and key controls, and the target's own thumbnail in the preview.
-- `System → Appearance` shows `UI MOTION` as always-on feedback rather than an
-  on/off toggle, and older projects load with motion normalised back on.
+### Interface
 
+- Inspector empty states use framed cards.
+- Program-monitor `OUTPUT / DECODE / STREAM` indicators have room for their
+  numbers and separate labels from values. `WARP` and `-30 / -20 / -10`
+  transport controls use roomier, aligned labels.
+- Reworked the bottom bar with larger `MEDIA / TRANSPORT / OUTPUT` tiles and
+  group labels inside their panels.
+- Removed floating Source and Pattern selectors; added `LOWER 3RD` alongside
+  `IMPORT`, `SOURCE` and `PATTERN`.
+
+### Cues
+
+- Added row toggles for fade-in, fade-out, loop, hold on last frame and cue
+  audio.
+- Loop, hold and fade toggles apply to still, source, browser, pattern and
+  lower-third cues as well as video and audio.
+- Source type selection moved to the inspector for Window, Camera and
+  Syphon/Spout cue creation.
+
+### Overlays
+
+- `Clear` immediately removes active Lower Thirds. Edit their `title` and
+  `sub` in the inspector.
+- New: PiP overlay cue through `MEDIA > PIP` or `Shift+P`, with independent
+  silent playback.
+- PiP includes a target cue-token editor, geometry, colour and key controls,
+  and the target cue's thumbnail in preview.
+
+### Settings
+
+- Reorganized System, Audio and Network. Theme and UI feedback are under
+  `System > Appearance`; audio-device selection is under `Audio`; network and
+  integration controls use larger cards.
+- `System > Appearance > UI MOTION` is always-on feedback instead of a toggle.
+  Older shows load with motion enabled.
 
 ## 2026-03-12 (NMC transport sync runtime)
 
-- **A live NMC transport sync backend** behind the existing `NMC` adapter
-  toggle: a UDP transport/locate bridge with one active mode at a time. Input
-  mode listens for transport and locate packets and applies them to the focused
-  deck; output mode broadcasts play, pause, stop and locate updates from it.
-- Runtime controls: `DECKBOY_NMC_MODE=input|output`, `DECKBOY_NMC_PORT`,
-  `DECKBOY_NMC_HOST` (output target), `DECKBOY_NMC_SOURCE` (sender filter) and
-  `DECKBOY_NMC_LOCATE_MS` (rolling locate cadence).
-- `--self-check` reports `nmc-sync-runtime`, and route planning reports
-  `nmc[ok]`.
+### Remote protocol
+
+- Added NMC UDP transport and locate synchronization behind the existing `NMC`
+  adapter toggle.
+- One mode runs at a time: input applies received transport and locate
+  messages to the focused deck; output broadcasts its play, pause, stop and
+  locate changes.
+- Configure with `DECKBOY_NMC_MODE=input|output`, `DECKBOY_NMC_PORT`,
+  `DECKBOY_NMC_HOST` for the output target, `DECKBOY_NMC_SOURCE` for sender
+  filtering, and `DECKBOY_NMC_LOCATE_MS` for rolling locate cadence.
+- `--self-check` reports `nmc-sync-runtime`; route status reports `nmc[ok]`.
 
 ## 2026-03-12 (NDI metadata trigger runtime)
 
-- **An NDI metadata trigger backend**: `libndi` is loaded at runtime rather than
-  needing SDK headers at build time, and a lightweight receive bridge listens
-  for metadata frames on a discovered source. Accepted metadata routes into the
-  existing remote-command path as `NDIEVENT`, so it is handled exactly like a
-  Companion, OSC or ATEM command.
-- Conservative parsing: raw Deckboy command text, common XML forms with
-  `command` / `cmd` / `action` / `event` attributes or elements, and `cue`,
-  `goto` and `group` XML attributes as `GOTO ...` and `GROUP ... FIRE`
-  shortcuts.
-- `--self-check` reports `ndi-trigger-runtime: ok/missing`, and route planning
-  reports `ndi-trigger[ok]`. `DECKBOY_NDI_TRIGGER_SOURCE` constrains the bridge
-  to one source name; `DECKBOY_NDI_LIB` overrides the runtime library path.
+### NDI
+
+- Added metadata-trigger reception from a discovered NDI source. `libndi`
+  loads at runtime without requiring SDK headers during the build.
+- Accepted metadata enters remote-command handling as `NDIEVENT`, with the
+  same behaviour as Companion, OSC and ATEM commands.
+- Accepts raw Deckboy commands and XML `command`, `cmd`, `action` or `event`
+  attributes/elements.
+- XML `cue` and `goto` attributes map to `GOTO ...`; `group` maps to
+  `GROUP ... FIRE`.
+- `--self-check` reports `ndi-trigger-runtime: ok/missing`; route status
+  reports `ndi-trigger[ok]`.
+- `DECKBOY_NDI_TRIGGER_SOURCE` restricts reception to a named source.
+  `DECKBOY_NDI_LIB` overrides the runtime library path.
 
 ## 2026-03-12 (LTC ingest)
 
-- **An LTC ingest backend**: `libltc` is loaded at runtime, capture comes from
-  the default SDL audio input, and decoded LTC feeds the existing timecode chase
-  and trigger path — emitted internally as `LTCEXT`, the same ingest route MTC
-  quarter-frame decode uses.
-- `--self-check` reports `ltc-runtime: ok/missing`, and route planning reports
-  `ltc[ok]`. `DECKBOY_LTC_LIB` overrides the library path and
-  `DECKBOY_LTC_DEVICE` names a specific capture device.
+### Timecode
+
+- Added LTC input using a runtime-loaded libltc library and the default SDL
+  audio-capture device.
+- Decoded timecode feeds the existing chase and trigger handling through
+  `LTCEXT`, sharing the MTC quarter-frame input route.
+- `--self-check` reports `ltc-runtime: ok/missing`; route status reports
+  `ltc[ok]`.
+- `DECKBOY_LTC_LIB` overrides the library path; `DECKBOY_LTC_DEVICE` selects a
+  capture device by name.
 
 ## 2026-03-12 (bundled show export)
 
-- **BUNDLE** on the toolbar, and `Ctrl+Shift+E`: exports a new `.deckboy` plus a
-  sibling `<show>_media/` folder, with the copied media rewritten to relative
-  cue paths so the show moves as one thing.
-- File-backed cues resolve against the current project folder for decode,
-  thumbnails, preview and waveform analysis, so a bundled show does not depend
-  on the original absolute paths.
+### Desk
+
+- New: toolbar `BUNDLE` and `Ctrl+Shift+E` export a `.deckboy` show with a
+  sibling `<show>_media/` folder.
+- Media is copied and cue paths become relative, allowing the show and media
+  to move together.
+- Decode, thumbnails, preview and waveform analysis resolve file-backed cues
+  relative to the current show folder, without depending on original absolute
+  paths.
 
 ## 2026-03-10 (SRT stream stability)
 
-- **A stalled or unlistened stream never holds the UI.** Child stream processes
-  launch through explicit pipes, video writes happen on a dedicated stream
-  writer thread rather than the render thread, startup and shutdown keep
-  Deckboy's own control and listener sockets out of the ffmpeg children, and a
-  missing listener or a reconnect surfaces as retry/recovering state.
-- The local SRT loopback workflow is spelled out: `OUTPUT ON` arms the output,
-  `STREAMING: ON` starts network egress for it, and local viewing uses an
-  external SRT listener such as `ffplay`.
+### Streaming
+
+- Fixed an issue where a stalled SRT stream or missing listener blocked the
+  interface. Video writes now run separately from rendering through explicit
+  process pipes.
+- FFmpeg stream processes no longer inherit Deckboy's control and listener
+  sockets during startup or shutdown.
+- Missing listeners and reconnects report retry or recovering state.
+- Documented local loopback setup: `OUTPUT ON` arms output, `STREAMING: ON`
+  starts network transmission, and an external listener such as `ffplay`
+  displays it.
 
 ## 2026-03-10 (portability prep + docs refresh)
 
-- The top-level CMake prefers exported `SDL2` / `SDL2_ttf` config packages and
-  falls back to pkg-config or a manual lookup, and macOS feature-gated framework
-  linking goes through a real helper.
-- `native/core/paths.cpp` resolves executable locations on Linux, macOS and
-  Windows; sans and mono font lookup includes the macOS and Windows system font
-  locations alongside project-local overrides; the subprocess layer keeps
-  Unix-only members and headers behind conditionals; and socket send helpers
-  tolerate a platform with no `MSG_NOSIGNAL`.
-- `PORTABILITY.md` documents executable-root lookup on all three platforms and
-  the current build and runtime readiness.
+### Build
+
+- CMake prefers exported `SDL2` and `SDL2_ttf` configuration packages, with
+  pkg-config and manual-lookup fallbacks.
+- Centralized optional macOS framework linking and isolated Unix-only
+  subprocess declarations.
+- Socket sending supports platforms without `MSG_NOSIGNAL`.
+
+### Platform support
+
+- Added executable-location discovery on Linux, macOS and Windows.
+- Sans and monospace font lookup includes macOS and Windows system fonts
+  alongside project-local overrides.
+
+### Documentation
+
+- Documented executable-root discovery on all three platforms and current
+  build/runtime readiness.
 
 ## 2026-03-06 (Phase 4 inline editing + floating panel workspace)
 
-- **Panel presentation and visibility persist** on top of the Phase 1 workspace
+### Workspace
+
+- Panel presentation and visibility now persist with the existing workspace
   model.
-- **A `PANELS` control row in the status strip**: `PGM[D/F]`, `INS[D/F]`,
-  `OUT[D/F/H]`, `RTG[D/F/H]`, `MSC[D/F/H]`.
-- **A secondary `Deckboy Panels` floating workspace window** for popped-out
-  operational panels, with a per-panel `DOCK` return control.
-- **Panel-local focus badges** so focused Deck / Output / Cue state is visible
-  in panel headers and cue rows, not only in the global strip.
-- **The inline editor replaces every remaining operational text prompt**: custom
-  output raster, output refresh, output canvas size, canvas view offset, stream
-  URL, stream bitrate, output alpha, output delay, NDI name, NDI key name, cue
-  goto target, cue notes, browser URL and cue ID.
-- Safe-text cleanup continues through the quit confirmation, startup dialog,
-  splash overlay headings, About tab, and the video output advanced and routing
-  headers.
+- New status-strip `PANELS` row: `PGM[D/F]`, `INS[D/F]`, `OUT[D/F/H]`,
+  `RTG[D/F/H]`, `MSC[D/F/H]`.
+- New: `Deckboy Panels` floating workspace for detached operational panels,
+  each with a `DOCK` return control.
+- Panel headers and cue rows show focused Deck, Output and Cue badges in
+  addition to the global status strip.
+
+### Interface
+
+- Inline editing now covers custom output raster, refresh rate, canvas size
+  and view offset; stream URL and bitrate; output alpha and delay; NDI source
+  and key names; cue goto target, notes, Browser URL and ID.
+- Extended text clipping and sizing improvements to quit confirmation, startup
+  dialog, splash headings, About, and advanced-output and routing headers.
 
 ## 2026-03-06 (Phase 3 workflow polish + selector cleanup)
 
-- **Every operational selector is a non-blocking dropdown**: audio output
-  device, output display, stream protocol and mirror source. The old blocking
-  list picker is gone from the live UI flow.
-- **Program / Transport reads clearly**: explicit `CURRENT` and `NEXT`, and
-  labelled `TRANSPORT`, `TIMELINE` and `REMAIN`.
-- **One next-cue rule** shared by the Program summary and the deck playlist
-  rows.
-- The default workspace gives `Program / Transport` more room, and a text-safe
-  pass covers the Decks window tracker columns, playlist headers and rows,
-  Master Scene programmer and list rows, Program / Preview labels, cue thumbnail
-  placeholders and details footer, the settings modal title, tabs and output
-  summary, and dropdown popovers — long labels ellipsize rather than colliding.
+### Interface
+
+- Changed: audio output device, output display, stream protocol and
+  mirror-source selectors use non-blocking dropdowns, replacing the blocking
+  list picker.
+- Program / Transport uses explicit `CURRENT`, `NEXT`, `TRANSPORT`, `TIMELINE`
+  and `REMAIN` labels.
+- The Program summary and playlist rows use one next-cue selection rule.
+- The default workspace allocates more room to Program / Transport.
+- Long labels ellipsize within their controls across Decks-window tracker
+  columns, playlist headers and rows, Master Scene programmer and lists,
+  Program/Preview labels, thumbnail placeholders, details footer, Settings
+  title/tabs/output summary and dropdowns.
 
 ## 2026-03-06 (Phase 2 operational panel split)
 
-- The control UI splits into explicit panels rather than one shell:
-  - `Deck Playlist` for the focused deck
-  - `Program / Transport`, with the current and next cue summaries, the focused
-    Deck / Output route summary, the Program and Preview monitors, progress and
-    remaining time, and the stack view
-  - `Cue Inspector` as its own singleton panel
-  - `Output Panels` as a repeating operational panel list
-  - `Routing Matrix` as a singleton operational panel rather than a
-    Preferences-only surface
-  - `Master Scene` in the right-hand operational column
-- Reusable panel chrome through `drawOperationalPanel(...)`, with docked and
-  floating panel instances recording their real frames.
-- Scrollable, non-blocking views for `Output Panels` and `Routing Matrix`, and
-  Output-panel controls for focus, recover, disarm and the FPS toggle.
-- The Program panel uses its full width now that the Inspector is its own panel.
-- No playback, routing, OSC, Companion, shortcut or output-safety behaviour
-  changed.
+### Workspace
+
+- Split the control window into operational panels: `Deck Playlist`,
+  `Program / Transport`, `Cue Inspector`, `Output Panels`, `Routing Matrix`
+  and `Master Scene`.
+- Deck Playlist follows the focused deck. Program / Transport includes
+  current/next cue summaries, focused Deck/Output route, Program and Preview
+  monitors, progress, remaining time and stack view.
+- Cue Inspector and Routing Matrix each have one panel; outputs use a
+  repeating panel list; Master Scene occupies the right-hand column.
+- Docked and floating panels share their frame styling and track their actual
+  bounds.
+- Output Panels and Routing Matrix are scrollable and non-blocking. Output
+  controls include focus, recover, disarm and FPS display.
+- Program now uses the full panel width because Cue Inspector occupies its own
+  panel.
+- Playback, routing, OSC, Companion, shortcuts and output-safety behaviour are
+  unchanged.
 
 ## 2026-03-06 (workspace foundation: panel registry + persistence)
 
-- A panel/workspace foundation — `UiPanelDefinition`, `UiPanelState`,
-  `UiPanelManager`, `UiWorkspaceState`, `UiFocusState` — with logical panel
-  kinds registered for Program / Transport, Preview, Cue Inspector, Routing,
-  Master Scene, Preferences, Deck Playlist and Output.
-- Always-visible workspace and focus summary lines in the operational strip:
-  `WORKSPACE ...` and `FOCUS: DECK ... | OUTPUT ... | CUE ...`.
-- Workspace save/load at `data/deckboy.workspace`: panel visibility,
-  presentation (docked / floating / modal), frames, control and decks window
-  geometry, focused panel, focused Deck / Output / Cue context, and the last
-  Master Scene sidebar and programmer state. It loads during init, applies
-  window geometry and focus, and auto-flushes from the update loop — with no
-  change to the show file format, and a serialisation smoke test.
+### Workspace
+
+- Added workspace and focus tracking for Program / Transport, Preview, Cue
+  Inspector, Routing, Master Scene, Preferences, Deck Playlist and Output
+  panels.
+- The operational strip always shows `WORKSPACE ...` and
+  `FOCUS: DECK ... | OUTPUT ... | CUE ...`.
+- Workspace state is saved separately in `data/deckboy.workspace`, preserving
+  show-file compatibility.
+- Saves panel visibility; docked, floating or modal presentation; panel
+  bounds; control and Decks-window geometry; focused panel and
+  Deck/Output/Cue; and Master Scene sidebar/programmer state.
+- Startup restores geometry and focus; updates save automatically. Smoke tests
+  cover serialization.
 
 ## 2026-03-06 (operator terminology normalization)
 
-- Terminology normalised across the live UI and the docs: `Master Scene` →
-  `Master Cue`, the `MASTER SCENES` sidebar → `MASTER CUES`, `Create Standard` →
-  `Create Window`, `Camera` / `Syphon/Spout` → `Camera Source` /
-  `Syphon/Spout Source`, "lower-third / graphic" → `Lower Third`, and
-  "Decks panel" / "tracker window" → `Decks window`.
-- The Master Cue sidebar reads consistently: an `MC#` focus badge, `<MC` / `MC>`
-  nav buttons, a `TAKE` fire button, and a `Master Cue Name` rename prompt.
-- Compatibility aliases and protocol identifiers are unchanged: the `GROUP` and
-  `SCENE` command aliases still work, and `.deckboy`, `DECKBOY_*`, `/deckboy/*`
-  and `deckboy-native` stay as they are.
+### Interface and documentation
+
+- Changed: `Master Scene` becomes `Master Cue`; `MASTER SCENES` becomes
+  `MASTER CUES`; `Create Standard` becomes `Create Window`.
+- Changed: `Camera` and `Syphon/Spout` become `Camera Source` and
+  `Syphon/Spout Source`; `lower-third / graphic` becomes `Lower Third`;
+  `Decks panel` and `tracker window` become `Decks window`.
+- The Master Cue sidebar uses `MC#`, `<MC`, `MC>`, `TAKE` and the
+  `Master Cue Name` rename prompt.
+- Compatibility names remain unchanged: `GROUP`, `SCENE`, `.deckboy`,
+  `DECKBOY_*`, `/deckboy/*` and `deckboy-native`.
 
 ## 2026-03-05 (audio inspector metadata section)
 
-- The audio cue inspector matches the section model: `PLAYBACK` for transport
-  and audio behaviour, `METADATA` for tag, notes, cue id and pause points, with
-  `ROUTING` below. Loop, hold and end rows use the shared panel helpers, and
-  pause points render in the aligned metadata row style.
+### Cues
+
+- Reorganized the Audio cue inspector into `PLAYBACK` for transport/audio
+  behaviour, `METADATA` for tag, notes, cue ID and pause points, and `ROUTING`
+  below.
+- Loop, hold and end controls use consistent panel rows; pause points align
+  with other metadata.
 
 ## 2026-03-05 (inspector metadata sections for lower-third, browser and source cues)
 
-- Lower-third cues use boxed `PLAYBACK` and `METADATA` sections;
-  still, pattern, browser and source cues split playback controls from metadata
-  and source rows, in the same aligned panel style as the rest of the inspector.
-- Shared inspector row helpers for message/info rows, edit rows, status rows,
-  action rows and tag rows.
-- Lower-third `CLEAR OVERLAY` is a real clickable action.
+### Cues
+
+- Lower Third inspectors use boxed `PLAYBACK` and `METADATA` sections.
+- Still, Pattern, Browser and source-cue inspectors separate playback from
+  metadata and source rows, matching the rest of the inspector.
+- Message, information, edit, status, action and tag rows use shared
+  alignment.
+- Fixed an issue where Lower Third `CLEAR OVERLAY` was not clickable.
 
 ## 2026-03-05 (inspector sections, routing alignment, control styling)
 
-- **Scoped inspector section cards** for `PLAYBACK`, `GEOMETRY`, `KEY` and
-  `ROUTING`, with consistent collapse affordances, boxed grouping, and a shared
-  row style with aligned labels and +/- controls.
-- **Routing controls use a compact table row layout**, and the output-strip
-  routing rows use `UITable` alignment for the deck label, output selector,
-  layer selector and assign/link action.
-- **Control styling**: bottom-bar buttons take a stronger top band and adaptive
-  title font sizing, and dropdowns and buttons share one panel treatment and
-  safer text rendering.
+### Cues
+
+- Added boxed, collapsible `PLAYBACK`, `GEOMETRY`, `KEY` and `ROUTING`
+  sections with aligned labels and minus/plus controls.
+
+### Outputs
+
+- Routing controls use compact table rows. Deck label, output selector, layer
+  selector and assign/link action align in the output strip.
+
+### Interface
+
+- Bottom-bar buttons use stronger top bands and title fonts sized to fit.
+- Buttons and dropdowns share panel styling and bounded text rendering.
 
 ## 2026-03-05 (grid layout cleanup: safer spacing, a clearer control window)
 
-- Reusable layout and safety primitives: `VerticalLayout`, `HorizontalLayout`,
-  `GridLayout`, `UITable`, `drawTextSafe(...)`, and shared `drawUIPanel(...)`,
-  `drawUIButton(...)` and `drawUIDropdown(...)`.
-- The main control window snaps to an 8px grid: panel padding `16`, panel gap
-  `12`, chunky `2px` framing, a shared bottom-bar button height of `40`, and a
-  compact `56` global header.
-- The header splits into title / output+TC / controls zones, the content area
-  reserves space for selectors and bottom controls before laying out columns,
-  and deck header, footer and cue row text ellipsizes inside its bounds.
-- The bottom bar takes consistent-width buttons, keeps the `MEDIA / TRANSPORT /
-  OUTPUT` grouping, and simplifies its labels to `IMPORT / SOURCE / PATTERN /
-  TAKE / STOP / PLAY / CLEAR / PREFS`.
-- The program area gets a clearer title/time/progress hierarchy, a single
-  monitor frame, and stack view and inspector spacing on the new constants.
+### Interface
+
+- Unified vertical, horizontal, grid and table layouts, bounded text, panels,
+  buttons and dropdowns.
+- The control window uses an `8 px` grid, `16 px` panel padding, `12 px` gaps,
+  `2 px` frames, `40 px` bottom-bar buttons and a `56 px` header.
+- The header separates title, output/timecode and controls. Content reserves
+  selector and bottom-control space before allocating columns.
+- Deck headers, footers and cue-row text ellipsize within their bounds.
+- Bottom-bar buttons have consistent widths within
+  `MEDIA / TRANSPORT / OUTPUT`, labelled
+  `IMPORT / SOURCE / PATTERN / TAKE / STOP / PLAY / CLEAR / PREFS`.
+- The program area uses a clearer title, time and progress hierarchy with one
+  monitor frame; stack and inspector spacing follow the shared layout sizes.
 
 ## 2026-03-05 (output activation: explicit health, recover and disarm)
 
-- **An explicit per-output health model**: `OFF`, `ARMED`, `LIVE`,
-  `RECOVERING`, `ERROR`, each carrying the reason it last changed.
-- **Output chips show it**: the state token comes from the health model rather
-  than ad-hoc stream flags, with the reason inline on the chip and the focused
-  output still highlighted.
-- **Per-chip controls**: `REC` recovers or re-arms that output in one click;
-  `OFF` disarms it.
-- Health transitions are wired through fullscreen enable and recovery, stream
-  start, write and audio failures, an unavailable NDI runtime or sender, and the
-  escape-to-windowed path, which reports as armed with a reason. Pressing `ON`
-  again on a stream output performs a real egress restart.
-- Status snapshots expose it: `health=` plus optional `health_reason="..."` in
-  text `STATUS`, and `health` / `healthReason` per output in `STATUS JSON`.
+### Outputs
+
+- Added explicit health states: `OFF`, `ARMED`, `LIVE`, `RECOVERING` and
+  `ERROR`, each retaining the reason for its latest transition.
+- Output chips show health and reason, while keeping the focused output
+  highlighted.
+- New: per-chip `REC` recovers or re-arms the output; `OFF` disarms it.
+- Health tracks fullscreen enable/recovery, stream startup, write/audio
+  failures and unavailable NDI runtimes or senders.
+- Escaping fullscreen reports `ARMED` with a reason. Pressing `ON` again on a
+  stream output restarts transmission.
+
+### Remote protocol
+
+- Text `STATUS` adds `health=` and optional `health_reason="..."`.
+- `STATUS JSON` adds per-output `health` and `healthReason`.
 
 ## 2026-03-05 (toggleable per-output FPS counter)
 
-- Per-output FPS measurement with rolling sampling, an `FPS ON/OFF` toggle in
-  the output strip, and an `xx.xfps` readout on each output chip that updates
-  continuously while outputs render.
+### Outputs
+
+- New: per-output rolling FPS measurement, controlled by `FPS ON/OFF` in the
+  output strip.
+- Each output chip shows an `xx.xfps` readout that updates while rendering.
 
 ## 2026-03-05 (browser diagnostics, cue-panel refactor, regression smoke)
 
-- **Live browser startup diagnostics** in the cue panel: a `state` row reading
-  `starting xvfb`, `starting browser`, `starting capture`, `live`, or
-  `failed: <reason>`, with concise reasons stored in the deck runtime (`url
-  missing`, `browser not found`, `xvfb launch failed`, `browser launch failed`,
-  `capture start failed`).
-- Shared helpers for labelled value, edit and status rows replace the duplicated
-  row blocks for `source`, `url` and `notes`.
-- New smoke regression checks: the Decks window visibility policy (one deck
-  hidden unless manual, two or more visible), the transport transition
-  source-gain policy that keeps a stop or take from flashing black, and the
-  browser status summary label mapping.
+### Browser
 
+- Added live startup diagnostics in the cue panel's `state` row:
+  `starting xvfb`, `starting browser`, `starting capture`, `live` or
+  `failed: <reason>`.
+- Failure reasons include `url missing`, `browser not found`,
+  `xvfb launch failed`, `browser launch failed` and `capture start failed`.
+
+### Interface
+
+- Source, URL and notes controls share consistent labelled-value, edit and
+  status rows.
+
+### Diagnostics
+
+- Added smoke checks for Decks-window visibility: hidden with one deck unless
+  manually opened, visible with two or more.
+- Added checks for transition gain when stopping or taking from a paused deck,
+  and for browser-status labels.
 
 ## 2026-03-05 (browser cue take/capture reliability)
 
-- Browser capture goes through the same platform capture planner as source and
-  window capture, so a browser cue's ffmpeg arguments match the known-good
-  `x11grab` path.
-- If browser capture cannot start, the startup sequence stops and toasts
-  `browser capture failed` rather than leaving the cue black.
+### Browser
+
+- Changed: Browser capture uses the same platform capture planning as source
+  and window capture, matching the working FFmpeg `x11grab` arguments.
+- Fixed an issue where a failed capture left a Browser cue black without an
+  explanation. Startup now stops and reports `browser capture failed`.
 
 ## 2026-03-05 (browser cue URL editing in the cue panel)
 
-- **A browser cue's URL is edited in the cue panel**, in the same right-side
-  settings flow as still, pattern and source cues: a `url` row with an `edit`
-  button, accepting a URL or a local file path and normalising it to a
-  browser-safe URL.
-- Editing the URL of the live cue reloads it, so the change is on screen
-  immediately.
+### Browser
+
+- New: cue-panel `url > edit` control, matching the right-side editing flow
+  for still, pattern and source cues.
+- Accepts a URL or local file path and converts it to a browser-safe URL.
+- Editing the live cue's URL reloads it immediately.
 
 ## 2026-03-05 (transport continuity: no black flash)
 
-- `STOP` rewinds while holding the visible frame until frame 0 is decoded, and a
-  `TAKE` from a paused or stopped deck keeps its transition source at full — so
-  neither flashes the output black. `seek(...)` preserves the visual frame
-  through the decoder restarts that stop and rewind use.
+### Transport
+
+- Fixed an issue where `STOP` flashed output black while rewinding. The
+  visible frame remains until frame `0` is decoded.
+- Fixed an issue where `TAKE` from a paused or stopped deck flashed black. The
+  outgoing transition frame retains full gain.
+- Stop and rewind preserve the visible picture while decoding restarts.
 
 ## 2026-03-05 (Decks window visibility)
 
-- The Decks window starts hidden for a single-deck show and opens itself when a
-  show crosses to two decks. The header `decks` button toggles it open and
-  closed, and closing it keeps it closed.
-- Manual open state resets on `New` and `Open`, after which visibility is
-  re-evaluated from the deck count, and the renderer does no work while the
-  window is hidden.
+### Workspace
+
+- Changed: the Decks window starts hidden for a single-deck show and opens
+  when the show reaches two decks.
+- The header `decks` button toggles it; manually closing it keeps it closed.
+- `New` and `Open` reset manual visibility and re-evaluate it from the deck
+  count.
+- Hidden Decks windows do not render.
 
 ## 2026-03-05 (UI de-clutter + non-blocking dropdowns)
 
-### A responsive control path
-- `DECKBOY_UI_PROFILE=1` adds UI-thread timing and popup watchdog logs: frame
-  timing when `dt > 50ms`, segmented event/update/layout/render timings, popup
-  open and close logs with item counts, and popup render counts.
-- The `PATTERN` and `SOURCE` button actions run immediately, with no blocking
-  dialog anywhere in the live control path.
+### Interface
 
-### A reusable non-blocking dropdown
-- Click to open; close on outside click, `Esc` or selection; mouse wheel
-  scrolling; keyboard navigation (`Up/Down/Enter/Esc`); type-to-filter with
-  `Backspace`; clipped visible-row rendering. No nested modal event loops.
+- Changed: `PATTERN` and `SOURCE` actions run immediately without a blocking
+  dialog.
+- Added non-blocking dropdowns with outside-click dismissal, `Esc`, selection,
+  mouse-wheel scrolling, `Up/Down/Enter` navigation, type-to-filter and
+  `Backspace`. Only visible rows render.
+- Bottom-bar `Source: … v` and `Pattern: … v` selectors set defaults.
+  `PATTERN` or `P` adds the selected pattern; `SOURCE` adds the selected
+  `window`, `camera` or `syphon|spout` source.
+- Pattern type and transition style use cue-panel dropdowns. Source editing
+  uses inline entry with plain-language prompts.
+- Source aliases: `focused` or `recommended` for windows; `default` for camera
+  and Syphon. Multi-selection resolves aliases according to each cue's type.
+- Added optional UI art packs, preferring `data/ui/deckboy_ui_pack_v3` and
+  falling back to `v2`. Covers header, output chips, cue icons, monitor frame
+  and splash; mascot art remains on the splash.
+- Bottom controls are grouped under `MEDIA / TRANSPORT / OUTPUT`, with
+  reserved layout space and compact selectors above them.
 
-### Where it lands
-- The bottom bar carries `Source: … v` and `Pattern: … v` default selectors;
-  the `PATTERN` button and `P` add the selected default pattern directly, and
-  `SOURCE` adds using the selected default source type
-  (`window`/`camera`/`syphon|spout`).
-- In the cue settings panel, pattern type and transition style become dropdowns,
-  and source cues get in-menu `source` editing through the inline text editor,
-  with human-friendly prompts and plain aliases — `focused`/`recommended` for a
-  window, `default` for camera and Syphon — resolved per cue type across a
-  multi-select.
-- Optional external UI art pack support: `data/ui/deckboy_ui_pack_v3` preferred,
-  falling back to `v2`, covering header art, output-chip backgrounds, cue-type
-  icons, the monitor frame and the splash image. Mascot art stays on the splash.
+### Diagnostics
 
-### Layout
-- The bottom bar is grouped into `MEDIA`, `TRANSPORT` and `OUTPUT`, the main
-  layout reserves its space so content panels never overlap the controls, and
-  compact selector chips sit above the bottom controls.
+- New: `DECKBOY_UI_PROFILE=1` logs UI frames over `50 ms`,
+  event/update/layout/render timings, popup open/close events, item counts and
+  popup render counts.
 
 ## 2026-03-05 (output activation stability)
 
-- Display-mismatch recovery is evaluated only when the output window is
-  non-fullscreen and its display index is valid, so arming an output does not
-  cycle through fullscreen tear-down and re-apply on some SDL and display-driver
-  combinations.
-- Anti-thrash gating: non-fullscreen auto-recovery triggers only shortly after an
-  explicit fullscreen request, hidden/minimised/wrong-display recovery stays
-  active, and attempts are throttled.
-- The display-apply path has a non-transition mode that preserves fullscreen
-  state, which recovery uses; and enable, recover and fullscreen actions check
-  whether fullscreen was actually entered and toast when it was not.
+### Outputs
+
+- Fixed an issue where arming output repeatedly exited and re-entered
+  fullscreen on some SDL/display-driver combinations.
+- Display-mismatch recovery now requires a non-fullscreen window and valid
+  display index.
+- Non-fullscreen auto-recovery runs only shortly after an explicit fullscreen
+  request. Hidden, minimized and wrong-display recovery remains active, with
+  throttled retries.
+- Recovery can apply display settings while preserving fullscreen state.
+- Enable, recover and fullscreen actions verify entry into fullscreen and
+  report a toast if it fails.
 
 ## 2026-03-05 (integration runtime: ATEM bridge, MTC ingest, Art-Net triggers)
 
-- **A live ATEM UDP trigger bridge**: a listener on UDP `9910` by default
-  (`DECKBOY_ATEM_BRIDGE_PORT` overrides), enqueuing inbound payloads into the
-  remote command path as `ATEMEVENT ...`. Supported payloads include `CUT`,
-  `AUTO`, `TAKE`, `PLAY`, `STOP`, `NEXT`, `PREV`, `CLEAR`, `PANIC`,
-  `SCENE <n>` and `DECKBOY <command>`.
-- **A live Art-Net trigger bridge**: a listener on the configured `artNetPort`
-  parsing `ArtDMX` packets and edge-triggering `ARTNETEVENT ...`. Default
-  channel map: ch1 `TAKE`, ch2 `PLAY`, ch3 `STOP`, ch4 `GO`, ch5 `NEXT`, ch6
-  `PREV`, ch7 `CLEAR`, ch8 `PANIC`, with ch9 `TAKE <value>` and ch10
-  `GROUP <value> FIRE` on value changes.
-- **MTC quarter-frame ingest** through ALSA: the MIDI loop decodes
-  `SND_SEQ_EVENT_QFRAME` to `MTCEXT <seconds> <fps>`, applied to chase-enabled
-  decks and otherwise the focused deck.
-- The `INTEGRATION ADAPTERS` panel on the Network tab shows the ATEM and Art-Net
-  UDP ports, and an Art-Net port edit restarts the listener at runtime.
+### Remote protocol
+
+- New: ATEM UDP trigger bridge on port `9910`, overridden by
+  `DECKBOY_ATEM_BRIDGE_PORT`. Incoming payloads enter command handling as
+  `ATEMEVENT ...`.
+- Accepts `CUT`, `AUTO`, `TAKE`, `PLAY`, `STOP`, `NEXT`, `PREV`, `CLEAR`,
+  `PANIC`, `SCENE <n>` and `DECKBOY <command>`.
+- New: Art-Net trigger bridge parses `ArtDMX` on the configured port and emits
+  edge-triggered `ARTNETEVENT ...` commands.
+- Default channels: `1 TAKE`, `2 PLAY`, `3 STOP`, `4 GO`, `5 NEXT`, `6 PREV`,
+  `7 CLEAR`, `8 PANIC`. Value changes on channel `9` issue `TAKE <value>`;
+  channel `10` issues `GROUP <value> FIRE`.
+- `Network > INTEGRATION ADAPTERS` shows ATEM and Art-Net UDP ports. Editing
+  the Art-Net port restarts its listener.
+
+### Timecode
+
+- Added ALSA MTC quarter-frame decoding into `MTCEXT <seconds> <fps>`.
+- Applies to chase-enabled decks, or the focused deck otherwise.
 
 ## 2026-03-05 (integration adapter foundation)
 
-- An integration backend planning module
-  (`native/platform/integration_backend.hpp/.cpp`) with a catalog API and a
-  route planner.
-- Backward-compatible project fields and keys for ATEM, NDI trigger, NMC, MTC,
-  LTC and Art-Net, plus the Art-Net port.
-- `Settings → Network → INTEGRATION ADAPTERS` with direct toggles for all six,
-  an Art-Net port prompt and an all-adapters quick toggle.
-- Commands `ATEM`, `NDITRIGGER`, `NMC`, `MTC`, `LTC`, `ARTNET`, `ARTNETPORT`
-  and `INTEGRATIONS`, with OSC endpoints `/atem`, `/ndi/trigger`, `/nmc`,
-  `/mtc`, `/ltc`, `/artnet`, `/artnet/port` and `/integration`.
-- `STATUS` and `STATUS JSON` carry an integration route summary, the OSC mirror
-  publishes `/deckboy/integration/*`, and `--self-check` prints
-  `integration-backends` and `integration-route-defaults`.
+### Integrations
+
+- Added an integration backend catalogue and route planner.
+- Added backward-compatible saved settings for ATEM, NDI trigger, NMC, MTC,
+  LTC, Art-Net and the Art-Net port.
+- New: `Settings > Network > INTEGRATION ADAPTERS`, with six individual
+  toggles, Art-Net port entry and an all-adapters toggle.
+
+### Remote protocol
+
+- New commands: `ATEM`, `NDITRIGGER`, `NMC`, `MTC`, `LTC`, `ARTNET`,
+  `ARTNETPORT`, `INTEGRATIONS`.
+- OSC endpoints: `/atem`, `/ndi/trigger`, `/nmc`, `/mtc`, `/ltc`, `/artnet`,
+  `/artnet/port`, `/integration`.
+- `STATUS` and `STATUS JSON` include an integration-route summary. OSC
+  feedback publishes `/deckboy/integration/*`.
+
+### Diagnostics
+
+- `--self-check` adds `integration-backends` and `integration-route-defaults`.
 
 ## 2026-03-05 (runtime egress route wrappers)
 
-- Output egress runs through the backend route planner: a stream send happens
-  only when the route includes a supported `stream` backend, an NDI send only
-  with a supported `ndi` backend, and stream runtime stops when stream routing
-  is unsupported or inactive.
-- Output status snapshots carry the route: `backend=...` in text `STATUS` and
-  `backendRoute` in `STATUS JSON`.
+### Outputs
+
+- Changed: streaming and NDI sends require a supported backend in the active
+  output route.
+- Streaming stops when its route becomes inactive or unsupported.
+
+### Remote protocol
+
+- Output status adds `backend=...` in text `STATUS` and `backendRoute` in
+  `STATUS JSON`.
 
 ## 2026-03-05 (capture/output backend planning APIs)
 
-- `native/platform/capture_backend.*` grows executable planning interfaces —
-  `SourceCaptureRequest`, `SourceCapturePlan`, a `SourceCaptureBackend` factory
-  set and `planSourceCapture(...)` — with Linux backends (`x11grab` window
-  capture, `v4l2` camera capture, a desktop-fallback app-texture path) and
-  explicit macOS and Windows scaffold plans carrying reason strings.
-  `MediaEngine::buildSourceCaptureArgs(...)` delegates to the planner.
-- `native/platform/output_backend.*` grows route planning —
-  `OutputBackendRouteRequest`, `OutputBackendRoutePlan`,
-  `planOutputBackendRoute(...)` — describing the active backend chain for
-  `window` / `stream` / `ndi` / `decklink`.
-- `--self-check` reports `capture-plan-defaults` and `output-route-defaults`.
+### Sources
+
+- Added executable capture plans for Linux `x11grab` window capture, `v4l2`
+  camera capture and desktop fallback for app textures.
+- Added Windows and macOS scaffold plans with explicit availability reasons.
+- Source-capture command construction now follows the selected platform plan.
+
+### Outputs
+
+- Added route planning for the active `window`, `stream`, `ndi` and `decklink`
+  backend chain.
+
+### Diagnostics
+
+- `--self-check` adds `capture-plan-defaults` and `output-route-defaults`.
 
 ## 2026-03-05 (official Stream Deck + Companion profile package)
 
-- A profile docs bundle: `docs/streamdeck/README.md`,
-  `docs/streamdeck/deckboy_companion_profile_map.json` and
-  `docs/streamdeck/deckboy_main_page.csv`. The JSON manifest is the canonical
-  Deckboy key map for Stream Deck through Bitfocus Companion
-  (`Generic TCP/UDP`), grouped into Main transport, Deck focus, Output control
-  and Master Cue control pages.
-- The README's and MANUAL's Companion sections link straight to it.
+### Companion
+
+- Added an official Stream Deck profile package for Bitfocus Companion's
+  `Generic TCP/UDP` connection.
+- Includes setup documentation, a canonical JSON key map and a CSV main-page
+  layout.
+- Pages cover Main transport, Deck focus, Output control and Master Cue
+  control.
+- README and manual Companion sections link directly to the package.
 
 ## 2026-03-05 (warp mode: linear vs perspective)
 
-- **`Deck.warpMode`**, `linear` (default) or `perspective`, serialised
-  append-only so older show files load as `linear`.
-- The output present path honours the mode: `linear` keeps the quad-geometry
-  path, `perspective` uses tessellated projective UV mapping
-  (`renderPerspectiveWarp`) for proper corner-pin behaviour. Orientation and
-  edge blend are unaffected.
-- `Video Outputs → Advanced` gains `Mode Linear` / `Mode Perspective`, with
-  `VIDEO WARP MODE LINEAR|PERSPECTIVE|NEXT|PREV` and the direct aliases
-  `VIDEO WARP LINEAR|PERSPECTIVE`. The status toast reports enable state and
-  mode.
-- Deck status carries `warp_mode`, `STATUS JSON` carries `warpMode`, and the OSC
-  mirror publishes `/deckboy/deck/<n>/warp_mode`.
+### Outputs
+
+- New: saved warp modes `linear` and `perspective`. Linear is the default,
+  including for older shows.
+- Linear retains quad geometry; perspective uses tessellated projective
+  mapping for corner pinning. Orientation and edge blend are unchanged.
+- `Video Outputs > Advanced` adds `Mode Linear` and `Mode Perspective`; the
+  status toast reports warp enabled state and mode.
+
+### Remote protocol
+
+- New: `VIDEO WARP MODE LINEAR|PERSPECTIVE|NEXT|PREV`, with direct aliases
+  `VIDEO WARP LINEAR|PERSPECTIVE`.
+- Deck status adds `warp_mode`; `STATUS JSON` adds `warpMode`; OSC feedback
+  adds `/deckboy/deck/<n>/warp_mode`.
 
 ## 2026-03-05 (output parity: span/duplicate, orientation, test cards)
 
-- `OutputTarget` gains `outputLayoutMode` (`span` | `duplicate`),
-  `outputOrientationDegrees` (`0/90/180/270`) and `outputTestCardEnabled`,
-  serialised append-only with defaults for older shows.
-- Window presentation honours per-output orientation; `span` uses the host
-  deck's canvas view offsets when canvas mode is on, `duplicate` locks to origin
-  (`0,0`); and a per-output test-card feed renders in the compositor path. The
-  egress capture path (NDI, stream, delay) captures the same view region and
-  applies orientation before sending.
-- The Video Outputs tab gains `Span` / `Duplicate`, a `Rotate
-  0°/90°/180°/270°` cycle, `Test Card ON/OFF` for the focused output and
-  `All Cards ON/OFF`, with commands
-  `VIDEO OUTPUT LAYOUT SPAN|DUPLICATE|NEXT|PREV`,
-  `VIDEO OUTPUT ORIENTATION 0|90|180|270|NEXT|PREV|RESET` and
-  `VIDEO OUTPUT TESTCARD ON|OFF|TOGGLE|ALL ON|OFF`.
-- `STATUS` / `STATUS JSON` expose `layout`, `orientation` and `test_card`, and
-  the OSC mirror publishes `/deckboy/output/<n>/layout`, `/orientation` and
-  `/testcard`.
+### Outputs
+
+- Added per-output `span` or `duplicate` layout, `0/90/180/270°` orientation
+  and test-card enable state. Settings persist with defaults for older shows.
+- With canvas mode enabled, span uses the host deck's view offsets; duplicate
+  uses origin `0,0`.
+- Window, NDI, stream and delayed output use the same view region and
+  orientation. Test cards render through the compositor.
+- `Video Outputs` adds `Span / Duplicate`, `Rotate 0°/90°/180°/270°`,
+  focused-output `Test Card ON/OFF` and `All Cards ON/OFF`.
+
+### Remote protocol
+
+- New: `VIDEO OUTPUT LAYOUT SPAN|DUPLICATE|NEXT|PREV`.
+- New: `VIDEO OUTPUT ORIENTATION 0|90|180|270|NEXT|PREV|RESET`.
+- New: `VIDEO OUTPUT TESTCARD ON|OFF|TOGGLE|ALL ON|OFF`.
+- `STATUS` and `STATUS JSON` expose `layout`, `orientation` and `test_card`.
+- OSC feedback adds `/deckboy/output/<n>/layout`,
+  `/deckboy/output/<n>/orientation` and `/deckboy/output/<n>/testcard`.
 
 ## 2026-03-05 (multi-select inspector parity)
 
-- **A dedicated multi-selection inspector mode**: common controls with `mixed`
-  labels where values conflict, grouped Playback / Geometry / Key / Routing
-  sections, and compatibility masking when the selection mixes cue kinds.
-- **Every quick-action edit applies to the whole selection**: trim in/out and
-  clear, cue timecode mark set and clear, loop / hold / pause begin / cue audio /
-  transition-to-next toggles, fade in and out, transition duration and style,
-  end action, geometry (scale mode, scale X/Y, offsets, rotation, crop), key
-  (enable, colour, tolerance, softness), colour (brightness, contrast,
-  saturation, hue), lower-third alpha, still duration, repeats and playback
-  speed.
-- Mixed selections resolve to the first eligible cue, so a toggle still works
-  when the focused cue is not the compatible one.
+### Cues
+
+- New: multi-selection inspector with `mixed` values, grouped Playback,
+  Geometry, Key and Routing controls, and controls enabled according to
+  compatible cue types.
+- Quick edits apply across the selection: trim in/out/clear, cue timecode mark
+  set/clear, loop, hold, pause begin, audio, transition-to-next, fades,
+  transition duration/style and end action.
+- Batch geometry covers scale mode, X/Y scale, offsets, rotation and crop.
+  Batch keying covers enable, colour, tolerance and softness.
+- Batch colour covers brightness, contrast, saturation and hue. Also supports
+  Lower Third alpha, still duration, repeats and speed.
+- Mixed selections derive toggle changes from the first eligible cue, even
+  when the focused cue is incompatible.
 
 ## 2026-03-05 (OSC Query + OSC feedback mirror)
 
-- **An optional OSC Query HTTP server**: `/` as a lightweight endpoint browser,
-  `/oscquery.json` for endpoint docs plus live state, and `/state.json` for the
-  live status payload.
-- **An optional canonical OSC feedback mirror**: value-based `/deckboy/deck/*`
-  and `/deckboy/output/*` updates to subscribed senders, with a configurable
-  rate limiter (40–2000 ms, default 120 ms). The existing `/deckboy/state` JSON
-  feedback is retained.
-- The Network tab controls all four, a Companion/OSC port change restarts the
-  listener immediately, and the commands are `OSCQUERY ON|OFF`,
-  `OSCQUERYPORT <port>`, `OSCFEEDBACK ON|OFF` and `OSCFEEDBACKRATE <ms>`, with
-  matching OSC addresses.
-- Persisted as `osc_query_enabled`, `osc_query_port`, `osc_feedback_mirror` and
-  `osc_feedback_rate_ms`, clamped to a valid port and 40–2000 ms.
+### Remote protocol
+
+- New: optional OSC Query HTTP server. `/` browses endpoints; `/oscquery.json`
+  provides endpoint documentation and live state; `/state.json` provides live
+  status.
+- New: optional value-based OSC feedback under `/deckboy/deck/*` and
+  `/deckboy/output/*`, sent to subscribers.
+- Feedback rate is configurable from `40–2000 ms`, default `120 ms`. Existing
+  `/deckboy/state` JSON feedback remains.
+- Network settings control Query enable/port and feedback enable/rate.
+  Changing the Companion/OSC port restarts its listener immediately.
+- Commands: `OSCQUERY ON|OFF`, `OSCQUERYPORT <port>`, `OSCFEEDBACK ON|OFF`,
+  `OSCFEEDBACKRATE <ms>`, with matching OSC addresses.
+- Saved keys: `osc_query_enabled`, `osc_query_port`, `osc_feedback_mirror`,
+  `osc_feedback_rate_ms`. Ports and feedback intervals are clamped to valid
+  ranges.
 
 ## 2026-03-05 (playlist preferences: deck-level timebase and defaults)
 
-- **Per-deck playlist preferences**, persisted: playlist timebase FPS (24, 25,
-  29.97, 30), playlist start timecode offset, default cue fade duration, default
-  non-movie duration, and the default new-cue toggles — loop, fade in, fade out,
-  audio, pause begin, pause end and transition-to-next.
-- A `PLAYLIST PREFS` block in `Prefs → System` for the focused deck: an edit
-  dialog for timebase, start, fade and still defaults, direct toggles for the
-  new-cue flags, and an inline summary showing SMPTE base, start TC and default
-  timings.
-- Every new-cue path applies them — media import, and browser, source,
-  lower-third and pattern cue creation — so a long playlist behaves
-  predictably.
+### Cues
+
+- New: saved per-deck playlist defaults for `24/25/29.97/30 fps` timebase,
+  starting timecode offset, fade duration and non-movie duration.
+- Default new-cue flags include loop, fade-in, fade-out, audio, pause begin,
+  pause end and transition-to-next.
+- `Prefs > System > PLAYLIST PREFS` edits the focused deck's timebase, start,
+  fade and still defaults, with direct flag toggles and an
+  SMPTE/start-timecode/timing summary.
+- Defaults apply to media import and Browser, source, Lower Third and Pattern
+  cue creation.
 
 ## 2026-03-05 (capture/output backend catalogs)
 
-- Platform backend catalogs (`native/platform/capture_backend.*` and
-  `output_backend.*`) report the planned backend families per platform: window
-  capture (Linux `x11grab`, macOS ScreenCaptureKit, Windows DXGI), camera
-  capture (Linux `v4l2`, macOS AVFoundation, Windows Media Foundation) and
-  app-texture transport (Syphon/Spout); and for output, SDL window, FFmpeg
-  stream, NDI (SDK-gated) and DeckLink (feature-gated).
-- `--self-check` prints `capture-backends` and `output-backends`, so backend
-  readiness on all three platforms can be audited in one place.
+### Platform support
+
+- Added catalogues of planned capture backends: Linux `x11grab`, macOS
+  ScreenCaptureKit and Windows DXGI for windows; Linux `v4l2`, macOS
+  AVFoundation and Windows Media Foundation for cameras; Syphon/Spout for app
+  textures.
+- Output catalogue includes SDL windows, FFmpeg streams, SDK-enabled NDI and
+  optional DeckLink.
+- `--self-check` reports `capture-backends` and `output-backends` for
+  readiness checks across all three platforms.
 
 ## 2026-03-05 (cue metadata, toggles and deck opacity)
 
-- **New cue fields**, append-only in the show format: `cue_id` (a short
-  operator-facing ID, up to 6 characters, normalised uppercase), `audio
-  enabled`, `pause at beginning`, `transition to next` and `goto target`.
-- **Deck-level playlist fader fields**: `playlist opacity` (0–100%),
-  `playlist auto fade` and `playlist fade seconds`.
-- Runtime: `pause at beginning` loads without autoplay on take; `transition to
-  next` decides whether auto-advance and goto use transition timing or a cut;
-  `goto target` resolves by cue token (`cue_id`, cue number or name token) at
-  end of cue; `audio enabled` gates the audio decode path, so a muted cue runs
-  video-only; and deck playlist opacity multiplies the deck's contribution in
-  the compositor, with an optional fade-to-target animation.
-- Cue rows show the operator's cue token (`cue_id`, then cue number, then
-  index). Multi-select arrives: `Shift+click` for a range, `Ctrl/Cmd+click` to
-  toggle, and batch apply for notes, cue id, loop/hold, fades, colour tag and
-  the parity toggles. The deck footer gains an opacity rail (click or drag, with
-  `Alt+click` snapping to 0% or 100%), and video cues gain `pause in`, `audio`,
-  `next xfade` and `goto` inspector rows.
-- Commands: `PAUSEBEGIN`, `PAUSEEND`, `CUEAUDIO`, `NEXTTRANS`, `CUEGOTO`,
-  `CUEIDSHORT`, `PLAYLISTOPACITY` / `DECKOPACITY` / `DECKDIM`,
-  `PLAYLISTAUTOFADE` / `DECKAUTOFADE`, `PLAYLISTFADE` / `DECKFADE`, with OSC
-  paths for each.
+### Cues
+
+- Added saved `cue_id`, `audio enabled`, `pause at beginning`,
+  `transition to next` and `goto target` fields, appended for compatibility.
+- Cue IDs are uppercased and limited to `6` characters. Rows show the ID, then
+  cue number, then index as fallback.
+- Pause-at-beginning loads without autoplay on take. Transition-to-next
+  selects transition timing or a cut for auto-advance and goto.
+- Goto resolves cue ID, cue number or name token at cue end. Disabling cue
+  audio skips audio decoding.
+- New: `Shift+click` range selection and `Ctrl/Cmd+click` selection toggling.
+- Batch editing covers notes, cue IDs, loop/hold, fades, colour tags and the
+  new playback toggles.
+- Video inspectors add `pause in`, `audio`, `next xfade` and `goto` rows.
+
+### Outputs
+
+- Added saved deck playlist opacity (`0–100%`), automatic fade enable and fade
+  duration.
+- Opacity scales the deck's composited contribution, with optional animation
+  to the target.
+- The deck footer has a clickable/draggable opacity rail; `Alt+click` snaps to
+  `0%` or `100%`.
+
+### Remote protocol
+
+- New: `PAUSEBEGIN`, `PAUSEEND`, `CUEAUDIO`, `NEXTTRANS`, `CUEGOTO`,
+  `CUEIDSHORT`.
+- New opacity aliases: `PLAYLISTOPACITY / DECKOPACITY / DECKDIM`.
+- New fade aliases: `PLAYLISTAUTOFADE / DECKAUTOFADE` and
+  `PLAYLISTFADE / DECKFADE`.
+- Each command has an OSC path.
 
 ## 2026-03-05 (UI clarity: header, stack, routing table, splash)
 
-- The header carries a compact per-deck live summary (`D1 LIVE ...`) alongside
-  the show file and Companion/TC state.
-- **Output chips scan faster**: index, target type and armed/live state, a
-  stronger highlight on the focused output, and a one-click inline `ON/OFF`.
-- **The deck column header** shows `Deck N`, the routed output and layer token,
-  and the audio device label.
-- **Cue rows use fixed scan columns** — cue token / type token / cue name /
-  duration-state — truncating with a hover tooltip for long names.
-- **The program monitor** shows focused output info (output, raster, refresh),
-  with a `STACK VIEW (Output X)` beneath it listing deck and layer occupancy top
-  to bottom, and a chunkier progress bar carrying its time text.
-- **The cue settings panel** gains grouped, collapsible `Playback`, `Geometry`,
-  `Key` and `Routing` headers, plus routing controls (output prev/next, layer
-  +/-, assign/unassign).
-- **The Video Outputs routing table is editable inline**: `Deck | Output | Layer
-  | Assigned`, with per-row output prev/next, layer +/- and a link/unlink
-  toggle, wired to the existing assignment logic.
-- **Master cue rows are two lines**: the indexed scene name above, the deck slot
-  summary below, and a larger `TAKE` on the right.
-- **A launch splash overlay** with boot messages and `press ENTER to start`,
-  skippable with `Enter`, `Esc` or a click. Character art stays out of the
-  operational UI, and the About tab uses text and logo runtime info only.
-- `DEVNOTES.md` documents the layout component map, palette tuning points, the
-  cue-type icon hook and the routing table action wiring.
+### Interface
+
+- The header shows per-deck live summaries such as `D1 LIVE ...`, show
+  filename and Companion/timecode state.
+- Output chips show index, target type, armed/live state, stronger focus
+  highlighting and an inline `ON/OFF` control.
+- Deck headers show `Deck N`, routed output, layer token and audio device.
+- Cue rows use fixed token, type, name and duration/state columns. Long names
+  truncate with hover tooltips.
+- Program shows focused-output name, raster and refresh, with
+  `STACK VIEW (Output X)` listing deck/layer occupancy top to bottom and a
+  larger progress bar containing time text.
+- Cue settings have collapsible Playback, Geometry, Key and Routing sections;
+  routing adds output previous/next, layer minus/plus and assign/unassign.
+- Video Outputs routing is an editable `Deck | Output | Layer | Assigned`
+  table, with output navigation, layer adjustment and link/unlink per row.
+- Master Cue rows show the indexed scene name over its deck-slot summary, with
+  a larger `TAKE` button.
+- Added a startup splash with boot messages and `press ENTER to start`,
+  skipped by `Enter`, `Esc` or click. Character art stays on the splash; About
+  uses text, logo and runtime information.
+
+### Documentation
+
+- Added notes on layout components, palette tuning, cue-type icons and
+  routing-table actions.
 
 ## 2026-03-05 (output FX: alpha, delay, overlay, colour space)
 
-- **Focused-output FX controls** in the Video Outputs tab: `Overlay ON/OFF` (an
-  output-scoped time/ID overlay), `Alpha` (0–100% output dimmer), `Delay`
-  (0–5000 ms) and `Color` (`AUTO`, `BT709`, `SRGB`), plus a one-tap
-  `Delay +100`.
-- Per-output alpha applies as a post-composite dimmer; the output-scoped overlay
-  toggles independently of the deck-local one; and a per-output delayed frame
-  queue feeds the egress paths — NDI and stream send the delayed-or-live frame
-  while window presentation stays immediate.
-- The stream encoder applies colour metadata from the output's colour-space
-  mode: `BT709` → bt709 matrix/primaries/trc, `SRGB` → bt709 matrix/primaries
-  with the `iec61966-2-1` transfer.
-- Commands `VIDEO OUTPUT ALPHA|DELAY|OVERLAY|COLORSPACE ...`, with alpha
-  percent, delay ms, overlay state and colour-space token in both status
-  snapshots and persisted on the output target.
+### Outputs
+
+- New focused-output controls in `Video Outputs`: `Overlay ON/OFF` for time/ID
+  display, `Alpha` from `0–100%`, `Delay` from `0–5000 ms`, `Color` as
+  `AUTO/BT709/SRGB`, and `Delay +100`.
+- Alpha dims the finished composite. The output overlay switches independently
+  of the deck overlay.
+- NDI and streaming use the output's delayed-frame queue or live frame; window
+  output remains immediate.
+- Stream metadata uses BT.709 matrix, primaries and transfer for `BT709`;
+  `SRGB` uses BT.709 matrix/primaries with `iec61966-2-1` transfer.
+
+### Remote protocol
+
+- New: `VIDEO OUTPUT ALPHA|DELAY|OVERLAY|COLORSPACE ...`.
+- Alpha percent, delay milliseconds, overlay state and colour-space token
+  appear in both status formats and persist per output.
 
 ## 2026-03-05 (live source cues)
 
-- **`Window Source` cues capture live** through ffmpeg `x11grab` on Linux, and
-  **`Camera` cues** through `v4l2`. `Syphon/Spout` cues run through the source
-  transport path, using desktop capture on Linux while the native backends are
+### Sources
+
+- Added live Window Source capture through Linux FFmpeg `x11grab` and Camera
+  capture through `v4l2`.
+- Syphon/Spout cues use desktop capture on Linux while native backends remain
   planned.
-- **Source cues take part in normal transport**: `Take` with autoplay starts
-  live capture, `Play` starts or restarts it, `Pause` parks capture and holds
-  the frame, `Stop` parks capture and restores the source slate. Deck transport
-  status shows `Live Source` / `Source Ready`.
-- Cue-row hover tips describe source cues as live cues, and toasts distinguish
-  source-loaded, source-live and source-unavailable.
+- `Take` with autoplay starts capture; `Play` starts or restarts it; `Pause`
+  stops capture while holding the frame; `Stop` stops capture and restores the
+  source slate.
+- Deck status shows `Live Source` or `Source Ready`.
+- Hover tips identify live source cues; toasts distinguish loaded, live and
+  unavailable sources.
 
 ## 2026-03-05 (output operations flow + source cue scaffold)
 
-- **Explicit creation actions in Video Outputs**: `Create Standard` (window
-  output) and `Create Stream`, with direct `Set Window` / `Set Stream` buttons
-  and a focused-output signal-flow line reading deck layer stack → output →
-  display.
-- **New cue kinds** — `Window Source`, `Camera`, `Syphon/Spout` — created
-  through one shared path: the `SOURCE` button and
-  `Preferences → System → Add Source Cue...`, the commands `SOURCE WINDOW|CAMERA
-  |SYPHON ...` with the aliases `WINDOWSOURCE`, `CAMERACUE`, `SYPHONCUE` and
-  `SPOUTCUE`, the persistence tokens `window_source`, `camera` and `syphon`, and
-  OSC mappings for each. They render through a common generated placeholder
-  frame, with transport, routing, save/load and status on the normal cue flow.
+### Outputs
+
+- Added `Create Standard` for window output and `Create Stream`, plus direct
+  `Set Window` and `Set Stream` controls in Video Outputs.
+- A focused-output signal-flow line shows deck layers, output and display.
+
+### Sources
+
+- New cue types: `Window Source`, `Camera` and `Syphon/Spout`, created through
+  `SOURCE` or `Preferences > System > Add Source Cue...`.
+- Commands: `SOURCE WINDOW|CAMERA|SYPHON ...`; aliases: `WINDOWSOURCE`,
+  `CAMERACUE`, `SYPHONCUE`, `SPOUTCUE`, with OSC mappings for each.
+- Saved type tokens: `window_source`, `camera`, `syphon`.
+- Source cues currently render a generated placeholder and participate in
+  normal transport, routing, save/load and status.
 
 ## 2026-03-05 (NDI is per-output)
 
-- **NDI is output-scoped end to end.** The `N` key, the `NDI ...`, `NDINAME` and
-  `NDIKEY...` commands and the Video Outputs actions all resolve through the
-  focused output target, and the output runtime sends fill video, an optional
-  key video stream, and mixed stereo audio for that output's assignment stack.
-- A migration shim maps legacy deck NDI settings onto output NDI during project
-  normalisation where output NDI is not already configured, and the legacy deck
-  fields stay in the save format for older shows.
-- NDI status is reported under output entities only, and `MANUAL.md` and
-  `README.md` describe NDI as per-output, with examples that focus an output
-  first (`VIDEO OUTPUT <n>`, then `NDI ...`).
+### NDI
+
+- Changed: NDI belongs to outputs. `N`, `NDI ...`, `NDINAME`, `NDIKEY...` and
+  Video Outputs controls act on the focused output.
+- Each output sends fill video, optional key video and mixed stereo audio from
+  its assigned deck stack.
+- Older deck NDI settings migrate to outputs that have no NDI configuration.
+  Legacy deck fields remain in the show format for compatibility.
+- NDI status appears only on output entities.
+
+### Documentation
+
+- Updated NDI instructions to focus an output first: `VIDEO OUTPUT <n>`, then
+  `NDI ...`.
 
 ## 2026-03-05 (UI declutter + output workflow clarity)
 
-- The no-cue control state is text-only: `Insert cartridge`, `Drop media here`,
-  `Press A to take cue`.
-- In Video Outputs, `Routing In Main Strip` is informational rather than
-  clickable, and a `Show Advanced` / `Hide Advanced` toggle keeps the dense
-  refresh, depth, canvas and warp controls out of the way until wanted.
-- The Decks window reads as `Deckboy Decks`, with a `DECKS` header over the deck
-  list and playlist view.
+### Interface
+
+- The empty control view uses text-only prompts: `Insert cartridge`,
+  `Drop media here`, `Press A to take cue`.
+- `Video Outputs > Routing In Main Strip` is informational.
+- `Show Advanced / Hide Advanced` reveals or hides refresh, bit depth, canvas
+  and warp controls.
+- Renamed the secondary window `Deckboy Decks`, with a `DECKS` header above
+  its deck list and playlists.
 
 ## 2026-03-05 (demo show generator + layout presets)
 
-- `scripts/generate_demo_shows.sh` writes repeatable demo shows into
-  `data/demos/`:
-  - `demo_70_30_4pip_bg_5deck.deckboy` — a 5-deck show with a full background
-    and four right-column PiPs, with master cues `Open - BG + 4 PiP`,
-    `BG Only` and `PiP Motion Sweep`
-  - `demo_quad_2x2_4pip_bg_5deck.deckboy` — a 5-deck show with a full background
-    and a 2x2 PiP quad, with master cues `Quad Open` and `Quad Motion`
-  - `demo_program_preview_clean_3deck.deckboy` — a 3-deck show with a program
-    background, preview PiP and corner bug, with master cues
-    `Program + Preview + Bug`, `Program + Bug` and `Program Clean`
+### Demo shows
+
+- Added repeatable demo generation in `data/demos/`.
+- `demo_70_30_4pip_bg_5deck.deckboy`: five decks with a full background and
+  four right-column PiPs. Master cues: `Open - BG + 4 PiP`, `BG Only`,
+  `PiP Motion Sweep`.
+- `demo_quad_2x2_4pip_bg_5deck.deckboy`: five decks with a full background and
+  four PiPs in a `2x2` grid. Master cues: `Quad Open`, `Quad Motion`.
+- `demo_program_preview_clean_3deck.deckboy`: three decks with program
+  background, preview PiP and corner bug. Master cues:
+  `Program + Preview + Bug`, `Program + Bug`, `Program Clean`.
 
 ## 2026-03-05 (safety, output quality, master-cue speedups)
 
-- **A single-instance lock** at startup, so a second launch exits with a clear
-  terminal message. `--allow-multi-instance` bypasses it deliberately.
-- **Output quality goes auto-native on arm and re-arm**: enabling a `window`
-  output switches global output sizing to display-native when fixed mode was
-  active, and repeating `VIDEO OUTPUT ON` applies the same path before recovery.
-  Toasts say `auto native`.
-- **Master-cue programming without a popup**: clicking a programmer row outside
-  its buttons assigns the slot from that deck's selected cue, and the mouse
-  wheel over a row cycles the slot cue directly.
+### Desk
+
+- New: a startup lock prevents a second app instance and reports a terminal
+  message. `--allow-multi-instance` bypasses the lock.
+
+### Outputs
+
+- Changed: arming or re-arming a window output changes global fixed sizing to
+  display-native sizing.
+- Repeating `VIDEO OUTPUT ON` applies the same sizing before recovery; toasts
+  report `auto native`.
+
+### Master cues
+
+- Clicking a programmer row outside its buttons assigns that deck's selected
+  cue.
+- Scrolling over a row cycles its cue directly, without a popup.
 
 ## 2026-03-05 (panic timing, cue find, timecode follower)
 
-### Panic timing
-- `Preferences → Audio` gains `Panic fade (sec)` and `Panic auto restore`, and
-  the panic fade profiles use the configured duration. The dimmer restores
-  automatically after a panic deck action when enabled. Commands:
-  `PANICFADE <seconds>` and `PANICAUTORESTORE ON|OFF|TOGGLE`.
+### Desk
 
-### Cue find and renumber
-- `FIND <token>`, `FINDNEXT`, `FINDPREV`, `FINDTAKE <token>`, plus
-  `RENUMBER [prefix] [start]` and `RENUMBER CLEAR` (aliases `AUTOID`,
-  `CUEAUTOID`).
-- Cue token matching understands `FIRST`, `LAST`, `NEXT`, `PREV`, `SEL`, `ACT`,
-  relative offsets (`+N`, `-N`) and cue-number prefixes.
+- New: `Preferences > Audio > Panic fade (sec)` and `Panic auto restore`.
+- Panic fade profiles use the selected duration; automatic restore returns the
+  dimmer after the deck action.
+- Remote: `PANICFADE <seconds>`, `PANICAUTORESTORE ON|OFF|TOGGLE`.
 
-### Timecode follower: jam and freewheel
-- Per-deck persistent `timecodeJamSyncEnabled` and `timecodeFreewheelSeconds`,
-  with menu-first controls in `Preferences → Audio` for the focused deck, the
-  commands `TIMECODE JAM ON|OFF` and `TIMECODE FREEWHEEL <seconds>`, and the OSC
-  mappings `/timecode/jam i` and `/timecode/freewheel f`.
-- A chasing, running deck holds after the freewheel timeout when external TC
-  stops; with `TC JAM OFF`, incoming TC inside the freewheel window does not
-  re-jam the running clock; and `TIMECODE SET ...` remains a forced operator
-  jam.
+### Cues
 
-### Status and the Audio tab
-- Text status carries the panic profile, fade and restore state and per-deck
-  `tc_jam` and `tc_freewheel_s`; JSON status carries the same as top-level panic
-  fields and per-deck `timecodeJam` and `timecodeFreewheelSeconds`.
-- `Preferences → Audio` is grouped into `System + UI`, `Playback Semantics`,
-  `Safety + Timecode Follower` and `Cue Tools (menu-first)`, the last carrying
-  `Find Cue...`, `Next`, `Prev`, `Find+Take`, `Renumber...`, `Clear Numbers` and
-  `Clear Find`.
-- Find state has its own commands and endpoints: `FINDCLEAR` / `FINDRESET`,
-  `FINDSTATUS`, the `CUEFIND*` aliases, `STATUS CUES` / `STATE CUES` and
-  `STATUS FIND` / `STATE FIND`, with find token and cursor metadata and per-deck
-  `selected_num`, `selected_id`, `active_num` and `active_id` in the payloads,
-  and OSC mappings `/find`, `/find/next`, `/find/prev`, `/find/take`,
-  `/find/clear` and `/renumber`.
+- New: `FIND <token>`, `FINDNEXT`, `FINDPREV`, `FINDTAKE <token>`.
+- New: `RENUMBER [prefix] [start]` and `RENUMBER CLEAR`, with aliases `AUTOID`
+  and `CUEAUTOID`.
+- Cue tokens accept `FIRST`, `LAST`, `NEXT`, `PREV`, `SEL`, `ACT`, relative
+  `+N/-N` offsets and cue-number prefixes.
+- Added `FINDCLEAR / FINDRESET`, `FINDSTATUS`, `CUEFIND*` aliases,
+  `STATUS CUES / STATE CUES` and `STATUS FIND / STATE FIND`.
+- Find status includes token/cursor metadata and per-deck `selected_num`,
+  `selected_id`, `active_num` and `active_id`.
+- OSC: `/find`, `/find/next`, `/find/prev`, `/find/take`, `/find/clear`,
+  `/renumber`.
 
+### Timecode
+
+- Added saved per-deck jam-sync and freewheel-duration settings in
+  `Preferences > Audio`.
+- Remote: `TIMECODE JAM ON|OFF`, `TIMECODE FREEWHEEL <seconds>`; OSC:
+  `/timecode/jam i`, `/timecode/freewheel f`.
+- A running deck in chase holds when external timecode has been absent longer
+  than the freewheel duration.
+- With `TC JAM OFF`, incoming timecode inside the freewheel window does not
+  reset the running clock. `TIMECODE SET ...` always forces a jam.
+
+### Settings
+
+- Grouped Audio into `System + UI`, `Playback Semantics`,
+  `Safety + Timecode Follower` and `Cue Tools (menu-first)`.
+- Cue Tools includes `Find Cue...`, `Next`, `Prev`, `Find+Take`,
+  `Renumber...`, `Clear Numbers` and `Clear Find`.
+
+### Remote protocol
+
+- Text status includes panic profile, fade and restore, plus per-deck `tc_jam`
+  and `tc_freewheel_s`.
+- JSON includes top-level panic fields and per-deck `timecodeJam` and
+  `timecodeFreewheelSeconds`.
 
 ## 2026-03-04 (playback semantics)
 
-### Jump mode and panic profiles
-- `Preferences → Audio` gains `Jump Mode` (`Trigger` or `Load`), `Jump
-  Transition` (`ON`/`OFF`), `Panic Profile` (`Outputs Off`, `Fade+Pause`,
-  `Fade+Rewind`, `Fade+LoadNext`) and a `Run Panic` button, all persisted in the
-  show file as `jump_mode`, `jump_transition` and `panic_profile`.
-- `Take` and `Goto` run through jump-mode semantics: `Trigger` jumps the
-  selected cue live, `Load` loads it without autoplay. Jump Transition decides
-  whether a jump uses cue and deck transition timing or cuts.
-- The panic profiles execute properly: `Outputs Off` disarms every output, and
-  the fade profiles arm a dimmer fade and then run the deck action — pause,
-  rewind, or load next.
-- Commands: `JUMPMODE TRIGGER|LOAD|TOGGLE`, `JUMPTRANSITION ON|OFF|TOGGLE`,
-  `PANICPROFILE <name>|NEXT|PREV` and `PANIC` (or `PANIC <profile>` for a
-  one-shot override).
+### Transport
+
+- New: `Preferences > Audio > Jump Mode`, set to `Trigger` or `Load`, and
+  `Jump Transition ON/OFF`.
+- `Take` and `Goto` trigger playback in Trigger mode, or load without autoplay
+  in Load mode. Jump Transition chooses cue/deck transition timing or a cut.
+- New: `Preferences > Audio > Panic Profile`, with `Outputs Off`,
+  `Fade+Pause`, `Fade+Rewind`, `Fade+LoadNext`, plus `Run Panic`.
+- Outputs Off disarms all outputs. Fade profiles dim first, then pause, rewind
+  or load the next cue.
+- Settings persist as `jump_mode`, `jump_transition` and `panic_profile`.
+
+### Remote protocol
+
+- New: `JUMPMODE TRIGGER|LOAD|TOGGLE`, `JUMPTRANSITION ON|OFF|TOGGLE`,
+  `PANICPROFILE <name>|NEXT|PREV`.
+- `PANIC` runs the chosen profile; `PANIC <profile>` applies a one-time
+  override.
 
 ## 2026-03-04 (a bigger, clearer decks workspace)
 
-- One operating flow, no mode split.
-- The companion deck window opens at `1560x920` (minimum `1260x700`), in Game
-  Boy green with star accents, with larger tracker rows, deck-name width, deck
-  cards, per-deck header blocks and transport buttons, and larger cue rows in
-  each playlist card.
-- The main transport button reads `Play/Pause`, and a deck card carries `Take`
-  and `Stop` without a competing `Go`.
-- Master-cue slot programming is inline: `-` / `+` cycle the cue per deck slot,
-  and middle or ctrl interactions cycle cues rather than opening a picker.
+### Workspace
+
+- Changed: one operating workflow replaces the mode split.
+- The Decks window opens at `1560x920`, minimum `1260x700`, in Game Boy green
+  with star accents.
+- Enlarged tracker rows, deck-name columns, deck cards, per-deck headers,
+  transport buttons and playlist cue rows.
+- Main transport is labelled `Play/Pause`; deck cards use `Take` and `Stop`
+  without a competing Go button.
+
+### Master cues
+
+- Added inline slot programming: `-` and `+` cycle each deck slot's cue.
+- Middle-click and Ctrl interactions cycle cues instead of opening a picker.
 
 ## 2026-03-04 (an always-on master-cue sidebar)
 
-- **The master-cue sidebar is a permanent panel**, wider, with a fixed
-  `Master Cues` badge in the output strip marking where it lives.
-- **Direct sidebar actions**: `Name` renames the focused master cue, `CapSel`
-  captures each deck's selected cue into it, and `CapAct` captures each deck's
-  active cue. The expandable programmer (`Prog+` / `Prog-`) keeps a row per deck
-  with `Sel`, `Act`, `Byp`, `-` and `+`.
-- **The `Deckboy Decks` window reads more easily**: larger tracker and header
-  sizing, expanded labels (`selected`, `active`, `layer`, `state`, `timecode`),
-  bigger deck-card headers, buttons and cue rows, and an interaction hint
-  ("click cue to select, right-click cue to take").
-- **Changing a focused output's display goes auto-native**, switching video
-  sizing from fixed raster to display-native and saying `auto native` in the
-  toast.
-- **The Pocket Test scene expands**: an original platform-adventure vibe with an
-  automatic scene cycle (`pocket-test`) and selectable variants (`pocket-day`,
-  `pocket-sunset`, `pocket-night`, `pocket-storm`), plus procedural animated
-  creatures — a crab, a jumping fish, a parrot, a turtle, a dino-style enemy and
-  a puff friend — alongside the explorer, coin line and signal strip.
+### Master cues
+
+- Changed: the Master Cue sidebar is wider and permanently visible, with a
+  fixed `Master Cues` badge in the output strip.
+- `Name` renames the focused Master Cue; `CapSel` captures each deck's
+  selected cue; `CapAct` captures each deck's active cue.
+- `Prog+ / Prog-` expands or collapses a programmer row per deck with `Sel`,
+  `Act`, `Byp`, `-` and `+`.
+
+### Workspace
+
+- Enlarged Decks-window tracker, headers, deck cards, buttons and cue rows.
+- Expanded labels to `selected`, `active`, `layer`, `state` and `timecode`.
+- Added the hint `click cue to select, right-click cue to take`.
+
+### Outputs
+
+- Changed: choosing the focused output's display switches fixed raster sizing
+  to display-native. The toast reports `auto native`.
+
+### Patterns
+
+- Expanded Pocket Test into a platform-adventure scene with automatic
+  `pocket-test` cycling and selectable `pocket-day`, `pocket-sunset`,
+  `pocket-night` and `pocket-storm` variants.
+- Added animated crab, jumping fish, parrot, turtle, dinosaur-style enemy and
+  puff friend alongside the explorer, coin line and signal strip.
 
 ## 2026-03-04 (deck/output separation + stream outputs)
 
-### Outputs never take a screen by surprise
-- Window outputs default to `OFF` in new projects and new outputs, output
-  runtime windows are created hidden, and a loaded show opens disarmed — so a
-  saved output-on state cannot take over a screen at launch.
-- `Preferences → Video` gains an `Enabled` toggle for the focused output, which
-  fullscreens it on the selected display, plus `Prev` / `Next` / `Rescan`
-  display assignment with a live display label. `F` enables the focused window
-  output if it is off. The command is `VIDEO OUTPUT ON|OFF|TOGGLE`.
-- **Emergency escape**: `Esc` exits fullscreen on the active output window,
-  falling back to any fullscreen output sharing the control window's display,
-  and marks that output intentionally windowed so auto-recovery leaves it alone.
-  Three presses within ~0.9s triggers panic disarm (`outputs off`). Re-arming is
-  explicit — `F` on that output, or `VIDEO OUTPUT ON` again.
-- **Recovery**: `recoverWindowOutputIfNeeded(outputIndex)` re-applies display
-  placement, raises a hidden or minimised window and re-asserts fullscreen on
-  the target display; repeating `VIDEO OUTPUT ON` performs it, `F` re-asserts
-  fullscreen rather than dropping to windowed, and a 1 Hz background poll
-  recovers enabled window outputs that drift off target.
-- **Display topology refresh**: monitor hot-plug is detected and outputs
-  re-clamped and re-applied automatically; manual `Rescan` runs the same path. A
-  `Connected Displays` list shows what is detected, and clicking a row assigns
-  the focused output to it.
+### Outputs
 
-### Routing you can read
-- Route labels are plain English — `Deck 1`, `Output 2`, and route values
-  `None`, `Background` or `Layer N` — with no shorthand codes.
-- Layer edits are direct in the Route Editor: `-` / `+`, `Ctrl` for a ×10 step,
-  `Shift` to reverse, and explicit `Assign` / `Unassign`, with no blocking
+- Changed: window outputs default to `OFF` in new shows and newly created
+  outputs. Output windows start hidden; loaded shows open disarmed regardless
+  of saved enable state.
+- `Preferences > Video` adds focused-output `Enabled`, which opens fullscreen
+  on the selected display, plus `Prev / Next / Rescan` display assignment and
+  a live display label.
+- `F` enables the focused window output; remote: `VIDEO OUTPUT ON|OFF|TOGGLE`.
+- `Esc` leaves fullscreen on the active output, falling back to a fullscreen
+  output sharing the control display. That output remains intentionally
+  windowed until explicitly re-armed.
+- Three `Esc` presses within approximately `0.9 s` disarm all outputs. Re-arm
+  with `F` on the output or `VIDEO OUTPUT ON`.
+- Recovery restores display placement, raises hidden/minimized windows and
+  reapplies fullscreen. Repeating `VIDEO OUTPUT ON` triggers recovery; `F`
+  reasserts fullscreen instead of toggling to windowed.
+- A `1 Hz` background check recovers enabled outputs that move off target.
+- Display hot-plug and `Rescan` refresh valid assignments and reapply
+  placement. Clicking a `Connected Displays` row assigns the focused output.
+
+### Routing
+
+- Route labels use `Deck 1`, `Output 2`, `None`, `Background` and `Layer N`.
+- Route Editor layer controls use `-` and `+`, `Ctrl` for tenfold steps,
+  `Shift` to reverse, and explicit `Assign / Unassign`, without a blocking
   popup.
-- **A Deck × Output routing matrix** in the Video tab: click row labels to focus
-  decks, column headers to focus outputs, and cells to assign. A `MOVE` /
-  `ADD` toggle switches between single-output routing and fan-out, and an
-  assigned cell nudges its layer directly (`click +1`, `Shift+click -1`, `Ctrl`
-  for ×10).
-- The main window carries an `Add Output` button and focused-route controls —
-  `Link` / `Unlink`, `Layer-` / `Layer+` — with a plain status line:
-  `Focused Route: Deck N -> Output N  Background/Layer N/Not Linked`.
+- Added a Deck × Output matrix in Video settings. Row labels focus decks,
+  column headers focus outputs, and cells assign routes.
+- `MOVE / ADD` selects single-output routing or fan-out. Assigned cells adjust
+  layers with click `+1`, `Shift+click -1`, and `Ctrl` for tenfold steps.
+- Main controls include `Add Output`, `Link / Unlink`, `Layer- / Layer+`, and
+  `Focused Route: Deck N -> Output N Background/Layer N/Not Linked`.
 
-### Per-output network streaming (SRT + RTMP)
-- An ffmpeg-backed stream output per `OutputTarget`, with focused-output
-  controls in the Video tab for enable, protocol (`SRT` / `RTMP`), URL and
-  bitrate, and the commands `VIDEO STREAM ON|OFF|TOGGLE`,
-  `VIDEO STREAM SRT|RTMP`, `VIDEO STREAM URL ...` and
-  `VIDEO STREAM BITRATE ...`.
-- The stream muxes H.264 video with AAC stereo audio, and the audio follows the
-  output assignment stack, falling back to the host deck when there are no
-  assignments.
-- `OutputTarget` gains `outputType` (`window` or `stream`),
-  `mirrorSourceOutputIndex`, `streamEnabled`, `streamProtocol`, `streamUrl` and
-  `streamBitrateKbps`, with protocol normalisation, bitrate clamping
-  (500..50000 kbps) and a default URL per output index and protocol.
+### Streaming
+
+- Added independent FFmpeg-backed streams per output. Video settings control
+  enable, `SRT / RTMP`, URL and bitrate.
+- Remote: `VIDEO STREAM ON|OFF|TOGGLE`, `VIDEO STREAM SRT|RTMP`,
+  `VIDEO STREAM URL ...`, `VIDEO STREAM BITRATE ...`.
+- Streams combine H.264 video and stereo AAC. Audio follows the output's deck
+  assignments, falling back to the host deck when no assignments exist.
+- Outputs save window/stream type, mirror-source output, stream enable,
+  protocol, URL and bitrate.
+- Protocol names are normalized, bitrate is clamped to `500–50000 kbps`, and
+  default URLs follow output index and protocol.
 
 ### Master cues
-- Group presets become operator-facing **Master Cues**: default names
-  `Master Cue 1`, `Master Cue 2`, …, with `MASTER` / `MASTERCUE` command
-  aliases alongside the existing `GROUP` commands, and toasts and prompts that
-  speak in master-cue terms.
-- A persistent `GroupPreset` + `GroupSlot` model — one slot per deck (`cueId` or
-  bypass), with the focused index saved in the show — driven by `GROUP ADD`,
-  `ADDEMPTY`, `SELECT`, `NAME`, `DELETE`, `SET <deck> <cue-token|SEL|ACTIVE|
-  BYPASS>`, `BYPASS`, `CAPTURE SEL|ACTIVE` and `FIRE [index]`.
-- Keyboard: `Ctrl+Shift+G` fires the focused preset, `Ctrl+Shift+N` creates one
-  from the selected cues, and `Ctrl+Shift+[` / `]` cycle the focus.
-- Master-cue rows show each deck's slot inline and fire from the row, and slot
-  assignment happens in the window — click to assign, `Shift+click` for the
-  active cue, middle or `Ctrl+click` for a picker, right-click to bypass — with
-  no external dialog.
 
-### Deck window and main window
-- The main control window is output- and program-first; the separate decks
-  window carries the deck playlists, per-deck transport (`Take`, `Go`, `Stop`)
-  and per-deck header state — transport status, `tc` value and fps, and the
-  chase/free and run/hold flags. The main panel shows the focused deck's number,
-  name and timecode line.
-- The deck tracker pages around the focused deck rather than always starting at
-  deck 1, and reserves height for the playlist grid so lower deck columns stay
-  visible with many decks.
-- The decks window is always shown, at a larger default and minimum size.
+- Changed: group presets are presented as Master Cues, with default names
+  `Master Cue 1`, `Master Cue 2` and matching prompts/toasts.
+- Added `MASTER` and `MASTERCUE` aliases alongside `GROUP`.
+- Saved Master Cues contain one cue-ID or bypass slot per deck and retain the
+  focused Master Cue.
+- Commands: `GROUP ADD`, `GROUP ADDEMPTY`, `GROUP SELECT`, `GROUP NAME`,
+  `GROUP DELETE`, `GROUP SET <deck> <cue-token|SEL|ACTIVE|BYPASS>`,
+  `GROUP BYPASS`, `GROUP CAPTURE SEL|ACTIVE`, `GROUP FIRE [index]`.
+- `Ctrl+Shift+G` fires the focused Master Cue; `Ctrl+Shift+N` captures
+  selected cues into a new one; `Ctrl+Shift+[` and `Ctrl+Shift+]` change
+  focus.
+- Rows show deck slots and a fire action. Click assigns the selected cue;
+  `Shift+click` assigns the active cue; middle-click or `Ctrl+click` opens a
+  picker; right-click bypasses the slot.
 
-### File controls
-- `New`, `Open`, `Save` and `SaveAs` in the main header. `Save` writes the
-  active show path immediately, and `SaveAs` writes as soon as a path is chosen.
+### Workspace
 
-### Frame-accurate trim
-- `I` sets trim-in at the playhead and `O` sets trim-out, both snapped to cue
-  frame boundaries using the cue's fps. `Shift+I` opens the import picker and
-  `Shift+O` toggles the time overlay.
-- Paused nudge: `Left/Right` for ±1 frame, `Shift` for ±5, `Ctrl` for ±10, and
-  `Alt` for ±1.0 second, frame-snapped.
+- The main window emphasizes program and outputs; the Decks window holds
+  playlists and per-deck `Take / Go / Stop`.
+- Deck headers show transport, timecode value/FPS, chase/free and run/hold
+  state. The main panel shows focused-deck number, name and timecode.
+- The tracker pages around the focused deck and reserves playlist-grid height
+  so lower deck columns remain visible.
+- The Decks window is always shown, with larger default and minimum
+  dimensions.
+- Added compact LSDJ-style tracker rows, `sel` and `act` cue-number columns
+  and focused-deck highlighting.
+- Main-header `New / Open / Save / SaveAs` controls manage the show. Save
+  writes the active path immediately; SaveAs writes when a path is selected.
+- An application quit event or closing the main window exits immediately.
+  Closing Decks hides it; closing an output disarms that output.
 
-### Pattern workflow
-- A `Pattern` button opens an in-app type picker, and a pattern cue's settings
-  gain a `pattern` row: `-` / `+` cycles the base type and the centre toggles
-  motion where the type supports it.
-- Animated variants for the engineering patterns: `smpte-bars-motion`,
-  `crosshatch-motion`, `checkerboard-motion` and the `full-*-motion` set, with
-  the animation loop rebuilding for any animated type.
-- Commands: `PATTERN SET <type>`, `PATTERN LIST` and the `PATTERN <type> MOTION`
-  shorthand.
+### Cues
 
-### Pocket Test
-- Reworked into a deterministic tropical retro scene: sky, ocean and beach
-  gradients, procedural palms and an island silhouette, an animated coin line
-  and a retro explorer sprite, over the bottom signal reference strip.
+- `I` and `O` set trim-in and trim-out at the playhead, snapped to the cue's
+  frame rate. `Shift+I` imports; `Shift+O` toggles the time overlay.
+- While paused, `Left/Right` moves one frame, `Shift` five frames, `Ctrl` ten
+  frames and `Alt` `1.0 s`, all frame-snapped.
+- Output respects independent X/Y scale and `Fit / Fill / Stretch / Unscaled`.
+- `off X / off Y` adjust by `1 px`. `scale X`, `scale Y`, `off X`, `off Y` and
+  `rot` accept typed expressions with `+`, `-`, `*`, `/` and parentheses.
 
-### Quit and close
-- `SDL_QUIT` exits immediately, closing the main window exits, closing the Decks
-  window hides it cleanly, and closing an output window disarms that output.
+### Patterns
 
-### Geometry precision and status
-- The output path applies independent X and Y scaling and respects the cue's
-  scale mode (`Fit`/`Fill`/`Stretch`/`Unscaled`).
-- `off X` / `off Y` step by 1px, and `scale X`, `scale Y`, `off X`, `off Y` and
-  `rot` accept typed values, including simple expressions with `+`, `-`, `*`,
-  `/` and parentheses.
-- Status carries the output entities: `OUTPUT ...` rows in text `STATUS`
-  (`type`, `host`, `display`, `layers`, `mirror`, stream state, url and
-  bitrate), and `focusedOutput`, `outputCount` and an `outputs[]` array in
-  `STATUS JSON`.
-- The `Deckboy Decks` tracker takes a denser LSDJ-inspired pass: compact rows
-  for every deck in view, `sel` and `act` cue-number columns, and a focused-deck
-  highlight.
+- Added a Pattern picker and per-cue `pattern` row. `-` and `+` cycle base
+  types; the centre toggles supported motion.
+- Added `smpte-bars-motion`, `crosshatch-motion`, `checkerboard-motion` and
+  `full-*-motion`, with frame updates for every animated type.
+- Remote: `PATTERN SET <type>`, `PATTERN LIST`, `PATTERN <type> MOTION`.
+- Reworked Pocket Test as a deterministic tropical scene with sky, ocean and
+  beach gradients, procedural palms, island silhouette, animated coins, retro
+  explorer and bottom signal-reference strip.
 
----
+### Remote protocol
+
+- Text `STATUS` adds `OUTPUT ...` rows with `type`, `host`, `display`,
+  `layers`, `mirror`, stream state, URL and bitrate.
+- `STATUS JSON` adds `focusedOutput`, `outputCount` and `outputs[]`.
 
 ## March 2025 — the foundations
 
-Deckboy began as a single-file prototype and was rebuilt into the modular
-application these notes describe. That first pass established what everything
-since has been built on:
+Deckboy's single-file prototype was rebuilt as a modular application.
 
-- **A modular architecture**: eight logical modules — core, media, render,
-  control, ui, platform, ndi, browser — with public APIs, a CMake compilation
-  strategy, feature gates and a documented dependency graph.
-- **`native/core/utils`**: 55 shared utilities — string operations, timecode
-  parsing, colour conversion, field parsing, JSON escaping — with no external
-  dependencies, underneath every other module.
-- **`native/core/subprocess`**: one place for spawning and managing FFmpeg and
-  capture processes.
-- **Professional broadcast features**, each behind a feature gate with a
-  graceful stub when its SDK is absent: cross-platform MIDI input through
-  RtMidi, DeckLink 10-bit SDI output, Syphon and Spout texture sharing, and
-  native browser rendering.
-- **Cross-platform infrastructure**: platform abstraction, feature gates and
-  GitHub Actions CI building on Linux, macOS and Windows.
-- **GPL compliance and licensing** put in order at the same time.
+### Platform support
 
-Build it with `cmake .. && make -j4`, and `./deckboy-native --self-check`
-reports what this machine can do:
+- Established eight modules for core, media, rendering, control, interface,
+  platform, NDI and browser support, with public APIs, a CMake build strategy,
+  feature gates and a documented dependency graph.
+- Added `55` dependency-free shared utilities for strings, timecode, colour
+  conversion, field parsing and JSON escaping.
+- Centralized FFmpeg and capture-process management.
+- Added optional RtMidi input across platforms, `10-bit` DeckLink SDI output,
+  Syphon/Spout texture sharing and native browser rendering, each with
+  fallback behaviour when its SDK is absent.
 
-```
-deckboy-native self-check
-project-root: "..."
-font-sans: ok
-font-mono: ok
-font-pixel: ok
-ffmpeg: ok
-ffprobe: ok
-ndi-sdk: not built (set DECKBOY_NDI_SDK or install SDK headers)
-ui-sfx: enabled by separate SDL audio device when available
-companion-control: tcp/udp port 5510 by default
-```
+### Build
 
-Optional features are switched on at configure time —
-`-DENABLE_MIDI=ON`, `-DENABLE_SIPHON=ON`, `-DENABLE_SPOUT=ON`, and
-`-DENABLE_DECKLINK=ON -DDECKLINK_SDK=/path/to/sdk`.
+- Added platform abstraction and GitHub Actions builds for Linux, macOS and
+  Windows.
+- Build with `cmake .. && make -j4`.
+- Optional configuration: `-DENABLE_MIDI=ON`, `-DENABLE_SIPHON=ON`,
+  `-DENABLE_SPOUT=ON`, `-DENABLE_DECKLINK=ON -DDECKLINK_SDK=/path/to/sdk`.
+- Established GPL compliance and licensing.
+
+### Diagnostics
+
+- `./deckboy-native --self-check` reports the project root, sans/mono/pixel
+  font availability, FFmpeg, ffprobe and NDI SDK status.
+- Reports `ndi-sdk: not built (set DECKBOY_NDI_SDK or install SDK headers)`
+  when NDI was not compiled.
+- Reports UI sounds using a separate SDL audio device when available, and the
+  default Companion TCP/UDP port `5510`.
