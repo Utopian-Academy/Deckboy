@@ -755,6 +755,27 @@
       }
       engine->update();
 
+      // EVERY transport change goes in the show log, whoever caused it. A
+      // channel found sitting paused for two hours left only "stopped
+      // drawing" behind; TAKE was the only transport event ever written.
+      if (loggedTransport_.size() != project_.decks.size()) {
+        loggedTransport_.assign(project_.decks.size(), -1);
+      }
+      if (const int nowState = static_cast<int>(engine->state());
+          nowState != loggedTransport_[static_cast<std::size_t>(deckIndex)]) {
+        const bool first = loggedTransport_[static_cast<std::size_t>(deckIndex)] < 0;
+        loggedTransport_[static_cast<std::size_t>(deckIndex)] = nowState;
+        if (!first) {
+          const Cue* cue = activeCuePtr(deckIndex);
+          char at[32];
+          std::snprintf(at, sizeof(at), "%.1fs", engine->position());
+          static const char* const kNames[] = {"stopped", "paused", "playing"};
+          showLog("TRANSPORT", "deck" + std::to_string(deckIndex + 1) + " " +
+                  kNames[std::clamp(nowState, 0, 2)] + " \"" + (cue ? cue->name : std::string()) +
+                  "\" at " + at);
+        }
+      }
+
       // Decode watchdog: a wedged in-process decoder reracks the deck dark
       // instead of hanging it mid-show, and the operator gets told. A stall
       // whose file is GONE (drive pulled, share dropped) is reported as lost
@@ -790,6 +811,16 @@
         showLog("AUDIO", msg);
       }
       if (engine->consumeDecodeStall()) {
+        // Into the show log as well as a toast: on an unattended channel the
+        // toast is gone long before anyone sees the deck sitting stopped.
+        {
+          const Cue* stalled = activeCuePtr(deckIndex);
+          char at[32];
+          std::snprintf(at, sizeof(at), "%.1fs", engine->position());
+          showLog("DECODE-STALL", "deck" + std::to_string(deckIndex + 1) + " \"" +
+                  (stalled ? stalled->name : std::string()) + "\" at " + at +
+                  " decoder=" + engine->activeDecodeName());
+        }
         engine->stop(true);
         ++decodeStallTotal_;
         // Evidence the machine is struggling to decode, which is the honest

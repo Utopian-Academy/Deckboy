@@ -10650,7 +10650,9 @@ class App {
   double soakMinutes_ = 0.0;
   Uint64 soakStartMs_ = 0;
   Uint64 soakLastLogMs_ = 0;
-  int decodeStallTotal_ = 0;   // watchdog trips this run (counted always, logged by soak)
+  int decodeStallTotal_ = 0;
+  // Last transport state written to the show log, per deck (-1 = none yet).
+  std::vector<int> loggedTransport_;   // watchdog trips this run (counted always, logged by soak)
   std::ofstream soakLogFile_;
   DragState drag_;
   enum class TrimDragMode { None, In, Out };
