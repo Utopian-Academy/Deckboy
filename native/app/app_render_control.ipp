@@ -1479,6 +1479,7 @@
     // evolution draws over everything while it is playing.
     refreshSuperDeckboyTitle();
     renderSuperDeckboyEvolution();
+    drawPressFeedback();
     finishLiveTextFrame();   // reads the window back, so before present
     SDL_RenderPresent(controlRenderer_);
     revealControlWindow();  // the main control-window frame
@@ -2919,6 +2920,13 @@
       // Draw button chrome (bevel lines in drawUIPanel provide the raised look)
       SDL_Color accent = emphasized ? pal.light : pal.dark;
       drawUIPanel(button.rect, button.fill, pal.deep, accent);
+      // OPEN STAYS PRESSED. MENU looked the same whether or not it had done
+      // anything; while what it opened is open, it stays pushed in.
+      if (((button.label == "MENU" || button.label == "SETUP" || button.label == "SETTINGS") &&
+           settingsOpen_) ||
+          (button.label == "DASH" && dashboardOverlayOpen_)) {
+        drawSunkControl(button.rect);
+      }
 
       // KEEP THE ICON AND THE WORD. James asked for the gear beside MENU, and
       // an earlier fix here dropped the icon whenever the pair would not fit --

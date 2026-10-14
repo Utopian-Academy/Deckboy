@@ -43,6 +43,14 @@ every edit reaches the show file even when another program is holding it.
 - Fixed an issue where a newly added Video Synth cue could be missing from the saved show when no
   later edit was made.
 
+### Interface
+- Every button now shows it was pressed: it sinks the moment the mouse goes down, and a ring
+  flashes on it when you let go.
+- MENU and DASH stay pressed in, with a ring, while the settings or the dashboard they opened are
+  showing.
+- Added `PRESS <x> <y>|<button>|OFF` to hold the pointer down without clicking, for checking a
+  control's pressed look.
+
 ### Import
 - Fixed an issue where **Import** hid PDF, PowerPoint, Keynote and OpenDocument slide files until
   **All files** was chosen. They are now in the media list and under their own **Slides** filter.

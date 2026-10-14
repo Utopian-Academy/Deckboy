@@ -7892,6 +7892,7 @@ class App {
     // the box and its label both use the caller's rect. See safeTextRect.
     SDL_Rect snapped = rect;
     Primitives::fillRect(controlRenderer_, snapped, fill);
+    Primitives::notePressable(controlRenderer_, snapped);
     Primitives::strokeRect(controlRenderer_, snapped, border);
     if (snapped.w > 4 && snapped.h > 4) {
       // Bevel: accent brighter than fill → raised, darker → inset
@@ -7917,6 +7918,83 @@ class App {
       SDL_RenderLine(controlRenderer_, x1, y2, x2, y2);
       SDL_RenderLine(controlRenderer_, x2, y1, x2, y2);
     }
+  }
+
+  // PRESSED: the bevel turned inside out and the face shaded, so the control
+  // reads as pushed in. Also the look of a button whose menu is open.
+  void drawSunkControl(const SDL_Rect& rect) {
+    if (rect.w <= 4 || rect.h <= 4) {
+      return;
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 72);
+    SDL_RenderFillRect(controlRenderer_, &rect);
+    const int edge = std::max(2, uiScaled(2));
+    const SDL_Color dark = pal.deep;
+    const SDL_Color light = pal.light;
+    for (int i = 0; i < edge; ++i) {
+      const int x1 = rect.x + 1 + i, y1 = rect.y + 1 + i;
+      const int x2 = rect.x + rect.w - 2 - i, y2 = rect.y + rect.h - 2 - i;
+      SDL_SetRenderDrawColor(controlRenderer_, dark.r, dark.g, dark.b, 255);
+      SDL_RenderLine(controlRenderer_, x1, y1, x2, y1);
+      SDL_RenderLine(controlRenderer_, x1, y1, x1, y2);
+      SDL_SetRenderDrawColor(controlRenderer_, light.r, light.g, light.b, 160);
+      SDL_RenderLine(controlRenderer_, x1, y2, x2, y2);
+      SDL_RenderLine(controlRenderer_, x2, y1, x2, y2);
+    }
+  }
+
+  // Called once at the end of the desk's frame, over everything else.
+  void drawPressFeedback() {
+    SDL_Rect target {};
+    pressTargetValid_ = Primitives::pressedTarget(&target);
+    if (pressTargetValid_) {
+      pressTarget_ = target;
+      drawSunkControl(target);
+    }
+    // OPEN: the settings and the dashboard dim the desk behind them, which
+    // also dims the pushed-in MENU. A steady ring above the dimming says
+    // which button this came from.
+    for (const auto& button : buttons_) {
+      if (((button.label == "MENU" || button.label == "SETUP" || button.label == "SETTINGS") &&
+           settingsOpen_) ||
+          (button.label == "DASH" && dashboardOverlayOpen_)) {
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b, 255);
+        for (int i = 1; i <= std::max(2, uiScaled(2)); ++i) {
+          SDL_Rect r {button.rect.x - i, button.rect.y - i, button.rect.w + i * 2, button.rect.h + i * 2};
+          SDL_RenderRect(controlRenderer_, &r);
+        }
+      }
+    }
+    const Uint64 now = SDL_GetTicks();
+    if (now < pressFlashUntilMs_) {
+      // DONE: a ring that fades out over 150 ms after the release.
+      const double left = static_cast<double>(pressFlashUntilMs_ - now) / 150.0;
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b,
+                             static_cast<Uint8>(std::clamp(left, 0.0, 1.0) * 255.0));
+      const int ring = std::max(2, uiScaled(2));
+      for (int i = 1; i <= ring; ++i) {
+        SDL_Rect r {pressFlashRect_.x - i, pressFlashRect_.y - i,
+                    pressFlashRect_.w + i * 2, pressFlashRect_.h + i * 2};
+        SDL_RenderRect(controlRenderer_, &r);
+      }
+    }
+  }
+
+  // The pointer went down or up on the desk window.
+  void notePress(bool held, int x, int y) {
+    if (!held && pressTargetValid_) {
+      pressFlashRect_ = pressTarget_;
+      pressFlashUntilMs_ = SDL_GetTicks() + 150;
+    }
+    if (!held) {
+      pressTargetValid_ = false;
+    }
+    // Controls are at most a row of the inspector wide and a bottom-bar
+    // button tall; anything larger is a panel, and a panel never presses.
+    Primitives::setPress(held, x, y, uiScaled(560), uiScaled(150));
   }
 
   void drawUILabel(const SDL_Rect& rect, const std::string& text, SDL_Color color, TTF_Font* font = nullptr) {
@@ -10651,6 +10729,12 @@ class App {
   Uint64 soakStartMs_ = 0;
   Uint64 soakLastLogMs_ = 0;
   int decodeStallTotal_ = 0;
+  // Button feedback: the control under a held press last frame, and the ring
+  // that flashes on it for a moment after the release.
+  bool pressTargetValid_ = false;
+  SDL_Rect pressTarget_ {};
+  SDL_Rect pressFlashRect_ {};
+  Uint64 pressFlashUntilMs_ = 0;
   // Last transport state written to the show log, per deck (-1 = none yet).
   std::vector<int> loggedTransport_;   // watchdog trips this run (counted always, logged by soak)
   std::ofstream soakLogFile_;

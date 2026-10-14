@@ -5373,6 +5373,47 @@
       remoteCommandDetail_ = out.str();
       return;
     }
+    if (command == "PRESS") {
+      // Holds the pointer down at x y, or lets go (PRESS OFF), WITHOUT
+      // clicking: so a test can see a control's pressed look and its
+      // release flash, which a CLICK is over too quickly to capture.
+      if (parts.size() == 2 && parts[1] == "OFF") {
+        notePress(false, mouseX_, mouseY_);
+        remoteCommandDetail_ = pressFlashUntilMs_ > SDL_GetTicks()
+          ? "released, flash on " + std::to_string(pressFlashRect_.x) + "," + std::to_string(pressFlashRect_.y)
+          : "released, nothing was pressed";
+        return;
+      }
+      if (parts.size() == 2) {
+        // Or a bottom-bar button by its label, so a test does not have to
+        // know the layout at this window size and scale.
+        for (const auto& button : buttons_) {
+          if (toUpper(button.label) == toUpper(parts[1])) {
+            mouseX_ = button.rect.x + button.rect.w / 2;
+            mouseY_ = button.rect.y + button.rect.h / 2;
+            notePress(true, mouseX_, mouseY_);
+            remoteCommandDetail_ = "press " + button.label + " at " + std::to_string(button.rect.x) + "," +
+              std::to_string(button.rect.y) + " " + std::to_string(button.rect.w) + "x" +
+              std::to_string(button.rect.h);
+            return;
+          }
+        }
+        failRemoteCommand("PRESS: no bottom-bar button named " + parts[1]);
+        return;
+      }
+      if (parts.size() < 3) {
+        failRemoteCommand("PRESS: expected x y, a button label, or OFF");
+        return;
+      }
+      try {
+        mouseX_ = std::stoi(parts[1]);
+        mouseY_ = std::stoi(parts[2]);
+        notePress(true, mouseX_, mouseY_);
+      } catch (...) {
+        failRemoteCommand("PRESS: expected two numbers");
+      }
+      return;
+    }
     if (command == "HOVER") {
       // CLICK's sibling. Hover state drives the tips and the mascot's advice,
       // and none of that could be exercised without a way to put the pointer

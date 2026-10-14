@@ -85,10 +85,48 @@ void recordSurface(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color
 
 }  // namespace
 
+namespace {
+bool gPressHeld = false;
+int gPressX = 0, gPressY = 0, gPressMaxW = 0, gPressMaxH = 0;
+bool gPressFound = false;
+SDL_Rect gPressRect {};
+}  // namespace
+
 void Primitives::beginSurfaceFrame(SDL_Renderer* renderer, SDL_Color clearColor) {
   gSurfaceRenderer = renderer;
   gSurfaceClear = clearColor;
   gSurfaces.clear();
+  gPressFound = false;
+}
+
+void Primitives::setPress(bool held, int x, int y, int maxW, int maxH) {
+  gPressHeld = held;
+  gPressX = x;
+  gPressY = y;
+  gPressMaxW = maxW;
+  gPressMaxH = maxH;
+}
+
+void Primitives::notePressable(SDL_Renderer* renderer, const SDL_Rect& rect) {
+  if (!gPressHeld || renderer != gSurfaceRenderer || SDL_GetRenderTarget(renderer) != nullptr) {
+    return;
+  }
+  const SDL_Point p {gPressX, gPressY};
+  if (!SDL_PointInRect(&p, &rect)) {
+    return;
+  }
+  gPressFound = rect.w <= gPressMaxW && rect.h <= gPressMaxH;
+  if (gPressFound) {
+    gPressRect = rect;
+  }
+}
+
+bool Primitives::pressedTarget(SDL_Rect* out) {
+  if (!gPressHeld || !gPressFound) {
+    return false;
+  }
+  *out = gPressRect;
+  return true;
 }
 
 bool Primitives::surfaceUnder(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color* out) {
@@ -120,6 +158,7 @@ void Primitives::strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Co
 void Primitives::drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect,
                                   SDL_Color body, SDL_Color border, SDL_Color innerBorder) {
   fillRect(renderer, rect, body);
+  notePressable(renderer, rect);
   strokeRect(renderer, rect, border);
   SDL_Rect inner = insetRect(rect, 2);
   if (inner.w > 2 && inner.h > 2) {

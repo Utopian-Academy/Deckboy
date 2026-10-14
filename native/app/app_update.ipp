@@ -153,6 +153,7 @@
             break;
           }
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
+            notePress(true, static_cast<int>(event.button.x), static_cast<int>(event.button.y));
             if (handleInlineTextEditorMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y))) {
               break;
             }
@@ -179,6 +180,7 @@
           break;
         case SDL_EVENT_MOUSE_BUTTON_UP:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
+              notePress(false, static_cast<int>(event.button.x), static_cast<int>(event.button.y));
               if (valueScrubPending_ || valueScrubEngaged_) {
                 bool wasPlainClick = valueScrubPending_ && !valueScrubEngaged_;
                 valueScrubPending_ = false;

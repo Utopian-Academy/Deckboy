@@ -54,6 +54,17 @@ class Primitives {
   // resets the record; nullptr stops tracking.
   static void beginSurfaceFrame(SDL_Renderer* renderer, SDL_Color clearColor);
   static bool surfaceUnder(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color* out);
+
+  // WHICH CONTROL IS BEING PRESSED. Every bevelled control on the tracked
+  // renderer passes through notePressable(); the last one drawn under the held
+  // pointer is the one on top, so it is the one being pressed. A panel larger
+  // than a control that is drawn over the point afterwards (a modal, say)
+  // covers whatever was under it. The desk asks pressedTarget() at the end of
+  // the frame and draws the pressed look over it, so every button in every
+  // theme answers the moment it is pressed, without each call site knowing.
+  static void setPress(bool held, int x, int y, int maxW, int maxH);
+  static void notePressable(SDL_Renderer* renderer, const SDL_Rect& rect);
+  static bool pressedTarget(SDL_Rect* out);
 };
 
 }  // namespace deckboy::render
