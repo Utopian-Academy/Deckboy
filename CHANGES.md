@@ -46,6 +46,10 @@ every edit reaches the show file even when another program is holding it.
 ### Interface
 - Every button now shows it was pressed: it sinks the moment the mouse goes down, and a ring
   flashes on it when you let go.
+- The mouse, cat and frog busy critters are whole animals now, walking or hopping, instead of
+  heads bobbing side to side.
+- Fixed an issue where the loudness critter could draw over the header when its cue row was
+  scrolled partly out of view.
 - MENU and DASH stay pressed in, with a ring, while the settings or the dashboard they opened are
   showing.
 - Added `PRESS <x> <y>|<button>|OFF` to hold the pointer down without clicking, for checking a
