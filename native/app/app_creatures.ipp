@@ -443,12 +443,18 @@
     if (!tex) {
       return;
     }
-    const int size = std::min({b.home.w, b.home.h,
+    const int full = std::min({b.home.w, b.home.h,
       std::clamp(b.home.h - uiScaled(6), uiScaled(12), uiScaled(28))});
+    // GROWN FROM A SINGLE CELL, and shrunk back into one when the job is
+    // done, rather than faded (James's original critter reference). The
+    // nearest-neighbour texture makes the small sizes read as a few cells.
+    const double grow = std::clamp(b.fade, 0.0, 1.0);
+    const double eased = 1.0 - (1.0 - grow) * (1.0 - grow) * (1.0 - grow);
+    const int size = std::max(std::max(2, uiScaled(2)), static_cast<int>(std::lround(full * eased)));
     const int x = b.home.x + static_cast<int>(
-      std::clamp(b.x, 0.0, 1.0) * (b.home.w - size));
+      std::clamp(b.x, 0.0, 1.0) * (b.home.w - full)) + (full - size) / 2;
     const int bob = static_cast<int>(std::lround(std::sin(b.phase * 1.6)));
-    const int y = std::clamp(b.home.y + (b.home.h - size) / 2 + bob,
+    const int y = std::clamp(b.home.y + (b.home.h - full) / 2 + (full - size) + bob,
                              b.home.y, b.home.y + b.home.h - size);
     const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
     SDL_Rect previousClip {};
@@ -461,8 +467,7 @@
     SDL_GetRenderDrawBlendMode(controlRenderer_, &previousBlend);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
     SDL_SetRenderClipRect(controlRenderer_, &clip);
-    SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(
-      std::clamp(b.fade, 0.0, 1.0) * 255.0));
+    SDL_SetTextureAlphaMod(tex, 255);
     SDL_FRect dst {static_cast<float>(x), static_cast<float>(y),
                    static_cast<float>(size), static_cast<float>(size)};
     SDL_RenderTextureRotated(controlRenderer_, tex, nullptr, &dst, 0.0, nullptr,
