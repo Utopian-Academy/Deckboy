@@ -367,13 +367,59 @@ enum class LowerThirdLook : int {
   Neon,      // a dark sign with a glowing accent tube that flickers on
   Comic,     // tilted, a heavy black outline and a halftone shadow
   Scroll,    // parchment with rolled ends, in ink
+  // The original thirteen keep their numbers in saved shows.
+  // -- clean --
+  Bulletin,
+  Dateline,
+  Sideline,
+  Scoreboard,
+  Podium,
+  Pennant,
+  Ribbon,
+  Ledger,
+  Dossier,
+  Index,
+  Bracket,
+  Crosshair,
+  Caption,
+  Credit,
+  Theatre,
+  Placard,
+  Rail,
+  Survey,
+  Tab,
+  Ticket,
+  Capsule,
+  Film,
+  Stacked,
+  Flag,
+  // -- magical --
+  Terminal,
+  Window,
+  Diskette,
+  Cassette,
+  Cartridge,
+  Blueprint,
+  Circuit,
+  Equalizer,
+  Dotmatrix,
+  Stamp,
+  Sticky,
+  Notebook,
+  Sketch,
+  Confetti,
+  Marquee,
   Count
 };
 
 // Which group a look belongs to, for the picker: the look list is long enough
 // now that a flat list hides the two kinds of thing it offers.
 inline bool lowerThirdLookIsPlayful(LowerThirdLook look) {
-  return look == LowerThirdLook::Arcade || look >= LowerThirdLook::Sparkle;
+  // Clean looks were appended after Scroll; enum order is the file format,
+  // not the picker order. Keep Count and invalid values out of either range.
+  return look == LowerThirdLook::Arcade ||
+         (look >= LowerThirdLook::Sparkle && look <= LowerThirdLook::Scroll) ||
+         (look >= LowerThirdLook::Terminal && look < LowerThirdLook::Count);
 }
 
 enum class LowerThirdMove : int {
@@ -404,6 +450,45 @@ inline const char* lowerThirdLookLabel(LowerThirdLook look) {
     case LowerThirdLook::Neon:     return "neon";
     case LowerThirdLook::Comic:    return "comic";
     case LowerThirdLook::Scroll:   return "scroll";
+    case LowerThirdLook::Bulletin: return "bulletin";
+    case LowerThirdLook::Dateline: return "dateline";
+    case LowerThirdLook::Sideline: return "sideline";
+    case LowerThirdLook::Scoreboard: return "scoreboard";
+    case LowerThirdLook::Podium: return "podium";
+    case LowerThirdLook::Pennant: return "pennant";
+    case LowerThirdLook::Ribbon: return "ribbon";
+    case LowerThirdLook::Ledger: return "ledger";
+    case LowerThirdLook::Dossier: return "dossier";
+    case LowerThirdLook::Index: return "index";
+    case LowerThirdLook::Bracket: return "bracket";
+    case LowerThirdLook::Crosshair: return "crosshair";
+    case LowerThirdLook::Caption: return "caption";
+    case LowerThirdLook::Credit: return "credit";
+    case LowerThirdLook::Theatre: return "theatre";
+    case LowerThirdLook::Placard: return "placard";
+    case LowerThirdLook::Rail: return "rail";
+    case LowerThirdLook::Survey: return "survey";
+    case LowerThirdLook::Tab: return "tab";
+    case LowerThirdLook::Ticket: return "ticket";
+    case LowerThirdLook::Capsule: return "capsule";
+    case LowerThirdLook::Film: return "film";
+    case LowerThirdLook::Stacked: return "stacked";
+    case LowerThirdLook::Flag: return "flag";
+    case LowerThirdLook::Terminal: return "terminal";
+    case LowerThirdLook::Window: return "window";
+    case LowerThirdLook::Diskette: return "diskette";
+    case LowerThirdLook::Cassette: return "cassette";
+    case LowerThirdLook::Cartridge: return "cartridge";
+    case LowerThirdLook::Blueprint: return "blueprint";
+    case LowerThirdLook::Circuit: return "circuit";
+    case LowerThirdLook::Equalizer: return "equalizer";
+    case LowerThirdLook::Dotmatrix: return "dotmatrix";
+    case LowerThirdLook::Stamp: return "stamp";
+    case LowerThirdLook::Sticky: return "sticky";
+    case LowerThirdLook::Notebook: return "notebook";
+    case LowerThirdLook::Sketch: return "sketch";
+    case LowerThirdLook::Confetti: return "confetti";
+    case LowerThirdLook::Marquee: return "marquee";
     default: break;
   }
   return "bar";
@@ -496,6 +581,7 @@ struct LowerThirdDesign {
   double size = 1.0;          // 0.5-2, on a title a sixteenth of the frame tall
   int bar = 0;                // lowerThirdColour index
   int accent = 6;             // lowerThirdColour index
+  bool wiggle = false;       // Arcade keeps its original motion regardless
 };
 
 // A PORTAL source: a swarm of particles melted into metaballs, each blob a
@@ -2589,6 +2675,7 @@ struct Project {
   int webMonitorMaxHeight = 1080;       // encoded maximum picture height; 2160 is available
   int webMonitorMaxClients = 8;         // simultaneous browser connections, 1-64
   bool webMonitorLowLatency = false;    // picture only, no buffer: screens stay in step
+  bool webRemoteEnabled = false;       // /remote controls; always requires an 8+ character PIN
   // vMix-compatible control surface. OFF by default: it is a second way into
   // the show, and a second way in is a decision the operator makes rather than
   // one that arrives switched on. The ports are vMix's own, so a panel
@@ -3259,7 +3346,8 @@ enum class QuickAction {
   CaptionsToggle,        // show / hide the cue's captions
   CaptionsGenerate,      // make captions on this machine
   AudioTrackCycle,       // which of the file's sound tracks plays
-  CaptionsModelCycle     // which speech model (language, accuracy) makes captions
+  CaptionsModelCycle,    // which speech model (language, accuracy) makes captions
+  CycleScaleModePrevious // appended: existing remote QUICK ids must not move
 };
 
 // ---------------------------------------------------------------------------

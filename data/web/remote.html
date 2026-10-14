@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deckboy Remote</title>
+  <link rel="stylesheet" href="/remote.css">
+  <script src="/remote.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><h1>Deckboy Remote</h1><a href="/">Web Monitor</a></header>
+    <form id="login">
+      <label for="pin">Web Monitor passphrase</label>
+      <input id="pin" type="password" autocomplete="current-password" required minlength="8">
+      <button>Connect</button>
+      <p>Enable Phone control in Settings &gt; Network &gt; Web Monitor on the desk.</p>
+    </form>
+    <p id="connection" role="status">Enter the passphrase to connect.</p>
+    <p id="result" role="status"></p>
+    <section id="controls" hidden>
+      <div class="deck-row"><label for="deck">Deck</label><select id="deck"></select>
+        <button id="lock">Lock</button></div>
+      <p id="transport"></p>
+      <div class="transport">
+        <button data-verb="GO">GO</button>
+        <button data-verb="STOP">STOP</button>
+        <button data-verb="NEXT">NEXT</button>
+      </div>
+      <p>NEXT selects the next cue. Tap a cue to select it, then GO to play.
+        GO follows the desk's standby cue when one is armed.</p>
+      <h2>Cues</h2><div id="cues" class="cues"></div>
+      <h2>DASH</h2><div id="dash" class="dash"></div>
+    </section>
+    <noscript>This remote needs JavaScript enabled.</noscript>
+  </main>
+</body>
+</html>

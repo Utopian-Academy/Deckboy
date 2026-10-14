@@ -35,6 +35,62 @@
     return "fit";
   }
 
+  // Validate the entire eligible selection before writing any cue. In
+  // particular, a linked axis hitting its limit must not leave half an edit.
+  template <typename Validate, typename Apply>
+  void editRemoteGeometry(const std::string& detail, Validate validate, Apply apply) {
+    int eligible = 0;
+    int skipped = 0;
+    std::string error;
+    forEachFocusedSelectedCueMutable([&](Cue& cue, int index) {
+      if (!cueSupportsGeometry(&cue)) {
+        ++skipped;
+        return;
+      }
+      ++eligible;
+      const std::string reason = validate(cue);
+      if (error.empty() && !reason.empty()) {
+        error = "cue " + std::to_string(index + 1) + ": " + reason;
+      }
+    });
+    if (!error.empty() || eligible == 0) {
+      failRemoteCommand(error.empty() ? "selection has no cue with geometry" : error);
+      return;
+    }
+    forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
+      if (cueSupportsGeometry(&cue)) apply(cue);
+    });
+    markProjectDirty();
+    remoteCommandDetail_ = detail + " (" + std::to_string(eligible) +
+      (eligible == 1 ? " cue" : " cues") + ", " + std::to_string(skipped) + " skipped)";
+    triggerToast(remoteCommandDetail_);
+  }
+
+  // Geometry accepts complete finite numbers only, never stod's numeric
+  // prefix ("2oops"), NaN, infinity, or ignored extra arguments.
+  bool remoteGeometryNumbers(const std::vector<std::string>& parts, std::size_t count,
+                             std::vector<double>& values) {
+    if (parts.size() != count + 1) {
+      failRemoteCommand("expected " + std::to_string(count) + " numeric value(s)");
+      return false;
+    }
+    for (std::size_t i = 1; i < parts.size(); ++i) {
+      try {
+        std::size_t used = 0;
+        const double value = std::stod(parts[i], &used);
+        if (used != parts[i].size() || !std::isfinite(value)) {
+          failRemoteCommand("expected finite numbers");
+          return false;
+        }
+        values.push_back(value);
+      } catch (...) {
+        failRemoteCommand("expected finite numbers");
+        return false;
+      }
+    }
+    return true;
+  }
+
   // One oscillator's property, set from a remote line: parts[whatAt] names
   // it and parts[whatAt + 1] is the value. Shared by FX LFO and GEOLFO so the
   // two verbs cannot grow different spellings of the same settings. Reports
@@ -1335,6 +1391,17 @@
         remoteCommandDetail_ = textBodyLine(cue.textBody, sub == "TITLE" ? 0 : 1);
         return;
       }
+      if (sub == "WIGGLE") {
+        const std::string value = parts.size() == 3 ? toUpper(parts[2]) : "";
+        if (value != "ON" && value != "OFF" && value != "TOGGLE") {
+          failRemoteCommand("TEXTCUE WIGGLE: expected ON, OFF or TOGGLE");
+          return;
+        }
+        cue.lowerThird.wiggle = value == "TOGGLE" ? !cue.lowerThird.wiggle : value == "ON";
+        markProjectDirty();
+        remoteCommandDetail_ = cue.lowerThird.wiggle ? "on" : "off";
+        return;
+      }
       if (sub == "LOOK" && parts.size() >= 3) {
         const std::string want = toLower(parts[2]);
         for (int i = 0; i < static_cast<int>(LowerThirdLook::Count); ++i) {
@@ -1398,7 +1465,7 @@
       }
       failRemoteCommand("TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, "
                         "CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, "
-                        "IN, OUTMOVE or OUT");
+                        "WIGGLE, IN, OUTMOVE or OUT");
       return;
     }
     if (command == "DMXCUE") {
@@ -4295,6 +4362,12 @@
       };
       if (sub == "STATUS") {
         report();
+        remoteCommandDetail_ += std::string("; phone control ") + (project_.webRemoteEnabled ? "on (/remote)" : "off");
+      } else if (sub == "CONTROL" && parts.size() == 3 &&
+                 (toUpper(parts[2]) == "ON" || toUpper(parts[2]) == "OFF")) {
+        if (setWebRemoteEnabled(toUpper(parts[2]) == "ON")) {
+          remoteCommandDetail_ = project_.webRemoteEnabled ? webMonitorUrl() + "remote" : "phone control off";
+        }
       } else if (sub == "ON" || sub == "OFF") {
         setWebMonitorEnabled(sub == "ON");
         report();
@@ -4372,14 +4445,14 @@
         }
       } else if (sub == "PIN" && parts.size() > 2) {
         const std::string requestedPin = toUpper(parts[2]) == "OFF" ? std::string() : parts[2];
-        if (project_.webMonitorShareLan && requestedPin.size() < 8) {
-          failRemoteCommand("WEBMONITOR PIN: network sharing requires 8 or more characters");
+        if ((project_.webMonitorShareLan || project_.webRemoteEnabled) && requestedPin.size() < 8) {
+          failRemoteCommand("WEBMONITOR PIN: network sharing and phone control require 8 or more characters");
         } else {
           setWebMonitorPin(requestedPin);
           report();
         }
       } else {
-        failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)");
+        failRemoteCommand("WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)");
       }
       return;
     }
@@ -7792,6 +7865,16 @@
       return;
     }
     if (command == "SYNTH") {
+      if (parts.size() > 1 && toUpper(parts[1]) == "ADD") {
+        if (parts.size() != 2) {
+          failRemoteCommand("SYNTH ADD takes no arguments");
+          return;
+        }
+        addVideoSynthCue();
+        remoteCommandDetail_ = "added Video Synth cue " +
+          std::to_string(focusedDeck().selectedIndex + 1);
+        return;
+      }
       Cue* cue = selectedCueMutable();
       if (!cue) {
         failRemoteCommand("SYNTH: no cue selected");
@@ -8028,10 +8111,13 @@
           return;
         }
         handleRemoteCommand(slot.command);
+        if (!remoteCommandRecognized_) {
+          failRemoteCommand("DASH: unknown command in slot " + std::to_string(at + 1));
+        }
         // The slot's own answer, not the inner command's, so a surface sees
         // what it pressed.
         remoteCommandRecognized_ = true;
-        remoteCommandError_.clear();
+        if (!remoteCommandError_.empty()) return;
         remoteCommandDetail_ = slot.label.empty() ? slot.command : slot.label;
         return;
       }
@@ -9205,20 +9291,73 @@
       }
       return;
     }
-    if (command == "WIDTH" || command == "HEIGHT") {
-      // Pixel-based size commands — same path as the inspector width/height
-      // editors, so the aspect link applies. SCALE/SCALEX/SCALEY below stay
-      // as legacy raw-factor commands for existing Companion configs.
-      auto value = parseNumber(1);
-      if (value && *value > 0.0) {
-        bool ok = command == "WIDTH" ? setSelectedWidthPx(*value)
-                                     : setSelectedHeightPx(*value);
-        if (ok) {
-          triggerToast((command == "WIDTH" ? "width " : "height ")
-                       + std::to_string(static_cast<int>(std::lround(*value))) + "px"
-                       + (project_.geometryAspectLinked ? "  (aspect linked)" : ""));
+    if (command == "WIDTH" || command == "HEIGHT" || command == "SCALE" ||
+        command == "SCALEX" || command == "SCALEY") {
+      const bool pixels = command == "WIDTH" || command == "HEIGHT";
+      const bool both = command == "SCALE";
+      const bool axisX = command == "WIDTH" || command == "SCALEX";
+      if (parts.size() == 1) {
+        const Cue* cue = selectedCuePtr();
+        if (!cueSupportsGeometry(cue)) {
+          failRemoteCommand("selected cue has no geometry");
+          return;
         }
+        if (pixels) {
+          const auto base = cueBaseRenderSize(*cue);
+          const double size = axisX ? base.first * cue->outputScaleX
+                                    : base.second * cue->outputScaleY;
+          if (size <= 0.0) {
+            failRemoteCommand("cannot determine rendered size");
+            return;
+          }
+          remoteCommandDetail_ = fmtFloat(size, 2) + " px";
+        } else if (both) {
+          remoteCommandDetail_ = fmtFloat(cue->outputScaleX, 4) + " " +
+                                 fmtFloat(cue->outputScaleY, 4);
+        } else {
+          remoteCommandDetail_ = fmtFloat(axisX ? cue->outputScaleX : cue->outputScaleY, 4);
+        }
+        return;
       }
+      std::vector<double> values;
+      if (!remoteGeometryNumbers(parts, 1, values)) return;
+      const double value = values[0];
+      if (value <= 0.0 || (!pixels && (value < 0.25 || value > 4.0))) {
+        failRemoteCommand(pixels ? "expected positive pixels" : "expected factor 0.25..4");
+        return;
+      }
+      auto scales = [&](const Cue& cue) -> std::pair<double, double> {
+        if (both) return {value, value};
+        double next = value;
+        if (pixels) {
+          const auto base = cueBaseRenderSize(cue);
+          const double span = axisX ? base.first : base.second;
+          if (span <= 0.0) return {0.0, 0.0};
+          next /= span;
+        }
+        double x = axisX ? next : cue.outputScaleX;
+        double y = axisX ? cue.outputScaleY : next;
+        if (project_.geometryAspectLinked) {
+          if (axisX) y *= next / cue.outputScaleX;
+          else       x *= next / cue.outputScaleY;
+        }
+        return {x, y};
+      };
+      editRemoteGeometry(command + " " + fmtFloat(value, 4) + (pixels ? " px" : "x") +
+                           (!both && project_.geometryAspectLinked ? " aspect linked" : ""),
+        [&](const Cue& cue) -> std::string {
+          const auto next = scales(cue);
+          if (!std::isfinite(next.first) || !std::isfinite(next.second) ||
+              next.first < 0.25 || next.first > 4.0 || next.second < 0.25 || next.second > 4.0) {
+            return "size requires a scale outside 0.25..4 (including the linked axis)";
+          }
+          return {};
+        },
+        [&](Cue& cue) {
+          const auto next = scales(cue);
+          cue.outputScaleX = static_cast<float>(next.first);
+          cue.outputScaleY = static_cast<float>(next.second);
+        });
       return;
     }
     if (command == "SCALEMODE") {
@@ -9232,11 +9371,15 @@
       // A bare SCALEMODE is a question, like a bare AUDIOGAIN.
       const Cue* selected = selectedCuePtr();
       if (parts.size() < 2) {
-        if (!selected) {
-          failRemoteCommand("SCALEMODE: no cue selected");
+        if (!cueSupportsGeometry(selected)) {
+          failRemoteCommand("SCALEMODE: selected cue has no geometry");
           return;
         }
         remoteCommandDetail_ = scaleModeToken(selected->scaleMode);
+        return;
+      }
+      if (parts.size() != 2) {
+        failRemoteCommand("SCALEMODE: expected one mode");
         return;
       }
       const std::string want = toLower(trim(parts[1]));
@@ -9250,74 +9393,98 @@
         failRemoteCommand("SCALEMODE: expected fit|fill|stretch|unscaled");
         return;
       }
-      bool changed = false;
-      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-        if (!cueSupportsGeometry(&each)) {
+      editRemoteGeometry(scaleModeToken(mode),
+        [](const Cue&) { return std::string(); },
+        [&](Cue& cue) { cue.scaleMode = mode; });
+      return;
+    }
+    if (command == "OFFSET" || command == "OFFSETX" || command == "OFFSETY" || command == "ROTATION") {
+      const bool pair = command == "OFFSET";
+      const bool rotation = command == "ROTATION";
+      if (parts.size() == 1) {
+        const Cue* cue = selectedCuePtr();
+        if (!cueSupportsGeometry(cue)) {
+          failRemoteCommand("selected cue has no geometry");
           return;
         }
-        each.scaleMode = mode;
-        changed = true;
+        if (pair) remoteCommandDetail_ = fmtFloat(cue->outputOffsetX, 2) + " " +
+                                         fmtFloat(cue->outputOffsetY, 2) + " px";
+        else remoteCommandDetail_ = fmtFloat(rotation ? cue->outputRotationDegrees :
+          command == "OFFSETX" ? cue->outputOffsetX : cue->outputOffsetY, 2) +
+          (rotation ? " deg" : " px");
+        return;
+      }
+      std::vector<double> values;
+      if (!remoteGeometryNumbers(parts, pair ? 2 : 1, values)) return;
+      // Bound offsets well within the integer coordinates used by renderers.
+      const double limit = rotation ? 180.0 : 1000000.0;
+      for (double value : values) {
+        if (value < -limit || value > limit) {
+          failRemoteCommand(rotation ? "expected degrees -180..180" : "expected pixels -1000000..1000000");
+          return;
+        }
+      }
+      const std::string detail = command + " " + fmtFloat(values[0], 2) +
+        (pair ? " " + fmtFloat(values[1], 2) : "") + (rotation ? " deg" : " px");
+      editRemoteGeometry(detail, [](const Cue&) { return std::string(); }, [&](Cue& cue) {
+        if (rotation) cue.outputRotationDegrees = static_cast<float>(values[0]);
+        else {
+          if (pair || command == "OFFSETX") cue.outputOffsetX = static_cast<float>(values[0]);
+          if (pair || command == "OFFSETY") cue.outputOffsetY = static_cast<float>(values[pair ? 1 : 0]);
+        }
       });
-      if (!changed) {
-        failRemoteCommand("SCALEMODE: selection has no cue with geometry");
+      return;
+    }
+    if (command == "CROP" || command == "CROPLEFT" || command == "CROPRIGHT" ||
+        command == "CROPTOP" || command == "CROPBOTTOM") {
+      const bool all = command == "CROP";
+      const int edge = command == "CROPLEFT" ? 0 : command == "CROPRIGHT" ? 1 :
+                       command == "CROPTOP" ? 2 : 3;
+      auto cropValues = [](const Cue& cue) {
+        return std::array<double, 4>{cue.cropLeft, cue.cropRight, cue.cropTop, cue.cropBottom};
+      };
+      if (parts.size() == 1) {
+        const Cue* cue = selectedCuePtr();
+        if (!cueSupportsGeometry(cue)) {
+          failRemoteCommand("selected cue has no geometry");
+          return;
+        }
+        const auto crop = cropValues(*cue);
+        remoteCommandDetail_ = all ? fmtFloat(crop[0] * 100, 2) + " " + fmtFloat(crop[1] * 100, 2) +
+          " " + fmtFloat(crop[2] * 100, 2) + " " + fmtFloat(crop[3] * 100, 2) : fmtFloat(crop[edge] * 100, 2);
+        remoteCommandDetail_ += " %";
         return;
       }
-      markProjectDirty();
-      remoteCommandDetail_ = scaleModeToken(mode);
-      return;
-    }
-    if (command == "SCALE") {
-      // Backward compatibility: SCALE sets both X and Y
-      // A QUERY ANSWERS THE CALLER, the rule DECKOPACITY follows: with no value
-      // this says what the selected cue's scale is.
-      if (parts.size() <= 1) {
-        if (const Cue* cue = selectedCueMutable()) {
-          std::ostringstream ss;
-          ss << std::fixed << std::setprecision(2) << cue->outputScaleX << " "
-             << cue->outputScaleY;
-          remoteCommandDetail_ = ss.str();
-        } else {
-          failRemoteCommand("SCALE: select a cue first");
-        }
-        return;
-      }
-      auto value = parseNumber(1);
-      if (value && *value > 0.0) {
-        if (Cue* cue = selectedCueMutable()) {
-          cue->outputScaleX = std::clamp(*value, 0.25, 4.0);
-          cue->outputScaleY = std::clamp(*value, 0.25, 4.0);
-          std::ostringstream ss;
-          ss << std::fixed << std::setprecision(2) << cue->outputScaleX;
-          triggerToast("scale " + ss.str() + "x");
-          markProjectDirty();
+      std::vector<double> values;
+      if (!remoteGeometryNumbers(parts, all ? 4 : 1, values)) return;
+      for (double value : values) {
+        if (value < 0.0 || value > 90.0) {
+          failRemoteCommand("expected crop percentages 0..90");
+          return;
         }
       }
-      return;
-    }
-    if (command == "SCALEX") {
-      auto value = parseNumber(1);
-      if (value && *value > 0.0) {
-        if (Cue* cue = selectedCueMutable()) {
-          cue->outputScaleX = std::clamp(*value, 0.25, 4.0);
-          std::ostringstream ss;
-          ss << std::fixed << std::setprecision(2) << cue->outputScaleX;
-          triggerToast("scale X " + ss.str() + "x");
-          markProjectDirty();
-        }
-      }
-      return;
-    }
-    if (command == "SCALEY") {
-      auto value = parseNumber(1);
-      if (value && *value > 0.0) {
-        if (Cue* cue = selectedCueMutable()) {
-          cue->outputScaleY = std::clamp(*value, 0.25, 4.0);
-          std::ostringstream ss;
-          ss << std::fixed << std::setprecision(2) << cue->outputScaleY;
-          triggerToast("scale Y " + ss.str() + "x");
-          markProjectDirty();
-        }
-      }
+      auto nextCrop = [&](const Cue& cue) {
+        auto crop = cropValues(cue);
+        if (all) {
+          for (std::size_t i = 0; i < crop.size(); ++i) crop[i] = values[i] / 100.0;
+        } else crop[edge] = values[0] / 100.0;
+        return crop;
+      };
+      std::string detail = command;
+      for (double value : values) detail += " " + fmtFloat(value, 2);
+      editRemoteGeometry(detail + " %", [&](const Cue& cue) -> std::string {
+        const auto crop = nextCrop(cue);
+        // Stored edges are floats: permit rounding at exactly 95%.
+        if (crop[0] + crop[1] > 0.9500001 || crop[2] + crop[3] > 0.9500001)
+          return "opposing crop edges must total at most 95%";
+        return {};
+      }, [&](Cue& cue) {
+        const auto crop = nextCrop(cue);
+        cue.cropLeft = static_cast<float>(crop[0]);
+        cue.cropRight = static_cast<float>(crop[1]);
+        cue.cropTop = static_cast<float>(crop[2]);
+        cue.cropBottom = static_cast<float>(crop[3]);
+      });
       return;
     }
     if (command == "COLOR" || command == "COLORTAG") {

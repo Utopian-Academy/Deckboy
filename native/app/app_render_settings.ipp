@@ -1674,8 +1674,8 @@
       // direction actually does.
       // vMix-compatible surface: a status line and three rows.
       int vmixH = stackH({sLineH, sRowH, sRowH, sRowH});
-      // Web monitor: the address line, then four rows.
-      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
+      // Web monitor: address, ten controls and the remote page path.
+      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
       int nmcH = stackH({sRowH, sRowH, sRowH, sRowH, sLineH});
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
       // The adapter grid no longer carries the tally controls, so it needs
@@ -1906,6 +1906,10 @@
         drawSettingsStateFill(wmQr, false);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, wmQr, "QR CODE", settingsStateInk(false));
         settingsBtns_.push_back({wmQr, kSettingsActionWebMonitorQr, "web_monitor_qr"});
+        SDL_Rect wmRemote = settingsRow(wmX, wmW, wmY, sRowH, "Phone control", sGap);
+        drawPill(wmRemote, project_.webRemoteEnabled, "ON", "OFF", kSettingsActionWebRemoteToggle);
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{wmX, wmY, wmW, sLineH},
+                     "Control page: /remote (passphrase required)", soft);
       }
 
       // ── NMC IN & OUT ────────────────────────────────────────────────────
@@ -4458,6 +4462,8 @@
         openInlineVmixPortEditor(false);
       } else if (sb.action == kSettingsActionWebMonitorToggle) {
         setWebMonitorEnabled(!project_.webMonitorEnabled);
+      } else if (sb.action == kSettingsActionWebRemoteToggle) {
+        setWebRemoteEnabled(!project_.webRemoteEnabled);
       } else if (sb.action == kSettingsActionWebMonitorLowLatency) {
         setWebMonitorLowLatency(!project_.webMonitorLowLatency);
       } else if (sb.action == kSettingsActionWebMonitorQr) {

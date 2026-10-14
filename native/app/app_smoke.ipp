@@ -46,6 +46,72 @@
 // the data model, serialization, protocol helpers, and backend catalogs.
 // ═══════════════════════════════════════════════════════════════════════════════
 
+  // Include a readback fence: timing queued draw calls alone measures the CPU
+  // submitting work, and can hide a sign that overruns the GPU's frame budget.
+  static int runLowerThirdBench(int width, int height, int frames, bool arabic) {
+    if (!SDL_Init(SDL_INIT_VIDEO) || !TTF_Init()) return 1;
+    SDL_Window* window = SDL_CreateWindow("Lower third bench", 64, 64, SDL_WINDOW_HIDDEN);
+    SDL_Renderer* renderer = window ? SDL_CreateRenderer(window, nullptr) : nullptr;
+    SDL_Texture* target = renderer ? deckboyCreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+      SDL_TEXTUREACCESS_TARGET, width, height) : nullptr;
+    App app;
+    // Use the live font ladders and script fallbacks. Unregistered faces would
+    // time missing-glyph boxes instead of the operator's Arabic words.
+    const bool fontsReady = app.loadFonts(1.5);
+    int result = 0;
+    if (!target || !fontsReady) {
+      std::cerr << "lower-third-bench: " << SDL_GetError() << '\n';
+      result = 1;
+    } else {
+      SDL_SetRenderTarget(renderer, target);
+      std::cout << "lower-third-bench " << width << 'x' << height << " renderer="
+                << SDL_GetRendererName(renderer) << " frames=" << frames
+                << " (clear, draw, GPU fence; warm cache)\n";
+      Cue cue;
+      cue.kind = CueKind::Text;
+      cue.textBody = "Name Surname\nTitle or role";
+      if (arabic) cue.textBody = reinterpret_cast<const char*>(
+        u8"\u0645\u0631\u064a\u0645 \u0623\u062d\u0645\u062f\n"
+        u8"\u0645\u062f\u064a\u0631\u0629 \u0627\u0644\u0625\u0646\u062a\u0627\u062c");
+      cue.lowerThird.on = true;
+      cue.lowerThird.inSeconds = 3;
+      cue.lowerThird.moveIn = LowerThirdMove::Fade;
+      const SDL_Rect bounds {0, 0, width, height}, pixel {width / 2, height * 4 / 5, 1, 1};
+      for (int look = 0; look < static_cast<int>(LowerThirdLook::Count); ++look) {
+        cue.lowerThird.look = static_cast<LowerThirdLook>(look);
+        std::vector<double> samples;
+        for (int frame = -20; frame < frames; ++frame) {
+          const double seconds = (frame + 20) * 6.0 / (frames + 20);
+          const auto start = std::chrono::steady_clock::now();
+          SDL_SetRenderDrawColor(renderer, 55, 58, 63, 255);
+          SDL_RenderClear(renderer);
+          app.renderLowerThirdIntoOutput(renderer, cue, bounds, seconds, -1);
+          SDL_Surface* fence = SDL_RenderReadPixels(renderer, &pixel);
+          if (!fence) { result = 1; break; }
+          SDL_DestroySurface(fence);
+          const double elapsed = std::chrono::duration<double, std::milli>(
+            std::chrono::steady_clock::now() - start).count();
+          if (frame >= 0) samples.push_back(elapsed);
+        }
+        if (samples.empty()) { result = 1; break; }
+        std::sort(samples.begin(), samples.end());
+        double total = 0;
+        for (double sample : samples) total += sample;
+        std::printf("%-12s mean=%.3f p95=%.3f max=%.3f ms\n", lowerThirdLookLabel(cue.lowerThird.look),
+                    total / samples.size(), samples[static_cast<std::size_t>((samples.size() - 1) * 0.95)], samples.back());
+      }
+      SDL_SetRenderTarget(renderer, nullptr);
+    }
+    app.purgeTextTextureCache(renderer);
+    app.releaseFonts();
+    if (target) SDL_DestroyTexture(target);
+    if (renderer) SDL_DestroyRenderer(renderer);
+    if (window) SDL_DestroyWindow(window);
+    TTF_Quit();
+    SDL_Quit();
+    return result;
+  }
+
   static int runSelfCheck() {
     std::cout << "Deckboy self-check\n";
     // WHAT THE INTERFACE CAN BE READ IN, and what it cannot.
@@ -657,6 +723,11 @@
   }
 
   static int runSmoke() {
+    static_assert(static_cast<int>(LowerThirdLook::Bar) == 0 &&
+                  static_cast<int>(LowerThirdLook::Scroll) == 12 &&
+                  static_cast<int>(LowerThirdLook::Bulletin) == 13 &&
+                  static_cast<int>(LowerThirdLook::Count) == 52,
+                  "lower-third look numbers are part of the saved show");
     int failures = 0;
     auto expect = [&](bool condition, const std::string& label) {
       if (condition) {
@@ -673,6 +744,31 @@
              lhs->height == rhs->height &&
              lhs->pixels == rhs->pixels;
     };
+
+    {
+      // Headless integration of the same core exercised by scopes_check.cpp.
+      namespace scopes = deckboy::core::scopes;
+      const std::array<std::uint8_t, 16> rgba{
+        0, 0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 255, 0, 0, 255, 255};
+      scopes::Options options;
+      options.columns = 4;
+      options.levelBins = options.vectorBins = options.histogramBins = 16;
+      const auto result = scopes::analyze(scopes::Rgba8View{rgba, 4, 1, 0}, options);
+      expect(result.validPixels == 4 && result.invalidPixels == 0 &&
+             result.lumaHistogram.bins.front() == 1 && result.lumaHistogram.bins.back() == 1 &&
+             result.lumaWaveform().bins.front() == 1 &&
+             result.rawGamut.preferred.pixels == 0 && result.filteredGamut.preferred.pixels == 0,
+             "scopes core analyzes full-range RGBA without display resources");
+    }
+
+    {
+      const std::string marked = reinterpret_cast<const char*>(u8"\u0645\u064e\u0631\u064a\u0645 \u0623\u062d\u0645\u062f");
+      const auto ends = characterEnds(marked);
+      expect(ends.size() == 9 && ends.front() == 4 && ends.back() == marked.size(),
+             "lower-third reveals count letters and keep Arabic marks attached");
+      expect(characterEnds("Name Surname").size() == 12 && characterEnds("").empty(),
+             "lower-third reveals handle Latin and empty titles");
+    }
 
     {
       // Exercise the derived toggle colours from every bundled theme.
@@ -1728,6 +1824,8 @@
       {
         Cue& seq = project.decks[0].cues[0];
         project.webMonitorMaxHeight = 2160;
+        expect(!project.webRemoteEnabled, "phone control is opt-in for older shows");
+        project.webRemoteEnabled = true;
         project.normalizeTargetLufs = -23.0;
         project.outputs[0].st2110AudioAddress = "239.20.10.9";
         project.outputs[0].st2110AudioPort = 22002;
@@ -1746,6 +1844,7 @@
         seq.lowerThird.moveOut = LowerThirdMove::Wipe;
         seq.lowerThird.holdSeconds = 12.0;
         seq.lowerThird.accent = 4;
+        seq.lowerThird.wiggle = true;
         seq.portal.blobs = 31;
         seq.portal.hue = 0.25;
         seq.swirl.speed = 0.4;
@@ -1828,6 +1927,7 @@
       Project loaded = loadProject(smokePath);
       expect(loaded.normalizeTargetLufs == -23.0, "loudness target persists");
       expect(loaded.webMonitorMaxHeight == 2160, "web monitor quality persists");
+      expect(loaded.webRemoteEnabled, "phone control opt-in persists");
       expect(!loaded.outputs.empty() && loaded.outputs[0].st2110AudioAddress == "239.20.10.9" &&
         loaded.outputs[0].st2110AudioPort == 22002 && loaded.outputs[0].st2110VideoSourcePort == 21000 &&
         loaded.outputs[0].st2110AudioSourcePort == 21002 && !loaded.outputs[0].st2110AudioRtpEnabled &&
@@ -1851,8 +1951,31 @@
         const LowerThirdDesign& l3 = loadedCue.lowerThird;
         expect(l3.on && l3.look == LowerThirdLook::Tag && l3.moveIn == LowerThirdMove::Pop &&
                  l3.moveOut == LowerThirdMove::Wipe && l3.holdSeconds == 12.0 &&
-                 l3.accent == 4,
+                 l3.accent == 4 && l3.wiggle,
                "a lower third's layout persists");
+        {
+          // Trim only the new tail field: a show from immediately before
+          // Wiggle must keep its look, timings, triggers and audio selection.
+          std::ifstream in(smokePath);
+          std::ostringstream older;
+          std::string line;
+          while (std::getline(in, line)) {
+            if (line.rfind("cue\t", 0) == 0) line.erase(line.find_last_of('\t'));
+            older << line << '\n';
+          }
+          in.close();
+          const fs::path olderPath = smokeDir / "deckboy-smoke-pre-wiggle.deckboy";
+          { std::ofstream out(olderPath); out << older.str(); }
+          const Project revived = loadProject(olderPath);
+          const Cue& back = revived.decks.at(0).cues.at(0);
+          expect(!back.lowerThird.wiggle && back.lowerThird.look == l3.look &&
+                 back.lowerThird.moveIn == l3.moveIn && back.lowerThird.moveOut == l3.moveOut &&
+                 back.lowerThird.holdSeconds == l3.holdSeconds &&
+                 back.triggerOscAddress == loadedCue.triggerOscAddress &&
+                 back.audioTrack == loadedCue.audioTrack && back.audioTrackCount == loadedCue.audioTrackCount,
+                 "a pre-wiggle show keeps the preceding fields and defaults wiggle off");
+          fs::remove(olderPath);
+        }
         expect(loadedCue.portal.blobs == 31 && std::fabs(loadedCue.portal.hue - 0.25) < 1e-6,
                "a portal's controls persist");
         expect(std::fabs(loadedCue.swirl.speed - 0.4) < 1e-6 &&
@@ -1887,7 +2010,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 86;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 87;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -1895,7 +2018,7 @@
                                               // six portal controls, the twelve
                                               // text lower-third fields, ten swirl controls,
                                               // three triggers (hotkey, MIDI note, OSC),
-                                              // audio track and track count
+                                              // audio track and track count, wiggle
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -1927,7 +2050,7 @@
                       // is NOT the zero value: a show trimmed of this field must
                       // come back with every cue live, not every cue inert.
                       c.armed && c.swirl.speed == 1.0 && c.swirl.twist == 1.35 &&
-                      c.swirl.cells == 480 && c.swirl.hue == 0.0;
+                      c.swirl.cells == 480 && c.swirl.hue == 0.0 && !c.lowerThird.wiggle;
             }
           }
           expect(inert, "a show saved before the spine opens with no waits and no continue");
@@ -2443,6 +2566,36 @@
       expect(v2 && std::abs(*v2 - 1920.0) < 0.001, "expression: 960px * 2");
       expect(v3 && std::abs(*v3 - 1920.0) < 0.001, "expression: 3840/2");
       expect(v4 && std::abs(*v4 - 3850.0) < 0.001, "expression: 1920X2 + 10px");
+    }
+
+    {
+      // The usual lower third holds until OUT. Its zero duration must still
+      // allow pause, seek and resume to drive the material's animation clock.
+      MediaEngine engine(nullptr, nullptr);
+      Cue textCue;
+      textCue.kind = CueKind::Text;
+      textCue.textBody = "Name Surname\nTitle or role";
+      textCue.stillDurationSeconds = 0.0;
+      engine.loadCue(&textCue, true);
+      engine.pause();
+      engine.seek(4.1);
+      engine.update();
+      expect(engine.state() == TransportState::Paused && std::abs(engine.position() - 4.1) < 1e-6,
+             "an indefinite text cue pauses and seeks to its cue clock");
+      engine.toggle();
+      expect(engine.state() == TransportState::Playing && engine.position() >= 4.1,
+             "an indefinite text cue resumes from its paused position");
+      engine.toggle();
+      engine.seek(1.3);
+      engine.update();
+      expect(engine.state() == TransportState::Paused && std::abs(engine.position() - 1.3) < 1e-6,
+             "an indefinite text cue can seek backwards while held");
+      engine.seek(-1);
+      expect(engine.position() == 0, "a text cue cannot seek before its start");
+      textCue.stillDurationSeconds = 3.0;
+      engine.loadCue(&textCue, false);
+      engine.seek(4.1);
+      expect(engine.position() == 3.0, "a timed text cue still stops a seek at its end");
     }
 
     {

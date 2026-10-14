@@ -64,6 +64,7 @@
 #include "core/show_control.hpp"
 #include "core/types.hpp"
 #include "core/output_runtime.hpp"
+#include "core/scopes.hpp"
 #include "core/deck_audio_ring.hpp"
 #include "core/mtc_decode.hpp"
 #include "core/utils.hpp"
@@ -3621,6 +3622,7 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
 // Lifecycle: App::init() → App::run() → App::shutdown()
 // ════════════════════════════════════════════════════════════════════════════
 class App {
+  struct WebRemoteReply;
  public:
   // Initialize SDL, create windows/renderers, load fonts, set up audio.
   bool init() {
@@ -4357,6 +4359,15 @@ class App {
   }
 
   void debugAuditSettingsLayout() { auditSettingsLayout_ = true; }
+  // Screenshot checks need the same viewport and scroll as the operator.
+  // In particular SDL's dummy display is too small to draw the desk at 150%.
+  void debugUiSize(int width, int height) {
+    SDL_SetWindowSize(controlWindow_, width, height);
+    applyUiScale();
+  }
+  void debugScrollSettings(int pixels) {
+    settingsSystemScroll_ = settingsNetworkScroll_ = settingsVideoScroll_ = std::max(0, pixels);
+  }
   // SHOW THE CARD WITHOUT IMPORTING ANYTHING. `--slide-card <done>/<total>`
   // puts the progress card on screen so it can be captured with --ui-dump and
   // LOOKED AT on every theme.
@@ -5982,7 +5993,7 @@ class App {
       return cue.geometryLfo[static_cast<std::size_t>(slot)].on;
     };
     if (includeScaleOffset) {
-      inspDrawQuickRow(ix, rowY, "mode", QuickAction::CycleScaleMode, fmtScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
+      inspDrawQuickRow(ix, rowY, "mode", QuickAction::CycleScaleModePrevious, fmtScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
                        QuickAction::ToggleLoop, false, false, "Fit/Fill/Stretch/Unscaled");
       rowY += ix.rowStep;
       inspDrawQuickRow(ix, rowY, "link aspect", QuickAction::ToggleAspectLink,
@@ -9232,6 +9243,7 @@ class App {
   static constexpr int kSettingsActionWebMonitorSource = 755;
   static constexpr int kSettingsActionWebMonitorClientsPrompt = 756;
   static constexpr int kSettingsActionWebMonitorLowLatency = 757;
+  static constexpr int kSettingsActionWebRemoteToggle = 759;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -10840,6 +10852,12 @@ class App {
   int webMonitorSourceSnapshot_ = -1;                // what the web output mirrors
   int webEncodeEase_ = 0;                            // 0 as chosen; 1-3 lighter steps
   std::string webMonitorPinSnapshot_;
+  bool webRemoteEnabledSnapshot_ = false; // guarded by webMonitorDirMutex_
+  std::string webRemoteStateSnapshot_;
+  std::string webRemoteStyleSnapshot_;
+  int webRemoteFailedPins_ = 0;
+  int webRemoteLockouts_ = 0;  // consecutive, so each one waits twice as long
+  std::chrono::steady_clock::time_point webRemoteRetryAt_ {}; // same mutex
   int webMonitorHeightSnapshot_ = 1080;
   Uint64 webMonitorDirSyncedMs_ = 0;
   SDL_Rect warpGridBtnRect_ {};
@@ -10986,10 +11004,20 @@ class App {
   // A queued command, plus the Companion client (if any) waiting to be told
   // what happened to it. Commands arriving from OSC/MIDI/ATEM/NDI have no
   // reply socket and carry kInvalidSocket.
+  struct WebRemoteReply {
+    std::mutex mutex;
+    std::condition_variable cv;
+    std::string pin;
+    std::string text;
+    bool cancelled = false;
+    const std::chrono::steady_clock::time_point deadline =
+      std::chrono::steady_clock::now() + std::chrono::seconds(3);
+  };
   struct PendingRemoteCommand {
     std::string text;
     SocketHandle replyTo = kInvalidSocket;
     std::uint64_t replyGeneration = 0;
+    std::shared_ptr<WebRemoteReply> webReply;
   };
   std::deque<PendingRemoteCommand> remoteCommands_;
   // Set true at the top of handleRemoteCommand and cleared only by falling off
@@ -12057,11 +12085,14 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--asio-tone <name> [secs] [ch]", "play a quiet 440Hz tone through an ASIO driver"},
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
+  {"--lower-third-bench [WxH] [frames] [arabic]", "time every lower-third look with a GPU completion fence"},
   {"--pattern-dump <pattern[:variant]> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--code-dump <expression|@file> <out.ppm> [WxH] [seconds]", "render one expression source to a PPM file"},
   {"--code-check", "assert the expression language against expected values"},
   {"--image-check", "can this machine decode the interface's icons and splash art"},
   {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
+  {"--ui-size <width> <height>", "set the control-window size for a UI check"},
+  {"--settings-scroll <pixels>", "scroll the settings tab opened by --settings for a UI check"},
   {"--contrast-check [dir]", "render every bundled theme with help and warning toasts; fail on an unreadable notice"},
   {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
   {"--font-check", "open every UI face and render with it; names the step that fails"},
@@ -12094,7 +12125,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--autosave-check", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
-  "--effect-dump", "--effect-bench", "--image-check", "--transition-dump",
+  "--effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--lower-third-bench",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
@@ -12461,6 +12492,17 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     // No hardware, no cable, no platform: the timecode decoder is arithmetic.
     return App::runMtcCheck();
   }
+  if (mode == "--lower-third-bench") {
+    int bw = 3840, bh = 2160, frames = 180;
+    bool arabic = false;
+    for (const std::string& operand : ops) {
+      if (operand == "arabic") { arabic = true; continue; }
+      if (parseCliRaster(operand, bw, bh)) continue;
+      frames = std::clamp(std::atoi(operand.c_str()), 30, 3600);
+    }
+    if (bw < 64 || bh < 64 || bw > 7680 || bh > 4320) return missing("[64x64..7680x4320] [30..3600 frames]");
+    return App::runLowerThirdBench(bw, bh, frames, arabic);
+  }
   if (mode == "--effect-bench") {
     if (ops.empty()) return missing("<token[:amount[:a[:b]]]> [WxH] [frames]");
     int bw = 1920, bh = 1080, bframes = 30;
@@ -12758,6 +12800,8 @@ int runDeckboyMain(int argc, char** argv) {
   int openSettingsTab = -1;
   std::string openMenuName;
   int inspectorScrollArg = -1;
+  int settingsScrollArg = -1;
+  int uiWidthArg = 0, uiHeightArg = 0;
   int slideCardDoneArg = -1;
   int slideCardTotalArg = 0;
   std::string uiDumpArg;
@@ -12791,6 +12835,27 @@ int runDeckboyMain(int argc, char** argv) {
     // pair of rectangles is not.
     if (arg == "--audit-settings-layout") {
       auditSettingsLayoutArg = true;
+      continue;
+    }
+    if (arg == "--ui-size" || arg == "--settings-scroll") {
+      const int count = arg == "--ui-size" ? 2 : 1;
+      int values[2] {};
+      for (int n = 0; n < count; ++n) {
+        if (i + 1 >= rest.size()) { printCliError(arg + " needs numeric arguments"); return 2; }
+        const std::string& token = rest[++i];
+        if (token.empty() || token.size() > 5 || token.find_first_not_of("0123456789") != std::string::npos) {
+          printCliError(arg + " needs numeric arguments"); return 2;
+        }
+        values[n] = std::atoi(token.c_str());
+      }
+      if (count == 2) {
+        if (values[0] < 960 || values[0] > 7680 || values[1] < 540 || values[1] > 4320) {
+          printCliError("--ui-size accepts width 960..7680 and height 540..4320"); return 2;
+        }
+        uiWidthArg = values[0]; uiHeightArg = values[1];
+      } else {
+        settingsScrollArg = values[0];
+      }
       continue;
     }
     if (arg == "--mascot-pokes") {
@@ -12944,6 +13009,8 @@ int runDeckboyMain(int argc, char** argv) {
   if (openSettingsTab >= 0) {
     app.debugOpenSettings(openSettingsTab, openSettingsSubTab);
   }
+  if (uiWidthArg > 0) app.debugUiSize(uiWidthArg, uiHeightArg);
+  if (settingsScrollArg >= 0) app.debugScrollSettings(settingsScrollArg);
   if (openCodeEditorArg) {
     app.debugOpenCodeEditor();
   }

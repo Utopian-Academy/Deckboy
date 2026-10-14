@@ -1,9 +1,55 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-11 - v0.99.411 (autosave that always lands)
+## 2026-10-14 - v0.99.411 (a phone remote, 52 lower thirds, autosave that always lands)
 
-Every edit reaches the show file, even when another program is holding it, and a newer copy left
-beside a show is offered back when it opens.
+Run the show from a phone, pick from 52 lower-third looks, script every cue geometry control, and
+every edit reaches the show file even when another program is holding it.
+
+### Web Monitor
+- Added PIN-protected phone and tablet controls at `/remote`, with `GO`, `STOP`, `NEXT`, cue
+  selection and `DASH` buttons.
+- Added **Phone control** in **Settings > Network > Web Monitor** and `WEBMONITOR CONTROL ON|OFF`.
+  Control is off by default, requires a passphrase of 8 or more characters, and accepts private
+  IPv4 LAN and loopback clients. Repeated wrong passphrases lock the page out for longer each time.
+- Fixed an issue where `DASH <n>` reported `OK` when its assigned command failed or was unknown.
+
+### Lower thirds
+- Added 39 lower-third looks to the inspector's look picker and `TEXTCUE LOOK`, bringing the
+  catalogue to 52 looks with individual entrances and exits.
+- Added a saved Wiggle option in the inspector and `TEXTCUE WIGGLE ON|OFF|TOGGLE`; Arcade keeps its
+  continuous bob and tilt.
+- Added right-to-left layouts and joined-letter reveals for Arabic and Persian names across the new
+  looks.
+- The Equalizer look follows the programme's sound when the lower third plays on a separate
+  graphics playlist.
+- Fixed an issue where a lower third was blank at cue time zero, or stayed visible after
+  `TEXTCUE OUT`, when its entrance or exit was set to `cut`.
+- Fixed an issue where rounded lower-third edges looked faceted at 4K.
+- Fixed an issue where Equalizer kept its last audio level when the programme host was paused or
+  stopped.
+
+### Cue geometry
+- Fixed an issue where SCALE, SCALEX and SCALEY edited only one cue when several were selected.
+- Fixed an issue where SCALEX and SCALEY ignored Link aspect.
+- Fixed an issue where WIDTH and HEIGHT returned nothing when called without a value.
+- Fixed an issue where the left geometry mode button stepped forwards instead of back.
+- Added OFFSET, OFFSETX and OFFSETY in pixels, ROTATION in degrees, and CROP, CROPLEFT, CROPRIGHT,
+  CROPTOP and CROPBOTTOM in percent. Each answers with the current value when called without one.
+- Geometry setters report the applied value and how many selected cues were changed or skipped;
+  an invalid value answers `ERR` and changes nothing.
+
+### Video Synth
+- Added `SYNTH ADD` to create and select a Video Synth cue in the focused playlist.
+- Fixed an issue where a newly added Video Synth cue could be missing from the saved show when no
+  later edit was made.
+
+### Import
+- Fixed an issue where **Import** hid PDF, PowerPoint, Keynote and OpenDocument slide files until
+  **All files** was chosen. They are now in the media list and under their own **Slides** filter.
+
+### UI checks
+- Added `--ui-size <width> <height>` and `--settings-scroll <pixels>` for screenshot checks at a
+  set window size and settings position.
 
 ### Show files
 - Fixed an issue where autosaved edits could be lost when another application briefly held the

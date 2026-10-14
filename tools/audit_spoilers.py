@@ -47,6 +47,8 @@ FRONT_DOOR |= set(ROOT.glob("docs/*.html"))
 # What must never appear anywhere. Each is a phrase that tells a reader HOW to
 # reach something hidden, or that there is something hidden to reach.
 FORBIDDEN = [
+    (r"gremlin.{0,60}(escape|breach)|DECKBOY_MINI_GREMLIN|re-contained by",
+     "gives away the terminal containment event or its test hook"),
     (r"konami", "names the door to a hidden feature"),
     (r"[↑↓←→]{4}", "prints an arrow key sequence"),
     (r"easter\s*egg", "announces that something is hidden"),

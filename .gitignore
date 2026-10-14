@@ -22,6 +22,7 @@ data/recent_projects.txt
 
 # Local screenshots
 /Deckboy Screenshots/
+/lt_sheets/
 
 # Media converter output (portable per-show cache)
 _converted/
@@ -85,6 +86,8 @@ Notes
 # Program recordings and the first-run marker — runtime output, not source
 /data/recordings/
 /data/deckboy-first-run
+/data/mini-containment
+/data/mini-containment.saving
 
 # Private notes: internal engineering material, kept off the public
 # repository on purpose. See private-notes/README.md.

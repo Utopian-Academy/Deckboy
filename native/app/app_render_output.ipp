@@ -2011,7 +2011,9 @@
       p = d.inSeconds > 0.0 ? std::clamp(seconds / d.inSeconds, 0.0, 1.0) : 1.0;
     }
     if (move == LowerThirdMove::None) {
-      p = p > 0.0 ? 1.0 : 0.0;
+      // A cut has no ramp: it is present at cue time zero and gone at OUT,
+      // regardless of the saved animation durations.
+      p = leaving ? 0.0 : 1.0;
     }
     if (p <= 0.0) {
       return;
@@ -2034,7 +2036,9 @@
       const int lum = (fill.r * 299 + fill.g * 587 + fill.b * 114) / 1000;
       return lum > 150 ? SDL_Color {18, 22, 30, 255} : SDL_Color {250, 250, 250, 255};
     };
-    const bool boxless = d.look == LowerThirdLook::Line || d.look == LowerThirdLook::Hairline;
+    const bool boxless = d.look == LowerThirdLook::Line || d.look == LowerThirdLook::Hairline ||
+                        d.look == LowerThirdLook::Bracket || d.look == LowerThirdLook::Crosshair ||
+                        d.look == LowerThirdLook::Credit || d.look == LowerThirdLook::Rail;
     const bool arcade = d.look == LowerThirdLook::Arcade;
     // The materials some looks bring with them rather than take from the
     // palette: a scroll is parchment whatever colour the bar is set to, and a
@@ -2063,23 +2067,76 @@
                                    subInk = SDL_Color {220, 224, 232, 255}; break;
       case LowerThirdLook::Comic:  titleInk = inkOn(barColour);
                                    subInk = inkOn(barColour); break;
+      case LowerThirdLook::Bulletin:
+      case LowerThirdLook::Tab: titleInk = inkOn(accent); subInk = inkOn(barColour); break;
+      case LowerThirdLook::Flag: titleInk = inkOn(accent); subInk = titleInk; break;
+      case LowerThirdLook::Scoreboard:
+      case LowerThirdLook::Dotmatrix: titleInk = {255, 188, 69, 255}; subInk = {236, 200, 130, 255}; break;
+      case LowerThirdLook::Terminal: titleInk = {124, 249, 157, 255}; subInk = {83, 191, 122, 255}; break;
+      case LowerThirdLook::Ledger: titleInk = {34, 77, 57, 255}; subInk = {48, 82, 64, 255}; break;
+      case LowerThirdLook::Stamp: titleInk = {171, 39, 43, 255}; subInk = titleInk; break;
+      case LowerThirdLook::Dossier:
+      case LowerThirdLook::Index:
+      case LowerThirdLook::Survey:
+      case LowerThirdLook::Ticket:
+      case LowerThirdLook::Stacked:
+      case LowerThirdLook::Window:
+      case LowerThirdLook::Diskette:
+      case LowerThirdLook::Cassette:
+      case LowerThirdLook::Cartridge:
+      case LowerThirdLook::Sticky:
+      case LowerThirdLook::Notebook:
+      case LowerThirdLook::Sketch: titleInk = {44, 46, 44, 255}; subInk = {68, 68, 59, 255}; break;
+      case LowerThirdLook::Circuit: titleInk = {220, 236, 192, 255}; subInk = {180, 208, 156, 255}; break;
+      case LowerThirdLook::Theatre:
+      case LowerThirdLook::Marquee: titleInk = {255, 226, 168, 255}; subInk = {241, 220, 187, 255}; break;
+      case LowerThirdLook::Pennant:
+      case LowerThirdLook::Ribbon:
+      case LowerThirdLook::Caption:
+      case LowerThirdLook::Placard:
+      case LowerThirdLook::Film:
+      case LowerThirdLook::Blueprint:
+      case LowerThirdLook::Equalizer:
+      case LowerThirdLook::Confetti: titleInk = {250, 247, 233, 255}; subInk = {232, 230, 215, 255}; break;
       default: break;
     }
     // And its faces are the desk's own: the pixel face for the title, mono under it.
     TTF_Font* titleFont = arcade && fontPixelTitle_ ? fontPixelTitle_ : fontLarge_;
     TTF_Font* subFont = arcade && fontMono_ ? fontMono_ : fontLarge_;
+    if (d.look == LowerThirdLook::Terminal || d.look == LowerThirdLook::Scoreboard ||
+        d.look == LowerThirdLook::Blueprint || d.look == LowerThirdLook::Ledger ||
+        d.look == LowerThirdLook::Dossier || d.look == LowerThirdLook::Index) {
+      titleFont = fontMono_ ? fontMono_ : fontLarge_;
+      subFont = titleFont;
+    } else if (d.look == LowerThirdLook::Dotmatrix) {
+      // The pixel face has no Arabic. Its unusually short line would enlarge
+      // the fallback until descenders run into the role; the LED mask supplies
+      // the material while the sans line keeps joined scripts at their size.
+      titleFont = !rtlText && fontPixel_ ? fontPixel_ : fontLarge_;
+      subFont = fontMono_ ? fontMono_ : fontLarge_;
+    }
+    // A desk-sized mono face enlarged onto 4K turns the paper looks into pixel
+    // art. Cache a face at the output's size; never resize the shared UI font.
+    if (d.look > LowerThirdLook::Scroll) {
+      if (TTF_Font* sized = fontAtSize(titleFont, std::clamp(static_cast<int>(std::ceil(titleH)), 24, 256)))
+        titleFont = sized;
+      if (TTF_Font* sized = fontAtSize(subFont, std::clamp(static_cast<int>(std::ceil(subH)), 18, 192)))
+        subFont = sized;
+    }
 
-    // TYPEWRITER shows the title a letter at a time once the bar is in --
-    // a LETTER, not a byte: an Arabic letter is two bytes and a Japanese one
-    // three, and cutting between them drew a broken character every frame.
-    // Marks stay with the letter they sit on.
+    // Keep marks with their letters. Prefixes remain in logical order so the
+    // shaper can join Arabic, then the partial title anchors at its right edge.
+    const std::vector<std::size_t> titleEnds = characterEnds(title);
     std::string shownTitle = title;
-    if (move == LowerThirdMove::Typewriter) {
-      const double letters = std::clamp((p - 0.3) / 0.7, 0.0, 1.0);
-      const std::vector<std::size_t> ends = characterEnds(title);
-      const std::size_t keep = std::min(ends.size(), static_cast<std::size_t>(
-        std::lround(letters * static_cast<double>(ends.size()))));
-      shownTitle = title.substr(0, keep == 0 ? 0 : ends[keep - 1]);
+    if (move == LowerThirdMove::Typewriter || d.look == LowerThirdLook::Terminal ||
+        d.look == LowerThirdLook::Dotmatrix) {
+      const double letters = d.look == LowerThirdLook::Terminal
+        ? std::clamp((p - 0.18) / 0.72, 0.0, 1.0)
+        : d.look == LowerThirdLook::Dotmatrix ? std::clamp((p - 0.1) / 0.9, 0.0, 1.0)
+                                             : std::clamp((p - 0.3) / 0.7, 0.0, 1.0);
+      const std::size_t keep = std::min(titleEnds.size(), static_cast<std::size_t>(
+        std::lround(letters * static_cast<double>(titleEnds.size()))));
+      shownTitle = title.substr(0, keep == 0 ? 0 : titleEnds[keep - 1]);
     }
     const TextTextureEntry* titleTex = title.empty() ? nullptr
       : cachedTextTexture(renderer, titleFont, title, titleInk);
@@ -2102,11 +2159,116 @@
     double titleX = 0.0, titleY = 0.0, subX = 0.0, subY = 0.0;
     double blockW = 0.0, blockH = 0.0;
     const double accentW = titleH * 0.16;
-    // Two different questions with one answer each. WHERE the strap sits is
-    // the side setting's alone. Which way it is laid out INSIDE mirrors for a
-    // right-hand strap (accent on the outer edge) and for right-to-left words.
+    // Placement belongs to the operator; reading direction belongs to the words.
     const bool placedRight = d.side == 2;
     const bool rightSide = placedRight || rtlText;
+    // Most of the new materials carry two lines. Keep their text measuring
+    // in one place, but leave the silhouette and the space round it to the
+    // look. A short name still needs enough width for the end furniture.
+    auto stackText = [&](double left, double right, double top, double bottomPad,
+                         double gap) {
+      blockW = std::max({titleW, subW, titleH * 2.0}) + left + right;
+      blockH = top + titleH + (subTex ? gap + subH : 0.0) + bottomPad;
+      titleX = left;
+      subX = left;
+      titleY = top;
+      subY = top + titleH + gap;
+    };
+    // These are output materials, not desk chrome. Triangles share one mesh
+    // per layer, so a ring of bulbs costs two submissions, not one per bulb.
+    struct Point { double x, y; };
+    std::vector<SDL_Vertex> underWords, overWordsMesh;
+    underWords.reserve(6000);
+    overWordsMesh.reserve(3000);
+    bool overWords = false;
+    auto triangle = [&](Point a, Point b, Point c, SDL_Color colour, int opacity = 255) {
+      auto& mesh = overWords ? overWordsMesh : underWords;
+      const SDL_FColor ink {colour.r / 255.0f, colour.g / 255.0f, colour.b / 255.0f,
+                            std::clamp(opacity, 0, 255) / 255.0f};
+      for (const Point pt : {a, b, c}) {
+        mesh.push_back({{static_cast<float>(pt.x), static_cast<float>(pt.y)}, ink, {0, 0}});
+      }
+    };
+    auto polygon = [&](std::initializer_list<Point> points, SDL_Color colour, int opacity = 255) {
+      if (points.size() < 3) return;
+      const Point* pts = points.begin();
+      for (std::size_t i = 1; i + 1 < points.size(); ++i) triangle(pts[0], pts[i], pts[i + 1], colour, opacity);
+    };
+    auto rect = [&](double x, double y, double w, double h, SDL_Color colour, int opacity = 255) {
+      if (w <= 0.0 || h <= 0.0) return;
+      polygon({{x, y}, {x + w, y}, {x + w, y + h}, {x, y + h}}, colour, opacity);
+    };
+    auto stroke = [&](double x1, double y1, double x2, double y2, double width,
+                      SDL_Color colour, int opacity = 255) {
+      const double length = std::hypot(x2 - x1, y2 - y1);
+      if (length < 0.001) return;
+      const double nx = (y1 - y2) * width / (2.0 * length);
+      const double ny = (x2 - x1) * width / (2.0 * length);
+      polygon({{x1 + nx, y1 + ny}, {x2 + nx, y2 + ny},
+               {x2 - nx, y2 - ny}, {x1 - nx, y1 - ny}}, colour, opacity);
+    };
+    constexpr double tau = 6.283185307179586;
+    // Every lamp uses the same circle. Recomputing its trigonometry for each
+    // dark LED made the dot sign cost more than the rest of the catalogue.
+    static const auto discDirections = [] {
+      std::array<Point, 24> points {};
+      for (int i = 0; i < 24; ++i) {
+        const double a = 6.283185307179586 * i / 24;
+        points[i] = {std::cos(a), std::sin(a)};
+      }
+      return points;
+    }();
+    auto disc = [&](double x, double y, double radius, SDL_Color colour, int opacity = 255,
+                    int segments = 24) {
+      for (int i = 0; i < segments; ++i) {
+        const Point a = discDirections[i * 24 / segments];
+        const Point b = discDirections[((i + 1) * 24 / segments) % 24];
+        triangle({x, y}, {x + radius * a.x, y + radius * a.y},
+                 {x + radius * b.x, y + radius * b.y}, colour, opacity);
+      }
+    };
+    auto ring = [&](double x, double y, double radius, double width, SDL_Color colour,
+                    double start = 0.0, double sweep = 6.283185307179586, int opacity = 255) {
+      if (radius <= 0.0) return;
+      width = std::min(width, radius);
+      for (int i = 0; i < 32; ++i) {
+        const double a = start + sweep * i / 32.0, b = start + sweep * (i + 1) / 32.0;
+        polygon({{x + radius * std::cos(a), y + radius * std::sin(a)},
+                 {x + radius * std::cos(b), y + radius * std::sin(b)},
+                 {x + (radius - width) * std::cos(b), y + (radius - width) * std::sin(b)},
+                 {x + (radius - width) * std::cos(a), y + (radius - width) * std::sin(a)}}, colour, opacity);
+      }
+    };
+    auto pill = [&](double x, double y, double w, double h, SDL_Color colour) {
+      // One surface: overlapping discs turn into three different opacities
+      // during a fade, even when they look seamless at full alpha.
+      // Twelve chords per end visibly facet a 4K capsule. Keep enough for a
+      // smooth silhouette at double size without growing work with the raster.
+      constexpr int halfSegments = 32;
+      constexpr int pointCount = 2 * (halfSegments + 1);
+      Point perimeter[pointCount];
+      for (int side = 0; side < 2; ++side) for (int i = 0; i <= halfSegments; ++i) {
+        const double a = -tau / 4 + side * tau / 2 + i * tau / (2 * halfSegments);
+        perimeter[side * (halfSegments + 1) + i] = {x + (side == 0 ? w - h / 2 : h / 2) + h / 2 * std::cos(a),
+                                  y + h / 2 + h / 2 * std::sin(a)};
+      }
+      for (int i = 0; i < pointCount; ++i)
+        triangle({x + w / 2, y + h / 2}, perimeter[i], perimeter[(i + 1) % pointCount], colour);
+    };
+    auto edge = [&](double x, double y, double w, double h, double line, SDL_Color colour, int opacity = 255) {
+      rect(x, y, w, line, colour, opacity); rect(x, y + h - line, w, line, colour, opacity);
+      rect(x, y, line, h, colour, opacity); rect(x + w - line, y, line, h, colour, opacity);
+    };
+    const SDL_Color black {12, 15, 19, 255}, white {250, 247, 233, 255};
+    const SDL_Color paper {245, 237, 212, 255}, redInk {171, 39, 43, 255};
+    const SDL_Color gold {220, 178, 83, 255}, amber {255, 188, 69, 255};
+    const SDL_Color pencil {46, 52, 57, 255}, greenInk {48, 102, 78, 255};
+    const double q = p * p * (3.0 - 2.0 * p);
+    auto entryPhase = [&](double start, double end) { return std::clamp((p - start) / (end - start), 0.0, 1.0); };
+    double lookDx = 0.0, lookDy = 0.0, lookScale = 1.0, lookAngle = 0.0;
+    double wordsAlpha = 1.0, wordLeft = 0.0, wordRight = 1.0;
+    double wordsClipMin = -1.0e9;
+    double wordsClipMax = 1.0e9;
     switch (d.look) {
       case LowerThirdLook::Boxes: {
         const double tw = titleW + pad * 2.0;
@@ -2372,6 +2534,630 @@
         subY = titleY + titleH + pad * 0.3;
         break;
       }
+      case LowerThirdLook::Bulletin: {
+        stackText(pad, pad * 2, pad * 0.55, pad * 0.65, pad * 0.65);
+        const double splitY = titleY + titleH + pad * 0.3;
+        const double reach = blockW * easeOut(entryPhase(0.0, 0.7));
+        polygon({{0, 0}, {reach, 0}, {reach - pad * 0.65, splitY}, {0, splitY}}, accent);
+        rect((1 - q) * pad * 3, splitY + pad * 0.12, blockW * q, blockH - splitY, barColour);
+        rect(0, -pad * 0.28, blockW * entryPhase(0.3, 1), titleH * 0.055, accent);
+        wordRight = entryPhase(0.2, 0.95);
+        wordsClipMax = std::min(reach - pad * 0.65, blockW * q);
+        break;
+      }
+      case LowerThirdLook::Dateline: {
+        stackText(pad * 2.4, pad, pad * 0.6, pad * 0.65, pad * 0.3);
+        rect(0, 0, blockW * q, blockH, barColour);
+        rect(0, 0, pad * 1.65, blockH, accent);
+        for (int i = 0; i < 3; ++i) rect(pad * 0.35, pad * (0.7 + i * 0.7),
+            pad * (i == 1 ? 0.65 : 0.95) * entryPhase(i * 0.12, 0.5 + i * 0.12), titleH * 0.07, inkOn(accent));
+        rect(pad * 2.4, blockH - pad * 0.32, (blockW - pad * 3.4) * q, titleH * 0.035, accent);
+        wordRight = entryPhase(0.25, 1);
+        wordsClipMax = blockW * q;
+        break;
+      }
+      case LowerThirdLook::Sideline: {
+        stackText(pad * 1.8, pad * 1.8, pad * 0.5, pad * 0.5, pad * 0.35);
+        polygon({{pad, 0}, {blockW, 0}, {blockW - pad, blockH}, {0, blockH}}, barColour);
+        for (int i = 0; i < 3; ++i) {
+          const double x = -pad * (1.9 - i * 0.6) - (1 - entryPhase(i * 0.12, 0.8)) * pad * 3;
+          polygon({{x + pad, 0}, {x + pad * 1.35, 0}, {x + pad * 0.35, blockH}, {x, blockH}}, accent);
+        }
+        stroke(pad, blockH, blockW - pad, blockH, titleH * 0.09, accent);
+        lookDx = (1 - q) * pad * 4; wordsAlpha = entryPhase(0.25, 0.85);
+        break;
+      }
+      case LowerThirdLook::Scoreboard: {
+        stackText(pad, pad, pad * 0.7, pad * 0.65, pad * 0.65);
+        rect(0, 0, blockW, blockH, black);
+        edge(0, 0, blockW, blockH, titleH * 0.07, {80, 77, 65, 255});
+        const int cells = std::max(1, static_cast<int>(titleEnds.size()));
+        const double cellW = titleW / cells;
+        for (int i = 0; i < cells; ++i) {
+          const double x = titleX + i * cellW + cellW * 0.055;
+          const double turn = std::clamp((p - 0.08 - 0.5 * i / cells) / 0.4, 0.0, 1.0);
+          rect(x, titleY - titleH * 0.07, cellW * 0.89, titleH * 1.14, {39, 42, 42, 255});
+          // The flap folds about its seam; scaling a whole letter looks like
+          // a squash, and loses the mechanical action of a split-flap cell.
+          const double fold = std::cos(turn * tau / 2);
+          rect(x, titleY + titleH * 0.5 - std::max(0.0, fold) * titleH * 0.57,
+               cellW * 0.89, std::abs(fold) * titleH * 0.57,
+               {static_cast<Uint8>(39 + 25 * std::sin(turn * tau / 2)), 43, 42, 255});
+        }
+        overWords = true;
+        stroke(titleX, titleY + titleH * 0.51, titleX + titleW, titleY + titleH * 0.51,
+               titleH * 0.035, black);
+        overWords = false;
+        wordsAlpha = entryPhase(0.4, 1);
+        break;
+      }
+      case LowerThirdLook::Podium: {
+        stackText(titleH * 2.0, pad, pad * 0.65, pad * 0.7, pad * 0.3);
+        rect(titleH * 1.6, 0, blockW - titleH * 1.6, blockH, barColour);
+        rect(titleH * 1.6, blockH - pad * 0.22, (blockW - titleH * 1.6) * q, pad * 0.22, gold);
+        const double mx = titleH * 0.85, my = blockH / 2;
+        disc(mx, my, titleH * 0.9 * q, gold); disc(mx, my, titleH * 0.74 * q, {82, 59, 24, 255});
+        ring(mx, my, titleH * 0.62 * q, titleH * 0.035, gold);
+        for (int i = 0; i < 5; ++i) {
+          const double a = tau * i / 5 - tau / 4;
+          triangle({mx + titleH * 0.46 * std::cos(a), my + titleH * 0.46 * std::sin(a)},
+                   {mx + titleH * 0.18 * std::cos(a + 1.1), my + titleH * 0.18 * std::sin(a + 1.1)},
+                   {mx + titleH * 0.18 * std::cos(a - 1.1), my + titleH * 0.18 * std::sin(a - 1.1)}, gold);
+        }
+        lookDy = (1 - q) * blockH; wordsAlpha = entryPhase(0.25, 0.9);
+        break;
+      }
+      case LowerThirdLook::Pennant:
+      case LowerThirdLook::Flag: {
+        const bool pennant = d.look == LowerThirdLook::Pennant;
+        stackText(pad * 1.2, titleH * 1.3, pad * 0.65, pad * 0.65, pad * 0.25);
+        const double reach = blockW * q;
+        const double mast = titleH * 0.07;
+        stroke(0, -pad * 0.55, 0, blockH + pad * 0.45, mast, pennant ? gold : white);
+        disc(0, -pad * 0.6, mast * 1.25, pennant ? gold : white);
+        for (int i = 0; i < 28; ++i) {
+          const double u = i / 28.0, v = (i + 1) / 28.0;
+          const auto wave = [&](double t) { return titleH * 0.07 * t * std::sin(seconds * 3 - t * 8); };
+          const auto top = [&](double t) {
+            return pennant ? std::max(0.0, blockW * t - (blockW - titleH)) / titleH * blockH / 2 : 0.0;
+          };
+          const SDL_Color cloth = pennant ? SDL_Color{155, 36, 51, 255} : accent;
+          const double shade = 0.90 + 0.10 * std::sin(seconds * 3 - u * 8);
+          const SDL_Color foldInk {static_cast<Uint8>(cloth.r * shade), static_cast<Uint8>(cloth.g * shade),
+                                   static_cast<Uint8>(cloth.b * shade), 255};
+          polygon({{reach * u, top(u) + wave(u)}, {reach * v, top(v) + wave(v)},
+                   {reach * v, blockH - top(v) + wave(v)},
+                   {reach * u, blockH - top(u) + wave(u)}}, foldInk);
+          if (pennant) {
+            stroke(reach * u, top(u) + wave(u), reach * v, top(v) + wave(v), titleH * 0.025, gold);
+            stroke(reach * u, blockH - top(u) + wave(u), reach * v, blockH - top(v) + wave(v), titleH * 0.025, gold);
+          }
+        }
+        wordRight = entryPhase(0.15, 0.9);
+        wordsClipMax = reach - pad * 0.3;
+        break;
+      }
+      case LowerThirdLook::Ribbon: {
+        stackText(pad * 1.5, pad * 1.5, pad * 0.65, pad * 0.65, pad * 0.3);
+        const double l = blockW * (1 - q) / 2, r = blockW - l;
+        // Each notched tail is two convex halves: a triangle fan across the
+        // whole concave outline fills the notch back in.
+        for (int tail = 0; tail < 2; ++tail) {
+          const double end = tail ? r : l, direction = tail ? 1.0 : -1.0;
+          const double outer = end + direction * pad * 1.4;
+          const double inner = end - direction * pad;
+          const double notch = end + direction * pad * 0.7;
+          polygon({{outer, pad * 0.5}, {inner, pad * 0.5}, {inner, blockH / 2 + pad * 0.5},
+                   {notch, blockH / 2 + pad * 0.5}}, {112, 33, 53, 255});
+          polygon({{notch, blockH / 2 + pad * 0.5}, {inner, blockH / 2 + pad * 0.5},
+                   {inner, blockH + pad * 0.5}, {outer, blockH + pad * 0.5}}, {112, 33, 53, 255});
+        }
+        rect(l, 0, r - l, blockH, {185, 47, 72, 255});
+        stroke(l, pad * 0.2, r, pad * 0.2, titleH * 0.04, gold);
+        stroke(l, blockH - pad * 0.2, r, blockH - pad * 0.2, titleH * 0.04, gold);
+        triangle({l, blockH}, {l + pad, blockH}, {l + pad, blockH + pad * 0.5}, black, 100);
+        triangle({r, blockH}, {r - pad, blockH}, {r - pad, blockH + pad * 0.5}, black, 100);
+        wordsClipMin = l; wordsClipMax = r;
+        break;
+      }
+      case LowerThirdLook::Ledger: {
+        stackText(pad * 1.5, pad * 1.1, pad * 0.8, pad * 0.8, pad * 0.65);
+        rect(pad * 0.15, pad * 0.18, blockW, blockH, black, 80);
+        rect(0, 0, blockW, blockH, paper);
+        for (int i = 0; i < 7; ++i) rect(pad * 0.4, blockH * (i + 0.5) / 7,
+          (blockW - pad * 0.8) * entryPhase(i * 0.035, 0.75 + i * 0.035), titleH * 0.018, greenInk, 90);
+        stroke(pad * 0.85, 0, pad * 0.85, blockH, titleH * 0.035, greenInk);
+        stroke(blockW - pad * 0.6, 0, blockW - pad * 0.6, blockH, titleH * 0.025, greenInk, 100);
+        lookDx = -(1 - q) * blockW * 0.3; wordsAlpha = entryPhase(0.2, 0.85);
+        break;
+      }
+      case LowerThirdLook::Dossier: {
+        stackText(pad * 1.3, pad * 1.3, pad * 1.25, pad * 0.85, pad * 0.35);
+        const SDL_Color manila {215, 180, 116, 255};
+        rect(pad * 0.13, pad * 0.35, blockW, blockH, black, 80);
+        polygon({{0, pad * 0.6}, {0, 0}, {blockW * 0.34, 0}, {blockW * 0.39, pad * 0.6},
+                 {blockW, pad * 0.6}, {blockW, blockH}, {0, blockH}}, manila);
+        rect(pad * 0.4, pad * 0.95 + (1 - q) * pad, blockW - pad * 0.8, blockH - pad * 1.35, paper);
+        stroke(pad * 0.8, blockH - pad * 0.2, blockW - pad * 0.8, blockH - pad * 0.2, titleH * 0.035, {145, 107, 55, 255});
+        rect(pad * 0.5, pad * 0.18, pad * 1.6, titleH * 0.07, redInk);
+        lookDy = (1 - q) * blockH * 0.6; lookAngle = -1.0 - (1 - q) * 7;
+        wordsAlpha = entryPhase(0.25, 0.9);
+        break;
+      }
+      case LowerThirdLook::Index: {
+        stackText(pad * 1.3, pad * 1.3, pad * 1.0, pad * 0.7, pad * 0.4);
+        rect(pad * 0.12, pad * 0.14, blockW, blockH, black, 90);
+        rect(0, 0, blockW, blockH, white);
+        stroke(0, pad * 0.65, blockW * q, pad * 0.65, titleH * 0.055, redInk);
+        for (double y = pad * 1.5; y < blockH - pad * 0.25; y += pad * 0.95)
+          stroke(0, y, blockW, y, titleH * 0.014, {98, 142, 171, 255}, 100);
+        lookDx = (1 - q) * blockW * 0.5; lookAngle = (1 - q) * 9;
+        wordsAlpha = entryPhase(0.2, 0.9);
+        break;
+      }
+      case LowerThirdLook::Bracket: {
+        stackText(pad * 1.25, pad * 1.25, pad * 0.7, pad * 0.7, pad * 0.35);
+        const double spread = (1 - q) * pad * 3;
+        for (int i = 0; i < 4; ++i) {
+          const double x = i % 2 ? blockW + spread : -spread;
+          const double y = i / 2 ? blockH + spread : -spread;
+          stroke(x, y, x + (i % 2 ? -pad : pad), y, titleH * 0.08, accent);
+          stroke(x, y, x, y + (i / 2 ? -pad : pad), titleH * 0.08, accent);
+        }
+        wordsAlpha = entryPhase(0.35, 0.95); lookScale = 1 + (1 - q) * 0.08;
+        break;
+      }
+      case LowerThirdLook::Crosshair: {
+        stackText(titleH * 2.0, pad * 0.5, pad * 0.7, pad * 0.7, pad * 0.4);
+        const double x = titleH * 0.8 - (1 - q) * pad * 3, y = blockH / 2;
+        const double spin = (1 - q) * tau + seconds * 0.13;
+        ring(x, y, titleH * 0.73, titleH * 0.035, {139, 235, 185, 255}, spin, tau * 0.78);
+        ring(x, y, titleH * 0.56, titleH * 0.02, accent, -spin, tau * 0.6);
+        for (int i = 0; i < 4; ++i) {
+          const double a = spin + i * tau / 4;
+          stroke(x + titleH * 0.59 * std::cos(a), y + titleH * 0.59 * std::sin(a),
+                 x + titleH * 0.88 * std::cos(a), y + titleH * 0.88 * std::sin(a), titleH * 0.035, white);
+        }
+        stroke(x - pad * 0.22, y, x + pad * 0.22, y, titleH * 0.025, white);
+        stroke(x, y - pad * 0.22, x, y + pad * 0.22, titleH * 0.025, white);
+        stroke(titleX, blockH - pad * 0.3, titleX + (blockW - titleX) * q, blockH - pad * 0.3, titleH * 0.025, accent);
+        wordsAlpha = entryPhase(0.3, 1);
+        break;
+      }
+      case LowerThirdLook::Caption: {
+        stackText(pad * 0.65, pad * 0.65, pad * 0.35, pad * 0.35, pad * 0.55);
+        rect(titleX - pad * 0.65, 0, (titleW + pad * 1.3) * easeOut(entryPhase(0, 0.7)), titleH + pad * 0.7, black);
+        if (subTex) rect(subX - pad * 0.65, subY - pad * 0.2, (subW + pad * 1.3) * easeOut(entryPhase(0.2, 1)), subH + pad * 0.55, black);
+        wordRight = entryPhase(0.15, 0.9);
+        break;
+      }
+      case LowerThirdLook::Credit: {
+        stackText(pad, pad, pad * 0.9, pad * 0.9, pad * 0.6);
+        titleX = (blockW - titleW) / 2; subX = (blockW - subW) / 2;
+        const double half = blockW * 0.34 * q;
+        stroke(blockW / 2 - half, 0, blockW / 2 + half, 0, titleH * 0.025, gold);
+        stroke(blockW / 2 - half, blockH, blockW / 2 + half, blockH, titleH * 0.025, gold);
+        wordsAlpha = entryPhase(0.3, 1); lookDy = (1 - q) * pad * 2;
+        break;
+      }
+      case LowerThirdLook::Theatre: {
+        stackText(pad * 2.0, pad * 2.0, pad * 1.0, pad * 1.0, pad * 0.35);
+        rect(0, 0, blockW, blockH, {43, 13, 23, 255});
+        edge(pad * 0.2, pad * 0.2, blockW - pad * 0.4, blockH - pad * 0.4, titleH * 0.055, gold);
+        overWords = true;
+        const double curtainW = pad * 0.6 + (blockW / 2 - pad * 0.6) * (1 - q);
+        // Clip the ink as well: during a fade the curtains are translucent,
+        // but the name must still wait for the opening between them.
+        wordsClipMin = curtainW;
+        wordsClipMax = blockW - curtainW;
+        for (int side = 0; side < 2; ++side) {
+          for (int i = 0; i < 12; ++i) {
+            const double fold = 0.5 + 0.5 * std::sin(i * 1.7);
+            const SDL_Color velvet {static_cast<Uint8>(100 + fold * 65), 20, 37, 255};
+            rect(side == 0 ? curtainW * i / 12 : blockW - curtainW + curtainW * i / 12,
+                 pad * 0.4, curtainW / 12 + titleH * 0.003, blockH - pad * 0.8, velvet);
+          }
+        }
+        stroke(pad * 0.3, pad * 0.33, blockW - pad * 0.3, pad * 0.33, titleH * 0.07, gold);
+        overWords = false;
+        break;
+      }
+      case LowerThirdLook::Placard: {
+        stackText(pad * 1.4, pad * 1.4, pad * 0.65, pad * 0.65, pad * 0.4);
+        rect(pad * 0.2, pad * 0.25, blockW, blockH, black, 120);
+        rect(0, 0, blockW, blockH, {246, 214, 76, 255});
+        rect(pad * 0.45, pad * 0.3, blockW - pad * 0.9, blockH - pad * 0.6, black);
+        for (int i = 0; i < 4; ++i) disc(i % 2 ? blockW - pad * 0.23 : pad * 0.23,
+            i / 2 ? blockH - pad * 0.23 : pad * 0.23, titleH * 0.045, pencil);
+        lookAngle = (1 - q) * 14 * std::cos(p * tau); lookDy = -(1 - q) * blockH;
+        break;
+      }
+      case LowerThirdLook::Rail: {
+        stackText(pad * 0.4, pad * 0.4, pad * 0.6, pad * 1.1, pad * 0.3);
+        const double y = blockH - pad * 0.55;
+        stroke(0, y, blockW * q, y, titleH * 0.09, accent);
+        stroke(0, y + pad * 0.25, blockW * q, y + pad * 0.25, titleH * 0.025, white);
+        for (int i = 0; i < 6; ++i) {
+          const double x = blockW * (i + 0.15) / 6;
+          if (x <= blockW * q) disc(x, y, titleH * 0.09, white);
+        }
+        disc(blockW * q, y, titleH * 0.14, accent);
+        wordRight = entryPhase(0.1, 0.9);
+        break;
+      }
+      case LowerThirdLook::Survey: {
+        stackText(titleH * 1.8, pad * 1.0, pad * 0.75, pad * 0.75, pad * 0.3);
+        rect(0, 0, blockW, blockH, {238, 226, 199, 255});
+        const double x = titleH * 0.85, y = blockH / 2;
+        ring(x, y, titleH * 0.63, titleH * 0.025, pencil, -tau / 4, tau * q);
+        triangle({x, y - titleH * 0.58 * q}, {x - pad * 0.25, y + pad * 0.3}, {x + pad * 0.25, y}, redInk);
+        triangle({x, y + titleH * 0.58 * q}, {x - pad * 0.25, y}, {x + pad * 0.25, y - pad * 0.3}, pencil);
+        for (int i = 0; i < 24; ++i) rect(blockW * i / 24, blockH - pad * (i % 4 == 0 ? 0.35 : 0.16),
+            titleH * 0.025, pad * (i % 4 == 0 ? 0.35 : 0.16), pencil);
+        wordRight = entryPhase(0.2, 1);
+        break;
+      }
+      case LowerThirdLook::Tab: {
+        stackText(pad, pad * 1.3, pad * 0.65, pad * 0.65, pad * 0.45);
+        const double splitY = subY - pad * 0.2;
+        polygon({{0, 0}, {blockW - pad, 0}, {blockW, pad}, {blockW, splitY}, {0, splitY}}, accent);
+        rect(0, splitY, blockW * entryPhase(0.25, 1), blockH - splitY, barColour);
+        lookDy = -(1 - q) * pad * 4; wordsAlpha = entryPhase(0.25, 0.85);
+        break;
+      }
+      case LowerThirdLook::Ticket: {
+        stackText(titleH * 1.8, pad, pad * 0.8, pad * 0.8, pad * 0.3);
+        const double stub = titleH * 1.3, notch = pad * 0.3;
+        rect(notch, 0, blockW - notch * 2, blockH, paper);
+        for (int i = 0; i < 8; ++i) {
+          const double y = blockH * i / 8;
+          rect(0, y + notch, notch, blockH / 8 - notch * 2, redInk);
+          rect(blockW - notch, y + notch, notch, blockH / 8 - notch * 2, paper);
+        }
+        rect(notch, 0, stub - notch, blockH, redInk);
+        for (int i = 0; i < 10; ++i) rect(stub - titleH * 0.025, blockH * (i + 0.2) / 10,
+            titleH * 0.05, blockH * 0.055, paper);
+        for (int i = 0; i < 11; ++i) rect(pad * 0.35, pad * 0.6 + i * (blockH - pad * 1.3) / 11,
+            stub - pad * 0.8, titleH * (i % 3 == 0 ? 0.035 : 0.06), paper, 180);
+        lookAngle = (1 - q) * -12; lookDx = (1 - q) * -blockW * 0.2;
+        wordsAlpha = entryPhase(0.15, 0.8);
+        break;
+      }
+      case LowerThirdLook::Capsule: {
+        stackText(pad * 1.5, pad * 1.5, pad * 0.5, pad * 0.5, pad * 0.35);
+        const double width = std::max(blockH, blockH + (blockW - blockH) * q);
+        const double x = (blockW - width) / 2;
+        pill(x, 0, width, blockH, accent);
+        pill(x + titleH * 0.045, titleH * 0.045, width - titleH * 0.09, blockH - titleH * 0.09, barColour);
+        wordsClipMin = x + pad * 0.7; wordsClipMax = x + width - pad * 0.7;
+        wordsAlpha = entryPhase(0.45, 1);
+        break;
+      }
+      case LowerThirdLook::Film: {
+        stackText(pad, pad, pad * 1.35, pad * 1.35, pad * 0.3);
+        const double railH = pad * 0.7, holeW = pad * 0.6, pitch = pad * 1.1;
+        rect(0, railH, blockW, blockH - railH * 2, black);
+        for (int side = 0; side < 2; ++side) {
+          const double y = side == 0 ? 0 : blockH - railH;
+          rect(0, y, blockW, railH * 0.15, black);
+          rect(0, y + railH * 0.85, blockW, railH * 0.15, black);
+          const double roll = std::fmod(seconds * pad * 0.85, pitch);
+          for (double x = -pitch + roll; x < blockW; x += pitch) {
+            const double left = std::max(0.0, x + holeW), right = std::min(blockW, x + pitch);
+            rect(left, y + railH * 0.15, right - left, railH * 0.7, black);
+          }
+        }
+        edge(0, railH, blockW, blockH - railH * 2, titleH * 0.025, {109, 91, 63, 255});
+        wordRight = q; lookDx = -(1 - q) * blockW * 0.25;
+        break;
+      }
+      case LowerThirdLook::Stacked: {
+        stackText(pad * 1.2, pad * 1.2, pad * 0.7, pad * 0.7, pad * 0.35);
+        const double spread = pad * (0.4 + (1 - q) * 3);
+        polygon({{-spread, spread}, {blockW - spread, -spread * 0.3}, {blockW, blockH}, {0, blockH + spread}}, {40, 161, 164, 255});
+        polygon({{spread, -spread}, {blockW + spread, spread * 0.2}, {blockW, blockH + spread}, {0, blockH}}, {227, 97, 80, 255});
+        rect(0, 0, blockW, blockH, paper);
+        wordsAlpha = entryPhase(0.3, 0.9); lookAngle = -1.5;
+        break;
+      }
+      case LowerThirdLook::Terminal: {
+        stackText(pad * 1.1, pad * 1.8, pad * 0.85, pad * 0.85, pad * 0.45);
+        rect(0, 0, blockW, blockH, {4, 17, 11, 255});
+        edge(0, 0, blockW, blockH, titleH * 0.035, {50, 135, 77, 255});
+        for (int i = 0; i < 36; ++i) rect(0, blockH * i / 36, blockW, titleH * 0.012, {102, 226, 132, 255}, 18);
+        overWords = true;
+        if (p < 1 || std::fmod(seconds, 1.0) < 0.55) {
+          const double cursorW = titleH * 0.38;
+          const double cursorX = rightSide && !rtlText
+            ? titleX + titleW - widthAt(shownTex, titleH) - titleH * 0.06 - cursorW
+            : titleX + widthAt(shownTex, titleH) + titleH * 0.06;
+          rect(cursorX, titleY + titleH * 0.1, cursorW, titleH * 0.85, titleInk);
+        }
+        overWords = false;
+        break;
+      }
+      case LowerThirdLook::Window: {
+        stackText(pad * 0.9, pad * 0.9, pad * 1.3, pad * 0.65, pad * 0.3);
+        const double open = entryPhase(0.1, 0.65);
+        if (p < 0.65) {
+          for (int i = 0; i < 4; ++i) {
+            const double f = std::clamp(open - i * 0.08, 0.03, 1.0);
+            edge((blockW * (1 - f)) / 2, blockH * (1 - f) / 2, blockW * f, blockH * f, titleH * 0.025, white);
+          }
+        } else {
+          rect(pad * 0.18, pad * 0.2, blockW, blockH, black, 100);
+          rect(0, 0, blockW, blockH, {192, 194, 195, 255});
+          stroke(0, 0, blockW, 0, titleH * 0.08, white); stroke(0, 0, 0, blockH, titleH * 0.08, white);
+          stroke(0, blockH, blockW, blockH, titleH * 0.08, pencil); stroke(blockW, 0, blockW, blockH, titleH * 0.08, pencil);
+          rect(pad * 0.2, pad * 0.2, blockW - pad * 0.4, pad * 0.7, {22, 42, 113, 255});
+          rect(blockW - pad * 0.85, pad * 0.3, pad * 0.45, pad * 0.45, {192, 194, 195, 255});
+          stroke(blockW - pad * 0.78, pad * 0.37, blockW - pad * 0.47, pad * 0.67, titleH * 0.025, pencil);
+          stroke(blockW - pad * 0.78, pad * 0.67, blockW - pad * 0.47, pad * 0.37, titleH * 0.025, pencil);
+        }
+        wordsAlpha = entryPhase(0.65, 0.8);
+        break;
+      }
+      case LowerThirdLook::Diskette: {
+        stackText(titleH * 3.25, pad, pad * 0.8, pad * 0.8, pad * 0.3);
+        const double side = std::max(blockH, titleH * 2.7);
+        blockH = side;
+        titleY = (side - titleH - (subTex ? subH + pad * 0.3 : 0)) / 2;
+        subY = titleY + titleH + pad * 0.3;
+        const double slide = easeOut(entryPhase(0.15, 0.95));
+        const double shift = (1 - slide) * (blockW - side);
+        // Fallback ascenders and descenders extend beyond the primary line.
+        // Fit the paper to the ink, so Arabic marks stay inside the nameplate.
+        const SDL_FRect titleBounds = titleTex ? scaledLabelRect(*titleTex, titleX, titleY, titleH) : SDL_FRect{};
+        const SDL_FRect subBounds = subTex ? scaledLabelRect(*subTex, subX, subY, subH) : titleBounds;
+        const double paperTop = std::min(side * 0.16, titleBounds.y - pad * 0.3);
+        const double paperBottom = std::max(side * 0.86, subBounds.y + subBounds.h + pad * 0.3);
+        rect(side * 0.8, paperTop, (blockW - side * 0.8) * slide, paperBottom - paperTop, {222, 224, 217, 255});
+        rect(side * 0.8, paperTop, (blockW - side * 0.8) * slide, titleH * 0.07, accent);
+        titleX -= shift; subX -= shift; wordsAlpha = entryPhase(0.2, 0.7);
+        wordsClipMin = side;
+        overWords = true;
+        polygon({{0, 0}, {side * 0.83, 0}, {side, side * 0.17}, {side, side}, {0, side}}, {49, 57, 78, 255});
+        edge(side * 0.05, side * 0.06, side * 0.88, side * 0.89, titleH * 0.025, {97, 105, 122, 255});
+        rect(side * 0.25, 0, side * 0.43, side * 0.4, black);
+        const double shutter = side * 0.17 * entryPhase(0.2, 0.8);
+        rect(side * 0.18 + shutter, 0, side * 0.47, side * 0.39, {168, 179, 187, 255});
+        rect(side * 0.44 + shutter, side * 0.045, side * 0.11, side * 0.28, black);
+        stroke(side * 0.23 + shutter, side * 0.035, side * 0.23 + shutter, side * 0.35, titleH * 0.025, white);
+        rect(side * 0.14, side * 0.5, side * 0.72, side * 0.44, white);
+        rect(side * 0.14, side * 0.5, side * 0.72, side * 0.07, redInk);
+        for (int i = 0; i < 3; ++i) stroke(side * 0.2, side * (0.67 + i * 0.085), side * 0.8,
+            side * (0.67 + i * 0.085), titleH * 0.018, {130, 147, 159, 255});
+        rect(side * 0.045, side * 0.88, side * 0.055, side * 0.055, black);
+        overWords = false;
+        break;
+      }
+      case LowerThirdLook::Cassette: {
+        stackText(pad * 1.4, pad * 1.4, pad * 0.65, titleH * 1.6, pad * 0.3);
+        const double cut = pad * 0.45;
+        polygon({{cut, 0}, {blockW - cut, 0}, {blockW, cut}, {blockW, blockH}, {0, blockH}, {0, cut}}, {45, 44, 42, 255});
+        rect(pad * 0.5, pad * 0.35, blockW - pad, subY + subH + pad * 0.2, paper);
+        rect(pad * 0.5, pad * 0.35, blockW - pad, titleH * 0.08, redInk);
+        const double reelY = blockH - titleH * 0.82;
+        pill(blockW * 0.25 - titleH * 0.5, reelY - titleH * 0.48, blockW * 0.5 + titleH, titleH * 0.96, black);
+        overWords = true;
+        for (int side = 0; side < 2; ++side) {
+          const double x = blockW * (side == 0 ? 0.27 : 0.73);
+          disc(x, reelY, titleH * 0.44, {183, 173, 146, 255});
+          ring(x, reelY, titleH * 0.35, titleH * 0.075, {74, 61, 44, 255});
+          disc(x, reelY, titleH * 0.12, black);
+          for (int i = 0; i < 6; ++i) {
+            const double a = seconds * 1.8 + i * tau / 6;
+            stroke(x + titleH * 0.15 * std::cos(a), reelY + titleH * 0.15 * std::sin(a),
+                   x + titleH * 0.3 * std::cos(a), reelY + titleH * 0.3 * std::sin(a), titleH * 0.055, black);
+          }
+        }
+        overWords = false;
+        for (int i = 0; i < 4; ++i) disc(i % 2 ? blockW - pad * 0.24 : pad * 0.24,
+            i / 2 ? blockH - pad * 0.24 : pad * 0.24, titleH * 0.035, white);
+        lookDy = (1 - q) * blockH * 0.6; lookAngle = (1 - q) * -5;
+        break;
+      }
+      case LowerThirdLook::Cartridge: {
+        stackText(pad * 2, pad * 2, pad * 0.9, pad * 1.25, pad * 0.3);
+        polygon({{pad * 0.5, 0}, {blockW - pad * 0.5, 0}, {blockW, pad * 0.5},
+                 {blockW, blockH}, {0, blockH}, {0, pad * 0.5}}, {141, 147, 152, 255});
+        for (int side = 0; side < 2; ++side) for (int i = 0; i < 7; ++i) {
+          const double x = side == 0 ? pad * 0.2 : blockW - pad * 1.25;
+          rect(x, pad * 0.9 + i * (blockH - pad * 1.8) / 7, pad * 1.05, titleH * 0.045, {77, 84, 91, 255});
+        }
+        rect(pad * 1.55, pad * 0.35, blockW - pad * 3.1, blockH - pad * 1.25, {224, 215, 181, 255});
+        rect(pad * 1.55, pad * 0.35, blockW - pad * 3.1, pad * 0.35, {173, 59, 45, 255});
+        rect(blockW * 0.3, blockH - pad * 0.5, blockW * 0.4, pad * 0.5, black);
+        for (int i = 0; i < 14; ++i) rect(blockW * (0.32 + i * 0.027), blockH - pad * 0.45,
+            blockW * 0.014, pad * 0.4, gold);
+        lookDy = -(1 - q) * blockH; lookScale = 1 + 0.045 * std::sin(p * tau * 2) * (1 - p);
+        break;
+      }
+      case LowerThirdLook::Blueprint: {
+        stackText(pad * 1.8, pad * 1.8, pad * 1.25, pad * 1.25, pad * 0.35);
+        rect(0, 0, blockW, blockH, {22, 67, 126, 255});
+        for (int i = 0; i <= 32; ++i) rect(blockW * i / 32, 0, titleH * 0.014, blockH, white, i % 4 == 0 ? 30 : 14);
+        for (int i = 0; i <= 12; ++i) rect(0, blockH * i / 12, blockW, titleH * 0.014, white, i % 4 == 0 ? 30 : 14);
+        const double span = (blockW / 2 - pad * 0.65) * q;
+        for (int i = 0; i < 2; ++i) {
+          const double y = i == 0 ? pad * 0.55 : blockH - pad * 0.55;
+          stroke(blockW / 2 - span, y, blockW / 2 + span, y, titleH * 0.025, white);
+          for (int side = 0; side < 2; ++side) {
+            const double x = blockW / 2 + (side ? span : -span);
+            stroke(x - pad * 0.16, y + pad * 0.2, x + pad * 0.16, y - pad * 0.2, titleH * 0.025, white);
+          }
+        }
+        stroke(pad * 0.65, blockH / 2 * (1 - q), pad * 0.65, blockH / 2 * (1 + q), titleH * 0.025, white);
+        wordsClipMin = blockW * (1 - q) / 2; wordsClipMax = blockW * (1 + q) / 2;
+        break;
+      }
+      case LowerThirdLook::Circuit: {
+        stackText(pad * 2.5, pad * 2.5, pad * 0.85, pad * 0.85, pad * 0.35);
+        rect(0, 0, blockW, blockH, {20, 72, 51, 255});
+        edge(pad * 0.2, pad * 0.2, blockW - pad * 0.4, blockH - pad * 0.4, titleH * 0.025, {70, 126, 83, 255});
+        for (int side = 0; side < 2; ++side) for (int i = 0; i < 5; ++i) {
+          const double sign = side == 0 ? 1.0 : -1.0;
+          const double x = side == 0 ? pad * 0.45 : blockW - pad * 0.45;
+          const double y = pad * 0.5 + i * (blockH - pad) / 4;
+          const double endX = x + sign * pad * (1.0 + (i % 2) * 0.5);
+          stroke(x, y, endX, y, titleH * 0.035, gold, static_cast<int>(255 * q));
+          stroke(endX, y, endX + sign * pad * 0.3, y + pad * 0.3, titleH * 0.035, gold, static_cast<int>(255 * q));
+          ring(x, y, titleH * 0.075, titleH * 0.025, gold);
+          const double pulse = std::fmod(seconds * 0.45 + i * 0.17, 1.0);
+          disc(x + (endX - x) * pulse, y, titleH * 0.045, {188, 255, 164, 255}, static_cast<int>(255 * q));
+        }
+        rect(pad * 2.05, pad * 0.45, blockW - pad * 4.1, blockH - pad * 0.9, {13, 40, 29, 255});
+        wordRight = entryPhase(0.2, 0.9);
+        break;
+      }
+      case LowerThirdLook::Equalizer: {
+        stackText(titleH * 2.5, pad, pad * 0.65, pad * 0.65, pad * 0.35);
+        rect(0, 0, blockW, blockH, {13, 20, 27, 255});
+        // Listen to the programme's host, not the graphics playlist: its own
+        // silent text cue can never tell us what the audience is hearing.
+        const int host = project_.outputs.empty() ? -1 : project_.outputs[0].hostDeckIndex;
+        const auto* programme = runtimeForDeck(host);
+        // The audio analysis retains its last sample when transport stops.
+        // Only a playing host can drive the lamps above their idle motion.
+        const double level = programme && programme->mediaEngine &&
+                             programme->mediaEngine->state() == TransportState::Playing
+          ? std::clamp(static_cast<double>(programme->mediaEngine->programAudioLevel01()), 0.0, 1.0) : 0.0;
+        for (int i = 0; i < 9; ++i) {
+          const double response = std::clamp(std::sqrt(level) * (0.68 + 0.32 * std::sin(seconds * 9 + i * 1.8)), 0.0, 1.0);
+          const double idle = 0.055 + 0.045 * (0.5 + 0.5 * std::sin(seconds * 1.5 + i));
+          const double lit = 12 * std::max(response, idle) * q;
+          for (int j = 0; j < 12; ++j) rect(pad * 0.4 + i * titleH * 0.2,
+              blockH - pad * 0.55 - (j + 1) * (blockH - pad * 1.1) / 12,
+              titleH * 0.13, (blockH - pad * 1.1) / 15,
+              j > 9 ? SDL_Color{241, 97, 66, 255} : j > 6 ? amber : SDL_Color{70, 221, 154, 255},
+              static_cast<int>(25 + 230 * std::clamp(lit - j, 0.0, 1.0)));
+        }
+        stroke(titleX, blockH - pad * 0.25, titleX + (blockW - titleX - pad) * q, blockH - pad * 0.25, titleH * 0.025, accent);
+        wordsAlpha = entryPhase(0.2, 0.9); lookScale = 0.94 + q * 0.06;
+        break;
+      }
+      case LowerThirdLook::Dotmatrix: {
+        stackText(pad * 1.2, pad * 1.2, pad * 0.8, pad * 0.8, pad * 0.45);
+        rect(0, 0, blockW, blockH, {24, 19, 13, 255});
+        edge(0, 0, blockW, blockH, titleH * 0.06, {100, 76, 42, 255});
+        // A fixed dot pitch is a material, not a screen-pixel effect: it scales
+        // with the lettering and costs the same number of cells at 4K.
+        const double pitch = titleH / 10;
+        for (double y = pad * 0.3; y < blockH - pad * 0.2; y += pitch)
+          for (double x = pad * 0.3; x < blockW - pad * 0.2; x += pitch)
+            // At 720p these are subpixel lamps. Six sides retain their shape
+            // at 4K without submitting reel-sized meshes for every dark LED.
+            disc(x, y, pitch * 0.18, amber, 24, 6);
+        overWords = true;
+        for (double x = titleX; x < titleX + titleW; x += pitch)
+          rect(x, titleY, pitch * 0.23, titleH, {24, 19, 13, 255});
+        for (double y = titleY; y < titleY + titleH; y += pitch)
+          rect(titleX, y, titleW, pitch * 0.23, {24, 19, 13, 255});
+        overWords = false;
+        wordsAlpha = entryPhase(0.1, 0.35);
+        break;
+      }
+      case LowerThirdLook::Stamp: {
+        stackText(pad * 1.3, pad * 1.3, pad * 0.85, pad * 0.85, pad * 0.45);
+        rect(pad * 0.18, pad * 0.2, blockW, blockH, black, 65);
+        rect(0, 0, blockW, blockH, paper);
+        edge(pad * 0.2, pad * 0.2, blockW - pad * 0.4, blockH - pad * 0.4, titleH * 0.095, redInk);
+        edge(pad * 0.48, pad * 0.48, blockW - pad * 0.96, blockH - pad * 0.96, titleH * 0.022, redInk);
+        for (int i = 0; i < 50; ++i) {
+          const double x = pad * 0.2 + (blockW - pad * 0.4) * ((i * 37) % 101) / 101;
+          rect(x, i % 2 ? pad * 0.22 : blockH - pad * 0.39, titleH * 0.02, titleH * 0.045, paper);
+        }
+        lookScale = 1 + 0.8 * std::pow(1 - entryPhase(0, 0.65), 2);
+        lookAngle = -3 + (1 - p) * 4 * std::sin(p * tau * 4);
+        lookDy = -(1 - q) * pad * 2; wordsAlpha = entryPhase(0.0, 0.3);
+        break;
+      }
+      case LowerThirdLook::Sticky: {
+        stackText(pad * 1.35, pad * 1.8, pad * 1.2, pad * 1.25, pad * 0.4);
+        const double curl = pad * 1.1;
+        polygon({{pad * 0.2, pad * 0.2}, {blockW + pad * 0.2, pad * 0.2},
+                 {blockW + pad * 0.4, blockH - curl}, {blockW - curl, blockH + pad * 0.4}, {pad * 0.2, blockH}}, black, 75);
+        polygon({{0, 0}, {blockW, 0}, {blockW, blockH - curl}, {blockW - curl, blockH}, {0, blockH}}, {250, 227, 110, 255});
+        rect(0, 0, blockW, pad * 0.55, {231, 202, 87, 255});
+        triangle({blockW - curl, blockH - curl}, {blockW, blockH - curl}, {blockW - curl, blockH}, {255, 247, 179, 255});
+        lookDy = -(1 - q) * blockH * 1.6;
+        lookAngle = 2 + 16 * (1 - q) * std::sin(p * tau * 1.3);
+        break;
+      }
+      case LowerThirdLook::Notebook: {
+        stackText(pad * 2.2, pad, pad * 0.8, pad * 0.8, pad * 0.5);
+        rect(pad * 0.15, pad * 0.18, blockW, blockH, black, 90);
+        rect(0, 0, blockW, blockH, {247, 245, 227, 255});
+        for (int i = 0; i < 7; ++i) stroke(pad * 0.7, blockH * (i + 0.5) / 7, blockW,
+            blockH * (i + 0.5) / 7, titleH * 0.018, {91, 143, 189, 255}, 120);
+        stroke(pad * 1.7, 0, pad * 1.7, blockH, titleH * 0.03, redInk, 180);
+        overWords = true;
+        for (int i = 0; i < 6; ++i) {
+          const double y = blockH * (i + 0.5) / 6;
+          disc(pad * 0.45, y, titleH * 0.08, {93, 86, 69, 255});
+          ring(pad * 0.16, y, titleH * 0.18, titleH * 0.06, {165, 169, 169, 255}, tau * 0.1, tau * 0.8);
+          ring(pad * 0.16, y, titleH * 0.18, titleH * 0.018, white, tau * 0.15, tau * 0.5);
+        }
+        overWords = false;
+        lookAngle = (1 - q) * -16; lookDx = -(1 - q) * pad * 3;
+        wordsAlpha = entryPhase(0.25, 0.85);
+        break;
+      }
+      case LowerThirdLook::Sketch: {
+        stackText(pad, pad, pad * 0.75, pad * 0.75, pad * 0.35);
+        rect(0, 0, blockW, blockH, {239, 235, 218, 255});
+        for (int i = 0; i < 3; ++i) {
+          const double o = titleH * (0.025 + i * 0.055);
+          stroke(-o, pad * 0.1 + o, blockW * q, -o, titleH * 0.02, pencil, 180 - i * 35);
+          stroke(blockW + o, 0, blockW - o, blockH * q, titleH * 0.02, pencil, 180 - i * 35);
+          stroke(blockW, blockH + o, blockW * (1 - q), blockH - o, titleH * 0.02, pencil, 180 - i * 35);
+        }
+        stroke(pad, titleY + titleH + pad * 0.1, pad + titleW * q, titleY + titleH, titleH * 0.045, redInk);
+        wordRight = entryPhase(0.1, 1);
+        break;
+      }
+      case LowerThirdLook::Confetti: {
+        stackText(pad * 1.4, pad * 1.4, pad * 0.75, pad * 0.75, pad * 0.35);
+        pill(0, 0, blockW, blockH, {100, 43, 131, 255});
+        lookScale = 0.85 + 0.15 * q + 0.1 * std::sin(p * tau) * (1 - p);
+        overWords = true;
+        static const SDL_Color colours[] = {{255, 201, 65, 255}, {243, 108, 146, 255},
+                                            {74, 213, 195, 255}, {248, 241, 221, 255}};
+        for (int i = 0; i < 38; ++i) {
+          const double t = p;
+          const double velocity = ((i * 37) % 79) / 79.0;
+          const double x = blockW / 2 + (velocity - 0.5) * (blockW + pad * 5) * t;
+          const double y = blockH * 0.15 - titleH * (2 + (i % 5) * 0.3) * t + titleH * 5 * t * t;
+          const double a = i + p * tau * 2, len = titleH * 0.15;
+          stroke(x, y, x + len * std::cos(a), y + len * std::sin(a), titleH * 0.055,
+                 colours[i % 4], static_cast<int>(255 * (1 - entryPhase(0.72, 1))));
+        }
+        overWords = false;
+        wordsAlpha = entryPhase(0.15, 0.75);
+        break;
+      }
+      case LowerThirdLook::Marquee: {
+        stackText(pad * 1.8, pad * 1.8, pad * 1.55, pad * 1.55, pad * 0.35);
+        rect(0, 0, blockW, blockH, {35, 24, 24, 255});
+        edge(pad * 0.14, pad * 0.14, blockW - pad * 0.28, blockH - pad * 0.28, titleH * 0.06, {140, 98, 48, 255});
+        edge(pad * 0.9, pad * 0.9, blockW - pad * 1.8, blockH - pad * 1.8, titleH * 0.035, gold);
+        overWords = true;
+        const int nx = 20, ny = 6, count = 2 * (nx + ny);
+        for (int i = 0; i < count; ++i) {
+          double x, y;
+          if (i < nx) { x = pad * 0.5 + (blockW - pad) * i / nx; y = pad * 0.5; }
+          else if (i < nx + ny) { x = blockW - pad * 0.5; y = pad * 0.5 + (blockH - pad) * (i - nx) / ny; }
+          else if (i < nx * 2 + ny) { x = blockW - pad * 0.5 - (blockW - pad) * (i - nx - ny) / nx; y = blockH - pad * 0.5; }
+          else { x = pad * 0.5; y = blockH - pad * 0.5 - (blockH - pad) * (i - nx * 2 - ny) / ny; }
+          const bool lit = p < 1 ? i < p * count : (i + static_cast<int>(seconds * 7)) % 4 != 0;
+          if (lit) disc(x, y, titleH * 0.115, amber, 40);
+          disc(x, y, titleH * 0.07, lit ? SDL_Color{255, 222, 146, 255} : SDL_Color{99, 70, 37, 255});
+          if (lit) disc(x - titleH * 0.02, y - titleH * 0.02, titleH * 0.022, white);
+        }
+        overWords = false;
+        wordsAlpha = entryPhase(0.3, 0.85);
+        break;
+      }
       case LowerThirdLook::Bar:
       default: {
         const double textW = std::max(titleW, subW);
@@ -2388,18 +3174,44 @@
       }
     }
 
+    // Mirror the furniture with the words: moving just the words puts a right-
+    // aligned name on top of a cassette reel or a folder tab. Textures themselves
+    // stay unmirrored, preserving the shaper's glyph order and Arabic joins.
+    if (d.look > LowerThirdLook::Scroll && rightSide) {
+      titleX = blockW - titleX - titleW;
+      subX = blockW - subX - subW;
+      for (Box& box : boxes) box.x = blockW - box.x - box.w;
+      for (auto* mesh : {&underWords, &overWordsMesh})
+        for (SDL_Vertex& vertex : *mesh) vertex.position.x = static_cast<float>(blockW - vertex.position.x);
+      const double oldLeft = wordLeft;
+      wordLeft = 1.0 - wordRight;
+      wordRight = 1.0 - oldLeft;
+      const double oldMin = wordsClipMin;
+      wordsClipMin = blockW - wordsClipMax;
+      wordsClipMax = blockW - oldMin;
+      lookDx = -lookDx;
+      lookAngle = -lookAngle;
+    }
+    // Long names shrink as a complete object, furniture included. The original
+    // thirteen retain their existing layout; the added materials leave room
+    // for a right-side anchor and a small tilt without crossing the frame.
+    const double layoutFit = d.look > LowerThirdLook::Scroll
+      ? std::min(1.0, target.w * 0.84 / std::max(1.0, blockW)) : 1.0;
     // Where the block sits on the frame.
-    const double marginX = target.w * 0.055;
+    // Sideline's three slashes stand outside the plate. At double size a
+    // short name does not trigger fitting, so reserve their overhang too.
+    const double marginX = std::max(target.w * 0.055,
+      d.look == LowerThirdLook::Sideline ? pad * 2.4 * layoutFit : 0.0);
     const double bottom = target.h * std::clamp(d.height, 0.0, 0.8);
     double blockX = target.x + marginX;
     if (d.look == LowerThirdLook::Glass) {
       blockX = target.x;
     } else if (d.side == 1) {
-      blockX = target.x + (target.w - blockW) / 2.0;
+      blockX = target.x + (target.w - blockW * layoutFit) / 2.0;
     } else if (placedRight) {
-      blockX = target.x + target.w - marginX - blockW;
+      blockX = target.x + target.w - marginX - blockW * layoutFit;
     }
-    const double blockY = target.y + target.h - bottom - blockH;
+    const double blockY = target.y + target.h - bottom - blockH * layoutFit;
 
     // ── THE MOVE ────────────────────────────────────────────────────────
     const double e = easeOut(p);
@@ -2448,17 +3260,20 @@
     // bob and a small tilt, on the cue's own clock -- so it scrubs, and two
     // outputs showing it tilt together. Measured from the end of the move in,
     // so the move itself is untouched.
-    double angle = 0.0;
-    if (arcade && !leaving && p >= 1.0) {
+    scale *= lookScale;
+    dx += lookDx * layoutFit;
+    dy += lookDy * layoutFit;
+    double angle = lookAngle;
+    if ((arcade || d.wiggle) && !leaving && p >= 1.0) {
       const double idle = std::max(0.0, seconds - std::max(0.0, d.inSeconds));
       const double w = 2.0 * 3.14159265358979 * idle / 1.2;
       const double ramp = std::clamp(idle / 0.3, 0.0, 1.0);   // eases into the wobble
-      angle = ramp * (-1.5 + 1.0 * std::sin(w));
+      angle += ramp * (-1.5 + 1.0 * std::sin(w));
       dy += ramp * -titleH * 0.08 * (0.5 - 0.5 * std::cos(w));
     }
     // COMIC sits at a jaunty angle from the start, through every move.
     if (d.look == LowerThirdLook::Comic) {
-      angle = -3.0;
+      angle += -3.0;
     }
     // NEON STRIKES. For half a second after it arrives the sign stutters on
     // and off the way a tube does catching, then holds -- on the cue clock,
@@ -2473,14 +3288,14 @@
         }
       }
     }
-    const double cx = blockX + blockW / 2.0;
-    const double cy = blockY + blockH / 2.0;
+    const double cx = blockX + blockW * layoutFit / 2.0;
+    const double cy = blockY + blockH * layoutFit / 2.0;
     auto place = [&](double x, double y, double w, double h) {
       SDL_FRect r;
-      r.x = static_cast<float>(cx + (blockX + x - cx) * scale + dx);
-      r.y = static_cast<float>(cy + (blockY + y - cy) * scale + dy);
-      r.w = static_cast<float>(w * scale);
-      r.h = static_cast<float>(h * scale);
+      r.x = static_cast<float>(cx + (x - blockW / 2.0) * layoutFit * scale + dx);
+      r.y = static_cast<float>(cy + (y - blockH / 2.0) * layoutFit * scale + dy);
+      r.w = static_cast<float>(w * layoutFit * scale);
+      r.h = static_cast<float>(h * layoutFit * scale);
       return r;
     };
 
@@ -2492,8 +3307,10 @@
     }
     SDL_Rect clip = target;
     if (wipe < 1.0) {
-      const int shown = static_cast<int>(std::lround(blockW * wipe));
-      clip = SDL_Rect {static_cast<int>(std::floor(blockX)), target.y,
+      const int shown = static_cast<int>(std::lround(blockW * layoutFit * wipe));
+      const double wipeX = d.look > LowerThirdLook::Scroll && rightSide
+        ? blockX + blockW * layoutFit * (1.0 - wipe) : blockX;
+      clip = SDL_Rect {static_cast<int>(std::floor(wipeX)), target.y,
                        std::max(0, shown), target.h};
       SDL_GetRectIntersection(&clip, &target, &clip);
     }
@@ -2557,42 +3374,81 @@
       SDL_RenderGeometry(renderer, nullptr, v, 4, idx, 6);
     }
 
+    auto drawMesh = [&](std::vector<SDL_Vertex>& mesh) {
+      for (SDL_Vertex& vertex : mesh) {
+        const double x = rightSide ? blockW - (blockW - vertex.position.x) * barFrac
+                                   : vertex.position.x * barFrac;
+        const SDL_FRect point = place(x, vertex.position.y, 0, 0);
+        const float ox = point.x - pivotX, oy = point.y - pivotY;
+        vertex.position = {pivotX + ox * cosA - oy * sinA, pivotY + ox * sinA + oy * cosA};
+        vertex.color.a *= static_cast<float>(alpha);
+      }
+      if (!mesh.empty()) SDL_RenderGeometry(renderer, nullptr, mesh.data(), static_cast<int>(mesh.size()), nullptr, 0);
+    };
+    drawMesh(underWords);
+
     auto drawWords = [&](const TextTextureEntry* tex, double x, double y, double h,
-                         double a) {
+                         double a, double fold = 1.0, double top = 0.0, double bottomPart = 1.0) {
       if (!tex || !tex->texture || tex->h <= 0 || a <= 0.0) {
         return;
       }
       const SDL_FRect scaled = scaledLabelRect(*tex, x, y, h);
-      const double w = scaled.w;
-      const double drawY = scaled.y;
-      const double drawH = scaled.h;
+      const double fullW = scaled.w;
+      y = scaled.y;
+      h = scaled.h;
+      const double left = std::clamp(std::max(wordLeft, (wordsClipMin - x) / std::max(1.0, fullW)), 0.0, 1.0);
+      const double right = std::clamp(std::min(wordRight, (wordsClipMax - x) / std::max(1.0, fullW)), left, 1.0);
+      if (right <= left) return;
+      const double w = fullW * (right - left);
+      x += fullW * left;
+      y += h * (top + (top == 0.0 ? (bottomPart - top) * (1 - fold) : 0.0));
+      h *= (bottomPart - top) * fold;
+      SDL_FRect source {static_cast<float>(tex->w * left), static_cast<float>(tex->h * top),
+                        static_cast<float>(tex->w * (right - left)), static_cast<float>(tex->h * (bottomPart - top))};
+      auto paint = [&](SDL_FRect dst) {
+        if (angle == 0.0) SDL_RenderTexture(renderer, tex->texture, &source, &dst);
+        else {
+          const SDL_FPoint about {pivotX - dst.x, pivotY - dst.y};
+          SDL_RenderTextureRotated(renderer, tex->texture, &source, &dst, angle, &about, SDL_FLIP_NONE);
+        }
+      };
       if (boxless) {
-        // A soft shadow, because a line of words with no box behind it has to
-        // read over a white shirt as well as a dark stage.
-        SDL_FRect shadow = place(x + h * 0.05, drawY + h * 0.05, w, drawH);
         SDL_SetTextureColorMod(tex->texture, 0, 0, 0);
         SDL_SetTextureAlphaMod(tex->texture, static_cast<Uint8>(std::clamp(150.0 * a, 0.0, 255.0)));
-        SDL_RenderTexture(renderer, tex->texture, nullptr, &shadow);
+        paint(place(x + h * 0.05, y + h * 0.05, w, h));
         SDL_SetTextureColorMod(tex->texture, 255, 255, 255);
       }
-      SDL_FRect dst = place(x, drawY, w, drawH);
       SDL_SetTextureAlphaMod(tex->texture, static_cast<Uint8>(std::clamp(255.0 * a, 0.0, 255.0)));
-      if (angle == 0.0) {
-        SDL_RenderTexture(renderer, tex->texture, nullptr, &dst);
-      } else {
-        const SDL_FPoint about {pivotX - dst.x, pivotY - dst.y};
-        SDL_RenderTextureRotated(renderer, tex->texture, nullptr, &dst, angle, &about, SDL_FLIP_NONE);
-      }
+      paint(place(x, y, w, h));
       SDL_SetTextureAlphaMod(tex->texture, 255);
     };
     const bool travels = move == LowerThirdMove::SlideLeft || move == LowerThirdMove::SlideRight ||
                          move == LowerThirdMove::SlideUp;
-    // A right-to-left title types from the right: the part shown so far
-    // keeps to the title's right edge rather than its left.
-    const double shownX = (rtlText && shownTex && shownTex != titleTex)
-                            ? titleX + titleW - widthAt(shownTex, titleH)
-                            : titleX;
-    drawWords(shownTex, shownX, titleY, titleH, alpha * textAlpha);
+    textAlpha *= wordsAlpha;
+    // Slices of ONE shaped texture keep connected scripts connected. Flaps
+    // count characters and run from the reading edge, never from UTF-8 bytes.
+    if (d.look == LowerThirdLook::Scoreboard && !titleEnds.empty()) {
+      const double seam = titleTex ? std::clamp(
+        (titleTex->lineH * 0.5 + titleTex->top) / std::max(1.0, static_cast<double>(titleTex->h)), 0.0, 1.0) : 0.5;
+      for (std::size_t i = 0; i < titleEnds.size(); ++i) {
+        if (move == LowerThirdMove::Typewriter &&
+            i >= static_cast<std::size_t>(std::lround(std::clamp((p - 0.3) / 0.7, 0.0, 1.0) * titleEnds.size()))) break;
+        const double turn = std::clamp((p - 0.08 - 0.5 * i / titleEnds.size()) / 0.4, 0.0, 1.0);
+        if (turn <= 0.0) continue;
+        const std::size_t visual = rightSide ? titleEnds.size() - 1 - i : i;
+        wordLeft = static_cast<double>(visual) / titleEnds.size();
+        wordRight = static_cast<double>(visual + 1) / titleEnds.size();
+        drawWords(titleTex, titleX, titleY, titleH, alpha * textAlpha * std::min(1.0, turn * 2), 1.0, 0.0, seam);
+        if (turn > 0.5) drawWords(titleTex, titleX, titleY, titleH, alpha * textAlpha,
+                                 std::max(0.01, -std::cos(turn * tau / 2)), seam, 1.0);
+      }
+      wordLeft = 0.0;
+      wordRight = 1.0;
+    } else {
+      const double shownX = (rtlText && shownTex && shownTex != titleTex)
+        ? titleX + titleW - widthAt(shownTex, titleH) : titleX;
+      drawWords(shownTex, shownX, titleY, titleH, alpha * textAlpha);
+    }
     // The subtitle trails on the moves that travel: drawn a little further
     // back along the same path.
     // Only where the subtitle has no box of its own to stay inside: on the
@@ -2611,12 +3467,14 @@
       } else {
         extraY = (e - eSub) * (target.y + target.h - blockY + 8.0);
       }
-      drawWords(subTex, subX + extraX, subY + extraY, subH, alpha);
+      drawWords(subTex, subX + extraX, subY + extraY, subH, alpha * wordsAlpha);
     } else {
       drawWords(subTex, subX, subY, subH,
-                alpha * (move == LowerThirdMove::Typewriter
+                alpha * (move == LowerThirdMove::Typewriter || d.look == LowerThirdLook::Terminal
                            ? std::clamp((p - 0.85) / 0.15, 0.0, 1.0) : textAlpha));
     }
+
+    drawMesh(overWordsMesh);
 
     if (unrolling) {
       SDL_SetRenderClipRect(renderer, &clip);

@@ -891,7 +891,7 @@ void MediaEngine::play() {
     return;
   }
   bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
-  if (activeCue_->kind != CueKind::Video && !isTimedStill) return;
+  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::Text && !isTimedStill) return;
   if (state_ == TransportState::Playing) return;
   if (activeCue_->kind == CueKind::Video && !decodersRunning_) {
     // Pipes were released by a dark STOP — revive them from the reracked
@@ -927,7 +927,7 @@ void MediaEngine::pause() {
   }
   bool isAV = activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio;
   bool isTimedStill = !isAV && duration_ > 0.0;
-  if (!isAV && !isTimedStill) return;
+  if (!isAV && activeCue_->kind != CueKind::Text && !isTimedStill) return;
   if (state_ != TransportState::Playing) {
     state_ = TransportState::Paused;
     return;
@@ -952,7 +952,7 @@ void MediaEngine::toggle() {
     return;
   }
   bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
-  if (activeCue_->kind != CueKind::Video && !isTimedStill) return;
+  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::Text && !isTimedStill) return;
   if (state_ == TransportState::Playing) { pause(); } else { play(); }
 }
 
@@ -1060,13 +1060,17 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
   if (activeCue_->kind == CueKind::Image || isSourceCueKind(activeCue_->kind)) {
     return;
   }
-  double clamped = std::clamp(seconds, 0.0, duration_);
+  // A held text cue has a clock but no end. Treating zero duration as its
+  // upper bound made every seek return to the start of the entrance.
+  const double clamped = activeCue_->kind == CueKind::Text && duration_ <= 0.0
+    ? std::max(0.0, seconds) : std::clamp(seconds, 0.0, duration_);
   pausedPosition_ = clamped;
   currentPosition_ = clamped;
   playbackStartPosition_ = clamped;
   playbackClockStart_ = std::chrono::steady_clock::now();
   avJumpExpected_ = true;   // a seek is a deliberate move
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
+  if (activeCue_->kind == CueKind::Text) return;
   resetMediaFpsTelemetry();
   if (clearVisualFrame) {
     displayFrame_.reset();
@@ -1130,8 +1134,8 @@ double MediaEngine::position() const {
     // a hair fast or slow so the picture stays on the sound card's clock.
     double elapsed = std::chrono::duration<double>(now - playbackClockStart_).count() *
                      playbackSpeed_ * clockTrim_;
-    return std::clamp(playbackStartPosition_ + elapsed, 0.0,
-                      duration_ > 0.0 ? duration_ : elapsed);
+    const double pos = playbackStartPosition_ + elapsed;
+    return duration_ > 0.0 ? std::clamp(pos, 0.0, duration_) : std::max(0.0, pos);
   }
   return currentPosition_;
 }

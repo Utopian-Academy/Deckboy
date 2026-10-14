@@ -20,10 +20,17 @@
 
 #include <algorithm>
 #include <chrono>
+#include <charconv>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <deque>
+#include <filesystem>
+#include <fstream>
+#include <future>
+#include <limits>
+#include <random>
 #include <string>
 #include <thread>
 #include <vector>
@@ -118,13 +125,154 @@ struct HudState {
   double glide = 0.0;       // G: crossfade seconds; 0 is a cut
 };
 
+// Terminal-only containment. Own clock/RNG/state, with no reference to a cue,
+// renderer, audio device, or the player's shuffle RNG. Explicit inputs also
+// let the regression check fast-forward months without waiting for an escape.
+class Containment {
+ public:
+  static constexpr unsigned kOdds = 10000000;
+  static constexpr double kDuration = 6.0;
+
+  static unsigned odds(const char* value) {
+    if (!value) return kOdds;
+    const std::string text(value);
+    unsigned parsed = 0;
+    const auto result = std::from_chars(text.data(), text.data() + text.size(), parsed);
+    return result.ec == std::errc() && result.ptr == text.data() + text.size() && parsed > 0
+      ? parsed : kOdds;
+  }
+
+  void begin(std::uint64_t count, unsigned seed, unsigned denominator = kOdds) {
+    count_ = count;
+    random_.seed(seed);
+    odds_ = std::max(1u, denominator);
+    lastSecond_ = 0.0;
+    escapedAt_ = -1.0;
+    active_ = false;
+    girl_ = false;
+  }
+
+  // One draw per visible HUD second, never per video frame. A suspended
+  // terminal does not replay a backlog of animations when it wakes up.
+  bool advance(double uptime) {
+    if (!std::isfinite(uptime) || uptime < 0.0) return false;
+    if (active_ && uptime - escapedAt_ >= kDuration) active_ = false;
+    const double second = std::floor(uptime);
+    if (second <= lastSecond_) return false;
+    lastSecond_ = second;
+    if (active_ || (escapedAt_ >= 0.0 && uptime - escapedAt_ < kDuration + 1.0)) return false;
+    if (std::uniform_int_distribution<unsigned>(1, odds_)(random_) != 1) return false;
+    if (count_ != std::numeric_limits<std::uint64_t>::max()) ++count_;
+    girl_ = std::uniform_int_distribution<unsigned>(0, 1)(random_) != 0;
+    escapedAt_ = uptime;
+    active_ = true;
+    return true;
+  }
+
+  std::uint64_t count() const { return count_; }
+  bool active() const { return active_; }
+  const char* catcher() const { return girl_ ? "Deckgirl" : "Deckboy"; }
+
+  std::string status() const {
+    if (active_) return "gremlin containment: BREACHED";
+    if (!count_) return "gremlin containment: nominal";
+    return std::string("gremlin containment: re-contained") +
+      (escapedAt_ >= 0.0 ? std::string(" by ") + catcher() : std::string());
+  }
+
+  std::string ribbon(double uptime, int width) const {
+    if (width <= 0) return {};
+    std::string cells(static_cast<std::size_t>(width), ' ');
+    const auto put = [&cells, width](int column, const std::string& text) {
+      for (std::size_t i = 0; i < text.size(); ++i) {
+        const int x = column + static_cast<int>(i);
+        if (x >= 0 && x < width) cells[static_cast<std::size_t>(x)] = text[i];
+      }
+    };
+    if (!active_) {
+      if (count_) put(0, "(" + std::to_string(count_) + " escapes on record)");
+      return cells;
+    }
+    const double age = std::clamp(uptime - escapedAt_, 0.0, kDuration);
+    const bool step = static_cast<int>(age * 10.0) % 2 != 0;
+    const int catchAt = std::max(0, width - 8);
+    const int gremlin = static_cast<int>(std::round(catchAt * std::min(1.0, age / 4.0)));
+    const std::string mascot = std::string(catcher()) + (step ? " \\o/->" : " /o\\->");
+    if (age < 4.0) {
+      // The mascot enters from the left after two seconds and catches up.
+      if (age >= 2.0) {
+        const int target = catchAt - static_cast<int>(mascot.size());
+        const int x = static_cast<int>(std::round(-static_cast<double>(mascot.size()) +
+          (target + static_cast<double>(mascot.size())) * (age - 2.0) / 2.0));
+        put(x, mascot);
+      }
+      put(gremlin, step ? "<o_o>" : "<o^o>");
+    } else {
+      const std::string caught = std::string(catcher()) + " \\o/->[o_o]";
+      const int x = catchAt - static_cast<int>(mascot.size()) +
+        static_cast<int>(std::round((age - 4.0) * width / 2.0));
+      put(x, caught);
+    }
+    return cells;
+  }
+
+  static std::uint64_t load(const std::filesystem::path& file) {
+    // Bounded input: a corrupt state file must not allocate an arbitrary line.
+    std::ifstream input(file, std::ios::binary);
+    char text[32] {};
+    input.read(text, sizeof(text));
+    const auto size = static_cast<std::size_t>(input.gcount());
+    if (size < 2 || size == sizeof(text) || text[size - 1] != '\n') return 0;
+    std::uint64_t count = 0;
+    const auto parsed = std::from_chars(text, text + size - 1, count);
+    return parsed.ec == std::errc() && parsed.ptr == text + size - 1 ? count : 0;
+  }
+
+  static bool save(const std::filesystem::path& file, std::uint64_t count) {
+    // Runs on the HUD's worker, never the playback thread. Keep the previous
+    // complete record if replacement fails; never unlink it to make room.
+    std::error_code ec;
+    std::filesystem::create_directories(file.parent_path(), ec);
+    if (ec) return false;
+    auto temporary = file;
+    temporary += ".saving";
+    std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+    output << count << '\n';
+    output.close();
+    if (!output) return false;
+#ifdef _WIN32
+    return MoveFileExW(temporary.c_str(), file.c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
+#else
+    std::filesystem::rename(temporary, file, ec);
+    return !ec;
+#endif
+  }
+
+ private:
+  std::uint64_t count_ = 0;
+  std::mt19937 random_;
+  unsigned odds_ = kOdds;
+  double lastSecond_ = 0.0;
+  double escapedAt_ = -1.0;
+  bool active_ = false;
+  bool girl_ = false;
+};
+
 class Hud {
  public:
   // Decides once, at start, whether this terminal gets the panel.
-  void begin(bool forcePlain) {
+  void begin(bool forcePlain, const std::filesystem::path& stateDirectory = {}) {
     fancy_ = !forcePlain && wantsPanel();
     if (fancy_) std::fputs("\x1b[?25l", stdout);  // hide the cursor while we own it
     start_ = std::chrono::steady_clock::now();
+    if (fancy_) {
+      if (!stateDirectory.empty()) containmentFile_ = stateDirectory / "mini-containment";
+      containment_.begin(containmentFile_.empty() ? 0 : Containment::load(containmentFile_),
+        static_cast<unsigned>(start_.time_since_epoch().count()) ^
+          static_cast<unsigned>(reinterpret_cast<std::uintptr_t>(this)),
+        Containment::odds(std::getenv("DECKBOY_MINI_GREMLIN_ODDS")));
+      savedCount_ = containment_.count();
+    }
   }
 
   bool fancy() const { return fancy_; }
@@ -140,7 +288,7 @@ class Hud {
                 kTitleInk, ink::kReset, ink::kDim, glyph::kNext, ink::kReset);
     std::vector<std::pair<std::string, std::string>> lines = facts;
     lines.insert(lines.begin() + std::min<std::size_t>(lines.size(), 2), {"flux capacitor", "charged"});
-    lines.push_back({"gremlin containment", "nominal"});
+    lines.push_back({"gremlin containment", containment_.count() ? "re-contained" : "nominal"});
     for (const auto& [label, value] : lines) {
       std::string dots(std::max<int>(3, 22 - static_cast<int>(label.size())), '.');
       std::printf("  %s%s%s %s %s%s%s %s%s%s\n", ink::kDim, glyph::kLog, ink::kReset, label.c_str(), ink::kDeep,
@@ -170,7 +318,10 @@ class Hud {
     if (!dirty_ && now - lastDraw_ < std::chrono::milliseconds(100)) return;
     lastDraw_ = now;
     dirty_ = false;
-    draw(s, std::chrono::duration<double>(now - start_).count());
+    const double uptime = std::chrono::duration<double>(now - start_).count();
+    containment_.advance(uptime);
+    serviceContainmentSave(uptime);
+    draw(s, uptime);
   }
 
   void end() {
@@ -179,6 +330,21 @@ class Hud {
   }
 
  private:
+  void serviceContainmentSave(double uptime) {
+    if (containmentSave_.valid()) {
+      if (containmentSave_.wait_for(std::chrono::seconds(0)) != std::future_status::ready) return;
+      try { if (containmentSave_.get()) savedCount_ = savingCount_; }
+      catch (...) {}  // cosmetic state cannot stop a show
+    }
+    if (containmentFile_.empty() || savedCount_ == containment_.count() || uptime < nextSave_) return;
+    nextSave_ = uptime + 5.0;
+    savingCount_ = containment_.count();
+    try {
+      containmentSave_ = std::async(std::launch::async,
+        [file = containmentFile_, count = savingCount_] { return Containment::save(file, count); });
+    } catch (...) {}  // retry later if a worker cannot be created
+  }
+
   // Bold WITH a colour: bold on its own takes whatever the terminal's theme
   // gives bold text, which on one operator's theme was magenta.
   static constexpr const char* kTitleInk = "\x1b[1;38;2;155;188;15m";
@@ -429,6 +595,15 @@ class Hud {
     }
     ++lines;
 
+    const std::string containmentStatus = containment_.status();
+    std::printf("\x1b[2K   %s%s%s\n", containment_.active() ? ink::kWarn : ink::kDim,
+                containmentStatus.c_str(), ink::kReset);
+    ++lines;
+    // Reserve this row even before the first escape: no jump in panel height,
+    // no covering commands/logs, and the audio ribbon keeps working below it.
+    std::printf("\x1b[2K   %s%s%s\n", ink::kMid, containment_.ribbon(t, kInner - 2).c_str(), ink::kReset);
+    ++lines;
+
     // The shimmer: a ribbon of symbols whose height follows the sound, with a
     // slow idle drift so a silent picture still looks alive.
     static const char kRamp[] = " .:-=+*#%@";
@@ -469,6 +644,12 @@ class Hud {
   std::string lastPrompt_;
   std::chrono::steady_clock::time_point start_;
   std::chrono::steady_clock::time_point lastDraw_;
+  Containment containment_;
+  std::filesystem::path containmentFile_;
+  std::future<bool> containmentSave_;
+  std::uint64_t savedCount_ = 0;
+  std::uint64_t savingCount_ = 0;
+  double nextSave_ = 0.0;
 };
 
 }  // namespace mini

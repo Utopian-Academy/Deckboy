@@ -510,6 +510,7 @@
       case QuickAction::AudioVisualNext: cycleSelectedAudioVisual(1); break;
       case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
       case QuickAction::CycleScaleMode:  cycleSelectedScaleMode(); break;
+      case QuickAction::CycleScaleModePrevious: cycleSelectedScaleMode(-1); break;
       case QuickAction::EditNotes: {
         Cue* sel = selectedCueMutable();
         if (sel) {

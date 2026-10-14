@@ -1,0 +1,25 @@
+/* Colours are supplied by the desk's theme in the /remote.css response. */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+main { max-width: 56rem; margin: auto; padding: 1rem; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+header, .deck-row { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+header { justify-content: space-between; }
+h1 { font-size: 1.5rem; } h2 { font-size: 1.2rem; }
+a { color: inherit; }
+button, input, select { font: inherit; min-height: 3rem; max-width: 100%; padding: .65rem .8rem;
+  border: .1rem solid currentColor; border-radius: .35rem; background: var(--button); color: var(--button-ink); }
+button { cursor: pointer; touch-action: manipulation; overflow-wrap: anywhere; }
+button:disabled { cursor: default; opacity: .55; }
+:focus-visible { outline: .2rem solid var(--ink); outline-offset: .2rem; }
+form { display: grid; gap: .75rem; max-width: 30rem; }
+select { flex: 1; min-width: 0; }
+.transport, .dash { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+.transport button { font-weight: bold; font-size: 1rem; min-height: 4rem;
+  padding: .5rem .2rem; white-space: nowrap; }
+.cues { display: grid; gap: .5rem; }
+.cues button { width: 100%; text-align: left; }
+.cues button[aria-pressed="true"] { background: var(--active); color: var(--active-ink); }
+#connection, #result, #transport { overflow-wrap: anywhere; }
+#result:empty { display: none; }
+[hidden] { display: none !important; }
+@media (max-width: 28rem) { .dash { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

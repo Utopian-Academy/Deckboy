@@ -4267,10 +4267,12 @@
   }
 
   bool enqueueRemoteCommand(std::string command, SocketHandle replyTo = kInvalidSocket,
-                            std::uint64_t replyGeneration = 0) {
+                            std::uint64_t replyGeneration = 0,
+                            std::shared_ptr<WebRemoteReply> webReply = {}) {
     std::lock_guard<std::mutex> lock(remoteCommandMutex_);
     if (remoteCommands_.size() >= 512 || command.size() > 65536) return false;
-    remoteCommands_.push_back(PendingRemoteCommand {std::move(command), replyTo, replyGeneration});
+    remoteCommands_.push_back(PendingRemoteCommand {std::move(command), replyTo, replyGeneration,
+                                                    std::move(webReply)});
     return true;
   }
 

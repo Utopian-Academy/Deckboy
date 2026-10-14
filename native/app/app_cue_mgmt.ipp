@@ -1900,7 +1900,9 @@
     static const std::vector<SDL_DialogFileFilter> kMediaFilters = {
       {"Media files", "mp4;mov;m4v;mkv;avi;webm;mpg;mpeg;m2v;ts;wmv;flv;"
                       "png;jpg;jpeg;bmp;gif;tif;tiff;webp;avif;heic;heif;"
-                      "wav;mp3;aac;m4a;flac;ogg;aiff"},
+                      "wav;mp3;aac;m4a;flac;ogg;aiff;"
+                      "pdf;pptx;ppt;pps;ppsx;key;odp"},
+      {"Slides", "pdf;pptx;ppt;pps;ppsx;key;odp"},
       {"All files", "*"},
     };
     showOpenFileDialog(kMediaFilters, /*allowMany=*/true,
@@ -4440,6 +4442,7 @@
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
     triggerToast("video synth added");
+    markProjectDirty();
     playUiSound(UiSoundEffect::Import);
   }
 

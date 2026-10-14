@@ -586,6 +586,7 @@ add_executable(deckboy-native
   native/core/media_probe.cpp
   native/core/watch_folder.cpp
   native/core/bidi.cpp
+  native/core/scopes.cpp
   native/engine/media_engine.cpp
   native/platform/browser.cpp
   native/platform/pdf_import.cpp
@@ -1153,6 +1154,24 @@ include(CTest)
 option(DECKBOY_SANITIZE_BROADCAST_CHECK "Instrument the transport regression target with ASan and UBSan" OFF)
 if(BUILD_TESTING)
   find_package(Threads REQUIRED)
+  # Pure signal analysis; the same source is linked into the desk and Mini.
+  add_executable(deckboy-scopes-check tools/scopes_check.cpp native/core/scopes.cpp)
+  target_include_directories(deckboy-scopes-check PRIVATE native)
+  if(MSVC)
+    target_compile_options(deckboy-scopes-check PRIVATE /W4 /WX)
+  else()
+    target_compile_options(deckboy-scopes-check PRIVATE -Wall -Wextra -Wshadow -Werror)
+  endif()
+  add_test(NAME scopes COMMAND deckboy-scopes-check)
+  set_tests_properties(scopes PROPERTIES TIMEOUT 30)
+  add_executable(deckboy-mini-hud-check tools/mini_hud_check.cpp)
+  target_include_directories(deckboy-mini-hud-check PRIVATE native)
+  target_link_libraries(deckboy-mini-hud-check PRIVATE Threads::Threads)
+  if(WIN32)
+    target_compile_definitions(deckboy-mini-hud-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+  endif()
+  add_test(NAME mini-hud COMMAND deckboy-mini-hud-check "${CMAKE_CURRENT_BINARY_DIR}/mini-hud-state")
+  set_tests_properties(mini-hud PROPERTIES TIMEOUT 15)
   # Unicode's bidi conformance files against native/core/bidi.cpp. CI fetches
   # BidiTest.txt and BidiCharacterTest.txt for the Unicode version the tables
   # were generated from and runs this; see tools/bidi_check.cpp.

@@ -2859,9 +2859,9 @@
     auto step = [](int value, int count) { return (value + 1) % count; };
     switch (which) {
       case 0: {
-        // A LIST, not a cycle: thirteen looks is twelve presses to reach the
-        // one before where you are. Grouped, so "clean" and "magical" read as
-        // the two kinds of thing on offer.
+        // A LIST, not a cycle: reaching the previous look should not take a
+        // lap of the catalogue. Grouped, so "clean" and "magical" read as the
+        // two kinds of thing on offer; the dropdown can search either.
         std::vector<std::pair<std::string, std::string>> choices;
         for (int pass = 0; pass < 2; ++pass) {
           for (int i = 0; i < static_cast<int>(LowerThirdLook::Count); ++i) {
@@ -2902,6 +2902,45 @@
                 {LowerThirdLook::Comic, 4, 2},   {LowerThirdLook::Neon, 0, 7},
                 {LowerThirdLook::Sparkle, 7, 4}, {LowerThirdLook::Scroll, 1, 2},
                 {LowerThirdLook::Arcade, 9, 4},
+                {LowerThirdLook::Bulletin, 0, 2},
+                {LowerThirdLook::Dateline, 0, 6},
+                {LowerThirdLook::Sideline, 0, 5},
+                {LowerThirdLook::Scoreboard, 0, 4},
+                {LowerThirdLook::Podium, 0, 6},
+                {LowerThirdLook::Pennant, 0, 2},
+                {LowerThirdLook::Ribbon, 6, 4},
+                {LowerThirdLook::Ledger, 1, 6},
+                {LowerThirdLook::Dossier, 1, 3},
+                {LowerThirdLook::Index, 1, 2},
+                {LowerThirdLook::Bracket, 0, 6},
+                {LowerThirdLook::Crosshair, 0, 4},
+                {LowerThirdLook::Caption, 0, 4},
+                {LowerThirdLook::Credit, 0, 1},
+                {LowerThirdLook::Theatre, 0, 4},
+                {LowerThirdLook::Placard, 1, 2},
+                {LowerThirdLook::Rail, 0, 6},
+                {LowerThirdLook::Survey, 0, 3},
+                {LowerThirdLook::Tab, 0, 6},
+                {LowerThirdLook::Ticket, 1, 2},
+                {LowerThirdLook::Capsule, 0, 6},
+                {LowerThirdLook::Film, 0, 1},
+                {LowerThirdLook::Stacked, 1, 6},
+                {LowerThirdLook::Flag, 0, 2},
+                {LowerThirdLook::Terminal, 0, 5},
+                {LowerThirdLook::Window, 1, 6},
+                {LowerThirdLook::Diskette, 0, 6},
+                {LowerThirdLook::Cassette, 0, 3},
+                {LowerThirdLook::Cartridge, 0, 4},
+                {LowerThirdLook::Blueprint, 6, 1},
+                {LowerThirdLook::Circuit, 0, 5},
+                {LowerThirdLook::Equalizer, 0, 5},
+                {LowerThirdLook::Dotmatrix, 0, 4},
+                {LowerThirdLook::Stamp, 1, 2},
+                {LowerThirdLook::Sticky, 4, 3},
+                {LowerThirdLook::Notebook, 1, 2},
+                {LowerThirdLook::Sketch, 0, 4},
+                {LowerThirdLook::Confetti, 7, 4},
+                {LowerThirdLook::Marquee, 0, 4},
               };
               for (const Pair& pair : kPairs) {
                 if (pair.look == now->lowerThird.look) {
@@ -2938,6 +2977,12 @@
         d.moveOut = static_cast<LowerThirdMove>(
           step(static_cast<int>(d.moveOut), static_cast<int>(LowerThirdMove::Count)));
         triggerToast(std::string("out: ") + lowerThirdMoveLabel(d.moveOut));
+        break;
+      case 6:
+        pushUndoSnapshot();
+        d.wiggle = !d.wiggle;
+        triggerToast(d.look == LowerThirdLook::Arcade ? "arcade always wiggles"
+                     : d.wiggle ? "wiggle on" : "wiggle off");
         break;
       default:
         return;
@@ -7628,8 +7673,9 @@
   // multiplier is derived per cue from its base rendered size. When the
   // aspect link is on (Project::geometryAspectLinked, the default), the
   // other axis scales by the same relative factor. These two setters are the
-  // single write path — inspector editors and remote WIDTH/HEIGHT commands
-  // both go through them so the link always applies.
+  // inspector write path. Remote WIDTH/HEIGHT use the same base-size and
+  // aspect-link calculation, validating the whole selection before writing
+  // instead of clamping values that the caller would not know had changed.
   bool setSelectedWidthPx(double px) {
     bool link = project_.geometryAspectLinked;
     bool changed = false;
@@ -8624,14 +8670,14 @@
     markProjectDirty();
   }
 
-  void cycleSelectedScaleMode() {
+  void cycleSelectedScaleMode(int direction = 1) {
     Cue* cue = firstFocusedSelectedCueMutable([&](const Cue& each) {
       return cueSupportsGeometry(&each);
     });
     if (!cue) {
       return;
     }
-    ScaleMode next = static_cast<ScaleMode>((static_cast<int>(cue->scaleMode) + 1) % 4);
+    ScaleMode next = static_cast<ScaleMode>((static_cast<int>(cue->scaleMode) + (direction < 0 ? 3 : 1)) % 4);
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& each, int) {
       if (!cueSupportsGeometry(&each)) {

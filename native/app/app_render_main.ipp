@@ -6603,11 +6603,14 @@
            "Pick from the list: clean looks for a conference, magical ones for a party"},
           {"side", l.side == 0 ? "left" : l.side == 2 ? "right" : "centre", 1,
            "Which side of the frame it sits on"},
-          {"bar", lowerThirdColourName(l.bar), 2, "The colour behind the words"},
+          {"bar", lowerThirdColourName(l.bar), 2,
+           "The branded looks use this colour; themed looks keep their own material"},
           {"accent", lowerThirdColourName(l.accent), 3,
-           "The second colour: the edge, the rule, the tag"},
+           "The edge, rule or highlight where the look uses it; material inks stay fixed"},
           {"in", lowerThirdMoveLabel(l.moveIn), 4, "How it arrives"},
           {"out", lowerThirdMoveLabel(l.moveOut), 5, "How it leaves"},
+          {"wiggle", l.look == LowerThirdLook::Arcade ? "always" : l.wiggle ? "on" : "off", 6,
+           "Slow bob and tilt while up. Arcade always keeps its original wiggle"},
         };
         for (const L3Choice& c : choices) {
           txY = inspDrawChoiceRow(ix, txY, c.label, c.value, QuickAction::LowerThirdCycle,

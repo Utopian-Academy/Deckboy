@@ -153,7 +153,7 @@ down to give the height back.
 | **Stream (SRT)** | A live network input — `cue.path` is the full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`) |
 | **NDI Source** | An NDI receive input — `ndi://SOURCE_NAME` |
 | **DeckLink Source** | A Blackmagic card's SDI or HDMI input, captured through the DeckLink SDK rather than through FFmpeg |
-| **Lower Third** | A name strap over another playlist, in thirteen looks (§16) |
+| **Lower Third** | A name strap over another playlist, in 52 looks (§16) |
 | **Audio** | An audio-only file with a waveform lane |
 | **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages. Set its **backdrop** to **transparent** and use **GEOMETRY** to put the clock in a corner of the programme as a layer |
@@ -390,6 +390,35 @@ have `−`/`+` steppers, are drag-to-scrub, and click-to-type an exact value.
 
 Values apply live where possible (fades, audio trim, geometry) without
 reloading the decode.
+
+The geometry **mode** row's left and right buttons step backwards and forwards through
+Fit, Fill, Stretch and Unscaled. **Link aspect** makes a width change scale
+the height by the same proportion, and vice versa.
+
+Geometry is also available over the remote protocol:
+
+| Command | Value |
+|---------|-------|
+| `SCALE <factor>` | Sets both scale factors to 0.25–4 |
+| `SCALEX <factor>`, `SCALEY <factor>` | Sets one factor to 0.25–4; honors Link aspect |
+| `WIDTH <px>`, `HEIGHT <px>` | Rendered size on the playlist's output, before rotation; honors Link aspect |
+| `SCALEMODE <mode>` | `fit`, `fill`, `stretch`, or `unscaled` |
+| `OFFSET <x> <y>`, `OFFSETX <x>`, `OFFSETY <y>` | Offset from the centre in pixels, −1000000 to 1000000; positive is right/down |
+| `ROTATION <degrees>` | −180 to 180 degrees |
+| `CROP <left> <right> <top> <bottom>` | Percent removed from each source edge, 0–90 per edge |
+| `CROPLEFT <n>`, `CROPRIGHT <n>`, `CROPTOP <n>`, `CROPBOTTOM <n>` | One edge's crop percentage |
+
+Omit the value to read the selected cue. `SCALE` answers with the X and Y
+factors, `OFFSET` with X and Y pixels, and `CROP` with left, right, top and
+bottom percentages. Setters apply to selected cues that support geometry and
+answer `OK` with the value, cue count and skipped count. Queries on a cue
+without geometry answer `ERR`. An invalid value, a size requiring a factor
+outside 0.25–4 on either axis, or opposing crop edges totalling more than 95%
+answers `ERR` without applying the edit. `SET geometry_aspect_link 0` or `1`
+sets the inspector's Link aspect switch.
+
+`SYNTH ADD` adds and selects a Video Synth cue in the focused playlist, ready
+to edit with `SYNTH SHAPE`, `SYNTH MIRROR`, and `SYNTH PALETTE`.
 
 ---
 
@@ -1431,13 +1460,74 @@ layer over another playlist. Its inspector section sets how it looks and moves.
 | Comic | Tilted, with a heavy black outline and a halftone shadow |
 | Scroll | Parchment with rolled ends, in ink. It unrolls as it comes in and rolls up as it goes |
 
+The 39 additional looks each have their own entrance, which reverses on OUT:
+
+| Look | Material | Entrance and life |
+|------|----------|-------------------|
+| Bulletin | Branded angular news strap | Header extends, then the role strip follows; holds still |
+| Dateline | Branded rail with three signal marks | Rail builds in segments and draws the baseline; holds still |
+| Sideline | Branded sports plate with diagonal cuts | Three slashes arrive in sequence as the plate slides into place; holds still |
+| Scoreboard | Amber letters on charcoal split-flap cells | Letters fold open one after another across a dark seam; holds still |
+| Podium | Gold medal beside a branded plate | Medal grows as the plate rises onto its gold base; holds still |
+| Pennant | Pointed burgundy cloth with gold edging and a gold mast | Unfurls from the mast; the cloth keeps waving |
+| Ribbon | Crimson ribbon with gold stitching and folded tails | Unfurls from the centre; holds still |
+| Ledger | Cream account paper with green rules and ink | Page slides in as the rules draw across; holds still |
+| Dossier | Manila folder with an inset paper label | Folder slides up and straightens as the label emerges; holds still |
+| Index | White ruled card with a red top rule | Card slides in and squares up; holds still |
+| Bracket | Open focus corners around the words | Corners close in from outside and the words appear; holds still |
+| Crosshair | Open reticle with mint and accent arcs | Reticle sweeps in and turns; arcs keep rotating slowly |
+| Caption | Separate black backing for each line | Name strip reveals first, then the role; holds still |
+| Credit | Open centred words between fine gold rules | Rules draw from the centre as the words rise; holds still |
+| Theatre | Deep red velvet and a gold frame | Pleated curtains part across the words; holds still |
+| Placard | Black sign with a yellow rim and corner fixings | Drops and swings to rest; holds still |
+| Rail | Open accent track with white stops | Track draws out with a travelling endpoint; holds still |
+| Survey | Pale survey plate, compass needle and ruler ticks | Compass draws around the needle and the words reveal; holds still |
+| Tab | Branded clipped tab and a second strip | Tab drops in before the role strip extends; holds still |
+| Ticket | Cream ticket, red barcode stub and perforated edges | Slides and rotates into place; holds still |
+| Capsule | Rounded branded shell with a fine accent rim | Extends sideways from a circle before the words appear; holds still |
+| Film | Black film stock with open sprocket holes | Threads sideways as the words reveal; sprockets keep rolling |
+| Stacked | Cream card over coral and teal sheets | Loose sheets gather beneath the words; holds still |
+| Flag | Accent cloth on a pale mast | Unfurls from the mast; the trailing edge keeps waving |
+| Terminal | Green phosphor on black with faint scanlines | Types the name a character at a time; block cursor keeps blinking |
+| Window | Grey bevelled desktop window with a navy title bar | Expanding outline rectangles resolve into the window; holds still |
+| Diskette | Square clipped-corner floppy, metal shutter and white label | Shutter opens while a nameplate slides out from behind the icon; holds still |
+| Cassette | Dark cassette shell, cream label and two reels | Slides up and settles level; both reels keep turning |
+| Cartridge | Grey ridged plastic, sticker label and gold contacts | Drops into place with a short settling bounce; holds still |
+| Blueprint | White drafting ink on blue with a faint grid | Dimension lines and words draw out from the centre; holds still |
+| Circuit | Green circuit board with gold traces | Traces power up before the words reveal; pulses keep travelling along them |
+| Equalizer | Dark audio panel with green, amber and red meter segments | Meters rise with the words; follows the programme host's audio level and idles gently in silence |
+| Dotmatrix | Amber LED lettering on a dark sign | Letters reveal across the dot field; holds still |
+| Stamp | Red ink on a pale card with a distressed double border | Thumps down from large with a short shake; holds still |
+| Sticky | Yellow adhesive note with a curled corner and shadow | Drops and sways to rest; holds still |
+| Notebook | Ruled paper with a red margin and metal spiral rings | Swings open beside the rings as the words appear; holds still |
+| Sketch | Pencil strokes and red underlining on off-white paper | Border and underline draw on with the words; holds still |
+| Confetti | Purple pill with coral, gold, teal and cream paper pieces | Pops up with a burst that falls and clears the words; holds still |
+| Marquee | Dark sign ringed with warm round bulbs | Bulbs light around the frame in order; lights keep chasing |
+
 The picker lists the clean looks first and the playful ones after.
 
-Colours come from a fixed list that reads over a picture: ink, paper, red,
-orange, yellow, green, blue, violet, deckboy and forest. **Forest behind a
-yellow accent** is the arcade look's own pair. It comes in and goes out by
-cut, fade, a slide from either side, rise, wipe, grow, typewriter or pop, and
-its size runs from half to double.
+Branded looks use the operator's **bar** and **accent** colours. Themed looks
+bring their own paper, cloth, metal, plastic or illuminated palette; the accent
+is a highlight where it suits the material. The fixed colour list is ink,
+paper, red, orange, yellow, green, blue, violet, deckboy and forest.
+**Forest behind a yellow accent** is Arcade's own pair.
+
+Each look also takes a cut, fade, slide from either side, rise, wipe, grow,
+typewriter or pop. A cut is immediate at cue time zero and on OUT, regardless
+of the in and out times, including the look's own entrance.
+Size runs from half to double. The added looks shrink long lines with their
+whole graphic to keep them inside the frame.
+
+**Wiggle** adds Arcade's slow bob and tilt to any look while it is up; Arcade
+always keeps its original wiggle. The inspector row and
+`TEXTCUE WIGGLE ON|OFF|TOGGLE` set the saved option. All motion follows the cue
+clock, including pauses and seeks. Equalizer follows the programme output's
+host playlist before device volume, so a silent graphics playlist still follows
+the programme's sound. Its meters idle when that host is paused or stopped.
+
+Arabic and Persian names lay out from the right, including the look's border,
+tab or icon. Terminal, Scoreboard, Dotmatrix and the typewriter move reveal
+from that reading edge while keeping letters joined.
 
 Over the control port, with the lower third selected:
 
@@ -2034,6 +2124,42 @@ Over the network: `WEBMONITOR` (the address), `WEBMONITOR ON|OFF`,
 `WEBMONITOR QR [ON|OFF]` (the QR code on the desk),
 `WEBMONITOR PORT <n>`, `WEBMONITOR PIN <pin>|OFF`.
 
+### Phone and tablet control
+
+Turn on **Web Monitor**, set an **8-character or longer passphrase**, and enable
+**Phone control** in **Settings → Network → Web Monitor**. Choose **THE NETWORK**
+to connect a phone or tablet on the same private Ethernet/Wi-Fi LAN. Open the
+displayed address with `/remote` appended, for example
+`http://192.168.1.20:8090/remote`, or choose **REMOTE** in the programme player.
+Enter the Web Monitor passphrase on the remote page.
+
+- Choose a **Deck** and tap **GO**, **STOP** or **NEXT**. NEXT selects the next
+  cue. Tapping a cue selects it; GO plays it, following the desk's standby cue
+  when one is armed. These controls have the same behaviour as the desk's
+  remote commands and change its focused deck.
+- The cue list shows the selected, active and standby cues. Status refreshes
+  about once a second. Controls are disabled when the connection is lost.
+- **DASH** shows the buttons configured on the desk. Each runs its assigned
+  command, including any actions beyond transport. Configure these with
+  `DASH SET <n> <label> | <command>` before handing the remote to an operator.
+  A DASH command uses the desk's current focus unless it names a deck itself.
+- The page shows the command's `OK` or `ERR` reply. If a connection fails
+  while sending, check the desk before trying again; commands are not retried
+  automatically.
+- **Lock** clears the passphrase from the page. Reloading also requires it
+  again. The remote keeps it in page memory, not in the URL or browser storage.
+- Phone control is off by default and saved with the show. Turn **Phone control**
+  off to revoke control while keeping the monitor available. Changing the
+  passphrase requires connected phones to unlock again. Repeated incorrect
+  passphrases briefly delay further attempts.
+
+`WEBMONITOR CONTROL ON|OFF` switches phone control; `WEBMONITOR STATUS` reports
+it. The Web Monitor must also be on. Control always requires the passphrase,
+including on this computer. The page uses the desk's theme and works without
+internet access. It accepts private IPv4 LAN and loopback clients only; HTTP
+is unencrypted, so use a trusted private network and never forward the port
+to the public internet.
+
 ---
 
 ## 23. Reliability & Soak Testing
@@ -2181,6 +2307,8 @@ for frame and byte for byte.
 ```
 Deckboy.exe --allow-multi-instance  # bypass the single-instance lock
 Deckboy.exe --inspector-scroll PX   # scroll the inspector at boot (a big number means the bottom)
+Deckboy.exe --ui-size WIDTH HEIGHT  # control-window size for UI checks (960..7680 by 540..4320)
+Deckboy.exe --settings-scroll PX    # scroll the tab opened with --settings for UI checks
 Deckboy.exe --help                  # the list this section is drawn from
 ```
 

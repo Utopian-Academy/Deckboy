@@ -448,7 +448,7 @@ class Mini {
         listDirty_ = true;
       }
     }
-    hud_.begin(opt_.plain);
+    hud_.begin(opt_.plain, deckboy::core::Paths::stateDir());
     hud_.boot(bootFacts());
     if (keys_.begin()) hud_.log("keys live in this terminal  (? for help)");
     if (!opt_.watch.empty()) setWatch(opt_.watch.string());

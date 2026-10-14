@@ -1,0 +1,116 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Deckboy Contributors
+#pragma once
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <span>
+#include <vector>
+
+// Signal analysis only: no SDL, playback state, colour management or drawing.
+// See docs/SCOPES_CORE.md for standards, coordinate and measurement contracts.
+namespace deckboy::core::scopes {
+
+enum class Matrix { Bt709, Bt2020Ncl };
+enum class Components { Rgb, YCbCr };
+enum class Encoding { Normalized, NarrowCode, FullCodeRgb };
+enum class GamutFilter { None, Progressive, Interlaced };
+
+struct Rgb { double r = 0, g = 0, b = 0; };
+struct YCbCr { double y = 0, cb = 0, cr = 0; };
+struct Sample { double a = 0, b = 0, c = 0; };
+
+// R'G'B' and Y' nominally 0..1, signed Cb/Cr nominally -0.5..0.5.
+// Values outside those ranges are preserved. No OETF/EOTF is applied.
+YCbCr toYCbCr(Rgb rgb, Matrix matrix);
+Rgb toRgb(YCbCr ycc, Matrix matrix);
+
+struct FrameView {
+  std::span<const Sample> samples;
+  std::size_t width = 0, height = 0;
+  std::size_t rowStride = 0; // in Samples; zero means width
+  Components components = Components::Rgb;
+  Encoding encoding = Encoding::Normalized;
+  unsigned bitDepth = 10; // digital input only; 8, 10, 12 or 16
+};
+
+// Straight/full-range R'G'B'A byte order, alpha ignored. Supply composited
+// pixels; this core neither unpremultiplies nor guesses a background.
+struct Rgba8View {
+  std::span<const std::uint8_t> bytes;
+  std::size_t width = 0, height = 0;
+  std::size_t rowStrideBytes = 0; // zero means width * 4
+};
+
+struct Range { double low = 0, high = 1; };
+struct Options {
+  Matrix matrix = Matrix::Bt709;
+  std::size_t columns = 256, levelBins = 256;
+  std::size_t vectorBins = 256, histogramBins = 256;
+  Range levels{0, 1}, chroma{-0.5, 0.5};
+  unsigned gamutBitDepth = 10; // R 103 total-range ceiling depends on depth
+  GamutFilter gamutFilter = GamutFilter::Progressive;
+};
+
+struct Excursions { std::uint64_t below = 0, above = 0; };
+struct Histogram {
+  Range range;
+  std::vector<std::uint64_t> bins;
+  Excursions excursions;
+};
+struct Density {
+  std::size_t width = 0, height = 0;
+  Range xRange, yRange;
+  // Row-major, low Y first (positive Cr upwards in mathematical coordinates).
+  // Equal-width bins, low inclusive, high exclusive except final bin.
+  // Outliers accumulate in edge bins AND in the excursion counters.
+  std::vector<std::uint64_t> bins;
+  Excursions xExcursions, yExcursions;
+};
+
+struct GamutRangeCounts {
+  // Components are Y', R', G', B'. A pixel counts once in pixels even when
+  // several channels violate the range; per-channel counts can overlap.
+  std::array<Excursions, 4> channels{};
+  std::uint64_t pixels = 0;
+};
+struct GamutCounts {
+  std::uint64_t validPixels = 0, invalidPixels = 0;
+  GamutRangeCounts nominal, preferred, total;
+  // Strictly MORE than 1% of the active image, not >= 1%. Invalid pixels
+  // remain in the denominator and are separately reported, never called legal.
+  bool outOfGamut() const;
+};
+
+struct Result {
+  std::uint64_t validPixels = 0, invalidPixels = 0;
+  std::array<Density, 3> ycbcrParade; // Y', Cb, Cr, each retains source X
+  std::array<Density, 3> rgbParade;   // R', G', B'
+  const Density& lumaWaveform() const { return ycbcrParade[0]; }
+  Density vectorscope; // x=Cb, y=Cr; equal scaling, no analogue UV rotation
+  Histogram lumaHistogram;
+  std::array<Histogram, 3> rgbHistogram;
+  GamutCounts rawGamut, filteredGamut;
+  GamutFilter gamutFilter = GamutFilter::None;
+};
+
+enum class TargetLevel { Percent75, Percent100 };
+struct VectorPoint { double cb = 0, cr = 0; };
+struct VectorTarget { const char* label; VectorPoint point; };
+// R, Yl, G, Cy, B, Mg; amplitudes 75% or 100%, zero pedestal, no white bar.
+std::array<VectorTarget, 6> vectorTargets(Matrix matrix, TargetLevel level);
+// Traditional +I signal guide from BT.470-6, projected through the selected
+// matrix and normalized to radius 0.5. This is NOT a skin classifier or a
+// colourimetric conversion between NTSC, BT.709 and BT.2020 primaries.
+VectorPoint skinToneLine(Matrix matrix);
+
+// Input is the ACTIVE picture, already unpacked/resampled to 4:4:4. A subspan
+// and row stride can select an ROI. No implicit downsampling or clipping.
+// Empty 0x0 frames are allowed. Invalid metadata/options throw invalid_argument
+// before reading pixels; allocation failure propagates. Non-finite samples are
+// counted and excluded. All results own their memory; no global mutable state.
+Result analyze(FrameView frame, const Options& options = {});
+Result analyze(Rgba8View frame, const Options& options = {});
+
+} // namespace deckboy::core::scopes

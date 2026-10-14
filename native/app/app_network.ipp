@@ -1072,7 +1072,7 @@
       return;
     }
     const Uint64 now = SDL_GetTicks();
-    if (now - webMonitorDirSyncedMs_ < 1000) {
+    if (webMonitorDirSyncedMs_ != 0 && now - webMonitorDirSyncedMs_ < 1000) {
       return;
     }
     webMonitorDirSyncedMs_ = now;
@@ -1095,6 +1095,22 @@
       : outputSourceLabel(project_.outputs[static_cast<std::size_t>(webMonitorProgrammeOutput_)]
                             .mirrorSourceOutputIndex);
     webMonitorPinSnapshot_ = project_.webMonitorPin;
+    webRemoteEnabledSnapshot_ = project_.webRemoteEnabled;
+    if (project_.webRemoteEnabled) {
+      webRemoteStateSnapshot_ = buildWebRemoteState();
+    } else {
+      webRemoteStateSnapshot_.clear();
+    }
+    const auto cssColor = [](SDL_Color color) {
+      return "rgb(" + std::to_string(color.r) + "," + std::to_string(color.g) + "," +
+             std::to_string(color.b) + ")";
+    };
+    webRemoteStyleSnapshot_ = ":root{--surface:" + cssColor(pal.tile) +
+      ";--ink:" + cssColor(paletteInkOnFill(pal.tile)) +
+      ";--button:" + cssColor(paletteToggleFill(false)) +
+      ";--button-ink:" + cssColor(paletteToggleInk(false)) +
+      ";--active:" + cssColor(paletteToggleFill(true)) +
+      ";--active-ink:" + cssColor(paletteToggleInk(true)) + "}";
     webMonitorHeightSnapshot_ = project_.webMonitorMaxHeight;
     webMonitorMaxClients_.store(std::clamp(project_.webMonitorMaxClients, 1, 64));
   }
@@ -1298,6 +1314,190 @@
     return decoded;
   }
 
+  // Built on the main thread only. No paths, commands, PIN or output credentials
+  // are exposed to the phone; the HTTP threads read this immutable snapshot.
+  std::string buildWebRemoteState() const {
+    std::ostringstream out;
+    out << "{\"focus\":" << project_.focusedDeckIndex + 1 << ",\"decks\":[";
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+      const Deck& deck = project_.decks[d];
+      if (d) out << ',';
+      out << "{\"index\":" << d + 1 << ",\"name\":\"" << escapeJson(deck.name)
+          << "\",\"status\":\"" << escapeJson(transportStatusLabel(static_cast<int>(d)))
+          << "\",\"selected\":" << deck.selectedIndex + 1 << ",\"active\":" << deck.activeIndex + 1
+          << ",\"standby\":" << deck.standbyIndex + 1 << ",\"cues\":[";
+      for (std::size_t c = 0; c < deck.cues.size(); ++c) {
+        if (c) out << ',';
+        out << "{\"index\":" << c + 1 << ",\"name\":\"" << escapeJson(deck.cues[c].name) << "\"}";
+      }
+      out << "]}";
+    }
+    out << "],\"dash\":[";
+    bool first = true;
+    for (std::size_t n = 0; n < project_.dashboard.size(); ++n) {
+      const DashboardSlot& slot = project_.dashboard[n];
+      if (slot.command.empty()) continue;
+      if (!first) out << ',';
+      first = false;
+      out << "{\"index\":" << n + 1 << ",\"label\":\"" << escapeJson(slot.label) << "\"}";
+    }
+    out << "]}";
+    return out.str();
+  }
+
+  static bool webRemoteCommandAllowed(const std::string& command) {
+    if (command.find_first_of("\r\n\0", 0, 3) != std::string::npos) return false;
+    const auto words = splitWhitespace(command);
+    const auto number = [](const std::string& word) {
+      return !word.empty() && word.size() <= 6 && word[0] != '0' &&
+        std::all_of(word.begin(), word.end(), [](unsigned char c) { return c >= '0' && c <= '9'; });
+    };
+    if (words.size() == 2 && words[0] == "DASH") return number(words[1]);
+    if (words.size() < 3 || words[0] != "DECK" || !number(words[1])) return false;
+    if (words.size() == 3) return words[2] == "GO" || words[2] == "STOP" || words[2] == "NEXT";
+    return words.size() == 4 && words[2] == "SELECT" && number(words[3]);
+  }
+
+  // Control is a separate opt-in on the existing listener. The header PIN is
+  // never accepted in a URL or cookie. Browsers cannot send this custom header
+  // across origins without a preflight, which this server refuses.
+  void handleWebRemoteClient(SocketHandle client, const std::string& method,
+                             const std::string& path, std::string request) {
+    auto reply = [&](const std::string& status, const std::string& body) {
+      webMonitorSendPage(client, status, "text/plain; charset=utf-8", body + "\n");
+    };
+    sockaddr_in peer {};
+    socklen_t peerSize = sizeof(peer);
+    if (getpeername(client, reinterpret_cast<sockaddr*>(&peer), &peerSize) != 0) return;
+    const std::uint32_t peerIp = ntohl(peer.sin_addr.s_addr);
+    if ((peerIp >> 24) != 127 && (peerIp >> 24) != 10 &&
+        (peerIp >> 20) != 0xAC1 && (peerIp >> 16) != 0xC0A8) {
+      reply("403 Forbidden", "ERR remote: private LAN clients only"); return;
+    }
+    if (method == "GET" && (path == "/remote" || path == "/remote/" ||
+                            path == "/remote.js" || path == "/remote.css")) {
+      const char* fileName = path == "/remote.js" ? "remote.js" : path == "/remote.css" ? "remote.css" : "remote.html";
+      std::ifstream file(Paths::dataDir() / "web" / fileName, std::ios::binary);
+      if (!file) { reply("404 Not Found", "Remote asset unavailable"); return; }
+      std::string body((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+      if (path == "/remote.css") {
+        std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+        body = webRemoteStyleSnapshot_ + body;
+      }
+      webMonitorSendPage(client, "200 OK", path == "/remote.js" ? "application/javascript; charset=utf-8"
+        : path == "/remote.css" ? "text/css; charset=utf-8" : "text/html; charset=utf-8", body);
+      return;
+    }
+    if (method != "POST") { reply("405 Method Not Allowed", "ERR remote: POST required"); return; }
+    if (path != "/remote/state" && path != "/remote/command") {
+      reply("404 Not Found", "ERR remote: unknown endpoint"); return;
+    }
+    const std::size_t headEnd = request.find("\r\n\r\n");
+    if (headEnd == std::string::npos || headEnd > 8192) {
+      reply("400 Bad Request", "ERR remote: incomplete headers"); return;
+    }
+    std::map<std::string, std::string> headers;
+    for (std::size_t at = request.find("\r\n") + 2; at < headEnd;) {
+      const std::size_t end = request.find("\r\n", at);
+      const std::size_t colon = request.find(':', at);
+      if (colon >= end || request[at] == ' ' || request[at] == '\t') {
+        reply("400 Bad Request", "ERR remote: invalid header"); return;
+      }
+      const std::string key = toLower(request.substr(at, colon - at));
+      if (!headers.emplace(key, trim(request.substr(colon + 1, end - colon - 1))).second) {
+        reply("400 Bad Request", "ERR remote: duplicate header"); return;
+      }
+      at = end + 2;
+    }
+    // Literal host addresses prevent DNS rebinding. Compare the browser Origin
+    // with the actual listener address, not with a caller-supplied Host alone.
+    sockaddr_in local {};
+    socklen_t localSize = sizeof(local);
+    if (getsockname(client, reinterpret_cast<sockaddr*>(&local), &localSize) != 0) return;
+    const std::string address = socketAddressToString(local);
+    const std::string port = ":" + std::to_string(ntohs(local.sin_port));
+    const std::string host = toLower(headers["host"]);
+    const bool localHost = address == "127.0.0.1" && (host == "localhost" + port || (port == ":80" && host == "localhost"));
+    if (!(host == address + port || (port == ":80" && host == address) || localHost) ||
+        (headers.count("origin") && toLower(headers["origin"]) != "http://" + host) ||
+        (headers.count("sec-fetch-site") && headers["sec-fetch-site"] != "same-origin")) {
+      reply("403 Forbidden", "ERR remote: same-origin LAN access required"); return;
+    }
+    std::string snapshot;
+    bool enabled = false;
+    bool authenticated = false;
+    bool throttled = false;
+    const std::string givenPin = webMonitorDecodeQuery(headers["x-deckboy-pin"]);
+    {
+      std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+      enabled = webRemoteEnabledSnapshot_ && webMonitorPinSnapshot_.size() >= 8;
+      const auto now = std::chrono::steady_clock::now();
+      throttled = now < webRemoteRetryAt_;
+      if (!throttled && enabled) {
+        authenticated = givenPin == webMonitorPinSnapshot_;
+        // Two seconds after five misses, doubling to a minute. A flat two
+        // seconds still let a script try 150 passphrases a minute.
+        if (authenticated) webRemoteFailedPins_ = webRemoteLockouts_ = 0;
+        else if (++webRemoteFailedPins_ >= 5) {
+          webRemoteFailedPins_ = 0;
+          const int lockout = std::min(60, 2 << std::min(webRemoteLockouts_++, 5));
+          webRemoteRetryAt_ = now + std::chrono::seconds(lockout);
+        }
+      }
+      snapshot = webRemoteStateSnapshot_;
+    }
+    if (throttled) { reply("429 Too Many Requests", "ERR remote: too many wrong passphrases; wait before retrying"); return; }
+    if (!enabled) {
+      reply("403 Forbidden", "ERR remote: enable Phone control with an 8+ character passphrase in Settings > Network"); return;
+    }
+    if (!authenticated) { reply("401 Unauthorized", "ERR remote: incorrect passphrase"); return; }
+    const std::string length = headers["content-length"];
+    if (headers.count("transfer-encoding") || length.empty() || length.size() > 3 ||
+        !std::all_of(length.begin(), length.end(), [](unsigned char c) { return c >= '0' && c <= '9'; })) {
+      reply("400 Bad Request", "ERR remote: Content-Length required (maximum 128)"); return;
+    }
+    const std::size_t bodySize = static_cast<std::size_t>(std::stoi(length));
+    if (bodySize > 128) { reply("413 Payload Too Large", "ERR remote: command too long"); return; }
+    const std::size_t totalSize = headEnd + 4 + bodySize;
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (request.size() < totalSize && !webMonitorStop_.load()) {
+      if (std::chrono::steady_clock::now() >= deadline) break;
+      fd_set fds;
+      FD_ZERO(&fds);
+      watchFd(client, &fds);
+      timeval timeout {0, 100000};
+      if (select(selectNfds(client), &fds, nullptr, nullptr, &timeout) <= 0) continue;
+      char buffer[128];
+      const int got = recv(client, buffer, static_cast<int>(std::min(sizeof(buffer), totalSize - request.size())), 0);
+      if (got <= 0) break;
+      request.append(buffer, static_cast<std::size_t>(got));
+    }
+    if (request.size() != totalSize) { reply("400 Bad Request", "ERR remote: invalid body length"); return; }
+    if (path == "/remote/state") {
+      if (bodySize) { reply("400 Bad Request", "ERR remote: state takes no body"); return; }
+      webMonitorSendPage(client, "200 OK", "application/json; charset=utf-8", snapshot);
+      return;
+    }
+    const std::string command = request.substr(headEnd + 4);
+    if (!webRemoteCommandAllowed(command)) { reply("400 Bad Request", "ERR remote: command not allowed"); return; }
+    auto pending = std::make_shared<WebRemoteReply>();
+    pending->pin = givenPin;
+    if (!enqueueRemoteCommand(command, kInvalidSocket, 0, pending)) {
+      reply("503 Service Unavailable", "ERR remote: command queue full"); return;
+    }
+    std::unique_lock<std::mutex> lock(pending->mutex);
+    while (pending->text.empty() && !webMonitorStop_.load() &&
+           std::chrono::steady_clock::now() < pending->deadline) {
+      pending->cv.wait_for(lock, std::chrono::milliseconds(25));
+    }
+    if (pending->text.empty()) {
+      pending->cancelled = true;
+      reply("503 Service Unavailable", "ERR remote: reply unavailable; check the desk before retrying");
+    } else {
+      reply(pending->text.rfind("OK ", 0) == 0 ? "200 OK" : "409 Conflict", pending->text);
+    }
+  }
+
   void serveWebHls(SocketHandle client, int outputIndex, const std::string& resource,
                    const std::string& pinQuery) {
     WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
@@ -1382,6 +1582,31 @@
     }
     const std::size_t lineEnd = request.find("\r\n");
     const auto parts = splitWhitespace(lineEnd == std::string::npos ? request : request.substr(0, lineEnd));
+    if (parts.size() == 3 && parts[1].rfind("/remote", 0) == 0) {
+      handleWebRemoteClient(client, parts[0], parts[1], std::move(request));
+      // An early rejection can leave a POST body in the receive buffer. Send
+      // FIN and drain briefly before close, otherwise Windows may reset the
+      // connection and discard the error reply the phone needs to read.
+#ifdef _WIN32
+      ::shutdown(client, SD_SEND);
+#else
+      ::shutdown(client, SHUT_WR);
+#endif
+      const auto drainUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds(250);
+      std::size_t drained = 0;
+      while (!webMonitorStop_.load() && drained < 16384 &&
+             std::chrono::steady_clock::now() < drainUntil) {
+        fd_set readFds;
+        FD_ZERO(&readFds);
+        watchFd(client, &readFds);
+        timeval timeout {0, 25000};
+        if (select(selectNfds(client), &readFds, nullptr, nullptr, &timeout) <= 0) continue;
+        const int bytes = recv(client, buffer.data(), static_cast<int>(buffer.size()), 0);
+        if (bytes <= 0) break;
+        drained += static_cast<std::size_t>(bytes);
+      }
+      return;
+    }
     if (parts.size() < 2 || parts[0] != "GET") {
       webMonitorSendPage(client, "405 Method Not Allowed", "text/plain; charset=utf-8", "GET only\n");
       return;
@@ -1484,7 +1709,7 @@
     }
     if (path == "/outputs") {
       std::ostringstream body;
-      body << "<header>DECKBOY WEB MONITOR</header><div class='grid'>";
+      body << "<header>DECKBOY WEB MONITOR &middot; <a href='/remote'>REMOTE</a></header><div class='grid'>";
       for (std::size_t i = 0; i < names.size(); ++i) {
         const std::string n = std::to_string(i + 1);
         body << "<div class='card'><img src='/out/" << n << pinQuery << "' alt=''>"
@@ -1851,7 +2076,8 @@ html,body{width:100%;height:100%;overflow:hidden}
       "<nav class='monitor-controls' aria-label='Monitor controls'>"
       "<button id='sound' aria-pressed='false'>SOUND ON</button>"
       "<button id='fullscreen'>FULL SCREEN</button><button id='reconnect'>RECONNECT</button>"
-      "<a id='stream-link' href='" + escapeHtml(playlist) + "'>OPEN STREAM</a></nav></div>"
+      "<a id='stream-link' href='" + escapeHtml(playlist) + "'>OPEN STREAM</a>"
+      "<a href='/remote'>REMOTE</a></nav></div>"
       "<script src='/web/hls.light.min.js" + escapeHtml(suffix) + "'></script>"
       "<script src='/web/player.js" + escapeHtml(suffix) + "'></script>");
   }
@@ -2130,8 +2356,8 @@ html,body{width:100%;height:100%;overflow:hidden}
 
   void setWebMonitorPin(const std::string& pin) {
     const std::string cleaned = trim(pin);
-    if (project_.webMonitorShareLan && cleaned.size() < 8) {
-      triggerToast("network sharing requires an 8+ character passphrase");
+    if ((project_.webMonitorShareLan || project_.webRemoteEnabled) && cleaned.size() < 8) {
+      triggerToast("network sharing and phone control require an 8+ character passphrase");
       return;
     }
     project_.webMonitorPin = cleaned;
@@ -2139,6 +2365,19 @@ html,body{width:100%;height:100%;overflow:hidden}
     syncWebMonitorDirectory();
     triggerToast(project_.webMonitorPin.empty() ? "web monitor: no PIN" : "web monitor: PIN set");
     markProjectDirty();
+  }
+
+  bool setWebRemoteEnabled(bool enabled) {
+    if (enabled && project_.webMonitorPin.size() < 8) {
+      failRemoteCommand("phone control requires an 8+ character passphrase");
+      return false;
+    }
+    project_.webRemoteEnabled = enabled;
+    webMonitorDirSyncedMs_ = 0;
+    syncWebMonitorDirectory();
+    markProjectDirty();
+    triggerToast(enabled ? "phone control: open " + webMonitorUrl() + "remote" : "phone control: off");
+    return true;
   }
 
   void stopOscQueryServer() {
@@ -2317,13 +2556,14 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (348)\n"
+        "DECKBOY_0.01 every verb (357)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
         "CLICK HOVER MIDICLOCK OUTSNAP UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D\n"
+        "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT\n"
         "BLEND BROKEN BROWSE BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "CROSSFADE COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
@@ -2390,8 +2630,9 @@ html,body{width:100%;height:100%;overflow:hidden}
         "matrix:    MATRIX [SET <src 1-2> <dest 1-128> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
         "midi file: MIDIFILE [PORT <name>] - drop a .mid in the playlist and it plays out\n"
         "text:      TEXTCUE NEW|BODY <words>|ANIM none/fade/typewriter/scroll/crawl/pulse/wobble|SIZE <1-100>|SPEED <n>|ALIGN <side>|CARD <0-255>\n"
-        "lower 3rd: TEXTCUE LOWERNEW | LOWER on/off | TITLE <words> | SUB <words> | LOOK bar/boxes/line/tag/glass/arcade\n"
+        "lower 3rd: TEXTCUE LOWERNEW | LOWER on/off | TITLE <words> | SUB <words> | LOOK <look> (LOOK ? lists names)\n"
         "           TEXTCUE BAR|ACCENT <colour> | TEXTCUE SCALE <0.5-2> - a lower third's colours and size\n"
+        "           TEXTCUE WIGGLE ON|OFF|TOGGLE - slow bob and tilt (Arcade always wiggles)\n"
         "           TEXTCUE IN|OUTMOVE cut/fade/left/right/rise/wipe/grow/typewriter/pop | TEXTCUE OUT (plays the out, then off)\n"
         "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
@@ -2417,6 +2658,15 @@ html,body{width:100%;height:100%;overflow:hidden}
         "          AUDIOFX <slot> PLUGIN <name>  (fills a plugin slot from your own installed plugins)\n"
         "       AUDIOVIS [waveform|scope|lissajous|spectrum|level|cover]  (what an audio cue shows)\n"
         "picture: MESH [on|off|toggle|height <0-1>|tilt <-1..1>|yaw|spin|grid <8-160>]\n"
+        "geometry: SCALE [0.25..4] (sets both factors) | SCALEX [0.25..4] | SCALEY [0.25..4]\n"
+        "          WIDTH [px] | HEIGHT [px] (rendered size) | SCALEMODE [fit|fill|stretch|unscaled]\n"
+        "          SCALEX/SCALEY and WIDTH/HEIGHT honor the inspector aspect link (SET geometry_aspect_link 0|1)\n"
+        "          OFFSET [x y] | OFFSETX [x] | OFFSETY [y] (pixels -1000000..1000000) | ROTATION [-180..180 degrees]\n"
+        "          CROP [left right top bottom] | CROPLEFT [n] | CROPRIGHT [n] | CROPTOP [n] | CROPBOTTOM [n]\n"
+        "          crop is percent 0..90 per edge, opposing edges total at most 95\n"
+        "          no value queries the selected cue; setters edit eligible selected cues and report skipped cues\n"
+        "          invalid values or linked scales outside 0.25..4 answer ERR without changing the selection\n"
+        "video synth: SYNTH ADD (adds and selects a Video Synth cue) | SYNTH [shape|mirror|palette <name>]\n"
         "geometry lfo: GEOLFO [x|y|width|height|rotation|cropleft|cropright|croptop|cropbottom\n"
         "              on|off|shape <s>|rate <hz>|depth <0-1>|phase <0-1>|sync <on|off>|beats <n>]\n"
         "browser: BROWSER <url>  (makes a cue)   -- on the LIVE browser cue:\n"
@@ -2472,6 +2722,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "          DECKLINK KEYFILL ON|OFF|TOGGLE [key device] | KEYDEVICE <n>\n"
         "          (key+fill sends the picture and its matte down two cards)\n"
         "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF (programme with sound) | SHARE ON|OFF | SOURCE PROGRAMME|<n> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF\n"
+        "            WEBMONITOR CONTROL ON|OFF (PIN-protected phone controls at /remote)\n"
         "      (programme with sound in any browser; /outputs shows individual outputs)\n"
         "vmix: VMIX | VMIX ON|OFF|TOGGLE | VMIX PORTS <http> <tcp>\n"
         "      (answers the vMix HTTP and TCP APIs, so a Stream Deck plugin or\n"
@@ -5002,8 +5253,17 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       }
       remoteCommandRecognized_ = true;
       remoteCommandDetail_.clear();
-      handleRemoteCommand(command.text);
-      if (command.replyTo == kInvalidSocket) {
+      if (command.webReply) {
+        std::lock_guard<std::mutex> lock(command.webReply->mutex);
+        if (command.webReply->cancelled || std::chrono::steady_clock::now() >= command.webReply->deadline) continue;
+        remoteCommandError_.clear();
+        if (!project_.webRemoteEnabled || !project_.webMonitorEnabled ||
+            project_.webMonitorPin.size() < 8 || command.webReply->pin != project_.webMonitorPin) {
+          remoteCommandError_ = "phone control disabled or passphrase changed";
+        }
+      }
+      if (!command.webReply || remoteCommandError_.empty()) handleRemoteCommand(command.text);
+      if (command.replyTo == kInvalidSocket && !command.webReply) {
         continue;
       }
       // Every command gets an answer. Without one the only feedback a command
@@ -5026,6 +5286,12 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       } else {
         reply = "OK " + verb;
       }
-      sendCompanionLine(command.replyTo, reply, command.replyGeneration);
+      if (command.webReply) {
+        std::lock_guard<std::mutex> lock(command.webReply->mutex);
+        command.webReply->text = reply;
+        command.webReply->cv.notify_one();
+      } else {
+        sendCompanionLine(command.replyTo, reply, command.replyGeneration);
+      }
     }
   }

@@ -168,7 +168,7 @@ show.
 | **Window** &middot; **Screen** &middot; **Camera** | captured live, at the window's own full resolution |
 | **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | somebody else's signal, taken in as a cue |
 | **Pattern** &middot; **Test card** &middot; **Tone** | generated on the spot, no file needed |
-| **Timer** &middot; **Lower third** | a stage countdown, full screen or over the programme, and a name strap in thirteen looks |
+| **Timer** &middot; **Lower third** | a stage countdown, full screen or over the programme, and a name strap in 52 looks |
 | **Video synth** &middot; **Code** | an oscillator with feedback, or an expression you type live |
 
 Every row takes the same fades, the same transitions, the same effect rack, the
@@ -294,10 +294,12 @@ all one object with one set of controls, not fifty separate things to learn.
 - Timer cues — a stage or speaker countdown with its own clock, thresholds and
   chimes. Its backdrop can go transparent and it has its own size and position,
   so the clock can sit over the programme instead of replacing it
-- Lower thirds, cued like anything else, in thirteen looks — clean ones (bar,
-  boxes, line, tag, glass, split, card, hairline), playful ones (sparkle, neon,
-  comic, scroll) and **arcade**, a pixel-font strap with a hard shadow and a
-  slow wobble — with their colours and size settable from a Companion button
+- Lower thirds, cued like anything else, in 52 looks: branded straps, paper
+  cards, cloth banners, phosphor terminals, split-flap cells and **arcade**.
+  Themed looks bring their own materials and entrances; cassette reels turn,
+  marquee bulbs chase and Equalizer follows the programme's sound. Any look
+  can use Arcade's slow bob and tilt with Wiggle. Colours, size and Wiggle
+  can be set from a Companion button
 - Picture in picture, side by side or a quad: lay a second playlist over the
   first as a layer and scale and place it, with a whole playlist behind each
   window instead of one fixed box

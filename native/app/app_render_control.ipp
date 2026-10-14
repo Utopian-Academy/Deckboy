@@ -1755,9 +1755,14 @@
       // A cue under the loudness needle gets a critter on its own row. Marked
       // from here because this is where the row's rect is known; the critter
       // stops as soon as the cue stops being marked.
+      // Only the part of the row the list actually shows: critters draw after
+      // everything else, outside this list's clip, so a row scrolled half out
+      // of view put its critter over the header and the panels around it.
+      SDL_Rect visibleRow {};
       if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size()) &&
-          cueIsNormalizing(deck.cues[cueIndex].id)) {
-        markBusy("norm:" + deck.cues[cueIndex].id, "mouse", row);
+          cueIsNormalizing(deck.cues[cueIndex].id) &&
+          SDL_GetRectIntersection(&row, &primaryClip, &visibleRow)) {
+        markBusy("norm:" + deck.cues[cueIndex].id, "mouse", visibleRow);
       }
       y += kRowHeight + 8;
     }
