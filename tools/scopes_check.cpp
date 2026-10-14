@@ -367,6 +367,61 @@ void invalidInputs() {
   rejects([&] { s::analyze(s::Rgba8View{shortRgba,1,1}, options); }, "short RGBA buffer rejected");
   rejects([&] { s::analyze(s::Rgba8View{shortRgba,1,1,3}, options); }, "short RGBA stride rejected");
 }
+void diamond() {
+  // Corners of the diamonds: black at the bottom point, white at the top,
+  // pure green on the left of both, pure blue on the right of the upper one
+  // and pure red on the right of the lower one. 2 bins across, 2 down.
+  s::Options options = smallOptions();
+  options.vectorBins = 2;
+  const std::array<std::uint8_t, 20> rgba{0,0,0,255, 255,255,255,255, 0,255,0,255, 0,0,255,255, 255,0,0,255};
+  const auto result = s::analyze(s::Rgba8View{rgba, 5, 1, 0}, options);
+  const auto& up = result.diamond[0];
+  const auto& low = result.diamond[1];
+  expect(sum(up.bins) == 5 && sum(low.bins) == 5, "diamond: every pixel counted once in each half");
+  // black: x 0 -> column 1 (0 is the high edge of bin 0? no: 0 sits at the bin boundary, column 1), y 0 -> row 0
+  expect(up.bins[0 * 2 + 1] >= 1 && low.bins[0 * 2 + 1] >= 1, "diamond: black at the bottom point");
+  expect(up.bins[1 * 2 + 1] >= 1 && low.bins[1 * 2 + 1] >= 1, "diamond: white at the top point");
+  // green: x -1 (column 0), y 1 (row 1, the boundary bin)
+  expect(up.bins[1 * 2 + 0] == 1 && low.bins[1 * 2 + 0] == 1, "diamond: green on the left of both");
+  std::array<std::uint8_t, 20> bgra = rgba;
+  for (std::size_t i = 0; i < 20; i += 4) std::swap(bgra[i], bgra[i + 2]);
+  s::Rgba8View swapped{bgra, 5, 1, 0};
+  swapped.bgra = true;
+  const auto fromBgra = s::analyze(swapped, options);
+  expect(fromBgra.diamond[0].bins == up.bins && fromBgra.diamond[1].bins == low.bins &&
+         fromBgra.vectorscope.bins == result.vectorscope.bins, "BGRA input reads the same picture as RGBA");
+  expect(up.xExcursions.below == 0 && up.xExcursions.above == 0 && up.yExcursions.above == 0,
+         "diamond: legal colours never leave the diamond");
+}
+void bandsMatchWhole() {
+  // A frame split into row bands and accumulated equals the whole frame.
+  const std::size_t w = 37, h = 23;
+  std::vector<std::uint8_t> px(w * h * 4);
+  for (std::size_t i = 0; i < px.size(); ++i) px[i] = static_cast<std::uint8_t>((i * 2654435761u) >> 24);
+  s::Options options = smallOptions();
+  options.gamutFilter = s::GamutFilter::None;
+  const auto whole = s::analyze(s::Rgba8View{px, w, h, 0}, options);
+  s::Result merged;
+  for (std::size_t y0 = 0; y0 < h; y0 += 6) {
+    const std::size_t rows = std::min<std::size_t>(6, h - y0);
+    const std::span<const std::uint8_t> band(px.data() + y0 * w * 4, rows * w * 4);
+    const auto part = s::analyze(s::Rgba8View{band, w, rows, 0}, options);
+    if (y0 == 0) merged = part; else s::accumulate(merged, part);
+  }
+  bool same = merged.validPixels == whole.validPixels && merged.vectorscope.bins == whole.vectorscope.bins &&
+              merged.lumaHistogram.bins == whole.lumaHistogram.bins &&
+              merged.diamond[0].bins == whole.diamond[0].bins && merged.diamond[1].bins == whole.diamond[1].bins &&
+              merged.rawGamut.preferred.pixels == whole.rawGamut.preferred.pixels;
+  for (std::size_t c = 0; c < 3; ++c)
+    same = same && merged.rgbParade[c].bins == whole.rgbParade[c].bins &&
+           merged.ycbcrParade[c].bins == whole.ycbcrParade[c].bins &&
+           merged.rgbHistogram[c].bins == whole.rgbHistogram[c].bins;
+  expect(same, "row bands accumulated equal the whole frame, bin for bin");
+  s::Options other = options;
+  other.vectorBins = 8;
+  rejects([&] { s::accumulate(merged, s::analyze(s::Rgba8View{px, w, h, 0}, other)); },
+          "accumulating different shapes rejected");
+}
 } // namespace
 
 int main() {
@@ -376,6 +431,8 @@ int main() {
     digitalAndGamut();
     filtering();
     invalidInputs();
+    diamond();
+    bandsMatchWhole();
   } catch (const std::exception& error) {
     ++failures;
     std::cerr << "[fail] unexpected exception: " << error.what() << '\n';

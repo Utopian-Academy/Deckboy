@@ -100,6 +100,11 @@ void addVector(Density& density, YCbCr ycc) {
   const auto row = bin(ycc.cr, density.yRange, density.height, density.yExcursions);
   ++density.bins[row * density.width + column];
 }
+void addDiamond(Density& density, double a, double g) {
+  const auto column = bin(a - g, density.xRange, density.width, density.xExcursions);
+  const auto row = bin(a + g, density.yRange, density.height, density.yExcursions);
+  ++density.bins[row * density.width + column];
+}
 Density density(std::size_t width, std::size_t height, Range xRange, Range yRange) {
   return {width, height, xRange, yRange, std::vector<std::uint64_t>(width * height), {}, {}};
 }
@@ -112,6 +117,7 @@ Result makeResult(const Options& options) {
     result.rgbHistogram[i] = {options.levels, std::vector<std::uint64_t>(options.histogramBins), {}};
   }
   result.vectorscope = density(options.vectorBins, options.vectorBins, options.chroma, options.chroma);
+  for (auto& d : result.diamond) d = density(options.vectorBins, options.vectorBins, {-1, 1}, {0, 2});
   result.lumaHistogram = {options.levels, std::vector<std::uint64_t>(options.histogramBins), {}};
   result.gamutFilter = options.gamutFilter;
   return result;
@@ -202,6 +208,8 @@ Result analyzePixels(std::size_t width, std::size_t height, const Options& optio
       }
       add(result.lumaHistogram, pixel.ycc.y);
       addVector(result.vectorscope, pixel.ycc);
+      addDiamond(result.diamond[0], pixel.rgb.b, pixel.rgb.g);
+      addDiamond(result.diamond[1], pixel.rgb.r, pixel.rgb.g);
       countGamut(result.rawGamut, channels(pixel), options.gamutBitDepth);
     }
   }
@@ -286,13 +294,61 @@ Result analyze(FrameView frame, const Options& options) {
   });
 }
 
+namespace {
+void sumExcursions(Excursions& into, const Excursions& part) {
+  into.below += part.below;
+  into.above += part.above;
+}
+void sumDensity(Density& into, const Density& part) {
+  if (into.width != part.width || into.height != part.height || into.bins.size() != part.bins.size())
+    throw std::invalid_argument("scopes accumulate: density shapes differ");
+  for (std::size_t i = 0; i < into.bins.size(); ++i) into.bins[i] += part.bins[i];
+  sumExcursions(into.xExcursions, part.xExcursions);
+  sumExcursions(into.yExcursions, part.yExcursions);
+}
+void sumHistogram(Histogram& into, const Histogram& part) {
+  if (into.bins.size() != part.bins.size())
+    throw std::invalid_argument("scopes accumulate: histogram shapes differ");
+  for (std::size_t i = 0; i < into.bins.size(); ++i) into.bins[i] += part.bins[i];
+  sumExcursions(into.excursions, part.excursions);
+}
+void sumRange(GamutRangeCounts& into, const GamutRangeCounts& part) {
+  for (std::size_t c = 0; c < into.channels.size(); ++c) sumExcursions(into.channels[c], part.channels[c]);
+  into.pixels += part.pixels;
+}
+void sumGamut(GamutCounts& into, const GamutCounts& part) {
+  into.validPixels += part.validPixels;
+  into.invalidPixels += part.invalidPixels;
+  sumRange(into.nominal, part.nominal);
+  sumRange(into.preferred, part.preferred);
+  sumRange(into.total, part.total);
+}
+} // namespace
+
+void accumulate(Result& whole, const Result& part) {
+  whole.validPixels += part.validPixels;
+  whole.invalidPixels += part.invalidPixels;
+  for (std::size_t c = 0; c < 3; ++c) {
+    sumDensity(whole.ycbcrParade[c], part.ycbcrParade[c]);
+    sumDensity(whole.rgbParade[c], part.rgbParade[c]);
+    sumHistogram(whole.rgbHistogram[c], part.rgbHistogram[c]);
+  }
+  sumDensity(whole.vectorscope, part.vectorscope);
+  for (std::size_t d = 0; d < whole.diamond.size(); ++d) sumDensity(whole.diamond[d], part.diamond[d]);
+  sumHistogram(whole.lumaHistogram, part.lumaHistogram);
+  sumGamut(whole.rawGamut, part.rawGamut);
+  sumGamut(whole.filteredGamut, part.filteredGamut);
+}
+
 Result analyze(Rgba8View frame, const Options& options) {
   validateOptions(options);
   const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes, frame.bytes.size(), 4);
   const auto k = coefficients(options.matrix);
   return analyzePixels(frame.width, frame.height, options, [&](std::size_t x, std::size_t y) {
     const auto offset = y * stride + x * 4;
-    const Rgb rgb{frame.bytes[offset] / 255.0, frame.bytes[offset + 1] / 255.0, frame.bytes[offset + 2] / 255.0};
+    const std::size_t red = frame.bgra ? 2 : 0, blue = frame.bgra ? 0 : 2;
+    const Rgb rgb{frame.bytes[offset + red] / 255.0, frame.bytes[offset + 1] / 255.0,
+                  frame.bytes[offset + blue] / 255.0};
     return Pixel{rgb, encode(rgb, k)};
   });
 }

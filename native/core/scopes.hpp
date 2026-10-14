@@ -41,6 +41,7 @@ struct Rgba8View {
   std::span<const std::uint8_t> bytes;
   std::size_t width = 0, height = 0;
   std::size_t rowStrideBytes = 0; // zero means width * 4
+  bool bgra = false;               // B, G, R, A byte order (the output capture's)
 };
 
 struct Range { double low = 0, high = 1; };
@@ -89,6 +90,11 @@ struct Result {
   std::array<Density, 3> rgbParade;   // R', G', B'
   const Density& lumaWaveform() const { return ycbcrParade[0]; }
   Density vectorscope; // x=Cb, y=Cr; equal scaling, no analogue UV rotation
+  // The diamond gamut display: [0] x = B'-G', y = B'+G' (the upper diamond);
+  // [1] x = R'-G', y = R'+G' (the lower one, drawn inverted). A legal R'G'B'
+  // pixel lands inside the square x in [-1, 1], y in [0, 2] rotated 45 degrees;
+  // anything outside that diamond is a component below 0 or above 1.
+  std::array<Density, 2> diamond;
   Histogram lumaHistogram;
   std::array<Histogram, 3> rgbHistogram;
   GamutCounts rawGamut, filteredGamut;
@@ -112,5 +118,13 @@ VectorPoint skinToneLine(Matrix matrix);
 // counted and excluded. All results own their memory; no global mutable state.
 Result analyze(FrameView frame, const Options& options = {});
 Result analyze(Rgba8View frame, const Options& options = {});
+
+// Adds a part analysed with the SAME options (a band of rows of one frame)
+// into a whole. Every count and bin is a sum, so splitting a frame into row
+// bands, analysing them in parallel and accumulating is exact -- except the
+// FILTERED gamut, whose spatial filter needs the neighbouring rows: analyse
+// bands with GamutFilter::None and run the filtered count on the whole frame.
+// Throws invalid_argument when the shapes differ.
+void accumulate(Result& whole, const Result& part);
 
 } // namespace deckboy::core::scopes
