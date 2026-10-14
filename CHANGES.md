@@ -44,8 +44,8 @@ every edit reaches the show file even when another program is holding it.
   later edit was made.
 
 ### Interface
-- Every button now shows it was pressed: it sinks the moment the mouse goes down, and a ring
-  flashes on it when you let go.
+- The bottom-bar buttons and other raised controls now show they were pressed: they sink the
+  moment the mouse goes down, and a ring flashes on them when you let go.
 - The mouse, cat and frog busy critters are whole animals now, walking or hopping, instead of
   heads bobbing side to side. Busy critters grow out of a single cell when a job starts and
   shrink back into one when it ends.
