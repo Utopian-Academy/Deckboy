@@ -549,23 +549,30 @@ importantly, what each feature deliberately does not do.
 **Show control:**
 
 - Group cues
-- Cue carts, templates for new shows, and a phone or tablet remote
+- Cue carts, and templates for new shows
+- A saved default state: language, theme and sound effects the way you like
+  them, for every new show
+- A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
+  and output goes
 - Fixture patching and a lighting dashboard, beyond Art-Net levels
 
 **Picture:**
 
-- More lower-third looks, each with a material and a movement of its own, and
-  the arcade look's wiggle available on any of them
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
-- PQ/HLG HDR conversion to SDR, with explicit input and programme colour settings
+- HDR from end to end: PQ and HLG clips shown correctly on SDR outputs, HDR10
+  and HLG window outputs, and HDR over SDI, NDI and recordings with the right
+  metadata, each output choosing its own signal
+- Live captions: words on the output about two seconds after they are said,
+  from a stage mic or the programme, made on this computer
 - Local AI upscaling: an upscale job that turns a clip into a sharper, bigger
   file, and real-time upscaling on the GPU where the hardware offers it
 
 **Scopes:**
 
-- Picture scopes for QC: waveform, RGB and YCbCr parades, a vectorscope with a
-  skin-tone line, gamut checks, false colour and HDR levels in nits
+- Picture scopes for QC, measured on the full-resolution output: waveform, RGB
+  and YCbCr parades, a vectorscope with a skin-tone line, the diamond gamut
+  display, EBU R 103 gamut alarms, false colour and HDR levels in nits
 - Sound scopes: loudness to EBU R 128, true peak, phase and spectrum
 - Scopes on the desk, on any output and over NDI
 
@@ -573,6 +580,12 @@ importantly, what each feature deliberately does not do.
 
 - A media browser in the terminal: walk folders, filter by typing and add clips
   without leaving the keyboard, shared with the desk's own browser
+
+**Web Monitor and network:**
+
+- A Web Monitor at full resolution and the right shape, that pauses, rewinds
+  and returns to live without losing the picture
+- Passwords on every control port that can be opened to the network
 
 **Platform:**
 
