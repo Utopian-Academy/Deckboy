@@ -82,7 +82,11 @@ Root: HKA; Subkey: "Software\Classes\Deckboy.Show\shell\open\command"; ValueType
 ; Without postinstall it runs automatically when the install finishes, which
 ; is what the button promised. skipifsilent stays: a silent install is
 ; somebody scripting a deployment, and they do not want a window.
-Filename: "{app}\Deckboy.exe"; Description: "Launch Deckboy now"; Flags: nowait skipifsilent
+;
+; AS THE ORIGINAL USER. Only postinstall entries default to that; without the
+; flag an all-users install relaunched Deckboy as Administrator, and Windows
+; then refuses every file dragged in from Explorer (a lower-privilege window).
+Filename: "{app}\Deckboy.exe"; Description: "Launch Deckboy now"; Flags: nowait skipifsilent runasoriginaluser
 
 ; CLEAN UP THE INSTALLER WE CAME FROM.
 ;

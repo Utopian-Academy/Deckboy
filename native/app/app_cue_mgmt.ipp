@@ -1778,6 +1778,10 @@
     }
     std::vector<std::string> paths;
     paths.swap(dropBatch_);
+    // Logged, so "the drop did nothing" can be told apart from "the drop
+    // never arrived": with no DROP line the window was never handed the files.
+    showLog("DROP", std::to_string(paths.size()) + " file(s), first \"" +
+            fs::path(paths.front()).filename().string() + "\"");
     handleDroppedFiles(paths, dropBatchAt_);
     dropBatchAt_.reset();
   }
