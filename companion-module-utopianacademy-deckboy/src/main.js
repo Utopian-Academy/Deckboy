@@ -69,7 +69,10 @@ class DeckboyInstance extends InstanceBase {
 					'Settings → Network → Companion port (5510 by default).<br><br>' +
 					'<b>Deckboy listens on localhost only until you turn on ' +
 					'Settings → Network → REMOTE.</b> Leave it off and only Companion running ' +
-					'on the same machine can connect.',
+					'on the same machine can connect.<br><br>' +
+					'From another machine, Deckboy also has to trust this one: add its address ' +
+					'under Settings → Network → Trusted controllers (or press ALLOW beside ' +
+					'Last refused). If Deckboy has a Companion passphrase, enter it below.',
 			},
 			{
 				type: 'textinput',
@@ -80,6 +83,14 @@ class DeckboyInstance extends InstanceBase {
 				regex: Regex.HOSTNAME,
 			},
 			{ type: 'number', id: 'port', label: 'Port', width: 4, default: 5510, min: 1, max: 65535 },
+			{
+				type: 'secret-text',
+				id: 'passphrase',
+				label: 'Passphrase (only if one is set in Deckboy)',
+				tooltip: 'Settings → Network → Companion passphrase. Leave empty if Deckboy has none.',
+				width: 8,
+				default: '',
+			},
 			{
 				type: 'number',
 				id: 'pollInterval',
@@ -151,6 +162,10 @@ class DeckboyInstance extends InstanceBase {
 			this.statusPending = false
 			this.setConnected(true)
 			this.updateStatus(InstanceStatus.Ok)
+			// First, before anything else: with a passphrase set, Deckboy answers
+			// nothing from another machine until it has heard this.
+			const passphrase = String(this.config?.passphrase ?? '').replace(/[\r\n]+/g, '')
+			if (passphrase) this.socket.send(`AUTH ${passphrase}\n`)
 			this.requestStatus()
 			this.startPolling()
 		})
@@ -271,6 +286,19 @@ class DeckboyInstance extends InstanceBase {
 			// the same chunk as one. ERR is worth surfacing — it means the verb or
 			// its arguments were wrong, which used to be silent.
 			if (line.startsWith('OK ')) continue
+			// The passphrase is wrong or missing. Said once, as the connection's
+			// status, rather than as a stream of rejected polls.
+			if (line.startsWith('ERR AUTH')) {
+				const why = line.includes('wrong')
+					? 'Deckboy refused the passphrase — check it in this connection’s settings'
+					: 'Deckboy needs a passphrase — enter it in this connection’s settings'
+				if (this.lastAuthMessage !== why) {
+					this.lastAuthMessage = why
+					this.log('error', why)
+				}
+				this.updateStatus(InstanceStatus.BadConfig, why)
+				continue
+			}
 			if (line.startsWith('ERR ')) {
 				this.log('warn', `Deckboy rejected a command: ${line.slice(4)}`)
 				continue

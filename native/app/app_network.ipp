@@ -908,6 +908,10 @@
         socklen_t length = sizeof(address);
         SocketHandle client = accept(vmixHttpListen_,
                                      reinterpret_cast<sockaddr*>(&address), &length);
+        if (client != kInvalidSocket && !controlPeerAllowed(address, "vMix HTTP")) {
+          closeSocket(client);
+          client = kInvalidSocket;
+        }
         if (client != kInvalidSocket) {
           setCloseOnExec(client);
           // HTTP here is one request per connection, answered inline, exactly
@@ -923,6 +927,10 @@
         socklen_t length = sizeof(address);
         SocketHandle client = accept(vmixTcpListen_,
                                      reinterpret_cast<sockaddr*>(&address), &length);
+        if (client != kInvalidSocket && !controlPeerAllowed(address, "vMix TCP")) {
+          closeSocket(client);
+          client = kInvalidSocket;
+        }
         if (client != kInvalidSocket) {
           setCloseOnExec(client);
           std::lock_guard<std::mutex> lock(vmixClientsMutex_);
@@ -1312,6 +1320,179 @@
       }
     }
     return decoded;
+  }
+
+  // Companion TCP, under companionClientsMutex_. AUTH is answered here; with a
+  // passphrase set, a client on another machine gets nothing else -- not even
+  // STATUS -- until it has sent the right one. Five wrong ones end the session.
+  bool companionClientMayProceedLocked(SocketHandle client, const std::string& line,
+                                       std::vector<SocketHandle>& closedClients) {
+    std::string passphrase;
+    {
+      std::lock_guard<std::mutex> lock(controlTrustMutex_);
+      passphrase = controlPassphrase_;
+    }
+    const bool remote = companionClientRemote_.count(client) != 0;
+    const bool isAuth = line.size() >= 4 && toUpper(line.substr(0, 4)) == "AUTH" &&
+                        (line.size() == 4 || line[4] == ' ');
+    if (isAuth) {
+      const std::string given = line.size() > 5 ? line.substr(5) : std::string();
+      if (!remote || passphrase.empty() || given == passphrase) {
+        companionClientAuthed_.insert(client);
+        queueCompanionReplyLocked(client, "OK AUTH\n");
+      } else {
+        queueCompanionReplyLocked(client, "ERR AUTH: wrong passphrase\n");
+        if (++companionClientAuthFailures_[client] >= 5) closedClients.push_back(client);
+      }
+      return false;
+    }
+    if (!remote || passphrase.empty() || companionClientAuthed_.count(client)) return true;
+    queueCompanionReplyLocked(client, "ERR AUTH: send AUTH <passphrase> first\n");
+    return false;
+  }
+
+  // -- WHO MAY CONTROL THIS MACHINE --------------------------------------------
+  //
+  // "Listen on all interfaces" used to mean exactly that: Companion, OSC, the
+  // HyperDeck and vMix emulations all took commands from ANY machine on the
+  // network, with no question asked, and the command set can import files,
+  // open web pages and fire every cue. Now, with remote listening on, only
+  // this computer and the addresses in Settings > Network > Trusted
+  // controllers get through. Everyone else is refused and NAMED, so a desk
+  // that stops answering a new tablet says why, with the address to allow.
+  //
+  // HyperDeck and vMix clients cannot send a password, which is why the gate
+  // is an address list. Companion TCP may also require a passphrase.
+  static bool parseTrustEntry(std::string text, std::uint32_t& address, std::uint32_t& mask) {
+    text = trim(text);
+    int bits = 32;
+    if (const auto slash = text.find('/'); slash != std::string::npos) {
+      try {
+        bits = std::stoi(text.substr(slash + 1));
+      } catch (...) {
+        return false;
+      }
+      if (bits < 8 || bits > 32) return false;  // never "the whole internet"
+      text = text.substr(0, slash);
+    }
+    in_addr parsed {};
+    if (inet_pton(AF_INET, text.c_str(), &parsed) != 1) return false;
+    mask = bits == 32 ? 0xFFFFFFFFu : ~((1u << (32 - bits)) - 1u);
+    address = ntohl(parsed.s_addr) & mask;
+    return true;
+  }
+
+  // The entries that do not parse, for the operator to fix (empty = all fine).
+  static std::string invalidTrustEntries(const std::string& list) {
+    std::string bad;
+    for (const auto& entry : splitByChar(list, ',')) {
+      std::uint32_t a = 0, m = 0;
+      if (!trim(entry).empty() && !parseTrustEntry(entry, a, m)) {
+        bad += (bad.empty() ? "" : ", ") + trim(entry);
+      }
+    }
+    return bad;
+  }
+
+  // Main thread. Copies the project's rules into what the network threads read.
+  void refreshControlTrust() {
+    std::lock_guard<std::mutex> lock(controlTrustMutex_);
+    if (controlTrustPrimed_ && controlTrustSource_ == project_.trustedControllers &&
+        controlPassphrase_ == project_.companionPassphrase &&
+        controlTrustRemote_ == project_.allowRemoteNetwork) {
+      return;
+    }
+    controlTrustPrimed_ = true;
+    controlTrustSource_ = project_.trustedControllers;
+    controlPassphrase_ = project_.companionPassphrase;
+    controlTrustRemote_ = project_.allowRemoteNetwork;
+    controlTrustNets_.clear();
+    for (const auto& entry : splitByChar(project_.trustedControllers, ',')) {
+      std::uint32_t address = 0, mask = 0;
+      if (parseTrustEntry(entry, address, mask)) controlTrustNets_.push_back({address, mask});
+    }
+  }
+
+  static bool peerIsLoopback(const sockaddr_in& peer) {
+    return (ntohl(peer.sin_addr.s_addr) >> 24) == 127;
+  }
+
+  // Any network thread. False means refuse; the refusal is reported later on
+  // the main thread, which owns the toasts and the log.
+  bool controlPeerAllowed(const sockaddr_in& peer, const char* portName) {
+    if (peer.sin_family == AF_INET && peerIsLoopback(peer)) return true;
+    std::lock_guard<std::mutex> lock(controlTrustMutex_);
+    if (controlTrustRemote_ && peer.sin_family == AF_INET) {
+      const std::uint32_t ip = ntohl(peer.sin_addr.s_addr);
+      for (const auto& [address, mask] : controlTrustNets_) {
+        if ((ip & mask) == address) return true;
+      }
+    }
+    if (controlRefused_.size() < 64) controlRefused_.push_back({socketAddressToString(peer), portName});
+    return false;
+  }
+
+  // Main thread, every tick: keep the rules current and say who was turned away.
+  void reportRefusedControllers() {
+    refreshControlTrust();
+    std::vector<std::pair<std::string, std::string>> refused;
+    {
+      std::lock_guard<std::mutex> lock(controlTrustMutex_);
+      refused.swap(controlRefused_);
+    }
+    const Uint64 now = SDL_GetTicks();
+    for (const auto& [address, port] : refused) {
+      controlLastRefused_ = address;
+      Uint64& told = controlRefusedToldMs_[address + " " + port];
+      if (told != 0 && now - told < 30000) continue;  // once in 30 s, not per packet
+      told = now;
+      showLog("CONTROL-REFUSED", address + " on " + port);
+      triggerToast("refused " + port + " control from " + address +
+                     " - trust it in Settings > Network (TRUST " + address + ")",
+                   ToastKind::Warning, kToastReadableMs);
+    }
+  }
+
+  // Adds one address or range to the trusted list; false (and why) if invalid.
+  bool trustController(const std::string& entry) {
+    std::uint32_t a = 0, m = 0;
+    if (!parseTrustEntry(entry, a, m)) {
+      failRemoteCommand("TRUST: expected an IPv4 address or a.b.c.d/bits (8-32), got " + trim(entry));
+      return false;
+    }
+    for (const auto& existing : splitByChar(project_.trustedControllers, ',')) {
+      if (trim(existing) == trim(entry)) return true;
+    }
+    project_.trustedControllers +=
+      (trim(project_.trustedControllers).empty() ? "" : ", ") + trim(entry);
+    markProjectDirty();
+    refreshControlTrust();
+    triggerToast("trusted controller: " + trim(entry));
+    return true;
+  }
+
+  // Verbs another machine may never use: they write files at a path it names,
+  // fake the operator's own mouse, or change who is trusted.
+  static bool remoteVerbIsLocalOnly(const std::string& text) {
+    const auto parts = splitWhitespace(text);
+    if (parts.empty()) return false;
+    const std::string verb = toUpper(parts[0]);
+    static const std::set<std::string> kLocalOnly {
+      "CLICK", "HOVER", "PRESS", "SCROLL", "SCROLLBAR", "DROPTEST",
+      "UISNAP", "OUTSNAP", "TRUST", "COMPANIONPASS"};
+    if (kLocalOnly.count(verb)) return true;
+    if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
+    if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
+    // A verb that STORES commands to run later must not be a way round this.
+    if (verb == "DASH" || verb == "SCRIPTCUE") {
+      for (const auto& word : parts) {
+        std::string w = toUpper(word);
+        while (!w.empty() && (w.front() == '|' || w.front() == ';' || w.front() == '"')) w.erase(w.begin());
+        if (kLocalOnly.count(w)) return true;
+        if (w == "SUBTITLE" || w.find("FILE:") != std::string::npos) return true;
+      }
+    }
+    return false;
   }
 
   // Built on the main thread only. No paths, commands, PIN or output credentials
@@ -2425,6 +2606,10 @@ html,body{width:100%;height:100%;overflow:hidden}
       if (client == kInvalidSocket) {
         continue;
       }
+      if (!controlPeerAllowed(clientAddress, "OSC query")) {
+        closeSocket(client);
+        continue;
+      }
       setCloseOnExec(client);
       handleOscQueryHttpClient(client);
       closeSocket(client);
@@ -2556,12 +2741,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (358)\n"
+        "DECKBOY_0.01 every verb (360)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "CLICK HOVER PRESS MIDICLOCK OUTSNAP UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "CLICK HOVER PRESS TRUST COMPANIONPASS MIDICLOCK OUTSNAP UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT\n"
@@ -2723,6 +2908,9 @@ html,body{width:100%;height:100%;overflow:hidden}
         "          (key+fill sends the picture and its matte down two cards)\n"
         "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF (programme with sound) | SHARE ON|OFF | SOURCE PROGRAMME|<n> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF\n"
         "            WEBMONITOR CONTROL ON|OFF (PIN-protected phone controls at /remote)\n"
+        "trust:  TRUST <ip|a.b.c.d/bits> | TRUST REMOVE <entry> | TRUST LAST | TRUST LIST | TRUST CLEAR\n"
+        "        (with Listen on: all interfaces, only these machines may control this one)\n"
+        "        COMPANIONPASS <passphrase>|OFF - other machines must send AUTH <passphrase> first\n"
         "      (programme with sound in any browser; /outputs shows individual outputs)\n"
         "vmix: VMIX | VMIX ON|OFF|TOGGLE | VMIX PORTS <http> <tcp>\n"
         "      (answers the vMix HTTP and TCP APIs, so a Stream Deck plugin or\n"
@@ -2869,6 +3057,9 @@ html,body{width:100%;height:100%;overflow:hidden}
       companionClientReplies_.clear();
       companionClientGenerations_.clear();
       companionClientFirstLine_.clear();
+      companionClientRemote_.clear();
+      companionClientAuthed_.clear();
+      companionClientAuthFailures_.clear();
       companionReplyStartedAt_.clear();
       companionDrainingClients_.clear();  // sockets already closed by the loop above
     }
@@ -4655,6 +4846,10 @@ html,body{width:100%;height:100%;overflow:hidden}
       socklen_t addrLen = sizeof(clientAddr);
       SocketHandle clientFd = accept(hyperDeckListenFd_, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
       if (clientFd == kInvalidSocket) continue;
+      if (!controlPeerAllowed(clientAddr, "HyperDeck")) {
+        closeSocket(clientFd);
+        continue;
+      }
       setCloseOnExec(clientFd);
       // Greet
       const char* greeting =
@@ -4911,6 +5106,10 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         sockaddr_in clientAddress {};
         socklen_t clientLength = sizeof(clientAddress);
         SocketHandle client = accept(companionTcpListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
+        if (client != kInvalidSocket && !controlPeerAllowed(clientAddress, "Companion")) {
+          closeSocket(client);
+          client = kInvalidSocket;
+        }
         if (client != kInvalidSocket) {
           setCloseOnExec(client);
 #ifdef _WIN32
@@ -4932,6 +5131,10 @@ bool looksLikeHttpRequestLine(const std::string& line) {
             companionClients_.push_back(client);
             companionClientGenerations_[client] = companionNextGeneration_++;
             companionClientBuffers_[client] = "";
+            companionClientAuthed_.erase(client);
+            companionClientAuthFailures_.erase(client);
+            if (peerIsLoopback(clientAddress)) companionClientRemote_.erase(client);
+            else companionClientRemote_.insert(client);
           }
         }
       }
@@ -4948,6 +5151,10 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           reinterpret_cast<sockaddr*>(&sender),
           &senderLen
         );
+        if (bytes > 0 && !controlPeerAllowed(sender, "Companion UDP")) {
+          bytes = 0;
+        }
+        const bool udpFromPeer = !peerIsLoopback(sender);
         if (bytes > 0) {
           std::string payload(buffer.data(), static_cast<size_t>(bytes));
           auto oscMessages = parseOscPacket(payload);
@@ -4970,7 +5177,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
                 mapped = "OSCTRIGGER " + trim(osc.address);
               }
               if (mapped && !mapped->empty()) {
-                if (enqueueRemoteCommand(*mapped))
+                if (enqueueRemoteCommand(*mapped, kInvalidSocket, 0, {}, udpFromPeer))
                   sendOscStringTo(sender, "/deckboy/ack", *mapped);
                 else
                   sendOscStringTo(sender, "/deckboy/error", "busy: command queue full");
@@ -4979,7 +5186,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           } else if (payload.find('\0') != std::string::npos) {
             continue;
           } else {
-            enqueueRemoteCommandBatch(payload);
+            enqueueRemoteCommandBatch(payload, '\n', udpFromPeer);
           }
         }
       }
@@ -5025,10 +5232,14 @@ bool looksLikeHttpRequestLine(const std::string& line) {
                 pending.clear();
                 break;
               }
+              if (!companionClientMayProceedLocked(client, line, closedClients)) {
+                continue;
+              }
               if (!maybeRespondToCompanionQuery(client, line)) {
                 // The client gets an OK/ERR line once the main thread has run
                 // this command.
-                if (!enqueueRemoteCommand(line, client, companionClientGenerations_[client]))
+                if (!enqueueRemoteCommand(line, client, companionClientGenerations_[client], {},
+                                          companionClientRemote_.count(client) != 0))
                   queueCompanionReplyLocked(client, "ERR busy: command queue full\n");
               }
             }
@@ -5049,9 +5260,12 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           auto pendingIt = companionClientBuffers_.find(client);
           if (pendingIt != companionClientBuffers_.end()) {
             std::string leftover = trim(pendingIt->second);
-            if (!leftover.empty()) {
+            std::vector<SocketHandle> ignoredClosures;
+            if (!leftover.empty() &&
+                companionClientMayProceedLocked(client, leftover, ignoredClosures)) {
               if (!maybeRespondToCompanionQuery(client, leftover)) {
-                if (!enqueueRemoteCommand(leftover, client, companionClientGenerations_[client]))
+                if (!enqueueRemoteCommand(leftover, client, companionClientGenerations_[client], {},
+                                          companionClientRemote_.count(client) != 0))
                   queueCompanionReplyLocked(client, "ERR busy: command queue full\n");
               }
             }
@@ -5173,6 +5387,9 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       companionReplyStartedAt_.erase(client);
       companionClientBuffers_.erase(client);
       companionClientFirstLine_.erase(client);
+      companionClientRemote_.erase(client);
+      companionClientAuthed_.erase(client);
+      companionClientAuthFailures_.erase(client);
       companionClients_.erase(
         std::remove(companionClients_.begin(), companionClients_.end(), client),
         companionClients_.end()
@@ -5262,7 +5479,16 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           remoteCommandError_ = "phone control disabled or passphrase changed";
         }
       }
-      if (!command.webReply || remoteCommandError_.empty()) handleRemoteCommand(command.text);
+      if (!command.webReply) {
+        remoteCommandError_.clear();
+        if (command.fromNetworkPeer && remoteVerbIsLocalOnly(command.text)) {
+          remoteCommandError_ = "only accepted from this computer";
+          const auto words = splitWhitespace(command.text);
+          showLog("CONTROL-REFUSED", "local-only verb from another machine: " +
+                                     (words.empty() ? std::string() : toUpper(words[0])));
+        }
+      }
+      if (remoteCommandError_.empty()) handleRemoteCommand(command.text);
       if (command.replyTo == kInvalidSocket && !command.webReply) {
         continue;
       }

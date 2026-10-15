@@ -1668,7 +1668,7 @@
       // Heights, computed before any rect so the scroll range below can see
       // all of them. Same shape and same comments as they had inline.
       // Three rows and two status lines, in the order they are drawn.
-      int remoteH = stackH({sRowH, sRowH, sRowH, sLineH, sLineH});
+      int remoteH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH, sLineH});
       int oscH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH});
       // NMC IN & OUT. Four rows and one line saying what the chosen
       // direction actually does.
@@ -1768,6 +1768,28 @@
       drawPill(remoteToggle, project_.allowRemoteNetwork,
                "ALL INTERFACES", "LOCALHOST ONLY", kSettingsActionAllowRemoteToggle);
 
+      // WHO ELSE MAY CONTROL THIS MACHINE, once it listens beyond itself.
+      SDL_Rect trustBtn =
+        settingsRow(remoteX, remoteW, remoteY, sRowH, "Trusted controllers", sGap);
+      drawUIValueControl(trustBtn, trim(project_.trustedControllers).empty()
+                                     ? std::string("only this computer")
+                                     : project_.trustedControllers);
+      settingsBtns_.push_back({trustBtn, kSettingsActionTrustedControllers, "trusted_controllers"});
+
+      SDL_Rect passBtn =
+        settingsRow(remoteX, remoteW, remoteY, sRowH, "Companion passphrase", sGap);
+      drawUIValueControl(passBtn, project_.companionPassphrase.empty() ? std::string("off")
+                                                                       : std::string("set"));
+      settingsBtns_.push_back({passBtn, kSettingsActionCompanionPassphrase, "companion_passphrase"});
+
+      SDL_Rect refusedBtn =
+        settingsRow(remoteX, remoteW, remoteY, sRowH, "Last refused", sGap);
+      if (controlLastRefused_.empty()) {
+        drawUIValueControl(refusedBtn, "nobody");
+      } else {
+        drawPill(refusedBtn, false, "", "ALLOW " + controlLastRefused_, kSettingsActionTrustLastRefused);
+      }
+
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{remoteX, remoteY, remoteW, sLineH},
                    project_.hyperDeckEnabled
@@ -1778,7 +1800,9 @@
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{remoteX, remoteY, remoteW, sLineH},
                    project_.allowRemoteNetwork
-                     ? "Listening on all interfaces."
+                     ? (trim(project_.trustedControllers).empty()
+                          ? "All interfaces, but only this computer is trusted yet."
+                          : "All interfaces; trusted machines only.")
                      : "Listening on localhost (127.0.0.1).", soft);
 
       drawCard(oscRect, "OSC QUERY / FEEDBACK", "Discovery and mirrored state");
@@ -4433,6 +4457,43 @@
         if (project_.nmcSyncEnabled) startNmcSyncBridge();
         triggerToast(project_.allowRemoteNetwork ? "network: remote connections enabled" : "network: local only");
         markProjectDirty();
+      } else if (sb.action == kSettingsActionTrustedControllers) {
+        settingsOpen_ = false;
+        openInlineTextEditor("settings.trusted_controllers", "Trusted controllers",
+                             "IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer",
+                             project_.trustedControllers,
+                             [this](const std::string& value) {
+                               if (const std::string bad = invalidTrustEntries(value); !bad.empty()) {
+                                 triggerToast("not an address: " + bad, ToastKind::Warning, kToastReadableMs);
+                                 return;
+                               }
+                               project_.trustedControllers = trim(value);
+                               markProjectDirty();
+                               refreshControlTrust();
+                               triggerToast(project_.trustedControllers.empty()
+                                              ? "trusted controllers: only this computer"
+                                              : "trusted controllers: " + project_.trustedControllers);
+                             });
+      } else if (sb.action == kSettingsActionCompanionPassphrase) {
+        settingsOpen_ = false;
+        openInlineTextEditor("settings.companion_passphrase", "Companion passphrase",
+                             "8+ characters; other machines send AUTH <passphrase> first. Empty = off",
+                             project_.companionPassphrase,
+                             [this](const std::string& value) {
+                               const std::string cleaned = trim(value);
+                               if (!cleaned.empty() && cleaned.size() < 8) {
+                                 triggerToast("passphrase: use 8 or more characters",
+                                              ToastKind::Warning, kToastReadableMs);
+                                 return;
+                               }
+                               project_.companionPassphrase = cleaned;
+                               markProjectDirty();
+                               refreshControlTrust();
+                               triggerToast(cleaned.empty() ? "companion passphrase: off"
+                                                            : "companion passphrase: set");
+                             });
+      } else if (sb.action == kSettingsActionTrustLastRefused) {
+        if (!controlLastRefused_.empty()) trustController(controlLastRefused_);
       } else if (sb.action == kSettingsActionOscQueryToggle) {
         setOscQueryEnabled(!project_.oscQueryEnabled);
       } else if (sb.action == kSettingsActionAudioSampleRateDropdown) {

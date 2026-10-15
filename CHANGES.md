@@ -13,6 +13,18 @@ every edit reaches the show file even when another program is holding it.
   IPv4 LAN and loopback clients. Repeated wrong passphrases lock the page out for longer each time.
 - Fixed an issue where `DASH <n>` reported `OK` when its assigned command failed or was unknown.
 
+### Network control
+- Fixed an issue where, with **Listen on** set to all interfaces, Companion, OSC, OSC Query, the
+  HyperDeck emulation and the vMix API accepted commands from any machine on the network. Only
+  this computer and the machines in **Settings → Network → Trusted controllers** are answered
+  now; anyone else is refused and named, with an **ALLOW** button beside **Last refused**.
+- Added **Companion passphrase**: a Companion client on another machine must send
+  `AUTH <passphrase>` first. The Companion module 1.0.5 has a **Passphrase** field for it.
+- Commands that write files at a given path, fake mouse input, open `file:` addresses or change
+  who is trusted are refused from other machines, including inside `DASH` buttons and script
+  cues sent from them.
+- Added `TRUST` and `COMPANIONPASS`.
+
 ### Lower thirds
 - Added 39 lower-third looks to the inspector's look picker and `TEXTCUE LOOK`, bringing the
   catalogue to 52 looks with individual entrances and exits.

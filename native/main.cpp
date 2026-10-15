@@ -9266,6 +9266,9 @@ class App {
   // killed whichever button's handler ran second — the "Processing sub-tab
   // does nothing" bug. Keep every id unique; next free: 647+.
   static constexpr int kSettingsActionAllowRemoteToggle = 640;
+  static constexpr int kSettingsActionTrustedControllers = 840;
+  static constexpr int kSettingsActionCompanionPassphrase = 841;
+  static constexpr int kSettingsActionTrustLastRefused = 842;
   static constexpr int kSettingsActionStreamKeyPrompt = 641;
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;
@@ -11104,6 +11107,8 @@ class App {
     SocketHandle replyTo = kInvalidSocket;
     std::uint64_t replyGeneration = 0;
     std::shared_ptr<WebRemoteReply> webReply;
+    // Sent by another machine (not loopback). Some verbs only this computer may use.
+    bool fromNetworkPeer = false;
   };
   std::deque<PendingRemoteCommand> remoteCommands_;
   // Set true at the top of handleRemoteCommand and cleared only by falling off
@@ -11717,6 +11722,22 @@ class App {
   // Which connections have already had their first line inspected (see the
   // HTTP guard in app_network.ipp).
   std::set<SocketHandle> companionClientFirstLine_;
+  // Companion TCP clients on another machine, and which of those have sent the
+  // passphrase (companionClientsMutex_).
+  std::set<SocketHandle> companionClientRemote_;
+  std::set<SocketHandle> companionClientAuthed_;
+  std::map<SocketHandle, int> companionClientAuthFailures_;
+  // The trust rules as the network threads see them (controlTrustMutex_).
+  std::mutex controlTrustMutex_;
+  std::vector<std::pair<std::uint32_t, std::uint32_t>> controlTrustNets_;  // address, mask
+  std::string controlTrustSource_;
+  std::string controlPassphrase_;
+  bool controlTrustRemote_ = false;
+  bool controlTrustPrimed_ = false;
+  // Refused peers waiting to be told about on the main thread, and the last.
+  std::vector<std::pair<std::string, std::string>> controlRefused_;  // address, port name
+  std::map<std::string, Uint64> controlRefusedToldMs_;
+  std::string controlLastRefused_;
   // Clients that half-closed (sent EOF) but are still owed an OK/ERR for a
   // command already queued. Value is the SDL_GetTicks deadline after which the
   // socket is closed regardless. See the linger note in the reader loop.

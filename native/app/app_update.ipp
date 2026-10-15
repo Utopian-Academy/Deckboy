@@ -739,6 +739,8 @@
 #endif
     // Apply any finished loudness-normalize analyses.
     drainNormalizeResults();
+    // Who was turned away from the control ports, and the current trust rules.
+    reportRefusedControllers();
     collectCaptionJob();
     // Keep the LTC carrier topped up. Cheap when disabled (one bool test), and
     // it must run every tick so the emitted code never develops a gap.

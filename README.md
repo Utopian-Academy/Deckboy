@@ -585,7 +585,7 @@ importantly, what each feature deliberately does not do.
 
 - A Web Monitor at full resolution and the right shape, that pauses, rewinds
   and returns to live without losing the picture
-- Passwords on every control port that can be opened to the network
+- Encrypted connections (HTTPS) for the Web Monitor and the phone remote
 
 **Platform:**
 

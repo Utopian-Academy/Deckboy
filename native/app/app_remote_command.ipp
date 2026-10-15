@@ -5373,6 +5373,71 @@
       remoteCommandDetail_ = out.str();
       return;
     }
+    if (command == "TRUST") {
+      // TRUST <ip | a.b.c.d/bits> | TRUST REMOVE <entry> | TRUST LIST | TRUST CLEAR
+      // | TRUST LAST (the last machine refused). Only this computer may use it.
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("LIST");
+      if (sub == "LIST") {
+        remoteCommandDetail_ = trim(project_.trustedControllers).empty()
+          ? std::string("none (only this computer)") : project_.trustedControllers;
+        return;
+      }
+      if (sub == "CLEAR") {
+        project_.trustedControllers.clear();
+        markProjectDirty();
+        refreshControlTrust();
+        triggerToast("trusted controllers: none");
+        return;
+      }
+      if (sub == "LAST") {
+        if (controlLastRefused_.empty()) {
+          failRemoteCommand("TRUST LAST: nothing has been refused");
+          return;
+        }
+        if (trustController(controlLastRefused_)) remoteCommandDetail_ = controlLastRefused_;
+        return;
+      }
+      if (sub == "REMOVE" && parts.size() > 2) {
+        std::string kept;
+        bool removed = false;
+        for (const auto& entry : splitByChar(project_.trustedControllers, ',')) {
+          if (trim(entry).empty()) continue;
+          if (trim(entry) == trim(parts[2])) { removed = true; continue; }
+          kept += (kept.empty() ? "" : ", ") + trim(entry);
+        }
+        if (!removed) {
+          failRemoteCommand("TRUST REMOVE: " + parts[2] + " is not in the list");
+          return;
+        }
+        project_.trustedControllers = kept;
+        markProjectDirty();
+        refreshControlTrust();
+        return;
+      }
+      if (trustController(parts[1])) remoteCommandDetail_ = project_.trustedControllers;
+      return;
+    }
+    if (command == "COMPANIONPASS") {
+      // COMPANIONPASS <passphrase> | OFF. Only this computer may use it.
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = project_.companionPassphrase.empty() ? "off" : "set";
+        return;
+      }
+      const std::string value = joinParts(parts, 1);
+      if (toUpper(value) == "OFF") {
+        project_.companionPassphrase.clear();
+      } else if (value.size() < 8) {
+        failRemoteCommand("COMPANIONPASS: use 8 or more characters");
+        return;
+      } else {
+        project_.companionPassphrase = value;
+      }
+      markProjectDirty();
+      refreshControlTrust();
+      triggerToast(project_.companionPassphrase.empty() ? "companion passphrase: off"
+                                                        : "companion passphrase: set");
+      return;
+    }
     if (command == "PRESS") {
       // Holds the pointer down at x y, or lets go (PRESS OFF), WITHOUT
       // clicking: so a test can see a control's pressed look and its

@@ -2662,6 +2662,13 @@ struct Project {
   // Each integration follows the pattern in platform/integration_backend.*:
   // enable flag here → runtime thread in main.cpp → settings toggle in UI.
   bool allowRemoteNetwork = false;       // false = listeners bind to localhost only; true = all interfaces
+  // With allowRemoteNetwork on, the ONLY other machines that may control this
+  // one: IPv4 addresses or a.b.c.d/bits ranges, comma separated. Empty means
+  // none -- every control port refuses everyone but this computer.
+  std::string trustedControllers;
+  // Optional. When set, a Companion TCP client on another machine must send
+  // AUTH <passphrase> before anything else is answered.
+  std::string companionPassphrase;
   bool oscQueryEnabled = false;          // OSC query server (Companion, TouchOSC, etc.)
   int oscQueryPort = 5511;               // TCP/UDP port for OSC
   // WEB MONITOR: every output as a live picture in any browser, at

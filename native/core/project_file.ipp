@@ -288,6 +288,8 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "vj_quantise\t" << (project.vjQuantiseTakes ? 1 : 0) << '\n';
   output << "interaction_mode\t" << escapeField(project.interactionMode) << '\n';
   output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
+  output << "trusted_controllers\t" << project.trustedControllers << '\n';
+  output << "companion_passphrase\t" << project.companionPassphrase << '\n';
   output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
   output << "web_monitor_enabled\t" << (project.webMonitorEnabled ? 1 : 0) << '\n';
@@ -1376,6 +1378,10 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.interactionMode = (v == "touch") ? "touch" : "mouse";
   } else if (fields[0] == "allow_remote_network") {
     project.allowRemoteNetwork = safeBool(fields, 1, false);
+  } else if (fields[0] == "trusted_controllers") {
+    project.trustedControllers = safeString(fields, 1);
+  } else if (fields[0] == "companion_passphrase") {
+    project.companionPassphrase = safeString(fields, 1);
   } else if (fields[0] == "osc_query_enabled") {
     project.oscQueryEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "osc_query_port") {

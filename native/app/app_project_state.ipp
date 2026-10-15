@@ -4268,20 +4268,22 @@
 
   bool enqueueRemoteCommand(std::string command, SocketHandle replyTo = kInvalidSocket,
                             std::uint64_t replyGeneration = 0,
-                            std::shared_ptr<WebRemoteReply> webReply = {}) {
+                            std::shared_ptr<WebRemoteReply> webReply = {},
+                            bool fromNetworkPeer = false) {
     std::lock_guard<std::mutex> lock(remoteCommandMutex_);
     if (remoteCommands_.size() >= 512 || command.size() > 65536) return false;
     remoteCommands_.push_back(PendingRemoteCommand {std::move(command), replyTo, replyGeneration,
-                                                    std::move(webReply)});
+                                                    std::move(webReply), fromNetworkPeer});
     return true;
   }
 
-  void enqueueRemoteCommandBatch(const std::string& payload, char separatorHint = '\n') {
+  void enqueueRemoteCommandBatch(const std::string& payload, char separatorHint = '\n',
+                                 bool fromNetworkPeer = false) {
     if (separatorHint == '\n') {
       for (auto& line : splitLines(payload)) {
         std::string trimmed = trim(line);
         if (!trimmed.empty()) {
-          enqueueRemoteCommand(trimmed);
+          enqueueRemoteCommand(trimmed, kInvalidSocket, 0, {}, fromNetworkPeer);
         }
       }
       return;
@@ -4290,7 +4292,7 @@
     for (auto& item : splitByChar(payload, separatorHint)) {
       std::string trimmed = trim(item);
       if (!trimmed.empty()) {
-        enqueueRemoteCommand(trimmed);
+        enqueueRemoteCommand(trimmed, kInvalidSocket, 0, {}, fromNetworkPeer);
       }
     }
   }

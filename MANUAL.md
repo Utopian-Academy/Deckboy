@@ -2016,6 +2016,37 @@ All remote inputs normalise to plain-text commands.
   `docs/streamdeck/` for setups that can't install a module.
   **Deckboy listens on localhost only until Settings → Network → REMOTE is on** —
   leave it off and only Companion on the same machine can connect.
+
+### Who may control Deckboy from another machine
+
+With **Listen on** set to all interfaces, Companion, OSC, OSC Query, the
+HyperDeck emulation and the vMix API answer only this computer and the
+machines in **Settings → Network → Trusted controllers**: IPv4 addresses or
+ranges such as `192.168.1.0/24`, comma separated. Anyone else is refused, and
+a warning names the address. **Last refused** shows the most recent one with
+an **ALLOW** button, which adds it to the list. Every refusal is written to
+the show log as `CONTROL-REFUSED`.
+
+**Companion passphrase** adds a second lock for Companion TCP: a client on
+another machine must send `AUTH <passphrase>` before anything else is
+answered, including `STATUS`. The Deckboy Companion module sends it for you
+when its **Passphrase** field is filled in. Five wrong passphrases end the
+connection. HyperDeck and vMix clients cannot send a passphrase, so for them
+the trusted list is the lock.
+
+Some commands work only from this computer, whoever else is trusted: the
+test inputs (`CLICK`, `HOVER`, `PRESS`, `SCROLL`, `SCROLLBAR`, `DROPTEST`),
+anything that writes a file at a path it is given (`UISNAP`, `OUTSNAP`,
+`SUBTITLE CONVERT`), a `BROWSER` cue opening a `file:` address, and the
+commands that change who is trusted. A `DASH` button or script cue sent from
+another machine cannot carry them either.
+
+| Command | Does |
+|---------|------|
+| `TRUST <address or a.b.c.d/bits>` | Adds a machine or range (8 to 32 bits) |
+| `TRUST LAST` | Adds the machine refused most recently |
+| `TRUST REMOVE <entry>` · `TRUST LIST` · `TRUST CLEAR` | Edits or shows the list |
+| `COMPANIONPASS <passphrase>` · `COMPANIONPASS OFF` | Sets or clears the Companion passphrase (8+ characters) |
 - **OSC** — messages/bundles on the same port, plus an OSC Query HTTP endpoint
   and mirrored `/deckboy/state` feedback.
 - **MIDI** — on Windows and Linux; the current macOS download does not
