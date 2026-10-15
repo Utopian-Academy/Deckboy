@@ -885,6 +885,33 @@ authorization and peer-to-peer Node advertisements are not supported.
 
 ---
 
+### HDR video
+
+**On an SDR output** (every output, unless you turn HDR on below), HDR10 and
+HLG video is converted for it: the HDR reference white (203 nits, ITU-R
+BT.2408) becomes SDR white, brighter highlights ease into white instead of
+clipping, and BT.2020 colours are converted to BT.709. 75% colour bars made in
+HDR come out as ordinary 75% bars.
+
+**An HDR output** sends the display HDR. `OUTPUT HDR ON` (for the focused
+output) gives a window output a linear, floating-point picture and an HDR
+(scRGB) connection to its screen:
+
+- SDR material -- slides, graphics, ordinary video -- sits at **203 nits**,
+  BT.2408's reference white, whatever the operating system's own SDR
+  brightness slider says. `OUTPUT HDR WHITE <nits>` moves it (80-500).
+- HDR video keeps its highlights at their own brightness: 1000 nits in the
+  file is 1000 nits sent. The display shows what it can and clips the rest.
+- NDI, DeckLink, recordings, the Web Monitor and the scopes still receive
+  SDR from that output: SDR material exactly, HDR highlights clipped at white.
+
+`OUTPUT HDR STATUS` says whether the output is really running HDR (a renderer
+or display that cannot falls back to SDR, with a warning) and the display's own
+SDR white level and headroom. `--devices` lists which displays are in HDR.
+
+Windows (Direct3D 11) is where this has been measured. On macOS and Linux an
+HDR output asks SDL's GPU renderer for the same, untested so far.
+
 ## 13. Recording
 
 The program output can be written to a file while the show runs. `RECORD` sits

@@ -3733,7 +3733,26 @@
   // name, both to force "gpu" on a Windows desk (which is how this path gets
   // tested at all) and to get an operator back to the old behaviour in a hurry
   // if a driver misbehaves in the field.
-  SDL_Renderer* createOutputRenderer(SDL_Window* window) {
+  SDL_Renderer* createOutputRenderer(SDL_Window* window, bool hdr = false) {
+    // HDR: the renderer outputs scRGB (linear BT.709 primaries, 1.0 = 80 nits,
+    // values above it reach the display's HDR range). Direct3D 11 on Windows,
+    // SDL's GPU renderer (Metal/Vulkan) elsewhere. Asked first; the caller
+    // checks the colourspace it actually got.
+    if (hdr) {
+      const SDL_PropertiesID props = SDL_CreateProperties();
+      SDL_SetPointerProperty(props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, window);
+      SDL_SetNumberProperty(props, SDL_PROP_RENDERER_CREATE_OUTPUT_COLORSPACE_NUMBER, SDL_COLORSPACE_SRGB_LINEAR);
+#ifdef _WIN32
+      SDL_SetStringProperty(props, SDL_PROP_RENDERER_CREATE_NAME_STRING, "direct3d11");
+#else
+      SDL_SetStringProperty(props, SDL_PROP_RENDERER_CREATE_NAME_STRING, "gpu");
+#endif
+      SDL_Renderer* r = SDL_CreateRendererWithProperties(props);
+      SDL_DestroyProperties(props);
+      if (r) return r;
+      std::cerr << "output-renderer: an HDR (scRGB) renderer could not be created: " << SDL_GetError()
+                << " -- this output stays SDR" << std::endl;
+    }
     if (const char* forced = std::getenv("DECKBOY_OUTPUT_RENDERER")) {
       if (*forced) {
         if (SDL_Renderer* r = SDL_CreateRenderer(window, forced)) {
@@ -4024,12 +4043,31 @@
     if (SDL_Surface* captured = asyncCaptured
           ? nullptr
           : SDL_RenderReadPixels(runtime.outputRenderer, &readbackRect)) {
-      ok = captured->w == captureW && captured->h == captureH &&
-           SDL_ConvertPixels(captured->w, captured->h,
-                             captured->format, captured->pixels, captured->pitch,
-                             SDL_PIXELFORMAT_BGRA32,
-                             runtime.latestCapturedFrame.pixels.data(),
-                             static_cast<int>(stride));
+      if (SDL_ISPIXELFORMAT_FLOAT(captured->format)) {
+        // An HDR output's float compositor. Plain SDL_ConvertPixels assumes a
+        // default HDR headroom for linear float and tonemaps: measured, SDR
+        // white at 203 of 255 and 75% bars at 161 in every snapshot, NDI and
+        // SDI frame. Said explicitly: white is 1.0, no headroom, so SDR comes
+        // out exact and HDR highlights clip at white.
+        const SDL_PropertiesID srcProps = SDL_CreateProperties();
+        SDL_SetFloatProperty(srcProps, SDL_PROP_SURFACE_SDR_WHITE_POINT_FLOAT, 1.0f);
+        SDL_SetFloatProperty(srcProps, SDL_PROP_SURFACE_HDR_HEADROOM_FLOAT, 1.0f);
+        ok = captured->w == captureW && captured->h == captureH &&
+             SDL_ConvertPixelsAndColorspace(captured->w, captured->h,
+                                            captured->format, SDL_COLORSPACE_SRGB_LINEAR, srcProps,
+                                            captured->pixels, captured->pitch,
+                                            SDL_PIXELFORMAT_BGRA32, SDL_COLORSPACE_SRGB, 0,
+                                            runtime.latestCapturedFrame.pixels.data(),
+                                            static_cast<int>(stride));
+        SDL_DestroyProperties(srcProps);
+      } else {
+        ok = captured->w == captureW && captured->h == captureH &&
+             SDL_ConvertPixels(captured->w, captured->h,
+                               captured->format, captured->pixels, captured->pitch,
+                               SDL_PIXELFORMAT_BGRA32,
+                               runtime.latestCapturedFrame.pixels.data(),
+                               static_cast<int>(stride));
+      }
       SDL_DestroySurface(captured);
     }
     if (!asyncCaptured && readbackTarget) {
@@ -6948,14 +6986,37 @@
     targetW = std::max(1, targetW);
     targetH = std::max(1, targetH);
 
-    Uint32 format = preferredCompositorFormat(runtime->outputRenderer);
-    SDL_Texture* compositor = deckboyCreateTexture(
-      runtime->outputRenderer,
-      format,
-      SDL_TEXTUREACCESS_TARGET,
-      targetW,
-      targetH
-    );
+    Uint32 format = runtime->hdr ? SDL_PIXELFORMAT_RGBA64_FLOAT
+                                 : preferredCompositorFormat(runtime->outputRenderer);
+    SDL_Texture* compositor = nullptr;
+    if (runtime->hdr) {
+      // Linear light, float: SDR content and HDR highlights in one picture.
+      const SDL_PropertiesID props = SDL_CreateProperties();
+      SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_FORMAT_NUMBER, format);
+      SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_ACCESS_NUMBER, SDL_TEXTUREACCESS_TARGET);
+      SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_WIDTH_NUMBER, targetW);
+      SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_HEIGHT_NUMBER, targetH);
+      SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_COLORSPACE_NUMBER, SDL_COLORSPACE_SRGB_LINEAR);
+      // Headroom 1 tells SDL never to tonemap this texture. Otherwise every
+      // copy into an 8-bit target (NDI, SDI, recording, the desk preview) went
+      // through SDL's Chrome tonemap, which halves SDR white along with the
+      // highlights: measured, white at 203 of 255 and 75% bars at 161. Now the
+      // SDR copies are exact and highlights clip at SDR white; the HDR window
+      // gets the values unaltered and the display clips at its own peak.
+      SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_CREATE_SDR_WHITE_POINT_FLOAT, 1.0f);
+      SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_CREATE_HDR_HEADROOM_FLOAT, 1.0f);
+      compositor = SDL_CreateTextureWithProperties(runtime->outputRenderer, props);
+      SDL_DestroyProperties(props);
+      if (compositor) SDL_SetTextureScaleMode(compositor, SDL_SCALEMODE_NEAREST);
+    } else {
+      compositor = deckboyCreateTexture(
+        runtime->outputRenderer,
+        format,
+        SDL_TEXTUREACCESS_TARGET,
+        targetW,
+        targetH
+      );
+    }
     if (!compositor && format != SDL_PIXELFORMAT_RGBA32) {
       format = SDL_PIXELFORMAT_RGBA32;
       compositor = deckboyCreateTexture(
@@ -6978,7 +7039,7 @@
     runtime->compositorWidth = targetW;
     runtime->compositorHeight = targetH;
     runtime->compositorFormat = format;
-    runtime->compositorBitDepth = isTenBitFormat(format) ? 10 : 8;
+    runtime->compositorBitDepth = runtime->hdr ? 16 : (isTenBitFormat(format) ? 10 : 8);
     runtime->delayFrames.clear();
     runtime->latestCapturedFrame = {};
     return true;
@@ -7645,7 +7706,16 @@
     // display assignment has been committed by the OS yet.
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    runtime.outputRenderer = createOutputRenderer(runtime.outputWindow);
+    const bool wantHdr = !streamType && outputIndex < 32 && ((project_.hdrOutputs >> outputIndex) & 1u) != 0;
+    runtime.outputRenderer = createOutputRenderer(runtime.outputWindow, wantHdr);
+    runtime.hdr = wantHdr && runtime.outputRenderer &&
+      SDL_GetNumberProperty(SDL_GetRendererProperties(runtime.outputRenderer),
+                            SDL_PROP_RENDERER_OUTPUT_COLORSPACE_NUMBER, SDL_COLORSPACE_SRGB) ==
+        SDL_COLORSPACE_SRGB_LINEAR;
+    if (wantHdr && !runtime.hdr) {
+      triggerToast(outputLabel(outputIndex) + ": HDR is not available on this renderer - running SDR",
+                   ToastKind::Warning, kToastReadableMs);
+    }
     if (runtime.outputRenderer && !streamType) {
       // Program output stays vsynced to its display; stream-only outputs run
       // unthrottled (per-renderer vsync is an SDL3 runtime property).

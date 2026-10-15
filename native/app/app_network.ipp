@@ -1489,7 +1489,7 @@
     const std::string verb = toUpper(parts[0]);
     static const std::set<std::string> kLocalOnly {
       "CLICK", "HOVER", "PRESS", "SCROLL", "SCROLLBAR", "DROPTEST",
-      "UISNAP", "OUTSNAP", "TRUST", "COMPANIONPASS"};
+      "UISNAP", "OUTSNAP", "OUTPROBE", "TRUST", "COMPANIONPASS"};
     if (kLocalOnly.count(verb)) return true;
     if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
     if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
@@ -2758,12 +2758,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (361)\n"
+        "DECKBOY_0.01 every verb (362)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "CLICK HOVER PRESS TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "CLICK HOVER PRESS TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT\n"

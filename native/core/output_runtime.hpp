@@ -193,6 +193,9 @@ struct OutputRuntime {
   // window black exactly once (not every frame — presenting is vsync-blocking).
   // Reset whenever the output renders again, so re-disabling re-blacks it.
   bool blackedWhileDisabled = false;
+  // The renderer outputs scRGB and the compositor is linear RGBA64_FLOAT
+  // (Project::hdrOutputs, and the renderer agreed to it).
+  bool hdr = false;
   SDL_Texture* compositorTexture = nullptr;  // Offscreen compositor target
   // Scratch target at the RECORDING raster. The composite is blitted into this
   // on the GPU and this is what gets read back, so a 1080 recording off a 4K

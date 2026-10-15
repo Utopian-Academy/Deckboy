@@ -5270,6 +5270,42 @@
     // reach SDL3). OUTSNAP <file.bmp> [output]: the next frame that output
     // presents, as presented. QUICKLIST: the inspector controls drawn this
     // frame, "action param tip" a line. QUICK <action> [param]: press one.
+    // OUTPROBE <output> <x> <y>: one pixel of the output's compositor, read
+    // back as floats (x, y as fractions of the raster). What an HDR output
+    // holds cannot be judged from an 8-bit snapshot or a screenshot; this is
+    // how tools/check_hdr_output.py measures it.
+    if (command == "OUTPROBE") {
+      if (parts.size() != 4) {
+        failRemoteCommand("OUTPROBE: expected <output> <x 0-1> <y 0-1>");
+        return;
+      }
+      const int which = std::atoi(parts[1].c_str()) - 1;
+      OutputRuntime* rt = runtimeForOutput(which);
+      if (!rt || !rt->outputRenderer || !rt->compositorTexture) {
+        failRemoteCommand("OUTPROBE: that output has no compositor (is it on?)");
+        return;
+      }
+      const double fx = std::clamp(std::atof(parts[2].c_str()), 0.0, 1.0);
+      const double fy = std::clamp(std::atof(parts[3].c_str()), 0.0, 1.0);
+      const SDL_Rect px {static_cast<int>(fx * (rt->compositorWidth - 1)),
+                         static_cast<int>(fy * (rt->compositorHeight - 1)), 1, 1};
+      SDL_Texture* previous = SDL_GetRenderTarget(rt->outputRenderer);
+      SDL_SetRenderTarget(rt->outputRenderer, rt->compositorTexture);
+      SDL_Surface* got = SDL_RenderReadPixels(rt->outputRenderer, &px);
+      SDL_SetRenderTarget(rt->outputRenderer, previous);
+      if (!got) {
+        failRemoteCommand(std::string("OUTPROBE: ") + SDL_GetError());
+        return;
+      }
+      float r = 0, g = 0, b = 0, a = 0;
+      SDL_ReadSurfacePixelFloat(got, 0, 0, &r, &g, &b, &a);
+      char text[200];
+      std::snprintf(text, sizeof(text), "%s %s r=%.4f g=%.4f b=%.4f", rt->hdr ? "hdr" : "sdr",
+                    SDL_GetPixelFormatName(got->format), r, g, b);
+      SDL_DestroySurface(got);
+      remoteCommandDetail_ = text;
+      return;
+    }
     if (command == "OUTSNAP") {
       if (parts.size() < 2) {
         failRemoteCommand("OUTSNAP: expected a .bmp path");
@@ -8579,6 +8615,52 @@
         }
         setFocusedOutputIndex(which);
         remoteCommandDetail_ = "output " + parts[2];
+        return;
+      }
+      if (sub == "HDR") {
+        // OUTPUT HDR ON|OFF|STATUS for the focused output: an scRGB window and
+        // a float compositor (Project::hdrOutputs). The output is rebuilt.
+        const int at = project_.focusedOutputIndex;
+        if (at < 0 || at >= static_cast<int>(project_.outputs.size()) || at >= 32) {
+          failRemoteCommand("OUTPUT HDR: no output");
+          return;
+        }
+        const std::string what = parts.size() > 2 ? toUpper(parts[2]) : std::string("STATUS");
+        if (what == "WHITE") {
+          // OUTPUT HDR WHITE <nits>: where SDR material sits on HDR outputs.
+          const int nits = parts.size() > 3 ? std::atoi(parts[3].c_str()) : 0;
+          if (nits < 80 || nits > 500) {
+            failRemoteCommand("OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)");
+            return;
+          }
+          project_.hdrSdrWhiteNits = nits;
+          markProjectDirty();
+          remoteCommandDetail_ = "SDR material at " + std::to_string(nits) + " nits";
+          return;
+        }
+        if (what == "ON" || what == "OFF") {
+          const std::uint32_t bit = 1u << at;
+          project_.hdrOutputs = what == "ON" ? (project_.hdrOutputs | bit) : (project_.hdrOutputs & ~bit);
+          markProjectDirty();
+          if (at < static_cast<int>(outputRuntimes_.size()) && outputRuntimes_[at].outputWindow) {
+            recreateOutputRuntime(at);
+          }
+        } else if (what != "STATUS") {
+          failRemoteCommand("OUTPUT HDR: expected ON, OFF or STATUS");
+          return;
+        }
+        const OutputRuntime* rt = at < static_cast<int>(outputRuntimes_.size()) ? &outputRuntimes_[at] : nullptr;
+        std::string detail = std::string(((project_.hdrOutputs >> at) & 1u) ? "asked" : "off");
+        if (rt && rt->outputWindow) {
+          const SDL_PropertiesID wp = SDL_GetWindowProperties(rt->outputWindow);
+          char text[160];
+          std::snprintf(text, sizeof(text), " | running %s | display SDR white %.2f headroom %.2f",
+                        rt->hdr ? "HDR (scRGB, float compositor)" : "SDR",
+                        SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 1.0f),
+                        SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 1.0f));
+          detail += text;
+        }
+        remoteCommandDetail_ = detail;
         return;
       }
       if (sub == "DECK") {

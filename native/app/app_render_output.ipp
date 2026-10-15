@@ -26,7 +26,29 @@
 
   // Present the compositor texture to an output window, applying AOI crop,
   // perspective warp, edge blending, and scan line overlay as configured.
+  // HDR outputs: the float compositor holds linear light with 1.0 = SDR white
+  // = the 203-nit HDR reference white (measured: SDL decodes HDR10 that way, and
+  // SDR content lands at 1.0). The window is scRGB, where 1.0 is 80 nits, and
+  // SDL passes a float texture through unscaled (measured: the back buffer is
+  // the compositor times the colour scale, whatever Windows' SDR brightness
+  // slider says). So the scale is Project::hdrSdrWhiteNits / 80 -- 203 by
+  // default, the BT.2408 level the design asked for -- with HDR highlights
+  // above it in step, absolute, the same on every machine.
   void presentOutputCompositorToWindow(int outputIndex, int windowW, int windowH) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->hdr || !runtime->outputRenderer) {
+      presentOutputCompositorToWindowLevels(outputIndex, windowW, windowH);
+      return;
+    }
+    const float scRgbWhite = static_cast<float>(std::clamp(project_.hdrSdrWhiteNits, 80, 500)) / 80.0f;
+    float previous = 1.0f;
+    SDL_GetRenderColorScale(runtime->outputRenderer, &previous);
+    SDL_SetRenderColorScale(runtime->outputRenderer, scRgbWhite);
+    presentOutputCompositorToWindowLevels(outputIndex, windowW, windowH);
+    SDL_SetRenderColorScale(runtime->outputRenderer, previous);
+  }
+
+  void presentOutputCompositorToWindowLevels(int outputIndex, int windowW, int windowH) {
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer || !runtime->compositorTexture) {
       return;
@@ -5408,7 +5430,25 @@
     const Uint64 afterTapNs = SDL_GetTicksNS();
     if (!outputSnapPath_.empty() && outputIndex == outputSnapIndex_ && !streamType) {
       if (SDL_Surface* shot = SDL_RenderReadPixels(runtime->outputRenderer, nullptr)) {
-        SDL_SaveBMP(shot, outputSnapPath_.c_str());
+        const std::string& path = outputSnapPath_;
+        if (path.size() > 4 && path.compare(path.size() - 4, 4, ".f32") == 0) {
+          // What an HDR window actually sends the display, as numbers: a float
+          // RGBA dump (width, height as int32, then RGBA float32 per pixel). In
+          // scRGB, 1.0 is 80 nits. A BMP of it means nothing: SDL tonemaps it.
+          if (SDL_Surface* f = SDL_ConvertSurface(shot, SDL_PIXELFORMAT_RGBA128_FLOAT)) {
+            if (std::FILE* out = std::fopen(path.c_str(), "wb")) {
+              const std::int32_t dims[2] = {f->w, f->h};
+              std::fwrite(dims, sizeof(dims), 1, out);
+              for (int y = 0; y < f->h; ++y)
+                std::fwrite(static_cast<const std::uint8_t*>(f->pixels) + static_cast<std::size_t>(y) * f->pitch,
+                            static_cast<std::size_t>(f->w) * 16, 1, out);
+              std::fclose(out);
+            }
+            SDL_DestroySurface(f);
+          }
+        } else {
+          SDL_SaveBMP(shot, path.c_str());
+        }
         SDL_DestroySurface(shot);
       }
       outputSnapPath_.clear();

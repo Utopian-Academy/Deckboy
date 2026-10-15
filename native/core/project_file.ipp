@@ -209,6 +209,8 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "live_captions_top\t" << (project.liveCaptionsTop ? 1 : 0) << '\n';
   output << "live_captions_size\t" << project.liveCaptionsSize << '\n';
   output << "live_captions_transcript\t" << (project.liveCaptionsTranscript ? 1 : 0) << '\n';
+  output << "hdr_outputs\t" << project.hdrOutputs << '\n';
+  output << "hdr_sdr_white\t" << project.hdrSdrWhiteNits << '\n';
   output << "clock_mode\t"
          << (project.clockMode.empty() ? std::string("off") : project.clockMode)
          << '\n';
@@ -1249,6 +1251,10 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.liveCaptionsSize = std::clamp(safeInt(fields, 1, 100), 50, 200);
   } else if (fields[0] == "live_captions_transcript") {
     project.liveCaptionsTranscript = safeBool(fields, 1, false);
+  } else if (fields[0] == "hdr_outputs") {
+    project.hdrOutputs = static_cast<std::uint32_t>(std::max(0, safeInt(fields, 1, 0)));
+  } else if (fields[0] == "hdr_sdr_white") {
+    project.hdrSdrWhiteNits = std::clamp(safeInt(fields, 1, 203), 80, 500);
   } else if (fields[0] == "mediamtx_host") {
     project.mediamtxHost = safeString(fields, 1);
   } else if (fields[0] == "update_check") {

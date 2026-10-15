@@ -2521,6 +2521,13 @@ struct Project {
   bool liveCaptionsTop = false;                 // false: along the bottom
   int liveCaptionsSize = 100;                   // percent of the cue-caption size
   bool liveCaptionsTranscript = false;          // keep an .srt of everything shown
+  // HDR OUTPUT: a bit per output (bit 0 is Output 1). A window output with its
+  // bit set renders through an scRGB (linear, float) swapchain and a 16-bit
+  // float compositor, so HDR video keeps its highlights on an HDR display.
+  std::uint32_t hdrOutputs = 0u;
+  // Where SDR material (and the HDR reference white) sits on an HDR output, in
+  // nits. 203 is ITU-R BT.2408's reference white.
+  int hdrSdrWhiteNits = 203;
 
   // ── THE WALL CLOCK ──────────────────────────────────────────────────────
   //
