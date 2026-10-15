@@ -718,6 +718,14 @@
       toggleOutputFullscreen();
       return;
     }
+    // The monitor's view switch, and the scopes drawn over the monitor.
+    if (scopesViewBtnRect_.w > 0 && pointInRect(x, y, scopesViewBtnRect_)) {
+      dispatchQuickAction(QuickAction::ScopesCycleView);
+      return;
+    }
+    if (handleScopesClick(x, y)) {
+      return;
+    }
     // Warp editor buttons
     if (warpEditBtnRect_.w > 0 && pointInRect(x, y, warpEditBtnRect_)) {
       // THE OUTPUT, not the deck. Warp belongs to the screen the picture

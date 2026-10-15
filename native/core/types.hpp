@@ -3354,7 +3354,10 @@ enum class QuickAction {
   CaptionsGenerate,      // make captions on this machine
   AudioTrackCycle,       // which of the file's sound tracks plays
   CaptionsModelCycle,    // which speech model (language, accuracy) makes captions
-  CycleScaleModePrevious // appended: existing remote QUICK ids must not move
+  CycleScaleModePrevious, // appended: existing remote QUICK ids must not move
+  ScopesCycleView,        // the programme monitor: PROGRAM -> SCOPES -> BOTH
+  ScopesToggleBig,        // param = the scope panel to show alone (again to return)
+  ScopesFreeze            // hold the scopes on the current frame
 };
 
 // ---------------------------------------------------------------------------

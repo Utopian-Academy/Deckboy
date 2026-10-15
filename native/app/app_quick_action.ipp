@@ -25,6 +25,7 @@
       case QuickAction::EditNumericParam: editNumericParam(param); return;
       case QuickAction::NumericParamDec: nudgeNumericParam(param, -1); return;
       case QuickAction::NumericParamInc: nudgeNumericParam(param, +1); return;
+      case QuickAction::ScopesToggleBig: toggleScopeBig(param); return;
       // ── Dashboard tiles ──────────────────────────────────────────────
       //
       // The slot index rides in QuickButton::param, so one action serves any
@@ -511,6 +512,11 @@
       case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
       case QuickAction::CycleScaleMode:  cycleSelectedScaleMode(); break;
       case QuickAction::CycleScaleModePrevious: cycleSelectedScaleMode(-1); break;
+      case QuickAction::ScopesCycleView: cycleMonitorView(); break;
+      case QuickAction::ScopesFreeze:
+        scopesFrozen_ = !scopesFrozen_;
+        triggerToast(scopesFrozen_ ? "scopes: frozen" : "scopes: live");
+        break;
       case QuickAction::EditNotes: {
         Cue* sel = selectedCueMutable();
         if (sel) {

@@ -1,9 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-14 - v0.99.411 (a phone remote, 52 lower thirds, autosave that always lands)
+## 2026-10-15 - v0.99.411 (picture scopes, network control locked down, a phone remote, 52 lower thirds)
 
-Run the show from a phone, pick from 52 lower-third looks, script every cue geometry control, and
-every edit reaches the show file even when another program is holding it.
+Broadcast picture scopes measured on the output itself, network control that answers only the
+machines you trust, a phone remote, 52 lower-third looks, and every edit reaches the show file even
+when another program is holding it.
 
 ### Web Monitor
 - Added PIN-protected phone and tablet controls at `/remote`, with `GO`, `STOP`, `NEXT`, cue
@@ -12,6 +13,14 @@ every edit reaches the show file even when another program is holding it.
   Control is off by default, requires a passphrase of 8 or more characters, and accepts private
   IPv4 LAN and loopback clients. Repeated wrong passphrases lock the page out for longer each time.
 - Fixed an issue where `DASH <n>` reported `OK` when its assigned command failed or was unknown.
+
+### Picture scopes
+- Added picture scopes in the programme monitor: the **PROGRAM** button switches it to **SCOPES**
+  or **BOTH**. Diamond, luma waveform (% and mV), RGB parade, vectorscope with 75% and 100% targets
+  and the skin-tone line, and a luma histogram, with the EBU R 103 gamut verdict and **FREEZE**.
+- The scopes measure the focused output's own frame at its full raster, the frame NDI, DeckLink
+  and ST 2110 send.
+- Added `SCOPES`.
 
 ### Network control
 - Fixed an issue where, with **Listen on** set to all interfaces, Companion, OSC, OSC Query, the

@@ -4019,6 +4019,7 @@ class App {
     stopWebMonitor();
     stopWebIngests();
     stopVmixServer();
+    stopScopesWorkers();
     // Before the output runtimes go away: this releases any IS-05 caller parked
     // in the patch handler, then joins the node's threads.
     shutdownNmosNode();
@@ -5276,6 +5277,7 @@ class App {
 #include "app/app_render_output.ipp"
   // Reusable UI widget functions (buttons, sliders, dropdowns, toggles)
 #include "app/app_creatures.ipp"
+#include "app/app_scopes.ipp"
 #include "app/app_code_editor.ipp"
 #include "app/app_ui_widgets.ipp"
   // Render: settings modal dialog (all tabs)

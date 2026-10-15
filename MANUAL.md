@@ -41,6 +41,7 @@ stay on the GPU and are composited there.
 16. [Lower Thirds & Picture in Picture](#16-lower-thirds--picture-in-picture)
 17. [Audio](#17-audio)
 18. [Test Patterns](#18-test-patterns)
+18a. [Picture Scopes](#18a-picture-scopes)
 19. [Timecode & Chase](#19-timecode--chase)
 20. [Show Files, Bundling & Missing Media](#20-show-files-bundling--missing-media)
 21. [Themes](#21-themes)
@@ -1810,6 +1811,45 @@ a still card cannot show you tearing, judder, or a deinterlacer making things
 up, and those are the faults that only appear once the picture moves.
 
 ---
+
+## 18a. Picture Scopes
+
+The **PROGRAM** button in the programme monitor's header switches it to
+**SCOPES** (the scopes fill the monitor) and **BOTH** (the picture, with the
+waveform and vectorscope beside it). Click any scope to show it alone; click
+it again to go back. `SCOPES` does the same from a controller.
+
+**What is measured** is the focused output's own finished frame, at its full
+raster: the same frame NDI, DeckLink, ST 2110 and the Web Monitor send, not
+the desk's scaled-down preview. Every pixel is counted. The scopes appear once
+that output is armed; with nothing else capturing its frame, they read it
+about ten times a second.
+
+| Scope | Shows |
+|-------|-------|
+| **Diamond** | R'G'B' gamut: blue against green above, red against green below, meeting at black. A trace outside either diamond is a colour that will clip |
+| **Waveform** | Luma (Y'), in % on the left and mV on the right (0-700 mV) |
+| **RGB parade** | R', G' and B' side by side, on the same scale |
+| **Vectorscope** | Chroma, with boxes at the 75% bar targets, crosses at 100%, and the skin-tone line |
+| **Histogram** | Luma, with the share of the picture at 0% and at 100% |
+
+The footer names the output, its raster and matrix, how often the scopes
+update, and the **EBU R 103** verdict: the share of the picture outside the
+preferred range, raw on every update and filtered (the recommended spatial
+filter, which ignores single-pixel overshoots) every two seconds. It turns red
+when more than 1% of the picture is out of range. **FREEZE** holds the scopes
+on the current frame.
+
+The output frame is 8-bit R'G'B'; SDI carries it as 10-bit Y'CbCr, so
+readings agree with an SDI scope to within one 8-bit code value.
+
+| Command | Does |
+|---------|------|
+| `SCOPES PROGRAM` · `SCOPES SCOPES` · `SCOPES BOTH` · `SCOPES TOGGLE` | Switches the monitor |
+| `SCOPES BIG waveform\|parade\|vector\|diamond\|histogram\|OFF` | Shows one scope alone |
+| `SCOPES FREEZE [ON\|OFF]` | Holds or releases the reading |
+| `SCOPES MATRIX 709\|2020` | The matrix for luma and chroma |
+| `SCOPES STATS` | The numbers behind the scopes, as text |
 
 ## 19. Timecode & Chase
 

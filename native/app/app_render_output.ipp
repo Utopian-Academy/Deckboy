@@ -5315,10 +5315,13 @@
     // A browser watching this output on the web monitor needs the picture
     // too -- but only while one is: an idle monitor costs nothing.
     const bool webMonitorRouteActive = webMonitorWatching(outputIndex);
-    bool needsEgressCapture =
+    // The scopes measure this captured frame too (see app_scopes.ipp).
+    const bool scopesRouteActive = scopesWatching(outputIndex);
+    const bool egressForOthers =
       streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive ||
       st2110RouteActive || webMonitorRouteActive ||
       std::clamp(output.outputDelayMs, 0, 5000) > 0;
+    bool needsEgressCapture = egressForOthers || scopesRouteActive;
     double fpsHint = 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
       const Cue* layerCue = activeCuePtr(it->second);
@@ -5345,7 +5348,17 @@
       }
     }
     if (needsEgressCapture) {
-      captureOutputFrameForEgress(outputIndex, *runtime, egressRect, fpsHint);
+      // Scopes alone need about ten frames a second, and a full-raster
+      // readback costs the render thread; with any other consumer they reuse
+      // the frames already being captured.
+      const bool scopesOnlyTooSoon = !egressForOthers && runtime->lastEgressCaptureAtMs > 0 &&
+                                     SDL_GetTicks() - runtime->lastEgressCaptureAtMs < 100;
+      if (!scopesOnlyTooSoon) {
+        captureOutputFrameForEgress(outputIndex, *runtime, egressRect, fpsHint);
+      }
+      if (scopesRouteActive) {
+        scopesOfferFrame(outputIndex, *runtime);
+      }
     } else {
       runtime->latestCapturedFrame = {};
       runtime->delayFrames.clear();

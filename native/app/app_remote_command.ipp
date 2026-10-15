@@ -5373,6 +5373,51 @@
       remoteCommandDetail_ = out.str();
       return;
     }
+    if (command == "SCOPES") {
+      // SCOPES [PROGRAM|SCOPES|BOTH|TOGGLE] | SCOPES BIG <panel>|OFF |
+      // SCOPES FREEZE [ON|OFF] | SCOPES MATRIX 709|2020 | SCOPES STATS
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub.empty()) {
+        remoteCommandDetail_ = std::string(monitorViewName(monitorView_)) +
+          (scopesFrozen_ ? " frozen" : "") +
+          (scopesBig_ >= 0 ? std::string(" big=") + scopePanelName(scopesBig_) : std::string());
+        return;
+      }
+      if (sub == "PROGRAM" || sub == "OFF") { monitorView_ = MonitorView::Program; scopesBig_ = -1; return; }
+      if (sub == "SCOPES" || sub == "ON") { monitorView_ = MonitorView::Scopes; return; }
+      if (sub == "BOTH") { monitorView_ = MonitorView::Both; scopesBig_ = -1; return; }
+      if (sub == "TOGGLE") { cycleMonitorView(); return; }
+      if (sub == "FREEZE") {
+        const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string("TOGGLE");
+        scopesFrozen_ = value == "ON" ? true : value == "OFF" ? false : !scopesFrozen_;
+        remoteCommandDetail_ = scopesFrozen_ ? "frozen" : "live";
+        return;
+      }
+      if (sub == "MATRIX") {
+        const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (value != "709" && value != "2020") {
+          failRemoteCommand("SCOPES MATRIX: expected 709 or 2020");
+          return;
+        }
+        scopesBt2020_ = value == "2020";
+        return;
+      }
+      if (sub == "BIG") {
+        const std::string value = parts.size() > 2 ? toLower(parts[2]) : std::string("off");
+        if (value == "off") { scopesBig_ = -1; return; }
+        for (int panel = 0; panel < kScopePanelCount; ++panel) {
+          if (value == scopePanelName(panel)) { scopesBig_ = panel; return; }
+        }
+        failRemoteCommand("SCOPES BIG: expected waveform, parade, vector, diamond, histogram or off");
+        return;
+      }
+      if (sub == "STATS") {
+        remoteCommandDetail_ = scopesStats();
+        return;
+      }
+      failRemoteCommand("SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX or STATS");
+      return;
+    }
     if (command == "TRUST") {
       // TRUST <ip | a.b.c.d/bits> | TRUST REMOVE <entry> | TRUST LIST | TRUST CLEAR
       // | TRUST LAST (the last machine refused). Only this computer may use it.

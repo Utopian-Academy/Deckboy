@@ -3846,7 +3846,7 @@
     const bool sharedWithOtherEgress =
       egressOutput.ndiEnabled || egressOutput.ndiKeyEnabled ||
       egressOutput.deckLinkEnabled || egressOutput.spoutEnabled ||
-      egressOutput.st2110Enabled ||
+      egressOutput.st2110Enabled || scopesWatching(outputIndex) ||
       std::clamp(egressOutput.outputDelayMs, 0, 5000) > 0;
     const bool webEgress = outputStreamProtocolIsWeb(
       normalizeOutputStreamProtocol(egressOutput.streamProtocol));

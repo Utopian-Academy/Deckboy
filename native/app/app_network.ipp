@@ -2741,12 +2741,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (360)\n"
+        "DECKBOY_0.01 every verb (361)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "CLICK HOVER PRESS TRUST COMPANIONPASS MIDICLOCK OUTSNAP UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "CLICK HOVER PRESS TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT\n"
@@ -2908,6 +2908,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "          (key+fill sends the picture and its matte down two cards)\n"
         "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF (programme with sound) | SHARE ON|OFF | SOURCE PROGRAMME|<n> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF\n"
         "            WEBMONITOR CONTROL ON|OFF (PIN-protected phone controls at /remote)\n"
+        "scopes: SCOPES [PROGRAM|SCOPES|BOTH|TOGGLE] | SCOPES BIG waveform|parade|vector|diamond|histogram|OFF\n"
+        "        SCOPES FREEZE [ON|OFF] | SCOPES MATRIX 709|2020 | SCOPES STATS (the focused output, full raster)\n"
         "trust:  TRUST <ip|a.b.c.d/bits> | TRUST REMOVE <entry> | TRUST LAST | TRUST LIST | TRUST CLEAR\n"
         "        (with Listen on: all interfaces, only these machines may control this one)\n"
         "        COMPANIONPASS <passphrase>|OFF - other machines must send AUTH <passphrase> first\n"

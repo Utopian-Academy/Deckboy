@@ -2950,27 +2950,20 @@
     {
       int monitorLabelAvailW = std::max(0, hdrActionsLeft - monitorLabelX - uiScaled(4));
       TTF_Font* monitorLabelFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
-      // Only render the label if it fits without truncation; use a shorter
-      // fallback so the badge row never shows a half-word like "PROGRA..."
-      const char* monitorLabel = nullptr;
+      // THE MONITOR'S VIEW SWITCH, where its label was: PROGRAM, SCOPES
+      // (the output measured, drawn over the picture) or BOTH.
+      scopesViewBtnRect_ = {};
       if (monitorLabelFont) {
-        int fullW = 0;
-        textSizeShown(monitorLabelFont, "PROGRAM MONITOR", 0, &fullW, nullptr);
-        if (fullW <= monitorLabelAvailW) {
-          monitorLabel = "PROGRAM MONITOR";
-        } else {
-          int shortW = 0;
-          textSizeShown(monitorLabelFont, "PROGRAM", 0, &shortW, nullptr);
-          if (shortW <= monitorLabelAvailW) {
-            monitorLabel = "PROGRAM";
-          }
-          // else: too narrow — draw nothing rather than an ugly truncated word
+        int labelW = 0;
+        textSizeShown(monitorLabelFont, "PROGRAM", 0, &labelW, nullptr);
+        const int btnW = labelW + uiScaled(18);
+        if (btnW <= monitorLabelAvailW) {
+          scopesViewBtnRect_ = SDL_Rect {monitorLabelX, hdrBtnY, btnW, hdrBtnH};
+          const bool lit = monitorView_ != MonitorView::Program;
+          drawUIPanel(scopesViewBtnRect_, paletteToggleFill(lit), pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, monitorLabelFont, scopesViewBtnRect_,
+                               monitorViewName(monitorView_), paletteToggleInk(lit));
         }
-      }
-      if (monitorLabel && monitorLabelAvailW > 0) {
-        SDL_Rect monitorLabelRect {monitorLabelX, hdrBtnY, monitorLabelAvailW, hdrBtnH};
-        drawTextSafe(controlRenderer_, monitorLabelFont, monitorLabelRect,
-                     monitorLabel, hasLiveVideo ? pal.dark : (showMascot ? pal.inkSoft : pal.deep));
       }
     }
     
@@ -3213,6 +3206,21 @@
       drawTextSafe(controlRenderer_, fontBase_,
                    SDL_Rect {programMonitorRect.x + 16, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 32, 20},
                    activeCue->name, pal.deep);
+    }
+
+    // THE SCOPES GO OVER THE PICTURE, after it, in this frame's monitor rect.
+    // Drawn up beside the header they used last frame's rect and the picture
+    // was painted over them.
+    if (monitorView_ == MonitorView::Scopes) {
+      drawScopesArea(warpMonitorInner_);
+    } else if (monitorView_ == MonitorView::Both) {
+      SDL_Rect side = warpMonitorInner_;
+      side.w = warpMonitorInner_.w * 45 / 100;
+      side.x = warpMonitorInner_.x + warpMonitorInner_.w - side.w;
+      drawScopesArea(side);
+    } else {
+      for (auto& rect : scopesPanelRects_) rect = {};
+      scopesFreezeBtnRect_ = {};
     }
 
     // (corner sparkles and idle dots removed from preview area — moved to timeline strip)
