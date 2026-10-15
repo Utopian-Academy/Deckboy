@@ -4290,6 +4290,11 @@
           std::cout << "  " << dm->w << "x" << dm->h << " @ " << dm->refresh_rate << " Hz";
         }
         std::cout << "  scale " << SDL_GetDisplayContentScale(displays[i]);
+        // Whether the OS has the screen in HDR -- the first question for any
+        // HDR report, and one nothing else here could answer.
+        std::cout << (SDL_GetBooleanProperty(SDL_GetDisplayProperties(displays[i]),
+                                             SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)
+                        ? "  HDR on" : "  HDR off");
         // Mirrored screens are ONE display to SDL; only the OS can say so.
         SDL_Rect bounds {};
         if (SDL_GetDisplayBounds(displays[i], &bounds)) {
@@ -4340,8 +4345,15 @@
                 << pointsW << "x" << pointsH << " points, "
                 << pixelsW << "x" << pixelsH << " pixels"
                 << ((pointsW == pixelsW && pointsH == pixelsH) ? "  (1:1)"
-                                                              : "  (SCALED -- output renders at the point size)")
-                << '\n';
+                                                              : "  (SCALED -- output renders at the point size)");
+      {
+        // Where SDR white sits in this window and how far above it HDR can go
+        // (SDL reports both per window; headroom 1 means no HDR at all).
+        const SDL_PropertiesID wp = SDL_GetWindowProperties(probe);
+        std::cout << "  SDR white " << SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 1.0f)
+                  << "  headroom " << SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 1.0f);
+      }
+      std::cout << '\n';
       SDL_DestroyWindow(probe);
     }
 
