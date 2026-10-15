@@ -791,7 +791,7 @@ struct VideoPipeline::Impl {
     // the same on every platform, at the cost of the download.
     const bool hdrSource = frame->color_trc == AVCOL_TRC_SMPTE2084 ||
                            frame->color_trc == AVCOL_TRC_ARIB_STD_B67;
-    const bool sdlHandlesHdr = frame->color_trc == AVCOL_TRC_SMPTE2084;  // D3D11 only, below
+    [[maybe_unused]] const bool sdlHandlesHdr = frame->color_trc == AVCOL_TRC_SMPTE2084;  // D3D11 only, below
 
 #ifdef _WIN32
     // Zero-copy needs a surface layout the compositor can wrap as an SDL

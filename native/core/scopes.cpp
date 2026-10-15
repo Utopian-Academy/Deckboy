@@ -439,6 +439,10 @@ namespace {
 // Reads a Bgra422View pixel by pixel as the wire carries it. Both pixels of a
 // pair read the same encode, so the last one is kept.
 struct Sent422Reader {
+  // A constructor, not brace-init: GCC and Clang (-Werror) refuse an aggregate
+  // initialiser that leaves the cache fields to their defaults.
+  Sent422Reader(const Bgra422View& view, std::size_t rowStride, bool ten)
+    : frame(view), stride(rowStride), k(coefficients(Matrix::Bt709)), tenBit(ten), scale(ten ? 4.0 : 1.0) {}
   const Bgra422View& frame;
   std::size_t stride;
   Coefficients k;
@@ -467,8 +471,7 @@ Sent422Reader sent422Reader(const Bgra422View& frame, const Options& options) {
   if (frame.bitDepth != 8 && frame.bitDepth != 10)
     throw std::invalid_argument("4:2:2 scopes input is 8- or 10-bit");
   const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes, frame.bytes.size(), 4);
-  const bool tenBit = frame.bitDepth == 10;
-  return Sent422Reader{frame, stride, coefficients(Matrix::Bt709), tenBit, tenBit ? 4.0 : 1.0};
+  return Sent422Reader(frame, stride, frame.bitDepth == 10);
 }
 } // namespace
 
