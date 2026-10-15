@@ -761,7 +761,12 @@ add_dependencies(deckboy-native deckboy_generate_version)
 # included, every translation unit compiles, and only the link fails.
 if(APPLE)
   deckboy_target_link_frameworks(deckboy-native
-    CoreGraphics ImageIO CoreFoundation CoreVideo)
+    CoreGraphics ImageIO CoreFoundation CoreVideo Cocoa)
+  # A full-screen output stays over the menu bar when focus moves elsewhere
+  # (platform/mac_output_level.hpp). Written for ARC like the helpers above.
+  target_sources(deckboy-native PRIVATE native/platform/mac_output_level.mm)
+  set_source_files_properties(native/platform/mac_output_level.mm
+    PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
 endif()
 
 if(WIN32)

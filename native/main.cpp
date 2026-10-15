@@ -65,6 +65,7 @@
 #include "core/types.hpp"
 #include "core/output_runtime.hpp"
 #include "core/scopes.hpp"
+#include "platform/mac_output_level.hpp"
 #include "core/deck_audio_ring.hpp"
 #include "core/mtc_decode.hpp"
 #include "core/utils.hpp"
@@ -3640,6 +3641,13 @@ class App {
     // was first put there and so was compiled into Windows builds only, and
     // 0.99.407 shipped without it.
 #endif
+    // Never minimise a full-screen output when it loses focus, on ANY
+    // platform. This sat in the Windows block below; without Spaces, a Mac
+    // output on a set raster or refresh counts as exclusive full screen, and
+    // SDL's default minimises those on focus loss -- so clicking anywhere else
+    // on the Mac dropped the output out of full screen. See
+    // platform/mac_output_level.hpp for the menu-bar half of that.
+    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 #ifdef _WIN32
     // Restrict DLL search order to System32 by default — prevents DLL hijacking
     // via CWD, application directory, or user PATH for implicitly loaded libraries.
@@ -3649,13 +3657,9 @@ class App {
 
     // (SDL3 is per-monitor-v2 DPI aware on Windows by default; the SDL2
     // SDL_HINT_WINDOWS_DPI_AWARENESS hint is gone.)
-    // Never minimize a fullscreen output when it loses focus. SDL's default
-    // minimizes exclusive-fullscreen windows on focus loss, which turned the
-    // operator's normal workflow into a fight: click the control window →
-    // program output minimizes ("output frozen") → recovery re-raises it and
-    // steals keyboard focus → repeat. A playout output must stay on the
-    // program screen no matter where the operator's focus is.
-    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+    // (SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS is set above, for every
+    // platform: click the control window -> output minimises -> recovery
+    // re-raises it and steals focus -> repeat, on Windows first, then on Macs.)
 #if DECKBOY_INPROC_DECODE
     // Create D3D11 renderer devices WITHOUT D3D11_CREATE_DEVICE_SINGLETHREADED
     // (SDL's default). The in-process d3d11va decoder shares the program

@@ -741,6 +741,15 @@
     drainNormalizeResults();
     // Who was turned away from the control ports, and the current trust rules.
     reportRefusedControllers();
+    // A full-screen output stays over the macOS menu bar whatever has focus;
+    // SDL lowers it on every focus change, so it is put back every tick.
+    for (auto& runtime : outputRuntimes_) {
+      if (!runtime.outputWindow) continue;
+      const SDL_WindowFlags flags = SDL_GetWindowFlags(runtime.outputWindow);
+      deckboy::platform::keepWindowAboveMenuBar(
+        runtime.outputWindow, (flags & SDL_WINDOW_FULLSCREEN) && !(flags & SDL_WINDOW_MINIMIZED) &&
+                                !(flags & SDL_WINDOW_HIDDEN));
+    }
     collectCaptionJob();
     // Keep the LTC carrier topped up. Cheap when disabled (one bool test), and
     // it must run every tick so the emitted code never develops a gap.

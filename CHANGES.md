@@ -14,6 +14,11 @@ when another program is holding it.
   IPv4 LAN and loopback clients. Repeated wrong passphrases lock the page out for longer each time.
 - Fixed an issue where `DASH <n>` reported `OK` when its assigned command failed or was unknown.
 
+### macOS
+- Fixed an issue on macOS where clicking anywhere away from a full-screen output (the desk,
+  another app) showed the menu bar over it and could take it out of full screen. The output now
+  stays full screen above the menu bar wherever focus goes.
+
 ### Picture scopes
 - Added picture scopes in the programme monitor: the **PROGRAM** button switches it to **SCOPES**
   or **BOTH**. Diamond, luma waveform (% and mV), RGB parade, vectorscope with 75% and 100% targets
