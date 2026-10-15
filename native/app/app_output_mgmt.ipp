@@ -1008,7 +1008,8 @@
         audioInputScratch_[i + 1] = m;
       }
     }
-    if (project_.audioInputToProgram) {
+    // Live captions listening to the input need it too, programme or not.
+    if (project_.audioInputToProgram || liveCaptionsListensToInput()) {
       audioInputScratch_.resize(n);
       inputAudioRing_.push(0, audioInputScratch_);
     }

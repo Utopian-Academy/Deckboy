@@ -741,6 +741,7 @@
     drainNormalizeResults();
     // Who was turned away from the control ports, and the current trust rules.
     reportRefusedControllers();
+    serviceLiveCaptions();
     // A full-screen output stays over the macOS menu bar whatever has focus;
     // SDL lowers it on every focus change, so it is put back every tick.
     for (auto& runtime : outputRuntimes_) {

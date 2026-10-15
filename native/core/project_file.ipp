@@ -202,6 +202,13 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
   output << "mediamtx_host\t" << escapeField(project.mediamtxHost) << '\n';
   output << "captions_model\t" << escapeField(project.captionsModel) << '\n';
+  output << "live_captions\t" << (project.liveCaptionsEnabled ? 1 : 0) << '\n';
+  output << "live_captions_source\t" << escapeField(project.liveCaptionsSource) << '\n';
+  output << "live_captions_outputs\t" << project.liveCaptionsOutputs << '\n';
+  output << "live_captions_lines\t" << project.liveCaptionsLines << '\n';
+  output << "live_captions_top\t" << (project.liveCaptionsTop ? 1 : 0) << '\n';
+  output << "live_captions_size\t" << project.liveCaptionsSize << '\n';
+  output << "live_captions_transcript\t" << (project.liveCaptionsTranscript ? 1 : 0) << '\n';
   output << "clock_mode\t"
          << (project.clockMode.empty() ? std::string("off") : project.clockMode)
          << '\n';
@@ -1227,6 +1234,21 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
   } else if (fields[0] == "captions_model") {
     const std::string token = safeString(fields, 1);
     project.captionsModel = token.empty() ? std::string("base.en") : token;
+  } else if (fields[0] == "live_captions") {
+    project.liveCaptionsEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "live_captions_source") {
+    const std::string source = safeString(fields, 1);
+    project.liveCaptionsSource = source.empty() ? std::string("output 1") : source;
+  } else if (fields[0] == "live_captions_outputs") {
+    project.liveCaptionsOutputs = static_cast<std::uint32_t>(std::max(0, safeInt(fields, 1, 1)));
+  } else if (fields[0] == "live_captions_lines") {
+    project.liveCaptionsLines = std::clamp(safeInt(fields, 1, 2), 1, 3);
+  } else if (fields[0] == "live_captions_top") {
+    project.liveCaptionsTop = safeBool(fields, 1, false);
+  } else if (fields[0] == "live_captions_size") {
+    project.liveCaptionsSize = std::clamp(safeInt(fields, 1, 100), 50, 200);
+  } else if (fields[0] == "live_captions_transcript") {
+    project.liveCaptionsTranscript = safeBool(fields, 1, false);
   } else if (fields[0] == "mediamtx_host") {
     project.mediamtxHost = safeString(fields, 1);
   } else if (fields[0] == "update_check") {

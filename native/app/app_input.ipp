@@ -1215,6 +1215,15 @@
         0, settingsSystemScrollMax_);
       return;
     }
+    if (settingsOpen_ && settingsTab_ == 1 &&
+        settingsAudioViewport_.w > 0 && settingsAudioViewport_.h > 0 &&
+        pointInRect(mouseX_, mouseY_, settingsAudioViewport_) &&
+        settingsAudioScrollMax_ > 0) {
+      settingsAudioScroll_ = std::clamp(
+        settingsAudioScroll_ - wheelY * wheelStepForPanel(),
+        0, settingsAudioScrollMax_);
+      return;
+    }
     if (settingsOpen_ && settingsTab_ == 2 &&
         settingsNetworkViewport_.w > 0 && settingsNetworkViewport_.h > 0 &&
         pointInRect(mouseX_, mouseY_, settingsNetworkViewport_) &&

@@ -86,6 +86,7 @@
 #include "core/subtitle_parser.hpp"
 #include "core/caption_formats.hpp"
 #include "core/captioning.hpp"
+#include "core/live_captions.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "engine/stage_timings.hpp"
@@ -4024,6 +4025,7 @@ class App {
     stopWebIngests();
     stopVmixServer();
     stopScopesWorkers();
+    liveCaptioner_.stop();
     // Before the output runtimes go away: this releases any IS-05 caller parked
     // in the patch handler, then joins the node's threads.
     shutdownNmosNode();
@@ -4371,7 +4373,7 @@ class App {
     applyUiScale();
   }
   void debugScrollSettings(int pixels) {
-    settingsSystemScroll_ = settingsNetworkScroll_ = settingsVideoScroll_ = std::max(0, pixels);
+    settingsSystemScroll_ = settingsNetworkScroll_ = settingsVideoScroll_ = settingsAudioScroll_ = std::max(0, pixels);
   }
   // SHOW THE CARD WITHOUT IMPORTING ANYTHING. `--slide-card <done>/<total>`
   // puts the progress card on screen so it can be captured with --ui-dump and
@@ -5282,6 +5284,7 @@ class App {
   // Reusable UI widget functions (buttons, sliders, dropdowns, toggles)
 #include "app/app_creatures.ipp"
 #include "app/app_scopes.ipp"
+#include "app/app_live_captions.ipp"
 #include "app/app_code_editor.ipp"
 #include "app/app_ui_widgets.ipp"
   // Render: settings modal dialog (all tabs)
@@ -9275,6 +9278,15 @@ class App {
   static constexpr int kSettingsActionTrustedControllers = 840;
   static constexpr int kSettingsActionCompanionPassphrase = 841;
   static constexpr int kSettingsActionTrustLastRefused = 842;
+  // Live captions (app_live_captions.ipp): 843-849, and 850-857 one per output.
+  static constexpr int kSettingsActionLiveCaptionsToggle = 843;
+  static constexpr int kSettingsActionLiveCaptionsSource = 844;
+  static constexpr int kSettingsActionLiveCaptionsLanguage = 845;
+  static constexpr int kSettingsActionLiveCaptionsLines = 846;
+  static constexpr int kSettingsActionLiveCaptionsPosition = 847;
+  static constexpr int kSettingsActionLiveCaptionsSize = 848;
+  static constexpr int kSettingsActionLiveCaptionsTranscript = 849;
+  static constexpr int kSettingsActionLiveCaptionsOutputBase = 850;  // 850-857
   static constexpr int kSettingsActionStreamKeyPrompt = 641;
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;
@@ -10231,6 +10243,10 @@ class App {
   // Network tab scroll: same reason as System's above -- NMC IN & OUT and
   // the TALLY card ran off the bottom of the modal with no way to reach
   // them, reported by name.
+  // Audio tab scroll: LIVE CAPTIONS made it taller than the modal at 1x.
+  int settingsAudioScroll_ = 0;
+  int settingsAudioScrollMax_ = 0;
+  SDL_Rect settingsAudioViewport_ {0, 0, 0, 0};
   int settingsNetworkScroll_ = 0;
   int settingsNetworkScrollMax_ = 0;
   SDL_Rect settingsNetworkViewport_ {0, 0, 0, 0};

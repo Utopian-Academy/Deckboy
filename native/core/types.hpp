@@ -2512,6 +2512,15 @@ struct Project {
   // CAPTIONS: which speech model "make captions here" uses (a ggml token from
   // captioning.hpp's kModelChoices). English by default.
   std::string captionsModel = "base.en";
+  // LIVE CAPTIONS (core/live_captions.hpp): what is being said, as it is said,
+  // on the chosen outputs. Uses captionsModel too: one language setting.
+  bool liveCaptionsEnabled = false;
+  std::string liveCaptionsSource = "output 1";  // "input", "deck N" or "output N"
+  std::uint32_t liveCaptionsOutputs = 1u;       // a bit per output; bit 0 is Output 1
+  int liveCaptionsLines = 2;                    // 1..3, rolling up
+  bool liveCaptionsTop = false;                 // false: along the bottom
+  int liveCaptionsSize = 100;                   // percent of the cue-caption size
+  bool liveCaptionsTranscript = false;          // keep an .srt of everything shown
 
   // ── THE WALL CLOCK ──────────────────────────────────────────────────────
   //

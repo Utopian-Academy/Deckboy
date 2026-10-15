@@ -1347,6 +1347,27 @@
         audioH += audioRows[i];
       }
 
+      // SCROLLS WHEN IT DOES NOT FIT, like System and Network. LIVE CAPTIONS
+      // made the left column taller than the modal at 1x, and a card that
+      // runs off the bottom cannot be reached at all.
+      const int kAudioCardGap = uiScaled(10);
+      const int capH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
+      {
+        const int midiNeedH = stackH({sRowH, sRowH, sLineH, sLineH, sLineH, sLineH, sLineH, sRowH});
+        const int ltcNeedH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
+        const int colH = content.h - uiScaled(20);
+        settingsAudioScrollMax_ = std::max(0, std::max(audioH + kAudioCardGap + capH,
+                                                       midiNeedH + kAudioCardGap + ltcNeedH) - colH);
+        settingsAudioScroll_ = std::clamp(settingsAudioScroll_, 0, settingsAudioScrollMax_);
+        settingsAudioViewport_ = content;
+      }
+      cy -= settingsAudioScroll_;
+      SDL_Rect previousAudioClip {};
+      const bool hadAudioClip = SDL_RenderClipEnabled(controlRenderer_) == true;
+      if (hadAudioClip) SDL_GetRenderClipRect(controlRenderer_, &previousAudioClip);
+      SDL_SetRenderClipRect(controlRenderer_, &content);
+      const std::size_t audioButtonStart = settingsBtns_.size();
+
       SDL_Rect audioRect {cx, cy, leftW, audioH};
       drawCard(audioRect, "AUDIO OUTPUT", "Device routing for cue playback");
       const int audioX = cardBodyX(audioRect);
@@ -1549,6 +1570,73 @@
                    SDL_Rect{audioX, rowY + sLineH, audioW, sLineH},
                    "A/V delay holds audio back for lagging displays.", soft);
 
+      {
+      // LIVE CAPTIONS (app_live_captions.ipp), under AUDIO OUTPUT: what is said, as
+      // it is said, on the outputs ticked here. The design James approved
+      // 2026-10-14, less its Web Monitor / Recording chips: those carry an
+      // output's picture, so they show the captions of the output they carry.
+      SDL_Rect capRect {cx, audioRect.y + audioRect.h + kAudioCardGap, leftW, capH};
+      drawCard(capRect, "LIVE CAPTIONS", "what is said, on screen, made on this computer");
+      const int kx = cardBodyX(capRect);
+      const int kw = cardBodyW(capRect);
+      int ky = cardBodyY(capRect);
+      SDL_Rect liveBtn = settingsRow(kx, kw, ky, sRowH, "Live captions", sGap);
+      drawPillToggle(liveBtn, project_.liveCaptionsEnabled, "ON", "OFF");
+      settingsBtns_.push_back({liveBtn, kSettingsActionLiveCaptionsToggle, "live_captions"});
+
+      SDL_Rect srcBtn = settingsRow(kx, kw, ky, sRowH, "Listen to", sGap);
+      drawUIValueControl(srcBtn, liveCaptionsSourceLabel());
+      settingsBtns_.push_back({srcBtn, kSettingsActionLiveCaptionsSource, "live_captions"});
+
+      {
+        const auto& choice = deckboy::captioning::modelChoice(project_.captionsModel);
+        SDL_Rect langBtn = settingsRow(kx, kw, ky, sRowH, "Language", sGap);
+        drawUIValueControl(langBtn, std::string(choice.label) + " (" + std::to_string(choice.megabytes) + " MB" +
+          (deckboy::captioning::modelPresent(project_.captionsModel) ? std::string(")") : std::string(", fetched once)")));
+        settingsBtns_.push_back({langBtn, kSettingsActionLiveCaptionsLanguage, "live_captions"});
+      }
+
+      // One chip per output (up to eight), lit when it shows the captions.
+      SDL_Rect showRow = settingsRow(kx, kw, ky, sRowH, "Show on", sGap);
+      {
+        const int outs = std::min<int>(8, static_cast<int>(project_.outputs.size()));
+        const int chipGap = uiScaled(4);
+        const int chipW = outs > 0 ? (showRow.w - chipGap * (outs - 1)) / outs : showRow.w;
+        for (int o = 0; o < outs; ++o) {
+          SDL_Rect chip {showRow.x + o * (chipW + chipGap), showRow.y, chipW, showRow.h};
+          const bool on = (project_.liveCaptionsOutputs >> o & 1u) != 0;
+          drawSettingsToggle(chip, on, "OUT " + std::to_string(o + 1), "OUT " + std::to_string(o + 1));
+          settingsBtns_.push_back({chip, kSettingsActionLiveCaptionsOutputBase + o, "live_captions"});
+        }
+      }
+
+      SDL_Rect linesBtn = settingsRow(kx, kw, ky, sRowH, "Lines", sGap);
+      drawUIValueControl(linesBtn, std::to_string(project_.liveCaptionsLines));
+      settingsBtns_.push_back({linesBtn, kSettingsActionLiveCaptionsLines, "live_captions"});
+
+      SDL_Rect placeBtn = settingsRow(kx, kw, ky, sRowH, "Position", sGap);
+      drawUIValueControl(placeBtn, project_.liveCaptionsTop ? "top" : "bottom");
+      settingsBtns_.push_back({placeBtn, kSettingsActionLiveCaptionsPosition, "live_captions"});
+
+      SDL_Rect sizeBtn = settingsRow(kx, kw, ky, sRowH, "Size", sGap);
+      drawUIValueControl(sizeBtn, std::to_string(project_.liveCaptionsSize) + "%");
+      settingsBtns_.push_back({sizeBtn, kSettingsActionLiveCaptionsSize, "live_captions"});
+
+      SDL_Rect srtBtn = settingsRow(kx, kw, ky, sRowH, "Keep a transcript (.srt)", sGap);
+      drawPillToggle(srtBtn, project_.liveCaptionsTranscript, "ON", "OFF");
+      settingsBtns_.push_back({srtBtn, kSettingsActionLiveCaptionsTranscript, "live_captions"});
+
+      // The status, with a level bar that shows it hears something.
+      const auto st = liveCaptioner_.status();
+      const int meterW = std::min(uiScaled(60), kw / 5);
+      const SDL_Rect meter {kx + kw - meterW, ky + sLineH / 3, meterW, std::max(2, sLineH / 3)};
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{kx, ky, kw - meterW - uiScaled(6), sLineH},
+                   liveCaptionsStatusText(), soft);
+      Primitives::fillRect(controlRenderer_, meter, pal.tile);
+      const int lit = static_cast<int>(std::lround(meter.w * std::clamp(st.level * 4.0, 0.0, 1.0)));
+      if (st.running && lit > 0) Primitives::fillRect(controlRenderer_, SDL_Rect{meter.x, meter.y, lit, meter.h}, pal.fg);
+      }
+
       // Right column: MIDI, then LTC as its own card.
       const int midiH = stackH({sRowH, sRowH,               // enable, port
                                 sLineH,                      // "Mappings"
@@ -1649,6 +1737,21 @@
                        : std::string("off - all channels silent"),
                      soft);
       }
+
+      SDL_SetRenderClipRect(controlRenderer_, hadAudioClip ? &previousAudioClip : nullptr);
+      // As on System and Network: a control scrolled out of view stops taking clicks.
+      if (settingsAudioScrollMax_ > 0) {
+        settingsBtns_.erase(
+          std::remove_if(settingsBtns_.begin() + static_cast<std::ptrdiff_t>(audioButtonStart),
+                         settingsBtns_.end(),
+                         [&](const SettingsButton& b) {
+                           SDL_Rect clipped {};
+                           return !SDL_GetRectIntersection(&b.rect, &content, &clipped);
+                         }),
+          settingsBtns_.end());
+        drawSettingsScrollHint(content, settingsAudioScroll_, settingsAudioScrollMax_);
+      }
+      cy += settingsAudioScroll_;
 
     } else if (settingsTab_ == 2) {
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
@@ -4271,6 +4374,8 @@
         settingsSystemScrollMax_ = 0;
         settingsNetworkScroll_ = 0;
         settingsNetworkScrollMax_ = 0;
+        settingsAudioScroll_ = 0;
+        settingsAudioScrollMax_ = 0;
       } else if (sb.action == 200) {
         openDropdown(
           "settings.audio_device",
@@ -4494,6 +4599,33 @@
                              });
       } else if (sb.action == kSettingsActionTrustLastRefused) {
         if (!controlLastRefused_.empty()) trustController(controlLastRefused_);
+      } else if (sb.action == kSettingsActionLiveCaptionsToggle) {
+        setLiveCaptionsEnabled(!project_.liveCaptionsEnabled);
+      } else if (sb.action == kSettingsActionLiveCaptionsSource) {
+        cycleLiveCaptionsSource();
+      } else if (sb.action == kSettingsActionLiveCaptionsLanguage) {
+        cycleCaptionsModel();
+      } else if (sb.action == kSettingsActionLiveCaptionsLines) {
+        project_.liveCaptionsLines = project_.liveCaptionsLines % 3 + 1;
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionLiveCaptionsPosition) {
+        project_.liveCaptionsTop = !project_.liveCaptionsTop;
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionLiveCaptionsSize) {
+        static constexpr int kSizes[] = {75, 100, 125, 150};
+        int next = kSizes[0];
+        for (int size : kSizes) if (size > project_.liveCaptionsSize) { next = size; break; }
+        project_.liveCaptionsSize = next;
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionLiveCaptionsTranscript) {
+        project_.liveCaptionsTranscript = !project_.liveCaptionsTranscript;
+        markProjectDirty();
+        if (project_.liveCaptionsTranscript)
+          triggerToast("live captions transcript: " + (deckboy::core::Paths::stateDir() / "captions").string());
+      } else if (sb.action >= kSettingsActionLiveCaptionsOutputBase &&
+                 sb.action < kSettingsActionLiveCaptionsOutputBase + 8) {
+        project_.liveCaptionsOutputs ^= 1u << (sb.action - kSettingsActionLiveCaptionsOutputBase);
+        markProjectDirty();
       } else if (sb.action == kSettingsActionOscQueryToggle) {
         setOscQueryEnabled(!project_.oscQueryEnabled);
       } else if (sb.action == kSettingsActionAudioSampleRateDropdown) {

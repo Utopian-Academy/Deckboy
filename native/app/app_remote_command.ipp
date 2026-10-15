@@ -676,6 +676,86 @@
         generateCaptionsForSelected(parts.size() > 2 ? parts[2] : std::string());
         return;
       }
+      // Live captions (app_live_captions.ipp): none of these need a cue.
+      if (sub == "LIVE") {
+        const std::string what = parts.size() > 2 ? toUpper(parts[2]) : std::string("STATUS");
+        if (what == "ON" || what == "OFF") {
+          remoteCommandDetail_.clear();
+          setLiveCaptionsEnabled(what == "ON");
+          if (!remoteCommandDetail_.empty()) return;
+        } else if (what == "TEXT") {
+          // What is on screen now: sure words, then "|", then the unsure tail.
+          std::string sure, unsure;
+          for (const auto& w : liveCaptioner_.recentWords(80)) {
+            std::string& part = w.sure ? sure : unsure;
+            part += (part.empty() ? "" : " ") + w.text;
+          }
+          remoteCommandDetail_ = sure + " | " + unsure;
+          return;
+        } else if (what != "STATUS") {
+          failRemoteCommand("CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT");
+          return;
+        }
+        remoteCommandDetail_ = liveCaptionsStatusText() + " | " + liveCaptionsSourceLabel() +
+          " | pass " + std::to_string(static_cast<int>(liveCaptioner_.status().passMs)) + " ms";
+        return;
+      }
+      if (sub == "SOURCE") {
+        const std::string kind = parts.size() > 2 ? toLower(parts[2]) : std::string();
+        const int n = parts.size() > 3 ? std::atoi(parts[3].c_str()) : 0;
+        if (kind == "input" && parts.size() == 3) {
+          project_.liveCaptionsSource = "input";
+        } else if ((kind == "deck" && n >= 1 && n <= static_cast<int>(project_.decks.size())) ||
+                   (kind == "output" && n >= 1 && n <= static_cast<int>(project_.outputs.size()))) {
+          project_.liveCaptionsSource = kind + " " + std::to_string(n);
+        } else {
+          failRemoteCommand("CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>");
+          return;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = liveCaptionsSourceLabel();
+        return;
+      }
+      if (sub == "SHOW") {
+        // CAPTIONS SHOW <output> ON|OFF: which outputs carry the live captions.
+        const int n = parts.size() > 2 ? std::atoi(parts[2].c_str()) : 0;
+        const std::string onOff = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+        if (n < 1 || n > std::min(32, static_cast<int>(project_.outputs.size())) || (onOff != "ON" && onOff != "OFF")) {
+          failRemoteCommand("CAPTIONS SHOW: expected <output> ON|OFF");
+          return;
+        }
+        const std::uint32_t bit = 1u << (n - 1);
+        project_.liveCaptionsOutputs = onOff == "ON" ? (project_.liveCaptionsOutputs | bit)
+                                                     : (project_.liveCaptionsOutputs & ~bit);
+        markProjectDirty();
+        remoteCommandDetail_ = outputLabel(n - 1) + (onOff == "ON" ? " shows live captions" : " does not");
+        return;
+      }
+      if (sub == "LINES" || sub == "SIZE") {
+        const int n = parts.size() > 2 ? std::atoi(parts[2].c_str()) : 0;
+        const bool lines = sub == "LINES";
+        if (lines ? (n < 1 || n > 3) : (n < 50 || n > 200)) {
+          failRemoteCommand(lines ? "CAPTIONS LINES: expected 1, 2 or 3" : "CAPTIONS SIZE: expected 50..200 (percent)");
+          return;
+        }
+        (lines ? project_.liveCaptionsLines : project_.liveCaptionsSize) = n;
+        markProjectDirty();
+        remoteCommandDetail_ = std::to_string(n) + (lines ? " lines" : "%");
+        return;
+      }
+      if (sub == "POSITION" || sub == "TRANSCRIPT") {
+        const std::string v = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (sub == "POSITION" ? (v != "TOP" && v != "BOTTOM") : (v != "ON" && v != "OFF")) {
+          failRemoteCommand(sub == "POSITION" ? "CAPTIONS POSITION: expected TOP or BOTTOM"
+                                              : "CAPTIONS TRANSCRIPT: expected ON or OFF");
+          return;
+        }
+        if (sub == "POSITION") project_.liveCaptionsTop = v == "TOP";
+        else project_.liveCaptionsTranscript = v == "ON";
+        markProjectDirty();
+        remoteCommandDetail_ = toLower(v);
+        return;
+      }
       if (!cue) {
         failRemoteCommand("CAPTIONS: select a cue");
         return;

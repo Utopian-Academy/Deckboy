@@ -5281,6 +5281,7 @@
     // the recording, the stream, NDI and the program monitor are all taken
     // from -- rather than something painted on the window afterwards that only
     // the operator would ever see.
+    drawLiveCaptions(outputIndex, runtime->outputRenderer, renderW, renderH);
     if (usingCompositor) {
       drawOutputMatteAndOverlay(outputIndex, *runtime, renderW, renderH);
     }
