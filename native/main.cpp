@@ -3817,11 +3817,28 @@ class App {
       if (wd != 0 && SDL_GetDisplayUsableBounds(wd, &ub) && ub.w > 0 && ub.h > 0) {
         int cw = 0, ch = 0;
         SDL_GetWindowSize(controlWindow_, &cw, &ch);
-        int nw = std::min(cw, ub.w), nh = std::min(ch, ub.h);
+        // THE FRAME COUNTS. A window's size is its INSIDE; the title bar and
+        // borders sit outside it, and so does the taskbar's edge of the usable
+        // area. Comparing the inside with the usable bounds let a 1020-high
+        // desk open on a 1080p screen (1032 usable under the taskbar) with its
+        // bottom ~20px under the taskbar -- "just a tad too large", reported
+        // on two Windows NUCs. And centring on the DISPLAY, not the usable
+        // area, pushed even a window that fitted down under it.
+        int bt = 0, bl = 0, bb = 0, br = 0;
+        if (!SDL_GetWindowBordersSize(controlWindow_, &bt, &bl, &bb, &br) || bt <= 0) {
+          // Not known before the window is shown on some platforms: a title
+          // bar's worth at this display's scale, the usual Windows height.
+          const float s = SDL_GetDisplayContentScale(wd);
+          bt = static_cast<int>(std::lround(32.0f * (std::isfinite(s) && s >= 0.5f ? s : 1.0f)));
+          bl = bb = br = 0;
+        }
+        const int fitW = std::max(320, ub.w - bl - br);
+        const int fitH = std::max(240, ub.h - bt - bb);
+        int nw = std::min(cw, fitW), nh = std::min(ch, fitH);
         if (nw != cw || nh != ch) {
           SDL_SetWindowSize(controlWindow_, nw, nh);
-          SDL_SetWindowPosition(controlWindow_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         }
+        SDL_SetWindowPosition(controlWindow_, ub.x + bl + (fitW - nw) / 2, ub.y + bt + (fitH - nh) / 2);
         minW = std::min(minW, ub.w);
         minH = std::min(minH, ub.h);
       }

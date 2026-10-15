@@ -27,6 +27,10 @@
 - A test card is no longer saved with the show, and a recording keeps recording programme while one
   is up.
 
+### Desk
+- Fixed an issue where Deckboy opened slightly too tall on a 1080p Windows screen, its bottom edge
+  under the taskbar. The first window now fits inside the usable area, title bar included.
+
 ### Live captions
 - Added live captions: what is being said, on the chosen outputs, about two seconds behind, made on
   this computer. Listens to the live input, a deck or an output's mix; one to three rolling lines,
