@@ -7,6 +7,7 @@ non-loopback source exactly as another machine's connection would.
 Evidence: build/control-trust-*/
 """
 import argparse
+import re
 import os
 import socket
 import subprocess
@@ -83,6 +84,17 @@ def http_status(url, timeout=3):
         return None
 
 
+def http_reply(url, timeout=3):
+    """(status, body), or (None, why) if nothing answered at all."""
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            return response.status, response.read().decode(errors="replace")
+    except urllib.error.HTTPError as error:
+        return error.code, error.read().decode(errors="replace")
+    except Exception as error:
+        return None, repr(error)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
@@ -94,12 +106,14 @@ def main():
     (ROOT / "build").mkdir(exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="control-trust-", dir=ROOT / "build"))
     populate(str(work))
-    ports = {name: free_port() for name in ("companion", "hyperdeck", "vmix_http", "vmix_tcp", "osc")}
+    ports = {name: free_port() for name in ("companion", "hyperdeck", "vmix_http", "vmix_tcp", "osc", "web")}
     show = work / "data/default.deckboy"
     show.write_text(
         "update_check\t0\nui_sounds\t0\nallow_remote_network\t1\nhyperdeck_enabled\t1\n"
         f"vmix_api_enabled\t1\nvmix_http_port\t{ports['vmix_http']}\nvmix_tcp_port\t{ports['vmix_tcp']}\n"
-        f"osc_query_enabled\t1\nosc_query_port\t{ports['osc']}\n", encoding="utf-8")
+        f"osc_query_enabled\t1\nosc_query_port\t{ports['osc']}\n"
+        f"web_monitor_enabled\t1\nweb_monitor_port\t{ports['web']}\nweb_monitor_share\t1\n"
+        "web_monitor_pin\tremote-test-4826\nweb_remote_enabled\t1\n", encoding="utf-8")
     env = dict(os.environ, DECKBOY_ROOT=str(work), DECKBOY_STATE_DIR=str(work / "state"),
                DECKBOY_PROJECT=str(show), DECKBOY_COMPANION_PORT=str(ports["companion"]),
                DECKBOY_HYPERDECK_PORT=str(ports["hyperdeck"]),
@@ -133,6 +147,18 @@ def main():
         expect(first_bytes(lan, ports["hyperdeck"]) == b"", "HyperDeck refuses an untrusted machine")
         expect(http_status(f"http://{lan}:{ports['vmix_http']}/api") is None, "vMix HTTP refuses an untrusted machine")
         expect(http_status(f"http://{lan}:{ports['osc']}/") is None, "OSC query refuses an untrusted machine")
+        # Shared on the LAN, the Web Monitor listens on this PC's LAN address
+        # only, so the phone remote is reached there, as a phone would.
+        web_on = local("WEBMONITOR ON")[0]
+        web_host = (re.search(r"http://([\d.]+):", web_on) or [None, None])[1]
+        expect(web_host is not None, "the Web Monitor is shared on the LAN", web_on)
+        phone_url = f"http://{web_host}:{ports['web']}/remote"
+        until = time.monotonic() + 20
+        while http_reply(phone_url)[0] is None and time.monotonic() < until:
+            time.sleep(0.3)
+        status, body = http_reply(phone_url)
+        expect(status == 403 and "not a trusted controller" in body,
+               "the phone remote refuses an untrusted machine", f"{status} {body.strip()}")
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp:
             udp.sendto(b"COMPANIONPASS changedbyudp\n", (lan, ports["companion"]))
         time.sleep(0.5)
@@ -147,6 +173,9 @@ def main():
         expect((remote("PING") or [""])[0].startswith("OK"), "a trusted machine is answered")
         expect(first_bytes(lan, ports["hyperdeck"]).startswith(b"500"), "HyperDeck answers a trusted machine")
         expect(http_status(f"http://{lan}:{ports['osc']}/") == 200, "OSC query answers a trusted machine")
+        local(f"TRUST {web_host}")
+        status, body = http_reply(phone_url)
+        expect(status == 200 and "<" in body, "the phone remote answers a trusted machine", f"{status} {body[:80]}")
         vmix = http_status(f"http://{lan}:{ports['vmix_http']}/api")
         expect(vmix is not None, "vMix HTTP answers a trusted machine", str(vmix))
         reply = (remote(f"UISNAP {snap}") or [""])[0]

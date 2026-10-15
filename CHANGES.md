@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-15 - v0.99.412 (in progress)
+
+### Network control
+- Fixed an issue where the phone remote answered any machine on the local network with the
+  passphrase, even when that machine was not in **Trusted controllers**. It now answers only this
+  computer and trusted machines, like every other control port; a refused phone is named in a warning
+  with **ALLOW**.
+
 ## 2026-10-15 - v0.99.411 (picture scopes, network control locked down, a phone remote, 52 lower thirds)
 
 Broadcast picture scopes measured on the output itself, network control that answers only the

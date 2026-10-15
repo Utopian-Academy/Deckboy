@@ -1419,10 +1419,13 @@
 
   // Any network thread. False means refuse; the refusal is reported later on
   // the main thread, which owns the toasts and the log.
-  bool controlPeerAllowed(const sockaddr_in& peer, const char* portName) {
+  // `remoteSwitch` false is for a listener that reaches the LAN by its own
+  // switch (the phone remote rides the Web Monitor's sharing): the trusted
+  // list still decides, whatever Allow remote network says.
+  bool controlPeerAllowed(const sockaddr_in& peer, const char* portName, bool remoteSwitch = true) {
     if (peer.sin_family == AF_INET && peerIsLoopback(peer)) return true;
     std::lock_guard<std::mutex> lock(controlTrustMutex_);
-    if (controlTrustRemote_ && peer.sin_family == AF_INET) {
+    if ((controlTrustRemote_ || !remoteSwitch) && peer.sin_family == AF_INET) {
       const std::uint32_t ip = ntohl(peer.sin_addr.s_addr);
       for (const auto& [address, mask] : controlTrustNets_) {
         if ((ip & mask) == address) return true;
@@ -1554,6 +1557,9 @@
     if ((peerIp >> 24) != 127 && (peerIp >> 24) != 10 &&
         (peerIp >> 20) != 0xAC1 && (peerIp >> 16) != 0xC0A8) {
       reply("403 Forbidden", "ERR remote: private LAN clients only"); return;
+    }
+    if (!controlPeerAllowed(peer, "Phone remote", false)) {
+      reply("403 Forbidden", "ERR remote: this address is not a trusted controller (Settings > Network)"); return;
     }
     if (method == "GET" && (path == "/remote" || path == "/remote/" ||
                             path == "/remote.js" || path == "/remote.css")) {

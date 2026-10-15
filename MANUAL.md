@@ -2061,7 +2061,8 @@ All remote inputs normalise to plain-text commands.
 
 With **Listen on** set to all interfaces, Companion, OSC, OSC Query, the
 HyperDeck emulation and the vMix API answer only this computer and the
-machines in **Settings → Network → Trusted controllers**: IPv4 addresses or
+machines in **Settings → Network → Trusted controllers**. So does the phone
+remote, whenever the Web Monitor is shared on the network. Entries are IPv4 addresses or
 ranges such as `192.168.1.0/24`, comma separated. Anyone else is refused, and
 a warning names the address. **Last refused** shows the most recent one with
 an **ALLOW** button, which adds it to the list. Every refusal is written to
