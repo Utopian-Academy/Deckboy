@@ -182,7 +182,8 @@ def main():
         time.sleep(1.0)
         expect(reply.startswith("ERR") and "this computer" in reply and not snap.exists(),
                "UISNAP from another machine is refused and writes nothing", reply)
-        for line in ("CLICK 10 10", "PRESS OFF", "DROPTEST C:/Windows/win.ini", "TRUST 10.9.9.9",
+        for line in ("CLICK 10 10", "PRESS OFF", "DROPTEST C:/Windows/win.ini", "TRUST 10.9.9.9", "WEBMONITOR PIN attacker-chosen", "WEBMONITOR SHARE ON",
+                     "WEBMONITOR CONTROL ON", "DASH SET 9 Open | WEBMONITOR SHARE ON",
                      "COMPANIONPASS letmeinplease", "SUBTITLE CONVERT C:/x.srt",
                      "BROWSER file:///C:/Windows/win.ini", "DASH SET 4 Snap | UISNAP C:/x.bmp"):
             reply = (remote(line) or [""])[0]

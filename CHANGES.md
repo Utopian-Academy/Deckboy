@@ -7,6 +7,9 @@
   passphrase, even when that machine was not in **Trusted controllers**. It now answers only this
   computer and trusted machines, like every other control port; a refused phone is named in a warning
   with **ALLOW**.
+- `WEBMONITOR SHARE`, `WEBMONITOR PIN` and `WEBMONITOR CONTROL` now work only from this computer,
+  like `TRUST`: another machine could share the picture on the network under a passphrase of its own
+  choosing.
 
 ## 2026-10-15 - v0.99.411 (picture scopes, network control locked down, a phone remote, 52 lower thirds)
 

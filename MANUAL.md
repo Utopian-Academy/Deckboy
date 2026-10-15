@@ -2079,8 +2079,10 @@ Some commands work only from this computer, whoever else is trusted: the
 test inputs (`CLICK`, `HOVER`, `PRESS`, `SCROLL`, `SCROLLBAR`, `DROPTEST`),
 anything that writes a file at a path it is given (`UISNAP`, `OUTSNAP`,
 `SUBTITLE CONVERT`), a `BROWSER` cue opening a `file:` address, and the
-commands that change who is trusted. A `DASH` button or script cue sent from
-another machine cannot carry them either.
+commands that change who is trusted or who may watch and drive the show
+(`TRUST`, `COMPANIONPASS`, `WEBMONITOR SHARE`, `WEBMONITOR PIN`,
+`WEBMONITOR CONTROL`). A `DASH` button or script cue sent from another
+machine cannot carry them either.
 
 | Command | Does |
 |---------|------|

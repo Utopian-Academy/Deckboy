@@ -1474,6 +1474,13 @@
     return true;
   }
 
+  // WEBMONITOR SHARE, PIN and CONTROL decide who on the network may watch or
+  // drive the show, so they are TRUST's kind of verb, not a controller's.
+  static bool webMonitorSubWidensAccess(const std::string& sub) {
+    const std::string s = toUpper(sub);
+    return s == "SHARE" || s == "PIN" || s == "CONTROL";
+  }
+
   // Verbs another machine may never use: they write files at a path it names,
   // fake the operator's own mouse, or change who is trusted.
   static bool remoteVerbIsLocalOnly(const std::string& text) {
@@ -1486,13 +1493,17 @@
     if (kLocalOnly.count(verb)) return true;
     if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
     if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
+    if (verb == "WEBMONITOR" && parts.size() > 1 && webMonitorSubWidensAccess(parts[1])) return true;
     // A verb that STORES commands to run later must not be a way round this.
     if (verb == "DASH" || verb == "SCRIPTCUE") {
+      bool afterWebMonitor = false;
       for (const auto& word : parts) {
         std::string w = toUpper(word);
         while (!w.empty() && (w.front() == '|' || w.front() == ';' || w.front() == '"')) w.erase(w.begin());
         if (kLocalOnly.count(w)) return true;
         if (w == "SUBTITLE" || w.find("FILE:") != std::string::npos) return true;
+        if (afterWebMonitor && webMonitorSubWidensAccess(w)) return true;
+        afterWebMonitor = w == "WEBMONITOR";
       }
     }
     return false;
