@@ -210,7 +210,7 @@ if (Test-Path $DataSrc) {
                              "default.deckboy", "deckboy-first-run",
                              "deckboy-crash.log", "deckboy-soak.log",
                              "deckboy-render.log", "deckboy-show.log",
-                             "deckboy-live-frame.bmp")) {
+                             "deckboy-live-frame.bmp", "paired-phones.txt")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Force
@@ -237,7 +237,7 @@ if (Test-Path $DataSrc) {
     # output, gitignored, and never taught to ANY of the three packagers. Found
     # while building an isolated instance for demo capture -- a copied data/
     # brought both directories along.
-    foreach ($StaleDir in @("_converted", "recordings", "updates")) {
+    foreach ($StaleDir in @("_converted", "recordings", "updates", "test-cards")) {
         $StaleDirPath = Join-Path (Join-Path $StageDir "data") $StaleDir
         if (Test-Path $StaleDirPath) {
             $StaleMB = [math]::Round(((Get-ChildItem $StaleDirPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum) / 1MB)

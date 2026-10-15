@@ -5157,7 +5157,7 @@
     job->fps = fps;
     job->totalFrames = static_cast<int>(std::lround(seconds * fps));
     std::error_code ec;
-    job->folder = folderIn.empty() ? Paths::stateDir() / "test cards" : folderIn;
+    job->folder = folderIn.empty() ? Paths::stateDir() / "test-cards" : folderIn;
     std::filesystem::create_directories(job->folder, ec);
 
     auto screenFor = [&](int number, SDL_Rect r, const std::string& name) {

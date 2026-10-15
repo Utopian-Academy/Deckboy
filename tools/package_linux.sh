@@ -156,7 +156,7 @@ if [ -d "$REPO_ROOT/data" ]; then
   # absolute path per show opened on this machine. Same class as the rest.
   for stale in last_project.txt recent_projects.txt default.deckboy \
                deckboy-first-run deckboy-crash.log deckboy-soak.log \
-               deckboy-render.log deckboy-show.log deckboy-live-frame.bmp; do
+               deckboy-render.log deckboy-show.log deckboy-live-frame.bmp paired-phones.txt; do
     if [ -e "$STAGE_DIR/data/$stale" ]; then
       rm -f "$STAGE_DIR/data/$stale"
       echo "  - stripped data/$stale (build-machine state)"
@@ -178,7 +178,7 @@ if [ -d "$REPO_ROOT/data" ]; then
   # output. Only the Windows packager had learned _converted, and none of the
   # three had ever heard of recordings, so this is the same drift the list above
   # documents being fixed twice. Keep all three in step.
-  for stale_dir in _converted recordings updates; do
+  for stale_dir in _converted recordings updates test-cards; do
     if [ -d "$STAGE_DIR/data/$stale_dir" ]; then
       stale_mb=$(du -sm "$STAGE_DIR/data/$stale_dir" 2>/dev/null | cut -f1)
       rm -rf "$STAGE_DIR/data/$stale_dir"
