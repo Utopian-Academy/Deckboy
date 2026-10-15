@@ -507,6 +507,13 @@ struct OutputRuntime {
   Uint64 streamFpsSampleStartedAtMs = 0;
   std::uint64_t streamFpsPacketsAtSampleStart = 0;
   double streamFpsMeasured = 0.0;
+  // The test card's cached halves (core/test_card.hpp): the canvas pattern at
+  // the compositor's raster, and the 1-pixel resolution patch at this
+  // screen's cell size. Rebuilt when either size changes.
+  SDL_Texture* testCardCanvas = nullptr;
+  int testCardCanvasW = 0, testCardCanvasH = 0;
+  SDL_Texture* testCardPatch = nullptr;
+  int testCardPatchCell = 0;
 };
 
 #endif  // DECKBOY_CORE_OUTPUT_RUNTIME_HPP

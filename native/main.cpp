@@ -88,6 +88,7 @@
 #include "core/captioning.hpp"
 #include "core/live_captions.hpp"
 #include "core/hdr_to_sdr.hpp"
+#include "core/test_card.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "engine/stage_timings.hpp"
@@ -9204,6 +9205,7 @@ class App {
   static constexpr int kSettingsActionOutputOrientationCycle = 290;
   static constexpr int kSettingsActionOutputTestCardToggle = 291;
   static constexpr int kSettingsActionOutputTestCardAllToggle = 292;
+  static constexpr int kSettingsActionOutputTestCardExport = 769;   // test card -> movie files
   static constexpr int kSettingsActionOutputWarpModeCycle = 293;
   static constexpr int kSettingsActionOutputDisplayDropdown = 294;
   static constexpr int kSettingsActionOutputDisplaySelectBase = 800; // 800 + displayIndex
@@ -9561,6 +9563,8 @@ class App {
   std::vector<int> monitorsOutputTexH_;
   SDL_Cursor* miamiCursor_ = nullptr;   // Deckboy's own pointer; null = system arrow
   int miamiCursorScale_ = 0;            // whole-pixel scale it was built at
+  // The test card's shared clock (renderOutputTestCard); 0 = no card up.
+  Uint64 testCardEpochNs_ = 0;
   TTF_Font* fontLarge_ = nullptr;
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;

@@ -498,7 +498,10 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
       << escapeField(outputTarget.outputColorSpace) << '\t'
       << escapeField(outputTarget.outputLayoutMode) << '\t'
       << outputTarget.outputOrientationDegrees << '\t'
-      << (outputTarget.outputTestCardEnabled ? 1 : 0) << '\t'
+      // The test card is a check, not part of the show: never saved up, so
+      // a show cannot open with bars on its screens. The field keeps its
+      // place so every later field stays where old readers expect it.
+      << 0 << '\t'
       << (outputTarget.deckLinkEnabled ? 1 : 0) << '\t'
       << outputTarget.deckLinkDeviceId << '\t'
       << escapeField(outputTarget.deckLinkMode) << '\t'
@@ -1541,7 +1544,7 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
         if (fields.size() >= 24) {
           outputTarget.outputLayoutMode = safeString(fields, 21);
           outputTarget.outputOrientationDegrees = safeInt(fields, 22, 0);
-          outputTarget.outputTestCardEnabled = safeBool(fields, 23, false);
+          // Field 23 was the test card; a show saved with one up opens clean.
           if (fields.size() >= 28) {
             outputTarget.deckLinkEnabled = safeBool(fields, 24, false);
             outputTarget.deckLinkDeviceId = safeInt(fields, 25, -1);

@@ -8692,6 +8692,61 @@
                                " -> deck " + parts[2];
         return;
       }
+      // OUTPUT TESTCARD [ON|OFF|TOGGLE] on the focused output (OUTPUT SELECT
+      // n first), or OUTPUT TESTCARD ALL [ON|OFF] for every output. The same
+      // switch as DISPLAY OUTPUT TESTCARD, under the verb people look for.
+      if (sub == "TESTCARD") {
+        const std::string arg = parts.size() > 2 ? toUpper(parts[2]) : std::string("TOGGLE");
+        // OUTPUT TESTCARD EXPORT [seconds] [WxH] [<n>FPS] [folder]: the moving
+        // card as H.264 files (see exportTestCard). Defaults: 30 s, 60 fps,
+        // the show's rasters, the state folder's "test cards".
+        if (arg == "EXPORT") {
+          double seconds = 30.0;
+          int fps = 60, w = 0, h = 0;
+          std::size_t at = 3;
+          for (; at < parts.size(); ++at) {
+            const std::string word = toUpper(parts[at]);
+            int a = 0, b = 0;
+            char tail = 0;
+            if (std::sscanf(word.c_str(), "%dX%d%c", &a, &b, &tail) == 2 && a > 0 && b > 0) {
+              w = a; h = b;
+            } else if (word.size() > 3 && word.compare(word.size() - 3, 3, "FPS") == 0 &&
+                       std::sscanf(word.c_str(), "%d", &a) == 1 && a > 0) {
+              fps = a;
+            } else if (!word.empty() && std::all_of(word.begin(), word.end(), [](unsigned char ch) {
+                         return std::isdigit(ch) || ch == '.'; })) {
+              seconds = std::atof(word.c_str());
+            } else {
+              break;
+            }
+          }
+          const std::string folder = at < parts.size() ? joinParts(parts, at) : std::string();
+          const std::string why = exportTestCard(seconds, fps, w, h, std::filesystem::u8path(folder));
+          if (!why.empty()) {
+            failRemoteCommand("OUTPUT TESTCARD EXPORT: " + why);
+            return;
+          }
+          remoteCommandDetail_ = "exporting " + std::to_string(testCardExport_->files.size()) + " file(s) to " +
+                                 testCardExport_->folder.string();
+          return;
+        }
+        if (arg == "ALL") {
+          bool anyOff = false;
+          for (const auto& out : project_.outputs) anyOff = anyOff || !out.outputTestCardEnabled;
+          const std::string state = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+          setAllOutputsTestCardEnabled(state == "ON" ? true : state == "OFF" ? false : anyOff);
+        } else if (arg == "ON" || arg == "OFF") {
+          setFocusedOutputTestCardEnabled(arg == "ON");
+        } else if (arg == "TOGGLE") {
+          toggleFocusedOutputTestCardEnabled();
+        } else {
+          failRemoteCommand("OUTPUT TESTCARD: ON | OFF | TOGGLE | ALL [ON|OFF]");
+          return;
+        }
+        remoteCommandDetail_ = std::string("test card ") +
+          (focusedOutput().outputTestCardEnabled ? "on " : "off ") + outputLabel(project_.focusedOutputIndex);
+        return;
+      }
       if (sub == "STATUS") {
         if (project_.outputs.empty()) {
           failRemoteCommand("OUTPUT: no outputs");
@@ -8758,7 +8813,7 @@
         }
       } catch (...) {
       }
-      failRemoteCommand("OUTPUT: STATUS | LIST | ON|OFF|TOGGLE | SPOUT ... | <n>");
+      failRemoteCommand("OUTPUT: STATUS | LIST | ON|OFF|TOGGLE | TESTCARD ... | SPOUT ... | <n>");
       return;
     }
 

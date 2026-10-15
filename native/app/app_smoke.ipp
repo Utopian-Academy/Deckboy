@@ -2419,7 +2419,9 @@
                loaded.outputs[0].outputColorSpace == "bt709" &&
                loaded.outputs[0].outputLayoutMode == "span" &&
                loaded.outputs[0].outputOrientationDegrees == 90 &&
-               loaded.outputs[0].outputTestCardEnabled &&
+               // Saved with the card UP, and it must come back down: the
+               // test card is never part of a show.
+               !loaded.outputs[0].outputTestCardEnabled &&
                std::abs(loaded.outputs[1].outputAlpha - 0.67f) < 0.01f &&
                loaded.outputs[1].outputDelayMs == 120 &&
                !loaded.outputs[1].outputTimeOverlayEnabled &&

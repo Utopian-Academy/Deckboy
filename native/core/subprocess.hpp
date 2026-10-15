@@ -73,6 +73,9 @@ struct ChildProcess {
   /// Safe to call multiple times (idempotent). Called by destructor.
   void stop();
 
+  // Close stdin and wait (up to timeoutMs) for a clean exit, then stop.
+  bool finish(int timeoutMs);
+
   /// LET THE CHILD GO ON WITHOUT US.
   ///
   /// Forget the process without killing it: close our pipe ends, drop our

@@ -111,6 +111,45 @@ void ChildProcess::stop() {
 #endif
 }
 
+// End the child's input and let it finish: an encoder writes its trailer on
+// EOF, and killing it first leaves a file nothing can play. Waits up to
+// timeoutMs, then stops it the hard way. True when it exited by itself with 0.
+bool ChildProcess::finish(int timeoutMs) {
+  bool clean = false;
+#ifdef _WIN32
+  if (writeFd >= 0) {
+    _close(writeFd);
+    writeFd = -1;
+  }
+  if (hProcess != INVALID_HANDLE_VALUE &&
+      WaitForSingleObject(hProcess, static_cast<DWORD>(std::max(0, timeoutMs))) == WAIT_OBJECT_0) {
+    DWORD code = 1;
+    clean = GetExitCodeProcess(hProcess, &code) && code == 0;
+    CloseHandle(hProcess);
+    hProcess = INVALID_HANDLE_VALUE;
+  }
+#else
+  if (writeFd >= 0) {
+    close(writeFd);
+    writeFd = -1;
+  }
+  for (int waited = 0; pid > 0; waited += 20) {
+    int status = 0;
+    const pid_t done = waitpid(pid, &status, WNOHANG);
+    if (done == pid) {
+      clean = WIFEXITED(status) && WEXITSTATUS(status) == 0;
+      pid = -1;
+      processGroup = false;
+      break;
+    }
+    if (done < 0 || waited >= timeoutMs) break;
+    usleep(20000);
+  }
+#endif
+  stop();
+  return clean;
+}
+
 void ChildProcess::release() {
 #ifdef _WIN32
   if (writeFd >= 0) {

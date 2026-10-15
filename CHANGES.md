@@ -15,6 +15,18 @@
 - Recording an HDR output now records HDR10 (HEVC Main10, BT.2020, PQ), highlights at their own
   brightness; ProRes and DNxHR HQX are tagged PQ.
 
+### Test card
+- Added a test card that checks a screen: drawn at the raster the output sends, never scaled, with
+  1-pixel corner patches and a 1:1 / SCALED readout, a round circle, edge arrows, action and title
+  safe, 75% bars, a grey scale and PLUGE, HDR patches from 203 to 2000 nits on an HDR output, a
+  motion lane, phase blocks and a frame counter run from one clock across every output, edge-blend
+  lines, and the output's number, raster, refresh, destinations and measured frame rate.
+  **Settings > Video Outputs > TEST CARD** and **CARD ON ALL**; `OUTPUT TESTCARD ON|OFF|TOGGLE|ALL`.
+- Added **EXPORT CARD** and `OUTPUT TESTCARD EXPORT`: the moving card as H.264 files, one per output
+  of a canvas plus the whole canvas.
+- A test card is no longer saved with the show, and a recording keeps recording programme while one
+  is up.
+
 ### Live captions
 - Added live captions: what is being said, on the chosen outputs, about two seconds behind, made on
   this computer. Listens to the live input, a deck or an output's mix; one to three rolling lines,

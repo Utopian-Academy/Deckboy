@@ -513,8 +513,9 @@
   bool setFocusedOutputTestCardEnabled(bool enabled) {
     normalizeProject(project_);
     OutputTarget& output = focusedOutputMutable();
+    const std::string where = outputLabel(project_.focusedOutputIndex);
     if (output.outputTestCardEnabled == enabled) {
-      triggerToast(std::string("test card override: ") + (enabled ? "on" : "off"));
+      triggerToast(std::string("test card ") + (enabled ? "already on " : "already off ") + where);
       return false;
     }
     output.outputTestCardEnabled = enabled;
@@ -522,10 +523,20 @@
       runtime->delayFrames.clear();
       runtime->latestCapturedFrame = {};
     }
-    triggerToast(std::string("test card override: ") + (enabled ? "on" : "off"));
+    restartTestCardClockIfNoneUp();
+    triggerToast(std::string("test card ") + (enabled ? "on " : "off ") + where);
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
     return true;
+  }
+
+  // The card's shared clock starts again from zero the next time one goes up,
+  // so a frame count read off a screen is the count since the card appeared.
+  void restartTestCardClockIfNoneUp() {
+    for (const auto& out : project_.outputs) {
+      if (out.outputTestCardEnabled) return;
+    }
+    testCardEpochNs_ = 0;
   }
 
   bool toggleFocusedOutputTestCardEnabled() {
@@ -537,7 +548,11 @@
     bool changed = false;
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       OutputTarget& output = project_.outputs[outputIndex];
-      if (output.outputTestCardEnabled == enabled) {
+      // Every SCREEN, not the recording: a recording keeps recording
+      // programme (James, 2026-10-15). It can still be given one on its own.
+      const bool recording = normalizeOutputType(output.outputType) == "stream" &&
+        outputStreamProtocolIsFile(normalizeOutputStreamProtocol(output.streamProtocol));
+      if (output.outputTestCardEnabled == enabled || (enabled && recording)) {
         continue;
       }
       output.outputTestCardEnabled = enabled;
@@ -547,7 +562,8 @@
       }
       changed = true;
     }
-    triggerToast(std::string("test card overrides: ") + (enabled ? "on" : "off"));
+    restartTestCardClockIfNoneUp();
+    triggerToast(std::string("test card ") + (enabled ? "on every output" : "off every output"));
     if (changed) {
       playUiSound(UiSoundEffect::Toggle);
       markProjectDirty();
@@ -4226,7 +4242,11 @@
     runtime.lastEgressCaptureAtMs = nowMs;
     if (runtime.streamHdr) {
       const int source = hdrRecordingSource(outputIndex);
-      if (source >= 0) captureHdrRecordFrame(outputRuntimes_[static_cast<std::size_t>(source)], runtime, nowMs);
+      // A source showing the test card has already handed over its programme
+      // (renderOutputCompositor); reading it now would record the card.
+      if (source >= 0 && !project_.outputs[static_cast<std::size_t>(source)].outputTestCardEnabled) {
+        captureHdrRecordFrame(outputRuntimes_[static_cast<std::size_t>(source)], runtime, nowMs);
+      }
     }
 
     int delayMs = std::clamp(project_.outputs[outputIndex].outputDelayMs, 0, 5000);
@@ -4939,6 +4959,16 @@
     if (runtime.compositorTexture) {
       SDL_DestroyTexture(runtime.compositorTexture);
       runtime.compositorTexture = nullptr;
+    }
+    if (runtime.testCardCanvas) {
+      SDL_DestroyTexture(runtime.testCardCanvas);
+      runtime.testCardCanvas = nullptr;
+      runtime.testCardCanvasW = runtime.testCardCanvasH = 0;
+    }
+    if (runtime.testCardPatch) {
+      SDL_DestroyTexture(runtime.testCardPatch);
+      runtime.testCardPatch = nullptr;
+      runtime.testCardPatchCell = 0;
     }
     if (runtime.egressScaleTexture) {
       SDL_DestroyTexture(runtime.egressScaleTexture);

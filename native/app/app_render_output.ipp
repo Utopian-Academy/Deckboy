@@ -4820,68 +4820,535 @@
     SDL_SetTextureAlphaMod(bridgeTexture, 255);
   }
 
+  // THE TEST CARD (core/test_card.hpp). One card, drawn at the raster this
+  // output really composites at, never scaled: grid, circle, bars, greys,
+  // PLUGE and a motion lane over the whole raster -- the whole CANVAS when
+  // outputs span one, so the pattern runs continuously across the wall -- and
+  // per screen its edges, safe areas, blend lines, its number and what it is
+  // being sent. It replaces the picture on this output only; no deck or cue
+  // is touched, so turning it off is straight back to programme.
+  //
+  // The same drawing makes the exported movie files (exportTestCard), so a
+  // file loaded onto a player or a switcher IS the card.
+  struct TestCardScreenText {
+    deckboy::core::testcard::Screen geom;
+    std::vector<std::pair<std::string, SDL_Color>> lines;
+  };
+  struct TestCardTextures {
+    SDL_Texture* canvas = nullptr;
+    int canvasW = 0, canvasH = 0;
+    SDL_Texture* patch = nullptr;
+    int patchCell = 0;
+  };
+
+  static constexpr SDL_Color kTestCardInk {240, 240, 240, 255};
+  static constexpr SDL_Color kTestCardSoft {170, 176, 186, 255};
+  static constexpr SDL_Color kTestCardWarn {255, 176, 64, 255};
+
+  void drawTestCardFrame(SDL_Renderer* renderer, TestCardTextures& tex, int width, int height,
+                         const std::vector<TestCardScreenText>& screens, double t, bool hdr) {
+    namespace tc = deckboy::core::testcard;
+    if (!tex.canvas || tex.canvasW != width || tex.canvasH != height) {
+      if (tex.canvas) SDL_DestroyTexture(tex.canvas);
+      std::vector<std::uint8_t> pixels(static_cast<std::size_t>(width) * height * 4);
+      tc::drawCanvas(pixels.data(), width, height);
+      tex.canvas = deckboyCreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, width, height);
+      if (tex.canvas) {
+        SDL_UpdateTexture(tex.canvas, nullptr, pixels.data(), width * 4);
+        SDL_SetTextureBlendMode(tex.canvas, SDL_BLENDMODE_NONE);
+      }
+      tex.canvasW = width;
+      tex.canvasH = height;
+    }
+    if (tex.canvas) {
+      SDL_RenderTexture(renderer, tex.canvas, static_cast<const SDL_FRect*>(nullptr),
+                        static_cast<const SDL_FRect*>(nullptr));
+    }
+    const tc::Layout canvasLayout = tc::layoutFor(width, height);
+    std::vector<tc::Box> boxes;
+    for (const TestCardScreenText& screenText : screens) {
+      const tc::Screen& screen = screenText.geom;
+      const tc::Layout screenLayout = tc::layoutFor(screen.w, screen.h);
+      const int cell = screenLayout.cell;
+
+      // The 1-pixel patches in this screen's four corners.
+      if (!tex.patch || tex.patchCell != cell) {
+        if (tex.patch) SDL_DestroyTexture(tex.patch);
+        std::vector<std::uint8_t> patch(static_cast<std::size_t>(cell) * 2 * cell * 4);
+        tc::drawResolutionPatch(patch.data(), cell);
+        tex.patch = deckboyCreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, cell * 2, cell);
+        if (tex.patch) {
+          SDL_UpdateTexture(tex.patch, nullptr, patch.data(), cell * 2 * 4);
+          SDL_SetTextureBlendMode(tex.patch, SDL_BLENDMODE_NONE);
+        }
+        tex.patchCell = cell;
+      }
+      if (tex.patch) {
+        const int inset = std::max(2, cell / 6);
+        const SDL_Rect corners[4] {
+          {screen.x + inset, screen.y + inset, cell * 2, cell},
+          {screen.x + screen.w - inset - cell * 2, screen.y + inset, cell * 2, cell},
+          {screen.x + inset, screen.y + screen.h - inset - cell, cell * 2, cell},
+          {screen.x + screen.w - inset - cell * 2, screen.y + screen.h - inset - cell, cell * 2, cell},
+        };
+        for (const SDL_Rect& c : corners) {
+          const SDL_FRect dst {static_cast<float>(c.x), static_cast<float>(c.y),
+                               static_cast<float>(c.w), static_cast<float>(c.h)};
+          SDL_RenderTexture(renderer, tex.patch, nullptr, &dst);
+        }
+      }
+
+      boxes.clear();
+      tc::screenBoxes(screen, canvasLayout, t, boxes);
+      SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+      for (const tc::Box& b : boxes) {
+        SDL_SetRenderDrawColor(renderer, b.c.r, b.c.g, b.c.b, b.c.a);
+        const SDL_FRect r {static_cast<float>(b.x), static_cast<float>(b.y),
+                           static_cast<float>(b.w), static_cast<float>(b.h)};
+        SDL_RenderFillRect(renderer, &r);
+      }
+
+      // HDR HIGHLIGHTS, on an HDR output only: patches at 203 (reference
+      // white), 400, 600, 1000 and 2000 nits in a labelled column on the left
+      // wing. The compositor is linear light with 1.0 = the reference white,
+      // and SDL linearises a draw colour as sRGB, so each is handed over
+      // sRGB-encoded. Measured in the back buffer: 203/400/600/1000/2000 nits.
+      if (hdr) {
+        static constexpr int kNits[5] {203, 400, 600, 1000, 2000};
+        const int patchW = cell * 4 / 5;
+        const int patchH = cell * 3 / 4;
+        const int left = screen.x + screenLayout.cx - cell * 15 / 2;
+        const int top = screen.y + screenLayout.cy - cell * 4;
+        TTF_Font* nitsFont = fontAtSize(fontBase_, std::clamp(cell / 4, 8, 120));
+        for (int i = 0; i < 5; ++i) {
+          drawTextRaw(renderer, nitsFont ? nitsFont : fontBase_, std::to_string(kNits[i]) + " nits",
+                      SDL_Color {235, 235, 235, 255}, left + patchW + cell / 6, top + i * cell + patchH / 4);
+          const float linear = static_cast<float>(kNits[i]) / 203.0f;
+          const float encoded = linear <= 0.0031308f ? linear * 12.92f
+                                                     : 1.055f * std::pow(linear, 1.0f / 2.4f) - 0.055f;
+          SDL_SetRenderDrawColorFloat(renderer, encoded, encoded, encoded, 1.0f);
+          const SDL_FRect r {static_cast<float>(left), static_cast<float>(top + i * cell),
+                             static_cast<float>(patchW), static_cast<float>(patchH)};
+          SDL_RenderFillRect(renderer, &r);
+        }
+      }
+
+      // THE IDENT: Deckboy's name in its own pixel face on a cartridge-label
+      // plate, at the top of the circle -- whose card this is, on every screen.
+      {
+        TTF_Font* pixel = fontAtSize(fontPixel_, std::clamp(cell * 2 / 5, 8, 160));
+        if (!pixel) pixel = fontPixel_;
+        const std::string word = "DECKBOY";
+        const int textW = measuredWidthIn(pixel, word);
+        const int plateW = textW + cell;
+        const int plateH = cell * 3 / 4;
+        const SDL_FRect plate {static_cast<float>(screen.x + screenLayout.cx - plateW / 2),
+                               static_cast<float>(screen.y + screenLayout.cy - cell * 5 + cell / 8),
+                               static_cast<float>(plateW), static_cast<float>(plateH)};
+        SDL_SetRenderDrawColor(renderer, 18, 24, 10, 255);
+        SDL_RenderFillRect(renderer, &plate);
+        SDL_SetRenderDrawColor(renderer, 156, 196, 60, 255);
+        for (int i = 0; i < std::max(1, cell / 30); ++i) {
+          const SDL_FRect edge {plate.x + i, plate.y + i, plate.w - 2 * i, plate.h - 2 * i};
+          SDL_RenderRect(renderer, &edge);
+        }
+        drawTextRaw(renderer, pixel, word, SDL_Color {176, 220, 72, 255},
+                    static_cast<int>(plate.x) + (plateW - textW) / 2,
+                    static_cast<int>(plate.y) + (plateH - textLineHeight(pixel)) / 2);
+      }
+
+      // The screen's number, big, in Deckboy's pixel face (the identify),
+      // and beside it what this screen is being sent.
+      const tc::Box info = tc::infoBox(screen);
+      TTF_Font* numberFont = fontAtSize(fontPixel_, std::clamp(cell * 2, 12, 600));
+      if (!numberFont) numberFont = fontPixel_;
+      const std::string number = std::to_string(screen.number);
+      drawTextRaw(renderer, numberFont, number, SDL_Color {255, 255, 255, 255}, info.x + cell / 2, info.y + cell / 2);
+      TTF_Font* font = fontAtSize(fontBase_, std::clamp(cell * 9 / 25, 8, 160));
+      if (!font) font = fontBase_;
+      const int lineH = std::max(8, textLineHeight(font));
+      const int textX = info.x + cell / 2 + std::max(cell * 3 / 2, measuredWidthIn(numberFont, number)) + cell / 2;
+      int textY = info.y + cell / 3;
+      for (const auto& line : screenText.lines) {
+        drawTextRaw(renderer, font, line.first, line.second, textX, textY);
+        textY += lineH;
+      }
+    }
+  }
+
   void renderOutputTestCard(int outputIndex, SDL_Renderer* renderer, int width, int height) {
-    if (!renderer || width <= 0 || height <= 0) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!renderer || !runtime || width <= 0 || height <= 0 ||
+        outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
     }
-    const OutputTarget& output = project_.outputs[std::clamp(outputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1))];
-    auto fill = [&](int x, int y, int w, int h, SDL_Color color) {
-      SDL_Rect rect {x, y, w, h};
-      SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-      SDL_RenderFillRect(renderer, &rect);
+    const OutputTarget& output = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    // ONE clock for every output, so screens in step show the same sweep and
+    // the same count. It starts when the first card goes up.
+    const Uint64 nowNs = SDL_GetTicksNS();
+    if (testCardEpochNs_ == 0) testCardEpochNs_ = nowNs;
+    const double t = static_cast<double>(nowNs - testCardEpochNs_) / 1e9;
+
+    // WHICH PART OF THE RASTER THIS SCREEN SHOWS: its piece of the canvas,
+    // its area of interest, or all of it -- the same rectangle the present
+    // step crops, so the border and arrows land on this screen's glass.
+    int windowW = width, windowH = height;
+    if (runtime->outputWindow) {
+      SDL_GetWindowSizeInPixels(runtime->outputWindow, &windowW, &windowH);
+    }
+    SDL_Rect view {0, 0, width, height};
+    const float aoiL = std::clamp(output.aoiLeft, 0.0f, kAoiMaxEdge);
+    const float aoiR = std::clamp(output.aoiRight, 0.0f, kAoiMaxEdge);
+    const float aoiT = std::clamp(output.aoiTop, 0.0f, kAoiMaxEdge);
+    const float aoiB = std::clamp(output.aoiBottom, 0.0f, kAoiMaxEdge);
+    if (aoiL > 0.001f || aoiR > 0.001f || aoiT > 0.001f || aoiB > 0.001f) {
+      view = {static_cast<int>(aoiL * width), static_cast<int>(aoiT * height),
+              std::max(1, static_cast<int>((1.0f - aoiL - aoiR) * width)),
+              std::max(1, static_cast<int>((1.0f - aoiT - aoiB) * height))};
+    } else if (project_.outputCanvasEnabled &&
+               normalizeOutputLayoutMode(output.outputLayoutMode) == "span" && !project_.decks.empty()) {
+      const Deck& deck = project_.decks[static_cast<std::size_t>(
+        std::clamp(output.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1))];
+      view.w = std::min(windowW, width);
+      view.h = std::min(windowH, height);
+      view.x = std::clamp(deck.canvasViewX, 0, std::max(0, width - view.w));
+      view.y = std::clamp(deck.canvasViewY, 0, std::max(0, height - view.h));
+    }
+
+    // What the screen is, measured where it can be.
+    double refreshHz = 0.0;
+    int displayW = 0, displayH = 0;
+    if (runtime->outputWindow) {
+      if (const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(SDL_GetDisplayForWindow(runtime->outputWindow))) {
+        refreshHz = mode->refresh_rate;
+        displayW = mode->w;
+        displayH = mode->h;
+      }
+    }
+    if (refreshHz <= 0.0) refreshHz = runtime->fpsMeasured > 1.0 ? runtime->fpsMeasured : 60.0;
+
+    TestCardScreenText screen;
+    screen.geom.x = view.x; screen.geom.y = view.y; screen.geom.w = view.w; screen.geom.h = view.h;
+    screen.geom.number = outputIndex + 1;
+    screen.geom.refreshHz = refreshHz;
+    screen.geom.blendL = output.edgeBlendLeft; screen.geom.blendR = output.edgeBlendRight;
+    screen.geom.blendT = output.edgeBlendTop; screen.geom.blendB = output.edgeBlendBottom;
+    auto line = [&](const std::string& text, SDL_Color color) { screen.lines.emplace_back(text, color); };
+    const std::string name = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
+    line("OUTPUT " + std::to_string(outputIndex + 1) + "  " + name, kTestCardInk);
+    line(std::to_string(view.w) + "x" + std::to_string(view.h) + "  " + formatRefreshRateLabel(refreshHz), kTestCardInk);
+    std::string route;
+    auto add = [&](const std::string& part) { route += route.empty() ? part : " + " + part; };
+    if (runtime->outputWindow) add("WINDOW");
+    if (normalizeOutputType(output.outputType) == "stream") {
+      add(toUpper(normalizeOutputStreamProtocol(output.streamProtocol)));
+    }
+    if (output.ndiEnabled) add("NDI");
+    if (output.deckLinkEnabled) add("DECKLINK");
+    if (output.spoutEnabled) add("SPOUT");
+    if (output.st2110Enabled) add("ST 2110");
+    if (route.empty()) route = "NO DESTINATION";
+    route += runtime->hdr
+      ? "  HDR, SDR white " + std::to_string(std::clamp(project_.hdrSdrWhiteNits, 80, 500)) + " nits"
+      : "  SDR";
+    line(route, kTestCardInk);
+    // 1:1 is the claim the corner patches test; say whether it should hold.
+    if (runtime->outputWindow && displayW > 0) {
+      const bool oneToOne = view.w == windowW && view.h == windowH;
+      line(oneToOne ? "1:1 on a " + std::to_string(displayW) + "x" + std::to_string(displayH) + " display"
+                    : "SCALED to " + std::to_string(windowW) + "x" + std::to_string(windowH),
+           oneToOne ? kTestCardSoft : kTestCardWarn);
+    }
+    char measured[96];
+    std::snprintf(measured, sizeof(measured), "%.2f fps measured  %llu %s", runtime->fpsMeasured,
+                  static_cast<unsigned long long>(runtime->presentHitches),
+                  runtime->presentHitches == 1 ? "hitch" : "hitches");
+    line(measured, runtime->presentHitches > 0 ? kTestCardWarn : kTestCardSoft);
+    std::string shaping;
+    if (output.warpEnabled) shaping += "WARP ON  ";
+    if (output.edgeBlendLeft > 0.001f || output.edgeBlendRight > 0.001f ||
+        output.edgeBlendTop > 0.001f || output.edgeBlendBottom > 0.001f) {
+      shaping += "BLEND (orange lines)";
+    }
+    if (!shaping.empty()) line(shaping, kTestCardSoft);
+
+    TestCardTextures tex {runtime->testCardCanvas, runtime->testCardCanvasW, runtime->testCardCanvasH,
+                          runtime->testCardPatch, runtime->testCardPatchCell};
+    drawTestCardFrame(renderer, tex, width, height, {screen}, t, runtime->hdr);
+    runtime->testCardCanvas = tex.canvas;
+    runtime->testCardCanvasW = tex.canvasW;
+    runtime->testCardCanvasH = tex.canvasH;
+    runtime->testCardPatch = tex.patch;
+    runtime->testCardPatchCell = tex.patchCell;
+  }
+
+  // ── THE TEST CARD AS MOVIE FILES ─────────────────────────────────────────
+  //
+  // For a player, a switcher or an LED processor that stays behind after the
+  // laptop leaves: the moving card rendered to H.264 files at the rasters the
+  // show uses. With a canvas, ONE render of the whole canvas is cut into a file
+  // per output (each its own piece, with its own number) plus the whole canvas,
+  // so the files play back as one continuous wall and a panel out of step is
+  // visible -- the sweep jumps and the counters disagree. Without a canvas, one
+  // file at the focused output's raster, or at a size asked for.
+  //
+  // Rendered a few frames per tick on a software renderer, so the desk keeps
+  // running; a writer thread feeds ffmpeg, one process per file. SDR only.
+  struct TestCardExportJob {
+    struct File {
+      SDL_Rect crop {};
+      std::string path;
+      ChildProcess process;
     };
-
-    const std::array<SDL_Color, 7> bars {{
-      SDL_Color {191, 191, 191, 255},
-      SDL_Color {191, 191,   0, 255},
-      SDL_Color {  0, 191, 191, 255},
-      SDL_Color {  0, 191,   0, 255},
-      SDL_Color {191,   0, 191, 255},
-      SDL_Color {191,   0,   0, 255},
-      SDL_Color {  0,   0, 191, 255},
-    }};
-    int topH = height * 2 / 3;
-    int barW = std::max(1, width / static_cast<int>(bars.size()));
-    for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
-      int x = i * barW;
-      int w = (i == static_cast<int>(bars.size()) - 1) ? (width - x) : barW;
-      fill(x, 0, w, topH, bars[static_cast<size_t>(i)]);
+    int width = 0, height = 0, fps = 60, totalFrames = 0, nextFrame = 0;
+    SDL_Surface* surface = nullptr;
+    SDL_Renderer* renderer = nullptr;
+    TestCardTextures tex;
+    std::vector<TestCardScreenText> screens;
+    std::vector<std::unique_ptr<File>> files;
+    std::filesystem::path folder;
+    std::mutex mutex;
+    std::condition_variable cv;
+    std::deque<std::vector<std::uint8_t>> queue;
+    bool allQueued = false;
+    std::atomic<bool> failed {false};
+    std::atomic<bool> finished {false};
+    std::atomic<int> cleanFiles {0};
+    std::atomic<bool> abandon {false};
+    std::thread writer;
+    // Quitting mid-export: stop the encoders rather than wait out a long
+    // file, and never leave the writer thread running into std::terminate.
+    ~TestCardExportJob() {
+      abandon = true;
+      {
+        std::lock_guard<std::mutex> lock(mutex);
+        allQueued = true;
+        queue.clear();
+      }
+      cv.notify_all();
+      if (writer.joinable()) writer.join();
     }
+  };
 
-    int midY = topH;
-    int midH = std::max(10, height / 10);
-    fill(0, midY, width, midH, SDL_Color {18, 18, 18, 255});
-    for (int i = 0; i < 8; ++i) {
-      int x = i * width / 8;
-      int w = (i == 7) ? (width - x) : (width / 8);
-      Uint8 gray = static_cast<Uint8>(i * 255 / 7);
-      fill(x, midY + 2, w, midH - 4, SDL_Color {gray, gray, gray, 255});
+  // The export in progress, if any.
+  std::unique_ptr<TestCardExportJob> testCardExport_;
+
+  static bool writeAllToFd(int fd, const std::uint8_t* data, std::size_t size) {
+    while (size) {
+#ifdef _WIN32
+      const int wrote = _write(fd, data, static_cast<unsigned>(std::min<std::size_t>(size, 1u << 20)));
+#else
+      const auto wrote = ::write(fd, data, size);
+#endif
+      if (wrote <= 0) return false;
+      data += wrote;
+      size -= static_cast<std::size_t>(wrote);
     }
+    return true;
+  }
 
-    int botY = midY + midH;
-    int botH = std::max(1, height - botY);
-    fill(0, botY, width / 4, botH, SDL_Color {0, 0, 0, 255});
-    fill(width / 4, botY, width / 4, botH, SDL_Color {255, 255, 255, 255});
-    fill(width / 2, botY, width / 4, botH, SDL_Color {18, 18, 18, 255});
-    fill((width * 3) / 4, botY, width - (width * 3) / 4, botH, SDL_Color {36, 36, 36, 255});
+  // Returns a reason when the export cannot start, empty when it did.
+  std::string exportTestCard(double seconds, int fps, int askW, int askH, const std::filesystem::path& folderIn) {
+    namespace tc = deckboy::core::testcard;
+    if (testCardExport_) return "a test card export is already running";
+    seconds = std::clamp(seconds, 1.0, 600.0);
+    fps = std::clamp(fps, 1, 240);
+    auto job = std::make_unique<TestCardExportJob>();
+    job->fps = fps;
+    job->totalFrames = static_cast<int>(std::lround(seconds * fps));
+    std::error_code ec;
+    job->folder = folderIn.empty() ? Paths::stateDir() / "test cards" : folderIn;
+    std::filesystem::create_directories(job->folder, ec);
 
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 190);
-    SDL_RenderLine(renderer, width / 2, 0, width / 2, height);
-    SDL_RenderLine(renderer, 0, height / 2, width, height / 2);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 130);
-    SDL_Rect safe80 {width / 10, height / 10, width - (width / 10) * 2, height - (height / 10) * 2};
-    SDL_RenderRect(renderer, &safe80);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    auto screenFor = [&](int number, SDL_Rect r, const std::string& name) {
+      TestCardScreenText s;
+      s.geom.x = r.x; s.geom.y = r.y; s.geom.w = r.w; s.geom.h = r.h;
+      s.geom.number = number;
+      s.geom.refreshHz = fps;
+      s.lines.emplace_back("OUTPUT " + std::to_string(number) + "  " + name, kTestCardInk);
+      s.lines.emplace_back(std::to_string(r.w) + "x" + std::to_string(r.h) + "  " + std::to_string(fps) + " fps file",
+                           kTestCardInk);
+      s.lines.emplace_back("H.264  SDR  BT.709", kTestCardInk);
+      s.lines.emplace_back("1:1 only when played at " + std::to_string(r.w) + "x" + std::to_string(r.h), kTestCardSoft);
+      s.lines.emplace_back("loop point: the counter restarts", kTestCardSoft);
+      return s;
+    };
+    std::vector<std::pair<SDL_Rect, std::string>> cuts;   // crop, file name stem
+    if (askW > 0 && askH > 0) {
+      job->width = askW; job->height = askH;
+      job->screens.push_back(screenFor(1, {0, 0, askW, askH}, "custom"));
+      cuts.push_back({{0, 0, askW, askH}, "Deckboy test card " + std::to_string(askW) + "x" + std::to_string(askH)});
+    } else if (project_.outputCanvasEnabled) {
+      std::tie(job->width, job->height) = outputCanvasRenderSize();
+      cuts.push_back({{0, 0, job->width, job->height},
+                      "Deckboy test card canvas " + std::to_string(job->width) + "x" + std::to_string(job->height)});
+      for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+        const OutputTarget& out = project_.outputs[static_cast<std::size_t>(i)];
+        if (!out.enabled || normalizeOutputLayoutMode(out.outputLayoutMode) != "span" ||
+            normalizeOutputType(out.outputType) == "stream" || project_.decks.empty()) continue;
+        // The piece the live card shows on this screen: its window's pixels
+        // where it has one (renderOutputTestCard crops the same way).
+        auto [rw, rh] = outputRenderSizeForOutput(i);
+        if (const OutputRuntime* rt = runtimeForOutput(i); rt && rt->outputWindow) {
+          int ww = 0, wh = 0;
+          if (SDL_GetWindowSizeInPixels(rt->outputWindow, &ww, &wh) && ww > 0 && wh > 0) {
+            rw = ww;
+            rh = wh;
+          }
+        }
+        const Deck& deck = project_.decks[static_cast<std::size_t>(
+          std::clamp(out.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1))];
+        SDL_Rect r {0, 0, std::min(rw, job->width), std::min(rh, job->height)};
+        r.x = std::clamp(deck.canvasViewX, 0, std::max(0, job->width - r.w));
+        r.y = std::clamp(deck.canvasViewY, 0, std::max(0, job->height - r.h));
+        const std::string name = out.name.empty() ? outputDefaultName(i) : out.name;
+        job->screens.push_back(screenFor(i + 1, r, name));
+        cuts.push_back({r, "Deckboy test card output " + std::to_string(i + 1) + " " +
+                           std::to_string(r.w) + "x" + std::to_string(r.h)});
+      }
+      if (job->screens.empty()) job->screens.push_back(screenFor(1, cuts[0].first, "canvas"));
+    } else {
+      const int i = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+      std::tie(job->width, job->height) = outputRenderSizeForOutput(i);
+      const std::string name = project_.outputs.empty() ? std::string("Output 1")
+        : (project_.outputs[static_cast<std::size_t>(i)].name.empty() ? outputDefaultName(i)
+                                                                      : project_.outputs[static_cast<std::size_t>(i)].name);
+      job->screens.push_back(screenFor(i + 1, {0, 0, job->width, job->height}, name));
+      cuts.push_back({{0, 0, job->width, job->height}, "Deckboy test card output " + std::to_string(i + 1) + " " +
+                                                        std::to_string(job->width) + "x" + std::to_string(job->height)});
+    }
+    // H.264 4:2:0 wants even dimensions; every cut is rounded down to them.
+    job->width &= ~1;
+    job->height &= ~1;
+    if (job->width < 16 || job->height < 16) return "the raster is too small to export";
+    job->surface = SDL_CreateSurface(job->width, job->height, SDL_PIXELFORMAT_RGBA32);
+    job->renderer = job->surface ? SDL_CreateSoftwareRenderer(job->surface) : nullptr;
+    if (!job->renderer) {
+      if (job->surface) SDL_DestroySurface(job->surface);
+      return std::string("could not make a renderer: ") + SDL_GetError();
+    }
+    for (auto& cut : cuts) {
+      auto file = std::make_unique<TestCardExportJob::File>();
+      file->crop = cut.first;
+      file->crop.w &= ~1;
+      file->crop.h &= ~1;
+      file->path = (job->folder / (cut.second + ".mp4")).string();
+      const std::vector<std::string> args {
+        "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+        "-f", "rawvideo", "-pix_fmt", "rgba",
+        "-s", std::to_string(file->crop.w) + "x" + std::to_string(file->crop.h),
+        "-r", std::to_string(fps), "-i", "-",
+        "-c:v", "libx264", "-preset", "medium", "-crf", "12", "-pix_fmt", "yuv420p",
+        "-g", std::to_string(fps),
+        "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv",
+        // In the bitstream too: players and switchers read the VUI, and x264
+        // leaves it unset from the options above (measured: "unknown").
+        "-x264-params", "colorprim=bt709:transfer=bt709:colormatrix=bt709",
+        "-movflags", "+faststart", file->path};
+      if (!spawnProcess(file->process, args, SpawnOptions::pipedStdin()) || file->process.writeFd < 0) {
+        for (auto& started : job->files) started->process.stop();
+        SDL_DestroyRenderer(job->renderer);
+        SDL_DestroySurface(job->surface);
+        return "ffmpeg did not start (is it installed?)";
+      }
+      job->files.push_back(std::move(file));
+    }
+    TestCardExportJob* raw = job.get();
+    job->writer = std::thread([raw] {
+      std::vector<std::uint8_t> crop;
+      for (;;) {
+        std::vector<std::uint8_t> frame;
+        {
+          std::unique_lock<std::mutex> lock(raw->mutex);
+          raw->cv.wait(lock, [raw] { return !raw->queue.empty() || raw->allQueued; });
+          if (raw->queue.empty()) break;
+          frame = std::move(raw->queue.front());
+          raw->queue.pop_front();
+        }
+        raw->cv.notify_all();
+        for (auto& file : raw->files) {
+          const SDL_Rect& c = file->crop;
+          const std::uint8_t* data = frame.data();
+          std::size_t size = frame.size();
+          if (c.x != 0 || c.y != 0 || c.w != raw->width || c.h != raw->height) {
+            crop.resize(static_cast<std::size_t>(c.w) * c.h * 4);
+            for (int y = 0; y < c.h; ++y) {
+              std::memcpy(crop.data() + static_cast<std::size_t>(y) * c.w * 4,
+                          frame.data() + (static_cast<std::size_t>(c.y + y) * raw->width + c.x) * 4,
+                          static_cast<std::size_t>(c.w) * 4);
+            }
+            data = crop.data();
+            size = crop.size();
+          }
+          if (file->process.writeFd < 0 || !writeAllToFd(file->process.writeFd, data, size)) raw->failed = true;
+        }
+      }
+      for (auto& file : raw->files) {
+        if (raw->abandon) {
+          file->process.stop();
+        } else if (file->process.finish(60000)) {
+          ++raw->cleanFiles;
+        }
+      }
+      raw->finished = true;
+    });
+    testCardExport_ = std::move(job);
+    triggerToast("exporting the test card: " + std::to_string(testCardExport_->files.size()) + " file(s), " +
+                 std::to_string(static_cast<int>(std::lround(seconds))) + " s");
+    return {};
+  }
 
-    std::string outName = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
-    std::string line1 = "TEST CARD OVERRIDE";
-    std::string line2 = "Output " + std::to_string(outputIndex + 1) + " - " + outName;
-    std::string line3 = "layout: " + normalizeOutputLayoutMode(output.outputLayoutMode)
-      + "  rot: " + outputOrientationLabel(output.outputOrientationDegrees);
-    drawText(renderer, fontLarge_, line1, SDL_Color {245, 245, 245, 255}, 22, 20);
-    drawText(renderer, fontSmall_, line2, SDL_Color {245, 245, 245, 240}, 24, 52);
-    drawText(renderer, fontSmall_, line3, SDL_Color {220, 220, 220, 220}, 24, 70);
+  // A few frames a tick, never more than ~8 ms of the desk's frame.
+  void serviceTestCardExport() {
+    if (!testCardExport_) return;
+    TestCardExportJob& job = *testCardExport_;
+    const Uint64 started = SDL_GetTicksNS();
+    while (job.nextFrame < job.totalFrames && !job.failed && SDL_GetTicksNS() - started < 8000000ULL) {
+      {
+        std::lock_guard<std::mutex> lock(job.mutex);
+        if (job.queue.size() >= 4) break;
+      }
+      const double t = static_cast<double>(job.nextFrame) / job.fps;
+      SDL_SetRenderDrawColor(job.renderer, 0, 0, 0, 255);
+      SDL_RenderClear(job.renderer);
+      drawTestCardFrame(job.renderer, job.tex, job.width, job.height, job.screens, t, false);
+      SDL_FlushRenderer(job.renderer);
+      std::vector<std::uint8_t> frame(static_cast<std::size_t>(job.width) * job.height * 4);
+      for (int y = 0; y < job.height; ++y) {
+        std::memcpy(frame.data() + static_cast<std::size_t>(y) * job.width * 4,
+                    static_cast<const std::uint8_t*>(job.surface->pixels) + static_cast<std::size_t>(y) * job.surface->pitch,
+                    static_cast<std::size_t>(job.width) * 4);
+      }
+      {
+        std::lock_guard<std::mutex> lock(job.mutex);
+        job.queue.push_back(std::move(frame));
+      }
+      job.cv.notify_all();
+      ++job.nextFrame;
+    }
+    if ((job.nextFrame >= job.totalFrames || job.failed) && !job.allQueued) {
+      {
+        std::lock_guard<std::mutex> lock(job.mutex);
+        job.allQueued = true;
+        if (job.failed) job.queue.clear();
+      }
+      job.cv.notify_all();
+    }
+    if (!job.finished) return;
+    job.writer.join();
+    purgeTextTextureCache(job.renderer);
+    if (job.tex.canvas) SDL_DestroyTexture(job.tex.canvas);
+    if (job.tex.patch) SDL_DestroyTexture(job.tex.patch);
+    SDL_DestroyRenderer(job.renderer);
+    SDL_DestroySurface(job.surface);
+    const int total = static_cast<int>(job.files.size());
+    if (!job.failed && job.cleanFiles == total) {
+      triggerToast("test card exported: " + std::to_string(total) + " file(s) in " + job.folder.string());
+    } else {
+      triggerToast("test card export failed (" + std::to_string(job.cleanFiles.load()) + " of " +
+                   std::to_string(total) + " files written)", ToastKind::Warning, kToastReadableMs);
+    }
+    testCardExport_.reset();
   }
 
   // Paint a disabled output's still-visible window black exactly once. A
@@ -5052,7 +5519,21 @@
     if (outputLayers.empty()) {
       outputLayers.emplace_back(0, hostDeckIndex);
     }
-    if (output.outputTestCardEnabled) {
+    // A RECORDING KEEPS RECORDING PROGRAMME (James, 2026-10-15). An SDR
+    // recording composites its own picture and never sees this card; an HDR
+    // one reads THIS compositor, so when one mirrors this output the
+    // programme is drawn first, handed to it, and the card painted over.
+    std::vector<int> hdrRecordingsOfThis;
+    if (output.outputTestCardEnabled && runtime->hdr) {
+      for (int i = 0; i < static_cast<int>(outputRuntimes_.size()); ++i) {
+        if (i != outputIndex && outputRuntimes_[static_cast<std::size_t>(i)].streamHdr &&
+            hdrRecordingSource(i) == outputIndex) {
+          hdrRecordingsOfThis.push_back(i);
+        }
+      }
+    }
+    const bool testCardOnly = output.outputTestCardEnabled && hdrRecordingsOfThis.empty();
+    if (testCardOnly) {
       renderOutputTestCard(outputIndex, runtime->outputRenderer, renderW, renderH);
     } else if (viewType == "prompter") {
       // The talent's screen, not the programme.
@@ -5304,6 +5785,15 @@
     // from -- rather than something painted on the window afterwards that only
     // the operator would ever see.
     drawLiveCaptions(outputIndex, runtime->outputRenderer, renderW, renderH);
+    if (output.outputTestCardEnabled && !testCardOnly) {
+      for (int recording : hdrRecordingsOfThis) {
+        captureHdrRecordFrame(*runtime, outputRuntimes_[static_cast<std::size_t>(recording)], SDL_GetTicks());
+      }
+      SDL_SetRenderTarget(runtime->outputRenderer, usingCompositor ? runtime->compositorTexture : nullptr);
+      SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
+      SDL_RenderClear(runtime->outputRenderer);
+      renderOutputTestCard(outputIndex, runtime->outputRenderer, renderW, renderH);
+    }
     if (usingCompositor) {
       drawOutputMatteAndOverlay(outputIndex, *runtime, renderW, renderH);
     }

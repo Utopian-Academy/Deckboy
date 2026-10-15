@@ -2373,12 +2373,26 @@
       };
 
       // ─── Header: Output Selector + Enable Toggle ───
-      int headerBtnW = std::min(uiScaled(260), (availW - uiScaled(12)) / 2);
+      int headerBtnW = std::min(uiScaled(240), (availW - uiScaled(12) * 4) / 5);
       SDL_Rect outSelectRect {cx, cy, headerBtnW, std::max(sTallH, uiScaled(32))};
       drawUIDropdown(outSelectRect, "Output", outputLabel(focusedOutputIndex), "settings.focused_output");
       settingsBtns_.push_back({outSelectRect, 251, "cycle_output"});
       SDL_Rect enableBtn {cx + headerBtnW + uiScaled(12), cy, headerBtnW, std::max(sTallH, uiScaled(32))};
       drawActionBtn(enableBtn, outputTarget.enabled ? "OUTPUT ON" : "OUTPUT OFF", kSettingsActionOutputToggle, outputTarget.enabled);
+      // THE TEST CARD, where Mitti keeps its button: up on this output in one
+      // click, on every sub-tab, and down again in one. It replaces this
+      // output's picture only -- no deck or cue is touched.
+      SDL_Rect testCardBtn {enableBtn.x + headerBtnW + uiScaled(12), cy, headerBtnW, enableBtn.h};
+      drawActionBtn(testCardBtn, outputTarget.outputTestCardEnabled ? "TEST CARD ON" : "TEST CARD",
+                    kSettingsActionOutputTestCardToggle, outputTarget.outputTestCardEnabled);
+      SDL_Rect testCardAllBtn {testCardBtn.x + headerBtnW + uiScaled(12), cy, headerBtnW, enableBtn.h};
+      drawActionBtn(testCardAllBtn, anyOutputTestCardsOff ? "CARD ON ALL" : "CARD OFF ALL",
+                    kSettingsActionOutputTestCardAllToggle, anyOutputTestCardsOn && !anyOutputTestCardsOff);
+      // The moving card as movie files, for players and processors that stay
+      // after the laptop goes: one per output when they share a canvas.
+      SDL_Rect testCardExportBtn {testCardAllBtn.x + headerBtnW + uiScaled(12), cy, headerBtnW, enableBtn.h};
+      drawActionBtn(testCardExportBtn, testCardExport_ ? "EXPORTING..." : "EXPORT CARD",
+                    kSettingsActionOutputTestCardExport, testCardExport_ != nullptr);
       cy += std::max(sTallH, uiScaled(32)) + uiScaled(6);
 
       // ─── Sub-tab bar ───
@@ -5166,6 +5180,14 @@
           }
         }
         setAllOutputsTestCardEnabled(anyOff);
+      } else if (sb.action == kSettingsActionOutputTestCardExport) {
+        if (!testCardExport_) {
+          showFolderDialog([this](std::vector<std::string> chosen) {
+            if (chosen.empty()) return;
+            const std::string why = exportTestCard(30.0, 60, 0, 0, std::filesystem::u8path(chosen.front()));
+            if (!why.empty()) triggerToast("test card export: " + why, ToastKind::Warning, kToastReadableMs);
+          });
+        }
       } else if (sb.action >= kSettingsActionOutputEdgeBlendLInc && sb.action <= kSettingsActionOutputEdgeBlendBDec) {
         // And the same for the handler: these eight buttons were adjusting
         // a number nothing renders, so the blend never moved.

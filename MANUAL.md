@@ -815,6 +815,47 @@ Per output you can set alpha, delay, colour space, orientation (0/90/180/270),
 a test card, and a time overlay. `Blackout` (`B`) dims all outputs; panic
 profiles give a one-key safe state.
 
+#### Test card
+
+**Settings > Video Outputs > TEST CARD** puts a test card on the chosen output,
+in place of its picture; **CARD ON ALL** puts one on every screen. Decks keep
+playing underneath and nothing in the show changes, so turning it off is
+straight back to programme. A recording keeps recording programme, and the card
+is never saved with the show.
+
+The card is drawn at the raster the output really sends, never scaled, and
+answers what you walk up to a screen to check:
+
+- **1:1 mapping:** 1-pixel checkers and line gratings in every corner read as
+  flat grey when nothing scales them, and as moire or mush when something does.
+  The info box says `1:1` or `SCALED to WxH`.
+- **Shape and edges:** a circle that must look round, a 1-pixel border and an
+  arrow at the middle of each edge whose tip must touch the glass, and the
+  93% action-safe and 90% title-safe boxes.
+- **Levels:** 75% colour bars, an 11-step grey scale and PLUGE (black, 2%, 4%,
+  white: set brightness so 2% just disappears and 4% just shows). On an HDR
+  output, labelled patches at 203, 400, 600, 1000 and 2000 nits.
+- **Motion and sync:** a bar sweeps the motion lane every four seconds, ten
+  phase blocks step one per frame and a counter counts frames at the screen's
+  refresh. Every output runs from one clock, so screens in step show the same
+  bar position, block and count; on a canvas the bar travels from panel to
+  panel and a panel out of step makes it jump.
+- **Blend and warp:** dashed orange lines where this output's edge blend
+  begins, and the grid bends with the warp.
+- **Which screen is this:** the output's number, large, with its name, raster,
+  refresh, destinations (window, NDI, DeckLink, Spout, ST 2110, stream), SDR or
+  HDR, and the measured frame rate with any hitches.
+
+**EXPORT CARD** writes the moving card as H.264 files (BT.709, 30 seconds,
+60 fps) into a folder you choose, for players, switchers and LED processors that
+stay after the laptop goes. With a canvas, one render is cut into a file per
+output plus one of the whole canvas, so the files play back as one wall.
+`OUTPUT TESTCARD EXPORT [seconds] [WxH] [<n>fps] [folder]` sets the length,
+a custom size and the rate; files are SDR.
+
+Remote: `OUTPUT TESTCARD ON|OFF|TOGGLE` (the focused output; `OUTPUT SELECT n`
+first) and `OUTPUT TESTCARD ALL [ON|OFF]`; OSC `/testcard`.
+
 **CLEAR** immediately stops every deck, cancels queued takes and fades, clears
 held pictures and overlays, and disarms every output. Use it when the desk
 must go dark and silent immediately.
