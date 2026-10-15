@@ -194,30 +194,48 @@
         std::chrono::steady_clock::now() - started).count();
       {
         std::lock_guard<std::mutex> lock(scopesMutex_);
+        if (!outcome.sentDepth) {
+          // The R'G'B' frame: its filtered count is its raw one (see below).
+          scopesFiltered_ = outcome.result->filteredGamut;
+          scopesFilteredValid_ = true;
+        } else if (scopesLatest_.sentDepth != outcome.sentDepth) {
+          scopesFilteredValid_ = false;  // another signal's count; the 4:2:2 pass replaces it
+        }
         scopesLatest_ = std::move(outcome);
         ++scopesSerial_;
       }
       scopesBusy_.store(false);
     });
-    // The R 103 filtered count, on the whole frame, every two seconds.
-    if (!scopesFilterBusy_.load() && now - scopesLastFilterMs_ >= 2000) {
+    // The R 103 filtered count, on the whole frame, every two seconds -- for
+    // the 4:2:2 an SDI or ST 2110 output sends. Across the cores in row bands
+    // (exact; scopes_check): one thread took 820 ms of a 4K frame. The R'G'B'
+    // frame needs no pass at all: it cannot leave gamut, so its filtered count
+    // is its raw one, set with each update above.
+    if (sentDepth && !scopesFilterBusy_.load() && now - scopesLastFilterMs_ >= 2000) {
       scopesLastFilterMs_ = now;
       if (scopesFilterWorker_.joinable()) scopesFilterWorker_.join();
       scopesFilterBusy_.store(true);
-      scopesFilterWorker_ = std::thread([this, pixels, width, height, bt2020, sentDepth]() {
+      scopesFilterWorker_ = std::thread([this, pixels, width, height, sentDepth]() {
         namespace s = deckboy::core::scopes;
-        s::Options options = scopesOptions(width, bt2020);
+        s::Options options = scopesOptions(width, false);
         options.columns = options.levelBins = options.vectorBins = options.histogramBins = 2;
         options.gamutFilter = s::GamutFilter::Progressive;
         try {
-          s::Rgba8View view {*pixels, static_cast<std::size_t>(width), static_cast<std::size_t>(height), 0};
-          view.bgra = true;
-          const s::Result filtered = sentDepth
-            ? s::analyze(s::Bgra422View {*pixels, static_cast<std::size_t>(width),
-                                         static_cast<std::size_t>(height), 0, sentDepth}, options)
-            : s::analyze(view, options);
+          const s::Bgra422View view {*pixels, static_cast<std::size_t>(width),
+                                     static_cast<std::size_t>(height), 0, sentDepth};
+          const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
+          const std::size_t bands = std::clamp<std::size_t>(cores > 2 ? cores - 2 : 1, 1, 6);
+          const std::size_t h = static_cast<std::size_t>(height);
+          const std::size_t rows = (h + bands - 1) / bands;
+          std::vector<std::future<s::GamutCounts>> parts;
+          for (std::size_t y0 = 0; y0 < h; y0 += rows)
+            parts.push_back(std::async(std::launch::async, [&view, &options, y0, rows, h]() {
+              return s::filteredGamutRows(view, options, y0, std::min(h, y0 + rows));
+            }));
+          s::GamutCounts filtered;
+          for (auto& part : parts) s::accumulate(filtered, part.get());
           std::lock_guard<std::mutex> lock(scopesMutex_);
-          scopesFiltered_ = filtered.filteredGamut;
+          scopesFiltered_ = filtered;
           scopesFilteredValid_ = true;
         } catch (const std::exception&) {
         }
@@ -532,8 +550,11 @@
                     100.0 * result.rawGamut.preferred.pixels / total,
                     100.0 * filtered.preferred.pixels / ftotal);
     } else {
-      alarm = result.rawGamut.outOfGamut();
-      std::snprintf(text, sizeof(text), "R 103 %s  raw %.2f%%", alarm ? "OUT" : "OK",
+      // The verdict is the FILTERED count's; until it lands (two seconds at
+      // most) the raw one is shown as raw, never as a verdict. 4:2:2 edge
+      // overshoot alone read "OUT" here on a legal picture.
+      alarm = false;
+      std::snprintf(text, sizeof(text), "R 103 measuring  raw %.2f%%",
                     100.0 * result.rawGamut.preferred.pixels / total);
     }
     return text;

@@ -68,7 +68,12 @@ def fresh_stats(port, previous=None, seconds=12):
         time.sleep(0.3)
         reply, fields = stats(port)
     time.sleep(1.2)  # let a couple more frames land so the reading is settled
-    return stats(port)
+    reply, fields = stats(port)
+    # The R 103 verdict is the filtered count's, which lands within two seconds.
+    while time.monotonic() < until + 4 and "R 103 measuring" in reply:
+        time.sleep(0.3)
+        reply, fields = stats(port)
+    return reply, fields
 
 
 def import_paths(port, work, paths):

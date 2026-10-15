@@ -134,6 +134,14 @@ Result analyze(FrameView frame, const Options& options = {});
 Result analyze(Rgba8View frame, const Options& options = {});
 Result analyze(Bgra422View frame, const Options& options = {});
 
+// The FILTERED R 103 count alone, for rows [rowBegin, rowEnd) of the whole
+// frame (the filter reads the rows either side of the band). Bands summed with
+// accumulate() equal the whole frame's filtered count exactly, so the costly
+// filtered pass can run across the cores like the rest.
+GamutCounts filteredGamutRows(Bgra422View frame, const Options& options,
+                              std::size_t rowBegin, std::size_t rowEnd);
+void accumulate(GamutCounts& whole, const GamutCounts& part);
+
 // Adds a part analysed with the SAME options (a band of rows of one frame)
 // into a whole. Every count and bin is a sum, so splitting a frame into row
 // bands, analysing them in parallel and accumulating is exact -- except the

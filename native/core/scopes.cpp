@@ -145,9 +145,12 @@ void countGamut(GamutCounts& counts, const Channels& values, unsigned depth) {
   countRange(counts.total, values, {-15.0 / 219.0, (239.0 * scale - 1) / (219.0 * scale)});
 }
 
+// Rows [rowBegin, rowEnd) of a frame `height` tall: the filter still reads
+// the rows either side, so bands of one frame can run apart and be summed.
 template<class Reader>
 void filteredGamut(Result& result, std::size_t width, std::size_t height,
-                   const Options& options, Reader read) {
+                   const Options& options, Reader read,
+                   std::size_t rowBegin = 0, std::size_t rowEnd = static_cast<std::size_t>(-1)) {
   // Separable R 103 filter, bounded to five cached rows plus one source row.
   // Border samples repeat within the active picture (and within each field).
   std::array<std::vector<Channels>, 5> rows;
@@ -178,7 +181,7 @@ void filteredGamut(Result& result, std::size_t width, std::size_t height,
     return row;
   };
   const std::size_t step = options.gamutFilter == GamutFilter::Interlaced ? 2 : 1;
-  for (std::size_t y = 0; y < height; ++y) {
+  for (std::size_t y = rowBegin; y < (std::min)(rowEnd, height); ++y) {
     const auto& upper = prepare(y >= step ? y - step : y);
     const auto& center = prepare(y);
     const auto& lower = prepare(height - y > step ? y + step : y);
@@ -432,18 +435,18 @@ Result analyze(Rgba8View frame, const Options& options) {
   return result;
 }
 
-Result analyze(Bgra422View frame, const Options& options) {
-  validateOptions(options);
-  if (frame.bitDepth != 8 && frame.bitDepth != 10)
-    throw std::invalid_argument("4:2:2 scopes input is 8- or 10-bit");
-  const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes, frame.bytes.size(), 4);
-  const auto k = coefficients(Matrix::Bt709);
-  const bool tenBit = frame.bitDepth == 10;
-  const double scale = tenBit ? 4.0 : 1.0;
-  // Both pixels of a pair read the same encode; keep the last one.
+namespace {
+// Reads a Bgra422View pixel by pixel as the wire carries it. Both pixels of a
+// pair read the same encode, so the last one is kept.
+struct Sent422Reader {
+  const Bgra422View& frame;
+  std::size_t stride;
+  Coefficients k;
+  bool tenBit;
+  double scale;
   std::size_t pairX = (std::numeric_limits<std::size_t>::max)(), pairY = pairX;
   deckboy::core::Ycbcr422Pair pair;
-  return analyzePixels(frame.width, frame.height, options, [&](std::size_t x, std::size_t y) {
+  Pixel operator()(std::size_t x, std::size_t y) {
     const std::size_t x0 = x & ~std::size_t{1};
     if (x0 != pairX || y != pairY) {
       const std::size_t x1 = (std::min)(x0 + 1, frame.width - 1);  // an odd last pixel pairs with itself
@@ -456,6 +459,33 @@ Result analyze(Bgra422View frame, const Options& options) {
     const YCbCr ycc{(code - 16 * scale) / (219 * scale), (pair.cb - 128 * scale) / (224 * scale),
                     (pair.cr - 128 * scale) / (224 * scale)};
     return Pixel{decode(ycc, k), ycc};
-  });
+  }
+};
+
+Sent422Reader sent422Reader(const Bgra422View& frame, const Options& options) {
+  validateOptions(options);
+  if (frame.bitDepth != 8 && frame.bitDepth != 10)
+    throw std::invalid_argument("4:2:2 scopes input is 8- or 10-bit");
+  const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes, frame.bytes.size(), 4);
+  const bool tenBit = frame.bitDepth == 10;
+  return Sent422Reader{frame, stride, coefficients(Matrix::Bt709), tenBit, tenBit ? 4.0 : 1.0};
 }
+} // namespace
+
+Result analyze(Bgra422View frame, const Options& options) {
+  Sent422Reader read = sent422Reader(frame, options);
+  return analyzePixels(frame.width, frame.height, options, [&](std::size_t x, std::size_t y) { return read(x, y); });
+}
+
+GamutCounts filteredGamutRows(Bgra422View frame, const Options& options,
+                              std::size_t rowBegin, std::size_t rowEnd) {
+  Sent422Reader read = sent422Reader(frame, options);
+  Result result = makeResult(options);
+  if (frame.width != 0)
+    filteredGamut(result, frame.width, frame.height, options,
+                  [&](std::size_t x, std::size_t y) { return read(x, y); }, rowBegin, rowEnd);
+  return result.filteredGamut;
+}
+
+void accumulate(GamutCounts& whole, const GamutCounts& part) { sumGamut(whole, part); }
 } // namespace deckboy::core::scopes

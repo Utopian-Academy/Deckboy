@@ -533,6 +533,26 @@ void sent422() {
   const auto odd = s::analyze(s::Bgra422View{std::span<const std::uint8_t>(ramp.data(), 12), 3, 1, 0, 10}, options);
   expect(odd.validPixels == 3, "odd width: every pixel analysed");
   rejects([&] { s::analyze(s::Bgra422View{ramp, 256, 1, 0, 9}, options); }, "4:2:2 bit depth other than 8/10 rejected");
+  // The filtered count in row bands, summed, equals the whole frame's: 13 rows
+  // of bars cut in uneven bands, for both filters. Quantisation leaves the
+  // yellow bar's B' just below black, so the nominal counts are not zero and
+  // the comparison has something to compare.
+  {
+    std::size_t bw = 0;
+    const auto tall = bgraBars(8, 13, bw);
+    for (auto filter : {s::GamutFilter::Progressive, s::GamutFilter::Interlaced}) {
+      s::Options filtered = options;
+      filtered.gamutFilter = filter;
+      const auto whole = s::analyze(s::Bgra422View{tall, bw, 13, 0, 10}, filtered).filteredGamut;
+      s::GamutCounts summed;
+      for (std::size_t y0 = 0; y0 < 13; y0 += 4)
+        s::accumulate(summed, s::filteredGamutRows(s::Bgra422View{tall, bw, 13, 0, 10}, filtered, y0, std::min<std::size_t>(y0 + 4, 13)));
+      expect(whole.nominal.pixels > 0 && summed.nominal.pixels == whole.nominal.pixels &&
+             summed.validPixels == whole.validPixels && summed.preferred.pixels == whole.preferred.pixels &&
+             summed.nominal.channels[3].below == whole.nominal.channels[3].below,
+             "4:2:2 filtered count in row bands equals the whole frame's");
+    }
+  }
   // Row bands accumulate exactly here too (pairs are horizontal).
   const auto whole = s::analyze(s::Bgra422View{split, w, 4, 0, 10}, options);
   auto merged = s::analyze(s::Bgra422View{std::span<const std::uint8_t>(split.data(), w * 4 * 2), w, 2, 0, 10}, options);
