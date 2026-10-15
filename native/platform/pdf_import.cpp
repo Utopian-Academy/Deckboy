@@ -394,13 +394,18 @@ bool convertWithPowerPointMac(const fs::path& source, const fs::path& outputDir,
   std::error_code ec;
   fs::remove(target, ec);
   const std::string quote(1, '"');
+  // A copy that is installed but not activated is read-only and may sit on
+  // its sign-in prompt (James's Mac, 2026-10-15): the timeout gives up on it
+  // and the caller moves on to Keynote, rather than an import that never ends.
   const std::string script =
+    "with timeout of 45 seconds\n"
     "tell application " + quote + "Microsoft PowerPoint" + quote + "\n"
     "  open POSIX file " + quote + source.string() + quote + "\n"
     "  set d to active presentation\n"
     "  save d in POSIX file " + quote + target.string() + quote + " as save as PDF\n"
     "  close d saving no\n"
-    "end tell\n";
+    "end tell\n"
+    "end timeout\n";
   std::string output;
   runQuietly({"osascript", "-e", script}, output);
   if (!fs::exists(target, ec)) {

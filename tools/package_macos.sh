@@ -453,6 +453,12 @@ fi
 if [ -f "$MACOS_DIR/whisper-cli" ]; then
   codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.whisper     "$MACOS_DIR/whisper-cli" >/dev/null 2>&1 || true
 fi
+# Live captions' engine. Unsigned nested code makes the bundle seal below fail
+# -- silently, behind the || true -- so the Intel package (whose linker does
+# not sign as Apple Silicon's does) shipped "not signed at all" (CI, e3aad97).
+if [ -f "$MACOS_DIR/deckboy-listen" ]; then
+  codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.listen "$MACOS_DIR/deckboy-listen" >/dev/null 2>&1 || true
+fi
 # Mini too: a stable identifier rather than one minted from the content hash.
 codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.mini   "$MACOS_DIR/deckboy-mini" >/dev/null 2>&1 || true
 # Seal the bundle over the already-signed nested code, inside-out. NOT --deep:
