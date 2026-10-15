@@ -8686,13 +8686,18 @@
       }
       OutputTarget& output = project_.outputs[foIdx];
       std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
-      if (sub == "ON") {
-        // Goes through the dep-gated wrapper; toast lives there.
-        setFocusedOutputDeckLinkEnabled(true);
+      if (sub == "ON" || sub == "TOGGLE") {
+        // Goes through the dep-gated wrapper; toast lives there. Without the
+        // Desktop Video driver it prompts and changes nothing, so say so
+        // rather than answer OK.
+        const bool want = sub == "ON" || !output.deckLinkEnabled;
+        setFocusedOutputDeckLinkEnabled(want);
+        if (want && !project_.outputs[foIdx].deckLinkEnabled) {
+          failRemoteCommand("DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)");
+          return;
+        }
       } else if (sub == "OFF") {
         setFocusedOutputDeckLinkEnabled(false);
-      } else if (sub == "TOGGLE") {
-        toggleFocusedOutputDeckLink();
       } else if (sub == "DEVICE") {
         auto val = parseNumber(2);
         if (val) {

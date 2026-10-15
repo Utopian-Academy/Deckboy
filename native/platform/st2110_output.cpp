@@ -22,6 +22,7 @@
 // ---------------------------------------------------------------------------
 #include "st2110_output.hpp"
 
+#include "core/ycbcr422.hpp"
 #include "ptp_client.hpp"   // grandmaster time for the RTP media clock
 
 #include <algorithm>
@@ -395,12 +396,7 @@ void St2110Output::close() {
 void St2110Output::convertRowToYCbCr422(const std::uint8_t* srcRowBgra, int width,
                                         std::vector<std::uint16_t>& out) const {
   const bool tenBit = config_.sampling == St2110Sampling::YCbCr422_10bit;
-  const int maxCode = tenBit ? 1023 : 255;
   // BT.709 studio swing. Luma 64-940 (10-bit) / 16-235 (8-bit); chroma centred.
-  const double lumaLow = tenBit ? 64.0 : 16.0;
-  const double lumaRange = tenBit ? 876.0 : 219.0;
-  const double chromaCentre = tenBit ? 512.0 : 128.0;
-  const double chromaRange = tenBit ? 896.0 : 224.0;
 
   // SIZED FOR THE PAIRS ACTUALLY WRITTEN, not for the pixel count.
   //
@@ -421,35 +417,12 @@ void St2110Output::convertRowToYCbCr422(const std::uint8_t* srcRowBgra, int widt
     const int x1 = std::min(x + 1, width - 1);
     const std::uint8_t* p1 = srcRowBgra + static_cast<std::size_t>(x1) * 4u;
 
-    auto toY = [&](const std::uint8_t* p) {
-      const double b = p[0] / 255.0, g = p[1] / 255.0, r = p[2] / 255.0;
-      const double y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-      return static_cast<std::uint16_t>(
-          std::clamp(std::lround(lumaLow + y * lumaRange), 0L, static_cast<long>(maxCode)));
-    };
-    auto cbcr = [&](const std::uint8_t* p, double& cb, double& cr) {
-      const double b = p[0] / 255.0, g = p[1] / 255.0, r = p[2] / 255.0;
-      const double y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-      cb = (b - y) / 1.8556;
-      cr = (r - y) / 1.5748;
-    };
-
-    double cb0 = 0, cr0 = 0, cb1 = 0, cr1 = 0;
-    cbcr(p0, cb0, cr0);
-    cbcr(p1, cb1, cr1);
-    const double cb = (cb0 + cb1) * 0.5;
-    const double cr = (cr0 + cr1) * 0.5;
-
-    const auto encodeChroma = [&](double v) {
-      return static_cast<std::uint16_t>(
-          std::clamp(std::lround(chromaCentre + v * chromaRange), 0L,
-                     static_cast<long>(maxCode)));
-    };
-
-    out[outIndex++] = encodeChroma(cb);
-    out[outIndex++] = toY(p0);
-    out[outIndex++] = encodeChroma(cr);
-    out[outIndex++] = toY(p1);
+    // The encoder DeckLink and the picture scopes share (core/ycbcr422.hpp).
+    const auto encoded = deckboy::core::encodeBgraPair709(p0, p1, tenBit);
+    out[outIndex++] = encoded.cb;
+    out[outIndex++] = encoded.y0;
+    out[outIndex++] = encoded.cr;
+    out[outIndex++] = encoded.y1;
   }
 }
 

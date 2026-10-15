@@ -30,6 +30,8 @@
 
 #include "decklink.hpp"
 
+#include "core/ycbcr422.hpp"
+
 #include <algorithm>
 #include <atomic>
 #include <mutex>
@@ -315,19 +317,12 @@ bool deckLinkConvertBgra(const std::uint8_t* pixels, int width, int height, int 
     }
     const auto* a = row + (static_cast<std::int64_t>(x) * width / outputWidth) * 4;
     const auto* b = row + (static_cast<std::int64_t>(x + 1) * width / outputWidth) * 4;
-    const double lumaA = (0.2126 * a[2] + 0.7152 * a[1] + 0.0722 * a[0]) / 255.0;
-    const double lumaB = (0.2126 * b[2] + 0.7152 * b[1] + 0.0722 * b[0]) / 255.0;
-    const double luma = (lumaA + lumaB) * 0.5;
-    const double red = (a[2] + b[2]) / 510.0;
-    const double blue = (a[0] + b[0]) / 510.0;
-    samples[0] = static_cast<std::uint16_t>(std::clamp(std::lround(gain *
-      (128.0 + 112.0 * (blue - luma) / (1.0 - 0.0722))),
-      static_cast<long>(16 * gain), static_cast<long>(240 * gain)));
-    samples[1] = static_cast<std::uint16_t>(std::lround(gain * (16.0 + 219.0 * lumaA)));
-    samples[2] = static_cast<std::uint16_t>(std::clamp(std::lround(gain *
-      (128.0 + 112.0 * (red - luma) / (1.0 - 0.2126))),
-      static_cast<long>(16 * gain), static_cast<long>(240 * gain)));
-    samples[3] = static_cast<std::uint16_t>(std::lround(gain * (16.0 + 219.0 * lumaB)));
+    // The encoder ST 2110 and the picture scopes share (core/ycbcr422.hpp).
+    const auto encoded = deckboy::core::encodeBgraPair709(a, b, tenBit);
+    samples[0] = encoded.cb;
+    samples[1] = encoded.y0;
+    samples[2] = encoded.cr;
+    samples[3] = encoded.y1;
   };
   for (int y = 0; y < outputHeight; ++y) {
     const auto* row = pixels + (static_cast<std::int64_t>(y) * height / outputHeight) * stride;
@@ -695,6 +690,10 @@ bool DeckLinkOutput::init(int deviceId, DeckLinkMode mode, bool enable10Bit, boo
 
 bool DeckLinkOutput::isInitialized() const {
   return impl_->isInitialized_;
+}
+
+bool DeckLinkOutput::isTenBit() const {
+  return impl_->enable10Bit_;
 }
 
 // Shut down the DeckLink output: stop scheduled playback, disable video output,
@@ -1142,6 +1141,7 @@ bool DeckLinkOutput::init(int, DeckLinkMode, bool, bool) {
 }
 
 bool DeckLinkOutput::isInitialized() const { return false; }
+bool DeckLinkOutput::isTenBit() const { return false; }
 void DeckLinkOutput::shutdown() { impl_->isInitialized_ = false; }
 
 bool DeckLinkOutput::sendFrame(const std::uint8_t*, int, int, int) { return false; }

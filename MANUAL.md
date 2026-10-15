@@ -1840,8 +1840,24 @@ filter, which ignores single-pixel overshoots) every two seconds. It turns red
 when more than 1% of the picture is out of range. **FREEZE** holds the scopes
 on the current frame.
 
-The output frame is 8-bit R'G'B'; SDI carries it as 10-bit Y'CbCr, so
-readings agree with an SDI scope to within one 8-bit code value.
+**Which signal.** When the output is sending SDI (DeckLink) or ST 2110, the
+scopes measure what goes down that wire: BT.709 Y'CbCr 4:2:2 at the depth the
+sender opened (8 or 10-bit), made by the same encoder the output uses, and
+rebuilt to R'G'B' the way a scope downstream sees it. Otherwise they measure
+the 8-bit R'G'B' frame that NDI, the window and the Web Monitor carry. The
+footer says which, for example `SDI YCbCr 4:2:2 10-bit`. On SDI and ST 2110
+the matrix is always BT.709, because that is what is sent, so
+`SCOPES MATRIX 2020` applies only to the R'G'B' frame.
+
+**What R 103 can find.** An 8-bit R'G'B' frame cannot leave gamut, so on those
+outputs the verdict is always OK. In 4:2:2, each pair of pixels shares one
+chroma sample, so at a sharp, saturated edge one pixel carries its
+neighbour's colour and the rebuilt R'G'B' overshoots. The raw figure counts
+those pixels. The filtered verdict uses R 103's spatial filter, which is
+designed to ignore single-pixel overshoots like these, so a normal picture
+stays legal. Measured: 75% bars cut mid-pair overshoot by about 2.7%, inside
+R 103's 5% margin; red against black on alternate columns reads 50% raw out
+of gamut and legal once filtered.
 
 | Command | Does |
 |---------|------|

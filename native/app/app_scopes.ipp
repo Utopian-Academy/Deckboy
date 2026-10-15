@@ -33,6 +33,8 @@
     int width = 0, height = 0, output = -1;
     double analysisMs = 0.0;
     deckboy::core::scopes::Matrix matrix = deckboy::core::scopes::Matrix::Bt709;
+    unsigned sentDepth = 0;  // 0: the R'G'B' frame; 8/10: the Y'CbCr 4:2:2 SDI or ST 2110 sends
+    bool sentSdi = false;
   };
 
   MonitorView monitorView_ = MonitorView::Program;
@@ -100,12 +102,36 @@
     return options;
   }
 
+  // The signal an output actually sends. SDI and ST 2110 carry the frame as
+  // BT.709 Y'CbCr 4:2:2, where a saturated edge can leave gamut; the 8-bit
+  // R'G'B' frame every other route sends cannot. Asked of the OPEN sender, at
+  // the depth it opened (DeckLink drops to 8-bit when the card has no 10):
+  // a switch that is on with no card behind it sends nothing. SDI first.
+  unsigned scopesSentDepth(int outputIndex, bool* sdi = nullptr) const {
+    if (sdi) *sdi = false;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(outputRuntimes_.size())) return 0;
+    const OutputRuntime& rt = outputRuntimes_[static_cast<std::size_t>(outputIndex)];
+#if defined(DECKBOY_HAS_DECKLINK)
+    if (rt.deckLinkOutput && rt.deckLinkOutput->isInitialized()) {
+      if (sdi) *sdi = true;
+      return rt.deckLinkOutput->isTenBit() ? 10u : 8u;
+    }
+#endif
+    if (rt.st2110Sender && rt.st2110Sender->isOpen()) {
+      return rt.st2110Sender->config().sampling == deckboy::platform::video::St2110Sampling::YCbCr422_10bit
+        ? 10u : 8u;
+    }
+    return 0;
+  }
+
   // Every row of a BGRA frame, split into bands across the cores and
-  // accumulated exactly. Unfiltered gamut; see the header.
+  // accumulated exactly. Unfiltered gamut; see the header. sentDepth 8/10
+  // measures it as the 4:2:2 an SDI or ST 2110 output sends (always BT.709).
   static deckboy::core::scopes::Result analyzeScopesFrame(const std::vector<std::uint8_t>& pixels,
-                                                          int width, int height, bool bt2020) {
+                                                          int width, int height, bool bt2020,
+                                                          unsigned sentDepth) {
     namespace s = deckboy::core::scopes;
-    const s::Options options = scopesOptions(width, bt2020);
+    const s::Options options = scopesOptions(width, bt2020 && !sentDepth);
     const std::size_t w = static_cast<std::size_t>(width);
     const std::size_t h = static_cast<std::size_t>(height);
     const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
@@ -114,8 +140,9 @@
     std::vector<std::future<s::Result>> parts;
     for (std::size_t y0 = 0; y0 < h; y0 += rowsPerBand) {
       const std::size_t rows = std::min(rowsPerBand, h - y0);
-      parts.push_back(std::async(std::launch::async, [&pixels, w, y0, rows, options]() {
+      parts.push_back(std::async(std::launch::async, [&pixels, w, y0, rows, options, sentDepth]() {
         const std::span<const std::uint8_t> band(pixels.data() + y0 * w * 4, rows * w * 4);
+        if (sentDepth) return s::analyze(s::Bgra422View {band, w, rows, 0, sentDepth}, options);
         s::Rgba8View view {band, w, rows, 0};
         view.bgra = true;
         return s::analyze(view, options);
@@ -141,15 +168,17 @@
     scopesLastCaptureMs_ = frame.capturedAtMs;
     auto pixels = std::make_shared<std::vector<std::uint8_t>>(frame.pixels);
     const int width = frame.width, height = frame.height;
-    const bool bt2020 = scopesBt2020_;
+    bool sentSdi = false;
+    const unsigned sentDepth = scopesSentDepth(outputIndex, &sentSdi);
+    const bool bt2020 = scopesBt2020_ && !sentDepth;
     if (scopesWorker_.joinable()) scopesWorker_.join();
     scopesBusy_.store(true);
-    scopesWorker_ = std::thread([this, pixels, width, height, outputIndex, bt2020]() {
+    scopesWorker_ = std::thread([this, pixels, width, height, outputIndex, bt2020, sentDepth, sentSdi]() {
       const auto started = std::chrono::steady_clock::now();
       ScopesOutcome outcome;
       try {
         outcome.result = std::make_shared<const deckboy::core::scopes::Result>(
-          analyzeScopesFrame(*pixels, width, height, bt2020));
+          analyzeScopesFrame(*pixels, width, height, bt2020, sentDepth));
       } catch (const std::exception&) {
         scopesBusy_.store(false);
         return;
@@ -159,6 +188,8 @@
       outcome.output = outputIndex;
       outcome.matrix = bt2020 ? deckboy::core::scopes::Matrix::Bt2020Ncl
                               : deckboy::core::scopes::Matrix::Bt709;
+      outcome.sentDepth = sentDepth;
+      outcome.sentSdi = sentSdi;
       outcome.analysisMs = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - started).count();
       {
@@ -173,7 +204,7 @@
       scopesLastFilterMs_ = now;
       if (scopesFilterWorker_.joinable()) scopesFilterWorker_.join();
       scopesFilterBusy_.store(true);
-      scopesFilterWorker_ = std::thread([this, pixels, width, height, bt2020]() {
+      scopesFilterWorker_ = std::thread([this, pixels, width, height, bt2020, sentDepth]() {
         namespace s = deckboy::core::scopes;
         s::Options options = scopesOptions(width, bt2020);
         options.columns = options.levelBins = options.vectorBins = options.histogramBins = 2;
@@ -181,7 +212,10 @@
         try {
           s::Rgba8View view {*pixels, static_cast<std::size_t>(width), static_cast<std::size_t>(height), 0};
           view.bgra = true;
-          const s::Result filtered = s::analyze(view, options);
+          const s::Result filtered = sentDepth
+            ? s::analyze(s::Bgra422View {*pixels, static_cast<std::size_t>(width),
+                                         static_cast<std::size_t>(height), 0, sentDepth}, options)
+            : s::analyze(view, options);
           std::lock_guard<std::mutex> lock(scopesMutex_);
           scopesFiltered_ = filtered.filteredGamut;
           scopesFilteredValid_ = true;
@@ -561,14 +595,21 @@
         ? 1000.0 * (scopesUpdateTimes_.size() - 1) /
             std::max<Uint64>(1, scopesUpdateTimes_.back() - scopesUpdateTimes_.front())
         : 0.0;
-      char info[200];
-      std::snprintf(info, sizeof(info), "%s  %dx%d  %s  %.1f/s  ", outputLabel(outcome.output).c_str(),
-                    outcome.width, outcome.height,
+      char info[240];
+      std::snprintf(info, sizeof(info), "%s  %dx%d  %s  %s  %.1f/s  ", outputLabel(outcome.output).c_str(),
+                    outcome.width, outcome.height, scopesSignalLabel(outcome).c_str(),
                     outcome.matrix == deckboy::core::scopes::Matrix::Bt2020Ncl ? "BT.2020" : "BT.709", rate);
       SDL_Rect infoRect {footer.x + uiScaled(6), footer.y, footer.w - freezeW - uiScaled(16), footer.h};
       drawTextSafe(controlRenderer_, fontSmall_, infoRect, std::string(info) + gamut,
                    alarm ? kScopeAlarm : kScopeLabel);
     }
+  }
+
+  // What the footer says was measured: the wire signal, and which wire.
+  static std::string scopesSignalLabel(const ScopesOutcome& outcome) {
+    if (!outcome.sentDepth) return "RGB 8-bit";
+    return std::string(outcome.sentSdi ? "SDI" : "ST 2110") + " YCbCr 4:2:2 " +
+           std::to_string(outcome.sentDepth) + "-bit";
   }
 
   // ── Control ────────────────────────────────────────────────────────────────
@@ -664,12 +705,14 @@
     char text[400];
     std::snprintf(text, sizeof(text),
                   "output=%d frame=%dx%d pixels=%llu ms=%.1f luma=%.1f..%.1f%% targets75=%d/6 targets100=%d/6 "
-                  "diamond_out=%llu %s",
+                  "diamond_out=%llu signal=%s %s",
                   outcome.output + 1, outcome.width, outcome.height,
                   static_cast<unsigned long long>(r.validPixels), outcome.analysisMs,
                   lo < 0 ? 0.0 : 100.0 * lo / std::max<std::size_t>(1, hist.size() - 1),
                   hi < 0 ? 0.0 : 100.0 * hi / std::max<std::size_t>(1, hist.size() - 1),
                   hits(s::TargetLevel::Percent75), hits(s::TargetLevel::Percent100),
-                  static_cast<unsigned long long>(diamondOut), gamut.c_str());
+                  static_cast<unsigned long long>(diamondOut),
+                  outcome.sentDepth ? (outcome.sentDepth == 10 ? "ycbcr422-10" : "ycbcr422-8") : "rgb8",
+                  gamut.c_str());
     return std::string(text) + spread;
   }

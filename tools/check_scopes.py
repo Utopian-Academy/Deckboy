@@ -6,6 +6,9 @@ then reads SCOPES STATS for signals whose readings are known exactly:
     none at 100%, and luma at 75, 69.6, 59.1, 53.6, 21.5, 15.9, 5.4 and 0 %
   - a grey ramp over every code: 0 to 100 % and a flat histogram
   - the built-in SMPTE bars pattern
+  - red/black single-pixel stripes, legal as an R'G'B' frame and OUT of
+    R 103 gamut as the Y'CbCr 4:2:2 the output sends once ST 2110 is open
+    (sent to 127.0.0.1: nothing leaves the machine; SDI uses the same encoder)
 and then real clips (--clips), whose screens are kept for a person to look at.
 Every reading must cover the FULL output raster, not a preview.
 Evidence: build/scopes-*/
@@ -157,8 +160,13 @@ def main():
         ramp.putdata([(v, v, v) for _ in range(height) for v in [x * 256 // width for x in range(width)]])
         ramp_path = work / "ramp.png"
         ramp.save(ramp_path)
+        stripes = Image.new("RGB", (width, height))
+        stripes.putdata([((255, 0, 0) if x % 2 == 0 else (0, 0, 0)) for _ in range(height) for x in range(width)])
+        stripes_path = work / "stripes.png"
+        stripes.save(stripes_path)
 
-        expect(import_paths(port, work, [bars_path, ramp_path]) == 3, "import the bars and the ramp")
+        expect(import_paths(port, work, [bars_path, ramp_path, stripes_path]) == 4,
+               "import the bars, the ramp and the stripes")
 
         expect(command(port, "TAKE 2").startswith("OK"), "TAKE the bars")
         reply, f = fresh_stats(port, reply)
@@ -196,16 +204,50 @@ def main():
         expect(f.get("targets75") == "6/6" and int(f.get("hist_bins", 0)) < 50,
                "live again after FREEZE OFF (the bars, not the ramp)", reply)
 
+        # The signal SDI sends. The same stripes read legal as the frame and
+        # out of gamut as 4:2:2: every black pixel carries half the red's chroma.
+        expect(command(port, "TAKE 4").startswith("OK"), "TAKE the stripes")
+        reply, f = fresh_stats(port, reply)
+        expect(f.get("signal") == "rgb8" and "R 103 OK" in reply,
+               "stripes as the R'G'B' frame: legal (it cannot be otherwise)", reply)
+        for line in ("ST2110 ADDR 127.0.0.1", "ST2110 DEPTH 10", "ST2110 ON"):
+            command(port, line)
+        reply, f = fresh_stats(port, reply)
+        # Raw: every black pixel overshoots. Filtered (the R 103 verdict): the
+        # standard's spatial filter exists to ignore exactly this single-pixel
+        # chroma-subsampling overshoot, so the verdict stays OK.
+        expect(f.get("signal") == "ycbcr422-10" and "raw 50.00%" in reply and "R 103 OK" in reply,
+               "stripes as ST 2110 10-bit 4:2:2: raw 50% out, R 103 filtered verdict legal", reply)
+        snap("stripes-2110")
+        command(port, "ST2110 DEPTH 8")
+        reply, f = fresh_stats(port, reply, seconds=20)
+        expect(f.get("signal") == "ycbcr422-8" and "raw 50.00%" in reply, "...and as 8-bit", reply)
+        command(port, "ST2110 DEPTH 10")
+        expect(command(port, "TAKE 2").startswith("OK"), "TAKE the bars on ST 2110")
+        reply, f = fresh_stats(port, reply, seconds=20)
+        expect(f.get("signal") == "ycbcr422-10" and f.get("targets75") == "6/6" and "R 103 OK" in reply,
+               "EBU 75% bars as 4:2:2: on target and legal", reply)
+        snap("ebu75-2110")
+        command(port, "ST2110 OFF")
+        reply, f = fresh_stats(port, reply)
+        expect(f.get("signal") == "rgb8", "ST2110 OFF: back to the R'G'B' frame", reply)
+
         command(port, "SCOPES BOTH")
         snap("both")
         command(port, "SCOPES SCOPES")
+        # Last (its prompt covers the desk): no card here, DECKLINK ON must say so, and the scopes must not
+        # claim to measure an SDI signal nothing is sending.
+        refused = command(port, "DECKLINK ON")
+        expect(refused.startswith("ERR") and "driver" in refused, "DECKLINK ON with no driver says why", refused)
+        reply, f = fresh_stats(port, reply)
+        expect(f.get("signal") == "rgb8", "...and the scopes stay on the R'G'B' frame", reply)
 
         # Real clips: the numbers must be sane and the screens are kept to look at.
         clips = [c for pattern in args.clips for c in sorted(glob.glob(pattern))]
         if clips:
-            expect(import_paths(port, work, clips) == 3 + len(clips), f"import {len(clips)} real clips")
+            expect(import_paths(port, work, clips) == 4 + len(clips), f"import {len(clips)} real clips")
         for n, clip in enumerate(clips):
-            expect(command(port, f"TAKE {4 + n}").startswith("OK"), f"TAKE {Path(clip).name}")
+            expect(command(port, f"TAKE {5 + n}").startswith("OK"), f"TAKE {Path(clip).name}")
             time.sleep(4.0)
             reply, f = fresh_stats(port, reply)
             expect(int(f.get("pixels", 0)) == width * height,

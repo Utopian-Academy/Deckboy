@@ -2,6 +2,8 @@
 // Copyright (C) 2026 Deckboy Contributors
 #include "scopes.hpp"
 
+#include "ycbcr422.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -350,6 +352,33 @@ Result analyze(Rgba8View frame, const Options& options) {
     const Rgb rgb{frame.bytes[offset + red] / 255.0, frame.bytes[offset + 1] / 255.0,
                   frame.bytes[offset + blue] / 255.0};
     return Pixel{rgb, encode(rgb, k)};
+  });
+}
+
+Result analyze(Bgra422View frame, const Options& options) {
+  validateOptions(options);
+  if (frame.bitDepth != 8 && frame.bitDepth != 10)
+    throw std::invalid_argument("4:2:2 scopes input is 8- or 10-bit");
+  const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes, frame.bytes.size(), 4);
+  const auto k = coefficients(Matrix::Bt709);
+  const bool tenBit = frame.bitDepth == 10;
+  const double scale = tenBit ? 4.0 : 1.0;
+  // Both pixels of a pair read the same encode; keep the last one.
+  std::size_t pairX = (std::numeric_limits<std::size_t>::max)(), pairY = pairX;
+  deckboy::core::Ycbcr422Pair pair;
+  return analyzePixels(frame.width, frame.height, options, [&](std::size_t x, std::size_t y) {
+    const std::size_t x0 = x & ~std::size_t{1};
+    if (x0 != pairX || y != pairY) {
+      const std::size_t x1 = (std::min)(x0 + 1, frame.width - 1);  // an odd last pixel pairs with itself
+      const std::uint8_t* row = frame.bytes.data() + y * stride;
+      pair = deckboy::core::encodeBgraPair709(row + x0 * 4, row + x1 * 4, tenBit);
+      pairX = x0;
+      pairY = y;
+    }
+    const double code = (x & 1) ? pair.y1 : pair.y0;
+    const YCbCr ycc{(code - 16 * scale) / (219 * scale), (pair.cb - 128 * scale) / (224 * scale),
+                    (pair.cr - 128 * scale) / (224 * scale)};
+    return Pixel{decode(ycc, k), ycc};
   });
 }
 } // namespace deckboy::core::scopes

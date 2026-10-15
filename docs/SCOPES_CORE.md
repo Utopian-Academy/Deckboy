@@ -14,6 +14,12 @@ full-range RGB bytes with an ignored fourth byte and a stride in bytes. Zero
 stride means packed rows. The final row does not require trailing padding.
 A subspan and the original stride can select a rectangular region.
 
+`Bgra422View` takes the BGRA output frame and measures it as SDI and ST 2110
+send it: BT.709 narrow-range Y'CbCr 4:2:2, 8- or 10-bit, encoded by
+`core/ycbcr422.hpp` (the outputs' own encoder), each pixel rebuilt from its own
+Y' and the Cb Cr its horizontal pair shares. `Options::matrix` does not apply;
+the signal is BT.709. This is the only input whose 8-bit source can leave gamut.
+
 Normalized signal input uses black 0, nominal white 1, and neutral chroma 0
 (nominal chroma endpoints -0.5 and +0.5). Narrow-code input supports 8, 10, 12
 and 16 bits. Full-code input supports RGB only. Use normalized samples for
@@ -24,7 +30,7 @@ Input channels must already have the intended nonlinear transfer encoding and
 primaries. The matrix selector does not convert primaries, linearize light,
 apply a gamma curve, decode PQ/HLG to nits, or support BT.2020 constant
 luminance. Alpha is ignored; callers provide a finished composite. There is
-no subsampled/packed YUV decoder, implicit downsampling, or temporal averaging.
+no decoder for packed YUV from elsewhere, implicit downsampling, or temporal averaging.
 If a caller downsamples before analysis, the resulting counts describe that
 sampled picture, not a full-resolution compliance measurement.
 

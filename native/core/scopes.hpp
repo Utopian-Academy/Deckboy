@@ -44,6 +44,20 @@ struct Rgba8View {
   bool bgra = false;               // B, G, R, A byte order (the output capture's)
 };
 
+// The BGRA output frame as SDI and ST 2110 SEND it: BT.709 narrow-range
+// Y'CbCr 4:2:2 from core/ycbcr422.hpp (the outputs' own encoder), 8- or
+// 10-bit, then rebuilt the way a scope downstream sees it -- each pixel's own
+// Y' with the Cb Cr its pair shares. That shared chroma is where a saturated
+// edge overshoots R'G'B' and EBU R 103 finds something; the 8-bit R'G'B'
+// frame itself cannot leave gamut. The matrix is always BT.709 (what is sent);
+// Options::matrix does not apply.
+struct Bgra422View {
+  std::span<const std::uint8_t> bytes;
+  std::size_t width = 0, height = 0;
+  std::size_t rowStrideBytes = 0; // zero means width * 4
+  unsigned bitDepth = 10;         // 8 or 10, as the output sends
+};
+
 struct Range { double low = 0, high = 1; };
 struct Options {
   Matrix matrix = Matrix::Bt709;
@@ -118,6 +132,7 @@ VectorPoint skinToneLine(Matrix matrix);
 // counted and excluded. All results own their memory; no global mutable state.
 Result analyze(FrameView frame, const Options& options = {});
 Result analyze(Rgba8View frame, const Options& options = {});
+Result analyze(Bgra422View frame, const Options& options = {});
 
 // Adds a part analysed with the SAME options (a band of rows of one frame)
 // into a whole. Every count and bin is a sum, so splitting a frame into row

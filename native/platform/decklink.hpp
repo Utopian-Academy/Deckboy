@@ -161,6 +161,9 @@ class DeckLinkOutput {
 
   bool init(int deviceId, DeckLinkMode mode, bool enable10Bit = true, bool enableAudio = true);
   bool isInitialized() const;
+  // The depth actually opened: init falls back to 8-bit when the card or mode
+  // has no 10-bit, whatever was asked for.
+  bool isTenBit() const;
   void shutdown();
 
   // Send a BGRA32 pixel buffer (same format as egress capture pipeline).

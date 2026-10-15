@@ -3,6 +3,7 @@
 // Generated signals against production code, no files, SDL or display needed.
 // Standalone: c++ -std=c++20 -I native tools/scopes_check.cpp native/core/scopes.cpp -o scopes-check
 #include "core/scopes.hpp"
+#include "core/ycbcr422.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -393,6 +394,88 @@ void diamond() {
   expect(up.xExcursions.below == 0 && up.xExcursions.above == 0 && up.yExcursions.above == 0,
          "diamond: legal colours never leave the diamond");
 }
+// BGRA bars, each `barWidth` pixels wide, EBU 75% order, `rows` high.
+std::vector<std::uint8_t> bgraBars(std::size_t barWidth, std::size_t rows, std::size_t& width) {
+  static const std::uint8_t ebu[8][3] = {{191, 191, 191}, {191, 191, 0}, {0, 191, 191}, {0, 191, 0},
+                                         {191, 0, 191}, {191, 0, 0}, {0, 0, 191}, {0, 0, 0}};  // R G B
+  width = barWidth * 8;
+  std::vector<std::uint8_t> px(width * rows * 4);
+  for (std::size_t y = 0; y < rows; ++y)
+    for (std::size_t x = 0; x < width; ++x) {
+      const auto* c = ebu[x / barWidth];
+      std::uint8_t* p = &px[(y * width + x) * 4];
+      p[0] = c[2]; p[1] = c[1]; p[2] = c[0]; p[3] = 255;
+    }
+  return px;
+}
+
+void sent422() {
+  s::Options options = smallOptions();
+  options.gamutFilter = s::GamutFilter::None;
+  // Bars whose edges fall between pixel pairs: 4:2:2 changes nothing but the
+  // quantisation, so the levels match the R'G'B' frame. Quantising to codes
+  // rebuilds a zero channel 0.04-0.1% below black (measured), so NOMINAL
+  // gamut sees it, as it does on real SDI; R 103's preferred range must not.
+  std::size_t w = 0;
+  const auto aligned = bgraBars(8, 4, w);
+  for (unsigned depth : {8u, 10u}) {
+    const auto sent = s::analyze(s::Bgra422View{aligned, w, 4, 0, depth}, options);
+    const auto rgb = s::analyze(s::Rgba8View{aligned, w, 4, 0, true}, options);
+    conserved(sent, w * 4, "4:2:2 bars");
+    expect(sent.rawGamut.preferred.pixels == 0 && sent.rawGamut.total.pixels == 0,
+           "4:2:2 bars on pair boundaries are R 103 legal");
+    expect(sent.lumaHistogram.bins == rgb.lumaHistogram.bins,
+           "4:2:2 bars on pair boundaries: luma matches the R'G'B' frame");
+  }
+  // Bars seven pixels wide: the edges at odd x split a pair, the pair's shared
+  // chroma lands on a neighbour it does not belong to, and the rebuilt R'G'B'
+  // overshoots -- by about 2.7% for 75% bars (measured), which R 103's 5%
+  // margin allows: 75% bars are legal, however they are cut.
+  const auto split = bgraBars(7, 4, w);
+  const auto sentSplit = s::analyze(s::Bgra422View{split, w, 4, 0, 10}, options);
+  const auto rgbSplit = s::analyze(s::Rgba8View{split, w, 4, 0, true}, options);
+  expect(rgbSplit.rawGamut.preferred.pixels == 0, "the 8-bit R'G'B' frame cannot leave gamut");
+  expect(sentSplit.rawGamut.nominal.pixels > 0 && sentSplit.rawGamut.preferred.pixels == 0,
+         "4:2:2 75% bars cut inside pairs: edge overshoot, still R 103 legal");
+  // The worst case: saturated red against black on every other column.
+  std::vector<std::uint8_t> stripes(16 * 2 * 4);
+  for (std::size_t i = 0; i < 32; ++i)
+    if (i % 2 == 0) stripes[i * 4 + 2] = 255;
+  for (std::size_t i = 0; i < 32; ++i) stripes[i * 4 + 3] = 255;
+  const auto sentStripes = s::analyze(s::Bgra422View{stripes, 16, 2, 0, 10}, options);
+  // Each black pixel carries half the red's chroma: G' and B' near -10.6%,
+  // past the -5% preferred floor. The red pixels rebuild inside. This is what
+  // R 103 exists to catch, and the R'G'B' frame itself can never show it.
+  expect(sentStripes.rawGamut.preferred.pixels == 16,
+         "red/black single-pixel stripes: every black pixel outside preferred gamut");
+  expect(s::analyze(s::Rgba8View{stripes, 16, 2, 0, true}, options).rawGamut.preferred.pixels == 0,
+         "...while the same R'G'B' frame reads legal");
+  // Pixel by pixel: the decode is the shared encoder's codes, read back.
+  const std::uint8_t pairPixels[8] = {0, 0, 255, 255, 0, 0, 0, 255};  // red, black (BGRA)
+  const auto codes = deckboy::core::encodeBgraPair709(pairPixels, pairPixels + 4, true);
+  const auto one = s::analyze(s::Bgra422View{std::span<const std::uint8_t>(pairPixels, 8), 2, 1, 0, 10}, options);
+  expect(codes.y1 == 64 && codes.cr > 512 && one.rawGamut.nominal.channels[2].below == 1,
+         "the black pixel of a red|black pair rebuilds with negative G'");
+  // A grey ramp has no chroma to share.
+  std::vector<std::uint8_t> ramp(256 * 4);
+  for (std::size_t i = 0; i < 256; ++i) ramp[i * 4] = ramp[i * 4 + 1] = ramp[i * 4 + 2] = static_cast<std::uint8_t>(i), ramp[i * 4 + 3] = 255;
+  s::Options wide = options;
+  wide.vectorBins = 16;
+  const auto sentRamp = s::analyze(s::Bgra422View{ramp, 256, 1, 0, 10}, wide);
+  expect(sentRamp.vectorscope.bins[8 * 16 + 8] == 256 && sentRamp.rawGamut.nominal.pixels == 0,
+         "4:2:2 grey ramp: all chroma at the origin, in gamut");
+  // An odd last pixel pairs with itself, as ST 2110 sends it.
+  const auto odd = s::analyze(s::Bgra422View{std::span<const std::uint8_t>(ramp.data(), 12), 3, 1, 0, 10}, options);
+  expect(odd.validPixels == 3, "odd width: every pixel analysed");
+  rejects([&] { s::analyze(s::Bgra422View{ramp, 256, 1, 0, 9}, options); }, "4:2:2 bit depth other than 8/10 rejected");
+  // Row bands accumulate exactly here too (pairs are horizontal).
+  const auto whole = s::analyze(s::Bgra422View{split, w, 4, 0, 10}, options);
+  auto merged = s::analyze(s::Bgra422View{std::span<const std::uint8_t>(split.data(), w * 4 * 2), w, 2, 0, 10}, options);
+  s::accumulate(merged, s::analyze(s::Bgra422View{std::span<const std::uint8_t>(split.data() + w * 4 * 2, w * 4 * 2), w, 2, 0, 10}, options));
+  expect(merged.rawGamut.nominal.pixels == whole.rawGamut.nominal.pixels &&
+         merged.lumaHistogram.bins == whole.lumaHistogram.bins, "4:2:2 row bands equal the whole frame");
+}
+
 void bandsMatchWhole() {
   // A frame split into row bands and accumulated equals the whole frame.
   const std::size_t w = 37, h = 23;
@@ -433,6 +516,7 @@ int main() {
     invalidInputs();
     diamond();
     bandsMatchWhole();
+    sent422();
   } catch (const std::exception& error) {
     ++failures;
     std::cerr << "[fail] unexpected exception: " << error.what() << '\n';

@@ -2,6 +2,14 @@
 
 ## 2026-10-15 - v0.99.412 (in progress)
 
+### Picture scopes
+- When an output is sending SDI or ST 2110, the scopes now measure the Y'CbCr 4:2:2 signal it puts on
+  the wire, at the depth it opened, including the overshoot at saturated edges that 4:2:2 creates and
+  R 103 looks for. The footer names the signal measured. Other outputs are measured as before.
+- Fixed an issue where `DECKLINK ON` answered `OK` on a computer without Blackmagic Desktop Video and
+  left DeckLink off. It now says why.
+- DeckLink and ST 2110 now share one Y'CbCr encoder.
+
 ### Network control
 - Fixed an issue where the phone remote answered any machine on the local network with the
   passphrase, even when that machine was not in **Trusted controllers**. It now answers only this
