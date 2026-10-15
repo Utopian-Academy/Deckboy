@@ -893,19 +893,20 @@ BT.2408) becomes SDR white, brighter highlights ease into white instead of
 clipping, and BT.2020 colours are converted to BT.709. 75% colour bars made in
 HDR come out as ordinary 75% bars.
 
-**An HDR output** sends the display HDR. `OUTPUT HDR ON` (for the focused
-output) gives a window output a linear, floating-point picture and an HDR
+**An HDR output** sends the display HDR. **Settings > Video Outputs > Screen >
+HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear, floating-point picture and an HDR
 (scRGB) connection to its screen:
 
 - SDR material -- slides, graphics, ordinary video -- sits at **203 nits**,
   BT.2408's reference white, whatever the operating system's own SDR
-  brightness slider says. `OUTPUT HDR WHITE <nits>` moves it (80-500).
+  brightness slider says. **SDR material at** (or `OUTPUT HDR WHITE <nits>`,
+  80-500) moves it.
 - HDR video keeps its highlights at their own brightness: 1000 nits in the
   file is 1000 nits sent. The display shows what it can and clips the rest.
 - NDI, DeckLink, recordings, the Web Monitor and the scopes still receive
   SDR from that output: SDR material exactly, HDR highlights clipped at white.
 
-`OUTPUT HDR STATUS` says whether the output is really running HDR (a renderer
+The **HDR** row, and `OUTPUT HDR STATUS`, say whether the output is really running HDR (a renderer
 or display that cannot falls back to SDR, with a warning) and the display's own
 SDR white level and headroom. `--devices` lists which displays are in HDR.
 

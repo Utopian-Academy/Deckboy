@@ -9287,6 +9287,8 @@ class App {
   static constexpr int kSettingsActionLiveCaptionsSize = 848;
   static constexpr int kSettingsActionLiveCaptionsTranscript = 849;
   static constexpr int kSettingsActionLiveCaptionsOutputBase = 850;  // 850-857
+  static constexpr int kSettingsActionOutputHdrToggle = 858;
+  static constexpr int kSettingsActionOutputHdrWhite = 859;
   static constexpr int kSettingsActionStreamKeyPrompt = 641;
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;

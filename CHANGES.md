@@ -10,7 +10,8 @@
 - Added `--devices` reporting whether each display is in HDR, with its SDR white level and headroom.
 - Added HDR window outputs: `OUTPUT HDR ON|OFF|STATUS` and `OUTPUT HDR WHITE <nits>`. SDR material sits
   at 203 nits (BT.2408) and HDR video keeps its highlights; NDI, DeckLink and recordings from that
-  output stay SDR. Measured on Windows; macOS and Linux untested. The Settings control is to come.
+  output stay SDR. **Settings > Video Outputs > Screen > HDR** and **SDR material at**. Measured on
+  Windows; macOS and Linux untested.
 
 ### Live captions
 - Added live captions: what is being said, on the chosen outputs, about two seconds behind, made on

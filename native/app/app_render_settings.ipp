@@ -2452,7 +2452,7 @@
         dispRows.push_back(kRowH);                                  // add / remove output
         dispRows.push_back(kRowH);                                  // Shows
         if (outputTypeLabel == "stream") dispRows.push_back(kRowH); // Source
-        for (int i = 0; i < 7; ++i) dispRows.push_back(kRowH);      // display .. orientation
+        for (int i = 0; i < 9; ++i) dispRows.push_back(kRowH);      // display .. orientation, HDR x2
         int dispSectionH = sectionH(dispRows);
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
@@ -2598,6 +2598,36 @@
           const int depthAction = (depth == 0) ? 243 : (depth == 8) ? 244 : 242;
           SDL_Rect depthBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Bit depth");
           drawActionBtn(depthBtn, outputBitDepthModeLabel(), depthAction);
+
+          // HDR (OUTPUT HDR): what was asked, and what the output is really
+          // doing -- a renderer or screen that cannot falls back to SDR, and the
+          // button says so rather than showing an ON that is not happening.
+          const bool hdrAsked = focusedOutputIndex < 32 &&
+                                ((project_.hdrOutputs >> focusedOutputIndex) & 1u) != 0;
+          const OutputRuntime* hdrRt = runtimeForOutput(focusedOutputIndex);
+          std::string hdrLabel = "OFF";
+          if (hdrAsked) {
+            if (!hdrRt || !hdrRt->outputWindow) {
+              hdrLabel = "ON (when the output is on)";
+            } else if (!hdrRt->hdr) {
+              hdrLabel = "ON - not available, running SDR";
+            } else {
+              const SDL_PropertiesID wp = SDL_GetWindowProperties(hdrRt->outputWindow);
+              const float headroom = SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 1.0f);
+              const float white = SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 1.0f);
+              hdrLabel = headroom > 1.01f
+                ? "ON - screen peak about " + std::to_string(static_cast<int>(std::lround(headroom * white * 80.0f))) + " nits"
+                : "ON - this screen is not in HDR";
+            }
+          }
+          SDL_Rect hdrBtn = settingsRowIn(dLayout.takeFixed(kRowH), "HDR");
+          drawActionBtn(hdrBtn, outputTypeLabel == "window" ? hdrLabel : std::string("window outputs only"),
+                        kSettingsActionOutputHdrToggle, hdrAsked);
+
+          SDL_Rect whiteBtn = settingsRowIn(dLayout.takeFixed(kRowH), "SDR material at");
+          drawActionBtn(whiteBtn, std::to_string(project_.hdrSdrWhiteNits) + " nits" +
+                                    (project_.hdrSdrWhiteNits == 203 ? " (BT.2408)" : ""),
+                        kSettingsActionOutputHdrWhite);
         }
 
         SDL_Rect fsBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Fullscreen");
@@ -4599,6 +4629,15 @@
                              });
       } else if (sb.action == kSettingsActionTrustLastRefused) {
         if (!controlLastRefused_.empty()) trustController(controlLastRefused_);
+      } else if (sb.action == kSettingsActionOutputHdrToggle) {
+        handleRemoteCommand(std::string("OUTPUT HDR ") +
+          (((project_.hdrOutputs >> std::clamp(project_.focusedOutputIndex, 0, 31)) & 1u) ? "OFF" : "ON"));
+      } else if (sb.action == kSettingsActionOutputHdrWhite) {
+        static constexpr int kWhites[] = {100, 150, 203, 250, 300};
+        int next = kWhites[0];
+        for (int w : kWhites) if (w > project_.hdrSdrWhiteNits) { next = w; break; }
+        project_.hdrSdrWhiteNits = next;
+        markProjectDirty();
       } else if (sb.action == kSettingsActionLiveCaptionsToggle) {
         setLiveCaptionsEnabled(!project_.liveCaptionsEnabled);
       } else if (sb.action == kSettingsActionLiveCaptionsSource) {
