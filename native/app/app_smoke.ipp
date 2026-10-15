@@ -2612,17 +2612,21 @@
       fadeCue.stillDurationSeconds = 4.0;
       fadeCue.fadeInSeconds = 1.0;
       fadeCue.fadeOutSeconds = 1.0;
+      const Uint64 loadedAt = SDL_GetTicksNS();
       engine.loadCue(&fadeCue, true);
       double gainStart = engine.currentVisualFadeGain();
       SDL_Delay(500);
       engine.update();
       double gainMid = engine.currentVisualFadeGain();
+      // The fade rides real time, and a loaded CI runner can oversleep the
+      // 500 ms: judge the 1 s linear ramp against the time that really passed.
+      const double fadeElapsed = std::min(1.0, double(SDL_GetTicksNS() - loadedAt) / 1e9);
       engine.seek(3.5);  // pattern seek pauses at the target position
       engine.update();
       double gainTail = engine.currentVisualFadeGain();
       engine.stopAll();
       expect(gainStart < 0.15, "fade-in gain starts near zero");
-      expect(gainMid > 0.30 && gainMid < 0.75, "fade-in gain ramps mid-fade");
+      expect(gainMid > gainStart && std::abs(gainMid - fadeElapsed) < 0.2, "fade-in gain ramps mid-fade");
       expect(gainTail > 0.30 && gainTail < 0.70, "fade-out gain ramps near cue end");
     }
 
