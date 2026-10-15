@@ -186,4 +186,56 @@ class Converter {
   float toCode_ = 1.0f, yOff_ = 0.0f, yGain_ = 1.0f, cOff_ = 0.0f, cGain_ = 1.0f;
 };
 
+// The other direction, for an HDR recording: linear BT.709 light (1.0 = the
+// output's SDR white, `whiteNits`) to 16-bit PQ BT.2020 R'G'B' (rgb48le), the
+// way an HDR output's float compositor holds it. Table-driven: a 64K-entry PQ
+// curve indexed by the square root of the luminance (fine steps near black).
+class PqEncoder {
+ public:
+  explicit PqEncoder(double whiteNits) : white_(static_cast<float>(whiteNits)) {
+    const double m1 = 2610.0 / 16384.0, m2 = 2523.0 / 4096.0 * 128.0;
+    const double c1 = 3424.0 / 4096.0, c2 = 2413.0 / 4096.0 * 32.0, c3 = 2392.0 / 4096.0 * 32.0;
+    for (int i = 0; i < kSteps; ++i) {
+      const double root = static_cast<double>(i) / (kSteps - 1);
+      const double y = std::pow(root * root, m1);   // luminance / 10000 nits
+      const double e = std::pow((c1 + c2 * y) / (1.0 + c3 * y), m2);
+      lut_[static_cast<std::size_t>(i)] = static_cast<std::uint16_t>(std::lround(std::clamp(e, 0.0, 1.0) * 65535.0));
+    }
+  }
+
+  // RGBA float (linear, 709) rows in, RGB 16-bit little-endian rows out.
+  void convert(const float* rgba, int width, int height, int rgbaStrideFloats, std::uint16_t* rgb48) const {
+    const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
+    const int bands = std::clamp(static_cast<int>(cores) - 2, 1, 12);
+    const int rows = (height + bands - 1) / bands;
+    std::vector<std::future<void>> work;
+    for (int y0 = 0; y0 < height; y0 += rows) {
+      const int y1 = std::min(height, y0 + rows);
+      work.push_back(std::async(std::launch::async, [=, this] {
+        for (int y = y0; y < y1; ++y) {
+          const float* in = rgba + static_cast<std::size_t>(y) * rgbaStrideFloats;
+          std::uint16_t* out = rgb48 + static_cast<std::size_t>(y) * width * 3;
+          for (int x = 0; x < width; ++x) {
+            const float r = in[x * 4] * white_, g = in[x * 4 + 1] * white_, b = in[x * 4 + 2] * white_;
+            // ITU-R BT.2087: BT.709 -> BT.2020 primaries, linear.
+            out[x * 3] = encode(0.6274f * r + 0.3293f * g + 0.0433f * b);
+            out[x * 3 + 1] = encode(0.0691f * r + 0.9195f * g + 0.0114f * b);
+            out[x * 3 + 2] = encode(0.0164f * r + 0.0880f * g + 0.8956f * b);
+          }
+        }
+      }));
+    }
+    for (auto& w : work) w.get();
+  }
+
+ private:
+  static constexpr int kSteps = 65536;
+  std::uint16_t encode(float nits) const {
+    const float root = std::sqrt(std::clamp(nits, 0.0f, 10000.0f) / 10000.0f);
+    return lut_[static_cast<std::size_t>(root * (kSteps - 1) + 0.5f)];
+  }
+  float white_;
+  std::vector<std::uint16_t> lut_ = std::vector<std::uint16_t>(kSteps);
+};
+
 }  // namespace deckboy::core::hdr

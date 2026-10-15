@@ -2621,7 +2621,9 @@
             }
           }
           SDL_Rect hdrBtn = settingsRowIn(dLayout.takeFixed(kRowH), "HDR");
-          drawActionBtn(hdrBtn, outputTypeLabel == "window" ? hdrLabel : std::string("window outputs only"),
+          const bool hdrApplies = outputTypeLabel == "window" ||
+            outputStreamProtocolIsFile(normalizeOutputStreamProtocol(outputTarget.streamProtocol));
+          drawActionBtn(hdrBtn, hdrApplies ? hdrLabel : std::string("window and recording outputs only"),
                         kSettingsActionOutputHdrToggle, hdrAsked);
 
           SDL_Rect whiteBtn = settingsRowIn(dLayout.takeFixed(kRowH), "SDR material at");

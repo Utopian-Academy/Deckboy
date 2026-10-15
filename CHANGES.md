@@ -12,6 +12,8 @@
   at 203 nits (BT.2408) and HDR video keeps its highlights; NDI, DeckLink and recordings from that
   output stay SDR. **Settings > Video Outputs > Screen > HDR** and **SDR material at**. Measured on
   Windows; macOS and Linux untested.
+- Recording an HDR output now records HDR10 (HEVC Main10, BT.2020, PQ), highlights at their own
+  brightness; ProRes and DNxHR HQX are tagged PQ.
 
 ### Live captions
 - Added live captions: what is being said, on the chosen outputs, about two seconds behind, made on

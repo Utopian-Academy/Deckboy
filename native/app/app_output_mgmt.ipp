@@ -1552,6 +1552,24 @@
     return {"-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p"};
   }
 
+  // HDR recording: a 10-bit codec carrying HDR10. ProRes (10-bit 4:2:2 or
+  // 4:4:4) and DNxHR HQX are 10-bit already and keep the operator's choice;
+  // H.264 and HEVC become HEVC Main10 with HDR10 signalling (H.264 HDR is not a
+  // thing players honour). The mastering display is given as BT.2020 at 1000
+  // nits, the common default; MaxCLL/MaxFALL are left unknown (0) rather than
+  // guessed.
+  std::vector<std::string> hdrRecordingCodecArgs() const {
+    const std::string c = normalizeRecordingCodec(project_.recordingCodec);
+    if (recordingCodecIsProRes(c) || c == "dnxhr_hqx") {
+      return recordingCodecArgs();
+    }
+    return {"-c:v", "libx265", "-preset", "veryfast", "-pix_fmt", "yuv420p10le", "-tag:v", "hvc1",
+            "-x265-params",
+            "log-level=error:hdr10=1:repeat-headers=1:colorprim=bt2020:transfer=smpte2084:"
+            "colormatrix=bt2020nc:range=limited:"
+            "master-display=G(8500,39850)B(6550,2300)R(35400,14600)WP(15635,16450)L(10000000,50):max-cll=0,0"};
+  }
+
   // Mezzanine codecs are CONSTANT quality by profile -- a bitrate ceiling is
   // meaningless and ffmpeg rejects some of these combinations outright.
   bool recordingCodecUsesBitrate() const {
@@ -1993,8 +2011,41 @@
          << std::fixed << std::setprecision(2) << fps << '|'
          << bitrateKbps << '|'
          << (toWeb ? webEncodeHeight() * 10 + webEncodeEase_ : 0) << '|'
-         << colorSpace;
+         << colorSpace << '|';
+    // An HDR recording is fed the compositor's raster, so a change of THAT
+    // has to restart the encoder too: frames of one size down a pipe opened
+    // for another are a sheared picture (measured, the first HDR take).
+    if (hdrRecordingFor(outputIndex)) {
+      const OutputRuntime& rt = outputRuntimes_[static_cast<std::size_t>(hdrRecordingSource(outputIndex))];
+      spec << "hdr" << rt.compositorWidth << 'x' << rt.compositorHeight;
+    } else {
+      spec << "sdr";
+    }
     return spec.str();
+  }
+
+  // A recording records HDR -- HEVC Main10 (or the chosen 10-bit mezzanine)
+  // in PQ BT.2020 -- when the picture it records is HDR: its own output, or
+  // the output it mirrors (the usual case: the recording mirrors Output 1).
+  // It reads THAT output's float compositor. The recording output's own
+  // renderer is a different GPU device, so it cannot take a zero-copy HDR
+  // frame and composites the SDR conversion instead -- measured, a first HDR
+  // recording of its own compositor had every highlight clipped at 203 nits.
+  int hdrRecordingSource(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
+        outputIndex >= static_cast<int>(outputRuntimes_.size())) return -1;
+    const OutputTarget& out = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    if (!outputStreamProtocolIsFile(normalizeOutputStreamProtocol(out.streamProtocol))) return -1;
+    const int mirror = out.mirrorSourceOutputIndex;
+    if (mirror >= 0 && mirror < static_cast<int>(outputRuntimes_.size()) &&
+        outputRuntimes_[static_cast<std::size_t>(mirror)].hdr &&
+        outputRuntimes_[static_cast<std::size_t>(mirror)].compositorTexture) {
+      return mirror;
+    }
+    return outputRuntimes_[static_cast<std::size_t>(outputIndex)].hdr ? outputIndex : -1;
+  }
+  bool hdrRecordingFor(int outputIndex) const {
+    return hdrRecordingSource(outputIndex) >= 0;
   }
 
   // Turn the operator's recording NAME into a real path, stamped with the
@@ -2204,6 +2255,15 @@
                              : "mp4";
     }
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
+    // HDR recording: the frames are the float compositor's, at its raster, as
+    // 16-bit PQ BT.2020 R'G'B' -- converted to 10-bit BT.2020 Y'CbCr by the
+    // encoder's scaler (matrix only; the transfer is already PQ).
+    const bool hdrRecord = toFile && hdrRecordingFor(outputIndex);
+    if (hdrRecord) {
+      const OutputRuntime& rt = outputRuntimes_[static_cast<std::size_t>(hdrRecordingSource(outputIndex))];
+      width = std::max(1, rt.compositorWidth);
+      height = std::max(1, rt.compositorHeight);
+    }
     std::ostringstream fpsText;
     if (toFile) {
       fpsText << exactRateToken(fps);
@@ -2224,9 +2284,9 @@
       // raster, and a slow encoder pushes back on the writer as it should.
       "-thread_queue_size", std::to_string(std::clamp(
         (256 * 1024 * 1024) /
-          std::max(1, width * height * 4), 8, 512)),
+          std::max(1, width * height * (hdrRecord ? 6 : 4)), 8, 512)),
       "-f", "rawvideo",
-      "-pix_fmt", "bgra",
+      "-pix_fmt", hdrRecord ? "rgb48le" : "bgra",
       "-video_size", std::to_string(width) + "x" + std::to_string(height),
       "-framerate", fpsText.str(),
       // KNOWN LIMITATION, measured twice. -framerate is a PROMISE the capture
@@ -2250,6 +2310,15 @@
       // reads those buffers directly.
       "-f", audioInputPath.empty() ? "lavfi" : "s16le"
     };
+    if (hdrRecord) {
+      // The INPUT says what it is: PQ BT.2020 R'G'B', full range. Untagged,
+      // ffmpeg's scaler took it for SDR and CONVERTED it to the PQ the output
+      // is tagged with -- encoding an already-PQ signal twice (measured: 4000
+      // nits recorded as ~8900, 0.5 as ~0.1).
+      args.insert(std::find(args.begin(), args.end(), "-i"),
+                  {"-color_primaries", "bt2020", "-color_trc", "smpte2084",
+                   "-colorspace", "rgb", "-color_range", "pc"});
+    }
     if (audioInputPath.empty()) {
       // lavfi takes its rate and layout INSIDE the graph description. Passing
       // -ar/-ac as input options to it is an error on current ffmpeg
@@ -2261,11 +2330,10 @@
       // ffmpeg guesses and the audio plays at the wrong speed.
       args.insert(args.end(), {"-ar", "48000", "-ac", "2", "-i", audioInputPath});
     }
-    args.insert(args.end(), {
-      "-map", "0:v:0",
-      "-map", "1:a:0",
-      "-pix_fmt", "yuv420p"
-    });
+    args.insert(args.end(), {"-map", "0:v:0", "-map", "1:a:0"});
+    if (!hdrRecord) {
+      args.insert(args.end(), {"-pix_fmt", "yuv420p"});
+    }
     if (toFile) {
       // Normally the composite is scaled to the recording raster on the GPU
       // before readback, so the frames arriving here are already the right
@@ -2277,12 +2345,17 @@
       // size.
       const int wantW = project_.recordingWidth;
       const int wantH = project_.recordingHeight;
-      if (wantW > 0 && wantH > 0 && (wantW != width || wantH != height)) {
+      const bool resize = wantW > 0 && wantH > 0 && (wantW != width || wantH != height);
+      if (hdrRecord) {
+        args.insert(args.end(), {"-vf", "scale=" +
+          (resize ? "w=" + std::to_string(wantW) + ":h=" + std::to_string(wantH) + ":flags=bicubic:" : std::string()) +
+          "out_color_matrix=bt2020:out_range=tv"});
+      } else if (resize) {
         args.insert(args.end(),
                     {"-vf", "scale=" + std::to_string(wantW) + ":" +
                             std::to_string(wantH) + ":flags=bicubic"});
       }
-      const std::vector<std::string> codecArgs = recordingCodecArgs();
+      const std::vector<std::string> codecArgs = hdrRecord ? hdrRecordingCodecArgs() : recordingCodecArgs();
       args.insert(args.end(), codecArgs.begin(), codecArgs.end());
     } else {
       args.insert(args.end(),
@@ -2307,7 +2380,14 @@
       // so it keeps the encoder's normal behaviour.
       args.insert(args.end(), {"-tune", "zerolatency"});
     }
-    if (colorSpace == "bt709") {
+    if (hdrRecord) {
+      args.insert(args.end(), {
+        "-colorspace", "bt2020nc",
+        "-color_primaries", "bt2020",
+        "-color_trc", "smpte2084",
+        "-color_range", "tv"
+      });
+    } else if (colorSpace == "bt709") {
       args.insert(args.end(), {
         "-colorspace", "bt709",
         "-color_primaries", "bt709",
@@ -3381,6 +3461,13 @@
     std::vector<std::string> args = buildOutputStreamArgs(
       outputIndex, width, height, fpsHint, videoInputPath, audioInputPath, takeFramesSoFar);
 #endif
+    runtime->streamHdr = std::find(args.begin(), args.end(), "rgb48le") != args.end();
+    if (runtime->streamHdr) {
+      const OutputRuntime& source = outputRuntimes_[static_cast<std::size_t>(hdrRecordingSource(outputIndex))];
+      runtime->streamHdrWidth = source.compositorWidth;
+      runtime->streamHdrHeight = source.compositorHeight;
+    }
+    runtime->hdrRecordFrame = {};
     if (args.empty()) {
       runtime->streamStartFailed = true;
       runtime->streamRestartBlockedUntilMs = SDL_GetTicks() + 1500;
@@ -3780,6 +3867,41 @@
     return deckboyCreateRenderer(window);
   }
 
+  // The HDR recording's frame: the whole float compositor read back and
+  // encoded as 16-bit PQ BT.2020 (core/hdr_to_sdr.hpp PqEncoder), stamped with
+  // the same capture time as the BGRA frame so the pacer treats them as one.
+  void captureHdrRecordFrame(OutputRuntime& runtime, OutputRuntime& into, Uint64 capturedAtMs) {
+    if (!runtime.hdr || !runtime.compositorTexture || !runtime.outputRenderer) return;
+    SDL_Texture* previous = SDL_GetRenderTarget(runtime.outputRenderer);
+    SDL_SetRenderTarget(runtime.outputRenderer, runtime.compositorTexture);
+    // The whole compositor, said explicitly: a null rect reads the current
+    // VIEWPORT, which was 16 rows short of the raster, and frames shorter than
+    // the encoder was told wrapped the recorded picture down the screen.
+    const SDL_Rect whole {0, 0, runtime.compositorWidth, runtime.compositorHeight};
+    SDL_Surface* got = SDL_RenderReadPixels(runtime.outputRenderer, &whole);
+    SDL_SetRenderTarget(runtime.outputRenderer, previous);
+    if (!got) return;
+    // Half floats to float, same linear colourspace both sides: no conversion.
+    SDL_Surface* f = SDL_ConvertSurfaceAndColorspace(got, SDL_PIXELFORMAT_RGBA128_FLOAT, nullptr,
+                                                     SDL_COLORSPACE_SRGB_LINEAR, 0);
+    SDL_DestroySurface(got);
+    if (!f) return;
+    if (!hdrRecordEncoder_ || hdrRecordEncoderWhite_ != project_.hdrSdrWhiteNits) {
+      hdrRecordEncoder_ = std::make_unique<deckboy::core::hdr::PqEncoder>(project_.hdrSdrWhiteNits);
+      hdrRecordEncoderWhite_ = project_.hdrSdrWhiteNits;
+    }
+    auto& frame = into.hdrRecordFrame;
+    frame.width = f->w;
+    frame.height = f->h;
+    frame.pixels.resize(static_cast<std::size_t>(f->w) * f->h * 6);
+    hdrRecordEncoder_->convert(static_cast<const float*>(f->pixels), f->w, f->h, f->pitch / 4,
+                               reinterpret_cast<std::uint16_t*>(frame.pixels.data()));
+    frame.capturedAtMs = capturedAtMs;
+    SDL_DestroySurface(f);
+  }
+  std::unique_ptr<deckboy::core::hdr::PqEncoder> hdrRecordEncoder_;
+  int hdrRecordEncoderWhite_ = 0;
+
   bool captureOutputFrameForEgress(int outputIndex,
                                    OutputRuntime& runtime,
                                    const SDL_Rect& requestedRect,
@@ -4102,6 +4224,10 @@
     runtime.latestCapturedFrame.height = captureH;
     runtime.latestCapturedFrame.capturedAtMs = nowMs;
     runtime.lastEgressCaptureAtMs = nowMs;
+    if (runtime.streamHdr) {
+      const int source = hdrRecordingSource(outputIndex);
+      if (source >= 0) captureHdrRecordFrame(outputRuntimes_[static_cast<std::size_t>(source)], runtime, nowMs);
+    }
 
     int delayMs = std::clamp(project_.outputs[outputIndex].outputDelayMs, 0, 5000);
     if (delayMs <= 0) {
@@ -4193,8 +4319,16 @@
       return;
     }
     const OutputRuntime::CapturedFrame* frame = outputFrameForEgress(outputIndex, *runtime);
+    if (runtime->streamHdr) {
+      // The encoder takes PQ rgb48le: its own frame, never the BGRA one, and
+      // only at the raster it was started with (the spec restarts it on a
+      // change; until then a frame of another size is not sent).
+      const auto& hdrFrame = runtime->hdrRecordFrame;
+      frame = (hdrFrame.pixels.empty() || hdrFrame.width != runtime->streamHdrWidth ||
+               hdrFrame.height != runtime->streamHdrHeight) ? nullptr : &hdrFrame;
+    }
     if ((!frame || frame->width <= 0 || frame->height <= 0 || frame->pixels.empty()) &&
-        width > 0 && height > 0) {
+        width > 0 && height > 0 && !runtime->streamHdr) {
       frame = ensureBlackOutputFrameForEgress(outputIndex, *runtime, width, height);
     }
     if (!frame || frame->width <= 0 || frame->height <= 0 || frame->pixels.empty()) {
@@ -4217,6 +4351,18 @@
       return;
     }
     runtime = runtimeForOutput(outputIndex);
+    // Starting the encoder may have just made it an HDR one, AFTER the frame
+    // above was chosen: the first packet of every HDR take was a BGRA frame,
+    // two thirds of an rgb48 one, and every frame after it landed 1440 rows
+    // out of place (measured). So the HDR frame is chosen again, here.
+    if (runtime && runtime->streamHdr) {
+      const auto& hdrFrame = runtime->hdrRecordFrame;
+      if (hdrFrame.pixels.empty() || hdrFrame.width != runtime->streamHdrWidth ||
+          hdrFrame.height != runtime->streamHdrHeight) {
+        return;
+      }
+      frame = &hdrFrame;
+    }
     bool processAlive = false;
 #ifdef _WIN32
     processAlive = runtime && runtime->streamProcess.running();
@@ -7706,7 +7852,9 @@
     // display assignment has been committed by the OS yet.
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    const bool wantHdr = !streamType && outputIndex < 32 && ((project_.hdrOutputs >> outputIndex) & 1u) != 0;
+    // A recording is a hidden stream output, so HDR applies to those too:
+    // its float compositor is what an HDR recording is made from.
+    const bool wantHdr = outputIndex < 32 && ((project_.hdrOutputs >> outputIndex) & 1u) != 0;
     runtime.outputRenderer = createOutputRenderer(runtime.outputWindow, wantHdr);
     runtime.hdr = wantHdr && runtime.outputRenderer &&
       SDL_GetNumberProperty(SDL_GetRendererProperties(runtime.outputRenderer),

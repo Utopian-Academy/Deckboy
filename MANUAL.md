@@ -903,8 +903,13 @@ HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear
   80-500) moves it.
 - HDR video keeps its highlights at their own brightness: 1000 nits in the
   file is 1000 nits sent. The display shows what it can and clips the rest.
-- NDI, DeckLink, recordings, the Web Monitor and the scopes still receive
-  SDR from that output: SDR material exactly, HDR highlights clipped at white.
+- NDI, DeckLink, the Web Monitor and the scopes still receive SDR from that
+  output: SDR material exactly, HDR highlights clipped at white.
+- **Recording** an HDR output (the recording mirrors it, as it does Output 1
+  by default) records HDR10: HEVC Main10, BT.2020, PQ, with the highlights
+  at their own brightness. ProRes and DNxHR HQX stay ProRes and DNxHR, 10-bit
+  and tagged PQ. A 4K HDR recording is heavy (the picture is read back as
+  floating point and encoded on the CPU); 1080 is comfortable.
 
 The **HDR** row, and `OUTPUT HDR STATUS`, say whether the output is really running HDR (a renderer
 or display that cannot falls back to SDR, with a warning) and the display's own

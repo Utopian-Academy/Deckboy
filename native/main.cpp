@@ -87,6 +87,7 @@
 #include "core/caption_formats.hpp"
 #include "core/captioning.hpp"
 #include "core/live_captions.hpp"
+#include "core/hdr_to_sdr.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "engine/stage_timings.hpp"

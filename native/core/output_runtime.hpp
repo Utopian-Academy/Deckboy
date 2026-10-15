@@ -405,6 +405,12 @@ struct OutputRuntime {
   Uint64 streamRestartBlockedUntilMs = 0;
   std::shared_ptr<OutputStreamWriterState> streamWriter;
   CapturedFrame latestCapturedFrame;
+  // HDR RECORDING: the encoder was started for 16-bit PQ BT.2020 (rgb48le),
+  // and this is its frame -- captured beside the BGRA one that NDI, DeckLink,
+  // the scopes and everything else read, so none of them ever sees PQ bytes.
+  bool streamHdr = false;
+  int streamHdrWidth = 0, streamHdrHeight = 0;   // the raster the encoder was told
+  CapturedFrame hdrRecordFrame;
   std::deque<CapturedFrame> delayFrames;
   Uint64 lastEgressCaptureAtMs = 0;
   Uint64 lastStreamCaptureSentAtMs = 0;
