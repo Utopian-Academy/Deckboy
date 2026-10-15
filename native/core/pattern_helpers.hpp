@@ -153,6 +153,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "terrarium-pico" ||             // same world, 1px per cell
          normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
          normalized == "test-clock" ||                 // sync card: a frozen clock proves nothing
+         normalized == "critters" ||                   // the critters bloom and shrink
          normalized == "frame-count" ||                // a counter that does not count is no counter
          normalized == "frame-count-emoji" ||
          // A CODE SOURCE IS ALWAYS ANIMATED. Its expression has `t` in it and

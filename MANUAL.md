@@ -1908,6 +1908,10 @@ The engineering set (*v0.99.373 and later.*), the same patterns the site's LED p
 - **Greyscale Steps** — gamma.
 - **Convergence** — a fine grid for colour registration.
 - **Multiburst** — bandwidth and sharpness.
+- **Critters** — pixel critters bloom from a single pixel, grow, hold and
+  shrink back, overlapping forever, in Game Boy greens. Each is drawn only at a
+  whole-number scale of its sprite, so every edge is pixel-exact at every size:
+  anything soft or shimmering on the screen was added after Deckboy.
 - **Window 10%** and **Window 50%** — peak brightness at low and mid picture
   level.
 

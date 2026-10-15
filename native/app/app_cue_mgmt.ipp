@@ -3359,6 +3359,7 @@
       // bars is not reaching for a multiburst.
       {"panel-map",    "Panel Map (LED tile numbers)"},
       {"moire",        "Moire 1:1 (is anything scaling?)"},
+      {"critters",     "Critters (pixel-exact scaling, animated)"},
       {"dark-detail",  "Dark Detail (0-12%)"},
       {"uniformity",   "Uniformity (flat fields)"},
       {"ramps",        "Banding Ramps (real bit depth)"},

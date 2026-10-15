@@ -24,6 +24,8 @@
   **Settings > Video Outputs > TEST CARD** and **CARD ON ALL**; `OUTPUT TESTCARD ON|OFF|TOGGLE|ALL`.
 - Added **EXPORT CARD** and `OUTPUT TESTCARD EXPORT`: the moving card as H.264 files, one per output
   of a canvas plus the whole canvas.
+- Added the **Critters** pattern: pixel critters that bloom from a single pixel and shrink back,
+  always at whole-number scales, so every edge stays pixel-exact.
 - A test card is no longer saved with the show, and a recording keeps recording programme while one
   is up.
 

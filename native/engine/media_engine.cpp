@@ -45,6 +45,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include "core/sdl_compat.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include "core/code_source.hpp"
+#include "core/critter_card.hpp"
 #include <ctime>
 #include <filesystem>
 #include <map>
@@ -13745,6 +13746,11 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     // Always animated: a still fire is a photograph of a fire.
     buildFireside(frame, animTime, cue.firesideIntensity, cue.firesideSparks,
                   cue.firesideView);
+  } else if (basePatternType == "critters") {
+    // Always animated: critters bloom from a pixel, at whole scales only.
+    frame.format = FramePixelFormat::RGBA32;
+    frame.pixels.resize(static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height) * 4u);
+    deckboy::core::crittercard::draw(frame.pixels.data(), frame.width, frame.height, animTime);
   } else if (basePatternType == "test-clock") {
     // Sync/latency card — always animated, no -motion variant.
     buildTestClock(frame, animTime);
