@@ -555,6 +555,9 @@ importantly, what each feature deliberately does not do.
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes
 - Fixture patching and a lighting dashboard, beyond Art-Net levels
+- Live scoreboard data as a source: the clock, scores and fouls read off a
+  venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
+  and its XML/JSON feed, driving text and lower thirds on the outputs
 
 **Picture:**
 
