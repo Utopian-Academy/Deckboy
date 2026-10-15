@@ -345,8 +345,12 @@ bool havePowerPoint() {
 namespace {
 
 // Keynote owns .key the way PowerPoint owns .pptx, and nothing else opens one
-// faithfully. Driven by osascript; the first run raises the automation consent
-// prompt, which is the operating system's to ask and not ours to route around.
+// faithfully. It also opens PowerPoint files, which made it the only converter
+// most Macs have for a .pptx -- and it was only ever asked about .key, so a
+// .pptx on a Mac with no LibreOffice failed with an empty reason (James,
+// 2026-10-15: "could not drag in, nor import"). Driven by osascript; the first
+// run raises the automation consent prompt, which is the operating system's to
+// ask and not ours to route around.
 bool convertWithKeynote(const fs::path& source, const fs::path& outputDir,
                         std::string& error) {
   const fs::path target = convertedPdfPath(source, outputDir);
@@ -378,6 +382,39 @@ bool haveKeynote() {
   return fs::exists("/Applications/Keynote.app", ec);
 }
 
+// PowerPoint for Mac, when it is there: the format's owner, as on Windows.
+bool havePowerPointMac() {
+  std::error_code ec;
+  return fs::exists("/Applications/Microsoft PowerPoint.app", ec);
+}
+
+bool convertWithPowerPointMac(const fs::path& source, const fs::path& outputDir,
+                              std::string& error) {
+  const fs::path target = convertedPdfPath(source, outputDir);
+  std::error_code ec;
+  fs::remove(target, ec);
+  const std::string quote(1, '"');
+  const std::string script =
+    "tell application " + quote + "Microsoft PowerPoint" + quote + "\n"
+    "  open POSIX file " + quote + source.string() + quote + "\n"
+    "  set d to active presentation\n"
+    "  save d in POSIX file " + quote + target.string() + quote + " as save as PDF\n"
+    "  close d saving no\n"
+    "end tell\n";
+  std::string output;
+  runQuietly({"osascript", "-e", script}, output);
+  if (!fs::exists(target, ec)) {
+    const std::string said = toolMessage(output);
+    error = said.empty()
+      ? std::string("PowerPoint could not export this file (it may need "
+                    "permission to be automated: System Settings > Privacy "
+                    "& Security > Automation)")
+      : ("PowerPoint: " + said);
+    return false;
+  }
+  return true;
+}
+
 }  // namespace
 #endif
 
@@ -390,12 +427,12 @@ bool presentationConvertAvailable(std::string& whyNot) {
   whyNot = "no converter found: install PowerPoint or LibreOffice, "
            "or export the deck as a PDF yourself";
 #elif defined(__APPLE__)
-  if (haveKeynote() || !findLibreOffice().empty()) {
+  if (haveKeynote() || havePowerPointMac() || !findLibreOffice().empty()) {
     whyNot.clear();
     return true;
   }
-  whyNot = "no converter found: install Keynote or LibreOffice, "
-           "or export the deck as a PDF yourself";
+  whyNot = "no converter found: install Keynote (free from the App Store) or "
+           "LibreOffice, or export the deck as a PDF yourself";
 #else
   if (!findLibreOffice().empty()) {
     whyNot.clear();
@@ -428,12 +465,25 @@ PresentationConversion convertPresentationToPdf(const fs::path& source,
   std::string error;
 
 #ifdef __APPLE__
-  if (ext == ".key" && haveKeynote()) {
-    if (convertWithKeynote(source, outputDir, error)) {
+  // The format's owner first: PowerPoint for a PowerPoint file, Keynote for a
+  // Keynote file -- and Keynote for a PowerPoint file when PowerPoint is not
+  // here, since it reads them and ships with the Mac. Each failure's reason
+  // is kept, so a refusal names the step that refused.
+  if (ext != ".key" && ext != ".odp" && havePowerPointMac()) {
+    if (convertWithPowerPointMac(source, outputDir, error)) {
+      result.pdfPath = convertedPdfPath(source, outputDir);
+      result.converter = "PowerPoint";
+      return result;
+    }
+  }
+  if (ext != ".odp" && haveKeynote()) {
+    std::string keynoteError;
+    if (convertWithKeynote(source, outputDir, keynoteError)) {
       result.pdfPath = convertedPdfPath(source, outputDir);
       result.converter = "Keynote";
       return result;
     }
+    error = error.empty() ? keynoteError : error + "; " + keynoteError;
   }
 #endif
 #ifdef _WIN32
