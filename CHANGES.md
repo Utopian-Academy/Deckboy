@@ -2,6 +2,13 @@
 
 ## 2026-10-15 - v0.99.412 (in progress)
 
+### HDR video
+- Fixed an issue where an HDR video (HDR10 or HLG) played black on an output using the software
+  renderer, and an HLG video played dim and washed out on Windows. HDR video on an SDR output now
+  has its reference white (203 nits) at SDR white, brighter highlights eased into white rather than
+  clipped, and its BT.2020 colours converted to BT.709.
+- Added `--devices` reporting whether each display is in HDR, with its SDR white level and headroom.
+
 ### Live captions
 - Added live captions: what is being said, on the chosen outputs, about two seconds behind, made on
   this computer. Listens to the live input, a deck or an output's mix; one to three rolling lines,

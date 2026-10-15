@@ -15,6 +15,7 @@
 #include "engine/stage_timings.hpp"
 
 #include "core/constants.hpp"
+#include "core/hdr_to_sdr.hpp"
 #include "core/io_utils.hpp"          // readSome, for PipeDemuxer
 
 #include <algorithm>
@@ -340,6 +341,12 @@ struct VideoPipeline::Impl {
   AVCodecContext* codecCtx = nullptr;
   AVBufferRef* hwDevice = nullptr;
   SwsContext* swsCtx = nullptr;
+  // HDR (PQ/HLG) sources: reshaped to 16-bit 4:4:4 and converted by Deckboy's
+  // own HDR->SDR (core/hdr_to_sdr.hpp), rebuilt when the source's tags change.
+  SwsContext* hdrSwsCtx = nullptr;
+  std::vector<std::uint16_t> hdrPlanes;
+  std::unique_ptr<deckboy::core::hdr::Converter> hdrConverter;
+  long long hdrConverterKey = -1;
   AVPacket* packet = nullptr;
   AVFrame* frame = nullptr;
   AVFrame* swFrame = nullptr;
@@ -365,6 +372,7 @@ struct VideoPipeline::Impl {
 
   void closeAll() {
     if (swsCtx) { sws_freeContext(swsCtx); swsCtx = nullptr; }
+    if (hdrSwsCtx) { sws_freeContext(hdrSwsCtx); hdrSwsCtx = nullptr; }
     if (swFrame) { av_frame_free(&swFrame); }
     if (frame) { av_frame_free(&frame); }
     if (packet) { av_packet_free(&packet); }
@@ -707,6 +715,49 @@ struct VideoPipeline::Impl {
       primaries, transfer, matrix, frame->chroma_location));
   }
 
+  // An HDR frame (already in system memory) to SDR RGBA at dstW x dstH:
+  // swscale only reshapes it to 16-bit 4:4:4 Y'CbCr (no matrix, no range
+  // change), then core/hdr_to_sdr.hpp does the colour.
+  bool convertHdrFrame(AVFrame* src, DecodedFrame& out, int dstW, int dstH) {
+    namespace h = deckboy::core::hdr;
+    const auto srcFormat = static_cast<AVPixelFormat>(src->format);
+    hdrSwsCtx = sws_getCachedContext(hdrSwsCtx, src->width, src->height, srcFormat,
+                                     dstW, dstH, AV_PIX_FMT_YUV444P16LE, SWS_FAST_BILINEAR,
+                                     nullptr, nullptr, nullptr);
+    if (!hdrSwsCtx) return false;
+    const std::size_t plane = static_cast<std::size_t>(dstW) * dstH;
+    hdrPlanes.resize(plane * 3);
+    std::uint8_t* planes[4] = {reinterpret_cast<std::uint8_t*>(hdrPlanes.data()),
+                               reinterpret_cast<std::uint8_t*>(hdrPlanes.data() + plane),
+                               reinterpret_cast<std::uint8_t*>(hdrPlanes.data() + plane * 2), nullptr};
+    int lines[4] = {dstW * 2, dstW * 2, dstW * 2, 0};
+    if (sws_scale(hdrSwsCtx, src->data, src->linesize, 0, src->height, planes, lines) != dstH) return false;
+
+    h::Source source;
+    source.transfer = frame->color_trc == AVCOL_TRC_SMPTE2084 ? h::Transfer::Pq : h::Transfer::Hlg;
+    // An HDR tag with no primaries tag is BT.2020 in practice.
+    source.bt2020Primaries = frame->color_primaries == AVCOL_PRI_BT2020 ||
+                             frame->color_primaries == AVCOL_PRI_UNSPECIFIED;
+    if (frame->colorspace == AVCOL_SPC_BT709) { source.kr = 0.2126; source.kb = 0.0722; }
+    source.fullRange = frame->color_range == AVCOL_RANGE_JPEG;
+    const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(srcFormat);
+    source.bitDepth = desc ? std::clamp(static_cast<int>(desc->comp[0].depth), 8, 16) : 10;
+    const long long key = (static_cast<long long>(source.transfer == h::Transfer::Pq) << 40) |
+                          (static_cast<long long>(source.bt2020Primaries) << 32) |
+                          (static_cast<long long>(frame->colorspace) << 16) |
+                          (static_cast<long long>(source.fullRange) << 8) | source.bitDepth;
+    if (!hdrConverter || key != hdrConverterKey) {
+      hdrConverter = std::make_unique<h::Converter>(source);
+      hdrConverterKey = key;
+    }
+    out.format = FramePixelFormat::RGBA32;
+    out.colorspace = SDL_COLORSPACE_SRGB;
+    out.pixels.resize(plane * 4);
+    hdrConverter->convert(hdrPlanes.data(), hdrPlanes.data() + plane, hdrPlanes.data() + plane * 2,
+                          dstW, dstW, dstH, out.pixels.data(), dstW * 4);
+    return true;
+  }
+
   // Fill `out` from the decoded `frame`. Returns false when the frame is
   // dropped (pre-seek-target) — the caller keeps pumping.
   bool convertFrame(DecodedFrame& out) {
@@ -728,6 +779,20 @@ struct VideoPipeline::Impl {
     // counter (which drifts against the audio clock on 3:2-pulldown DVD MPEG-2).
     const double ptsSeconds = streamTimeSeconds(frame->best_effort_timestamp, timeBase);
 
+    // HDR ON AN SDR OUTPUT (tools/check_hdr_sources.py, 2026-10-15). Handed
+    // to SDL as a BT.2020 PQ/HLG texture, the conversion is SDL's:
+    //  - Direct3D 11 + PQ: right to within a few code values. KEPT zero-copy:
+    //    it is the 4K60 case, and the CPU conversion below cannot keep up at
+    //    4K (36 ms a frame on 12 cores). Measured with Windows HDR on; an SDR
+    //    desktop is unmeasured.
+    //  - Direct3D 11 + HLG: dim and washed out (reference white at 192 of 255)
+    //  - the software renderer: black, PQ or HLG
+    // so everything but D3D11 + PQ is converted here (core/hdr_to_sdr.hpp),
+    // the same on every platform, at the cost of the download.
+    const bool hdrSource = frame->color_trc == AVCOL_TRC_SMPTE2084 ||
+                           frame->color_trc == AVCOL_TRC_ARIB_STD_B67;
+    const bool sdlHandlesHdr = frame->color_trc == AVCOL_TRC_SMPTE2084;  // D3D11 only, below
+
 #ifdef _WIN32
     // Zero-copy needs a surface layout the compositor can wrap as an SDL
     // texture. Two qualify, and the surface's own software format says which:
@@ -747,7 +812,7 @@ struct VideoPipeline::Impl {
     // the extra depth by converting down to 8-bit NV12 on the way through.
     //
     // Anything that is neither still falls through to the CPU transfer below.
-    if (frame->format == AV_PIX_FMT_D3D11 && zeroCopy && frame->hw_frames_ctx) {
+    if ((!hdrSource || sdlHandlesHdr) && frame->format == AV_PIX_FMT_D3D11 && zeroCopy && frame->hw_frames_ctx) {
       auto* framesCtx = reinterpret_cast<AVHWFramesContext*>(frame->hw_frames_ctx->data);
       const bool wrappable = framesCtx &&
                              (framesCtx->sw_format == AV_PIX_FMT_NV12 ||
@@ -793,7 +858,7 @@ struct VideoPipeline::Impl {
     // NV12 is precisely how 10-bit HEVC came out flat green on Windows
     // (v0.79.10). Anything else falls through to the CPU path below, which is
     // correct for every format rather than fast for two.
-    if (frame->format == AV_PIX_FMT_VIDEOTOOLBOX && zeroCopy && frame->data[3]) {
+    if (!hdrSource && frame->format == AV_PIX_FMT_VIDEOTOOLBOX && zeroCopy && frame->data[3]) {
       auto* pixelBuffer = reinterpret_cast<CVPixelBufferRef>(frame->data[3]);
       const OSType pixelType = CVPixelBufferGetPixelFormatType(pixelBuffer);
       const bool wrappable =
@@ -868,6 +933,10 @@ struct VideoPipeline::Impl {
     out.colorspace = params.format == FramePixelFormat::NV12 ? sourceColorspace() : SDL_COLORSPACE_SRGB;
     out.presentationSeconds = ptsSeconds;
     out.pixels.resize(bytes);
+
+    if (hdrSource) {
+      return convertHdrFrame(src, out, dstW, dstH);
+    }
 
     const auto srcFormat = static_cast<AVPixelFormat>(src->format);
     if (params.format == FramePixelFormat::NV12 && srcFormat == AV_PIX_FMT_NV12 &&

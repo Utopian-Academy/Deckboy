@@ -8130,7 +8130,7 @@
     }
 
     if (windowOutputEnabled) {
-      SDL_ShowWindow(runtime->outputWindow);
+      showOutputWindow(runtime->outputWindow);
       SDL_RaiseWindow(runtime->outputWindow);
     } else {
       SDL_HideWindow(runtime->outputWindow);
@@ -8741,7 +8741,7 @@
     // difficult" regression).
     bool controlHadFocus = controlWindow_ && SDL_GetKeyboardFocus() == controlWindow_;
     applyOutputDisplaySelection(outputIndex, wrongDisplay);
-    SDL_ShowWindow(runtime->outputWindow);
+    showOutputWindow(runtime->outputWindow);
     SDL_RaiseWindow(runtime->outputWindow);
     bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
     if (controlHadFocus) {

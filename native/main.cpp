@@ -9983,8 +9983,19 @@ class App {
       return;
     }
     controlWindowRevealed_ = true;
+    if (windowsHiddenForMeasurement()) return;
     SDL_ShowWindow(controlWindow_);
     SDL_RaiseWindow(controlWindow_);
+  }
+  // Measurement runs on the REAL renderer (D3D11, HDR) of a machine somebody
+  // is using: DECKBOY_HIDE_WINDOWS=1 keeps the desk and every output window off
+  // their screens. The windows exist and render; they are never shown.
+  static bool windowsHiddenForMeasurement() {
+    const char* hide = std::getenv("DECKBOY_HIDE_WINDOWS");
+    return hide && *hide == '1';
+  }
+  void showOutputWindow(SDL_Window* window) {
+    if (window && !windowsHiddenForMeasurement()) SDL_ShowWindow(window);
   }
   bool controlWindowRevealed_ = false;
 

@@ -6704,7 +6704,7 @@
       runtime->recoveryPausedByEscape = false;
       runtime->fullscreenIntended = true;
       if (enableOutputFullscreen(project_.focusedOutputIndex, true)) {
-        SDL_ShowWindow(runtime->outputWindow);
+        showOutputWindow(runtime->outputWindow);
         SDL_RaiseWindow(runtime->outputWindow);
       } else {
         runtime->fullscreenIntended = false;
@@ -6772,7 +6772,7 @@
       SDL_SetWindowFullscreen(runtime->outputWindow, false);
       setOutputRecoveryPausedByEscape(outputIndex, true);
       runtime->fullscreenIntended = false;
-      SDL_ShowWindow(runtime->outputWindow);
+      showOutputWindow(runtime->outputWindow);
       SDL_RaiseWindow(controlWindow_);
       triggerToast("escape: " + outputLabel(outputIndex) + " windowed");
       playUiSound(UiSoundEffect::Toggle);
@@ -6793,7 +6793,7 @@
           // Esc from an output window should remain an output-safety action,
           // not fall through to app quit confirmation.
           setOutputRecoveryPausedByEscape(*sourceOutputIndex, true);
-          SDL_ShowWindow(runtime->outputWindow);
+          showOutputWindow(runtime->outputWindow);
           SDL_RaiseWindow(controlWindow_);
           project_.focusedOutputIndex = *sourceOutputIndex;
           return true;
