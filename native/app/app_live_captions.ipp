@@ -219,9 +219,9 @@
     const auto st = liveCaptioner_.status();
     if (!st.error.empty()) return st.error;
     if (!st.ready) return "starting the speech engine";
-    if (st.behindSeconds <= 0.0) return "listening - CPU";  // nothing heard yet to time
+    if (st.behindSeconds <= 0.0) return "listening";  // nothing heard yet to time
     char text[96];
-    std::snprintf(text, sizeof(text), "listening - %.1f s behind - CPU", st.behindSeconds);
+    std::snprintf(text, sizeof(text), "listening - %.1f s behind", st.behindSeconds);
     return text;
   }
 

@@ -1305,6 +1305,41 @@ at a size that suits the output's height, on a dark box fitted to the line.
 
 `CAPTIONS [STATUS | ON | OFF | GENERATE]` does the same over the control port.
 
+### Live captions
+
+What is being said, on screen, as it is said: a speaker at a microphone, a
+deck's programme, or everything an output plays. Turn it on in
+**Settings > Audio > LIVE CAPTIONS**:
+
+| Row | Does |
+|-----|------|
+| **Live captions** | On or off. The first time, it asks before the one-time model download, as above |
+| **Listen to** | The live input, a deck's programme, or an output's mix. Click to step through them |
+| **Language** | The same speech model as captions made from a file |
+| **Show on** | Which outputs carry the captions. They are part of the output's picture, so its recording, stream, NDI, SDI and Web Monitor carry them too |
+| **Lines** / **Position** / **Size** | One to three rolling lines, along the bottom or the top, 75-150% of the cue-caption size |
+| **Keep a transcript (.srt)** | Everything shown, with times, in Deckboy's `captions` folder |
+
+Words appear about two seconds after they are said. The newest are grey
+until the engine is sure of them, then white: a word at the edge of what it
+has heard is often wrong ("queue" for "cue") until the next second arrives.
+After six seconds of silence the captions clear. The status line under the
+card says whether it is listening and how far behind the words are, with a
+bar that moves when it hears sound.
+
+The listening is done by `deckboy-listen`, which comes with Deckboy, runs on
+this computer and holds the speech model. It is a separate program: if it
+stops, the captions stop and the show does not, and Deckboy starts it again.
+Nothing is sent anywhere.
+
+| Command | Does |
+|---------|------|
+| `CAPTIONS LIVE ON` · `OFF` · `STATUS` | Turns live captions on or off, or says how they are |
+| `CAPTIONS LIVE TEXT` | What is on screen now: the sure words, `\|`, then the unsure ones |
+| `CAPTIONS SOURCE INPUT` · `DECK <n>` · `OUTPUT <n>` | What they listen to |
+| `CAPTIONS SHOW <output> ON\|OFF` | Whether an output carries them |
+| `CAPTIONS LINES <1-3>` · `POSITION TOP\|BOTTOM` · `SIZE <50-200>` · `TRANSCRIPT ON\|OFF` | The rest of the card |
+
 ### Text mode
 
 Available two ways: as the video synth's own mode, and as the **TEXT MODE**

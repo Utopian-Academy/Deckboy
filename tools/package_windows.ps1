@@ -129,6 +129,18 @@ if (Test-Path $WhisperCli) {
 } else {
     Write-Warning "whisper-cli.exe not found - captions made on this computer will be unavailable"
 }
+# deckboy-listen: LIVE CAPTIONS' speech engine, built from the same whisper.cpp
+# (tools/listen). Required whenever whisper-cli is, for the same reason.
+$ListenBin = $env:DECKBOY_LISTEN_BIN
+if (-not $ListenBin) { $ListenBin = Join-Path $BuildDir "deckboy-listen.exe" }
+if (Test-Path $ListenBin) {
+    Copy-Item $ListenBin -Destination (Join-Path $StageDir "deckboy-listen.exe")
+    Write-Host "  + deckboy-listen.exe"
+} elseif ($env:DECKBOY_REQUIRE_WHISPER -eq "1") {
+    throw "deckboy-listen.exe not found at $ListenBin and DECKBOY_REQUIRE_WHISPER=1"
+} else {
+    Write-Warning "deckboy-listen.exe not found - live captions will be unavailable"
+}
 
 # --- Copy MSVC C++ runtime DLLs (app-local) ---------------------------------
 # Microsoft permits app-local deployment of the MSVC runtime DLLs, which is

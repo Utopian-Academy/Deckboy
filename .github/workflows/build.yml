@@ -534,6 +534,12 @@ jobs:
           cmake --build "$RUNNER_TEMP/whisper-build" --target whisper-cli -j"$(nproc)"
           "$RUNNER_TEMP/whisper-build/bin/whisper-cli" --help > /dev/null
           echo "DECKBOY_WHISPER_CLI=$RUNNER_TEMP/whisper-build/bin/whisper-cli" >> "$GITHUB_ENV"
+          # LIVE CAPTIONS: deckboy-listen, against the same whisper.cpp.
+          cmake -S tools/listen -B "$RUNNER_TEMP/listen-build" -DWHISPER_SOURCE="$RUNNER_TEMP/whisper.cpp" \
+            -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
+          cmake --build "$RUNNER_TEMP/listen-build" --target deckboy-listen -j"$(nproc)"
+          test -x "$RUNNER_TEMP/listen-build/deckboy-listen"
+          echo "DECKBOY_LISTEN_BIN=$RUNNER_TEMP/listen-build/deckboy-listen" >> "$GITHUB_ENV"
           echo "DECKBOY_REQUIRE_WHISPER=1" >> "$GITHUB_ENV"
 
       - name: Package portable tarball and AppImage
@@ -1012,6 +1018,12 @@ jobs:
           "$RUNNER_TEMP/whisper-build/bin/whisper-cli" --help > /dev/null
           otool -L "$RUNNER_TEMP/whisper-build/bin/whisper-cli"
           echo "DECKBOY_WHISPER_CLI=$RUNNER_TEMP/whisper-build/bin/whisper-cli" >> "$GITHUB_ENV"
+          # LIVE CAPTIONS: deckboy-listen, against the same whisper.cpp.
+          cmake -S tools/listen -B "$RUNNER_TEMP/listen-build" -DWHISPER_SOURCE="$RUNNER_TEMP/whisper.cpp" \
+            -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+          cmake --build "$RUNNER_TEMP/listen-build" --target deckboy-listen -j"$(sysctl -n hw.ncpu)"
+          otool -L "$RUNNER_TEMP/listen-build/deckboy-listen"
+          echo "DECKBOY_LISTEN_BIN=$RUNNER_TEMP/listen-build/deckboy-listen" >> "$GITHUB_ENV"
           echo "DECKBOY_REQUIRE_WHISPER=1" >> "$GITHUB_ENV"
 
       - name: Package
@@ -1511,6 +1523,14 @@ jobs:
           $cli = "$env:RUNNER_TEMP\whisper-build\bin\Release\whisper-cli.exe"
           if (-not (Test-Path $cli)) { throw "whisper-cli.exe was not built" }
           "DECKBOY_WHISPER_CLI=$cli" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          # LIVE CAPTIONS: deckboy-listen, against the same whisper.cpp.
+          cmake -S tools/listen -B "$env:RUNNER_TEMP\listen-build" "-DWHISPER_SOURCE=$env:RUNNER_TEMP\whisper.cpp" -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF
+          if ($LASTEXITCODE -ne 0) { throw "deckboy-listen configure failed" }
+          cmake --build "$env:RUNNER_TEMP\listen-build" --config Release --target deckboy-listen -j 4
+          if ($LASTEXITCODE -ne 0) { throw "deckboy-listen build failed" }
+          $listen = "$env:RUNNER_TEMP\listen-build\Release\deckboy-listen.exe"
+          if (-not (Test-Path $listen)) { throw "deckboy-listen.exe was not built" }
+          "DECKBOY_LISTEN_BIN=$listen" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "DECKBOY_REQUIRE_WHISPER=1" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Package portable zip and installer

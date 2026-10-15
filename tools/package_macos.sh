@@ -135,6 +135,20 @@ else
   echo "  ! whisper-cli not found - captions made on this computer will be unavailable" >&2
 fi
 
+# deckboy-listen: LIVE CAPTIONS' speech engine, built from the same whisper.cpp
+# (tools/listen). Required whenever whisper-cli is, for the same reason.
+LISTEN_SRC="${DECKBOY_LISTEN_BIN:-$BUILD_DIR/deckboy-listen}"
+if [ -f "$LISTEN_SRC" ]; then
+  cp "$LISTEN_SRC" "$MACOS_DIR/deckboy-listen"
+  chmod +x "$MACOS_DIR/deckboy-listen"
+  echo "  + deckboy-listen"
+elif [ "${DECKBOY_REQUIRE_WHISPER:-0}" = "1" ]; then
+  echo "  ! deckboy-listen not found at $LISTEN_SRC and DECKBOY_REQUIRE_WHISPER=1" >&2
+  exit 1
+else
+  echo "  ! deckboy-listen not found - live captions will be unavailable" >&2
+fi
+
 # --- deckboy-sckcapture (ScreenCaptureKit screen-capture helper) ------------
 # Window/screen cues spawn this next to the app. Built by the same cmake build.
 if [ -f "$BUILD_DIR/deckboy-sckcapture" ]; then

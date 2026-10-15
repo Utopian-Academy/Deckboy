@@ -2,6 +2,15 @@
 
 ## 2026-10-15 - v0.99.412 (in progress)
 
+### Live captions
+- Added live captions: what is being said, on the chosen outputs, about two seconds behind, made on
+  this computer. Listens to the live input, a deck or an output's mix; one to three rolling lines,
+  top or bottom; unsure words grey until they are sure; clears after six seconds of silence; an
+  optional `.srt` transcript. **Settings > Audio > LIVE CAPTIONS**, and `CAPTIONS LIVE`,
+  `CAPTIONS SOURCE`, `CAPTIONS SHOW`, `CAPTIONS LINES`, `CAPTIONS POSITION`, `CAPTIONS SIZE` and
+  `CAPTIONS TRANSCRIPT`.
+- The Audio tab of Settings scrolls when its cards do not fit.
+
 ### Picture scopes
 - When an output is sending SDI or ST 2110, the scopes now measure the Y'CbCr 4:2:2 signal it puts on
   the wire, at the depth it opened, including the overshoot at saturated edges that 4:2:2 creates and

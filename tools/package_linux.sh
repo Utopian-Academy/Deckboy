@@ -117,6 +117,20 @@ else
   echo "  ! whisper-cli not found - captions made on this computer will be unavailable" >&2
 fi
 
+# deckboy-listen: LIVE CAPTIONS' speech engine, built from the same whisper.cpp
+# (tools/listen). Required whenever whisper-cli is, for the same reason.
+LISTEN_SRC="${DECKBOY_LISTEN_BIN:-$BUILD_DIR/deckboy-listen}"
+if [ -f "$LISTEN_SRC" ]; then
+  cp "$LISTEN_SRC" "$STAGE_DIR/bin/deckboy-listen"
+  chmod +x "$STAGE_DIR/bin/deckboy-listen"
+  echo "  + bin/deckboy-listen"
+elif [ "${DECKBOY_REQUIRE_WHISPER:-0}" = "1" ]; then
+  echo "  ! deckboy-listen not found at $LISTEN_SRC and DECKBOY_REQUIRE_WHISPER=1" >&2
+  exit 1
+else
+  echo "  ! deckboy-listen not found - live captions will be unavailable" >&2
+fi
+
 # libltc (LTC timecode) is dlopen()d at runtime, never linked, so the ldd walk
 # below cannot see it. Copy it into lib/ explicitly; ltc_api.hpp looks in
 # ../lib relative to the executable. Without this the bundle claimed LTC but it
@@ -203,7 +217,7 @@ is_excluded() {
 
 echo "Bundling libraries"
 WORKLIST=()
-for f in "$STAGE_DIR/bin/Deckboy" "$STAGE_DIR/bin/deckboy-mini" "$STAGE_DIR/bin/ffmpeg" "$STAGE_DIR/bin/ffprobe" "$STAGE_DIR/bin/whisper-cli"; do
+for f in "$STAGE_DIR/bin/Deckboy" "$STAGE_DIR/bin/deckboy-mini" "$STAGE_DIR/bin/ffmpeg" "$STAGE_DIR/bin/ffprobe" "$STAGE_DIR/bin/whisper-cli" "$STAGE_DIR/bin/deckboy-listen"; do
   [ -f "$f" ] && WORKLIST+=("$f")
 done
 
