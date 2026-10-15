@@ -409,6 +409,71 @@ std::vector<std::uint8_t> bgraBars(std::size_t barWidth, std::size_t rows, std::
   return px;
 }
 
+bool sameDensity(const s::Density& a, const s::Density& b) {
+  return a.bins == b.bins && a.xExcursions.below == b.xExcursions.below &&
+         a.xExcursions.above == b.xExcursions.above && a.yExcursions.below == b.yExcursions.below &&
+         a.yExcursions.above == b.yExcursions.above;
+}
+bool sameHistogram(const s::Histogram& a, const s::Histogram& b) {
+  return a.bins == b.bins && a.excursions.below == b.excursions.below && a.excursions.above == b.excursions.above;
+}
+bool sameGamut(const s::GamutCounts& a, const s::GamutCounts& b) {
+  const auto range = [](const s::GamutRangeCounts& x, const s::GamutRangeCounts& y) {
+    bool same = x.pixels == y.pixels;
+    for (std::size_t c = 0; c < 4; ++c)
+      same = same && x.channels[c].below == y.channels[c].below && x.channels[c].above == y.channels[c].above;
+    return same;
+  };
+  return a.validPixels == b.validPixels && a.invalidPixels == b.invalidPixels &&
+         range(a.nominal, b.nominal) && range(a.preferred, b.preferred) && range(a.total, b.total);
+}
+
+// The 8-bit byte path is tabled for speed; it must equal the general path
+// fed the same pixels as 8-bit full-code samples, in every bin and count.
+void bytePathMatchesGeneral() {
+  const std::size_t w = 61, h = 17;
+  std::vector<std::uint8_t> px(w * h * 4);
+  for (std::size_t i = 0; i < px.size(); ++i) px[i] = static_cast<std::uint8_t>((i * 2654435761u) >> 23);
+  for (std::size_t i = 0; i < 64; ++i) px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = static_cast<std::uint8_t>(i * 4);
+  std::vector<s::Sample> codes(w * h);
+  for (bool bgra : {false, true}) {
+    for (std::size_t i = 0; i < w * h; ++i) {
+      const std::uint8_t r = px[i * 4 + (bgra ? 2 : 0)], g = px[i * 4 + 1], b = px[i * 4 + (bgra ? 0 : 2)];
+      codes[i] = {double(r), double(g), double(b)};
+    }
+    for (auto filter : {s::GamutFilter::None, s::GamutFilter::Progressive}) {
+      for (auto matrix : {s::Matrix::Bt709, s::Matrix::Bt2020Ncl}) {
+        s::Options options;
+        options.columns = 37;
+        options.levelBins = options.vectorBins = options.histogramBins = 64;
+        options.gamutFilter = filter;
+        options.matrix = matrix;
+        s::Rgba8View view{px, w, h, 0, bgra};
+        const auto fast = s::analyze(view, options);
+        const auto general = s::analyze(
+          s::FrameView{codes, w, h, 0, s::Components::Rgb, s::Encoding::FullCodeRgb, 8}, options);
+        bool same = fast.validPixels == general.validPixels && sameDensity(fast.vectorscope, general.vectorscope) &&
+                    sameHistogram(fast.lumaHistogram, general.lumaHistogram) &&
+                    sameGamut(fast.rawGamut, general.rawGamut) && sameGamut(fast.filteredGamut, general.filteredGamut);
+        for (std::size_t c = 0; c < 3; ++c)
+          same = same && sameDensity(fast.ycbcrParade[c], general.ycbcrParade[c]) &&
+                 sameDensity(fast.rgbParade[c], general.rgbParade[c]) &&
+                 sameHistogram(fast.rgbHistogram[c], general.rgbHistogram[c]);
+        for (std::size_t d = 0; d < 2; ++d) same = same && sameDensity(fast.diamond[d], general.diamond[d]);
+        expect(same, "8-bit byte path equals the general path, bin for bin");
+      }
+    }
+  }
+  // A levels range narrower than the signal: the tabled bins carry excursions too.
+  s::Options narrow;
+  narrow.levels = {0.1, 0.9};
+  const auto fast = s::analyze(s::Rgba8View{px, w, h, 0, false}, narrow);
+  for (std::size_t i = 0; i < w * h; ++i) codes[i] = {double(px[i * 4]), double(px[i * 4 + 1]), double(px[i * 4 + 2])};
+  const auto general = s::analyze(s::FrameView{codes, w, h, 0, s::Components::Rgb, s::Encoding::FullCodeRgb, 8}, narrow);
+  expect(sameDensity(fast.rgbParade[0], general.rgbParade[0]) && sameHistogram(fast.rgbHistogram[2], general.rgbHistogram[2]) &&
+         fast.rgbHistogram[2].excursions.above > 0, "byte path excursions match outside a narrow levels range");
+}
+
 void sent422() {
   s::Options options = smallOptions();
   options.gamutFilter = s::GamutFilter::None;
@@ -517,6 +582,7 @@ int main() {
     diamond();
     bandsMatchWhole();
     sent422();
+    bytePathMatchesGeneral();
   } catch (const std::exception& error) {
     ++failures;
     std::cerr << "[fail] unexpected exception: " << error.what() << '\n';

@@ -342,17 +342,94 @@ void accumulate(Result& whole, const Result& part) {
   sumGamut(whole.filteredGamut, part.filteredGamut);
 }
 
+// 8-bit R'G'B' bytes. Anything that depends on one byte (a parade row, a
+// histogram bin) or two (a Diamond cell) is binned once per value with the
+// same expressions analyzePixels uses, so the result is identical bin for bin
+// (scopes_check compares the two). Every R'G'B' value is in 0..1, so the raw
+// gamut can only ever see Y' -- and the filtered pass, an average of in-range
+// values, finds nothing whenever the raw found nothing: it is skipped then.
+// It was 620 ms of a 4K frame spent computing a zero.
 Result analyze(Rgba8View frame, const Options& options) {
   validateOptions(options);
   const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes, frame.bytes.size(), 4);
   const auto k = coefficients(options.matrix);
-  return analyzePixels(frame.width, frame.height, options, [&](std::size_t x, std::size_t y) {
+  const std::size_t red = frame.bgra ? 2 : 0, blue = frame.bgra ? 0 : 2;
+  const auto read = [&](std::size_t x, std::size_t y) {
     const auto offset = y * stride + x * 4;
-    const std::size_t red = frame.bgra ? 2 : 0, blue = frame.bgra ? 0 : 2;
     const Rgb rgb{frame.bytes[offset + red] / 255.0, frame.bytes[offset + 1] / 255.0,
                   frame.bytes[offset + blue] / 255.0};
     return Pixel{rgb, encode(rgb, k)};
-  });
+  };
+  Result result = makeResult(options);
+  struct ByteBin { std::size_t bin = 0; std::uint8_t below = 0, above = 0; };
+  std::array<double, 256> unit{};
+  for (std::size_t v = 0; v < 256; ++v) unit[v] = static_cast<double>(v) / 255.0;
+  const auto table = [&](Range range, std::size_t count) {
+    std::array<ByteBin, 256> lut{};
+    for (std::size_t v = 0; v < 256; ++v) {
+      Excursions e;
+      lut[v].bin = bin(unit[v], range, count, e);
+      lut[v].below = static_cast<std::uint8_t>(e.below);
+      lut[v].above = static_cast<std::uint8_t>(e.above);
+    }
+    return lut;
+  };
+  const auto paradeRow = table(options.levels, options.levelBins);
+  const auto histBin = table(options.levels, options.histogramBins);
+  // Diamond cell for (a, g): x = a - g in [-1, 1], y = a + g in [0, 2], so
+  // never an excursion; stored as the bin index.
+  std::vector<std::uint32_t> diamondCell(256 * 256);
+  {
+    Excursions unused;
+    const Density& d = result.diamond[0];
+    for (std::size_t a = 0; a < 256; ++a)
+      for (std::size_t g = 0; g < 256; ++g)
+        diamondCell[a * 256 + g] = static_cast<std::uint32_t>(
+          bin(unit[a] + unit[g], d.yRange, d.height, unused) * d.width +
+          bin(unit[a] - unit[g], d.xRange, d.width, unused));
+  }
+  std::vector<std::size_t> columnOf(frame.width);
+  for (std::size_t x = 0; x < frame.width; ++x)
+    columnOf[x] = static_cast<std::size_t>(static_cast<std::uint64_t>(x) * options.columns / frame.width);
+  constexpr double epsilon = 1e-12;  // countRange's
+  for (std::size_t y = 0; y < frame.height; ++y) {
+    const std::uint8_t* row = frame.bytes.data() + y * stride;
+    for (std::size_t x = 0; x < frame.width; ++x) {
+      const std::uint8_t bytes[3] = {row[x * 4 + red], row[x * 4 + 1], row[x * 4 + blue]};
+      const Rgb rgb{unit[bytes[0]], unit[bytes[1]], unit[bytes[2]]};
+      const YCbCr ycc = encode(rgb, k);
+      const std::size_t column = columnOf[x];
+      ++result.validPixels;
+      const std::array<double, 3> yccValues{ycc.y, ycc.cb, ycc.cr};
+      for (std::size_t c = 0; c < 3; ++c) {
+        addWave(result.ycbcrParade[c], column, yccValues[c]);
+        Density& parade = result.rgbParade[c];
+        const ByteBin& row_ = paradeRow[bytes[c]];
+        ++parade.bins[row_.bin * parade.width + column];
+        parade.yExcursions.below += row_.below;
+        parade.yExcursions.above += row_.above;
+        Histogram& hist = result.rgbHistogram[c];
+        const ByteBin& hb = histBin[bytes[c]];
+        ++hist.bins[hb.bin];
+        hist.excursions.below += hb.below;
+        hist.excursions.above += hb.above;
+      }
+      add(result.lumaHistogram, ycc.y);
+      addVector(result.vectorscope, ycc);
+      ++result.diamond[0].bins[diamondCell[bytes[2] * 256 + bytes[1]]];
+      ++result.diamond[1].bins[diamondCell[bytes[0] * 256 + bytes[1]]];
+      if (ycc.y >= -epsilon && ycc.y <= 1.0 + epsilon) ++result.rawGamut.validPixels;
+      else countGamut(result.rawGamut, channels(Pixel{rgb, ycc}), options.gamutBitDepth);
+    }
+  }
+  const bool rawClean = result.rawGamut.nominal.pixels == 0 && result.rawGamut.total.pixels == 0 &&
+                        result.rawGamut.preferred.pixels == 0;
+  if (options.gamutFilter == GamutFilter::None || (rawClean && frame.width != 0)) {
+    result.filteredGamut = result.rawGamut;
+  } else if (frame.width != 0) {
+    filteredGamut(result, frame.width, frame.height, options, read);
+  }
+  return result;
 }
 
 Result analyze(Bgra422View frame, const Options& options) {
