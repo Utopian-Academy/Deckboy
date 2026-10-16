@@ -1,0 +1,51 @@
+# The README's live badges (latest release, total downloads, stars) are drawn
+# by shields.io from JSON this workflow writes, instead of shields.io asking
+# GitHub itself. Its shared pool of GitHub tokens runs dry often enough that
+# the badges read "invalid" or "unable to select next GitHub token from pool",
+# and GitHub's image proxy then keeps showing that.
+#
+# The JSON lives on its own branch, `badges`, as a single commit replaced on
+# every run, so it never adds to main's history.
+name: Badges
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  badges:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Count
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          downloads=$(gh api "repos/$REPO/releases" --paginate -q '.[].assets[].download_count' | awk '{s+=$1} END {print s+0}')
+          version=$(gh api "repos/$REPO/releases/latest" -q .tag_name)
+          stars=$(gh api "repos/$REPO" -q .stargazers_count)
+          mkdir -p out
+          badge() { printf '{"schemaVersion":1,"label":"%s","message":"%s"}\n' "$1" "$2" > "out/$3.json"; }
+          badge download "$version" version
+          badge downloads "$downloads" downloads
+          badge stars "$stars" stars
+          cat out/*.json
+      - name: Publish to the badges branch
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          cd out
+          git init -q -b badges
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Badge counts"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/$REPO.git" badges
