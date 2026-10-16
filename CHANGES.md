@@ -2,6 +2,14 @@
 
 ## 2026-10-16 - v0.99.413 (in progress)
 
+### Mic cue
+- Added the Mic cue: a live microphone or line input played through a deck, with the deck's fades,
+  routing and speakers and the cue's audio effects. `SOURCE > LIVE SOUND > Mic / line input`.
+  Its row shows LIVE and the input's level before GO; the inspector picks the input, MONO L / MONO R
+  / STEREO and the gain, with a colour-coded meter and a latched CLIP. STOP fades it out over its
+  fade out. `MIC`, `MIC ADD`, `MIC LIST`, `MIC INPUT`, `MIC CHANNEL`, `MIC GAIN`. Measured on
+  Windows; macOS and Linux untested.
+
 ### Scopes
 - The scopes on an HDR output now measure the HDR picture, not the SDR copy, so highlights no
   longer read clipped at 100%. The waveform and parade are marked in nits and PQ %, with a dashed

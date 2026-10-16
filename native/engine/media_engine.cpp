@@ -470,6 +470,24 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     return;
   }
 
+  // A MIC CUE IS A LIVE INPUT AND NO PICTURE. Duration 0 holds it on air
+  // until it is stopped, like the other live sources; the capture thread
+  // feeds the deck's audio path from here on.
+  if (cue->kind == CueKind::Mic) {
+    duration_ = 0.0;
+    currentPosition_ = 0.0;
+    pausedPosition_ = 0.0;
+    playbackStartPosition_ = 0.0;
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    state_ = autoplay ? TransportState::Playing : TransportState::Paused;
+    micLive_.store(autoplay, std::memory_order_relaxed);
+    startMicCapture(*cue);
+    if (audioStream_) {
+      deckboySetAudioPaused(audioStream_, !autoplay);
+    }
+    return;
+  }
+
   // A MIDI FILE HAS A LENGTH AND NO PICTURE.
   //
   // The transport is the whole of what the engine does for it: a duration and
@@ -1013,6 +1031,17 @@ void MediaEngine::stop(bool clearVisual) {
   // its engine is not Stopped. So "darken" has to be the state itself --
   // Paused at 0 below would leave a card on screen after STOP. RERACK (no
   // clear) holds it at its first moment, as it does every other still.
+  if (activeCue_->kind == CueKind::Mic) {
+    stopMicCapture();
+    clearAudio();
+    state_ = TransportState::Stopped;
+    pausedPosition_ = 0.0;
+    currentPosition_ = 0.0;
+    if (audioStream_) {
+      deckboySetAudioPaused(audioStream_, true);
+    }
+    return;
+  }
   if (activeCue_->kind == CueKind::Text) {
     state_ = clearVisual ? TransportState::Stopped : TransportState::Paused;
     pausedPosition_ = 0.0;
@@ -5179,6 +5208,7 @@ void MediaEngine::syncAudioFadeParams() {
   audioCueMono_.store(cue != nullptr && cue->audioMono, std::memory_order_relaxed);
   audioCuePairOffset_.store(cue ? std::clamp(cue->audioOutputPair, 0, 7) : 0,
                             std::memory_order_relaxed);
+  micChannel_.store(cue ? static_cast<int>(cue->micChannel) : 0, std::memory_order_relaxed);
   // AND THE MATRIX, from the same place and at the same moment as everything
   // else the audio thread needs. Published here rather than from the app so
   // there is one path: every edit that reaches the engine's cue snapshot
@@ -6503,6 +6533,9 @@ size_t MediaEngine::queuedFrames() {
 // Also clears the frame queue and resets capture flags.
 // ---------------------------------------------------------------------------
 void MediaEngine::stopDecoderThreads() {
+  // A mic is a producer like the decoders, and goes with them: on a new
+  // take, on stopAll and on the engine's destruction.
+  stopMicCapture();
   stopImageThread();
   // Anything still parked for the tap goes out now. The decode thread is about
   // to stop feeding, so nothing would ever come along to release the last
@@ -13798,4 +13831,230 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
     return std::nullopt;
   }
   return frame;
+}
+
+// ── MIC CUE ──────────────────────────────────────────────────────────────────
+//
+// The input is opened as a RECORDING stream at the engine's rate, stereo (SDL
+// duplicates a mono device into both), and read on its own thread every two
+// milliseconds. Each block takes the cue's channel choice, is metered, and
+// then goes through applyGainAndQueueAudio -- the same gain, fade, effect,
+// limiter, delay, tap and routing path a decoded file takes -- so a mic cue
+// cannot behave differently from every other audio cue in any of those ways.
+//
+// LATENCY. Nothing is held on purpose: a block is queued the moment it is
+// read. The two clocks (the input's and the output's) drift apart by tens of
+// parts per million, so the queue would creep; whatever is queued beyond two
+// capture blocks is dropped, which keeps the delay at the two device buffers
+// plus a block. An empty queue simply plays the next block as it arrives.
+
+void MediaEngine::setMicDefaultDevice(const std::string& name) {
+  std::lock_guard<std::mutex> lock(micInfoMutex_);
+  micDefaultDevice_ = name;
+}
+
+std::string MediaEngine::micDeviceInUse() const {
+  std::lock_guard<std::mutex> lock(micInfoMutex_);
+  return micDeviceInUse_;
+}
+
+std::string MediaEngine::micError() const {
+  std::lock_guard<std::mutex> lock(micInfoMutex_);
+  return micError_;
+}
+
+void MediaEngine::pumpMic() {
+  if (!activeCue_ || activeCue_->kind != CueKind::Mic) {
+    micLive_.store(false, std::memory_order_relaxed);
+    return;
+  }
+  micLive_.store(state_ == TransportState::Playing, std::memory_order_relaxed);
+}
+
+void MediaEngine::releaseMic(double seconds) {
+  micReleaseDone_.store(false, std::memory_order_relaxed);
+  micReleaseSeconds_.store(std::clamp(seconds, 0.01, 30.0), std::memory_order_relaxed);
+}
+
+void MediaEngine::startMicCapture(const Cue& cue) {
+  stopMicCapture();
+  std::string wanted = cue.path.rfind("mic://", 0) == 0 ? cue.path.substr(6) : std::string();
+  {
+    std::lock_guard<std::mutex> lock(micInfoMutex_);
+    if (wanted.empty()) wanted = micDefaultDevice_;
+    micError_.clear();
+    micDeviceInUse_.clear();
+  }
+  micPeak_.store(0.0f, std::memory_order_relaxed);
+  micLatencyMs_.store(0, std::memory_order_relaxed);
+  micReleaseSeconds_.store(0.0, std::memory_order_relaxed);
+  micReleaseDone_.store(false, std::memory_order_relaxed);
+  micChannel_.store(static_cast<int>(cue.micChannel), std::memory_order_relaxed);
+  const bool testSignal = wanted == kMicTestSignal;
+  if (!testSignal) {
+    // A NAMED DEVICE THAT IS ABSENT IS REPORTED, never swapped for another:
+    // a mic cue that quietly opened the laptop's built-in mic instead of the
+    // lectern would be live in the room with the wrong sound.
+    SDL_AudioDeviceID target = SDL_AUDIO_DEVICE_DEFAULT_RECORDING;
+    if (!wanted.empty()) {
+      target = 0;
+      int count = 0;
+      if (SDL_AudioDeviceID* ids = SDL_GetAudioRecordingDevices(&count)) {
+        for (int i = 0; i < count && !target; ++i) {
+          const char* name = SDL_GetAudioDeviceName(ids[i]);
+          if (name && wanted == name) target = ids[i];
+        }
+        SDL_free(ids);
+      }
+      if (!target) {
+        std::lock_guard<std::mutex> lock(micInfoMutex_);
+        micError_ = "input not found: " + wanted;
+        return;
+      }
+    }
+    SDL_AudioSpec spec {};
+    spec.format = SDL_AUDIO_S16;
+    spec.channels = 2;
+    spec.freq = audioRate_;
+    micStream_ = SDL_OpenAudioDeviceStream(target, &spec, nullptr, nullptr);
+    if (!micStream_) {
+      std::lock_guard<std::mutex> lock(micInfoMutex_);
+      micError_ = std::string("input would not open: ") + SDL_GetError();
+      return;
+    }
+    // A recording stream opens PAUSED like any other.
+    SDL_ResumeAudioStreamDevice(micStream_);
+    std::lock_guard<std::mutex> lock(micInfoMutex_);
+    micDeviceInUse_ = wanted.empty() ? std::string("system default") : wanted;
+  } else {
+    std::lock_guard<std::mutex> lock(micInfoMutex_);
+    micDeviceInUse_ = "test signal";
+  }
+  micRun_.store(true, std::memory_order_relaxed);
+  micThread_ = std::thread([this, wanted, testSignal]() { micThreadMain(wanted, testSignal); });
+}
+
+void MediaEngine::stopMicCapture() {
+  micRun_.store(false, std::memory_order_relaxed);
+  if (micThread_.joinable()) micThread_.join();
+  if (micStream_) {
+    SDL_DestroyAudioStream(micStream_);
+    micStream_ = nullptr;
+  }
+  micPeak_.store(0.0f, std::memory_order_relaxed);
+  micLatencyMs_.store(0, std::memory_order_relaxed);
+  micReleaseSeconds_.store(0.0, std::memory_order_relaxed);
+}
+
+void MediaEngine::micThreadMain(std::string device, bool testSignal) {
+  (void)device;
+  const int rate = audioRate_;
+  std::vector<std::int16_t> block;
+  double audioTime = 0.0;
+  double releaseGain = 1.0;
+  double phaseL = 0.0, phaseR = 0.0;
+  auto generatedAt = std::chrono::steady_clock::now();
+  int captureFrames = 0;   // the input's own block, once seen
+  if (micStream_) {
+    SDL_AudioSpec spec {};
+    int frames = 0;
+    if (SDL_GetAudioDeviceFormat(SDL_GetAudioStreamDevice(micStream_), &spec, &frames) && spec.freq > 0)
+      captureFrames = static_cast<int>(static_cast<long long>(frames) * rate / spec.freq);
+  }
+  float peakHold = 0.0f;
+  while (micRun_.load(std::memory_order_relaxed)) {
+    std::size_t frames = 0;
+    if (testSignal) {
+      // Real time, from the clock: as many frames as have elapsed.
+      const auto now = std::chrono::steady_clock::now();
+      frames = static_cast<std::size_t>(
+        std::chrono::duration<double>(now - generatedAt).count() * rate);
+      if (frames >= 96) {
+        generatedAt += std::chrono::nanoseconds(
+          static_cast<long long>(frames * 1e9 / rate));
+        block.resize(frames * 2);
+        const double aL = std::pow(10.0, -18.0 / 20.0) * 32767.0;
+        const double aR = std::pow(10.0, -24.0 / 20.0) * 32767.0;
+        for (std::size_t f = 0; f < frames; ++f) {
+          phaseL += 2.0 * 3.14159265358979323846 * 1000.0 / rate;
+          phaseR += 2.0 * 3.14159265358979323846 * 500.0 / rate;
+          if (phaseL > 6.283185307179586) phaseL -= 6.283185307179586;
+          if (phaseR > 6.283185307179586) phaseR -= 6.283185307179586;
+          block[f * 2] = static_cast<std::int16_t>(std::lround(std::sin(phaseL) * aL));
+          block[f * 2 + 1] = static_cast<std::int16_t>(std::lround(std::sin(phaseR) * aR));
+        }
+        captureFrames = 480;
+      } else {
+        frames = 0;
+      }
+    } else if (micStream_) {
+      const int avail = SDL_GetAudioStreamAvailable(micStream_);
+      if (avail >= 4) {
+        block.resize(static_cast<std::size_t>(avail) / sizeof(std::int16_t));
+        const int got = SDL_GetAudioStreamData(micStream_, block.data(), avail);
+        frames = got > 0 ? static_cast<std::size_t>(got) / 4 : 0;
+        block.resize(frames * 2);
+      }
+    }
+    if (frames == 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(2));
+      continue;
+    }
+    // The channel choice, then the meter on what the cue will actually play
+    // with its gain -- the level the inspector's CLIP warns about.
+    const int channel = micChannel_.load(std::memory_order_relaxed);
+    const double gain = audioCueGain_.load(std::memory_order_relaxed);
+    float peak = 0.0f;
+    for (std::size_t f = 0; f < frames; ++f) {
+      std::int16_t& l = block[f * 2];
+      std::int16_t& r = block[f * 2 + 1];
+      if (channel == static_cast<int>(MicChannel::MonoLeft)) r = l;
+      else if (channel == static_cast<int>(MicChannel::MonoRight)) l = r;
+      const float level = static_cast<float>(
+        std::max(std::abs(static_cast<int>(l)), std::abs(static_cast<int>(r))) * gain / 32768.0);
+      peak = std::max(peak, level);
+    }
+    if (peak >= 0.999f) micClipped_.store(true, std::memory_order_relaxed);
+    // A meter that falls back about 20 dB a second, so a word is readable.
+    peakHold = std::max(peak, peakHold * static_cast<float>(std::pow(0.1, static_cast<double>(frames) / rate)));
+    micPeak_.store(peakHold, std::memory_order_relaxed);
+
+    if (!micLive_.load(std::memory_order_relaxed)) {
+      continue;   // racked or paused: metered, never heard
+    }
+    // STOP's fade: a ramp over the block, then done.
+    const double release = micReleaseSeconds_.load(std::memory_order_relaxed);
+    if (release > 0.0) {
+      const double step = 1.0 / (release * rate);
+      for (std::size_t f = 0; f < frames; ++f) {
+        releaseGain = std::max(0.0, releaseGain - step);
+        block[f * 2] = static_cast<std::int16_t>(std::lround(block[f * 2] * releaseGain));
+        block[f * 2 + 1] = static_cast<std::int16_t>(std::lround(block[f * 2 + 1] * releaseGain));
+      }
+      if (releaseGain <= 0.0) micReleaseDone_.store(true, std::memory_order_relaxed);
+    } else {
+      releaseGain = 1.0;
+    }
+    // Hold the queue near two input blocks. The input's clock and the
+    // output's drift apart; when the input runs fast the queue creeps up, and
+    // one block is let go rather than let the delay grow for the whole show.
+    const int channels = std::max(2, audioDeviceChannels_.load(std::memory_order_relaxed));
+    const int bytesPerFrame = channels * static_cast<int>(sizeof(std::int16_t));
+    const int keepFrames = std::max(480, 2 * std::max(captureFrames, 240));
+    int queuedFrames = queuedAudioBytes() / bytesPerFrame;
+    if (queuedFrames > keepFrames + static_cast<int>(frames)) {
+      continue;
+    }
+    applyGainAndQueueAudio(block, audioTime);
+    queuedFrames = queuedAudioBytes() / bytesPerFrame;
+    int outputFrames = 0;
+    if (audioStream_) {
+      SDL_AudioSpec spec {};
+      int devFrames = 0;
+      if (SDL_GetAudioDeviceFormat(SDL_GetAudioStreamDevice(audioStream_), &spec, &devFrames) && spec.freq > 0)
+        outputFrames = static_cast<int>(static_cast<long long>(devFrames) * rate / spec.freq);
+    }
+    micLatencyMs_.store(static_cast<int>(std::lround(
+      1000.0 * (captureFrames + queuedFrames + outputFrames) / rate)), std::memory_order_relaxed);
+  }
 }

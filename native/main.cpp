@@ -4044,6 +4044,7 @@ class App {
     stopWebIngests();
     stopVmixServer();
     stopScopesWorkers();
+    closeMicMeters();
     liveCaptioner_.stop();
     // Before the output runtimes go away: this releases any IS-05 caller parked
     // in the patch handler, then joins the node's threads.
@@ -6344,6 +6345,57 @@ class App {
   // only for SWEEP, because a control that does nothing for the current
   // waveform is worse than no control -- it invites the operator to change it
   // and wonder why nothing happened.
+  // MIC: which input, which part of it, how loud, and whether it is alive.
+  // The gain is the cue's own audio gain (the same field PLAYBACK's trim
+  // edits), so there is one number for "how much of this input", not two.
+  int inspDrawMicRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    if (cue.kind != CueKind::Mic) {
+      return rowY;
+    }
+    inspDrawQuickRow(ix, rowY, "input", QuickAction::MicInputCycle, micCueInputLabel(cue),
+                     QuickAction::MicInputCycle, QuickAction::ToggleLoop, false, false,
+                     "Steps through the inputs this computer has. 'Settings input' "
+                     "follows the input chosen in Settings > Audio.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "channel", QuickAction::MicChannelCycle,
+                     micChannelLabel(cue.micChannel), QuickAction::MicChannelCycle,
+                     QuickAction::ToggleLoop, false, false,
+                     "MONO L plays the left input in both speakers: mic 1 on most "
+                     "interfaces. STEREO is for a line source.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "gain", QuickAction::MicGainDec,
+                     (cue.audioGainDb > 0.0f ? "+" : "") + fmtFloat(cue.audioGainDb, 0) + " dB",
+                     QuickAction::MicGainInc, QuickAction::ToggleLoop, false, false,
+                     "Digital gain on the input, -40 to +40 dB. Set the interface's own "
+                     "preamp first; this is for the last few dB.");
+    rowY += ix.rowStep;
+    // LEVEL: the meter, coloured by how hot, and a latched CLIP.
+    {
+      const int gap = ix.ellipsize ? 8 : 6;
+      const int contentW = ix.ctrlW - ix.inset * 2;
+      const int clipW = uiScaled(52);
+      const int labelW = inspLabelColumnWidth(ix, contentW, clipW + gap * 2);
+      const int rx = ix.ctrl.x + ix.inset;
+      SDL_Rect labelRect {rx, rowY, labelW, ix.rowH};
+      SDL_Rect bar {rx + labelW + gap, rowY + ix.rowH / 4,
+                    std::max(uiScaled(40), contentW - labelW - clipW - gap * 2), ix.rowH / 2};
+      SDL_Rect clip {bar.x + bar.w + gap, rowY, clipW, ix.rowH};
+      bool clipped = false;
+      const float level = micCueLevel(cue, &clipped);
+      drawTextSafe(controlRenderer_, ix.labelFont, labelRect, "level", pal.fg);
+      drawMicMeter(bar, level);
+      drawUIPanel(clip, clipped ? SDL_Color {200, 50, 30, 255} : pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, clip, "CLIP",
+                           clipped ? SDL_Color {255, 255, 255, 255} : pal.fgSoft);
+      quickButtons_.push_back({clip, QuickAction::MicClipReset,
+                               "Lights when the input reached full scale with this gain. Click to clear."});
+      rowY += ix.rowStep;
+    }
+    rowY = inspDrawMessageRow(ix, rowY, micCueStatusText(cue), pal.mid, pal.deep);
+    return rowY;
+  }
+
   int inspDrawToneRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     if (cue.kind != CueKind::Tone) {
@@ -6617,6 +6669,7 @@ class App {
   static bool cueSupportsEffectStack(const Cue& cue) {
     switch (cue.kind) {
       case CueKind::Audio:
+      case CueKind::Mic:
         return false;
       case CueKind::Tone:
         return cue.tone.visualEnabled;   // a tone cue only has pixels if asked
@@ -9114,6 +9167,7 @@ class App {
       case CueKind::LowerThird: return &uiCueIconLowerThird_;
       case CueKind::Composite:  return &uiCueIconPattern_;
       case CueKind::Audio:      return &uiCueIconAudio_;
+      case CueKind::Mic:        return &uiCueIconAudio_;
       case CueKind::Timer:      return &uiCueIconPattern_;
       case CueKind::WindowSource:
       case CueKind::Camera:

@@ -360,6 +360,34 @@ class MediaEngine {
   // rendering a fixed block, so the tone is continuous no matter how the frame
   // rate wanders.
   void pumpToneAudio(const Cue& cue);
+
+  // ── MIC CUE ────────────────────────────────────────────────────────────
+  // A live input read on a thread of its own, straight from the device in
+  // small blocks, and fed through the same gain, fade, effect, limiter and
+  // routing path a decoded file takes (applyGainAndQueueAudio). Main thread:
+  // pumpMic once a tick publishes whether the transport is playing.
+  void pumpMic();
+  void setMicDefaultDevice(const std::string& name);
+  // The input level AFTER the channel choice and the cue's gain, before the
+  // fades: what an operator asks of a mic ("is it live, is it hot").
+  float micPeak() const { return micPeak_.load(std::memory_order_relaxed); }
+  bool micClipped() const { return micClipped_.load(std::memory_order_relaxed); }
+  void clearMicClip() { micClipped_.store(false, std::memory_order_relaxed); }
+  bool micRunning() const { return micRun_.load(std::memory_order_relaxed); }
+  // Input to speaker, estimated from the two device buffers and what is
+  // queued between them; 0 until the first block has played.
+  int micLatencyMs() const { return micLatencyMs_.load(std::memory_order_relaxed); }
+  std::string micDeviceInUse() const;
+  std::string micError() const;
+  // STOP on a Mic cue: fade over `seconds`, then micReleaseFinished() turns
+  // true and the app stops the deck. A live mic cut mid-word clicks.
+  void releaseMic(double seconds);
+  bool micReleasing() const { return micReleaseSeconds_.load(std::memory_order_relaxed) > 0.0; }
+  bool micReleaseFinished() const { return micReleaseDone_.load(std::memory_order_relaxed); }
+  // The name that means "a generated test signal, not a device": 1 kHz on the
+  // left at -18 dBFS, 500 Hz on the right at -24. Proves the cue's processing
+  // without a microphone (and in CI, where there is none).
+  static constexpr const char* kMicTestSignal = "deckboy:test-signal";
   // The cue's on-screen card: what is playing, at what level, on which output.
   void rebuildToneFrame(const Cue& cue);
 
@@ -1037,6 +1065,23 @@ class MediaEngine {
   // Tone generator state. Lives across pump calls so the waveform is
   // continuous -- restarting the phase every block would click audibly.
   double tonePhase_ = 0.0;
+  void startMicCapture(const Cue& cue);
+  void stopMicCapture();
+  void micThreadMain(std::string device, bool testSignal);
+  SDL_AudioStream* micStream_ = nullptr;
+  std::thread micThread_;
+  std::atomic<bool> micRun_ {false};
+  std::atomic<bool> micLive_ {false};          // the transport is playing
+  std::atomic<float> micPeak_ {0.0f};
+  std::atomic<bool> micClipped_ {false};
+  std::atomic<int> micLatencyMs_ {0};
+  std::atomic<int> micChannel_ {0};
+  std::atomic<double> micReleaseSeconds_ {0.0};
+  std::atomic<bool> micReleaseDone_ {false};
+  mutable std::mutex micInfoMutex_;
+  std::string micDefaultDevice_;               // micInfoMutex_
+  std::string micDeviceInUse_;                 // micInfoMutex_
+  std::string micError_;                       // micInfoMutex_
   // The sting's own clock and phase. Advanced on the audio thread, reset when
   // the cue is taken -- see loadCue.
   double stingElapsed_ = 0.0;

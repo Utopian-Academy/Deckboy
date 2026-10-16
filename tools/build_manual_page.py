@@ -50,8 +50,10 @@ def inline(text):
 
 
 def table_cells(row, tag):
-    parts = row.strip().strip("|").split("|")
-    return "".join("<{0}>{1}</{0}>".format(tag, inline(c.strip())) for c in parts)
+    # A pipe written \| is part of the cell (an alternative in a command,
+    # "709\|2020"), as GitHub reads it; only a bare | divides cells.
+    parts = re.split(r"(?<!\\)\|", row.strip().strip("|"))
+    return "".join("<{0}>{1}</{0}>".format(tag, inline(c.strip().replace("\\|", "|"))) for c in parts)
 
 
 def convert(lines):

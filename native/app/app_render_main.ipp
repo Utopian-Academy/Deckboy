@@ -3901,6 +3901,9 @@
       if (cue.stillDurationSeconds > 0.0) {
         return formatSeconds(cue.stillDurationSeconds);
       }
+      if (cue.kind == CueKind::Mic) {
+        return std::string("live");
+      }
       return std::string("hold");
     };
 
@@ -4402,6 +4405,9 @@
       }
       if (cue.stillDurationSeconds > 0.0) {
         return formatSeconds(cue.stillDurationSeconds);
+      }
+      if (cue.kind == CueKind::Mic) {
+        return std::string("live");
       }
       return std::string("hold");
     };
@@ -6148,6 +6154,17 @@
         ty = inspDrawToneRows(ix, ty, *selectedCue);
       }
       finishInspectorSection(toneSection, ty);
+
+    } else if (selectedCue && selectedCue->kind == CueKind::Mic) {
+      int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
+      auto micSection = beginInspectorSection(ry, "MIC", cueSectionMicOpen_,
+                                              QuickAction::CueSectionMicToggle,
+                                              "The live input this cue plays");
+      int my = micSection.bodyStartY;
+      if (cueSectionMicOpen_) {
+        my = inspDrawMicRows(ix, my, *selectedCue);
+      }
+      finishInspectorSection(micSection, my);
 
     } else if (selectedCue && selectedCue->kind == CueKind::VideoSynth) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;

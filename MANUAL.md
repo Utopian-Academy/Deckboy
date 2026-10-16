@@ -156,6 +156,7 @@ down to give the height back.
 | **DeckLink Source** | A Blackmagic card's SDI or HDMI input, captured through the DeckLink SDK rather than through FFmpeg |
 | **Lower Third** | A name strap over another playlist, in 52 looks (§16) |
 | **Audio** | An audio-only file with a waveform lane |
+| **Mic** | A live microphone or line input, played through the deck with its fades, routing and audio effects (see Mic cue under §17) |
 | **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages. Set its **backdrop** to **transparent** and use **GEOMETRY** to put the clock in a corner of the programme as a layer |
 | **Video Synth** | Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets |
@@ -1842,6 +1843,47 @@ remote protocol does the same.
 a clip indicator, mono folding, and a recording bitrate. Routed to the programme
 it reaches both the stream and the recording, so a presenter's mic or a desk
 feed can be laid against the playback.
+
+### Mic cue
+
+A **Mic cue** plays a live input through a deck, like any other audio cue: the
+deck's speakers and output pair, the deck fader and master, the cue's fades and
+its AUDIO FX chain, and the peak limiter. Add one with `SOURCE > LIVE SOUND >
+Mic / line input`. It takes the input chosen in Settings until you pick another.
+
+- **The row** shows **LIVE** where a length would be, with the input's level
+  along its foot, so a dead or unplugged mic shows before GO.
+- **Inspector → MIC**: **input** steps through the inputs this computer has
+  ("Settings input" follows Settings → AUDIO INPUT). **channel** is **MONO L**
+  (the left input in both speakers, mic 1 on most interfaces), **MONO R**, or
+  **STEREO** for a line source. **gain** is digital gain, -40 to +40 dB: set
+  the interface's own preamp first. **level** is the meter, green up to
+  -18 dBFS, amber to -6, red above, with a white tick at -18. **CLIP** lights
+  when the input reached full scale at this gain, and stays lit until clicked.
+  The last line says whether the cue is live, and the input-to-speaker delay
+  Deckboy estimates from the two devices' buffers.
+- **GO** opens it into the deck with its fade in (0.5 s on a new cue). Nothing
+  reaches the speakers until GO; a racked mic cue is metered, not heard.
+- **STOP** fades it out over its fade out (1 s on a new cue), then stops the
+  deck. A second STOP while it fades cuts it at once.
+- The input is read straight from the device in small blocks, not through
+  FFmpeg. Measured on Windows: an estimated 26-32 ms from input to speaker.
+- The first time a mic cue goes live on the default speakers, Deckboy warns
+  once that a mic into the same room's speakers can feed back. It does not
+  stop you.
+- An input that is not there is reported on the cue, never swapped for another
+  one.
+- The Settings input is separate and keeps its own job (the stream, the
+  recording and live captions).
+
+| Command | Does |
+|---------|------|
+| `MIC` | The selected mic cue: input, level, channel, gain, delay, status |
+| `MIC ADD [<device>\|TEST]` | Adds a mic cue (`TEST`: a built-in 1 kHz / 500 Hz test signal) |
+| `MIC LIST` | The inputs this computer has |
+| `MIC INPUT SETTINGS\|TEST\|<device>` | The selected mic cue's input |
+| `MIC CHANNEL L\|R\|STEREO` | Which part of the input it plays |
+| `MIC GAIN <dB>` | Its gain, -40 to 40 |
 
 ### ASIO
 

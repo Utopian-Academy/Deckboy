@@ -295,6 +295,7 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::Target:         return "Target";
     case CueKind::Fade:           return "Fade";
     case CueKind::Memo:           return "Memo";
+    case CueKind::Mic:            return "Mic";
     case CueKind::Midi:           return "MIDI";
     case CueKind::Network:        return "Network";
     case CueKind::Timecode:       return "Timecode";
@@ -339,6 +340,7 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::Target:       return "target";
     case CueKind::Fade:         return "fade";
     case CueKind::Memo:         return "memo";
+    case CueKind::Mic:          return "mic";
     case CueKind::Midi:         return "midi";
     case CueKind::Network:      return "network";
     case CueKind::Timecode:     return "timecode";

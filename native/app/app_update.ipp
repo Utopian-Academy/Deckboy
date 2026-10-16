@@ -314,6 +314,7 @@
     vuFocusedDeck_.store(project_.focusedDeckIndex, std::memory_order_relaxed);
     serviceWindowFitScale();
     serviceTestCardExport();
+    serviceMicMeters(SDL_GetTicks());
     serviceMediaToolsCheck();
     syncWebMonitorDirectory();
     serviceAutoScroll(1.0 / 60.0);
@@ -928,6 +929,22 @@
         engine->rebuildVideoSynthFrame(*activeCue,
                                        static_cast<double>(animationNow_) / 1000.0,
                                        reactiveAudioLevel_);
+      } else if (activeCue && activeCue->kind == CueKind::Mic) {
+        engine->setMicDefaultDevice(project_.audioInputDeviceName);
+        engine->pumpMic();
+        if (engine->micReleaseFinished()) {
+          engine->stop(true);
+        } else if (engine->state() == TransportState::Playing && engine->micRunning() &&
+                   !micFeedbackWarned_ && project_.decks[deckIndex].audioOutputDeviceName.empty()) {
+          // ONE WARNING, not a block: a mic into the same room's speakers can
+          // howl, and the default device is usually those speakers.
+          micFeedbackWarned_ = true;
+          triggerToast("mic live on the default speakers - watch for feedback",
+                       ToastKind::Warning, kToastReadableMs);
+        }
+        if (!engine->micError().empty() && !engine->micRunning()) {
+          // Reported on the cue's status row; nothing to pump.
+        }
       } else if (activeCue && activeCue->kind == CueKind::Tone) {
         // Topped up every tick rather than rendered in one block, so a level
         // or frequency change is heard immediately instead of after the old

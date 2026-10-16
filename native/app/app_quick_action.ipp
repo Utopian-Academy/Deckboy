@@ -514,6 +514,12 @@
       case QuickAction::CycleScaleModePrevious: cycleSelectedScaleMode(-1); break;
       case QuickAction::ScopesCycleView: cycleMonitorView(); break;
       case QuickAction::ScopesSourceCycle: cycleScopesSource(); break;
+      case QuickAction::MicInputCycle: cycleSelectedMicInput(); break;
+      case QuickAction::MicChannelCycle: cycleSelectedMicChannel(); break;
+      case QuickAction::MicGainDec: adjustSelectedMicGain(-1.0f); break;
+      case QuickAction::MicGainInc: adjustSelectedMicGain(1.0f); break;
+      case QuickAction::MicClipReset: resetSelectedMicClip(); break;
+      case QuickAction::CueSectionMicToggle: cueSectionMicOpen_ = !cueSectionMicOpen_; break;
       case QuickAction::ScopesFreeze:
         scopesFrozen_ = !scopesFrozen_;
         triggerToast(scopesFrozen_ ? "scopes: frozen" : "scopes: live");

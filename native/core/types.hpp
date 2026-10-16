@@ -95,10 +95,17 @@ enum class CueKind {
   Target,        // acts ON another cue rather than playing anything: start it,
                  // stop it, pause it, arm it. Carries no media either — see
                  // CueTargetVerb and Cue::targetCueId
-  Memo           // does NOTHING when GO reaches it but put its notes in front of
+  Memo,          // does NOTHING when GO reaches it but put its notes in front of
                  // the operator: "stand by sound", "wait for the speech to end".
                  // A note that lives in the running order rather than beside it
+  Mic            // a LIVE INPUT played through the deck: a microphone or a line
+                 // in, with the deck's fades, routing and the cue's audio chain.
+                 // path = "mic://<device>", empty = the input chosen in Settings
 };
+
+// Which part of the input a Mic cue plays. Most interfaces put mic 1 on the
+// left input, so MONO L is the default; STEREO is for a line source.
+enum class MicChannel : int { MonoLeft = 0, MonoRight = 1, Stereo = 2 };
 
 // ---------------------------------------------------------------------------
 // What a Target cue does to the cue it points at.
@@ -1729,6 +1736,7 @@ struct Cue {
   TimerSettings timer;
   // Tone generator settings. Only meaningful when kind == CueKind::Tone.
   ToneSettings tone;
+  MicChannel micChannel = MicChannel::MonoLeft;   // a Mic cue: which part of the input plays
   // The operator's effect stack, applied in list order. Empty on every cue
   // that has never had one, which is the common case and costs nothing.
   std::vector<deckboy::effects::CueEffect> effects;
@@ -3405,7 +3413,13 @@ enum class QuickAction {
   ScopesToggleBig,        // param = the scope panel to show alone (again to return)
   ScopesFreeze,           // hold the scopes on the current frame
   DmxProtocolCycle,       // a DMX cue's network: Art-Net or sACN
-  ScopesSourceCycle       // what the scopes measure: programme, then each output
+  ScopesSourceCycle,      // what the scopes measure: programme, then each output
+  MicInputCycle,          // a Mic cue's input: Settings' input, then each device
+  MicChannelCycle,        // MONO L -> MONO R -> STEREO
+  MicGainDec,             // the cue's gain, in dB
+  MicGainInc,
+  MicClipReset,           // clear the latched CLIP
+  CueSectionMicToggle     // collapse/expand the inspector's MIC section
 };
 
 // ---------------------------------------------------------------------------

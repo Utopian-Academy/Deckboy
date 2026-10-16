@@ -333,6 +333,19 @@
       playUiSound(UiSoundEffect::Stop);
       return;
     }
+    // A LIVE MIC FADES OUT over its fade-out time and then stops; a second
+    // STOP while it fades cuts it at once.
+    if (activeCue && activeCue->kind == CueKind::Mic && engine->micRunning() &&
+        engine->state() == TransportState::Playing && !engine->micReleasing()) {
+      const double fadeOut = activeCue->audioFadeOutSeconds >= 0.0f
+        ? static_cast<double>(activeCue->audioFadeOutSeconds) : activeCue->fadeOutSeconds;
+      if (fadeOut > 0.01) {
+        engine->releaseMic(fadeOut);
+        triggerToast("mic fading out");
+        playUiSound(UiSoundEffect::Stop);
+        return;
+      }
+    }
     // STOP darkens the deck and reracks; RERACK holds the first frame;
     // PAUSE freezes in place. Three distinct verbs (STOP used to be a
     // duplicate of RERACK).

@@ -963,6 +963,8 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << (cue.lowerThird.wiggle ? 1 : 0)
         // vs+144: a DMX cue's protocol, appended for the same reason.
         << '\t' << escapeField(cue.dmxProtocol)
+        // vs+145: a Mic cue's channel (MONO L / MONO R / STEREO).
+        << '\t' << static_cast<int>(cue.micChannel)
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2028,6 +2030,7 @@ Project loadProject(const fs::path& projectFile,
         kind == "target" ? CueKind::Target :
         kind == "fade" ? CueKind::Fade :
         kind == "memo" ? CueKind::Memo :
+        kind == "mic" ? CueKind::Mic :
         kind == "midi" ? CueKind::Midi :
         kind == "network" ? CueKind::Network :
         kind == "timecode" ? CueKind::Timecode :
@@ -2053,6 +2056,7 @@ Project loadProject(const fs::path& projectFile,
         else if (p.rfind("source://camera/", 0) == 0) cue.kind = CueKind::Camera;
         else if (p.rfind("source://window/", 0) == 0) cue.kind = CueKind::WindowSource;
         else if (p.rfind("source://syphon/", 0) == 0) cue.kind = CueKind::Syphon;
+        else if (p.rfind("mic://", 0) == 0)           cue.kind = CueKind::Mic;
       }
       cue.duration = safeDouble(fields, offset + 3, 0.0);
       cue.width = safeInt(fields, offset + 4, 0);
@@ -2540,6 +2544,9 @@ Project loadProject(const fs::path& projectFile,
         }
         if (fields.size() >= static_cast<std::size_t>(vs + 145)) {
           cue.dmxProtocol = safeString(fields, vs + 144) == "sacn" ? "sacn" : "artnet";
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 146)) {
+          cue.micChannel = static_cast<MicChannel>(std::clamp(safeInt(fields, vs + 145, 0), 0, 2));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

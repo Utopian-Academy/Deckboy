@@ -8121,6 +8121,86 @@
       failRemoteCommand("STING: expected ON, PITCH, LENGTH, SWEEP or BODY");
       return;
     }
+    if (command == "MIC") {
+      // MIC                          -> the selected mic cue: input, level, latency
+      // MIC ADD [device|TEST]        -> a mic cue (TEST: the built-in test signal)
+      // MIC LIST                     -> the inputs this computer has
+      // MIC INPUT SETTINGS|TEST|<device> | MIC CHANNEL L|R|STEREO | MIC GAIN <dB>
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      auto rest = [&](std::size_t from) {
+        std::string joined;
+        for (std::size_t i = from; i < parts.size(); ++i) joined += (i > from ? " " : "") + parts[i];
+        return joined;
+      };
+      if (sub == "LIST") {
+        std::string out;
+        for (const std::string& name : micInputNames()) out += (out.empty() ? "" : " | ") + name;
+        remoteCommandDetail_ = out.empty() ? std::string("no inputs") : out;
+        return;
+      }
+      if (sub == "ADD") {
+        const std::string device = rest(2);
+        addMicCue(toUpper(device) == "TEST" ? std::string(MediaEngine::kMicTestSignal) : device);
+        remoteCommandDetail_ = "mic cue " + std::to_string(focusedDeck().cues.size());
+        return;
+      }
+      Cue* cue = selectedMicCue();
+      if (!cue) {
+        failRemoteCommand("MIC: select a mic cue first (MIC ADD makes one)");
+        return;
+      }
+      if (sub.empty()) {
+        bool clipped = false;
+        const float level = micCueLevel(*cue, &clipped);
+        char text[96];
+        std::snprintf(text, sizeof(text), " level=%.1fdBFS clip=%d channel=%s gain=%.0fdB",
+                      level > 0.0f ? 20.0 * std::log10(static_cast<double>(level)) : -90.0,
+                      clipped ? 1 : 0, micChannelLabel(cue->micChannel),
+                      static_cast<double>(cue->audioGainDb));
+        int latency = 0;
+        if (MediaEngine* engine = engineHoldingMicCue(*cue)) latency = engine->micLatencyMs();
+        remoteCommandDetail_ = "input=" + micCueInputLabel(*cue) + text +
+                               " latency_ms=" + std::to_string(latency) + " status=" + micCueStatusText(*cue);
+        return;
+      }
+      if (sub == "INPUT") {
+        const std::string value = rest(2);
+        if (value.empty()) {
+          failRemoteCommand("MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)");
+          return;
+        }
+        const std::string upper = toUpper(value);
+        setMicCueDevice(*cue, upper == "SETTINGS" ? std::string()
+                              : upper == "TEST" ? std::string(MediaEngine::kMicTestSignal) : value);
+        return;
+      }
+      if (sub == "CHANNEL") {
+        const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (value == "L" || value == "LEFT") cue->micChannel = MicChannel::MonoLeft;
+        else if (value == "R" || value == "RIGHT") cue->micChannel = MicChannel::MonoRight;
+        else if (value == "STEREO" || value == "LR") cue->micChannel = MicChannel::Stereo;
+        else {
+          failRemoteCommand("MIC CHANNEL: expected L, R or STEREO");
+          return;
+        }
+        markProjectDirty();
+        return;
+      }
+      if (sub == "GAIN") {
+        char* end = nullptr;
+        const std::string value = parts.size() > 2 ? parts[2] : std::string();
+        const double db = std::strtod(value.c_str(), &end);
+        if (value.empty() || end == value.c_str() || db < kCueAudioGainMinDb || db > kCueAudioGainMaxDb) {
+          failRemoteCommand("MIC GAIN: expected -40 to 40 (dB)");
+          return;
+        }
+        cue->audioGainDb = static_cast<float>(db);
+        markProjectDirty();
+        return;
+      }
+      failRemoteCommand("MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN");
+      return;
+    }
     if (command == "TONECUE") {
       addToneCue();
       const Deck& deck = focusedDeck();

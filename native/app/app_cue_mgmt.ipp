@@ -3027,6 +3027,13 @@
     // here, named as itself with a few words on what it is; the test signals a
     // rig is lined up with are under their own heading below, and the PATTERN
     // button is the one-press shortcut to the first of them.
+    // LIVE SOUND: a microphone or a line in, as a cue on a deck.
+    contextItems_.push_back({"LIVE SOUND", {0, 0, 0, 0}, nullptr});
+    contextItems_.push_back({
+      "  Mic / line input",
+      {0, 0, 0, 0},
+      [this]() { addMicCue(""); }
+    });
     contextItems_.push_back({"MADE BY DECKBOY", {0, 0, 0, 0}, nullptr});
     contextItems_.push_back({
       "  Fireside (a hearth that burns)",
@@ -4562,6 +4569,296 @@
     onSelectionChanged();
     triggerToast(cue.name + " added");
     playUiSound(UiSoundEffect::Import);
+  }
+
+  // ── MIC CUE ───────────────────────────────────────────────────────────
+  //
+  // A live input played through a deck: the deck's fades, routing and
+  // speakers, the cue's audio effects. The engine reads the device itself
+  // (MediaEngine::startMicCapture). Here: making one, its inspector's
+  // answers, and the meters every mic cue's row shows before it is taken.
+  bool cueSectionMicOpen_ = true;
+  bool micFeedbackWarned_ = false;
+
+  void addMicCue(const std::string& device) {
+    Cue cue;
+    cue.kind = CueKind::Mic;
+    cue.path = "mic://" + device;
+    cue.name = device.empty() ? std::string("Mic")
+             : device == MediaEngine::kMicTestSignal ? std::string("Mic test signal") : device;
+    cue.formatName = "live input";
+    cue.color = {150, 70, 60, 255};
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    // Live until it is stopped, like every other live source.
+    cue.duration = 0.0;
+    cue.stillDurationSeconds = 0.0;
+    cue.pauseOnLastFrame = true;
+    cue.endAction = CueEndAction::Stop;
+    cue.hasAudio = true;
+    cue.micChannel = MicChannel::MonoLeft;
+    // A short fade in so GO does not thump, a longer one out so STOP does not
+    // cut a word in half.
+    cue.audioFadeInSeconds = 0.5f;
+    cue.audioFadeOutSeconds = 1.0f;
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("mic cue added - " + micCueInputLabel(deck.cues.back()));
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
+  static std::string micCueDevice(const Cue& cue) {
+    return cue.path.rfind("mic://", 0) == 0 ? cue.path.substr(6) : std::string();
+  }
+
+  static const char* micChannelLabel(MicChannel channel) {
+    switch (channel) {
+      case MicChannel::MonoRight: return "MONO R";
+      case MicChannel::Stereo: return "STEREO";
+      case MicChannel::MonoLeft:
+      default: return "MONO L";
+    }
+  }
+
+  std::string micCueInputLabel(const Cue& cue) const {
+    const std::string device = micCueDevice(cue);
+    if (device == MediaEngine::kMicTestSignal) return "test signal";
+    if (!device.empty()) return device;
+    return project_.audioInputDeviceName.empty() ? std::string("Settings input (default)")
+                                                 : "Settings input: " + project_.audioInputDeviceName;
+  }
+
+  // The device a cue will actually open: its own, else Settings' input.
+  std::string micCueEffectiveDevice(const Cue& cue) const {
+    const std::string device = micCueDevice(cue);
+    return device.empty() ? project_.audioInputDeviceName : device;
+  }
+
+  static std::vector<std::string> micInputNames() {
+    std::vector<std::string> names;
+    int count = 0;
+    if (SDL_AudioDeviceID* ids = SDL_GetAudioRecordingDevices(&count)) {
+      for (int i = 0; i < count; ++i) {
+        if (const char* name = SDL_GetAudioDeviceName(ids[i])) names.emplace_back(name);
+      }
+      SDL_free(ids);
+    }
+    return names;
+  }
+
+  Cue* selectedMicCue() {
+    Cue* cue = selectedCueMutable();
+    return cue && cue->kind == CueKind::Mic ? cue : nullptr;
+  }
+
+  // The engine playing this cue, when one is.
+  MediaEngine* engineHoldingMicCue(const Cue& cue) {
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Cue* active = activeCuePtr(d);
+      if (active && !cue.id.empty() && active->id == cue.id && active->kind == CueKind::Mic) {
+        MediaEngine* engine = mediaEngineForDeck(d);
+        if (engine && engine->micRunning()) return engine;
+      }
+    }
+    return nullptr;
+  }
+
+  void cycleSelectedMicInput() {
+    Cue* cue = selectedMicCue();
+    if (!cue) return;
+    const std::vector<std::string> names = micInputNames();
+    const std::string current = micCueDevice(*cue);
+    std::string next;
+    if (current.empty()) {
+      next = names.empty() ? std::string() : names.front();
+    } else {
+      auto it = std::find(names.begin(), names.end(), current);
+      next = (it == names.end() || it + 1 == names.end()) ? std::string() : *(it + 1);
+    }
+    setMicCueDevice(*cue, next);
+  }
+
+  void setMicCueDevice(Cue& cue, const std::string& device) {
+    cue.path = "mic://" + device;
+    markProjectDirty();
+    triggerToast("mic input: " + micCueInputLabel(cue));
+    // A cue on air reopens on the new input straight away.
+    if (MediaEngine* engine = engineHoldingMicCue(cue)) {
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        if (mediaEngineForDeck(d) == engine) {
+          const bool playing = engine->state() == TransportState::Playing;
+          engine->loadCue(&cue, playing);
+          break;
+        }
+      }
+    }
+  }
+
+  void cycleSelectedMicChannel() {
+    Cue* cue = selectedMicCue();
+    if (!cue) return;
+    cue->micChannel = static_cast<MicChannel>((static_cast<int>(cue->micChannel) + 1) % 3);
+    markProjectDirty();
+    triggerToast(std::string("mic channel: ") + micChannelLabel(cue->micChannel));
+  }
+
+  void adjustSelectedMicGain(float stepDb) {
+    Cue* cue = selectedMicCue();
+    if (!cue) return;
+    cue->audioGainDb = std::clamp(cue->audioGainDb + stepDb, kCueAudioGainMinDb, kCueAudioGainMaxDb);
+    markProjectDirty();
+  }
+
+  void resetSelectedMicClip() {
+    Cue* cue = selectedMicCue();
+    if (!cue) return;
+    if (MediaEngine* engine = engineHoldingMicCue(*cue)) engine->clearMicClip();
+    auto it = micMeters_.find(micCueEffectiveDevice(*cue));
+    if (it != micMeters_.end()) it->second.clipped.clear();
+  }
+
+  // ── Meters for mic cues that are not playing ─────────────────────────────
+  // One small recording stream per input that a mic cue names, opened while
+  // the show has such a cue, so every mic row shows its level before GO.
+  // Peaks are kept per channel so the cue's channel choice and gain apply.
+  struct MicMeter {
+    SDL_AudioStream* stream = nullptr;
+    float peakL = 0.0f, peakR = 0.0f;
+    std::unordered_map<std::string, bool> clipped;   // per cue id
+    bool missing = false;
+    std::vector<std::int16_t> scratch;
+  };
+  std::map<std::string, MicMeter> micMeters_;
+  Uint64 micMetersCheckedMs_ = 0;
+
+  void serviceMicMeters(Uint64 now) {
+    std::set<std::string> wanted;
+    for (const Deck& deck : project_.decks) {
+      for (const Cue& cue : deck.cues) {
+        if (cue.kind != CueKind::Mic) continue;
+        const std::string device = micCueEffectiveDevice(cue);
+        if (device != MediaEngine::kMicTestSignal) wanted.insert(device);
+      }
+    }
+    for (auto it = micMeters_.begin(); it != micMeters_.end();) {
+      if (!wanted.count(it->first)) {
+        if (it->second.stream) SDL_DestroyAudioStream(it->second.stream);
+        it = micMeters_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    const bool recheck = now - micMetersCheckedMs_ > 2000;
+    if (recheck) micMetersCheckedMs_ = now;
+    for (const std::string& device : wanted) {
+      MicMeter& meter = micMeters_[device];
+      if (!meter.stream && (recheck || !meter.missing)) {
+        SDL_AudioDeviceID target = SDL_AUDIO_DEVICE_DEFAULT_RECORDING;
+        if (!device.empty()) {
+          target = 0;
+          int count = 0;
+          if (SDL_AudioDeviceID* ids = SDL_GetAudioRecordingDevices(&count)) {
+            for (int i = 0; i < count && !target; ++i) {
+              const char* name = SDL_GetAudioDeviceName(ids[i]);
+              if (name && device == name) target = ids[i];
+            }
+            SDL_free(ids);
+          }
+        }
+        if (target) {
+          SDL_AudioSpec spec {};
+          spec.format = SDL_AUDIO_S16;
+          spec.channels = 2;
+          spec.freq = 48000;
+          meter.stream = SDL_OpenAudioDeviceStream(target, &spec, nullptr, nullptr);
+          if (meter.stream) SDL_ResumeAudioStreamDevice(meter.stream);
+        }
+        meter.missing = meter.stream == nullptr;
+      }
+      // Fall back about 20 dB a second between reads.
+      meter.peakL *= 0.85f;
+      meter.peakR *= 0.85f;
+      if (!meter.stream) continue;
+      const int avail = SDL_GetAudioStreamAvailable(meter.stream);
+      if (avail < 4) continue;
+      meter.scratch.resize(static_cast<std::size_t>(avail) / 2);
+      const int got = SDL_GetAudioStreamData(meter.stream, meter.scratch.data(), avail);
+      const std::size_t frames = got > 0 ? static_cast<std::size_t>(got) / 4 : 0;
+      float l = 0.0f, r = 0.0f;
+      for (std::size_t f = 0; f < frames; ++f) {
+        l = std::max(l, std::abs(static_cast<float>(meter.scratch[f * 2])) / 32768.0f);
+        r = std::max(r, std::abs(static_cast<float>(meter.scratch[f * 2 + 1])) / 32768.0f);
+      }
+      meter.peakL = std::max(meter.peakL, l);
+      meter.peakR = std::max(meter.peakR, r);
+    }
+  }
+
+  void closeMicMeters() {
+    for (auto& [device, meter] : micMeters_) {
+      if (meter.stream) SDL_DestroyAudioStream(meter.stream);
+    }
+    micMeters_.clear();
+  }
+
+  // 0..1 of full scale, with the cue's channel choice and gain applied.
+  float micCueLevel(const Cue& cue, bool* clipped) {
+    if (clipped) *clipped = false;
+    if (MediaEngine* engine = engineHoldingMicCue(cue)) {
+      if (clipped) *clipped = engine->micClipped();
+      return engine->micPeak();
+    }
+    auto it = micMeters_.find(micCueEffectiveDevice(cue));
+    if (it == micMeters_.end()) return 0.0f;
+    MicMeter& meter = it->second;
+    const float raw = cue.micChannel == MicChannel::MonoLeft ? meter.peakL
+                    : cue.micChannel == MicChannel::MonoRight ? meter.peakR
+                    : std::max(meter.peakL, meter.peakR);
+    const float level = raw * static_cast<float>(std::pow(10.0, std::clamp(cue.audioGainDb, -40.0f, 40.0f) / 20.0));
+    bool& latch = meter.clipped[cue.id];
+    if (level >= 0.999f) latch = true;
+    if (clipped) *clipped = latch;
+    return level;
+  }
+
+  std::string micCueStatusText(const Cue& cue) {
+    if (MediaEngine* engine = engineHoldingMicCue(cue)) {
+      const int ms = engine->micLatencyMs();
+      return engine->state() == TransportState::Playing
+        ? "live  " + engine->micDeviceInUse() + (ms > 0 ? "  ~" + std::to_string(ms) + " ms" : std::string())
+        : "racked, not heard  " + engine->micDeviceInUse();
+    }
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Cue* active = activeCuePtr(d);
+      MediaEngine* engine = mediaEngineForDeck(d);
+      if (active && !cue.id.empty() && active->id == cue.id && engine && !engine->micError().empty()) {
+        return engine->micError();
+      }
+    }
+    auto it = micMeters_.find(micCueEffectiveDevice(cue));
+    if (it != micMeters_.end() && it->second.missing) return "input not found - plug it in or pick another";
+    return "not taken - GO puts it on the deck";
+  }
+
+  // The level as a coloured bar on a dB scale: green to -18 dBFS (line-up),
+  // amber to -6, red above, with a tick at -18.
+  void drawMicMeter(const SDL_Rect& bar, float level) {
+    Primitives::fillRect(controlRenderer_, bar, pal.deep);
+    const double db = level > 0.0f ? 20.0 * std::log10(static_cast<double>(level)) : -90.0;
+    const double frac = std::clamp((db + 60.0) / 60.0, 0.0, 1.0);
+    const auto xAt = [&](double dbfs) { return bar.x + static_cast<int>(std::lround(bar.w * (dbfs + 60.0) / 60.0)); };
+    const int fillEnd = bar.x + static_cast<int>(std::lround(bar.w * frac));
+    const int greenEnd = std::min(fillEnd, xAt(-18.0)), amberEnd = std::min(fillEnd, xAt(-6.0));
+    if (greenEnd > bar.x)
+      Primitives::fillRect(controlRenderer_, SDL_Rect {bar.x, bar.y, greenEnd - bar.x, bar.h}, SDL_Color {150, 230, 40, 255});
+    if (amberEnd > greenEnd)
+      Primitives::fillRect(controlRenderer_, SDL_Rect {greenEnd, bar.y, amberEnd - greenEnd, bar.h}, SDL_Color {255, 180, 24, 255});
+    if (fillEnd > amberEnd)
+      Primitives::fillRect(controlRenderer_, SDL_Rect {amberEnd, bar.y, fillEnd - amberEnd, bar.h}, SDL_Color {225, 60, 35, 255});
+    Primitives::fillRect(controlRenderer_, SDL_Rect {xAt(-18.0), bar.y - 1, std::max(1, uiScaled(2)), bar.h + 2},
+                         SDL_Color {255, 255, 255, 200});
   }
 
   void addToneCue() {

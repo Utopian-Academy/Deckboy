@@ -91,7 +91,7 @@ inline bool isSourceCueKind(CueKind kind) {
 // Asked as a KIND question rather than fixed only at creation, so shows saved
 // before the fix behave correctly when they are opened again.
 inline bool cueKindIsAlwaysAudio(CueKind kind) {
-  return kind == CueKind::Tone || kind == CueKind::Audio;
+  return kind == CueKind::Tone || kind == CueKind::Audio || kind == CueKind::Mic;
 }
 
 // True when this cue carries audio the operator can work on -- a probed file,

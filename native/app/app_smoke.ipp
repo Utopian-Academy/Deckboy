@@ -1954,14 +1954,36 @@
                  l3.accent == 4 && l3.wiggle,
                "a lower third's layout persists");
         {
-          // A show from immediately before sACN (one tail field fewer) keeps
-          // Wiggle and sends Art-Net, as every show before it did.
+          // A show from immediately before the Mic cue (one tail field fewer)
+          // keeps its DMX protocol, and its cues' mic channel is MONO L.
           {
             std::ifstream preIn(smokePath);
             std::ostringstream preOlder;
             std::string preLine;
             while (std::getline(preIn, preLine)) {
               if (preLine.rfind("cue\t", 0) == 0) preLine.erase(preLine.find_last_of('\t'));
+              preOlder << preLine << '\n';
+            }
+            preIn.close();
+            const fs::path preMicPath = smokeDir / "deckboy-smoke-pre-mic.deckboy";
+            { std::ofstream out(preMicPath); out << preOlder.str(); }
+            const Project preMic = loadProject(preMicPath);
+            const Cue& preBack = preMic.decks.at(0).cues.at(0);
+            expect(preBack.dmxProtocol == loadedCue.dmxProtocol && preBack.micChannel == MicChannel::MonoLeft,
+                   "a pre-mic show keeps its DMX protocol and defaults the mic channel to MONO L");
+            fs::remove(preMicPath);
+          }
+          // A show from immediately before sACN (two tail fields fewer) keeps
+          // Wiggle and sends Art-Net, as every show before it did.
+          {
+            std::ifstream preIn(smokePath);
+            std::ostringstream preOlder;
+            std::string preLine;
+            while (std::getline(preIn, preLine)) {
+              if (preLine.rfind("cue\t", 0) == 0) {
+                preLine.erase(preLine.find_last_of('\t'));
+                preLine.erase(preLine.find_last_of('\t'));
+              }
               preOlder << preLine << '\n';
             }
             preIn.close();
@@ -1973,14 +1995,15 @@
                    "a pre-sACN show keeps wiggle and its DMX cues send Art-Net");
             fs::remove(preSacnPath);
           }
-          // Trim the two newest tail fields (the DMX protocol, then Wiggle): a
-          // show from immediately before Wiggle must keep its look, timings,
-          // triggers and audio selection.
+          // Trim the three newest tail fields (the mic channel, the DMX
+          // protocol, then Wiggle): a show from immediately before Wiggle must
+          // keep its look, timings, triggers and audio selection.
           std::ifstream in(smokePath);
           std::ostringstream older;
           std::string line;
           while (std::getline(in, line)) {
             if (line.rfind("cue\t", 0) == 0) {
+              line.erase(line.find_last_of('\t'));
               line.erase(line.find_last_of('\t'));
               line.erase(line.find_last_of('\t'));
             }
@@ -2033,7 +2056,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 88;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 89;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2042,7 +2065,7 @@
                                               // text lower-third fields, ten swirl controls,
                                               // three triggers (hotkey, MIDI note, OSC),
                                               // audio track and track count, wiggle,
-                                              // the DMX protocol
+                                              // the DMX protocol, the mic channel
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

@@ -2352,7 +2352,8 @@
 
     // Cached display strings — avoids TTF loop in ellipsizeToPixelWidth every frame
     bool isProbing = cue.width == 0 && cue.height == 0 && !cue.path.empty()
-                     && cue.kind != CueKind::Pattern && cue.kind != CueKind::LowerThird;
+                     && cue.kind != CueKind::Pattern && cue.kind != CueKind::LowerThird
+                     && cue.kind != CueKind::Mic;
     auto& dc = cueRowDisplayCache_[cue.id];
     if (dc.name != cue.name || dc.nameW != nameW || dc.cueId != cue.cueId
         || dc.cueNumber != cue.cueNumber || dc.index != index || dc.kind != cue.kind
@@ -2377,6 +2378,8 @@
       dc.ellipsizedName = ellipsizeToPixelWidth(fontSmall_, cue.name, nameW);
       if (isProbing) {
         dc.meta = "probing...";
+      } else if (cue.kind == CueKind::Mic) {
+        dc.meta = "LIVE";   // a live input has no length
       } else if (cue.kind == CueKind::Video || cue.kind == CueKind::Audio) {
         dc.meta = cue.duration > 0.0 ? formatSeconds(cue.duration) : "hold";
       } else {
@@ -2627,6 +2630,14 @@
       }
     }
     
+    // A MIC CUE SHOWS ITS INPUT, racked or not, so a dead mic is seen before
+    // GO: a thin meter along the foot of the row.
+    if (cue.kind == CueKind::Mic) {
+      const SDL_Rect meter {row.x + uiScaled(6), row.y + row.h - uiScaled(7),
+                            row.w - uiScaled(12), uiScaled(4)};
+      drawMicMeter(meter, micCueLevel(cue, nullptr));
+    }
+
     // A DISARMED CUE IS WASHED OUT, in one place, over the finished row.
     //
     // Deliberately a scrim rather than a dimmer ink on each element: a row
