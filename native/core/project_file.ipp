@@ -303,6 +303,8 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
   output << "web_monitor_enabled\t" << (project.webMonitorEnabled ? 1 : 0) << '\n';
   output << "web_remote_enabled\t" << (project.webRemoteEnabled ? 1 : 0) << '\n';
+  output << "web_remote_level\t" << project.webRemoteLevel << '\n';
+  output << "web_remote_haptics\t" << (project.webRemoteHaptics ? 1 : 0) << '\n';
   output << "web_monitor_port\t" << project.webMonitorPort << '\n';
   output << "web_monitor_share\t" << (project.webMonitorShareLan ? 1 : 0) << '\n';
   output << "web_monitor_pin\t" << escapeField(project.webMonitorPin) << '\n';
@@ -1419,6 +1421,10 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.oscQueryPort = safeInt(fields, 1, 5511);
   } else if (fields[0] == "web_remote_enabled") {
     project.webRemoteEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "web_remote_level") {
+    project.webRemoteLevel = std::clamp(safeInt(fields, 1, 0), 0, 2);
+  } else if (fields[0] == "web_remote_haptics") {
+    project.webRemoteHaptics = safeBool(fields, 1, true);
   } else if (fields[0] == "web_monitor_enabled") {
     project.webMonitorEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "web_monitor_port") {

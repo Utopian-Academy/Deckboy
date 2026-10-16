@@ -4008,7 +4008,7 @@ class App {
     if (project_.oscQueryEnabled) {
       startOscQueryServer();
     }
-    if (project_.webMonitorEnabled) {
+    if (project_.webMonitorEnabled || project_.webRemoteEnabled) {
       startWebMonitor();
     }
     // A show saved with the vMix surface on comes back with it on. It binds
@@ -9365,6 +9365,11 @@ class App {
   static constexpr int kSettingsActionWebMonitorClientsPrompt = 756;
   static constexpr int kSettingsActionWebMonitorLowLatency = 757;
   static constexpr int kSettingsActionWebRemoteToggle = 759;
+  // PHONE & TABLET card (Settings > Network).
+  static constexpr int kSettingsActionPhonePair = 773;
+  static constexpr int kSettingsActionPhoneLevel = 774;
+  static constexpr int kSettingsActionPhoneHaptics = 796;
+  static constexpr int kSettingsActionPhoneForget = 797;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -10985,6 +10990,8 @@ class App {
   // once per address, not per frame.
   bool webMonitorQrOpen_ = false;
   std::string webMonitorQrText_;
+  std::string webMonitorQrShown_;   // the line under the code
+  std::string webMonitorQrHint_;
   std::vector<bool> webMonitorQrModules_;
   int webMonitorQrSize_ = 0;
   // What the browser threads may read -- never project_ itself.
@@ -10999,6 +11006,16 @@ class App {
   int webEncodeEase_ = 0;                            // 0 as chosen; 1-3 lighter steps
   std::string webMonitorPinSnapshot_;
   bool webRemoteEnabledSnapshot_ = false; // guarded by webMonitorDirMutex_
+  int webRemoteLevelSnapshot_ = 0;        // same mutex
+  // PAIRING (same mutex): the one-time code the desk's QR carries, and the keys
+  // of phones that have paired. Keys live in the state folder, never the show
+  // file -- a show file gets shared, and a key in it would open the desk.
+  std::string webRemotePairToken_;
+  std::chrono::steady_clock::time_point webRemotePairExpiry_ {};
+  std::vector<std::pair<std::string, std::string>> webRemoteDeviceKeys_;   // key, name
+  bool webRemoteDeviceKeysLoaded_ = false;
+  bool webMonitorEnabledSnapshot_ = false;  // same mutex: the server can run for the phone alone
+  bool webMonitorShareSnapshot_ = false;    // same mutex
   std::string webRemoteStateSnapshot_;
   std::string webRemoteStyleSnapshot_;
   int webRemoteFailedPins_ = 0;
@@ -11154,6 +11171,7 @@ class App {
     std::mutex mutex;
     std::condition_variable cv;
     std::string pin;
+    bool paired = false;   // authorised by a paired phone's key, not the passphrase
     std::string text;
     bool cancelled = false;
     const std::chrono::steady_clock::time_point deadline =

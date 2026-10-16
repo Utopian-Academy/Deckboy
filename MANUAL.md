@@ -2329,39 +2329,60 @@ Over the network: `WEBMONITOR` (the address), `WEBMONITOR ON|OFF`,
 
 ### Phone and tablet control
 
-Turn on **Web Monitor**, set an **8-character or longer passphrase**, and enable
-**Phone control** in **Settings → Network → Web Monitor**. Choose **THE NETWORK**
-to connect a phone or tablet on the same private Ethernet/Wi-Fi LAN. Open the
-displayed address with `/remote` appended, for example
-`http://192.168.1.20:8090/remote`, or choose **REMOTE** in the programme player.
-Enter the Web Monitor passphrase on the remote page.
+A phone or tablet becomes a controller for the whole desk: decks, the tracker,
+DASH and, if you allow it, blackout, the test card, outputs and recording. It
+has its own card, **Settings → Network → PHONE & TABLET**, and works whether
+the Web Monitor is on or off.
 
-- Choose a **Deck** and tap **GO**, **STOP** or **NEXT**. NEXT selects the next
-  cue. Tapping a cue selects it; GO plays it, following the desk's standby cue
-  when one is armed. These controls have the same behaviour as the desk's
-  remote commands and change its focused deck.
-- The cue list shows the selected, active and standby cues. Status refreshes
-  about once a second. Controls are disabled when the connection is lost.
+1. Set an **8-character or longer passphrase** (shared with the Web Monitor) and
+   turn **Phone control** on. The card shows the address, for example
+   `http://192.168.1.20:8090/remote`.
+2. Press **SCAN TO PAIR** and point the phone's camera at the code. The phone
+   opens Deckboy and connects with no typing. The code works once, for two
+   minutes; the phone keeps a key of its own and opens connected from then on.
+   Without a camera, open the address and type the passphrase instead.
+
+What a phone may do is set by **Can do**, and the desk enforces it:
+
+- **GO + STOP ONLY** (the default): decks (GO, BACK, STOP, NEXT, select a cue),
+  the tracker (GO, BACK, PLAY, STOP) and DASH.
+- **SHOW CONTROL**: also blackout and the test card on every screen.
+- **FULL**: also each output on or off, and recording.
+
+The page:
+
+- **DECKS** shows what is live with its time and progress, what is next, a big
+  **GO**, **BACK**, **STOP** and **NEXT**, and the cue list. With more than one
+  deck, a row of deck buttons picks which one the page drives.
+- **TRACKER** appears when the show has tracker steps: the step, the next one,
+  **GO**, **BACK**, **PLAY** and **STOP**.
 - **DASH** shows the buttons configured on the desk. Each runs its assigned
-  command, including any actions beyond transport. Configure these with
-  `DASH SET <n> <label> | <command>` before handing the remote to an operator.
-  A DASH command uses the desk's current focus unless it names a deck itself.
-- The page shows the command's `OK` or `ERR` reply. If a connection fails
-  while sending, check the desk before trying again; commands are not retried
-  automatically.
-- **Lock** clears the passphrase from the page. Reloading also requires it
-  again. The remote keeps it in page memory, not in the URL or browser storage.
-- Phone control is off by default and saved with the show. Turn **Phone control**
-  off to revoke control while keeping the monitor available. Changing the
-  passphrase requires connected phones to unlock again. Repeated incorrect
-  passphrases briefly delay further attempts.
+  command. Configure these with `DASH SET <n> <label> | <command>`.
+- **SHOW** appears from SHOW CONTROL up. **BLACKOUT**, the outputs and
+  **RECORD** fire after a half-second hold, so a pocket cannot press them.
+- The page wears the desk's theme and Deckboy's pixel face, and shows each
+  command's `OK` or `ERR`. Commands are never retried by themselves.
+- **Haptics**: the phone taps on every press, double-taps when the desk
+  confirms, rises while a held button arms, and buzzes three times when a
+  command is refused or the link drops. Android phones vibrate; an iPhone gives
+  a single tick (Safari has no vibration). Turn it off in the card.
+- **LOCK** forgets this phone's key and passphrase; it needs the code or the
+  passphrase again.
 
-`WEBMONITOR CONTROL ON|OFF` switches phone control; `WEBMONITOR STATUS` reports
-it. The Web Monitor must also be on. Control always requires the passphrase,
-including on this computer. The page uses the desk's theme and works without
-internet access. It accepts private IPv4 LAN and loopback clients only; HTTP
-is unencrypted, so use a trusted private network and never forward the port
-to the public internet.
+**Paired phones** shows how many are paired; **FORGET ALL** removes every one.
+Keys are kept on this computer, never in the show file, so a show passed on
+does not let anyone else's phone in. Changing the passphrase does not unpair
+phones; FORGET ALL does.
+
+A phone with only the passphrase must also be in **Trusted controllers**; a
+paired phone carries its own key and does not. Phone control listens on this
+computer's private Ethernet/Wi-Fi address (never a VPN's); turning it off takes
+it off the network unless the Web Monitor is shared. HTTP is unencrypted, so use
+a trusted private network and never forward the port to the public internet.
+
+`PHONE ON|OFF|STATUS`, `PHONE LEVEL GO|SHOW|FULL`, `PHONE HAPTICS ON|OFF`,
+`PHONE PAIR` (shows the code, and answers with its address) and `PHONE FORGET`,
+all from this computer only. `WEBMONITOR CONTROL ON|OFF` still works.
 
 ---
 

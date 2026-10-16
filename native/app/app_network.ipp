@@ -1066,8 +1066,16 @@
     return privateLanIPv4Address();
   }
 
+  // Where a phone opens the controller: on the network whenever phone control
+  // is on, whatever the Web Monitor's own sharing says.
+  std::string webRemoteUrl() const {
+    const std::string host = webMonitorLanAddress();
+    if (host.empty()) return "LAN unavailable (no active private Ethernet/Wi-Fi address)";
+    return "http://" + host + ":" + std::to_string(project_.webMonitorPort) + "/remote";
+  }
+
   std::string webMonitorUrl() const {
-    const std::string host = project_.webMonitorShareLan ? webMonitorLanAddress() : std::string("localhost");
+    const std::string host = webServerOnNetwork() ? webMonitorLanAddress() : std::string("localhost");
     if (host.empty()) return "LAN unavailable (no active private Ethernet/Wi-Fi address)";
     return "http://" + host +
            ":" + std::to_string(project_.webMonitorPort) + "/";
@@ -1104,6 +1112,9 @@
                             .mirrorSourceOutputIndex);
     webMonitorPinSnapshot_ = project_.webMonitorPin;
     webRemoteEnabledSnapshot_ = project_.webRemoteEnabled;
+    webRemoteLevelSnapshot_ = std::clamp(project_.webRemoteLevel, 0, 2);
+    webMonitorEnabledSnapshot_ = project_.webMonitorEnabled;
+    webMonitorShareSnapshot_ = project_.webMonitorShareLan;
     if (project_.webRemoteEnabled) {
       webRemoteStateSnapshot_ = buildWebRemoteState();
     } else {
@@ -1118,7 +1129,9 @@
       ";--button:" + cssColor(paletteToggleFill(false)) +
       ";--button-ink:" + cssColor(paletteToggleInk(false)) +
       ";--active:" + cssColor(paletteToggleFill(true)) +
-      ";--active-ink:" + cssColor(paletteToggleInk(true)) + "}";
+      ";--active-ink:" + cssColor(paletteToggleInk(true)) +
+      ";--deep:" + cssColor(pal.deep) + ";--light:" + cssColor(pal.light) +
+      ";--mid:" + cssColor(pal.mid) + ";--dark:" + cssColor(pal.dark) + "}";
     webMonitorHeightSnapshot_ = project_.webMonitorMaxHeight;
     webMonitorMaxClients_.store(std::clamp(project_.webMonitorMaxClients, 1, 64));
   }
@@ -1489,7 +1502,9 @@
     const std::string verb = toUpper(parts[0]);
     static const std::set<std::string> kLocalOnly {
       "CLICK", "HOVER", "PRESS", "SCROLL", "SCROLLBAR", "DROPTEST",
-      "UISNAP", "OUTSNAP", "OUTPROBE", "TRUST", "COMPANIONPASS"};
+      "UISNAP", "OUTSNAP", "OUTPROBE", "TRUST", "COMPANIONPASS",
+      // Pairing a phone or raising what phones may do widens access.
+      "PHONE"};
     if (kLocalOnly.count(verb)) return true;
     if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
     if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
@@ -1520,7 +1535,15 @@
       out << "{\"index\":" << d + 1 << ",\"name\":\"" << escapeJson(deck.name)
           << "\",\"status\":\"" << escapeJson(transportStatusLabel(static_cast<int>(d)))
           << "\",\"selected\":" << deck.selectedIndex + 1 << ",\"active\":" << deck.activeIndex + 1
-          << ",\"standby\":" << deck.standbyIndex + 1 << ",\"cues\":[";
+          << ",\"standby\":" << deck.standbyIndex + 1;
+      // Where the live cue is, for the now-playing panel.
+      double elapsed = 0.0, length = 0.0;
+      if (const MediaEngine* engine = mediaEngineForDeck(static_cast<int>(d)); engine && deck.activeIndex >= 0) {
+        elapsed = std::max(0.0, engine->position());
+        length = std::max(0.0, engine->duration());
+      }
+      out << ",\"elapsed\":" << static_cast<long long>(elapsed * 10.0) / 10.0
+          << ",\"length\":" << static_cast<long long>(length * 10.0) / 10.0 << ",\"cues\":[";
       for (std::size_t c = 0; c < deck.cues.size(); ++c) {
         if (c) out << ',';
         out << "{\"index\":" << c + 1 << ",\"name\":\"" << escapeJson(deck.cues[c].name) << "\"}";
@@ -1536,21 +1559,170 @@
       first = false;
       out << "{\"index\":" << n + 1 << ",\"label\":\"" << escapeJson(slot.label) << "\"}";
     }
-    out << "]}";
+    // THE TRACKER, if the show has one: it can be the primary way a show is
+    // run, so the phone carries it as well as the decks.
+    const auto rows = masterTrackerRows();
+    const int head = trackerPlayheadRow();
+    out << "],\"tracker\":{\"steps\":" << rows.size() << ",\"step\":" << head + 1
+        << ",\"playing\":" << (trackerPlaying_ ? "true" : "false") << ",\"names\":[";
+    for (std::size_t r = 0; r < rows.size() && r < 200; ++r) {
+      const Cue* step = masterTrackerCue(rows[r].first, rows[r].second);
+      if (r) out << ',';
+      out << '"' << escapeJson(step ? step->name : std::string()) << '"';
+    }
+    out << "]},\"outputs\":[";
+    bool firstOut = true;
+    for (std::size_t o = 0; o < project_.outputs.size(); ++o) {
+      const OutputTarget& target = project_.outputs[o];
+      if (normalizeOutputType(target.outputType) == "stream") continue;   // screens, not encoders
+      if (!firstOut) out << ',';
+      firstOut = false;
+      out << "{\"index\":" << o + 1 << ",\"name\":\"" << escapeJson(outputLabel(static_cast<int>(o)))
+          << "\",\"on\":" << (target.enabled ? "true" : "false") << '}';
+    }
+    bool cardUp = false;
+    for (const auto& target : project_.outputs) cardUp = cardUp || target.outputTestCardEnabled;
+    out << "],\"level\":" << std::clamp(project_.webRemoteLevel, 0, 2)
+        << ",\"haptics\":" << (project_.webRemoteHaptics ? "true" : "false")
+        << ",\"blackout\":" << (masterDimmerTarget_ < 0.5 ? "true" : "false")
+        << ",\"testcard\":" << (cardUp ? "true" : "false")
+        << ",\"recording\":" << (recordingActive() ? "true" : "false") << '}';
     return out.str();
   }
 
-  static bool webRemoteCommandAllowed(const std::string& command) {
+  // ── PAIRING ──────────────────────────────────────────────────────────────
+  //
+  // One step: the desk shows a QR code holding the controller's address and a
+  // pairing code that works ONCE and only for two minutes. The phone trades it
+  // for a key of its own, keeps that, and opens connected from then on. A
+  // photo of the code is useless after that; a lost phone is removed on the
+  // desk without changing the passphrase. The passphrase still works.
+  static std::string webRemoteRandomHex(int bytes) {
+    std::random_device device;
+    static const char* digits = "0123456789abcdef";
+    std::string out;
+    for (int i = 0; i < bytes; ++i) {
+      const unsigned v = device() & 0xffu;
+      out += digits[v >> 4];
+      out += digits[v & 15u];
+    }
+    return out;
+  }
+
+  std::filesystem::path webRemoteKeysPath() const { return Paths::stateDir() / "paired-phones.txt"; }
+
+  // Caller holds webMonitorDirMutex_.
+  void loadWebRemoteKeysLocked() {
+    if (webRemoteDeviceKeysLoaded_) return;
+    webRemoteDeviceKeysLoaded_ = true;
+    std::ifstream in(webRemoteKeysPath());
+    std::string line;
+    while (std::getline(in, line)) {
+      const auto tab = line.find('\t');
+      if (tab == 32) webRemoteDeviceKeys_.emplace_back(line.substr(0, tab), line.substr(tab + 1));
+    }
+  }
+
+  // Caller holds webMonitorDirMutex_.
+  void saveWebRemoteKeysLocked() {
+    std::error_code ec;
+    std::filesystem::create_directories(webRemoteKeysPath().parent_path(), ec);
+    std::ofstream out(webRemoteKeysPath(), std::ios::trunc);
+    for (const auto& entry : webRemoteDeviceKeys_) out << entry.first << '\t' << entry.second << '\n';
+  }
+
+  int pairedPhoneCount() {
+    std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+    loadWebRemoteKeysLocked();
+    return static_cast<int>(webRemoteDeviceKeys_.size());
+  }
+
+  void forgetPairedPhones() {
+    {
+      std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+      loadWebRemoteKeysLocked();
+      webRemoteDeviceKeys_.clear();
+      saveWebRemoteKeysLocked();
+    }
+    triggerToast("paired phones removed: they need the QR code or the passphrase again");
+  }
+
+  // SCAN TO PAIR: a fresh one-time code, and the QR that carries it.
+  void openPhonePairQr() {
+    if (!project_.webRemoteEnabled || !webMonitorReady_) {
+      triggerToast("phone control: turn it on first", ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    const std::string base = webRemoteUrl();
+    if (base.rfind("http://", 0) != 0) {
+      triggerToast("phone control: " + base, ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    const std::string token = webRemoteRandomHex(16);
+    {
+      std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+      webRemotePairToken_ = token;
+      webRemotePairExpiry_ = std::chrono::steady_clock::now() + std::chrono::minutes(2);
+    }
+    showQrOverlay(base + "#pair=" + token, base,
+                  "Point a phone camera at the code: it connects, no typing. Works once, for 2 minutes");
+  }
+
+  static const char* phoneLevelLabel(int level) {
+    return level >= 2 ? "FULL" : level == 1 ? "SHOW CONTROL" : "GO + STOP ONLY";
+  }
+
+  void setPhoneLevel(int level) {
+    project_.webRemoteLevel = std::clamp(level, 0, 2);
+    webMonitorDirSyncedMs_ = 0;
+    syncWebMonitorDirectory();
+    triggerToast(std::string("phones can do: ") + phoneLevelLabel(project_.webRemoteLevel));
+    markProjectDirty();
+  }
+
+  void setPhoneHaptics(bool on) {
+    project_.webRemoteHaptics = on;
+    webMonitorDirSyncedMs_ = 0;
+    syncWebMonitorDirectory();
+    triggerToast(on ? "phone haptics on" : "phone haptics off");
+    markProjectDirty();
+  }
+
+  // What a phone may send, by the desk's "Can do" level. An exact list: a
+  // phone is a remote with a passphrase, not a console.
+  //   GO + STOP:     DECK n GO|STOP|NEXT|PREV, DECK n SELECT m, DASH n,
+  //                  TRACKER GO|BACK|PLAY|STOP
+  //   SHOW CONTROL:  + BLACKOUT ON|OFF, OUTPUT TESTCARD ALL ON|OFF
+  //   FULL:          + OUTPUT n ON|OFF, RECORD ON|OFF
+  static bool webRemoteCommandAllowed(const std::string& command, int level) {
     if (command.find_first_of("\r\n\0", 0, 3) != std::string::npos) return false;
     const auto words = splitWhitespace(command);
     const auto number = [](const std::string& word) {
       return !word.empty() && word.size() <= 6 && word[0] != '0' &&
         std::all_of(word.begin(), word.end(), [](unsigned char c) { return c >= '0' && c <= '9'; });
     };
+    const auto onOff = [](const std::string& word) { return word == "ON" || word == "OFF"; };
     if (words.size() == 2 && words[0] == "DASH") return number(words[1]);
-    if (words.size() < 3 || words[0] != "DECK" || !number(words[1])) return false;
-    if (words.size() == 3) return words[2] == "GO" || words[2] == "STOP" || words[2] == "NEXT";
-    return words.size() == 4 && words[2] == "SELECT" && number(words[3]);
+    if (words.size() == 2 && words[0] == "TRACKER") {
+      return words[1] == "GO" || words[1] == "BACK" || words[1] == "PLAY" || words[1] == "STOP";
+    }
+    if (words.size() >= 3 && words[0] == "DECK" && number(words[1])) {
+      if (words.size() == 3) {
+        return words[2] == "GO" || words[2] == "STOP" || words[2] == "NEXT" || words[2] == "PREV";
+      }
+      return words.size() == 4 && words[2] == "SELECT" && number(words[3]);
+    }
+    if (level >= 1) {
+      if (words.size() == 2 && words[0] == "BLACKOUT") return onOff(words[1]);
+      if (words.size() == 4 && words[0] == "OUTPUT" && words[1] == "TESTCARD" && words[2] == "ALL") {
+        return onOff(words[3]);
+      }
+    }
+    if (level >= 2) {
+      if (words.size() == 2 && words[0] == "RECORD") return onOff(words[1]);
+      if (words.size() == 3 && words[0] == "OUTPUT" && number(words[1])) return onOff(words[2]);
+    }
+    return false;
   }
 
   // Control is a separate opt-in on the existing listener. The header PIN is
@@ -1569,8 +1741,46 @@
         (peerIp >> 20) != 0xAC1 && (peerIp >> 16) != 0xC0A8) {
       reply("403 Forbidden", "ERR remote: private LAN clients only"); return;
     }
-    if (!controlPeerAllowed(peer, "Phone remote", false)) {
-      reply("403 Forbidden", "ERR remote: this address is not a trusted controller (Settings > Network)"); return;
+    // TRUSTED CONTROLLERS, for a phone with only the passphrase. The page's
+    // own files and the pairing request are open to the private network:
+    // the files are public, and a pairing code proves the person can see the
+    // desk's screen. A PAIRED phone carries a key of its own, which is a
+    // better credential than an address DHCP may change, so it passes too.
+    {
+      const bool asset = method == "GET";
+      const bool pairing = path == "/remote/pair";
+      bool keyed = false;
+      const std::string lowered = toLower(request.substr(0, std::min<std::size_t>(request.size(), 8192)));
+      if (const auto at = lowered.find("\r\nx-deckboy-key:"); at != std::string::npos) {
+        const auto start = at + 16;
+        const auto end = request.find("\r\n", start);
+        const std::string givenDeviceKey = trim(request.substr(start, end == std::string::npos ? 0 : end - start));
+        std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+        loadWebRemoteKeysLocked();
+        for (const auto& entry : webRemoteDeviceKeys_) keyed = keyed || (givenDeviceKey.size() == 32 && entry.first == givenDeviceKey);
+      }
+      // This computer reaching its own LAN address is still this computer
+      // (the server listens there alone while phone control is on).
+      sockaddr_in self {};
+      socklen_t selfSize = sizeof(self);
+      const bool fromSelf = getsockname(client, reinterpret_cast<sockaddr*>(&self), &selfSize) == 0 &&
+                            self.sin_addr.s_addr == peer.sin_addr.s_addr;
+      if (!asset && !pairing && !keyed && !fromSelf && !controlPeerAllowed(peer, "Phone remote", false)) {
+        reply("403 Forbidden", "ERR remote: this address is not a trusted controller (Settings > Network), "
+                               "or scan SCAN TO PAIR on the desk"); return;
+      }
+    }
+    // The page's own face and logo: Deckboy's pixel font and its mark, so the
+    // controller looks like the desk it controls.
+    if (method == "GET" && (path == "/remote/font.ttf" || path == "/remote/logo.png")) {
+      const fs::path asset = path == "/remote/font.ttf"
+        ? Paths::dataDir() / "PressStart2P.ttf"
+        : Paths::dataDir() / "web" / "remote-icon.png";
+      std::ifstream file(asset, std::ios::binary);
+      if (!file) { reply("404 Not Found", "Remote asset unavailable"); return; }
+      std::string body((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+      webMonitorSendPage(client, "200 OK", path == "/remote/font.ttf" ? "font/ttf" : "image/png", body);
+      return;
     }
     if (method == "GET" && (path == "/remote" || path == "/remote/" ||
                             path == "/remote.js" || path == "/remote.css")) {
@@ -1587,7 +1797,45 @@
       return;
     }
     if (method != "POST") { reply("405 Method Not Allowed", "ERR remote: POST required"); return; }
-    if (path != "/remote/state" && path != "/remote/command") {
+    if (path == "/remote/pair") {
+      const std::size_t pairHeadEnd = request.find("\r\n\r\n");
+      std::string token;
+      std::string agent;
+      for (std::size_t at = request.find("\r\n") + 2; pairHeadEnd != std::string::npos && at < pairHeadEnd;) {
+        const std::size_t end = request.find("\r\n", at);
+        const std::size_t colon = request.find(':', at);
+        if (colon < end) {
+          const std::string key = toLower(request.substr(at, colon - at));
+          if (key == "x-deckboy-pair") token = trim(request.substr(colon + 1, end - colon - 1));
+          if (key == "user-agent") agent = request.substr(colon + 1, end - colon - 1);
+        }
+        at = end + 2;
+      }
+      std::string deviceKey;
+      {
+        std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+        const bool good = webRemoteEnabledSnapshot_ && token.size() == 32 && token == webRemotePairToken_ &&
+                          std::chrono::steady_clock::now() < webRemotePairExpiry_;
+        webRemotePairToken_.clear();   // one try per code, right or wrong
+        if (good) {
+          loadWebRemoteKeysLocked();
+          const std::string kind = agent.find("iPhone") != std::string::npos ? "iPhone"
+            : agent.find("iPad") != std::string::npos ? "iPad"
+            : agent.find("Android") != std::string::npos ? "Android" : "Phone";
+          deviceKey = webRemoteRandomHex(16);
+          webRemoteDeviceKeys_.emplace_back(deviceKey, kind + " " + std::to_string(webRemoteDeviceKeys_.size() + 1));
+          saveWebRemoteKeysLocked();
+        }
+      }
+      if (deviceKey.empty()) {
+        reply("403 Forbidden", "ERR remote: that pairing code has expired or was used; show a new one on the desk");
+        return;
+      }
+      webMonitorSendPage(client, "200 OK", "text/plain; charset=utf-8", deviceKey);
+      return;
+    }
+    if (path != "/remote/state" && path != "/remote/command" && path != "/remote/pair") {
+      // (assets are GETs above; anything else under /remote is unknown)
       reply("404 Not Found", "ERR remote: unknown endpoint"); return;
     }
     const std::size_t headEnd = request.find("\r\n\r\n");
@@ -1623,16 +1871,24 @@
     }
     std::string snapshot;
     bool enabled = false;
+    int level = 0;
     bool authenticated = false;
     bool throttled = false;
     const std::string givenPin = webMonitorDecodeQuery(headers["x-deckboy-pin"]);
+    const std::string givenKey = headers["x-deckboy-key"];
+    bool paired = false;
     {
       std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
       enabled = webRemoteEnabledSnapshot_ && webMonitorPinSnapshot_.size() >= 8;
+      level = webRemoteLevelSnapshot_;
       const auto now = std::chrono::steady_clock::now();
       throttled = now < webRemoteRetryAt_;
       if (!throttled && enabled) {
-        authenticated = givenPin == webMonitorPinSnapshot_;
+        loadWebRemoteKeysLocked();
+        if (givenKey.size() == 32) {
+          for (const auto& entry : webRemoteDeviceKeys_) paired = paired || entry.first == givenKey;
+        }
+        authenticated = paired || givenPin == webMonitorPinSnapshot_;
         // Two seconds after five misses, doubling to a minute. A flat two
         // seconds still let a script try 150 passphrases a minute.
         if (authenticated) webRemoteFailedPins_ = webRemoteLockouts_ = 0;
@@ -1646,9 +1902,13 @@
     }
     if (throttled) { reply("429 Too Many Requests", "ERR remote: too many wrong passphrases; wait before retrying"); return; }
     if (!enabled) {
-      reply("403 Forbidden", "ERR remote: enable Phone control with an 8+ character passphrase in Settings > Network"); return;
+      reply("403 Forbidden", "ERR remote: turn on Phone control (8+ character passphrase) in Settings > Network > PHONE & TABLET"); return;
     }
-    if (!authenticated) { reply("401 Unauthorized", "ERR remote: incorrect passphrase"); return; }
+    if (!authenticated) {
+      reply("401 Unauthorized", givenKey.empty() ? "ERR remote: incorrect passphrase"
+                                                 : "ERR remote: this phone is no longer paired; scan the desk's code again");
+      return;
+    }
     const std::string length = headers["content-length"];
     if (headers.count("transfer-encoding") || length.empty() || length.size() > 3 ||
         !std::all_of(length.begin(), length.end(), [](unsigned char c) { return c >= '0' && c <= '9'; })) {
@@ -1677,9 +1937,19 @@
       return;
     }
     const std::string command = request.substr(headEnd + 4);
-    if (!webRemoteCommandAllowed(command)) { reply("400 Bad Request", "ERR remote: command not allowed"); return; }
+    if (!webRemoteCommandAllowed(command, level)) {
+      // Not a phone command at all is a bad request; one a higher level
+      // would allow says so, and where to raise it.
+      if (webRemoteCommandAllowed(command, 2)) {
+        reply("403 Forbidden", "ERR remote: not allowed at this phone's level (Settings > Network > PHONE & TABLET > Can do)");
+      } else {
+        reply("400 Bad Request", "ERR remote: command not allowed");
+      }
+      return;
+    }
     auto pending = std::make_shared<WebRemoteReply>();
     pending->pin = givenPin;
+    pending->paired = paired;
     if (!enqueueRemoteCommand(command, kInvalidSocket, 0, pending)) {
       reply("503 Service Unavailable", "ERR remote: command queue full"); return;
     }
@@ -1808,6 +2078,36 @@
     if (parts.size() < 2 || parts[0] != "GET") {
       webMonitorSendPage(client, "405 Method Not Allowed", "text/plain; charset=utf-8", "GET only\n");
       return;
+    }
+    // THE SERVER CAN BE UP FOR THE PHONE ALONE, and bound to the network for
+    // it. The Web Monitor's own pages then answer only when the monitor is on,
+    // and only this computer unless the monitor is shared -- which binding to
+    // localhost used to enforce by itself.
+    {
+      bool monitorOn = false, shared = false;
+      {
+        std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+        monitorOn = webMonitorEnabledSnapshot_;
+        shared = webMonitorShareSnapshot_;
+      }
+      // This computer: loopback, or its own address (the server is bound to
+      // the LAN address alone while phone control is on).
+      sockaddr_in viewer {}, self {};
+      socklen_t viewerSize = sizeof(viewer), selfSize = sizeof(self);
+      const bool loopback = getpeername(client, reinterpret_cast<sockaddr*>(&viewer), &viewerSize) == 0 &&
+        ((ntohl(viewer.sin_addr.s_addr) >> 24) == 127 ||
+         (getsockname(client, reinterpret_cast<sockaddr*>(&self), &selfSize) == 0 &&
+          self.sin_addr.s_addr == viewer.sin_addr.s_addr));
+      if (!monitorOn) {
+        webMonitorSendPage(client, "404 Not Found", "text/plain; charset=utf-8",
+                           "The Web Monitor is off. Phone control is at /remote\n");
+        return;
+      }
+      if (!shared && !loopback) {
+        webMonitorSendPage(client, "403 Forbidden", "text/plain; charset=utf-8",
+                           "The Web Monitor is shared with this computer only\n");
+        return;
+      }
     }
     std::string path = parts[1];
     std::string query;
@@ -2302,6 +2602,17 @@ html,body{width:100%;height:100%;overflow:hidden}
       triggerToast("web monitor: " + url, ToastKind::Warning, kToastReadableMs);
       return;
     }
+    showQrOverlay(url, url, project_.webMonitorPin.empty()
+                              ? "Point a phone camera at the code"
+                              : "Point a phone camera at the code; it will ask for the passphrase");
+  }
+
+  // The QR panel: `encoded` is what the code carries, `shown` the line printed
+  // under it (a pairing code is never printed), `hint` the instruction.
+  void showQrOverlay(const std::string& encoded, const std::string& shown, const std::string& hint) {
+    const std::string& url = encoded;
+    webMonitorQrShown_ = shown;
+    webMonitorQrHint_ = hint;
     if (url != webMonitorQrText_) {
       const qrcodegen::QrCode qr = qrcodegen::QrCode::encodeText(url.c_str(), qrcodegen::QrCode::Ecc::MEDIUM);
       webMonitorQrSize_ = qr.getSize();
@@ -2369,13 +2680,10 @@ html,body{width:100%;height:100%;overflow:hidden}
     int textY = code.y + code.h + pad;
     const int textW = panel.w - pad * 2;
     drawCenteredTextSafe(controlRenderer_, fontBase_, SDL_Rect {panel.x + pad, textY, textW, lineH},
-                         webMonitorQrText_, pal.fg);
+                         webMonitorQrShown_, pal.fg);
     textY += lineH + uiScaled(6);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {panel.x + pad, textY, textW, lineH},
-                         project_.webMonitorPin.empty()
-                           ? "Point a phone camera at the code"
-                           : "Point a phone camera at the code; it will ask for the passphrase",
-                         pal.fgSoft);
+                         webMonitorQrHint_, pal.fgSoft);
     textY += lineH;
     drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {panel.x + pad, textY, textW, lineH},
                          "click or Esc to close", pal.inkSoft);
@@ -2408,30 +2716,38 @@ html,body{width:100%;height:100%;overflow:hidden}
     return true;
   }
 
+  // The one web server serves the Web Monitor and the phone controller. It
+  // runs when either is on, and listens on the network when the monitor is
+  // shared or phone control is on (a phone is on the network by definition);
+  // each request is then held to its own feature's rules.
+  bool webServerOnNetwork() const {
+    return (project_.webMonitorEnabled && project_.webMonitorShareLan) || project_.webRemoteEnabled;
+  }
+
   bool startWebMonitor() {
-    if (!project_.webMonitorEnabled) {
+    if (!project_.webMonitorEnabled && !project_.webRemoteEnabled) {
       webMonitorReady_ = false;
       return false;
     }
-    if (project_.webMonitorShareLan && project_.webMonitorPin.size() < 8) {
+    const bool lan = webServerOnNetwork();
+    if (lan && project_.webMonitorPin.size() < 8) {
       webMonitorReady_ = false;
       return false;
     }
     if (webMonitorListen_ != kInvalidSocket) {
-      return ensureWebMonitorProgrammeOutput();
+      return !project_.webMonitorEnabled || ensureWebMonitorProgrammeOutput();
     }
-    const std::string lanAddress = project_.webMonitorShareLan ? webMonitorLanAddress() : std::string();
-    if (project_.webMonitorShareLan && lanAddress.empty()) {
+    const std::string lanAddress = lan ? webMonitorLanAddress() : std::string();
+    if (lan && lanAddress.empty()) {
       webMonitorReady_ = false;
       return false;
     }
-    webMonitorListen_ = createBoundSocket(SOCK_STREAM, project_.webMonitorPort, true,
-                                          !project_.webMonitorShareLan, lanAddress);
+    webMonitorListen_ = createBoundSocket(SOCK_STREAM, project_.webMonitorPort, true, !lan, lanAddress);
     if (webMonitorListen_ == kInvalidSocket) {
       webMonitorReady_ = false;
       return false;
     }
-    if (!ensureWebMonitorProgrammeOutput()) {
+    if (project_.webMonitorEnabled && !ensureWebMonitorProgrammeOutput()) {
       closeSocket(webMonitorListen_);
       webMonitorListen_ = kInvalidSocket;
       webMonitorReady_ = false;
@@ -2493,6 +2809,9 @@ html,body{width:100%;height:100%;overflow:hidden}
         out.streamEnabled = false;
       }
       stopWebMonitor();
+      if (project_.webRemoteEnabled) startWebMonitor();   // the phone keeps its server
+      webMonitorDirSyncedMs_ = 0;
+      syncWebMonitorDirectory();
       triggerToast("web monitor: off");
     }
     playUiSound(UiSoundEffect::Toggle);
@@ -2571,10 +2890,21 @@ html,body{width:100%;height:100%;overflow:hidden}
       return false;
     }
     project_.webRemoteEnabled = enabled;
+    // Its own switch: start, stop or rebind the server as the two features
+    // between them now need it.
+    stopWebMonitor();
+    const bool up = startWebMonitor();
     webMonitorDirSyncedMs_ = 0;
     syncWebMonitorDirectory();
     markProjectDirty();
-    triggerToast(enabled ? "phone control: open " + webMonitorUrl() + "remote" : "phone control: off");
+    if (enabled && !up) {
+      triggerToast(webMonitorLanAddress().empty() ? "phone control: no active private Ethernet/Wi-Fi address"
+                                                  : "phone control: could not open port " +
+                                                      std::to_string(project_.webMonitorPort),
+                   ToastKind::Warning, kToastReadableMs);
+    } else {
+      triggerToast(enabled ? "phone control: open " + webRemoteUrl() : "phone control: off");
+    }
     return true;
   }
 
@@ -2758,7 +3088,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (362)\n"
+        "DECKBOY_0.01 every verb (363)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -2790,7 +3120,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "DASH DASHBOARD GET OUTPUT SET\n"
         "OSC_QUERY_PORT OUT OUTPUTMODE OVERLAY PANIC PANICAUTORESTORE\n"
         "PANICFADE PANICPROFILE PANIC_FADE PANIC_PROFILE PANIC_RESTORE\n"
-        "PATTERN PAUSE PAUSEATBEGIN PAUSEATEND PAUSEBEGIN PAUSEEND POSTWAIT PREWAIT\n"
+        "PATTERN PAUSE PAUSEATBEGIN PAUSEATEND PAUSEBEGIN PAUSEEND PHONE POSTWAIT PREWAIT\n"
         "PAUSESTART PENDING PING PIP PLAY PLAYLISTAUTOFADE PLAYLISTFADE PLAYLISTLOOP\n"
         "PLAYLISTOPACITY PRESET PREV PREVIOUS REC RECCODEC RECFORMAT RECORD\n"
         "RECSEGMENT RECTC RENAME RENUMBER RERACK ROUTE SCALE SCALEMODE SCALEX SCALEY SCENE\n"
@@ -5493,8 +5823,8 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         std::lock_guard<std::mutex> lock(command.webReply->mutex);
         if (command.webReply->cancelled || std::chrono::steady_clock::now() >= command.webReply->deadline) continue;
         remoteCommandError_.clear();
-        if (!project_.webRemoteEnabled || !project_.webMonitorEnabled ||
-            project_.webMonitorPin.size() < 8 || command.webReply->pin != project_.webMonitorPin) {
+        if (!project_.webRemoteEnabled || project_.webMonitorPin.size() < 8 ||
+            (!command.webReply->paired && command.webReply->pin != project_.webMonitorPin)) {
           remoteCommandError_ = "phone control disabled or passphrase changed";
         }
       }
@@ -5508,6 +5838,13 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         }
       }
       if (remoteCommandError_.empty()) handleRemoteCommand(command.text);
+      // A phone reads the state straight after its command answers; refresh
+      // it now rather than at the next once-a-second sync, so a press is seen
+      // to have happened.
+      if (command.webReply) {
+        webMonitorDirSyncedMs_ = 0;
+        syncWebMonitorDirectory();
+      }
       if (command.replyTo == kInvalidSocket && !command.webReply) {
         continue;
       }

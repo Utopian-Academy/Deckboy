@@ -2699,6 +2699,11 @@ struct Project {
   int webMonitorMaxClients = 8;         // simultaneous browser connections, 1-64
   bool webMonitorLowLatency = false;    // picture only, no buffer: screens stay in step
   bool webRemoteEnabled = false;       // /remote controls; always requires an 8+ character PIN
+  // What a phone may do: 0 GO + STOP (decks, DASH, tracker), 1 show control
+  // (+ blackout, test card), 2 full (+ outputs on/off, recording). The desk
+  // enforces it; the page only hides what it cannot send.
+  int webRemoteLevel = 0;
+  bool webRemoteHaptics = true;        // the phone page buzzes on presses
   // vMix-compatible control surface. OFF by default: it is a second way into
   // the show, and a second way in is a decision the operator makes rather than
   // one that arrives switched on. The ports are vMix's own, so a panel

@@ -50,6 +50,19 @@
   left DeckLink off. It now says why.
 - DeckLink and ST 2110 now share one Y'CbCr encoder.
 
+### Phone and tablet control
+- Phone control is now a controller for the whole desk with its own card, **Settings > Network >
+  PHONE & TABLET**, and works with the Web Monitor off.
+- Added **SCAN TO PAIR**: a phone scans a QR code and connects with no typing. The code works once,
+  for two minutes; the phone keeps its own key, and **FORGET ALL** removes every paired phone.
+- Added **Can do**: GO + STOP ONLY (decks, tracker, DASH), SHOW CONTROL (+ blackout, test card) or
+  FULL (+ outputs, recording), enforced by the desk.
+- The phone page has a new look in the desk's theme and Deckboy's pixel face: now-playing with time
+  and progress, a big GO, BACK, a TRACKER page, and a SHOW page whose risky buttons fire on a
+  half-second hold.
+- Added haptics on Android, and a tick on iPhone; **Haptics** in the card.
+- Added `PHONE ON|OFF|STATUS|LEVEL|HAPTICS|PAIR|FORGET` and `OUTPUT <n> ON|OFF`.
+
 ### Network control
 - Fixed an issue where the phone remote answered any machine on the local network with the
   passphrase, even when that machine was not in **Trusted controllers**. It now answers only this

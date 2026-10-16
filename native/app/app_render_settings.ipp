@@ -1778,7 +1778,9 @@
       // vMix-compatible surface: a status line and three rows.
       int vmixH = stackH({sLineH, sRowH, sRowH, sRowH});
       // Web monitor: address, ten controls and the remote page path.
-      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
+      int webMonH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
+      // Phone & tablet: a status line and six rows.
+      int phoneH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int nmcH = stackH({sRowH, sRowH, sRowH, sRowH, sLineH});
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
       // The adapter grid no longer carries the tally controls, so it needs
@@ -1806,7 +1808,7 @@
       // drift case on this tab the way APPEARANCE did on System. The
       // predicted sum is what protects this tab; add the refinement if a
       // card here is ever found to drift the way that one did.
-      const int leftNeeded = remoteH + oscH + vmixH + webMonH + nmcH + notesH + 5 * kCardGap;
+      const int leftNeeded = remoteH + oscH + vmixH + webMonH + phoneH + nmcH + notesH + 6 * kCardGap;
       const int rightNeeded = integrationH + tallyCardH + kCardGap;
       settingsNetworkScrollMax_ = std::max(0, std::max(leftNeeded, rightNeeded) - colH);
       settingsNetworkScroll_ = std::clamp(settingsNetworkScroll_, 0, settingsNetworkScrollMax_);
@@ -1834,6 +1836,8 @@
       leftY += vmixRect.h + kCardGap;
       SDL_Rect webMonRect {leftCol.x, leftY, leftCol.w, webMonH};
       leftY += webMonRect.h + kCardGap;
+      SDL_Rect phoneRect {leftCol.x, leftY, leftCol.w, phoneH};
+      leftY += phoneRect.h + kCardGap;
       SDL_Rect nmcRect {leftCol.x, leftY, leftCol.w, nmcH};
       leftY += nmcRect.h + kCardGap;
       SDL_Rect notesRect {leftCol.x, leftY, leftCol.w,
@@ -2033,10 +2037,53 @@
         drawSettingsStateFill(wmQr, false);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, wmQr, "QR CODE", settingsStateInk(false));
         settingsBtns_.push_back({wmQr, kSettingsActionWebMonitorQr, "web_monitor_qr"});
-        SDL_Rect wmRemote = settingsRow(wmX, wmW, wmY, sRowH, "Phone control", sGap);
-        drawPill(wmRemote, project_.webRemoteEnabled, "ON", "OFF", kSettingsActionWebRemoteToggle);
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{wmX, wmY, wmW, sLineH},
-                     "Control page: /remote (passphrase required)", soft);
+                     "Phone control is in PHONE & TABLET, below", soft);
+      }
+
+      // ── PHONE & TABLET ──────────────────────────────────────────────────
+      //
+      // A controller for the whole desk, not a Web Monitor setting: its own
+      // switch, working with the monitor off. It shares the monitor's port and
+      // passphrase; a phone that scans SCAN TO PAIR connects with no typing
+      // and keeps its own key, which FORGET ALL takes back.
+      drawCard(phoneRect, "PHONE & TABLET", "Run the show from a phone");
+      {
+        const int phX = cardBodyX(phoneRect);
+        const int phW = cardBodyW(phoneRect);
+        int phY = cardBodyY(phoneRect);
+        const std::string phStatus = !project_.webRemoteEnabled ? std::string("off")
+          : webMonitorReady_ ? webRemoteUrl()
+          : project_.webMonitorPin.size() < 8 ? std::string("needs an 8+ character passphrase")
+          : webMonitorLanAddress().empty() ? std::string("no active private Ethernet/Wi-Fi address")
+          : "port " + std::to_string(project_.webMonitorPort) + " is busy";
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{phX, phY, phW, sLineH}, "open: " + phStatus, soft);
+        phY += sLineH + sGap;
+        SDL_Rect phOn = settingsRow(phX, phW, phY, sRowH, "Phone control", sGap);
+        drawPill(phOn, project_.webRemoteEnabled, "ON", "OFF", kSettingsActionWebRemoteToggle);
+        SDL_Rect phPin = settingsRow(phX, phW, phY, sRowH, "Passphrase (shared)", sGap);
+        drawUIValueControl(phPin, project_.webMonitorPin.empty() ? std::string("none") : std::string("set"));
+        settingsBtns_.push_back({phPin, kSettingsActionWebMonitorPinPrompt, "web_monitor_pin"});
+        SDL_Rect phPair = settingsRow(phX, phW, phY, sRowH, "Pair a phone", sGap);
+        drawSettingsStateFill(phPair, false);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, phPair, "SCAN TO PAIR", settingsStateInk(false));
+        settingsBtns_.push_back({phPair, kSettingsActionPhonePair,
+                                 "A QR code a phone scans to connect with no typing; works once, for two minutes"});
+        SDL_Rect phForget = settingsRow(phX, phW, phY, sRowH, "Paired phones", sGap);
+        const int paired = pairedPhoneCount();
+        drawSettingsStateFill(phForget, false);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, phForget,
+                             paired == 0 ? std::string("NONE") : std::to_string(paired) + "  FORGET ALL",
+                             settingsStateInk(false));
+        settingsBtns_.push_back({phForget, kSettingsActionPhoneForget,
+                                 "Forget every paired phone: each needs the QR code or the passphrase again"});
+        SDL_Rect phLevel = settingsRow(phX, phW, phY, sRowH, "Can do", sGap);
+        drawUIValueControl(phLevel, phoneLevelLabel(project_.webRemoteLevel));
+        settingsBtns_.push_back({phLevel, kSettingsActionPhoneLevel,
+                                 "GO + STOP ONLY: decks, DASH, tracker. SHOW CONTROL: + blackout, test card. "
+                                 "FULL: + outputs on/off, recording"});
+        SDL_Rect phHaptics = settingsRow(phX, phW, phY, sRowH, "Haptics", sGap);
+        drawPill(phHaptics, project_.webRemoteHaptics, "ON", "OFF", kSettingsActionPhoneHaptics);
       }
 
       // ── NMC IN & OUT ────────────────────────────────────────────────────
@@ -4716,6 +4763,14 @@
         setWebMonitorLowLatency(!project_.webMonitorLowLatency);
       } else if (sb.action == kSettingsActionWebMonitorQr) {
         openWebMonitorQr();
+      } else if (sb.action == kSettingsActionPhonePair) {
+        openPhonePairQr();
+      } else if (sb.action == kSettingsActionPhoneForget) {
+        forgetPairedPhones();
+      } else if (sb.action == kSettingsActionPhoneLevel) {
+        setPhoneLevel((project_.webRemoteLevel + 1) % 3);
+      } else if (sb.action == kSettingsActionPhoneHaptics) {
+        setPhoneHaptics(!project_.webRemoteHaptics);
       } else if (sb.action == kSettingsActionWebMonitorSource) {
         // To the web output's own page, where its Source is chosen.
         if (ensureWebMonitorProgrammeOutput()) {

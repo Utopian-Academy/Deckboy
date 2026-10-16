@@ -2,37 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Deckboy Remote</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f380f">
+  <title>Deckboy</title>
+  <link rel="icon" href="/remote/logo.png">
+  <link rel="apple-touch-icon" href="/remote/logo.png">
   <link rel="stylesheet" href="/remote.css">
   <script src="/remote.js" defer></script>
 </head>
 <body>
   <main>
-    <header><h1>Deckboy Remote</h1><a href="/">Web Monitor</a></header>
-    <form id="login">
-      <label for="pin">Web Monitor passphrase</label>
-      <input id="pin" type="password" autocomplete="current-password" required minlength="8">
-      <button>Connect</button>
-      <p>Enable Phone control in Settings &gt; Network &gt; Web Monitor on the desk.</p>
-    </form>
-    <p id="connection" role="status">Enter the passphrase to connect.</p>
-    <p id="result" role="status"></p>
+    <section id="login" class="login">
+      <img src="/remote/logo.png" alt="Deckboy" class="logo" width="160" height="160">
+      <p class="sub">PHONE CONTROL</p>
+      <form id="pin-form" class="panel">
+        <label for="pin">PASSPHRASE</label>
+        <input id="pin" type="password" autocomplete="current-password" minlength="8" required>
+        <button class="big">CONNECT</button>
+      </form>
+      <p class="hint">Or scan <b>SCAN TO PAIR</b> on the desk (Settings &gt; Network &gt; PHONE &amp; TABLET) and this connects by itself.</p>
+      <p id="login-status" class="hint" role="status"></p>
+    </section>
+
     <section id="controls" hidden>
-      <div class="deck-row"><label for="deck">Deck</label><select id="deck"></select>
-        <button id="lock">Lock</button></div>
-      <p id="transport"></p>
-      <div class="transport">
-        <button data-verb="GO">GO</button>
-        <button data-verb="STOP">STOP</button>
-        <button data-verb="NEXT">NEXT</button>
+      <header class="top">
+        <span class="plate">DECKBOY</span>
+        <span id="link" class="link" role="status">LINK</span>
+        <button id="lock" class="small" aria-label="Lock this phone">LOCK</button>
+      </header>
+      <nav id="tabs" class="tabs" aria-label="Pages">
+        <button data-tab="decks" aria-pressed="true">DECKS</button>
+        <button data-tab="tracker" aria-pressed="false">TRACKER</button>
+        <button data-tab="dash" aria-pressed="false">DASH</button>
+        <button data-tab="show" aria-pressed="false">SHOW</button>
+      </nav>
+
+      <div data-page="decks">
+        <div id="deck-chips" class="chips" aria-label="Decks"></div>
+        <div class="now" aria-live="polite">
+          <div class="now-top"><span id="now-status">-</span><span id="now-time"></span></div>
+          <div id="now-name" class="now-name">-</div>
+          <div class="bar"><div id="now-bar"></div></div>
+          <div class="now-next">NEXT: <span id="now-next">-</span></div>
+        </div>
+        <button id="go" class="go">GO</button>
+        <div class="row3">
+          <button data-verb="PREV">BACK</button>
+          <button data-verb="STOP">STOP</button>
+          <button data-verb="NEXT">NEXT</button>
+        </div>
+        <p class="label">CUES</p>
+        <div id="cues" class="list"></div>
       </div>
-      <p>NEXT selects the next cue. Tap a cue to select it, then GO to play.
-        GO follows the desk's standby cue when one is armed.</p>
-      <h2>Cues</h2><div id="cues" class="cues"></div>
-      <h2>DASH</h2><div id="dash" class="dash"></div>
+
+      <div data-page="tracker" hidden>
+        <div class="now">
+          <div class="now-top"><span id="trk-state">-</span><span id="trk-count"></span></div>
+          <div id="trk-name" class="now-name">-</div>
+          <div class="now-next">NEXT: <span id="trk-next">-</span></div>
+        </div>
+        <button id="trk-go" class="go">GO</button>
+        <div class="row3">
+          <button data-tracker="BACK">BACK</button>
+          <button data-tracker="PLAY">PLAY</button>
+          <button data-tracker="STOP">STOP</button>
+        </div>
+      </div>
+
+      <div data-page="dash" hidden>
+        <div id="dash" class="grid"></div>
+      </div>
+
+      <div data-page="show" hidden>
+        <div class="grid">
+          <button id="blackout" class="tall hold">BLACKOUT</button>
+          <button id="testcard" class="tall">TEST CARD</button>
+        </div>
+        <div id="full" hidden>
+          <p class="label">OUTPUTS</p>
+          <div id="outputs" class="list"></div>
+          <p class="label">RECORD</p>
+          <div class="item"><span>Recording</span><button id="record" class="toggle hold">OFF</button></div>
+        </div>
+        <p class="hint">Hold BLACKOUT, outputs and RECORD for half a second: the phone buzzes as it arms.</p>
+      </div>
+      <p id="result" class="result" role="status"></p>
     </section>
     <noscript>This remote needs JavaScript enabled.</noscript>
   </main>
+  <label id="tick" class="tick" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 </body>
 </html>

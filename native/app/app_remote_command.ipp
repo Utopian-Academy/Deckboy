@@ -2498,6 +2498,40 @@
                              deck.cues[index].name;
       return;
     }
+    // PHONE ON|OFF|STATUS | LEVEL GO|SHOW|FULL | HAPTICS ON|OFF | PAIR | FORGET
+    // -- the phone and tablet controller. Local only (remoteVerbIsLocalOnly):
+    // each of these widens or narrows what a phone may do.
+    if (command == "PHONE") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
+      if (sub == "ON" || sub == "OFF") {
+        if (!setWebRemoteEnabled(sub == "ON")) return;
+      } else if (sub == "LEVEL" && parts.size() > 2) {
+        const std::string want = toUpper(parts[2]);
+        const int level = want == "FULL" || want == "2" ? 2 : want == "SHOW" || want == "1" ? 1
+                        : want == "GO" || want == "0" ? 0 : -1;
+        if (level < 0) { failRemoteCommand("PHONE LEVEL: GO | SHOW | FULL"); return; }
+        setPhoneLevel(level);
+      } else if (sub == "HAPTICS" && parts.size() > 2) {
+        setPhoneHaptics(toUpper(parts[2]) == "ON");
+      } else if (sub == "PAIR") {
+        // Answers with the pairing address too: a local caller (Companion on
+        // this computer, a script) can hand it on; the screen shows the QR.
+        openPhonePairQr();
+        if (webMonitorQrOpen_ && webMonitorQrText_.find("#pair=") != std::string::npos) {
+          remoteCommandDetail_ = webMonitorQrText_;
+          return;
+        }
+      } else if (sub == "FORGET") {
+        forgetPairedPhones();
+      } else if (sub != "STATUS") {
+        failRemoteCommand("PHONE: ON | OFF | STATUS | LEVEL GO|SHOW|FULL | HAPTICS ON|OFF | PAIR | FORGET");
+        return;
+      }
+      remoteCommandDetail_ = std::string(project_.webRemoteEnabled ? "on " + webRemoteUrl() : std::string("off")) +
+        " | can do " + phoneLevelLabel(project_.webRemoteLevel) + " | haptics " +
+        (project_.webRemoteHaptics ? "on" : "off") + " | paired " + std::to_string(pairedPhoneCount());
+      return;
+    }
     if (command == "TRACKER" || command == "SEQUENCE") {
       // TRACKER GO|NEXT        -> fire the next step
       // TRACKER BACK|PREV      -> fire the step before
@@ -4442,11 +4476,11 @@
       };
       if (sub == "STATUS") {
         report();
-        remoteCommandDetail_ += std::string("; phone control ") + (project_.webRemoteEnabled ? "on (/remote)" : "off");
+        remoteCommandDetail_ += std::string("; phone control ") + (project_.webRemoteEnabled ? "on (see PHONE)" : "off");
       } else if (sub == "CONTROL" && parts.size() == 3 &&
                  (toUpper(parts[2]) == "ON" || toUpper(parts[2]) == "OFF")) {
         if (setWebRemoteEnabled(toUpper(parts[2]) == "ON")) {
-          remoteCommandDetail_ = project_.webRemoteEnabled ? webMonitorUrl() + "remote" : "phone control off";
+          remoteCommandDetail_ = project_.webRemoteEnabled ? webRemoteUrl() : "phone control off";
         }
       } else if (sub == "ON" || sub == "OFF") {
         setWebMonitorEnabled(sub == "ON");
@@ -8699,7 +8733,7 @@
         const std::string arg = parts.size() > 2 ? toUpper(parts[2]) : std::string("TOGGLE");
         // OUTPUT TESTCARD EXPORT [seconds] [WxH] [<n>FPS] [folder]: the moving
         // card as H.264 files (see exportTestCard). Defaults: 30 s, 60 fps,
-        // the show's rasters, the state folder's "test cards".
+        // the show's rasters, the state folder's "test-cards".
         if (arg == "EXPORT") {
           double seconds = 30.0;
           int fps = 60, w = 0, h = 0;
@@ -8804,11 +8838,13 @@
       }
       // A bare number focuses that output, so every other verb here can stay
       // about "the focused one" rather than growing an index argument.
+      // OUTPUT n <verb> focuses n and then runs the verb on it, like DECK n.
       try {
         const int want = std::stoi(parts[1]) - 1;
         if (want >= 0 && want < static_cast<int>(project_.outputs.size())) {
           project_.focusedOutputIndex = want;
           remoteCommandDetail_ = focusedOutput().name;
+          if (parts.size() > 2) handleRemoteCommand("OUTPUT " + joinParts(parts, 2));
           return;
         }
       } catch (...) {

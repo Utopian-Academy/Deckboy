@@ -33,17 +33,17 @@ try {
   page.on('dialog', async dialog => { ++dialogs; await dialog.dismiss(); });
   async function unlock() {
     await page.locator('#pin').fill(pin);
-    await page.locator('#login button').click();
+    await page.locator('#pin-form button').click();
     await page.waitForFunction(() => document.getElementById('connection').textContent === 'Connected');
   }
   await page.goto(base+'/remote');
   await unlock();
-  await page.locator('#deck').selectOption('2');
+  await page.locator('#deck-chips [data-deck="2"]').click();
   assert.equal(await page.locator('#cues button').count(), 0, 'Empty second deck has its own cue list');
-  await page.locator('#deck').selectOption('1');
+  await page.locator('#deck-chips [data-deck="1"]').click();
   await page.locator('#cues button').nth(1).click();
   await page.waitForFunction(() => document.querySelector('#cues button:nth-child(2)').getAttribute('aria-pressed') === 'true');
-  await page.locator('[data-verb="GO"]').click();
+  await page.locator('#go').click();
   await page.waitForFunction(() => document.getElementById('transport').textContent.includes('active 2'));
   await page.locator('[data-verb="STOP"]').click();
   await page.waitForFunction(() => document.getElementById('result').textContent.startsWith('OK '));
@@ -58,9 +58,9 @@ try {
   assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0, 'PIN must not be stored');
   assert.equal(page.url(), base+'/remote');
   await context.setOffline(true);
-  await page.waitForFunction(() => document.querySelector('[data-verb="GO"]').disabled);
+  await page.waitForFunction(() => document.querySelector('#go').disabled);
   await context.setOffline(false);
-  await page.waitForFunction(() => !document.querySelector('[data-verb="GO"]').disabled);
+  await page.waitForFunction(() => !document.querySelector('#go').disabled);
   await page.locator('#lock').click();
   assert.equal(await page.locator('#controls').isVisible(), false);
   await unlock();
@@ -84,7 +84,7 @@ try {
         const rgb = value => value.match(/[\d.]+/g).slice(0,3).map(Number);
         const luminance = values => values.map(v => v/255).map(v => v <= .04045 ? v/12.92 : ((v+.055)/1.055)**2.4)
           .reduce((sum,v,i) => sum+v*[.2126,.7152,.0722][i],0);
-        return ['body','[data-verb="GO"]','#cues button[aria-pressed="true"]'].map(selector => {
+        return ['body','#go','#cues button[aria-pressed="true"]'].map(selector => {
           const style = getComputedStyle(document.querySelector(selector));
           const a = luminance(rgb(style.color)), b = luminance(rgb(style.backgroundColor));
           return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);

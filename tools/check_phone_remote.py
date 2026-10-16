@@ -43,8 +43,13 @@ def command(port, line):
         return result.decode().strip()
 
 
+# Phone control listens on the private LAN address alone (never a VPN's), so
+# once it is on the check follows the server there: PHONE STATUS names it.
+HOST = {"name": "127.0.0.1"}
+
+
 def http(port, path="/remote/state", body="", pin=PIN, method="POST", headers=None):
-    conn = HTTPConnection("127.0.0.1", port, timeout=8)
+    conn = HTTPConnection(HOST["name"], port, timeout=8)
     try:
         fields = {"X-Deckboy-Pin": quote(pin, safe=""), "Content-Type": "text/plain"}
         fields.update(headers or {})
@@ -133,6 +138,9 @@ def main():
         expect(http(web)[0] == 403, "control disabled by default")
         control("WEBMONITOR PIN " + PIN)
         control("WEBMONITOR CONTROL ON")
+        phone = command(port, "PHONE STATUS")
+        if "http://" in phone:
+            HOST["name"] = phone.split("http://", 1)[1].split(":", 1)[0]
         if args.native_ui:
             # Centre of Phone control in the fixed 2640x1530 / 150% viewport,
             # visually checked against the native screenshots below.
@@ -148,19 +156,19 @@ def main():
         expect(http(web, headers={"Origin": "http://example.invalid"})[0] == 403, "foreign Origin refused")
         expect(http(web, headers={"Host": "example.invalid"})[0] == 403, "rebound DNS host refused")
         expect(http(web, headers={"Sec-Fetch-Site": "cross-site"})[0] == 403, "cross-site browser request refused")
-        expect(http(web, headers={"Origin": f"http://127.0.0.1:{web}"})[0] == 200, "same-origin request accepted")
+        expect(http(web, headers={"Origin": f"http://{HOST['name']}:{web}"})[0] == 200, "same-origin request accepted")
         expect(http(web, "/remote/command", "DECK 1 GO", pin="wrong")[0] == 401,
                "unauthenticated command receives an error without a connection reset")
         for line in ("GO", "DECK 1 GO\nSTOP", "DECK 1 SELECT 1junk", "DASH SET 1 x | GO", "SET theme dark"):
             send(line, 400)
         expect(http(web, "/remote/command", "x" * 129)[0] == 413, "oversized command refused")
         # Duplicate headers and incomplete bodies are received through the real socket parser.
-        with socket.create_connection(("127.0.0.1", web), timeout=8) as sock:
-            sock.sendall((f"POST /remote/command HTTP/1.1\r\nHost: 127.0.0.1:{web}\r\n"
+        with socket.create_connection((HOST["name"], web), timeout=8) as sock:
+            sock.sendall((f"POST /remote/command HTTP/1.1\r\nHost: {HOST['name']}:{web}\r\n"
                           f"X-Deckboy-Pin: {PIN}\r\nContent-Length: 9\r\nContent-Length: 9\r\n\r\nDECK 1 GO").encode())
             expect(b"400 Bad Request" in sock.recv(4096), "duplicate Content-Length refused")
-        with socket.create_connection(("127.0.0.1", web), timeout=8) as sock:
-            sock.sendall((f"POST /remote/command HTTP/1.1\r\nHost: 127.0.0.1:{web}\r\n"
+        with socket.create_connection((HOST["name"], web), timeout=8) as sock:
+            sock.sendall((f"POST /remote/command HTTP/1.1\r\nHost: {HOST['name']}:{web}\r\n"
                           f"X-Deckboy-Pin: {PIN}\r\nContent-Length: 9\r\n\r\nDECK").encode())
             started = time.monotonic()
             expect(b"400 Bad Request" in sock.recv(4096) and time.monotonic() - started < 4,
@@ -204,9 +212,16 @@ def main():
         expect(http(web, pin="accent-caf\u00e9-%25")[0] == 200, "Unicode and percent passphrase round-trip")
         control("WEBMONITOR PIN " + PIN)
         control("WEBMONITOR PIN OFF", ok=False)
+        lan = HOST["name"]
         control("WEBMONITOR CONTROL OFF")
+        # Off, phone control takes the server off the network (the monitor here
+        # is "this computer"), and the desk itself is refused control.
+        HOST["name"] = "127.0.0.1"
+        wait_for(lambda: http(web, "/remote", method="GET")[0] == 200)
         expect(http(web)[0] == 403, "disabling control revokes access")
         control("WEBMONITOR CONTROL ON")
+        HOST["name"] = lan
+        wait_for(lambda: http(web, "/remote", method="GET")[0] == 200)
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
             results = list(pool.map(lambda _: http(web), range(9)))
         expect(all(r[0] == 200 for r in results), "concurrent tablet state requests")
