@@ -1741,35 +1741,11 @@
         (peerIp >> 20) != 0xAC1 && (peerIp >> 16) != 0xC0A8) {
       reply("403 Forbidden", "ERR remote: private LAN clients only"); return;
     }
-    // TRUSTED CONTROLLERS, for a phone with only the passphrase. The page's
-    // own files and the pairing request are open to the private network:
-    // the files are public, and a pairing code proves the person can see the
-    // desk's screen. A PAIRED phone carries a key of its own, which is a
-    // better credential than an address DHCP may change, so it passes too.
-    {
-      const bool asset = method == "GET";
-      const bool pairing = path == "/remote/pair";
-      bool keyed = false;
-      const std::string lowered = toLower(request.substr(0, std::min<std::size_t>(request.size(), 8192)));
-      if (const auto at = lowered.find("\r\nx-deckboy-key:"); at != std::string::npos) {
-        const auto start = at + 16;
-        const auto end = request.find("\r\n", start);
-        const std::string givenDeviceKey = trim(request.substr(start, end == std::string::npos ? 0 : end - start));
-        std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
-        loadWebRemoteKeysLocked();
-        for (const auto& entry : webRemoteDeviceKeys_) keyed = keyed || (givenDeviceKey.size() == 32 && entry.first == givenDeviceKey);
-      }
-      // This computer reaching its own LAN address is still this computer
-      // (the server listens there alone while phone control is on).
-      sockaddr_in self {};
-      socklen_t selfSize = sizeof(self);
-      const bool fromSelf = getsockname(client, reinterpret_cast<sockaddr*>(&self), &selfSize) == 0 &&
-                            self.sin_addr.s_addr == peer.sin_addr.s_addr;
-      if (!asset && !pairing && !keyed && !fromSelf && !controlPeerAllowed(peer, "Phone remote", false)) {
-        reply("403 Forbidden", "ERR remote: this address is not a trusted controller (Settings > Network), "
-                               "or scan SCAN TO PAIR on the desk"); return;
-      }
-    }
+    // NO TRUSTED-CONTROLLER LIST FOR A PHONE: the passphrase, or the key a
+    // paired phone holds, is the credential, checked below for every request
+    // (and private LAN addresses only, above). Requiring the phone's address
+    // on the list as well meant the passphrase alone never worked -- James:
+    // "unable to connect without the QR code".
     // The page's own face and logo: Deckboy's pixel font and its mark, so the
     // controller looks like the desk it controls.
     if (method == "GET" && (path == "/remote/font.ttf" || path == "/remote/logo.png")) {

@@ -255,6 +255,9 @@
   // which never leaves the phone except to this one request. Trade it for a
   // key of this phone's own, keep that, and wipe the code from the address.
   (async () => {
+    // A code that is spent (scanned before, or older than two minutes) is no
+    // reason to lock out a phone that is ALREADY paired: fall back to the key
+    // it holds. Only a phone with neither is sent to the login.
     const match = /(?:^|[#&])pair=([0-9a-f]{32})/.exec(location.hash);
     if (match) {
       history.replaceState(null, '', location.pathname);
@@ -262,7 +265,8 @@
         const got = await request('/remote/pair', '', { 'X-Deckboy-Pair': match[1] });
         key = got.trim(); store.set(key);
       } catch (error) {
-        showLogin(error.message.replace(/^ERR remote: /, ''));
+        key = store.get();
+        if (!key) showLogin(error.message.replace(/^ERR remote: /, ''));
       }
     } else {
       key = store.get();

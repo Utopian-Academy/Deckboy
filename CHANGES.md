@@ -9,6 +9,14 @@
   have a centred, outlined play mark.
 - New art for the Windows installer and the macOS disk image.
 
+### Phone control
+- Fixed an issue where a paired phone that opened a used pairing link (scanning the same code
+  again) stayed at the login until the desk forgot it; it now connects with the key it already has.
+- The passphrase alone now connects a phone. It also had to be on Settings' trusted-controller list,
+  so only SCAN TO PAIR worked.
+- The DECKBOY plate at the top of the phone page is readable on every theme; on some it was dark
+  on dark.
+
 ### Live captions
 - The macOS and Linux downloads carry the English speech model, so live captions work with no
   download. Settings > Audio > LIVE CAPTIONS has a Speech models row: one chip per model, lit when it

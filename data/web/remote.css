@@ -30,8 +30,8 @@ button[aria-pressed="true"], button.on { background: var(--active, #306230); col
 .hint { font-size: .9rem; color: var(--ink, #0f380f); opacity: .85; margin: 0; }
 
 .top { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; }
-.plate { font-family: var(--px); font-size: .7rem; padding: .5rem .6rem; background: var(--deep, #0f380f);
-  color: var(--surface, #9bbc0f); box-shadow: inset 0 0 0 3px var(--button, #8bac0f); }
+.plate { font-family: var(--px); font-size: .7rem; padding: .5rem .6rem; background: var(--active, #306230);
+  color: var(--active-ink, #9bbc0f); box-shadow: inset 0 0 0 3px var(--button, #8bac0f); }
 .link { font-family: var(--px); font-size: .55rem; flex: 1; text-align: right; }
 .small { min-height: 36px; font-size: .55rem; padding: .2rem .5rem; }
 .tabs { display: flex; gap: 4px; margin-bottom: .75rem; }
