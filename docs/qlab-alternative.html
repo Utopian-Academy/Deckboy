@@ -57,7 +57,7 @@
         { "@type": "Question", "name": "Can a lighting desk fire video cues on a Windows machine?",
           "acceptedAnswer": { "@type": "Answer", "text": "Yes. Deckboy answers MIDI Show Control: a desk such as an ETC Eos or a grandMA sends GO with a cue number and Deckboy takes the cue with that number. STOP, RESUME, LOAD, ALL_OFF and RESET are honoured too, and the device ID match is exact so it does not answer messages meant for the rest of the rig." } },
         { "@type": "Question", "name": "What does QLab do that Deckboy does not?",
-          "acceptedAnswer": { "@type": "Answer", "text": "QLab has group cues, devamp, memo and microphone cues, a lighting system with fixture patching, and AppleScript. Deckboy has none of those. Its lighting output is Art-Net channel levels with a fade, and its script cues run Deckboy's own control protocol." } }
+          "acceptedAnswer": { "@type": "Answer", "text": "QLab has group cues, a lighting console and AppleScript, which Deckboy does not. Deckboy has memo cues, devamp, microphone cues and a fixture patch for dimmers and colour washes over Art-Net or sACN, and its script cues run Deckboy's own control protocol." } }
       ]
     }
     </script>
@@ -129,8 +129,11 @@
                 or raw bytes</td></tr>
             <tr><td data-label="In QLab">Network cues</td><td data-label="In Deckboy">Send OSC, a UDP datagram or a line of TCP</td></tr>
             <tr><td data-label="In QLab">Timecode cues</td><td data-label="In Deckboy">Start, stop or jam the LTC generator from the cue list</td></tr>
-            <tr><td data-label="In QLab">Light cues</td><td data-label="In Deckboy">Art-Net channel levels with a fade time. Not a lighting
-                system: no fixtures, no patch</td></tr>
+            <tr><td data-label="In QLab">Light cues</td><td data-label="In Deckboy">Fixtures patched by name (dimmers and colour washes), set by
+                level and colour with LFOs and a fade, over Art-Net or sACN, and dipped while a video
+                rolls. Not a lighting console: no moving heads</td></tr>
+            <tr><td data-label="In QLab">Mic cues</td><td data-label="In Deckboy">A live microphone or line input as a cue, with fades,
+                routing and per-cue audio effects</td></tr>
             <tr><td data-label="In QLab">Script cues (AppleScript)</td><td data-label="In Deckboy">Script cues run lines of Deckboy's own control
                 protocol, so one cue can fire several things</td></tr>
             <tr><td data-label="In QLab">Text cues</td><td data-label="In Deckboy">Lower thirds and timers</td></tr>
@@ -146,12 +149,12 @@
 
         <h2>What Deckboy does not do</h2>
         <ul>
-            <li><b>Group cues, devamp and memo cues.</b> There is no group cue that holds and
-                fires a sequence. A master cue fires on several decks at once, and a chain of
-                continue modes does the rest.</li>
-            <li><b>Microphone cues.</b> There is no live-mic cue with its own processing.</li>
-            <li><b>A lighting system.</b> Deckboy sends channel levels over Art-Net. It does not
-                patch fixtures, and it is not a lighting console.</li>
+            <li><b>Group cues.</b> There is no group cue that holds and fires a sequence. A
+                master cue fires on several decks at once, and a chain of continue modes does the
+                rest.</li>
+            <li><b>A lighting console.</b> Deckboy patches fixtures (dimmers and colour washes,
+                not moving heads) and sets them by name over Art-Net or sACN, with LFOs and a dip
+                while a video rolls. It is not a lighting console.</li>
             <li><b>AppleScript.</b> Script cues speak Deckboy's own protocol, which works the same
                 on every platform.</li>
             <li><b>Years in the field.</b> The show-control side of Deckboy is new, so rehearse

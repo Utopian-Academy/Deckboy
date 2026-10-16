@@ -1,12 +1,22 @@
 # Deckboy 🎬
 
-[![Release](https://img.shields.io/github/v/release/Utopian-Academy/Deckboy)](https://github.com/Utopian-Academy/Deckboy/releases)
-[![License](https://img.shields.io/github/license/Utopian-Academy/Deckboy)](LICENSE)
-[![CI](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#)
-[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](#)
+<div align="center">
+
+[![Download](https://img.shields.io/github/v/release/Utopian-Academy/Deckboy?style=for-the-badge&label=download&color=8bac0f&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/Utopian-Academy/Deckboy/total?style=for-the-badge&color=306230&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/Utopian-Academy/Deckboy/build.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml)
+[![Discord](https://img.shields.io/discord/1560690462766006362?style=for-the-badge&label=discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/AZzsE4AZWx)
+
+[![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue?style=for-the-badge)](LICENSE)
+[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-1a6fb5?style=for-the-badge)](https://libsdl.org)
+
 [![Stars](https://img.shields.io/github/stars/Utopian-Academy/Deckboy?style=social)](https://github.com/Utopian-Academy/Deckboy/stargazers)
 [![Mentioned in Awesome NDI](https://awesome.re/mentioned-badge.svg)](https://github.com/florisporro/awesome-ndi)
+
+</div>
 
 ## One cue list for your whole video show.
 
@@ -437,6 +447,9 @@ and reacquisition update the media clock. See
 - Tally-driven playback: roll when an ATEM or an NDI receiver puts you on air
 - LTC timecode in, and an LTC generator routable to its own device and channel
 - MIDI input, Art-Net / DMX, NMC transport sync in and out
+- A fixture patch: lights named once, set by name and colour with LFOs, and dipped
+  automatically while a video rolls
+- Mic cues: a live microphone or line input as a cue, with its own fades, effects and routing
 
 </details>
 
@@ -543,7 +556,6 @@ importantly, what each feature deliberately does not do.
 - Multichannel audio files, up to 24 channels each, every channel routable
 - Effects on a device's outputs as well as on each cue
 - Fades that ramp effect settings and playback speed, not only level
-- Microphone cues: a live input as a cue, with its own effects, fades and routing
 - Object audio: place a cue in your speaker layout and move it across the room
 - Named outputs and an output patch editor
 
@@ -554,7 +566,7 @@ importantly, what each feature deliberately does not do.
   them, for every new show
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes
-- Fixture patching and a lighting dashboard, beyond Art-Net levels
+- A lighting dashboard, beyond the fixture patch
 - Live scoreboard data as a source: the clock, scores and fouls read off a
   venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
   and its XML/JSON feed, driving text and lower thirds on the outputs
@@ -569,19 +581,14 @@ importantly, what each feature deliberately does not do.
 
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
-- HDR from end to end: PQ and HLG clips shown correctly on SDR outputs, HDR10
-  and HLG window outputs, and HDR over SDI, NDI and recordings with the right
-  metadata, each output choosing its own signal
-- Live captions: words on the output about two seconds after they are said,
-  from a stage mic or the programme, made on this computer
+- HDR the rest of the way: HLG window outputs, and HDR over SDI and NDI with the
+  right metadata, each output choosing its own signal
 - Local AI upscaling: an upscale job that turns a clip into a sharper, bigger
   file, and real-time upscaling on the GPU where the hardware offers it
 
 **Scopes:**
 
-- Picture scopes for QC, measured on the full-resolution output: waveform, RGB
-  and YCbCr parades, a vectorscope with a skin-tone line, the diamond gamut
-  display, EBU R 103 gamut alarms, false colour and HDR levels in nits
+- False colour on the picture scopes
 - Sound scopes: loudness to EBU R 128, true peak, phase and spectrum
 - Scopes on the desk, on any output and over NDI
 
