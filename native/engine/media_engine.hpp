@@ -377,6 +377,12 @@ class MediaEngine {
   // Input to speaker, estimated from the two device buffers and what is
   // queued between them; 0 until the first block has played.
   int micLatencyMs() const { return micLatencyMs_.load(std::memory_order_relaxed); }
+  // How far the input's clock is from the output's, as the correction being
+  // applied (parts per million), and what the correction did not catch: times
+  // the output ran dry, and blocks let go because the queue ran away.
+  int micDriftPpm() const { return micDriftPpm_.load(std::memory_order_relaxed); }
+  int micUnderruns() const { return micUnderruns_.load(std::memory_order_relaxed); }
+  int micDropped() const { return micDropped_.load(std::memory_order_relaxed); }
   std::string micDeviceInUse() const;
   std::string micError() const;
   // STOP on a Mic cue: fade over `seconds`, then micReleaseFinished() turns
@@ -1075,6 +1081,9 @@ class MediaEngine {
   std::atomic<float> micPeak_ {0.0f};
   std::atomic<bool> micClipped_ {false};
   std::atomic<int> micLatencyMs_ {0};
+  std::atomic<int> micDriftPpm_ {0};
+  std::atomic<int> micUnderruns_ {0};
+  std::atomic<int> micDropped_ {0};
   std::atomic<int> micChannel_ {0};
   std::atomic<double> micReleaseSeconds_ {0.0};
   std::atomic<bool> micReleaseDone_ {false};
@@ -1082,6 +1091,10 @@ class MediaEngine {
   std::string micDefaultDevice_;               // micInfoMutex_
   std::string micDeviceInUse_;                 // micInfoMutex_
   std::string micError_;                       // micInfoMutex_
+  // The drift last learned, and on which input: the next take of the same
+  // mic starts corrected instead of spending twenty seconds finding it.
+  std::string micDriftDevice_;                 // micInfoMutex_
+  double micDriftLearned_ = 0.0;               // micInfoMutex_
   // The sting's own clock and phase. Advanced on the audio thread, reset when
   // the cue is taken -- see loadCue.
   double stingElapsed_ = 0.0;

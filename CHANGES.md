@@ -30,6 +30,13 @@
 - Fixed an issue where the live cue's row and the now-playing panel on the phone were unreadable on
   dark themes, and a long cue name pushed its row off the side of the screen.
 
+### Mic cue
+- A Mic cue can carry music. The input's clock and the speakers' never agree exactly; the cue used to
+  drop a 10 ms block when the input ran fast (a click every few seconds on music) and run dry when it ran
+  slow. It now resamples the input to the speakers' clock, by less than a hundredth of a semitone, and
+  remembers each input's correction for the next take. The input-to-speaker delay is about 34 ms (was
+  26-32). `MIC` reports `drift_ppm`, `underruns` and `dropped`.
+
 ### Live captions
 - The macOS and Linux downloads carry the English speech model, so live captions work with no
   download. Settings > Audio > LIVE CAPTIONS has a Speech models row: one chip per model, lit when it

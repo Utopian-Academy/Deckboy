@@ -8363,10 +8363,17 @@
                       level > 0.0f ? 20.0 * std::log10(static_cast<double>(level)) : -90.0,
                       clipped ? 1 : 0, micChannelLabel(cue->micChannel),
                       static_cast<double>(cue->audioGainDb));
-        int latency = 0;
-        if (MediaEngine* engine = engineHoldingMicCue(*cue)) latency = engine->micLatencyMs();
+        int latency = 0, drift = 0, underruns = 0, dropped = 0;
+        if (MediaEngine* engine = engineHoldingMicCue(*cue)) {
+          latency = engine->micLatencyMs();
+          drift = engine->micDriftPpm();
+          underruns = engine->micUnderruns();
+          dropped = engine->micDropped();
+        }
         remoteCommandDetail_ = "input=" + micCueInputLabel(*cue) + text +
-                               " latency_ms=" + std::to_string(latency) + " status=" + micCueStatusText(*cue);
+                               " latency_ms=" + std::to_string(latency) + " drift_ppm=" + std::to_string(drift) +
+                               " underruns=" + std::to_string(underruns) + " dropped=" + std::to_string(dropped) +
+                               " status=" + micCueStatusText(*cue);
         return;
       }
       if (sub == "INPUT") {

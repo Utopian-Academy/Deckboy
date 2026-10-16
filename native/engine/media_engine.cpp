@@ -13887,6 +13887,9 @@ void MediaEngine::startMicCapture(const Cue& cue) {
   }
   micPeak_.store(0.0f, std::memory_order_relaxed);
   micLatencyMs_.store(0, std::memory_order_relaxed);
+  micDriftPpm_.store(0, std::memory_order_relaxed);
+  micUnderruns_.store(0, std::memory_order_relaxed);
+  micDropped_.store(0, std::memory_order_relaxed);
   micReleaseSeconds_.store(0.0, std::memory_order_relaxed);
   micReleaseDone_.store(false, std::memory_order_relaxed);
   micChannel_.store(static_cast<int>(cue.micChannel), std::memory_order_relaxed);
@@ -13947,7 +13950,6 @@ void MediaEngine::stopMicCapture() {
 }
 
 void MediaEngine::micThreadMain(std::string device, bool testSignal) {
-  (void)device;
   const int rate = audioRate_;
   std::vector<std::int16_t> block;
   double audioTime = 0.0;
@@ -13962,16 +13964,72 @@ void MediaEngine::micThreadMain(std::string device, bool testSignal) {
       captureFrames = static_cast<int>(static_cast<long long>(frames) * rate / spec.freq);
   }
   float peakHold = 0.0f;
+  // The test signal can be given a clock that runs fast or slow, in parts per
+  // million, so the drift correction below can be measured from a known error
+  // (tools/check_mic_cue.py). A real input's error is usually under 200.
+  double testClock = 1.0;
+  if (const char* ppm = std::getenv("DECKBOY_MIC_TEST_PPM"); ppm && testSignal)
+    testClock = 1.0 + std::clamp(std::atof(ppm), -5000.0, 5000.0) / 1e6;
+
+  // DRIFT. The input and the output each run on their own crystal, and no two
+  // agree: one is always a little fast, so the queue between them slowly
+  // fills or slowly empties. This used to let a whole block go when it got
+  // long (and did nothing when it ran dry), which is a click every few
+  // seconds -- unnoticed on speech, plain on music. Now the input is
+  // resampled by a hair to the output's clock, steered from the time-averaged
+  // queue so the delay holds at about two input blocks: the pitch moves by
+  // tens of parts per million, far below anything heard.
+  std::vector<float> rsIn {0.0f, 0.0f};    // input frames awaiting resampling, one of history first
+  double rsPos = 1.0;                      // read position in rsIn, in frames
+  std::vector<std::int16_t> rsOut;
+  double driftStep = 0.0;                  // input frames per output frame, minus one
+  double driftInteg = 0.0;
+  {
+    std::lock_guard<std::mutex> lock(micInfoMutex_);
+    if (micDriftDevice_ == device) driftInteg = driftStep = micDriftLearned_;
+  }
+  int outputFrames = 0;                    // the output's own block, once seen
+  double queueAvg = -1.0;                  // below zero: not yet primed
+  bool starved = false;
+  auto lastSteer = std::chrono::steady_clock::now();
   while (micRun_.load(std::memory_order_relaxed)) {
+    const int channels = std::max(2, audioDeviceChannels_.load(std::memory_order_relaxed));
+    const int bytesPerFrame = channels * static_cast<int>(sizeof(std::int16_t));
+    // The delay held: one block of each side, which the queue swings through
+    // as they arrive and leave, and 5 ms for the thread being late.
+    const int targetFrames = std::max(2 * rate / 100, captureFrames + outputFrames + rate / 200);
+    {
+      // Steer on every pass, from the queue averaged over about a second, so
+      // the steps of the input's and the output's blocks average out.
+      const auto now = std::chrono::steady_clock::now();
+      const double dt = std::clamp(std::chrono::duration<double>(now - lastSteer).count(), 0.0, 0.05);
+      lastSteer = now;
+      if (!micLive_.load(std::memory_order_relaxed)) {
+        queueAvg = -1.0;
+        starved = false;
+      } else if (queueAvg >= 0.0) {
+        const int queued = queuedAudioBytes() / bytesPerFrame;
+        if (queued == 0 && !starved) micUnderruns_.fetch_add(1, std::memory_order_relaxed);
+        starved = queued == 0;
+        queueAvg += (queued - queueAvg) * std::min(1.0, dt);
+        const double error = (queueAvg - targetFrames) / rate;   // seconds of delay over the target
+        // Gains from a simulation of the two clocks and their blocks
+        // (settles in about twenty seconds, the pitch held within a quarter
+        // of a cent), then confirmed by tools/check_mic_cue.py.
+        driftInteg = std::clamp(driftInteg + 0.03 * error * dt, -0.005, 0.005);
+        driftStep = std::clamp(0.3 * error + driftInteg, -0.005, 0.005);
+        micDriftPpm_.store(static_cast<int>(std::lround(driftInteg * 1e6)), std::memory_order_relaxed);
+      }
+    }
     std::size_t frames = 0;
     if (testSignal) {
       // Real time, from the clock: as many frames as have elapsed.
       const auto now = std::chrono::steady_clock::now();
       frames = static_cast<std::size_t>(
-        std::chrono::duration<double>(now - generatedAt).count() * rate);
+        std::chrono::duration<double>(now - generatedAt).count() * rate * testClock);
       if (frames >= 96) {
         generatedAt += std::chrono::nanoseconds(
-          static_cast<long long>(frames * 1e9 / rate));
+          static_cast<long long>(frames * 1e9 / (rate * testClock)));
         block.resize(frames * 2);
         const double aL = std::pow(10.0, -18.0 / 20.0) * 32767.0;
         const double aR = std::pow(10.0, -24.0 / 20.0) * 32767.0;
@@ -14020,6 +14078,8 @@ void MediaEngine::micThreadMain(std::string device, bool testSignal) {
     micPeak_.store(peakHold, std::memory_order_relaxed);
 
     if (!micLive_.load(std::memory_order_relaxed)) {
+      rsIn.assign(2, 0.0f);
+      rsPos = 1.0;
       continue;   // racked or paused: metered, never heard
     }
     // STOP's fade: a ramp over the block, then done.
@@ -14035,19 +14095,41 @@ void MediaEngine::micThreadMain(std::string device, bool testSignal) {
     } else {
       releaseGain = 1.0;
     }
-    // Hold the queue near two input blocks. The input's clock and the
-    // output's drift apart; when the input runs fast the queue creeps up, and
-    // one block is let go rather than let the delay grow for the whole show.
-    const int channels = std::max(2, audioDeviceChannels_.load(std::memory_order_relaxed));
-    const int bytesPerFrame = channels * static_cast<int>(sizeof(std::int16_t));
-    const int keepFrames = std::max(480, 2 * std::max(captureFrames, 240));
+    // Resample by (1 + driftStep), Catmull-Rom between the four nearest input
+    // frames. The position carries across blocks, so there is no seam.
+    for (std::size_t i = 0; i < frames * 2; ++i) rsIn.push_back(static_cast<float>(block[i]));
+    rsOut.clear();
+    const std::size_t have = rsIn.size() / 2;
+    const double step = 1.0 + driftStep;
+    while (rsPos + 2.0 < static_cast<double>(have)) {
+      const auto i = static_cast<std::size_t>(rsPos);
+      const double t = rsPos - static_cast<double>(i);
+      for (std::size_t ch = 0; ch < 2; ++ch) {
+        const double y0 = rsIn[(i - 1) * 2 + ch], y1 = rsIn[i * 2 + ch];
+        const double y2 = rsIn[(i + 1) * 2 + ch], y3 = rsIn[(i + 2) * 2 + ch];
+        const double v = y1 + 0.5 * t * (y2 - y0 + t * (2.0 * y0 - 5.0 * y1 + 4.0 * y2 - y3 +
+                                                       t * (3.0 * (y1 - y2) + y3 - y0)));
+        rsOut.push_back(static_cast<std::int16_t>(std::clamp(std::lround(v), -32768L, 32767L)));
+      }
+      rsPos += step;
+    }
+    const auto consumed = static_cast<std::size_t>(rsPos) - 1;
+    rsIn.erase(rsIn.begin(), rsIn.begin() + static_cast<std::ptrdiff_t>(consumed * 2));
+    rsPos -= static_cast<double>(consumed);
+
+    // The backstop, for a stall the steering cannot absorb (the machine
+    // froze for a moment): let the queue go rather than keep the delay.
     int queuedFrames = queuedAudioBytes() / bytesPerFrame;
-    if (queuedFrames > keepFrames + static_cast<int>(frames)) {
+    if (queuedFrames > 4 * targetFrames + static_cast<int>(frames)) {
+      micDropped_.fetch_add(1, std::memory_order_relaxed);
       continue;
     }
-    applyGainAndQueueAudio(block, audioTime);
+    if (!rsOut.empty()) applyGainAndQueueAudio(rsOut, audioTime);
+    if (queueAvg < 0.0) {
+      queueAvg = targetFrames;   // primed: steer from here
+      starved = false;
+    }
     queuedFrames = queuedAudioBytes() / bytesPerFrame;
-    int outputFrames = 0;
     if (audioStream_) {
       SDL_AudioSpec spec {};
       int devFrames = 0;
@@ -14056,5 +14138,10 @@ void MediaEngine::micThreadMain(std::string device, bool testSignal) {
     }
     micLatencyMs_.store(static_cast<int>(std::lround(
       1000.0 * (captureFrames + queuedFrames + outputFrames) / rate)), std::memory_order_relaxed);
+  }
+  if (driftInteg != 0.0) {
+    std::lock_guard<std::mutex> lock(micInfoMutex_);
+    micDriftDevice_ = device;
+    micDriftLearned_ = driftInteg;
   }
 }

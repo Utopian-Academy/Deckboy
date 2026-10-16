@@ -1921,7 +1921,14 @@ Mic / line input`. It takes the input chosen in Settings until you pick another.
 - **STOP** fades it out over its fade out (1 s on a new cue), then stops the
   deck. A second STOP while it fades cuts it at once.
 - The input is read straight from the device in small blocks, not through
-  FFmpeg. Measured on Windows: an estimated 26-32 ms from input to speaker.
+  FFmpeg. Measured on Windows: an estimated 34 ms from input to speaker.
+- **Music is safe.** The input and the speakers each keep their own clock, and
+  no two agree exactly, so the sound between them slowly piles up or runs dry.
+  Deckboy resamples the input by a hair to follow the speakers' clock, so it
+  never has to drop or repeat a moment of sound. The pitch moves by less than a
+  hundredth of a semitone. It learns a mic's clock in about twenty seconds and
+  remembers it for the next take. Tested at ten times a real device's error,
+  fast and slow, with no click.
 - The first time a mic cue goes live on the default speakers, Deckboy warns
   once that a mic into the same room's speakers can feed back. It does not
   stop you.
@@ -1932,7 +1939,7 @@ Mic / line input`. It takes the input chosen in Settings until you pick another.
 
 | Command | Does |
 |---------|------|
-| `MIC` | The selected mic cue: input, level, channel, gain, delay, status |
+| `MIC` | The selected mic cue: input, level, channel, gain, delay, the clock correction (`drift_ppm`), how often the speakers ran dry (`underruns`) and blocks let go (`dropped`), status |
 | `MIC ADD [<device>\|TEST]` | Adds a mic cue (`TEST`: a built-in 1 kHz / 500 Hz test signal) |
 | `MIC LIST` | The inputs this computer has |
 | `MIC INPUT SETTINGS\|TEST\|<device>` | The selected mic cue's input |
