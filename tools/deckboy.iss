@@ -53,6 +53,15 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"
 Name: "associate"; Description: "Associate &.deckboy show files with Deckboy"; GroupDescription: "File associations:"
+; LIVE CAPTIONS run on a speech model made on this computer, downloaded here
+; rather than carried in every download. Anything not ticked can still be
+; fetched later: turning captions on offers it. "Any language" is one model
+; that hears about 99 languages; .en models are English only and better at it.
+Name: "captions"; Description: "Speech models for live captions (downloaded now; any can also be fetched later)"; GroupDescription: "Live captions:"
+Name: "captions\en"; Description: "English (142 MB)"; GroupDescription: "Live captions:"
+Name: "captions\any"; Description: "Any language, about 99 of them (142 MB)"; GroupDescription: "Live captions:"; Flags: unchecked
+Name: "captions\enbest"; Description: "English, more accurate (466 MB)"; GroupDescription: "Live captions:"; Flags: unchecked
+Name: "captions\anybest"; Description: "Any language, more accurate (466 MB)"; GroupDescription: "Live captions:"; Flags: unchecked
 
 [InstallDelete]
 ; An update installs OVER the old folder, so a file a release dropped stays
@@ -61,6 +70,10 @@ Name: "associate"; Description: "Associate &.deckboy show files with Deckboy"; G
 ; splash art is cleared before the new copy goes in. Only bundled art: the
 ; data folder can also hold the operator's own shows and state.
 Type: filesandordirs; Name: "{app}\data\ui\deckboy_ui_pack_v3\splash"
+
+[UninstallDelete]
+; The speech models the installer downloaded are not in [Files], so name them.
+Type: filesandordirs; Name: "{app}\data\models"
 
 [Files]
 ; The entire staged tree — Deckboy.exe, DLLs, ffmpeg/ffprobe, MSVC runtime,
@@ -118,4 +131,80 @@ Filename: "{cmd}"; Parameters: "/c ping -n 5 127.0.0.1 >nul & del /f /q ""{srcex
 function LaunchedByUpdater: Boolean;
 begin
   Result := ExpandConstant('{param:fromupdater|0}') = '1';
+end;
+
+// ── LIVE CAPTIONS: the speech models ticked under Tasks ─────────────────────
+// Downloaded on the Ready page's Next, before anything is installed, to {tmp};
+// copied into {app}\data\models once the files are in. A failed download never
+// fails the install: captions offer the model again when they are turned on.
+// A silent install (the updater's) shows no pages and downloads nothing, and
+// a model already in place is not fetched again.
+var
+  CaptionsPage: TDownloadWizardPage;
+  CaptionModels: TArrayOfString;
+
+procedure InitializeWizard;
+begin
+  CaptionsPage := CreateDownloadPage('Live captions',
+    'Downloading the speech models you ticked. Cancel to skip: turning captions on fetches them later.', nil);
+end;
+
+procedure AddCaptionModel(const Task, Model: String);
+var
+  n: Integer;
+begin
+  if WizardIsTaskSelected(Task) and
+     not FileExists(ExpandConstant('{app}\data\models\ggml-' + Model + '.bin')) then
+  begin
+    CaptionsPage.Add('https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-' + Model + '.bin',
+                     'ggml-' + Model + '.bin', '');
+    n := GetArrayLength(CaptionModels);
+    SetArrayLength(CaptionModels, n + 1);
+    CaptionModels[n] := Model;
+  end;
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  Result := True;
+  if CurPageID = wpReady then
+  begin
+    SetArrayLength(CaptionModels, 0);
+    CaptionsPage.Clear;
+    AddCaptionModel('captions\en', 'base.en');
+    AddCaptionModel('captions\any', 'base');
+    AddCaptionModel('captions\enbest', 'small.en');
+    AddCaptionModel('captions\anybest', 'small');
+    if GetArrayLength(CaptionModels) > 0 then
+    begin
+      CaptionsPage.Show;
+      try
+        try
+          CaptionsPage.Download;
+        except
+          SuppressibleMsgBox('The speech models were not downloaded (' + GetExceptionMessage +
+            '). Deckboy installs anyway; turning live captions on fetches them later.',
+            mbInformation, MB_OK, IDOK);
+          SetArrayLength(CaptionModels, 0);
+        end;
+      finally
+        CaptionsPage.Hide;
+      end;
+    end;
+  end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  i: Integer;
+  dir: String;
+begin
+  if (CurStep = ssPostInstall) and (GetArrayLength(CaptionModels) > 0) then
+  begin
+    dir := ExpandConstant('{app}\data\models');
+    ForceDirectories(dir);
+    for i := 0 to GetArrayLength(CaptionModels) - 1 do
+      FileCopy(ExpandConstant('{tmp}\ggml-' + CaptionModels[i] + '.bin'),
+               dir + '\ggml-' + CaptionModels[i] + '.bin', False);
+  end;
 end;

@@ -1434,8 +1434,9 @@ The listening is done by whisper.cpp, which comes with Deckboy and runs on
 this computer. (A build without it says **engine not installed** on the row;
 putting `whisper-cli` beside Deckboy is all it needs.) The first time, it
 needs the chosen speech model. The row says how big it is, and the first
-press only asks; press again to fetch it. After that, nothing is downloaded
-and nothing is sent anywhere. Captions are drawn on the output
+press only asks; press again to fetch it. On Windows the installer offers the
+models as ticks (English is ticked) and fetches the ticked ones during the
+install. After that, nothing is downloaded and nothing is sent anywhere. Captions are drawn on the output
 at a size that suits the output's height, on a dark box fitted to the line.
 
 `CAPTIONS [STATUS | ON | OFF | GENERATE]` does the same over the control port.

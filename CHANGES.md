@@ -26,6 +26,11 @@ in nits instead of clipping it.
   fade out. `MIC`, `MIC ADD`, `MIC LIST`, `MIC INPUT`, `MIC CHANNEL`, `MIC GAIN`. Measured on
   Windows; macOS and Linux untested.
 
+### Live captions
+- The Windows installer offers the speech models for live captions as ticks: English (ticked),
+  any language, and the more accurate English and any-language models. Ticked ones download during
+  the install; any left unticked can still be fetched later, when captions are turned on.
+
 ### Desk
 - The SOURCE menu lays its columns out by section, each starting with its heading, wide enough
   that no entry is shrunk or cut short.

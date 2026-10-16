@@ -91,8 +91,21 @@ inline fs::path whisperCliPath() {
   return {};
 }
 
-inline fs::path modelPath(const std::string& model) {
+// Where a model is DOWNLOADED to: the writable state folder.
+inline fs::path modelDownloadPath(const std::string& model) {
   return deckboy::core::Paths::stateDir() / "models" / ("ggml-" + model + ".bin");
+}
+
+// Where a model is READ from: the state folder, or data/models beside the
+// program, where the Windows installer puts the models ticked at install
+// (an installer running elevated cannot reach the operator's own folder).
+inline fs::path modelPath(const std::string& model) {
+  std::error_code ec;
+  const fs::path downloaded = modelDownloadPath(model);
+  if (fs::exists(downloaded, ec)) return downloaded;
+  const fs::path installed = deckboy::core::Paths::dataDir() / "models" / ("ggml-" + model + ".bin");
+  if (fs::exists(installed, ec)) return installed;
+  return downloaded;
 }
 
 inline std::string modelUrl(const std::string& model) {
@@ -114,7 +127,7 @@ struct Result {
 // .part and renamed, so an interrupted download is never taken for a model.
 inline Result downloadModel(const std::string& model) {
   std::error_code ec;
-  const fs::path target = modelPath(model);
+  const fs::path target = modelDownloadPath(model);
   fs::create_directories(target.parent_path(), ec);
   const fs::path part = target.string() + ".part";
   const auto got = ::runCaptured(
