@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Deckboy Mini
+Comment=Single-deck media player
+Exec=deckboy-mini %F
+Icon=io.github.utopian_academy.Deckboy
+Categories=AudioVideo;Video;Player;
+Terminal=true
+NoDisplay=true
+StartupWMClass=io.github.utopian_academy.Deckboy.Mini

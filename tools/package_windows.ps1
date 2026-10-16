@@ -502,6 +502,7 @@ $MiniStage = Join-Path $OutputDir "staging\$MiniName"
 $MiniZip   = Join-Path $OutputDir "$MiniName.zip"
 if (Test-Path $MiniStage) { Remove-Item $MiniStage -Recurse -Force }
 New-Item -ItemType Directory -Path (Join-Path $MiniStage "data\fonts") -Force | Out-Null
+Copy-Item (Join-Path $RepoRoot "data\icons") -Destination (Join-Path $MiniStage "data\icons") -Recurse
 Copy-Item (Join-Path $StageDir "deckboy-mini.exe") -Destination $MiniStage
 # deckboy-mini.exe imports SpoutLibrary.dll (without it Windows refuses to start it), so only these two stay out.
 $DeskOnlyDlls = @("WebView2Loader.dll", "ltc.dll")

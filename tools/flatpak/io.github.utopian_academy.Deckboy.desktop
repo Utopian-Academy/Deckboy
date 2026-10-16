@@ -9,4 +9,4 @@ Categories=AudioVideo;Video;Player;
 MimeType=application/x-deckboy-show;
 Keywords=playback;playout;cue;NDI;SRT;show control;live events;broadcast;
 Terminal=false
-StartupWMClass=Deckboy
+StartupWMClass=io.github.utopian_academy.Deckboy

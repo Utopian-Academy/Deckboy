@@ -157,10 +157,5 @@ modules:
       # Deckboy Mini: flatpak run --command=deckboy-mini io.github.utopian_academy.Deckboy <clips>
       - install -Dm755 "$(find /run/build/deckboy -name deckboy-mini -type f -perm -u+x | head -1)" /app/lib/deckboy/bin/deckboy-mini
       - ln -sf ../lib/deckboy/bin/deckboy-mini /app/bin/deckboy-mini
-      - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml
-          /app/share/metainfo/io.github.utopian_academy.Deckboy.metainfo.xml
-      - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.desktop
-          /app/share/applications/io.github.utopian_academy.Deckboy.desktop
-      - install -Dm644 tools/flatpak/io.github.utopian_academy.Deckboy.png
-          /app/share/icons/hicolor/512x512/apps/io.github.utopian_academy.Deckboy.png
+      - bash tools/package_linux_desktop.sh /app/share
       - install -Dm644 LICENSE /app/share/licenses/io.github.utopian_academy.Deckboy/LICENSE

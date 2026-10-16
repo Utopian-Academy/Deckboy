@@ -931,9 +931,26 @@ jobs:
           path: evidence/
           if-no-files-found: warn
 
+  macos-icons:
+    name: macOS layered icon
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile icon with Xcode 26 or newer
+        run: |
+          xcodebuild -version
+          bash tools/build_macos_icons.sh build/macos-icons --modern-only
+          test -s build/macos-icons/Assets.car
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deckboy-macos-icons
+          path: build/macos-icons/Assets.car
+          if-no-files-found: error
+          retention-days: 7
+
   macos-package:
     name: macOS Portable Bundle
-    needs: macos-build
+    needs: [macos-build, macos-icons]
     # PINNED, NOT macos-latest. The bundle carries Homebrew's dylibs, and a
     # bottle is built for the runner's own macOS -- so whatever image this job
     # lands on becomes the oldest macOS the release can open on. On
@@ -963,6 +980,18 @@ jobs:
     runs-on: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: deckboy-macos-icons
+          path: build/macos-icons
+      - name: Disk image tools and icon catalog
+        run: |
+          python3 -m venv "$RUNNER_TEMP/deckboy-dmg-tools"
+          "$RUNNER_TEMP/deckboy-dmg-tools/bin/pip" install dmgbuild==1.6.7
+          echo "$RUNNER_TEMP/deckboy-dmg-tools/bin" >> "$GITHUB_PATH"
+          echo "DECKBOY_MACOS_ASSETS_CAR=$GITHUB_WORKSPACE/build/macos-icons/Assets.car" >> "$GITHUB_ENV"
+          echo "DECKBOY_REQUIRE_MODERN_ICON=1" >> "$GITHUB_ENV"
 
       # THE LIBRARIES ARE BUILT HERE, FOR THE macOS THE BUNDLE CLAIMS. Homebrew's
       # are built for the runner's macOS: v0.99.405 claimed 11 and carried 32

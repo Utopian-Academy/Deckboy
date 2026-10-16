@@ -1,0 +1,27 @@
+{
+  "fill": {
+    "solid": "srgb:0.15294,0.29412,0.09020,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "image-name": "cartridge.png",
+          "name": "Cartridge"
+        }
+      ],
+      "name": "Cartridge",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.15
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": "shared"
+  }
+}

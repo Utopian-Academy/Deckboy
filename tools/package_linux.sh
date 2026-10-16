@@ -254,6 +254,9 @@ for lib in "$STAGE_DIR/lib"/*; do
   patchelf --set-rpath '$ORIGIN' "$lib" 2>/dev/null || true
 done
 
+bash "$REPO_ROOT/tools/package_linux_desktop.sh" "$STAGE_DIR/share"
+cp "$REPO_ROOT/tools/install_linux_desktop.py" "$STAGE_DIR/install-desktop.py"
+
 # --- Launcher -------------------------------------------------------------
 # Thin on purpose. The RPATH already resolves libraries and the app prepends its
 # own directory to PATH for ffmpeg, so this exists only so users have something
@@ -294,6 +297,13 @@ Run it
 Deckboy Mini, the one-deck player for a screen that only needs to play:
 
     ./deckboy-mini <clips or a folder> [--loop] [--display N]
+
+Optional application-menu and show-file integration for this user:
+
+    python3 ./install-desktop.py
+
+Run that command again after moving the portable folder. Remove integration with
+python3 ./install-desktop.py --uninstall before deleting the folder.
 
 Nothing to install. SDL3, the FFmpeg libraries and ffmpeg/ffprobe travel with
 the app.

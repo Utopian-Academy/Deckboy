@@ -171,3 +171,46 @@ you set some secrets and nothing else changes.
 
 In CI these come from repository secrets; the workflow passes them through only
 when present, so forks and unconfigured builds stay on the free ad-hoc path.
+
+## Platform art
+
+The source cartridge remains in `art/windows/icons/deckboy_app_master.png`.
+Regenerate the checked-in PNG, BMP, ICO and SVG variants on Windows with
+`powershell -ExecutionPolicy Bypass -File tools/generate_platform_art.ps1`.
+This also writes review PNGs into `codex-previews/`. Other platforms consume
+the checked-in assets; packaging does not require System.Drawing.
+
+Windows embeds the multi-size cartridge in both executables. Inno Setup uses
+the wizard BMP variants in `art/windows/installer/` and installs a separate
+show-file icon when the file-association task is selected.
+
+For macOS, install the headless disk-image tool before packaging:
+
+```sh
+python3 -m venv build/dmg-tools
+build/dmg-tools/bin/pip install dmgbuild==1.6.7
+export DECKBOY_DMGBUILD="$PWD/build/dmg-tools/bin/dmgbuild"
+```
+
+`tools/build_macos_icons.sh` assembles the legacy app and document ICNS from
+pre-sized art. On macOS 26 with Xcode 26 or newer it also compiles
+`art/macos/Deckboy.icon` into `Assets.car`. Alternatively set
+`DECKBOY_MACOS_ASSETS_CAR` to an already compiled catalog. CI has a separate
+macos-26 icon job and supplies that catalog to the existing packaging runners;
+it does not raise the application deployment floor from macOS 12.0.
+
+`CFBundleIconFile` always selects the legacy ICNS; `CFBundleIconName` is added
+when the catalog is present. Set `DECKBOY_REQUIRE_MODERN_ICON=1` to make a missing
+catalog fatal, as CI does. A local package with an older Xcode uses the ICNS
+fallback. The DMG uses `tools/dmg_settings.py`, a multi-resolution background
+and dmgbuild's Finder layout records; no Finder GUI or AppleScript is needed.
+Deckboy Mini currently ships as a standalone executable, not a second .app.
+
+Linux tarballs contain desktop entries, the existing AppStream metainfo, hicolor
+16/24/32/48/64/128/256/512 PNGs, scalable SVGs and a show-file MIME definition.
+AppImage and the Flatpak draft use the same staging helper. From an extracted
+portable folder, `python3 ./install-desktop.py` installs these resources for
+the current user and points the menu entry at that folder. Run it again after
+moving the folder. `python3 ./install-desktop.py --uninstall` removes files
+whose contents still match the install manifest, preserving user edits.
+The app and Mini use desktop IDs matching their SDL application IDs.

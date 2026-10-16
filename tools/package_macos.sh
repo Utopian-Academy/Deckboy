@@ -236,44 +236,12 @@ fi
 
 [ -f "$REPO_ROOT/LICENSE" ] && cp "$REPO_ROOT/LICENSE" "$STAGE_DIR/LICENSE"
 
-# --- App icon ---------------------------------------------------------------
-# Without an .icns AND a CFBundleIconFile pointing at it, Finder and the Dock
-# show the generic blank-document placeholder — which is the first thing anyone
-# sees and reads as "broken". macOS wants a .icns built from a set of sized PNGs
-# via iconutil (macOS-only, which is why this is done at package time, not
-# checked in). The 1024 slot must exist or high-DPI displays fall back to blank.
-ICON_MASTER="$REPO_ROOT/art/windows/icons/deckboy_app_master.png"
-HAVE_ICON=0
-if [ -f "$ICON_MASTER" ] && command -v iconutil >/dev/null && command -v sips >/dev/null; then
-  ICONSET="$(mktemp -d)/Deckboy.iconset"
-  mkdir -p "$ICONSET"
-  # "<pixels> <iconset-name>" — Apple's expected filenames, each size @1x and @2x.
-  printf '%s\n' \
-    "16 icon_16x16.png"        "32 icon_16x16@2x.png" \
-    "32 icon_32x32.png"        "64 icon_32x32@2x.png" \
-    "128 icon_128x128.png"     "256 icon_128x128@2x.png" \
-    "256 icon_256x256.png"     "512 icon_256x256@2x.png" \
-    "512 icon_512x512.png"     "1024 icon_512x512@2x.png" \
-  | while read -r px name; do
-      sips -z "$px" "$px" "$ICON_MASTER" --out "$ICONSET/$name" >/dev/null 2>&1
-    done
-  if iconutil -c icns "$ICONSET" -o "$RESOURCES_DIR/Deckboy.icns" 2>/dev/null; then
-    HAVE_ICON=1
-    echo "  + Deckboy.icns"
-  else
-    echo "  ! iconutil failed - shipping without an icon" >&2
-  fi
-  rm -rf "$(dirname "$ICONSET")"
-else
-  echo "  ! no icon master or iconutil/sips missing - shipping without an icon" >&2
-fi
-
-# Only reference the icon in Info.plist if it was actually produced, so a build
-# on a machine without iconutil still yields a valid (if blank) bundle rather
-# than a plist pointing at a file that is not there.
-ICON_PLIST_ENTRY=""
-if [ "$HAVE_ICON" = "1" ]; then
-  ICON_PLIST_ENTRY="  <key>CFBundleIconFile</key><string>Deckboy</string>"
+# --- App and show-file icons -------------------------------------------------
+bash "$REPO_ROOT/tools/build_macos_icons.sh" "$RESOURCES_DIR"
+ICON_PLIST_ENTRY='  <key>CFBundleIconFile</key><string>Deckboy</string>'
+if [ -s "$RESOURCES_DIR/Assets.car" ]; then
+  ICON_PLIST_ENTRY="$ICON_PLIST_ENTRY
+  <key>CFBundleIconName</key><string>Deckboy</string>"
 fi
 
 # --- Info.plist -------------------------------------------------------------
@@ -303,6 +271,24 @@ cat > "$APP/Contents/Info.plist" <<PLIST
        is exactly what it looked like in testing before this key was added. -->
   <key>LSAppNapIsDisabled</key><true/>
 ${ICON_PLIST_ENTRY}
+  <key>CFBundleDocumentTypes</key>
+  <array><dict>
+    <key>CFBundleTypeName</key><string>Deckboy Show</string>
+    <key>CFBundleTypeRole</key><string>Editor</string>
+    <key>LSHandlerRank</key><string>Owner</string>
+    <key>CFBundleTypeIconFile</key><string>DeckboyShow</string>
+    <key>LSItemContentTypes</key><array><string>org.utopianacademy.deckboy.show</string></array>
+  </dict></array>
+  <key>UTExportedTypeDeclarations</key>
+  <array><dict>
+    <key>UTTypeIdentifier</key><string>org.utopianacademy.deckboy.show</string>
+    <key>UTTypeDescription</key><string>Deckboy Show</string>
+    <key>UTTypeConformsTo</key><array><string>public.data</string></array>
+    <key>UTTypeTagSpecification</key><dict>
+      <key>public.filename-extension</key><array><string>deckboy</string></array>
+      <key>public.mime-type</key><string>application/x-deckboy-show</string>
+    </dict>
+  </dict></array>
   <key>NSCameraUsageDescription</key>
   <string>Deckboy uses the camera for live Camera cues.</string>
   <key>NSMicrophoneUsageDescription</key>
@@ -514,6 +500,7 @@ MINI_NAME="Deckboy-Mini-${VERSION}-macos-${ARCH}"
 MINI_STAGE="$OUTPUT_DIR/staging/$MINI_NAME"
 rm -rf "$MINI_STAGE"
 mkdir -p "$MINI_STAGE/bin" "$MINI_STAGE/Frameworks" "$MINI_STAGE/data/fonts"
+cp -R "$REPO_ROOT/data/icons" "$MINI_STAGE/data/icons"
 ditto "$MACOS_DIR/deckboy-mini" "$MINI_STAGE/bin/deckboy-mini"
 ditto "$MACOS_DIR/ffmpeg" "$MINI_STAGE/bin/ffmpeg"
 ditto "$MACOS_DIR/ffprobe" "$MINI_STAGE/bin/ffprobe"
@@ -558,51 +545,33 @@ rm -f "$MINI_ZIP"
 ( cd "$OUTPUT_DIR/staging" && ditto -c -k --sequesterRsrc --keepParent "$MINI_NAME" "$MINI_ZIP" )
 echo "Wrote $MINI_ZIP (runs on its own as v$mini_got)"
 
-# --- Disk image (drag-to-Applications installer) ----------------------------
-# The .dmg is the "proper installer" a Mac user expects: open it, drag Deckboy
-# onto the Applications shortcut, done. It also moves the app OUT of Downloads,
-# which matters here — an app run from Downloads is subject to App Translocation
-# (Gatekeeper runs it from a read-only random path), the very thing that made
-# the file picker fail on the first test. Installed to /Applications it runs
-# normally. Quarantine still applies to an un-notarized download; the README
-# inside the image documents the one-time `xattr` clear.
-#
-# hdiutil is macOS-only, so this whole packager already requires macOS.
-if command -v hdiutil >/dev/null; then
-  DMG_STAGE="$(mktemp -d)/dmg"
-  mkdir -p "$DMG_STAGE"
-  cp -R "$APP" "$DMG_STAGE/Deckboy.app"
-  ln -s /Applications "$DMG_STAGE/Applications"     # drag target
-  [ -f "$STAGE_DIR/README-macOS.txt" ] && cp "$STAGE_DIR/README-macOS.txt" "$DMG_STAGE/README.txt"
-  DMG_PATH="$OUTPUT_DIR/$STAGE_NAME.dmg"
-  rm -f "$DMG_PATH"
-  # UDZO = zlib-compressed read-only image, the standard for distribution.
-  #
-  # RETRIED. hdiutil fails intermittently on CI runners ("Resource busy" while
-  # something else still holds the stage or a previous image), and a single
-  # miss left a release job without its .dmg. Three tries, a pause between,
-  # and what it said on the last one is printed rather than thrown away.
-  DMG_OK=0
-  for attempt in 1 2 3; do
-    if HDI_OUT=$(hdiutil create -volname "Deckboy $VERSION" -srcfolder "$DMG_STAGE" \
-         -ov -format UDZO "$DMG_PATH" 2>&1); then
-      DMG_OK=1
-      break
-    fi
-    echo "  ! hdiutil attempt $attempt failed: $HDI_OUT" >&2
-    rm -f "$DMG_PATH"
-    sleep $((attempt * 5))
-  done
-  if [ "$DMG_OK" = 1 ]; then
-    echo "Wrote $DMG_PATH"
-    du -h "$DMG_PATH" | awk '{print "  size: " $1}'
-  else
-    echo "  ! hdiutil failed - .dmg not produced (zip is still available)" >&2
+# --- Disk image --------------------------------------------------------------
+# dmgbuild writes Finder's layout records directly; CI needs no GUI session.
+# A multi-resolution TIFF keeps the 640x480-point background crisp on Retina.
+DMGBUILD="${DECKBOY_DMGBUILD:-dmgbuild}"
+command -v "$DMGBUILD" >/dev/null || {
+  echo "dmgbuild is required (python3 -m pip install dmgbuild==1.6.7)" >&2; exit 1;
+}
+DMG_ART="$(mktemp -d)"
+tiffutil -cathidpicheck "$REPO_ROOT/art/macos/dmg-background.png" \
+  "$REPO_ROOT/art/macos/dmg-background@2x.png" -out "$DMG_ART/dmg-background.tiff"
+DMG_PATH="$OUTPUT_DIR/$STAGE_NAME.dmg"
+DMG_OK=0
+for attempt in 1 2 3; do
+  if "$DMGBUILD" -s "$REPO_ROOT/tools/dmg_settings.py" \
+      -D "app=$APP" -D "art=$DMG_ART" -D "readme=$STAGE_DIR/README-macOS.txt" \
+      "Deckboy $VERSION" "$DMG_PATH"; then
+    DMG_OK=1
+    break
   fi
-  rm -rf "$(dirname "$DMG_STAGE")"
-else
-  echo "  ! hdiutil not found - skipping .dmg" >&2
-fi
+  echo "Disk image attempt $attempt failed" >&2
+  rm -f "$DMG_PATH"
+  sleep $((attempt * 5))
+done
+rm -rf "$DMG_ART"
+[ "$DMG_OK" = 1 ] || { echo "Disk image was not produced" >&2; exit 1; }
+hdiutil verify "$DMG_PATH"
+echo "Wrote $DMG_PATH"
 
 # --- Notarisation (DORMANT — only runs when credentials are provided) --------
 # The free default skips this entirely: an un-notarised download needs the

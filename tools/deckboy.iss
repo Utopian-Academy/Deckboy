@@ -41,6 +41,10 @@ UninstallDisplayIcon={app}\Deckboy.exe
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
+; Native raster variants for Inno 6 font/DPI combinations, including 150%.
+WizardImageFile=..\art\windows\installer\wizard-164.bmp,..\art\windows\installer\wizard-202.bmp,..\art\windows\installer\wizard-240.bmp,..\art\windows\installer\wizard-269.bmp,..\art\windows\installer\wizard-290.bmp,..\art\windows\installer\wizard-315.bmp,..\art\windows\installer\wizard-336.bmp,..\art\windows\installer\wizard-366.bmp,..\art\windows\installer\wizard-403.bmp,..\art\windows\installer\wizard-416.bmp,..\art\windows\installer\wizard-430.bmp,..\art\windows\installer\wizard-498.bmp,..\art\windows\installer\wizard-534.bmp
+WizardSmallImageFile=..\art\windows\installer\small-58.bmp,..\art\windows\installer\small-71.bmp,..\art\windows\installer\small-77.bmp,..\art\windows\installer\small-85.bmp,..\art\windows\installer\small-97.bmp,..\art\windows\installer\small-103.bmp,..\art\windows\installer\small-112.bmp,..\art\windows\installer\small-116.bmp,..\art\windows\installer\small-124.bmp,..\art\windows\installer\small-129.bmp,..\art\windows\installer\small-143.bmp,..\art\windows\installer\small-147.bmp,..\art\windows\installer\small-159.bmp
+ChangesAssociations=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ; The payload is the portable zip's contents, which do not embed machine state
@@ -79,6 +83,7 @@ Type: filesandordirs; Name: "{app}\data\models"
 ; The entire staged tree — Deckboy.exe, DLLs, ffmpeg/ffprobe, MSVC runtime,
 ; data\, LICENSE. recursesubdirs pulls in data\ and its subfolders.
 Source: "{#StageDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "..\art\windows\icons\deckboy_show.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Deckboy"; Filename: "{app}\Deckboy.exe"
@@ -90,7 +95,7 @@ Name: "{autodesktop}\Deckboy"; Filename: "{app}\Deckboy.exe"; Tasks: desktopicon
 ; per-machine install, HKCU for a per-user one, so it is correct either way.
 Root: HKA; Subkey: "Software\Classes\.deckboy"; ValueType: string; ValueData: "Deckboy.Show"; Flags: uninsdeletevalue; Tasks: associate
 Root: HKA; Subkey: "Software\Classes\Deckboy.Show"; ValueType: string; ValueData: "Deckboy Show"; Flags: uninsdeletekey; Tasks: associate
-Root: HKA; Subkey: "Software\Classes\Deckboy.Show\DefaultIcon"; ValueType: string; ValueData: "{app}\Deckboy.exe,0"; Tasks: associate
+Root: HKA; Subkey: "Software\Classes\Deckboy.Show\DefaultIcon"; ValueType: string; ValueData: """{app}\deckboy_show.ico"",0"; Tasks: associate
 Root: HKA; Subkey: "Software\Classes\Deckboy.Show\shell\open\command"; ValueType: string; ValueData: """{app}\Deckboy.exe"" ""%1"""; Tasks: associate
 
 [Run]

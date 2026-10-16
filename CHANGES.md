@@ -1,5 +1,14 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-16 - v0.99.414 (in progress)
+
+### Icons and installers
+- New icons on every platform, drawn from the cartridge: a full-bleed icon for macOS Tahoe with the
+  older sizes kept for earlier macOS, a document icon for .deckboy show files on Windows, macOS and
+  Linux, Linux desktop and hicolor icons, and the window icon Deckboy itself uses. The small sizes
+  have a centred, outlined play mark.
+- New art for the Windows installer and the macOS disk image.
+
 ## 2026-10-16 - v0.99.413 (a Mic cue, a fixture patch that dips the lights when a video rolls, HDR scopes in nits)
 
 A live microphone or line input as a cue on a deck; lights named once and set by name, with LFOs on

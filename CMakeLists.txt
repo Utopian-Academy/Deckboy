@@ -809,6 +809,8 @@ if(WIN32)
     string(REPLACE "\\" "\\\\" DECKBOY_APP_ICON_RC_PATH "${_deckboy_icon_native}")
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/art/windows/deckboy.rc.in"
                    "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc" @ONLY)
+    set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc"
+      PROPERTIES OBJECT_DEPENDS "${DECKBOY_APP_ICON}")
     target_sources(deckboy-native PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc")
   else()
     message(WARNING "Deckboy app icon not found at ${DECKBOY_APP_ICON}; exe will use the default icon.")
@@ -1134,6 +1136,9 @@ if(DECKBOY_BUILD_MINI)
     endif()
   endforeach()
   add_executable(deckboy-mini ${_mini_sources})
+  if(WIN32 AND EXISTS "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc")
+    target_sources(deckboy-mini PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc")
+  endif()
   foreach(_prop COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FEATURES INCLUDE_DIRECTORIES
                 LINK_LIBRARIES LINK_OPTIONS LINK_DIRECTORIES CXX_STANDARD CXX_STANDARD_REQUIRED
                 MSVC_RUNTIME_LIBRARY ENABLE_EXPORTS)

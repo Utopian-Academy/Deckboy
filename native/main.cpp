@@ -66,6 +66,7 @@
 #include "core/output_runtime.hpp"
 #include "core/scopes.hpp"
 #include "platform/mac_output_level.hpp"
+#include "platform/window_icon.hpp"
 #include "core/deck_audio_ring.hpp"
 #include "core/mtc_decode.hpp"
 #include "core/utils.hpp"
@@ -330,7 +331,9 @@ void applyDeckboyWindowIcon(SDL_Window* window) {
   }
 }
 #else
-void applyDeckboyWindowIcon(SDL_Window*) {}
+void applyDeckboyWindowIcon(SDL_Window* window) {
+  deckboy::platform::applyPortableWindowIcon(window);
+}
 #endif
 
 // ── UI text helpers ─────────────────────────────────────────────────────────
@@ -3780,6 +3783,7 @@ class App {
     // the whole job of a signage box, a rack rig or a VM, none of which need
     // sound to do it. Asked for separately, a missing sound system costs the
     // sound and nothing else.
+    SDL_SetHint(SDL_HINT_APP_ID, "io.github.utopian_academy.Deckboy");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
       std::cerr << "SDL_Init failed: " << SDL_GetError() << '\n';
       return false;

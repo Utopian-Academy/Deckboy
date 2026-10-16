@@ -155,43 +155,15 @@ for soname in $APPIMAGE_EXCLUDED; do
   fi
 done
 
-# AppStream metainfo, which is what gives a catalogue entry its description and
-# its screenshots. The same validated file the Flatpak uses -- a copy, not a
-# second thing to keep in step.
-METAINFO="$REPO_ROOT/tools/flatpak/io.github.utopian_academy.Deckboy.metainfo.xml"
-if [ -f "$METAINFO" ]; then
-  mkdir -p "$APPDIR/usr/share/metainfo"
-  cp "$METAINFO" "$APPDIR/usr/share/metainfo/"
-  echo "  + usr/share/metainfo/$(basename "$METAINFO")"
-else
-  echo "  ! metainfo not found at $METAINFO - the catalogue entry will have no description" >&2
-fi
-
+# The portable tree carries the shared desktop, MIME and hicolor resources.
+cp -a "$STAGE_SRC/share/." "$APPDIR/usr/share/"
 [ -f "$STAGE_SRC/LICENSE" ] && cp "$STAGE_SRC/LICENSE" "$APPDIR/"
-
-# Icon: AppImage wants a top-level <name>.png. Convert the master with whatever
-# is available; fall back to a 1x1 so the build never fails on a missing tool.
-ICON_MASTER="$REPO_ROOT/art/windows/icons/deckboy_app_master.png"
-if command -v convert >/dev/null && [ -f "$ICON_MASTER" ]; then
-  convert "$ICON_MASTER" -resize 256x256 "$APPDIR/deckboy.png"
-elif [ -f "$ICON_MASTER" ]; then
-  cp "$ICON_MASTER" "$APPDIR/deckboy.png"
-else
-  printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==' \
-    | base64 -d > "$APPDIR/deckboy.png"
-fi
-cp "$APPDIR/deckboy.png" "$APPDIR/.DirIcon"
-
-cat > "$APPDIR/deckboy.desktop" <<DESKTOP
-[Desktop Entry]
-Type=Application
-Name=Deckboy
-Comment=Cue deck for live video
-Exec=Deckboy
-Icon=deckboy
-Categories=AudioVideo;Video;Player;
-Terminal=false
-DESKTOP
+APP_ID=io.github.utopian_academy.Deckboy
+sed 's/^Exec=deckboy %f$/Exec=Deckboy %f/' \
+  "$STAGE_SRC/share/applications/$APP_ID.desktop" > "$APPDIR/$APP_ID.desktop"
+cp "$APPDIR/$APP_ID.desktop" "$APPDIR/usr/share/applications/$APP_ID.desktop"
+cp "$APPDIR/usr/share/icons/hicolor/256x256/apps/$APP_ID.png" "$APPDIR/$APP_ID.png"
+cp "$APPDIR/$APP_ID.png" "$APPDIR/.DirIcon"
 
 # AppRun: point DECKBOY_ROOT at the bundled data (the walk-up cannot find a
 # sibling data/ from usr/bin), then exec the real binary. The binary's own

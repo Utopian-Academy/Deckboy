@@ -1791,6 +1791,25 @@
     if (paths.empty()) {
       return;
     }
+    // Finder delivers document-open requests through SDL's drop events too.
+    // Use the same live-show guard and undo path as the OPEN picker.
+    if (paths.size() == 1) {
+      const fs::path dropped(paths.front());
+      std::string extension = dropped.extension().string();
+      std::transform(extension.begin(), extension.end(), extension.begin(),
+                     [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+      if (extension == ".deckboy") {
+        std::error_code error;
+        if (!fs::is_regular_file(dropped, error)) {
+          triggerToast("Show file not found", ToastKind::Warning, kToastReadableMs);
+          return;
+        }
+        if (!confirmLiveKey(SDLK_O, "OPEN replaces the live show - open the file again to confirm")) return;
+        pushUndoSnapshotForShowReplace();
+        openProjectFromPath(dropped);
+        return;
+      }
+    }
     // Dropped onto a playlist: select it, and the import below follows the
     // selection. Anywhere else (or over the settings, which cover the
     // playlists) keeps the selected one, as before.

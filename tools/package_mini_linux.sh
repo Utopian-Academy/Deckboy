@@ -32,6 +32,7 @@ FFPROBE="${DECKBOY_FFPROBE:-$(command -v ffprobe || true)}"
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE/bin" "$STAGE/lib" "$STAGE/data/fonts"
+cp -R "$REPO_ROOT/data/icons" "$STAGE/data/icons"
 cp "$BUILD_DIR/deckboy-mini" "$STAGE/bin/deckboy-mini"
 cp -L "$FFMPEG" "$STAGE/bin/ffmpeg"
 cp -L "$FFPROBE" "$STAGE/bin/ffprobe"

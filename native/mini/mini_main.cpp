@@ -18,6 +18,7 @@
 // ============================================================================
 
 #include "core/sdl_compat.hpp"
+#include "platform/window_icon.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include "render/font_fallbacks.hpp"
 #include "render/text_shaper.hpp"
@@ -493,6 +494,7 @@ class Mini {
     // shares a single-threaded D3D11 device and crashes at random.
     SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
     SDL_SetHint(SDL_HINT_RENDER_DIRECT3D_THREADSAFE, "1");
+    SDL_SetHint(SDL_HINT_APP_ID, "io.github.utopian_academy.Deckboy.Mini");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
       std::cerr << "deckboy-mini: SDL failed to start: " << SDL_GetError() << "\n";
       return false;
@@ -533,6 +535,7 @@ class Mini {
       std::cerr << "deckboy-mini: no window: " << SDL_GetError() << "\n";
       return false;
     }
+    deckboy::platform::applyPortableWindowIcon(window_);
 #if defined(__linux__)
     // ZERO-COPY NEEDS OpenGL ES. On a Raspberry Pi's KMS display SDL picks its
     // desktop OpenGL renderer, which cannot sample a decoder's YUV buffer as an
