@@ -72,6 +72,14 @@ which is not true of anything it gets compared to.
 
 ---
 
+## Community & help
+
+Questions, bugs, production stories, or ideas? [Read the community & support guide](SUPPORT.md), join [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions), or [contribute](CONTRIBUTING.md). For security issues, please use [private reporting](SECURITY.md), not public issues.
+
+Deckboy will always be free. If you'd like to help keep it that way, ways to **Back Deckboy** will appear here once they're available.
+
+---
+
 ## Download
 
 The features below describe the current source. Packaged builds and their
