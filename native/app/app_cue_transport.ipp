@@ -1932,6 +1932,64 @@
     bool sacn = false;
   };
   std::map<std::string, DmxModulator> dmxModulators_;
+  // THE VIDEO-ROLL DIP: 0 = not dipped, 1 = fully dipped, ramped over the
+  // fade time. Applied to what is SENT, never to the levels themselves, so
+  // the lights come back to exactly where they were, LFOs and all.
+  double videoDipAmount_ = 0.0;
+  Uint64 videoDipTickMs_ = 0;
+
+  // A video cue playing on any deck Output 1 shows.
+  bool videoRolling() const {
+    if (project_.outputs.empty()) return false;
+    const int programme = std::max(0, primaryProgrammeOutputIndex(-1));
+    for (const auto& [deck, layer] : layeredDeckEntriesForOutput(programme)) {
+      (void)layer;
+      const Cue* cue = activeCuePtr(deck);
+      const MediaEngine* engine = mediaEngineForDeck(deck);
+      if (cue && engine && cue->kind == CueKind::Video &&
+          engine->state() == TransportState::Playing && engine->hasPictureToShow()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void serviceVideoDip(Uint64 now) {
+    const double dt = videoDipTickMs_ ? static_cast<double>(now - videoDipTickMs_) / 1000.0 : 0.0;
+    videoDipTickMs_ = now;
+    const bool any = std::any_of(project_.fixtures.begin(), project_.fixtures.end(),
+                                 [](const deckboy::fixtures::Fixture& f) { return f.videoDip >= 0; });
+    const double want = project_.videoDipEnabled && any && videoRolling() ? 1.0 : 0.0;
+    const double fade = std::clamp(project_.videoDipFadeSeconds, 0.0, 30.0);
+    const double step = fade <= 0.0 ? 1.0 : dt / fade;
+    if (want > videoDipAmount_) videoDipAmount_ = std::min(want, videoDipAmount_ + step);
+    else if (want < videoDipAmount_) videoDipAmount_ = std::max(want, videoDipAmount_ - step);
+  }
+
+  void applyVideoDip(const DmxUniverse& u, std::vector<std::uint8_t>& out) const {
+    if (videoDipAmount_ <= 0.0) return;
+    for (const auto& fixture : project_.fixtures) {
+      if (fixture.videoDip < 0) continue;
+      // A fixture's universe number, whichever network it went out on.
+      const int number = u.sacn ? std::max(1, fixture.universe) : fixture.universe;
+      if (number != u.universe) continue;
+      deckboy::fixtures::applyDip(out.data(), fixture, fixture.videoDip / 100.0, videoDipAmount_);
+    }
+  }
+
+  static std::string videoDipLabel(int dip) {
+    return dip < 0 ? std::string("LEAVE") : dip == 0 ? std::string("DIP OFF") : "DIP " + std::to_string(dip) + "%";
+  }
+
+  void cycleFixtureVideoDip(std::size_t index) {
+    if (index >= project_.fixtures.size()) return;
+    static const int kSteps[] = {-1, 0, 10, 20, 30, 50};
+    int& dip = project_.fixtures[index].videoDip;
+    std::size_t at = 0;
+    for (std::size_t i = 0; i < std::size(kSteps); ++i) if (kSteps[i] == dip) at = i;
+    dip = kSteps[(at + 1) % std::size(kSteps)];
+    markProjectDirty();
+  }
   struct DmxFind {
     bool active = false;
     deckboy::fixtures::Fixture fixture;
@@ -2057,6 +2115,26 @@
   }
 
   bool handleFixtureSettingsClick(int action) {
+    if (action == kSettingsActionVideoDipToggle) {
+      project_.videoDipEnabled = !project_.videoDipEnabled;
+      markProjectDirty();
+      triggerToast(project_.videoDipEnabled ? "lights dip when a video rolls" : "video dip off");
+      return true;
+    }
+    if (action == kSettingsActionVideoDipFade) {
+      openInlineTextEditor("fixture.dipfade", "Video dip fade", "Seconds (0-30)",
+                           fmtFloat(static_cast<float>(project_.videoDipFadeSeconds), 1),
+                           [this](const std::string& value) {
+        const double s = std::atof(value.c_str());
+        if (trim(value).empty() || s < 0.0 || s > 30.0) {
+          triggerToast("video dip fade: 0-30 seconds", ToastKind::Warning, kToastReadableMs);
+          return;
+        }
+        project_.videoDipFadeSeconds = s;
+        markProjectDirty();
+      });
+      return true;
+    }
     if (action == kSettingsActionFixtureAdd) {
       const int universe = project_.fixtures.empty() ? 0 : project_.fixtures.back().universe;
       const std::string did = addFixture("", deckboy::fixtures::FixtureType::Dimmer, universe, 0);
@@ -2110,6 +2188,9 @@
         break;
       case 5:
         removeFixture(index);
+        break;
+      case 6:
+        cycleFixtureVideoDip(index);
         break;
       default:
         break;
@@ -2306,6 +2387,7 @@
       return;
     }
     const Uint64 now = SDL_GetTicks();
+    serviceVideoDip(now);
 
     for (DmxUniverse& u : dmxUniverses_) {
       if (!u.fading) {
@@ -2381,7 +2463,8 @@
       if (inet_pton(AF_INET, u.host.c_str(), &target.sin_addr) != 1) {
         continue;
       }
-      const std::vector<std::uint8_t> channels(u.level.begin(), u.level.end());
+      std::vector<std::uint8_t> channels(u.level.begin(), u.level.end());
+      applyVideoDip(u, channels);
       if (u.sacn && !sacnCidReady_) {
         // One source identity per run, as E1.31 asks of a sender.
         std::random_device device;
@@ -2405,6 +2488,7 @@
   // thing a lighting output must always be able to do.
   std::string dmxBlackout() {
     dmxModulators_.clear();
+    videoDipAmount_ = 0.0;
     dmxFind_.active = false;
     if (dmxUniverses_.empty()) {
       return "no DMX universes in use";

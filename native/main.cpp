@@ -9754,6 +9754,8 @@ class App {
   // The fixture patch: ADD, then eight ids a row (name, type, universe,
   // address, find, remove).
   static constexpr int kSettingsActionFixtureAdd = 50000;
+  static constexpr int kSettingsActionVideoDipToggle = 50001;
+  static constexpr int kSettingsActionVideoDipFade = 50002;
   static constexpr int kSettingsActionFixtureRowBase = 50008;
   static constexpr int kSettingsActionFixtureRowStride = 8;
   static constexpr int kSettingsActionFixtureEnd = 50008 + 1024 * 8;

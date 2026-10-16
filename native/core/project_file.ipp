@@ -328,8 +328,10 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   for (const auto& fixture : project.fixtures) {
     output << "fixture\t" << escapeField(fixture.name) << '\t'
            << deckboy::fixtures::fixtureTypeToken(fixture.type) << '\t'
-           << fixture.universe << '\t' << fixture.address << '\n';
+           << fixture.universe << '\t' << fixture.address << '\t' << fixture.videoDip << '\n';
   }
+  output << "video_dip\t" << (project.videoDipEnabled ? 1 : 0) << '\n';
+  output << "video_dip_fade\t" << project.videoDipFadeSeconds << '\n';
   output << "integration_artnet_port\t" << project.artNetPort << '\n';
   output << "integration_tsl_tally\t" << (project.tslTallyEnabled ? 1 : 0) << '\n';
   output << "integration_tsl_port\t" << project.tslTallyPort << '\n';
@@ -1323,8 +1325,13 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
       deckboy::fixtures::fixtureTypeFromToken(safeString(fields, 2), fixture.type);
       fixture.universe = std::clamp(safeInt(fields, 3, 0), 0, 63999);
       fixture.address = std::clamp(safeInt(fields, 4, 1), 1, 512);
+      fixture.videoDip = std::clamp(safeInt(fields, 5, -1), -1, 100);
       if (!fixture.name.empty()) project.fixtures.push_back(fixture);
     }
+  } else if (fields[0] == "video_dip") {
+    project.videoDipEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "video_dip_fade") {
+    project.videoDipFadeSeconds = std::clamp(safeDouble(fields, 1, 2.0), 0.0, 30.0);
   } else if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
   } else if (fields[0] == "tracker_loop") {

@@ -2813,6 +2813,9 @@ struct Project {
   bool dmxArtNetEnabled = false;         // Art-Net DMX universe receive
   // The fixture patch: named lights a DMX cue sets by name.
   std::vector<deckboy::fixtures::Fixture> fixtures;
+  // Dip the fixtures marked for it while a video plays on Output 1's decks.
+  bool videoDipEnabled = false;
+  double videoDipFadeSeconds = 2.0;
   int artNetPort = 6454;                 // Art-Net UDP port (standard = 6454)
   bool tslTallyEnabled = false;          // TSL 3.1 tally sender (program/preview status)
   int tslTallyPort = 5800;              // TSL UDP port

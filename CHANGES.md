@@ -8,6 +8,9 @@
   flashes one. A DMX cue now sets fixtures by name, a level and a colour each, and both can carry
   an LFO that keeps running after GO until a later cue sets that fixture or blackout. Hand-written
   channels still work alongside. `FIXTURE`, `DMXCUE FIXTURE`, `DMXCUE LFO`, `DMXCUE LEVELS`.
+- Added dip on video roll: fixtures marked for it fade down to their dip level while a video plays on
+  Output 1, and come back to exactly where they were when it ends or stops. `VIDEO DIP` and its fade
+  are in the FIXTURES card; `VIDEODIP`, `FIXTURE DIP`.
 - Fixed an issue where a DMX, MIDI, network, timecode, script, fade, target, master, memo or
   MIDI file cue showed an EFFECTS section that could do nothing: those cues have no picture.
 

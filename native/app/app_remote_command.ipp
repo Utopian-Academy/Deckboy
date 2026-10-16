@@ -1548,6 +1548,31 @@
                         "WIGGLE, IN, OUTMOVE or OUT");
       return;
     }
+    if (command == "VIDEODIP") {
+      // VIDEODIP | VIDEODIP ON|OFF | VIDEODIP FADE <seconds>
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub == "ON" || sub == "OFF") {
+        project_.videoDipEnabled = sub == "ON";
+        markProjectDirty();
+      } else if (sub == "FADE") {
+        const double s = parts.size() > 2 ? std::atof(parts[2].c_str()) : -1.0;
+        if (parts.size() < 3 || s < 0.0 || s > 30.0) {
+          failRemoteCommand("VIDEODIP FADE: 0-30 seconds");
+          return;
+        }
+        project_.videoDipFadeSeconds = s;
+        markProjectDirty();
+      } else if (!sub.empty()) {
+        failRemoteCommand("VIDEODIP: expected ON, OFF or FADE <seconds>");
+        return;
+      }
+      char text[96];
+      std::snprintf(text, sizeof(text), "%s fade=%.1fs rolling=%d dipped=%d%%", project_.videoDipEnabled ? "on" : "off",
+                    project_.videoDipFadeSeconds, videoRolling() ? 1 : 0,
+                    static_cast<int>(std::lround(videoDipAmount_ * 100.0)));
+      remoteCommandDetail_ = text;
+      return;
+    }
     if (command == "FIXTURE") {
       // FIXTURE LIST | FIXTURE ADD <name> <type> <universe> [<address>]
       // FIXTURE FIND <name> | FIXTURE REMOVE <name>
@@ -1590,6 +1615,32 @@
           return;
         }
         failRemoteCommand("FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]");
+        return;
+      }
+      if (sub == "DIP") {
+        // FIXTURE DIP <name> <%>|LEAVE
+        if (parts.size() < 4) {
+          failRemoteCommand("FIXTURE DIP: expected <name> <%>|LEAVE");
+          return;
+        }
+        const std::string value = toUpper(parts.back());
+        const std::string name = nameFrom(2, parts.size() - 1);
+        auto it = std::find_if(project_.fixtures.begin(), project_.fixtures.end(),
+                               [&](const deckboy::fixtures::Fixture& f) { return f.name == name; });
+        if (it == project_.fixtures.end()) {
+          failRemoteCommand("FIXTURE DIP: " + name + " is not in the patch");
+          return;
+        }
+        if (value == "LEAVE") {
+          it->videoDip = -1;
+        } else if (isInt(value) && std::atoi(value.c_str()) <= 100) {
+          it->videoDip = std::atoi(value.c_str());
+        } else {
+          failRemoteCommand("FIXTURE DIP: 0-100 (%) or LEAVE");
+          return;
+        }
+        markProjectDirty();
+        remoteCommandDetail_ = name + " " + videoDipLabel(it->videoDip);
         return;
       }
       if (sub == "FIND" || sub == "REMOVE") {

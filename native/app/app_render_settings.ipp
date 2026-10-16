@@ -1818,7 +1818,7 @@
       // card here is ever found to drift the way that one did.
       const int leftNeeded = remoteH + oscH + vmixH + webMonH + phoneH + nmcH + notesH + 6 * kCardGap;
       // The fixture patch: a row a fixture, the ADD row and a note.
-      const int fixturesH = stackH({sLineH, sRowH}) +
+      const int fixturesH = stackH({sLineH, sRowH, sRowH}) +
                             static_cast<int>(project_.fixtures.size()) * (sRowH + sGap);
       const int rightNeeded = integrationH + tallyCardH + fixturesH + 2 * kCardGap;
       settingsNetworkScrollMax_ = std::max(0, std::max(leftNeeded, rightNeeded) - colH);
@@ -2333,9 +2333,9 @@
         const int fxW = cardBodyW(fixturesRect);
         int fxY = cardBodyY(fixturesRect);
         const int g = uiScaled(4);
-        const int wName = fxW * 30 / 100, wType = fxW * 24 / 100, wUni = fxW * 11 / 100,
-                  wAddr = fxW * 15 / 100, wFind = fxW * 12 / 100;
-        const int wDel = fxW - wName - wType - wUni - wAddr - wFind - g * 5;
+        const int wName = fxW * 24 / 100, wType = fxW * 19 / 100, wUni = fxW * 8 / 100,
+                  wAddr = fxW * 12 / 100, wDip = fxW * 16 / 100, wFind = fxW * 10 / 100;
+        const int wDel = fxW - wName - wType - wUni - wAddr - wDip - wFind - g * 6;
         for (std::size_t i = 0; i < project_.fixtures.size(); ++i) {
           const deckboy::fixtures::Fixture& fixture = project_.fixtures[i];
           const int base = kSettingsActionFixtureRowBase + static_cast<int>(i) * kSettingsActionFixtureRowStride;
@@ -2359,8 +2359,22 @@
                clash >= 0 ? "Overlaps " + project_.fixtures[static_cast<std::size_t>(clash)].name
                           : std::string("First channel, 1-512"),
                clash >= 0);
+          cell(wDip, videoDipLabel(fixture.videoDip), base + 6,
+               "On a video roll: LEAVE, or how far it dips (OFF, 10, 20, 30, 50%)");
           cell(wFind, "FIND", base + 4, "Flash it to full white for two seconds");
           cell(wDel, "X", base + 5, "Remove it from the patch and from every DMX cue");
+          fxY += sRowH + sGap;
+        }
+        // THE VIDEO-ROLL DIP: one switch and one fade for the whole patch.
+        {
+          SDL_Rect dipRow {fxX, fxY, fxW, sRowH};
+          const int half = (fxW - g) / 2;
+          SDL_Rect dipOn {dipRow.x, dipRow.y, half, sRowH};
+          SDL_Rect dipFade {dipRow.x + half + g, dipRow.y, fxW - half - g, sRowH};
+          drawPill(dipOn, project_.videoDipEnabled, "VIDEO DIP: ON", "VIDEO DIP: OFF", kSettingsActionVideoDipToggle);
+          drawUIValueControl(dipFade, "FADE " + fmtFloat(static_cast<float>(project_.videoDipFadeSeconds), 1) + " s");
+          settingsBtns_.push_back({dipFade, kSettingsActionVideoDipFade,
+                                   "How long the lights take to dip, and to come back"});
           fxY += sRowH + sGap;
         }
         SDL_Rect addRow = settingsRow(fxX, fxW, fxY, sRowH, "Add a light", sGap);

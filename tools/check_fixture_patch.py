@@ -7,6 +7,9 @@ socket on this machine, and reads the packets back:
   - a later cue that sets the dimmer stops its LFO and leaves the wash alone
   - blackout zeroes everything and stops every LFO
   - the patch and the cue's fixtures survive a reload
+  - VIDEO DIP: a clip rolling on deck 1 dips the fixtures marked for it to
+    their dip level over the fade, leaves the others, and brings them back
+    to exactly where they were when it stops
 Every window hidden. Evidence: build/fixture-patch-*/
 """
 import os, sys, time, tempfile, subprocess, socket
@@ -121,6 +124,34 @@ try:
     p = packets(1.0)
     house = {q[0] for q in p}
     expect(len(house) > 4, f'the reloaded cue still carries its LFO ({len(house)} House values)')
+finally:
+    app.kill()
+    app.wait()
+clip = work / 'clip.mp4'
+subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=640x360:rate=25:duration=20',
+                '-pix_fmt', 'yuv420p', str(clip)], check=True)
+app, cmd = start()
+try:
+    for line in ['FIXTURE DIP House 20', 'VIDEODIP ON', 'VIDEODIP FADE 0.5', 'DMXCUE NEW', 'DMXCUE HOST 127.0.0.1',
+                 f'DMXCUE PORT {lport}', 'DMXCUE FIXTURE House 80', 'DMXCUE FIXTURE Wash L 85 blue', 'DMXCUE FIRE']:
+        print(line, '->', cmd(line))
+    p = packets(0.5)
+    expect(bool(p) and p[-1][0] == 204, f'House at 80% before the roll ({p[-1][0] if p else None})')
+    (work / 'drop.txt').write_text(f'{clip}\n')
+    print(cmd(f'DROPTEST {work / "drop.txt"}'))
+    time.sleep(3)
+    n = cmd('STATUS')
+    print(cmd('TAKE 4'))
+    time.sleep(1.5)
+    print(cmd('VIDEODIP'))
+    p = packets(0.5)
+    expect(bool(p) and p[-1][0] == 51, f'the roll dips House to 20% ({p[-1][0] if p else None})')
+    expect(bool(p) and tuple(p[-1][9:13]) == (0, 54, 217, 0), f'Wash L (LEAVE) is untouched ({tuple(p[-1][9:13]) if p else None})')
+    print(cmd('STOP'))
+    time.sleep(1.2)
+    print(cmd('VIDEODIP'))
+    p = packets(0.5)
+    expect(bool(p) and p[-1][0] == 204, f'STOP brings House back to 80% ({p[-1][0] if p else None})')
 finally:
     app.kill()
     app.wait()

@@ -679,11 +679,22 @@ the channels go last, so one can override a fixture. A cue that names a
 fixture no longer in the patch says so and sends nothing. The fixtures go out
 on their own universes, with the cue's network, destination and fade.
 
+**Dip on video roll.** Each fixture's **on video roll** setting is **LEAVE**,
+or a level to dip to: **OFF**, 10, 20, 30 or 50%. With **VIDEO DIP: ON**, a
+video cue playing on a deck that Output 1 shows fades those fixtures down to
+their dip level over the **FADE** time, and when the video ends, is stopped
+or gives way to a cue that is not a video, they fade back to exactly where
+they were, LFOs included. The dip is a ceiling: a fixture already below it is
+left alone, and a DMX cue fired during the roll still lands. Blackout ends
+the dip.
+
 | Command | Does |
 |---------|------|
 | `FIXTURE LIST` | The patch, with any overlaps |
 | `FIXTURE ADD <name> dimmer\|rgb\|rgbw\|rgba\|drgb\|dcct <universe> [<address>]` | Patches a fixture (the next free address if none is given) |
 | `FIXTURE FIND <name>` · `FIXTURE REMOVE <name>` | Flashes it, or removes it |
+| `FIXTURE DIP <name> <%>\|LEAVE` | What it does on a video roll |
+| `VIDEODIP [ON\|OFF]` · `VIDEODIP FADE <seconds>` | The video-roll dip, and its state |
 | `DMXCUE FIXTURE <name> <level%>\|LEAVE [<colour>]` | Sets a fixture in the selected DMX cue |
 | `DMXCUE LFO <name> LEVEL\|COLOUR ON\|OFF [<Hz>] [<depth%>]` | Its oscillators |
 | `DMXCUE LEVELS <universe> [<first>] [<count>] [SACN]` | The levels going out right now |

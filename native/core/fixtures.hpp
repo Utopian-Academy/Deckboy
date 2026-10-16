@@ -27,6 +27,7 @@ struct Fixture {
   FixtureType type = FixtureType::Dimmer;
   int universe = 0;   // Art-Net port address, or sACN universe
   int address = 1;    // first channel, 1-512
+  int videoDip = -1;  // on a video roll: -1 leave it, else the % it dips to
 };
 
 inline int footprint(FixtureType type) {
@@ -198,6 +199,43 @@ inline std::vector<std::pair<int, std::uint8_t>> fixtureChannels(const Fixture& 
     if (channel >= 1 && channel <= 512) out.emplace_back(channel, values[k]);
   }
   return out;
+}
+
+// The channels of a fixture that carry its brightness (offsets from its
+// address): the dimmer where it has one, every emitter where it has not.
+inline std::vector<int> intensityOffsets(FixtureType type) {
+  switch (type) {
+    case FixtureType::Rgb: return {0, 1, 2};
+    case FixtureType::Rgbw:
+    case FixtureType::Rgba: return {0, 1, 2, 3};
+    case FixtureType::Dimmer:
+    case FixtureType::RgbDimmer:
+    case FixtureType::DimmerCct:
+    default: return {0};
+  }
+}
+
+// The video-roll dip, applied to a universe's outgoing levels: the fixture's
+// brightness is CEILINGED at `dip` (0-1), reached in proportion `amount`
+// (0 = no dip, 1 = fully dipped). A fixture already below the dip is left;
+// a colour fixture is scaled evenly so its colour holds.
+inline void applyDip(std::uint8_t* levels512, const Fixture& fixture, double dip, double amount) {
+  if (fixture.videoDip < 0 || amount <= 0.0) return;
+  const auto offsets = intensityOffsets(fixture.type);
+  int peak = 0;
+  for (int o : offsets) {
+    const int ch = fixture.address + o;
+    if (ch >= 1 && ch <= 512) peak = std::max(peak, static_cast<int>(levels512[ch - 1]));
+  }
+  if (peak == 0) return;
+  const double current = peak / 255.0;
+  const double target = std::min(current, std::clamp(dip, 0.0, 1.0));
+  const double out = current + (target - current) * std::clamp(amount, 0.0, 1.0);
+  const double factor = out / current;
+  for (int o : offsets) {
+    const int ch = fixture.address + o;
+    if (ch >= 1 && ch <= 512) levels512[ch - 1] = level8(levels512[ch - 1] / 255.0 * factor);
+  }
 }
 
 // The first address on `universe` where a fixture of `type` fits without
