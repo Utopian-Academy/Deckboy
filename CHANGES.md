@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-16 - v0.99.412 (a test card for every screen, HDR outputs, live captions, a phone controller that pairs by QR)
+## 2026-10-15 - v0.99.412 (a test card for every screen, HDR outputs, live captions, a phone controller that pairs by QR)
 
 A test card that checks every screen 1:1 and exports as movie files, HDR window outputs and HDR10
 recordings, live captions made on this computer, and phone control rebuilt as a controller for the
