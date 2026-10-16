@@ -54,6 +54,14 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"
 Name: "associate"; Description: "Associate &.deckboy show files with Deckboy"; GroupDescription: "File associations:"
 
+[InstallDelete]
+; An update installs OVER the old folder, so a file a release dropped stays
+; behind and is still used: the two round pictures taken out of the splash
+; rotation on 2026-10-08 kept appearing on updated machines. The bundled
+; splash art is cleared before the new copy goes in. Only bundled art: the
+; data folder can also hold the operator's own shows and state.
+Type: filesandordirs; Name: "{app}\data\ui\deckboy_ui_pack_v3\splash"
+
 [Files]
 ; The entire staged tree — Deckboy.exe, DLLs, ffmpeg/ffprobe, MSVC runtime,
 ; data\, LICENSE. recursesubdirs pulls in data\ and its subfolders.

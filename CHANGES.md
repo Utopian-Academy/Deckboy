@@ -30,6 +30,8 @@ in nits instead of clipping it.
 - The SOURCE menu lays its columns out by section, each starting with its heading, wide enough
   that no entry is shrunk or cut short.
 - Settings > Network splits its cards evenly between the two columns.
+- Fixed an issue where updating with the Windows installer kept splash pictures a later release had
+  removed, so they still appeared at startup.
 
 ### HDR
 - Added HDR **AUTO** for an output: HDR when its screen is in HDR, SDR when it is not, following the
