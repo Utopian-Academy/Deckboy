@@ -192,7 +192,7 @@
     const std::size_t w = static_cast<std::size_t>(width);
     const std::size_t h = static_cast<std::size_t>(height);
     const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
-    const std::size_t bands = std::clamp<std::size_t>(cores > 2 ? cores - 2 : 1, 1, 6);
+    const std::size_t bands = std::clamp<std::size_t>(cores > 2 ? cores - 2 : 1, 1, 10);  // HDR: the slow path, more bands
     const std::size_t rowsPerBand = (h + bands - 1) / bands;
     std::vector<std::future<s::Result>> parts;
     for (std::size_t y0 = 0; y0 < h; y0 += rowsPerBand) {
@@ -207,20 +207,31 @@
     return whole;
   }
 
-  // Main thread, from the output pass: the float compositor, read back here
-  // (the same readback the HDR recording makes), about ten times a second.
+  // Main thread, from the output pass: only the GPU readback happens here;
+  // the PQ encode and the analysis run on the worker. About ten a second.
+  std::unique_ptr<deckboy::core::hdr::PqEncoder> scopesPqEncoder_;   // worker only
+  int scopesPqWhite_ = 0;
   void scopesOfferHdrFrame(int outputIndex, const OutputRuntime& runtime) {
     const Uint64 now = SDL_GetTicks();
     if (now - scopesLastSubmitMs_ < 100) return;
-    auto frame = std::make_shared<OutputRuntime::CapturedFrame>();
-    if (!readHdrCompositorPq(runtime, *frame) || frame->width <= 0 || frame->height <= 0) return;
+    SDL_Surface* raw = readHdrCompositorRaw(runtime);
+    if (!raw) return;
     scopesLastSubmitMs_ = now;
     const int white = std::clamp(project_.hdrSdrWhiteNits, 80, 500);
     if (scopesWorker_.joinable()) scopesWorker_.join();
     scopesBusy_.store(true);
-    scopesWorker_ = std::thread([this, frame, outputIndex, white]() {
+    scopesWorker_ = std::thread([this, raw, outputIndex, white]() {
       namespace s = deckboy::core::scopes;
       const auto started = std::chrono::steady_clock::now();
+      if (!scopesPqEncoder_ || scopesPqWhite_ != white) {
+        scopesPqEncoder_ = std::make_unique<deckboy::core::hdr::PqEncoder>(white);
+        scopesPqWhite_ = white;
+      }
+      auto frame = std::make_shared<OutputRuntime::CapturedFrame>();
+      if (!encodeHdrSurfacePq(raw, *scopesPqEncoder_, *frame) || frame->width <= 0 || frame->height <= 0) {
+        scopesBusy_.store(false);
+        return;
+      }
       ScopesOutcome outcome;
       try {
         outcome.result = std::make_shared<const s::Result>(

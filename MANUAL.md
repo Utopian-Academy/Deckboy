@@ -2000,7 +2000,8 @@ BT.2020, 16-bit. The waveform and parade are marked in nits (1, 10, 100, 1k,
 where SDR material sits (203 nits unless **SDR material at** says
 otherwise). The footer gives the picture's **peak** in nits in place of the
 R 103 verdict, which is an SDR rule. A 4K HDR frame takes longer to read back
-and measure, so the scopes update about three times a second there. An HDR
+and measure, so the scopes update about six times a second there (measured on
+a 32-thread PC). An HDR
 output that is also sending SDI or ST 2110 is measured as that SDR wire
 signal, because that is what goes down the cable.
 

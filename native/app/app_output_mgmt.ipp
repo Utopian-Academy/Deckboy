@@ -3894,7 +3894,18 @@
   // 16-bit PQ BT.2020 R'G'B' (6 bytes a pixel). The HDR recording and the
   // scopes both read the picture this way. False when there is none.
   bool readHdrCompositorPq(const OutputRuntime& runtime, OutputRuntime::CapturedFrame& frame) {
-    if (!runtime.hdr || !runtime.compositorTexture || !runtime.outputRenderer) return false;
+    SDL_Surface* got = readHdrCompositorRaw(runtime);
+    if (!got) return false;
+    if (!hdrRecordEncoder_ || hdrRecordEncoderWhite_ != project_.hdrSdrWhiteNits) {
+      hdrRecordEncoder_ = std::make_unique<deckboy::core::hdr::PqEncoder>(project_.hdrSdrWhiteNits);
+      hdrRecordEncoderWhite_ = project_.hdrSdrWhiteNits;
+    }
+    return encodeHdrSurfacePq(got, *hdrRecordEncoder_, frame);
+  }
+
+  // The readback alone (render thread): the compositor as the GPU holds it.
+  SDL_Surface* readHdrCompositorRaw(const OutputRuntime& runtime) {
+    if (!runtime.hdr || !runtime.compositorTexture || !runtime.outputRenderer) return nullptr;
     SDL_Texture* previous = SDL_GetRenderTarget(runtime.outputRenderer);
     SDL_SetRenderTarget(runtime.outputRenderer, runtime.compositorTexture);
     // The whole compositor, said explicitly: a null rect reads the current
@@ -3903,21 +3914,35 @@
     const SDL_Rect whole {0, 0, runtime.compositorWidth, runtime.compositorHeight};
     SDL_Surface* got = SDL_RenderReadPixels(runtime.outputRenderer, &whole);
     SDL_SetRenderTarget(runtime.outputRenderer, previous);
+    return got;
+  }
+
+  // Any thread: a read-back surface to 16-bit PQ BT.2020, and the surface
+  // freed. The scopes run this on their worker, off the render thread.
+  static bool encodeHdrSurfacePq(SDL_Surface* got, const deckboy::core::hdr::PqEncoder& encoder,
+                                 OutputRuntime::CapturedFrame& frame) {
     if (!got) return false;
-    // Half floats to float, same linear colourspace both sides: no conversion.
+    // The compositor's own half floats, encoded directly (see convertHalf).
+    if (got->format == SDL_PIXELFORMAT_RGBA64_FLOAT) {
+      frame.width = got->w;
+      frame.height = got->h;
+      frame.pixels.resize(static_cast<std::size_t>(got->w) * got->h * 6);
+      encoder.convertHalf(static_cast<const std::uint16_t*>(got->pixels), got->w, got->h, got->pitch / 2,
+                          reinterpret_cast<std::uint16_t*>(frame.pixels.data()));
+      SDL_DestroySurface(got);
+      return true;
+    }
+    // Any other format: half floats to float, same linear colourspace both
+    // sides, through SDL.
     SDL_Surface* f = SDL_ConvertSurfaceAndColorspace(got, SDL_PIXELFORMAT_RGBA128_FLOAT, nullptr,
                                                      SDL_COLORSPACE_SRGB_LINEAR, 0);
     SDL_DestroySurface(got);
     if (!f) return false;
-    if (!hdrRecordEncoder_ || hdrRecordEncoderWhite_ != project_.hdrSdrWhiteNits) {
-      hdrRecordEncoder_ = std::make_unique<deckboy::core::hdr::PqEncoder>(project_.hdrSdrWhiteNits);
-      hdrRecordEncoderWhite_ = project_.hdrSdrWhiteNits;
-    }
     frame.width = f->w;
     frame.height = f->h;
     frame.pixels.resize(static_cast<std::size_t>(f->w) * f->h * 6);
-    hdrRecordEncoder_->convert(static_cast<const float*>(f->pixels), f->w, f->h, f->pitch / 4,
-                               reinterpret_cast<std::uint16_t*>(frame.pixels.data()));
+    encoder.convert(static_cast<const float*>(f->pixels), f->w, f->h, f->pitch / 4,
+                    reinterpret_cast<std::uint16_t*>(frame.pixels.data()));
     SDL_DestroySurface(f);
     return true;
   }

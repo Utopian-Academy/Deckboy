@@ -14,6 +14,9 @@
 - The scopes on an HDR output now measure the HDR picture, not the SDR copy, so highlights no
   longer read clipped at 100%. The waveform and parade are marked in nits and PQ %, with a dashed
   line at SDR white, and the footer gives the peak in nits.
+- Recording or scoping a 4K HDR output takes far less time from the output: the HDR frame is
+  converted directly instead of through a float copy (measured: 260 ms a frame down to 55 ms, and
+  the scopes do their part off the output thread).
 - The scopes now measure the programme output instead of whichever output is being edited.
   **SOURCE**, beside FREEZE, picks another output, as does `SCOPES SOURCE PROGRAMME|<n>`.
 

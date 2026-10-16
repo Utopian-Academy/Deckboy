@@ -34,6 +34,7 @@
 #include <cstdint>
 #include <future>
 #include <thread>
+#include <limits>
 #include <vector>
 
 namespace deckboy::core::hdr {
@@ -203,6 +204,21 @@ class PqEncoder {
     }
   }
 
+  // RGBA HALF floats, as the compositor holds them, straight in: a 64K-entry
+  // table turns each half into a float. Going through a float surface first
+  // (SDL_ConvertSurface) cost 200 ms a 4K frame on the render thread; this
+  // costs what the encode does.
+  void convertHalf(const std::uint16_t* rgbaHalf, int width, int height, int strideHalfs,
+                   std::uint16_t* rgb48) const {
+    const std::vector<float>& half = halfTable();
+    run(width, height, [&](int x, int y, float& r, float& g, float& b) {
+      const std::uint16_t* in = rgbaHalf + static_cast<std::size_t>(y) * strideHalfs + static_cast<std::size_t>(x) * 4;
+      r = half[in[0]];
+      g = half[in[1]];
+      b = half[in[2]];
+    }, rgb48);
+  }
+
   // RGBA float (linear, 709) rows in, RGB 16-bit little-endian rows out.
   void convert(const float* rgba, int width, int height, int rgbaStrideFloats, std::uint16_t* rgb48) const {
     const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
@@ -230,6 +246,46 @@ class PqEncoder {
 
  private:
   static constexpr int kSteps = 65536;
+  template <class Read>
+  void run(int width, int height, Read read, std::uint16_t* rgb48) const {
+    const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
+    const int bands = std::clamp(static_cast<int>(cores) - 2, 1, 12);
+    const int rows = (height + bands - 1) / bands;
+    std::vector<std::future<void>> work;
+    for (int y0 = 0; y0 < height; y0 += rows) {
+      const int y1 = std::min(height, y0 + rows);
+      work.push_back(std::async(std::launch::async, [=, this, &read] {
+        for (int y = y0; y < y1; ++y) {
+          std::uint16_t* out = rgb48 + static_cast<std::size_t>(y) * width * 3;
+          for (int x = 0; x < width; ++x) {
+            float r = 0, g = 0, b = 0;
+            read(x, y, r, g, b);
+            r *= white_; g *= white_; b *= white_;
+            out[x * 3] = encode(0.6274f * r + 0.3293f * g + 0.0433f * b);
+            out[x * 3 + 1] = encode(0.0691f * r + 0.9195f * g + 0.0114f * b);
+            out[x * 3 + 2] = encode(0.0164f * r + 0.0880f * g + 0.8956f * b);
+          }
+        }
+      }));
+    }
+    for (auto& w : work) w.get();
+  }
+  // IEEE 754 binary16 to float, every bit pattern.
+  static const std::vector<float>& halfTable() {
+    static const std::vector<float> table = [] {
+      std::vector<float> t(65536);
+      for (std::uint32_t h = 0; h < 65536; ++h) {
+        const std::uint32_t sign = (h >> 15) & 1, exp = (h >> 10) & 31, mant = h & 1023;
+        float v;
+        if (exp == 0) v = std::ldexp(static_cast<float>(mant), -24);
+        else if (exp == 31) v = mant ? std::numeric_limits<float>::quiet_NaN() : std::numeric_limits<float>::infinity();
+        else v = std::ldexp(static_cast<float>(mant + 1024), static_cast<int>(exp) - 25);
+        t[h] = sign ? -v : v;
+      }
+      return t;
+    }();
+    return table;
+  }
   std::uint16_t encode(float nits) const {
     const float root = std::sqrt(std::clamp(nits, 0.0f, 10000.0f) / 10000.0f);
     return lut_[static_cast<std::size_t>(root * (kSteps - 1) + 0.5f)];
