@@ -559,6 +559,12 @@ importantly, what each feature deliberately does not do.
   venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
   and its XML/JSON feed, driving text and lower thirds on the outputs
 
+**The face:**
+
+- A face you can make your own: how it looks, what it does and what it talks
+  about, including lines you write yourself. Every setting starts from the face
+  as it is today, and none of them can touch playback, routing or outputs
+
 **Picture:**
 
 - Lip sync held within a few milliseconds across a whole day of playback, on
