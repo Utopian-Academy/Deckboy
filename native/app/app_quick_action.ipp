@@ -1204,6 +1204,15 @@
       case QuickAction::DmxUniverseInc:  nudgeDmxField(0, +1); break;
       case QuickAction::DmxFireNow:      fireSelectedDmxCue(); break;
       case QuickAction::DmxBlackout:     (void)dmxBlackout(); break;
+      case QuickAction::DmxProtocolCycle:
+        if (Cue* dmx = selectedCueMutable(); dmx && dmx->kind == CueKind::Dmx) {
+          dmx->dmxProtocol = dmx->dmxProtocol == "sacn" ? "artnet" : "sacn";
+          // sACN has no universe 0; Art-Net's 0 becomes sACN's 1.
+          if (dmx->dmxProtocol == "sacn" && dmx->dmxUniverse < 1) dmx->dmxUniverse = 1;
+          triggerToast(dmx->dmxProtocol == "sacn" ? "DMX over sACN (E1.31)" : "DMX over Art-Net");
+          markProjectDirty();
+        }
+        break;
       case QuickAction::CueSectionScriptToggle:
         cueSectionScriptOpen_ = !cueSectionScriptOpen_;
         break;

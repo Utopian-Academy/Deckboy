@@ -1552,6 +1552,7 @@
       // DMXCUE NEW                 -> add a DMX cue to this deck
       // DMXCUE SET <spec>          -> "1=255, 10-14=64"
       // DMXCUE FADE <seconds> | UNIVERSE <n> | HOST <ipv4> | PORT <n>
+      // DMXCUE PROTOCOL ARTNET|SACN
       // DMXCUE FIRE                -> send it now
       // DMXCUE BLACKOUT            -> every channel on every universe to 0
       // DMXCUE                     -> report it, and whether it can send
@@ -1593,7 +1594,7 @@
         auto spec = deckboy::platform::parseDmxChannelSpec(cue.dmxChannels);
         std::ostringstream out;
         out << (cue.dmxChannels.empty() ? std::string("(no channels)") : cue.dmxChannels)
-            << " -> universe " << cue.dmxUniverse
+            << " -> " << (cue.dmxProtocol == "sacn" ? "sACN" : "Art-Net") << " universe " << cue.dmxUniverse
             << " " << cue.dmxHost << ":" << cue.dmxPort
             << (cue.dmxFadeSeconds > 0.0
                   ? (" over " + formatSeconds(cue.dmxFadeSeconds))
@@ -1620,6 +1621,18 @@
         cue.dmxChannels = text;
         markProjectDirty();
         remoteCommandDetail_ = text.empty() ? "cleared" : text;
+        return;
+      }
+      if (sub == "PROTOCOL" && parts.size() >= 3) {
+        const std::string want = toUpper(parts[2]);
+        if (want != "ARTNET" && want != "SACN") {
+          failRemoteCommand("DMXCUE PROTOCOL: ARTNET or SACN");
+          return;
+        }
+        cue.dmxProtocol = want == "SACN" ? "sacn" : "artnet";
+        if (cue.dmxProtocol == "sacn" && cue.dmxUniverse < 1) cue.dmxUniverse = 1;
+        markProjectDirty();
+        remoteCommandDetail_ = cue.dmxProtocol;
         return;
       }
       if (sub == "HOST" && parts.size() >= 3) {
@@ -2873,6 +2886,33 @@
       } catch (...) {
         failRemoteCommand("STANDBY: expected a cue number, NEXT, PREV or CLEAR");
       }
+      return;
+    }
+    // STOPALL / PAUSEALL / RESUMEALL: every deck, each the way its own
+    // STOP / pause / play acts. Not the Esc escalation, which also clears
+    // the outputs.
+    // GOGUARD <ms>|OFF: the double-GO guard (Settings > System > SHOW FLOW).
+    if (command == "GOGUARD") {
+      if (parts.size() > 1) {
+        const std::string v = toUpper(parts[1]);
+        if (v == "OFF" || v == "0") {
+          project_.goGuardMs = 0;
+        } else {
+          const auto ms = parseNumber(1);
+          if (!ms || *ms < 50 || *ms > 2000) { failRemoteCommand("GOGUARD: OFF or 50-2000 (ms)"); return; }
+          project_.goGuardMs = static_cast<int>(*ms);
+        }
+        markProjectDirty();
+      }
+      remoteCommandDetail_ = project_.goGuardMs <= 0 ? std::string("off") : std::to_string(project_.goGuardMs) + " ms";
+      return;
+    }
+    if (command == "STOPALL" || command == "PAUSEALL" || command == "RESUMEALL") {
+      const CueTargetVerb verb = command == "STOPALL" ? CueTargetVerb::StopAll
+                               : command == "PAUSEALL" ? CueTargetVerb::PauseAll : CueTargetVerb::ResumeAll;
+      const int acted = transportAllDecks(verb);
+      remoteCommandDetail_ = std::to_string(acted) + (acted == 1 ? " deck" : " decks");
+      triggerToast(std::string(cueTargetVerbLabel(verb)) + ": " + remoteCommandDetail_);
       return;
     }
     if (command == "GO") {

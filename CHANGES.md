@@ -50,6 +50,15 @@
   left DeckLink off. It now says why.
 - DeckLink and ST 2110 now share one Y'CbCr encoder.
 
+### Show control
+- Added sACN (ANSI E1.31) to the DMX cue beside Art-Net: **network** in the inspector, or
+  `DMXCUE PROTOCOL SACN`. sACN universes run 1-63999 and go to their multicast group unless a host
+  is set.
+- Added `STOPALL`, `PAUSEALL` and `RESUMEALL`, and Target cue verbs **Stop all**, **Pause all** and
+  **Resume all**, acting on every deck at once.
+- Added a double-GO guard: **Settings > System > SHOW FLOW > Double-GO guard** (OFF, 250, 500 or
+  1000 ms) and `GOGUARD`. A second GO on the same deck inside it is ignored. Off by default.
+
 ### Phone and tablet control
 - Phone control is now a controller for the whole desk with its own card, **Settings > Network >
   PHONE & TABLET**, and works with the Web Monitor off.

@@ -1954,13 +1954,36 @@
                  l3.accent == 4 && l3.wiggle,
                "a lower third's layout persists");
         {
-          // Trim only the new tail field: a show from immediately before
-          // Wiggle must keep its look, timings, triggers and audio selection.
+          // A show from immediately before sACN (one tail field fewer) keeps
+          // Wiggle and sends Art-Net, as every show before it did.
+          {
+            std::ifstream preIn(smokePath);
+            std::ostringstream preOlder;
+            std::string preLine;
+            while (std::getline(preIn, preLine)) {
+              if (preLine.rfind("cue\t", 0) == 0) preLine.erase(preLine.find_last_of('\t'));
+              preOlder << preLine << '\n';
+            }
+            preIn.close();
+            const fs::path preSacnPath = smokeDir / "deckboy-smoke-pre-sacn.deckboy";
+            { std::ofstream out(preSacnPath); out << preOlder.str(); }
+            const Project preSacn = loadProject(preSacnPath);
+            const Cue& preBack = preSacn.decks.at(0).cues.at(0);
+            expect(preBack.lowerThird.wiggle && preBack.dmxProtocol == "artnet",
+                   "a pre-sACN show keeps wiggle and its DMX cues send Art-Net");
+            fs::remove(preSacnPath);
+          }
+          // Trim the two newest tail fields (the DMX protocol, then Wiggle): a
+          // show from immediately before Wiggle must keep its look, timings,
+          // triggers and audio selection.
           std::ifstream in(smokePath);
           std::ostringstream older;
           std::string line;
           while (std::getline(in, line)) {
-            if (line.rfind("cue\t", 0) == 0) line.erase(line.find_last_of('\t'));
+            if (line.rfind("cue\t", 0) == 0) {
+              line.erase(line.find_last_of('\t'));
+              line.erase(line.find_last_of('\t'));
+            }
             older << line << '\n';
           }
           in.close();
@@ -2010,7 +2033,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 87;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 88;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2018,7 +2041,8 @@
                                               // six portal controls, the twelve
                                               // text lower-third fields, ten swirl controls,
                                               // three triggers (hotkey, MIDI note, OSC),
-                                              // audio track and track count, wiggle
+                                              // audio track and track count, wiggle,
+                                              // the DMX protocol
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -2235,6 +2259,32 @@
       expect(tiny.size() == 18 + 2, "a single channel still sends the legal minimum");
       auto big = buildArtDmxPacket(0, std::vector<std::uint8_t>(600, 9), 0);
       expect(big.size() == 18 + 512, "more than a universe is truncated to 512");
+
+      // ── sACN (E1.31) ────────────────────────────────────────────────────
+      {
+        using deckboy::platform::buildSacnPacket;
+        const std::uint8_t cid[16] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+        auto s = buildSacnPacket(0x0102, {255, 128, 7}, 9, cid, "Deckboy");
+        expect(s.size() == 126 + 3, "sACN is a 126-byte envelope plus the slots");
+        expect(s[0] == 0x00 && s[1] == 0x10 && s[2] == 0 && s[3] == 0, "preamble 0x0010, postamble 0");
+        expect(std::string(s.begin() + 4, s.begin() + 13) == "ASC-E1.17" && s[13] == 0 && s[15] == 0,
+               "ACN packet identifier");
+        expect(((s[16] << 8) | s[17]) == (0x7000 | (129 - 16)), "root flags and length");
+        expect(s[18] == 0 && s[19] == 0 && s[20] == 0 && s[21] == 4, "root vector: E1.31 data");
+        expect(s[22] == 1 && s[37] == 16, "the CID is carried");
+        expect(((s[38] << 8) | s[39]) == (0x7000 | (129 - 38)), "framing flags and length");
+        expect(s[43] == 2, "framing vector: DMP");
+        expect(std::string(s.begin() + 44, s.begin() + 51) == "Deckboy" && s[51] == 0, "source name, NUL padded");
+        expect(s[108] == 100 && s[111] == 9, "priority 100, sequence carried");
+        expect(s[113] == 0x01 && s[114] == 0x02, "universe is big endian");
+        expect(((s[115] << 8) | s[116]) == (0x7000 | (129 - 115)), "DMP flags and length");
+        expect(s[117] == 0x02 && s[118] == 0xA1 && s[122] == 1, "DMP vector, address type, increment");
+        expect(((s[123] << 8) | s[124]) == 4 && s[125] == 0, "count includes the start code, which is 0");
+        expect(s[126] == 255 && s[128] == 7, "the slots follow the start code");
+        expect(deckboy::platform::sacnMulticastAddress(0x0102) == "239.255.1.2",
+               "sACN multicast is 239.255.<hi>.<lo>");
+        expect(buildSacnPacket(0, {1}, 1, cid, "x")[114] == 1, "there is no universe 0; it is clamped to 1");
+      }
 
       // ── THE CHANNEL SPEC ────────────────────────────────────────────────
       auto one = parseDmxChannelSpec("1=255");

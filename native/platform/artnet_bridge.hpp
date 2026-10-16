@@ -29,6 +29,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <optional>
 #include <sstream>
@@ -64,6 +65,70 @@ namespace deckboy::platform {
 //   16  Length               BIG endian, even, 2..512
 //   18  Data                 Length bytes
 // ---------------------------------------------------------------------------
+// ── sACN OUT (ANSI E1.31) ──────────────────────────────────────────────────
+//
+// The other lighting network: what most consoles and nodes speak beside, or
+// instead of, Art-Net. Same 512 slots; a different envelope. Also a pure
+// function, checked byte for byte by the smoke test, for the reason above.
+//
+//   Root layer     0  preamble 0x0010, postamble 0x0000, "ASC-E1.17\0\0\0"
+//                  16 flags+length (0x7000 | bytes from 16 to the end)
+//                  18 vector 0x00000004 (E131 data), 22 CID (16 bytes)
+//   Framing layer  38 flags+length (from 38), 40 vector 0x00000002,
+//                  44 source name (64 bytes, NUL padded), 108 priority,
+//                  109 sync address, 111 sequence, 112 options, 113 universe
+//   DMP layer      115 flags+length (from 115), 117 vector 0x02, 118 0xA1,
+//                  119 first address 0, 121 increment 1, 123 count (1 + slots),
+//                  125 start code 0, 126 the slots
+// Universes are 1-63999. Multicast goes to 239.255.<hi>.<lo>, port 5568.
+inline constexpr int kSacnPort = 5568;
+
+inline std::string sacnMulticastAddress(int universe) {
+  const int u = universe < 1 ? 1 : (universe > 63999 ? 63999 : universe);
+  return "239.255." + std::to_string((u >> 8) & 0xFF) + "." + std::to_string(u & 0xFF);
+}
+
+inline std::vector<std::uint8_t> buildSacnPacket(
+    int universe, const std::vector<std::uint8_t>& channels, std::uint8_t sequence,
+    const std::uint8_t (&cid)[16], const std::string& sourceName) {
+  const std::size_t slots = channels.size() > 512 ? 512 : channels.size();
+  const std::size_t total = 126 + slots;
+  std::vector<std::uint8_t> p(total, 0);
+  auto be16 = [&](std::size_t at, unsigned v) {
+    p[at] = static_cast<std::uint8_t>((v >> 8) & 0xFF);
+    p[at + 1] = static_cast<std::uint8_t>(v & 0xFF);
+  };
+  auto be32 = [&](std::size_t at, unsigned v) {
+    be16(at, (v >> 16) & 0xFFFF);
+    be16(at + 2, v & 0xFFFF);
+  };
+  be16(0, 0x0010);
+  be16(2, 0x0000);
+  static const char kId[12] = {'A', 'S', 'C', '-', 'E', '1', '.', '1', '7', 0, 0, 0};
+  for (int i = 0; i < 12; ++i) p[4 + static_cast<std::size_t>(i)] = static_cast<std::uint8_t>(kId[i]);
+  be16(16, 0x7000u | static_cast<unsigned>(total - 16));
+  be32(18, 0x00000004u);
+  for (int i = 0; i < 16; ++i) p[22 + static_cast<std::size_t>(i)] = cid[i];
+  be16(38, 0x7000u | static_cast<unsigned>(total - 38));
+  be32(40, 0x00000002u);
+  for (std::size_t i = 0; i < 63 && i < sourceName.size(); ++i) p[44 + i] = static_cast<std::uint8_t>(sourceName[i]);
+  p[108] = 100;                                 // priority: the default
+  be16(109, 0);                                 // no synchronisation
+  p[111] = sequence;
+  p[112] = 0;                                   // options
+  const int u = universe < 1 ? 1 : (universe > 63999 ? 63999 : universe);
+  be16(113, static_cast<unsigned>(u));
+  be16(115, 0x7000u | static_cast<unsigned>(total - 115));
+  p[117] = 0x02;
+  p[118] = 0xA1;
+  be16(119, 0x0000);
+  be16(121, 0x0001);
+  be16(123, static_cast<unsigned>(slots + 1));
+  p[125] = 0x00;                                // the DMX start code
+  for (std::size_t i = 0; i < slots; ++i) p[126 + i] = channels[i];
+  return p;
+}
+
 inline std::vector<std::uint8_t> buildArtDmxPacket(
     int universe, const std::vector<std::uint8_t>& channels, std::uint8_t sequence) {
   std::vector<std::uint8_t> packet;

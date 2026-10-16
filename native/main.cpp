@@ -9370,6 +9370,7 @@ class App {
   static constexpr int kSettingsActionPhoneLevel = 774;
   static constexpr int kSettingsActionPhoneHaptics = 796;
   static constexpr int kSettingsActionPhoneForget = 797;
+  static constexpr int kSettingsActionGoGuardCycle = 798;
   // ST 2110-20 output (Devices sub-tab).
   static constexpr int kSettingsActionSt2110Toggle = 658;
   static constexpr int kSettingsActionSt2110AddressPrompt = 659;
@@ -9587,6 +9588,7 @@ class App {
   int miamiCursorScale_ = 0;            // whole-pixel scale it was built at
   // The test card's shared clock (renderOutputTestCard); 0 = no card up.
   Uint64 testCardEpochNs_ = 0;
+  std::vector<Uint64> lastGoMsByDeck_;   // double-GO guard, per deck
   TTF_Font* fontLarge_ = nullptr;
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;

@@ -429,8 +429,28 @@
   // firing cues instead. James: "spacebar also does not seem to pause".
   //
   // Two verbs, two jobs. Spacebar and TOGGLE take the second one.
+  // True when this GO is the second half of an accidental double press on the
+  // same deck. Every GO path -- key, button, clicker, phone, OSC, MIDI --
+  // comes through goTransport, so it is guarded once, here.
+  bool goGuarded(int deckIndex) {
+    if (project_.goGuardMs <= 0 || deckIndex < 0) return false;
+    if (static_cast<int>(lastGoMsByDeck_.size()) <= deckIndex) lastGoMsByDeck_.resize(static_cast<std::size_t>(deckIndex) + 1, 0);
+    const Uint64 now = SDL_GetTicks();
+    Uint64& last = lastGoMsByDeck_[static_cast<std::size_t>(deckIndex)];
+    if (last != 0 && now - last < static_cast<Uint64>(project_.goGuardMs)) {
+      return true;   // the caller says so, once (failRemoteCommand toasts too)
+    }
+    last = now;
+    return false;
+  }
+
   void goTransport() {
     const int deckIndex = project_.focusedDeckIndex;
+    if (goGuarded(deckIndex)) {
+      failRemoteCommand("GO ignored: pressed again within " + std::to_string(project_.goGuardMs) +
+                        " ms (double-GO guard)");
+      return;
+    }
     const int standby = standbyIndexFor(deckIndex);
     if (standby >= 0) {
       selectCueInDeck(deckIndex, standby, false, false);
@@ -1878,6 +1898,7 @@
   // MIDI was in this morning.
   struct DmxUniverse {
     int universe = 0;
+    bool sacn = false;            // ANSI E1.31 instead of Art-Net
     std::string host;
     int port = 6454;
     std::array<std::uint8_t, 512> level {};   // where the levels are now
@@ -1889,11 +1910,13 @@
     std::uint8_t sequence = 1;
   };
   std::vector<DmxUniverse> dmxUniverses_;
+  std::uint8_t sacnCid_[16] {};
+  bool sacnCidReady_ = false;
   Uint64 dmxLastSendMs_ = 0;
 
-  DmxUniverse& dmxUniverseFor(int universe, const std::string& host, int port) {
+  DmxUniverse& dmxUniverseFor(int universe, const std::string& host, int port, bool sacn = false) {
     for (DmxUniverse& u : dmxUniverses_) {
-      if (u.universe == universe) {
+      if (u.universe == universe && u.sacn == sacn) {
         u.host = host;
         u.port = port;
         return u;
@@ -1901,6 +1924,7 @@
     }
     DmxUniverse added;
     added.universe = universe;
+    added.sacn = sacn;
     added.host = host;
     added.port = port;
     dmxUniverses_.push_back(added);
@@ -1928,8 +1952,11 @@
       return why;
     }
 
-    const std::string host = trim(cue.dmxHost).empty() ? std::string("255.255.255.255")
-                                                       : trim(cue.dmxHost);
+    const bool sacn = cue.dmxProtocol == "sacn";
+    std::string host = trim(cue.dmxHost).empty() ? std::string("255.255.255.255")
+                                                 : trim(cue.dmxHost);
+    // sACN to "everybody" is its universe's multicast group, not a broadcast.
+    if (sacn && host == "255.255.255.255") host = deckboy::platform::sacnMulticastAddress(cue.dmxUniverse);
     sockaddr_in probe {};
     if (inet_pton(AF_INET, host.c_str(), &probe.sin_addr) != 1) {
       const std::string why = cue.name + ": " + host + " is not an IPv4 address";
@@ -1937,8 +1964,10 @@
       return why;
     }
 
-    DmxUniverse& u = dmxUniverseFor(std::clamp(cue.dmxUniverse, 0, 32767), host,
-                                    std::clamp(cue.dmxPort, 1, 65535));
+    DmxUniverse& u = sacn
+      ? dmxUniverseFor(std::clamp(cue.dmxUniverse, 1, 63999), host,
+                       cue.dmxPort == 6454 ? deckboy::platform::kSacnPort : std::clamp(cue.dmxPort, 1, 65535), true)
+      : dmxUniverseFor(std::clamp(cue.dmxUniverse, 0, 32767), host, std::clamp(cue.dmxPort, 1, 65535));
     // The fade starts from WHERE THE LEVELS ARE, not from zero, so a cue that
     // takes the house from 80% to 20% does not dip to black on the way.
     u.from = u.level;
@@ -1957,7 +1986,7 @@
 
     const std::string did = std::to_string(parsed->size()) + " channel" +
       (parsed->size() == 1 ? "" : "s") + " on universe " +
-      std::to_string(u.universe) +
+      std::to_string(u.universe) + (u.sacn ? " (sACN)" : "") +
       (u.fadeSeconds > 0.0 ? (" over " + formatSeconds(u.fadeSeconds))
                            : std::string(" now"));
     showLog("DMX", did);
@@ -2013,8 +2042,15 @@
         continue;
       }
       const std::vector<std::uint8_t> channels(u.level.begin(), u.level.end());
-      const auto packet = deckboy::platform::buildArtDmxPacket(u.universe, channels,
-                                                               u.sequence);
+      if (u.sacn && !sacnCidReady_) {
+        // One source identity per run, as E1.31 asks of a sender.
+        std::random_device device;
+        for (auto& b : sacnCid_) b = static_cast<std::uint8_t>(device() & 0xFF);
+        sacnCidReady_ = true;
+      }
+      const auto packet = u.sacn
+        ? deckboy::platform::buildSacnPacket(u.universe, channels, u.sequence, sacnCid_, "Deckboy")
+        : deckboy::platform::buildArtDmxPacket(u.universe, channels, u.sequence);
       // The sequence byte wraps 1..255; 0 means "sequencing disabled" and must
       // not appear in a stream that is using it.
       u.sequence = u.sequence == 255 ? 1 : static_cast<std::uint8_t>(u.sequence + 1);
@@ -3595,6 +3631,7 @@
       CueTargetVerb::Start, CueTargetVerb::Stop, CueTargetVerb::Pause,
       CueTargetVerb::Resume, CueTargetVerb::Load, CueTargetVerb::Arm,
       CueTargetVerb::Disarm, CueTargetVerb::Devamp,
+      CueTargetVerb::StopAll, CueTargetVerb::PauseAll, CueTargetVerb::ResumeAll,
     };
     const int count = static_cast<int>(sizeof(kOrder) / sizeof(kOrder[0]));
     int at = 0;
@@ -3912,6 +3949,32 @@
     return out.str();
   }
 
+  // STOP / PAUSE / RESUME EVERY DECK. Each deck is stopped the way its own
+  // STOP stops it (a cue with a fade-out fades), so "all" is nothing more
+  // than the per-deck action applied to every deck that has something on.
+  // Returns how many decks it acted on.
+  int transportAllDecks(CueTargetVerb verb) {
+    const int savedFocus = project_.focusedDeckIndex;
+    int acted = 0;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const MediaEngine* engine = mediaEngineForDeck(d);
+      if (!engine || project_.decks[static_cast<std::size_t>(d)].activeIndex < 0) continue;
+      const TransportState state = engine->state();
+      const bool playing = state == TransportState::Playing;
+      const bool paused = state == TransportState::Paused;
+      if (verb == CueTargetVerb::PauseAll && !playing) continue;
+      if (verb == CueTargetVerb::ResumeAll && !paused) continue;
+      if (verb == CueTargetVerb::StopAll && !playing && !paused) continue;
+      project_.focusedDeckIndex = d;
+      if (verb == CueTargetVerb::StopAll) stopTransport();
+      else if (verb == CueTargetVerb::PauseAll) pauseTransport();
+      else playTransport();
+      ++acted;
+    }
+    project_.focusedDeckIndex = savedFocus;
+    return acted;
+  }
+
   std::string fireTargetCue(int deckIndex, int cueIndex) {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return "no deck";
@@ -3923,6 +3986,14 @@
     // Copied for the same reason a master copies its plan: acting on the
     // victim's deck can reallocate any cue vector under a reference.
     const Cue targeting = deck.cues[cueIndex];
+
+    if (cueTargetVerbIsAll(targeting.targetVerb)) {
+      const int acted = transportAllDecks(targeting.targetVerb);
+      const std::string did = std::string(cueTargetVerbLabel(targeting.targetVerb)) + ": " +
+                              std::to_string(acted) + (acted == 1 ? " deck" : " decks");
+      triggerToast(did);
+      return did;
+    }
 
     int victimDeck = -1;
     int victimIndex = -1;
@@ -4002,6 +4073,9 @@
         break;
       case CueTargetVerb::Arm:
       case CueTargetVerb::Disarm:
+      case CueTargetVerb::StopAll:
+      case CueTargetVerb::PauseAll:
+      case CueTargetVerb::ResumeAll:
         break;                                // handled above
     }
     project_.focusedDeckIndex = savedFocus;
@@ -4683,7 +4757,7 @@
         }
 
         // A target with nobody to act on, for the same reason.
-        if (cue.kind == CueKind::Target) {
+        if (cue.kind == CueKind::Target && !cueTargetVerbIsAll(cue.targetVerb)) {
           int vd = -1;
           int vi = -1;
           if (cue.targetCueId.empty()) {

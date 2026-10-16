@@ -6427,7 +6427,7 @@
                       QuickAction::TargetVerbCycle,
                       "Start, Stop, Pause, Resume, Load (stand it by without "
                      "firing), Arm, Disarm, or Devamp it (a loop plays out its "
-                     "pass and ends)");
+                     "pass and ends); or Stop all, Pause all, Resume all: every deck");
         tgY += kInspectorRowStep;
 
         drawChoiceRow(tgY, "fire", std::string("now"),
@@ -6435,7 +6435,10 @@
                       "Do it now, without taking the cue");
         tgY += kInspectorRowStep;
 
-        if (selectedCue->targetCueId.empty()) {
+        if (cueTargetVerbIsAll(selectedCue->targetVerb)) {
+          drawInspectorMessageRow(tgY, "acts on every deck; deck and cue are ignored");
+          tgY += kInspectorRowStep;
+        } else if (selectedCue->targetCueId.empty()) {
           drawInspectorMessageRow(tgY, "nothing targeted yet");
           tgY += kInspectorRowStep;
         }
@@ -6745,18 +6748,26 @@
                      "How long the levels take to arrive; zero is a snap");
         dxY += kInspectorRowStep;
 
+        const bool sacnCue = selectedCue->dmxProtocol == "sacn";
+        drawChoiceRow(dxY, "network", sacnCue ? std::string("sACN (E1.31)") : std::string("Art-Net"),
+                      QuickAction::DmxProtocolCycle,
+                      "Art-Net or sACN (E1.31): whichever the lighting rig listens to");
+        dxY += kInspectorRowStep;
+
         drawQuickRow(dxY, "universe", QuickAction::DmxUniverseDec,
                      std::to_string(selectedCue->dmxUniverse),
                      QuickAction::DmxUniverseInc, QuickAction::ToggleLoop,
-                     false, false, "Art-Net port address, 0-32767");
+                     false, false, sacnCue ? "sACN universe, 1-63999" : "Art-Net port address, 0-32767");
         dxY += kInspectorRowStep;
 
         drawChoiceRow(dxY, "to", selectedCue->dmxHost.empty()
                        ? std::string("255.255.255.255")
                        : selectedCue->dmxHost,
                       QuickAction::DmxEditHost,
-                      "An IPv4 address, or 255.255.255.255 to broadcast to the "
-                     "whole network");
+                      sacnCue ? "An IPv4 address, or 255.255.255.255 for the universe's "
+                                "multicast group (239.255.x.y)"
+                              : "An IPv4 address, or 255.255.255.255 to broadcast to the "
+                                "whole network");
         dxY += kInspectorRowStep;
 
         drawChoiceRow(dxY, "send", std::string("now"),

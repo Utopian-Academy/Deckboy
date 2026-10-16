@@ -751,7 +751,7 @@
       int safetyH = stackH({sRowH, sRowH, sRowH, sRowH});
       // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
       // and its row. Grew by a row when VJ mode got a switch.
-      int flowH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH});
+      int flowH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       int cueToolsH = sCardHeaderH + sLineH * 2 + sGap + sRowH + sPad;
       int prefsH = stackH({sRowH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       // One toggle, one row of two buttons, one status line. Counted rather
@@ -1033,6 +1033,14 @@
         settingsRow(flowX, flowW, flowY, sRowH, "Global crossfade", sGap);
       drawPillToggle(jumpTransBtn, project_.jumpTransitionEnabled, "ON", "OFF");
       settingsBtns_.push_back({jumpTransBtn, 204, "jump_transition"});
+
+      SDL_Rect goGuardBtn =
+        settingsRow(flowX, flowW, flowY, sRowH, "Double-GO guard", sGap);
+      drawUIValueControl(goGuardBtn, project_.goGuardMs <= 0 ? std::string("OFF")
+                                                           : std::to_string(project_.goGuardMs) + " ms");
+      settingsBtns_.push_back({goGuardBtn, kSettingsActionGoGuardCycle,
+                               "A second GO on the same deck this soon after the first is ignored: "
+                               "a bounced clicker or a nervous double tap. OFF, 250, 500 or 1000 ms"});
 
       drawSettingsStepper(
         settingsRow(flowX, flowW, flowY, sRowH, "Panic profile", sGap),
@@ -4763,6 +4771,15 @@
         setWebMonitorLowLatency(!project_.webMonitorLowLatency);
       } else if (sb.action == kSettingsActionWebMonitorQr) {
         openWebMonitorQr();
+      } else if (sb.action == kSettingsActionGoGuardCycle) {
+        static constexpr int kSteps[] = {0, 250, 500, 1000};
+        int next = 0;
+        for (int i = 0; i < 4; ++i) {
+          if (project_.goGuardMs == kSteps[i]) next = kSteps[(i + 1) % 4];
+        }
+        project_.goGuardMs = next;
+        triggerToast(next == 0 ? "double-GO guard off" : "double-GO guard: " + std::to_string(next) + " ms");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionPhonePair) {
         openPhonePairQr();
       } else if (sb.action == kSettingsActionPhoneForget) {

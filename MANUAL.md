@@ -172,7 +172,7 @@ to other equipment, when they are taken (*v0.99.373 and later.*; see §9b):
 | **MIDI** | Sends a note, control change, program change, MIDI Show Control GO / STOP / RESUME, or raw bytes |
 | **Network** | Sends an OSC message, a UDP datagram or a line of TCP |
 | **Timecode** | Starts, stops or jams the LTC generator |
-| **DMX** | Sends Art-Net channel levels, with a fade time |
+| **DMX** | Sends Art-Net or sACN channel levels, with a fade time |
 | **Script** | Runs lines of Deckboy's own control protocol |
 
 All of them are on the `SOURCE` menu.
@@ -586,6 +586,12 @@ Acts on another cue: **Start**, **Stop**, **Pause**, **Resume**, **Load**
 the **cue**. Stop, pause and resume act only when the named cue is the one on
 air, so a target cannot stop something else by mistake.
 
+Or on every deck at once: **Stop all**, **Pause all** or **Resume all** stop,
+pause or resume everything that is playing, each deck the way its own STOP,
+pause or play would (a cue with a fade-out fades). These need no deck or cue,
+and are the same as `STOPALL`, `PAUSEALL` and `RESUMEALL` over the control
+port.
+
 ### Memo cue
 
 A note in the running order: "cue the band", "wait for the house lights". GO
@@ -638,11 +644,14 @@ can run a timecode sequence (see §19).
 
 ### DMX cue
 
-Sends Art-Net channel levels with a **fade** time. Write the levels as
+Sends channel levels with a **fade** time, over **Art-Net** or **sACN**
+(ANSI E1.31): pick the **network** the rig listens to. Write the levels as
 `channel=level`, separated by commas, with ranges allowed:
 `1=255, 10-14=64`. Channels count from 1. Set the **universe** (Art-Net port
-address, 0–32767) and the destination: an IPv4 address, or
-`255.255.255.255` to broadcast. **blackout** zeroes every channel on every
+address 0–32767; sACN universe 1–63999) and the destination: an IPv4 address,
+or `255.255.255.255` to broadcast (sACN then sends to the universe's multicast
+group, 239.255.x.y, on port 5568). `DMXCUE PROTOCOL ARTNET|SACN` sets it
+remotely. **blackout** zeroes every channel on every
 universe the session has touched. Deckboy is not a lighting console: this is
 for house lights and practicals, not a rig.
 
@@ -2255,6 +2264,10 @@ The running order has verbs too (*v0.99.373 and later.*): `STANDBY <n>`, `STANDB
 `STANDBY CLEAR`, `PREWAIT <s>`, `POSTWAIT <s>`,
 `CONTINUE OFF|AUTO|FOLLOW`, `ARM`, `DISARM`, `AUDITION`, `AUDITION OFF`,
 `PRELOAD`, `PRELOAD OFF`, and `CHECK` (with `CHECK <n>` to jump to a problem).
+`STOPALL`, `PAUSEALL` and `RESUMEALL` act on every deck at once. `GOGUARD <ms>|OFF`
+sets the **double-GO guard** (Settings → System → SHOW FLOW): a second GO on the
+same deck within that time is ignored and answered with an `ERR`, so a bounced
+clicker or a nervous double tap cannot skip a cue. It is off unless you set it.
 Each show-control cue type has its own verb (`TARGET`, `FADE`, `MIDICUE`,
 `NETCUE`, `TCCUE`, `DMXCUE`, `SCRIPTCUE`); `HELP` lists their arguments.
 

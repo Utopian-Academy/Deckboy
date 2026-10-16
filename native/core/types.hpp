@@ -120,7 +120,16 @@ enum class CueTargetVerb {
   Devamp,    // a LOOPING cue finishes the pass it is on, then ends as if it
              // had never looped -- holds its last frame, or lets its continue
              // fire. The vamp under a speech that ends when the speech does
+  // EVERY deck, no cue named: the same STOPALL / PAUSEALL / RESUMEALL an
+  // operator has, put in the running order.
+  StopAll,
+  PauseAll,
+  ResumeAll,
 };
+
+inline bool cueTargetVerbIsAll(CueTargetVerb v) {
+  return v == CueTargetVerb::StopAll || v == CueTargetVerb::PauseAll || v == CueTargetVerb::ResumeAll;
+}
 
 // ---------------------------------------------------------------------------
 // What a Fade cue ramps.
@@ -254,6 +263,9 @@ inline const char* cueTargetVerbToken(CueTargetVerb v) {
     case CueTargetVerb::Arm:    return "arm";
     case CueTargetVerb::Disarm: return "disarm";
     case CueTargetVerb::Devamp: return "devamp";
+    case CueTargetVerb::StopAll:   return "stopall";
+    case CueTargetVerb::PauseAll:  return "pauseall";
+    case CueTargetVerb::ResumeAll: return "resumeall";
     case CueTargetVerb::Start:  break;
   }
   return "start";
@@ -268,6 +280,9 @@ inline const char* cueTargetVerbLabel(CueTargetVerb v) {
     case CueTargetVerb::Arm:    return "Arm";
     case CueTargetVerb::Disarm: return "Disarm";
     case CueTargetVerb::Devamp: return "Devamp";
+    case CueTargetVerb::StopAll:   return "Stop all";
+    case CueTargetVerb::PauseAll:  return "Pause all";
+    case CueTargetVerb::ResumeAll: return "Resume all";
     case CueTargetVerb::Start:  break;
   }
   return "Start";
@@ -281,6 +296,9 @@ inline CueTargetVerb cueTargetVerbFromToken(const std::string& token) {
   if (token == "arm")    return CueTargetVerb::Arm;
   if (token == "disarm") return CueTargetVerb::Disarm;
   if (token == "devamp") return CueTargetVerb::Devamp;
+  if (token == "stopall")   return CueTargetVerb::StopAll;
+  if (token == "pauseall")  return CueTargetVerb::PauseAll;
+  if (token == "resumeall") return CueTargetVerb::ResumeAll;
   return CueTargetVerb::Start;
 }
 
@@ -1618,6 +1636,9 @@ struct Cue {
   CueTextAnimation textAnimation = CueTextAnimation::None;
   int dmxUniverse = 0;                     // Art-Net port address, 0-32767
   int dmxPort = 6454;                      // 6454 is Art-Net's registered port
+  // "artnet" or "sacn" (ANSI E1.31). sACN universes count from 1 and go to
+  // the universe's multicast group unless a host is given.
+  std::string dmxProtocol = "artnet";
 
   // 53000 is QLab's OSC port, which makes the commonest thing somebody wants
   // to do with this cue work without configuring anything.
@@ -2703,6 +2724,10 @@ struct Project {
   // (+ blackout, test card), 2 full (+ outputs on/off, recording). The desk
   // enforces it; the page only hides what it cannot send.
   int webRemoteLevel = 0;
+  // DOUBLE-GO GUARD: a second GO on the same deck inside this many ms is
+  // dropped (a bounced clicker, a nervous double tap). 0 = off, the old
+  // behaviour, so a show saved before it runs as it did.
+  int goGuardMs = 0;
   bool webRemoteHaptics = true;        // the phone page buzzes on presses
   // vMix-compatible control surface. OFF by default: it is a second way into
   // the show, and a second way in is a decision the operator makes rather than
@@ -3378,7 +3403,8 @@ enum class QuickAction {
   CycleScaleModePrevious, // appended: existing remote QUICK ids must not move
   ScopesCycleView,        // the programme monitor: PROGRAM -> SCOPES -> BOTH
   ScopesToggleBig,        // param = the scope panel to show alone (again to return)
-  ScopesFreeze            // hold the scopes on the current frame
+  ScopesFreeze,           // hold the scopes on the current frame
+  DmxProtocolCycle        // a DMX cue's network: Art-Net or sACN
 };
 
 // ---------------------------------------------------------------------------

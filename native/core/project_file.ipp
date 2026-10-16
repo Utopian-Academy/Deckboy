@@ -304,6 +304,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "web_monitor_enabled\t" << (project.webMonitorEnabled ? 1 : 0) << '\n';
   output << "web_remote_enabled\t" << (project.webRemoteEnabled ? 1 : 0) << '\n';
   output << "web_remote_level\t" << project.webRemoteLevel << '\n';
+  output << "go_guard_ms\t" << project.goGuardMs << '\n';
   output << "web_remote_haptics\t" << (project.webRemoteHaptics ? 1 : 0) << '\n';
   output << "web_monitor_port\t" << project.webMonitorPort << '\n';
   output << "web_monitor_share\t" << (project.webMonitorShareLan ? 1 : 0) << '\n';
@@ -960,6 +961,8 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         // Append, because inserting beside the other lower-third fields would
         // shift the Swirl and trigger records in shows already on disk.
         << '\t' << (cue.lowerThird.wiggle ? 1 : 0)
+        // vs+144: a DMX cue's protocol, appended for the same reason.
+        << '\t' << escapeField(cue.dmxProtocol)
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1421,6 +1424,8 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.oscQueryPort = safeInt(fields, 1, 5511);
   } else if (fields[0] == "web_remote_enabled") {
     project.webRemoteEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "go_guard_ms") {
+    project.goGuardMs = std::clamp(safeInt(fields, 1, 0), 0, 2000);
   } else if (fields[0] == "web_remote_level") {
     project.webRemoteLevel = std::clamp(safeInt(fields, 1, 0), 0, 2);
   } else if (fields[0] == "web_remote_haptics") {
@@ -2532,6 +2537,9 @@ Project loadProject(const fs::path& projectFile,
         cue.audioTrackCount = std::clamp(safeInt(fields, vs + 142, 0), 0, 64);
         if (fields.size() >= static_cast<std::size_t>(vs + 144)) {
           cue.lowerThird.wiggle = safeBool(fields, vs + 143, false);
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 145)) {
+          cue.dmxProtocol = safeString(fields, vs + 144) == "sacn" ? "sacn" : "artnet";
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

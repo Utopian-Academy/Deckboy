@@ -2,6 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/Utopian-Academy/Deckboy)](https://github.com/Utopian-Academy/Deckboy/releases)
 [![License](https://img.shields.io/github/license/Utopian-Academy/Deckboy)](LICENSE)
+[![CI](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#)
 [![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](#)
 [![Stars](https://img.shields.io/github/stars/Utopian-Academy/Deckboy?style=social)](https://github.com/Utopian-Academy/Deckboy/stargazers)
@@ -58,9 +59,9 @@ opens, plays and puts a picture out.
 
 Windows, macOS and Linux from one show file. No account, no licence server, no
 telemetry, and no second licence for the spare machine in the flight case —
-which is not true of anything it gets compared to.
+which is not true of most of what it gets compared to.
 
-**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer and Resolume. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, thirty chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
+**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer, Resolume and Inkue. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, thirty chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
 
 <!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
      never a real show file. A client's deck in a public README is a client's
@@ -548,7 +549,6 @@ importantly, what each feature deliberately does not do.
 
 **Show control:**
 
-- Group cues
 - Cue carts, and templates for new shows
 - A saved default state: language, theme and sound effects the way you like
   them, for every new show
