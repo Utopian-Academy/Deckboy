@@ -480,6 +480,33 @@ Result analyze(Bgra422View frame, const Options& options) {
   return analyzePixels(frame.width, frame.height, options, [&](std::size_t x, std::size_t y) { return read(x, y); });
 }
 
+Result analyze(Rgb16View frame, const Options& options) {
+  validateOptions(options);
+  const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes, frame.bytes.size(), 6);
+  const auto k = coefficients(options.matrix);
+  return analyzePixels(frame.width, frame.height, options, [&](std::size_t x, std::size_t y) {
+    const std::uint8_t* p = frame.bytes.data() + y * stride + x * 6;
+    const auto word = [](const std::uint8_t* b) { return (b[0] | (b[1] << 8)) / 65535.0; };
+    const Rgb rgb{word(p), word(p + 2), word(p + 4)};
+    return Pixel{rgb, encode(rgb, k)};
+  });
+}
+
+namespace {
+constexpr double kPqM1 = 2610.0 / 16384.0, kPqM2 = 2523.0 / 4096.0 * 128.0;
+constexpr double kPqC1 = 3424.0 / 4096.0, kPqC2 = 2413.0 / 4096.0 * 32.0, kPqC3 = 2392.0 / 4096.0 * 32.0;
+} // namespace
+
+double pqToNits(double code) {
+  const double e = std::pow(std::clamp(code, 0.0, 1.0), 1.0 / kPqM2);
+  return 10000.0 * std::pow(std::max(0.0, e - kPqC1) / (kPqC2 - kPqC3 * e), 1.0 / kPqM1);
+}
+
+double nitsToPq(double nits) {
+  const double y = std::pow(std::clamp(nits, 0.0, 10000.0) / 10000.0, kPqM1);
+  return std::pow((kPqC1 + kPqC2 * y) / (1.0 + kPqC3 * y), kPqM2);
+}
+
 GamutCounts filteredGamutRows(Bgra422View frame, const Options& options,
                               std::size_t rowBegin, std::size_t rowEnd) {
   Sent422Reader read = sent422Reader(frame, options);

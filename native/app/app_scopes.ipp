@@ -5,9 +5,12 @@
 
 // app_scopes.ipp -- the picture scopes, measured on the OUTPUT.
 //
-// WHAT IS MEASURED: the output's own finished frame, at its full raster -- the
-// same captured frame NDI, DeckLink, ST 2110 and the Web Monitor send
-// (OutputRuntime::latestCapturedFrame). Not the desk's preview, which is a
+// WHAT IS MEASURED: the programme output (or the one SOURCE picks), its own
+// finished frame at its full raster -- the same captured frame NDI, DeckLink,
+// ST 2110 and the Web Monitor send (OutputRuntime::latestCapturedFrame). On an
+// HDR output that frame is the SDR copy, with every highlight clipped at
+// white, so the scopes read the float compositor instead, as PQ BT.2020
+// (readHdrCompositorPq, the HDR recording's picture), graduated in nits. Not the desk's preview, which is a
 // scaled-down copy: a scope fed from that reads wrong numbers, and a camera
 // shaded against wrong numbers is wrong on air. Every pixel of the frame is
 // counted; only the waveform's horizontal resolution is reduced, which loses
@@ -35,12 +38,17 @@
     deckboy::core::scopes::Matrix matrix = deckboy::core::scopes::Matrix::Bt709;
     unsigned sentDepth = 0;  // 0: the R'G'B' frame; 8/10: the Y'CbCr 4:2:2 SDI or ST 2110 sends
     bool sentSdi = false;
+    bool hdr = false;        // the float compositor as 16-bit PQ BT.2020
+    int hdrWhiteNits = 0;    // where SDR material sits on it
+    double peakNits = 0.0;   // the brightest component in the picture
   };
 
   MonitorView monitorView_ = MonitorView::Program;
   int scopesBig_ = -1;           // a panel shown alone, or -1 for all of them
   bool scopesFrozen_ = false;
   bool scopesBt2020_ = false;
+  int scopesSource_ = -1;        // -1: the programme; otherwise an output
+  bool scopesDrawHdr_ = false;   // the graticule in nits, for the result drawn
   std::mutex scopesMutex_;
   std::thread scopesWorker_;
   std::atomic<bool> scopesBusy_ {false};
@@ -60,6 +68,7 @@
   int scopeTexH_[kScopeDiamond + 1] {};
   SDL_Rect scopesViewBtnRect_ {};
   SDL_Rect scopesFreezeBtnRect_ {};
+  SDL_Rect scopesSourceBtnRect_ {};
   SDL_Rect scopesPanelRects_[kScopePanelCount] {};
 
   static const char* scopePanelName(int panel) {
@@ -77,9 +86,21 @@
     return view == MonitorView::Scopes ? "SCOPES" : view == MonitorView::Both ? "BOTH" : "PROGRAM";
   }
 
+  // The programme -- the output the audience sees -- unless SOURCE picked one.
   int scopesOutputIndex() const {
-    return std::clamp(project_.focusedOutputIndex, 0,
-                      std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+    if (scopesSource_ >= 0 && scopesSource_ < static_cast<int>(project_.outputs.size())) return scopesSource_;
+    return std::max(0, primaryProgrammeOutputIndex(-1));
+  }
+
+  std::string scopesSourceLabel() const {
+    return scopesSource_ < 0 || scopesSource_ >= static_cast<int>(project_.outputs.size())
+      ? std::string("PROGRAMME") : "OUTPUT " + std::to_string(scopesSource_ + 1);
+  }
+
+  void cycleScopesSource() {
+    const int count = static_cast<int>(project_.outputs.size());
+    scopesSource_ = scopesSource_ < 0 ? (count > 0 ? 0 : -1) : scopesSource_ + 1 >= count ? -1 : scopesSource_ + 1;
+    triggerToast("scopes: " + scopesSourceLabel() + " (" + outputLabel(scopesOutputIndex()) + ")");
   }
 
   // The output render loop asks this before capturing: the scopes are one
@@ -124,6 +145,13 @@
     return 0;
   }
 
+  // An HDR output with nothing sending SDI or ST 2110 from it: its picture is
+  // the float compositor, and the scopes read that.
+  bool scopesReadsHdr(int outputIndex, const OutputRuntime& runtime) const {
+    return runtime.hdr && runtime.compositorTexture && runtime.outputRenderer &&
+           scopesSentDepth(outputIndex) == 0;
+  }
+
   // Every row of a BGRA frame, split into bands across the cores and
   // accumulated exactly. Unfiltered gamut; see the header. sentDepth 8/10
   // measures it as the 4:2:2 an SDI or ST 2110 output sends (always BT.709).
@@ -153,9 +181,90 @@
     return whole;
   }
 
+  // The PQ frame, in bands like the 8-bit one. Always BT.2020: PQ HDR is.
+  static deckboy::core::scopes::Result analyzeScopesHdrFrame(const std::vector<std::uint8_t>& pixels,
+                                                             int width, int height) {
+    namespace s = deckboy::core::scopes;
+    s::Options options = scopesOptions(width, true);
+    // PQ spends a code range on each decade of brightness; 1024 bins put the
+    // peak reading within about 1% of its nits.
+    options.histogramBins = 1024;
+    const std::size_t w = static_cast<std::size_t>(width);
+    const std::size_t h = static_cast<std::size_t>(height);
+    const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
+    const std::size_t bands = std::clamp<std::size_t>(cores > 2 ? cores - 2 : 1, 1, 6);
+    const std::size_t rowsPerBand = (h + bands - 1) / bands;
+    std::vector<std::future<s::Result>> parts;
+    for (std::size_t y0 = 0; y0 < h; y0 += rowsPerBand) {
+      const std::size_t rows = std::min(rowsPerBand, h - y0);
+      parts.push_back(std::async(std::launch::async, [&pixels, w, y0, rows, options]() {
+        return s::analyze(s::Rgb16View {std::span<const std::uint8_t>(pixels.data() + y0 * w * 6, rows * w * 6),
+                                        w, rows, 0}, options);
+      }));
+    }
+    s::Result whole = parts.front().get();
+    for (std::size_t i = 1; i < parts.size(); ++i) s::accumulate(whole, parts[i].get());
+    return whole;
+  }
+
+  // Main thread, from the output pass: the float compositor, read back here
+  // (the same readback the HDR recording makes), about ten times a second.
+  void scopesOfferHdrFrame(int outputIndex, const OutputRuntime& runtime) {
+    const Uint64 now = SDL_GetTicks();
+    if (now - scopesLastSubmitMs_ < 100) return;
+    auto frame = std::make_shared<OutputRuntime::CapturedFrame>();
+    if (!readHdrCompositorPq(runtime, *frame) || frame->width <= 0 || frame->height <= 0) return;
+    scopesLastSubmitMs_ = now;
+    const int white = std::clamp(project_.hdrSdrWhiteNits, 80, 500);
+    if (scopesWorker_.joinable()) scopesWorker_.join();
+    scopesBusy_.store(true);
+    scopesWorker_ = std::thread([this, frame, outputIndex, white]() {
+      namespace s = deckboy::core::scopes;
+      const auto started = std::chrono::steady_clock::now();
+      ScopesOutcome outcome;
+      try {
+        outcome.result = std::make_shared<const s::Result>(
+          analyzeScopesHdrFrame(frame->pixels, frame->width, frame->height));
+      } catch (const std::exception&) {
+        scopesBusy_.store(false);
+        return;
+      }
+      double peak = 0.0;
+      for (const auto& hist : outcome.result->rgbHistogram) {
+        for (std::size_t i = hist.bins.size(); i-- > 0;) {
+          if (hist.bins[i]) {
+            peak = std::max(peak, (static_cast<double>(i) + 0.5) / static_cast<double>(hist.bins.size()));
+            break;
+          }
+        }
+      }
+      outcome.width = frame->width;
+      outcome.height = frame->height;
+      outcome.output = outputIndex;
+      outcome.matrix = s::Matrix::Bt2020Ncl;
+      outcome.hdr = true;
+      outcome.hdrWhiteNits = white;
+      outcome.peakNits = peak > 0.0 ? s::pqToNits(peak) : 0.0;
+      outcome.analysisMs = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - started).count();
+      {
+        std::lock_guard<std::mutex> lock(scopesMutex_);
+        scopesFiltered_ = outcome.result->filteredGamut;
+        scopesFilteredValid_ = true;
+        scopesLatest_ = std::move(outcome);
+        ++scopesSerial_;
+      }
+      scopesBusy_.store(false);
+    });
+  }
+
   // Main thread, from the output pass, after the frame was captured.
   void scopesOfferFrame(int outputIndex, const OutputRuntime& runtime) {
     if (!scopesWatching(outputIndex) || scopesBusy_.load()) return;
+    if (scopesReadsHdr(outputIndex, runtime)) {
+      scopesOfferHdrFrame(outputIndex, runtime);
+      return;
+    }
     const auto& frame = runtime.latestCapturedFrame;
     if (frame.width <= 0 || frame.height <= 0 ||
         frame.pixels.size() < static_cast<std::size_t>(frame.width) * frame.height * 4 ||
@@ -418,6 +527,10 @@
   // Levels graticule shared by the waveform and each parade column: % on the
   // left, mV on the right, and the EBU R 103 preferred limits dashed.
   void drawLevelGraticule(const SDL_Rect& plot, bool labels, bool millivolts = true) {
+    if (scopesDrawHdr_) {
+      drawNitsGraticule(plot, labels, millivolts);
+      return;
+    }
     for (int pct = 0; pct <= 100; pct += 10) {
       const int y = plot.y + plot.h - static_cast<int>(std::lround(plot.h * pct / 100.0));
       const bool major = pct % 25 == 0 || pct == 100;
@@ -429,8 +542,41 @@
     }
   }
 
+  // The HDR graticule: PQ is absolute, so each line IS a brightness. Nits on
+  // the left, the PQ signal in % on the right, and SDR white dashed where SDR
+  // material sits (Settings' "SDR material at", 203 by default).
+  void drawNitsGraticule(const SDL_Rect& plot, bool labels, bool pqPercent) {
+    namespace s = deckboy::core::scopes;
+    const auto yAt = [&](double nits) {
+      return plot.y + plot.h - static_cast<int>(std::lround(plot.h * s::nitsToPq(nits)));
+    };
+    struct NitsLine { double nits; const char* label; };
+    static constexpr NitsLine kLines[] = {
+      {0.0, "0"}, {1.0, "1"}, {10.0, "10"}, {100.0, "100"}, {1000.0, "1k"}, {4000.0, "4k"}, {10000.0, "10k"}};
+    for (const auto& line : kLines) {
+      const int y = yAt(line.nits);
+      scopeLine(plot.x, y, plot.x + plot.w, y, kScopeGrat);
+      if (labels) scopeText(plot.x, y, line.label, kScopeLabel, true);
+      if (labels && pqPercent) {
+        scopeText(plot.x + plot.w + uiScaled(2), y,
+                  std::to_string(static_cast<int>(std::lround(100.0 * s::nitsToPq(line.nits)))), kScopeLabel);
+      }
+    }
+    for (const double nits : {400.0, 600.0, 2000.0}) {
+      const int y = yAt(nits);
+      scopeLine(plot.x, y, plot.x + plot.w, y, SDL_Color {150, 140, 96, 70});
+    }
+    const int white = yAt(static_cast<double>(std::clamp(project_.hdrSdrWhiteNits, 80, 500)));
+    scopeDashed(plot.x, white, plot.x + plot.w, white, SDL_Color {120, 200, 255, 220});
+    if (labels) {
+      scopeText(plot.x + uiScaled(2), white - textLineHeight(fontSmall_) / 2, "SDR",
+                SDL_Color {120, 200, 255, 255});
+    }
+  }
+
   void drawWaveformPanel(const SDL_Rect& rect) {
-    const SDL_Rect plot = scopePanel(rect, "WAVEFORM Y'  %  |  mV", kScopeWaveform, uiScaled(30), uiScaled(34));
+    const SDL_Rect plot = scopePanel(rect, scopesDrawHdr_ ? "WAVEFORM Y'  nits  |  PQ %" : "WAVEFORM Y'  %  |  mV",
+                                     kScopeWaveform, uiScaled(30), uiScaled(34));
     drawScopeTexture(kScopeWaveform, plot);
     drawLevelGraticule(plot, true);
   }
@@ -564,6 +710,7 @@
   void drawScopesArea(const SDL_Rect& area) {
     for (auto& rect : scopesPanelRects_) rect = {};
     scopesFreezeBtnRect_ = {};
+    scopesSourceBtnRect_ = {};
     if (area.w < uiScaled(160) || area.h < uiScaled(120)) return;
     Primitives::fillRect(controlRenderer_, area, kScopeBlack);
     ScopesOutcome outcome;
@@ -571,6 +718,7 @@
     const int footerH = textLineHeight(fontSmall_) + uiScaled(8);
     const SDL_Rect body {area.x, area.y, area.w, area.h - footerH};
     const SDL_Rect footer {area.x, area.y + area.h - footerH, area.w, footerH};
+    scopesDrawHdr_ = outcome.hdr;
     if (!result || outcome.output != scopesOutputIndex()) {
       const std::string why = project_.outputs.empty()
         ? std::string("add an output to scope it")
@@ -609,9 +757,24 @@
     drawUIPanel(scopesFreezeBtnRect_, paletteToggleFill(scopesFrozen_), pal.deep, pal.light);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesFreezeBtnRect_,
                          scopesFrozen_ ? "FROZEN" : "FREEZE", paletteToggleInk(scopesFrozen_));
+    // SOURCE: the programme, or one output, cycled.
+    const int sourceW = uiScaled(110);
+    scopesSourceBtnRect_ = SDL_Rect {scopesFreezeBtnRect_.x - sourceW - uiScaled(4), scopesFreezeBtnRect_.y,
+                                     sourceW, scopesFreezeBtnRect_.h};
+    drawUIPanel(scopesSourceBtnRect_, paletteToggleFill(scopesSource_ >= 0), pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSourceBtnRect_, scopesSourceLabel(),
+                         paletteToggleInk(scopesSource_ >= 0));
     if (result) {
       bool alarm = false;
-      const std::string gamut = scopesGamutText(*result, alarm);
+      std::string gamut;
+      if (outcome.hdr) {
+        // R 103 is an SDR rule; on PQ the reading that matters is how bright.
+        char peak[96];
+        std::snprintf(peak, sizeof(peak), "peak %.0f nits  SDR white %d", outcome.peakNits, outcome.hdrWhiteNits);
+        gamut = peak;
+      } else {
+        gamut = scopesGamutText(*result, alarm);
+      }
       const double rate = scopesUpdateTimes_.size() > 1
         ? 1000.0 * (scopesUpdateTimes_.size() - 1) /
             std::max<Uint64>(1, scopesUpdateTimes_.back() - scopesUpdateTimes_.front())
@@ -620,7 +783,7 @@
       std::snprintf(info, sizeof(info), "%s  %dx%d  %s  %s  %.1f/s  ", outputLabel(outcome.output).c_str(),
                     outcome.width, outcome.height, scopesSignalLabel(outcome).c_str(),
                     outcome.matrix == deckboy::core::scopes::Matrix::Bt2020Ncl ? "BT.2020" : "BT.709", rate);
-      SDL_Rect infoRect {footer.x + uiScaled(6), footer.y, footer.w - freezeW - uiScaled(16), footer.h};
+      SDL_Rect infoRect {footer.x + uiScaled(6), footer.y, footer.w - freezeW - sourceW - uiScaled(20), footer.h};
       drawTextSafe(controlRenderer_, fontSmall_, infoRect, std::string(info) + gamut,
                    alarm ? kScopeAlarm : kScopeLabel);
     }
@@ -628,6 +791,7 @@
 
   // What the footer says was measured: the wire signal, and which wire.
   static std::string scopesSignalLabel(const ScopesOutcome& outcome) {
+    if (outcome.hdr) return "HDR PQ 16-bit";
     if (!outcome.sentDepth) return "RGB 8-bit";
     return std::string(outcome.sentSdi ? "SDI" : "ST 2110") + " YCbCr 4:2:2 " +
            std::to_string(outcome.sentDepth) + "-bit";
@@ -652,6 +816,10 @@
     if (monitorView_ == MonitorView::Program) return false;
     if (scopesFreezeBtnRect_.w > 0 && pointInRect(x, y, scopesFreezeBtnRect_)) {
       dispatchQuickAction(QuickAction::ScopesFreeze);
+      return true;
+    }
+    if (scopesSourceBtnRect_.w > 0 && pointInRect(x, y, scopesSourceBtnRect_)) {
+      dispatchQuickAction(QuickAction::ScopesSourceCycle);
       return true;
     }
     for (int panel = 0; panel < kScopePanelCount; ++panel) {
@@ -718,7 +886,12 @@
       }
     }
     bool alarm = false;
-    const std::string gamut = scopesGamutText(r, alarm);
+    std::string gamut = scopesGamutText(r, alarm);
+    if (outcome.hdr) {
+      char hdr[64];
+      std::snprintf(hdr, sizeof(hdr), "peak_nits=%.0f sdr_white=%d", outcome.peakNits, outcome.hdrWhiteNits);
+      gamut = hdr;
+    }
     char spread[96];
     std::snprintf(spread, sizeof(spread), " luma_peaks=%s hist_bins=%d hist_ratio=%.2f",
                   peaks.empty() ? "-" : peaks.c_str(), binsUsed,
@@ -733,7 +906,8 @@
                   hi < 0 ? 0.0 : 100.0 * hi / std::max<std::size_t>(1, hist.size() - 1),
                   hits(s::TargetLevel::Percent75), hits(s::TargetLevel::Percent100),
                   static_cast<unsigned long long>(diamondOut),
-                  outcome.sentDepth ? (outcome.sentDepth == 10 ? "ycbcr422-10" : "ycbcr422-8") : "rgb8",
+                  outcome.hdr ? "pq16"
+                    : outcome.sentDepth ? (outcome.sentDepth == 10 ? "ycbcr422-10" : "ycbcr422-8") : "rgb8",
                   gamut.c_str());
     return std::string(text) + spread;
   }

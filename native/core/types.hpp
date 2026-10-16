@@ -3404,7 +3404,8 @@ enum class QuickAction {
   ScopesCycleView,        // the programme monitor: PROGRAM -> SCOPES -> BOTH
   ScopesToggleBig,        // param = the scope panel to show alone (again to return)
   ScopesFreeze,           // hold the scopes on the current frame
-  DmxProtocolCycle        // a DMX cue's network: Art-Net or sACN
+  DmxProtocolCycle,       // a DMX cue's network: Art-Net or sACN
+  ScopesSourceCycle       // what the scopes measure: programme, then each output
 };
 
 // ---------------------------------------------------------------------------

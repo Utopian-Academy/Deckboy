@@ -513,6 +513,7 @@
       case QuickAction::CycleScaleMode:  cycleSelectedScaleMode(); break;
       case QuickAction::CycleScaleModePrevious: cycleSelectedScaleMode(-1); break;
       case QuickAction::ScopesCycleView: cycleMonitorView(); break;
+      case QuickAction::ScopesSourceCycle: cycleScopesSource(); break;
       case QuickAction::ScopesFreeze:
         scopesFrozen_ = !scopesFrozen_;
         triggerToast(scopesFrozen_ ? "scopes: frozen" : "scopes: live");

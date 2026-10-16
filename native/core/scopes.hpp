@@ -58,6 +58,20 @@ struct Bgra422View {
   unsigned bitDepth = 10;         // 8 or 10, as the output sends
 };
 
+// An HDR frame as 16-bit R'G'B' (three little-endian uint16 per pixel, no
+// alpha): the PQ BT.2020 signal core/hdr_to_sdr.hpp's PqEncoder makes from
+// the float compositor, so 0..65535 is the whole PQ range, 0 to 10,000 nits.
+// Read as normalised code values; pair it with Matrix::Bt2020Ncl.
+struct Rgb16View {
+  std::span<const std::uint8_t> bytes;
+  std::size_t width = 0, height = 0;
+  std::size_t rowStrideBytes = 0; // zero means width * 6
+};
+
+// PQ (SMPTE ST 2084): a normalised code value and the luminance it means.
+double pqToNits(double code);
+double nitsToPq(double nits);
+
 struct Range { double low = 0, high = 1; };
 struct Options {
   Matrix matrix = Matrix::Bt709;
@@ -133,6 +147,7 @@ VectorPoint skinToneLine(Matrix matrix);
 Result analyze(FrameView frame, const Options& options = {});
 Result analyze(Rgba8View frame, const Options& options = {});
 Result analyze(Bgra422View frame, const Options& options = {});
+Result analyze(Rgb16View frame, const Options& options = {});
 
 // The FILTERED R 103 count alone, for rows [rowBegin, rowEnd) of the whole
 // frame (the filter reads the rows either side of the band). Bands summed with

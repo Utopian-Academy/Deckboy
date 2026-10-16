@@ -953,8 +953,9 @@ HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear
   80-500) moves it.
 - HDR video keeps its highlights at their own brightness: 1000 nits in the
   file is 1000 nits sent. The display shows what it can and clips the rest.
-- NDI, DeckLink, the Web Monitor and the scopes still receive SDR from that
-  output: SDR material exactly, HDR highlights clipped at white.
+- NDI, DeckLink and the Web Monitor still receive SDR from that output: SDR
+  material exactly, HDR highlights clipped at white. The scopes read the HDR
+  picture itself, in nits (see Picture Scopes).
 - **Recording** an HDR output (the recording mirrors it, as it does Output 1
   by default) records HDR10: HEVC Main10, BT.2020, PQ, with the highlights
   at their own brightness. ProRes and DNxHR HQX stay ProRes and DNxHR, 10-bit
@@ -1941,11 +1942,25 @@ The **PROGRAM** button in the programme monitor's header switches it to
 waveform and vectorscope beside it). Click any scope to show it alone; click
 it again to go back. `SCOPES` does the same from a controller.
 
-**What is measured** is the focused output's own finished frame, at its full
-raster: the same frame NDI, DeckLink, ST 2110 and the Web Monitor send, not
-the desk's scaled-down preview. Every pixel is counted. The scopes appear once
-that output is armed; with nothing else capturing its frame, they read it
-about ten times a second.
+**What is measured** is the programme output's own finished frame, at its
+full raster: the same frame NDI, DeckLink, ST 2110 and the Web Monitor send,
+not the desk's scaled-down preview. Every pixel is counted. The programme is
+the first window output, the one the audience sees, whichever output you are
+editing. **SOURCE**, beside FREEZE, steps through PROGRAMME and each output in
+turn to measure a different one. The scopes appear once that output is
+armed; with nothing else capturing its frame, they read it about ten times a
+second.
+
+**On an HDR output** the scopes measure the HDR picture, not the SDR copy
+the other routes carry, so highlights are not clipped. It is read as PQ
+BT.2020, 16-bit. The waveform and parade are marked in nits (1, 10, 100, 1k,
+4k, 10k) on the left and in PQ % on the right, with a dashed **SDR** line
+where SDR material sits (203 nits unless **SDR material at** says
+otherwise). The footer gives the picture's **peak** in nits in place of the
+R 103 verdict, which is an SDR rule. A 4K HDR frame takes longer to read back
+and measure, so the scopes update about three times a second there. An HDR
+output that is also sending SDI or ST 2110 is measured as that SDR wire
+signal, because that is what goes down the cable.
 
 | Scope | Shows |
 |-------|-------|
@@ -1987,6 +2002,7 @@ of gamut and legal once filtered.
 | `SCOPES BIG waveform\|parade\|vector\|diamond\|histogram\|OFF` | Shows one scope alone |
 | `SCOPES FREEZE [ON\|OFF]` | Holds or releases the reading |
 | `SCOPES MATRIX 709\|2020` | The matrix for luma and chroma |
+| `SCOPES SOURCE PROGRAMME\|<n>` | Measures the programme (the default) or output n |
 | `SCOPES STATS` | The numbers behind the scopes, as text |
 
 ## 19. Timecode & Chase

@@ -5,7 +5,10 @@ This plays SDR EBU bars (with a 100% white patch) and an exact PQ ladder on it,
 every window hidden (DECKBOY_HIDE_WINDOWS), and checks:
   - the back buffer (OUTSNAP to .f32, scRGB: 1.0 = 80 nits): SDR white at the
     BT.2408 203 nits; each PQ grey at its own luminance (within 3%)
-  - the 8-bit copy NDI, SDI and recordings take (the scopes): the bars exact
+  - the scopes read the float compositor, not the 8-bit copy: PQ BT.2020,
+    SDR white at 203 nits, every grey of the ladder at its own PQ level and
+    the peak at 4000 nits -- and they stay on the programme output when
+    another output is focused
 Needs an HDR-capable renderer (Direct3D 11 here); it says so if the output
 fell back to SDR. Evidence: build/hdr-out-*/
 """
@@ -88,8 +91,11 @@ try:
     cmd('SCOPES SCOPES')
     time.sleep(3)
     stats = cmd('SCOPES STATS')
-    expect('targets75=6/6' in stats and 'luma_peaks=0.2,5.3,15.8,21.3,53.7,58.8,69.3,74.8' in stats,
-           'the 8-bit copy (NDI/SDI/recording) carries the EBU bars exactly')
+    print(stats)
+    peak = re.search(r'peak_nits=(\d+)', stats)
+    expect('signal=pq16' in stats, 'the scopes read the HDR picture (PQ 16-bit), not the SDR copy')
+    expect(peak is not None and abs(int(peak.group(1)) - 203) <= 6,
+           f'SDR bars peak at SDR white, 203 nits ({peak.group(1) if peak else None})')
     print('SDR bars, sent to the display (nits):')
     pts = [(0.06, 0.08)] + [((i + 0.5) / 8, 0.6) for i in range(8)]
     got = window_nits('sdr', pts)
@@ -108,6 +114,31 @@ try:
     for (label, nits, _), v in list(zip(ps, got))[:8]:
         target = float(nits[0])
         expect(all(abs(x - target) <= max(0.3, target * 0.03) for x in v), f'PQ {label} sent at its own luminance {v}')
+    time.sleep(1)
+    stats = cmd('SCOPES STATS')
+    print(stats)
+    peak = re.search(r'peak_nits=(\d+)', stats)
+    expect(peak is not None and abs(int(peak.group(1)) - 4000) <= 120,
+           f'the scopes see the 4000-nit highlight, unclipped ({peak.group(1) if peak else None})')
+    levels = re.search(r'luma_peaks=([\d.,]+)', stats)
+    found = [float(x) for x in levels.group(1).split(',')] if levels else []
+    want = [11.7, 30.0, 44.0, 50.8, 58.1, 65.3, 75.2, 90.3]  # PQ % of 0.5 .. 4000 nits
+    expect(all(any(abs(f - w) <= 0.8 for f in found) for w in want),
+           f'each grey of the ladder at its own PQ level on the waveform ({found})')
+    print(cmd('OUTPUT ADD'))
+    print(cmd('OUTPUT SELECT 2'))
+    time.sleep(2)
+    stats = cmd('SCOPES STATS')
+    expect('output=1 ' in stats and 'signal=pq16' in stats,
+           'with output 2 focused, the scopes stay on the programme (output 1)')
+    print(cmd('SCOPES SOURCE 2'))
+    time.sleep(2)
+    print(cmd('OUTPUT ON'))
+    time.sleep(3)
+    stats = cmd('SCOPES STATS')
+    print(stats)
+    expect('output=2 ' in stats, 'SCOPES SOURCE 2 measures output 2')
+    print(cmd('SCOPES SOURCE PROGRAMME'))
     if not hide:
         time.sleep(float(os.environ.get('HOLD', '5')))
 finally:

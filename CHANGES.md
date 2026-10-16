@@ -1,5 +1,14 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-16 - v0.99.413 (in progress)
+
+### Scopes
+- The scopes on an HDR output now measure the HDR picture, not the SDR copy, so highlights no
+  longer read clipped at 100%. The waveform and parade are marked in nits and PQ %, with a dashed
+  line at SDR white, and the footer gives the peak in nits.
+- The scopes now measure the programme output instead of whichever output is being edited.
+  **SOURCE**, beside FREEZE, picks another output, as does `SCOPES SOURCE PROGRAMME|<n>`.
+
 ## 2026-10-16 - v0.99.412 (a test card for every screen, HDR outputs, live captions, a phone controller that pairs by QR)
 
 A test card that checks every screen 1:1 and exports as movie files, HDR window outputs and HDR10

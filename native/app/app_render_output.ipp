@@ -5830,11 +5830,13 @@
     const bool webMonitorRouteActive = webMonitorWatching(outputIndex);
     // The scopes measure this captured frame too (see app_scopes.ipp).
     const bool scopesRouteActive = scopesWatching(outputIndex);
+    // On an HDR output they read the float compositor instead, not this frame.
+    const bool scopesReadHdr = scopesRouteActive && scopesReadsHdr(outputIndex, *runtime);
     const bool egressForOthers =
       streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive ||
       st2110RouteActive || webMonitorRouteActive ||
       std::clamp(output.outputDelayMs, 0, 5000) > 0;
-    bool needsEgressCapture = egressForOthers || scopesRouteActive;
+    bool needsEgressCapture = egressForOthers || (scopesRouteActive && !scopesReadHdr);
     double fpsHint = 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
       const Cue* layerCue = activeCuePtr(it->second);
@@ -5869,12 +5871,15 @@
       if (!scopesOnlyTooSoon) {
         captureOutputFrameForEgress(outputIndex, *runtime, egressRect, fpsHint);
       }
-      if (scopesRouteActive) {
+      if (scopesRouteActive && !scopesReadHdr) {
         scopesOfferFrame(outputIndex, *runtime);
       }
     } else {
       runtime->latestCapturedFrame = {};
       runtime->delayFrames.clear();
+    }
+    if (scopesReadHdr) {
+      scopesOfferFrame(outputIndex, *runtime);
     }
     // Program-monitor tap for the control window, sampled from the same
     // composite this pass is about to present so the preview stays locked to

@@ -5605,7 +5605,27 @@
         remoteCommandDetail_ = scopesStats();
         return;
       }
-      failRemoteCommand("SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX or STATS");
+      if (sub == "SOURCE") {
+        // SCOPES SOURCE PROGRAMME | <output number>
+        const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (value.empty()) {
+          remoteCommandDetail_ = scopesSourceLabel();
+          return;
+        }
+        if (value == "PROGRAMME" || value == "PROGRAM" || value == "PGM") {
+          scopesSource_ = -1;
+          return;
+        }
+        const int n = std::atoi(value.c_str());
+        if (n < 1 || n > static_cast<int>(project_.outputs.size())) {
+          failRemoteCommand("SCOPES SOURCE: expected PROGRAMME or an output number, 1-" +
+                            std::to_string(project_.outputs.size()));
+          return;
+        }
+        scopesSource_ = n - 1;
+        return;
+      }
+      failRemoteCommand("SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE or STATS");
       return;
     }
     if (command == "TRUST") {

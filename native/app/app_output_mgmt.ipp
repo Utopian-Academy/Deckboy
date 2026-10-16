@@ -3887,7 +3887,14 @@
   // encoded as 16-bit PQ BT.2020 (core/hdr_to_sdr.hpp PqEncoder), stamped with
   // the same capture time as the BGRA frame so the pacer treats them as one.
   void captureHdrRecordFrame(OutputRuntime& runtime, OutputRuntime& into, Uint64 capturedAtMs) {
-    if (!runtime.hdr || !runtime.compositorTexture || !runtime.outputRenderer) return;
+    if (readHdrCompositorPq(runtime, into.hdrRecordFrame)) into.hdrRecordFrame.capturedAtMs = capturedAtMs;
+  }
+
+  // The float compositor of an HDR output, read back whole and encoded as
+  // 16-bit PQ BT.2020 R'G'B' (6 bytes a pixel). The HDR recording and the
+  // scopes both read the picture this way. False when there is none.
+  bool readHdrCompositorPq(const OutputRuntime& runtime, OutputRuntime::CapturedFrame& frame) {
+    if (!runtime.hdr || !runtime.compositorTexture || !runtime.outputRenderer) return false;
     SDL_Texture* previous = SDL_GetRenderTarget(runtime.outputRenderer);
     SDL_SetRenderTarget(runtime.outputRenderer, runtime.compositorTexture);
     // The whole compositor, said explicitly: a null rect reads the current
@@ -3896,24 +3903,23 @@
     const SDL_Rect whole {0, 0, runtime.compositorWidth, runtime.compositorHeight};
     SDL_Surface* got = SDL_RenderReadPixels(runtime.outputRenderer, &whole);
     SDL_SetRenderTarget(runtime.outputRenderer, previous);
-    if (!got) return;
+    if (!got) return false;
     // Half floats to float, same linear colourspace both sides: no conversion.
     SDL_Surface* f = SDL_ConvertSurfaceAndColorspace(got, SDL_PIXELFORMAT_RGBA128_FLOAT, nullptr,
                                                      SDL_COLORSPACE_SRGB_LINEAR, 0);
     SDL_DestroySurface(got);
-    if (!f) return;
+    if (!f) return false;
     if (!hdrRecordEncoder_ || hdrRecordEncoderWhite_ != project_.hdrSdrWhiteNits) {
       hdrRecordEncoder_ = std::make_unique<deckboy::core::hdr::PqEncoder>(project_.hdrSdrWhiteNits);
       hdrRecordEncoderWhite_ = project_.hdrSdrWhiteNits;
     }
-    auto& frame = into.hdrRecordFrame;
     frame.width = f->w;
     frame.height = f->h;
     frame.pixels.resize(static_cast<std::size_t>(f->w) * f->h * 6);
     hdrRecordEncoder_->convert(static_cast<const float*>(f->pixels), f->w, f->h, f->pitch / 4,
                                reinterpret_cast<std::uint16_t*>(frame.pixels.data()));
-    frame.capturedAtMs = capturedAtMs;
     SDL_DestroySurface(f);
+    return true;
   }
   std::unique_ptr<deckboy::core::hdr::PqEncoder> hdrRecordEncoder_;
   int hdrRecordEncoderWhite_ = 0;
