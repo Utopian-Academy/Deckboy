@@ -6,6 +6,7 @@ Deckboy is free, open-source software for live video playback and show control. 
 
 | I want to... | Start here |
 | --- | --- |
+| Find the Deckboy community | [Community home](https://utopian-academy.github.io/Deckboy/community.html) |
 | Ask a question or compare workflows | [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions) |
 | Report a reproducible bug | [Bug report](https://github.com/Utopian-Academy/Deckboy/issues/new?template=bug_report.md) |
 | Suggest a feature | [Feature request](https://github.com/Utopian-Academy/Deckboy/issues/new?template=feature_request.md) |
