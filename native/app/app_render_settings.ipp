@@ -1817,7 +1817,10 @@
       // predicted sum is what protects this tab; add the refinement if a
       // card here is ever found to drift the way that one did.
       const int leftNeeded = remoteH + oscH + vmixH + webMonH + phoneH + nmcH + notesH + 6 * kCardGap;
-      const int rightNeeded = integrationH + tallyCardH + kCardGap;
+      // The fixture patch: a row a fixture, the ADD row and a note.
+      const int fixturesH = stackH({sLineH, sRowH}) +
+                            static_cast<int>(project_.fixtures.size()) * (sRowH + sGap);
+      const int rightNeeded = integrationH + tallyCardH + fixturesH + 2 * kCardGap;
       settingsNetworkScrollMax_ = std::max(0, std::max(leftNeeded, rightNeeded) - colH);
       settingsNetworkScroll_ = std::clamp(settingsNetworkScroll_, 0, settingsNetworkScrollMax_);
       settingsNetworkViewport_ = content;
@@ -1855,6 +1858,7 @@
       SDL_Rect integrationRect {rightCol.x, rightCol.y, rightCol.w, integrationH};
       SDL_Rect tallyRect {rightCol.x, rightCol.y + integrationH + kCardGap,
                           rightCol.w, tallyCardH};
+      SDL_Rect fixturesRect {rightCol.x, tallyRect.y + tallyRect.h + kCardGap, rightCol.w, fixturesH};
 
       const int netLineH = sLineH;
 
@@ -2314,6 +2318,58 @@
                      SDL_Rect{tX, tY, tW, sLineH},
                      "Going on air takes the cue. Deckboy never sends the switcher a command.",
                      soft);
+      }
+
+      // ── FIXTURES ────────────────────────────────────────────────────────
+      //
+      // The patch: named lights a DMX cue sets by name. A row a fixture --
+      // name, type, universe, address, FIND, remove -- with an overlap shown
+      // in the danger colour rather than refused, because re-patching passes
+      // through a clash on its way to fixing one.
+      drawCard(fixturesRect, "FIXTURES",
+               std::to_string(project_.fixtures.size()) + " patched - DMX cues set them by name");
+      {
+        const int fxX = cardBodyX(fixturesRect);
+        const int fxW = cardBodyW(fixturesRect);
+        int fxY = cardBodyY(fixturesRect);
+        const int g = uiScaled(4);
+        const int wName = fxW * 30 / 100, wType = fxW * 24 / 100, wUni = fxW * 11 / 100,
+                  wAddr = fxW * 15 / 100, wFind = fxW * 12 / 100;
+        const int wDel = fxW - wName - wType - wUni - wAddr - wFind - g * 5;
+        for (std::size_t i = 0; i < project_.fixtures.size(); ++i) {
+          const deckboy::fixtures::Fixture& fixture = project_.fixtures[i];
+          const int base = kSettingsActionFixtureRowBase + static_cast<int>(i) * kSettingsActionFixtureRowStride;
+          const int clash = deckboy::fixtures::clashWith(project_.fixtures, i);
+          const int last = fixture.address + deckboy::fixtures::footprint(fixture.type) - 1;
+          int x = fxX;
+          auto cell = [&](int w, const std::string& text, int action, const std::string& tip, bool danger = false) {
+            SDL_Rect r {x, fxY, w, sRowH};
+            drawUIPanel(r, danger ? pal.deleteBezel : pal.tile, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, r, text, danger ? pal.light : pal.fg);
+            settingsBtns_.push_back({r, action, tip});
+            x += w + g;
+          };
+          cell(wName, fixture.name, base + 0, "Rename this fixture; every DMX cue follows the new name");
+          cell(wType, deckboy::fixtures::fixtureTypeLabel(fixture.type), base + 1,
+               "Dimmer, RGB, RGBW, RGBA, Dimmer + RGB, Dimmer + temperature");
+          cell(wUni, "U" + std::to_string(fixture.universe), base + 2, "Universe (Art-Net port address or sACN universe)");
+          cell(wAddr, last > fixture.address ? std::to_string(fixture.address) + "-" + std::to_string(last)
+                                             : std::to_string(fixture.address),
+               base + 3,
+               clash >= 0 ? "Overlaps " + project_.fixtures[static_cast<std::size_t>(clash)].name
+                          : std::string("First channel, 1-512"),
+               clash >= 0);
+          cell(wFind, "FIND", base + 4, "Flash it to full white for two seconds");
+          cell(wDel, "X", base + 5, "Remove it from the patch and from every DMX cue");
+          fxY += sRowH + sGap;
+        }
+        SDL_Rect addRow = settingsRow(fxX, fxW, fxY, sRowH, "Add a light", sGap);
+        drawSettingsStateFill(addRow, false);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, addRow, "ADD FIXTURE", settingsStateInk(false));
+        settingsBtns_.push_back({addRow, kSettingsActionFixtureAdd,
+                                 "A dimmer at the next free address; change its type and address here"});
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{fxX, fxY, fxW, sLineH},
+                     "Click a value to change it. A red address overlaps another fixture.", soft);
       }
 
       SDL_SetRenderClipRect(controlRenderer_, hadSettingsClip ? &previousSettingsClip : nullptr);
@@ -4338,6 +4394,7 @@
 
     for (const auto& sb : settingsBtns_) {
       if (!pointInRect(mx, my, sb.rect)) continue;
+      if (handleFixtureSettingsClick(sb.action)) continue;
       if (sb.action == kSettingsActionEncoderConvertAll) { convertAllFlaggedCues(); continue; }
       if (sb.action == kSettingsActionEncoderPresetDelivery) { setEncoderPreset(EncoderPreset::DeliveryH264); continue; }
       if (sb.action == kSettingsActionEncoderPresetProxy)    { setEncoderPreset(EncoderPreset::Proxy); continue; }

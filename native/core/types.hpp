@@ -26,6 +26,7 @@
 #define DECKBOY_CORE_TYPES_HPP
 
 #include "cue_effects.hpp"
+#include "fixtures.hpp"
 #include "audio_effects.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
@@ -1183,6 +1184,18 @@ enum class ScaleMode {
 // Where the geometry oscillators sit in the packed LFO id the inspector hands
 // its controls (effectIndex * 8 + slot for an effect). Far above any effect.
 constexpr int kGeometryLfoPackBase = 1 << 20;
+// A DMX cue's fixture rows: base + row * 2 + (0 intensity, 1 colour).
+constexpr int kFixtureLfoPackBase = 1 << 21;
+
+// One fixture in a DMX cue: its level and colour, each with an oscillator. A
+// patched fixture that is not listed is LEFT where the last cue put it.
+struct CueFixtureLevel {
+  std::string fixture;           // the patch name
+  float intensity = 1.0f;        // 0-1
+  int colour = -1;               // a colourPresets() index, -1 for none
+  deckboy::effects::ParamLfo intensityLfo;
+  deckboy::effects::ParamLfo colourLfo;   // depth = how far round the hue wheel
+};
 
 enum CueGeometryLfoSlot : int {
   kGeoLfoOffsetX = 0,
@@ -1646,6 +1659,9 @@ struct Cue {
   // "artnet" or "sacn" (ANSI E1.31). sACN universes count from 1 and go to
   // the universe's multicast group unless a host is given.
   std::string dmxProtocol = "artnet";
+  // By fixture, from the patch (Project::fixtures). Sent with the channel
+  // list above, the list last, so a hand-written channel can override.
+  std::vector<CueFixtureLevel> dmxFixtures;
 
   // 53000 is QLab's OSC port, which makes the commonest thing somebody wants
   // to do with this cue work without configuring anything.
@@ -2795,6 +2811,8 @@ struct Project {
   bool mtcIngestEnabled = false;         // MIDI Timecode ingest (for TC chase)
   bool ltcIngestEnabled = false;         // Linear Timecode (audio) ingest
   bool dmxArtNetEnabled = false;         // Art-Net DMX universe receive
+  // The fixture patch: named lights a DMX cue sets by name.
+  std::vector<deckboy::fixtures::Fixture> fixtures;
   int artNetPort = 6454;                 // Art-Net UDP port (standard = 6454)
   bool tslTallyEnabled = false;          // TSL 3.1 tally sender (program/preview status)
   int tslTallyPort = 5800;              // TSL UDP port
@@ -3419,7 +3437,12 @@ enum class QuickAction {
   MicGainDec,             // the cue's gain, in dB
   MicGainInc,
   MicClipReset,           // clear the latched CLIP
-  CueSectionMicToggle     // collapse/expand the inspector's MIC section
+  CueSectionMicToggle,    // collapse/expand the inspector's MIC section
+  DmxFixtureInclude,      // param = fixture row: send it, or leave it
+  DmxFixtureLevelDec,     // param = fixture row
+  DmxFixtureLevelInc,
+  DmxFixtureColourCycle,  // param = fixture row
+  DmxModeToggle           // BY FIXTURE <-> CHANNELS
 };
 
 // ---------------------------------------------------------------------------

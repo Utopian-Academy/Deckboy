@@ -1548,6 +1548,67 @@
                         "WIGGLE, IN, OUTMOVE or OUT");
       return;
     }
+    if (command == "FIXTURE") {
+      // FIXTURE LIST | FIXTURE ADD <name> <type> <universe> [<address>]
+      // FIXTURE FIND <name> | FIXTURE REMOVE <name>
+      // Types: dimmer rgb rgbw rgba drgb dcct.
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("LIST");
+      auto nameFrom = [&](std::size_t from, std::size_t to) {
+        std::string name;
+        for (std::size_t i = from; i < to && i < parts.size(); ++i) name += (name.empty() ? "" : " ") + parts[i];
+        return name;
+      };
+      auto isInt = [](const std::string& t) {
+        return !t.empty() && std::all_of(t.begin(), t.end(), [](char ch) { return ch >= '0' && ch <= '9'; });
+      };
+      if (sub == "LIST") {
+        std::string out;
+        for (std::size_t i = 0; i < project_.fixtures.size(); ++i) {
+          const auto& f = project_.fixtures[i];
+          out += (out.empty() ? "" : " | ") + f.name + " " + deckboy::fixtures::fixtureTypeToken(f.type) + " " +
+                 std::to_string(f.universe) + "/" + std::to_string(f.address) +
+                 (deckboy::fixtures::clashWith(project_.fixtures, i) >= 0 ? " CLASH" : "");
+        }
+        remoteCommandDetail_ = out.empty() ? std::string("no fixtures") : out;
+        return;
+      }
+      if (sub == "ADD") {
+        const std::size_t n = parts.size();
+        deckboy::fixtures::FixtureType type {};
+        if (n >= 6 && isInt(parts[n - 1]) && isInt(parts[n - 2]) &&
+            deckboy::fixtures::fixtureTypeFromToken(toLower(parts[n - 3]), type)) {
+          const std::string did = addFixture(nameFrom(2, n - 3), type, std::atoi(parts[n - 2].c_str()),
+                                             std::atoi(parts[n - 1].c_str()));
+          if (did.rfind("ERR ", 0) == 0) failRemoteCommand("FIXTURE ADD: " + did.substr(4));
+          else remoteCommandDetail_ = did;
+          return;
+        }
+        if (n >= 5 && isInt(parts[n - 1]) && deckboy::fixtures::fixtureTypeFromToken(toLower(parts[n - 2]), type)) {
+          const std::string did = addFixture(nameFrom(2, n - 2), type, std::atoi(parts[n - 1].c_str()), 0);
+          if (did.rfind("ERR ", 0) == 0) failRemoteCommand("FIXTURE ADD: " + did.substr(4));
+          else remoteCommandDetail_ = did;
+          return;
+        }
+        failRemoteCommand("FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]");
+        return;
+      }
+      if (sub == "FIND" || sub == "REMOVE") {
+        const std::string name = nameFrom(2, parts.size());
+        const deckboy::fixtures::Fixture* f = patchedFixture(name);
+        if (!f) {
+          failRemoteCommand("FIXTURE " + sub + ": " + name + " is not in the patch");
+          return;
+        }
+        if (sub == "FIND") {
+          remoteCommandDetail_ = findFixture(name);
+        } else {
+          removeFixture(static_cast<std::size_t>(f - project_.fixtures.data()));
+        }
+        return;
+      }
+      failRemoteCommand("FIXTURE: expected LIST, ADD, FIND or REMOVE");
+      return;
+    }
     if (command == "DMXCUE") {
       // DMXCUE NEW                 -> add a DMX cue to this deck
       // DMXCUE SET <spec>          -> "1=255, 10-14=64"
@@ -1566,6 +1627,24 @@
 
       if (sub == "BLACKOUT") {
         remoteCommandDetail_ = dmxBlackout();
+        return;
+      }
+      if (sub == "LEVELS") {
+        // DMXCUE LEVELS <universe> [<first>] [<count>] [SACN] -- what is going out.
+        const int universe = parts.size() > 2 ? std::atoi(parts[2].c_str()) : 0;
+        const int first = parts.size() > 3 ? std::clamp(std::atoi(parts[3].c_str()), 1, 512) : 1;
+        const int count = parts.size() > 4 ? std::clamp(std::atoi(parts[4].c_str()), 1, 512) : 16;
+        const bool sacnWanted = parts.size() > 5 && toUpper(parts[5]) == "SACN";
+        DmxUniverse* u = findDmxUniverse(universe, sacnWanted);
+        if (!u) {
+          failRemoteCommand("DMXCUE LEVELS: nothing has been sent on that universe");
+          return;
+        }
+        std::string out;
+        for (int c = first; c < first + count && c <= 512; ++c) {
+          out += (out.empty() ? "" : ",") + std::to_string(u->level[static_cast<std::size_t>(c - 1)]);
+        }
+        remoteCommandDetail_ = out;
         return;
       }
       if (sub == "NEW") {
@@ -1599,14 +1678,92 @@
             << (cue.dmxFadeSeconds > 0.0
                   ? (" over " + formatSeconds(cue.dmxFadeSeconds))
                   : std::string(" now"))
-            << " | " << (spec && !spec->empty()
-                           ? (std::to_string(spec->size()) + " channel(s)")
-                           : std::string("NOTHING TO SEND"));
+            << " | " << (cue.dmxFixtures.empty() ? std::string()
+                           : std::to_string(cue.dmxFixtures.size()) + " fixture(s) ")
+            << (spec && !spec->empty() ? (std::to_string(spec->size()) + " channel(s)")
+                : cue.dmxFixtures.empty() ? std::string("NOTHING TO SEND") : std::string());
         remoteCommandDetail_ = out.str();
         return;
       }
       if (sub == "FIRE" || sub == "GO" || sub == "SEND") {
         remoteCommandDetail_ = fireDmxCue(deckIndex, deck.selectedIndex);
+        return;
+      }
+      if (sub == "FIXTURE" || sub == "LFO") {
+        // DMXCUE FIXTURE <name> <level%>|LEAVE [<colour>]
+        // DMXCUE LFO <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+        std::vector<std::string> rest(parts.begin() + 2, parts.end());
+        if (sub == "FIXTURE") {
+          int colour = -1;
+          bool colourGiven = false;
+          if (rest.size() >= 3 && deckboy::fixtures::colourFromName(toLower(rest.back())) >= 0) {
+            colour = deckboy::fixtures::colourFromName(toLower(rest.back()));
+            colourGiven = true;
+            rest.pop_back();
+          }
+          if (rest.size() < 2) {
+            failRemoteCommand("DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]");
+            return;
+          }
+          const std::string levelText = toUpper(rest.back());
+          rest.pop_back();
+          std::string name;
+          for (const auto& p : rest) name += (name.empty() ? "" : " ") + p;
+          if (!patchedFixture(name)) {
+            failRemoteCommand("DMXCUE FIXTURE: " + name + " is not in the patch");
+            return;
+          }
+          auto it = std::find_if(cue.dmxFixtures.begin(), cue.dmxFixtures.end(),
+                                 [&](const CueFixtureLevel& l) { return l.fixture == name; });
+          if (levelText == "LEAVE") {
+            if (it != cue.dmxFixtures.end()) cue.dmxFixtures.erase(it);
+            markProjectDirty();
+            remoteCommandDetail_ = name + " left";
+            return;
+          }
+          char* end = nullptr;
+          const double pct = std::strtod(levelText.c_str(), &end);
+          if (end == levelText.c_str() || pct < 0.0 || pct > 100.0) {
+            failRemoteCommand("DMXCUE FIXTURE: level is 0-100 (%) or LEAVE");
+            return;
+          }
+          if (it == cue.dmxFixtures.end()) {
+            CueFixtureLevel level;
+            level.fixture = name;
+            cue.dmxFixtures.push_back(level);
+            it = cue.dmxFixtures.end() - 1;
+          }
+          it->intensity = static_cast<float>(pct / 100.0);
+          if (colourGiven) it->colour = colour;
+          markProjectDirty();
+          remoteCommandDetail_ = name + " " + std::to_string(static_cast<int>(std::lround(pct))) + "% " +
+                                 deckboy::fixtures::colourName(it->colour);
+          return;
+        }
+        // LFO: find the LEVEL|COLOUR keyword; the name is before it.
+        std::size_t key = rest.size();
+        for (std::size_t i = 1; i < rest.size(); ++i) {
+          const std::string k = toUpper(rest[i]);
+          if (k == "LEVEL" || k == "COLOUR" || k == "COLOR") { key = i; break; }
+        }
+        if (key >= rest.size() || key + 1 >= rest.size()) {
+          failRemoteCommand("DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]");
+          return;
+        }
+        std::string name;
+        for (std::size_t i = 0; i < key; ++i) name += (name.empty() ? "" : " ") + rest[i];
+        auto it = std::find_if(cue.dmxFixtures.begin(), cue.dmxFixtures.end(),
+                               [&](const CueFixtureLevel& l) { return l.fixture == name; });
+        if (it == cue.dmxFixtures.end()) {
+          failRemoteCommand("DMXCUE LFO: " + name + " is not in this cue (DMXCUE FIXTURE first)");
+          return;
+        }
+        deckboy::effects::ParamLfo& lfo = toUpper(rest[key]) == "LEVEL" ? it->intensityLfo : it->colourLfo;
+        lfo.on = toUpper(rest[key + 1]) == "ON";
+        if (key + 2 < rest.size()) lfo.rateHz = std::clamp(static_cast<float>(std::atof(rest[key + 2].c_str())), 0.01f, 20.0f);
+        if (key + 3 < rest.size()) lfo.depth = std::clamp(static_cast<float>(std::atof(rest[key + 3].c_str()) / 100.0), 0.0f, 1.0f);
+        markProjectDirty();
+        remoteCommandDetail_ = name + " " + toLower(rest[key]) + " lfo " + (lfo.on ? "on" : "off");
         return;
       }
       if (sub == "SET" || sub == "CHANNELS") {

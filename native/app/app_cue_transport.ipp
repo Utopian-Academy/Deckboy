@@ -1923,6 +1923,239 @@
     std::uint8_t sequence = 1;
   };
   std::vector<DmxUniverse> dmxUniverses_;
+  // A fixture a DMX cue left oscillating, by fixture name. Runs until a later
+  // cue sets that fixture, or a blackout.
+  struct DmxModulator {
+    CueFixtureLevel level;
+    deckboy::fixtures::Fixture fixture;
+    int universe = 0;
+    bool sacn = false;
+  };
+  std::map<std::string, DmxModulator> dmxModulators_;
+  struct DmxFind {
+    bool active = false;
+    deckboy::fixtures::Fixture fixture;
+    int universe = 0;
+    bool sacn = false;
+    Uint64 untilMs = 0;
+    std::vector<std::pair<int, std::uint8_t>> saved;
+  } dmxFind_;
+
+  // The selected DMX cue's entry for the patch's fixture `row`, or null when
+  // the cue leaves that fixture alone.
+  CueFixtureLevel* selectedDmxFixtureLevel(int row) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Dmx || row < 0 || row >= static_cast<int>(project_.fixtures.size())) {
+      return nullptr;
+    }
+    const std::string& name = project_.fixtures[static_cast<std::size_t>(row)].name;
+    for (CueFixtureLevel& level : cue->dmxFixtures) {
+      if (level.fixture == name) return &level;
+    }
+    return nullptr;
+  }
+
+  void toggleDmxFixtureIncluded(int row) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Dmx || row < 0 || row >= static_cast<int>(project_.fixtures.size())) return;
+    const std::string& name = project_.fixtures[static_cast<std::size_t>(row)].name;
+    auto& list = cue->dmxFixtures;
+    auto it = std::find_if(list.begin(), list.end(), [&](const CueFixtureLevel& l) { return l.fixture == name; });
+    if (it != list.end()) {
+      list.erase(it);
+      triggerToast(name + ": left as it is");
+    } else {
+      CueFixtureLevel level;
+      level.fixture = name;
+      list.push_back(level);
+      triggerToast(name + ": sent by this cue");
+    }
+    markProjectDirty();
+  }
+
+  void nudgeDmxFixtureLevel(int row, float delta) {
+    CueFixtureLevel* level = selectedDmxFixtureLevel(row);
+    if (!level) {
+      toggleDmxFixtureIncluded(row);
+      level = selectedDmxFixtureLevel(row);
+      if (!level) return;
+      level->intensity = delta > 0.0f ? 0.05f : 0.0f;
+    } else {
+      level->intensity = std::clamp(std::round((level->intensity + delta) * 20.0f) / 20.0f, 0.0f, 1.0f);
+    }
+    markProjectDirty();
+  }
+
+  void cycleDmxFixtureColour(int row) {
+    CueFixtureLevel* level = selectedDmxFixtureLevel(row);
+    if (!level) return;
+    level->colour = level->colour + 1 >= deckboy::fixtures::kColourCount ? 0 : level->colour + 1;
+    markProjectDirty();
+  }
+
+  // ── THE PATCH, EDITED ─────────────────────────────────────────────────
+  std::string addFixture(const std::string& wantedName, deckboy::fixtures::FixtureType type,
+                         int universe, int address) {
+    std::string name = trim(wantedName);
+    if (name.empty()) {
+      for (int n = 1; n < 10000; ++n) {
+        name = "Fixture " + std::to_string(n);
+        if (!patchedFixture(name)) break;
+      }
+    }
+    if (patchedFixture(name)) return "ERR " + name + " is already in the patch";
+    deckboy::fixtures::Fixture fixture;
+    fixture.name = name;
+    fixture.type = type;
+    fixture.universe = std::clamp(universe, 0, 63999);
+    fixture.address = address > 0 ? std::clamp(address, 1, 512)
+                                   : deckboy::fixtures::nextFreeAddress(project_.fixtures, fixture.universe, type);
+    if (fixture.address < 1) return "ERR universe " + std::to_string(fixture.universe) + " is full";
+    project_.fixtures.push_back(fixture);
+    markProjectDirty();
+    return name + " at " + std::to_string(fixture.universe) + "/" + std::to_string(fixture.address);
+  }
+
+  void renameFixture(std::size_t index, const std::string& wanted) {
+    const std::string name = trim(wanted);
+    if (index >= project_.fixtures.size() || name.empty()) return;
+    if (patchedFixture(name)) {
+      triggerToast(name + " is already in the patch", ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    const std::string old = project_.fixtures[index].name;
+    project_.fixtures[index].name = name;
+    for (Deck& deck : project_.decks) {
+      for (Cue& cue : deck.cues) {
+        for (CueFixtureLevel& level : cue.dmxFixtures) {
+          if (level.fixture == old) level.fixture = name;
+        }
+      }
+    }
+    dmxModulators_.erase(old);
+    markProjectDirty();
+  }
+
+  void removeFixture(std::size_t index) {
+    if (index >= project_.fixtures.size()) return;
+    const std::string name = project_.fixtures[index].name;
+    int cues = 0;
+    for (Deck& deck : project_.decks) {
+      for (Cue& cue : deck.cues) {
+        const auto before = cue.dmxFixtures.size();
+        cue.dmxFixtures.erase(std::remove_if(cue.dmxFixtures.begin(), cue.dmxFixtures.end(),
+                                             [&](const CueFixtureLevel& l) { return l.fixture == name; }),
+                              cue.dmxFixtures.end());
+        if (cue.dmxFixtures.size() != before) ++cues;
+      }
+    }
+    dmxModulators_.erase(name);
+    project_.fixtures.erase(project_.fixtures.begin() + static_cast<std::ptrdiff_t>(index));
+    markProjectDirty();
+    triggerToast(name + " removed" + (cues ? " (and from " + std::to_string(cues) + " cue" +
+                                               (cues == 1 ? ")" : "s)") : std::string()));
+  }
+
+  bool handleFixtureSettingsClick(int action) {
+    if (action == kSettingsActionFixtureAdd) {
+      const int universe = project_.fixtures.empty() ? 0 : project_.fixtures.back().universe;
+      const std::string did = addFixture("", deckboy::fixtures::FixtureType::Dimmer, universe, 0);
+      triggerToast(did.rfind("ERR ", 0) == 0 ? did.substr(4) : did + " added");
+      return true;
+    }
+    if (action < kSettingsActionFixtureRowBase || action >= kSettingsActionFixtureEnd) return false;
+    const int packed = action - kSettingsActionFixtureRowBase;
+    const std::size_t index = static_cast<std::size_t>(packed / kSettingsActionFixtureRowStride);
+    const int field = packed % kSettingsActionFixtureRowStride;
+    if (index >= project_.fixtures.size()) return true;
+    deckboy::fixtures::Fixture& fixture = project_.fixtures[index];
+    switch (field) {
+      case 0:
+        openInlineTextEditor("fixture.name", "Rename fixture", "Fixture name", fixture.name,
+                             [this, index](const std::string& value) { renameFixture(index, value); });
+        break;
+      case 1:
+        fixture.type = static_cast<deckboy::fixtures::FixtureType>(
+          (static_cast<int>(fixture.type) + 1) % static_cast<int>(deckboy::fixtures::FixtureType::Count));
+        markProjectDirty();
+        break;
+      case 2:
+        openInlineTextEditor("fixture.universe", "Fixture universe", "Universe (0-63999)",
+                             std::to_string(fixture.universe), [this, index](const std::string& value) {
+          if (index >= project_.fixtures.size()) return;
+          const int n = std::atoi(value.c_str());
+          if (trim(value).empty() || n < 0 || n > 63999) {
+            triggerToast("universe: 0-63999", ToastKind::Warning, kToastReadableMs);
+            return;
+          }
+          project_.fixtures[index].universe = n;
+          markProjectDirty();
+        });
+        break;
+      case 3:
+        openInlineTextEditor("fixture.address", "Fixture address", "First channel (1-512)",
+                             std::to_string(fixture.address), [this, index](const std::string& value) {
+          if (index >= project_.fixtures.size()) return;
+          const int n = std::atoi(value.c_str());
+          if (n < 1 || n > 512) {
+            triggerToast("address: 1-512", ToastKind::Warning, kToastReadableMs);
+            return;
+          }
+          project_.fixtures[index].address = n;
+          markProjectDirty();
+        });
+        break;
+      case 4:
+        triggerToast(findFixture(fixture.name));
+        break;
+      case 5:
+        removeFixture(index);
+        break;
+      default:
+        break;
+    }
+    return true;
+  }
+
+  const deckboy::fixtures::Fixture* patchedFixture(const std::string& name) const {
+    for (const auto& fixture : project_.fixtures) {
+      if (fixture.name == name) return &fixture;
+    }
+    return nullptr;
+  }
+
+  DmxUniverse* findDmxUniverse(int universe, bool sacn) {
+    for (DmxUniverse& u : dmxUniverses_) {
+      if (u.universe == universe && u.sacn == sacn) return &u;
+    }
+    return nullptr;
+  }
+
+  // FIND: flash one fixture to full white for two seconds on the universe it
+  // was last sent on (Art-Net broadcast when nothing has been sent yet).
+  std::string findFixture(const std::string& name) {
+    const deckboy::fixtures::Fixture* fixture = patchedFixture(name);
+    if (!fixture) return name + " is not in the patch";
+    if (dmxFind_.active) {
+      if (DmxUniverse* u = findDmxUniverse(dmxFind_.universe, dmxFind_.sacn)) {
+        for (const auto& [channel, value] : dmxFind_.saved) u->level[static_cast<std::size_t>(channel - 1)] = value;
+      }
+    }
+    DmxUniverse* u = findDmxUniverse(fixture->universe, false);
+    if (!u) u = findDmxUniverse(fixture->universe, true);
+    if (!u) u = &dmxUniverseFor(std::clamp(fixture->universe, 0, 32767), "255.255.255.255", 6454);
+    dmxFind_.active = true;
+    dmxFind_.fixture = *fixture;
+    dmxFind_.universe = u->universe;
+    dmxFind_.sacn = u->sacn;
+    dmxFind_.untilMs = SDL_GetTicks() + 2000;
+    dmxFind_.saved.clear();
+    for (const auto& [channel, value] : deckboy::fixtures::fixtureChannels(*fixture, 1.0, 0)) {
+      (void)value;
+      dmxFind_.saved.emplace_back(channel, u->level[static_cast<std::size_t>(channel - 1)]);
+    }
+    return "finding " + name;
+  }
   std::uint8_t sacnCid_[16] {};
   bool sacnCidReady_ = false;
   Uint64 dmxLastSendMs_ = 0;
@@ -1957,10 +2190,25 @@
     auto parsed = deckboy::platform::parseDmxChannelSpec(cue.dmxChannels);
     // NOTHING, rather than as much as it could read. A DMX line that
     // half-applies is a lighting state nobody asked for.
-    if (!parsed || parsed->empty()) {
-      const std::string why = cue.name + ": " +
-        (cue.dmxChannels.empty() ? "no channels set"
-                                 : "channel list is not readable");
+    if (!cue.dmxChannels.empty() && (!parsed || parsed->empty())) {
+      const std::string why = cue.name + ": channel list is not readable";
+      triggerToast(why);
+      return why;
+    }
+    // Fixtures by name, from the patch. A name the patch no longer has stops
+    // the cue for the same reason: half a look is not the look.
+    std::vector<std::pair<const CueFixtureLevel*, const deckboy::fixtures::Fixture*>> fixtures;
+    for (const CueFixtureLevel& level : cue.dmxFixtures) {
+      const deckboy::fixtures::Fixture* found = patchedFixture(level.fixture);
+      if (!found) {
+        const std::string why = cue.name + ": " + level.fixture + " is not in the patch";
+        triggerToast(why);
+        return why;
+      }
+      fixtures.emplace_back(&level, found);
+    }
+    if (fixtures.empty() && (!parsed || parsed->empty())) {
+      const std::string why = cue.name + ": no fixtures or channels set";
       triggerToast(why);
       return why;
     }
@@ -1977,31 +2225,73 @@
       return why;
     }
 
-    DmxUniverse& u = sacn
-      ? dmxUniverseFor(std::clamp(cue.dmxUniverse, 1, 63999), host,
-                       cue.dmxPort == 6454 ? deckboy::platform::kSacnPort : std::clamp(cue.dmxPort, 1, 65535), true)
-      : dmxUniverseFor(std::clamp(cue.dmxUniverse, 0, 32767), host, std::clamp(cue.dmxPort, 1, 65535));
-    // The fade starts from WHERE THE LEVELS ARE, not from zero, so a cue that
-    // takes the house from 80% to 20% does not dip to black on the way.
-    u.from = u.level;
-    u.to = u.level;
-    for (const auto& [channel, value] : *parsed) {
-      u.to[static_cast<std::size_t>(channel - 1)] = value;
+    const int port = sacn ? (cue.dmxPort == 6454 ? deckboy::platform::kSacnPort : std::clamp(cue.dmxPort, 1, 65535))
+                          : std::clamp(cue.dmxPort, 1, 65535);
+    auto universeFor = [&](int number) -> DmxUniverse& {
+      const int clamped = sacn ? std::clamp(number, 1, 63999) : std::clamp(number, 0, 32767);
+      std::string to = host;
+      if (sacn && trim(cue.dmxHost).empty()) to = deckboy::platform::sacnMulticastAddress(clamped);
+      return dmxUniverseFor(clamped, to, port, sacn);
+    };
+    // Every universe this cue touches starts its fade from WHERE THE LEVELS
+    // ARE, not from zero, so a cue that takes the house from 80% to 20% does
+    // not dip to black on the way.
+    std::vector<DmxUniverse*> touched;
+    auto begin = [&](DmxUniverse& u) {
+      if (std::find(touched.begin(), touched.end(), &u) == touched.end()) {
+        u.from = u.level;
+        u.to = u.level;
+        touched.push_back(&u);
+      }
+    };
+    int channelCount = 0;
+    for (const auto& [level, fixture] : fixtures) {
+      DmxUniverse& u = universeFor(fixture->universe);
+      begin(u);
+      for (const auto& [channel, value] : deckboy::fixtures::fixtureChannels(*fixture, level->intensity, level->colour)) {
+        u.to[static_cast<std::size_t>(channel - 1)] = value;
+        ++channelCount;
+      }
+      // A fixture this cue sets is this cue's now: an oscillator a previous
+      // cue left on it stops, and this cue's own (if any) takes over.
+      dmxModulators_.erase(fixture->name);
+      if (level->intensityLfo.on || level->colourLfo.on) {
+        DmxModulator mod;
+        mod.level = *level;
+        mod.fixture = *fixture;
+        mod.universe = u.universe;
+        mod.sacn = u.sacn;
+        dmxModulators_[fixture->name] = mod;
+      }
     }
-    u.fadeSeconds = std::max(0.0, cue.dmxFadeSeconds);
-    if (u.fadeSeconds <= 0.0) {
-      u.level = u.to;
-      u.fading = false;
-    } else {
-      u.fading = true;
-      u.fadeStartMs = SDL_GetTicks();
+    // The hand-written channels go last, so one can override a fixture.
+    if (parsed && !parsed->empty()) {
+      DmxUniverse& u = universeFor(cue.dmxUniverse);
+      begin(u);
+      for (const auto& [channel, value] : *parsed) {
+        u.to[static_cast<std::size_t>(channel - 1)] = value;
+        ++channelCount;
+      }
+    }
+    const double fade = std::max(0.0, cue.dmxFadeSeconds);
+    for (DmxUniverse* u : touched) {
+      u->fadeSeconds = fade;
+      if (fade <= 0.0) {
+        u->level = u->to;
+        u->fading = false;
+      } else {
+        u->fading = true;
+        u->fadeStartMs = SDL_GetTicks();
+      }
     }
 
-    const std::string did = std::to_string(parsed->size()) + " channel" +
-      (parsed->size() == 1 ? "" : "s") + " on universe " +
-      std::to_string(u.universe) + (u.sacn ? " (sACN)" : "") +
-      (u.fadeSeconds > 0.0 ? (" over " + formatSeconds(u.fadeSeconds))
-                           : std::string(" now"));
+    std::string universes;
+    for (DmxUniverse* u : touched) universes += (universes.empty() ? "" : ", ") + std::to_string(u->universe);
+    const std::string did = (fixtures.empty() ? std::string()
+                               : std::to_string(fixtures.size()) + " fixture" + (fixtures.size() == 1 ? "" : "s") + ", ") +
+      std::to_string(channelCount) + " channel" + (channelCount == 1 ? "" : "s") + " on universe " +
+      universes + (sacn ? " (sACN)" : "") +
+      (fade > 0.0 ? (" over " + formatSeconds(fade)) : std::string(" now"));
     showLog("DMX", did);
     triggerToast(did);
     return did;
@@ -2035,6 +2325,43 @@
         const double a = static_cast<double>(u.from[i]);
         const double b = static_cast<double>(u.to[i]);
         u.level[i] = static_cast<std::uint8_t>(std::lround(a + (b - a) * t));
+      }
+    }
+
+    // FIXTURE OSCILLATORS, over whatever the fades left. A fixture's own fade
+    // lands first: an oscillator starts once its universe has arrived.
+    for (auto& [name, mod] : dmxModulators_) {
+      DmxUniverse* u = findDmxUniverse(mod.universe, mod.sacn);
+      if (!u || u->fading) continue;
+      const double audio01 = std::clamp(reactiveAudioLevel_, 0.0, 1.0);
+      const float intensity = deckboy::effects::lfoApply(mod.level.intensityLfo, mod.level.intensity,
+                                                         lfoSeconds_, lfoBeats_, audio01);
+      double hueTurn = 0.0;
+      if (mod.level.colourLfo.on) {
+        // Depth is how far round the colour wheel it travels, centred on the
+        // colour that was set.
+        const double unit = deckboy::effects::lfoUnitValue(mod.level.colourLfo, lfoSeconds_, lfoBeats_, audio01);
+        hueTurn = (unit - 0.5) * static_cast<double>(mod.level.colourLfo.depth);
+      }
+      const int colour = mod.level.colourLfo.on && mod.level.colour < 0 ? 0 : mod.level.colour;
+      for (const auto& [channel, value] : deckboy::fixtures::fixtureChannels(mod.fixture, intensity, colour, hueTurn)) {
+        u->level[static_cast<std::size_t>(channel - 1)] = value;
+      }
+    }
+    // FIND: a fixture at full white for two seconds, then back.
+    if (dmxFind_.active) {
+      DmxUniverse* u = findDmxUniverse(dmxFind_.universe, dmxFind_.sacn);
+      if (u) {
+        if (now >= dmxFind_.untilMs) {
+          for (const auto& [channel, value] : dmxFind_.saved) u->level[static_cast<std::size_t>(channel - 1)] = value;
+          dmxFind_.active = false;
+        } else {
+          for (const auto& [channel, value] : deckboy::fixtures::fixtureChannels(dmxFind_.fixture, 1.0, 0)) {
+            u->level[static_cast<std::size_t>(channel - 1)] = value;
+          }
+        }
+      } else {
+        dmxFind_.active = false;
       }
     }
 
@@ -2077,6 +2404,8 @@
   // Everything to zero, on every universe this session has touched. The one
   // thing a lighting output must always be able to do.
   std::string dmxBlackout() {
+    dmxModulators_.clear();
+    dmxFind_.active = false;
     if (dmxUniverses_.empty()) {
       return "no DMX universes in use";
     }

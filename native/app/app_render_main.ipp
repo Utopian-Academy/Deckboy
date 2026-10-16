@@ -6748,6 +6748,16 @@
                                              "Collapse/expand the levels this cue sends");
       dxY = dxSection.bodyStartY;
       if (cueSectionDmxOpen_) {
+        drawChoiceRow(dxY, "set by", dmxShowChannels_ ? std::string("CHANNELS") : std::string("BY FIXTURE"),
+                      QuickAction::DmxModeToggle,
+                      "BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. "
+                      "CHANNELS: channel=level by hand. A cue can carry both; channels go last");
+        dxY += kInspectorRowStep;
+        if (!dmxShowChannels_) {
+          dxY = inspDrawFixtureRows(ix, dxY, *selectedCue);
+        }
+      }
+      if (cueSectionDmxOpen_ && dmxShowChannels_) {
         drawChoiceRow(dxY, "channels", selectedCue->dmxChannels.empty()
                        ? std::string("none - click to set some")
                        : selectedCue->dmxChannels,
@@ -6755,6 +6765,8 @@
                       "Channel=level, comma separated. Ranges too: 1=255, "
                      "10-14=64. Channels count from 1");
         dxY += kInspectorRowStep;
+      }
+      if (cueSectionDmxOpen_) {
 
         drawQuickRow(dxY, "fade", QuickAction::DmxFadeDec,
                      selectedCue->dmxFadeSeconds > 0.0
@@ -6798,14 +6810,23 @@
         dxY += kInspectorRowStep;
 
         // WHAT WILL ACTUALLY GO OUT, and what is wrong when something is.
-        if (selectedCue->dmxChannels.empty()) {
-          drawInspectorMessageRow(dxY, "no channels - this cue sends nothing");
-        } else if (!spec || spec->empty()) {
+        const std::size_t fixtureCount = selectedCue->dmxFixtures.size();
+        std::string missing;
+        for (const CueFixtureLevel& level : selectedCue->dmxFixtures) {
+          if (!patchedFixture(level.fixture)) missing = level.fixture;
+        }
+        if (!missing.empty()) {
+          drawInspectorMessageRow(dxY, missing + " is not in the patch - this cue will not send");
+        } else if (!selectedCue->dmxChannels.empty() && (!spec || spec->empty())) {
           drawInspectorMessageRow(dxY, "channel list is not readable");
+        } else if (fixtureCount == 0 && selectedCue->dmxChannels.empty()) {
+          drawInspectorMessageRow(dxY, "nothing set - this cue sends nothing");
         } else {
-          drawInspectorMessageRow(dxY, std::to_string(spec->size()) + " channel" +
-            (spec->size() == 1 ? "" : "s") + " -> universe " +
-            std::to_string(selectedCue->dmxUniverse));
+          drawInspectorMessageRow(dxY, (fixtureCount ? std::to_string(fixtureCount) + " fixture" +
+                                          (fixtureCount == 1 ? "" : "s") + "  " : std::string()) +
+            (spec && !spec->empty() ? std::to_string(spec->size()) + " channel" + (spec->size() == 1 ? "" : "s") +
+                                        " -> universe " + std::to_string(selectedCue->dmxUniverse)
+                                    : std::string()));
         }
         dxY += kInspectorRowStep;
       }

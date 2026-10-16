@@ -2,6 +2,15 @@
 
 ## 2026-10-16 - v0.99.413 (in progress)
 
+### Lighting
+- Added the fixture patch: `Settings > Network > FIXTURES` names the lights (dimmer, RGB, RGBW, RGBA,
+  dimmer + RGB, dimmer + temperature) at a universe and address, shows overlaps in red, and FIND
+  flashes one. A DMX cue now sets fixtures by name, a level and a colour each, and both can carry
+  an LFO that keeps running after GO until a later cue sets that fixture or blackout. Hand-written
+  channels still work alongside. `FIXTURE`, `DMXCUE FIXTURE`, `DMXCUE LFO`, `DMXCUE LEVELS`.
+- Fixed an issue where a DMX, MIDI, network, timecode, script, fade, target, master, memo or
+  MIDI file cue showed an EFFECTS section that could do nothing: those cues have no picture.
+
 ### Mic cue
 - Added the Mic cue: a live microphone or line input played through a deck, with the deck's fades,
   routing and speakers and the cue's audio effects. `SOURCE > LIVE SOUND > Mic / line input`.

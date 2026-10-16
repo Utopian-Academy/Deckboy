@@ -405,6 +405,11 @@
       case QuickAction::AudioEffectParamDEdit:  audioEffectStackEditParam(param, 3); return;
       case QuickAction::CodeOpenEditor:     openCodeEditor(); return;
       case QuickAction::EffectLfoToggle:    effectLfoToggle(param); return;
+      case QuickAction::DmxFixtureInclude:  toggleDmxFixtureIncluded(param); return;
+      case QuickAction::DmxFixtureLevelDec: nudgeDmxFixtureLevel(param, -0.05f); return;
+      case QuickAction::DmxFixtureLevelInc: nudgeDmxFixtureLevel(param, 0.05f); return;
+      case QuickAction::DmxFixtureColourCycle: cycleDmxFixtureColour(param); return;
+      case QuickAction::DmxModeToggle:      dmxShowChannels_ = !dmxShowChannels_; return;
       case QuickAction::EffectLfoShape:     effectLfoCycleShape(param); return;
       case QuickAction::EffectLfoRateDec:   effectLfoNudgeRate(param, -1); return;
       case QuickAction::EffectLfoRateInc:   effectLfoNudgeRate(param, +1); return;

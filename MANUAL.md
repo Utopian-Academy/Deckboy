@@ -173,7 +173,7 @@ to other equipment, when they are taken (*v0.99.373 and later.*; see §9b):
 | **MIDI** | Sends a note, control change, program change, MIDI Show Control GO / STOP / RESUME, or raw bytes |
 | **Network** | Sends an OSC message, a UDP datagram or a line of TCP |
 | **Timecode** | Starts, stops or jams the LTC generator |
-| **DMX** | Sends Art-Net or sACN channel levels, with a fade time |
+| **DMX** | Sets lights from the fixture patch by name (level and colour, each with an LFO), or channel levels by hand, over Art-Net or sACN with a fade time |
 | **Script** | Runs lines of Deckboy's own control protocol |
 
 All of them are on the `SOURCE` menu.
@@ -655,6 +655,38 @@ group, 239.255.x.y, on port 5568). `DMXCUE PROTOCOL ARTNET|SACN` sets it
 remotely. **blackout** zeroes every channel on every
 universe the session has touched. Deckboy is not a lighting console: this is
 for house lights and practicals, not a rig.
+
+**The fixture patch.** `Settings → Network → FIXTURES` names the lights once:
+a row each with its name, type, universe and first address, then **FIND**
+(full white for two seconds, so you can see which light it is) and **X**
+(remove it from the patch and from every DMX cue). **ADD FIXTURE** adds a
+dimmer at the next free address. An address that overlaps another fixture
+shows red. The types are **Dimmer** (1 channel), **RGB** (3), **RGBW** (4: the
+white in a colour goes to the white emitter), **RGBA** (4: amber and warm use
+the amber emitter), **Dimmer + RGB** (4) and **Dimmer + temperature** (2:
+warm is the low end, white the high end). Moving heads are not in the patch.
+
+A DMX cue's **set by** switches between **BY FIXTURE** and **CHANNELS**.
+BY FIXTURE has a row for every patched fixture: its level in % (click the
+value to send it, or to **leave** it where the last cue put it), and on a
+colour fixture its **colour**: white, warm, red, amber, green, cyan, blue or
+magenta. Both carry a **~** LFO with the usual shape, rate, depth and tempo
+controls. A level LFO swings around the level you set; a colour LFO moves
+round the colour wheel, its depth being how far. An LFO starts once the cue's
+fade has landed and keeps running until a later cue sets that fixture or
+**blackout**. A cue can carry fixtures and hand-written channels together;
+the channels go last, so one can override a fixture. A cue that names a
+fixture no longer in the patch says so and sends nothing. The fixtures go out
+on their own universes, with the cue's network, destination and fade.
+
+| Command | Does |
+|---------|------|
+| `FIXTURE LIST` | The patch, with any overlaps |
+| `FIXTURE ADD <name> dimmer\|rgb\|rgbw\|rgba\|drgb\|dcct <universe> [<address>]` | Patches a fixture (the next free address if none is given) |
+| `FIXTURE FIND <name>` · `FIXTURE REMOVE <name>` | Flashes it, or removes it |
+| `DMXCUE FIXTURE <name> <level%>\|LEAVE [<colour>]` | Sets a fixture in the selected DMX cue |
+| `DMXCUE LFO <name> LEVEL\|COLOUR ON\|OFF [<Hz>] [<depth%>]` | Its oscillators |
+| `DMXCUE LEVELS <universe> [<first>] [<count>] [SACN]` | The levels going out right now |
 
 ### Script cue
 

@@ -3088,7 +3088,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (368)\n"
+        "DECKBOY_0.01 every verb (369)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3132,7 +3132,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
-        "TRACKER SEQUENCE GEOLFO UNDO REDO TRIGGER MIDINOTE OSCTRIGGER MEMOCUE MEMO DEVAMP CAPTIONS MEDIAMTX AUDIOTRACK MIC\n"
+        "TRACKER SEQUENCE GEOLFO UNDO REDO TRIGGER MIDINOTE OSCTRIGGER MEMOCUE MEMO DEVAMP CAPTIONS MEDIAMTX AUDIOTRACK MIC FIXTURE\n"
         "UPDATE VIDEO VIEW VJ VMIX VOLUME WARP WATCH WEBMONITOR WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
@@ -3255,6 +3255,10 @@ html,body{width:100%;height:100%;overflow:hidden}
         "          (key+fill sends the picture and its matte down two cards)\n"
         "webmonitor: WEBMONITOR | WEBMONITOR ON|OFF (programme with sound) | SHARE ON|OFF | SOURCE PROGRAMME|<n> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF\n"
         "            WEBMONITOR CONTROL ON|OFF (PIN-protected phone controls at /remote)\n"
+        "fixtures: FIXTURE LIST | FIXTURE ADD <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]\n"
+        "          FIXTURE FIND <name> | FIXTURE REMOVE <name>\n"
+        "          DMXCUE FIXTURE <name> <level%>|LEAVE [<colour>] | DMXCUE LFO <name> LEVEL|COLOUR ON|OFF [<Hz>] [<depth%>]\n"
+        "          DMXCUE LEVELS <universe> [<first>] [<count>] [SACN] (what is going out)\n"
         "mic: MIC | MIC ADD [<device>|TEST] | MIC LIST | MIC INPUT SETTINGS|TEST|<device>\n"
         "     MIC CHANNEL L|R|STEREO | MIC GAIN <dB> (a live input as a cue on a deck)\n"
         "scopes: SCOPES [PROGRAM|SCOPES|BOTH|TOGGLE] | SCOPES BIG waveform|parade|vector|diamond|histogram|OFF\n"

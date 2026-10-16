@@ -1954,14 +1954,36 @@
                  l3.accent == 4 && l3.wiggle,
                "a lower third's layout persists");
         {
-          // A show from immediately before the Mic cue (one tail field fewer)
-          // keeps its DMX protocol, and its cues' mic channel is MONO L.
+          // A show from immediately before the fixture patch (one tail field
+          // fewer) keeps its mic channel and has no fixture levels.
           {
             std::ifstream preIn(smokePath);
             std::ostringstream preOlder;
             std::string preLine;
             while (std::getline(preIn, preLine)) {
               if (preLine.rfind("cue\t", 0) == 0) preLine.erase(preLine.find_last_of('\t'));
+              preOlder << preLine << '\n';
+            }
+            preIn.close();
+            const fs::path prePath = smokeDir / "deckboy-smoke-pre-fixtures.deckboy";
+            { std::ofstream out(prePath); out << preOlder.str(); }
+            const Project pre = loadProject(prePath);
+            const Cue& preBack = pre.decks.at(0).cues.at(0);
+            expect(preBack.micChannel == loadedCue.micChannel && preBack.dmxFixtures.empty(),
+                   "a pre-fixture show keeps its mic channel and has no fixture levels");
+            fs::remove(prePath);
+          }
+          // A show from immediately before the Mic cue (two tail fields fewer)
+          // keeps its DMX protocol, and its cues' mic channel is MONO L.
+          {
+            std::ifstream preIn(smokePath);
+            std::ostringstream preOlder;
+            std::string preLine;
+            while (std::getline(preIn, preLine)) {
+              if (preLine.rfind("cue\t", 0) == 0) {
+                preLine.erase(preLine.find_last_of('\t'));
+                preLine.erase(preLine.find_last_of('\t'));
+              }
               preOlder << preLine << '\n';
             }
             preIn.close();
@@ -1973,7 +1995,7 @@
                    "a pre-mic show keeps its DMX protocol and defaults the mic channel to MONO L");
             fs::remove(preMicPath);
           }
-          // A show from immediately before sACN (two tail fields fewer) keeps
+          // A show from immediately before sACN (three tail fields fewer) keeps
           // Wiggle and sends Art-Net, as every show before it did.
           {
             std::ifstream preIn(smokePath);
@@ -1981,6 +2003,7 @@
             std::string preLine;
             while (std::getline(preIn, preLine)) {
               if (preLine.rfind("cue\t", 0) == 0) {
+                preLine.erase(preLine.find_last_of('\t'));
                 preLine.erase(preLine.find_last_of('\t'));
                 preLine.erase(preLine.find_last_of('\t'));
               }
@@ -1995,14 +2018,15 @@
                    "a pre-sACN show keeps wiggle and its DMX cues send Art-Net");
             fs::remove(preSacnPath);
           }
-          // Trim the three newest tail fields (the mic channel, the DMX
-          // protocol, then Wiggle): a show from immediately before Wiggle must
-          // keep its look, timings, triggers and audio selection.
+          // Trim the four newest tail fields (fixture levels, the mic channel,
+          // the DMX protocol, then Wiggle): a show from immediately before
+          // Wiggle must keep its look, timings, triggers and audio selection.
           std::ifstream in(smokePath);
           std::ostringstream older;
           std::string line;
           while (std::getline(in, line)) {
             if (line.rfind("cue\t", 0) == 0) {
+              line.erase(line.find_last_of('\t'));
               line.erase(line.find_last_of('\t'));
               line.erase(line.find_last_of('\t'));
               line.erase(line.find_last_of('\t'));
@@ -2056,7 +2080,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 89;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 90;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2065,7 +2089,8 @@
                                               // text lower-third fields, ten swirl controls,
                                               // three triggers (hotkey, MIDI note, OSC),
                                               // audio track and track count, wiggle,
-                                              // the DMX protocol, the mic channel
+                                              // the DMX protocol, the mic channel,
+                                              // the fixture levels
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

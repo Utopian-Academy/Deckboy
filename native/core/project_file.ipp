@@ -325,6 +325,11 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "integration_mtc_ingest\t" << (project.mtcIngestEnabled ? 1 : 0) << '\n';
   output << "integration_ltc_ingest\t" << (project.ltcIngestEnabled ? 1 : 0) << '\n';
   output << "integration_dmx_artnet\t" << (project.dmxArtNetEnabled ? 1 : 0) << '\n';
+  for (const auto& fixture : project.fixtures) {
+    output << "fixture\t" << escapeField(fixture.name) << '\t'
+           << deckboy::fixtures::fixtureTypeToken(fixture.type) << '\t'
+           << fixture.universe << '\t' << fixture.address << '\n';
+  }
   output << "integration_artnet_port\t" << project.artNetPort << '\n';
   output << "integration_tsl_tally\t" << (project.tslTallyEnabled ? 1 : 0) << '\n';
   output << "integration_tsl_port\t" << project.tslTallyPort << '\n';
@@ -965,6 +970,8 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << escapeField(cue.dmxProtocol)
         // vs+145: a Mic cue's channel (MONO L / MONO R / STEREO).
         << '\t' << static_cast<int>(cue.micChannel)
+        // vs+146: a DMX cue's fixture levels (see serializeFixtureLevels).
+        << '\t' << escapeField(serializeFixtureLevels(cue.dmxFixtures))
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1309,7 +1316,16 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
 template <typename EnsureDeck>
 bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string>& fields,
                                  EnsureDeck&& ensureDeck) {
-  if (fields[0] == "midi_device") {
+  if (fields[0] == "fixture") {
+    if (project.fixtures.size() < 1024) {
+      deckboy::fixtures::Fixture fixture;
+      fixture.name = safeString(fields, 1);
+      deckboy::fixtures::fixtureTypeFromToken(safeString(fields, 2), fixture.type);
+      fixture.universe = std::clamp(safeInt(fields, 3, 0), 0, 63999);
+      fixture.address = std::clamp(safeInt(fields, 4, 1), 1, 512);
+      if (!fixture.name.empty()) project.fixtures.push_back(fixture);
+    }
+  } else if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
   } else if (fields[0] == "tracker_loop") {
     project.trackerLoop = safeBool(fields, 1, false);
@@ -2547,6 +2563,9 @@ Project loadProject(const fs::path& projectFile,
         }
         if (fields.size() >= static_cast<std::size_t>(vs + 146)) {
           cue.micChannel = static_cast<MicChannel>(std::clamp(safeInt(fields, vs + 145, 0), 0, 2));
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 147)) {
+          cue.dmxFixtures = parseFixtureLevels(safeString(fields, vs + 146));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

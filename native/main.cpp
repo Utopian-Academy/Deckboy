@@ -2214,6 +2214,78 @@ std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, 9
   return out.str();
 }
 
+// A DMX cue's fixture levels, one field: entries split by ';', each
+// name|intensity|colour|intensity lfo|colour lfo. The name is %-escaped so a
+// fixture called "Wash; left" cannot break the record.
+static std::string escapeFixtureName(const std::string& name) {
+  std::string out;
+  for (const char ch : name) {
+    if (ch == '%' || ch == ';' || ch == '|' || ch == '\t' || ch == '\n') {
+      char buf[4];
+      std::snprintf(buf, sizeof(buf), "%%%02X", static_cast<unsigned char>(ch));
+      out += buf;
+    } else {
+      out += ch;
+    }
+  }
+  return out;
+}
+
+static std::string unescapeFixtureName(const std::string& text) {
+  std::string out;
+  for (std::size_t i = 0; i < text.size(); ++i) {
+    if (text[i] == '%' && i + 2 < text.size()) {
+      out += static_cast<char>(std::strtol(text.substr(i + 1, 2).c_str(), nullptr, 16));
+      i += 2;
+    } else {
+      out += text[i];
+    }
+  }
+  return out;
+}
+
+std::string serializeFixtureLevels(const std::vector<CueFixtureLevel>& levels) {
+  std::ostringstream out;
+  for (std::size_t i = 0; i < levels.size(); ++i) {
+    const CueFixtureLevel& l = levels[i];
+    if (i) out << ';';
+    out << escapeFixtureName(l.fixture) << '|' << l.intensity << '|' << l.colour << '|';
+    writeParamLfo(out, l.intensityLfo);
+    out << '|';
+    writeParamLfo(out, l.colourLfo);
+  }
+  return out.str();
+}
+
+std::vector<CueFixtureLevel> parseFixtureLevels(const std::string& text) {
+  std::vector<CueFixtureLevel> levels;
+  std::size_t at = 0;
+  while (!text.empty() && at <= text.size() && levels.size() < 512) {
+    const std::size_t semi = text.find(';', at);
+    const std::string entry = text.substr(at, semi == std::string::npos ? std::string::npos : semi - at);
+    std::vector<std::string> f;
+    std::size_t p = 0;
+    for (;;) {
+      const std::size_t bar = entry.find('|', p);
+      f.push_back(entry.substr(p, bar == std::string::npos ? std::string::npos : bar - p));
+      if (bar == std::string::npos) break;
+      p = bar + 1;
+    }
+    if (!f.empty() && !f[0].empty()) {
+      CueFixtureLevel l;
+      l.fixture = unescapeFixtureName(f[0]);
+      if (f.size() > 1) l.intensity = std::clamp(static_cast<float>(std::atof(f[1].c_str())), 0.0f, 1.0f);
+      if (f.size() > 2) l.colour = std::clamp(std::atoi(f[2].c_str()), -1, deckboy::fixtures::kColourCount - 1);
+      if (f.size() > 3) readParamLfo(f[3], l.intensityLfo);
+      if (f.size() > 4) readParamLfo(f[4], l.colourLfo);
+      levels.push_back(l);
+    }
+    if (semi == std::string::npos) break;
+    at = semi + 1;
+  }
+  return levels;
+}
+
 std::array<deckboy::effects::ParamLfo, 9> parseGeometryLfos(const std::string& text) {
   std::array<deckboy::effects::ParamLfo, 9> lfos {};
   std::size_t at = 0;
@@ -6345,6 +6417,55 @@ class App {
   // only for SWEEP, because a control that does nothing for the current
   // waveform is worse than no control -- it invites the operator to change it
   // and wonder why nothing happened.
+  // A DMX cue's fixtures, one row each from the patch: level (click the value
+  // to send it or leave it), then its colour if it has one. Both carry an LFO.
+  bool dmxShowChannels_ = false;
+
+  int inspDrawFixtureRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    if (project_.fixtures.empty()) {
+      return inspDrawMessageRow(ix, rowY, "no fixtures patched - Settings > Network > FIXTURES",
+                                pal.mid, pal.deep);
+    }
+    for (std::size_t i = 0; i < project_.fixtures.size(); ++i) {
+      const deckboy::fixtures::Fixture& fixture = project_.fixtures[i];
+      const CueFixtureLevel* level = nullptr;
+      for (const CueFixtureLevel& l : cue.dmxFixtures) {
+        if (l.fixture == fixture.name) level = &l;
+      }
+      const int row = static_cast<int>(i);
+      const int packed = kFixtureLfoPackBase + row * 2;
+      inspDrawQuickRow(ix, rowY, fixture.name, QuickAction::DmxFixtureLevelDec,
+                       level ? std::to_string(static_cast<int>(std::lround(level->intensity * 100.0f))) + "%"
+                             : std::string("leave"),
+                       QuickAction::DmxFixtureLevelInc, QuickAction::ToggleLoop, false, false,
+                       "Click the value to send this fixture or leave it where the last cue put it. "
+                       "~ makes the level breathe",
+                       true, QuickAction::DmxFixtureInclude, row,
+                       level ? QuickAction::EffectLfoToggle : QuickAction::ToggleLoop,
+                       level && level->intensityLfo.on, packed, "~",
+                       "An oscillator on the level, running after GO until a later cue sets this fixture");
+      rowY += ix.rowStep;
+      if (level && level->intensityLfo.on) {
+        rowY = inspDrawLfoRowFor(ix, rowY, level->intensityLfo, packed);
+      }
+      if (level && deckboy::fixtures::fixtureHasColour(fixture.type)) {
+        inspDrawQuickRow(ix, rowY, "  colour", QuickAction::DmxFixtureColourCycle,
+                         deckboy::fixtures::colourName(level->colour),
+                         QuickAction::DmxFixtureColourCycle, QuickAction::ToggleLoop, false, false,
+                         "White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel",
+                         true, QuickAction::DmxFixtureColourCycle, row,
+                         QuickAction::EffectLfoToggle, level->colourLfo.on, packed + 1, "~",
+                         "An oscillator on the colour: depth is how far round the wheel it travels");
+        rowY += ix.rowStep;
+        if (level->colourLfo.on) {
+          rowY = inspDrawLfoRowFor(ix, rowY, level->colourLfo, packed + 1);
+        }
+      }
+    }
+    return rowY;
+  }
+
   // MIC: which input, which part of it, how loud, and whether it is alive.
   // The gain is the cue's own audio gain (the same field PLAYBACK's trim
   // edits), so there is one number for "how much of this input", not two.
@@ -6670,6 +6791,17 @@ class App {
     switch (cue.kind) {
       case CueKind::Audio:
       case CueKind::Mic:
+      // The cues that play nothing: no pixels for an effect to act on.
+      case CueKind::Dmx:
+      case CueKind::Master:
+      case CueKind::Target:
+      case CueKind::Fade:
+      case CueKind::Midi:
+      case CueKind::Network:
+      case CueKind::Timecode:
+      case CueKind::Script:
+      case CueKind::Memo:
+      case CueKind::MidiFile:
         return false;
       case CueKind::Tone:
         return cue.tone.visualEnabled;   // a tone cue only has pixels if asked
@@ -9619,6 +9751,12 @@ class App {
   static constexpr int kSettingsActionRoutingTableLayerDecBase = 36000;
   static constexpr int kSettingsActionRoutingTableLayerIncBase = 37000;
   static constexpr int kSettingsActionRoutingTableAssignToggleBase = 38000;
+  // The fixture patch: ADD, then eight ids a row (name, type, universe,
+  // address, find, remove).
+  static constexpr int kSettingsActionFixtureAdd = 50000;
+  static constexpr int kSettingsActionFixtureRowBase = 50008;
+  static constexpr int kSettingsActionFixtureRowStride = 8;
+  static constexpr int kSettingsActionFixtureEnd = 50008 + 1024 * 8;
 
   SDL_Window* controlWindow_ = nullptr;
   SDL_Renderer* controlRenderer_ = nullptr;
