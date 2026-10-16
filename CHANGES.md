@@ -1,6 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-15 - v0.99.412 (in progress)
+## 2026-10-16 - v0.99.412 (a test card for every screen, HDR outputs, live captions, a phone controller that pairs by QR)
+
+A test card that checks every screen 1:1 and exports as movie files, HDR window outputs and HDR10
+recordings, live captions made on this computer, and phone control rebuilt as a controller for the
+whole desk: scan a QR code and it connects. Plus sACN, stop-everything verbs and a double-GO guard.
 
 ### HDR video
 - Fixed an issue where an HDR video (HDR10 or HLG) played black on an output using the software
@@ -49,6 +53,16 @@
 - Fixed an issue where `DECKLINK ON` answered `OK` on a computer without Blackmagic Desktop Video and
   left DeckLink off. It now says why.
 - DeckLink and ST 2110 now share one Y'CbCr encoder.
+- The scopes update about twice as fast on the R'G'B' frame; at 4K the EBU R 103 check now takes
+  under a tenth of a second instead of almost a second.
+- The R 103 verdict reads **measuring** until the full check has run, instead of showing a raw
+  count as **OUT**.
+
+### macOS
+- A PowerPoint file now converts with PowerPoint for Mac, then Keynote, then LibreOffice, whichever
+  is installed; before, only LibreOffice was tried. PowerPoint is given 45 seconds before Deckboy
+  moves on to the next.
+- The live captions helper is signed in the macOS bundles, including the Intel one.
 
 ### Show control
 - Added sACN (ANSI E1.31) to the DMX cue beside Art-Net: **network** in the inspector, or
