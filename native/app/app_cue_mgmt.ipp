@@ -3208,7 +3208,7 @@
       [this]() { addScriptCue(); }
     });
     contextItems_.push_back({
-      "  DMX Cue (Art-Net levels with a fade)",
+      "  DMX Cue (lights by fixture or channel)",
       {0, 0, 0, 0},
       [this]() { addDmxCue(); }
     });

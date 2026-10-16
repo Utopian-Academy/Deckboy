@@ -211,7 +211,6 @@
     SDL_GetWindowSize(controlWindow_, &winW, &winH);
     const int itemH = uiScaled(32);
     const int pad = uiScaled(4);
-    const int colW = uiScaled(246);
     const int count = static_cast<int>(contextItems_.size());
     if (count == 0) {
       contextMenuRect_ = SDL_Rect {};
@@ -221,8 +220,60 @@
     // How many rows fit in the window at all, leaving a margin top and bottom.
     const int usableH = std::max(itemH, winH - uiScaled(16));
     const int rowsPerColumn = std::max(1, (usableH - pad * 2) / itemH);
-    const int columns = std::max(1, (count + rowsPerColumn - 1) / rowsPerColumn);
-    const int rows = (count + columns - 1) / columns;
+    const int minColumns = std::max(1, (count + rowsPerColumn - 1) / rowsPerColumn);
+
+    // COLUMNS BREAK BETWEEN SECTIONS, so each starts with its heading: a
+    // column that began half-way through MADE BY DECKBOY read as a second
+    // menu with no name. Sections are packed greedily at the shortest column
+    // height that still needs no more columns than the window demands; a
+    // menu with no headings, or a section too tall for one column, falls
+    // back to an even split.
+    std::vector<int> sectionStarts {0};
+    for (int i = 1; i < count; ++i) {
+      if (!contextItems_[static_cast<std::size_t>(i)].action) sectionStarts.push_back(i);
+    }
+    int largest = 0;
+    for (std::size_t k = 0; k < sectionStarts.size(); ++k) {
+      const int end = k + 1 < sectionStarts.size() ? sectionStarts[k + 1] : count;
+      largest = std::max(largest, end - sectionStarts[k]);
+    }
+    std::vector<int> columnOf(static_cast<std::size_t>(count), 0), rowOf(static_cast<std::size_t>(count), 0);
+    int columns = minColumns, rows = (count + minColumns - 1) / minColumns;
+    bool packed = false;
+    if (sectionStarts.size() > 1 && largest <= rowsPerColumn) {
+      for (int target = std::max(largest, (count + minColumns - 1) / minColumns); target <= rowsPerColumn && !packed;
+           ++target) {
+        int col = 0, used = 0, tallest = 0;
+        for (std::size_t k = 0; k < sectionStarts.size(); ++k) {
+          const int end = k + 1 < sectionStarts.size() ? sectionStarts[k + 1] : count;
+          const int size = end - sectionStarts[k];
+          if (used > 0 && used + size > target) { ++col; used = 0; }
+          for (int i = sectionStarts[k]; i < end; ++i) {
+            columnOf[static_cast<std::size_t>(i)] = col;
+            rowOf[static_cast<std::size_t>(i)] = used++;
+          }
+          tallest = std::max(tallest, used);
+        }
+        if (col + 1 <= std::max(minColumns, 2) || target == rowsPerColumn) {
+          columns = col + 1;
+          rows = tallest;
+          packed = true;
+        }
+      }
+    }
+    if (!packed) {
+      for (int i = 0; i < count; ++i) {
+        columnOf[static_cast<std::size_t>(i)] = i / rows;
+        rowOf[static_cast<std::size_t>(i)] = i % rows;
+      }
+    }
+
+    // WIDE ENOUGH FOR ITS LONGEST LABEL, so nothing is shrunk or cut short,
+    // within what the window can give.
+    int widest = 0;
+    for (const auto& item : contextItems_) widest = std::max(widest, measuredTextWidth(fontSmall_, item.label));
+    const int maxColW = std::max(uiScaled(246), (winW - uiScaled(8) - pad * 2) / columns - uiScaled(4));
+    const int colW = std::clamp(widest + uiScaled(40), uiScaled(246), maxColW);
 
     const int menuW = colW * columns + pad * 2 + uiScaled(4) * (columns - 1);
     const int menuH = rows * itemH + pad * 2;
@@ -234,8 +285,8 @@
     contextMenuRect_ = {x, y, menuW, menuH};
 
     for (int i = 0; i < count; ++i) {
-      const int col = i / rows;
-      const int row = i % rows;
+      const int col = columnOf[static_cast<std::size_t>(i)];
+      const int row = rowOf[static_cast<std::size_t>(i)];
       contextItems_[static_cast<std::size_t>(i)].rect = {
         x + pad + col * (colW + uiScaled(4)),
         y + pad + row * itemH,

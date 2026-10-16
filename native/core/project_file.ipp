@@ -210,6 +210,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "live_captions_size\t" << project.liveCaptionsSize << '\n';
   output << "live_captions_transcript\t" << (project.liveCaptionsTranscript ? 1 : 0) << '\n';
   output << "hdr_outputs\t" << project.hdrOutputs << '\n';
+  output << "hdr_auto_outputs\t" << project.hdrAutoOutputs << '\n';
   output << "hdr_sdr_white\t" << project.hdrSdrWhiteNits << '\n';
   output << "clock_mode\t"
          << (project.clockMode.empty() ? std::string("off") : project.clockMode)
@@ -1328,6 +1329,8 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
       fixture.videoDip = std::clamp(safeInt(fields, 5, -1), -1, 100);
       if (!fixture.name.empty()) project.fixtures.push_back(fixture);
     }
+  } else if (fields[0] == "hdr_auto_outputs") {
+    project.hdrAutoOutputs = static_cast<std::uint32_t>(std::max(0, safeInt(fields, 1, 0)));
   } else if (fields[0] == "video_dip") {
     project.videoDipEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "video_dip_fade") {

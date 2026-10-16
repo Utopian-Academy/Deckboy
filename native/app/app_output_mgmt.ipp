@@ -7915,12 +7915,13 @@
 
     // A recording is a hidden stream output, so HDR applies to those too:
     // its float compositor is what an HDR recording is made from.
-    const bool wantHdr = outputIndex < 32 && ((project_.hdrOutputs >> outputIndex) & 1u) != 0;
+    const bool wantHdr = outputWantsHdr(outputIndex);
     runtime.outputRenderer = createOutputRenderer(runtime.outputWindow, wantHdr);
     runtime.hdr = wantHdr && runtime.outputRenderer &&
       SDL_GetNumberProperty(SDL_GetRendererProperties(runtime.outputRenderer),
                             SDL_PROP_RENDERER_OUTPUT_COLORSPACE_NUMBER, SDL_COLORSPACE_SRGB) ==
         SDL_COLORSPACE_SRGB_LINEAR;
+    runtime.hdrUnavailable = wantHdr && !runtime.hdr;
     if (wantHdr && !runtime.hdr) {
       triggerToast(outputLabel(outputIndex) + ": HDR is not available on this renderer - running SDR",
                    ToastKind::Warning, kToastReadableMs);
@@ -8327,6 +8328,44 @@
   // carrying that name. Falls back to a clamped index WITHOUT erasing
   // displayName — if the intended display comes back later, the next
   // resolve re-matches it.
+  // HDR ON, or AUTO on a screen that is in HDR. A recording (a stream
+  // output) has no screen of its own, so AUTO there stays SDR.
+  bool outputWantsHdr(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= 32 || outputIndex >= static_cast<int>(project_.outputs.size())) return false;
+    if ((project_.hdrOutputs >> outputIndex) & 1u) return true;
+    if (!((project_.hdrAutoOutputs >> outputIndex) & 1u)) return false;
+    const OutputTarget& output = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    if (normalizeOutputType(output.outputType) == "stream") return false;
+    return outputScreenInHdr(outputIndex);
+  }
+
+  bool outputScreenInHdr(int outputIndex) const {
+    const int count = deckboyGetNumVideoDisplays();
+    if (count <= 0) return false;
+    const int index = resolveOutputDisplayIndex(project_.outputs[static_cast<std::size_t>(outputIndex)], count);
+    const SDL_DisplayID id = deckboyDisplayIdFromIndex(index);
+    return id && SDL_GetBooleanProperty(SDL_GetDisplayProperties(id), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false);
+  }
+
+  // AUTO follows the screen: every two seconds, an AUTO output whose screen
+  // has gone into or out of HDR (Windows' switch, or a move to another
+  // screen) is rebuilt to match. One that asked and could not stays SDR.
+  Uint64 hdrAutoCheckedMs_ = 0;
+  void serviceHdrAuto(Uint64 now) {
+    if (!project_.hdrAutoOutputs || now - hdrAutoCheckedMs_ < 2000) return;
+    hdrAutoCheckedMs_ = now;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()) && i < 32; ++i) {
+      if (!((project_.hdrAutoOutputs >> i) & 1u)) continue;
+      OutputRuntime* rt = runtimeForOutput(i);
+      if (!rt || !rt->outputWindow) continue;
+      const bool want = outputWantsHdr(i);
+      if (want != rt->hdr && !(want && rt->hdrUnavailable)) {
+        triggerToast(outputLabel(i) + (want ? ": screen is in HDR - output now HDR" : ": screen is SDR - output now SDR"));
+        recreateOutputRuntime(i);
+      }
+    }
+  }
+
   int resolveOutputDisplayIndex(const OutputTarget& output, int displayCount) const {
     if (displayCount <= 0) {
       return 0;

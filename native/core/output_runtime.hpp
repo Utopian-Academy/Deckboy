@@ -196,6 +196,7 @@ struct OutputRuntime {
   // The renderer outputs scRGB and the compositor is linear RGBA64_FLOAT
   // (Project::hdrOutputs, and the renderer agreed to it).
   bool hdr = false;
+  bool hdrUnavailable = false;   // asked for HDR and the renderer could not
   SDL_Texture* compositorTexture = nullptr;  // Offscreen compositor target
   // Scratch target at the RECORDING raster. The composite is blitted into this
   // on the GPU and this is what gets read back, so a 1080 recording off a 4K

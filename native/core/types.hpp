@@ -2570,6 +2570,10 @@ struct Project {
   // bit set renders through an scRGB (linear, float) swapchain and a 16-bit
   // float compositor, so HDR video keeps its highlights on an HDR display.
   std::uint32_t hdrOutputs = 0u;
+  // AUTO: HDR when the screen the output is on is in HDR, SDR when it is not,
+  // followed as the screen changes. A bit per output, like hdrOutputs; an
+  // output has at most one of the two set.
+  std::uint32_t hdrAutoOutputs = 0u;
   // Where SDR material (and the HDR reference white) sits on an HDR output, in
   // nits. 203 is ITU-R BT.2408's reference white.
   int hdrSdrWhiteNits = 203;

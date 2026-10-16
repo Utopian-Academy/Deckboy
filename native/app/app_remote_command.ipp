@@ -9020,19 +9020,23 @@
           remoteCommandDetail_ = "SDR material at " + std::to_string(nits) + " nits";
           return;
         }
-        if (what == "ON" || what == "OFF") {
+        if (what == "ON" || what == "OFF" || what == "AUTO") {
           const std::uint32_t bit = 1u << at;
           project_.hdrOutputs = what == "ON" ? (project_.hdrOutputs | bit) : (project_.hdrOutputs & ~bit);
+          project_.hdrAutoOutputs = what == "AUTO" ? (project_.hdrAutoOutputs | bit) : (project_.hdrAutoOutputs & ~bit);
           markProjectDirty();
           if (at < static_cast<int>(outputRuntimes_.size()) && outputRuntimes_[at].outputWindow) {
             recreateOutputRuntime(at);
           }
         } else if (what != "STATUS") {
-          failRemoteCommand("OUTPUT HDR: expected ON, OFF or STATUS");
+          failRemoteCommand("OUTPUT HDR: expected ON, OFF, AUTO or STATUS");
           return;
         }
         const OutputRuntime* rt = at < static_cast<int>(outputRuntimes_.size()) ? &outputRuntimes_[at] : nullptr;
-        std::string detail = std::string(((project_.hdrOutputs >> at) & 1u) ? "asked" : "off");
+        std::string detail = std::string(((project_.hdrOutputs >> at) & 1u) ? "asked"
+                                         : ((project_.hdrAutoOutputs >> at) & 1u)
+                                             ? (outputScreenInHdr(at) ? "auto (screen in HDR)" : "auto (screen SDR)")
+                                             : "off");
         if (rt && rt->outputWindow) {
           const SDL_PropertiesID wp = SDL_GetWindowProperties(rt->outputWindow);
           char text[160];

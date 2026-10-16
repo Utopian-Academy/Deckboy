@@ -26,6 +26,15 @@ in nits instead of clipping it.
   fade out. `MIC`, `MIC ADD`, `MIC LIST`, `MIC INPUT`, `MIC CHANNEL`, `MIC GAIN`. Measured on
   Windows; macOS and Linux untested.
 
+### Desk
+- The SOURCE menu lays its columns out by section, each starting with its heading, wide enough
+  that no entry is shrunk or cut short.
+- Settings > Network splits its cards evenly between the two columns.
+
+### HDR
+- Added HDR **AUTO** for an output: HDR when its screen is in HDR, SDR when it is not, following the
+  screen as it changes. The HDR row steps OFF, AUTO, ON; `OUTPUT HDR AUTO`.
+
 ### Scopes
 - The scopes on an HDR output now measure the HDR picture, not the SDR copy, so highlights no
   longer read clipped at 100%. The waveform and parade are marked in nits and PQ %, with a dashed

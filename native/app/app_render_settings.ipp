@@ -1816,11 +1816,13 @@
       // drift case on this tab the way APPEARANCE did on System. The
       // predicted sum is what protects this tab; add the refinement if a
       // card here is ever found to drift the way that one did.
-      const int leftNeeded = remoteH + oscH + vmixH + webMonH + phoneH + nmcH + notesH + 6 * kCardGap;
+      // Two columns of about the same height: the remote and sync cards on the
+      // left; the integrations, the browser-facing cards and the patch on the right.
+      const int leftNeeded = remoteH + oscH + vmixH + nmcH + notesH + 4 * kCardGap;
       // The fixture patch: a row a fixture, the ADD row and a note.
       const int fixturesH = stackH({sLineH, sRowH, sRowH}) +
                             static_cast<int>(project_.fixtures.size()) * (sRowH + sGap);
-      const int rightNeeded = integrationH + tallyCardH + fixturesH + 2 * kCardGap;
+      const int rightNeeded = integrationH + tallyCardH + webMonH + phoneH + fixturesH + 4 * kCardGap;
       settingsNetworkScrollMax_ = std::max(0, std::max(leftNeeded, rightNeeded) - colH);
       settingsNetworkScroll_ = std::clamp(settingsNetworkScroll_, 0, settingsNetworkScrollMax_);
       settingsNetworkViewport_ = content;
@@ -1845,10 +1847,6 @@
       leftY += oscRect.h + kCardGap;
       SDL_Rect vmixRect {leftCol.x, leftY, leftCol.w, vmixH};
       leftY += vmixRect.h + kCardGap;
-      SDL_Rect webMonRect {leftCol.x, leftY, leftCol.w, webMonH};
-      leftY += webMonRect.h + kCardGap;
-      SDL_Rect phoneRect {leftCol.x, leftY, leftCol.w, phoneH};
-      leftY += phoneRect.h + kCardGap;
       SDL_Rect nmcRect {leftCol.x, leftY, leftCol.w, nmcH};
       leftY += nmcRect.h + kCardGap;
       SDL_Rect notesRect {leftCol.x, leftY, leftCol.w,
@@ -1858,7 +1856,9 @@
       SDL_Rect integrationRect {rightCol.x, rightCol.y, rightCol.w, integrationH};
       SDL_Rect tallyRect {rightCol.x, rightCol.y + integrationH + kCardGap,
                           rightCol.w, tallyCardH};
-      SDL_Rect fixturesRect {rightCol.x, tallyRect.y + tallyRect.h + kCardGap, rightCol.w, fixturesH};
+      SDL_Rect webMonRect {rightCol.x, tallyRect.y + tallyRect.h + kCardGap, rightCol.w, webMonH};
+      SDL_Rect phoneRect {rightCol.x, webMonRect.y + webMonRect.h + kCardGap, rightCol.w, phoneH};
+      SDL_Rect fixturesRect {rightCol.x, phoneRect.y + phoneRect.h + kCardGap, rightCol.w, fixturesH};
 
       const int netLineH = sLineH;
 
@@ -2745,7 +2745,15 @@
                                 ((project_.hdrOutputs >> focusedOutputIndex) & 1u) != 0;
           const OutputRuntime* hdrRt = runtimeForOutput(focusedOutputIndex);
           std::string hdrLabel = "OFF";
-          if (hdrAsked) {
+          const bool hdrAuto = focusedOutputIndex < 32 &&
+                               ((project_.hdrAutoOutputs >> focusedOutputIndex) & 1u) != 0;
+          if (hdrAuto) {
+            const bool screenHdr = outputScreenInHdr(focusedOutputIndex);
+            hdrLabel = !screenHdr ? "AUTO - screen is SDR, running SDR"
+                     : hdrRt && hdrRt->hdr ? "AUTO - screen in HDR, running HDR"
+                     : hdrRt && hdrRt->hdrUnavailable ? "AUTO - not available, running SDR"
+                     : "AUTO - HDR when the output is on";
+          } else if (hdrAsked) {
             if (!hdrRt || !hdrRt->outputWindow) {
               hdrLabel = "ON (when the output is on)";
             } else if (!hdrRt->hdr) {
@@ -2763,7 +2771,7 @@
           const bool hdrApplies = outputTypeLabel == "window" ||
             outputStreamProtocolIsFile(normalizeOutputStreamProtocol(outputTarget.streamProtocol));
           drawActionBtn(hdrBtn, hdrApplies ? hdrLabel : std::string("window and recording outputs only"),
-                        kSettingsActionOutputHdrToggle, hdrAsked);
+                        kSettingsActionOutputHdrToggle, hdrAsked || hdrAuto);
 
           SDL_Rect whiteBtn = settingsRowIn(dLayout.takeFixed(kRowH), "SDR material at");
           drawActionBtn(whiteBtn, std::to_string(project_.hdrSdrWhiteNits) + " nits" +
@@ -4772,8 +4780,10 @@
       } else if (sb.action == kSettingsActionTrustLastRefused) {
         if (!controlLastRefused_.empty()) trustController(controlLastRefused_);
       } else if (sb.action == kSettingsActionOutputHdrToggle) {
-        handleRemoteCommand(std::string("OUTPUT HDR ") +
-          (((project_.hdrOutputs >> std::clamp(project_.focusedOutputIndex, 0, 31)) & 1u) ? "OFF" : "ON"));
+        // OFF -> AUTO -> ON -> OFF.
+        const int at = std::clamp(project_.focusedOutputIndex, 0, 31);
+        const bool on = (project_.hdrOutputs >> at) & 1u, autoOn = (project_.hdrAutoOutputs >> at) & 1u;
+        handleRemoteCommand(std::string("OUTPUT HDR ") + (on ? "OFF" : autoOn ? "ON" : "AUTO"));
       } else if (sb.action == kSettingsActionOutputHdrWhite) {
         static constexpr int kWhites[] = {100, 150, 203, 250, 300};
         int next = kWhites[0];

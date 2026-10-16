@@ -1006,6 +1006,13 @@ HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear
   and tagged PQ. A 4K HDR recording is heavy (the picture is read back as
   floating point and encoded on the CPU); 1080 is comfortable.
 
+**AUTO** (the HDR row steps OFF, AUTO, ON; or `OUTPUT HDR AUTO`) runs the output
+HDR when the screen it is on is in HDR and SDR when it is not, and follows the
+screen: switch Windows HDR on or off, or move the output to another screen, and
+within two seconds the output is rebuilt to match. A recording has no screen of
+its own, so AUTO leaves it SDR; it still records HDR10 when the output it
+mirrors is running HDR.
+
 The **HDR** row, and `OUTPUT HDR STATUS`, say whether the output is really running HDR (a renderer
 or display that cannot falls back to SDR, with a warning) and the display's own
 SDR white level and headroom. `--devices` lists which displays are in HDR.
