@@ -13,7 +13,7 @@
 **Out, while it records:** screens · NDI · SRT and RTMP · SDI · SMPTE ST 2110<br>
 **On:** Windows · macOS · Linux — free and open source. No account, no licence server, no telemetry.
 
-**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ Watch the one-minute trailer](https://utopian-academy.github.io/Deckboy/trailer.html)**
+**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ Watch the one-minute trailer](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
 [![The Deckboy trailer: a film clip, a web page, a slide deck, an arcade lower third, perspective projection mapping and live effects, all from one cue list](docs/video/trailer-poster-397.jpg)](https://utopian-academy.github.io/Deckboy/trailer.html)
 
@@ -74,7 +74,7 @@ which is not true of anything it gets compared to.
 
 ## Community & help
 
-Questions, bugs, production stories, or ideas? [Read the community & support guide](SUPPORT.md), join [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions), or [contribute](CONTRIBUTING.md). For security issues, please use [private reporting](SECURITY.md), not public issues.
+Questions, bugs, production stories, or ideas? [Visit the community page](https://utopian-academy.github.io/Deckboy/community.html) or [read the support guide](SUPPORT.md), join [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions), or [contribute](CONTRIBUTING.md). For security issues, please use [private reporting](SECURITY.md), not public issues.
 
 Deckboy is free software. If it helps you run a show, share your experience, report a bug, improve the docs, or tell another operator about it. That's how the project grows.
 
