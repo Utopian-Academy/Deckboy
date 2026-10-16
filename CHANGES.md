@@ -9,6 +9,11 @@
   have a centred, outlined play mark.
 - New art for the Windows installer and the macOS disk image.
 
+### Live captions
+- The macOS and Linux downloads carry the English speech model, so live captions work with no
+  download. Settings > Audio > LIVE CAPTIONS has a Speech models row: one chip per model, lit when it
+  is on this computer; click one to fetch it (any language, and the more accurate pair).
+
 ## 2026-10-16 - v0.99.413 (a Mic cue, a fixture patch that dips the lights when a video rolls, HDR scopes in nits)
 
 A live microphone or line input as a cue on a deck; lights named once and set by name, with LFOs on

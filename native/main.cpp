@@ -9496,6 +9496,8 @@ class App {
   static constexpr int kSettingsActionLiveCaptionsPosition = 847;
   static constexpr int kSettingsActionLiveCaptionsSize = 848;
   static constexpr int kSettingsActionLiveCaptionsTranscript = 849;
+  // 851-854: download one speech model (kModelChoices order).
+  static constexpr int kSettingsActionCaptionModelBase = 851;
   static constexpr int kSettingsActionLiveCaptionsOutputBase = 850;  // 850-857
   static constexpr int kSettingsActionOutputHdrToggle = 858;
   static constexpr int kSettingsActionOutputHdrWhite = 859;

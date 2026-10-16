@@ -187,6 +187,10 @@ if [ -d "$REPO_ROOT/data" ]; then
   done
 fi
 
+# The English speech model for live captions, bundled: there is no installer
+# here to offer it as a tick, as the Windows one does (tools/fetch_caption_model.sh).
+bash "$REPO_ROOT/tools/fetch_caption_model.sh" "$STAGE_DIR/data"
+
 [ -f "$REPO_ROOT/LICENSE" ] && cp "$REPO_ROOT/LICENSE" "$STAGE_DIR/LICENSE"
 
 # --- Which libraries stay on the host -------------------------------------

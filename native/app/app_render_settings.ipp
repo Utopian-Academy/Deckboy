@@ -1359,7 +1359,7 @@
       // made the left column taller than the modal at 1x, and a card that
       // runs off the bottom cannot be reached at all.
       const int kAudioCardGap = uiScaled(10);
-      const int capH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
+      const int capH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
       {
         const int midiNeedH = stackH({sRowH, sRowH, sLineH, sLineH, sLineH, sLineH, sLineH, sRowH});
         const int ltcNeedH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
@@ -1602,6 +1602,26 @@
         drawUIValueControl(langBtn, std::string(choice.label) + " (" + std::to_string(choice.megabytes) + " MB" +
           (deckboy::captioning::modelPresent(project_.captionsModel) ? std::string(")") : std::string(", fetched once)")));
         settingsBtns_.push_back({langBtn, kSettingsActionLiveCaptionsLanguage, "live_captions"});
+      }
+
+      // The four speech models, one chip each, lit when it is on this computer
+      // (bundled, ticked in the installer, or fetched). Click one to fetch it.
+      {
+        SDL_Rect modelsRow = settingsRow(kx, kw, ky, sRowH, "Speech models", sGap);
+        static const char* kShort[] = {"ENGLISH", "ANY", "ENGLISH+", "ANY+"};
+        const int count = static_cast<int>(std::size(deckboy::captioning::kModelChoices));
+        const int chipGap = uiScaled(4);
+        const int chipW = (modelsRow.w - chipGap * (count - 1)) / count;
+        for (int m = 0; m < count && m < 4; ++m) {
+          const auto& choice = deckboy::captioning::kModelChoices[m];
+          SDL_Rect chip {modelsRow.x + m * (chipW + chipGap), modelsRow.y, chipW, modelsRow.h};
+          const bool here = deckboy::captioning::modelPresent(choice.token);
+          const bool fetching = captionModelFetching_ == choice.token;
+          drawSettingsToggle(chip, here, kShort[m], fetching ? std::string("...") : std::string(kShort[m]));
+          settingsBtns_.push_back({chip, kSettingsActionCaptionModelBase + m,
+                                   std::string(choice.label) + ", " + std::to_string(choice.megabytes) +
+                                     " MB: lit when it is on this computer; click to download it"});
+        }
       }
 
       // One chip per output (up to eight), lit when it shows the captions.
@@ -4794,6 +4814,8 @@
         setLiveCaptionsEnabled(!project_.liveCaptionsEnabled);
       } else if (sb.action == kSettingsActionLiveCaptionsSource) {
         cycleLiveCaptionsSource();
+      } else if (sb.action >= kSettingsActionCaptionModelBase && sb.action < kSettingsActionCaptionModelBase + 4) {
+        fetchCaptionModel(deckboy::captioning::kModelChoices[sb.action - kSettingsActionCaptionModelBase].token);
       } else if (sb.action == kSettingsActionLiveCaptionsLanguage) {
         cycleCaptionsModel();
       } else if (sb.action == kSettingsActionLiveCaptionsLines) {

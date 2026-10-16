@@ -121,9 +121,38 @@
     return true;
   }
 
+  // SPEECH MODELS, fetched from Settings one at a time: its own slot, so an
+  // extra model failing to arrive never switches off captions that are running.
+  std::future<deckboy::captioning::Result> captionModelFetch_;
+  std::string captionModelFetching_;
+
+  void fetchCaptionModel(const std::string& model) {
+    namespace cap = deckboy::captioning;
+    const auto& choice = cap::modelChoice(model);
+    if (cap::modelPresent(model)) {
+      triggerToast(std::string(choice.label) + ": already on this computer");
+      return;
+    }
+    if (captionModelFetch_.valid()) {
+      triggerToast("still downloading " + std::string(cap::modelChoice(captionModelFetching_).label));
+      return;
+    }
+    captionModelFetching_ = model;
+    captionModelFetch_ = std::async(std::launch::async, [model]() { return cap::downloadModel(model); });
+    triggerToast("downloading " + std::string(choice.label) + " (" + std::to_string(choice.megabytes) + " MB)");
+  }
+
   // Main thread, every tick.
   void serviceLiveCaptions() {
     namespace cap = deckboy::captioning;
+    if (captionModelFetch_.valid() &&
+        captionModelFetch_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+      const cap::Result got = captionModelFetch_.get();
+      const std::string label = cap::modelChoice(captionModelFetching_).label;
+      captionModelFetching_.clear();
+      triggerToast(got.ok ? label + ": ready" : label + ": " + got.message,
+                   got.ok ? ToastKind::Help : ToastKind::Warning, kToastReadableMs);
+    }
     if (liveCaptionsDownload_.valid() &&
         liveCaptionsDownload_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
       const cap::Result got = liveCaptionsDownload_.get();
