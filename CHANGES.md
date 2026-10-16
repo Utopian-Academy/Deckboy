@@ -1,6 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-16 - v0.99.413 (in progress)
+## 2026-10-16 - v0.99.413 (a Mic cue, a fixture patch that dips the lights when a video rolls, HDR scopes in nits)
+
+A live microphone or line input as a cue on a deck; lights named once and set by name, with LFOs on
+their level and colour and an automatic dip while a video plays; and scopes that read an HDR output
+in nits instead of clipping it.
 
 ### Lighting
 - Added the fixture patch: `Settings > Network > FIXTURES` names the lights (dimmer, RGB, RGBW, RGBA,
