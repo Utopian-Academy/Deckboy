@@ -14,8 +14,8 @@ Utopian Academy is the umbrella community. Deckboy is its first public project. 
 
 ## Requires project-owner account access
 
-- [ ] **Domain:** confirm ownership and registrar access to `utopianacademy.cool`; register it first if it is unowned. Avoid naming a working public email until DNS and mail delivery are configured.
-- [ ] **Email:** establish a real send-and-receive mailbox at `utopia@utopianacademy.cool`. The local part of an email address is best published consistently in lowercase.
+- [ ] **Domain:** confirm ownership and registrar access to the intended Utopian Academy domain; register it first if it is unowned. Avoid naming a working public email until DNS and mail delivery are configured.
+- [ ] **Email:** establish a real send-and-receive mailbox at the intended project address. The local part of an email address is best published consistently in lowercase.
 - [ ] **DNS:** follow the selected mail provider's domain verification, MX, SPF and DKIM records; add DMARC. Never copy another provider's sample MX records.
 - [ ] **Test:** send a message both to and from the address using an unrelated mailbox, check that replies come from the project address, and verify that messages don't land in spam.
 - [ ] **Aliases (optional):** create `press@`, `security@` or `hello@` only if useful; point them at the monitored mailbox and test each.
