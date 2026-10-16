@@ -60,7 +60,7 @@ See [SECURITY.md](SECURITY.md) for responsible disclosure instructions.
 
 Be professional, be respectful. This project serves people who work under
 pressure in live environments — bring that same focus and mutual respect to
-the issue tracker and pull requests.
+the issue tracker and pull requests. Read our [community code of conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
