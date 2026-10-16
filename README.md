@@ -2,19 +2,17 @@
 
 <div align="center">
 
-[![Download](https://img.shields.io/github/v/release/Utopian-Academy/Deckboy?style=for-the-badge&label=download&color=8bac0f&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/Utopian-Academy/Deckboy/total?style=for-the-badge&color=306230&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases)
-[![CI](https://img.shields.io/github/actions/workflow/status/Utopian-Academy/Deckboy/build.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml)
-[![Discord](https://img.shields.io/discord/1560690462766006362?style=for-the-badge&label=discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/AZzsE4AZWx)
+[![Download](https://img.shields.io/github/v/release/Utopian-Academy/Deckboy?style=for-the-badge&labelColor=0f380f&color=8bac0f&label=download&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/Utopian-Academy/Deckboy/total?style=for-the-badge&labelColor=0f380f&color=306230&label=downloads&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![Stars](https://img.shields.io/github/stars/Utopian-Academy/Deckboy?style=for-the-badge&labelColor=0f380f&color=306230&label=stars&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/stargazers)
+[![Discord](https://img.shields.io/discord/1560690462766006362?style=for-the-badge&labelColor=0f380f&color=306230&label=discord&logo=discord&logoColor=9bbc0f)](https://discord.gg/AZzsE4AZWx)
 
-[![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue?style=for-the-badge)](LICENSE)
-[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-1a6fb5?style=for-the-badge)](https://libsdl.org)
+[![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/Utopian-Academy/Deckboy/build.yml?branch=main&style=for-the-badge&labelColor=0f380f&label=CI&logo=githubactions&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-306230?style=for-the-badge&labelColor=0f380f)](LICENSE)
 
-[![Stars](https://img.shields.io/github/stars/Utopian-Academy/Deckboy?style=social)](https://github.com/Utopian-Academy/Deckboy/stargazers)
-[![Mentioned in Awesome NDI](https://awesome.re/mentioned-badge.svg)](https://github.com/florisporro/awesome-ndi)
+[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-306230?style=for-the-badge&labelColor=0f380f)](https://libsdl.org)
+[![Mentioned in Awesome NDI](https://img.shields.io/badge/mentioned%20in-awesome%20NDI-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/florisporro/awesome-ndi)
 
 </div>
 
