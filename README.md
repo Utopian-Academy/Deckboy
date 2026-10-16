@@ -567,6 +567,8 @@ importantly, what each feature deliberately does not do.
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes
 - A lighting dashboard, beyond the fixture patch
+- MIDI and OSC monitors: every message arriving, as it arrives, with what
+  Deckboy did with it, so a controller that "does nothing" can be seen
 - Live scoreboard data as a source: the clock, scores and fouls read off a
   venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
   and its XML/JSON feed, driving text and lower thirds on the outputs

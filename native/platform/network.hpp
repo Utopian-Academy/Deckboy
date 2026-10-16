@@ -174,6 +174,47 @@ inline std::string privateLanIPv4Address() {
 #endif
 }
 
+// This computer's address on a Tailscale network (100.64.0.0/10, the range
+// Tailscale hands out), or empty. Phone control listens there as well, so a
+// phone on the same tailnet reaches the desk from anywhere -- Tailscale does
+// the encryption and the who-may-connect; nothing is opened to the internet.
+inline bool isTailnetIPv4(std::uint32_t host) { return (host & 0xFFC00000u) == 0x64400000u; }
+inline std::string tailnetIPv4Address() {
+#ifdef _WIN32
+  ULONG bytes = 16 * 1024;
+  std::vector<unsigned char> storage(bytes);
+  auto* adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(storage.data());
+  constexpr ULONG kFlags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER;
+  ULONG result = GetAdaptersAddresses(AF_INET, kFlags, nullptr, adapters, &bytes);
+  if (result == ERROR_BUFFER_OVERFLOW) {
+    storage.resize(bytes);
+    adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(storage.data());
+    result = GetAdaptersAddresses(AF_INET, kFlags, nullptr, adapters, &bytes);
+  }
+  if (result != NO_ERROR) return {};
+  for (auto* adapter = adapters; adapter; adapter = adapter->Next) {
+    if (adapter->OperStatus != IfOperStatusUp) continue;
+    for (auto* unicast = adapter->FirstUnicastAddress; unicast; unicast = unicast->Next) {
+      if (!unicast->Address.lpSockaddr || unicast->Address.lpSockaddr->sa_family != AF_INET) continue;
+      const auto* address = reinterpret_cast<const sockaddr_in*>(unicast->Address.lpSockaddr);
+      if (isTailnetIPv4(ntohl(address->sin_addr.s_addr))) return ipv4AddressToString(*address);
+    }
+  }
+  return {};
+#else
+  ifaddrs* interfaces = nullptr;
+  if (getifaddrs(&interfaces) != 0 || !interfaces) return {};
+  std::string found;
+  for (const ifaddrs* entry = interfaces; entry && found.empty(); entry = entry->ifa_next) {
+    if (!entry->ifa_addr || entry->ifa_addr->sa_family != AF_INET || (entry->ifa_flags & IFF_UP) == 0) continue;
+    const auto* address = reinterpret_cast<const sockaddr_in*>(entry->ifa_addr);
+    if (isTailnetIPv4(ntohl(address->sin_addr.s_addr))) found = ipv4AddressToString(*address);
+  }
+  freeifaddrs(interfaces);
+  return found;
+#endif
+}
+
 // ── POSIX implementation ────────────────────────────────────────────────────
 #ifndef _WIN32
 

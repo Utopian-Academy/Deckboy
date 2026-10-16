@@ -2719,25 +2719,23 @@
                              deck.cues[index].name;
       return;
     }
-    // PHONE ON|OFF|STATUS | LEVEL GO|SHOW|FULL | HAPTICS ON|OFF | PAIR | FORGET
+    // PHONE ON|OFF|STATUS | HAPTICS ON|OFF | PAIR [ANYWHERE] | FORGET
     // -- the phone and tablet controller. Local only (remoteVerbIsLocalOnly):
     // each of these widens or narrows what a phone may do.
     if (command == "PHONE") {
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
       if (sub == "ON" || sub == "OFF") {
         if (!setWebRemoteEnabled(sub == "ON")) return;
-      } else if (sub == "LEVEL" && parts.size() > 2) {
-        const std::string want = toUpper(parts[2]);
-        const int level = want == "FULL" || want == "2" ? 2 : want == "SHOW" || want == "1" ? 1
-                        : want == "GO" || want == "0" ? 0 : -1;
-        if (level < 0) { failRemoteCommand("PHONE LEVEL: GO | SHOW | FULL"); return; }
-        setPhoneLevel(level);
+      } else if (sub == "LEVEL") {
+        failRemoteCommand("PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; "
+                          "BLACKOUT and RECORD are hold-to-fire on the phone");
+        return;
       } else if (sub == "HAPTICS" && parts.size() > 2) {
         setPhoneHaptics(toUpper(parts[2]) == "ON");
       } else if (sub == "PAIR") {
         // Answers with the pairing address too: a local caller (Companion on
         // this computer, a script) can hand it on; the screen shows the QR.
-        openPhonePairQr();
+        openPhonePairQr(parts.size() > 2 && toUpper(parts[2]) == "ANYWHERE");
         if (webMonitorQrOpen_ && webMonitorQrText_.find("#pair=") != std::string::npos) {
           remoteCommandDetail_ = webMonitorQrText_;
           return;
@@ -2745,11 +2743,11 @@
       } else if (sub == "FORGET") {
         forgetPairedPhones();
       } else if (sub != "STATUS") {
-        failRemoteCommand("PHONE: ON | OFF | STATUS | LEVEL GO|SHOW|FULL | HAPTICS ON|OFF | PAIR | FORGET");
+        failRemoteCommand("PHONE: ON | OFF | STATUS | HAPTICS ON|OFF | PAIR [ANYWHERE] | FORGET");
         return;
       }
       remoteCommandDetail_ = std::string(project_.webRemoteEnabled ? "on " + webRemoteUrl() : std::string("off")) +
-        " | can do " + phoneLevelLabel(project_.webRemoteLevel) + " | haptics " +
+        (webRemoteTailnetUrl().empty() ? std::string() : " | anywhere " + webRemoteTailnetUrl()) + " | haptics " +
         (project_.webRemoteHaptics ? "on" : "off") + " | paired " + std::to_string(pairedPhoneCount());
       return;
     }

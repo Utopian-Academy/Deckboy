@@ -2312,8 +2312,8 @@ All remote inputs normalise to plain-text commands.
 
 With **Listen on** set to all interfaces, Companion, OSC, OSC Query, the
 HyperDeck emulation and the vMix API answer only this computer and the
-machines in **Settings → Network → Trusted controllers**. So does the phone
-remote, whenever the Web Monitor is shared on the network. Entries are IPv4 addresses or
+machines in **Settings → Network → Trusted controllers**. (The phone remote
+has its own door: a paired key or the passphrase.) Entries are IPv4 addresses or
 ranges such as `192.168.1.0/24`, comma separated. Anyone else is refused, and
 a warning names the address. **Last refused** shows the most recent one with
 an **ALLOW** button, which adds it to the list. Every refusal is written to
@@ -2455,37 +2455,39 @@ Over the network: `WEBMONITOR` (the address), `WEBMONITOR ON|OFF`,
 
 ### Phone and tablet control
 
-A phone or tablet becomes a controller for the whole desk: decks, the tracker,
-DASH and, if you allow it, blackout, the test card, outputs and recording. It
-has its own card, **Settings → Network → PHONE & TABLET**, and works whether
-the Web Monitor is on or off.
+A phone or tablet becomes a controller for the whole desk, on one screen with
+no modes: the decks and their transport, the cue list, DASH, the tracker,
+blackout, the test card, outputs and recording. It has its own card,
+**Settings → Network → PHONE & TABLET**, and works whether the Web Monitor is
+on or off.
 
 1. Set an **8-character or longer passphrase** (shared with the Web Monitor) and
    turn **Phone control** on. The card shows the address, for example
    `http://192.168.1.20:8090/remote`.
 2. Press **SCAN TO PAIR** and point the phone's camera at the code. The phone
    opens Deckboy and connects with no typing. The code works once, for two
-   minutes; the phone keeps a key of its own and opens connected from then on.
+   minutes; the phone keeps a key of its own and opens connected from then on,
+   including from the same code scanned again.
    Without a camera, open the address and type the passphrase instead.
 
-What a phone may do is set by **Can do**, and the desk enforces it:
+The screen, top to bottom:
 
-- **GO + STOP ONLY** (the default): decks (GO, BACK, STOP, NEXT, select a cue),
-  the tracker (GO, BACK, PLAY, STOP) and DASH.
-- **SHOW CONTROL**: also blackout and the test card on every screen.
-- **FULL**: also each output on or off, and recording.
-
-The page:
-
-- **DECKS** shows what is live with its time and progress, what is next, a big
-  **GO**, **BACK**, **STOP** and **NEXT**, and the cue list. With more than one
-  deck, a row of deck buttons picks which one the page drives.
-- **TRACKER** appears when the show has tracker steps: the step, the next one,
-  **GO**, **BACK**, **PLAY** and **STOP**.
-- **DASH** shows the buttons configured on the desk. Each runs its assigned
-  command. Configure these with `DASH SET <n> <label> | <command>`.
-- **SHOW** appears from SHOW CONTROL up. **BLACKOUT**, the outputs and
-  **RECORD** fire after a half-second hold, so a pocket cannot press them.
+- **Deck buttons**, with more than one deck: which deck the page drives.
+- **Now playing**: the deck's state, time and progress, the live cue and what
+  is on standby.
+- **TAKE**, then the transport: **|<** rerack, **<<** previous cue,
+  play/pause, **STOP**, **>>** next cue, **-10S** / **+10S**, and **BACK** /
+  **NEXT** to move the selection.
+- **FADER**: the deck's level.
+- **CUES**: a compact list with each cue's length. Tap a cue to put it on
+  standby (TAKE plays it); hold one to take it at once.
+- **DASH**: the desk's buttons; tap to fire. Hold a button to change its name
+  or what it does, or to remove it, and press **+** to add one. A button can
+  do anything else on this screen, so editing one cannot reach further.
+- **TRACKER**, when the show has tracker steps: the step, the next one,
+  **BACK**, **GO** and **PLAY** / **STOP**.
+- **SHOW**: **BLACKOUT** and **REC** fire after a half-second hold, so a pocket
+  cannot press them; **TEST CARD** and each output toggle with a tap.
 - The page wears the desk's theme and Deckboy's pixel face, and shows each
   command's `OK` or `ERR`. Commands are never retried by themselves.
 - **Haptics**: the phone taps on every press, double-taps when the desk
@@ -2500,15 +2502,24 @@ Keys are kept on this computer, never in the show file, so a show passed on
 does not let anyone else's phone in. Changing the passphrase does not unpair
 phones; FORGET ALL does.
 
-A phone with only the passphrase must also be in **Trusted controllers**; a
-paired phone carries its own key and does not. Phone control listens on this
-computer's private Ethernet/Wi-Fi address (never a VPN's); turning it off takes
-it off the network unless the Web Monitor is shared. HTTP is unencrypted, so use
-a trusted private network and never forward the port to the public internet.
+Phone control listens on this computer's private Ethernet/Wi-Fi address;
+turning it off takes it off the network unless the Web Monitor is shared. HTTP
+is unencrypted, so use a trusted private network and never forward the port to
+the public internet.
 
-`PHONE ON|OFF|STATUS`, `PHONE LEVEL GO|SHOW|FULL`, `PHONE HAPTICS ON|OFF`,
-`PHONE PAIR` (shows the code, and answers with its address) and `PHONE FORGET`,
-all from this computer only. `WEBMONITOR CONTROL ON|OFF` still works.
+#### From anywhere, with Tailscale
+
+To reach the desk from outside the building, install
+[Tailscale](https://tailscale.com) on this computer and on the phone, signed in
+to the same account. Deckboy sees it within a few seconds and also listens on
+this computer's Tailscale address; **From anywhere** on the card shows that
+address, and clicking it shows a pairing code for it. Tailscale encrypts the
+link and decides which devices may reach it, and nothing is opened to the
+internet. The phone pairs, and works, exactly as on the local network.
+
+`PHONE ON|OFF|STATUS`, `PHONE HAPTICS ON|OFF`, `PHONE PAIR [ANYWHERE]` (shows
+the code, and answers with its address) and `PHONE FORGET`, all from this
+computer only. `WEBMONITOR CONTROL ON|OFF` still works.
 
 ---
 

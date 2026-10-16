@@ -16,6 +16,19 @@
   so only SCAN TO PAIR worked.
 - The DECKBOY plate at the top of the phone page is readable on every theme; on some it was dark
   on dark.
+- The phone page is one screen with everything on it, replacing the DECKS / TRACKER / DASH / SHOW
+  tabs: TAKE, the full transport (rerack, previous, play/pause, stop, next, -10s/+10s, back/next),
+  the deck's fader, a compact cue list that shows about twice as many cues (tap for standby, hold to
+  take now), DASH, the tracker and the show controls.
+- DASH can be edited from the phone: hold a button to rename it, change what it does or remove it,
+  and + adds one.
+- The "Can do" levels are gone; a paired phone or the passphrase can do everything. BLACKOUT and REC
+  still fire only after a half-second hold. `PHONE LEVEL` now answers with an error saying so.
+- From anywhere: with Tailscale on this computer and the phone, phone control also listens on the
+  Tailscale address. Settings > Network > PHONE & TABLET > From anywhere shows it and its pairing
+  code; `PHONE PAIR ANYWHERE` does the same remotely.
+- Fixed an issue where the live cue's row and the now-playing panel on the phone were unreadable on
+  dark themes, and a long cue name pushed its row off the side of the screen.
 
 ### Live captions
 - The macOS and Linux downloads carry the English speech model, so live captions work with no

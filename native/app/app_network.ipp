@@ -1074,6 +1074,13 @@
     return "http://" + host + ":" + std::to_string(project_.webMonitorPort) + "/remote";
   }
 
+  // Where a phone on the same Tailscale network opens the controller, or
+  // empty when this computer is not on one (or phone control is off).
+  std::string webRemoteTailnetUrl() const {
+    if (webRemoteTailnetAddress_.empty() || !webMonitorReady_) return {};
+    return "http://" + webRemoteTailnetAddress_ + ":" + std::to_string(project_.webMonitorPort) + "/remote";
+  }
+
   std::string webMonitorUrl() const {
     const std::string host = webServerOnNetwork() ? webMonitorLanAddress() : std::string("localhost");
     if (host.empty()) return "LAN unavailable (no active private Ethernet/Wi-Fi address)";
@@ -1112,7 +1119,6 @@
                             .mirrorSourceOutputIndex);
     webMonitorPinSnapshot_ = project_.webMonitorPin;
     webRemoteEnabledSnapshot_ = project_.webRemoteEnabled;
-    webRemoteLevelSnapshot_ = std::clamp(project_.webRemoteLevel, 0, 2);
     webMonitorEnabledSnapshot_ = project_.webMonitorEnabled;
     webMonitorShareSnapshot_ = project_.webMonitorShareLan;
     if (project_.webRemoteEnabled) {
@@ -1542,11 +1548,17 @@
         elapsed = std::max(0.0, engine->position());
         length = std::max(0.0, engine->duration());
       }
+      double volume = 1.0;
+      if (const MediaEngine* engine = mediaEngineForDeck(static_cast<int>(d))) volume = engine->volume();
+      out << ",\"volume\":" << static_cast<int>(std::lround(volume * 100.0));
       out << ",\"elapsed\":" << static_cast<long long>(elapsed * 10.0) / 10.0
           << ",\"length\":" << static_cast<long long>(length * 10.0) / 10.0 << ",\"cues\":[";
       for (std::size_t c = 0; c < deck.cues.size(); ++c) {
         if (c) out << ',';
-        out << "{\"index\":" << c + 1 << ",\"name\":\"" << escapeJson(deck.cues[c].name) << "\"}";
+        const Cue& cue = deck.cues[c];
+        const double len = cue.duration > 0.0 ? cue.duration : cue.stillDurationSeconds;
+        out << "{\"index\":" << c + 1 << ",\"name\":\"" << escapeJson(cue.name)
+            << "\",\"len\":" << static_cast<long long>(std::max(0.0, len) * 10.0) / 10.0 << '}';
       }
       out << "]}";
     }
@@ -1554,10 +1566,10 @@
     bool first = true;
     for (std::size_t n = 0; n < project_.dashboard.size(); ++n) {
       const DashboardSlot& slot = project_.dashboard[n];
-      if (slot.command.empty()) continue;
       if (!first) out << ',';
       first = false;
-      out << "{\"index\":" << n + 1 << ",\"label\":\"" << escapeJson(slot.label) << "\"}";
+      out << "{\"index\":" << n + 1 << ",\"label\":\"" << escapeJson(slot.label)
+          << "\",\"command\":\"" << escapeJson(slot.command) << "\"}";
     }
     // THE TRACKER, if the show has one: it can be the primary way a show is
     // run, so the phone carries it as well as the decks.
@@ -1582,7 +1594,7 @@
     }
     bool cardUp = false;
     for (const auto& target : project_.outputs) cardUp = cardUp || target.outputTestCardEnabled;
-    out << "],\"level\":" << std::clamp(project_.webRemoteLevel, 0, 2)
+    out << "],\"anywhere\":\"" << escapeJson(webRemoteTailnetUrl()) << '"'
         << ",\"haptics\":" << (project_.webRemoteHaptics ? "true" : "false")
         << ",\"blackout\":" << (masterDimmerTarget_ < 0.5 ? "true" : "false")
         << ",\"testcard\":" << (cardUp ? "true" : "false")
@@ -1648,12 +1660,12 @@
   }
 
   // SCAN TO PAIR: a fresh one-time code, and the QR that carries it.
-  void openPhonePairQr() {
+  void openPhonePairQr(bool tailnet = false) {
     if (!project_.webRemoteEnabled || !webMonitorReady_) {
       triggerToast("phone control: turn it on first", ToastKind::Warning, kToastReadableMs);
       return;
     }
-    const std::string base = webRemoteUrl();
+    const std::string base = tailnet ? webRemoteTailnetUrl() : webRemoteUrl();
     if (base.rfind("http://", 0) != 0) {
       triggerToast("phone control: " + base, ToastKind::Warning, kToastReadableMs);
       return;
@@ -1668,16 +1680,13 @@
                   "Point a phone camera at the code: it connects, no typing. Works once, for 2 minutes");
   }
 
-  static const char* phoneLevelLabel(int level) {
-    return level >= 2 ? "FULL" : level == 1 ? "SHOW CONTROL" : "GO + STOP ONLY";
-  }
-
-  void setPhoneLevel(int level) {
-    project_.webRemoteLevel = std::clamp(level, 0, 2);
-    webMonitorDirSyncedMs_ = 0;
-    syncWebMonitorDirectory();
-    triggerToast(std::string("phones can do: ") + phoneLevelLabel(project_.webRemoteLevel));
-    markProjectDirty();
+  // Tailscale coming up or going down after phone control started: rebuild
+  // the server so its tailnet listener follows. Checked every five seconds.
+  Uint64 webRemoteTailnetCheckedMs_ = 0;
+  void serviceTailnetWatch(Uint64 now) {
+    if (!project_.webRemoteEnabled || !webMonitorReady_ || now - webRemoteTailnetCheckedMs_ < 5000) return;
+    webRemoteTailnetCheckedMs_ = now;
+    if (deckboy::platform::tailnetIPv4Address() != webRemoteTailnetAddress_) restartWebMonitorIfRunning();
   }
 
   void setPhoneHaptics(bool on) {
@@ -1688,40 +1697,54 @@
     markProjectDirty();
   }
 
-  // What a phone may send, by the desk's "Can do" level. An exact list: a
-  // phone is a remote with a passphrase, not a console.
-  //   GO + STOP:     DECK n GO|STOP|NEXT|PREV, DECK n SELECT m, DASH n,
-  //                  TRACKER GO|BACK|PLAY|STOP
-  //   SHOW CONTROL:  + BLACKOUT ON|OFF, OUTPUT TESTCARD ALL ON|OFF
-  //   FULL:          + OUTPUT n ON|OFF, RECORD ON|OFF
-  static bool webRemoteCommandAllowed(const std::string& command, int level) {
+  // What a phone may send: an exact list, the same for every paired phone
+  // (the "Can do" levels were removed 2026-10-16: James wanted one controller
+  // with everything). BLACKOUT and RECORD are hold-to-fire on the page.
+  //   DASH n | DASH CLEAR n | DASH SET n <label> | <command>   (the command must itself be
+  //       on this list, so editing a button cannot reach past it)
+  //   TRACKER GO|BACK|PLAY|STOP
+  //   DECK n GO|STOP|NEXT|PREV|PLAY|PAUSE|RERACK|SKIP|SKIPBACK|TAKE
+  //   DECK n TAKE|SELECT|STANDBY m | DECK n SEEK <seconds> | DECK n VOLUME <0-100>
+  //   BLACKOUT ON|OFF | OUTPUT TESTCARD ALL ON|OFF | RECORD ON|OFF | OUTPUT n ON|OFF
+  static bool webRemoteCommandAllowed(const std::string& command, bool insideDash = false) {
     if (command.find_first_of("\r\n\0", 0, 3) != std::string::npos) return false;
     const auto words = splitWhitespace(command);
     const auto number = [](const std::string& word) {
       return !word.empty() && word.size() <= 6 && word[0] != '0' &&
         std::all_of(word.begin(), word.end(), [](unsigned char c) { return c >= '0' && c <= '9'; });
     };
+    const auto decimal = [](const std::string& word) {
+      return !word.empty() && word.size() <= 9 &&
+        std::all_of(word.begin(), word.end(), [](unsigned char c) { return (c >= '0' && c <= '9') || c == '.'; });
+    };
     const auto onOff = [](const std::string& word) { return word == "ON" || word == "OFF"; };
     if (words.size() == 2 && words[0] == "DASH") return number(words[1]);
+    if (!insideDash && words.size() == 3 && words[0] == "DASH" && words[1] == "CLEAR") return number(words[2]);
+    if (!insideDash && words.size() >= 4 && words[0] == "DASH" && words[1] == "SET" && number(words[2])) {
+      const auto bar = command.find('|');
+      if (bar == std::string::npos) return false;
+      std::string action = command.substr(bar + 1);
+      if (const auto glyph = action.find('|'); glyph != std::string::npos) action = action.substr(0, glyph);
+      return webRemoteCommandAllowed(trim(action), true);
+    }
     if (words.size() == 2 && words[0] == "TRACKER") {
       return words[1] == "GO" || words[1] == "BACK" || words[1] == "PLAY" || words[1] == "STOP";
     }
     if (words.size() >= 3 && words[0] == "DECK" && number(words[1])) {
+      static const char* kBare[] = {"GO", "STOP", "NEXT", "PREV", "PLAY", "PAUSE", "RERACK", "SKIP", "SKIPBACK", "TAKE"};
       if (words.size() == 3) {
-        return words[2] == "GO" || words[2] == "STOP" || words[2] == "NEXT" || words[2] == "PREV";
+        return std::any_of(std::begin(kBare), std::end(kBare), [&](const char* v) { return words[2] == v; });
       }
-      return words.size() == 4 && words[2] == "SELECT" && number(words[3]);
+      if (words.size() != 4) return false;
+      if (words[2] == "TAKE" || words[2] == "SELECT" || words[2] == "STANDBY") return number(words[3]);
+      if (words[2] == "SEEK") return decimal(words[3]);
+      if (words[2] == "VOLUME") return decimal(words[3]) && std::atof(words[3].c_str()) <= 100.0;
+      return false;
     }
-    if (level >= 1) {
-      if (words.size() == 2 && words[0] == "BLACKOUT") return onOff(words[1]);
-      if (words.size() == 4 && words[0] == "OUTPUT" && words[1] == "TESTCARD" && words[2] == "ALL") {
-        return onOff(words[3]);
-      }
-    }
-    if (level >= 2) {
-      if (words.size() == 2 && words[0] == "RECORD") return onOff(words[1]);
-      if (words.size() == 3 && words[0] == "OUTPUT" && number(words[1])) return onOff(words[2]);
-    }
+    if (words.size() == 2 && words[0] == "BLACKOUT") return onOff(words[1]);
+    if (words.size() == 4 && words[0] == "OUTPUT" && words[1] == "TESTCARD" && words[2] == "ALL") return onOff(words[3]);
+    if (words.size() == 2 && words[0] == "RECORD") return onOff(words[1]);
+    if (words.size() == 3 && words[0] == "OUTPUT" && number(words[1])) return onOff(words[2]);
     return false;
   }
 
@@ -1738,8 +1761,9 @@
     if (getpeername(client, reinterpret_cast<sockaddr*>(&peer), &peerSize) != 0) return;
     const std::uint32_t peerIp = ntohl(peer.sin_addr.s_addr);
     if ((peerIp >> 24) != 127 && (peerIp >> 24) != 10 &&
-        (peerIp >> 20) != 0xAC1 && (peerIp >> 16) != 0xC0A8) {
-      reply("403 Forbidden", "ERR remote: private LAN clients only"); return;
+        (peerIp >> 20) != 0xAC1 && (peerIp >> 16) != 0xC0A8 &&
+        !deckboy::platform::isTailnetIPv4(peerIp)) {
+      reply("403 Forbidden", "ERR remote: private LAN or Tailscale clients only"); return;
     }
     // NO TRUSTED-CONTROLLER LIST FOR A PHONE: the passphrase, or the key a
     // paired phone holds, is the credential, checked below for every request
@@ -1847,7 +1871,6 @@
     }
     std::string snapshot;
     bool enabled = false;
-    int level = 0;
     bool authenticated = false;
     bool throttled = false;
     const std::string givenPin = webMonitorDecodeQuery(headers["x-deckboy-pin"]);
@@ -1856,7 +1879,6 @@
     {
       std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
       enabled = webRemoteEnabledSnapshot_ && webMonitorPinSnapshot_.size() >= 8;
-      level = webRemoteLevelSnapshot_;
       const auto now = std::chrono::steady_clock::now();
       throttled = now < webRemoteRetryAt_;
       if (!throttled && enabled) {
@@ -1913,14 +1935,8 @@
       return;
     }
     const std::string command = request.substr(headEnd + 4);
-    if (!webRemoteCommandAllowed(command, level)) {
-      // Not a phone command at all is a bad request; one a higher level
-      // would allow says so, and where to raise it.
-      if (webRemoteCommandAllowed(command, 2)) {
-        reply("403 Forbidden", "ERR remote: not allowed at this phone's level (Settings > Network > PHONE & TABLET > Can do)");
-      } else {
-        reply("400 Bad Request", "ERR remote: command not allowed");
-      }
+    if (!webRemoteCommandAllowed(command)) {
+      reply("400 Bad Request", "ERR remote: command not allowed");
       return;
     }
     auto pending = std::make_shared<WebRemoteReply>();
@@ -2295,14 +2311,20 @@
       fd_set readFds;
       FD_ZERO(&readFds);
       watchFd(webMonitorListen_, &readFds);
+      const SocketHandle tailnet = webMonitorTailnetListen_;
+      if (tailnet != kInvalidSocket) watchFd(tailnet, &readFds);
       timeval tv {};
       tv.tv_usec = 250000;
-      if (select(selectNfds(webMonitorListen_), &readFds, nullptr, nullptr, &tv) <= 0) {
+      const int nfds = std::max(selectNfds(webMonitorListen_),
+                                tailnet != kInvalidSocket ? selectNfds(tailnet) : 0);
+      if (select(nfds, &readFds, nullptr, nullptr, &tv) <= 0) {
         continue;
       }
+      const SocketHandle ready = (tailnet != kInvalidSocket && FD_ISSET(tailnet, &readFds)) ? tailnet
+                               : webMonitorListen_;
       sockaddr_in clientAddress {};
       socklen_t clientLength = sizeof(clientAddress);
-      SocketHandle client = accept(webMonitorListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
+      SocketHandle client = accept(ready, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
       if (client == kInvalidSocket) continue;
       // The operator's limit (Settings > Network > Web Monitor). Each viewer
       // holds a connection only for a playlist poll or a fragment, so this
@@ -2723,6 +2745,14 @@ html,body{width:100%;height:100%;overflow:hidden}
       webMonitorReady_ = false;
       return false;
     }
+    // FROM ANYWHERE: the same server on this computer's Tailscale address,
+    // while phone control is on. Only the tailnet can reach that address.
+    webRemoteTailnetAddress_ = project_.webRemoteEnabled ? deckboy::platform::tailnetIPv4Address() : std::string();
+    if (!webRemoteTailnetAddress_.empty()) {
+      webMonitorTailnetListen_ = createBoundSocket(SOCK_STREAM, project_.webMonitorPort, true, false,
+                                                   webRemoteTailnetAddress_);
+      if (webMonitorTailnetListen_ == kInvalidSocket) webRemoteTailnetAddress_.clear();
+    }
     if (project_.webMonitorEnabled && !ensureWebMonitorProgrammeOutput()) {
       closeSocket(webMonitorListen_);
       webMonitorListen_ = kInvalidSocket;
@@ -2743,6 +2773,10 @@ html,body{width:100%;height:100%;overflow:hidden}
     if (webMonitorListen_ != kInvalidSocket) {
       closeSocket(webMonitorListen_);
       webMonitorListen_ = kInvalidSocket;
+    }
+    if (webMonitorTailnetListen_ != kInvalidSocket) {
+      closeSocket(webMonitorTailnetListen_);
+      webMonitorTailnetListen_ = kInvalidSocket;
     }
     for (auto& slot : webMonitorSlots_) {
       slot.cv.notify_all();

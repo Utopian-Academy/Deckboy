@@ -144,9 +144,15 @@ def main():
         if args.native_ui:
             # Centre of Phone control in the fixed 2640x1530 / 150% viewport,
             # visually checked against the native screenshots below.
-            control("CLICK 1040 870")
+            # Off takes the server off the network, so ask it from this computer.
+            lan = HOST["name"]
+            control("CLICK 2001 971")
+            HOST["name"] = "127.0.0.1"
+            wait_for(lambda: http(web, "/remote", method="GET")[0] == 200)
             expect(http(web)[0] == 403, "native Phone control click revokes access")
-            control("CLICK 1040 870")
+            control("CLICK 2001 971")
+            HOST["name"] = lan
+            wait_for(lambda: http(web, "/remote", method="GET")[0] == 200)
             expect(http(web)[0] == 200, "native Phone control click restores access")
         expect(http(web, pin="wrong")[0] == 401, "wrong PIN refused")
         expect(http(web, pin="")[0] == 401, "missing PIN refused")
@@ -237,7 +243,7 @@ def main():
         expect(http(web)[0] == 200, "PIN throttle recovers")
         if args.playwright and args.browser:
             subprocess.run(["node", str(ROOT / "tools/check_phone_remote_ui.mjs"),
-                            args.playwright, args.browser, str(web), str(port), str(work)],
+                            args.playwright, args.browser, str(web), str(port), str(work), HOST["name"]],
                            cwd=ROOT, check=True, timeout=150)
             expect(True, "headless phone and tablet UI checks")
         # A DASH action may stop its own listener. The waiting HTTP thread must

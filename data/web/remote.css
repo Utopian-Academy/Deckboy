@@ -34,32 +34,29 @@ button[aria-pressed="true"], button.on { background: var(--active, #306230); col
   color: var(--active-ink, #9bbc0f); box-shadow: inset 0 0 0 3px var(--button, #8bac0f); }
 .link { font-family: var(--px); font-size: .55rem; flex: 1; text-align: right; }
 .small { min-height: 36px; font-size: .55rem; padding: .2rem .5rem; }
-.tabs { display: flex; gap: 4px; margin-bottom: .75rem; }
-.tabs button { flex: 1; font-size: .6rem; padding: .3rem .1rem; }
 
 .chips { display: flex; gap: 4px; overflow-x: auto; margin-bottom: .6rem; }
 .chips button { flex: 0 0 auto; font-size: .55rem; min-height: 40px; box-shadow: none; }
-.now { background: var(--deep, #0f380f); color: var(--surface, #9bbc0f); padding: .75rem; display: grid; gap: .45rem;
-  box-shadow: inset 0 0 0 3px var(--mid, #306230); margin-bottom: .6rem; }
+.now { background: var(--surface, #9bbc0f); color: var(--ink, #0f380f); padding: .75rem; display: grid; gap: .45rem;
+  box-shadow: inset 0 0 0 4px var(--active, #306230); margin-bottom: .6rem; }
 .now-top { display: flex; justify-content: space-between; font-family: var(--px); font-size: .55rem; }
 .now-name { font-weight: 700; font-size: 1.15rem; overflow-wrap: anywhere; }
 .bar { height: 8px; background: var(--mid, #306230); }
-.bar div { height: 8px; width: 0; background: var(--surface, #9bbc0f); }
-.now-next { font-family: var(--px); font-size: .55rem; color: var(--surface, #9bbc0f); opacity: .8; }
+.bar div { height: 8px; width: 0; background: var(--active, #306230); }
+.now-next { font-family: var(--px); font-size: .55rem; color: var(--ink, #0f380f); opacity: .8; }
 .now-next span { font-family: var(--read); font-size: .85rem; }
 .go { width: 100%; min-height: 112px; font-size: 1.6rem; background: var(--active, #306230); color: var(--active-ink, #9bbc0f);
   box-shadow: inset 0 -8px 0 var(--deep, #0f380f), inset 0 0 0 3px var(--button, #8bac0f); margin-bottom: 6px; }
 .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.row3 button { min-height: 60px; }
+.row3 button { min-height: 60px; font-size: .55rem; padding: .3rem .15rem; }
 .label { font-family: var(--px); font-size: .55rem; margin: 1rem 0 .4rem; }
-.list { display: grid; gap: 4px; }
+.list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
 .list button { display: flex; align-items: center; gap: .6rem; text-align: left; box-shadow: none; min-height: 44px;
   background: var(--surface, #9bbc0f); color: var(--ink, #0f380f); border-color: var(--deep, #0f380f); }
 .list button .n { font-family: var(--px); font-size: .55rem; width: 1.8rem; flex: none; }
 .list button .t { font: 700 .95rem var(--read); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .list button .tag { font-family: var(--px); font-size: .5rem; flex: none; }
-.list button.live { background: var(--deep, #0f380f); color: var(--surface, #9bbc0f); border-color: var(--deep, #0f380f); }
-.list button.next { background: var(--button, #8bac0f); color: var(--button-ink, #0f380f); }
+.list button.live { background: var(--active, #0f380f); color: var(--active-ink, #9bbc0f); border-color: var(--deep, #0f380f); }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .grid button { min-height: 72px; }
 .tall { min-height: 92px !important; }
@@ -72,3 +69,28 @@ button[aria-pressed="true"], button.on { background: var(--active, #306230); col
 .result.err { font-weight: 700; }
 .tick { position: fixed; left: -100px; top: 0; width: 1px; height: 1px; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { button:active { transform: none; } .hold.arming { animation: none; } }
+
+/* ONE SCREEN (2026-10-16). */
+.row5, .row4 { display: grid; gap: 6px; margin-bottom: 6px; }
+.row5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.row4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.row5 button { min-height: 56px; font-size: .58rem; padding: .3rem .1rem; }
+.row4 button { min-height: 44px; font-size: .6rem; padding: .3rem .15rem; }
+.fader { display: grid; grid-template-columns: auto 1fr 3.2rem; gap: .6rem; align-items: center; margin: .4rem 0 0; }
+.fader label, .fader span { font-family: var(--px); font-size: .55rem; }
+.fader input { width: 100%; accent-color: var(--active, #306230); height: 32px; }
+.dim { opacity: .7; font-size: .45rem; margin-left: .4rem; }
+/* Compact cue rows: about twice as many on screen as before. */
+.list.compact { gap: 2px; }
+.list.compact button { min-height: 34px; padding: .15rem .45rem; border-width: 3px; }
+.list.compact button .t { font-size: .85rem; }
+.list.compact button .len { font: .7rem var(--read); opacity: .8; flex: none; }
+.list button.standby { background: var(--button, #8bac0f); color: var(--button-ink, #0f380f); }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.grid3 button { min-height: 56px; font-size: .5rem; overflow-wrap: break-word; }
+.panel select { min-height: 48px; font: 700 1rem var(--read); background: var(--button, #8bac0f);
+  color: var(--button-ink, #0f380f); border: 4px solid var(--deep, #0f380f); border-radius: 0; }
+#dash-edit { margin-top: 6px; }
+.small-now { margin-bottom: 6px; }
+.outs { margin-top: 6px; }
+.outs button { min-height: 40px; }

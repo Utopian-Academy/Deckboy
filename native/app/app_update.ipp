@@ -316,6 +316,7 @@
     serviceTestCardExport();
     serviceMicMeters(SDL_GetTicks());
     serviceHdrAuto(SDL_GetTicks());
+    serviceTailnetWatch(SDL_GetTicks());
     serviceMediaToolsCheck();
     syncWebMonitorDirectory();
     serviceAutoScroll(1.0 / 60.0);

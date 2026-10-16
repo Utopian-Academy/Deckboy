@@ -30,62 +30,73 @@
         <span id="link" class="link" role="status">LINK</span>
         <button id="lock" class="small" aria-label="Lock this phone">LOCK</button>
       </header>
-      <nav id="tabs" class="tabs" aria-label="Pages">
-        <button data-tab="decks" aria-pressed="true">DECKS</button>
-        <button data-tab="tracker" aria-pressed="false">TRACKER</button>
-        <button data-tab="dash" aria-pressed="false">DASH</button>
-        <button data-tab="show" aria-pressed="false">SHOW</button>
-      </nav>
-
-      <div data-page="decks">
-        <div id="deck-chips" class="chips" aria-label="Decks"></div>
-        <div class="now" aria-live="polite">
-          <div class="now-top"><span id="now-status">-</span><span id="now-time"></span></div>
-          <div id="now-name" class="now-name">-</div>
-          <div class="bar"><div id="now-bar"></div></div>
-          <div class="now-next">NEXT: <span id="now-next">-</span></div>
-        </div>
-        <button id="go" class="go">GO</button>
-        <div class="row3">
-          <button data-verb="PREV">BACK</button>
-          <button data-verb="STOP">STOP</button>
-          <button data-verb="NEXT">NEXT</button>
-        </div>
-        <p class="label">CUES</p>
-        <div id="cues" class="list"></div>
+      <!-- ONE SCREEN, top to bottom in the order an operator reaches for it:
+           which deck, what is live, TAKE, the transport, the cues, DASH, the
+           tracker, then the show. No tabs and no levels (James, 2026-10-16). -->
+      <div id="deck-chips" class="chips" aria-label="Decks"></div>
+      <div class="now" aria-live="polite">
+        <div class="now-top"><span id="now-status">-</span><span id="now-time"></span></div>
+        <div id="now-name" class="now-name">-</div>
+        <div class="bar"><div id="now-bar"></div></div>
+        <div class="now-next">STANDBY: <span id="now-next">-</span></div>
+      </div>
+      <button id="go" class="go">TAKE</button>
+      <div class="row5">
+        <button data-verb="RERACK" aria-label="Rerack">|&lt;</button>
+        <button data-verb="SKIPBACK" aria-label="Previous cue">&lt;&lt;</button>
+        <button id="playpause" aria-label="Play or pause">II</button>
+        <button data-verb="STOP">STOP</button>
+        <button data-verb="SKIP" aria-label="Next cue">&gt;&gt;</button>
+      </div>
+      <div class="row4">
+        <button data-seek="-10">-10S</button>
+        <button data-seek="10">+10S</button>
+        <button data-verb="PREV">BACK</button>
+        <button data-verb="NEXT">NEXT</button>
+      </div>
+      <div class="fader">
+        <label for="fader">FADER</label>
+        <input id="fader" type="range" min="0" max="100" step="1" value="100">
+        <span id="fader-value">100%</span>
       </div>
 
-      <div data-page="tracker" hidden>
-        <div class="now">
-          <div class="now-top"><span id="trk-state">-</span><span id="trk-count"></span></div>
-          <div id="trk-name" class="now-name">-</div>
-          <div class="now-next">NEXT: <span id="trk-next">-</span></div>
+      <p class="label">CUES <span class="dim">TAP: STANDBY &middot; HOLD: TAKE NOW</span></p>
+      <div id="cues" class="list compact"></div>
+
+      <p class="label">DASH <span class="dim">HOLD A BUTTON TO CHANGE IT</span></p>
+      <div id="dash" class="grid3"></div>
+      <form id="dash-edit" class="panel" hidden>
+        <p id="dash-edit-title" class="label">DASH</p>
+        <label for="dash-label">NAME</label>
+        <input id="dash-label" maxlength="24" autocomplete="off">
+        <label for="dash-action">DOES</label>
+        <select id="dash-action"></select>
+        <div class="row3">
+          <button type="submit" class="on">SAVE</button>
+          <button type="button" id="dash-clear">REMOVE</button>
+          <button type="button" id="dash-cancel">CANCEL</button>
         </div>
-        <button id="trk-go" class="go">GO</button>
+      </form>
+
+      <div id="tracker-block" hidden>
+        <p class="label">TRACKER <span id="trk-count" class="dim"></span></p>
+        <div class="now small-now"><div id="trk-name" class="now-name">-</div>
+          <div class="now-next">NEXT: <span id="trk-next">-</span></div></div>
         <div class="row3">
           <button data-tracker="BACK">BACK</button>
-          <button data-tracker="PLAY">PLAY</button>
-          <button data-tracker="STOP">STOP</button>
+          <button id="trk-go" class="on">GO</button>
+          <button id="trk-play">PLAY</button>
         </div>
       </div>
 
-      <div data-page="dash" hidden>
-        <div id="dash" class="grid"></div>
+      <p class="label">SHOW <span class="dim">HOLD BLACKOUT AND REC</span></p>
+      <div class="row3">
+        <button id="blackout" class="hold">BLACKOUT</button>
+        <button id="testcard">TEST CARD</button>
+        <button id="record" class="hold">REC</button>
       </div>
-
-      <div data-page="show" hidden>
-        <div class="grid">
-          <button id="blackout" class="tall hold">BLACKOUT</button>
-          <button id="testcard" class="tall">TEST CARD</button>
-        </div>
-        <div id="full" hidden>
-          <p class="label">OUTPUTS</p>
-          <div id="outputs" class="list"></div>
-          <p class="label">RECORD</p>
-          <div class="item"><span>Recording</span><button id="record" class="toggle hold">OFF</button></div>
-        </div>
-        <p class="hint">Hold BLACKOUT, outputs and RECORD for half a second: the phone buzzes as it arms.</p>
-      </div>
+      <div id="outputs" class="chips outs" aria-label="Outputs"></div>
+      <p id="anywhere" class="hint" hidden></p>
       <p id="result" class="result" role="status"></p>
     </section>
     <noscript>This remote needs JavaScript enabled.</noscript>

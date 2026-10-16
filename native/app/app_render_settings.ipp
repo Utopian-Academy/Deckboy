@@ -2109,11 +2109,15 @@
                              settingsStateInk(false));
         settingsBtns_.push_back({phForget, kSettingsActionPhoneForget,
                                  "Forget every paired phone: each needs the QR code or the passphrase again"});
-        SDL_Rect phLevel = settingsRow(phX, phW, phY, sRowH, "Can do", sGap);
-        drawUIValueControl(phLevel, phoneLevelLabel(project_.webRemoteLevel));
-        settingsBtns_.push_back({phLevel, kSettingsActionPhoneLevel,
-                                 "GO + STOP ONLY: decks, DASH, tracker. SHOW CONTROL: + blackout, test card. "
-                                 "FULL: + outputs on/off, recording"});
+        // FROM ANYWHERE, through Tailscale: the address, and a pairing code for it.
+        SDL_Rect phTail = settingsRow(phX, phW, phY, sRowH, "From anywhere", sGap);
+        const std::string tailUrl = webRemoteTailnetUrl();
+        drawUIValueControl(phTail, !project_.webRemoteEnabled ? std::string("turn phone control on")
+                                   : tailUrl.empty() ? std::string("install Tailscale here and on the phone")
+                                   : "SCAN TO PAIR  " + tailUrl);
+        settingsBtns_.push_back({phTail, kSettingsActionPhoneTailnet,
+                                 "Through Tailscale (a private network between your own devices): the phone "
+                                 "reaches the desk from anywhere, with nothing opened to the internet"});
         SDL_Rect phHaptics = settingsRow(phX, phW, phY, sRowH, "Haptics", sGap);
         drawPill(phHaptics, project_.webRemoteHaptics, "ON", "OFF", kSettingsActionPhoneHaptics);
       }
@@ -4887,8 +4891,13 @@
         openPhonePairQr();
       } else if (sb.action == kSettingsActionPhoneForget) {
         forgetPairedPhones();
-      } else if (sb.action == kSettingsActionPhoneLevel) {
-        setPhoneLevel((project_.webRemoteLevel + 1) % 3);
+      } else if (sb.action == kSettingsActionPhoneTailnet) {
+        if (webRemoteTailnetUrl().empty()) {
+          triggerToast("from anywhere: install Tailscale on this computer and the phone, then turn phone control on",
+                       ToastKind::Warning, kToastReadableMs);
+        } else {
+          openPhonePairQr(true);
+        }
       } else if (sb.action == kSettingsActionPhoneHaptics) {
         setPhoneHaptics(!project_.webRemoteHaptics);
       } else if (sb.action == kSettingsActionWebMonitorSource) {

@@ -9559,7 +9559,7 @@ class App {
   static constexpr int kSettingsActionWebRemoteToggle = 759;
   // PHONE & TABLET card (Settings > Network).
   static constexpr int kSettingsActionPhonePair = 773;
-  static constexpr int kSettingsActionPhoneLevel = 774;
+  static constexpr int kSettingsActionPhoneTailnet = 774;   // was the "Can do" level, removed 2026-10-16
   static constexpr int kSettingsActionPhoneHaptics = 796;
   static constexpr int kSettingsActionPhoneForget = 797;
   static constexpr int kSettingsActionGoGuardCycle = 798;
@@ -11187,6 +11187,8 @@ class App {
   std::vector<WebMonitorClient> webMonitorClients_;   // accept thread + stop only
   std::atomic<bool> webMonitorStop_ {true};
   SocketHandle webMonitorListen_ = kInvalidSocket;
+  SocketHandle webMonitorTailnetListen_ = kInvalidSocket;   // phone control on the Tailscale address
+  std::string webRemoteTailnetAddress_;
   bool webMonitorReady_ = false;
   // The phone-access QR overlay (openWebMonitorQr). The modules are encoded
   // once per address, not per frame.
@@ -11208,7 +11210,6 @@ class App {
   int webEncodeEase_ = 0;                            // 0 as chosen; 1-3 lighter steps
   std::string webMonitorPinSnapshot_;
   bool webRemoteEnabledSnapshot_ = false; // guarded by webMonitorDirMutex_
-  int webRemoteLevelSnapshot_ = 0;        // same mutex
   // PAIRING (same mutex): the one-time code the desk's QR carries, and the keys
   // of phones that have paired. Keys live in the state folder, never the show
   // file -- a show file gets shared, and a key in it would open the desk.
