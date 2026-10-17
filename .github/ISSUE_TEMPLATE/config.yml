@@ -3,6 +3,9 @@ contact_links:
   - name: 📖 Documentation
     url: https://github.com/Utopian-Academy/Deckboy/blob/main/MANUAL.md
     about: Check the manual before opening an issue — your question may already be answered.
+  - name: 🧭 Community & support
+    url: https://github.com/Utopian-Academy/Deckboy/blob/main/SUPPORT.md
+    about: Find the right place for help, bug reports, suggestions and security reports.
   - name: 💬 Discussions
     url: https://github.com/Utopian-Academy/Deckboy/discussions
     about: Ask questions, share tips, or discuss Deckboy with other operators.

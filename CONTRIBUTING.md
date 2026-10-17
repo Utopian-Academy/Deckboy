@@ -6,6 +6,8 @@ live shows.
 
 ## Ways to contribute
 
+New here? Start with the [community page](https://utopian-academy.github.io/Deckboy/community.html) or [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions). No code required to help Deckboy grow.
+
 | Contribution | Where to start |
 |---|---|
 | **Bug reports** | [Open a bug report](https://github.com/Utopian-Academy/Deckboy/issues/new?template=bug_report.md) — include your OS, hardware, version, and steps to reproduce. Crash logs live next to the executable. |
@@ -58,7 +60,7 @@ See [SECURITY.md](SECURITY.md) for responsible disclosure instructions.
 
 Be professional, be respectful. This project serves people who work under
 pressure in live environments — bring that same focus and mutual respect to
-the issue tracker and pull requests.
+the issue tracker and pull requests. Read our [community code of conduct](CODE_OF_CONDUCT.md).
 
 ## License
 

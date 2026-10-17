@@ -5,13 +5,9 @@
 If you discover a security vulnerability in Deckboy, please **do not** open a
 public GitHub issue.
 
-Instead, report it privately through one of these channels:
+Instead, report it privately through [GitHub Security Advisories](https://github.com/Utopian-Academy/Deckboy/security/advisories/new), using the "Report a vulnerability" option on the Security tab. Please do not disclose a vulnerability in GitHub Discussions, Discord or public issues.
 
-1. **GitHub Security Advisories** — use the
-   ["Report a vulnerability"](https://github.com/Utopian-Academy/Deckboy/security/advisories/new)
-   button on the Security tab of this repository.
-2. **Email** — contact the maintainers through the email listed on the
-   [Utopian-Academy organisation profile](https://github.com/Utopian-Academy).
+A project contact address will be listed here once the mailbox is verified.
 
 We will acknowledge your report within 48 hours and aim to provide a fix or
 mitigation within 7 days for critical issues.
