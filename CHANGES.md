@@ -30,6 +30,10 @@
 - Fixed an issue where the live cue's row and the now-playing panel on the phone were unreadable on
   dark themes, and a long cue name pushed its row off the side of the screen.
 
+### Dashboard
+- The master tracker is easier to find: the dashboard's header has two tabs, TILES and TRACKER,
+  with the open one lit. It was a single small chip that named the view already open.
+
 ### Reliability
 - Fixed an issue where Deckboy could stay running with no window after it was closed (and an update
   then refused to install, saying Deckboy was running). It happened when live captions were on and

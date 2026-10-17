@@ -1072,20 +1072,30 @@
                            hintW, uiScaled(18)},
                  "Ctrl+D or Esc to close", pal.fgSoft);
 
-    // TILES or TRACKER. Two views of the same page rather than two pages:
+    // TILES | TRACKER. Two views of the same page rather than two pages:
     // the dashboard is where a show is laid out, and a master sequence is
-    // exactly that.
+    // exactly that. Two tabs, the open one lit: a single chip naming the
+    // view you were already in read as a label, and the tracker behind it
+    // went unfound (James, 2026-10-16).
     {
-      const int swW = uiScaled(88);
-      SDL_Rect sw {modal.x + mw - hintW - swW - uiScaled(20),
-                   modal.y + uiScaled(10), swW, uiScaled(22)};
-      const bool tracker = project_.dashboardMode == 1;
-      drawUIPanel(sw, tracker ? pal.mid : pal.tile, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, sw,
-                           tracker ? "TRACKER" : "TILES",
-                           tracker ? pal.deep : pal.fg);
-      dashButtons_.push_back({sw, QuickAction::TrackerToggle,
-                              "Switch between the tiles and the master tracker"});
+      const int tabW = uiScaled(96);
+      const int tabH = uiScaled(26);
+      const int tabsX = modal.x + mw - hintW - 2 * tabW - uiScaled(20);
+      const bool trackerOpen = project_.dashboardMode == 1;
+      const char* names[2] = {"TILES", "TRACKER"};
+      for (int i = 0; i < 2; ++i) {
+        const bool open = (i == 1) == trackerOpen;
+        SDL_Rect tab {tabsX + i * tabW, modal.y + uiScaled(8), tabW, tabH};
+        drawUIPanel(tab, paletteToggleFill(open), pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, tab, names[i],
+                             paletteToggleInk(open));
+        // Only the closed tab is a button; the open one is where you are.
+        if (!open) {
+          dashButtons_.push_back({tab, QuickAction::TrackerToggle,
+                                  i == 1 ? "The master tracker: steps that fire cues on every deck"
+                                         : "The dashboard's buttons"});
+        }
+      }
     }
 
     // ── The grid ────────────────────────────────────────────────────────────

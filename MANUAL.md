@@ -795,8 +795,9 @@ the one control nobody wants to reach for with a mouse.
 
 ## 11a. The Dashboard & The Master Tracker
 
-**Ctrl+D** opens the dashboard. Its header has a **TILES / TRACKER** switch:
-tiles are where a show is laid out, and the tracker is the same page seen as a
+**Ctrl+D** (or **DASH** on the bottom bar) opens the dashboard. Two tabs at
+its top right, **TILES** and **TRACKER**, switch the view; the lit one is open.
+Tiles are where a show is laid out, and the tracker is the same page seen as a
 grid.
 
 The tracker is the **multi-output timeline**. Rows are **steps**; columns are
