@@ -1588,9 +1588,11 @@
   // nits, the common default; MaxCLL/MaxFALL are left unknown (0) rather than
   // guessed. HLG carries no static metadata: it is relative to the display by
   // design, so it is tagged and nothing more.
-  std::vector<std::string> hdrRecordingCodecArgs(bool hlg) const {
+  std::vector<std::string> hdrRecordingCodecArgs(bool hlg, bool stream = false) const {
     const std::string c = normalizeRecordingCodec(project_.recordingCodec);
-    if (recordingCodecIsProRes(c) || c == "dnxhr_hqx") {
+    // A STREAM is HEVC Main10 whatever the recording codec says: ProRes over
+    // SRT or RTMP is not a thing anything receives.
+    if (!stream && (recordingCodecIsProRes(c) || c == "dnxhr_hqx")) {
       return recordingCodecArgs();
     }
     if (hlg) {
@@ -2053,7 +2055,9 @@
     // for another are a sheared picture (measured, the first HDR take).
     if (hdrRecordingFor(outputIndex)) {
       const OutputRuntime& rt = outputRuntimes_[static_cast<std::size_t>(hdrRecordingSource(outputIndex))];
-      spec << "hdr" << rt.compositorWidth << 'x' << rt.compositorHeight;
+      // ...and so does a change of signal, or the file's tags would lie.
+      spec << "hdr" << rt.compositorWidth << 'x' << rt.compositorHeight
+           << (hdrSignalHlg(hdrRecordingSource(outputIndex)) ? "hlg" : "pq");
     } else {
       spec << "sdr";
     }
@@ -2071,7 +2075,9 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
         outputIndex >= static_cast<int>(outputRuntimes_.size())) return -1;
     const OutputTarget& out = project_.outputs[static_cast<std::size_t>(outputIndex)];
-    if (!outputStreamProtocolIsFile(normalizeOutputStreamProtocol(out.streamProtocol))) return -1;
+    // A file or a stream (SRT, RTMP). Not the Web Monitor: a browser's
+    // MediaSource wants H.264 8-bit, and that is what it gets.
+    if (outputStreamProtocolIsWeb(normalizeOutputStreamProtocol(out.streamProtocol))) return -1;
     const int mirror = out.mirrorSourceOutputIndex;
     if (mirror >= 0 && mirror < static_cast<int>(outputRuntimes_.size()) &&
         outputRuntimes_[static_cast<std::size_t>(mirror)].hdr &&
@@ -2294,7 +2300,7 @@
     // HDR recording: the frames are the float compositor's, at its raster, as
     // 16-bit PQ BT.2020 R'G'B' -- converted to 10-bit BT.2020 Y'CbCr by the
     // encoder's scaler (matrix only; the transfer is already PQ).
-    const bool hdrRecord = toFile && hdrRecordingFor(outputIndex);
+    const bool hdrRecord = !toWeb && hdrRecordingFor(outputIndex);
     if (hdrRecord) {
       const OutputRuntime& rt = outputRuntimes_[static_cast<std::size_t>(hdrRecordingSource(outputIndex))];
       width = std::max(1, rt.compositorWidth);
@@ -2396,6 +2402,15 @@
                             std::to_string(wantH) + ":flags=bicubic"});
       }
       const std::vector<std::string> codecArgs = hdrRecord ? hdrRecordingCodecArgs(hdrSignalHlg(hdrRecordingSource(outputIndex))) : recordingCodecArgs();
+      args.insert(args.end(), codecArgs.begin(), codecArgs.end());
+    } else if (hdrRecord) {
+      // An HDR STREAM (SRT, RTMP -- RTMP carries HEVC as enhanced RTMP): the
+      // same exact conversion and 10-bit HEVC as an HDR recording.
+      args.insert(args.end(), {"-vf", ffmpegHasZscale()
+        ? std::string("zscale=matrixin=input:matrix=2020_ncl:rangein=full:range=limited")
+        : std::string("scale=out_color_matrix=bt2020:out_range=tv")});
+      const std::vector<std::string> codecArgs =
+        hdrRecordingCodecArgs(hdrSignalHlg(hdrRecordingSource(outputIndex)), true);
       args.insert(args.end(), codecArgs.begin(), codecArgs.end());
     } else {
       args.insert(args.end(),

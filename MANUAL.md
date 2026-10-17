@@ -1030,6 +1030,10 @@ HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear
   100%. A recording follows the signal of the HDR output it records, and is
   tagged HLG (`arib-std-b67`) with no HDR10 metadata, which HLG does not use.
   The output's own screen is the same either way.
+- **Streaming** an HDR output over SRT or RTMP (a stream output that mirrors
+  it) sends HDR too: HEVC Main10, BT.2020, in the output's signal. Over RTMP
+  that is enhanced RTMP, so the server must accept HEVC. The Web Monitor
+  always stays SDR H.264, because that is what a browser plays.
 
 **AUTO** (the HDR row steps OFF, AUTO, ON; or `OUTPUT HDR AUTO`) runs the output
 HDR when the screen it is on is in HDR and SDR when it is not, and follows the

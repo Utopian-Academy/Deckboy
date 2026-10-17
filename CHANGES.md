@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-17 - v0.99.416 (two projectors that add up to one picture, HLG recording)
+## 2026-10-17 - v0.99.416 (two projectors that add up to one picture, HLG, HDR streams)
 
 ### Outputs
 - Fixed an issue where two projectors blended with **Edge blend** showed a dark band down the
@@ -21,6 +21,10 @@
   `OUTPUT HDR SIGNAL HLG`) records an HDR output as HLG (BT.2100, HEVC Main10, BT.2020) instead of
   HDR10. SDR material at 203 nits lands on 75% and 1000 nits on 100%; measured on a grey ladder
   from 0.5 to 4000 nits, every step within one code of the BT.2100 value.
+- Added HDR **streams**: an SRT or RTMP stream that mirrors an HDR output now sends HDR, HEVC Main10
+  in the output's signal (PQ or HLG), instead of SDR. Measured at the far end of an SRT link: every
+  step of a 0.5-4000 nit grey ladder within one code. RTMP carries HEVC as enhanced RTMP, which the
+  receiving server has to support. The Web Monitor stays H.264 SDR, which is what browsers play.
 - Fixed an issue where HDR recordings came out about 0.35% too bright (a full-scale white recorded
   as code 943 instead of 940), when the installed ffmpeg includes the zscale filter. Without it,
   recordings are as before.
