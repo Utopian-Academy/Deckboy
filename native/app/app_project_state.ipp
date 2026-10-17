@@ -1895,6 +1895,78 @@
     return startNewShow(withToast);
   }
 
+  // ── MY DEFAULTS ───────────────────────────────────────────────────────
+  //
+  // What a new show starts from: this computer's own show file with no cues
+  // in it. Everything else a show carries comes with it -- theme, language,
+  // sounds, scale, the network, audio, recording, captions, the outputs and
+  // their screens, the decks with their routing and fades, DASH and the
+  // fixture patch (James, 2026-10-16). It lives in the state folder, never in
+  // a show, so passing a show on does not pass on how this desk is set up.
+  fs::path showDefaultsFile() const { return Paths::stateDir() / "defaults.deckboy"; }
+
+  bool haveShowDefaults() const {
+    std::error_code ec;
+    return fs::is_regular_file(showDefaultsFile(), ec);
+  }
+
+  // When the defaults were saved, as the card shows it, or empty.
+  std::string showDefaultsSavedLabel() const {
+    std::error_code ec;
+    const auto when = fs::last_write_time(showDefaultsFile(), ec);
+    if (ec) return {};
+    const auto system = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+      when - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+    const std::time_t t = std::chrono::system_clock::to_time_t(system);
+    std::tm local {};
+#ifdef _WIN32
+    localtime_s(&local, &t);
+#else
+    localtime_r(&t, &local);
+#endif
+    char text[32];
+    std::strftime(text, sizeof(text), "%d %b %H:%M", &local);
+    return text;
+  }
+
+  bool saveShowDefaults() {
+    Project defaults = project_;
+    for (auto& deck : defaults.decks) {
+      deck.cues.clear();
+      deck.selectedIndex = deck.activeIndex = deck.standbyIndex = -1;
+    }
+    defaults.trackerSteps.clear();
+    defaults.presets.clear();   // a preset names cues, and there are none
+    defaults.title = Project {}.title;
+    std::error_code ec;
+    fs::create_directories(showDefaultsFile().parent_path(), ec);
+    const bool saved = saveProject(showDefaultsFile(), defaults);
+    triggerToast(saved ? "saved as my defaults: every new show starts like this, without the cues"
+                       : "could not save the defaults",
+                 saved ? ToastKind::Help : ToastKind::Warning, kToastReadableMs);
+    return saved;
+  }
+
+  // Twice within a few seconds, like NEW: the defaults are a setup someone built.
+  Uint64 pendingDefaultsResetUntilMs_ = 0;
+  void resetShowDefaults(bool confirmed = false) {
+    if (!haveShowDefaults()) {
+      triggerToast("new shows already start from factory settings");
+      return;
+    }
+    const Uint64 now = SDL_GetTicks();
+    if (!confirmed && now > pendingDefaultsResetUntilMs_) {
+      pendingDefaultsResetUntilMs_ = now + 2500;
+      triggerToast("forget my defaults? press RESET again");
+      return;
+    }
+    pendingDefaultsResetUntilMs_ = 0;
+    std::error_code ec;
+    fs::remove(showDefaultsFile(), ec);
+    triggerToast(ec ? std::string("could not remove the defaults")
+                    : std::string("defaults forgotten: new shows start from factory settings"));
+  }
+
   bool startNewShow(bool withToast = true) {
     clearProjectRecovery();
     projectSaveFailed_ = false;
@@ -1902,11 +1974,24 @@
     clearPendingNewShowConfirmation();
     resetTransientPreviewState();
     project_ = Project {};
-    // A fresh show resets to the default skin rather than carrying over the
+    const bool fromDefaults = haveShowDefaults();
+    if (fromDefaults) {
+      project_ = loadProject(showDefaultsFile());
+      // Saved without cues; cleared again in case the file was edited by hand.
+      for (auto& deck : project_.decks) deck.cues.clear();
+      project_.trackerSteps.clear();
+      project_.presets.clear();
+    }
+    // A fresh show resets to its starting skin rather than carrying over the
     // colorway of whatever was loaded before.
-    loadTheme("gameboy");
-    project_.theme = "gameboy";
+    if (project_.theme.empty()) project_.theme = "gameboy";
+    loadTheme(project_.theme);
     normalizeProject(project_);
+    // Language before fonts (see settleIncomingShow). A factory show needs
+    // this as much as one from the defaults: without it NEW kept the previous
+    // show's language and scale while the show itself said otherwise.
+    applyProjectLanguage();
+    applyUiScale();
     disarmAllOutputsForStartup();
     for (auto& deck : project_.decks) {
       deck.activeIndex = -1;
@@ -1925,9 +2010,10 @@
       std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    applyProjectNetworkSettings();
     projectDirty_ = false;
     if (withToast) {
-      triggerToast("new show");
+      triggerToast(fromDefaults ? "new show, from my defaults" : "new show");
     }
     return true;
   }

@@ -9,6 +9,12 @@
   have a centred, outlined play mark.
 - New art for the Windows installer and the macOS disk image.
 
+### Your defaults
+- New shows can start from your own setup instead of factory settings: Settings > System > DEFAULTS >
+  SAVE AS DEFAULTS keeps this show without its cues (theme, language, sounds, UI scale, network, audio,
+  recording, captions, outputs and screens, decks with routing and fades, DASH, fixtures). RESET
+  DEFAULTS goes back. Remote: `DEFAULTS [STATUS]|SAVE|RESET`, and `NEWSHOW`.
+
 ### Phone control
 - Fixed an issue where a paired phone that opened a used pairing link (scanning the same code
   again) stayed at the login until the desk forgot it; it now connects with the key it already has.

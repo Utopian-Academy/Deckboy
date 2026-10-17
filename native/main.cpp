@@ -9553,6 +9553,9 @@ class App {
   static constexpr int kSettingsActionWebMonitorPinPrompt = 708;
   static constexpr int kSettingsActionWebMonitorQualityDropdown = 709;
   static constexpr int kSettingsActionWebMonitorQr = 754;
+  // DEFAULTS card (Settings > System): 735 and 737 were free (audit_actions.py).
+  static constexpr int kSettingsActionDefaultsSave = 735;
+  static constexpr int kSettingsActionDefaultsReset = 737;
   static constexpr int kSettingsActionWebMonitorSource = 755;
   static constexpr int kSettingsActionWebMonitorClientsPrompt = 756;
   static constexpr int kSettingsActionWebMonitorLowLatency = 757;

@@ -110,6 +110,22 @@ Longer show opens display a block progress indicator and percentage.
 Deckboy refuses to start twice, so a stray double-click cannot take a second
 copy of the show live. `--allow-multi-instance` lifts that, for debugging.
 
+### Your defaults
+
+**NEW** starts from factory settings until you give it your own. Set a show up
+the way you like to work and press **Settings → System → DEFAULTS → SAVE AS
+DEFAULTS**. Every new show then starts exactly like it, without the cues: the
+theme, language, sounds and UI scale, the network and phone, audio, recording
+and captions, the outputs and their screens, the decks with their routing and
+fades, the DASH buttons and the fixture patch. Tracker steps and presets stay
+behind, since they name cues.
+
+The card shows when they were saved. **RESET DEFAULTS** (press it twice) goes
+back to factory settings. The defaults are kept on this computer, never in a
+show file, so passing a show on does not pass on your setup. Over the network:
+`DEFAULTS [STATUS] | SAVE | RESET`, and `NEWSHOW` does what NEW does, sent twice
+within 2.5 seconds when something is live or unsaved.
+
 ---
 
 ## 4. Interface Layout

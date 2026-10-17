@@ -767,11 +767,13 @@
       // A line for the folder in use and a row for the two buttons -- the same
       // shape as RECORDING, because it is the same kind of setting.
       int watchH = stackH({sLineH, sRowH});
+      // DEFAULTS: where new shows start, then the two buttons.
+      int defaultsH = stackH({sRowH, sRowH, sRowH});
 
       // At large UI scales the cards are genuinely taller than the window can
       // show, so the tab scrolls rather than silently cropping the bottom card.
       // At 1x nothing overflows and the scroll is inert.
-      int leftNeeded = appearanceH + kCardGap + safetyH + kCardGap + flowH;
+      int leftNeeded = appearanceH + kCardGap + defaultsH + kCardGap + safetyH + kCardGap + flowH;
       // WATCH FOLDER is the fifth card in this column (cueTools, prefs,
       // update, record, watch) but was missing from this sum -- the scroll
       // range stopped exactly watchH short, so the card drew (watchRect was
@@ -786,15 +788,15 @@
       // cards (down to a floor that still separates them) is enough to fit,
       // that is what happens; only a real overflow scrolls.
       {
-        const int leftFixed = appearanceH + safetyH + flowH;
+        const int leftFixed = appearanceH + defaultsH + safetyH + flowH;
         const int rightFixed = cueToolsH + prefsH + updateH + recordH;
         const int floorGap = uiScaled(3);
-        const int needed = std::max(leftFixed + 2 * kCardGap, rightFixed + 3 * kCardGap);
+        const int needed = std::max(leftFixed + 3 * kCardGap, rightFixed + 3 * kCardGap);
         if (needed > colH) {
-          const int fitGap = std::min((colH - leftFixed) / 2, (colH - rightFixed) / 3);
+          const int fitGap = std::min((colH - leftFixed) / 3, (colH - rightFixed) / 3);
           if (fitGap >= floorGap) {
             kCardGap = std::min(kCardGap, fitGap);
-            leftNeeded = leftFixed + 2 * kCardGap;
+            leftNeeded = leftFixed + 3 * kCardGap;
             rightNeeded = rightFixed + 3 * kCardGap;
           }
         }
@@ -832,6 +834,8 @@
       int leftY = leftCol.y;
       SDL_Rect appearanceRect {leftCol.x, leftY, leftCol.w, appearanceH};
       leftY += appearanceRect.h + kCardGap;
+      SDL_Rect defaultsRect {leftCol.x, leftY, leftCol.w, defaultsH};
+      leftY += defaultsRect.h + kCardGap;
       SDL_Rect safetyRect {leftCol.x, leftY, leftCol.w, safetyH};
       leftY += safetyRect.h + kCardGap;
       SDL_Rect flowRect {leftCol.x, leftY, leftCol.w,
@@ -1132,6 +1136,30 @@
         SDL_Rect row = settingsRow(prefsX, prefsW, prefsY, sRowH, t.label, sGap);
         drawPillToggle(row, t.on, "ON", "OFF");
         settingsBtns_.push_back({row, t.action, t.tag});
+      }
+
+      // DEFAULTS. What NEW starts from: this show's setup without its cues,
+      // once saved here, or factory settings.
+      drawCard(defaultsRect, "DEFAULTS", "How every new show starts");
+      {
+        const int defX = cardBodyX(defaultsRect);
+        const int defW = cardBodyW(defaultsRect);
+        int defY = cardBodyY(defaultsRect);
+        const bool mine = haveShowDefaults();
+        SDL_Rect from = settingsRow(defX, defW, defY, sRowH, "New shows start from", sGap);
+        drawSettingsStateFill(from, mine);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, from,
+                             mine ? "my defaults  " + showDefaultsSavedLabel() : std::string("factory settings"),
+                             settingsStateInk(mine));
+        SDL_Rect save = settingsRow(defX, defW, defY, sRowH, "This show, without its cues", sGap);
+        drawSettingsStateFill(save, false);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, save, "SAVE AS DEFAULTS", settingsStateInk(false));
+        settingsBtns_.push_back({save, kSettingsActionDefaultsSave, "defaults_save"});
+        SDL_Rect reset = settingsRow(defX, defW, defY, sRowH, "Back to factory settings", sGap);
+        drawSettingsStateFill(reset, false);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, reset, "RESET DEFAULTS",
+                             mine ? settingsStateInk(false) : pal.inkSoft);
+        settingsBtns_.push_back({reset, kSettingsActionDefaultsReset, "defaults_reset"});
       }
 
       // UPDATES. Off by default and deliberately so: this is the only
@@ -6375,6 +6403,10 @@
         } else {
           triggerToast("nmos: clipboard unavailable");
         }
+      } else if (sb.action == kSettingsActionDefaultsSave) {
+        saveShowDefaults();
+      } else if (sb.action == kSettingsActionDefaultsReset) {
+        resetShowDefaults();
       } else if (sb.action == kSettingsActionUpdateCheckToggle) {
         project_.updateCheckEnabled = !project_.updateCheckEnabled;
         markProjectDirty();

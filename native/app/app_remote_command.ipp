@@ -201,6 +201,36 @@
     // A TALLY EDGE, from whichever integration saw it. The watchers run on
     // their own threads and cannot touch the decks, so the edge comes through
     // here and lands on the main thread like every other command.
+    // DEFAULTS [STATUS] | SAVE | RESET: what NEW starts from (this show
+    // without its cues). RESET over the network needs no second press.
+    if (command == "DEFAULTS") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
+      if (sub == "SAVE") {
+        if (!saveShowDefaults()) failRemoteCommand("DEFAULTS: could not save");
+        return;
+      }
+      if (sub == "RESET") {
+        resetShowDefaults(true);
+        return;
+      }
+      if (sub != "STATUS") {
+        failRemoteCommand("DEFAULTS: STATUS | SAVE | RESET");
+        return;
+      }
+      remoteCommandDetail_ = haveShowDefaults() ? "my defaults, saved " + showDefaultsSavedLabel()
+                                                : std::string("factory settings");
+      return;
+    }
+
+    // NEWSHOW: what NEW on the desk does, with the same guard -- with
+    // anything live or unsaved it must be sent twice within 2.5 s.
+    if (command == "NEWSHOW") {
+      if (!requestNewShow()) {
+        failRemoteCommand("NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s");
+      }
+      return;
+    }
+
     if (command == "TALLYEVENT") {
       if (parts.size() > 1) {
         const std::string state = toUpper(parts[1]);
