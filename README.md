@@ -13,6 +13,8 @@
 
 [![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-306230?style=for-the-badge&labelColor=0f380f)](https://libsdl.org)
 [![Mentioned in Awesome NDI](https://img.shields.io/badge/mentioned%20in-awesome%20NDI-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/florisporro/awesome-ndi)
+[![Mentioned in Awesome SDL](https://img.shields.io/badge/mentioned%20in-awesome%20SDL-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/RobLoach/awesome-sdl)
+[![Mentioned in Awesome Streaming Tools](https://img.shields.io/badge/mentioned%20in-awesome%20streaming%20tools-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/juancarlospaco/awesome-streaming-tools)
 
 </div>
 
