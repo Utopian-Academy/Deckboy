@@ -32,6 +32,9 @@ struct Generator {
   // from engine threads, and from more than one at once (an output and the
   // preview), so it must guard any state it keeps.
   std::function<void(std::uint8_t* rgba, int w, int h, double seconds)> render;
+  // A page of its own (see WebPage) that the phone controller offers as a
+  // button while this source is live on any deck. Empty: none.
+  std::string page = {};
 };
 
 struct Command {

@@ -1594,6 +1594,21 @@
     }
     bool cardUp = false;
     for (const auto& target : project_.outputs) cardUp = cardUp || target.outputTestCardEnabled;
+    // A private extra's source live on a deck, with a remote page of its own:
+    // the phone offers a button to it.
+    out << "],\"extras\":[";
+    bool firstExtra = true;
+    std::vector<std::string> offered;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Cue* live = activeCuePtr(d);
+      if (!live || live->kind != CueKind::Pattern) continue;
+      const auto* extra = deckboy::extras::findGenerator(stripPatternMotionSuffix(normalizePatternTypeId(live->path)));
+      if (!extra || extra->page.empty() || std::find(offered.begin(), offered.end(), extra->page) != offered.end()) continue;
+      offered.push_back(extra->page);
+      if (!firstExtra) out << ',';
+      firstExtra = false;
+      out << "{\"name\":\"" << escapeJson(extra->name) << "\",\"page\":\"" << escapeJson(extra->page) << "\"}";
+    }
     out << "],\"anywhere\":\"" << escapeJson(webRemoteTailnetUrl()) << '"'
         << ",\"haptics\":" << (project_.webRemoteHaptics ? "true" : "false")
         << ",\"blackout\":" << (masterDimmerTarget_ < 0.5 ? "true" : "false")

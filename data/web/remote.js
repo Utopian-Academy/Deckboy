@@ -107,7 +107,24 @@
     el('dash-label').focus();
   }
 
+  let extrasShape = '';
+  function drawExtras() {
+    const extras = state.extras || [];
+    const shape = JSON.stringify(extras);
+    if (shape === extrasShape) return;
+    extrasShape = shape;
+    el('extras').hidden = !extras.length;
+    el('extras').replaceChildren(...extras.map(x => {
+      const b = document.createElement('button');
+      b.className = 'on';
+      b.textContent = String(x.name).replace(/\s*\(.*\)$/, '').toUpperCase() + ' REMOTE';
+      b.addEventListener('click', () => { buzz('tap'); location.href = '/remote/x/' + encodeURIComponent(x.page); });
+      return b;
+    }));
+  }
+
   function draw() {
+    drawExtras();
     // Decks.
     const decks = state.decks || [];
     if (!decks.some(d => d.index === deckIndex)) deckIndex = state.focus || (decks[0] && decks[0].index) || 0;
