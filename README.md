@@ -24,11 +24,19 @@
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ Watch the one-minute trailer](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-[![The Deckboy trailer: a film clip, a web page, a slide deck, an arcade lower third, perspective projection mapping and live effects, all from one cue list](docs/video/trailer-poster-397.jpg)](https://utopian-academy.github.io/Deckboy/trailer.html)
+<!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
+     never a real show file. A client's deck in a public README is a client's
+     deck on the internet. -->
+
+![The Deckboy desk with its face on the empty monitor, winking, then taking cues to air in turn: a title typed live, colour bars, a clip from Tears of Steel with a kaleidoscope and a ripple stacked onto it, the Swirl generator and a live Code expression](art/readme/demo-desk.gif)
+
+<sub>Shown with a title, bars, Swirl and Code that Deckboy makes itself and a clip from <i>Tears of Steel</i> (© Blender Foundation, CC BY 3.0), so nothing here is anyone’s show file.</sub>
 
 Cue-based media playback and show control for live video — theatre, live
-events, worship and broadcast. If Deckboy runs part of your show, a ⭐ on this
-page is how the next operator finds it.
+events, worship and broadcast.
+
+**If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
+operator finds it, and how you find it again.
 
 ### Everything is a cue
 
@@ -70,14 +78,6 @@ telemetry, and no second licence for the spare machine in the flight case —
 which is not true of most of what it gets compared to.
 
 **[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer, Resolume and Inkue. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, thirty chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
-
-<!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
-     never a real show file. A client's deck in a public README is a client's
-     deck on the internet. -->
-
-![The Deckboy desk with its face on the empty monitor, winking, then taking cues to air in turn: a title typed live, colour bars, a clip from Tears of Steel with a kaleidoscope and a ripple stacked onto it, the Swirl generator and a live Code expression](art/readme/demo-desk.gif)
-
-<sub>Shown with a title, bars, Swirl and Code that Deckboy makes itself and a clip from <i>Tears of Steel</i> (© Blender Foundation, CC BY 3.0), so nothing here is anyone’s show file.</sub>
 
 ---
 
