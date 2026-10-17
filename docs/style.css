@@ -191,6 +191,10 @@ h1 {
     margin-top: 1.75rem;
     filter: grayscale(1) sepia(1) hue-rotate(38deg) saturate(2.2);
 }
+/* A bare <img> flex item stretches to the row while a linked one does not, so
+   badges with and without a link came out at two sizes. Size them all. */
+.badges a { display: flex; }
+.badges img { height: 26px; width: auto; }
 
 /* ── panels ─────────────────────────────────────────────────────────────── */
 
