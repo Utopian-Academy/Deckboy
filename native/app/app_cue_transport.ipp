@@ -5867,6 +5867,9 @@
     target.edgeBlendRight = source.edgeBlendRight;
     target.edgeBlendTop = source.edgeBlendTop;
     target.edgeBlendBottom = source.edgeBlendBottom;
+    target.edgeBlendProjectorCurve = source.edgeBlendProjectorCurve;
+    target.edgeBlendGamma = source.edgeBlendGamma;
+    target.edgeBlendBlackLift = source.edgeBlendBlackLift;
     target.warpGridCols = source.warpGridCols;
     target.warpGridRows = source.warpGridRows;
     target.warpGridSmooth = source.warpGridSmooth;

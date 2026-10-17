@@ -4,7 +4,8 @@
 // Provides geometric transformation functions for the output compositor:
 //
 //   edgeBlendAlphaForUv() — per-pixel alpha for soft edge blending between
-//                            adjacent projectors (linear ramp on all four edges)
+//                            adjacent projectors (straight ramp, or the
+//                            projector curve: an S in light, gamma-encoded)
 //   bilerpPoint()         — bilinear interpolation of four corner points
 //                            (used for perspective warp / corner-pin mapping)
 //
@@ -60,15 +61,48 @@
     return {croppedW * baseScaleX, croppedH * baseScaleY};
   }
 
-  // Compute the edge blend alpha (0–255) for a given UV coordinate.
-  // Each edge fades linearly from 0 at the edge to full alpha at the
-  // blend boundary. When edges overlap at corners, the alphas multiply.
+  // WHAT THE BLEND DRAWS WITH: the output's edges and curve, and the gamma
+  // the alpha has to be encoded at -- which is the PROJECTOR's on an SDR
+  // output, and 1 on an HDR one, whose compositor is linear light already.
+  // Field names match OutputTarget's so the mesh templates take either.
+  struct EdgeBlendShape {
+    float edgeBlendLeft = 0.0f;
+    float edgeBlendRight = 0.0f;
+    float edgeBlendTop = 0.0f;
+    float edgeBlendBottom = 0.0f;
+    bool edgeBlendProjectorCurve = false;
+    float edgeBlendGamma = 1.0f;
+    float edgeBlendBlackLift = 0.0f;
+  };
+  static EdgeBlendShape edgeBlendShapeFor(const OutputTarget& output, bool linearLight) {
+    EdgeBlendShape shape;
+    shape.edgeBlendLeft = output.edgeBlendLeft;
+    shape.edgeBlendRight = output.edgeBlendRight;
+    shape.edgeBlendTop = output.edgeBlendTop;
+    shape.edgeBlendBottom = output.edgeBlendBottom;
+    shape.edgeBlendProjectorCurve = output.edgeBlendProjectorCurve;
+    shape.edgeBlendGamma = linearLight ? 1.0f : std::clamp(output.edgeBlendGamma, 1.0f, 3.0f);
+    shape.edgeBlendBlackLift = std::clamp(output.edgeBlendBlackLift, 0.0f, 0.2f);
+    return shape;
+  }
+
+  // The projector curve, in LIGHT: 0 at the outer edge, 1 at the inner one,
+  // an S whose two halves, mirrored, sum to exactly 1 at every point.
+  static float projectorBlendLight(float t) {
+    t = std::clamp(t, 0.0f, 1.0f);
+    return t < 0.5f ? 2.0f * t * t : 1.0f - 2.0f * (1.0f - t) * (1.0f - t);
+  }
+
+  // The edge blend alpha (0-1) at a UV coordinate. LINEAR: each edge ramps
+  // straight from 0 at the edge to 1 at the blend boundary, the axes
+  // multiplied at a corner -- what every blend did before the curve existed.
+  // PROJECTOR: the same, in light, then encoded at the gamma.
   // TEMPLATED ON WHAT CARRIES THE EDGES, because they moved from the Deck to
   // the OutputTarget and both spell the fields the same way. One function
   // rather than two that can drift apart -- the "two definitions of one
   // function" trap this codebase has been caught by before.
   template <typename WithEdges>
-  static Uint8 edgeBlendAlphaForUv(const WithEdges& deck, float u, float v) {
+  static float edgeBlendAlphaForUv(const WithEdges& deck, float u, float v) {
     float ax = 1.0f;
     if (deck.edgeBlendLeft > 0.0001f && u < deck.edgeBlendLeft) {
       ax = std::min(ax, u / deck.edgeBlendLeft);
@@ -83,8 +117,72 @@
     if (deck.edgeBlendBottom > 0.0001f && v > 1.0f - deck.edgeBlendBottom) {
       ay = std::min(ay, (1.0f - v) / deck.edgeBlendBottom);
     }
-    float alphaValue = std::clamp(ax * ay, 0.0f, 1.0f);
-    return static_cast<Uint8>(std::lround(alphaValue * 255.0f));
+    if constexpr (requires { deck.edgeBlendProjectorCurve; deck.edgeBlendGamma; }) {
+      if (deck.edgeBlendProjectorCurve) {
+        const float light = projectorBlendLight(ax) * projectorBlendLight(ay);
+        return std::pow(light, 1.0f / std::max(1.0f, deck.edgeBlendGamma));
+      }
+    }
+    return std::clamp(ax * ay, 0.0f, 1.0f);
+  }
+
+  // WHERE THE MESH PUTS ITS VERTICES along one axis. SDL interpolates vertex
+  // colour in straight lines, so a curve is only as good as the number of
+  // vertices inside the blend: a uniform 24 put two or three across a 10%
+  // edge and drew the S as a dog-leg. `uniform` steps across the whole
+  // width, plus 32 more inside each blend zone.
+  static std::vector<float> blendMeshStops(int uniform, float lo, float hi) {
+    std::vector<float> stops;
+    for (int i = 0; i <= uniform; ++i) stops.push_back(static_cast<float>(i) / uniform);
+    constexpr int kInZone = 32;
+    if (lo > 0.0001f) for (int i = 1; i < kInZone; ++i) stops.push_back(lo * i / kInZone);
+    if (hi > 0.0001f) for (int i = 1; i < kInZone; ++i) stops.push_back(1.0f - hi * i / kInZone);
+    if (lo > 0.0001f) stops.push_back(lo);
+    if (hi > 0.0001f) stops.push_back(1.0f - hi);
+    std::sort(stops.begin(), stops.end());
+    stops.erase(std::unique(stops.begin(), stops.end(),
+                            [](float a, float b) { return std::abs(a - b) < 1.0e-5f; }),
+                stops.end());
+    return stops;
+  }
+  template <typename WithEdges>
+  static std::vector<float> blendStopsU(const WithEdges& deck, int uniform, bool hasBlend) {
+    return blendMeshStops(uniform, hasBlend ? deck.edgeBlendLeft : 0.0f, hasBlend ? deck.edgeBlendRight : 0.0f);
+  }
+  template <typename WithEdges>
+  static std::vector<float> blendStopsV(const WithEdges& deck, int uniform, bool hasBlend) {
+    return blendMeshStops(uniform, hasBlend ? deck.edgeBlendTop : 0.0f, hasBlend ? deck.edgeBlendBottom : 0.0f);
+  }
+
+  // BLACK LIFT, drawn over a blend mesh that has just been drawn: the same
+  // vertices, untextured, ADDED, at the lift everywhere outside the blend
+  // zones and nothing inside them -- so the single-projector picture's black
+  // comes up to meet the overlap's doubled one. Warped with the picture
+  // because it is the picture's own mesh.
+  template <typename WithEdges>
+  static void drawBlendBlackLift(SDL_Renderer* renderer, const WithEdges& deck,
+                                 std::vector<SDL_Vertex> vertices, const std::vector<int>& indices,
+                                 const std::vector<float>& us, const std::vector<float>& vs) {
+    if constexpr (requires { deck.edgeBlendBlackLift; }) {
+      const float lift = deck.edgeBlendBlackLift;
+      if (lift <= 0.0001f) return;
+      const float lo = deck.edgeBlendLeft, hi = 1.0f - deck.edgeBlendRight;
+      const float top = deck.edgeBlendTop, bottom = 1.0f - deck.edgeBlendBottom;
+      std::size_t i = 0;
+      for (float t : vs) {
+        for (float s : us) {
+          const bool outside = s >= lo - 1.0e-5f && s <= hi + 1.0e-5f && t >= top - 1.0e-5f && t <= bottom + 1.0e-5f;
+          const float c = outside ? lift : 0.0f;
+          vertices[i++].color = SDL_FColor {c, c, c, 1.0f};
+        }
+      }
+      SDL_BlendMode previous = SDL_BLENDMODE_NONE;
+      SDL_GetRenderDrawBlendMode(renderer, &previous);
+      SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
+      SDL_RenderGeometry(renderer, nullptr, vertices.data(), static_cast<int>(vertices.size()),
+                         indices.data(), static_cast<int>(indices.size()));
+      SDL_SetRenderDrawBlendMode(renderer, previous);
+    }
   }
 
   static SDL_FPoint bilerpPoint(const SDL_FPoint& p0,
@@ -129,24 +227,24 @@
                                   const SDL_FPoint& p1,
                                   const SDL_FPoint& p2,
                                   const SDL_FPoint& p3) {
-    constexpr int kCols = 24;
-    constexpr int kRows = 24;
+    const std::vector<float> us = blendStopsU(deck, 24, true);
+    const std::vector<float> vs = blendStopsV(deck, 24, true);
+    const int kCols = static_cast<int>(us.size()) - 1;
+    const int kRows = static_cast<int>(vs.size()) - 1;
     std::vector<SDL_Vertex> vertices;
-    vertices.resize(static_cast<size_t>(kCols + 1) * static_cast<size_t>(kRows + 1));
+    vertices.resize(us.size() * vs.size());
     std::vector<int> indices;
     indices.reserve(static_cast<size_t>(kCols * kRows * 6));
 
     size_t vertexIndex = 0;
-    for (int row = 0; row <= kRows; ++row) {
-      float t = static_cast<float>(row) / static_cast<float>(kRows);
-      for (int col = 0; col <= kCols; ++col) {
-        float s = static_cast<float>(col) / static_cast<float>(kCols);
+    for (float t : vs) {
+      for (float s : us) {
         SDL_FPoint position = bilerpPoint(p0, p1, p2, p3, s, t);
         SDL_FPoint texCoord = bilerpPoint(uvTL, uvTR, uvBR, uvBL, s, t);
         // s/t are SCREEN-space parameters, so the feather always follows the
         // output's own edges regardless of how the uv corners were permuted
         // for orientation.
-        float alpha = static_cast<float>(edgeBlendAlphaForUv(deck, s, t)) / 255.0f;
+        const float alpha = edgeBlendAlphaForUv(deck, s, t);
         vertices[vertexIndex++] =
           SDL_Vertex {position, SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, texCoord};
       }
@@ -170,9 +268,11 @@
     }
 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    return SDL_RenderGeometry(renderer, texture,
-                              vertices.data(), static_cast<int>(vertices.size()),
-                              indices.data(), static_cast<int>(indices.size()));
+    const bool drawn = SDL_RenderGeometry(renderer, texture,
+                                          vertices.data(), static_cast<int>(vertices.size()),
+                                          indices.data(), static_cast<int>(indices.size()));
+    if (drawn) drawBlendBlackLift(renderer, deck, std::move(vertices), indices, us, vs);
+    return drawn;
   }
 
   // ---------------------------------------------------------------------------
@@ -483,8 +583,10 @@
     const bool projective = perspective &&
       computeProjectiveUvCoefficients(p0, p1, p2, p3, uvTL, uvTR, uvBR, uvBL, coeffs);
     // Fine enough that a 9x9 smooth grid still reads as a curve.
-    const int cols = std::max(24, (out.warpGridCols - 1) * 8);
-    const int rows = std::max(24, (out.warpGridRows - 1) * 8);
+    const std::vector<float> us = blendStopsU(deck, std::max(24, (out.warpGridCols - 1) * 8), hasBlend);
+    const std::vector<float> vs = blendStopsV(deck, std::max(24, (out.warpGridRows - 1) * 8), hasBlend);
+    const int cols = static_cast<int>(us.size()) - 1;
+    const int rows = static_cast<int>(vs.size()) - 1;
     const float minU = std::min(std::min(uvTL.x, uvTR.x), std::min(uvBR.x, uvBL.x));
     const float maxU = std::max(std::max(uvTL.x, uvTR.x), std::max(uvBR.x, uvBL.x));
     const float minV = std::min(std::min(uvTL.y, uvTR.y), std::min(uvBR.y, uvBL.y));
@@ -493,10 +595,8 @@
     std::vector<int> indices;
     indices.reserve(static_cast<std::size_t>(cols * rows * 6));
     std::size_t v = 0;
-    for (int row = 0; row <= rows; ++row) {
-      const float t = static_cast<float>(row) / static_cast<float>(rows);
-      for (int col = 0; col <= cols; ++col) {
-        const float s = static_cast<float>(col) / static_cast<float>(cols);
+    for (const float t : vs) {
+      for (const float s : us) {
         const SDL_FPoint base = bilerpPoint(p0, p1, p2, p3, s, t);
         SDL_FPoint uv = bilerpPoint(uvTL, uvTR, uvBR, uvBL, s, t);
         if (projective) {
@@ -510,8 +610,7 @@
           uv.y = std::clamp(uv.y, minV, maxV);
         }
         const SDL_FPoint nudge = warpGridOffsetAt(out, s, t);
-        const float alpha = hasBlend
-          ? static_cast<float>(edgeBlendAlphaForUv(deck, s, t)) / 255.0f : 1.0f;
+        const float alpha = hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 1.0f;
         vertices[v++] = SDL_Vertex {SDL_FPoint {base.x + nudge.x, base.y + nudge.y},
                                     SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, uv};
       }
@@ -524,8 +623,10 @@
       }
     }
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    return SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
-                              indices.data(), static_cast<int>(indices.size()));
+    const bool drawn = SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
+                                          indices.data(), static_cast<int>(indices.size()));
+    if (drawn && hasBlend) drawBlendBlackLift(renderer, deck, std::move(vertices), indices, us, vs);
+    return drawn;
   }
 
   template <typename WithEdges>
@@ -549,10 +650,12 @@
       return false;
     }
 
-    constexpr int kCols = 18;
-    constexpr int kRows = 18;
+    const std::vector<float> us = blendStopsU(deck, 18, hasBlend);
+    const std::vector<float> vs = blendStopsV(deck, 18, hasBlend);
+    const int kCols = static_cast<int>(us.size()) - 1;
+    const int kRows = static_cast<int>(vs.size()) - 1;
     std::vector<SDL_Vertex> vertices;
-    vertices.resize(static_cast<size_t>(kCols + 1) * static_cast<size_t>(kRows + 1));
+    vertices.resize(us.size() * vs.size());
     std::vector<int> indices;
     indices.reserve(static_cast<size_t>(kCols * kRows * 6));
 
@@ -562,10 +665,8 @@
     float maxV = std::max(std::max(uvTL.y, uvTR.y), std::max(uvBR.y, uvBL.y));
 
     size_t vertexIndex = 0;
-    for (int row = 0; row <= kRows; ++row) {
-      float t = static_cast<float>(row) / static_cast<float>(kRows);
-      for (int col = 0; col <= kCols; ++col) {
-        float s = static_cast<float>(col) / static_cast<float>(kCols);
+    for (float t : vs) {
+      for (float s : us) {
         SDL_FPoint position = bilerpPoint(p0, p1, p2, p3, s, t);
         double x = static_cast<double>(position.x);
         double y = static_cast<double>(position.y);
@@ -577,9 +678,9 @@
         }
         texCoord.x = std::clamp(texCoord.x, minU, maxU);
         texCoord.y = std::clamp(texCoord.y, minV, maxV);
-        Uint8 alpha = hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 255;
+        const float alpha = hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 1.0f;
         // SDL3: SDL_Vertex carries a float SDL_FColor.
-        vertices[vertexIndex++] = SDL_Vertex {position, SDL_FColor {1.0f, 1.0f, 1.0f, static_cast<float>(alpha) / 255.0f}, texCoord};
+        vertices[vertexIndex++] = SDL_Vertex {position, SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, texCoord};
       }
     }
 
@@ -601,11 +702,13 @@
     }
 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    return SDL_RenderGeometry(
+    const bool drawn = SDL_RenderGeometry(
       renderer,
       texture,
       vertices.data(),
       static_cast<int>(vertices.size()),
       indices.data(),
       static_cast<int>(indices.size()));
+    if (drawn && hasBlend) drawBlendBlackLift(renderer, deck, std::move(vertices), indices, us, vs);
+    return drawn;
   }

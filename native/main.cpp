@@ -9501,6 +9501,14 @@ class App {
   static constexpr int kSettingsActionLiveCaptionsOutputBase = 850;  // 850-857
   static constexpr int kSettingsActionOutputHdrToggle = 858;
   static constexpr int kSettingsActionOutputHdrWhite = 859;
+  // The edge blend's curve, gamma, black lift and two-projector overlap.
+  static constexpr int kSettingsActionOutputBlendCurve = 860;
+  static constexpr int kSettingsActionOutputBlendGammaDec = 861;
+  static constexpr int kSettingsActionOutputBlendGammaInc = 862;
+  static constexpr int kSettingsActionOutputBlendLiftDec = 863;
+  static constexpr int kSettingsActionOutputBlendLiftInc = 864;
+  static constexpr int kSettingsActionOutputBlendPairDec = 865;
+  static constexpr int kSettingsActionOutputBlendPairInc = 866;
   static constexpr int kSettingsActionStreamKeyPrompt = 641;
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;

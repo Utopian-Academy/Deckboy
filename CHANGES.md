@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-17 - v0.99.416 (two projectors that add up to one picture)
+
+### Outputs
+- Fixed an issue where two projectors blended with **Edge blend** showed a dark band down the
+  middle of the overlap. The blend now fades in light at the projector's gamma (2.2 unless you
+  change it): measured across a 240-pixel overlap, the two projectors together come to within 3% of
+  one projector everywhere, plain or through a corner-pin or grid warp. Shows saved before this
+  keep the old straight fade (**Curve: LINEAR**) until you change it.
+- Added **Projector gamma** and **Black lift** to **Settings > Video Outputs > Geometry > EDGE
+  BLEND**. Black lift raises the picture outside the overlap so a dark scene has no grey glow
+  where both projectors' black adds up.
+- Added **Pair overlap**: one number sets two outputs' areas of interest and blends together, so
+  the strip both projectors show is the same strip of picture and both fade across exactly it.
+  `VIDEO BLEND PAIR <output> <px>`, `VIDEO BLEND GAMMA`, `VIDEO BLEND LIFT`, `VIDEO BLEND CURVE`.
+- The card is now called **EDGE BLEND** (it was **EDGE FEATHERING**).
+
 ## 2026-10-17 - v0.99.415 (clean lines on a warped projection)
 
 ### Outputs

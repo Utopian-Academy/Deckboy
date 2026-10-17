@@ -3137,12 +3137,12 @@
           ebRasterH = std::max(16, ebRasterH);
           // Sized from the shared header + row metrics, not a magic number: rows are
           // font-derived now, so a fixed height clipped the last control.
-          int blendH = sectionH({kRowH, kRowH, kRowH, kRowH});
+          int blendH = sectionH({kRowH, kRowH, kRowH, kRowH, kRowH, kRowH, kRowH, kRowH});
           SDL_Rect blendSection {cx, sy, subContentW, blendH};
-          // "Feathering", not "blending": this softens THIS output's own edges.
-          // True multi-projector edge blending (gamma-matched overlap between
-          // two outputs) is a Super Deckboy job — see kSuperDeckboySpanningUi.
-          SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE FEATHERING");
+          // A real blend now: the PROJECTOR curve fades in light and encodes
+          // at the projector's gamma, so two overlapping outputs sum to one
+          // (types.hpp, edgeBlendProjectorCurve). LINEAR is the old feather.
+          SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE BLEND");
           // FOUR EDGES, FOUR ROWS. They were four columns side by side, each a
           // caption over a pair of bare buttons, so the value sat above the
           // controls that change it and none of the four lined up with any
@@ -3158,6 +3158,28 @@
           drawBlendCtrl("Right", bd.edgeBlendRight, ebRasterW, kSettingsActionOutputEdgeBlendRDec, kSettingsActionOutputEdgeBlendRInc);
           drawBlendCtrl("Top", bd.edgeBlendTop, ebRasterH, kSettingsActionOutputEdgeBlendTDec, kSettingsActionOutputEdgeBlendTInc);
           drawBlendCtrl("Bottom", bd.edgeBlendBottom, ebRasterH, kSettingsActionOutputEdgeBlendBDec, kSettingsActionOutputEdgeBlendBInc);
+          drawActionBtn(settingsRowIn(blendLayout.takeFixed(kRowH), "Curve"),
+                        bd.edgeBlendProjectorCurve ? std::string("PROJECTOR - gamma matched")
+                                                   : std::string("LINEAR - a feather, not a blend"),
+                        kSettingsActionOutputBlendCurve, bd.edgeBlendProjectorCurve);
+          char gammaText[24];
+          std::snprintf(gammaText, sizeof(gammaText), "%.1f", bd.edgeBlendGamma);
+          drawSettingsStepper(settingsRowIn(blendLayout.takeFixed(kRowH), "Projector gamma"),
+                              bd.edgeBlendProjectorCurve ? std::string(gammaText) : std::string("(projector curve only)"),
+                              kSettingsActionOutputBlendGammaDec, kSettingsActionOutputBlendGammaInc, "blend gamma");
+          drawSettingsStepper(settingsRowIn(blendLayout.takeFixed(kRowH), "Black lift"),
+                              std::to_string(static_cast<int>(std::lround(bd.edgeBlendBlackLift * 100.0f))) + "%",
+                              kSettingsActionOutputBlendLiftDec, kSettingsActionOutputBlendLiftInc, "black lift");
+          // PAIR: this output is the left projector, the next one the right.
+          // Each step re-runs BLEND PAIR, which sets both outputs' areas and
+          // blends from one overlap, so the two can never disagree.
+          const int pairWith = project_.focusedOutputIndex + 1;
+          const bool canPair = pairWith < static_cast<int>(project_.outputs.size());
+          drawSettingsStepper(settingsRowIn(blendLayout.takeFixed(kRowH), "Pair overlap"),
+                              canPair ? std::to_string(static_cast<int>(std::lround(bd.edgeBlendRight * ebRasterW))) +
+                                          " px with Output " + std::to_string(pairWith + 1)
+                                      : std::string("add a second output to pair"),
+                              kSettingsActionOutputBlendPairDec, kSettingsActionOutputBlendPairInc, "pair overlap");
           sy += blendH + kSectionGap;
         }
 
@@ -5399,6 +5421,32 @@
             const std::string why = exportTestCard(30.0, 60, 0, 0, std::filesystem::u8path(chosen.front()));
             if (!why.empty()) triggerToast("test card export: " + why, ToastKind::Warning, kToastReadableMs);
           });
+        }
+      } else if (sb.action == kSettingsActionOutputBlendCurve) {
+        handleRemoteCommand(std::string("VIDEO BLEND CURVE ") +
+                            (focusedOutput().edgeBlendProjectorCurve ? "LINEAR" : "PROJECTOR"));
+      } else if (sb.action == kSettingsActionOutputBlendGammaDec || sb.action == kSettingsActionOutputBlendGammaInc) {
+        const float step = sb.action == kSettingsActionOutputBlendGammaInc ? 0.1f : -0.1f;
+        char cmd[48];
+        std::snprintf(cmd, sizeof(cmd), "VIDEO BLEND GAMMA %.1f",
+                      std::clamp(focusedOutput().edgeBlendGamma + step, 1.0f, 3.0f));
+        handleRemoteCommand(cmd);
+      } else if (sb.action == kSettingsActionOutputBlendLiftDec || sb.action == kSettingsActionOutputBlendLiftInc) {
+        const int now = static_cast<int>(std::lround(focusedOutput().edgeBlendBlackLift * 100.0f));
+        const int next = std::clamp(now + (sb.action == kSettingsActionOutputBlendLiftInc ? 1 : -1), 0, 20);
+        handleRemoteCommand("VIDEO BLEND LIFT " + std::to_string(next));
+      } else if (sb.action == kSettingsActionOutputBlendPairDec || sb.action == kSettingsActionOutputBlendPairInc) {
+        // 8 px a step; the first press on an unpaired output starts at 12%.
+        const int at = project_.focusedOutputIndex;
+        if (at + 1 >= static_cast<int>(project_.outputs.size())) {
+          triggerToast("pair: add a second output first -- this one is the left projector, the next the right",
+                       ToastKind::Warning, kToastReadableMs);
+        } else {
+          const int rasterW = std::max(16, outputRenderSizeForOutput(at).first);
+          const int now = static_cast<int>(std::lround(focusedOutput().edgeBlendRight * rasterW));
+          const int next = now <= 0 ? std::max(8, rasterW * 12 / 100)
+                                    : std::max(8, now + (sb.action == kSettingsActionOutputBlendPairInc ? 8 : -8));
+          handleRemoteCommand("VIDEO BLEND PAIR " + std::to_string(at + 2) + " " + std::to_string(next));
         }
       } else if (sb.action >= kSettingsActionOutputEdgeBlendLInc && sb.action <= kSettingsActionOutputEdgeBlendBDec) {
         // And the same for the handler: these eight buttons were adjusting

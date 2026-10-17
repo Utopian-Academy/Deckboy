@@ -3271,6 +3271,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"
         "        VIDEO OUTPUT LAYERWARP [OFF | <8 corner OFFSETS> | MODE linear/perspective] - map a layer onto a surface\n"
         "        WARP EDIT [ON|OFF] | WARP SELECT TL|TR|BR|BL|<col> <row> | WARP AT <x> <y> - place a warp point to the pixel\n"
+        "        VIDEO BLEND L|R|T|B|ALL <0-49%> | RESET | CURVE PROJECTOR|LINEAR | GAMMA <1-3> | LIFT <0-20%>\n"
+        "        VIDEO BLEND PAIR <output> <overlap px> - this output left, <output> right, areas and blends set together\n"
         "        offsets from each corner, as fractions of the layer; 0 0 0 0 0 0 0 0 is no pin\n"
         "        - which playlists composite onto the focused output, and in what order\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"

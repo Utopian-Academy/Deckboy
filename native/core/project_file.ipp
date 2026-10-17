@@ -617,6 +617,10 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
       << '\t' << escapeField(outputTarget.st2110AudioInterface)
       // Area of interest sent pixel for pixel (field 108).
       << '\t' << (outputTarget.aoiPixelForPixel ? 1 : 0)
+      // The blend's curve, gamma and black lift (fields 109-111).
+      << '\t' << (outputTarget.edgeBlendProjectorCurve ? 1 : 0)
+      << '\t' << outputTarget.edgeBlendGamma
+      << '\t' << outputTarget.edgeBlendBlackLift
       << '\n';
   }
   // ONE CUE RECORD, shared by the playlists and the tracker's own steps
@@ -1559,6 +1563,9 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
       project.outputs.push_back(OutputTarget {});
     }
     OutputTarget& outputTarget = project.outputs[normalizedIndex];
+    // A blend saved before its curve existed was the straight ramp, and reads
+    // back as one; fields 109-111 below put a newer show's own back.
+    outputTarget.edgeBlendProjectorCurve = false;
     outputTarget.name = safeString(fields, 2);
     outputTarget.hostDeckIndex = safeInt(fields, 3, 0);
     outputTarget.displayIndex = safeInt(fields, 4, 0);
@@ -1744,6 +1751,13 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                               }
                               if (fields.size() >= 109) {
                                 outputTarget.aoiPixelForPixel = safeBool(fields, 108, false);
+                              }
+                              if (fields.size() >= 112) {
+                                outputTarget.edgeBlendProjectorCurve = safeBool(fields, 109, true);
+                                outputTarget.edgeBlendGamma =
+                                  std::clamp(static_cast<float>(safeDouble(fields, 110, 2.2)), 1.0f, 3.0f);
+                                outputTarget.edgeBlendBlackLift =
+                                  std::clamp(static_cast<float>(safeDouble(fields, 111, 0.0)), 0.0f, 0.2f);
                               }
                             }
                           }

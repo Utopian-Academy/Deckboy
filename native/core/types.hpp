@@ -2239,6 +2239,19 @@ struct OutputTarget {
   float edgeBlendRight = 0.0f;
   float edgeBlendTop = 0.0f;
   float edgeBlendBottom = 0.0f;
+  // HOW THE BLEND FADES. Two projectors add LIGHT, and light is the signal
+  // raised to the projector's gamma -- so two straight ramps in signal crossing
+  // in the middle give 2 x 0.5^2.2 = 44% of the light there: a dark stripe down
+  // the seam. The PROJECTOR curve fades in light (an S-curve, so a small
+  // misalignment does not show) and encodes it at edgeBlendGamma, so the two
+  // halves sum to one. LINEAR is the old straight ramp, which is what every
+  // show saved before this reads back as.
+  bool edgeBlendProjectorCurve = true;
+  float edgeBlendGamma = 2.2f;
+  // Where two projectors overlap, their BLACK adds up too, and the seam glows
+  // grey in a dark scene. Black lift raises everything OUTSIDE the blend zones
+  // by this much signal (0-0.2) so the rest of the picture meets it.
+  float edgeBlendBlackLift = 0.0f;
   // GRID WARP: a refinement ON TOP of the corner pin, for a screen that is
   // not flat -- a curve, a column, a dome's segment. The corners still place
   // the picture; each grid point adds a nudge, in output pixels, to where the

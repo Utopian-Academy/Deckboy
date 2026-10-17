@@ -8122,6 +8122,78 @@
           triggerToast("blend reset");
           return;
         }
+        // BLEND CURVE PROJECTOR|LINEAR, BLEND GAMMA <1-3>, BLEND LIFT <0-20 %>:
+        // how the focused output's blend fades (types.hpp, edgeBlendProjectorCurve).
+        if (edge == "CURVE" || edge == "GAMMA" || edge == "LIFT") {
+          OutputTarget& out = focusedOutputMutable();
+          const std::string arg = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+          if (edge == "CURVE") {
+            if (arg != "PROJECTOR" && arg != "LINEAR") {
+              failRemoteCommand("BLEND CURVE: expected PROJECTOR or LINEAR");
+              return;
+            }
+            out.edgeBlendProjectorCurve = arg == "PROJECTOR";
+          } else {
+            const auto amount = parseNumber(3);
+            if (edge == "GAMMA" && (!amount || *amount < 1.0 || *amount > 3.0)) {
+              failRemoteCommand("BLEND GAMMA: expected 1.0..3.0 (2.2 suits most projectors)");
+              return;
+            }
+            if (edge == "LIFT" && (!amount || *amount < 0.0 || *amount > 20.0)) {
+              failRemoteCommand("BLEND LIFT: expected 0..20 percent");
+              return;
+            }
+            if (edge == "GAMMA") out.edgeBlendGamma = static_cast<float>(*amount);
+            else out.edgeBlendBlackLift = static_cast<float>(*amount / 100.0);
+          }
+          markProjectDirty();
+          char text[96];
+          std::snprintf(text, sizeof(text), "blend %s, gamma %.1f, black lift %d%%",
+                        out.edgeBlendProjectorCurve ? "projector" : "linear", out.edgeBlendGamma,
+                        static_cast<int>(std::lround(out.edgeBlendBlackLift * 100.0f)));
+          remoteCommandDetail_ = text;
+          return;
+        }
+        // BLEND PAIR <output> <overlap px>: the focused output is the LEFT
+        // projector and <output> (counted from 1) the right; overlapping by
+        // that many projector pixels. Sets both outputs' areas and blends so
+        // the overlap shows the same strip of picture on both and fades
+        // across exactly it. Each shows a = 1 / (2 - o/P) of the picture's
+        // width, P the projector's width: two of them minus the shared strip
+        // (a * o/P of the picture) is the whole picture.
+        if (edge == "PAIR") {
+          const int left = project_.focusedOutputIndex;
+          const auto other = parseNumber(3);
+          const auto overlap = parseNumber(4);
+          const int right = other ? static_cast<int>(*other) - 1 : -1;
+          if (right < 0 || right >= static_cast<int>(project_.outputs.size()) || right == left || !overlap) {
+            failRemoteCommand("BLEND PAIR: expected <other output number> <overlap in pixels>");
+            return;
+          }
+          // In the output's own raster: the projector's pixels.
+          const int projectorW = std::max(16, outputRenderSizeForOutput(left).first);
+          const double share = *overlap / projectorW;
+          if (share <= 0.0 || share > 0.49) {
+            failRemoteCommand("BLEND PAIR: the overlap must be 1 to " + std::to_string(projectorW * 49 / 100) + " pixels");
+            return;
+          }
+          const float crop = static_cast<float>(1.0 - 1.0 / (2.0 - share));
+          OutputTarget& a = project_.outputs[static_cast<std::size_t>(left)];
+          OutputTarget& b = project_.outputs[static_cast<std::size_t>(right)];
+          a.aoiLeft = 0.0f;  a.aoiRight = crop;
+          b.aoiLeft = crop;  b.aoiRight = 0.0f;
+          a.edgeBlendLeft = 0.0f;  a.edgeBlendRight = static_cast<float>(share);
+          b.edgeBlendLeft = static_cast<float>(share);  b.edgeBlendRight = 0.0f;
+          b.edgeBlendProjectorCurve = a.edgeBlendProjectorCurve;
+          b.edgeBlendGamma = a.edgeBlendGamma;
+          b.edgeBlendBlackLift = a.edgeBlendBlackLift;
+          normalizeProject(project_);
+          markProjectDirty();
+          remoteCommandDetail_ = "output " + std::to_string(left + 1) + " left, output " + std::to_string(right + 1) +
+                                 " right, overlap " + std::to_string(static_cast<int>(std::lround(*overlap))) + " px";
+          triggerToast("blend pair: " + remoteCommandDetail_);
+          return;
+        }
         if (edge == "ALL" && parts.size() > 3) {
           if (auto amount = parseBlendValue(3); amount) {
             setFocusedDeckEdgeBlend("L", *amount);

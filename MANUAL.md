@@ -1541,11 +1541,50 @@ Applied per output (not per cue):
   `OUTPUT AOI MODE PIXEL`.
 - **Warp** — corner-pin the output (drag the four corners; `Shift+drag` snaps
   to a grid). Copy/paste warp with `Ctrl+Shift+C` / `Ctrl+Shift+V`.
-- **Edge blend** — feather each edge for projector soft-edge blending.
+- **Edge blend** — fade each edge where two projectors overlap (below).
 
 Press **WARP** on the programme monitor's header to edit, or open **Settings >
 Video Outputs > Geometry > WARP**. A banner across the picture says what the
 handles are moving: the whole programme on this output, or one layer's pin.
+
+### Blending two projectors
+
+When one picture is too big for one projector, or a lens cannot reach the
+corners of a table, two projectors share it and overlap in the middle. Each
+needs its own output: Output 1 is the left projector, Output 2 the right.
+
+1. Point both at the surface with their pictures overlapping, and line each
+   up with its own warp (corner pin, and the grid for lens bend).
+2. Focus Output 1 and open **Settings > Video Outputs > Geometry**. In the
+   **EDGE BLEND** card, press **+** on **Pair overlap**. Output 1 now shows
+   the left part of the picture and Output 2 the right, with the strip in the
+   middle on both, and each fades out across it. Keep pressing **+** or
+   **-** until the strip on the surface is exactly where the two pictures
+   overlap (8 pixels a press).
+3. Show a flat grey and look at the seam. If it is darker or brighter than
+   the rest, step **Projector gamma** (2.2 suits most projectors; some are
+   2.4). The right gamma makes the seam disappear.
+4. Show black and look again. Where the two overlap, both projectors' black
+   adds up and the seam glows grey. Step **Black lift** up until the rest of
+   the picture matches it.
+
+**Curve** is **PROJECTOR** for a new output: the fade is shaped in light,
+the way two projectors actually add up, so the seam is as bright as the rest.
+**LINEAR** is the old straight fade, which leaves a dark band in the middle
+of a real overlap; shows made before 0.99.416 keep it until you change it.
+
+On an HDR output the gamma is not used: the picture is already in light, so
+the curve is applied as it is.
+
+Over the control port, with Output 1 focused:
+```
+VIDEO BLEND PAIR 2 240        (Output 2 on the right, 240 px of overlap)
+VIDEO BLEND GAMMA 2.4
+VIDEO BLEND LIFT 3            (percent)
+VIDEO BLEND CURVE PROJECTOR   (or LINEAR)
+```
+PAIR sets both outputs' areas and blends from one number, so the two always
+agree. The overlap is in the output's own pixels.
 
 ### Bending the picture: grid warp
 

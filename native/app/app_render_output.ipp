@@ -102,6 +102,9 @@
     // projector and a clean stream no longer warps both.
     bool hasBlend = output.edgeBlendLeft > 0.0001f || output.edgeBlendRight > 0.0001f
       || output.edgeBlendTop > 0.0001f || output.edgeBlendBottom > 0.0001f;
+    // An HDR output's compositor is linear light, so its blend is not
+    // gamma-encoded; an SDR one's is, at the projector's gamma.
+    const EdgeBlendShape blendShape = edgeBlendShapeFor(output, runtime->hdr);
     bool hasWarp = output.warpEnabled;
     std::string warpMode = normalizeWarpMode(output.warpMode);
     bool usePerspectiveWarp = hasWarp && warpMode == "perspective";
@@ -163,12 +166,12 @@
       }
 
       if (hasWarp && warpGridActive(output) &&
-          renderGridWarp(runtime->outputRenderer, runtime->compositorTexture, output, output,
+          renderGridWarp(runtime->outputRenderer, runtime->compositorTexture, blendShape, output,
                          usePerspectiveWarp, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {
         return;
       }
       if (usePerspectiveWarp) {
-        if (renderPerspectiveWarp(runtime->outputRenderer, runtime->compositorTexture, output,
+        if (renderPerspectiveWarp(runtime->outputRenderer, runtime->compositorTexture, blendShape,
                                   uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {
           return;
         }
@@ -177,7 +180,7 @@
       // Feathering must be evaluated ACROSS the quad, not at its corners: four
       // vertices let SDL stretch a narrow edge ramp into a full-image fade.
       if (hasBlend && renderFeatheredQuad(runtime->outputRenderer, runtime->compositorTexture,
-                                          output, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3)) {
+                                          blendShape, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3)) {
         return;
       }
       // No feather (warp and/or orientation only): a plain opaque quad is exact.
