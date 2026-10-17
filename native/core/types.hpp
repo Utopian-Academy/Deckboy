@@ -2590,6 +2590,11 @@ struct Project {
   // Where SDR material (and the HDR reference white) sits on an HDR output, in
   // nits. 203 is ITU-R BT.2408's reference white.
   int hdrSdrWhiteNits = 203;
+  // HOW an HDR output's picture LEAVES as a signal -- a recording, a stream,
+  // a send: a bit per output, set for HLG (BT.2100 hybrid log-gamma, what
+  // live broadcast mostly carries), clear for PQ (HDR10). The output's own
+  // screen is unaffected; Windows takes scRGB either way.
+  std::uint32_t hdrHlgOutputs = 0u;
 
   // ── THE WALL CLOCK ──────────────────────────────────────────────────────
   //

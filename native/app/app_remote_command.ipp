@@ -9137,6 +9137,20 @@
           remoteCommandDetail_ = "SDR material at " + std::to_string(nits) + " nits";
           return;
         }
+        if (what == "SIGNAL") {
+          // OUTPUT HDR SIGNAL PQ|HLG: how this output's HDR leaves as a
+          // signal (recording, stream, send). The screen is unaffected.
+          const std::string signal = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+          if (signal != "PQ" && signal != "HLG") {
+            failRemoteCommand("OUTPUT HDR SIGNAL: expected PQ or HLG");
+            return;
+          }
+          const std::uint32_t bit = 1u << at;
+          project_.hdrHlgOutputs = signal == "HLG" ? (project_.hdrHlgOutputs | bit) : (project_.hdrHlgOutputs & ~bit);
+          markProjectDirty();
+          remoteCommandDetail_ = signal == "HLG" ? "signal HLG (BT.2100)" : "signal PQ (HDR10)";
+          return;
+        }
         if (what == "ON" || what == "OFF" || what == "AUTO") {
           const std::uint32_t bit = 1u << at;
           project_.hdrOutputs = what == "ON" ? (project_.hdrOutputs | bit) : (project_.hdrOutputs & ~bit);
@@ -9146,7 +9160,7 @@
             recreateOutputRuntime(at);
           }
         } else if (what != "STATUS") {
-          failRemoteCommand("OUTPUT HDR: expected ON, OFF, AUTO or STATUS");
+          failRemoteCommand("OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS");
           return;
         }
         const OutputRuntime* rt = at < static_cast<int>(outputRuntimes_.size()) ? &outputRuntimes_[at] : nullptr;
@@ -9154,6 +9168,7 @@
                                          : ((project_.hdrAutoOutputs >> at) & 1u)
                                              ? (outputScreenInHdr(at) ? "auto (screen in HDR)" : "auto (screen SDR)")
                                              : "off");
+        detail += hdrSignalHlg(at) ? " | signal HLG" : " | signal PQ";
         if (rt && rt->outputWindow) {
           const SDL_PropertiesID wp = SDL_GetWindowProperties(rt->outputWindow);
           char text[160];

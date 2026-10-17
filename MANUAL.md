@@ -1022,6 +1022,14 @@ HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear
   at their own brightness. ProRes and DNxHR HQX stay ProRes and DNxHR, 10-bit
   and tagged PQ. A 4K HDR recording is heavy (the picture is read back as
   floating point and encoded on the CPU); 1080 is comfortable.
+- **HDR signal** (or `OUTPUT HDR SIGNAL PQ|HLG`) chooses how that output's
+  HDR leaves as a signal. **PQ** (HDR10) is absolute: a nit in the picture is
+  a nit in the file. **HLG** (BT.2100 hybrid log-gamma, what live broadcast
+  mostly carries) is relative to a 1000-nit display: SDR material at 203 nits
+  lands on 75%, the BT.2408 reference, and anything at 1000 nits or more on
+  100%. A recording follows the signal of the HDR output it records, and is
+  tagged HLG (`arib-std-b67`) with no HDR10 metadata, which HLG does not use.
+  The output's own screen is the same either way.
 
 **AUTO** (the HDR row steps OFF, AUTO, ON; or `OUTPUT HDR AUTO`) runs the output
 HDR when the screen it is on is in HDR and SDR when it is not, and follows the

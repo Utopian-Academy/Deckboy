@@ -59,7 +59,7 @@ struct Bgra422View {
 };
 
 // An HDR frame as 16-bit R'G'B' (three little-endian uint16 per pixel, no
-// alpha): the PQ BT.2020 signal core/hdr_to_sdr.hpp's PqEncoder makes from
+// alpha): the PQ BT.2020 signal core/hdr_to_sdr.hpp's HdrEncoder makes from
 // the float compositor, so 0..65535 is the whole PQ range, 0 to 10,000 nits.
 // Read as normalised code values; pair it with Matrix::Bt2020Ncl.
 struct Rgb16View {

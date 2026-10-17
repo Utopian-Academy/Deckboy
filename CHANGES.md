@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-17 - v0.99.416 (two projectors that add up to one picture)
+## 2026-10-17 - v0.99.416 (two projectors that add up to one picture, HLG recording)
 
 ### Outputs
 - Fixed an issue where two projectors blended with **Edge blend** showed a dark band down the
@@ -15,6 +15,15 @@
   the strip both projectors show is the same strip of picture and both fade across exactly it.
   `VIDEO BLEND PAIR <output> <px>`, `VIDEO BLEND GAMMA`, `VIDEO BLEND LIFT`, `VIDEO BLEND CURVE`.
 - The card is now called **EDGE BLEND** (it was **EDGE FEATHERING**).
+
+### HDR
+- Added **HLG** recording: **Settings > Video Outputs > Screen > HDR signal** (or
+  `OUTPUT HDR SIGNAL HLG`) records an HDR output as HLG (BT.2100, HEVC Main10, BT.2020) instead of
+  HDR10. SDR material at 203 nits lands on 75% and 1000 nits on 100%; measured on a grey ladder
+  from 0.5 to 4000 nits, every step within one code of the BT.2100 value.
+- Fixed an issue where HDR recordings came out about 0.35% too bright (a full-scale white recorded
+  as code 943 instead of 940), when the installed ffmpeg includes the zscale filter. Without it,
+  recordings are as before.
 
 ## 2026-10-17 - v0.99.415 (clean lines on a warped projection)
 

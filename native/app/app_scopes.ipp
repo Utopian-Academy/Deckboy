@@ -10,7 +10,7 @@
 // ST 2110 and the Web Monitor send (OutputRuntime::latestCapturedFrame). On an
 // HDR output that frame is the SDR copy, with every highlight clipped at
 // white, so the scopes read the float compositor instead, as PQ BT.2020
-// (readHdrCompositorPq, the HDR recording's picture), graduated in nits. Not the desk's preview, which is a
+// (readHdrCompositorRaw + a PQ HdrEncoder, the HDR recording's picture), graduated in nits. Not the desk's preview, which is a
 // scaled-down copy: a scope fed from that reads wrong numbers, and a camera
 // shaded against wrong numbers is wrong on air. Every pixel of the frame is
 // counted; only the waveform's horizontal resolution is reduced, which loses
@@ -209,7 +209,7 @@
 
   // Main thread, from the output pass: only the GPU readback happens here;
   // the PQ encode and the analysis run on the worker. About ten a second.
-  std::unique_ptr<deckboy::core::hdr::PqEncoder> scopesPqEncoder_;   // worker only
+  std::unique_ptr<deckboy::core::hdr::HdrEncoder> scopesHdrEncoder_;   // worker only
   int scopesPqWhite_ = 0;
   void scopesOfferHdrFrame(int outputIndex, const OutputRuntime& runtime) {
     const Uint64 now = SDL_GetTicks();
@@ -223,12 +223,12 @@
     scopesWorker_ = std::thread([this, raw, outputIndex, white]() {
       namespace s = deckboy::core::scopes;
       const auto started = std::chrono::steady_clock::now();
-      if (!scopesPqEncoder_ || scopesPqWhite_ != white) {
-        scopesPqEncoder_ = std::make_unique<deckboy::core::hdr::PqEncoder>(white);
+      if (!scopesHdrEncoder_ || scopesPqWhite_ != white) {
+        scopesHdrEncoder_ = std::make_unique<deckboy::core::hdr::HdrEncoder>(white);
         scopesPqWhite_ = white;
       }
       auto frame = std::make_shared<OutputRuntime::CapturedFrame>();
-      if (!encodeHdrSurfacePq(raw, *scopesPqEncoder_, *frame) || frame->width <= 0 || frame->height <= 0) {
+      if (!encodeHdrSurface(raw, *scopesHdrEncoder_, *frame) || frame->width <= 0 || frame->height <= 0) {
         scopesBusy_.store(false);
         return;
       }

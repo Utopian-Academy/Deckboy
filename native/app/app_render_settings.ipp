@@ -2643,7 +2643,7 @@
         dispRows.push_back(kRowH);                                  // add / remove output
         dispRows.push_back(kRowH);                                  // Shows
         if (outputTypeLabel == "stream") dispRows.push_back(kRowH); // Source
-        for (int i = 0; i < 9; ++i) dispRows.push_back(kRowH);      // display .. orientation, HDR x2
+        for (int i = 0; i < 10; ++i) dispRows.push_back(kRowH);     // display .. orientation, HDR x3
         int dispSectionH = sectionH(dispRows);
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
@@ -2829,6 +2829,13 @@
           drawActionBtn(whiteBtn, std::to_string(project_.hdrSdrWhiteNits) + " nits" +
                                     (project_.hdrSdrWhiteNits == 203 ? " (BT.2408)" : ""),
                         kSettingsActionOutputHdrWhite);
+
+          // How the HDR LEAVES (OUTPUT HDR SIGNAL): the recording, the stream,
+          // the send. The screen itself takes scRGB either way.
+          SDL_Rect signalBtn = settingsRowIn(dLayout.takeFixed(kRowH), "HDR signal");
+          drawActionBtn(signalBtn, hdrSignalHlg(focusedOutputIndex) ? "HLG - live broadcast (BT.2100)"
+                                                                   : "PQ - HDR10",
+                        kSettingsActionOutputHdrSignal);
         }
 
         SDL_Rect fsBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Fullscreen");
@@ -4858,6 +4865,9 @@
         const int at = std::clamp(project_.focusedOutputIndex, 0, 31);
         const bool on = (project_.hdrOutputs >> at) & 1u, autoOn = (project_.hdrAutoOutputs >> at) & 1u;
         handleRemoteCommand(std::string("OUTPUT HDR ") + (on ? "OFF" : autoOn ? "ON" : "AUTO"));
+      } else if (sb.action == kSettingsActionOutputHdrSignal) {
+        handleRemoteCommand(std::string("OUTPUT HDR SIGNAL ") +
+                            (hdrSignalHlg(project_.focusedOutputIndex) ? "PQ" : "HLG"));
       } else if (sb.action == kSettingsActionOutputHdrWhite) {
         static constexpr int kWhites[] = {100, 150, 203, 250, 300};
         int next = kWhites[0];

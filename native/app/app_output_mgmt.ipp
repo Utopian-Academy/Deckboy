@@ -1405,6 +1405,19 @@
     return chosen;
   }
 
+  // Does this ffmpeg have zscale (libzimg)? The HDR recording's R'G'B' to
+  // Y'CbCr goes through it when it does: swscale turns full-range 16-bit RGB
+  // into limited-range 10-bit 0.35% hot (MEASURED: a full-scale white came
+  // out 943, not 940; 75% came out 724, not 721), and zscale gets both
+  // exactly. Builds without it keep swscale, which is close.
+  static bool ffmpegHasZscale() {
+    static const bool has = [] {
+      const auto text = readAllText({"ffmpeg", "-hide_banner", "-filters"});
+      return text && text->find(" zscale ") != std::string::npos;
+    }();
+    return has;
+  }
+
   // Is anything actually going OUT of the box right now — a recording, a
   // stream, NDI, DeckLink, Spout or ST 2110? While something is, the capture
   // path is on the critical path and the UI must not pace the loop.
@@ -1573,11 +1586,18 @@
   // H.264 and HEVC become HEVC Main10 with HDR10 signalling (H.264 HDR is not a
   // thing players honour). The mastering display is given as BT.2020 at 1000
   // nits, the common default; MaxCLL/MaxFALL are left unknown (0) rather than
-  // guessed.
-  std::vector<std::string> hdrRecordingCodecArgs() const {
+  // guessed. HLG carries no static metadata: it is relative to the display by
+  // design, so it is tagged and nothing more.
+  std::vector<std::string> hdrRecordingCodecArgs(bool hlg) const {
     const std::string c = normalizeRecordingCodec(project_.recordingCodec);
     if (recordingCodecIsProRes(c) || c == "dnxhr_hqx") {
       return recordingCodecArgs();
+    }
+    if (hlg) {
+      return {"-c:v", "libx265", "-preset", "veryfast", "-pix_fmt", "yuv420p10le", "-tag:v", "hvc1",
+              "-x265-params",
+              "log-level=error:repeat-headers=1:colorprim=bt2020:transfer=arib-std-b67:"
+              "colormatrix=bt2020nc:range=limited"};
     }
     return {"-c:v", "libx265", "-preset", "veryfast", "-pix_fmt", "yuv420p10le", "-tag:v", "hvc1",
             "-x265-params",
@@ -2332,7 +2352,7 @@
       // is tagged with -- encoding an already-PQ signal twice (measured: 4000
       // nits recorded as ~8900, 0.5 as ~0.1).
       args.insert(std::find(args.begin(), args.end(), "-i"),
-                  {"-color_primaries", "bt2020", "-color_trc", "smpte2084",
+                  {"-color_primaries", "bt2020", "-color_trc", hdrSignalHlg(hdrRecordingSource(outputIndex)) ? "arib-std-b67" : "smpte2084",
                    "-colorspace", "rgb", "-color_range", "pc"});
     }
     if (audioInputPath.empty()) {
@@ -2362,7 +2382,11 @@
       const int wantW = project_.recordingWidth;
       const int wantH = project_.recordingHeight;
       const bool resize = wantW > 0 && wantH > 0 && (wantW != width || wantH != height);
-      if (hdrRecord) {
+      if (hdrRecord && ffmpegHasZscale()) {
+        args.insert(args.end(), {"-vf",
+          (resize ? "scale=w=" + std::to_string(wantW) + ":h=" + std::to_string(wantH) + ":flags=bicubic," : std::string()) +
+          "zscale=matrixin=input:matrix=2020_ncl:rangein=full:range=limited"});
+      } else if (hdrRecord) {
         args.insert(args.end(), {"-vf", "scale=" +
           (resize ? "w=" + std::to_string(wantW) + ":h=" + std::to_string(wantH) + ":flags=bicubic:" : std::string()) +
           "out_color_matrix=bt2020:out_range=tv"});
@@ -2371,7 +2395,7 @@
                     {"-vf", "scale=" + std::to_string(wantW) + ":" +
                             std::to_string(wantH) + ":flags=bicubic"});
       }
-      const std::vector<std::string> codecArgs = hdrRecord ? hdrRecordingCodecArgs() : recordingCodecArgs();
+      const std::vector<std::string> codecArgs = hdrRecord ? hdrRecordingCodecArgs(hdrSignalHlg(hdrRecordingSource(outputIndex))) : recordingCodecArgs();
       args.insert(args.end(), codecArgs.begin(), codecArgs.end());
     } else {
       args.insert(args.end(),
@@ -2400,7 +2424,7 @@
       args.insert(args.end(), {
         "-colorspace", "bt2020nc",
         "-color_primaries", "bt2020",
-        "-color_trc", "smpte2084",
+        "-color_trc", hdrSignalHlg(hdrRecordingSource(outputIndex)) ? "arib-std-b67" : "smpte2084",
         "-color_range", "tv"
       });
     } else if (colorSpace == "bt709") {
@@ -3883,24 +3907,34 @@
     return deckboyCreateRenderer(window);
   }
 
+  // Whether an output's HDR leaves as HLG rather than PQ (Project::hdrHlgOutputs).
+  bool hdrSignalHlg(int outputIndex) const {
+    return outputIndex >= 0 && outputIndex < 32 && ((project_.hdrHlgOutputs >> outputIndex) & 1u) != 0;
+  }
+
   // The HDR recording's frame: the whole float compositor read back and
-  // encoded as 16-bit PQ BT.2020 (core/hdr_to_sdr.hpp PqEncoder), stamped with
-  // the same capture time as the BGRA frame so the pacer treats them as one.
+  // encoded as 16-bit BT.2020, PQ or HLG as the HDR output it comes FROM asks
+  // (core/hdr_to_sdr.hpp HdrEncoder) -- the signal is how that output's
+  // picture leaves, whichever recording mirrors it -- stamped with the same
+  // capture time as the BGRA frame so the pacer treats them as one.
   void captureHdrRecordFrame(OutputRuntime& runtime, OutputRuntime& into, Uint64 capturedAtMs) {
-    if (readHdrCompositorPq(runtime, into.hdrRecordFrame)) into.hdrRecordFrame.capturedAtMs = capturedAtMs;
+    const bool hlg = hdrSignalHlg(static_cast<int>(&runtime - outputRuntimes_.data()));
+    if (readHdrCompositorSignal(runtime, into.hdrRecordFrame, hlg)) into.hdrRecordFrame.capturedAtMs = capturedAtMs;
   }
 
   // The float compositor of an HDR output, read back whole and encoded as
-  // 16-bit PQ BT.2020 R'G'B' (6 bytes a pixel). The HDR recording and the
-  // scopes both read the picture this way. False when there is none.
-  bool readHdrCompositorPq(const OutputRuntime& runtime, OutputRuntime::CapturedFrame& frame) {
+  // 16-bit BT.2020 R'G'B' (6 bytes a pixel), PQ or HLG. False when there is none.
+  bool readHdrCompositorSignal(const OutputRuntime& runtime, OutputRuntime::CapturedFrame& frame, bool hlg) {
     SDL_Surface* got = readHdrCompositorRaw(runtime);
     if (!got) return false;
-    if (!hdrRecordEncoder_ || hdrRecordEncoderWhite_ != project_.hdrSdrWhiteNits) {
-      hdrRecordEncoder_ = std::make_unique<deckboy::core::hdr::PqEncoder>(project_.hdrSdrWhiteNits);
-      hdrRecordEncoderWhite_ = project_.hdrSdrWhiteNits;
+    std::unique_ptr<deckboy::core::hdr::HdrEncoder>& encoder = hdrRecordEncoders_[hlg ? 1 : 0];
+    int& white = hdrRecordEncoderWhite_[hlg ? 1 : 0];
+    if (!encoder || white != project_.hdrSdrWhiteNits) {
+      encoder = std::make_unique<deckboy::core::hdr::HdrEncoder>(
+        project_.hdrSdrWhiteNits, hlg ? deckboy::core::hdr::Transfer::Hlg : deckboy::core::hdr::Transfer::Pq);
+      white = project_.hdrSdrWhiteNits;
     }
-    return encodeHdrSurfacePq(got, *hdrRecordEncoder_, frame);
+    return encodeHdrSurface(got, *encoder, frame);
   }
 
   // The readback alone (render thread): the compositor as the GPU holds it.
@@ -3917,9 +3951,10 @@
     return got;
   }
 
-  // Any thread: a read-back surface to 16-bit PQ BT.2020, and the surface
-  // freed. The scopes run this on their worker, off the render thread.
-  static bool encodeHdrSurfacePq(SDL_Surface* got, const deckboy::core::hdr::PqEncoder& encoder,
+  // Any thread: a read-back surface to 16-bit BT.2020 in the encoder's
+  // transfer, and the surface freed. The scopes run this on their worker, off
+  // the render thread.
+  static bool encodeHdrSurface(SDL_Surface* got, const deckboy::core::hdr::HdrEncoder& encoder,
                                  OutputRuntime::CapturedFrame& frame) {
     if (!got) return false;
     // The compositor's own half floats, encoded directly (see convertHalf).
@@ -3946,8 +3981,8 @@
     SDL_DestroySurface(f);
     return true;
   }
-  std::unique_ptr<deckboy::core::hdr::PqEncoder> hdrRecordEncoder_;
-  int hdrRecordEncoderWhite_ = 0;
+  std::array<std::unique_ptr<deckboy::core::hdr::HdrEncoder>, 2> hdrRecordEncoders_;   // PQ, HLG
+  std::array<int, 2> hdrRecordEncoderWhite_ {};
 
   bool captureOutputFrameForEgress(int outputIndex,
                                    OutputRuntime& runtime,

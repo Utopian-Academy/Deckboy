@@ -7,6 +7,10 @@ reads the file back with ffprobe/ffmpeg and checks:
   - each patch's luma code is the PQ code the source carried (within 2 of 1023)
     -- i.e. 1000 nits in the source is 1000 nits in the recording, not clipped
     to SDR white
+With --hlg the output is set to OUTPUT HDR SIGNAL HLG, and the file must be
+tagged HLG (arib-std-b67) with each patch at the BT.2100 HLG code for that
+light on the 1000-nit reference display (check_hdr_sources.hlg_encode_display,
+which is not the app's code): 203 nits at 75%, 1000 and above at 100%.
 Evidence: build/hdr-rec-*/
 """
 import glob
@@ -27,6 +31,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def main():
+    hlg = "--hlg" in sys.argv
     ffmpeg = shutil.which("ffmpeg")
     ffprobe = shutil.which("ffprobe")
     work = Path(tempfile.mkdtemp(prefix="hdr-rec-", dir=ROOT / "build"))
@@ -65,6 +70,8 @@ def main():
         time.sleep(4)
         # The HDR picture is Output 1's; the recording mirrors it.
         print(cmd("OUTPUT HDR ON"), cmd("OUTPUT ON"))
+        if hlg:
+            print(cmd("OUTPUT HDR SIGNAL HLG"))
         time.sleep(3)
         print(cmd("OUTPUT HDR STATUS"))
         print(cmd("RECORD ON"))
@@ -86,8 +93,10 @@ def main():
                                 "stream=codec_name,profile,pix_fmt,color_range,color_space,color_transfer,color_primaries",
                                 "-of", "default=nw=1", rec], capture_output=True, text=True).stdout
         print("   " + probe.strip().replace("\n", "  "))
-        expect("color_transfer=smpte2084" in probe and "color_primaries=bt2020" in probe and
-               "color_space=bt2020nc" in probe and "10le" in probe, "tagged HDR10: BT.2020, PQ, 10-bit")
+        transfer = "arib-std-b67" if hlg else "smpte2084"
+        expect(f"color_transfer={transfer}" in probe and "color_primaries=bt2020" in probe and
+               "color_space=bt2020nc" in probe and "10le" in probe,
+               f"tagged {'HLG' if hlg else 'HDR10'}: BT.2020, {transfer}, 10-bit")
         # The last frame, as 10-bit codes.
         # The RAW 10-bit planes: decoding to a grey or 16-bit format makes
         # ffmpeg expand limited range to full, which read a correct file as
@@ -103,7 +112,10 @@ def main():
         last = np.frombuffer(raw, np.uint16)[(frames - 1) * per_frame:(frames - 1) * per_frame + w * h]
         y = last.reshape(h, w).astype(float)
         for i, (label, nits, _) in enumerate(ps[:8]):
-            want = c.ycbcr10(c.pq_encode(nits))[0]
+            if hlg:
+                want = c.ycbcr10(c.hlg_encode_display(np.asarray(nits, dtype=float)))[0]
+            else:
+                want = c.ycbcr10(c.pq_encode(nits))[0]
             cx, cy = int((i + 0.5) * w / 8), int(0.25 * h)
             got = float(y[cy - 4:cy + 4, cx - 4:cx + 4].mean())
             expect(abs(got - want) <= 2.5, f"{label}: luma code {got:.1f}, source carried {want}")

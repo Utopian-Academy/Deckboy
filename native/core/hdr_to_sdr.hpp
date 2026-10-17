@@ -187,22 +187,43 @@ class Converter {
   float toCode_ = 1.0f, yOff_ = 0.0f, yGain_ = 1.0f, cOff_ = 0.0f, cGain_ = 1.0f;
 };
 
-// The other direction, for an HDR recording: linear BT.709 light (1.0 = the
-// output's SDR white, `whiteNits`) to 16-bit PQ BT.2020 R'G'B' (rgb48le), the
-// way an HDR output's float compositor holds it. Table-driven: a 64K-entry PQ
-// curve indexed by the square root of the luminance (fine steps near black).
-class PqEncoder {
+// The other direction, for an HDR recording or send: linear BT.709 light
+// (1.0 = the output's SDR white, `whiteNits`) to 16-bit BT.2020 R'G'B'
+// (rgb48le), the way an HDR output's float compositor holds it -- as PQ
+// (HDR10, absolute: a nit is a nit) or HLG (BT.2100, relative to the
+// 1000-nit reference display, so SDR white at 203 nits lands on 75%, the
+// BT.2408 reference). Table-driven: 64K-entry curves indexed by square roots
+// (fine steps near black).
+class HdrEncoder {
  public:
-  explicit PqEncoder(double whiteNits) : white_(static_cast<float>(whiteNits)) {
+  explicit HdrEncoder(double whiteNits, Transfer transfer = Transfer::Pq)
+      : white_(static_cast<float>(whiteNits)), hlg_(transfer == Transfer::Hlg) {
+    if (hlg_) hlgGain_.resize(kSteps);
     const double m1 = 2610.0 / 16384.0, m2 = 2523.0 / 4096.0 * 128.0;
     const double c1 = 3424.0 / 4096.0, c2 = 2413.0 / 4096.0 * 32.0, c3 = 2392.0 / 4096.0 * 32.0;
+    const double a = 0.17883277, b = 0.28466892, c = 0.55991073;
     for (int i = 0; i < kSteps; ++i) {
       const double root = static_cast<double>(i) / (kSteps - 1);
-      const double y = std::pow(root * root, m1);   // luminance / 10000 nits
-      const double e = std::pow((c1 + c2 * y) / (1.0 + c3 * y), m2);
+      double e = 0.0;
+      if (!hlg_) {
+        const double y = std::pow(root * root, m1);   // luminance / 10000 nits
+        e = std::pow((c1 + c2 * y) / (1.0 + c3 * y), m2);
+      } else {
+        // The HLG OETF of scene light root^2 (0..1).
+        const double scene = root * root;
+        e = scene <= 1.0 / 12.0 ? std::sqrt(3.0 * scene) : a * std::log(12.0 * scene - b) + c;
+        // The inverse OOTF's gain, tabled over the display luminance
+        // Yd = root^2 (of the 1000-nit peak): Es = Fd / Lw * (Yd / Lw)^(-1/6),
+        // gamma 1.2 at 1000 nits. Black's gain is the next step's -- the
+        // curve is 0 there anyway.
+        const double yd = std::max(root * root, 1.0 / ((kSteps - 1.0) * (kSteps - 1.0)));
+        hlgGain_[static_cast<std::size_t>(i)] = static_cast<float>(std::pow(yd, -1.0 / 6.0) / kHlgDisplayPeakNits);
+      }
       lut_[static_cast<std::size_t>(i)] = static_cast<std::uint16_t>(std::lround(std::clamp(e, 0.0, 1.0) * 65535.0));
     }
   }
+
+  bool hlg() const { return hlg_; }
 
   // RGBA HALF floats, as the compositor holds them, straight in: a 64K-entry
   // table turns each half into a float. Going through a float surface first
@@ -221,27 +242,35 @@ class PqEncoder {
 
   // RGBA float (linear, 709) rows in, RGB 16-bit little-endian rows out.
   void convert(const float* rgba, int width, int height, int rgbaStrideFloats, std::uint16_t* rgb48) const {
-    const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
-    const int bands = std::clamp(static_cast<int>(cores) - 2, 1, 12);
-    const int rows = (height + bands - 1) / bands;
-    std::vector<std::future<void>> work;
-    for (int y0 = 0; y0 < height; y0 += rows) {
-      const int y1 = std::min(height, y0 + rows);
-      work.push_back(std::async(std::launch::async, [=, this] {
-        for (int y = y0; y < y1; ++y) {
-          const float* in = rgba + static_cast<std::size_t>(y) * rgbaStrideFloats;
-          std::uint16_t* out = rgb48 + static_cast<std::size_t>(y) * width * 3;
-          for (int x = 0; x < width; ++x) {
-            const float r = in[x * 4] * white_, g = in[x * 4 + 1] * white_, b = in[x * 4 + 2] * white_;
-            // ITU-R BT.2087: BT.709 -> BT.2020 primaries, linear.
-            out[x * 3] = encode(0.6274f * r + 0.3293f * g + 0.0433f * b);
-            out[x * 3 + 1] = encode(0.0691f * r + 0.9195f * g + 0.0114f * b);
-            out[x * 3 + 2] = encode(0.0164f * r + 0.0880f * g + 0.8956f * b);
-          }
-        }
-      }));
+    run(width, height, [&](int x, int y, float& r, float& g, float& b) {
+      const float* in = rgba + static_cast<std::size_t>(y) * rgbaStrideFloats + static_cast<std::size_t>(x) * 4;
+      r = in[0];
+      g = in[1];
+      b = in[2];
+    }, rgb48);
+  }
+
+  // One pixel: linear 709 (1.0 = SDR white) to 16-bit BT.2020 R'G'B'.
+  void encodePixel(float r, float g, float b, std::uint16_t* out) const {
+    r *= white_; g *= white_; b *= white_;
+    // ITU-R BT.2087: BT.709 -> BT.2020 primaries, linear.
+    const float r2 = 0.6274f * r + 0.3293f * g + 0.0433f * b;
+    const float g2 = 0.0691f * r + 0.9195f * g + 0.0114f * b;
+    const float b2 = 0.0164f * r + 0.0880f * g + 0.8956f * b;
+    if (!hlg_) {
+      out[0] = encodePq(r2);
+      out[1] = encodePq(g2);
+      out[2] = encodePq(b2);
+      return;
     }
-    for (auto& w : work) w.get();
+    // HLG: display light back to scene light through the inverse OOTF,
+    // which scales all three by a gain of the display LUMINANCE (BT.2020
+    // weights), then the OETF.
+    const float yd = std::clamp(0.2627f * r2 + 0.6780f * g2 + 0.0593f * b2, 0.0f, 1000.0f) / 1000.0f;
+    const float gain = hlgGain_[static_cast<std::size_t>(std::sqrt(yd) * (kSteps - 1) + 0.5f)];
+    out[0] = encodeRoot(r2 * gain);
+    out[1] = encodeRoot(g2 * gain);
+    out[2] = encodeRoot(b2 * gain);
   }
 
  private:
@@ -260,10 +289,7 @@ class PqEncoder {
           for (int x = 0; x < width; ++x) {
             float r = 0, g = 0, b = 0;
             read(x, y, r, g, b);
-            r *= white_; g *= white_; b *= white_;
-            out[x * 3] = encode(0.6274f * r + 0.3293f * g + 0.0433f * b);
-            out[x * 3 + 1] = encode(0.0691f * r + 0.9195f * g + 0.0114f * b);
-            out[x * 3 + 2] = encode(0.0164f * r + 0.0880f * g + 0.8956f * b);
+            encodePixel(r, g, b, out + x * 3);
           }
         }
       }));
@@ -286,12 +312,18 @@ class PqEncoder {
     }();
     return table;
   }
-  std::uint16_t encode(float nits) const {
-    const float root = std::sqrt(std::clamp(nits, 0.0f, 10000.0f) / 10000.0f);
+  std::uint16_t encodePq(float nits) const {
+    return encodeRoot(std::clamp(nits, 0.0f, 10000.0f) / 10000.0f);
+  }
+  // The table at the square root of a 0..1 value.
+  std::uint16_t encodeRoot(float value) const {
+    const float root = std::sqrt(std::clamp(value, 0.0f, 1.0f));
     return lut_[static_cast<std::size_t>(root * (kSteps - 1) + 0.5f)];
   }
   float white_;
+  bool hlg_ = false;
   std::vector<std::uint16_t> lut_ = std::vector<std::uint16_t>(kSteps);
+  std::vector<float> hlgGain_;   // HLG only
 };
 
 }  // namespace deckboy::core::hdr
