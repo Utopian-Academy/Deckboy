@@ -25,6 +25,16 @@
 
 namespace deckboy::extras {
 
+// One button on the desk, in the Cue Inspector while a cue of the extra's
+// source is selected. Buttons with the same section and row share a line.
+struct DeskControl {
+  std::string section;   // a heading; each new one starts a group
+  int row = 0;
+  std::string label;
+  std::string command;   // a remote command run on click; empty: shown, not clickable
+  bool lit = false;      // drawn as an ON toggle
+};
+
 struct Generator {
   std::string id;     // pattern://<id>, lower case
   std::string name;   // as SOURCE > MADE BY DECKBOY lists it
@@ -35,6 +45,9 @@ struct Generator {
   // A page of its own (see WebPage) that the phone controller offers as a
   // button while this source is live on any deck. Empty: none.
   std::string page = {};
+  // The desk's controls for it, rebuilt every frame from its state. Empty:
+  // the inspector shows nothing of its own.
+  std::function<std::vector<DeskControl>()> desk = {};
 };
 
 struct Command {

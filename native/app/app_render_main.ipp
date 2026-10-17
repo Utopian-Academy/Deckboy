@@ -5490,6 +5490,62 @@
         ry = poY + kInspectorSectionGap;
       }
 
+      // A PRIVATE EXTRA'S OWN CONTROLS (core/private_extras.hpp): its buttons,
+      // grouped as it groups them, each running one of its commands.
+      if (selectedCue && selectedCue->kind == CueKind::Pattern) {
+        const auto* extra = deckboy::extras::findGenerator(
+          stripPatternMotionSuffix(normalizePatternTypeId(selectedCue->path)));
+        if (extra && extra->desk) {
+          const std::string title = toUpper(extra->name.substr(0, extra->name.find(" (")));
+          int exY = ry;
+          auto exSection = beginInspectorSection(exY, title, cueSectionExtraOpen_,
+                                                 QuickAction::CueSectionExtraToggle,
+                                                 "Collapse/expand " + extra->name + "'s controls");
+          exY = exSection.bodyStartY;
+          if (cueSectionExtraOpen_) {
+            extraDeskCommands_.clear();
+            const auto controls = extra->desk();
+            const int x0 = ctrl.x + kInspectorInset;
+            const int width = kCtrlW - kInspectorInset * 2;
+            const int rowH = std::max(uiScaled(28), textLineHeight(fontSmall_) + uiScaled(8));
+            const int gap = uiScaled(4);
+            std::string section;
+            for (std::size_t i = 0; i < controls.size();) {
+              const auto& first = controls[i];
+              if (first.section != section) {
+                section = first.section;
+                drawTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect {x0, exY, width, textLineHeight(fontSmall_)}, section, pal.fgSoft);
+                exY += textLineHeight(fontSmall_) + gap;
+              }
+              std::size_t end = i;
+              while (end < controls.size() && controls[end].section == first.section &&
+                     controls[end].row == first.row) ++end;
+              const int n = static_cast<int>(end - i);
+              const int w = (width - gap * (n - 1)) / std::max(1, n);
+              for (int k = 0; k < n; ++k) {
+                const auto& dc = controls[i + static_cast<std::size_t>(k)];
+                SDL_Rect btn {x0 + k * (w + gap), exY, w, rowH};
+                if (dc.command.empty()) {
+                  drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, dc.label, pal.fg);
+                } else {
+                  drawUIPanel(btn, paletteToggleFill(dc.lit), pal.deep, pal.mid);
+                  drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, dc.label, paletteToggleInk(dc.lit));
+                  QuickButton qb {btn, QuickAction::RunExtraDeskCommand, dc.command};
+                  qb.param = static_cast<int>(extraDeskCommands_.size());
+                  quickButtons_.push_back(qb);
+                  extraDeskCommands_.push_back(dc.command);
+                }
+              }
+              exY += rowH + gap;
+              i = end;
+            }
+          }
+          finishInspectorSection(exSection, exY);
+          ry = exY + kInspectorSectionGap;
+        }
+      }
+
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,
                                                    "Still, pattern, browser, and source playback settings");

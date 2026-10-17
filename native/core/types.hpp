@@ -3235,6 +3235,8 @@ enum class QuickAction {
   // Step a row of the numeric-parameter table; param is the NumericParam.
   NumericParamDec, NumericParamInc,
   CueSectionPortalToggle,
+  CueSectionExtraToggle,   // a private extra's own inspector section
+  RunExtraDeskCommand,     // param: index into the extra's desk commands this frame
   // A text cue laid out as a lower third. LowerThirdCycle's param says which
   // choice steps: 0 look, 1 side, 2 bar colour, 3 accent, 4 in, 5 out.
   LowerThirdLayoutToggle, LowerThirdCycle, LowerThirdEditTitle,

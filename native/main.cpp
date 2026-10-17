@@ -9861,6 +9861,9 @@ class App {
   bool cueSectionMidiFileOpen_ = true;
   bool cueSectionFiresideOpen_ = true;
   bool cueSectionPortalOpen_ = true;
+  bool cueSectionExtraOpen_ = true;
+  // The commands behind a private extra's inspector buttons, drawn this frame.
+  std::vector<std::string> extraDeskCommands_;
   bool cueSectionSwirlOpen_ = true;
   // Which dashboard tile is one press away from being deleted, and when it
   // was armed. A button that runs a command is easy to hit by accident.

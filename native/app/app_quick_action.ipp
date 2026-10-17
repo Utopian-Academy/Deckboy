@@ -23,6 +23,12 @@
   void dispatchQuickAction(QuickAction action, int param = -1) {
     switch (action) {
       case QuickAction::EditNumericParam: editNumericParam(param); return;
+      case QuickAction::RunExtraDeskCommand:   // a private extra's inspector button
+        if (param >= 0 && param < static_cast<int>(extraDeskCommands_.size())) {
+          playUiSound(UiSoundEffect::Navigate);
+          handleRemoteCommand(extraDeskCommands_[static_cast<std::size_t>(param)]);
+        }
+        return;
       case QuickAction::NumericParamDec: nudgeNumericParam(param, -1); return;
       case QuickAction::NumericParamInc: nudgeNumericParam(param, +1); return;
       case QuickAction::ScopesToggleBig: toggleScopeBig(param); return;
@@ -1148,6 +1154,9 @@
         break;
       case QuickAction::CueSectionPortalToggle:
         cueSectionPortalOpen_ = !cueSectionPortalOpen_;
+        return;
+      case QuickAction::CueSectionExtraToggle:
+        cueSectionExtraOpen_ = !cueSectionExtraOpen_;
         return;
       case QuickAction::CueSectionSwirlToggle:
         cueSectionSwirlOpen_ = !cueSectionSwirlOpen_;
