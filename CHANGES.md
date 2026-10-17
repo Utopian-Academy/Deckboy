@@ -1,6 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-16 - v0.99.414 (in progress)
+## 2026-10-17 - v0.99.414 (the phone as one controller, your own defaults, a Mic cue that can carry music)
+
+The phone becomes a single screen with every control on it, reachable from anywhere through Tailscale;
+new shows can start from your own setup; a Mic cue holds music steady for a whole show; and a hang that
+could stop an update from installing is gone.
 
 ### Icons and installers
 - New icons on every platform, drawn from the cartridge: a full-bleed icon for macOS Tahoe with the
@@ -41,9 +45,9 @@
   with the open one lit. It was a single small chip that named the view already open.
 
 ### Reliability
-- Fixed an issue where Deckboy could stay running with no window after it was closed (and an update
-  then refused to install, saying Deckboy was running). It happened when live captions were on and
-  Deckboy started another helper at the same moment; it is now impossible on Windows, macOS and Linux.
+- Fixed an issue where Deckboy could stay running with no window after it was closed, so an update
+  refused to install, saying Deckboy was running. It could happen after a long session with live
+  captions on, on Windows, macOS and Linux.
 
 ### Mic cue
 - A Mic cue can carry music. The input's clock and the speakers' never agree exactly; the cue used to

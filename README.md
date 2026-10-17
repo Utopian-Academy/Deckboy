@@ -568,8 +568,6 @@ importantly, what each feature deliberately does not do.
 **Show control:**
 
 - Cue carts, and templates for new shows
-- A saved default state: language, theme and sound effects the way you like
-  them, for every new show
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes
 - A lighting dashboard, beyond the fixture patch
