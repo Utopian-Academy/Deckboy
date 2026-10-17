@@ -154,7 +154,7 @@ if [ -d "$REPO_ROOT/data" ]; then
   # packager's webcam cue).
   # recent_projects.txt (v0.99.331) is the splash's recent-shows list: one
   # absolute path per show opened on this machine. Same class as the rest.
-  for stale in last_project.txt recent_projects.txt default.deckboy \
+  for stale in last_project.txt recent_projects.txt default.deckboy defaults.deckboy \
                deckboy-first-run deckboy-crash.log deckboy-soak.log \
                deckboy-render.log deckboy-show.log deckboy-live-frame.bmp paired-phones.txt; do
     if [ -e "$STAGE_DIR/data/$stale" ]; then

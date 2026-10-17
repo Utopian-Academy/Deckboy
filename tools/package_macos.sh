@@ -201,7 +201,7 @@ if [ -d "$REPO_ROOT/data" ]; then
   # recent_projects.txt (v0.99.331) is the same class again: the splash's
   # recent-shows list, one absolute path per show opened on this machine. Kept
   # identical to the Windows and Linux lists, which had drifted apart.
-  for stale in last_project.txt recent_projects.txt default.deckboy \
+  for stale in last_project.txt recent_projects.txt default.deckboy defaults.deckboy \
                deckboy-first-run deckboy-crash.log deckboy-soak.log \
                deckboy-render.log deckboy-show.log deckboy-live-frame.bmp paired-phones.txt; do
     if [ -e "$RESOURCES_DIR/data/$stale" ]; then

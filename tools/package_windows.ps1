@@ -206,7 +206,7 @@ if (Test-Path $DataSrc) {
     #
     # The three packagers had also drifted apart — Linux stripped the crash and
     # soak logs and these two did not. One list, kept the same in all three.
-    foreach ($StaleName in @("last_project.txt", "recent_projects.txt",
+    foreach ($StaleName in @("last_project.txt", "recent_projects.txt", "defaults.deckboy",
                              "default.deckboy", "deckboy-first-run",
                              "deckboy-crash.log", "deckboy-soak.log",
                              "deckboy-render.log", "deckboy-show.log",
