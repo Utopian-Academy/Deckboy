@@ -3082,6 +3082,11 @@
         [this]() { addGeneratorCue("terrarium-pico"); }
       });
     }
+    // A build's own generators (core/private_extras.hpp).
+    for (const auto& extra : deckboy::extras::generators()) {
+      const std::string id = extra.id;
+      contextItems_.push_back({"  " + extra.name, {0, 0, 0, 0}, [this, id]() { addGeneratorCue(id); }});
+    }
     contextItems_.push_back({
       "  Video Synth (oscillators, mirrors, feedback)",
       {0, 0, 0, 0},
