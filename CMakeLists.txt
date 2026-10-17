@@ -638,6 +638,13 @@ add_executable(deckboy-native
 
 set_target_properties(deckboy-native PROPERTIES OUTPUT_NAME "Deckboy")
 
+# A build's own extras, when it has any (see native/core/private_extras.hpp).
+# The folder is not in the public repository; without it nothing changes. It
+# adds its sources to deckboy-native with target_sources().
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/private-extras/CMakeLists.txt")
+  include("${CMAKE_CURRENT_SOURCE_DIR}/private-extras/CMakeLists.txt")
+endif()
+
 # macOS screen capture helper. avfoundation screen capture is gone on current
 # macOS, so window/screen cues run this small ScreenCaptureKit binary, which
 # writes raw RGBA frames to stdout exactly like ffmpeg does. Built for every

@@ -160,6 +160,16 @@
     }
 
     std::string command = toUpper(parts[0]);
+    // A verb a private extra brought (see core/private_extras.hpp).
+    if (const auto* extra = deckboy::extras::findCommand(command)) {
+      std::string reply;
+      if (extra->run(parts, reply)) {
+        remoteCommandDetail_ = reply;
+      } else {
+        failRemoteCommand(command + ": " + reply);
+      }
+      return;
+    }
     auto parseCueIndex = [&](size_t tokenIndex) -> std::optional<int> {
       if (tokenIndex >= parts.size()) {
         return std::nullopt;

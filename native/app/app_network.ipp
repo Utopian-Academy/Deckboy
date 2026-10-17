@@ -1745,6 +1745,10 @@
     if (words.size() == 4 && words[0] == "OUTPUT" && words[1] == "TESTCARD" && words[2] == "ALL") return onOff(words[3]);
     if (words.size() == 2 && words[0] == "RECORD") return onOff(words[1]);
     if (words.size() == 3 && words[0] == "OUTPUT" && number(words[1])) return onOff(words[2]);
+    // A private extra's verb, when it says a phone may send it.
+    if (const auto* extra = deckboy::extras::findCommand(words.empty() ? std::string() : words[0])) {
+      return extra->phoneAllowed;
+    }
     return false;
   }
 
@@ -1780,6 +1784,16 @@
       if (!file) { reply("404 Not Found", "Remote asset unavailable"); return; }
       std::string body((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
       webMonitorSendPage(client, "200 OK", path == "/remote/font.ttf" ? "font/ttf" : "image/png", body);
+      return;
+    }
+    // A private extra's page: static, and its commands go through
+    // /remote/command, so they need the phone's key or passphrase like any.
+    if (method == "GET" && path.rfind("/remote/x/", 0) == 0) {
+      if (const auto* page = deckboy::extras::findWebPage(path.substr(10))) {
+        webMonitorSendPage(client, "200 OK", page->contentType, page->body());
+      } else {
+        webMonitorSendPage(client, "404 Not Found", "text/plain; charset=utf-8", "not found\n");
+      }
       return;
     }
     if (method == "GET" && (path == "/remote" || path == "/remote/" ||

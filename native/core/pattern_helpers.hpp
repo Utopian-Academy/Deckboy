@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <string>
 #include "utils.hpp"
+#include "private_extras.hpp"
 
 // Check if a string ends with the given suffix. Used to detect "-motion"
 // suffixes on pattern type IDs.
@@ -126,7 +127,7 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 inline bool patternTypeIsGenerator(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
   return t == "fireside" || t == "portal" || t == "swirl" || t == "code" ||
-         t == "terrarium" || t == "terrarium-pico";
+         t == "terrarium" || t == "terrarium-pico" || deckboy::extras::findGenerator(t) != nullptr;
 }
 
 // A generator's own name, for its cue and wherever the desk says what kind of
@@ -139,6 +140,7 @@ inline std::string generatorPatternName(const std::string& typeId) {
   if (t == "code") return "Code";
   if (t == "terrarium") return "Terrarium";
   if (t == "terrarium-pico") return "Terrarium Pico";
+  if (const auto* extra = deckboy::extras::findGenerator(t)) return extra->name;
   return {};
 }
 
@@ -150,6 +152,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
   std::string normalized = normalizePatternTypeId(typeId);
   return normalized.rfind("pocket-", 0) == 0 ||       // pocket scenes: always animated
          normalized == "terrarium" ||                  // living ecosystem: always animated
+         deckboy::extras::findGenerator(normalized) != nullptr ||  // a build's own generators
          normalized == "terrarium-pico" ||             // same world, 1px per cell
          normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
          normalized == "test-clock" ||                 // sync card: a frozen clock proves nothing

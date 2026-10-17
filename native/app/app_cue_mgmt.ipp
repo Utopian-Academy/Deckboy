@@ -3428,6 +3428,7 @@
       list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
+      for (const auto& extra : deckboy::extras::generators()) list.emplace_back(extra.id, extra.name);
       list.emplace_back("pocket-day",    "Pocket Test (day)");
       list.emplace_back("pocket-sunset", "Pocket Test (sunset)");
       list.emplace_back("pocket-night",  "Pocket Test (night)");

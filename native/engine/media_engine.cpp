@@ -13610,6 +13610,12 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   frame.index  = 0;
   frame.pixels.assign(static_cast<size_t>(frame.width) * static_cast<size_t>(frame.height) * 4u, 255);
 
+  // A generator this build carries as a private extra draws the whole frame.
+  if (const auto* extra = deckboy::extras::findGenerator(basePatternType)) {
+    extra->render(frame.pixels.data(), frame.width, frame.height, animTime);
+    return;
+  }
+
   // ── CODE SOURCE ─────────────────────────────────────────────────────────
   //
   // The expression is compiled ONCE and cached against its own text, so a

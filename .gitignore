@@ -92,6 +92,8 @@ Notes
 # Private notes: internal engineering material, kept off the public
 # repository on purpose. See private-notes/README.md.
 private-notes/
+# A build's own extras (see native/core/private_extras.hpp).
+private-extras/
 
 # Installers the in-app updater downloads. Large binaries, machine-local,
 # and never part of the source: a stray `git add -A` put a 90MB setup.exe
