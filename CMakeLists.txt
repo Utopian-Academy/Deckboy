@@ -1185,6 +1185,16 @@ if(BUILD_TESTING)
   # Unicode's bidi conformance files against native/core/bidi.cpp. CI fetches
   # BidiTest.txt and BidiCharacterTest.txt for the Unicode version the tables
   # were generated from and runs this; see tools/bidi_check.cpp.
+  # A child must not inherit another child's pipe (see the tool's header).
+  add_executable(deckboy-spawn-race-check tools/spawn_race_check.cpp native/core/subprocess.cpp native/core/paths.cpp)
+  target_include_directories(deckboy-spawn-race-check PRIVATE native)
+  find_package(Threads REQUIRED)
+  target_link_libraries(deckboy-spawn-race-check PRIVATE Threads::Threads)
+  if(WIN32)
+    target_compile_definitions(deckboy-spawn-race-check PRIVATE NOMINMAX)
+  endif()
+  add_test(NAME spawn-race COMMAND deckboy-spawn-race-check)
+
   add_executable(deckboy-bidi-check tools/bidi_check.cpp native/core/bidi.cpp)
   target_include_directories(deckboy-bidi-check PRIVATE native)
 

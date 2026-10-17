@@ -30,6 +30,11 @@
 - Fixed an issue where the live cue's row and the now-playing panel on the phone were unreadable on
   dark themes, and a long cue name pushed its row off the side of the screen.
 
+### Reliability
+- Fixed an issue where Deckboy could stay running with no window after it was closed (and an update
+  then refused to install, saying Deckboy was running). It happened when live captions were on and
+  Deckboy started another helper at the same moment; it is now impossible on Windows, macOS and Linux.
+
 ### Mic cue
 - A Mic cue can carry music. The input's clock and the speakers' never agree exactly; the cue used to
   drop a 10 ms block when the input ran fast (a click every few seconds on music) and run dry when it ran

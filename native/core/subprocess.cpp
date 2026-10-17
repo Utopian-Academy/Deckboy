@@ -32,6 +32,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <filesystem>
+#include <mutex>
 
 #ifdef _WIN32
 #include <fcntl.h>      // _O_RDONLY, _O_BINARY
@@ -45,6 +46,19 @@
 #endif
 
 namespace fs = std::filesystem;
+
+// EVERY SPAWN HOLDS THIS, so no child can be started while another child's
+// pipe ends are open to inheritance. Without it a child started on one thread
+// inherited the pipe of a child started on another, at the same instant, and
+// kept it open: the first one's reader then never saw end-of-file. A Deckboy
+// with live captions on hung for good when deckboy-listen (which lives all
+// session) took the pipe of an ffmpeg -encoders query the main thread was
+// reading -- the window gone, the process left behind, and the next install
+// refused because "Deckboy is running".
+static std::mutex& spawnMutex() {
+  static std::mutex mutex;
+  return mutex;
+}
 
 // ===========================================================================
 // ChildProcess lifetime
@@ -404,6 +418,8 @@ bool spawnProcess(ChildProcess& process,
     }
   }
 
+  std::lock_guard<std::mutex> spawnLock(spawnMutex());
+
   // --- Set up pipe for stdout if requested ---
   HANDLE hReadPipe  = INVALID_HANDLE_VALUE;
   HANDLE hWritePipe = INVALID_HANDLE_VALUE;
@@ -487,6 +503,32 @@ bool spawnProcess(ChildProcess& process,
   // --- Build command line ---
   std::wstring cmdline = buildCommandLine(launchArgs);
 
+  // THE CHILD INHERITS ITS OWN THREE HANDLES AND NOTHING ELSE. With handle
+  // inheritance on and no list, CreateProcess hands the child every
+  // inheritable handle in Deckboy -- including pipes belonging to other
+  // children, which then never close. The list must name inheritable handles
+  // once each, so the console's own (often absent in a GUI app) are checked.
+  std::vector<HANDLE> inherit;
+  for (HANDLE h : {si.hStdInput, si.hStdOutput, si.hStdError}) {
+    DWORD flags = 0;
+    if (h && h != INVALID_HANDLE_VALUE && GetHandleInformation(h, &flags) && (flags & HANDLE_FLAG_INHERIT) &&
+        std::find(inherit.begin(), inherit.end(), h) == inherit.end()) {
+      inherit.push_back(h);
+    }
+  }
+  SIZE_T attributeBytes = 0;
+  InitializeProcThreadAttributeList(nullptr, 1, 0, &attributeBytes);
+  std::vector<unsigned char> attributeStorage(attributeBytes);
+  auto* attributes = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(attributeStorage.data());
+  bool attributesReady = !inherit.empty() && InitializeProcThreadAttributeList(attributes, 1, 0, &attributeBytes) &&
+    UpdateProcThreadAttribute(attributes, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, inherit.data(),
+                              inherit.size() * sizeof(HANDLE), nullptr, nullptr);
+  STARTUPINFOEXW six {};
+  six.StartupInfo = si;
+  six.StartupInfo.cb = sizeof(six);
+  six.lpAttributeList = attributesReady ? attributes : nullptr;
+  const BOOL inheritHandles = inherit.empty() ? FALSE : TRUE;
+
   // --- Launch ---
   // A DETACHED CHILD HAS TO OUTLIVE US -- AND STILL BE ABLE TO START.
   //
@@ -509,17 +551,21 @@ bool spawnProcess(ChildProcess& process,
   if (options.detached) {
     creationFlags |= CREATE_NEW_PROCESS_GROUP | CREATE_BREAKAWAY_FROM_JOB;
   }
+  if (attributesReady) creationFlags |= EXTENDED_STARTUPINFO_PRESENT;
+  // A list that could not be built falls back to the plain call, still
+  // under the spawn lock, rather than failing the spawn.
+  STARTUPINFOW* startup = attributesReady ? &six.StartupInfo : &si;
   PROCESS_INFORMATION pi {};
   BOOL ok = CreateProcessW(
     applicationPathW.empty() ? nullptr : applicationPathW.c_str(),
     cmdline.data(),
     nullptr,   // process security
     nullptr,   // thread security
-    TRUE,      // inherit handles (needed for pipe)
+    inheritHandles,  // only the list above, when there is one
     creationFlags,
     nullptr,   // inherit environment
     nullptr,   // inherit cwd
-    &si,
+    startup,
     &pi
   );
 
@@ -532,14 +578,15 @@ bool spawnProcess(ChildProcess& process,
       cmdline.data(),
       nullptr,
       nullptr,
-      TRUE,
+      inheritHandles,
       creationFlags,
       nullptr,
       nullptr,
-      &si,
+      startup,
       &pi
     );
   }
+  if (attributesReady) DeleteProcThreadAttributeList(attributes);
 
   // Close handles we no longer need regardless of success/failure
   if (hWritePipe != INVALID_HANDLE_VALUE) CloseHandle(hWritePipe);
@@ -599,17 +646,29 @@ bool spawnProcess(ChildProcess& process,
                   const SpawnOptions& options) {
   process.stop();
   if (args.empty()) return false;
+  std::lock_guard<std::mutex> spawnLock(spawnMutex());
+
+  // Close-on-exec, so a child started later (deckboy-listen lives all session)
+  // does not carry this pipe off and keep it open. dup2 onto 0/1/2 in the
+  // child clears the flag on the copies it is meant to have. Made under the
+  // spawn lock, so no fork can land between pipe() and the flag.
+  const auto cloexecPipe = [](int fds[2]) {
+    if (pipe(fds) != 0) return false;
+    fcntl(fds[0], F_SETFD, FD_CLOEXEC);
+    fcntl(fds[1], F_SETFD, FD_CLOEXEC);
+    return true;
+  };
 
   // Create pipe if stdout is piped
   int pipeFd[2] = {-1, -1};
   if (options.stdoutMode == StdioMode::Pipe) {
-    if (pipe(pipeFd) != 0) return false;
+    if (!cloexecPipe(pipeFd)) return false;
   }
 
   // Create pipe if stdin is piped (parent writes, child reads)
   int stdinPipeFd[2] = {-1, -1};
   if (options.stdinMode == StdioMode::Pipe) {
-    if (pipe(stdinPipeFd) != 0) {
+    if (!cloexecPipe(stdinPipeFd)) {
       if (pipeFd[0] >= 0) { close(pipeFd[0]); close(pipeFd[1]); }
       return false;
     }
