@@ -1,5 +1,12 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-17 - v0.99.415 (clean lines on a warped projection)
+
+### Outputs
+- Fixed an issue where a warped output (corner pin or grid warp, as for projection onto a table or a
+  wall) showed thin lines stair-stepped and moving ones crawling. A warped picture is now drawn smooth;
+  an output with no warp stays pixel-sharp as before.
+
 ## 2026-10-17 - v0.99.414 (the phone as one controller, your own defaults, a Mic cue that can carry music)
 
 The phone becomes a single screen with every control on it, reachable from anywhere through Tailscale;
