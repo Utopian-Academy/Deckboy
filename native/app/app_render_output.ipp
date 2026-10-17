@@ -110,6 +110,21 @@
 
 #if SDL_VERSION_ATLEAST(2, 0, 18)
     if (hasWarp || hasBlend || hasOrientation) {
+      // A WARPED PICTURE IS SAMPLED SMOOTHLY. Nearest-neighbour is Deckboy's
+      // pixel look on a flat screen, but pinned at an angle it stair-steps
+      // every thin line and makes moving ones crawl -- the opposite of a clean
+      // projection map. Restored on every way out of here, so unwarped
+      // outputs (and everything else that reads the compositor) stay sharp.
+      struct ScaleRestore {
+        SDL_Texture* texture = nullptr;
+        SDL_ScaleMode mode = SDL_SCALEMODE_NEAREST;
+        ~ScaleRestore() { if (texture) SDL_SetTextureScaleMode(texture, mode); }
+      } scaleRestore;
+      if (hasWarp && runtime->compositorTexture &&
+          SDL_GetTextureScaleMode(runtime->compositorTexture, &scaleRestore.mode)) {
+        scaleRestore.texture = runtime->compositorTexture;
+        SDL_SetTextureScaleMode(runtime->compositorTexture, SDL_SCALEMODE_LINEAR);
+      }
       float u0 = static_cast<float>(src.x) / static_cast<float>(texW);
       float v0 = static_cast<float>(src.y) / static_cast<float>(texH);
       float u1 = static_cast<float>(src.x + src.w) / static_cast<float>(texW);
