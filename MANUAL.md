@@ -851,6 +851,37 @@ empty.
 CLICKER [on|off] | STATUS` over the wire (`SEQUENCE` is the same verb), so the
 whole show flow can hang off one Stream Deck key.
 
+**The pattern view.** The tracker opens as a pattern, the way a music
+tracker reads: hex row numbers down the left, one fixed-width cell per
+playlist, and the play bar held in the middle while the rows scroll through
+it. A cell reads `C04 G  --` (take cue 4), `--- F  20` (fade out over two
+seconds), `--- -- --` (nothing on that playlist), or `(M)` on the playlist a
+step lives on. A jumping step shows `J` and the row it jumps to. Each column
+header carries **M** and **S** (mute, solo), the output that playlist feeds and
+its level. **SECTIONS** on the right lists the sections and lights the one
+playing; click one to put the cursor there, **+ section** names the section
+the cursor's row starts. **CLASSIC VIEW** goes back to the grid above, and
+**PATTERN** on that grid comes back here.
+
+The pattern view is driven from the keyboard:
+
+| Key | What it does |
+|-----|--------------|
+| Arrows | Move the cursor (the wheel moves it too) |
+| Enter | Fire the cursor's row |
+| Space | PLAY / STOP |
+| Page Down / Page Up | GO / BACK, as the clicker does |
+| F9 / F10 | Mute / solo the cursor's column |
+| 0-9 | Type a cue number into the cell (on a fade, volume or opacity cell, its value) |
+| S F V O | Make the cell stop, fade out, set volume, set opacity |
+| Del | Clear the cell |
+| Ins | Insert a step after the cursor's row |
+
+Everything that changes a cell needs **EDIT** on, so a stray key during a show
+cannot restage it; with EDIT on, the cursor turns red. While the pattern is
+open it has F9, F10 and the digits, so a cue hotkey on those keys waits until
+the dashboard closes.
+
 **What a cell can do.** Besides taking a cue, a cell can act on its playlist:
 
 | Cell | What the step does there |

@@ -9916,6 +9916,16 @@ class App {
   // playhead; the wheel moves it by hand.
   int trackerScrollRow_ = 0;
   int trackerLastFollowedRow_ = -1;
+  // The pattern view's cursor (a row, and a column among trackerShownDecks),
+  // the first column drawn when the playlists do not all fit, EDIT (whether
+  // the keyboard may change cells), and the digits being typed into a cell.
+  int trackerCursorRow_ = 0;
+  int trackerCursorCol_ = 0;
+  int trackerFirstCol_ = 0;
+  bool trackerEditMode_ = false;
+  std::string trackerDigits_;
+  int trackerDigitsCell_ = -1;
+  Uint64 trackerDigitsAtMs_ = 0;
   // The step that just fired (or was just made) springs, like a dashboard
   // tile does. Same clock as animationNow_.
   int trackerSquishRow_ = -1;

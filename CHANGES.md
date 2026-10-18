@@ -1,8 +1,15 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-17 - v0.99.417 (in progress: the tracker's cells do more than take a cue)
+## 2026-10-17 - v0.99.417 (in progress: the master tracker as a pattern)
 
 ### Master tracker
+- Added the **pattern view** of the master tracker: hex rows, one fixed-width cell per playlist
+  (`C04 G  --`), the play bar held in the middle while the rows scroll, mute/solo, output and level
+  on each column, a **SECTIONS** list, and the keyboard: arrows, Enter fires the row, Space plays,
+  digits type a cue, S/F/V/O, Del, Ins, F9/F10. Changing cells from the keyboard needs **EDIT** on.
+  The grid it replaces is still there behind **CLASSIC VIEW**.
+- A cell's list now offers **STOP**, **FADE OUT**, **VOLUME** and **OPACITY** as well as the
+  playlist's cues.
 - A tracker cell can now **stop** its playlist, **fade it out** over a set time (and put its
   levels back for the next cue), or set its **volume** or **opacity**, as well as take a cue.
 - Added **mute** and **solo** on a tracker column: a muted column fires nothing; when any column

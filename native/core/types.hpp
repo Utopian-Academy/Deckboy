@@ -1765,10 +1765,11 @@ struct Cue {
   // what it carries, the way a router's input is configured. SDR is every
   // stream cue made before this existed.
   int liveHdrTransfer = 0;
-  // A tracker STEP: after it, go to this row (0-based) instead of the next --
-  // the tracker's "J" (jump). -1 is the next row, which is every step before
-  // 0.99.417.
-  int trackerJumpRow = -1;
+  // A tracker STEP: after it, GO goes to the step with this id instead of the
+  // next -- the tracker's "J" (jump). By id, not row, so moving, inserting or
+  // deleting steps cannot point it somewhere else. Empty is the next row,
+  // which is every step before 0.99.417.
+  std::string trackerJumpStepId;
   // A tracker STEP that starts a section: the section's name. Empty for a
   // step inside one.
   std::string trackerSection;
@@ -3276,6 +3277,11 @@ enum class QuickAction {
   // The tracker's transport, and a step's length (param = the row).
   TrackerGo, TrackerBack, TrackerPlay,   // PLAY is also STOP while running
   TrackerLoopToggle, TrackerClickerToggle, TrackerLength,
+  // The pattern view: STOP on its own, M / S on a column (param = deck),
+  // PATTERN | CLASSIC, EDIT, the cursor to a row (param), and a section at
+  // the cursor.
+  TrackerStop, TrackerMuteToggle, TrackerSoloToggle, TrackerViewToggle,
+  TrackerEditToggle, TrackerCursorTo, TrackerSectionAdd,
   // Step a row of the numeric-parameter table; param is the NumericParam.
   NumericParamDec, NumericParamInc,
   CueSectionPortalToggle,

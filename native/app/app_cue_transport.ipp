@@ -1298,9 +1298,10 @@
     // A step with a JUMP sends GO to that row instead of the next one.
     if (direction > 0 && from >= 0) {
       const Cue* here = masterTrackerCue(rows[from].first, rows[from].second);
-      if (here && here->trackerJumpRow >= 0 && here->trackerJumpRow < count) {
-        const Cue* there = masterTrackerCue(rows[here->trackerJumpRow].first, rows[here->trackerJumpRow].second);
-        if (there && there->armed) return here->trackerJumpRow;
+      const int to = here ? trackerRowOfStepId(here->trackerJumpStepId) : -1;
+      if (to >= 0) {
+        const Cue* there = masterTrackerCue(rows[to].first, rows[to].second);
+        if (there && there->armed) return to;
       }
     }
     int row = from < 0 ? (direction > 0 ? 0 : count - 1) : from + direction;

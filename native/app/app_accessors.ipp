@@ -680,6 +680,70 @@
     return rows;
   }
 
+  // WHICH PLAYLISTS GET A TRACKER COLUMN. Not one that holds nothing but
+  // steps: a step cannot fire the playlist it lives on, so that column could
+  // only ever read "--" all the way down. A playlist with anything else in it
+  // keeps its column, even if a step lives there too.
+  std::vector<int> trackerShownDecks() const {
+    std::vector<int> shown;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[d];
+      bool onlySteps = !deck.cues.empty() || deck.isMasterDeck;
+      for (const Cue& cue : deck.cues) {
+        if (cue.kind != CueKind::Master) {
+          onlySteps = false;
+          break;
+        }
+      }
+      if (!onlySteps) {
+        shown.push_back(d);
+      }
+    }
+    return shown;
+  }
+
+  // A new step at a row of the tracker (Ins). Steps the tracker owns come
+  // after any still living in playlists, so a row among those inserts at the
+  // start of the tracker's own.
+  void insertTrackerStepAt(int row) {
+    const int legacy = static_cast<int>(masterTrackerRows().size() - project_.trackerSteps.size());
+    const int at = std::clamp(row - legacy, 0, static_cast<int>(project_.trackerSteps.size()));
+    Cue step;
+    step.kind = CueKind::Master;
+    step.name = "Step " + std::to_string(masterTrackerRows().size() + 1);
+    step.color = {120, 80, 30, 255};
+    step.formatName = "control";
+    project_.trackerSteps.insert(project_.trackerSteps.begin() + at, step);
+    normalizeProject(project_);   // gives it an id
+    trackerCurrentStepId_ = project_.trackerSteps[static_cast<std::size_t>(at)].id;
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  // M and S on a tracker column, from a click, F9 / F10 or the wire.
+  void toggleTrackerColumn(int deck, bool solo) {
+    if (deck < 0 || deck >= 32 || deck >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    std::uint32_t& bits = solo ? project_.trackerSoloDecks : project_.trackerMutedDecks;
+    bits ^= 1u << deck;
+    const bool on = (bits & (1u << deck)) != 0u;
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Toggle);
+    triggerToast(deckLabel(deck) + (solo ? (on ? " solo" : " unsoloed") : (on ? " muted in the tracker" : " unmuted")));
+  }
+
+  // The row a step id is on now, or -1 (empty, or the step has gone).
+  int trackerRowOfStepId(const std::string& id) const {
+    if (id.empty()) return -1;
+    const auto rows = masterTrackerRows();
+    for (int r = 0; r < static_cast<int>(rows.size()); ++r) {
+      const Cue* step = masterTrackerCue(rows[r].first, rows[r].second);
+      if (step && step->id == id) return r;
+    }
+    return -1;
+  }
+
   const Cue* masterTrackerCue(int masterDeck, int masterCue) const {
     if (masterDeck == kTrackerStepsDeck) {
       if (masterCue < 0 || masterCue >= static_cast<int>(project_.trackerSteps.size())) {

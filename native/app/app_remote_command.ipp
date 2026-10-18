@@ -2962,7 +2962,10 @@
             failRemoteCommand("TRACKER JUMP: no step " + parts[3]);
             return;
           }
-          master->trackerJumpRow = none ? -1 : to - 1;
+          const Cue* target = none ? nullptr
+            : masterTrackerCue(rows[static_cast<std::size_t>(to - 1)].first,
+                               rows[static_cast<std::size_t>(to - 1)].second);
+          master->trackerJumpStepId = target ? target->id : std::string();
           remoteCommandDetail_ = "step " + parts[2] + (none ? " goes on to the next" : " jumps to step " + parts[3]);
         } else {
           master->trackerSection = none ? std::string() : joinParts(parts, 3);

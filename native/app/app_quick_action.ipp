@@ -76,6 +76,15 @@
         }
         const int masterDeck = rows[rowIndex].first;
         const int masterCue = rows[rowIndex].second;
+        // A click puts the pattern view's cursor where the eye already is.
+        trackerCursorRow_ = rowIndex;
+        {
+          const std::vector<int> shown = trackerShownDecks();
+          const auto at = std::find(shown.begin(), shown.end(), targetDeck);
+          if (at != shown.end()) {
+            trackerCursorCol_ = static_cast<int>(at - shown.begin());
+          }
+        }
         if (targetDeck == masterDeck) {
           triggerToast("a step cannot fire the playlist it lives on");
           break;
@@ -87,6 +96,12 @@
         // grid has exactly the same problem and a longer list to walk.
         std::vector<std::pair<std::string, std::string>> choices;
         choices.emplace_back("-1", "nothing on this playlist");
+        // What a step can do to the playlist itself (the tracker's S F V O).
+        // Typing digits on one of these with EDIT on changes its value.
+        choices.emplace_back("S", "STOP the playlist");
+        choices.emplace_back("F", "FADE OUT over 2.0s, then stop");
+        choices.emplace_back("V", "VOLUME 100%");
+        choices.emplace_back("O", "OPACITY 100%");
         for (int c = 0; c < static_cast<int>(target.cues.size()); ++c) {
           // A master firing a master is not the model, so it is not offered.
           if (target.cues[c].kind == CueKind::Master) {
@@ -97,10 +112,6 @@
             std::to_string(c),
             std::to_string(c + 1) + "  " +
               (name.empty() ? std::string("(unnamed)") : name));
-        }
-        if (choices.size() == 1) {
-          triggerToast(deckLabel(targetDeck) + " has no cues to fire");
-          break;
         }
         // Anchored on the cell, so the list opens where the eye already is.
         SDL_Rect anchorRect {};
@@ -115,7 +126,9 @@
           for (const MasterAssignment& a : master->masterAssignments) {
             if (a.deckIndex == targetDeck) {
               const int idx = findCueIndexById(targetDeck, a.cueId);
-              if (idx >= 0) {
+              if (a.action != 'G') {
+                current = std::string(1, a.action);
+              } else if (idx >= 0) {
                 current = std::to_string(idx);
               }
               break;
@@ -124,6 +137,14 @@
         }
         openDropdown("tracker.cell", anchorRect, choices, current,
                      [this, masterDeck, masterCue, targetDeck](const std::string& value) {
+                       if (value == "S" || value == "F" || value == "V" || value == "O") {
+                         pushUndoSnapshot();
+                         setMasterTrackerCellAction(masterDeck, masterCue, targetDeck, value[0],
+                                                    value == "F" ? 20 : 100);
+                         triggerToast(deckLabel(targetDeck) + ": " +
+                                      masterTrackerCellLabel(masterDeck, masterCue, targetDeck));
+                         return;
+                       }
                        const int picked = std::atoi(value.c_str());
                        if (!setMasterTrackerCell(masterDeck, masterCue,
                                                  targetDeck, picked)) {
@@ -174,6 +195,48 @@
                        ? "Page Down / Page Up step the tracker"
                        : "Page Down / Page Up step the focused playlist");
         return;
+      case QuickAction::TrackerStop:
+        if (trackerPlaying_) {
+          trackerStop();
+        }
+        return;
+      case QuickAction::TrackerMuteToggle:
+      case QuickAction::TrackerSoloToggle:
+        toggleTrackerColumn(param, action == QuickAction::TrackerSoloToggle);
+        return;
+      case QuickAction::TrackerViewToggle:
+        project_.trackerClassicView = !project_.trackerClassicView;
+        markProjectDirty();
+        playUiSound(UiSoundEffect::Navigate);
+        return;
+      case QuickAction::TrackerEditToggle:
+        trackerEditMode_ = !trackerEditMode_;
+        trackerDigits_.clear();
+        playUiSound(UiSoundEffect::Toggle);
+        triggerToast(trackerEditMode_ ? "EDIT on: typing changes the tracker's cells"
+                                      : "EDIT off: the keyboard only moves and fires");
+        return;
+      case QuickAction::TrackerCursorTo:
+        trackerCursorRow_ = std::max(0, param);
+        return;
+      case QuickAction::TrackerSectionAdd: {
+        Cue* step = trackerStepCueMutable(trackerCursorRow_);
+        if (!step) {
+          triggerToast("make a step first: a section starts at a step");
+          return;
+        }
+        const std::string stepId = step->id;
+        openInlineTextEditor("tracker.section", "Section at row " + std::to_string(trackerCursorRow_ + 1),
+                             "a name for the section this row starts (empty: none)", step->trackerSection,
+                             [this, stepId](const std::string& value) {
+          if (Cue* cue = masterStepById(stepId)) {
+            pushUndoSnapshot();
+            cue->trackerSection = trim(value);
+            markProjectDirty();
+          }
+        });
+        return;
+      }
       case QuickAction::TrackerLength: {
         SDL_Rect anchorRect = lastInlineEditorAnchorRect_;
         for (const auto& button : dashButtons_) {

@@ -985,8 +985,8 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << escapeField(serializeFixtureLevels(cue.dmxFixtures))
         // vs+147: a stream cue's HDR (0 SDR, 1 PQ, 2 HLG).
         << '\t' << cue.liveHdrTransfer
-        // vs+148, vs+149: a tracker step's jump row and section name.
-        << '\t' << cue.trackerJumpRow
+        // vs+148, vs+149: a tracker step's jump (the step's id) and section name.
+        << '\t' << escapeField(cue.trackerJumpStepId)
         << '\t' << escapeField(cue.trackerSection)
         << '\n';
   };
@@ -2612,7 +2612,7 @@ Project loadProject(const fs::path& projectFile,
           cue.liveHdrTransfer = std::clamp(safeInt(fields, vs + 147, 0), 0, 2);
         }
         if (fields.size() >= static_cast<std::size_t>(vs + 150)) {
-          cue.trackerJumpRow = std::max(-1, safeInt(fields, vs + 148, -1));
+          cue.trackerJumpStepId = safeString(fields, vs + 148);
           cue.trackerSection = safeString(fields, vs + 149);
         }
       }

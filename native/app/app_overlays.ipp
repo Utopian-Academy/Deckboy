@@ -767,8 +767,466 @@
   // reason a grid beats a list here: you can see a whole sequence and what
   // fires together, at once.
   void renderMasterTracker(const SDL_Rect& fullArea) {
+    if (project_.trackerClassicView) {
+      renderMasterTrackerClassic(fullArea);
+    } else {
+      renderMasterTrackerPattern(fullArea);
+    }
+  }
+
+  // One cell as the pattern view writes it: cue, act, value, fixed width,
+  // so a column reads straight down. "C04 G  --" takes cue 4; "--- F  20"
+  // fades out over two seconds. state: 0 nothing here, 1 acts, 2 names a
+  // cue that has gone, 3 bypassed, 4 the step's own playlist.
+  std::string trackerPatternCellText(int masterDeck, int masterCue, int targetDeck, int* state) const {
+    *state = 0;
+    if (targetDeck == masterDeck) {
+      *state = 4;
+      return "(M)";
+    }
+    const Cue* master = masterTrackerCue(masterDeck, masterCue);
+    if (!master) {
+      return "--- -- --";
+    }
+    for (const MasterAssignment& a : master->masterAssignments) {
+      if (a.deckIndex != targetDeck) {
+        continue;
+      }
+      char text[32];
+      if (a.action == 'G') {
+        const int idx = findCueIndexById(targetDeck, a.cueId);
+        if (idx < 0) {
+          *state = 2;
+          return "C?? G  --";
+        }
+        std::snprintf(text, sizeof(text), "C%02d G  --", idx + 1);
+      } else if (a.action == 'S') {
+        std::snprintf(text, sizeof(text), "--- S  --");
+      } else {
+        std::snprintf(text, sizeof(text), "--- %c %3d", a.action, std::max(0, a.value));
+      }
+      *state = a.bypassed ? 3 : 1;
+      return text;
+    }
+    return "--- -- --";
+  }
+
+  // -- THE PATTERN TRACKER (James's design, 2026-10-15) --------------------
+  //
+  // The same steps and cells as the classic grid, read the way a music
+  // tracker reads: hex row numbers, a fixed-width cell per playlist, the
+  // play bar held in the middle while the rows scroll through it, and the
+  // keyboard doing the work (handleTrackerPatternKey). The classic grid is
+  // one switch away -- James: "keep the old tracker for now in case the new
+  // one is not practical".
+  void renderMasterTrackerPattern(const SDL_Rect& fullArea) {
     const auto rows = masterTrackerRows();
-    const int deckCount = static_cast<int>(project_.decks.size());
+    const int rowCount = static_cast<int>(rows.size());
+    const std::vector<int> shown = trackerShownDecks();
+    const int shownCount = static_cast<int>(shown.size());
+    TTF_Font* mono = fontMono_ ? fontMono_ : fontSmall_;
+    const int playhead = trackerPlayheadRow();
+    const int gap = uiScaled(8);
+
+    // A dark pattern with the LCD's light ink on it, in every theme: the
+    // grid is the one place on the desk that should look like a tracker.
+    const SDL_Color white {255, 255, 255, 255};
+    const SDL_Color gridBg = pal.deep;
+    const SDL_Color gridBeat = paletteMix(pal.deep, pal.dark, 0.35);
+    const SDL_Color gridHead = paletteMix(pal.deep, pal.dark, 0.75);
+    const SDL_Color ink = pal.light;
+    const SDL_Color inkPlay = paletteMix(pal.light, white, 0.6);
+    const SDL_Color inkDim = paletteMix(pal.mid, pal.deep, 0.55);
+    const SDL_Color rule = paletteMix(pal.deep, pal.mid, 0.3);
+    const SDL_Color cursorInk = trackerEditMode_ ? pal.deleteBezel : pal.light;
+
+    // The cursor follows the playhead whenever a step fires, from anywhere.
+    if (playhead != trackerLastFollowedRow_) {
+      trackerLastFollowedRow_ = playhead;
+      if (playhead >= 0) {
+        trackerCursorRow_ = playhead;
+      }
+    }
+    trackerCursorRow_ = std::clamp(trackerCursorRow_, 0, std::max(0, rowCount - 1));
+    trackerCursorCol_ = std::clamp(trackerCursorCol_, 0, std::max(0, shownCount - 1));
+
+    // -- THE TRANSPORT ---------------------------------------------------
+    const int barH = std::max(uiScaled(30), textLineHeight(fontSmall_) + uiScaled(12));
+    {
+      struct TransportButton {
+        const char* label;
+        QuickAction action;
+        const char* tip;
+        bool lit;
+        int w;
+      };
+      const TransportButton buttons[] = {
+        {"< BACK", QuickAction::TrackerBack, "Fire the step before this one (Page Up)", false, 76},
+        {"GO >", QuickAction::TrackerGo, "Fire the next step (Page Down)", true, 76},
+        {"PLAY", QuickAction::TrackerPlay,
+         "Run the sequence: each step holds for its LEN, then the next fires (Space)", trackerPlaying_, 62},
+        {"STOP", QuickAction::TrackerStop, "Stop running the sequence (Space)", false, 62},
+        {"LOOP", QuickAction::TrackerLoopToggle,
+         "At the last step, go back to the first instead of stopping", project_.trackerLoop, 62},
+        {"EDIT", QuickAction::TrackerEditToggle,
+         "Let the keyboard change the cells: cue numbers, S F V O, Del, Ins", trackerEditMode_, 62},
+        {"CLICKER", QuickAction::TrackerClickerToggle,
+         "Page Down / Page Up step the tracker even with the dashboard closed",
+         project_.clickerDrivesTracker, 82},
+      };
+      int bx = fullArea.x;
+      for (const TransportButton& b : buttons) {
+        SDL_Rect r {bx, fullArea.y, uiScaled(b.w), barH};
+        drawUIPanel(r, paletteToggleFill(b.lit), pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, r, b.label, paletteToggleInk(b.lit));
+        dashButtons_.push_back({r, b.action, b.tip});
+        bx += r.w + uiScaled(6);
+      }
+      // ROW 04 / 0B - NEXT IN 04.2s - SECTION 01 Intro
+      std::string status;
+      if (rows.empty()) {
+        status = "NO STEPS YET";
+      } else {
+        char text[64];
+        if (playhead >= 0) {
+          std::snprintf(text, sizeof(text), "ROW %02X / %02X", playhead, rowCount - 1);
+        } else {
+          std::snprintf(text, sizeof(text), "ROW -- / %02X", rowCount - 1);
+        }
+        status = text;
+        const double remaining = trackerRemainingSeconds();
+        if (remaining >= 0.0) {
+          std::snprintf(text, sizeof(text), " - NEXT IN %04.1fs", remaining);
+          status += text;
+        }
+        const int at = playhead >= 0 ? playhead : trackerCursorRow_;
+        int section = -1;
+        std::string sectionName;
+        for (int r = 0, k = 0; r < rowCount && r <= at; ++r) {
+          const Cue* step = masterTrackerCue(rows[r].first, rows[r].second);
+          if (step && !step->trackerSection.empty()) {
+            section = k++;
+            sectionName = step->trackerSection;
+          }
+        }
+        if (section >= 0) {
+          std::snprintf(text, sizeof(text), " - SECTION %02X ", section);
+          status += text + sectionName;
+        }
+      }
+      drawTextSafe(controlRenderer_, mono,
+                   SDL_Rect {bx + uiScaled(6), fullArea.y,
+                             std::max(0, fullArea.x + fullArea.w - bx - uiScaled(6)), barH},
+                   status, pal.fg);
+    }
+
+    const int sideW = uiScaled(250);
+    SDL_Rect grid {fullArea.x, fullArea.y + barH + gap,
+                   std::max(uiScaled(200), fullArea.w - sideW - gap),
+                   std::max(0, fullArea.h - barH - gap)};
+    SDL_Rect side {grid.x + grid.w + gap, grid.y, sideW, grid.h};
+    Primitives::fillRect(controlRenderer_, grid, gridBg);
+
+    // -- THE COLUMNS -----------------------------------------------------
+    const int monoH = textLineHeight(mono);
+    const int numW = uiScaled(44);
+    const int stepW = uiScaled(170);
+    const int lenW = uiScaled(70);
+    const int colsX = grid.x + numW + stepW + lenW;
+    const int colsW = std::max(0, grid.x + grid.w - colsX);
+    const int colW = std::max(uiScaled(100), colsW / std::max(1, shownCount));
+    const int visibleCols = std::max(1, colsW / colW);
+    // More playlists than fit: the columns scroll to keep the cursor's.
+    if (trackerCursorCol_ < trackerFirstCol_) trackerFirstCol_ = trackerCursorCol_;
+    if (trackerCursorCol_ >= trackerFirstCol_ + visibleCols) trackerFirstCol_ = trackerCursorCol_ - visibleCols + 1;
+    trackerFirstCol_ = std::clamp(trackerFirstCol_, 0, std::max(0, shownCount - visibleCols));
+    const int lastCol = std::min(shownCount, trackerFirstCol_ + visibleCols);
+
+    const int meterH = uiScaled(30);
+    const int headH = monoH + meterH + uiScaled(14);
+    Primitives::fillRect(controlRenderer_, SDL_Rect {grid.x, grid.y, grid.w, headH}, gridHead);
+    drawTextSafe(controlRenderer_, mono, SDL_Rect {grid.x + numW + uiScaled(6), grid.y + uiScaled(4), stepW, monoH},
+                 "STEP", ink);
+    drawTextSafe(controlRenderer_, mono,
+                 SDL_Rect {grid.x + numW + stepW + uiScaled(6), grid.y + uiScaled(4), lenW, monoH}, "LEN", ink);
+    for (int c = trackerFirstCol_; c < lastCol; ++c) {
+      const int d = shown[c];
+      const SDL_Rect head {colsX + (c - trackerFirstCol_) * colW, grid.y, colW, headH};
+      Primitives::fillRect(controlRenderer_, SDL_Rect {head.x, head.y, 1, head.h}, gridBg);
+      const int flagW = uiScaled(20);
+      const SDL_Rect nameRect {head.x + uiScaled(6), head.y + uiScaled(4), head.w - flagW * 2 - uiScaled(14), monoH};
+      drawTextSafe(controlRenderer_, mono, nameRect,
+                   ellipsizeToPixelWidth(mono, deckLabel(d), nameRect.w), trackerColumnLive(d) ? ink : inkDim);
+      if (c == trackerCursorCol_) {
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect {nameRect.x, nameRect.y + nameRect.h, nameRect.w, std::max(1, uiScaled(2))},
+                             cursorInk);
+      }
+      // M and S: mute this column, or fire only the soloed ones (F9 / F10).
+      const bool muted = (project_.trackerMutedDecks & (1u << d)) != 0u;
+      const bool solo = (project_.trackerSoloDecks & (1u << d)) != 0u;
+      const SDL_Rect mRect {head.x + head.w - flagW * 2 - uiScaled(6), head.y + uiScaled(4), flagW, monoH};
+      const SDL_Rect sRect {mRect.x + flagW + uiScaled(2), mRect.y, flagW, monoH};
+      drawUIPanel(mRect, paletteToggleFill(muted), pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, mRect, "M", paletteToggleInk(muted));
+      drawUIPanel(sRect, paletteToggleFill(solo), pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, sRect, "S", paletteToggleInk(solo));
+      dashButtons_.push_back({mRect, QuickAction::TrackerMuteToggle, "Mute this column: the tracker fires nothing here (F9)", d});
+      dashButtons_.push_back({sRect, QuickAction::TrackerSoloToggle, "Solo this column: only soloed columns fire (F10)", d});
+      // Where the playlist goes, and how loud it is.
+      const SDL_Rect box {head.x + uiScaled(6), nameRect.y + monoH + uiScaled(4), head.w - uiScaled(12), meterH};
+      Primitives::fillRect(controlRenderer_, box, paletteMix(pal.deep, SDL_Color {0, 0, 0, 255}, 0.4));
+      Primitives::strokeRect(controlRenderer_, box, rule);
+      std::string outs;
+      for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+        if (project_.outputs[o].hostDeckIndex == d) {
+          outs += (outs.empty() ? "Out " : "+") + std::to_string(o + 1);
+        }
+      }
+      const int barW = std::max(3, uiScaled(6));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect {box.x + 2, box.y, box.w - barW - 6, box.h},
+                           outs.empty() ? std::string("no output") : outs, inkDim);
+      double level = 0.0;
+      if (const DeckRuntime* runtime = runtimeForDeck(d); runtime && runtime->mediaEngine) {
+        level = std::clamp(runtime->mediaEngine->programAudioLevel01(), 0.0, 1.0);
+      }
+      const int litH = static_cast<int>(std::lround((box.h - 4) * level));
+      if (litH > 0) {
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect {box.x + box.w - barW - 2, box.y + box.h - 2 - litH, barW, litH}, ink);
+      }
+    }
+    if (shownCount > visibleCols) {
+      char more[48];
+      std::snprintf(more, sizeof(more), "%d-%d of %d", trackerFirstCol_ + 1, lastCol, shownCount);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {grid.x + uiScaled(4), grid.y + monoH + uiScaled(10), numW + stepW, meterH}, more, inkDim);
+    }
+
+    // -- THE ROWS, the play bar held in the middle -----------------------
+    const int legendH = textLineHeight(fontSmall_) * 2 + uiScaled(12);
+    const int bodyTop = grid.y + headH;
+    const int bodyBottom = grid.y + grid.h - legendH;
+    const int rowH = monoH + uiScaled(6);
+    const int slots = std::max(1, (bodyBottom - bodyTop) / rowH);
+    // Playing, the play row stays centred; stopped, the cursor's row does.
+    const int centreRow = (trackerPlaying_ && playhead >= 0) ? playhead : trackerCursorRow_;
+    const int firstRow = centreRow - slots / 2;
+    for (int i = 0; i < slots; ++i) {
+      const int r = firstRow + i;
+      const int y = bodyTop + i * rowH;
+      if (r < 0) {
+        continue;
+      }
+      const bool isPlay = r == playhead;
+      const SDL_Rect rowRect {grid.x, y, grid.w, rowH};
+      if (isPlay) {
+        // The brightest bar on the page: pal.dark alone sat a shade off the
+        // grid in the default theme and the play row went unfound.
+        Primitives::fillRect(controlRenderer_, rowRect, paletteMix(pal.dark, pal.mid, 0.45));
+      } else if (r % 4 == 0) {
+        Primitives::fillRect(controlRenderer_, rowRect, gridBeat);
+      }
+      const SDL_Color rowInk = isPlay ? inkPlay : ink;
+      char num[8];
+      std::snprintf(num, sizeof(num), r > 0xFF ? "%03X" : "%02X", r);
+      const SDL_Rect numRect {grid.x, y, numW, rowH};
+      const SDL_Rect stepRect {grid.x + numW, y, stepW, rowH};
+      const SDL_Rect lenRect {grid.x + numW + stepW, y, lenW, rowH};
+      const auto inset = [&](const SDL_Rect& rc) {
+        return SDL_Rect {rc.x + uiScaled(6), rc.y, std::max(0, rc.w - uiScaled(10)), rc.h};
+      };
+
+      if (r >= rowCount) {
+        // Past the last step: the empty pattern, and one row that makes the
+        // next step, so the page is never a dead end.
+        drawTextSafe(controlRenderer_, mono, inset(numRect), num, inkDim);
+        if (r == rowCount) {
+          drawTextSafe(controlRenderer_, mono, inset(stepRect), "+ step", ink);
+          dashButtons_.push_back({stepRect, QuickAction::TrackerAddStep, "Another step at the end"});
+        } else {
+          drawTextSafe(controlRenderer_, mono, inset(stepRect), "...", inkDim);
+        }
+        drawTextSafe(controlRenderer_, mono, inset(lenRect), "..:..", inkDim);
+        for (int c = trackerFirstCol_; c < lastCol; ++c) {
+          const SDL_Rect cell {colsX + (c - trackerFirstCol_) * colW, y, colW, rowH};
+          Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y, 1, cell.h}, rule);
+          drawTextSafe(controlRenderer_, mono, inset(cell), "--- -- --", inkDim);
+        }
+        continue;
+      }
+
+      const int masterDeck = rows[r].first;
+      const int masterCue = rows[r].second;
+      const Cue* master = masterTrackerCue(masterDeck, masterCue);
+      if (!master) {
+        continue;
+      }
+      if (!master->trackerSection.empty()) {
+        // A section starts here: a rule across the pattern above it.
+        Primitives::fillRect(controlRenderer_, SDL_Rect {grid.x, y, grid.w, std::max(1, uiScaled(1))}, pal.mid);
+      }
+      drawTextSafe(controlRenderer_, mono, inset(numRect), num, isPlay ? inkPlay : pal.mid);
+      dashButtons_.push_back({numRect, QuickAction::TrackerCursorTo, "Put the cursor on this row", r});
+
+      // The step: its name is still the button that fires it, and a jump
+      // says where GO goes after it.
+      std::string jump;
+      if (const int to = trackerRowOfStepId(master->trackerJumpStepId); to >= 0) {
+        char text[8];
+        std::snprintf(text, sizeof(text), "J%02X", to);
+        jump = text;
+      }
+      const int jumpW = jump.empty() ? 0 : uiScaled(40);
+      const SDL_Rect nameRect = inset(SDL_Rect {stepRect.x, y, stepRect.w - jumpW, rowH});
+      drawTextSafe(controlRenderer_, mono, nameRect,
+                   ellipsizeToPixelWidth(mono, master->name.empty() ? std::string("step") : master->name, nameRect.w),
+                   master->armed ? rowInk : inkDim);
+      if (!jump.empty()) {
+        drawTextSafe(controlRenderer_, mono, SDL_Rect {stepRect.x + stepRect.w - jumpW, y, jumpW, rowH}, jump, rowInk);
+      }
+      dashButtons_.push_back({stepRect, QuickAction::TrackerFire,
+                              "Fire this step on every playlist at once (right-click: rename, move, delete)", r});
+
+      const double remaining = isPlay ? trackerRemainingSeconds() : -1.0;
+      const double hold = remaining >= 0.0 ? trackerStepSeconds(r) : -1.0;
+      if (hold > 0.0) {
+        const double done = std::clamp(1.0 - remaining / hold, 0.0, 1.0);
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect {lenRect.x + 2, lenRect.y + lenRect.h - uiScaled(3),
+                                       static_cast<int>((lenRect.w - 4) * done), uiScaled(2)},
+                             inkPlay);
+      }
+      drawTextSafe(controlRenderer_, mono, inset(lenRect), trackerStepLengthLabel(r), rowInk);
+      dashButtons_.push_back({lenRect, QuickAction::TrackerLength, "How long this step holds when the sequence plays", r});
+
+      for (int c = trackerFirstCol_; c < lastCol; ++c) {
+        const int d = shown[c];
+        const SDL_Rect cell {colsX + (c - trackerFirstCol_) * colW, y, colW, rowH};
+        Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y, 1, cell.h}, rule);
+        int state = 0;
+        const std::string text = trackerPatternCellText(masterDeck, masterCue, d, &state);
+        const SDL_Color cellInk = !trackerColumnLive(d) || state == 0 || state == 3 || state == 4 ? inkDim
+                                : state == 2 ? pal.deleteBezel : rowInk;
+        drawTextSafe(controlRenderer_, mono, inset(cell), ellipsizeToPixelWidth(mono, text, cell.w - uiScaled(10)),
+                     cellInk);
+        dashButtons_.push_back({cell, QuickAction::TrackerCell,
+                                "Pick what this step does on this playlist (right-click: the step)",
+                                r * kMaxDecks + d});
+        if (r == trackerCursorRow_ && c == trackerCursorCol_) {
+          Primitives::strokeRect(controlRenderer_, cell, cursorInk);
+          Primitives::strokeRect(controlRenderer_, SDL_Rect {cell.x + 1, cell.y + 1, cell.w - 2, cell.h - 2}, cursorInk);
+        }
+      }
+      if (r == trackerCursorRow_) {
+        Primitives::strokeRect(controlRenderer_, rowRect, cursorInk);
+      }
+    }
+
+    // -- THE LEGEND --------------------------------------------------------
+    {
+      const SDL_Rect legend {grid.x, bodyBottom, grid.w, legendH};
+      Primitives::fillRect(controlRenderer_, SDL_Rect {legend.x, legend.y, legend.w, 1}, rule);
+      const int lineH = textLineHeight(fontSmall_);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {legend.x + uiScaled(10), legend.y + uiScaled(5), legend.w - uiScaled(20), lineH},
+                   "cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  "
+                   "J jump to row",
+                   inkDim);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {legend.x + uiScaled(10), legend.y + uiScaled(5) + lineH, legend.w - uiScaled(20), lineH},
+                   trackerEditMode_ ? "--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  "
+                                      "EDIT is on: typing changes the show"
+                                    : "--- -- --  does nothing on that playlist  -  (M) the step's own playlist",
+                   trackerEditMode_ ? pal.deleteBezel : inkDim);
+    }
+
+    // -- THE SIDE: sections, keys, the classic view ----------------------
+    {
+      const int lineH = textLineHeight(fontSmall_) + uiScaled(8);
+      const int viewH = barH;
+      std::vector<std::pair<int, std::string>> sections;
+      for (int r = 0; r < rowCount; ++r) {
+        const Cue* step = masterTrackerCue(rows[r].first, rows[r].second);
+        if (step && !step->trackerSection.empty()) {
+          sections.emplace_back(r, step->trackerSection);
+        }
+      }
+      const int at = playhead >= 0 ? playhead : trackerCursorRow_;
+      int current = -1;
+      for (int k = 0; k < static_cast<int>(sections.size()); ++k) {
+        if (sections[k].first <= at) current = k;
+      }
+      const int maxEntries = std::max(1, (side.h / 2 - lineH) / lineH - 1);
+      const int entries = std::min(static_cast<int>(sections.size()), maxEntries);
+      SDL_Rect panel {side.x, side.y, side.w, lineH * (entries + 2)};
+      Primitives::fillRect(controlRenderer_, SDL_Rect {panel.x, panel.y, panel.w, lineH}, pal.dark);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {panel.x + uiScaled(10), panel.y, panel.w - uiScaled(20), lineH}, "SECTIONS", pal.light);
+      // The current section's neighbours in view when there are more than fit.
+      const int firstEntry = std::clamp(current - entries / 2, 0,
+                                        std::max(0, static_cast<int>(sections.size()) - entries));
+      for (int k = 0; k < entries; ++k) {
+        const int idx = firstEntry + k;
+        const SDL_Rect entry {panel.x, panel.y + lineH * (k + 1), panel.w, lineH};
+        const bool lit = idx == current;
+        if (lit) Primitives::fillRect(controlRenderer_, entry, pal.dark);
+        char label[16];
+        std::snprintf(label, sizeof(label), "%02X ", idx);
+        drawTextSafe(controlRenderer_, mono, SDL_Rect {entry.x + uiScaled(10), entry.y, entry.w - uiScaled(20), lineH},
+                     ellipsizeToPixelWidth(mono, label + sections[idx].second, entry.w - uiScaled(20)),
+                     lit ? pal.light : pal.fg);
+        dashButtons_.push_back({entry, QuickAction::TrackerCursorTo, "Put the cursor on this section's first row",
+                                sections[idx].first});
+      }
+      const SDL_Rect add {panel.x, panel.y + lineH * (entries + 1), panel.w, lineH};
+      drawTextSafe(controlRenderer_, mono, SDL_Rect {add.x + uiScaled(10), add.y, add.w - uiScaled(20), lineH},
+                   "+ section", pal.fgSoft);
+      dashButtons_.push_back({add, QuickAction::TrackerSectionAdd,
+                              "Start a section at the cursor's row (or rename the one there)"});
+      Primitives::strokeRect(controlRenderer_, panel, pal.deep);
+
+      static const char* const kKeys[][2] = {
+        {"Arrows", "move the cursor"},     {"Enter", "fire this row"},
+        {"Space", "play / stop"},          {"PgDn/Up", "GO / BACK (clicker)"},
+        {"0-9", "type a cue number"},      {"S F V O", "stop, fade, vol, opacity"},
+        {"Del", "clear the cell"},         {"Ins", "insert a row"},
+        {"F9/F10", "mute / solo a column"},
+      };
+      const int keysCount = static_cast<int>(sizeof(kKeys) / sizeof(kKeys[0]));
+      const int keyLineH = textLineHeight(fontSmall_) + uiScaled(2);
+      SDL_Rect keys {side.x, panel.y + panel.h + gap, side.w, keyLineH * (keysCount + 2) + uiScaled(8)};
+      if (keys.y + keys.h <= side.y + side.h - viewH - gap) {
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {keys.x + uiScaled(10), keys.y + uiScaled(4), keys.w - uiScaled(20), keyLineH}, "KEYS",
+                     pal.fg);
+        const int keyW = uiScaled(70);
+        for (int k = 0; k < keysCount; ++k) {
+          const int ky = keys.y + uiScaled(4) + keyLineH * (k + 1);
+          drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {keys.x + uiScaled(10), ky, keyW, keyLineH}, kKeys[k][0],
+                       pal.fg);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {keys.x + uiScaled(10) + keyW, ky, keys.w - keyW - uiScaled(20), keyLineH},
+                       kKeys[k][1], pal.fgSoft);
+        }
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {keys.x + uiScaled(10), keys.y + uiScaled(4) + keyLineH * (keysCount + 1),
+                               keys.w - uiScaled(20), keyLineH},
+                     "Typing needs EDIT on", pal.fgSoft);
+        Primitives::strokeRect(controlRenderer_, keys, pal.deep);
+      }
+
+      const SDL_Rect view {side.x, side.y + side.h - viewH, side.w, viewH};
+      drawUIPanel(view, pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, view, "CLASSIC VIEW", pal.deep);
+      dashButtons_.push_back({view, QuickAction::TrackerViewToggle,
+                              "The tracker as the plain grid it was before (TRACKER VIEW CLASSIC)"});
+    }
+  }
+
+  void renderMasterTrackerClassic(const SDL_Rect& fullArea) {
+    const auto rows = masterTrackerRows();
     const int rowH = std::max(uiScaled(22), textLineHeight(fontSmall_) + uiScaled(8));
     const int stepW = uiScaled(132);
     const int lenW = uiScaled(58);
@@ -802,6 +1260,8 @@
         {"CLICKER", QuickAction::TrackerClickerToggle,
          "Page Down / Page Up step the tracker even with the dashboard closed",
          project_.clickerDrivesTracker, 82},
+        {"PATTERN", QuickAction::TrackerViewToggle,
+         "The tracker as a pattern, keyboard first (TRACKER VIEW PATTERN)", false, 82},
       };
       int bx = fullArea.x;
       for (const TransportButton& b : buttons) {
@@ -855,24 +1315,7 @@
       return;
     }
 
-    // WHICH PLAYLISTS GET A COLUMN. Not one that holds nothing but steps: a
-    // step cannot fire the playlist it lives on, so that column could only
-    // ever read "--" all the way down. A playlist with anything else in it
-    // keeps its column, even if a step lives there too.
-    std::vector<int> shown;
-    for (int d = 0; d < deckCount; ++d) {
-      const Deck& deck = project_.decks[d];
-      bool onlySteps = !deck.cues.empty() || deck.isMasterDeck;
-      for (const Cue& cue : deck.cues) {
-        if (cue.kind != CueKind::Master) {
-          onlySteps = false;
-          break;
-        }
-      }
-      if (!onlySteps) {
-        shown.push_back(d);
-      }
-    }
+    const std::vector<int> shown = trackerShownDecks();
     const int shownCount = static_cast<int>(shown.size());
 
     // The columns share whatever is left after the step name and its length.
@@ -1054,8 +1497,10 @@
     SDL_RenderFillRect(controlRenderer_, &full);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    const int mw = std::min(uiScaled(900), ww - 40);
-    const int mh = std::min(uiScaled(640), wh - 40);
+    // The pattern tracker wants the room its design was drawn at.
+    const bool patternTracker = project_.dashboardMode == 1 && !project_.trackerClassicView;
+    const int mw = std::min(uiScaled(patternTracker ? 1240 : 900), ww - 40);
+    const int mh = std::min(uiScaled(patternTracker ? 760 : 640), wh - 40);
     SDL_Rect modal {(ww - mw) / 2, (wh - mh) / 2, mw, mh};
     dashModalRect_ = modal;
     Primitives::drawFramedPanel(controlRenderer_, modal, pal.shellInner, pal.deep, pal.shellOuter);

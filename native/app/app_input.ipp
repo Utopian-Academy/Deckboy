@@ -1174,6 +1174,147 @@
            (dashboardOverlayOpen_ && project_.dashboardMode == 1);
   }
 
+  // Whether the pattern tracker has the keyboard: open, and nothing on top
+  // of it that is typing.
+  bool trackerPatternHasKeys() const {
+    return dashboardOverlayOpen_ && project_.dashboardMode == 1 && !project_.trackerClassicView &&
+           !inlineEditor_.open && !settingsOpen_ && !dropdown_.open && !codeEditor_.open &&
+           !shortcutsOverlayOpen_;
+  }
+
+  // THE PATTERN TRACKER'S KEYS (the KEYS panel lists them). Moving, firing,
+  // play/stop and mute/solo always work; anything that changes a cell needs
+  // EDIT on, so a stray key during a show cannot restage it. Before the cue
+  // hotkeys: while the tracker is open, F9 / F10 and the digits are its.
+  bool handleTrackerPatternKey(SDL_Keycode key, Uint16 mod, bool keyRepeat) {
+    if ((mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) != 0) {
+      return false;   // Ctrl+Z and friends still reach the desk
+    }
+    const auto rows = masterTrackerRows();
+    const int rowCount = static_cast<int>(rows.size());
+    const std::vector<int> shown = trackerShownDecks();
+    const int shownCount = static_cast<int>(shown.size());
+    const auto moveRow = [&](int by) {
+      trackerCursorRow_ = std::clamp(trackerCursorRow_ + by, 0, std::max(0, rowCount - 1));
+    };
+    switch (key) {
+      case SDLK_UP: moveRow(-1); return true;
+      case SDLK_DOWN: moveRow(1); return true;
+      case SDLK_HOME: trackerCursorRow_ = 0; return true;
+      case SDLK_END: trackerCursorRow_ = std::max(0, rowCount - 1); return true;
+      case SDLK_LEFT:
+        trackerCursorCol_ = std::max(0, trackerCursorCol_ - 1);
+        return true;
+      case SDLK_RIGHT:
+        trackerCursorCol_ = std::clamp(trackerCursorCol_ + 1, 0, std::max(0, shownCount - 1));
+        return true;
+      case SDLK_PAGEDOWN:
+        if (!keyRepeat) trackerGo();
+        return true;
+      case SDLK_PAGEUP:
+        if (!keyRepeat) trackerBack();
+        return true;
+      case SDLK_RETURN:
+      case SDLK_KP_ENTER:
+        if (!keyRepeat && trackerCursorRow_ < rowCount) fireTrackerRow(trackerCursorRow_);
+        return true;
+      case SDLK_SPACE:
+        if (!keyRepeat) {
+          if (trackerPlaying_) trackerStop(); else trackerPlay();
+        }
+        return true;
+      case SDLK_F9:
+      case SDLK_F10:
+        if (!keyRepeat && trackerCursorCol_ < shownCount) {
+          toggleTrackerColumn(shown[static_cast<std::size_t>(trackerCursorCol_)], key == SDLK_F10);
+        }
+        return true;
+      default:
+        break;
+    }
+
+    int digit = -1;
+    if (key >= SDLK_0 && key <= SDLK_9) digit = static_cast<int>(key - SDLK_0);
+    if (key >= SDLK_KP_1 && key <= SDLK_KP_9) digit = static_cast<int>(key - SDLK_KP_1) + 1;
+    if (key == SDLK_KP_0) digit = 0;
+    char act = 0;
+    if (key == SDLK_S) act = 'S';
+    if (key == SDLK_F) act = 'F';
+    if (key == SDLK_V) act = 'V';
+    if (key == SDLK_O) act = 'O';
+    const bool edits = digit >= 0 || act != 0 || key == SDLK_DELETE || key == SDLK_BACKSPACE ||
+                       key == SDLK_INSERT;
+    if (!edits) {
+      return false;
+    }
+    if (keyRepeat) {
+      return true;
+    }
+    if (!trackerEditMode_) {
+      triggerToast("EDIT is off - press EDIT to type into the tracker");
+      return true;
+    }
+    if (key == SDLK_INSERT) {
+      pushUndoSnapshot();
+      insertTrackerStepAt(rowCount == 0 ? 0 : trackerCursorRow_ + 1);
+      trackerCursorRow_ = rowCount == 0 ? 0 : trackerCursorRow_ + 1;
+      return true;
+    }
+    if (trackerCursorRow_ >= rowCount || trackerCursorCol_ >= shownCount) {
+      triggerToast(rowCount == 0 ? "no steps yet - Ins makes one" : "no playlist column here");
+      return true;
+    }
+    const int masterDeck = rows[static_cast<std::size_t>(trackerCursorRow_)].first;
+    const int masterCue = rows[static_cast<std::size_t>(trackerCursorRow_)].second;
+    const int deck = shown[static_cast<std::size_t>(trackerCursorCol_)];
+    if (deck == masterDeck) {
+      triggerToast("a step cannot fire the playlist it lives on");
+      return true;
+    }
+    if (key == SDLK_DELETE || key == SDLK_BACKSPACE) {
+      pushUndoSnapshot();
+      setMasterTrackerCell(masterDeck, masterCue, deck, -1);
+      trackerDigits_.clear();
+      return true;
+    }
+    if (act != 0) {
+      pushUndoSnapshot();
+      setMasterTrackerCellAction(masterDeck, masterCue, deck, act, act == 'F' ? 20 : 100);
+      trackerDigits_.clear();
+      triggerToast(deckLabel(deck) + ": " + masterTrackerCellLabel(masterDeck, masterCue, deck));
+      return true;
+    }
+
+    // DIGITS. Typed quickly they build one number ("1" "2" is 12); after a
+    // pause, or on another cell, they start again. On a cell that fades or
+    // sets a level they are its value; otherwise they name a cue.
+    const int cellId = trackerCursorRow_ * kMaxDecks + deck;
+    const Uint64 now = SDL_GetTicks();
+    if (cellId != trackerDigitsCell_ || now - trackerDigitsAtMs_ > 1500 || trackerDigits_.size() >= 4) {
+      trackerDigits_.clear();
+      pushUndoSnapshot();
+    }
+    trackerDigitsCell_ = cellId;
+    trackerDigitsAtMs_ = now;
+    trackerDigits_ += static_cast<char>('0' + digit);
+    const int number = std::atoi(trackerDigits_.c_str());
+    char action = 'G';
+    if (const Cue* master = masterTrackerCue(masterDeck, masterCue)) {
+      for (const MasterAssignment& a : master->masterAssignments) {
+        if (a.deckIndex == deck) action = a.action;
+      }
+    }
+    if (action == 'F' || action == 'V' || action == 'O') {
+      setMasterTrackerCellAction(masterDeck, masterCue, deck, action, number);
+    } else if (number < 1 || !setMasterTrackerCell(masterDeck, masterCue, deck, number - 1)) {
+      triggerToast(deckLabel(deck) + " has no cue " + std::to_string(number) + " a step can take");
+      trackerDigits_.clear();
+      return true;
+    }
+    triggerToast(deckLabel(deck) + ": " + masterTrackerCellLabel(masterDeck, masterCue, deck));
+    return true;
+  }
+
   void handleMouseWheel(int wheelY) {
     if (handleDropdownMouseWheel(wheelY)) {
       return;
@@ -1182,7 +1323,10 @@
     // scrolls the steps; on the tiles there is nothing to scroll, and it must
     // not reach the playlist underneath either way.
     if (dashboardOverlayOpen_) {
-      if (project_.dashboardMode == 1) {
+      if (project_.dashboardMode == 1 && !project_.trackerClassicView) {
+        // The pattern scrolls under its centre bar: the wheel moves the cursor.
+        trackerCursorRow_ = std::max(0, trackerCursorRow_ - wheelY);
+      } else if (project_.dashboardMode == 1) {
         trackerScrollRow_ = std::max(0, trackerScrollRow_ - wheelY);
       }
       return;
@@ -1582,6 +1726,10 @@
       if (key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE) {
         showSplashOverlay_ = false;
       }
+      return;
+    }
+
+    if (trackerPatternHasKeys() && handleTrackerPatternKey(key, mod, keyRepeat)) {
       return;
     }
 
