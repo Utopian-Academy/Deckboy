@@ -570,6 +570,8 @@ importantly, what each feature deliberately does not do.
 **Show control:**
 
 - Cue carts, and templates for new shows
+- Defaults that say what they do: forgetting your saved defaults (which only
+  changes what NEW starts from) told apart plainly from the show that is open
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes
 - A lighting dashboard, beyond the fixture patch
