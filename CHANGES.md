@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-17 - v0.99.417 (in progress: the master tracker as a pattern)
+## 2026-10-17 - v0.99.417 (the master tracker as a pattern; AV Tools Pro in the manual)
 
 ### Master tracker
 - Added the **pattern view** of the master tracker: hex rows, one fixed-width cell per playlist
