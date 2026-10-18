@@ -589,8 +589,9 @@ importantly, what each feature deliberately does not do.
 
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
-- HDR the rest of the way: HLG window outputs, and HDR over SDI and NDI with the
-  right metadata, each output choosing its own signal
+- HDR the rest of the way: HDR over SDI shown on a real DeckLink card (it is
+  built, not yet tested on one), HDR in over SDI, HDR over NDI (which needs
+  NDI's separately licensed Advanced SDK), and HDR input on macOS and Linux
 - Local AI upscaling: an upscale job that turns a clip into a sharper, bigger
   file, and real-time upscaling on the GPU where the hardware offers it
 
