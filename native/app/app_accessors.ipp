@@ -751,6 +751,16 @@
       if (bypassed) {
         *bypassed = a.bypassed;
       }
+      if (a.action != 'G') {
+        char text[32];
+        if (a.action == 'S') return "stop";
+        if (a.action == 'F') {
+          std::snprintf(text, sizeof(text), "fade out %.1fs", std::max(0, a.value) / 10.0);
+          return text;
+        }
+        std::snprintf(text, sizeof(text), "%s %d%%", a.action == 'V' ? "volume" : "opacity", std::max(0, a.value));
+        return text;
+      }
       const int idx = findCueIndexById(targetDeck, a.cueId);
       if (idx < 0) {
         // The cue it named has been deleted. Said out loud rather than drawn
@@ -809,6 +819,8 @@
     for (MasterAssignment& a : list) {
       if (a.deckIndex == targetDeck) {
         a.cueId = id;
+        a.action = 'G';   // a cue in the cell is a take, whatever it was
+        a.value = -1;
         markProjectDirty();
         return true;
       }
@@ -816,6 +828,28 @@
     MasterAssignment added;
     added.deckIndex = targetDeck;
     added.cueId = id;
+    list.push_back(added);
+    markProjectDirty();
+    return true;
+  }
+
+  // A cell's other actions (the tracker's S / F / V / O): the deck itself,
+  // no cue. Replaces whatever the cell held.
+  bool setMasterTrackerCellAction(int masterDeck, int masterCue, int targetDeck, char action, int value) {
+    if (targetDeck < 0 || targetDeck >= static_cast<int>(project_.decks.size()) || targetDeck == masterDeck) {
+      return false;
+    }
+    if (action != 'S' && action != 'F' && action != 'V' && action != 'O') return false;
+    Cue* master = masterTrackerCueMutable(masterDeck, masterCue);
+    if (!master || master->kind != CueKind::Master) return false;
+    auto& list = master->masterAssignments;
+    list.erase(std::remove_if(list.begin(), list.end(),
+                              [&](const MasterAssignment& a) { return a.deckIndex == targetDeck; }),
+               list.end());
+    MasterAssignment added;
+    added.deckIndex = targetDeck;
+    added.action = action;
+    added.value = action == 'S' ? -1 : std::clamp(value, 0, action == 'F' ? 6000 : 100);
     list.push_back(added);
     markProjectDirty();
     return true;

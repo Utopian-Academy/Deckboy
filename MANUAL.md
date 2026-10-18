@@ -851,6 +851,26 @@ empty.
 CLICKER [on|off] | STATUS` over the wire (`SEQUENCE` is the same verb), so the
 whole show flow can hang off one Stream Deck key.
 
+**What a cell can do.** Besides taking a cue, a cell can act on its playlist:
+
+| Cell | What the step does there |
+|------|--------------------------|
+| A cue | Takes it |
+| **STOP** | Stops the playlist (dark, reracked) |
+| **FADE** *n* | Fades picture and sound out over *n* tenths of a second, stops, and puts the levels back for the next cue |
+| **VOLUME** *n* | Sets the playlist's volume to *n*% |
+| **OPACITY** *n* | Sets the playlist's opacity to *n*% |
+
+A column can be **muted** (the tracker fires nothing on it) or **soloed** (only
+soloed columns fire), which is how a step is rehearsed on one screen without
+touching the others. A step can **jump**: after it, GO goes to the row it names
+instead of the next one, so a loop of steps holds until the operator moves on.
+A step can also start a named **section**.
+
+`TRACKER SET <step> <playlist> <cue>|NONE|STOP|FADE <tenths>|VOLUME <%>|OPACITY <%>`,
+`TRACKER MUTE|SOLO <playlist> [on|off]`, `TRACKER JUMP <step> <row>|NONE`,
+`TRACKER SECTION <step> <name>|NONE` and `TRACKER VIEW PATTERN|CLASSIC`.
+
 **The multiview on a screen.** **MULTI** on the programme monitor shows every
 window you have arranged: the programme, each playlist, labels and level
 meters. An output whose **Shows** is **MULTIVIEW** puts that same arrangement

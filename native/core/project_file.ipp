@@ -243,6 +243,9 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
   output << "dashboard_mode\t" << project.dashboardMode << '\n';
   output << "tracker_loop\t" << (project.trackerLoop ? 1 : 0) << '\n';
+  output << "tracker_muted\t" << project.trackerMutedDecks << '\n';
+  output << "tracker_solo\t" << project.trackerSoloDecks << '\n';
+  output << "tracker_classic\t" << (project.trackerClassicView ? 1 : 0) << '\n';
   output << "clicker_tracker\t" << (project.clickerDrivesTracker ? 1 : 0) << '\n';
   // One line per window, in the order they are drawn. Written only when the
   // operator has actually arranged them: an empty list means "the automatic
@@ -982,6 +985,9 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << escapeField(serializeFixtureLevels(cue.dmxFixtures))
         // vs+147: a stream cue's HDR (0 SDR, 1 PQ, 2 HLG).
         << '\t' << cue.liveHdrTransfer
+        // vs+148, vs+149: a tracker step's jump row and section name.
+        << '\t' << cue.trackerJumpRow
+        << '\t' << escapeField(cue.trackerSection)
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1346,6 +1352,12 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.videoDipFadeSeconds = std::clamp(safeDouble(fields, 1, 2.0), 0.0, 30.0);
   } else if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
+  } else if (fields[0] == "tracker_muted") {
+    project.trackerMutedDecks = static_cast<std::uint32_t>(std::max(0, safeInt(fields, 1, 0)));
+  } else if (fields[0] == "tracker_solo") {
+    project.trackerSoloDecks = static_cast<std::uint32_t>(std::max(0, safeInt(fields, 1, 0)));
+  } else if (fields[0] == "tracker_classic") {
+    project.trackerClassicView = safeBool(fields, 1, false);
   } else if (fields[0] == "tracker_loop") {
     project.trackerLoop = safeBool(fields, 1, false);
   } else if (fields[0] == "clicker_tracker") {
@@ -2598,6 +2610,10 @@ Project loadProject(const fs::path& projectFile,
         }
         if (fields.size() >= static_cast<std::size_t>(vs + 148)) {
           cue.liveHdrTransfer = std::clamp(safeInt(fields, vs + 147, 0), 0, 2);
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 150)) {
+          cue.trackerJumpRow = std::max(-1, safeInt(fields, vs + 148, -1));
+          cue.trackerSection = safeString(fields, vs + 149);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

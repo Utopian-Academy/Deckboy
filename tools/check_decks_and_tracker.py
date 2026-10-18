@@ -204,11 +204,17 @@ def main():
         cues = [l for l in lines if l.startswith("cue\t") and not l.startswith("cue\t-1\t")]
         note("the show saves both steps in the tracker", len(steps) == 2, "%d" % len(steps))
         note("and no playlist gained a cue", len(cues) == 4, "%d playlist cues" % len(cues))
-        note("a cue's hotkey and OSC address are saved",
-             any(l.split("\t")[-5:-2] == ["F5", "-1", "/stage/doors"] for l in cues),
-             "no cue record carries F5 / -1 / /stage/doors before its audio-track fields")
+        # Found by content, not counted from the end: every field appended to
+        # the cue record moved them, and counting from the end went stale
+        # silently. Hotkey, MIDI note, OSC address sit side by side.
+        records = [l.split("\t") for l in cues]
+        at = next((i for r in records for i in range(len(r) - 2)
+                   if r[i:i + 3] == ["F5", "-1", "/stage/doors"]), -1)
+        note("a cue's hotkey and OSC address are saved", at >= 0,
+             "no cue record carries F5 / -1 / /stage/doors side by side")
         note("a cue's MIDI note is saved",
-             any(l.split("\t")[-4] == "60" for l in cues), "no cue record carries note 60")
+             at >= 0 and any(len(r) > at + 1 and r[at + 1] == "60" for r in records),
+             "no cue record carries note 60 where the MIDI note goes")
 
     # 3. FORTY CUES DOWN TOGETHER. Each selected cue moves by the same dB from
     # where it was; the old - / + wrote the first cue's value to all of them.

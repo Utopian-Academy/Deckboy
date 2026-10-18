@@ -1214,6 +1214,13 @@ struct MasterAssignment {
   int deckIndex = -1;         // which destination
   std::string cueId;          // which of that deck's cues, by id
   bool bypassed = false;      // skip this deck when the master fires
+  // WHAT the cell does -- the tracker's "cue act val" (James's FT2-style
+  // design, 2026-10-15): 'G' take the cue (every assignment before 0.99.417
+  // is one), 'S' stop the deck, 'F' fade it out over `value` tenths of a
+  // second and stop it, 'V' set its volume to `value` %, 'O' its opacity to
+  // `value` %. Only G names a cue.
+  char action = 'G';
+  int value = -1;
 };
 
 // ---------------------------------------------------------------------------
@@ -1758,6 +1765,13 @@ struct Cue {
   // what it carries, the way a router's input is configured. SDR is every
   // stream cue made before this existed.
   int liveHdrTransfer = 0;
+  // A tracker STEP: after it, go to this row (0-based) instead of the next --
+  // the tracker's "J" (jump). -1 is the next row, which is every step before
+  // 0.99.417.
+  int trackerJumpRow = -1;
+  // A tracker STEP that starts a section: the section's name. Empty for a
+  // step inside one.
+  std::string trackerSection;
   // The operator's effect stack, applied in list order. Empty on every cue
   // that has never had one, which is the common case and costs nothing.
   std::vector<deckboy::effects::CueEffect> effects;
@@ -2666,6 +2680,13 @@ struct Project {
   // which is what it did.
   bool trackerLoop = false;
   bool clickerDrivesTracker = false;
+  // The tracker's columns, a bit per deck: MUTED fires nothing there; when
+  // any is SOLO, only the soloed fire (F9 / F10 in the pattern view).
+  std::uint32_t trackerMutedDecks = 0u;
+  std::uint32_t trackerSoloDecks = 0u;
+  // Which tracker the DASH shows: the FT2-style PATTERN view (James's design)
+  // or the CLASSIC grid it grew from, kept while the new one proves itself.
+  bool trackerClassicView = false;
   // THE TRACKER'S OWN STEPS. Each is a Master cue that lives here and in no
   // playlist: "the tracker IS the master cue. It can fire all decks (or not,
   // maybe just some)." A step kept in a playlist could not fire that

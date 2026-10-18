@@ -2100,13 +2100,21 @@ std::vector<AudioCrosspoint> parseAudioMatrix(const std::string& text) {
 std::string serializeMasterAssignments(const std::vector<MasterAssignment>& list) {
   std::string out;
   for (const auto& a : list) {
-    if (a.deckIndex < 0 || a.cueId.empty()) continue;
+    if (a.deckIndex < 0 || (a.action == 'G' && a.cueId.empty())) continue;
     if (!out.empty()) out += '|';
     out += std::to_string(a.deckIndex);
     out += ':';
     out += a.cueId;
     out += ':';
     out += (a.bypassed ? '1' : '0');
+    // The action and its value, only when they say more than "take the cue":
+    // a plain take is written exactly as it always was.
+    if (a.action != 'G' || a.value >= 0) {
+      out += ':';
+      out += a.action;
+      out += ':';
+      out += std::to_string(a.value);
+    }
   }
   return out;
 }
@@ -2131,8 +2139,25 @@ std::vector<MasterAssignment> parseMasterAssignments(const std::string& text) {
           a.deckIndex = -1;
         }
         a.cueId = entry.substr(c1 + 1, c2 - c1 - 1);
-        a.bypassed = entry.substr(c2 + 1) == "1";
-        if (a.deckIndex >= 0 && !a.cueId.empty()) {
+        // deck:cue:bypassed, then (0.99.417) :action:value.
+        const std::size_t c3 = entry.find(':', c2 + 1);
+        a.bypassed = entry.substr(c2 + 1, c3 == std::string::npos ? std::string::npos : c3 - c2 - 1) == "1";
+        if (c3 != std::string::npos) {
+          const std::size_t c4 = entry.find(':', c3 + 1);
+          const std::string act = entry.substr(c3 + 1, c4 == std::string::npos ? std::string::npos : c4 - c3 - 1);
+          a.action = act.empty() ? 'G' : act[0];
+          if (a.action != 'G' && a.action != 'S' && a.action != 'F' && a.action != 'V' && a.action != 'O') {
+            a.action = 'G';
+          }
+          if (c4 != std::string::npos) {
+            try {
+              a.value = std::stoi(entry.substr(c4 + 1));
+            } catch (...) {
+              a.value = -1;
+            }
+          }
+        }
+        if (a.deckIndex >= 0 && (a.action != 'G' || !a.cueId.empty())) {
           out.push_back(std::move(a));
         }
       }

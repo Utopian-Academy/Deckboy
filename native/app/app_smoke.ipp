@@ -1961,10 +1961,10 @@
             std::ostringstream preOlder;
             std::string preLine;
             while (std::getline(preIn, preLine)) {
-              // The stream HDR field (newest), then the fixture levels.
+              // The tracker's jump and section, the stream HDR field, then
+              // the fixture levels.
               if (preLine.rfind("cue\t", 0) == 0) {
-                preLine.erase(preLine.find_last_of('\t'));
-                preLine.erase(preLine.find_last_of('\t'));
+                for (int t = 0; t < 4; ++t) preLine.erase(preLine.find_last_of('\t'));
               }
               preOlder << preLine << '\n';
             }
@@ -1985,6 +1985,8 @@
             std::string preLine;
             while (std::getline(preIn, preLine)) {
               if (preLine.rfind("cue\t", 0) == 0) {
+                preLine.erase(preLine.find_last_of('\t'));   // tracker section
+                preLine.erase(preLine.find_last_of('\t'));   // tracker jump
                 preLine.erase(preLine.find_last_of('\t'));   // stream HDR
                 preLine.erase(preLine.find_last_of('\t'));
                 preLine.erase(preLine.find_last_of('\t'));
@@ -2008,6 +2010,8 @@
             std::string preLine;
             while (std::getline(preIn, preLine)) {
               if (preLine.rfind("cue\t", 0) == 0) {
+                preLine.erase(preLine.find_last_of('\t'));   // tracker section
+                preLine.erase(preLine.find_last_of('\t'));   // tracker jump
                 preLine.erase(preLine.find_last_of('\t'));   // stream HDR
                 preLine.erase(preLine.find_last_of('\t'));
                 preLine.erase(preLine.find_last_of('\t'));
@@ -2024,19 +2028,16 @@
                    "a pre-sACN show keeps wiggle and its DMX cues send Art-Net");
             fs::remove(preSacnPath);
           }
-          // Trim the five newest tail fields (stream HDR, fixture levels, the
-          // mic channel, the DMX protocol, then Wiggle): a show from immediately before
+          // Trim the seven newest tail fields (tracker section and jump, stream
+          // HDR, fixture levels, the mic channel, the DMX protocol, then
+          // Wiggle): a show from immediately before
           // Wiggle must keep its look, timings, triggers and audio selection.
           std::ifstream in(smokePath);
           std::ostringstream older;
           std::string line;
           while (std::getline(in, line)) {
             if (line.rfind("cue\t", 0) == 0) {
-              line.erase(line.find_last_of('\t'));
-              line.erase(line.find_last_of('\t'));
-              line.erase(line.find_last_of('\t'));
-              line.erase(line.find_last_of('\t'));
-              line.erase(line.find_last_of('\t'));
+              for (int t = 0; t < 7; ++t) line.erase(line.find_last_of('\t'));
             }
             older << line << '\n';
           }
@@ -2087,7 +2088,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 91;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 93;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2097,7 +2098,7 @@
                                               // three triggers (hotkey, MIDI note, OSC),
                                               // audio track and track count, wiggle,
                                               // the DMX protocol, the mic channel,
-                                              // the fixture levels, stream HDR
+                                              // the fixture levels, stream HDR, tracker jump and section
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

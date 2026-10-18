@@ -2797,6 +2797,11 @@
       // TRACKER PLAY | STOP    -> run the sequence on the steps' lengths / halt it
       // TRACKER STEP <n>       -> fire step n (1-based)
       // TRACKER LOOP [ON|OFF]  -> wrap from the last step to the first
+      // TRACKER SET <step> <deck> <cue>|NONE|STOP|FADE <tenths>|VOLUME <%>|OPACITY <%>
+      // TRACKER MUTE|SOLO <deck> [ON|OFF] -> a column fires nothing / only soloed fire
+      // TRACKER JUMP <step> <row>|NONE   -> after this step, go to that row
+      // TRACKER SECTION <step> <name>|NONE -> this step starts a section
+      // TRACKER VIEW PATTERN|CLASSIC     -> which tracker the DASH shows
       // TRACKER CLICKER [ON|OFF] -> Page Down / Page Up step the tracker
       // TRACKER                -> where the sequence stands
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
@@ -2893,7 +2898,21 @@
           failRemoteCommand("TRACKER SET: no deck " + parts[3]);
           return;
         }
-        const bool none = toUpper(parts[4]) == "NONE" || parts[4] == "-";
+        const auto& actRow = rows[static_cast<std::size_t>(step - 1)];
+        // The deck actions (the tracker's S / F / V / O).
+        const std::string verb = toUpper(parts[4]);
+        if (verb == "STOP" || verb == "FADE" || verb == "VOLUME" || verb == "OPACITY") {
+          const char action = verb == "STOP" ? 'S' : verb == "FADE" ? 'F' : verb == "VOLUME" ? 'V' : 'O';
+          const int value = parts.size() > 5 ? std::atoi(parts[5].c_str()) : (action == 'F' ? 20 : 100);
+          if (!setMasterTrackerCellAction(actRow.first, actRow.second, deck, action, value)) {
+            failRemoteCommand("TRACKER SET: a step cannot act on its own playlist");
+            return;
+          }
+          remoteCommandDetail_ = "step " + parts[2] + " " + deckLabel(deck) + ": " +
+                                 masterTrackerCellLabel(actRow.first, actRow.second, deck);
+          return;
+        }
+        const bool none = verb == "NONE" || parts[4] == "-";
         const int cue = none ? -1 : std::atoi(parts[4].c_str()) - 1;
         if (!none && (cue < 0 ||
                       cue >= static_cast<int>(project_.decks[deck].cues.size()))) {
@@ -2910,6 +2929,59 @@
                 : masterTrackerCellLabel(row.first, row.second, deck));
         return;
       }
+      if ((sub == "MUTE" || sub == "SOLO") && parts.size() >= 3) {
+        const int deck = std::atoi(parts[2].c_str()) - 1;
+        if (deck < 0 || deck >= static_cast<int>(project_.decks.size()) || deck >= 32) {
+          failRemoteCommand("TRACKER " + sub + ": no deck " + parts[2]);
+          return;
+        }
+        std::uint32_t& bits = sub == "MUTE" ? project_.trackerMutedDecks : project_.trackerSoloDecks;
+        const std::uint32_t bit = 1u << deck;
+        const bool want = parts.size() >= 4 ? (toUpper(parts[3]) == "ON" || parts[3] == "1") : (bits & bit) == 0u;
+        bits = want ? (bits | bit) : (bits & ~bit);
+        markProjectDirty();
+        remoteCommandDetail_ = deckLabel(deck) + (want ? (sub == "MUTE" ? " muted" : " solo") : (sub == "MUTE" ? " unmuted" : " unsoloed"));
+        return;
+      }
+      if ((sub == "JUMP" || sub == "SECTION") && parts.size() >= 4) {
+        const int step = std::atoi(parts[2].c_str());
+        if (step < 1 || step > static_cast<int>(rows.size())) {
+          failRemoteCommand("TRACKER " + sub + ": no step " + parts[2]);
+          return;
+        }
+        Cue* master = masterTrackerCueMutable(rows[static_cast<std::size_t>(step - 1)].first,
+                                              rows[static_cast<std::size_t>(step - 1)].second);
+        if (!master) {
+          failRemoteCommand("TRACKER " + sub + ": no step " + parts[2]);
+          return;
+        }
+        const bool none = toUpper(parts[3]) == "NONE" || parts[3] == "-";
+        if (sub == "JUMP") {
+          const int to = none ? 0 : std::atoi(parts[3].c_str());
+          if (!none && (to < 1 || to > static_cast<int>(rows.size()))) {
+            failRemoteCommand("TRACKER JUMP: no step " + parts[3]);
+            return;
+          }
+          master->trackerJumpRow = none ? -1 : to - 1;
+          remoteCommandDetail_ = "step " + parts[2] + (none ? " goes on to the next" : " jumps to step " + parts[3]);
+        } else {
+          master->trackerSection = none ? std::string() : joinParts(parts, 3);
+          remoteCommandDetail_ = "step " + parts[2] + (none ? " starts no section" : " starts section " + master->trackerSection);
+        }
+        markProjectDirty();
+        return;
+      }
+      if (sub == "VIEW") {
+        const std::string v = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (v != "PATTERN" && v != "CLASSIC") {
+          failRemoteCommand("TRACKER VIEW: expected PATTERN or CLASSIC");
+          return;
+        }
+        project_.trackerClassicView = v == "CLASSIC";
+        markProjectDirty();
+        remoteCommandDetail_ = project_.trackerClassicView ? "classic view" : "pattern view";
+        return;
+      }
       if (sub == "LOOP") {
         project_.trackerLoop = onOff(project_.trackerLoop);
         markProjectDirty();
@@ -2922,7 +2994,8 @@
         remoteCommandDetail_ = project_.clickerDrivesTracker ? "clicker on" : "clicker off";
         return;
       }
-      failRemoteCommand("TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue>, LOOP or CLICKER");
+      failRemoteCommand("TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, "
+                        "MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER");
       return;
     }
     if (command == "MASTER" || command == "MASTERCUE") {

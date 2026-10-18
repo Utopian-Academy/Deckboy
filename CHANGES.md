@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-17 - v0.99.417 (in progress: the tracker's cells do more than take a cue)
+
+### Master tracker
+- A tracker cell can now **stop** its playlist, **fade it out** over a set time (and put its
+  levels back for the next cue), or set its **volume** or **opacity**, as well as take a cue.
+- Added **mute** and **solo** on a tracker column: a muted column fires nothing; when any column
+  is soloed, only soloed columns fire.
+- A step can **jump** to another row (GO after it goes there instead of the next step) and can
+  start a named **section**. All of it is saved with the show.
+- `TRACKER SET <step> <playlist> STOP|FADE <tenths>|VOLUME <%>|OPACITY <%>`, `TRACKER MUTE`,
+  `TRACKER SOLO`, `TRACKER JUMP`, `TRACKER SECTION`, `TRACKER VIEW PATTERN|CLASSIC`.
+- Fixed a crash when two fades on one playlist ended in the same frame and one of them stopped
+  the playlist.
+
 ## 2026-10-17 - v0.99.416 (graphics over an HDR feed, HDR in and out at 4K60; two projectors that add up to one picture)
 
 ### Outputs

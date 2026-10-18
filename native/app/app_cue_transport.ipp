@@ -999,6 +999,59 @@
     triggerToast("deck " + std::to_string(targetDeck + 1) + " is not assigned");
   }
 
+  // A tracker column fires unless it is muted, or another column is soloed.
+  bool trackerColumnLive(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= 32) return true;
+    const std::uint32_t bit = 1u << deckIndex;
+    if (project_.trackerSoloDecks != 0u) return (project_.trackerSoloDecks & bit) != 0u;
+    return (project_.trackerMutedDecks & bit) == 0u;
+  }
+
+  // S / F / V / O from a tracker cell, on the whole deck. The fade rides the
+  // fade engine the FADE cue uses, so it shows up and stops like one.
+  void fireTrackerDeckAction(int deckIndex, char action, int value) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    if (action == 'S') {
+      cancelFadesForDeck(deckIndex);
+      finishFadeStop(deckIndex);
+      return;
+    }
+    if (action == 'V' || action == 'O') {
+      const CueFadeWhat what = action == 'V' ? CueFadeWhat::DeckVolume : CueFadeWhat::DeckOpacity;
+      cancelFadesFor(deckIndex, what);
+      applyFadeValue(deckIndex, what, std::clamp(value, 0, 100) / 100.0);
+      return;
+    }
+    if (action == 'F') {
+      // Picture and sound out together over `value` tenths of a second, the
+      // deck stopped, and both put back for whatever it plays next.
+      const double seconds = std::max(0, value) / 10.0;
+      // Opacity first: the fades are walked backwards, so the volume run
+      // (added second) lands and restores BEFORE the opacity run stops the
+      // deck -- stopping cancels whatever is still fading on it.
+      for (const CueFadeWhat what : {CueFadeWhat::DeckOpacity, CueFadeWhat::DeckVolume}) {
+        cancelFadesFor(deckIndex, what);
+        FadeRun run;
+        run.deckIndex = deckIndex;
+        run.what = what;
+        run.from = currentFadeValue(deckIndex, what);
+        run.to = 0.0;
+        run.durationSeconds = seconds;
+        run.startMs = SDL_GetTicks();
+        run.stopWhenDone = what == CueFadeWhat::DeckOpacity;
+        run.restoreAtEnd = true;
+        run.label = "tracker fade";
+        if (seconds <= 0.0) {
+          applyFadeValue(deckIndex, what, 0.0);
+          if (run.stopWhenDone) finishFadeStop(deckIndex);
+          applyFadeValue(deckIndex, what, run.from);
+        } else {
+          fadeRuns_.push_back(run);
+        }
+      }
+    }
+  }
+
   void fireMasterCue(int masterDeckIndex, int masterCueIndex) {
     // A tracker step or a master cue in a playlist; both are the same thing
     // to fire. Only the playlist one has a deck whose pointer moves.
@@ -1022,6 +1075,15 @@
       }
       if (a.deckIndex == masterDeckIndex) {
         continue;                           // a master deck does not fire itself
+      }
+      if (!trackerColumnLive(a.deckIndex)) {
+        continue;                           // muted, or another column is soloed
+      }
+      if (a.action != 'G') {
+        // The tracker's other actions act on the DECK, not on a cue.
+        fireTrackerDeckAction(a.deckIndex, a.action, a.value);
+        ++fired;
+        continue;
       }
       const int idx = findCueIndexById(a.deckIndex, a.cueId);
       if (idx < 0) {
@@ -1232,6 +1294,14 @@
     // sequence loops, where the step before the first is the last.
     if (from < 0 && direction < 0 && !project_.trackerLoop) {
       return -1;
+    }
+    // A step with a JUMP sends GO to that row instead of the next one.
+    if (direction > 0 && from >= 0) {
+      const Cue* here = masterTrackerCue(rows[from].first, rows[from].second);
+      if (here && here->trackerJumpRow >= 0 && here->trackerJumpRow < count) {
+        const Cue* there = masterTrackerCue(rows[here->trackerJumpRow].first, rows[here->trackerJumpRow].second);
+        if (there && there->armed) return here->trackerJumpRow;
+      }
     }
     int row = from < 0 ? (direction > 0 ? 0 : count - 1) : from + direction;
     for (int walked = 0; walked < count; ++walked) {
@@ -4107,6 +4177,10 @@
     double durationSeconds = 0.0;
     Uint64 startMs = 0;
     bool stopWhenDone = false;
+    // Put the value back to `from` once it has landed (and stopped): a
+    // tracker FADE takes a deck out without leaving it silent and invisible
+    // for the next cue it plays.
+    bool restoreAtEnd = false;
     std::string label;                      // for the toast when it lands
   };
   std::vector<FadeRun> fadeRuns_;
@@ -4339,10 +4413,22 @@
         const bool stop = run.stopWhenDone;
         const int deckIndex = run.deckIndex;
         const std::string label = run.label;
+        const bool restore = run.restoreAtEnd;
+        const CueFadeWhat what = run.what;
+        const double from = run.from;
         fadeRuns_.erase(fadeRuns_.begin() + i);
         if (stop) {
           finishFadeStop(deckIndex);
         }
+        if (restore) {
+          applyFadeValue(deckIndex, what, from);
+        }
+        // Stopping a deck cancels its other fades (cancelFadesForDeck), so
+        // the list can be shorter than where this backwards walk stands.
+        // Without this the next pass read past its end: a heap corruption the
+        // tracker's FADE found, the first thing to run two fades on one deck
+        // that end together.
+        i = std::min(i, static_cast<int>(fadeRuns_.size()));
         showLog("FADE DONE", label);
         continue;
       }
