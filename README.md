@@ -557,6 +557,14 @@ importantly, what each feature deliberately does not do.
 
 ---
 
+## Friends of Deckboy
+
+- [AV Tools Pro](https://avtoolspro.com/) — free AV design calculators:
+  projector throw and brightness, AVoIP and Dante/AES67 bandwidth, video wall
+  and LED pixel pitch, cable, rack and PoE planning
+
+---
+
 ## Roadmap
 
 **Audio, next:**

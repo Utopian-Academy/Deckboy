@@ -885,7 +885,10 @@ Outputs are managed in the Monitors window and `Settings → Video Outputs`. A
 show can drive several at once, each with its own settings. From v0.99.373 each
 output has a **Source deck**, the deck whose picture it carries, and
 **ADD OUTPUT** on the Video Outputs card adds one and lets you choose its deck.
-Before that, every output carried the first deck. Each output is one of:
+Before that, every output carried the first deck. To check a network can carry
+the outputs you plan to send over it, AV Tools Pro's free [AVoIP bandwidth
+calculator](https://avtoolspro.com/bandwidth-calculator) works it out before
+the show. Each output is one of:
 
 - **Window** — a fullscreen (or windowed) display. Toggle the output window
   with `N`, fullscreen with `F`. Fullscreen recovery automatically re-raises a
@@ -1606,6 +1609,11 @@ Applied per output (not per cue):
   to a grid). Copy/paste warp with `Ctrl+Shift+C` / `Ctrl+Shift+V`.
 - **Edge blend** — fade each edge where two projectors overlap (below).
 
+Laying out a wall before the show: AV Tools Pro's free [video wall
+builder](https://avtoolspro.com/videowall-builder) and [LED pixel pitch
+calculator](https://avtoolspro.com/dvled-calculator) size the displays and
+tiles that the areas of interest then slice the picture across.
+
 Press **WARP** on the programme monitor's header to edit, or open **Settings >
 Video Outputs > Geometry > WARP**. A banner across the picture says what the
 handles are moving: the whole programme on this output, or one layer's pin.
@@ -1615,6 +1623,10 @@ handles are moving: the whole programme on this output, or one layer's pin.
 When one picture is too big for one projector, or a lens cannot reach the
 corners of a table, two projectors share it and overlap in the middle. Each
 needs its own output: Output 1 is the left projector, Output 2 the right.
+
+Planning where they hang? The free [projector brightness and throw
+calculator](https://avtoolspro.com/projector-calculator) from AV Tools Pro
+works out the throw distance and how bright each projector needs to be.
 
 1. Point both at the surface with their pictures overlapping, and line each
    up with its own warp (corner pin, and the grid for lens bend).
@@ -1987,7 +1999,8 @@ the undelayed timeline so the offset is a real skew at the output.
 `Settings → AUDIO OUTPUT → Outs` opens the deck device with 2, 4, 6 or 8
 channels, and from v0.99.373 with 16, 32 or 64, and from v0.99.399 with 128, which is
 what makes a Dante Virtual Soundcard, a MADI card or a large ASIO interface
-worth having.
+worth having. How much network a Dante or AES67 channel count needs: AV Tools
+Pro's free [audio calculator](https://avtoolspro.com/audio-calculator).
 Each cue routes its processed stereo onto a pair of those outs via the
 inspector's **outs** row (1-2, 3-4, 5-6, 7-8) — e.g. programme to the PA on
 1-2, click to monitors on 3-4. The pipeline stays stereo end to end; expansion
