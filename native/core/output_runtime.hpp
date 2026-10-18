@@ -70,6 +70,8 @@ enum class OutputHealthState {
 };
 
 // One captured frame + audio chunk queued for the stream writer thread.
+namespace deckboy::core::hdr { class HdrEncoder; }
+
 struct OutputStreamPacket {
   int width = 0;
   int height = 0;
@@ -80,6 +82,11 @@ struct OutputStreamPacket {
   // ever reads it, so one immutable buffer can be handed to as many packets as
   // the pacer emits.
   std::shared_ptr<const std::vector<std::uint8_t>> videoBytes;
+  // Set for an HDR frame: videoBytes are the compositor's RGBA HALF floats,
+  // and the WRITER thread turns them into the encoder's 16-bit PQ or HLG
+  // just before the pipe (MEASURED: 4.5 ms a 1080p frame that was the render
+  // thread's). Null for everything else, which is already what ffmpeg reads.
+  std::shared_ptr<const deckboy::core::hdr::HdrEncoder> hdrEncoder;
   std::vector<std::int16_t> audioSamples;     // Interleaved 16-bit PCM
 };
 
@@ -184,6 +191,14 @@ struct OutputRuntime {
     int height = 0;
     Uint64 capturedAtMs = 0;
     std::vector<std::uint8_t> pixels;    // BGRA (read back as SDL_PIXELFORMAT_BGRA32)
+    // An HDR frame: pixels are RGBA half floats, to be encoded by this
+    // (OutputStreamPacket::hdrEncoder) on the writer thread.
+    std::shared_ptr<const deckboy::core::hdr::HdrEncoder> hdrEncoder;
+    // ...and they may live HERE instead of in `pixels`: a pooled buffer the
+    // readback wrote straight into, handed to the writer as it is. At 4K that
+    // is 66 MB a frame the render thread no longer copies (MEASURED 16 ms).
+    std::shared_ptr<const std::vector<std::uint8_t>> shared;
+    bool empty() const { return pixels.empty() && (!shared || shared->empty()); }
   };
 
   // SDL output window and renderer (one per output destination)
@@ -209,6 +224,20 @@ struct OutputRuntime {
   void* egressReadback = nullptr;
   int egressReadbackW = 0;
   int egressReadbackH = 0;
+  // The same ring for an HDR output's float compositor, read for its HDR
+  // stream or recording (readHdrCompositorSignal). The synchronous read it
+  // replaces stalled the GPU 7 ms a 1080p frame and dragged a 60 Hz output
+  // to 25 (MEASURED). Same contract, same retirement after a second of misses.
+  // First choice on Direct3D 11: the GPU makes the P010 itself
+  // (deckboy::gpu::createHdrP010Readback) and the CPU only copies it out.
+  void* hdrP010Readback = nullptr;
+  bool hdrP010Unavailable = false;
+  int hdrP010Misses = 0;
+  void* hdrReadback = nullptr;
+  int hdrReadbackW = 0;
+  int hdrReadbackH = 0;
+  bool hdrReadbackUnavailable = false;
+  int hdrReadbackMisses = 0;
   // Latched when the renderer turns out to have no asynchronous readback, so
   // the creation is not retried on the render thread every single frame.
   bool egressReadbackUnavailable = false;
@@ -414,6 +443,10 @@ struct OutputRuntime {
   CapturedFrame hdrRecordFrame;
   std::deque<CapturedFrame> delayFrames;
   Uint64 lastEgressCaptureAtMs = 0;
+  // When the next egress capture is DUE (ms, fractional): a running deadline,
+  // advanced by one capture interval each time, so a rate that does not
+  // divide the loop's comes out right on average (see captureOutputFrameForEgress).
+  double nextEgressCaptureDueMs = 0.0;
   Uint64 lastStreamCaptureSentAtMs = 0;
   // House overlay: the still laid over this output's picture. Cached against
   // the path it came from, so it is decoded once rather than every frame.

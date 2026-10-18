@@ -32,6 +32,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <future>
 #include <thread>
 #include <limits>
@@ -221,6 +222,34 @@ class HdrEncoder {
       }
       lut_[static_cast<std::size_t>(i)] = static_cast<std::uint16_t>(std::lround(std::clamp(e, 0.0, 1.0) * 65535.0));
     }
+    buildBitTables();
+  }
+
+  // THE CURVES INDEXED BY A FLOAT'S OWN BITS: exponent and the top ten bits
+  // of mantissa, from 2^-24 to 1.0, each entry the curve at its bin's middle.
+  // No square root per channel, which was most of convertHalfToP010's time;
+  // a bin is 0.1% of its value wide, under half a 10-bit code anywhere on PQ
+  // or HLG. Built here, from the same formulas as the 64K tables.
+  void buildBitTables() {
+    const double m1 = 2610.0 / 16384.0, m2 = 2523.0 / 4096.0 * 128.0;
+    const double c1 = 3424.0 / 4096.0, c2 = 2413.0 / 4096.0 * 32.0, c3 = 2392.0 / 4096.0 * 32.0;
+    const double a = 0.17883277, b = 0.28466892, c = 0.55991073;
+    signalBits_.resize(kBitsEntries);
+    if (hlg_) gainBits_.resize(kBitsEntries);
+    for (int i = 0; i < kBitsEntries; ++i) {
+      const std::uint32_t bits = (static_cast<std::uint32_t>(i + (kBitsExpMin << 10)) << 13) | (1u << 12);
+      float centre = 0.0f;
+      std::memcpy(&centre, &bits, sizeof centre);
+      const double v = std::min(1.0, static_cast<double>(centre));
+      double e = 0.0;
+      if (!hlg_) {
+        e = std::pow((c1 + c2 * std::pow(v, m1)) / (1.0 + c3 * std::pow(v, m1)), m2);
+      } else {
+        e = v <= 1.0 / 12.0 ? std::sqrt(3.0 * v) : a * std::log(12.0 * v - b) + c;
+        gainBits_[static_cast<std::size_t>(i)] = static_cast<float>(std::pow(v, -1.0 / 6.0) / kHlgDisplayPeakNits);
+      }
+      signalBits_[static_cast<std::size_t>(i)] = static_cast<float>(std::clamp(e, 0.0, 1.0));
+    }
   }
 
   bool hlg() const { return hlg_; }
@@ -248,6 +277,77 @@ class HdrEncoder {
       g = in[1];
       b = in[2];
     }, rgb48);
+  }
+
+  // RGBA half floats straight to P010: 10-bit BT.2020 NCL Y'CbCr, limited
+  // range, 4:2:0 (each chroma sample the mean of its 2x2), samples in the high
+  // ten bits. What a hardware HEVC Main10 encoder takes as it is, and half the
+  // bytes of rgb48 (MEASURED: 50 MB a 4K frame through the pipe held an HDR
+  // stream to 30 fps). Same numbers as zscale's limited-range conversion of
+  // the R'G'B' above. Width and height even; the planes are width samples a row.
+  void convertHalfToP010(const std::uint16_t* rgbaHalf, int width, int height, int strideHalfs,
+                         std::uint16_t* yPlane, std::uint16_t* uvPlane) const {
+    const std::vector<float>& half = halfTable();
+    // Most of a big CPU: this is the one heavy job on the writer thread.
+    // MEASURED, i9-13900HX 4K: 12 bands and the 16-bit round trip 21 ms (PQ)
+    // and 26 (HLG) a frame -- under the 16.7 a 60 fps stream has.
+    const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
+    const int bands = std::clamp(static_cast<int>(cores) - 4, 1, 28);
+    const int pairs = height / 2;
+    const int pairsPerBand = (pairs + bands - 1) / bands;
+    constexpr float kCb = 1.0f / 1.8814f, kCr = 1.0f / 1.4746f;
+    std::vector<std::future<void>> work;
+    for (int p0 = 0; p0 < pairs; p0 += pairsPerBand) {
+      const int p1 = std::min(pairs, p0 + pairsPerBand);
+      work.push_back(std::async(std::launch::async, [=, this, &half] {
+        for (int pair = p0; pair < p1; ++pair) {
+          const std::uint16_t* rows[2] = {
+            rgbaHalf + static_cast<std::size_t>(pair * 2) * strideHalfs,
+            rgbaHalf + static_cast<std::size_t>(pair * 2 + 1) * strideHalfs};
+          std::uint16_t* yRows[2] = {yPlane + static_cast<std::size_t>(pair * 2) * width,
+                                     yPlane + static_cast<std::size_t>(pair * 2 + 1) * width};
+          std::uint16_t* uv = uvPlane + static_cast<std::size_t>(pair) * width;
+          for (int x = 0; x + 1 < width; x += 2) {
+            float cb = 0.0f, cr = 0.0f;
+            for (int dy = 0; dy < 2; ++dy) {
+              for (int dx = 0; dx < 2; ++dx) {
+                const std::uint16_t* in = rows[dy] + static_cast<std::size_t>(x + dx) * 4;
+                float e[3];
+                encodeSignal(half[in[0]], half[in[1]], half[in[2]], e);
+                const float luma = 0.2627f * e[0] + 0.6780f * e[1] + 0.0593f * e[2];
+                yRows[dy][x + dx] = toP010(64.0f + 876.0f * luma);
+                cb += e[2] - luma;
+                cr += e[0] - luma;
+              }
+            }
+            uv[x] = toP010(512.0f + 224.0f * kCb * cb);       // 896 x the mean of four
+            uv[x + 1] = toP010(512.0f + 224.0f * kCr * cr);
+          }
+        }
+      }));
+    }
+    for (auto& w : work) w.get();
+  }
+
+  // One pixel to its BT.2020 R'G'B' SIGNAL, 0..1 floats: encodePixel without
+  // the trip through 16-bit integers, for convertHalfToP010.
+  void encodeSignal(float r, float g, float b, float* out) const {
+    r *= white_; g *= white_; b *= white_;
+    const float r2 = 0.6274f * r + 0.3293f * g + 0.0433f * b;
+    const float g2 = 0.0691f * r + 0.9195f * g + 0.0114f * b;
+    const float b2 = 0.0164f * r + 0.0880f * g + 0.8956f * b;
+    if (!hlg_) {
+      constexpr float kPerNit = 1.0f / 10000.0f;
+      out[0] = signalAtRoot(r2 * kPerNit);
+      out[1] = signalAtRoot(g2 * kPerNit);
+      out[2] = signalAtRoot(b2 * kPerNit);
+      return;
+    }
+    const float yd = std::clamp(0.2627f * r2 + 0.6780f * g2 + 0.0593f * b2, 0.0f, 1000.0f) * 0.001f;
+    const float gain = gainBits_[bitsIndex(yd)];
+    out[0] = signalAtRoot(r2 * gain);
+    out[1] = signalAtRoot(g2 * gain);
+    out[2] = signalAtRoot(b2 * gain);
   }
 
   // One pixel: linear 709 (1.0 = SDR white) to 16-bit BT.2020 R'G'B'.
@@ -312,6 +412,21 @@ class HdrEncoder {
     }();
     return table;
   }
+  // A 10-bit code (as a float) into P010's high bits, rounded and clamped.
+  static std::uint16_t toP010(float code) {
+    return static_cast<std::uint16_t>(std::clamp(static_cast<int>(code + 0.5f), 0, 1023) << 6);
+  }
+  // A 0..1 value's entry in the bit tables (buildBitTables).
+  static std::size_t bitsIndex(float value) {
+    value = std::clamp(value, 0.0f, 1.0f);
+    std::uint32_t bits = 0;
+    std::memcpy(&bits, &value, sizeof bits);
+    const int i = static_cast<int>(bits >> 13) - (kBitsExpMin << 10);
+    return static_cast<std::size_t>(std::clamp(i, 0, kBitsEntries - 1));
+  }
+  // The curve as a 0..1 float at a 0..1 value (PQ: of 10000 nits; HLG: of
+  // scene light), straight from the value's bits.
+  float signalAtRoot(float value) const { return signalBits_[bitsIndex(value)]; }
   std::uint16_t encodePq(float nits) const {
     return encodeRoot(std::clamp(nits, 0.0f, 10000.0f) / 10000.0f);
   }
@@ -324,6 +439,10 @@ class HdrEncoder {
   bool hlg_ = false;
   std::vector<std::uint16_t> lut_ = std::vector<std::uint16_t>(kSteps);
   std::vector<float> hlgGain_;   // HLG only
+  static constexpr int kBitsExpMin = 127 - 24;               // 2^-24
+  static constexpr int kBitsEntries = 24 * 1024 + 1;         // up to 1.0
+  std::vector<float> signalBits_;   // the curve, by a value's bits
+  std::vector<float> gainBits_;     // HLG's inverse-OOTF gain, by Yd's bits
 };
 
 }  // namespace deckboy::core::hdr

@@ -4729,6 +4729,27 @@
     triggerToast(std::string("mic channel: ") + micChannelLabel(cue->micChannel));
   }
 
+  // A STREAM cue's HDR input (Cue::liveHdrTransfer). The decode format is
+  // fixed when the feed is opened, so a live one is reopened -- the look
+  // alone cannot change a P010 pipe into an 8-bit one.
+  static const char* liveHdrLabel(int transfer) {
+    return transfer == 1 ? "PQ (HDR10)" : transfer == 2 ? "HLG" : "SDR";
+  }
+  bool setSelectedStreamHdr(int transfer) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::SrtStream) return false;
+    cue->liveHdrTransfer = std::clamp(transfer, 0, 2);
+    markProjectDirty();
+    syncEngineCueSnapshots();
+    const Deck& deck = focusedDeck();
+    if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size()) &&
+        cueIndexSelected(deck, deck.activeIndex)) {
+      if (MediaEngine* engine = focusedMediaEngine()) engine->refreshActiveCueRuntime(&deck.cues[deck.activeIndex]);
+    }
+    triggerToast(std::string("stream HDR input: ") + liveHdrLabel(cue->liveHdrTransfer));
+    return true;
+  }
+
   void adjustSelectedMicGain(float stepDb) {
     Cue* cue = selectedMicCue();
     if (!cue) return;

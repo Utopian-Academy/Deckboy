@@ -6091,6 +6091,14 @@
                      QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
                      selectedCue->audioEnabled, "Toggle the live input's audio");
         playbackY += kRowStep;
+        if (!isNdi) {
+          // What the feed carries: a stream is never probed, so it is said.
+          drawQuickRow(playbackY, "HDR input", QuickAction::StreamHdrCycle,
+                       liveHdrLabel(selectedCue->liveHdrTransfer), QuickAction::StreamHdrCycle,
+                       QuickAction::StreamHdrCycle, true, selectedCue->liveHdrTransfer != 0,
+                       "What the stream carries: SDR, PQ (HDR10) or HLG");
+          playbackY += kRowStep;
+        }
       }
       finishInspectorSection(playbackSection, playbackY);
 

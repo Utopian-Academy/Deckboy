@@ -817,6 +817,19 @@ std::optional<std::string> readAllText(const std::vector<std::string>& args) {
   return captured.output;
 }
 
+bool ffmpegHasFilter(const std::string& name) {
+  static std::mutex mutex;
+  static std::optional<std::string> listing;
+  static bool asked = false;
+  std::lock_guard<std::mutex> lock(mutex);
+  if (!asked) {
+    asked = true;
+    listing = readAllText({"ffmpeg", "-hide_banner", "-filters"});
+  }
+  // A line of the listing is " TS name  V->V  description".
+  return listing && listing->find(" " + name + " ") != std::string::npos;
+}
+
 // ===========================================================================
 // Legacy convenience wrappers
 // ===========================================================================

@@ -71,6 +71,7 @@ struct StagingReadback {
   ID3D11Texture2D* ring[kStagingRingSize] = {nullptr, nullptr, nullptr};
   int width = 0;
   int height = 0;
+  int bytesPerPixel = 4;  // 8 for half-float RGBA
   int cursor = 0;
   int primed = 0;         // frames issued but not yet read back
 };
@@ -102,6 +103,7 @@ struct GpuDownloadReadback {
   SDL_GPUFence* fence[kStagingRingSize] = {nullptr, nullptr, nullptr};
   int width = 0;
   int height = 0;
+  int bytesPerPixel = 4;  // 8 for half-float RGBA
   int cursor = 0;
   int primed = 0;
 };
@@ -124,7 +126,7 @@ SDL_GPUTexture* textureGpuHandle(SDL_Texture* texture) {
                            SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
 }
 
-void* createGpuDownloadReadback(SDL_Renderer* renderer, int width, int height) {
+void* createGpuDownloadReadback(SDL_Renderer* renderer, int width, int height, int bytesPerPixel) {
   SDL_GPUDevice* device = rendererGpuDevice(renderer);
   if (!device || width <= 0 || height <= 0) {
     return nullptr;
@@ -134,7 +136,9 @@ void* createGpuDownloadReadback(SDL_Renderer* renderer, int width, int height) {
   rb->device = device;
   rb->width = width;
   rb->height = height;
-  const Uint32 bytes = static_cast<Uint32>(width) * static_cast<Uint32>(height) * 4u;
+  rb->bytesPerPixel = bytesPerPixel;
+  const Uint32 bytes = static_cast<Uint32>(width) * static_cast<Uint32>(height) *
+                       static_cast<Uint32>(bytesPerPixel);
   for (int i = 0; i < kStagingRingSize; ++i) {
     SDL_GPUTransferBufferCreateInfo info {};
     info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
@@ -252,7 +256,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
     return false;   // still in flight; never wait on the render thread
   }
   const std::size_t frameBytes = static_cast<std::size_t>(width) *
-                                 static_cast<std::size_t>(height) * 4u;
+                                 static_cast<std::size_t>(height) * static_cast<std::size_t>(rb->bytesPerPixel);
   bool ok = outBytes >= frameBytes;
   if (ok) {
     if (void* mapped = SDL_MapGPUTransferBuffer(rb->device, rb->ring[oldest], false)) {
@@ -279,7 +283,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
   return ok;
 }
 #else   // SDL < 3.4: there is no SDL_GPU texture property to read from.
-void* createGpuDownloadReadback(SDL_Renderer*, int, int) { return nullptr; }
+void* createGpuDownloadReadback(SDL_Renderer*, int, int, int) { return nullptr; }
 void destroyGpuDownloadReadback(void*) {}
 bool gpuDownloadReadbackFrame(void*, SDL_Texture*, std::uint8_t*, std::size_t,
                               int, int) { return false; }
@@ -293,7 +297,7 @@ struct ReadbackHandle {
   void* gpu = nullptr;
 };
 
-void* createD3D11Readback(SDL_Renderer* renderer, int width, int height) {
+void* createD3D11Readback(SDL_Renderer* renderer, int width, int height, bool halfFloat) {
 #ifdef _WIN32
   ID3D11Device* device = rendererDevice(renderer);
   if (!device || width <= 0 || height <= 0) {
@@ -304,6 +308,7 @@ void* createD3D11Readback(SDL_Renderer* renderer, int width, int height) {
   device->GetImmediateContext(&rb->context);
   rb->width = width;
   rb->height = height;
+  rb->bytesPerPixel = halfFloat ? 8 : 4;
   if (!rb->context) {
     delete rb;
     return nullptr;
@@ -316,7 +321,9 @@ void* createD3D11Readback(SDL_Renderer* renderer, int width, int height) {
   // BGRA, matching both the scale target and the byte order ffmpeg is fed, so
   // the mapped rows copy STRAIGHT into the egress buffer: no temporary, no
   // format conversion, no second pass over 8MB per frame.
-  desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+  // A half-float compositor stays half float: CopyResource needs the formats
+  // to match, and the writer thread does the encoding.
+  desc.Format = halfFloat ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_B8G8R8A8_UNORM;
   desc.SampleDesc.Count = 1;
   desc.Usage = D3D11_USAGE_STAGING;
   desc.BindFlags = 0;
@@ -331,7 +338,7 @@ void* createD3D11Readback(SDL_Renderer* renderer, int width, int height) {
   }
   return rb;
 #else
-  (void) renderer; (void) width; (void) height;
+  (void) renderer; (void) width; (void) height; (void) halfFloat;
   return nullptr;
 #endif
 }
@@ -402,7 +409,7 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
   if (FAILED(hr) || !mapped.pData) {
     return false;
   }
-  const std::size_t rowBytes = static_cast<std::size_t>(width) * 4u;
+  const std::size_t rowBytes = static_cast<std::size_t>(width) * static_cast<std::size_t>(rb->bytesPerPixel);
   bool ok = outBytes >= rowBytes * static_cast<std::size_t>(height);
   if (ok) {
     const auto* srcRow = static_cast<const std::uint8_t*>(mapped.pData);
@@ -440,12 +447,12 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
 // Public entry points. D3D11 first where it exists, because it is the path with
 // years of frames behind it; the SDL_GPU download is what gives macOS, Linux --
 // and a Windows machine running the "gpu" renderer -- the same 4K60 headroom.
-void* createStagingReadback(SDL_Renderer* renderer, int width, int height) {
+void* createStagingReadback(SDL_Renderer* renderer, int width, int height, bool halfFloat) {
   void* d3d11 = nullptr;
 #ifdef _WIN32
-  d3d11 = createD3D11Readback(renderer, width, height);
+  d3d11 = createD3D11Readback(renderer, width, height, halfFloat);
 #endif
-  void* gpu = d3d11 ? nullptr : createGpuDownloadReadback(renderer, width, height);
+  void* gpu = d3d11 ? nullptr : createGpuDownloadReadback(renderer, width, height, halfFloat ? 8 : 4);
   if (!d3d11 && !gpu) {
     return nullptr;   // caller falls back to SDL_RenderReadPixels
   }
@@ -476,6 +483,292 @@ bool stagingReadbackFrame(void* handle, SDL_Texture* source,
   }
 #endif
   return gpuDownloadReadbackFrame(h->gpu, source, out, outBytes, width, height);
+}
+
+// ----------------------------------------------------------------------------
+// HDR P010 on the GPU (see gpu_readback.hpp).
+#ifdef _WIN32
+namespace {
+// The same numbers as HdrEncoder::convertHalfToP010, per 2x2 block: the
+// compositor's linear BT.709 light (1.0 = SDR white) to nits, to BT.2020
+// primaries, through the PQ curve or HLG's inverse OOTF and OETF, to limited
+// 10-bit Y'CbCr in the high bits of 16.
+const char kHdrP010Shader[] = R"(
+Texture2D<float4> src : register(t0);
+RWTexture2D<uint> yOut : register(u0);
+RWTexture2D<uint2> uvOut : register(u1);
+cbuffer Params : register(b0) { float white; uint hlg; uint width; uint height; };
+float pqOf(float nits) {
+  const float m1 = 2610.0 / 16384.0, m2 = 2523.0 / 4096.0 * 128.0;
+  const float c1 = 3424.0 / 4096.0, c2 = 2413.0 / 4096.0 * 32.0, c3 = 2392.0 / 4096.0 * 32.0;
+  float y = pow(saturate(nits / 10000.0), m1);
+  return pow((c1 + c2 * y) / (1.0 + c3 * y), m2);
+}
+float hlgOf(float e) {
+  e = saturate(e);
+  return e <= 1.0 / 12.0 ? sqrt(3.0 * e) : 0.17883277 * log(12.0 * e - 0.28466892) + 0.55991073;
+}
+float3 signalOf(float3 light) {
+  float3 n = light * white;
+  float3 c = max(float3(dot(n, float3(0.6274, 0.3293, 0.0433)),
+                        dot(n, float3(0.0691, 0.9195, 0.0114)),
+                        dot(n, float3(0.0164, 0.0880, 0.8956))), 0.0);
+  if (hlg == 0) return float3(pqOf(c.r), pqOf(c.g), pqOf(c.b));
+  float yd = clamp(dot(c, float3(0.2627, 0.6780, 0.0593)), 1e-7, 1000.0) / 1000.0;
+  float gain = pow(yd, -1.0 / 6.0) / 1000.0;
+  return float3(hlgOf(c.r * gain), hlgOf(c.g * gain), hlgOf(c.b * gain));
+}
+uint p010Of(float code) { return ((uint)clamp(floor(code + 0.5), 0.0, 1023.0)) << 6; }
+[numthreads(8, 8, 1)]
+void main(uint3 id : SV_DispatchThreadID) {
+  uint2 base = id.xy * 2;
+  if (base.x + 1 >= width || base.y + 1 >= height) return;
+  float cb = 0.0, cr = 0.0;
+  [unroll] for (uint dy = 0; dy < 2; ++dy) {
+    [unroll] for (uint dx = 0; dx < 2; ++dx) {
+      uint2 at = base + uint2(dx, dy);
+      float3 e = signalOf(src.Load(int3(at, 0)).rgb);
+      float luma = dot(e, float3(0.2627, 0.6780, 0.0593));
+      yOut[at] = p010Of(64.0 + 876.0 * luma);
+      cb += e.b - luma;
+      cr += e.r - luma;
+    }
+  }
+  uvOut[id.xy] = uint2(p010Of(512.0 + 224.0 / 1.8814 * cb), p010Of(512.0 + 224.0 / 1.4746 * cr));
+}
+)";
+
+// D3DCompile's signature, so no d3dcompiler header or import library is
+// needed: the DLL ships with Windows and is loaded when first wanted.
+using D3DCompileFn = HRESULT(WINAPI*)(LPCVOID, SIZE_T, LPCSTR, const void*, void*, LPCSTR, LPCSTR,
+                                     UINT, UINT, ID3DBlob**, ID3DBlob**);
+
+struct HdrP010Readback {
+  ID3D11Device* device = nullptr;
+  ID3D11DeviceContext* context = nullptr;
+  ID3D11ComputeShader* shader = nullptr;
+  ID3D11Buffer* params = nullptr;
+  ID3D11Texture2D* yTex = nullptr;
+  ID3D11Texture2D* uvTex = nullptr;
+  ID3D11UnorderedAccessView* yUav = nullptr;
+  ID3D11UnorderedAccessView* uvUav = nullptr;
+  ID3D11Texture2D* yRing[kStagingRingSize] = {nullptr, nullptr, nullptr};
+  ID3D11Texture2D* uvRing[kStagingRingSize] = {nullptr, nullptr, nullptr};
+  ID3D11ShaderResourceView* srv = nullptr;   // of the last source seen
+  ID3D11Texture2D* srvSource = nullptr;
+  int width = 0;
+  int height = 0;
+  int cursor = 0;
+  int primed = 0;
+};
+
+template <typename T> void releaseCom(T*& p) {
+  if (p) {
+    p->Release();
+    p = nullptr;
+  }
+}
+
+void destroyP010(HdrP010Readback* rb) {
+  if (!rb) return;
+  for (int i = 0; i < kStagingRingSize; ++i) {
+    releaseCom(rb->yRing[i]);
+    releaseCom(rb->uvRing[i]);
+  }
+  releaseCom(rb->srv);
+  releaseCom(rb->yUav);
+  releaseCom(rb->uvUav);
+  releaseCom(rb->yTex);
+  releaseCom(rb->uvTex);
+  releaseCom(rb->params);
+  releaseCom(rb->shader);
+  releaseCom(rb->context);
+  delete rb;
+}
+
+ID3D11ComputeShader* compileHdrP010Shader(ID3D11Device* device) {
+  static HMODULE compiler = LoadLibraryW(L"d3dcompiler_47.dll");
+  if (!compiler) return nullptr;
+  auto compile = reinterpret_cast<D3DCompileFn>(GetProcAddress(compiler, "D3DCompile"));
+  if (!compile) return nullptr;
+  ID3DBlob* code = nullptr;
+  ID3DBlob* errors = nullptr;
+  constexpr UINT kOptimise = 1u << 15;   // D3DCOMPILE_OPTIMIZATION_LEVEL3
+  const HRESULT hr = compile(kHdrP010Shader, sizeof(kHdrP010Shader) - 1, "hdr_p010", nullptr, nullptr, "main",
+                             "cs_5_0", kOptimise, 0, &code, &errors);
+  if (FAILED(hr) || !code) {
+    if (errors) {
+      std::cerr << "hdr-p010: shader did not compile: "
+                << static_cast<const char*>(errors->GetBufferPointer()) << std::endl;
+    }
+    releaseCom(errors);
+    releaseCom(code);
+    return nullptr;
+  }
+  releaseCom(errors);
+  ID3D11ComputeShader* shader = nullptr;
+  device->CreateComputeShader(code->GetBufferPointer(), code->GetBufferSize(), nullptr, &shader);
+  code->Release();
+  return shader;
+}
+
+ID3D11Texture2D* makeTexture(ID3D11Device* device, int w, int h, DXGI_FORMAT format, bool staging) {
+  D3D11_TEXTURE2D_DESC desc {};
+  desc.Width = static_cast<UINT>(w);
+  desc.Height = static_cast<UINT>(h);
+  desc.MipLevels = 1;
+  desc.ArraySize = 1;
+  desc.Format = format;
+  desc.SampleDesc.Count = 1;
+  desc.Usage = staging ? D3D11_USAGE_STAGING : D3D11_USAGE_DEFAULT;
+  desc.BindFlags = staging ? 0 : D3D11_BIND_UNORDERED_ACCESS;
+  desc.CPUAccessFlags = staging ? D3D11_CPU_ACCESS_READ : 0;
+  ID3D11Texture2D* tex = nullptr;
+  return SUCCEEDED(device->CreateTexture2D(&desc, nullptr, &tex)) ? tex : nullptr;
+}
+}  // namespace
+#endif
+
+void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height) {
+#ifdef _WIN32
+  ID3D11Device* device = rendererDevice(renderer);
+  if (!device || width <= 0 || height <= 0 || (width % 2) || (height % 2)) return nullptr;
+  auto* rb = new HdrP010Readback();
+  rb->device = device;
+  device->GetImmediateContext(&rb->context);
+  rb->width = width;
+  rb->height = height;
+  rb->shader = compileHdrP010Shader(device);
+  D3D11_BUFFER_DESC cb {};
+  cb.ByteWidth = 16;
+  cb.Usage = D3D11_USAGE_DEFAULT;
+  cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  device->CreateBuffer(&cb, nullptr, &rb->params);
+  rb->yTex = makeTexture(device, width, height, DXGI_FORMAT_R16_UINT, false);
+  rb->uvTex = makeTexture(device, width / 2, height / 2, DXGI_FORMAT_R16G16_UINT, false);
+  bool ok = rb->context && rb->shader && rb->params && rb->yTex && rb->uvTex &&
+            SUCCEEDED(device->CreateUnorderedAccessView(rb->yTex, nullptr, &rb->yUav)) &&
+            SUCCEEDED(device->CreateUnorderedAccessView(rb->uvTex, nullptr, &rb->uvUav));
+  for (int i = 0; ok && i < kStagingRingSize; ++i) {
+    rb->yRing[i] = makeTexture(device, width, height, DXGI_FORMAT_R16_UINT, true);
+    rb->uvRing[i] = makeTexture(device, width / 2, height / 2, DXGI_FORMAT_R16G16_UINT, true);
+    ok = rb->yRing[i] && rb->uvRing[i];
+  }
+  if (!ok) {
+    destroyP010(rb);
+    return nullptr;
+  }
+  return rb;
+#else
+  (void) renderer;
+  (void) width;
+  (void) height;
+  return nullptr;
+#endif
+}
+
+void destroyHdrP010Readback(void* handle) {
+#ifdef _WIN32
+  destroyP010(static_cast<HdrP010Readback*>(handle));
+#else
+  (void) handle;
+#endif
+}
+
+bool hdrP010ReadbackFrame(void* handle, SDL_Texture* source, float whiteNits, bool hlg,
+                          std::uint8_t* out, std::size_t outBytes) {
+#ifdef _WIN32
+  auto* rb = static_cast<HdrP010Readback*>(handle);
+  if (!rb || !source || !out) return false;
+  const std::size_t lumaBytes = static_cast<std::size_t>(rb->width) * rb->height * 2;
+  if (outBytes < lumaBytes + lumaBytes / 2) return false;
+  auto* src = reinterpret_cast<ID3D11Texture2D*>(
+    SDL_GetPointerProperty(SDL_GetTextureProperties(source), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
+  if (!src) return false;
+  if (rb->srvSource != src) {
+    releaseCom(rb->srv);
+    rb->srvSource = nullptr;
+    if (FAILED(rb->device->CreateShaderResourceView(src, nullptr, &rb->srv))) return false;
+    rb->srvSource = src;
+  }
+  // The renderer batches: everything drawn into the compositor must reach the
+  // GPU before the shader reads it. And the compositor must not still be the
+  // bound render target, or D3D11 nulls the shader's view of it.
+  SDL_FlushRenderer(SDL_GetRendererFromTexture(source));
+  ID3D11RenderTargetView* savedRtv = nullptr;
+  ID3D11DepthStencilView* savedDsv = nullptr;
+  rb->context->OMGetRenderTargets(1, &savedRtv, &savedDsv);
+  rb->context->OMSetRenderTargets(0, nullptr, nullptr);
+
+  struct {
+    float white;
+    UINT hlg;
+    UINT width;
+    UINT height;
+  } params {whiteNits, hlg ? 1u : 0u, static_cast<UINT>(rb->width), static_cast<UINT>(rb->height)};
+  rb->context->UpdateSubresource(rb->params, 0, nullptr, &params, 0, 0);
+  rb->context->CSSetShader(rb->shader, nullptr, 0);
+  rb->context->CSSetConstantBuffers(0, 1, &rb->params);
+  rb->context->CSSetShaderResources(0, 1, &rb->srv);
+  ID3D11UnorderedAccessView* uavs[2] = {rb->yUav, rb->uvUav};
+  rb->context->CSSetUnorderedAccessViews(0, 2, uavs, nullptr);
+  rb->context->Dispatch(static_cast<UINT>((rb->width / 2 + 7) / 8), static_cast<UINT>((rb->height / 2 + 7) / 8), 1);
+  // Leave the pipeline as the renderer expects it.
+  ID3D11ShaderResourceView* noSrv = nullptr;
+  ID3D11UnorderedAccessView* noUav[2] = {nullptr, nullptr};
+  ID3D11Buffer* noCb = nullptr;
+  rb->context->CSSetShaderResources(0, 1, &noSrv);
+  rb->context->CSSetUnorderedAccessViews(0, 2, noUav, nullptr);
+  rb->context->CSSetConstantBuffers(0, 1, &noCb);
+  rb->context->CSSetShader(nullptr, nullptr, 0);
+  rb->context->OMSetRenderTargets(savedRtv ? 1 : 0, savedRtv ? &savedRtv : nullptr, savedDsv);
+  releaseCom(savedRtv);
+  releaseCom(savedDsv);
+
+  rb->context->CopyResource(rb->yRing[rb->cursor], rb->yTex);
+  rb->context->CopyResource(rb->uvRing[rb->cursor], rb->uvTex);
+  rb->context->Flush();
+  rb->cursor = (rb->cursor + 1) % kStagingRingSize;
+  if (rb->primed < kStagingRingSize) {
+    rb->primed += 1;
+    return false;   // ring still filling
+  }
+  // The OLDEST, finished frames ago; DO_NOT_WAIT, as in d3d11ReadbackFrame.
+  const int oldest = rb->cursor;
+  D3D11_MAPPED_SUBRESOURCE yMap {};
+  D3D11_MAPPED_SUBRESOURCE uvMap {};
+  if (FAILED(rb->context->Map(rb->yRing[oldest], 0, D3D11_MAP_READ, D3D11_MAP_FLAG_DO_NOT_WAIT, &yMap)) ||
+      !yMap.pData) {
+    return false;
+  }
+  if (FAILED(rb->context->Map(rb->uvRing[oldest], 0, D3D11_MAP_READ, D3D11_MAP_FLAG_DO_NOT_WAIT, &uvMap)) ||
+      !uvMap.pData) {
+    rb->context->Unmap(rb->yRing[oldest], 0);
+    return false;
+  }
+  // Both planes are `width` 2-byte samples a row (chroma: width/2 pairs).
+  const std::size_t rowBytes = static_cast<std::size_t>(rb->width) * 2;
+  for (int y = 0; y < rb->height; ++y) {
+    std::memcpy(out + rowBytes * y,
+                static_cast<const std::uint8_t*>(yMap.pData) + static_cast<std::size_t>(yMap.RowPitch) * y, rowBytes);
+  }
+  std::uint8_t* uvOut = out + lumaBytes;
+  for (int y = 0; y < rb->height / 2; ++y) {
+    std::memcpy(uvOut + rowBytes * y,
+                static_cast<const std::uint8_t*>(uvMap.pData) + static_cast<std::size_t>(uvMap.RowPitch) * y, rowBytes);
+  }
+  rb->context->Unmap(rb->yRing[oldest], 0);
+  rb->context->Unmap(rb->uvRing[oldest], 0);
+  return true;
+#else
+  (void) handle;
+  (void) source;
+  (void) whiteNits;
+  (void) hlg;
+  (void) out;
+  (void) outBytes;
+  return false;
+#endif
 }
 
 }  // namespace deckboy::gpu

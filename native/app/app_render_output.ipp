@@ -4200,15 +4200,17 @@
       newPixels ||
       stackAnimates;
     if (needsUpload) {
-      if (sourceFrame->format == FramePixelFormat::NV12) {
+      if (sourceFrame->format == FramePixelFormat::NV12 || sourceFrame->format == FramePixelFormat::P010) {
         // NV12 cues never carry CPU effects — MediaEngine only chooses NV12
         // when the cue has no chroma key or color controls. Upload directly.
+        // P010 (an HDR stream) is the same two planes at two bytes a sample.
+        const int bytesPerSample = sourceFrame->format == FramePixelFormat::P010 ? 2 : 1;
         const std::uint8_t* y = sourceFrame->pixels.data();
         const std::uint8_t* uv = y + static_cast<std::size_t>(sourceFrame->width) *
-                                     static_cast<std::size_t>(sourceFrame->height);
+                                     static_cast<std::size_t>(sourceFrame->height) * bytesPerSample;
         SDL_UpdateNVTexture(bridgeTexture, nullptr,
-                            y, sourceFrame->width,
-                            uv, sourceFrame->width);
+                            y, sourceFrame->width * bytesPerSample,
+                            uv, sourceFrame->width * bytesPerSample);
       } else {
         const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
         const bool wantsStack = deckboy::effects::cueEffectStackActive(sourceCue->effects);
@@ -4816,13 +4818,14 @@
       frameIt->second != sourceFrame.index ||
       cueIt->second != cueKey;
     if (needsUpload) {
-      if (sourceFrame.format == FramePixelFormat::NV12) {
+      if (sourceFrame.format == FramePixelFormat::NV12 || sourceFrame.format == FramePixelFormat::P010) {
+        const int bytesPerSample = sourceFrame.format == FramePixelFormat::P010 ? 2 : 1;
         const std::uint8_t* y = sourceFrame.pixels.data();
         const std::uint8_t* uv = y + static_cast<std::size_t>(sourceFrame.width) *
-                                     static_cast<std::size_t>(sourceFrame.height);
+                                     static_cast<std::size_t>(sourceFrame.height) * bytesPerSample;
         SDL_UpdateNVTexture(bridgeTexture, nullptr,
-                            y, sourceFrame.width,
-                            uv, sourceFrame.width);
+                            y, sourceFrame.width * bytesPerSample,
+                            uv, sourceFrame.width * bytesPerSample);
       } else {
         const std::uint8_t* uploadPixels = sourceFrame.pixels.data();
         if (cueHasPixelEffects(renderCue)) {
@@ -5855,7 +5858,11 @@
       st2110RouteActive || webMonitorRouteActive ||
       std::clamp(output.outputDelayMs, 0, 5000) > 0;
     bool needsEgressCapture = egressForOthers || (scopesRouteActive && !scopesReadHdr);
-    double fpsHint = 30.0;
+    // THE OUTPUT'S OWN RATE unless a clip says otherwise. This was a flat 30,
+    // so a live feed, a graphic or a generator on a 50 or 60 Hz output was
+    // streamed, sent and recorded at 30 -- half its motion gone.
+    const double displayHz = outputDisplayRefreshHz(outputIndex);
+    double fpsHint = displayHz > 1.0 ? displayHz : 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
       const Cue* layerCue = activeCuePtr(it->second);
       if (layerCue && layerCue->kind == CueKind::Video) {
@@ -5887,7 +5894,13 @@
       const bool scopesOnlyTooSoon = !egressForOthers && runtime->lastEgressCaptureAtMs > 0 &&
                                      SDL_GetTicks() - runtime->lastEgressCaptureAtMs < 100;
       if (!scopesOnlyTooSoon) {
-        captureOutputFrameForEgress(outputIndex, *runtime, egressRect, fpsHint);
+        // An HDR stream with nothing else on this output reads only the HDR
+        // frame: the SDR one would be read back for nobody.
+        const bool hdrOnly = runtime->streamHdr && streamRouteActive && !ndiRouteActive &&
+                             !deckLinkRouteActive && !spoutRouteActive && !st2110RouteActive &&
+                             !webMonitorRouteActive && std::clamp(output.outputDelayMs, 0, 5000) == 0 &&
+                             !(scopesRouteActive && !scopesReadHdr);
+        captureOutputFrameForEgress(outputIndex, *runtime, egressRect, fpsHint, hdrOnly);
       }
       if (scopesRouteActive && !scopesReadHdr) {
         scopesOfferFrame(outputIndex, *runtime);

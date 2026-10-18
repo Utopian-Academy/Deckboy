@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-17 - v0.99.416 (two projectors that add up to one picture, HLG, HDR streams)
+## 2026-10-17 - v0.99.416 (graphics over an HDR feed, HDR in and out at 4K60; two projectors that add up to one picture)
 
 ### Outputs
 - Fixed an issue where two projectors blended with **Edge blend** showed a dark band down the
@@ -17,6 +17,20 @@
 - The card is now called **EDGE BLEND** (it was **EDGE FEATHERING**).
 
 ### HDR
+- Deckboy now puts graphics over an **HDR feed** and sends it on as HDR. An SRT feed in PQ or HLG
+  comes in, playlists layer over it, and the output goes out as an HDR SRT or RTMP stream or an HDR
+  recording. Measured end to end on a Windows laptop (RTX 4070), with a known grey ladder from 0.5 to
+  4000 nits as the feed and a white graphic laid over it: every grey arrives within one code of what
+  was sent, the graphic's white lands on exactly the 203-nit code (BT.2408 graphics white), and the
+  stream runs a full **60 fps at 4K and at 1080p**, in PQ and in HLG.
+- Added **HDR input** to stream cues: **HDR input** in the cue's inspector (SDR, PQ or HLG), or
+  `STREAM HDR SDR|PQ|HLG`. A stream is never probed, so the operator says what the feed carries. On
+  Windows an HDR feed keeps its highlights on an HDR output; on macOS and Linux it is converted to
+  SDR the way an HDR file is there. `STREAM ADD <url>` adds a stream cue over the control port.
+- HDR recordings and streams use the machine's hardware HEVC 10-bit encoder (NVIDIA NVENC, Intel
+  Quick Sync or AMD AMF) when it has one that works, and on Windows the HDR picture is converted
+  for the encoder on the GPU. Measured at 4K: the CPU conversion took 12-19 ms a frame; on the GPU
+  the stream holds 60 fps with no CPU conversion at all.
 - Added **HLG** recording: **Settings > Video Outputs > Screen > HDR signal** (or
   `OUTPUT HDR SIGNAL HLG`) records an HDR output as HLG (BT.2100, HEVC Main10, BT.2020) instead of
   HDR10. SDR material at 203 nits lands on 75% and 1000 nits on 100%; measured on a grey ladder
@@ -26,8 +40,16 @@
   step of a 0.5-4000 nit grey ladder within one code. RTMP carries HEVC as enhanced RTMP, which the
   receiving server has to support. The Web Monitor stays H.264 SDR, which is what browsers play.
 - Fixed an issue where HDR recordings came out about 0.35% too bright (a full-scale white recorded
-  as code 943 instead of 940), when the installed ffmpeg includes the zscale filter. Without it,
-  recordings are as before.
+  as code 943 instead of 940).
+
+### Streaming and recording
+- Fixed an issue where a stream or recording ran slower than it should when its rate did not divide
+  the output's refresh: on a 60 Hz output a 25 fps stream went out at 20, and 50 at 30. The rate is
+  now exact on average.
+- Fixed an issue where a stream, or a recording set to follow the programme, ran at 30 fps whenever
+  the programme was not a video clip -- a live feed, a still, a generator or a graphic -- even on a
+  50 or 60 Hz output. It now runs at the output's own refresh (exact for 59.94). A video clip still
+  sets the rate, as before.
 
 ## 2026-10-17 - v0.99.415 (clean lines on a warped projection)
 

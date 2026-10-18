@@ -9746,6 +9746,32 @@
                    "min / " + std::to_string(project_.recordingSegmentMegabytes) + "MB");
       return;
     }
+    // STREAM ADD <url>: a stream cue (SRT, RTMP, RTSP, UDP) on the focused deck.
+    if (command == "STREAM" && parts.size() >= 3 && toUpper(parts[1]) == "ADD") {
+      const std::string url = joinParts(parts, 2);
+      if (url.find("://") == std::string::npos) {
+        failRemoteCommand("STREAM ADD: expected a URL, e.g. srt://host:port");
+        return;
+      }
+      addSrtStreamCue(url);
+      remoteCommandDetail_ = "stream cue " + std::to_string(focusedDeck().cues.size());
+      return;
+    }
+    // STREAM HDR SDR|PQ|HLG: what the selected stream cue's feed carries.
+    if (command == "STREAM" && parts.size() >= 2 && toUpper(parts[1]) == "HDR") {
+      const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+      const int transfer = value == "SDR" ? 0 : value == "PQ" ? 1 : value == "HLG" ? 2 : -1;
+      if (transfer < 0) {
+        failRemoteCommand("STREAM HDR: expected SDR, PQ or HLG");
+        return;
+      }
+      if (!setSelectedStreamHdr(transfer)) {
+        failRemoteCommand("STREAM HDR: select a stream cue first");
+        return;
+      }
+      remoteCommandDetail_ = std::string("HDR input ") + liveHdrLabel(transfer);
+      return;
+    }
     if (command == "RECORD" || command == "REC") {
       // toggleRecording already answers with failRemoteCommand when it cannot
       // create the output, so the caller gets a reason rather than a silent OK.

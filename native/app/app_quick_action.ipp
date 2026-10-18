@@ -527,6 +527,9 @@
       case QuickAction::ScopesSourceCycle: cycleScopesSource(); break;
       case QuickAction::MicInputCycle: cycleSelectedMicInput(); break;
       case QuickAction::MicChannelCycle: cycleSelectedMicChannel(); break;
+      case QuickAction::StreamHdrCycle:
+        if (const Cue* cue = selectedCueMutable()) setSelectedStreamHdr((cue->liveHdrTransfer + 1) % 3);
+        break;
       case QuickAction::MicGainDec: adjustSelectedMicGain(-1.0f); break;
       case QuickAction::MicGainInc: adjustSelectedMicGain(1.0f); break;
       case QuickAction::MicClipReset: resetSelectedMicClip(); break;

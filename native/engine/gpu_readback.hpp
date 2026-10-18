@@ -32,7 +32,10 @@ inline constexpr int kAsyncReadbackDepth = 3;
 // today anything that is not D3D11, which means macOS and Linux. Callers MUST
 // fall back to SDL_RenderReadPixels; see DEVNOTES for what that costs and what
 // closing the gap would actually take.
-void* createStagingReadback(SDL_Renderer* renderer, int width, int height);
+// halfFloat: the source is RGBA half floats (an HDR output's compositor,
+// SDL_PIXELFORMAT_RGBA64_FLOAT), read back 8 bytes a pixel as they are.
+// Otherwise BGRA, 4 bytes a pixel.
+void* createStagingReadback(SDL_Renderer* renderer, int width, int height, bool halfFloat = false);
 void destroyStagingReadback(void* handle);
 
 // False when no frame was ready this tick (ring priming, or the GPU is still
@@ -40,6 +43,20 @@ void destroyStagingReadback(void* handle);
 bool stagingReadbackFrame(void* handle, SDL_Texture* source,
                           std::uint8_t* out, std::size_t outBytes,
                           int width, int height);
+
+// AN HDR OUTPUT'S PICTURE AS P010, MADE ON THE GPU. A compute shader reads the
+// float (scRGB, half-float) compositor and writes 10-bit BT.2020 NCL Y'CbCr,
+// limited range, 4:2:0, in PQ or HLG -- core/hdr_to_sdr.hpp's
+// HdrEncoder::convertHalfToP010, which stays the fallback -- and the result
+// comes back through the same kind of staging ring: never waited on, a few
+// frames behind, false meaning "nothing new yet". MEASURED on the CPU: 12-19 ms
+// a 4K frame on 28 threads held a 4K HLG stream under 50 fps.
+// Direct3D 11 only (null elsewhere, and where the shader cannot be compiled);
+// width and height even. `out` gets the luma plane then the chroma plane.
+void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height);
+void destroyHdrP010Readback(void* handle);
+bool hdrP010ReadbackFrame(void* handle, SDL_Texture* source, float whiteNits, bool hlg,
+                          std::uint8_t* out, std::size_t outBytes);
 
 }  // namespace deckboy::gpu
 

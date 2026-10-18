@@ -1042,6 +1042,30 @@ within two seconds the output is rebuilt to match. A recording has no screen of
 its own, so AUTO leaves it SDR; it still records HDR10 when the output it
 mirrors is running HDR.
 
+#### Graphics over an HDR feed
+
+The broadcast job: an HDR feed comes in, graphics go over it, and it leaves as
+HDR.
+
+1. Add the feed as a stream cue (**SOURCE → Stream Cue**, or `STREAM ADD
+   srt://host:port`) and set its **HDR input** in the inspector to what the
+   feed carries: **PQ** (HDR10) or **HLG**. A stream is never probed -- it may
+   not exist until it connects -- so Deckboy cannot tell by itself.
+2. Turn **HDR** on for the output, and set its **HDR signal** to what the far
+   end wants.
+3. Put the graphics on a second playlist layered over the first (§11). They
+   sit at 203 nits, BT.2408's graphics white.
+4. Send it out: a stream or recording output that mirrors this output carries
+   HDR (above).
+
+Measured end to end on Windows with a ladder of greys from 0.5 to 4000 nits as
+the feed and a white graphic over it: every grey arrives within one code of
+what was sent, the graphic's white lands on exactly the 203-nit code, and the
+stream runs 60 fps at 4K and at 1080p, PQ and HLG. On Windows the conversion
+for the encoder runs on the GPU and the encoder is the machine's hardware HEVC
+10-bit one where there is one (NVENC, Quick Sync, AMF). On macOS and Linux an
+HDR feed is converted to SDR on the way in, as an HDR file is there.
+
 The **HDR** row, and `OUTPUT HDR STATUS`, say whether the output is really running HDR (a renderer
 or display that cannot falls back to SDR, with a warning) and the display's own
 SDR white level and headroom. `--devices` lists which displays are in HDR.

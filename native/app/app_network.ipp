@@ -3249,6 +3249,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "        OUTPUT ADD [<deck>] | SELECT <n> | DECK [<n>] - a second screen, and which deck it shows\n"
         "        OUTPUT AOI [<WxH>|FULL [<x> <y>]] | OUTPUT AOI MODE PIXEL|FILL - send just this region, e.g. one 256x256 LED tile\n"
         "        OUTPUT HDR ON|OFF|AUTO|STATUS | WHITE <nits> | SIGNAL PQ|HLG - HDR on this output, and how it leaves as a signal\n"
+        "        STREAM HDR SDR|PQ|HLG - what the selected stream cue's feed carries (a stream is never probed)\n"
         "super deckboy: DECKADD - another playlist | DECKREMOVE [<n>] - take one away (UNDO brings it back)\n"
         "edit: UNDO | REDO - the same as ctrl+z / ctrl+y on the desk\n"
         "interface: LANGUAGE [<code>] - the desk's language (en, ar, fa, ja, zh-Hans ...); no code answers the current one\n"

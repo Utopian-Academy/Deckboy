@@ -28,6 +28,10 @@ ROOT = Path(__file__).resolve().parent.parent
 def launch(root, state, show, port, log):
     env = dict(os.environ, DECKBOY_ROOT=str(root), DECKBOY_STATE_DIR=str(state), DECKBOY_PROJECT=str(show),
                DECKBOY_COMPANION_PORT=str(port), DECKBOY_HIDE_WINDOWS="1", DECKBOY_OUTPUT_RENDERER="direct3d11")
+    # Hidden windows have their presents THROTTLED by Windows (measured: ~22 fps
+    # whatever the content), so a frame-rate measurement needs them shown.
+    if os.environ.get("DECKBOY_TEST_SHOW_WINDOWS") == "1":
+        env.pop("DECKBOY_HIDE_WINDOWS", None)
     app = subprocess.Popen([str(ROOT / "build/windows/Release/Deckboy.exe"), "--allow-multi-instance", str(show)],
                            env=env, cwd=ROOT, stdout=log, stderr=log)
     for _ in range(200):

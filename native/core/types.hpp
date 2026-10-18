@@ -1753,6 +1753,11 @@ struct Cue {
   // Tone generator settings. Only meaningful when kind == CueKind::Tone.
   ToneSettings tone;
   MicChannel micChannel = MicChannel::MonoLeft;   // a Mic cue: which part of the input plays
+  // A LIVE STREAM cue's HDR: 0 SDR, 1 PQ (HDR10), 2 HLG. A feed is never
+  // probed -- it may not exist until it connects -- so the operator says
+  // what it carries, the way a router's input is configured. SDR is every
+  // stream cue made before this existed.
+  int liveHdrTransfer = 0;
   // The operator's effect stack, applied in list order. Empty on every cue
   // that has never had one, which is the common case and costs nothing.
   std::vector<deckboy::effects::CueEffect> effects;
@@ -2902,12 +2907,12 @@ enum class FramePixelFormat {
   RGBA32,  // default, 32 bpp interleaved — works with all CPU pixel paths
   NV12,    // 12 bpp planar Y + interleaved UV — live video decode only
   P010,    // 10-bit planar Y + interleaved UV, 16 bpp samples with the data in
-           // the HIGH bits. GPU-ONLY: this is what a d3d11va surface carries
-           // for HEVC Main 10 / VP9 Profile 2 / AV1 10-bit, and it exists in
-           // Deckboy solely as a zero-copy frame. Nothing ever produces P010
-           // CPU pixels — downloadGpuFrame() converts to NV12 on the way down
-           // — so every `pixels.data()` upload site can keep testing for NV12
-           // alone and stay correct.
+           // the HIGH bits. What a d3d11va surface carries for HEVC Main 10 /
+           // VP9 Profile 2 / AV1 10-bit as a zero-copy frame -- and, since
+           // 0.99.416, the CPU frame of an HDR STREAM on Windows
+           // (startSrtDecoder), tagged BT.2020 PQ. So an upload site that
+           // handles NV12's two planes must handle P010's too, at two bytes
+           // a sample; the engine and both output bridges do.
 };
 
 // ---------------------------------------------------------------------------
@@ -3461,6 +3466,7 @@ enum class QuickAction {
   ScopesSourceCycle,      // what the scopes measure: programme, then each output
   MicInputCycle,          // a Mic cue's input: Settings' input, then each device
   MicChannelCycle,        // MONO L -> MONO R -> STEREO
+  StreamHdrCycle,         // a stream cue's HDR input: SDR -> PQ -> HLG
   MicGainDec,             // the cue's gain, in dB
   MicGainInc,
   MicClipReset,           // clear the latched CLIP

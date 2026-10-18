@@ -980,6 +980,8 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << static_cast<int>(cue.micChannel)
         // vs+146: a DMX cue's fixture levels (see serializeFixtureLevels).
         << '\t' << escapeField(serializeFixtureLevels(cue.dmxFixtures))
+        // vs+147: a stream cue's HDR (0 SDR, 1 PQ, 2 HLG).
+        << '\t' << cue.liveHdrTransfer
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2593,6 +2595,9 @@ Project loadProject(const fs::path& projectFile,
         }
         if (fields.size() >= static_cast<std::size_t>(vs + 147)) {
           cue.dmxFixtures = parseFixtureLevels(safeString(fields, vs + 146));
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 148)) {
+          cue.liveHdrTransfer = std::clamp(safeInt(fields, vs + 147, 0), 0, 2);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

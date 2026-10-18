@@ -1405,19 +1405,6 @@
     return chosen;
   }
 
-  // Does this ffmpeg have zscale (libzimg)? The HDR recording's R'G'B' to
-  // Y'CbCr goes through it when it does: swscale turns full-range 16-bit RGB
-  // into limited-range 10-bit 0.35% hot (MEASURED: a full-scale white came
-  // out 943, not 940; 75% came out 724, not 721), and zscale gets both
-  // exactly. Builds without it keep swscale, which is close.
-  static bool ffmpegHasZscale() {
-    static const bool has = [] {
-      const auto text = readAllText({"ffmpeg", "-hide_banner", "-filters"});
-      return text && text->find(" zscale ") != std::string::npos;
-    }();
-    return has;
-  }
-
   // Is anything actually going OUT of the box right now — a recording, a
   // stream, NDI, DeckLink, Spout or ST 2110? While something is, the capture
   // path is on the critical path and the UI must not pace the loop.
@@ -1588,12 +1575,47 @@
   // nits, the common default; MaxCLL/MaxFALL are left unknown (0) rather than
   // guessed. HLG carries no static metadata: it is relative to the display by
   // design, so it is tagged and nothing more.
+  // A HARDWARE HEVC Main10 encoder, when this machine has one that works.
+  // MEASURED (RTX 4070 laptop, 4K50 from the same rgb48 + zscale input):
+  // libx265 veryfast 25 fps on its own and about 5 inside a running show --
+  // an HDR stream that falls further behind every second -- against NVENC's
+  // 72. Each candidate is asked to ENCODE a frame, not just found in the
+  // list: ffmpeg builds list NVENC on machines with no NVIDIA card at all.
+  static const std::string& hdrHardwareHevcEncoder() {
+    static const std::string chosen = [] {
+      // DECKBOY_HDR_ENCODER=hevc_qsv (or libx265 for the CPU) overrides the choice.
+      if (const char* forced = std::getenv("DECKBOY_HDR_ENCODER"); forced && *forced) {
+        return std::string(forced) == "libx265" ? std::string() : std::string(forced);
+      }
+      for (const char* candidate : {"hevc_nvenc", "hevc_qsv", "hevc_amf"}) {
+        if (readAllText({"ffmpeg", "-hide_banner", "-v", "error", "-f", "lavfi", "-i",
+                         "color=c=black:s=256x144:r=25", "-frames:v", "1", "-pix_fmt", "p010le",
+                         "-c:v", candidate, "-profile:v", "main10", "-f", "null", "-"})) {
+          return std::string(candidate);
+        }
+      }
+      return std::string();
+    }();
+    return chosen;
+  }
+
   std::vector<std::string> hdrRecordingCodecArgs(bool hlg, bool stream = false) const {
     const std::string c = normalizeRecordingCodec(project_.recordingCodec);
     // A STREAM is HEVC Main10 whatever the recording codec says: ProRes over
     // SRT or RTMP is not a thing anything receives.
     if (!stream && (recordingCodecIsProRes(c) || c == "dnxhr_hqx")) {
       return recordingCodecArgs();
+    }
+    // The colour tags go into the VUI from the -color_* options the caller
+    // adds; HDR10's mastering metadata is x265's alone, and optional.
+    const std::string& hardware = hdrHardwareHevcEncoder();
+    if (!hardware.empty()) {
+      std::vector<std::string> args {"-c:v", hardware, "-profile:v", "main10", "-pix_fmt", "p010le", "-tag:v", "hvc1"};
+      if (hardware == "hevc_nvenc") {
+        args.insert(args.end(), {"-preset", "p4"});
+        if (stream) args.insert(args.end(), {"-tune", "ll"});
+      }
+      return args;
     }
     if (hlg) {
       return {"-c:v", "libx265", "-preset", "veryfast", "-pix_fmt", "yuv420p10le", "-tag:v", "hvc1",
@@ -1829,6 +1851,28 @@
                        std::to_string(webEncodeHeight()) + "p",
                  ToastKind::Warning, kToastReadableMs);
     webMonitorDirSyncedMs_ = 0;
+  }
+
+  // The refresh of the display an output is on, exact for 59.94 and 29.97
+  // (SDL's rational rate); a stream or recording output, which has no display,
+  // takes the one of the output it mirrors. 0 when nobody knows.
+  double outputDisplayRefreshHz(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return 0.0;
+    const OutputTarget& out = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    if (normalizeOutputType(out.outputType) == "stream") {
+      const int mirror = out.mirrorSourceOutputIndex;
+      if (mirror < 0 || mirror == outputIndex || mirror >= static_cast<int>(project_.outputs.size())) return 0.0;
+      outputIndex = mirror;
+    }
+    const int displayCount = deckboyGetNumVideoDisplays();
+    if (displayCount <= 0) return 0.0;
+    const int displayIndex = std::clamp(outputDisplayIndex(outputIndex), 0, displayCount - 1);
+    const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(deckboyDisplayIdFromIndex(displayIndex));
+    if (!mode) return 0.0;
+    if (mode->refresh_rate_numerator > 0 && mode->refresh_rate_denominator > 0) {
+      return static_cast<double>(mode->refresh_rate_numerator) / mode->refresh_rate_denominator;
+    }
+    return mode->refresh_rate > 0.0f ? static_cast<double>(mode->refresh_rate) : 0.0;
   }
 
   double outputStreamFps(double fpsHint) const {
@@ -2326,9 +2370,9 @@
       // raster, and a slow encoder pushes back on the writer as it should.
       "-thread_queue_size", std::to_string(std::clamp(
         (256 * 1024 * 1024) /
-          std::max(1, width * height * (hdrRecord ? 6 : 4)), 8, 512)),
+          std::max(1, width * height * (hdrRecord ? 3 : 4)), 8, 512)),
       "-f", "rawvideo",
-      "-pix_fmt", hdrRecord ? "rgb48le" : "bgra",
+      "-pix_fmt", hdrRecord ? "p010le" : "bgra",
       "-video_size", std::to_string(width) + "x" + std::to_string(height),
       "-framerate", fpsText.str(),
       // KNOWN LIMITATION, measured twice. -framerate is a PROMISE the capture
@@ -2353,13 +2397,15 @@
       "-f", audioInputPath.empty() ? "lavfi" : "s16le"
     };
     if (hdrRecord) {
-      // The INPUT says what it is: PQ BT.2020 R'G'B', full range. Untagged,
-      // ffmpeg's scaler took it for SDR and CONVERTED it to the PQ the output
-      // is tagged with -- encoding an already-PQ signal twice (measured: 4000
-      // nits recorded as ~8900, 0.5 as ~0.1).
+      // The INPUT says what it is: P010, BT.2020 NCL limited, in the output's
+      // transfer -- the writer thread made it so (HdrEncoder::convertHalfToP010).
+      // Untagged, ffmpeg took an earlier rgb48 version of this for SDR and
+      // CONVERTED it, encoding an already-PQ signal twice (measured: 4000 nits
+      // recorded as ~8900).
       args.insert(std::find(args.begin(), args.end(), "-i"),
-                  {"-color_primaries", "bt2020", "-color_trc", hdrSignalHlg(hdrRecordingSource(outputIndex)) ? "arib-std-b67" : "smpte2084",
-                   "-colorspace", "rgb", "-color_range", "pc"});
+                  {"-color_primaries", "bt2020",
+                   "-color_trc", hdrSignalHlg(hdrRecordingSource(outputIndex)) ? "arib-std-b67" : "smpte2084",
+                   "-colorspace", "bt2020nc", "-color_range", "tv"});
     }
     if (audioInputPath.empty()) {
       // lavfi takes its rate and layout INSIDE the graph description. Passing
@@ -2388,15 +2434,8 @@
       const int wantW = project_.recordingWidth;
       const int wantH = project_.recordingHeight;
       const bool resize = wantW > 0 && wantH > 0 && (wantW != width || wantH != height);
-      if (hdrRecord && ffmpegHasZscale()) {
-        args.insert(args.end(), {"-vf",
-          (resize ? "scale=w=" + std::to_string(wantW) + ":h=" + std::to_string(wantH) + ":flags=bicubic," : std::string()) +
-          "zscale=matrixin=input:matrix=2020_ncl:rangein=full:range=limited"});
-      } else if (hdrRecord) {
-        args.insert(args.end(), {"-vf", "scale=" +
-          (resize ? "w=" + std::to_string(wantW) + ":h=" + std::to_string(wantH) + ":flags=bicubic:" : std::string()) +
-          "out_color_matrix=bt2020:out_range=tv"});
-      } else if (resize) {
+      if (resize) {
+        // An HDR frame arrives as P010 already: the scale stays in Y'CbCr.
         args.insert(args.end(),
                     {"-vf", "scale=" + std::to_string(wantW) + ":" +
                             std::to_string(wantH) + ":flags=bicubic"});
@@ -2405,10 +2444,7 @@
       args.insert(args.end(), codecArgs.begin(), codecArgs.end());
     } else if (hdrRecord) {
       // An HDR STREAM (SRT, RTMP -- RTMP carries HEVC as enhanced RTMP): the
-      // same exact conversion and 10-bit HEVC as an HDR recording.
-      args.insert(args.end(), {"-vf", ffmpegHasZscale()
-        ? std::string("zscale=matrixin=input:matrix=2020_ncl:rangein=full:range=limited")
-        : std::string("scale=out_color_matrix=bt2020:out_range=tv")});
+      // writer's P010 straight into 10-bit HEVC, as an HDR recording.
       const std::vector<std::string> codecArgs =
         hdrRecordingCodecArgs(hdrSignalHlg(hdrRecordingSource(outputIndex)), true);
       args.insert(args.end(), codecArgs.begin(), codecArgs.end());
@@ -2429,10 +2465,12 @@
                                  "-vf", "scale=-2:min(" + std::to_string(maxHeight) + "\\,ih):flags=bicubic"});
       }
     }
-    if (!toFile) {
+    if (!toFile && !(hdrRecord && !hdrHardwareHevcEncoder().empty())) {
       // zerolatency exists to cut STREAM delay: it disables lookahead and
       // B-frames, which costs real quality. A recording is not watched live,
-      // so it keeps the encoder's normal behaviour.
+      // so it keeps the encoder's normal behaviour. An HDR stream on a
+      // hardware encoder has its own low-latency tune (hdrRecordingCodecArgs);
+      // this one is x264's and x265's, and NVENC refuses it.
       args.insert(args.end(), {"-tune", "zerolatency"});
     }
     if (hdrRecord) {
@@ -2746,6 +2784,32 @@
     writer->videoPipeFd = videoPipeFd;
     writer->audioPipeFd.store(audioPipeFd, std::memory_order_release);
     writer->thread = std::thread([writer]() {
+      // An HDR packet's half floats, encoded here into P010, once per distinct
+      // picture (the pacer's repeats share the same buffer, so they share this
+      // too) -- and WHILE the previous picture is still going down the pipe.
+      // Converting and writing one after the other added up: at 4K, 12-19 ms
+      // of conversion plus ~12 of pipe held an HLG stream to 45 fps
+      // (MEASURED). Two buffers and the write on its own thread make it the
+      // longer of the two instead of the sum. One write in flight at a time,
+      // so frames still go down the pipe in order.
+      std::array<std::vector<std::uint8_t>, 2> encoded;
+      std::array<std::shared_ptr<const std::vector<std::uint8_t>>, 2> encodedFrom;
+      std::future<bool> inFlight;
+      int inFlightBuffer = -1;
+      std::size_t inFlightBytes = 0;
+      std::shared_ptr<const std::vector<std::uint8_t>> inFlightHold;   // its bytes, alive until written
+      auto finishWrite = [&]() -> bool {
+        if (!inFlight.valid()) return true;
+        const bool ok = inFlight.get();
+        if (ok) {
+          std::lock_guard<std::mutex> lock(writer->mutex);
+          writer->packetsWritten += 1;
+          writer->videoBytesWritten += static_cast<std::uint64_t>(inFlightBytes);
+        }
+        inFlightBuffer = -1;
+        inFlightHold.reset();
+        return ok;
+      };
       for (;;) {
         OutputStreamPacket packet;
         {
@@ -2769,21 +2833,55 @@
 
         if (packet.videoBytes && !packet.videoBytes->empty() &&
             writer->videoPipeFd >= 0) {
-          if (!writeOutputStreamBytesBlocking(
-                writer,
-                writer->videoPipeFd,
-                packet.videoBytes->data(),
-                packet.videoBytes->size(),
-                "stream video stopped")) {
+          const std::vector<std::uint8_t>* bytes = packet.videoBytes.get();
+          int buffer = -1;
+          if (packet.hdrEncoder) {
+            const std::size_t pixels = static_cast<std::size_t>(packet.width) * packet.height;
+            if (packet.videoBytes->size() < pixels * 8) continue;
+            for (int k = 0; k < 2; ++k) {
+              if (encodedFrom[static_cast<std::size_t>(k)] == packet.videoBytes) buffer = k;
+            }
+            if (buffer < 0) {
+              buffer = inFlightBuffer == 0 ? 1 : 0;   // never the one being written
+              static const bool bench = [] {
+                const char* e = std::getenv("DECKBOY_EGRESS_BENCH");
+                return e && *e;
+              }();
+              const Uint64 c0 = SDL_GetPerformanceCounter();
+              // P010: a luma plane, then interleaved chroma at half height.
+              std::vector<std::uint8_t>& out = encoded[static_cast<std::size_t>(buffer)];
+              out.resize(pixels * 3);
+              auto* yPlane = reinterpret_cast<std::uint16_t*>(out.data());
+              packet.hdrEncoder->convertHalfToP010(reinterpret_cast<const std::uint16_t*>(packet.videoBytes->data()),
+                                                   packet.width, packet.height, packet.width * 4,
+                                                   yPlane, yPlane + pixels);
+              encodedFrom[static_cast<std::size_t>(buffer)] = packet.videoBytes;
+              if (bench) {
+                static int n = 0;
+                static double sum = 0;
+                sum += (SDL_GetPerformanceCounter() - c0) * 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+                if (++n == 60) {
+                  std::cerr << "hdr-writer convert=" << sum / n << "ms" << std::endl;
+                  n = 0;
+                  sum = 0;
+                }
+              }
+            }
+            bytes = &encoded[static_cast<std::size_t>(buffer)];
+          }
+          if (!finishWrite()) {
             break;
           }
-          {
-            std::lock_guard<std::mutex> lock(writer->mutex);
-            writer->packetsWritten += 1;
-            writer->videoBytesWritten += static_cast<std::uint64_t>(packet.videoBytes->size());
-          }
+          inFlightBuffer = buffer;
+          inFlightBytes = bytes->size();
+          inFlightHold = packet.videoBytes;
+          const int fd = writer->videoPipeFd;
+          inFlight = std::async(std::launch::async, [writer, fd, bytes]() {
+            return writeOutputStreamBytesBlocking(writer, fd, bytes->data(), bytes->size(), "stream video stopped");
+          });
         }
       }
+      finishWrite();
       // Nothing more will be queued, so release anyone waiting on audio.
       {
         std::lock_guard<std::mutex> audioLock(writer->audioMutex);
@@ -3516,7 +3614,8 @@
     std::vector<std::string> args = buildOutputStreamArgs(
       outputIndex, width, height, fpsHint, videoInputPath, audioInputPath, takeFramesSoFar);
 #endif
-    runtime->streamHdr = std::find(args.begin(), args.end(), "rgb48le") != args.end();
+    runtime->streamHdr = hdrRecordingFor(outputIndex) &&
+      !outputStreamProtocolIsWeb(normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol));
     if (runtime->streamHdr) {
       const OutputRuntime& source = outputRuntimes_[static_cast<std::size_t>(hdrRecordingSource(outputIndex))];
       runtime->streamHdrWidth = source.compositorWidth;
@@ -3939,16 +4038,134 @@
 
   // The float compositor of an HDR output, read back whole and encoded as
   // 16-bit BT.2020 R'G'B' (6 bytes a pixel), PQ or HLG. False when there is none.
-  bool readHdrCompositorSignal(const OutputRuntime& runtime, OutputRuntime::CapturedFrame& frame, bool hlg) {
-    SDL_Surface* got = readHdrCompositorRaw(runtime);
-    if (!got) return false;
-    std::unique_ptr<deckboy::core::hdr::HdrEncoder>& encoder = hdrRecordEncoders_[hlg ? 1 : 0];
+  bool readHdrCompositorSignal(OutputRuntime& runtime, OutputRuntime::CapturedFrame& frame, bool hlg) {
+    std::shared_ptr<const deckboy::core::hdr::HdrEncoder>& encoder = hdrRecordEncoders_[hlg ? 1 : 0];
     int& white = hdrRecordEncoderWhite_[hlg ? 1 : 0];
     if (!encoder || white != project_.hdrSdrWhiteNits) {
-      encoder = std::make_unique<deckboy::core::hdr::HdrEncoder>(
+      encoder = std::make_shared<const deckboy::core::hdr::HdrEncoder>(
         project_.hdrSdrWhiteNits, hlg ? deckboy::core::hdr::Transfer::Hlg : deckboy::core::hdr::Transfer::Pq);
       white = project_.hdrSdrWhiteNits;
     }
+    // A pooled buffer nobody else holds any more (the writer has written it),
+    // or a new one; a handful at most, since the writer's queue is bounded.
+    auto pooledBuffer = [this](std::size_t bytes) {
+      for (auto& pooled : hdrFramePool_) {
+        if (pooled.use_count() == 1 && pooled->size() == bytes) return pooled;
+      }
+      hdrFramePool_.erase(std::remove_if(hdrFramePool_.begin(), hdrFramePool_.end(),
+                                         [&](const auto& b) { return b.use_count() == 1 && b->size() != bytes; }),
+                          hdrFramePool_.end());
+      auto fresh = std::make_shared<std::vector<std::uint8_t>>(bytes);
+      if (hdrFramePool_.size() < 12) hdrFramePool_.push_back(fresh);
+      return fresh;
+    };
+    // GPU P010 FIRST (Direct3D 11): the shader does what the writer's CPU
+    // conversion would, and the frame goes down the pipe as it comes back.
+    if (runtime.hdr && runtime.compositorTexture && !runtime.hdrP010Unavailable) {
+      const int w = runtime.compositorWidth, h = runtime.compositorHeight;
+      if (runtime.hdrP010Readback && (runtime.hdrReadbackW != w || runtime.hdrReadbackH != h)) {
+        deckboy::gpu::destroyHdrP010Readback(runtime.hdrP010Readback);
+        runtime.hdrP010Readback = nullptr;
+      }
+      if (!runtime.hdrP010Readback) {
+        runtime.hdrP010Readback = deckboy::gpu::createHdrP010Readback(runtime.outputRenderer, w, h);
+        runtime.hdrReadbackW = w;
+        runtime.hdrReadbackH = h;
+        runtime.hdrP010Unavailable = runtime.hdrP010Readback == nullptr;
+      }
+      if (runtime.hdrP010Readback) {
+        const std::size_t bytes = static_cast<std::size_t>(w) * h * 3;
+        std::shared_ptr<std::vector<std::uint8_t>> buffer = pooledBuffer(bytes);
+        if (deckboy::gpu::hdrP010ReadbackFrame(runtime.hdrP010Readback, runtime.compositorTexture,
+                                               static_cast<float>(project_.hdrSdrWhiteNits), hlg,
+                                               buffer->data(), bytes)) {
+          frame.width = w;
+          frame.height = h;
+          frame.pixels.clear();
+          frame.shared = buffer;
+          frame.hdrEncoder = nullptr;   // P010 already: the writer sends it as it is
+          runtime.hdrP010Misses = 0;
+          return true;
+        }
+        if (++runtime.hdrP010Misses >= 30) {
+          std::cerr << "hdr-capture: GPU P010 produced nothing for " << runtime.hdrP010Misses
+                    << " frames; converting on the CPU" << std::endl;
+          deckboy::gpu::destroyHdrP010Readback(runtime.hdrP010Readback);
+          runtime.hdrP010Readback = nullptr;
+          runtime.hdrP010Unavailable = true;
+        }
+        return false;
+      }
+    }
+    // ASYNCHRONOUS: the ring hands back a frame the GPU finished a few frames
+    // ago and never waits. False is "nothing new yet": the previous frame
+    // stands, as on the SDR path.
+    if (runtime.hdr && runtime.compositorTexture && !runtime.hdrReadbackUnavailable) {
+      const int w = runtime.compositorWidth, h = runtime.compositorHeight;
+      if (runtime.hdrReadback && (runtime.hdrReadbackW != w || runtime.hdrReadbackH != h)) {
+        deckboy::gpu::destroyStagingReadback(runtime.hdrReadback);
+        runtime.hdrReadback = nullptr;
+      }
+      if (!runtime.hdrReadback) {
+        runtime.hdrReadback = deckboy::gpu::createStagingReadback(runtime.outputRenderer, w, h, true);
+        runtime.hdrReadbackW = w;
+        runtime.hdrReadbackH = h;
+        runtime.hdrReadbackUnavailable = runtime.hdrReadback == nullptr;
+      }
+      if (runtime.hdrReadback) {
+        const std::size_t bytes = static_cast<std::size_t>(w) * h * 8;
+        std::shared_ptr<std::vector<std::uint8_t>> buffer = pooledBuffer(bytes);
+        if (deckboy::gpu::stagingReadbackFrame(runtime.hdrReadback, runtime.compositorTexture,
+                                               buffer->data(), bytes, w, h)) {
+          frame.width = w;
+          frame.height = h;
+          frame.pixels.clear();
+          frame.shared = buffer;
+          frame.hdrEncoder = encoder;
+          runtime.hdrReadbackMisses = 0;
+          return true;
+        }
+        // A second of nothing is not a slow GPU, it is a path that does not
+        // work here: retire it and read synchronously from now on.
+        if (++runtime.hdrReadbackMisses >= 30) {
+          std::cerr << "hdr-capture: asynchronous readback produced nothing for "
+                    << runtime.hdrReadbackMisses << " frames; reading synchronously" << std::endl;
+          deckboy::gpu::destroyStagingReadback(runtime.hdrReadback);
+          runtime.hdrReadback = nullptr;
+          runtime.hdrReadbackUnavailable = true;
+        }
+        return false;
+      }
+    }
+    SDL_Surface* got = readHdrCompositorRaw(runtime);
+    if (!got) return false;
+    frame.shared = nullptr;   // the synchronous read fills `pixels`
+    // Half floats are what the writer encodes, whatever the renderer read
+    // back as -- one conversion for every HDR frame, so the writer only ever
+    // has the one kind to turn into P010.
+    if (got->format != SDL_PIXELFORMAT_RGBA64_FLOAT) {
+      SDL_Surface* asHalf = SDL_ConvertSurfaceAndColorspace(got, SDL_PIXELFORMAT_RGBA64_FLOAT, nullptr,
+                                                            SDL_COLORSPACE_SRGB_LINEAR, 0);
+      SDL_DestroySurface(got);
+      got = asHalf;
+      if (!got) return false;
+    }
+    // The compositor's own half floats are handed over AS THEY ARE, with the
+    // encoder; the writer thread encodes them (OutputStreamPacket::hdrEncoder).
+    if (got->format == SDL_PIXELFORMAT_RGBA64_FLOAT) {
+      const std::size_t row = static_cast<std::size_t>(got->w) * 8;
+      frame.width = got->w;
+      frame.height = got->h;
+      frame.pixels.resize(row * static_cast<std::size_t>(got->h));
+      for (int y = 0; y < got->h; ++y) {
+        std::memcpy(frame.pixels.data() + row * static_cast<std::size_t>(y),
+                    static_cast<const std::uint8_t*>(got->pixels) + static_cast<std::size_t>(got->pitch) * y, row);
+      }
+      frame.hdrEncoder = encoder;
+      SDL_DestroySurface(got);
+      return true;
+    }
+    frame.hdrEncoder = nullptr;
     return encodeHdrSurface(got, *encoder, frame);
   }
 
@@ -3996,13 +4213,19 @@
     SDL_DestroySurface(f);
     return true;
   }
-  std::array<std::unique_ptr<deckboy::core::hdr::HdrEncoder>, 2> hdrRecordEncoders_;   // PQ, HLG
+  std::array<std::shared_ptr<const deckboy::core::hdr::HdrEncoder>, 2> hdrRecordEncoders_;   // PQ, HLG
+  std::vector<std::shared_ptr<std::vector<std::uint8_t>>> hdrFramePool_;   // readHdrCompositorSignal
   std::array<int, 2> hdrRecordEncoderWhite_ {};
 
+  // hdrOnly: the HDR stream or recording is this output's ONLY consumer, so
+  // its own SDR picture would be read back and thrown away. MEASURED: that
+  // was 8-12 ms of a 1080p frame's render thread, and what held a 60 Hz HDR
+  // output to 25 once the stream captured every frame.
   bool captureOutputFrameForEgress(int outputIndex,
                                    OutputRuntime& runtime,
                                    const SDL_Rect& requestedRect,
-                                   double fpsHint) {
+                                   double fpsHint,
+                                   bool hdrOnly = false) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !runtime.outputRenderer) {
       return false;
     }
@@ -4017,13 +4240,34 @@
          normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol)))
         ? recordingFps(fpsHint)
         : outputStreamFps(fpsHint);
-    Uint64 minCaptureIntervalMs = static_cast<Uint64>(std::max(1.0, std::floor(1000.0 / std::max(1.0, captureFps))));
-    if (runtime.latestCapturedFrame.width > 0 &&
-        runtime.latestCapturedFrame.height > 0 &&
-        !runtime.latestCapturedFrame.pixels.empty() &&
-        runtime.lastEgressCaptureAtMs > 0 &&
-        nowMs > runtime.lastEgressCaptureAtMs &&
-        nowMs - runtime.lastEgressCaptureAtMs < minCaptureIntervalMs) {
+    // A RUNNING DEADLINE, not "long enough since the last one". The loop
+    // only looks every frame of the output, so the old gate -- capture once
+    // 40 ms have passed -- caught the first look AFTER 40 ms: 50 ms on a 60 Hz
+    // output, and a 25 fps stream went out at 20 (MEASURED, SDR and HDR
+    // alike; 50 fps came out 30). The deadline advances by the interval
+    // itself, so the gaps alternate 50, 33, 50, 33 and the rate is the rate.
+    const double captureIntervalMs = 1000.0 / std::max(1.0, captureFps);
+    const double now = static_cast<double>(nowMs);
+    const OutputRuntime::CapturedFrame& held = hdrOnly ? runtime.hdrRecordFrame : runtime.latestCapturedFrame;
+    if (held.width > 0 && held.height > 0 && !held.empty() &&
+        runtime.nextEgressCaptureDueMs > 0.0 &&
+        now < runtime.nextEgressCaptureDueMs) {
+      return true;
+    }
+    // Late by more than a whole interval (a stall, the first frame): start
+    // again from now rather than firing a burst to catch up.
+    runtime.nextEgressCaptureDueMs =
+      runtime.nextEgressCaptureDueMs > 0.0 && now - runtime.nextEgressCaptureDueMs < captureIntervalMs
+        ? runtime.nextEgressCaptureDueMs + captureIntervalMs
+        : now + captureIntervalMs;
+    if (hdrOnly) {
+      const int source = hdrRecordingSource(outputIndex);
+      // A source showing the test card has already handed over its programme
+      // (renderOutputCompositor); reading it now would record the card.
+      if (source >= 0 && !project_.outputs[static_cast<std::size_t>(source)].outputTestCardEnabled) {
+        captureHdrRecordFrame(outputRuntimes_[static_cast<std::size_t>(source)], runtime, nowMs);
+      }
+      runtime.lastEgressCaptureAtMs = nowMs;
       return true;
     }
     SDL_Rect captureRect = requestedRect;
@@ -4421,18 +4665,18 @@
     }
     const OutputRuntime::CapturedFrame* frame = outputFrameForEgress(outputIndex, *runtime);
     if (runtime->streamHdr) {
-      // The encoder takes PQ rgb48le: its own frame, never the BGRA one, and
+      // The encoder takes the HDR frame (P010 from the writer): never the BGRA one, and
       // only at the raster it was started with (the spec restarts it on a
       // change; until then a frame of another size is not sent).
       const auto& hdrFrame = runtime->hdrRecordFrame;
-      frame = (hdrFrame.pixels.empty() || hdrFrame.width != runtime->streamHdrWidth ||
+      frame = (hdrFrame.empty() || hdrFrame.width != runtime->streamHdrWidth ||
                hdrFrame.height != runtime->streamHdrHeight) ? nullptr : &hdrFrame;
     }
-    if ((!frame || frame->width <= 0 || frame->height <= 0 || frame->pixels.empty()) &&
+    if ((!frame || frame->width <= 0 || frame->height <= 0 || frame->empty()) &&
         width > 0 && height > 0 && !runtime->streamHdr) {
       frame = ensureBlackOutputFrameForEgress(outputIndex, *runtime, width, height);
     }
-    if (!frame || frame->width <= 0 || frame->height <= 0 || frame->pixels.empty()) {
+    if (!frame || frame->width <= 0 || frame->height <= 0 || frame->empty()) {
       return;
     }
 
@@ -4458,7 +4702,7 @@
     // out of place (measured). So the HDR frame is chosen again, here.
     if (runtime && runtime->streamHdr) {
       const auto& hdrFrame = runtime->hdrRecordFrame;
-      if (hdrFrame.pixels.empty() || hdrFrame.width != runtime->streamHdrWidth ||
+      if (hdrFrame.empty() || hdrFrame.width != runtime->streamHdrWidth ||
           hdrFrame.height != runtime->streamHdrHeight) {
         return;
       }
@@ -4714,7 +4958,10 @@
     // Published once per CAPTURED frame, then shared by every packet the pacer
     // emits from it. capturedAtMs is the identity: the pacer hands the same
     // frame back for each repeat, and re-copying it was pure waste.
-    if (!runtime->egressPublished ||
+    if (frame->shared) {
+      runtime->egressPublished = frame->shared;   // pooled, written in place: no copy
+      runtime->egressPublishedAtMs = frame->capturedAtMs;
+    } else if (!runtime->egressPublished ||
         runtime->egressPublishedAtMs != frame->capturedAtMs ||
         runtime->egressPublished->size() != frame->pixels.size()) {
       runtime->egressPublished =
@@ -4722,6 +4969,7 @@
       runtime->egressPublishedAtMs = frame->capturedAtMs;
     }
     packet.videoBytes = runtime->egressPublished;
+    packet.hdrEncoder = frame->hdrEncoder;
     // One entry per frame this tick will WRITE, filled below for a file sink
     // and handed out to the packets as they are queued. A network sink pushes
     // straight down the audio pipe instead and leaves this empty.
@@ -5063,6 +5311,18 @@
       runtime.egressReadbackW = 0;
       runtime.egressReadbackH = 0;
     }
+    if (runtime.hdrReadback) {
+      deckboy::gpu::destroyStagingReadback(runtime.hdrReadback);
+      runtime.hdrReadback = nullptr;
+    }
+    if (runtime.hdrP010Readback) {
+      deckboy::gpu::destroyHdrP010Readback(runtime.hdrP010Readback);
+      runtime.hdrP010Readback = nullptr;
+    }
+    runtime.hdrP010Unavailable = false;
+    runtime.hdrP010Misses = 0;
+    runtime.hdrReadbackUnavailable = false;
+    runtime.hdrReadbackMisses = 0;
     // Outside the branch above: when the renderer had no asynchronous path
     // there is no handle to free, and clearing the latch only inside it would
     // mean a new renderer never got asked.

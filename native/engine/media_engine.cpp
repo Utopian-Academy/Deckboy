@@ -69,6 +69,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include "render/text_shaper.hpp"     // frame text: bidi, fallback faces, one baseline
 #include "core/pixel_effects.hpp"     // applyChromaKeyToPixels, applyColorControlsToPixels
 #include "core/subprocess.hpp"        // spawnProcess, ChildProcess
+#include "core/hdr_to_sdr.hpp"        // an HDR stream's own SDR conversion
 #include "core/utils.hpp"             // trim, splitLines, formatTimecode
 // Native Terrarium sim (pattern://terrarium, pattern://terrarium-pico).
 // The sim itself is vendored untouched under extras/upstream/; the namespace
@@ -5482,13 +5483,15 @@ void MediaEngine::publishPictureStats(const DecodedFrame& frame) {
     pictureStatsPrevLuma_ = -1.0;
     return;
   }
-  // RGBA and NV12 are the two layouts that reach here, and the luma of an NV12
+  // RGBA, NV12 and P010 (an HDR stream) reach here, and the luma of an NV12
   // frame is its first plane -- already the number wanted, with no arithmetic
-  // at all.
+  // at all. P010's is too, two bytes a sample with the value's top eight bits
+  // in the second (the code, not the light: PQ, near enough for a level).
   const bool nv12 = frame.format == FramePixelFormat::NV12;
-  const std::size_t stride = nv12
-    ? static_cast<std::size_t>(frame.width)
-    : static_cast<std::size_t>(frame.width) * 4;
+  const bool p010 = frame.format == FramePixelFormat::P010;
+  const std::size_t stride = nv12 ? static_cast<std::size_t>(frame.width)
+                           : p010 ? static_cast<std::size_t>(frame.width) * 2
+                                  : static_cast<std::size_t>(frame.width) * 4;
   if (frame.pixels.size() < stride * static_cast<std::size_t>(frame.height)) {
     audioCtxHasPicture_.store(false, std::memory_order_relaxed);
     return;
@@ -5504,6 +5507,8 @@ void MediaEngine::publishPictureStats(const DecodedFrame& frame) {
       const int x = frame.width * (rx * 2 + 1) / (kCols * 2);
       if (nv12) {
         sum += row[x];
+      } else if (p010) {
+        sum += row[static_cast<std::size_t>(x) * 2 + 1];
       } else {
         const std::uint8_t* px = row + static_cast<std::size_t>(x) * 4;
         // Rec.709 luma. The cheap (r+g+b)/3 makes a saturated blue as bright
@@ -6063,11 +6068,15 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
     textureHeight_ = frame.height;
     textureFormat_ = wantFormat;
   }
-  if (frame.format == FramePixelFormat::NV12) {
+  if (frame.format == FramePixelFormat::NV12 || frame.format == FramePixelFormat::P010) {
+    // P010 is an HDR stream's frame (startSrtDecoder): NV12's two planes at
+    // two bytes a sample.
+    const int bytesPerSample = frame.format == FramePixelFormat::P010 ? 2 : 1;
     const std::uint8_t* y = frame.pixels.data();
-    const std::uint8_t* uv = y + static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height);
+    const std::uint8_t* uv = y + static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height) *
+                                 bytesPerSample;
     const auto uploadStarted = std::chrono::steady_clock::now();
-    SDL_UpdateNVTexture(texture_, nullptr, y, frame.width, uv, frame.width);
+    SDL_UpdateNVTexture(texture_, nullptr, y, frame.width * bytesPerSample, uv, frame.width * bytesPerSample);
     countUpload(uploadStarted);
     return;
   }
@@ -7714,14 +7723,56 @@ bool MediaEngine::startSrtDecoder(const Cue& cue, const std::string& mediaPath, 
     // The cue's sound track; optional (?) so a file without it still plays.
     args.insert(args.end(), {"-map", "0:a:" + std::to_string(std::max(0, cue.audioTrack)) + "?"});
   }
-  args.insert(args.end(), {"-vf", scaleFilter, "-c:v", "rawvideo", "-pix_fmt", pixFmt});
+  // AN HDR FEED (cue.liveHdrTransfer, the operator's word for it: a stream
+  // is never probed). Left alone, ffmpeg turns it into 8-bit NV12 with the
+  // PQ or HLG curve still in it -- a dim, grey picture with no HDR left.
+  //  - Windows: 10-bit P010 tagged BT.2020 PQ, the same frame an HDR file's
+  //    zero-copy decode hands over, so an HDR output keeps the highlights
+  //    and SDL makes the SDR picture (Direct3D 11 PQ, measured for files).
+  //    HLG becomes PQ on the way (zscale: the BT.2100 OOTF at 1000 nits),
+  //    because SDL's HLG is dim (measured, check_hdr_sources).
+  //  - Elsewhere, or HLG with no zscale: 16-bit 4:4:4 converted to SDR by
+  //    core/hdr_to_sdr.hpp, exactly as an HDR file is on those platforms.
+  // A cue that needs RGBA for its effects keeps the 8-bit path.
+  namespace h = deckboy::core::hdr;
+  const int hdrFeed = decodeFormat == FramePixelFormat::NV12 ? std::clamp(cue.liveHdrTransfer, 0, 2) : 0;
+  bool hdrP010 = false;
+#ifdef _WIN32
+  hdrP010 = hdrFeed == 1 || (hdrFeed == 2 && ffmpegHasFilter("zscale"));
+#endif
+  const bool hdrToSdr = hdrFeed != 0 && !hdrP010;
+  std::string filter = scaleFilter;
+  const char* pipeFormat = pixFmt;
+  FramePixelFormat frameFormat = decodeFormat;
+  std::size_t pipeBytes = frameBufferSize(decodeFormat, decodeW, decodeH);
+  if (hdrP010) {
+    if (hdrFeed == 2) {
+      filter = "zscale=tin=arib-std-b67:t=smpte2084:npl=1000:pin=2020:p=2020:min=2020_ncl:m=2020_ncl:"
+               "rin=limited:r=limited," + filter;
+    }
+    pipeFormat = "p010le";
+    frameFormat = FramePixelFormat::P010;
+    pipeBytes = frameBufferSize(FramePixelFormat::P010, decodeW, decodeH);
+  } else if (hdrToSdr) {
+    pipeFormat = "yuv444p16le";
+    frameFormat = FramePixelFormat::RGBA32;
+    pipeBytes = static_cast<std::size_t>(decodeW) * decodeH * 6;
+  }
+  std::shared_ptr<h::Converter> toSdr;
+  if (hdrToSdr) {
+    h::Source source;
+    source.transfer = hdrFeed == 1 ? h::Transfer::Pq : h::Transfer::Hlg;
+    source.bitDepth = 10;
+    toSdr = std::make_shared<h::Converter>(source);
+  }
+  args.insert(args.end(), {"-vf", filter, "-c:v", "rawvideo", "-pix_fmt", pipeFormat});
   if (wantAudio) {
     args.insert(args.end(), {"-c:a", "pcm_s16le", "-ac", "2", "-ar", std::to_string(audioRate_)});
   } else {
     args.push_back("-an");
   }
   args.insert(args.end(), {"-f", "nut", "pipe:1"});
-  const std::size_t frameBytes = frameBufferSize(decodeFormat, decodeW, decodeH);
+  const std::size_t frameBytes = pipeBytes;
   if (frameBytes == 0 || !spawnPipeProcess(videoProcess_, std::move(args))) {
     return false;
   }
@@ -7731,7 +7782,7 @@ bool MediaEngine::startSrtDecoder(const Cue& cue, const std::string& mediaPath, 
   }
   const int fd = videoProcess_.readFd;
   decodersRunning_ = true;
-  videoThread_ = std::thread([this, fd, decodeW, decodeH, decodeFormat, frameBytes]() {
+  videoThread_ = std::thread([this, fd, decodeW, decodeH, frameFormat, frameBytes, hdrP010, toSdr]() {
     deckboy::libav::PipeDemuxer demux;
     if (!demux.open(fd)) {
       decoderEof_ = true;
@@ -7766,11 +7817,25 @@ bool MediaEngine::startSrtDecoder(const Cue& cue, const std::string& mediaPath, 
       frame.width = decodeW;
       frame.height = decodeH;
       frame.index = frameIndex++;
-      frame.format = decodeFormat;
+      frame.format = frameFormat;
       data.resize(frameBytes);
-      frame.pixels = std::move(data);
+      if (toSdr) {
+        const std::size_t plane = static_cast<std::size_t>(decodeW) * decodeH;
+        const auto* planes = reinterpret_cast<const std::uint16_t*>(data.data());
+        frame.pixels.resize(plane * 4);
+        frame.colorspace = SDL_COLORSPACE_SRGB;
+        toSdr->convert(planes, planes + plane, planes + plane * 2, decodeW, decodeW, decodeH,
+                       frame.pixels.data(), decodeW * 4);
+      } else {
+        frame.pixels = std::move(data);
+        if (hdrP010) {
+          frame.colorspace = static_cast<SDL_Colorspace>(SDL_DEFINE_COLORSPACE(SDL_COLOR_TYPE_YCBCR,
+            SDL_COLOR_RANGE_LIMITED, SDL_COLOR_PRIMARIES_BT2020, SDL_TRANSFER_CHARACTERISTICS_PQ,
+            SDL_MATRIX_COEFFICIENTS_BT2020_NCL, SDL_CHROMA_LOCATION_LEFT));
+        }
+      }
       data = {};
-      if (liveRgbaBridge_.load()) {
+      if (liveRgbaBridge_.load() && frame.format != FramePixelFormat::P010) {
         bridgeFrameToRgba(frame);
       }
       lastFramePushMs_.store(SDL_GetTicks());
@@ -12201,6 +12266,14 @@ OutgoingPicture openOutgoing(const DecodedFrame& f) {
     p.converted.resize(n * 4u);
     p.ok = SDL_ConvertPixelsAndColorspace(p.w, p.h, SDL_PIXELFORMAT_NV12,
       frameColorspace(f), 0, f.pixels.data(), p.w, SDL_PIXELFORMAT_RGBA32,
+      SDL_COLORSPACE_SRGB, 0, p.converted.data(), p.w * 4);
+    if (p.ok) p.rgba = p.converted.data();
+  } else if (f.format == FramePixelFormat::P010 && (p.w % 2) == 0 && (p.h % 2) == 0 &&
+             f.pixels.size() >= n * 3u) {
+    // An HDR stream's frame: SDL converts it, PQ to SDR, like NV12 above.
+    p.converted.resize(n * 4u);
+    p.ok = SDL_ConvertPixelsAndColorspace(p.w, p.h, SDL_PIXELFORMAT_P010,
+      frameColorspace(f), 0, f.pixels.data(), p.w * 2, SDL_PIXELFORMAT_RGBA32,
       SDL_COLORSPACE_SRGB, 0, p.converted.data(), p.w * 4);
     if (p.ok) p.rgba = p.converted.data();
   }

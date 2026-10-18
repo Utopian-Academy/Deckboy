@@ -262,6 +262,10 @@ ProcessCapture runCaptured(const std::vector<std::string>& args);
 // wants to report WHY should use runCaptured instead.
 std::optional<std::string> readAllText(const std::vector<std::string>& args);
 
+// Does the ffmpeg on PATH have this filter (zscale, ...)? Asked once a name
+// and remembered; false when there is no ffmpeg at all.
+bool ffmpegHasFilter(const std::string& name);
+
 // ---------------------------------------------------------------------------
 // Legacy convenience wrappers — thin forwards to spawnProcess()
 // ---------------------------------------------------------------------------
