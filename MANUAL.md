@@ -1014,8 +1014,14 @@ HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear
   80-500) moves it.
 - HDR video keeps its highlights at their own brightness: 1000 nits in the
   file is 1000 nits sent. The display shows what it can and clips the rest.
-- NDI, DeckLink and the Web Monitor still receive SDR from that output: SDR
-  material exactly, HDR highlights clipped at white. The scopes read the HDR
+- **ST 2110** from an HDR output carries HDR: 10-bit 4:2:2 in the output's
+  signal, declared in the SDP as `TCS=PQ` or `TCS=HLG`, `colorimetry=BT2100`.
+- **SDI** (a DeckLink on a 10-bit route) carries HDR too, tagged Rec.2020 and
+  PQ or HLG. This has not yet been tested on a DeckLink card. Key and fill stay
+  SDR.
+- **NDI** and the Web Monitor still receive SDR from that output: SDR material
+  exactly, HDR highlights clipped at white. Sending HDR over NDI needs NDI's
+  separately licensed Advanced SDK, which Deckboy does not use. The scopes read the HDR
   picture itself, in nits (see Picture Scopes).
 - **Recording** an HDR output (the recording mirrors it, as it does Output 1
   by default) records HDR10: HEVC Main10, BT.2020, PQ, with the highlights
@@ -1055,8 +1061,9 @@ HDR.
    end wants.
 3. Put the graphics on a second playlist layered over the first (§11). They
    sit at 203 nits, BT.2408's graphics white.
-4. Send it out: a stream or recording output that mirrors this output carries
-   HDR (above).
+4. Send it out: ST 2110 on this output, or a stream or recording output that
+   mirrors it, carries HDR (above). SDI does too, untested on a card so far.
+   NDI does not.
 
 Measured end to end on Windows with a ladder of greys from 0.5 to 4000 nits as
 the feed and a white graphic over it: every grey arrives within one code of

@@ -497,7 +497,7 @@ const char kHdrP010Shader[] = R"(
 Texture2D<float4> src : register(t0);
 RWTexture2D<uint> yOut : register(u0);
 RWTexture2D<uint2> uvOut : register(u1);
-cbuffer Params : register(b0) { float white; uint hlg; uint width; uint height; };
+cbuffer Params : register(b0) { float white; uint hlg; uint width; uint height; uint chroma422; uint3 pad; };
 float pqOf(float nits) {
   const float m1 = 2610.0 / 16384.0, m2 = 2523.0 / 4096.0 * 128.0;
   const float c1 = 3424.0 / 4096.0, c2 = 2413.0 / 4096.0 * 32.0, c3 = 2392.0 / 4096.0 * 32.0;
@@ -521,6 +521,22 @@ float3 signalOf(float3 light) {
 uint p010Of(float code) { return ((uint)clamp(floor(code + 0.5), 0.0, 1023.0)) << 6; }
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID) {
+  if (chroma422 != 0) {
+    // 4:2:2: one horizontal pair a thread, chroma the mean of the two.
+    uint2 at0 = uint2(id.x * 2, id.y);
+    if (at0.x + 1 >= width || at0.y >= height) return;
+    float cb2 = 0.0, cr2 = 0.0;
+    [unroll] for (uint dx2 = 0; dx2 < 2; ++dx2) {
+      uint2 at = at0 + uint2(dx2, 0);
+      float3 e = signalOf(src.Load(int3(at, 0)).rgb);
+      float luma = dot(e, float3(0.2627, 0.6780, 0.0593));
+      yOut[at] = p010Of(64.0 + 876.0 * luma);
+      cb2 += e.b - luma;
+      cr2 += e.r - luma;
+    }
+    uvOut[id.xy] = uint2(p010Of(512.0 + 448.0 / 1.8814 * cb2), p010Of(512.0 + 448.0 / 1.4746 * cr2));
+    return;
+  }
   uint2 base = id.xy * 2;
   if (base.x + 1 >= width || base.y + 1 >= height) return;
   float cb = 0.0, cr = 0.0;
@@ -558,6 +574,7 @@ struct HdrP010Readback {
   ID3D11Texture2D* srvSource = nullptr;
   int width = 0;
   int height = 0;
+  bool chroma422 = false;
   int cursor = 0;
   int primed = 0;
 };
@@ -629,7 +646,7 @@ ID3D11Texture2D* makeTexture(ID3D11Device* device, int w, int h, DXGI_FORMAT for
 }  // namespace
 #endif
 
-void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height) {
+void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height, bool chroma422) {
 #ifdef _WIN32
   ID3D11Device* device = rendererDevice(renderer);
   if (!device || width <= 0 || height <= 0 || (width % 2) || (height % 2)) return nullptr;
@@ -638,20 +655,22 @@ void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height) {
   device->GetImmediateContext(&rb->context);
   rb->width = width;
   rb->height = height;
+  rb->chroma422 = chroma422;
+  const int chromaRows = chroma422 ? height : height / 2;
   rb->shader = compileHdrP010Shader(device);
   D3D11_BUFFER_DESC cb {};
-  cb.ByteWidth = 16;
+  cb.ByteWidth = 32;
   cb.Usage = D3D11_USAGE_DEFAULT;
   cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
   device->CreateBuffer(&cb, nullptr, &rb->params);
   rb->yTex = makeTexture(device, width, height, DXGI_FORMAT_R16_UINT, false);
-  rb->uvTex = makeTexture(device, width / 2, height / 2, DXGI_FORMAT_R16G16_UINT, false);
+  rb->uvTex = makeTexture(device, width / 2, chromaRows, DXGI_FORMAT_R16G16_UINT, false);
   bool ok = rb->context && rb->shader && rb->params && rb->yTex && rb->uvTex &&
             SUCCEEDED(device->CreateUnorderedAccessView(rb->yTex, nullptr, &rb->yUav)) &&
             SUCCEEDED(device->CreateUnorderedAccessView(rb->uvTex, nullptr, &rb->uvUav));
   for (int i = 0; ok && i < kStagingRingSize; ++i) {
     rb->yRing[i] = makeTexture(device, width, height, DXGI_FORMAT_R16_UINT, true);
-    rb->uvRing[i] = makeTexture(device, width / 2, height / 2, DXGI_FORMAT_R16G16_UINT, true);
+    rb->uvRing[i] = makeTexture(device, width / 2, chromaRows, DXGI_FORMAT_R16G16_UINT, true);
     ok = rb->yRing[i] && rb->uvRing[i];
   }
   if (!ok) {
@@ -663,6 +682,7 @@ void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height) {
   (void) renderer;
   (void) width;
   (void) height;
+  (void) chroma422;
   return nullptr;
 #endif
 }
@@ -681,7 +701,8 @@ bool hdrP010ReadbackFrame(void* handle, SDL_Texture* source, float whiteNits, bo
   auto* rb = static_cast<HdrP010Readback*>(handle);
   if (!rb || !source || !out) return false;
   const std::size_t lumaBytes = static_cast<std::size_t>(rb->width) * rb->height * 2;
-  if (outBytes < lumaBytes + lumaBytes / 2) return false;
+  const int chromaRows = rb->chroma422 ? rb->height : rb->height / 2;
+  if (outBytes < lumaBytes + static_cast<std::size_t>(rb->width) * 2 * chromaRows) return false;
   auto* src = reinterpret_cast<ID3D11Texture2D*>(
     SDL_GetPointerProperty(SDL_GetTextureProperties(source), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
   if (!src) return false;
@@ -705,14 +726,17 @@ bool hdrP010ReadbackFrame(void* handle, SDL_Texture* source, float whiteNits, bo
     UINT hlg;
     UINT width;
     UINT height;
-  } params {whiteNits, hlg ? 1u : 0u, static_cast<UINT>(rb->width), static_cast<UINT>(rb->height)};
+    UINT chroma422;
+    UINT pad[3];
+  } params {whiteNits, hlg ? 1u : 0u, static_cast<UINT>(rb->width), static_cast<UINT>(rb->height),
+            rb->chroma422 ? 1u : 0u, {0, 0, 0}};
   rb->context->UpdateSubresource(rb->params, 0, nullptr, &params, 0, 0);
   rb->context->CSSetShader(rb->shader, nullptr, 0);
   rb->context->CSSetConstantBuffers(0, 1, &rb->params);
   rb->context->CSSetShaderResources(0, 1, &rb->srv);
   ID3D11UnorderedAccessView* uavs[2] = {rb->yUav, rb->uvUav};
   rb->context->CSSetUnorderedAccessViews(0, 2, uavs, nullptr);
-  rb->context->Dispatch(static_cast<UINT>((rb->width / 2 + 7) / 8), static_cast<UINT>((rb->height / 2 + 7) / 8), 1);
+  rb->context->Dispatch(static_cast<UINT>((rb->width / 2 + 7) / 8), static_cast<UINT>((chromaRows + 7) / 8), 1);
   // Leave the pipeline as the renderer expects it.
   ID3D11ShaderResourceView* noSrv = nullptr;
   ID3D11UnorderedAccessView* noUav[2] = {nullptr, nullptr};
@@ -753,7 +777,7 @@ bool hdrP010ReadbackFrame(void* handle, SDL_Texture* source, float whiteNits, bo
                 static_cast<const std::uint8_t*>(yMap.pData) + static_cast<std::size_t>(yMap.RowPitch) * y, rowBytes);
   }
   std::uint8_t* uvOut = out + lumaBytes;
-  for (int y = 0; y < rb->height / 2; ++y) {
+  for (int y = 0; y < chromaRows; ++y) {
     std::memcpy(uvOut + rowBytes * y,
                 static_cast<const std::uint8_t*>(uvMap.pData) + static_cast<std::size_t>(uvMap.RowPitch) * y, rowBytes);
   }

@@ -5319,6 +5319,12 @@
       deckboy::gpu::destroyHdrP010Readback(runtime.hdrP010Readback);
       runtime.hdrP010Readback = nullptr;
     }
+    if (runtime.hdrWireReadback) {
+      deckboy::gpu::destroyHdrP010Readback(runtime.hdrWireReadback);
+      runtime.hdrWireReadback = nullptr;
+    }
+    runtime.hdrWireUnavailable = false;
+    runtime.hdrWireMisses = 0;
     runtime.hdrP010Unavailable = false;
     runtime.hdrP010Misses = 0;
     runtime.hdrReadbackUnavailable = false;
@@ -6506,6 +6512,22 @@
         audio.data(), static_cast<int>(audio.size() / 2), 48000, 2))
       setOutputHealthState(outputIndex, OutputHealthState::Recovering, "SDI audio scheduling failed");
 
+    // HDR SDI: an HDR output on a 10-bit route sends its picture in its
+    // signal, tagged Rec.2020 PQ/HLG. NOT TESTED ON A CARD (see
+    // DeckLinkOutput::sendFrameHdr). Key+fill stays the SDR pair below.
+    if (!output.deckLinkKeyFill && output.deckLink10Bit && outputHdrWireAvailable(outputRuntime)) {
+      const int hw = outputRuntime.compositorWidth & ~1, hh = outputRuntime.compositorHeight & ~1;
+      if (hw > 0 && hh > 0 && readHdrWireFrame(outputIndex, outputRuntime, hw, hh)) {
+        if (!outputRuntime.deckLinkOutput->sendFrameHdr(
+              reinterpret_cast<const std::uint16_t*>(outputRuntime.hdrWirePlanes.data()), hw, hh,
+              hdrSignalHlg(outputIndex)))
+          setOutputHealthState(outputIndex, OutputHealthState::Recovering, "SDI video scheduling failed");
+        return;
+      }
+      // Nothing new from the ring yet: the card repeats its last frame. If the
+      // GPU path has just retired, fall through and send SDR instead.
+      if (outputHdrWireAvailable(outputRuntime)) return;
+    }
     if (!output.deckLinkKeyFill) {
       if (!outputRuntime.deckLinkOutput->sendFrame(frameCapture->pixels.data(), fw, fh, stride))
         setOutputHealthState(outputIndex, OutputHealthState::Recovering, "SDI video scheduling failed");
@@ -6729,13 +6751,18 @@
       return;
     }
     const auto& frameCapture = outputRuntime.latestCapturedFrame;
-    if (frameCapture.pixels.empty() || frameCapture.width <= 0 || frameCapture.height <= 0) {
+    // AN HDR OUTPUT GOES OUT HDR: its compositor converted on the GPU to
+    // 10-bit 4:2:2 in its signal (PQ or HLG), and the SDP says so. Where that
+    // conversion is not available the route stays SDR, as before.
+    const bool hdrWire = outputHdrWireAvailable(outputRuntime);
+    if (!hdrWire && (frameCapture.pixels.empty() || frameCapture.width <= 0 || frameCapture.height <= 0)) {
       return;
     }
     // ST 2110-20 carries 4:2:2, so the raster must be an even number of pixels
     // wide — a half pgroup cannot be expressed on the wire.
-    const int sendW = frameCapture.width & ~1;
-    if (sendW <= 0) {
+    const int sendW = (hdrWire ? outputRuntime.compositorWidth : frameCapture.width) & ~1;
+    const int sendH = hdrWire ? (outputRuntime.compositorHeight & ~1) : frameCapture.height;
+    if (sendW <= 0 || sendH <= 0) {
       return;
     }
 
@@ -6749,8 +6776,9 @@
     wanted.destinationPort = std::clamp(output.st2110Port, 1, 65535);
     wanted.sourcePort = output.st2110VideoSourcePort;
     wanted.width = sendW;
-    wanted.height = frameCapture.height;
-    wanted.frameRate = fpsHint > 1.0 ? fpsHint : 60000.0 / 1001.0;
+    wanted.height = sendH;
+    wanted.frameRate = st2110FrameRate(outputIndex, fpsHint);
+    wanted.hdrTransfer = hdrWire ? (hdrSignalHlg(outputIndex) ? 2 : 1) : 0;
     wanted.sampling = output.st2110TenBit ? St2110Sampling::YCbCr422_10bit
                                           : St2110Sampling::YCbCr422_8bit;
 
@@ -6768,7 +6796,8 @@
       outputRuntime.st2110Sender->config().destinationPort != wanted.destinationPort ||
       outputRuntime.st2110Sender->config().sourcePort != wanted.sourcePort ||
       outputRuntime.st2110Sender->config().frameRate != wanted.frameRate ||
-      outputRuntime.st2110Sender->config().sampling != wanted.sampling);
+      outputRuntime.st2110Sender->config().sampling != wanted.sampling ||
+      outputRuntime.st2110Sender->config().hdrTransfer != wanted.hdrTransfer);
 
     if (needsReopen) {
       outputRuntime.st2110Sender =
@@ -6813,10 +6842,75 @@
         outputRuntime.st2110AudioSampleRemainder, fpsHint);
       if (!audio.empty()) outputRuntime.st2110AudioSender->pushSamples(audio.data(), audio.size() / 2);
     }
-    if (outputRuntime.st2110Sender && !outputRuntime.st2110Sender->sendFrame(frameCapture.pixels.data(), stride)) {
+    if (outputRuntime.st2110Sender && hdrWire) {
+      // Nothing new from the ring yet: send nothing this tick, as when the
+      // capture repeats -- the receiver holds the last frame.
+      if (readHdrWireFrame(outputIndex, outputRuntime, sendW, sendH)) {
+        outputRuntime.st2110Sender->sendFrame16(
+          reinterpret_cast<const std::uint16_t*>(outputRuntime.hdrWirePlanes.data()),
+          outputRuntime.hdrWirePlanes.size() / 2);
+      }
+    } else if (outputRuntime.st2110Sender && !outputRuntime.st2110Sender->sendFrame(frameCapture.pixels.data(), stride)) {
       triggerToast("st 2110: " + outputRuntime.st2110Sender->lastError());
       outputRuntime.st2110Sender.reset();
     }
+  }
+
+  // ST 2110-20 IS A FIXED-RATE ESSENCE: the output's own rate (a set refresh,
+  // else its display's), not the programme's -- a clip's 25 fps must not
+  // reopen the flow, and the SDP must say what the sender paces at. The two
+  // disagreed: the SDP said 30 while the sender paced at the display's 60.
+  double st2110FrameRate(int outputIndex, double fpsHint) const {
+    if (std::isfinite(project_.outputRefreshRateHz) && project_.outputRefreshRateHz > 1.0) {
+      return std::clamp(project_.outputRefreshRateHz, 1.0, 120.0);
+    }
+    const double display = outputDisplayRefreshHz(outputIndex);
+    if (display > 1.0) return display;
+    return fpsHint > 1.0 ? fpsHint : 60000.0 / 1001.0;
+  }
+
+  // An HDR output can send HDR down a wire (ST 2110, SDI) when its compositor
+  // is up and the GPU conversion has not been found missing.
+  bool outputHdrWireAvailable(const OutputRuntime& runtime) const {
+    return runtime.hdr && runtime.compositorTexture && !runtime.hdrWireUnavailable;
+  }
+
+  // The HDR output's picture as 16-bit 4:2:2 planes (luma, then Cb,Cr pairs;
+  // P216's layout) in its signal, into runtime.hdrWirePlanes. False when the
+  // ring has nothing new; a second of nothing retires the path, and the wire
+  // goes back to SDR.
+  bool readHdrWireFrame(int outputIndex, OutputRuntime& runtime, int width, int height) {
+    if (runtime.hdrWireReadAtPresent == runtime.presentsCounted && !runtime.hdrWirePlanes.empty()) {
+      return runtime.hdrWireLastRead;
+    }
+    runtime.hdrWireReadAtPresent = runtime.presentsCounted;
+    runtime.hdrWireLastRead = readHdrWireFrameNow(outputIndex, runtime, width, height);
+    return runtime.hdrWireLastRead;
+  }
+  bool readHdrWireFrameNow(int outputIndex, OutputRuntime& runtime, int width, int height) {
+    if (!runtime.hdrWireReadback) {
+      runtime.hdrWireReadback = deckboy::gpu::createHdrP010Readback(runtime.outputRenderer, width, height, true);
+      if (!runtime.hdrWireReadback) {
+        runtime.hdrWireUnavailable = true;
+        std::cerr << "hdr-wire: no GPU conversion on this renderer; ST 2110 and SDI stay SDR" << std::endl;
+        return false;
+      }
+    }
+    const std::size_t bytes = static_cast<std::size_t>(width) * height * 4;
+    if (runtime.hdrWirePlanes.size() != bytes) runtime.hdrWirePlanes.resize(bytes);
+    if (deckboy::gpu::hdrP010ReadbackFrame(runtime.hdrWireReadback, runtime.compositorTexture,
+                                           static_cast<float>(project_.hdrSdrWhiteNits), hdrSignalHlg(outputIndex),
+                                           runtime.hdrWirePlanes.data(), bytes)) {
+      runtime.hdrWireMisses = 0;
+      return true;
+    }
+    if (++runtime.hdrWireMisses >= 30) {
+      deckboy::gpu::destroyHdrP010Readback(runtime.hdrWireReadback);
+      runtime.hdrWireReadback = nullptr;
+      runtime.hdrWireUnavailable = true;
+      std::cerr << "hdr-wire: GPU conversion produced nothing for 30 frames; ST 2110 and SDI go SDR" << std::endl;
+    }
+    return false;
   }
 
   // Lazy, once, and non-fatal on failure.
@@ -6887,9 +6981,16 @@
     cfg.sourcePort = output.st2110VideoSourcePort;
     cfg.width = std::max(2, rasterW & ~1);
     cfg.height = std::max(1, rasterH);
-    cfg.frameRate = outputStreamFps(0.0);
+    cfg.frameRate = st2110FrameRate(outputIndex, 0.0);
     cfg.sampling = output.st2110TenBit ? St2110Sampling::YCbCr422_10bit
                                        : St2110Sampling::YCbCr422_8bit;
+    // What sendOutputSt2110Frame will actually send, so the SDP a receiver
+    // (or NMOS) is given matches the wire.
+    if (const OutputRuntime* rt = runtimeForOutput(outputIndex); rt && outputHdrWireAvailable(*rt)) {
+      cfg.hdrTransfer = hdrSignalHlg(outputIndex) ? 2 : 1;
+      cfg.width = std::max(2, rt->compositorWidth & ~1);
+      cfg.height = std::max(2, rt->compositorHeight & ~1);
+    }
     return cfg;
   }
 

@@ -260,7 +260,10 @@ std::string st2110BuildSdp(const St2110Config& config, const std::string& sessio
       << "; height=" << config.height
       << "; exactframerate=" << rateText
       << "; depth=" << depth
-      << "; TCS=SDR; colorimetry=BT709; PM=2110GPM; SSN=\"ST2110-20:2017\"; TP=2110TPW"
+      << (config.hdrTransfer == 1 ? "; TCS=PQ; colorimetry=BT2100"
+          : config.hdrTransfer == 2 ? "; TCS=HLG; colorimetry=BT2100"
+                                    : "; TCS=SDR; colorimetry=BT709")
+      << "; PM=2110GPM; SSN=\"ST2110-20:2017\"; TP=2110TPW"
       << (config.interlaced ? "; interlace" : "")
       << "\r\n"
       ;
@@ -472,6 +475,27 @@ bool St2110Output::sendFrame(const std::uint8_t* srcBgra, int srcStrideBytes) {
     pendingFrame_.resize(needed);
     std::memcpy(pendingFrame_.data(), srcBgra, needed);
     pendingStride_ = srcStrideBytes;
+    pendingPlanar16_ = false;
+    hasPending_ = true;
+  }
+  frameCv_.notify_one();
+  return true;
+}
+
+bool St2110Output::sendFrame16(const std::uint16_t* planes, std::size_t samples) {
+  const std::size_t needed = static_cast<std::size_t>(config_.width) * config_.height * 2;   // Y + CbCr
+  if (!isOpen() || planes == nullptr || samples < needed) {
+    return false;
+  }
+  {
+    std::lock_guard<std::mutex> lock(frameMutex_);
+    if (hasPending_) {
+      framesDropped_.fetch_add(1, std::memory_order_relaxed);
+    }
+    pendingFrame_.resize(needed * 2);
+    std::memcpy(pendingFrame_.data(), planes, needed * 2);
+    pendingStride_ = config_.width * 2;
+    pendingPlanar16_ = true;
     hasPending_ = true;
   }
   frameCv_.notify_one();
@@ -481,6 +505,7 @@ bool St2110Output::sendFrame(const std::uint8_t* srcBgra, int srcStrideBytes) {
 void St2110Output::senderLoop() {
   std::vector<std::uint8_t> frame;
   int stride = 0;
+  bool planar16 = false;
   for (;;) {
     {
       std::unique_lock<std::mutex> lock(frameMutex_);
@@ -490,14 +515,15 @@ void St2110Output::senderLoop() {
       }
       frame.swap(pendingFrame_);
       stride = pendingStride_;
+      planar16 = pendingPlanar16_;
       hasPending_ = false;
     }
-    sendFramePaced(frame, stride);
+    sendFramePaced(frame, stride, planar16);
   }
 }
 
 void St2110Output::sendFramePaced(const std::vector<std::uint8_t>& bgraFrame,
-                                  int srcStrideBytes) {
+                                  int srcStrideBytes, bool planar16) {
   const std::uint8_t* srcBgra = bgraFrame.data();
   if (srcBgra == nullptr || bgraFrame.empty()) {
     return;
@@ -586,9 +612,26 @@ void St2110Output::sendFramePaced(const std::vector<std::uint8_t>& bgraFrame,
     if (senderStop_.load(std::memory_order_relaxed)) {
       return;
     }
-    const std::uint8_t* srcRow = srcBgra + static_cast<std::size_t>(row) *
-                                               static_cast<std::size_t>(srcStrideBytes);
-    convertRowToYCbCr422(srcRow, width, rowSamples_);
+    if (planar16) {
+      // sendFrame16's planes: luma, then 4:2:2 Cb,Cr pairs, both `width`
+      // samples a row. Cb Y Cr Y, the top 10 (or 8) bits.
+      const auto* luma = reinterpret_cast<const std::uint16_t*>(srcBgra) + static_cast<std::size_t>(row) * width;
+      const auto* chroma = reinterpret_cast<const std::uint16_t*>(srcBgra) +
+                           static_cast<std::size_t>(width) * height + static_cast<std::size_t>(row) * width;
+      const int shift = tenBit ? 6 : 8;
+      rowSamples_.resize(static_cast<std::size_t>(width) * 2);
+      for (int x = 0; x + 1 < width; x += 2) {
+        std::uint16_t* s = rowSamples_.data() + static_cast<std::size_t>(x) * 2;
+        s[0] = static_cast<std::uint16_t>(chroma[x] >> shift);
+        s[1] = static_cast<std::uint16_t>(luma[x] >> shift);
+        s[2] = static_cast<std::uint16_t>(chroma[x + 1] >> shift);
+        s[3] = static_cast<std::uint16_t>(luma[x + 1] >> shift);
+      }
+    } else {
+      const std::uint8_t* srcRow = srcBgra + static_cast<std::size_t>(row) *
+                                                 static_cast<std::size_t>(srcStrideBytes);
+      convertRowToYCbCr422(srcRow, width, rowSamples_);
+    }
 
     int offsetBytes = 0;
     while (offsetBytes < rowBytes) {

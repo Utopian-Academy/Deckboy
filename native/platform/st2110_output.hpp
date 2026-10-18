@@ -66,6 +66,9 @@ struct St2110Config {
   bool interlaced = false;
   int timeToLive = 8;                              // multicast TTL: stay inside the plant
   St2110Sampling sampling = St2110Sampling::YCbCr422_10bit;
+  // 0 SDR (BT.709), 1 PQ, 2 HLG -- both BT.2100. Only the SDP says it; the
+  // samples are whatever sendFrame16 is given (sendFrame's BGRA is always SDR).
+  int hdrTransfer = 0;
   // ST 2110-20 packets are sized to fit a standard 1500-byte MTU. Raising this
   // requires jumbo frames end to end; getting it wrong fragments every packet
   // and destroys timing.
@@ -133,6 +136,10 @@ class St2110Output {
   // worth more than a stale one, and an unbounded queue would just grow latency
   // until it fell over.
   bool sendFrame(const std::uint8_t* srcBgra, int srcStrideBytes);
+  // An already-encoded frame: a 16-bit luma plane then 16-bit Cb,Cr pairs at
+  // 4:2:2 (P216: the GPU's HDR conversion, deckboy::gpu chroma422), the value
+  // in the high bits. Packed as they are -- no colour work on this side.
+  bool sendFrame16(const std::uint16_t* planes, std::size_t samples);
 
   const St2110Config& config() const { return config_; }
   int boundSourcePort() const { return boundSourcePort_; }
@@ -152,7 +159,7 @@ class St2110Output {
   bool sendPacket(const std::uint8_t* data, std::size_t size);
 
   // Packetise and transmit one frame, paced. Runs ONLY on senderThread_.
-  void sendFramePaced(const std::vector<std::uint8_t>& bgra, int strideBytes);
+  void sendFramePaced(const std::vector<std::uint8_t>& bgra, int strideBytes, bool planar16);
   void senderLoop();
   void setLastError(const std::string& message);
 
@@ -177,6 +184,7 @@ class St2110Output {
   std::condition_variable frameCv_;
   std::vector<std::uint8_t> pendingFrame_;   // BGRA, owned by the mutex
   int pendingStride_ = 0;
+  bool pendingPlanar16_ = false;   // pendingFrame_ is sendFrame16's planes
   bool hasPending_ = false;
 
   std::vector<std::uint8_t> packet_;      // scratch: one RTP datagram (sender thread)

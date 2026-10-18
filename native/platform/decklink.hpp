@@ -93,6 +93,13 @@ bool deckLinkConvertBgra(const std::uint8_t* pixels, int width, int height, int 
                         std::uint8_t* output, int outputWidth, int outputHeight,
                         int outputStride, bool tenBit);
 
+// An already-encoded HDR picture into v210 (10-bit 4:2:2): `planes` is a
+// 16-bit luma plane then 16-bit Cb,Cr pairs at 4:2:2 (P216's layout, the
+// GPU's HDR conversion), the value in the top ten bits. Nearest-sampled to the
+// output raster like deckLinkConvertBgra; no colour work.
+bool deckLinkPackP216(const std::uint16_t* planes, int width, int height,
+                      std::uint8_t* output, int outputWidth, int outputHeight, int outputStride);
+
 // Live capture from a DeckLink / UltraStudio input.
 //
 // The counterpart of DeckLinkOutput, on the same devices and the same modes.
@@ -169,11 +176,19 @@ class DeckLinkOutput {
   // Send a BGRA32 pixel buffer (same format as egress capture pipeline).
   // stride = width * 4. Returns false on failure.
   bool sendFrame(const std::uint8_t* pixels, int width, int height, int stride);
+  // HDR out: deckLinkPackP216's planes, tagged Rec.2020 and PQ or HLG
+  // (bmdFrameContainsHDRMetadata). Needs the 10-bit output. NOT TESTED ON A
+  // CARD -- built against SDK 16 and its packing unit-checked only.
+  bool sendFrameHdr(const std::uint16_t* planes, int width, int height, bool hlg);
 
   // Send interleaved 16-bit PCM audio samples.
   bool sendAudio(const std::int16_t* samples, int sampleCount, int sampleRate, int channels);
 
  private:
+  // One frame at the output mode: `fill` writes its pixels (out, mode width,
+  // mode height, row stride); hdrEotf 0 is SDR, else the CEA 861.3 EOTF the
+  // frame is tagged with. sendFrame and sendFrameHdr differ only there.
+  bool scheduleFrame(const std::function<bool(std::uint8_t*, int, int, int)>& fill, int hdrEotf);
   class Impl;
   std::unique_ptr<Impl> impl_;
 };

@@ -140,6 +140,37 @@ struct BroadcastChecks {
     deckLinkConvertBgra(source.data(), 8, 1, 32, output.data(), 8, 1, 128, true);
     expect(((word(0)>>10)&1023) == 64, "SDI black has legal ten-bit luma");
     expect(!deckLinkConvertBgra(source.data(), 8, 1, 32, output.data(), 7, 1, 128, true), "SDI refuses incomplete chroma pairs");
+    {
+      // HDR SDI: P216 planes into v210 exactly -- every 16-bit sample's top
+      // ten bits, in v210's Cb Y Cr / Y Cb Y / Cr Y Cb / Y Cr Y word order.
+      const int w = 12, h = 2;
+      std::vector<std::uint16_t> planes(static_cast<std::size_t>(w) * h * 2);
+      for (std::size_t i = 0; i < planes.size(); ++i) planes[i] = static_cast<std::uint16_t>(((64 + i * 37) % 1024) << 6);
+      std::vector<std::uint8_t> v210(128 * h, 0xCD);
+      expect(deckLinkPackP216(planes.data(), w, h, v210.data(), w, h, 128), "HDR SDI packs P216 into v210");
+      int wrong = 0;
+      for (int y = 0; y < h; ++y) {
+        auto word = [&](int i) {
+          const std::uint8_t* p = v210.data() + y * 128 + i * 4;
+          return std::uint32_t(p[0]) | (std::uint32_t(p[1]) << 8) | (std::uint32_t(p[2]) << 16) | (std::uint32_t(p[3]) << 24);
+        };
+        for (int group = 0; group < w / 6; ++group) {
+          int sample[12];
+          for (int i = 0; i < 4; ++i) {
+            const std::uint32_t v = word(group * 4 + i);
+            sample[i * 3] = int(v & 1023); sample[i * 3 + 1] = int((v >> 10) & 1023); sample[i * 3 + 2] = int((v >> 20) & 1023);
+          }
+          for (int pairIndex = 0; pairIndex < 3; ++pairIndex) {
+            const int x = group * 6 + pairIndex * 2;
+            const std::size_t luma = static_cast<std::size_t>(y) * w + x;
+            const std::size_t chroma = static_cast<std::size_t>(w) * h + luma;
+            const int want[4] = {planes[chroma] >> 6, planes[luma] >> 6, planes[chroma + 1] >> 6, planes[luma + 1] >> 6};
+            for (int k = 0; k < 4; ++k) wrong += sample[pairIndex * 4 + k] != want[k];
+          }
+        }
+      }
+      expect(wrong == 0, "HDR SDI v210 carries every sample's top ten bits in v210 order");
+    }
   }
   void rtp() {
     using namespace deckboy::platform;
@@ -189,6 +220,87 @@ struct BroadcastChecks {
     WSACleanup();
 #endif
   }
+  // ST 2110-20 HDR: sendFrame16's planes go out as 10-bit 4:2:2 pgroups
+  // exactly, and the SDP says what they are.
+  void rtpVideoHdr() {
+    using namespace deckboy::platform;
+#ifdef _WIN32
+    WSADATA wsa {};
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) { expect(false, "2110 video socket runtime"); return; }
+#endif
+    SocketHandle receiver = createBoundSocket(SOCK_DGRAM, 0, false);
+    sockaddr_in address {}; socklen_t length = sizeof(address);
+    if (receiver == kInvalidSocket || getsockname(receiver, reinterpret_cast<sockaddr*>(&address), &length) != 0) {
+      expect(false, "2110 video loopback receiver"); closeSocket(receiver); return;
+    }
+    St2110Config config;
+    config.destinationAddress = "127.0.0.1";
+    config.interfaceAddress = "127.0.0.1";
+    config.destinationPort = ntohs(address.sin_port);
+    config.width = 64;
+    config.height = 4;
+    config.frameRate = 30.0;
+    config.hdrTransfer = 1;
+    const std::string sdp = st2110BuildSdp(config, "check");
+    expect(sdp.find("TCS=PQ; colorimetry=BT2100") != std::string::npos, "2110 SDP declares PQ BT.2100");
+    config.hdrTransfer = 2;
+    expect(st2110BuildSdp(config, "check").find("TCS=HLG; colorimetry=BT2100") != std::string::npos,
+           "2110 SDP declares HLG BT.2100");
+    config.hdrTransfer = 0;
+    expect(st2110BuildSdp(config, "check").find("TCS=SDR; colorimetry=BT709") != std::string::npos,
+           "2110 SDP stays SDR BT.709 by default");
+    config.hdrTransfer = 1;
+    // A frame whose every sample is different: luma then 4:2:2 Cb,Cr pairs,
+    // ten bits in the top of sixteen.
+    const int w = config.width, h = config.height;
+    std::vector<std::uint16_t> planes(static_cast<std::size_t>(w) * h * 2);
+    for (std::size_t i = 0; i < planes.size(); ++i) {
+      planes[i] = static_cast<std::uint16_t>(((64 + i * 7) % 1024) << 6);
+    }
+    St2110Output sender;
+    expect(sender.open(config), "2110 video opens on loopback");
+    expect(sender.sendFrame16(planes.data(), planes.size()), "2110 video takes a 16-bit frame");
+    int checked = 0, wrong = 0;
+    bool marker = false;
+    for (int packet = 0; packet < 64 && !marker; ++packet) {
+      Packet p(2048); fd_set ready; FD_ZERO(&ready); FD_SET(receiver, &ready);
+      timeval timeout {1, 0};
+      if (select(selectNfds(receiver), &ready, nullptr, nullptr, &timeout) <= 0) break;
+      const int bytes = recv(receiver, reinterpret_cast<char*>(p.data()), static_cast<int>(p.size()), 0);
+      if (bytes < 20) break;
+      marker = (p[1] & 0x80) != 0;
+      // RTP (12), extended sequence (2), one sample row data header (6).
+      const int lineLength = (p[14] << 8) | p[15];
+      const int row = ((p[16] & 0x7F) << 8) | p[17];
+      const int offset = ((p[18] & 0x7F) << 8) | p[19];
+      const std::uint8_t* data = p.data() + 20;
+      for (int g = 0; g < lineLength / 5; ++g) {
+        const std::uint8_t* b = data + g * 5;
+        const std::uint64_t bits = (std::uint64_t(b[0]) << 32) | (std::uint64_t(b[1]) << 24) |
+                                   (std::uint64_t(b[2]) << 16) | (std::uint64_t(b[3]) << 8) | b[4];
+        const int sample[4] = {int((bits >> 30) & 1023), int((bits >> 20) & 1023),
+                               int((bits >> 10) & 1023), int(bits & 1023)};
+        const int x = offset + g * 2;
+        const std::size_t luma = static_cast<std::size_t>(row) * w + x;
+        const std::size_t chroma = static_cast<std::size_t>(w) * h + luma;
+        const int want[4] = {planes[chroma] >> 6, planes[luma] >> 6, planes[chroma + 1] >> 6, planes[luma + 1] >> 6};
+        for (int k = 0; k < 4; ++k) {
+          ++checked;
+          if (sample[k] != want[k]) ++wrong;
+        }
+      }
+    }
+    expect(marker && checked == w * h * 2 && wrong == 0,
+           "2110 video carries every 16-bit sample as its top ten bits, Cb Y Cr Y");
+    if (wrong || checked != w * h * 2) {
+      std::cerr << "    checked " << checked << " of " << w * h * 2 << ", wrong " << wrong << "\n";
+    }
+    sender.close();
+    closeSocket(receiver);
+#ifdef _WIN32
+    WSACleanup();
+#endif
+  }
   void audio() {
     deckboy::audiofx::TruePeak4x detector;
     double peak = 0.0;
@@ -227,7 +339,7 @@ struct BroadcastChecks {
     for (int i = 0; i < 40; ++i) meter.push(sine);
     expect(std::fabs(meter.integrated + 20.0) < 0.3, "integrated gate excludes sustained silence");
   }
-  int run() { clocks(); nmos(); pixels(); audio(); rtp(); return failures ? 1 : 0; }
+  int run() { clocks(); nmos(); pixels(); audio(); rtp(); rtpVideoHdr(); return failures ? 1 : 0; }
 };
 }
 int main() { return deckboy::platform::video::BroadcastChecks{}.run(); }

@@ -352,6 +352,47 @@ bool deckLinkConvertBgra(const std::uint8_t* pixels, int width, int height, int 
   return true;
 }
 
+bool deckLinkPackP216(const std::uint16_t* planes, int width, int height,
+                      std::uint8_t* output, int outputWidth, int outputHeight, int outputStride) {
+  if (!planes || !output || width <= 1 || height <= 0 || (width & 1) || outputWidth <= 0 ||
+      outputHeight <= 0 || (outputWidth & 1) || outputStride < (outputWidth + 47) / 48 * 128) return false;
+  const std::uint16_t* chromaPlane = planes + static_cast<std::size_t>(width) * height;
+  // Cb Y Cr Y for the output pair at x, from the source pair nearest it.
+  auto pair = [&](int srcRow, int x, std::uint16_t* samples) {
+    if (x >= outputWidth) {
+      samples[0] = samples[2] = 512;
+      samples[1] = samples[3] = 64;
+      return;
+    }
+    const int sx0 = static_cast<int>(static_cast<std::int64_t>(x) * width / outputWidth);
+    const int sx1 = static_cast<int>(static_cast<std::int64_t>(x + 1) * width / outputWidth);
+    const std::uint16_t* luma = planes + static_cast<std::size_t>(srcRow) * width;
+    const std::uint16_t* chroma = chromaPlane + static_cast<std::size_t>(srcRow) * width + (sx0 & ~1);
+    samples[0] = static_cast<std::uint16_t>(chroma[0] >> 6);
+    samples[1] = static_cast<std::uint16_t>(luma[sx0] >> 6);
+    samples[2] = static_cast<std::uint16_t>(chroma[1] >> 6);
+    samples[3] = static_cast<std::uint16_t>(luma[sx1] >> 6);
+  };
+  for (int y = 0; y < outputHeight; ++y) {
+    const int srcRow = static_cast<int>(static_cast<std::int64_t>(y) * height / outputHeight);
+    auto* dst = output + static_cast<std::size_t>(y) * outputStride;
+    std::memset(dst, 0, static_cast<std::size_t>(outputStride));
+    for (int x = 0; x < outputWidth; x += 6) {
+      std::uint16_t s[12];
+      for (int i = 0; i < 3; ++i) pair(srcRow, x + i * 2, s + i * 4);
+      const std::uint32_t words[4] = {
+        s[0] | (std::uint32_t(s[1]) << 10) | (std::uint32_t(s[2]) << 20),
+        s[3] | (std::uint32_t(s[4]) << 10) | (std::uint32_t(s[5]) << 20),
+        s[6] | (std::uint32_t(s[7]) << 10) | (std::uint32_t(s[8]) << 20),
+        s[9] | (std::uint32_t(s[10]) << 10) | (std::uint32_t(s[11]) << 20)};
+      for (int i = 0; i < 4; ++i)
+        for (int byte = 0; byte < 4; ++byte)
+          dst[(x / 6) * 16 + i * 4 + byte] = static_cast<std::uint8_t>(words[i] >> (byte * 8));
+    }
+  }
+  return true;
+}
+
 // Cross-platform implementation using the Blackmagic DeckLink SDK 16.x COM
 // interface. Platform differences are isolated in the helpers above; the Impl
 // class and public methods below are platform-neutral.
@@ -727,8 +768,23 @@ void DeckLinkOutput::shutdown() {
 //   3. Convert BGRA → UYVY using BT.709 RGB→YCbCr coefficients
 //   4. Display synchronously (first frame) or schedule for playback
 bool DeckLinkOutput::sendFrame(const std::uint8_t* pixels, int width, int height, int stride) {
-  if (!impl_->isInitialized_ || !impl_->deckLinkOutput_ || !pixels ||
-      width <= 0 || height <= 0 || stride < width * 4) return false;
+  if (!pixels || width <= 0 || height <= 0 || stride < width * 4) return false;
+  return scheduleFrame([&](std::uint8_t* out, int modeW, int modeH, int outStride) {
+    // Convert BGRA32 input to UYVY (8-bit) or v210 (10-bit), nearest-sampled.
+    return deckLinkConvertBgra(pixels, width, height, stride, out, modeW, modeH, outStride, impl_->enable10Bit_);
+  }, 0);
+}
+
+bool DeckLinkOutput::sendFrameHdr(const std::uint16_t* planes, int width, int height, bool hlg) {
+  // v210 only: HDR is a 10-bit signal, and the 8-bit output has no room for it.
+  if (!planes || width <= 0 || height <= 0 || !impl_->enable10Bit_) return false;
+  return scheduleFrame([&](std::uint8_t* out, int modeW, int modeH, int outStride) {
+    return deckLinkPackP216(planes, width, height, out, modeW, modeH, outStride);
+  }, hlg ? 3 : 2);   // CEA 861.3 EOTF: 2 = SMPTE ST 2084 (PQ), 3 = HLG
+}
+
+bool DeckLinkOutput::scheduleFrame(const std::function<bool(std::uint8_t*, int, int, int)>& fill, int hdrEotf) {
+  if (!impl_->isInitialized_ || !impl_->deckLinkOutput_) return false;
   unsigned int buffered = 0;
   if (impl_->deckLinkOutput_->GetBufferedVideoFrameCount(&buffered) != S_OK) return false;
   if (buffered >= 4) return true;
@@ -769,16 +825,24 @@ bool DeckLinkOutput::sendFrame(const std::uint8_t* pixels, int width, int height
     return false;
   }
 
-  // Convert BGRA32 input to UYVY (8-bit) output.
-  // Nearest-neighbor scaling: for each output pixel, sample the closest
-  // input pixel. Processes pixel pairs since UYVY shares chroma between
-  // two adjacent luma samples.
-  const bool converted = deckLinkConvertBgra(pixels, width, height, stride,
-    static_cast<std::uint8_t*>(frameData), modeW, modeH, outStride, impl_->enable10Bit_);
+  const bool converted = fill(static_cast<std::uint8_t*>(frameData), modeW, modeH, outStride);
 
   // Release buffer access before submitting the frame for display
   videoBuffer->EndAccess(bmdBufferAccessWrite);
   videoBuffer->Release();
+
+  // HDR: the frame says what it carries -- Rec.2020 and its transfer -- and
+  // is flagged as carrying it, or the card sends it as SDR BT.709.
+  if (hdrEotf > 0) {
+    frame->SetFlags(bmdFrameFlagDefault | bmdFrameContainsHDRMetadata);
+    IDeckLinkVideoFrameMutableMetadataExtensions* metadata = nullptr;
+    if (frame->QueryInterface(IID_IDeckLinkVideoFrameMutableMetadataExtensions,
+                              reinterpret_cast<void**>(&metadata)) == S_OK && metadata) {
+      metadata->SetInt(bmdDeckLinkFrameMetadataColorspace, bmdColorspaceRec2020);
+      metadata->SetInt(bmdDeckLinkFrameMetadataHDRElectroOpticalTransferFunc, hdrEotf);
+      metadata->Release();
+    }
+  }
 
   int frN = 0, frD = 0;
   deckLinkModeFrameRate(impl_->mode_, frN, frD);
@@ -1145,6 +1209,7 @@ bool DeckLinkOutput::isTenBit() const { return false; }
 void DeckLinkOutput::shutdown() { impl_->isInitialized_ = false; }
 
 bool DeckLinkOutput::sendFrame(const std::uint8_t*, int, int, int) { return false; }
+bool DeckLinkOutput::sendFrameHdr(const std::uint16_t*, int, int, bool) { return false; }
 bool DeckLinkOutput::sendAudio(const std::int16_t*, int, int, int) { return false; }
 
 // DeckLinkInput without the SDK: reports no devices and refuses to start, so

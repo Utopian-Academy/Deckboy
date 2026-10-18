@@ -53,7 +53,10 @@ bool stagingReadbackFrame(void* handle, SDL_Texture* source,
 // a 4K frame on 28 threads held a 4K HLG stream under 50 fps.
 // Direct3D 11 only (null elsewhere, and where the shader cannot be compiled);
 // width and height even. `out` gets the luma plane then the chroma plane.
-void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height);
+// chroma422: chroma at FULL height (4:2:2, each sample the mean of a
+// horizontal pair) -- P216's layout, what ST 2110-20 and SDI carry -- instead
+// of 4:2:0. `out` is then twice the luma plane's size.
+void* createHdrP010Readback(SDL_Renderer* renderer, int width, int height, bool chroma422 = false);
 void destroyHdrP010Readback(void* handle);
 bool hdrP010ReadbackFrame(void* handle, SDL_Texture* source, float whiteNits, bool hlg,
                           std::uint8_t* out, std::size_t outBytes);

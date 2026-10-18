@@ -230,6 +230,15 @@ struct OutputRuntime {
   // to 25 (MEASURED). Same contract, same retirement after a second of misses.
   // First choice on Direct3D 11: the GPU makes the P010 itself
   // (deckboy::gpu::createHdrP010Readback) and the CPU only copies it out.
+  // An HDR output's ST 2110 / SDI picture: the same GPU conversion at 4:2:2
+  // (P216 layout), read for the wire every frame.
+  void* hdrWireReadback = nullptr;
+  bool hdrWireUnavailable = false;
+  int hdrWireMisses = 0;
+  std::vector<std::uint8_t> hdrWirePlanes;
+  // Read once a frame however many wires want it (ST 2110 and SDI both).
+  std::uint64_t hdrWireReadAtPresent = ~0ull;
+  bool hdrWireLastRead = false;
   void* hdrP010Readback = nullptr;
   bool hdrP010Unavailable = false;
   int hdrP010Misses = 0;

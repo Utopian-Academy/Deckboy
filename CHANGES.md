@@ -18,11 +18,21 @@
 
 ### HDR
 - Deckboy now puts graphics over an **HDR feed** and sends it on as HDR. An SRT feed in PQ or HLG
-  comes in, playlists layer over it, and the output goes out as an HDR SRT or RTMP stream or an HDR
-  recording. Measured end to end on a Windows laptop (RTX 4070), with a known grey ladder from 0.5 to
+  comes in, playlists layer over it, and the output goes out as HDR over ST 2110, as an SRT or RTMP
+  stream, or as a recording (and over SDI, untested on a card, below). Measured end to end on a Windows laptop (RTX 4070), with a known grey ladder from 0.5 to
   4000 nits as the feed and a white graphic laid over it: every grey arrives within one code of what
   was sent, the graphic's white lands on exactly the 203-nit code (BT.2408 graphics white), and the
   stream runs a full **60 fps at 4K and at 1080p**, in PQ and in HLG.
+- Added HDR over **ST 2110-20**: an HDR output with ST 2110 on sends 10-bit 4:2:2 in its signal,
+  and the SDP says `TCS=PQ` or `TCS=HLG` with `colorimetry=BT2100`. Measured on the wire, depacketised
+  from the RTP: every grey of the feed and the graphic's white at the codes they were sent with.
+- Added HDR over **SDI** (DeckLink, 10-bit): an HDR output sends v210 tagged Rec.2020 and PQ or HLG.
+  **Not tested on a DeckLink card** -- built against the DeckLink SDK and its packing checked, but no
+  card has shown it yet. Key and fill stay SDR.
+- HDR does not go out over **NDI**: sending HDR needs NDI's separately licensed Advanced SDK, which
+  Deckboy does not use. NDI from an HDR output stays SDR, as before.
+- Fixed an issue where the ST 2110 SDP gave a frame rate of 30 while the stream was paced at the
+  output's 60, so a receiver that trusted the SDP misread the stream. Both now use the output's rate.
 - Added **HDR input** to stream cues: **HDR input** in the cue's inspector (SDR, PQ or HLG), or
   `STREAM HDR SDR|PQ|HLG`. A stream is never probed, so the operator says what the feed carries. On
   Windows an HDR feed keeps its highlights on an HDR output; on macOS and Linux it is converted to
