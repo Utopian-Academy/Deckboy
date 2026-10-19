@@ -93,6 +93,9 @@ jobs:
       - name: The site has no dead links
         run: python3 tools/check_site_links.py
 
+      - name: The press kit matches its copy and images
+        run: python3 tools/build_press_kit.py --check
+
       # The Stream Deck plugin has no dependencies at all, so there is nothing
       # to install -- the build assembles the .sdPlugin folder and checks every
       # path the manifest names, which is the failure Stream Deck reports worst.

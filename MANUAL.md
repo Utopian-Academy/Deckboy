@@ -1002,10 +1002,12 @@ on (`api: true` in `mediamtx.yml`), on this computer or another one
 
 `MEDIAMTX` on its own lists the streams. `MEDIAMTX ADD <name>` makes the cue.
 
-SDI output uses scheduled video and stereo 48 kHz audio. Eight-bit UYVY and
-ten-bit v210 use limited-range BT.709 code values. The picture compositor is
-an SDR pipeline; HDR sources requiring PQ/HLG tone mapping need conversion to
-SDR before playout. Ten-bit packing does not by itself provide HDR delivery.
+SDI output uses scheduled video and stereo 48 kHz audio. SDR routes use
+limited-range BT.709 in eight-bit UYVY or ten-bit v210. An HDR output on a
+ten-bit DeckLink route uses Rec.2020 with PQ or HLG metadata; this path has
+not yet been tested on a DeckLink card. Key and fill stay SDR. HDR10 and HLG
+sources are converted automatically for SDR outputs; see **HDR video** below
+for the floating-point HDR output path and its platform requirements.
 Physical SDI timing and colour still need validation on the intended card and
 receiver. The ST 2110 sender uses software packet pacing and software PTP;
 facility timing and interoperability need measurement on the intended network.
@@ -1080,8 +1082,11 @@ HDR** (or `OUTPUT HDR ON` for the focused output) gives a window output a linear
 - **Recording** an HDR output (the recording mirrors it, as it does Output 1
   by default) records HDR10: HEVC Main10, BT.2020, PQ, with the highlights
   at their own brightness. ProRes and DNxHR HQX stay ProRes and DNxHR, 10-bit
-  and tagged PQ. A 4K HDR recording is heavy (the picture is read back as
-  floating point and encoded on the CPU); 1080 is comfortable.
+  and tagged with the output's PQ or HLG signal. HEVC uses a working hardware
+  10-bit encoder when available (NVENC, Quick Sync or AMF), with software
+  encoding as a fallback. On Windows, conversion for the encoder runs on the
+  GPU. 4K60 was measured on an RTX 4070; throughput depends on the machine,
+  codec, effects and output configuration.
 - **HDR signal** (or `OUTPUT HDR SIGNAL PQ|HLG`) chooses how that output's
   HDR leaves as a signal. **PQ** (HDR10) is absolute: a nit in the picture is
   a nit in the file. **HLG** (BT.2100 hybrid log-gamma, what live broadcast

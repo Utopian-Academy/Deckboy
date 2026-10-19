@@ -77,6 +77,17 @@
         &minus;23 (EBU R128) and &minus;24&nbsp;LUFS targets before playout. Live-input audio
         follows each output's routing into recordings and network delivery.</p>
 
+        <h2>Graphics over a PQ or HLG feed</h2>
+        <p>On Windows, take an HDR stream cue, layer graphics over it at 203-nit reference
+        white, and send the result as PQ or HLG over ST&nbsp;2110, SRT or enhanced RTMP,
+        while recording. The feed-and-graphic path was measured at 1080p60 and 2160p60
+        on an RTX&nbsp;4070. HDR input on macOS and Linux currently converts to SDR.
+        NDI and Web Monitor remain SDR; DeckLink HDR is implemented but still awaits
+        physical-card validation. <a href="specs.html#hdr">Signal formats, platform limits and receiver requirements &rarr;</a></p>
+        <p>Check the programme with waveform, parades, vectorscope, histogram and gamut
+        measurements. HDR scopes read in nits; SDI and ST&nbsp;2110 scopes can read the
+        encoded 4:2:2 signal. Each output also has its own raster-sized test card.</p>
+
         <h2>Controlled the way the gallery already works</h2>
         <ul>
             <li><b>HyperDeck</b> protocol, so a deck controller or vision mixer can drive it.</li>

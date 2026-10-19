@@ -1,5 +1,5 @@
 DECKBOY — PRODUCT COPY
-Updated 2026-10-03
+Updated 2026-10-18 — checked against published v0.99.417
 
 ONE LINE
 Deckboy is a free, open-source video cue deck for Windows, macOS and Linux: clips, slides and live sources in one running order.
@@ -25,6 +25,8 @@ https://utopian-academy.github.io/Deckboy/manual.html#outputs-routing
 https://utopian-academy.github.io/Deckboy/manual.html#recording
 
 FACTS
+Current features: pattern tracker with keyboard editing, cue/stop/fade/volume/opacity cells, mute/solo, jumps and sections; QR-paired phone controller with editable DASH; Mic cues, a named Art-Net/sACN fixture patch and local live captions; gamma-correct edge blends and saved new-show defaults.
+HDR: PQ/HLG input with graphics and HDR delivery over ST 2110, SRT/enhanced RTMP and recording, measured on Windows. macOS/Linux HDR input currently converts to SDR. NDI and Web Monitor stay SDR; DeckLink HDR output awaits physical-card validation. Full requirements: https://utopian-academy.github.io/Deckboy/specs.html#hdr
 Name: Deckboy
 Made by: Utopian Academy
 Category: Cue-based media playback and show control for live video

@@ -224,6 +224,22 @@
         <b>DNxHR</b> LB, SQ, HQ and HQX (.mov) for an edit, at any size and frame rate, stamped with
         timecode and split into files by length or size.</p>
 
+        <h2 id="hdr">Can it work with HDR?</h2>
+        <p>Yes. On Windows, PQ or HLG files and live stream cues can feed an HDR output,
+        with SDR graphics layered at 203 nits by default. Send HDR over ST&nbsp;2110,
+        SRT or enhanced RTMP, or record it in PQ or HLG. Enhanced RTMP needs an HEVC-capable
+        server and receiver. HDR input on macOS and Linux currently converts to SDR;
+        HDR window output there is unverified. NDI and Web Monitor stay SDR, and DeckLink
+        HDR output still needs testing on a physical card. See the
+        <a href="specs.html#hdr">HDR specifications</a> for the measured setup and requirements.</p>
+
+        <h2 id="phone">Can I control it from my phone?</h2>
+        <p>Yes. In Settings &gt; Network &gt; PHONE &amp; TABLET, scan the pairing QR code
+        or connect with the passphrase. TAKE, transport, fader, cues, editable DASH, tracker
+        and show controls share one page. BLACKOUT and REC require a hold. With Tailscale
+        installed on both devices, use the <b>From anywhere</b> pairing address to connect
+        from outside the local network. The separate Web Monitor carries programme picture and sound.</p>
+
         <h2 id="offline">Does it need the internet during a show?</h2>
         <p>No. There is no account, no licence server and no activation, so nothing can refuse to start
         because the venue's network is down. Deckboy only uses the network for the things you switch on

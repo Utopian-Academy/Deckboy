@@ -57,9 +57,13 @@
     </header>
 
     <div class="prose">
-        <p class="asof">Current source: Deckboy 0.99.408. Packaged builds and their changes are on the
-        <a href="https://github.com/Utopian-Academy/Deckboy/releases">releases page</a>. For which format to choose, see
+        <p class="asof">Checked against the published <a href="https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.417">Deckboy 0.99.417</a>
+        release on 18 October 2026. For which format to choose, see
         <a href="faq.html#formats">the FAQ</a>.</p>
+        <nav class="section-links" aria-label="Specifications sections">
+            <a href="#video">Video</a><a href="#output">Outputs</a><a href="#hdr">HDR</a>
+            <a href="#recording">Recording</a><a href="#audio">Audio</a><a href="#control">Control</a><a href="#system">Requirements</a>
+        </nav>
 
         <h2 id="video">Video and codecs</h2>
         <div class="table-wrap"><table class="spec">
@@ -82,19 +86,37 @@
             <tr><th>Destinations</th><td>Displays (windowed or fullscreen), NDI, SRT, RTMP, RTSP and UDP streams, Blackmagic DeckLink SDI where the Blackmagic driver is installed, Spout (Windows), SMPTE ST&nbsp;2110</td></tr>
             <tr><th>Formats</th><td>720p at 50, 59.94 and 60; 1080i at 50, 59.94 and 60; 1080p and 2160p at 23.98, 24, 25, 29.97, 30, 50, 59.94 and 60</td></tr>
             <tr><th>Bit depth</th><td>8-bit or 10-bit</td></tr>
-            <tr><th>Colour and SDI</th><td>SDR compositor; scheduled DeckLink video and audio, with limited-range BT.709 UYVY (8-bit) or v210 (10-bit) packing</td></tr>
+            <tr><th>Colour and SDI</th><td>SDR: limited-range BT.709 UYVY (8-bit) or v210 (10-bit), with scheduled DeckLink video and stereo 48 kHz audio. HDR: floating-point composition and Rec.2020 PQ/HLG on a 10-bit DeckLink route; card validation pending. See <a href="#hdr">HDR paths and requirements</a>.</td></tr>
             <tr><th>SMPTE ST 2110</th><td>ST&nbsp;2110-20 uncompressed video and ST&nbsp;2110-30 (AES67) 48&nbsp;kHz stereo audio, with independent video/audio transport controls, AMWA NMOS IS-04 registration and IS-05 connection management, and PTP media clock acquisition and reacquisition</td></tr>
             <tr><th>Decks and outputs</th><td>Up to 16 playlists, each output showing whichever one you choose, or several composited as layers; a multiview you arrange yourself</td></tr>
-            <tr><th>Mapping</th><td>Per-output warp and edge blending; a corner pin per layer, dragged on the programme monitor, in perspective or linear</td></tr>
+            <tr><th>Mapping</th><td>Per-output corner-pin or grid warp; a perspective or linear corner pin per layer. Gamma-correct edge blending, adjustable projector gamma and black lift, and paired overlap to set two outputs' areas of interest and blends together. Older shows retain their saved linear blend curve.</td></tr>
+            <tr><th>Test cards</th><td>A card drawn 1:1 at each output's raster, with pixel checks, bars, PLUGE, safe areas, moving checks and frame count; HDR patches on HDR outputs. Export H.264 movies for each canvas output and the whole canvas.</td></tr>
+            <tr><th>Picture scopes</th><td>Waveform, RGB/Y′CbCr parades, vectorscope, histogram and EBU R 103 gamut checks. Select the source output; HDR is measured in nits. SDI and ST 2110 scopes can measure the encoded Y′CbCr 4:2:2 signal at its output depth.</td></tr>
             <tr><th>Operator screens</th><td>Presenter view and a mirrored prompter, each an output of its own</td></tr>
             <tr><th>Control desk</th><td>Compact cue rows and full-width focused deck tabs when columns cannot fit; CLEAR immediately stops all decks, cancels queued takes and disarms output</td></tr>
         </table></div>
+
+        <h2 id="hdr">HDR: input to output</h2>
+        <p>On Windows, combine a PQ or HLG feed with SDR graphics in a floating-point output.
+        Graphics sit at 203 nits by default, adjustable from 80 to 500 nits. Choose PQ or HLG
+        as the output signal. HDR10 and HLG sources are automatically converted for SDR outputs.</p>
+        <div class="table-wrap"><table class="spec">
+            <tr><th>HDR input</th><td>HDR files and stream cues on Windows. Set a live stream's HDR input explicitly to SDR, PQ or HLG; live streams are not probed. macOS and Linux currently convert HDR input to SDR.</td></tr>
+            <tr><th>HDR screens</th><td>Windows Direct3D 11/scRGB on an HDR-capable display with HDR enabled in the OS. OFF, AUTO or ON per output. The status reports the active path and display headroom. HDR window output on macOS/Linux is implemented through SDL GPU but unverified.</td></tr>
+            <tr><th>SRT / RTMP</th><td>HEVC Main10, BT.2020, PQ or HLG from a stream output mirroring an HDR output. RTMP requires a server and receiver that support enhanced RTMP with HEVC.</td></tr>
+            <tr><th>ST 2110-20</th><td>10-bit 4:2:2 with BT.2100 colourimetry and PQ/HLG transfer declared in SDP. Software packet pacing and PTP; facility timing and receiver interoperability must be checked on the intended network.</td></tr>
+            <tr><th>DeckLink SDI</th><td>10-bit v210 with Rec.2020 and PQ/HLG metadata. Implemented and packing-checked; not yet tested on a physical DeckLink card. Key/fill stays SDR.</td></tr>
+            <tr><th>NDI / Web Monitor</th><td>SDR output, including when sourced from an HDR output. HDR over NDI requires a separate Advanced SDK licence that Deckboy does not use.</td></tr>
+            <tr><th>Measured performance</th><td>PQ and HLG feed + graphic + SRT delivery measured at 1080p60 and 2160p60 on Windows with an RTX 4070. HDR greys arrived within one code and graphics white at the 203-nit code. This is a measured configuration, not a throughput guarantee for every GPU or effect stack.</td></tr>
+        </table></div>
+        <p><a href="manual.html#hdr-video">HDR setup and routing in the manual &rarr;</a></p>
 
         <h2 id="recording">Recording</h2>
         <div class="table-wrap"><table class="spec">
             <tr><th>What</th><td>The programme, as it plays, while it goes to every other output</td></tr>
             <tr><th>Codecs</th><td>H.264 and HEVC in .mp4; Apple ProRes Proxy, LT, 422, HQ and 4444 and Avid DNxHR LB, SQ, HQ and HQX in .mov</td></tr>
             <tr><th>Format</th><td>Any size and frame rate, or the programme's own</td></tr>
+            <tr><th>HDR recording</th><td>An HDR output records in PQ (HDR10) or HLG using HEVC Main10; ProRes and DNxHR HQX retain their selected codec and signal tags. Hardware HEVC 10-bit encoding uses a working NVENC, Quick Sync or AMF encoder when available, with software fallback. Windows converts for the encoder on the GPU.</td></tr>
             <tr><th>Timecode</th><td>Stamped from a set start or time of day, drop or non-drop frame</td></tr>
             <tr><th>Segments</th><td>Split into files by length or by size</td></tr>
         </table></div>
@@ -108,15 +130,19 @@
             <tr><th>Processing</th><td>23 audio effects per cue, and your own VST3 effects and instruments in the same chain</td></tr>
             <tr><th>Loudness normalization</th><td>Selectable &minus;16, &minus;23 (EBU R128) and &minus;24&nbsp;LUFS targets</td></tr>
             <tr><th>Programme metering</th><td>Momentary, short-term and integrated LUFS; true peak and a true-peak guard on the mixed output</td></tr>
-            <tr><th>Input</th><td>A microphone or line input, by device</td></tr>
+            <tr><th>Input</th><td>A microphone or line input, by device; Mic cues put live input through a playlist's fades, routing and effect chain. Clock matching keeps long-running music inputs steady.</td></tr>
+            <tr><th>Captions</th><td>Local speech transcription for files and live audio. Live captions follow the selected input, deck or output mix, with one to three rolling lines, top/bottom positioning and optional .srt transcript. Typical delay is about two seconds and depends on the machine.</td></tr>
         </table></div>
 
         <h2 id="control">Show control and timecode</h2>
         <div class="table-wrap"><table class="spec">
             <tr><th>Remote protocol</th><td>Plain-text commands over TCP or UDP on port 5510; every command answers <code>OK</code> or <code>ERR</code> with the reason</td></tr>
-            <tr><th>Controllers</th><td>A Bitfocus Companion module and an Elgato Stream Deck plugin</td></tr>
+            <tr><th>Controllers</th><td>A Bitfocus Companion 5 module and an Elgato Stream Deck plugin, both included as release downloads</td></tr>
+            <tr><th>Phone / tablet</th><td>QR pairing or passphrase, with TAKE, transport, fader, cue list, editable DASH, tracker and show controls on one page. BLACKOUT and REC use a hold gesture. Tailscale on both devices enables control from outside the local network.</td></tr>
             <tr><th>MIDI</th><td>Notes, control changes and program changes in and out, MIDI Show Control, and MIDI files played out as cues</td></tr>
-            <tr><th>Network</th><td>OSC in, with OSC Query discovery, and out; Art-Net DMX in (a lighting desk fires cues) and out (DMX cues); Blackmagic ATEM switcher tally and triggers</td></tr>
+            <tr><th>Network</th><td>OSC in, with OSC Query discovery, and out; Art-Net DMX in (a lighting desk fires cues); DMX cues out over Art-Net or sACN; Blackmagic ATEM switcher tally and triggers</td></tr>
+            <tr><th>Fixture patch</th><td>Named dimmer and colour fixtures, per-fixture level/colour and LFOs, cue fades and automatic video dip. Art-Net or sACN output.</td></tr>
+            <tr><th>Master tracker</th><td>Pattern view with hex rows and keyboard editing, plus a classic grid. Cells take cues, stop or fade playlists, or set volume/opacity. Column mute/solo, row jumps, named sections, timed playback and manual GO.</td></tr>
             <tr><th>Timecode</th><td>An LTC generator and LTC chase, in every download</td></tr>
             <tr><th>Running order</th><td>Standby and GO, pre-wait, post-wait and continue, arm and disarm, audition, preload, and a pre-show CHECK</td></tr>
             <tr><th>Show-control cues</th><td>Target, fade, master, MIDI, network (OSC, UDP, TCP), timecode, DMX and script cues</td></tr>
@@ -124,12 +150,15 @@
 
         <h2 id="system">System</h2>
         <div class="table-wrap"><table class="spec">
-            <tr><th>Windows</th><td>64-bit, installer or portable zip; also through Scoop</td></tr>
+            <tr><th>Windows</th><td>Windows 10/11, 64-bit, installer or portable zip; also through Scoop</td></tr>
             <tr><th>macOS</th><td>macOS&nbsp;12 or later, on Apple Silicon and Intel; also through Homebrew</td></tr>
             <tr><th>Linux</th><td>x86-64: an AppImage for Ubuntu 22.04 and anything newer, a portable tarball, or a Flatpak bundle</td></tr>
             <tr><th>Deckboy Mini</th><td>Inside every download, and on its own as a small download for Windows, macOS, Linux x86-64 and 64-bit Raspberry Pi or other ARM64 Linux</td></tr>
             <tr><th>Show files</th><td>One file opens on all three</td></tr>
-            <tr><th>Interface</th><td>English, with a picker of 37 more languages whose translations are still filling in</td></tr>
+            <tr><th>Interface</th><td>43 language and cypher choices; translation coverage varies and unreviewed catalogues are labelled. System fonts support cue names across scripts.</td></tr>
+            <tr><th>New-show defaults</th><td>Save theme, language, UI scale, outputs, routing, audio, network, decks, DASH and fixtures as your setup for new shows, without their cues.</td></tr>
+            <tr><th>Optional dependencies</th><td>NDI runtime from NDI Tools; compatible Blackmagic hardware and Desktop Video for SDI; your installed VST3 plugins; PowerPoint, Keynote or LibreOffice for Office slide conversion. Ordinary file playback includes FFmpeg and the app's runtime libraries.</td></tr>
+            <tr><th>Capacity</th><td>Choose GPU, storage and network capacity for the raster, frame rate, simultaneous sources and effect stack. Hardware codec support varies by device. Use the app's device report, scopes and output test card to check the actual rig.</td></tr>
             <tr><th>Licence</th><td>GPL-3.0, free. No account, no licence server, and nothing needs the internet to play a show</td></tr>
         </table></div>
 

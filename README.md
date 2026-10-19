@@ -26,19 +26,69 @@
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ Watch the one-minute trailer](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-<!-- GENERATED CONTENT ONLY in this shot -- the built-in pattern generators,
-     never a real show file. A client's deck in a public README is a client's
-     deck on the internet. -->
+![Deckboy taking a generated Swirl clip, a slide and a local web page from the same cue list, with the programme monitor and timeline visible](docs/images/readme/taking-cues.gif)
 
-![The Deckboy desk with its face on the empty monitor, winking, then taking cues to air in turn: a title typed live, colour bars, a clip from Tears of Steel with a kaleidoscope and a ripple stacked onto it, the Swirl generator and a live Code expression](art/readme/demo-desk.gif)
-
-<sub>Shown with a title, bars, Swirl and Code that Deckboy makes itself and a clip from <i>Tears of Steel</i> (© Blender Foundation, CC BY 3.0), so nothing here is anyone’s show file.</sub>
+<sub>Real application capture with Deckboy-generated media and a local test page. [Screenshots and short demos](https://utopian-academy.github.io/Deckboy/#in-action) · [Specifications and requirements](https://utopian-academy.github.io/Deckboy/specs.html).</sub>
 
 Cue-based media playback and show control for live video — theatre, live
 events, worship and broadcast.
 
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
+
+### In the current release
+
+The [v0.99.417 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.417)
+includes the latest tracker alongside the recent HDR, phone and lighting features:
+
+- **Master tracker:** a pattern view with hex rows, keyboard editing, cue/stop/fade/volume/opacity
+  cells, column mute/solo, jumps and named sections. The classic grid remains available.
+- **HDR workflows:** PQ or HLG feeds with graphics overlaid, HDR window output, ST 2110,
+  SRT/enhanced RTMP and recording. The end-to-end HDR input path is measured on Windows;
+  macOS and Linux convert HDR input to SDR. NDI and Web Monitor stay SDR. DeckLink HDR
+  output is implemented but has not been tested on a card.
+- **Phone control:** QR pairing, TAKE, transport, fader, cue list, editable DASH and tracker
+  on one page, with remote access through Tailscale when installed on both devices.
+- **Lights and live audio:** a named fixture patch over Art-Net or sACN, Mic cues with
+  fades and processing, and captions made locally from live speech or programme audio.
+- **Projection and setup:** gamma-correct edge blending, paired overlap and black lift;
+  output test cards and movie export; save your own defaults for new shows.
+
+![The Deckboy master tracker in pattern view, with cue, level, fade and stop cells, named sections and playlist controls](docs/images/readme/master-tracker.png)
+
+### A closer look
+
+<table>
+<tr>
+<td width="50%"><b>Picture scopes</b><br><img src="docs/images/readme/picture-scopes.gif" width="420" alt="A generated test pattern alongside Deckboy's live waveform and vectorscope"><br>The programme and its measurements, side by side.</td>
+<td width="50%"><b>Lights by name</b><br><img src="docs/images/readme/dmx-by-fixture.gif" width="300" alt="The DMX cue inspector changing the level and colour of named fixtures"><br>Fixture levels and colours in the cue list.</td>
+</tr>
+<tr>
+<td width="50%"><b>Live input, cued</b><br><img src="docs/images/readme/mic-inspector.gif" width="320" alt="A Mic cue's gain and moving level meter, using Deckboy's built-in test signal"><br>A Mic cue's gain and meter, shown with the built-in test signal.</td>
+<td width="50%"><b>The phone controller</b><br><a href="https://utopian-academy.github.io/Deckboy/#phone-demo"><img src="docs/images/readme/phone-controller-poster.png" width="195" alt="The current Deckboy phone controller with TAKE, transport, fader, cues and DASH"></a><br><a href="https://utopian-academy.github.io/Deckboy/#phone-demo">Watch it select and take cues.</a></td>
+</tr>
+</table>
+
+<details>
+<summary><b>The current desk in three themes</b></summary>
+
+**Gameboy**
+
+![Deckboy 0.99.417 with Swirl playing, in the Gameboy theme](docs/images/readme/desk-gameboy.png)
+
+**Dark**
+
+![The same Deckboy desk in the Dark theme](docs/images/readme/desk-dark.png)
+
+**Virtual Boy**
+
+![The same Deckboy desk in the red Virtual Boy theme](docs/images/readme/desk-virtual-boy.png)
+
+</details>
+
+[All screenshots, GIFs and clips](https://utopian-academy.github.io/Deckboy/press.html#images)
+are real app captures. Desk, tracker and phone: v0.99.417; older feature captures
+are dated in the [media notes](docs/images/readme/README.md).
 
 ### Everything is a cue
 
@@ -97,8 +147,10 @@ The features below describe the current source. Packaged builds and their
 version-specific changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
 
 Every release ships an installer **and** a portable build for each platform.
-Both bundle everything they need — binary, ffmpeg, runtime libraries. Nothing
-else to install.
+Both bundle the application, FFmpeg and its runtime libraries for ordinary file
+playback. NDI uses the separately installed NDI runtime; SDI uses compatible
+Blackmagic hardware and Desktop Video. Office slide conversion uses PowerPoint,
+Keynote or LibreOffice on the machine. [Full requirements](https://utopian-academy.github.io/Deckboy/specs.html#system).
 
 | Platform | Installer | Portable |
 |---|---|---|
@@ -339,7 +391,8 @@ all one object with one set of controls, not fifty separate things to learn.
 - Fullscreen output windows, display selection, and the same programme on more
   than one output at once
 - Display-native and fixed raster modes
-- Area of interest, edge feathering, warp / keystone correction
+- Area of interest, warp / keystone correction, gamma-correct edge blending,
+  paired overlap, projector gamma and black lift
 - **Projection mapping per layer**: drag a layer's four corners onto a surface
   on the programme monitor, in **perspective**, so a flat board stays flat with
   its far end properly smaller, or linear. The programme, the recording and the
@@ -361,7 +414,15 @@ all one object with one set of controls, not fifty separate things to learn.
 - Picture and sound stay in sync through a long show, following the sound
   card's own clock
 - Eight- and ten-bit BT.709 SDR video retains its source range on programme
-  output. PQ/HLG media needs conversion to SDR before playout
+  output. HDR10 and HLG are converted automatically for SDR outputs
+- Floating-point HDR window outputs, with SDR graphics at 203 nits by default;
+  PQ or HLG recording, SRT/enhanced RTMP and ST 2110 output. See the
+  [HDR specifications](https://utopian-academy.github.io/Deckboy/specs.html#hdr)
+  for platform, encoder and receiver requirements
+- A test card per output, drawn at its own raster, with moving checks, safe
+  areas, frame counter and export to H.264 movies
+- Programme picture scopes: waveform, parade, vectorscope, histogram and gamut
+  checks, including HDR measurements in nits and the SDI/ST 2110 4:2:2 signal
 
 </details>
 
@@ -454,7 +515,11 @@ and reacquisition update the media clock. See
 - HyperDeck protocol emulation, so a deck controller can drive it
 - Tally-driven playback: roll when an ATEM or an NDI receiver puts you on air
 - LTC timecode in, and an LTC generator routable to its own device and channel
-- MIDI input, Art-Net / DMX, NMC transport sync in and out
+- MIDI input, Art-Net / sACN DMX, NMC transport sync in and out
+- Phone and tablet control, paired by QR or passphrase: TAKE, transport, fader,
+  cue list, editable DASH, tracker and show controls on one page
+- Master tracker in pattern or classic view, with keyboard editing, stop/fade/
+  volume/opacity cells, column mute/solo, jumps and named sections
 - A fixture patch: lights named once, set by name and colour with LFOs, and dipped
   automatically while a video rolls
 - Mic cues: a live microphone or line input as a cue, with its own fades, effects and routing
@@ -471,11 +536,10 @@ and reacquisition update the media clock. See
   arrive neutral and cost under a millisecond a frame at 1080p
 - Effects go on and off a live cue without interrupting it
 
-![A film scene running through a different effect on every beat, switched live](docs/images/live-effects.gif)
+![Deckboy's generated Swirl clip with a kaleidoscope effect whose parameter moves under an LFO, alongside the live effect inspector](docs/images/readme/live-effects.gif)
 
-- Forty-two effects, each with named parameters. Timed one at a time at 1080p
-  on a laptop processor, the heaviest measured takes three-quarters of a 60fps
-  frame — `--effect-bench` prints what each one costs on yours
+- Forty-two effects, each with named parameters. `--effect-bench` measures
+  the cost on your machine; resolution and the chosen stack determine the frame budget
 - Six that exist nowhere else: schlieren gradient imaging, Chladni nodal
   figures, a true wave equation with inertia, crystal grain growth, retinal
   rod/cone persistence, and structure tensor grain flow
@@ -502,6 +566,8 @@ and reacquisition update the media clock. See
   high-contrast terminal themes suited to OLED panels
 - Timeline with filmstrip thumbnails; resizable program monitor and timeline
 - UI scale that follows the desktop's own scaling
+- Save the current setup as your defaults for new shows: outputs, routing,
+  decks, DASH, fixtures, theme and settings, without the cues
 - A language picker with 43 languages, including Arabic and Persian right to
   left, Kurdish, Kabyle and Tamazight, Cubano, Klingon and a few written in
   cypher
@@ -613,7 +679,7 @@ importantly, what each feature deliberately does not do.
 
 **Deckboy Mini:**
 
-- A media browser in the terminal: walk folders, filter by typing and add clips
+- A media browser in the terminal: browse folders, filter by typing and add clips
   without leaving the keyboard, shared with the desk's own browser
 
 **Web Monitor and network:**

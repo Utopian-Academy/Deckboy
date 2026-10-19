@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+        .prose { max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; overflow-wrap: anywhere; }
         .prose h2 { margin: 2.6rem 0 .7rem; font-size: 1.2rem; color: var(--ink); }
         .prose h3 { margin: 1.8rem 0 .4rem; font-size: 1rem; color: var(--ink); }
         .prose p, .prose li { color: var(--ink-soft); max-width: 64ch; margin-bottom: 1rem; }
@@ -67,6 +67,7 @@
             <p class="hero-subtitle">Screenshots, the trailer and copy for articles, listings
             and video descriptions. Start with a workflow your audience knows.</p>
             <div class="cta-group">
+                <a href="deckboy-press-kit.zip" download class="btn-large">Download press kit</a>
                 <a href="press-copy.txt" download class="btn-large">Download product copy</a>
                 <a href="#images" class="btn-large btn-outline">Get screenshots</a>
             </div>
@@ -138,9 +139,39 @@
             picture.</p>
         </div>
 
+        <h2>Current release</h2>
+        <p>v0.99.417 adds the pattern tracker, with keyboard editing, cue/stop/fade/volume/opacity
+        cells, mute/solo, jumps and sections. Recent releases add phone control, a fixture patch,
+        Mic cues, local live captions, saved defaults, gamma-correct projection blends and Windows
+        PQ/HLG workflows. <a href="specs.html">Current specifications and requirements.</a></p>
         <h2 id="images">Images</h2>
-        <p>Right-click to save, or link them directly. Full resolution behind each one.</p>
+        <p>More demos: <a href="images/readme/picture-scopes.gif">picture scopes (GIF)</a>,
+        <a href="images/readme/dmx-by-fixture.gif">fixtures (GIF)</a>,
+        <a href="images/readme/mic-inspector.gif">Mic cue (GIF)</a>,
+        <a href="images/readme/phone-controller.mp4">phone controller (MP4)</a>,
+        <a href="images/readme/phone-controller.png">full phone screenshot</a>,
+        <a href="images/readme/fixture-patch.png">fixture patch screenshot</a>.
+        <a href="images/readme/README.md">Capture notes and versions.</a></p>
+        <p>Right-click to save, or link them directly. Full resolution behind each one.
+        The desk and tracker below were captured from the published v0.99.417 build using
+        Deckboy&rsquo;s own generated patterns.</p>
         <div class="assets">
+            <figure>
+                <a href="images/readme/desk-gameboy.png"><img src="images/readme/desk-gameboy.png" width="1600" height="900" alt="Deckboy 0.99.417 in the Gameboy theme with Swirl on the programme monitor."></a>
+                <figcaption><a href="images/readme/desk-gameboy.png">Gameboy desk</a> &middot; <a href="images/readme/desk-dark.png">Dark desk</a> &middot; <a href="images/readme/desk-virtual-boy.png">Virtual Boy desk</a> &mdash; 1600&times;900, v0.99.417.</figcaption>
+            </figure>
+            <figure>
+                <a href="images/readme/master-tracker.png"><img src="images/readme/master-tracker.png" width="1600" height="900" loading="lazy" alt="Deckboy's master tracker pattern view with cue, level, fade and stop cells."></a>
+                <figcaption><a href="images/readme/master-tracker.png">Master tracker</a> &mdash; 1600&times;900, v0.99.417.</figcaption>
+            </figure>
+            <figure>
+                <a href="images/readme/taking-cues.gif"><img src="images/readme/taking-cues.png" width="900" height="516" loading="lazy" alt="A Swirl clip on the cue list alongside a slide and a local web page."></a>
+                <figcaption>Cue taking &mdash; <a href="images/readme/taking-cues.gif">GIF</a> / <a href="images/readme/taking-cues.mp4">MP4</a>, 12 seconds, silent, v0.99.414.</figcaption>
+            </figure>
+            <figure>
+                <a href="images/readme/live-effects.gif"><img src="images/readme/live-effects.png" width="900" height="556" loading="lazy" alt="Kaleidoscope with an LFO on a generated Swirl clip, with its inspector visible."></a>
+                <figcaption>Live effects &mdash; <a href="images/readme/live-effects.gif">GIF</a> / <a href="images/readme/live-effects.mp4">MP4</a>, 4 seconds, silent, captured 16 October 2026.</figcaption>
+            </figure>
             <figure>
                 <a href="images/hero.png"><img src="images/hero.png" alt="The Deckboy interface: playlist, timeline, programme monitor and cue inspector."></a>
                 <figcaption><a href="images/hero.png">hero.png</a> &mdash; the interface,
