@@ -1,0 +1,78 @@
+{
+  "minimum_version": "0.99.417",
+  "shows": [
+    {
+      "file": "01-start-here.deckboy",
+      "title": "Start here",
+      "playlists": [
+        "Start here"
+      ],
+      "cue_counts": {
+        "0": 5
+      },
+      "steps": [],
+      "run_seconds": 0
+    },
+    {
+      "file": "02-layers-and-titles.deckboy",
+      "title": "Layers and titles",
+      "playlists": [
+        "Backdrop",
+        "Inset",
+        "Name strap"
+      ],
+      "cue_counts": {
+        "0": 3,
+        "1": 3,
+        "2": 3,
+        "-1": 5
+      },
+      "steps": [
+        "All three layers",
+        "Change the backdrop",
+        "Change inset and strap",
+        "Fireside interview",
+        "Clean backdrop"
+      ],
+      "run_seconds": 0.0
+    },
+    {
+      "file": "03-effects-playground.deckboy",
+      "title": "Effects playground",
+      "playlists": [
+        "Looks laboratory"
+      ],
+      "cue_counts": {
+        "0": 6
+      },
+      "steps": [],
+      "run_seconds": 0
+    },
+    {
+      "file": "04-one-button-show.deckboy",
+      "title": "One-button show",
+      "playlists": [
+        "Picture",
+        "Words",
+        "Inset",
+        "Sound"
+      ],
+      "cue_counts": {
+        "0": 5,
+        "1": 5,
+        "2": 2,
+        "3": 1,
+        "-1": 6
+      },
+      "steps": [
+        "Doors",
+        "Opening",
+        "Main scene",
+        "Clear the inset",
+        "Closing",
+        "Fade to black"
+      ],
+      "run_seconds": 39.0
+    }
+  ]
+}
