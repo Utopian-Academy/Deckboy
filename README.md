@@ -93,6 +93,10 @@ Deckboy is free software. If it helps you run a show, share your experience, rep
 
 ## Download
 
+**[Try the example shows](data/demos/starter-pack/README.md)** — a first-cue
+walkthrough, layered titles, an effects playground and a 39-second automated
+show with original music. Open the `.deckboy` files and follow the cue notes.
+
 The features below describe the current source. Packaged builds and their
 version-specific changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
 

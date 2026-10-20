@@ -1,0 +1,2 @@
+# Show records are positional TSV; trailing tabs represent empty fields.
+*.deckboy text eol=lf whitespace=-blank-at-eol
