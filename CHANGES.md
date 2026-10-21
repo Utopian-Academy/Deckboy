@@ -2,6 +2,14 @@
 
 ## 2026-10-21 - v0.99.418 (in progress)
 
+### Control
+- Fixed an issue where another machine could run a command reserved for this computer by
+  wrapping it in `DECK <n>`, or by storing it in a dashboard slot or script cue. Every level
+  of a nested command is now checked, and a slot made on this computer that runs such a
+  command is refused when fired from another machine.
+- Fixed a crash when a dashboard slot ran itself through `DECK <n>`. Commands nested more than
+  12 deep now stop with an error and the show keeps running.
+
 ### Scopes
 - The scopes now measure every new picture once, at the source's own frame rate: a 25 fps
   clip is measured 25 times a second and a 59.94 fps clip 59.94 times, whatever the output's
