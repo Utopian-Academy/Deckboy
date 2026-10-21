@@ -2190,8 +2190,17 @@ Project loadProject(const fs::path& projectFile,
       cue.compositeBackgroundColor = parseColor(safeString(fields, offset + 65));
       int compositeSlotCount = safeInt(fields, offset + 66, 0);
       size_t compositeBase = offset + 67;
+      // NEVER TRUST A COUNT OVER THE DATA BEHIND IT. A damaged line saying
+      // 2000000000 slots reserved that many before the loop found no fields
+      // for them (audit 2026-10-19, F6). Each slot is 11 fields; a count past
+      // what the line carries is cut to what it carries.
+      {
+        const std::size_t carried = fields.size() > compositeBase ? (fields.size() - compositeBase) / 11 : 0;
+        compositeSlotCount = static_cast<int>(std::min<std::size_t>(
+          static_cast<std::size_t>(std::max(0, compositeSlotCount)), carried));
+      }
       cue.compositeSlots.clear();
-      cue.compositeSlots.reserve(std::max(0, compositeSlotCount));
+      cue.compositeSlots.reserve(static_cast<std::size_t>(compositeSlotCount));
       for (int slotIndex = 0; slotIndex < compositeSlotCount; ++slotIndex) {
         size_t slotOffset = compositeBase + static_cast<size_t>(slotIndex) * 11;
         if (slotOffset + 10 >= fields.size()) {

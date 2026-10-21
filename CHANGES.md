@@ -7,6 +7,8 @@
   wrapping it in `DECK <n>`, or by storing it in a dashboard slot or script cue. Every level
   of a nested command is now checked, and a slot made on this computer that runs such a
   command is refused when fired from another machine.
+- Fixed a crash when opening a show file damaged in a particular way (a scene cue's slot count
+  far larger than the slots written after it). The show now opens with the slots it really has.
 - Fixed a crash when a dashboard slot ran itself through `DECK <n>`. Commands nested more than
   12 deep now stop with an error and the show keeps running.
 
