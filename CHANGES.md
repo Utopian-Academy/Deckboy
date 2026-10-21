@@ -43,6 +43,9 @@
   it types by character, so accented letters and non-Latin scripts never break mid-word.
   All 29 full catalogues have its 74 tips, hover answers and reactions, including
   Klingon, Sindarin and Lumeni, with local sayings in its cheekier moments.
+- Switching language, the face greets you with a local saying for a few seconds: Danish asks
+  who took the last gammeldansk, 1337 announces that all ur cues r belong 2 us, Alienese II is
+  amused by your "slideshow". Each catalogue keeps its own line under `@hello`.
 - The face no longer comes back into the programme monitor while any output is on. Firing one-off
   cues such as lower thirds minutes apart leaves the monitor dark between them; the face returns
   10 seconds after the last output is turned off and nothing is playing.

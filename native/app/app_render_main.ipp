@@ -1034,6 +1034,8 @@
                (mascotHoldReaction_ || nowMs - mascotPokeAtMs_ < 1800)) {
       const int lines = static_cast<int>(sizeof(kPokeLines) / sizeof(kPokeLines[0]));
       spoken = kPokeLines[std::min(mascotPokes_ - 1, lines - 1)];
+    } else if (!mascotGreeting_.empty() && SDL_GetTicks() < mascotGreetUntilMs_) {
+      spoken = mascotGreeting_;
     } else if (overrideTip) {
       spoken = overrideTip;
     } else {

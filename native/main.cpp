@@ -11140,6 +11140,10 @@ class App {
   int mascotPokes_ = 0;
   Uint64 mascotLastPokeMs_ = 0;
   Uint64 mascotFleeStartedMs_ = 0;   // 0 until it decides to leave
+  // A SAYING FOR THE LANGUAGE YOU JUST PICKED (James, 2026-10-21: "make up some
+  // cheeky ones"). Said for a few seconds after an explicit switch, never at boot.
+  std::string mascotGreeting_;
+  Uint64 mascotGreetUntilMs_ = 0;
   // Slow to start, quick to finish: the first step is the discovery, and by
   // the time somebody has noticed the eyes move they are already committed.
   static constexpr int kMascotWatchAfterPokes = 3;

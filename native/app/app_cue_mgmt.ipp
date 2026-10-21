@@ -8153,6 +8153,29 @@
     miamiCursorScale_ = scale;
   }
 
+  // WHAT THE FACE SAYS WHEN YOU SWITCH TO A LANGUAGE. A catalogue carries its
+  // own line under the key "@hello" -- a local saying, not a translation, so a
+  // translator can change it without touching code. A cypher has no catalogue:
+  // its line is English and the cypher scrambles it like everything else. A
+  // language with neither says its usual greeting.
+  static std::string languageGreeting(const std::string& code) {
+    static const std::pair<const char*, const char*> kCypherLines[] = {
+      {"cy-leet", "w00t! all ur cues r belong 2 us"},
+      {"cy-alienese2", "Greetings, primitive. Your \"slideshow\" amuses us."},
+      {"cy-rot13", "Nothing to see here. Probably."},
+      {"cy-atbash", "Ancient cypher, modern video desk. Respect."},
+      {"cy-morse", "SOS. Kidding. The show is fine."},
+      {"cy-mirror", "Read everything right to left. Yes, everything."},
+    };
+    for (const auto& [cypher, line] : kCypherLines) {
+      if (code == cypher) return line;
+    }
+    if (code == "en" || code.empty()) return "English again. Training wheels on.";
+    const std::string own = deckboy::core::i18n::translate("@hello");
+    if (!own.empty() && own != "@hello") return own;
+    return deckboy::core::i18n::translate("Hi! I am Deckboy.");
+  }
+
   // THE INTERFACE LANGUAGE, set the one way: from the settings list and from
   // LANGUAGE on the control port alike, so the two cannot drift apart.
   bool applyInterfaceLanguage(const std::string& code, std::string& error) {
@@ -8165,6 +8188,8 @@
     // left pointing at the old ones.
     applyUiScale();
     markProjectDirty();
+    mascotGreeting_ = languageGreeting(code);
+    mascotGreetUntilMs_ = SDL_GetTicks() + 6000;
     if (deckboy::core::i18n::activeFontMissing()) {
       triggerToast(deckboy::core::i18n::activeName() + ": no font on this machine can draw it",
                    ToastKind::Warning, kToastReadableMs);

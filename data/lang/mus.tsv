@@ -95,3 +95,6 @@ OFF	TVLKE
 Stopped	TVLKES
 Playing	POHKES
 Paused	
+
+# What the desk face says when you switch to this language: a local saying, not a translation.
+@hello	Hesci!
