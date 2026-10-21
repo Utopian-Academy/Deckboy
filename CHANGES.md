@@ -7,6 +7,9 @@
   wrapping it in `DECK <n>`, or by storing it in a dashboard slot or script cue. Every level
   of a nested command is now checked, and a slot made on this computer that runs such a
   command is refused when fired from another machine.
+- A phone no longer receives the text of dashboard buttons made on the desk. It sees that a
+  button is set and can press or replace it; only the actions in the phone's own menu (TAKE,
+  STOP, tracker, blackout, test card, record) come through as themselves.
 - Fixed a crash when opening a show file damaged in a particular way (a scene cue's slot count
   far larger than the slots written after it). The show now opens with the slots it really has.
 - Fixed a crash when a dashboard slot ran itself through `DECK <n>`. Commands nested more than

@@ -210,6 +210,19 @@ def main():
         send("DASH 2", 409)
         send("DASH 3", 409)
         expect("remote-test" not in json.dumps(state()), "state contains no PIN")
+        # A desk macro's text never reaches the phone (audit 2026-10-19, F3);
+        # the phone's own menu actions still come through so its editor can
+        # preselect them.
+        control("DASH SET 5 Marker | STREAM KEY state-secret-marker")
+        control("DASH SET 6 Take | DECK 1 TAKE 2")
+        wait_for(lambda: {5, 6} <= {s["index"] for s in state()["dash"]})
+        dash = {s["index"]: s for s in state()["dash"]}
+        expect("state-secret-marker" not in json.dumps(state()), "a desk macro's text is not in phone state")
+        expect(dash[5]["command"] == "custom", "a desk macro reads as custom on the phone")
+        expect(dash[6]["command"] == "DECK 1 TAKE 2", "a phone menu action still reads as itself")
+        expect(dash[1]["command"] == "custom", "DECK 1 SELECT 1 is not a phone menu action")
+        control("DASH CLEAR 5")
+        control("DASH CLEAR 6")
         control("WEBMONITOR PIN changed-5937")
         expect(http(web)[0] == 401, "PIN rotation revokes old PIN immediately")
         expect(http(web, pin="changed-5937")[0] == 200, "new PIN accepted")

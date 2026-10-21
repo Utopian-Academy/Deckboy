@@ -1549,7 +1549,38 @@
     return false;
   }
 
-  // Built on the main thread only. No paths, commands, PIN or output credentials
+  // WHAT A PHONE MAY SEE OF A DASHBOARD SLOT (audit 2026-10-19, F3). The
+  // phone's editor offers a fixed list of actions (remote.js dashChoices) and
+  // only needs a slot's command to preselect one of them. Anything else -- a
+  // desk macro that may carry a path, a URL or a passphrase -- goes out as
+  // "custom": the phone knows the slot is set and can fire or replace it, and
+  // never sees what it says. Keep this list in step with dashChoices.
+  static std::string phoneDashCommand(const std::string& command) {
+    if (command.empty()) return std::string();
+    const auto w = splitWhitespace(command);
+    auto upper = [&](std::size_t i) { return i < w.size() ? toUpper(w[i]) : std::string(); };
+    auto number = [&](std::size_t i) {
+      return i < w.size() && !w[i].empty() && w[i].size() <= 4 &&
+             std::all_of(w[i].begin(), w[i].end(), [](unsigned char c) { return std::isdigit(c) != 0; });
+    };
+    const std::string verb = upper(0);
+    bool known = false;
+    if (verb == "DECK" && number(1)) {
+      const std::string act = upper(2);
+      known = (w.size() == 3 && (act == "GO" || act == "STOP" || act == "PAUSE" || act == "PLAY")) ||
+              (w.size() == 4 && act == "TAKE" && number(3));
+    } else if (verb == "TRACKER") {
+      known = w.size() == 2 && (upper(1) == "GO" || upper(1) == "BACK" || upper(1) == "PLAY" || upper(1) == "STOP");
+    } else if (verb == "BLACKOUT" || verb == "RECORD") {
+      known = w.size() == 2 && (upper(1) == "ON" || upper(1) == "OFF");
+    } else if (verb == "OUTPUT") {
+      known = w.size() == 4 && upper(1) == "TESTCARD" && upper(2) == "ALL" && (upper(3) == "ON" || upper(3) == "OFF");
+    }
+    return known ? command : std::string("custom");
+  }
+
+  // Built on the main thread only. No paths, PIN or output credentials, and no
+  // dashboard command beyond the phone's own menu actions (phoneDashCommand),
   // are exposed to the phone; the HTTP threads read this immutable snapshot.
   std::string buildWebRemoteState() const {
     std::ostringstream out;
@@ -1588,7 +1619,7 @@
       if (!first) out << ',';
       first = false;
       out << "{\"index\":" << n + 1 << ",\"label\":\"" << escapeJson(slot.label)
-          << "\",\"command\":\"" << escapeJson(slot.command) << "\"}";
+          << "\",\"command\":\"" << escapeJson(phoneDashCommand(slot.command)) << "\"}";
     }
     // THE TRACKER, if the show has one: it can be the primary way a show is
     // run, so the phone carries it as well as the decks.
