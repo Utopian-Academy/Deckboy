@@ -2699,8 +2699,13 @@
     // has been empty for kMascotReturnMs; until then the monitor stays dark
     // rather than flashing to the bright idle fill. Before anything has been
     // live this session it is there from the start, as it always was.
+    //
+    // NOT AT ALL WHILE THE SHOW IS LIVE (James, 2026-10-21: one-off lower
+    // thirds fired minutes apart still had the face back between them). An
+    // armed output counts as live, so it stays away for the whole show and
+    // only returns kMascotReturnMs after the outputs are off and nothing runs.
     constexpr Uint64 kMascotReturnMs = 10000;
-    if (anythingLive) programmeLastLiveMs_ = animationNow_;
+    if (anythingLive || showIsLive()) programmeLastLiveMs_ = animationNow_;
     const bool mascotWaiting = !anythingLive && programmeLastLiveMs_ != 0 &&
                                animationNow_ - programmeLastLiveMs_ < kMascotReturnMs;
     bool showMascot = !anythingLive && !mascotWaiting;

@@ -2,6 +2,11 @@
 
 ## 2026-10-21 - v0.99.418 (in progress)
 
+### Desk
+- The face no longer comes back into the programme monitor while any output is on. Firing one-off
+  cues such as lower thirds minutes apart leaves the monitor dark between them; the face returns
+  10 seconds after the last output is turned off and nothing is playing.
+
 ### Windows
 - The taskbar and window icon is the full Deckboy cartridge again at small sizes, as it was before
   0.99.414, in place of the flat play-screen mark.
