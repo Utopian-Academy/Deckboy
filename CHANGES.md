@@ -1,25 +1,14 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-21 - v0.99.418 (in progress)
+## 2026-10-21 - v0.99.418 (scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
-### Control
-- Fixed an issue where another machine could run a command reserved for this computer by
-  wrapping it in `DECK <n>`, or by storing it in a dashboard slot or script cue. Every level
-  of a nested command is now checked, and a slot made on this computer that runs such a
-  command is refused when fired from another machine.
-- A phone no longer receives the text of dashboard buttons made on the desk. It sees that a
-  button is set and can press or replace it; only the actions in the phone's own menu (TAKE,
-  STOP, tracker, blackout, test card, record) come through as themselves.
-- Fixed a crash when opening a show file damaged in a particular way (a scene cue's slot count
-  far larger than the slots written after it). The show now opens with the slots it really has.
-- Fixed a crash when a dashboard slot ran itself through `DECK <n>`. Commands nested more than
-  12 deep now stop with an error and the show keeps running.
-
-### Packages
-- The Windows, macOS, Linux and Mini downloads now include FFmpeg's licence notice
-  (`LICENSE-ffmpeg.txt`), and the Windows download includes the licence of its bundled
-  `ffmpeg.exe` build (`LICENSE-ffmpeg-exe.txt`, `README-ffmpeg-exe.txt`). A package that would
-  bundle FFmpeg without its notice is no longer built.
+### Transitions
+- A cue that is playing now keeps playing through the transition out of it, and its sound
+  fades out over the transition. Before, a crossfade (or any transition) out of a playing
+  video froze it on its last frame and cut its sound at GO. A cue that has reached its end,
+  or is paused, still holds its last frame. Applies to video and audio files without a
+  grade or picture effects, not on ASIO output; recordings and streams still take the new
+  cue's sound at the take.
 
 ### Scopes
 - The scopes now measure every new picture once, at the source's own frame rate: a 25 fps
@@ -50,10 +39,6 @@
   cues such as lower thirds minutes apart leaves the monitor dark between them; the face returns
   10 seconds after the last output is turned off and nothing is playing.
 
-### Windows
-- The taskbar and window icon is the full Deckboy cartridge again at small sizes, as it was before
-  0.99.414, in place of the flat play-screen mark.
-
 ### Deckboy Mini
 - Fixed an issue where Deckboy Mini closed the moment it was opened without files named, as a
   double-click opens it: on Windows its window flashed and vanished. Mini now opens in a
@@ -63,13 +48,28 @@
 - The Windows download's README gives Mini's commands as `.\deckboy-mini`, the form PowerShell
   needs: typed as it showed them before, PowerShell answered that `deckboy-mini` was not recognized.
 
-### Transitions
-- A cue that is playing now keeps playing through the transition out of it, and its sound
-  fades out over the transition. Before, a crossfade (or any transition) out of a playing
-  video froze it on its last frame and cut its sound at GO. A cue that has reached its end,
-  or is paused, still holds its last frame. Applies to video and audio files without a
-  grade or picture effects, not on ASIO output; recordings and streams still take the new
-  cue's sound at the take.
+### Control
+- Fixed an issue where another machine could run a command reserved for this computer by
+  wrapping it in `DECK <n>`, or by storing it in a dashboard slot or script cue. Every level
+  of a nested command is now checked, and a slot made on this computer that runs such a
+  command is refused when fired from another machine.
+- A phone no longer receives the text of dashboard buttons made on the desk. It sees that a
+  button is set and can press or replace it; only the actions in the phone's own menu (TAKE,
+  STOP, tracker, blackout, test card, record) come through as themselves.
+- Fixed a crash when opening a show file damaged in a particular way (a scene cue's slot count
+  far larger than the slots written after it). The show now opens with the slots it really has.
+- Fixed a crash when a dashboard slot ran itself through `DECK <n>`. Commands nested more than
+  12 deep now stop with an error and the show keeps running.
+
+### Packages
+- The Windows, macOS, Linux and Mini downloads now include FFmpeg's licence notice
+  (`LICENSE-ffmpeg.txt`), and the Windows download includes the licence of its bundled
+  `ffmpeg.exe` build (`LICENSE-ffmpeg-exe.txt`, `README-ffmpeg-exe.txt`). A package that would
+  bundle FFmpeg without its notice is no longer built.
+
+### Windows
+- The taskbar and window icon is the full Deckboy cartridge again at small sizes, as it was before
+  0.99.414, in place of the flat play-screen mark.
 
 ## 2026-10-17 - v0.99.417 (the master tracker as a pattern; AV Tools Pro in the manual)
 

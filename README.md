@@ -304,6 +304,9 @@ a small download for Windows, macOS, Linux and the Raspberry Pi (64-bit) on the
 deckboy-mini ~/Videos --display 2 --loop
 ```
 
+In Windows PowerShell, start it as `.\deckboy-mini` from its folder; PowerShell does not
+run a program from the current folder by its bare name. Or drop files onto `deckboy-mini.exe`.
+
 ![Deckboy Mini run from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with five cues and the NEXT line; cue 3 is queued to play next, a search for logo takes cue 5, the clock switches to time left, shuffle, crossfade and stop-after-this-cue switch on, and the help pages end on the running order](art/readme/mini-terminal.gif)
 
 ---
@@ -664,6 +667,9 @@ importantly, what each feature deliberately does not do.
 - A face you can make your own: how it looks, what it does and what it talks
   about, including lines you write yourself. Every setting starts from the face
   as it is today, and none of them can touch playback, routing or outputs
+- A guided tutorial, taught by the face: it walks a new operator through the
+  desk with the example shows, one step at a time, and waits while they try each
+  step themselves
 
 **Picture:**
 
