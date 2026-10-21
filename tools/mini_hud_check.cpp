@@ -71,8 +71,8 @@ int main(int argc, char** argv) {
     check(c.count() == 1, "resume has no backlog");
 
     if (argc > 1) {
-      const std::filesystem::path dir(argv[1]);
-      std::filesystem::create_directories(dir);
+      const dbfs::path dir(argv[1]);
+      dbfs::create_directories(dir);
       const auto file = dir / "mini-containment";
       check(Containment::save(file, 4), "save first count");
       check(Containment::load(file) == 4, "load first count");
@@ -84,10 +84,10 @@ int main(int argc, char** argv) {
       check(c.count() == 6, "restart continues counter");
       // An unwriteable temporary leaves the last complete record intact.
       const auto temporary = dir / "mini-containment.saving";
-      std::filesystem::create_directory(temporary);
+      dbfs::create_directory(temporary);
       check(!Containment::save(file, 100), "failed save reported");
       check(Containment::load(file) == 5, "failed save preserves count");
-      std::filesystem::remove(temporary);
+      dbfs::remove(temporary);
       for (const char* invalid : {"", "-1\n", "4junk\n", "3", "18446744073709551616\n",
                                   "111111111111111111111111111111111111111111111111111111\n"}) {
         { std::ofstream out(file, std::ios::binary); out << invalid; }
