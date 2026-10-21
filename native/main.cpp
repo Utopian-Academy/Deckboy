@@ -1955,6 +1955,21 @@ struct DeckRuntime {
   // and be honoured when the device comes back.
   std::string audioDeviceInUse;
   std::unique_ptr<MediaEngine> mediaEngine;   // Core playback engine
+  // THE CUE THAT WAS PLAYING WHEN THE NEXT ONE WAS TAKEN, still playing. A
+  // take with a transition that would have frozen a playing cue hands that
+  // cue's engine here instead, with the audio streams it is writing to, and
+  // the deck gets a fresh engine and fresh streams for the incoming cue. The
+  // tail feeds its picture into the transition and fades its sound, then is
+  // stopped (App::handOffToOutgoingTail / serviceOutgoingTail /
+  // finishOutgoingTail). Empty almost all of the time.
+  struct OutgoingTail {
+    std::unique_ptr<MediaEngine> engine;
+    SDL_AudioStream* audioStream = nullptr;
+    std::vector<SDL_AudioStream*> extraAudioStreams;
+    SDL_AudioStream* monitorAudioStream = nullptr;
+    Uint64 endsAtMs = 0;
+    std::uint64_t lastFedIndex = ~std::uint64_t{0};
+  } outgoingTail;
   std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;  // For Browser/LowerThird cues
   // When to next re-apply the hide-scrollbars rule, and when to stop bothering.
   Uint64 browserScrollbarNextMs = 0;

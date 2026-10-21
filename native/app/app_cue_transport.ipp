@@ -4597,6 +4597,147 @@
     return did;
   }
 
+  // ── THE OUTGOING TAIL: A PLAYING CUE KEEPS PLAYING THROUGH THE TRANSITION ─
+  //
+  // A cue that is PLAYING when the next one is taken with a transition keeps
+  // playing under it, picture and sound, and its sound fades out over the
+  // transition. A cue that has already ended, or is paused, holds its last
+  // picture as it always has -- that is the hold, not a freeze. (James,
+  // 2026-10-21. Before this, every crossfade out of a playing video froze it
+  // and cut its sound at GO.) See DeckRuntime::OutgoingTail and
+  // MediaEngine::beginLiveOutgoing for the mechanism.
+  //
+  // Only where the hand-off is clean, and the old hold everywhere else:
+  //   - video and audio FILES. A camera, capture card or stream would stay
+  //     open under the tail while the incoming cue may want the same device,
+  //     port or source;
+  //   - an outgoing cue with no grade or picture effects. The deck's own layer
+  //     applies a cue's look to every frame; the transition draws the tail's
+  //     picture as it was decoded, which would drop the look mid-fade;
+  //   - not on ASIO, where every deck writes into one shared queue and a
+  //     second writer would interleave two programmes;
+  //   - not while the deck's named device is missing, where opening a second
+  //     set of streams would announce the fallback again at every take.
+  bool outgoingCueShouldKeepPlaying(int deckIndex, double transitionSeconds,
+                                    TransitionStyle style) {
+    if (transitionSeconds <= 0.0001 || style == TransitionStyle::Cut || asioOutput_) {
+      return false;
+    }
+    DeckRuntime* rt = runtimeForDeck(deckIndex);
+    if (!rt || !rt->mediaEngine ||
+        rt->audioDeviceInUse != trim(project_.decks[deckIndex].audioOutputDeviceName)) {
+      return false;
+    }
+    const MediaEngine& engine = *rt->mediaEngine;
+    const Cue* cue = engine.activeCue();
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio) ||
+        cue->path.find("://") != std::string::npos) {
+      return false;
+    }
+    if (engine.state() != TransportState::Playing || engine.reachedEndPending()) {
+      return false;
+    }
+    return !cueHasPixelEffects(*cue) && cue->effects.empty();
+  }
+
+  // Called by takeSelected just before the incoming cue is loaded. When the
+  // cue on air should keep playing, its engine and the streams it writes to
+  // become the deck's outgoing tail, the deck gets a fresh engine on fresh
+  // streams, and the tail is returned; otherwise nullptr and nothing changed.
+  // Any tail still fading from an earlier take ends here either way.
+  MediaEngine* handOffToOutgoingTail(int deckIndex, double transitionSeconds,
+                                     TransitionStyle style) {
+    finishOutgoingTail(deckIndex);
+    if (!outgoingCueShouldKeepPlaying(deckIndex, transitionSeconds, style)) {
+      return nullptr;
+    }
+    DeckRuntime* rt = runtimeForDeck(deckIndex);
+    DeckRuntime::OutgoingTail& tail = rt->outgoingTail;
+    tail.engine = std::move(rt->mediaEngine);
+    tail.audioStream = std::exchange(rt->audioStream, nullptr);
+    tail.extraAudioStreams.swap(rt->extraAudioStreams);
+    tail.monitorAudioStream = std::exchange(rt->monitorAudioStream, nullptr);
+    // The fresh engine and its streams come from the one function that builds
+    // a deck's audio, which with the old streams handed over above has nothing
+    // of the tail's to close.
+    reopenDeckAudioOutput(deckIndex, project_.decks[deckIndex].audioOutputDeviceName);
+    if (!rt->mediaEngine) {
+      // Cannot happen -- that function always leaves an engine -- but a deck
+      // must never be left without one, so put the old one back.
+      rt->mediaEngine = std::move(tail.engine);
+      finishOutgoingTail(*rt);
+      return nullptr;
+    }
+    MediaEngine& fresh = *rt->mediaEngine;
+    fresh.inheritDeckSettingsFrom(*tail.engine);
+    // Building an engine hands it the main stream only; the extras and the
+    // monitor are installed by the hot-swap path, which a fresh engine skips.
+    fresh.setExtraAudioStreams(rt->extraAudioStreams);
+    fresh.setMonitorStream(rt->monitorAudioStream);
+    applyAudioMonitorSelection();
+    tail.engine->beginTailFade(transitionSeconds);
+    // A little past the end of the fade, so its last chunk has played out.
+    tail.endsAtMs = SDL_GetTicks() + static_cast<Uint64>(transitionSeconds * 1000.0) + 100;
+    tail.lastFedIndex = ~std::uint64_t{0};
+    return tail.engine.get();
+  }
+
+  // Every tick, after the deck's own engine: keep the tail decoding, hand its
+  // newest picture to the transition, and end it when its time is up or the
+  // deck was stopped under it.
+  void serviceOutgoingTail(int deckIndex) {
+    DeckRuntime* rt = runtimeForDeck(deckIndex);
+    if (!rt || !rt->outgoingTail.engine) {
+      return;
+    }
+    DeckRuntime::OutgoingTail& tail = rt->outgoingTail;
+    MediaEngine* deckEngine = rt->mediaEngine.get();
+    if (!deckEngine || SDL_GetTicks() >= tail.endsAtMs ||
+        deckEngine->state() == TransportState::Stopped) {
+      finishOutgoingTail(*rt);
+      return;
+    }
+    tail.engine->setMasterGain(static_cast<float>(project_.masterVolume));
+    tail.engine->update();
+    if (const DecodedFrame* frame = tail.engine->currentFrame();
+        frame && frame->index != tail.lastFedIndex) {
+      deckEngine->feedLiveOutgoingFrame(*frame);
+      tail.lastFedIndex = frame->index;
+    }
+  }
+
+  void finishOutgoingTail(int deckIndex) {
+    if (DeckRuntime* rt = runtimeForDeck(deckIndex)) {
+      finishOutgoingTail(*rt);
+    }
+  }
+
+  void finishOutgoingTail(DeckRuntime& rt) {
+    DeckRuntime::OutgoingTail& tail = rt.outgoingTail;
+    if (tail.engine) {
+      // The device back BEFORE the engine goes, for the reason
+      // destroyDeckRuntime gives: no audio thread may still hold a stream
+      // that is about to be freed.
+      tail.engine->detachAudioDevice();
+      tail.engine->stopAll();
+      tail.engine.reset();
+    }
+    for (SDL_AudioStream* stream : tail.extraAudioStreams) {
+      if (stream) SDL_DestroyAudioStream(stream);
+    }
+    tail.extraAudioStreams.clear();
+    if (tail.monitorAudioStream) {
+      SDL_DestroyAudioStream(tail.monitorAudioStream);
+      tail.monitorAudioStream = nullptr;
+    }
+    if (tail.audioStream) {
+      SDL_DestroyAudioStream(tail.audioStream);
+      tail.audioStream = nullptr;
+    }
+    tail.endsAtMs = 0;
+    tail.lastFedIndex = ~std::uint64_t{0};
+  }
+
   void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false,
                     bool honourPreWait = true) {
     Deck& deck = focusedDeckMutable();
@@ -4784,13 +4925,24 @@
       transStyleStr = !cue.cueTransitionStyle.empty()
         ? cue.cueTransitionStyle : deck.transitionStyle;
     }
+    const TransitionStyle transStyle = parseTransitionStyleToken(transStyleStr);
+    // A cue that is PLAYING keeps playing through the transition out of it;
+    // see handOffToOutgoingTail. When it does, this deck's engine is a fresh
+    // one from here on.
+    MediaEngine* outgoingTail = handOffToOutgoingTail(deckIndex, transSecs, transStyle);
+    if (outgoingTail) {
+      engine = runtimeForDeck(deckIndex)->mediaEngine.get();
+    }
     engine->loadCue(
       &cue,
       effectiveAutoplay,
       transSecs,
-      parseTransitionStyleToken(transStyleStr),
+      transStyle,
       suppressIncomingFadeIn
     );
+    if (outgoingTail) {
+      engine->beginLiveOutgoing(*outgoingTail, transSecs, transStyle);
+    }
     // Load subtitle track if the cue has one
     if (cue.subtitleEnabled && (!cue.subtitlePath.empty() || !cue.subtitleStreamId.empty())) {
       std::string subtitleKey = cue.subtitlePath.empty() ? (cue.path + "::" + cue.subtitleStreamId) : cue.subtitlePath;

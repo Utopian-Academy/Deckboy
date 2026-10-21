@@ -1159,6 +1159,7 @@
   }
 
   void destroyDeckRuntime(DeckRuntime& runtime) {
+    finishOutgoingTail(runtime);   // its engine and streams first, same rules
     if (runtime.mediaEngine) {
       // Take the device back BEFORE tearing the engine down. Without this the
       // engine still holds the stream through stopAll() and again through
@@ -5553,6 +5554,8 @@
     // rate. detachAudioDevice FIRST on each, for the reason destroyDeckRuntime
     // gives: the engine must not be holding a stream while it is destroyed.
     for (DeckRuntime& runtime : deckRuntimes_) {
+      // A tail mid-fade is still on the old rate's streams; it ends now.
+      finishOutgoingTail(runtime);
       if (runtime.mediaEngine) {
         runtime.mediaEngine->detachAudioDevice();
       }

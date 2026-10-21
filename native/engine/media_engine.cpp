@@ -269,6 +269,7 @@ void MediaEngine::stopAll() {
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
   devampRequested_ = false;   // a devamp belonged to the cue it was aimed at
+  liveOutgoing_ = false;      // a held frame from here on is this engine's own, frozen
   float outgoingGain = transitionSourceGainForLoadCue(activeCue_, state_, visualFadeGainAt(position()));
   outgoingCueSnapshot_ = activeCueSnapshot_;
   stopDecoderThreads();
@@ -5705,6 +5706,84 @@ void MediaEngine::clearTransitionTexture() {
 }
 
 // ---------------------------------------------------------------------------
+// The outgoing tail (see beginLiveOutgoing in the header).
+// ---------------------------------------------------------------------------
+namespace {
+std::int64_t steadyNowNs() {
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+}  // namespace
+
+void MediaEngine::beginLiveOutgoing(const MediaEngine& outgoing, double seconds,
+                                    TransitionStyle style) {
+  liveOutgoing_ = false;
+  const DecodedFrame* picture = outgoing.currentFrame();
+  if (!picture || seconds <= 0.0001) {
+    return;
+  }
+  // Everything loadCue() captures from its own outgoing cue, taken from the
+  // tail instead: the picture, when the blend started, how long and in what
+  // style, the outgoing cue's own geometry, and how faded it already was.
+  heldFrame_ = *picture;
+  heldFrameSince_ = std::chrono::steady_clock::now();
+  outgoingSeconds_ = std::clamp(seconds, 0.0, 10.0);
+  outgoingStyle_ = style;
+  outgoingCueSnapshot_ = outgoing.activeCueSnapshot_;
+  transitionSourceGain_ = transitionSourceGainForLoadCue(
+    outgoing.activeCue_, outgoing.state_, outgoing.currentVisualFadeGain());
+  liveOutgoing_ = true;
+}
+
+void MediaEngine::feedLiveOutgoingFrame(const DecodedFrame& frame) {
+  if (!liveOutgoingActive()) {
+    return;
+  }
+  // Assigned INTO the held frame rather than replacing the optional: its
+  // address is how the compositor tells "this is still the outgoing hold"
+  // from the incoming cue's first frame (renderDeckLayerIntoOutput), and the
+  // pixel buffer's capacity is reused frame to frame.
+  *heldFrame_ = frame;
+}
+
+void MediaEngine::beginTailFade(double seconds) {
+  audioTapMuted_.store(true, std::memory_order_relaxed);
+  tailFadeStartNs_.store(steadyNowNs(), std::memory_order_relaxed);
+  const auto lengthNs = static_cast<std::int64_t>(std::max(0.0, seconds) * 1e9);
+  tailFadeLengthNs_.store(std::max<std::int64_t>(1, lengthNs), std::memory_order_release);
+}
+
+// Equal power: the outgoing sound falls along a quarter of a cosine, so it
+// and an incoming cue fading in sum to a steady loudness across the blend
+// rather than dipping in the middle the way two straight lines do.
+double MediaEngine::tailFadeGainAtNs(std::int64_t ns) const {
+  const std::int64_t length = tailFadeLengthNs_.load(std::memory_order_acquire);
+  if (length <= 0) {
+    return 1.0;
+  }
+  const double t = std::clamp(
+    static_cast<double>(ns - tailFadeStartNs_.load(std::memory_order_relaxed)) /
+      static_cast<double>(length), 0.0, 1.0);
+  return std::cos(t * 1.5707963267948966);
+}
+
+void MediaEngine::inheritDeckSettingsFrom(const MediaEngine& other) {
+  setVolume(other.volume_.load());
+  setMasterGain(other.masterGain_.load());
+  setAudioDelayMs(other.audioDelayMs_.load());
+  setAudioDeviceChannels(other.audioDeviceChannels_.load());
+  setMonitorMuted(other.monitorMuted());
+  setMainDeviceMuted(other.mainDeviceMuted());
+  forcePixelFrames_ = other.forcePixelFrames_;
+  zeroCopyImport_ = other.zeroCopyImport_;
+  hiddenUploadTarget_ = other.hiddenUploadTarget_;
+  audioRate_ = other.audioRate_;
+  // Well clear of anything the tail will still number while it fades -- it
+  // keeps counting from the same place -- and of anything already cached.
+  displayFrameSerial_ = other.displayFrameSerial_ + 100000u;
+}
+
+// ---------------------------------------------------------------------------
 // drawTextureFitted — Blit a texture into the target rect with scale/crop/offset.
 //
 // This is the common draw path for both the current frame and the transition
@@ -7119,15 +7198,27 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
   const double chunkStartTime = audioTime;   // the gain loop advances audioTime
   limiterScratch_.resize(frames * 2);
   limiterFramePeak_.resize(frames);
+  // An outgoing tail's fade (beginTailFade), 1 on every other engine. Taken at
+  // both ends of the chunk and drawn as a line between them per frame, so a
+  // one-second fade is a ramp rather than fifty steps of twenty milliseconds.
+  const std::int64_t chunkNs = steadyNowNs();
+  const double tailFrom = tailFadeGainAtNs(chunkNs);
+  const double tailTo = tailFadeGainAtNs(
+    chunkNs + static_cast<std::int64_t>(1e9 * static_cast<double>(frames) /
+                                        static_cast<double>(std::max(1, audioRate_))));
   // Stage 1: gain / mono / pan into a float scratch, recording the per-frame
   // peak the limiter needs. Quantising here (as this loop used to) would throw
   // away the overshoot the limiter exists to catch.
   for (std::size_t f = 0; f < frames; ++f) {
     const std::size_t index = f * 2;
+    const double tail = frames > 1
+      ? tailFrom + (tailTo - tailFrom) * static_cast<double>(f) / static_cast<double>(frames - 1)
+      : tailTo;
     double gain = static_cast<double>(volume_.load())
                 * static_cast<double>(masterGain_.load())
                 * cueGain
-                * audioFadeGainAt(audioTime);
+                * audioFadeGainAt(audioTime)
+                * tail;
     double left = static_cast<double>(scaled[index]);
     double right = static_cast<double>(scaled[index + 1]);
     if (mono) {
@@ -7467,7 +7558,7 @@ void MediaEngine::tapPlayedAudio(const std::vector<std::int16_t>& sentToDevice) 
   // Outside the lock: the tap runs the recorder's ring push and the stream
   // writers, and nothing it does should be able to block a decode thread that
   // is holding an audio lock.
-  audioTap_(ready);
+  if (!audioTapMuted_.load(std::memory_order_relaxed)) audioTap_(ready);  // see beginTailFade
 }
 
 // Everything still parked goes out. Without this a take loses its last buffer
@@ -7486,7 +7577,7 @@ void MediaEngine::flushTappedAudio() {
     ready.swap(tapFifo_);
     tapEmittedFrames_ += ready.size() / 2u;
   }
-  audioTap_(ready);
+  if (!audioTapMuted_.load(std::memory_order_relaxed)) audioTap_(ready);  // see beginTailFade
 }
 
 // Expand processed stereo onto the cue's output pair. The engine pipeline —
@@ -10915,7 +11006,7 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
   // The tap is STEREO by contract (see queueDelayedAudio), so hand it the
   // first output pair. A tone deliberately routed to some other channel is
   // genuinely not in the stereo programme and correctly reads as silence.
-  if (audioTap_) {
+  if (audioTap_ && !audioTapMuted_.load(std::memory_order_relaxed)) {
     std::vector<std::int16_t> stereo(frames * 2, 0);
     for (std::size_t f = 0; f < frames; ++f) {
       stereo[f * 2]     = out[f * static_cast<std::size_t>(channels)];

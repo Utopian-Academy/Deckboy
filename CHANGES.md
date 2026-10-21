@@ -47,6 +47,14 @@
   on the window, or press A in the terminal and type a path, and the first thing it is given
   starts playing. Files named that hold nothing playable are still reported as an error.
 
+### Transitions
+- A cue that is playing now keeps playing through the transition out of it, and its sound
+  fades out over the transition. Before, a crossfade (or any transition) out of a playing
+  video froze it on its last frame and cut its sound at GO. A cue that has reached its end,
+  or is paused, still holds its last frame. Applies to video and audio files without a
+  grade or picture effects, not on ASIO output; recordings and streams still take the new
+  cue's sound at the take.
+
 ## 2026-10-17 - v0.99.417 (the master tracker as a pattern; AV Tools Pro in the manual)
 
 ### Master tracker

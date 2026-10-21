@@ -578,6 +578,9 @@ class MediaEngine {
   double avSyncErrorSeconds() const { return clockDriftFiltered_; }
   double clockTrimRatio() const { return clockTrim_; }
   bool reachedEnd();                      // true once playback reached the end
+  // The same question without CONSUMING the answer: reachedEnd() clears the
+  // latch, and the transport handler is the one caller that may do that.
+  bool reachedEndPending() const { return reachedEnd_; }
   // Let a looping cue out: it finishes the pass it is on and then ends as if
   // it had not looped. Cleared by the next cue load.
   void devamp() { devampRequested_ = true; }
@@ -780,6 +783,42 @@ class MediaEngine {
 
   TransitionStyle outgoingStyle() const { return outgoingStyle_; }
   double outgoingSeconds() const { return outgoingSeconds_; }
+
+  // ── A CUE THAT IS PLAYING KEEPS PLAYING THROUGH THE TRANSITION ─────────
+  //
+  // The held frame above is the outgoing cue's LAST picture, frozen: the take
+  // stopped its decoder. That is right for a cue that has already ended or was
+  // paused, and wrong for one still playing -- a video froze for the length
+  // of every crossfade out of it, and its sound cut dead at GO.
+  //
+  // So a take that would freeze a PLAYING cue hands that cue's whole engine
+  // to the deck as its outgoing tail instead (App::handOffToOutgoingTail),
+  // and the deck carries on with a fresh engine for the incoming cue. The
+  // tail keeps decoding, its sound fades out over the transition, and these
+  // feed its newest picture into the held frame -- so the compositor, which
+  // draws outgoingFrame() and nothing else, blends a moving picture in every
+  // transition style without knowing anything changed.
+  //
+  // On the INCOMING engine, after loadCue(): take over `outgoing`'s current
+  // picture, look and fade level as the held frame, exactly as loadCue()
+  // would have taken its own.
+  void beginLiveOutgoing(const MediaEngine& outgoing, double seconds, TransitionStyle style);
+  // Replace the held picture with the tail's newest frame. Ignored once the
+  // transition is over or something else has replaced the held frame.
+  void feedLiveOutgoingFrame(const DecodedFrame& frame);
+  bool liveOutgoingActive() const {
+    return liveOutgoing_ && heldFrame_.has_value() && outgoingProgress01() < 1.0;
+  }
+  // On the OUTGOING engine: fade its sound to silence over `seconds` (equal
+  // power, from now), and stop feeding the deck's audio tap -- the incoming
+  // engine owns the deck's VU meter and stream/recording feed now, and a
+  // second writer into either would interleave two programmes.
+  void beginTailFade(double seconds);
+  // What a fresh engine for the SAME deck must start with: the settings the
+  // app pushes into an engine on events rather than every tick (deck volume,
+  // mutes, the pixel-frame request, the rate), and the frame serial, so the
+  // compositor's per-deck caches -- keyed on it -- never see an index again.
+  void inheritDeckSettingsFrom(const MediaEngine& other);
 
   // A HARDWARE-DECODED FRAME NEVER BECOMES texture_: uploadFrame returns early
   // for zero-copy frames, which the output composites from their D3D11 surface.
@@ -1229,6 +1268,16 @@ class MediaEngine {
   // held frame so the compositor can honour it.
   double outgoingSeconds_ = 0.0;
   TransitionStyle outgoingStyle_ = TransitionStyle::Cut;
+  // True while heldFrame_ is fed from an outgoing tail (beginLiveOutgoing);
+  // cleared by every take, which starts the held frame afresh.
+  bool liveOutgoing_ = false;
+  // The tail's sound fade (beginTailFade), read by the audio thread. Steady-
+  // clock nanoseconds; a length of 0 means no fade, which is every engine
+  // that is not a tail.
+  std::atomic<std::int64_t> tailFadeStartNs_ {0};
+  std::atomic<std::int64_t> tailFadeLengthNs_ {0};
+  std::atomic<bool> audioTapMuted_ {false};
+  double tailFadeGainAtNs(std::int64_t ns) const;
   int textureWidth_ = 0;                     // texture dimensions (match decoded frame)
   int textureHeight_ = 0;
   Uint32 textureFormat_ = 0;                 // SDL pixel format of the live texture (0 if none)

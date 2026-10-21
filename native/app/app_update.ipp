@@ -772,6 +772,9 @@
         continue;
       }
       engine->update();
+      // The cue this deck was playing when the current one was taken, if it
+      // is still playing out under the transition (handOffToOutgoingTail).
+      serviceOutgoingTail(deckIndex);
 
       // EVERY transport change goes in the show log, whoever caused it. A
       // channel found sitting paused for two hours left only "stopped

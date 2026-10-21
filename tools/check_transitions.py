@@ -341,10 +341,106 @@ def check_playout(args):
     return 1 if failures else 0
 
 
+def bar_positions(path, width=320, height=180):
+    """The moving bar's column in every frame of a recording, with how bright it is."""
+    raw = subprocess.run([
+        "ffmpeg", "-v", "error", "-i", path, "-vf",
+        "scale=%d:%d,format=gray" % (width, height), "-f", "rawvideo", "-"],
+        capture_output=True, check=True).stdout
+    size = width * height
+    found = []
+    for at in range(0, len(raw) - size + 1, size):
+        frame = raw[at:at + size]
+        columns = [sum(frame[y * width + x] for y in range(0, height, 6)) for x in range(width)]
+        peak = max(columns)
+        found.append((columns.index(peak), peak))
+    return found
+
+
+def check_live_outgoing(args):
+    """A cue that is PLAYING keeps playing through the transition out of it.
+
+    Every crossfade out of a playing video used to freeze it: the take stopped
+    its decoder and blended a copy of its last frame. Measured here with a
+    white bar sweeping across black at 100 px/s, crossfaded into black over
+    two seconds: while the bar is still visible its position has to keep
+    advancing. A PAUSED cue must still hold, and that is checked the same way
+    -- a cue that is not playing is not frozen, it is held (James, 2026-10-21).
+    """
+    from deckboy_harness import Deckboy
+    args.keep = False
+    args.ffmpeg = ""
+    failures = []
+    with tempfile.TemporaryDirectory(prefix="deckboy-live-outgoing-") as media:
+        moving = os.path.join(media, "moving.mp4")
+        black = os.path.join(media, "black.ppm")
+        subprocess.run([
+            "ffmpeg", "-v", "error", "-y",
+            "-f", "lavfi", "-i", "color=black:s=320x180:r=25:d=20",
+            "-f", "lavfi", "-i", "color=white:s=16x180:r=25:d=20",
+            "-f", "lavfi", "-i", "sine=frequency=440:duration=20",
+            "-filter_complex", "[0][1]overlay=x='mod(t*100,304)':y=0[v]",
+            "-map", "[v]", "-map", "2", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-shortest", moving], check=True)
+        write_ppm(black, 320, 180, lambda x, y: (0, 0, 0))
+        with Deckboy(args, "deckboy-live-outgoing-",
+                     extra_args=["--import", moving, "--import", black]) as db:
+            db.send("OUTPUT ON")
+            db.send("RECFORMAT 640x360 25")
+            for case, pause_first in (("playing", False), ("paused", True)):
+                db.send("TRANSITION 0")
+                db.send("SELECT 1")
+                db.send("TAKE")
+                time.sleep(1.5)
+                if pause_first:
+                    db.send("PAUSE")
+                    time.sleep(0.4)
+                db.send("TRANSITION 2.0")
+                db.send("TRANSITIONSTYLE crossfade")
+
+                def take_black():
+                    time.sleep(0.6)
+                    db.send("SELECT 2")
+                    db.send("TAKE")
+                take = threading.Thread(target=take_black)
+                take.start()
+                path = db.record(seconds=3.5)
+                take.join()
+                if not path:
+                    failures.append(case + ": no programme recording")
+                    continue
+                found = bar_positions(path)
+                full = max((peak for _, peak in found[:8]), default=0)
+                # The fade: frames where the bar is visible but dimmer than
+                # before the take, so mid-transition and nothing else.
+                fading = [x for x, peak in found if full * 0.15 < peak < full * 0.85]
+                travel = 0
+                for a, b in zip(fading, fading[1:]):
+                    step = (b - a) % 304
+                    travel += step if step < 150 else 0
+                if pause_first:
+                    ok = len(fading) >= 5 and travel <= 6
+                    want = "held still"
+                else:
+                    ok = len(fading) >= 5 and travel >= 40
+                    want = "kept moving"
+                print("live outgoing (%s cue): %d frames in the fade, bar travelled %d px -- %s %s"
+                      % (case, len(fading), travel, want, "ok" if ok else "FAIL"))
+                if not ok:
+                    failures.append("%s cue: the outgoing picture should have %s through the crossfade "
+                                    "(%d fading frames, %d px)" % (case, want, len(fading), travel))
+                db.send("TRANSITION 0")
+    for failure in failures:
+        print("FAIL: " + failure)
+    return 1 if failures else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--exe", default=default_exe())
     ap.add_argument("--playout", action="store_true", help="also measure geometry in programme recordings")
+    ap.add_argument("--live-outgoing", action="store_true",
+                    help="only check that a playing cue keeps playing through a transition")
     ap.add_argument("--port", type=int, default=5631, help="isolated playout control port")
     args = ap.parse_args()
     if not args.exe or not os.path.isfile(args.exe):
@@ -352,6 +448,8 @@ def main():
     # The playout harness launches from the binary's directory, so resolve
     # --exe against the invocation directory before that working-dir change.
     args.exe = os.path.abspath(args.exe)
+    if args.live_outgoing:
+        return check_live_outgoing(args)
 
     work = tempfile.mkdtemp(prefix="deckboy_transitions_")
     W, H = 320, 180
@@ -442,7 +540,9 @@ def main():
         return 1
     print("check_transitions: ok -- %d styles start clean, finish clean, "
           "reveal steadily and repeat exactly." % len(STYLES))
-    return check_playout(args) if args.playout else 0
+    if not args.playout:
+        return 0
+    return max(check_playout(args), check_live_outgoing(args))
 
 
 if __name__ == "__main__":

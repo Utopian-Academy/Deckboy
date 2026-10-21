@@ -760,6 +760,15 @@ PLAYBACK section. Over the wire, `TRANSITIONSTYLE <token>` sets the style and
 path. `next xfade` on a cue toggles whether a transition is used when
 auto-advancing into the next cue.
 
+**A cue that is playing keeps playing through the transition out of it.** The
+incoming cue blends over the outgoing one's moving picture, in every style, and
+the outgoing sound fades out over the same time. A cue that has already reached
+its end, or is paused, holds its last picture for the blend instead -- that is
+the cue as it was left. The outgoing cue plays on for video and audio files
+without a grade or picture effects, when the deck is not on ASIO; anything else
+holds its last picture as before. Recordings and streams take the incoming
+cue's sound from the moment of the take; the room hears the outgoing one fade.
+
 ---
 
 ## 11. Multi-Deck Operation
