@@ -1,5 +1,11 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-21 - v0.99.418 (in progress)
+
+### Windows
+- The taskbar and window icon is the full Deckboy cartridge again at small sizes, as it was before
+  0.99.414, in place of the flat play-screen mark.
+
 ## 2026-10-17 - v0.99.417 (the master tracker as a pattern; AV Tools Pro in the manual)
 
 ### Master tracker
