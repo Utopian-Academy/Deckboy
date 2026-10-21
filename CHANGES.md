@@ -2,6 +2,11 @@
 
 ## 2026-10-21 - v0.99.418 (in progress)
 
+### Example shows
+- Added four example shows that teach the basics: turning an output on and taking the first cue,
+  layers and titles, effects, and a one-button show with original music. Each cue carries a note in
+  the inspector; start with `00-START-HERE.html`.
+
 ### Desk
 - The face no longer comes back into the programme monitor while any output is on. Firing one-off
   cues such as lower thirds minutes apart leaves the monitor dark between them; the face returns
