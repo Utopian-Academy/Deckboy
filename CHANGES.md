@@ -15,6 +15,12 @@
 - Fixed a crash when a dashboard slot ran itself through `DECK <n>`. Commands nested more than
   12 deep now stop with an error and the show keeps running.
 
+### Packages
+- The Windows, Linux and Mini downloads now include FFmpeg's licence notice
+  (`LICENSE-ffmpeg.txt`), and the Windows download includes the licence of its bundled
+  `ffmpeg.exe` build (`LICENSE-ffmpeg-exe.txt`, `README-ffmpeg-exe.txt`). A package that would
+  bundle FFmpeg without its notice is no longer built.
+
 ### Scopes
 - The scopes now measure every new picture once, at the source's own frame rate: a 25 fps
   clip is measured 25 times a second and a 59.94 fps clip 59.94 times, whatever the output's
