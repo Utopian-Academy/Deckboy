@@ -135,8 +135,8 @@ class Author:
 
 def first_show(a):
     a.playlist("Start here")
-    a.text("01 Welcome - TAKE this cue", r"HELLO, DECKBOY.\nYour first five cues.",
-           "Select this cue and press TAKE (Enter). Enable OUTPUT to open the programme window. GO (Space) advances the running order.",
+    a.text("01 Output first: N, then TAKE", r"YOUR OUTPUT IS LIVE.\nTAKE sends the selected cue here.",
+           "FIRST press N to activate the Programme output (or DASH > 1 Activate output). F switches fullscreen/windowed. THEN return to the desk and press TAKE (Enter). GO (Space) advances to the next cue.",
            "TEXTCUE CARD 255")
     a.swirl("02 A backdrop made live", "No movie file: this swirl is generated live. Open the Swirl section and change palette, speed or twist.")
     a.synth("03 Video synth - ice rings", "A second live source. Open VIDEO SYNTH and try its shape, mirror and palette controls.", "ice", "rings")
@@ -290,6 +290,10 @@ def finish(raw, slug, title, author, steps):
         buttons += [("Open tracker", "DASH TRACKER")]
     else:
         buttons += [("Take selection", "TAKE"), ("Next cue", "GO"), ("Stop", "STOP")]
+    if slug == "01-start-here":
+        buttons[0] = ("1 Activate output", "OUTPUT ON")
+        buttons[2] = ("2 Take selection", "TAKE")
+        buttons[3] = ("3 Next cue", "GO")
     if slug == "02-layers-and-titles":
         buttons += [("Name strap out", "DECK 3 TEXTCUE OUT")]
     for i, (label, command) in enumerate(buttons):
