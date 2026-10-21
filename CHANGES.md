@@ -2,6 +2,16 @@
 
 ## 2026-10-21 - v0.99.418 (in progress)
 
+### Scopes
+- The scopes now measure every new picture once, at the source's own frame rate: a 25 fps
+  clip is measured 25 times a second and a 59.94 fps clip 59.94 times, whatever the output's
+  refresh (they were measured about ten times a second). A still picture is measured once
+  and stays **LIVE**.
+- The scopes footer shows the measuring rate, the source's frame rate and the output's refresh
+  (`LIVE 25.0/s src 25.00 fps out 60.00 Hz`), and says when some pictures could not be
+  measured (`41.3 of 59.9/s`).
+- `SCOPES STATS` reports `picture_hz` (how often the picture changed) and `out_hz`.
+
 ### Example shows
 - Added four example shows that teach the basics: turning an output on and taking the first cue,
   layers and titles, effects, and a one-button show with original music. Each cue carries a note in

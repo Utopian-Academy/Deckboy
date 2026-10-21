@@ -2219,8 +2219,13 @@ not the desk's scaled-down preview. Every pixel is counted. The programme is
 the first window output, the one the audience sees, whichever output you are
 editing. **SOURCE**, beside FREEZE, steps through PROGRAMME and each output in
 turn to measure a different one. The scopes appear once that output is
-armed; with nothing else capturing its frame, they read it about ten times a
-second.
+armed. They measure every new picture once, so they follow the source: a
+25 fps clip is measured 25 times a second and a 59.94 fps clip 59.94 times, on
+any output refresh rate, and a still picture once. The footer says how fast
+the scopes are going, the source's frame rate and the output's refresh
+(**LIVE 25.0/s src 25.00 fps out 60.00 Hz**). If the computer cannot measure
+every picture, the footer says so (**41.3 of 59.9/s**); it never skips
+pictures silently.
 
 **On an HDR output** the scopes measure the HDR picture, not the SDR copy
 the other routes carry, so highlights are not clipped. It is read as PQ
