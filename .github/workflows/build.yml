@@ -327,6 +327,13 @@ jobs:
           sudo cp -a /tmp/ffmpeg/bin/. /usr/local/bin/
           sudo cp -a /tmp/ffmpeg/lib/. /usr/local/lib/
           sudo cp -a /tmp/ffmpeg/include/. /usr/local/include/
+          # Keep the build's licence: the packagers carry it as LICENSE-ffmpeg.txt
+          # and refuse to bundle FFmpeg without it.
+          found=0
+          for f in LICENSE.txt LICENSE COPYING.GPLv3 COPYING.LGPLv2.1; do
+            if [ -f "/tmp/ffmpeg/$f" ]; then sudo install -Dm644 "/tmp/ffmpeg/$f" "/usr/local/share/doc/ffmpeg/$f"; found=1; fi
+          done
+          [ "$found" = 1 ] || { echo "no licence file in the FFmpeg build"; ls /tmp/ffmpeg; exit 1; }
           sudo ldconfig
           echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
           ffmpeg -version | head -1
@@ -657,6 +664,13 @@ jobs:
           sudo cp -a /tmp/ffmpeg/bin/. /usr/local/bin/
           sudo cp -a /tmp/ffmpeg/lib/. /usr/local/lib/
           sudo cp -a /tmp/ffmpeg/include/. /usr/local/include/
+          # Keep the build's licence: the packagers carry it as LICENSE-ffmpeg.txt
+          # and refuse to bundle FFmpeg without it.
+          found=0
+          for f in LICENSE.txt LICENSE COPYING.GPLv3 COPYING.LGPLv2.1; do
+            if [ -f "/tmp/ffmpeg/$f" ]; then sudo install -Dm644 "/tmp/ffmpeg/$f" "/usr/local/share/doc/ffmpeg/$f"; found=1; fi
+          done
+          [ "$found" = 1 ] || { echo "no licence file in the FFmpeg build"; ls /tmp/ffmpeg; exit 1; }
           sudo ldconfig
           echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
           ffmpeg -version | head -1

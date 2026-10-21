@@ -30,6 +30,10 @@ cd "$SRC"
   --disable-sdl2 --disable-vulkan --enable-libdrm
 make -j"$(nproc)"
 sudo make install
+# The notice travels with the build: this configuration is LGPL 2.1+
+# (no --enable-gpl). package_mini_linux.sh looks for it here.
+sudo install -Dm644 LICENSE.md "$PREFIX/share/doc/ffmpeg/LICENSE.md"
+sudo install -Dm644 COPYING.LGPLv2.1 "$PREFIX/share/doc/ffmpeg/COPYING.LGPLv2.1"
 sudo ldconfig
 "$PREFIX/bin/ffmpeg" -hide_banner -version | head -1
 du -sh "$PREFIX/lib"

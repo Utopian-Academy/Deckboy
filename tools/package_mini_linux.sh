@@ -12,6 +12,36 @@
 # step with tools/package_linux.sh: the host provides those.
 set -euo pipefail
 
+# FFMPEG'S NOTICE TRAVELS WITH FFMPEG (audit 2026-10-19, F4: no package carried
+# it). Looked for beside the ffmpeg being bundled -- <prefix>/share/doc/ffmpeg,
+# where CI and tools/build_mini_ffmpeg.sh put it -- then where a distro keeps
+# it. Every file found there goes into one LICENSE-ffmpeg.txt.
+stage_ffmpeg_notice() {  # $1 = the bundled ffmpeg (may be empty), $2 = destination
+  local bin="$1" dest="$2" dir f found=""
+  local dirs=()
+  if [ -n "$bin" ] && [ -e "$bin" ]; then
+    dirs+=("$(dirname "$(readlink -f "$bin")")/../share/doc/ffmpeg")
+  fi
+  dirs+=(/usr/local/share/doc/ffmpeg /usr/share/doc/ffmpeg)
+  for dir in /usr/share/doc/libavcodec*; do [ -d "$dir" ] && dirs+=("$dir"); done
+  rm -f "$dest.tmp"
+  for dir in "${dirs[@]}"; do
+    for f in "$dir"/LICENSE* "$dir"/COPYING* "$dir"/copyright; do
+      [ -f "$f" ] || continue
+      { echo "==== $(basename "$f") ===="; cat "$f"; echo; } >> "$dest.tmp"
+      found="$dir"
+    done
+    [ -n "$found" ] && break
+  done
+  if [ -n "$found" ]; then
+    mv "$dest.tmp" "$dest"
+    echo "  + $(basename "$dest") from $found"
+    return 0
+  fi
+  rm -f "$dest.tmp"
+  return 1
+}
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${1:?usage: package_mini_linux.sh <build dir> [out dir]}"
 OUT_DIR="${2:-$REPO_ROOT/dist}"
@@ -109,5 +139,10 @@ fi
 echo "staged deckboy-mini reports v$got ($ARCH, $(ls "$STAGE/lib" | wc -l) libraries)"
 
 mkdir -p "$OUT_DIR"
+stage_ffmpeg_notice "$FFMPEG" "$STAGE/LICENSE-ffmpeg.txt" || {
+  echo "error: FFmpeg is bundled but its licence notice was not found (see stage_ffmpeg_notice)" >&2
+  exit 1
+}
+
 tar -C "$OUT_DIR/staging" -czf "$OUT_DIR/$NAME.tar.gz" "$NAME"
 echo "wrote $OUT_DIR/$NAME.tar.gz ($(du -h "$OUT_DIR/$NAME.tar.gz" | cut -f1))"

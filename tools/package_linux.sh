@@ -44,6 +44,36 @@
 # Everything else — SDL3, the FFmpeg libraries, codecs — travels with us.
 set -euo pipefail
 
+# FFMPEG'S NOTICE TRAVELS WITH FFMPEG (audit 2026-10-19, F4: no package carried
+# it). Looked for beside the ffmpeg being bundled -- <prefix>/share/doc/ffmpeg,
+# where CI and tools/build_mini_ffmpeg.sh put it -- then where a distro keeps
+# it. Every file found there goes into one LICENSE-ffmpeg.txt.
+stage_ffmpeg_notice() {  # $1 = the bundled ffmpeg (may be empty), $2 = destination
+  local bin="$1" dest="$2" dir f found=""
+  local dirs=()
+  if [ -n "$bin" ] && [ -e "$bin" ]; then
+    dirs+=("$(dirname "$(readlink -f "$bin")")/../share/doc/ffmpeg")
+  fi
+  dirs+=(/usr/local/share/doc/ffmpeg /usr/share/doc/ffmpeg)
+  for dir in /usr/share/doc/libavcodec*; do [ -d "$dir" ] && dirs+=("$dir"); done
+  rm -f "$dest.tmp"
+  for dir in "${dirs[@]}"; do
+    for f in "$dir"/LICENSE* "$dir"/COPYING* "$dir"/copyright; do
+      [ -f "$f" ] || continue
+      { echo "==== $(basename "$f") ===="; cat "$f"; echo; } >> "$dest.tmp"
+      found="$dir"
+    done
+    [ -n "$found" ] && break
+  done
+  if [ -n "$found" ]; then
+    mv "$dest.tmp" "$dest"
+    echo "  + $(basename "$dest") from $found"
+    return 0
+  fi
+  rm -f "$dest.tmp"
+  return 1
+}
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="$REPO_ROOT/build"
 OUTPUT_DIR="$REPO_ROOT/dist"
@@ -334,6 +364,13 @@ If it crashes
 A stack trace is written to data/deckboy-crash.log. Sending that is the single
 most useful thing you can do.
 NOTE
+
+if [ -f "$STAGE_DIR/bin/ffmpeg" ] || ls "$STAGE_DIR/lib"/libav* >/dev/null 2>&1; then
+  stage_ffmpeg_notice "$(command -v ffmpeg || true)" "$STAGE_DIR/LICENSE-ffmpeg.txt" || {
+    echo "error: FFmpeg is bundled but its licence notice was not found (see stage_ffmpeg_notice)" >&2
+    exit 1
+  }
+fi
 
 TARBALL="$OUTPUT_DIR/$STAGE_NAME.tar.gz"
 rm -f "$TARBALL"

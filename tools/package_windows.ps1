@@ -257,19 +257,56 @@ if (Test-Path $LicenseSrc) {
 # locations. This was a literal path under one developer home directory, which
 # both put a username in the repo and silently skipped the licence notice on
 # every other machine.
-$VcpkgRoot = $env:VCPKG_ROOT
-if (-not $VcpkgRoot) {
-    foreach ($candidate in @("$env:USERPROFILE\vcpkg", "C:\vcpkg", "C:\dev\vcpkg")) {
-        if (Test-Path (Join-Path $candidate "vcpkg.exe")) { $VcpkgRoot = $candidate; break }
+# Where vcpkg installed the libav ports, found the way THIS build found them:
+# VCPKG_ROOT; the toolchain file recorded in the build's CMake cache; a
+# manifest-mode tree beside the build; a clone in the repo (what CI does);
+# then the usual homes. CI clones vcpkg into the repo, which none of the old
+# candidates covered, so every CI zip warned and shipped without the notice
+# (audit 2026-10-19, F4).
+$CopyrightRel = "installed/x64-windows/share/ffmpeg/copyright"
+$CopyrightCandidates = @()
+if ($env:VCPKG_ROOT) { $CopyrightCandidates += Join-Path $env:VCPKG_ROOT $CopyrightRel }
+foreach ($Cache in @((Join-Path (Split-Path $BuildDir -Parent) "CMakeCache.txt"), (Join-Path $BuildDir "CMakeCache.txt"))) {
+    if (Test-Path $Cache) {
+        $Line = Select-String -Path $Cache -Pattern '^CMAKE_TOOLCHAIN_FILE:[A-Z]*=(.+)$' | Select-Object -First 1
+        if ($Line) {
+            # <vcpkg>/scripts/buildsystems/vcpkg.cmake -> <vcpkg>
+            $ToolchainRoot = Split-Path (Split-Path (Split-Path $Line.Matches[0].Groups[1].Value -Parent) -Parent) -Parent
+            $CopyrightCandidates += Join-Path $ToolchainRoot $CopyrightRel
+        }
     }
 }
-$FfmpegCopyright = if ($VcpkgRoot) {
-    Join-Path $VcpkgRoot "installed\x64-windows\share\ffmpeg\copyright"
-} else { "" }
-if ($FfmpegCopyright -and (Test-Path $FfmpegCopyright)) {
+foreach ($Dir in @((Split-Path $BuildDir -Parent), $BuildDir)) {
+    $CopyrightCandidates += Join-Path $Dir ("vcpkg_" + $CopyrightRel)
+}
+foreach ($Root in @((Join-Path $RepoRoot "vcpkg"), (Join-Path $env:USERPROFILE "vcpkg"), "C:/vcpkg", "C:/dev/vcpkg")) {
+    $CopyrightCandidates += Join-Path $Root $CopyrightRel
+}
+$FfmpegCopyright = $CopyrightCandidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+$StagedLibav = Get-ChildItem -Path $StageDir -Filter "av*.dll" -ErrorAction SilentlyContinue
+if ($FfmpegCopyright) {
     Copy-Item $FfmpegCopyright -Destination (Join-Path $StageDir "LICENSE-ffmpeg.txt")
-} else {
-    Write-Warning "FFmpeg copyright file not found at $FfmpegCopyright; zip ships libav DLLs without their license notice."
+    Write-Host "  + LICENSE-ffmpeg.txt (libav DLLs) from $FfmpegCopyright"
+} elseif ($StagedLibav) {
+    # A zip that redistributes FFmpeg without its notice is not shippable.
+    # This was a warning, and the published 0.99.417 zip went out without it.
+    throw ("libav DLLs are bundled but FFmpeg's notice was not found. Looked in:`n  " +
+           ($CopyrightCandidates -join "`n  "))
+}
+# ffmpeg.exe and ffprobe.exe are a separate, statically linked build with its
+# own licence (GPL for gyan's and BtbN's): carry the build's LICENSE and the
+# README that names its version, configuration and source.
+$FfmpegBuildRoot = Split-Path $FfmpegDir -Parent
+$ExeLicense = @("LICENSE", "LICENSE.txt", "COPYING.GPLv3", "COPYING") |
+    ForEach-Object { Join-Path $FfmpegBuildRoot $_ } | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $ExeLicense) {
+    throw "ffmpeg.exe is bundled but no LICENSE was found beside its build ($FfmpegBuildRoot)."
+}
+Copy-Item $ExeLicense -Destination (Join-Path $StageDir "LICENSE-ffmpeg-exe.txt")
+Write-Host "  + LICENSE-ffmpeg-exe.txt from $ExeLicense"
+$ExeReadme = Join-Path $FfmpegBuildRoot "README.txt"
+if (Test-Path $ExeReadme) {
+    Copy-Item $ExeReadme -Destination (Join-Path $StageDir "README-ffmpeg-exe.txt")
 }
 
 # --- README ------------------------------------------------------------------
@@ -516,6 +553,13 @@ foreach ($Font in @("LiberationSans-Regular.ttf", "LICENSE-Liberation.txt", "Not
     Copy-Item (Join-Path $RepoRoot "data\fonts\$Font") -Destination (Join-Path $MiniStage "data\fonts")
 }
 Copy-Item (Join-Path $RepoRoot "LICENSE") -Destination $MiniStage
+# Mini carries the libav DLLs too, so it carries their notice (audit F4: the
+# 0.99.417 Mini zip had four av*.dll and no FFmpeg notice).
+if (Get-ChildItem -Path $MiniStage -Filter "av*.dll" -ErrorAction SilentlyContinue) {
+    $DeskNotice = Join-Path $StageDir "LICENSE-ffmpeg.txt"
+    if (-not (Test-Path $DeskNotice)) { throw "Mini bundles libav DLLs but there is no FFmpeg notice to give it." }
+    Copy-Item $DeskNotice -Destination $MiniStage
+}
 @"
 Deckboy Mini $Version for Windows
 
