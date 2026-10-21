@@ -474,6 +474,54 @@ void bytePathMatchesGeneral() {
          fast.rgbHistogram[2].excursions.above > 0, "byte path excursions match outside a narrow levels range");
 }
 
+void parallelMatchesSerial() {
+  s::ParallelAnalyzer analyzer(4);
+  for (std::size_t width : {18u, 60u, 61u, 128u}) {
+    constexpr std::size_t height = 13;
+    std::vector<std::uint8_t> pixels(width * height * 4);
+    for (std::size_t i = 0; i < pixels.size(); ++i)
+      pixels[i] = static_cast<std::uint8_t>((i * 2654435761u) >> 23);
+    s::Options options = smallOptions();
+    options.columns = width == 18 ? 6 : 12;
+    options.gamutFilter = s::GamutFilter::None;
+    const auto same = [](const s::Result& a, const s::Result& b) {
+      bool equal = a.validPixels == b.validPixels && a.invalidPixels == b.invalidPixels &&
+        sameDensity(a.vectorscope, b.vectorscope) && sameHistogram(a.lumaHistogram, b.lumaHistogram) &&
+        sameGamut(a.rawGamut, b.rawGamut) && sameGamut(a.filteredGamut, b.filteredGamut);
+      for (std::size_t c = 0; c < 3; ++c)
+        equal = equal && sameDensity(a.ycbcrParade[c], b.ycbcrParade[c]) &&
+          sameDensity(a.rgbParade[c], b.rgbParade[c]) && sameHistogram(a.rgbHistogram[c], b.rgbHistogram[c]);
+      for (std::size_t d = 0; d < 2; ++d) equal = equal && sameDensity(a.diamond[d], b.diamond[d]);
+      return equal;
+    };
+    for (auto matrix : {s::Matrix::Bt709, s::Matrix::Bt2020Ncl}) {
+      options.matrix = matrix;
+      s::Rgba8View view{pixels, width, height, 0, true};
+      expect(same(analyzer.analyze(view, options), s::analyze(view, options)),
+             "persistent column workers preserve every RGB bin and count");
+    }
+    for (unsigned depth : {8u, 10u}) {
+      s::Bgra422View view{pixels, width, height, 0, depth};
+      expect(same(analyzer.analyze(view, options), s::analyze(view, options)),
+             "parallel 4:2:2 preserves pair boundaries, including odd rasters");
+    }
+    pixels.resize(width * height * 6);
+    for (std::size_t i = 0; i < pixels.size(); ++i)
+      pixels[i] = static_cast<std::uint8_t>((i * 2246822519u) >> 19);
+    s::Rgb16View hdr{pixels, width, height};
+    expect(same(analyzer.analyze(hdr, options), s::analyze(hdr, options)),
+           "parallel 16-bit analysis preserves HDR bins");
+  }
+  // Recover after an invalid frame; a worker exception must not hang the pool.
+  s::Options options = smallOptions();
+  options.gamutFilter = s::GamutFilter::None;
+  std::array<std::uint8_t, 16 * 4> pixels{};
+  rejects([&] { analyzer.analyze(s::Bgra422View{pixels, 16, 1, 0, 9}, options); },
+          "parallel worker validation propagates errors");
+  expect(analyzer.analyze(s::Rgba8View{pixels, 16, 1}, options).validPixels == 16,
+         "parallel workers remain usable after rejection");
+}
+
 void sent422() {
   s::Options options = smallOptions();
   options.gamutFilter = s::GamutFilter::None;
@@ -603,6 +651,7 @@ int main() {
     bandsMatchWhole();
     sent422();
     bytePathMatchesGeneral();
+    parallelMatchesSerial();
   } catch (const std::exception& error) {
     ++failures;
     std::cerr << "[fail] unexpected exception: " << error.what() << '\n';

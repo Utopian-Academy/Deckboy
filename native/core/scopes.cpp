@@ -6,8 +6,14 @@
 
 #include <algorithm>
 #include <cmath>
+#include <condition_variable>
+#include <exception>
+#include <functional>
 #include <limits>
+#include <mutex>
+#include <numeric>
 #include <stdexcept>
+#include <thread>
 
 namespace deckboy::core::scopes {
 namespace {
@@ -518,4 +524,124 @@ GamutCounts filteredGamutRows(Bgra422View frame, const Options& options,
 }
 
 void accumulate(GamutCounts& whole, const GamutCounts& part) { sumGamut(whole, part); }
+
+struct ParallelAnalyzer::Impl {
+  std::mutex mutex;
+  std::condition_variable ready, done;
+  std::vector<std::thread> threads;
+  std::function<void(std::size_t)> job;
+  std::size_t generation = 0, remaining = 0;
+  bool stopping = false;
+
+  explicit Impl(unsigned count) {
+    if (!count) count = std::max(1u, std::thread::hardware_concurrency());
+    count = std::clamp(count, 1u, 16u);
+    try {
+      for (unsigned i = 1; i < count; ++i) threads.emplace_back([this, i] {
+        std::size_t seen = 0;
+        std::unique_lock lock(mutex);
+        for (;;) {
+          ready.wait(lock, [&] { return stopping || generation != seen; });
+          if (stopping) return;
+          seen = generation;
+          lock.unlock();
+          job(i); // the supplied job catches its own exception in its slot
+          lock.lock();
+          if (--remaining == 0) done.notify_one();
+        }
+      });
+    } catch (...) { stop(); throw; }
+  }
+  void stop() {
+    { std::lock_guard lock(mutex); stopping = true; }
+    ready.notify_all();
+    for (auto& thread : threads) if (thread.joinable()) thread.join();
+  }
+  ~Impl() { stop(); }
+
+  template<class View>
+  Result analyzeFrame(View frame, const Options& options, std::size_t bytesPerPixel, bool pairs) {
+    validateOptions(options);
+    const auto stride = validateView(frame.width, frame.height, frame.rowStrideBytes,
+                                     frame.bytes.size(), bytesPerPixel);
+    // A filtered pass needs neighbours outside a strip. Keep its existing
+    // whole-frame contract; the live monitor schedules it separately.
+    if (!frame.width || options.gamutFilter != GamutFilter::None)
+      return scopes::analyze(frame, options);
+    std::size_t groups = std::gcd(frame.width, options.columns);
+    // Each boundary must be both a waveform-bin edge and a chroma-pair edge.
+    if (pairs && (frame.width / groups) % 2) {
+      if (groups % 2) return scopes::analyze(frame, options);
+      groups /= 2;
+    }
+    if (!groups) return scopes::analyze(frame, options);
+    const std::size_t count = std::min(groups, threads.size() + 1);
+    if (count == 1) return scopes::analyze(frame, options);
+    std::vector<Result> parts(count);
+    std::vector<std::exception_ptr> errors(count);
+    std::vector<std::size_t> offsets(count);
+    const auto run = [&](std::size_t i) {
+      if (i >= count) return;
+      try {
+        const auto first = groups * i / count, last = groups * (i + 1) / count;
+        const auto x0 = first * (frame.width / groups), x1 = last * (frame.width / groups);
+        Options local = options;
+        local.columns = (last - first) * (options.columns / groups);
+        offsets[i] = first * (options.columns / groups);
+        auto tile = frame;
+        tile.bytes = frame.bytes.subspan(x0 * bytesPerPixel,
+          (frame.height - 1) * stride + (x1 - x0) * bytesPerPixel);
+        tile.width = x1 - x0;
+        tile.rowStrideBytes = stride;
+        parts[i] = scopes::analyze(tile, local);
+      } catch (...) { errors[i] = std::current_exception(); }
+    };
+    {
+      std::lock_guard lock(mutex);
+      job = run;
+      remaining = threads.size();
+      ++generation;
+    }
+    ready.notify_all();
+    run(0);
+    { std::unique_lock lock(mutex); done.wait(lock, [&] { return remaining == 0; }); job = {}; }
+    for (const auto& error : errors) if (error) std::rethrow_exception(error);
+    Result whole = makeResult(options);
+    const auto join = [](Density& into, const Density& part, std::size_t offset) {
+      for (std::size_t row = 0; row < part.height; ++row)
+        std::copy_n(part.bins.begin() + row * part.width, part.width,
+                    into.bins.begin() + row * into.width + offset);
+      sumExcursions(into.xExcursions, part.xExcursions);
+      sumExcursions(into.yExcursions, part.yExcursions);
+    };
+    for (std::size_t i = 0; i < count; ++i) {
+      const auto& part = parts[i];
+      whole.validPixels += part.validPixels;
+      whole.invalidPixels += part.invalidPixels;
+      for (std::size_t c = 0; c < 3; ++c) {
+        join(whole.ycbcrParade[c], part.ycbcrParade[c], offsets[i]);
+        join(whole.rgbParade[c], part.rgbParade[c], offsets[i]);
+        sumHistogram(whole.rgbHistogram[c], part.rgbHistogram[c]);
+      }
+      sumDensity(whole.vectorscope, part.vectorscope);
+      for (std::size_t d = 0; d < 2; ++d) sumDensity(whole.diamond[d], part.diamond[d]);
+      sumHistogram(whole.lumaHistogram, part.lumaHistogram);
+      sumGamut(whole.rawGamut, part.rawGamut);
+      sumGamut(whole.filteredGamut, part.filteredGamut);
+    }
+    return whole;
+  }
+};
+
+ParallelAnalyzer::ParallelAnalyzer(unsigned workers) : impl_(std::make_unique<Impl>(workers)) {}
+ParallelAnalyzer::~ParallelAnalyzer() = default;
+Result ParallelAnalyzer::analyze(Rgba8View frame, const Options& options) {
+  return impl_->analyzeFrame(frame, options, 4, false);
+}
+Result ParallelAnalyzer::analyze(Bgra422View frame, const Options& options) {
+  return impl_->analyzeFrame(frame, options, 4, true);
+}
+Result ParallelAnalyzer::analyze(Rgb16View frame, const Options& options) {
+  return impl_->analyzeFrame(frame, options, 6, false);
+}
 } // namespace deckboy::core::scopes

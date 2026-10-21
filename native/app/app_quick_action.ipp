@@ -598,7 +598,7 @@
       case QuickAction::MicClipReset: resetSelectedMicClip(); break;
       case QuickAction::CueSectionMicToggle: cueSectionMicOpen_ = !cueSectionMicOpen_; break;
       case QuickAction::ScopesFreeze:
-        scopesFrozen_ = !scopesFrozen_;
+        setScopesFrozen(!scopesFrozen_);
         triggerToast(scopesFrozen_ ? "scopes: frozen" : "scopes: live");
         break;
       case QuickAction::EditNotes: {

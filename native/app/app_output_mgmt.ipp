@@ -94,6 +94,7 @@
     }
 
     output.enabled = enabled;
+    if (outputIndex == scopesOutputIndex()) releaseScopesCapture();
     setOutputRecoveryPausedByEscape(outputIndex, false);
     
     // Ensure runtimes exist for newly enabled outputs
@@ -3122,6 +3123,7 @@
   // Guarded so the common case (an output that has been off all show) costs a
   // pointer check per frame rather than a full teardown.
   void stopEgressForDisabledOutput(int outputIndex) {
+    if (outputIndex == scopesOutputIndex() && scopesCaptureRenderer_) releaseScopesCapture();
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime) {
       return;
@@ -4329,7 +4331,8 @@
     const bool sharedWithOtherEgress =
       egressOutput.ndiEnabled || egressOutput.ndiKeyEnabled ||
       egressOutput.deckLinkEnabled || egressOutput.spoutEnabled ||
-      egressOutput.st2110Enabled || scopesWatching(outputIndex) ||
+      egressOutput.st2110Enabled ||
+      (runtime.hdr && scopesWatching(outputIndex) && !scopesReadsHdr(outputIndex, runtime)) ||
       std::clamp(egressOutput.outputDelayMs, 0, 5000) > 0;
     const bool webEgress = outputStreamProtocolIsWeb(
       normalizeOutputStreamProtocol(egressOutput.streamProtocol));
@@ -5186,6 +5189,7 @@
   }
 
   void destroyOutputRuntime(OutputRuntime& runtime) {
+    if (runtime.outputRenderer) releaseScopesCapture(runtime.outputRenderer);
     stopOutputStreamRuntime(runtime);
     // The house overlay belongs to this output's renderer, so it dies with it.
     if (runtime.overlayTexture) {

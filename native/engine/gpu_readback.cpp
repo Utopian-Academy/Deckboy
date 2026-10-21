@@ -66,6 +66,7 @@ namespace {
 constexpr int kStagingRingSize = kAsyncReadbackDepth;
 #ifdef _WIN32
 struct StagingReadback {
+  std::uint64_t timestamp[kStagingRingSize] {};
   ID3D11Device* device = nullptr;
   ID3D11DeviceContext* context = nullptr;
   ID3D11Texture2D* ring[kStagingRingSize] = {nullptr, nullptr, nullptr};
@@ -97,6 +98,7 @@ struct StagingReadback {
 // building against an older SDL, who falls back to the synchronous read.
 #if SDL_VERSION_ATLEAST(3, 4, 0)
 struct GpuDownloadReadback {
+  std::uint64_t timestamp[kStagingRingSize] {};
   SDL_Renderer* renderer = nullptr;
   SDL_GPUDevice* device = nullptr;
   SDL_GPUTransferBuffer* ring[kStagingRingSize] = {nullptr, nullptr, nullptr};
@@ -176,7 +178,8 @@ void destroyGpuDownloadReadback(void* handle) {
 
 bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
                               std::uint8_t* out, std::size_t outBytes,
-                              int width, int height) {
+                              int width, int height, std::uint64_t submittedAtNs,
+                              std::uint64_t* sourceAtNs) {
   auto* rb = static_cast<GpuDownloadReadback*>(handle);
   if (!rb || !source || !out) {
     return false;
@@ -237,6 +240,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
     rb->fence[rb->cursor] = nullptr;
   }
   rb->fence[rb->cursor] = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+  rb->timestamp[rb->cursor] = submittedAtNs;
   rb->cursor = (rb->cursor + 1) % kStagingRingSize;
   if (rb->primed < kStagingRingSize) {
     rb->primed += 1;
@@ -268,6 +272,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
   }
   SDL_ReleaseGPUFence(rb->device, rb->fence[oldest]);
   rb->fence[oldest] = nullptr;
+  if (ok && sourceAtNs) *sourceAtNs = rb->timestamp[oldest];
   if (bench) {
     static int n = 0; static double flush = 0, submit = 0, map = 0;
     const double f = static_cast<double>(SDL_GetPerformanceFrequency());
@@ -286,7 +291,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
 void* createGpuDownloadReadback(SDL_Renderer*, int, int, int) { return nullptr; }
 void destroyGpuDownloadReadback(void*) {}
 bool gpuDownloadReadbackFrame(void*, SDL_Texture*, std::uint8_t*, std::size_t,
-                              int, int) { return false; }
+                              int, int, std::uint64_t, std::uint64_t*) { return false; }
 #endif
 
 // Which implementation a handle belongs to. Both rings hand back the same
@@ -359,7 +364,8 @@ void destroyD3D11Readback(void* handle) {
 
 bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
                         std::uint8_t* out, std::size_t outBytes,
-                        int width, int height) {
+                        int width, int height, std::uint64_t submittedAtNs,
+                        std::uint64_t* sourceAtNs) {
 #ifdef _WIN32
   auto* rb = reinterpret_cast<StagingReadback*>(handle);
   if (!rb || !source || !out) {
@@ -391,6 +397,7 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
   }();
   const Uint64 tCopy0 = SDL_GetPerformanceCounter();
   rb->context->CopyResource(rb->ring[rb->cursor], src);
+  rb->timestamp[rb->cursor] = submittedAtNs;
   const Uint64 tCopy1 = SDL_GetPerformanceCounter();
   rb->context->Flush();
   const Uint64 tFlush = SDL_GetPerformanceCounter();
@@ -420,6 +427,7 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
     }
   }
   rb->context->Unmap(rb->ring[oldest], 0);
+  if (ok && sourceAtNs) *sourceAtNs = rb->timestamp[oldest];
   if (bench) {
     static int n = 0; static double sCopy = 0, sFlush = 0, sMap = 0;
     const double f = static_cast<double>(SDL_GetPerformanceFrequency());
@@ -437,6 +445,7 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
 #else
   (void) handle; (void) source; (void) out; (void) outBytes;
   (void) width; (void) height;
+  (void) submittedAtNs; (void) sourceAtNs;
   return false;
 #endif
 }
@@ -474,15 +483,16 @@ void destroyStagingReadback(void* handle) {
 
 bool stagingReadbackFrame(void* handle, SDL_Texture* source,
                           std::uint8_t* out, std::size_t outBytes,
-                          int width, int height) {
+                          int width, int height, std::uint64_t submittedAtNs,
+                          std::uint64_t* sourceAtNs) {
   auto* h = static_cast<ReadbackHandle*>(handle);
   if (!h) return false;
 #ifdef _WIN32
   if (h->d3d11) {
-    return d3d11ReadbackFrame(h->d3d11, source, out, outBytes, width, height);
+    return d3d11ReadbackFrame(h->d3d11, source, out, outBytes, width, height, submittedAtNs, sourceAtNs);
   }
 #endif
-  return gpuDownloadReadbackFrame(h->gpu, source, out, outBytes, width, height);
+  return gpuDownloadReadbackFrame(h->gpu, source, out, outBytes, width, height, submittedAtNs, sourceAtNs);
 }
 
 // ----------------------------------------------------------------------------

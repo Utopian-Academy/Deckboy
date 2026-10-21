@@ -28,10 +28,8 @@ inline constexpr int kAsyncReadbackDepth = 3;
 // achievable recording rate. These copy into a staging ring and map the oldest
 // entry without waiting, so the CPU never stalls. Two frames of latency.
 //
-// createStagingReadback returns null on a renderer with no asynchronous path --
-// today anything that is not D3D11, which means macOS and Linux. Callers MUST
-// fall back to SDL_RenderReadPixels; see DEVNOTES for what that costs and what
-// closing the gap would actually take.
+// D3D11 and SDL_GPU (SDL 3.4+, including Metal/Vulkan/D3D12) have asynchronous
+// paths. Other renderers return null; callers fall back to SDL_RenderReadPixels.
 // halfFloat: the source is RGBA half floats (an HDR output's compositor,
 // SDL_PIXELFORMAT_RGBA64_FLOAT), read back 8 bytes a pixel as they are.
 // Otherwise BGRA, 4 bytes a pixel.
@@ -40,9 +38,13 @@ void destroyStagingReadback(void* handle);
 
 // False when no frame was ready this tick (ring priming, or the GPU is still
 // busy) -- not an error; the caller simply reuses the previous picture.
+// Optional acquisition metadata travels with the ring entry. On success,
+// sourceAtNs receives the submittedAtNs of the frame actually returned.
 bool stagingReadbackFrame(void* handle, SDL_Texture* source,
                           std::uint8_t* out, std::size_t outBytes,
-                          int width, int height);
+                          int width, int height,
+                          std::uint64_t submittedAtNs = 0,
+                          std::uint64_t* sourceAtNs = nullptr);
 
 // AN HDR OUTPUT'S PICTURE AS P010, MADE ON THE GPU. A compute shader reads the
 // float (scRGB, half-float) compositor and writes 10-bit BT.2020 NCL Y'CbCr,

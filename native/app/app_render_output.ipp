@@ -5451,6 +5451,7 @@
     }
     const OutputTarget& output = project_.outputs[outputIndex];
     if (!output.enabled) {
+      if (outputIndex == scopesOutputIndex() && scopesCaptureRenderer_) releaseScopesCapture();
       // Egress teardown for a disabled output happens in the render loop (see
       // stopEgressForDisabledOutput) -- this function is never called for one.
       return;
@@ -5849,7 +5850,7 @@
     // A browser watching this output on the web monitor needs the picture
     // too -- but only while one is: an idle monitor costs nothing.
     const bool webMonitorRouteActive = webMonitorWatching(outputIndex);
-    // The scopes measure this captured frame too (see app_scopes.ipp).
+    // Scopes have their own full-raster tap (see app_scopes_pipeline.ipp).
     const bool scopesRouteActive = scopesWatching(outputIndex);
     // On an HDR output they read the float compositor instead, not this frame.
     const bool scopesReadHdr = scopesRouteActive && scopesReadsHdr(outputIndex, *runtime);
@@ -5857,7 +5858,8 @@
       streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive ||
       st2110RouteActive || webMonitorRouteActive ||
       std::clamp(output.outputDelayMs, 0, 5000) > 0;
-    bool needsEgressCapture = egressForOthers || (scopesRouteActive && !scopesReadHdr);
+    const bool scopesWireCapture = scopesRouteActive && runtime->hdr && !scopesReadHdr;
+    const bool needsEgressCapture = egressForOthers || scopesWireCapture;
     // THE OUTPUT'S OWN RATE unless a clip says otherwise. This was a flat 30,
     // so a live feed, a graphic or a generator on a 50 or 60 Hz output was
     // streamed, sent and recorded at 30 -- half its motion gone.
@@ -5888,29 +5890,19 @@
       }
     }
     if (needsEgressCapture) {
-      // Scopes alone need about ten frames a second, and a full-raster
-      // readback costs the render thread; with any other consumer they reuse
-      // the frames already being captured.
-      const bool scopesOnlyTooSoon = !egressForOthers && runtime->lastEgressCaptureAtMs > 0 &&
-                                     SDL_GetTicks() - runtime->lastEgressCaptureAtMs < 100;
-      if (!scopesOnlyTooSoon) {
         // An HDR stream with nothing else on this output reads only the HDR
         // frame: the SDR one would be read back for nobody.
         const bool hdrOnly = runtime->streamHdr && streamRouteActive && !ndiRouteActive &&
                              !deckLinkRouteActive && !spoutRouteActive && !st2110RouteActive &&
                              !webMonitorRouteActive && std::clamp(output.outputDelayMs, 0, 5000) == 0 &&
-                             !(scopesRouteActive && !scopesReadHdr);
+                             !scopesWireCapture;
         captureOutputFrameForEgress(outputIndex, *runtime, egressRect, fpsHint, hdrOnly);
-      }
-      if (scopesRouteActive && !scopesReadHdr) {
-        scopesOfferFrame(outputIndex, *runtime);
-      }
     } else {
       runtime->latestCapturedFrame = {};
       runtime->delayFrames.clear();
     }
-    if (scopesReadHdr) {
-      scopesOfferFrame(outputIndex, *runtime);
+    if (scopesRouteActive) {
+      scopesCaptureFrame(outputIndex, *runtime, egressRect);
     }
     // Program-monitor tap for the control window, sampled from the same
     // composite this pass is about to present so the preview stays locked to

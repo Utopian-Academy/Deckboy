@@ -17,6 +17,7 @@ import argparse
 import glob
 import os
 import re
+import random
 import socket
 import subprocess
 import sys
@@ -37,9 +38,17 @@ EBU75_LUMA = [round(100 * (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255, 1) for r
 
 
 def free_port():
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
+    # Deckboy binds both protocols; Windows can exclude high ephemeral ranges.
+    for _ in range(100):
+        port = random.SystemRandom().randrange(12000, 30000)
+        try:
+            with socket.socket() as tcp, socket.socket(type=socket.SOCK_DGRAM) as udp:
+                tcp.bind(("127.0.0.1", port))
+                udp.bind(("127.0.0.1", port))
+                return port
+        except OSError:
+            continue
+    raise RuntimeError("No free local TCP/UDP control port")
 
 
 def command(port, line, timeout=15):
@@ -200,10 +209,15 @@ def main():
 
         # FREEZE holds the reading while the picture changes.
         command(port, "SCOPES FREEZE ON")
-        frozen, _ = stats(port)
+        frozen, frozen_fields = stats(port)
         expect(command(port, "TAKE 2").startswith("OK"), "TAKE the bars while frozen")
         time.sleep(2.0)
-        expect(stats(port)[0] == frozen, "FREEZE holds the last reading", stats(port)[0])
+        held, held_fields = stats(port)
+        expect(held_fields['serial'] == frozen_fields['serial'] and
+               held.split(' state=')[0] == frozen.split(' state=')[0],
+               "FREEZE holds the last reading", held)
+        expect(held_fields['state'] == 'frozen' and float(held_fields['hz']) == 0,
+               "FREEZE reports frozen and zero refresh", held)
         command(port, "SCOPES FREEZE OFF")
         reply, f = fresh_stats(port, frozen)
         expect(f.get("targets75") == "6/6" and int(f.get("hist_bins", 0)) < 50,

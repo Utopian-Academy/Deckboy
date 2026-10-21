@@ -5895,13 +5895,13 @@
           (scopesBig_ >= 0 ? std::string(" big=") + scopePanelName(scopesBig_) : std::string());
         return;
       }
-      if (sub == "PROGRAM" || sub == "OFF") { monitorView_ = MonitorView::Program; scopesBig_ = -1; return; }
-      if (sub == "SCOPES" || sub == "ON") { monitorView_ = MonitorView::Scopes; return; }
-      if (sub == "BOTH") { monitorView_ = MonitorView::Both; scopesBig_ = -1; return; }
+      if (sub == "PROGRAM" || sub == "OFF") { monitorView_ = MonitorView::Program; scopesBig_ = -1; releaseScopesCapture(); return; }
+      if (sub == "SCOPES" || sub == "ON") { monitorView_ = MonitorView::Scopes; releaseScopesCapture(); return; }
+      if (sub == "BOTH") { monitorView_ = MonitorView::Both; scopesBig_ = -1; releaseScopesCapture(); return; }
       if (sub == "TOGGLE") { cycleMonitorView(); return; }
       if (sub == "FREEZE") {
         const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string("TOGGLE");
-        scopesFrozen_ = value == "ON" ? true : value == "OFF" ? false : !scopesFrozen_;
+        setScopesFrozen(value == "ON" ? true : value == "OFF" ? false : !scopesFrozen_);
         remoteCommandDetail_ = scopesFrozen_ ? "frozen" : "live";
         return;
       }
@@ -5912,6 +5912,7 @@
           return;
         }
         scopesBt2020_ = value == "2020";
+        releaseScopesCapture();
         return;
       }
       if (sub == "BIG") {
@@ -5936,6 +5937,7 @@
         }
         if (value == "PROGRAMME" || value == "PROGRAM" || value == "PGM") {
           scopesSource_ = -1;
+          releaseScopesCapture();
           return;
         }
         const int n = std::atoi(value.c_str());
@@ -5945,6 +5947,7 @@
           return;
         }
         scopesSource_ = n - 1;
+        releaseScopesCapture();
         return;
       }
       failRemoteCommand("SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE or STATS");

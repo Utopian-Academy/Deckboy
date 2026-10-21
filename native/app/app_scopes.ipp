@@ -6,8 +6,7 @@
 // app_scopes.ipp -- the picture scopes, measured on the OUTPUT.
 //
 // WHAT IS MEASURED: the programme output (or the one SOURCE picks), its own
-// finished frame at its full raster -- the same captured frame NDI, DeckLink,
-// ST 2110 and the Web Monitor send (OutputRuntime::latestCapturedFrame). On an
+// finished frame at its full raster, through a private 60 Hz capture tap. On an
 // HDR output that frame is the SDR copy, with every highlight clipped at
 // white, so the scopes read the float compositor instead, as PQ BT.2020
 // (readHdrCompositorRaw + a PQ HdrEncoder, the HDR recording's picture), graduated in nits. Not the desk's preview, which is a
@@ -17,9 +16,10 @@
 // no level information because each column still accumulates every pixel
 // under it.
 //
-// The analysis is the SDL-free core in core/scopes.hpp. A frame is split into
-// row bands analysed in parallel and accumulated exactly (accumulate() sums
-// bins and counts). EBU R 103's FILTERED gamut count needs neighbouring rows,
+// The analysis is the SDL-free core in core/scopes.hpp. Reusable workers
+// analyse vertical strips aligned to waveform columns and chroma pairs.
+// The coordinator also builds the trace images off the renderer thread.
+// EBU R 103's FILTERED gamut count needs neighbouring rows,
 // so it runs separately on the whole frame every two seconds; the raw count is
 // exact on every update.
 //
@@ -31,10 +31,18 @@
     kScopeWaveform = 0, kScopeParade, kScopeVector, kScopeDiamond, kScopeHistogram, kScopePanelCount
   };
 
+  struct ScopeImages {
+    std::array<std::vector<std::uint8_t>, kScopeDiamond + 1> rgba;
+    std::array<int, kScopeDiamond + 1> width{}, height{};
+  };
   struct ScopesOutcome {
+    std::shared_ptr<const ScopeImages> images;
+    std::string outputId;
+    Uint64 capturedNs = 0, completedNs = 0;
+    std::uint64_t generation = 0;
     std::shared_ptr<const deckboy::core::scopes::Result> result;
     int width = 0, height = 0, output = -1;
-    double analysisMs = 0.0;
+    double analysisMs = 0.0, prepareMs = 0.0;
     deckboy::core::scopes::Matrix matrix = deckboy::core::scopes::Matrix::Bt709;
     unsigned sentDepth = 0;  // 0: the R'G'B' frame; 8/10: the Y'CbCr 4:2:2 SDI or ST 2110 sends
     bool sentSdi = false;
@@ -49,20 +57,47 @@
   bool scopesBt2020_ = false;
   int scopesSource_ = -1;        // -1: the programme; otherwise an output
   bool scopesDrawHdr_ = false;   // the graticule in nits, for the result drawn
+  struct ScopeJob {
+    ScopesOutcome outcome;
+    std::shared_ptr<std::vector<std::uint8_t>> pixels;
+    bool halfFloat = false;
+    std::shared_ptr<SDL_Surface> raw;
+  };
   std::mutex scopesMutex_;
-  std::thread scopesWorker_;
-  std::atomic<bool> scopesBusy_ {false};
-  std::thread scopesFilterWorker_;
+  std::condition_variable scopesWake_;
+  std::thread scopesWorker_, scopesFilterWorker_;
+  std::optional<ScopeJob> scopesPending_;
+  // TWO STAGES: one thread analyses frame N+1 while the other draws frame N,
+  // so the rate is set by the slower stage, not the sum of both.
+  std::thread scopesDrawWorker_;
+  std::condition_variable scopesDrawWake_;
+  std::optional<ScopesOutcome> scopesDrawPending_;   // scopesMutex_
+  bool scopesStopping_ = false;
   std::atomic<bool> scopesFilterBusy_ {false};
+  std::atomic<std::uint64_t> scopesGeneration_ {1};
   ScopesOutcome scopesLatest_;                         // scopesMutex_
   std::uint64_t scopesSerial_ = 0;                     // scopesMutex_
+  std::deque<Uint64> scopesUpdateTimes_;                // completion times, scopesMutex_
   deckboy::core::scopes::GamutCounts scopesFiltered_;  // scopesMutex_
   bool scopesFilteredValid_ = false;                   // scopesMutex_
+  Uint64 scopesFilteredAtNs_ = 0;
   std::uint64_t scopesDrawnSerial_ = 0;
-  Uint64 scopesLastSubmitMs_ = 0;
   Uint64 scopesLastFilterMs_ = 0;
-  Uint64 scopesLastCaptureMs_ = 0;
-  std::deque<Uint64> scopesUpdateTimes_;
+  Uint64 scopesLastWireCaptureNs_ = 0;
+  double scopesCaptureMs_ = 0, scopesUploadMs_ = 0;
+  // ONE ANALYSIS PER NEW PICTURE (James, 2026-10-21: "the scopes should
+  // reflect the refresh rate and fps of the source material"). Main thread.
+  std::uint64_t scopesLastFingerprint_ = 0;  // the last picture sent for analysis
+  std::deque<Uint64> scopesPictureTimes_;    // when the scoped picture changed
+  double scopesOutputHz_ = 0;                // the scoped output's present rate
+  Uint64 scopesConfirmedNs_ = 0;             // last time the picture was seen unchanged
+  std::string scopesCaptureKey_;
+  SDL_Renderer* scopesCaptureRenderer_ = nullptr;
+  SDL_Texture* scopesCaptureTexture_ = nullptr;
+  void* scopesReadback_ = nullptr;
+  bool scopesReadbackUnavailable_ = false;
+  int scopesReadbackMisses_ = 0;
+  std::vector<std::shared_ptr<std::vector<std::uint8_t>>> scopesBuffers_;
   SDL_Texture* scopeTex_[kScopeDiamond + 1] {};
   int scopeTexW_[kScopeDiamond + 1] {};
   int scopeTexH_[kScopeDiamond + 1] {};
@@ -100,11 +135,11 @@
   void cycleScopesSource() {
     const int count = static_cast<int>(project_.outputs.size());
     scopesSource_ = scopesSource_ < 0 ? (count > 0 ? 0 : -1) : scopesSource_ + 1 >= count ? -1 : scopesSource_ + 1;
+    releaseScopesCapture();
     triggerToast("scopes: " + scopesSourceLabel() + " (" + outputLabel(scopesOutputIndex()) + ")");
   }
 
-  // The output render loop asks this before capturing: the scopes are one
-  // more consumer of the captured frame, like NDI or the Web Monitor.
+  // The output render loop asks this before the independent scopes capture.
   bool scopesWatching(int outputIndex) const {
     return monitorView_ != MonitorView::Program && !scopesFrozen_ &&
            outputIndex == scopesOutputIndex();
@@ -152,230 +187,11 @@
            scopesSentDepth(outputIndex) == 0;
   }
 
-  // Every row of a BGRA frame, split into bands across the cores and
-  // accumulated exactly. Unfiltered gamut; see the header. sentDepth 8/10
-  // measures it as the 4:2:2 an SDI or ST 2110 output sends (always BT.709).
-  static deckboy::core::scopes::Result analyzeScopesFrame(const std::vector<std::uint8_t>& pixels,
-                                                          int width, int height, bool bt2020,
-                                                          unsigned sentDepth) {
-    namespace s = deckboy::core::scopes;
-    const s::Options options = scopesOptions(width, bt2020 && !sentDepth);
-    const std::size_t w = static_cast<std::size_t>(width);
-    const std::size_t h = static_cast<std::size_t>(height);
-    const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
-    const std::size_t bands = std::clamp<std::size_t>(cores > 2 ? cores - 2 : 1, 1, 6);
-    const std::size_t rowsPerBand = (h + bands - 1) / bands;
-    std::vector<std::future<s::Result>> parts;
-    for (std::size_t y0 = 0; y0 < h; y0 += rowsPerBand) {
-      const std::size_t rows = std::min(rowsPerBand, h - y0);
-      parts.push_back(std::async(std::launch::async, [&pixels, w, y0, rows, options, sentDepth]() {
-        const std::span<const std::uint8_t> band(pixels.data() + y0 * w * 4, rows * w * 4);
-        if (sentDepth) return s::analyze(s::Bgra422View {band, w, rows, 0, sentDepth}, options);
-        s::Rgba8View view {band, w, rows, 0};
-        view.bgra = true;
-        return s::analyze(view, options);
-      }));
-    }
-    s::Result whole = parts.front().get();
-    for (std::size_t i = 1; i < parts.size(); ++i) s::accumulate(whole, parts[i].get());
-    return whole;
-  }
-
-  // The PQ frame, in bands like the 8-bit one. Always BT.2020: PQ HDR is.
-  static deckboy::core::scopes::Result analyzeScopesHdrFrame(const std::vector<std::uint8_t>& pixels,
-                                                             int width, int height) {
-    namespace s = deckboy::core::scopes;
-    s::Options options = scopesOptions(width, true);
-    // PQ spends a code range on each decade of brightness; 1024 bins put the
-    // peak reading within about 1% of its nits.
-    options.histogramBins = 1024;
-    const std::size_t w = static_cast<std::size_t>(width);
-    const std::size_t h = static_cast<std::size_t>(height);
-    const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
-    const std::size_t bands = std::clamp<std::size_t>(cores > 2 ? cores - 2 : 1, 1, 10);  // HDR: the slow path, more bands
-    const std::size_t rowsPerBand = (h + bands - 1) / bands;
-    std::vector<std::future<s::Result>> parts;
-    for (std::size_t y0 = 0; y0 < h; y0 += rowsPerBand) {
-      const std::size_t rows = std::min(rowsPerBand, h - y0);
-      parts.push_back(std::async(std::launch::async, [&pixels, w, y0, rows, options]() {
-        return s::analyze(s::Rgb16View {std::span<const std::uint8_t>(pixels.data() + y0 * w * 6, rows * w * 6),
-                                        w, rows, 0}, options);
-      }));
-    }
-    s::Result whole = parts.front().get();
-    for (std::size_t i = 1; i < parts.size(); ++i) s::accumulate(whole, parts[i].get());
-    return whole;
-  }
-
-  // Main thread, from the output pass: only the GPU readback happens here;
-  // the PQ encode and the analysis run on the worker. About ten a second.
-  std::unique_ptr<deckboy::core::hdr::HdrEncoder> scopesHdrEncoder_;   // worker only
-  int scopesPqWhite_ = 0;
-  void scopesOfferHdrFrame(int outputIndex, const OutputRuntime& runtime) {
-    const Uint64 now = SDL_GetTicks();
-    if (now - scopesLastSubmitMs_ < 100) return;
-    SDL_Surface* raw = readHdrCompositorRaw(runtime);
-    if (!raw) return;
-    scopesLastSubmitMs_ = now;
-    const int white = std::clamp(project_.hdrSdrWhiteNits, 80, 500);
-    if (scopesWorker_.joinable()) scopesWorker_.join();
-    scopesBusy_.store(true);
-    scopesWorker_ = std::thread([this, raw, outputIndex, white]() {
-      namespace s = deckboy::core::scopes;
-      const auto started = std::chrono::steady_clock::now();
-      if (!scopesHdrEncoder_ || scopesPqWhite_ != white) {
-        scopesHdrEncoder_ = std::make_unique<deckboy::core::hdr::HdrEncoder>(white);
-        scopesPqWhite_ = white;
-      }
-      auto frame = std::make_shared<OutputRuntime::CapturedFrame>();
-      if (!encodeHdrSurface(raw, *scopesHdrEncoder_, *frame) || frame->width <= 0 || frame->height <= 0) {
-        scopesBusy_.store(false);
-        return;
-      }
-      ScopesOutcome outcome;
-      try {
-        outcome.result = std::make_shared<const s::Result>(
-          analyzeScopesHdrFrame(frame->pixels, frame->width, frame->height));
-      } catch (const std::exception&) {
-        scopesBusy_.store(false);
-        return;
-      }
-      double peak = 0.0;
-      for (const auto& hist : outcome.result->rgbHistogram) {
-        for (std::size_t i = hist.bins.size(); i-- > 0;) {
-          if (hist.bins[i]) {
-            peak = std::max(peak, (static_cast<double>(i) + 0.5) / static_cast<double>(hist.bins.size()));
-            break;
-          }
-        }
-      }
-      outcome.width = frame->width;
-      outcome.height = frame->height;
-      outcome.output = outputIndex;
-      outcome.matrix = s::Matrix::Bt2020Ncl;
-      outcome.hdr = true;
-      outcome.hdrWhiteNits = white;
-      outcome.peakNits = peak > 0.0 ? s::pqToNits(peak) : 0.0;
-      outcome.analysisMs = std::chrono::duration<double, std::milli>(
-        std::chrono::steady_clock::now() - started).count();
-      {
-        std::lock_guard<std::mutex> lock(scopesMutex_);
-        scopesFiltered_ = outcome.result->filteredGamut;
-        scopesFilteredValid_ = true;
-        scopesLatest_ = std::move(outcome);
-        ++scopesSerial_;
-      }
-      scopesBusy_.store(false);
-    });
-  }
-
-  // Main thread, from the output pass, after the frame was captured.
-  void scopesOfferFrame(int outputIndex, const OutputRuntime& runtime) {
-    if (!scopesWatching(outputIndex) || scopesBusy_.load()) return;
-    if (scopesReadsHdr(outputIndex, runtime)) {
-      scopesOfferHdrFrame(outputIndex, runtime);
-      return;
-    }
-    const auto& frame = runtime.latestCapturedFrame;
-    if (frame.width <= 0 || frame.height <= 0 ||
-        frame.pixels.size() < static_cast<std::size_t>(frame.width) * frame.height * 4 ||
-        frame.capturedAtMs == scopesLastCaptureMs_) {
-      return;
-    }
-    const Uint64 now = SDL_GetTicks();
-    if (now - scopesLastSubmitMs_ < 80) return;
-    scopesLastSubmitMs_ = now;
-    scopesLastCaptureMs_ = frame.capturedAtMs;
-    auto pixels = std::make_shared<std::vector<std::uint8_t>>(frame.pixels);
-    const int width = frame.width, height = frame.height;
-    bool sentSdi = false;
-    const unsigned sentDepth = scopesSentDepth(outputIndex, &sentSdi);
-    const bool bt2020 = scopesBt2020_ && !sentDepth;
-    if (scopesWorker_.joinable()) scopesWorker_.join();
-    scopesBusy_.store(true);
-    scopesWorker_ = std::thread([this, pixels, width, height, outputIndex, bt2020, sentDepth, sentSdi]() {
-      const auto started = std::chrono::steady_clock::now();
-      ScopesOutcome outcome;
-      try {
-        outcome.result = std::make_shared<const deckboy::core::scopes::Result>(
-          analyzeScopesFrame(*pixels, width, height, bt2020, sentDepth));
-      } catch (const std::exception&) {
-        scopesBusy_.store(false);
-        return;
-      }
-      outcome.width = width;
-      outcome.height = height;
-      outcome.output = outputIndex;
-      outcome.matrix = bt2020 ? deckboy::core::scopes::Matrix::Bt2020Ncl
-                              : deckboy::core::scopes::Matrix::Bt709;
-      outcome.sentDepth = sentDepth;
-      outcome.sentSdi = sentSdi;
-      outcome.analysisMs = std::chrono::duration<double, std::milli>(
-        std::chrono::steady_clock::now() - started).count();
-      {
-        std::lock_guard<std::mutex> lock(scopesMutex_);
-        if (!outcome.sentDepth) {
-          // The R'G'B' frame: its filtered count is its raw one (see below).
-          scopesFiltered_ = outcome.result->filteredGamut;
-          scopesFilteredValid_ = true;
-        } else if (scopesLatest_.sentDepth != outcome.sentDepth) {
-          scopesFilteredValid_ = false;  // another signal's count; the 4:2:2 pass replaces it
-        }
-        scopesLatest_ = std::move(outcome);
-        ++scopesSerial_;
-      }
-      scopesBusy_.store(false);
-    });
-    // The R 103 filtered count, on the whole frame, every two seconds -- for
-    // the 4:2:2 an SDI or ST 2110 output sends. Across the cores in row bands
-    // (exact; scopes_check): one thread took 820 ms of a 4K frame. The R'G'B'
-    // frame needs no pass at all: it cannot leave gamut, so its filtered count
-    // is its raw one, set with each update above.
-    if (sentDepth && !scopesFilterBusy_.load() && now - scopesLastFilterMs_ >= 2000) {
-      scopesLastFilterMs_ = now;
-      if (scopesFilterWorker_.joinable()) scopesFilterWorker_.join();
-      scopesFilterBusy_.store(true);
-      scopesFilterWorker_ = std::thread([this, pixels, width, height, sentDepth]() {
-        namespace s = deckboy::core::scopes;
-        s::Options options = scopesOptions(width, false);
-        options.columns = options.levelBins = options.vectorBins = options.histogramBins = 2;
-        options.gamutFilter = s::GamutFilter::Progressive;
-        try {
-          const s::Bgra422View view {*pixels, static_cast<std::size_t>(width),
-                                     static_cast<std::size_t>(height), 0, sentDepth};
-          const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
-          const std::size_t bands = std::clamp<std::size_t>(cores > 2 ? cores - 2 : 1, 1, 6);
-          const std::size_t h = static_cast<std::size_t>(height);
-          const std::size_t rows = (h + bands - 1) / bands;
-          std::vector<std::future<s::GamutCounts>> parts;
-          for (std::size_t y0 = 0; y0 < h; y0 += rows)
-            parts.push_back(std::async(std::launch::async, [&view, &options, y0, rows, h]() {
-              return s::filteredGamutRows(view, options, y0, std::min(h, y0 + rows));
-            }));
-          s::GamutCounts filtered;
-          for (auto& part : parts) s::accumulate(filtered, part.get());
-          std::lock_guard<std::mutex> lock(scopesMutex_);
-          scopesFiltered_ = filtered;
-          scopesFilteredValid_ = true;
-        } catch (const std::exception&) {
-        }
-        scopesFilterBusy_.store(false);
-      });
-    }
-  }
-
-  void stopScopesWorkers() {
-    if (scopesWorker_.joinable()) scopesWorker_.join();
-    if (scopesFilterWorker_.joinable()) scopesFilterWorker_.join();
-    for (auto*& texture : scopeTex_) {
-      if (texture) SDL_DestroyTexture(texture);
-      texture = nullptr;
-    }
-  }
+#include "app_scopes_pipeline.ipp"
 
   // Density -> an RGBA texture. Brightness follows log(count) so a single
   // pixel's trace is visible next to a flat field of millions.
-  void uploadScopeDensity(int slot, const deckboy::core::scopes::Density& density, int columns,
+  static void uploadScopeDensity(int slot, const deckboy::core::scopes::Density& density, int columns,
                           int xOffset, int textureW, int textureH, bool flipY, SDL_Color tint,
                           std::vector<std::uint8_t>& rgba) {
     std::uint64_t peak = 1;
@@ -409,33 +225,29 @@
     scopeTexH_[slot] = height;
   }
 
-  // Main thread: turn the newest result into textures, once per new result.
-  std::shared_ptr<const deckboy::core::scopes::Result> refreshScopeTextures(ScopesOutcome& outcome) {
-    std::uint64_t serial = 0;
-    {
-      std::lock_guard<std::mutex> lock(scopesMutex_);
-      outcome = scopesLatest_;
-      serial = scopesSerial_;
-    }
-    const auto result = outcome.result;
-    if (!result || serial == scopesDrawnSerial_) return result;
-    scopesDrawnSerial_ = serial;
-    const Uint64 now = SDL_GetTicks();
-    scopesUpdateTimes_.push_back(now);
-    while (!scopesUpdateTimes_.empty() && now - scopesUpdateTimes_.front() > 2000) {
-      scopesUpdateTimes_.pop_front();
-    }
-    std::vector<std::uint8_t> rgba;
+  static std::shared_ptr<const ScopeImages> buildScopeImages(
+      const std::shared_ptr<const deckboy::core::scopes::Result>& result) {
+    auto images = std::make_shared<ScopeImages>();
+    // THE FOUR PICTURES ARE INDEPENDENT, so they are drawn at once. One after
+    // another they cost about 9 ms a frame at 1080p, which with the analysis
+    // capped the scopes near 47 updates a second -- under a 59.94 source.
+    std::function<void()> tasks[4];
+    const auto keep = [&](int slot, int w, int h, std::vector<std::uint8_t>& pixels) {
+      images->width[slot] = w;
+      images->height[slot] = h;
+      images->rgba[slot].swap(pixels);
+    };
     const SDL_Color trace {150, 255, 150, 255};
-    {  // luma waveform
+    tasks[0] = [&] {  // luma waveform
+      std::vector<std::uint8_t> rgba;
       const auto& d = result->lumaWaveform();
       const int w = static_cast<int>(d.width), h = static_cast<int>(d.height);
       rgba.assign(static_cast<std::size_t>(w) * h * 4, 0);
       uploadScopeDensity(kScopeWaveform, d, w, 0, w, h, true, trace, rgba);
-      ensureScopeTexture(kScopeWaveform, w, h);
-      if (scopeTex_[kScopeWaveform]) SDL_UpdateTexture(scopeTex_[kScopeWaveform], nullptr, rgba.data(), w * 4);
-    }
-    {  // RGB parade, three side by side
+      keep(kScopeWaveform, w, h, rgba);
+    };
+    tasks[1] = [&] {  // RGB parade, three side by side
+      std::vector<std::uint8_t> rgba;
       const int w = static_cast<int>(result->rgbParade[0].width);
       const int h = static_cast<int>(result->rgbParade[0].height);
       rgba.assign(static_cast<std::size_t>(w) * 3 * h * 4, 0);
@@ -443,19 +255,19 @@
       for (int c = 0; c < 3; ++c) {
         uploadScopeDensity(kScopeParade, result->rgbParade[c], w, c * w, w * 3, h, true, tints[c], rgba);
       }
-      ensureScopeTexture(kScopeParade, w * 3, h);
-      if (scopeTex_[kScopeParade]) SDL_UpdateTexture(scopeTex_[kScopeParade], nullptr, rgba.data(), w * 3 * 4);
-    }
-    {  // vectorscope, Cr up
+      keep(kScopeParade, w * 3, h, rgba);
+    };
+    tasks[2] = [&] {  // vectorscope, Cr up
+      std::vector<std::uint8_t> rgba;
       const auto& d = result->vectorscope;
       const int w = static_cast<int>(d.width), h = static_cast<int>(d.height);
       rgba.assign(static_cast<std::size_t>(w) * h * 4, 0);
       uploadScopeDensity(kScopeVector, d, w, 0, w, h, true, trace, rgba);
-      ensureScopeTexture(kScopeVector, w, h);
-      if (scopeTex_[kScopeVector]) SDL_UpdateTexture(scopeTex_[kScopeVector], nullptr, rgba.data(), w * 4);
-    }
-    {  // diamond: upper half B/G with white at the top, lower half R/G with
-       // white at the bottom, the two meeting at black in the middle
+      keep(kScopeVector, w, h, rgba);
+    };
+    tasks[3] = [&] {  // diamond: upper half B/G with white at the top, lower
+      // half R/G with white at the bottom, the two meeting at black in the middle
+      std::vector<std::uint8_t> rgba;
       const auto& up = result->diamond[0];
       const auto& low = result->diamond[1];
       const int w = static_cast<int>(up.width), h = static_cast<int>(up.height);
@@ -466,10 +278,31 @@
       std::fill(half.begin(), half.end(), 0);
       uploadScopeDensity(kScopeDiamond, low, w, 0, w, h, false, trace, half);
       std::copy(half.begin(), half.end(), rgba.begin() + static_cast<std::ptrdiff_t>(half.size()));
-      ensureScopeTexture(kScopeDiamond, w, h * 2);
-      if (scopeTex_[kScopeDiamond]) SDL_UpdateTexture(scopeTex_[kScopeDiamond], nullptr, rgba.data(), w * 4);
+      keep(kScopeDiamond, w, h * 2, rgba);
+    };
+    std::future<void> running[3];
+    for (int i = 0; i < 3; ++i) running[i] = std::async(std::launch::async, tasks[i]);
+    tasks[3]();
+    for (auto& task : running) task.get();
+    return images;
+  }
+
+  // Only texture upload stays on the renderer thread.
+  std::shared_ptr<const deckboy::core::scopes::Result> refreshScopeTextures(ScopesOutcome& outcome) {
+    std::uint64_t serial;
+    { std::lock_guard lock(scopesMutex_); outcome = scopesLatest_; serial = scopesSerial_; }
+    if (outcome.images && serial != scopesDrawnSerial_) {
+      const auto started = SDL_GetTicksNS();
+      scopesDrawnSerial_ = serial;
+      for (int slot = 0; slot <= kScopeDiamond; ++slot) {
+        const int w = outcome.images->width[slot], h = outcome.images->height[slot];
+        ensureScopeTexture(slot, w, h);
+        if (scopeTex_[slot]) SDL_UpdateTexture(scopeTex_[slot], nullptr,
+          outcome.images->rgba[slot].data(), w * 4);
+      }
+      scopesUploadMs_ = (SDL_GetTicksNS() - started) / 1000000.0;
     }
-    return result;
+    return outcome.result;
   }
 
   // ── Drawing ────────────────────────────────────────────────────────────────
@@ -730,7 +563,10 @@
     const SDL_Rect body {area.x, area.y, area.w, area.h - footerH};
     const SDL_Rect footer {area.x, area.y + area.h - footerH, area.w, footerH};
     scopesDrawHdr_ = outcome.hdr;
-    if (!result || outcome.output != scopesOutputIndex()) {
+    const int source = scopesOutputIndex();
+    const bool matches = result && source < static_cast<int>(project_.outputs.size()) &&
+      outcome.outputId == project_.outputs[source].outputId;
+    if (!matches) {
       const std::string why = project_.outputs.empty()
         ? std::string("add an output to scope it")
         : "waiting for " + outputLabel(scopesOutputIndex()) + " - arm it to scope its signal";
@@ -775,28 +611,48 @@
     drawUIPanel(scopesSourceBtnRect_, paletteToggleFill(scopesSource_ >= 0), pal.deep, pal.light);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSourceBtnRect_, scopesSourceLabel(),
                          paletteToggleInk(scopesSource_ >= 0));
-    if (result) {
+    {
       bool alarm = false;
       std::string gamut;
-      if (outcome.hdr) {
+      if (matches && outcome.hdr) {
         // R 103 is an SDR rule; on PQ the reading that matters is how bright.
         char peak[96];
         std::snprintf(peak, sizeof(peak), "peak %.0f nits  SDR white %d", outcome.peakNits, outcome.hdrWhiteNits);
         gamut = peak;
-      } else {
+      } else if (matches) {
         gamut = scopesGamutText(*result, alarm);
       }
-      const double rate = scopesUpdateTimes_.size() > 1
-        ? 1000.0 * (scopesUpdateTimes_.size() - 1) /
-            std::max<Uint64>(1, scopesUpdateTimes_.back() - scopesUpdateTimes_.front())
-        : 0.0;
-      char info[240];
-      std::snprintf(info, sizeof(info), "%s  %dx%d  %s  %s  %.1f/s  ", outputLabel(outcome.output).c_str(),
+      const std::string state = scopesReadingState(outcome);
+      const bool live = state == "LIVE";
+      const double rate = live ? scopesUpdateRate() : 0;
+      // The rate says what the scopes kept up with: "25.0/s" when every new
+      // picture was analysed, "41.3 of 59.9/s" when some were not. Then the
+      // source's own frame rate and the output's, so both can be checked.
+      const double picture = live ? scopesPictureRate() : 0;
+      char rateText[48];
+      if (picture > 0.5 && rate < picture - 0.5)
+        std::snprintf(rateText, sizeof(rateText), "%.1f of %.1f/s", rate, picture);
+      else
+        std::snprintf(rateText, sizeof(rateText), "%.1f/s", rate);
+      char sourceText[48] = "";
+      if (source >= 0 && source < static_cast<int>(project_.outputs.size()) && !project_.decks.empty()) {
+        const int deck = std::clamp(project_.outputs[source].hostDeckIndex, 0,
+                                    static_cast<int>(project_.decks.size()) - 1);
+        const Cue* cue = activeCuePtr(deck);
+        if (cue && cue->kind == CueKind::Video && cue->fps > 1.0)
+          std::snprintf(sourceText, sizeof(sourceText), "src %.2f fps  ", cue->fps);
+      }
+      char outText[32] = "";
+      if (scopesOutputHz_ > 1.0) std::snprintf(outText, sizeof(outText), "out %.2f Hz  ", scopesOutputHz_);
+      char info[300];
+      std::snprintf(info, sizeof(info), "%s  %s  %s%s%s  %dx%d  %s  %s  ", state.c_str(), rateText,
+                    sourceText, outText, outputLabel(source).c_str(),
                     outcome.width, outcome.height, scopesSignalLabel(outcome).c_str(),
-                    outcome.matrix == deckboy::core::scopes::Matrix::Bt2020Ncl ? "BT.2020" : "BT.709", rate);
+                    outcome.matrix == deckboy::core::scopes::Matrix::Bt2020Ncl ? "BT.2020" : "BT.709");
       SDL_Rect infoRect {footer.x + uiScaled(6), footer.y, footer.w - freezeW - sourceW - uiScaled(20), footer.h};
-      drawTextSafe(controlRenderer_, fontSmall_, infoRect, std::string(info) + gamut,
-                   alarm ? kScopeAlarm : kScopeLabel);
+      drawTextSafe(controlRenderer_, fontSmall_, infoRect,
+                   matches ? std::string(info) + (live ? gamut : "last reading") : state,
+                   alarm && live ? kScopeAlarm : kScopeLabel);
     }
   }
 
@@ -815,6 +671,7 @@
                  : monitorView_ == MonitorView::Scopes ? MonitorView::Both
                                                        : MonitorView::Program;
     scopesBig_ = -1;
+    releaseScopesCapture();
     triggerToast(std::string("monitor: ") + monitorViewName(monitorView_));
   }
 
@@ -847,11 +704,21 @@
   std::string scopesStats() {
     namespace s = deckboy::core::scopes;
     ScopesOutcome outcome;
+    std::uint64_t serial;
     {
       std::lock_guard<std::mutex> lock(scopesMutex_);
       outcome = scopesLatest_;
+      serial = scopesSerial_;
     }
-    if (!outcome.result) return "no frame yet";
+    const std::string state = scopesReadingState(outcome);
+    char telemetry[320];
+    std::snprintf(telemetry, sizeof(telemetry), " state=%s serial=%llu hz=%.1f age_ms=%.1f picture_hz=%.1f out_hz=%.2f prepare_ms=%.1f capture_ms=%.1f upload_ms=%.1f",
+      state == "OUTPUT OFF" ? "off" : toLower(state).c_str(), static_cast<unsigned long long>(serial),
+      state == "LIVE" ? scopesUpdateRate() : 0,
+      outcome.capturedNs ? (SDL_GetTicksNS() - outcome.capturedNs) / 1000000.0 : -1.0,
+      state == "LIVE" ? scopesPictureRate() : 0, scopesOutputHz_,
+      outcome.prepareMs, scopesCaptureMs_, scopesUploadMs_);
+    if (!outcome.result) return std::string(telemetry + 1) + " no frame yet";
     const s::Result& r = *outcome.result;
     const auto& hist = r.lumaHistogram.bins;
     int lo = -1, hi = -1;
@@ -920,5 +787,5 @@
                   outcome.hdr ? "pq16"
                     : outcome.sentDepth ? (outcome.sentDepth == 10 ? "ycbcr422-10" : "ycbcr422-8") : "rgb8",
                   gamut.c_str());
-    return std::string(text) + spread;
+    return std::string(text) + spread + telemetry;
   }

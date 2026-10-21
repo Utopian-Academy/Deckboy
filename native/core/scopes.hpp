@@ -5,6 +5,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <vector>
 
@@ -148,6 +149,23 @@ Result analyze(FrameView frame, const Options& options = {});
 Result analyze(Rgba8View frame, const Options& options = {});
 Result analyze(Bgra422View frame, const Options& options = {});
 Result analyze(Rgb16View frame, const Options& options = {});
+
+// Reusable workers split the picture into vertical strips aligned to waveform
+// columns (and 4:2:2 pixel pairs). All pixels and bins remain exact. Instances
+// are owned by one caller; calls on an instance must not overlap.
+class ParallelAnalyzer {
+ public:
+  explicit ParallelAnalyzer(unsigned workers = 0);
+  ~ParallelAnalyzer();
+  ParallelAnalyzer(const ParallelAnalyzer&) = delete;
+  ParallelAnalyzer& operator=(const ParallelAnalyzer&) = delete;
+  Result analyze(Rgba8View frame, const Options& options = {});
+  Result analyze(Bgra422View frame, const Options& options = {});
+  Result analyze(Rgb16View frame, const Options& options = {});
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
+};
 
 // The FILTERED R 103 count alone, for rows [rowBegin, rowEnd) of the whole
 // frame (the filter reads the rows either side of the band). Bands summed with

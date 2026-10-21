@@ -1174,6 +1174,7 @@ if(BUILD_TESTING)
   # Pure signal analysis; the same source is linked into the desk and Mini.
   add_executable(deckboy-scopes-check tools/scopes_check.cpp native/core/scopes.cpp)
   target_include_directories(deckboy-scopes-check PRIVATE native)
+  target_link_libraries(deckboy-scopes-check PRIVATE Threads::Threads)
   if(MSVC)
     target_compile_options(deckboy-scopes-check PRIVATE /W4 /WX)
   else()
