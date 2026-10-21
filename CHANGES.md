@@ -40,6 +40,13 @@
 - The taskbar and window icon is the full Deckboy cartridge again at small sizes, as it was before
   0.99.414, in place of the flat play-screen mark.
 
+### Deckboy Mini
+- Fixed an issue where Deckboy Mini closed the moment it was opened without files named, as a
+  double-click opens it: on Windows its window flashed and vanished. Mini now opens in a
+  window with an empty list and says how to add something; drop videos, pictures or a folder
+  on the window, or press A in the terminal and type a path, and the first thing it is given
+  starts playing. Files named that hold nothing playable are still reported as an error.
+
 ## 2026-10-17 - v0.99.417 (the master tracker as a pattern; AV Tools Pro in the manual)
 
 ### Master tracker

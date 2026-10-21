@@ -530,7 +530,8 @@ clear the download quarantine so macOS lets it run (one time only):
 
   xattr -dr com.apple.quarantine "$MINI_NAME"
 
-Then, in Terminal, in this folder:
+Then double-click deckboy-mini (it opens in Terminal) and drop videos,
+pictures or a folder on its window. Or name them, in Terminal, in this folder:
 
   ./deckboy-mini ~/Movies            a folder plays in name order
   ./deckboy-mini clip.mp4 logo.png   files in the order given

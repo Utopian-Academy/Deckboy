@@ -519,8 +519,9 @@ Copy-Item (Join-Path $RepoRoot "LICENSE") -Destination $MiniStage
 @"
 Deckboy Mini $Version for Windows
 
-One deck, one output, run from the keyboard. Unzip anywhere, then in a
-terminal in this folder:
+One deck, one output, run from the keyboard. Unzip anywhere, then
+double-click deckboy-mini.exe and drop videos, pictures or a folder on its
+window. Or name them, in a terminal in this folder:
 
   deckboy-mini "C:\Videos"            a folder plays in name order
   deckboy-mini clip.mp4 logo.png      files in the order given

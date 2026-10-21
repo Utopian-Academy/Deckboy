@@ -201,7 +201,14 @@ Options parseArgs(int argc, char** argv) {
     else if (a.rfind("--", 0) == 0) { std::cerr << "deckboy-mini: unknown option " << a << "\n\n" << kUsage; std::exit(2); }
     else o.inputs.emplace_back(a);
   }
-  if (o.inputs.empty() && o.watch.empty()) { std::cerr << kUsage; std::exit(2); }
+  // NOTHING NAMED IS NOT A REASON TO QUIT. A double-click in Explorer or
+  // Finder starts Mini with no arguments at all, and quitting there printed
+  // the usage into a console window that closed in the same instant: Mini
+  // "would not open". It opens with an empty list instead, says how to give
+  // it something (drawEmptyHint), and plays the first thing it is given. In a
+  // WINDOW when nothing at all was given: a black full screen with nothing in
+  // it looks like a crash, and takes over the only screen a laptop has.
+  if (argc <= 1) o.windowed = true;
   o.volume = std::clamp(o.volume, 0, 100);
   o.stillSeconds = std::max(0.1, o.stillSeconds);
   if (o.display < 1) o.display = 1;
@@ -452,6 +459,9 @@ class Mini {
     hud_.begin(opt_.plain, deckboy::core::Paths::stateDir());
     hud_.boot(bootFacts());
     if (keys_.begin()) hud_.log("keys live in this terminal  (? for help)");
+    if (cues_.empty() && opt_.watch.empty()) {
+      hud_.log("nothing to play yet: drop files on the output window, or press A and type a path");
+    }
     if (!opt_.watch.empty()) setWatch(opt_.watch.string());
     take(0, !opt_.paused);
     while (!gQuit.load()) {
@@ -1186,6 +1196,7 @@ class Mini {
       }
     }
     if (!blackout_) drawSubtitles();
+    if (cues_.empty() && !blackout_) drawEmptyHint();
     if (overlay_) drawOverlay();
     // OUTSNAP (a test verb, as on the desk): this frame as it leaves.
     if (!snapPath_.empty()) {
@@ -1202,7 +1213,7 @@ class Mini {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_EVENT_QUIT) gQuit = true;
-      if (e.type == SDL_EVENT_DROP_FILE && e.drop.data) addInputs({fs::path(e.drop.data)}, "dropped");
+      if (e.type == SDL_EVENT_DROP_FILE && e.drop.data) addInputsAndStart({fs::path(e.drop.data)}, "dropped");
       if (e.type != SDL_EVENT_KEY_DOWN || e.key.repeat) continue;
       if (auto key = windowKey(e.key.key, e.key.mod)) onKey(*key, false);
     }
@@ -1801,7 +1812,7 @@ class Mini {
       path = first == std::string::npos ? std::string() : path.substr(first);
       while (!path.empty() && (path.back() == ' ' || path.back() == '\t' || path.back() == '"')) path.pop_back();
       if (path.empty()) return err("expected a file or folder");
-      const int added = addInputs({fs::path(path)}, "added");
+      const int added = addInputsAndStart({fs::path(path)}, "added");
       if (added == 0) return err("nothing playable at " + path);
       return ok();
     }
@@ -2140,12 +2151,18 @@ class Mini {
     const double now = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
     const std::vector<std::string> arrived = watch_.poll(now);
     if (arrived.empty()) return;
-    // Nothing had ever played because there was nothing to play: the first
-    // arrival starts the show, as the first file on the command line would.
-    const bool waiting = cues_.empty() && active_ < 0;
     std::vector<fs::path> paths(arrived.begin(), arrived.end());
-    const int added = addInputs(paths, "arrived in the watch folder:");
+    addInputsAndStart(paths, "arrived in the watch folder:");
+  }
+
+  // Nothing had ever played because there was nothing to play: the first
+  // files to arrive start the show, as the first file on the command line
+  // would -- dropped on the window, ADDed, or landing in the watch folder.
+  int addInputsAndStart(const std::vector<fs::path>& inputs, const char* how) {
+    const bool waiting = cues_.empty() && active_ < 0;
+    const int added = addInputs(inputs, how);
     if (added > 0 && waiting && !opt_.paused) take(0);
+    return added;
   }
 
   int addInputs(const std::vector<fs::path>& inputs, const char* how) {
@@ -2167,6 +2184,33 @@ class Mini {
   // The status bar on the OUTPUT, for a screen with no terminal beside it.
   // Off unless asked for, because the output is what the room sees. SDL's
   // built-in 8x8 font, scaled to the raster: pixel text, no font files.
+  // What an EMPTY Mini shows -- started with nothing, or double-clicked: how
+  // to give it something. The output's own 8x8 font, centred, in the status
+  // bar's colours, so it reads as Mini talking rather than an error.
+  void drawEmptyHint() {
+    int w = 0, h = 0;
+    SDL_GetRenderOutputSize(renderer_, &w, &h);
+    if (w <= 0 || h <= 0) return;
+    const float scale = std::max(1.0f, std::floor(static_cast<float>(h) / 270.0f));
+    const float vw = w / scale, vh = h / scale;
+    const std::string lines[] = {"DECKBOY MINI", "",
+                                 "drop videos, pictures or a folder here",
+                                 "or press A in the terminal and type a path"};
+    SDL_SetRenderScale(renderer_, scale, scale);
+    float y = std::floor(vh / 2.0f - 24.0f);
+    for (const std::string& line : lines) {
+      const float x = std::floor((vw - static_cast<float>(line.size()) * 8.0f) / 2.0f);
+      if (&line == &lines[0]) {
+        SDL_SetRenderDrawColor(renderer_, 155, 188, 15, 255);   // bright LCD
+      } else {
+        SDL_SetRenderDrawColor(renderer_, 139, 172, 15, 255);
+      }
+      SDL_RenderDebugText(renderer_, std::max(0.0f, x), y, line.c_str());
+      y += 12.0f;
+    }
+    SDL_SetRenderScale(renderer_, 1.0f, 1.0f);
+  }
+
   void drawOverlay() {
     int w = 0, h = 0;
     SDL_GetRenderOutputSize(renderer_, &w, &h);
@@ -2420,8 +2464,11 @@ class Mini {
 int main(int argc, char** argv) {
   Options options = parseArgs(argc, argv);
   std::vector<Cue> cues = buildPlaylist(options);
-  // A watch folder can start empty: what arrives is the list.
-  if (cues.empty() && options.watch.empty()) {
+  // Mini can start empty (see parseArgs), but files NAMED that hold nothing
+  // playable are still an error: a script or a shortcut asked for them, and
+  // an empty window would hide the mistake. A watch folder can start empty:
+  // what arrives is the list.
+  if (cues.empty() && !options.inputs.empty() && options.watch.empty()) {
     std::cerr << "deckboy-mini: nothing to play\n";
     return 2;
   }

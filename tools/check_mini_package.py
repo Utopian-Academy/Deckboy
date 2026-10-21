@@ -163,4 +163,47 @@ if not ok:
         log2.close()
     print(open(os.path.join(work, "mini-nohw.log"), errors="replace").read()[-1200:])
     sys.exit("FAIL: the Mini download did not play a clip")
+
+# STARTED WITH NOTHING, the way a double-click starts it. Through 0.99.417
+# that printed the usage and quit in the same instant -- on Windows a console
+# window that flashed and vanished, so Mini "would not open". It has to stay
+# up, empty, and play the first thing it is given.
+args.port += 2
+log3 = open(os.path.join(work, "mini-empty.log"), "w")
+proc3 = subprocess.Popen([exe, "--plain", "--window", "--volume", "0", "--port", str(args.port)],
+                         env=env, stdin=subprocess.DEVNULL, stdout=log3, stderr=subprocess.STDOUT)
+empty_ok = False
+try:
+    for _ in range(120):
+        try:
+            send("PING", 2.0)
+            break
+        except OSError:
+            if proc3.poll() is not None:
+                break
+            time.sleep(0.5)
+    if proc3.poll() is not None:
+        print("started with nothing: exited at once (code %s)" % proc3.returncode)
+    else:
+        before = send("STATUS")
+        added = send("ADD " + clip).strip()
+        time.sleep(2.0)
+        after = send("STATUS")
+        empty_ok = " cues=0" in before and added.startswith("OK") and "status=Playing" in after
+        print("started with nothing: up with %s; ADD -> %s; then %s" % (
+            "no cues" if " cues=0" in before else "cues already?",
+            added, "playing" if "status=Playing" in after else "NOT playing"))
+        try:
+            send("QUIT")
+        except OSError:
+            pass
+finally:
+    try:
+        proc3.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        proc3.kill()
+    log3.close()
+if not empty_ok:
+    print(open(os.path.join(work, "mini-empty.log"), errors="replace").read()[-1200:])
+    sys.exit("FAIL: Mini started with nothing did not stay up and play what it was given")
 print("ok")

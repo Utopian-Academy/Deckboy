@@ -88,7 +88,9 @@ chmod +x "$STAGE/deckboy-mini"
 cat > "$STAGE/README.txt" <<README
 Deckboy Mini ${VERSION} for Linux (${ARCH})
 
-One deck, one output, run from the keyboard. Unpack anywhere and run:
+One deck, one output, run from the keyboard. Unpack anywhere, run
+./deckboy-mini and drop videos, pictures or a folder on its window. Or name
+them:
 
   ./deckboy-mini ~/Videos            a folder plays in name order
   ./deckboy-mini clip.mp4 logo.png   files in the order given
