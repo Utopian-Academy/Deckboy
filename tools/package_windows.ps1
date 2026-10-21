@@ -565,11 +565,14 @@ Deckboy Mini $Version for Windows
 
 One deck, one output, run from the keyboard. Unzip anywhere, then
 double-click deckboy-mini.exe and drop videos, pictures or a folder on its
-window. Or name them, in a terminal in this folder:
+window. Or name them, in a terminal in this folder -- with the .\ in front,
+which PowerShell needs to run a program from the folder it is in:
 
-  deckboy-mini "C:\Videos"            a folder plays in name order
-  deckboy-mini clip.mp4 logo.png      files in the order given
-  deckboy-mini --help                 every option
+  .\deckboy-mini "C:\Videos"          a folder plays in name order
+  .\deckboy-mini clip.mp4 logo.png    files in the order given
+  .\deckboy-mini --help               every option
+
+Or drag the files or the folder onto deckboy-mini.exe: it opens with them.
 
 Press ? in the terminal for the keys. The manual has a miniature one:
 https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini

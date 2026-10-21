@@ -60,6 +60,8 @@
   window with an empty list and says how to add something; drop videos, pictures or a folder
   on the window, or press A in the terminal and type a path, and the first thing it is given
   starts playing. Files named that hold nothing playable are still reported as an error.
+- The Windows download's README gives Mini's commands as `.\deckboy-mini`, the form PowerShell
+  needs: typed as it showed them before, PowerShell answered that `deckboy-mini` was not recognized.
 
 ### Transitions
 - A cue that is playing now keeps playing through the transition out of it, and its sound

@@ -2901,6 +2901,12 @@ videos, pictures or a folder on the window, or press A in the terminal and type 
 path. The first thing it is given starts playing, as the first file on the
 command line would.
 
+**On Windows, in PowerShell, start it as `.\deckboy-mini`** from its folder.
+PowerShell does not run a program from the folder it is in by its bare name, so
+`deckboy-mini clip.mp4` there answers "not recognized" -- the `.\` is all it
+wants. In Command Prompt either form works, and dragging files onto
+`deckboy-mini.exe` opens Mini with them.
+
 **Where it is.** On Windows it is `deckboy-mini.exe` beside `Deckboy.exe`; on macOS it is inside
 the app, at `Deckboy.app/Contents/MacOS/deckboy-mini`. On Linux the portable
 download has `./deckboy-mini` beside `./deckboy`, the AppImage runs it as
