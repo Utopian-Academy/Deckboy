@@ -517,6 +517,42 @@
     drawCenteredText(controlRenderer_, fontBase_, depPrompt_.closeLabel.c_str(), pal.deep, depPrompt_.closeRect);
   }
 
+  // THE EXAMPLE SHOWS, from the first screen (James, 2026-10-21). They ship in
+  // the read-only data folder -- inside a Mac app bundle, writing there breaks
+  // the signature -- so they are copied once to Documents/Deckboy Example
+  // Shows, beside their music, and opened from there. A copy that is already
+  // there is never overwritten: it may hold the operator's own changes.
+  void openExampleShows() {
+    const fs::path source = Paths::dataDir() / "demos" / "starter-pack";
+    if (!fs::exists(source / "01-start-here.deckboy")) {
+      triggerToast("the example shows are not in this download", ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    fs::path home;
+    bool inDocuments = false;
+    if (const char* documents = SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS)) home = fs::u8path(documents);
+    if (!home.empty() && fs::is_directory(home)) {
+      inDocuments = true;
+    } else {
+      home = Paths::stateDir();
+    }
+    const fs::path target = home / "Deckboy Example Shows";
+    std::error_code error;
+    if (!fs::exists(target / "01-start-here.deckboy")) {
+      fs::create_directories(target, error);
+      fs::copy(source, target, fs::copy_options::recursive | fs::copy_options::skip_existing, error);
+      if (error) {
+        triggerToast("could not copy the example shows: " + error.message(), ToastKind::Warning, kToastReadableMs);
+        return;
+      }
+    }
+    openProjectFromPath(target / "01-start-here.deckboy");
+    showStartupDialog_ = false;
+    triggerToast(inDocuments ? "example shows: Documents > Deckboy Example Shows. Start with 01, read the notes"
+                             : "example shows: in Deckboy's settings folder. Start with 01, read the notes",
+                 ToastKind::Help, kToastReadableMs);
+  }
+
   void renderStartupDialog() {
     int width = 0, height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);
@@ -535,7 +571,7 @@
     // and "OPEN SAVED" ellipsized under the wider Arial/Liberation used on macOS
     // and Linux ("NEW SHOW F...", "OPEN SAVED..."). This is the splash text the
     // operator sees first, so it truncating reads as a broken build.
-    const char* kStartupLabels[3] = {"NEW SHOW FILE", "OPEN PREVIOUS", "OPEN SAVED"};
+    const char* kStartupLabels[4] = {"NEW SHOW FILE", "OPEN PREVIOUS", "OPEN SAVED", "EXAMPLE SHOWS"};
     int startupWidest = 0;
     for (const char* label : kStartupLabels) {
       startupWidest = std::max(startupWidest, measuredTextWidth(fontBase_, label));
@@ -545,7 +581,7 @@
     const int startupBtnW = std::max(uiScaled(184), startupWidest + uiScaled(28));
     const int startupBtnGap = uiScaled(10);
     const int startupMargin = uiScaled(36);
-    const int startupRowW = startupBtnW * 3 + startupBtnGap * 2;
+    const int startupRowW = startupBtnW * 4 + startupBtnGap * 3;
 
     // THE RECENT SHOWS, AND WHY THE DIALOG IS MEASURED RATHER THAN 440 TALL.
     //
@@ -680,6 +716,7 @@
     startupNewBtn_ = {buttonRowX, y, startupBtnW, buttonH};
     startupLoadBtn_ = {startupNewBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
     startupOpenSavedBtn_ = {startupLoadBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
+    startupExamplesBtn_ = {startupOpenSavedBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
     y += buttonH + gap;
 
     Primitives::drawFramedPanel(controlRenderer_, startupNewBtn_, pal.mid,
@@ -696,14 +733,17 @@
     // "OPEN SAVED" without the trailing "..." — it cost width for no meaning
     // (this is a button; clicking it opens the picker regardless).
     drawCenteredText(controlRenderer_, fontBase_, "OPEN SAVED", pal.deep, startupOpenSavedBtn_);
+    // Four shows that teach the desk; the way in for someone opening it the first time.
+    Primitives::drawFramedPanel(controlRenderer_, startupExamplesBtn_, pal.mid, pal.deep, pal.light);
+    drawCenteredText(controlRenderer_, fontBase_, "EXAMPLE SHOWS", pal.deep, startupExamplesBtn_);
 
     SDL_Color hintInk = pal.inkSoft;
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, y, tw, lineH},
                  kRecentRows > 0
-                   ? "N=new  Enter/P=previous  O=open saved picker  1-" +
+                   ? "N=new  Enter/P=previous  O=open saved picker  E=examples  1-" +
                        std::to_string(kRecentRows) + "=recent"
-                   : std::string("N=new  Enter/P=previous  O=open saved picker"),
+                   : std::string("N=new  Enter/P=previous  O=open saved picker  E=examples"),
                  hintInk);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, y + lineH + uiScaled(4), tw, lineH},

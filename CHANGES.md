@@ -24,6 +24,9 @@
 - Added four example shows that teach the basics: turning an output on and taking the first cue,
   layers and titles, effects, and a one-button show with original music. Each cue carries a note in
   the inspector; start with `00-START-HERE.html`.
+- **EXAMPLE SHOWS** on the startup screen (or E) opens them. The first time, they are copied
+  to `Documents/Deckboy Example Shows` with their music, so they can be changed and saved;
+  a copy already there is never overwritten.
 
 ### Desk
 - The face's tips now come in a different order every time Deckboy opens, after its greeting,

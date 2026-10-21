@@ -110,6 +110,8 @@
       } else if (pointInRect(x, y, startupOpenSavedBtn_)) {
         openProjectFromPicker();
         showStartupDialog_ = false;
+      } else if (pointInRect(x, y, startupExamplesBtn_)) {
+        openExampleShows();
       } else {
         // The recent rows. Read the list again rather than caching it beside
         // the rects: the rects were built during the last render and this is
@@ -1810,6 +1812,8 @@
         showStartupDialog_ = false;
       } else if (key == SDLK_P && hasSavedFile) {
         showStartupDialog_ = false;
+      } else if (key == SDLK_E) {
+        openExampleShows();
       } else if (key == SDLK_RETURN || key == SDLK_KP_ENTER) {
         if (hasSavedFile) {
           showStartupDialog_ = false;

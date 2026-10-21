@@ -11013,6 +11013,7 @@ class App {
   SDL_Rect startupLoadBtn_ {};
   SDL_Rect startupNewBtn_ {};
   SDL_Rect startupOpenSavedBtn_ {};
+  SDL_Rect startupExamplesBtn_ {};
   // Recent-show rows on the splash, in the order they are drawn: index i is
   // recent i, which is also the digit that opens it.
   std::vector<SDL_Rect> startupRecentBtns_;
