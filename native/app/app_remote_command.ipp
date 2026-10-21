@@ -154,6 +154,28 @@
     // re-entering with "GO" — reports on the verb that actually ran.
     remoteCommandRecognized_ = true;
     remoteCommandError_.clear();
+    // ONE GATE FOR EVERY LEVEL. Nested commands come back through here, so
+    // checking here checks all of them, however they were wrapped.
+    struct DispatchDepth {
+      int& depth;
+      explicit DispatchDepth(int& d) : depth(d) { ++depth; }
+      ~DispatchDepth() { --depth; }
+    } dispatchDepth(remoteDispatchDepth_);
+    if (remoteDispatchDepth_ > kMaxRemoteDispatchDepth) {
+      // A loop (a dashboard slot that reaches itself through DECK, say) is
+      // an error the operator can read, never a crash in the middle of a show.
+      failRemoteCommand("commands nested more than " + std::to_string(kMaxRemoteDispatchDepth) +
+                        " deep: a dashboard slot or script that runs itself?");
+      showLog("CONTROL-REFUSED", "dispatch depth limit: " + rawCommand.substr(0, 80));
+      return;
+    }
+    if (remoteCallerIsNetwork_ && remoteVerbIsLocalOnly(rawCommand)) {
+      failRemoteCommand("only accepted from this computer");
+      const auto words = splitWhitespace(rawCommand);
+      showLog("CONTROL-REFUSED", "local-only verb from another machine: " +
+                                 (words.empty() ? std::string() : toUpper(words[0])));
+      return;
+    }
     auto parts = splitWhitespace(rawCommand);
     if (parts.empty()) {
       return;

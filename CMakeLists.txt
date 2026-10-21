@@ -782,6 +782,13 @@ if(WIN32)
   # needs no bundled rasteriser and no third-party licence.
   target_link_libraries(deckboy-native PRIVATE windowsapp)
   set_target_properties(deckboy-native PROPERTIES WIN32_EXECUTABLE TRUE)
+  # 16 MB main-thread stack, like the 8 MB macOS and Linux give by default.
+  # Windows' 1 MB held about five nested remote commands (~195 KB each), so a
+  # nested script or a dashboard loop overflowed it before any depth limit
+  # could answer (audit 2026-10-19, F2).
+  if(MSVC)
+    target_link_options(deckboy-native PRIVATE /STACK:16777216)
+  endif()
 
   # EVERY runtime DLL the binary actually imports, put beside it.
   #

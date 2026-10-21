@@ -1502,7 +1502,8 @@
 
   // Verbs another machine may never use: they write files at a path it names,
   // fake the operator's own mouse, or change who is trusted.
-  static bool remoteVerbIsLocalOnly(const std::string& text) {
+  static bool remoteVerbIsLocalOnly(const std::string& text, int depth = 0) {
+    if (depth > 8) return true;  // nobody nests wrappers this deep honestly
     const auto parts = splitWhitespace(text);
     if (parts.empty()) return false;
     const std::string verb = toUpper(parts[0]);
@@ -1515,7 +1516,25 @@
     if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
     if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
     if (verb == "WEBMONITOR" && parts.size() > 1 && webMonitorSubWidensAccess(parts[1])) return true;
-    // A verb that STORES commands to run later must not be a way round this.
+    // A WRAPPER RUNS THE REST AS ITS OWN COMMAND, so judge that command.
+    if (verb == "DECK" && parts.size() > 2) return remoteVerbIsLocalOnly(joinParts(parts, 2), depth + 1);
+    // A verb that STORES a command must be judged on the command it stores,
+    // split exactly as DASH SET splits it: "Label|UISNAP x" with no spaces
+    // round the bar was one word to the old scan and got through.
+    if (verb == "DASH" && parts.size() > 3 && toUpper(parts[1]) == "SET") {
+      const std::string rest = joinParts(parts, 3);
+      const std::size_t bar = rest.find('|');
+      if (bar != std::string::npos) {
+        const std::size_t end = rest.find('|', bar + 1);
+        const std::string stored = rest.substr(bar + 1, end == std::string::npos ? std::string::npos : end - bar - 1);
+        if (remoteVerbIsLocalOnly(stored, depth + 1)) return true;
+      }
+    }
+    if (verb == "SCRIPTCUE" && parts.size() > 2 && toUpper(parts[1]) == "ADD" &&
+        remoteVerbIsLocalOnly(joinParts(parts, 2), depth + 1)) {
+      return true;
+    }
+    // Belt and braces: any local-only word anywhere in what is stored.
     if (verb == "DASH" || verb == "SCRIPTCUE") {
       bool afterWebMonitor = false;
       for (const auto& word : parts) {
@@ -5888,7 +5907,11 @@ bool looksLikeHttpRequestLine(const std::string& line) {
                                      (words.empty() ? std::string() : toUpper(words[0])));
         }
       }
+      // The phone counts as another machine too. Every level of a nested
+      // command is checked against this in handleRemoteCommand.
+      remoteCallerIsNetwork_ = command.fromNetworkPeer || command.webReply != nullptr;
       if (remoteCommandError_.empty()) handleRemoteCommand(command.text);
+      remoteCallerIsNetwork_ = false;
       // A phone reads the state straight after its command answers; refresh
       // it now rather than at the next once-a-second sync, so a press is seen
       // to have happened.

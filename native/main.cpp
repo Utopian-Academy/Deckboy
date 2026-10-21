@@ -11443,6 +11443,19 @@ class App {
   // its end, which is what an unrecognized verb does. Read straight after the
   // call in processRemoteCommands to answer OK or ERR.
   bool remoteCommandRecognized_ = true;
+  // WHO ASKED, carried through every nested dispatch (DECK n <cmd>, a DASH
+  // slot, a script line), and how deep the nesting is. The 10-19 audit found
+  // the local-only check applied to the outer verb only, so DECK 1 TRUST from
+  // another machine worked, and a DASH slot that reached itself through DECK
+  // overflowed the stack and closed the app.
+  bool remoteCallerIsNetwork_ = false;
+  int remoteDispatchDepth_ = 0;
+  // Each level costs about 195 KB of stack (handleRemoteCommand is one very
+  // large function; measured 2026-10-21), so 12 levels is ~2.3 MB: inside the
+  // 8 MB main-thread stack of macOS and Linux, and the 16 MB the Windows link
+  // asks for (CMakeLists). A script nested kMaxScriptDepth (4) deep passes
+  // through here about twice a level, so honest shows stay well under it.
+  static constexpr int kMaxRemoteDispatchDepth = 12;
   // Set by failRemoteCommand() when a verb was understood but its arguments
   // were not — an ERR with a reason, not a bare OK.
   std::string remoteCommandError_;
