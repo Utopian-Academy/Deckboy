@@ -421,3 +421,72 @@ NDI Output	NDI-lähtö
 SDL Window Output	SDL-ikkunalähtö
 Spout Output	Spout-lähtö
 DESK	PÖYTÄ
+drop a folder in too - it reads the whole tree	raahaa kansiokin mukaan — kaikki alikansiot luetaan
+cameras, windows, NDI, screens - all live sources	kamerat, ikkunat, NDI, näytöt — kaikki ovat suoria lähteitä
+test cards and generators - no file needed	testikuvat ja generaattorit — tiedostoa ei tarvita
+space bar does this too, without moving your hand	välilyönti tekee saman, kättä siirtämättä
+stops the cue. ESC stops EVERYTHING	pysäyttää cuen. ESC pysäyttää KAIKEN
+the safe one: audio and playback keep running	lempeä vaihtoehto: ääni ja toisto jatkuvat
+the thorough one. blackout is the reversible one	perusteellinen vaihtoehto. Pimennyksen voi kumota
+save as makes a new file instead	Tallenna nimellä luo uuden tiedoston
+for a copy before you change something risky	kopio talteen ennen riskialtista muutosta
+this is what you carry to the venue	tämän otat mukaan tapahtumapaikalle
+the show on disk is untouched until you save	levyllä oleva esitys säilyy ennallaan, kunnes tallennat
+per cue. the deck has its own default too	cuekohtainen. Deckillä on myös oma oletusarvonsa
+stills hold instead - a fade would dip the frame	still-kuvat jäävät näkyviin — häivytys himmentäisi kuvaa
+the frame stays up. good for slides	kuva jää näkyviin. Kätevää dioille
+gain, pan and normalise live in the inspector	vahvistus, panorointi ja normalisointi löytyvät tarkastelupaneelista
+this clip has no audio track to enable	tässä klipissä ei ole ääniraitaa kytkettäväksi
+Hi! I am Deckboy.	Moi! Olen Deckboy.
+Press I to import a clip.	Tuo klippi painamalla I.
+Enter takes a cue live.	Enter vie cuen lähetykseen.
+S stops the live cue.	S pysäyttää lähetyksessä olevan cuen.
+The timeline can be resized.	Aikajanan kokoa voi muuttaa.
+Try a terminal theme in Settings.	Kokeile pääteteemaa Asetuksista.
+RELINK finds media that has moved.	RELINK löytää siirretyt mediatiedostot.
+Cues have their own gain and fades.	Jokaisella cuella on oma vahvistus ja omat häivytykset.
+Trim with Ctrl+I and Ctrl+O.	Rajaa klippi näppäimillä Ctrl+I ja Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ näyttää kaikki pikanäppäimet.
+J jumps to the live cue.	J siirtyy lähetyksessä olevaan cueen.
+Normalize matches loudness across cues.	Normalisointi tasaa cueiden koettua äänekkyyttä.
+Esc clears the desk, then the output, then quits.	Esc tyhjentää pöydän, sitten ulostulon ja lopuksi sulkee ohjelman.
+Stream SRT and RTMP at the same time.	Lähetä SRT- ja RTMP-virtaa yhtä aikaa.
+CHECK lists what is broken, before doors.	CHECK näyttää ongelmat ennen ovien avaamista.
+A cue can wait before it starts.	Cue voi odottaa ennen käynnistymistä.
+A cue can start the next one by itself.	Cue voi käynnistää seuraavan itsestään.
+Disarm a cue and GO steps over it.	Poista cue valmiudesta, niin GO ohittaa sen.
+Audition plays a cue to you, not the room.	Esikuuntelu soittaa sinulle, ei salille.
+Preload racks the next cue warm, off air.	Esilataus valmistelee seuraavan cuen lähetyksen ulkopuolella.
+A target cue starts or stops another cue.	Kohdecue käynnistää tai pysäyttää toisen cuen.
+A fade cue takes a deck down, then stops it.	Häivytyscue vaimentaa deckin ja pysäyttää sen.
+A master cue fires one cue on every deck.	Master-cue käynnistää yhden cuen jokaisella deckillä.
+A MIDI cue can tell the lighting desk to go.	MIDI-cue voi antaa valopöydälle lähtömerkin.
+A network cue speaks OSC, UDP or TCP.	Verkkocue puhuu OSC:tä, UDP:tä tai TCP:tä.
+A DMX cue fades the house lights on a cue.	DMX-cue häivyttää salin valoja.
+A script cue runs Deckboy's own commands.	Skripticue suorittaa Deckboyn omia komentoja.
+A timecode cue jams LTC to a value.	Aikakoodicue asettaa LTC:n annettuun arvoon.
+Each output can show a different deck.	Jokainen ulostulo voi näyttää eri deckiä.
+The matrix sends audio to any channel.	Matriisi lähettää ääntä mille tahansa kanavalle.
+The panel map numbers every LED tile.	Paneelikartta numeroi jokaisen LED-laatan.
+Hey!	Hei!
+Quit it!	Lopetas nyt!
+Ow. That was rude.	Ai. Olipa kohteliasta.
+I am a professional.	Olen sentään ammattilainen.
+Seriously?	Ihanko totta?
+This is my monitor.	Tämä on minun monitorini.
+I am telling the operator.	Kerron tästä käyttäjälle.
+All right. Wow.	No niin. Justiinsa.
+Right. That does it.	Nyt riitti.
+I am leaving. Good luck with the show.	Minä lähden. Onnea esitykseen.
+Still here? Me too.	Vielä täällä? Niin minäkin.
+Long show, huh.	Tämähän venyy kuin nälkävuosi.
+I could do this all day. Apparently.	Voisin tehdä tätä koko päivän. Näköjään teenkin.
+You have been staring at me for hours.	Olet tuijottanut minua jo tuntikausia.
+Has anyone seen a clock?	Onko kellään kelloa, vai mennäänkö mutulla?
+Is it still the same show?	Onko tämä yhä sama esitys?
+I'm not tired. You're tired.	En minä ole väsynyt. Sinä olet.
+Five more minutes. Then five more.	Vielä viisi minuuttia. Ja lehmät lentää.
+A whole day. I need a restart.	Kokonainen vuorokausi. Tarvitsen uudelleenkäynnistyksen.
+Save the show. Then let me sleep.	Tallenna esitys. Sitten pää tyynyyn.
+Every pixel of me is tired.	Jokainen pikselini on ihan poikki.
+Close me. Open me. I'll be fine.	Sulje minut. Avaa minut. Kyllä se siitä.

@@ -421,3 +421,72 @@ NDI Output	Okukhiphayo kwe-NDI
 SDL Window Output	Okukhiphayo kwewindi le-SDL
 Spout Output	Okukhiphayo kwe-Spout
 DESK	IDESKI
+drop a folder in too - it reads the whole tree	faka nefolda — kuzofundwa nawo wonke amafolda angaphakathi
+cameras, windows, NDI, screens - all live sources	amakhamera, amawindi, i-NDI nezikrini — konke kuyimithombo ebukhoma
+test cards and generators - no file needed	amakhadi okuhlola namajeneretha — alikho ifayela elidingekayo
+space bar does this too, without moving your hand	nenkinobho yesikhala iyakwenza lokhu, unganyakazisanga isandla
+stops the cue. ESC stops EVERYTHING	kumisa i-cue. I-ESC imisa KONKE
+the safe one: audio and playback keep running	indlela ethambile: umsindo nokudlala kuyaqhubeka
+the thorough one. blackout is the reversible one	indlela ephelele. Ukucisha isithombe kube mnyama kungahlehliswa
+save as makes a new file instead	u-Gcina njenge wakha ifayela elisha
+for a copy before you change something risky	ukugcina ikhophi ngaphambi koshintsho oluyingozi
+this is what you carry to the venue	yilokhu ozokuphatha uye nakho endaweni yombukiso
+the show on disk is untouched until you save	umbukiso osediskini awuguquki uze ugcine
+per cue. the deck has its own default too	nge-cue ngayinye. Idekhi nayo inezilungiselelo zayo ezizenzakalelayo
+stills hold instead - a fade would dip the frame	izithombe ezinganyakazi ziyahlala — ukufiphala bekungazenza zibe mnyama
+the frame stays up. good for slides	isithombe siyahlala. Kulungele amaslayidi
+gain, pan and normalise live in the inspector	ukukhulisa umsindo, i-pan nokulinganisa kusemhlolini
+this clip has no audio track to enable	lesi siqeshana asinawo umkhondo womsindo ongawuvula
+Hi! I am Deckboy.	Sawubona! Ngingu-Deckboy.
+Press I to import a clip.	Cindezela u-I ukuze ufake isiqeshana.
+Enter takes a cue live.	U-Enter ufaka i-cue emoyeni.
+S stops the live cue.	U-S umisa i-cue esemoyeni.
+The timeline can be resized.	Ungashintsha usayizi womugqa wesikhathi.
+Try a terminal theme in Settings.	Zama itimu yetheminali kuzilungiselelo.
+RELINK finds media that has moved.	I-RELINK ithola amafayela emidiya asusiwe endaweni yawo.
+Cues have their own gain and fades.	I-cue ngayinye inokukhuliswa komsindo nokufiphala kwayo.
+Trim with Ctrl+I and Ctrl+O.	Setha izindawo zokusika ngo-Ctrl+I no-Ctrl+O.
+Ctrl+/ shows every shortcut.	U-Ctrl+/ ubonisa zonke izinqamuleli.
+J jumps to the live cue.	U-J uya ku-cue esemoyeni.
+Normalize matches loudness across cues.	Ukulinganisa kwenza umsindo wama-cue uzwakale ngokulinganayo.
+Esc clears the desk, then the output, then quits.	U-Esc usula ideski, bese kusulwa okuphumayo, bese uhlelo luvala.
+Stream SRT and RTMP at the same time.	Sakaza nge-SRT ne-RTMP ngesikhathi esisodwa.
+CHECK lists what is broken, before doors.	I-CHECK ibonisa izinkinga ngaphambi kokuvulwa kweminyango.
+A cue can wait before it starts.	I-cue ingalinda ngaphambi kokuqala.
+A cue can start the next one by itself.	I-cue ingaziqalela elandelayo.
+Disarm a cue and GO steps over it.	Khubaza i-cue bese i-GO iyayeqa.
+Audition plays a cue to you, not the room.	Ukulalela kusengaphambili kudlalela wena, hhayi ihholo.
+Preload racks the next cue warm, off air.	Ukulayisha kusengaphambili kulungisa i-cue elandelayo ingekho emoyeni.
+A target cue starts or stops another cue.	I-cue eqondisayo iqala noma imise enye i-cue.
+A fade cue takes a deck down, then stops it.	I-cue yokufiphala yehlisa idekhi, bese iyayimisa.
+A master cue fires one cue on every deck.	I-cue eyinhloko iqala i-cue eyodwa kudekhi ngayinye.
+A MIDI cue can tell the lighting desk to go.	I-cue ye-MIDI ingatshela ideski lezibani ukuthi liqale.
+A network cue speaks OSC, UDP or TCP.	I-cue yenethiwekhi ikhuluma i-OSC, i-UDP noma i-TCP.
+A DMX cue fades the house lights on a cue.	I-cue ye-DMX ishintsha ukukhanya kwehholo kancane kancane.
+A script cue runs Deckboy's own commands.	I-cue yeskripthi isebenzisa imiyalo ye-Deckboy.
+A timecode cue jams LTC to a value.	I-cue yekhodi yesikhathi isetha i-LTC enanini elithile.
+Each output can show a different deck.	Ukuphumayo ngakunye kungabonisa idekhi ehlukile.
+The matrix sends audio to any channel.	Imethriksi ithumela umsindo kunoma yisiphi isiteshi.
+The panel map numbers every LED tile.	Imephu yamaphaneli inika imojuli ngayinye ye-LED inombolo.
+Hey!	Hheyi!
+Quit it!	Yeka manje!
+Ow. That was rude.	Hawu. Awunamahloni?
+I am a professional.	Mina ngiwuchwepheshe.
+Seriously?	Uqinisile nje?
+This is my monitor.	Lesi yisikrini sami.
+I am telling the operator.	Ngizotshela ophethe.
+All right. Wow.	Hawu, bo.
+Right. That does it.	Sekwanele manje.
+I am leaving. Good luck with the show.	Sengiyahamba. Nginifisela okuhle ngombukiso.
+Still here? Me too.	Usekhona? Nami.
+Long show, huh.	Yoh, kusekude phambili ngalombukiso.
+I could do this all day. Apparently.	Ngingakwenza lokhu usuku lonke. Kubonakala kuzofanele.
+You have been staring at me for hours.	Usungigqolozele amahora amaningi.
+Has anyone seen a clock?	Ukhona onewashi, noma nalo selithathe ikhefu?
+Is it still the same show?	Sisembukisweni ofanayo namanje?
+I'm not tired. You're tired.	Mina angikhathele. Uwena okhathele.
+Five more minutes. Then five more.	Eminye imizuzu emihlanu. Yebo, siyayazi leyo ndaba.
+A whole day. I need a restart.	Usuku lonke. Ngidinga ukuqala kabusha.
+Save the show. Then let me sleep.	Gcina umbukiso. Bese ungiyeka ngilale.
+Every pixel of me is tired.	Ngisho namaphikseli ami asephelelwe amandla.
+Close me. Open me. I'll be fine.	Ngivale. Ungivule. Ngizophila.

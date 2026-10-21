@@ -422,3 +422,72 @@ NDI Output	NDI 출력
 SDL Window Output	SDL 창 출력
 Spout Output	Spout 출력
 DESK	콘솔
+drop a folder in too - it reads the whole tree	폴더째 끌어다 놔도 돼. 하위 폴더까지 전부 읽어
+cameras, windows, NDI, screens - all live sources	카메라, 창, NDI, 화면. 모두 라이브 소스야
+test cards and generators - no file needed	테스트 패턴과 생성기는 파일 없이도 쓸 수 있어
+space bar does this too, without moving your hand	스페이스바로도 돼. 손을 옮길 필요 없이
+stops the cue. ESC stops EVERYTHING	큐를 멈춰. ESC는 전부 멈추고
+the safe one: audio and playback keep running	부드러운 쪽이야. 오디오와 재생은 계속돼
+the thorough one. blackout is the reversible one	확실하게 정리하는 쪽. 되돌릴 수 있는 건 블랙아웃이야
+save as makes a new file instead	다른 이름으로 저장하면 새 파일이 생겨
+for a copy before you change something risky	위험한 변경 전에 복사본을 남겨 두자
+this is what you carry to the venue	이걸 공연장에 가져가면 돼
+the show on disk is untouched until you save	저장하기 전까지 디스크에 있는 쇼는 그대로야
+per cue. the deck has its own default too	큐별 설정이야. 덱에도 기본값이 있어
+stills hold instead - a fade would dip the frame	정지 이미지는 유지돼. 페이드하면 화면이 어두워지니까
+the frame stays up. good for slides	화면이 그대로 남아. 슬라이드에 좋아
+gain, pan and normalise live in the inspector	게인, 팬, 노멀라이즈는 인스펙터에 있어
+this clip has no audio track to enable	이 클립에는 켤 수 있는 오디오 트랙이 없어
+Hi! I am Deckboy.	안녕! 나는 Deckboy야.
+Press I to import a clip.	I 키를 누르면 클립을 가져올 수 있어.
+Enter takes a cue live.	Enter로 큐를 라이브로 내보내.
+S stops the live cue.	S 키는 라이브 큐를 멈춰.
+The timeline can be resized.	타임라인 크기를 바꿀 수 있어.
+Try a terminal theme in Settings.	설정에서 터미널 테마를 써 봐.
+RELINK finds media that has moved.	RELINK는 옮겨진 미디어를 찾아 줘.
+Cues have their own gain and fades.	큐마다 게인과 페이드를 따로 설정할 수 있어.
+Trim with Ctrl+I and Ctrl+O.	Ctrl+I와 Ctrl+O로 재생 구간을 정해.
+Ctrl+/ shows every shortcut.	Ctrl+/를 누르면 모든 단축키가 보여.
+J jumps to the live cue.	J 키를 누르면 라이브 큐로 이동해.
+Normalize matches loudness across cues.	노멀라이즈로 큐 사이의 체감 음량을 맞춰.
+Esc clears the desk, then the output, then quits.	Esc는 조작 화면, 출력 순으로 지우고 마지막엔 종료해.
+Stream SRT and RTMP at the same time.	SRT와 RTMP로 동시에 송출할 수 있어.
+CHECK lists what is broken, before doors.	입장 전에 CHECK로 문제를 확인하자.
+A cue can wait before it starts.	큐는 시작 전에 기다릴 수 있어.
+A cue can start the next one by itself.	큐가 다음 큐를 알아서 시작할 수도 있어.
+Disarm a cue and GO steps over it.	큐를 비활성화하면 GO가 건너뛰어.
+Audition plays a cue to you, not the room.	미리 듣기는 너한테만 들려. 객석엔 안 나가.
+Preload racks the next cue warm, off air.	미리 불러오면 다음 큐를 송출하지 않고 준비해.
+A target cue starts or stops another cue.	대상 큐는 다른 큐를 시작하거나 멈춰.
+A fade cue takes a deck down, then stops it.	페이드 큐는 덱을 서서히 낮춘 뒤 멈춰.
+A master cue fires one cue on every deck.	마스터 큐는 각 덱에서 큐 하나씩을 실행해.
+A MIDI cue can tell the lighting desk to go.	MIDI 큐로 조명 콘솔에 시작 신호를 보낼 수 있어.
+A network cue speaks OSC, UDP or TCP.	네트워크 큐는 OSC, UDP, TCP를 사용해.
+A DMX cue fades the house lights on a cue.	DMX 큐로 객석 조명을 서서히 바꿀 수 있어.
+A script cue runs Deckboy's own commands.	스크립트 큐는 Deckboy의 명령을 실행해.
+A timecode cue jams LTC to a value.	타임코드 큐는 LTC를 지정한 값으로 맞춰.
+Each output can show a different deck.	출력마다 다른 덱을 보여 줄 수 있어.
+The matrix sends audio to any channel.	매트릭스는 원하는 채널로 오디오를 보내.
+The panel map numbers every LED tile.	패널 맵은 각 LED 타일에 번호를 붙여.
+Hey!	야!
+Quit it!	그만 좀 해!
+Ow. That was rude.	아야. 너무한 거 아니야?
+I am a professional.	나 나름 전문가거든.
+Seriously?	진심이야?
+This is my monitor.	여긴 내 모니터야.
+I am telling the operator.	오퍼레이터한테 이를 거야.
+All right. Wow.	와. 이렇게 나온다 이거지.
+Right. That does it.	자, 거기까지.
+I am leaving. Good luck with the show.	나 갈게. 공연 잘해 봐.
+Still here? Me too.	아직 있어? 나도.
+Long show, huh.	이 공연, 퇴근은 있는 거지?
+I could do this all day. Apparently.	하루 종일 할 수는 있어. 하겠다고는 안 했는데.
+You have been staring at me for hours.	몇 시간째 나만 보고 있네.
+Has anyone seen a clock?	지금 몇 시야? 시계도 눈치 보느라 멈췄나?
+Is it still the same show?	아직도 같은 공연이야?
+I'm not tired. You're tired.	나 안 피곤해. 네가 피곤한 거지.
+Five more minutes. Then five more.	딱 5분만 더? 그 말만 오백 번째야.
+A whole day. I need a restart.	꼬박 하루라니. 재부팅 좀 하자.
+Save the show. Then let me sleep.	쇼 저장해. 이제 이불 밖은 위험해.
+Every pixel of me is tired.	내 픽셀들까지 녹초가 됐어.
+Close me. Open me. I'll be fine.	껐다 켜 줘. 그럼 또 괜찮아져.

@@ -20,6 +20,10 @@
 #   sov concerning - dop facing - pat body/assembly - mun source
 #   Suffix -wia is the one who does it: grawia, writer (the encoder).
 #   Numerals: una dua tria kwara; beyond four the interface uses digits.
+#   Speech: mi I/me, tu you, pel can, muna before, novtok next/again.
+#   halpen rest (held waiting), lumtok day, kistok minute, kisvek pixel.
+#   patakora action, batjana push-button device, batrana shortcut.
+#   ni exclamation of pain, tokispen pause (wait a little), tiriset move.
 NEW	NOVA
 OPEN	FESI
 SAVE	GURI
@@ -387,3 +391,76 @@ ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	KAESETI HOLAW
 4:2:2  8-BIT	4:2:2  8-BIT
 4:2:2  10-BIT	4:2:2  10-BIT
 DESK	DEKADORA
+back to the in point, not to zero	Novtiri go tirirana, va go 0.
+loops between the in and out points, not the file	Novlumakori kae tirirana so senrana, va kara tamo.
+drag to scrub. the audio follows	Tiri go tokamiri; sona novtoki so.
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL seti sonazara rapo go vekaku tamo kae una toka.
+drop a folder in too - it reads the whole tree	Tiri kara so karaku kae kara — miri ala.
+cameras, windows, NDI, screens - all live sources	Vekagrajanaku, fenaku, NDI, vekadekaku — ala mungaku lumo.
+test cards and generators - no file needed	Vekaretaku so vekajanaku — vakara.
+space bar does this too, without moving your hand	Tiri Space go patakora rapo; vahupi tiriset patakis tu.
+stops the cue. ESC stops EVERYTHING	Hali veka. ESC hali ALA.
+the safe one: audio and playback keep running	Nakae guro: sona so lumakora vahali.
+the thorough one. blackout is the reversible one	Nakae tamhali; Niratam pel novalumi.
+save as makes a new file instead	Guri kae guri kara novo.
+for a copy before you change something risky	Veli muna seti patakora vaguro.
+this is what you carry to the venue	Seni nakae go vekarana kaea.
+the show on disk is untouched until you save	Vekarana kae kara vaseti muna tu guri.
+per cue. the deck has its own default too	Go una veka; deka so gurseta koro.
+stills hold instead - a fade would dip the frame	Halvekaku hali — lumahali niri veka.
+the frame stays up. good for slides	Veka hali lumo; guro go halvekaku.
+gain, pan and normalise live in the inspector	Sonazara, sonakaea so sontamseti kae vekamira.
+this clip has no audio track to enable	Veka nakae vasonakana go poni.
+Hi! I am Deckboy.	Luma! Mi Deckboy.
+Press I to import a clip.	Tiri I go tiri vekakisa.
+Enter takes a cue live.	Enter seni veka lumo.
+S stops the live cue.	S hali veka lumo.
+The timeline can be resized.	Seti tokarana patakaea.
+Try a terminal theme in Settings.	Piki terminal niroluma kae Setaku.
+RELINK finds media that has moved.	RELINK miri vekadoraku kae novo.
+Cues have their own gain and fades.	Una veka guri sonazara so lumasetaku.
+Trim with Ctrl+I and Ctrl+O.	Ranseti go Ctrl+I so Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ veki ala batranaku.
+J jumps to the live cue.	J tiri go veka lumo.
+Normalize matches loudness across cues.	Sontamseti seti sonazara rapo go vekaku.
+Esc clears the desk, then the output, then quits.	Esc niri dekapata, senadora, so klui Deckboy.
+Stream SRT and RTMP at the same time.	Retaseni SRT so RTMP kae una toka.
+CHECK lists what is broken, before doors.	CHECK veki pataku vapono muna dorfesi.
+A cue can wait before it starts.	Veka pel peni muna lumakora.
+A cue can start the next one by itself.	Veka pel tiri veka novtoko.
+Disarm a cue and GO steps over it.	Vaponi veka; GO seni veka novtoko.
+Audition plays a cue to you, not the room.	Lisi soni go tu; vasoni go alapata.
+Preload racks the next cue warm, off air.	Ponbufi poni veka novtoko; vaseni.
+A target cue starts or stops another cue.	Pikveka tiri va hali veka novo.
+A fade cue takes a deck down, then stops it.	Lumahalveka nirsoni deka, so hali deka.
+A master cue fires one cue on every deck.	Korveka tiri una veka kae ala dekaku.
+A MIDI cue can tell the lighting desk to go.	MIDI veka pel seni tiri-hola go lumasetajana.
+A network cue speaks OSC, UDP or TCP.	Retveka holi OSC, UDP va TCP.
+A DMX cue fades the house lights on a cue.	DMX veka lumaseti kaeluma kae veka toka.
+A script cue runs Deckboy's own commands.	Holveka tiri Deckboy korholaku.
+A timecode cue jams LTC to a value.	Tokagraveka seti LTC go numa.
+Each output can show a different deck.	Una senadora pel veki deka novo.
+The matrix sends audio to any channel.	Kanareta seni sona go ala kanaku.
+The panel map numbers every LED tile.	Patakara miri so numi ala LED patakisaku.
+Hey!	Luma!
+Quit it!	Vabati mi!
+Ow. That was rude.	Ni! Nakae vaguro.
+I am a professional.	Mi ponwia, va batjana.
+Seriously?	Tamo?
+This is my monitor.	Vekadeka nakae go mi.
+I am telling the operator.	Mi holi go setawia.
+All right. Wow.	Pon. Tokispeni.
+Right. That does it.	Hali. Tamo hali.
+I am leaving. Good luck with the show.	Mi klui. Luma go tu vekarana.
+Still here? Me too.	Tu kae nakae? Mi so.
+Long show, huh.	Vekarana niro toko. Toka pel hali so?
+I could do this all day. Apparently.	Mi pel ponwi ala lumtoka. Pel? Hupi, toka holi.
+You have been staring at me for hours.	Tu miri mi go tokaku tamo.
+Has anyone seen a clock?	Mi tokamira. Tokamira miri tokamira?
+Is it still the same show?	Vekarana rapo kae nakae?
+I'm not tired. You're tired.	Mi vavalumo. Tu valumo!
+Five more minutes. Then five more.	5 kistokaku. So 5 kistokaku. Numa vapeni.
+A whole day. I need a restart.	Ala lumtoka. Mi hupi novatoki.
+Save the show. Then let me sleep.	Guri vekarana. So halpeni mi.
+Every pixel of me is tired.	Ala kisvekaku mi valumo. Luma hupi halpena so!
+Close me. Open me. I'll be fine.	Klui mi. Fesi mi. Mi novlumo.

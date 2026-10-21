@@ -431,3 +431,72 @@ NDI Output	خروجی NDI
 SDL Window Output	خروجی پنجرهٔ SDL
 Spout Output	خروجی Spout
 DESK	اپراتور
+drop a folder in too - it reads the whole tree	پوشه را هم بکش اینجا؛ همهٔ زیرپوشه‌ها خوانده می‌شوند
+cameras, windows, NDI, screens - all live sources	دوربین، پنجره، NDI و صفحه‌نمایش؛ همه منبع زنده‌اند
+test cards and generators - no file needed	کارت آزمون و مولد؛ نیازی به فایل نیست
+space bar does this too, without moving your hand	کلید فاصله هم همین کار را می‌کند، بدون جابه‌جایی دست
+stops the cue. ESC stops EVERYTHING	کیو را متوقف می‌کند. ESC همه‌چیز را متوقف می‌کند
+the safe one: audio and playback keep running	روش ملایم: صدا و پخش ادامه پیدا می‌کنند
+the thorough one. blackout is the reversible one	روش کامل. سیاه‌کردن تصویر را می‌شود برگرداند
+save as makes a new file instead	«ذخیره با نام» یک فایل جدید می‌سازد
+for a copy before you change something risky	برای یک کپی قبل از تغییری پرریسک
+this is what you carry to the venue	این را با خودت به محل اجرا می‌بری
+the show on disk is untouched until you save	تا ذخیره نکنی، اجرای روی دیسک دست‌نخورده می‌ماند
+per cue. the deck has its own default too	برای هر کیو جداست. میز هم پیش‌فرض خودش را دارد
+stills hold instead - a fade would dip the frame	تصویر ثابت می‌ماند؛ محوشدن، تصویر را تاریک می‌کرد
+the frame stays up. good for slides	تصویر روی صفحه می‌ماند. مناسب اسلایدها
+gain, pan and normalise live in the inspector	بهره، پن و نرمال‌سازی در بازرس هستند
+this clip has no audio track to enable	این کلیپ اصلاً ترک صوتی ندارد که روشنش کنی
+Hi! I am Deckboy.	سلام! من Deckboy هستم.
+Press I to import a clip.	برای واردکردن کلیپ، I را بزن.
+Enter takes a cue live.	Enter کیو را زنده پخش می‌کند.
+S stops the live cue.	S کیوی در حال پخش زنده را متوقف می‌کند.
+The timeline can be resized.	اندازهٔ خط زمان را می‌شود عوض کرد.
+Try a terminal theme in Settings.	در تنظیمات، یک پوستهٔ ترمینال را امتحان کن.
+RELINK finds media that has moved.	RELINK رسانه‌های جابه‌جا‌شده را پیدا می‌کند.
+Cues have their own gain and fades.	هر کیو بهره و محوشدن‌های خودش را دارد.
+Trim with Ctrl+I and Ctrl+O.	با Ctrl+I و Ctrl+O ابتدا و انتها را تعیین کن.
+Ctrl+/ shows every shortcut.	Ctrl+/ همهٔ میان‌برها را نشان می‌دهد.
+J jumps to the live cue.	J به کیوی در حال پخش زنده می‌رود.
+Normalize matches loudness across cues.	نرمال‌سازی، بلندی شنیداری کیوها را یکسان می‌کند.
+Esc clears the desk, then the output, then quits.	Esc اول میز، بعد خروجی را پاک می‌کند و بعد می‌بندد.
+Stream SRT and RTMP at the same time.	هم‌زمان با SRT و RTMP پخش کن.
+CHECK lists what is broken, before doors.	CHECK قبل از بازشدن درها، مشکلات را نشان می‌دهد.
+A cue can wait before it starts.	کیو می‌تواند قبل از شروع صبر کند.
+A cue can start the next one by itself.	کیو می‌تواند بعدی را خودش راه بیندازد.
+Disarm a cue and GO steps over it.	کیو را از حالت آماده خارج کن تا GO از آن بگذرد.
+Audition plays a cue to you, not the room.	پیش‌شنوی برای تو پخش می‌کند، نه سالن.
+Preload racks the next cue warm, off air.	پیش‌بارگذاری، کیوی بعدی را خارج از پخش آماده می‌کند.
+A target cue starts or stops another cue.	کیوی هدف، کیوی دیگری را شروع یا متوقف می‌کند.
+A fade cue takes a deck down, then stops it.	کیوی محوشدن، میز را کم می‌کند و بعد متوقفش می‌کند.
+A master cue fires one cue on every deck.	کیوی اصلی، روی هر میز یک کیو اجرا می‌کند.
+A MIDI cue can tell the lighting desk to go.	کیوی MIDI می‌تواند به میز نور فرمان شروع بدهد.
+A network cue speaks OSC, UDP or TCP.	کیوی شبکه به زبان OSC، UDP یا TCP حرف می‌زند.
+A DMX cue fades the house lights on a cue.	کیوی DMX نور سالن را تدریجی تغییر می‌دهد.
+A script cue runs Deckboy's own commands.	کیوی اسکریپت، فرمان‌های خود Deckboy را اجرا می‌کند.
+A timecode cue jams LTC to a value.	کیوی تایم‌کد، LTC را روی یک مقدار تنظیم می‌کند.
+Each output can show a different deck.	هر خروجی می‌تواند میز متفاوتی را نشان دهد.
+The matrix sends audio to any channel.	ماتریس، صدا را به هر کانالی می‌فرستد.
+The panel map numbers every LED tile.	نقشهٔ پنل‌ها به هر قطعهٔ LED شماره می‌دهد.
+Hey!	هی!
+Quit it!	بس کن دیگه!
+Ow. That was rude.	آخ. این چه طرز برخوردیه؟
+I am a professional.	من حرفه‌ای‌ام، محض اطلاع.
+Seriously?	جدی می‌گی؟
+This is my monitor.	این مانیتور خودمه.
+I am telling the operator.	به اپراتور می‌گم.
+All right. Wow.	باشه. دست شما درد نکنه!
+Right. That does it.	دیگه بسه. کاسهٔ صبرم لبریز شد.
+I am leaving. Good luck with the show.	من رفتم. اجرای خوبی داشته باشین.
+Still here? Me too.	هنوز اینجایی؟ منم همین‌طور.
+Long show, huh.	این اجرا شده داستان هزار و یک شب.
+I could do this all day. Apparently.	می‌تونم تمام روز این کار رو بکنم. انگار چاره‌ای هم ندارم.
+You have been staring at me for hours.	ساعت‌هاست زل زدی به من.
+Has anyone seen a clock?	کسی ساعت داره یا خود ساعت هم رفته مرخصی؟
+Is it still the same show?	هنوز همون اجراست؟
+I'm not tired. You're tired.	من خسته نیستم. تو خسته‌ای.
+Five more minutes. Then five more.	پنج دقیقهٔ دیگه. آره، جون خودت!
+A whole day. I need a restart.	یک روز کامل. باید ری‌استارت بشم.
+Save the show. Then let me sleep.	اجرا رو ذخیره کن. بعد بذار بخوابم.
+Every pixel of me is tired.	پیکسل‌هام هم کم آوردن.
+Close me. Open me. I'll be fine.	منو ببند، دوباره باز کن. سرحال می‌شم.

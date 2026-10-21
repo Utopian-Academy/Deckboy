@@ -87,27 +87,27 @@ EDIT	EDITAR
 HELD	RETENIDO
 Mode	Modo
 PICK	ELEGIR
-QUAD	CU�DRUPLE
+QUAD	CUÁDRUPLE
 Rate	Tasa
 STEP	PASO
 Apply	Aplicar
 CLOSE	CERRAR
 FIXED	FIJO
-Help!	�Ayuda!
+Help!	¡Ayuda!
 ORDER	ORDEN
 READY	LISTO
 TILES	MOSAICOS
 ALL ON	TODO ACTIVO
 ALWAYS	SIEMPRE
-ANALOG	ANAL�GICO
-Buffer	B�fer
+ANALOG	ANALÓGICO
+Buffer	Búfer
 Cancel	Cancelar
 Custom	Personalizado
 Device	Dispositivo
 Folder	Carpeta
 FORMAT	FORMATO
 HIDDEN	OCULTO
-Length	Duraci�n
+Length	Duración
 Mascot	Mascota
 Mirror	Espejo
 NATIVE	NATIVO
@@ -151,22 +151,22 @@ CHECK NOW	COMPROBAR AHORA
 CLOCK OFF	RELOJ APAGADO
 Creatures	Criaturas
 CUE TOOLS	HERRAMIENTAS DE PIE
-Direction	Direcci�n
+Direction	Dirección
 Freewheel	Rueda libre
 HTTP port	Puerto HTTP
 Jump mode	Modo de salto
 Listen on	Escuchar en
 OSC Query	Consulta OSC
 OUTPUT ON	SALIDA ACTIVA
-Panic now	P�nico ahora
-RECORDING	GRABACI�N
+Panic now	Pánico ahora
+RECORDING	GRABACIÓN
 REMAINING	RESTANTE
 RESET ALL	REINICIAR TODO
-RUN PANIC	EJECUTAR P�NICO
-SHOW FLOW	FLUJO DEL ESPECT�CULO
+RUN PANIC	EJECUTAR PÁNICO
+SHOW FLOW	FLUJO DEL ESPECTÁCULO
 TIMERS ON	TEMPORIZADORES ACTIVOS
 WHEN IDLE	EN REPOSO
-ADD OUTPUT	A�ADIR SALIDA
+ADD OUTPUT	AÑADIR SALIDA
 BUILT WITH	CONSTRUIDO CON
 CANCEL ALL	CANCELAR TODO
 colour tag	etiqueta de color
@@ -181,32 +181,32 @@ no picture	sin imagen
 no preview	sin vista previa
 OPEN SAVED	ABRIR GUARDADO
 OUTPUT OFF	SALIDA APAGADA
-Panic fade	Fundido de p�nico
+Panic fade	Fundido de pánico
 Tally port	Puerto tally
 TIMERS OFF	TEMPORIZADORES APAGADOS
 Accept from	Aceptar desde
 ASIO driver	Controlador ASIO
 BACK TO TOP	VOLVER ARRIBA
 CANVAS MODE	MODO LIENZO
-CODE SOURCE	FUENTE DE C�DIGO
-Cue numbers	N�meros de pie
+CODE SOURCE	FUENTE DE CÓDIGO
+Cue numbers	Números de pie
 Mirror rate	Frecuencia de espejo
-no duration	sin duraci�n
+no duration	sin duración
 NO LIVE CUE	SIN PIE EN DIRECTO
 NO PREVIOUS	SIN ANTERIOR
-OVERLAY BIN	BANDEJA DE SOBREIMPRESI�N
+OVERLAY BIN	BANDEJA DE SOBREIMPRESIÓN
 paste chain	pegar cadena
 Sample rate	Frecuencia de muestreo
 SENDING OUT	EMITIENDO
-Shift: snap	May�s: ajustar
+Shift: snap	Mayús: ajustar
 THIS OUTPUT	ESTA SALIDA
 (no matches)	(sin coincidencias)
-(no subtext)	(sin subt�tulo)
-add a button	a�adir un bot�n
-add a window	a�adir una ventana
+(no subtext)	(sin subtítulo)
+add a button	añadir un botón
+add a window	añadir una ventana
 Art-Net port	Puerto Art-Net
 AUDIO OUTPUT	SALIDA DE AUDIO
-Auto restore	Restauraci�n autom�tica
+Auto restore	Restauración automática
 DECKLINK: ON	DECKLINK: ACTIVO
 free running	libre
 KEY+FILL: ON	KEY+FILL: ACTIVO
@@ -229,15 +229,15 @@ LEFT TO RIGHT	DE IZQUIERDA A DERECHA
 MEDIA ENCODER	CODIFICADOR DE MEDIOS
 MSC device id	Id. de dispositivo MSC
 NEW SHOW FILE	NUEVO ARCHIVO
-No cue loaded	Ning�n pie cargado
+No cue loaded	Ningún pie cargado
 nothing taken	nada lanzado
 OPEN PREVIOUS	ABRIR EL ANTERIOR
 Output device	Dispositivo de salida
-Panic profile	Perfil de p�nico
-Quit Deckboy?	�Salir de Deckboy?
+Panic profile	Perfil de pánico
+Quit Deckboy?	¿Salir de Deckboy?
 REMOVE OUTPUT	QUITAR SALIDA
 Sound effects	Efectos de sonido
-Tally address	Direcci�n tally
+Tally address	Dirección tally
 TOP TO BOTTOM	DE ARRIBA ABAJO
 127 (all-call)	127 (llamada general)
 ALL INTERFACES	TODAS LAS INTERFACES
@@ -246,24 +246,24 @@ Monitor device	Dispositivo de escucha
 no audio track	sin pista de audio
 PRESENTER VIEW	VISTA DEL PRESENTADOR
 RECORD TO DISK	GRABAR EN DISCO
-STOP RECORDING	DETENER GRABACI�N
-STOP STREAMING	DETENER EMISI�N
+STOP RECORDING	DETENER GRABACIÓN
+STOP STREAMING	DETENER EMISIÓN
 TALLY TRIGGERS	DISPARADORES TALLY
 Device channels	Canales del dispositivo
-NDI SENDING: ON	ENV�O NDI: ACTIVO
-NO CUE SELECTED	NING�N PIE SELECCIONADO
+NDI SENDING: ON	ENVÍO NDI: ACTIVO
+NO CUE SELECTED	NINGÚN PIE SELECCIONADO
 Output channels	Canales de salida
 preview pending	vista previa pendiente
-START RECORDING	INICIAR GRABACI�N
-START STREAMING	INICIAR EMISI�N
+START RECORDING	INICIAR GRABACIÓN
+START STREAMING	INICIAR EMISIÓN
 (system default)	(predeterminado del sistema)
 Check at startup	Comprobar al arrancar
 Global crossfade	Fundido cruzado global
-Mic to recording	Micr�fono a la grabaci�n
+Mic to recording	Micrófono a la grabación
 Monitor playlist	Escuchar la lista
-NDI SENDING: OFF	ENV�O NDI: APAGADO
+NDI SENDING: OFF	ENVÍO NDI: APAGADO
 no still preview	sin vista previa fija
-Pocket 3 / touch	Pocket 3 / t�ctil
+Pocket 3 / touch	Pocket 3 / táctil
 SMPTE LTC OUTPUT	SALIDA SMPTE LTC
 the whole screen	toda la pantalla
 Check for one now	Comprobar ahora
@@ -276,74 +276,74 @@ KEYBOARD SHORTCUTS	ATAJOS DE TECLADO
 loading preview...	cargando vista previa...
 CONVERT ALL FLAGGED	CONVERTIR TODOS LOS MARCADOS
 dot-matrix cue deck	consola de pies matricial
-HyperDeck emulation	Emulaci�n HyperDeck
+HyperDeck emulation	Emulación HyperDeck
 locked to the tempo	fijado al tempo
 VJ mode (two decks)	Modo VJ (dos consolas)
-ADD ANOTHER PLAYLIST	A�ADIR OTRA LISTA
+ADD ANOTHER PLAYLIST	AÑADIR OTRA LISTA
 Companion / OSC port	Puerto Companion / OSC
 Esc or click to skip	Esc o clic para omitir
 PLAYLIST PREFERENCES	PREFERENCIAS DE LISTA
 press ENTER to start	oprima ENTER para empezar
-ADD A SECOND PLAYLIST	A�ADIR UNA SEGUNDA LISTA
+ADD A SECOND PLAYLIST	AÑADIR UNA SEGUNDA LISTA
 filmstrip unavailable	tira de fotogramas no disponible
-(empty � import media)	(vac�o � importe medios)
+(empty — import media)	(vacío — importe medios)
 Ctrl+D or Esc to close	Ctrl+D o Esc para cerrar
 (no notes for this cue)	(sin notas para este pie)
 Timebase / start / fade	Base de tiempo / inicio / fundido
-No cues need conversion.	Ning�n pie necesita conversi�n.
+No cues need conversion.	Ningún pie necesita conversión.
 CLICK TO SAMPLE KEY COLOR	CLIC PARA TOMAR EL COLOR DE KEY
 normalize loudness (R128)	normalizar sonoridad (R128)
-off - all channels silent	apagado � todos los canales en silencio
+off - all channels silent	apagado — todos los canales en silencio
 no video lane for this cue	sin pista de video para este pie
-HyperDeck emulation is off.	La emulaci�n HyperDeck est� apagada.
+HyperDeck emulation is off.	La emulación HyperDeck está apagada.
 OWN SCRIPT  (click to edit)	GUION PROPIO  (clic para editar)
 Theme and operator feedback	Tema y avisos al operador
 Discovery and mirrored state	Descubrimiento y estado en espejo
 FOLLOWING THE LIVE CUE NOTES	SIGUIENDO LAS NOTAS DEL PIE EN DIRECTO
 Listening on all interfaces.	Escuchando en todas las interfaces.
-Network-facing runtime notes	Notas de ejecuci�n de red
-Hi! Press I to import a clip.	�Hola! Oprima I para importar un clip.
-Global jump and panic behavior	Comportamiento global de salto y p�nico
+Network-facing runtime notes	Notas de ejecución de red
+Hi! Press I to import a clip.	¡Hola! Oprima I para importar un clip.
+Global jump and panic behavior	Comportamiento global de salto y pánico
 Roll when the show cuts to you	Arrancar cuando el programa pase a usted
-Choose a cue to inspect it here	Elija un pie para inspeccionarlo aqu�
+Choose a cue to inspect it here	Elija un pie para inspeccionarlo aquí
 Defaults for newly created cues	Valores por defecto de los pies nuevos
-Device routing for cue playback	Enrutado para la reproducci�n de pies
-Smaller buffer = lower latency.	B�fer m�s peque�o = menos latencia.
-Emergency fade and sync behavior	Fundido de emergencia y sincron�a
-mixed selection: key unavailable	selecci�n mixta: key no disponible
-Esc=continue with current session	Esc = seguir con la sesi�n actual
+Device routing for cue playback	Enrutado para la reproducción de pies
+Smaller buffer = lower latency.	Búfer más pequeño = menos latencia.
+Emergency fade and sync behavior	Fundido de emergencia y sincronía
+mixed selection: key unavailable	selección mixta: key no disponible
+Esc=continue with current session	Esc = seguir con la sesión actual
 no per-cue settings for this type	sin ajustes por pie para este tipo
 On stop: remux to an ordinary MP4	Al parar: remuxar a un MP4 normal
-Where RECORD writes the programme	D�nde escribe RECORD el programa
+Where RECORD writes the programme	Dónde escribe RECORD el programa
 dot-matrix cue deck for live events	consola de pies matricial para directos
 Listening on localhost (127.0.0.1).	Escuchando en localhost (127.0.0.1).
 three expressions: red, green, blue	tres expresiones: rojo, verde, azul
-Transport sync with another machine	Sincron�a de transporte con otra m�quina
-Add slot sources in the cue inspector	A�ada fuentes en el inspector de pies
+Transport sync with another machine	Sincronía de transporte con otra máquina
+Add slot sources in the cue inspector	Añada fuentes en el inspector de pies
 Ask GitHub; never installs on its own	Consulta GitHub; nunca instala por su cuenta
 Import or click a cue in the playlist	Importe o oprima un pie en la lista
-mixed selection: geometry unavailable	selecci�n mixta: geometr�a no disponible
+mixed selection: geometry unavailable	selección mixta: geometría no disponible
 generate timecode for the rig to chase	generar timecode que el equipo siga
-Lower Third and PIP fire independently	El r�tulo y el PiP se disparan por separado
+Lower Third and PIP fire independently	El rótulo y el PiP se disparan por separado
 Panels built for a vMix rig, unchanged	Paneles hechos para vMix, sin cambios
 Incoming transport arrives as NMCEVENT.	El transporte entrante llega como NMCEVENT.
-not in this build - saved with the show	no est� en esta versi�n � guardado con el espect�culo
+not in this build - saved with the show	no está en esta versión — guardado con el espectáculo
 Find from the playlist, not from a modal	Buscar desde la lista, no desde un cuadro
-take or select a cue to open the timeline	lance o elija un pie para abrir la l�nea de tiempo
+take or select a cue to open the timeline	lance o elija un pie para abrir la línea de tiempo
 Optional external transport and cue control	Transporte externo y control de pies, opcional
-No previous show file found at startup path.	No se encontr� archivo anterior al arrancar.
-Use Ctrl+F or type a cue id/number to search.	Use Ctrl+F o escriba un id/n�mero de pie para buscar.
-Companion / OSC ingress and HyperDeck emulation	Entrada Companion / OSC y emulaci�n HyperDeck
+No previous show file found at startup path.	No se encontró archivo anterior al arrancar.
+Use Ctrl+F or type a cue id/number to search.	Use Ctrl+F o escriba un id/número de pie para buscar.
+Companion / OSC ingress and HyperDeck emulation	Entrada Companion / OSC y emulación HyperDeck
 A/V delay holds audio back for lagging displays.	El retardo A/V retiene el audio para pantallas lentas.
 On stop: leave the crash-resilient file as it is	Al parar: dejar el archivo a prueba de fallos tal cual
-same disk as Deckboy - a separate drive is safer	mismo disco que Deckboy � uno aparte es m�s seguro
+same disk as Deckboy - a separate drive is safer	mismo disco que Deckboy — uno aparte es más seguro
 A step fires one cue on each playlist, all at once.	Un paso lanza un pie en cada lista, todos a la vez.
-one expression: the same value in red, green and blue	una expresi�n: el mismo valor en rojo, verde y azul
+one expression: the same value in red, green and blue	una expresión: el mismo valor en rojo, verde y azul
 NDI transport is configured per output in Video Outputs.	El transporte NDI se ajusta por salida en Salidas de video.
-Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Env�a PLAY / PAUSE / STOP / LOCATE al mover el transporte.
-OSC subscribe: send /deckboy/subscribe from your controller.	Suscripci�n OSC: env�e /deckboy/subscribe desde su controlador.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Envía PLAY / PAUSE / STOP / LOCATE al mover el transporte.
+OSC subscribe: send /deckboy/subscribe from your controller.	Suscripción OSC: envíe /deckboy/subscribe desde su controlador.
 NMC mode / host / port are runtime-configurable for sync work.	El modo / host / puerto NMC se configuran en marcha.
-Going on air takes the cue. Deckboy never sends the switcher a command.	Salir al aire lanza el pie. Deckboy nunca env�a una orden al mezclador.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Salir al aire lanza el pie. Deckboy nunca envía una orden al mezclador.
 FPS: ON	FPS: ACTIVO
 FPS: OFF	FPS: APAGADO
 NMOS: ON	NMOS: ACTIVO
@@ -357,20 +357,20 @@ CANVAS: OFF	LIENZO: APAGADO
 EDIT...	EDITAR...
 FOLDER...	CARPETA...
 ARRANGE...	ORGANIZAR...
-ADD FILE...	A�ADIR ARCHIVO...
+ADD FILE...	AÑADIR ARCHIVO...
 RENUMBER...	RENUMERAR...
 set a port...	definir un puerto...
 no script	sin guion
 + OUTPUT	+ SALIDA
 Eddie's Clock	El reloj de Eddie
 Ctrl+/ to close	Ctrl+/ para cerrar
-(step lives here)	(el paso va aqu�)
+(step lives here)	(el paso va aquí)
 4:2:2  8-BIT	4:2:2  8 BITS
 4:2:2  10-BIT	4:2:2  10 BITS
-No outputs � click + OUTPUT to add one.	Sin salidas � oprima + SALIDA para a�adir una.
+No outputs — click + OUTPUT to add one.	Sin salidas — oprima + SALIDA para añadir una.
 ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, disparador NDI, NMC, MTC, LTC, Art-Net y Tally/TSL
 Convert cues Deckboy can't play (or plays poorly) to H.264	Convertir a H.264 los pies que Deckboy no reproduce bien
-a button can run any command the network protocol understands	un bot�n puede ejecutar cualquier orden que entienda el protocolo
+a button can run any command the network protocol understands	un botón puede ejecutar cualquier orden que entienda el protocolo
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ORGANIZAR LA VISTA DEL PRESENTADOR  -  arrastre un panel para moverlo, una esquina para redimensionarlo
 VIDEO	VIDEO
 SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (EXPERIMENTAL)
@@ -421,3 +421,72 @@ NDI Output	Salida NDI
 SDL Window Output	Salida de ventana SDL
 Spout Output	Salida Spout
 DESK	MESA
+drop a folder in too - it reads the whole tree	arrastra también una carpeta: se lee todo el árbol
+cameras, windows, NDI, screens - all live sources	cámaras, ventanas, NDI, pantallas: todas son fuentes en vivo
+test cards and generators - no file needed	cartas de ajuste y generadores: no necesitas un archivo
+space bar does this too, without moving your hand	la barra espaciadora hace lo mismo, sin mover la mano
+stops the cue. ESC stops EVERYTHING	detiene el cue. ESC lo detiene TODO
+the safe one: audio and playback keep running	la opción suave: el audio y la reproducción siguen
+the thorough one. blackout is the reversible one	la opción a fondo. El negro sí se puede revertir
+save as makes a new file instead	Guardar como crea un archivo nuevo
+for a copy before you change something risky	para tener una copia antes de un cambio arriesgado
+this is what you carry to the venue	esto es lo que te llevas al local
+the show on disk is untouched until you save	el show guardado no cambia hasta que guardes
+per cue. the deck has its own default too	por cue. El deck también tiene su valor por defecto
+stills hold instead - a fade would dip the frame	las imágenes fijas se mantienen: un fundido oscurecería la imagen
+the frame stays up. good for slides	la imagen se queda. Perfecto para diapositivas
+gain, pan and normalise live in the inspector	ganancia, panorama y normalización están en el inspector
+this clip has no audio track to enable	este clip no tiene una pista de audio que activar
+Hi! I am Deckboy.	¡Qué bolá! Soy Deckboy.
+Press I to import a clip.	Pulsa I para importar un clip.
+Enter takes a cue live.	Enter pone un cue en vivo.
+S stops the live cue.	S detiene el cue en vivo.
+The timeline can be resized.	Puedes cambiar el tamaño de la línea de tiempo.
+Try a terminal theme in Settings.	Prueba un tema de terminal en Ajustes.
+RELINK finds media that has moved.	RELINK encuentra los medios que has movido.
+Cues have their own gain and fades.	Cada cue tiene su ganancia y sus fundidos.
+Trim with Ctrl+I and Ctrl+O.	Recorta con Ctrl+I y Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ muestra todos los atajos.
+J jumps to the live cue.	J salta al cue en vivo.
+Normalize matches loudness across cues.	Normalizar iguala la sonoridad de los cues.
+Esc clears the desk, then the output, then quits.	Esc limpia la mesa, luego la salida y después cierra.
+Stream SRT and RTMP at the same time.	Transmite por SRT y RTMP al mismo tiempo.
+CHECK lists what is broken, before doors.	CHECK señala los problemas antes de abrir puertas.
+A cue can wait before it starts.	Un cue puede esperar antes de empezar.
+A cue can start the next one by itself.	Un cue puede iniciar el siguiente por su cuenta.
+Disarm a cue and GO steps over it.	Desarma un cue y GO se lo saltará.
+Audition plays a cue to you, not the room.	La preescucha reproduce para ti, no para el público.
+Preload racks the next cue warm, off air.	La precarga prepara el siguiente cue fuera del aire.
+A target cue starts or stops another cue.	Un cue de destino inicia o detiene otro cue.
+A fade cue takes a deck down, then stops it.	Un cue de fundido baja un deck y después lo detiene.
+A master cue fires one cue on every deck.	Un cue maestro lanza un cue en cada deck.
+A MIDI cue can tell the lighting desk to go.	Un cue MIDI puede dar la señal a la consola de luces.
+A network cue speaks OSC, UDP or TCP.	Un cue de red habla OSC, UDP o TCP.
+A DMX cue fades the house lights on a cue.	Un cue DMX hace un fundido de las luces de sala.
+A script cue runs Deckboy's own commands.	Un cue de script ejecuta los comandos de Deckboy.
+A timecode cue jams LTC to a value.	Un cue de código de tiempo ajusta el LTC a un valor.
+Each output can show a different deck.	Cada salida puede mostrar un deck distinto.
+The matrix sends audio to any channel.	La matriz envía audio a cualquier canal.
+The panel map numbers every LED tile.	El mapa de paneles numera cada módulo LED.
+Hey!	¡Oye, asere!
+Quit it!	¡Ya está bueno!
+Ow. That was rude.	Ay. Te pasaste.
+I am a professional.	Respeta, que yo soy profesional.
+Seriously?	¿Tú estás hablando en serio?
+This is my monitor.	Este monitor es mío.
+I am telling the operator.	Se lo voy a decir al técnico.
+All right. Wow.	Bueno. Tremenda cosa.
+Right. That does it.	Ya. Hasta aquí llegó esto.
+I am leaving. Good luck with the show.	Me fui. Suerte con el show.
+Still here? Me too.	¿Sigues aquí, asere? Yo también.
+Long show, huh.	Este show no tiene pa’ cuándo acabar.
+I could do this all day. Apparently.	Puedo estar en esto todo el día. Y parece que me toca.
+You have been staring at me for hours.	Llevas horas mirándome. Afloja un poquito.
+Has anyone seen a clock?	¿Alguien sabe qué hora es?
+Is it still the same show?	¿Seguimos en el mismo show?
+I'm not tired. You're tired.	¿Cansado yo? No cojas lucha.
+Five more minutes. Then five more.	Cinco minuticos más. Ese cuento ya me lo sé.
+A whole day. I need a restart.	Un día entero. Hace falta reiniciarme.
+Save the show. Then let me sleep.	Guarda el show y déjame dormir un ratico.
+Every pixel of me is tired.	No doy más, ni por un píxel.
+Close me. Open me. I'll be fine.	Ciérrame y ábreme de nuevo. Quedo como nuevo.

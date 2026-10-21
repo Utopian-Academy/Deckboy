@@ -434,3 +434,72 @@ NDI Output	مخرج NDI
 SDL Window Output	مخرج نافذة SDL
 Spout Output	مخرج Spout
 DESK	طاولة التحكم
+drop a folder in too - it reads the whole tree	اسحب مجلدًا أيضًا؛ ستُقرأ كل المجلدات الفرعية
+cameras, windows, NDI, screens - all live sources	كاميرات ونوافذ وNDI وشاشات؛ كلها مصادر مباشرة
+test cards and generators - no file needed	بطاقات اختبار ومولّدات؛ لا حاجة إلى ملف
+space bar does this too, without moving your hand	مفتاح المسافة يفعل الشيء نفسه، دون أن تحرّك يدك
+stops the cue. ESC stops EVERYTHING	يوقف الكيو. أما ESC فيوقف كل شيء
+the safe one: audio and playback keep running	الخيار الهادئ: يستمر الصوت والتشغيل
+the thorough one. blackout is the reversible one	الخيار الشامل. أما التعتيم فيمكن التراجع عنه
+save as makes a new file instead	«حفظ باسم» ينشئ ملفًا جديدًا
+for a copy before you change something risky	لنسخة احتياطية قبل تغيير قد تندم عليه
+this is what you carry to the venue	هذا ما تأخذه معك إلى مكان العرض
+the show on disk is untouched until you save	يبقى العرض على القرص كما هو حتى تحفظ
+per cue. the deck has its own default too	لكل كيو إعداداته، وللوحة التشغيل قيم افتراضية أيضًا
+stills hold instead - a fade would dip the frame	تبقى الصور الثابتة ظاهرة؛ التلاشي سيُعتّم الصورة
+the frame stays up. good for slides	تبقى الصورة ظاهرة. مناسب للشرائح
+gain, pan and normalise live in the inspector	الكسب والتوزيع الستيريو وتوحيد الجهارة في المفتّش
+this clip has no audio track to enable	هذا المقطع لا يحتوي على مسار صوتي لتفعيله
+Hi! I am Deckboy.	أهلًا! أنا Deckboy.
+Press I to import a clip.	اضغط I لاستيراد مقطع.
+Enter takes a cue live.	Enter يضع الكيو على الهواء.
+S stops the live cue.	S يوقف الكيو الذي على الهواء.
+The timeline can be resized.	يمكنك تغيير حجم الخط الزمني.
+Try a terminal theme in Settings.	جرّب سمة الطرفية في الإعدادات.
+RELINK finds media that has moved.	RELINK يعثر على ملفات الوسائط المنقولة.
+Cues have their own gain and fades.	لكل كيو كسبه وتلاشياته الخاصة.
+Trim with Ctrl+I and Ctrl+O.	حدّد البداية والنهاية باستخدام Ctrl+I وCtrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ يعرض جميع الاختصارات.
+J jumps to the live cue.	J ينتقل إلى الكيو الذي على الهواء.
+Normalize matches loudness across cues.	التطبيع يوحّد الجهارة بين الكيوهات.
+Esc clears the desk, then the output, then quits.	Esc يفرغ لوحة التحكم، ثم المخرج، ثم يغلق البرنامج.
+Stream SRT and RTMP at the same time.	ابث عبر SRT وRTMP في الوقت نفسه.
+CHECK lists what is broken, before doors.	CHECK يكشف المشاكل قبل فتح الأبواب.
+A cue can wait before it starts.	يمكن للكيو الانتظار قبل أن يبدأ.
+A cue can start the next one by itself.	يمكن للكيو تشغيل التالي تلقائيًا.
+Disarm a cue and GO steps over it.	ألغِ تسليح الكيو وسيتجاوزه GO.
+Audition plays a cue to you, not the room.	الاستماع المسبق يشغّل لك، لا للقاعة.
+Preload racks the next cue warm, off air.	التحميل المسبق يجهّز الكيو التالي خارج البث.
+A target cue starts or stops another cue.	كيو الهدف يشغّل كيو آخر أو يوقفه.
+A fade cue takes a deck down, then stops it.	كيو التلاشي يخفض لوحة التشغيل ثم يوقفها.
+A master cue fires one cue on every deck.	الكيو الرئيسي يشغّل كيو واحدًا على كل لوحة تشغيل.
+A MIDI cue can tell the lighting desk to go.	يمكن لكيو MIDI إعطاء إشارة البدء لمنضدة الإضاءة.
+A network cue speaks OSC, UDP or TCP.	كيو الشبكة يتحدث OSC أو UDP أو TCP.
+A DMX cue fades the house lights on a cue.	كيو DMX يغيّر إضاءة القاعة تدريجيًا.
+A script cue runs Deckboy's own commands.	كيو السكربت ينفّذ أوامر Deckboy.
+A timecode cue jams LTC to a value.	كيو التوقيت يضبط LTC على قيمة محددة.
+Each output can show a different deck.	يمكن لكل مخرج عرض لوحة تشغيل مختلفة.
+The matrix sends audio to any channel.	المصفوفة ترسل الصوت إلى أي قناة.
+The panel map numbers every LED tile.	خريطة الألواح ترقّم كل بلاطة LED.
+Hey!	مهلًا!
+Quit it!	كفى عبثًا!
+Ow. That was rude.	آخ. أين الذوق؟
+I am a professional.	أنا محترف، على فكرة.
+Seriously?	هل أنت جاد؟
+This is my monitor.	هذه شاشتي أنا.
+I am telling the operator.	سأخبر المشغّل بما تفعل.
+All right. Wow.	حسنًا. يا سلام!
+Right. That does it.	كفى. لقد طفح الكيل.
+I am leaving. Good luck with the show.	أنا مغادر. حظًا موفقًا مع العرض.
+Still here? Me too.	ما زلت هنا؟ وأنا أيضًا.
+Long show, huh.	يا ليل ما أطولك! أقصد العرض.
+I could do this all day. Apparently.	أستطيع فعل هذا طوال اليوم. ويبدو أنني سأفعل.
+You have been staring at me for hours.	وأنت تحدّق بي منذ ساعات.
+Has anyone seen a clock?	هل لدى أحد ساعة، أم ننتظر صياح الديك؟
+Is it still the same show?	هل ما زلنا في العرض نفسه؟
+I'm not tired. You're tired.	أنا لست متعبًا. أنت المتعب.
+Five more minutes. Then five more.	خمس دقائق أخرى... هذه مواعيد عرقوب.
+A whole day. I need a restart.	يوم كامل. أحتاج إلى إعادة تشغيل.
+Save the show. Then let me sleep.	احفظ العرض، ثم دعني أنام.
+Every pixel of me is tired.	حتى بكسلاتي قالت: كفى!
+Close me. Open me. I'll be fine.	أغلقني ثم افتحني. سأعود بخير.

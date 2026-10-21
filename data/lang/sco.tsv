@@ -419,3 +419,72 @@ FFmpeg Stream Output	FFmpeg Stream Ootput
 NDI Output	NDI Ootput
 SDL Window Output	SDL Windae Ootput
 Spout Output	Spout Ootput
+drop a folder in too - it reads the whole tree	drapp a folder in an aw — it reads the hale tree
+cameras, windows, NDI, screens - all live sources	cameras, windaes, NDI, screens — aw live sources
+test cards and generators - no file needed	test cairds an generators — nae file needit
+space bar does this too, without moving your hand	the space bar does this an aw, wi nae shift o yer haun
+stops the cue. ESC stops EVERYTHING	staps the cue. ESC staps EVERYTHING
+the safe one: audio and playback keep running	the canny yin: audio an playback keep gaun
+the thorough one. blackout is the reversible one	the thorough yin. Blackout's the yin ye can tak back
+save as makes a new file instead	save as maks a new file insteid
+for a copy before you change something risky	for a copy afore ye change onything risky
+this is what you carry to the venue	this is whit ye tak tae the venue
+the show on disk is untouched until you save	the show on disk bides as it is till ye save
+per cue. the deck has its own default too	for ilk cue. The deck has its ain default an aw
+stills hold instead - a fade would dip the frame	still picturs bide up — a fade wad dim the frame
+the frame stays up. good for slides	the frame bides up. Handy for slides
+gain, pan and normalise live in the inspector	gain, pan an normalise bide in the inspector
+this clip has no audio track to enable	this clip has nae audio track tae switch on
+Hi! I am Deckboy.	Hullo! I'm Deckboy.
+Press I to import a clip.	Press I tae import a clip.
+Enter takes a cue live.	Enter pits a cue live.
+S stops the live cue.	S staps the live cue.
+The timeline can be resized.	Ye can change the size o the timeline.
+RELINK finds media that has moved.	RELINK finds media that's been flittit.
+Cues have their own gain and fades.	Cues hae their ain gain an fades.
+Trim with Ctrl+I and Ctrl+O.	Trim wi Ctrl+I an Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ shows aw the shortcuts.
+J jumps to the live cue.	J jumps tae the live cue.
+Normalize matches loudness across cues.	Normalise evens oot the loudness o the cues.
+Esc clears the desk, then the output, then quits.	Esc clears the desk, then the output, then quits oot.
+Stream SRT and RTMP at the same time.	Stream SRT an RTMP at the same time.
+CHECK lists what is broken, before doors.	CHECK lists whit's broken afore the doors open.
+A cue can wait before it starts.	A cue can wait afore it sterts.
+A cue can start the next one by itself.	A cue can stert the neist yin itsel.
+Disarm a cue and GO steps over it.	Disarm a cue an GO skips by it.
+Audition plays a cue to you, not the room.	Audition plays a cue tae you, no the room.
+Preload racks the next cue warm, off air.	Preload gets the neist cue ready, aff air.
+A target cue starts or stops another cue.	A target cue sterts or staps anither cue.
+A fade cue takes a deck down, then stops it.	A fade cue brings a deck doon, then staps it.
+A master cue fires one cue on every deck.	A master cue fires ane cue on ilka deck.
+A MIDI cue can tell the lighting desk to go.	A MIDI cue can tell the lichtin desk tae go.
+A DMX cue fades the house lights on a cue.	A DMX cue fades the hoose lichts on a cue.
+A script cue runs Deckboy's own commands.	A script cue runs Deckboy's ain commands.
+A timecode cue jams LTC to a value.	A timecode cue sets LTC tae a value.
+Each output can show a different deck.	Ilka output can show a different deck.
+The matrix sends audio to any channel.	The matrix sends audio tae ony channel.
+The panel map numbers every LED tile.	The panel map nummers ilka LED tile.
+Hey!	Haw!
+Quit it!	Gie's peace!
+Ow. That was rude.	Ouch. Nae need for that.
+I am a professional.	I'm a professional, ye ken.
+Seriously?	Are ye havin a laugh?
+This is my monitor.	This is ma monitor.
+I am telling the operator.	I'm tellin the operator.
+All right. Wow.	Weel. Would ye look at that.
+Right. That does it.	Right. That's plenty.
+I am leaving. Good luck with the show.	I'm awa. Guid luck wi the show.
+Still here? Me too.	Still here? Me an aw.
+Long show, huh.	This show's takin a fair while, eh.
+I could do this all day. Apparently.	I could dae this aw day. Apparently that's the plan.
+You have been staring at me for hours.	Ye've been gawpin at me for hours.
+Has anyone seen a clock?	Has onybody got the time, or are we jist hingin aboot?
+Is it still the same show?	Is this still the same show?
+I'm not tired. You're tired.	I'm no tired. You're tired.
+Five more minutes. Then five more.	Anither five minutes. Aye, right.
+A whole day. I need a restart.	A hale day. I need a restart.
+Save the show. Then let me sleep.	Save the show. Then let me get ma heid doon.
+Every pixel of me is tired.	Ilka pixel o me's fair scunnered.
+Close me. Open me. I'll be fine.	Shut me. Open me. I'll be awricht.
+Try a terminal theme in Settings.	Try a terminal theme in Settings.
+A network cue speaks OSC, UDP or TCP.	A network cue speaks OSC, UDP or TCP.

@@ -421,3 +421,72 @@ NDI Output	Às-chur NDI
 SDL Window Output	Às-chur uinneig SDL
 Spout Output	Às-chur Spout
 DESK	DEASG
+drop a folder in too - it reads the whole tree	slaod pasgan a-steach cuideachd — leughar na fo-phasganan uile
+cameras, windows, NDI, screens - all live sources	camaraichean, uinneagan, NDI, sgrìonaichean — uile nan tùsan beò
+test cards and generators - no file needed	cairtean deuchainn is gineadairean — chan eil feum air faidhle
+space bar does this too, without moving your hand	nì am bàr-spàs seo cuideachd, gun do làmh a ghluasad
+stops the cue. ESC stops EVERYTHING	stadaidh e an cue. Stadaidh ESC A H-UILE RUD
+the safe one: audio and playback keep running	an roghainn shocair: cumaidh am fuaim is an cluich a’ dol
+the thorough one. blackout is the reversible one	an roghainn iomlan. Gabhaidh an dubhadh a thionndadh air ais
+save as makes a new file instead	nì Sàbhail mar fhaidhle ùr
+for a copy before you change something risky	airson lethbhreac mus dèan thu atharrachadh cunnartach
+this is what you carry to the venue	seo na bheir thu leat don ionad
+the show on disk is untouched until you save	fanaidh an taisbeanadh air an diosg mar a tha e gus an sàbhail thu
+per cue. the deck has its own default too	airson gach cue. Tha roghainn bhunaiteach aig an deck cuideachd
+stills hold instead - a fade would dip the frame	fanaidh dealbhan sàmhach suas — dhorchachadh seargadh an dealbh
+the frame stays up. good for slides	fanaidh an dealbh suas. Math airson shleamhnagan
+gain, pan and normalise live in the inspector	tha neart, pan agus gnàthachadh san sgrùdaire
+this clip has no audio track to enable	chan eil traca fuaime sa chriomag seo ri chur air
+Hi! I am Deckboy.	Halò! Is mise Deckboy.
+Press I to import a clip.	Brùth I gus criomag a thoirt a-steach.
+Enter takes a cue live.	Cuiridh Enter cue air an èadhar.
+S stops the live cue.	Stadaidh S an cue a tha air an èadhar.
+The timeline can be resized.	Gabhaidh meud na loidhne-tìm atharrachadh.
+Try a terminal theme in Settings.	Feuch coltas tèirmineil sna Roghainnean.
+RELINK finds media that has moved.	Lorgaidh RELINK meadhanan a chaidh a ghluasad.
+Cues have their own gain and fades.	Tha neart agus seargadh fa leth aig gach cue.
+Trim with Ctrl+I and Ctrl+O.	Suidhich na crìochan le Ctrl+I agus Ctrl+O.
+Ctrl+/ shows every shortcut.	Seallaidh Ctrl+/ gach ath-ghoirid.
+J jumps to the live cue.	Leumaidh J chun a’ chue a tha air an èadhar.
+Normalize matches loudness across cues.	Cuiridh gnàthachadh neart-fuaime nan cue air an aon ìre.
+Esc clears the desk, then the output, then quits.	Glanaidh Esc an deasg, an uair sin an t-às-chur, is dùinidh e mu dheireadh.
+Stream SRT and RTMP at the same time.	Sruthaich SRT agus RTMP aig an aon àm.
+CHECK lists what is broken, before doors.	Seallaidh CHECK na duilgheadasan mus fosgail na dorsan.
+A cue can wait before it starts.	Faodaidh cue feitheamh mus tòisich e.
+A cue can start the next one by itself.	Faodaidh cue an ath fhear a thòiseachadh leis fhèin.
+Disarm a cue and GO steps over it.	Cuir cue à comas agus leumaidh GO thairis air.
+Audition plays a cue to you, not the room.	Cluichidh ro-èisteachd dhut fhèin, chan ann don t-seòmar.
+Preload racks the next cue warm, off air.	Ullaichidh ro-luchdadh an ath chue far an èadhair.
+A target cue starts or stops another cue.	Tòisichidh no stadaidh cue targaid cue eile.
+A fade cue takes a deck down, then stops it.	Lùghdaichidh cue seargaidh deck, is stadaidh e an uair sin.
+A master cue fires one cue on every deck.	Tòisichidh prìomh chue aon chue air gach deck.
+A MIDI cue can tell the lighting desk to go.	Faodaidh cue MIDI òrdugh tòiseachaidh a thoirt don deasg-sholais.
+A network cue speaks OSC, UDP or TCP.	Bruidhinnidh cue lìonra OSC, UDP no TCP.
+A DMX cue fades the house lights on a cue.	Atharraichidh cue DMX solais an talla gu rèidh.
+A script cue runs Deckboy's own commands.	Ruithidh cue sgriobt òrdughan Deckboy fhèin.
+A timecode cue jams LTC to a value.	Suidhichidh cue còd-tìm LTC gu luach.
+Each output can show a different deck.	Faodaidh gach às-chur deck eile a shealltainn.
+The matrix sends audio to any channel.	Cuiridh am maitris fuaim gu seanail sam bith.
+The panel map numbers every LED tile.	Àireamhaichidh mapa nam pannalan gach leac LED.
+Hey!	Ò!
+Quit it!	Sguir dheth!
+Ow. That was rude.	Och. Nach mì-mhodhail thu.
+I am a professional.	’S e proifeiseantach a th’ annam, fhios agad.
+Seriously?	An da-rìribh?
+This is my monitor.	’S e seo an sgrìn agamsa.
+I am telling the operator.	Innsidh mi don ghnìomhaiche.
+All right. Wow.	Uill, uill.
+Right. That does it.	Ceart. Tha sin gu leòr.
+I am leaving. Good luck with the show.	Tha mi a’ falbh. Gur math a thèid leis an taisbeanadh.
+Still here? Me too.	Fhathast an seo? Mise cuideachd.
+Long show, huh.	Cha tig crìoch air a’ chèilidh seo idir.
+I could do this all day. Apparently.	Dhèanainn seo fad an latha. Tha e coltach gum feum mi.
+You have been staring at me for hours.	Tha thu air a bhith a’ coimhead orm fad uairean.
+Has anyone seen a clock?	Am faca duine gleoc, no a bheil e na chadal cuideachd?
+Is it still the same show?	An e an aon taisbeanadh a th’ ann fhathast?
+I'm not tired. You're tired.	Chan eil mise sgìth. Tha thusa sgìth.
+Five more minutes. Then five more.	Còig mionaidean eile. Seadh, seadh.
+A whole day. I need a restart.	Latha slàn. Feumaidh mi ath-thòiseachadh.
+Save the show. Then let me sleep.	Sàbhail an taisbeanadh. Leig leam cadal an uair sin.
+Every pixel of me is tired.	Tha mo phiogsail uile marbh le sgìths.
+Close me. Open me. I'll be fine.	Dùin mi. Fosgail mi. Bidh mi ceart gu leòr.

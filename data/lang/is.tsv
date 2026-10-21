@@ -421,3 +421,72 @@ NDI Output	NDI-úttak
 SDL Window Output	SDL-gluggaúttak
 Spout Output	Spout-úttak
 DESK	STJÓRNBORÐ
+drop a folder in too - it reads the whole tree	dragðu líka inn möppu — allar undirmöppur eru lesnar
+cameras, windows, NDI, screens - all live sources	myndavélar, gluggar, NDI, skjáir — allt beinar mynduppsprettur
+test cards and generators - no file needed	prófunarmyndir og myndgjafar — engin skrá nauðsynleg
+space bar does this too, without moving your hand	bilstöngin gerir þetta líka, án þess að færa höndina
+stops the cue. ESC stops EVERYTHING	stöðvar cue. ESC stöðvar ALLT
+the safe one: audio and playback keep running	mildi kosturinn: hljóð og spilun halda áfram
+the thorough one. blackout is the reversible one	róttæki kosturinn. Hægt er að afturkalla myrkvun
+save as makes a new file instead	Vista sem býr til nýja skrá
+for a copy before you change something risky	fyrir afrit áður en þú gerir áhættusama breytingu
+this is what you carry to the venue	þetta tekurðu með þér á sýningarstaðinn
+the show on disk is untouched until you save	sýningin á disknum breytist ekki fyrr en þú vistar
+per cue. the deck has its own default too	fyrir hvert cue. Deckið hefur líka sín sjálfgefnu gildi
+stills hold instead - a fade would dip the frame	kyrrmyndir haldast — útdeyfing myndi dekkja myndina
+the frame stays up. good for slides	myndin helst á skjánum. Gott fyrir glærur
+gain, pan and normalise live in the inspector	styrkur, víðóma staðsetning og stöðlun eru í skoðaranum
+this clip has no audio track to enable	þessi bútur hefur enga hljóðrás til að kveikja á
+Hi! I am Deckboy.	Hæ! Ég er Deckboy.
+Press I to import a clip.	Ýttu á I til að flytja inn bút.
+Enter takes a cue live.	Enter setur cue í loftið.
+S stops the live cue.	S stöðvar cue sem er í loftinu.
+The timeline can be resized.	Hægt er að breyta stærð tímalínunnar.
+Try a terminal theme in Settings.	Prófaðu skjástöðvarþema í Stillingum.
+RELINK finds media that has moved.	RELINK finnur miðlaskrár sem hafa verið færðar.
+Cues have their own gain and fades.	Hvert cue hefur eigin styrk og deyfingar.
+Trim with Ctrl+I and Ctrl+O.	Stilltu upphaf og enda með Ctrl+I og Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ sýnir allar flýtileiðir.
+J jumps to the live cue.	J hoppar að cue sem er í loftinu.
+Normalize matches loudness across cues.	Stöðlun jafnar skynjaðan hljóðstyrk milli cue.
+Esc clears the desk, then the output, then quits.	Esc tæmir stjórnborðið, síðan úttakið og lokar svo forritinu.
+Stream SRT and RTMP at the same time.	Streymdu með SRT og RTMP samtímis.
+CHECK lists what is broken, before doors.	CHECK sýnir vandamálin áður en húsið opnar.
+A cue can wait before it starts.	Cue getur beðið áður en það byrjar.
+A cue can start the next one by itself.	Cue getur ræst það næsta sjálft.
+Disarm a cue and GO steps over it.	Taktu cue úr viðbragðsstöðu og GO sleppir því.
+Audition plays a cue to you, not the room.	Forhlustun spilar fyrir þig, ekki salinn.
+Preload racks the next cue warm, off air.	Forhleðsla undirbýr næsta cue utan útsendingar.
+A target cue starts or stops another cue.	Markcue ræsir eða stöðvar annað cue.
+A fade cue takes a deck down, then stops it.	Deyficue deyfir deck og stöðvar það síðan.
+A master cue fires one cue on every deck.	Aðalcue ræsir eitt cue á hverju decki.
+A MIDI cue can tell the lighting desk to go.	MIDI-cue getur gefið ljósaborðinu ræsimerki.
+A network cue speaks OSC, UDP or TCP.	Netcue talar OSC, UDP eða TCP.
+A DMX cue fades the house lights on a cue.	DMX-cue deyfir eða eykur salarljósin mjúklega.
+A script cue runs Deckboy's own commands.	Skriftucue keyrir skipanir Deckboy.
+A timecode cue jams LTC to a value.	Tímakóðacue stillir LTC á tiltekið gildi.
+Each output can show a different deck.	Hvert úttak getur sýnt annað deck.
+The matrix sends audio to any channel.	Fylkið sendir hljóð á hvaða rás sem er.
+The panel map numbers every LED tile.	Spjaldakortið númerar hverja LED-einingu.
+Hey!	Heyrðu!
+Quit it!	Hættu þessu!
+Ow. That was rude.	Á. Þetta var nú óþarfi.
+I am a professional.	Ég er nú fagmaður.
+Seriously?	Í alvöru?
+This is my monitor.	Þetta er minn skjár.
+I am telling the operator.	Ég segi tæknimanninum frá þessu.
+All right. Wow.	Jæja. Ekki vantar það.
+Right. That does it.	Nú er nóg komið.
+I am leaving. Good luck with the show.	Ég er farinn. Gangi ykkur vel með sýninguna.
+Still here? Me too.	Enn hér? Ég líka.
+Long show, huh.	Þetta er orðin ansi löng langloka.
+I could do this all day. Apparently.	Ég gæti gert þetta allan daginn. Það er víst planið.
+You have been staring at me for hours.	Þú ert búinn að stara á mig tímunum saman.
+Has anyone seen a clock?	Veit einhver hvað klukkan er, eða reddast það líka?
+Is it still the same show?	Er þetta enn sama sýningin?
+I'm not tired. You're tired.	Ég er ekki þreyttur. Þú ert þreyttur.
+Five more minutes. Then five more.	Fimm mínútur í viðbót. Já já, þetta reddast.
+A whole day. I need a restart.	Heill sólarhringur. Ég þarf endurræsingu.
+Save the show. Then let me sleep.	Vistaðu sýninguna. Leyfðu mér svo að sofa.
+Every pixel of me is tired.	Hver einasti díll í mér er búinn á því.
+Close me. Open me. I'll be fine.	Lokaðu mér. Opnaðu mig. Þá verð ég góður.

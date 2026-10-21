@@ -422,3 +422,72 @@ NDI Output	NDI 输出
 SDL Window Output	SDL 窗口输出
 Spout Output	Spout 输出
 DESK	控制台
+drop a folder in too - it reads the whole tree	整个文件夹拖进来也行，子文件夹也会一起读取
+cameras, windows, NDI, screens - all live sources	摄像头、窗口、NDI、屏幕，全都能当实时信号源
+test cards and generators - no file needed	测试图和生成器，不需要媒体文件
+space bar does this too, without moving your hand	空格键也能办到，手都不用挪
+stops the cue. ESC stops EVERYTHING	停止当前 CUE。ESC 则会停止全部
+the safe one: audio and playback keep running	温和的那个：声音和播放都会继续
+the thorough one. blackout is the reversible one	彻底的那个。想随时恢复画面，就用黑场
+save as makes a new file instead	“另存为”会新建一个文件
+for a copy before you change something risky	大胆修改之前，先留一份副本
+this is what you carry to the venue	去演出现场就带这份
+the show on disk is untouched until you save	保存之前，磁盘上的演出文件不会改变
+per cue. the deck has its own default too	每个 CUE 单独设置，播放器也有默认值
+stills hold instead - a fade would dip the frame	静止图片会保持显示，淡出反而会让画面变暗
+the frame stays up. good for slides	画面会留在屏幕上，放幻灯片很方便
+gain, pan and normalise live in the inspector	增益、声像和响度标准化都在检查器里
+this clip has no audio track to enable	这个片段没有可以启用的音轨
+Hi! I am Deckboy.	你好！我是 Deckboy。
+Press I to import a clip.	按 I 键导入片段。
+Enter takes a cue live.	Enter 把 CUE 切到播出。
+S stops the live cue.	S 键停止正在播出的 CUE。
+The timeline can be resized.	时间线可以调整大小。
+Try a terminal theme in Settings.	去设置里试试终端风格主题。
+RELINK finds media that has moved.	RELINK 能找回移动过位置的媒体。
+Cues have their own gain and fades.	每个 CUE 都有自己的增益和淡入淡出。
+Trim with Ctrl+I and Ctrl+O.	用 Ctrl+I 和 Ctrl+O 设置入点和出点。
+Ctrl+/ shows every shortcut.	Ctrl+/ 可以查看全部快捷键。
+J jumps to the live cue.	J 键跳到正在播出的 CUE。
+Normalize matches loudness across cues.	响度标准化可以统一各个 CUE 的听感音量。
+Esc clears the desk, then the output, then quits.	Esc 先清空控制台，再清空输出，最后退出。
+Stream SRT and RTMP at the same time.	SRT 和 RTMP 可以同时推流。
+CHECK lists what is broken, before doors.	开门迎客之前，用 CHECK 排查问题。
+A cue can wait before it starts.	CUE 可以等待一段时间再启动。
+A cue can start the next one by itself.	CUE 可以自动启动下一个。
+Disarm a cue and GO steps over it.	取消 CUE 的待发状态，GO 就会跳过它。
+Audition plays a cue to you, not the room.	试听只给你听，不会传到观众席。
+Preload racks the next cue warm, off air.	预加载会在不播出的情况下备好下一个 CUE。
+A target cue starts or stops another cue.	目标 CUE 可以启动或停止另一个 CUE。
+A fade cue takes a deck down, then stops it.	淡出 CUE 会渐渐关闭播放器的输出，然后停止它。
+A master cue fires one cue on every deck.	主控 CUE 会在每个播放器上各启动一个 CUE。
+A MIDI cue can tell the lighting desk to go.	MIDI CUE 可以向灯光台发送开始信号。
+A network cue speaks OSC, UDP or TCP.	网络 CUE 会说 OSC、UDP 和 TCP。
+A DMX cue fades the house lights on a cue.	DMX CUE 可以渐变控制观众席灯光。
+A script cue runs Deckboy's own commands.	脚本 CUE 会执行 Deckboy 自己的命令。
+A timecode cue jams LTC to a value.	时间码 CUE 可以把 LTC 对到指定数值。
+Each output can show a different deck.	每个输出可以显示不同的播放器。
+The matrix sends audio to any channel.	矩阵可以把声音送到任意通道。
+The panel map numbers every LED tile.	面板图会为每块 LED 模组编号。
+Hey!	哎！
+Quit it!	别戳啦！
+Ow. That was rude.	哎哟。这礼貌吗？
+I am a professional.	我好歹也是专业的。
+Seriously?	你认真的？
+This is my monitor.	这是我的监视器。
+I am telling the operator.	我要找操作员告状。
+All right. Wow.	行。你可真行。
+Right. That does it.	好了。到此为止。
+I am leaving. Good luck with the show.	我走了。演出顺利啊。
+Still here? Me too.	还在呢？巧了，我也是。
+Long show, huh.	这场演出，是要播到天荒地老吗？
+I could do this all day. Apparently.	我能干一整天。没说非得干一整天啊。
+You have been staring at me for hours.	你已经盯着我好几个小时了。
+Has anyone seen a clock?	几点了？钟表也摸鱼去了？
+Is it still the same show?	这还是同一场演出吗？
+I'm not tired. You're tired.	我没累。你才累。
+Five more minutes. Then five more.	再来五分钟。好一个“最后亿次”。
+A whole day. I need a restart.	整整一天。让我重启一下吧。
+Save the show. Then let me sleep.	把演出存好。我要躺平了。
+Every pixel of me is tired.	我的像素都快累成马赛克了。
+Close me. Open me. I'll be fine.	关掉我，再打开。又是一条好汉。

@@ -422,3 +422,72 @@ NDI Output	NDI 出力
 SDL Window Output	SDL ウィンドウ出力
 Spout Output	Spout 出力
 DESK	操作卓
+drop a folder in too - it reads the whole tree	フォルダーごとドロップしてもOK。サブフォルダーまで読み込むよ
+cameras, windows, NDI, screens - all live sources	カメラ、ウィンドウ、NDI、画面。全部ライブ入力だよ
+test cards and generators - no file needed	テストパターンとジェネレーターなら、ファイルは不要
+space bar does this too, without moving your hand	スペースキーでも同じ操作ができるよ。手を動かさずにね
+stops the cue. ESC stops EVERYTHING	キューを停止。ESC はすべて停止するよ
+the safe one: audio and playback keep running	穏やかな方。音声も再生も続くよ
+the thorough one. blackout is the reversible one	しっかり止める方。元に戻せるのはブラックアウトだよ
+save as makes a new file instead	「名前を付けて保存」なら新しいファイルになるよ
+for a copy before you change something risky	思い切った変更の前に、コピーを残しておこう
+this is what you carry to the venue	これを会場に持っていけばいいんだ
+the show on disk is untouched until you save	保存するまで、ディスク上のショーはそのまま
+per cue. the deck has its own default too	キューごとの設定。デッキにも既定値があるよ
+stills hold instead - a fade would dip the frame	静止画は表示を維持。フェードすると暗くなっちゃうからね
+the frame stays up. good for slides	画像は表示されたまま。スライドに便利
+gain, pan and normalise live in the inspector	ゲイン、パン、ノーマライズはインスペクターにあるよ
+this clip has no audio track to enable	このクリップには有効にできる音声トラックがないよ
+Hi! I am Deckboy.	こんにちは！ Deckboyだよ。
+Press I to import a clip.	I キーでクリップを読み込めるよ。
+Enter takes a cue live.	Enter でキューを本番に出すよ。
+S stops the live cue.	S キーで本番中のキューを停止。
+The timeline can be resized.	タイムラインの大きさは変えられるよ。
+Try a terminal theme in Settings.	設定でターミナル風のテーマを試してみて。
+RELINK finds media that has moved.	RELINK は移動したメディアを探してくれるよ。
+Cues have their own gain and fades.	キューごとにゲインとフェードを設定できるよ。
+Trim with Ctrl+I and Ctrl+O.	Ctrl+I と Ctrl+O で再生範囲を決めよう。
+Ctrl+/ shows every shortcut.	Ctrl+/ ですべてのショートカットを表示。
+J jumps to the live cue.	J キーで本番中のキューにジャンプ。
+Normalize matches loudness across cues.	ノーマライズでキュー間の音量感をそろえよう。
+Esc clears the desk, then the output, then quits.	Esc は操作画面、出力の順にクリアして、最後に終了するよ。
+Stream SRT and RTMP at the same time.	SRT と RTMP は同時に配信できるよ。
+CHECK lists what is broken, before doors.	開場前に CHECK で問題を確認しよう。
+A cue can wait before it starts.	キューは開始前に待機できるよ。
+A cue can start the next one by itself.	キューから次のキューを自動で開始できるよ。
+Disarm a cue and GO steps over it.	キューを無効にすると、GO はそれを飛ばすよ。
+Audition plays a cue to you, not the room.	試聴は自分だけに。会場には流れないよ。
+Preload racks the next cue warm, off air.	プリロードで次のキューを本番に出さずに準備。
+A target cue starts or stops another cue.	ターゲットキューは別のキューを開始・停止するよ。
+A fade cue takes a deck down, then stops it.	フェードキューはデッキをフェードアウトしてから停止。
+A master cue fires one cue on every deck.	マスターキューは各デッキのキューを一つずつ開始。
+A MIDI cue can tell the lighting desk to go.	MIDI キューで照明卓に開始の合図を送れるよ。
+A network cue speaks OSC, UDP or TCP.	ネットワークキューは OSC、UDP、TCP に対応。
+A DMX cue fades the house lights on a cue.	DMX キューで客席照明をフェードできるよ。
+A script cue runs Deckboy's own commands.	スクリプトキューは Deckboy のコマンドを実行するよ。
+A timecode cue jams LTC to a value.	タイムコードキューで LTC を指定の値に合わせるよ。
+Each output can show a different deck.	出力ごとに別のデッキを表示できるよ。
+The matrix sends audio to any channel.	マトリクスで任意のチャンネルに音声を送れるよ。
+The panel map numbers every LED tile.	パネルマップで各 LED タイルに番号を付けるよ。
+Hey!	ちょっと！
+Quit it!	やめてってば！
+Ow. That was rude.	痛っ。それはひどくない？
+I am a professional.	これでもプロなんだけど。
+Seriously?	本気でやってる？
+This is my monitor.	ここ、僕のモニターなんだけど。
+I am telling the operator.	オペレーターさんに言いつけるよ。
+All right. Wow.	へえ。そう来るんだ。
+Right. That does it.	はい、そこまで。
+I am leaving. Good luck with the show.	もう帰る。本番、頑張ってね。
+Still here? Me too.	まだいたの？ 僕もだけど。
+Long show, huh.	長丁場にもほどがあるよ。
+I could do this all day. Apparently.	一日中できるよ。できるとは言ったけどさ。
+You have been staring at me for hours.	もう何時間もこっち見てるね。
+Has anyone seen a clock?	今、何時？ 時計まで空気読んで止まった？
+Is it still the same show?	これ、まだ同じ公演？
+I'm not tired. You're tired.	疲れてないよ。そっちこそ。
+Five more minutes. Then five more.	あと5分。その5分、何回目？
+A whole day. I need a restart.	丸一日か。再起動させて。
+Save the show. Then let me sleep.	ショーを保存して。そしたらお布団が呼んでる。
+Every pixel of me is tired.	ピクセルまでお疲れ様です状態。
+Close me. Open me. I'll be fine.	閉じて、開き直して。たぶん復活する。

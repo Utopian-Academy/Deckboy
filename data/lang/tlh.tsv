@@ -1,5 +1,6 @@
 #name tlhIngan Hol
 #english Klingon
+#unverified
 # tlhIngan Hol, Latin transliteration -- pIqaD is not in Unicode and no
 # bundled font has it. Capitalisation is phonemic here (D and d are different
 # consonants), so these deliberately do not follow the all-caps house style:
@@ -371,3 +372,76 @@ ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	JATLHWI' LEGH
 4:2:2  8-BIT	4:2:2  8-BIT
 4:2:2  10-BIT	4:2:2  10-BIT
 DESK	SeHlaw
+back to the in point, not to zero	tagh DaqDaq chegh; paghDaq cheghbe'
+loops between the in and out points, not the file	tagh Daq, mev Daq je jojDaq chu'qa'; teywI' naQ chu'qa'be'
+drag to scrub. the audio follows	poH DachoHmeH yIluH; tlha' wab
+AUDIONORM ALL matches the whole playlist at once	tetlh naQ wab HoS rapmoH AUDIONORM ALL; Hoch ta' wa'logh
+drop a folder in too - it reads the whole tree	ngaSwI' yIlan je — Hoch ngaSwI'Hommey laD
+cameras, windows, NDI, screens - all live sources	mIllogh qonwI'mey, Qorwaghmey, NDI, jIHmey — DaH cha'bogh mungmey
+test cards and generators - no file needed	waHmeH HaStamey 'ej chenmoHwI'mey — teywI' DapoQbe'
+space bar does this too, without moving your hand	Space yI'uy; nIteb ghoplIj DavIHmoHnISbe'
+stops the cue. ESC stops EVERYTHING	mIw mevmoH. Hoch mevmoH ESC
+the safe one: audio and playback keep running	Qobbe': taH wab 'ej taH HaSta
+the thorough one. blackout is the reversible one	Hoch mevmoH. Hurgh choH DachelHa'laH
+save as makes a new file instead	teywI' chu' chenmoH SAVE AS
+for a copy before you change something risky	choH Qob Dataghpa', velqa' yIchenmoH
+this is what you carry to the venue	Qu' DaqDaq Dochvam Datlhap
+the show on disk is untouched until you save	bIchoqpa', choHbe' ngaSbogh teywI'
+per cue. the deck has its own default too	wa' mIwvaD. jan ghunlu'pu'bogh HoS tu'lu' je
+stills hold instead - a fade would dip the frame	ratlh mIllogh — HoS DanupmoHchugh, HurghchoH mIllogh
+the frame stays up. good for slides	ratlh mIllogh; mIlloghmeyvaD QaQ
+gain, pan and normalise live in the inspector	mIw 'olwI'Daq tu'lu' HoS, wab Daq, wab HoS rapmoHmeH SeHlaw
+this clip has no audio track to enable	chu'laHbogh wab Hutlh HaStavam
+Hi! I am Deckboy.	nuqneH! Deckboy 'oH pongwIj'e'.
+Press I to import a clip.	HaSta Da'elmoHmeH I yI'uy.
+Enter takes a cue live.	mIw chu' Enter.
+S stops the live cue.	chu'lu'ta'bogh mIw mevmoH S.
+The timeline can be resized.	poH tlhegh DatInmoHlaH 'ej DamachmoHlaH.
+Try a terminal theme in Settings.	chu'wI'meyDaq terminal mIllogh yIwaH.
+RELINK finds media that has moved.	De' vIHpu'bogh Sam RELINK.
+Cues have their own gain and fades.	HoS, wovchoHmoHmeH pat, HurghchoHmoHmeH pat ghaj Hoch mIw.
+Trim with Ctrl+I and Ctrl+O.	pe'meH Ctrl+I 'ej Ctrl+O yIlo'.
+Ctrl+/ shows every shortcut.	Hoch leQmey tI'ang: Ctrl+/ yI'uy.
+J jumps to the live cue.	chu'lu'ta'bogh mIwDaq Sup J.
+Normalize matches loudness across cues.	mIwmey wab HoS rapmoH Normalize.
+Esc clears the desk, then the output, then quits.	janmey Say'moH Esc, ghIq ngeHwI', ghIq mev Deckboy.
+Stream SRT and RTMP at the same time.	SRT 'ej RTMP yIngeH; nItebHa' yIchu'.
+CHECK lists what is broken, before doors.	lojmItmey DapoSmoHpa', Qaghmey cha' CHECK.
+A cue can wait before it starts.	taghpa' mIw, loSlaH.
+A cue can start the next one by itself.	veb mIw'e' chu'laH mIw.
+Disarm a cue and GO steps over it.	mIw yIchu'Ha'; mIwvetlh juS GO.
+Audition plays a cue to you, not the room.	SoHvaD mIw chu' Audition; 'Ijbe' ghom.
+Preload racks the next cue warm, off air.	veb mIw'e' ghuHmoH Preload; ngeHbe'.
+A target cue starts or stops another cue.	latlh mIw chu' qoj mevmoH DoS mIw.
+A fade cue takes a deck down, then stops it.	jan HoS nupmoH fade mIw; ghIq mevmoH.
+A master cue fires one cue on every deck.	Hoch janDaq wa' mIw chu' master mIw.
+A MIDI cue can tell the lighting desk to go.	taghmeH wovmoHwI' SeHlaw ra'laH MIDI mIw.
+A network cue speaks OSC, UDP or TCP.	OSC, UDP, TCP joq lo' Sem mIw.
+A DMX cue fades the house lights on a cue.	pa' wovmoHwI'mey HoS choH DMX mIw.
+A script cue runs Deckboy's own commands.	Deckboy ra'mey ta' script mIw.
+A timecode cue jams LTC to a value.	LTC mI' cher poH ngoq mIw.
+Each output can show a different deck.	pImbogh jan cha'laH Hoch ngeHwI'.
+The matrix sends audio to any channel.	Hoch wab HeDaq wab ngeHlaH matrix.
+The panel map numbers every LED tile.	Hoch LED mIllogh 'ay'vaD mI' nob panel map.
+Hey!	toH!
+Quit it!	HIqIpQo'!
+Ow. That was rude.	'oy'! bIQut.
+I am a professional.	Qu'wIj vISov.
+Seriously?	bI'Il'a'?
+This is my monitor.	jIHwIj 'oH Dochvam'e'.
+I am telling the operator.	SeHwI'vaD jIjatlh.
+All right. Wow.	toH. bIyoH.
+Right. That does it.	pItlh. jIyonbe'.
+I am leaving. Good luck with the show.	jImej. Qu'lIj yIQapmoH.
+Still here? Me too.	bIratlh'a'? jIratlh je.
+Long show, huh.	nI' Qu'vam. may' rur.
+I could do this all day. Apparently.	qaStaHvIS jaj Hoch, jIta'laH. jIta'nISlaw'.
+You have been staring at me for hours.	qaStaHvIS repmey law', chobejtaH.
+Has anyone seen a clock?	tlhaq leghpu''a' vay'?
+Is it still the same show?	Qu' rap 'oHtaH'a'?
+I'm not tired. You're tired.	jIDoy'be'. bIDoy'!
+Five more minutes. Then five more.	latlh vagh tup. ghIq latlh vagh. jIHarQo'.
+A whole day. I need a restart.	jaj Hoch. HIchu'qa'.
+Save the show. Then let me sleep.	Qu' yIchoq. ghIq HIQongmoH.
+Every pixel of me is tired.	Doy' Hoch mIlloghHomwIj. qa'vIn yIqem.
+Close me. Open me. I'll be fine.	HImevmoH. HIpoSmoHqa'. jIpIvchoH.

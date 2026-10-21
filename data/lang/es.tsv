@@ -421,3 +421,72 @@ NDI Output	Salida NDI
 SDL Window Output	Salida de ventana SDL
 Spout Output	Salida Spout
 DESK	MESA
+drop a folder in too - it reads the whole tree	arrastra también una carpeta: se lee todo el árbol
+cameras, windows, NDI, screens - all live sources	cámaras, ventanas, NDI, pantallas: todas son fuentes en directo
+test cards and generators - no file needed	cartas de ajuste y generadores: no hace falta ningún archivo
+space bar does this too, without moving your hand	la barra espaciadora hace lo mismo, sin mover la mano
+stops the cue. ESC stops EVERYTHING	detiene el cue. ESC lo detiene TODO
+the safe one: audio and playback keep running	la opción suave: el audio y la reproducción siguen
+the thorough one. blackout is the reversible one	la opción a fondo. El negro sí se puede revertir
+save as makes a new file instead	Guardar como crea un archivo nuevo
+for a copy before you change something risky	para tener una copia antes de un cambio arriesgado
+this is what you carry to the venue	esto es lo que te llevas al recinto
+the show on disk is untouched until you save	el espectáculo guardado no cambia hasta que guardes
+per cue. the deck has its own default too	por cue. El deck también tiene su valor por defecto
+stills hold instead - a fade would dip the frame	las imágenes fijas se mantienen: un fundido oscurecería la imagen
+the frame stays up. good for slides	la imagen se queda. Ideal para diapositivas
+gain, pan and normalise live in the inspector	ganancia, panorama y normalización están en el inspector
+this clip has no audio track to enable	este clip no tiene una pista de audio que activar
+Hi! I am Deckboy.	¡Hola! Soy Deckboy.
+Press I to import a clip.	Pulsa I para importar un clip.
+Enter takes a cue live.	Enter pone un cue en directo.
+S stops the live cue.	S detiene el cue en directo.
+The timeline can be resized.	Puedes cambiar el tamaño de la línea de tiempo.
+Try a terminal theme in Settings.	Prueba un tema de terminal en Ajustes.
+RELINK finds media that has moved.	RELINK encuentra los medios que has movido.
+Cues have their own gain and fades.	Cada cue tiene su ganancia y sus fundidos.
+Trim with Ctrl+I and Ctrl+O.	Recorta con Ctrl+I y Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ muestra todos los atajos.
+J jumps to the live cue.	J salta al cue en directo.
+Normalize matches loudness across cues.	Normalizar iguala la sonoridad de los cues.
+Esc clears the desk, then the output, then quits.	Esc limpia la mesa, luego la salida y después cierra.
+Stream SRT and RTMP at the same time.	Emite por SRT y RTMP a la vez.
+CHECK lists what is broken, before doors.	CHECK señala los problemas antes de abrir puertas.
+A cue can wait before it starts.	Un cue puede esperar antes de empezar.
+A cue can start the next one by itself.	Un cue puede iniciar el siguiente por sí solo.
+Disarm a cue and GO steps over it.	Desarma un cue y GO se lo saltará.
+Audition plays a cue to you, not the room.	La preescucha reproduce para ti, no para la sala.
+Preload racks the next cue warm, off air.	La precarga prepara el siguiente cue fuera de emisión.
+A target cue starts or stops another cue.	Un cue de destino inicia o detiene otro cue.
+A fade cue takes a deck down, then stops it.	Un cue de fundido baja un deck y después lo detiene.
+A master cue fires one cue on every deck.	Un cue maestro lanza un cue en cada deck.
+A MIDI cue can tell the lighting desk to go.	Un cue MIDI puede dar la señal a la mesa de luces.
+A network cue speaks OSC, UDP or TCP.	Un cue de red habla OSC, UDP o TCP.
+A DMX cue fades the house lights on a cue.	Un cue DMX hace un fundido de las luces de sala.
+A script cue runs Deckboy's own commands.	Un cue de script ejecuta los comandos de Deckboy.
+A timecode cue jams LTC to a value.	Un cue de código de tiempo ajusta el LTC a un valor.
+Each output can show a different deck.	Cada salida puede mostrar un deck distinto.
+The matrix sends audio to any channel.	La matriz envía audio a cualquier canal.
+The panel map numbers every LED tile.	El mapa de paneles numera cada módulo LED.
+Hey!	¡Eh!
+Quit it!	¡Para ya!
+Ow. That was rude.	Ay. Eso no se hace.
+I am a professional.	Que soy un profesional.
+Seriously?	¿En serio?
+This is my monitor.	Este es mi monitor.
+I am telling the operator.	Se lo voy a decir al técnico.
+All right. Wow.	Vale. Tela.
+Right. That does it.	Bueno. Hasta aquí hemos llegado.
+I am leaving. Good luck with the show.	Me voy. Suerte con el espectáculo.
+Still here? Me too.	¿Sigues aquí? Yo también.
+Long show, huh.	Esto dura más que un día sin pan.
+I could do this all day. Apparently.	Podría hacer esto todo el día. Por lo visto, toca.
+You have been staring at me for hours.	Llevas horas mirándome fijamente.
+Has anyone seen a clock?	¿Alguien tiene hora o vamos a ojo?
+Is it still the same show?	¿Seguimos en el mismo espectáculo?
+I'm not tired. You're tired.	Yo no estoy cansado. Tú estás cansado.
+Five more minutes. Then five more.	Cinco minutos más. Sí, claro, los de siempre.
+A whole day. I need a restart.	Un día entero. Necesito reiniciarme.
+Save the show. Then let me sleep.	Guarda el espectáculo. Luego cierro el chiringuito.
+Every pixel of me is tired.	No puedo ni con mis píxeles.
+Close me. Open me. I'll be fine.	Ciérrame. Ábreme. Se me pasa.

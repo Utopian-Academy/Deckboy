@@ -421,3 +421,72 @@ NDI Output	NDI-uitgang
 SDL Window Output	SDL-vensteruitgang
 Spout Output	Spout-uitgang
 DESK	REGIETAFEL
+drop a folder in too - it reads the whole tree	sleep gerust een map erin - alle submappen worden meegenomen
+cameras, windows, NDI, screens - all live sources	camera's, vensters, NDI, schermen - allemaal livebronnen
+test cards and generators - no file needed	testbeelden en generators - geen bestand nodig
+space bar does this too, without moving your hand	de spatiebalk doet hetzelfde, zonder je hand te verplaatsen
+stops the cue. ESC stops EVERYTHING	stopt de cue. ESC stopt ALLES
+the safe one: audio and playback keep running	de zachte aanpak: audio en weergave blijven lopen
+the thorough one. blackout is the reversible one	de grondige aanpak. Blackout kun je weer opheffen
+save as makes a new file instead	Opslaan als maakt een nieuw bestand
+for a copy before you change something risky	voor een kopie voordat je iets gewaagds wijzigt
+this is what you carry to the venue	dit neem je mee naar de locatie
+the show on disk is untouched until you save	de show op schijf blijft intact tot je opslaat
+per cue. the deck has its own default too	per cue. Het deck heeft ook een eigen standaard
+stills hold instead - a fade would dip the frame	stilstaande beelden blijven staan - een fade zou het beeld dimmen
+the frame stays up. good for slides	het beeld blijft staan. Handig voor dia's
+gain, pan and normalise live in the inspector	gain, pan en normaliseren vind je in de inspector
+this clip has no audio track to enable	deze clip heeft geen audiotrack om aan te zetten
+Hi! I am Deckboy.	Hoi! Ik ben Deckboy.
+Press I to import a clip.	Druk op I om een clip te importeren.
+Enter takes a cue live.	Enter zet een cue live.
+S stops the live cue.	S stopt de livecue.
+The timeline can be resized.	Je kunt de tijdlijn groter of kleiner maken.
+Try a terminal theme in Settings.	Probeer een terminalthema bij Instellingen.
+RELINK finds media that has moved.	RELINK vindt verplaatste media terug.
+Cues have their own gain and fades.	Cues hebben hun eigen gain en fades.
+Trim with Ctrl+I and Ctrl+O.	Trim met Ctrl+I en Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ toont alle sneltoetsen.
+J jumps to the live cue.	J springt naar de livecue.
+Normalize matches loudness across cues.	Normaliseren trekt de luidheid van cues gelijk.
+Esc clears the desk, then the output, then quits.	Esc leegt het bedieningspaneel, daarna de uitgang en sluit dan af.
+Stream SRT and RTMP at the same time.	Stream tegelijk via SRT en RTMP.
+CHECK lists what is broken, before doors.	CHECK toont de problemen voordat de deuren opengaan.
+A cue can wait before it starts.	Een cue kan wachten voordat hij start.
+A cue can start the next one by itself.	Een cue kan zelf de volgende starten.
+Disarm a cue and GO steps over it.	Schakel een cue uit en GO slaat hem over.
+Audition plays a cue to you, not the room.	Voorbeluisteren speelt voor jou, niet voor de zaal.
+Preload racks the next cue warm, off air.	Voorladen zet de volgende cue klaar, buiten de uitzending.
+A target cue starts or stops another cue.	Een doelcue start of stopt een andere cue.
+A fade cue takes a deck down, then stops it.	Een fadecue dimt een deck en stopt het daarna.
+A master cue fires one cue on every deck.	Een mastercue start één cue op elk deck.
+A MIDI cue can tell the lighting desk to go.	Een MIDI-cue kan de lichttafel een startsignaal geven.
+A network cue speaks OSC, UDP or TCP.	Een netwerkcue spreekt OSC, UDP of TCP.
+A DMX cue fades the house lights on a cue.	Een DMX-cue laat het zaallicht in- of uitfaden.
+A script cue runs Deckboy's own commands.	Een scriptcue voert Deckboys eigen opdrachten uit.
+A timecode cue jams LTC to a value.	Een tijdcodecue zet LTC op een waarde.
+Each output can show a different deck.	Elke uitgang kan een ander deck tonen.
+The matrix sends audio to any channel.	De matrix stuurt audio naar elk gewenst kanaal.
+The panel map numbers every LED tile.	De paneelkaart nummert elke LED-tegel.
+Hey!	Hé!
+Quit it!	Hou eens op!
+Ow. That was rude.	Au. Lekker vriendelijk.
+I am a professional.	Ik ben wel een professional, hè.
+Seriously?	Serieus?
+This is my monitor.	Dit is mijn monitor.
+I am telling the operator.	Ik ga het aan de technicus vertellen.
+All right. Wow.	Nou nou. Poeh poeh.
+Right. That does it.	Zo. Nu is het mooi geweest.
+I am leaving. Good luck with the show.	Ik ben weg. Succes met de show.
+Still here? Me too.	Nog hier? Ik ook.
+Long show, huh.	Dit duurt tot sint-juttemis.
+I could do this all day. Apparently.	Dit kan ik de hele dag. Kennelijk moet dat ook.
+You have been staring at me for hours.	Je zit me al uren aan te staren.
+Has anyone seen a clock?	Heeft iemand een klok, of doen we maar wat?
+Is it still the same show?	Is dit nog steeds dezelfde show?
+I'm not tired. You're tired.	Ik ben niet moe. Jij bent moe.
+Five more minutes. Then five more.	Nog vijf minuutjes. Ja hoor, en mijn neus is gek.
+A whole day. I need a restart.	Een hele dag. Ik moet even opnieuw opstarten.
+Save the show. Then let me sleep.	Sla de show op. Dan gaat hier het licht uit.
+Every pixel of me is tired.	Mijn pixels zijn helemaal gaar.
+Close me. Open me. I'll be fine.	Sluit me. Open me. Komt wel goed.

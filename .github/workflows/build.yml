@@ -226,6 +226,9 @@ jobs:
       - name: No catalogue word mixes two alphabets
         run: python3 tools/audit_i18n.py
 
+      - name: Face speech covers every full catalogue and keeps command names
+        run: python3 tools/check_face_translations.py
+
       # The shortcut overlay is the only list of keys an operator sees, and
       # it has drifted both ways: keys that do nothing, and -- worse -- nine
       # working keys it never mentioned, including the only way into the

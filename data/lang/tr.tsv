@@ -421,3 +421,72 @@ NDI Output	NDI çıkışı
 SDL Window Output	SDL pencere çıkışı
 Spout Output	Spout çıkışı
 DESK	OPERATÖR
+drop a folder in too - it reads the whole tree	bir klasör de bırakabilirsin; tüm alt klasörler okunur
+cameras, windows, NDI, screens - all live sources	kameralar, pencereler, NDI, ekranlar: hepsi canlı kaynak
+test cards and generators - no file needed	test kartları ve üreteçler: dosya gerekmez
+space bar does this too, without moving your hand	boşluk tuşu da aynısını yapar, elini oynatmana gerek yok
+stops the cue. ESC stops EVERYTHING	cue'yu durdurur. ESC HER ŞEYİ durdurur
+the safe one: audio and playback keep running	yumuşak seçenek: ses ve oynatma devam eder
+the thorough one. blackout is the reversible one	köklü çözüm. Karartmayı ise geri alabilirsin
+save as makes a new file instead	Farklı kaydet yeni bir dosya oluşturur
+for a copy before you change something risky	riskli bir değişiklikten önce kopya almak için
+this is what you carry to the venue	gösteri mekânına yanında götüreceğin şey bu
+the show on disk is untouched until you save	kaydedene kadar diskteki gösteri değişmez
+per cue. the deck has its own default too	her cue için. Deck'in de kendi varsayılanı var
+stills hold instead - a fade would dip the frame	sabit görüntüler ekranda kalır; geçiş görüntüyü karartırdı
+the frame stays up. good for slides	görüntü ekranda kalır. Slaytlar için ideal
+gain, pan and normalise live in the inspector	kazanç, pan ve normalleştirme denetçide
+this clip has no audio track to enable	bu klipte etkinleştirilecek ses kanalı yok
+Hi! I am Deckboy.	Merhaba! Ben Deckboy.
+Press I to import a clip.	Klip içe aktarmak için I tuşuna bas.
+Enter takes a cue live.	Enter bir cue'yu yayına alır.
+S stops the live cue.	S yayındaki cue'yu durdurur.
+The timeline can be resized.	Zaman çizelgesini yeniden boyutlandırabilirsin.
+Try a terminal theme in Settings.	Ayarlar'da bir terminal teması dene.
+RELINK finds media that has moved.	RELINK taşınmış medya dosyalarını bulur.
+Cues have their own gain and fades.	Cue'ların kendi kazanç ve geçiş ayarları vardır.
+Trim with Ctrl+I and Ctrl+O.	Ctrl+I ve Ctrl+O ile kırpma noktalarını belirle.
+Ctrl+/ shows every shortcut.	Ctrl+/ tüm kısayolları gösterir.
+J jumps to the live cue.	J yayındaki cue'ya gider.
+Normalize matches loudness across cues.	Normalleştirme cue'ların algılanan ses yüksekliğini eşitler.
+Esc clears the desk, then the output, then quits.	Esc önce masayı, sonra çıkışı temizler, sonra programdan çıkar.
+Stream SRT and RTMP at the same time.	Aynı anda SRT ve RTMP yayını yapabilirsin.
+CHECK lists what is broken, before doors.	CHECK kapılar açılmadan sorunları listeler.
+A cue can wait before it starts.	Bir cue başlamadan önce bekleyebilir.
+A cue can start the next one by itself.	Bir cue sonraki cue'yu kendiliğinden başlatabilir.
+Disarm a cue and GO steps over it.	Bir cue'yu devre dışı bırak; GO onu atlar.
+Audition plays a cue to you, not the room.	Ön dinleme salona değil, sana çalar.
+Preload racks the next cue warm, off air.	Ön yükleme sonraki cue'yu yayına vermeden hazırlar.
+A target cue starts or stops another cue.	Hedef cue başka bir cue'yu başlatır veya durdurur.
+A fade cue takes a deck down, then stops it.	Geçiş cue'su bir deck'i kısar, ardından durdurur.
+A master cue fires one cue on every deck.	Ana cue her deck'te bir cue başlatır.
+A MIDI cue can tell the lighting desk to go.	MIDI cue'su ışık masasına başlama komutu verebilir.
+A network cue speaks OSC, UDP or TCP.	Ağ cue'su OSC, UDP veya TCP konuşur.
+A DMX cue fades the house lights on a cue.	DMX cue'su salon ışıklarını kademeli olarak değiştirir.
+A script cue runs Deckboy's own commands.	Betik cue'su Deckboy'un kendi komutlarını çalıştırır.
+A timecode cue jams LTC to a value.	Zaman kodu cue'su LTC'yi bir değere ayarlar.
+Each output can show a different deck.	Her çıkış farklı bir deck gösterebilir.
+The matrix sends audio to any channel.	Matris sesi istediğin kanala gönderir.
+The panel map numbers every LED tile.	Panel haritası her LED modülünü numaralandırır.
+Quit it!	Yapma artık!
+Ow. That was rude.	Ah. Ayıp oluyor ama.
+I am a professional.	Ben profesyonelim, lütfen.
+Seriously?	Ciddi misin?
+This is my monitor.	Bu benim monitörüm.
+I am telling the operator.	Operatöre söyleyeceğim.
+All right. Wow.	Vay arkadaş.
+Right. That does it.	Tamam. Buraya kadar.
+I am leaving. Good luck with the show.	Ben gidiyorum. Gösteride bol şans.
+Still here? Me too.	Hâlâ burada mısın? Ben de.
+Long show, huh.	Bu gösteri yılan hikâyesine döndü.
+I could do this all day. Apparently.	Bunu bütün gün yapabilirim. Anlaşılan yapacağım da.
+You have been staring at me for hours.	Saatlerdir bana bakıyorsun.
+Has anyone seen a clock?	Saati bilen var mı, yoksa saat de mi molada?
+Is it still the same show?	Hâlâ aynı gösteride miyiz?
+I'm not tired. You're tired.	Ben yorulmadım. Sen yoruldun.
+Five more minutes. Then five more.	Beş dakika daha. Tabii, biz de yedik.
+A whole day. I need a restart.	Koca bir gün. Yeniden başlamam lazım.
+Save the show. Then let me sleep.	Gösteriyi kaydet. Sonra bırak da uyuyayım.
+Every pixel of me is tired.	Piksellerimin bile pili bitti.
+Close me. Open me. I'll be fine.	Beni kapat. Aç. Kendime gelirim.
+Hey!	Hop!

@@ -422,3 +422,72 @@ NDI Output	Вихід NDI
 SDL Window Output	Вихід вікна SDL
 Spout Output	Вихід Spout
 DESK	ОПЕРАТОР
+drop a folder in too - it reads the whole tree	можна перетягнути й теку — прочитається все дерево
+cameras, windows, NDI, screens - all live sources	камери, вікна, NDI, екрани — усе це живі джерела
+test cards and generators - no file needed	тестові таблиці й генератори — файл не потрібен
+space bar does this too, without moving your hand	пробіл робить те саме, не треба переносити руку
+stops the cue. ESC stops EVERYTHING	зупиняє к’ю. ESC зупиняє ВСЕ
+the safe one: audio and playback keep running	м’який варіант: звук і відтворення тривають
+the thorough one. blackout is the reversible one	ґрунтовний варіант. Затемнення можна скасувати
+save as makes a new file instead	«Зберегти як» створює новий файл
+for a copy before you change something risky	для копії перед ризикованими змінами
+this is what you carry to the venue	це й треба взяти із собою на майданчик
+the show on disk is untouched until you save	шоу на диску не змінюється, доки не збережеш
+per cue. the deck has its own default too	для кожного к’ю. Дека також має власні типові налаштування
+stills hold instead - a fade would dip the frame	статичні зображення лишаються: згасання затемнило б картинку
+the frame stays up. good for slides	картинка лишається. Зручно для слайдів
+gain, pan and normalise live in the inspector	підсилення, панорама й нормалізація — в інспекторі
+this clip has no audio track to enable	цей кліп не має звукової доріжки, яку можна ввімкнути
+Hi! I am Deckboy.	Привіт! Я Deckboy.
+Press I to import a clip.	Натисни I, щоб імпортувати кліп.
+Enter takes a cue live.	Enter виводить к’ю в ефір.
+S stops the live cue.	S зупиняє к’ю в ефірі.
+The timeline can be resized.	Розмір часової шкали можна змінювати.
+Try a terminal theme in Settings.	Спробуй термінальну тему в налаштуваннях.
+RELINK finds media that has moved.	RELINK знаходить переміщені медіафайли.
+Cues have their own gain and fades.	Кожен к’ю має власні підсилення й переходи.
+Trim with Ctrl+I and Ctrl+O.	Задавай межі за допомогою Ctrl+I та Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ показує всі сполучення клавіш.
+J jumps to the live cue.	J переходить до к’ю в ефірі.
+Normalize matches loudness across cues.	Нормалізація вирівнює гучність к’ю.
+Esc clears the desk, then the output, then quits.	Esc очищає пульт, потім вихід, а тоді закриває програму.
+Stream SRT and RTMP at the same time.	Транслюй через SRT і RTMP одночасно.
+CHECK lists what is broken, before doors.	CHECK покаже проблеми до відкриття дверей.
+A cue can wait before it starts.	К’ю може зачекати перед запуском.
+A cue can start the next one by itself.	К’ю може сам запустити наступний.
+Disarm a cue and GO steps over it.	Зніми к’ю з готовності, і GO його пропустить.
+Audition plays a cue to you, not the room.	Попереднє прослуховування грає для тебе, а не для зали.
+Preload racks the next cue warm, off air.	Попереднє завантаження готує наступний к’ю поза ефіром.
+A target cue starts or stops another cue.	Цільовий к’ю запускає або зупиняє інший к’ю.
+A fade cue takes a deck down, then stops it.	К’ю згасання плавно прибирає деку й зупиняє її.
+A master cue fires one cue on every deck.	Майстер-к’ю запускає по одному к’ю на кожній деці.
+A MIDI cue can tell the lighting desk to go.	К’ю MIDI може дати команду світловому пульту.
+A network cue speaks OSC, UDP or TCP.	Мережевий к’ю говорить через OSC, UDP або TCP.
+A DMX cue fades the house lights on a cue.	К’ю DMX плавно змінює освітлення зали.
+A script cue runs Deckboy's own commands.	Скриптовий к’ю виконує команди Deckboy.
+A timecode cue jams LTC to a value.	К’ю таймкоду встановлює LTC на задане значення.
+Each output can show a different deck.	Кожен вихід може показувати окрему деку.
+The matrix sends audio to any channel.	Матриця надсилає звук на будь-який канал.
+The panel map numbers every LED tile.	Карта панелей нумерує кожен світлодіодний модуль.
+Hey!	Гей!
+Quit it!	Та годі вже!
+Ow. That was rude.	Ой. Ні сорому, ні совісті.
+I am a professional.	Я взагалі-то професіонал.
+Seriously?	Серйозно?
+This is my monitor.	Це мій монітор.
+I am telling the operator.	Я все розповім оператору.
+All right. Wow.	Оце так.
+Right. That does it.	Усе. Приїхали.
+I am leaving. Good luck with the show.	Я йду. Щасти вам із шоу.
+Still here? Me too.	Досі тут? Я теж.
+Long show, huh.	Цьому шоу кінця-краю не видно.
+I could do this all day. Apparently.	Можу так цілий день. Схоже, доведеться.
+You have been staring at me for hours.	Ти вже годинами на мене дивишся.
+Has anyone seen a clock?	Хтось бачив годинник? Чи вже й півні проспали?
+Is it still the same show?	Це досі те саме шоу?
+I'm not tired. You're tired.	Я не втомився. Це ти втомився.
+Five more minutes. Then five more.	Ще п’ять хвилин. Авжеж, ми це вже чули.
+A whole day. I need a restart.	Ціла доба. Мені потрібне перезавантаження.
+Save the show. Then let me sleep.	Збережи шоу. І дай мені вже поспати.
+Every pixel of me is tired.	Мої пікселі вже ледве ноги волочать.
+Close me. Open me. I'll be fine.	Закрий мене. Відкрий. Буду як новенький.

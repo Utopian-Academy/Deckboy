@@ -422,3 +422,72 @@ NDI Output	Έξοδος NDI
 SDL Window Output	Έξοδος παραθύρου SDL
 Spout Output	Έξοδος Spout
 DESK	ΧΕΙΡΙΣΤΗΣ
+drop a folder in too - it reads the whole tree	σύρε κι έναν φάκελο — διαβάζονται και όλοι οι υποφάκελοι
+cameras, windows, NDI, screens - all live sources	κάμερες, παράθυρα, NDI, οθόνες — όλα ζωντανές πηγές
+test cards and generators - no file needed	κάρτες δοκιμής και γεννήτριες — δεν χρειάζεται αρχείο
+space bar does this too, without moving your hand	το πλήκτρο διαστήματος κάνει το ίδιο, χωρίς να κουνήσεις το χέρι
+stops the cue. ESC stops EVERYTHING	σταματά το cue. Το ESC σταματά ΤΑ ΠΑΝΤΑ
+the safe one: audio and playback keep running	η ήπια επιλογή: ήχος και αναπαραγωγή συνεχίζονται
+the thorough one. blackout is the reversible one	η δραστική επιλογή. Το μαύρο μπορείς να το αναιρέσεις
+save as makes a new file instead	η Αποθήκευση ως δημιουργεί νέο αρχείο
+for a copy before you change something risky	για ένα αντίγραφο πριν από μια ριψοκίνδυνη αλλαγή
+this is what you carry to the venue	αυτό παίρνεις μαζί σου στον χώρο της εκδήλωσης
+the show on disk is untouched until you save	το σόου στον δίσκο μένει ανέπαφο ώσπου να αποθηκεύσεις
+per cue. the deck has its own default too	ανά cue. Το deck έχει και δικές του προεπιλογές
+stills hold instead - a fade would dip the frame	οι στατικές εικόνες παραμένουν — μια εξασθένηση θα σκοτείνιαζε το καρέ
+the frame stays up. good for slides	η εικόνα παραμένει. Βολικό για διαφάνειες
+gain, pan and normalise live in the inspector	απολαβή, πανοραμική θέση και κανονικοποίηση είναι στον επιθεωρητή
+this clip has no audio track to enable	αυτό το κλιπ δεν έχει ηχητικό κανάλι για ενεργοποίηση
+Hi! I am Deckboy.	Γεια! Είμαι ο Deckboy.
+Press I to import a clip.	Πάτα I για να εισαγάγεις ένα κλιπ.
+Enter takes a cue live.	Το Enter βγάζει ένα cue στον αέρα.
+S stops the live cue.	Το S σταματά το cue που είναι στον αέρα.
+The timeline can be resized.	Μπορείς να αλλάξεις το μέγεθος της χρονογραμμής.
+Try a terminal theme in Settings.	Δοκίμασε ένα θέμα τερματικού στις Ρυθμίσεις.
+RELINK finds media that has moved.	Το RELINK βρίσκει αρχεία πολυμέσων που μετακινήθηκαν.
+Cues have their own gain and fades.	Κάθε cue έχει δική του απολαβή και δικά του σβησίματα.
+Trim with Ctrl+I and Ctrl+O.	Όρισε τα σημεία κοπής με Ctrl+I και Ctrl+O.
+Ctrl+/ shows every shortcut.	Το Ctrl+/ δείχνει όλες τις συντομεύσεις.
+J jumps to the live cue.	Το J πηγαίνει στο cue που είναι στον αέρα.
+Normalize matches loudness across cues.	Η κανονικοποίηση εξισώνει την ακουστότητα των cue.
+Esc clears the desk, then the output, then quits.	Το Esc καθαρίζει την κονσόλα, μετά την έξοδο και τέλος κλείνει.
+Stream SRT and RTMP at the same time.	Μετάδωσε μέσω SRT και RTMP ταυτόχρονα.
+CHECK lists what is broken, before doors.	Το CHECK δείχνει τα προβλήματα πριν ανοίξουν οι πόρτες.
+A cue can wait before it starts.	Ένα cue μπορεί να περιμένει πριν ξεκινήσει.
+A cue can start the next one by itself.	Ένα cue μπορεί να ξεκινήσει μόνο του το επόμενο.
+Disarm a cue and GO steps over it.	Αφόπλισε ένα cue και το GO θα το προσπεράσει.
+Audition plays a cue to you, not the room.	Η προακρόαση παίζει για σένα, όχι για την αίθουσα.
+Preload racks the next cue warm, off air.	Η προφόρτωση ετοιμάζει το επόμενο cue εκτός αέρα.
+A target cue starts or stops another cue.	Ένα cue στόχου ξεκινά ή σταματά ένα άλλο cue.
+A fade cue takes a deck down, then stops it.	Ένα cue εξασθένησης χαμηλώνει ένα deck και μετά το σταματά.
+A master cue fires one cue on every deck.	Ένα κύριο cue εκκινεί ένα cue σε κάθε deck.
+A MIDI cue can tell the lighting desk to go.	Ένα cue MIDI μπορεί να δώσει σήμα στην κονσόλα φωτισμού.
+A network cue speaks OSC, UDP or TCP.	Ένα cue δικτύου μιλά OSC, UDP ή TCP.
+A DMX cue fades the house lights on a cue.	Ένα cue DMX αλλάζει ομαλά τον φωτισμό της αίθουσας.
+A script cue runs Deckboy's own commands.	Ένα cue σεναρίου εκτελεί τις εντολές του Deckboy.
+A timecode cue jams LTC to a value.	Ένα cue χρονοκώδικα θέτει το LTC σε μια τιμή.
+Each output can show a different deck.	Κάθε έξοδος μπορεί να δείχνει διαφορετικό deck.
+The matrix sends audio to any channel.	Η μήτρα στέλνει ήχο σε οποιοδήποτε κανάλι.
+The panel map numbers every LED tile.	Ο χάρτης πάνελ αριθμεί κάθε πλακίδιο LED.
+Hey!	Ε!
+Quit it!	Κόφ' το!
+Ow. That was rude.	Ωχ. Ωραίοι τρόποι.
+I am a professional.	Εγώ είμαι επαγγελματίας, παρακαλώ.
+Seriously?	Σοβαρά τώρα;
+This is my monitor.	Αυτή είναι η δική μου οθόνη.
+I am telling the operator.	Θα το πω στον χειριστή.
+All right. Wow.	Μάλιστα. Τι να πω.
+Right. That does it.	Ως εδώ και μη παρέκει.
+I am leaving. Good luck with the show.	Εγώ φεύγω. Καλή τύχη με το σόου.
+Still here? Me too.	Ακόμα εδώ; Κι εγώ.
+Long show, huh.	Αυτό το σόου δεν έχει τελειωμό.
+I could do this all day. Apparently.	Μπορώ να το κάνω όλη μέρα. Μάλλον αυτό θα γίνει.
+You have been staring at me for hours.	Με κοιτάς εδώ και ώρες.
+Has anyone seen a clock?	Έχει κανείς ρολόι ή πάμε με το μάτι;
+Is it still the same show?	Στο ίδιο σόου είμαστε ακόμα;
+I'm not tired. You're tired.	Δεν κουράστηκα εγώ. Εσύ κουράστηκες.
+Five more minutes. Then five more.	Άλλα πέντε λεπτά. Ζήσε Μάη μου.
+A whole day. I need a restart.	Μια ολόκληρη μέρα. Θέλω επανεκκίνηση.
+Save the show. Then let me sleep.	Αποθήκευσε το σόου. Μετά άσε με να κοιμηθώ.
+Every pixel of me is tired.	Τα 'παιξαν μέχρι και τα πίξελ μου.
+Close me. Open me. I'll be fine.	Κλείσε με. Άνοιξέ με. Θα στρώσω.

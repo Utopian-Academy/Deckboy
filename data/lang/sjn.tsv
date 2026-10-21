@@ -1,5 +1,7 @@
 #name Sindarin
 #english Sindarin
+#unverified
+# Face speech uses Neo-Sindarin adaptations and modern technical loanwords.
 # Deckboy interface catalogue.
 #
 # english<TAB>translation. A line left out, or left empty, falls through to the
@@ -374,3 +376,76 @@ a button can run any command the network protocol understands	nod pola noro pân
 ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	PANNO PETHOR CENED  -  togo sarn an rimmo, nef an andado
 4:2:2  8-BIT	4:2:2  8-BIT
 4:2:2  10-BIT	4:2:2  10-BIT
+back to the in point, not to zero	Ad na i sad IN, ú-na zero.
+loops between the in and out points, not the file	Cuino ad im IN a OUT, ú-i barf ban.
+drag to scrub. the audio follows	Togo na i lû i meril; i lam aphada.
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL: lam idren an i tethelath pân mi lû erui.
+drop a folder in too - it reads the whole tree	Togo col a i golath mi den — tiro pân.
+cameras, windows, NDI, screens - all live sources	Camera, fennas, NDI, screen — pân celu cuin.
+test cards and generators - no file needed	Cennath a generator — ú-voe parf.
+space bar does this too, without moving your hand	Matho Space: i carth hen, ú-prestad i gam.
+stops the cue. ESC stops EVERYTHING	Dartha i thêl. ESC: DARO PÂN.
+the safe one: audio and playback keep running	Hen var: i lam a i cened darthar cuin.
+the thorough one. blackout is the reversible one	Hen dartha pân. BLACKOUT: peli adlathrad.
+save as makes a new file instead	HEBO SEV: parf gwain.
+for a copy before you change something risky	Gwanno parf erui dan i brestad raug.
+this is what you carry to the venue	Togo hen na i sad i show.
+the show on disk is untouched until you save	I naugled mi i barf ú-bresta dan i hebad.
+per cue. the deck has its own default too	An bêl erui; i barf hîr heb gwedh în.
+stills hold instead - a fade would dip the frame	I gennath darthar — fade caratha morn i gannad.
+the frame stays up. good for slides	I gannad dartha: mae an slides.
+gain, pan and normalise live in the inspector	Gain, pan a Normalize mi i thîr.
+this clip has no audio track to enable	I clip hen pen lam an echaded.
+Hi! I am Deckboy.	Mae govannen! Im Deckboy.
+Press I to import a clip.	Matho I a togo cened.
+Enter takes a cue live.	Enter: herio i thêl cuin.
+S stops the live cue.	S: daro i thêl cuin.
+The timeline can be resized.	Peli prestad i lû-râd: bech a chaer.
+Try a terminal theme in Settings.	Tiro terminal mi GWAEDH.
+RELINK finds media that has moved.	RELINK: hiro media i prestanner sad.
+Cues have their own gain and fades.	I thelath hebir gain a fade în.
+Trim with Ctrl+I and Ctrl+O.	Hasto na Ctrl+I a Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/: tiro i rîd thind pân.
+J jumps to the live cue.	J: bado na i thêl cuin.
+Normalize matches loudness across cues.	Normalize: i lam idren an i thelath pân.
+Esc clears the desk, then the output, then quits.	Esc: glanno i desk, i mentho, a daro Deckboy.
+Stream SRT and RTMP at the same time.	Mentho SRT a RTMP mi lû erui.
+CHECK lists what is broken, before doors.	CHECK: tiro i naeg dan edrad i fen.
+A cue can wait before it starts.	I thêl pôl darthad dan heriad.
+A cue can start the next one by itself.	I thêl pôl heriad i thêl aphadol.
+Disarm a cue and GO steps over it.	Daro armiad i thêl: GO laitha den.
+Audition plays a cue to you, not the room.	Audition: lasto le erui, ú-lastad i hoth.
+Preload racks the next cue warm, off air.	Preload: togo i thêl aphadol, ú-menthad.
+A target cue starts or stops another cue.	Target cue: herio egor daro têl arall.
+A fade cue takes a deck down, then stops it.	Fade cue: nanno i barf, a daro den.
+A master cue fires one cue on every deck.	Master cue: herio têl erui mi parf pân.
+A MIDI cue can tell the lighting desk to go.	MIDI cue: mentho i ganad na i barf galad.
+A network cue speaks OSC, UDP or TCP.	Network cue: pedo OSC, UDP egor TCP.
+A DMX cue fades the house lights on a cue.	DMX cue: presto i galad i tham na i thêl.
+A script cue runs Deckboy's own commands.	Script cue: caro i genaid Deckboy.
+A timecode cue jams LTC to a value.	Timecode cue: panno LTC na i noth.
+Each output can show a different deck.	Mentho pân pôl tannad parf arall.
+The matrix sends audio to any channel.	Matrix: mentho lam na râd pân.
+The panel map numbers every LED tile.	Panel map: nodo i chaim LED pân.
+Hey!	Mellon!
+Quit it!	Daro!
+Ow. That was rude.	Ai! Ú-vaer hen.
+I am a professional.	Iston i gâr nîn.
+Seriously?	Anwar?
+This is my monitor.	I screen nîn hen.
+I am telling the operator.	Pedithon na i hîr.
+All right. Wow.	Mae. Ai!
+Right. That does it.	Daro. Pân telin.
+I am leaving. Good luck with the show.	Gwannathon. No mae i show lín.
+Still here? Me too.	Le sí? Im sí.
+Long show, huh.	I show hen: anann, anann...
+I could do this all day. Apparently.	Pelin carad hen aur ban. Boe, sui cenin.
+You have been staring at me for hours.	Tírol nin anann. Ú-gorf im!
+Has anyone seen a clock?	Man cennas i lû? I elin gwanwen.
+Is it still the same show?	I naugled hen erui sí?
+I'm not tired. You're tired.	Ú-lom im. Le lom!
+Five more minutes. Then five more.	Lebin luig ad. Anann darthon, sui i Onodrim.
+A whole day. I need a restart.	Aur ban. Boe heriad ad.
+Save the show. Then let me sleep.	Hebo i naugled. Anno îdh enni.
+Every pixel of me is tired.	Lom i pixels nîn pân. Na Valinor?
+Close me. Open me. I'll be fine.	Daro nin. Herio nin ad. Maer im.

@@ -422,3 +422,72 @@ NDI Output	Выход NDI
 SDL Window Output	Выход окна SDL
 Spout Output	Выход Spout
 DESK	ОПЕРАТОР
+drop a folder in too - it reads the whole tree	можно перетащить и папку — прочитается всё дерево
+cameras, windows, NDI, screens - all live sources	камеры, окна, NDI, экраны — всё это живые источники
+test cards and generators - no file needed	тестовые таблицы и генераторы — файл не нужен
+space bar does this too, without moving your hand	пробел делает то же самое, не нужно переносить руку
+stops the cue. ESC stops EVERYTHING	останавливает кью. ESC останавливает ВСЁ
+the safe one: audio and playback keep running	мягкий вариант: звук и воспроизведение продолжаются
+the thorough one. blackout is the reversible one	основательный вариант. Затемнение можно отменить
+save as makes a new file instead	«Сохранить как» создаёт новый файл
+for a copy before you change something risky	для копии перед рискованными изменениями
+this is what you carry to the venue	это и нужно взять с собой на площадку
+the show on disk is untouched until you save	шоу на диске не меняется, пока не сохранишь
+per cue. the deck has its own default too	для каждого кью. У деки есть и свои настройки по умолчанию
+stills hold instead - a fade would dip the frame	статичные изображения остаются: затухание приглушило бы картинку
+the frame stays up. good for slides	картинка остаётся. Удобно для слайдов
+gain, pan and normalise live in the inspector	усиление, панорама и нормализация — в инспекторе
+this clip has no audio track to enable	у этого клипа нет звуковой дорожки, которую можно включить
+Hi! I am Deckboy.	Привет! Я Deckboy.
+Press I to import a clip.	Нажми I, чтобы импортировать клип.
+Enter takes a cue live.	Enter выводит кью в эфир.
+S stops the live cue.	S останавливает кью в эфире.
+The timeline can be resized.	Размер временной шкалы можно менять.
+Try a terminal theme in Settings.	Попробуй терминальную тему в настройках.
+RELINK finds media that has moved.	RELINK находит перемещённые медиафайлы.
+Cues have their own gain and fades.	У каждого кью свои усиление и переходы.
+Trim with Ctrl+I and Ctrl+O.	Задавай границы с помощью Ctrl+I и Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ показывает все сочетания клавиш.
+J jumps to the live cue.	J переходит к кью в эфире.
+Normalize matches loudness across cues.	Нормализация выравнивает громкость кью.
+Esc clears the desk, then the output, then quits.	Esc очищает пульт, затем выход, затем закрывает программу.
+Stream SRT and RTMP at the same time.	Транслируй по SRT и RTMP одновременно.
+CHECK lists what is broken, before doors.	CHECK покажет проблемы до открытия дверей.
+A cue can wait before it starts.	Кью может подождать перед запуском.
+A cue can start the next one by itself.	Кью может сам запустить следующий.
+Disarm a cue and GO steps over it.	Сними кью с готовности, и GO его пропустит.
+Audition plays a cue to you, not the room.	Предпрослушивание играет для тебя, а не для зала.
+Preload racks the next cue warm, off air.	Предзагрузка готовит следующий кью вне эфира.
+A target cue starts or stops another cue.	Целевой кью запускает или останавливает другой кью.
+A fade cue takes a deck down, then stops it.	Кью затухания плавно убирает деку и останавливает её.
+A master cue fires one cue on every deck.	Мастер-кью запускает по одному кью на каждой деке.
+A MIDI cue can tell the lighting desk to go.	Кью MIDI может дать команду световому пульту.
+A network cue speaks OSC, UDP or TCP.	Сетевой кью говорит на OSC, UDP или TCP.
+A DMX cue fades the house lights on a cue.	Кью DMX плавно меняет освещение зала.
+A script cue runs Deckboy's own commands.	Скриптовый кью выполняет команды Deckboy.
+A timecode cue jams LTC to a value.	Кью таймкода устанавливает LTC на заданное значение.
+Each output can show a different deck.	Каждый выход может показывать свою деку.
+The matrix sends audio to any channel.	Матрица отправляет звук на любой канал.
+The panel map numbers every LED tile.	Карта панелей нумерует каждый светодиодный модуль.
+Hey!	Эй!
+Quit it!	Хватит уже!
+Ow. That was rude.	Ай. Ну и манеры.
+I am a professional.	Я вообще-то профессионал.
+Seriously?	Серьёзно?
+This is my monitor.	Это мой монитор.
+I am telling the operator.	Я всё расскажу оператору.
+All right. Wow.	Ну даёшь.
+Right. That does it.	Всё. Приехали.
+I am leaving. Good luck with the show.	Я ухожу. Удачи с шоу.
+Still here? Me too.	Всё ещё тут? Я тоже.
+Long show, huh.	У этой песни, похоже, нет конца.
+I could do this all day. Apparently.	Могу так весь день. Видимо, придётся.
+You have been staring at me for hours.	Ты на меня уже часами смотришь.
+Has anyone seen a clock?	Часы кто-нибудь видел? Счастливые их не наблюдают, а я?
+Is it still the same show?	Это всё ещё то же шоу?
+I'm not tired. You're tired.	Я не устал. Это ты устал.
+Five more minutes. Then five more.	Ещё пять минут. Знакомая песня.
+A whole day. I need a restart.	Целые сутки. Мне нужна перезагрузка.
+Save the show. Then let me sleep.	Сохрани шоу. И дай мне уже поспать.
+Every pixel of me is tired.	У меня пиксели с ног валятся.
+Close me. Open me. I'll be fine.	Закрой меня. Открой. И снова как огурчик.

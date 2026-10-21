@@ -422,3 +422,72 @@ NDI Output	NDI आउटपुट
 SDL Window Output	SDL विंडो आउटपुट
 Spout Output	Spout आउटपुट
 DESK	डेस्क
+drop a folder in too - it reads the whole tree	फ़ोल्डर भी खींचकर डाल सकते हो — सारे सबफ़ोल्डर पढ़े जाएँगे
+cameras, windows, NDI, screens - all live sources	कैमरे, विंडो, NDI, स्क्रीन — सब लाइव स्रोत हैं
+test cards and generators - no file needed	टेस्ट कार्ड और जनरेटर — फ़ाइल की ज़रूरत नहीं
+space bar does this too, without moving your hand	स्पेस बार से भी यही होता है, हाथ खिसकाए बिना
+stops the cue. ESC stops EVERYTHING	क्यू रोकता है। ESC सब कुछ रोकता है
+the safe one: audio and playback keep running	हल्का तरीका: ऑडियो और प्लेबैक चलते रहते हैं
+the thorough one. blackout is the reversible one	पूरा साफ़ करने वाला तरीका। ब्लैकआउट वापस हटाया जा सकता है
+save as makes a new file instead	इस नाम से सहेजें नई फ़ाइल बनाता है
+for a copy before you change something risky	जोखिम वाला बदलाव करने से पहले एक कॉपी के लिए
+this is what you carry to the venue	इसे ही शो वाली जगह साथ ले जाना है
+the show on disk is untouched until you save	सहेजने तक डिस्क वाला शो जस का तस रहता है
+per cue. the deck has its own default too	हर क्यू के लिए। डेक का अपना डिफ़ॉल्ट भी है
+stills hold instead - a fade would dip the frame	स्थिर तस्वीरें टिकी रहती हैं — फ़ेड से तस्वीर अँधेरी हो जाती
+the frame stays up. good for slides	तस्वीर स्क्रीन पर रहती है। स्लाइड के लिए बढ़िया
+gain, pan and normalise live in the inspector	गेन, पैन और नॉर्मलाइज़ इंस्पेक्टर में हैं
+this clip has no audio track to enable	इस क्लिप में चालू करने के लिए ऑडियो ट्रैक है ही नहीं
+Hi! I am Deckboy.	नमस्ते! मैं Deckboy हूँ।
+Press I to import a clip.	क्लिप आयात करने के लिए I दबाओ।
+Enter takes a cue live.	Enter क्यू को लाइव करता है।
+S stops the live cue.	S लाइव क्यू रोकता है।
+The timeline can be resized.	टाइमलाइन का आकार बदल सकते हो।
+Try a terminal theme in Settings.	सेटिंग में टर्मिनल थीम आज़माओ।
+RELINK finds media that has moved.	RELINK खिसकाई गई मीडिया फ़ाइलें ढूँढ़ता है।
+Cues have their own gain and fades.	हर क्यू के अपने गेन और फ़ेड हैं।
+Trim with Ctrl+I and Ctrl+O.	Ctrl+I और Ctrl+O से आरंभ और अंत तय करो।
+Ctrl+/ shows every shortcut.	Ctrl+/ सारे शॉर्टकट दिखाता है।
+J jumps to the live cue.	J लाइव क्यू पर ले जाता है।
+Normalize matches loudness across cues.	नॉर्मलाइज़ क्यू की सुनाई देने वाली आवाज़ बराबर करता है।
+Esc clears the desk, then the output, then quits.	Esc पहले डेस्क, फिर आउटपुट साफ़ करता है, फिर बंद करता है।
+Stream SRT and RTMP at the same time.	SRT और RTMP पर एक साथ स्ट्रीम कर सकते हो।
+CHECK lists what is broken, before doors.	दरवाज़े खुलने से पहले CHECK समस्याएँ बता देता है।
+A cue can wait before it starts.	क्यू शुरू होने से पहले इंतज़ार कर सकता है।
+A cue can start the next one by itself.	एक क्यू अपने आप अगला क्यू शुरू कर सकता है।
+Disarm a cue and GO steps over it.	क्यू को निरस्त करो, GO उसे छोड़कर आगे बढ़ेगा।
+Audition plays a cue to you, not the room.	प्रीव्यू सुनने पर आवाज़ तुम्हें सुनाई देती है, हॉल को नहीं।
+Preload racks the next cue warm, off air.	प्रीलोड अगले क्यू को लाइव किए बिना तैयार रखता है।
+A target cue starts or stops another cue.	टारगेट क्यू दूसरे क्यू को शुरू या बंद करता है।
+A fade cue takes a deck down, then stops it.	फ़ेड क्यू डेक को धीरे-धीरे कम करके रोकता है।
+A master cue fires one cue on every deck.	मास्टर क्यू हर डेक पर एक क्यू चलाता है।
+A MIDI cue can tell the lighting desk to go.	MIDI क्यू लाइटिंग डेस्क को शुरू होने का संकेत दे सकता है।
+A network cue speaks OSC, UDP or TCP.	नेटवर्क क्यू OSC, UDP या TCP बोलता है।
+A DMX cue fades the house lights on a cue.	DMX क्यू हॉल की रोशनी धीरे-धीरे बदलता है।
+A script cue runs Deckboy's own commands.	स्क्रिप्ट क्यू Deckboy के अपने कमांड चलाता है।
+A timecode cue jams LTC to a value.	टाइमकोड क्यू LTC को दिए गए मान पर सेट करता है।
+Each output can show a different deck.	हर आउटपुट अलग डेक दिखा सकता है।
+The matrix sends audio to any channel.	मैट्रिक्स किसी भी चैनल पर ऑडियो भेजता है।
+The panel map numbers every LED tile.	पैनल मैप हर LED टाइल को नंबर देता है।
+Hey!	अरे!
+Quit it!	बस करो यार!
+Ow. That was rude.	आह। ये कोई तरीका है?
+I am a professional.	मैं पेशेवर हूँ, भाई।
+Seriously?	सच में?
+This is my monitor.	ये मेरा मॉनिटर है।
+I am telling the operator.	मैं ऑपरेटर से शिकायत करूँगा।
+All right. Wow.	अच्छा जी। वाह।
+Right. That does it.	बस। अब हद हो गई।
+I am leaving. Good luck with the show.	मैं चला। शो के लिए शुभकामनाएँ।
+Still here? Me too.	अभी भी यहीं हो? मैं भी।
+Long show, huh.	ये शो है या बीरबल की खिचड़ी?
+I could do this all day. Apparently.	मैं ये पूरे दिन कर सकता हूँ। लगता है करना ही पड़ेगा।
+You have been staring at me for hours.	तुम घंटों से मुझे घूर रहे हो।
+Has anyone seen a clock?	किसी को समय पता है या घड़ी भी छुट्टी पर है?
+Is it still the same show?	अभी भी वही शो चल रहा है?
+I'm not tired. You're tired.	मैं नहीं थका। तुम थके हो।
+Five more minutes. Then five more.	बस पाँच मिनट और। ये कहानी सुनी-सुनाई है।
+A whole day. I need a restart.	पूरा एक दिन। मुझे रीस्टार्ट चाहिए।
+Save the show. Then let me sleep.	शो सहेज लो। फिर मुझे सोने दो।
+Every pixel of me is tired.	मेरे पिक्सेल भी जवाब दे गए।
+Close me. Open me. I'll be fine.	मुझे बंद करो। फिर खोलो। फिर चकाचक।

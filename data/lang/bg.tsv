@@ -421,3 +421,72 @@ NDI Output	Изход NDI
 SDL Window Output	Изход прозорец SDL
 Spout Output	Изход Spout
 DESK	ОПЕРАТОР
+drop a folder in too - it reads the whole tree	пусни и папка — прочитат се всички подпапки
+cameras, windows, NDI, screens - all live sources	камери, прозорци, NDI, екрани — все живи източници
+test cards and generators - no file needed	тестови картини и генератори — не е нужен файл
+space bar does this too, without moving your hand	интервалът прави същото, без да местиш ръката
+stops the cue. ESC stops EVERYTHING	спира сигнала. ESC спира ВСИЧКО
+the safe one: audio and playback keep running	щадящият вариант: звукът и възпроизвеждането продължават
+the thorough one. blackout is the reversible one	основният вариант. Затъмняването може да се отмени
+save as makes a new file instead	«Запази като» създава нов файл
+for a copy before you change something risky	за копие преди рискована промяна
+this is what you carry to the venue	това взимаш със себе си на мястото на събитието
+the show on disk is untouched until you save	шоуто на диска не се променя, докато не запазиш
+per cue. the deck has its own default too	за всеки сигнал. Декът има и свои настройки по подразбиране
+stills hold instead - a fade would dip the frame	статичните изображения остават — преливането би затъмнило кадъра
+the frame stays up. good for slides	кадърът остава. Удобно за слайдове
+gain, pan and normalise live in the inspector	усилването, панорамата и нормализирането са в инспектора
+this clip has no audio track to enable	този клип няма звукова писта за включване
+Hi! I am Deckboy.	Здрасти! Аз съм Deckboy.
+Press I to import a clip.	Натисни I, за да импортираш клип.
+Enter takes a cue live.	Enter пуска сигнала на живо.
+S stops the live cue.	S спира сигнала на живо.
+The timeline can be resized.	Размерът на времевата линия може да се променя.
+Try a terminal theme in Settings.	Пробвай терминална тема в Настройки.
+RELINK finds media that has moved.	RELINK намира преместени медийни файлове.
+Cues have their own gain and fades.	Всеки сигнал има собствено усилване и преливания.
+Trim with Ctrl+I and Ctrl+O.	Задай границите с Ctrl+I и Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ показва всички клавишни комбинации.
+J jumps to the live cue.	J прескача до сигнала на живо.
+Normalize matches loudness across cues.	Нормализирането изравнява силата на звука между сигналите.
+Esc clears the desk, then the output, then quits.	Esc изчиства пулта, после изхода, после затваря програмата.
+Stream SRT and RTMP at the same time.	Излъчвай по SRT и RTMP едновременно.
+CHECK lists what is broken, before doors.	CHECK показва проблемите преди отварянето на вратите.
+A cue can wait before it starts.	Сигналът може да изчака, преди да започне.
+A cue can start the next one by itself.	Сигналът може сам да стартира следващия.
+Disarm a cue and GO steps over it.	Изключи сигнал от готовност и GO ще го пропусне.
+Audition plays a cue to you, not the room.	Предварителното прослушване е за теб, не за залата.
+Preload racks the next cue warm, off air.	Предварителното зареждане подготвя следващия сигнал извън ефир.
+A target cue starts or stops another cue.	Целеви сигнал стартира или спира друг сигнал.
+A fade cue takes a deck down, then stops it.	Сигнал за затихване намалява дека и после го спира.
+A master cue fires one cue on every deck.	Главен сигнал пуска по един сигнал на всеки дек.
+A MIDI cue can tell the lighting desk to go.	MIDI сигнал може да даде команда на осветителния пулт.
+A network cue speaks OSC, UDP or TCP.	Мрежов сигнал използва OSC, UDP или TCP.
+A DMX cue fades the house lights on a cue.	DMX сигнал плавно променя осветлението в залата.
+A script cue runs Deckboy's own commands.	Скриптов сигнал изпълнява командите на Deckboy.
+A timecode cue jams LTC to a value.	Сигнал за времеви код задава стойност на LTC.
+Each output can show a different deck.	Всеки изход може да показва различен дек.
+The matrix sends audio to any channel.	Матрицата изпраща звук към всеки канал.
+The panel map numbers every LED tile.	Картата на панелите номерира всеки LED модул.
+Hey!	Ей!
+Quit it!	Стига де!
+Ow. That was rude.	Ох. Много възпитано, няма що.
+I am a professional.	Аз все пак съм професионалист.
+Seriously?	Сериозно ли?
+This is my monitor.	Това си е моят монитор.
+I am telling the operator.	Ще кажа на оператора.
+All right. Wow.	Брей. Я виж ти.
+Right. That does it.	Така. Чашата преля.
+I am leaving. Good luck with the show.	Аз си тръгвам. Успех с шоуто.
+Still here? Me too.	Още ли си тук? И аз.
+Long show, huh.	Това шоу няма свършване.
+I could do this all day. Apparently.	Мога така цял ден. Явно ще се наложи.
+You have been staring at me for hours.	Зяпаш ме от часове.
+Has anyone seen a clock?	Някой виждал ли е часовник, или ще караме до петли?
+Is it still the same show?	Още ли е същото шоу?
+I'm not tired. You're tired.	Аз не съм уморен. Ти си уморен.
+Five more minutes. Then five more.	Още пет минути. Да бе, да.
+A whole day. I need a restart.	Цяло денонощие. Трябва ми рестарт.
+Save the show. Then let me sleep.	Запази шоуто. После ме остави да поспя.
+Every pixel of me is tired.	Пикселите ми вече са дроб сарма.
+Close me. Open me. I'll be fine.	Затвори ме. Отвори ме. Ще съм като нов.
