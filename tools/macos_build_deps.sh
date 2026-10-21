@@ -152,6 +152,13 @@ clone ffmpeg https://git.ffmpeg.org/ffmpeg.git n8.1
     --disable-xlib --disable-libxcb \
     --extra-cflags="$CFLAGS" --extra-ldflags="$LDFLAGS" \
   && make -j"$JOBS" && make install )
+# FFMPEG'S NOTICE GOES WHERE FFMPEG GOES. --disable-doc means make install
+# leaves no licence behind, so it is put where the packagers look for it
+# (<prefix>/share/doc/ffmpeg, as on Linux): LICENSE.md says what this build is
+# under -- --enable-gpl --enable-version3 makes it GPL version 3 -- and
+# COPYING.GPLv3 is that licence. package_macos.sh refuses a bundle without them.
+mkdir -p "$PREFIX/share/doc/ffmpeg"
+cp "$SRC/ffmpeg/LICENSE.md" "$SRC/ffmpeg/COPYING.GPLv3" "$PREFIX/share/doc/ffmpeg/"
 
 # ── SDL and the desk's text ─────────────────────────────────────────────────
 step "SDL3"

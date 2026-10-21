@@ -90,6 +90,7 @@ chmod +x "$MACOS_DIR/Deckboy"
 # Homebrew's is built for the build machine's macOS and cannot start on older
 # ones (v0.99.405 on Ventura: no icons, no imports).
 DEPS_PREFIX="${DECKBOY_DEPS_PREFIX:-}"
+FFMPEG_SRC=""
 for tool in ffmpeg ffprobe; do
   if [ -n "$DEPS_PREFIX" ] && [ -x "$DEPS_PREFIX/bin/$tool" ]; then
     src="$DEPS_PREFIX/bin/$tool"
@@ -100,10 +101,51 @@ for tool in ffmpeg ffprobe; do
     cp "$src" "$MACOS_DIR/$tool"
     chmod +x "$MACOS_DIR/$tool"
     echo "  + $tool"
+    [ "$tool" = ffmpeg ] && FFMPEG_SRC="$src"
   else
     echo "  ! $tool not found on PATH - the bundle will not decode media" >&2
   fi
 done
+
+# FFMPEG'S NOTICE TRAVELS WITH IT. The same rule as stage_ffmpeg_notice in
+# tools/package_linux.sh: look beside the ffmpeg being bundled --
+# <prefix>/share/doc/ffmpeg, where tools/macos_build_deps.sh puts it -- then
+# where a Homebrew keeps it, and put everything found there into one
+# LICENSE-ffmpeg.txt. Inside the app (Contents/Resources), so it goes wherever
+# the app is dragged, and here BEFORE signing, which seals Resources. A bundle
+# that carries FFmpeg without its notice is refused, not warned about.
+stage_ffmpeg_notice() {  # $1 = the bundled ffmpeg (may be empty), $2 = destination
+  local bin="$1" dest="$2" dir f found="" real
+  local dirs=()
+  if [ -n "$bin" ] && [ -e "$bin" ]; then
+    real="$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$bin" 2>/dev/null || echo "$bin")"
+    dirs+=("$(dirname "$real")/../share/doc/ffmpeg")
+  fi
+  dirs+=(/usr/local/share/doc/ffmpeg /opt/homebrew/share/doc/ffmpeg)
+  rm -f "$dest.tmp"
+  for dir in "${dirs[@]}"; do
+    for f in "$dir"/LICENSE* "$dir"/COPYING*; do
+      [ -f "$f" ] || continue
+      { echo "==== $(basename "$f") ===="; cat "$f"; echo; } >> "$dest.tmp"
+      found="$dir"
+    done
+    [ -n "$found" ] && break
+  done
+  if [ -n "$found" ]; then
+    mv "$dest.tmp" "$dest"
+    echo "  + $(basename "$dest") from $found"
+    return 0
+  fi
+  rm -f "$dest.tmp"
+  return 1
+}
+if [ -f "$MACOS_DIR/ffmpeg" ]; then
+  mkdir -p "$RESOURCES_DIR"
+  stage_ffmpeg_notice "$FFMPEG_SRC" "$RESOURCES_DIR/LICENSE-ffmpeg.txt" || {
+    echo "error: FFmpeg is bundled but its licence notice was not found (see stage_ffmpeg_notice)" >&2
+    exit 1
+  }
+fi
 
 # --- deckboy-mini (single-deck command-line player) ------------------------
 # REQUIRED, not optional: a bundle that quietly lacked it would look exactly
@@ -516,6 +558,9 @@ for f in LiberationSans-Regular.ttf LICENSE-Liberation.txt NotoSansArabic-Regula
   cp "$REPO_ROOT/data/fonts/$f" "$MINI_STAGE/data/fonts/"
 done
 cp "$REPO_ROOT/LICENSE" "$MINI_STAGE/"
+# Mini carries the same FFmpeg, so it carries the same notice (staged into the
+# app above; that step refuses to go on without it).
+cp "$RESOURCES_DIR/LICENSE-ffmpeg.txt" "$MINI_STAGE/"
 cat > "$MINI_STAGE/deckboy-mini" <<'LAUNCH'
 #!/bin/sh
 here="$(cd "$(dirname "$0")" && pwd)"

@@ -16,7 +16,7 @@
   12 deep now stop with an error and the show keeps running.
 
 ### Packages
-- The Windows, Linux and Mini downloads now include FFmpeg's licence notice
+- The Windows, macOS, Linux and Mini downloads now include FFmpeg's licence notice
   (`LICENSE-ffmpeg.txt`), and the Windows download includes the licence of its bundled
   `ffmpeg.exe` build (`LICENSE-ffmpeg-exe.txt`, `README-ffmpeg-exe.txt`). A package that would
   bundle FFmpeg without its notice is no longer built.
