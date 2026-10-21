@@ -90,6 +90,17 @@ def main():
             check = db.send("CHECK")
             assert "nothing broken" in check, check
             item["check"] = check
+            # A loaded show must really accept edits, including replacement of
+            # an existing saved file. An OK control reply alone cannot prove it.
+            marker = "Example autosave verification - " + slug
+            db.commands("DECK 1", "CUENOTES 1 " + marker)
+            assert marker in db.saved(), "First autosave did not reach disk"
+            db.send("CUENOTES 1 " + marker + " second edit")
+            assert marker + " second edit" in db.saved(), "Replacement autosave failed"
+            db.send("CUENOTES 1 " + cues[0][33])
+            restored = db.saved()
+            assert marker not in restored and cues[0][33] in restored
+            item["autosave"] = "two edits and restoration written successfully"
             db.send("DASH 1")
             time.sleep(.8)
             if not info["steps"]:
@@ -170,12 +181,16 @@ def main():
             db.commands("DECK 1", "SELECT 1")
             time.sleep(.4)
             db.snapshot(work / "desk-dark.bmp")
-        # Reload the untouched example in the saturated theme at the same 150% scale.
-        show.write_text(original.replace("theme\tdark\n", "theme\tvirtual-boy\n"), encoding="utf8")
+            saved = db.saved()
+        # Reopen what the app actually saved, in the saturated theme at 150%.
+        show.write_text(saved.replace("theme\tdark\n", "theme\tvirtual-boy\n"), encoding="utf8")
         with Runtime(args.exe, work / "virtual-boy", show) as db:
+            assert "nothing broken" in db.send("CHECK")
             db.commands("OUTPUT ON", "TRACKER STEP 1" if info["steps"] else "TAKE")
             time.sleep(1)
             db.snapshot(work / "desk-virtual-boy.bmp")
+            assert cues[0][33] in db.saved(), "Cue notes did not survive reopening"
+            item["reopened"] = True
         report.append(item)
         print(f"Passed {slug}", flush=True)
     sheet = Image.new("RGB", (1280, 816), "#101719")

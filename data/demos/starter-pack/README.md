@@ -7,13 +7,26 @@ The pictures are made live by Deckboy. The music is included in `media/`.
 
 ## Start here
 
-1. Extract the entire folder somewhere you can edit, such as Documents.
-2. In Deckboy, choose **OPEN** and select `01-start-here.deckboy`.
-3. Use **SAVE AS** (`Ctrl+Shift+S`) to make your own copy in the same folder.
-   Deckboy saves edits automatically.
-4. Select the first cue and press **TAKE** (`Enter`). Open **DASH** (`Ctrl+D`)
-   and press **Output on** to open its programme window.
-5. Advance with **GO** (`Space`), or select any cue and press **TAKE**.
+**First extract the ZIP:** right-click it and choose **Extract All** on Windows,
+or use your system's archive extractor. Open the extracted folder and read
+`00-START-HERE.html`. Work from this writable folder, with `media` beside the shows.
+Windows' ZIP preview opens individual files as temporary copies; use the extracted
+files for Deckboy's automatic saving.
+
+In Deckboy, choose **OPEN** and select `01-start-here.deckboy`. Use **SAVE AS**
+(`Ctrl+Shift+S`) to make your own copy in the same folder. Then:
+
+1. **Activate an output first.** Press **N**, or open **DASH** (`Ctrl+D`) and
+   press **1 Activate output**. This opens the **Programme** output. It is black
+   until you take a cue. **F** switches between fullscreen and windowed output;
+   on one screen, use your window switcher to return to the Deckboy desk.
+2. **Send a cue to that output.** Select cue 01 and press **TAKE** (`Enter`),
+   or **2 Take selection** in DASH. The output now reads **YOUR OUTPUT IS LIVE**.
+3. **Advance the show.** Press **GO** (`Space`), or **3 Next cue** in DASH.
+   Select a different cue and press TAKE to jump directly to it.
+
+For another physical screen, choose its display under **Settings → Video Outputs**.
+Press **N** again, or **Output off** in DASH, to close the output window.
 
 Keep the `media` folder beside the shows when moving or sharing them. To save a
 show elsewhere together with its media, use **BUNDLE**.

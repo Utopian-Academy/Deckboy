@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deckboy examples — start here</title>
+<style>
+  :root{color-scheme:dark;font:18px/1.55 system-ui,sans-serif;background:#101719;color:#e8f0e4}
+  body{max-width:880px;margin:auto;padding:36px 22px 60px}
+  h1{font-size:clamp(32px,6vw,52px);line-height:1.12;margin:12px 0 24px}
+  h2{font-size:24px;margin:0 0 10px}p{margin:10px 0}
+  .brand{color:#9bbc0f;font-weight:750;letter-spacing:.1em}
+  .setup,article{border:1px solid #45603e;border-radius:12px;padding:22px;margin:18px 0;background:#17231a}
+  .setup{border-left:6px solid #9bbc0f}
+  .number{color:#b9d94b;font-size:15px;font-weight:750;letter-spacing:.08em}
+  kbd{display:inline-block;background:#e8f0e4;color:#101719;padding:1px 9px;border-radius:5px;box-shadow:0 3px #829c72;font-weight:700}
+  code{overflow-wrap:anywhere;color:#c8e59b}
+  .small{font-size:16px;color:#b6c7b6}img{width:100%;height:auto;border-radius:8px;margin-top:18px}
+  a{color:#c8e59b}li{margin:8px 0}
+</style>
+<body>
+  <div class="brand">DECKBOY / EXAMPLE SHOWS</div>
+  <h1>Output first.<br>Then take your first cue.</h1>
+  <div class="setup">
+    <h2>Start from the extracted folder</h2>
+    <p>On Windows, right-click the ZIP and choose <strong>Extract All</strong>.
+    Open the folder it creates. Keep the <code>media</code> folder beside the shows.</p>
+    <p>Deckboy saves your changes automatically. Use these extracted files;
+    opening an individual show inside a ZIP gives Windows a temporary copy.</p>
+    <p>In Deckboy 0.99.417 or later, choose <strong>OPEN</strong> and select
+    <code>01-start-here.deckboy</code>. Choose <strong>SAVE AS</strong>
+    (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>) to make your own copy in the same folder.</p>
+  </div>
+  <article>
+    <div class="number">STEP 1 / ACTIVATE THE OUTPUT</div>
+    <h2>Press <kbd>N</kbd></h2>
+    <p>This opens the <strong>Programme</strong> output window. You can also
+    open <strong>DASH</strong> (<kbd>Ctrl</kbd> + <kbd>D</kbd>) and click
+    <strong>1 Activate output</strong>.</p>
+    <p>The output starts black because you have not taken a cue yet.
+    Press <kbd>F</kbd> to switch fullscreen/windowed. On one screen, use your
+    window switcher to return to the Deckboy desk.</p>
+    <p class="small">For an external display, select it under Settings → Video Outputs.</p>
+  </article>
+  <article>
+    <div class="number">STEP 2 / SEND A CUE</div>
+    <h2>Select cue 01, then press <kbd>Enter</kbd></h2>
+    <p><strong>TAKE</strong> sends the selected cue to your output. You can use
+    the TAKE button on the desk or <strong>2 Take selection</strong> in DASH.</p>
+    <p>Your output now says <strong>YOUR OUTPUT IS LIVE</strong>.</p>
+  </article>
+  <article>
+    <div class="number">STEP 3 / ADVANCE THE SHOW</div>
+    <h2>Press <kbd>Space</kbd></h2>
+    <p><strong>GO</strong> takes the next cue: a Swirl made live by Deckboy.
+    Keep going to explore Video Synth, an effect and the closing card.</p>
+    <p>To jump to a specific cue, select it and press TAKE. To close the output,
+    press <kbd>N</kbd> again or choose <strong>Output off</strong> in DASH.</p>
+  </article>
+  <h2>Three more shows to explore</h2>
+  <ul>
+    <li><strong>02 — Layers and titles:</strong> choose the named scenes in DASH.</li>
+    <li><strong>03 — Effects playground:</strong> compare six looks and change their controls.</li>
+    <li><strong>04 — One-button show:</strong> activate output, then press Run sequence
+    in DASH for a 39-second show with original music.</li>
+  </ul>
+  <p class="small">Each cue includes notes. The full guide is in <a href="README.md">README.md</a>.</p>
+  <img src="overview.png" alt="Actual programme output from the four example shows" width="1280" height="816">
+</body>
+</html>
