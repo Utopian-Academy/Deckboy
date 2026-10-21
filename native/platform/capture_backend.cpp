@@ -46,7 +46,7 @@
 #include "core/paths.hpp"    // executablePath() to locate the mac capture helper
 #include "core/subprocess.hpp"  // readAllText() to ask ffmpeg what it can do
 #include <cstdio>
-#include <filesystem>
+#include "core/fs.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -562,14 +562,32 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
 //
 // Called once per run: the system only prompts the first time, and a repeated
 // call on every cue would be a wasted round trip through TCC on the render path.
+//
+// Both calls are macOS 10.15 API, and the Intel build runs on 10.13. Before
+// 10.15 there is no Screen Recording permission at all, so there is nothing to
+// ask -- but calling them there would jump to an address that does not exist.
 bool ensureScreenCaptureAccess() {
   static const bool granted = [] {
-    if (CGPreflightScreenCaptureAccess()) {
-      return true;
+    if (__builtin_available(macOS 10.15, *)) {
+      if (CGPreflightScreenCaptureAccess()) {
+        return true;
+      }
+      return static_cast<bool>(CGRequestScreenCaptureAccess());
     }
-    return static_cast<bool>(CGRequestScreenCaptureAccess());
+    return true;
   }();
   return granted;
+}
+
+// The helper is ScreenCaptureKit, which arrived in macOS 12.3. The Intel build
+// also runs on 10.13 through 12.2, where the helper has nothing to call, so
+// screens, windows and browser cues (captured as their window) say so up front
+// instead of starting a helper that can only fail.
+bool screenCaptureKitAvailable() {
+  if (__builtin_available(macOS 12.3, *)) {
+    return true;
+  }
+  return false;
 }
 
 class MacScreenCaptureBackend final : public SourceCaptureBackend {
@@ -581,12 +599,19 @@ class MacScreenCaptureBackend final : public SourceCaptureBackend {
     SourceCapturePlan plan;
     plan.backendId = id();
 
+    if (!screenCaptureKitAvailable()) {
+      plan.supported = false;
+      plan.reasonUnavailable =
+        "screen, window and browser capture need macOS 12.3 or later";
+      return plan;
+    }
+
     // The helper lives next to the executable (Contents/MacOS/ in a bundle).
-    std::filesystem::path exeDir =
+    dbfs::path exeDir =
         deckboy::core::Paths::executablePath().parent_path();
-    std::filesystem::path helper = exeDir / "deckboy-sckcapture";
+    dbfs::path helper = exeDir / "deckboy-sckcapture";
     std::error_code ec;
-    if (exeDir.empty() || !std::filesystem::exists(helper, ec)) {
+    if (exeDir.empty() || !dbfs::exists(helper, ec)) {
       plan.supported = false;
       plan.reasonUnavailable = "deckboy-sckcapture helper not found beside the app";
       return plan;

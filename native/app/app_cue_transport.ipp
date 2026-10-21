@@ -7402,6 +7402,10 @@
                                                 : "captions: already listening to a cue");
       return;
     }
+    if (const char* why = deckboy::captioning::captionsNeedNewerSystem()) {
+      failRemoteCommand(std::string("captions: ") + why);
+      return;
+    }
     if (!captioningInstalled(true)) {
       failRemoteCommand("captions: the captioning engine (whisper-cli) is not beside Deckboy - "
                         "see the manual, Captions made on this computer");

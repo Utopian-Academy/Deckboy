@@ -5428,7 +5428,7 @@
         if (!testCardExport_) {
           showFolderDialog([this](std::vector<std::string> chosen) {
             if (chosen.empty()) return;
-            const std::string why = exportTestCard(30.0, 60, 0, 0, std::filesystem::u8path(chosen.front()));
+            const std::string why = exportTestCard(30.0, 60, 0, 0, dbfs::u8path(chosen.front()));
             if (!why.empty()) triggerToast("test card export: " + why, ToastKind::Warning, kToastReadableMs);
           });
         }

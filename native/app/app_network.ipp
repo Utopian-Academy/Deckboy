@@ -1686,7 +1686,7 @@
     return out;
   }
 
-  std::filesystem::path webRemoteKeysPath() const { return Paths::stateDir() / "paired-phones.txt"; }
+  dbfs::path webRemoteKeysPath() const { return Paths::stateDir() / "paired-phones.txt"; }
 
   // Caller holds webMonitorDirMutex_.
   void loadWebRemoteKeysLocked() {
@@ -1703,7 +1703,7 @@
   // Caller holds webMonitorDirMutex_.
   void saveWebRemoteKeysLocked() {
     std::error_code ec;
-    std::filesystem::create_directories(webRemoteKeysPath().parent_path(), ec);
+    dbfs::create_directories(webRemoteKeysPath().parent_path(), ec);
     std::ofstream out(webRemoteKeysPath(), std::ios::trunc);
     for (const auto& entry : webRemoteDeviceKeys_) out << entry.first << '\t' << entry.second << '\n';
   }

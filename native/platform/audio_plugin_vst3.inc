@@ -565,9 +565,9 @@ class MemoryStream : public IBStream {
 // binary sits under Contents/<arch>/. Every platform spells the arch folder
 // differently, and getting it wrong reads as "the plugin is broken" rather than
 // "we looked in the wrong place".
-std::filesystem::path resolveModuleBinary(const std::filesystem::path& path) {
+dbfs::path resolveModuleBinary(const dbfs::path& path) {
   std::error_code ec;
-  if (std::filesystem::is_regular_file(path, ec)) {
+  if (dbfs::is_regular_file(path, ec)) {
     return path;
   }
 #if defined(_WIN32)
@@ -579,9 +579,9 @@ std::filesystem::path resolveModuleBinary(const std::filesystem::path& path) {
 #else
   const char* arch = "x86_64-linux";
 #endif
-  const std::filesystem::path contents = path / "Contents" / arch;
-  if (std::filesystem::is_directory(contents, ec)) {
-    for (const auto& entry : std::filesystem::directory_iterator(contents, ec)) {
+  const dbfs::path contents = path / "Contents" / arch;
+  if (dbfs::is_directory(contents, ec)) {
+    for (const auto& entry : dbfs::directory_iterator(contents, ec)) {
       if (entry.is_regular_file(ec)) {
         return entry.path();
       }
@@ -599,8 +599,8 @@ using ExitModuleProc = bool (*)();
 // the SDK says nothing about when a plugin's threads stop.
 class Vst3Module {
  public:
-  explicit Vst3Module(const std::filesystem::path& path) {
-    const std::filesystem::path binary = resolveModuleBinary(path);
+  explicit Vst3Module(const dbfs::path& path) {
+    const dbfs::path binary = resolveModuleBinary(path);
 #if defined(_WIN32)
     handle_ = static_cast<void*>(LoadLibraryW(binary.wstring().c_str()));
 #else
@@ -1083,7 +1083,7 @@ std::shared_ptr<Vst3Module> moduleFor(const std::string& path) {
       }
     }
   }
-  auto module = std::make_shared<Vst3Module>(std::filesystem::path(path));
+  auto module = std::make_shared<Vst3Module>(dbfs::path(path));
   if (!module->valid()) {
     return nullptr;
   }

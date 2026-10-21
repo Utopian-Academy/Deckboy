@@ -993,10 +993,21 @@ jobs:
     # runner label before suspecting the build.
     strategy:
       fail-fast: false
+      # floor: the oldest macOS the bundle claims, and what every library and
+      # Deckboy itself are built for. INTEL goes back to 10.13 High Sierra:
+      # Intel Macs are the ones held on old systems (a 2015 MacBook Pro at a
+      # show was), while every Apple Silicon Mac shipped with 11 or later.
+      # captions_floor: whisper.cpp uses std::filesystem, which a Mac only has
+      # from 10.15, so whisper-cli and deckboy-listen are built for that, and
+      # the app does not start them on anything older (core/captioning.hpp).
       matrix:
         include:
           - image: macos-15-intel  # x86_64
-          - image: macos-14        # arm64, floor macOS 14 Sonoma
+            floor: "10.13"
+            captions_floor: "10.15"
+          - image: macos-14        # arm64
+            floor: "12.0"
+            captions_floor: "12.0"
     runs-on: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@v4
@@ -1026,16 +1037,26 @@ jobs:
 
       - name: Cached libraries for the claimed macOS
         id: deps-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ~/deckboy-deps
-          key: macos-deps-${{ matrix.image }}-${{ hashFiles('tools/macos_build_deps.sh') }}
+          key: macos-deps-${{ matrix.image }}-${{ matrix.floor }}-${{ hashFiles('tools/macos_build_deps.sh') }}
 
       - name: Build libraries for the claimed macOS
         if: steps.deps-cache.outputs.cache-hit != 'true'
         run: |
           chmod +x tools/macos_build_deps.sh
-          DEPS_SRC_DIR="$RUNNER_TEMP/deps-src" ./tools/macos_build_deps.sh "$HOME/deckboy-deps" 12.0
+          DEPS_SRC_DIR="$RUNNER_TEMP/deps-src" ./tools/macos_build_deps.sh "$HOME/deckboy-deps" "${{ matrix.floor }}"
+
+      # Saved HERE, not at the end of the job. actions/cache saves only when the
+      # whole job succeeds, so any later failure threw away a library build of
+      # 6 (arm64) to 23 (Intel) minutes and the next run started it again.
+      - name: Save the libraries
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/deckboy-deps
+          key: macos-deps-${{ matrix.image }}-${{ matrix.floor }}-${{ hashFiles('tools/macos_build_deps.sh') }}
 
       # rtmidi is what the RELEASE needs for MIDI, MIDI Show Control and MIDI
       # cues. Through v0.99.372 only the macos-build test leg installed it, so
@@ -1045,10 +1066,10 @@ jobs:
           export PKG_CONFIG_PATH="$HOME/deckboy-deps/lib/pkgconfig"
           export PKG_CONFIG_LIBDIR="$HOME/deckboy-deps/lib/pkgconfig"
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_MIDI=ON \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 -DCMAKE_PREFIX_PATH="$HOME/deckboy-deps"
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="${{ matrix.floor }}" -DCMAKE_PREFIX_PATH="$HOME/deckboy-deps"
           cmake --build build -j"$(sysctl -n hw.ncpu)"
           echo "DECKBOY_DEPS_PREFIX=$HOME/deckboy-deps" >> "$GITHUB_ENV"
-          echo "DECKBOY_MACOS_MIN=12.0" >> "$GITHUB_ENV"
+          echo "DECKBOY_MACOS_MIN=${{ matrix.floor }}" >> "$GITHUB_ENV"
 
       # CAPTIONS MADE ON THIS COMPUTER need whisper-cli in the package. A
       # STATIC build (one executable, no libraries of its own) of a pinned
@@ -1062,14 +1083,14 @@ jobs:
           git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
           cmake -S "$RUNNER_TEMP/whisper.cpp" -B "$RUNNER_TEMP/whisper-build" -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="${{ matrix.captions_floor }}"
           cmake --build "$RUNNER_TEMP/whisper-build" --target whisper-cli -j"$(sysctl -n hw.ncpu)"
           "$RUNNER_TEMP/whisper-build/bin/whisper-cli" --help > /dev/null
           otool -L "$RUNNER_TEMP/whisper-build/bin/whisper-cli"
           echo "DECKBOY_WHISPER_CLI=$RUNNER_TEMP/whisper-build/bin/whisper-cli" >> "$GITHUB_ENV"
           # LIVE CAPTIONS: deckboy-listen, against the same whisper.cpp.
           cmake -S tools/listen -B "$RUNNER_TEMP/listen-build" -DWHISPER_SOURCE="$RUNNER_TEMP/whisper.cpp" \
-            -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+            -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DCMAKE_OSX_DEPLOYMENT_TARGET="${{ matrix.captions_floor }}"
           cmake --build "$RUNNER_TEMP/listen-build" --target deckboy-listen -j"$(sysctl -n hw.ncpu)"
           otool -L "$RUNNER_TEMP/listen-build/deckboy-listen"
           echo "DECKBOY_LISTEN_BIN=$RUNNER_TEMP/listen-build/deckboy-listen" >> "$GITHUB_ENV"

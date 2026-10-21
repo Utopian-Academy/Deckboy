@@ -6438,7 +6438,9 @@
           cpY,
           mine ? std::string("listening...")
                : !captioningInstalled()
-                   ? std::string("make captions here: engine not installed")
+                   ? std::string(deckboy::captioning::captionsNeedNewerSystem()
+                                   ? "make captions here: needs macOS 10.15"
+                                   : "make captions here: engine not installed")
                    : (deckboy::captioning::modelPresent(model.token)
                         ? std::string("make captions here")
                         : "make captions here (" + std::to_string(model.megabytes) + " MB, once)"),

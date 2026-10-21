@@ -16,7 +16,7 @@
 
 namespace deckboy::core {
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 
 WatchFolder::WatchFolder(Accept accept)
   : accept_(accept ? std::move(accept)

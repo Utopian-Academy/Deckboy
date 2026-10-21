@@ -87,10 +87,15 @@ cmake --build "$SRC/x265/build" && cmake --install "$SRC/x265/build"
 
 step "libvpx"
 clone libvpx https://github.com/webmproject/libvpx.git v1.15.0
-# Named, not guessed: 1.15 knows darwin20-23, and on a darwin24 runner (macOS
-# 15) it fell back to a generic target and linked with GNU ld's options.
-# darwin21 is macOS 12, the floor this bundle claims.
-( cd "$SRC/libvpx" && ./configure --target="$ARCH-darwin21-gcc" --prefix="$PREFIX" --enable-shared --disable-static \
+# Named, not guessed: 1.15 knows darwin20-23 for arm64 (darwin9-23 for
+# x86_64), and on a darwin24 runner (macOS 15) it fell back to a generic target
+# and linked with GNU ld's options. Name the floor this bundle claims instead:
+# macOS 10.N is darwin(N+4) -- 10.13 is darwin17 -- and from 11 on darwin(major+9),
+# so 12.0 is darwin21.
+TARGET_MAJOR="${TARGET%%.*}"
+TARGET_REST="${TARGET#*.}"
+if [ "$TARGET_MAJOR" = 10 ]; then DARWIN=$(( ${TARGET_REST%%.*} + 4 )); else DARWIN=$(( TARGET_MAJOR + 9 )); fi
+( cd "$SRC/libvpx" && ./configure --target="$ARCH-darwin$DARWIN-gcc" --prefix="$PREFIX" --enable-shared --disable-static \
     --disable-examples --disable-tools --disable-docs --disable-unit-tests \
     --enable-vp9-highbitdepth --extra-cflags="$CFLAGS" && make -j"$JOBS" && make install )
 # libvpx names itself "libvpx.9.dylib" with no path, so everything linked to it

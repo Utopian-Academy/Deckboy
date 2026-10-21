@@ -35,7 +35,7 @@
 
 #include <cerrno>
 #include <cstring>
-#include <filesystem>
+#include "fs.hpp"
 #include <string>
 
 #include <fcntl.h>
@@ -46,7 +46,7 @@ class SingleInstanceGuard {
  public:
   /// Try to acquire the instance lock. Returns true if this is the only
   /// running instance, false if another instance holds the lock.
-  bool acquire(const std::filesystem::path& path) {
+  bool acquire(const dbfs::path& path) {
     if (locked_) {
       return true;  // already acquired (idempotent)
     }
@@ -118,7 +118,7 @@ class SingleInstanceGuard {
 // The path argument is only used for the mutex name — no file is created.
 // ============================================================================
 
-#include <filesystem>
+#include "fs.hpp"
 #include <string>
 
 #ifndef WIN32_LEAN_AND_MEAN
@@ -131,7 +131,7 @@ class SingleInstanceGuard {
   /// Try to acquire the instance lock via a named mutex.
   /// The path's filename stem becomes part of the mutex name (e.g. "Global\deckboy_deckboy").
   /// This ensures only one Deckboy runs per Windows session regardless of cwd.
-  bool acquire(const std::filesystem::path& path) {
+  bool acquire(const dbfs::path& path) {
     if (locked_) {
       return true;  // already acquired (idempotent)
     }

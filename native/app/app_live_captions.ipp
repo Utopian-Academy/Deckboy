@@ -88,6 +88,10 @@
       triggerToast("live captions off");
       return true;
     }
+    if (const char* why = deckboy::captioning::captionsNeedNewerSystem()) {
+      failRemoteCommand(std::string("live captions: ") + why);
+      return false;
+    }
     if (deckboy::captioning::listenPath().empty()) {
       failRemoteCommand("live captions: deckboy-listen is not beside Deckboy - see the manual, Live captions");
       return false;

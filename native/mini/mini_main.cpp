@@ -49,7 +49,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <fstream>
 #include <future>
 #include <functional>
@@ -60,7 +60,7 @@
 #include <string>
 #include <vector>
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 using namespace deckboy::platform;
 
 namespace {

@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <filesystem>
+#include "fs.hpp"
 #include <optional>
 #include <string>
 
@@ -21,15 +21,15 @@
 
 namespace deckboy::core::media {
 
-bool isImagePath(const std::filesystem::path& path);
-bool isMidiFilePath(const std::filesystem::path& path);
-bool isAudioPath(const std::filesystem::path& path);
+bool isImagePath(const dbfs::path& path);
+bool isMidiFilePath(const dbfs::path& path);
+bool isAudioPath(const dbfs::path& path);
 // True for files a folder import accepts: video, stills, audio, PDF decks.
-bool isAcceptableMediaPath(const std::filesystem::path& path);
+bool isAcceptableMediaPath(const dbfs::path& path);
 std::optional<double> parseFps(const std::string& rate);
 // ffprobe a media file into a Cue: kind, size, rate, length, audio. nullopt
 // when the file cannot be read or has no picture size.
-std::optional<Cue> probeCue(const std::filesystem::path& mediaPath);
+std::optional<Cue> probeCue(const dbfs::path& mediaPath);
 
 // One subtitle stream of a media file, as SRT text (empty when there is none or
 // ffmpeg cannot convert it -- image subtitles such as PGS cannot be). streamId

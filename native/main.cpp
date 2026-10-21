@@ -164,7 +164,7 @@
 #include <cstring>
 #include <ctime>
 #include <deque>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <fstream>
 #include <functional>
 #include <future>
@@ -222,7 +222,7 @@
 #include <alsa/asoundlib.h>
 #endif
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 
 using deckboy::core::Paths;
 
@@ -12153,7 +12153,7 @@ class App {
 // fixed buffer, for the good reason written above it: allocating inside a
 // SIGSEGV handler is how a crash reporter becomes a second crash.
 //
-// The Windows handler did not, and built the path with std::filesystem at the
+// The Windows handler did not, and built the path with dbfs at the
 // moment of the fault instead. That works for a crash mid-show and fails for
 // exactly the crash worth having a logger for -- one during SHUTDOWN, where
 // Paths::stateDir() answers out of state that has already been torn down. It
@@ -12414,7 +12414,7 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
 // Everything here runs in a signal handler, so it is restricted to
 // async-signal-safe calls: open/write/_exit and backtrace_symbols_fd. That is
 // why the log path is resolved ONCE at startup into a fixed buffer rather than
-// being built with std::filesystem when the fault arrives — allocating inside a
+// being built with dbfs when the fault arrives — allocating inside a
 // SIGSEGV handler is how a crash reporter becomes a second crash.
 extern "C" void deckboyPosixCrashHandler(int sig) {
   static volatile sig_atomic_t handled = 0;
@@ -12482,7 +12482,7 @@ static void installPosixCrashHandler() {
 // In a dev build the executable's directory holds no ffmpeg, so the lookup
 // falls straight through to the system one and nothing changes.
 static void prependExecutableDirToPath() {
-  const std::filesystem::path exe = deckboy::core::Paths::executablePath();
+  const dbfs::path exe = deckboy::core::Paths::executablePath();
   if (exe.empty()) {
     return;
   }
@@ -13000,7 +13000,7 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     if (ops.empty()) return missing("<file.pptx> [slide count]");
     const int count = ops.size() > 1 ? std::atoi(ops[1].c_str()) : 0;
     const auto notes = deckboy::platform::slideNotesFromPptx(
-      std::filesystem::path(ops[0]),
+      dbfs::path(ops[0]),
       static_cast<std::size_t>(count > 0 ? count : 200));
     int withNotes = 0;
     for (std::size_t i = 0; i < notes.size(); ++i) {
@@ -13017,7 +13017,7 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     // operator asks about an imported deck is "did it bring ITS deck across",
     // and notes are only half of that.
     const auto moves = deckboy::platform::slideTransitionsFromPptx(
-      std::filesystem::path(ops[0]),
+      dbfs::path(ops[0]),
       static_cast<std::size_t>(count > 0 ? count : 200));
     int withMoves = 0;
     for (std::size_t i = 0; i < moves.size(); ++i) {

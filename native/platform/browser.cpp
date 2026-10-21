@@ -48,7 +48,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <mutex>
 #include <string_view>
 #include <system_error>
@@ -85,7 +85,7 @@
 #include <unistd.h>
 #endif
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 
 namespace deckboy::platform::browser {
 namespace {
