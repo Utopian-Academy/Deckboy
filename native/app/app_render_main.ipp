@@ -1061,14 +1061,40 @@
       // The mood lines take a share of the turns that grows with the mood,
       // so the ordinary tips never disappear entirely.
       const bool moodTurn = mood > 0.0 && (tipIdx % 10) < static_cast<int>(2 + 6 * mood);
-      std::string full = kTips[tipIdx % tipCount];
+      // A DIFFERENT ORDER EVERY TIME (James, 2026-10-21). The greeting comes
+      // first; after it the tips are dealt from a deck shuffled once per
+      // session, so none repeats until every one has been said.
+      static const std::vector<int> kTipOrder = [tipCount] {
+        std::vector<int> order;
+        for (int i = 1; i < tipCount; ++i) order.push_back(i);
+        std::shuffle(order.begin(), order.end(), std::mt19937(std::random_device{}()));
+        return order;
+      }();
+      std::string full = tipIdx == 0 || kTipOrder.empty()
+        ? kTips[0]
+        : kTips[kTipOrder[static_cast<std::size_t>(tipIdx - 1) % kTipOrder.size()]];
       if (moodTurn) {
         const char* const* lines = stress > 0.0 ? kStressedTips : tired > 0.0 ? kTiredTips : kCheekyTips;
         full = lines[(tipIdx / 10) % 4];
       }
+      // TRANSLATE THE LINE, THEN TYPE IT. Drawing translates what it is given,
+      // but what it was given here was half a sentence -- "Press I to im" --
+      // which no catalogue has, so the face spoke English in every language.
+      // A cypher is the exception: it works letter by letter at draw time
+      // already, and applying it twice would undo ROT13.
+      if (!deckboy::core::i18n::passthrough() && !deckboy::core::i18n::activeIsCypher()) {
+        full = deckboy::core::i18n::translate(full);
+      }
+      // Typed by CHARACTER, not by byte: cutting a UTF-8 line mid-character
+      // drew a broken glyph at the cursor in Arabic, Greek or Japanese.
       const Uint64 into = nowMs % kLineMs;
-      const std::size_t shown =
-        std::min<std::size_t>(full.size(), static_cast<std::size_t>(into / kMsPerChar));
+      const std::size_t wanted = static_cast<std::size_t>(into / kMsPerChar);
+      std::size_t shown = 0;
+      for (std::size_t chars = 0; shown < full.size() && chars < wanted; ++chars) {
+        ++shown;
+        while (shown < full.size() &&
+               (static_cast<unsigned char>(full[shown]) & 0xC0) == 0x80) ++shown;
+      }
       spoken.assign(full, 0, shown);
       // A cursor while it is still speaking; nothing once the line is out, so
       // a finished sentence sits clean rather than blinking at you.

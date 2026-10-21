@@ -418,3 +418,73 @@ NDI Output	NDI-udgang
 SDL Window Output	SDL-vindue-udgang
 Spout Output	Spout-udgang
 DESK	PULT
+# The desk face: tips, hover answers, mood lines, pokes.
+drop a folder in too - it reads the whole tree	træk en hel mappe ind - den læser det hele
+cameras, windows, NDI, screens - all live sources	kameraer, vinduer, NDI, skærme - alt sammen live
+test cards and generators - no file needed	testbilleder og generatorer - ingen fil nødvendig
+space bar does this too, without moving your hand	mellemrum gør det samme, uden at flytte hånden
+stops the cue. ESC stops EVERYTHING	stopper cuet. ESC stopper ALT
+the safe one: audio and playback keep running	den sikre: lyd og afspilning kører videre
+the thorough one. blackout is the reversible one	den grundige. SORT er den, man kan fortryde
+save as makes a new file instead	gem som laver en ny fil i stedet
+for a copy before you change something risky	til en kopi, før du ændrer noget risikabelt
+this is what you carry to the venue	det er den, du tager med ud på stedet
+the show on disk is untouched until you save	showet på disken er urørt, til du gemmer
+per cue. the deck has its own default too	pr. cue. decket har også sin egen standard
+stills hold instead - a fade would dip the frame	stillbilleder bliver stående - en fade ville dæmpe billedet
+the frame stays up. good for slides	billedet bliver stående. godt til slides
+gain, pan and normalise live in the inspector	gain, panorering og normalisering bor i inspektøren
+this clip has no audio track to enable	klippet har intet lydspor at slå til
+Hi! I am Deckboy.	Hej! Jeg er Deckboy.
+Press I to import a clip.	Tryk I for at importere et klip.
+Enter takes a cue live.	Enter sender et cue live.
+S stops the live cue.	S stopper det live cue.
+The timeline can be resized.	Tidslinjen kan gøres større og mindre.
+Try a terminal theme in Settings.	Prøv et terminaltema under Indstillinger.
+RELINK finds media that has moved.	RELINK finder medier, der er flyttet.
+Cues have their own gain and fades.	Cues har deres egen gain og fades.
+Trim with Ctrl+I and Ctrl+O.	Trim med Ctrl+I og Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ viser alle genveje.
+J jumps to the live cue.	J hopper til det live cue.
+Normalize matches loudness across cues.	Normalisering udligner lydstyrken mellem cues.
+Esc clears the desk, then the output, then quits.	Esc rydder pulten, så udgangen, og lukker så.
+Stream SRT and RTMP at the same time.	Stream SRT og RTMP på samme tid.
+CHECK lists what is broken, before doors.	CHECK viser, hvad der er i stykker, før dørene åbner.
+A cue can wait before it starts.	Et cue kan vente, før det starter.
+A cue can start the next one by itself.	Et cue kan selv starte det næste.
+Disarm a cue and GO steps over it.	Slå et cue fra, så springer GO det over.
+Audition plays a cue to you, not the room.	Aflytning spiller et cue for dig, ikke for salen.
+Preload racks the next cue warm, off air.	Forindlæsning gør næste cue klar, uden for sendingen.
+A target cue starts or stops another cue.	Et target-cue starter eller stopper et andet cue.
+A fade cue takes a deck down, then stops it.	Et fade-cue toner et deck ned og stopper det.
+A master cue fires one cue on every deck.	Et master-cue affyrer ét cue på hvert deck.
+A MIDI cue can tell the lighting desk to go.	Et MIDI-cue kan give lyspulten besked på at køre.
+A network cue speaks OSC, UDP or TCP.	Et netværks-cue taler OSC, UDP eller TCP.
+A DMX cue fades the house lights on a cue.	Et DMX-cue toner salslyset på et cue.
+A script cue runs Deckboy's own commands.	Et script-cue kører Deckboys egne kommandoer.
+A timecode cue jams LTC to a value.	Et tidskode-cue sætter LTC til en værdi.
+Each output can show a different deck.	Hver udgang kan vise sit eget deck.
+The matrix sends audio to any channel.	Matrixen sender lyd til enhver kanal.
+The panel map numbers every LED tile.	Panelkortet nummererer hver LED-flise.
+Hey!	Hey!
+Quit it!	Hold op!
+Ow. That was rude.	Av. Det var uhøfligt.
+I am a professional.	Jeg er professionel.
+Seriously?	Seriøst?
+This is my monitor.	Det her er min skærm.
+I am telling the operator.	Jeg siger det til operatøren.
+All right. Wow.	Okay. Wow.
+Right. That does it.	Nå. Nu er det nok.
+I am leaving. Good luck with the show.	Jeg går nu. Held og lykke med showet.
+Still here? Me too.	Stadig her? Også mig.
+Long show, huh.	Langt show, hva'.
+I could do this all day. Apparently.	Jeg kunne gøre det her hele dagen. Åbenbart.
+You have been staring at me for hours.	Du har stirret på mig i timevis.
+Has anyone seen a clock?	Har nogen set et ur?
+Is it still the same show?	Er det stadig det samme show?
+I'm not tired. You're tired.	Jeg er ikke træt. Du er træt.
+Five more minutes. Then five more.	Fem minutter mere. Så fem til.
+A whole day. I need a restart.	En hel dag. Jeg trænger til en genstart.
+Save the show. Then let me sleep.	Gem showet. Så lad mig sove.
+Every pixel of me is tired.	Hver eneste pixel i mig er træt.
+Close me. Open me. I'll be fine.	Luk mig. Åbn mig. Så skal jeg nok klare mig.

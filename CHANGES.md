@@ -18,6 +18,11 @@
   the inspector; start with `00-START-HERE.html`.
 
 ### Desk
+- The face's tips now come in a different order every time Deckboy opens, after its greeting,
+  and none repeats until all of them have been said.
+- The face speaks the desk's language: its lines are translated before it types them out, and
+  it types by character, so accented letters and non-Latin scripts never break mid-word.
+  Danish has all 74 lines; other languages follow.
 - The face no longer comes back into the programme monitor while any output is on. Firing one-off
   cues such as lower thirds minutes apart leaves the monitor dark between them; the face returns
   10 seconds after the last output is turned off and nothing is playing.
