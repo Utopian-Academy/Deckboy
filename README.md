@@ -680,6 +680,9 @@ importantly, what each feature deliberately does not do.
   NDI's separately licensed Advanced SDK), and HDR input on macOS and Linux
 - Local AI upscaling: an upscale job that turns a clip into a sharper, bigger
   file, and real-time upscaling on the GPU where the hardware offers it
+- Drawing on the picture: a pen that draws over the output live, the way a
+  sports telestrator does, and paint cues drawn ahead of time that take, fade
+  and layer like any other cue
 
 **Scopes:**
 
