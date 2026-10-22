@@ -8183,7 +8183,9 @@
   // Outputs already told their asked-for refresh is not on their screen.
   std::uint32_t refreshUnavailableWarned_ = 0;
 
-  bool selectDisplayModeForOutput(int outputIndex, SDL_DisplayMode& selectedMode) const {
+  bool selectDisplayModeForOutput(int outputIndex, SDL_DisplayMode& selectedMode,
+                                  bool* sizeAvailable = nullptr) const {
+    if (sizeAvailable) *sizeAvailable = false;
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return false;
     }
@@ -8214,6 +8216,7 @@
       if (mode.w != targetW || mode.h != targetH) {
         continue;
       }
+      if (sizeAvailable) *sizeAvailable = true;
 
       double hz = mode.refresh_rate > 0.0f ? static_cast<double>(mode.refresh_rate) : 60.0;
       double score = 0.0;
@@ -8293,7 +8296,8 @@
     // "taking over the wrong screen" field reports).
     bool wantsExclusiveMode = !project_.outputFollowDisplay || project_.outputRefreshRateHz > 0.0;
     SDL_DisplayMode selectedMode {};
-    if (wantsExclusiveMode && selectDisplayModeForOutput(outputIndex, selectedMode)) {
+    bool sizeAvailable = false;
+    if (wantsExclusiveMode && selectDisplayModeForOutput(outputIndex, selectedMode, &sizeAvailable)) {
       // SDL3: exclusive fullscreen = set an explicit mode, then fullscreen.
       SDL_SetWindowFullscreenMode(runtime->outputWindow, &selectedMode);
       if (SDL_SetWindowFullscreen(runtime->outputWindow, true)) {
@@ -8304,12 +8308,14 @@
         }
         return true;
       }
-    } else if (wantsExclusiveMode && project_.outputRefreshRateHz > 0.0 && outputIndex >= 0 && outputIndex < 32 &&
-               !((refreshUnavailableWarned_ >> outputIndex) & 1u)) {
+    } else if (wantsExclusiveMode && sizeAvailable && project_.outputRefreshRateHz > 0.0 && outputIndex >= 0 &&
+               outputIndex < 32 && !((refreshUnavailableWarned_ >> outputIndex) & 1u)) {
       // Asked for a rate this screen has neither exactly nor as a whole
       // multiple: the screen keeps its own mode, and the operator is told
       // rather than finding out from the picture.
       refreshUnavailableWarned_ |= 1u << outputIndex;
+      SDL_Log("output %d: no %.3f Hz mode (or a whole multiple) on its screen; left at the screen's own rate",
+              outputIndex + 1, project_.outputRefreshRateHz);
       triggerToast(outputLabel(outputIndex) + ": this screen has no " +
                    formatRefreshRateLabel(static_cast<float>(project_.outputRefreshRateHz)) +
                    " mode (or a multiple of it) - left at its own rate",
