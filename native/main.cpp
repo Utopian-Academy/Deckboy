@@ -11346,6 +11346,14 @@ class App {
   bool uiProfileEnabled_ = false;
   double uiProfileSlowFrameMs_ = 50.0;   // DECKBOY_UI_PROFILE=<ms> lowers it
   double lastUiLayoutMs_ = 0.0;
+  // THE DESK'S OWN SMOOTHNESS, counted like an output's (presents, hitches,
+  // worst gap). Outputs had this; the desk did not, and a desk that stutters
+  // with the scopes up on a 4K screen could not be measured (2026-10-21).
+  Uint64 deskLastPresentNs_ = 0;
+  Uint64 deskPresents_ = 0;
+  Uint64 deskHitches_ = 0;
+  double deskWorstGapMs_ = 0.0;
+  double deskLayoutMsAvg_ = 0.0;
   double lastUiRenderMs_ = 0.0;
   Uint64 lastUpdateTickMs_ = 0;
   Uint64 lastDisplayPollMs_ = 0;

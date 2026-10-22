@@ -597,6 +597,10 @@
     output << "DECKBOY_0.01"
            << " focus=" << (project_.focusedDeckIndex + 1)
            << " decks=" << project_.decks.size()
+           << " desk_presents=" << deskPresents_
+           << " desk_hitches=" << deskHitches_
+           << " desk_worst_gap_ms=" << static_cast<int>(std::lround(deskWorstGapMs_))
+           << " desk_layout_ms=" << std::lround(deskLayoutMsAvg_ * 10.0) / 10.0
            << " panic_profile=" << normalizePanicProfileToken(project_.panicProfile)
            << " panic_fade_s=" << project_.panicFadeSeconds
            << " panic_restore=" << (project_.panicAutoRestore ? "on" : "off")

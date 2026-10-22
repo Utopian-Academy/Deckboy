@@ -1486,6 +1486,20 @@
     auto uiFrameEnd = std::chrono::steady_clock::now();
     lastUiLayoutMs_ = std::chrono::duration<double, std::milli>(uiLayoutDone - uiFrameStart).count();
     lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();
+    // A hitch is a gap over 1.5 frames of the desk screen's refresh.
+    const Uint64 presentNs = SDL_GetTicksNS();
+    if (deskLastPresentNs_ != 0) {
+      const double gapMs = static_cast<double>(presentNs - deskLastPresentNs_) / 1.0e6;
+      double refresh = 60.0;
+      if (const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(SDL_GetDisplayForWindow(controlWindow_))) {
+        if (mode->refresh_rate > 1.0f) refresh = mode->refresh_rate;
+      }
+      deskPresents_ += 1;
+      if (gapMs > 1.5 * 1000.0 / refresh) deskHitches_ += 1;
+      deskWorstGapMs_ = std::max(deskWorstGapMs_, gapMs);
+    }
+    deskLastPresentNs_ = presentNs;
+    deskLayoutMsAvg_ = deskLayoutMsAvg_ * 0.95 + lastUiLayoutMs_ * 0.05;
   }
 
   // What a playlist column calls itself. In VJ mode two of them are on screen
