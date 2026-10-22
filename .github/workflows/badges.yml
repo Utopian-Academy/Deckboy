@@ -13,13 +13,23 @@ on:
     - cron: "17 */6 * * *"
   release:
     types: [published]
+  # Releases published by CI's GITHUB_TOKEN do not trigger another release
+  # workflow. Refresh after a successful release build as well.
+  workflow_run:
+    workflows: [Deckboy CI]
+    types: [completed]
   workflow_dispatch:
+
+concurrency:
+  group: badges
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
   badges:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v'))
     runs-on: ubuntu-latest
     steps:
       - name: Count
@@ -32,7 +42,7 @@ jobs:
           version=$(gh api "repos/$REPO/releases/latest" -q .tag_name)
           stars=$(gh api "repos/$REPO" -q .stargazers_count)
           mkdir -p out
-          badge() { printf '{"schemaVersion":1,"label":"%s","message":"%s"}\n' "$1" "$2" > "out/$3.json"; }
+          badge() { printf '{"schemaVersion":1,"label":"%s","message":"%s","cacheSeconds":300}\n' "$1" "$2" > "out/$3.json"; }
           badge download "$version" version
           badge downloads "$downloads" downloads
           badge stars "$stars" stars
