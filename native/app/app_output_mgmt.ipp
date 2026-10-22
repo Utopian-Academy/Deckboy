@@ -1423,6 +1423,23 @@
     return false;
   }
 
+  // Is an output window on a screen, waiting for that screen's refresh each
+  // frame? Then it must be the ONLY wait in the loop. With the desk vsynced as
+  // well, every pass waited for two screens; a 60 Hz desk beside a 59.94 Hz
+  // output measured 57.4 fps on the output and 155 ms worst gaps (James's
+  // machine, 2026-10-22, 0.99.417 and 0.99.418 alike), and any extra desk work
+  // -- a 4K desk, the scopes -- pushed it down to 40.
+  bool anyOutputWindowPresenting() {
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (!project_.outputs[i].enabled) continue;
+      const OutputRuntime* runtime = runtimeForOutput(i);
+      if (!runtime || !runtime->outputWindow || !runtime->outputRenderer) continue;
+      if (SDL_GetWindowFlags(runtime->outputWindow) & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) continue;
+      return true;
+    }
+    return false;
+  }
+
   // Should the take roll onto a new file now?
   //
   // Two operator-set caps (time and size), plus a hard ceiling that is not

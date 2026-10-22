@@ -1448,8 +1448,13 @@
     // lock and is capped to 60Hz by the clock instead. The PROGRAMME output
     // keeps its vsync -- a torn programme is never acceptable -- so the loop is
     // now gated by one vblank rather than two.
+    //
+    // The same is true of an output WINDOW on another screen (2026-10-22):
+    // the programme's own vsync paces the loop and the desk, capped to 60 by
+    // the clock below, never makes the programme wait for the desk's screen.
+    // The desk does not tear for it: Windows and macOS compose windows.
     const bool egressActive = anyOutputEgressActive();
-    const int wantControlVsync = egressActive ? 0 : 1;
+    const int wantControlVsync = (egressActive || anyOutputWindowPresenting()) ? 0 : 1;
     if (wantControlVsync != controlVsyncApplied_) {
       SDL_SetRenderVSync(controlRenderer_, wantControlVsync);
       controlVsyncApplied_ = wantControlVsync;
