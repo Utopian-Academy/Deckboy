@@ -438,7 +438,7 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
       playbackClockStart_ = std::chrono::steady_clock::now();
       state_ = autoplay ? TransportState::Playing : TransportState::Paused;
       if (audioStream_) {
-        deckboySetAudioPaused(audioStream_, !autoplay);
+        setOutputPaused(!autoplay);
       }
       rebuildToneFrame(*cue);
       return;
@@ -465,7 +465,7 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
       // the silent output, the dead VU meter and the -91 dBFS recording, all
       // from one missing line.
       if (audioStream_) {
-        deckboySetAudioPaused(audioStream_, !autoplay);
+        setOutputPaused(!autoplay);
       }
       rebuildToneFrame(*cue);
     }
@@ -485,7 +485,7 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     micLive_.store(autoplay, std::memory_order_relaxed);
     startMicCapture(*cue);
     if (audioStream_) {
-      deckboySetAudioPaused(audioStream_, !autoplay);
+      setOutputPaused(!autoplay);
     }
     return;
   }
@@ -613,12 +613,12 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     // thread's lifecycle.
     const bool audioIsComing = autoplay && audioStream_ != nullptr &&
                                cue->hasAudio && cue->audioEnabled;
-    deckboySetAudioPaused(audioStream_, true);
+    setOutputPaused(true);
     audioPrimePending_ = audioIsComing;
     if (audioIsComing) {
       audioPrimeStartedAt_ = std::chrono::steady_clock::now();
     } else if (autoplay) {
-      deckboySetAudioPaused(audioStream_, false);
+      setOutputPaused(false);
     }
   }
 }
@@ -802,7 +802,7 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
   clearAudio();
   startDecoderThreads(*activeCue_, cueInPointSeconds_ + nextPosition, nextPosition);
   if (audioStream_) {
-    deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
+    setOutputPaused(state_ != TransportState::Playing);
   }
 }
 
@@ -927,7 +927,7 @@ void MediaEngine::play() {
   avJumpExpected_ = true;
   state_ = TransportState::Playing;
   if (audioStream_ != nullptr && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
-    deckboySetAudioPaused(audioStream_, false);
+    setOutputPaused(false);
   }
 }
 
@@ -957,7 +957,7 @@ void MediaEngine::pause() {
   currentPosition_ = pausedPosition_;
   state_ = TransportState::Paused;
   if (audioStream_ != nullptr && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
-    deckboySetAudioPaused(audioStream_, true);
+    setOutputPaused(true);
   }
 }
 
@@ -1040,7 +1040,7 @@ void MediaEngine::stop(bool clearVisual) {
     pausedPosition_ = 0.0;
     currentPosition_ = 0.0;
     if (audioStream_) {
-      deckboySetAudioPaused(audioStream_, true);
+      setOutputPaused(true);
     }
     return;
   }
@@ -1072,7 +1072,7 @@ void MediaEngine::stop(bool clearVisual) {
   currentPosition_ = 0.0;
   applyVisualClear();
   if (audioStream_) {
-    deckboySetAudioPaused(audioStream_, true);
+    setOutputPaused(true);
   }
 }
 
@@ -1129,7 +1129,7 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
   stopDecoderThreads();
   startDecoderThreads(*activeCue_, cueInPointSeconds_ + clamped, clamped);
   if (audioStream_) {
-    deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
+    setOutputPaused(state_ != TransportState::Playing);
   }
 }
 
@@ -1219,7 +1219,7 @@ void MediaEngine::update() {
         state_ != TransportState::Playing) {
       audioPrimePending_ = false;
       if (audioStream_ && state_ == TransportState::Playing) {
-        deckboySetAudioPaused(audioStream_, false);
+        setOutputPaused(false);
         // THE CLOCK STARTS WITH THE SOUND, not with the take -- but only
         // when the wait was long enough to be worth correcting for.
         //
@@ -6000,7 +6000,7 @@ void MediaEngine::handlePlaybackEnd() {
     playbackStartPosition_ = 0.0;
     pausedPosition_ = 0.0;
     if (audioStream_) {
-      deckboySetAudioPaused(audioStream_, false);  // ensure audio is unpaused
+      setOutputPaused(false);  // ensure audio is unpaused
     }
     return;
   }
@@ -6011,7 +6011,7 @@ void MediaEngine::handlePlaybackEnd() {
     currentPosition_ = duration_;
     clearVisualOnReachedEnd_ = false;  // keep last frame visible
     if (audioStream_) {
-      deckboySetAudioPaused(audioStream_, true);
+      setOutputPaused(true);
     }
     // A HOLDING CUE SET TO CONTINUE FOLLOW STILL ENDS. The transport only
     // advances on reachedEnd(), and a hold never raised it -- so FOLLOW, whose
@@ -6030,7 +6030,7 @@ void MediaEngine::handlePlaybackEnd() {
   currentPosition_ = duration_;
   clearVisualOnReachedEnd_ = true;  // go to black when finalized
   if (audioStream_) {
-    deckboySetAudioPaused(audioStream_, true);
+    setOutputPaused(true);
   }
   reachedEnd_ = true;  // consumed by reachedEnd() in the next update cycle
 }
@@ -6529,6 +6529,18 @@ void MediaEngine::clearAudio() {
     SDL_ClearAudioStream(audioStream_);
     deckboySetAudioPaused(audioStream_, true);
   }
+  // The same for an external sink, which has a queue of its own and our
+  // overflow in front of it. Without this, a stop on ASIO played on for the
+  // depth of the sink, and the overflow came out at the start of the next cue.
+  {
+    std::lock_guard<std::mutex> lock(audioStreamMutex_);
+    pendingSinkAudio_.clear();
+    outputPaused_ = true;
+    if (!sdlTornDown()) {
+      if (externalSink_.clear) externalSink_.clear();
+      if (externalSink_.pause) externalSink_.pause(true);
+    }
+  }
   // Safe here: callers only clear audio after decode threads are stopped,
   // and the sync pop runs on this (main) thread.
   audioDelayFifo_.clear();
@@ -6558,13 +6570,15 @@ void MediaEngine::queuePocketSyncAudio() {
   const int kRate = audioRate_;
   constexpr double kBeepSeconds = 0.08;
   constexpr int kChunkFrames = 1024;  // ~21 ms per fill
-  int queuedBytes = std::max(0, SDL_GetAudioStreamQueued(audioStream_));
+  // The engine's own measure, not SDL's: with ASIO armed the SDL stream is
+  // not what plays, reads empty forever, and the pop would fill without end.
+  int queuedBytes = std::max(0, queuedAudioBytes());
   double queuedSeconds = static_cast<double>(queuedBytes)
     / (kRate * static_cast<double>(audioStreamBytesPerFrame()));
   if (queuedSeconds > 0.12) {
     return;
   }
-  deckboySetAudioPaused(audioStream_, false);
+  setOutputPaused(false);
   const double startSeconds =
     static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
   const double gain = static_cast<double>(volume_.load())
@@ -7590,6 +7604,18 @@ void MediaEngine::setExternalAudioSink(ExternalAudioSink sink) {
   // clearing a sink mid-show cannot race a write already in flight.
   std::lock_guard<std::mutex> lock(audioStreamMutex_);
   externalSink_ = std::move(sink);
+  // What the old sink could not take was for the old sink.
+  pendingSinkAudio_.clear();
+  // In step with the transport from the first sample, or arming mid-pause
+  // would let the paused cue play on.
+  if (externalSink_.pause) externalSink_.pause(outputPaused_);
+}
+
+void MediaEngine::setOutputPaused(bool paused) {
+  if (audioStream_) deckboySetAudioPaused(audioStream_, paused);
+  std::lock_guard<std::mutex> lock(audioStreamMutex_);
+  outputPaused_ = paused;
+  if (externalSink_.pause) externalSink_.pause(paused);
 }
 
 bool MediaEngine::usingExternalAudioSink() const {

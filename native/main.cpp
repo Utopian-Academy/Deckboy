@@ -4264,6 +4264,14 @@ class App {
       controlWindow_ = nullptr;
     }
     TTF_Quit();
+    // ASIO before SDL: its sources' rate converters are SDL audio streams,
+    // and SDL_Quit frees every stream itself. Left to ~App, the driver closed
+    // after that and freed them a second time. The engines feeding it are
+    // gone by now (deckRuntimes_ above).
+    if (asioOutput_) {
+      asioOutput_->close();
+      asioOutput_.reset();
+    }
     // Last thing before the subsystem goes away: anything torn down after this
     // (a MediaEngine still owned by an App member, destroyed by ~App) must not
     // call into SDL. A field crash on macOS was exactly that — ~MediaEngine ->
@@ -12736,9 +12744,13 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     // Deliberately opt-in and time-limited. This OPENS the operator's audio
     // interface and makes noise through it, so it is never run automatically
     // and never runs unbounded.
-    if (ops.empty()) return missing("<driver-name> [seconds] [channels]");
+    if (ops.empty()) return missing("<driver-name> [seconds] [channels] [two]");
     const double seconds = ops.size() > 1 ? std::max(0.5, std::atof(ops[1].c_str())) : 2.0;
     const int chans = ops.size() > 2 ? std::max(1, std::atoi(ops[2].c_str())) : 2;
+    // "two": a second source at 660Hz on its own thread, as two decks would
+    // play at once -- the case one shared ring could not do. With
+    // DECKBOY_ASIO_CAPTURE set, the mix that reached the driver is written out.
+    const bool two = ops.size() > 3 && ops[3] == "two";
     deckboy::platform::audio::AsioOutput out;
     std::string err;
     if (!out.open(ops[0], chans, 48000.0, err)) {
@@ -12748,32 +12760,47 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     std::cout << "asio-tone: " << ops[0]
               << "  channels=" << out.channels()
               << " rate=" << out.sampleRate()
-              << " buffer=" << out.bufferFrames() << " frames\n";
-    // A quiet 440Hz sine. Quiet on purpose: this may be going to a PA.
-    const double rate = out.sampleRate() > 0.0 ? out.sampleRate() : 48000.0;
+              << " buffer=" << out.bufferFrames() << " frames"
+              << (two ? "  two sources (440 + 660 Hz)" : "") << "\n";
+    // Quiet sines. Quiet on purpose: this may be going to a PA. Written at
+    // the engine's 48k, as the engines write; the output converts if the
+    // driver runs at another rate.
+    const double rate = 48000.0;
     const std::size_t total = static_cast<std::size_t>(rate * seconds);
-    std::vector<std::int16_t> chunk(static_cast<std::size_t>(chans) * 256);
-    std::size_t written = 0;
-    double phase = 0.0;
-    const double step = 2.0 * 3.14159265358979 * 440.0 / rate;
-    while (written < total) {
-      const std::size_t frames = std::min<std::size_t>(256, total - written);
-      for (std::size_t f = 0; f < frames; ++f) {
-        const std::int16_t v =
-          static_cast<std::int16_t>(std::sin(phase) * 3000.0);
-        phase += step;
-        for (int c = 0; c < chans; ++c) chunk[f * chans + c] = v;
+    auto play = [&out, chans, rate, total](deckboy::platform::audio::AsioOutput::Source& source,
+                                           double hz) {
+      std::vector<std::int16_t> chunk(static_cast<std::size_t>(chans) * 256);
+      std::size_t written = 0;
+      double phase = 0.0;
+      const double step = 2.0 * 3.14159265358979 * hz / rate;
+      while (written < total) {
+        const std::size_t frames = std::min<std::size_t>(256, total - written);
+        for (std::size_t f = 0; f < frames; ++f) {
+          const std::int16_t v = static_cast<std::int16_t>(std::sin(phase) * 3000.0);
+          phase += step;
+          for (int c = 0; c < chans; ++c) chunk[f * chans + c] = v;
+        }
+        std::size_t done = 0;
+        while (done < frames) {
+          const std::size_t n = out.write(source, chunk.data() + done * chans, frames - done);
+          done += n;
+          if (n == 0) SDL_Delay(1);   // ring full: let the driver drain
+        }
+        written += frames;
       }
-      std::size_t done = 0;
-      while (done < frames) {
-        const std::size_t n = out.write(chunk.data() + done * chans, frames - done);
-        done += n;
-        if (n == 0) SDL_Delay(1);   // ring full: let the driver drain
-      }
-      written += frames;
+      // Let the tail play out before tearing the driver down.
+      while (out.queuedFrames(source) > 0) SDL_Delay(1);
+    };
+    auto first = out.openSource();
+    auto second = two ? out.openSource() : nullptr;
+    if (!first || (two && !second)) {
+      std::cerr << "asio-tone: could not open a source\n";
+      return 1;
     }
-    // Let the tail play out before tearing the driver down.
-    while (out.queuedFrames() > 0) SDL_Delay(1);
+    std::thread other;
+    if (second) other = std::thread([&] { play(*second, 660.0); });
+    play(*first, 440.0);
+    if (other.joinable()) other.join();
     SDL_Delay(50);
     const std::uint64_t under = out.underruns();
     out.close();

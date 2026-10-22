@@ -8,10 +8,14 @@
 #include "core/sdl_compat.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <atomic>
 #include <memory>
+#include <utility>
 #include <mutex>
 #include <vector>
 
@@ -160,7 +164,49 @@ bool probeAsioDevice(const std::string& name, AsioDeviceInfo& out) {
 // AsioOutput implementation
 // ---------------------------------------------------------------------------
 #if defined(DECKBOY_HAS_ASIO)
+
+// One producer's audio (see openSource in the header). A single-producer /
+// single-consumer ring of interleaved s16 -- the producer is one engine's audio
+// thread, the consumer the driver callback; head and tail are atomics and
+// neither side ever locks, because the callback must not block -- and that
+// producer's own rate converter.
+class AsioOutput::Source {
+ public:
+  std::vector<std::int16_t> ring;
+  std::atomic<std::size_t> head {0};   // write position, in SAMPLES
+  std::atomic<std::size_t> tail {0};   // read position, in SAMPLES
+  // Rate conversion, when the device does not run at the source rate. SDL's
+  // audio stream is used purely as a resampler here -- it is already a
+  // dependency and its conversion quality is better than anything worth
+  // hand-rolling for this. One per source: a converter carries state from one
+  // block to the next, and two producers through one would splice together.
+  SDL_AudioStream* resampler = nullptr;
+  std::vector<std::int16_t> convertScratch;
+  int slot = -1;
+  std::uint64_t generation = 0;        // which open() it was made for
+  // A clear (see AsioOutput::clear): the writer cannot move the read position,
+  // which belongs to the callback, so it says where to skip to and the
+  // callback does the skipping. The count tells the callback a clear came,
+  // even when there was nothing left to skip.
+  std::atomic<std::size_t> flushTo {0};
+  std::atomic<std::uint32_t> flushes {0};
+  std::uint32_t flushesSeen = 0;       // callback only
+  std::atomic<bool> paused {false};
+  // Underrun bookkeeping, touched only by the callback (see bufferSwitch).
+  std::uint64_t lastFullBuffer = 0;
+  std::uint64_t gapOpenedAt = 0;
+  bool gapOpen = false;
+  ~Source() {
+    // SDL_Quit frees every audio stream itself; destroying this one after
+    // that would free it twice.
+    if (resampler && SDL_WasInit(SDL_INIT_AUDIO)) SDL_DestroyAudioStream(resampler);
+  }
+};
+
 namespace {
+
+// Decks, their outgoing tails while a transition finishes, and room to spare.
+constexpr int kMaxAsioSources = 64;
 
 // ASIO's callbacks are bare C function pointers with NO user-data argument, so
 // the running stream has to be reachable from file scope. That is tolerable
@@ -174,28 +220,59 @@ struct AsioRuntime {
   int channels = 0;
   long bufferFrames = 0;
   double sampleRate = 0.0;
+  double sourceRate = 0.0;             // what the producers write
   bool started = false;
   bool outputReadySupported = false;   // queried once at open, not per callback
   long outputLatency = 0;              // frames, from ASIOGetLatencies
-  // Rate conversion, when the device does not run at the source rate. SDL's
-  // audio stream is used purely as a resampler here -- it is already a
-  // dependency and its conversion quality is better than anything worth
-  // hand-rolling for this.
-  SDL_AudioStream* resampler = nullptr;
-  double sourceRate = 0.0;
-  std::vector<std::int16_t> convertScratch;
-
-  // Single-producer / single-consumer ring of interleaved s16. The writer is
-  // the audio thread, the reader is the driver callback; head and tail are
-  // atomics and neither side ever locks, because the callback must not block.
-  std::vector<std::int16_t> ring;
-  std::atomic<std::size_t> head {0};   // write position, in SAMPLES
-  std::atomic<std::size_t> tail {0};   // read position, in SAMPLES
+  std::uint64_t generation = 0;
+  // Each source's ring: a second of sound (see open() for why it must be
+  // deeper than the engine's lead).
+  std::size_t ringSamples = 0;
+  // The sources in the mix, published and withdrawn with atomic stores so the
+  // callback walks them without a lock.
+  std::array<std::atomic<AsioOutput::Source*>, kMaxAsioSources> sources {};
+  // The callback's sum: one driver buffer of interleaved int32, sized at open
+  // and never allocated in the callback.
+  std::vector<std::int32_t> mix;
+  // Withdrawn from the mix but perhaps still being read by a callback already
+  // in flight, so freed half a second later. Under gRuntimeMutex.
+  std::vector<std::pair<std::unique_ptr<AsioOutput::Source>, Uint64>> retired;
   std::atomic<std::uint64_t> underruns {0};
+  std::uint64_t callbackCount = 0;     // callback only
+  // DECKBOY_ASIO_CAPTURE=<file.wav>: what was handed to the driver, kept for a
+  // test to read back, since a room cannot be measured from a script. The
+  // buffer is allocated at open and the callback only copies into it -- no
+  // allocation, no lock, no file -- and the WAV is written at close.
+  std::string capturePath;
+  std::vector<std::int16_t> capture;
+  std::size_t captureUsed = 0;         // callback only, until close
 };
 
-std::mutex gRuntimeMutex;              // guards open/close, never the callback
+std::mutex gRuntimeMutex;              // open/close and the source list, never the callback
 AsioRuntime* gRuntime = nullptr;
+std::uint64_t gNextGeneration = 1;     // under gRuntimeMutex
+
+bool ratesDiffer(const AsioRuntime& rt) {
+  return std::abs(rt.sampleRate - rt.sourceRate) > 0.5;
+}
+
+SDL_AudioStream* makeResampler(const AsioRuntime& rt) {
+  SDL_AudioSpec src {};
+  src.format = SDL_AUDIO_S16;
+  src.channels = rt.channels;
+  src.freq = static_cast<int>(std::lround(rt.sourceRate));
+  SDL_AudioSpec dst = src;
+  dst.freq = static_cast<int>(std::lround(rt.sampleRate));
+  return SDL_CreateAudioStream(&src, &dst);
+}
+
+// Free what the callback can no longer be holding. Under gRuntimeMutex.
+void freeRetired(AsioRuntime& rt) {
+  const Uint64 now = SDL_GetTicks();
+  rt.retired.erase(std::remove_if(rt.retired.begin(), rt.retired.end(),
+                                  [now](const auto& r) { return now - r.second >= 500; }),
+                   rt.retired.end());
+}
 
 // Write one sample into the driver's buffer in whatever type it wants. Only
 // the LSB (little-endian) types are handled: every Windows ASIO driver in
@@ -242,38 +319,93 @@ void bufferSwitch(long index, ASIOBool /*directProcess*/) {
 
   const long frames = rt->bufferFrames;
   const int chans = rt->channels;
-  const std::size_t ringSize = rt->ring.size();
-  const std::size_t tail = rt->tail.load(std::memory_order_relaxed);
-  const std::size_t head = rt->head.load(std::memory_order_acquire);
-  const std::size_t availableSamples = head - tail;
   const std::size_t wantSamples = static_cast<std::size_t>(frames) * chans;
-  const std::size_t haveFrames =
-    std::min<std::size_t>(availableSamples / chans, static_cast<std::size_t>(frames));
+  std::int32_t* mix = rt->mix.data();
+  std::fill(mix, mix + wantSamples, 0);
 
-  if (haveFrames < static_cast<std::size_t>(frames)) {
-    rt->underruns.fetch_add(1, std::memory_order_relaxed);
+  // SUM every source that has something.
+  //
+  // AN UNDERRUN IS A GAP IN THE MIDDLE OF PLAYING, and only that. A source that
+  // runs short and never comes back is a cue that ended; one that is empty is a
+  // deck with nothing on. Counting either would tick the operator's underrun
+  // count at every cue end. So a short buffer opens a gap, and the gap counts
+  // only if the same source has sound again within about a quarter of a second.
+  const std::uint64_t now = ++rt->callbackCount;
+  const std::uint64_t gapWindow = std::max<std::uint64_t>(
+    2, static_cast<std::uint64_t>(rt->sampleRate * 0.25) / static_cast<std::uint64_t>(frames));
+  for (auto& slot : rt->sources) {
+    AsioOutput::Source* src = slot.load(std::memory_order_acquire);
+    if (!src) continue;
+    const std::size_t ringSize = src->ring.size();
+    std::size_t tail = src->tail.load(std::memory_order_relaxed);
+    // A clear first, so a stop never plays what was queued before it. It
+    // closes any gap too: a stop is not a dropout, and a cut to the next cue
+    // within the gap window would otherwise count as one.
+    const std::uint32_t flushes = src->flushes.load(std::memory_order_acquire);
+    if (flushes != src->flushesSeen) {
+      src->flushesSeen = flushes;
+      const std::size_t to = src->flushTo.load(std::memory_order_relaxed);
+      if (to > tail) {
+        tail = to;
+        src->tail.store(tail, std::memory_order_release);
+      }
+      src->gapOpen = false;
+      src->lastFullBuffer = 0;
+    }
+    // Paused: out of the mix, ring untouched, and no gap -- the same reasons.
+    if (src->paused.load(std::memory_order_acquire)) {
+      src->gapOpen = false;
+      src->lastFullBuffer = 0;
+      continue;
+    }
+    const std::size_t head = src->head.load(std::memory_order_acquire);
+    const std::size_t haveFrames =
+      std::min<std::size_t>((head - tail) / chans, static_cast<std::size_t>(frames));
+    const bool full = haveFrames == static_cast<std::size_t>(frames);
+    if (src->gapOpen && haveFrames > 0) {
+      if (now - src->gapOpenedAt <= gapWindow) {
+        rt->underruns.fetch_add(1, std::memory_order_relaxed);
+      }
+      src->gapOpen = false;
+    }
+    if (full) {
+      src->lastFullBuffer = now;
+    } else if (!src->gapOpen && src->lastFullBuffer == now - 1) {
+      src->gapOpen = true;
+      src->gapOpenedAt = now;
+    }
+    if (haveFrames == 0) continue;
+    // One pass with a running index rather than a modulo per sample: in a
+    // callback with a hard deadline the difference is real.
+    const std::size_t samples = haveFrames * chans;
+    std::size_t pos = tail % ringSize;
+    for (std::size_t i = 0; i < samples; ++i) {
+      mix[i] += src->ring[pos];
+      if (++pos == ringSize) pos = 0;
+    }
+    src->tail.store(tail + samples, std::memory_order_release);
   }
 
-  // Walk the ring ONCE per channel with a running index instead of a modulo
-  // per sample. In a callback with a hard deadline the difference is real:
-  // this is chans * frames divisions removed from the critical path.
+  // Out to the driver, every frame of every channel -- no early return that
+  // leaves buffers untouched: an ASIO buffer that is not written plays
+  // whatever was in it last, which is a loud repeated fragment. Two sources
+  // can add up past full scale, so the sum is clipped, not wrapped.
   for (int ch = 0; ch < chans; ++ch) {
     void* dst = rt->bufferInfos[ch].buffers[index];
     if (!dst) continue;
     const ASIOSampleType type = rt->sampleTypes[ch];
-    std::size_t pos = (tail + static_cast<std::size_t>(ch)) % ringSize;
-    for (std::size_t f = 0; f < haveFrames; ++f) {
-      storeSample(dst, static_cast<long>(f), type, rt->ring[pos]);
-      pos += static_cast<std::size_t>(chans);
-      if (pos >= ringSize) pos -= ringSize;
-    }
-    // Silence the remainder rather than leaving stale audio behind.
-    for (std::size_t f = haveFrames; f < static_cast<std::size_t>(frames); ++f) {
-      storeSample(dst, static_cast<long>(f), type, 0);
+    const std::int32_t* in = mix + ch;
+    for (long f = 0; f < frames; ++f, in += chans) {
+      storeSample(dst, f, type, static_cast<std::int16_t>(std::clamp(*in, -32768, 32767)));
     }
   }
-  rt->tail.store(tail + haveFrames * chans, std::memory_order_release);
-  (void)wantSamples;
+  if (!rt->capture.empty() && rt->captureUsed + wantSamples <= rt->capture.size()) {
+    std::int16_t* out = rt->capture.data() + rt->captureUsed;
+    for (std::size_t i = 0; i < wantSamples; ++i) {
+      out[i] = static_cast<std::int16_t>(std::clamp(mix[i], -32768, 32767));
+    }
+    rt->captureUsed += wantSamples;
+  }
   // Only when the driver actually supports it. Calling it blindly every
   // callback is a wasted driver round-trip on hardware that does not implement
   // it, in the one place where wasted work is measured in dropouts.
@@ -351,9 +483,17 @@ bool AsioOutput::open(const std::string& driverName, int channels,
   // Ask for the rate, then read back what we actually got. Drivers clocked to
   // external word clock will refuse, and pretending otherwise would resample
   // nothing and play everything at the wrong pitch.
-  if (sourceRate > 0.0) {
-    if (ASIOCanSampleRate(sourceRate) == ASE_OK) {
-      ASIOSetSampleRate(sourceRate);
+  //
+  // DECKBOY_ASIO_RATE=<Hz> asks for that rate instead. For tests: a driver
+  // that can run at the source rate never converts, so without it the
+  // conversion path -- every word-clocked interface's path -- goes unrun.
+  double wantRate = sourceRate;
+  if (const char* forced = std::getenv("DECKBOY_ASIO_RATE"); forced && *forced) {
+    if (const double hz = std::atof(forced); hz > 0.0) wantRate = hz;
+  }
+  if (wantRate > 0.0) {
+    if (ASIOCanSampleRate(wantRate) == ASE_OK) {
+      ASIOSetSampleRate(wantRate);
     }
   }
   ASIOSampleRate actual = 0.0;
@@ -412,30 +552,41 @@ bool AsioOutput::open(const std::string& driverName, int channels,
     rt->sampleTypes[ch] = ci.type;
   }
 
-  // Resample only when the rates actually differ. Creating a stream with
-  // matched rates would add a pointless copy to every block.
+  // Resample only when the rates actually differ. The converters belong to
+  // the sources (openSource); one is made here only to find out now, rather
+  // than at the first take, that this machine cannot convert these rates.
   rt->sourceRate = sourceRate > 0.0 ? sourceRate : rt->sampleRate;
-  if (std::abs(rt->sampleRate - rt->sourceRate) > 0.5) {
-    SDL_AudioSpec src {};
-    src.format = SDL_AUDIO_S16;
-    src.channels = channels;
-    src.freq = static_cast<int>(std::lround(rt->sourceRate));
-    SDL_AudioSpec dst = src;
-    dst.freq = static_cast<int>(std::lround(rt->sampleRate));
-    rt->resampler = SDL_CreateAudioStream(&src, &dst);
-    if (!rt->resampler) {
+  if (ratesDiffer(*rt)) {
+    SDL_AudioStream* probe = makeResampler(*rt);
+    if (!probe) {
       error = "could not create a resampler for " +
-              std::to_string(src.freq) + " -> " + std::to_string(dst.freq) + " Hz";
+              std::to_string(static_cast<int>(std::lround(rt->sourceRate))) + " -> " +
+              std::to_string(static_cast<int>(std::lround(rt->sampleRate))) + " Hz";
       ASIODisposeBuffers();
       rt->drivers.removeCurrentDriver();
       return false;
     }
+    SDL_DestroyAudioStream(probe);
   }
-
-  // Ring holds ~8 driver buffers. Big enough to absorb a late writer, small
-  // enough that stopping does not leave a second of stale audio to play out.
-  rt->ring.assign(static_cast<std::size_t>(preferred) * channels * 8, 0);
-
+  // A second of sound per source, or eight driver buffers if that is more.
+  // The ring has to be deeper than the lead the engine keeps: its decoders
+  // wait only once ~120 ms is queued, and a live feed allows half a second.
+  // At eight buffers of a 512-frame driver (85 ms) the queue never reached
+  // the mark, so the decoder never waited -- the whole file went into the
+  // engine's overflow in a moment, and the cue went silent half a second in.
+  // Depth is not latency: the engine's pacing decides how full it runs, and
+  // a stop clears it (clear()).
+  rt->ringSamples = std::max(static_cast<std::size_t>(preferred) * 8,
+                             static_cast<std::size_t>(std::lround(std::max(1.0, rt->sampleRate)))) *
+                    static_cast<std::size_t>(channels);
+  rt->mix.assign(static_cast<std::size_t>(preferred) * channels, 0);
+  rt->generation = gNextGeneration++;
+  if (const char* capture = std::getenv("DECKBOY_ASIO_CAPTURE"); capture && *capture) {
+    rt->capturePath = capture;
+    // Sixty seconds of the device's own rate and channels.
+    rt->capture.assign(static_cast<std::size_t>(std::max(1.0, rt->sampleRate) * 60.0) *
+                         static_cast<std::size_t>(channels), 0);
+  }
   gRuntime = rt.get();
   if (ASIOStart() != ASE_OK) {
     gRuntime = nullptr;
@@ -470,11 +621,26 @@ void AsioOutput::close() {
   gRuntime = nullptr;
   if (rt->started) ASIOStop();
   ASIODisposeBuffers();
-  if (rt->resampler) {
-    SDL_DestroyAudioStream(rt->resampler);
-    rt->resampler = nullptr;
-  }
   rt->drivers.removeCurrentDriver();
+  if (!rt->capturePath.empty()) {
+    // The test capture (see AsioRuntime::capture), as a plain 16-bit WAV.
+    if (std::FILE* f = std::fopen(rt->capturePath.c_str(), "wb")) {
+      const std::uint32_t dataBytes = static_cast<std::uint32_t>(rt->captureUsed * 2);
+      const std::uint32_t rate = static_cast<std::uint32_t>(std::lround(rt->sampleRate));
+      const std::uint16_t chans = static_cast<std::uint16_t>(rt->channels);
+      auto u32 = [f](std::uint32_t v) { std::fwrite(&v, 4, 1, f); };
+      auto u16 = [f](std::uint16_t v) { std::fwrite(&v, 2, 1, f); };
+      std::fwrite("RIFF", 1, 4, f); u32(36 + dataBytes); std::fwrite("WAVEfmt ", 1, 8, f);
+      u32(16); u16(1); u16(chans); u32(rate); u32(rate * chans * 2u);
+      u16(static_cast<std::uint16_t>(chans * 2u)); u16(16);
+      std::fwrite("data", 1, 4, f); u32(dataBytes);
+      std::fwrite(rt->capture.data(), 2, rt->captureUsed, f);
+      std::fclose(f);
+    }
+  }
+  // Withdrawn sources go with it. Sources still in the mix belong to the
+  // handles that hold them; their deleters find this stream gone and free
+  // them directly, since no callback can be reading them now.
   delete rt;
 #endif
 }
@@ -511,59 +677,58 @@ int AsioOutput::bufferFrames() const {
 #endif
 }
 
-std::size_t AsioOutput::write(const std::int16_t* interleaved, std::size_t frames) {
+std::size_t AsioOutput::write(Source& source, const std::int16_t* interleaved,
+                              std::size_t frames) {
 #if !defined(DECKBOY_HAS_ASIO)
-  (void)interleaved; (void)frames;
+  (void)source; (void)interleaved; (void)frames;
   return 0;
 #else
   AsioRuntime* rt = gRuntime;
-  if (!rt || !interleaved || frames == 0) return 0;
+  if (!rt || !interleaved || frames == 0 || source.generation != rt->generation) return 0;
   const std::size_t chans = static_cast<std::size_t>(rt->channels);
+  Source& s = source;
 
-  // Converting path: hand the block to SDL, take back whatever it has ready at
-  // the device rate, and ring-buffer that. The caller is told it consumed the
-  // WHOLE block, because it did -- the conversion holds the remainder, not the
-  // caller.
-  if (rt->resampler) {
-    if (!SDL_PutAudioStreamData(rt->resampler, interleaved,
+  // Converting path: hand the block to this source's converter, take back
+  // whatever it has ready at the device rate, and ring-buffer that. The caller
+  // is told it consumed the WHOLE block, because it did -- the conversion
+  // holds the remainder, not the caller.
+  if (s.resampler) {
+    if (!SDL_PutAudioStreamData(s.resampler, interleaved,
                                 static_cast<int>(frames * chans * sizeof(std::int16_t)))) {
       return 0;
     }
-    const int availBytes = SDL_GetAudioStreamAvailable(rt->resampler);
+    const int availBytes = SDL_GetAudioStreamAvailable(s.resampler);
     if (availBytes > 0) {
-      rt->convertScratch.resize(static_cast<std::size_t>(availBytes) / sizeof(std::int16_t));
-      const int got = SDL_GetAudioStreamData(
-        rt->resampler, rt->convertScratch.data(), availBytes);
+      s.convertScratch.resize(static_cast<std::size_t>(availBytes) / sizeof(std::int16_t));
+      const int got = SDL_GetAudioStreamData(s.resampler, s.convertScratch.data(), availBytes);
       if (got > 0) {
         const std::size_t gotFrames =
           static_cast<std::size_t>(got) / sizeof(std::int16_t) / chans;
-        // Recurse once through the direct path with the converted audio. Any
-        // frames the ring cannot take are DROPPED rather than re-queued,
-        // because the resampler has already advanced past them -- which is why
+        // Any frames the ring cannot take are DROPPED rather than re-queued,
+        // because the converter has already advanced past them -- which is why
         // the ring is sized generously and the caller paces on queuedFrames().
-        const std::size_t head = rt->head.load(std::memory_order_relaxed);
-        const std::size_t tail = rt->tail.load(std::memory_order_acquire);
-        const std::size_t ringSize = rt->ring.size();
+        const std::size_t head = s.head.load(std::memory_order_relaxed);
+        const std::size_t tail = s.tail.load(std::memory_order_acquire);
+        const std::size_t ringSize = s.ring.size();
         const std::size_t freeSamples = ringSize - (head - tail) - 1;
-        const std::size_t take = std::min(gotFrames, freeSamples / chans);
-        const std::size_t takeSamples = take * chans;
+        const std::size_t takeSamples = std::min(gotFrames, freeSamples / chans) * chans;
         const std::size_t start = head % ringSize;
         const std::size_t firstRun = std::min(takeSamples, ringSize - start);
-        std::memcpy(rt->ring.data() + start, rt->convertScratch.data(),
+        std::memcpy(s.ring.data() + start, s.convertScratch.data(),
                     firstRun * sizeof(std::int16_t));
         if (takeSamples > firstRun) {
-          std::memcpy(rt->ring.data(), rt->convertScratch.data() + firstRun,
+          std::memcpy(s.ring.data(), s.convertScratch.data() + firstRun,
                       (takeSamples - firstRun) * sizeof(std::int16_t));
         }
-        rt->head.store(head + takeSamples, std::memory_order_release);
+        s.head.store(head + takeSamples, std::memory_order_release);
       }
     }
     return frames;
   }
 
-  const std::size_t ringSize = rt->ring.size();
-  const std::size_t head = rt->head.load(std::memory_order_relaxed);
-  const std::size_t tail = rt->tail.load(std::memory_order_acquire);
+  const std::size_t ringSize = s.ring.size();
+  const std::size_t head = s.head.load(std::memory_order_relaxed);
+  const std::size_t tail = s.tail.load(std::memory_order_acquire);
   // One sample of slack keeps head == tail meaning EMPTY rather than full.
   const std::size_t freeSamples = ringSize - (head - tail) - 1;
   const std::size_t writeFrames = std::min(frames, freeSamples / chans);
@@ -572,28 +737,30 @@ std::size_t AsioOutput::write(const std::int16_t* interleaved, std::size_t frame
   const std::size_t writeSamples = writeFrames * chans;
   const std::size_t start = head % ringSize;
   const std::size_t firstRun = std::min(writeSamples, ringSize - start);
-  std::memcpy(rt->ring.data() + start, interleaved,
-              firstRun * sizeof(std::int16_t));
+  std::memcpy(s.ring.data() + start, interleaved, firstRun * sizeof(std::int16_t));
   if (writeSamples > firstRun) {
-    std::memcpy(rt->ring.data(), interleaved + firstRun,
+    std::memcpy(s.ring.data(), interleaved + firstRun,
                 (writeSamples - firstRun) * sizeof(std::int16_t));
   }
-  rt->head.store(head + writeFrames * chans, std::memory_order_release);
+  s.head.store(head + writeSamples, std::memory_order_release);
   return writeFrames;
 #endif
 }
 
-std::size_t AsioOutput::queuedFrames() const {
+std::size_t AsioOutput::queuedFrames(const Source& source) const {
 #if defined(DECKBOY_HAS_ASIO)
   AsioRuntime* rt = gRuntime;
-  if (!rt || rt->channels <= 0) return 0;
-  const std::size_t head = rt->head.load(std::memory_order_acquire);
-  const std::size_t tail = rt->tail.load(std::memory_order_acquire);
+  if (!rt || rt->channels <= 0 || source.generation != rt->generation) return 0;
+  const std::size_t head = source.head.load(std::memory_order_acquire);
+  // A clear the callback has not reached yet is already gone, as far as the
+  // caller is concerned.
+  const std::size_t tail = std::max(source.tail.load(std::memory_order_acquire),
+                                    source.flushTo.load(std::memory_order_acquire));
   std::size_t deviceFrames = (head - tail) / static_cast<std::size_t>(rt->channels);
-  if (rt->resampler) {
+  if (source.resampler) {
     // Audio still inside the converter counts as queued too, or the caller
     // sees a shallower buffer than really exists and over-feeds.
-    const int pending = SDL_GetAudioStreamAvailable(rt->resampler);
+    const int pending = SDL_GetAudioStreamAvailable(source.resampler);
     if (pending > 0) {
       deviceFrames += static_cast<std::size_t>(pending) / sizeof(std::int16_t) /
                       static_cast<std::size_t>(rt->channels);
@@ -606,7 +773,74 @@ std::size_t AsioOutput::queuedFrames() const {
   }
   return deviceFrames;
 #else
+  (void)source;
   return 0;
+#endif
+}
+
+void AsioOutput::clear(Source& source) {
+#if defined(DECKBOY_HAS_ASIO)
+  AsioRuntime* rt = gRuntime;
+  if (!rt || source.generation != rt->generation) return;
+  // Everything written so far goes. Only the writer moves head, and this is
+  // the writer's thread, so it cannot move under us.
+  source.flushTo.store(source.head.load(std::memory_order_relaxed), std::memory_order_relaxed);
+  source.flushes.fetch_add(1, std::memory_order_release);
+  // And what the converter still holds, or the next cue starts with the last
+  // few milliseconds of this one.
+  if (source.resampler && SDL_WasInit(SDL_INIT_AUDIO)) SDL_ClearAudioStream(source.resampler);
+#else
+  (void)source;
+#endif
+}
+
+void AsioOutput::setPaused(Source& source, bool paused) {
+#if defined(DECKBOY_HAS_ASIO)
+  source.paused.store(paused, std::memory_order_release);
+#else
+  (void)source; (void)paused;
+#endif
+}
+
+std::shared_ptr<AsioOutput::Source> AsioOutput::openSource() {
+#if !defined(DECKBOY_HAS_ASIO)
+  return {};
+#else
+  std::lock_guard<std::mutex> lock(gRuntimeMutex);
+  AsioRuntime* rt = gRuntime;
+  if (!rt) return {};
+  freeRetired(*rt);
+  int slot = -1;
+  for (int i = 0; i < kMaxAsioSources; ++i) {
+    if (!rt->sources[static_cast<std::size_t>(i)].load(std::memory_order_relaxed)) {
+      slot = i;
+      break;
+    }
+  }
+  if (slot < 0) return {};
+  auto source = std::make_unique<Source>();
+  source->ring.assign(rt->ringSamples, 0);
+  source->slot = slot;
+  source->generation = rt->generation;
+  if (ratesDiffer(*rt)) {
+    source->resampler = makeResampler(*rt);
+    if (!source->resampler) return {};
+  }
+  Source* raw = source.release();
+  rt->sources[static_cast<std::size_t>(slot)].store(raw, std::memory_order_release);
+  // The last handle withdraws it from the mix; the memory waits until no
+  // callback can still be reading it.
+  return std::shared_ptr<Source>(raw, [](Source* done) {
+    std::lock_guard<std::mutex> doneLock(gRuntimeMutex);
+    AsioRuntime* live = gRuntime;
+    if (live && live->generation == done->generation && done->slot >= 0) {
+      live->sources[static_cast<std::size_t>(done->slot)].store(nullptr, std::memory_order_release);
+      freeRetired(*live);
+      live->retired.emplace_back(std::unique_ptr<Source>(done), SDL_GetTicks());
+    } else {
+      delete done;   // its stream is closed: nothing can be reading it
+    }
+  });
 #endif
 }
 
@@ -626,7 +860,7 @@ double AsioOutput::outputLatencySeconds() const {
 
 bool AsioOutput::resampling() const {
 #if defined(DECKBOY_HAS_ASIO)
-  return gRuntime && gRuntime->resampler != nullptr;
+  return gRuntime && ratesDiffer(*gRuntime);
 #else
   return false;
 #endif

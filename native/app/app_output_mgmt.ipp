@@ -5755,6 +5755,14 @@
       // present the driver never frees what we upload. See uploadFrame.
       runtime->mediaEngine->setHiddenUploadTarget(true);
       runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
+      // An engine made while ASIO is armed -- a playlist added mid-show, or the
+      // fresh engine a transition hands a deck (handOffToOutgoingTail) --
+      // plays through ASIO like the rest, from a source of its own. Arming
+      // only reached the engines that existed at the time, so these went to
+      // the system device instead.
+      if (asioArmed()) {
+        runtime->mediaEngine->setExternalAudioSink(makeAsioSink());
+      }
     }
     for (SDL_AudioStream* extra : oldExtras) {
       // After the engine has been given the new set, never before: the audio

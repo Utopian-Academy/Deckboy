@@ -210,9 +210,16 @@ class MediaEngine {
   //           backpressure, not an error -- the caller retries.
   //   queued  frames still to play, so the decode threads can pace themselves
   //           exactly as they do against SDL's queue.
+  //   clear   drop what is queued, now -- SDL_ClearAudioStream's job.
+  //   pause   hold it out of the output without losing its place -- what
+  //           pausing an SDL stream does. Backpressure is what stops the
+  //           decoder when a cue pauses, so a sink that drained regardless
+  //           kept a paused cue sounding.
   struct ExternalAudioSink {
     std::function<std::size_t(const std::int16_t*, std::size_t)> write;
     std::function<std::size_t()> queued;
+    std::function<void()> clear;
+    std::function<void(bool)> pause;
     int channels = 0;
   };
   void setExternalAudioSink(ExternalAudioSink sink);
@@ -942,6 +949,10 @@ class MediaEngine {
   void loadPatternFrame(const Cue& cue);                   // generate a pattern frame and upload
   void loadSourceFrame(const Cue& cue);                    // start source capture for camera/window cues
   void clearAudio();                                       // flush the SDL audio queue
+  // Pause or resume this deck's output: its SDL stream and, when one is
+  // armed, its external sink. Every transport pause goes through here, so
+  // the two cannot disagree.
+  void setOutputPaused(bool paused);
   void queuePocketSyncAudio();                             // synthesize the pocket-test A/V sync pop
   size_t queuedFrames();                                   // number of frames waiting in frameQueue_
   void stopDecoderThreads();                               // kill ffmpeg processes and join threads
@@ -1041,8 +1052,12 @@ class MediaEngine {
     // queue is meaningless -- reading it would report 0 forever and the decode
     // threads would race ahead until memory ran out.
     if (externalSink_.queued) {
+      // What the sink holds AND what it could not take yet: both are still
+      // to play. Counting the sink alone let the decoders run on into the
+      // overflow whenever the sink was shallower than their lead.
       const int chans = std::max(2, externalSink_.channels);
-      return static_cast<int>(externalSink_.queued()) * chans *
+      const std::size_t held = pendingSinkAudio_.size() / static_cast<std::size_t>(chans);
+      return static_cast<int>(externalSink_.queued() + held) * chans *
              static_cast<int>(sizeof(std::int16_t));
     }
     return audioStream_ ? std::max(0, SDL_GetAudioStreamQueued(audioStream_)) : 0;
@@ -1213,8 +1228,13 @@ class MediaEngine {
   double lastVideoSynthSeconds_ = 0.0;   // display-rate limiter
   ExternalAudioSink externalSink_;   // guarded by audioStreamMutex_
   // Audio the sink could not take yet. Carried rather than dropped or waited
-  // on; see putAudioToStream for why waiting here is not an option.
+  // on; see putAudioToStream for why waiting here is not an option. Cleared
+  // with the rest of the queue (clearAudio), or a stop left it to play at the
+  // start of the next cue.
   std::vector<std::int16_t> pendingSinkAudio_;
+  // The pause last asked of the output, so a sink armed mid-cue starts in
+  // step with the transport. Under audioStreamMutex_.
+  bool outputPaused_ = true;
   SDL_AudioStream* audioStream_ = nullptr;
   // ── EXTRA DESTINATIONS ────────────────────────────────────────────────
   //

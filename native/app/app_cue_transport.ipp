@@ -4614,13 +4614,13 @@
   //   - an outgoing cue with no grade or picture effects. The deck's own layer
   //     applies a cue's look to every frame; the transition draws the tail's
   //     picture as it was decoded, which would drop the look mid-fade;
-  //   - not on ASIO, where every deck writes into one shared queue and a
-  //     second writer would interleave two programmes;
+  //   (ASIO is fine: each engine has its own source in the ASIO mix, so the
+  //   tail keeps its own and fades in it -- see makeAsioSink.)
   //   - not while the deck's named device is missing, where opening a second
   //     set of streams would announce the fallback again at every take.
   bool outgoingCueShouldKeepPlaying(int deckIndex, double transitionSeconds,
                                     TransitionStyle style) {
-    if (transitionSeconds <= 0.0001 || style == TransitionStyle::Cut || asioOutput_) {
+    if (transitionSeconds <= 0.0001 || style == TransitionStyle::Cut) {
       return false;
     }
     DeckRuntime* rt = runtimeForDeck(deckIndex);

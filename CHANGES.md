@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-21 - v0.99.419 (in progress)
+
+### ASIO
+- A playing cue keeps playing through the transition out of it on ASIO output as well, and its
+  sound fades out under the incoming cue's. Each playlist, and a cue on its way out, now
+  reaches the interface on its own, and Deckboy mixes them.
+- Fixed: on ASIO output with a driver buffer of 512 frames or less (ASIO4ALL's default), a cue
+  went silent about half a second after it started.
+- Fixed: on ASIO output, pausing a cue did not pause its sound.
+- Fixed: on ASIO output, the sound of a stopped cue could play at the start of the next cue
+  taken on the same playlist.
+
 ## 2026-10-21 - v0.99.418 (scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
 ### Transitions

@@ -24,6 +24,7 @@
 #define DECKBOY_PLATFORM_ASIO_AUDIO_HPP
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -98,19 +99,49 @@ class AsioOutput {
   double sampleRate() const;
   int bufferFrames() const;
 
-  // Queue interleaved s16 frames (frames = samples per channel). Returns the
-  // number of FRAMES accepted; a short return means the ring is full and the
-  // caller should try again rather than spin.
-  std::size_t write(const std::int16_t* interleaved, std::size_t frames);
+  // ── ONE SOURCE PER PRODUCER, SUMMED BY THE CALLBACK ────────────────────
+  //
+  // Every engine that plays through ASIO -- each deck, and a deck's outgoing
+  // cue while a transition finishes -- writes to a Source of its own: its own
+  // ring and its own rate converter. The driver callback SUMS the sources.
+  //
+  // Through 0.99.418 every deck wrote into one shared ring. Two decks playing
+  // at once interleaved their blocks, so each was heard in fragments at the
+  // wrong speed, and as two writers on a ring built for one they could
+  // corrupt its positions outright.
+  //
+  // A source is in the mix for as long as any copy of its handle lives (an
+  // engine's sink holds one) and is freed only once the callback can no
+  // longer be reading it. Empty when no stream is open.
+  class Source;
+  std::shared_ptr<Source> openSource();
+
+  // Queue interleaved s16 frames (frames = samples per channel) on a source.
+  // Returns the number of FRAMES accepted; a short return means its ring is
+  // full and the caller should try again rather than spin. One writer per
+  // source.
+  std::size_t write(Source& source, const std::int16_t* interleaved, std::size_t frames);
 
   // True when the device runs at a different rate from the source and audio is
   // being converted on the way through.
   bool resampling() const;
 
-  // Frames currently buffered and not yet played, expressed in SOURCE frames
-  // so callers pacing against it do not have to know about the conversion.
-  // The backpressure signal.
-  std::size_t queuedFrames() const;
+  // Frames a source has buffered and not yet played, expressed in SOURCE
+  // frames so callers pacing against it do not have to know about the
+  // conversion. The backpressure signal -- per source, so one deck's backlog
+  // never holds another back.
+  std::size_t queuedFrames(const Source& source) const;
+
+  // Drop everything a source still has queued, at once: a stop, a cut or a
+  // seek, which on an SDL device is SDL_ClearAudioStream. Without it the ring
+  // plays out after the stop. Same thread as write().
+  void clear(Source& source);
+
+  // Hold a source out of the mix without losing its place, as pausing an SDL
+  // stream does. The callback skips it, so its ring stops draining and the
+  // writer's backpressure holds the decoder -- without this a paused cue kept
+  // sounding.
+  void setPaused(Source& source, bool paused);
 
   // Output latency in FRAMES, as the driver reports it: the delay between
   // handing a sample to the ring and it leaving the socket. Deckboy slaves

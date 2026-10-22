@@ -6404,9 +6404,32 @@
   // a write already in flight.
   bool asioArmed() const { return asioOutput_ && asioOutput_->running(); }
 
+  // A sink for ONE engine, with a source of its own in the ASIO mix (see
+  // AsioOutput::openSource). Every deck used to share one sink, and so one
+  // ring: two decks playing at once interleaved their audio. The sink's
+  // functions hold the source; when the engine lets go of its sink, the
+  // source leaves the mix. Empty when ASIO is not armed.
+  MediaEngine::ExternalAudioSink makeAsioSink() {
+    MediaEngine::ExternalAudioSink sink;
+    if (!asioArmed()) return sink;
+    std::shared_ptr<deckboy::platform::audio::AsioOutput::Source> source = asioOutput_->openSource();
+    if (!source) return sink;
+    deckboy::platform::audio::AsioOutput* raw = asioOutput_.get();
+    sink.channels = raw->channels();
+    sink.write = [raw, source](const std::int16_t* data, std::size_t frames) {
+      return raw->write(*source, data, frames);
+    };
+    sink.queued = [raw, source]() { return raw->queuedFrames(*source); };
+    sink.clear = [raw, source]() { raw->clear(*source); };
+    sink.pause = [raw, source](bool paused) { raw->setPaused(*source, paused); };
+    return sink;
+  }
+
   void disarmAsioOutput(const char* reason = nullptr) {
     if (!asioOutput_) return;
     for (auto& runtime : deckRuntimes_) {
+      // An outgoing tail holds a sink too; it ends with the device.
+      finishOutgoingTail(runtime);
       if (runtime.mediaEngine) {
         runtime.mediaEngine->setExternalAudioSink(MediaEngine::ExternalAudioSink{});
       }
@@ -6435,15 +6458,9 @@
     // reports the situation instead of refusing to open.
     asioOutput_ = std::move(out);
 
-    MediaEngine::ExternalAudioSink sink;
-    sink.channels = asioOutput_->channels();
-    deckboy::platform::audio::AsioOutput* raw = asioOutput_.get();
-    sink.write = [raw](const std::int16_t* data, std::size_t frames) {
-      return raw->write(data, frames);
-    };
-    sink.queued = [raw]() { return raw->queuedFrames(); };
+    // A source per deck, summed by the driver callback -- not one shared ring.
     for (auto& runtime : deckRuntimes_) {
-      if (runtime.mediaEngine) runtime.mediaEngine->setExternalAudioSink(sink);
+      if (runtime.mediaEngine) runtime.mediaEngine->setExternalAudioSink(makeAsioSink());
     }
     const int latMs = static_cast<int>(asioOutput_->outputLatencySeconds() * 1000.0);
     triggerToast("ASIO: " + driverName + "  " +
