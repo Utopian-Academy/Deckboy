@@ -109,8 +109,14 @@ The control window's preview is sampled from the **output's** finished composite
 not the decoder. `captureOutputPreviewTap()` (`app_output_mgmt.ipp`) renders
 `compositorTexture` into a small target on the output renderer and reads it back
 once per presented frame; `app_update.ipp` uploads it to `controlPreviewTex_`.
-Two invariants: the tap is taken **before** warp/AOI (so the warp editor's
-handles still make sense), and `controlPreviewIsComposite_` tells
+Two invariants: the tap is taken **before** warp/AOI -- the monitor is the
+programme, not one projector's correction of it -- EXCEPT while the warp editor
+is open on that output's own warp (`previewTapShowsWarp`): then the tap is the
+window's present drawn small, so the warp shows and the handles (drawn where
+the corners land) sit on the picture's corners. `previewTapWarped` marks such a
+tap; the mesh heightfield skips it. `warpEditTarget` maps handles to the
+letterboxed PICTURE rect (`cuePlacementFor` with no cue), not the monitor
+panel, or they sit off the picture by the bars. And `controlPreviewIsComposite_` tells
 `app_render_main.ipp` to draw it **without** re-applying cue geometry — the
 composite already has it baked in. When no window output is armed it falls back
 to the old decoder-frame path. Don't restore the ~10fps hwframe-download path as

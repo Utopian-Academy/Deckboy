@@ -3751,17 +3751,24 @@
   // presents, the preview cannot drift away from the output.
   //
   // Tapped BEFORE warp/AOI/edge-blend (those are applied at present time in
-  // presentOutputCompositorToWindow), which keeps the warp editor's handle
-  // overlay meaningful — it still draws over an unwarped image.
+  // presentOutputCompositorToWindow): the monitor shows the programme, not one
+  // projector's correction of it. EXCEPT while the warp editor is open on this
+  // output (previewTapShowsWarp): then the tap is drawn the way the window
+  // presents it, so the warp shows in the monitor and the handles -- drawn
+  // where the corners land -- sit on the picture's own corners. Before, they
+  // floated over a flat picture and only the projector showed the warp.
   static constexpr int kPreviewTapMaxW = 640;
   static constexpr int kPreviewTapMaxH = 360;
 
-  bool captureOutputPreviewTap(OutputRuntime& runtime, const SDL_Rect& sourceRect) {
+  bool captureOutputPreviewTap(OutputRuntime& runtime, const SDL_Rect& sourceRect,
+                               int outputIndex = -1, int presentW = 0, int presentH = 0) {
     if (!runtime.outputRenderer || !runtime.compositorTexture) {
       return false;
     }
-    int srcW = std::max(1, sourceRect.w);
-    int srcH = std::max(1, sourceRect.h);
+    // Only a window warps, so an output with no window keeps the flat tap.
+    const bool warped = presentW > 0 && presentH > 0 && previewTapShowsWarp(outputIndex);
+    int srcW = std::max(1, warped ? presentW : sourceRect.w);
+    int srcH = std::max(1, warped ? presentH : sourceRect.h);
     // Fit the output's aspect inside the preview budget; never upscale.
     double scale = std::min({1.0,
                              static_cast<double>(kPreviewTapMaxW) / srcW,
@@ -3816,9 +3823,19 @@
     SDL_SetTextureScaleMode(runtime.compositorTexture, SDL_SCALEMODE_LINEAR);
     SDL_SetRenderDrawColor(runtime.outputRenderer, 0, 0, 0, 255);
     SDL_RenderClear(runtime.outputRenderer);
-    SDL_FRect src {static_cast<float>(sourceRect.x), static_cast<float>(sourceRect.y),
-                   static_cast<float>(srcW), static_cast<float>(srcH)};
-    SDL_RenderTexture(runtime.outputRenderer, runtime.compositorTexture, &src, nullptr);
+    if (warped) {
+      // The window's own present, drawn small: the same warp, AOI, edge blend
+      // and orientation, in the window's pixels, scaled down to the tap.
+      SDL_SetRenderScale(runtime.outputRenderer,
+                         static_cast<float>(tapW) / static_cast<float>(presentW),
+                         static_cast<float>(tapH) / static_cast<float>(presentH));
+      presentOutputCompositorToWindowLevels(outputIndex, presentW, presentH);
+      SDL_SetRenderScale(runtime.outputRenderer, 1.0f, 1.0f);
+    } else {
+      SDL_FRect src {static_cast<float>(sourceRect.x), static_cast<float>(sourceRect.y),
+                     static_cast<float>(srcW), static_cast<float>(srcH)};
+      SDL_RenderTexture(runtime.outputRenderer, runtime.compositorTexture, &src, nullptr);
+    }
 
     bool ok = false;
     bool tapDone = false;
@@ -3847,6 +3864,7 @@
           if (ok) {
             runtime.previewTapW = tapW;
             runtime.previewTapH = tapH;
+            runtime.previewTapWarped = warped;
             ++runtime.previewTapSerial;
           }
         } else if (++runtime.previewTapReadbackMisses >= 60) {
@@ -3876,6 +3894,7 @@
       if (ok) {
         runtime.previewTapW = captured->w;
         runtime.previewTapH = captured->h;
+        runtime.previewTapWarped = warped;
         ++runtime.previewTapSerial;
       }
       SDL_DestroySurface(captured);
@@ -3903,6 +3922,7 @@
     runtime.previewTapW = 0;
     runtime.previewTapH = 0;
     runtime.previewTapSerial = 0;
+    runtime.previewTapWarped = false;
   }
 
   // Which output the control window's program monitor mirrors: the focused
@@ -7908,6 +7928,8 @@
     float unitX = 1.0f;               // monitor pixels per stored unit
     float unitY = 1.0f;
     float snap = 10.0f;               // Shift-drag grid, in stored units
+    float originX = 0.0f;             // the output raster's 0,0 on the monitor
+    float originY = 0.0f;
   };
 
   // A grid point on the monitor: where the corner pin puts (s, t), plus its
@@ -7934,11 +7956,18 @@
     const int focOutIdx = std::clamp(project_.focusedOutputIndex, 0,
                                      std::max(0, static_cast<int>(project_.outputs.size()) - 1));
     auto [outW, outH] = outputRenderSizeForOutput(focOutIdx);
-    const float sx = static_cast<float>(mi.w) / std::max(1.0f, static_cast<float>(outW));
-    const float sy = static_cast<float>(mi.h) / std::max(1.0f, static_cast<float>(outH));
+    // THE PICTURE'S RECT, not the panel's. The monitor letterboxes the output
+    // into whatever shape its panel is (renderTextureWithCueGeometry with no
+    // cue), and handles mapped to the panel's corners sat off the picture by
+    // the width of the bars -- plain to see once the monitor showed the warp.
+    const SDL_Rect pic = cuePlacementFor(nullptr, std::max(1, outW), std::max(1, outH), mi).destination;
+    const float sx = static_cast<float>(pic.w) / std::max(1.0f, static_cast<float>(outW));
+    const float sy = static_cast<float>(pic.h) / std::max(1.0f, static_cast<float>(outH));
+    t.originX = static_cast<float>(pic.x);
+    t.originY = static_cast<float>(pic.y);
     OutputLayer* pin = warpEditLayer_ ? focusedLayerPin() : nullptr;
-    SDL_FRect rect {static_cast<float>(mi.x), static_cast<float>(mi.y),
-                    static_cast<float>(mi.w), static_cast<float>(mi.h)};
+    SDL_FRect rect {static_cast<float>(pic.x), static_cast<float>(pic.y),
+                    static_cast<float>(pic.w), static_cast<float>(pic.h)};
     if (pin) {
       t.pin = pin;
       const Cue* cue = activeCuePtr(pin->deckIndex);
@@ -7950,7 +7979,7 @@
         }
       }
       const SDL_Rect dest = cuePlacementFor(cue, frameW, frameH, SDL_Rect {0, 0, outW, outH}).destination;
-      rect = SDL_FRect {mi.x + dest.x * sx, mi.y + dest.y * sy, dest.w * sx, dest.h * sy};
+      rect = SDL_FRect {pic.x + dest.x * sx, pic.y + dest.y * sy, dest.w * sx, dest.h * sy};
       t.unitX = rect.w;
       t.unitY = rect.h;
       t.snap = 0.01f;
@@ -7987,7 +8016,6 @@
       return false;
     }
     const WarpEditTarget wt = warpEditTarget(warpMonitorInner_);
-    const SDL_Rect& mi = warpMonitorInner_;
     if (percent) *percent = wt.pin != nullptr;
     if (warpSelPoint_ < 4) {
       const int c = warpSelPoint_;
@@ -7997,8 +8025,8 @@
         vx = *wt.x[c] * 100.0f;
         vy = *wt.y[c] * 100.0f;
       } else {
-        vx = (wt.baseX[c] - static_cast<float>(mi.x)) / std::max(1.0e-3f, wt.unitX) + *wt.x[c];
-        vy = (wt.baseY[c] - static_cast<float>(mi.y)) / std::max(1.0e-3f, wt.unitY) + *wt.y[c];
+        vx = (wt.baseX[c] - wt.originX) / std::max(1.0e-3f, wt.unitX) + *wt.x[c];
+        vy = (wt.baseY[c] - wt.originY) / std::max(1.0e-3f, wt.unitY) + *wt.y[c];
       }
       return true;
     }
@@ -8012,8 +8040,8 @@
     const int row = idx / out.warpGridCols;
     if (name) *name = "point " + std::to_string(col + 1) + "," + std::to_string(row + 1);
     const SDL_FPoint p = warpGridPointOnMonitor(wt, out, col, row);
-    vx = (p.x - static_cast<float>(mi.x)) / std::max(1.0e-3f, wt.unitX);
-    vy = (p.y - static_cast<float>(mi.y)) / std::max(1.0e-3f, wt.unitY);
+    vx = (p.x - wt.originX) / std::max(1.0e-3f, wt.unitX);
+    vy = (p.y - wt.originY) / std::max(1.0e-3f, wt.unitY);
     return true;
   }
 
@@ -8047,6 +8075,20 @@
     }
     markProjectDirty();
     return true;
+  }
+
+  // THE MONITOR SHOWS THE WARP while the editor is open on this output's own
+  // warp (see captureOutputPreviewTap). Not for a layer's pin: its handles are
+  // in the flat composite's space, and the output's warp on top would move the
+  // picture out from under them.
+  bool previewTapShowsWarp(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    const int focused = std::clamp(project_.focusedOutputIndex, 0,
+                                   static_cast<int>(project_.outputs.size()) - 1);
+    return outputIndex == focused && warpEditorVisible() &&
+           !(warpEditLayer_ && focusedLayerPin());
   }
 
   // Whether the editor has anything to show: an armed output warp, or a pin

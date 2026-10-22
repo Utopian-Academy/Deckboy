@@ -12,6 +12,14 @@
 - Fixed: on ASIO output, the sound of a stopped cue could play at the start of the next cue
   taken on the same playlist.
 
+### Warp
+- While the WARP editor is open, the programme monitor shows the output's picture as its
+  window presents it: warped, and with its area of interest, rotation and edge blend. The
+  handles sit on the picture's corners, so a dragged corner takes the picture with it.
+  Closing the editor returns the monitor to the programme.
+- Fixed: when the monitor was a different shape from the output, the WARP editor's handles
+  and outline sat off the picture, out at the edges of the monitor.
+
 ## 2026-10-21 - v0.99.418 (scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
 ### Transitions

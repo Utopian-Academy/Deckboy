@@ -1126,7 +1126,9 @@
       } else if (std::optional<int> meshTapIdx = previewTapOutputIndex();
                  meshTapIdx.has_value()) {
         if (const OutputRuntime* meshTap = runtimeForOutput(*meshTapIdx);
-            meshTap && !meshTap->previewTapPixels.empty() &&
+            // The flat picture: a warped tap (warp editor open) is not
+            // the cue's heightfield.
+            meshTap && !meshTap->previewTapWarped && !meshTap->previewTapPixels.empty() &&
             meshTap->previewTapW > 0 && meshTap->previewTapH > 0) {
           DecodedFrame tapFrame;
           tapFrame.width = meshTap->previewTapW;

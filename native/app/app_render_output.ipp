@@ -5910,7 +5910,10 @@
     std::optional<int> tapOutput = previewTapOutputIndex();
     const Uint64 beforeTapNs = SDL_GetTicksNS();
     if (usingCompositor && tapOutput && *tapOutput == outputIndex) {
-      captureOutputPreviewTap(*runtime, egressRect);
+      // The window's size too: while the warp editor is open the tap is drawn
+      // as the window presents it. Nothing presents a stream-only output.
+      captureOutputPreviewTap(*runtime, egressRect, outputIndex,
+                              streamType ? 0 : width, streamType ? 0 : height);
     } else if (runtime->previewTapSerial != 0) {
       releaseOutputPreviewTap(*runtime);
     }

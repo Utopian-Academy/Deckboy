@@ -505,6 +505,11 @@ struct OutputRuntime {
   int previewTapW = 0;
   int previewTapH = 0;
   std::uint64_t previewTapSerial = 0;  // bumped per successful tap; 0 = nothing captured
+  // The tap as the window presents it -- warped, cropped, rotated, blended --
+  // rather than the flat composite: while the warp editor is open on this
+  // output (see previewTapShowsWarp). Anything that needs the flat picture
+  // checks this.
+  bool previewTapWarped = false;
   // The tap through the asynchronous staging ring where the renderer has one,
   // so the output pass never waits on the GPU for the control window's
   // monitor. Unavailable is latched, as for egress, so a renderer with no

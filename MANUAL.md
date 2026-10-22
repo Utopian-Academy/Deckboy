@@ -1663,6 +1663,13 @@ Press **WARP** on the programme monitor's header to edit, or open **Settings >
 Video Outputs > Geometry > WARP**. A banner across the picture says what the
 handles are moving: the whole programme on this output, or one layer's pin.
 
+While the editor is open on the output's warp, the monitor shows the picture
+as the output window presents it: warped, and with its area of interest,
+rotation and edge blend. The handles sit on the picture's own corners, so a
+dragged corner takes the picture's corner with it. Close the editor and the
+monitor goes back to the programme, unwarped. A layer's pin is edited over
+the unwarped programme, where its handles belong.
+
 ### Blending two projectors
 
 When one picture is too big for one projector, or a lens cannot reach the
