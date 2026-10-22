@@ -35,6 +35,9 @@
 - The scopes footer shows the measuring rate, the source's frame rate and the output's refresh
   (`LIVE 25.0/s src 25.00 fps out 60.00 Hz`), and says when some pictures could not be
   measured (`41.3 of 59.9/s`).
+- Measuring every picture does not cost the outputs their smoothness: the scopes read a
+  picture back only when they are ready for it, and use a fixed share of the CPU. Measured
+  on a 4K desk with the scopes showing: 1 output hitch in 18 seconds, on 1.4 cores.
 - `SCOPES STATS` reports `picture_hz` (how often the picture changed) and `out_hz`.
 
 ### Example shows
