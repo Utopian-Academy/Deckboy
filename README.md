@@ -38,21 +38,32 @@ operator finds it, and how you find it again.
 
 ### In the current release
 
-The [v0.99.417 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.417)
-includes the latest tracker alongside the recent HDR, phone and lighting features:
+The [v0.99.418 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.418)
+(21 October 2026) brings:
 
-- **Master tracker:** a pattern view with hex rows, keyboard editing, cue/stop/fade/volume/opacity
-  cells, column mute/solo, jumps and named sections. The classic grid remains available.
-- **HDR workflows:** PQ or HLG feeds with graphics overlaid, HDR window output, ST 2110,
-  SRT/enhanced RTMP and recording. The end-to-end HDR input path is measured on Windows;
-  macOS and Linux convert HDR input to SDR. NDI and Web Monitor stay SDR. DeckLink HDR
-  output is implemented but has not been tested on a card.
-- **Phone control:** QR pairing, TAKE, transport, fader, cue list, editable DASH and tracker
-  on one page, with remote access through Tailscale when installed on both devices.
-- **Lights and live audio:** a named fixture patch over Art-Net or sACN, Mic cues with
-  fades and processing, and captions made locally from live speech or programme audio.
-- **Projection and setup:** gamma-correct edge blending, paired overlap and black lift;
-  output test cards and movie export; save your own defaults for new shows.
+- **Scopes that follow the picture:** SDR scopes measure each new picture at the source's
+  frame rate, including 25, 50 and 59.94 fps. The footer shows the measured rate, source rate
+  and output refresh, and reports when analysis falls behind. HDR analysis remains slower;
+  see the [scope details](MANUAL.md#18a-picture-scopes).
+- **Four example shows:** choose **EXAMPLE SHOWS** on the startup screen, or press **E**
+  there. Start by activating an output, then try taking cues, layered titles, effects and
+  a 39-second automated show with original music. The examples open from a writable copy
+  in `Documents/Deckboy Example Shows` so you can edit and save them.
+- **A multilingual face:** all 74 tips, hover answers and reactions in the 29 full language
+  catalogues, including Klingon, Sindarin and Lumeni. Local sayings greet a language change;
+  tips shuffle without repeating until the set is used up.
+- **Playing through a transition:** playing video and audio files keep moving and fade their
+  sound out over the transition on standard audio outputs, when the outgoing cue has no grade
+  or picture effects. **In 0.99.418, ASIO still holds the outgoing picture and cuts its sound
+  at TAKE; recordings and streams also switch to the incoming sound at TAKE.** Paused and
+  ended cues hold their last picture. [Transition behaviour](MANUAL.md#10-transitions).
+- **Mini opens ready to add media:** launch it with no files to get an empty window, then
+  drop clips or a folder onto it, or press **A** in its terminal and enter a path.
+
+Also included: the master tracker's pattern view, phone control with QR pairing,
+named lighting fixtures, live captions, projection blending and HDR workflows.
+The [specifications](https://utopian-academy.github.io/Deckboy/specs.html) explain
+platform and hardware requirements; [all release changes](CHANGES.md) are listed separately.
 
 ![The Deckboy master tracker in pattern view, with cue, level, fade and stop cells, named sections and playlist controls](docs/images/readme/master-tracker.png)
 
@@ -70,7 +81,7 @@ includes the latest tracker alongside the recent HDR, phone and lighting feature
 </table>
 
 <details>
-<summary><b>The current desk in three themes</b></summary>
+<summary><b>The desk in three themes — captured in v0.99.417</b></summary>
 
 **Gameboy**
 
@@ -143,12 +154,19 @@ Deckboy is free software. If it helps you run a show, share your experience, rep
 
 ## Download
 
-**[Try the example shows](data/demos/starter-pack/README.md)** — a first-cue
-walkthrough, layered titles, an effects playground and a 39-second automated
-show with original music. Open the `.deckboy` files and follow the cue notes.
+**[Try the example shows](data/demos/starter-pack/README.md)** — choose **EXAMPLE SHOWS**
+on the startup screen (or press **E** there). It opens `01-start-here.deckboy`
+from a writable copy in `Documents/Deckboy Example Shows`. Read `00-START-HERE.html`
+and the cue notes.
 
-The features below describe the current source. Packaged builds and their
-version-specific changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
+1. **Activate an output:** press **N**, or use **DASH → 1 Activate output**.
+2. **Take the first cue:** select cue 01 and press **TAKE** (`Enter`).
+3. **Advance:** press **GO** (`Space`), then explore layers, effects and the automated show.
+
+![Programme output from Deckboy's four included example shows: first cues, layered titles, effects and the automated Soft Circuit show](data/demos/starter-pack/overview.png)
+
+The features below describe **v0.99.418**. Packaged builds and their version-specific
+changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
 
 Every release ships an installer **and** a portable build for each platform.
 Both bundle the application, FFmpeg and its runtime libraries for ordinary file
@@ -283,9 +301,11 @@ playable on site, minutes before doors.
 
 ### Deckboy Mini
 
-For a screen that only needs to play. `deckboy-mini` ships beside Deckboy: point
-it at clips or a folder and it plays them fullscreen through the same engine as
-the desk, in name order, holding stills, looping if you ask. It answers the
+For a screen that only needs to play. `deckboy-mini` ships beside Deckboy. Open
+it with no files for an empty window, then drop clips, pictures or a folder onto
+it, or press **A** in its terminal and enter a path. Give it files at launch and
+it plays them fullscreen through the same engine as the desk, in name order,
+holding stills, looping if you ask. It answers the
 desk's remote commands on the desk's port, so Companion drives it as deck 1,
 and the whole show runs from the keyboard in its terminal, over SSH too:
 reorder, rename and remove cues, save and open playlists (M3U8), pick the
@@ -293,7 +313,9 @@ display and the sound device, and the keys a media player has — frame step,
 speed, A-B loop, mute, sound track and subtitles. It keeps a media player's
 running-order habits too: find a cue by name, queue the one to play next, stop
 after this cue, shuffle, a clock that counts down, and a crossfade between
-cues. It opens `.pls` lists as well as M3U8. On a Raspberry Pi it plays
+cues. It opens `.pls` lists as well as M3U8. A **watch folder** (`--watch DIR`, or
+Shift+W in the terminal) adds new media as it arrives, after each file finishes
+copying. On a Raspberry Pi it plays
 through the board's own video decoder; `tools/linux_build.sh --mini` builds it
 there. Its own [miniature manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
 has every key and command. Mini comes inside every download, and on its own as
@@ -429,7 +451,10 @@ all one object with one set of controls, not fifty separate things to learn.
 - A test card per output, drawn at its own raster, with moving checks, safe
   areas, frame counter and export to H.264 movies
 - Programme picture scopes: waveform, parade, vectorscope, histogram and gamut
-  checks, including HDR measurements in nits and the SDI/ST 2110 4:2:2 signal
+  checks, including HDR measurements in nits and the SDI/ST 2110 4:2:2 signal.
+  SDR analysis follows new source pictures; the footer shows actual analysis speed
+  and any missed pictures. HDR analysis is slower. Scopes live on the desk;
+  a dedicated scopes output is on the roadmap
 
 </details>
 
@@ -577,7 +602,8 @@ and reacquisition update the media clock. See
   decks, DASH, fixtures, theme and settings, without the cues
 - A language picker with 43 languages, including Arabic and Persian right to
   left, Kurdish, Kabyle and Tamazight, Cubano, Klingon and a few written in
-  cypher
+  cypher. The 29 full language catalogues include the face's 74 tips, hover
+  answers and reactions, with local sayings when switching languages
 - Every script on any desk: a cue named in Japanese, Chinese, Hindi or Arabic
   reads on an English desk, from the fonts the computer already has
 - Missing-media detection with folder relink, so a moved drive does not cost you
