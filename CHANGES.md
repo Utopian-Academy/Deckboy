@@ -1,11 +1,18 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-21 - v0.99.419 (in progress)
+## 2026-10-21 - v0.99.418 (scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
+
+### Transitions
+- A cue that is playing now keeps playing through the transition out of it, and its sound
+  fades out over the transition. Before, a crossfade (or any transition) out of a playing
+  video froze it on its last frame and cut its sound at GO. A cue that has reached its end,
+  or is paused, still holds its last frame. Applies to video and audio files without a
+  grade or picture effects, on ASIO output as on any other; recordings and streams still
+  take the new cue's sound at the take.
 
 ### ASIO
-- A playing cue keeps playing through the transition out of it on ASIO output as well, and its
-  sound fades out under the incoming cue's. Each playlist, and a cue on its way out, now
-  reaches the interface on its own, and Deckboy mixes them.
+- Each playlist, and a cue on its way out of a transition, now reaches an ASIO interface on its
+  own, and Deckboy mixes them.
 - Fixed: on ASIO output with a driver buffer of 512 frames or less (ASIO4ALL's default), a cue
   went silent about half a second after it started.
 - Fixed: on ASIO output, pausing a cue did not pause its sound.
@@ -19,16 +26,6 @@
   Closing the editor returns the monitor to the programme.
 - Fixed: when the monitor was a different shape from the output, the WARP editor's handles
   and outline sat off the picture, out at the edges of the monitor.
-
-## 2026-10-21 - v0.99.418 (scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
-
-### Transitions
-- A cue that is playing now keeps playing through the transition out of it, and its sound
-  fades out over the transition. Before, a crossfade (or any transition) out of a playing
-  video froze it on its last frame and cut its sound at GO. A cue that has reached its end,
-  or is paused, still holds its last frame. Applies to video and audio files without a
-  grade or picture effects, not on ASIO output; recordings and streams still take the new
-  cue's sound at the take.
 
 ### Scopes
 - The scopes now measure every new picture once, at the source's own frame rate: a 25 fps
