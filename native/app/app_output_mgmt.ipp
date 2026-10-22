@@ -8180,6 +8180,9 @@
     return refreshes;
   }
 
+  // Outputs already told their asked-for refresh is not on their screen.
+  std::uint32_t refreshUnavailableWarned_ = 0;
+
   bool selectDisplayModeForOutput(int outputIndex, SDL_DisplayMode& selectedMode) const {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return false;
@@ -8215,7 +8218,20 @@
       double hz = mode.refresh_rate > 0.0f ? static_cast<double>(mode.refresh_rate) : 60.0;
       double score = 0.0;
       if (targetHz > 0.0) {
-        score = std::abs(hz - targetHz);
+        // THE ASKED RATE, OR A WHOLE MULTIPLE OF IT -- never merely the
+        // nearest. Nearest put a show asking for 30 Hz on a screen's 50 Hz
+        // mode (|50-30| < |60-30|): every frame held for 1 or 2 refreshes in
+        // turn, the unsteady playback an example show gave on a 60 Hz 4K desk
+        // monitor (2026-10-22). A multiple holds every frame equally (30 on
+        // 60, 25 on 50, 24 on 48/72/120, 29.97 on 59.94); the smallest one
+        // wins, the exact rate first. No such mode: not a candidate at all,
+        // and the screen keeps its own mode (enableOutputFullscreen says so).
+        const double multiple = hz / targetHz;
+        const double whole = std::round(multiple);
+        if (whole < 1.0 || whole > 8.0 || std::abs(hz - whole * targetHz) > 0.05 * whole) {
+          continue;
+        }
+        score = whole * 1000.0 + std::abs(hz - whole * targetHz);
       } else {
         // Auto: prefer desktop refresh if available, then highest refresh.
         if (hasDesktop && desktopMode.w == targetW && desktopMode.h == targetH && desktopMode.refresh_rate > 0.0f) {
@@ -8288,6 +8304,16 @@
         }
         return true;
       }
+    } else if (wantsExclusiveMode && project_.outputRefreshRateHz > 0.0 && outputIndex >= 0 && outputIndex < 32 &&
+               !((refreshUnavailableWarned_ >> outputIndex) & 1u)) {
+      // Asked for a rate this screen has neither exactly nor as a whole
+      // multiple: the screen keeps its own mode, and the operator is told
+      // rather than finding out from the picture.
+      refreshUnavailableWarned_ |= 1u << outputIndex;
+      triggerToast(outputLabel(outputIndex) + ": this screen has no " +
+                   formatRefreshRateLabel(static_cast<float>(project_.outputRefreshRateHz)) +
+                   " mode (or a multiple of it) - left at its own rate",
+                   ToastKind::Warning, kToastReadableMs);
     }
 
     // SDL3: borderless fullscreen desktop = NULL mode, then fullscreen.

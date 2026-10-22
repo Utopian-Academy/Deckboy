@@ -22,7 +22,7 @@ BASE = {
     "ui_sounds": 0, "hover_tips": 1, "theme": "dark", "ui_scale": 1.5,
     "master_volume": .5, "master_dimmer": 1, "output_follow_display": 0,
     "output_render_width": 1280, "output_render_height": 720,
-    "output_refresh_hz": 30, "output_canvas_enabled": 0,
+    "output_refresh_hz": 0, "output_canvas_enabled": 0,
     "update_check": 0, "allow_remote_network": 0, "web_remote_enabled": 0,
     "web_monitor_enabled": 0, "hyperdeck_enabled": 0, "tracker_loop": 0,
     "tracker_classic": 0, "clicker_tracker": 0, "dashboard_mode": 0,
@@ -31,8 +31,23 @@ BASE = {
 }
 
 
-def seed(title):
-    return "\n".join(f"{key}\t{value}" for key, value in {"title": title, **BASE}.items()) + "\n"
+# What a SHIPPED show says about its output: follow the screen it is put on,
+# its own resolution and its own refresh. The shows are AUTHORED on a fixed
+# 1280x720 raster (BASE) so every cue's size is the same on every machine that
+# builds them, but they shipped with that pin -- and with a 30 Hz refresh,
+# which made Deckboy switch the screen to its nearest mode: 50 Hz on a 60 Hz
+# desk monitor, the "unsteady playback" an example show gave on a 4K screen.
+# An example has no business changing anybody's display mode.
+SHIP = {"output_follow_display": 1, "output_refresh_hz": 0}
+
+
+def seed(title, shipped=False):
+    values = {"title": title, **BASE}
+    if shipped:
+        values.pop("output_render_width")
+        values.pop("output_render_height")
+        values.update(SHIP)
+    return "\n".join(f"{key}\t{value}" for key, value in values.items()) + "\n"
 
 
 def make_audio():
@@ -276,7 +291,7 @@ def finish(raw, slug, title, author, steps):
             if f[4] == "audio":
                 f[2], f[17] = "media/soft-circuit.wav", "0"
             kept.append(f)
-    text = seed(title)
+    text = seed(title, shipped=True)
     for f in kept:
         line = "\t".join(f)
         for old, new in ids.items():

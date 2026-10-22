@@ -40,7 +40,22 @@
   on a 4K desk with the scopes showing: 1 output hitch in 18 seconds, on 1.4 cores.
 - `SCOPES STATS` reports `picture_hz` (how often the picture changed) and `out_hz`.
 
+### Outputs
+- Fixed: a fullscreen output set to a refresh rate its screen does not have could switch the
+  screen to the nearest rate instead, and play unevenly there: asked for 30 Hz on a 60 Hz
+  screen that also offers 50 Hz, the screen went to 50 Hz and 30 fps material judders on it.
+  An output now uses the rate it asks for, or a whole multiple of it (30 on a 60 Hz mode,
+  25 on 50, 24 on 48, 72 or 120); if the screen has neither, its mode is left alone and the
+  operator is told once.
+- `STATUS` reports each output's window size, its render size and whether it is fullscreen
+  (`window_px=3840x2160 render_px=3840x2160 fullscreen=1`), so a picture the compositor is
+  scaling shows up as two different sizes.
+
 ### Example shows
+- The example shows now play at the size and refresh of whatever screen they are shown on.
+  They asked for a 1280x720, 30 Hz output, which switched some screens out of their own rate.
+  A copy already in `Documents/Deckboy Example Shows` keeps the old setting; delete the folder
+  and open EXAMPLE SHOWS again for the new copies.
 - Added four example shows that teach the basics: turning an output on and taking the first cue,
   layers and titles, effects, and a one-button show with original music. Each cue carries a note in
   the inspector; start with `00-START-HERE.html`.

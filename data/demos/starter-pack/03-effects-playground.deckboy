@@ -8,10 +8,8 @@ theme	dark
 ui_scale	1.5
 master_volume	0.5
 master_dimmer	1
-output_follow_display	0
-output_render_width	1280
-output_render_height	720
-output_refresh_hz	30
+output_follow_display	1
+output_refresh_hz	0
 output_canvas_enabled	0
 update_check	0
 allow_remote_network	0

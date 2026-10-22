@@ -380,6 +380,23 @@
     return output.str();
   }
 
+  // WHAT THE OUTPUT ACTUALLY PRESENTS: the window in pixels, the swapchain the
+  // renderer draws into, and whether it is fullscreen. A swapchain that does
+  // not match the screen pixel for pixel is scaled by the compositor every
+  // refresh, and then anything else updating on that screen can cost the
+  // programme a frame.
+  std::string outputPresentGeometryStatus(int outputIndex) const {
+    const OutputRuntime* rt = runtimeForOutput(outputIndex);
+    if (!rt || !rt->outputWindow || !rt->outputRenderer) return " window_px=0x0 render_px=0x0 fullscreen=0";
+    int ww = 0, wh = 0, rw = 0, rh = 0;
+    SDL_GetWindowSizeInPixels(rt->outputWindow, &ww, &wh);
+    SDL_GetCurrentRenderOutputSize(rt->outputRenderer, &rw, &rh);
+    const bool fs = (SDL_GetWindowFlags(rt->outputWindow) & SDL_WINDOW_FULLSCREEN) != 0;
+    return " window_px=" + std::to_string(ww) + "x" + std::to_string(wh) +
+           " render_px=" + std::to_string(rw) + "x" + std::to_string(rh) +
+           " fullscreen=" + (fs ? "1" : "0");
+  }
+
   std::string buildStatusSnapshot() const {
     std::ostringstream output;
     output << "DECKBOY_0.01"
@@ -561,6 +578,7 @@
                                   ? runtimeForOutput(outputIndex)->presentHitches : 0)
              << " worst_gap_ms=" << static_cast<int>(std::lround(runtimeForOutput(outputIndex)
                                   ? runtimeForOutput(outputIndex)->worstPresentGapMs : 0.0))
+             << outputPresentGeometryStatus(outputIndex)
              << " stream_fps=" << streamFps
              << " stream_q=" << streamQueued
              << " stream_sent=" << streamWritten
