@@ -91,6 +91,15 @@
   std::deque<Uint64> scopesPictureTimes_;    // when the scoped picture changed
   double scopesOutputHz_ = 0;                // the scoped output's present rate
   Uint64 scopesConfirmedNs_ = 0;             // last time the picture was seen unchanged
+  // SMOOTH AT 4K (James, 2026-10-21: "massive performance issues ... on my 4k
+  // monitor"). Measured: reading back and fingerprinting EVERY presented 4K
+  // frame cost the render thread 5.6 ms a frame, and the analyser kept ~11
+  // cores busy. Now a frame is read back only when the analyser can take it,
+  // an unchanged picture is re-checked 4 times a second rather than 60, and
+  // the analyser has a fixed share of the machine.
+  Uint64 scopesNextProbeNs_ = 0;             // main thread: earliest next look at a still picture
+  std::atomic<bool> scopesAnalysing_ {false};
+  std::atomic<bool> scopesDrawing_ {false};
   std::string scopesCaptureKey_;
   SDL_Renderer* scopesCaptureRenderer_ = nullptr;
   SDL_Texture* scopesCaptureTexture_ = nullptr;
@@ -628,20 +637,26 @@
       // The rate says what the scopes kept up with: "25.0/s" when every new
       // picture was analysed, "41.3 of 59.9/s" when some were not. Then the
       // source's own frame rate and the output's, so both can be checked.
-      const double picture = live ? scopesPictureRate() : 0;
-      char rateText[48];
-      if (picture > 0.5 && rate < picture - 0.5)
-        std::snprintf(rateText, sizeof(rateText), "%.1f of %.1f/s", rate, picture);
-      else
-        std::snprintf(rateText, sizeof(rateText), "%.1f/s", rate);
+      // What it should have kept up with: the source's own frame rate (no
+      // faster than the output shows it) when the cue says, else how often
+      // the picture was seen to change. The scopes look only when their
+      // analyser is free, so the rate they SAW is not the source's rate.
+      double expected = live ? scopesPictureRate() : 0;
       char sourceText[48] = "";
       if (source >= 0 && source < static_cast<int>(project_.outputs.size()) && !project_.decks.empty()) {
         const int deck = std::clamp(project_.outputs[source].hostDeckIndex, 0,
                                     static_cast<int>(project_.decks.size()) - 1);
         const Cue* cue = activeCuePtr(deck);
-        if (cue && cue->kind == CueKind::Video && cue->fps > 1.0)
+        if (cue && cue->kind == CueKind::Video && cue->fps > 1.0) {
           std::snprintf(sourceText, sizeof(sourceText), "src %.2f fps  ", cue->fps);
+          if (live) expected = scopesOutputHz_ > 1.0 ? std::min(cue->fps, scopesOutputHz_) : cue->fps;
+        }
       }
+      char rateText[48];
+      if (expected > 0.5 && rate < expected - 0.5)
+        std::snprintf(rateText, sizeof(rateText), "%.1f of %.1f/s", rate, expected);
+      else
+        std::snprintf(rateText, sizeof(rateText), "%.1f/s", rate);
       char outText[32] = "";
       if (scopesOutputHz_ > 1.0) std::snprintf(outText, sizeof(outText), "out %.2f Hz  ", scopesOutputHz_);
       char info[300];

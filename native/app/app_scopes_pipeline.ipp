@@ -11,6 +11,7 @@
     scopesUpdateTimes_.clear();
     scopesLastFingerprint_ = 0;
     scopesConfirmedNs_ = 0;
+    scopesNextProbeNs_ = 0;
     scopesPictureTimes_.clear();
   }
 
@@ -51,7 +52,11 @@
     if (!scopesWorker_.joinable()) {
       scopesWorker_ = std::thread([this] {
         namespace s = deckboy::core::scopes;
-        s::ParallelAnalyzer analyzer;
+        // A quarter of the machine, 2 to 6 threads: enough for 1080p at the
+        // source's rate, and a 4K picture never takes the cores the decoders
+        // and the outputs need.
+        const unsigned cores = std::max(1u, std::thread::hardware_concurrency());
+        s::ParallelAnalyzer analyzer(std::clamp(cores / 4, 2u, 6u));
         std::unique_ptr<deckboy::core::hdr::HdrEncoder> encoder;
         int white = 0;
         for (;;) {
@@ -62,7 +67,9 @@
             if (scopesStopping_) return;
             next = std::move(*scopesPending_);
             scopesPending_.reset();
+            scopesAnalysing_ = true;
           }
+          struct Idle { std::atomic<bool>& flag; ~Idle() { flag = false; } } analysingIdle{scopesAnalysing_};
           try {
             auto& outcome = next.outcome;
             const auto started = SDL_GetTicksNS();
@@ -127,7 +134,9 @@
             if (scopesStopping_) return;
             outcome = std::move(*scopesDrawPending_);
             scopesDrawPending_.reset();
+            scopesDrawing_ = true;
           }
+          struct Idle { std::atomic<bool>& flag; ~Idle() { flag = false; } } drawingIdle{scopesDrawing_};
           try {
             const auto started = SDL_GetTicksNS();
             outcome.images = buildScopeImages(outcome.result);
@@ -186,6 +195,14 @@
 
   // A full-raster private tap: never changes a recording/network sender's
   // rate or pixel buffer. Every presented frame is looked at; only a new picture is analysed.
+  // Is a picture already on its way through analysis or drawing? Then reading
+  // another back now would only be thrown away.
+  bool scopesPipelineBusy() {
+    if (scopesAnalysing_ || scopesDrawing_) return true;
+    std::lock_guard lock(scopesMutex_);
+    return scopesPending_.has_value() || scopesDrawPending_.has_value();
+  }
+
   void scopesCaptureFrame(int index, OutputRuntime& runtime, const SDL_Rect& rect) {
     if (!scopesWatching(index) || !runtime.outputRenderer) return;
     ScopeJob job;
@@ -216,11 +233,14 @@
     outcome.generation = scopesGeneration_.load();
     outcome.capturedNs = now;
     const auto bytes = static_cast<std::size_t>(outcome.width) * outcome.height * (outcome.hdr ? 8 : 4);
-    job.pixels = scopeBuffer(bytes);
-    if (!job.pixels) {
-      // Every buffer is in use, so this picture cannot be checked. Count it as
-      // a change: the footer then shows a shortfall rather than hiding one.
-      notePictureChanged(now);
+    // Look only when the analyser can take the picture, and at a still one
+    // only every 250 ms. Otherwise the GPU ring is kept moving (a copy on the
+    // GPU, nothing read) so the frame read next time is a recent one.
+    const bool want = now >= scopesNextProbeNs_ && !scopesPipelineBusy();
+    if (want) {
+      job.pixels = scopeBuffer(bytes);
+      if (!job.pixels) return;
+    } else if (!scopesReadback_) {
       return;
     }
 
@@ -254,6 +274,11 @@
     bool captured = false;
     if (scopesReadback_) {
       SDL_FlushRenderer(runtime.outputRenderer);
+      if (!want) {
+        deckboy::gpu::stagingReadbackFrame(scopesReadback_, source, nullptr, 0,
+                                           outcome.width, outcome.height, now, nullptr);
+        return;
+      }
       captured = deckboy::gpu::stagingReadbackFrame(scopesReadback_, source, job.pixels->data(),
         job.pixels->size(), outcome.width, outcome.height, now, &outcome.capturedNs);
       if (captured) scopesReadbackMisses_ = 0;
@@ -305,6 +330,7 @@
       // Unchanged: the last reading is still the reading of what is on air.
       // Without this a still picture was reported STALE half a second in.
       scopesConfirmedNs_ = now;
+      scopesNextProbeNs_ = now + 250000000ULL;
       // The slow 4:2:2 gamut check paces itself (every two seconds, never
       // while busy). A still picture is offered once otherwise, and if the
       // check was busy then, its verdict never arrived.
@@ -312,6 +338,7 @@
       return;
     }
     scopesLastFingerprint_ = fingerprint;
+    scopesNextProbeNs_ = 0;
     notePictureChanged(now);
     if (!outcome.hdr && !hdrWire && orientation) {
       std::vector<std::uint8_t> rotated;

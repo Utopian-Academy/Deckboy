@@ -181,7 +181,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
                               int width, int height, std::uint64_t submittedAtNs,
                               std::uint64_t* sourceAtNs) {
   auto* rb = static_cast<GpuDownloadReadback*>(handle);
-  if (!rb || !source || !out) {
+  if (!rb || !source) {
     return false;
   }
   if (rb->width != width || rb->height != height) {
@@ -246,6 +246,10 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
     rb->primed += 1;
     return false;   // ring still filling
   }
+  // FEED ONLY: no buffer means "keep the ring moving, read nothing". A
+  // reader that wants a frame only now and then (the scopes, while their
+  // analyser is busy) still gets a recent one when it does ask.
+  if (!out) return false;
 
   const Uint64 t2 = SDL_GetPerformanceCounter();
   const int oldest = rb->cursor;
@@ -368,7 +372,7 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
                         std::uint64_t* sourceAtNs) {
 #ifdef _WIN32
   auto* rb = reinterpret_cast<StagingReadback*>(handle);
-  if (!rb || !source || !out) {
+  if (!rb || !source) {
     return false;
   }
   if (rb->width != width || rb->height != height) {
@@ -406,6 +410,10 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
     rb->primed += 1;
     return false;   // ring still filling: nothing old enough to read yet
   }
+  // FEED ONLY: no buffer means "keep the ring moving, read nothing". A
+  // reader that wants a frame only now and then (the scopes, while their
+  // analyser is busy) still gets a recent one when it does ask.
+  if (!out) return false;
   // Read the OLDEST, which the GPU finished with two frames ago. DO_NOT_WAIT so
   // a stall degrades into a skipped frame rather than blocking the render
   // thread -- the whole point of the exercise.
