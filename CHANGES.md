@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-23 - v0.99.419 (in progress)
+## 2026-10-23 - v0.99.419 (the warp editor shows the output being warped; steadier ASIO, scopes, crossfades and refresh rates)
 
 ### Warp
 - Fixed: with two window outputs showing the same playlist, warping the second one in the WARP
