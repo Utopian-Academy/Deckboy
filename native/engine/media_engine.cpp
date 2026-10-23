@@ -14061,7 +14061,11 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   // effect on the cue (the example show's kaleidoscope) ran over all of them,
   // 39 fps on a 60 Hz 4K screen. Halved only while it divides evenly.
   if (basePatternType == "swirl" || basePatternType == "fireside") {
-    while (sourceH > 1200 && sourceW % 2 == 0 && sourceH % 2 == 0) {
+    // Never below the frame's 320x180 floor on either side: the floor clamps
+    // each axis on its own, so 480x1920 halved to 240x960 came back 320x960
+    // and the picture changed shape (Codex audit #6).
+    while (sourceH > 1200 && sourceW % 2 == 0 && sourceH % 2 == 0 &&
+           sourceW / 2 >= 320 && sourceH / 2 >= 180) {
       sourceW /= 2;
       sourceH /= 2;
     }

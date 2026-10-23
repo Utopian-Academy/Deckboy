@@ -29,6 +29,11 @@
   gave a different look. This also applies to the oscillators on a cue's size, position, rotation
   and crop.
 
+### Swirl and Fireside
+- Fixed: on a tall, narrow output (such as 480x1920 or 1080x3840) a Swirl or Fireside came out
+  the wrong shape, with bars or a stretch. Their reduced drawing size now keeps the output's
+  proportions.
+
 ## 2026-10-21 - v0.99.418 (a Moire source; scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
 ### Moire
