@@ -637,6 +637,54 @@ inline const char* swirlPaletteName(int palette) {
   return kNames[palette >= 0 && palette < kSwirlPaletteCount ? palette : 0];
 }
 
+// A MOIRE source: a phase field folded through a rainbow-and-grey ramp, fine
+// enough that its bands beat against the pixel grid. Drawn per output pixel,
+// so what it looks like depends on the raster it lands on -- that is the
+// point of it. See buildMoireField.
+//
+// EVERY NUMBER IS 0-1, because each one can be handed to a ParamLfo and an
+// oscillator swings a 0-1 value. The ranges the operator sees (degrees, a
+// density multiplier) are mapped at the edge. The defaults are the approved
+// design's: density 1x, the prototype's speed, warp and grey.
+enum MoireLfoSlot : int {
+  kMoireLfoDensity = 0,
+  kMoireLfoSpeed,
+  kMoireLfoWarp,
+  kMoireLfoTurn,
+  kMoireLfoCentreX,
+  kMoireLfoCentreY,
+  kMoireLfoGrey,
+  kMoireLfoHue,
+  kMoireLfoCount
+};
+inline constexpr int kMoireShapeCount = 6;
+inline constexpr int kMoirePaletteCount = 4;
+inline const char* moireShapeName(int shape) {
+  static const char* kNames[kMoireShapeCount] = {"zone", "twin", "flow", "saddle", "ripple", "shear"};
+  return kNames[shape >= 0 && shape < kMoireShapeCount ? shape : 0];
+}
+inline const char* moirePaletteName(int palette) {
+  static const char* kNames[kMoirePaletteCount] = {"rainbow + grey", "rainbow", "theme", "mono"};
+  return kNames[palette >= 0 && palette < kMoirePaletteCount ? palette : 0];
+}
+struct MoireSettings {
+  int shape = 2;            // flow: the one that looks most alive on arrival
+  int palette = 0;          // rainbow + grey
+  double density = 0.5;     // 0.25x .. 4x the bands, 0.5 = 1x
+  double speed = 0.35;      // 0 holds, 1 is three times the prototype's pace
+  double warp = 0.5;        // how far the field is bent, 0.5 = the prototype
+  double turn = 0.0;        // a whole turn over 0-1
+  double centreX = 0.5;
+  double centreY = 0.5;
+  double grey = 0.45;       // the share of each cycle drawn as grey stripes
+  double hue = 0.0;         // turns the rainbow, 0-1
+  // The "theme" palette's four inks, dark to light, captured from the desk's
+  // theme when that palette is picked -- so the show keeps its look on a desk
+  // with another theme. 0xRRGGBB.
+  std::array<std::uint32_t, 4> themeInks {0x0f3518u, 0x306230u, 0x9fb81au, 0xd4e05au};
+  std::array<deckboy::effects::ParamLfo, 9> lfo {};   // [kMoireLfo*]; 8 unused
+};
+
 struct PortalSettings {
   int blobs = 18;        // how many are alive at once, 3-48
   double size = 0.5;     // how big a blob grows, 0-1
@@ -1186,6 +1234,8 @@ enum class ScaleMode {
 constexpr int kGeometryLfoPackBase = 1 << 20;
 // A DMX cue's fixture rows: base + row * 2 + (0 intensity, 1 colour).
 constexpr int kFixtureLfoPackBase = 1 << 21;
+// A Moire cue's oscillators: base + MoireLfoSlot.
+constexpr int kMoireLfoPackBase = 1 << 22;
 
 // One fixture in a DMX cue: its level and colour, each with an oscillator. A
 // patched fixture that is not listed is LEFT where the last cue put it.
@@ -1785,6 +1835,8 @@ struct Cue {
   // A Portal source's controls. Only meaningful on a "portal" pattern cue.
   PortalSettings portal;
   SwirlSettings swirl;
+  // A Moire source's controls. Only meaningful on a "moire-field" pattern cue.
+  MoireSettings moire;
   // A text cue laid out as a lower third. Off on every other cue.
   LowerThirdDesign lowerThird;
   // Clip whose MOTION drives the motion-puppet effect. Its pictures are never
@@ -3472,6 +3524,7 @@ enum class QuickAction {
   ToggleBrowserInteract, // show/hide the real browser window for hands-on use
   CycleNormalizeTarget,
   CueSectionSwirlToggle,
+  CueSectionMoireToggle,
   // -- Triggers --------------
   CueSectionTriggersToggle,
   TriggerEditTime,       // time of day (the existing schedule)

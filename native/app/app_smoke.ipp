@@ -1851,6 +1851,13 @@
         seq.swirl.twist = 2.2;
         seq.swirl.cells = 192;
         seq.swirl.hue = 0.6;
+        seq.moire.shape = 4;
+        seq.moire.palette = 2;
+        seq.moire.density = 0.8;
+        seq.moire.turn = 0.25;
+        seq.moire.themeInks = {0x102030u, 0x405060u, 0x708090u, 0xA0B0C0u};
+        seq.moire.lfo[kMoireLfoHue].on = true;
+        seq.moire.lfo[kMoireLfoHue].rateHz = 2.0f;
         // A preset, with a playlist and an output in it.
         ShowPreset preset;
         preset.id = "preset-smoke";
@@ -2028,7 +2035,7 @@
                    "a pre-sACN show keeps wiggle and its DMX cues send Art-Net");
             fs::remove(preSacnPath);
           }
-          // Trim the seven newest tail fields (tracker section and jump, stream
+          // Trim the nineteen newest tail fields (the twelve Moire fields, tracker section and jump, stream
           // HDR, fixture levels, the mic channel, the DMX protocol, then
           // Wiggle): a show from immediately before
           // Wiggle must keep its look, timings, triggers and audio selection.
@@ -2037,7 +2044,7 @@
           std::string line;
           while (std::getline(in, line)) {
             if (line.rfind("cue\t", 0) == 0) {
-              for (int t = 0; t < 7; ++t) line.erase(line.find_last_of('\t'));
+              for (int t = 0; t < 19; ++t) line.erase(line.find_last_of('\t'));
             }
             older << line << '\n';
           }
@@ -2059,6 +2066,14 @@
         expect(std::fabs(loadedCue.swirl.speed - 0.4) < 1e-6 &&
                std::fabs(loadedCue.swirl.twist - 2.2) < 1e-6 && loadedCue.swirl.cells == 192 &&
                std::fabs(loadedCue.swirl.hue - 0.6) < 1e-6, "a swirl's controls persist");
+        expect(loadedCue.moire.shape == 4 && loadedCue.moire.palette == 2 &&
+               std::fabs(loadedCue.moire.density - 0.8) < 1e-6 &&
+               std::fabs(loadedCue.moire.turn - 0.25) < 1e-6 &&
+               loadedCue.moire.themeInks[3] == 0xA0B0C0u &&
+               loadedCue.moire.lfo[kMoireLfoHue].on &&
+               std::fabs(loadedCue.moire.lfo[kMoireLfoHue].rateHz - 2.0f) < 1e-4f &&
+               !loadedCue.moire.lfo[kMoireLfoDensity].on,
+               "a moire's controls, inks and oscillators persist");
         expect(loaded.presets.size() == 1 && loaded.presets[0].name == "Smoke preset" &&
                  loaded.presets[0].scope == (kPresetPosition | kPresetLevels) &&
                  std::fabs(loaded.presets[0].masterVolume - 0.8) < 1e-6,
@@ -2088,7 +2103,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 93;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 105;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2098,7 +2113,7 @@
                                               // three triggers (hotkey, MIDI note, OSC),
                                               // audio track and track count, wiggle,
                                               // the DMX protocol, the mic channel,
-                                              // the fixture levels, stream HDR, tracker jump and section
+                                              // the fixture levels, stream HDR, tracker jump and section, the twelve Moire fields
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -4841,8 +4856,38 @@
     std::string id = patternId;
     const std::size_t variantAt = id.find(':');
     if (variantAt != std::string::npos) {
-      cue.firesideView = firesideViewFromToken(id.substr(variantAt + 1));
+      const std::string variant = id.substr(variantAt + 1);
       id = id.substr(0, variantAt);
+      if (id == "moire-field") {
+        // `moire-field:ripple,density=0.8,palette=2` -- a shape by name, and
+        // any control as its stored 0-1 value, so every control can be
+        // proven to move the picture without a running app.
+        std::stringstream parts(variant);
+        std::string part;
+        while (std::getline(parts, part, ',')) {
+          const std::size_t eq = part.find('=');
+          if (eq == std::string::npos) {
+            for (int s = 0; s < kMoireShapeCount; ++s)
+              if (part == moireShapeName(s)) cue.moire.shape = s;
+            continue;
+          }
+          const std::string key = part.substr(0, eq);
+          const double v = std::atof(part.substr(eq + 1).c_str());
+          MoireSettings& m = cue.moire;
+          if (key == "shape") m.shape = std::clamp(static_cast<int>(v), 0, kMoireShapeCount - 1);
+          else if (key == "palette") m.palette = std::clamp(static_cast<int>(v), 0, kMoirePaletteCount - 1);
+          else if (key == "density") m.density = v;
+          else if (key == "speed") m.speed = v;
+          else if (key == "warp") m.warp = v;
+          else if (key == "turn") m.turn = v;
+          else if (key == "cx") m.centreX = v;
+          else if (key == "cy") m.centreY = v;
+          else if (key == "grey") m.grey = v;
+          else if (key == "hue") m.hue = v;
+        }
+      } else {
+        cue.firesideView = firesideViewFromToken(variant);
+      }
     }
     cue.path = id;
     cue.width = w;

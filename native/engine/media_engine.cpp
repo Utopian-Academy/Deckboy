@@ -11685,6 +11685,243 @@ void buildSwirl(DecodedFrame& frame, double seconds, const SwirlSettings& settin
 }
 
 // ---------------------------------------------------------------------------
+// buildMoireField - a phase field folded through a rainbow-and-grey ramp.
+//
+// James's references are interference pictures: fine rainbow bands with grey
+// zebra stripes, so fine that they beat against the pixel grid and throw up
+// rings and crosses of their own. Six shapes, ported from the approved
+// prototype (designs, 2026-10-16), each a smooth field F(u, v, t):
+//
+//     phase = F * density * rasterGain + scroll(t)
+//
+// and the colour is a function of the phase alone, so it is one table.
+//
+// THE FIELD IS SMOOTH; ONLY THE PHASE IS FINE. Every shape's F varies over a
+// good fraction of the screen -- it is the density multiplier that makes the
+// bands a pixel or two wide. So F is evaluated on a grid every kMoireStep
+// pixels and interpolated per pixel, which is exact along each grid line for
+// the quadratic shapes and within a few hundredths of a band for the others at
+// their default density: trig per pixel at 4K was the frame budget several
+// times over.
+//
+// rasterGain = min(W, H) / 540 keeps the band WIDTH IN PIXELS what the
+// prototype's was at 540 px, so the beating looks the same on any raster:
+// a bigger screen shows more bands, not fatter ones.
+// ---------------------------------------------------------------------------
+namespace {
+constexpr int kMoireStep = 4;
+
+// The speed control may be on an oscillator, so the field's time is
+// INTEGRATED, not seconds * rate -- a rate that moved under a fixed clock
+// would jump the whole picture each frame. One integrator per cue; the output
+// and the preview call with the same cue clock, and a call that does not move
+// it forward adds nothing.
+double moireFieldTime(const std::string& cueId, double animTime, double rate) {
+  struct Clock { double last = 0.0; double t = 0.0; };
+  static std::mutex mutex;
+  static std::map<std::string, Clock> clocks;
+  std::lock_guard<std::mutex> lock(mutex);
+  if (clocks.size() > 64) clocks.clear();
+  auto [it, fresh] = clocks.try_emplace(cueId);
+  Clock& c = it->second;
+  // A fresh cue, a restart or a scrub: start from where the clock says.
+  if (fresh || animTime < c.last - 0.25 || animTime > c.last + 2.0) {
+    c.t = animTime * rate;
+    c.last = animTime;
+  } else if (animTime > c.last) {
+    c.t += (animTime - c.last) * rate;
+    c.last = animTime;
+  }
+  return c.t;
+}
+
+std::array<std::uint8_t, 3> moireHueRgb(double h6) {
+  // h6 in 0-6 round the wheel, full saturation (the prototype's ramp).
+  const double r = std::clamp(std::fabs(h6 - 3.0) - 1.0, 0.0, 1.0);
+  const double g = std::clamp(2.0 - std::fabs(h6 - 2.0), 0.0, 1.0);
+  const double b = std::clamp(2.0 - std::fabs(h6 - 4.0), 0.0, 1.0);
+  return {static_cast<std::uint8_t>(std::lround(r * 255)), static_cast<std::uint8_t>(std::lround(g * 255)),
+          static_cast<std::uint8_t>(std::lround(b * 255))};
+}
+
+std::array<std::uint8_t, 3> moireTurnHue(std::uint32_t rgb, double turn) {
+  double r = ((rgb >> 16) & 255) / 255.0, g = ((rgb >> 8) & 255) / 255.0, b = (rgb & 255) / 255.0;
+  const double hi = std::max({r, g, b}), lo = std::min({r, g, b}), delta = hi - lo;
+  if (delta > 0.0 && turn > 0.0) {
+    double h = hi == r ? (g - b) / delta : hi == g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+    h = std::fmod(h + turn * 6 + 6, 6);
+    const double f = h - std::floor(h), q = hi - delta * f, u = lo + delta * f;
+    const double sectors[6][3] {{hi, u, lo}, {q, hi, lo}, {lo, hi, u}, {lo, q, hi}, {u, lo, hi}, {hi, lo, q}};
+    const int k = std::clamp(static_cast<int>(h), 0, 5);
+    r = sectors[k][0]; g = sectors[k][1]; b = sectors[k][2];
+  }
+  return {static_cast<std::uint8_t>(std::lround(r * 255)), static_cast<std::uint8_t>(std::lround(g * 255)),
+          static_cast<std::uint8_t>(std::lround(b * 255))};
+}
+}  // namespace
+
+void buildMoireField(DecodedFrame& frame, double animTime, const MoireSettings& base,
+                     const std::string& cueId) {
+  const int W = frame.width, H = frame.height;
+  if (W <= 0 || H <= 0) return;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4u);
+
+  // The oscillators, on the show's one LFO clock.
+  const auto clock = deckboy::effects::readLfoClock();
+  auto mod = [&](int slot, double value) {
+    const auto& lfo = base.lfo[static_cast<std::size_t>(slot)];
+    return static_cast<double>(deckboy::effects::lfoApply(lfo, static_cast<float>(std::clamp(value, 0.0, 1.0)),
+                                                          clock.seconds, clock.beats, clock.audio01));
+  };
+  const double density = mod(kMoireLfoDensity, base.density);
+  const double speed = mod(kMoireLfoSpeed, base.speed);
+  const double warp = mod(kMoireLfoWarp, base.warp) * 2.0;     // 1 = the prototype
+  const double turn = mod(kMoireLfoTurn, base.turn) * 6.283185307179586;
+  const double centreX = mod(kMoireLfoCentreX, base.centreX);
+  const double centreY = mod(kMoireLfoCentreY, base.centreY);
+  const double grey = mod(kMoireLfoGrey, base.grey) * 0.9;
+  const double hue = mod(kMoireLfoHue, base.hue);
+  const int shape = std::clamp(base.shape, 0, kMoireShapeCount - 1);
+  const int palette = std::clamp(base.palette, 0, kMoirePaletteCount - 1);
+
+  const double S = static_cast<double>(std::min(W, H));
+  const double freq = std::pow(4.0, density * 2.0 - 1.0) * (S / 540.0);
+  const double t = moireFieldTime(cueId, animTime, speed * 3.0);
+  const double cosT = std::cos(turn), sinT = std::sin(turn);
+  const double cosTime = std::cos(t), sinTime = std::sin(t);
+
+  // The phase that scrolls the bands outward, in cycles: added after the
+  // density, so speed means the same thing at any density.
+  double scroll = 0.0;
+  switch (shape) {
+    case 0: case 1: scroll = t; break;
+    case 3: scroll = std::sin(t) * 20.0; break;
+    case 4: scroll = t * 3.0; break;
+    default: break;
+  }
+
+  // ---- The field, every kMoireStep pixels -----------------------------------
+  const int gw = W / kMoireStep + 2;
+  const int gh = H / kMoireStep + 2;
+  std::vector<float> field(static_cast<std::size_t>(gw) * static_cast<std::size_t>(gh));
+  const double sep = 0.15 + 0.15 * warp;      // twin: 0.3 at the prototype's warp
+  deckboy::effects::detail::parallelRows(gh, gw, [&](int r0, int r1) {
+    for (int gy = r0; gy < r1; ++gy) {
+      for (int gx = 0; gx < gw; ++gx) {
+        const double px = (gx * kMoireStep - centreX * W) / S;
+        const double py = (gy * kMoireStep - centreY * H) / S;
+        const double u = px * cosT + py * sinT;
+        const double v = -px * sinT + py * cosT;
+        double f = 0.0;
+        switch (shape) {
+          case 0:  // zone: a zone plate, r squared
+            f = (u * u + v * v) * 90.0;
+            break;
+          case 1:  // twin: two centres interfering
+            f = (-4.0 * sep * u) * 40.0 + v * v * 60.0;
+            break;
+          case 2: {  // flow: a domain-warped field, islands and crosses
+            const double wu = u + warp * (0.15 * std::sin(v * 7 + t * 0.7) + 0.1 * std::sin(u * 11 - t * 0.4));
+            const double wv = v + warp * (0.15 * std::sin(u * 6 - t * 0.5) + 0.1 * std::cos(v * 9 + t * 0.3));
+            f = (std::sin(wu * 9) + std::cos(wv * 8) + std::sin((wu + wv) * 5 + t)) * 7.0;
+            break;
+          }
+          case 3:  // saddle: x^2 - y^2, warp leans it
+            f = (u * u - v * v) * 120.0 + (warp - 1.0) * 120.0 * u * v;
+            break;
+          case 4: {  // ripple: radial with a four-fold wobble (no atan2: z^4)
+            const double u2 = u * u, v2 = v * v, r2 = u2 + v2;
+            const double re = u2 * u2 - 6.0 * u2 * v2 + v2 * v2;
+            const double im = 4.0 * u * v * (u2 - v2);
+            const double wobble = r2 > 1e-12 ? (im * cosTime + re * sinTime) / r2 : 0.0;
+            f = 150.0 * (r2 + 0.08 * warp * wobble);
+            break;
+          }
+          default:  // shear: a diagonal flow, crossed
+            f = (u + v) * 30.0 + 8.0 * warp * std::sin(u * 13 + t) * std::cos(v * 9 - t * 0.7);
+            break;
+        }
+        field[static_cast<std::size_t>(gy) * gw + gx] = static_cast<float>(f);
+      }
+    }
+  });
+
+  // ---- The colour, one table over two cycles --------------------------------
+  // Two cycles because the grey stripes alternate with the cycle's parity
+  // (the prototype's floor(phase * 7) % 2).
+  constexpr int kPerCycle = 1024;
+  std::vector<std::array<std::uint8_t, 4>> lut(kPerCycle * 2);
+  std::array<std::array<std::uint8_t, 3>, 4> inks {};
+  for (std::size_t i = 0; i < 4; ++i) inks[i] = moireTurnHue(base.themeInks[i], hue);
+  const double greyShare = palette == 1 ? 0.0 : grey;
+  for (int i = 0; i < kPerCycle * 2; ++i) {
+    const double phase = (i + 0.5) / kPerCycle;          // 0-2
+    const double q = phase - std::floor(phase);
+    const bool stripe = (static_cast<int>(std::floor(phase * 7.0)) & 1) != 0;
+    std::array<std::uint8_t, 3> c {};
+    if (q > 1.0 - greyShare) {
+      if (palette == 2) {
+        c = stripe ? inks[3] : inks[0];
+      } else {
+        const auto g = static_cast<std::uint8_t>(std::lround((0.45 + 0.35 * (stripe ? 1 : 0)) * 255));
+        c = {g, g, g};
+      }
+    } else {
+      const double along = std::clamp(q / std::max(1e-6, 1.0 - greyShare), 0.0, 0.999);
+      if (palette == 3) {
+        // Mono: dark to light and back, so the band has no seam.
+        const double tri = along < 0.5 ? along * 2.0 : 2.0 - along * 2.0;
+        const auto g = static_cast<std::uint8_t>(std::lround((0.08 + 0.9 * tri) * 255));
+        c = {g, g, g};
+      } else if (palette == 2) {
+        // The theme's four inks round the cycle, joined back to the first.
+        const double at = along * 4.0;
+        const int k = static_cast<int>(at) % 4;
+        const double fr = at - std::floor(at);
+        const auto& a = inks[static_cast<std::size_t>(k)];
+        const auto& b = inks[static_cast<std::size_t>((k + 1) % 4)];
+        for (std::size_t ch = 0; ch < 3; ++ch)
+          c[ch] = static_cast<std::uint8_t>(std::lround(a[ch] + (b[ch] - a[ch]) * fr));
+      } else {
+        c = moireHueRgb(std::fmod(along * 6.0 + hue * 6.0, 6.0));
+      }
+    }
+    lut[static_cast<std::size_t>(i)] = {c[0], c[1], c[2], 255};
+  }
+
+  // ---- Per pixel: interpolate the field, look up the colour ------------------
+  const double lutScale = freq * kPerCycle;
+  const double lutOffset = scroll * kPerCycle;
+  deckboy::effects::detail::parallelRows(H, W, [&](int r0, int r1) {
+    std::vector<float> row(static_cast<std::size_t>(gw));
+    for (int y = r0; y < r1; ++y) {
+      const int gy = y / kMoireStep;
+      const float fy = static_cast<float>(y - gy * kMoireStep) / kMoireStep;
+      const float* a = field.data() + static_cast<std::size_t>(gy) * gw;
+      const float* b = a + gw;
+      for (int gx = 0; gx < gw; ++gx) row[static_cast<std::size_t>(gx)] = a[gx] + (b[gx] - a[gx]) * fy;
+      std::uint8_t* out = frame.pixels.data() + static_cast<std::size_t>(y) * W * 4u;
+      // Along a row the phase is linear between grid points, so each run of
+      // kMoireStep pixels is a start and a step in 16.16 fixed point: integer
+      // adds, and an arithmetic shift that floors negatives too. 13 ms a 4K
+      // frame with a floor per pixel; a fraction of that this way.
+      for (int gx = 0, x = 0; x < W; ++gx) {
+        const double p0 = row[static_cast<std::size_t>(gx)] * lutScale + lutOffset;
+        const double p1 = row[static_cast<std::size_t>(gx) + 1] * lutScale + lutOffset;
+        long long fixed = std::llround(p0 * 65536.0);
+        const long long step = std::llround((p1 - p0) * (65536.0 / kMoireStep));
+        const int end = std::min(W, x + kMoireStep);
+        for (; x < end; ++x, fixed += step) {
+          const auto idx = static_cast<std::size_t>((fixed >> 16) & (kPerCycle * 2 - 1));
+          std::memcpy(out + static_cast<std::size_t>(x) * 4u, lut[idx].data(), 4);
+        }
+      }
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // buildPortal - a swarm of particles melted into metaballs, each blob a window
 // into deep space with a neon rim.
 //
@@ -13968,6 +14205,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "swirl") {
     // Always animated: the spiral turns and the bands melt.
     buildSwirl(frame, animTime, cue.swirl);
+  } else if (basePatternType == "moire-field") {
+    // Always animated: the bands scroll and the field drifts.
+    buildMoireField(frame, animTime, cue.moire, cue.id);
   } else if (basePatternType == "portal") {
     // Always animated: the blobs are born, drift, melt and fade.
     buildPortal(frame, animTime, cue.portal);

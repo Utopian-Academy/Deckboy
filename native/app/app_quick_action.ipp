@@ -1224,6 +1224,9 @@
       case QuickAction::CueSectionExtraToggle:
         cueSectionExtraOpen_ = !cueSectionExtraOpen_;
         return;
+      case QuickAction::CueSectionMoireToggle:
+        cueSectionMoireOpen_ = !cueSectionMoireOpen_;
+        return;
       case QuickAction::CueSectionSwirlToggle:
         cueSectionSwirlOpen_ = !cueSectionSwirlOpen_;
         return;

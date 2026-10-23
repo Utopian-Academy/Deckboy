@@ -988,6 +988,20 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         // vs+148, vs+149: a tracker step's jump (the step's id) and section name.
         << '\t' << escapeField(cue.trackerJumpStepId)
         << '\t' << escapeField(cue.trackerSection)
+        // vs+150..161: a Moire source -- shape, palette, the eight 0-1
+        // controls, the theme inks it captured, and its oscillators.
+        << '\t' << cue.moire.shape
+        << '\t' << cue.moire.palette
+        << '\t' << cue.moire.density
+        << '\t' << cue.moire.speed
+        << '\t' << cue.moire.warp
+        << '\t' << cue.moire.turn
+        << '\t' << cue.moire.centreX
+        << '\t' << cue.moire.centreY
+        << '\t' << cue.moire.grey
+        << '\t' << cue.moire.hue
+        << '\t' << escapeField(serializeMoireInks(cue.moire.themeInks))
+        << '\t' << escapeField(serializeGeometryLfos(cue.moire.lfo))
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2623,6 +2637,22 @@ Project loadProject(const fs::path& projectFile,
         if (fields.size() >= static_cast<std::size_t>(vs + 150)) {
           cue.trackerJumpStepId = safeString(fields, vs + 148);
           cue.trackerSection = safeString(fields, vs + 149);
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 162)) {
+          const MoireSettings fresh;
+          MoireSettings& m = cue.moire;
+          m.shape = std::clamp(safeInt(fields, vs + 150, fresh.shape), 0, kMoireShapeCount - 1);
+          m.palette = std::clamp(safeInt(fields, vs + 151, fresh.palette), 0, kMoirePaletteCount - 1);
+          m.density = std::clamp(safeDouble(fields, vs + 152, fresh.density), 0.0, 1.0);
+          m.speed = std::clamp(safeDouble(fields, vs + 153, fresh.speed), 0.0, 1.0);
+          m.warp = std::clamp(safeDouble(fields, vs + 154, fresh.warp), 0.0, 1.0);
+          m.turn = std::clamp(safeDouble(fields, vs + 155, fresh.turn), 0.0, 1.0);
+          m.centreX = std::clamp(safeDouble(fields, vs + 156, fresh.centreX), 0.0, 1.0);
+          m.centreY = std::clamp(safeDouble(fields, vs + 157, fresh.centreY), 0.0, 1.0);
+          m.grey = std::clamp(safeDouble(fields, vs + 158, fresh.grey), 0.0, 1.0);
+          m.hue = std::clamp(safeDouble(fields, vs + 159, fresh.hue), 0.0, 1.0);
+          m.themeInks = parseMoireInks(safeString(fields, vs + 160), fresh.themeInks);
+          m.lfo = parseGeometryLfos(safeString(fields, vs + 161));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

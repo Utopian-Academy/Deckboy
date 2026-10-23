@@ -2257,6 +2257,34 @@ std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, 9
   return out.str();
 }
 
+// A Moire cue's theme inks, one field: four RRGGBB hex values split by ','.
+std::string serializeMoireInks(const std::array<std::uint32_t, 4>& inks) {
+  std::string out;
+  for (std::size_t i = 0; i < inks.size(); ++i) {
+    char buf[8];
+    std::snprintf(buf, sizeof(buf), "%06X", static_cast<unsigned>(inks[i] & 0xFFFFFFu));
+    if (i) out += ',';
+    out += buf;
+  }
+  return out;
+}
+
+std::array<std::uint32_t, 4> parseMoireInks(const std::string& text,
+                                            const std::array<std::uint32_t, 4>& fallback) {
+  std::array<std::uint32_t, 4> inks = fallback;
+  std::size_t at = 0;
+  for (std::size_t i = 0; i < inks.size() && at <= text.size(); ++i) {
+    const std::size_t comma = text.find(',', at);
+    const std::string part = text.substr(at, comma == std::string::npos ? std::string::npos : comma - at);
+    if (part.size() == 6 && part.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos) {
+      inks[i] = static_cast<std::uint32_t>(std::strtoul(part.c_str(), nullptr, 16));
+    }
+    if (comma == std::string::npos) break;
+    at = comma + 1;
+  }
+  return inks;
+}
+
 // A DMX cue's fixture levels, one field: entries split by ';', each
 // name|intensity|colour|intensity lfo|colour lfo. The name is %-escaped so a
 // fixture called "Wash; left" cannot break the record.
@@ -9922,6 +9950,7 @@ class App {
   // The commands behind a private extra's inspector buttons, drawn this frame.
   std::vector<std::string> extraDeskCommands_;
   bool cueSectionSwirlOpen_ = true;
+  bool cueSectionMoireOpen_ = true;
   // Which dashboard tile is one press away from being deleted, and when it
   // was armed. A button that runs a command is easy to hit by accident.
   int dashDeleteArmedSlot_ = -1;

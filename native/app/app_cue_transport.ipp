@@ -5978,6 +5978,9 @@
   void sampleLfoClock() {
     lfoSeconds_ = static_cast<double>(SDL_GetTicks()) / 1000.0;
     lfoBeats_ = vjBeatCount();
+    // The same sample, for the generators drawn on engine threads.
+    deckboy::effects::publishLfoClock(lfoSeconds_, lfoBeats_,
+                                      std::clamp(reactiveAudioLevel_, 0.0, 1.0));
   }
 
   double vjBeatPhase() const {

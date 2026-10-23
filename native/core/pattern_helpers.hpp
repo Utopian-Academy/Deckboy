@@ -126,7 +126,7 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 // which made the desk look like nobody had decided what either one was.
 inline bool patternTypeIsGenerator(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
-  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" ||
+  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" ||
          t == "terrarium" || t == "terrarium-pico" || deckboy::extras::findGenerator(t) != nullptr;
 }
 
@@ -137,6 +137,7 @@ inline std::string generatorPatternName(const std::string& typeId) {
   if (t == "fireside") return "Fireside";
   if (t == "portal") return "Portal";
   if (t == "swirl") return "Swirl";
+  if (t == "moire-field") return "Moire";
   if (t == "code") return "Code";
   if (t == "terrarium") return "Terrarium";
   if (t == "terrarium-pico") return "Terrarium Pico";
@@ -168,6 +169,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          // anything", which is exactly what it looked like.
          normalized == "code" ||
          normalized == "swirl" ||                      // turning, melting greens
+         normalized == "moire-field" ||                // scrolling interference bands
          normalized == "portal" ||                     // born, drifting, melting
          // FIRESIDE WAS NOT HERE, the same omission as `code` above: the
          // builder animates from the clock, every comment about it calls it

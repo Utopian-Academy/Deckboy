@@ -27,6 +27,7 @@
 #define DECKBOY_CORE_CUE_EFFECTS_HPP
 
 #include <array>
+#include <atomic>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -897,6 +898,32 @@ inline float lfoApply(const ParamLfo& lfo, float base, double seconds,
   const double swing = (unit - 0.5) * 2.0 * static_cast<double>(lfo.depth);
   const double out = static_cast<double>(base) + swing * 0.5;
   return static_cast<float>(out < 0.0 ? 0.0 : (out > 1.0 ? 1.0 : out));
+}
+
+// THE SHOW'S LFO CLOCK, for the oscillators evaluated off the main thread.
+//
+// The app samples one clock per frame (sampleLfoClock) so the preview and the
+// output read the same moment. A generator drawn on an engine thread -- the
+// Moire source -- reads the same sample from here rather than taking a second
+// clock of its own, which would let its oscillators disagree with the effect
+// LFOs on the same cue.
+struct LfoClockSample {
+  double seconds = 0.0;
+  double beats = 0.0;
+  double audio01 = 0.0;
+};
+inline std::atomic<double>& lfoClockSecondsSlot() { static std::atomic<double> v {0.0}; return v; }
+inline std::atomic<double>& lfoClockBeatsSlot() { static std::atomic<double> v {0.0}; return v; }
+inline std::atomic<double>& lfoClockAudioSlot() { static std::atomic<double> v {0.0}; return v; }
+inline void publishLfoClock(double seconds, double beats, double audio01) {
+  lfoClockSecondsSlot().store(seconds, std::memory_order_relaxed);
+  lfoClockBeatsSlot().store(beats, std::memory_order_relaxed);
+  lfoClockAudioSlot().store(audio01, std::memory_order_relaxed);
+}
+inline LfoClockSample readLfoClock() {
+  return {lfoClockSecondsSlot().load(std::memory_order_relaxed),
+          lfoClockBeatsSlot().load(std::memory_order_relaxed),
+          lfoClockAudioSlot().load(std::memory_order_relaxed)};
 }
 
 struct CueEffect {

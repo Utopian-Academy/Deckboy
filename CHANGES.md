@@ -1,6 +1,17 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-21 - v0.99.418 (scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
+## 2026-10-21 - v0.99.418 (a Moire source; scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
+
+### Moire
+- New source under SOURCE > MADE BY DECKBOY: **Moire**, fine rainbow bands with grey zebra
+  stripes, drawn at the output's own resolution so they beat against the screen's pixels. Six
+  shapes (zone, twin, flow, saddle, ripple, shear) and four palettes (rainbow + grey, rainbow,
+  the desk theme's colours, mono).
+- Density, speed, warp, turn, centre, grey and hue each have a **~** oscillator, like an effect
+  parameter. Speed on an oscillator changes pace smoothly, without jumps.
+- `MOIRE` over the network: STATUS, every control, and `MOIRE LFO <control> ...`.
+- Measured at 3840x2160 on a 60 Hz screen: 60 fps with no hitches, with three of its
+  oscillators running.
 
 ### Transitions
 - A cue that is playing now keeps playing through the transition out of it, and its sound

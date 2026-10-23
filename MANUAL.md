@@ -202,7 +202,7 @@ All of them are on the `SOURCE` menu.
   Metadata is probed asynchronously (`probing…` shows on the row until done).
 - **Add a source cue:** the SOURCE menu has four parts. LIVE PICTURE adds a
   window, camera, Syphon/Spout, browser, stream or NDI source. MADE BY DECKBOY
-  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Video Synth,
+  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Video Synth,
   Code, Text, Lower Third, Stage Timer and the 2A03 and FDS synths. TEST
   SIGNALS adds a test pattern or a test tone, and CUES THAT DO THINGS adds the
   cues that act on the show rather than putting a picture up.
@@ -2144,7 +2144,7 @@ Pattern cues generate their pixels live and auto-scale to the selected output
 raster and refresh rate (unless the project overrides it). All motion is slow,
 smooth, and diagonal; full-frame solid colours have no motion option.
 
-Fireside, Portal and Swirl are drawn the same way but are set dressing rather
+Fireside, Portal, Swirl and Moire are drawn the same way but are set dressing rather
 than test cards, so they are added from SOURCE > MADE BY DECKBOY, and their
 inspector says "made by Deckboy" in place of a pattern picker.
 
@@ -2171,6 +2171,34 @@ inspector says "made by Deckboy" in place of a pattern picker.
   `SWIRL SPEED|TWIST|PIXELS|COLOUR|ZOOM|FLOW|CENTREX|CENTREY|BANDS|PALETTE <n>`
   (`COLOR` and `CENTERX`/`CENTERY` are also accepted; PALETTE is 0 classic,
   1 fire, 2 ice, 3 neon, 4 mono).
+- **Moire** — fine rainbow bands with grey zebra stripes, so fine that they
+  beat against the screen's pixels and throw up rings and crosses of their own.
+  It is drawn at the output's own resolution, one band pixel to one screen
+  pixel, so a 4K screen shows more bands rather than fatter ones; that is also
+  why the programme monitor, which shows it small, looks busier than the
+  screen. Its inspector controls:
+  - **shape** — zone (concentric rings), twin (two centres), flow (islands and
+    crosses in a bent field), saddle, ripple or shear;
+  - **density** — how many bands: 50% is the design, 0 a quarter as many,
+    100% four times as many;
+  - **speed** — how fast the bands move; 0 holds the field still;
+  - **warp** — how far the field bends;
+  - **turn** — the field's rotation round its centre, in degrees;
+  - **centre x / centre y** — where that centre sits;
+  - **grey** — the share of each band drawn as grey stripes (not shown on the
+    rainbow palette, which has none);
+  - **hue** — turns the colours round the wheel (not shown on mono);
+  - **palette** — rainbow + grey, rainbow, theme, or mono. **Theme** takes the
+    desk theme's colours at the moment it is picked and keeps them, so the cue
+    looks the same on a desk wearing another theme.
+
+  Every number has a **~**: the same oscillator as an effect parameter (shape,
+  rate, depth, tempo sync, a drawn curve), running on the show's one LFO clock.
+  Speed on an oscillator speeds the bands up and slows them down smoothly
+  rather than jumping. Over the wire: `MOIRE [STATUS]`,
+  `MOIRE SHAPE <0-5>`, `MOIRE PALETTE <0-3>`,
+  `MOIRE DENSITY|SPEED|WARP|GREY|CENTREX|CENTREY <0-100>`,
+  `MOIRE TURN|HUE <0-360>`, and `MOIRE LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]`.
 - **Pocket Test** — a PM5544-style test card with a bouncing scene-porthole
   ball, a sync beacon, and an audio sync pop at the top of each second (use it
   to dial the A/V delay offset).

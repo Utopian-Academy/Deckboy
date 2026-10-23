@@ -5437,6 +5437,68 @@
         finishInspectorSection(swSection, swY);
         ry = swY + kInspectorSectionGap;
       }
+      if (selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "moire-field") {
+        auto moSection = beginInspectorSection(ry, "MOIRE", cueSectionMoireOpen_,
+          QuickAction::CueSectionMoireToggle, "Collapse/expand the moire's controls");
+        int moY = moSection.bodyStartY;
+        if (cueSectionMoireOpen_) {
+          const MoireSettings& m = selectedCue->moire;
+          struct MoireRow { const char* label; NumericParam id; const char* tip; };
+          // Grey only where a palette draws grey stripes, hue only where there
+          // is a colour to turn: a row that moves nothing reads as broken.
+          const bool greyShown = m.palette != 1;
+          const bool hueShown = m.palette != 3;
+          const MoireRow rows[] = {
+            {"shape", NumericParam::MoireShape, "Zone, twin, flow, saddle, ripple or shear"},
+            {"density", NumericParam::MoireDensity, "How many bands: 50% is the design, higher beats harder against the pixels"},
+            {"speed", NumericParam::MoireSpeed, "How fast the bands move; 0 holds the field still"},
+            {"warp", NumericParam::MoireWarp, "How far the field bends"},
+            {"turn", NumericParam::MoireTurn, "Rotate the field round its centre"},
+            {"centre x", NumericParam::MoireCentreX, "Where the field's centre sits, left to right"},
+            {"centre y", NumericParam::MoireCentreY, "Where the field's centre sits, top to bottom"},
+            {"grey", NumericParam::MoireGrey, "The share of each band drawn as grey stripes"},
+            {"hue", NumericParam::MoireHue, "Turn the colours round the wheel"},
+            {"palette", NumericParam::MoirePalette, "Rainbow + grey, rainbow, the theme's colours (taken when picked) or mono"},
+          };
+          for (const auto& row : rows) {
+            if ((row.id == NumericParam::MoireGrey && !greyShown) ||
+                (row.id == NumericParam::MoireHue && !hueShown)) {
+              continue;
+            }
+            double value = 0.0;
+            readNumericParam(*selectedCue, row.id, value);
+            char text[24];
+            if (row.id == NumericParam::MoireShape)
+              std::snprintf(text, sizeof(text), "%s", moireShapeName(m.shape));
+            else if (row.id == NumericParam::MoirePalette)
+              std::snprintf(text, sizeof(text), "%s", moirePaletteName(m.palette));
+            else if (row.id == NumericParam::MoireTurn || row.id == NumericParam::MoireHue)
+              std::snprintf(text, sizeof(text), "%.0f deg", value);
+            else std::snprintf(text, sizeof(text), "%.0f%%", value);
+            const int slot = moireLfoSlotFor(row.id);
+            if (slot < 0) {
+              inspDrawQuickRow(ix, moY, row.label, QuickAction::NumericParamDec, text,
+                QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+                row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
+              moY += kInspectorRowStep;
+              continue;
+            }
+            const auto& lfo = m.lfo[static_cast<std::size_t>(slot)];
+            inspDrawQuickRow(ix, moY, row.label, QuickAction::NumericParamDec, text,
+              QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+              row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
+              QuickAction::EffectLfoToggle, lfo.on, kMoireLfoPackBase + slot, "~",
+              "Put this control on an oscillator");
+            moY += kInspectorRowStep;
+            if (lfo.on) {
+              moY = inspDrawLfoRowFor(ix, moY, lfo, kMoireLfoPackBase + slot);
+            }
+          }
+        }
+        finishInspectorSection(moSection, moY);
+        ry = moY + kInspectorSectionGap;
+      }
       // FIRESIDE: how hard it burns. Only on a fireside cue -- these controls
       // mean nothing on a colour-bars pattern and drawing them there would be
       // two more things that cannot do anything. FIRST, like Swirl's and Code's:

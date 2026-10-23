@@ -6536,6 +6536,73 @@
       markProjectDirty();
       return;
     }
+    // MOIRE: the selected Moire cue. STATUS; a control and a value in the
+    // units the inspector shows (percent, degrees, a shape or palette number);
+    // or LFO <control> <ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC ...> as GEOLFO.
+    if (command == "MOIRE") {
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::Pattern || normalizePatternTypeId(cue->path) != "moire-field") {
+        failRemoteCommand("select a moire cue first");
+        return;
+      }
+      static const std::pair<const char*, NumericParam> kControls[] = {
+        {"SHAPE", NumericParam::MoireShape}, {"PALETTE", NumericParam::MoirePalette},
+        {"DENSITY", NumericParam::MoireDensity}, {"SPEED", NumericParam::MoireSpeed},
+        {"WARP", NumericParam::MoireWarp}, {"TURN", NumericParam::MoireTurn},
+        {"CENTREX", NumericParam::MoireCentreX}, {"CENTERX", NumericParam::MoireCentreX},
+        {"CENTREY", NumericParam::MoireCentreY}, {"CENTERY", NumericParam::MoireCentreY},
+        {"GREY", NumericParam::MoireGrey}, {"GRAY", NumericParam::MoireGrey},
+        {"HUE", NumericParam::MoireHue},
+      };
+      auto controlFor = [&](const std::string& word) {
+        for (const auto& c : kControls) if (word == c.first) return c.second;
+        return NumericParam::None;
+      };
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "STATUS";
+      const MoireSettings& m = cue->moire;
+      if (sub == "STATUS" && parts.size() <= 2) {
+        std::ostringstream status;
+        status << "moire shape=" << moireShapeName(m.shape) << " palette=" << moirePaletteName(m.palette)
+               << " density=" << m.density << " speed=" << m.speed << " warp=" << m.warp
+               << " turn=" << m.turn << " centre=" << m.centreX << "," << m.centreY
+               << " grey=" << m.grey << " hue=" << m.hue << " moving=";
+        int moving = 0;
+        for (int slot = 0; slot < kMoireLfoCount; ++slot) moving += m.lfo[static_cast<std::size_t>(slot)].on ? 1 : 0;
+        status << moving;
+        remoteCommandDetail_ = status.str();
+        return;
+      }
+      if (sub == "LFO") {
+        const NumericParam id = parts.size() > 2 ? controlFor(toUpper(parts[2])) : NumericParam::None;
+        const int slot = moireLfoSlotFor(id);
+        if (slot < 0) {
+          failRemoteCommand("LFO: density, speed, warp, turn, centrex, centrey, grey or hue");
+          return;
+        }
+        if (setLfoFromRemote(cue->moire.lfo[static_cast<std::size_t>(slot)], parts, 3, "LFO")) {
+          markProjectDirty();
+          remoteCommandDetail_ = toLower(parts[2]) +
+            (cue->moire.lfo[static_cast<std::size_t>(slot)].on ? " moving" : " still");
+        }
+        return;
+      }
+      const NumericParam id = controlFor(sub);
+      const NumericParamSpec* spec = numericParamSpec(id);
+      const auto value = parseNumber(2);
+      if (parts.size() != 3 || !spec || !value || !std::isfinite(*value) ||
+          *value < spec->lo || *value > spec->hi ||
+          (spec->integral && std::floor(*value) != *value)) {
+        failRemoteCommand("STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|"
+                          "CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>");
+        return;
+      }
+      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+        double ignored = 0.0;
+        if (readNumericParam(each, id, ignored)) writeNumericParam(each, id, *value);
+      });
+      markProjectDirty();
+      return;
+    }
     if (command == "TRANSITION" || command == "XFADE") {
       if (parts.size() < 2) {
         return;

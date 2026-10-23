@@ -3510,6 +3510,11 @@
       if (type == "swirl") {
         key << '|' << cue.swirl.speed << '|' << cue.swirl.twist << '|'
             << cue.swirl.cells << '|' << cue.swirl.hue;
+      } else if (type == "moire-field") {
+        const MoireSettings& m = cue.moire;
+        key << '|' << m.shape << '|' << m.palette << '|' << m.density << '|' << m.speed << '|'
+            << m.warp << '|' << m.turn << '|' << m.centreX << '|' << m.centreY << '|' << m.grey
+            << '|' << m.hue << '|' << serializeGeometryLfos(m.lfo);
       } else if (type == "code") {
         key << '|' << cue.width << '|' << cue.height << '|' << cue.codeExpression;
       } else if (type == "portal") {

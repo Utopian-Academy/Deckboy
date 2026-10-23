@@ -70,7 +70,34 @@ enum class NumericParam : int {
   SwirlCentreY,
   SwirlBands,
   SwirlPalette,
+  // Moire source. Stored 0-1 (an oscillator swings 0-1); typed and shown in
+  // the operator's units -- percent, degrees -- mapped in read/write below.
+  MoireShape,
+  MoirePalette,
+  MoireDensity,
+  MoireSpeed,
+  MoireWarp,
+  MoireTurn,
+  MoireCentreX,
+  MoireCentreY,
+  MoireGrey,
+  MoireHue,
 };
+
+// Which oscillator slot a Moire row's ~ drives, or -1 for the two pickers.
+inline int moireLfoSlotFor(NumericParam id) {
+  switch (id) {
+    case NumericParam::MoireDensity: return kMoireLfoDensity;
+    case NumericParam::MoireSpeed: return kMoireLfoSpeed;
+    case NumericParam::MoireWarp: return kMoireLfoWarp;
+    case NumericParam::MoireTurn: return kMoireLfoTurn;
+    case NumericParam::MoireCentreX: return kMoireLfoCentreX;
+    case NumericParam::MoireCentreY: return kMoireLfoCentreY;
+    case NumericParam::MoireGrey: return kMoireLfoGrey;
+    case NumericParam::MoireHue: return kMoireLfoHue;
+    default: return -1;
+  }
+}
 
 struct NumericParamSpec {
   const char* token;      // inline editor identity, so it can restore position
@@ -125,6 +152,46 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
     }
     case NumericParam::SwirlPalette: {
       static const NumericParamSpec s {"swirl.palette", "Palette", "0 classic, 1 fire, 2 ice, 3 neon, 4 mono", 0, 4, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::MoireShape: {
+      static const NumericParamSpec s {"moire.shape", "Shape", "0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear", 0, 5, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::MoirePalette: {
+      static const NumericParamSpec s {"moire.palette", "Palette", "0 rainbow + grey, 1 rainbow, 2 theme, 3 mono", 0, 3, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::MoireDensity: {
+      static const NumericParamSpec s {"moire.density", "Density", "0-100%: 50 is 1x, 0 a quarter, 100 four times", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::MoireSpeed: {
+      static const NumericParamSpec s {"moire.speed", "Speed", "0-100%: 0 holds the field still", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::MoireWarp: {
+      static const NumericParamSpec s {"moire.warp", "Warp", "0-100%: how far the field bends", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::MoireTurn: {
+      static const NumericParamSpec s {"moire.turn", "Turn", "Degrees, 0-360", 0, 360, 0, false, 5};
+      return &s;
+    }
+    case NumericParam::MoireCentreX: {
+      static const NumericParamSpec s {"moire.cx", "Centre X", "0-100%, left to right", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::MoireCentreY: {
+      static const NumericParamSpec s {"moire.cy", "Centre Y", "0-100%, top to bottom", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::MoireGrey: {
+      static const NumericParamSpec s {"moire.grey", "Grey", "0-100%: the share of each band drawn as grey stripes", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::MoireHue: {
+      static const NumericParamSpec s {"moire.hue", "Hue", "Degrees round the colour wheel, 0-360", 0, 360, 0, false, 5};
       return &s;
     }
     case NumericParam::CodeWidth:
@@ -328,6 +395,30 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
           : id == NumericParam::SwirlCentreY ? cue.swirl.centreY
           : id == NumericParam::SwirlBands ? cue.swirl.bands : cue.swirl.palette;
       return true;
+    case NumericParam::MoireShape:
+    case NumericParam::MoirePalette:
+    case NumericParam::MoireDensity:
+    case NumericParam::MoireSpeed:
+    case NumericParam::MoireWarp:
+    case NumericParam::MoireTurn:
+    case NumericParam::MoireCentreX:
+    case NumericParam::MoireCentreY:
+    case NumericParam::MoireGrey:
+    case NumericParam::MoireHue: {
+      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "moire-field") return false;
+      const MoireSettings& m = cue.moire;
+      out = id == NumericParam::MoireShape ? m.shape
+          : id == NumericParam::MoirePalette ? m.palette
+          : id == NumericParam::MoireDensity ? m.density * 100.0
+          : id == NumericParam::MoireSpeed ? m.speed * 100.0
+          : id == NumericParam::MoireWarp ? m.warp * 100.0
+          : id == NumericParam::MoireTurn ? m.turn * 360.0
+          : id == NumericParam::MoireCentreX ? m.centreX * 100.0
+          : id == NumericParam::MoireCentreY ? m.centreY * 100.0
+          : id == NumericParam::MoireGrey ? m.grey * 100.0
+          : m.hue * 360.0;
+      return true;
+    }
     case NumericParam::CodeWidth:
     case NumericParam::CodeHeight:
       if (!cueIsCodeSource(cue)) return false;
@@ -405,6 +496,29 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::SwirlCentreY: cue.swirl.centreY = value; break;
     case NumericParam::SwirlBands: cue.swirl.bands = static_cast<int>(std::lround(value)); break;
     case NumericParam::SwirlPalette: cue.swirl.palette = static_cast<int>(std::lround(value)); break;
+    case NumericParam::MoireShape:
+      cue.moire.shape = std::clamp(static_cast<int>(std::lround(value)), 0, kMoireShapeCount - 1);
+      break;
+    case NumericParam::MoirePalette:
+      cue.moire.palette = std::clamp(static_cast<int>(std::lround(value)), 0, kMoirePaletteCount - 1);
+      // THE THEME PALETTE IS CAPTURED WHEN IT IS PICKED, so the cue keeps the
+      // colours it was made with on a desk wearing another theme.
+      if (cue.moire.palette == 2) {
+        const SDL_Color inks[4] = {pal.deep, pal.mid, pal.tile, pal.light};
+        for (std::size_t i = 0; i < 4; ++i) {
+          cue.moire.themeInks[i] = (static_cast<std::uint32_t>(inks[i].r) << 16) |
+                                   (static_cast<std::uint32_t>(inks[i].g) << 8) | inks[i].b;
+        }
+      }
+      break;
+    case NumericParam::MoireDensity: cue.moire.density = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::MoireSpeed: cue.moire.speed = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::MoireWarp: cue.moire.warp = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::MoireTurn: cue.moire.turn = std::clamp(value / 360.0, 0.0, 1.0); break;
+    case NumericParam::MoireCentreX: cue.moire.centreX = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::MoireCentreY: cue.moire.centreY = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::MoireGrey: cue.moire.grey = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::MoireHue: cue.moire.hue = std::clamp(value / 360.0, 0.0, 1.0); break;
     case NumericParam::CodeWidth: cue.width = static_cast<int>(std::lround(value)); break;
     case NumericParam::CodeHeight: cue.height = static_cast<int>(std::lround(value)); break;
     case NumericParam::VsSpeed:      v.speed = value; break;
@@ -718,6 +832,13 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
+  // A Moire cue's oscillators: the highest range, so it is tested first.
+  if (packed >= kMoireLfoPackBase) {
+    const int slot = packed - kMoireLfoPackBase;
+    Cue* cue = selectedCueMutable();
+    if (!cue || slot < 0 || slot >= kMoireLfoCount) return nullptr;
+    return &cue->moire.lfo[static_cast<std::size_t>(slot)];
+  }
   // A DMX cue's fixture oscillators: their own range, the same controls.
   if (packed >= kFixtureLfoPackBase) {
     const int row = (packed - kFixtureLfoPackBase) / 2;

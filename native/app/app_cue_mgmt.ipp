@@ -3069,6 +3069,11 @@
       {0, 0, 0, 0},
       [this]() { addGeneratorCue("swirl"); }
     });
+    contextItems_.push_back({
+      "  Moire (interference bands)",
+      {0, 0, 0, 0},
+      [this]() { addMoireCue(); }
+    });
     // The Konami secret, once this save has unlocked it.
     if (project_.terrariumUnlocked) {
       contextItems_.push_back({
@@ -3430,6 +3435,7 @@
       list.emplace_back("fireside",       "Fireside (a hearth that burns)");
       list.emplace_back("portal",         "Portal (blobs of deep space)");
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
+      list.emplace_back("moire-field",    "Moire (interference bands)");
       list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
@@ -4251,6 +4257,17 @@
       Cue& cue = deck.cues.back();
       cue.name = "Portal";
       cue.color = {60, 40, 150, 255};
+      markProjectDirty();
+    }
+  }
+
+  void addMoireCue() {
+    addPatternCue("moire-field");
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& cue = deck.cues.back();
+      cue.name = "Moire";
+      cue.color = {150, 60, 170, 255};
       markProjectDirty();
     }
   }
