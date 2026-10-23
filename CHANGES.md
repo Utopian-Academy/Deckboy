@@ -8,6 +8,11 @@
   the corner handles moving over it. While the editor is open, the monitor now shows the output
   being warped.
 
+### Scopes
+- Fixed: with a 24, 25 or 30 fps clip on a 60 Hz output, the scopes measured only about one
+  picture in four, not every picture as 0.99.418 promised. They now measure each new picture:
+  measured 24.6 a second for a 25 fps clip and 23.7 for 23.976 on a 60 Hz output.
+
 ## 2026-10-21 - v0.99.418 (a Moire source; scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
 ### Moire

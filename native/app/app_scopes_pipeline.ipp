@@ -12,6 +12,8 @@
     scopesLastFingerprint_ = 0;
     scopesConfirmedNs_ = 0;
     scopesNextProbeNs_ = 0;
+    scopesLastSourceKey_ = 0;
+    scopesPictureAnimating_ = false;
     scopesPictureTimes_.clear();
   }
 
@@ -195,12 +197,34 @@
 
   // A full-raster private tap: never changes a recording/network sender's
   // rate or pixel buffer. Every presented frame is looked at; only a new picture is analysed.
+  // One number for "which frames are the decks showing": it moves whenever
+  // any engine displays a new decoded or generated frame.
+  std::uint64_t scopesSourceFrameKey() const {
+    std::uint64_t key = 1469598103934665603ULL;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const MediaEngine* engine = mediaEngineForDeck(d);
+      const DecodedFrame* frame = engine ? engine->currentFrame() : nullptr;
+      key = (key ^ static_cast<std::uint64_t>(frame ? frame->index + 1 : 0)) * 1099511628211ULL;
+      key = (key ^ static_cast<std::uint64_t>(d)) * 1099511628211ULL;
+    }
+    return key;
+  }
+
   // Is a picture already on its way through analysis or drawing? Then reading
   // another back now would only be thrown away.
+  // When the readback is CHEAP (1080p, ~1 ms) only the analysis stage gates:
+  // drawing runs beside it, newest-wins, and waiting for both threw that
+  // overlap away (59.94 fps was measured 28 times a second). When it is
+  // EXPENSIVE (4K, ~4 ms of render thread) both stages gate, because more
+  // readbacks there cost the output its smoothness (measured: 31-36 hitches
+  // in 10 s against ~15 with the scopes off).
   bool scopesPipelineBusy() {
-    if (scopesAnalysing_ || scopesDrawing_) return true;
+    constexpr double kCheapReadbackMs = 2.0;
+    if (scopesAnalysing_) return true;
+    if (scopesCaptureMs_ >= kCheapReadbackMs && scopesDrawing_) return true;
     std::lock_guard lock(scopesMutex_);
-    return scopesPending_.has_value() || scopesDrawPending_.has_value();
+    return scopesPending_.has_value() ||
+           (scopesCaptureMs_ >= kCheapReadbackMs && scopesDrawPending_.has_value());
   }
 
   void scopesCaptureFrame(int index, OutputRuntime& runtime, const SDL_Rect& rect) {
@@ -236,7 +260,16 @@
     // Look only when the analyser can take the picture, and at a still one
     // only every 250 ms. Otherwise the GPU ring is kept moving (a copy on the
     // GPU, nothing read) so the frame read next time is a recent one.
-    const bool want = now >= scopesNextProbeNs_ && !scopesPipelineBusy();
+    // Read back when a deck shows a new frame, every present while the picture
+    // moves on its own (an animated effect, a fade), and four times a second
+    // at a still one. A repeat of the same source frame is skipped without a
+    // readback. The ring hands back a frame from a present or two ago, so each
+    // new picture is measured one source frame late -- but each one is measured.
+    const std::uint64_t sourceKey = scopesSourceFrameKey();
+    const bool newSourceFrame = sourceKey != scopesLastSourceKey_;
+    const bool want = (newSourceFrame || scopesPictureAnimating_ || now >= scopesNextProbeNs_) &&
+                      !scopesPipelineBusy();
+    if (want) scopesLastSourceKey_ = sourceKey;
     if (want) {
       job.pixels = scopeBuffer(bytes);
       if (!job.pixels) return;
@@ -331,6 +364,7 @@
       // Without this a still picture was reported STALE half a second in.
       scopesConfirmedNs_ = now;
       scopesNextProbeNs_ = now + 250000000ULL;
+      scopesPictureAnimating_ = false;
       // The slow 4:2:2 gamut check paces itself (every two seconds, never
       // while busy). A still picture is offered once otherwise, and if the
       // check was busy then, its verdict never arrived.
@@ -338,7 +372,11 @@
       return;
     }
     scopesLastFingerprint_ = fingerprint;
-    scopesNextProbeNs_ = 0;
+    // Changed although no deck showed a new frame: something animates on its
+    // own, so look again next present. Explained by a new frame: wait for the
+    // next one rather than reading back its repeats.
+    scopesPictureAnimating_ = !newSourceFrame;
+    scopesNextProbeNs_ = now + 250000000ULL;
     notePictureChanged(now);
     if (!outcome.hdr && !hdrWire && orientation) {
       std::vector<std::uint8_t> rotated;

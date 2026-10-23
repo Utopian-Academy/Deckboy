@@ -98,6 +98,13 @@
   // an unchanged picture is re-checked 4 times a second rather than 60, and
   // the analyser has a fixed share of the machine.
   Uint64 scopesNextProbeNs_ = 0;             // main thread: earliest next look at a still picture
+  // WHICH PRESENTS CAN HOLD A NEW PICTURE (audit 2026-10-22, #5). A 25 fps clip
+  // on a 60 Hz output presents each frame two or three times; the first repeat
+  // used to read as "still" and hold the scopes off for 250 ms, so they measured
+  // 64 of 250 pictures. The engines count the frames they display: a change in
+  // that count is a new source picture, found without reading anything back.
+  std::uint64_t scopesLastSourceKey_ = 0;
+  bool scopesPictureAnimating_ = false;      // changing with no new source frame
   std::atomic<bool> scopesAnalysing_ {false};
   std::atomic<bool> scopesDrawing_ {false};
   std::string scopesCaptureKey_;
