@@ -15,7 +15,6 @@ FILES = {
     "images/master-tracker.png": "docs/images/readme/master-tracker.png",
     "images/phone-controller.png": "docs/images/readme/phone-controller.png",
     "images/social-card.png": "docs/images/social-card.png",
-    "demos/taking-cues.gif": "docs/images/readme/release-419/clean-desk.gif",
     "demos/live-effects.gif": "docs/images/readme/release-419/live-effects.gif",
     "demos/picture-scopes.gif": "docs/images/readme/release-419/picture-scopes.gif",
     "demos/dmx-by-fixture.gif": "docs/images/readme/dmx-by-fixture.gif",
@@ -37,8 +36,7 @@ images/desk-*.png: v0.99.419, three themes, the bundled layers and titles exampl
 images/master-tracker.png: v0.99.417 pattern tracker, sections and action cells.
 images/phone-controller.png: complete v0.99.417 phone controller.
 images/social-card.png: 1280 x 640 sharing card with the current desk capture.
-demos/: v0.99.419 desk, effects and scopes; earlier fixture and Mic captures.
-The desk demonstration is named taking-cues.gif in this archive for compatibility.
+demos/: v0.99.419 effects and scopes; earlier fixture and Mic captures.
 CAPTURE-NOTES.md: dates, source versions and descriptions for each capture.
 
 CREDIT AND REUSE
