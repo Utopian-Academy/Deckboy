@@ -8270,11 +8270,27 @@ void MediaEngine::writePixel(DecodedFrame& frame, int x, int y, SDL_Color color)
 // Fill a rectangular region with a solid color. Clamps to frame bounds so
 // callers don't need to worry about edge clipping. Used extensively by all
 // pattern builders to draw bars, blocks, and filled shapes.
+//
+// One row is written pixel by pixel and the rest are copies of it: the
+// per-pixel, per-byte version was most of a Fireside frame (its wall is the
+// whole raster, filled twice).
 void MediaEngine::fillPixelRect(DecodedFrame& frame, int x, int y, int w, int h, SDL_Color color) {
-  for (int py = std::max(0, y); py < std::min(frame.height, y + h); ++py) {
-    for (int px = std::max(0, x); px < std::min(frame.width, x + w); ++px) {
-      writePixel(frame, px, py, color);
-    }
+  const int x0 = std::max(0, x), x1 = std::min(frame.width, x + w);
+  const int y0 = std::max(0, y), y1 = std::min(frame.height, y + h);
+  if (x0 >= x1 || y0 >= y1 ||
+      frame.pixels.size() < static_cast<std::size_t>(frame.width) * frame.height * 4u) {
+    return;
+  }
+  const std::uint8_t px[4] = {color.r, color.g, color.b, color.a};
+  const std::size_t stride = static_cast<std::size_t>(frame.width) * 4u;
+  const std::size_t bytes = static_cast<std::size_t>(x1 - x0) * 4u;
+  std::uint8_t* first = frame.pixels.data() + static_cast<std::size_t>(y0) * stride +
+                        static_cast<std::size_t>(x0) * 4u;
+  for (std::size_t i = 0; i < bytes; i += 4) {
+    std::memcpy(first + i, px, 4);
+  }
+  for (int py = y0 + 1; py < y1; ++py) {
+    std::memcpy(first + static_cast<std::size_t>(py - y0) * stride, first, bytes);
   }
 }
 
@@ -11605,7 +11621,11 @@ void buildSwirl(DecodedFrame& frame, double seconds, const SwirlSettings& settin
   const int bands = std::clamp(settings.bands, 2, 8);
   // One field value per cell, plus a column and a row more for the outline.
   std::vector<double> field(static_cast<std::size_t>((cw + 1) * (ch + 1)));
-  deckboy::effects::detail::parallelRows(ch + 1, cw + 1, [&](int r0, int r1) {
+  // TELL parallelRows THE REAL WORK. It runs on one thread below 120,000
+  // units, and a cell is ~23 trig calls, not one: at the example show's 320
+  // cells the bare grid (58k) fell under that line, and a Swirl on a 4K screen
+  // played at 36 fps where 480 cells (130k, threaded) played at 60.
+  deckboy::effects::detail::parallelRows(ch + 1, (cw + 1) * 16, [&](int r0, int r1) {
     for (int y = r0; y < r1; ++y) {
       for (int x = 0; x <= cw; ++x) {
         // The shader's y runs up the screen; ours runs down.
@@ -11660,7 +11680,8 @@ void buildSwirl(DecodedFrame& frame, double seconds, const SwirlSettings& settin
         colour[c] = static_cast<std::uint8_t>(std::lround(sectors[static_cast<int>(h)][c] * 255));
     }
   }
-  deckboy::effects::detail::parallelRows(ch, cw, [&](int r0, int r1) {
+  // Each row of cells fills H / ch whole output rows.
+  deckboy::effects::detail::parallelRows(ch, W * std::max(1, H / ch), [&](int r0, int r1) {
     for (int cy = r0; cy < r1; ++cy) {
       for (int cx = 0; cx < cw; ++cx) {
         const double v = field[static_cast<std::size_t>(cy * (cw + 1) + cx)];
@@ -11806,7 +11827,8 @@ void buildMoireField(DecodedFrame& frame, double animTime, const MoireSettings& 
   const int gh = H / kMoireStep + 2;
   std::vector<float> field(static_cast<std::size_t>(gw) * static_cast<std::size_t>(gh));
   const double sep = 0.15 + 0.15 * warp;      // twin: 0.3 at the prototype's warp
-  deckboy::effects::detail::parallelRows(gh, gw, [&](int r0, int r1) {
+  // Weighted: a grid point is up to seven trig calls (see buildSwirl).
+  deckboy::effects::detail::parallelRows(gh, gw * 8, [&](int r0, int r1) {
     for (int gy = r0; gy < r1; ++gy) {
       for (int gx = 0; gx < gw; ++gx) {
         const double px = (gx * kMoireStep - centreX * W) / S;
@@ -13237,12 +13259,22 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
   buildFiresideWindow(frame, t, view);
 
   // The opening is dark; the fire is drawn into it next.
-  for (int y = openY; y < std::min(H, openY + openH); ++y) {
-    for (int x = openX; x < std::min(W, openX + openW); ++x) {
-      if (insideOpening(x, y)) {
-        writePixel(frame, x, y, SDL_Color {10, 6, 8, 255});
+  //
+  // THE PER-PIXEL PASSES RUN ON EVERY CORE: each pixel is written from its own
+  // value alone, so rows are independent. One thread took 15 ms a frame at
+  // 1080p and 61 ms at 4K (16 fps on a 60 Hz 4K screen).
+  {
+    const int y0 = std::max(0, openY);
+    const int y1 = std::min(H, openY + openH);
+    deckboy::effects::detail::parallelRows(std::max(0, y1 - y0), openW * 2, [&](int r0, int r1) {
+      for (int y = y0 + r0; y < y0 + r1; ++y) {
+        for (int x = openX; x < std::min(W, openX + openW); ++x) {
+          if (insideOpening(x, y)) {
+            writePixel(frame, x, y, SDL_Color {10, 6, 8, 255});
+          }
+        }
       }
-    }
+    });
   }
 
   const int kCell = std::max(2, W / 150);
@@ -13383,7 +13415,10 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
     const int hy = openY + openH - openH / 5;
     const int hr = std::max(6, openH * 3 / 4);
     const int stride0 = W * 4;
-    for (int y = std::max(0, hy - hr); y < std::min(H, hy + hr); ++y) {
+    const int gy0 = std::max(0, hy - hr);
+    const int gy1 = std::min(H, hy + hr);
+    deckboy::effects::detail::parallelRows(std::max(0, gy1 - gy0), hr * 2 * 4, [&](int r0, int r1) {
+    for (int y = gy0 + r0; y < gy0 + r1; ++y) {
       for (int x = std::max(0, hx - hr); x < std::min(W, hx + hr); ++x) {
         if (!insideOpening(x, y)) {
           continue;
@@ -13407,6 +13442,7 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
           255});
       }
     }
+    });
   }
 
   // Grate.
@@ -13427,7 +13463,10 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
   const int cy = openY + openH - openH / 4;
   const double lift = 0.35 + 0.35 * breath;
   const int stride = W * 4;
-  for (int y = std::max(0, cy - glowR); y < std::min(H, cy + glowR); ++y) {
+  const int ly0 = std::max(0, cy - glowR);
+  const int ly1 = std::min(H, cy + glowR);
+  deckboy::effects::detail::parallelRows(std::max(0, ly1 - ly0), glowR * 2 * 4, [&](int r0, int r1) {
+  for (int y = ly0 + r0; y < ly0 + r1; ++y) {
     for (int x = std::max(0, cx - glowR); x < std::min(W, cx + glowR); ++x) {
       if (insideOpening(x, y)) {
         continue;
@@ -13451,6 +13490,7 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
         255});
     }
   }
+  });
 
   // ---- Sparks -------------------------------------------------------------
   //
@@ -13561,7 +13601,10 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
     fillPixelRect(frame, lx - 2, ly - sw - 4, 5, 3, SDL_Color {40, 32, 24, 255});
 
     const int gr = std::max(10, W / 9);
-    for (int y = std::max(0, ly - gr); y < std::min(H, ly + gr); ++y) {
+    const int sy0 = std::max(0, ly - gr);
+    const int sy1 = std::min(H, ly + gr);
+    deckboy::effects::detail::parallelRows(std::max(0, sy1 - sy0), gr * 2 * 4, [&](int r0, int r1) {
+    for (int y = sy0 + r0; y < sy0 + r1; ++y) {
       for (int x = std::max(0, lx - gr); x < std::min(W, lx + gr); ++x) {
         const double ddx = static_cast<double>(x - lx) / gr;
         const double ddy = static_cast<double>(y - ly) / gr;
@@ -13582,12 +13625,14 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
           255});
       }
     }
+    });
   }
 
   // Hearth slab, then a vignette so the corners fall away into the room.
   fillPixelRect(frame, mantelX, openY + openH, mantelW, std::max(3, H / 40), kStoneD);
   fillPixelRect(frame, mantelX, openY + openH, mantelW, 1, kStoneM);
-  for (int y = 0; y < H; ++y) {
+  deckboy::effects::detail::parallelRows(H, W * 4, [&](int r0, int r1) {
+  for (int y = r0; y < r1; ++y) {
     for (int x = 0; x < W; ++x) {
       const double ddx = (x - W * 0.5) / (W * 0.5);
       const double ddy = (y - H * 0.5) / (H * 0.5);
@@ -13608,6 +13653,7 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
         255});
     }
   }
+  });
 }
 
 void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
@@ -14004,10 +14050,22 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   }
   // Diagnostic patterns remain pixel-mapped. Code sources honour their own
   // raster so a 1080p source does not evaluate four times the pixels at 4K.
-  const int sourceW = codeProgram && cue.width > 0 ? cue.width :
-                      (fallbackWidth > 0 ? fallbackWidth : cue.width);
-  const int sourceH = codeProgram && cue.height > 0 ? cue.height :
-                      (fallbackHeight > 0 ? fallbackHeight : cue.height);
+  int sourceW = codeProgram && cue.width > 0 ? cue.width :
+                (fallbackWidth > 0 ? fallbackWidth : cue.width);
+  int sourceH = codeProgram && cue.height > 0 ? cue.height :
+                (fallbackHeight > 0 ? fallbackHeight : cue.height);
+  // THE SWIRL IS BLOCKS, so it is drawn at half the raster (or a quarter) on a
+  // big screen and the nearest-neighbour upscale puts every block back where
+  // it was: at most 960 cells across, a cell is 2+ pixels at 1080p. At 4K the
+  // full raster cost four times the pixels for the same picture -- and an
+  // effect on the cue (the example show's kaleidoscope) ran over all of them,
+  // 39 fps on a 60 Hz 4K screen. Halved only while it divides evenly.
+  if (basePatternType == "swirl" || basePatternType == "fireside") {
+    while (sourceH > 1200 && sourceW % 2 == 0 && sourceH % 2 == 0) {
+      sourceW /= 2;
+      sourceH /= 2;
+    }
+  }
 
   // ── Reset EVERY non-pixel field before reuse ──────────────────────────────
   // The caller's frame may be the one that previously held a hardware-decoded

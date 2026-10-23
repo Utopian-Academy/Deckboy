@@ -62,6 +62,20 @@
   (`window_px=3840x2160 render_px=3840x2160 fullscreen=1`), so a picture the compositor is
   scaling shows up as two different sizes.
 
+### Swirl and Fireside
+- Fixed: a Swirl set to fewer than about 400 pixels across played at around 36 fps on a 4K
+  output, and a Swirl with a picture effect on it at around 39 fps on a 4K output, whatever
+  its pixels. Both now play at the screen's rate (measured at 60 fps on a 60 Hz 4K screen,
+  including the example shows' Swirl cues). The Swirl itself looks exactly as it did. On a
+  screen taller than 1200 pixels it is now drawn at half size and scaled up, so a picture
+  effect on it that is measured in pixels (grain, a blur) looks as it does on a 1080p screen,
+  twice as coarse as before on 4K.
+- Fixed: Fireside played at about 16 fps on a 4K output. It now plays at 60 fps on a 60 Hz 4K
+  screen, and draws in about a third of the time at 1080p, where its picture is unchanged.
+  On a screen taller than 1200 pixels it is drawn at half size and scaled up like the Swirl,
+  so its embers are two pixels across on 4K instead of one.
+- Test patterns and Deckboy's own sources fill solid areas faster.
+
 ### Example shows
 - The example shows now play at the size and refresh of whatever screen they are shown on.
   They asked for a 1280x720, 30 Hz output, which switched some screens out of their own rate.
