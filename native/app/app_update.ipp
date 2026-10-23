@@ -311,6 +311,13 @@
   }
 
   void update() {
+    // THE LFO CLOCK FIRST, before anything this frame draws with it. It was
+    // sampled half-way down, after the generators had been rebuilt, so a
+    // Moire oscillator ran a frame behind an effect oscillator set to match
+    // it (Codex audit #8). Both consumers of the LFOs read this one sample, so
+    // the preview and the output are always at the same moment of the same
+    // oscillator.
+    sampleLfoClock();
     vuFocusedDeck_.store(project_.focusedDeckIndex, std::memory_order_relaxed);
     serviceWindowFitScale();
     serviceTestCardExport();
@@ -1069,9 +1076,6 @@
       }
     }
     ++motionDriverFrameCounter_;
-    // Both consumers of the LFOs read this one sample, so the preview and the
-    // output are always at the same moment of the same oscillator.
-    sampleLfoClock();
     serviceVjQuantisedTake();
     // A and B preview textures, from each deck's own decoded frame.
     //

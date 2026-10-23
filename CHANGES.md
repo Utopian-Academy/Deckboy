@@ -28,6 +28,8 @@
   shape, drawn curve) when the show was saved with every oscillator off, so switching it back on
   gave a different look. This also applies to the oscillators on a cue's size, position, rotation
   and crop.
+- Fixed: a Moire oscillator ran one frame behind a picture effect's oscillator set to the same
+  rate, so the two did not switch together.
 
 ### Swirl and Fireside
 - Fixed: on a tall, narrow output (such as 480x1920 or 1080x3840) a Swirl or Fireside came out

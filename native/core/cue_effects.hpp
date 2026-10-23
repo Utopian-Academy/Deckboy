@@ -912,18 +912,19 @@ struct LfoClockSample {
   double beats = 0.0;
   double audio01 = 0.0;
 };
-inline std::atomic<double>& lfoClockSecondsSlot() { static std::atomic<double> v {0.0}; return v; }
-inline std::atomic<double>& lfoClockBeatsSlot() { static std::atomic<double> v {0.0}; return v; }
-inline std::atomic<double>& lfoClockAudioSlot() { static std::atomic<double> v {0.0}; return v; }
+// One lock round the three values, so a reader on an engine thread never
+// takes the seconds of one sample with the beats of the next (Codex audit #8).
+// Taken once per frame by the writer and once per generated frame by each
+// reader: nothing here is contended enough to matter.
+inline std::mutex& lfoClockMutex() { static std::mutex m; return m; }
+inline LfoClockSample& lfoClockSlot() { static LfoClockSample s; return s; }
 inline void publishLfoClock(double seconds, double beats, double audio01) {
-  lfoClockSecondsSlot().store(seconds, std::memory_order_relaxed);
-  lfoClockBeatsSlot().store(beats, std::memory_order_relaxed);
-  lfoClockAudioSlot().store(audio01, std::memory_order_relaxed);
+  std::lock_guard<std::mutex> lock(lfoClockMutex());
+  lfoClockSlot() = {seconds, beats, audio01};
 }
 inline LfoClockSample readLfoClock() {
-  return {lfoClockSecondsSlot().load(std::memory_order_relaxed),
-          lfoClockBeatsSlot().load(std::memory_order_relaxed),
-          lfoClockAudioSlot().load(std::memory_order_relaxed)};
+  std::lock_guard<std::mutex> lock(lfoClockMutex());
+  return lfoClockSlot();
 }
 
 struct CueEffect {
