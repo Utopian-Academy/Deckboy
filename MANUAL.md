@@ -768,6 +768,8 @@ the cue as it was left. The outgoing cue plays on for video and audio files
 without a grade or picture effects, on ASIO as on any other device; anything
 else holds its last picture as before. Recordings and streams take the incoming
 cue's sound from the moment of the take; the room hears the outgoing one fade.
+The playlist fader, volume fades, and monitor/room mutes apply to both the
+incoming and outgoing cues throughout the transition, including on ASIO.
 
 ---
 
@@ -1663,8 +1665,9 @@ Press **WARP** on the programme monitor's header to edit, or open **Settings >
 Video Outputs > Geometry > WARP**. A banner across the picture says what the
 handles are moving: the whole programme on this output, or one layer's pin.
 
-While the editor is open on the output's warp, the monitor shows the picture
-as the output window presents it: warped, and with its area of interest,
+While the editor is open on the output's warp, the monitor follows the selected
+output, including when several outputs show the same playlist. It shows the picture
+as that output window presents it: warped, and with its area of interest,
 rotation and edge blend. The handles sit on the picture's own corners, so a
 dragged corner takes the picture's corner with it. Close the editor and the
 monitor goes back to the programme, unwarped. A layer's pin is edited over
@@ -2264,7 +2267,7 @@ the first window output, the one the audience sees, whichever output you are
 editing. **SOURCE**, beside FREEZE, steps through PROGRAMME and each output in
 turn to measure a different one. The scopes appear once that output is
 armed. They measure every new picture once, so they follow the source: a
-25 fps clip is measured 25 times a second and a 59.94 fps clip 59.94 times, on
+25 fps clip is analysed at its 25 fps cadence and a 59.94 fps clip at 59.94, on
 any output refresh rate, and a still picture once. The footer says how fast
 the scopes are going, the source's frame rate and the output's refresh
 (**LIVE 25.0/s src 25.00 fps out 60.00 Hz**). If the computer cannot measure

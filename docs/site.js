@@ -6,10 +6,10 @@ document.querySelectorAll('[data-theme]').forEach(button => {
   button.addEventListener('click', () => {
     const theme = button.dataset.theme;
     if (!deskImage || !deskLink || !Object.hasOwn(themes, theme)) return;
-    const src = `images/readme/desk-${theme}.png`;
+    const src = `images/readme/release-419/example-02-${theme}.png`;
     deskImage.src = src;
     deskLink.href = src;
-    deskImage.alt = `Deckboy 0.99.417 in the ${themes[theme]} theme, with built-in patterns on the cue list, Swirl on the programme monitor and its inspector.`;
+    deskImage.alt = `Deckboy 0.99.419 in the ${themes[theme]} theme, running the layers and titles example with three playlists feeding one programme.`;
     document.querySelectorAll('[data-theme]').forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
   });
 });

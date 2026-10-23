@@ -1,8 +1,38 @@
 # Deckboy application captures
 
-Published with the website refresh of 18 October 2026. These are actual application
-or browser captures using built-in Deckboy generators, a generated clip/slide and a
-local test page. No client media or reconstructed application UI is used.
+## Published release 0.99.419 / 23 October 2026
+
+The homepage, README and current demo gallery use `release-419/` captures from
+the published Windows portable package. The package SHA-256 is
+`cb44ef60c9b985b6692fee5e6527c1c8b8582eded0576fe09e46e45256443f77`, matching GitHub's
+release digest. The startup screen visibly reports v0.99.419.
+
+| Files in `release-419/` | What they show |
+| --- | --- |
+| `example-02-gameboy.png`, `example-02-dark.png`, `example-02-virtual-boy.png` | Three layers from the bundled layers and titles show, at 150% UI scale |
+| `crossfade-live.gif`, `.mp4`, `.png` | Two recorded example-show clips playing through a two-second crossfade |
+| `live-effects.gif`, `.mp4`, `.png` | Kaleidoscope, RGB split and ripple from the effects playground |
+| `picture-scopes.gif`, `.mp4`, `.png` | Scopes on Deckboy's built-in moving test card; output and analysis counters are visible |
+| `warp-monitor.gif`, `.mp4`, `.png` | Perspective corner adjustments shown in the programme monitor |
+| `startup-loop.gif`, `.mp4`, `.png`, `startup-example-shows.png` | The opening screen and EXAMPLE SHOWS |
+| `language-greetings.gif`, `.mp4`, `.png` | Danish, 1337 and Japanese greetings |
+
+All pictures come from the released application's UI snapshot or programme
+recorder. Capture runs use isolated show/state directories and dummy audio.
+The new MP4s and GIFs are silent and use generated or bundled example-show
+material. No reconstructed interface, altered counter, reversed footage or
+motion interpolation is used. UI samples retain their measured elapsed time.
+GIFs use a 10 fps encoding clock and a half-second dissolve at the loop boundary;
+their playback rate is separate from the application's visible live counters.
+The 1280 x 720 source raster and measured analysis/output rates are visible in the scopes capture. The moving test-card generator and the 60 Hz output have separate cadences; the GIF is a feature demonstration, not a throughput benchmark.
+See `release-419/media-manifest.json` for exact dimensions, durations and hashes.
+
+The site serves H.264 MP4s with playback controls and no autoplay. GitHub uses
+GIF derivatives. The v0.99.397 and v0.99.374 trailers remain labelled as earlier
+films with their original credits and reuse terms. The tracker, phone, fixtures,
+Mic, Mini and output-only feature demonstrations below retain their capture dates.
+
+## Earlier captures
 
 | Files | Capture | What they show |
 | --- | --- | --- |
@@ -18,7 +48,7 @@ local test page. No client media or reconstructed application UI is used.
 | `mic-inspector.mp4`, `.gif`, `.png` | 16 October | A Mic cue's gain and meter, explicitly using its built-in test signal |
 
 MP4 clips are silent H.264 with browser-compatible pixel format and fast-start metadata.
-GIFs are 12 fps derivatives for GitHub. The site uses the compact MP4s with controls,
+These earlier GIFs are 12 fps derivatives for GitHub. The site uses the compact MP4s with controls,
 without autoplay. Screenshots and video frames have been reviewed before publication.
 
 The separately hosted one-minute trailer remains the finished v0.99.397 film and

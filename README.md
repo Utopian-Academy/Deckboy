@@ -2,9 +2,9 @@
 
 <div align="center">
 
-[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.417-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=8bac0f&label=download&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.417-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=downloads&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases)
-[![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.417-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=stars&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/stargazers)
+[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=8bac0f&label=download&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=downloads&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=stars&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/stargazers)
 [![Discord](https://img.shields.io/discord/1560690462766006362?style=for-the-badge&labelColor=0f380f&color=306230&label=discord&logo=discord&logoColor=9bbc0f)](https://discord.gg/AZzsE4AZWx)
 
 [![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
@@ -24,11 +24,11 @@
 **Out, while it records:** screens · NDI · SRT and RTMP · SDI · SMPTE ST 2110<br>
 **On:** Windows · macOS · Linux — free and open source. No account, no licence server, no telemetry.
 
-**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ Watch the one-minute trailer](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
+**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-![Deckboy taking a generated Swirl clip, a slide and a local web page from the same cue list, with the programme monitor and timeline visible](docs/images/readme/taking-cues.gif)
+![Deckboy 0.99.419 crossfading between moving clips made with its example shows](docs/images/readme/release-419/crossfade-live.gif)
 
-<sub>Real application capture with Deckboy-generated media and a local test page. [Screenshots and short demos](https://utopian-academy.github.io/Deckboy/#in-action) · [Specifications and requirements](https://utopian-academy.github.io/Deckboy/specs.html).</sub>
+<sub>Captured from the published v0.99.419 Windows build. The outgoing clip keeps moving through the crossfade. [Screenshots and short demos](https://utopian-academy.github.io/Deckboy/#in-action) · [Specifications and requirements](https://utopian-academy.github.io/Deckboy/specs.html).</sub>
 
 Cue-based media playback and show control for live video — theatre, live
 events, worship and broadcast.
@@ -38,18 +38,26 @@ operator finds it, and how you find it again.
 
 ### In the current release
 
-The [v0.99.418 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.418)
-adds smoother hand-offs and truer scopes to the recent tracker, HDR, phone and lighting features:
+The [v0.99.419 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419)
+brings the picture, sound and output controls together:
 
-- **A cue keeps playing through its transition:** a crossfade out of a playing clip no longer
-  freezes it; the picture keeps moving and its sound fades across. On ASIO too, where every
-  playlist now has its own place in the mix.
-- **Scopes at the source's own rate:** every new picture is measured once, 25 times a second
-  for a 25 fps clip and 59.94 for 59.94, and the footer says when the computer cannot keep up.
-- **Example shows:** EXAMPLE SHOWS on the startup screen opens four shows that teach the
-  basics, from turning an output on to a one-button show with original music.
-- **Moire:** a new source made by Deckboy, six shapes and four palettes with an oscillator on
-  every control. It, Swirl and Fireside hold 60 fps at 4K.
+- **Crossfades that keep moving:** playing video and audio files without a grade or picture
+  effects continue through the outgoing transition. The playlist fader and monitor/room mutes
+  control both sides of the fade, including ASIO. Recordings and streams take the incoming
+  cue's sound at TAKE; the room hears the outgoing cue fade.
+- **Scopes that follow the source:** each new picture is analysed at the source's cadence.
+  The footer shows the measured update rate, source frame rate and output refresh, with a
+  clear indication when analysis cannot keep up.
+- **Warp the output you are looking at:** the programme monitor follows the output selected
+  in the warp editor, including when two outputs share a playlist. Close the editor to
+  return to the programme picture.
+- **Refresh rates that match the source:** whole-number and fractional rates stay distinct;
+  a 30 fps output chooses 30 or 60 Hz, while 29.97 chooses 29.97 or 59.94 Hz.
+- **Moiré and motion:** six shapes, four palettes and oscillators on every Moiré control.
+  Oscillator settings are saved while switched off, and Moiré and effect oscillators share
+  one clock. Swirl and Fireside preserve the proportions of tall outputs.
+- **Four example shows:** choose EXAMPLE SHOWS on the startup screen to learn your first
+  output, layers and titles, effects, and a one-button sequence with original music.
 - **Master tracker:** a pattern view with hex rows, keyboard editing, cue/stop/fade/volume/opacity
   cells, column mute/solo, jumps and named sections. The classic grid remains available.
 - **HDR workflows:** PQ or HLG feeds with graphics overlaid, HDR window output, ST 2110,
@@ -69,7 +77,7 @@ adds smoother hand-offs and truer scopes to the recent tracker, HDR, phone and l
 
 <table>
 <tr>
-<td width="50%"><b>Picture scopes</b><br><img src="docs/images/readme/picture-scopes.gif" width="420" alt="A generated test pattern alongside Deckboy's live waveform and vectorscope"><br>The programme and its measurements, side by side.</td>
+<td width="50%"><b>Picture scopes</b><br><img src="docs/images/readme/release-419/picture-scopes.gif" width="420" alt="Deckboy 0.99.419 scopes analysing its moving test card, with the live output counter visible"><br>Waveform, vectorscope, parade and gamut measurements from the moving test card.</td>
 <td width="50%"><b>Lights by name</b><br><img src="docs/images/readme/dmx-by-fixture.gif" width="300" alt="The DMX cue inspector changing the level and colour of named fixtures"><br>Fixture levels and colours in the cue list.</td>
 </tr>
 <tr>
@@ -83,21 +91,25 @@ adds smoother hand-offs and truer scopes to the recent tracker, HDR, phone and l
 
 **Gameboy**
 
-![Deckboy 0.99.417 with Swirl playing, in the Gameboy theme](docs/images/readme/desk-gameboy.png)
+![Deckboy 0.99.419 running the layers and titles example in the Gameboy theme](docs/images/readme/release-419/example-02-gameboy.png)
 
 **Dark**
 
-![The same Deckboy desk in the Dark theme](docs/images/readme/desk-dark.png)
+![The same Deckboy desk in the Dark theme](docs/images/readme/release-419/example-02-dark.png)
 
 **Virtual Boy**
 
-![The same Deckboy desk in the red Virtual Boy theme](docs/images/readme/desk-virtual-boy.png)
+![The same Deckboy desk in the red Virtual Boy theme](docs/images/readme/release-419/example-02-virtual-boy.png)
 
 </details>
 
 [All screenshots, GIFs and clips](https://utopian-academy.github.io/Deckboy/press.html#images)
-are real app captures. Desk, tracker and phone: v0.99.417; older feature captures
-are dated in the [media notes](docs/images/readme/README.md).
+are real app captures. Desk, crossfades, effects and scopes: published v0.99.419.
+Other captures retain their original versions in the [media notes](docs/images/readme/README.md).
+
+![Deckboy 0.99.419 startup screen with the EXAMPLE SHOWS button](docs/images/readme/release-419/startup-loop.gif)
+
+Open an example, read the cue notes and make it your own.
 
 ### Everything is a cue
 
@@ -552,7 +564,7 @@ and reacquisition update the media clock. See
   arrive neutral and cost under a millisecond a frame at 1080p
 - Effects go on and off a live cue without interrupting it
 
-![Deckboy's generated Swirl clip with a kaleidoscope effect whose parameter moves under an LFO, alongside the live effect inspector](docs/images/readme/live-effects.gif)
+![Deckboy 0.99.419 playing the effects example: kaleidoscope, RGB split and ripple on its generated programme](docs/images/readme/release-419/live-effects.gif)
 
 - Forty-two effects, each with named parameters. `--effect-bench` measures
   the cost on your machine; resolution and the chosen stack determine the frame budget

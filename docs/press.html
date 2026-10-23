@@ -140,14 +140,14 @@
         </div>
 
         <h2>Current release</h2>
-        <p>v0.99.418 keeps a playing cue moving through the transition out of it, with its sound
-        fading across, measures the picture scopes at the source&rsquo;s own frame rate, adds a
-        Moir&eacute; source and four example shows that teach the basics, and gives ASIO a mix with
-        one place per playlist. Recent releases add the pattern tracker, phone control, a fixture patch,
-        Mic cues, local live captions, saved defaults, gamma-correct projection blends and Windows
-        PQ/HLG workflows. <a href="specs.html">Current specifications and requirements.</a></p>
+        <p>v0.99.419 brings playlist volume and mutes to both sides of a crossfade, including ASIO;
+        scopes that follow each new source picture; a warp monitor that follows the selected output;
+        and refresh-rate matching that keeps whole-number and fractional rates distinct.
+        Moir&eacute; and effect oscillators share a clock, their settings are retained while disabled,
+        and Swirl and Fireside fit tall outputs. Four example shows teach the first output,
+        layers, effects and a one-button sequence. <a href="specs.html">Specifications and requirements.</a></p>
         <h2 id="images">Images</h2>
-        <p>More demos: <a href="images/readme/picture-scopes.gif">picture scopes (GIF)</a>,
+        <p>More demos: <a href="images/readme/release-419/picture-scopes.gif">picture scopes (GIF)</a>,
         <a href="images/readme/dmx-by-fixture.gif">fixtures (GIF)</a>,
         <a href="images/readme/mic-inspector.gif">Mic cue (GIF)</a>,
         <a href="images/readme/phone-controller.mp4">phone controller (MP4)</a>,
@@ -155,24 +155,23 @@
         <a href="images/readme/fixture-patch.png">fixture patch screenshot</a>.
         <a href="images/readme/README.md">Capture notes and versions.</a></p>
         <p>Right-click to save, or link them directly. Full resolution behind each one.
-        The desk and tracker below were captured from the published v0.99.417 build using
-        Deckboy&rsquo;s own generated patterns.</p>
+        The desk, crossfade, effects and scopes use the published v0.99.419 Windows build. Other captures keep their original version labels.</p>
         <div class="assets">
             <figure>
-                <a href="images/readme/desk-gameboy.png"><img src="images/readme/desk-gameboy.png" width="1600" height="900" alt="Deckboy 0.99.417 in the Gameboy theme with Swirl on the programme monitor."></a>
-                <figcaption><a href="images/readme/desk-gameboy.png">Gameboy desk</a> &middot; <a href="images/readme/desk-dark.png">Dark desk</a> &middot; <a href="images/readme/desk-virtual-boy.png">Virtual Boy desk</a> &mdash; 1600&times;900, v0.99.417.</figcaption>
+                <a href="images/readme/release-419/example-02-gameboy.png"><img src="images/readme/release-419/example-02-gameboy.png" width="1600" height="900" alt="Deckboy 0.99.419 running the layers and titles example in Gameboy."></a>
+                <figcaption><a href="images/readme/release-419/example-02-gameboy.png">Gameboy desk</a> &middot; <a href="images/readme/release-419/example-02-dark.png">Dark desk</a> &middot; <a href="images/readme/release-419/example-02-virtual-boy.png">Virtual Boy desk</a> &mdash; 1600&times;900, v0.99.419.</figcaption>
             </figure>
             <figure>
                 <a href="images/readme/master-tracker.png"><img src="images/readme/master-tracker.png" width="1600" height="900" loading="lazy" alt="Deckboy's master tracker pattern view with cue, level, fade and stop cells."></a>
                 <figcaption><a href="images/readme/master-tracker.png">Master tracker</a> &mdash; 1600&times;900, v0.99.417.</figcaption>
             </figure>
             <figure>
-                <a href="images/readme/taking-cues.gif"><img src="images/readme/taking-cues.png" width="900" height="516" loading="lazy" alt="A Swirl clip on the cue list alongside a slide and a local web page."></a>
-                <figcaption>Cue taking &mdash; <a href="images/readme/taking-cues.gif">GIF</a> / <a href="images/readme/taking-cues.mp4">MP4</a>, 12 seconds, silent, v0.99.414.</figcaption>
+                <a href="images/readme/release-419/crossfade-live.gif"><img src="images/readme/release-419/crossfade-live.png" width="800" height="450" loading="lazy" alt="Two moving clips crossfading in Deckboy 0.99.419."></a>
+                <figcaption>Cue taking &mdash; <a href="images/readme/release-419/crossfade-live.gif">GIF</a> / <a href="images/readme/release-419/crossfade-live.mp4">MP4</a>, 8 seconds, silent, v0.99.419.</figcaption>
             </figure>
             <figure>
-                <a href="images/readme/live-effects.gif"><img src="images/readme/live-effects.png" width="900" height="556" loading="lazy" alt="Kaleidoscope with an LFO on a generated Swirl clip, with its inspector visible."></a>
-                <figcaption>Live effects &mdash; <a href="images/readme/live-effects.gif">GIF</a> / <a href="images/readme/live-effects.mp4">MP4</a>, 4 seconds, silent, captured 16 October 2026.</figcaption>
+                <a href="images/readme/release-419/live-effects.gif"><img src="images/readme/release-419/live-effects.png" width="800" height="450" loading="lazy" alt="The effects playground recorded from Deckboy 0.99.419."></a>
+                <figcaption>Live effects &mdash; <a href="images/readme/release-419/live-effects.gif">GIF</a> / <a href="images/readme/release-419/live-effects.mp4">MP4</a>, 8 seconds, silent, v0.99.419.</figcaption>
             </figure>
             <figure>
                 <a href="images/hero.png"><img src="images/hero.png" alt="The Deckboy interface: playlist, timeline, programme monitor and cue inspector."></a>
@@ -184,11 +183,7 @@
                 <figcaption><a href="images/presenter.png">presenter.png</a> &mdash; presenter
                 view mid-build, 1920&times;1080.</figcaption>
             </figure>
-            <figure>
-                <a href="images/demo-desk.gif"><img src="images/demo-desk.gif" alt="Cues going to air: a title, bars, a clip with effects stacked on it, Swirl and Code."></a>
-                <figcaption><a href="images/demo-desk.gif">demo-desk.gif</a> &mdash; cues to air: a title, bars,
-                a <i>Tears of Steel</i> clip (&copy; Blender Foundation, CC BY 3.0) with effects stacked on it, Swirl and Code.</figcaption>
-            </figure>
+
             <figure>
                 <a href="images/databend.gif"><img src="images/databend.gif" alt="The databend effect tearing a night-time test card into rainbow bands."></a>
                 <figcaption><a href="images/databend.gif">databend.gif</a> &mdash; the picture

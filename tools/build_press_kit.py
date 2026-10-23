@@ -9,15 +9,15 @@ ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "docs/deckboy-press-kit.zip"
 FILES = {
     "press-copy.txt": "docs/press-copy.txt",
-    "images/desk-gameboy.png": "docs/images/readme/desk-gameboy.png",
-    "images/desk-dark.png": "docs/images/readme/desk-dark.png",
-    "images/desk-virtual-boy.png": "docs/images/readme/desk-virtual-boy.png",
+    "images/desk-gameboy.png": "docs/images/readme/release-419/example-02-gameboy.png",
+    "images/desk-dark.png": "docs/images/readme/release-419/example-02-dark.png",
+    "images/desk-virtual-boy.png": "docs/images/readme/release-419/example-02-virtual-boy.png",
     "images/master-tracker.png": "docs/images/readme/master-tracker.png",
     "images/phone-controller.png": "docs/images/readme/phone-controller.png",
     "images/social-card.png": "docs/images/social-card.png",
-    "demos/taking-cues.gif": "docs/images/readme/taking-cues.gif",
-    "demos/live-effects.gif": "docs/images/readme/live-effects.gif",
-    "demos/picture-scopes.gif": "docs/images/readme/picture-scopes.gif",
+    "demos/taking-cues.gif": "docs/images/readme/release-419/crossfade-live.gif",
+    "demos/live-effects.gif": "docs/images/readme/release-419/live-effects.gif",
+    "demos/picture-scopes.gif": "docs/images/readme/release-419/picture-scopes.gif",
     "demos/dmx-by-fixture.gif": "docs/images/readme/dmx-by-fixture.gif",
     "demos/mic-inspector.gif": "docs/images/readme/mic-inspector.gif",
     "CAPTURE-NOTES.md": "docs/images/readme/README.md",
@@ -33,11 +33,12 @@ More images, MP4 clips and trailer: https://utopian-academy.github.io/Deckboy/pr
 CONTENTS AND CAPTIONS
 press-copy.txt: product facts, short descriptions and workflow copy. The date
 and release used to check the feature claims are at the top of that file.
-images/desk-*.png: v0.99.417, three themes, built-in patterns and Swirl.
+images/desk-*.png: v0.99.419, three themes, the bundled layers and titles example.
 images/master-tracker.png: v0.99.417 pattern tracker, sections and action cells.
 images/phone-controller.png: complete v0.99.417 phone controller.
 images/social-card.png: 1280 x 640 sharing card with the current desk capture.
-demos/: animated GIFs of cue taking, effects, scopes, fixtures and a Mic cue.
+demos/: v0.99.419 crossfade, effects and scopes; earlier fixture and Mic captures.
+The crossfade is named taking-cues.gif in this archive for compatibility.
 CAPTURE-NOTES.md: dates, source versions and descriptions for each capture.
 
 CREDIT AND REUSE
@@ -46,7 +47,7 @@ GPL-3.0-or-later; the licence text is included as LICENSE.txt.
 Suggested credit: Deckboy / Utopian Academy.
 Source files: https://github.com/Utopian-Academy/Deckboy/tree/main/docs
 
-The included captures use Deckboy-generated material and a local test page.
+The included captures use Deckboy-generated material and the bundled examples.
 The Mic demo explicitly uses a test signal. No third-party film or music is
 bundled. Other images and the trailer on the press page have their own credits
 and terms; those terms are not replaced by this kit.

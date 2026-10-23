@@ -57,8 +57,8 @@
     </header>
 
     <div class="prose">
-        <p class="asof">Checked against the published <a href="https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.417">Deckboy 0.99.417</a>
-        release on 18 October 2026. For which format to choose, see
+        <p class="asof">Checked against the published <a href="https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419">Deckboy 0.99.419</a>
+        release on 23 October 2026. For which format to choose, see
         <a href="faq.html#formats">the FAQ</a>.</p>
         <nav class="section-links" aria-label="Specifications sections">
             <a href="#video">Video</a><a href="#output">Outputs</a><a href="#hdr">HDR</a>
@@ -75,23 +75,24 @@
             <tr><th>Stills</th><td>.png, .jpg, .jpeg, .webp, .bmp, .gif, .tif, .tiff, .avif, .heic, .heif</td></tr>
             <tr><th>Slides</th><td>PDF, one cue per page, rendered once at import by the operating system's own PDF engine; PowerPoint (.pptx, .ppt, .pps, .ppsx), Keynote (.key) and OpenDocument (.odp) decks the same way, converted by PowerPoint, Keynote or LibreOffice on the machine</td></tr>
             <tr><th>Live sources</th><td>Cameras, application windows and screens, web pages, NDI, SRT, RTMP, RTSP, UDP, Blackmagic DeckLink capture, Spout (Windows)</td></tr>
-            <tr><th>Generated</th><td>Test patterns, Swirl with live palettes, colour bands, reverse speed, twist, flow, zoom, centre and density, a video synth, live-coded pictures, timers, lower thirds and tone</td></tr>
+            <tr><th>Generated</th><td>Test patterns; Moir&eacute; with six shapes, four palettes and oscillators; Fireside, Portal and Swirl with live palettes, colour bands, reverse speed, twist, flow, zoom, centre and density, a video synth, live-coded pictures, timers, lower thirds and tone</td></tr>
             <tr><th>Code sources</th><td>Editable render width and height independent of output geometry; incomplete expressions hold the last good picture</td></tr>
             <tr><th>Effects</th><td>42 video effects, levels and curves among them, with oscillator-driven parameters; keying, grading and effects apply immediately on playing or paused cues</td></tr>
-            <tr><th>Transitions</th><td>17 cue-to-cue styles; each picture retains its fit, crop, scale, rotation, opacity, effect look and layer corner pins</td></tr>
+            <tr><th>Transitions</th><td>17 cue-to-cue styles; each picture retains its fit, crop, scale, rotation, opacity, effect look and layer corner pins. Playing files without a grade or picture effects continue through the outgoing transition; the playlist fader and mutes follow both cues, including ASIO. Recordings and streams take incoming audio at TAKE.</td></tr>
         </table></div>
 
         <h2 id="output">Output</h2>
         <div class="table-wrap"><table class="spec">
             <tr><th>Destinations</th><td>Displays (windowed or fullscreen), NDI, SRT, RTMP, RTSP and UDP streams, Blackmagic DeckLink SDI where the Blackmagic driver is installed, Spout (Windows), SMPTE ST&nbsp;2110</td></tr>
             <tr><th>Formats</th><td>720p at 50, 59.94 and 60; 1080i at 50, 59.94 and 60; 1080p and 2160p at 23.98, 24, 25, 29.97, 30, 50, 59.94 and 60</td></tr>
+            <tr><th>Refresh matching</th><td>Whole-number and fractional rates are matched separately: 30 fps uses 30 or 60 Hz; 29.97 uses 29.97 or 59.94 Hz.</td></tr>
             <tr><th>Bit depth</th><td>8-bit or 10-bit</td></tr>
             <tr><th>Colour and SDI</th><td>SDR: limited-range BT.709 UYVY (8-bit) or v210 (10-bit), with scheduled DeckLink video and stereo 48 kHz audio. HDR: floating-point composition and Rec.2020 PQ/HLG on a 10-bit DeckLink route; card validation pending. See <a href="#hdr">HDR paths and requirements</a>.</td></tr>
             <tr><th>SMPTE ST 2110</th><td>ST&nbsp;2110-20 uncompressed video and ST&nbsp;2110-30 (AES67) 48&nbsp;kHz stereo audio, with independent video/audio transport controls, AMWA NMOS IS-04 registration and IS-05 connection management, and PTP media clock acquisition and reacquisition</td></tr>
             <tr><th>Decks and outputs</th><td>Up to 16 playlists, each output showing whichever one you choose, or several composited as layers; a multiview you arrange yourself</td></tr>
-            <tr><th>Mapping</th><td>Per-output corner-pin or grid warp; a perspective or linear corner pin per layer. Gamma-correct edge blending, adjustable projector gamma and black lift, and paired overlap to set two outputs' areas of interest and blends together. Older shows retain their saved linear blend curve.</td></tr>
+            <tr><th>Mapping</th><td>Per-output corner-pin or grid warp; a perspective or linear corner pin per layer. Gamma-correct edge blending, adjustable projector gamma and black lift, and paired overlap to set two outputs' areas of interest and blends together. The warp editor previews the selected output in the programme monitor. Older shows retain their saved linear blend curve.</td></tr>
             <tr><th>Test cards</th><td>A card drawn 1:1 at each output's raster, with pixel checks, bars, PLUGE, safe areas, moving checks and frame count; HDR patches on HDR outputs. Export H.264 movies for each canvas output and the whole canvas.</td></tr>
-            <tr><th>Picture scopes</th><td>Waveform, RGB/Y′CbCr parades, vectorscope, histogram and EBU R 103 gamut checks. Select the source output; HDR is measured in nits. SDI and ST 2110 scopes can measure the encoded Y′CbCr 4:2:2 signal at its output depth.</td></tr>
+            <tr><th>Picture scopes</th><td>Waveform, RGB/Y′CbCr parades, vectorscope, histogram and EBU R 103 gamut checks. Select the source output; each new source picture is analysed, with source, analysis and output rates in the footer. HDR is measured in nits. SDI and ST 2110 scopes can measure the encoded Y′CbCr 4:2:2 signal at its output depth.</td></tr>
             <tr><th>Operator screens</th><td>Presenter view and a mirrored prompter, each an output of its own</td></tr>
             <tr><th>Control desk</th><td>Compact cue rows and full-width focused deck tabs when columns cannot fit; CLEAR immediately stops all decks, cancels queued takes and disarms output</td></tr>
         </table></div>
