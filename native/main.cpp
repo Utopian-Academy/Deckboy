@@ -2241,10 +2241,19 @@ void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
 // A cue's geometry oscillators, one field. EMPTY when none is armed, which is
 // every cue that has never had one -- so the field costs a tab and nothing
 // else, and an older build reading a newer show sees one more field it skips.
+//
+// EMPTY ONLY WHEN NOTHING WAS EVER SET, not when nothing is switched on. An
+// oscillator the operator shaped and then switched off still carries its
+// rate, depth, shape and drawn curve; writing nothing for it handed back the
+// defaults on reopening, so switching it on again gave a different look
+// (Codex audit #3, found on the Moire cue, which shares this field format).
 std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, 9>& lfos) {
+  const deckboy::effects::ParamLfo fresh;
   bool any = false;
   for (const auto& lfo : lfos) {
-    any = any || lfo.on;
+    any = any || lfo.on || lfo.shape != fresh.shape || lfo.rateHz != fresh.rateHz ||
+          lfo.depth != fresh.depth || lfo.phase != fresh.phase ||
+          lfo.beatSync != fresh.beatSync || lfo.beats != fresh.beats || lfo.curve != fresh.curve;
   }
   if (!any) {
     return std::string();

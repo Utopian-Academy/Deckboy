@@ -3353,6 +3353,16 @@
         expect(!lfo.on, "and an empty field reads back with every oscillator off");
         break;
       }
+      // Shaped, then switched off: the shape survives a save (Codex audit #3).
+      std::array<deckboy::effects::ParamLfo, 9> parked {};
+      parked[kMoireLfoHue].shape = LfoShape::Square;
+      parked[kMoireLfoHue].rateHz = 2.0f;
+      parked[kMoireLfoHue].depth = 0.8f;
+      const auto parkedBack = parseGeometryLfos(serializeGeometryLfos(parked));
+      expect(!parkedBack[kMoireLfoHue].on && parkedBack[kMoireLfoHue].shape == LfoShape::Square &&
+               std::fabs(parkedBack[kMoireLfoHue].rateHz - 2.0f) < 1e-6f &&
+               std::fabs(parkedBack[kMoireLfoHue].depth - 0.8f) < 1e-6f,
+             "an oscillator shaped and switched off keeps its settings through a save");
       std::array<deckboy::effects::ParamLfo, 9> some {};
       some[kGeoLfoRotation].on = true;
       some[kGeoLfoRotation].shape = LfoShape::Saw;

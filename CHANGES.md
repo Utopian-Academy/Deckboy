@@ -23,6 +23,12 @@
   23.976 / 47.952), which drops a frame about every 33 seconds, and gave no warning. A set rate
   now takes only a mode of the same kind: 30 takes 30 or 60, 29.97 takes 29.97 or 59.94.
 
+### Moire
+- Fixed: an oscillator that had been set up and then switched off lost its settings (rate, depth,
+  shape, drawn curve) when the show was saved with every oscillator off, so switching it back on
+  gave a different look. This also applies to the oscillators on a cue's size, position, rotation
+  and crop.
+
 ## 2026-10-21 - v0.99.418 (a Moire source; scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
 ### Moire
