@@ -235,8 +235,17 @@ struct AsioRuntime {
   // and never allocated in the callback.
   std::vector<std::int32_t> mix;
   // Withdrawn from the mix but perhaps still being read by a callback already
-  // in flight, so freed half a second later. Under gRuntimeMutex.
-  std::vector<std::pair<std::unique_ptr<AsioOutput::Source>, Uint64>> retired;
+  // in flight. Each carries the callback count at the moment it was withdrawn
+  // and is freed only once that many callbacks have FINISHED -- proof, not a
+  // timeout. Half a second used to stand in for that proof, and a callback
+  // descheduled for longer would have read freed memory (Codex audit
+  // 2026-10-22, #1). Under gRuntimeMutex.
+  std::vector<std::pair<std::unique_ptr<AsioOutput::Source>, std::uint64_t>> retired;
+  // Callbacks entered and finished. The driver calls bufferSwitch on one
+  // thread, one at a time, so "finished >= N" means callback N and every one
+  // before it are done.
+  std::atomic<std::uint64_t> callbacksEntered {0};
+  std::atomic<std::uint64_t> callbacksFinished {0};
   std::atomic<std::uint64_t> underruns {0};
   std::uint64_t callbackCount = 0;     // callback only
   // DECKBOY_ASIO_CAPTURE=<file.wav>: what was handed to the driver, kept for a
@@ -266,11 +275,12 @@ SDL_AudioStream* makeResampler(const AsioRuntime& rt) {
   return SDL_CreateAudioStream(&src, &dst);
 }
 
-// Free what the callback can no longer be holding. Under gRuntimeMutex.
+// Free what the callback can no longer be holding: every source withdrawn
+// before a callback that has since finished. Under gRuntimeMutex.
 void freeRetired(AsioRuntime& rt) {
-  const Uint64 now = SDL_GetTicks();
+  const std::uint64_t finished = rt.callbacksFinished.load(std::memory_order_acquire);
   rt.retired.erase(std::remove_if(rt.retired.begin(), rt.retired.end(),
-                                  [now](const auto& r) { return now - r.second >= 500; }),
+                                  [finished](const auto& r) { return r.second <= finished; }),
                    rt.retired.end());
 }
 
@@ -316,6 +326,17 @@ inline bool sampleTypeSupported(ASIOSampleType t) {
 void bufferSwitch(long index, ASIOBool /*directProcess*/) {
   AsioRuntime* rt = gRuntime;
   if (!rt) return;
+  // Count this callback in before reading any source, and out on every way
+  // out. The fence pairs with the one after a withdrawal: either this callback
+  // sees the empty slot, or the withdrawal sees this callback counted in and
+  // waits for it to finish.
+  const std::uint64_t epoch = rt->callbacksEntered.fetch_add(1, std::memory_order_seq_cst) + 1;
+  std::atomic_thread_fence(std::memory_order_seq_cst);
+  struct CountOut {
+    AsioRuntime* rt;
+    std::uint64_t epoch;
+    ~CountOut() { rt->callbacksFinished.store(epoch, std::memory_order_release); }
+  } countOut {rt, epoch};
 
   const long frames = rt->bufferFrames;
   const int chans = rt->channels;
@@ -835,8 +856,13 @@ std::shared_ptr<AsioOutput::Source> AsioOutput::openSource() {
     AsioRuntime* live = gRuntime;
     if (live && live->generation == done->generation && done->slot >= 0) {
       live->sources[static_cast<std::size_t>(done->slot)].store(nullptr, std::memory_order_release);
+      std::atomic_thread_fence(std::memory_order_seq_cst);
+      // Any callback that could have loaded it is counted in by now; free it
+      // once callbacks up to this count have finished.
+      const std::uint64_t mayHold = live->callbacksEntered.load(std::memory_order_seq_cst);
       freeRetired(*live);
-      live->retired.emplace_back(std::unique_ptr<Source>(done), SDL_GetTicks());
+      live->retired.emplace_back(std::unique_ptr<Source>(done), mayHold);
+      freeRetired(*live);   // nothing in flight: free it now
     } else {
       delete done;   // its stream is closed: nothing can be reading it
     }

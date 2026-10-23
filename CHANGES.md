@@ -8,6 +8,11 @@
   the corner handles moving over it. While the editor is open, the monitor now shows the output
   being warped.
 
+### ASIO
+- Fixed a rare crash on ASIO output: if the audio driver stalled for more than half a second just
+  as a cue's sound left the mix, Deckboy could read memory it had already freed. A cue's sound is
+  now kept until the driver has certainly finished with it.
+
 ### Scopes
 - Fixed: with a 24, 25 or 30 fps clip on a 60 Hz output, the scopes measured only about one
   picture in four, not every picture as 0.99.418 promised. They now measure each new picture:
