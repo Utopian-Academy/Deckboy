@@ -18,6 +18,11 @@
   picture in four, not every picture as 0.99.418 promised. They now measure each new picture:
   measured 24.6 a second for a 25 fps clip and 23.7 for 23.976 on a 60 Hz output.
 
+### Outputs
+- Fixed: an output set to 30 Hz (or 24) could switch its screen to 29.97 Hz or 59.94 Hz (or
+  23.976 / 47.952), which drops a frame about every 33 seconds, and gave no warning. A set rate
+  now takes only a mode of the same kind: 30 takes 30 or 60, 29.97 takes 29.97 or 59.94.
+
 ## 2026-10-21 - v0.99.418 (a Moire source; scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
 ### Moire

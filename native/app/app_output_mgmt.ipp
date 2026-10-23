@@ -8246,6 +8246,25 @@
         // 60, 25 on 50, 24 on 48/72/120, 29.97 on 59.94); the smallest one
         // wins, the exact rate first. No such mode: not a candidate at all,
         // and the screen keeps its own mode (enableOutputFullscreen says so).
+        //
+        // AND THE SAME FAMILY: 30 is not 29.97. The two differ by 0.1%, less
+        // than the tolerance a panel's own rounding needs (one reports 59.951
+        // for 60), so a plain tolerance accepted 29.97 and 59.94 for a 30 Hz
+        // request -- a frame dropped every 33 s -- and suppressed the warning
+        // (Codex audit #4). A 1000/1001 rate is told apart by its rational
+        // (the exact rate where SDL gives one) landing on a whole number x
+        // 1000/1001 while missing every whole number.
+        if (mode.refresh_rate_numerator > 0 && mode.refresh_rate_denominator > 0) {
+          hz = static_cast<double>(mode.refresh_rate_numerator) / mode.refresh_rate_denominator;
+        }
+        auto ntsc = [](double rate) {
+          const double lifted = rate * 1001.0 / 1000.0;
+          return std::abs(lifted - std::round(lifted)) < 0.004 &&
+                 std::abs(rate - std::round(rate)) > 0.02;
+        };
+        if (ntsc(hz) != ntsc(targetHz)) {
+          continue;
+        }
         const double multiple = hz / targetHz;
         const double whole = std::round(multiple);
         if (whole < 1.0 || whole > 8.0 || std::abs(hz - whole * targetHz) > 0.05 * whole) {
