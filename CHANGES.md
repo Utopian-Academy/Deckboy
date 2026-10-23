@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-23 - v0.99.419 (in progress)
+
+### Warp
+- Fixed: with two window outputs showing the same playlist, warping the second one in the WARP
+  editor warped only the output; the programme monitor kept showing the first output, flat, with
+  the corner handles moving over it. While the editor is open, the monitor now shows the output
+  being warped.
+
 ## 2026-10-21 - v0.99.418 (a Moire source; scopes at the source's own frame rate; a cue keeps playing through its transition; example shows that teach the basics)
 
 ### Moire

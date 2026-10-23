@@ -3944,7 +3944,7 @@
 
   // Which output the control window's program monitor mirrors: the focused
   // deck's primary output, when that output is actually compositing.
-  std::optional<int> previewTapOutputIndex() const {
+  std::optional<int> previewTapOutputIndex() {
     // AN AUDITIONED DECK IS NOT ON ITS OUTPUT, so its output's composite is
     // black and tapping it would show the operator the nothing that the room
     // is correctly seeing. Refusing the tap drops the preview to the decoder
@@ -3956,6 +3956,23 @@
     auto primary = primaryOutputIndexForDeck(project_.focusedDeckIndex);
     if (!primary) {
       return std::nullopt;
+    }
+    // WHILE THE WARP EDITOR IS OPEN, THE MONITOR IS THE OUTPUT BEING WARPED.
+    // The editor works on the focused output; the monitor tapped the deck's
+    // primary one. With two window outputs on one deck -- a desk monitor and
+    // the projector being lined up -- warping the projector left the monitor
+    // on the other, flat output, and only the projector showed the warp
+    // (James, 0.99.418). A stream draws no window, so it is never warped.
+    if (warpEditorVisible()) {
+      const int focused = project_.focusedOutputIndex;
+      if (focused >= 0 && focused < static_cast<int>(project_.outputs.size()) && focused != *primary) {
+        const OutputTarget& out = project_.outputs[static_cast<std::size_t>(focused)];
+        const bool showsDeck = out.hostDeckIndex == project_.focusedDeckIndex ||
+                               assignmentIndexForDeckOutput(project_.focusedDeckIndex, focused).has_value();
+        if (out.enabled && normalizeOutputType(out.outputType) != "stream" && showsDeck) {
+          return focused;
+        }
+      }
     }
     int outputIndex = *primary;
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
