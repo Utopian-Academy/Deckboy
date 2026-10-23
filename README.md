@@ -18,20 +18,19 @@
 
 </div>
 
-## One cue list for your whole video show.
+## Video playback and show control.
 
-**In:** video · slides · web pages · windows · cameras · NDI · SRT · SDI<br>
-**Out, while it records:** screens · NDI · SRT and RTMP · SDI · SMPTE ST 2110<br>
-**On:** Windows · macOS · Linux — free and open source. No account, no licence server, no telemetry.
+Deckboy puts videos, slides and live sources in a running order. Choose the next
+cue on your desk and take it to the audience when you're ready. Send the programme
+to screens, broadcast outputs or streams, and record it while it plays.
+
+Free and open source, for Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-![Deckboy 0.99.419 crossfading between moving clips made with its example shows](docs/images/readme/release-419/crossfade-live.gif)
+![The Deckboy desk taking two generated scenes from its cue list to the programme monitor](docs/images/readme/release-419/clean-desk.gif)
 
-<sub>Captured from the published v0.99.419 Windows build. The outgoing clip keeps moving through the crossfade. [Screenshots and short demos](https://utopian-academy.github.io/Deckboy/#in-action) · [Specifications and requirements](https://utopian-academy.github.io/Deckboy/specs.html).</sub>
-
-Cue-based media playback and show control for live video — theatre, live
-events, worship and broadcast.
+<sub>The cue list, programme monitor and inspector in Deckboy v0.99.419. [Screenshots and short demos](https://utopian-academy.github.io/Deckboy/#in-action) · [Specifications and requirements](https://utopian-academy.github.io/Deckboy/specs.html).</sub>
 
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.

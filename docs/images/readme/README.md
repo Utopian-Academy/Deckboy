@@ -10,7 +10,7 @@ release digest. The startup screen visibly reports v0.99.419.
 | Files in `release-419/` | What they show |
 | --- | --- |
 | `example-02-gameboy.png`, `example-02-dark.png`, `example-02-virtual-boy.png` | Three layers from the bundled layers and titles show, at 150% UI scale |
-| `crossfade-live.gif`, `.mp4`, `.png` | Two recorded example-show clips playing through a two-second crossfade |
+| `clean-desk.gif`, `.mp4`, `.png` | The complete desk taking generated day and night scenes from its cue list |
 | `live-effects.gif`, `.mp4`, `.png` | Kaleidoscope, RGB split and ripple from the effects playground |
 | `picture-scopes.gif`, `.mp4`, `.png` | Scopes on Deckboy's built-in moving test card; output and analysis counters are visible |
 | `warp-monitor.gif`, `.mp4`, `.png` | Perspective corner adjustments shown in the programme monitor |
