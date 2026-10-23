@@ -342,7 +342,13 @@ def check_playout(args):
 
 
 def bar_positions(path, width=320, height=180):
-    """The moving bar's column in every frame of a recording, with how bright it is."""
+    """The moving bar's CENTRE in every frame of a recording, with how bright it is.
+
+    The centre of the bright run of columns at half its peak, not the
+    brightest column: inside a 16 px white bar the brightest column wanders
+    with compression noise during a fade, and that read as 13 px of travel
+    from a picture that never moved (Codex audit 2026-10-22, #7).
+    """
     raw = subprocess.run([
         "ffmpeg", "-v", "error", "-i", path, "-vf",
         "scale=%d:%d,format=gray" % (width, height), "-f", "rawvideo", "-"],
@@ -353,8 +359,54 @@ def bar_positions(path, width=320, height=180):
         frame = raw[at:at + size]
         columns = [sum(frame[y * width + x] for y in range(0, height, 6)) for x in range(width)]
         peak = max(columns)
-        found.append((columns.index(peak), peak))
+        top = columns.index(peak)
+        half = peak * 0.5
+        left, right = top, top
+        while left > 0 and columns[left - 1] >= half:
+            left -= 1
+        while right < width - 1 and columns[right + 1] >= half:
+            right += 1
+        found.append(((left + right) / 2.0, peak))
     return found
+
+
+def bar_travel(positions):
+    """Net distance the bar moved along its 304 px loop: jitter cancels out
+    instead of adding up the way positive-only steps did."""
+    travel = 0.0
+    for a, b in zip(positions, positions[1:]):
+        step = (b - a) % 304
+        if step > 152:
+            step -= 304
+        travel += step
+    return abs(travel)
+
+
+def check_bar_detector():
+    """The detector itself, on recordings made without Deckboy: a FROZEN bar
+    under a two-second fade must read as still, a moving one as moving."""
+    failures = []
+    with tempfile.TemporaryDirectory(prefix="deckboy-bar-detector-") as tmp:
+        for case, xexpr, want_moving in (("frozen", "124", False), ("moving", "mod(t*100,304)", True)):
+            clip = os.path.join(tmp, case + ".mp4")
+            subprocess.run([
+                "ffmpeg", "-v", "error", "-y",
+                "-f", "lavfi", "-i", "color=black:s=640x360:r=25:d=3.5",
+                "-f", "lavfi", "-i", "color=white:s=32x360:r=25:d=3.5",
+                "-filter_complex",
+                "[0][1]overlay=x='%s*2':y=0,fade=t=out:st=0.6:d=2[v]" % xexpr,
+                "-map", "[v]", "-c:v", "libx264", "-preset", "veryfast",
+                "-pix_fmt", "yuv420p", clip], check=True)
+            found = bar_positions(clip)
+            full = max((peak for _, peak in found[:8]), default=0)
+            fading = [x for x, peak in found if full * 0.15 < peak < full * 0.85]
+            travel = bar_travel(fading)
+            ok = len(fading) >= 5 and ((travel >= 40) if want_moving else (travel <= 6))
+            print("bar detector (%s bar, no Deckboy): %d fading frames, %.1f px -- %s"
+                  % (case, len(fading), travel, "ok" if ok else "FAIL"))
+            if not ok:
+                failures.append("bar detector misread a %s bar (%.1f px)" % (case, travel))
+    return failures
 
 
 def check_live_outgoing(args):
@@ -370,7 +422,7 @@ def check_live_outgoing(args):
     from deckboy_harness import Deckboy
     args.keep = False
     args.ffmpeg = ""
-    failures = []
+    failures = check_bar_detector()
     with tempfile.TemporaryDirectory(prefix="deckboy-live-outgoing-") as media:
         moving = os.path.join(media, "moving.mp4")
         black = os.path.join(media, "black.ppm")
@@ -414,21 +466,18 @@ def check_live_outgoing(args):
                 # The fade: frames where the bar is visible but dimmer than
                 # before the take, so mid-transition and nothing else.
                 fading = [x for x, peak in found if full * 0.15 < peak < full * 0.85]
-                travel = 0
-                for a, b in zip(fading, fading[1:]):
-                    step = (b - a) % 304
-                    travel += step if step < 150 else 0
+                travel = bar_travel(fading)
                 if pause_first:
                     ok = len(fading) >= 5 and travel <= 6
                     want = "held still"
                 else:
                     ok = len(fading) >= 5 and travel >= 40
                     want = "kept moving"
-                print("live outgoing (%s cue): %d frames in the fade, bar travelled %d px -- %s %s"
+                print("live outgoing (%s cue): %d frames in the fade, bar travelled %.1f px -- %s %s"
                       % (case, len(fading), travel, want, "ok" if ok else "FAIL"))
                 if not ok:
                     failures.append("%s cue: the outgoing picture should have %s through the crossfade "
-                                    "(%d fading frames, %d px)" % (case, want, len(fading), travel))
+                                    "(%d fading frames, %.1f px)" % (case, want, len(fading), travel))
                 db.send("TRANSITION 0")
     for failure in failures:
         print("FAIL: " + failure)
