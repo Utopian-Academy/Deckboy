@@ -13,6 +13,12 @@
   as a cue's sound left the mix, Deckboy could read memory it had already freed. A cue's sound is
   now kept until the driver has certainly finished with it.
 
+### Transitions
+- Fixed: changing a playlist's volume during a transition (`VOLUME 0`, a volume fade, the
+  playlist fader) changed only the incoming cue; the cue on its way out kept its old level until
+  its fade ended, about 1.2 s after `VOLUME 0` in a 2-second crossfade. It now follows straight
+  away, and so do the playlist's monitor and room mutes.
+
 ### Scopes
 - Fixed: with a 24, 25 or 30 fps clip on a 60 Hz output, the scopes measured only about one
   picture in four, not every picture as 0.99.418 promised. They now measure each new picture:

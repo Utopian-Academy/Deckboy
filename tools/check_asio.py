@@ -138,6 +138,15 @@ def main():
         db.send("SELECT 1")
         db.send("TAKE")
         time.sleep(1.0)
+        # Deck volume to zero part-way through a crossfade: the cue on its way
+        # out is still this deck's sound and must go quiet with the incoming
+        # one (it kept its old volume until its fade ended -- audit #2).
+        db.send("TRANSITION 2.0")
+        db.send("SELECT 2")
+        db.send("TAKE")
+        time.sleep(0.6)
+        db.send("VOLUME 0"); marks["vol0"] = time.monotonic()
+        time.sleep(1.0)
         close_gracefully(db.proc.pid)
         try:
             exit_code = db.proc.wait(timeout=20)
@@ -237,6 +246,14 @@ def main():
     check(stale < 0.1 * level and at(third[1] + 0.2, 440) > 0.5 * level,
           "the next take starts clean",
           "660 in its first 175 ms: %.0f, then 440 at %.0f" % (stale, at(third[1] + 0.2, 440)))
+    # Measured the way STOP is: how long after its command the sound ended,
+    # against how long after PAUSE the pause went quiet.
+    # A volume change applies from the next audio queued, not to what is
+    # already queued (~120 ms), so it is slower than STOP. Released 0.99.418:
+    # +1198 ms, the outgoing cue sounding to the end of its fade.
+    hush = (third[2] - first[2]) - (marks["vol0"] - marks["pause"])
+    check(hush < 0.25, "VOLUME 0 mid-crossfade silences both cues",
+          "%+.0f ms after the command" % (hush * 1000))
     check(exit_code == 0, "the app closes cleanly", "exit code %s" % exit_code)
 
     if fails:

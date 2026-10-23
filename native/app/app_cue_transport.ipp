@@ -4697,7 +4697,15 @@
       finishOutgoingTail(*rt);
       return;
     }
+    // The tail is still this deck's sound, so it follows the deck's own
+    // settings every tick, not just the copy taken at the hand-off: VOLUME 0
+    // or a deck fade during a long crossfade silenced only the incoming cue,
+    // and a monitor/room mute change left the tail on its old routing (Codex
+    // audit 2026-10-22, #2). One place covers every control that sets them.
     tail.engine->setMasterGain(static_cast<float>(project_.masterVolume));
+    tail.engine->setVolume(deckEngine->volume());
+    tail.engine->setMonitorMuted(deckEngine->monitorMuted());
+    tail.engine->setMainDeviceMuted(deckEngine->mainDeviceMuted());
     tail.engine->update();
     if (const DecodedFrame* frame = tail.engine->currentFrame();
         frame && frame->index != tail.lastFedIndex) {
