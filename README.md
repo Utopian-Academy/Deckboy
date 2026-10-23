@@ -38,9 +38,18 @@ operator finds it, and how you find it again.
 
 ### In the current release
 
-The [v0.99.417 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.417)
-includes the latest tracker alongside the recent HDR, phone and lighting features:
+The [v0.99.418 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.418)
+adds smoother hand-offs and truer scopes to the recent tracker, HDR, phone and lighting features:
 
+- **A cue keeps playing through its transition:** a crossfade out of a playing clip no longer
+  freezes it; the picture keeps moving and its sound fades across. On ASIO too, where every
+  playlist now has its own place in the mix.
+- **Scopes at the source's own rate:** every new picture is measured once, 25 times a second
+  for a 25 fps clip and 59.94 for 59.94, and the footer says when the computer cannot keep up.
+- **Example shows:** EXAMPLE SHOWS on the startup screen opens four shows that teach the
+  basics, from turning an output on to a one-button show with original music.
+- **Moire:** a new source made by Deckboy, six shapes and four palettes with an oscillator on
+  every control. It, Swirl and Fireside hold 60 fps at 4K.
 - **Master tracker:** a pattern view with hex rows, keyboard editing, cue/stop/fade/volume/opacity
   cells, column mute/solo, jumps and named sections. The classic grid remains available.
 - **HDR workflows:** PQ or HLG feeds with graphics overlaid, HDR window output, ST 2110,

@@ -15,7 +15,7 @@
     <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/social-card.png">
     <meta property="og:image:width" content="1280">
     <meta property="og:image:height" content="640">
-    <meta property="og:image:alt" content="Deckboy 0.99.417 with built-in patterns on the cue list and Swirl on the programme output">
+    <meta property="og:image:alt" content="The Deckboy desk with built-in patterns on the cue list and Swirl on the programme output">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deckboy - Open-Source Live Video Playback">
@@ -116,7 +116,7 @@
                 <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download Latest Release</a>
                 <a href="https://github.com/Utopian-Academy/Deckboy" class="btn-large btn-outline">&#9733; Star on GitHub</a>
             </div>
-            <p class="release-note">Now available: <a href="https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.417">v0.99.417</a>
+            <p class="release-note">Now available: <a href="https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.418">v0.99.418</a>
             &middot; <a href="#latest">What&rsquo;s new</a> &middot; <a href="specs.html#system">Setup &amp; requirements</a></p>
             
             <p class="animate-up delay-3" style="margin:1.2rem auto 0;font-size:.95rem;"><a href="community.html">Need help? Join the Deckboy community &rarr;</a></p>
@@ -138,15 +138,14 @@
     </section>
 
     <section class="site-section" id="latest" aria-labelledby="latest-title">
-        <div class="section-heading"><p class="eyebrow">Current release / 18 October 2026</p><h2 id="latest-title">More of the show, in one desk.</h2>
-        <p>The pattern tracker in v0.99.417, plus the latest HDR, projection and controller features.</p></div>
+        <div class="section-heading"><p class="eyebrow">Current release / 23 October 2026</p><h2 id="latest-title">Smoother hand-offs. Truer scopes.</h2>
+        <p>v0.99.418: a cue keeps playing through its transition, scopes that follow the source, a new Moir&eacute; source, and example shows that teach the basics.</p></div>
         <div class="latest-grid">
-            <article><span class="feature-number">01 / Sequence</span><h3>A tracker for the whole show</h3><p>Hex rows, keyboard editing and one column per playlist. Take a cue, stop, fade or set a level in a cell. Mute and solo columns, name sections and jump between rows.</p><a href="manual.html#the-dashboard-the-master-tracker">Meet the master tracker &rarr;</a></article>
-            <article><span class="feature-number">02 / Picture</span><h3>Graphics over an HDR feed</h3><p>PQ or HLG in, graphics over it, HDR out over ST&nbsp;2110, SRT/enhanced RTMP or recording. Measured at 4K60 on Windows with an RTX&nbsp;4070.</p><a href="specs.html#hdr">HDR paths &amp; platform limits &rarr;</a></article>
-            <article><span class="feature-number">03 / Control</span><h3>The desk in your pocket</h3><p>Scan to pair. TAKE, transport, a fader, cues, editable DASH and the tracker on one phone page. Tailscale on both devices extends control beyond the venue network.</p><a href="#phone-demo">See the phone controller &rarr;</a></article>
-            <article><span class="feature-number">04 / Setup</span><h3>Ready for the room</h3><p>Gamma-correct edge blends, paired projector overlap and black lift. Test cards at each output&rsquo;s raster. Save your routing, fixtures and desk setup as the defaults for a new show.</p><a href="specs.html#output">Outputs &amp; mapping &rarr;</a></article>
+            <article><span class="feature-number">01 / Transitions</span><h3>The outgoing cue keeps playing</h3><p>A crossfade out of a playing clip no longer freezes it on its last frame: the picture keeps moving and its sound fades out across the transition. On ASIO too, where every playlist now has its own place in the mix.</p><a href="manual.html#transitions">Transitions &rarr;</a></article>
+            <article><span class="feature-number">02 / Measure</span><h3>Scopes at the source&rsquo;s own rate</h3><p>Every new picture is measured once: 25 times a second for a 25&nbsp;fps clip, 59.94 for 59.94, whatever the output&rsquo;s refresh. The footer says how fast they are going, and says so when the computer cannot keep up.</p><a href="manual.html#picture-scopes">Picture scopes &rarr;</a></article>
+            <article><span class="feature-number">03 / Learn</span><h3>Four example shows</h3><p>EXAMPLE SHOWS on the startup screen opens them: turning an output on and taking the first cue, layers and titles, effects, and a one-button show with original music. Every cue carries a note.</p><a href="https://github.com/Utopian-Academy/Deckboy/tree/main/data/demos/starter-pack">The example shows &rarr;</a></article>
+            <article><span class="feature-number">04 / Make</span><h3>Moir&eacute;, made by Deckboy</h3><p>Fine rainbow bands in six shapes and four palettes, with an oscillator on every control. 60&nbsp;fps at 4K, and Swirl and Fireside now hold 60&nbsp;fps at 4K too.</p><a href="manual.html#test-patterns">Moir&eacute; and the other sources &rarr;</a></article>
         </div>
-        <figure class="tracker-shot"><a href="images/readme/master-tracker.png"><img src="images/readme/master-tracker.png" width="1600" height="900" loading="lazy" alt="The v0.99.417 pattern tracker with named sections and cue, volume, opacity, fade and stop cells."></a><figcaption>The new pattern view. The classic grid is one click away.</figcaption></figure>
     </section>
 
     <section class="site-section" id="in-action" aria-labelledby="action-title">
@@ -192,7 +191,7 @@
             <p><b>Anything that can make a picture or a sound becomes a cue. Anything that needs to
             receive the show becomes an output.</b>
             <a href="manual.html#cue-types">The full table of cue types &rarr;</a></p>
-            <p>Features checked against the published v0.99.417 release. Packaged builds and their changes are on the
+            <p>Features checked against the published v0.99.418 release. Packaged builds and their changes are on the
             <a href="https://github.com/Utopian-Academy/Deckboy/releases">releases page</a>.</p>
         </div>
         <div class="feature-card glass">
