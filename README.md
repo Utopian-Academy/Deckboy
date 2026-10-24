@@ -35,40 +35,38 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### In the current release
+### New in 0.99.419
 
-The [v0.99.419 release](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419)
-brings the picture, sound and output controls together:
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419)
 
-- **Crossfades that keep moving:** playing video and audio files without a grade or picture
-  effects continue through the outgoing transition. The playlist fader and monitor/room mutes
-  control both sides of the fade, including ASIO. Recordings and streams take the incoming
-  cue's sound at TAKE; the room hears the outgoing cue fade.
-- **Scopes that follow the source:** each new picture is analysed at the source's cadence.
-  The footer shows the measured update rate, source frame rate and output refresh, with a
-  clear indication when analysis cannot keep up.
-- **Warp the output you are looking at:** the programme monitor follows the output selected
-  in the warp editor, including when two outputs share a playlist. Close the editor to
-  return to the programme picture.
-- **Refresh rates that match the source:** whole-number and fractional rates stay distinct;
-  a 30 fps output chooses 30 or 60 Hz, while 29.97 chooses 29.97 or 59.94 Hz.
-- **Moiré and motion:** six shapes, four palettes and oscillators on every Moiré control.
-  Oscillator settings are saved while switched off, and Moiré and effect oscillators share
-  one clock. Swirl and Fireside preserve the proportions of tall outputs.
-- **Four example shows:** choose EXAMPLE SHOWS on the startup screen to learn your first
-  output, layers and titles, effects, and a one-button sequence with original music.
-- **Master tracker:** a pattern view with hex rows, keyboard editing, cue/stop/fade/volume/opacity
-  cells, column mute/solo, jumps and named sections. The classic grid remains available.
-- **HDR workflows:** PQ or HLG feeds with graphics overlaid, HDR window output, ST 2110,
-  SRT/enhanced RTMP and recording. The end-to-end HDR input path is measured on Windows;
-  macOS and Linux convert HDR input to SDR. NDI and Web Monitor stay SDR. DeckLink HDR
-  output is implemented but has not been tested on a card.
-- **Phone control:** QR pairing, TAKE, transport, fader, cue list, editable DASH and tracker
-  on one page, with remote access through Tailscale when installed on both devices.
-- **Lights and live audio:** a named fixture patch over Art-Net or sACN, Mic cues with
-  fades and processing, and captions made locally from live speech or programme audio.
-- **Projection and setup:** gamma-correct edge blending, paired overlap and black lift;
-  output test cards and movie export; save your own defaults for new shows.
+- **Crossfades that keep moving.** Take the next cue and the one on screen keeps
+  playing while it fades out, with its sound fading too.
+- **Warp what you're looking at.** While you warp an output, the monitor shows that
+  output, warped, with the corner handles on the picture.
+- **Moiré.** A new source under SOURCE > MADE BY DECKBOY: six interference patterns,
+  four palettes, and a `~` oscillator on every control.
+- **Scopes that keep up.** Every new picture from the source is measured, and the
+  footer tells you if anything is missed.
+- **Smooth on 4K.** Swirl and Fireside hold 60 fps on 4K screens, and outputs stay
+  at your screen's refresh rate.
+- **Four example shows** on the startup screen, with notes on every cue: your first
+  output, layers and titles, effects, and a one-button show.
+
+![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/release-419/crossfade-live.gif)
+
+<sub>A real crossfade in v0.99.419: the outgoing clip keeps playing until it has faded. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+
+#### Also in recent releases
+
+- **Master tracker:** a pattern view with keyboard editing, cue, fade, volume and opacity
+  cells, column mute/solo, jumps and named sections. The classic grid is still there.
+- **HDR:** graphics over PQ or HLG feeds, HDR window output, ST 2110, SRT/enhanced RTMP
+  and recording.
+- **Phone control:** pair with a QR code; TAKE, transport, fader, cue list, DASH and
+  tracker on one page.
+- **Lights and live audio:** named fixtures over Art-Net or sACN, Mic cues with fades and
+  processing, and live captions made on your machine.
+- **Projection:** edge blending, test cards and saved defaults for new shows.
 
 ![The Deckboy master tracker in pattern view, with cue, level, fade and stop cells, named sections and playlist controls](docs/images/readme/master-tracker.png)
 
@@ -106,9 +104,8 @@ brings the picture, sound and output controls together:
 are real app captures. Desk, crossfades, effects and scopes: published v0.99.419.
 Other captures retain their original versions in the [media notes](docs/images/readme/README.md).
 
-![Deckboy 0.99.419 startup screen with the EXAMPLE SHOWS button](docs/images/readme/release-419/startup-loop.gif)
-
-Open an example, read the cue notes and make it your own.
+New to Deckboy? Choose **EXAMPLE SHOWS** on the startup screen, read the notes on each
+cue and make the show your own.
 
 ### Everything is a cue
 
@@ -563,7 +560,7 @@ and reacquisition update the media clock. See
   arrive neutral and cost under a millisecond a frame at 1080p
 - Effects go on and off a live cue without interrupting it
 
-![Deckboy 0.99.419 playing the effects example: kaleidoscope, RGB split and ripple on its generated programme](docs/images/readme/release-419/live-effects.gif)
+![Effects switched on live while a clip plays: kaleidoscope, posterise, ripple and crystallise, then back to the clean picture](docs/images/readme/release-419/live-effects.gif)
 
 - Forty-two effects, each with named parameters. `--effect-bench` measures
   the cost on your machine; resolution and the chosen stack determine the frame budget

@@ -5,6 +5,50 @@
   "package_sha256": "cb44ef60c9b985b6692fee5e6527c1c8b8582eded0576fe09e46e45256443f77",
   "files": [
     {
+      "file": "crossfade-live.gif",
+      "bytes": 4475385,
+      "sha256": "6d209d9207c0261382eca1a011d05003c81e7236cb6674986ecb78671eedd44e",
+      "width": 1000,
+      "height": 710,
+      "frames": 85,
+      "duration_s": 8.5,
+      "loop": 0,
+      "seam_max_difference": 0
+    },
+    {
+      "file": "crossfade-live.mp4",
+      "bytes": 715936,
+      "sha256": "ddd29d7c6a5b2029da39f94ea2b1681915fd389b35f60a5f826da8e37bd43043",
+      "width": 1000,
+      "height": 710,
+      "duration_s": 8.5
+    },
+    {
+      "file": "crossfade-live.png",
+      "bytes": 408765,
+      "sha256": "621f298004461cdf2f2240d7249bbf377a1e5247641a497116d27a8f1a143f60",
+      "width": 1000,
+      "height": 710
+    },
+    {
+      "file": "deckboy-video-playback-ymck.mp4",
+      "bytes": 761086,
+      "sha256": "a372cbfef2c2fbdeb8b9b5e3b68549e816f791089da61f7a45f3aecf0d1cb8b8",
+      "audio": "aac; YMCK - Family Music (2004), used with permission",
+      "duration_s": 6.0,
+      "width": 1000,
+      "height": 730,
+      "fps": "10/1"
+    },
+    {
+      "file": "deckboy-video-playback-ymck.png",
+      "bytes": 442368,
+      "sha256": "899ea820d191a5dbb8451815ec0758eebce1e2a40f5ac7825c5666cbef02765a",
+      "width": 1000,
+      "height": 730,
+      "frames": 1
+    },
+    {
       "file": "deckboy-video-playback.gif",
       "bytes": 4292724,
       "sha256": "4c7fc31cb890d6149d6c1f81bd894d2e2ca3b40c502625bb893a1551fb892728",
@@ -24,167 +68,17 @@
       "frames": 1
     },
     {
-      "file": "deckboy-video-playback-ymck.mp4",
-      "bytes": 761086,
-      "sha256": "a372cbfef2c2fbdeb8b9b5e3b68549e816f791089da61f7a45f3aecf0d1cb8b8",
-      "audio": "aac; YMCK - Family Music (2004), used with permission",
-      "duration_s": 6.0,
-      "width": 1000,
-      "height": 730,
-      "fps": "10/1"
-    },
-    {
-      "file": "live-effects.gif",
-      "bytes": 3065141,
-      "sha256": "45b965b9c91b0ca92280fdcaeb3d936570049ce461fda8d329225ed7e81b2e3e",
-      "width": 800,
-      "height": 450,
-      "frames": 84,
-      "duration_s": 8.5,
-      "loop": 0,
-      "seam_max_difference": 0
-    },
-    {
-      "file": "live-effects.png",
-      "bytes": 60472,
-      "sha256": "a7c8437c68a856e3f4a2f883e62a732525be8231e5a0e9dfc79c742337af9906",
-      "width": 800,
-      "height": 450,
-      "frames": 1
-    },
-    {
-      "file": "live-effects.mp4",
-      "bytes": 4622803,
-      "sha256": "aedaf3d3eaca74a49af614dc1521481c93a265cbdc9067fa79e27c624dd8f396",
-      "duration_s": 8.132683,
-      "width": 1920,
-      "height": 1080,
-      "fps": "30/1"
-    },
-    {
-      "file": "picture-scopes.gif",
-      "bytes": 685253,
-      "sha256": "2875270679cc9b00f0c74fd3215d2fd5213b35b53f79275b12a3c456bc061fb7",
-      "width": 900,
-      "height": 418,
-      "frames": 65,
-      "duration_s": 6.5,
-      "loop": 0,
-      "seam_max_difference": 0
-    },
-    {
-      "file": "picture-scopes.png",
-      "bytes": 189975,
-      "sha256": "e517cef49560e517ceb70d2acb4964005ed3c72b45d341d8bc68172e96a7a48c",
-      "width": 900,
-      "height": 418,
-      "frames": 1
-    },
-    {
-      "file": "picture-scopes.mp4",
-      "bytes": 171236,
-      "sha256": "96f2b43aca2b1ca54a6e4b2caa3c862dde56156fd35426fcd018e387d7f9ead3",
-      "duration_s": 6.0,
-      "width": 900,
-      "height": 418,
-      "fps": "10/1"
-    },
-    {
-      "file": "warp-monitor.gif",
-      "bytes": 533632,
-      "sha256": "691d5796c5163d1e96a9ade752dabef3f6e242997a862ac493c6c06e1a1f8a07",
-      "width": 900,
-      "height": 418,
-      "frames": 65,
-      "duration_s": 6.5,
-      "loop": 0,
-      "seam_max_difference": 0
-    },
-    {
-      "file": "warp-monitor.png",
-      "bytes": 154705,
-      "sha256": "349816e604a1078c1e0eaa3c948278b7640a8addd9a02f63054b6534f14ff45e",
-      "width": 900,
-      "height": 418,
-      "frames": 1
-    },
-    {
-      "file": "warp-monitor.mp4",
-      "bytes": 334079,
-      "sha256": "95c4a1a9378992cf37091278256a02b036664bd5779e8e242bc039360bf8a78e",
-      "duration_s": 6.0,
-      "width": 900,
-      "height": 418,
-      "fps": "12/1"
-    },
-    {
-      "file": "startup-loop.gif",
-      "bytes": 134142,
-      "sha256": "bef279c5835dd5f0cc12ef53cbe2577d85e77947b135c08cb9867a85efcb0980",
-      "width": 900,
-      "height": 486,
-      "frames": 45,
-      "duration_s": 4.5,
-      "loop": 0,
-      "seam_max_difference": 0
-    },
-    {
-      "file": "startup-loop.png",
-      "bytes": 86007,
-      "sha256": "757b54ffde6fb85418279dce3575388d1817bdd6662a6bd9cab4cd55533d74c4",
-      "width": 900,
-      "height": 486,
-      "frames": 1
-    },
-    {
-      "file": "startup-loop.mp4",
-      "bytes": 42141,
-      "sha256": "761e467f283dcf73e50034f2ac12a7d300103c3c72acef3b0026deb012dd5ebf",
-      "duration_s": 4.0,
-      "width": 900,
-      "height": 486,
-      "fps": "12/1"
-    },
-    {
-      "file": "language-greetings.gif",
-      "bytes": 1227707,
-      "sha256": "35da16f801e52cb8a7f8b5e9c66b2e2341d6e57dfdc73275f9ee6f4d7adc5a43",
-      "width": 900,
-      "height": 418,
-      "frames": 125,
-      "duration_s": 12.5,
-      "loop": 0,
-      "seam_max_difference": 0
-    },
-    {
-      "file": "language-greetings.png",
-      "bytes": 182861,
-      "sha256": "e98289e3f205540a8642a9bb5ba8f7d5f63f6fd30b1a287eb7088af345874252",
-      "width": 900,
-      "height": 418,
-      "frames": 1
-    },
-    {
-      "file": "language-greetings.mp4",
-      "bytes": 321340,
-      "sha256": "dc4c294ffb0cc852eff2eb30a1cf949a74428ec17bc0130495bdbf0620168a8f",
-      "duration_s": 12.0,
-      "width": 900,
-      "height": 418,
-      "fps": "12/1"
-    },
-    {
-      "file": "example-02-gameboy.png",
-      "bytes": 252656,
-      "sha256": "db40122b836ee694847a6b6e511a02f1a7e27c33a7adac751c5d6cd4de2a8c49",
+      "file": "example-02-dark.png",
+      "bytes": 251999,
+      "sha256": "a11918f544985252476297421bd513f56f34eaa5ed48af8411c9350d1f87f646",
       "width": 1600,
       "height": 900,
       "frames": 1
     },
     {
-      "file": "example-02-dark.png",
-      "bytes": 251999,
-      "sha256": "a11918f544985252476297421bd513f56f34eaa5ed48af8411c9350d1f87f646",
+      "file": "example-02-gameboy.png",
+      "bytes": 252656,
+      "sha256": "db40122b836ee694847a6b6e511a02f1a7e27c33a7adac751c5d6cd4de2a8c49",
       "width": 1600,
       "height": 900,
       "frames": 1
@@ -198,6 +92,88 @@
       "frames": 1
     },
     {
+      "file": "language-greetings.gif",
+      "bytes": 1227707,
+      "sha256": "35da16f801e52cb8a7f8b5e9c66b2e2341d6e57dfdc73275f9ee6f4d7adc5a43",
+      "width": 900,
+      "height": 418,
+      "frames": 125,
+      "duration_s": 12.5,
+      "loop": 0,
+      "seam_max_difference": 0
+    },
+    {
+      "file": "language-greetings.mp4",
+      "bytes": 321340,
+      "sha256": "dc4c294ffb0cc852eff2eb30a1cf949a74428ec17bc0130495bdbf0620168a8f",
+      "duration_s": 12.0,
+      "width": 900,
+      "height": 418,
+      "fps": "12/1"
+    },
+    {
+      "file": "language-greetings.png",
+      "bytes": 182861,
+      "sha256": "e98289e3f205540a8642a9bb5ba8f7d5f63f6fd30b1a287eb7088af345874252",
+      "width": 900,
+      "height": 418,
+      "frames": 1
+    },
+    {
+      "file": "live-effects.gif",
+      "bytes": 3951381,
+      "sha256": "097ea2ed4e5719aedea30d689dfc08c2b0df49b4d58ad71ed2a8a2bc9d89a845",
+      "width": 1000,
+      "height": 710,
+      "frames": 105,
+      "duration_s": 10.5,
+      "loop": 0,
+      "seam_max_difference": 0
+    },
+    {
+      "file": "live-effects.mp4",
+      "bytes": 886325,
+      "sha256": "d04283d85ce2dd05eafe0fd635321687e9f6e793cbd36d7c998ae97ff24984ba",
+      "width": 1000,
+      "height": 710,
+      "duration_s": 10.5
+    },
+    {
+      "file": "live-effects.png",
+      "bytes": 476604,
+      "sha256": "c35363e468111c73be9f4478ff595f357e1052288c8b7cf468b17b706e34e000",
+      "width": 1000,
+      "height": 710
+    },
+    {
+      "file": "picture-scopes.gif",
+      "bytes": 685253,
+      "sha256": "2875270679cc9b00f0c74fd3215d2fd5213b35b53f79275b12a3c456bc061fb7",
+      "width": 900,
+      "height": 418,
+      "frames": 65,
+      "duration_s": 6.5,
+      "loop": 0,
+      "seam_max_difference": 0
+    },
+    {
+      "file": "picture-scopes.mp4",
+      "bytes": 171236,
+      "sha256": "96f2b43aca2b1ca54a6e4b2caa3c862dde56156fd35426fcd018e387d7f9ead3",
+      "duration_s": 6.0,
+      "width": 900,
+      "height": 418,
+      "fps": "10/1"
+    },
+    {
+      "file": "picture-scopes.png",
+      "bytes": 189975,
+      "sha256": "e517cef49560e517ceb70d2acb4964005ed3c72b45d341d8bc68172e96a7a48c",
+      "width": 900,
+      "height": 418,
+      "frames": 1
+    },
+    {
       "file": "startup-example-shows.png",
       "bytes": 140942,
       "sha256": "ae60ee01bc6b8002e2fba49988dbc39a3029760abd81a3154972ba384ecbd736",
@@ -206,11 +182,31 @@
       "frames": 1
     },
     {
-      "file": "deckboy-video-playback-ymck.png",
-      "bytes": 442368,
-      "sha256": "899ea820d191a5dbb8451815ec0758eebce1e2a40f5ac7825c5666cbef02765a",
-      "width": 1000,
-      "height": 730,
+      "file": "warp-monitor.gif",
+      "bytes": 533632,
+      "sha256": "691d5796c5163d1e96a9ade752dabef3f6e242997a862ac493c6c06e1a1f8a07",
+      "width": 900,
+      "height": 418,
+      "frames": 65,
+      "duration_s": 6.5,
+      "loop": 0,
+      "seam_max_difference": 0
+    },
+    {
+      "file": "warp-monitor.mp4",
+      "bytes": 334079,
+      "sha256": "95c4a1a9378992cf37091278256a02b036664bd5779e8e242bc039360bf8a78e",
+      "duration_s": 6.0,
+      "width": 900,
+      "height": 418,
+      "fps": "12/1"
+    },
+    {
+      "file": "warp-monitor.png",
+      "bytes": 154705,
+      "sha256": "349816e604a1078c1e0eaa3c948278b7640a8addd9a02f63054b6534f14ff45e",
+      "width": 900,
+      "height": 418,
       "frames": 1
     }
   ]
