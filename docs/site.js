@@ -14,9 +14,27 @@ document.querySelectorAll('[data-theme]').forEach(button => {
   });
 });
 
-// Playing one demonstration pauses the others. Playback always starts with the visitor.
-document.querySelectorAll('video').forEach(video => {
+// Silent demos behave like GIFs: they play while on screen and pause when
+// scrolled away, with no controls. Visitors who ask for reduced motion keep
+// the controls and press play themselves.
+const loops = document.querySelectorAll('video[data-loop-demo]');
+const stillPlease = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!stillPlease && 'IntersectionObserver' in window) {
+  const onScreen = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.play().catch(() => {});
+    else entry.target.pause();
+  }), {threshold: 0.25});
+  loops.forEach(video => {
+    video.controls = false;
+    video.muted = true;
+    onScreen.observe(video);
+  });
+}
+
+// Videos with sound start with the visitor, and playing one pauses the others.
+const withSound = document.querySelectorAll('video:not([data-loop-demo])');
+withSound.forEach(video => {
   video.addEventListener('play', () => {
-    document.querySelectorAll('video').forEach(other => { if (other !== video) other.pause(); });
+    withSound.forEach(other => { if (other !== video) other.pause(); });
   });
 });
