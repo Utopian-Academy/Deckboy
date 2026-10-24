@@ -39,6 +39,9 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419)
 
+- **Learn the basics.** A five-minute guided tour from the startup screen or MENU.
+  Dr. Pixel and Professor Video take you through your first show one real control
+  at a time, in a practice show that leaves yours alone.
 - **Crossfades that keep moving.** Take the next cue and the one on screen keeps
   playing while it fades out, with its sound fading too.
 - **Warp what you're looking at.** While you warp an output, the monitor shows that
