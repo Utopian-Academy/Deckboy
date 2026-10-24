@@ -6608,7 +6608,8 @@
     if (command == "TUTORIAL") {
       const std::string tutorialArg = parts.size() > 1 ? toUpper(parts[1]) : std::string("START");
       if (tutorialArg == "START") {
-        beginTutorial();
+        std::string why;
+        if (!beginTutorial(&why)) { failRemoteCommand("TUTORIAL: " + why); return; }
       } else if (tutorialArg == "SHOWME" || tutorialArg == "SHOW") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
         if (tutorial_.step == kTutorialSteps - 1) endTutorial(true, true); else tutorialShowMe();

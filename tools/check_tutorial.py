@@ -114,6 +114,61 @@ def main():
     print("tutorial: 9 steps walked, real actions noticed, autosave ignored, "
           "resume works, the operator's show and desk handed back untouched")
     print("screenshots:", shots)
+    handover_checks(args.exe, work)
+
+
+def refused(db, command):
+    """True when the app answered ERR (Runtime.send raises on ERR)."""
+    try:
+        db.send(command)
+    except RuntimeError as error:
+        return "ERR" in str(error)
+    return False
+
+
+def handover_checks(exe, work):
+    """The three cases the 2026-10-24 audit found: an armed output must come
+    back armed, a playing show must not be taken over, and a show that could
+    not be saved must keep its edit on the desk instead of starting the tour."""
+    pack = ROOT / "data/demos/starter-pack"
+    mine = work / "Desk show"
+    shutil.copytree(pack, mine)
+    show = mine / "01-start-here.deckboy"
+    with Runtime(exe, work / "run2", show) as db:
+        def output_on():
+            return json.loads(db.send("STATUS JSON"))["outputs"][0]["enabled"]
+        # 1. Armed, nothing playing: the tour may run, and hands it back armed.
+        db.send("OUTPUT ON")
+        time.sleep(1)
+        assert output_on(), "fixture: output did not arm"
+        db.send("TUTORIAL START")
+        wait_step(db, 1)
+        db.send("TUTORIAL EXIT")
+        time.sleep(1.5)
+        assert output_on(), "an output that was on came back off"
+        db.send("OUTPUT OFF")
+        # 2. Playing: refused, and nothing changes.
+        db.commands("DECK 1", "SELECT 1", "TAKE")
+        time.sleep(1)
+        assert refused(db, "TUTORIAL START"), "the tour took over a playing show"
+        assert status(db) == "off"
+        db.send("STOP")
+        time.sleep(0.5)
+        # 3. The show's folder becomes unavailable, then an edit: refused,
+        #    and the edit is still on the desk.
+        aside = work / "Desk show (moved aside)"
+        mine.rename(aside)
+        mine.write_text("not a folder", encoding="utf8")
+        try:
+            db.commands("SELECT 1", "RENAME UNSAVED OFFLINE MARKER")
+            time.sleep(2.5)
+            assert refused(db, "TUTORIAL START"), "the tour started although the show could not be saved"
+            assert status(db) == "off"
+            assert "UNSAVED OFFLINE MARKER" in db.send("STATUS CUES"), "the unsaved edit left the desk"
+        finally:
+            mine.unlink()
+            aside.rename(mine)
+    print("tutorial hand-over: armed output restored, playing show refused, unsaved edit kept")
 
 
 if __name__ == "__main__":

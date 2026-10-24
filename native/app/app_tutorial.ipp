@@ -29,8 +29,9 @@
     int step = 0;
     fs::path returnTo;          // the operator's show, reopened at the end
     // The desk as the operator left it, put back when the tour hands it back:
-    // which outputs were on, and whether BLACK was.
-    std::vector<bool> outputsWereOn;
+    // which outputs were on (and fullscreen), and whether BLACK was.
+    struct OutputWas { bool on = false; bool fullscreen = false; };
+    std::vector<OutputWas> outputsWere;
     double dimmerWas = 1.0;
     std::size_t cueBaseline = 0;
     int saveBaseline = 0;
@@ -127,38 +128,63 @@
     if (out) out << step << '\n';
   }
 
-  void beginTutorial() {
-    if (tutorial_.active) return;
-    showStartupDialog_ = false;
-    showSplashOverlay_ = false;
-    settingsOpen_ = false;
-    // THE OPERATOR'S SHOW FIRST. Whatever is open is written to its own file
-    // before the practice show replaces it, and reopened at the end.
+  // Starts the tour, or says why not and leaves the operator's desk exactly as
+  // it was. The audit of 0.99.419 (2026-10-24) found it starting after a
+  // failed save, which lost an unsaved edit: the operator's work comes first.
+  bool beginTutorial(std::string* why = nullptr) {
+    if (tutorial_.active) return true;
+    auto refuse = [&](const std::string& reason) {
+      if (why) *why = reason;
+      triggerToast("learn the basics: " + reason, ToastKind::Warning, kToastReadableMs);
+      return false;
+    };
     const fs::path practice = tutorialPracticeFile();
     std::error_code ec;
     const bool alreadyPractice = !currentProjectFile_.empty() &&
                                  fs::equivalent(currentProjectFile_, practice, ec) && !ec;
-    tutorial_ = TutorialState {};
+    TutorialState next;
     if (!alreadyPractice) {
-      if (projectDirty_ && project_.loadedCleanly && !soakMode_) {
-        saveProjectNow(false);
+      // A running programme cannot be handed back as it was: opening a show
+      // clears what is playing. So the tour waits until nothing is.
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        if (deckIsRunning(d)) return refuse("stop playback first - the tour cannot hand a running show back as it was");
       }
-      tutorial_.returnTo = currentProjectFile_;
-      for (const auto& output : project_.outputs) tutorial_.outputsWereOn.push_back(output.enabled);
-      tutorial_.dimmerWas = masterDimmerTarget_;
+      if (!pendingProjectRecoveryFile_.empty()) return refuse("choose RECOVER or KEEP SAVED first");
+      // THE OPERATOR'S SHOW FIRST: written to its own file, or no tour.
+      if (projectDirty_ && (!project_.loadedCleanly || soakMode_ || !saveProjectNow(false))) {
+        return refuse("your show could not be saved, so the tour has not started. Save it (SAVE AS) and try again");
+      }
+      next.returnTo = currentProjectFile_;
+      for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+        const OutputRuntime* runtime = runtimeForOutput(static_cast<int>(i));
+        next.outputsWere.push_back({project_.outputs[i].enabled, runtime && runtime->fullscreenIntended});
+      }
+      next.dimmerWas = masterDimmerTarget_;
     }
+    auto backOut = [&](const std::string& reason) {
+      if (!next.returnTo.empty() && fs::exists(next.returnTo, ec)) openProjectFromPath(next.returnTo);
+      return refuse(reason);
+    };
     int step = readTutorialProgress();
     if (step > 0 && fs::exists(practice)) {
-      if (!alreadyPractice) openProjectFromPath(practice);
+      if (!alreadyPractice) {
+        openProjectFromPath(practice);
+        if (!fs::equivalent(currentProjectFile_, practice, ec) || ec) return backOut("the practice show would not open");
+      }
     } else {
       step = 0;
-      startNewShow(false);
+      if (!startNewShow(false)) return backOut("could not start the practice show");
       currentProjectFile_ = practice;
-      saveProjectNow(false);
+      if (!saveProjectNow(false)) return backOut("could not write the practice show to " + practice.parent_path().string());
     }
+    showStartupDialog_ = false;
+    showSplashOverlay_ = false;
+    settingsOpen_ = false;
+    tutorial_ = next;
     tutorial_.active = true;
     enterTutorialStep(step);
     triggerToast("learn the basics: Esc leaves, and it picks up here next time", ToastKind::Help);
+    return true;
   }
 
   void enterTutorialStep(int step) {
@@ -200,15 +226,17 @@
     std::error_code ec;
     if (!tutorial_.returnTo.empty() && fs::exists(tutorial_.returnTo, ec)) {
       openProjectFromPath(tutorial_.returnTo);
-      // Outputs the tour switched on go off again, and BLACK goes back to
-      // how it was: the operator's desk is handed back as it was lent.
+      // The desk handed back as it was lent: outputs the tour switched on go
+      // off, outputs that were on come back on (opening a show disarms them,
+      // so each is re-armed, fullscreen or not as it was), and BLACK goes
+      // back to how it was.
       const int focusWas = project_.focusedOutputIndex;
       for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
-        const bool wasOn = i < tutorial_.outputsWereOn.size() && tutorial_.outputsWereOn[i];
-        if (project_.outputs[i].enabled && !wasOn) {
-          project_.focusedOutputIndex = static_cast<int>(i);
-          setFocusedOutputEnabled(false);
-        }
+        const TutorialState::OutputWas was = i < tutorial_.outputsWere.size() ? tutorial_.outputsWere[i]
+                                                                             : TutorialState::OutputWas {};
+        if (project_.outputs[i].enabled == was.on) continue;
+        project_.focusedOutputIndex = static_cast<int>(i);
+        setFocusedOutputEnabled(was.on, was.fullscreen);
       }
       project_.focusedOutputIndex = focusWas;
       masterDimmerTarget_ = tutorial_.dimmerWas;
