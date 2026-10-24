@@ -1,6 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-23 - v0.99.419 (the warp editor shows the output being warped; steadier ASIO, scopes, crossfades and refresh rates)
+## 2026-10-24 - v0.99.419 (a guided tour; the warp editor shows the output being warped; steadier ASIO, scopes, crossfades and refresh rates)
+
+**Re-released on 24 October 2026 with the guided tour.** If you downloaded 0.99.419 on
+23 October, please download it again: that build does not include the tour, and because the
+version number is the same, its update check will not offer this one.
 
 ### Learn the basics
 - New: a guided tour, taught by Dr. Pixel and Professor Video. In nine steps it covers turning the
