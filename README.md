@@ -28,7 +28,7 @@ Free and open source, for Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-![What you press and what the audience sees: on the Deckboy desk, TAKE a title, a clip that crossfades in, a name strap from a second playlist, the next clip with the strap still up, then BLACK; beside it, the clean output doing exactly that](docs/images/readme/release-419/press-and-see.gif)
+![What you press and what the audience sees: on the Deckboy desk, TAKE a title, a clip that crossfades in, a name strap from a second playlist, the next clip with the strap still up, then BLACK; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see.gif)
 
 <sub>What you press, and what the audience sees, from one run of v0.99.419. [Watch Deckboy with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
@@ -55,7 +55,7 @@ operator finds it, and how you find it again.
 - **Four example shows** on the startup screen, with notes on every cue: your first
   output, layers and titles, effects, and a one-button show.
 
-![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/release-419/crossfade-live.gif)
+![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/light/crossfade-live.gif)
 
 <sub>A real crossfade in v0.99.419: the outgoing clip keeps playing until it has faded. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
@@ -77,11 +77,11 @@ operator finds it, and how you find it again.
 
 <table>
 <tr>
-<td width="50%"><b>Picture scopes</b><br><img src="docs/images/readme/release-419/picture-scopes.gif" width="420" alt="Deckboy 0.99.419 scopes analysing its moving test card, with the live output counter visible"><br>Waveform, vectorscope, parade and gamut measurements from the moving test card.</td>
-<td width="50%"><b>Lights by name</b><br><img src="docs/images/readme/dmx-by-fixture.gif" width="300" alt="The DMX cue inspector changing the level and colour of named fixtures"><br>Fixture levels and colours in the cue list.</td>
+<td width="50%"><b>Picture scopes</b><br><img src="docs/images/readme/light/picture-scopes.gif" width="420" alt="Deckboy 0.99.419 scopes analysing its moving test card, with the live output counter visible"><br>Waveform, vectorscope, parade and gamut measurements from the moving test card.</td>
+<td width="50%"><b>Lights by name</b><br><img src="docs/images/readme/light/dmx-by-fixture.gif" width="300" alt="The DMX cue inspector changing the level and colour of named fixtures"><br>Fixture levels and colours in the cue list.</td>
 </tr>
 <tr>
-<td width="50%"><b>Live input, cued</b><br><img src="docs/images/readme/mic-inspector.gif" width="320" alt="A Mic cue's gain and moving level meter, using Deckboy's built-in test signal"><br>A Mic cue's gain and meter, shown with the built-in test signal.</td>
+<td width="50%"><b>Live input, cued</b><br><img src="docs/images/readme/light/mic-inspector.gif" width="320" alt="A Mic cue's gain and moving level meter, using Deckboy's built-in test signal"><br>A Mic cue's gain and meter, shown with the built-in test signal.</td>
 <td width="50%"><b>The phone controller</b><br><a href="https://utopian-academy.github.io/Deckboy/#phone-demo"><img src="docs/images/readme/phone-controller-poster.png" width="195" alt="The current Deckboy phone controller with TAKE, transport, fader, cues and DASH"></a><br><a href="https://utopian-academy.github.io/Deckboy/#phone-demo">Watch it select and take cues.</a></td>
 </tr>
 </table>
@@ -328,7 +328,7 @@ deckboy-mini ~/Videos --display 2 --loop
 In Windows PowerShell, start it as `.\deckboy-mini` from its folder; PowerShell does not
 run a program from the current folder by its bare name. Or drop files onto `deckboy-mini.exe`.
 
-![Deckboy Mini run from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with five cues and the NEXT line; cue 3 is queued to play next, a search for logo takes cue 5, the clock switches to time left, shuffle, crossfade and stop-after-this-cue switch on, and the help pages end on the running order](art/readme/mini-terminal.gif)
+![Deckboy Mini run from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with five cues and the NEXT line; cue 3 is queued to play next, a search for logo takes cue 5, the clock switches to time left, shuffle, crossfade and stop-after-this-cue switch on, and the help pages end on the running order](docs/images/readme/light/mini-terminal.gif)
 
 ---
 
@@ -403,7 +403,7 @@ all one object with one set of controls, not fifty separate things to learn.
   first as a layer and scale and place it, with a whole playlist behind each
   window instead of one fixed box
 
-![A lower third reading Lower Third, Arcade look pops onto a generated pixel beach scene in a pixel font with a hard drop shadow, keeps a slow bob and tilt, then goes](docs/images/arcade-lower-third.gif)
+![A lower third reading Lower Third, Arcade look pops onto a generated pixel beach scene in a pixel font with a hard drop shadow, keeps a slow bob and tilt, then goes](docs/images/readme/light/arcade-lower-third.gif)
 
 - A **video synth** — oscillators with feedback, a glitch stack, text mode and
   sprite sets, among them the pickle set by Garrick Folderouy — and a **code source**, a live-coded expression evaluated per
@@ -426,7 +426,7 @@ all one object with one set of controls, not fifty separate things to learn.
   its far end properly smaller, or linear. The programme, the recording and the
   stream all carry it
 
-![A test grid pinned onto a steep board: drawn linear it folds along the diagonal, then in perspective it becomes a flat board](docs/images/perspective-pin.gif)
+![A test grid pinned onto a steep board: drawn linear it folds along the diagonal, then in perspective it becomes a flat board](docs/images/readme/light/perspective-pin.gif)
 
 - Per-output matte and still overlay, composited into the output's own picture
 - NDI output, in every download
@@ -564,14 +564,14 @@ and reacquisition update the media clock. See
   arrive neutral and cost under a millisecond a frame at 1080p
 - Effects go on and off a live cue without interrupting it
 
-![Effects switched on live while a clip plays: kaleidoscope, posterise, ripple and crystallise, then back to the clean picture](docs/images/readme/release-419/live-effects.gif)
+![Effects switched on live while a clip plays: kaleidoscope, posterise, ripple and crystallise, then back to the clean picture](docs/images/readme/light/live-effects.gif)
 
 - Forty-two effects, each with named parameters. `--effect-bench` measures
   the cost on your machine; resolution and the chosen stack determine the frame budget
 - Six that exist nowhere else: schlieren gradient imaging, Chladni nodal
   figures, a true wave equation with inertia, crystal grain growth, retinal
   rod/cone persistence, and structure tensor grain flow
-![The databend effect brought up on a generated beach scene: the colours tear into horizontal bands, blocks repeat down the frame, and the picture settles back](docs/images/databend.gif)
+![The databend effect brought up on a generated beach scene: the colours tear into horizontal bands, blocks repeat down the frame, and the picture settles back](docs/images/readme/light/databend.gif)
 
 - **Two that cross between picture and sound.** *Databend* reads the frame out
   as a signal and plays it through an audio chain — a delay with feedback, a
