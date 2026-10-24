@@ -1,0 +1,15 @@
+DECKBOY 0.99.419 VIDEO PLAYBACK DEMO
+
+Application capture: Deckboy / Utopian Academy, 23 October 2026.
+
+Footage: Tears of Steel, copyright Blender Foundation.
+https://mango.blender.org/
+Creative Commons Attribution 3.0:
+https://creativecommons.org/licenses/by/3.0/
+Source: https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov
+Excerpts trimmed and shown inside Deckboy; original film audio removed.
+
+MP4 music: YMCK - "Family Music" (2004), used with permission.
+The album excerpt is trimmed, with fades and a level adjustment.
+The GIF has no audio. Music permission is separate from the film licence
+and Deckboy's GPL-3.0-or-later software licence.

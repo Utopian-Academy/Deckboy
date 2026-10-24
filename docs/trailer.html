@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deckboy 419 in action | Crossfades, scopes and warp</title>
-    <meta name="description" content="Deckboy 0.99.419 in action: moving crossfades, live effects, source-rate scopes and a warp monitor. Real captures from the published release, plus the earlier trailers.">
+    <title>Deckboy 419 in action | Video playback, scopes and warp</title>
+    <meta name="description" content="Watch Deckboy 0.99.419 play video while the next cue is selected, with music by YMCK. Explore effects, scopes and warp in captures from the published release.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/trailer.html">
 
     <meta property="og:type" content="video.other">
     <meta property="og:site_name" content="Deckboy">
     <meta property="og:title" content="Deckboy 419: keep the picture moving">
-    <meta property="og:description" content="Deckboy 0.99.419 in action: moving crossfades, live effects, scopes and warp. Real captures from the published release.">
+    <meta property="og:description" content="Play video. Keep the next cue ready. Deckboy 0.99.419 with music by YMCK, plus effects, scopes and warp demos.">
     <meta property="og:url" content="https://utopian-academy.github.io/Deckboy/trailer.html">
-    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/readme/release-419/picture-scopes.png">
+    <meta property="og:image" content="https://utopian-academy.github.io/Deckboy/images/readme/release-419/deckboy-video-playback-ymck.png">
+    <meta property="og:video" content="https://utopian-academy.github.io/Deckboy/images/readme/release-419/deckboy-video-playback-ymck.mp4">
+    <meta property="og:video:type" content="video/mp4">
+    <meta property="og:video:width" content="1000">
+    <meta property="og:video:height" content="730">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Deckboy 419: keep the picture moving">
-    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/readme/release-419/picture-scopes.png">
+    <meta name="twitter:image" content="https://utopian-academy.github.io/Deckboy/images/readme/release-419/deckboy-video-playback-ymck.png">
 
     <link rel="stylesheet" href="style.css">
 
@@ -43,6 +47,21 @@
         audio { width: 100%; margin: .6rem 0 1.4rem; }
     </style>
 
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": "Deckboy 419: video playback",
+      "description": "Play video and select the next cue in Deckboy 0.99.419. Footage from Tears of Steel, with music by YMCK.",
+      "thumbnailUrl": "https://utopian-academy.github.io/Deckboy/images/readme/release-419/deckboy-video-playback-ymck.png",
+      "contentUrl": "https://utopian-academy.github.io/Deckboy/images/readme/release-419/deckboy-video-playback-ymck.mp4",
+      "embedUrl": "https://utopian-academy.github.io/Deckboy/trailer.html",
+      "uploadDate": "2026-10-23",
+      "duration": "PT6S",
+      "isFamilyFriendly": true,
+      "publisher": { "@type": "Organization", "name": "Utopian Academy" }
+    }
+    </script>
 </head>
 <body>
     <div class="background-glow"></div>
@@ -63,16 +82,30 @@
     <header class="hero" style="padding-bottom:1rem">
         <div class="hero-content">
             <h1>One list.<br><span class="gradient-text">Every show.</span></h1>
-            <p class="hero-subtitle">Deckboy v0.99.419, captured from the published release. Choose the next cue and see it on the programme monitor.</p>
+            <p class="hero-subtitle">Play video. Keep the next cue ready. Deckboy v0.99.419, with music by YMCK.</p>
         </div>
     </header>
 
+    <div class="stage">
+        <video src="images/readme/release-419/deckboy-video-playback-ymck.mp4" poster="images/readme/release-419/deckboy-video-playback-ymck.png"
+               controls preload="metadata" playsinline width="1000" height="730" aria-label="Deckboy video playback with music by YMCK">
+            <a href="images/readme/release-419/deckboy-video-playback-ymck.mp4">Download the playback demo</a>.
+        </video>
+        <div class="under">
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download Deckboy</a>
+            <a href="images/readme/release-419/deckboy-video-playback-ymck.mp4" class="btn-large btn-outline" download>Download the video</a>
+            <a href="images/readme/release-419/deckboy-video-playback.gif">GIF version</a>
+            <span class="note">6 seconds &middot; music by YMCK &middot; v0.99.419</span>
+        </div>
+    </div>
+
     <div class="prose">
+        <p>Footage: <a href="https://mango.blender.org/"><i>Tears of Steel</i></a> &copy; Blender Foundation,
+        <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>, trimmed and shown inside Deckboy with the original audio removed.
+        Music: <b>YMCK</b> &mdash; <i>Family Music</i> (2004), used with permission. The music has its own permission; it is not covered by Deckboy's software licence.</p>
         <h2 id="current-demos">The current desk, in action</h2>
-        <p>Explore <a href="./#in-action">crossfades, effects, scopes and warp</a> from v0.99.419.
-        The examples use Deckboy-generated material. The moving crossfade uses ordinary video files
-        without a grade or picture effects; the room hears the outgoing audio fade, while recordings
-        and streams take the incoming sound at TAKE.</p>
+        <p>Explore <a href="./#in-action">video playback, effects, scopes and warp</a> from v0.99.419.
+        The effects, scopes and warp demos use Deckboy's generated material and bundled examples.</p>
         <video src="images/readme/release-419/picture-scopes.mp4" poster="images/readme/release-419/picture-scopes.png"
                controls loop muted playsinline preload="none" width="900" height="418" style="width:100%;height:auto;"
                aria-label="Deckboy 419 scopes analysing its built-in moving test card"></video>

@@ -15,11 +15,13 @@ FILES = {
     "images/master-tracker.png": "docs/images/readme/master-tracker.png",
     "images/phone-controller.png": "docs/images/readme/phone-controller.png",
     "images/social-card.png": "docs/images/social-card.png",
+    "demos/video-playback.gif": "docs/images/readme/release-419/deckboy-video-playback.gif",
     "demos/live-effects.gif": "docs/images/readme/release-419/live-effects.gif",
     "demos/picture-scopes.gif": "docs/images/readme/release-419/picture-scopes.gif",
     "demos/dmx-by-fixture.gif": "docs/images/readme/dmx-by-fixture.gif",
     "demos/mic-inspector.gif": "docs/images/readme/mic-inspector.gif",
     "CAPTURE-NOTES.md": "docs/images/readme/README.md",
+    "PLAYBACK-CREDITS.txt": "docs/images/readme/release-419/playback-credits.txt",
     "LICENSE.txt": "LICENSE",
 }
 README = """DECKBOY PRESS KIT
@@ -36,7 +38,7 @@ images/desk-*.png: v0.99.419, three themes, the bundled layers and titles exampl
 images/master-tracker.png: v0.99.417 pattern tracker, sections and action cells.
 images/phone-controller.png: complete v0.99.417 phone controller.
 images/social-card.png: 1280 x 640 sharing card with the current desk capture.
-demos/: v0.99.419 effects and scopes; earlier fixture and Mic captures.
+demos/: v0.99.419 video playback, effects and scopes; earlier fixture and Mic captures.
 CAPTURE-NOTES.md: dates, source versions and descriptions for each capture.
 
 CREDIT AND REUSE
@@ -45,10 +47,12 @@ GPL-3.0-or-later; the licence text is included as LICENSE.txt.
 Suggested credit: Deckboy / Utopian Academy.
 Source files: https://github.com/Utopian-Academy/Deckboy/tree/main/docs
 
-The included captures use Deckboy-generated material and the bundled examples.
-The Mic demo explicitly uses a test signal. No third-party film or music is
-bundled. Other images and the trailer on the press page have their own credits
-and terms; those terms are not replaced by this kit.
+The video-playback GIF includes trimmed Tears of Steel footage, Blender
+Foundation, CC BY 3.0, shown inside Deckboy with the original audio removed.
+See PLAYBACK-CREDITS.txt. The other captures use Deckboy-generated material
+and the bundled examples. The Mic demo explicitly uses a test signal.
+No music is bundled in this archive. Videos on the press page have their own
+music credits and permissions; those terms are not replaced by this kit.
 """
 
 

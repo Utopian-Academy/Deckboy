@@ -10,7 +10,7 @@ release digest. The startup screen visibly reports v0.99.419.
 | Files in `release-419/` | What they show |
 | --- | --- |
 | `example-02-gameboy.png`, `example-02-dark.png`, `example-02-virtual-boy.png` | Three layers from the bundled layers and titles show, at 150% UI scale |
-| `clean-desk.gif`, `.mp4`, `.png` | The complete desk taking generated day and night scenes from its cue list |
+| `deckboy-video-playback.gif`, `.png`, `deckboy-video-playback-ymck.mp4`, `.png` | Video playback with the next cue selected; Tears of Steel footage, with YMCK music in the MP4 |
 | `live-effects.gif`, `.mp4`, `.png` | Kaleidoscope, RGB split and ripple from the effects playground |
 | `picture-scopes.gif`, `.mp4`, `.png` | Scopes on Deckboy's built-in moving test card; output and analysis counters are visible |
 | `warp-monitor.gif`, `.mp4`, `.png` | Perspective corner adjustments shown in the programme monitor |
@@ -19,13 +19,23 @@ release digest. The startup screen visibly reports v0.99.419.
 
 All pictures come from the released application's UI snapshot or programme
 recorder. Capture runs use isolated show/state directories and dummy audio.
-The new MP4s and GIFs are silent and use generated or bundled example-show
-material. No reconstructed interface, altered counter, reversed footage or
+The video-playback GIF is silent; its MP4 has a YMCK music excerpt. The other
+MP4s and GIFs are silent and use generated or bundled example-show material.
+No reconstructed interface, altered counter, reversed footage or
 motion interpolation is used. UI samples retain their measured elapsed time.
 GIFs use a 10 fps encoding clock and a half-second dissolve at the loop boundary;
 their playback rate is separate from the application's visible live counters.
 The 1280 x 720 source raster and measured analysis/output rates are visible in the scopes capture. The moving test-card generator and the 60 Hz output have separate cadences; the GIF is a feature demonstration, not a throughput benchmark.
 See `release-419/media-manifest.json` for exact dimensions, durations and hashes.
+
+The video-playback capture shows the launch scene from
+[Tears of Steel](https://mango.blender.org/), © Blender Foundation,
+[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). The footage is trimmed,
+shown inside the application, and its original audio removed. The 24 fps film
+plays on a 60 Hz output. The GIF is 6.5 seconds at 10 fps; the MP4 is 6 seconds.
+The MP4 music is YMCK — *Family Music* (2004), used with permission, with a
+visible credit below the application picture. Music permission is separate
+from the film and software licences. See `release-419/playback-credits.txt`.
 
 The site serves H.264 MP4s with playback controls and no autoplay. GitHub uses
 GIF derivatives. The v0.99.397 and v0.99.374 trailers remain labelled as earlier

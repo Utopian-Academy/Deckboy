@@ -5,31 +5,32 @@
   "package_sha256": "cb44ef60c9b985b6692fee5e6527c1c8b8582eded0576fe09e46e45256443f77",
   "files": [
     {
-      "file": "clean-desk.gif",
-      "bytes": 559257,
-      "sha256": "288ebc277a5781c60a8f0c41001672fdf8dd7e8b35049138be2c1d2c85feca4d",
+      "file": "deckboy-video-playback.gif",
+      "bytes": 4292724,
+      "sha256": "4c7fc31cb890d6149d6c1f81bd894d2e2ca3b40c502625bb893a1551fb892728",
       "width": 1000,
-      "height": 562,
-      "frames": 85,
-      "duration_s": 8.5,
+      "height": 714,
+      "frames": 65,
+      "duration_s": 6.5,
       "loop": 0,
       "seam_max_difference": 0
     },
     {
-      "file": "clean-desk.png",
-      "bytes": 195142,
-      "sha256": "edddff1c7dc5ef2ad1e87852f6ed4faac1a234bcbd00f9138fd0affae24b1fd7",
+      "file": "deckboy-video-playback.png",
+      "bytes": 329430,
+      "sha256": "9bf3b0fee824b03ad0e71fcca03b0cb0bf20484e29be78cff6783dffdc476ae2",
       "width": 1000,
-      "height": 562,
+      "height": 714,
       "frames": 1
     },
     {
-      "file": "clean-desk.mp4",
-      "bytes": 206353,
-      "sha256": "1faf5def6aef8b757f8ff8d13b6afaf3858637010c6b7e14717098a83196029a",
-      "duration_s": 8.0,
+      "file": "deckboy-video-playback-ymck.mp4",
+      "bytes": 761086,
+      "sha256": "a372cbfef2c2fbdeb8b9b5e3b68549e816f791089da61f7a45f3aecf0d1cb8b8",
+      "audio": "aac; YMCK - Family Music (2004), used with permission",
+      "duration_s": 6.0,
       "width": 1000,
-      "height": 562,
+      "height": 730,
       "fps": "10/1"
     },
     {
@@ -202,6 +203,14 @@
       "sha256": "ae60ee01bc6b8002e2fba49988dbc39a3029760abd81a3154972ba384ecbd736",
       "width": 1600,
       "height": 900,
+      "frames": 1
+    },
+    {
+      "file": "deckboy-video-playback-ymck.png",
+      "bytes": 442368,
+      "sha256": "899ea820d191a5dbb8451815ec0758eebce1e2a40f5ac7825c5666cbef02765a",
+      "width": 1000,
+      "height": 730,
       "frames": 1
     }
   ]
