@@ -5,7 +5,7 @@
   "package_sha256": "cb44ef60c9b985b6692fee5e6527c1c8b8582eded0576fe09e46e45256443f77",
   "files": [
     {
-      "file": "crossfade-live-v2.gif",
+      "file": "crossfade-live.gif",
       "bytes": 1665620,
       "sha256": "f3eb5da7c3267325ded62ccac41fca74ea6c88e9e5792446858ece0b23516d4b",
       "width": 640,
@@ -50,7 +50,7 @@
       "frames": 1
     },
     {
-      "file": "deckboy-video-playback-v2.gif",
+      "file": "deckboy-video-playback.gif",
       "bytes": 1213767,
       "sha256": "01cf2b510171b2521a2c321921edc08c67ceeba9e37d30ce9f85c2b649954251",
       "width": 640,
@@ -122,7 +122,7 @@
       "frames": 1
     },
     {
-      "file": "live-effects-v2.gif",
+      "file": "live-effects.gif",
       "bytes": 1659369,
       "sha256": "99afd13d70b88216ea69ef7d043331ef4b4d0f8f0173ccd040370381fde8c9df",
       "width": 640,
@@ -149,7 +149,7 @@
       "height": 710
     },
     {
-      "file": "picture-scopes-v2.gif",
+      "file": "picture-scopes.gif",
       "bytes": 436881,
       "sha256": "664ee973b05e22b0bd2377818a20321be500c2efa557ad285bad5a263ba2d724",
       "width": 640,
