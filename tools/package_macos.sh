@@ -245,7 +245,8 @@ if [ -d "$REPO_ROOT/data" ]; then
   # identical to the Windows and Linux lists, which had drifted apart.
   for stale in last_project.txt recent_projects.txt default.deckboy defaults.deckboy \
                deckboy-first-run deckboy-crash.log deckboy-soak.log \
-               deckboy-render.log deckboy-show.log deckboy-live-frame.bmp paired-phones.txt; do
+               deckboy-render.log deckboy-show.log deckboy-live-frame.bmp paired-phones.txt \
+               tutorial-practice.deckboy tutorial-progress.txt; do
     if [ -e "$RESOURCES_DIR/data/$stale" ]; then
       rm -f "$RESOURCES_DIR/data/$stale"
       echo "  - stripped data/$stale (build-machine state)"

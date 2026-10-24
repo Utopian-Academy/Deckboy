@@ -12,7 +12,7 @@ version number is the same, its update check will not offer this one.
   saving. Each step dims the window except the control it is about, and moves on only once that
   control has really been used. SHOW ME does a step for you, SKIP passes it, and EXIT or Esc
   leaves. Leave half way and the next run starts at the same step.
-- It runs in a practice show (`Tutorial practice.deckboy` in Deckboy's settings folder). Your own
+- It runs in a practice show (`tutorial-practice.deckboy` in Deckboy's settings folder). Your own
   show is saved first and reopened at the end, with its outputs and BLACK put back as they were.
 - Start it from the startup screen (LEARN THE BASICS, or L) or from MENU → LEARN THE BASICS.
 - Remote control: `TUTORIAL [START|SHOWME|SKIP|EXIT|STATUS]`, and `STARTUP SHOW` to bring up the

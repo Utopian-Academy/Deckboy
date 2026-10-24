@@ -110,7 +110,7 @@
       : "You've clicked everything but the glowing one. Even my oscillators find the glowing one.";
   }
 
-  fs::path tutorialPracticeFile() const { return Paths::stateDir() / "Tutorial practice.deckboy"; }
+  fs::path tutorialPracticeFile() const { return Paths::stateDir() / "tutorial-practice.deckboy"; }
   fs::path tutorialProgressFile() const { return Paths::stateDir() / "tutorial-progress.txt"; }
 
   int readTutorialProgress() const {

@@ -210,7 +210,8 @@ if (Test-Path $DataSrc) {
                              "default.deckboy", "deckboy-first-run",
                              "deckboy-crash.log", "deckboy-soak.log",
                              "deckboy-render.log", "deckboy-show.log",
-                             "deckboy-live-frame.bmp", "paired-phones.txt")) {
+                             "deckboy-live-frame.bmp", "paired-phones.txt",
+                             "tutorial-practice.deckboy", "tutorial-progress.txt")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Force

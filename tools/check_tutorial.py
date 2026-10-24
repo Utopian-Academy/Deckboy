@@ -81,7 +81,7 @@ def main():
         db.send("TUTORIAL SHOWME")               # Ctrl+S
         wait_step(db, 9)
         db.snapshot(shots / "09-finish.bmp")
-        practice = work / "run/state/Tutorial practice.deckboy"
+        practice = work / "run/state/tutorial-practice.deckboy"
         assert practice.is_file(), "no practice show"
         text = practice.read_text(encoding="utf8")
         assert "pattern://swirl" in text and "pattern://fireside" in text, "practice show lacks its cues"

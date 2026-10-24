@@ -119,7 +119,7 @@ at any time from **MENU → LEARN THE BASICS**, at the right-hand end of the tab
 
 - **It runs in a practice show.** Your show is saved first and reopened when the
   tour ends, with its outputs and BLACK put back as they were. The practice
-  show is `Tutorial practice.deckboy` in Deckboy's settings folder.
+  show is `tutorial-practice.deckboy` in Deckboy's settings folder.
 - **It waits for you.** Each step dims the window except for the one control it
   is about, and moves on only when you have used it: an output that is on, a
   cue in the playlist, a take, a crossfade that ran, a save you made. Autosave
