@@ -28,7 +28,7 @@ Free and open source, for Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-![What you press and what the audience sees: on the Deckboy desk, TAKE a title, a clip that crossfades in, a name strap from a second playlist, the next clip with the strap still up, then BLACK; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see.gif)
+![What you press and what the audience sees: on the Deckboy desk, TAKE a clip, a name strap from a second playlist, the next clip with the strap still up, then BLACK; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see-v2.gif)
 
 <sub>What you press, and what the audience sees, from one run of v0.99.419. [Watch Deckboy with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
