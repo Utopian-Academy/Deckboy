@@ -2,8 +2,15 @@
 
 <div align="center">
 
+[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=8bac0f&label=download&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=downloads&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=stars&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/stargazers)
+[![Discord](https://img.shields.io/discord/1560690462766006362?style=for-the-badge&labelColor=0f380f&color=306230&label=discord&logo=discord&logoColor=9bbc0f)](https://discord.gg/AZzsE4AZWx)
 
+[![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-306230?style=for-the-badge&labelColor=0f380f)](LICENSE)
 
+Built with [SDL3](https://libsdl.org) &middot; mentioned in [Awesome NDI](https://github.com/florisporro/awesome-ndi), [Awesome SDL](https://github.com/RobLoach/awesome-sdl) and [Awesome Streaming Tools](https://github.com/juancarlospaco/awesome-streaming-tools)
 
 </div>
 
