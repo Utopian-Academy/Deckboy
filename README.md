@@ -9,12 +9,11 @@
 
 [![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-blue)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-blue)](https://libsdl.org)
 
 [![Mentioned in Awesome NDI](https://img.shields.io/badge/mentioned%20in-awesome%20NDI-fc60a8?logo=awesomelists&logoColor=white)](https://github.com/florisporro/awesome-ndi)
 [![Mentioned in Awesome SDL](https://img.shields.io/badge/mentioned%20in-awesome%20SDL-fc60a8?logo=awesomelists&logoColor=white)](https://github.com/RobLoach/awesome-sdl)
 [![Mentioned in Awesome Streaming Tools](https://img.shields.io/badge/mentioned%20in-awesome%20streaming%20tools-fc60a8?logo=awesomelists&logoColor=white)](https://github.com/juancarlospaco/awesome-streaming-tools)
-
-Built with [SDL3](https://libsdl.org)
 
 </div>
 
