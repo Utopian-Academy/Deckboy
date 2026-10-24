@@ -5450,6 +5450,7 @@ class App {
 #include "app/app_update.ipp"
   // Lower-third overlay management
 #include "app/app_overlays.ipp"
+#include "app/app_tutorial.ipp"
   // Render: transport control panel (play/stop/seek buttons, timeline)
 #include "app/app_render_control.ipp"
   // Render: main control window layout and drawing
@@ -9595,6 +9596,7 @@ class App {
   static constexpr int kSettingsActionOutputBlendPairDec = 865;
   static constexpr int kSettingsActionOutputBlendPairInc = 866;
   static constexpr int kSettingsActionOutputHdrSignal = 867;
+  static constexpr int kSettingsActionLearnBasics = 868;   // MENU > LEARN THE BASICS (the tour)
   static constexpr int kSettingsActionStreamKeyPrompt = 641;
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;
@@ -11060,6 +11062,7 @@ class App {
   SDL_Rect startupNewBtn_ {};
   SDL_Rect startupOpenSavedBtn_ {};
   SDL_Rect startupExamplesBtn_ {};
+  SDL_Rect startupLearnBtn_ {};
   // Recent-show rows on the splash, in the order they are drawn: index i is
   // recent i, which is also the digit that opens it.
   std::vector<SDL_Rect> startupRecentBtns_;

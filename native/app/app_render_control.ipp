@@ -1397,6 +1397,9 @@
     // Safe on top because markBusy clamps every critter to the rect it was
     // handed; none of them can wander into the chrome.
     renderBusyCritters();
+    // The tour points at controls inside the settings modal too, so it draws
+    // above it; the toast still goes over the top, as it does for everything.
+    renderTutorial(width, height);
     // THE TOAST GOES ABOVE THE POPUPS, not below them.
     //
     // It used to be drawn before this block, so any message raised by a

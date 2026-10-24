@@ -107,6 +107,35 @@ Either of those skips the startup card as well.
 
 Longer show opens display a block progress indicator and percentage.
 
+### Learn the basics
+
+A guided tour of the first show anyone runs, in nine steps: turn the output on,
+bring in a clip, take it live, line up the next cue, crossfade to it, clear the
+screen with BLACK, save, and where to go next. Two teachers take turns:
+Dr. Pixel and Professor Video.
+
+Start it from the startup screen (**LEARN THE BASICS**, or the **L** key), or
+at any time from **MENU → LEARN THE BASICS**, at the right-hand end of the tabs.
+
+- **It runs in a practice show.** Your show is saved first and reopened when the
+  tour ends, with its outputs and BLACK put back as they were. The practice
+  show is `Tutorial practice.deckboy` in Deckboy's settings folder.
+- **It waits for you.** Each step dims the window except for the one control it
+  is about, and moves on only when you have used it: an output that is on, a
+  cue in the playlist, a take, a crossfade that ran, a save you made. Autosave
+  does not count as saving.
+- **SHOW ME** does the step for you. Step 3 lends you a Swirl if you have no
+  clip to hand. **SKIP** passes a step; **EXIT** or **Esc** leaves.
+- **It picks up where you stopped.** Leave half way and the next LEARN THE
+  BASICS starts at the same step.
+
+The window output is switched on from **MENU → Video Outputs → OUTPUT OFF**
+(it then reads OUTPUT ON). During the tour, MENU opens on that page.
+
+Over the network: `TUTORIAL [START|SHOWME|SKIP|EXIT|STATUS]` (a bare `TUTORIAL`
+starts it; `STATUS` replies with the step), and `STARTUP SHOW` brings up the
+startup screen.
+
 Deckboy refuses to start twice, so a stray double-click cannot take a second
 copy of the show live. `--allow-multi-instance` lifts that, for debugging.
 

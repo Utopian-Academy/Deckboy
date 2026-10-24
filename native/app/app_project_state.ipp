@@ -1447,6 +1447,9 @@
       projectDirty_ = false;
       projectSaveFailed_ = false;
       projectSaveRetryAt_ = {};
+      // Only the saves the operator asked for (they are the ones that say so);
+      // the autosave passes false and must not tick the tour's save step.
+      if (withToast) ++projectSaveCount_;
       if (withToast) {
         triggerToast("saved " + currentProjectLabel());
       }

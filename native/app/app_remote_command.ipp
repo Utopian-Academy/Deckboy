@@ -6603,6 +6603,32 @@
       markProjectDirty();
       return;
     }
+    // LEARN THE BASICS from the wire: what a Companion button or a test needs.
+    // TUTORIAL [START|SHOWME|SKIP|EXIT|STATUS]; bare TUTORIAL starts it.
+    if (command == "TUTORIAL") {
+      const std::string tutorialArg = parts.size() > 1 ? toUpper(parts[1]) : std::string("START");
+      if (tutorialArg == "START") {
+        beginTutorial();
+      } else if (tutorialArg == "SHOWME" || tutorialArg == "SHOW") {
+        if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
+        if (tutorial_.step == kTutorialSteps - 1) endTutorial(true, true); else tutorialShowMe();
+      } else if (tutorialArg == "SKIP") {
+        if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
+        if (tutorial_.step + 1 < kTutorialSteps) enterTutorialStep(tutorial_.step + 1);
+      } else if (tutorialArg == "EXIT" || tutorialArg == "CLOSE") {
+        if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
+        endTutorial(tutorial_.step == kTutorialSteps - 1);
+      } else if (tutorialArg != "STATUS") {
+        failRemoteCommand("TUTORIAL: expected START, SHOWME, SKIP, EXIT or STATUS");
+        return;
+      }
+      serviceTutorial();
+      remoteCommandDetail_ = tutorial_.active
+        ? "step " + std::to_string(tutorial_.step + 1) + " of " + std::to_string(kTutorialSteps) +
+            " " + tutorialLine(tutorial_.step).title
+        : std::string("off");
+      return;
+    }
     if (command == "TRANSITION" || command == "XFADE") {
       if (parts.size() < 2) {
         return;
@@ -8901,8 +8927,16 @@
         return;
       }
       const std::string sub = toUpper(parts[1]);
+      // SHOW: past the splash to the startup screen itself, so a test (or a
+      // help desk) can put up the screen a first launch shows.
+      if (sub == "SHOW") {
+        showSplashOverlay_ = false;
+        showStartupDialog_ = true;
+        remoteCommandDetail_ = "dialog";
+        return;
+      }
       if (sub != "DISMISS") {
-        failRemoteCommand("STARTUP: expected dismiss, got " + parts[1]);
+        failRemoteCommand("STARTUP: expected show or dismiss, got " + parts[1]);
         return;
       }
       const bool had = showStartupDialog_ || showSplashOverlay_;

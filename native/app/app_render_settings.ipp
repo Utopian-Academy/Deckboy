@@ -649,6 +649,18 @@
       }
       tabX += tabW + kTabGap;
     }
+    // LEARN THE BASICS, at the far end of the tab row so it is on every page
+    // of MENU: the tour's way back in once the startup screen has gone.
+    {
+      const int learnW = std::max(uiScaled(150), measuredTextWidth(fontSmall_, "LEARN THE BASICS") + uiScaled(28));
+      const int learnX = modal.x + modal.w - uiScaled(16) - learnW;
+      if (learnX > tabX) {
+        SDL_Rect learn {learnX, tabY + uiScaled(6), learnW, kTabH - uiScaled(6)};
+        Primitives::drawFramedPanel(controlRenderer_, learn, pal.deep, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, learn, "LEARN THE BASICS", pal.light);
+        settingsBtns_.push_back({learn, kSettingsActionLearnBasics, "LEARN THE BASICS"});
+      }
+    }
 
     // Content area — tile fill so it reads as a dark frame on terminal themes
     // (= screen_light on light themes, unchanged). All content sits inside
@@ -4865,6 +4877,8 @@
         const int at = std::clamp(project_.focusedOutputIndex, 0, 31);
         const bool on = (project_.hdrOutputs >> at) & 1u, autoOn = (project_.hdrAutoOutputs >> at) & 1u;
         handleRemoteCommand(std::string("OUTPUT HDR ") + (on ? "OFF" : autoOn ? "ON" : "AUTO"));
+      } else if (sb.action == kSettingsActionLearnBasics) {
+        beginTutorial();
       } else if (sb.action == kSettingsActionOutputHdrSignal) {
         handleRemoteCommand(std::string("OUTPUT HDR SIGNAL ") +
                             (hdrSignalHlg(project_.focusedOutputIndex) ? "PQ" : "HLG"));

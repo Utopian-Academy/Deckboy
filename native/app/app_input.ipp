@@ -99,6 +99,10 @@
     if (handleCodeEditorClick(x, y)) {
       return;
     }
+    // The tour's card buttons; every other click goes on to the desk.
+    if (handleTutorialClick(x, y)) {
+      return;
+    }
     if (showStartupDialog_) {
       bool hasSavedFile = startupProjectAvailable();
       if (pointInRect(x, y, startupNewBtn_)) {
@@ -112,6 +116,8 @@
         showStartupDialog_ = false;
       } else if (pointInRect(x, y, startupExamplesBtn_)) {
         openExampleShows();
+      } else if (pointInRect(x, y, startupLearnBtn_)) {
+        beginTutorial();
       } else {
         // The recent rows. Read the list again rather than caching it beside
         // the rects: the rects were built during the last render and this is
@@ -1731,6 +1737,10 @@
       return;
     }
 
+    if (handleTutorialKey(key, keyRepeat)) {
+      return;
+    }
+
     if (trackerPatternHasKeys() && handleTrackerPatternKey(key, mod, keyRepeat)) {
       return;
     }
@@ -1814,6 +1824,8 @@
         showStartupDialog_ = false;
       } else if (key == SDLK_E) {
         openExampleShows();
+      } else if (key == SDLK_L) {
+        beginTutorial();
       } else if (key == SDLK_RETURN || key == SDLK_KP_ENTER) {
         if (hasSavedFile) {
           showStartupDialog_ = false;

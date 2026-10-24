@@ -571,7 +571,8 @@
     // and "OPEN SAVED" ellipsized under the wider Arial/Liberation used on macOS
     // and Linux ("NEW SHOW F...", "OPEN SAVED..."). This is the splash text the
     // operator sees first, so it truncating reads as a broken build.
-    const char* kStartupLabels[4] = {"NEW SHOW FILE", "OPEN PREVIOUS", "OPEN SAVED", "EXAMPLE SHOWS"};
+    const char* kStartupLabels[5] = {"NEW SHOW FILE", "OPEN PREVIOUS", "OPEN SAVED", "EXAMPLE SHOWS",
+                                     "LEARN THE BASICS"};
     int startupWidest = 0;
     for (const char* label : kStartupLabels) {
       startupWidest = std::max(startupWidest, measuredTextWidth(fontBase_, label));
@@ -581,7 +582,7 @@
     const int startupBtnW = std::max(uiScaled(184), startupWidest + uiScaled(28));
     const int startupBtnGap = uiScaled(10);
     const int startupMargin = uiScaled(36);
-    const int startupRowW = startupBtnW * 4 + startupBtnGap * 3;
+    const int startupRowW = startupBtnW * 5 + startupBtnGap * 4;
 
     // THE RECENT SHOWS, AND WHY THE DIALOG IS MEASURED RATHER THAN 440 TALL.
     //
@@ -618,7 +619,10 @@
       neededH += lineH + uiScaled(4)                  // "Recent shows:"
                + kRecentRows * (rowH + uiScaled(4)) + uiScaled(16);
     }
+    // The tour's invitation, under the buttons: a teacher and one line.
+    const int learnStripH = std::max(uiScaled(48), bodyH + uiScaled(16));
     neededH += buttonH + gap                          // the button row
+             + learnStripH + gap                      // "New here?" strip
              + lineH + uiScaled(4) + lineH            // two hint lines
              + uiScaled(24);                          // bottom margin
 
@@ -717,6 +721,7 @@
     startupLoadBtn_ = {startupNewBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
     startupOpenSavedBtn_ = {startupLoadBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
     startupExamplesBtn_ = {startupOpenSavedBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
+    startupLearnBtn_ = {startupExamplesBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
     y += buttonH + gap;
 
     Primitives::drawFramedPanel(controlRenderer_, startupNewBtn_, pal.mid,
@@ -736,14 +741,41 @@
     // Four shows that teach the desk; the way in for someone opening it the first time.
     Primitives::drawFramedPanel(controlRenderer_, startupExamplesBtn_, pal.mid, pal.deep, pal.light);
     drawCenteredText(controlRenderer_, fontBase_, "EXAMPLE SHOWS", pal.deep, startupExamplesBtn_);
+    // LEARN THE BASICS stands out: dark, with the tour's yellow round it.
+    {
+      SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 0, 255);
+      for (int i = 1; i <= uiScaled(3); ++i) {
+        const SDL_FRect ring {static_cast<float>(startupLearnBtn_.x - i), static_cast<float>(startupLearnBtn_.y - i),
+                              static_cast<float>(startupLearnBtn_.w + i * 2), static_cast<float>(startupLearnBtn_.h + i * 2)};
+        SDL_RenderRect(controlRenderer_, &ring);
+      }
+      Primitives::drawFramedPanel(controlRenderer_, startupLearnBtn_, pal.deep, pal.deep, pal.mid);
+      drawCenteredText(controlRenderer_, fontBase_, "LEARN THE BASICS", pal.light, startupLearnBtn_);
+    }
+    {
+      const SDL_Rect strip {tx, y, tw, learnStripH};
+      Primitives::fillRect(controlRenderer_, strip, pal.deep);
+      const int face = learnStripH - uiScaled(8);
+      drawTutorialPortrait(SDL_Rect {strip.x + uiScaled(6), strip.y + uiScaled(4), face, face}, true, true);
+      const int keyW = measuredTextWidth(fontSmall_, "KEY L") + uiScaled(20);
+      drawTextSafe(controlRenderer_, fontBase_,
+                   SDL_Rect {strip.x + face + uiScaled(16), strip.y, strip.w - face - keyW - uiScaled(24), strip.h},
+                   readTutorialProgress() > 0
+                     ? "Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi."
+                     : "New here? LEARN THE BASICS takes five minutes. We'll show you round.",
+                   pal.light);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {strip.x + strip.w - keyW, strip.y, keyW, strip.h}, "KEY L", pal.light);
+      y += learnStripH + gap;
+    }
 
     SDL_Color hintInk = pal.inkSoft;
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, y, tw, lineH},
                  kRecentRows > 0
-                   ? "N=new  Enter/P=previous  O=open saved picker  E=examples  1-" +
+                   ? "N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-" +
                        std::to_string(kRecentRows) + "=recent"
-                   : std::string("N=new  Enter/P=previous  O=open saved picker  E=examples"),
+                   : std::string("N=new  Enter/P=previous  O=open saved  E=examples  L=learn"),
                  hintInk);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, y + lineH + uiScaled(4), tw, lineH},
