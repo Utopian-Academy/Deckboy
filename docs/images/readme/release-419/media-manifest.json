@@ -6,29 +6,32 @@
   "files": [
     {
       "file": "crossfade-live.gif",
-      "bytes": 4475385,
-      "sha256": "6d209d9207c0261382eca1a011d05003c81e7236cb6674986ecb78671eedd44e",
+      "bytes": 4044054,
+      "sha256": "a3adfa85b79a11f3f9f14a64d1ae8c58126b41b4f2607256bc753ad0bc402698",
       "width": 1000,
       "height": 710,
-      "frames": 85,
-      "duration_s": 8.5,
+      "frames": 55,
+      "duration_s": 5.5,
       "loop": 0,
-      "seam_max_difference": 0
+      "seam_max_difference": 0,
+      "note": "recaptured 2026-10-24: workshop into street, so it no longer opens like the playback GIF"
     },
     {
       "file": "crossfade-live.mp4",
-      "bytes": 715936,
-      "sha256": "ddd29d7c6a5b2029da39f94ea2b1681915fd389b35f60a5f826da8e37bd43043",
+      "bytes": 665416,
+      "sha256": "fbbbb91077ed2fa15a24061e5000634b134b0dafc2e553ff0a99407f38c05f21",
       "width": 1000,
       "height": 710,
-      "duration_s": 8.5
+      "duration_s": 5.5,
+      "note": "recaptured 2026-10-24: workshop into street, so it no longer opens like the playback GIF"
     },
     {
       "file": "crossfade-live.png",
-      "bytes": 408765,
-      "sha256": "621f298004461cdf2f2240d7249bbf377a1e5247641a497116d27a8f1a143f60",
+      "bytes": 445668,
+      "sha256": "fdd46d05274a82f031b7df0be9ceb5c58c8f32f07f2f2d5dff84ba36f38a0fcd",
       "width": 1000,
-      "height": 710
+      "height": 710,
+      "note": "recaptured 2026-10-24: workshop into street, so it no longer opens like the playback GIF"
     },
     {
       "file": "deckboy-video-playback-ymck.mp4",
