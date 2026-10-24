@@ -388,3 +388,41 @@ html { scroll-padding-top: 1.5rem; }
     .latest-grid article { padding: 1.2rem; }
     .media-heading { padding: .7rem; }
 }
+
+/* ── the front page, 24 Oct 2026 (approved design): pitch, the press-and-see
+   loop, who it is for, the idea, the demos, then the short feature list ── */
+.hero-media { margin: 1.6rem 0 0; }
+.hero-media video { display: block; width: 100%; height: auto; border: 3px solid var(--rule); background: var(--ground); }
+.hero-media figcaption { color: var(--ink-soft); font-size: .78rem; margin-top: .5rem; text-align: left; }
+@media (min-width: 960px) {
+    .home .hero-split .hero-content { max-width: 1052px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); column-gap: 2.5rem; align-items: center; text-align: left; }
+    .home .hero-split .hero-content > * { grid-column: 1; }
+    .home .hero-split h1 { font-size: clamp(2rem, 3.6vw, 3.2rem); }
+    .home .hero-split .hero-media { grid-column: 2; grid-row: 1 / span 6; margin: 0; }
+    .home .hero-split .hero-subtitle { margin-inline: 0; }
+    .home .hero-split .cta-group { justify-content: flex-start; }
+}
+.made-for-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.made-for-grid a { display: flex; flex-direction: column; gap: .5rem; padding: 1.2rem; background: var(--db-green); border: 2px solid var(--rule); text-decoration: none; }
+.made-for-grid a:hover { border-color: var(--ink); }
+.made-for-grid b { font: .75rem/1.7 var(--pixel); color: var(--ink); }
+.made-for-grid span { color: var(--ink-body); font-size: .9rem; }
+.idea { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 2.5rem; align-items: start; border-top: 2px solid var(--rule); padding-top: 2.5rem; }
+.idea h2 { font: 1rem/1.7 var(--pixel); color: var(--ink); margin-bottom: 1rem; }
+.idea-text p { margin-bottom: 1rem; }
+.idea-chain { color: var(--ink); font-size: .85rem; }
+.idea-shot img { width: 100%; height: auto; display: block; border: 2px solid var(--rule); }
+.idea-shot .shot-caption { font-size: .8rem; color: var(--ink-soft); margin-top: .6rem; }
+.what-it-does { border-top: 2px solid var(--rule); padding-top: 2.5rem; }
+.what-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1.5rem 2rem; }
+.what-grid h3 { font: .72rem/1.7 var(--pixel); color: var(--ink); margin-bottom: .5rem; }
+.what-grid p { font-size: .9rem; color: var(--ink-body); margin-bottom: .4rem; }
+.what-grid a { font-size: .85rem; }
+.latest-short { border-top: 2px solid var(--rule); padding-top: 1.8rem; }
+.latest-short p:not(.eyebrow) { font-size: .92rem; }
+@media (max-width: 760px) {
+    .made-for-grid, .idea { grid-template-columns: minmax(0, 1fr); }
+    .hero-media { margin-inline: -1.5rem; }
+    .hero-media video { border-width: 2px 0; }
+    .hero-media figcaption { padding-inline: 1.5rem; }
+}
