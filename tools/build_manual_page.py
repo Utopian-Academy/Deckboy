@@ -195,7 +195,7 @@ HEAD = """<!DOCTYPE html>
     <meta name="twitter:title" content="Deckboy Manual">
     <meta name="twitter:image" content="SITEimages/social-card.png">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20261024b">
 
     <style>
         .prose { max-width: 860px; margin: 0 auto 4rem; padding: 0 1.5rem; }

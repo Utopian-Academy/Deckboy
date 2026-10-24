@@ -151,6 +151,9 @@ def main():
                 external.add(value)
                 continue
             target, _, fragment = value.partition("#")
+            # A ?v= on style.css and site.js makes browsers fetch the new
+            # copy after a change; the file on disk has no query.
+            target = target.partition("?")[0]
             checked += 1
 
             if not target:                      # same-page anchor
