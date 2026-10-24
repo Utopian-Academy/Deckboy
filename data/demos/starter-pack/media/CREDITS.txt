@@ -1,0 +1,10 @@
+tears-of-steel-street.mp4    Tears of Steel, 4:24-4:34
+tears-of-steel-workshop.mp4  Tears of Steel, 7:36-7:46
+
+  Tears of Steel
+  (CC) Blender Foundation | mango.blender.org
+  Licensed under Creative Commons Attribution 3.0
+  https://creativecommons.org/licenses/by/3.0/
+  Excerpted and re-encoded (H.264, 1280x534) for the Deckboy example shows.
+
+soft-circuit.wav             Original music written for the example shows (GPL-3.0, like Deckboy).

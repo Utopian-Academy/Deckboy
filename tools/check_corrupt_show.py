@@ -61,7 +61,7 @@ def main():
     (ROOT / "build").mkdir(exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="corrupt-show-", dir=ROOT / "build"))
     populate(str(work))
-    source = ROOT / "data/demos/starter-pack/01-start-here.deckboy"
+    source = ROOT / "data/demos/starter-pack/01-picture-on-screen.deckboy"
     lines = source.read_text(encoding="utf-8").splitlines()
     corrupted = 0
     for i, line in enumerate(lines):

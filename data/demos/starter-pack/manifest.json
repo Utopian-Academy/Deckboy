@@ -2,19 +2,31 @@
   "minimum_version": "0.99.417",
   "shows": [
     {
-      "file": "01-start-here.deckboy",
-      "title": "Start here",
+      "file": "01-picture-on-screen.deckboy",
+      "title": "Picture on screen",
       "playlists": [
-        "Start here"
+        "Picture on screen"
       ],
       "cue_counts": {
-        "0": 5
+        "0": 4
       },
       "steps": [],
       "run_seconds": 0
     },
     {
-      "file": "02-layers-and-titles.deckboy",
+      "file": "02-running-a-show.deckboy",
+      "title": "Running a show",
+      "playlists": [
+        "Running order"
+      ],
+      "cue_counts": {
+        "0": 6
+      },
+      "steps": [],
+      "run_seconds": 0
+    },
+    {
+      "file": "03-layers-and-titles.deckboy",
       "title": "Layers and titles",
       "playlists": [
         "Backdrop",
@@ -37,8 +49,8 @@
       "run_seconds": 0.0
     },
     {
-      "file": "03-effects-playground.deckboy",
-      "title": "Effects playground",
+      "file": "04-looks-and-effects.deckboy",
+      "title": "Looks and effects",
       "playlists": [
         "Looks laboratory"
       ],
@@ -49,7 +61,7 @@
       "run_seconds": 0
     },
     {
-      "file": "04-one-button-show.deckboy",
+      "file": "05-one-button-show.deckboy",
       "title": "One-button show",
       "playlists": [
         "Picture",

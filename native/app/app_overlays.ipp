@@ -519,12 +519,18 @@
 
   // THE EXAMPLE SHOWS, from the first screen (James, 2026-10-21). They ship in
   // the read-only data folder -- inside a Mac app bundle, writing there breaks
-  // the signature -- so they are copied once to Documents/Deckboy Example
-  // Shows, beside their music, and opened from there. A copy that is already
-  // there is never overwritten: it may hold the operator's own changes.
+  // the signature -- so they are copied once to Documents/Deckboy Examples,
+  // beside their media, and opened from there. A copy that is already there
+  // is never overwritten: it may hold the operator's own changes.
+  //
+  // THE FOLDER IS NEW for the five-show ladder (0.99.420). The four shows of
+  // 0.99.418-419 went to "Deckboy Example Shows"; copying the new five in
+  // beside them would leave two numberings in one folder, so the old folder is
+  // left exactly as it is and the ladder gets one of its own.
+  static constexpr const char* kFirstExampleShow = "01-picture-on-screen.deckboy";
   void openExampleShows() {
     const fs::path source = Paths::dataDir() / "demos" / "starter-pack";
-    if (!fs::exists(source / "01-start-here.deckboy")) {
+    if (!fs::exists(source / kFirstExampleShow)) {
       triggerToast("the example shows are not in this download", ToastKind::Warning, kToastReadableMs);
       return;
     }
@@ -536,9 +542,9 @@
     } else {
       home = Paths::stateDir();
     }
-    const fs::path target = home / "Deckboy Example Shows";
+    const fs::path target = home / "Deckboy Examples";
     std::error_code error;
-    if (!fs::exists(target / "01-start-here.deckboy")) {
+    if (!fs::exists(target / kFirstExampleShow)) {
       fs::create_directories(target, error);
       fs::copy(source, target, fs::copy_options::recursive | fs::copy_options::skip_existing, error);
       if (error) {
@@ -546,9 +552,9 @@
         return;
       }
     }
-    openProjectFromPath(target / "01-start-here.deckboy");
+    openProjectFromPath(target / kFirstExampleShow);
     showStartupDialog_ = false;
-    triggerToast(inDocuments ? "example shows: Documents > Deckboy Example Shows. Start with 01, read the notes"
+    triggerToast(inDocuments ? "example shows: Documents > Deckboy Examples. Start with 01, read the notes"
                              : "example shows: in Deckboy's settings folder. Start with 01, read the notes",
                  ToastKind::Help, kToastReadableMs);
   }

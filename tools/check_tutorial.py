@@ -45,7 +45,7 @@ def main():
     pack = ROOT / "data/demos/starter-pack"
     mine = work / "My show"
     shutil.copytree(pack, mine)
-    show = mine / "01-start-here.deckboy"
+    show = mine / "01-picture-on-screen.deckboy"
     before = hashlib.sha256(show.read_bytes()).hexdigest()
     shots = work / "shots"
 
@@ -133,7 +133,7 @@ def handover_checks(exe, work):
     pack = ROOT / "data/demos/starter-pack"
     mine = work / "Desk show"
     shutil.copytree(pack, mine)
-    show = mine / "01-start-here.deckboy"
+    show = mine / "01-picture-on-screen.deckboy"
     with Runtime(exe, work / "run2", show) as db:
         def output_on():
             return json.loads(db.send("STATUS JSON"))["outputs"][0]["enabled"]

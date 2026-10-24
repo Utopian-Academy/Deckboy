@@ -30,7 +30,8 @@ def main():
     shutil.copyfile(ROOT / "LICENSE", PACK / "LICENSE.txt")
     shutil.copyfile(checks / "overview.png", PACK / "overview.png")
     files = ["00-START-HERE.html", "README.md", "LICENSE.txt", "overview.png",
-             "manifest.json", "media/soft-circuit.wav"]
+             "manifest.json", "media/soft-circuit.wav", "media/CREDITS.txt",
+             "media/tears-of-steel-street.mp4", "media/tears-of-steel-workshop.mp4"]
     files += [s["file"] for s in manifest["shows"]]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(args.output, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:

@@ -92,6 +92,9 @@ class Author:
         self.deck = 1
         self.counts = {1: 0}
         self.names = {}
+        # Cue fields with no remote verb (a cue's own transition time), set
+        # straight on the saved record by finish(): {(deck, index): {member: value}}.
+        self.fields = {}
 
     def commands(self, *commands):
         self.db.commands(*commands)
@@ -115,6 +118,27 @@ class Author:
             self.db.send("SELECT 1")
         self.db.commands(f"SELECT {n}", "RENAME " + title,
                          f"CUENOTES {n} {notes}", *commands)
+        return n
+
+    def clip(self, title, notes, filename, *commands, fields=None):
+        """A movie from media/, imported the way a drop on the playlist imports it."""
+        drop = self.db.work / "clip-import.txt"
+        drop.write_text(str(PACK / "media" / filename) + "\n", encoding="utf8")
+        before = self.counts[self.deck]
+        self.db.send("DROPTEST " + str(drop))
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            reply = self.db.send("DROPTEST")
+            if "pending=0" in reply and "probes=0" in reply:
+                time.sleep(.4)
+                break
+            time.sleep(.25)
+        self.counts[self.deck] = n = before + 1
+        if n > 1:
+            self.db.send("SELECT 1")
+        self.db.commands(f"SELECT {n}", "RENAME " + title, f"CUENOTES {n} {notes}", *commands)
+        if fields:
+            self.fields[(self.deck - 1, n)] = fields
         return n
 
     def swirl(self, title, notes, palette=0, *commands):
@@ -149,23 +173,41 @@ class Author:
 
 
 def first_show(a):
-    a.playlist("Start here")
-    a.text("01 Output first: N, then TAKE", r"YOUR OUTPUT IS LIVE.\nTAKE sends the selected cue here.",
-           "FIRST press N to activate the Programme output (or DASH > 1 Activate output). F switches fullscreen/windowed. THEN return to the desk and press TAKE (Enter). GO (Space) advances to the next cue.",
+    a.playlist("Picture on screen")
+    a.text("01 Your output is live", r"YOUR OUTPUT IS LIVE.\nPage Down takes the next cue.",
+           "THIS SHOW: a picture on a screen. 1) Turn the output on: MENU > Video Outputs > OUTPUT OFF, so it reads OUTPUT ON (or DASH > 1 Output on). 2) Click this cue and press TAKE (Enter).",
            "TEXTCUE CARD 255")
-    a.swirl("02 A backdrop made live", "No movie file: this swirl is generated live. Open the Swirl section and change palette, speed or twist.")
-    a.synth("03 Video synth - ice rings", "A second live source. Open VIDEO SYNTH and try its shape, mirror and palette controls.", "ice", "rings")
-    a.swirl("04 The same source, a new look", "Open EFFECTS: kaleidoscope changes the swirl. Lower its amount or bypass it to compare.", 3,
-            "FX ADD kaleidoscope 0.7", "FX PARAM 1 A 0.3")
-    a.text("05 Your turn", r"MAKE IT YOURS.\nDuplicate a cue. Change its look.",
-           "Use SAVE AS before experimenting. Each cue has its own settings; the 0.6-second playlist transition blends between them.",
+    a.clip("02 A clip", "Page Down took this cue. It is a movie file from media/. Press I to bring in your own.",
+           "tears-of-steel-street.mp4")
+    a.swirl("03 Made by Deckboy", "Not a file: Deckboy draws this picture live. Page Down for the last cue.")
+    a.text("04 That's a show", r"THAT'S A SHOW.\nPress B for BLACK. Then turn the output off in MENU.",
+           "B (BLACK) clears the screen at any time, and B again brings it back. Next: open 02 Running a show.",
+           "TEXTCUE CARD 255")
+    return []
+
+
+def running_order(a):
+    a.playlist("Running order")
+    a.text("01 Doors", r"RUNNING A SHOW\nPage Down takes each cue in turn.",
+           "THIS SHOW: a running order. Turn the output on and TAKE this cue, then press Page Down for each next one.",
+           "TEXTCUE CARD 255")
+    a.clip("02 Crossfade in", "This cue has its own 2-second crossfade: inspector > PLAYBACK > transition.",
+           "tears-of-steel-street.mp4", fields={"cueTransitionSeconds": "2"})
+    a.clip("03 Goes to black at its end", "HOLD is off on this one: at its end the picture goes to black. The other clips have HOLD on (the default) and stop on their last picture. Let it finish, then Page Down.",
+           "tears-of-steel-workshop.mp4", "HOLD OFF")
+    a.clip("04 Loops until you move on", "LOOP is on (the L key): it plays round and round until you take the next cue.",
+           "tears-of-steel-street.mp4", "LOOP ON")
+    a.clip("05 Fades out by itself", "FADE OUT is 3 seconds: at its end it fades to black on its own. Nothing to press.",
+           "tears-of-steel-workshop.mp4", "FADEOUT 3")
+    a.text("06 Thank you", r"THANK YOU.",
+           "Press B for BLACK at any time, B again to come back. Next: open 03 Layers and titles.",
            "TEXTCUE CARD 255")
     return []
 
 
 def layers(a):
     a.playlist("Backdrop")
-    a.swirl("01 Forest backdrop", "This is the bottom layer. The other playlists are composited over it.")
+    a.swirl("01 Forest backdrop", "THIS SHOW: three playlists stacked into one picture. This is the bottom layer. The other playlists are composited over it.")
     a.swirl("02 Ice backdrop", "Switching this playlist leaves the inset and title running.", 2)
     a.cue("PATTERN ADD fireside", "03 Fireside", "Live generated set dressing. Try it behind the lower third.")
     a.playlist("Inset")
@@ -189,7 +231,7 @@ def layers(a):
 
 def effects(a):
     a.playlist("Looks laboratory")
-    a.swirl("01 Reference - no effects", "The reference source. Every following cue starts with this same swirl and palette.", 3)
+    a.swirl("01 Reference - no effects", "THIS SHOW: one picture, six looks. The reference source. Every following cue starts with this same swirl and palette.", 3)
     a.swirl("02 Kaleidoscope", "One effect. In EFFECTS, change Amount and its parameters to reshape the symmetry.", 3,
             "FX ADD kaleidoscope 0.8", "FX PARAM 1 A 0.35")
     a.swirl("03 RGB split + scanlines", "Two effects in order. Reorder them, copy the chain, or bypass one row to compare.", 3,
@@ -205,7 +247,7 @@ def effects(a):
 
 def coordinated(a):
     a.playlist("Picture")
-    a.swirl("01 Doors", "A quiet holding look. The tracker brings in the title and sound together.")
+    a.swirl("01 Doors", "THIS SHOW: everything so far, run from one DASH button with music. A quiet holding look. The tracker brings in the title and sound together.")
     a.synth("02 Opening", "An ice plasma source for the opening scene.", "ice", "plasma")
     a.synth("03 Main look", "A mirrored diamond source for the main scene.", "vapor", "diamond", "SYNTH MIRROR quad")
     a.swirl("04 Closing", "A slower closing backdrop.", 2, "SWIRL SPEED 0.25")
@@ -248,10 +290,11 @@ def coordinated(a):
 
 
 SHOWS = [
-    ("01-start-here", "Start here", first_show),
-    ("02-layers-and-titles", "Layers and titles", layers),
-    ("03-effects-playground", "Effects playground", effects),
-    ("04-one-button-show", "One-button show", coordinated),
+    ("01-picture-on-screen", "Picture on screen", first_show),
+    ("02-running-a-show", "Running a show", running_order),
+    ("03-layers-and-titles", "Layers and titles", layers),
+    ("04-looks-and-effects", "Looks and effects", effects),
+    ("05-one-button-show", "One-button show", coordinated),
 ]
 
 
@@ -290,6 +333,10 @@ def finish(raw, slug, title, author, steps):
                 f[CUE_FIELDS["continueMode"]] = "auto-continue" if length else "none"
             if f[4] == "audio":
                 f[2], f[17] = "media/soft-circuit.wav", "0"
+            elif "/media/" in f[2].replace("\\", "/"):
+                f[2] = "media/" + f[2].replace("\\", "/").rsplit("/", 1)[1]
+            for member, value in author.fields.get((deck, index), {}).items():
+                f[CUE_FIELDS[member]] = value
             kept.append(f)
     text = seed(title, shipped=True)
     for f in kept:
@@ -305,11 +352,11 @@ def finish(raw, slug, title, author, steps):
         buttons += [("Open tracker", "DASH TRACKER")]
     else:
         buttons += [("Take selection", "TAKE"), ("Next cue", "GO"), ("Stop", "STOP")]
-    if slug == "01-start-here":
-        buttons[0] = ("1 Activate output", "OUTPUT ON")
+    if slug == "01-picture-on-screen":
+        buttons[0] = ("1 Output on", "OUTPUT ON")
         buttons[2] = ("2 Take selection", "TAKE")
         buttons[3] = ("3 Next cue", "GO")
-    if slug == "02-layers-and-titles":
+    if slug == "03-layers-and-titles":
         buttons += [("Name strap out", "DECK 3 TEXTCUE OUT")]
     for i, (label, command) in enumerate(buttons):
         text += f"dashboard\t{i}\t{label}\t{command}\t\t{i % 5}\n"

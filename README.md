@@ -163,9 +163,10 @@ Deckboy is free software. If it helps you run a show, share your experience, rep
 
 ## Download
 
-**[Try the example shows](data/demos/starter-pack/README.md)** — a first-cue
-walkthrough, layered titles, an effects playground and a 39-second automated
-show with original music. Open the `.deckboy` files and follow the cue notes.
+**[Try the example shows](data/demos/starter-pack/README.md)** — five shows that
+work up one step at a time: a picture on a screen, a running order, layers and
+titles, looks and effects, and a 39-second show run from one button with original
+music. Open the `.deckboy` files and follow the cue notes.
 
 The features below describe the current source. Packaged builds and their
 version-specific changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
@@ -687,9 +688,6 @@ importantly, what each feature deliberately does not do.
 - A face you can make your own: how it looks, what it does and what it talks
   about, including lines you write yourself. Every setting starts from the face
   as it is today, and none of them can touch playback, routing or outputs
-- A guided tutorial, taught by the face: it walks a new operator through the
-  desk with the example shows, one step at a time, and waits while they try each
-  step themselves
 
 **Picture:**
 

@@ -1,5 +1,27 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased - v0.99.420
+
+### Example shows
+- Rebuilt as five shows that work up one step at a time. **01 Picture on screen** teaches turning
+  the output on (MENU > Video Outputs > OUTPUT ON), TAKE, the next cue and BLACK.
+  **02 Running a show** is new: a cue with its own 2-second crossfade, a clip that goes to black
+  at its end while the others hold their last picture, a loop and a fade-out. Then **03 Layers and
+  titles**, **04 Looks and effects** and **05 One-button show**, as before.
+- Fixed: the first example show told you to press N to turn the output on. N switches NDI; the
+  output is turned on in MENU.
+- Two 10-second clips from *Tears of Steel* (CC BY 3.0, Blender Foundation) are included, so the
+  first shows put real footage on the screen.
+- EXAMPLE SHOWS now copies to **Documents > Deckboy Examples**. A "Deckboy Example Shows" folder
+  from 0.99.418-419 is left as it is.
+
+### Learn the basics
+- Fixed: if your show could not be saved (its folder unavailable, for example), the tour started
+  anyway and an unsaved edit was lost. It now refuses, says why, and leaves your show on the desk.
+- Fixed: an output that was on before the tour came back off. Outputs now return as they were,
+  fullscreen or windowed.
+- The tour does not start while anything is playing; stop playback first.
+
 ## 2026-10-24 - v0.99.419 (a guided tour; the warp editor shows the output being warped; steadier ASIO, scopes, crossfades and refresh rates)
 
 **Re-released on 24 October 2026 with the guided tour.** If you downloaded 0.99.419 on

@@ -28,10 +28,20 @@ def verify_design(slug, cues):
     # Inspect independent cue settings: a shared edit selection must not turn
     # the reference cue into another copy of the look it is meant to compare.
     swirls = [c for c in cues if c[2] == "pattern://swirl"]
-    expected = {"01-start-here": [0, 3], "02-layers-and-titles": [0, 2, 2, 3],
-                "03-effects-playground": [3] * 6, "04-one-button-show": [0, 2, 1]}
+    expected = {"01-picture-on-screen": [0], "02-running-a-show": [], "03-layers-and-titles": [0, 2, 2, 3],
+                "04-looks-and-effects": [3] * 6, "05-one-button-show": [0, 2, 1]}
     assert [int(c[FIELDS["swirl.palette"]]) for c in swirls] == expected[slug]
-    if slug == "03-effects-playground":
+    if slug == "02-running-a-show":
+        # The running order's lessons are the cue settings themselves.
+        clips = [c for c in cues if c[4] == "video"]
+        assert len(clips) == 4 and all(c[2].startswith("media/tears-of-steel-") for c in clips)
+        assert float(clips[0][FIELDS["cueTransitionSeconds"]]) == 2
+        assert clips[1][FIELDS["pauseOnLastFrame"]] == "0" and clips[0][FIELDS["pauseOnLastFrame"]] == "1"
+        assert clips[2][FIELDS["loop"]] == "1"
+        assert float(clips[3][FIELDS["fadeOutSeconds"]]) == 3
+    if slug == "01-picture-on-screen":
+        assert "press N" not in "".join(c[33] for c in cues), "the N key is NDI, not the output"
+    if slug == "04-looks-and-effects":
         fx = [c[FIELDS["effects"]] for c in cues]
         assert not fx[0] and "kaleidoscope:" in fx[1]
         assert "channel_offset:" in fx[2] and "scanlines:" in fx[2]
@@ -110,7 +120,7 @@ def main():
                     status = deck_status(db.send("STATUS"), 1)
                     assert status["active"] == str(number), status
                     picture = frame(db, work / f"cue-{number}.bmp")
-                    if number == (3 if slug.startswith("01") else 2):
+                    if number == (3 if slug.startswith("02") else 2):
                         thumbnails.append((info["title"], picture.copy()))
                     print(f"{slug}: cue {number} rendered", flush=True)
             elif not info["run_seconds"]:
@@ -193,13 +203,13 @@ def main():
             item["reopened"] = True
         report.append(item)
         print(f"Passed {slug}", flush=True)
-    sheet = Image.new("RGB", (1280, 816), "#101719")
+    sheet = Image.new("RGB", (1281, 520), "#101719")
     draw = ImageDraw.Draw(sheet)
     for index, (title, image) in enumerate(thumbnails):
-        x, y = (index % 2) * 640, (index // 2) * 408
-        image.thumbnail((624, 351))
+        x, y = (index % 3) * 427, (index // 3) * 260
+        image.thumbnail((411, 216))
         sheet.paste(image, (x + 8, y + 8))
-        draw.text((x + 16, y + 370), title, fill="#d7e8e0", font_size=22)
+        draw.text((x + 16, y + 228), title, fill="#d7e8e0", font_size=18)
     sheet.save(report_dir / "overview.png")
     result = {"shows": report, "audio_sha256": hashlib.sha256(
         (source / "media/soft-circuit.wav").read_bytes()).hexdigest()}
