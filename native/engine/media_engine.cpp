@@ -363,6 +363,7 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   resetMediaFpsTelemetry();
   decoderEof_ = false;
   reachedEnd_ = false;
+  playedToEnd_ = false;
   clearVisualOnReachedEnd_ = false;
   // Per-cue fadeInSeconds/fadeOutSeconds apply uniformly to all cue kinds via
   // `currentVisualFadeGain()` → bridge texture alpha in `renderDeckLayerIntoOutput`.
@@ -776,6 +777,7 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
   resetMediaFpsTelemetry();
   decoderEof_ = false;
   reachedEnd_ = false;
+  playedToEnd_ = false;
 
   nextPausePointIdx_ = 0;
   while (nextPausePointIdx_ < pausePoints_.size() && pausePoints_[nextPausePointIdx_] <= nextPosition) {
@@ -1101,6 +1103,7 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
   playbackStartPosition_ = clamped;
   playbackClockStart_ = std::chrono::steady_clock::now();
   avJumpExpected_ = true;   // a seek is a deliberate move
+  if (clamped < duration_) playedToEnd_ = false;   // sent back: not finished
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
   if (activeCue_->kind == CueKind::Text) return;
   resetMediaFpsTelemetry();
@@ -6010,6 +6013,7 @@ void MediaEngine::handlePlaybackEnd() {
     pausedPosition_ = duration_;
     currentPosition_ = duration_;
     clearVisualOnReachedEnd_ = false;  // keep last frame visible
+    playedToEnd_ = true;
     if (audioStream_) {
       setOutputPaused(true);
     }
@@ -6029,6 +6033,7 @@ void MediaEngine::handlePlaybackEnd() {
   pausedPosition_ = duration_;
   currentPosition_ = duration_;
   clearVisualOnReachedEnd_ = true;  // go to black when finalized
+  playedToEnd_ = true;
   if (audioStream_) {
     setOutputPaused(true);
   }

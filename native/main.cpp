@@ -9975,6 +9975,13 @@ class App {
   std::string trackerPlayheadCueId_;
   bool trackerPlaying_ = false;
   double trackerNextDueSeconds_ = -1.0;
+  // How long the running countdown is in all, for the LEN cell's bar.
+  double trackerCountdownSpan_ = -1.0;
+  // A "when its cues end" step waiting on the cues it fired; the post-wait
+  // starts when they have all ended (trackerArmStep).
+  bool trackerWaitingForEnd_ = false;
+  double trackerWaitPostSeconds_ = 0.0;
+  std::vector<TrackerWatch> trackerWatches_;
   // First step drawn, for a sequence longer than the page. Follows the
   // playhead; the wheel moves it by hand.
   int trackerScrollRow_ = 0;

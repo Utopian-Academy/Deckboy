@@ -18,6 +18,9 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deckboy_harness import Deckboy, find_ffmpeg, parse_args  # noqa: E402
+# The cue record's columns by member name, read from the writer, so a field
+# appended later does not move what this check reads.
+from build_example_shows import CUE_FIELDS  # noqa: E402
 
 
 def mean_volume(ffmpeg, path):
@@ -76,8 +79,10 @@ def main():
         note("a track the file does not have is refused", reply.startswith("ERR"), reply)
         show = db.saved_show()
         cue = next((l for l in show.splitlines() if l.startswith("cue\t")), "")
-        tail = cue.split("\t")[-2:]
-        note("the show file keeps track 2 of 2", tail == ["1", "2"], repr(tail))
+        f = cue.split("\t")
+        kept = [f[CUE_FIELDS[m]] if len(f) > CUE_FIELDS[m] else None
+                for m in ("audioTrack", "audioTrackCount")]
+        note("the show file keeps track 2 of 2", kept == ["1", "2"], repr(kept))
     print()
     print("%d FAILED" % len(fails) if fails else "all ok")
     return 1 if fails else 0

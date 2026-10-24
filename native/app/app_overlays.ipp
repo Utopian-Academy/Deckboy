@@ -1168,7 +1168,7 @@
                               "Fire this step on every playlist at once (right-click: rename, move, delete)", r});
 
       const double remaining = isPlay ? trackerRemainingSeconds() : -1.0;
-      const double hold = remaining >= 0.0 ? trackerStepSeconds(r) : -1.0;
+      const double hold = remaining >= 0.0 ? trackerCountdownSpan_ : -1.0;
       if (hold > 0.0) {
         const double done = std::clamp(1.0 - remaining / hold, 0.0, 1.0);
         Primitives::fillRect(controlRenderer_,
@@ -1365,6 +1365,8 @@
           char next[48];
           std::snprintf(next, sizeof(next), " - next in %.1fs", remaining);
           status += next;
+        } else if (trackerWaitingForEnd_) {
+          status += " - waiting for its cues to end";
         } else if (trackerPlaying_) {
           status += " - playing";
         }
@@ -1493,7 +1495,7 @@
       SDL_Rect lenRect {area.x + stepW + gap, y, lenW, rowH};
       drawUIPanel(lenRect, pal.tile, pal.deep, pal.mid);
       const double remaining = isHead ? trackerRemainingSeconds() : -1.0;
-      const double hold = remaining >= 0.0 ? trackerStepSeconds(r) : -1.0;
+      const double hold = remaining >= 0.0 ? trackerCountdownSpan_ : -1.0;
       if (hold > 0.0) {
         const double done = std::clamp(1.0 - remaining / hold, 0.0, 1.0);
         SDL_Rect fill {lenRect.x + 2, lenRect.y + lenRect.h - uiScaled(4),

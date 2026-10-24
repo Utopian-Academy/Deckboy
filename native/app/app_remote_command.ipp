@@ -2853,6 +2853,8 @@
         if (remaining >= 0.0) {
           out << " | next in " << std::fixed << std::setprecision(1)
               << remaining << "s";
+        } else if (trackerWaitingForEnd_) {
+          out << " | waiting for cues to end";
         } else if (!trackerPlaying_ && head >= 0) {
           out << " | holding, GO to continue";
         }

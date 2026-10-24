@@ -588,6 +588,12 @@ class MediaEngine {
   // The same question without CONSUMING the answer: reachedEnd() clears the
   // latch, and the transport handler is the one caller that may do that.
   bool reachedEndPending() const { return reachedEnd_; }
+  // True once this cue has played through to its end -- holding its last
+  // frame or stopped there -- and false again after a load or a seek. Unlike
+  // reachedEnd() it is not consumed, and it is raised for a hold too, so the
+  // tracker can ask "has the cue I fired finished?" without stealing the
+  // transport's end signal.
+  bool playedToEnd() const { return playedToEnd_; }
   // Let a looping cue out: it finishes the pass it is on and then ends as if
   // it had not looped. Cleared by the next cue load.
   void devamp() { devampRequested_ = true; }
@@ -1647,6 +1653,7 @@ class MediaEngine {
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit
   std::atomic<bool> decoderEof_ {false};     // decode threads have reached EOF
   bool reachedEnd_ = false;                  // cue playback has finished
+  bool playedToEnd_ = false;                 // see playedToEnd()
   bool devampRequested_ = false;             // next loop point ends instead
   bool decodersRunning_ = false;             // decode running for the active cue (main thread)
 

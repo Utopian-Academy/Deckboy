@@ -2,6 +2,15 @@
 
 ## Unreleased - v0.99.420
 
+### Tracker
+- Fixed: a tracker step set to **when its cues end** moved on after the media's trimmed length
+  instead of when its cues finished. A cue slowed down was cut off part-way, a cue at double
+  speed held for its full normal-speed length, and a paused cue was replaced while paused.
+  The step now waits for the cues it fired to finish (played to the end, stopped, or replaced),
+  through speed changes, pauses, trims and pre-waits, then counts its post-wait. Steps with a
+  fixed length keep their timer. While it waits, the tracker status reads "waiting for its cues
+  to end".
+
 ### Example shows
 - Rebuilt as five shows that work up one step at a time. **01 Picture on screen** teaches turning
   the output on (MENU > Video Outputs > OUTPUT ON), TAKE, the next cue and BLACK.
