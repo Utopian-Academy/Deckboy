@@ -28,7 +28,7 @@ Free and open source, for Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-![Deckboy playing the launch scene from Tears of Steel while the next video cue is selected](docs/images/readme/release-419/deckboy-video-playback.gif)
+![Deckboy playing the launch scene from Tears of Steel while the next video cue is selected](docs/images/readme/release-419/deckboy-video-playback-v2.gif)
 
 <sub>Play video. Keep the next cue ready. Captured in v0.99.419. [Watch with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
@@ -55,7 +55,7 @@ operator finds it, and how you find it again.
 - **Four example shows** on the startup screen, with notes on every cue: your first
   output, layers and titles, effects, and a one-button show.
 
-![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/release-419/crossfade-live.gif)
+![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/release-419/crossfade-live-v2.gif)
 
 <sub>A real crossfade in v0.99.419: the outgoing clip keeps playing until it has faded. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
@@ -77,7 +77,7 @@ operator finds it, and how you find it again.
 
 <table>
 <tr>
-<td width="50%"><b>Picture scopes</b><br><img src="docs/images/readme/release-419/picture-scopes.gif" width="420" alt="Deckboy 0.99.419 scopes analysing its moving test card, with the live output counter visible"><br>Waveform, vectorscope, parade and gamut measurements from the moving test card.</td>
+<td width="50%"><b>Picture scopes</b><br><img src="docs/images/readme/release-419/picture-scopes-v2.gif" width="420" alt="Deckboy 0.99.419 scopes analysing its moving test card, with the live output counter visible"><br>Waveform, vectorscope, parade and gamut measurements from the moving test card.</td>
 <td width="50%"><b>Lights by name</b><br><img src="docs/images/readme/dmx-by-fixture.gif" width="300" alt="The DMX cue inspector changing the level and colour of named fixtures"><br>Fixture levels and colours in the cue list.</td>
 </tr>
 <tr>
@@ -563,7 +563,7 @@ and reacquisition update the media clock. See
   arrive neutral and cost under a millisecond a frame at 1080p
 - Effects go on and off a live cue without interrupting it
 
-![Effects switched on live while a clip plays: kaleidoscope, posterise, ripple and crystallise, then back to the clean picture](docs/images/readme/release-419/live-effects.gif)
+![Effects switched on live while a clip plays: kaleidoscope, posterise, ripple and crystallise, then back to the clean picture](docs/images/readme/release-419/live-effects-v2.gif)
 
 - Forty-two effects, each with named parameters. `--effect-bench` measures
   the cost on your machine; resolution and the chosen stack determine the frame budget
