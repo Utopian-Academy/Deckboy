@@ -2,19 +2,8 @@
 
 <div align="center">
 
-[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=8bac0f&label=download&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=downloads&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases)
-[![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=stars&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/stargazers)
-[![Discord](https://img.shields.io/discord/1560690462766006362?style=for-the-badge&labelColor=0f380f&color=306230&label=discord&logo=discord&logoColor=9bbc0f)](https://discord.gg/AZzsE4AZWx)
 
-[![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![CI](https://img.shields.io/github/actions/workflow/status/Utopian-Academy/Deckboy/build.yml?branch=main&style=for-the-badge&labelColor=0f380f&label=CI&logo=githubactions&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml)
-[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-306230?style=for-the-badge&labelColor=0f380f)](LICENSE)
 
-[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-306230?style=for-the-badge&labelColor=0f380f)](https://libsdl.org)
-[![Mentioned in Awesome NDI](https://img.shields.io/badge/mentioned%20in-awesome%20NDI-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/florisporro/awesome-ndi)
-[![Mentioned in Awesome SDL](https://img.shields.io/badge/mentioned%20in-awesome%20SDL-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/RobLoach/awesome-sdl)
-[![Mentioned in Awesome Streaming Tools](https://img.shields.io/badge/mentioned%20in-awesome%20streaming%20tools-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/juancarlospaco/awesome-streaming-tools)
 
 </div>
 
@@ -28,7 +17,7 @@ Free and open source, for Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
-![What you press and what the audience sees: on the Deckboy desk, TAKE a title, a clip that crossfades in, a name strap from a second playlist, the next clip with the strap still up, then BLACK; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see.gif)
+![What you press and what the audience sees: on the Deckboy desk, TAKE a clip, a name strap from a second playlist, the next clip with the strap still up, then BLACK; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see.gif)
 
 <sub>What you press, and what the audience sees, from one run of v0.99.419. [Watch Deckboy with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
