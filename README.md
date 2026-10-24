@@ -304,7 +304,8 @@ playable on site, minutes before doors.
 
 ### Deckboy Mini
 
-For a screen that only needs to play. `deckboy-mini` ships beside Deckboy: point
+**For a screen nobody has to run:** a foyer loop, a backstage monitor, a kiosk that
+starts with the computer. `deckboy-mini` ships beside Deckboy: point
 it at clips or a folder and it plays them fullscreen through the same engine as
 the desk, in name order, holding stills, looping if you ask. It answers the
 desk's remote commands on the desk's port, so Companion drives it as deck 1,

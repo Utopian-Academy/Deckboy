@@ -2950,9 +2950,9 @@ machine.
 
 ### Deckboy Mini
 
-`deckboy-mini` is a one-deck player that ships beside Deckboy, for a screen that
-only needs to play: a foyer loop, a backstage machine, a kiosk that starts when
-the computer does. It plays through the same engine as the desk, so anything the
+`deckboy-mini` is a one-deck player that ships beside Deckboy, for a screen
+nobody has to run: a foyer loop, a backstage monitor, a kiosk that starts with
+the computer. It plays through the same engine as the desk, so anything the
 desk plays from a file, Mini plays the same way.
 
 ```
