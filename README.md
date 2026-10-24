@@ -10,7 +10,11 @@
 [![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-306230?style=for-the-badge&labelColor=0f380f)](LICENSE)
 
-Built with [SDL3](https://libsdl.org) &middot; mentioned in [Awesome NDI](https://github.com/florisporro/awesome-ndi), [Awesome SDL](https://github.com/RobLoach/awesome-sdl) and [Awesome Streaming Tools](https://github.com/juancarlospaco/awesome-streaming-tools)
+[![Mentioned in Awesome NDI](https://img.shields.io/badge/mentioned%20in-awesome%20NDI-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/florisporro/awesome-ndi)
+[![Mentioned in Awesome SDL](https://img.shields.io/badge/mentioned%20in-awesome%20SDL-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/RobLoach/awesome-sdl)
+[![Mentioned in Awesome Streaming Tools](https://img.shields.io/badge/mentioned%20in-awesome%20streaming%20tools-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/juancarlospaco/awesome-streaming-tools)
+
+Built with [SDL3](https://libsdl.org)
 
 </div>
 
