@@ -6,15 +6,14 @@
   "files": [
     {
       "file": "crossfade-live.gif",
-      "bytes": 1665620,
-      "sha256": "f3eb5da7c3267325ded62ccac41fca74ea6c88e9e5792446858ece0b23516d4b",
-      "width": 640,
-      "height": 454,
-      "frames": 68,
-      "duration_s": 8.51,
+      "bytes": 4475385,
+      "sha256": "6d209d9207c0261382eca1a011d05003c81e7236cb6674986ecb78671eedd44e",
+      "width": 1000,
+      "height": 710,
+      "frames": 85,
+      "duration_s": 8.5,
       "loop": 0,
-      "seam_max_difference": 0,
-      "note": "lightened 2026-10-24: the README played ten GIFs at once and browsers flickered"
+      "seam_max_difference": 0
     },
     {
       "file": "crossfade-live.mp4",
@@ -51,15 +50,14 @@
     },
     {
       "file": "deckboy-video-playback.gif",
-      "bytes": 1213767,
-      "sha256": "01cf2b510171b2521a2c321921edc08c67ceeba9e37d30ce9f85c2b649954251",
-      "width": 640,
-      "height": 456,
-      "frames": 52,
-      "duration_s": 6.51,
+      "bytes": 4292724,
+      "sha256": "4c7fc31cb890d6149d6c1f81bd894d2e2ca3b40c502625bb893a1551fb892728",
+      "width": 1000,
+      "height": 714,
+      "frames": 65,
+      "duration_s": 6.5,
       "loop": 0,
-      "seam_max_difference": 0,
-      "note": "lightened 2026-10-24: the README played ten GIFs at once and browsers flickered"
+      "seam_max_difference": 0
     },
     {
       "file": "deckboy-video-playback.png",
@@ -123,15 +121,14 @@
     },
     {
       "file": "live-effects.gif",
-      "bytes": 1659369,
-      "sha256": "99afd13d70b88216ea69ef7d043331ef4b4d0f8f0173ccd040370381fde8c9df",
-      "width": 640,
-      "height": 454,
-      "frames": 84,
-      "duration_s": 10.51,
+      "bytes": 3951381,
+      "sha256": "097ea2ed4e5719aedea30d689dfc08c2b0df49b4d58ad71ed2a8a2bc9d89a845",
+      "width": 1000,
+      "height": 710,
+      "frames": 105,
+      "duration_s": 10.5,
       "loop": 0,
-      "seam_max_difference": 0,
-      "note": "lightened 2026-10-24: the README played ten GIFs at once and browsers flickered"
+      "seam_max_difference": 0
     },
     {
       "file": "live-effects.mp4",
@@ -150,15 +147,14 @@
     },
     {
       "file": "picture-scopes.gif",
-      "bytes": 436881,
-      "sha256": "664ee973b05e22b0bd2377818a20321be500c2efa557ad285bad5a263ba2d724",
-      "width": 640,
-      "height": 298,
-      "frames": 52,
-      "duration_s": 6.51,
+      "bytes": 685253,
+      "sha256": "2875270679cc9b00f0c74fd3215d2fd5213b35b53f79275b12a3c456bc061fb7",
+      "width": 900,
+      "height": 418,
+      "frames": 65,
+      "duration_s": 6.5,
       "loop": 0,
-      "seam_max_difference": 0,
-      "note": "lightened 2026-10-24: the README played ten GIFs at once and browsers flickered"
+      "seam_max_difference": 0
     },
     {
       "file": "picture-scopes.mp4",
