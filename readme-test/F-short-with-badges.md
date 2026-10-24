@@ -1,0 +1,334 @@
+# Deckboy 🎬
+
+<div align="center">
+
+[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.419-r2&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=8bac0f&label=download&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.419-r2&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=downloads&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.419-r2&cacheSeconds=300&style=for-the-badge&labelColor=0f380f&color=306230&label=stars&logo=github&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/stargazers)
+[![Discord](https://img.shields.io/discord/1560690462766006362?style=for-the-badge&labelColor=0f380f&color=306230&label=discord&logo=discord&logoColor=9bbc0f)](https://discord.gg/AZzsE4AZWx)
+
+[![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/Utopian-Academy/Deckboy/build.yml?branch=main&style=for-the-badge&labelColor=0f380f&label=CI&logo=githubactions&logoColor=9bbc0f)](https://github.com/Utopian-Academy/Deckboy/actions/workflows/build.yml)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-306230?style=for-the-badge&labelColor=0f380f)](../LICENSE)
+
+[![Built with SDL3](https://img.shields.io/badge/built%20with-SDL3-306230?style=for-the-badge&labelColor=0f380f)](https://libsdl.org)
+[![Mentioned in Awesome NDI](https://img.shields.io/badge/mentioned%20in-awesome%20NDI-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/florisporro/awesome-ndi)
+[![Mentioned in Awesome SDL](https://img.shields.io/badge/mentioned%20in-awesome%20SDL-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/RobLoach/awesome-sdl)
+[![Mentioned in Awesome Streaming Tools](https://img.shields.io/badge/mentioned%20in-awesome%20streaming%20tools-306230?style=for-the-badge&labelColor=0f380f)](https://github.com/juancarlospaco/awesome-streaming-tools)
+
+</div>
+
+## Video playback and show control.
+
+Deckboy puts videos, slides and live sources in a running order. Choose the next
+cue on your desk and take it to the audience when you're ready. Send the programme
+to screens, broadcast outputs or streams, and record it while it plays.
+
+Free and open source, for Windows, macOS and Linux.
+
+**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
+
+![What you press and what the audience sees: on the Deckboy desk, TAKE a title, a clip that crossfades in, a name strap from a second playlist, the next clip with the strap still up, then BLACK; beside it, the clean output doing exactly that](../docs/images/readme/light/press-and-see.gif)
+
+<sub>What you press, and what the audience sees, from one run of v0.99.419. [Watch Deckboy with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+
+**If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
+operator finds it, and how you find it again.
+
+### New in 0.99.419
+
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419)
+
+- **Learn the basics.** A five-minute guided tour from the startup screen or MENU.
+  Dr. Pixel and Professor Video take you through your first show one real control
+  at a time, in a practice show that leaves yours alone.
+- **Crossfades that keep moving.** Take the next cue and the one on screen keeps
+  playing while it fades out, with its sound fading too.
+- **Warp what you're looking at.** While you warp an output, the monitor shows that
+  output, warped, with the corner handles on the picture.
+- **Moiré.** A new source under SOURCE > MADE BY DECKBOY: six interference patterns,
+  four palettes, and a `~` oscillator on every control.
+- **Scopes that keep up.** Every new picture from the source is measured, and the
+  footer tells you if anything is missed.
+- **Smooth on 4K.** Swirl and Fireside hold 60 fps on 4K screens, and outputs stay
+  at your screen's refresh rate.
+- **Four example shows** on the startup screen, with notes on every cue: your first
+  output, layers and titles, effects, and a one-button show.
+
+![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](../docs/images/readme/light/crossfade-live.gif)
+
+<sub>A real crossfade in v0.99.419: the outgoing clip keeps playing until it has faded. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+
+#### Also in recent releases
+
+- **Master tracker:** a pattern view with keyboard editing, cue, fade, volume and opacity
+  cells, column mute/solo, jumps and named sections. The classic grid is still there.
+- **HDR:** graphics over PQ or HLG feeds, HDR window output, ST 2110, SRT/enhanced RTMP
+  and recording.
+- **Phone control:** pair with a QR code; TAKE, transport, fader, cue list, DASH and
+  tracker on one page.
+- **Lights and live audio:** named fixtures over Art-Net or sACN, Mic cues with fades and
+  processing, and live captions made on your machine.
+- **Projection:** edge blending, test cards and saved defaults for new shows.
+
+![The Deckboy master tracker in pattern view, with cue, level, fade and stop cells, named sections and playlist controls](../docs/images/readme/master-tracker.png)
+
+### A closer look
+
+<table>
+<tr>
+<td width="50%"><b>Picture scopes</b><br><img src="../docs/images/readme/light/picture-scopes.gif" width="420" alt="Deckboy 0.99.419 scopes analysing its moving test card, with the live output counter visible"><br>Waveform, vectorscope, parade and gamut measurements from the moving test card.</td>
+<td width="50%"><b>Lights by name</b><br><img src="../docs/images/readme/light/dmx-by-fixture.gif" width="300" alt="The DMX cue inspector changing the level and colour of named fixtures"><br>Fixture levels and colours in the cue list.</td>
+</tr>
+<tr>
+<td width="50%"><b>Live input, cued</b><br><img src="../docs/images/readme/light/mic-inspector.gif" width="320" alt="A Mic cue's gain and moving level meter, using Deckboy's built-in test signal"><br>A Mic cue's gain and meter, shown with the built-in test signal.</td>
+<td width="50%"><b>The phone controller</b><br><a href="https://utopian-academy.github.io/Deckboy/#phone-demo"><img src="../docs/images/readme/phone-controller-poster.png" width="195" alt="The current Deckboy phone controller with TAKE, transport, fader, cues and DASH"></a><br><a href="https://utopian-academy.github.io/Deckboy/#phone-demo">Watch it select and take cues.</a></td>
+</tr>
+</table>
+
+<details>
+<summary><b>The current desk in three themes</b></summary>
+
+**Gameboy**
+
+![Deckboy 0.99.419 running the layers and titles example in the Gameboy theme](../docs/images/readme/release-419/example-02-gameboy.png)
+
+**Dark**
+
+![The same Deckboy desk in the Dark theme](../docs/images/readme/release-419/example-02-dark.png)
+
+**Virtual Boy**
+
+![The same Deckboy desk in the red Virtual Boy theme](../docs/images/readme/release-419/example-02-virtual-boy.png)
+
+</details>
+
+[All screenshots, GIFs and clips](https://utopian-academy.github.io/Deckboy/press.html#images)
+are real app captures. Desk, crossfades, effects and scopes: published v0.99.419.
+Other captures retain their original versions in the [media notes](../docs/images/readme/README.md).
+
+New to Deckboy? Choose **EXAMPLE SHOWS** on the startup screen, read the notes on each
+cue and make the show your own.
+
+### Everything is a cue
+
+A clip. A still. A slide. A live camera. A window on the machine. A web page.
+An NDI source, an SRT feed, an SDI input. A test card, a countdown, a lower
+third, an audio file, a line-up tone. A line of code you type while it is on
+the screen. In Deckboy every one of those is the same kind of object, sitting
+on the same cue list, and it behaves the same way: same transport, same fades,
+same seventeen transitions, same effect rack, same remote control, recorded the
+same way on the way out.
+
+So a show can run
+
+```
+VIDEO → SLIDE → LIVE CAMERA → WEB PAGE → SRT FEED → TEST CARD → VIDEO
+```
+
+with one operator, one spacebar and no alt-tab, because none of those is a
+special case. The usual way to do that is a media player, a slide program, a
+browser, a capture utility, a streaming tool and a pattern generator, each with
+its own idea of what happens when you press play — and a projector that shows
+the seams between them.
+
+The other half of the same idea: every **destination** is the same kind of
+object too. A screen, NDI, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 — several
+at once, while it records, each with its own warp, feather and area of
+interest. Driven from a Stream Deck, Bitfocus Companion, OSC, MIDI, MIDI Show Control
+from the lighting desk, Art-Net or LTC timecode.
+
+Anything that can make a picture or a sound becomes a cue. Anything that needs
+to receive the show becomes an output.
+
+It hosts **your own VST3 effects and instruments** in a cue's audio chain, and runs on a
+machine with **no sound card at all** — a rack PC feeding a video wall still
+opens, plays and puts a picture out.
+
+Windows, macOS and Linux from one show file. No account, no licence server, no
+telemetry, and no second licence for the spare machine in the flight case —
+which is not true of most of what it gets compared to.
+
+**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer, Resolume and Inkue. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, thirty chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
+
+---
+
+## Community & help
+
+Questions, bugs, production stories, or ideas? [Visit the community page](https://utopian-academy.github.io/Deckboy/community.html) or [read the support guide](SUPPORT.md), join [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions), or [contribute](CONTRIBUTING.md). For security issues, please use [private reporting](SECURITY.md), not public issues.
+
+Deckboy is free software. If it helps you run a show, share your experience, report a bug, improve the docs, or tell another operator about it. That's how the project grows.
+
+---
+
+## Download
+
+**[Try the example shows](../data/demos/starter-pack/README.md)** — five shows that
+work up one step at a time: a picture on a screen, a running order, layers and
+titles, looks and effects, and a 39-second show run from one button with original
+music. Open the `.deckboy` files and follow the cue notes.
+
+The features below describe the current source. Packaged builds and their
+version-specific changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
+
+Every release ships an installer **and** a portable build for each platform.
+Both bundle the application, FFmpeg and its runtime libraries for ordinary file
+playback. NDI uses the separately installed NDI runtime; SDI uses compatible
+Blackmagic hardware and Desktop Video. Office slide conversion uses PowerPoint,
+Keynote or LibreOffice on the machine. [Full requirements](https://utopian-academy.github.io/Deckboy/specs.html#system).
+
+| Platform | Installer | Portable |
+|---|---|---|
+| **Windows** | `…-windows-x64-setup.exe` — Start Menu, uninstaller, `.deckboy` file association | `…-windows-x64.zip` |
+| **macOS** (Apple Silicon) | `…-macos-arm64.dmg` — drag to Applications | `…-macos-arm64.zip` |
+| **macOS** (Intel) | `…-macos-x86_64.dmg` | `…-macos-x86_64.zip` |
+| **Linux** | `…-x86_64.AppImage` — one file, `chmod +x` and run; or `…-x86_64.flatpak` | `…-linux-x86_64.tar.gz` |
+
+**Deckboy Mini** comes inside all of those, and on its own as a small download
+of about 12 to 18 MB: `Deckboy-Mini-…-windows-x64.zip`, `…-macos-arm64.zip`,
+`…-macos-x86_64.zip`, `…-linux-x86_64.tar.gz`, and `…-linux-arm64.tar.gz` for a
+Raspberry Pi (64-bit) or any ARM64 Linux.
+
+Both control surfaces ship with every release, so neither needs a build:
+**Stream Deck** (`…streamDeckPlugin` — double-click it) and **Bitfocus
+Companion** (`Deckboy-companion-module-….zip` — unzip it, then point
+Companion's *developer modules path* at the folder containing it;
+`INSTALL.txt` inside has the three steps). The Companion module requires
+**Companion 5**.
+
+→ **[Latest release](https://github.com/Utopian-Academy/Deckboy/releases/latest)**
+
+Or from a package manager, which follows each new release:
+
+```powershell
+# Windows (Scoop)
+scoop bucket add deckboy https://github.com/Utopian-Academy/scoop-deckboy
+scoop install deckboy/deckboy
+```
+
+```sh
+# macOS (Homebrew)
+brew install --cask utopian-academy/deckboy/deckboy
+```
+
+<details>
+<summary><b>"Unknown developer" warnings — what to do</b></summary>
+
+Deckboy's Windows builds are unsigned and macOS builds are ad-hoc signed.
+Neither carries a verified publisher signature, so the OS may warn when you
+first open a download.
+
+- **macOS** — if it says the app is damaged, clear the quarantine flag once:
+
+      xattr -dr com.apple.quarantine /Applications/Deckboy.app
+
+  Install from the `.dmg` into Applications rather than running from Downloads;
+  that is also what avoids Gatekeeper's App Translocation sandbox.
+- **Windows** — SmartScreen may say "Windows protected your PC". Click
+  **More info → Run anyway**.
+- **Linux** — the AppImage runs on **Ubuntu 22.04 and anything newer**, which
+  is what a lot of venue machines are still on. Graphics, display server, audio
+  and the C/C++ runtime deliberately come from the host: they have to match the
+  machine actually running, and a bundled libGL cannot load your GPU driver.
+  The build checks that floor on every run rather than trusting it.
+
+</details>
+
+Deckboy checks interface labels at startup and automatically tries another
+rendering path when needed. The [FAQ](https://utopian-academy.github.io/Deckboy/faq.html#interface-text)
+explains the renderer log and how to select software rendering on a Mac.
+
+---
+
+## What it is
+
+Deckboy is a native desktop application for video engineers, AV technicians and
+live operators who need a reliable way to organise media, trigger cues, loop
+content and send video to production displays.
+
+That is the job it is built around, and it is built on a stubborn principle:
+**Seize the means of playback ♡**
+
+No subscription ♡ No account ♡ No telemetry ♡ Nothing phones home. And no licence
+server that can refuse to start the show at 19:55 because it could not reach the
+internet. The machine you carried into the venue is the machine that plays the
+show.
+
+### What can be a cue
+
+| | |
+|---|---|
+| **Video** &middot; **Image** &middot; **Audio** | files, hardware-decoded, trimmed and faded |
+| **Slides** | a PDF, PowerPoint or Keynote deck, one cue per slide, with the notes |
+| **Browser** | a URL rendered into the programme, not a browser window on your desktop |
+| **Window** &middot; **Screen** &middot; **Camera** | captured live, at the window's own full resolution |
+| **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | somebody else's signal, taken in as a cue |
+| **Pattern** &middot; **Test card** &middot; **Tone** | generated on the spot, no file needed |
+| **Timer** &middot; **Lower third** | a stage countdown, full screen or over the programme, and a name strap in 52 looks |
+| **Video synth** &middot; **Code** | an oscillator with feedback, or an expression you type live |
+
+Every row takes the same fades, the same transitions, the same effect rack, the
+same trigger from a Stream Deck, and is recorded the same way on the way out.
+[Chapter 5 of the manual](https://utopian-academy.github.io/Deckboy/manual.html#cue-types)
+is the full table, source by source.
+
+### Which makes it a very good video Swiss army knife
+
+That is not a second feature list. It is what falls out of the first one. If a
+camera is a cue and SDI is an output, the machine is a converter. If a stream
+is a cue and NDI is an output, it is a bridge. If a test card is a cue, it is a
+pattern generator that proves the real chain instead of a test box's.
+
+The same box speaks NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode,
+OSC, Art-Net and NMOS — so the machine you brought for playout usually solves
+the other five problems on the day as well.
+
+- **Convert media** that will not play well, in place, without leaving the app
+- **Inspect any file** — codec, raster, frame rate, channels, duration — by importing it
+- **Generate test patterns** and a test card to prove a chain end to end
+- **Capture** a camera, a window or a screen and treat it as a cue
+- **Bridge formats** — bring a camera, capture card or stream in and send the
+  programme out as SDI, ST 2110 or a stream, and record it
+- **Normalize loudness** to a chosen −16, −23 or −24 LUFS target before playout
+- **Generate LTC timecode** on its own routable output
+
+### Where it gets used
+
+Live events • Corporate presentations • Churches • Schools & universities •
+Museums & installations • Digital signage • Projection • LED walls • Streaming
+
+And the jobs in between: bench-testing a screen before anyone arrives, proving a
+cable or converter with a real test card, getting a camera or a stream onto
+SDI, restreaming to SRT or RTMP, or making a client's unplayable file
+playable on site, minutes before doors.
+
+### Deckboy Mini
+
+For a screen that only needs to play. `deckboy-mini` ships beside Deckboy: point
+it at clips or a folder and it plays them fullscreen through the same engine as
+the desk, in name order, holding stills, looping if you ask. It answers the
+desk's remote commands on the desk's port, so Companion drives it as deck 1,
+and the whole show runs from the keyboard in its terminal, over SSH too:
+reorder, rename and remove cues, save and open playlists (M3U8), pick the
+display and the sound device, and the keys a media player has — frame step,
+speed, A-B loop, mute, sound track and subtitles. It keeps a media player's
+running-order habits too: find a cue by name, queue the one to play next, stop
+after this cue, shuffle, a clock that counts down, and a crossfade between
+cues. It opens `.pls` lists as well as M3U8. On a Raspberry Pi it plays
+through the board's own video decoder; `tools/linux_build.sh --mini` builds it
+there. Its own [miniature manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
+has every key and command. Mini comes inside every download, and on its own as
+a small download for Windows, macOS, Linux and the Raspberry Pi (64-bit) on the
+[releases page](https://github.com/Utopian-Academy/Deckboy/releases/latest).
+
+```
+deckboy-mini ~/Videos --display 2 --loop
+```
+
+In Windows PowerShell, start it as `.\deckboy-mini` from its folder; PowerShell does not
+run a program from the current folder by its bare name. Or drop files onto `deckboy-mini.exe`.
+
+![Deckboy Mini run from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with five cues and the NEXT line; cue 3 is queued to play next, a search for logo takes cue 5, the clock switches to time left, shuffle, crossfade and stop-after-this-cue switch on, and the help pages end on the running order](../docs/images/readme/light/mini-terminal.gif)
+
+---
+
