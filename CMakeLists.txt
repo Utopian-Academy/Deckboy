@@ -627,6 +627,7 @@ add_executable(deckboy-native
   # definitions land at global scope and fail to link. See
   # native/extras/upstream/UPSTREAM.md.
   native/extras/terrarium_vendor.cpp
+  native/extras/tabletop/tabletop.cpp
   native/extras/upstream/qrcodegen/qrcodegen.cpp
   native/render/primitives.cpp
   native/render/text_renderer.cpp
@@ -1178,6 +1179,19 @@ include(CTest)
 option(DECKBOY_SANITIZE_BROADCAST_CHECK "Instrument the transport regression target with ASan and UBSan" OFF)
 if(BUILD_TESTING)
   find_package(Threads REQUIRED)
+  foreach(board_check IN ITEMS 40k spearhead)
+    add_executable(deckboy-tabletop-${board_check}-check tools/tabletop_${board_check}_check.cpp)
+    target_include_directories(deckboy-tabletop-${board_check}-check PRIVATE native)
+    target_link_libraries(deckboy-tabletop-${board_check}-check PRIVATE Threads::Threads)
+    if(MSVC)
+      target_compile_options(deckboy-tabletop-${board_check}-check PRIVATE /W4 /EHsc /utf-8)
+      target_compile_definitions(deckboy-tabletop-${board_check}-check PRIVATE _CRT_SECURE_NO_WARNINGS)
+    else()
+      target_compile_options(deckboy-tabletop-${board_check}-check PRIVATE -Wall -Wextra -Wshadow)
+    endif()
+    add_test(NAME tabletop-${board_check} COMMAND deckboy-tabletop-${board_check}-check
+             "${CMAKE_CURRENT_BINARY_DIR}/tabletop-${board_check}-review")
+  endforeach()
   # Pure signal analysis; the same source is linked into the desk and Mini.
   add_executable(deckboy-scopes-check tools/scopes_check.cpp native/core/scopes.cpp)
   target_include_directories(deckboy-scopes-check PRIVATE native)

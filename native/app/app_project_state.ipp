@@ -1956,6 +1956,7 @@
 
   bool saveShowDefaults() {
     Project defaults = project_;
+    defaults.tabletopUnlocked = false;
     for (auto& deck : defaults.decks) {
       deck.cues.clear();
       deck.selectedIndex = deck.activeIndex = deck.standbyIndex = -1;
@@ -2009,6 +2010,7 @@
     }
     // A fresh show resets to its starting skin rather than carrying over the
     // colorway of whatever was loaded before.
+    project_.tabletopUnlocked = false;
     if (project_.theme.empty()) project_.theme = "gameboy";
     loadTheme(project_.theme);
     normalizeProject(project_);

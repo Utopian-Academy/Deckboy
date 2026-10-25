@@ -2949,6 +2949,23 @@
     markProjectDirty();
   }
 
+  bool generatorAvailable(const deckboy::extras::Generator& extra) const {
+    if (extra.id == "tabletop") return project_.tabletopUnlocked;
+    return !extra.hidden || hiddenSourcesFound_;
+  }
+
+  void unlockTabletopSource() {
+    if (project_.tabletopUnlocked) {
+      triggerToast("Tabletop is in SOURCE > MADE BY DECKBOY");
+      return;
+    }
+    pushUndoSnapshot(true);
+    project_.tabletopUnlocked = true;
+    addGeneratorCue("tabletop");
+    settingsOpen_ = false;
+    triggerToast("Tabletop added - SOURCE > MADE BY DECKBOY");
+  }
+
   void addSourceCueFromMenu() {
     CueKind kind = sourceCueKindFromToken(sourceDefaultTypeId_);
     addSourceCue(kind, defaultSourceRefForKind(kind));
@@ -3096,7 +3113,7 @@
     }
     // A build's own generators (core/private_extras.hpp).
     for (const auto& extra : deckboy::extras::generators()) {
-      if (extra.hidden && !hiddenSourcesFound_) continue;
+      if (!generatorAvailable(extra)) continue;
       const std::string id = extra.id;
       contextItems_.push_back({"  " + extra.name, {0, 0, 0, 0}, [this, id]() { addGeneratorCue(id); }});
     }
@@ -3470,6 +3487,7 @@
 
   bool isKnownPatternType(const std::string& rawTypeId) const {
     std::string typeId = normalizePatternTypeId(rawTypeId);
+    if (stripPatternMotionSuffix(typeId) == "tabletop" && !project_.tabletopUnlocked) return false;
     if (typeId == "checker") {
       typeId = "checkerboard";
     }

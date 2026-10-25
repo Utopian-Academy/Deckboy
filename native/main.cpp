@@ -11355,6 +11355,7 @@ class App {
   int webEncodeEase_ = 0;                            // 0 as chosen; 1-3 lighter steps
   std::string webMonitorPinSnapshot_;
   bool webRemoteEnabledSnapshot_ = false; // guarded by webMonitorDirMutex_
+  bool webTabletopUnlockedSnapshot_ = false; // same mutex; the HTTP thread never reads Project
   // PAIRING (same mutex): the one-time code the desk's QR carries, and the keys
   // of phones that have paired. Keys live in the state folder, never the show
   // file -- a show file gets shared, and a key in it would open the desk.
@@ -11513,6 +11514,8 @@ class App {
   bool engineCueSyncPending_ = false;  // refresh engine cue snapshots next tick (set by markProjectDirty)
   bool masterFaderDragActive_ = false; // header master fader is being dragged
   int konamiIndex_ = 0;                // progress through the Konami sequence (easter egg)
+  int tabletopCodeIndex_ = 0;
+  Uint64 tabletopCodeLastKeyMs_ = 0;
   std::vector<std::string> startupBootLog_;  // splash boot-console lines (built once per boot)
   std::vector<Uint64> startupBootLogAtMs_;   // per-line randomized reveal times (ms from splash start)
   int companionPort_ = 5510;
@@ -12782,7 +12785,12 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     return App::runSelfCheck();
   }
   if (mode == "--smoke") {
-    return App::runSmoke();
+    try {
+      return App::runSmoke();
+    } catch (const std::exception& error) {
+      std::cerr << "smoke exception: " << error.what() << '\n';
+      return 1;
+    }
   }
   if (mode == "--autosave-check") {
     if (ops.empty()) return missing("<new-directory>");

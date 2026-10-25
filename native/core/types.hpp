@@ -2686,6 +2686,7 @@ struct Project {
   // once unlocked, and the unlock belongs to the SAVE (cheeky secrets don't
   // leak across shows). Saved cues load fine either way.
   bool terrariumUnlocked = false;
+  bool tabletopUnlocked = false;  // belongs to the show, like the ecosystem
   // UI scale factor — multiplies every font point size at load time so text
   // grows on HiDPI / 4K screens without ballooning the layout chrome. 1.0 is
   // the native baseline tuned for 1080p. 1.5–2.0 covers 4K desktops and

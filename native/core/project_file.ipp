@@ -286,6 +286,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "hap_suggestion_dismissed\t" << (project.hapSuggestionDismissed ? 1 : 0) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
+  output << "tabletop_unlocked\t" << (project.tabletopUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
   output << "ui_scale\t" << project.uiScale << '\n';
   output << "creatures\t" << (project.creaturesEnabled ? 1 : 0) << '\n';
@@ -1443,6 +1444,8 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.theme = safeString(fields, 1);
   } else if (fields[0] == "terrarium_unlocked") {
     project.terrariumUnlocked = safeBool(fields, 1, false);
+  } else if (fields[0] == "tabletop_unlocked") {
+    project.tabletopUnlocked = safeBool(fields, 1, false);
   } else if (fields[0] == "geometry_aspect_link") {
     project.geometryAspectLinked = safeBool(fields, 1, true);
   } else if (fields[0] == "vj_mode") {

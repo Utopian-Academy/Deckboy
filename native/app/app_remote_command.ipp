@@ -184,6 +184,10 @@
     std::string command = toUpper(parts[0]);
     // A verb a private extra brought (see core/private_extras.hpp).
     if (const auto* extra = deckboy::extras::findCommand(command)) {
+      if (command == "TABLE" && !project_.tabletopUnlocked) {
+        remoteCommandRecognized_ = false;
+        return;
+      }
       std::string reply;
       if (extra->run(parts, reply)) {
         remoteCommandDetail_ = reply;

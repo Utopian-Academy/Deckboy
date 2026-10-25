@@ -74,6 +74,7 @@
   }
 
   void handleMouseDown(int x, int y, Uint8 button) {
+    tabletopCodeIndex_ = 0;
     // Before anything else: the middle button has its own meaning now, and must
     // never fall through to the left-button paths below.
     if (beginAutoScrollIfMiddle(x, y, button)) {
@@ -1737,6 +1738,10 @@
       return;
     }
 
+    if (!settingsOpen_ || settingsTab_ != 4 || inlineEditor_.open || codeEditor_.open || dropdown_.open) {
+      tabletopCodeIndex_ = 0;
+    }
+
     if (showSplashOverlay_) {
       if (key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE) {
         showSplashOverlay_ = false;
@@ -1914,6 +1919,28 @@
     }
 
     if (settingsOpen_) {
+      // The letters overlap live desk shortcuts, so the whole sequence lives
+      // in About, where letters are otherwise inert. No partial entry may
+      // change audio routing, blackout, or the selected cue.
+      if (settingsTab_ == 4 && !keyRepeat &&
+          (mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) == 0) {
+        static constexpr SDL_Keycode code[] = {SDLK_A, SDLK_B, SDLK_A, SDLK_C, SDLK_A, SDLK_B, SDLK_B};
+        static constexpr int fallback[] = {0, 0, 1, 0, 1, 2, 0};
+        const Uint64 now = SDL_GetTicks();
+        if (now - tabletopCodeLastKeyMs_ > 2000) tabletopCodeIndex_ = 0;
+        tabletopCodeLastKeyMs_ = now;
+        while (tabletopCodeIndex_ > 0 && key != code[tabletopCodeIndex_]) {
+          tabletopCodeIndex_ = fallback[tabletopCodeIndex_ - 1];
+        }
+        if (key == code[tabletopCodeIndex_]) ++tabletopCodeIndex_;
+        if (tabletopCodeIndex_ == 7) {
+          tabletopCodeIndex_ = 0;
+          unlockTabletopSource();
+          return;
+        }
+      } else if (!keyRepeat) {
+        tabletopCodeIndex_ = 0;
+      }
       // Ctrl+, (Cmd+, on macOS) closes as well as opens, the way every other
       // application's preferences shortcut does. Escape still closes too.
       if (key == SDLK_ESCAPE || (ctrl && key == SDLK_COMMA)) {

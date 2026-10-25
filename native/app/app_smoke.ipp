@@ -723,6 +723,8 @@
   }
 
   static int runSmoke() {
+    // Preserve the last completed check if a later assertion or dependency throws.
+    std::cout << std::unitbuf;
     static_assert(static_cast<int>(LowerThirdLook::Bar) == 0 &&
                   static_cast<int>(LowerThirdLook::Scroll) == 12 &&
                   static_cast<int>(LowerThirdLook::Bulletin) == 13 &&
@@ -744,6 +746,64 @@
              lhs->height == rhs->height &&
              lhs->pixels == rhs->pixels;
     };
+
+    {
+      App app;
+      app.showSplashOverlay_ = false;
+      app.showStartupDialog_ = false;
+      app.project_.decks = {Deck {}};
+      app.settingsOpen_ = true;
+      app.settingsTab_ = 4;
+      const auto* source = deckboy::extras::findGenerator("tabletop");
+      expect(source != nullptr, "built-in board source is registered");
+      app.hiddenSourcesFound_ = true;
+      expect(source && !app.generatorAvailable(*source), "other source discovery does not reveal the board");
+      expect(!app.isKnownPatternType("tabletop"), "locked source cannot be added by a pattern command");
+      app.handleRemoteCommand("PATTERN ADD tabletop");
+      expect(app.project_.decks[0].cues.empty() && !app.remoteCommandError_.empty(),
+             "remote add cannot bypass the source unlock");
+      app.handleRemoteCommand("TABLE STATUS");
+      expect(!app.remoteCommandRecognized_, "locked board command is not exposed");
+      const auto type = [&](const std::string& keys, Uint16 modifiers = 0) {
+        for (const char key : keys) app.handleKeyDown(static_cast<SDL_Keycode>(key), modifiers);
+      };
+      type("abacabb", SDL_KMOD_CTRL);
+      expect(!app.project_.tabletopUnlocked, "modified shortcut chords do not enter the source code");
+      app.settingsTab_ = 0;
+      type("abacabb");
+      expect(!app.project_.tabletopUnlocked, "source code only belongs to About");
+      app.settingsTab_ = 4;
+      type("abaca");
+      app.handleKeyDown(SDLK_B, 0, 0, true);
+      type("b");
+      expect(!app.project_.tabletopUnlocked, "key repeat cannot complete the source code");
+      type("x");
+      type("abacabx");
+      expect(!app.project_.tabletopUnlocked && app.project_.decks[0].cues.empty(),
+             "a wrong final key cannot unlock or add a source");
+      type("abacabb");
+      expect(app.project_.tabletopUnlocked && !app.settingsOpen_, "complete code unlocks the source and returns to the desk");
+      expect(app.project_.decks[0].cues.size() == 1 &&
+             app.project_.decks[0].cues[0].path == "pattern://tabletop", "unlock adds the usable source cue");
+      expect(app.masterDimmerTarget_ == 1.0 && app.project_.decks[0].activeIndex == -1 &&
+             !app.project_.outputs[0].enabled, "code does not black out, take a cue, or enable an output");
+      expect(source && app.generatorAvailable(*source) && app.isKnownPatternType("tabletop"),
+             "unlocked source is available to the source menu and commands");
+      app.settingsOpen_ = true;
+      type("abacabb");
+      expect(app.project_.decks[0].cues.size() == 1, "re-entering the code does not duplicate the cue");
+      const fs::path saved = fs::temp_directory_path() / "deckboy-board-unlock-check.deckboy";
+      expect(saveProject(saved, app.project_), "source unlock show saves");
+      const Project restored = loadProject(saved);
+      expect(restored.tabletopUnlocked && !restored.decks.empty() && !restored.decks[0].cues.empty() &&
+             restored.decks[0].cues[0].path == "pattern://tabletop",
+             "source unlock and cue survive a save/load round trip");
+      std::error_code ignored;
+      fs::remove(saved, ignored);
+      app.project_ = Project {};
+      expect(!app.project_.tabletopUnlocked && source && !app.generatorAvailable(*source),
+             "another show starts with the source hidden");
+    }
 
     {
       // Headless integration of the same core exercised by scopes_check.cpp.

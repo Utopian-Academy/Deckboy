@@ -1119,6 +1119,7 @@
                             .mirrorSourceOutputIndex);
     webMonitorPinSnapshot_ = project_.webMonitorPin;
     webRemoteEnabledSnapshot_ = project_.webRemoteEnabled;
+    webTabletopUnlockedSnapshot_ = project_.tabletopUnlocked;
     webMonitorEnabledSnapshot_ = project_.webMonitorEnabled;
     webMonitorShareSnapshot_ = project_.webMonitorShareLan;
     if (project_.webRemoteEnabled) {
@@ -1653,7 +1654,7 @@
       const Cue* live = activeCuePtr(d);
       if (!live || live->kind != CueKind::Pattern) continue;
       const auto* extra = deckboy::extras::findGenerator(stripPatternMotionSuffix(normalizePatternTypeId(live->path)));
-      if (!extra || extra->page.empty() || std::find(offered.begin(), offered.end(), extra->page) != offered.end()) continue;
+      if (!extra || !generatorAvailable(*extra) || extra->page.empty() || std::find(offered.begin(), offered.end(), extra->page) != offered.end()) continue;
       offered.push_back(extra->page);
       if (!firstExtra) out << ',';
       firstExtra = false;
@@ -1854,6 +1855,17 @@
     // A private extra's page: static, and its commands go through
     // /remote/command, so they need the phone's key or passphrase like any.
     if (method == "GET" && path.rfind("/remote/x/", 0) == 0) {
+      if (path == "/remote/x/table" || path == "/remote/x/table.js") {
+        bool unlocked = false;
+        {
+          std::lock_guard<std::mutex> lock(webMonitorDirMutex_);
+          unlocked = webTabletopUnlockedSnapshot_;
+        }
+        if (!unlocked) {
+          webMonitorSendPage(client, "404 Not Found", "text/plain; charset=utf-8", "not found\n");
+          return;
+        }
+      }
       if (const auto* page = deckboy::extras::findWebPage(path.substr(10))) {
         webMonitorSendPage(client, "200 OK", page->contentType, page->body());
       } else {

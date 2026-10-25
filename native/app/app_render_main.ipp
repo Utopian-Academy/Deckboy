@@ -5648,7 +5648,7 @@
       if (selectedCue && selectedCue->kind == CueKind::Pattern) {
         const auto* extra = deckboy::extras::findGenerator(
           stripPatternMotionSuffix(normalizePatternTypeId(selectedCue->path)));
-        if (extra && extra->desk) {
+        if (extra && generatorAvailable(*extra) && extra->desk) {
           const std::string title = toUpper(extra->name.substr(0, extra->name.find(" (")));
           int exY = ry;
           auto exSection = beginInspectorSection(exY, title, cueSectionExtraOpen_,
