@@ -2178,38 +2178,119 @@
   // playlist feeds it comes from the snapshot only when the playlists
   // themselves changed, since undoing a removal renumbers them. The raster
   // settings are the screen's too, and stay as they are.
+  // A layer's pin (its mapping onto a surface) is warp, and warp is an edit
+  // Undo should put back. Which decks are layered on an output is routing,
+  // and routing is live: it stays as it is now.
+  static void restoreLayerPins(std::vector<OutputLayer>& liveLayers,
+                               const std::vector<OutputLayer>& restoredLayers) {
+    for (OutputLayer& layer : liveLayers) {
+      for (const OutputLayer& was : restoredLayers) {
+        if (was.deckIndex != layer.deckIndex) {
+          continue;
+        }
+        layer.warpEnabled = was.warpEnabled;
+        layer.warpTopLeftX = was.warpTopLeftX;
+        layer.warpTopLeftY = was.warpTopLeftY;
+        layer.warpTopRightX = was.warpTopRightX;
+        layer.warpTopRightY = was.warpTopRightY;
+        layer.warpBottomRightX = was.warpBottomRightX;
+        layer.warpBottomRightY = was.warpBottomRightY;
+        layer.warpBottomLeftX = was.warpBottomLeftX;
+        layer.warpBottomLeftY = was.warpBottomLeftY;
+        layer.warpPerspective = was.warpPerspective;
+        break;
+      }
+    }
+  }
+
+  // An output the operator is using now, with the warp the restored step had.
+  static OutputTarget liveOutputWithRestoredWarp(const OutputTarget& was,
+                                                 const OutputTarget& restored) {
+    OutputTarget kept = was;
+    kept.warpEnabled = restored.warpEnabled;
+    kept.warpMode = restored.warpMode;
+    kept.warpTopLeftX = restored.warpTopLeftX;
+    kept.warpTopLeftY = restored.warpTopLeftY;
+    kept.warpTopRightX = restored.warpTopRightX;
+    kept.warpTopRightY = restored.warpTopRightY;
+    kept.warpBottomRightX = restored.warpBottomRightX;
+    kept.warpBottomRightY = restored.warpBottomRightY;
+    kept.warpBottomLeftX = restored.warpBottomLeftX;
+    kept.warpBottomLeftY = restored.warpBottomLeftY;
+    kept.warpGridCols = restored.warpGridCols;
+    kept.warpGridRows = restored.warpGridRows;
+    kept.warpGridSmooth = restored.warpGridSmooth;
+    kept.warpGridOffsets = restored.warpGridOffsets;
+    return kept;
+  }
+
+  // UNDO RESTORES EDITS, NOT THE RIG. Which outputs exist, what they show and
+  // whether one is recording are live state, so an undo never adds, removes
+  // or re-routes an output. It used to rebuild the output list from the
+  // restored step: an output made since that step -- which is what starting
+  // a recording does -- vanished, and the recording stopped mid-take; a deck
+  // layered onto an output since then dropped off it; and Redo brought the
+  // recorder back as a new file. Only warp, which is an edit, comes back.
+  //
+  // Undoing a playlist's removal or addition is the one case where the
+  // restored outputs have to be used: outputs follow playlists by index, and
+  // the restored step is the layout those indices mean. Even then an output
+  // that exists only now is kept, its playlist references kept valid.
   void keepLiveStateAcrossRestore(const Project& live) {
     const bool samePlaylists = live.decks.size() == project_.decks.size();
     const bool sameOutputs = live.outputs.size() == project_.outputs.size();
-    for (OutputTarget& out : project_.outputs) {
+    const auto findById = [](const std::vector<OutputTarget>& list, const std::string& id)
+        -> const OutputTarget* {
+      if (id.empty()) return nullptr;
+      for (const OutputTarget& out : list) {
+        if (out.outputId == id) return &out;
+      }
+      return nullptr;
+    };
+    if (samePlaylists) {
+      std::vector<OutputTarget> outputs;
+      outputs.reserve(live.outputs.size());
       for (const OutputTarget& was : live.outputs) {
-        if (out.outputId.empty() || out.outputId != was.outputId) {
+        const OutputTarget* restored = findById(project_.outputs, was.outputId);
+        if (!restored) {
+          outputs.push_back(was);
           continue;
         }
-        OutputTarget kept = was;
-        kept.warpEnabled = out.warpEnabled;
-        kept.warpMode = out.warpMode;
-        kept.warpTopLeftX = out.warpTopLeftX;
-        kept.warpTopLeftY = out.warpTopLeftY;
-        kept.warpTopRightX = out.warpTopRightX;
-        kept.warpTopRightY = out.warpTopRightY;
-        kept.warpBottomRightX = out.warpBottomRightX;
-        kept.warpBottomRightY = out.warpBottomRightY;
-        kept.warpBottomLeftX = out.warpBottomLeftX;
-        kept.warpBottomLeftY = out.warpBottomLeftY;
-        kept.warpGridCols = out.warpGridCols;
-        kept.warpGridRows = out.warpGridRows;
-        kept.warpGridSmooth = out.warpGridSmooth;
-        kept.warpGridOffsets = out.warpGridOffsets;
-        kept.layerDecks = out.layerDecks;  // a layer's pin is warp too
-        if (!samePlaylists) {
-          kept.hostDeckIndex = out.hostDeckIndex;
+        OutputTarget kept = liveOutputWithRestoredWarp(was, *restored);
+        restoreLayerPins(kept.layerDecks, restored->layerDecks);
+        outputs.push_back(std::move(kept));
+      }
+      project_.outputs = std::move(outputs);
+    } else {
+      for (OutputTarget& out : project_.outputs) {
+        const OutputTarget* was = findById(live.outputs, out.outputId);
+        if (!was) {
+          continue;
         }
+        OutputTarget kept = liveOutputWithRestoredWarp(*was, out);
+        kept.layerDecks = out.layerDecks;      // playlist indices changed
+        kept.hostDeckIndex = out.hostDeckIndex;
         if (!sameOutputs) {
           kept.mirrorSourceOutputIndex = out.mirrorSourceOutputIndex;
         }
         out = std::move(kept);
-        break;
+      }
+      const int deckCount = static_cast<int>(project_.decks.size());
+      for (const OutputTarget& was : live.outputs) {
+        if (findById(project_.outputs, was.outputId) || was.outputId.empty()) {
+          continue;
+        }
+        OutputTarget kept = was;               // made since the step: keep it
+        if (kept.hostDeckIndex >= deckCount) {
+          kept.hostDeckIndex = deckCount > 0 ? 0 : -1;
+        }
+        std::vector<OutputLayer> layers;
+        for (const OutputLayer& layer : kept.layerDecks) {
+          if (layer.deckIndex >= 0 && layer.deckIndex < deckCount) layers.push_back(layer);
+        }
+        kept.layerDecks = std::move(layers);
+        kept.mirrorSourceOutputIndex = -1;
+        project_.outputs.push_back(std::move(kept));
       }
     }
     project_.outputFollowDisplay = live.outputFollowDisplay;

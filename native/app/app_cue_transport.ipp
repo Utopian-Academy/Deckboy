@@ -753,7 +753,12 @@
   // the functions below name it.
   struct PendingTake {
     bool armed = false;
-    int cueIndex = -1;
+    int cueIndex = -1;         // where the cue was when it was asked for
+    // WHICH cue was asked for. The row number alone is not enough: Undo puts
+    // back a whole cue list without re-mapping it, and a cue restored above
+    // the waiting one moved it down a row -- so a pre-wait asked for blue and
+    // the timer fired green, the cue now sitting in blue's old row.
+    std::string cueId;
     double dueAtSeconds = 0.0;
     bool useTransition = true;
     std::string reason;        // "pre-wait" / "continue", for the toast
@@ -812,6 +817,7 @@
     PendingTake& p = pendingTakeFor(deckIndex);
     p.armed = true;
     p.cueIndex = cueIndex;
+    p.cueId = project_.decks[deckIndex].cues[cueIndex].id;
     p.dueAtSeconds = nowSeconds() + std::max(0.0, delaySeconds);
     p.useTransition = useTransition;
     p.reason = reason ? reason : "";
@@ -838,14 +844,19 @@
         p = PendingTake {};
         continue;
       }
-      const int cueIndex = p.cueIndex;
+      // Find the cue it was asked for by identity, wherever it is now. If
+      // it has gone, nothing fires: never the neighbour that took its row.
+      const int cueIndex = p.cueId.empty() ? p.cueIndex
+                                           : findCueIndexById(deckIndex, p.cueId);
       const bool useTransition = p.useTransition;
       // Disarm BEFORE taking: takeSelected can schedule the next continue, and
       // an armed slot underneath it would be overwritten or, worse, re-fire.
       p = PendingTake {};
       Deck& deck = project_.decks[deckIndex];
       if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
-        continue;                       // deleted while it waited
+        triggerToast("cancelled: the waiting cue is no longer in the playlist",
+                     ToastKind::Warning, kToastReadableMs);
+        continue;
       }
       const int savedFocus = project_.focusedDeckIndex;
       project_.focusedDeckIndex = deckIndex;

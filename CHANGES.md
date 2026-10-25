@@ -2,6 +2,16 @@
 
 ## Unreleased - v0.99.420
 
+### Undo
+- Fixed: Undo during a cue's pre-wait or continue could send the wrong cue to air. Undoing a
+  deletion above a waiting cue moved it down a row, and the wait fired whichever cue now sat in
+  its old row. The wait now fires the cue it was asked for, wherever it is, or is cancelled with
+  a message if that cue has gone.
+- Fixed: Undo stopped a running recording, and Redo started a second file. Starting a recording
+  adds an output, and Undo rebuilt the outputs as they were before it. Undo and Redo now restore
+  your edits and warp, and leave outputs, routing and recordings as they are.
+- Fixed: Undo took a deck back off an output it had been layered onto since the edit.
+
 ### Tracker
 - Fixed: a tracker step set to **when its cues end** moved on after the media's trimmed length
   instead of when its cues finished. A cue slowed down was cut off part-way, a cue at double
