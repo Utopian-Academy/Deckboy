@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased - v0.99.420
+## 2026-10-25 - v0.99.420 (sequences on dashboard tiles; TAKE ALL; the haze theme; example shows that build up a step at a time; undo, outputs, STOP and interrupted dissolves fixed)
 
 ### Dashboard
 - **Sequences:** a tile can run several commands in order, with waits between them:
