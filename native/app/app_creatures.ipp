@@ -208,6 +208,27 @@
         dot(face > 0 ? 3 : 1, 1, 1, 1, accent);      // eye
         break;
       }
+      case Species::Wisp: {
+        // A curl of smoke: a short trail of soft dots, each a little further
+        // along the sway and a little fainter than the one before.
+        for (int i = 0; i < 6; ++i) {
+          SDL_Color puff = accent;
+          puff.a = static_cast<Uint8>(alpha * 0.55 * (1.0 - i / 6.0));
+          const int ox = static_cast<int>(std::lround(std::sin(t * 1.3 + c.phase + i * 0.7) * 3.0));
+          dot(ox - 1, i * 3, 2 + (i > 2 ? 1 : 0), 2, puff);
+        }
+        break;
+      }
+      case Species::Lava: {
+        // Round when it rests, drawn out along its travel when it moves.
+        const int stretch = static_cast<int>(std::lround(std::min(4.0, std::fabs(c.vy) * 0.35)));
+        dot(-4, -3 - stretch, 8, 6 + stretch * 2, accent);
+        dot(-3, -4 - stretch, 6, 8 + stretch * 2, accent);
+        SDL_Color shine = ink;
+        shine.a = static_cast<Uint8>(alpha / 3);
+        dot(-2, -2 - stretch, 2, 2, shine);
+        break;
+      }
       case Species::Firefly: {
         SDL_Color glow = accent;
         glow.a = static_cast<Uint8>(alpha * std::clamp(c.blink, 0.0, 1.0));

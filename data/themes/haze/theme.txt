@@ -1,0 +1,25 @@
+# Deckboy Theme: haze
+# Family: tinted chassis -- a deep forest body, soft sage inks and a purple
+# haze on the buttons. Slow, warm and easy on the eyes in a dark room.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
+
+shell_outer	1A2418FF
+shell_inner	223020FF
+shell_shadow	0C120BFF
+screen_light	A6D681FF
+screen_mid	5F9046FF
+screen_dark	2D4824FF
+screen_deep	0E180CFF
+screen_ink_soft	B9DAA2FF
+screen_fg	AEE48EFF
+screen_fg_soft	C2DCB1FF
+screen_tile	142012FF
+button_bezel	6B4E8EFF
+delete_bezel	C0503AFF
+scanline_alpha	10
+
+# Creatures. Smoke curls and wax that drift through the empty part of the
+# playlist, never over a control, and gone the moment an output goes live.
+creature	wisp	3
+creature	lava	2

@@ -651,6 +651,51 @@
     return static_cast<double>(SDL_GetTicks()) / 3600000.0;
   }
 
+  // 4:20, am or pm, on this machine's clock. DECKBOY_FORCE_420=1 makes it
+  // 4:20 so the desk can be checked at any hour. Desk only: nothing that
+  // reads this ever reaches an output, a recording or a stream.
+  bool isFourTwenty() const {
+    if (const char* forced = std::getenv("DECKBOY_FORCE_420")) {
+      return forced[0] == '1';
+    }
+    const std::time_t now = std::time(nullptr);
+    std::tm local {};
+#ifdef _WIN32
+    localtime_s(&local, &now);
+#else
+    localtime_r(&now, &local);
+#endif
+    return local.tm_hour % 12 == 4 && local.tm_min == 20;
+  }
+
+  // A faint green haze drifting up over a toolbar control, for one minute.
+  void drawFourTwentyHaze(const SDL_Rect& rect, Uint64 nowMs) {
+    if (rect.w <= 0 || rect.h <= 0) return;
+    SDL_Rect previousClip {};
+    const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
+    if (hadClip) SDL_GetRenderClipRect(controlRenderer_, &previousClip);
+    SDL_SetRenderClipRect(controlRenderer_, &rect);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    const double t = static_cast<double>(nowMs) / 1000.0;
+    for (int w = 0; w < 5; ++w) {
+      // Each wisp rises through the box on its own clock and sways as it goes.
+      const double rise = std::fmod(t * 0.18 + w * 0.21, 1.0);
+      const int y = rect.y + rect.h - static_cast<int>(rise * (rect.h + rect.h / 2));
+      const int cx = rect.x + static_cast<int>(rect.w * (0.15 + 0.17 * w)) +
+                     static_cast<int>(std::sin(t * 0.7 + w * 1.9) * rect.w * 0.06);
+      const int width = std::max(4, rect.w / 5 + static_cast<int>(rise * rect.w / 6));
+      const Uint8 alpha = static_cast<Uint8>(70.0 * std::sin(rise * 3.14159265358979));
+      for (int band = 0; band < 3; ++band) {
+        const int bw = width - band * width / 4;
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect {cx - bw / 2, y + band * 2, bw, std::max(2, rect.h / 6)},
+                             SDL_Color {150, 215, 140, static_cast<Uint8>(alpha / (band + 1))});
+      }
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    SDL_SetRenderClipRect(controlRenderer_, hadClip ? &previousClip : nullptr);
+  }
+
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs,
                          const char* overrideTip = nullptr) {
     static const char* kTips[] = {
@@ -716,9 +761,22 @@
     const double uptimeHours = mascotUptimeHours();
     const double mood = uptimeHours <= 3.0 ? 0.0
                       : std::clamp((uptimeHours - 3.0) / 21.0, 0.0, 1.0);
-    const double cheek = std::clamp(mood / 0.35, 0.0, 1.0);
-    const double tired = std::clamp((mood - 0.35) / 0.35, 0.0, 1.0);
-    const double stress = std::clamp((mood - 0.70) / 0.30, 0.0, 1.0);
+    double cheek = std::clamp(mood / 0.35, 0.0, 1.0);
+    double tired = std::clamp((mood - 0.35) / 0.35, 0.0, 1.0);
+    double stress = std::clamp((mood - 0.70) / 0.30, 0.0, 1.0);
+    // 4:20: heavy lids, slow and easy, and smiling about it -- the tired
+    // face without any of the fed-up.
+    const bool mellow = isFourTwenty();
+    if (mellow) {
+      cheek = 0.0;
+      stress = 0.0;
+      tired = std::max(tired, 0.8);
+      if (!fourTwentyGreeted_ && SDL_GetTicks() < 120000) {
+        fourTwentyGreeted_ = true;
+        mascotGreeting_ = "Oh hey. It's 4:20. Take it easy.";
+        mascotGreetUntilMs_ = SDL_GetTicks() + 7000;
+      }
+    }
     // Everything slows as it tires: the same face, on a heavier clock.
     double t = static_cast<double>(nowMs) / 1000.0 * (1.0 - 0.35 * tired);
     // BIGGER. It was sized to a ninth of the smaller edge and capped at 40,
@@ -910,7 +968,7 @@
     double mdy = std::sin(t * 1.05 + 0.4) * unit * 0.10;
     int mouthW = unit * 3;
     double depth = smile * unit;
-    depth *= (1.0 - 0.55 * tired);                       // the smile goes out of it
+    depth *= mellow ? 0.85 : (1.0 - 0.55 * tired);       // the smile goes out of it
     depth = depth * (1.0 - stress) - unit * 0.35 * stress;  // and then turns over
     if (pokedMouth) {
       // An "o": the smile pulls in and the curve inverts, so it reads as

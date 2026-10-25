@@ -1471,7 +1471,14 @@
     }
     if (masterFaderDragActive_ && masterFaderRect_.w > 0) {
       const double moved = static_cast<double>(x - masterFaderGrabX_) / static_cast<double>(masterFaderRect_.w);
-      project_.masterVolume = std::clamp(masterFaderGrabValue_ + moved * 2.0, 0.0, 2.0);
+      double level = std::clamp(masterFaderGrabValue_ + moved * 2.0, 0.0, 2.0);
+      // A NOTCH AT 100%. Dragged within a few pixels of unity, the fader
+      // settles on exactly 100% rather than 98 or 103, the way a desk fader
+      // has a detent there. Measured in pixels, so it feels the same at any
+      // UI scale; typed and remote levels are never snapped.
+      const double notch = static_cast<double>(uiScaled(6)) / masterFaderRect_.w * 2.0;
+      if (std::abs(level - 1.0) <= notch) level = 1.0;
+      project_.masterVolume = level;
       markProjectDirty();
       return;
     }

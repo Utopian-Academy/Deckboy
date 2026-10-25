@@ -48,6 +48,8 @@ struct Generator {
   // The desk's controls for it, rebuilt every frame from its state. Empty:
   // the inspector shows nothing of its own.
   std::function<std::vector<DeskControl>()> desk = {};
+  // Listed in SOURCE > MADE BY DECKBOY only once the desk has found it.
+  bool hidden = false;
 };
 
 struct Command {

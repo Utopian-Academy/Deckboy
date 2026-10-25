@@ -8974,6 +8974,33 @@
       remoteCommandDetail_ = shortcutsOverlayOpen_ ? "shortcuts shown" : "shortcuts hidden";
       return;
     }
+    if (command == "SEQ") {
+      // SEQ <step> ; <step> ; WAIT <s> ; WAIT GO ; ...   (see startSequence)
+      const std::string rest = parts.size() > 1 ? trim(joinParts(parts, 1)) : std::string();
+      if (rest.empty()) {
+        std::ostringstream s;
+        s << sequenceRuns_.size() << " running";
+        for (const SequenceRun& run : sequenceRuns_) {
+          s << " | " << (run.owner >= 0 ? "DASH " + std::to_string(run.owner + 1) : std::string("SEQ"))
+            << " step " << std::min(run.next, run.steps.size()) << "/" << run.steps.size()
+            << (run.waitingForGo ? " waiting for GO" : "");
+        }
+        remoteCommandDetail_ = s.str();
+        return;
+      }
+      if (toUpper(rest) == "STOP") {
+        stopAllSequences();
+        remoteCommandDetail_ = "stopped";
+        return;
+      }
+      std::string reply;
+      if (!startSequence(sequenceOwnerHint_, rest, reply)) {
+        failRemoteCommand(reply);
+        return;
+      }
+      remoteCommandDetail_ = reply;
+      return;
+    }
     if (command == "DASH" || command == "DASHBOARD") {
       const std::string sub = parts.size() < 2 ? std::string("LIST") : toUpper(parts[1]);
 
@@ -9092,7 +9119,9 @@
           failRemoteCommand("DASH: slot " + std::to_string(at + 1) + " is empty");
           return;
         }
+        sequenceOwnerHint_ = at;          // a SEQ on this tile belongs to it
         handleRemoteCommand(slot.command);
+        sequenceOwnerHint_ = -1;
         if (!remoteCommandRecognized_) {
           failRemoteCommand("DASH: unknown command in slot " + std::to_string(at + 1));
         }

@@ -4050,13 +4050,70 @@
       SDL_Rect mastRect {cx, cy, content.w - uiScaled(24), mastH};
       Primitives::drawFramedPanel(controlRenderer_, mastRect, pal.shellInner, pal.deep, pal.light);
       int artW = std::min(mastRect.w / 2 - 16, 300);
+      // SWING: three clicks on the version line and the art sways in a slow,
+      // swung half-time -- long-short, long-short -- while smoke rings rise
+      // off it and thin away. Eight seconds, the desk only, silent.
+      int swingDx = 0, swingDy = 0;
+      double swingLeft = 0.0;
+      if (aboutSwingStartMs_ != 0) {
+        const Uint64 since = SDL_GetTicks() - aboutSwingStartMs_;
+        if (since >= 8000) {
+          aboutSwingStartMs_ = 0;
+        } else {
+          const double el = static_cast<double>(since) / 1000.0;
+          const double envelope = std::min({1.0, el / 0.8, (8.0 - el) / 1.2});
+          const double beat = 1.2;                      // half time
+          const double pos = std::fmod(el, beat) / beat;
+          // Swung: two thirds of the beat one way, one third back.
+          const double u = pos < 2.0 / 3.0 ? pos * 1.5 : 1.0 - (pos - 2.0 / 3.0) * 3.0;
+          const double eased = u * u * (3.0 - 2.0 * u);
+          swingDx = static_cast<int>(std::lround((eased - 0.5) * 2.0 * artW * 0.07 * envelope));
+          swingDy = static_cast<int>(std::lround(-std::sin(eased * 3.14159265358979) *
+                                                 mastRect.h * 0.05 * envelope));
+          swingLeft = el;
+        }
+      }
       if (uiAboutLogo_.texture || !uiAboutLogo_.path.empty()) {
         ensureUiImageLoaded(uiAboutLogo_);
         drawUiImageContain(uiAboutLogo_,
-                           SDL_Rect{mastRect.x + 10, mastRect.y + 8, artW, mastRect.h - 16}, 255);
+                           SDL_Rect{mastRect.x + 10 + swingDx, mastRect.y + 8 + swingDy, artW, mastRect.h - 16}, 255);
       } else if (uiPackAvailable_) {
         drawUiImageContain(uiHeaderArt_,
-                           SDL_Rect{mastRect.x + 10, mastRect.y + 10, artW, mastRect.h - 20}, 215);
+                           SDL_Rect{mastRect.x + 10 + swingDx, mastRect.y + 10 + swingDy, artW, mastRect.h - 20}, 215);
+      }
+      if (aboutSwingStartMs_ != 0) {
+        // Smoke rings: rising from the art, widening, thinning to nothing.
+        SDL_Rect previousClip {};
+        const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
+        if (hadClip) SDL_GetRenderClipRect(controlRenderer_, &previousClip);
+        SDL_SetRenderClipRect(controlRenderer_, &mastRect);
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        const int ox = mastRect.x + 10 + artW / 2 + swingDx;
+        const int oy = mastRect.y + mastRect.h / 3;
+        for (int ring = 0; ring < 4; ++ring) {
+          const double life = std::fmod(swingLeft * 0.4 + ring * 0.25, 1.0);
+          if (swingLeft < ring * 0.6) continue;
+          const double rx = artW * (0.08 + 0.22 * life);
+          const double ry = rx * 0.38;
+          const double cxr = ox + std::sin(life * 4.0 + ring) * artW * 0.05;
+          const double cyr = oy - life * mastRect.h * 0.55;
+          const Uint8 alpha = static_cast<Uint8>(110.0 * (1.0 - life) * std::min(1.0, life * 4.0));
+          SDL_SetRenderDrawColor(controlRenderer_, pal.deep.r, pal.deep.g, pal.deep.b, alpha);
+          constexpr int kSeg = 36;
+          float px = 0.0f, py = 0.0f;
+          for (int i = 0; i <= kSeg; ++i) {
+            const double a = i * 2.0 * 3.14159265358979 / kSeg;
+            const float nx = static_cast<float>(cxr + std::cos(a) * rx);
+            const float ny = static_cast<float>(cyr + std::sin(a) * ry);
+            if (i > 0) {
+              SDL_RenderLine(controlRenderer_, px, py, nx, ny);
+              SDL_RenderLine(controlRenderer_, px, py + 1.0f, nx, ny + 1.0f);
+            }
+            px = nx; py = ny;
+          }
+        }
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+        SDL_SetRenderClipRect(controlRenderer_, hadClip ? &previousClip : nullptr);
       }
       {
         TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
@@ -4071,9 +4128,11 @@
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{textX, ty, textW, aboutLineH},
                      "dot-matrix cue deck for live events", soft);
         ty += aboutLineH;
-        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{textX, ty, textW, aboutLineH},
+        const SDL_Rect versionRect {textX, ty, textW, aboutLineH};
+        drawTextSafe(controlRenderer_, fontSmall_, versionRect,
                      std::string(kAppVersionTag) + "   ("
                        + std::string(__DATE__) + " build)", soft);
+        settingsBtns_.push_back({versionRect, kSettingsActionAboutVersion, "about_version"});
       }
 
       // Shared row renderer: fixed label gutter, value flush against it. Every
@@ -6928,6 +6987,14 @@
         // the last one lands somewhere arbitrary in this one.
         settingsVideoScroll_ = 0;
         settingsVideoScrollMax_ = 0;
+      } else if (sb.action == kSettingsActionAboutVersion) {
+        const Uint64 now = SDL_GetTicks();
+        if (now - aboutVersionLastClickMs_ > 1500) aboutVersionClicks_ = 0;
+        aboutVersionLastClickMs_ = now;
+        if (++aboutVersionClicks_ >= 3) {
+          aboutVersionClicks_ = 0;
+          aboutSwingStartMs_ = now == 0 ? 1 : now;
+        }
       } else if (sb.action == kSettingsActionReportProblem) {
         // GitHub's own "new issue" page IS the consent screen: this only
         // ever opens a browser tab. Nothing leaves the machine until the

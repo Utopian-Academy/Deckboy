@@ -311,6 +311,14 @@
   }
 
   void update() {
+    // The lava lamp draws in the desk theme's own inks.
+    {
+      const auto packed = [](SDL_Color c) {
+        return (static_cast<std::uint32_t>(c.r) << 16) | (static_cast<std::uint32_t>(c.g) << 8) | c.b;
+      };
+      deckboy::lava::setInks(packed(pal.deep), packed(pal.mid), packed(pal.light));
+    }
+    serviceSequences();
     // THE LFO CLOCK FIRST, before anything this frame draws with it. It was
     // sampled half-way down, after the generators had been rebuilt, so a
     // Moire oscillator ran a frame behind an effect oscillator set to match

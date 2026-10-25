@@ -262,7 +262,9 @@
         // THE SAME PATH DASH <n> TAKES. A tile and a Companion button must do
         // the same thing, or the dashboard on screen and the one on the desk
         // are two different dashboards.
+        sequenceOwnerHint_ = at;          // a SEQ on this tile belongs to it
         handleRemoteCommand(command);
+        sequenceOwnerHint_ = -1;
         return;
       }
       case QuickAction::DashSlotColor: {

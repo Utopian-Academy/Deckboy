@@ -81,6 +81,7 @@
 #include "core/cue_helpers.hpp"
 #include "core/pixel_effects.hpp"
 #include "core/pattern_helpers.hpp"
+#include "core/lava_lamp.hpp"
 #include "core/code_source.hpp"
 #include "core/creatures.hpp"
 #include "core/io_utils.hpp"
@@ -3782,6 +3783,11 @@ class App {
  public:
   // Initialize SDL, create windows/renderers, load fonts, set up audio.
   bool init() {
+    deckboy::lava::registerGenerator();
+    {
+      std::error_code ec;
+      hiddenSourcesFound_ = fs::exists(Paths::stateDir() / "found-sources", ec);
+    }
 #ifdef __APPLE__
     // NO SPACES FULLSCREEN ON macOS. A Space is entered and left through an
     // animated transition, and Deckboy also uses a mode-changing fullscreen
@@ -9843,6 +9849,7 @@ class App {
   static constexpr int kSettingsActionLanguagePanic = 751;
   static constexpr int kSettingsActionTallySwitchOffPick = 752;
   static constexpr int kSettingsActionReportProblem = 753;  // next free: 754
+  static constexpr int kSettingsActionAboutVersion = 799;   // the About version line
   // 730/731 are the encoder's -- the audit caught that collision.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
@@ -11201,6 +11208,18 @@ class App {
   // cheeky ones"). Said for a few seconds after an explicit switch, never at boot.
   std::string mascotGreeting_;
   Uint64 mascotGreetUntilMs_ = 0;
+  bool fourTwentyGreeted_ = false;   // said its 4:20 line this launch
+  // Hidden sources (core/private_extras.hpp, Generator::hidden) the desk has
+  // found. Remembered in the state folder, so finding them is once per machine.
+  bool hiddenSourcesFound_ = false;
+  // Three clicks on the About version line set the art swinging.
+  int aboutVersionClicks_ = 0;
+  Uint64 aboutVersionLastClickMs_ = 0;
+  Uint64 aboutSwingStartMs_ = 0;
+  // SEQUENCES (SEQ): a list of commands with waits, run in the background.
+  // One run per owner: a DASH tile index, or -1 for one started directly.
+  std::vector<SequenceRun> sequenceRuns_;
+  int sequenceOwnerHint_ = -1;   // set while a DASH tile hands its command over
   // Slow to start, quick to finish: the first step is the discovery, and by
   // the time somebody has noticed the eyes move they are already committed.
   static constexpr int kMascotWatchAfterPokes = 3;
@@ -13277,6 +13296,9 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
 }  // namespace
 
 int runDeckboyMain(int argc, char** argv) {
+  // Before anything can draw a pattern, the CLI dumps and checks included;
+  // both main() and WinMain() arrive here.
+  deckboy::lava::registerGenerator();
 #ifdef _WIN32
   gMainThreadId.store(GetCurrentThreadId());
   captureCrashLogPath();   // before the filter, so a fault at any point has it

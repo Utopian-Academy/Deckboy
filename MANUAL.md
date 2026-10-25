@@ -856,6 +856,30 @@ its top right, **TILES** and **TRACKER**, switch the view; the lit one is open.
 Tiles are where a show is laid out, and the tracker is the same page seen as a
 grid.
 
+### Sequences: several commands on one tile
+
+A tile runs one command, or a **sequence**: several commands in order, with
+waits between them. Write it as `SEQ` followed by the steps, separated by `;`:
+
+    SEQ DMXCUE FIRE wash ; DECK 1 TAKE 1 ; WAIT 2.5 ; DECK 3 TAKE 1 ; WAIT GO ; DECK 2 TAKE 2
+
+- Each step is any command Deckboy takes over the remote (see §22).
+- `WAIT 2.5` pauses for that many seconds.
+- `WAIT GO` holds until the same tile is pressed again.
+
+While it runs, the tile reads **STEP 3/6** and fills along its bottom edge, or
+**PRESS FOR GO** at a `WAIT GO`. Pressing the tile while it runs **stops** it.
+A sequence cannot start another sequence. Companion's `DASH <n>` runs a
+sequence tile exactly as a press does, and `SEQ` on its own lists what is
+running; `SEQ STOP` stops every sequence.
+
+### TAKE ALL
+
+With more than one playlist, the bottom bar's TRANSPORT group gains **TAKE
+ALL**: the selected cue on every playlist goes live at once (the same as
+**Ctrl+Enter**, or `ALLTAKE` over the remote). For a fixed combination of cues,
+a tracker step does the same with each playlist's cue chosen in advance.
+
 The tracker is the **multi-output timeline**. Rows are **steps**; columns are
 **playlists**; each cell is the cue that step fires on that playlist. One step
 fires a cue on every playlist **at once**, so "video wall to the logo, stage
@@ -2430,7 +2454,8 @@ skips missing cues instead of cascading to black.
 
 Deckboy ships many console-inspired colourways (`Settings → theme`), from the
 default **gameboy** green through famicom, super-famicom, gamecube, n64,
-virtual-boy, metroid, and more.
+virtual-boy, metroid, and more. **haze** is a slow, deep-green theme for a dark
+room, with smoke curls and drifting wax of its own.
 
 **Terminal / OLED themes.** Some dark themes render as a true-black terminal:
 OLED-black backgrounds and tiles with phosphor-bright text and per-theme
@@ -2461,7 +2486,7 @@ They never sit over a control, and **they disappear the moment any output goes
 live** — during a show the only thing moving should be the show. They come back
 when the outputs go down.
 
-Twenty-eight themes have their own cast, most of them two species. **Game Boy
+Twenty-nine themes have their own cast, most of them two species. **Game Boy
 and the plain dark terminal deliberately have none** — the signature look and
 the theme a fresh install lands on stay perfectly still, so if you want a
 machine that does not move, pick one of those. `Settings → CREATURES` turns
@@ -2473,7 +2498,8 @@ them off, and only appears when the theme you are using has any.
     creature	cat	1
 
 The species are `moth`, `crab`, `fish`, `firefly`, `cat`, `snail`, `spider`,
-`mouse`, `frog`, `jellyfish` and `bird`, up to twelve of
+`mouse`, `frog`, `jellyfish`, `bird`, `wisp` (a curl of smoke) and `lava` (a
+slow blob of warm wax), up to twelve of
 each. A species this build does not know is ignored rather than refused, so a
 theme written for a later version still loads.
 

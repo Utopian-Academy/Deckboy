@@ -1701,9 +1701,20 @@
                                     tile.w, uiScaled(30)},
                            glyph, pal.deep);
 
-      const std::string label = slot.label.empty()
+      std::string label = slot.label.empty()
         ? (slot.command.empty() ? std::string("(empty)") : slot.command)
         : slot.label;
+      // A tile running a sequence says where it is, and fills as it goes.
+      if (const SequenceRun* run = sequenceRunFor(static_cast<int>(i))) {
+        const std::size_t total = std::max<std::size_t>(1, run->steps.size());
+        const std::size_t at = std::min(run->next, run->steps.size());
+        label = run->waitingForGo ? std::string("PRESS FOR GO")
+                                  : "STEP " + std::to_string(at) + "/" + std::to_string(total);
+        SDL_Rect bar {tile.x + 2, tile.y + tile.h - uiScaled(6),
+                      static_cast<int>((tile.w - 4) * static_cast<double>(at) / static_cast<double>(total)),
+                      uiScaled(4)};
+        Primitives::fillRect(controlRenderer_, bar, pal.deep);
+      }
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
                            SDL_Rect{tile.x + 4, tile.y + tile.h - uiScaled(44),
                                     tile.w - 8, uiScaled(18)},

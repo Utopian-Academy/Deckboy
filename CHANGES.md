@@ -2,6 +2,20 @@
 
 ## Unreleased - v0.99.420
 
+### Dashboard
+- **Sequences:** a tile can run several commands in order, with waits between them:
+  `SEQ DECK 1 TAKE 1 ; WAIT 2.5 ; DECK 3 TAKE 1 ; WAIT GO ; DECK 2 TAKE 2`. `WAIT GO` holds until
+  the tile is pressed again. The tile shows which step it is on and fills as it goes; pressing it
+  while it runs stops it. Companion's `DASH <n>` runs it the same way, and `SEQ` lists what is
+  running.
+- **TAKE ALL** on the bottom bar when a show has more than one playlist: the selected cue on every
+  playlist at once (also Ctrl+Enter and `ALLTAKE`).
+
+### Look
+- **haze**, a new theme: deep forest greens with smoke curls and drifting wax of its own. Two new
+  creature species, `wisp` and `lava`, for anyone writing a theme.
+- The master fader settles on exactly 100% when dragged past it, like a desk fader's notch.
+
 ### Undo
 - Fixed: Undo during a cue's pre-wait or continue could send the wrong cue to air. Undoing a
   deletion above a waiting cue moved it down a row, and the wait fired whichever cue now sat in

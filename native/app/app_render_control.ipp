@@ -733,6 +733,9 @@
               toolbarHoverTip_ = "Wall clock - change or hide it in Settings > System > Appearance";
               toolbarHoverAt_ = face;
             }
+            if (isFourTwenty()) {
+              drawFourTwentyHaze(face, SDL_GetTicks());
+            }
           } else {
             char stamp[32];
             if (clockMode == "12h") {
@@ -753,6 +756,9 @@
             rx -= clockW + kTBtnGap;
             drawUIPanel(clockRect, pal.light, pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontMono_, clockRect, stamp, pal.deep);
+            if (isFourTwenty()) {
+              drawFourTwentyHaze(clockRect, SDL_GetTicks());
+            }
             if (pointInRect(mouseX_, mouseY_, clockRect)) {
               toolbarHoverTip_ = "Wall clock - change or hide it in Settings > System > Appearance";
               toolbarHoverAt_ = clockRect;
@@ -2916,7 +2922,7 @@
       if (label == "BROWSER")  return &uiCueIconBrowser_;
       if (label == "SOURCE")   return &uiCueIconSource_;
       if (label == "PATTERN")  return &uiCueIconPattern_;
-      if (label == "TAKE")     return &uiBtnTake_;
+      if (label == "TAKE" || label == "TAKE ALL") return &uiBtnTake_;
       if (label == "STOP")     return &uiBtnStop_;
       if (label == "RERACK")   return &uiBtnRerack_;
       if (label == "CLEAR")    return &uiBtnClear_;

@@ -38,6 +38,8 @@
       addKawaiiPatternCue();
     } else if (label == "TAKE") {
       jumpSelectedCue();
+    } else if (label == "TAKE ALL") {
+      takeAllDecks(true);
     } else if (label == "RERACK") {
       rerackTransport();
     } else if (label == "STOP") {
@@ -4760,6 +4762,146 @@
     return !cueHasPixelEffects(*cue) && cue->effects.empty();
   }
 
+  // ── SEQUENCES ─────────────────────────────────────────────────────────
+  //
+  // One button, several commands, with waits between them:
+  //
+  //   SEQ DMXCUE FIRE wash ; DECK 1 TAKE 1 ; WAIT 2.5 ; DECK 3 TAKE 1 ; WAIT GO ; DECK 2 TAKE 2
+  //
+  // Each step is any command the remote takes. WAIT <seconds> pauses; WAIT GO
+  // holds until the same button is pressed again. On a DASH tile the tile
+  // shows which step it is on and fills as it goes; pressing it while it runs
+  // stops it, and pressing it while it waits for GO carries on. A step that is
+  // itself a SEQ is refused, so a sequence cannot start itself forever.
+  // One run per owner: a DASH tile index, or -1 for one started directly.
+  struct SequenceRun {
+    int owner = -1;
+    std::vector<std::string> steps;
+    std::size_t next = 0;        // the step to run next
+    double dueAtSeconds = 0.0;   // nowSeconds() when the next step may run
+    bool waitingForGo = false;   // held at a WAIT GO until pressed again
+  };
+
+  static std::vector<std::string> splitSequenceSteps(const std::string& text) {
+    std::vector<std::string> steps;
+    std::size_t from = 0;
+    for (;;) {
+      const std::size_t semi = text.find(';', from);
+      std::string step = trim(text.substr(from, semi == std::string::npos ? std::string::npos : semi - from));
+      if (!step.empty()) steps.push_back(step);
+      if (semi == std::string::npos) break;
+      from = semi + 1;
+    }
+    return steps;
+  }
+
+  static std::string sequenceStepVerb(const std::string& step) {
+    return toUpper(step.substr(0, step.find(' ')));
+  }
+
+  static std::string sequenceWaitArg(const std::string& step) {
+    return toUpper(trim(step.substr(std::min(step.size(), std::size_t {4}))));
+  }
+
+  const SequenceRun* sequenceRunFor(int owner) const {
+    if (owner < 0) return nullptr;
+    for (const SequenceRun& run : sequenceRuns_) {
+      if (run.owner == owner) return &run;
+    }
+    return nullptr;
+  }
+
+  // Start a sequence, or -- pressed again on the button that owns one --
+  // carry on from a WAIT GO, or stop it.
+  bool startSequence(int owner, const std::string& text, std::string& reply) {
+    for (std::size_t r = 0; owner >= 0 && r < sequenceRuns_.size(); ++r) {
+      SequenceRun& running = sequenceRuns_[r];
+      if (running.owner != owner) continue;
+      if (running.waitingForGo) {
+        running.waitingForGo = false;
+        running.dueAtSeconds = nowSeconds();
+        reply = "GO";
+        serviceSequences();
+        return true;
+      }
+      sequenceRuns_.erase(sequenceRuns_.begin() + static_cast<std::ptrdiff_t>(r));
+      triggerToast("sequence stopped");
+      reply = "stopped";
+      return true;
+    }
+    std::vector<std::string> steps = splitSequenceSteps(text);
+    if (steps.empty()) {
+      reply = "a sequence needs at least one step";
+      return false;
+    }
+    for (const std::string& step : steps) {
+      const std::string verb = sequenceStepVerb(step);
+      if (verb == "SEQ" || verb == "SEQUENCE") {
+        reply = "a sequence cannot start another sequence";
+        return false;
+      }
+      if (verb == "WAIT") {
+        const std::string arg = sequenceWaitArg(step);
+        if (arg != "GO" && (arg.empty() || arg.find_first_not_of("0123456789.") != std::string::npos)) {
+          reply = "WAIT takes seconds or GO: " + step;
+          return false;
+        }
+      }
+    }
+    SequenceRun run;
+    run.owner = owner;
+    run.steps = std::move(steps);
+    run.dueAtSeconds = nowSeconds();
+    reply = std::to_string(run.steps.size()) + " steps";
+    sequenceRuns_.push_back(std::move(run));
+    serviceSequences();            // the first steps go now, not next frame
+    return true;
+  }
+
+  void stopAllSequences() {
+    sequenceRuns_.clear();
+  }
+
+  // Once a frame, from update(). Indices, not references: a step can start
+  // or stop sequences while it runs.
+  void serviceSequences() {
+    const double now = nowSeconds();
+    std::size_t r = 0;
+    while (r < sequenceRuns_.size()) {
+      bool done = false;
+      for (int guard = 0; guard < 64 && r < sequenceRuns_.size(); ++guard) {
+        SequenceRun& run = sequenceRuns_[r];
+        if (run.waitingForGo || now < run.dueAtSeconds) break;
+        if (run.next >= run.steps.size()) {
+          done = true;
+          break;
+        }
+        const std::string step = run.steps[run.next++];
+        if (sequenceStepVerb(step) == "WAIT") {
+          const std::string arg = sequenceWaitArg(step);
+          if (arg == "GO") {
+            run.waitingForGo = true;
+            triggerToast("sequence waiting - press it again for GO");
+          } else {
+            run.dueAtSeconds = now + std::atof(arg.c_str());
+          }
+          continue;
+        }
+        const int keepOwner = sequenceOwnerHint_;
+        sequenceOwnerHint_ = -1;
+        const std::size_t before = sequenceRuns_.size();
+        handleRemoteCommand(step);
+        sequenceOwnerHint_ = keepOwner;
+        if (sequenceRuns_.size() != before) break;   // the step changed the list
+      }
+      if (done && r < sequenceRuns_.size()) {
+        sequenceRuns_.erase(sequenceRuns_.begin() + static_cast<std::ptrdiff_t>(r));
+        continue;
+      }
+      ++r;
+    }
+  }
+
   // ── A TAKE DURING A TRANSITION STARTS FROM WHAT IS ON SCREEN ───────────
   //
   // Each deck blends two pictures: the one it is leaving and the one it is
@@ -7315,6 +7457,16 @@
     }
     findCueToken(typedCueSearchBuffer_, 1, false);
     triggerToast("id: " + typedCueSearchBuffer_);
+    // 4-2-0, with no cue of that number to jump to, finds something.
+    if (!hiddenSourcesFound_ && typedCueSearchBuffer_.size() >= 3 &&
+        typedCueSearchBuffer_.compare(typedCueSearchBuffer_.size() - 3, 3, "420") == 0 &&
+        !cueIndexByToken(focusedDeck(), "420")) {
+      hiddenSourcesFound_ = true;
+      std::error_code ec;
+      fs::create_directories(Paths::stateDir(), ec);
+      std::ofstream(Paths::stateDir() / "found-sources") << "lava-lamp" << std::endl;
+      triggerToast("something mellow appeared in SOURCE > MADE BY DECKBOY");
+    }
     return true;
   }
 
@@ -7537,6 +7689,17 @@
     setTimeOverlayEnabled(!focusedDeck().timeOverlayEnabled);
   }
 
+  // Exactly 4.20 seconds. (Not in the changelog, on purpose.)
+  static bool isMellowTransitionSeconds(double seconds) {
+    return std::abs(seconds - 4.2) < 0.005;
+  }
+
+  static std::string mellowTransitionToast(const std::string& style) {
+    const std::string word = (style.empty() || style == "crossfade" || style == "dissolve")
+                               ? std::string("crossfade") : style;
+    return "a very relaxed 4.20 s " + word;
+  }
+
   void setTransitionSeconds(double seconds) {
     Deck& deck = focusedDeckMutable();
     double next = std::clamp(seconds, 0.0, 10.0);
@@ -7544,7 +7707,9 @@
       return;
     }
     deck.transitionSeconds = next;
-    triggerToast("transition " + formatSeconds(deck.transitionSeconds));
+    triggerToast(isMellowTransitionSeconds(deck.transitionSeconds)
+                   ? mellowTransitionToast(deck.transitionStyle)
+                   : "transition " + formatSeconds(deck.transitionSeconds));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }

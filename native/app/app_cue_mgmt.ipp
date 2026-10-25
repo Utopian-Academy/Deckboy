@@ -1302,7 +1302,9 @@
     if (!changed) {
       return;
     }
-    triggerToast("cue trans " + formatSeconds(sample));
+    triggerToast(isMellowTransitionSeconds(sample)
+                   ? mellowTransitionToast(focusedDeck().transitionStyle)
+                   : "cue trans " + formatSeconds(sample));
     markProjectDirty();
   }
 
@@ -3094,6 +3096,7 @@
     }
     // A build's own generators (core/private_extras.hpp).
     for (const auto& extra : deckboy::extras::generators()) {
+      if (extra.hidden && !hiddenSourcesFound_) continue;
       const std::string id = extra.id;
       contextItems_.push_back({"  " + extra.name, {0, 0, 0, 0}, [this, id]() { addGeneratorCue(id); }});
     }
@@ -7263,6 +7266,14 @@
     push("SOURCE",     pal.mid, "Add a source cue and refine it in the cue inspector");
     push("PATTERN",    pal.mid, "Add a pattern cue and refine it in the cue inspector");
     push("TAKE",       pal.light, "Enter — take selected cue live");
+    // TAKE ALL, once there is more than one playlist: the selected cue on
+    // every playlist at once. It was only ever Ctrl+Enter and the ALLTAKE
+    // command, so nobody running a multi-deck show could see that it existed.
+    const bool takeAllButton = project_.decks.size() > 1;
+    if (takeAllButton) {
+      push("TAKE ALL", pal.light, "Ctrl+Enter — take the selected cue on every playlist at once");
+    }
+    const int transportButtons = takeAllButton ? 4 : 3;
     push("STOP",       pal.mid, "S — stop active cue");
     push("RERACK",     pal.mid, "Ctrl+R — back to the start, held ready");
     // BLACKOUT sits with CLEAR because they are the two "kill the picture"
@@ -7335,13 +7346,13 @@
          it != buttons_.rend() && (it->label == "DASH" || it->label == "MENU"); ++it) {
       ++deskCount;
     }
-    deskCount = std::min(deskCount, std::max(0, static_cast<int>(buttons_.size()) - 6));
+    deskCount = std::min(deskCount, std::max(0, static_cast<int>(buttons_.size()) - 3 - transportButtons));
     {
       const int total = static_cast<int>(buttons_.size());
       const int counts[4] = {
         std::min(3, total),
-        std::min(3, std::max(0, total - 3)),
-        std::max(0, total - 6 - deskCount),
+        std::min(transportButtons, std::max(0, total - 3)),
+        std::max(0, total - 3 - transportButtons - deskCount),
         deskCount,
       };
       const int groups = deskCount > 0 ? 4 : 3;
@@ -7467,7 +7478,7 @@
     {
       const int total = static_cast<int>(buttons_.size());
       const int mediaCount = std::min(3, total);                 // IMPORT SOURCE PATTERN
-      const int transportCount = std::min(3, total - mediaCount); // TAKE STOP RERACK
+      const int transportCount = std::min(transportButtons, total - mediaCount); // TAKE (TAKE ALL) STOP RERACK
       const int outputCount = total - mediaCount - transportCount - deskCount;
       if (mediaCount > 0) {
         placeGroupButtons(0, mediaCount, mediaGroupRect_);

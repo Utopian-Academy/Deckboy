@@ -48,6 +48,8 @@ enum class Species : std::uint8_t {
   Frog,      // sits, then hops in an arc
   Jellyfish, // pulses upward, then sinks while it rests
   Bird,      // hops along the ledge and turns its head
+  Wisp,      // a curl of smoke: rises, sways, thins away, starts again below
+  Lava,      // a blob of warm wax: rises and sinks, stretching as it goes
   Count
 };
 
@@ -64,6 +66,8 @@ inline const char* speciesToken(Species s) {
     case Species::Frog:      return "frog";
     case Species::Jellyfish: return "jellyfish";
     case Species::Bird:      return "bird";
+    case Species::Wisp:      return "wisp";
+    case Species::Lava:      return "lava";
     default:                 return "moth";
   }
 }
@@ -307,7 +311,23 @@ inline void step(std::vector<Creature>& all, const Habitat& home, double dt,
         }
         break;
       }
-      case Species::Cat:
+      case Species::Wisp:
+        // Up, swaying, and gone at the top -- smoke does not bounce, so it
+        // starts again from the bottom instead of turning round.
+        c.vy = -9.0 - 3.0 * std::sin(c.phase);
+        c.vx = std::sin(now * 0.9 + c.phase) * 7.0;
+        if (c.y <= top + 2.0) {
+          c.y = bottom;
+          c.x = left + hash01(static_cast<std::uint32_t>(now * 13.0) +
+                              static_cast<std::uint32_t>(c.phase * 71)) * (right - left);
+        }
+        break;
+      case Species::Lava:
+        // Warm wax: a long slow rise, a long slow sink, a little drift.
+        c.vy = std::sin(now * 0.16 + c.phase) * 9.0;
+        c.vx = std::sin(now * 0.07 + c.phase * 2.0) * 2.5;
+        break;
+    case Species::Cat:
         // Asleep, mostly. The stretch is the whole performance.
         c.vx = 0.0;
         c.vy = 0.0;
