@@ -2325,6 +2325,7 @@
     applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("browser cue added");
     playUiSound(UiSoundEffect::Import);
@@ -2375,6 +2376,7 @@
     applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("stream cue added");
     playUiSound(UiSoundEffect::Import);
@@ -2502,6 +2504,7 @@
     applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     // NDI input is received natively now -- through the SDK, the way a
     // DeckLink input is captured. It used to go through ffmpeg's
@@ -2538,6 +2541,7 @@
     applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("DeckLink input cue added");
     playUiSound(UiSoundEffect::Import);
@@ -2882,6 +2886,7 @@
     applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     // SAY WHEN THE PLATFORM CANNOT ACTUALLY CAPTURE THIS.
     //
@@ -3270,6 +3275,7 @@
     applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("lower third cue added");
     playUiSound(UiSoundEffect::Import);
@@ -3331,6 +3337,7 @@
     cue.formatName = "overlay";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("pip cue added");
     playUiSound(UiSoundEffect::Import);
@@ -3361,6 +3368,7 @@
     applyCompositePresetToCue(cue, cue.compositeLayoutPreset.empty() ? "2up" : cue.compositeLayoutPreset);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("composite cue added");
     playUiSound(UiSoundEffect::Import);
@@ -4304,6 +4312,7 @@
     cue.endAction = CueEndAction::Stop;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("text added");
@@ -4336,6 +4345,7 @@
     cue.formatName = "control";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("dmx cue added");
@@ -4351,6 +4361,7 @@
     cue.formatName = "control";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("script cue added");
@@ -4366,6 +4377,7 @@
     cue.formatName = "control";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("timecode cue added");
@@ -4381,6 +4393,7 @@
     cue.formatName = "control";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("network cue added");
@@ -4396,6 +4409,7 @@
     cue.formatName = "control";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("midi cue added");
@@ -4411,6 +4425,7 @@
     cue.formatName = "control";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("fade cue added");
@@ -4470,6 +4485,7 @@
     cue.formatName = "control";
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     markProjectDirty();
     triggerToast("target cue added");
@@ -4494,6 +4510,7 @@
     cue.endAction = CueEndAction::Stop;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("video synth added");
     markProjectDirty();
@@ -4608,6 +4625,7 @@
     cue.endAction = CueEndAction::Stop;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast(cue.name + " added");
     playUiSound(UiSoundEffect::Import);
@@ -4645,6 +4663,7 @@
     cue.audioFadeOutSeconds = 1.0f;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("mic cue added - " + micCueInputLabel(deck.cues.back()));
     playUiSound(UiSoundEffect::Import);
@@ -4950,6 +4969,7 @@
     cue.hasAudio = true;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast("tone cue added");
     playUiSound(UiSoundEffect::Import);
@@ -4977,6 +4997,7 @@
     cue.endAction = CueEndAction::Stop;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast(std::string("timer: ") + cue.name);
     playUiSound(UiSoundEffect::Import);
@@ -5031,6 +5052,7 @@
     cue.audioEnabled = (typeId == "pocket-test");
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
     triggerToast(generatorName.empty() ? "pattern: " + label : label + " added");
     playUiSound(UiSoundEffect::Import);

@@ -12,6 +12,15 @@
   your edits and warp, and leave outputs, routing and recordings as they are.
 - Fixed: Undo took a deck back off an output it had been layered onto since the edit.
 
+### Outputs, selection and STOP
+- Fixed: removing an output while another was recording stopped that recording and started a new
+  file. Each output now keeps its own window and recorder when another is removed.
+- Fixed: STOP during a dissolve cleared the incoming cue but left the outgoing picture fading out
+  on its own. STOP now goes to black at once.
+- Fixed: adding a cue (a pattern, a title, a source and the rest) left the previous cue selected
+  too, so the next change or delete applied to both. A new cue is now selected on its own, and
+  SELECT over the remote always selects one cue.
+
 ### Tracker
 - Fixed: a tracker step set to **when its cues end** moved on after the media's trimmed length
   instead of when its cues finished. A cue slowed down was cut off part-way, a cue at double

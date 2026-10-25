@@ -996,6 +996,12 @@ void MediaEngine::stop(bool clearVisual) {
     displayFrame_.reset();
     clearTexture();
     clearTransitionTexture();
+    // AND THE PICTURE IT WAS FADING FROM. STOP mid-dissolve cleared the
+    // incoming cue but left the outgoing one in heldFrame_, which
+    // currentFrame() hands the compositor until the old fade's deadline, so
+    // the red faded out on its own after the operator had pressed STOP.
+    heldFrame_.reset();
+    liveOutgoing_ = false;
   };
   // A NATIVE CAPTURE IS NOT A DECODER PIPELINE, so neither branch below stops
   // it: NdiSource, DeckLinkSource and a Spout source are not source-cue kinds

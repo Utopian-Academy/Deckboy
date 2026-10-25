@@ -1766,6 +1766,7 @@
         cue.name = "DMX " + std::to_string(deck.cues.size() + 1);
         deck.cues.push_back(cue);
         deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.selectedIndices.clear();   // the new cue alone
         onSelectionChanged();
         markProjectDirty();
         remoteCommandDetail_ = "dmx cue " + std::to_string(deck.cues.size());
@@ -1968,6 +1969,7 @@
         cue.name = "Script " + std::to_string(deck.cues.size() + 1);
         deck.cues.push_back(cue);
         deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.selectedIndices.clear();   // the new cue alone
         onSelectionChanged();
         markProjectDirty();
         remoteCommandDetail_ = "script cue " + std::to_string(deck.cues.size());
@@ -2047,6 +2049,7 @@
         cue.name = "Timecode " + std::to_string(deck.cues.size() + 1);
         deck.cues.push_back(cue);
         deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.selectedIndices.clear();   // the new cue alone
         onSelectionChanged();
         markProjectDirty();
         remoteCommandDetail_ = "timecode cue " + std::to_string(deck.cues.size());
@@ -2135,6 +2138,7 @@
         cue.name = "Network " + std::to_string(deck.cues.size() + 1);
         deck.cues.push_back(cue);
         deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.selectedIndices.clear();   // the new cue alone
         onSelectionChanged();
         markProjectDirty();
         remoteCommandDetail_ = "network cue " + std::to_string(deck.cues.size());
@@ -2272,6 +2276,7 @@
         cue.name = "MIDI " + std::to_string(deck.cues.size() + 1);
         deck.cues.push_back(cue);
         deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.selectedIndices.clear();   // the new cue alone
         onSelectionChanged();
         markProjectDirty();
         remoteCommandDetail_ = "midi cue " + std::to_string(deck.cues.size());
@@ -2495,6 +2500,7 @@
         cue.name = "Fade " + std::to_string(deck.cues.size() + 1);
         deck.cues.push_back(cue);
         deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.selectedIndices.clear();   // the new cue alone
         onSelectionChanged();
         markProjectDirty();
         remoteCommandDetail_ = "fade cue " + std::to_string(deck.cues.size());
@@ -2648,6 +2654,7 @@
         cue.name = "Target " + std::to_string(deck.cues.size() + 1);
         deck.cues.push_back(cue);
         deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+        deck.selectedIndices.clear();   // the new cue alone
         onSelectionChanged();
         markProjectDirty();
         remoteCommandDetail_ = "target cue " + std::to_string(deck.cues.size());
@@ -5424,7 +5431,11 @@
       }
       if (index) {
         Deck& deck = focusedDeckMutable();
-        if (deck.selectedIndex != *index || !cueIndexSelected(deck, *index)) {
+        // SELECT means THIS CUE ALONE. It used to skip a cue that was already
+        // the main selection, so a group made by an insert survived it and
+        // the next LOOP or DELETE acted on both cues.
+        if (deck.selectedIndex != *index || !cueIndexSelected(deck, *index) ||
+            deck.selectedIndices.size() > 1) {
           selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
           triggerToast("cue " + std::to_string(*index + 1) + " armed");
         }

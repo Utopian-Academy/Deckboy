@@ -1182,6 +1182,16 @@
     }
 
     std::string removedLabel = outputLabel(outputIndex);
+    // THE RUNTIME GOES WITH ITS OUTPUT. The sync below only ever trims the
+    // runtime list from the END, so removing a middle output destroyed the
+    // LAST output's runtime and handed the removed one's window to it: with
+    // a recording on output 3, removing output 2 stopped that recording and
+    // started a new file. Take this output's own runtime out, at its index,
+    // so every other output keeps the one it had.
+    if (outputIndex < static_cast<int>(outputRuntimes_.size())) {
+      destroyOutputRuntime(outputRuntimes_[static_cast<std::size_t>(outputIndex)]);
+      outputRuntimes_.erase(outputRuntimes_.begin() + outputIndex);
+    }
     project_.outputs.erase(project_.outputs.begin() + outputIndex);
 
     for (OutputTarget& output : project_.outputs) {
