@@ -40,6 +40,10 @@ EXPECT_UNDOCUMENTED = {
     'AUDIOVISUAL',
 }
 
+# Handled verbs kept out of HELP ALL too: each answers only once its source is
+# unlocked, and a line in the listing would announce it.
+EXPECT_UNLISTED = {'TABLE'}
+
 
 def handled_verbs(text):
     """Every verb the dispatcher compares against."""
@@ -160,7 +164,8 @@ def main():
     # cannot be discovered by anyone building a surface.
     listing = full_listing(network_text)
     listing.discard('DECKBOY_0')
-    unlisted = sorted(v for v in handled if v not in listing)
+    unlisted = sorted(v for v in handled
+                      if v not in listing and v not in EXPECT_UNLISTED)
     claimed = listing_claim(network_text)
     miscounted = claimed is not None and claimed != len(listing)
 
