@@ -102,11 +102,17 @@ def recording_survives_undo(exe, work, media):
         note("...covering the whole take (about 5 s)", seconds >= 4.5, f"{seconds:.2f} s")
 
 
+def mean_rgb(path):
+    """Mean R, G, B of an image, measured by ffmpeg (no Pillow on CI)."""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf", "scale=1:1:flags=area",
+                          "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+    return list(raw[:3]) if len(raw) >= 3 else [255, 255, 255]
+
+
 def brightness(db, path):
     """Mean brightness (0-255) of what output 1 is showing."""
-    from PIL import Image, ImageStat
     db.snapshot(path, output=True)
-    return ImageStat.Stat(Image.open(path).convert("L")).mean[0]
+    return sum(mean_rgb(path)) / 3.0
 
 
 def layer_survives_undo(exe, work):

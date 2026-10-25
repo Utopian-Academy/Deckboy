@@ -104,8 +104,14 @@ def insert_selects_only_the_new_cue(exe, work):
     note("LOOP after adding a cue changes only the new cue", loops == ["0", "1"], loops)
 
 
+def mean_rgb(path):
+    """Mean R, G, B of an image, measured by ffmpeg (no Pillow on CI)."""
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf", "scale=1:1:flags=area",
+                          "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+    return list(raw[:3]) if len(raw) >= 3 else [255, 255, 255]
+
+
 def stop_mid_dissolve_goes_black(exe, work):
-    from PIL import Image, ImageStat
     folder, path = show(work, "stop-dissolve")
     clips = []
     for colour in ("red", "lime"):
@@ -121,7 +127,7 @@ def stop_mid_dissolve_goes_black(exe, work):
         db.send("STOP")
         time.sleep(0.7)
         db.snapshot(folder / "stopped.bmp", output=True)
-        level = ImageStat.Stat(Image.open(folder / "stopped.bmp").convert("RGB")).mean
+        level = mean_rgb(folder / "stopped.bmp")
     note("STOP during a dissolve leaves the output black", max(level) < 10,
          [round(v) for v in level])
 
