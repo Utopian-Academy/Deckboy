@@ -5744,6 +5744,24 @@ void MediaEngine::beginLiveOutgoing(const MediaEngine& outgoing, double seconds,
   liveOutgoing_ = true;
 }
 
+void MediaEngine::beginFrozenOutgoing(DecodedFrame picture, double seconds,
+                                      TransitionStyle style) {
+  liveOutgoing_ = false;
+  if (seconds <= 0.0001 || picture.width <= 0 || picture.height <= 0 || picture.pixels.empty()) {
+    return;
+  }
+  heldFrame_ = std::move(picture);
+  heldFrameSince_ = std::chrono::steady_clock::now();
+  outgoingSeconds_ = std::clamp(seconds, 0.0, 10.0);
+  outgoingStyle_ = style;
+  // The picture is the whole layer as it was drawn, so it goes back exactly
+  // where it came from: stretched over the same rect, no crop, no offset.
+  Cue placed;
+  placed.scaleMode = ScaleMode::Stretch;
+  outgoingCueSnapshot_ = placed;
+  transitionSourceGain_ = 1.0f;
+}
+
 void MediaEngine::feedLiveOutgoingFrame(const DecodedFrame& frame) {
   if (!liveOutgoingActive()) {
     return;

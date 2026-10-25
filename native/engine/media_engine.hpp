@@ -819,6 +819,10 @@ class MediaEngine {
   // Replace the held picture with the tail's newest frame. Ignored once the
   // transition is over or something else has replaced the held frame.
   void feedLiveOutgoingFrame(const DecodedFrame& frame);
+  // Start this engine's transition from a picture that is already composited
+  // -- geometry, look and the old blend baked in -- and drawn back 1:1: the
+  // deck's on-screen mix when a take interrupted a transition. Never live.
+  void beginFrozenOutgoing(DecodedFrame picture, double seconds, TransitionStyle style);
   bool liveOutgoingActive() const {
     return liveOutgoing_ && heldFrame_.has_value() && outgoingProgress01() < 1.0;
   }

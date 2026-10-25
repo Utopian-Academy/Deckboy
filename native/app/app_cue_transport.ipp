@@ -4760,6 +4760,77 @@
     return !cueHasPixelEffects(*cue) && cue->effects.empty();
   }
 
+  // ── A TAKE DURING A TRANSITION STARTS FROM WHAT IS ON SCREEN ───────────
+  //
+  // Each deck blends two pictures: the one it is leaving and the one it is
+  // taking. A take that lands while A is still dissolving into B used to end
+  // A's fade on the spot and start B -> C, so the picture snapped to B before
+  // fading to C (edges audit F11). Instead the deck's mix, A and B as they
+  // stand, is drawn once off-screen by the same compositor the output uses,
+  // read back, and the new transition starts from exactly that picture.
+  //
+  // Only where that copy is the picture the audience sees: a deck that is an
+  // output's host at full opacity. Elsewhere (a pinned layer, a faded deck),
+  // the old behaviour holds rather than a copy that would be warped or faded
+  // twice. The picture freezes for the length of the new fade; B's sound
+  // still fades out live.
+  bool captureDeckMixFrame(int deckIndex, DecodedFrame& out) {
+    DeckRuntime* rt = runtimeForDeck(deckIndex);
+    if (!rt || !rt->mediaEngine) return false;
+    const MediaEngine& engine = *rt->mediaEngine;
+    if (engine.outgoingSeconds() <= 0.0001 || !engine.outgoingFrame() ||
+        engine.outgoingProgress01() >= 1.0) {
+      return false;
+    }
+    if (project_.decks[static_cast<std::size_t>(deckIndex)].playlistOpacity < 0.999f) {
+      return false;
+    }
+    for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+      if (project_.outputs[static_cast<std::size_t>(o)].hostDeckIndex != deckIndex) continue;
+      OutputRuntime* output = runtimeForOutput(o);
+      if (!output || !output->outputRenderer) continue;
+      const int w = output->compositorWidth, h = output->compositorHeight;
+      if (w <= 0 || h <= 0) continue;
+      SDL_Renderer* renderer = output->outputRenderer;
+      SDL_Texture* canvas = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+                                              SDL_TEXTUREACCESS_TARGET, w, h);
+      if (!canvas) continue;
+      SDL_Texture* previous = SDL_GetRenderTarget(renderer);
+      SDL_Rect previousClip {};
+      const bool hadClip = SDL_RenderClipEnabled(renderer);
+      if (hadClip) SDL_GetRenderClipRect(renderer, &previousClip);
+      SDL_SetRenderTarget(renderer, canvas);
+      SDL_SetRenderClipRect(renderer, nullptr);
+      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+      SDL_RenderClear(renderer);
+      renderDeckWithTransitionIntoOutput(o, deckIndex, SDL_Rect {0, 0, w, h});
+      SDL_Surface* read = SDL_RenderReadPixels(renderer, nullptr);
+      SDL_SetRenderTarget(renderer, previous);
+      SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
+      SDL_DestroyTexture(canvas);
+      if (!read) return false;
+      SDL_Surface* rgba = SDL_ConvertSurface(read, SDL_PIXELFORMAT_RGBA32);
+      SDL_DestroySurface(read);
+      if (!rgba) return false;
+      out = DecodedFrame {};
+      out.width = rgba->w;
+      out.height = rgba->h;
+      out.format = FramePixelFormat::RGBA32;
+      out.colorspace = SDL_COLORSPACE_SRGB;
+      static std::uint64_t frozenSerial = 0;
+      out.index = (std::uint64_t {1} << 62) + ++frozenSerial;
+      out.pixels.resize(static_cast<std::size_t>(rgba->w) * static_cast<std::size_t>(rgba->h) * 4u);
+      for (int y = 0; y < rgba->h; ++y) {
+        std::memcpy(out.pixels.data() + static_cast<std::size_t>(y) * rgba->w * 4u,
+                    static_cast<const std::uint8_t*>(rgba->pixels) + static_cast<std::size_t>(y) * rgba->pitch,
+                    static_cast<std::size_t>(rgba->w) * 4u);
+      }
+      SDL_DestroySurface(rgba);
+      return true;
+    }
+    return false;
+  }
+
   // Called by takeSelected just before the incoming cue is loaded. When the
   // cue on air should keep playing, its engine and the streams it writes to
   // become the deck's outgoing tail, the deck gets a fresh engine on fresh
@@ -5057,6 +5128,11 @@
     // A cue that is PLAYING keeps playing through the transition out of it;
     // see handOffToOutgoingTail. When it does, this deck's engine is a fresh
     // one from here on.
+    // Taken before the hand-off ends the fade that is running: see
+    // captureDeckMixFrame.
+    DecodedFrame frozenMix;
+    const bool interrupted = transSecs > 0.0001 && transStyle != TransitionStyle::Cut &&
+                             captureDeckMixFrame(deckIndex, frozenMix);
     MediaEngine* outgoingTail = handOffToOutgoingTail(deckIndex, transSecs, transStyle);
     if (outgoingTail) {
       engine = runtimeForDeck(deckIndex)->mediaEngine.get();
@@ -5068,7 +5144,9 @@
       transStyle,
       suppressIncomingFadeIn
     );
-    if (outgoingTail) {
+    if (interrupted) {
+      engine->beginFrozenOutgoing(std::move(frozenMix), transSecs, transStyle);
+    } else if (outgoingTail) {
       engine->beginLiveOutgoing(*outgoingTail, transSecs, transStyle);
     }
     // Load subtitle track if the cue has one

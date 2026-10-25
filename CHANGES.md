@@ -12,6 +12,12 @@
   your edits and warp, and leave outputs, routing and recordings as they are.
 - Fixed: Undo took a deck back off an output it had been layered onto since the edit.
 
+### Transitions
+- Fixed: taking a cue while a dissolve was still running snapped the picture to the cue it was
+  dissolving to, then faded from there. The new transition now starts from exactly what is on
+  screen. Applies to a playlist that is an output's main deck at full opacity; the picture holds
+  still for the length of the new fade while the earlier cue's sound fades out as usual.
+
 ### Outputs, selection and STOP
 - Fixed: removing an output while another was recording stopped that recording and started a new
   file. Each output now keeps its own window and recorder when another is removed.
