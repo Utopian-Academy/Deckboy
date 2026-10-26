@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## 2026-10-26 - v0.99.421 (every connected display in reach in Video Outputs; the tour on one screen)
+
+### Video Outputs
+- Fixed: with several displays connected, the last ones in **Connected Displays** could be cut
+  off at the bottom of the Screen tab, out of reach of the scroll (seen on a Mac with a projector
+  plugged in). The list now opens the Screen tab, above Display & Raster, and always has room for
+  three displays, so the one an output is on and two more are in view without scrolling.
+
+### Guided tour
+- On a single screen, the step that turns the output on no longer leaves the output covering the
+  desk and the tour. The output still fills the screen, and says so; any key or click puts it in
+  a small window in the corner of the desk, and the tour carries on. With a second screen the
+  step runs as before.
+
 ## 2026-10-25 - v0.99.420 (sequences on dashboard tiles; TAKE ALL; the haze theme; example shows that build up a step at a time; undo, outputs, STOP and interrupted dissolves fixed)
 
 ### Dashboard
