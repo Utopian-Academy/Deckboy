@@ -16,6 +16,7 @@ the real app on a private desktop:
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -64,8 +65,8 @@ def settled_recordings(folder):
 
 def remove_output_keeps_recording(exe, work):
     folder, path = show(work, "output-remove")
-    # The settings modal open on Video Outputs, at the size the click below
-    # was measured against (2400x1350, REMOVE OUTPUT at 1500,437).
+    # The settings modal open on Video Outputs. REMOVE OUTPUT is found by its
+    # label: a fixed coordinate broke the day a section moved above it.
     with Runtime(exe, folder / "run", path, extra=("--settings", "3.0")) as db:
         db.commands("PATTERN ADD full-white", "TAKE", "OUTPUT ON", "VIDEO 640x360",
                     "OUTPUT ADD 1", "OUTPUT ON", "VIDEO 640x360",
@@ -74,7 +75,11 @@ def remove_output_keeps_recording(exe, work):
         time.sleep(1.5)
         before = state(db)
         recorder = before["outputs"][-1]["outputId"]
-        db.send("CLICK 1500 437")              # REMOVE OUTPUT, on output 2
+        found = re.search(r"at (\d+),(\d+) (\d+)x(\d+)", db.send("PRESS REMOVE OUTPUT"))
+        db.send("PRESS OFF")
+        if found:                              # REMOVE OUTPUT, on output 2
+            x, y, w, h = map(int, found.groups())
+            db.send(f"CLICK {x + w // 2} {y + h // 2}")
         time.sleep(2.5)
         after = state(db)
         db.send("RECORD STOP")

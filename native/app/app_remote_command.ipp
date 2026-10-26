@@ -6068,21 +6068,33 @@
           : "released, nothing was pressed";
         return;
       }
-      if (parts.size() == 2) {
-        // Or a bottom-bar button by its label, so a test does not have to
-        // know the layout at this window size and scale.
+      if (parts.size() >= 2 && parts[1].find_first_not_of("-0123456789") != std::string::npos) {
+        // Or a button by its label, so a test does not have to know the
+        // layout at this window size and scale: the open settings modal's
+        // first, then the bottom bar. A label may be several words.
+        const std::string wanted = toUpper(joinParts(parts, 1));
+        auto pressAt = [&](const SDL_Rect& rect, const std::string& label) {
+          mouseX_ = rect.x + rect.w / 2;
+          mouseY_ = rect.y + rect.h / 2;
+          notePress(true, mouseX_, mouseY_);
+          remoteCommandDetail_ = "press " + label + " at " + std::to_string(rect.x) + "," +
+            std::to_string(rect.y) + " " + std::to_string(rect.w) + "x" + std::to_string(rect.h);
+        };
+        if (settingsOpen_) {
+          for (const auto& button : settingsBtns_) {
+            if (toUpper(button.label) == wanted) {
+              pressAt(button.rect, button.label);
+              return;
+            }
+          }
+        }
         for (const auto& button : buttons_) {
-          if (toUpper(button.label) == toUpper(parts[1])) {
-            mouseX_ = button.rect.x + button.rect.w / 2;
-            mouseY_ = button.rect.y + button.rect.h / 2;
-            notePress(true, mouseX_, mouseY_);
-            remoteCommandDetail_ = "press " + button.label + " at " + std::to_string(button.rect.x) + "," +
-              std::to_string(button.rect.y) + " " + std::to_string(button.rect.w) + "x" +
-              std::to_string(button.rect.h);
+          if (toUpper(button.label) == wanted) {
+            pressAt(button.rect, button.label);
             return;
           }
         }
-        failRemoteCommand("PRESS: no bottom-bar button named " + parts[1]);
+        failRemoteCommand("PRESS: no button named " + joinParts(parts, 1));
         return;
       }
       if (parts.size() < 3) {
