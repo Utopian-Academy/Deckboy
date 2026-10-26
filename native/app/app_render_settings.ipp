@@ -2636,6 +2636,75 @@
       // ─── DISPLAY sub-tab ─────────────────────────────────────────
         int displayCount = deckboyGetNumVideoDisplays();
 
+        // Connected Displays — sized for EVERY display so the operator can
+        // see and click all of them at once. Header height comes from the
+        // shared plate contract — hardcoding 32 here made the section too
+        // short once the header scaled with the font, and the row loop
+        // silently dropped the last display.
+        //
+        // NOT CLAMPED TO THE SPACE LEFT ON SCREEN. It was, from when this tab
+        // did not scroll -- and the clamp ignored every section above it but
+        // DISPLAY & RASTER, and the list's height never reached `sy`, so the
+        // scroll stopped short of it. On a laptop-sized window that left room
+        // for one row: a projector plugged into a Mac was never drawn, and no
+        // scroll could reach it. The tab scrolls now; the list is as tall as
+        // its displays.
+        //
+        // FIRST ON THE TAB, AND NEVER FEWER THAN THREE ROWS. A projector is
+        // usually plugged in after the desk is open: the list sits where the
+        // tab opens, with room for the assigned display and two more, so a
+        // new one lands in a slot already on screen instead of below the fold.
+        const int dispListHeaderH = settingsHeaderHeight(fontSmall_);
+        const int dispRowStep = kRowH + uiScaled(4);
+        constexpr int kMinDisplayRows = 3;
+        const int dispSlots = std::max(kMinDisplayRows, displayCount);
+        int dispListH = dispListHeaderH + dispSlots * dispRowStep + sPad;
+        SDL_Rect dispListSection {cx, sy, subContentW, dispListH};
+        SDL_Rect dispListBody = drawSectionFrame(dispListSection, "CONNECTED DISPLAYS");
+        {
+          // Sits inside the header plate, sharing its vertical extent — it used
+          // to be positioned from the card frame with its own height, which put
+          // it over the plate's right end and through the card border.
+          SDL_Rect plate = sectionHeaderRect(dispListSection);
+          int idW = std::min(uiScaled(96), std::max(0, plate.w - uiScaled(12)));
+          SDL_Rect idBtn {plate.x + plate.w - idW - uiScaled(3), plate.y + uiScaled(2),
+                          idW, std::max(1, plate.h - uiScaled(4))};
+          Primitives::drawFramedPanel(controlRenderer_, idBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, idBtn, "IDENTIFY", pal.deep);
+          settingsBtns_.push_back({idBtn, kSettingsActionDisplayIdentify,
+                                   "Show a number badge on every display"});
+        }
+        int dispRowY = dispListBody.y;
+        int currentDispIdx = outputDisplayIndex(focusedOutputIndex);
+        for (int di = 0; di < displayCount; ++di) {
+          SDL_Rect dispRow {dispListBody.x, dispRowY, dispListBody.w, kRowH};
+          bool selected = di == currentDispIdx;
+          Primitives::drawFramedPanel(controlRenderer_, dispRow,
+                                      selected ? pal.dark : pal.shellInner, pal.deep, pal.mid);
+          const char* dNameRaw = deckboyGetDisplayName(di);
+          std::string dNameStr = dNameRaw && *dNameRaw ? dNameRaw : ("Display " + std::to_string(di + 1));
+          SDL_Rect dispBounds;
+          deckboyGetDisplayBounds(di, &dispBounds);
+          std::string dispInfo = std::to_string(di + 1) + ": " + dNameStr
+            + "  " + std::to_string(dispBounds.w) + "x" + std::to_string(dispBounds.h);
+          std::string arrangement = displayArrangementLabel(di);
+          if (!arrangement.empty() && arrangement != "extended") dispInfo += "  " + arrangement;
+          if (selected) dispInfo += "  [ASSIGNED]";
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{dispRow.x + uiScaled(6), dispRow.y, dispRow.w - uiScaled(12), dispRow.h},
+                       dispInfo, selected ? pal.light : ink);
+          settingsBtns_.push_back({dispRow, kSettingsActionOutputDisplaySelectBase + di, "display_select"});
+          dispRowY += dispRowStep;
+        }
+        // The empty slots: framed, unlabelled and not clickable.
+        for (int slot = std::max(0, displayCount); slot < dispSlots; ++slot) {
+          Primitives::drawFramedPanel(controlRenderer_,
+                                      SDL_Rect {dispListBody.x, dispRowY, dispListBody.w, kRowH},
+                                      pal.shellInner, pal.mid, pal.mid);
+          dispRowY += dispRowStep;
+        }
+        sy += dispListH + kSectionGap;
+
         // Display & Raster — 3 rows (display, resolution, fullscreen+orientation)
         // 4 rows now (display, resolution, raster/refresh/depth, fullscreen+orientation).
         // Two more rows than before -- SOURCE DECK and the ADD/REMOVE pair.
@@ -3085,61 +3154,6 @@
 
           sy += pvSectionH + kSectionGap;
         }
-
-        // Connected Displays — sized for EVERY display so the operator can
-        // see and click all of them at once. Header height comes from the
-        // shared plate contract — hardcoding 32 here made the section too
-        // short once the header scaled with the font, and the row loop
-        // silently dropped the last display.
-        //
-        // NOT CLAMPED TO THE SPACE LEFT ON SCREEN. It was, from when this tab
-        // did not scroll -- and the clamp ignored every section above it but
-        // DISPLAY & RASTER, and the list's height never reached `sy`, so the
-        // scroll stopped short of it. On a laptop-sized window that left room
-        // for one row: a projector plugged into a Mac was never drawn, and no
-        // scroll could reach it. The tab scrolls now; the list is as tall as
-        // its displays.
-        const int dispListHeaderH = settingsHeaderHeight(fontSmall_);
-        const int dispRowStep = kRowH + uiScaled(4);
-        int dispListH = dispListHeaderH + std::max(1, displayCount) * dispRowStep + sPad;
-        SDL_Rect dispListSection {cx, sy, subContentW, dispListH};
-        SDL_Rect dispListBody = drawSectionFrame(dispListSection, "CONNECTED DISPLAYS");
-        {
-          // Sits inside the header plate, sharing its vertical extent — it used
-          // to be positioned from the card frame with its own height, which put
-          // it over the plate's right end and through the card border.
-          SDL_Rect plate = sectionHeaderRect(dispListSection);
-          int idW = std::min(uiScaled(96), std::max(0, plate.w - uiScaled(12)));
-          SDL_Rect idBtn {plate.x + plate.w - idW - uiScaled(3), plate.y + uiScaled(2),
-                          idW, std::max(1, plate.h - uiScaled(4))};
-          Primitives::drawFramedPanel(controlRenderer_, idBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_, idBtn, "IDENTIFY", pal.deep);
-          settingsBtns_.push_back({idBtn, kSettingsActionDisplayIdentify,
-                                   "Show a number badge on every display"});
-        }
-        int dispRowY = dispListBody.y;
-        int currentDispIdx = outputDisplayIndex(focusedOutputIndex);
-        for (int di = 0; di < displayCount; ++di) {
-          SDL_Rect dispRow {dispListBody.x, dispRowY, dispListBody.w, kRowH};
-          bool selected = di == currentDispIdx;
-          Primitives::drawFramedPanel(controlRenderer_, dispRow,
-                                      selected ? pal.dark : pal.shellInner, pal.deep, pal.mid);
-          const char* dNameRaw = deckboyGetDisplayName(di);
-          std::string dNameStr = dNameRaw && *dNameRaw ? dNameRaw : ("Display " + std::to_string(di + 1));
-          SDL_Rect dispBounds;
-          deckboyGetDisplayBounds(di, &dispBounds);
-          std::string dispInfo = std::to_string(di + 1) + ": " + dNameStr
-            + "  " + std::to_string(dispBounds.w) + "x" + std::to_string(dispBounds.h);
-          std::string arrangement = displayArrangementLabel(di);
-          if (!arrangement.empty() && arrangement != "extended") dispInfo += "  " + arrangement;
-          if (selected) dispInfo += "  [ASSIGNED]";
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{dispRow.x + uiScaled(6), dispRow.y, dispRow.w - uiScaled(12), dispRow.h},
-                       dispInfo, selected ? pal.light : ink);
-          settingsBtns_.push_back({dispRow, kSettingsActionOutputDisplaySelectBase + di, "display_select"});
-          dispRowY += dispRowStep;
-        }
-        sy += dispListH + kSectionGap;
 
       // ═══════════════════════════════════════════════════════════════
       } else if (settingsVideoSubTab_ == 1) {
