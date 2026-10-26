@@ -5807,6 +5807,7 @@
     // from -- rather than something painted on the window afterwards that only
     // the operator would ever see.
     drawLiveCaptions(outputIndex, runtime->outputRenderer, renderW, renderH);
+    drawTutorialDeskEatenCaption(outputIndex, runtime->outputRenderer, renderW, renderH);
     if (output.outputTestCardEnabled && !testCardOnly) {
       for (int recording : hdrRecordingsOfThis) {
         captureHdrRecordFrame(*runtime, outputRuntimes_[static_cast<std::size_t>(recording)], SDL_GetTicks());

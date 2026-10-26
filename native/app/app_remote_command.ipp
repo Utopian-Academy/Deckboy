@@ -6655,7 +6655,8 @@
       serviceTutorial();
       remoteCommandDetail_ = tutorial_.active
         ? "step " + std::to_string(tutorial_.step + 1) + " of " + std::to_string(kTutorialSteps) +
-            " " + tutorialLine(tutorial_.step).title
+            " " + tutorialLine(tutorial_.step).title +
+            (tutorial_.deskEatenOutput >= 0 ? " (the output has the desk)" : "")
         : std::string("off");
       return;
     }

@@ -176,6 +176,8 @@
           } else if (monitorsWindow_ &&
                      event.button.windowID == SDL_GetWindowID(monitorsWindow_)) {
             handleMonitorsMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y));
+          } else {
+            handleTutorialOutputClick(event.button.windowID);
           }
           break;
         case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -242,7 +244,12 @@
             bool allowFromOutputWindow = fromOutputWindow &&
               (event.key.key == SDLK_ESCAPE || event.key.key == SDLK_PAGEDOWN ||
                event.key.key == SDLK_PAGEUP);
-            if (fromControlWindow || allowFromOutputWindow) {
+            // ...except while the tour's output has eaten the desk: then
+            // any key at all gives it back.
+            if (fromOutputWindow && event.key.repeat == 0 && tutorial_.active &&
+                tutorial_.deskEatenOutput >= 0) {
+              tutorialGiveDeskBack();
+            } else if (fromControlWindow || allowFromOutputWindow) {
               handleKeyDown(event.key.key, event.key.mod, event.key.windowID, event.key.repeat != 0);
             }
           }

@@ -38,6 +38,11 @@
     bool tabNudged = false;     // MENU opened on the outputs tab once
     int inspectorNudges = 0;    // frames spent scrolling the transition row into view
     int missClicks = 0;         // clicks that hit nothing the step wanted
+    // ONE SCREEN: OUTPUT ON fills the screen the desk is on, card and all.
+    // The output that did it, held until a key or a click gives the desk
+    // back; then the teachers get to talk about it for one step.
+    int deskEatenOutput = -1;
+    bool deskJoke = false;
     Uint64 praiseUntilMs = 0;
     int praiseIndex = 0;
     SDL_Rect cardRect {};
@@ -194,6 +199,7 @@
     tutorial_.tabNudged = false;
     tutorial_.inspectorNudges = 0;
     tutorial_.missClicks = 0;
+    tutorial_.deskJoke = false;
     writeTutorialProgress(tutorial_.step);
   }
 
@@ -264,6 +270,89 @@
     return false;
   }
 
+  // An output that is on, full screen, on the display the desk is on.
+  bool tutorialOutputCoversDesk(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return false;
+    const OutputTarget& output = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    if (!output.enabled || normalizeOutputType(output.outputType) != "window") return false;
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputWindow || !runtime->fullscreenIntended || !controlWindow_) return false;
+    return deckboyGetNumVideoDisplays() <= 1 ||
+           outputDisplayIndex(outputIndex) == deckboyGetWindowDisplayIndex(controlWindow_);
+  }
+
+  // The desk back: the output in a small window in the corner of the screen,
+  // still on, and the desk in front of it. The tour's lessons need the desk;
+  // the programme monitor on it shows what the output shows.
+  void tutorialGiveDeskBack() {
+    const int outputIndex = tutorial_.deskEatenOutput;
+    tutorial_.deskEatenOutput = -1;
+    if (OutputRuntime* runtime = runtimeForOutput(outputIndex); runtime && runtime->outputWindow) {
+      SDL_SetWindowFullscreen(runtime->outputWindow, false);
+      // A Mac leaves full screen with an animation, and a size set during it
+      // is dropped.
+      SDL_SyncWindow(runtime->outputWindow);
+      setOutputRecoveryPausedByEscape(outputIndex, true);
+      runtime->fullscreenIntended = false;
+      SDL_Rect usable {};
+      if (const SDL_DisplayID display = SDL_GetDisplayForWindow(controlWindow_);
+          display != 0 && SDL_GetDisplayUsableBounds(display, &usable) && usable.w > 0 && usable.h > 0) {
+        auto [rasterW, rasterH] = outputRenderSizeForOutput(outputIndex);
+        const int w = std::max(160, usable.w / 3);
+        const int h = std::max(90, rasterW > 0 ? w * std::max(1, rasterH) / rasterW : w * 9 / 16);
+        const int margin = uiScaled(24);
+        SDL_SetWindowSize(runtime->outputWindow, w, h);
+        SDL_SetWindowPosition(runtime->outputWindow, usable.x + usable.w - w - margin,
+                              usable.y + usable.h - h - margin);
+      }
+      showOutputWindow(runtime->outputWindow);
+    }
+    if (controlWindow_) SDL_RaiseWindow(controlWindow_);
+    playUiSound(UiSoundEffect::Toggle);
+    advanceTutorial();
+    tutorial_.deskJoke = true;
+  }
+
+  // A click in the output window that ate the desk.
+  bool handleTutorialOutputClick(Uint32 windowId) {
+    if (!tutorial_.active || tutorial_.deskEatenOutput < 0) return false;
+    if (outputIndexForWindowId(windowId) != std::optional<int>(tutorial_.deskEatenOutput)) return false;
+    tutorialGiveDeskBack();
+    return true;
+  }
+
+  // Drawn INTO the picture of the output that ate the desk: it is the only
+  // thing on the screen, so it is the only place the hint can go.
+  void drawTutorialDeskEatenCaption(int outputIndex, SDL_Renderer* renderer, int width, int height) {
+    if (!tutorial_.active || outputIndex != tutorial_.deskEatenOutput || !renderer || width <= 0 || height <= 0) return;
+    TTF_Font* headFont = fontAtSize(fontPixel_, std::clamp(height / 12, 12, 400));
+    TTF_Font* hintFont = fontAtSize(fontBase_, std::clamp(height / 30, 8, 160));
+    if (!headFont) headFont = fontPixel_;
+    if (!hintFont) hintFont = fontBase_;
+    if (!headFont || !hintFont) return;
+    const std::string head = "IT ATE THE DESK";
+    const std::string hint = "One screen, skapi. Press any key or click, and Dr. Pixel gives it back.";
+    const int headW = measuredWidthIn(headFont, head);
+    const int hintW = measuredWidthIn(hintFont, hint);
+    const int gap = height / 40;
+    const int padX = height / 20;
+    const int plateW = std::min(width, std::max(headW, hintW) + padX * 2);
+    const int plateH = textLineHeight(headFont) + gap + textLineHeight(hintFont) + gap * 4;
+    const SDL_FRect plate {static_cast<float>((width - plateW) / 2), static_cast<float>((height - plateH) / 2),
+                           static_cast<float>(plateW), static_cast<float>(plateH)};
+    SDL_SetRenderDrawColor(renderer, 15, 56, 15, 255);
+    SDL_RenderFillRect(renderer, &plate);
+    SDL_SetRenderDrawColor(renderer, 255, 220, 0, 255);
+    for (int i = 0; i < std::max(2, height / 270); ++i) {
+      const SDL_FRect edge {plate.x + i, plate.y + i, plate.w - 2.0f * i, plate.h - 2.0f * i};
+      SDL_RenderRect(renderer, &edge);
+    }
+    int y = static_cast<int>(plate.y) + gap * 2;
+    drawTextRaw(renderer, headFont, head, SDL_Color {255, 220, 0, 255}, (width - headW) / 2, y);
+    y += textLineHeight(headFont) + gap;
+    drawTextRaw(renderer, hintFont, hint, SDL_Color {214, 240, 160, 255}, (width - hintW) / 2, y);
+  }
+
   void serviceTutorial() {
     if (!tutorial_.active) return;
     const Deck& deck = focusedDeck();
@@ -275,9 +364,21 @@
           settingsTab_ = 3;
           tutorial_.tabNudged = true;
         }
+        if (tutorial_.deskEatenOutput >= 0) {
+          // Waiting for the key or click. An output switched off some other
+          // way has given the desk back on its own.
+          if (!tutorialOutputCoversDesk(tutorial_.deskEatenOutput)) tutorial_.deskEatenOutput = -1;
+          break;
+        }
         if (tutorialAnyOutputOn()) {
           settingsOpen_ = false;
-          advanceTutorial();
+          for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+            if (tutorialOutputCoversDesk(i)) {
+              tutorial_.deskEatenOutput = i;
+              break;
+            }
+          }
+          if (tutorial_.deskEatenOutput < 0) advanceTutorial();
         }
         break;
       case 2:
@@ -326,7 +427,11 @@
         advanceTutorial();
         break;
       case 1:
-        setFocusedOutputEnabled(true);
+        if (tutorial_.deskEatenOutput >= 0) {
+          tutorialGiveDeskBack();
+        } else {
+          setFocusedOutputEnabled(true);
+        }
         break;
       case 2:
         addGeneratorCue("swirl");
@@ -508,6 +613,12 @@
   // open menu or a text field takes it first, as it always has.
   bool handleTutorialKey(SDL_Keycode key, bool keyRepeat) {
     if (!tutorial_.active || keyRepeat) return false;
+    // ANY key while the output has the screen, Esc included: Esc would
+    // otherwise leave the tour from behind a screen with no tour on it.
+    if (tutorial_.deskEatenOutput >= 0) {
+      tutorialGiveDeskBack();
+      return true;
+    }
     if (key == SDLK_ESCAPE && !settingsOpen_ && !inlineEditor_.open && !codeEditor_.open &&
         !confirmQuit_) {
       endTutorial(tutorial_.step == kTutorialSteps - 1);
@@ -664,6 +775,12 @@
 #endif
     if (tutorial_.step == 1 && settingsOpen_) {
       pixelSays = "There. The button that says OUTPUT OFF. Make it say ON, skapi.";
+    }
+    if (tutorial_.step == 2 && tutorial_.deskJoke) {
+      pixelSays = "It ate the desk, skapi. One screen, so the output took all of it. I put it in a little "
+                  "window, behind. A real show gets a second screen. Now a picture: press I, or SHOW ME.";
+      videoSays = "A feedback loop! Output patched straight back into the desk. Happens to the best of us. "
+                  "Mostly to me. 1983. We don't talk about 1983.";
     }
     if (tutorial_.step == 5 && tutorialSelectedTransitionSeconds() > 0.0) {
       pixelSays = "Good. " + formatSeconds(tutorialSelectedTransitionSeconds()) +

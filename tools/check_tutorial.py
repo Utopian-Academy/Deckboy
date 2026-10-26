@@ -57,6 +57,24 @@ def main():
         wait_step(db, 2)
         db.snapshot(shots / "02-output-menu.bmp")
         db.send("OUTPUT ON")                      # the real thing
+        # ONE SCREEN (every CI runner): the output fills the desk's screen and
+        # the tour holds until a key or a click gives the desk back. Where the
+        # output went to a screen of its own, the tour simply moves on.
+        deadline = time.monotonic() + 8
+        while time.monotonic() < deadline:
+            said = status(db)
+            if said.startswith("step 3 of") or "has the desk" in said:
+                break
+            time.sleep(.15)
+        if "has the desk" in said:
+            time.sleep(1.0)
+            assert status(db).startswith("step 2 of"), "the tour moved on behind a screen-filling output"
+            db.send(f"OUTSNAP {shots / '02b-desk-eaten.bmp'}")
+            time.sleep(1.0)
+            db.send("TUTORIAL SHOWME")           # what a key or a click does
+            wait_step(db, 3)
+            state = json.loads(db.send("STATUS JSON"))
+            assert state["outputs"][0]["enabled"], "giving the desk back turned the output off"
         wait_step(db, 3)
         db.snapshot(shots / "03-import.bmp")
         db.send("TUTORIAL SHOWME")               # lends a clip
