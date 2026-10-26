@@ -2,9 +2,9 @@
 
 <div align="center">
 
-[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&label=download&color=blue&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&label=downloads&color=brightgreen&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases)
-[![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.419-current&cacheSeconds=300&label=stars&color=yellow&logo=github)](https://github.com/Utopian-Academy/Deckboy/stargazers)
+[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.420-current&cacheSeconds=300&label=download&color=blue&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.420-current&cacheSeconds=300&label=downloads&color=brightgreen&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.420-current&cacheSeconds=300&label=stars&color=yellow&logo=github)](https://github.com/Utopian-Academy/Deckboy/stargazers)
 [![Discord](https://img.shields.io/discord/1560690462766006362?label=discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/AZzsE4AZWx)
 
 [![Windows, macOS, Linux](https://img.shields.io/badge/runs%20on-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-blue)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
@@ -34,31 +34,30 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.419
+### New in 0.99.420
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.420)
 
-- **Learn the basics.** A five-minute guided tour from the startup screen or MENU.
-  Dr. Pixel and Professor Video take you through your first show one real control
-  at a time, in a practice show that leaves yours alone.
-- **Crossfades that keep moving.** Take the next cue and the one on screen keeps
-  playing while it fades out, with its sound fading too.
-- **Warp what you're looking at.** While you warp an output, the monitor shows that
-  output, warped, with the corner handles on the picture.
-- **Moiré.** A new source under SOURCE > MADE BY DECKBOY: six interference patterns,
-  four palettes, and a `~` oscillator on every control.
-- **Scopes that keep up.** Every new picture from the source is measured, and the
-  footer tells you if anything is missed.
-- **Smooth on 4K.** Swirl and Fireside hold 60 fps on 4K screens, and outputs stay
-  at your screen's refresh rate.
-- **Four example shows** on the startup screen, with notes on every cue: your first
-  output, layers and titles, effects, and a one-button show.
+- **Sequences on one button.** A DASH tile can run several commands in order, with
+  waits between them: `SEQ DECK 1 TAKE 1 ; WAIT 2.5 ; DECK 3 TAKE 1`.
+  The tile shows which step it is on, and Companion runs it the same way.
+- **TAKE ALL.** With more than one playlist, one press takes the selected cue on every
+  playlist at once.
+- **Example shows that build up.** Five shows, from a picture on a screen to a
+  one-button show, with real footage.
+- **A notch at 100%.** The master fader settles on exactly 100% as you drag past it.
+- **haze**, a new theme, slow and green, with smoke curls and drifting wax.
 
 ![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/light/crossfade-live.gif)
 
 <sub>A real crossfade in v0.99.419: the outgoing clip keeps playing until it has faded. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
 #### Also in recent releases
+
+- **Learn the basics:** a five-minute guided tour from the startup screen or MENU, in a
+  practice show that leaves yours alone.
+- **Crossfades that keep moving:** the clip on screen keeps playing while it fades out.
+- **Moiré**, scopes that keep up, and a warp monitor that shows the output being warped.
 
 - **Master tracker:** a pattern view with keyboard editing, cue, fade, volume and opacity
   cells, column mute/solo, jumps and named sections. The classic grid is still there.

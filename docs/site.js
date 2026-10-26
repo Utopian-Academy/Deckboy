@@ -38,3 +38,25 @@ withSound.forEach(video => {
     withSound.forEach(other => { if (other !== video) other.pause(); });
   });
 });
+
+const mote = document.querySelector('.release-mote');
+if (mote) {
+  let presses = 0;
+  let lastPress = -Infinity;
+  let reset;
+  mote.hidden = false;
+  mote.addEventListener('click', () => {
+    const now = performance.now();
+    presses = now - lastPress < 1200 ? presses + 1 : 1;
+    lastPress = now;
+    if (presses < 3) return;
+    presses = 0;
+    clearTimeout(reset);
+    mote.classList.add('is-lit');
+    mote.setAttribute('aria-label', 'Happy 420');
+    reset = setTimeout(() => {
+      mote.classList.remove('is-lit');
+      mote.setAttribute('aria-label', '0.99.420');
+    }, 4200);
+  });
+}

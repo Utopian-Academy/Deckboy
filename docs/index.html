@@ -33,7 +33,7 @@
       "description": "Open-source cue-based media playback and show control for live video. Clips, stills, slide decks, cameras, captured windows, web pages, NDI sources, SRT and SDI inputs, test patterns and generated sources are all cues on one list, sharing one transport, one set of transitions and one effect rack. SRT, RTMP, NDI, DeckLink and SMPTE ST 2110 output, driven from Stream Deck, Bitfocus Companion, OSC, MIDI or LTC timecode.",
       "url": "https://utopian-academy.github.io/Deckboy/",
       "sameAs": ["https://github.com/Utopian-Academy/Deckboy"],
-      "softwareVersion": "0.99.419",
+      "softwareVersion": "0.99.420",
       "downloadUrl": "https://github.com/Utopian-Academy/Deckboy/releases/latest",
       "softwareHelp": "https://utopian-academy.github.io/Deckboy/manual.html",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
@@ -73,6 +73,7 @@
         "OSC, MIDI, MIDI Show Control, Art-Net, sACN and LTC timecode control",
         "A fixture patch: lights set by name and colour, with LFOs, dipped automatically while a video rolls",
         "Master tracker with pattern and classic views, cue/stop/fade/volume/opacity cells, mute/solo, jumps and sections",
+        "Dashboard sequences with timed waits and manual GO; TAKE ALL across playlists",
         "Gamma-correct edge blending, paired overlap and black lift; save your own new-show defaults",
         "Mic cues: a live microphone or line input as a cue, with fades, routing and effects",
         "No account, no licence server and no telemetry"
@@ -81,8 +82,8 @@
     </script>
 
     <style>img,video{max-width:100%;height:auto}</style>
-    <link rel="stylesheet" href="style.css?v=20261024b">
-    <script src="site.js?v=20261024b" defer></script>
+    <link rel="stylesheet" href="style.css?v=20261025">
+    <script src="site.js?v=20261025" defer></script>
 
 </head>
 <body class="home">
@@ -114,7 +115,7 @@
                 <figcaption>What you press, and what the audience sees, from one run of v0.99.419. Footage: <a href="https://mango.blender.org/"><i>Tears of Steel</i></a>, Blender Foundation, CC BY 3.0.</figcaption>
             </figure>
             <div class="cta-group animate-up delay-2">
-                <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download v0.99.419</a>
+                <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-large">Download v0.99.420</a>
                 <a href="https://github.com/Utopian-Academy/Deckboy" class="btn-large btn-outline">&#9733; Star on GitHub</a>
             </div>
         </div>
@@ -186,9 +187,9 @@
     </section>
 
     <section class="site-section latest-short" id="latest" aria-labelledby="latest-title">
-        <p class="eyebrow" id="latest-title">New in 0.99.419</p>
-        <p>Crossfades that keep moving, scopes that keep up, a monitor that shows the output you warp, and five example shows on the startup screen.
-        <a href="https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.419">What&rsquo;s new &rarr;</a></p>
+        <p class="eyebrow" id="latest-title">New in 0.99.420</p>
+        <p>Sequences on one DASH button, TAKE ALL across playlists, five example shows with real footage, the haze theme, and a master fader with a notch at 100%.
+        <a href="https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.420">What&rsquo;s new &rarr;</a></p>
     </section>
 
     <details class="site-section more-demos">
@@ -300,7 +301,21 @@
             </div>
         </div>
         <p class="footer-note">Built as an open-source project by Utopian-Academy.
-        Free under the GPL-3.0.</p>
+        Free under the GPL-3.0.<button class="release-mote" type="button" aria-label="0.99.420" hidden>
+            <span aria-hidden="true">&middot;</span>
+            <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <g fill="currentColor">
+                    <path id="release-leaflet" d="M32 48 L28 39 L29 36 L26 31 L28 28 L26 23 L29 20 L28 15 L31 10 L32 2 L33 10 L36 15 L35 20 L38 23 L36 28 L38 31 L35 36 L36 39 Z"/>
+                    <use href="#release-leaflet" transform="rotate(-36 32 48) translate(3.2 4.8) scale(.9)"/>
+                    <use href="#release-leaflet" transform="rotate(36 32 48) translate(3.2 4.8) scale(.9)"/>
+                    <use href="#release-leaflet" transform="rotate(-68 32 48) translate(8 12) scale(.75)"/>
+                    <use href="#release-leaflet" transform="rotate(68 32 48) translate(8 12) scale(.75)"/>
+                    <use href="#release-leaflet" transform="rotate(-108 32 48) translate(16 24) scale(.5)"/>
+                    <use href="#release-leaflet" transform="rotate(108 32 48) translate(16 24) scale(.5)"/>
+                </g>
+                <path d="M32 46 V62" fill="none" stroke="currentColor" stroke-width="2.5"/>
+            </svg>
+        </button></p>
     </footer>
 
     <script>

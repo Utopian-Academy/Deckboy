@@ -1,5 +1,5 @@
 DECKBOY — PRODUCT COPY
-Updated 2026-10-23 — checked against published v0.99.419
+Updated 2026-10-25 — release highlights from published v0.99.420
 
 ONE LINE
 Deckboy is a free, open-source video cue deck for Windows, macOS and Linux: clips, slides and live sources in one running order.
@@ -25,7 +25,7 @@ https://utopian-academy.github.io/Deckboy/manual.html#outputs-routing
 https://utopian-academy.github.io/Deckboy/manual.html#recording
 
 FACTS
-In v0.99.419: playlist volume and mutes follow both sides of a crossfade, including ASIO; scopes analyse each new source picture; the warp monitor follows the selected output; whole-number and fractional refresh rates remain distinct; oscillator settings persist while disabled, with one shared clock for Moire and effects; Swirl and Fireside fit tall canvases. Four bundled example shows teach outputs, layers, effects and a one-button sequence. Moving outgoing video applies to files without a grade or picture effects. Recordings and streams take incoming audio at TAKE.
+In v0.99.420: sequences on DASH buttons run several commands with timed waits or manual GO, with step and progress display; TAKE ALL takes the selected cue on every playlist at once. Five bundled example shows build from a picture on screen to a one-button show, with real footage. The haze theme brings deep greens, smoke curls and drifting wax. The master fader settles on exactly 100% as you drag past it.
 Current features: pattern tracker with keyboard editing, cue/stop/fade/volume/opacity cells, mute/solo, jumps and sections; QR-paired phone controller with editable DASH; Mic cues, a named Art-Net/sACN fixture patch and local live captions; gamma-correct edge blends and saved new-show defaults.
 HDR: PQ/HLG input with graphics and HDR delivery over ST 2110, SRT/enhanced RTMP and recording, measured on Windows. macOS/Linux HDR input currently converts to SDR. NDI and Web Monitor stay SDR; DeckLink HDR output awaits physical-card validation. Full requirements: https://utopian-academy.github.io/Deckboy/specs.html#hdr
 Name: Deckboy
