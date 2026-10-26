@@ -3087,18 +3087,21 @@
         }
 
         // Connected Displays — sized for EVERY display so the operator can
-        // see and click all of them at once (this list used to collapse to a
-        // row or two when the modal was short), clamped to remaining space.
-        // Header height comes from the shared plate contract — hardcoding 32
-        // here made the section too short once the header scaled with the
-        // font, and the row loop silently dropped the last display.
+        // see and click all of them at once. Header height comes from the
+        // shared plate contract — hardcoding 32 here made the section too
+        // short once the header scaled with the font, and the row loop
+        // silently dropped the last display.
+        //
+        // NOT CLAMPED TO THE SPACE LEFT ON SCREEN. It was, from when this tab
+        // did not scroll -- and the clamp ignored every section above it but
+        // DISPLAY & RASTER, and the list's height never reached `sy`, so the
+        // scroll stopped short of it. On a laptop-sized window that left room
+        // for one row: a projector plugged into a Mac was never drawn, and no
+        // scroll could reach it. The tab scrolls now; the list is as tall as
+        // its displays.
         const int dispListHeaderH = settingsHeaderHeight(fontSmall_);
-        int dispListNeededH = dispListHeaderH
-                            + std::max(1, displayCount) * (kRowH + uiScaled(4)) + sPad;
-        int dispListAvailH = subContentH - dispSectionH - kSectionGap;
-        int dispListH = std::clamp(dispListAvailH,
-                                   dispListHeaderH + (kRowH + uiScaled(4)) + sPad,
-                                   dispListNeededH);
+        const int dispRowStep = kRowH + uiScaled(4);
+        int dispListH = dispListHeaderH + std::max(1, displayCount) * dispRowStep + sPad;
         SDL_Rect dispListSection {cx, sy, subContentW, dispListH};
         SDL_Rect dispListBody = drawSectionFrame(dispListSection, "CONNECTED DISPLAYS");
         {
@@ -3117,7 +3120,6 @@
         int dispRowY = dispListBody.y;
         int currentDispIdx = outputDisplayIndex(focusedOutputIndex);
         for (int di = 0; di < displayCount; ++di) {
-          if (dispRowY + kRowH > dispListSection.y + dispListSection.h - 4) break;
           SDL_Rect dispRow {dispListBody.x, dispRowY, dispListBody.w, kRowH};
           bool selected = di == currentDispIdx;
           Primitives::drawFramedPanel(controlRenderer_, dispRow,
@@ -3132,11 +3134,12 @@
           if (!arrangement.empty() && arrangement != "extended") dispInfo += "  " + arrangement;
           if (selected) dispInfo += "  [ASSIGNED]";
           drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{dispRow.x + 6, dispRow.y + 7, dispRow.w - 12, 16},
+                       SDL_Rect{dispRow.x + uiScaled(6), dispRow.y, dispRow.w - uiScaled(12), dispRow.h},
                        dispInfo, selected ? pal.light : ink);
           settingsBtns_.push_back({dispRow, kSettingsActionOutputDisplaySelectBase + di, "display_select"});
-          dispRowY += kRowH + 4;
+          dispRowY += dispRowStep;
         }
+        sy += dispListH + kSectionGap;
 
       // ═══════════════════════════════════════════════════════════════
       } else if (settingsVideoSubTab_ == 1) {
