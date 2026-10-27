@@ -1,5 +1,25 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased - v0.99.422
+
+### Selection
+- Fixed: when a cue ended and the playlist moved on to the next one, the next cue was selected
+  together with the one that had ended, so the inspector read "2 cues" and the next change (a
+  gain, a trim) applied to both. Moving on at a cue's end, SKIP, PREV, jump to the live cue, FIND,
+  a scheduled or timecode take and moving a cue to another playlist now select that one cue alone.
+  STATUS JSON lists the cues an inspector edit would change as `editSelection`.
+
+### Outputs
+- Fixed: after an output was turned off, the programme monitor went on showing its last frame
+  rate (`OUTPUT 60.0`), and STATUS reported it too. An output that is off now reads OFF, and a
+  rate is only shown while the output is actually presenting frames.
+- Esc pressed on a full-screen output now brings back the desk at the first press, as it does
+  when nothing else is open. With Settings or another panel open on the desk behind it, that
+  first Esc used to close the panel instead, and the output stayed in front.
+
+### Guided tour
+- The crossfade step asks for what it checks: press + until transition shows a time.
+
 ## 2026-10-26 - v0.99.421 (every connected display in reach in Video Outputs; the tour on one screen)
 
 ### Video Outputs

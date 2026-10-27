@@ -709,7 +709,7 @@
             }
             Deck& target = project_.decks[targetDeck];
             target.cues.push_back(std::move(moved));
-            target.selectedIndex = static_cast<int>(target.cues.size()) - 1;
+            selectOnlyCue(target, static_cast<int>(target.cues.size()) - 1);
             markProjectDirty();
             triggerToast("moved to " + deckLabel(targetDeck));
           });

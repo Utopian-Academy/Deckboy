@@ -769,7 +769,7 @@
       std::string health = outputHealthLabel(outputIndex);
       std::string healthReason = outputHealthReason(outputIndex);
       const OutputRuntime* runtime = runtimeForOutput(outputIndex);
-      double outputFps = runtime ? runtime->fpsMeasured : 0.0;
+      double outputFps = outputFpsNow(outputIndex);
       double streamFps = runtime ? runtime->streamFpsMeasured : 0.0;
       if (url.empty()) {
         url = defaultOutputStreamUrl(protocol, outputIndex);
@@ -829,11 +829,18 @@
       std::string selectedId = cueIdForStatus(deck, deck.selectedIndex);
       std::string activeNum = cueNumberLabelForStatus(deck, deck.activeIndex);
       std::string activeId = cueIdForStatus(deck, deck.activeIndex);
+      // Every cue an inspector edit would change, 1-based: one cue unless the
+      // operator chose more.
+      std::string editSelection;
+      for (int index : selectedCueIndices(deck)) {
+        editSelection += (editSelection.empty() ? "" : ",") + std::to_string(index + 1);
+      }
       output << "{"
              << "\"index\":" << (deckIndex + 1) << ","
              << "\"name\":\"" << escapeJson(deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\","
              << "\"status\":\"" << escapeJson(transportStatusLabel(deckIndex)) << "\","
              << "\"selected\":" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0) << ","
+             << "\"editSelection\":[" << editSelection << "],"
              << "\"active\":" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0) << ","
              << "\"selectedCueNumber\":\"" << escapeJson(selectedNum) << "\","
              << "\"selectedCueId\":\"" << escapeJson(selectedId) << "\","
@@ -1354,7 +1361,7 @@
           ? 0
           : std::clamp(deck.selectedIndex + 1, 0, static_cast<int>(deck.cues.size()) - 1);
         if (deck.selectedIndex != nextIndex) {
-          deck.selectedIndex = nextIndex;
+          selectOnlyCue(deck, nextIndex);
           changed = true;
         }
         project_.focusedDeckIndex = deckIndex;
@@ -3507,6 +3514,15 @@
       }
     }
     return nullptr;
+  }
+
+  // Playback and navigation move the selection to ONE cue. Setting only
+  // selectedIndex left the old cue in selectedIndices, and the edit selection
+  // is the union of the two: after an auto-next the inspector read "2 cues" and
+  // the next gain change landed on the cue that had just finished.
+  void selectOnlyCue(Deck& deck, int cueIndex) {
+    deck.selectedIndex = cueIndex;
+    deck.selectedIndices.assign(1, cueIndex);
   }
 
   void selectCueInDeck(int deckIndex, int cueIndex, bool extendRange, bool toggleSingle) {

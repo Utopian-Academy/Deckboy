@@ -481,6 +481,12 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_undo_live.py --exe ./build/Deckboy
 
+      # Auto-next, SKIP and PREV select the cue they take, alone; an output
+      # turned off stops reporting a rate (human-workflow audit H01, H02).
+      - name: Playback selects one cue; an off output reports no rate
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_selection_follow.py --exe ./build/Deckboy
+
       # Removing an output beside a recording, STOP mid-dissolve, and what
       # an insert leaves selected (edges audit F14-F16).
       - name: Outputs, selection and STOP at the edges
@@ -1489,6 +1495,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "tracker follow failed" }
           python tools/check_undo_live.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "undo and the live show failed" }
+          python tools/check_selection_follow.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "selection follow failed" }
           python tools/check_output_edges.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "output edges failed" }
           python tools/check_sequences.py --exe build\Release\Deckboy.exe

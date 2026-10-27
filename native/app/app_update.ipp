@@ -249,6 +249,13 @@
             if (fromOutputWindow && event.key.repeat == 0 && tutorial_.active &&
                 tutorial_.deskEatenOutput >= 0) {
               tutorialGiveDeskBack();
+            } else if (fromOutputWindow && event.key.key == SDLK_ESCAPE) {
+              // Esc ON THE OUTPUT is about the output. Through handleKeyDown,
+              // whatever was open on the hidden desk took it first: Settings
+              // closed behind a full-screen picture that stayed put.
+              if (event.key.repeat == 0) {
+                escapeEscalation(event.key.windowID);
+              }
             } else if (fromControlWindow || allowFromOutputWindow) {
               handleKeyDown(event.key.key, event.key.mod, event.key.windowID, event.key.repeat != 0);
             }
@@ -1002,7 +1009,7 @@
 
           if (nextIndex >= 0) {
             if (deck.selectedIndex != nextIndex) {
-              deck.selectedIndex = nextIndex;
+              selectOnlyCue(deck, nextIndex);
               if (deckIndex == project_.focusedDeckIndex) {
                 onSelectionChanged();
               }

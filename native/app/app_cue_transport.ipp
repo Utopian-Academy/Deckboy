@@ -168,7 +168,7 @@
       return;
     }
     if (deck.selectedIndex != nextIndex) {
-      deck.selectedIndex = nextIndex;
+      selectOnlyCue(deck, nextIndex);
       onSelectionChanged();
     }
     markProjectDirty();
@@ -219,7 +219,7 @@
       useTransition = asTake || deck.cues[deck.activeIndex].transitionToNext;
     }
     if (deck.selectedIndex != prevIndex) {
-      deck.selectedIndex = prevIndex;
+      selectOnlyCue(deck, prevIndex);
       onSelectionChanged();
     }
     markProjectDirty();
@@ -651,7 +651,7 @@
     }
     bool wasLive = deck.activeIndex >= 0;
     if (deck.selectedIndex != target) {
-      deck.selectedIndex = target;
+      selectOnlyCue(deck, target);
       onSelectionChanged();
     }
     scrollDeckToCueIndex(deckIndex, target, false);
@@ -5454,7 +5454,7 @@
           : lastCueIndexForOverlayRole(deck, true);
       }
       if (firstIndex >= 0) {
-        deck.selectedIndex = firstIndex;
+        selectOnlyCue(deck, firstIndex);
         onSelectionChanged();
         markProjectDirty();
       }
@@ -7391,7 +7391,7 @@
 
     int cueIndex = lastCueFindMatches_[lastCueFindCursor_];
     if (deck.selectedIndex != cueIndex) {
-      deck.selectedIndex = cueIndex;
+      selectOnlyCue(deck, cueIndex);
       onSelectionChanged();
       markProjectDirty();
     }
@@ -8574,7 +8574,7 @@
     }
 
     fired.insert(deck.cues[*bestIndex].id);
-    deck.selectedIndex = *bestIndex;
+    selectOnlyCue(deck, *bestIndex);
     int previousFocus = project_.focusedDeckIndex;
     project_.focusedDeckIndex = deckIndex;
     takeSelected(true);
@@ -9176,7 +9176,7 @@
           showLog("SCHEDULED-TAKE", showLogCueRef(d, c));
           const int savedDeck = project_.focusedDeckIndex;
           project_.focusedDeckIndex = d;
-          deck.selectedIndex = c;
+          selectOnlyCue(deck, c);
           takeSelected(true);
           project_.focusedDeckIndex = savedDeck;
         }

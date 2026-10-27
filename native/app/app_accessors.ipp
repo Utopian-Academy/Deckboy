@@ -436,9 +436,26 @@
     return fps.str();
   }
 
+  // The rate an output is presenting at NOW. The measurement is only updated
+  // by a present, so an output that stops keeps its last figure forever: turned
+  // off, it went on reading 60.0. A rate with no present in the last second is
+  // no rate.
+  double outputFpsNow(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
+        !project_.outputs[outputIndex].enabled) {
+      return 0.0;
+    }
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || runtime->lastPresentNs == 0 ||
+        SDL_GetTicksNS() - runtime->lastPresentNs > 1000000000ULL) {
+      return 0.0;
+    }
+    return runtime->fpsMeasured;
+  }
+
   std::string outputFpsLabel(int outputIndex) const {
     const OutputRuntime* runtime = runtimeForOutput(outputIndex);
-    return runtime ? formatTelemetryFps(runtime->fpsMeasured) : "--.-";
+    return runtime ? formatTelemetryFps(outputFpsNow(outputIndex)) : "--.-";
   }
 
   std::string outputStreamFpsLabel(int outputIndex) const {
@@ -456,12 +473,14 @@
       return "OUTPUT --.-";
     }
     const OutputTarget& output = project_.outputs[outputIndex];
-    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
-    if (runtime && runtime->fpsMeasured > 0.01) {
-      return "OUTPUT " + outputFpsLabel(outputIndex);
-    }
+    // OFF first: the runtime keeps its last measured rate after the output
+    // stops, and checked first it read OUTPUT 60.0 with nothing on screen.
     if (!output.enabled) {
       return "OUTPUT OFF";
+    }
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (runtime && outputFpsNow(outputIndex) > 0.01) {
+      return "OUTPUT " + outputFpsLabel(outputIndex);
     }
     return "OUTPUT WARM";
   }

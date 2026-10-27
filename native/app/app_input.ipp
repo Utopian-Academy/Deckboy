@@ -1723,6 +1723,38 @@
     return false;
   }
 
+  void escapeEscalation(Uint32 sourceWindowId) {
+    // Generous window: this is a deliberate escalation the operator walks
+    // up, not a panic double-tap. Anything slower starts over.
+    constexpr Uint64 kEscSequenceMs = 2500;
+    Uint64 now = SDL_GetTicks();
+    bool continuing = lastEscapeKeyMs_ > 0 && (now - lastEscapeKeyMs_) <= kEscSequenceMs;
+    escapePressStreak_ = continuing ? (escapePressStreak_ + 1) : 1;
+    lastEscapeKeyMs_ = now;
+
+    if (escapePressStreak_ <= 1) {
+      confirmQuit_ = false;
+      // Stage 1 — come back to the desk. Un-fullscreen the output if it is
+      // covering things; either way put the control window in front.
+      escapeOutputFullscreen(sourceWindowId);
+      if (controlWindow_) {
+        SDL_RaiseWindow(controlWindow_);
+      }
+      triggerToast("esc: control window - again to clear output");
+    } else if (escapePressStreak_ == 2) {
+      confirmQuit_ = false;
+      // Stage 2 — back to the beginning state: outputs disarmed, playback
+      // stopped, audio killed (runPanicOutputsOff handles all three).
+      emergencyDisarmOutputsFromEsc(sourceWindowId);
+      triggerToast("esc: output cleared - again to quit");
+    } else {
+      // Stage 3 — now, and only now, offer to quit.
+      confirmQuit_ = true;
+      escapePressStreak_ = 0;
+      lastEscapeKeyMs_ = 0;
+    }
+  }
+
   void handleKeyDown(SDL_Keycode key, Uint16 mod, Uint32 sourceWindowId = 0, bool keyRepeat = false) {
     bool ctrl = deckboyShortcutHeld(mod);
     bool shift = (mod & SDL_KMOD_SHIFT) != 0;
@@ -2116,37 +2148,8 @@
       // Each stage announces the next one, so the sequence is discoverable
       // instead of something the operator has to know.
       case SDLK_ESCAPE: {
-        if (keyRepeat) {
-          break;
-        }
-        // Generous window: this is a deliberate escalation the operator walks
-        // up, not a panic double-tap. Anything slower starts over.
-        constexpr Uint64 kEscSequenceMs = 2500;
-        Uint64 now = SDL_GetTicks();
-        bool continuing = lastEscapeKeyMs_ > 0 && (now - lastEscapeKeyMs_) <= kEscSequenceMs;
-        escapePressStreak_ = continuing ? (escapePressStreak_ + 1) : 1;
-        lastEscapeKeyMs_ = now;
-
-        if (escapePressStreak_ <= 1) {
-          confirmQuit_ = false;
-          // Stage 1 — come back to the desk. Un-fullscreen the output if it is
-          // covering things; either way put the control window in front.
-          escapeOutputFullscreen(sourceWindowId);
-          if (controlWindow_) {
-            SDL_RaiseWindow(controlWindow_);
-          }
-          triggerToast("esc: control window - again to clear output");
-        } else if (escapePressStreak_ == 2) {
-          confirmQuit_ = false;
-          // Stage 2 — back to the beginning state: outputs disarmed, playback
-          // stopped, audio killed (runPanicOutputsOff handles all three).
-          emergencyDisarmOutputsFromEsc(sourceWindowId);
-          triggerToast("esc: output cleared - again to quit");
-        } else {
-          // Stage 3 — now, and only now, offer to quit.
-          confirmQuit_ = true;
-          escapePressStreak_ = 0;
-          lastEscapeKeyMs_ = 0;
+        if (!keyRepeat) {
+          escapeEscalation(sourceWindowId);
         }
         break;
       }
