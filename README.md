@@ -43,20 +43,6 @@ operator finds it, and how you find it again.
 - **The tour on one screen.** With a single display, the guided tour's output step hands the
   desk back with a key or a click, and the tour carries on.
 
-### New in 0.99.420
-
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.420)
-
-- **Sequences on one button.** A DASH tile can run several commands in order, with
-  waits between them: `SEQ DECK 1 TAKE 1 ; WAIT 2.5 ; DECK 3 TAKE 1`.
-  The tile shows which step it is on, and Companion runs it the same way.
-- **TAKE ALL.** With more than one playlist, one press takes the selected cue on every
-  playlist at once.
-- **Example shows that build up.** Five shows, from a picture on a screen to a
-  one-button show, with real footage.
-- **A notch at 100%.** The master fader settles on exactly 100% as you drag past it.
-- **haze**, a new theme, slow and green, with smoke curls and drifting wax.
-
 ![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/light/crossfade-live.gif)
 
 <sub>A real crossfade in v0.99.419: the outgoing clip keeps playing until it has faded. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
