@@ -12330,6 +12330,59 @@ inline char* module(char* p, char* end, unsigned long long addr) {
   return hex(p, end, rva, digits);
 }
 
+// WHAT WAS THROWN, when the crash is an uncaught C++ exception (0xE06D7363).
+// The frames cannot say: the 2026-10-24 crash on RECORD STOP pointed into the
+// runtime, and naming it std::bad_alloc took a disassembly of the CRT's own
+// layout. The exception record carries it. On x64, [2] is MSVC's ThrowInfo
+// and [3] the base its offsets count from; the first catchable type is the one
+// thrown, and a std::exception among the rest gives what(). Copied out under
+// __try, because in a crash handler a pointer is only a suggestion.
+inline char* thrown(char* p, char* end, const EXCEPTION_RECORD* record) {
+#if defined(_MSC_VER) && defined(_WIN64)
+  if (!record || record->ExceptionCode != 0xE06D7363 || record->NumberParameters < 4) return p;
+  char type[160] {};
+  char what[240] {};
+  __try {
+    const auto base = static_cast<std::uintptr_t>(record->ExceptionInformation[3]);
+    const auto* info = reinterpret_cast<const std::int32_t*>(record->ExceptionInformation[2]);
+    const auto object = static_cast<std::uintptr_t>(record->ExceptionInformation[1]);
+    if (base && info && info[3]) {
+      const auto* types =
+        reinterpret_cast<const std::int32_t*>(base + static_cast<std::uint32_t>(info[3]));
+      for (std::int32_t i = 0; i < types[0] && i < 32; ++i) {
+        // CatchableType: properties, type, then mdisp/pdisp/vdisp.
+        const auto* ct =
+          reinterpret_cast<const std::int32_t*>(base + static_cast<std::uint32_t>(types[1 + i]));
+        // TypeDescriptor: vtable, spare, then the decorated name.
+        const char* name = reinterpret_cast<const char*>(
+          base + static_cast<std::uint32_t>(ct[1])) + 2 * sizeof(void*);
+        if (i == 0) {
+          for (std::size_t n = 0; n + 1 < sizeof(type) && name[n]; ++n) type[n] = name[n];
+        }
+        if (object && ct[3] == -1 && std::strcmp(name, ".?AVexception@std@@") == 0) {
+          const char* said = reinterpret_cast<const std::exception*>(object + ct[2])->what();
+          for (std::size_t n = 0; said && n + 1 < sizeof(what) && said[n]; ++n) what[n] = said[n];
+        }
+      }
+    }
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+  }
+  if (!type[0]) return p;
+  p = put(p, end, "thrown: ");
+  p = put(p, end, type);
+  if (what[0]) {
+    p = put(p, end, "  \"");
+    p = put(p, end, what);
+    p = put(p, end, "\"");
+  }
+  return put(p, end, "\r\n");
+#else
+  (void)end;
+  (void)record;
+  return p;
+#endif
+}
+
 }  // namespace crashfmt
 
 // ── Crash logger ────────────────────────────────────────────────────────────
@@ -12396,6 +12449,7 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
             p, end,
             reinterpret_cast<unsigned long long>(info->ExceptionRecord->ExceptionAddress));
         p = crashfmt::put(p, end, "\r\n");
+        p = crashfmt::thrown(p, end, info->ExceptionRecord);
       }
       // Raw frames, each tagged with module+RVA. Symbolising through DbgHelp is
       // what tends to fault during shutdown, and module+RVA resolves offline

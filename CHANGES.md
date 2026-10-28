@@ -54,6 +54,10 @@
   (6827 pixels for a 16:9 slide instead of 3840). It now imports at the same width as every other
   page.
 
+### Diagnostics
+- On Windows, `deckboy-crash.log` names the error that ended the app when it was an uncaught C++
+  exception, with its message (`thrown: .?AVbad_alloc@std@@  "bad allocation"`).
+
 ### Companion
 - The Companion module 1.0.5 adds **Take all playlists**, **Run dashboard tile** (a tile holding a
   sequence runs it, and a second press stops it), **Run a sequence** and **Stop running
