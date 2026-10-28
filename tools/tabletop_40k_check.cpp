@@ -6,9 +6,9 @@
 #include <stdexcept>
 #include "../native/extras/tabletop/tabletop.cpp"
 
-static std::filesystem::path checkState;
+static dbfs::path checkState;
 namespace deckboy::core {
-std::filesystem::path Paths::stateDir() {
+dbfs::path Paths::stateDir() {
   return checkState;
 }
 }

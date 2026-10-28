@@ -6,8 +6,8 @@
 #include "../native/extras/tabletop/tabletop.cpp"
 
 namespace deckboy::core {
-std::filesystem::path Paths::stateDir() {
-  return std::filesystem::temp_directory_path() / "deckboy-edges-check-no-overrides";
+dbfs::path Paths::stateDir() {
+  return dbfs::temp_directory_path() / "deckboy-edges-check-no-overrides";
 }
 }
 

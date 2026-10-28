@@ -35,6 +35,7 @@
 // and terrain layouts in layouts/<name>.txt (ruin / terrain lines).
 
 #include "core/private_extras.hpp"
+#include "core/fs.hpp"
 #include "core/paths.hpp"
 
 #include <algorithm>
@@ -43,7 +44,6 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
-#include <filesystem>
 #include <fstream>
 #include <map>
 #include <mutex>
@@ -54,7 +54,7 @@
 
 namespace {
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 using deckboy::extras::Command;
 using deckboy::extras::Generator;
 using deckboy::extras::Registration;
@@ -529,13 +529,13 @@ void fillPolySoft(Canvas& c, const std::vector<Pt>& poly, Look look) {
   if (px1 < px0 || py1 < py0) return;
   constexpr int k = 4;
   const int sw = (px1 - px0) / k + 2, sh = (py1 - py0) / k + 2;
-  std::vector<float> small(static_cast<std::size_t>(sw) * sh * 4);
+  std::vector<float> coarse(static_cast<std::size_t>(sw) * sh * 4);
   parallelRows(sh, [&](int firstRow, int lastRow) {
     for (int sy = firstRow; sy < lastRow; ++sy) {
       for (int sx = 0; sx < sw; ++sx) {
         Rgb col; double a;
         look((px0 + sx * k - c.ox) / c.s, (py0 + sy * k - c.oy) / c.s, col, a);
-        float* q = &small[(static_cast<std::size_t>(sy) * sw + sx) * 4];
+        float* q = &coarse[(static_cast<std::size_t>(sy) * sw + sx) * 4];
         q[0] = static_cast<float>(col.r); q[1] = static_cast<float>(col.g); q[2] = static_cast<float>(col.b);
         q[3] = static_cast<float>(a);
       }
@@ -554,7 +554,7 @@ void fillPolySoft(Canvas& c, const std::vector<Pt>& poly, Look look) {
         const double tx = fx - sx;
         float v[4];
         for (int ch = 0; ch < 4; ++ch) {
-          const auto at = [&](int ax, int ay) { return small[(static_cast<std::size_t>(ay) * sw + ax) * 4 + ch]; };
+          const auto at = [&](int ax, int ay) { return coarse[(static_cast<std::size_t>(ay) * sw + ax) * 4 + ch]; };
           v[ch] = static_cast<float>((at(sx, sy) * (1 - tx) + at(sx + 1, sy) * tx) * (1 - ty) +
                                      (at(sx, sy + 1) * (1 - tx) + at(sx + 1, sy + 1) * tx) * ty);
         }
@@ -786,14 +786,14 @@ void drawGround(Canvas& c, const Plan& plan, const std::string& kind, double t, 
   const int y0 = std::max(0, c.Y(0)), y1 = std::min(c.h, c.Y(plan.h));
   constexpr int k = 4;
   const int sw = (x1 - x0) / k + 2, sh = (y1 - y0) / k + 2;
-  std::vector<float> small(static_cast<std::size_t>(sw) * sh * 4);
+  std::vector<float> coarse(static_cast<std::size_t>(sw) * sh * 4);
   parallelRows(sh, [&](int firstRow, int lastRow) {
   for (int sy = firstRow; sy < lastRow; ++sy) {
     for (int sx = 0; sx < sw; ++sx) {
       const double ix = (x0 + sx * k - c.ox) / c.s, iy = (y0 + sy * k - c.oy) / c.s;
       Rgb col; double a;
       groundLook(kind, ix, iy, t, col, a);
-      float* q = &small[(static_cast<std::size_t>(sy) * sw + sx) * 4];
+      float* q = &coarse[(static_cast<std::size_t>(sy) * sw + sx) * 4];
       q[0] = static_cast<float>(col.r); q[1] = static_cast<float>(col.g); q[2] = static_cast<float>(col.b);
       q[3] = static_cast<float>(std::clamp(a * level, 0.0, 1.0));
     }
@@ -810,7 +810,7 @@ void drawGround(Canvas& c, const Plan& plan, const std::string& kind, double t, 
       const double tx = fx - sx;
       float v[4];
       for (int ch = 0; ch < 4; ++ch) {
-        const auto at = [&](int ax, int ay) { return small[(static_cast<std::size_t>(ay) * sw + ax) * 4 + ch]; };
+        const auto at = [&](int ax, int ay) { return coarse[(static_cast<std::size_t>(ay) * sw + ax) * 4 + ch]; };
         v[ch] = static_cast<float>((at(sx, sy) * (1 - tx) + at(sx + 1, sy) * tx) * (1 - ty) +
                                    (at(sx, sy + 1) * (1 - tx) + at(sx + 1, sy + 1) * tx) * ty);
       }
