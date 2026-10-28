@@ -20,6 +20,11 @@
 ### Guided tour
 - The crossfade step asks for what it checks: press + until transition shows a time.
 
+### macOS
+- The Intel Mac download opens on macOS 10.13 High Sierra and later; it needed macOS 12. Below
+  10.15 it says that making captions needs 10.15, and below 12.3 that screen, window and browser
+  capture need 12.3. Apple silicon Macs still need macOS 12.
+
 ### Companion
 - The Companion module 1.0.5 adds **Take all playlists**, **Run dashboard tile** (a tile holding a
   sequence runs it, and a second press stops it), **Run a sequence** and **Stop running
