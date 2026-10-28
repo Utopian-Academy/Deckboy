@@ -1041,6 +1041,51 @@
              "matte: 9:16 pillarboxes hard");
     }
 
+    // ── Loop, Hold and the end action cannot disagree ──────────────────────
+    //
+    // The switches show what the cue WILL do, and moving one moves the
+    // others: the walkthrough found Loop off on a cue that looped, and Hold
+    // on under Auto next (first-time walkthrough, 2026-10-26).
+    {
+      Cue c;
+      c.kind = CueKind::Video;
+      c.endAction = CueEndAction::Loop;   // an explicit loop with the flag off
+      c.loop = false;
+      c.duration = 10.0;                  // long enough to have an end, were it not looping
+      expect(cueLoopsAtEnd(c) && trackerCueHasEnd(c) == false,
+             "end: an explicit Loop shows Loop on, and has no end to wait for");
+      setCueLoopsAtEnd(c, false);
+      expect(!cueLoopsAtEnd(c) && resolvedCueEndAction(c) == CueEndAction::AutoNext,
+             "end: Loop off takes the explicit Loop with it");
+
+      c = Cue {};
+      c.kind = CueKind::Video;
+      c.endAction = CueEndAction::AutoNext;
+      c.pauseOnLastFrame = true;          // Hold on under Auto next
+      expect(!cueHoldsAtEnd(c), "end: Hold under an explicit Auto next shows off");
+      setCueHoldsAtEnd(c, true);
+      expect(cueHoldsAtEnd(c) && resolvedCueEndAction(c) == CueEndAction::PauseOnLast,
+             "end: Hold on makes the cue hold");
+      setCueHoldsAtEnd(c, false);
+      expect(!cueHoldsAtEnd(c) && resolvedCueEndAction(c) == CueEndAction::AutoNext,
+             "end: Hold off goes back to the next cue");
+
+      c = Cue {};
+      c.loop = true;
+      c.pauseOnLastFrame = true;          // a loop whose devamp tail holds
+      expect(cueLoopsAtEnd(c) && cueHoldsAtEnd(c), "end: a loop that holds once devamped shows both");
+      setCueHoldsAtEnd(c, false);
+      expect(cueLoopsAtEnd(c) && !c.pauseOnLastFrame, "end: Hold off under a loop leaves the loop");
+
+      c = Cue {};
+      c.pauseOnLastFrame = true;
+      setCueEndActionKeepingSwitches(c, CueEndAction::Loop);
+      expect(c.loop && cueLoopsAtEnd(c), "end: choosing Loop turns the Loop switch on");
+      setCueEndActionKeepingSwitches(c, CueEndAction::Stop);
+      expect(!c.loop && !cueLoopsAtEnd(c) && !cueHoldsAtEnd(c) && c.pauseOnLastFrame,
+             "end: choosing Stop turns Loop off; Hold shows off and keeps an overlay's frame");
+    }
+
     // ── Tally: state versus event ──────────────────────────────────────────
     //
     // A switcher reports its program bus about once a second whether or not

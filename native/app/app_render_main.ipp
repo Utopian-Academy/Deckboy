@@ -4756,14 +4756,14 @@
                        "Apply fade-out to selected video/audio cues");
           ry += kRowStep;
 
-          auto loopState = boolMixedState([&](const Cue& cue) { return cue.loop; });
+          auto loopState = boolMixedState([&](const Cue& cue) { return cueLoopsAtEnd(cue); });
           drawQuickRow(ry, "loop", QuickAction::ToggleLoop,
                        loopState.first ? "mixed" : (loopState.second ? "on" : "off"),
                        QuickAction::ToggleLoop, QuickAction::ToggleLoop, true, !loopState.first && loopState.second,
                        "Toggle loop for selected cues");
           ry += kRowStep;
 
-          auto holdState = boolMixedState([&](const Cue& cue) { return cue.pauseOnLastFrame; });
+          auto holdState = boolMixedState([&](const Cue& cue) { return cueHoldsAtEnd(cue); });
           drawQuickRow(ry, "hold", QuickAction::ToggleHold,
                        holdState.first ? "mixed" : (holdState.second ? "on" : "off"),
                        QuickAction::ToggleHold, QuickAction::ToggleHold, true, !holdState.first && holdState.second,
@@ -5022,14 +5022,14 @@
       {
         int togY = ry + kRowStep * 7;
         inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
-                         selectedCue->loop ? "on" : "off", QuickAction::ToggleLoop,
-                         QuickAction::ToggleLoop, true, selectedCue->loop,
+                         cueLoopsAtEnd(*selectedCue) ? "on" : "off", QuickAction::ToggleLoop,
+                         QuickAction::ToggleLoop, true, cueLoopsAtEnd(*selectedCue),
                          "L - loop this cue continuously");
         togY += ix.rowStep;
         inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
-                         selectedCue->pauseOnLastFrame ? "on" : "off",
+                         cueHoldsAtEnd(*selectedCue) ? "on" : "off",
                          QuickAction::ToggleHold, QuickAction::ToggleHold, true,
-                         selectedCue->pauseOnLastFrame,
+                         cueHoldsAtEnd(*selectedCue),
                          "E - freeze on last frame instead of stopping");
       }
       // Slot 9: loop and hold now take a row each (7 and 8) instead of sharing
@@ -5247,9 +5247,9 @@
                      QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Scene fade-out duration");
         playbackY += kRowStep;
         drawQuickRow(playbackY, "hold", QuickAction::ToggleHold,
-                     selectedCue->pauseOnLastFrame ? "on" : "off",
+                     cueHoldsAtEnd(*selectedCue) ? "on" : "off",
                      QuickAction::ToggleHold, QuickAction::ToggleHold, true,
-                     selectedCue->pauseOnLastFrame,
+                     cueHoldsAtEnd(*selectedCue),
                      "Hold on the last composite frame when the scene ends");
         playbackY += kRowStep;
         inspDrawValueRow(ix, playbackY, "end action", cueEndActionLabel(selectedCue->endAction),
@@ -5815,14 +5815,14 @@
         {
           int togY = playbackY;
           inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
-                           selectedCue->loop ? "on" : "off", QuickAction::ToggleLoop,
-                           QuickAction::ToggleLoop, true, selectedCue->loop,
+                           cueLoopsAtEnd(*selectedCue) ? "on" : "off", QuickAction::ToggleLoop,
+                           QuickAction::ToggleLoop, true, cueLoopsAtEnd(*selectedCue),
                            "L - loop this cue continuously");
           togY += ix.rowStep;
           inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
-                           selectedCue->pauseOnLastFrame ? "on" : "off",
+                           cueHoldsAtEnd(*selectedCue) ? "on" : "off",
                            QuickAction::ToggleHold, QuickAction::ToggleHold, true,
-                           selectedCue->pauseOnLastFrame,
+                           cueHoldsAtEnd(*selectedCue),
                            "E - freeze on last frame instead of stopping");
         }
         // Two rows now, not one: loop and hold each take their own.
@@ -6030,14 +6030,14 @@
         {
           int togY = playbackY;
           inspDrawQuickRow(ix, togY, "loop", QuickAction::ToggleLoop,
-                           selectedCue->loop ? "on" : "off", QuickAction::ToggleLoop,
-                           QuickAction::ToggleLoop, true, selectedCue->loop,
+                           cueLoopsAtEnd(*selectedCue) ? "on" : "off", QuickAction::ToggleLoop,
+                           QuickAction::ToggleLoop, true, cueLoopsAtEnd(*selectedCue),
                            "L - loop this cue continuously");
           togY += ix.rowStep;
           inspDrawQuickRow(ix, togY, "hold", QuickAction::ToggleHold,
-                           selectedCue->pauseOnLastFrame ? "on" : "off",
+                           cueHoldsAtEnd(*selectedCue) ? "on" : "off",
                            QuickAction::ToggleHold, QuickAction::ToggleHold, true,
-                           selectedCue->pauseOnLastFrame,
+                           cueHoldsAtEnd(*selectedCue),
                            "E - freeze on last frame instead of stopping");
         }
         // Two rows now, not one: loop and hold each take their own.

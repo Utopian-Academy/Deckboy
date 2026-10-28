@@ -54,14 +54,16 @@
     playUiSound(UiSoundEffect::Navigate);
   }
 
+  // Loop and Hold flip what the cue WILL do (cueLoopsAtEnd / cueHoldsAtEnd),
+  // and carry an explicit end action with them -- see setCueLoopsAtEnd.
   void toggleSelectedLoop() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
       return;
     }
-    bool next = !cue->loop;
+    bool next = !cueLoopsAtEnd(*cue);
     forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-      each.loop = next;
+      setCueLoopsAtEnd(each, next);
     });
     triggerToast(next ? "loop on" : "loop off");
     playUiSound(UiSoundEffect::Toggle);
@@ -70,11 +72,11 @@
 
   void setSelectedLoop(bool enabled) {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->loop == enabled) {
+    if (!cue || cueLoopsAtEnd(*cue) == enabled) {
       return;
     }
     forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-      each.loop = enabled;
+      setCueLoopsAtEnd(each, enabled);
     });
     triggerToast(enabled ? "loop on" : "loop off");
     playUiSound(UiSoundEffect::Toggle);
@@ -86,9 +88,9 @@
     if (!cue) {
       return;
     }
-    bool next = !cue->pauseOnLastFrame;
+    bool next = !cueHoldsAtEnd(*cue);
     forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-      each.pauseOnLastFrame = next;
+      setCueHoldsAtEnd(each, next);
     });
     triggerToast(next ? "hold on" : "hold off");
     playUiSound(UiSoundEffect::Toggle);
@@ -97,11 +99,11 @@
 
   void setSelectedPauseOnLastFrame(bool enabled) {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->pauseOnLastFrame == enabled) {
+    if (!cue || cueHoldsAtEnd(*cue) == enabled) {
       return;
     }
     forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-      each.pauseOnLastFrame = enabled;
+      setCueHoldsAtEnd(each, enabled);
     });
     triggerToast(enabled ? "hold on" : "hold off");
     playUiSound(UiSoundEffect::Toggle);

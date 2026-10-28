@@ -258,6 +258,55 @@ inline bool cueAdvancesWhenFinished(const Cue& cue) {
   return resolvedCueEndAction(cue) == CueEndAction::AutoNext;
 }
 
+// WHAT THE LOOP AND HOLD SWITCHES MEAN: what the cue will do, not the raw
+// flags. An explicit end action overrides both flags, so switches drawn from
+// the flags could contradict it -- Loop off on a cue whose end action is
+// Loop, Hold on under Auto next (first-time walkthrough, 2026-10-26). Hold
+// is also what a LOOPING cue does once it is devamped (handlePlaybackEnd),
+// so a loop with hold set is both, and says so.
+inline bool cueLoopsAtEnd(const Cue& cue) {
+  return resolvedCueEndAction(cue) == CueEndAction::Loop;
+}
+
+inline bool cueHoldsAtEnd(const Cue& cue) {
+  const CueEndAction act = resolvedCueEndAction(cue);
+  return act == CueEndAction::PauseOnLast || (act == CueEndAction::Loop && cue.pauseOnLastFrame);
+}
+
+// Turning Loop or Hold on or off moves an explicit end action with it, so the
+// three can no longer disagree. A loop switched off falls back to the flags
+// (hold, or the next cue); a hold switched on under a loop is the loop's
+// devamp tail, and the loop stays.
+inline void setCueLoopsAtEnd(Cue& cue, bool on) {
+  cue.loop = on;
+  if (cue.endAction == CueEndAction::Inherit) return;
+  if (on) {
+    cue.endAction = CueEndAction::Loop;
+  } else if (cue.endAction == CueEndAction::Loop) {
+    cue.endAction = CueEndAction::Inherit;
+  }
+}
+
+inline void setCueHoldsAtEnd(Cue& cue, bool on) {
+  cue.pauseOnLastFrame = on;
+  if (cue.endAction == CueEndAction::Inherit || cue.endAction == CueEndAction::Loop) return;
+  if (on) {
+    cue.endAction = CueEndAction::PauseOnLast;
+  } else if (cue.endAction == CueEndAction::PauseOnLast) {
+    cue.endAction = CueEndAction::Inherit;
+  }
+}
+
+// And the other way: an end action chosen outright sets the loop switch to
+// match. Hold is left alone for STOP and NEXT -- an overlay keeps its last
+// frame by it whatever the end action -- and simply shows off there.
+inline void setCueEndActionKeepingSwitches(Cue& cue, CueEndAction action) {
+  cue.endAction = action;
+  if (action == CueEndAction::Inherit) return;
+  cue.loop = action == CueEndAction::Loop;
+  if (action == CueEndAction::PauseOnLast) cue.pauseOnLastFrame = true;
+}
+
 // ── The four TEXT MODE effect parameters, and what they mean ────────────────
 //
 // ONE DEFINITION, because there are three callers -- the renderer, the

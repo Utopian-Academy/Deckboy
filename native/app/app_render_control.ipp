@@ -2618,10 +2618,10 @@
       drawCueActionButton(bx, QuickAction::ToggleFadeOut, cue.fadeOutSeconds > 0.001,
                           true, "Toggle fade out");
       bx += cueActionBtnW + kCueActionBtnGap;
-      drawCueActionButton(bx, QuickAction::ToggleLoop, cue.loop,
+      drawCueActionButton(bx, QuickAction::ToggleLoop, cueLoopsAtEnd(cue),
                           true, "Toggle loop");
       bx += cueActionBtnW + kCueActionBtnGap;
-      drawCueActionButton(bx, QuickAction::ToggleHold, cue.pauseOnLastFrame,
+      drawCueActionButton(bx, QuickAction::ToggleHold, cueHoldsAtEnd(cue),
                           true, "Toggle hold on last frame");
       bx += cueActionBtnW + kCueActionBtnGap;
       drawCueActionButton(bx, QuickAction::ToggleCueAudio, cue.audioEnabled,

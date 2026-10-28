@@ -1180,7 +1180,9 @@
   // still with no duration does not, and a "when its cues end" step ignores
   // it rather than holding forever.
   static bool trackerCueHasEnd(const Cue& cue) {
-    if (cue.loop) {
+    // What it WILL do: an explicit Loop end action with the flag off still
+    // loops, and a step waiting on it would wait for ever.
+    if (cueLoopsAtEnd(cue)) {
       return false;
     }
     return cue.duration > 0.0 || cue.stillDurationSeconds > 0.0;
@@ -8647,7 +8649,7 @@
       if (each.kind != CueKind::Video && each.kind != CueKind::Audio) {
         return;
       }
-      each.endAction = next;
+      setCueEndActionKeepingSwitches(each, next);
       changed = true;
     });
     if (!changed) {
@@ -8670,7 +8672,7 @@
       if (each.kind != CueKind::Video && each.kind != CueKind::Audio) {
         return;
       }
-      each.endAction = action;
+      setCueEndActionKeepingSwitches(each, action);
       changed = true;
     });
     if (!changed) {

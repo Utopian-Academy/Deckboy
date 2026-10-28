@@ -25,6 +25,12 @@
 - The **OUTPUT** chip above the programme preview is a switch. Off, a click turns the output on.
   On, a click offers **TURN OFF** and **VIDEO OUTPUTS** and never turns it off by itself, so a
   stray click cannot cut the picture. With several outputs it opens Video Outputs.
+- Fixed: **Loop**, **Hold** and **end action** could contradict each other. Loop read off on a
+  cue whose end action was Loop, and Hold read on under Auto next. The switches now show what the
+  cue will do, and changing one changes the others to match. A loop with Hold set shows both:
+  Hold is what it does once DEVAMP lets it finish.
+- Fixed: a tracker step set to wait for its cues to end waited for ever on a cue whose end action
+  was Loop while its Loop switch read off.
 
 ### Guided tour
 - Dr. Pixel and Professor Video are a tad cuter: round lenses with big eyes behind them and a
