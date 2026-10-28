@@ -836,7 +836,12 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     // Pages are 1-based in CGPDFDocument.
     CGPDFPageRef page = CGPDFDocumentGetPage(doc, i + 1);
     if (!page) continue;
-    const CGRect box = CGPDFPageGetBoxRect(page, kCGPDFCropBox);
+    // What is drawn is the crop box where it overlaps the media box, so that
+    // is the page measured -- and the size the fitting transform below is
+    // asked for, which it then maps one to one.
+    const CGRect media = CGPDFPageGetBoxRect(page, kCGPDFMediaBox);
+    CGRect box = CGRectIntersection(CGPDFPageGetBoxRect(page, kCGPDFCropBox), media);
+    if (CGRectIsEmpty(box)) box = media;
     // ROTATION IS PART OF THE PAGE. A landscape deck is often stored as
     // portrait with /Rotate 90, and the crop box does not account for it -- so
     // measuring straight off the box gives the wrong aspect and renders the
@@ -863,13 +868,22 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
     CGContextFillRect(context, CGRectMake(0, 0, static_cast<CGFloat>(w),
                                           static_cast<CGFloat>(h)));
-    // The transform CoreGraphics itself computes for fitting a page into a
-    // rect: it applies the rotation, the crop box origin and the flip in one
-    // step, which hand-rolled scale-and-translate does not.
+    // THE SCALE IS OURS; THE TURN IS COREGRAPHICS'. Its fitting transform
+    // applies the rotation and the crop box origin in one step, which
+    // hand-rolled scale-and-translate does not -- but it only ever scales a
+    // page DOWN ("Scale the rect down, if necessary", CGPDFPage.h). Asked to
+    // fit a 960x540 slide into 3840 pixels, it centred the slide at its own
+    // size, a quarter of the width, in a white frame: every slide and PDF
+    // imported on a Mac from v0.89.0 (James, 2026-10-28: "It came in too
+    // small"). So it is asked for a rect the page's own size, where it has
+    // nothing to scale, and the scale to the bitmap is set on the context
+    // beneath it.
+    CGContextScaleCTM(context, static_cast<CGFloat>(scale), static_cast<CGFloat>(scale));
     CGContextConcatCTM(context, CGPDFPageGetDrawingTransform(
       page, kCGPDFCropBox,
-      CGRectMake(0, 0, static_cast<CGFloat>(w), static_cast<CGFloat>(h)),
+      CGRectMake(0, 0, static_cast<CGFloat>(pageWidth), static_cast<CGFloat>(pageHeight)),
       0, true));
+    CGContextClipToRect(context, box);
     CGContextDrawPDFPage(context, page);
 
     CGImageRef image = CGBitmapContextCreateImage(context);

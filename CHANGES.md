@@ -39,6 +39,9 @@
   is going to, the system output, and where the desk's sounds go.
 
 ### macOS
+- Fixed: slides imported on a Mac, from PowerPoint, Keynote or a PDF, came in too small: each
+  page sat at its own size in the middle of a white frame, so a 16:9 slide filled a quarter of
+  the width. Seen from v0.89.0. Slides now fill the frame, as they do on Windows and Linux.
 - The Intel Mac download opens on macOS 10.13 High Sierra and later; it needed macOS 12. Below
   10.15 it says that making captions needs 10.15, and below 12.3 that screen, window and browser
   capture need 12.3. Apple silicon Macs still need macOS 12.
