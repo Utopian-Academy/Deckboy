@@ -784,6 +784,11 @@ if(APPLE)
   target_sources(deckboy-native PRIVATE native/platform/mac_output_level.mm)
   set_source_files_properties(native/platform/mac_output_level.mm
     PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+  # Which output the Mac's sound goes to, asked of CoreAudio because SDL can
+  # miss the change (platform/mac_audio_default.hpp). SDL's own link to
+  # CoreAudio does not cover the app's calls; only the link step would say so.
+  target_sources(deckboy-native PRIVATE native/platform/mac_audio_default.cpp)
+  deckboy_target_link_frameworks(deckboy-native CoreAudio)
 endif()
 
 if(WIN32)

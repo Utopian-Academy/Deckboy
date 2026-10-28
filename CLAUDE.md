@@ -557,7 +557,12 @@ attached (`PendingRemoteCommand`), and `processRemoteCommands` replies with
   MIDI refuses outright rather than binding to whatever port enumerates first.
   `reconcileDeckAudioDevices()` (debounced on the SDL device events, with a 2s
   backstop poll) moves a deck off a device that disappears and back when it
-  returns.
+  returns. It also checks decks ON the system output: SDL can miss a change
+  of default (a Mac headphone plug announces the new default before the new
+  device), so each stream's device is compared with the OS's answer
+  (CoreAudio on the Mac, `platform/mac_audio_default`; SDL's elsewhere) and
+  anything SDL left behind is reopened. `tools/check_audio_follow.py` fakes
+  the miss on any machine with two outputs (`DECKBOY_TEST_SYSTEM_OUTPUT_FILE`).
 - Dev/test CLI: `--import <file>` (import at launch, skip splash/startup menu), `--settings [tab[.subtab]]` (open settings modal at boot), `--pattern-dump <id> <out.ppm> [WxH] [t]`, `--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]` (one effect on one picture, headless), `--inspector-scroll <px>` (reach the inspector below the fold) — all scriptable for verification. **A bare `show.deckboy` argument opens it AND skips the splash**, which is how a scripted run gets past the boot screen: scripted input does not reach SDL3, neither PostMessage clicks/keys NOR synthesised mouse wheel.
 - **Every change must work on Windows, macOS AND Linux** — same quality, not
   necessarily the same solution. Windows is where the work usually gets done, but

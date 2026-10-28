@@ -590,8 +590,12 @@
     desired.format = kAudioFormat;
     desired.channels = kAudioChannels;
     // Opens a logical device + bound stream in one call; starts paused.
-    uiAudioStream_ = SDL_OpenAudioDeviceStream(
-      SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
+    const SDL_AudioDeviceID target = systemDefaultPlaybackTarget();
+    uiAudioStream_ = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
+    if (!uiAudioStream_ && target != SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK) {
+      uiAudioStream_ = SDL_OpenAudioDeviceStream(
+        SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
+    }
     return uiAudioStream_ != nullptr;
   }
 
@@ -614,6 +618,59 @@
       SDL_free(ids);
     }
     return result;
+  }
+
+  // THE SYSTEM OUTPUT, CHECKED RATHER THAN TRUSTED.
+  //
+  // A stream opened on SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK is moved by SDL to
+  // each new default -- when SDL hears of the change and can open the new
+  // device. On a Mac it can miss it (platform/mac_audio_default.hpp), and then
+  // the show plays on into the speakers with headphones plugged in, until a
+  // restart. So on the Mac the OS is asked; elsewhere SDL's answer is all there
+  // is, which still catches a move SDL started and could not finish.
+  //
+  // DECKBOY_TEST_SYSTEM_OUTPUT_FILE names a file whose first line stands in
+  // for the OS's answer, read afresh each time, so tools/check_audio_follow.py
+  // can move "the system output" under a running app while SDL's default stays
+  // put -- which is what SDL looks like when it has missed the change.
+  static std::string osDefaultPlaybackName() {
+    if (const char* file = std::getenv("DECKBOY_TEST_SYSTEM_OUTPUT_FILE"); file && *file) {
+      std::ifstream in(file);
+      std::string line;
+      if (std::getline(in, line) && !trim(line).empty()) {
+        return trim(line);
+      }
+    }
+    return deckboy::platform::macDefaultPlaybackDeviceName();
+  }
+
+  static std::string sdlDefaultPlaybackName() {
+    const char* name = SDL_GetAudioDeviceName(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK);
+    return name ? name : "";
+  }
+
+  // The device a stream's sound is actually going to, after any move SDL made.
+  static std::string audioStreamDeviceName(SDL_AudioStream* stream) {
+    const char* name = stream ? SDL_GetAudioDeviceName(SDL_GetAudioStreamDevice(stream)) : nullptr;
+    return name ? name : "";
+  }
+
+  std::string systemDefaultPlaybackName() const {
+    const std::string os = osDefaultPlaybackName();
+    return os.empty() ? sdlDefaultPlaybackName() : os;
+  }
+
+  // Where to open a stream that belongs on the system output: SDL's default
+  // while SDL agrees with the OS, so SDL keeps moving it; the device itself
+  // while SDL is behind, and then reconcileDeckAudioDevices does the moving.
+  SDL_AudioDeviceID systemDefaultPlaybackTarget() {
+    const std::string os = osDefaultPlaybackName();
+    if (!os.empty() && os != sdlDefaultPlaybackName()) {
+      if (const SDL_AudioDeviceID id = audioPlaybackDeviceIdForName(os)) {
+        return id;
+      }
+    }
+    return SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK;
   }
 
   // THE DECK PLAYBACK DEVICE, opened at the rate the show asks for.
@@ -639,6 +696,11 @@
       // Preferred device not present — fall back to the system default.
       effectiveName.clear();
       target = SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK;
+    }
+    if (target == SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK) {
+      // The system output as the OS has it, which SDL's default may not be.
+      // effectiveName stays empty either way: this IS the system default.
+      target = systemDefaultPlaybackTarget();
     }
 
     SDL_AudioStream* mainOut = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
@@ -5648,14 +5710,51 @@
       return std::find(present.begin(), present.end(), name) != present.end();
     };
 
+    // Where the system's sound goes now (systemDefaultPlaybackTarget says why
+    // this is asked rather than left to SDL). Unknown, or a device SDL has not
+    // listed, and there is nothing a reopen could reach: leave things be.
+    const std::string systemOutput = systemDefaultPlaybackName();
+    const bool systemOutputKnown = !systemOutput.empty() && isPresent(systemOutput);
+    const bool systemOutputMoved =
+      systemOutputKnown && !systemOutputSeen_.empty() && systemOutput != systemOutputSeen_;
+    if (systemOutputKnown) {
+      systemOutputSeen_ = systemOutput;
+    }
+    bool followingSystemOutput = false;   // a deck's sound is on it after this pass
+
     for (std::size_t deckIndex = 0; deckIndex < project_.decks.size(); ++deckIndex) {
       DeckRuntime* runtime = runtimeForDeck(static_cast<int>(deckIndex));
       if (!runtime || !runtime->audioStream) {
         continue;
       }
       const std::string wanted = project_.decks[deckIndex].audioOutputDeviceName;
-      if (wanted.empty()) {
-        continue;                       // on the default, which follows itself
+      if (runtime->audioDeviceInUse.empty()) {
+        // ON THE SYSTEM OUTPUT -- asked for, or fallen back to while a named
+        // device is away. SDL moves these when the system output changes;
+        // this catches the times it does not.
+        if (systemOutputKnown && audioStreamDeviceName(runtime->audioStream) != systemOutput &&
+            runtime->audioFollowTried != systemOutput) {
+          runtime->audioFollowTried = systemOutput;
+          const std::string was = audioStreamDeviceName(runtime->audioStream);
+          reopenDeckAudioOutput(static_cast<int>(deckIndex), wanted);
+          const bool moved = audioStreamDeviceName(runtime->audioStream) == systemOutput;
+          std::cerr << "audio: deck " << (deckIndex + 1) << " was still on "
+                    << (was.empty() ? std::string("no device") : was)
+                    << " after the system output moved to " << systemOutput << "; "
+                    << (moved ? "moved it" : "it would not open there") << '\n';
+          if (!moved) {
+            triggerToast("audio: deck " + std::to_string(deckIndex + 1) + " could not move to " +
+                           systemOutput,
+                         ToastKind::Warning, kToastReadableMs);
+          }
+        }
+        if (systemOutputKnown && audioStreamDeviceName(runtime->audioStream) == systemOutput) {
+          runtime->audioFollowTried.clear();
+          followingSystemOutput = true;
+        }
+        if (wanted.empty()) {
+          continue;
+        }
       }
       const std::string inUse = runtime->audioDeviceInUse;
       const bool onIt = (inUse == wanted);
@@ -5669,6 +5768,32 @@
           runtime->audioDeviceInUse == wanted) {
         triggerToast("audio: deck " + std::to_string(deckIndex + 1) + " back on " + wanted);
       }
+    }
+
+    // The desk's own sounds, by the same rule. Nothing but the main thread
+    // writes to this stream, so it can simply be opened again -- the new one
+    // first, because nothing else would ever reopen it if that failed.
+    if (uiAudioStream_ && systemOutputKnown) {
+      if (audioStreamDeviceName(uiAudioStream_) == systemOutput) {
+        uiAudioFollowTried_.clear();
+      } else if (uiAudioFollowTried_ != systemOutput) {
+        uiAudioFollowTried_ = systemOutput;
+        SDL_AudioStream* previous = uiAudioStream_;
+        uiAudioStream_ = nullptr;
+        if (ensureUiAudioDevice()) {
+          SDL_DestroyAudioStream(previous);
+        } else {
+          uiAudioStream_ = previous;
+        }
+      }
+    }
+
+    // Said whichever of SDL or the lines above did the moving, so the desk
+    // reads the same every time the sound changes place. Not under ASIO,
+    // where the show's sound is on the ASIO driver and did not move at all.
+    if (systemOutputMoved && followingSystemOutput && !asioArmed()) {
+      std::cerr << "audio: now on " << systemOutput << '\n';
+      triggerToast("audio: now on " + systemOutput);
     }
   }
 

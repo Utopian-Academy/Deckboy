@@ -4462,6 +4462,18 @@
         }
         SDL_free(ids);
       }
+      if (!recording) {
+        // SDL's default and, where it can be asked, the OS's. They disagree
+        // when SDL has missed a change of output, which is the fault the
+        // reconcile in app_output_mgmt.ipp exists for.
+        const std::string sdlDefault = sdlDefaultPlaybackName();
+        const std::string osDefault = osDefaultPlaybackName();
+        std::cout << "audio out default: " << (sdlDefault.empty() ? "(none)" : sdlDefault);
+        if (!osDefault.empty() && osDefault != sdlDefault) {
+          std::cout << "  (the OS says " << osDefault << ")";
+        }
+        std::cout << '\n';
+      }
     }
 
     std::cout << "video driver: "

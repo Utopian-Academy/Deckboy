@@ -23,9 +23,20 @@
   BLACK lesson passed with nothing on screen to see. It now goes back to TURN THE OUTPUT ON
   first, says so, and then carries on from where you left it.
 
+### Audio
+- Fixed: on a Mac, plugging in headphones (or anything else that became the Mac's sound output)
+  could leave a playlist set to the system output playing through the old device, and only a
+  restart moved it. Deckboy now checks which output the Mac is using and moves the playlist's
+  sound, and the desk's own sounds, within two seconds. Unplugging moves them back.
+- On every platform, the desk says `audio: now on <device>` when the system output changes and a
+  playlist's sound goes with it, and warns if a playlist could not move.
+- `--devices` names the output the system is playing to.
+
 ### Remote control
 - Fixed: `ENDACTION` answered OK and changed nothing when the selected cue was not a video or
   audio cue, and took a word it did not know as INHERIT. It now says why it changed nothing.
+- `AUDIO` on its own answers with the device the focused playlist asks for, the device its sound
+  is going to, the system output, and where the desk's sounds go.
 
 ### macOS
 - The Intel Mac download opens on macOS 10.13 High Sierra and later; it needed macOS 12. Below

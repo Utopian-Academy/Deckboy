@@ -3284,6 +3284,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "navigation: SELECT <n> SELECTALL GOTO <n> FIND <text> FINDNEXT FINDTAKE DECK <n> [command] DECKNEXT DECKPREV\n"
         "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
         "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN [dB | BY <dB>] AUDIONORM [ALL] SPEED <0.25-4>\n"
+        "       AUDIO [<device> | DEFAULT | NEXT | PREV]  (bare: what the playlist asks for, where its sound is going, the system output)\n"
         "audio fx: AUDIOFX | AUDIOFX ADD <effect> [amount%]  (hpf lpf tilt comp gate delay reverb width binaural\n"
         "                                               picture placement seam framelock suspend\n"
         "                                               crush word skip rail resolution scrub short ouroboros plugin)\n"

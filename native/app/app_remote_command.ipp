@@ -7405,6 +7405,22 @@
         } else {
           setAudioOutputDevice(joinParts(parts, 1));
         }
+      } else {
+        // Where the sound is actually going, next to what was asked for and
+        // what the system plays to: the three answers a "no sound" or "wrong
+        // speakers" report needs, and the three that disagreed when a Mac
+        // kept playing into its speakers with headphones in.
+        const Deck& deck = focusedDeck();
+        const DeckRuntime* rt = runtimeForDeck(project_.focusedDeckIndex);
+        const std::string on = rt ? audioStreamDeviceName(rt->audioStream) : std::string();
+        const std::string system = systemDefaultPlaybackName();
+        const std::string desk = audioStreamDeviceName(uiAudioStream_);
+        remoteCommandDetail_ =
+          "asks " + (deck.audioOutputDeviceName.empty() ? std::string("system output")
+                                                         : deck.audioOutputDeviceName) +
+          " | on " + (on.empty() ? std::string("no device") : on) +
+          " | system output " + (system.empty() ? std::string("none") : system) +
+          " | desk sounds on " + (desk.empty() ? std::string("no device") : desk);
       }
       return;
     }

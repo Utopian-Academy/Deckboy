@@ -65,6 +65,7 @@
 #include "core/types.hpp"
 #include "core/output_runtime.hpp"
 #include "core/scopes.hpp"
+#include "platform/mac_audio_default.hpp"
 #include "platform/mac_output_level.hpp"
 #include "platform/window_icon.hpp"
 #include "core/deck_audio_ring.hpp"
@@ -1955,6 +1956,10 @@ struct DeckRuntime {
   // mid-show -- and keeping them apart is what lets the request survive that
   // and be honoured when the device comes back.
   std::string audioDeviceInUse;
+  // The system output this deck was last moved to because SDL had not moved
+  // it (reconcileDeckAudioDevices). Kept so a move that does not take is not
+  // retried, and the sound torn down, every two seconds.
+  std::string audioFollowTried;
   std::unique_ptr<MediaEngine> mediaEngine;   // Core playback engine
   // THE CUE THAT WAS PLAYING WHEN THE NEXT ONE WAS TAKEN, still playing. A
   // take with a transition that would have frozen a playing cue hands that
@@ -11505,6 +11510,11 @@ class App {
   Uint64 displayTopologyRecheckAtMs_ = 0;  // debounce deadline for the display-event burst
   Uint64 audioDeviceRecheckAtMs_ = 0;      // and for the audio-device-event burst
   Uint64 lastAudioDevicePollMs_ = 0;       // backstop for drivers that emit neither
+  // The system output as last seen by reconcileDeckAudioDevices, so a change
+  // of it is said once; and the one the UI sounds were last moved to, so a
+  // device that will not open is not retried every two seconds.
+  std::string systemOutputSeen_;
+  std::string uiAudioFollowTried_;
   bool projectDirty_ = false;
   std::chrono::steady_clock::time_point projectDirtyAt_;
   bool projectSaveFailed_ = false;

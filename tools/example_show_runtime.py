@@ -13,9 +13,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Runtime:
-    def __init__(self, exe, work, show, extra=()):
+    def __init__(self, exe, work, show, extra=(), env=None):
         self.exe, self.work, self.show = Path(exe).resolve(), Path(work).resolve(), Path(show).resolve()
         self.extra = extra
+        # Changes to the app's environment; None removes a variable (so a
+        # check can have the real audio driver instead of the dummy one).
+        self.env_changes = env or {}
         self.proc = None
         self.desktop = None
 
@@ -39,6 +42,11 @@ class Runtime:
         env = dict(os.environ, DECKBOY_ROOT=str(self.work), DECKBOY_STATE_DIR=str(self.work / "state"),
                    DECKBOY_PROJECT=str(self.show), DECKBOY_COMPANION_PORT=str(self.port),
                    DECKBOY_HIDE_WINDOWS="1", SDL_AUDIODRIVER="dummy")
+        for key, value in self.env_changes.items():
+            if value is None:
+                env.pop(key, None)
+            else:
+                env[key] = value
         kwargs = {}
         if os.name == "nt":
             # WebView may create visible children: keep the entire process on
