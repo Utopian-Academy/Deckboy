@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Playback moves the selection to ONE cue, and an off output reports no rate.
 
+ENDACTION, too: it changes only video and audio cues, and says so for anything
+else, where it used to answer OK and change nothing.
+
 When a cue ends and the deck moves to the next one, the next cue is selected.
 It used to be selected ALONGSIDE the one that ended: the inspector read
 "2 cues", and the next gain change landed on the cue that had just finished.
@@ -94,6 +97,20 @@ def main():
         db.send("PREV")
         d = wait_for(db, lambda d: d["active"] == 2, 4)
         note("PREV: the edit selection is the cue it took", d["editSelection"] == [2], d["editSelection"])
+
+        def refused(command):
+            try:
+                db.send(command)
+            except RuntimeError as reply:
+                return str(reply)
+            return ""
+
+        why = refused("ENDACTION SOMETIMES")
+        note("ENDACTION refuses a word it does not know", "expected" in why, why or "answered OK")
+        db.send("PATTERN ADD checkerboard")
+        db.send(f"SELECT {len(media) + 1}")
+        why = refused("ENDACTION NEXT")
+        note("...and a cue that has no end action", "only video and audio" in why, why or "answered OK")
 
         db.send("STOP")
         db.send("OUTPUT ON")

@@ -113,7 +113,9 @@ def main():
         assert not any(o["enabled"] for o in state["outputs"]), "the tour left an output on"
         assert not (work / "run/state/tutorial-progress.txt").exists(), "finished tour left progress"
 
-        # Resume: leave at step 3, come back at step 3.
+        # Resume: leave at step 3, come back at step 3. Opening the practice
+        # show turns the output off, so the tour goes back for it first: it
+        # used to carry on, and the BLACK lesson passed with nothing to see.
         db.send("TUTORIAL START")
         wait_step(db, 1)
         db.send("TUTORIAL SKIP")
@@ -123,6 +125,22 @@ def main():
         progress = (work / "run/state/tutorial-progress.txt").read_text().strip()
         assert progress == "2", progress
         db.send("TUTORIAL START")
+        said = wait_step(db, 2)
+        assert "then back to step 3" in said, said
+        db.send("TUTORIAL EXIT")                  # left during the detour...
+        progress = (work / "run/state/tutorial-progress.txt").read_text().strip()
+        assert progress == "2", f"leaving the detour lost the saved step: {progress}"
+        db.send("TUTORIAL START")                 # ...and still comes back to it
+        wait_step(db, 2)
+        db.send("OUTPUT ON")
+        deadline = time.monotonic() + 8
+        while time.monotonic() < deadline:
+            said = status(db)
+            if said.startswith("step 3 of") or "has the desk" in said:
+                break
+            time.sleep(.15)
+        if "has the desk" in said:
+            db.send("TUTORIAL SHOWME")           # what a key or a click does
         wait_step(db, 3)
         db.snapshot(shots / "11-resumed.bmp")
         db.send("TUTORIAL EXIT")

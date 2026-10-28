@@ -43,6 +43,9 @@
     // back; then the teachers get to talk about it for one step.
     int deskEatenOutput = -1;
     bool deskJoke = false;
+    // A tour resumed past the output step with the output off goes back to
+    // that step first; this is the step it returns to once the output is on.
+    int resumeAt = -1;
     Uint64 praiseUntilMs = 0;
     int praiseIndex = 0;
     SDL_Rect cardRect {};
@@ -182,25 +185,44 @@
       currentProjectFile_ = practice;
       if (!saveProjectNow(false)) return backOut("could not write the practice show to " + practice.parent_path().string());
     }
+    // Opening the practice show turns its outputs off, and the lessons after
+    // the output step need the picture: BLACK on an output that is off
+    // changes nothing anyone can see. So a resumed tour goes back to the
+    // output step first, then on to where it was. It never turns an output
+    // on by itself.
+    if (step >= 2 && step <= 6 && !tutorialAnyOutputOn()) {
+      next.resumeAt = step;
+      step = 1;
+    }
     showStartupDialog_ = false;
     showSplashOverlay_ = false;
     settingsOpen_ = false;
     tutorial_ = next;
     tutorial_.active = true;
     enterTutorialStep(step);
-    triggerToast("learn the basics: Esc leaves, and it picks up here next time", ToastKind::Help);
+    triggerToast(tutorial_.resumeAt > 0
+                   ? "learn the basics: the output is off. Turn it on, and the tour carries on from step " +
+                       std::to_string(tutorial_.resumeAt + 1)
+                   : std::string("learn the basics: Esc leaves, and it picks up here next time"),
+                 ToastKind::Help);
     return true;
   }
 
+  // The step after this one: the saved step, when a resumed tour went back
+  // for the output.
+  int nextTutorialStep() const { return tutorial_.resumeAt > 0 ? tutorial_.resumeAt : tutorial_.step + 1; }
+
   void enterTutorialStep(int step) {
     tutorial_.step = std::clamp(step, 0, kTutorialSteps - 1);
+    if (tutorial_.step != 1) tutorial_.resumeAt = -1;
     tutorial_.cueBaseline = focusedDeck().cues.size();
     tutorial_.saveBaseline = projectSaveCount_;
     tutorial_.tabNudged = false;
     tutorial_.inspectorNudges = 0;
     tutorial_.missClicks = 0;
     tutorial_.deskJoke = false;
-    writeTutorialProgress(tutorial_.step);
+    // Left during the detour, the tour still comes back to the saved step.
+    writeTutorialProgress(tutorial_.resumeAt > 0 ? tutorial_.resumeAt : tutorial_.step);
   }
 
   void advanceTutorial() {
@@ -208,7 +230,7 @@
     ++tutorial_.praiseIndex;
     playUiSound(UiSoundEffect::Toggle);
     if (tutorial_.step + 1 < kTutorialSteps) {
-      enterTutorialStep(tutorial_.step + 1);
+      enterTutorialStep(nextTutorialStep());
     }
   }
 
@@ -217,7 +239,7 @@
   void endTutorial(bool finished, bool openExamples = false) {
     if (!tutorial_.active) return;
     tutorial_.active = false;
-    writeTutorialProgress(finished ? 0 : tutorial_.step);
+    writeTutorialProgress(finished ? 0 : tutorial_.resumeAt > 0 ? tutorial_.resumeAt : tutorial_.step);
     if (finished) {
       std::error_code ec;
       fs::remove(tutorialProgressFile(), ec);
@@ -595,7 +617,7 @@
     }
     if (pointInRect(x, y, tutorial_.skipRect)) {
       if (tutorial_.step + 1 < kTutorialSteps) {
-        enterTutorialStep(tutorial_.step + 1);
+        enterTutorialStep(nextTutorialStep());
       }
       return true;
     }

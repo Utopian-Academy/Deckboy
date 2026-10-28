@@ -6510,14 +6510,26 @@
       return;
     }
     if (command == "ENDACTION") {
-      if (parts.size() >= 2) {
-        setSelectedEndAction(parseCueEndAction(toUpper(parts[1]) == "INHERIT" ? "inherit" :
-                                               toUpper(parts[1]) == "STOP"    ? "stop"    :
-                                               toUpper(parts[1]) == "LOOP"    ? "loop"    :
-                                               toUpper(parts[1]) == "HOLD"    ? "hold"    :
-                                               toUpper(parts[1]) == "NEXT"    ? "next"    : "inherit"));
-      } else {
+      // Only video and audio cues have an end action. On anything else this
+      // answered OK and changed nothing, and a word it did not know quietly
+      // meant INHERIT.
+      const std::string endWord = parts.size() >= 2 ? toUpper(parts[1]) : std::string();
+      if (!endWord.empty() && endWord != "INHERIT" && endWord != "STOP" && endWord != "LOOP" &&
+          endWord != "HOLD" && endWord != "NEXT") {
+        failRemoteCommand("ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT");
+        return;
+      }
+      if (!firstFocusedSelectedCueMutable([](const Cue& each) {
+            return each.kind == CueKind::Video || each.kind == CueKind::Audio;
+          })) {
+        failRemoteCommand(selectedCueMutable() ? "ENDACTION: only video and audio cues have an end action"
+                                               : "ENDACTION: select a cue first");
+        return;
+      }
+      if (endWord.empty()) {
         cycleSelectedEndAction();
+      } else {
+        setSelectedEndAction(parseCueEndAction(toLower(endWord)));
       }
       return;
     }
@@ -6644,7 +6656,7 @@
         if (tutorial_.step == kTutorialSteps - 1) endTutorial(true, true); else tutorialShowMe();
       } else if (tutorialArg == "SKIP") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
-        if (tutorial_.step + 1 < kTutorialSteps) enterTutorialStep(tutorial_.step + 1);
+        if (tutorial_.step + 1 < kTutorialSteps) enterTutorialStep(nextTutorialStep());
       } else if (tutorialArg == "EXIT" || tutorialArg == "CLOSE") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
         endTutorial(tutorial_.step == kTutorialSteps - 1);
@@ -6656,7 +6668,8 @@
       remoteCommandDetail_ = tutorial_.active
         ? "step " + std::to_string(tutorial_.step + 1) + " of " + std::to_string(kTutorialSteps) +
             " " + tutorialLine(tutorial_.step).title +
-            (tutorial_.deskEatenOutput >= 0 ? " (the output has the desk)" : "")
+            (tutorial_.deskEatenOutput >= 0 ? " (the output has the desk)" : "") +
+            (tutorial_.resumeAt > 0 ? " (then back to step " + std::to_string(tutorial_.resumeAt + 1) + ")" : "")
         : std::string("off");
       return;
     }

@@ -19,6 +19,13 @@
 
 ### Guided tour
 - The crossfade step asks for what it checks: press + until transition shows a time.
+- Fixed: a tour picked up again after its output step carried on with the output off, so the
+  BLACK lesson passed with nothing on screen to see. It now goes back to TURN THE OUTPUT ON
+  first, says so, and then carries on from where you left it.
+
+### Remote control
+- Fixed: `ENDACTION` answered OK and changed nothing when the selected cue was not a video or
+  audio cue, and took a word it did not know as INHERIT. It now says why it changed nothing.
 
 ### macOS
 - The Intel Mac download opens on macOS 10.13 High Sierra and later; it needed macOS 12. Below
