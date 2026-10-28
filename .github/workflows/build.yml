@@ -291,7 +291,8 @@ jobs:
             libegl1-mesa-dev libgl1-mesa-dev \
             libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev \
             libxss-dev libxfixes-dev libxinerama-dev libxtst-dev \
-            libdbus-1-dev libibus-1.0-dev libgles2-mesa-dev libdecor-0-dev xvfb
+            libdbus-1-dev libibus-1.0-dev libgles2-mesa-dev libdecor-0-dev xvfb \
+            poppler-utils
 
       # 22.04 defaults to gcc-11, which is short of C++20. gcc-12 is in the
       # distro's own archive, so the C++ runtime stays the one 22.04 ships --
@@ -431,6 +432,12 @@ jobs:
 
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
+
+      # Slide import renders through pdftoppm here, CoreGraphics on a Mac and
+      # Windows.Data.Pdf on Windows. Nothing looked at the pages any of them
+      # made, and the Mac's came out a quarter of the width for two months.
+      - name: Slides and PDFs render at full size
+        run: python3 tools/check_pdf_render.py --exe ./build/Deckboy
 
       # The bidi algorithm against Unicode's own conformance files, for the
       # Unicode version its tables were generated from: about 860,000 cases,
@@ -803,6 +810,11 @@ jobs:
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
 
+      # CoreGraphics only ever scales a PDF page down; every slide imported on
+      # a Mac from v0.89.0 came out at its own size in a white frame.
+      - name: Slides and PDFs render at full size
+        run: python3 tools/check_pdf_render.py --exe ./build/Deckboy
+
       # The settings menus, photographed on a real Mac.
 
       - uses: actions/setup-node@v4
@@ -940,6 +952,10 @@ jobs:
 
       - name: Smoke tests
         run: ./build/Deckboy --smoke
+
+      # On every macOS this tests, since the renderer is the system's own.
+      - name: Slides and PDFs render at full size
+        run: python3 tools/check_pdf_render.py --exe ./build/Deckboy
 
       # The main window as this macOS draws it, and the render log with the
       # startup text probes in it -- the two things a Mac text report needs.
@@ -1469,6 +1485,12 @@ jobs:
       - name: Broadcast transport and audio regressions
         shell: pwsh
         run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Slides and PDFs render at full size
+        shell: pwsh
+        run: |
+          python tools/check_pdf_render.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "slides and PDFs did not render at full size" }
 
       # The shippable Windows artefacts. The installer script stages the
       # portable payload itself, so one call produces BOTH the zip and the
