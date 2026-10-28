@@ -2332,7 +2332,7 @@
     cueRowDisplayCache_.clear();
     if (deckRuntimes_.size() != project_.decks.size()) {
       growDeckRuntimes();
-      refreshSuperDeckboyTitle();
+      refreshWindowTitle();
     }
   }
 

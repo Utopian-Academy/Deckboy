@@ -6089,7 +6089,7 @@
     // Tears down and recreates every engine, so it stops playback -- the same
     // bargain adding one makes, and said out loud for the same reason.
     rebuildDeckRuntimes();
-    refreshSuperDeckboyTitle();
+    refreshWindowTitle();
     markProjectDirty();
     if (announce) {
       playUiSound(UiSoundEffect::DeckRemoved);
@@ -6116,24 +6116,60 @@
       playUiSound(UiSoundEffect::PowerUp);
     }
     superDeckboyEvolveAt_ = SDL_GetTicks();
-    refreshSuperDeckboyTitle();
+    refreshWindowTitle();
     triggerToast("Deckboy evolved into SUPER DECKBOY!");
   }
 
-  // The window title follows the deck count both ways, so removing back to
-  // one deck is plain Deckboy again. Checked every frame because decks can
-  // appear from a show file, VJ mode, or the network, and every path should
-  // agree rather than each remembering to set it.
-  void refreshSuperDeckboyTitle() {
+  // THE WINDOW SAYS WHICH SHOW THIS IS. It said only "Deckboy", and the
+  // show's name appeared for a moment in a toast: Save and Save As were
+  // guesswork, and two shows in two windows could not be told apart on the
+  // taskbar (first-time walkthrough, 2026-10-26). The tour runs in its own
+  // practice show (tutorialPracticeFile), and says so, so nobody thinks their
+  // own show is being changed. A show never given a name autosaves to
+  // defaultProjectFile(), and is a "New show", not "default".
+  //
+  // "not saved" is NOT "dirty": every change is written 300 ms later by
+  // flushDirtyProject, so a dirty flag in the title would flash on each edit.
+  // It means changes that are not reaching the file -- a save that failed, a
+  // show that did not load cleanly (never autosaved), a recovery waiting on
+  // the operator -- which is the case worth reading off the title bar.
+  //
+  // The app's name still follows the deck count both ways, so removing back
+  // to one deck is plain Deckboy again. Checked every frame because decks, the
+  // file and the dirty flag all change from many paths -- a show file, VJ
+  // mode, the network -- and every one should agree rather than each
+  // remembering to set it.
+  std::string showDisplayName() const {
+    if (tutorial_.active) return "Practice show";
+    if (currentProjectFile_.empty() || currentProjectFile_ == Paths::defaultProjectFile()) {
+      return "New show";
+    }
+    return currentProjectFile_.stem().string();
+  }
+
+  bool showChangesNotSaved() const {
+    if (tutorial_.active) return false;
+    if (projectSaveFailed_) return true;
+    return projectDirty_ &&
+           std::chrono::steady_clock::now() - projectDirtyAt_ > std::chrono::seconds(2);
+  }
+
+  void refreshWindowTitle() {
     if (!controlWindow_) {
       return;
     }
     const bool super = project_.decks.size() > 1;
-    if (super == superDeckboyTitle_) {
+    std::string title = showDisplayName();
+    if (showChangesNotSaved()) {
+      title += " \xC2\xB7 not saved";   // a middle dot
+    }
+    title += " \xE2\x80\x94 ";          // an em dash
+    title += super ? std::string("Super Deckboy") : std::string(kAppTitle);
+    if (title == windowTitle_) {
       return;
     }
-    superDeckboyTitle_ = super;
-    SDL_SetWindowTitle(controlWindow_, super ? "Super Deckboy" : kAppTitle.data());
+    windowTitle_ = title;
+    SDL_SetWindowTitle(controlWindow_, title.c_str());
   }
 
   // The evolution itself: a white flash that fades, a burst of stars, and the

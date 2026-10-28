@@ -17,7 +17,15 @@
   when nothing else is open. With Settings or another panel open on the desk behind it, that
   first Esc used to close the panel instead, and the output stayed in front.
 
+### The desk
+- The window title names the show: its file name, **New show** before it has one, and
+  **Practice show** during the tour. It adds **not saved** when changes are not reaching the
+  file, for example when the show's folder cannot be written; ordinary autosaving does not
+  show it.
+
 ### Guided tour
+- Dr. Pixel and Professor Video are a tad cuter: round lenses with big eyes behind them and a
+  blush, and the Professor wears a red bow tie.
 - The crossfade step asks for what it checks: press + until transition shows a time.
 - Fixed: a tour picked up again after its output step carried on with the output off, so the
   BLACK lesson passed with nothing on screen to see. It now goes back to TURN THE OUTPUT ON

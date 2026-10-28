@@ -1484,9 +1484,9 @@
         Primitives::strokeRect(controlRenderer_, ring, edge);
       }
     }
-    // Super Deckboy: the title follows the deck count, and the one-shot
-    // evolution draws over everything while it is playing.
-    refreshSuperDeckboyTitle();
+    // The title names the show and follows the deck count (Super Deckboy),
+    // and the one-shot evolution draws over everything while it is playing.
+    refreshWindowTitle();
     renderSuperDeckboyEvolution();
     drawPressFeedback();
     finishLiveTextFrame();   // reads the window back, so before present

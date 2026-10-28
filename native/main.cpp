@@ -10064,7 +10064,7 @@ class App {
   // shipped, so the app becomes it. evolveAt is the moment the transformation
   // started, and drives a short one-shot animation; 0 means none is playing.
   Uint64 superDeckboyEvolveAt_ = 0;
-  bool superDeckboyTitle_ = false;
+  std::string windowTitle_;   // as last set, so it is only set on a change
   std::mutex networkResultMutex_;
   std::vector<std::string> networkResults_;
   SDL_Rect fileCheckBtnRect_ {};

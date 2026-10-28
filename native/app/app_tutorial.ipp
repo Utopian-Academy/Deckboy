@@ -656,49 +656,51 @@
   // ── The teachers ──────────────────────────────────────────────────────────
   //
   // Sixteen by twenty, from the Teacher board. Drawn in the THEME's inks so
-  // they belong on every colourway; the lipstick and the sparkle are the two
-  // fixed colours, as on the board.
+  // they belong on every colourway; the lipstick, the sparkle and the blush
+  // are the fixed colours. "A tad cuter" (James, 2026-10-27): round lenses
+  // (F) with big eyes (E) and a glint (W) behind them, and a blush (B);
+  // Professor Video's bow tie is the lipstick red.
   void drawTutorialPortrait(const SDL_Rect& box, bool pixelTeacher, bool speaking) {
     static const char* kPixel[20] = {
       "....HHHHHHHH....",
       "...HHHHHHHHHH...",
-      "..HHHSSSSSSHHH..",
-      "..HHSSSSSSSSHH..",
-      "..HHGGGSSGGGHH..",
-      "..HHGDGSSGGGHH..",
-      "..HHGGGSSGGGHH..",
-      "..HHSSSSSSSSHH..",
-      "..HHSSSSSSSSHH..",
-      "..HHSSLLLLSSHH..",
-      "..HHHSSSSSSHHH..",
-      "..HHH.SSSS.HHHY.",
-      "..HH..SSSS..HH..",
-      ".HH.CCCDDCCC.HH.",
-      ".H.CCCCDDCCCC.H.",
+      "..HHHHHHHHHHHH..",
+      "..HHHHHHHSSSHH..",
+      "..HHHSSSSSSSSH..",
+      "..HFFFFSSFFFFH..",
+      "..HFWEFFFFWEFH..",
+      "..HFEEFSSFEEFH..",
+      "..HSFFSSSSFFSH..",
+      "..HBBSSSSSSBBH..",
+      "..HSSSSLLSSSSH..",
+      "..HHSSSSSSSSHHY.",
+      "..HHH.SSSS.HHH..",
+      "...HH.SSSS.HH...",
+      "....CCCDDCCC....",
+      "...CCCCDDCCCC...",
       "..CCCCCDDCCCCC..",
-      ".CCCCCCDDCCCCCC.",
       ".CCCCCCDDCCCCCC.",
       ".CCCCCCDDCCCCCC.",
       ".CCCCCCDDCCCCCC.",
     };
     static const char* kVideo[20] = {
-      "..H.HH.HH.HH.H..",
+      "...HH.HHHH.HH...",
+      "..HHHHHHHHHHHH..",
       ".HHHHHHHHHHHHHH.",
-      ".HHHHHHHHHHHHHH.",
-      "HHHHSSSSSSSSHHHH",
+      ".HHHSSSSSSSSHHH.",
       ".HHSSSSSSSSSSHH.",
-      "..SGGGGSSGGGGS..",
-      "..SGDDGGGGDDGS..",
-      "..SGGGGSSGGGGS..",
-      "..SSSSSSSSSSSS..",
-      "..SSSSSDDSSSSS..",
-      "..SDSMMMMMMSDS..",
-      "..SSDMSSSSMDSS..",
-      "...SDSMMMMSDS...",
+      "..SFFFFSSFFFFS..",
+      "..SFWEFFFFWEFS..",
+      "..SFEEFSSFEEFS..",
+      "..SSFFSSSSFFSS..",
+      "..SBBSSDDSSBBS..",
+      "..SSMMMMMMMMSS..",
+      "..SSMSSDDSSMSS..",
+      "...SSSSSSSSSS...",
       "....SSSSSSSS....",
-      ".....SSSSSS.....",
-      "..KKKKKSSKKKKK..",
-      ".KKKKKKKKKKKKKK.",
+      "......SSSS......",
+      "..KKKKLLLLKKKK..",
+      ".KKKKKKLLKKKKKK.",
       "KKKKKKKKKKKKKKKK",
       "KKKKKKKKKKKKKKKK",
       "KKKKKKKKKKKKKKKK",
@@ -712,17 +714,19 @@
     const int oy = box.y + (box.h - cell * 20) / 2 - bob;
     const SDL_Color lipstick {200, 36, 60, 255};
     const SDL_Color sparkle {255, 220, 0, 255};
+    const SDL_Color blush {255, 143, 168, 255};
     for (int r = 0; r < 20; ++r) {
       for (int c = 0; c < 16; ++c) {
         SDL_Color color;
         switch (rows[r][c]) {
-          case 'H': case 'G': case 'M': color = pal.deep; break;
-          case 'S': color = pal.light; break;
-          case 'D': color = pal.dark; break;
+          case 'H': case 'G': case 'M': case 'E': color = pal.deep; break;
+          case 'S': case 'W': color = pal.light; break;
+          case 'D': case 'F': color = pal.dark; break;
           case 'C': color = pal.light; break;
           case 'K': color = pal.deep; break;
           case 'L': color = lipstick; break;
           case 'Y': color = sparkle; break;
+          case 'B': color = blush; break;
           default: continue;
         }
         Primitives::fillRect(controlRenderer_, SDL_Rect {ox + c * cell, oy + r * cell, cell, cell}, color);
