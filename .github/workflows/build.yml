@@ -436,6 +436,8 @@ jobs:
       # Slide import renders through pdftoppm here, CoreGraphics on a Mac and
       # Windows.Data.Pdf on Windows. Nothing looked at the pages any of them
       # made, and the Mac's came out a quarter of the width for two months.
+      # Its first run here found pdftoppm drawing the media box, not the crop
+      # box, and sizing a rotated page before turning it.
       - name: Slides and PDFs render at full size
         run: python3 tools/check_pdf_render.py --exe ./build/Deckboy
 

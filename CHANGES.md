@@ -46,6 +46,14 @@
   10.15 it says that making captions needs 10.15, and below 12.3 that screen, window and browser
   capture need 12.3. Apple silicon Macs still need macOS 12.
 
+### Linux
+- Fixed: a PDF with a crop box, as print PDFs with bleed or printer's marks have, imported with
+  everything outside the crop round each page. Pages now show the crop box, as on Windows and
+  the Mac.
+- Fixed: a landscape page stored portrait and turned for display imported wider than it should
+  (6827 pixels for a 16:9 slide instead of 3840). It now imports at the same width as every other
+  page.
+
 ### Companion
 - The Companion module 1.0.5 adds **Take all playlists**, **Run dashboard tile** (a tile holding a
   sequence runs it, and a second press stops it), **Run a sequence** and **Stop running

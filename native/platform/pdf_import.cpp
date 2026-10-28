@@ -962,9 +962,17 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
   // -scale-to-x with -scale-to-y -1 fixes the width and keeps the aspect,
   // which is the same contract as the other two backends without any dpi
   // arithmetic to get wrong.
+  //
+  // And two flags without which it is not the same contract (both found by
+  // tools/check_pdf_render.py, 2026-10-28; both in poppler since 0.86). By
+  // default pdftoppm draws the MEDIA box, so a PDF with bleed or printer's
+  // marks came out with them round it, where Windows and the Mac show the
+  // crop box. And it applied the width to the page before its /Rotate, so a
+  // 16:9 slide stored portrait came out 6827 pixels wide when 3840 was asked.
   const fs::path prefix = outputDir / "page";
   auto run = readAllText({
     "pdftoppm", "-png",
+    "-cropbox", "-scale-dimension-before-rotation",
     "-scale-to-x", std::to_string(std::max(1, targetWidthPixels)),
     "-scale-to-y", "-1",
     pdfPath.string(), prefix.string()});
