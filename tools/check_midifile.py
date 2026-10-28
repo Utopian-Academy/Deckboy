@@ -87,6 +87,18 @@ def main():
             for line in db.send("STATUS").splitlines():
                 if line.startswith("DECK 1") or line.startswith("APP"):
                     print("     %s" % line[:200])
+            # Never started, started late, or keeps starting again? The deck
+            # reports Playing with the right duration, and its position is a
+            # steady clock from the take -- so 00:00.0 means that clock was
+            # restarted. Eight readings tell the three apart (CI, 2026-10-28).
+            samples = []
+            for _ in range(8):
+                samples.append(db.status("DECK 1", "pos") + "/" + db.status("DECK 1", "status"))
+                time.sleep(0.25)
+            print("     pos/status every 0.25 s: %s" % " ".join(samples))
+            for line in db.send("STATUS").splitlines():
+                if line.startswith("DECK 1"):
+                    print("     full: %s" % line)
             # The cue itself: a disarmed cue and a pre-waiting one both look
             # exactly like this from the outside, and both are ruled in or out
             # by one line.
