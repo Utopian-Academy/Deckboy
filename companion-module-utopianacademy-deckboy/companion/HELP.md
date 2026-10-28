@@ -22,6 +22,7 @@ REMOTE**. To control it from Companion on another computer, switch REMOTE on.
 - **Levels:** master volume, master dimmer, deck fader
 - **Playback:** Loop, Shuffle
 - **Outputs:** on/off, fullscreen, send to display, Clear, Blackout, PANIC
+- **Show:** Take all playlists, run a dashboard tile (and the sequence on it), run or stop a sequence
 - **Find:** set token, next, previous, take match
 - **VJ:** VJ mode, crossfader, blend mode, tap tempo, tempo, quantised takes, deck assignment
 - **Effects:** add, amount, parameter, parameter LFO, clear the chain; copy or paste a chain

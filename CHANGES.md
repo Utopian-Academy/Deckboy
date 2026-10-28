@@ -20,6 +20,11 @@
 ### Guided tour
 - The crossfade step asks for what it checks: press + until transition shows a time.
 
+### Companion
+- The Companion module 1.0.5 adds **Take all playlists**, **Run dashboard tile** (a tile holding a
+  sequence runs it, and a second press stops it), **Run a sequence** and **Stop running
+  sequences**.
+
 ## 2026-10-26 - v0.99.421 (every connected display in reach in Video Outputs; the tour on one screen)
 
 ### Video Outputs

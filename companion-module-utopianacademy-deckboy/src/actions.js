@@ -148,6 +148,39 @@ export function buildActions(self) {
 
 		clear: { name: 'Clear output to black', options: [], callback: () => send('CLEAR') },
 		panic: { name: 'PANIC (run panic profile)', options: [], callback: () => send('PANIC') },
+		take_all: {
+			name: 'Take all playlists',
+			description: 'The selected cue on every playlist at once, like TAKE ALL on the desk.',
+			options: [],
+			callback: () => send('ALLTAKE'),
+		},
+		dash_tile: {
+			name: 'Run dashboard tile',
+			description: 'Presses a DASH tile. A tile holding a sequence runs it; pressing it again while it runs stops it.',
+			options: [{ type: 'number', label: 'Tile', id: 'tile', default: 1, min: 1, max: 512, asInteger: true }],
+			callback: ({ options }) => {
+				const tile = Number(options.tile)
+				if (Number.isInteger(tile) && tile >= 1) send(`DASH ${tile}`)
+			},
+		},
+		sequence: {
+			name: 'Run a sequence',
+			description: 'Deckboy commands separated by ";", with WAIT <seconds> between them.',
+			options: [
+				{
+					type: 'textinput',
+					label: 'Steps',
+					id: 'steps',
+					default: 'DECK 1 TAKE 1 ; WAIT 2 ; DECK 2 TAKE 1',
+					useVariables: true,
+				},
+			],
+			callback: async ({ options }) => {
+				const steps = String(options.steps ?? '').trim()
+				if (steps.length > 0) send(`SEQ ${steps}`)
+			},
+		},
+		sequence_stop: { name: 'Stop running sequences', options: [], callback: () => send('SEQ STOP') },
 		blackout: {
 			name: 'Blackout',
 			options: [

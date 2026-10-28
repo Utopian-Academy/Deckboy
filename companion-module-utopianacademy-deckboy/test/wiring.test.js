@@ -184,6 +184,18 @@ test('actions emit the expected Deckboy commands', async () => {
 	self.sent.length = 0
 	await built.custom.callback({ options: { command: '   ' } })
 	assert.deepEqual(self.sent, [], 'an empty custom command sends nothing')
+
+	self.sent.length = 0
+	await built.take_all.callback({ options: {} })
+	await built.dash_tile.callback({ options: { tile: 3 } })
+	await built.sequence.callback({ options: { steps: ' DECK 1 TAKE 1 ; WAIT 2 ' } })
+	await built.sequence.callback({ options: { steps: '   ' } })
+	await built.sequence_stop.callback({ options: {} })
+	assert.deepEqual(
+		self.sent,
+		['ALLTAKE', 'DASH 3', 'SEQ DECK 1 TAKE 1 ; WAIT 2', 'SEQ STOP'],
+		'show-wide actions; an empty sequence sends nothing',
+	)
 })
 
 test('VJ actions emit the expected commands', async () => {
