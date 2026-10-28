@@ -148,6 +148,39 @@
     setFocusedOutputEnabled(!focusedOutput().enabled);
   }
 
+  // THE OUTPUT CHIP IS A SWITCH (first-time walkthrough, 2026-10-26). It read
+  // OUTPUT OFF above the big preview and looked like a button, and a click did
+  // nothing: the switch was three clicks away under MENU. Off, a click turns
+  // the output on, as MENU > OUTPUT ON does. On, a click only OFFERS -- turn
+  // off, or Video Outputs -- and never switches it off by itself, so a stray
+  // click mid-show cannot cut the picture. With several outputs the chip is
+  // one of them, so it opens Video Outputs, where they all are.
+  void openVideoOutputsSettings() {
+    settingsOpen_ = true;
+    settingsTab_ = 3;
+    uiWatchdogPopupEvent("settings_modal", true);
+  }
+
+  void handleOutputBadgeClick() {
+    if (project_.outputs.size() > 1) {
+      openVideoOutputsSettings();
+      return;
+    }
+    if (!focusedOutput().enabled) {
+      setFocusedOutputEnabled(true);
+      return;
+    }
+    openDropdown("output.badge", outputBadgeRect_,
+                 {{"off", "TURN OFF"}, {"outputs", "VIDEO OUTPUTS"}}, "",
+                 [this](const std::string& id) {
+                   if (id == "off") {
+                     if (focusedOutput().enabled) setFocusedOutputEnabled(false);
+                   } else if (id == "outputs") {
+                     openVideoOutputsSettings();
+                   }
+                 });
+  }
+
   bool setFocusedOutputType(const std::string& outputType) {
     normalizeProject(project_);
     if (project_.outputs.empty()) {

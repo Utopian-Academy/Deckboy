@@ -10534,6 +10534,7 @@ class App {
   std::vector<int> multiviewTileDecks_;   // -1 = the programme tile
   std::vector<SDL_Rect> multiviewFaderRects_;
   SDL_Rect multiviewBtnRect_ {};
+  SDL_Rect outputBadgeRect_ {};   // the OUTPUT chip in the programme header: a switch
 
   SDL_Texture* controlPreviewTex_ = nullptr;
   int controlPreviewTexW_ = 0;

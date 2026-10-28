@@ -22,6 +22,9 @@
   **Practice show** during the tour. It adds **not saved** when changes are not reaching the
   file, for example when the show's folder cannot be written; ordinary autosaving does not
   show it.
+- The **OUTPUT** chip above the programme preview is a switch. Off, a click turns the output on.
+  On, a click offers **TURN OFF** and **VIDEO OUTPUTS** and never turns it off by itself, so a
+  stray click cannot cut the picture. With several outputs it opens Video Outputs.
 
 ### Guided tour
 - Dr. Pixel and Professor Video are a tad cuter: round lenses with big eyes behind them and a

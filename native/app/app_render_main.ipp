@@ -2897,6 +2897,7 @@
       int telemetryRightLimit = std::max(badgeX, warpBtnLeft - kProgramLabelMinW - hdrPad);
       int availableTelemetryW = std::max(0, telemetryRightLimit - badgeX);
       int telemetryCount = 0;
+      outputBadgeRect_ = SDL_Rect {};
       if (availableTelemetryW >= kTelemetryBadgeMinW) {
         telemetryCount = std::min<int>(
           static_cast<int>(telemetryLabels.size()),
@@ -2973,6 +2974,19 @@
                       badgeValueRect.x + std::max(0, badgeValueRect.w - valueTextW),
                       badgeValueRect.y + (badgeValueRect.h - valueTextH) / 2);
           SDL_SetRenderClipRect(controlRenderer_, nullptr);
+          // The OUTPUT chip is a switch (handleOutputBadgeClick), so it says
+          // what a click will do.
+          if (ti == 0) {
+            outputBadgeRect_ = badge;
+            if (pointInRect(mouseX_, mouseY_, badge)) {
+              drawHoverTip(project_.outputs.size() > 1
+                             ? "Click to open Video Outputs"
+                             : focusedOutput().enabled
+                               ? "Click to turn off, or open Video Outputs"
+                               : "Click to turn the output on",
+                           badge.x + badge.w / 2, badge.y + badge.h, true);
+            }
+          }
           badgeX += badgeW + kTelemetryGap;
           monitorTelemetryEndX = badge.x + badge.w;
         }

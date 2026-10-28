@@ -431,6 +431,10 @@
       dispatchQuickAction(QuickAction::MultiviewToggle);
       return;
     }
+    if (outputBadgeRect_.w > 0 && pointInRect(x, y, outputBadgeRect_)) {
+      handleOutputBadgeClick();
+      return;
+    }
 
     // ── THE MULTIVIEW ───────────────────────────────────────────────────
     //
