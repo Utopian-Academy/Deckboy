@@ -933,6 +933,86 @@ void unscoreTurn(Game& g, int round, int turn) {
 
 Rgb scaled(Rgb c, double k) { return {static_cast<int>(c.r * k), static_cast<int>(c.g * k), static_cast<int>(c.b * k)}; }
 
+// The table's canvas: inches to pixels, the board centred in the frame.
+Canvas tableCanvas(std::uint8_t* rgba, int w, int h, const Plan& plan) {
+  Canvas c {rgba, w, h, 1, 0, 0};
+  c.s = std::min(w / plan.w, h / plan.h);
+  c.ox = (w - plan.w * c.s) / 2;
+  c.oy = (h - plan.h * c.s) / 2;
+  return c;
+}
+
+// THE EDGE STRIPS -- the round, the score, the twist -- along both edges. They
+// are worked out before anything is drawn, so a label near an edge can keep
+// clear of them, and drawn last, over everything. Each line is sized to fit
+// the board: on a 30" Spearhead board the round strip ran off both ends.
+struct EdgeLine { std::string text; double y, sc, plateAlpha; Rgb col; bool flipped; };
+
+std::vector<EdgeLine> edgeLines(const Plan& plan, const Game& game, const Canvas& c) {
+  std::vector<EdgeLine> lines;
+  if (!game.showStrip || game.setup) return lines;
+  const double B = std::clamp(game.bright, 0.1, 1.0), cell = std::max(1.0, c.s * 0.11);
+  const std::string who = game.over ? std::string("GAME OVER")
+                        : (game.turn == 2 ? plan.p2 : plan.p1) + " - " + phaseAt(plan, game.phase).name;
+  const std::string r = "ROUND " + std::to_string(game.round) + (is40k(plan) ? " / 5" : "");
+  const std::string cp = "   CP " + std::to_string(game.cp1) + " - " + std::to_string(game.cp2);
+  const std::string cpTheirs = "   CP " + std::to_string(game.cp2) + " - " + std::to_string(game.cp1);
+  const std::string clk = game.clockOn ? "   " + clockText(clockSeconds(game, 1)) + " | " + clockText(clockSeconds(game, 2)) + (game.clockPaused ? " (PAUSED)" : "") : "";
+  const std::string clkTheirs = game.clockOn ? "   " + clockText(clockSeconds(game, 2)) + " | " + clockText(clockSeconds(game, 1)) + (game.clockPaused ? " (PAUSED)" : "") : "";
+  const std::string mine = r + "   " + who + "   " + plan.p1 + " " + std::to_string(game.vp1) + " - " + std::to_string(game.vp2) + " " + plan.p2 + cp + clk;
+  const std::string theirs = r + "   " + who + "   " + plan.p2 + " " + std::to_string(game.vp2) + " - " + std::to_string(game.vp1) + " " + plan.p1 + cpTheirs + clkTheirs;
+  // Second line: the twist, and the underdog (the side behind on points).
+  std::string second;
+  if (std::chrono::duration<double>(Clock::now() - game.scoredAt).count() < 8.0 && !game.lastScore.empty())
+    second = game.lastScore + "   ";
+  if (!plan.twist.empty()) second += "TWIST: " + plan.twist;
+  {
+    const auto& activeTactic = game.tac[game.turn == 2 ? 1 : 0];
+    if (plan.pack.empty() && activeTactic.slot >= 0 && activeTactic.pick >= 0 && activeTactic.card[activeTactic.slot] >= 0)
+      second += std::string("   TACTIC: ") + kTacticCards[activeTactic.card[activeTactic.slot]].tactics[activeTactic.pick].name;
+  }
+  if (game.vp1 != game.vp2) second += (second.empty() ? "" : "   ") + std::string("UNDERDOG: ") + (game.vp1 < game.vp2 ? plan.p1 : plan.p2);
+  // Small, hard against each edge, on a plate: objectives often sit near an
+  // edge, and the strip must neither hide one nor be lost over its ring.
+  const double room = plan.w * c.s - c.s * 0.8;   // 0.4" clear of each side
+  auto fit = [&](const std::string& words, double want) { return std::min(want, room / (words.size() * 6.0 + 3.0)); };
+  const double sc = fit(mine.size() > theirs.size() ? mine : theirs, cell * 0.75);
+  const double edge = c.s * 0.55 - (cell * 0.75 - sc) * 5;   // a smaller strip keeps as close to the edge
+  lines.push_back({mine, c.Y(plan.h) - edge, sc, 0.8, scaled(kWhite, B), false});
+  lines.push_back({theirs, c.Y(0) + edge, sc, 0.8, scaled(kWhite, B), true});
+  // A second line inside the first, on each edge.
+  auto inner = [&](const std::string& words, bool top, Rgb col) {
+    const double sc2 = fit(words, sc * 0.85), in = edge + sc * 6.75 + sc2 * 5;
+    lines.push_back({words, top ? c.Y(0) + in : c.Y(plan.h) - in, sc2, 0.75, col, top});
+  };
+  if (is40k(plan)) {
+    // Each player's own secondaries, on their own edge, in their colour;
+    // the mission rule and the last score go with them.
+    for (int pl = 0; pl < 2; ++pl) {
+      std::string line2;
+      for (const auto& name : game.sec[pl].active) line2 += (line2.empty() ? "" : "  |  ") + name;
+      if (line2.empty()) line2 = "NO SECONDARIES";
+      line2 = "SECONDARIES: " + line2;
+      if (!plan.twist.empty()) line2 += "   RULE: " + plan.twist;
+      if (std::chrono::duration<double>(Clock::now() - game.scoredAt).count() < 8.0 && !game.lastScore.empty())
+        line2 = game.lastScore + "   " + line2;
+      // P2 sits at the top edge, so its line is turned to face them.
+      inner(line2, pl == 1, scaled(pl == 1 ? game.c2 : game.c1, B));
+    }
+  } else if (!second.empty()) {
+    inner(second, false, scaled(kGold, B));
+    inner(second, true, scaled(kGold, B));
+  }
+  return lines;
+}
+
+// The dark plate a line sits on, where plate() draws it.
+struct PlateBox { double x0, y0, x1, y1; };
+PlateBox plateBox(const EdgeLine& l, const Canvas& c, const Plan& plan) {
+  const double w = textWidth(l.text, l.sc) + l.sc * 4, cx = c.X(plan.w / 2);
+  return {cx - w / 2, l.y - l.sc * 5, cx + w / 2, l.y + l.sc * 5};
+}
+
 void renderTable(std::uint8_t* rgba, int w, int h, double t) {
   Plan plan;
   Game game;
@@ -943,10 +1023,7 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
   }
   std::fill(rgba, rgba + static_cast<std::size_t>(w) * h * 4, std::uint8_t {0});
   for (std::size_t i = 3; i < static_cast<std::size_t>(w) * h * 4; i += 4) rgba[i] = 255;
-  Canvas c {rgba, w, h, 1, 0, 0};
-  c.s = std::min(w / plan.w, h / plan.h);
-  c.ox = (w - plan.w * c.s) / 2;
-  c.oy = (h - plan.h * c.s) / 2;
+  Canvas c = tableCanvas(rgba, w, h, plan);
   if (game.calibrate) { drawCalibration(c, plan); return; }
 
   // One clock for every animation, scaled by SPEED (0 holds it all still).
@@ -958,6 +1035,30 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
   const bool arcane = game.style == 1, ember = game.style == 2;
   const double line = std::max(1.5, c.s * 0.08);
   const double cell = std::max(1.0, c.s * 0.11);
+
+  // A label that would land on an edge strip moves clear of it: to the other
+  // side of its mark if that is clear, or else inward, past every plate it meets.
+  const auto edges = edgeLines(plan, game, c);
+  auto clearOfEdges = [&](const std::string& label, double cx, double cy, double alt, double size) {
+    const double boxW = textWidth(label, size) + size * 2, boxH = size * 9;   // the glyphs and a little air
+    const double mid = c.Y(plan.h / 2);
+    auto hits = [&](double y) {
+      for (const auto& l : edges) {
+        const PlateBox box = plateBox(l, c, plan);
+        if (cx + boxW / 2 > box.x0 && cx - boxW / 2 < box.x1 && y + boxH / 2 > box.y0 && y - boxH / 2 < box.y1) return true;
+      }
+      return false;
+    };
+    if (!hits(cy)) return cy;
+    if (!hits(alt)) return alt;
+    const bool low = cy > mid;
+    for (const auto& l : edges) {
+      const PlateBox box = plateBox(l, c, plan);
+      if (cx + boxW / 2 > box.x0 && cx - boxW / 2 < box.x1 && (l.y > mid) == low)
+        cy = low ? std::min(cy, box.y0 - boxH / 2) : std::max(cy, box.y1 + boxH / 2);
+    }
+    return cy;
+  };
 
   if (game.ground != "none") drawGround(c, plan, game.ground, ts, game.groundLevel * B);
   if (game.showEdge && !game.setup) {
@@ -1010,14 +1111,18 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
         col = scaled(col, B);
       });
       outline(c, tr.poly, line * (tr.look == "ruin" ? 1.4 : 1.0), grey, tr.look == "ruin" ? 0.8 : 0.55);
-      if (!tr.label.empty()) text(c, tr.label, c.X(centre.x), c.Y(centre.y), cell * 1.4, grey, 0.85);
+      if (!tr.label.empty())
+        text(c, tr.label, c.X(centre.x), clearOfEdges(tr.label, c.X(centre.x), c.Y(centre.y), c.Y(centre.y), cell * 1.4),
+             cell * 1.4, grey, 0.85);
     }
     // Where each piece of terrain goes: a breathing dashed circle.
     for (const auto& m : plan.markers) {
       if (m.muted) continue;
       const double breathe = 0.45 + 0.2 * std::sin(ts * 1.3 + m.p.x);
       ring(c, c.X(m.p.x), c.Y(m.p.y), c.s * 1.0, line * 0.8, grey, breathe, 0, 12, ts * 0.2, 0.55);
-      if (game.showLabels && !m.label.empty()) text(c, m.label, c.X(m.p.x), c.Y(m.p.y) + c.s * 1.5, cell * 0.6, grey, 0.75);
+      if (game.showLabels && !m.label.empty())
+        text(c, m.label, c.X(m.p.x), clearOfEdges(m.label, c.X(m.p.x), c.Y(m.p.y) + c.s * 1.5, c.Y(m.p.y) - c.s * 1.5, cell * 0.6),
+             cell * 0.6, grey, 0.75);
     }
   }
   if (game.showPlaces) {
@@ -1036,7 +1141,9 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
       ring(c, c.X(p.p.x), c.Y(p.p.y), c.s * (1.1 + 0.15 * glow), line, held, (p.owner ? 0.5 : 0.25) + 0.3 * glow,
            c.s * (p.owner ? 0.8 : 0.5) * glow);
       outline(c, diamond, line * 1.2, held, 1.0);
-      if (game.showLabels && !p.label.empty()) text(c, p.label, c.X(p.p.x), c.Y(p.p.y) + c.s * 1.7, cell * 0.65, held, 0.95);
+      if (game.showLabels && !p.label.empty())
+        text(c, p.label, c.X(p.p.x), clearOfEdges(p.label, c.X(p.p.x), c.Y(p.p.y) + c.s * 1.7, c.Y(p.p.y) - c.s * 1.7, cell * 0.65),
+             cell * 0.65, held, 0.95);
     }
   }
   if (game.showObjectives) {
@@ -1056,8 +1163,10 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
         outline(c, o.poly, line * (lit ? 1.8 : 1.2), col, o.owner || lit ? 1.0 : 0.7);
         if (lit) outline(c, o.poly, line * 2.5, hlc, 0.35 * pulse);
         if (arcane || ember) outline(c, o.poly, line * 0.7, col, 0.9, c.s * 0.35, ts * c.s * 0.3);
-        text(c, o.label, cx, cy, cell * 1.3, col, 1.0);
-        if (game.showLabels && !o.kind.empty()) text(c, o.kind, cx, cy + c.s * 0.9, cell * 0.6, col, 0.8);
+        const double ly = clearOfEdges(o.label, cx, cy, cy, cell * 1.3);
+        text(c, o.label, cx, ly, cell * 1.3, col, 1.0);
+        if (game.showLabels && !o.kind.empty())
+          text(c, o.kind, cx, clearOfEdges(o.kind, cx, ly + c.s * 0.9, ly - c.s * 0.9, cell * 0.6), cell * 0.6, col, 0.8);
         continue;
       }
       if (contested) {
@@ -1068,8 +1177,10 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
         ring(c, cx, cy, r, line * 2.2, c2, 1.0, 0, 8, ts * 0.15 + 3.141592653589793 / 8, 0.5);
         // Clear of the round strips along both edges.
         const bool above = o.p.y + o.range + o.marker + 3.5 > plan.h;
-        plate(c, "CONTESTED", cx, above ? cy - r - c.s * 0.9 : cy + r + c.s * 0.9, cell * 0.6, 0.8);
-        text(c, "CONTESTED", cx, above ? cy - r - c.s * 0.9 : cy + r + c.s * 0.9, cell * 0.6, white, 0.95);
+        const double up = cy - r - c.s * 0.9, down = cy + r + c.s * 0.9;
+        const double ty = clearOfEdges("CONTESTED", cx, above ? up : down, above ? down : up, cell * 0.6);
+        plate(c, "CONTESTED", cx, ty, cell * 0.6, 0.8);
+        text(c, "CONTESTED", cx, ty, cell * 0.6, white, 0.95);
       } else {
         ring(c, cx, cy, r, line * (lit ? 1.6 : 1.2), col, o.owner || lit ? 1.0 : 0.7, o.owner || lit ? c.s * 0.6 * pulse : 0);
       }
@@ -1094,11 +1205,13 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
         const double k = since / 1.5;
         ring(c, cx, cy, r + c.s * 4.0 * k, line * 2.0, contested ? c2 : col, 0.8 * (1 - k), c.s * 0.4);
       }
-      text(c, o.label, cx, cy, cell * 1.3, col, 1.0);
-      // Its type under the ring, or over it when the ring is near the bottom edge.
+      text(c, o.label, cx, clearOfEdges(o.label, cx, cy, cy, cell * 1.3), cell * 1.3, col, 1.0);
+      // Its type under the ring, or over it when the ring is near the bottom
+      // edge or the line along it.
       if (game.showLabels && !o.kind.empty()) {
         const bool above = o.p.y + o.range + 1.5 > plan.h;
-        text(c, o.kind, cx, above ? cy - r - c.s * 0.9 : cy + r + c.s * 0.9, cell * 0.6, col, 0.8);
+        const double up = cy - r - c.s * 0.9, down = cy + r + c.s * 0.9;
+        text(c, o.kind, cx, clearOfEdges(o.kind, cx, above ? up : down, above ? down : up, cell * 0.6), cell * 0.6, col, 0.8);
       }
     }
   }
@@ -1190,60 +1303,9 @@ void renderTable(std::uint8_t* rgba, int w, int h, double t) {
       }
     }
   }
-  if (game.showStrip && !game.setup) {
-    const std::string who = game.over ? std::string("GAME OVER")
-                          : (game.turn == 2 ? plan.p2 : plan.p1) + " - " + phaseAt(plan, game.phase).name;
-    const std::string r = "ROUND " + std::to_string(game.round) + (is40k(plan) ? " / 5" : "");
-    const std::string cp = "   CP " + std::to_string(game.cp1) + " - " + std::to_string(game.cp2);
-    const std::string cpTheirs = "   CP " + std::to_string(game.cp2) + " - " + std::to_string(game.cp1);
-    const std::string clk = game.clockOn ? "   " + clockText(clockSeconds(game, 1)) + " | " + clockText(clockSeconds(game, 2)) + (game.clockPaused ? " (PAUSED)" : "") : "";
-    const std::string clkTheirs = game.clockOn ? "   " + clockText(clockSeconds(game, 2)) + " | " + clockText(clockSeconds(game, 1)) + (game.clockPaused ? " (PAUSED)" : "") : "";
-    const std::string mine = r + "   " + who + "   " + plan.p1 + " " + std::to_string(game.vp1) + " - " + std::to_string(game.vp2) + " " + plan.p2 + cp + clk;
-    const std::string theirs = r + "   " + who + "   " + plan.p2 + " " + std::to_string(game.vp2) + " - " + std::to_string(game.vp1) + " " + plan.p1 + cpTheirs + clkTheirs;
-    // Second line: the twist, and the underdog (the side behind on points).
-    std::string second;
-    if (std::chrono::duration<double>(Clock::now() - game.scoredAt).count() < 8.0 && !game.lastScore.empty())
-      second = game.lastScore + "   ";
-    if (!plan.twist.empty()) second += "TWIST: " + plan.twist;
-    {
-      const auto& activeTactic = game.tac[game.turn == 2 ? 1 : 0];
-      if (plan.pack.empty() && activeTactic.slot >= 0 && activeTactic.pick >= 0 && activeTactic.card[activeTactic.slot] >= 0)
-        second += std::string("   TACTIC: ") + kTacticCards[activeTactic.card[activeTactic.slot]].tactics[activeTactic.pick].name;
-    }
-    if (game.vp1 != game.vp2) second += (second.empty() ? "" : "   ") + std::string("UNDERDOG: ") + (game.vp1 < game.vp2 ? plan.p1 : plan.p2);
-    // Small, hard against each edge, on a plate: objectives often sit near an
-    // edge, and the strip must neither hide one nor be lost over its ring.
-    const double sc = cell * 0.75, edge = c.s * 0.55;
-    plate(c, mine, c.X(plan.w / 2), c.Y(plan.h) - edge, sc, 0.8);
-    text(c, mine, c.X(plan.w / 2), c.Y(plan.h) - edge, sc, white, 0.95);
-    plate(c, theirs, c.X(plan.w / 2), c.Y(0) + edge, sc, 0.8);
-    text(c, theirs, c.X(plan.w / 2), c.Y(0) + edge, sc, white, 0.95, true);
-    if (is40k(plan)) {
-      // Each player's own secondaries, on their own edge, in their colour;
-      // the mission rule and the last score go with them.
-      const double lift = sc * 11;
-      for (int pl = 0; pl < 2; ++pl) {
-        std::string line2;
-        for (const auto& name : game.sec[pl].active) line2 += (line2.empty() ? "" : "  |  ") + name;
-        if (line2.empty()) line2 = "NO SECONDARIES";
-        line2 = "SECONDARIES: " + line2;
-        if (!plan.twist.empty()) line2 += "   RULE: " + plan.twist;
-        if (std::chrono::duration<double>(Clock::now() - game.scoredAt).count() < 8.0 && !game.lastScore.empty())
-          line2 = game.lastScore + "   " + line2;
-        const bool top = pl == 1;   // P2 sits at the top edge, so its strip is turned to face them
-        const double y = top ? c.Y(0) + edge + lift : c.Y(plan.h) - edge - lift;
-        plate(c, line2, c.X(plan.w / 2), y, sc * 0.85, 0.75);
-        text(c, line2, c.X(plan.w / 2), y, sc * 0.85, side(pl + 1), 0.95, top);
-      }
-      second.clear();
-    }
-    if (!second.empty()) {
-      const double lift = sc * 11;
-      plate(c, second, c.X(plan.w / 2), c.Y(plan.h) - edge - lift, sc * 0.85, 0.75);
-      text(c, second, c.X(plan.w / 2), c.Y(plan.h) - edge - lift, sc * 0.85, scaled(kGold, B), 0.95);
-      plate(c, second, c.X(plan.w / 2), c.Y(0) + edge + lift, sc * 0.85, 0.75);
-      text(c, second, c.X(plan.w / 2), c.Y(0) + edge + lift, sc * 0.85, scaled(kGold, B), 0.95, true);
-    }
+  for (const auto& l : edges) {
+    plate(c, l.text, c.X(plan.w / 2), l.y, l.sc, l.plateAlpha);
+    text(c, l.text, c.X(plan.w / 2), l.y, l.sc, l.col, 0.95, l.flipped);
   }
 }
 
