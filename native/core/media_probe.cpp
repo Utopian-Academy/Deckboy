@@ -30,7 +30,7 @@ extern "C" {
 
 namespace deckboy::core::media {
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 using namespace deckboy::core::utils;
 
 bool isImagePath(const fs::path& path) {

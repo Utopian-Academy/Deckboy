@@ -47,7 +47,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include "core/code_source.hpp"
 #include "core/critter_card.hpp"
 #include <ctime>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <map>
 #include <fstream>
 #include <algorithm>
@@ -2268,9 +2268,9 @@ bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tile
   // renders as the same sprite in every cell and looks like the feature is
   // doing nothing.
   std::error_code dirEc;
-  if (std::filesystem::is_directory(path, dirEc)) {
+  if (dbfs::is_directory(path, dirEc)) {
     std::vector<std::string> files;
-    for (const auto& entry : std::filesystem::directory_iterator(path, dirEc)) {
+    for (const auto& entry : dbfs::directory_iterator(path, dirEc)) {
       if (!entry.is_regular_file()) continue;
       std::string ext = entry.path().extension().string();
       std::transform(ext.begin(), ext.end(), ext.begin(),
@@ -6345,7 +6345,7 @@ bool MediaEngine::datamoshActiveForCue(const Cue& cue) const {
   if (!cue.datamoshEnabled || cue.kind != CueKind::Video) return false;
   if (cue.moshPath.empty()) return false;
   std::error_code ec;
-  return std::filesystem::exists(cue.moshPath, ec);
+  return dbfs::exists(cue.moshPath, ec);
 }
 
 std::string MediaEngine::mediaPathForCue(const Cue& cue) const {

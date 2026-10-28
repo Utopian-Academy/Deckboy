@@ -36,6 +36,16 @@ WATCH = {
     "_AVCaptureDeviceTypeDeskViewCamera": (13, 0),
 }
 
+# The only files allowed to need a newer macOS than the bundle claims: helpers
+# the app checks the system for before it ever starts them. Name -> the newest
+# minimum allowed. whisper.cpp uses std::filesystem (macOS 10.15) and the Intel
+# bundle claims 10.13; captionsNeedNewerSystem() in core/captioning.hpp keeps
+# both off below 10.15. Anything else newer than the claim still fails.
+GATED = {
+    "whisper-cli": (10, 15),
+    "deckboy-listen": (10, 15),
+}
+
 
 def parse_version(text):
     parts = [int(p) for p in str(text).split(".") if p.isdigit()]
@@ -98,6 +108,10 @@ def main():
                 continue
             if r["minos"] is None:
                 problems.append("%s/%s: no minimum macOS recorded" % (sub, name))
+            elif r["minos"] > claim and sub == "MacOS" and name in GATED \
+                    and r["minos"] <= GATED[name]:
+                print("  ok   %s/%s: built for macOS %d.%d; the app does not start it on older"
+                      % ((sub, name) + r["minos"]))
             elif r["minos"] > claim:
                 problems.append("%s/%s: built for macOS %d.%d, newer than the claimed %d.%d"
                                 % ((sub, name) + r["minos"] + claim))

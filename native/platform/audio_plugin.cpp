@@ -24,7 +24,7 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <system_error>
 
 #if defined(_WIN32)
@@ -39,7 +39,7 @@
 namespace deckboy::platform::audioplugin {
 namespace {
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 
 // Where VST2s live, which is a different set of folders from VST3 and much
 // less standardised -- there was never a spec for it, only a habit. Only ever

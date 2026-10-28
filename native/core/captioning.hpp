@@ -29,14 +29,14 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <filesystem>
+#include "fs.hpp"
 #include <string>
 #include <system_error>
 #include <vector>
 
 namespace deckboy::captioning {
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 
 // "base.en": English, 142 MB, about seven times faster than real time on an
 // ordinary CPU and right about almost every word. "base" is the same size for
@@ -72,9 +72,25 @@ inline std::string exeName(const std::string& stem) {
 #endif
 }
 
+// Captions made on this computer need macOS 10.15. The Intel Mac build runs on
+// 10.13, but whisper.cpp (whisper-cli and deckboy-listen) uses std::filesystem,
+// which a Mac only has from 10.15, so CI builds those two for 10.15 and they
+// must not be started on anything older. Null when captions can run here,
+// otherwise the reason to give the operator.
+inline const char* captionsNeedNewerSystem() {
+#if defined(__APPLE__)
+  if (__builtin_available(macOS 10.15, *)) return nullptr;
+  return "captions need macOS 10.15 or later";
+#else
+  return nullptr;
+#endif
+}
+
 // Where whisper-cli is: DECKBOY_WHISPER, beside Deckboy, a whisper folder
-// beside it, the state folder, then PATH. Empty when there is none anywhere.
+// beside it, the state folder, then PATH. Empty when there is none anywhere,
+// or when this system is too old to run it.
 inline fs::path whisperCliPath() {
+  if (captionsNeedNewerSystem()) return {};
   std::error_code ec;
   if (const char* env = std::getenv("DECKBOY_WHISPER"); env && *env && fs::exists(env, ec)) {
     return fs::path(env);
@@ -164,6 +180,7 @@ inline fs::path captionFileFor(const fs::path& media) {
 // thread. `language` is a code ("en", "de") or "auto".
 inline Result transcribe(const fs::path& media, const std::string& model = kDefaultModel,
                          const std::string& language = "auto") {
+  if (const char* why = captionsNeedNewerSystem()) return {false, why, {}};
   const fs::path cli = whisperCliPath();
   if (cli.empty()) {
     return {false, "captioning is not installed here (whisper-cli was not found)", {}};

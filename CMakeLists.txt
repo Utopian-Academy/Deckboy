@@ -32,6 +32,12 @@ set(DECKBOY_VERSION_TAG "v${DECKBOY_VERSION_STRING}")
 # and tools/audit_macos_minos.py fails the package if any file needs newer.
 # Keep this, the deps build and LSMinimumSystemVersion (package_macos.sh,
 # DECKBOY_MACOS_MIN) the same number.
+#
+# 12.0 is the default for a build made here. The INTEL release is built for
+# 10.13 High Sierra (the macos-package job passes it), because Intel Macs are
+# the ones held on old systems -- a 2015 MacBook Pro at a show was. What that
+# costs: std::filesystem is ghc::filesystem there (core/fs.hpp), captions need
+# 10.15 and screen/window/browser capture 12.3, each said on the screen.
 if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING
       "Oldest macOS this build will run on" FORCE)
@@ -674,7 +680,10 @@ if(APPLE)
     # job. Building this helper by hand with -framework AppKit is what hid the
     # missing link line here.
     "-framework AppKit"
-    "-framework ScreenCaptureKit"
+    # WEAK: ScreenCaptureKit is macOS 12.3+, and the Intel build runs on
+    # 10.13. The app never starts this helper below 12.3
+    # (capture_backend.cpp), and the helper checks again itself.
+    "-weak_framework ScreenCaptureKit"
     "-framework CoreMedia"
     "-framework CoreVideo"
     "-framework CoreGraphics"

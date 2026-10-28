@@ -32,7 +32,7 @@
 #pragma once
 
 #include <cstdint>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <memory>
 #include <optional>
 #include <string>

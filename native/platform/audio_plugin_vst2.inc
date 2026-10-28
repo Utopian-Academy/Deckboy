@@ -192,7 +192,7 @@ std::intptr_t hostCallback(AEffect* effect, std::int32_t opcode,
 // threads are running is an immediate crash.
 class Vst2Module {
  public:
-  explicit Vst2Module(const std::filesystem::path& path) {
+  explicit Vst2Module(const dbfs::path& path) {
 #if defined(_WIN32)
     handle_ = LoadLibraryW(path.wstring().c_str());
     if (handle_) {
@@ -509,7 +509,7 @@ std::shared_ptr<Vst2Module> moduleFor(const std::string& path) {
       return alive;
     }
   }
-  auto module = std::make_shared<Vst2Module>(std::filesystem::path(path));
+  auto module = std::make_shared<Vst2Module>(dbfs::path(path));
   if (!module->valid()) {
     return nullptr;
   }
@@ -529,7 +529,7 @@ std::unique_ptr<AudioPluginInstance> openVst2Plugin(const std::string& path,
   PluginDescriptor d;
   d.format = "vst2";
   d.path = path;
-  d.name = std::filesystem::path(path).stem().string();
+  d.name = dbfs::path(path).stem().string();
   d.id = "vst2:" + path;
   auto instance = std::make_unique<vst2::Vst2Instance>(module, d);
   if (!instance->open(sampleRate, maxBlockFrames)) {

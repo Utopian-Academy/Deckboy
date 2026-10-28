@@ -57,7 +57,9 @@ namespace deckboy::captioning {
 
 // Where deckboy-listen is: DECKBOY_LISTEN, beside Deckboy, or in a whisper
 // folder beside it or in the state folder -- the places whisper-cli is found.
+// Empty on a system too old to run it (captionsNeedNewerSystem).
 inline fs::path listenPath() {
+  if (captionsNeedNewerSystem()) return {};
   if (const char* env = std::getenv("DECKBOY_LISTEN"); env && *env && fs::exists(env)) return fs::path(env);
   const fs::path exeDir = deckboy::core::Paths::executablePath().parent_path();
   const std::string name = exeName("deckboy-listen");

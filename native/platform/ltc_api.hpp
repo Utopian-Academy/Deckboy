@@ -41,7 +41,7 @@
 
 #include "dynamic_library.hpp"
 #include "../core/paths.hpp"   // executablePath() for bundle-relative candidates
-#include <filesystem>
+#include "core/fs.hpp"
 
 // A decoded SMPTE timecode value extracted from an LTC audio frame.
 struct LtcDecodedTimecode {
@@ -196,7 +196,7 @@ struct LtcApi {
     // executable. Without this, the portable builds advertised LTC but it only
     // worked on a machine that happened to have libltc installed.
     std::error_code exeEc;
-    std::filesystem::path exeDir =
+    dbfs::path exeDir =
         deckboy::core::Paths::executablePath().parent_path();
     if (!exeDir.empty()) {
 #ifdef _WIN32

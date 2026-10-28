@@ -13,7 +13,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <initializer_list>
 #include <system_error>
 
@@ -26,7 +26,7 @@
 
 namespace deckboy::render {
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 using shaping::FallbackFont;
 
 namespace {

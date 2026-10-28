@@ -23,7 +23,7 @@
 
 #include <atomic>
 #include <cstdint>
-#include <filesystem>
+#include "fs.hpp"
 #include <functional>
 #include <map>
 #include <memory>
@@ -36,7 +36,7 @@ namespace deckboy::core {
 
 class WatchFolder {
  public:
-  using Accept = std::function<bool(const std::filesystem::path&)>;
+  using Accept = std::function<bool(const dbfs::path&)>;
 
   // `accept` says which files count; the default is anything the desk imports.
   explicit WatchFolder(Accept accept = {});

@@ -34,7 +34,7 @@
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 
 namespace deckboy::platform {
 namespace {

@@ -31,7 +31,7 @@
 #include <cctype>
 #include <cstring>
 #include <cstdlib>
-#include <filesystem>
+#include "fs.hpp"
 #include <mutex>
 
 #ifdef _WIN32
@@ -45,7 +45,7 @@
 #include <unistd.h>      // fork, execvp, pipe, dup2, setsid, close
 #endif
 
-namespace fs = std::filesystem;
+namespace fs = dbfs;
 
 // EVERY SPAWN HOLDS THIS, so no child can be started while another child's
 // pipe ends are open to inheritance. Without it a child started on one thread

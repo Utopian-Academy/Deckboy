@@ -5127,7 +5127,7 @@
     TestCardTextures tex;
     std::vector<TestCardScreenText> screens;
     std::vector<std::unique_ptr<File>> files;
-    std::filesystem::path folder;
+    dbfs::path folder;
     std::mutex mutex;
     std::condition_variable cv;
     std::deque<std::vector<std::uint8_t>> queue;
@@ -5169,7 +5169,7 @@
   }
 
   // Returns a reason when the export cannot start, empty when it did.
-  std::string exportTestCard(double seconds, int fps, int askW, int askH, const std::filesystem::path& folderIn) {
+  std::string exportTestCard(double seconds, int fps, int askW, int askH, const dbfs::path& folderIn) {
     namespace tc = deckboy::core::testcard;
     if (testCardExport_) return "a test card export is already running";
     seconds = std::clamp(seconds, 1.0, 600.0);
@@ -5179,7 +5179,7 @@
     job->totalFrames = static_cast<int>(std::lround(seconds * fps));
     std::error_code ec;
     job->folder = folderIn.empty() ? Paths::stateDir() / "test-cards" : folderIn;
-    std::filesystem::create_directories(job->folder, ec);
+    dbfs::create_directories(job->folder, ec);
 
     auto screenFor = [&](int number, SDL_Rect r, const std::string& name) {
       TestCardScreenText s;

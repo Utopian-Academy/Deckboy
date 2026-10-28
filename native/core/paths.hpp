@@ -25,7 +25,7 @@
 #ifndef DECKBOY_CORE_PATHS_HPP
 #define DECKBOY_CORE_PATHS_HPP
 
-#include <filesystem>
+#include "fs.hpp"
 #include <string>
 
 namespace deckboy {
@@ -36,17 +36,17 @@ namespace core {
 struct Paths {
   /// Project root directory. This is the anchor for all relative paths.
   /// Order: DECKBOY_ROOT env → walk up from exe dir (skip bin/build) → cwd.
-  static std::filesystem::path projectRoot();
+  static dbfs::path projectRoot();
 
   /// Absolute path to the running executable, or empty if the platform
   /// doesn't support exe path discovery (rare; handled gracefully by callers).
-  static std::filesystem::path executablePath();
+  static dbfs::path executablePath();
 
   /// Data directory (project_root / "data"). Contains fonts, themes, UI sounds
   /// and the other bundled assets. READ-ONLY as far as the app is concerned —
   /// inside a macOS .app this is Contents/Resources/data, which is covered by
   /// the code signature. Write to stateDir() instead.
-  static std::filesystem::path dataDir();
+  static dbfs::path dataDir();
 
   /// Where the app WRITES: the default show, the last-opened pointer, crash
   /// logs. Usually dataDir() itself, which keeps a portable install portable —
@@ -59,11 +59,11 @@ struct Paths {
   ///      install the user has no rights to)
   ///   3. per-user application data (%APPDATA%, ~/Library/Application Support,
   ///      XDG_DATA_HOME)
-  static std::filesystem::path stateDir();
+  static dbfs::path stateDir();
 
   /// Default show file path: state_dir / "default.deckboy".
   /// Loaded automatically at startup if it exists.
-  static std::filesystem::path defaultProjectFile();
+  static dbfs::path defaultProjectFile();
 
   /// Create the data and state directories if they don't exist.
   /// Returns false on failure. Called once during app initialization.
@@ -82,7 +82,7 @@ struct Paths {
     Mono,   // monospaced font for timecodes and data (Consolas / Menlo)
     Pixel   // retro pixel font for branding (PressStart2P)
   };
-  static std::filesystem::path fontPath(FontName name);
+  static dbfs::path fontPath(FontName name);
 
   // WHERE THIS MACHINE KEEPS ITS FONTS.
   //
@@ -90,12 +90,12 @@ struct Paths {
   // do not have, and the answer is almost always already installed -- Yu Gothic
   // on Windows, Hiragino on macOS, Noto on most Linux desktops. Shipping those
   // ourselves would mean carrying megabytes of glyphs the machine already has.
-  static std::filesystem::path systemFontDir();
+  static dbfs::path systemFontDir();
 
   /// Normalize a project file path for save/load:
   ///   - Empty path → default project file location
   ///   - Missing extension → append ".deckboy"
-  static std::filesystem::path normalizeProjectPath(const std::filesystem::path& path);
+  static dbfs::path normalizeProjectPath(const dbfs::path& path);
 };
 
 }  // namespace core

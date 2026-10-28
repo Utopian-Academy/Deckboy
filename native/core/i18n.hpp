@@ -56,7 +56,7 @@
 #ifndef DECKBOY_CORE_I18N_HPP
 #define DECKBOY_CORE_I18N_HPP
 
-#include <filesystem>
+#include "fs.hpp"
 #include <string>
 #include <vector>
 
@@ -90,12 +90,12 @@ struct LanguageInfo {
 // catalogue found in <dataDir>/lang. Sorted with English first, then real
 // languages, then the cyphers, because the cyphers are a novelty and should
 // not sit between two languages somebody is looking for.
-std::vector<LanguageInfo> availableLanguages(const std::filesystem::path& dataDir);
+std::vector<LanguageInfo> availableLanguages(const dbfs::path& dataDir);
 
 // Switch the interface language. An unknown code, or a catalogue that will not
 // load, leaves the previous language in place and reports why -- silently
 // falling back to English would look exactly like the setting not saving.
-bool setLanguage(const std::string& code, const std::filesystem::path& dataDir,
+bool setLanguage(const std::string& code, const dbfs::path& dataDir,
                  std::string& error);
 
 // The active code, and its display name.
@@ -174,7 +174,7 @@ bool shapingAvailable();
 // Right-to-left catalogues present but hidden for want of shaping. Empty when
 // there are none or when shaping works -- so --self-check can say WHY a
 // language somebody expected is not in the list.
-std::vector<std::string> languagesAwaitingShaping(const std::filesystem::path& dataDir);
+std::vector<std::string> languagesAwaitingShaping(const dbfs::path& dataDir);
 
 // Records what the loader actually managed to open, so activeFontMissing can
 // tell "asked for nothing" from "asked and did not get it".

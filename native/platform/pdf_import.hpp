@@ -31,7 +31,7 @@
 #ifndef DECKBOY_PLATFORM_PDF_IMPORT_HPP
 #define DECKBOY_PLATFORM_PDF_IMPORT_HPP
 
-#include <filesystem>
+#include "core/fs.hpp"
 #include <functional>
 #include <string>
 #include <vector>
@@ -39,12 +39,12 @@
 namespace deckboy::platform {
 
 // Is this a document this module can turn into pages?
-bool isPdfDocumentPath(const std::filesystem::path& path);
+bool isPdfDocumentPath(const dbfs::path& path);
 
 // A presentation that is NOT a PDF (.pptx, .ppt, .key, .odp). Nothing in this
 // module can rasterise one directly -- they go through convertPresentationToPdf
 // first. Kept as its own question so the app can treat them as a class.
-bool isPresentationDocumentPath(const std::filesystem::path& path);
+bool isPresentationDocumentPath(const dbfs::path& path);
 
 // ── Presentations, by way of the application that owns the format ───────────
 //
@@ -70,7 +70,7 @@ bool isPresentationDocumentPath(const std::filesystem::path& path);
 // transitions. This makes the import work; it does not make an animated deck
 // animate.
 struct PresentationConversion {
-  std::filesystem::path pdfPath;   // the PDF that was produced
+  dbfs::path pdfPath;   // the PDF that was produced
   std::string converter;           // human-readable name of what did it
   std::string error;               // empty on success
   bool ok() const { return error.empty() && !pdfPath.empty(); }
@@ -84,7 +84,7 @@ bool presentationConvertAvailable(std::string& whyNot);
 // Blocking, and slow enough to matter -- Office can take tens of seconds on a
 // large deck -- so callers run it off the UI thread.
 PresentationConversion convertPresentationToPdf(
-  const std::filesystem::path& source, const std::filesystem::path& outputDir);
+  const dbfs::path& source, const dbfs::path& outputDir);
 
 struct PdfRasterResult {
   std::vector<std::string> pagePaths;   // in page order
@@ -108,8 +108,8 @@ struct PdfRasterResult {
 //
 // `onProgress(pageIndex, pageCount)` is called from THIS thread as it goes;
 // callers running it in the background must marshal anything it touches.
-PdfRasterResult rasterisePdf(const std::filesystem::path& pdfPath,
-                             const std::filesystem::path& outputDir,
+PdfRasterResult rasterisePdf(const dbfs::path& pdfPath,
+                             const dbfs::path& outputDir,
                              int targetWidthPixels,
                              const std::function<void(int, int)>& onProgress);
 
@@ -121,8 +121,8 @@ PdfRasterResult rasterisePdf(const std::filesystem::path& pdfPath,
 // show process makes the process crash on exit, for reasons written out in full
 // at rasterisePdf in the .cpp. Use it directly only from a process that is
 // about to end anyway.
-PdfRasterResult rasterisePdfInProcess(const std::filesystem::path& pdfPath,
-                                      const std::filesystem::path& outputDir,
+PdfRasterResult rasterisePdfInProcess(const dbfs::path& pdfPath,
+                                      const dbfs::path& outputDir,
                                       int targetWidthPixels,
                                       const std::function<void(int, int)>& onProgress);
 #endif
@@ -145,7 +145,7 @@ bool pdfRasterAvailable(std::string& whyNot);
 // Returns all-empty on a build without zlib, on a file that is not a ZIP, and
 // on anything malformed: a deck that will not parse should cost its notes, not
 // the import.
-std::vector<std::string> slideNotesFromPptx(const std::filesystem::path& pptxPath,
+std::vector<std::string> slideNotesFromPptx(const dbfs::path& pptxPath,
                                             std::size_t slideCount);
 
 // WHAT THE DECK WAS BUILT TO DO BETWEEN SLIDES.
@@ -166,7 +166,7 @@ struct SlideTransition {
 };
 
 std::vector<SlideTransition> slideTransitionsFromPptx(
-  const std::filesystem::path& pptxPath, std::size_t slideCount);
+  const dbfs::path& pptxPath, std::size_t slideCount);
 
 }  // namespace deckboy::platform
 

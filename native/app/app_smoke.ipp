@@ -956,7 +956,7 @@
     // wrong. These are exact transforms, so they can be checked exactly.
     {
       std::string err;
-      const std::filesystem::path noData;
+      const dbfs::path noData;
       auto say = [&](const char* code, const std::string& in) {
         deckboy::core::i18n::setLanguage(code, noData, err);
         return deckboy::core::i18n::translate(in);
@@ -3896,7 +3896,7 @@
       namespace i18n = deckboy::core::i18n;
       namespace shaping = deckboy::render::shaping;
       std::string err;
-      const std::filesystem::path noData;
+      const dbfs::path noData;
       i18n::setLanguage("cy-alienese2", noData, err);
       i18n::noteFontResolved(true);
       const std::string symbols = i18n::translate("NEW 1");
@@ -4604,7 +4604,7 @@
       auto report = [&](const char* label, deckboy::core::Paths::FontName which) {
         const auto path = deckboy::core::Paths::fontPath(which);
         std::error_code ec;
-        const bool exists = std::filesystem::exists(path, ec);
+        const bool exists = dbfs::exists(path, ec);
         // Bundled == inside the app's own data directory.
         const auto pathStr = path.string();
         const auto dataStr = dataDir.string();

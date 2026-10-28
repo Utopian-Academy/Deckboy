@@ -26,7 +26,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <deque>
-#include <filesystem>
+#include "core/fs.hpp"
 #include <fstream>
 #include <future>
 #include <limits>
@@ -216,7 +216,7 @@ class Containment {
     return cells;
   }
 
-  static std::uint64_t load(const std::filesystem::path& file) {
+  static std::uint64_t load(const dbfs::path& file) {
     // Bounded input: a corrupt state file must not allocate an arbitrary line.
     std::ifstream input(file, std::ios::binary);
     char text[32] {};
@@ -228,11 +228,11 @@ class Containment {
     return parsed.ec == std::errc() && parsed.ptr == text + size - 1 ? count : 0;
   }
 
-  static bool save(const std::filesystem::path& file, std::uint64_t count) {
+  static bool save(const dbfs::path& file, std::uint64_t count) {
     // Runs on the HUD's worker, never the playback thread. Keep the previous
     // complete record if replacement fails; never unlink it to make room.
     std::error_code ec;
-    std::filesystem::create_directories(file.parent_path(), ec);
+    dbfs::create_directories(file.parent_path(), ec);
     if (ec) return false;
     auto temporary = file;
     temporary += ".saving";
@@ -243,7 +243,7 @@ class Containment {
 #ifdef _WIN32
     return MoveFileExW(temporary.c_str(), file.c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
 #else
-    std::filesystem::rename(temporary, file, ec);
+    dbfs::rename(temporary, file, ec);
     return !ec;
 #endif
   }
@@ -261,7 +261,7 @@ class Containment {
 class Hud {
  public:
   // Decides once, at start, whether this terminal gets the panel.
-  void begin(bool forcePlain, const std::filesystem::path& stateDirectory = {}) {
+  void begin(bool forcePlain, const dbfs::path& stateDirectory = {}) {
     fancy_ = !forcePlain && wantsPanel();
     if (fancy_) std::fputs("\x1b[?25l", stdout);  // hide the cursor while we own it
     start_ = std::chrono::steady_clock::now();
@@ -645,7 +645,7 @@ class Hud {
   std::chrono::steady_clock::time_point start_;
   std::chrono::steady_clock::time_point lastDraw_;
   Containment containment_;
-  std::filesystem::path containmentFile_;
+  dbfs::path containmentFile_;
   std::future<bool> containmentSave_;
   std::uint64_t savedCount_ = 0;
   std::uint64_t savingCount_ = 0;
