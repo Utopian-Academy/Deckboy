@@ -79,6 +79,12 @@
   (6827 pixels for a 16:9 slide instead of 3840). It now imports at the same width as every other
   page.
 
+### Scopes
+- Added **FALSE COLOUR** to the scopes: the picture with its levels painted on, in the Rec 709
+  bands camera crews read on ARRI monitors (purple crushed, blue just above black, green 18% grey,
+  pink skin a stop over, yellow nearly clipped, red clipped), with a key under it. The **FALSE
+  COLOUR** button beside FREEZE, or `SCOPES BIG falsecolour`.
+
 ### Live captions
 - Fixed: on Windows, a speech model could fail to download on a network that blocks the
   certificate-revocation check (venue, hotel and office networks often do). The certificate is
