@@ -223,6 +223,7 @@ class MediaEngine {
     std::function<std::size_t()> queued;
     std::function<void()> clear;
     std::function<void(bool)> pause;
+    std::function<void(double)> ratio;   // a tape speed (setTapeSpeed); may be empty
     int channels = 0;
   };
   void setExternalAudioSink(ExternalAudioSink sink);

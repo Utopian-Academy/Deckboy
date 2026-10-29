@@ -142,6 +142,9 @@ class AsioOutput {
   // writer's backpressure holds the decoder -- without this a paused cue kept
   // sounding.
   void setPaused(Source& source, bool paused);
+  // A TAPE SPEED for this source (a fade cue's SPEED): it plays at `ratio`
+  // times its rate, the pitch following. Any thread; the writer applies it.
+  void setRatio(Source& source, double ratio);
 
   // Output latency in FRAMES, as the driver reports it: the delay between
   // handing a sample to the ring and it leaving the socket. Deckboy slaves

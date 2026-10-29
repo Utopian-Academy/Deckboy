@@ -192,6 +192,10 @@ class AsioOutput::Source {
   std::atomic<std::uint32_t> flushes {0};
   std::uint32_t flushesSeen = 0;       // callback only
   std::atomic<bool> paused {false};
+  // A tape speed (setRatio): asked for by anyone, applied by the writer, which
+  // is the only thread that touches the converter.
+  std::atomic<double> ratio {1.0};
+  double appliedRatio = 1.0;           // writer only
   // Underrun bookkeeping, touched only by the callback (see bufferSwitch).
   std::uint64_t lastFullBuffer = 0;
   std::uint64_t gapOpenedAt = 0;
@@ -709,6 +713,16 @@ std::size_t AsioOutput::write(Source& source, const std::int16_t* interleaved,
   const std::size_t chans = static_cast<std::size_t>(rt->channels);
   Source& s = source;
 
+  // A TAPE SPEED plays this source faster or slower with its pitch: the
+  // converter does it (its frequency ratio), so a source at the driver's own
+  // rate, which had none, is given one -- 48k to 48k -- the first time.
+  const double ratio = s.ratio.load(std::memory_order_relaxed);
+  if (ratio != s.appliedRatio) {
+    if (!s.resampler) s.resampler = makeResampler(*rt);
+    if (s.resampler) SDL_SetAudioStreamFrequencyRatio(s.resampler, static_cast<float>(ratio));
+    s.appliedRatio = ratio;
+  }
+
   // Converting path: hand the block to this source's converter, take back
   // whatever it has ready at the device rate, and ring-buffer that. The caller
   // is told it consumed the WHOLE block, because it did -- the conversion
@@ -786,11 +800,14 @@ std::size_t AsioOutput::queuedFrames(const Source& source) const {
       deviceFrames += static_cast<std::size_t>(pending) / sizeof(std::int16_t) /
                       static_cast<std::size_t>(rt->channels);
     }
-    // Scale to SOURCE frames so the caller's pacing maths stays honest.
+    // Scale to SOURCE frames so the caller's pacing maths stays honest: by the
+    // rates, and by the tape speed, at which one device frame is `ratio`
+    // source frames.
+    double scale = source.ratio.load(std::memory_order_relaxed);
     if (rt->sampleRate > 0.0 && rt->sourceRate > 0.0) {
-      deviceFrames = static_cast<std::size_t>(
-        deviceFrames * (rt->sourceRate / rt->sampleRate));
+      scale *= rt->sourceRate / rt->sampleRate;
     }
+    deviceFrames = static_cast<std::size_t>(static_cast<double>(deviceFrames) * scale);
   }
   return deviceFrames;
 #else
@@ -812,6 +829,14 @@ void AsioOutput::clear(Source& source) {
   if (source.resampler && SDL_WasInit(SDL_INIT_AUDIO)) SDL_ClearAudioStream(source.resampler);
 #else
   (void)source;
+#endif
+}
+
+void AsioOutput::setRatio(Source& source, double ratio) {
+#if defined(DECKBOY_HAS_ASIO)
+  source.ratio.store(std::clamp(ratio, 0.25, 4.0), std::memory_order_relaxed);
+#else
+  (void)source; (void)ratio;
 #endif
 }
 

@@ -4673,13 +4673,6 @@
       triggerToast(why, ToastKind::Warning, kToastReadableMs);
       return why;
     }
-    // SPEED THROUGH ASIO is not there yet: the driver would play at 1x while
-    // the picture ran at the new speed. Said, and nothing moves.
-    if (run.what == CueFadeWhat::CueSpeed && asioArmed()) {
-      const std::string why = "speed ramps do not reach ASIO yet; nothing changed";
-      triggerToast(why, ToastKind::Warning, kToastReadableMs);
-      return why;
-    }
     if (refused) *refused = false;
     run.from = currentFadeValue(victimDeck, fading.fadeWhat, run.effectSlot, run.effectKnob);
     run.to = std::clamp(fading.fadeToValue, 0.0, 1.0);

@@ -6484,6 +6484,7 @@
     sink.queued = [raw, source]() { return raw->queuedFrames(*source); };
     sink.clear = [raw, source]() { raw->clear(*source); };
     sink.pause = [raw, source](bool paused) { raw->setPaused(*source, paused); };
+    sink.ratio = [raw, source](double ratio) { raw->setRatio(*source, ratio); };
     return sink;
   }
 

@@ -7694,6 +7694,8 @@ void MediaEngine::setExternalAudioSink(ExternalAudioSink sink) {
   // In step with the transport from the first sample, or arming mid-pause
   // would let the paused cue play on.
   if (externalSink_.pause) externalSink_.pause(outputPaused_);
+  // And at the deck's speed, or arming mid-ramp would play it at 1x.
+  if (externalSink_.ratio) externalSink_.ratio(tapeSpeed_);
 }
 
 void MediaEngine::setOutputPaused(bool paused) {
@@ -7940,6 +7942,10 @@ void MediaEngine::applyTapeRatio() {
   }
   if (SDL_AudioStream* monitor = monitorStream_.load(std::memory_order_relaxed)) {
     SDL_SetAudioStreamFrequencyRatio(monitor, ratio);
+  }
+  // And through ASIO, where the driver's converter for this engine does it.
+  if (externalSink_.ratio) {
+    externalSink_.ratio(tapeSpeed_);
   }
 }
 

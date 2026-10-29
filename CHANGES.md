@@ -72,8 +72,8 @@
 - A **fade cue** can ramp a deck's **speed, like tape**: the pitch follows, so a ramp to 0.25x
   sounds like a record slowing down, and the picture slows with it. From 0.25x to 4x; set it with
   **to** as for any fade, over any time, on any curve. The next cue taken on that deck starts at
-  its own speed. Not through ASIO yet: there the fade says so and changes nothing. `FADE WHAT
-  speed` and `FADE TO <0.25-4>x` over the network.
+  its own speed. Recordings and streams carry the same, and it works through ASIO too. `FADE
+  WHAT speed` and `FADE TO <0.25-4>x` over the network.
 - Added **OUTPUTS** and **PATCH** (Settings > Audio). Name the channels of your interfaces once
   (FOH 1-2, SUB 3, PRESS FEED 5-6), then send playlists to the names. A crosspoint is a level in
   dB or off: click it through off, 0, -3, -6 and -12, or drag it to any level from -48 to +6. A
