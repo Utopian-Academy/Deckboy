@@ -34,14 +34,23 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.421
+### New in 0.99.422
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.421)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.422)
 
-- **Every display in reach.** Connected Displays now opens Video Outputs > Screen, with room
-  for three, so a projector you plug in is there without scrolling.
-- **The tour on one screen.** With a single display, the guided tour's output step hands the
-  desk back with a key or a click, and the tour carries on.
+- **Named outputs and a patch.** Name your interfaces' channels once (FOH, SUB, PRESS FEED) and
+  send playlists to the names, at a level in dB for each. A different interface means changing
+  the names, not the cues.
+- **Effects on an output.** High pass, low pass, tilt, compressor and width on a whole device,
+  after the mix, then a limiter: a ceiling the mix cannot pass.
+- **Fades that do more.** A fade cue can slow a deck down like tape, pitch and all, ramp any
+  effect's knob, and put back what it started from when it lands.
+- **Sound scopes and false colour.** Loudness to EBU R 128, true peak, phase and spectrum, beside
+  the picture scopes, which gain false colour.
+- **A Web Monitor you can rewind** by up to two minutes, and a **MIDI and OSC monitor**: every
+  message as it arrives, and what Deckboy did with it.
+- **Slides on a Mac fill the frame.** From PowerPoint, Keynote or a PDF, they came in at a
+  quarter of the width. And the Intel Mac download opens on macOS 10.13.
 
 ![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/light/crossfade-live.gif)
 
@@ -396,10 +405,7 @@ importantly, what each feature deliberately does not do.
 **Audio, next:**
 
 - Multichannel audio files, up to 24 channels each, every channel routable
-- Effects on a device's outputs as well as on each cue
-- Fades that ramp effect settings and playback speed, not only level
 - Object audio: place a cue in your speaker layout and move it across the room
-- Named outputs and an output patch editor
 
 **Show control:**
 
