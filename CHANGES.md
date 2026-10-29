@@ -14,6 +14,11 @@
     instead of showing the captions on that output. Seen from v0.99.414.
   - **System > Defaults**: RESET DEFAULTS did nothing. `DEFAULTS RESET` over the network worked.
     Seen from v0.99.414.
+- **System > Defaults** says what it does. Its buttons are **SAVE AS MY DEFAULTS** and **FORGET MY
+  DEFAULTS** (it read RESET DEFAULTS, which looked like a reset of the open show); both change
+  only what NEW starts from, and the card says that nothing on it changes the show that is open.
+  The second press to forget is asked for on the button itself. Over the network it is
+  `DEFAULTS FORGET`; `RESET` still works.
 
 ### Selection
 - Fixed: when a cue ended and the playlist moved on to the next one, the next cue was selected

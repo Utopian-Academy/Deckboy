@@ -1974,30 +1974,34 @@
     std::error_code ec;
     fs::create_directories(showDefaultsFile().parent_path(), ec);
     const bool saved = saveProject(showDefaultsFile(), defaults);
-    triggerToast(saved ? "saved as my defaults: every new show starts like this, without the cues"
+    triggerToast(saved ? "saved as my defaults: NEW starts like this show, without the cues"
                        : "could not save the defaults",
                  saved ? ToastKind::Help : ToastKind::Warning, kToastReadableMs);
     return saved;
   }
 
   // Twice within a few seconds, like NEW: the defaults are a setup someone built.
+  // Every message says what it does NOT do as well, because the button used to
+  // read RESET and was taken for a reset of the show that is open.
   Uint64 pendingDefaultsResetUntilMs_ = 0;
   void resetShowDefaults(bool confirmed = false) {
     if (!haveShowDefaults()) {
-      triggerToast("new shows already start from factory settings");
+      triggerToast("NEW already starts from factory settings");
       return;
     }
     const Uint64 now = SDL_GetTicks();
     if (!confirmed && now > pendingDefaultsResetUntilMs_) {
       pendingDefaultsResetUntilMs_ = now + 2500;
-      triggerToast("forget my defaults? press RESET again");
+      triggerToast("forget my defaults? only NEW changes, this show keeps its settings: press again",
+                   ToastKind::Help, 2500);
       return;
     }
     pendingDefaultsResetUntilMs_ = 0;
     std::error_code ec;
     fs::remove(showDefaultsFile(), ec);
     triggerToast(ec ? std::string("could not remove the defaults")
-                    : std::string("defaults forgotten: new shows start from factory settings"));
+                    : std::string("my defaults forgotten: NEW starts from factory settings, "
+                                  "this show is unchanged"));
   }
 
   bool startNewShow(bool withToast = true) {

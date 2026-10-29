@@ -779,8 +779,9 @@
       // A line for the folder in use and a row for the two buttons -- the same
       // shape as RECORDING, because it is the same kind of setting.
       int watchH = stackH({sLineH, sRowH});
-      // DEFAULTS: where new shows start, then the two buttons.
-      int defaultsH = stackH({sRowH, sRowH, sRowH});
+      // DEFAULTS: where new shows start, the two buttons, and the line that
+      // says the open show is not what they change.
+      int defaultsH = stackH({sRowH, sRowH, sRowH, sLineH});
 
       // At large UI scales the cards are genuinely taller than the window can
       // show, so the tab scrolls rather than silently cropping the bottom card.
@@ -1151,8 +1152,11 @@
       }
 
       // DEFAULTS. What NEW starts from: this show's setup without its cues,
-      // once saved here, or factory settings.
-      drawCard(defaultsRect, "DEFAULTS", "How every new show starts");
+      // once saved here, or factory settings. Nothing on this card touches the
+      // show that is open, and the card says so three times over: "Back to
+      // factory settings / RESET DEFAULTS" read as a reset of the open show,
+      // when all it ever did was delete the saved file (roadmap).
+      drawCard(defaultsRect, "DEFAULTS", "What NEW starts from, never this show");
       {
         const int defX = cardBodyX(defaultsRect);
         const int defW = cardBodyW(defaultsRect);
@@ -1161,17 +1165,25 @@
         SDL_Rect from = settingsRow(defX, defW, defY, sRowH, "New shows start from", sGap);
         drawSettingsStateFill(from, mine);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, from,
-                             mine ? "my defaults  " + showDefaultsSavedLabel() : std::string("factory settings"),
+                             mine ? "my defaults, saved " + showDefaultsSavedLabel()
+                                  : std::string("factory settings"),
                              settingsStateInk(mine));
-        SDL_Rect save = settingsRow(defX, defW, defY, sRowH, "This show, without its cues", sGap);
+        SDL_Rect save = settingsRow(defX, defW, defY, sRowH, "This show's setup, no cues", sGap);
         drawSettingsStateFill(save, false);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, save, "SAVE AS DEFAULTS", settingsStateInk(false));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, save, "SAVE AS MY DEFAULTS",
+                             settingsStateInk(false));
         settingsBtns_.push_back({save, kSettingsActionDefaultsSave, "defaults_save"});
-        SDL_Rect reset = settingsRow(defX, defW, defY, sRowH, "Back to factory settings", sGap);
-        drawSettingsStateFill(reset, false);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, reset, "RESET DEFAULTS",
-                             mine ? settingsStateInk(false) : pal.inkSoft);
-        settingsBtns_.push_back({reset, kSettingsActionDefaultsReset, "defaults_reset"});
+        // Armed between the two presses, so the second one is asked for where
+        // the first one was made, not only in a toast.
+        const bool forgetArmed = mine && SDL_GetTicks() <= pendingDefaultsResetUntilMs_;
+        SDL_Rect forget = settingsRow(defX, defW, defY, sRowH, "Start NEW from factory", sGap);
+        drawSettingsStateFill(forget, forgetArmed);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, forget,
+                             forgetArmed ? "PRESS AGAIN TO FORGET" : "FORGET MY DEFAULTS",
+                             mine ? settingsStateInk(forgetArmed) : pal.inkSoft);
+        settingsBtns_.push_back({forget, kSettingsActionDefaultsReset, "defaults_reset"});
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{defX, defY, defW, sLineH},
+                     "Nothing here changes the show that is open.", pal.inkSoft);
       }
 
       // UPDATES. Off by default and deliberately so: this is the only

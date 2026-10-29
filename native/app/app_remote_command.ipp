@@ -237,20 +237,21 @@
     // A TALLY EDGE, from whichever integration saw it. The watchers run on
     // their own threads and cannot touch the decks, so the edge comes through
     // here and lands on the main thread like every other command.
-    // DEFAULTS [STATUS] | SAVE | RESET: what NEW starts from (this show
-    // without its cues). RESET over the network needs no second press.
+    // DEFAULTS [STATUS] | SAVE | FORGET: what NEW starts from (this show
+    // without its cues). FORGET over the network needs no second press, and
+    // RESET, its old name, still works. Neither touches the open show.
     if (command == "DEFAULTS") {
       const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
       if (sub == "SAVE") {
         if (!saveShowDefaults()) failRemoteCommand("DEFAULTS: could not save");
         return;
       }
-      if (sub == "RESET") {
+      if (sub == "FORGET" || sub == "RESET") {
         resetShowDefaults(true);
         return;
       }
       if (sub != "STATUS") {
-        failRemoteCommand("DEFAULTS: STATUS | SAVE | RESET");
+        failRemoteCommand("DEFAULTS: STATUS | SAVE | FORGET");
         return;
       }
       remoteCommandDetail_ = haveShowDefaults() ? "my defaults, saved " + showDefaultsSavedLabel()
