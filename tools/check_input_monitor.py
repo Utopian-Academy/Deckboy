@@ -4,11 +4,11 @@
 "My controller does nothing" was a guess until now: a note no cue claims, a
 CC with no mapping and an address nothing answers all looked like a broken
 cable. MENU > Network > MONITOR lists each message with DID, NOTHING or
-REFUSED and the reason, and MONITOR over the wire returns the same rows.
+REFUSED and the reason, and INPUTMONITOR over the wire returns the same rows.
 
 This sends real OSC packets over UDP, remote commands over TCP and MIDI
 through MIDIIN (the handlers the MIDI thread calls; CI runners have no MIDI
-port), then reads MONITOR back. Untested here: a refused controller, which
+port), then reads INPUTMONITOR back. Untested here: a refused controller, which
 needs a second machine.
 
     py -3 tools/check_input_monitor.py --exe build/windows/Release/Deckboy.exe
@@ -46,7 +46,7 @@ def osc_packet(address, *ints):
 
 
 def rows(db, count=50):
-    reply = db.send("MONITOR %d" % count)
+    reply = db.send("INPUTMONITOR %d" % count)
     return json.loads(reply.split(": ", 1)[1])
 
 
@@ -72,7 +72,7 @@ def main():
         db.send("TRIGGER OSC /lights/go")
         db.send("SELECT 3")
         db.send("TRIGGER MIDI 36")
-        db.send("MONITOR CLEAR")
+        db.send("INPUTMONITOR CLEAR")
 
         udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp.sendto(osc_packet("/lights/go"), ("127.0.0.1", db.port))
@@ -106,7 +106,7 @@ def main():
         note("REMOTE an unknown verb: NOTHING",
              e is not None and e["outcome"] == "NOTHING" and "no command FROBNICATE" in e["what"], e)
         note("pollers (STATUS) and the monitor's own verbs are left out",
-             not any(x["message"].split()[0] in ("STATUS", "MONITOR", "MIDIIN") for x in entries
+             not any(x["message"].split()[0] in ("STATUS", "INPUTMONITOR", "MIDIIN") for x in entries
                      if x["kind"] == "REMOTE"), [x["message"] for x in entries if x["kind"] == "REMOTE"])
         e = find(entries, "MIDI", "NOTE ON 36 (C2) vel 100")
         note("MIDI a note a cue claims: DID, the cue it took",
@@ -131,13 +131,13 @@ def main():
              order.index("/lights/go") < order.index("FROBNICATE") < order.index("CC 7 = 96")
              if all(m in order for m in ("/lights/go", "FROBNICATE", "CC 7 = 96")) else False, order)
 
-        db.send("MONITOR PAUSE")
+        db.send("INPUTMONITOR PAUSE")
         udp.sendto(osc_packet("/lights/scene", 4), ("127.0.0.1", db.port))
         time.sleep(0.6)
         paused = rows(db)
-        db.send("MONITOR RESUME")
+        db.send("INPUTMONITOR RESUME")
         note("PAUSE stops new rows", find(paused, "OSC", "/lights/scene 4") is None, len(paused))
-        db.send("MONITOR CLEAR")
+        db.send("INPUTMONITOR CLEAR")
         note("CLEAR empties it", rows(db) == [], rows(db))
         udp.close()
 

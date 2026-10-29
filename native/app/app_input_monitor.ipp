@@ -123,7 +123,7 @@
   void recordInputMonitorOutcome(const PendingRemoteCommand& command, bool refusedBeforeRunning) {
     const auto words = splitWhitespace(command.text);
     const std::string verb = words.empty() ? std::string() : toUpper(words[0]);
-    if (verb == "PING" || verb == "STATUS" || verb == "STATE" || verb == "MONITOR" ||
+    if (verb == "PING" || verb == "STATUS" || verb == "STATE" || verb == "INPUTMONITOR" ||
         verb == "HELP" || verb == "MIDIIN") {
       return;   // MIDIIN's own row is the MIDI one it makes
     }
@@ -428,8 +428,8 @@
     inputMonitorScroll_ = std::max(0, inputMonitorScroll_ + wheelY * 3);
   }
 
-  // MONITOR [n] -- the last n rows as JSON, for a script or a check;
-  // MONITOR OPEN | CLOSE | CLEAR | PAUSE | RESUME.
+  // INPUTMONITOR [n] -- the last n rows as JSON, for a script or a check;
+  // INPUTMONITOR OPEN | CLOSE | CLEAR | PAUSE | RESUME.
   void handleInputMonitorCommand(const std::vector<std::string>& parts) {
     const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
     if (sub == "OPEN" || sub == "CLOSE") {
@@ -452,7 +452,7 @@
       char* end = nullptr;
       const long parsed = std::strtol(parts[1].c_str(), &end, 10);
       if (!end || *end != '\0' || parsed < 1) {
-        failRemoteCommand("MONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME");
+        failRemoteCommand("INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME");
         return;
       }
       count = static_cast<int>(std::min<long>(parsed, static_cast<long>(kInputMonitorKept)));

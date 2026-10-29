@@ -590,9 +590,11 @@
       handleMidiTriggerNote(std::atoi(parts[1].c_str()));
       return;
     }
-    // MONITOR: the MIDI and OSC monitor's rows (JSON), or OPEN / CLOSE /
+    // INPUTMONITOR: the MIDI and OSC monitor's rows (JSON), or OPEN / CLOSE /
     // CLEAR / PAUSE / RESUME. See app_input_monitor.ipp.
-    if (command == "MONITOR") {
+    // Not MONITOR: that verb is the audio monitor's (MONITOR DEVICE / DECK /
+    // ROOM, further down), and this one sat in front of it.
+    if (command == "INPUTMONITOR") {
       handleInputMonitorCommand(parts);
       return;
     }

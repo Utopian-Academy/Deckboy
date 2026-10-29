@@ -83,7 +83,7 @@
 - Added the **MIDI and OSC monitor** (Settings > Network): every MIDI, OSC, remote and phone
   message as it arrives, and what Deckboy did with it: **DID**, **NOTHING** and why, or
   **REFUSED** and why. Filters, PAUSE and CLEAR; a row can be copied as a command, and a note or
-  address can be made the selected cue's trigger in one click. `MONITOR [n]` returns the rows.
+  address can be made the selected cue's trigger in one click. `INPUTMONITOR [n]` returns the rows.
 - Fixed: on Linux, MIDI notes ignored a cue's own trigger note, MIDI learn and synth mode, and
   always went to cue number note + 1. They now behave as on Windows and macOS.
 
