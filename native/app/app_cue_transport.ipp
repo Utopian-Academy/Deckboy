@@ -1684,6 +1684,16 @@
     markProjectDirty();
   }
 
+  void toggleFadeRestoreAtEnd() {
+    Cue* cue = selectedFadeCue();
+    if (!cue) {
+      return;
+    }
+    cue->fadeRestoreAtEnd = !cue->fadeRestoreAtEnd;
+    markProjectDirty();
+    triggerToast(cue->fadeRestoreAtEnd ? "put it back when the ramp lands" : "leave it where it lands");
+  }
+
   void toggleFadeStopWhenDone() {
     Cue* cue = selectedFadeCue();
     if (!cue) {
@@ -4676,6 +4686,7 @@
     run.durationSeconds = std::max(0.0, fading.fadeOverSeconds);
     run.startMs = SDL_GetTicks();
     run.stopWhenDone = fading.fadeStopWhenDone;
+    run.restoreAtEnd = fading.fadeRestoreAtEnd;
     run.label = fading.name;
 
     cancelFadesFor(victimDeck, fading.fadeWhat, run.effectSlot, run.effectKnob);
@@ -4700,6 +4711,11 @@
       applyFadeValue(run.deckIndex, run.what, run.to, run.effectSlot, run.effectKnob);
       if (run.stopWhenDone) {
         finishFadeStop(run.deckIndex);
+      }
+      // A snap that restores is a stop that leaves the deck ready, as the
+      // tracker's FADE with no time.
+      if (run.restoreAtEnd) {
+        applyFadeValue(run.deckIndex, run.what, run.from, run.effectSlot, run.effectKnob);
       }
       triggerToast(did);
       return did;

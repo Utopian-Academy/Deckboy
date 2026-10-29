@@ -98,15 +98,45 @@ def main():
         after = knob(db.send("FX GET 1"), "amount")
         note("an effect the cue does not have: ERR, says so, moves nothing",
              "ERR" in reply and "nothing to fade" in reply and after == 0, (reply, after))
+
+        # RESTORE AT END. The amount is at 0: a fade up to 100 that restores
+        # rises, lands, and is put back to 0.
         db.send("SELECT " + fade)
-        db.send("FADE KNOB C")
+        for line in ("FADE EFFECT 1", "FADE KNOB amount", "FADE TO 100", "FADE OVER 2", "FADE RESTORE ON"):
+            db.send(line)
+        print("    " + db.send("FADE"))
+        db.send("FADE FIRE")
+        time.sleep(0.8)
+        db.send("SELECT " + PLAYING)
+        mid = knob(db.send("FX GET 1"), "amount")
+        time.sleep(1.8)
+        end = knob(db.send("FX GET 1"), "amount")
+        note("RESTORE AT END: the knob rises, lands, and is put back", mid is not None and mid >= 20 and end == 0,
+             (mid, end))
+        # With THEN STOP, the usual take-it-out: the deck stops and is left at
+        # full opacity for whatever it plays next.
+        db.send("SELECT " + fade)
+        for line in ("FADE WHAT opacity", "FADE TO 0", "FADE OVER 0.4", "FADE STOP ON"):
+            db.send(line)
+        db.send("FADE FIRE")
+        time.sleep(1.0)
+        status = db.send("STATUS")
+        deck1 = next((line for line in status.splitlines() if line.startswith("DECK 1 ")), "")
+        opacity = re.search(r"opacity=(\d+)", deck1)
+        note("with THEN STOP: stopped, and left at full opacity",
+             "status=Playing" not in deck1 and opacity is not None and opacity.group(1) == "100", deck1[:240])
+
+        db.send("SELECT " + fade)
+        for line in ("FADE WHAT effect", "FADE EFFECT 7", "FADE KNOB C"):
+            db.send(line)
         time.sleep(1.5)                         # the autosave
 
     with Runtime(exe, work / "run2", show) as db:
         time.sleep(1.0)
         db.send("SELECT " + fade)
         reply = db.send("FADE")
-        note("the fade cue keeps its effect and knob with the show", "effect 7 knob C" in reply, reply)
+        note("the fade cue keeps its effect, knob and restore with the show",
+             "effect 7 knob C" in reply and "then restore" in reply, reply)
 
     shutil.rmtree(work, ignore_errors=True)
     print()

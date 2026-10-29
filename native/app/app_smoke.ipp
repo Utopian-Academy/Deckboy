@@ -2252,13 +2252,14 @@
                "a lower third's layout persists");
         {
           // EVERY FIELD APPENDED AFTER THE TRACKER'S JUMP AND SECTION: the
-          // twelve Moire fields, then the fade cue's effect and knob. The
+          // twelve Moire fields, then the fade cue's effect, knob and
+          // restore at end. The
           // older-show checks below trim this many and then their own, so a
           // field appended to the record is counted here once. When the
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 14;
+          constexpr int kAfterTrackerFields = 15;
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2396,7 +2397,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 107;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 108;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2407,7 +2408,7 @@
                                               // audio track and track count, wiggle,
                                               // the DMX protocol, the mic channel,
                                               // the fixture levels, stream HDR, tracker jump and section, the twelve Moire fields,
-                                              // a fade cue's effect and knob
+                                              // a fade cue's effect, knob and restore at end
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

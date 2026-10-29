@@ -663,7 +663,11 @@ Ramps a level over time: a deck's **opacity**, a deck's **volume**, the
 **saturation** or **hue**. Set where it ends (**to**), how long it takes
 (**over**; zero is a snap), and the **curve**: linear, ease in, ease out or
 S-curve. Turn on **then stop** to stop the deck when the ramp lands, which is
-the usual "take it down and stop it".
+the usual "take it down and stop it". Turn on **restore at end** to put back
+what the fade started from once it lands (after the stop, if there is one): a
+deck taken out is left ready for its next cue, an effect swelled up lets go,
+and the show keeps the values it had. Without it, the level stays where the
+ramp leaves it.
 
 It can also ramp a knob of an effect: **an effect's knob** (the picture's
 effects) or **an audio effect's knob**. Pick the **effect** by its place in the

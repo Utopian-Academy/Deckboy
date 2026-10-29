@@ -1043,6 +1043,7 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << escapeField(serializeGeometryLfos(cue.moire.lfo))
         << '\t' << cue.fadeEffectSlot          // vs + 162: a fade cue's effect and knob
         << '\t' << cue.fadeEffectKnob
+        << '\t' << (cue.fadeRestoreAtEnd ? 1 : 0)   // vs + 164: and whether it restores
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2724,6 +2725,11 @@ Project loadProject(const fs::path& projectFile,
         if (fields.size() >= static_cast<std::size_t>(vs + 164)) {
           cue.fadeEffectSlot = std::clamp(safeInt(fields, vs + 162, 1), 1, 64);
           cue.fadeEffectKnob = std::clamp(safeInt(fields, vs + 163, 0), 0, 4);
+        }
+        // Absent in every show saved before it: a fade that stays where it
+        // lands, which is what they all did.
+        if (fields.size() >= static_cast<std::size_t>(vs + 165)) {
+          cue.fadeRestoreAtEnd = safeBool(fields, vs + 164, false);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

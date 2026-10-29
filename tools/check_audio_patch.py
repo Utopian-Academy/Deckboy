@@ -279,13 +279,31 @@ def main():
     # PATCH are. A click walks a crosspoint, a drag sets it, + ADD AN OUTPUT
     # adds the next pair on the focused playlist's interface.
     with Runtime(exe, work / "run4", show, env=wide,
-                 extra=("--ui-size", "1512", "982", "--settings", "1", "--settings-scroll", "5000")) as db:
+                 extra=("--ui-size", "1512", "982", "--settings", "1")) as db:
         time.sleep(1.5)
 
+        def rect(reply):
+            return tuple(int(v) for v in re.search(r" at (-?\d+),(-?\d+) (\d+)x(\d+)", reply).groups())
+
+        # Scrolled with the wheel, as an operator would, over the Output device
+        # row at the top of the page (so inside the page whatever size the
+        # window came up). --settings-scroll is applied once and clamped by the
+        # first frame, which on Linux was laid out shorter and never reached
+        # the grid.
+        ax, ay, aw, ah = rect(db.send("PRESS audio_device"))
+        db.send("PRESS OFF")
+
         def centre(label):
-            reply = db.send("PRESS " + label)
+            for _ in range(60):
+                try:
+                    reply = db.send("PRESS " + label)
+                    break
+                except RuntimeError:
+                    db.send("HOVER %d %d WHEEL -3" % (ax + aw // 2, ay + ah // 2))
+            else:
+                raise RuntimeError("never scrolled to " + label)
             db.send("PRESS OFF")
-            x, y, w, h = (int(v) for v in re.search(r" at (-?\d+),(-?\d+) (\d+)x(\d+)", reply).groups())
+            x, y, w, h = rect(reply)
             return x + w // 2, y + h // 2
 
         x, y = centre("patch_3_SUB")

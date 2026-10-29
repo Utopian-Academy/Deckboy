@@ -1881,6 +1881,11 @@ struct Cue {
   // fade in any show -- take the music down and stop it -- and without the
   // flag it is two cues that have to be kept in step by hand.
   bool fadeStopWhenDone = false;
+  // RESTORE AT END: once the ramp lands (and the deck is stopped, if it is
+  // to be), put back what it started from -- the tracker's FADE has always
+  // done this. A fade takes a deck out and leaves it ready for the next cue,
+  // or swells a knob and lets it go, without rewriting the show.
+  bool fadeRestoreAtEnd = false;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -3664,7 +3669,8 @@ enum class QuickAction {
   DmxModeToggle,          // BY FIXTURE <-> CHANNELS
   FadeEffectSlotPrev,     // a knob fade: which effect it moves
   FadeEffectSlotNext,
-  FadeEffectKnobCycle     // ...and which knob: amount, A, B, C, D
+  FadeEffectKnobCycle,    // ...and which knob: amount, A, B, C, D
+  FadeRestoreToggle       // a fade cue's RESTORE AT END
 };
 
 // ---------------------------------------------------------------------------

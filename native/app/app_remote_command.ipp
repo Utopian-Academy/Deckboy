@@ -3024,6 +3024,9 @@
         if (cue.fadeStopWhenDone) {
           out << ", then stop";
         }
+        if (cue.fadeRestoreAtEnd) {
+          out << ", then restore";
+        }
         out << " | " << fadeRunSummary();
         remoteCommandDetail_ = out.str();
         return;
@@ -3162,8 +3165,19 @@
         remoteCommandDetail_ = cue.fadeStopWhenDone ? "stop when done" : "leave it running";
         return;
       }
+      if (sub == "RESTORE" && parts.size() >= 3) {
+        auto state = parseToggleWord(2);
+        if (!state) {
+          failRemoteCommand("FADE RESTORE: expected on or off");
+          return;
+        }
+        cue.fadeRestoreAtEnd = *state;
+        markProjectDirty();
+        remoteCommandDetail_ = cue.fadeRestoreAtEnd ? "restore at end" : "stays where it lands";
+        return;
+      }
       failRemoteCommand("FADE: expected NEW, WHAT, TO, OVER, CURVE, DECK, STOP, "
-                        "FIRE, RUNNING or CANCEL");
+                        "RESTORE, FIRE, RUNNING or CANCEL");
       return;
     }
     if (command == "TARGET" || command == "TARGETCUE") {
@@ -6700,6 +6714,13 @@
         mouseX_ = std::stoi(parts[1]);
         mouseY_ = std::stoi(parts[2]);
         handleMouseMotion(mouseX_, mouseY_);
+        // HOVER x y WHEEL <n>: and turn the wheel there, through the same
+        // handler a real wheel reaches (negative is down). A scripted check
+        // can then scroll to a control the way an operator would, rather than
+        // trusting --settings-scroll, which is clamped by the first frame.
+        if (parts.size() >= 5 && toUpper(parts[3]) == "WHEEL") {
+          handleMouseWheel(std::stoi(parts[4]));
+        }
         remoteCommandDetail_ = "hover " + parts[1] + "," + parts[2]
           + (hoverTipLast_.empty() ? std::string(" [no tip]")
                                    : (" [" + hoverTipLast_ + "]"));

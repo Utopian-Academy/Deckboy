@@ -7539,6 +7539,14 @@
                      "take-it-down-and-stop-it");
         fdY += kInspectorRowStep;
 
+        drawQuickRow(fdY, "restore at end", QuickAction::FadeRestoreToggle,
+                     selectedCue->fadeRestoreAtEnd ? "yes" : "no",
+                     QuickAction::FadeRestoreToggle, QuickAction::FadeRestoreToggle,
+                     true, selectedCue->fadeRestoreAtEnd,
+                     "Put back what it started from once the ramp lands (after the "
+                     "stop): a deck left ready for its next cue, a swell that lets go");
+        fdY += kInspectorRowStep;
+
         drawChoiceRow(fdY, "fire", std::string("now"),
                       QuickAction::FadeFire,
                       "Run it now, without taking the cue");

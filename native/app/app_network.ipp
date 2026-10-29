@@ -3307,7 +3307,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "           TEXTCUE BAR|ACCENT <colour> | TEXTCUE SCALE <0.5-2> - a lower third's colours and size\n"
         "           TEXTCUE WIGGLE ON|OFF|TOGGLE - slow bob and tilt (Arcade always wiggles)\n"
         "           TEXTCUE IN|OUTMOVE cut/fade/left/right/rise/wipe/grow/typewriter/pop | TEXTCUE OUT (plays the out, then off)\n"
-        "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
+        "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|RESTORE <on/off>|FIRE|RUNNING|CANCEL\n"
         "           FADE WHAT brightness/contrast/saturation/hue - the playing cue's own colour\n"
         "           FADE WHAT effect/audiofx | EFFECT <n> | KNOB amount/A-D - a knob of the playing cue's effect n\n"
         "           FADE WHAT speed | TO <0.25-4>x - the deck's speed, the pitch following, like tape\n"

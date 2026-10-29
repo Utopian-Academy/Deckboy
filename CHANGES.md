@@ -139,6 +139,10 @@
   and moves nothing. Like the colour targets, it moves the playing cue's own knob, which stays
   where the fade left it. The curves and **then stop** work as for every fade. `FADE WHAT
   effect|audiofx`, `FADE EFFECT <n>` and `FADE KNOB amount|A-D` over the network.
+- A **fade cue** has **restore at end**: once the ramp lands, and the deck has stopped if **then
+  stop** is on, what the fade started from is put back. A deck taken out is left ready for its
+  next cue, an effect swelled up lets go, and the show keeps the values it had. Any target, any
+  curve. `FADE RESTORE on|off` over the network.
 - Added **colour**, with the basics at the top of the effect list: **hue turn** (every colour
   round the wheel, half a turn either way; give it an LFO and the picture cycles colours),
   **tint** and **tint colour** (the midtones take the colour, black and white stay put) and
