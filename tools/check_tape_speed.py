@@ -18,6 +18,7 @@ import math
 import re
 import shutil
 import struct
+import subprocess
 import sys
 import tempfile
 import time
@@ -144,6 +145,60 @@ def main():
              moved is not None and 0.8 <= moved <= 1.2, (before, after))
         status = db.send("STATUS")
         note("and it is still playing", "status=Playing" in status, status[:200])
+
+    # A RECORDING HEARS WHAT THE ROOM HEARS. The recorder's sound is handed on
+    # as the device plays it, so at 0.5x it would get half a second a second
+    # unless it is resampled the same way: the file must carry the tone an
+    # octave down, as much sound as picture. Once through the decoder's path
+    # (a clip with a 440 Hz sine) and once through the tone generator's.
+    clip = work / "sine440.mp4"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=320x180:r=25:d=30",
+                    "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000:duration=30",
+                    "-af", "volume=0.25", "-ac", "2", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                    "-c:a", "aac", "-shortest", str(clip)], check=True)
+    show = work / "show" / "01-picture-on-screen.deckboy"
+    recordings = work / "show" / "recordings"
+    with Runtime(exe, work / "run3", show, extra=("--import", str(clip))) as db:
+        db.send("OUTPUT on")
+        db.send("RECFORMAT 640x360 25")
+        for cue, label in (("SELECT LAST", "clip"), ("TONECUE", "tone")):
+            if label == "tone":
+                db.send("TONECUE")
+                db.send("SELECT LAST")
+            else:
+                db.send(cue)
+            db.send("TAKE")
+            time.sleep(1.5)
+            made = db.send("FADE NEW")
+            for line in ("FADE WHAT speed", "FADE TO 0.5", "FADE OVER 0", "FADE FIRE"):
+                db.send(line)
+            time.sleep(0.8)
+            db.send("RECORD on")
+            time.sleep(4.0)
+            db.send("RECORD off")
+            time.sleep(3.0)                      # the muxer finishes the file
+            files = sorted(recordings.glob("*.*"), key=lambda p: p.stat().st_mtime)
+            if not files:
+                note("a recording at 0.5x (%s) was written" % label, False, "nothing in " + str(recordings))
+                continue
+            take = files[-1]
+            pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", str(take), "-map", "0:a:0", "-ac", "1",
+                                  "-ar", "48000", "-f", "s16le", "-"], capture_output=True).stdout
+            probe = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                                    "stream=duration", "-of", "csv=p=0", str(take)],
+                                   capture_output=True, text=True).stdout.strip()
+            picture = float(probe) if probe and probe != "N/A" else None
+            samples = [v / 32768.0 for v in struct.unpack("<%dh" % (len(pcm) // 2), pcm[:len(pcm) // 2 * 2])]
+            sound = len(samples) / 48000.0
+            want = 220.0 if label == "clip" else 500.0
+            middle = samples[len(samples) // 2 - 24000:len(samples) // 2 + 24000]
+            slowed, original = tone_db(middle, 48000, want), tone_db(middle, 48000, want * 2)
+            note("a recording at 0.5x (%s): an octave down, %d Hz" % (label, want),
+                 slowed > original + 20, ("%.1f dB at %d, %.1f at %d" % (slowed, want, original, want * 2)))
+            note("a recording at 0.5x (%s): as much sound as picture" % label,
+                 picture is not None and abs(sound - picture) <= 0.35, (sound, picture))
+            del made
+            take.unlink()
 
     shutil.rmtree(work, ignore_errors=True)
     print()
