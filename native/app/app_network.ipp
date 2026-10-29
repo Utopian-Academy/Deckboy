@@ -3310,6 +3310,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "fade:      FADE NEW|WHAT opacity/volume/dimmer|TO <0-100>|OVER <s>|CURVE <shape>|DECK <n>|STOP <on/off>|FIRE|RUNNING|CANCEL\n"
         "           FADE WHAT brightness/contrast/saturation/hue - the playing cue's own colour\n"
         "           FADE WHAT effect/audiofx | EFFECT <n> | KNOB amount/A-D - a knob of the playing cue's effect n\n"
+        "           FADE WHAT speed | TO <0.25-4>x - the deck's speed, the pitch following, like tape\n"
         "master:    MASTER NEW | DECK <n> <cue> | BYPASS <n> [ON|OFF] | CLEAR | FIRE - one cue, several decks\n"
         "preset:    PRESET [LIST] | SAVE [name] | RECALL <n|name> | <n> | UPDATE <n> | RENAME <n> <name> | DELETE <n>\n"
         "           PRESET SCOPE <n> [ALL | ONLY <groups> | <group> on|off ...] - what a recall puts back:\n"

@@ -171,6 +171,10 @@ enum class CueFadeWhat {
   // normalized from/to are the values themselves. Appended, never inserted.
   CueEffectKnob,
   CueAudioEffectKnob,
+  // THE DECK'S SPEED, like tape: the pitch follows (MediaEngine::setTapeSpeed).
+  // Normalized on a log scale, 0.25x at 0, 1x at the middle, 4x at 1, so a
+  // straight ramp moves by octaves the way a slowing record does.
+  CueSpeed,
 };
 
 inline const char* cueFadeWhatToken(CueFadeWhat w) {
@@ -183,6 +187,7 @@ inline const char* cueFadeWhatToken(CueFadeWhat w) {
     case CueFadeWhat::CueHue:        return "hue";
     case CueFadeWhat::CueEffectKnob: return "effect";
     case CueFadeWhat::CueAudioEffectKnob: return "audiofx";
+    case CueFadeWhat::CueSpeed:      return "speed";
     case CueFadeWhat::DeckOpacity:   break;
   }
   return "opacity";
@@ -198,6 +203,7 @@ inline const char* cueFadeWhatLabel(CueFadeWhat w) {
     case CueFadeWhat::CueHue:        return "Cue hue";
     case CueFadeWhat::CueEffectKnob: return "An effect's knob";
     case CueFadeWhat::CueAudioEffectKnob: return "An audio effect's knob";
+    case CueFadeWhat::CueSpeed:      return "Speed, like tape";
     case CueFadeWhat::DeckOpacity:   break;
   }
   return "Deck opacity";
@@ -212,6 +218,7 @@ inline CueFadeWhat cueFadeWhatFromToken(const std::string& token) {
   if (token == "hue") return CueFadeWhat::CueHue;
   if (token == "effect") return CueFadeWhat::CueEffectKnob;
   if (token == "audiofx") return CueFadeWhat::CueAudioEffectKnob;
+  if (token == "speed") return CueFadeWhat::CueSpeed;
   return CueFadeWhat::DeckOpacity;
 }
 

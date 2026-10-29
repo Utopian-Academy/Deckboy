@@ -673,6 +673,12 @@ works on whichever cue is up. If that cue has no effect at that place, the fade
 says so and moves nothing. Like the colour targets, a knob fade moves the
 playing cue's own knob, and the knob stays where the fade left it.
 
+**Speed, like tape** ramps the deck's speed from 0.25x to 4x with the pitch
+following, so a ramp to 0.25x sounds like a record slowing down; the picture
+slows with it. Set **to** in x (1x is the cue's own speed). The next cue taken
+on that deck starts at its own speed again. Through ASIO it does not work yet:
+the fade says so and changes nothing.
+
 ### Master cue
 
 Fires an assigned cue on each of several decks at once. For each deck, pick

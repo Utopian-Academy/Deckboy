@@ -1614,7 +1614,8 @@
       case CueFadeWhat::CueSaturation: cue->fadeWhat = CueFadeWhat::CueHue; break;
       case CueFadeWhat::CueHue:        cue->fadeWhat = CueFadeWhat::CueEffectKnob; break;
       case CueFadeWhat::CueEffectKnob: cue->fadeWhat = CueFadeWhat::CueAudioEffectKnob; break;
-      case CueFadeWhat::CueAudioEffectKnob: cue->fadeWhat = CueFadeWhat::DeckOpacity; break;
+      case CueFadeWhat::CueAudioEffectKnob: cue->fadeWhat = CueFadeWhat::CueSpeed; break;
+      case CueFadeWhat::CueSpeed:      cue->fadeWhat = CueFadeWhat::DeckOpacity; break;
     }
     markProjectDirty();
     triggerToast(cueFadeWhatLabel(cue->fadeWhat));
@@ -4500,6 +4501,10 @@
   // get a fade wrong.
   double currentFadeValue(int deckIndex, CueFadeWhat what, int slot = 1, int knob = 0) const {
     switch (what) {
+      case CueFadeWhat::CueSpeed: {
+        const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+        return fadeValueFromSpeed(engine ? engine->tapeSpeed() : 1.0);
+      }
       case CueFadeWhat::CueEffectKnob:
       case CueFadeWhat::CueAudioEffectKnob:
         return std::clamp(activeCueEffectKnobValue(deckIndex, what, slot, knob).value_or(0.0), 0.0, 1.0);
@@ -4531,9 +4536,23 @@
     return std::clamp(static_cast<double>(project_.decks[deckIndex].playlistOpacity), 0.0, 1.0);
   }
 
+  // SPEED's normalized value and the speed itself: 0.25x at 0, 1x at the
+  // middle, 4x at 1, an octave a quarter of the way.
+  static double fadeSpeedFromValue(double value) {
+    return std::pow(2.0, 4.0 * std::clamp(value, 0.0, 1.0) - 2.0);
+  }
+  static double fadeValueFromSpeed(double speed) {
+    return std::clamp((std::log2(std::clamp(speed, 0.25, 4.0)) + 2.0) / 4.0, 0.0, 1.0);
+  }
+
   void applyFadeValue(int deckIndex, CueFadeWhat what, double value, int slot = 1, int knob = 0) {
     value = std::clamp(value, 0.0, 1.0);
     switch (what) {
+      case CueFadeWhat::CueSpeed:
+        if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+          engine->setTapeSpeed(fadeSpeedFromValue(value));
+        }
+        return;
       case CueFadeWhat::CueEffectKnob:
       case CueFadeWhat::CueAudioEffectKnob:
         // The cue's own field, as the inspector's knob writes it: the picture
@@ -4644,6 +4663,13 @@
       triggerToast(why, ToastKind::Warning, kToastReadableMs);
       return why;
     }
+    // SPEED THROUGH ASIO is not there yet: the driver would play at 1x while
+    // the picture ran at the new speed. Said, and nothing moves.
+    if (run.what == CueFadeWhat::CueSpeed && asioArmed()) {
+      const std::string why = "speed ramps do not reach ASIO yet; nothing changed";
+      triggerToast(why, ToastKind::Warning, kToastReadableMs);
+      return why;
+    }
     if (refused) *refused = false;
     run.from = currentFadeValue(victimDeck, fading.fadeWhat, run.effectSlot, run.effectKnob);
     run.to = std::clamp(fading.fadeToValue, 0.0, 1.0);
@@ -4654,9 +4680,13 @@
 
     cancelFadesFor(victimDeck, fading.fadeWhat, run.effectSlot, run.effectKnob);
 
-    char pct[8];
-    std::snprintf(pct, sizeof(pct), "%d%%", static_cast<int>(std::lround(run.to * 100.0)));
-    std::string target = cueFadeWhatLabel(run.what);
+    char pct[16];
+    if (run.what == CueFadeWhat::CueSpeed) {
+      std::snprintf(pct, sizeof(pct), "%.2fx", fadeSpeedFromValue(run.to));
+    } else {
+      std::snprintf(pct, sizeof(pct), "%d%%", static_cast<int>(std::lround(run.to * 100.0)));
+    }
+    std::string target = run.what == CueFadeWhat::CueSpeed ? std::string("speed") : cueFadeWhatLabel(run.what);
     if (cueFadeWhatIsKnob(run.what)) {
       target = std::string(run.what == CueFadeWhat::CueAudioEffectKnob ? "audio effect " : "effect ") +
                std::to_string(run.effectSlot) + " " + cueFadeKnobName(run.effectKnob);

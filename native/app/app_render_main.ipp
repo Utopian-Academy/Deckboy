@@ -7499,7 +7499,9 @@
         // a hue control, and "1.4x" means nothing next to deck opacity. Show
         // whichever unit the selected target actually is.
         char pct[16];
-        if (cueFadeWhatIsColorField(selectedCue->fadeWhat)) {
+        if (selectedCue->fadeWhat == CueFadeWhat::CueSpeed) {
+          std::snprintf(pct, sizeof(pct), "%.2fx", fadeSpeedFromValue(selectedCue->fadeToValue));
+        } else if (cueFadeWhatIsColorField(selectedCue->fadeWhat)) {
           const auto [lo, hi] = cueFadeColorRange(selectedCue->fadeWhat);
           const double real = lo + selectedCue->fadeToValue * (hi - lo);
           if (selectedCue->fadeWhat == CueFadeWhat::CueHue) {

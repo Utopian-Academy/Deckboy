@@ -280,6 +280,11 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   beginTransition(transitionSeconds, transitionStyle, outgoingGain);
   clearTexture();
   clearAudio();
+  // A new cue starts at its own speed: a fade that slowed the last one down
+  // belonged to that one.
+  tapeSpeed_ = 1.0;
+  tapeSpeedAudio_.store(1.0, std::memory_order_relaxed);
+  applyTapeRatio();
   // With the audio goes the picture OF the audio, or the incoming cue's
   // visualiser draws the outgoing cue's sound until its own arrives.
   clearScopeSamples();
@@ -883,6 +888,9 @@ void MediaEngine::setAudioDevice(SDL_AudioStream* stream, int channels) {
       audioDeviceChannels_.store(std::clamp(channels, 2, kMaxAudioMatrixOuts));
     }
   }
+  if (audioStream_ && tapeSpeed_ != 1.0) {
+    SDL_SetAudioStreamFrequencyRatio(audioStream_, static_cast<float>(tapeSpeed_));
+  }
   if (audioStream_) {
     SDL_ClearAudioStream(audioStream_);
     deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
@@ -1209,7 +1217,7 @@ double MediaEngine::position() const {
     // clockTrim_ is the audio-master steering (update()): the wall clock, run
     // a hair fast or slow so the picture stays on the sound card's clock.
     double elapsed = std::chrono::duration<double>(now - playbackClockStart_).count() *
-                     playbackSpeed_ * clockTrim_;
+                     playbackSpeed_ * tapeSpeed_ * clockTrim_;
     const double pos = playbackStartPosition_ + elapsed;
     return duration_ > 0.0 ? std::clamp(pos, 0.0, duration_) : std::max(0.0, pos);
   }
@@ -7635,6 +7643,17 @@ void MediaEngine::tapPlayedAudio(const std::vector<std::int16_t>& sentToDevice) 
                    tapFifo_.begin() + static_cast<std::ptrdiff_t>(wanted));
     tapEmittedFrames_ += wanted / 2u;
   }
+  // AT A TAPE SPEED the device played these at that ratio, so the tap hands
+  // on the same: a recording at 0.5x would otherwise get half a second of
+  // sound for every second, at the old pitch.
+  const double ratio = tapeSpeedAudio_.load(std::memory_order_relaxed);
+  if (ratio != 1.0) {
+    ready = resampleTapAudio(ready, ratio);
+  } else if (ready.size() >= 2) {
+    tapResampleT_ = 0.0;
+    tapResampleLast_[0] = ready[ready.size() - 2];
+    tapResampleLast_[1] = ready[ready.size() - 1];
+  }
   // Outside the lock: the tap runs the recorder's ring push and the stream
   // writers, and nothing it does should be able to block a decode thread that
   // is holding an audio lock.
@@ -7886,6 +7905,75 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
   }
   queueToDevices(wide.data(),
                          static_cast<int>(wide.size() * sizeof(std::int16_t)));
+}
+
+// ── TAPE SPEED ──────────────────────────────────────────────────────────────
+
+void MediaEngine::setTapeSpeed(double speed) {
+  speed = std::clamp(speed, 0.25, 4.0);
+  if (std::abs(speed - tapeSpeed_) < 1e-9) {
+    return;
+  }
+  // Re-anchored at the current position, so the new rate bends the clock
+  // from here rather than rescaling the past: over a ramp the playhead
+  // integrates the speed.
+  if (state_ == TransportState::Playing) {
+    playbackStartPosition_ = position();
+    playbackClockStart_ = std::chrono::steady_clock::now();
+  }
+  tapeSpeed_ = speed;
+  tapeSpeedAudio_.store(speed, std::memory_order_relaxed);
+  applyTapeRatio();
+}
+
+// Every stream this deck writes plays at the ratio: SDL resamples on the way
+// out, which is what moves the pitch. Main thread, which owns the streams.
+void MediaEngine::applyTapeRatio() {
+  const float ratio = static_cast<float>(tapeSpeed_);
+  if (audioStream_) {
+    SDL_SetAudioStreamFrequencyRatio(audioStream_, ratio);
+  }
+  for (auto& slot : extraAudioStreams_) {
+    if (SDL_AudioStream* extra = slot.load(std::memory_order_relaxed)) {
+      SDL_SetAudioStreamFrequencyRatio(extra, ratio);
+    }
+  }
+  if (SDL_AudioStream* monitor = monitorStream_.load(std::memory_order_relaxed)) {
+    SDL_SetAudioStreamFrequencyRatio(monitor, ratio);
+  }
+}
+
+// Linear, frame by frame, carrying its place across blocks: t counts input
+// frames, -1 being the previous block's last. Ratio 2 takes every other
+// frame; 0.5 makes two of each.
+std::vector<std::int16_t> MediaEngine::resampleTapAudio(const std::vector<std::int16_t>& in,
+                                                       double ratio) {
+  const std::size_t frames = in.size() / 2;
+  std::vector<std::int16_t> out;
+  if (frames == 0 || ratio <= 0.0) {
+    return out;
+  }
+  out.reserve(static_cast<std::size_t>(static_cast<double>(frames) / ratio + 4.0) * 2);
+  const auto sample = [&](long long index, int channel) -> double {
+    return index < 0 ? static_cast<double>(tapResampleLast_[channel])
+                     : static_cast<double>(in[static_cast<std::size_t>(index) * 2 + static_cast<std::size_t>(channel)]);
+  };
+  const long long last = static_cast<long long>(frames) - 1;
+  double t = tapResampleT_;
+  while (t <= static_cast<double>(last)) {
+    const long long i0 = static_cast<long long>(std::floor(t));
+    const double f = t - static_cast<double>(i0);
+    for (int c = 0; c < 2; ++c) {
+      const double a = sample(i0, c);
+      const double b = sample(std::min(i0 + 1, last), c);
+      out.push_back(static_cast<std::int16_t>(std::lround(std::clamp(a + (b - a) * f, -32768.0, 32767.0))));
+    }
+    t += ratio;
+  }
+  tapResampleT_ = t - static_cast<double>(frames);
+  tapResampleLast_[0] = in[static_cast<std::size_t>(last) * 2];
+  tapResampleLast_[1] = in[static_cast<std::size_t>(last) * 2 + 1];
+  return out;
 }
 
 // ── THE PATCH ───────────────────────────────────────────────────────────────
@@ -11337,7 +11425,9 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
       stereo[f * 2 + 1] = out[f * static_cast<std::size_t>(channels) +
                               (channels > 1 ? 1 : 0)];
     }
-    audioTap_(stereo);
+    // At a tape speed the device plays this at that ratio; so does the tap.
+    const double ratio = tapeSpeedAudio_.load(std::memory_order_relaxed);
+    audioTap_(ratio != 1.0 ? resampleTapAudio(stereo, ratio) : stereo);
   }
   // The same stereo the tap gets, to the picture side: without this a tone
   // cue drives neither audioprint nor an Audio LFO.

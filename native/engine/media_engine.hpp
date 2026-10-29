@@ -242,6 +242,10 @@ class MediaEngine {
   void clear();                           // stop + release the active cue + black output
   void seek(double seconds, bool clearVisualFrame = false); // jump to time position
   void setVolume(float value);            // set playback volume (0.0–1.0)
+  // TAPE SPEED, a fade cue's SPEED: 0.25x to 4x with the pitch following, as a
+  // tape machine does. Main thread. Back to 1x for every new cue.
+  void setTapeSpeed(double speed);
+  double tapeSpeed() const { return tapeSpeed_; }
   // Master (show-level) gain multiplied on top of the per-cue volume in the
   // audio thread. Synced from Project::masterVolume every app tick so the
   // header fader affects all decks no matter which path changed it.
@@ -279,6 +283,9 @@ class MediaEngine {
     for (int i = 0; i < kMaxExtraAudioOuts; ++i) {
       SDL_AudioStream* s = (i < static_cast<int>(streams.size())) ? streams[i] : nullptr;
       extraAudioStreams_[static_cast<std::size_t>(i)].store(s, std::memory_order_release);
+      if (s && tapeSpeed_ != 1.0) {
+        SDL_SetAudioStreamFrequencyRatio(s, static_cast<float>(tapeSpeed_));
+      }
     }
   }
 
@@ -333,6 +340,9 @@ class MediaEngine {
   // because a bool is not a pointer.
   void setMonitorStream(SDL_AudioStream* stream) {
     monitorStream_.store(stream, std::memory_order_release);
+    if (stream && tapeSpeed_ != 1.0) {
+      SDL_SetAudioStreamFrequencyRatio(stream, static_cast<float>(tapeSpeed_));
+    }
   }
   void setMonitorMuted(bool muted) {
     monitorMuted_.store(muted, std::memory_order_relaxed);
@@ -1449,6 +1459,18 @@ class MediaEngine {
   double cueOutPointSeconds_ = 0.0;         // trim end (from Cue::outPointSeconds)
   double frameRate_ = 30.0;                 // decode frame rate (from Cue::fps)
   double playbackSpeed_ = 1.0;              // speed multiplier (from Cue::playbackSpeed)
+  // TAPE SPEED (setTapeSpeed), on top of playbackSpeed_, which keeps the pitch
+  // (atempo) and restarts decode. This one changes nothing upstream: every
+  // stream the deck writes plays at it (SDL's frequency ratio), the picture
+  // clock runs at it, and the tap resamples by it so a recording hears what
+  // the room hears. The audio clock needs nothing: it counts frames the
+  // device has taken, and a frame means the same moment at any ratio.
+  double tapeSpeed_ = 1.0;
+  std::atomic<double> tapeSpeedAudio_ {1.0};   // the same, for the tap on the audio thread
+  double tapResampleT_ = 0.0;                  // the tap's resampler: audio thread only
+  std::int16_t tapResampleLast_[2] {0, 0};
+  void applyTapeRatio();
+  std::vector<std::int16_t> resampleTapAudio(const std::vector<std::int16_t>& in, double ratio);
   std::chrono::steady_clock::time_point playbackClockStart_ = std::chrono::steady_clock::now(); // wall-clock reference for position()
 
   // -- State: frame pipeline (decode thread → main thread) ---------------------

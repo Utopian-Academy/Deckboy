@@ -3002,9 +3002,13 @@
       }
 
       if (sub.empty()) {
-        char pct[8];
-        std::snprintf(pct, sizeof(pct), "%d%%",
-                      static_cast<int>(std::lround(cue.fadeToValue * 100.0)));
+        char pct[16];
+        if (cue.fadeWhat == CueFadeWhat::CueSpeed) {
+          std::snprintf(pct, sizeof(pct), "%.2fx", fadeSpeedFromValue(cue.fadeToValue));
+        } else {
+          std::snprintf(pct, sizeof(pct), "%d%%",
+                        static_cast<int>(std::lround(cue.fadeToValue * 100.0)));
+        }
         std::ostringstream out;
         out << cueFadeWhatLabel(cue.fadeWhat) << " -> " << pct
             << " over " << formatSeconds(cue.fadeOverSeconds)
@@ -3038,9 +3042,10 @@
         const std::string token = toLower(parts[2]);
         if (token != "opacity" && token != "volume" && token != "dimmer" &&
             token != "brightness" && token != "contrast" &&
-            token != "saturation" && token != "hue" && token != "effect" && token != "audiofx") {
+            token != "saturation" && token != "hue" && token != "effect" && token != "audiofx" &&
+            token != "speed") {
           failRemoteCommand("FADE WHAT: expected opacity, volume, dimmer, "
-                            "brightness, contrast, saturation, hue, effect or audiofx");
+                            "brightness, contrast, saturation, hue, effect, audiofx or speed");
           return;
         }
         cue.fadeWhat = cueFadeWhatFromToken(token);
@@ -3085,6 +3090,23 @@
         cue.fadeCurve = cueFadeCurveFromToken(token);
         markProjectDirty();
         remoteCommandDetail_ = cueFadeCurveLabel(cue.fadeCurve);
+        return;
+      }
+      // SPEED is set as a speed: FADE TO 0.25 (or 0.25x), 0.25 to 4.
+      if (sub == "TO" && parts.size() >= 3 && cue.fadeWhat == CueFadeWhat::CueSpeed) {
+        std::string text = parts[2];
+        if (!text.empty() && (text.back() == 'x' || text.back() == 'X')) text.pop_back();
+        char* end = nullptr;
+        const double speed = std::strtod(text.c_str(), &end);
+        if (text.empty() || end == text.c_str() || *end != '\0' || speed < 0.25 || speed > 4.0) {
+          failRemoteCommand("FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)");
+          return;
+        }
+        cue.fadeToValue = fadeValueFromSpeed(speed);
+        markProjectDirty();
+        char shown[16];
+        std::snprintf(shown, sizeof(shown), "%.2fx", speed);
+        remoteCommandDetail_ = shown;
         return;
       }
       if (sub == "TO" && parts.size() >= 3) {
