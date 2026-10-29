@@ -665,6 +665,14 @@ Ramps a level over time: a deck's **opacity**, a deck's **volume**, the
 S-curve. Turn on **then stop** to stop the deck when the ramp lands, which is
 the usual "take it down and stop it".
 
+It can also ramp a knob of an effect: **an effect's knob** (the picture's
+effects) or **an audio effect's knob**. Pick the **effect** by its place in the
+stack, 1 being the first, and the **knob**: its amount, or A to D. The effect is
+looked for on the cue the deck is playing when the fade fires, so one fade cue
+works on whichever cue is up. If that cue has no effect at that place, the fade
+says so and moves nothing. Like the colour targets, a knob fade moves the
+playing cue's own knob, and the knob stays where the fade left it.
+
 ### Master cue
 
 Fires an assigned cue on each of several decks at once. For each deck, pick

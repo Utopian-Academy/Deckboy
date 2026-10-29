@@ -116,6 +116,13 @@
   page.
 
 ### Effects
+- A **fade cue** can ramp an effect's knob: **an effect's knob** on the picture or **an audio
+  effect's knob**, picked by its place in the stack (effect 1 is the first) and which knob
+  (**amount**, or A to D). The effect is found on the cue the deck is playing when the fade fires,
+  so one fade cue works on whichever cue is up; if that cue has no effect there, the fade says so
+  and moves nothing. Like the colour targets, it moves the playing cue's own knob, which stays
+  where the fade left it. The curves and **then stop** work as for every fade. `FADE WHAT
+  effect|audiofx`, `FADE EFFECT <n>` and `FADE KNOB amount|A-D` over the network.
 - Added **colour**, with the basics at the top of the effect list: **hue turn** (every colour
   round the wheel, half a turn either way; give it an LFO and the picture cycles colours),
   **tint** and **tint colour** (the midtones take the colour, black and white stay put) and

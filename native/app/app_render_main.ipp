@@ -7375,8 +7375,9 @@
       if (cueSectionFadeOpen_) {
         drawChoiceRow(fdY, "fades", cueFadeWhatLabel(selectedCue->fadeWhat),
                       QuickAction::FadeWhatCycle,
-                      "Deck opacity, deck volume, the master dimmer, or the "
-                      "active cue's own brightness / contrast / saturation / hue");
+                      "Deck opacity, deck volume, the master dimmer, the active "
+                      "cue's own brightness / contrast / saturation / hue, or a knob "
+                      "of one of its effects or audio effects");
         fdY += kInspectorRowStep;
 
         // The deck row is hidden for the master dimmer, which belongs to no
@@ -7395,6 +7396,44 @@
                        false, false,
                        "Which deck it acts on; step off the end for the one "
                        "this cue lives on");
+          fdY += kInspectorRowStep;
+        }
+
+        // A KNOB FADE: which effect, by its place in the stack, and which knob.
+        // Named from the cue that deck is playing now, when it has one there;
+        // what it moves is settled when the fade fires.
+        if (cueFadeWhatIsKnob(selectedCue->fadeWhat)) {
+          const bool audioKnob = selectedCue->fadeWhat == CueFadeWhat::CueAudioEffectKnob;
+          int victim = selectedCue->targetDeckIndex;
+          if (victim < 0 || victim >= static_cast<int>(project_.decks.size())) victim = project_.focusedDeckIndex;
+          const Cue* playing = nullptr;
+          if (victim >= 0 && victim < static_cast<int>(project_.decks.size())) {
+            const Deck& vd = project_.decks[victim];
+            if (vd.activeIndex >= 0 && vd.activeIndex < static_cast<int>(vd.cues.size())) {
+              playing = &vd.cues[vd.activeIndex];
+            }
+          }
+          const int slot = std::max(1, selectedCue->fadeEffectSlot);
+          const auto index = static_cast<std::size_t>(slot - 1);
+          std::string effectName;
+          const char* knobLabel = nullptr;
+          const int knob = std::clamp(selectedCue->fadeEffectKnob, 0, 4);
+          if (playing && audioKnob && index < playing->audioEffects.size()) {
+            effectName = deckboy::audiofx::audioEffectLabel(playing->audioEffects[index].kind);
+            if (knob > 0) knobLabel = deckboy::audiofx::audioEffectParamLabel(playing->audioEffects[index].kind, knob - 1);
+          } else if (playing && !audioKnob && index < playing->effects.size()) {
+            effectName = deckboy::effects::cueEffectLabel(playing->effects[index].kind);
+            if (knob > 0) knobLabel = deckboy::effects::cueEffectParamLabel(playing->effects[index].kind, knob - 1);
+          }
+          drawQuickRow(fdY, "effect", QuickAction::FadeEffectSlotPrev,
+                       std::to_string(slot) + "  " + (effectName.empty() ? std::string("(none playing now)") : effectName),
+                       QuickAction::FadeEffectSlotNext, QuickAction::FadeEffectSlotNext, false, false,
+                       "Which effect, by its place in the stack of the cue that deck is playing "
+                       "when this fires. With nothing there, the fade says so and does nothing");
+          fdY += kInspectorRowStep;
+          drawChoiceRow(fdY, "knob",
+                        std::string(cueFadeKnobName(knob)) + (knobLabel ? std::string("  ") + knobLabel : std::string()),
+                        QuickAction::FadeEffectKnobCycle, "Its amount, or one of its knobs A to D");
           fdY += kInspectorRowStep;
         }
 

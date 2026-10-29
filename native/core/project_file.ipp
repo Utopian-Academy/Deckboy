@@ -1009,6 +1009,8 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << cue.moire.hue
         << '\t' << escapeField(serializeMoireInks(cue.moire.themeInks))
         << '\t' << escapeField(serializeGeometryLfos(cue.moire.lfo))
+        << '\t' << cue.fadeEffectSlot          // vs + 162: a fade cue's effect and knob
+        << '\t' << cue.fadeEffectKnob
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2670,6 +2672,10 @@ Project loadProject(const fs::path& projectFile,
           m.hue = std::clamp(safeDouble(fields, vs + 159, fresh.hue), 0.0, 1.0);
           m.themeInks = parseMoireInks(safeString(fields, vs + 160), fresh.themeInks);
           m.lfo = parseGeometryLfos(safeString(fields, vs + 161));
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 164)) {
+          cue.fadeEffectSlot = std::clamp(safeInt(fields, vs + 162, 1), 1, 64);
+          cue.fadeEffectKnob = std::clamp(safeInt(fields, vs + 163, 0), 0, 4);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

@@ -1612,10 +1612,29 @@
       case CueFadeWhat::CueBrightness: cue->fadeWhat = CueFadeWhat::CueContrast; break;
       case CueFadeWhat::CueContrast:   cue->fadeWhat = CueFadeWhat::CueSaturation; break;
       case CueFadeWhat::CueSaturation: cue->fadeWhat = CueFadeWhat::CueHue; break;
-      case CueFadeWhat::CueHue:        cue->fadeWhat = CueFadeWhat::DeckOpacity; break;
+      case CueFadeWhat::CueHue:        cue->fadeWhat = CueFadeWhat::CueEffectKnob; break;
+      case CueFadeWhat::CueEffectKnob: cue->fadeWhat = CueFadeWhat::CueAudioEffectKnob; break;
+      case CueFadeWhat::CueAudioEffectKnob: cue->fadeWhat = CueFadeWhat::DeckOpacity; break;
     }
     markProjectDirty();
     triggerToast(cueFadeWhatLabel(cue->fadeWhat));
+  }
+
+  // Which effect a knob fade moves, by its place in the stack (1 = first), and
+  // which of its knobs. Kept to the numbers a stack can hold; what is there is
+  // only known when the fade fires, on whatever cue the deck is playing.
+  void stepFadeEffectSlot(int delta) {
+    Cue* cue = selectedFadeCue();
+    if (!cue) return;
+    cue->fadeEffectSlot = std::clamp(cue->fadeEffectSlot + delta, 1, cueFadeEffectSlotMax(cue->fadeWhat));
+    markProjectDirty();
+  }
+  void cycleFadeEffectKnob() {
+    Cue* cue = selectedFadeCue();
+    if (!cue) return;
+    cue->fadeEffectKnob = (std::clamp(cue->fadeEffectKnob, 0, 4) + 1) % 5;
+    markProjectDirty();
+    triggerToast(std::string("knob ") + cueFadeKnobName(cue->fadeEffectKnob));
   }
 
   void cycleFadeCurve() {
@@ -4314,8 +4333,52 @@
     // for the next cue it plays.
     bool restoreAtEnd = false;
     std::string label;                      // for the toast when it lands
+    int effectSlot = 1;                     // knob targets: which effect (1 = first)...
+    int effectKnob = 0;                     // ...and which knob (0 amount, 1-4 A-D)
   };
   std::vector<FadeRun> fadeRuns_;
+
+  // THE KNOB a knob fade moves, on the deck's ACTIVE cue: the effect at that
+  // position in its picture or audio stack, its amount or A-D. Null when the
+  // deck plays nothing or the cue has no effect there -- the fade then says
+  // so and does nothing, rather than guessing at another effect.
+  float* activeCueEffectKnob(int deckIndex, CueFadeWhat what, int slot, int knob) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return nullptr;
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) return nullptr;
+    Cue& cue = deck.cues[deck.activeIndex];
+    const auto pick = [knob](auto& fx) -> float* {
+      return knob == 1 ? &fx.paramA : knob == 2 ? &fx.paramB : knob == 3 ? &fx.paramC
+           : knob == 4 ? &fx.paramD : &fx.amount;
+    };
+    const auto index = static_cast<std::size_t>(slot - 1);
+    if (slot < 1) return nullptr;
+    if (what == CueFadeWhat::CueEffectKnob) {
+      return index < cue.effects.size() ? pick(cue.effects[index]) : nullptr;
+    }
+    if (what == CueFadeWhat::CueAudioEffectKnob) {
+      return index < cue.audioEffects.size() ? pick(cue.audioEffects[index]) : nullptr;
+    }
+    return nullptr;
+  }
+  // The same knob, read: a const pair rather than one const_cast, as with
+  // activeCueColorField.
+  std::optional<double> activeCueEffectKnobValue(int deckIndex, CueFadeWhat what, int slot, int knob) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size()) || slot < 1) return std::nullopt;
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) return std::nullopt;
+    const Cue& cue = deck.cues[deck.activeIndex];
+    const auto read = [knob](const auto& fx) {
+      return static_cast<double>(knob == 1 ? fx.paramA : knob == 2 ? fx.paramB : knob == 3 ? fx.paramC
+                                 : knob == 4 ? fx.paramD : fx.amount);
+    };
+    const auto index = static_cast<std::size_t>(slot - 1);
+    if (what == CueFadeWhat::CueEffectKnob && index < cue.effects.size()) return read(cue.effects[index]);
+    if (what == CueFadeWhat::CueAudioEffectKnob && index < cue.audioEffects.size()) {
+      return read(cue.audioEffects[index]);
+    }
+    return std::nullopt;
+  }
 
   // The real-world span a per-cue color fade target moves across. Shared by
   // both directions below (normalize on read, denormalize on write) so they
@@ -4373,8 +4436,11 @@
   // stored on the cue: a fade that always started from 100% would jump the
   // level up before taking it down, which is the single most visible way to
   // get a fade wrong.
-  double currentFadeValue(int deckIndex, CueFadeWhat what) const {
+  double currentFadeValue(int deckIndex, CueFadeWhat what, int slot = 1, int knob = 0) const {
     switch (what) {
+      case CueFadeWhat::CueEffectKnob:
+      case CueFadeWhat::CueAudioEffectKnob:
+        return std::clamp(activeCueEffectKnobValue(deckIndex, what, slot, knob).value_or(0.0), 0.0, 1.0);
       case CueFadeWhat::MasterDimmer:
         return std::clamp(project_.masterDimmer, 0.0, 1.0);
       case CueFadeWhat::DeckVolume: {
@@ -4403,9 +4469,18 @@
     return std::clamp(static_cast<double>(project_.decks[deckIndex].playlistOpacity), 0.0, 1.0);
   }
 
-  void applyFadeValue(int deckIndex, CueFadeWhat what, double value) {
+  void applyFadeValue(int deckIndex, CueFadeWhat what, double value, int slot = 1, int knob = 0) {
     value = std::clamp(value, 0.0, 1.0);
     switch (what) {
+      case CueFadeWhat::CueEffectKnob:
+      case CueFadeWhat::CueAudioEffectKnob:
+        // The cue's own field, as the inspector's knob writes it: the picture
+        // path and the audio thread both pick it up from the next sync.
+        if (float* field = activeCueEffectKnob(deckIndex, what, slot, knob)) {
+          *field = static_cast<float>(value);
+          markProjectDirty();
+        }
+        return;
       case CueFadeWhat::MasterDimmer:
         project_.masterDimmer = value;
         return;
@@ -4443,10 +4518,14 @@
   // One fade per deck per thing. A new fade on the same pair replaces the old
   // one from wherever it had got to, which is what an operator means when they
   // fire a fade up in the middle of a fade down.
-  void cancelFadesFor(int deckIndex, CueFadeWhat what) {
+  // A knob is its own thing: a fade on effect 1's amount leaves one on
+  // effect 2's A running.
+  void cancelFadesFor(int deckIndex, CueFadeWhat what, int slot = 1, int knob = 0) {
     fadeRuns_.erase(std::remove_if(fadeRuns_.begin(), fadeRuns_.end(),
                                    [&](const FadeRun& f) {
-                                     return f.deckIndex == deckIndex && f.what == what;
+                                     return f.deckIndex == deckIndex && f.what == what &&
+                                            (!cueFadeWhatIsKnob(what) ||
+                                             (f.effectSlot == slot && f.effectKnob == knob));
                                    }),
                     fadeRuns_.end());
   }
@@ -4462,7 +4541,10 @@
                     fadeRuns_.end());
   }
 
-  std::string fireFadeCue(int deckIndex, int cueIndex) {
+  // Returns what it did, or why it did nothing (and sets *refused, so the
+  // wire can answer ERR rather than OK).
+  std::string fireFadeCue(int deckIndex, int cueIndex, bool* refused = nullptr) {
+    if (refused) *refused = true;
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return "no deck";
     }
@@ -4486,25 +4568,44 @@
     run.deckIndex = victimDeck;
     run.what = fading.fadeWhat;
     run.curve = fading.fadeCurve;
-    run.from = currentFadeValue(victimDeck, fading.fadeWhat);
+    run.effectSlot = std::max(1, fading.fadeEffectSlot);
+    run.effectKnob = std::clamp(fading.fadeEffectKnob, 0, 4);
+    // A KNOB NOBODY HAS. The effect is looked for on the cue that deck is
+    // playing NOW; if there is none at that position the fade says so and
+    // does nothing, rather than moving some other effect's knob.
+    if (cueFadeWhatIsKnob(run.what) &&
+        !activeCueEffectKnob(victimDeck, run.what, run.effectSlot, run.effectKnob)) {
+      const std::string why = std::string("nothing to fade: the cue deck ") + std::to_string(victimDeck + 1) +
+                              " is playing has no " +
+                              (run.what == CueFadeWhat::CueAudioEffectKnob ? "audio effect " : "effect ") +
+                              std::to_string(run.effectSlot);
+      triggerToast(why, ToastKind::Warning, kToastReadableMs);
+      return why;
+    }
+    if (refused) *refused = false;
+    run.from = currentFadeValue(victimDeck, fading.fadeWhat, run.effectSlot, run.effectKnob);
     run.to = std::clamp(fading.fadeToValue, 0.0, 1.0);
     run.durationSeconds = std::max(0.0, fading.fadeOverSeconds);
     run.startMs = SDL_GetTicks();
     run.stopWhenDone = fading.fadeStopWhenDone;
     run.label = fading.name;
 
-    cancelFadesFor(victimDeck, fading.fadeWhat);
+    cancelFadesFor(victimDeck, fading.fadeWhat, run.effectSlot, run.effectKnob);
 
     char pct[8];
     std::snprintf(pct, sizeof(pct), "%d%%", static_cast<int>(std::lround(run.to * 100.0)));
-    const std::string did = std::string(cueFadeWhatLabel(run.what)) + " -> " + pct +
-                            " over " + formatSeconds(run.durationSeconds);
+    std::string target = cueFadeWhatLabel(run.what);
+    if (cueFadeWhatIsKnob(run.what)) {
+      target = std::string(run.what == CueFadeWhat::CueAudioEffectKnob ? "audio effect " : "effect ") +
+               std::to_string(run.effectSlot) + " " + cueFadeKnobName(run.effectKnob);
+    }
+    const std::string did = target + " -> " + pct + " over " + formatSeconds(run.durationSeconds);
 
     // A ZERO-LENGTH FADE IS A SET, and must land on this tick rather than
     // waiting for the next one -- a fade cue with the duration turned all the
     // way down is how an operator asks for a snap.
     if (run.durationSeconds <= 0.0) {
-      applyFadeValue(run.deckIndex, run.what, run.to);
+      applyFadeValue(run.deckIndex, run.what, run.to, run.effectSlot, run.effectKnob);
       if (run.stopWhenDone) {
         finishFadeStop(run.deckIndex);
       }
@@ -4541,19 +4642,20 @@
         // it a fraction short, and "the fade ends at 0.3% instead of black" is
         // the kind of thing nobody sees in rehearsal and everybody sees on the
         // night.
-        applyFadeValue(run.deckIndex, run.what, run.to);
+        applyFadeValue(run.deckIndex, run.what, run.to, run.effectSlot, run.effectKnob);
         const bool stop = run.stopWhenDone;
         const int deckIndex = run.deckIndex;
         const std::string label = run.label;
         const bool restore = run.restoreAtEnd;
         const CueFadeWhat what = run.what;
         const double from = run.from;
+        const int slot = run.effectSlot, knob = run.effectKnob;
         fadeRuns_.erase(fadeRuns_.begin() + i);
         if (stop) {
           finishFadeStop(deckIndex);
         }
         if (restore) {
-          applyFadeValue(deckIndex, what, from);
+          applyFadeValue(deckIndex, what, from, slot, knob);
         }
         // Stopping a deck cancels its other fades (cancelFadesForDeck), so
         // the list can be shorter than where this backwards walk stands.
@@ -4565,7 +4667,8 @@
         continue;
       }
       const double shaped = applyCueFadeCurve(run.curve, raw);
-      applyFadeValue(run.deckIndex, run.what, run.from + (run.to - run.from) * shaped);
+      applyFadeValue(run.deckIndex, run.what, run.from + (run.to - run.from) * shaped,
+                     run.effectSlot, run.effectKnob);
     }
   }
 

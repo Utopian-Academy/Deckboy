@@ -165,6 +165,12 @@ enum class CueFadeWhat {
   CueContrast,
   CueSaturation,
   CueHue,
+  // A KNOB of one of the active cue's effects: its amount or A-D, picked by
+  // the fade cue's fadeEffectSlot / fadeEffectKnob and found on whatever cue
+  // that deck is playing when the fade fires. Knobs are 0-1 already, so the
+  // normalized from/to are the values themselves. Appended, never inserted.
+  CueEffectKnob,
+  CueAudioEffectKnob,
 };
 
 inline const char* cueFadeWhatToken(CueFadeWhat w) {
@@ -175,6 +181,8 @@ inline const char* cueFadeWhatToken(CueFadeWhat w) {
     case CueFadeWhat::CueContrast:   return "contrast";
     case CueFadeWhat::CueSaturation: return "saturation";
     case CueFadeWhat::CueHue:        return "hue";
+    case CueFadeWhat::CueEffectKnob: return "effect";
+    case CueFadeWhat::CueAudioEffectKnob: return "audiofx";
     case CueFadeWhat::DeckOpacity:   break;
   }
   return "opacity";
@@ -188,6 +196,8 @@ inline const char* cueFadeWhatLabel(CueFadeWhat w) {
     case CueFadeWhat::CueContrast:   return "Cue contrast";
     case CueFadeWhat::CueSaturation: return "Cue saturation";
     case CueFadeWhat::CueHue:        return "Cue hue";
+    case CueFadeWhat::CueEffectKnob: return "An effect's knob";
+    case CueFadeWhat::CueAudioEffectKnob: return "An audio effect's knob";
     case CueFadeWhat::DeckOpacity:   break;
   }
   return "Deck opacity";
@@ -200,6 +210,8 @@ inline CueFadeWhat cueFadeWhatFromToken(const std::string& token) {
   if (token == "contrast") return CueFadeWhat::CueContrast;
   if (token == "saturation") return CueFadeWhat::CueSaturation;
   if (token == "hue") return CueFadeWhat::CueHue;
+  if (token == "effect") return CueFadeWhat::CueEffectKnob;
+  if (token == "audiofx") return CueFadeWhat::CueAudioEffectKnob;
   return CueFadeWhat::DeckOpacity;
 }
 
@@ -210,6 +222,28 @@ inline CueFadeWhat cueFadeWhatFromToken(const std::string& token) {
 inline bool cueFadeWhatIsColorField(CueFadeWhat w) {
   return w == CueFadeWhat::CueBrightness || w == CueFadeWhat::CueContrast ||
          w == CueFadeWhat::CueSaturation || w == CueFadeWhat::CueHue;
+}
+
+// Whether it ramps an effect's knob, which needs the slot and knob to say which.
+inline bool cueFadeWhatIsKnob(CueFadeWhat w) {
+  return w == CueFadeWhat::CueEffectKnob || w == CueFadeWhat::CueAudioEffectKnob;
+}
+
+// How far down the stack a knob fade can reach: as long as that stack can be
+// (twelve picture effects, eight audio).
+inline int cueFadeEffectSlotMax(CueFadeWhat w) {
+  return w == CueFadeWhat::CueAudioEffectKnob ? 8 : 12;
+}
+
+// The knob a fade moves: 0 is the effect's amount, 1-4 its A-D.
+inline const char* cueFadeKnobName(int knob) {
+  switch (knob) {
+    case 1: return "A";
+    case 2: return "B";
+    case 3: return "C";
+    case 4: return "D";
+    default: return "amount";
+  }
 }
 
 // The shape of the ramp. Linear is the default because it is what every
@@ -1738,6 +1772,8 @@ struct Cue {
   CueTargetVerb targetVerb = CueTargetVerb::Start;  // Target cue: what it does to it
   CueFadeWhat fadeWhat = CueFadeWhat::DeckOpacity;  // Fade cue: what it ramps
   CueFadeCurve fadeCurve = CueFadeCurve::Linear;    // Fade cue: the shape of it
+  int fadeEffectSlot = 1;                  // Fade cue, knob targets: which effect (1 = first)
+  int fadeEffectKnob = 0;                  // ...and which knob: 0 amount, 1-4 A-D
   ScaleMode scaleMode = ScaleMode::Fit;    // how source maps to output — see ScaleMode enum
 
   // -- 4-byte aligned: SDL_Color (RGBA) ----------------------------------------
@@ -3572,7 +3608,10 @@ enum class QuickAction {
   DmxFixtureLevelDec,     // param = fixture row
   DmxFixtureLevelInc,
   DmxFixtureColourCycle,  // param = fixture row
-  DmxModeToggle           // BY FIXTURE <-> CHANNELS
+  DmxModeToggle,          // BY FIXTURE <-> CHANNELS
+  FadeEffectSlotPrev,     // a knob fade: which effect it moves
+  FadeEffectSlotNext,
+  FadeEffectKnobCycle     // ...and which knob: amount, A, B, C, D
 };
 
 // ---------------------------------------------------------------------------

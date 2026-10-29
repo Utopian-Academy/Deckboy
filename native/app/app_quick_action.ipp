@@ -1377,6 +1377,9 @@
       case QuickAction::FadeDeckNext:   stepFadeDeck(+1); break;
       case QuickAction::FadeStopToggle: toggleFadeStopWhenDone(); break;
       case QuickAction::FadeFire:       fireSelectedFadeCue(); break;
+      case QuickAction::FadeEffectSlotPrev: stepFadeEffectSlot(-1); break;
+      case QuickAction::FadeEffectSlotNext: stepFadeEffectSlot(+1); break;
+      case QuickAction::FadeEffectKnobCycle: cycleFadeEffectKnob(); break;
       case QuickAction::PanelWidthDec:  nudgeLedPanelSize(true, -16); break;
       case QuickAction::PanelWidthInc:  nudgeLedPanelSize(true, +16); break;
       case QuickAction::PanelHeightDec: nudgeLedPanelSize(false, -16); break;

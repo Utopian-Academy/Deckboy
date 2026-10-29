@@ -2674,7 +2674,8 @@
     }
     if (command == "FADE" || command == "FADECUE") {
       // FADE NEW                -> add a fade cue to this deck
-      // FADE WHAT opacity|volume|dimmer|brightness|contrast|saturation|hue
+      // FADE WHAT opacity|volume|dimmer|brightness|contrast|saturation|hue|effect|audiofx
+      // FADE EFFECT <n> / FADE KNOB amount|A-D -> a knob fade's effect and knob
       // FADE TO <0-100>         -> where the ramp ends
       // FADE OVER <seconds>
       // FADE CURVE linear|ease-in|ease-out|s-curve
@@ -2736,6 +2737,9 @@
                                  ? std::to_string(cue.targetDeckIndex + 1)
                                  : std::string("this one"));
         }
+        if (cueFadeWhatIsKnob(cue.fadeWhat)) {
+          out << ", effect " << cue.fadeEffectSlot << " knob " << cueFadeKnobName(cue.fadeEffectKnob);
+        }
         if (cue.fadeStopWhenDone) {
           out << ", then stop";
         }
@@ -2744,21 +2748,54 @@
         return;
       }
       if (sub == "FIRE" || sub == "GO" || sub == "TAKE") {
-        remoteCommandDetail_ = fireFadeCue(deckIndex, deck.selectedIndex);
+        bool refused = false;
+        const std::string said = fireFadeCue(deckIndex, deck.selectedIndex, &refused);
+        if (refused) {
+          failRemoteCommand("FADE FIRE: " + said);
+          return;
+        }
+        remoteCommandDetail_ = said;
         return;
       }
       if (sub == "WHAT" && parts.size() >= 3) {
         const std::string token = toLower(parts[2]);
         if (token != "opacity" && token != "volume" && token != "dimmer" &&
             token != "brightness" && token != "contrast" &&
-            token != "saturation" && token != "hue") {
+            token != "saturation" && token != "hue" && token != "effect" && token != "audiofx") {
           failRemoteCommand("FADE WHAT: expected opacity, volume, dimmer, "
-                            "brightness, contrast, saturation or hue");
+                            "brightness, contrast, saturation, hue, effect or audiofx");
           return;
         }
         cue.fadeWhat = cueFadeWhatFromToken(token);
         markProjectDirty();
         remoteCommandDetail_ = cueFadeWhatLabel(cue.fadeWhat);
+        return;
+      }
+      // FADE EFFECT <n> | FADE KNOB amount|A|B|C|D: which effect a knob fade
+      // moves, by its place in the playing cue's stack, and which knob.
+      if (sub == "EFFECT" && parts.size() >= 3) {
+        const int slot = std::atoi(parts[2].c_str());
+        const int most = cueFadeEffectSlotMax(cue.fadeWhat);
+        if (slot < 1 || slot > most) {
+          failRemoteCommand("FADE EFFECT: expected 1-" + std::to_string(most) + ", its place in the stack");
+          return;
+        }
+        cue.fadeEffectSlot = slot;
+        markProjectDirty();
+        remoteCommandDetail_ = "effect " + std::to_string(slot);
+        return;
+      }
+      if (sub == "KNOB" && parts.size() >= 3) {
+        const std::string knob = toUpper(parts[2]);
+        const int value = knob == "AMOUNT" ? 0 : knob == "A" ? 1 : knob == "B" ? 2
+                        : knob == "C" ? 3 : knob == "D" ? 4 : -1;
+        if (value < 0) {
+          failRemoteCommand("FADE KNOB: expected amount, A, B, C or D");
+          return;
+        }
+        cue.fadeEffectKnob = value;
+        markProjectDirty();
+        remoteCommandDetail_ = std::string("knob ") + cueFadeKnobName(value);
         return;
       }
       if (sub == "CURVE" && parts.size() >= 3) {
@@ -5330,6 +5367,25 @@
         triggerToast(reply.empty() ? "no effects" : reply);
         showLog("FX LIST", reply);
         remoteCommandDetail_ = reply.empty() ? "no effects" : reply;
+        return;
+      }
+      // FX GET <n>: one effect's knobs, in percent, as AUDIOFX reports its own.
+      if (sub == "GET") {
+        const int n = parts.size() > 2 ? std::atoi(parts[2].c_str()) : 0;
+        if (n < 1 || n > static_cast<int>(cue->effects.size())) {
+          failRemoteCommand("FX GET: expected an effect number, 1-" + std::to_string(cue->effects.size()));
+          return;
+        }
+        const auto& fx = cue->effects[static_cast<std::size_t>(n - 1)];
+        char buf[128];
+        std::snprintf(buf, sizeof(buf), "%d:%s amount=%d%% a=%d b=%d c=%d d=%d", n,
+                      deckboy::effects::cueEffectToken(fx.kind),
+                      static_cast<int>(std::lround(fx.amount * 100.0f)),
+                      static_cast<int>(std::lround(fx.paramA * 100.0f)),
+                      static_cast<int>(std::lround(fx.paramB * 100.0f)),
+                      static_cast<int>(std::lround(fx.paramC * 100.0f)),
+                      static_cast<int>(std::lround(fx.paramD * 100.0f)));
+        remoteCommandDetail_ = buf;
         return;
       }
       // FX LFO <index> <slot> <on|off|shape> [value]
