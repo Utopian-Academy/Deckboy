@@ -87,7 +87,7 @@ was modified before it.
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip`. Defaults to `build\windows\Release` — pass `-BuildDir` if you built elsewhere. It verifies the binary reports the VERSION it is named after and refuses otherwise |
 | `tools/audit_warnings.py` | Fail the build on a name that hides another or a local nothing reads. Reads a build log (MSVC or GCC/Clang), exempts `native/extras/upstream`. CMakeLists promotes just those warnings out of level 4, where the several hundred int-to-float conversions into SDL's float APIs would bury them |
 | `tools/audit_encoding.py` | Fail on text that went into the source encoded TWICE and draws as mojibake (the effect arrows, then the Orientation button's degree sign — neither caught by a compiler, a test or a screenshot). A second, ADVISORY check lists non-ASCII inside drawn string literals |
-| `tools/audit_actions.py` | Find dead controls: QuickActions with no handler, actions nothing can fire, and duplicate settings action ids. `--strict` fails on unreachable actions too. Run it before claiming a control works |
+| `tools/audit_actions.py` | Find dead controls: QuickActions with no handler, actions nothing can fire, duplicate settings action ids, and an id inside another control's `Base .. Base + N` range. `--strict` fails on unreachable actions too. Run it before claiming a control works |
 | `tools/check_preview_effects.py` | Sweep every pixel effect through the CONTROL PREVIEW with **no output armed** (seeks + pauses so each case is the same frame). `check_effects.py` only proves an effect reaches the recording, which is the output's composite -- it cannot see a preview-only fault |
 | `tools/check_effects_offline.py` | Run every effect through `--effect-dump` on one picture: seconds, exactly repeatable, and `--sheet` writes a contact sheet. Use this while WRITING an effect -- the app-driven sweeps cost minutes and land on whatever frame the seek reached. `--params` is the only gate that catches a control which does nothing -- it caught SHATTER arriving completely inert after twelve days in shipped builds. All three modes (plain, `--params`, `--animation`) run in CI on every push as of 2026-09-17, on the Linux feature build |
 | `tools/linux_build.sh` | Dependencies + build on a fresh Debian/Ubuntu box, including building SDL 3.4 from source where the distro's is older |
@@ -275,14 +275,27 @@ rendered frames byte for byte -- `--effect-dump` exists for that.
 
 ## Settings Action Constants
 
-Settings button actions are integer constants defined at the top of `main.cpp`. The 600s range runs to **655** (`kSettingsActionOutputAoiHEdit`; 652–655 are the AOI typed-entry chips). 656–662 and 670 are taken, and **663–680 are the presenter-view block** (layout, six panel switches, builds, note-size ±, notes-share ±, three colours, reset, arrange) and **681–689 the prompter block** (run, top, pace ±, size ±, mirror, script, reading line), so 690–701 are what is left of that gap. A 700s block is also in use: **702–706** LTC generator, **710–714** NMOS, **715–721** encoder, **722** VJ mode. The 700s are NOT contiguous — "next after NMOS" is 715, which is already the encoder block, and that exact mistake was made and caught by the audit. Allocate from a run that is actually free (see below); **691–699 are taken and 800–831 are display select**. NOT "723+" — that
-was written here and is wrong: 723/724 are the update-check pair, and
-following this line double-allocated them (caught by `audit_actions.py`, which
-is what it is for). **Run `python tools/audit_actions.py` after allocating**;
-it is the only thing that tells you, and the free runs (2026-10-04, after 754
-went to the Web Monitor QR code) are 720, 735, 737–739, 755–759, 768–769,
-773–774, 796–799 and 832+. Re-derive before trusting this line: it has been
-wrong twice. WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
+Settings button actions are integer constants defined at the top of `main.cpp`.
+**Do not allocate from a list of free ids written down anywhere, this file
+included.** This paragraph carried one and it was wrong three times; the third
+time it called 737 free while 736–739 belonged to the encoder queue's row
+block, and RESET DEFAULTS did nothing from v0.99.414 to 0.99.422. A `Base`
+constant whose handler takes `action >= Base && action < Base + N` reserves
+all N values, and a grep shows only the first. Forty controls had landed inside
+someone else's block that way (the whole Streaming page, ATEM, HyperDeck, NMC,
+the captions OUT chips).
+
+**Run `python tools/audit_actions.py` after allocating** (CI runs it with
+`--strict`). Check 3 finds two constants with one value; check 4 finds a
+constant inside another control's range, reading every range from the
+handlers' own `action >= X && action < Y` tests and sizing runtime bounds
+(`decks.size()`, `outputs.size()`, the encoder format list) from their limits.
+A new kind of bound makes it fail with "teach size_limits() this bound" rather
+than skip the range. Pick a candidate by listing what is taken
+(`grep -o "kSettingsAction\w* = [0-9]*;" native/main.cpp | sort -t= -k2 -n`)
+and let the audit confirm it. Two constants sharing a value once killed the
+Processing sub-tab (634–637, v0.76.24); a value inside a block does the same
+thing to whichever handler runs second.
 
 Pattern: define constants → add UI in `app_render_settings.ipp` → handle in settings action handler.
 

@@ -2,6 +2,19 @@
 
 ## Unreleased - v0.99.422
 
+### Settings
+- Fixed: buttons in Settings that did nothing, or did something else, when pressed:
+  - **Video Outputs > Streaming**, both cards: START STREAMING did nothing, and the other SRT
+    and RTMP buttons changed presenter-view, prompter and other settings instead (one added a
+    playlist). Seen from v0.99.349.
+  - **Network**: the ATEM switcher's address and input, the **HyperDeck emulation** switch, and
+    NMC's port and its send-to or accept-from address did nothing. With conversions queued in
+    the encoder, they cancelled, moved or held one instead. Seen from v0.99.335.
+  - **Audio > Live captions**: **Show on** OUT 2 to OUT 5 started downloading a speech model
+    instead of showing the captions on that output. Seen from v0.99.414.
+  - **System > Defaults**: RESET DEFAULTS did nothing. `DEFAULTS RESET` over the network worked.
+    Seen from v0.99.414.
+
 ### Selection
 - Fixed: when a cue ended and the playlist moved on to the next one, the next cue was selected
   together with the one that had ended, so the inspector read "2 cues" and the next change (a

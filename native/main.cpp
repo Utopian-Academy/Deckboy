@@ -9595,8 +9595,9 @@ class App {
   static constexpr int kSettingsActionLiveCaptionsPosition = 847;
   static constexpr int kSettingsActionLiveCaptionsSize = 848;
   static constexpr int kSettingsActionLiveCaptionsTranscript = 849;
-  // 851-854: download one speech model (kModelChoices order).
-  static constexpr int kSettingsActionCaptionModelBase = 851;
+  // 1552-1555: download one speech model (kModelChoices order). It was 851,
+  // inside the per-output block below, so OUT 2-5 fetched a model.
+  static constexpr int kSettingsActionCaptionModelBase = 1552;
   static constexpr int kSettingsActionLiveCaptionsOutputBase = 850;  // 850-857
   static constexpr int kSettingsActionOutputHdrToggle = 858;
   static constexpr int kSettingsActionOutputHdrWhite = 859;
@@ -9622,11 +9623,14 @@ class App {
   static constexpr int kSettingsActionEncoderPresetDatamosh = 718;
   static constexpr int kSettingsActionEncoderPauseToggle = 719;
   static constexpr int kSettingsActionEncoderCancelAll = 730;
-  // Per-row cancel for the (max 4) jobs the busy panel shows: 731..734.
-  static constexpr int kSettingsActionEncoderCancelRowBase = 731;
-  // Per-row queue controls for the four jobs the panel shows.
-  static constexpr int kSettingsActionEncoderUpRowBase = 736;    // 736..739
-  static constexpr int kSettingsActionEncoderHoldRowBase = 741;  // 741..744
+  // Per-row cancel, move up and hold for the (max 4) jobs the busy panel
+  // shows: 1540..1543, 1544..1547, 1548..1551. They were 731, 736 and 741,
+  // and seven controls allocated later inside those blocks (ATEM, HyperDeck,
+  // RESET DEFAULTS, NMC) ran the encoder's handler instead of their own.
+  // tools/audit_actions.py reads every block's width from its handler now.
+  static constexpr int kSettingsActionEncoderCancelRowBase = 1540;
+  static constexpr int kSettingsActionEncoderUpRowBase = 1544;
+  static constexpr int kSettingsActionEncoderHoldRowBase = 1548;
   static constexpr int kSettingsActionEncoderMoshLook = 721;
   // Encoder output overrides. 760-768; 750 was already taken, so this block
   // starts clear of it. Next free after this is 769+.
@@ -9662,7 +9666,7 @@ class App {
   static constexpr int kSettingsActionWebMonitorPinPrompt = 708;
   static constexpr int kSettingsActionWebMonitorQualityDropdown = 709;
   static constexpr int kSettingsActionWebMonitorQr = 754;
-  // DEFAULTS card (Settings > System): 735 and 737 were free (audit_actions.py).
+  // DEFAULTS card (Settings > System).
   static constexpr int kSettingsActionDefaultsSave = 735;
   static constexpr int kSettingsActionDefaultsReset = 737;
   static constexpr int kSettingsActionWebMonitorSource = 755;
@@ -9768,7 +9772,10 @@ class App {
   static constexpr int kSettingsActionInputMonitor    = 1790;
   static constexpr int kSettingsActionRecordDirPick  = 771;
   static constexpr int kSettingsActionRecordDirClear = 772;
-  static constexpr int kSettingsActionStreamDestBase = 670;
+  // Two destinations of sixteen fields: 1500..1531. It was 670, and the
+  // presenter, prompter, deck, watch folder, vMix, DeckLink key, sample rate,
+  // warp and web monitor ids all landed inside its 670..701 and won.
+  static constexpr int kSettingsActionStreamDestBase = 1500;
   static constexpr int kSettingsActionStreamDestStride = 16;
   static constexpr int kStreamFieldToggle = 0;
   static constexpr int kStreamFieldUrl = 1;
@@ -9835,9 +9842,8 @@ class App {
   static constexpr int kSettingsActionAtemSwitcherHostPrompt = 732;
   static constexpr int kSettingsActionAtemTallyInputPrompt = 733;
   static constexpr int kSettingsActionHyperDeckToggle = 734;
-  // 735 is free, but 736-739 are kSettingsActionEncoderUpRowBase's four-wide
-  // block -- a base id reserves a RANGE, and only its first value greets you
-  // when you grep for it. Skipping the whole block.
+  // A base id reserves a RANGE, and only its first value greets you when you
+  // grep for it: tools/audit_actions.py check 4 is what finds the rest.
   static constexpr int kSettingsActionNmcModeCycle = 740;
   static constexpr int kSettingsActionNmcPortPrompt = 742;
   static constexpr int kSettingsActionNmcTargetPrompt = 743;
