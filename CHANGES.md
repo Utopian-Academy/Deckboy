@@ -33,8 +33,11 @@
   was Loop while its Loop switch read off.
 
 ### Guided tour
-- Dr. Pixel and Professor Video are a tad cuter: round lenses with big eyes behind them and a
-  blush, and the Professor wears a red bow tie.
+- Dr. Pixel is a tad cuter: round lenses with big eyes behind them, and a blush. Professor Video
+  stays as he was, unless you click him.
+- The teachers talk: each line is said aloud the first time it comes up, in a babble of little
+  Game Boy blips (Dr. Pixel high, the Professor low), with their mouths moving, and they blink.
+  The **Sound effects** switch turns the voices off.
 - The crossfade step asks for what it checks: press + until transition shows a time.
 - Fixed: a tour picked up again after its output step carried on with the output off, so the
   BLACK lesson passed with nothing on screen to see. It now goes back to TURN THE OUTPUT ON

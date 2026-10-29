@@ -53,6 +53,16 @@
     SDL_Rect skipRect {};
     SDL_Rect exitRect {};
     SDL_Rect targetRect {};
+    // The teachers talk: each line is said aloud once (tutorialBabble), the
+    // speaker's mouth moving while it is, and a click on the Professor is
+    // the joke (drawTutorialPortrait).
+    std::string pixelBabbled;
+    std::string videoBabbled;
+    Uint64 babbleUntilMs = 0;
+    bool babbleIsPixel = true;
+    SDL_Rect videoPortraitRect {};
+    Uint64 profCuteUntilMs = 0;
+    int profCuteQuip = 0;
   };
   TutorialState tutorial_;
   // Counted by saveProjectNow on every save that landed; the save step
@@ -621,6 +631,11 @@
       }
       return true;
     }
+    if (pointInRect(x, y, tutorial_.videoPortraitRect)) {
+      tutorial_.profCuteUntilMs = SDL_GetTicks() + 2600;   // the joke, see renderTutorial
+      ++tutorial_.profCuteQuip;
+      return true;
+    }
     if (pointInRect(x, y, tutorial_.cardRect)) {
       return true;   // the card is not a hole into the desk under it
     }
@@ -657,9 +672,14 @@
   //
   // Sixteen by twenty, from the Teacher board. Drawn in the THEME's inks so
   // they belong on every colourway; the lipstick, the sparkle and the blush
-  // are the fixed colours. "A tad cuter" (James, 2026-10-27): round lenses
-  // (F) with big eyes (E) and a glint (W) behind them, and a blush (B);
-  // Professor Video's bow tie is the lipstick red.
+  // are the fixed colours. Dr. Pixel is the "a tad cuter" one: round lenses
+  // (F) with big eyes (E) and a glint (W), and a blush (B). James kept the
+  // Professor as he was ("I love the new Dr Pixel but prefer the old prof
+  // video. Maybe use the cute him as a joke?", 2026-10-28): the cute one,
+  // bow tie and all, is what a click on him shows for a moment.
+  //
+  // And they move: a blink now and then, out of step with each other, and a
+  // mouth that opens and shuts while the line is being said aloud.
   void drawTutorialPortrait(const SDL_Rect& box, bool pixelTeacher, bool speaking) {
     static const char* kPixel[20] = {
       "....HHHHHHHH....",
@@ -684,6 +704,28 @@
       ".CCCCCCDDCCCCCC.",
     };
     static const char* kVideo[20] = {
+      "..H.HH.HH.HH.H..",
+      ".HHHHHHHHHHHHHH.",
+      ".HHHHHHHHHHHHHH.",
+      "HHHHSSSSSSSSHHHH",
+      ".HHSSSSSSSSSSHH.",
+      "..SGGGGSSGGGGS..",
+      "..SGDDGGGGDDGS..",
+      "..SGGGGSSGGGGS..",
+      "..SSSSSSSSSSSS..",
+      "..SSSSSDDSSSSS..",
+      "..SDSMMMMMMSDS..",
+      "..SSDMSSSSMDSS..",
+      "...SDSMMMMSDS...",
+      "....SSSSSSSS....",
+      ".....SSSSSS.....",
+      "..KKKKKSSKKKKK..",
+      ".KKKKKKKKKKKKKK.",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+    };
+    static const char* kVideoCute[20] = {
       "...HH.HHHH.HH...",
       "..HHHHHHHHHHHH..",
       ".HHHHHHHHHHHHHH.",
@@ -705,8 +747,39 @@
       "KKKKKKKKKKKKKKKK",
       "KKKKKKKKKKKKKKKK",
     };
+    const bool cute = !pixelTeacher && SDL_GetTicks() < tutorial_.profCuteUntilMs;
+    const char* const* source = pixelTeacher ? kPixel : cute ? kVideoCute : kVideo;
+    char rows[20][17];
+    for (int r = 0; r < 20; ++r) {
+      std::memcpy(rows[r], source[r], 17);
+    }
+    // A blink: 140 ms in every 3.9 s, the Professor 1.7 s behind.
+    const bool blinking = (animationNow_ + (pixelTeacher ? 0 : 1700)) % 3900 < 140;
+    // Talking: the mouth opens and shuts every 90 ms while the line is said.
+    const bool talking = speaking && SDL_GetTicks() < tutorial_.babbleUntilMs &&
+                         tutorial_.babbleIsPixel == pixelTeacher;
+    const bool mouthOpen = talking && ((animationNow_ / 90) % 2) == 0;
+    if (pixelTeacher || cute) {
+      if (blinking) {
+        for (int c = 0; c < 16; ++c) {
+          if (rows[6][c] == 'W' || rows[6][c] == 'E') rows[6][c] = 'F';
+        }
+      }
+      if (mouthOpen) {
+        const int below = pixelTeacher ? 11 : 12;   // under the lips, or the smile
+        rows[below][7] = 'D';
+        rows[below][8] = 'D';
+      }
+    } else {
+      if (blinking) {
+        rows[6][4] = rows[6][5] = rows[6][10] = rows[6][11] = 'G';   // the pupils shut
+      }
+      if (mouthOpen) {
+        rows[11][7] = 'D';
+        rows[11][8] = 'D';
+      }
+    }
     Primitives::fillRect(controlRenderer_, box, speaking ? pal.mid : pal.dark);
-    const char* const* rows = pixelTeacher ? kPixel : kVideo;
     const int cell = std::max(1, std::min(box.w / 16, box.h / 20));
     const int ox = box.x + (box.w - cell * 16) / 2;
     // The one speaking bobs a pixel; the other holds still.
@@ -732,6 +805,39 @@
         Primitives::fillRect(controlRenderer_, SDL_Rect {ox + c * cell, oy + r * cell, cell, cell}, color);
       }
     }
+  }
+
+  // ANIMAL CROSSING ON A GAME BOY (James, 2026-10-28: "animal crossing esque
+  // voices"). A blip a letter, pitched from the letter, so a line sounds like
+  // itself every time it is said: Dr. Pixel bright and high, the Professor
+  // an octave down and rounder. Vowels are the round pulse, consonants the
+  // thin one. Through the desk's own DMG synth, so the Sound effects switch
+  // turns it off, and only ever in the tour, which runs in its practice show.
+  void tutorialBabble(bool pixel, const std::string& line) {
+    if (!tutorial_.active) return;
+    static const int kScale[6] = {0, 2, 4, 7, 9, 12};
+    const double base = pixel ? 659.25 : 329.63;   // E5, E4
+    std::vector<DmgNote> notes;
+    int at = 0;
+    int letters = 0;
+    for (std::size_t i = 0; i < line.size() && letters < 26; ++i) {
+      const int c = std::tolower(static_cast<unsigned char>(line[i]));
+      if (c < 'a' || c > 'z') {
+        if (c == '.' || c == '!' || c == '?') at += 110;
+        else if (c == ' ' || c == ',') at += 30;
+        continue;
+      }
+      const bool vowel = std::strchr("aeiouy", c) != nullptr;
+      const double freq = base * std::pow(2.0, kScale[(c - 'a') % 6] / 12.0);
+      notes.push_back(DmgNote {letters % 2, freq, at, vowel ? 58 : 46, vowel ? 0.5 : 0.25,
+                               vowel ? 11 : 9});
+      at += vowel ? 64 : 52;
+      ++letters;
+    }
+    if (notes.empty()) return;
+    queueDmgPattern(notes, 0.09f);
+    tutorial_.babbleUntilMs = SDL_GetTicks() + static_cast<Uint64>(at);
+    tutorial_.babbleIsPixel = pixel;
   }
 
   // ── Drawing ───────────────────────────────────────────────────────────────
@@ -815,6 +921,18 @@
     // A roast takes over the speaker's line; praise goes in the header, so the
     // next step's instructions are never hidden behind the last one's applause.
     if (roast) (roastFromPixel ? pixelSays : videoSays) = roast;
+    // THE JOKE: a click on the Professor shows the cuter him for a moment,
+    // and he has something to say about it.
+    const bool profJoke = SDL_GetTicks() < tutorial_.profCuteUntilMs;
+    if (profJoke) {
+      static const char* kQuips[4] = {
+        "Stop that. I am a serious man.",
+        "Do not tell Dr. Pixel about this.",
+        "This never happened. Back to the patch bay.",
+        "It was the eighties. Everyone had a bow tie.",
+      };
+      videoSays = kQuips[(tutorial_.profCuteQuip + 3) % 4];
+    }
 
     const auto pixelLines = codeWrapText(fontBase_, "DR. PIXEL:  " + pixelSays, textW);
     const auto videoLines = codeWrapText(fontBase_, "PROF. VIDEO:  " + videoSays, textW);
@@ -871,7 +989,19 @@
     }
     y += headH + uiScaled(8);
 
-    const bool pixelSpeaking = roast ? roastFromPixel : ((animationNow_ / 4000) % 2) == 0;
+    const bool pixelSpeaking = profJoke ? false
+                             : roast ? roastFromPixel : ((animationNow_ / 4000) % 2) == 0;
+    // Said aloud once a line: when a teacher's turn comes round with a line
+    // not yet said -- a new step, a praise, a roast, the joke -- and silent
+    // after that however long the step is left open.
+    {
+      const std::string& line = pixelSpeaking ? pixelSays : videoSays;
+      std::string& said = pixelSpeaking ? tutorial_.pixelBabbled : tutorial_.videoBabbled;
+      if (said != line) {
+        said = line;
+        tutorialBabble(pixelSpeaking, line);
+      }
+    }
     drawTutorialPortrait(SDL_Rect {card.x + pad, y, portrait, portrait}, true, pixelSpeaking);
     for (std::size_t i = 0; i < pixelLines.size(); ++i) {
       drawTextSafe(controlRenderer_, fontBase_,
@@ -879,7 +1009,8 @@
                    pixelLines[i], pal.fg);
     }
     y += pixelH + blockGap;
-    drawTutorialPortrait(SDL_Rect {card.x + pad, y, portrait, portrait}, false, !pixelSpeaking);
+    tutorial_.videoPortraitRect = SDL_Rect {card.x + pad, y, portrait, portrait};
+    drawTutorialPortrait(tutorial_.videoPortraitRect, false, !pixelSpeaking);
     for (std::size_t i = 0; i < videoLines.size(); ++i) {
       drawTextSafe(controlRenderer_, fontBase_,
                    SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH},
