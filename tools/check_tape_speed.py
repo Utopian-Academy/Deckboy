@@ -184,10 +184,17 @@ def main():
             take = files[-1]
             pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", str(take), "-map", "0:a:0", "-ac", "1",
                                   "-ar", "48000", "-f", "s16le", "-"], capture_output=True).stdout
+            # The picture's length: the video stream's, or the file's where the
+            # container gives the stream none (N/A). The first number either way:
+            # on the Windows runner the reply was not one bare number.
             probe = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
-                                    "stream=duration", "-of", "csv=p=0", str(take)],
-                                   capture_output=True, text=True).stdout.strip()
-            picture = float(probe) if probe and probe != "N/A" else None
+                                    "stream=duration:format=duration", "-of",
+                                    "default=noprint_wrappers=1:nokey=1", str(take)],
+                                   capture_output=True, text=True).stdout
+            numbers = re.findall(r"\d+(?:\.\d+)?", probe)
+            picture = float(numbers[0]) if numbers else None
+            if picture is None:
+                print("    ffprobe said: %r" % probe)
             samples = [v / 32768.0 for v in struct.unpack("<%dh" % (len(pcm) // 2), pcm[:len(pcm) // 2 * 2])]
             sound = len(samples) / 48000.0
             want = 220.0 if label == "clip" else 500.0
