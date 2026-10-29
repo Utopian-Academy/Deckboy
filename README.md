@@ -404,13 +404,9 @@ importantly, what each feature deliberately does not do.
 **Show control:**
 
 - Cue carts, and templates for new shows
-- Defaults that say what they do: forgetting your saved defaults (which only
-  changes what NEW starts from) told apart plainly from the show that is open
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes
 - A lighting dashboard, beyond the fixture patch
-- MIDI and OSC monitors: every message arriving, as it arrives, with what
-  Deckboy did with it, so a controller that "does nothing" can be seen
 - Live scoreboard data as a source: the clock, scores and fouls read off a
   venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
   and its XML/JSON feed, driving text and lower thirds on the outputs
@@ -436,8 +432,6 @@ importantly, what each feature deliberately does not do.
 
 **Scopes:**
 
-- False colour on the picture scopes
-- Sound scopes: loudness to EBU R 128, true peak, phase and spectrum
 - Scopes on the desk, on any output and over NDI
 
 **Deckboy Mini:**
