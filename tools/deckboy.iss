@@ -170,6 +170,8 @@ begin
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  Reason: String;
 begin
   Result := True;
   if CurPageID = wpReady then
@@ -187,8 +189,17 @@ begin
         try
           CaptionsPage.Download;
         except
-          SuppressibleMsgBox('The speech models were not downloaded (' + GetExceptionMessage +
-            '). Deckboy installs anyway; turning live captions on fetches them later.',
+          // SAID IN WORDS. A new laptop on a show network got "Internal error:
+          // Worker thread terminated unexpectedly with exception: Server
+          // Certificate Invalid or not present" (2026-10-28), which names
+          // nothing a person can check.
+          Reason := GetExceptionMessage;
+          if Pos('Certificate', Reason) > 0 then
+            Reason := 'Windows would not accept the download site''s security certificate. ' +
+              'Usually this computer''s date and time are wrong, or this network blocks or ' +
+              'inspects secure connections, as venue, hotel and office networks often do';
+          SuppressibleMsgBox('The speech models were not downloaded. ' + Reason +
+            '. Deckboy installs anyway; turning live captions on fetches them later.',
             mbInformation, MB_OK, IDOK);
           SetArrayLength(CaptionModels, 0);
         end;

@@ -71,6 +71,14 @@
   (6827 pixels for a 16:9 slide instead of 3840). It now imports at the same width as every other
   page.
 
+### Live captions
+- Fixed: on Windows, a speech model could fail to download on a network that blocks the
+  certificate-revocation check (venue, hotel and office networks often do). The certificate is
+  still checked; an unreachable revocation server no longer stops the download, as in a browser,
+  and a failed download now says why.
+- The installer explains a speech-model download refused for its certificate in words (the
+  computer's clock, or a network that blocks secure connections) instead of an internal error.
+
 ### Show control
 - Added the **MIDI and OSC monitor** (Settings > Network): every MIDI, OSC, remote and phone
   message as it arrives, and what Deckboy did with it: **DID**, **NOTHING** and why, or

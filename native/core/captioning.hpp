@@ -146,8 +146,25 @@ inline Result downloadModel(const std::string& model) {
   const fs::path target = modelDownloadPath(model);
   fs::create_directories(target.parent_path(), ec);
   const fs::path part = target.string() + ".part";
-  const auto got = ::runCaptured(
-    {"curl", "-sL", "--fail", "-o", part.string(), modelUrl(model)});
+  // REVOCATION, BEST EFFORT, ON WINDOWS. Windows' curl checks the server's
+  // certificate AND asks its issuer whether it was revoked, and when a venue
+  // or office firewall blocks that second question it refuses the download
+  // outright (a new laptop on a show network, 2026-10-28: the installer's own
+  // download said "Server Certificate Invalid or not present"). The
+  // certificate is still checked; only an unreachable revocation server is
+  // forgiven, which is what a browser does. A curl too old to know the flag
+  // is asked again without it. -S says why it failed; -s alone kept quiet.
+  std::vector<std::string> args {"curl", "-sSL", "--fail", "-o", part.string()};
+#ifdef _WIN32
+  args.push_back("--ssl-revoke-best-effort");
+#endif
+  args.push_back(modelUrl(model));
+  auto got = ::runCaptured(args);
+#ifdef _WIN32
+  if (!got.ok() && got.output.find("ssl-revoke-best-effort") != std::string::npos) {
+    got = ::runCaptured({"curl", "-sSL", "--fail", "-o", part.string(), modelUrl(model)});
+  }
+#endif
   if (!got.ok() || !fs::exists(part, ec) || fs::file_size(part, ec) < 1000000) {
     fs::remove(part, ec);
     return {false, "caption model download failed" + (got.output.empty() ? std::string() : ": " + got.output.substr(0, 120)), {}};
