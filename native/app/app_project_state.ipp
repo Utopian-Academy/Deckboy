@@ -4485,20 +4485,36 @@
                             std::uint64_t replyGeneration = 0,
                             std::shared_ptr<WebRemoteReply> webReply = {},
                             bool fromNetworkPeer = false) {
+    PendingRemoteCommand pending;
+    pending.text = std::move(command);
+    pending.replyTo = replyTo;
+    pending.replyGeneration = replyGeneration;
+    pending.webReply = std::move(webReply);
+    pending.fromNetworkPeer = fromNetworkPeer;
     std::lock_guard<std::mutex> lock(remoteCommandMutex_);
-    if (remoteCommands_.size() >= 512 || command.size() > 65536) return false;
-    remoteCommands_.push_back(PendingRemoteCommand {std::move(command), replyTo, replyGeneration,
-                                                    std::move(webReply), fromNetworkPeer});
+    if (remoteCommands_.size() >= 512 || pending.text.size() > 65536) return false;
+    remoteCommands_.push_back(std::move(pending));
     return true;
   }
 
+  // `monitorFrom` set: lines that arrived from a controller (plain-text UDP),
+  // which the MIDI and OSC monitor lists under REMOTE.
   void enqueueRemoteCommandBatch(const std::string& payload, char separatorHint = '\n',
-                                 bool fromNetworkPeer = false) {
+                                 bool fromNetworkPeer = false,
+                                 const std::string& monitorFrom = {}) {
+    auto enqueueOne = [&](const std::string& trimmed) {
+      if (monitorFrom.empty()) {
+        enqueueRemoteCommand(trimmed, kInvalidSocket, 0, {}, fromNetworkPeer);
+      } else {
+        enqueueMonitoredCommand(trimmed, "REMOTE", monitorFrom, {}, kInvalidSocket, 0,
+                                fromNetworkPeer);
+      }
+    };
     if (separatorHint == '\n') {
       for (auto& line : splitLines(payload)) {
         std::string trimmed = trim(line);
         if (!trimmed.empty()) {
-          enqueueRemoteCommand(trimmed, kInvalidSocket, 0, {}, fromNetworkPeer);
+          enqueueOne(trimmed);
         }
       }
       return;
@@ -4507,7 +4523,7 @@
     for (auto& item : splitByChar(payload, separatorHint)) {
       std::string trimmed = trim(item);
       if (!trimmed.empty()) {
-        enqueueRemoteCommand(trimmed, kInvalidSocket, 0, {}, fromNetworkPeer);
+        enqueueOne(trimmed);
       }
     }
   }

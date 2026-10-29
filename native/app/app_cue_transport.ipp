@@ -8026,7 +8026,22 @@
       [&](const Cue& cue) { return cue.triggerMidiNote == note; },
       "MIDI " + std::to_string(note));
     if (fired == 0) {
-      handleRemoteCommand("GOTO " + std::to_string(note + 1));
+      // The old rule: note N goes to cue N+1 -- when there is one. A miss is
+      // told to the MIDI monitor, not in a toast: a keyboard sends plenty of
+      // notes nobody meant for a cue.
+      const std::string number = std::to_string(note + 1);
+      if (!cueIndexByToken(focusedDeck(), number)) {
+        remoteCommandError_ = "no cue claims note " + std::to_string(note) +
+                              ", and there is no cue " + number;
+        return;
+      }
+      handleRemoteCommand("GOTO " + number);
+      remoteCommandDetail_ = "no cue claims note " + std::to_string(note) + ", so cue " + number;
+    } else {
+      // Said, so the MIDI monitor's row reads what the note did.
+      remoteCommandDetail_ = "took " + std::to_string(fired) +
+                             (fired == 1 ? " cue that claims note " : " cues that claim note ") +
+                             std::to_string(note);
     }
   }
 

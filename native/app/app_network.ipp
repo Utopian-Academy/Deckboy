@@ -1466,6 +1466,20 @@
     const Uint64 now = SDL_GetTicks();
     for (const auto& [address, port] : refused) {
       controlLastRefused_ = address;
+      // Into the monitor at most once a second per address: the toast below
+      // is once in 30 s, right for a person and too sparse for someone
+      // watching a controller fail.
+      Uint64& listed = inputMonitorRefusedMs_[address + " " + port];
+      if (listed == 0 || now - listed >= 1000) {
+        listed = now;
+        InputMonitorEntry entry;
+        entry.kind = "REMOTE";
+        entry.from = address;
+        entry.message = "connection on " + port;
+        entry.outcome = 'R';
+        entry.what = address + " is not a trusted controller (TRUST " + address + ")";
+        recordInputMonitor(std::move(entry));
+      }
       Uint64& told = controlRefusedToldMs_[address + " " + port];
       if (told != 0 && now - told < 30000) continue;  // once in 30 s, not per packet
       told = now;
@@ -1510,7 +1524,7 @@
     const std::string verb = toUpper(parts[0]);
     static const std::set<std::string> kLocalOnly {
       "CLICK", "HOVER", "PRESS", "SCROLL", "SCROLLBAR", "DROPTEST",
-      "UISNAP", "OUTSNAP", "OUTPROBE", "TRUST", "COMPANIONPASS",
+      "UISNAP", "OUTSNAP", "OUTPROBE", "TRUST", "COMPANIONPASS", "MIDIIN",
       // Pairing a phone or raising what phones may do widens access.
       "PHONE"};
     if (kLocalOnly.count(verb)) return true;
@@ -2033,7 +2047,8 @@
     auto pending = std::make_shared<WebRemoteReply>();
     pending->pin = givenPin;
     pending->paired = paired;
-    if (!enqueueRemoteCommand(command, kInvalidSocket, 0, pending)) {
+    if (!enqueueMonitoredCommand(command, "PHONE", socketAddressToString(peer), {},
+                                 kInvalidSocket, 0, false, -1, {}, pending)) {
       reply("503 Service Unavailable", "ERR remote: command queue full"); return;
     }
     std::unique_lock<std::mutex> lock(pending->mutex);
@@ -3285,6 +3300,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
         "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN [dB | BY <dB>] AUDIONORM [ALL] SPEED <0.25-4>\n"
         "       AUDIO [<device> | DEFAULT | NEXT | PREV]  (bare: what the playlist asks for, where its sound is going, the system output)\n"
+        "monitor: MONITOR [n | OPEN | CLOSE | CLEAR | PAUSE | RESUME]  (the last n MIDI, OSC, remote and phone messages and what each did, as JSON)\n"
         "audio fx: AUDIOFX | AUDIOFX ADD <effect> [amount%]  (hpf lpf tilt comp gate delay reverb width binaural\n"
         "                                               picture placement seam framelock suspend\n"
         "                                               crush word skip rail resolution scrub short ouroboros plugin)\n"
@@ -4145,14 +4161,42 @@ html,body{width:100%;height:100%;overflow:hidden}
   // Translate a parsed MIDI event into the same remote command the ALSA path
   // produces, and queue it the same way. Shared so the two transports can't
   // drift apart in what a given controller message does.
-  void queueMidiCommand(std::string cmd) {
+  void queueMidiCommand(std::string cmd, std::string message = {}, int note = -1) {
     if (cmd.empty()) {
       return;
     }
-    enqueueRemoteCommand(std::move(cmd));
+    // Into the monitor as the message the controller sent, so its row can
+    // say what that turned into and whether it did anything. Timecode has no
+    // message: a hundred quarter frames a second would bury everything else.
+    if (message.empty()) {
+      enqueueRemoteCommand(std::move(cmd));
+      return;
+    }
+    enqueueMonitoredCommand(std::move(cmd), "MIDI", midiMonitorPort(), std::move(message),
+                            kInvalidSocket, 0, false, note);
+  }
+
+  // The port, as the monitor names it. Read on the MIDI thread, so a copy
+  // taken when the input was opened, never the show's field.
+  std::string midiMonitorPort() {
+    std::lock_guard<std::mutex> lock(inputMonitorMutex_);
+    return midiMonitorPortName_.empty() ? std::string("first port") : midiMonitorPortName_;
+  }
+
+  void recordMidiDidNothing(std::string message, std::string why) {
+    InputMonitorEntry entry;
+    entry.kind = "MIDI";
+    entry.from = midiMonitorPort();
+    entry.message = std::move(message);
+    entry.outcome = 'N';
+    entry.what = std::move(why);
+    recordInputMonitor(std::move(entry));
   }
 
   void onMidiNoteOn(int note, int velocity) {
+    const std::string message = velocity > 0
+      ? "NOTE ON " + std::to_string(note) + " (" + midiNoteName(note) + ") vel " + std::to_string(velocity)
+      : "NOTE OFF " + std::to_string(note) + " (" + midiNoteName(note) + ")";
     // Routed to a live synth when the operator has asked for that, otherwise
     // the historical behaviour: notes fire cues. Both are legitimate uses of a
     // MIDI keyboard and only the operator knows which they want, so this is a
@@ -4162,23 +4206,28 @@ html,body{width:100%;height:100%;overflow:hidden}
       // note-on, so this is where the distinction is made.
       queueMidiCommand(velocity > 0
         ? ("SYNTHNOTEON " + std::to_string(note) + " " + std::to_string(velocity))
-        : ("SYNTHNOTEOFF " + std::to_string(note)));
+        : ("SYNTHNOTEOFF " + std::to_string(note)), message);
       return;
     }
     if (velocity > 0) {
       // MIDINOTE resolves on the main thread: a cue that claims this note
       // fires; otherwise it is the old "note N goes to cue N+1".
-      queueMidiCommand("MIDINOTE " + std::to_string(note));
+      queueMidiCommand("MIDINOTE " + std::to_string(note), message, note);
+    } else {
+      recordMidiDidNothing(message, "note-offs only play the synth, and synth mode is off");
     }
   }
 
   void onMidiControlChange(int controller, int value) {
+    const std::string message = "CC " + std::to_string(controller) + " = " + std::to_string(value);
     if (controller == 7) {
-      queueMidiCommand("MASTERVOL " + std::to_string(static_cast<int>(value * 200.0 / 127.0)));
+      queueMidiCommand("MASTERVOL " + std::to_string(static_cast<int>(value * 200.0 / 127.0)), message);
     } else if (controller == 20) {
       std::ostringstream ss;
       ss << std::fixed << std::setprecision(2) << (0.5 + value * 1.5 / 127.0);
-      queueMidiCommand("SPEED " + ss.str());
+      queueMidiCommand("SPEED " + ss.str(), message);
+    } else {
+      recordMidiDidNothing(message, "only CC 7 (volume) and CC 20 (speed) do something");
     }
   }
 
@@ -4932,6 +4981,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     }
 
     midiDeviceInUse_ = midiDeviceName_();
+    noteMidiMonitorPort();
     midiThread_ = std::thread([this]() { midiLoop(); });
     return true;
 #elif defined(DECKBOY_HAS_MIDI)
@@ -5008,6 +5058,7 @@ html,body{width:100%;height:100%;overflow:hidden}
       return false;
     }
     midiDeviceInUse_ = midiDeviceName_().empty() ? devices.front().name : midiDeviceName_();
+    noteMidiMonitorPort();
     return true;
 #else
     return false;
@@ -5220,23 +5271,20 @@ html,body{width:100%;height:100%;overflow:hidden}
 
       std::string cmd;
       switch (ev->type) {
+        // THE SAME HANDLERS THE RtMidi PATH CALLS. This built its own commands
+        // -- "GOTO n+1" for every note -- so on Linux a cue's own trigger note
+        // never fired, MIDI learn never learned and the synth never heard a
+        // note, while Windows and macOS did all three. The shared handlers
+        // are what queueMidiCommand's comment always said both used.
         case SND_SEQ_EVENT_NOTEON:
-          if (ev->data.note.velocity > 0) {
-            // Note On: trigger cue at note index (1-based for GOTO)
-            cmd = "GOTO " + std::to_string(ev->data.note.note + 1);
-          }
+          onMidiNoteOn(ev->data.note.note, ev->data.note.velocity);
+          break;
+        case SND_SEQ_EVENT_NOTEOFF:
+          onMidiNoteOn(ev->data.note.note, 0);
           break;
         case SND_SEQ_EVENT_CONTROLLER:
-          if (ev->data.control.param == 7) {
-            // CC7 = volume: 0-127 -> 0-200%
-            int pct = static_cast<int>(ev->data.control.value * 200.0 / 127.0);
-            cmd = "MASTERVOL " + std::to_string(pct);
-          } else if (ev->data.control.param == 20) {
-            // CC20 = speed: 0-127 -> 0.5x-2.0x
-            double spd = 0.5 + ev->data.control.value * 1.5 / 127.0;
-            std::ostringstream ss; ss << std::fixed << std::setprecision(2) << spd;
-            cmd = "SPEED " + ss.str();
-          }
+          onMidiControlChange(static_cast<int>(ev->data.control.param),
+                              static_cast<int>(ev->data.control.value));
           break;
         // ALSA names these rather than handing over the status byte, so they
         // are mapped back onto the one follower -- the tempo maths must not
@@ -5600,6 +5648,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
             companionClientAuthFailures_.erase(client);
             if (peerIsLoopback(clientAddress)) companionClientRemote_.erase(client);
             else companionClientRemote_.insert(client);
+            companionClientPeer_[client] = socketAddressToString(clientAddress);
           }
         }
       }
@@ -5642,7 +5691,9 @@ bool looksLikeHttpRequestLine(const std::string& line) {
                 mapped = "OSCTRIGGER " + trim(osc.address);
               }
               if (mapped && !mapped->empty()) {
-                if (enqueueRemoteCommand(*mapped, kInvalidSocket, 0, {}, udpFromPeer))
+                if (enqueueMonitoredCommand(*mapped, "OSC", socketAddressToString(sender),
+                                            oscMonitorText(osc), kInvalidSocket, 0, udpFromPeer,
+                                            -1, trim(osc.address)))
                   sendOscStringTo(sender, "/deckboy/ack", *mapped);
                 else
                   sendOscStringTo(sender, "/deckboy/error", "busy: command queue full");
@@ -5651,7 +5702,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
           } else if (payload.find('\0') != std::string::npos) {
             continue;
           } else {
-            enqueueRemoteCommandBatch(payload, '\n', udpFromPeer);
+            enqueueRemoteCommandBatch(payload, '\n', udpFromPeer, socketAddressToString(sender));
           }
         }
       }
@@ -5703,8 +5754,9 @@ bool looksLikeHttpRequestLine(const std::string& line) {
               if (!maybeRespondToCompanionQuery(client, line)) {
                 // The client gets an OK/ERR line once the main thread has run
                 // this command.
-                if (!enqueueRemoteCommand(line, client, companionClientGenerations_[client], {},
-                                          companionClientRemote_.count(client) != 0))
+                if (!enqueueMonitoredCommand(line, "REMOTE", companionClientPeer_[client], {},
+                                             client, companionClientGenerations_[client],
+                                             companionClientRemote_.count(client) != 0))
                   queueCompanionReplyLocked(client, "ERR busy: command queue full\n");
               }
             }
@@ -5729,8 +5781,9 @@ bool looksLikeHttpRequestLine(const std::string& line) {
             if (!leftover.empty() &&
                 companionClientMayProceedLocked(client, leftover, ignoredClosures)) {
               if (!maybeRespondToCompanionQuery(client, leftover)) {
-                if (!enqueueRemoteCommand(leftover, client, companionClientGenerations_[client], {},
-                                          companionClientRemote_.count(client) != 0))
+                if (!enqueueMonitoredCommand(leftover, "REMOTE", companionClientPeer_[client], {},
+                                             client, companionClientGenerations_[client],
+                                             companionClientRemote_.count(client) != 0))
                   queueCompanionReplyLocked(client, "ERR busy: command queue full\n");
               }
             }
@@ -5853,6 +5906,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       companionClientBuffers_.erase(client);
       companionClientFirstLine_.erase(client);
       companionClientRemote_.erase(client);
+      companionClientPeer_.erase(client);
       companionClientAuthed_.erase(client);
       companionClientAuthFailures_.erase(client);
       companionClients_.erase(
@@ -5956,8 +6010,10 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       // The phone counts as another machine too. Every level of a nested
       // command is checked against this in handleRemoteCommand.
       remoteCallerIsNetwork_ = command.fromNetworkPeer || command.webReply != nullptr;
+      const bool refusedBeforeRunning = !remoteCommandError_.empty();
       if (remoteCommandError_.empty()) handleRemoteCommand(command.text);
       remoteCallerIsNetwork_ = false;
+      if (!command.monitorKind.empty()) recordInputMonitorOutcome(command, refusedBeforeRunning);
       // A phone reads the state straight after its command answers; refresh
       // it now rather than at the next once-a-second sync, so a press is seen
       // to have happened.

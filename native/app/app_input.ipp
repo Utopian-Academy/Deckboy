@@ -175,6 +175,12 @@
     if (handleKeyColorPickerMouseDown(x, y)) {
       return;
     }
+    // The MIDI and OSC monitor is a page over the desk too: its own buttons
+    // and rows, and a click away puts it down.
+    if (inputMonitorOpen_) {
+      handleInputMonitorClick(x, y);
+      return;
+    }
     // THE SHORTCUTS SHEET IS A PAGE OVER THE DESK: a click puts it away and
     // goes no further. It did not block the mouse at all, so a click on the
     // sheet fired TAKE, BLACK or a cue row hidden underneath.
@@ -1332,6 +1338,10 @@
     if (handleDropdownMouseWheel(wheelY)) {
       return;
     }
+    if (inputMonitorOpen_) {
+      handleInputMonitorWheel(wheelY);
+      return;
+    }
     // THE DASHBOARD IS MODAL for the wheel as well. In the tracker it
     // scrolls the steps; on the tiles there is nothing to scroll, and it must
     // not reach the playlist underneath either way.
@@ -1950,6 +1960,12 @@
     if (shortcutsOverlayOpen_) {
       if (key == SDLK_ESCAPE || key == SDLK_SLASH) {
         shortcutsOverlayOpen_ = false;
+      }
+      return;
+    }
+    if (inputMonitorOpen_) {
+      if (key == SDLK_ESCAPE) {
+        inputMonitorOpen_ = false;
       }
       return;
     }

@@ -5461,6 +5461,8 @@ class App {
 #include "app/app_update.ipp"
   // Lower-third overlay management
 #include "app/app_overlays.ipp"
+  // The MIDI and OSC monitor: every message, and what Deckboy did with it
+#include "app/app_input_monitor.ipp"
 #include "app/app_tutorial.ipp"
   // Render: transport control panel (play/stop/seek buttons, timeline)
 #include "app/app_render_control.ipp"
@@ -9763,6 +9765,7 @@ class App {
   static constexpr int kSettingsActionRecordRemux     = 787;
   static constexpr int kSettingsActionAsioChannels    = 788;
   static constexpr int kSettingsActionShowControlId   = 789;
+  static constexpr int kSettingsActionInputMonitor    = 1790;
   static constexpr int kSettingsActionRecordDirPick  = 771;
   static constexpr int kSettingsActionRecordDirClear = 772;
   static constexpr int kSettingsActionStreamDestBase = 670;
@@ -11554,8 +11557,36 @@ class App {
     std::shared_ptr<WebRemoteReply> webReply;
     // Sent by another machine (not loopback). Some verbs only this computer may use.
     bool fromNetworkPeer = false;
+    // Where it came from, for the MIDI and OSC monitor; empty for commands
+    // Deckboy queues for itself, which the monitor leaves out.
+    std::string monitorKind;
+    std::string monitorFrom;
+    std::string monitorMessage;
+    std::string monitorClock;
+    int monitorMidiNote = -1;
+    std::string monitorOscAddress;
   };
   std::deque<PendingRemoteCommand> remoteCommands_;
+
+  // The MIDI and OSC monitor (app_input_monitor.ipp). The log is written from
+  // the MIDI and network threads as well as the main one, hence the mutex.
+  std::mutex inputMonitorMutex_;
+  std::deque<InputMonitorEntry> inputMonitor_;
+  std::uint64_t inputMonitorSerial_ = 0;
+  std::atomic<bool> inputMonitorPaused_ {false};
+  bool inputMonitorOpen_ = false;
+  int inputMonitorFilter_ = 0;            // ALL, MIDI, OSC, REMOTE, ONLY WHAT DID NOTHING
+  std::uint64_t inputMonitorSelected_ = 0;
+  int inputMonitorScroll_ = 0;            // rows back from the newest
+  SDL_Rect inputMonitorPanelRect_ {};
+  std::array<SDL_Rect, 5> inputMonitorFilterRects_ {};
+  SDL_Rect inputMonitorPauseRect_ {};
+  SDL_Rect inputMonitorClearRect_ {};
+  SDL_Rect inputMonitorCopyRect_ {};
+  SDL_Rect inputMonitorMakeRect_ {};
+  std::vector<std::pair<std::uint64_t, SDL_Rect>> inputMonitorRowRects_;
+  std::map<std::string, Uint64> inputMonitorRefusedMs_;   // one refusal row a second per address
+  std::string midiMonitorPortName_;                       // under inputMonitorMutex_
   // Set true at the top of handleRemoteCommand and cleared only by falling off
   // its end, which is what an unrecognized verb does. Read straight after the
   // call in processRemoteCommands to answer OK or ERR.
@@ -12173,6 +12204,7 @@ class App {
   std::mutex companionClientsMutex_;  // protects companionClients_ + companionClientBuffers_
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;
+  std::map<SocketHandle, std::string> companionClientPeer_;   // its address, for the monitor
   std::map<SocketHandle, std::string> companionClientReplies_;
   std::map<SocketHandle, std::uint64_t> companionClientGenerations_;
   std::uint64_t companionNextGeneration_ = 1;

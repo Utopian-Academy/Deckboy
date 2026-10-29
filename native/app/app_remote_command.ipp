@@ -590,6 +590,32 @@
       handleMidiTriggerNote(std::atoi(parts[1].c_str()));
       return;
     }
+    // MONITOR: the MIDI and OSC monitor's rows (JSON), or OPEN / CLOSE /
+    // CLEAR / PAUSE / RESUME. See app_input_monitor.ipp.
+    if (command == "MONITOR") {
+      handleInputMonitorCommand(parts);
+      return;
+    }
+    // MIDIIN NOTE <n> <velocity> | CC <controller> <value>: what a controller
+    // would send, through the handlers the MIDI thread itself calls -- so a
+    // machine with no MIDI port (every CI runner) can check them. This
+    // computer only (remoteVerbIsLocalOnly).
+    if (command == "MIDIIN") {
+      const std::string kind = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (parts.size() < 4 || (kind != "NOTE" && kind != "CC")) {
+        failRemoteCommand("MIDIIN: NOTE <note> <velocity> or CC <controller> <value>");
+        return;
+      }
+      const int first = std::clamp(std::atoi(parts[2].c_str()), 0, 127);
+      const int second = std::clamp(std::atoi(parts[3].c_str()), 0, 127);
+      if (kind == "NOTE") {
+        onMidiNoteOn(first, second);
+      } else {
+        onMidiControlChange(first, second);
+      }
+      remoteCommandDetail_ = kind + " " + std::to_string(first) + " " + std::to_string(second);
+      return;
+    }
     if (command == "OSCTRIGGER" && parts.size() >= 2) {
       // Quiet when nothing answers: a controller sends plenty an operator
       // never meant for a cue, and every one of those used to vanish silently.

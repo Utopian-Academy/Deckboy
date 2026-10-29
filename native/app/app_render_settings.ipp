@@ -1839,7 +1839,7 @@
       // Heights, computed before any rect so the scroll range below can see
       // all of them. Same shape and same comments as they had inline.
       // Three rows and two status lines, in the order they are drawn.
-      int remoteH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH, sLineH});
+      int remoteH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH, sLineH});
       int oscH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH});
       // NMC IN & OUT. Four rows and one line saying what the chosen
       // direction actually does.
@@ -1968,6 +1968,12 @@
       } else {
         drawPill(refusedBtn, false, "", "ALLOW " + controlLastRefused_, kSettingsActionTrustLastRefused);
       }
+
+      // Every message from a controller, and what Deckboy did with it.
+      SDL_Rect monitorBtn =
+        settingsRow(remoteX, remoteW, remoteY, sRowH, "MIDI and OSC monitor", sGap);
+      drawUIValueControl(monitorBtn, "open the monitor");
+      settingsBtns_.push_back({monitorBtn, kSettingsActionInputMonitor, "input_monitor"});
 
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{remoteX, remoteY, remoteW, sLineH},
@@ -4618,6 +4624,11 @@
                      + " (takes effect when the driver is re-armed)");
         markProjectDirty();
         continue;
+      }
+      if (sb.action == kSettingsActionInputMonitor) {
+        settingsOpen_ = false;
+        inputMonitorOpen_ = true;
+        return;
       }
       if (sb.action == kSettingsActionShowControlId) {
         openInlineTextEditor("settings.msc_id", "MSC device id",

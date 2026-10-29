@@ -1425,6 +1425,7 @@
     servicePendingRowWaveform();
     renderDashboardOverlay();
     renderShortcutsOverlay();
+    renderInputMonitor();
     // A DROPDOWN BELONGS ON TOP OF WHATEVER OPENED IT.
     //
     // This drew before the dashboard, so the dashboard's action picker
