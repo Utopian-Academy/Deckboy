@@ -18,6 +18,11 @@
   first Esc used to close the panel instead, and the output stayed in front.
 
 ### The desk
+- The splash says whether a newer Deckboy is out: a line in the boot log ("asking GitHub for a
+  newer deck... up to date", "... is out!", or "switched off"), and a line under the startup
+  choices that checks now when the check is off, or opens **Settings > System > Updates** when
+  there is something newer. The check still never runs during a show, and stays off unless you
+  turn it on.
 - The window title names the show: its file name, **New show** before it has one, and
   **Practice show** during the tour. It adds **not saved** when changes are not reaching the
   file, for example when the show's folder cannot be written; ordinary autosaving does not

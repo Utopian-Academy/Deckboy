@@ -119,6 +119,21 @@
         openExampleShows();
       } else if (pointInRect(x, y, startupLearnBtn_)) {
         beginTutorial();
+      } else if (pointInRect(x, y, startupUpdateRect_)) {
+        // Newer: go and get it (Settings > System > Updates, over the show
+        // already open). Otherwise check now -- the operator asked to.
+        bool newer = false;
+        {
+          std::lock_guard<std::mutex> lock(updateMutex_);
+          newer = !updateFound_.version.empty();
+        }
+        if (newer) {
+          showStartupDialog_ = false;
+          settingsOpen_ = true;
+          settingsTab_ = 0;
+        } else {
+          checkForUpdateAsync(/*quiet=*/false);
+        }
       } else {
         // The recent rows. Read the list again rather than caching it beside
         // the rects: the rects were built during the last render and this is

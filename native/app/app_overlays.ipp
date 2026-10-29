@@ -630,6 +630,7 @@
     neededH += buttonH + gap                          // the button row
              + learnStripH + gap                      // "New here?" strip
              + lineH + uiScaled(4) + lineH            // two hint lines
+             + lineH + uiScaled(8)                    // updates
              + uiScaled(24);                          // bottom margin
 
     const int kDW = std::max(uiScaled(660), startupRowW + startupMargin * 2);
@@ -787,6 +788,29 @@
                  SDL_Rect {tx, y + lineH + uiScaled(4), tw, lineH},
                  "Esc=continue with current session",
                  hintInk);
+
+    // UPDATES, ON THE SPLASH: the one screen nothing is live behind (James
+    // chose this, 2026-10-28). The check runs at startup when it is on
+    // (Settings > System > Updates), and never once a show is going. A click
+    // checks now when it is off or failed -- the operator asked -- and opens
+    // Settings > System (where DOWNLOAD is) when something newer is out.
+    {
+      std::string status;
+      bool newer = false;
+      {
+        std::lock_guard<std::mutex> lock(updateMutex_);
+        status = updateStatus_;
+        newer = !updateFound_.version.empty();
+      }
+      const std::string text = newer
+        ? "Updates: " + status + "  -  click to get it"
+        : !status.empty() ? "Updates: " + status
+        : project_.updateCheckEnabled ? std::string("Updates: checking...")
+        : std::string("Updates: not checked (the check at startup is off)  -  click to check now");
+      startupUpdateRect_ = SDL_Rect {tx, y + 2 * lineH + uiScaled(12), tw, lineH};
+      drawTextSafe(controlRenderer_, fontSmall_, startupUpdateRect_, text,
+                   newer ? SDL_Color {255, 220, 0, 255} : hintInk);
+    }
   }
 
 
@@ -2212,6 +2236,11 @@
 
       // Konami hint + A/V clock line ride near the end every boot, then the
       // handoff to the operator.
+      // The one line that is news: whether a newer Deckboy is out (James,
+      // 2026-10-28). Its answer is filled in as it is drawn, because the
+      // check is still on the wire while the log is being typed.
+      startupUpdateLogLine_ = static_cast<int>(startupBootLog_.size());
+      startupBootLog_.push_back("asking GitHub for a newer deck...");
       startupBootLog_.push_back("polling konami interrupt vector... hidden");
       startupBootLog_.push_back("syncing wall clock to audio crystal...");
       startupBootLog_.push_back("boot ok - awaiting operator");
@@ -2253,10 +2282,33 @@
     int fitLines = std::max(1, (bootRect.h - 20) / lineStep);
     int firstLine = std::max(0, visibleLines - fitLines);
     for (int i = firstLine; i < visibleLines; ++i) {
+      std::string text = startupBootLog_[i];
+      SDL_Color ink = pal.fg;
+      if (i == startupUpdateLogLine_) {
+        std::string status;
+        std::string newer;
+        {
+          std::lock_guard<std::mutex> lock(updateMutex_);
+          status = updateStatus_;
+          newer = updateFound_.version;
+        }
+        if (!newer.empty()) {
+          text += " v" + newer + " is out!";
+          ink = SDL_Color {255, 220, 0, 255};
+        } else if (status.rfind("up to date", 0) == 0) {
+          text += " up to date";
+        } else if (status.empty() && !project_.updateCheckEnabled) {
+          text += " switched off";   // short: a longer line is drawn smaller than its neighbours
+        } else if (status.empty() || status == "checking...") {
+          text += ((now / 300) % 2) == 0 ? " ." : " ..";
+        } else {
+          text += " no answer";
+        }
+      }
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {bootRect.x + 12, bootRect.y + 10 + (i - firstLine) * lineStep,
                              bootRect.w - 24, lineStep},
-                   startupBootLog_[i], pal.fg);
+                   text, ink);
     }
     if (visibleLines < totalLines && ((now / 300) % 2) == 0) {
       int cursorRow = std::min(visibleLines - firstLine, fitLines - 1);

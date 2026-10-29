@@ -11083,6 +11083,8 @@ class App {
   Uint64 splashStartedAt_ = 0;
   SDL_Rect startupLoadBtn_ {};
   SDL_Rect startupNewBtn_ {};
+  SDL_Rect startupUpdateRect_ {};   // the splash, its updates line
+  int startupUpdateLogLine_ = -1;    // the boot log line that says whether a newer Deckboy is out
   SDL_Rect startupOpenSavedBtn_ {};
   SDL_Rect startupExamplesBtn_ {};
   SDL_Rect startupLearnBtn_ {};
