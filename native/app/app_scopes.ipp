@@ -29,7 +29,7 @@
   enum class MonitorView : int { Program = 0, Scopes = 1, Both = 2 };
   enum ScopePanel : int {
     kScopeWaveform = 0, kScopeParade, kScopeVector, kScopeDiamond, kScopeHistogram, kScopeFalseColour,
-    kScopePanelCount
+    kScopeSound, kScopePanelCount
   };
 
   struct ScopeImages {
@@ -131,6 +131,21 @@
   SDL_Texture* falseColourTex_ = nullptr;
   int falseColourTexW_ = 0, falseColourTexH_ = 0;
   std::atomic<bool> scopesFalseColourWanted_ {false};
+  // SOUND (drawSoundPanel). The focused playlist's tap queues every sample
+  // here, on its audio thread, while the panel is up; the desk drains it.
+  SDL_Rect scopesSoundBtnRect_ {};
+  SDL_Rect scopesSoundResetBtnRect_ {};
+  std::atomic<bool> soundScopeWanted_ {false};
+  std::mutex soundScopeMutex_;
+  std::vector<std::int16_t> soundScopeFifo_;
+  int soundScopeDeck_ = -1;                     // whose sound the readings are
+  std::vector<std::int16_t> soundScopeRecent_;  // the last 8192 frames, oldest first
+  std::unique_ptr<deckboy::audiofx::ProgramLoudnessMeter> soundScopeMeter_;  // 256 KB, so made on open
+  Uint64 soundScopeSinceMs_ = 0, soundScopeFedAtMs_ = 0, soundScopeLastMs_ = 0;
+  Uint64 soundScopeSpectrumAtMs_ = 0;
+  double soundScopeCorrelation_ = 0.0, soundScopeGonioPeak_ = 0.0;
+  std::array<double, deckboy::audiofx::kThirdOctaveBands> soundScopeBands_ {}, soundScopeBandPeaks_ {};
+  std::array<Uint64, deckboy::audiofx::kThirdOctaveBands> soundScopeBandPeakAtMs_ {};
 
   static const char* scopePanelName(int panel) {
     switch (panel) {
@@ -140,6 +155,7 @@
       case kScopeDiamond: return "diamond";
       case kScopeHistogram: return "histogram";
       case kScopeFalseColour: return "falsecolour";
+      case kScopeSound: return "sound";
       default: return "";
     }
   }
@@ -673,11 +689,328 @@
   }
 
   // The whole scope area, inside the programme monitor.
+  // ── SOUND ─────────────────────────────────────────────────────────────────
+  //
+  // Phase (a goniometer, and the correlation it is read with), a third-octave
+  // spectrum, and loudness to EBU R 128 with true peak. They read what the VU
+  // meter reads -- the focused playlist's audio tap, the stereo its device has
+  // actually played -- so they need no output armed, and cost nothing while
+  // the panel is shut: the tap queues for them only while soundScopeWanted_
+  // is set. The arithmetic is core/audio_effects.hpp's, where --smoke checks
+  // it against signals with known answers.
+
+  // Opening starts the readings again: the integrated loudness of a stretch
+  // nobody measured is not a number worth showing.
+  void setSoundScopeWanted(bool wanted) {
+    if (wanted && !soundScopeWanted_.load(std::memory_order_relaxed)) {
+      {
+        std::lock_guard<std::mutex> lock(soundScopeMutex_);
+        soundScopeFifo_.clear();
+      }
+      soundScopeMeter_.reset();
+    }
+    soundScopeWanted_.store(wanted, std::memory_order_relaxed);
+  }
+
+  void resetSoundScope(int deck) {
+    soundScopeDeck_ = deck;
+    soundScopeMeter_ = std::make_unique<deckboy::audiofx::ProgramLoudnessMeter>();
+    soundScopeRecent_.clear();
+    soundScopeCorrelation_ = 0.0;
+    soundScopeGonioPeak_ = 0.0;
+    soundScopeBands_.fill(-140.0);
+    soundScopeBandPeaks_.fill(-140.0);
+    soundScopeBandPeakAtMs_.fill(0);
+    soundScopeSinceMs_ = SDL_GetTicks();
+    soundScopeFedAtMs_ = 0;
+    soundScopeLastMs_ = 0;
+    soundScopeSpectrumAtMs_ = 0;
+  }
+
+  // Sound has arrived within the last quarter second.
+  bool soundScopeSounding() const {
+    return soundScopeFedAtMs_ != 0 && SDL_GetTicks() - soundScopeFedAtMs_ < 250;
+  }
+
+  void serviceSoundScope() {
+    namespace afx = deckboy::audiofx;
+    std::vector<std::int16_t> fresh;
+    {
+      std::lock_guard<std::mutex> lock(soundScopeMutex_);
+      fresh.swap(soundScopeFifo_);
+    }
+    const int deck = vuFocusedDeck_.load(std::memory_order_relaxed);
+    if (!soundScopeMeter_ || deck != soundScopeDeck_) {
+      // Another playlist's readings are not this one's. What arrived around
+      // the change may be from either, so it goes too.
+      resetSoundScope(deck);
+      return;
+    }
+    const Uint64 now = SDL_GetTicks();
+    const double dt = soundScopeLastMs_ ? static_cast<double>(std::min<Uint64>(now - soundScopeLastMs_, 250)) / 1000.0
+                                        : 0.0;
+    soundScopeLastMs_ = now;
+    fresh.resize(fresh.size() & ~static_cast<std::size_t>(1));   // whole frames only
+    if (!fresh.empty()) {
+      soundScopeMeter_->push(fresh);
+      soundScopeFedAtMs_ = now;
+      soundScopeRecent_.insert(soundScopeRecent_.end(), fresh.begin(), fresh.end());
+      const std::size_t keep = afx::kSpectrumFrames * 2;
+      if (soundScopeRecent_.size() > keep) {
+        soundScopeRecent_.erase(soundScopeRecent_.begin(),
+                                soundScopeRecent_.end() - static_cast<std::ptrdiff_t>(keep));
+      }
+    } else if (!soundScopeSounding() && dt > 0.0) {
+      // NOTHING PLAYING IS SILENCE, the way a meter on the output bus sees
+      // it: momentary and short-term fall, and the gate keeps it out of the
+      // integrated reading.
+      soundScopeMeter_->push(std::vector<std::int16_t>(static_cast<std::size_t>(dt * kAudioRate) * 2, 0));
+    }
+    const bool sounding = soundScopeSounding();
+    const std::size_t frames = soundScopeRecent_.size() / 2;
+    // The last 85 ms, integrated over about 300 ms like a phase meter's
+    // needle, so one transient does not throw it about.
+    const std::size_t corrFrames = std::min<std::size_t>(frames, 4096);
+    const double target = sounding && corrFrames
+      ? afx::stereoCorrelation(soundScopeRecent_.data() + (frames - corrFrames) * 2, corrFrames)
+      : 0.0;
+    soundScopeCorrelation_ += (target - soundScopeCorrelation_) * (1.0 - std::exp(-dt / 0.3));
+    // Twenty spectra a second. The bars rise at once and fall at 20 dB a
+    // second; each band's peak holds for two seconds.
+    if (now - soundScopeSpectrumAtMs_ >= 50) {
+      const double since = soundScopeSpectrumAtMs_
+        ? static_cast<double>(std::min<Uint64>(now - soundScopeSpectrumAtMs_, 250)) / 1000.0 : 0.0;
+      soundScopeSpectrumAtMs_ = now;
+      std::array<double, afx::kThirdOctaveBands> levels;
+      levels.fill(-140.0);
+      if (sounding && frames) levels = afx::thirdOctaveLevels(soundScopeRecent_.data(), frames, kAudioRate);
+      for (int b = 0; b < afx::kThirdOctaveBands; ++b) {
+        soundScopeBands_[b] = std::max(levels[b], soundScopeBands_[b] - 20.0 * since);
+        if (soundScopeBands_[b] >= soundScopeBandPeaks_[b]) {
+          soundScopeBandPeaks_[b] = soundScopeBands_[b];
+          soundScopeBandPeakAtMs_[b] = now;
+        } else if (now - soundScopeBandPeakAtMs_[b] > 2000) {
+          soundScopeBandPeaks_[b] = std::max(soundScopeBands_[b], soundScopeBandPeaks_[b] - 20.0 * since);
+        }
+      }
+    }
+  }
+
+  // The goniometer: mid up, side across, left and right on the diagonals,
+  // so mono is a vertical line, one channel inverted a horizontal one, and
+  // a wide mix a fat blob. Scaled to its own recent peak, since the shape is
+  // the reading; the correlation bar under it is the number.
+  void drawSoundPhase(const SDL_Rect& rect) {
+    SDL_Rect plot = scopePanel(rect, "PHASE", kScopeSound, uiScaled(6), uiScaled(6));
+    const int lineH = textLineHeight(fontSmall_);
+    const int barBlock = lineH * 2 + uiScaled(8);
+    const int side = std::max(1, std::min(plot.w, plot.h - barBlock));
+    const SDL_Rect square {plot.x + (plot.w - side) / 2, plot.y, side, side};
+    const int cx = square.x + side / 2, cy = square.y + side / 2;
+    const SDL_Color faint {150, 140, 96, 90};
+    scopeLine(cx, square.y, cx, square.y + side, faint);
+    scopeLine(square.x, cy, square.x + side, cy, faint);
+    scopeDashed(square.x, square.y, square.x + side, square.y + side, faint);
+    scopeDashed(square.x + side, square.y, square.x, square.y + side, faint);
+    scopeText(cx + uiScaled(4), square.y + lineH / 2, "M", kScopeLabel);
+    scopeText(square.x + uiScaled(2), square.y + lineH / 2, "L", kScopeLabel);
+    scopeText(square.x + side, square.y + lineH / 2, "R", kScopeLabel, true);
+    scopeText(square.x + side, cy - lineH / 2, "S", kScopeLabel, true);
+
+    const std::size_t frames = soundScopeRecent_.size() / 2;
+    const std::size_t count = soundScopeSounding() ? std::min<std::size_t>(frames, 2048) : 0;
+    const std::int16_t* samples = soundScopeRecent_.data() + (frames - count) * 2;
+    constexpr double kRoot = 0.70710678118654752;
+    double peak = 0.0;
+    for (std::size_t i = 0; i < count; ++i) {
+      const double l = samples[2 * i] / 32768.0, r = samples[2 * i + 1] / 32768.0;
+      peak = std::max({peak, std::fabs((l + r) * kRoot), std::fabs((r - l) * kRoot)});
+    }
+    soundScopeGonioPeak_ = std::max(peak, soundScopeGonioPeak_ * 0.97);
+    // At most 40 dB of gain: quieter than that is drawn as the dot it is.
+    const double gain = (side / 2.0 - 2.0) * 0.92 / std::max(soundScopeGonioPeak_, 0.01);
+    std::vector<SDL_FPoint> points;
+    points.reserve(count);
+    for (std::size_t i = 0; i < count; ++i) {
+      const double l = samples[2 * i] / 32768.0, r = samples[2 * i + 1] / 32768.0;
+      points.push_back(SDL_FPoint {static_cast<float>(cx + (r - l) * kRoot * gain),
+                                   static_cast<float>(cy - (l + r) * kRoot * gain)});
+    }
+    // Joined, not dotted: forty-eight samples a cycle at 1 kHz drawn as points
+    // were a faint dotted line lost on the M axis they lay along.
+    if (points.size() > 1) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(controlRenderer_, 150, 255, 150, 230);
+      SDL_RenderLines(controlRenderer_, points.data(), static_cast<int>(points.size()));
+    }
+
+    // CORRELATION, -1 to +1 from the middle. Red below zero: folded to mono,
+    // that programme loses what is out of phase.
+    const int barY = square.y + side + uiScaled(4) + lineH;
+    const SDL_Rect bar {plot.x + uiScaled(8), barY, std::max(1, plot.w - uiScaled(16)), std::max(4, lineH / 2)};
+    Primitives::fillRect(controlRenderer_, bar, SDL_Color {30, 36, 30, 255});
+    const int mid = bar.x + bar.w / 2;
+    const double value = std::clamp(soundScopeCorrelation_, -1.0, 1.0);
+    const int end = mid + static_cast<int>(std::lround(value * bar.w / 2.0));
+    const SDL_Color fill = value < 0.0 ? kScopeAlarm : value < 0.3 ? SDL_Color {230, 190, 60, 255}
+                                                                   : SDL_Color {120, 220, 120, 255};
+    Primitives::fillRect(controlRenderer_, SDL_Rect {std::min(mid, end), bar.y, std::max(1, std::abs(end - mid)), bar.h},
+                         fill);
+    scopeLine(mid, bar.y - uiScaled(2), mid, bar.y + bar.h + uiScaled(2), kScopeGrat);
+    scopeText(bar.x, bar.y - lineH / 2 - uiScaled(1), "-1", kScopeLabel);
+    scopeText(bar.x + bar.w, bar.y - lineH / 2 - uiScaled(1), "+1", kScopeLabel, true);
+    char reading[48];
+    std::snprintf(reading, sizeof(reading), "CORRELATION %+.2f", value);
+    scopeText(mid - measuredTextWidth(fontSmall_, reading) / 2, bar.y + bar.h + lineH / 2 + uiScaled(2),
+              soundScopeSounding() ? reading : "CORRELATION --", kScopeLabel);
+  }
+
+  // Third octaves, 25 Hz to 20 kHz, in dBFS: a sine reads its own level.
+  void drawSoundSpectrum(const SDL_Rect& rect) {
+    namespace afx = deckboy::audiofx;
+    SDL_Rect plot = scopePanel(rect, "SPECTRUM  1/3 OCTAVE  dBFS", kScopeSound, uiScaled(34), uiScaled(8));
+    const int lineH = textLineHeight(fontSmall_);
+    plot.h = std::max(1, plot.h - lineH);
+    constexpr double kFloorDb = 80.0;
+    auto yFor = [&](double db) {
+      return plot.y + static_cast<int>(std::lround(plot.h * std::clamp(-db, 0.0, kFloorDb) / kFloorDb));
+    };
+    for (int db = 0; db >= -80; db -= 10) {
+      const int y = yFor(db);
+      scopeLine(plot.x, y, plot.x + plot.w, y, db % 20 == 0 ? kScopeGrat : SDL_Color {150, 140, 96, 60});
+      if (db % 20 == 0) scopeText(plot.x - uiScaled(2), y, std::to_string(db), kScopeLabel, true);
+    }
+    const double slot = plot.w / static_cast<double>(afx::kThirdOctaveBands);
+    const int bottom = plot.y + plot.h;
+    for (int b = 0; b < afx::kThirdOctaveBands; ++b) {
+      const int x0 = plot.x + static_cast<int>(std::lround(b * slot)) + 1;
+      const int x1 = plot.x + static_cast<int>(std::lround((b + 1) * slot)) - 1;
+      const int top = yFor(soundScopeBands_[b]);
+      if (top < bottom) {
+        Primitives::fillRect(controlRenderer_, SDL_Rect {x0, top, std::max(1, x1 - x0), bottom - top},
+                             soundScopeBands_[b] > -1.0 ? kScopeAlarm : SDL_Color {110, 210, 110, 255});
+      }
+      if (soundScopeBandPeaks_[b] > -kFloorDb) {
+        Primitives::fillRect(controlRenderer_, SDL_Rect {x0, yFor(soundScopeBandPeaks_[b]), std::max(1, x1 - x0),
+                                                         std::max(1, uiScaled(2))}, kScopeLabel);
+      }
+      if (b % 3 == 1) {   // 31.5, 63, 125 ... 16k: an octave apart
+        const std::string label = afx::kThirdOctaveLabels[b];
+        scopeText((x0 + x1) / 2 - measuredTextWidth(fontSmall_, label) / 2, bottom + lineH / 2 + uiScaled(1),
+                  label, kScopeLabel);
+      }
+    }
+  }
+
+  // EBU R 128: momentary (400 ms), short-term (3 s) and integrated since the
+  // panel opened or RESET, on the EBU +9 scale around -23 LUFS, and the
+  // highest true peak in that time against the -1 dBTP ceiling.
+  void drawSoundLoudness(const SDL_Rect& rect) {
+    SDL_Rect plot = scopePanel(rect, "LOUDNESS  EBU R 128", kScopeSound, uiScaled(8), uiScaled(8));
+    const auto& meter = *soundScopeMeter_;
+    const int lineH = textLineHeight(fontSmall_);
+    const int labelW = measuredTextWidth(fontSmall_, "I") + uiScaled(10);
+    const int valueW = measuredTextWidth(fontSmall_, "-00.0 LUFS  +00.0 LU") + uiScaled(8);
+    const int rowH = std::max(lineH, (plot.h - lineH * 2) / 4);
+    constexpr double kLow = -41.0, kHigh = -14.0, kTarget = -23.0;   // EBU +9
+    const int barX = plot.x + labelW;
+    const int barW = std::max(1, plot.w - labelW - valueW);
+    auto xFor = [&](double lufs) {
+      return barX + static_cast<int>(std::lround(barW * (std::clamp(lufs, kLow, kHigh) - kLow) / (kHigh - kLow)));
+    };
+    struct Row { const char* name; double lufs; };
+    const Row rows[3] {{"M", meter.momentary}, {"S", meter.shortTerm}, {"I", meter.integrated}};
+    int y = plot.y;
+    for (const Row& row : rows) {
+      const int barH = std::max(4, rowH - uiScaled(8));
+      const SDL_Rect track {barX, y + (rowH - barH) / 2, barW, barH};
+      Primitives::fillRect(controlRenderer_, track, SDL_Color {30, 36, 30, 255});
+      const bool measured = row.lufs > -70.0;
+      if (measured) {
+        const SDL_Color fill = row.lufs > kTarget + 1.0 ? SDL_Color {230, 190, 60, 255} : SDL_Color {110, 210, 110, 255};
+        Primitives::fillRect(controlRenderer_, SDL_Rect {barX, track.y, std::max(1, xFor(row.lufs) - barX), barH}, fill);
+      }
+      const int targetX = xFor(kTarget);
+      scopeLine(targetX, track.y - uiScaled(2), targetX, track.y + barH + uiScaled(2), kScopeLabel);
+      scopeText(plot.x, y + rowH / 2, row.name, kScopeLabel);
+      char value[48];
+      if (measured) {
+        std::snprintf(value, sizeof(value), "%.1f LUFS  %+.1f LU", row.lufs, row.lufs - kTarget);
+      } else {
+        std::snprintf(value, sizeof(value), "-- LUFS");
+      }
+      scopeText(plot.x + plot.w, y + rowH / 2, value, kScopeLabel, true);
+      y += rowH;
+    }
+    // The scale under the bars: -41, the -23 target, -14.
+    scopeText(barX, y + lineH / 2, "-41", kScopeGrat);
+    scopeText(xFor(kTarget) - measuredTextWidth(fontSmall_, "-23") / 2, y + lineH / 2, "-23", kScopeGrat);
+    scopeText(barX + barW, y + lineH / 2, "-14", kScopeGrat, true);
+    y += lineH + uiScaled(4);
+    // TRUE PEAK, and RESET for both it and the integrated reading.
+    const double peak = meter.peakDb();
+    char peakText[64];
+    if (peak > -120.0) {
+      std::snprintf(peakText, sizeof(peakText), "TRUE PEAK  max %.1f dBTP", peak);
+    } else {
+      std::snprintf(peakText, sizeof(peakText), "TRUE PEAK  --");
+    }
+    const int seconds = static_cast<int>((SDL_GetTicks() - soundScopeSinceMs_) / 1000);
+    char sinceText[48];
+    std::snprintf(sinceText, sizeof(sinceText), "   over %d:%02d", seconds / 60, seconds % 60);
+    const int resetW = measuredTextWidth(fontSmall_, "RESET") + uiScaled(16);
+    scopesSoundResetBtnRect_ = SDL_Rect {plot.x + plot.w - resetW, y, resetW, lineH + uiScaled(4)};
+    drawUIPanel(scopesSoundResetBtnRect_, paletteToggleFill(false), pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSoundResetBtnRect_, "RESET", paletteToggleInk(false));
+    scopeText(plot.x, y + scopesSoundResetBtnRect_.h / 2, std::string(peakText) + sinceText,
+              peak > -1.0 ? kScopeAlarm : kScopeLabel);
+  }
+
+  void drawSoundPanel(const SDL_Rect& body) {
+    serviceSoundScope();
+    scopesSoundResetBtnRect_ = {};
+    if (!soundScopeMeter_) return;   // reset this frame; drawn from the next
+    const int gap = uiScaled(4);
+    const int phaseW = std::clamp(body.h, uiScaled(140), body.w * 2 / 5);
+    const int restX = body.x + phaseW + gap, restW = body.w - phaseW - gap;
+    const int spectrumH = (body.h - gap) * 11 / 20;
+    drawSoundPhase(SDL_Rect {body.x, body.y, phaseW, body.h});
+    drawSoundSpectrum(SDL_Rect {restX, body.y, restW, spectrumH});
+    drawSoundLoudness(SDL_Rect {restX, body.y + spectrumH + gap, restW, body.h - spectrumH - gap});
+    scopesPanelRects_[kScopeSound] = body;   // a click on it goes back, as on every other panel
+  }
+
+  // SCOPES SOUND: the readings, for tests and for anyone checking a feed
+  // without looking at the desk.
+  std::string soundScopeReadings() {
+    namespace afx = deckboy::audiofx;
+    if (!soundScopeWanted_.load(std::memory_order_relaxed) || !soundScopeMeter_) {
+      return "closed: SCOPES BIG sound opens it";
+    }
+    int loudest = 0;
+    for (int b = 1; b < afx::kThirdOctaveBands; ++b) {
+      if (soundScopeBands_[b] > soundScopeBands_[loudest]) loudest = b;
+    }
+    const auto& meter = *soundScopeMeter_;
+    char text[320];
+    std::snprintf(text, sizeof(text),
+                  "deck=%d sounding=%d corr=%+.2f M=%.1f S=%.1f I=%.1f TP=%.1f loudest=%s/%.1f over=%.1fs",
+                  soundScopeDeck_ + 1, soundScopeSounding() ? 1 : 0, soundScopeCorrelation_,
+                  meter.momentary, meter.shortTerm, meter.integrated, meter.peakDb(),
+                  afx::kThirdOctaveLabels[loudest], soundScopeBands_[loudest],
+                  static_cast<double>(SDL_GetTicks() - soundScopeSinceMs_) / 1000.0);
+    return text;
+  }
+
   void drawScopesArea(const SDL_Rect& area) {
     for (auto& rect : scopesPanelRects_) rect = {};
     scopesFreezeBtnRect_ = {};
     scopesSourceBtnRect_ = {};
     scopesFalseBtnRect_ = {};
+    scopesSoundBtnRect_ = {};
+    scopesSoundResetBtnRect_ = {};
+    const bool sound = scopesBig_ == kScopeSound;
+    setSoundScopeWanted(sound);
     if (area.w < uiScaled(160) || area.h < uiScaled(120)) return;
     Primitives::fillRect(controlRenderer_, area, kScopeBlack);
     ScopesOutcome outcome;
@@ -689,7 +1022,9 @@
     const int source = scopesOutputIndex();
     const bool matches = result && source < static_cast<int>(project_.outputs.size()) &&
       outcome.outputId == project_.outputs[source].outputId;
-    if (!matches) {
+    if (sound) {
+      drawSoundPanel(body);   // the playlist's sound, so no output need be armed
+    } else if (!matches) {
       const std::string why = project_.outputs.empty()
         ? std::string("add an output to scope it")
         : "waiting for " + outputLabel(scopesOutputIndex()) + " - arm it to scope its signal";
@@ -743,7 +1078,24 @@
     drawUIPanel(scopesFalseBtnRect_, paletteToggleFill(falseOn), pal.deep, pal.light);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesFalseBtnRect_, "FALSE COLOUR",
                          paletteToggleInk(falseOn));
-    {
+    // SOUND: phase, spectrum and loudness of the playlist's sound (drawSoundPanel).
+    const int soundW = std::max(uiScaled(70), measuredTextWidth(fontSmall_, "SOUND") + uiScaled(16));
+    scopesSoundBtnRect_ = SDL_Rect {scopesFalseBtnRect_.x - soundW - uiScaled(4), scopesFalseBtnRect_.y,
+                                    soundW, scopesFalseBtnRect_.h};
+    drawUIPanel(scopesSoundBtnRect_, paletteToggleFill(sound), pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSoundBtnRect_, "SOUND", paletteToggleInk(sound));
+    if (sound) {
+      // What the sound scopes read, said where the picture's numbers go.
+      const std::string deckName = soundScopeDeck_ >= 0 && soundScopeDeck_ < static_cast<int>(project_.decks.size())
+        ? project_.decks[soundScopeDeck_].name : std::string("no playlist");
+      const std::string info = std::string(soundScopeSounding() ? "LIVE" : "NO SOUND") + "  " + deckName +
+        " (the focused playlist, as the VU meter)  48 kHz stereo";
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {footer.x + uiScaled(6), footer.y,
+                             footer.w - freezeW - (scopesFreezeBtnRect_.x - scopesSoundBtnRect_.x) - uiScaled(12),
+                             footer.h},
+                   info, kScopeLabel);
+    } else {
       bool alarm = false;
       std::string gamut;
       if (matches && outcome.hdr) {
@@ -788,7 +1140,7 @@
                     outcome.width, outcome.height, scopesSignalLabel(outcome).c_str(),
                     outcome.matrix == deckboy::core::scopes::Matrix::Bt2020Ncl ? "BT.2020" : "BT.709");
       SDL_Rect infoRect {footer.x + uiScaled(6), footer.y,
-                         footer.w - freezeW - sourceW - falseW - uiScaled(24), footer.h};
+                         footer.w - freezeW - sourceW - falseW - soundW - uiScaled(28), footer.h};
       drawTextSafe(controlRenderer_, fontSmall_, infoRect,
                    matches ? std::string(info) + (live ? gamut : "last reading") : state,
                    alarm && live ? kScopeAlarm : kScopeLabel);
@@ -844,6 +1196,15 @@
     }
     if (scopesFalseBtnRect_.w > 0 && pointInRect(x, y, scopesFalseBtnRect_)) {
       dispatchQuickAction(QuickAction::ScopesToggleBig, kScopeFalseColour);
+      return true;
+    }
+    if (scopesSoundBtnRect_.w > 0 && pointInRect(x, y, scopesSoundBtnRect_)) {
+      dispatchQuickAction(QuickAction::ScopesToggleBig, kScopeSound);
+      return true;
+    }
+    if (scopesSoundResetBtnRect_.w > 0 && pointInRect(x, y, scopesSoundResetBtnRect_)) {
+      resetSoundScope(vuFocusedDeck_.load(std::memory_order_relaxed));
+      triggerToast("sound scopes: integrated loudness and true peak start again");
       return true;
     }
     for (int panel = 0; panel < kScopePanelCount; ++panel) {

@@ -1118,6 +1118,67 @@
       expect(turned[0] < turned[1] && turned[0] < turned[2], "colour effect: half a turn takes red to cyan");
     }
 
+    // ── Sound scopes: answers known in advance ─────────────────────────────
+    //
+    // Correlation from signals whose answer is a definition, the spectrum
+    // from a sine of a stated level, and the loudness meter they share with
+    // the egress from EBU Tech 3341's first test: a stereo 1 kHz sine at
+    // -23 dBFS reads -23.0 LUFS momentary, short-term and integrated.
+    {
+      namespace afx = deckboy::audiofx;
+      constexpr double kPi = 3.14159265358979323846;
+      auto stereo = [](std::size_t frames, auto left, auto right) {
+        std::vector<std::int16_t> out(frames * 2);
+        for (std::size_t i = 0; i < frames; ++i) {
+          out[2 * i] = static_cast<std::int16_t>(std::lround(left(i) * 32767.0));
+          out[2 * i + 1] = static_cast<std::int16_t>(std::lround(right(i) * 32767.0));
+        }
+        return out;
+      };
+      auto sine = [&](double hz, double dbfs, double phase = 0.0) {
+        const double amplitude = std::pow(10.0, dbfs / 20.0);
+        return [=](std::size_t i) { return amplitude * std::sin(2.0 * kPi * hz * i / kAudioRate + phase); };
+      };
+      auto silent = [](std::size_t) { return 0.0; };
+      const auto inPhase = stereo(4096, sine(440, -12), sine(440, -12));
+      const auto inverted = stereo(4096, sine(440, -12), sine(440, -12, kPi));
+      const auto oneSide = stereo(4096, sine(440, -12), silent);
+      expect(afx::stereoCorrelation(inPhase.data(), 4096) > 0.999 &&
+             afx::stereoCorrelation(inverted.data(), 4096) < -0.999,
+             "sound scopes: correlation is +1 in phase and -1 with one leg inverted");
+      expect(afx::stereoCorrelation(oneSide.data(), 4096) == 0.0,
+             "sound scopes: correlation is 0 with one side silent");
+
+      const auto tone = stereo(afx::kSpectrumFrames, sine(1000, -20), sine(1000, -20));
+      const auto bands = afx::thirdOctaveLevels(tone.data(), afx::kSpectrumFrames, kAudioRate);
+      const int oneK = 16;   // kThirdOctaveLabels[16] is "1k"
+      bool loudest = true;
+      for (int b = 0; b < afx::kThirdOctaveBands; ++b) {
+        if (b != oneK && bands[b] >= bands[oneK]) loudest = false;
+      }
+      std::printf("      1 kHz at -20 dBFS: 1k band %.2f dB, 100 Hz band %.1f dB\n", bands[oneK], bands[6]);
+      expect(std::string(afx::kThirdOctaveLabels[oneK]) == "1k" && std::fabs(bands[oneK] + 20.0) < 0.2 &&
+             loudest && bands[6] < -60.0,
+             "sound scopes: a -20 dBFS 1 kHz sine reads -20 in the 1k band and nowhere else");
+
+      afx::ProgramLoudnessMeter meter;
+      meter.push(stereo(static_cast<std::size_t>(kAudioRate) * 20, sine(1000, -23), sine(1000, -23)));
+      std::printf("      Tech 3341 test 1: M %.2f  S %.2f  I %.2f LUFS\n",
+                  meter.momentary, meter.shortTerm, meter.integrated);
+      expect(std::fabs(meter.momentary + 23.0) <= 0.1 && std::fabs(meter.shortTerm + 23.0) <= 0.1 &&
+             std::fabs(meter.integrated + 23.0) <= 0.1,
+             "sound scopes: EBU Tech 3341 test 1 reads -23.0 LUFS (M, S and I)");
+
+      // A sine at a quarter of the sample rate, sampled 45 degrees off its
+      // crests: every sample sits 3 dB under the true peak, which only the
+      // 4x interpolation sees.
+      afx::ProgramLoudnessMeter peaks;
+      peaks.push(stereo(48000, sine(12000, -6, kPi / 4), sine(12000, -6, kPi / 4)));
+      std::printf("      12 kHz at -6 dBFS, samples 3 dB down: true peak %.2f dBTP\n", peaks.peakDb());
+      expect(std::fabs(peaks.peakDb() + 6.0) < 0.6,
+             "sound scopes: true peak finds the crest between samples");
+    }
+
     // ── False colour: ARRI's bands, and a frame through them ───────────────
     {
       auto rgb = [](double percent) {

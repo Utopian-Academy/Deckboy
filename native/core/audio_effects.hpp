@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <complex>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -93,8 +94,10 @@ struct ProgramLoudnessMeter {
   double hopEnergy = 0.0, peak = 0.0;
   double momentary = -120.0, shortTerm = -120.0, integrated = -120.0;
   int hopFrames = 0, hopCursor = 0, hopCount = 0;
+  // Floored at -120. Digital silence leaves the K-weighting filters ringing
+  // down to denormal energy, which read -1972 LUFS rather than nothing.
   static double lufs(double energy) {
-    return energy > 0.0 ? -0.691 + 10.0 * std::log10(energy) : -120.0;
+    return energy > 1e-12 ? -0.691 + 10.0 * std::log10(energy) : -120.0;
   }
   double peakDb() const { return peak > 0.0 ? 20.0 * std::log10(peak) : -120.0; }
   void push(const std::vector<std::int16_t>& samples) {
@@ -163,6 +166,115 @@ struct ProgramAudioState {
     return out;
   }
 };
+
+// ── SOUND SCOPES ─────────────────────────────────────────────────────────────
+//
+// The arithmetic behind the desk's sound scopes, beside the loudness meter they
+// also read, and free of SDL so --smoke can feed it signals with known answers.
+// Stereo int16 at 48 kHz: the deck's audio tap, which the VU meter reads.
+
+// How alike the two channels are, -1 to +1. +1 is in phase (a mono source),
+// 0 unrelated or one side silent, -1 one leg polarity-inverted -- the
+// miswired cable a phase meter exists to find, and the one that vanishes when
+// the programme is folded to mono.
+inline double stereoCorrelation(const std::int16_t* interleaved, std::size_t frames) {
+  double lr = 0.0, ll = 0.0, rr = 0.0;
+  for (std::size_t i = 0; i < frames; ++i) {
+    const double l = interleaved[2 * i], r = interleaved[2 * i + 1];
+    lr += l * r;
+    ll += l * l;
+    rr += r * r;
+  }
+  // Below about one LSB rms on either side there is nothing to relate.
+  const double quiet = static_cast<double>(frames);
+  if (ll < quiet || rr < quiet) return 0.0;
+  return std::clamp(lr / std::sqrt(ll * rr), -1.0, 1.0);
+}
+
+// In place, radix 2. The length must be a power of two.
+inline void fftInPlace(std::vector<std::complex<double>>& a) {
+  const std::size_t n = a.size();
+  for (std::size_t i = 1, j = 0; i < n; ++i) {
+    std::size_t bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) std::swap(a[i], a[j]);
+  }
+  for (std::size_t len = 2; len <= n; len <<= 1) {
+    const double angle = -2.0 * 3.14159265358979323846 / static_cast<double>(len);
+    const std::complex<double> step(std::cos(angle), std::sin(angle));
+    for (std::size_t start = 0; start < n; start += len) {
+      std::complex<double> w(1.0, 0.0);
+      for (std::size_t k = 0; k < len / 2; ++k) {
+        const std::complex<double> u = a[start + k];
+        const std::complex<double> v = a[start + k + len / 2] * w;
+        a[start + k] = u + v;
+        a[start + k + len / 2] = u - v;
+        w *= step;
+      }
+    }
+  }
+}
+
+// ISO 266 third-octave bands, 25 Hz to 20 kHz: the nominal centres are the
+// labels; the edges come from the exact base-two centres, 1 kHz x 2^(n/3).
+inline constexpr int kThirdOctaveBands = 30;
+inline constexpr std::array<const char*, kThirdOctaveBands> kThirdOctaveLabels {
+  "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500",
+  "630", "800", "1k", "1.25k", "1.6k", "2k", "2.5k", "3.15k", "4k", "5k", "6.3k", "8k", "10k",
+  "12.5k", "16k", "20k"};
+inline double thirdOctaveCentreHz(int band) {
+  return 1000.0 * std::pow(2.0, (band - 16) / 3.0);
+}
+
+// Each band's level in dBFS, where a sine reads its own peak level (a
+// full-scale sine is 0 dB, the scale the rest of the desk's meters use).
+// Hann-windowed FFT of each channel, the bins summed in power across the band
+// and the two channels averaged: a mono sum would show a polarity-inverted
+// pair as silence, which is the opposite of what a scope is for.
+//
+// 8192 frames (171 ms) gives a 5.9 Hz bin, so the 25 and 31.5 Hz bands hold
+// one bin each and their readings are coarse; from 40 Hz up each band has two
+// or more. Fewer frames than that are padded with silence and read low.
+inline constexpr std::size_t kSpectrumFrames = 8192;
+inline std::array<double, kThirdOctaveBands> thirdOctaveLevels(const std::int16_t* interleaved,
+                                                              std::size_t frames, double rate) {
+  constexpr std::size_t n = kSpectrumFrames;
+  static const std::vector<double> hann = [] {
+    std::vector<double> w(n);
+    for (std::size_t i = 0; i < n; ++i) w[i] = 0.5 - 0.5 * std::cos(2.0 * 3.14159265358979323846 * i / (n - 1));
+    return w;
+  }();
+  const std::size_t used = std::min(frames, n);
+  const std::size_t offset = frames - used;   // the most recent frames
+  std::array<double, kThirdOctaveBands> power {};
+  std::vector<std::complex<double>> bins(n);
+  for (int channel = 0; channel < 2; ++channel) {
+    for (std::size_t i = 0; i < n; ++i) {
+      const double sample = i < used ? interleaved[2 * (offset + i) + channel] / 32768.0 : 0.0;
+      bins[i] = std::complex<double>(sample * hann[i], 0.0);
+    }
+    fftInPlace(bins);
+    for (int band = 0; band < kThirdOctaveBands; ++band) {
+      const double centre = thirdOctaveCentreHz(band);
+      const double lo = centre * std::pow(2.0, -1.0 / 6.0), hi = centre * std::pow(2.0, 1.0 / 6.0);
+      const auto first = static_cast<std::size_t>(std::ceil(lo * n / rate));
+      const auto last = std::min<std::size_t>(n / 2 - 1,
+                                              static_cast<std::size_t>(std::ceil(hi * n / rate)) - 1);
+      for (std::size_t k = std::max<std::size_t>(first, 1); k <= last; ++k) {
+        power[band] += std::norm(bins[k]);
+      }
+    }
+  }
+  // A sine of peak A puts 3 A^2 n^2 / 32 into the positive bins through a
+  // Hann window (Parseval, with the window's mean square of 3/8).
+  std::array<double, kThirdOctaveBands> levels {};
+  for (int band = 0; band < kThirdOctaveBands; ++band) {
+    const double squared = power[band] / 2.0 * 32.0 / (3.0 * static_cast<double>(n) * n);
+    levels[band] = squared > 1e-14 ? 10.0 * std::log10(squared) : -140.0;
+  }
+  return levels;
+}
 
 // NO GLOBAL SAMPLE RATE. It used to live here and forty three things read
 // it, which is why every effect was silently tuned for 48k and only 48k. The

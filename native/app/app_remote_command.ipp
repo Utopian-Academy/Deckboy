@@ -5989,11 +5989,27 @@
         for (int panel = 0; panel < kScopePanelCount; ++panel) {
           if (value == scopePanelName(panel)) { setScopeBig(panel); return; }
         }
-        failRemoteCommand("SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour or off");
+        failRemoteCommand("SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, "
+                          "sound or off");
         return;
       }
       if (sub == "STATS") {
         remoteCommandDetail_ = scopesStats();
+        return;
+      }
+      // SCOPES SOUND [RESET]: the sound scopes' readings, or start the
+      // integrated loudness and true peak again.
+      if (sub == "SOUND") {
+        const std::string value = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (value == "RESET") {
+          resetSoundScope(vuFocusedDeck_.load(std::memory_order_relaxed));
+          return;
+        }
+        if (!value.empty()) {
+          failRemoteCommand("SCOPES SOUND: expected nothing or RESET");
+          return;
+        }
+        remoteCommandDetail_ = soundScopeReadings();
         return;
       }
       if (sub == "SOURCE") {
@@ -6018,7 +6034,7 @@
         releaseScopesCapture();
         return;
       }
-      failRemoteCommand("SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE or STATS");
+      failRemoteCommand("SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND");
       return;
     }
     if (command == "TRUST") {

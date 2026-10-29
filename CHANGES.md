@@ -67,6 +67,11 @@
   first, says so, and then carries on from where you left it.
 
 ### Audio
+- Fixed: STOP and PAUSE did not silence a tone cue. The playlist stopped or said "paused" and the
+  tone went on sounding. STOP now silences it at once and darkens its card, PAUSE holds it, and
+  PLAY carries on; a sting starts again from its strike after STOP. Seen from v0.89.0.
+- Fixed: a loudness reading of digital silence could show a number like -1972 LUFS. It reads as
+  nothing.
 - Fixed: on a Mac, plugging in headphones (or anything else that became the Mac's sound output)
   could leave a playlist set to the system output playing through the old device, and only a
   restart moved it. Deckboy now checks which output the Mac is using and moves the playlist's
@@ -105,6 +110,12 @@
   moves.
 
 ### Scopes
+- Added **SOUND** to the scopes: the focused playlist's sound, the stereo the VU meter reads, so
+  no output has to be armed. **PHASE**, a goniometer with a correlation bar (-1 to +1, red below
+  0, where a mono feed loses sound); **SPECTRUM** in third octaves, 25 Hz to 20 kHz, in dBFS, with
+  peak holds; and **LOUDNESS EBU R 128**, momentary, short-term and integrated around the -23 LUFS
+  target, with the highest true peak, red above -1 dBTP, and RESET. `SCOPES BIG sound`, and
+  `SCOPES SOUND` returns the readings.
 - Added **FALSE COLOUR** to the scopes: the picture with its levels painted on, in the Rec 709
   bands camera crews read on ARRI monitors (purple crushed, blue just above black, green 18% grey,
   pink skin a stop over, yellow nearly clipped, red clipped), with a key under it. The **FALSE

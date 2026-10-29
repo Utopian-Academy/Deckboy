@@ -42,6 +42,7 @@ stay on the GPU and are composited there.
 17. [Audio](#17-audio)
 18. [Test Patterns](#18-test-patterns)
 18a. [Picture Scopes](#18a-picture-scopes)
+18b. [Sound Scopes](#18b-sound-scopes)
 19. [Timecode & Chase](#19-timecode--chase)
 20. [Show Files, Bundling & Missing Media](#20-show-files-bundling--missing-media)
 21. [Themes](#21-themes)
@@ -2348,6 +2349,7 @@ signal, because that is what goes down the cable.
 | **RGB parade** | R', G' and B' side by side, on the same scale |
 | **Vectorscope** | Chroma, with boxes at the 75% bar targets, crosses at 100%, and the skin-tone line |
 | **Histogram** | Luma, with the share of the picture at 0% and at 100% |
+| **False colour** | The picture itself, each pixel painted by its level in the Rec 709 bands camera crews read on ARRI monitors: purple crushed, blue just above black, green 18% grey, pink a stop over (skin), yellow nearly clipped, red clipped, and the picture's own grey between them. **FALSE COLOUR** in the footer, or `SCOPES BIG falsecolour` |
 
 The footer names the output, its raster and matrix, how often the scopes
 update, and the **EBU R 103** verdict: the share of the picture outside the
@@ -2378,11 +2380,48 @@ of gamut and legal once filtered.
 | Command | Does |
 |---------|------|
 | `SCOPES PROGRAM` · `SCOPES SCOPES` · `SCOPES BOTH` · `SCOPES TOGGLE` | Switches the monitor |
-| `SCOPES BIG waveform\|parade\|vector\|diamond\|histogram\|OFF` | Shows one scope alone |
+| `SCOPES BIG waveform\|parade\|vector\|diamond\|histogram\|falsecolour\|sound\|OFF` | Shows one scope alone |
 | `SCOPES FREEZE [ON\|OFF]` | Holds or releases the reading |
 | `SCOPES MATRIX 709\|2020` | The matrix for luma and chroma |
 | `SCOPES SOURCE PROGRAMME\|<n>` | Measures the programme (the default) or output n |
 | `SCOPES STATS` | The numbers behind the scopes, as text |
+
+## 18b. Sound Scopes
+
+**SOUND**, in the scopes footer beside FALSE COLOUR, fills the scopes with
+three readings of the focused playlist's sound: the same stereo the VU meter
+reads, so no output has to be armed. They start when the panel opens and stop
+when it closes.
+
+- **PHASE** is a goniometer: mid (M) up, side (S) across, left and right on
+  the diagonals. Mono is a vertical line, one channel wired backwards a
+  horizontal one, and a wide mix a blob. It is scaled to its own recent peak,
+  so quiet sound fills it too. **CORRELATION** under it runs from -1 to +1
+  over the last 85 ms and settles over about a third of a second: near +1 is
+  safe to fold to mono, near 0 is wide or unrelated, and below 0 (red) is
+  sound that a mono feed will lose.
+- **SPECTRUM** is in third octaves, 25 Hz to 20 kHz, in dBFS, where a sine
+  reads its own level (a -18 dBFS tone shows -18). The two channels are added
+  by power, so out-of-phase sound still shows. Bars fall at 20 dB a second and
+  each band's peak holds for two. The 25 and 31.5 Hz bands are coarse.
+- **LOUDNESS EBU R 128**: **M** (momentary, 400 ms), **S** (short-term, 3 s)
+  and **I** (integrated, gated, since the panel opened or **RESET**), on the
+  EBU +9 scale with a mark at the -23 LUFS target and the distance from it in
+  LU. **TRUE PEAK** is the highest since then, read between the samples
+  (4x, ITU-R BS.1770), and turns red above -1 dBTP. While nothing plays the
+  meter hears silence: M and S fall away, and the gate keeps silence out of I.
+
+The loudness meter is the one recordings and streams already use: their own
+integrated loudness and true peak show under the VU meter. `--smoke` checks it
+against EBU Tech 3341's first test (a stereo 1 kHz sine at -23 dBFS reads
+-23.0 LUFS), and `tools/check_sound_scopes.py` reads a tone cue through the
+panel.
+
+| Command | Does |
+|---------|------|
+| `SCOPES BIG sound` | Shows the sound scopes |
+| `SCOPES SOUND` | The readings: playlist, sounding, correlation, M, S, I, true peak, loudest band |
+| `SCOPES SOUND RESET` | Starts the integrated loudness and true peak again |
 
 ## 19. Timecode & Chase
 

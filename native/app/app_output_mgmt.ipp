@@ -5944,9 +5944,20 @@
           pushDeckStreamAudioSamples(deckIndex, samples);
           // Capture samples for VU meter (only from focused deck)
           if (deckIndex == vuFocusedDeck_.load(std::memory_order_relaxed)) {
-            std::lock_guard<std::mutex> lock(vuSamplesMutex_);
-            vuSamples_ = samples;
-            vuSamplesUpdatedAtMs_ = SDL_GetTicks();
+            {
+              std::lock_guard<std::mutex> lock(vuSamplesMutex_);
+              vuSamples_ = samples;
+              vuSamplesUpdatedAtMs_ = SDL_GetTicks();
+            }
+            // The sound scopes keep EVERY sample, not the latest chunk: an
+            // integrated loudness that skipped some would read wrong. Two
+            // seconds' worth at most, in case the desk stops draining.
+            if (soundScopeWanted_.load(std::memory_order_relaxed)) {
+              std::lock_guard<std::mutex> lock(soundScopeMutex_);
+              if (soundScopeFifo_.size() < static_cast<std::size_t>(kAudioRate) * 4) {
+                soundScopeFifo_.insert(soundScopeFifo_.end(), samples.begin(), samples.end());
+              }
+            }
           }
         },
         [this](const Cue& cue) {

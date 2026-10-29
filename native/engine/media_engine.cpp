@@ -914,8 +914,21 @@ void MediaEngine::play() {
     return;
   }
   bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
-  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::Text && !isTimedStill) return;
+  const bool isTone = activeCue_->kind == CueKind::Tone;
+  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::Text && !isTimedStill && !isTone) return;
   if (state_ == TransportState::Playing) return;
+  if (isTone) {
+    // Its device was held by PAUSE or STOP; the update loop refills it once
+    // the state says Playing. A STOP also darkened the deck, so the card
+    // comes back with the sound. A sting has a length, so its clock picks up
+    // where it paused, as any timed cue's does.
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    playbackStartPosition_ = pausedPosition_;
+    state_ = TransportState::Playing;
+    if (!hasPictureToShow()) rebuildToneFrame(*activeCue_);
+    if (audioStream_ != nullptr) setOutputPaused(false);
+    return;
+  }
   if (activeCue_->kind == CueKind::Video && !decodersRunning_) {
     // Pipes were released by a dark STOP — revive them from the reracked
     // position so PLAY works without a fresh TAKE.
@@ -950,7 +963,10 @@ void MediaEngine::pause() {
   }
   bool isAV = activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio;
   bool isTimedStill = !isAV && duration_ > 0.0;
-  if (!isAV && activeCue_->kind != CueKind::Text && !isTimedStill) return;
+  // A TONE PAUSES TOO. It used to return here, so PAUSE on a line-up tone
+  // said "paused" and the tone went on; its device is the one thing to hold.
+  const bool isTone = activeCue_->kind == CueKind::Tone;
+  if (!isAV && activeCue_->kind != CueKind::Text && !isTimedStill && !isTone) return;
   if (state_ != TransportState::Playing) {
     state_ = TransportState::Paused;
     return;
@@ -958,7 +974,7 @@ void MediaEngine::pause() {
   pausedPosition_ = position();
   currentPosition_ = pausedPosition_;
   state_ = TransportState::Paused;
-  if (audioStream_ != nullptr && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
+  if (audioStream_ != nullptr && (isAV || isTone)) {
     setOutputPaused(true);
   }
 }
@@ -975,7 +991,8 @@ void MediaEngine::toggle() {
     return;
   }
   bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
-  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::Text && !isTimedStill) return;
+  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::Text && !isTimedStill &&
+      activeCue_->kind != CueKind::Tone) return;
   if (state_ == TransportState::Playing) { pause(); } else { play(); }
 }
 
@@ -1064,6 +1081,17 @@ void MediaEngine::stop(bool clearVisual) {
     pausedPosition_ = 0.0;
     currentPosition_ = 0.0;
     applyVisualClear();
+    // A TONE STOPS SOUNDING. Paused alone left its device running, and the
+    // update loop topping it up, so a line-up tone went on through STOP.
+    // The fifth of a second already queued goes too: STOP means now.
+    if (activeCue_->kind == CueKind::Tone) {
+      stingElapsed_ = 0.0;   // reracked: a sting starts again from its strike
+      stingPhase_ = 0.0;
+      if (audioStream_ != nullptr) {
+        setOutputPaused(true);
+        clearAudio();
+      }
+    }
     return;
   }
   if (clearVisual) {

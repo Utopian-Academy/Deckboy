@@ -3326,6 +3326,7 @@
     } else {
       for (auto& rect : scopesPanelRects_) rect = {};
       scopesFreezeBtnRect_ = {};
+      setSoundScopeWanted(false);   // nobody is looking, so the tap stops queueing
     }
 
     // (corner sparkles and idle dots removed from preview area — moved to timeline strip)

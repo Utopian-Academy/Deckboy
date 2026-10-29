@@ -982,9 +982,12 @@
       } else if (activeCue && activeCue->kind == CueKind::Tone) {
         // Topped up every tick rather than rendered in one block, so a level
         // or frequency change is heard immediately instead of after the old
-        // buffer drains.
-        engine->pumpToneAudio(*activeCue);
-        engine->rebuildToneFrame(*activeCue);
+        // buffer drains. Only while it PLAYS: this used to run whatever the
+        // transport said, so STOP and PAUSE left a tone sounding. And the card
+        // only while there is one, as a pattern's: a STOP that darkened the
+        // deck was relit by the next tick.
+        if (engine->state() == TransportState::Playing) engine->pumpToneAudio(*activeCue);
+        if (engine->hasPictureToShow()) engine->rebuildToneFrame(*activeCue);
       }
       syncPipOverlayRuntimesForDeck(deckIndex, now);
       if (engine->reachedEnd()) {
